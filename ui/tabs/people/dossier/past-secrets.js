@@ -4,6 +4,7 @@ import { glyph } from '../../../kit/glyphs.js';
 import { button } from '../../../kit/controls.js';
 import { tieDisc } from './tie-disc.js';
 import { pageSection } from '../../../kit/page.js';
+import { can } from '../../../runtime/can.js';
 
 /** Builds the Ties page: one row per known tie; a tie with a person id opens that dossier through ctx.go. */
 export function tiesPage(d, ctx = {}) {
@@ -25,7 +26,7 @@ export function pastPage(d, ctx = {}) {
       ? h('div', { class: 'tl2' }, past.map(m => h('div', { class: 'e' }, h('span', null, m.date),
         h('span', null, m.text, m.dayRef ? h('button', { type: 'button', class: 'lnk2 day', dataset: { day: m.dayRef }, onClick: () => ctx.go?.('journal', { day: m.dayRef }) }, 'Day ›') : null))))
       : h('p', { class: 'fine' }, 'No memories yet.'),
-    button({ label: '+ Add a memory', className: 'add', onClick: () => ctx.port?.command?.('npc.memory.add', { personId: d.id }) }),
+    can(ctx, 'npc.memory.add') ? button({ label: '+ Add a memory', className: 'add', onClick: () => ctx.port?.command?.('npc.memory.add', { personId: d.id }) }) : null,
   ];
 }
 

@@ -34,6 +34,12 @@ export function getSettings() {
         catch { return false; }
     };
 
+    // One-time switch: an older build saved narrationCapture:false on every read, so a profile with no
+    // marker (or a lower one) is moved to on once; after the marker is written a player's own 'off' stays.
+    if (!(Number(settings.npcStateSettingsVersion) >= DEFAULTS.npcStateSettingsVersion)) {
+        assign('narrationCapture', true);
+        assign('npcStateSettingsVersion', DEFAULTS.npcStateSettingsVersion);
+    }
     for (const [key, value] of Object.entries(DEFAULTS)) {
         if (settings[key] === undefined) assign(key, value);
     }
@@ -68,7 +74,7 @@ export function getSettings() {
     assign('injectDepthTailUpgraded', true);
     assign('layeredSecrets', settings.layeredSecrets !== false);
     assign('fullScanEveryTurn', settings.fullScanEveryTurn === true);
-    assign('narrationCapture', settings.narrationCapture === true);
+    assign('narrationCapture', settings.narrationCapture !== false);
     assign('narrationCaptureCompact', settings.narrationCaptureCompact === true);
     assign('narrationCaptureCatchUp', Number.isFinite(Number(settings.narrationCaptureCatchUp)) ? Math.max(0, Math.min(50, Math.round(Number(settings.narrationCaptureCatchUp)))) : 4);
     assign('narrationCaptureCatchUpPeople', Number.isFinite(Number(settings.narrationCaptureCatchUpPeople)) ? Math.max(1, Math.min(3, Math.round(Number(settings.narrationCaptureCatchUpPeople)))) : 1);

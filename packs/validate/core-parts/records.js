@@ -43,9 +43,3 @@ export function records(list, kind, { add, packId, check, slugField = 'slug', na
     });
     return out;
 }
-
-// Records whose fields another part owns (creatures, quests …): any plain data, kept as is.
-export function openRecord(record) {
-    const { slug: _slug, id: _id, pack: _pack, ...rest } = record;
-    return { ...rest, name: oneLine(record.name, LIMITS.name) };
-}

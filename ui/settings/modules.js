@@ -54,11 +54,15 @@ export function renderStart(state) {
   const { modules, scope, setScope, setPreset, openMods, chat } = state;
   const chatScope = scope === 'chat';
   const preset = modules.preset;
-  const scopeCard = h('div', { class: 'scope' }, h('span', 'Modules and features for'),
-    segmented({ items: [['chat', chat ? `This chat · ${chat}` : 'This chat'], ['newChats', 'New chats']], value: scope, label: 'Modules and features for', className: 'sseg2', onChange: setScope }),
-    h('small', chatScope
-      ? 'Only this chat changes. New chats start from the New chats set; a branched chat keeps its parent’s set.'
-      : 'The starting set for every new chat; existing chats keep their own (an existing chat with no set of its own keeps today’s switches).'));
+  // No New chats set is stored yet (per-chat sets are not built): the switches are one set for every chat, so the scope switch is not drawn.
+  const perChat = Object.keys(modules.newChats ?? {}).length > 0;
+  const scopeCard = !perChat
+    ? h('div', { class: 'scope' }, h('small', 'These switches apply to every chat.'))
+    : h('div', { class: 'scope' }, h('span', 'Modules and features for'),
+      segmented({ items: [['chat', chat ? `This chat · ${chat}` : 'This chat'], ['newChats', 'New chats']], value: scope, label: 'Modules and features for', className: 'sseg2', onChange: setScope }),
+      h('small', chatScope
+        ? 'Only this chat changes. New chats start from the New chats set; a branched chat keeps its parent’s set.'
+        : 'The starting set for every new chat; existing chats keep their own (an existing chat with no set of its own keeps today’s switches).'));
   const presets = h('div', { class: 'presets' }, modules.presets.map(p => h('button', { type: 'button', class: 'pre', dataset: { pre: p.id }, 'aria-pressed': String(preset === p.id), onClick: () => setPreset(p.id) },
     h('b', p.name), h('small', p.desc), h('em', `≈ ${p.tokens.toLocaleString('en-US')} tokens of rules each reply`))));
   return [

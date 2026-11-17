@@ -49,4 +49,12 @@ describe('selectCard', () => {
     assert.equal(selectCard(answers, { rpg: true }).you.levelText, 'Lv 3');
     assert.equal(selectCard({ 'party.pc': { id: 'a1' } }, { rpg: true }).you.levelText, null);
   });
+
+  it('takes class, bars, exp and soak from the lead\'s rpg.sheet row when party.pc has none', () => {
+    const row = { id: 'a1', level: 7, className: 'Guild F', bars: [{ kind: 'hp', value: 5, max: 9 }], xpPct: 40, soakPct: 13 };
+    const card = selectCard({ 'party.actors': [{ id: 'a1', name: 'Astra', pc: true }], 'party.pc': { id: 'a1' }, 'rpg.sheet': [row] }, { rpg: true });
+    assert.deepEqual([card.you.levelText, card.you.className, card.bars, card.exp, card.chips.soakPct], ['Lv 7', 'Guild F', row.bars, { value: 40, max: 100 }, 13]);
+    const bare = selectCard({ 'party.actors': [{ id: 'a1', name: 'Astra', pc: true }], 'party.pc': { id: 'a1' } }, { rpg: true });
+    assert.deepEqual([bare.you.className, bare.bars, bare.exp, bare.chips.soakPct], [null, null, null, null]);
+  });
 });

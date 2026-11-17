@@ -11,7 +11,7 @@ import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { LEAN_RPG_FEATURE } from '../../../modules/rpg/names.js';
 import { createLeanRpgPart } from '../../../modules/rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { checkerLoaded } from '../../../packs/installed.js';
 import { createLazyRpgPart, createRpgLoader, holdsRpg, rpgLib, setRpgLib } from '../../../modules/rpg/rpg-lazy.js';
 
@@ -37,8 +37,8 @@ function closure(entry) {
     walk(resolve(ROOT, entry));
     return [...seen].map(file => relative(ROOT, file));
 }
-// The RPG's code proper: everything of modules/rpg/ but the small helpers every block uses (names, blocks, formula, read, soul, tail, cue, foes, levels, roster, noroll: the no-rolls record, a small command with no state).
-const SHARED = new Set(['names', 'blocks', 'formula', 'read', 'soul', 'tail', 'cue', 'foes', 'levels', 'roster', 'noroll',
+// The RPG's code proper: everything of modules/rpg/ but the small helpers every block uses (names, blocks, formula, read, soul, tail, cue, foes, levels, roster).
+const SHARED = new Set(['names', 'blocks', 'formula', 'read', 'soul', 'tail', 'cue', 'foes', 'levels', 'roster',
     // (the fight kind's plain members and the fight cue, small and engine-free: the core's lazy stand-in and the prompt build read them at page start)
     'board/kind-static', 'board/fight-start']);
 // A facade's parts (`blocks.js` → `blocks-parts/*.js`) count as the facade's own file.
@@ -59,7 +59,8 @@ test('the page start (index.js static imports) reaches none of the RPG\'s code, 
     // (122700: the layout move wrote the import specifiers of these files with other lengths, +64 bytes; no file was added.)
     // (122900: the fight kind's one more internal write, rpg.board.award, is named in names.js / board-steps.js / kind-static.js, +110 bytes: a name, no engine file.)
     // (123200: Combat Rules v1 is the only rules, so the stat lists are four names in names-parts/stats.js (WIS for LUK, the earlier seven, either), +270 bytes: names, no engine file.)
-    assert.ok(bytes(lean) < 123200, `the shared helpers stay small (${bytes(lean)} bytes)`);
+    // (110400, 17 Nov 2026: Combat Rules v1 is the only rules, so the earlier reader, the earlier templates and the no-rolls record left the page start: 110,308 bytes in 76 files, 12,769 fewer than before; 123200 above is the cap they came down from.)
+    assert.ok(bytes(lean) < 110400, `the shared helpers stay small (${bytes(lean)} bytes)`);
     // …and what a dynamic import brings in is the whole RPG (the part and its pieces), so the split is real.
     const whole = closure(RPG + 'index.js').filter(file => file.startsWith(RPG));
     assert.ok(bytes(whole) > 4 * bytes(lean), 'the part is most of the RPG\'s code');
@@ -104,14 +105,13 @@ test('a stored pack: the checker is awaited before the chat is read, so the pack
 
 // ---- the loader --------------------------------------------------------------------------------------------------------------------------
 
-test('holdsRpg: stored rolls, fight XP, practice, a joined companion, a held plan or a start note; nothing else', () => {
+test('holdsRpg: stored rolls, fight XP, practice, a joined companion or a start note; nothing else', () => {
     const record = (receipts = [], spans = []) => ({ extra: { storySuite: { receipts, spans } } });
     assert.equal(holdsRpg([]), false);
     assert.equal(holdsRpg([record([{ type: 'inventory.add' }], [{ guard: { predicate: { kind: 'loot.take' } } }])]), false);
-    for (const type of ['rpg.resolve', 'rpg.fight', 'rpg.practice', 'dm.join', 'capture.party']) assert.equal(holdsRpg([record([{ type }])]), true, type);
-    assert.equal(holdsRpg([record([], [{ guard: { predicate: { kind: 'rpg.resolve' } } }])]), true, 'a guarded span');
-    assert.equal(holdsRpg([{ swipe_info: [{ extra: { storySuite: { receipts: [{ type: 'rpg.resolve' }] } } }] }]), true, 'another swipe\'s record');
-    assert.equal(holdsRpg([], { rpgPlan: { key: '1' } }), true);
+    for (const type of ['rpg.dice', 'rpg.fight', 'rpg.practice', 'dm.join', 'capture.party']) assert.equal(holdsRpg([record([{ type }])]), true, type);
+    assert.equal(holdsRpg([record([], [{ guard: { predicate: { kind: 'rpg.fight' } } }])]), true, 'a guarded span');
+    assert.equal(holdsRpg([{ swipe_info: [{ extra: { storySuite: { receipts: [{ type: 'rpg.fight' }] } } }] }]), true, 'another swipe\'s record');
     assert.equal(holdsRpg([], { storySuite: { rpgStart: { hidden: true } } }), true);
     assert.equal(holdsRpg(null, null), false);
     assert.equal(holdsRpg([null, 5, { extra: 3 }], 7), false, 'junk holds nothing');
@@ -180,14 +180,14 @@ test('before the library is there the stand-in does nothing, and a roll asked of
     assert.equal(lazy.queries['rpg.rolls']({}, {}, {}), null);
     assert.equal(lazy.guard({}, {}).ok, false);
     let said = '';
-    assert.equal(lazy.commands['rpg.resolve']({ fail: (code, text) => { said = `${code}: ${text}`; return null; } }, {}), null);
+    assert.equal(lazy.commands['rpg.fight']({ fail: (code, text) => { said = `${code}: ${text}`; return null; } }, {}), null);
     assert.match(said, /^FAILED: The RPG is still loading/);
 });
 
 // ---- through the real host ---------------------------------------------------------------------------------------------------------------
 
 async function make(host, who, soul = 1) {
-    const defs = Object.fromEntries(STANDARD_TEMPLATES.filter(entry => ['character', 'skills'].includes(entry.definition.role)).map(entry => [entry.definition.role, structuredClone(entry.definition)]));
+    const defs = Object.fromEntries(CHOOSER_TEMPLATES.filter(entry => ['character', 'skills'].includes(entry.definition.role)).map(entry => [entry.definition.role, structuredClone(entry.definition)]));
     defs.character.slug = who.toLowerCase(); defs.character.name = who; defs.character.state.who.default = who; (defs.character.state.level ?? defs.character.state.soul).default = soul;
     defs.skills.slug = `${who.toLowerCase()}-skills`; defs.skills.name = `${who}'s skills`; defs.skills.state.who.default = who;
     for (const definition of [defs.character, defs.skills]) assert.equal((await host.sdk.command('dm.define', { definition })).ok, true);

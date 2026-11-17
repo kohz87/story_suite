@@ -15,6 +15,19 @@ const BLANK_PROFILE = {
   looks: null, personality: null, speech: null, background: null, habits: [],
 };
 
+// The join card the engine gives a person who may join (rpg.partyAdd): the same title, row and buttons as the card under a `+ party` line.
+const joinCard = name => {
+  const payload = { name, soul: 1, best: '' };
+  return {
+    title: `${name} joins the party`, rows: [{ text: 'Level 5' }],
+    actions: [
+      { id: 'add', label: 'Add to party', primary: true, command: 'dm.join', payload },
+      { id: 'edit', label: 'Edit first', open: 'story-block/new-character', payload },
+      { id: 'no', label: 'No', command: 'rpg.joinNo', payload: { name } },
+    ],
+  };
+};
+
 function base(id, extra) {
   const p = PEOPLE.cast.find(c => c.personId === id);
   const here = p.at === 'here';
@@ -27,6 +40,7 @@ function base(id, extra) {
     genderUnknown: false,
     following: p.followed,
     inParty: p.inParty,
+    partyAdd: p.inParty ? null : joinCard(p.name),
     meters: { ...p.meters },
     stage: null,
     changes: [],
@@ -110,6 +124,7 @@ const rika = base('rika', {
 });
 
 const marro = base('marro', {
+  partyAdd: null,
   idLine: 'Human · male · 61',
   life: 'deceased',
   mood: null,
@@ -123,6 +138,7 @@ const marro = base('marro', {
 });
 
 const dren = base('dren', {
+  partyAdd: null,
   idLine: 'Human · gender not stated',
   life: 'presumed',
   genderUnknown: true,

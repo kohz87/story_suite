@@ -1,6 +1,9 @@
 // Builds the Quests (Tasks when RPG is off), Leads and Closed cards with focus star and Edit button on each quest.
 import { h } from '../../kit/dom.js';
 
+import { can } from '../../runtime/can.js';
+
+const QUEST_EDITS = ['quest.edit', 'quest.giveup', 'quest.delete'];
 const OUTCOME = { done: 'done', failed: 'failed', gaveup: 'given up', declined: 'declined', lapsed: 'lapsed' };
 
 function send(ctx, type, payload) {
@@ -33,7 +36,7 @@ function questCard(q, state, ctx, rpg) {
     h(
       'div',
       { class: 'qh' },
-      h('button', {
+      !can(ctx, 'quest.focus') ? null : h('button', {
         type: 'button', class: ['fstar', focus ? 'on' : null], 'aria-pressed': String(focus),
         'aria-label': `${focus ? 'In focus' : 'Put in focus'}: ${q.title}`,
         title: focus ? 'In focus: shown first here and on Now' : 'Put in focus',
@@ -41,7 +44,7 @@ function questCard(q, state, ctx, rpg) {
       }, focus ? '◆' : '◇'),
       h('b', null, q.title),
       h('span', { class: ['qst', late ? 'failed' : null] }, late ? 'overdue' : 'under way'),
-      h('button', { type: 'button', class: 'qedit', 'aria-label': `Edit ${q.title}`, onClick: () => ctx?.editQuest?.(q) }, 'Edit'),
+      !QUEST_EDITS.some(type => can(ctx, type)) ? null : h('button', { type: 'button', class: 'qedit', 'aria-label': `Edit ${q.title}`, onClick: () => ctx?.editQuest?.(q) }, 'Edit'),
     ),
     q.summary ? h('p', null, q.summary) : null,
     q.step ? h('div', { class: 'step' }, h('span', { class: 'si2' }, q.stepIndex + 1), h('span', null, q.step)) : null,

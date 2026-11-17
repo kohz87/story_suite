@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../testkit/index.js';
 import { validatePack } from '../../packs/validate.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
 import { pack } from '../packs/helpers/fixtures.js';
 
 export const available = await hostAvailable();

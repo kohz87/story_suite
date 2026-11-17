@@ -14,6 +14,7 @@ import { createRegistry } from '../registry.js';
 import { MAX_CHANGE_LINES, announceModules, createEvents, createSdk, createSettings, runQuery } from '../sdk.js';
 import { HOST_SETTINGS_DEFAULTS } from '../sdk/constants.js';
 import { loadSettings } from '../settings/load.js';
+import { createCardNotes } from '../settings/card-notes.js';
 import { displayLines } from '../../ui/legacy/extras.js';
 import { DEFAULT_HIDDEN } from '../../ui/legacy/view/screens.js';
 import { SCENE_SCREEN_ID } from '../../ui/legacy/screens/scene.js';
@@ -125,7 +126,7 @@ export function createRuntime({
             interaction: kindId => registry.interaction(kindId),
             flagOn: name => flagOn(() => ctx.extensionSettings, name),
             timeline: () => timeline,
-            dataModules: { state: () => store.head(), lifecycle: id => registry.lifecycle(id), restore: () => registry.restore(), boardOn: () => registry.featureOn(CORE_FEATURE.leanRpg) && registry.featureOn(CORE_FEATURE.fightBoard), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } } },
+            dataModules: { state: () => store.head(), lifecycle: id => registry.lifecycle(id), restore: () => registry.restore(), boardOn: () => registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } } },
             // The RPG's hooks read the chat and its metadata; no model is asked for rolls.
             leanRpg: { callModel: (prompt, options = {}) => assistCall(prompt, options), chat: () => ctx.chat, metadata: () => { try { return (live() ?? ctx)?.chatMetadata ?? null; } catch { return ctx?.chatMetadata ?? null; } }, onPlanning: working => events?.emit('head', { index: store.headIndex(), reason: working ? 'fight-start' : 'fight-start-done' }) },
             packs: packPart,
@@ -314,6 +315,7 @@ export function createRuntime({
     };
     const setGuardRefresh = fn => { guardRefresh = typeof fn === 'function' ? fn : null; };
     /** `writes`: the reader's own stores for the Story Suite view (the public sdk reads settings and has no setter). */
-    const writes = Object.freeze({ settings: Object.freeze({ set: (id, key, value) => settings.set(id, key, value) }), features: Object.freeze({ set: (id, on) => features.set(id, on) }) });
+    const notes = createCardNotes({ root: () => ctx.extensionSettings, save: () => ctx.saveSettingsDebounced?.() });
+    const writes = Object.freeze({ settings: Object.freeze({ set: (id, key, value) => settings.set(id, key, value), keep: notes.keep, kept: notes.kept }), features: Object.freeze({ set: (id, on) => features.set(id, on) }) });
     return { writes, registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, bindPanels: made.bindPanels, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
 }

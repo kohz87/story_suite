@@ -20,7 +20,7 @@ export function dossierMap(read) {
     const dossier = read('people.dossier', { id: row.id });
     const vm = selectDossier({
       dossier, meters: read('npc.meters', { name: row.name }), next: read('npc.next', { name: row.name }), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
-      portrait: dossier?.portrait, keyPeople: parts.keyPeople, party: parts.party, people: parts.list, place: parts.place,
+      portrait: dossier?.portrait, keyPeople: parts.keyPeople, party: parts.party, join: read('rpg.partyAdd', { name: row.name }), people: parts.list, place: parts.place,
     });
     if (!vm) continue;
     out[row.id] = vm;

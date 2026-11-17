@@ -4,14 +4,16 @@
 // neighbour that must still be accepted.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack, unsafeCss } from '../../packs/validate.js';
-import { unsafeText } from '../../packs/safety.js';
+import { validatePack, unsafeCss, checkScreens } from '../../packs/validate.js';
+import { unsafeText, checkPlain } from '../../packs/safety.js';
 
 const base = (extra = {}) => ({ id: 'harden', version: '1.0.0', requires: { storyBlock: '^2' }, content: {}, ...extra });
 const withNote = note => base({ content: { items: [{ name: 'Lure', note }] } });
-const withScreen = screen => base({ screens: [{ id: 'harden-board', mounts: ['tab'], template: '<div>ok</div>', ...screen }] });
+// A pack's own top-level `screens` are no longer read (pack format 3), so a screen is checked by the part that still takes them (a data module's screens).
+const withScreen = screen => ({ screens: [{ id: 'harden-board', mounts: ['tab'], template: '<div>ok</div>', ...screen }] });
+const screensOk = screens => { let bad = checkPlain(screens).length > 0; checkScreens(screens, 'harden', () => { bad = true; }); return !bad; };
 const withEvent = (then, when = 'true') => base({ content: { events: [{ id: 'boom', when, cue: 'Boom.', then }] } });
-const ok = input => validatePack(input).ok === true;
+const ok = input => (input.screens && !input.id ? screensOk(input.screens) : validatePack(input).ok === true);
 
 test('finding 8: an event attribute after a quoted value holding ">" is refused, in every quoting', () => {
     for (const html of [

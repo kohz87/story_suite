@@ -88,8 +88,6 @@ core/turn/prompt-build.js :: s.abortBoard = abort;
 core/turn/session.js :: if (planned?.ok === false && planned.code === 'NO_LONGER_DONE' && receipt.replan?.payload?.board) {
 core/turn/session.js :: problem({ code: 'FIGHT_TAKEN_BACK', message: `A fight on the board was taken back because the story before it changed: ${planned.message ?? 'the sheet or gear is not what it was.'}` });
 ui/legacy/ui-host.js :: import { createLeanRpgSync } from './ui-host/lean-rpg-sync.js';
-ui/legacy/ui-host/lean-rpg-sync.js :: boardFeature: { on: () => registry.featureOn?.(CORE_FEATURE.fightBoard) === true, set: value => runtime.features?.set?.(CORE_FEATURE.fightBoard, Boolean(value)) },
-ui/legacy/ui-host/lean-rpg-sync.js :: rpg = view.mountLeanRpg({ doc, ctx, store, events, screens, widgets: hostWidgets, headState: getHeadState(), featureOn: rpgOn, boardOn: () => registry.featureOn?.(CORE_FEATURE.fightBoard) === true,
 ui/legacy/ui-host/send-note.js :: interactionHeld: 'Your fight hasn\'t been sent yet',
 ui/legacy/ui-host/send-note.js :: openHeld: 'Open fight board',
 ui/legacy/ui-host/setup.js :: [RPG_START_WIDGET]: Object.freeze({

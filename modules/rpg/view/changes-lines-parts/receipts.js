@@ -1,6 +1,7 @@
 // The lines for a reply's receipts: companions who joined or left, the XP a won fight gave, and the practice the rolls earned.
 
-import { CHECK_STEP, FIGHT, PRACTICE_STEP, RANK_NAMES, STATS_ANY as STATS, USES } from '../../index.js';
+import { CHECK_STEP, FIGHT, PRACTICE_STEP, STATS_ANY as STATS, USES } from '../../index.js';
+import { RANKS } from '../../combat/numbers.js';
 import { RPG_STRINGS, fill } from '../../strings.js';
 import { isRecord, list, words, line } from './shared-line.js';
 
@@ -21,7 +22,7 @@ export function partyLines(record, problems = []) {
         // (the signature skills the join seeded, as its receipt recorded them: one tile each, shown from the receipt and never worked out from the pack)
         const seeded = list(receipt.data?.sigSkills).filter(skill => isRecord(skill) && words(skill.name));
         const skillTiles = () => seeded.map(skill => line({ icon: 'fa-book-open', tone: 'good', text: words(skill.name),
-            flag: fill(C.skillSignature, { rank: RANK_NAMES[skill.rank] ?? RANK_NAMES[0] }),
+            flag: fill(C.skillSignature, { rank: (RANKS[skill.rank] ?? RANKS[0]).name }),
             note: fill(C.skillStatUses, { stat: STATS.includes(skill.stat) ? skill.stat.toUpperCase() : '', uses: USES.includes(skill.uses) ? skill.uses.charAt(0).toUpperCase() + skill.uses.slice(1) : '' }) }));
         const summary = (plain, many) => (seeded.length ? fill(seeded.length === 1 ? C.joinedSkillOne : many, { who, n: seeded.length }) : plain);
         if (join.op === 'added') out.push(line({ icon: 'fa-user-plus', tone: 'good', text: fill(C.joined, { who }), summary: summary(fill(C.joinedSummary, { who }), C.joinedSkillsSummary), note: C.joinedNote }), ...skillTiles());

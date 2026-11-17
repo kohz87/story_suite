@@ -35,12 +35,12 @@ test('Test makes one tiny call on the role and answers with the seconds, or the 
 });
 
 test('other commands are not the Models page\'s: null, and the port hands them to the sdk', async () => {
-  assert.equal(await modelsCommand(sdk(), 'settings.set', { key: 'host.tailBudget', value: 1 }), null);
+  assert.equal(await modelsCommand(sdk(), 'settings.set', { key: 'look.nothing', value: 1 }), null);
   assert.equal(await modelsCommand(sdk(), 'suite.go', {}), null);
   const calls = [];
   const port = createSbPort({ sdk: { ...sdk(), command: async (type, payload) => { calls.push([type, payload]); return { ok: true }; } } });
-  await port.command('settings.set', { key: 'host.tailBudget', value: 2 });
-  assert.deepEqual(calls, [['settings.set', { key: 'host.tailBudget', value: 2 }]]);
+  await port.command('settings.set', { key: 'look.nothing', value: 2 });
+  assert.deepEqual(calls, [['settings.set', { key: 'look.nothing', value: 2 }]]);
   const own = sdk();
   await createSbPort({ sdk: own, writes: own.writes }).command('settings.set', { key: 'models.quick', value: 'Cheap' });
   assert.equal(own.stored.quickConnection, 'Cheap');

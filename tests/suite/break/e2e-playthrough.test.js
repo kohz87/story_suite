@@ -66,27 +66,29 @@ const STEPS = [
 ];
 
 async function playFight(host, hero) {
-    const { STANDARD_TEMPLATES } = await loaded.at('modules/rpg/templates.js');
+    const { CHOOSER_TEMPLATES: STANDARD_TEMPLATES } = await loaded.at('modules/rpg/templates.js');
     const defs = structuredClone(STANDARD_TEMPLATES.filter(entry => ['character', 'foes'].includes(entry.definition.role)).map(entry => entry.definition));
     const [pc, foes] = [defs.find(d => d.role === 'character'), defs.find(d => d.role === 'foes')];
     pc.slug = 'e2e-hero'; pc.name = 'E2E Hero';
     Object.assign(pc.state.who, { default: hero });
-    for (const [key, value] of Object.entries({ str: 14, vit: 20, agi: 20, health: 8, level: 3 })) Object.assign(pc.state[key], { default: value });
+    for (const [key, value] of Object.entries({ str: 14, vit: 20, agi: 20, level: 3 })) Object.assign(pc.state[key], { default: value });
     foes.slug = 'e2e-foes'; foes.name = 'E2E Foes';
-    [['Cellar Rats', 12, 1], ['Bristle Boars', 3, 1], ['Tunnel Wolves', 2, 2], ['Ledger Crows', 1, 1], ['Hired Knife', 1, 3], ['Gate Goblins', 4, 1]].forEach(([name, count, level], i) => {
+    [['Cellar Rats', 6, 1], ['Bristle Boars', 3, 1], ['Tunnel Wolves', 2, 2], ['Ledger Crows', 1, 1], ['Hired Knife', 1, 3], ['Gate Goblins', 4, 1]].forEach(([name, count, level], i) => {
         Object.assign(foes.state[`foe${i + 1}`], { default: name }); Object.assign(foes.state[`count${i + 1}`], { default: count });
-        Object.assign(foes.state[`level${i + 1}`], { default: level }); Object.assign(foes.state[`hurt${i + 1}`], { default: 4 });
+        Object.assign(foes.state[`level${i + 1}`], { default: level });
     });
     for (const definition of defs) assert.equal((await host.sdk.command('dm.define', { definition })).ok, true, 'a board sheet is made');
     await stageBoard(host, hero);
 }
-// Open a board segment on the current head and stage the hero's attack (as the fuzz does before each send of a fight).
+// Open a board segment (Combat Rules v1) on the current head and stage the hero's attack (the reader's choice before the send of a fight).
 async function stageBoard(host, hero) {
-    const { STANDARD_FORMULA } = await loaded.at('modules/rpg/rules.js');
-    const { openBoard, stageExchange } = await import('../../core/helpers/board-port.js');
-    const opened = openBoard(host.ctx.chatMetadata, host.store.head(), { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
-    assert.equal(opened.error, undefined, `the board opens: ${opened.error}`);
-    assert.equal(stageExchange(host.ctx.chatMetadata, host.store.head(), [{ who: hero, kind: 'attack', target: 21 }]).error, undefined, 'the exchange stages');
+    const { boardApi } = await import('../../core/helpers/board-port.js');
+    const { actorIdOf } = await loaded.at('modules/rpg/roster.js');
+    const api = boardApi(host.ctx.chatMetadata, () => host.store.head(), host.store.carrierSid(host.store.headIndex()));
+    const opened = api.open('story-block/fight', { rules: {} });
+    assert.equal(opened.ok, true, `the board opens: ${opened.message}`);
+    const staged = api.stage(host.ctx.chatMetadata.storySuiteInteraction.open.id, { inputs: [{ actor: actorIdOf('pack.chat/e2e-hero'), choice: 'normal', args: { target: '1.1' } }] });
+    assert.equal(staged.ok, true, `the exchange stages: ${staged.message}`);
 }
 
 const COUNTS = { reads: 0, problems: [] };

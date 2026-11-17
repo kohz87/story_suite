@@ -236,7 +236,7 @@ export function createInteractionApi({
         }
     }
 
-    function auto(id, n = 1) {
+    function auto(id, n = 1, held = null) {
         if (!Number.isSafeInteger(n) || n < 1) return interactionError('INVALID', 'interaction', 'Choose how many steps Auto plays.');
         const meta = metaOf(readMeta);
         const box = boxOf(meta);
@@ -265,7 +265,7 @@ export function createInteractionApi({
                 for (const actor of choosers) {
                     let input;
                     try {
-                        input = kind.auto(stateFor(session), session.setup, session.steps, actor.id, source);
+                        input = kind.auto(stateFor(session), session.setup, session.steps, actor.id, source, done === 0 && plain(held) ? clone(held) : null);
                     } catch (error) {
                         return interactionError('INVALID', title, `${title} could not choose for ${String(actor.name ?? actor.id)}: ${error?.message ?? error}`);
                     }

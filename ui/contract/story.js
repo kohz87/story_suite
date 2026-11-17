@@ -74,9 +74,17 @@ export const STORY_SHAPE = {
       id: T.STRING,
       name: T.STRING,
       showOnNow: T.BOOLEAN,
+      removable: { $optional: T.BOOLEAN },
       fields: [
         {
           label: T.STRING,
+          // For Edit: the block's field name, the stored value, how it is edited and its limits (absent = not editable by hand).
+          key: { $optional: T.STRING },
+          raw: { $optional: T.STRING },
+          edit: { $optional: { $enum: ['number', 'text', 'choice'] } },
+          min: { $optional: { $nullable: T.NUMBER } },
+          max: { $optional: { $nullable: T.NUMBER } },
+          options: { $optional: [T.STRING] },
           value: T.STRING,
           kind: { $enum: ['bar', 'number', 'text'] },
           pct: { $optional: { $nullable: T.NUMBER } },
@@ -86,4 +94,6 @@ export const STORY_SHAPE = {
     },
   ],
   trackersHidden: T.NUMBER,
+  // The templates "Add from a template" lists; absent = no button.
+  trackerTemplates: { $optional: [{ id: T.STRING, name: T.STRING, about: T.STRING }] },
 };

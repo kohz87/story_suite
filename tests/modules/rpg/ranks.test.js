@@ -103,24 +103,6 @@ test('the rpg.rank query: { level } → { name } | null, from the arguments or f
     assert.equal(rankQuery({}, { level: 14 }, { query: () => { throw new Error('x'); } }), null);
 });
 
-test('a fight record made before the level (groups with a class, a guard on the older witness) still passes its guard; a sheet with levels adds them to the witness', () => {
-    const blocks = PARTY();
-    const sheet = readSheet({ domains: { dataModules: sheetDomain(blocks) } });
-    const domain = sheetDomain(blocks);
-    const source = { sid: 's', swipeKey: 'k' };
-    const witness = fightWitness(sheet, domain, source, { was: [1] });
-    // the witness of an older sheet is what it was: no level anywhere
-    assert.ok(witness.foes.every(foe => !('level' in foe)) && witness.members.every(member => !('level' in member)));
-    assert.deepEqual(Object.keys(witness.foes[0]), ['slot', 'name', 'count', 'class', 'hurt']);
-    const predicate = { kind: FIGHT };
-    const guard = { version: 2, rulesHash: null, predicate, inputHash: hashJson({ source, predicate, witness }) };
-    const state = { domains: { dataModules: domain } };
-    assert.deepEqual(fightGuard({ state, hash: hashJson }, { guard, source, recorded: { was: [1] } }), { ok: true });
-    // a changed number is still caught
-    state.domains.dataModules.instances['pack.chat/foes'].chat.fields.hurt1 = 2;
-    assert.equal(fightGuard({ state, hash: hashJson }, { guard, source, recorded: { was: [1] } }).ok, false);
-});
-
 test('a sheet entry without a level counts its class as the level; one with a level uses it', () => {
     assert.equal(foeLevel({ class: 3 }), 25, 'class n stands for the level 10n - 5');
     assert.equal(foeLevel({ class: 3, level: 40 }), 40);

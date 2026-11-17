@@ -21,7 +21,7 @@ test('the mounted host retains its interface order and frozen controls', t => {
     assert.deepEqual(Object.keys(ui), [
         'refresh', 'blocked', 'clearBlocked', 'openPanel', 'closePanel', 'openSettings', 'toggleGameView', 'setHud',
         'hudOn', 'syncScreens', 'screens', 'tabs', 'mounts', 'renderer', 'notes', 'extras', 'savePoints', 'inspector',
-        'theme', 'cardOffer', 'destroy',
+        'diagnostics', 'theme', 'cardOffer', 'destroy',
     ]);
     assert.equal(Object.isFrozen(ui.screens), true);
     assert.equal(Object.isFrozen(ui.tabs), true);

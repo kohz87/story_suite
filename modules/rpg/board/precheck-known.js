@@ -7,4 +7,5 @@
 
 export { KNOWN_LIMITS, occurs, knownLines } from './precheck-known-parts/known-lines.js';
 export { wordsOf } from './precheck-known-parts/shared-text.js';
+export { bestiaryOf } from './precheck-known-parts/bestiary.js';
 export { rankScale } from './precheck-known-parts/rank-scale.js';

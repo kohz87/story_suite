@@ -12,9 +12,9 @@ import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
 import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
-import { DEVELOPER_KEY } from './settings/developer.js';
+import { DEVELOPER_KEY, OLD_VIEW_KEY } from './settings/developer.js';
 
-const PORT_EVENTS = ['head', 'committed', 'turn', 'feature'];
+const PORT_EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 
 function resolveTheme(theme, doc) {
   if (theme === 'light') return { tokens: GLASS_LIGHT, scheme: 'light' };
@@ -27,10 +27,9 @@ function resolveTheme(theme, doc) {
 
 function readFlags(port, override) {
   const card = port.view('card');
-  const chat = port.view('chat');
   return {
     rpg: override?.rpg ?? card?.rpg !== false,
-    fightOpen: override?.fightOpen ?? Boolean(chat?.inlineRow?.fightOpen),
+    fightOpen: override?.fightOpen ?? Boolean(port.view('fight')),
     sceneOpen: override?.sceneOpen ?? Boolean(port.view('scene')),
     sceneTitle: override?.sceneTitle ?? port.view('scene')?.title ?? '',
   };
@@ -39,7 +38,7 @@ function readFlags(port, override) {
 /**
  * Mounts the suite. Options: `port` (required), `doc`, `host`, `flags` ({ rpg, fightOpen } overrides),
  * `theme` ('dark' | 'light' | 'follow'), `tabs` (id → (view, ctx) => node), `card` ((view, ctx) => node),
- * `schedule` (frame scheduler for tests), `initial` (first tab). Returns `{ open(tab), close(), destroy(), ... }`.
+ * `schedule` (frame scheduler for tests), `initial` (first tab), `onOldView(on)` (Settings › Tools › Developer tools › Use the old view). Returns `{ open(tab), close(), settings(), destroy(), ... }`.
  */
 export function mountSuite(options = {}) {
   const { port, doc = globalThis.document, host = doc?.body, flags: override = null, theme = 'dark' } = options;
@@ -63,12 +62,14 @@ export function mountSuite(options = {}) {
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
-      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : port.command('settings.set', { key, value })),
-      onAction: (key, value) => port.command('settings.action', { key, value }),
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === OLD_VIEW_KEY ? options.onOldView?.(Boolean(value)) : port.command('settings.set', { key, value })),
+      onAction: (key, value) => (key === 'trackers.open' ? openTrackers() : port.command('settings.action', { key, value })), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
     return port.command('suite.settings', {});
   };
+  // Settings › Packs and trackers: a tracker is made and edited on Story › Trackers, so the buttons there close Settings and go to it.
+  const openTrackers = () => { settingsOverlay?.close(); prefs.setFold('story.trackers', true); showTab('story'); return { ok: true }; };
   const views = defaultViews({
     port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
     onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,
@@ -143,8 +144,11 @@ export function mountSuite(options = {}) {
     tabHost,
     backStack,
     redraw,
+    // Opening on a tab the strip does not list reads the flags first (a fight that just began has its tab); opening on a tab closes a person's page left open over the tabs.
     open(tab) {
       if (destroyed) return false;
+      if (tab && !tabHost.tabs().includes(tab)) refreshFlags();
+      if (tab) views.closePage?.();
       if (tab && tab !== tabHost.current()) tabHost.select(tab);
       const opened = view.open();
       redraw.setVisibleTab(tabHost.current());
@@ -152,6 +156,7 @@ export function mountSuite(options = {}) {
       return opened;
     },
     close: () => view.close(),
+    settings: () => (destroyed ? null : openSettings()),
     destroy() {
       if (destroyed) return;
       destroyed = true;

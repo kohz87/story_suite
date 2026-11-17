@@ -1,6 +1,6 @@
-// Starts the new view's switch: draws "new view (preview)" in the extensions settings and mounts the suite on the Story Block port when ui.next is on.
+// Starts the view: mounts the new view on the Story Block port, unless this device chose the old view (then only the way back is drawn).
 
-import { readFlag, writeFlag } from './flag.js';
+import { readOldView, writeOldView, NEW_VIEW_CLASS } from './flag.js';
 import { drawSwitch } from './switch.js';
 import { turnOn } from './turn-on.js';
 
@@ -19,22 +19,43 @@ async function waitUntil(check, timeoutMs = WAIT_MS, everyMs = POLL_MS) {
   }
 }
 
+/** Before boot: hides the old view's chat furniture from the first paint unless this device chose the old view. Returns true when the new view will show. */
+export function firstPaint(doc = globalThis.document, storage) {
+  const next = !readOldView(storage);
+  if (next) doc?.body?.classList.add(NEW_VIEW_CLASS);
+  return next;
+}
+
 /**
- * Waits for the settings host, draws the switch, and mounts or removes the new view as ui.next changes.
- * Options: `StoryBlock` (the global), `doc`, `getContext` (SillyTavern's), `base` (the ui folder's URL). Resolves `{ isOn(), set(on), off() }`, or null without a context.
+ * Mounts the new view once Story Block is ready, or, when this device chose the old view, leaves the old view showing and draws
+ * the way back in the extension settings. Options: `StoryBlock` (the global), `doc`, `getContext` (SillyTavern's), `base` (the ui
+ * folder's URL), `storage` (this device's, for the choice). Resolves `{ isOn(), useOldView(on) }`, or null without a context.
  */
-export async function startPreview({ StoryBlock = globalThis.StoryBlock, doc = globalThis.document, getContext = () => globalThis.SillyTavern?.getContext?.(), base = new URL('../', import.meta.url).href } = {}) {
-  if (!StoryBlock?.ready || !getContext()) return null;
+export async function startView({ StoryBlock = globalThis.StoryBlock, doc = globalThis.document, getContext = () => globalThis.SillyTavern?.getContext?.(), base = new URL('../', import.meta.url).href, storage } = {}) {
+  if (!StoryBlock?.ready || !getContext()) { doc?.body?.classList.remove(NEW_VIEW_CLASS); return null; }
   await StoryBlock.ready;
-  const host = await waitUntil(() => doc.querySelector('#extensions_settings2') ?? doc.querySelector('#extensions_settings'));
-  if (!host) return null;
   let undo = null;
-  const set = on => {
-    writeFlag(getContext(), on);
-    if (on && !undo) undo = turnOn({ doc, base, ctx: getContext, StoryBlock });
-    if (!on && undo) { undo(); undo = null; }
+  let row = null;
+  let chosen = readOldView(storage);   // kept here too, so a device with no storage still gets its way back
+  const mount = () => {
+    try { undo = turnOn({ doc, base, ctx: getContext, StoryBlock, onOldView: on => useOldView(on) }); } catch (error) {
+      undo = null;
+      doc.body.classList.remove(NEW_VIEW_CLASS);
+      console.error('[Story Suite] the view could not be shown; the old view stays', error);
+    }
   };
-  drawSwitch(doc, readFlag(getContext()), set);
-  if (readFlag(getContext())) undo = turnOn({ doc, base, ctx: getContext, StoryBlock });
-  return { isOn: () => undo !== null, set, off: () => set(false) };
+  // The way back: drawn once the extension settings exist, and only while the old view is still the choice.
+  const wayBack = async () => {
+    if (!(await waitUntil(() => doc.querySelector('#extensions_settings2') ?? doc.querySelector('#extensions_settings')))) return;
+    if (chosen && !undo) row = drawSwitch(doc, true, useOldView);
+  };
+  function useOldView(on) {
+    chosen = Boolean(on);
+    writeOldView(on, storage);
+    if (on && undo) { undo(); undo = null; return wayBack(); }
+    if (!on && !undo) { row?.remove(); row = null; mount(); }
+    return null;
+  }
+  if (chosen) { doc.body.classList.remove(NEW_VIEW_CLASS); await wayBack(); } else mount();
+  return { isOn: () => undo !== null, useOldView };
 }

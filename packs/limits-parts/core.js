@@ -15,7 +15,7 @@ export const LIMITS = Object.freeze({
 // Shared authoring bounds for host records, also used by pack editors.
 export const RECORD_LIMITS = Object.freeze({ slug: 64, note: 500, word: 40, element: 24 });
 // Content kinds a pack may carry. Each is a list of records.
-export const CONTENT_KINDS = Object.freeze(['items', 'creatures', 'shops', 'recipes', 'events', 'quests', 'races', 'talents', 'skills', 'presets', 'places', 'routes', 'terms', 'ranks', 'crafts', 'meterPresets', 'markets', 'dataModules', 'rpg', 'cast', 'names']);
+export const CONTENT_KINDS = Object.freeze(['items', 'creatures', 'shops', 'recipes', 'events', 'quests', 'races', 'talents', 'skills', 'presets', 'places', 'routes', 'terms', 'ranks', 'crafts', 'meterPresets', 'markets', 'dataModules', 'rpg', 'cast', 'names', 'foes']);
 // Kinds added after the first pack format: a normalized pack has them only when the file gives
 // them, so what older packs list (counts) stays as it was.
-export const OPTIONAL_KINDS = Object.freeze(['skills', 'presets', 'places', 'routes', 'terms', 'ranks', 'crafts', 'meterPresets', 'markets', 'dataModules', 'rpg', 'cast', 'names']);
+export const OPTIONAL_KINDS = Object.freeze(['skills', 'presets', 'places', 'routes', 'terms', 'ranks', 'crafts', 'meterPresets', 'markets', 'dataModules', 'rpg', 'cast', 'names', 'foes']);

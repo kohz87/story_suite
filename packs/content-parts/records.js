@@ -31,21 +31,9 @@ export function contentOf(packs, kind, { pack = null } = {}) {
 }
 
 /**
- * The craft table crafting reads (MODULES §F102): the default crafts with the enabled packs' `crafts`
- * laid over them, as `[{ craft, title, stats, stations, note?, pack }]`. `craft` is the id recipes
- * write ('alchemy'); `pack` is null for a default. A pack's craft with a default's id replaces it in
- * place; a new id is added after the defaults, in pack order. When two packs declare the same craft,
- * the pack earlier in the list wins, as for items.
+ * The craft table crafting reads (MODULES §F102): the default crafts as `[{ craft, title, stats, stations, note?, pack }]` (`pack` is null for a default).
+ * Packs no longer add crafts (pack format 3 ignores `content.crafts`), so the table is the defaults.
  */
-export function craftsOf(packs) {
-    const table = new Map(DEFAULT_CRAFTS.map(craft => [craft.craft, { ...copy(craft), pack: null }]));
-    const taken = new Set();
-    for (const pack of packs) {
-        for (const craft of pack.content.crafts ?? []) {
-            if (taken.has(craft.slug)) continue;
-            taken.add(craft.slug);
-            table.set(craft.slug, { craft: craft.slug, title: craft.title, stats: [...craft.stats], stations: [...craft.stations], ...(craft.note ? { note: craft.note } : {}), pack: pack.id });
-        }
-    }
-    return [...table.values()];
+export function craftsOf() {
+    return DEFAULT_CRAFTS.map(craft => ({ ...copy(craft), pack: null }));
 }

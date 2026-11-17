@@ -3,7 +3,7 @@
 /** The formula (SPEC_RPG §0): PC d20 + stat/2 + 2×class + skill rank vs foe d20 + 5 + 2×class. */
 export const FORMULA = Object.freeze({ die: 20, statDivisor: 2, classWeight: 2, foeBase: 5, edgeMax: 3, costMargin: 2 });
 
-/** Pacing: exchanges per reply. (From the second flow, FLOW_VERSION in resolve.js, only `careful` limits a reply: 1 exchange; the others run to the cap.) */
+/** Pacing: exchanges per reply. (Only `careful` limits a reply: 1 exchange; the others run to the cap.) */
 export const PACE = Object.freeze({ careful: 1, normal: 5, all: 8 });
 
 /** Foe slots of a Foes block: `foe1`…`foe6` (an older block has 1…4). */

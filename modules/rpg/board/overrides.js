@@ -5,7 +5,6 @@
 // Use on… button and the story's `- item X | used: yes`): one rule, board/rules.js `recoveryOf`, the same one the fight board's Use item uses.
 
 import { boardChangeCommands } from './changes.js';
-import { CORE_FEATURE } from '../../../core/features.js';
 import { fold, matchCharacter, readSheet } from '../read.js';
 import { actorIdOf, rosterOf as partyRoster } from '../roster.js';
 import { BOARD_SKILL, BOARD_SKILL_CARRY, LEAN_RPG_FEATURE, ROLLS_QUERY, USE_ITEM } from '../names.js';
@@ -102,8 +101,8 @@ export function createBoardPart({ persona = () => '', metadata = () => null } = 
         if (!skill) ctx.fail('REFUSED', 'That skill is no longer on the sheet.');
         writeEntry(ctx, skillKey(actor.module, skill), payload.flags);
         return { summary: 'Skill choices saved.', narrate: false };
-    }, { feature: CORE_FEATURE.fightBoard });
-    // A rename keeps the reader's explicit flags even while the board is off (no feature gate): it moves an
+    }, { feature: LEAN_RPG_FEATURE });
+    // A rename keeps the reader's explicit flags even while the RPG is off (no feature gate): it moves an
     // existing entry from the old name to the new one and never makes flags from defaults.
     const carry = (ctx, payload) => {
         if (ctx.cause !== 'ui' || !ctx.reply?.sid) ctx.fail('REFUSED', 'Only the reader can edit a skill.');

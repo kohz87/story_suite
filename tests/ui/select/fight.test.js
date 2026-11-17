@@ -123,7 +123,7 @@ describe('selectFight', () => {
     const won = snapshot(RESULT({ stop: 'won' }));
     const vm = selectFight(input({ snapshot: won, awards: { xp: [{ who: 'Astra', amount: 45 }], practice: [{ who: 'Astra', skill: 'Iaijutsu', amount: 3 }] } }));
     assert.deepEqual(vm.end, { outcome: 'won', xpEach: 45, exchanges: 1, members: [
-      { id: 'astra', hp: 11, hpMax: 14, practice: [{ skill: 'Iaijutsu', gain: 3 }] }, { id: 'torka', hp: 7, hpMax: 14, practice: [] }] });
+      { id: 'astra', hp: 11, hpMax: 14, xp: 45, practice: [{ skill: 'Iaijutsu', gain: 3 }] }, { id: 'torka', hp: 7, hpMax: 14, xp: null, practice: [] }] });
     assert.equal(selectFight(input({ snapshot: won })).end.xpEach, null);
     assert.equal(selectFight(input()).end, null);
     assert.equal(vm.exchange, 1);

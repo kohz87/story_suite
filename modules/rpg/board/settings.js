@@ -1,5 +1,5 @@
-// Draws the fight-board settings: the shared feature switch, Auto-fight's cap slider and the pre-check's switch (Settings → RPG → Fight board).
-// The feature store is the single source of truth for the switch; the cap is the `rpgAutoCap` setting, 1 to 8 or "Until the end".
+// Draws the fight-board settings: Auto-fight's cap slider and the pre-check's switch (Settings → RPG → Fight board).
+// The cap is the `rpgAutoCap` setting, 1 to 8 or "Until the end".
 import { h } from '../../../ui/legacy/view/widgets/dom.js';
 import { switchField } from '../../../ui/legacy/view/form/fields.js';
 import { AUTO_CAP } from '../names.js';
@@ -50,17 +50,9 @@ export function precheckSetting(doc, precheck) {
     return row;
 }
 
-export function boardSetting(doc, feature, changed, cap = null, precheck = null) {
-    const row = h(doc, 'div', 'rpg-board-setting');
-    row.setAttribute('data-card', 'board');
-    const copy = h(doc, 'div', 'rpg-board-setting-copy');
-    copy.appendChild(h(doc, 'b', '', 'Fight board'));
-    copy.appendChild(h(doc, 'p', 'rpg-set-help', 'Play fights exchange by exchange on the board; one reply tells the whole fight. Standard rules only.'));
-    const field = switchField({ doc, ariaLabel: 'Fight board', value: feature.on(), onChange: value => { feature.set(value); changed(); } });
-    row.append(copy, field.el);
-    if (!cap) return row;
+/** The Fight board section of Settings → RPG: Auto-fight's cap card and the pre-check's switch (the board is on whenever the RPG is). */
+export function boardSetting(doc, cap, precheck) {
     const both = h(doc, 'div', 'rpg-board-settings');
-    both.append(row, capSetting(doc, cap));
-    if (precheck) both.appendChild(precheckSetting(doc, precheck));
+    both.append(capSetting(doc, cap), precheckSetting(doc, precheck));
     return both;
 }

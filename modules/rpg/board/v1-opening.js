@@ -6,7 +6,7 @@ import { V1 } from '../combat/numbers.js';
 import { readSheet } from '../read.js';
 import { openFoes } from '../open.js';
 import { averageLevel, partyLevels, settleOpen } from '../foes.js';
-import { RESULT_VERSION } from '../resolve-parts/versions.js';
+import { RESULT_VERSION } from '../rolls-read.js';
 
 const FIX = 3;
 // The first draw the level picks are made from: three thousand-sided draws of the opening's own dice (as the old opening took them).

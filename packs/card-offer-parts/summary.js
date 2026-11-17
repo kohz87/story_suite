@@ -2,8 +2,8 @@
 
 import { joinWords, plural } from './shared-words.js';
 
-const SHOWN_KINDS = [['places', 'places'], ['cast', 'cast'], ['items', 'items'], ['events', 'events'], ['creatures', 'creatures'], ['shops', 'shops'],
-    ['recipes', 'recipes'], ['quests', 'quests'], ['ranks', 'ranks'], ['routes', 'routes'], ['races', 'races'], ['talents', 'talents'], ['skills', 'skills']];
+const SHOWN_KINDS = [['places', 'places'], ['cast', 'cast'], ['items', 'items'], ['events', 'events'], ['foes', 'foes'],
+    ['routes', 'routes'], ['skills', 'skills']];
 
 /** What a pack brings, in a few words: "places, cast, items, 12 portraits" (or "adds Reputation" for data modules alone). */
 export function bringsLine(pack, portraits = 0) {

@@ -5,6 +5,7 @@ import { bars } from '../../kit/bars.js';
 import { slotsDoll } from './slots.js';
 import { skillsCard } from './skills.js';
 import { openSheet } from './slot-picker.js';
+import { can } from '../../runtime/can.js';
 
 const STATS = ['STR', 'DEX', 'AGI', 'VIT', 'INT', 'WIS', 'CHA'];
 const STAT_NAME = {
@@ -72,12 +73,13 @@ export function moreSheet(member, ctx = {}) {
     dataset: { act: type },
     onClick: async () => { await ctx.port?.command(type, { member: member.id }); sheet.close(); },
   }, label);
-  sheet.body.replaceChildren(h('div', { class: 'ps-menu' },
-    item(`Bench ${member.name}`, 'party.bench'),
-    item(`Export ${member.name}`, 'party.export'),
-    item(`${member.name} leaves the party`, 'party.leave', true)));
+  const items = [['party.bench', `Bench ${member.name}`], ['party.export', `Export ${member.name}`], ['party.leave', `${member.name} leaves the party`, true]]
+    .filter(([type]) => can(ctx, type)).map(([type, label, danger]) => item(label, type, danger));
+  sheet.body.replaceChildren(h('div', { class: 'ps-menu' }, ...items));
   return sheet;
 }
+
+const MORE = ['party.bench', 'party.export', 'party.leave'];
 
 function head(member, ctx) {
   const effects = member.effects ?? [];
@@ -85,7 +87,7 @@ function head(member, ctx) {
     'div',
     { class: 'shead' },
     h('div', { class: 'shtop' }, h('div', { class: 'nm' }, member.name),
-      h('button', { type: 'button', class: 'ibtn', dataset: { more: '1' }, 'aria-label': `More for ${member.name}`, 'aria-haspopup': 'dialog', onClick: () => moreSheet(member, ctx) }, '⋯')),
+      MORE.some(type => can(ctx, type)) ? h('button', { type: 'button', class: 'ibtn', dataset: { more: '1' }, 'aria-label': `More for ${member.name}`, 'aria-haspopup': 'dialog', onClick: () => moreSheet(member, ctx) }, '⋯') : null),
     h('div', { class: 'chips' }, h('span', { class: 'lvl2' }, member.line),
       h('span', { class: 'chip2', title: `VIT ${member.stats.VIT}% + gear points` }, glyph('offhand'), `${member.soakPct}%`)),
     member.away ? h('div', { class: 'awn' }, `${member.away.where} · last seen ${member.away.lastSeen}. Still in the party: counts for load, pace and Use on…`) : null,

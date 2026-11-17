@@ -11,7 +11,7 @@ export const at = (host, start) => host.ctx.chat.findIndex(message => !message.i
 export const claimed = (host, sid) => Object.hasOwn(host.head().meta.claims, `loot:${sid}`);
 export const offPs = host => host.store.problems().filter(problem => problem.code === 'REPLAY_PREREQUISITE');
 export const riverside = () => {
-    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../packs/fixtures/riverside-starter.json', import.meta.url), 'utf8'));
     sample.start.inventory = { items: [], money: 0 };
     return sample;
 };

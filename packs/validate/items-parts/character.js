@@ -1,6 +1,6 @@
 // Checking the player's starting record and the RPG settings with its level ranks.
 
-import { YOU_FIELDS, YOU_RANK_FIELDS, YOU_RANK_LABEL_MAX, LEAN_RPG_FIELDS, LEAN_RPG_LIMITS, RPG_FORMULAS, RPG_NUMBER_KEYS, RPG_RANK_LIMITS, RPG_RANK_FIELDS, RPG_PLAYER_RANK_LIMITS, RPG_PLAYER_RANK_FIELDS } from '../../limits.js';
+import { YOU_FIELDS, YOU_RANK_FIELDS, YOU_RANK_LABEL_MAX, LEAN_RPG_FIELDS, LEAN_RPG_LIMITS, RPG_FORMULAS, RPG_RANK_LIMITS, RPG_RANK_FIELDS, RPG_PLAYER_RANK_LIMITS, RPG_PLAYER_RANK_FIELDS } from '../../limits.js';
 import { oneLine, foldKey } from '../../../core/text.js';
 import { isObject, records } from '../core.js';
 import { checkSkillSet } from './skill-sets.js';
@@ -25,9 +25,9 @@ export function checkYou(value, add) {
 }
 
 // The RPG's skill sets (`content.rpg.skillSets`): ready-made skills the New character wizard offers, each with what the
-// skill does, the stat it rolls with and what it uses (stamina unless it says mana). A set is 1 to 5 skills; a pack has up to 12 sets.
+// skill does, the stat it rolls with and what it uses (sp unless it says mp). A set is 1 to 5 skills; a pack has up to 12 sets.
 // Normalized to the list of sets, each `{ id, slug, pack, name, about, skills: [{ name, about, stat, uses }] }`.
-export function checkRpg(value, packId, add) {
+export function checkRpg(value, packId, add, warn = () => {}) {
     if (!isObject(value)) { add('BAD_CONTENT', 'content.rpg', 'content.rpg must be an object: { "skillSets": [ … ] }.'); return []; }
     for (const key of Object.keys(value)) if (!LEAN_RPG_FIELDS.includes(key)) add('UNKNOWN_FIELD', `content.rpg.${key}`, `"${key}" is not a content.rpg field (expected ${LEAN_RPG_FIELDS.join(', ')}).`);
     if (Array.isArray(value.skillSets) && value.skillSets.length > LEAN_RPG_LIMITS.sets) {
@@ -35,22 +35,15 @@ export function checkRpg(value, packId, add) {
         return [];
     }
     const sets = records(value.skillSets, 'rpg.skillSets', { add, packId, check: (record, path, label) => checkSkillSet(record, path, label, add) });
-    // The stat formula and its numbers (optional): one more record of the list, after the skill sets.
-    const formula = value.formula, numbers = value.numbers;
+    // The stat formula (optional): one more record of the list, after the skill sets. Packs cannot tune combat numbers: `numbers` is said and left out.
+    const formula = value.formula;
+    if (value.numbers !== undefined) warn('IGNORED_FIELD', 'content.rpg.numbers', 'content.rpg.numbers is not read: a pack cannot tune combat numbers (Combat Rules v1 has fixed ones); it was left out.');
     const levels = checkLevelRanks(value, packId, add);
-    if (formula === undefined && numbers === undefined) return levels ? [...sets, levels] : sets;
+    if (formula === undefined) return levels ? [...sets, levels] : sets;
     let ok = true;
-    if (formula === 'classic') { ok = false; add('BAD_CONTENT', 'content.rpg.formula', 'content.rpg.formula "classic" is no longer supported: Classic rules were removed. Use "standard" or leave the formula out.'); }
-    else if (formula !== undefined && !RPG_FORMULAS.includes(formula)) { ok = false; add('BAD_CONTENT', 'content.rpg.formula', `content.rpg.formula must be one of ${RPG_FORMULAS.join(', ')}.`); }
-    const given = {};
-    if (numbers !== undefined) {
-        if (!isObject(numbers)) { ok = false; add('BAD_CONTENT', 'content.rpg.numbers', 'content.rpg.numbers must be an object of whole numbers, like { "foeBase": 5 }.'); } else {
-            for (const [key, number] of Object.entries(numbers)) {
-                if (!RPG_NUMBER_KEYS.includes(key)) { ok = false; add('UNKNOWN_FIELD', `content.rpg.numbers.${key}`, `"${key}" is not an RPG number (expected ${RPG_NUMBER_KEYS.join(', ')}).`); } else if (!Number.isSafeInteger(number)) { ok = false; add('BAD_CONTENT', `content.rpg.numbers.${key}`, `content.rpg.numbers.${key} must be a whole number.`); } else given[key] = number;
-            }
-        }
-    }
-    return [...sets, ...(ok ? [{ id: `${packId}/formula`, slug: 'formula', pack: packId, ...(formula !== undefined ? { formula } : {}), ...(Object.keys(given).length ? { numbers: given } : {}) }] : []), ...(levels ? [levels] : [])];
+    if (formula === 'classic') { ok = false; add('BAD_CONTENT', 'content.rpg.formula', 'content.rpg.formula "classic" is no longer supported: Classic rules were removed. Use "v1" or leave the formula out.'); }
+    else if (!RPG_FORMULAS.includes(formula)) { ok = false; add('BAD_CONTENT', 'content.rpg.formula', `content.rpg.formula must be one of ${RPG_FORMULAS.join(', ')} ("standard" is the older word for "v1").`); }
+    return [...sets, ...(ok ? [{ id: `${packId}/formula`, slug: 'formula', pack: packId, formula: 'v1' }] : []), ...(levels ? [levels] : [])];
 }
 
 // The level ranks (`content.rpg.ranks`: names for bands of levels, `[{ name, from, to }]`) and the level cap (`content.rpg.levelCap`, 1..99). The bands run

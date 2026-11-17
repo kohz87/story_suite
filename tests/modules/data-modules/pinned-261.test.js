@@ -17,6 +17,8 @@ const hashes = {
     'pack.ersveil/guild-membership': '6938a74e11fd618cb0fba021a0011f3c6872e32aa1c8b80104bd6a828c27f62f',
 };
 const packHash = '2d25e224ca30e1a0a77693f31f19ce31f03b4c5be9045d1972e23f0936004623';
+// What the pack checker gives the same 2.0.0 pack now: pack format 3 no longer writes the empty lists of the kinds nothing reads (creatures, shops, recipes, quests, races, talents), so its identity differs from the one the chat recorded; the pins keep the recorded one.
+const freshPackHash = '6728d2128a035f061386acf8c0da2929e4d700171ec4ff3c34cbe3e4d17832b3';
 const expected = {
     'pack.ersveil/standing': { standing: { highmark: 0, confederacy: 0, shornmarch: 0, church: 0, auvoth: 0, guild: 2, nightingale: 0, hand: 0, veil: 0, 'broken-chain': 0 } },
     'pack.ersveil/fame': { fame: { bluewatch: 4, shornmarch: 0, auvoth: 0, confederacy: 0, highmark: 0, aurelion: 0, 'border-kingdoms': 0, ironanvil: 0, chieftainates: 0, ardelia: 0, shackles: 0, vargate: 0, tidebound: 0, verdantleaf: 0, ashkaran: 0, startrace: 0 } },
@@ -24,7 +26,7 @@ const expected = {
 };
 
 // `offered`: the hash the pack now offers for each module (the same as the pin unless the pack's own copy of the module changed since).
-function assertPinned(host, offerPackHash = packHash, offered = hashes, status = 'Pinned') {
+function assertPinned(host, offerPackHash = freshPackHash, offered = hashes, status = 'Pinned') {
     const domain = host.head().domains.dataModules;
     for (const [module, hash] of Object.entries(hashes)) {
         assert.equal(domain.active[module].hash, hash, module);
@@ -90,7 +92,8 @@ test('a 2.6.1 chat with a rules hash keeps its pin and guarded action', async t 
     assert.equal((await host.packs.packs.install(saved.pack)).ok, true);
     const module = 'pack.history/counter';
     const hash = '2c257b2d20fbf6589343e316b5c0330733386fa127aeac673855ec2b753eb4ee';
-    const packHash = 'ccbd291fcf2e58951e48c7b008d05964aa3ac1b260f42b245decf0cecd528187';
+    const packHash = 'ccbd291fcf2e58951e48c7b008d05964aa3ac1b260f42b245decf0cecd528187';   // (the identity the chat recorded)
+    const offerHash = '0665b3ef9701ae8412fb7cf3fd0b51aa276c593804f507bd533da2388e0982de';   // (what the checker gives the same pack now: the empty lists of the kinds nothing reads are gone)
     const guards = saved.chat.flatMap(message => message.extra?.storySuite?.spans ?? []).filter(span => span.guard?.predicate?.module === module);
     assert.deepEqual(guards.map(span => span.guard.rulesHash), [rulesHash, rulesHash]);
     assert.deepEqual(guards.map(span => span.guard.inputHash), [
@@ -103,7 +106,7 @@ test('a 2.6.1 chat with a rules hash keeps its pin and guarded action', async t 
         assert.equal(host.head().domains.dataModules.pins[hash].packHash, packHash);
         assert.deepEqual(host.sdk.query('dataModules.view', { module }), { chat: { points: 1 } });
         assert.equal(host.sdk.query('dataModules.offers')[0].hash, hash);
-        assert.equal(host.sdk.query('dataModules.offers')[0].packHash, packHash);
+        assert.equal(host.sdk.query('dataModules.offers')[0].packHash, offerHash);
         assert.equal(host.sdk.query('dataModules.setup')[0].status, 'Pinned');
         assert.deepEqual(host.store.problems().filter(problem => problem.code === 'REPLAY_PREREQUISITE'), []);
     };
@@ -114,13 +117,13 @@ test('a 2.6.1 chat with a rules hash keeps its pin and guarded action', async t 
     check();
 });
 
-test('re-importing the example pack as 2.9.6 keeps the 2.6.1 pins, values and status', async t => {
+test('re-importing the example pack as 3.0.0 keeps the 2.6.1 pins, values and status', async t => {
     // 2.2.x's world events record lasting changes in Story Director's chronicle: a stand-in gives the capability.
     const host = await createHost({ st: { chat: chat() }, modules: [{ id: 'chronicle-stand-in', version: '1.0.0', capabilities: ['chronicle-lasting'] }] });
     t.after(() => host.close());
     assert.equal((await host.packs.packs.install(pack())).ok, true);
     const updated = current();
-    assert.equal(updated.version, '2.9.6');
+    assert.equal(updated.version, '3.0.0');
     const installed = await host.packs.packs.install(updated);
     assert.equal(installed.ok, true, installed.message);
     const fresh = host.sdk.query('dataModules.offers').find(row => row.module === 'pack.ersveil/standing').packHash;

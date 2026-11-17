@@ -5,7 +5,7 @@ import { levelOfClass } from '../../../modules/rpg/formula.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { PARTY_MAX } from '../../../modules/rpg/names.js';
 import { partyOf } from '../../../modules/rpg/join.js';
-import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 
 export const available = await hostAvailable();
 export const skip = available.ok ? false : available.reason;
