@@ -13,7 +13,7 @@ export const REPAIR_FOOT = [
     'Coin and items: write + coin, - coin, + item or - item only for what the reply plainly shows changing hands, once for each thing, with the amount or count the reply gives.',
     'Place: name where the reply ENDS, the last place the story is at, never a stop on the way; use the exact name of a known place when the story is at one. If the scene ends where it was, write no place line.',
     'Presence is the scene at the END: + present only for someone there when the reply ends; - present for someone present before who is gone at the end.',
-    'Time: "~ time 9:30 am" sets a clock time today, only when the reply gives one; "! time +Nh" or "! time +Nd" moves the story on by a stretch. When the reply says time passed without a clock time ("by dusk", "next morning", "after a long walk"), estimate the stretch from the story time given below (morning to dusk is about ! time +10h). Never write a date, and write no time line when no time passed.',
+    'Time: "~ time 9:30 am" sets a clock time today, only when the reply gives one; "! time +Nh" or "! time +Nd" moves the story on by a stretch. When the reply says time passed without a clock time ("by dusk", "next morning", "after a long walk"), estimate the stretch from the story time given below (e.g. morning to dusk is about ! time +10h). Never write a date, and write no time line when no time passed.',
     'If nothing changed, answer with an empty block: <Changes></Changes>',
     'Answer with the lines only, between <Changes> and </Changes>.',
 ].join('\n');

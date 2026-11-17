@@ -10,8 +10,8 @@ import { skip, wait } from './safety-net.helpers.js';
 
 test('the coin line asks for the coin name; the time example is generic, not worked out from one story time', () => {
     const prompt = repairPrompt('You pay.', ['+ coin 30 | from: who'], [], null, 'Astra');
-    assert.match(prompt, /- \+ coin 30 gold \| from: who \(- coin 8 copper \| to: who\): write the coin name the reply uses; only coin that changes hands/);
-    assert.match(REPAIR_FOOT, /morning to dusk is about ! time \+10h/);
+    assert.match(prompt, /- \+ coin 30 copper \| from: who \(- coin 8 copper \| to: who\): only coin that changes hands in this reply, with the amount AND the coin name the reply uses; never a price that is only talked about/);
+    assert.match(REPAIR_FOOT, /\(e\.g\. morning to dusk is about ! time \+10h\)/);
     assert.equal(/07:15|\+11h/.test(REPAIR_FOOT), false);
 });
 
