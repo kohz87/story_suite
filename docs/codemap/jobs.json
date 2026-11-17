@@ -275,6 +275,7 @@
   "ui/settings/sections/rpg.js": "Renders the RPG and fights section: the overlay's body plus the Custom-difficulty pointer to Director.",
   "ui/settings/sections/start.js": "Frames a hook page: the overlay's body for a section with the hook's own notes before or after it.",
   "ui/settings/sections/world.js": "Renders the World and time section through the hook: the overlay's body for it, unchanged.",
+  "ui/settings/developer.js": "The Tools page's developer card: a per-device switch for module authors, and with it on the Template page (the generic activity view on a sample).",
   "ui/settings/sent.js": "Renders the Tools page's \"What is sent each reply\" card (budget bars and the text sent) and the Inspector and problems card.",
   "ui/sheets/scene-sheet.js": "Builds the Scene sheet (date, time, place, weather, who is here) as one hand correction, and opens it in a sheet.",
   "ui/shell/default-views.js": "Supplies the default card and tab renderers for mountSuite: the character card, the Now tab, and a \"not built yet\" card.",

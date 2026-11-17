@@ -1,6 +1,6 @@
 // Story Director v2, part **keypeople**: what the narrator is told (pure).
 //
-// static (the feature's, the same bytes every reply): what the `away` and `key` lines are for.
+// static (the feature's, the same bytes every reply): the fixed paragraph (STATIC_TEXT) and the `away` grammar line; no `key` line and no death sentence (deaths are NPC State's, read by nsd.js).
 // tail: `[Key people] Away from the scene:` and one line per away key person, within the Key people token budget (a
 // setting, 300 by default, no upper limit; the host's overall tail budget still caps everything):
 //   `Ren: away, scouting the north road, back Goldwane 18; latest: reached Wolfmere Outpost.`

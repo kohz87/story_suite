@@ -1,4 +1,4 @@
-// The scene host: the Scene tab's frame (header, the kind's renderer, Send and Discard) for the interaction that is open.
+// The activity host: the frame (header, the kind's renderer, Send and Discard) of the tab named after the interaction that is open.
 import { h } from '../../kit/dom.js';
 import { button } from '../../kit/controls.js';
 import { genericScene } from './generic.js';
@@ -6,13 +6,14 @@ import { fightScene } from './fight.js';
 
 const PILL = { open: 'open', staged: 'staged', sent: 'sent', invalidated: 'taken back' };
 
-/** Renderers by kind id: `(vm, api) → node`. A kind without one gets the generic renderer. A renderer with `ownFrame` draws its own header, note and Send / Discard (api.note, api.send, api.discard). */
+/** Renderers by kind id: `(vm, api) → node`. A module registers its own renderer here (see docs/dev/interaction.md); a kind without one gets the generic renderer and a "basic view" note. A renderer with `ownFrame` draws its own header, note and Send / Discard (api.note, api.send, api.discard). */
 export const RENDERERS = { 'story-block/fight': fightScene };
 
-/** Builds the Scene tab from a `scene` view-model. `ctx` = { port, renderers }. Every action is an `interaction.*` command; a refusal shows its message. */
+/** Builds the activity tab from the open interaction's view-model. `ctx` = { port, renderers }. Every action is an `interaction.*` command; a refusal shows its message. */
 export function sceneTab(vm, ctx = {}) {
   if (!vm?.id) return null;
-  const draw = (ctx.renderers ?? RENDERERS)[vm.kindId] ?? genericScene;
+  const own = (ctx.renderers ?? RENDERERS)[vm.kindId];
+  const draw = own ?? genericScene;
   let busy = false;
   const note = h('p', { class: 'fine scene-note', role: 'status', hidden: true });
   const root = h('div', { class: 'scene-tab', dataset: { tab: 'scene', kind: vm.kindId, state: vm.state } });
@@ -33,11 +34,12 @@ export function sceneTab(vm, ctx = {}) {
   const head = h('section', { class: 'glass fhead scene-head', dataset: { card: 'scene-head' } },
     h('span', { class: 't' }, h('b', null, vm.title)),
     h('span', { class: 'fpill scene-pill' }, PILL[vm.state] ?? vm.state));
+  const basic = own ? null : h('p', { class: 'fine scene-basic', dataset: { note: 'basic-view' } }, 'Basic view: this activity has no view of its own.');
   const foot = vm.canSend || vm.canDiscard
     ? h('div', { class: 'brow3 scene-actions', dataset: { card: 'scene-actions' } },
       vm.canSend ? button({ label: 'Send with this', tone: 'primary', dataset: { act: 'send' }, onClick: () => run('send', {}) }) : null,
       vm.canDiscard ? button({ label: 'Discard', dataset: { act: 'discard' }, onClick: () => run('discard', {}) }) : null)
     : null;
-  root.replaceChildren(...(draw.ownFrame === true ? [draw(vm, api)] : [head, draw(vm, api), note, foot]));
+  root.replaceChildren(...(draw.ownFrame === true ? [draw(vm, api)] : [head, basic, draw(vm, api), note, foot].filter(Boolean)));
   return root;
 }

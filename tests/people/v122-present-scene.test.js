@@ -291,7 +291,7 @@ test('v1.2.2 the settings panel carries the shared story-suite-* classes beside 
         .map(name => fs.readFileSync(new URL(`../${name}`, import.meta.url), 'utf8'))];
     const [index] = sources;
     for (const [own, shared] of [
-        ['inline-drawer-content npc-state-delta-drawer', 'story-suite-panel'],
+        ['npc-state-delta-drawer', 'story-suite-panel'],
         ['npc-state-delta-suite-manage', 'story-suite-manage'],
         ['delta-settings-quickbar', 'story-suite-quickbar'],
         ['npc-state-delta-actions delta-settings-quick-actions', 'story-suite-actions'],

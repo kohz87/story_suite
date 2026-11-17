@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
-import { createTabHost, visibleTabs } from '../../../ui/shell/tab-host.js';
+import { createTabHost, visibleTabs, tabLabel } from '../../../ui/shell/tab-host.js';
 
 const ids = (host) => host.el.querySelectorAll('.su-tab').map((n) => n.getAttribute('data-tab'));
 
@@ -12,7 +12,7 @@ test('visibleTabs applies the Party and Fight show rules', () => {
   assert.deepEqual(visibleTabs({ rpg: false, fightOpen: true }).slice(-1), ['fight']);
 });
 
-test('the Scene tab shows only while an interaction is open, between Story and Fight', () => {
+test('the activity tab shows only while an interaction is open, between Story and Fight', () => {
   assert.equal(visibleTabs().includes('scene'), false);
   assert.deepEqual(visibleTabs({ sceneOpen: true, fightOpen: true }).slice(-3), ['story', 'scene', 'fight']);
 });
@@ -116,4 +116,20 @@ test('exposes the card slot, strip and panel inside the scroll area', () => {
   assert.ok(host.scroll.contains(host.cardSlot));
   assert.ok(host.scroll.contains(host.panel));
   assert.ok(host.scroll.contains(host.el.querySelector('.su-strip')));
+});
+
+test('the activity tab is named after the open activity, "Activity" without a title; no tab says Scene', () => {
+  installFakeDom();
+  assert.equal(tabLabel('scene', {}), 'Activity');
+  assert.equal(tabLabel('scene', { sceneTitle: '  ' }), 'Activity');
+  assert.equal(tabLabel('scene', { sceneTitle: 'The ferry' }), 'The ferry');
+  assert.equal(tabLabel('scene', { sceneTitle: 'A very long activity title indeed' }), 'A very long act…');
+  assert.equal(tabLabel('fight', { sceneTitle: 'x' }), 'Fight');
+  const host = createTabHost({ flags: { sceneOpen: true, sceneTitle: 'Fishing' } });
+  const label = tab => host.el.querySelector(`.su-tab[data-tab="${tab}"]`).textContent;
+  assert.equal(label('scene'), 'Fishing');
+  assert.equal(host.el.querySelector('.su-bar-btn[data-tab="scene"] .su-bar-label').textContent, 'Fishing');
+  host.setFlags({ sceneTitle: '' });
+  assert.equal(label('scene'), 'Activity');
+  for (const text of host.el.querySelectorAll('.su-tab, .su-bar-label').map(n => n.textContent)) assert.notEqual(text, 'Scene');
 });

@@ -31,7 +31,8 @@ export const part = {
     kinds: {
         // Taught only while someone is pinned (module.js tells the parts `keyPeople`).
         away: { grammar: env => (env?.keyPeople ? GRAMMAR.away : ''), apply: applyAwayLine, feature: FEATURE },
-        key: { grammar: env => (env?.keyPeople ? GRAMMAR.key : ''), apply: applyKeyLine, feature: FEATURE },
+        // Replay only: `- key Name | died` is no longer taught (the Director reads deaths from NPC State), but replies that carry it still replay.
+        key: { grammar: () => '', heads: ['- key'], apply: applyKeyLine, feature: FEATURE },
     },
     context: {
         static: env => (env?.keyPeople ? STATIC_TEXT : ''),

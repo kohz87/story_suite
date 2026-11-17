@@ -6,10 +6,18 @@ import { glyph } from '../kit/glyphs.js';
 const TAB_ORDER = ['now', 'party', 'bag', 'people', 'world', 'journal', 'story', 'scene', 'fight'];
 const LABELS = {
   now: 'Now', party: 'Party', bag: 'Bag', people: 'People',
-  world: 'World', journal: 'Journal', story: 'Story', scene: 'Scene', fight: 'Fight',
+  world: 'World', journal: 'Journal', story: 'Story', scene: 'Activity', fight: 'Fight',
 };
+const TITLE_MAX = 16;
 
-/** Returns the tab ids to show: Party only when the RPG is on, Fight only during a fight, Scene only while an interaction is open. */
+/** The tab's label: the open activity's own title (cut to 16 characters) on its tab, "Activity" when it has none; the fixed words on the rest. */
+export function tabLabel(id, flags = {}) {
+  if (id !== 'scene') return LABELS[id];
+  const title = typeof flags.sceneTitle === 'string' ? flags.sceneTitle.trim() : '';
+  return title.length > TITLE_MAX ? `${title.slice(0, TITLE_MAX - 1).trimEnd()}…` : title || LABELS.scene;
+}
+
+/** Returns the tab ids to show: Party only when the RPG is on, Fight only during a fight, the activity tab (an open interaction, named after it) only while one is open. */
 export function visibleTabs({ rpg = true, fightOpen = false, sceneOpen = false } = {}) {
   return TAB_ORDER.filter((id) => (id !== 'party' || rpg) && (id !== 'fight' || fightOpen) && (id !== 'scene' || sceneOpen));
 }
@@ -20,7 +28,7 @@ export function visibleTabs({ rpg = true, fightOpen = false, sceneOpen = false }
  */
 export function createTabHost(options = {}) {
   const { flags: startFlags = {}, initial = 'now', onSelect = null, onChat = null, onSettings = null } = options;
-  let flags = { rpg: true, fightOpen: false, sceneOpen: false, ...startFlags };
+  let flags = { rpg: true, fightOpen: false, sceneOpen: false, sceneTitle: '', ...startFlags };
   let current = initial;
 
   const strip = h('nav', { class: 'su-strip', role: 'tablist', 'aria-label': 'Story Suite tabs' });
@@ -84,14 +92,14 @@ export function createTabHost(options = {}) {
         pick(next);
         strip.querySelector(`[data-tab="${next}"]`)?.focus();
       },
-    }, glyph(id), LABELS[id])));
+    }, glyph(id), tabLabel(id, flags))));
     bar.replaceChildren(...ids.map((id) => h('button', {
       type: 'button',
       class: 'su-bar-btn',
       'aria-current': String(id === current),
       'data-tab': id,
       onClick: () => pick(id),
-    }, glyph(id), h('span', { class: 'su-bar-label' }, LABELS[id]), h('span', { class: 'su-bar-dot' }))));
+    }, glyph(id), h('span', { class: 'su-bar-label' }, tabLabel(id, flags)), h('span', { class: 'su-bar-dot' }))));
     updateMini();
   }
 

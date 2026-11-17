@@ -214,6 +214,13 @@
   line-height: 14px;
 }
 
+.su-bar-btn[data-tab="scene"] .su-bar-label {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .su-bar-dot {
   width: 5px;
   height: 5px;

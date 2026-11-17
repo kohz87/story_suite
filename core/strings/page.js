@@ -24,7 +24,7 @@ export const PAGE_STRINGS = {
         tabs: 'Story panel tabs',
     },
     drawer: {
-        title: 'Story Block',
+        title: 'Story Suite {version}',
         status: 'Story Suite {version} · {modules}',
         settings: 'Story Suite settings',
         panel: 'Story panel',
