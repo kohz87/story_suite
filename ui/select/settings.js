@@ -3,6 +3,7 @@
 import { selectConnections } from './connections.js';
 import { selectCalls } from './calls.js';
 import { selectDirector } from './settings-director.js';
+import { selectMoneyRows } from './money-rows.js';
 import { selectProblems, selectSent } from './tools.js';
 import { peopleRows } from './people-settings/index.js';
 import { selectRpgRows } from './rpg-rows.js';
@@ -106,6 +107,7 @@ export function selectSettings(answers) {
     section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', selectRpgRows(a.rpg)),
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [])),
     ...[selectDirector(a.directorPage)].filter(Boolean),
+    section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
