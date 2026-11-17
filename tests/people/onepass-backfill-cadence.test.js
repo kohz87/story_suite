@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // (batch D) The backfill queue and the capture catch-up Refresh run on separate cadences. Hosted one-pass, the queue runs after every
 // reply (limit 1), whatever `narrationCaptureCatchUp` says, and never makes a second long call on a person the same reply's Refresh
@@ -215,7 +216,7 @@ test('an old saved state with pendingBackfills drains one per reply, the 100 cap
 
 test('catch-up: every due NPC is held from the reply backfill; a newly met NPC keeps its queue entry and gets its backfill after the Refresh (established ones skipped)', async () => {
     // The real module in a temp tree whose two imports are small stubs (the real ones need the host).
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'nsd-catchup-'));
+    const dir = tempDir('nsd-catchup-');
     try {
         fs.writeFileSync(path.join(dir, 'runtime-catchup.js'), oldSource('runtime-catchup.js'));
         fs.writeFileSync(path.join(dir, 'runtime-settings.js'), 'export const getSettings = () => ({ narrationCaptureCatchUp: 1 });\n');

@@ -2,7 +2,6 @@ import { standInTree } from './helpers/temp-tree.js';
 import { oldSource } from './helpers/old-source.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHost } from '../../testkit/index.js';
@@ -11,6 +10,7 @@ import { seedPeople } from './helpers/seed-people.js';
 import { secretId } from '../../modules/people/meters/npc-meters.js';
 import { projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
 import { lastRelationshipChangeHtml, recentChangeRowHtml } from '../../modules/people/legacy/dossier-ui-relationship.js';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // TRS ideas 1-4 on the NPC meters (stage ladders with several needs and milestones, per-NPC ceilings
 // and floors, fuller custom meters with presets and drift, locked-note teasers), against Story
@@ -184,7 +184,7 @@ export const ownerRecords = () => {
 // SillyTavern-bound parts are stubs. → { relationshipChanges, forward(before, after, reply, rows, onePass) → the adjusts sent }.
 export async function hostedForwardParts() {
     const sent = [];
-    const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-onepass-why-'));
+    const temp = tempDir('delta-onepass-why-');
     try {
         globalThis.__npcMock ??= { extensionSettings: {}, context: { chat: [] }, saveSettingsCalls: 0 };   // the shared host stubs read it
         standInTree(temp);   // every file under its old name, a stand-in for the real one; runtime-hosted.js itself is a copy with its imports written the old way

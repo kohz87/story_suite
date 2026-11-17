@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { standInTree } from './helpers/temp-tree.js';
@@ -10,6 +9,7 @@ import {
     LEVEL_FIELD_RULE, buildBackfillPrompt, buildDossierImportPrompt, buildNarrationCaptureParts, buildProfileRefreshPrompt,
     buildScannerPrompt, createNpcRecord, mergeScanResult, normalizeNpcRecord,
 } from '../../modules/people/core/core.js';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // The Level field rule (owner-approved, core contract C10): one sentence in the custom-field rule, only when the
 // configured names include Level (any case); every other prompt and field is unchanged.
@@ -85,7 +85,7 @@ test('merge: a Level estimate needs a quote that is really in the story; hand-se
 
 // ---- the Level field appears by itself while Story Block's RPG feature is on (read time, never stored) ----
 // runtime-settings.js imports SillyTavern's extensions.js, so it is loaded from a temp tree with a stub host (as settings-debounce.test.js does).
-const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-level-auto-'));
+const tempRoot = tempDir('npc-level-auto-');
 const extRoot = path.join(tempRoot, 'public', 'scripts', 'extensions', 'third-party', 'npc_state_delta');
 fs.mkdirSync(extRoot, { recursive: true });
 fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'module' }));

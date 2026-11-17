@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { main } from '../../../scripts/codemod/cli.mjs';
 import { loadKnownProblems, splitKnown } from '../../../scripts/codemod/known.mjs';
+import { tempDir } from '../../../scripts/temp-dir.mjs';
 
 const AREAS = ['core', 'director', 'legacy-ui', 'packs', 'people', 'rpg', 'scene-inventory', 'shared'];
 const PROBLEM = 'plan deletes packages/a/deleted.json, still imported by packages/a/keep.js';
@@ -29,7 +29,7 @@ function repo(dir) {
 }
 
 async function run(known, extraFiles = []) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'known-plan-'));
+  const dir = tempDir('known-plan-');
   try {
     const rulesDir = repo(dir);
     const knownFile = path.join(dir, 'known.txt');

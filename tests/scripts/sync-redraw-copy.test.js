@@ -2,13 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const SCRIPT = path.resolve(import.meta.dirname, '../../scripts/sync-redraw-copy.mjs');
 
 function makeRoot() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'redraw-copy-'));
+  const dir = tempDir('redraw-copy-');
   fs.mkdirSync(path.join(dir, 'ui/runtime'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'ui/runtime/redraw.js'), 'export const a = 1;\n');
   return dir;

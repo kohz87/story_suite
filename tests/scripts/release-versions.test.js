@@ -2,10 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { checkRelease } from '../../scripts/release/check.mjs';
 import { readVersions, versionProblems, writeVersions } from '../../scripts/release/versions.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const files = {
@@ -17,7 +17,7 @@ const files = {
   'CHANGELOG.md': '# Changelog\n\n## 0.1.0\n\n- first\n\n## 0.0.9\n',
 };
 function fake(overrides = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'release-versions-'));
+  const dir = tempDir('release-versions-');
   for (const [name, text] of Object.entries({ ...files, ...overrides })) {
     if (text === null) continue;
     fs.mkdirSync(path.dirname(path.join(dir, name)), { recursive: true });

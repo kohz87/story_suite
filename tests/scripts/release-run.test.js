@@ -2,10 +2,10 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // Runs the bundles, not only reads them: Story Block's host (wired as testkit/host.js wires it) with Story Director and NPC State Delta
 // (the suite harness) on the source and on bundles of the same entries built with the release plugin, then
@@ -29,7 +29,7 @@ let out;
 let fromSource;
 let fromBundle;
 before(async () => {
-  out = fs.mkdtempSync(path.join(os.tmpdir(), 'release-run-'));
+  out = tempDir('release-run-');
   const kit = path.join(out, 'kit.js');
   fs.writeFileSync(kit, KIT);
   // One bundle set for the one extension; the three entries stand for the suite's parts the harness starts one by one.

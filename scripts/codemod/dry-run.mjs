@@ -1,10 +1,10 @@
 // Runs one area's whole pipeline (moves, rewrites, verify, the area's moved tests) in a temp worktree and throws it away.
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { applyLayout } from './apply.mjs';
 import { verifyApplied } from './verify-applied.mjs';
+import { tempDir } from '../temp-dir.mjs';
 
 const git = (cwd, args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 
@@ -22,10 +22,10 @@ function cleanEnv() {
  * removed (a deleting area backs up into a temp dir, never the caller's). Returns { report, problems, dataFiles, tests: { count, status, output } | null, after }.
  */
 export function dryRun(repo, ruleSets, area, { allowNonLiteral = [], tests = true, codemap = false, after = null } = {}) {
-  const worktree = fs.mkdtempSync(path.join(os.tmpdir(), 'codemod-dry-'));
+  const worktree = tempDir('codemod-dry-');
   fs.rmSync(worktree, { recursive: true });
   git(repo, ['worktree', 'add', '-q', '--detach', worktree, 'HEAD']);
-  const backupDir = fs.mkdtempSync(path.join(os.tmpdir(), 'codemod-dry-backup-'));
+  const backupDir = tempDir('codemod-dry-backup-');
   try {
     const modules = path.join(repo, 'node_modules');
     if (fs.existsSync(modules)) fs.symlinkSync(modules, path.join(worktree, 'node_modules'));

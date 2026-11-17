@@ -1,9 +1,9 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { suiteAt } from '../../scripts/dryrun/suite-at.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // The dry-run compares a checkout from before the move with one from after it: the same name is found in either.
 let tmp;
@@ -14,7 +14,7 @@ const suiteOf = root => {
 };
 
 before(() => {
-  tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dryrun-suite-at-'));
+  tmp = tempDir('dryrun-suite-at-');
   put(path.join(tmp, 'before'), 'packages/story-block/src/v2/store.js', "export const where = 'old layout';\n");
   put(path.join(tmp, 'after'), 'core/store.js', "export const where = 'new layout';\n");
   put(path.join(tmp, 'after'), 'packages/story-block/src/v2/keep.js', "export const where = 'not moved';\n");

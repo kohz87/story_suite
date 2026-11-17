@@ -1,19 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { applyLayout } from '../../../scripts/codemod/apply.mjs';
 import { runApply, runPort, runVerify } from '../../../scripts/codemod/area-commands.mjs';
 import { main } from '../../../scripts/codemod/cli.mjs';
 import { SET_A, SET_B } from '../codemod-sets.js';
 import { TOY, git, toyRepo, writeFiles } from '../codemod-toy.js';
+import { tempDir } from '../../../scripts/temp-dir.mjs';
 
 const sink = () => ({ text: '', write(chunk) { this.text += chunk; } });
 const streams = () => ({ stdout: sink(), stderr: sink() });
 const OLD = { ...TOY, 'pkg/src/old/x.js': 'export const x = 1;\n' };
 const withDelete = { ...SET_B, rules: [...SET_B.rules, { from: 'pkg/src/old', to: null }] };
-const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'codemod-safety-'));
+const tmp = () => tempDir('codemod-safety-');
 
 test('applyLayout refuses to delete files without a backup dir', () => {
   const root = toyRepo(OLD);

@@ -2,13 +2,13 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHost } from '../../../testkit/index.js';
 import { checkInvariants, rebuildAt } from './helpers/oracle.js';
 import { firstDifference } from './helpers/replay-diagnostics.js';
 import { fuzz } from './helpers/state-fuzz-run.js';
+import { tempDir } from '../../../scripts/temp-dir.mjs';
 
 test('refused rare shield then story-given Iron Key equipment leaves every replay unchanged', async t => {
     const host = await createHost({ settings: { features: { 'story-block.gear': true, 'story-block.rpg': true } } });
@@ -42,7 +42,7 @@ test('refused rare shield then story-given Iron Key equipment leaves every repla
 });
 
 test('a replay mismatch reports the field, commands, and complete synthetic chat in the dump', async t => {
-    const dir = mkdtempSync(join(tmpdir(), 'state-fuzz-test-'));
+    const dir = tempDir('state-fuzz-test-');
     t.after(() => rmSync(dir, { recursive: true, force: true }));
     const previousDir = process.env.FUZZ_DUMP_DIR;
     process.env.FUZZ_DUMP_DIR = dir;
@@ -85,7 +85,7 @@ test('replay differences distinguish missing fields and escape JSON pointer segm
 });
 
 test('a store read that writes to the chat is named, and the dump holds the chat the rebuild read', async t => {
-    const dir = mkdtempSync(join(tmpdir(), 'state-fuzz-test-'));
+    const dir = tempDir('state-fuzz-test-');
     t.after(() => rmSync(dir, { recursive: true, force: true }));
     const host = await createHost();
     t.after(() => host.close());

@@ -1,16 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
 import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
 import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { stylesheetRequests } from '../../scripts/release/css.mjs';
 import { MAX_REQUESTS, checkRelease } from '../../scripts/release/check.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../..');
-const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'css-gate-'));
+const tmp = () => tempDir('css-gate-');
 
 test('local @imports left in a built suite.css are each counted, and enough of them fail the real gate', async () => {
   const outRoot = tmp();

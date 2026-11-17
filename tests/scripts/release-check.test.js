@@ -1,18 +1,18 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
 import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
 import { stylesheetRequests } from '../../scripts/release/css.mjs';
 import { MAX_REQUESTS, RELEASE_VERSION, checkRelease } from '../../scripts/release/check.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 let outRoot;
 let result;
 before(async () => {
-  outRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'release-check-'));
+  outRoot = tempDir('release-check-');
   result = await checkRelease({ repoRoot, outRoot });
 });
 after(() => fs.rmSync(outRoot, { recursive: true, force: true }));
@@ -43,7 +43,7 @@ test('the People part starts with the entry, so it is packed into it and is not 
 });
 
 test('building the real packages twice gives byte-identical files', async () => {
-  const again = fs.mkdtempSync(path.join(os.tmpdir(), 'release-check-'));
+  const again = tempDir('release-check-');
   try {
     await checkRelease({ repoRoot, outRoot: again });
     for (const set of BUNDLE_SETS) {
@@ -57,7 +57,7 @@ test('building the real packages twice gives byte-identical files', async () => 
 });
 
 function fakeRepo(version, tags) {
-  const fake = fs.mkdtempSync(path.join(os.tmpdir(), 'release-fake-'));
+  const fake = tempDir('release-fake-');
   fs.writeFileSync(path.join(fake, 'package.json'), JSON.stringify({ version }));
   fs.writeFileSync(path.join(fake, 'package-lock.json'), JSON.stringify({ version }));
   const git = (...args) => execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', ...args], { cwd: fake, stdio: 'ignore' });

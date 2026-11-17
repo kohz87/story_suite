@@ -7,6 +7,10 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const sourceRoot = path.resolve(here, '..');
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-state-delta-runtime-'));
+// Inline, not scripts/temp-dir.mjs: onepass-backfill-cadence.test.js runs this file's source from stdin, where a relative import does not resolve.
+const removeTempRoot = () => fs.rmSync(tempRoot, { recursive: true, force: true });
+process.on('exit', removeTempRoot);
+for (const [signal, code] of [['SIGINT', 130], ['SIGTERM', 143], ['SIGHUP', 129]]) process.on(signal, () => process.exit(code));
 const extRoot = path.join(tempRoot, 'public', 'scripts', 'extensions', 'third-party', 'npc_state_delta');
 fs.mkdirSync(extRoot, { recursive: true });
 for (const name of ['index.js', 'core.js', 'core-mechanics.js', 'bundle.js', 'branch.js', 'branch-core.js', 'social.js', 'storage.js', 'identity.js', 'hardening-core.js', 'runtime-targeted-scope.js', 'runtime-targeted-refresh.js', 'runtime-targeted-backfill.js']) {

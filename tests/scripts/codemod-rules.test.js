@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { loadRules, matchPath, parseRules } from '../../scripts/codemod/rules.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const set = parseRules({
   area: 'a',
@@ -44,7 +44,7 @@ test('validation rejects bad rule files and loadRules reads a file', () => {
   assert.throws(() => parseRules({ area: 'a', rules: [{ from: 'p/', to: 'q' }] }), /from/);
   assert.throws(() => parseRules({ area: 'a', rules: [{ from: 'p', to: 3 }] }), /to/);
   assert.throws(() => parseRules({ area: 'a', rules: [], scope: 'x' }), /scope/);
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rules-'));
+  const dir = tempDir('rules-');
   fs.writeFileSync(path.join(dir, 'a.rules.json'), JSON.stringify({ area: 'a', rules: [{ from: 'p', to: 'q' }] }));
   assert.equal(loadRules(path.join(dir, 'a.rules.json')).rules[0].to, 'q');
 });

@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
@@ -30,6 +29,7 @@ import {
     viaV1,
     viaV2,
 } from './storage.helpers.js';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 test('v2: encode writes formatVersion 2 with the packing header before state; checkpoints round-trip stringify-identical', () => {
     const { state } = buildChat(30);
@@ -198,7 +198,7 @@ test('v2 older build: a v1 decoder refuses a v2 file and the file bytes are unto
 // history, so there a missing commit fails; on a machine without it (a source tarball, a shallow clone) the test skips.
 const PREVIOUS_BUILD = { commit: '721774f903768945a4bd2343a48f6453de1684fc', folder: 'packages/npc-state-delta' };
 test('v2 older build (T9b): the real previous build, writing over a v2 file, uploads nothing and leaves the bytes unchanged', async t => {
-    const dir = mkdtempSync(join(tmpdir(), 'nsd-old-build-'));
+    const dir = tempDir('nsd-old-build-');
     try {
         const here = dirname(fileURLToPath(import.meta.url));
         const packed = spawnSync('sh', ['-c', 'git archive "$0:$2" | tar -x -C "$1"', PREVIOUS_BUILD.commit, dir, PREVIOUS_BUILD.folder], { cwd: join(here, '..', '..') });
