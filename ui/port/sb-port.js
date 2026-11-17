@@ -2,6 +2,7 @@
 
 import { modelsCommand } from './models.js';
 import { toolsCommand } from './tools.js';
+import { trackerCommand } from './trackers.js';
 
 const FAILED = Object.freeze({ ok: false, code: 'FAILED', message: 'The engine could not do that.' });
 
@@ -44,6 +45,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
   const read = makeReader(sdk);
   const heard = new Set();
   // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
+  const announce = (answer) => { for (const fn of [...heard]) { try { fn(answer); } catch { /* a broken listener must not break the call */ } } };
   const interact = async (verb, payload) => {
     const call = sdk?.interaction?.[verb];
     if (typeof call !== 'function') return { ...FAILED, message: 'The engine has no interactions.' };
@@ -53,7 +55,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
     } catch (error) {
       answer = failure(error);
     }
-    for (const fn of [...heard]) { try { fn(answer); } catch { /* a broken listener must not break the call */ } }
+    announce(answer);
     return answer;
   };
   const port = {
@@ -76,6 +78,10 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) return answer;
         try { answer = await toolsCommand(tools, type, payload); } catch (error) { answer = failure(error); }
         if (answer) return answer;
+      }
+      if (typeof type === 'string' && type.startsWith('tracker.')) {
+        const answer = await trackerCommand(sdk, type, payload).catch(failure);
+        if (answer) { announce(answer); return answer; }
       }
       if (typeof type === 'string' && type.startsWith('interaction.')) {
         const verb = type.slice('interaction.'.length);

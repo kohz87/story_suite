@@ -72,7 +72,7 @@
 .su-root .story-tab .sw::before{left:4px;top:10px;width:54px;height:26px}
 .su-root .story-tab .sw::after{left:7px;top:13px;width:18px;height:18px;background:var(--su-soft)}
 .su-root .story-tab .sw[aria-checked="true"]::after{transform:translateX(18px);background:#fff}
-.story-trackers>.hiddenrow,.story-trackers>.fine{margin:0 4px}
+.story-trackers>.hiddenrow,.story-trackers>.fine,.story-trackers>.brow{margin:0 4px}
 .story-tab .fld{font-size:13.5px}
 .trk .th2 .pinnow{font:700 12px var(--su-font)}
 /* The mock page renders in quirks mode, where a line holding only small text ignores the parent's line height; these set the parent to the small text's own size so the rows come out the same height. */

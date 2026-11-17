@@ -31,8 +31,8 @@ const COUNTS = { met: 2, total: 6, unmet: 4 };
 const SWAY = [{ id: 'council', name: 'Council of Sails', sway: 40, reasons: [] }, { id: 'cord', name: 'Red Cord', sway: 35, reasons: [] }];
 // dataModules.setup: SB/data-modules/part/factory.js:60 (rows with module, pinned, definition); dataModules.view: views.js:51 ({ chat: { field: value } }).
 const SETUP = [
-  { module: 'debt', pinned: true, definition: { name: 'Chapel debt', scope: 'chat', show: { card: true }, schema: { owed: { type: 'int', min: 0, max: 120 }, mood: { type: 'int', min: 0, max: 3, names: { 2: 'steady' } } } } },
-  { module: 'stores', pinned: true, definition: { name: 'Ship’s stores', scope: 'chat', schema: {} } },
+  { module: 'debt', pinned: true, definition: { name: 'Chapel debt', scope: 'chat', show: { card: true }, state: { owed: { type: 'int', min: 0, max: 120 }, mood: { type: 'int', min: 0, max: 3, names: { 2: 'steady' } } } } },
+  { module: 'stores', pinned: true, definition: { name: 'Ship’s stores', scope: 'chat', state: {} } },
   { module: 'party', pinned: true, definition: { name: 'Per person', scope: 'character' } },
   { module: 'idle', pinned: false, definition: { name: 'Not pinned', scope: 'chat' } },
 ];
@@ -111,15 +111,30 @@ describe('selectStory', () => {
     assert.deepEqual(selectStory(recorded(), { planShown: true }).ripples.items, [{ name: 'Council of Sails', sway: 40 }, { name: 'Red Cord', sway: 35 }]);
   });
 
+  it('reads the pinned definition (state, label, show) and says which fields Edit may change and whether Remove applies', () => {
+    const read = (name, args) => (name === 'dataModules.view' ? { chat: { water: 6, mood: 'calm', tag: 'x', log: 'a, b', fixed: 3 } }
+      : name === 'dataModules.setup' ? [{ module: 'm', pinned: true, packId: 'chat', definition: { name: 'Offer', scope: 'chat', state: {} },
+        pinnedDefinition: { name: 'Pinned', scope: 'chat', show: { card: true }, state: {
+          water: { type: 'int', min: 0, max: 10, label: 'Water' }, mood: { type: 'enum', values: ['calm', 'tense'] }, tag: { type: 'text', max: 9 },
+          log: { type: 'text', list: true }, fixed: { type: 'int', min: 0, max: 5, edit: false } } } }] : null);
+    const [t] = selectStory(read).trackers;
+    assert.equal(t.name, 'Pinned');
+    assert.equal(t.showOnNow, true);
+    assert.equal(t.removable, true);
+    assert.deepEqual(t.fields.map(f => [f.key, f.label, f.edit ?? null]), [['water', 'Water', 'number'], ['mood', 'mood', 'choice'], ['tag', 'tag', 'text'], ['log', 'log', null], ['fixed', 'fixed', null]]);
+    assert.deepEqual(t.fields[1].options, ['calm', 'tense']);
+    assert.equal(selectStory(read).trackerTemplates.length, 3);
+  });
+
   it('builds trackers from pinned chat modules: bars for bounded numbers, text, and the hidden count', () => {
     const vm = selectStory(recorded());
     assert.deepEqual(vm.trackers.map(t => [t.id, t.name, t.showOnNow]), [['debt', 'Chapel debt', true], ['stores', 'Ship’s stores', false]]);
     assert.deepEqual(vm.trackers[0].fields, [
-      { label: 'owed', value: '100', kind: 'bar', pct: 83 },
-      { label: 'mood', value: 'steady', kind: 'bar', pct: 67 },
-      { label: 'note', value: 'Due Goldwane 30', kind: 'text' },
+      { label: 'owed', key: 'owed', value: '100', raw: '100', edit: 'number', min: 0, max: 120, kind: 'bar', pct: 83 },
+      { label: 'mood', key: 'mood', value: 'steady', raw: '2', edit: 'number', min: 0, max: 3, kind: 'bar', pct: 67 },
+      { label: 'note', key: 'note', value: 'Due Goldwane 30', kind: 'text' },
     ]);
-    assert.deepEqual(vm.trackers[1].fields, [{ label: 'rations', value: '14', kind: 'number' }]);
+    assert.deepEqual(vm.trackers[1].fields, [{ label: 'rations', key: 'rations', value: '14', kind: 'number' }]);
     assert.equal(vm.trackersHidden, 1);
   });
 

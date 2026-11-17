@@ -4,6 +4,8 @@
 // director.cast.counts (SD/cast/queries.js:60), ripples.sway (SD/ripples/index.js:362), dataModules.setup (SB/data-modules/part/factory.js:60),
 // dataModules.view (SB/data-modules/part/views.js:51). `read(name, args)` returns the recorded answer, or null/undefined when the query is absent.
 
+import { BLOCK_STARTERS } from '../../modules/data-modules/block-starters.js';
+
 const MODES = ['off', 'quiet', 'lively'];
 const list = value => (Array.isArray(value) ? value.filter(item => item && typeof item === 'object') : []);
 const text = value => (typeof value === 'string' ? value.trim() : '');
@@ -70,29 +72,43 @@ function castOf(counts) {
   return { total: number(counts.total), met: number(counts.met), unmet: number(counts.unmet), lastMoved: null };
 }
 
-// One chat-scope module's fields (dataModules.view → { chat: { name: value } }); a number with min and max in its schema is a bar.
-function fieldsOf(row, view) {
-  const schema = row.definition?.schema ?? {};
-  return Object.entries(view?.chat ?? {}).map(([label, value]) => {
-    const spec = schema[label] ?? {};
+// One chat-scope module's fields (dataModules.view → { chat: { name: value } }; the types are the block's `state`): an int with a max is a bar.
+// `key` is the field's name for dm.set; `edit` says how Edit changes it by hand (number, text or choice), none for a locked, list or map field.
+function editOf(spec, value) {
+  if (spec.edit === false || spec.list === true) return null;
+  if (spec.type === 'int' && Number.isFinite(value)) return { edit: 'number', min: Number.isFinite(spec.min) ? spec.min : 0, max: Number.isFinite(spec.max) ? spec.max : null };
+  if (spec.type === 'text' && typeof value === 'string') return { edit: 'text', max: Number.isFinite(spec.max) ? spec.max : null };
+  if (spec.type === 'enum' && Array.isArray(spec.values) && spec.values.includes(value)) return { edit: 'choice', options: spec.values.map(String) };
+  return null;
+}
+
+function fieldsOf(definition, view) {
+  const state = definition?.state ?? {};
+  return Object.entries(view?.chat ?? {}).map(([key, value]) => {
+    const spec = state[key] && typeof state[key] === 'object' ? state[key] : {};
+    const label = text(spec.label) || key;
     const shown = spec.names && Object.hasOwn(spec.names, String(value)) ? spec.names[String(value)] : String(value);
+    const edit = editOf(spec, value);
+    const base = { label, key, value: shown, ...(edit ? { raw: String(value), ...edit } : {}) };
     if (spec.type === 'int' && Number.isFinite(value) && Number.isFinite(spec.max)) {
       const min = Number.isFinite(spec.min) ? spec.min : 0;
       const pct = spec.max > min ? Math.round(((value - min) / (spec.max - min)) * 100) : 0;
-      return { label, value: shown, kind: 'bar', pct: Math.max(0, Math.min(100, pct)) };
+      return { ...base, kind: 'bar', pct: Math.max(0, Math.min(100, pct)) };
     }
-    return { label, value: shown, kind: typeof value === 'number' ? 'number' : 'text' };
+    return { ...base, kind: typeof value === 'number' ? 'number' : 'text' };
   });
 }
 
+// Pinned chat blocks only. The active (pinned) definition is the one in force; `show.card` is Show on Now. A block with no field to draw is counted as hidden.
 function trackersOf(read) {
   const trackers = [];
   let hidden = 0;
   for (const row of list(read('dataModules.setup', {})).filter(r => r.pinned === true)) {
-    const view = row.definition?.scope === 'chat' ? read('dataModules.view', { module: row.module }) : null;
-    const fields = fieldsOf(row, view);
+    const definition = row.pinnedDefinition ?? row.definition;
+    const view = definition?.scope === 'chat' ? read('dataModules.view', { module: row.module }) : null;
+    const fields = fieldsOf(definition, view);
     if (!fields.length) { hidden += 1; continue; }
-    trackers.push({ id: text(row.module), name: text(row.definition?.name) || text(row.module), showOnNow: Boolean(row.definition?.show?.card), fields });
+    trackers.push({ id: text(row.module), name: text(definition?.name) || text(row.module), showOnNow: Boolean(definition?.show?.card), removable: row.packId === 'chat', fields });
   }
   return { trackers, trackersHidden: hidden };
 }
@@ -114,5 +130,6 @@ export function selectStory(read, opts = {}) {
     secrets: gate(list(plan.secrets), shown, secretOf(read('people.secretOwners', {}))),
     ripples: gate(sway, shown, row => ({ name: text(row.name), sway: number(row.sway) })),
     ...trackersOf(read),
+    trackerTemplates: BLOCK_STARTERS.map(({ id, name, about }) => ({ id, name, about })),
   };
 }
