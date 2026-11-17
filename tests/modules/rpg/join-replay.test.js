@@ -152,13 +152,6 @@ test('2.9.1: the first character a story gets through Add to party also brings t
     await rebuilt(host, 'after the swipe');
 });
 
-test('2.17.0 (a chat made under the earlier rules; v1 gives one point every level): a companion made by a party line or Add to party has the same level-up rule as any new character: a point for every multiple of 3 the rise crosses (was: 3 points with each Soul Class rise)', () => {
-    const { character } = joinDefinitions({ name: 'Mara', about: '', soul: 1, best: '' }, { kind: 'standard' });
-    const rule = character.rules.find(item => item.id === 'level-up');
-    assert.equal(character.rules.some(item => item.id === 'class-up'), false);
-    assert.deepEqual(rule.then.find(effect => effect.path[0] === 'points'), { op: 'add', path: ['points'], value: ['sub', ['floorDiv', ['add', ['get', ['level']], ['get', ['rise']]], 3], ['floorDiv', ['get', ['level']], 3]], bounds: 'clamp' });
-});
-
 test('wizard characters replay with the RPG off: two made without a roll, join or note stay after a rebuild and a cold reload, the RPG off and then on', { skip }, async t => {
     const host = await world({ feature: false, wessel: false });
     t.after(() => host.close());

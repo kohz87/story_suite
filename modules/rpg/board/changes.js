@@ -2,7 +2,7 @@
 // They only apply what the kind's own play worked out: the foes a pre-check opened, the foes' new bars, and the groups of an ended fight leaving the block.
 import { BOARD_AWARD as AWARD, BOARD_CLEAR_FOES as CLEAR_FOES, BOARD_HURTS as HURTS, BOARD_OPEN_FOES as OPEN_FOES } from '../names.js';
 import { openFoes } from '../open.js';
-import { applyHurts, clearFoes } from './engine.js';
+import { applyHurts, clearFoes } from './foe-writes.js';
 import { awardCommand } from './v1-award.js';
 
 const whole = value => Number.isFinite(value) && value >= 0;

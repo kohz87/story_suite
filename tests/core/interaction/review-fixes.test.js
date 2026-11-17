@@ -5,12 +5,17 @@ import assert from 'node:assert/strict';
 import { hashJson } from '../../../core/replay.js';
 import { preludeDice } from '../../../core/interaction/dice.js';
 import { rng } from '../../../core/commands/rng.js';
-import { positionalDice } from '../../../modules/rpg/resolve/dice.js';
 import { markPlayer } from '../../../core/interaction/player.js';
 import { policyProblem } from '../../../core/interaction/policy.js';
 import { settleInteraction } from '../../../core/interaction/settle.js';
 import { createInteractionApi } from '../../../core/sdk/interaction.js';
 import { PROBE_ID, PROBE_KIND, probeRegistry } from './helpers/probe-kind.js';
+
+// The host's positional source for a roll's base (one d20 stream per lane name and position), as the earlier planner's roll drew it.
+const positionalDice = base => Object.assign((kind, at) => {
+    const random = rng((base ^ Math.imul({ act: 1, foe: 2, check: 3, init: 4, open: 5 }[kind] * 64 + at + 1, 0x9E3779B1)) >>> 0);
+    return () => 1 + Math.floor(random() * 20);
+}, { positional: true });
 
 const go = { inputs: [{ actor: 'hero', choice: 'go' }] };
 

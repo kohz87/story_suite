@@ -33,6 +33,6 @@
 export { BATTLE_ROOT, BATTLE_ID, MARKER_LINE } from './battle-log/constants.js';
 export { outcomeOf, rollText, readResolve, resolveOf } from './battle-log/read.js';
 export { panelModel } from './battle-log/model.js';
-export { headerText, buildPanel, noteText, buildNote } from './battle-log/draw.js';
+export { headerText, buildPanel } from './battle-log/draw.js';
 export { MARKER_HIDDEN, markerNodes, hideMarkers, releasePanel, placeAtMarker } from './battle-log/marker.js';
 export { createFoldStore, createBattleLog } from './battle-log/follow.js';

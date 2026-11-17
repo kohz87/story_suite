@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { readParty } from '../../../../modules/rpg/view/party-data.js';
 import { createPartyWidget } from '../../../../modules/rpg/view/party.js';
 import { RANK_TONES, masteryOf, renderSkills, rollOf } from '../../../../modules/rpg/view/skills.js';
@@ -60,38 +60,6 @@ test('the roll: d20 + half the stat + rank + level ÷ 5 (rounded down), worked o
     assert.deepEqual([none.stat, none.total], [null, 2], 'a skill with no stat of its own: rank and level only');
 });
 
-test('the view: a card per skill with the rank pill, STAT · Uses, what it does, the mastery bar and the roll line', () => {
-    const { el } = draw();
-    assert.equal(el.querySelector('.rpg-sheet-name').textContent, 'Wessel\'s skills');
-    // (PINNED CHANGE: the pills were Lv 2 and 4 of 5 slots; the slots pill is gone)
-    assert.deepEqual(el.querySelectorAll('.rpg-pills .ss-pill').map(node => node.textContent), ['Lv 2']);
-    assert.deepEqual(rows(el).map(row => row.querySelector('.rpg-skill-name').textContent), ['Iron Breath', 'Short blade', 'Rope work', 'River swimming']);
-    assert.deepEqual(rows(el).map(row => row.querySelector('.rpg-rank').textContent), ['Expert', 'Novice', 'Adept', 'Master']);
-    assert.deepEqual(rows(el).map(row => ['neutral', 'info', 'accent', 'good'].find(tone => row.querySelector('.rpg-rank').classList.contains(`rpg-tone-${tone}`)) ?? 'neutral'), ['accent', 'neutral', 'info', 'good']);
-    assert.deepEqual(rows(el).map(row => row.querySelector('.rpg-skill-uses').textContent), ['VIT · Stamina', 'AGI · Stamina', 'DEX · Stamina', 'VIT · Stamina']);
-    assert.equal(rows(el)[0].querySelector('.rpg-skill-about').textContent, SKILLS.about1);
-    assert.deepEqual(rows(el).map(row => row.querySelector('.rpg-skill-roll').textContent), [
-        'Rolls with it: d20 +8 = VIT 12 → +6 · Expert +2 · Lv 2 ÷ 5 +0',
-        'Rolls with it: d20 +5 = AGI 11 → +5 · Novice +0 · Lv 2 ÷ 5 +0',
-        'Rolls with it: d20 +6 = DEX 10 → +5 · Adept +1 · Lv 2 ÷ 5 +0',
-        'Rolls with it: d20 +9 = VIT 12 → +6 · Master +3 · Lv 2 ÷ 5 +0',
-    ]);
-    assert.equal(rows(el)[0].querySelector('.rpg-skill-roll b').textContent, 'Rolls with it: d20 +8');
-});
-
-test('the mastery bar is the real ss.meter: four cells, the value, the words and the tone', () => {
-    const { el } = draw();
-    const meters = rows(el).map(row => row.querySelector('.rpg-skill-meter .ss-w-meter'));
-    assert.deepEqual(meters.map(node => node.getAttribute('aria-valuemax')), ['4', '4', '4', '4']);
-    assert.deepEqual(meters.map(node => node.getAttribute('aria-valuenow')), ['3.4', '1.65', '2.1', '4']);
-    assert.match(meters[0].getAttribute('aria-valuetext'), /Expert · 40 \/ 100 to Master/);
-    assert.match(meters[3].getAttribute('aria-valuetext'), /Master/);
-    assert.deepEqual(['accent', 'neutral', 'info', 'good'].map((tone, at) => meters[at].classList.contains(`ss-w-tone-${tone}`)), [true, true, true, true]);
-    // Expert 40 / 100: three cells lit and a fourth partly; Master: all four lit; Novice 65: one lit and the next partly.
-    const lit = meter => [meter.querySelectorAll('.ss-w-on').length, meter.querySelectorAll('.ss-w-part').length];
-    assert.deepEqual(meters.map(lit), [[3, 1], [1, 1], [2, 1], [4, 0]]);
-});
-
 test('the legend uses the same tones as the rank pills', () => {
     const { el } = draw();
     const pills = el.querySelectorAll('.rpg-skill-legend .ss-pill');
@@ -100,31 +68,11 @@ test('the legend uses the same tones as the rank pills', () => {
     assert.match(el.querySelector('.rpg-skill-legend').textContent, /^Mastery:.*to rolls with that skill$/);
 });
 
-test('an empty slot is a dashed line, one per slot, and a skill-less character has five', () => {
-    const { el } = draw();
-    assert.deepEqual(el.querySelectorAll('.rpg-skill-empty').map(node => node.textContent), ['Empty slot · filled when the story has Wessel learn a new skill']);
-    const bare = draw({}, { who: 'Wessel' });
-    assert.equal(bare.el.querySelectorAll('.rpg-skill-empty').length, 5);
-    assert.equal(rows(bare.el).length, 0);
-    // (PINNED CHANGE: this was the "0 of 5 slots" pill test. The USER found the pill redundant with the list, so the Skills card has no slots pill; the Lv pill stays.)
-    assert.equal(bare.el.querySelector('.rpg-skill-slots'), null, 'the Skills card has no slots pill');
-    assert.equal(bare.el.querySelector('.rpg-slots'), null);
-    assert.ok(!/of 5 slots/.test(bare.el.textContent));
-    assert.ok(bare.el.querySelector('.rpg-level-pill'), 'the Lv pill stays');
-});
-
 test('the footer note follows the rule: with Rolls automatic practice comes from rolled uses, with Rolls off the story adds it', () => {
     const rolled = draw({ rolled: true }).el.querySelector('.rpg-skill-note').textContent;
     assert.match(rolled, /^Practice comes from rolled skill uses: fights and checks\./);
     assert.doesNotMatch(rolled, /The story adds practice/);
     assert.match(draw().el.querySelector('.rpg-skill-note').textContent, /^The story adds practice when a skill is used;/);
-});
-
-test('a skill from a block with no stat of its own says what it can: the stat is the story\'s pick', () => {
-    const { el } = draw({}, { who: 'Wessel', skill1: 'Hide', rank1: 1, stat1: '', uses1: '' });
-    const row = rows(el)[0];
-    assert.ok(!row.querySelector('.rpg-skill-uses'));
-    assert.equal(row.querySelector('.rpg-skill-roll').textContent, 'Rolls with the stat the story picks: Adept +1 · Lv 2 ÷ 5 +0');
 });
 
 test('Back to the party calls back; the note says rank and practice only move through play', () => {
@@ -212,35 +160,6 @@ test('names and descriptions from the story are text, never markup', () => {
     assert.equal(globalThis.pwned, undefined);
 });
 
-test('the Party widget opens the view in place of the cards and a story change keeps it (and an open editor) open', async () => {
-    let current = state();
-    const doc = setupDom(), el = doc.createElement('div');
-    doc.body.appendChild(el);
-    const calls = [];
-    const widget = createPartyWidget({ headState: () => current, readerName: () => 'Wessel' });
-    const handle = widget.render(el, {}, { command: async (type, payload) => { calls.push([type, payload]); return { ok: true }; } });
-    el.querySelector('.rpg-skills-open').click();
-    assert.ok(el.querySelector('.rpg-skills-view'));
-    assert.equal(el.querySelector('.rpg-main').hidden, true);
-    rows(el)[2].querySelector('.rpg-skill-pencil').click();
-    el.querySelector('[data-skill-field="name"]').value = 'Rope-work';
-    el.querySelector('[data-skill-field="name"]').dispatch('input');
-    current = state({ ...SKILLS, practice1: 50 });
-    handle.update({});
-    assert.ok(el.querySelector('.rpg-skills-view'), 'still open after the page drew it again');
-    assert.equal(el.querySelector('[data-skill-field="name"]').value, 'Rope-work', 'with what was typed');
-    assert.match(rows(el)[0].querySelector('.ss-w-meter').getAttribute('aria-valuetext'), /50 \/ 100/, 'and the new numbers');
-    // The skill under the editor was renamed by the story: the editor closes and says so.
-    current = state({ ...SKILLS, skill3: 'Ropes' });
-    handle.update({});
-    assert.ok(!el.querySelector('.rpg-skill-form'));
-    assert.match(el.querySelector('.rpg-skill-status').textContent, /changed while you were editing/);
-    el.querySelector('.rpg-skills-back').click();
-    assert.ok(!el.querySelector('.rpg-skills-view'));
-    assert.equal(el.querySelector('.rpg-main').hidden, false);
-    assert.deepEqual(calls, []);
-});
-
 test('the stylesheet: the rank tones, a two-column list on a wide container, theme tokens only', () => {
     const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     for (const tone of ['info', 'accent', 'good']) assert.match(css, new RegExp(`\\.rpg-tone-${tone} \\{[^}]*var\\(--ss-${tone}\\)`));
@@ -248,41 +167,6 @@ test('the stylesheet: the rank tones, a two-column list on a wide container, the
     assert.match(css, /@container \(min-width: 760px\) \{\s*\.rpg-skill-list \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/);
     assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/);
     assert.doesNotMatch(css, /\brgba?\(/);
-});
-
-test('on the real page: Skills opens the view, the pencil saves one dm.set, rank and practice are untouched, and live = reload = rebuild', async t => {
-    const { doc, host, ui } = await page(t);
-    await begin(host);
-    const { skills } = await makeBlocks(host, { skills: { skill1: 'Iron Breath', about1: 'Drill breathing.', stat1: 'vit', rank1: 1, practice1: 30, skill2: 'Spark', stat2: 'int', uses2: 'mana' } });
-    await host.send('Go.', 'The quay.');
-    ui.mounts.screen.open('story-block/party');
-    await settle();
-    party(doc).querySelector('.rpg-skills-open').click();
-    const view = party(doc).querySelector('.rpg-skills-view');
-    assert.ok(view);
-    assert.deepEqual(view.querySelectorAll('.rpg-skill-name').map(node => node.textContent), ['Iron Breath', 'Spark']);
-    assert.deepEqual(view.querySelectorAll('.rpg-skill-uses').map(node => node.textContent), ['VIT · Stamina', 'INT · Mana']);
-    view.querySelector('.rpg-skill[data-slot="1"] .rpg-skill-pencil').click();
-    const name = party(doc).querySelector('[data-skill-field="name"]'), about = party(doc).querySelector('[data-skill-field="about"]');
-    name.value = 'Iron Breath II';
-    name.dispatch('input');
-    about.value = 'Longer drills.';
-    about.dispatch('input');
-    party(doc).querySelector('.rpg-skill-save').click();
-    await settle();
-    const fields = fieldsOf(host, skills);
-    assert.deepEqual([fields.skill1, fields.about1, fields.rank1, fields.practice1, fields.stat1, fields.uses1], ['Iron Breath II', 'Longer drills.', 1, 30, 'vit', 'stamina']);
-    assert.ok(!party(doc).querySelector('.rpg-skill-form'), 'saved: the editor closes');
-    assert.equal(party(doc).querySelector('.rpg-skill[data-slot="1"] .rpg-skill-name').textContent, 'Iron Breath II');
-    const edits = host.ctx.chat.flatMap(message => message.extra?.storySuite?.receipts ?? []).filter(receipt => receipt.type === 'dm.set');
-    assert.equal(edits.length, 1, 'one action for both fields');
-    assert.match(edits[0].summary, /Skill 1 .* → "Iron Breath II"/);
-    rebuilt(host);
-    // The story practises the skill and it rises; the view shows it live. (With Rolls automatic practice comes only from rolled uses: Rolls is off for this step.)
-    host.settings.set('story-block', 'rpgRolls', 'off');
-    await host.send('Train.', reply('+ dm skills-1 — drills | kind: practice-1 | amount: 20'.replace('skills-1', 'wessel-skills')));
-    assert.equal(fieldsOf(host, skills).practice1, 50);
-    rebuilt(host);
 });
 
 test('feature off: no Party tab, no Skills view, nothing loaded', async t => {

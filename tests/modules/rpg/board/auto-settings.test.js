@@ -51,10 +51,9 @@ test('the cap card draws the value line, the shared slider and the three stop la
     assert.deepEqual([...node.querySelectorAll('.rpg-board-cap-ends span')].map(n => n.textContent), ['1', '8', 'Until the end']);
 });
 
-test('the board setting shows the slider only when the caller gives one', () => {
-    const doc = setupDom(), feature = { on: () => true, set() {} };
-    assert.equal(boardSetting(doc, feature, () => {}).querySelector('.rpg-board-cap-input'), null);
-    const both = boardSetting(doc, feature, () => {}, { value: 5, set() {} });
+test('the board setting is the cap card and the pre-check switch; it has no Fight board switch of its own', () => {
+    const doc = setupDom(), both = boardSetting(doc, { value: 5, set() {} }, { value: true, set() {} });
     assert.equal(both.querySelector('.rpg-board-cap-input').value, '5');
-    assert.ok(both.querySelector('[data-card="board"]'));
+    assert.ok(both.querySelector('[data-card="precheck"]'));
+    assert.equal(both.querySelector('[data-card="board"]'), null, 'the board is on whenever the RPG is: no switch');
 });

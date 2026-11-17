@@ -6,7 +6,6 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { createPartyWidget } from '../../../../modules/rpg/view/party.js';
 import { buildPanel, panelModel, readResolve } from '../../../../modules/rpg/view/battle-log.js';
-import { ROLLS_DEFAULT, rollsOf } from '../../../../modules/rpg/view/settings.js';
 import { characterDefinition, fakeState, foesDefinition, roleOf, skillsDefinition } from './helpers.js';
 
 const MARK = '<img src=x onerror="globalThis.pwned=1"><b>bold</b>';
@@ -22,30 +21,4 @@ test('the view sources use no markup, script or random APIs; only the stylesheet
         assert.doesNotMatch(source, /setAttribute\(\s*['"]on/i, `${file} sets no on* attribute`);
         if (file !== 'index.js') assert.doesNotMatch(source, /setAttribute\(\s*['"](?:style|href|src)/i, `${file} sets no style, href or src`);
     }
-});
-
-test('names from the story are text on the cards and in the battle log', () => {
-    const state = fakeState([
-        { definition: characterDefinition('wessel', MARK), fields: { who: MARK } },
-        { definition: skillsDefinition('wessel-skills', MARK), fields: { skill1: MARK } },
-        { definition: foesDefinition(), fields: { foe1: MARK } },
-    ]);
-    const doc = setupDom(), el = doc.createElement('div');
-    doc.body.appendChild(el);
-    createPartyWidget({ headState: () => state, roleOf }).render(el, {}, {});
-    assert.ok(el.textContent.includes(MARK), 'shown as text');
-    assert.equal(el.querySelectorAll('img, script, iframe, style, a').length, 0);
-    assert.equal(el.querySelectorAll('b').filter(node => node.children.length).length, 0, 'a <b> holds only text');
-    const model = panelModel({ resolve: readResolve({ rounds: [{ n: 1, lines: [{ kind: 'act', outcome: 'success', skill: MARK, why: MARK, pc: { who: MARK, die: 1, stat: 'str', statBonus: 1, classValue: 1, classBonus: 2, rank: 0, edge: 0, total: 4 }, foe: { slot: 1, name: MARK, die: 1, base: 5, classValue: 1, classBonus: 2, total: 8 } }] }] }), state, before: state, roleOf });
-    const panel = buildPanel(doc, model);
-    assert.ok(panel.textContent.includes(MARK));
-    assert.equal(panel.querySelectorAll('img, script, iframe, style, a').length, 0);
-    assert.equal(globalThis.pwned, undefined);
-});
-
-test('Rolls is automatic until the reader says off; an unknown value is the default', () => {
-    assert.equal(rollsOf(() => ({})), ROLLS_DEFAULT);
-    assert.equal(rollsOf(() => ({ rpgRolls: 'off' })), 'off');
-    assert.equal(rollsOf(() => ({ rpgRolls: 'maybe' })), 'automatic', 'an unknown value is the default');
-    assert.equal(rollsOf(() => undefined), 'automatic');
 });

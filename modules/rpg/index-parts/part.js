@@ -1,28 +1,29 @@
 // The lean RPG part: its default settings, the joins query name and createLeanRpgPart, the part merged into Story Block's core module.
 import { stChat } from '../../assist/st-adapter.js';
-import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_SKILL, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, NOROLL, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, RESOLVE, ROLLS, ROLLS_QUERY, ROLLS_SETTING } from '../names.js';
-import { noRoll } from '../noroll.js';
+import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_SKILL, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, ROLLS_QUERY } from '../names.js';
 import { fightHook, fightXp } from '../fight.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../levels.js';
 import { checkStep, checksHook, practiceHook, practiceStep } from '../practice.js';
 import { diceRecord } from '../checks/dice.js';
-import { JOIN_NO, joinCard, joinOffers, partyOf } from '../join.js';
+import { JOIN_NO, joinCard, joinOffers, partyAdd, partyOf } from '../join.js';
 import { fold } from '../read.js';
 import { createPrecall } from '../precall.js';
 import { FOES_TOUCH_QUERY } from '../names.js';
 import { lastFoeTouch } from '../board/offers.js';
-import { leanRpgGuard, resolve, rollsOf } from '../resolve.js';
+import { leanRpgGuard } from '../guard.js';
+import { rollsOf } from '../rolls-read.js';
 import { skipOf } from '../start.js';
 import { levelsQuery, rosterQueries } from '../roster.js';
 import { createBoardPart } from '../board/overrides.js';
 import { sheetQuery } from '../sheet-query.js';
 import { termsQuery } from '../terms.js';
 
-/** The part's setting (Story Block's own bucket): when the pre-call plans the rolls. */
-export const DEFAULT_SETTINGS = Object.freeze({ [ROLLS_SETTING]: ROLLS[0], [PRACTICE_SETTING]: PRACTICE.perUse, [XP_RATE_SETTING]: XP_RATE.default, [LEVEL_CAP_SETTING]: LEVEL.max, [AUTO_CAP_SETTING]: AUTO_CAP.default, [PRECHECK_SETTING]: true, [CHECKS_SETTING]: true });
+/** The part's settings (Story Block's own bucket). */
+export const DEFAULT_SETTINGS = Object.freeze({ [PRACTICE_SETTING]: PRACTICE.perUse, [XP_RATE_SETTING]: XP_RATE.default, [LEVEL_CAP_SETTING]: LEVEL.max, [AUTO_CAP_SETTING]: AUTO_CAP.default, [PRECHECK_SETTING]: true, [CHECKS_SETTING]: true });
 
 /** The offers a reply's `+ party` lines made under Ask (the card under the reply reads them): `rpg.joins { index? }` → [{ name, soul, best }] on the head reply (or the reply `index`). */
 export const JOINS_QUERY = 'rpg.joins';
+export const PARTY_ADD_QUERY = 'rpg.partyAdd';
 
 /**
  * The part merged into Story Block's core module (domains/index.js). `deps` (all optional):
@@ -32,7 +33,7 @@ export const JOINS_QUERY = 'rpg.joins';
  *   rosterOn() → whether the RPG and Gear in fights are both on (the roster is answered only then, or when asked for `recorded`)
  *   persona() → the reader's name, for `party.pc` (default: none, the first block)
  *   callModel(prompt, { maxTokens, profile, helper, timeoutMs }) → text, onPlanning(working), timeoutMs, timer: the foe pre-check's one Assist call (none: no pre-check)
- * → { commands, queries, hooks, settings: { defaults }, guard }; `guard` is the replay guard for `rpg.resolve` blocks
+ * → { commands, queries, hooks, settings: { defaults }, guard }; `guard` is the replay guard for the RPG's own blocks
  * (domains/index.js routes the guards of that predicate to it).
  */
 export function createLeanRpgPart({ chat = stChat, metadata = () => null, moduleId = 'story-block', persona = () => '', rosterOn, callModel, onPlanning, timeoutMs, timer } = {}) {
@@ -41,13 +42,8 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
     // (the reader's own character is the one named like the persona: a full party's card never offers to bench them)
     const isMe = name => { let who = ''; try { who = String(persona() ?? '').replace(/\s+/g, ' ').trim(); } catch { who = ''; } return Boolean(who) && fold(name) === fold(who); };
     return {
-        // A prelude: previewed before the reply and stored on it before its story lines (turn.js). Not tied to the
-        // feature, so a Re-read of a reply that has rolls keeps them whatever the feature says now.
         commands: {
             ...board.commands,
-            [RESOLVE]: Object.assign((ctx, payload) => resolve(ctx, payload), { prelude: true, internal: true }),
-            // The note that a live fight's planner (gone) gave nothing usable, kept with the reply; old records only (noroll.js). Not tied to the feature either.
-            [NOROLL]: Object.assign((ctx, payload) => noRoll(ctx, payload), { prelude: true, internal: true }),
             // A reply's three story-check dice (checks/dice.js): a prelude, drawn from the receipt's seed, so a swipe rolls anew and a Re-read keeps them. Not tied to the feature either.
             [DICE]: Object.assign((ctx, payload) => diceRecord(ctx, payload), { prelude: true, internal: true }),
             // The results of a reply's story checks, a step after its lines (practice.js). Not tied to the feature either: a Re-read keeps it.
@@ -69,6 +65,8 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
         queries: {
             ...board.queries,
             [JOINS_QUERY]: Object.assign((state, args, tools) => joinOffers(tools?.receipts?.() ?? [], Number.isInteger(args?.index) ? args.index : tools?.reply?.index, partyOf(state)), { feature: LEAN_RPG_FEATURE }),
+            // "Add to party" on a person's People page: { name } → the join card for them, or null when they may not join (join-parts/add.js).
+            [PARTY_ADD_QUERY]: Object.assign((state, args, tools) => partyAdd(state, args?.name, isMe, (() => { try { return tools?.query?.('packs.content', { kind: 'cast' }); } catch { return []; } })()), { feature: LEAN_RPG_FEATURE }),
             // The rank a level falls in, by the story's pack (levels.js): { level } → { name } | null.
             [RANK_QUERY]: Object.assign(rankQuery, { feature: LEAN_RPG_FEATURE }),
             // The chat index of the latest reply that touched the Foes block, -1 when none (board/offers.js lastFoeTouch): the stale-foes rule reads it.

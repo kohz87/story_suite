@@ -1,6 +1,5 @@
 // The party: one record per Character block, the reader's own character first.
 
-import { STATS_EARLIER as STATS } from '../../names.js';
 import { STANDARD_NUMBERS, levelOfClass } from '../../formula.js';
 import { characterBars, growthOf, scaleOf, statsOfFields } from '../../blocks.js';
 import { actorsOf } from '../../../data-modules/adapters.js';
@@ -9,9 +8,7 @@ import { soulLabelOf } from '../../soul.js';
 import { rpgBlocks } from './blocks.js';
 import { fold, textOf, whole } from './shared-basics.js';
 import { levelOf, levelText } from './levels.js';
-import { soulName, stageWord } from './words.js';
-import { BARS, stageMax, stageTone } from './stages.js';
-import { blockBar } from './bar-text.js';
+import { soulName } from './words.js';
 import { skillsOf } from './skills.js';
 import { isV1Character, v1Bars, v1Stats } from './v1-bars.js';
 
@@ -29,18 +26,9 @@ export function readParty(state, { own = '', roleOf, ranks = [], playerRank = nu
     const characters = blocks.filter(block => block.role === 'character').map(block => {
         const { fields, definition } = block;
         const name = textOf(fields.who) || actors[block.subject]?.name || definition.name;
-        const v1 = isV1Character(definition);
-        const bars = v1 ? v1Bars(definition, fields) : Object.fromEntries(BARS.map(key => {
-            const schema = definition.state?.[key], blocks = blockBar(key, schema, fields);
-            if (blocks) return [key, blocks];
-            const max = stageMax(key, schema), value = Math.min(max, Math.max(0, whole(fields[key], max)));
-            return [key, { value, max, word: stageWord(key, schema, value), tone: stageTone(value, max) }];
-        }));
-        const stats = v1 ? v1Stats(definition, fields) : STATS.map(key => {
-            const schema = definition.state?.[key] ?? {};
-            const label = typeof schema.label === 'string' && schema.label && [...schema.label].length <= 4 ? schema.label : key.toUpperCase();
-            return { key, label, value: whole(fields[key], schema.min ?? 1), min: whole(schema.min, 1), max: whole(schema.max, 20) };
-        });
+        // (only a Combat Rules v1 Character is a party member; any other block is not drawn)
+        if (!isV1Character(definition)) return null;
+        const v1 = true, bars = v1Bars(definition, fields), stats = v1Stats(definition, fields);
         // `level`, `xp` and `cap` (Levels). A block made before them has the Soul Class: its level is the one the class stood for (formula.js levelOfClass).
         const soul = whole(fields.soul, 1);
         const levelled = Boolean(definition.state?.level) && typeof definition.state.level === 'object';
@@ -52,7 +40,7 @@ export function readParty(state, { own = '', roleOf, ranks = [], playerRank = nu
             soulName: levelled ? String(level) : soulName(definition.state?.soul, soul), soulLabel: soulLabelOf(levelled ? definition.state.level : definition.state?.soul), xp: Math.min(LEVEL.xpPerLevel, Math.max(0, whole(fields.xp))), bars, stats,
             skills: mine ? skillsOf(mine) : [], skillsBlock: mine ? { module: mine.module, definition: mine.definition } : null, definition, fields, order: block.order,
             growth: !v1 && characterBars(definition, fields) ? growthOf(statsOfFields(fields), { statMax: whole(definition.state?.vit?.max, STANDARD_NUMBERS.statMax), scale: scaleOf(definition.state?.health) }) : null, scale: scaleOf(definition.state?.health) };
-    });
+    }).filter(Boolean);
     const mineAt = own ? characters.findIndex(character => fold(character.name) === fold(own)) : -1;
     if (mineAt >= 0) characters[mineAt].own = true;
     return mineAt > 0 ? [characters[mineAt], ...characters.filter((_, at) => at !== mineAt)] : characters;

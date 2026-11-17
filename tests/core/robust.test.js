@@ -274,17 +274,8 @@ test('templates: elements past MAX_DEPTH are flattened with one warning; tooDeep
     assert.equal(tooDeep('<div>'.repeat(MAX_DEPTH + 1)), true);
 });
 
-test('pack install refuses a screen template or step nested past MAX_DEPTH and CSS past MAX_AT_DEPTH', async t => {
-    const host = await fresh(t);
-    const pack = screen => JSON.stringify({ id: 'deep', version: '1.0.0', name: 'Deep', requires: { storyBlock: '^2' }, content: {}, screens: [{ id: 'deep-board', title: 'Board', mounts: ['tab'], ...screen }] });
-    const deep = await host.packs.packs.install(pack({ template: '<div>'.repeat(MAX_DEPTH + 1) }), { origin: 'pack.json' });
-    assert.equal(deep.ok, false);
-    assert.ok(deep.errors.some(error => /nests elements more than 64 deep/.test(error.message)), JSON.stringify(deep.errors));
-    const step = await host.packs.packs.install(pack({ template: '<p>x</p>', steps: [{ id: 'a', title: 'A', template: '<b>'.repeat(MAX_DEPTH + 1) }] }), { origin: 'pack.json' });
-    assert.equal(step.ok, false);
+test('CSS nested past MAX_AT_DEPTH @-rules is unsafe, at the limit it is fine (a pack no longer carries top-level screens; a data module\'s screens use the same check)', () => {
     const css = `${'@media (x) {'.repeat(MAX_AT_DEPTH + 1)}.a { color: red }${'}'.repeat(MAX_AT_DEPTH + 1)}`;
-    const styled = await host.packs.packs.install(pack({ template: '<p>x</p>', css }), { origin: 'pack.json' });
-    assert.equal(styled.ok, false);
     assert.match(unsafeCss(css), /nest @-rules at most 8 deep/);
     assert.equal(unsafeCss(`${'@media (x) {'.repeat(MAX_AT_DEPTH)}.a { color: red }${'}'.repeat(MAX_AT_DEPTH)}`), '');
 });

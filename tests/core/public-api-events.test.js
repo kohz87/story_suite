@@ -197,20 +197,6 @@ test('diffLeaves and plainText', () => {
     assert.equal(plainText(Infinity), null);
 });
 
-test('a change in the party is a public change: xp and level of a member, by name', () => {
-    const states = [30, 130].map(xp => ({ domains: { dataModules: sheetDomain({ ren: { role: 'character', fields: character('Ren', { level: xp > 100 ? 3 : 2, xp }) } }) } }));
-    const events = createEvents();
-    const api = createPublicApi({ version: '1', state: () => states[1], before: () => states[0], ask: () => null, rpgOn: () => true, persona: () => 'Ren', events });
-    const seen = [];
-    api.on('story:changed', payload => seen.push(payload));
-    events.emit('turn', { index: 3, type: 'normal', receipts: [], steps: [], problems: [], told: [] });
-    return new Promise(resolve => setTimeout(resolve, 10)).then(() => {
-        assert.equal(seen.length, 1);
-        assert.deepEqual(seen[0].changes, [{ path: 'party.Ren.level', from: 2, to: 3 }, { path: 'party.Ren.xp', from: 30, to: 130 }]);
-        assert.equal(api.get('party.me.xp'), 130);
-    });
-});
-
 // ---- review fixes: hidden blocks, rewind, maps, cache, frozen members, "me", duplicate names -------------------------------------------------
 
 test('a block with no show is hidden like the Blocks screen says; its own screens or layouts make it shown', { skip }, async t => {
@@ -268,22 +254,6 @@ test('a map field is one change per key, not the object as well', () => {
     assert.deepEqual(readers.get(after, 'blocks.pack.chat/tracker.marks'), { a: 2, b: 0 }, 'the object still reads');
 });
 
-test('sections are kept per head state and read again when the head changes (or the RPG switch / persona does)', { skip }, () => {
-    const states = [1, 2].map(qty => ({ domains: { inventory: {}, dataModules: sheetDomain({ ren: { role: 'character', fields: character('Ren', { level: qty }) } }) } }));
-    let asked = 0;
-    let on = true;
-    const readers = createReaders({ ask: (state, name) => { if (name === 'inventory.items') asked += 1; return name === 'inventory.items' ? [{ name: 'Lamp', qty: states.indexOf(state) + 1, kind: 'goods', note: '' }] : null; }, rpgOn: () => on, persona: () => 'Ren' });
-    for (let i = 0; i < 5; i += 1) assert.equal(readers.get(states[0], 'items.Lamp.qty'), 1);
-    assert.equal(asked, 1, 'five gets on one head read the section once');
-    assert.equal(readers.get(states[1], 'items.Lamp.qty'), 2, 'a new head is read again');
-    assert.equal(asked, 2);
-    assert.equal(readers.get(states[0], 'party.me.level'), 2 - 1);
-    on = false;
-    assert.equal(readers.get(states[0], 'party.me.level'), undefined, 'the RPG switch is not cached away');
-    on = true;
-    assert.equal(readers.get(states[1], 'party.me.level'), 2);
-});
-
 test('ready, get, paths and on are frozen', { skip }, async t => {
     const host = await createHost();
     t.after(() => host.close());
@@ -292,35 +262,4 @@ test('ready, get, paths and on are frozen', { skip }, async t => {
     assert.throws(() => { api.ready.then = () => 'hijacked'; }, TypeError);
     assert.throws(() => { api.get.evil = 1; }, TypeError);
     assert.equal(await api.ready, api);
-});
-
-test('a member called "me" is not reachable by name (party.me stays the reader\'s); duplicate character names are read by id', { skip }, async t => {
-    t.mock.method(console, 'warn', () => {});
-    const host = await createHost({ core: false, st: { user: 'Ren' }, modules: [blocksModule({
-        ren: { definition: { role: 'character' }, fields: character('Ren', { level: 2 }) },
-        me: { definition: { role: 'character' }, fields: character('Me', { level: 7 }) },
-    }, { feature: true })] });
-    t.after(() => host.close());
-    host.features.set('story-block.rpg', true);
-    await host.send('Go.', 'Opening.');
-    assert.equal(host.api.get('party.me.level'), 2, 'the alias is the reader');
-    assert.equal(host.api.get('party.me.name'), 'Ren');
-    assert.deepEqual(host.api.get('party').map(member => member.name), ['Me', 'Ren'], 'still in the list');
-    assert.ok(!host.api.paths().some(path => path.startsWith('party.Me')));
-    const twin = { definition: { scope: 'character', show: { tab: true, card: false }, state: { trust: { type: 'int', min: 0, max: 9, default: 0 } } }, subjects: ['ca_aaaaaaaa', 'ca_bbbbbbbb'],
-        characters: { ca_aaaaaaaa: { fields: { trust: 1 } }, ca_bbbbbbbb: { fields: { trust: 8 } } } };
-    const other = await createHost({ core: false, modules: [blocksModule({ bond: twin })] });
-    t.after(() => other.close());
-    await other.send('Go.', 'Opening.');
-    // (no Story Director here, so both subjects show as their ids: the keys are distinct either way)
-    assert.equal(other.api.get('blocks.pack.chat/bond.ca_aaaaaaaa.trust'), 1);
-    assert.equal(other.api.get('blocks.pack.chat/bond.ca_bbbbbbbb.trust'), 8);
-    const named = { domains: other.head().domains };
-    const readers = createReaders({ ask: () => null });
-    const withActors = names => ({ domains: { ...structuredClone(named.domains), checks: { policy: { actors: { ca_aaaaaaaa: { id: 'ca_aaaaaaaa', name: names[0] }, ca_bbbbbbbb: { id: 'ca_bbbbbbbb', name: names[1] } } } } } });
-    const state = withActors(['Mara', 'mara']);
-    state.domains.checks = { policy: { actors: { ca_aaaaaaaa: { id: 'ca_aaaaaaaa', name: 'Mara' }, ca_bbbbbbbb: { id: 'ca_bbbbbbbb', name: 'mara' } } } };
-    assert.equal(readers.get(state, 'blocks.pack.chat/bond.ca_aaaaaaaa.trust'), 1, 'two Maras: by id');
-    assert.equal(readers.get(state, 'blocks.pack.chat/bond.Mara.trust'), undefined);
-    assert.equal(readers.get(withActors(['Mara', 'Tomas']), 'blocks.pack.chat/bond.Mara.trust'), 1, 'one Mara: by name');
 });

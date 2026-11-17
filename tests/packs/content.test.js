@@ -46,19 +46,16 @@ test('item resolution precedence', () => {
 });
 
 test('content by kind, in pack order, with full IDs', () => {
-    const packs = normalized(sample(), pack({ id: 'extra', content: { creatures: [{ name: 'Mire Toad', tier: 'even' }], quests: [{ name: 'Granary Rats', giver: 'Hollis' }] }, layouts: [{ id: 'board' }], theme: { '--ss-accent': '#000' }, screens: [{ id: 'rpg-battle/party', template: '<div>{{ q.pc.name }}</div>' }] }));
-    assert.deepEqual(contentOf(packs, 'creatures').map(record => [record.id, record.pack]), [['pack.riverside-starter/weir-rat', 'riverside-starter'], ['pack.extra/mire-toad', 'extra']]);
-    assert.deepEqual(contentOf(packs, 'creatures', { pack: 'extra' }).map(record => record.name), ['Mire Toad']);
-    assert.deepEqual(contentOf(packs, 'quests'), [{ name: 'Granary Rats', giver: 'Hollis', id: 'pack.extra/granary-rats', slug: 'granary-rats', pack: 'extra' }]);
-    assert.equal(contentOf(packs, 'shops')[0].stock.length, 3);
-    assert.equal(contentOf(packs, 'recipes')[0].makes, 'pack.riverside-starter/willow-rod');
+    const packs = normalized(sample(), pack({ id: 'extra', content: { foes: [{ name: 'Mire Toad', tier: 'minion' }], quests: [{ name: 'Granary Rats', giver: 'Hollis' }] }, layouts: [{ id: 'board' }], theme: { '--ss-accent': '#000' }, screens: [{ id: 'rpg-battle/party', template: '<div>{{ q.pc.name }}</div>' }] }));
+    assert.deepEqual(contentOf(packs, 'foes').map(record => [record.id, record.pack, record.tier]), [['pack.riverside-starter/weir-rat', 'riverside-starter', 'mob'], ['pack.extra/mire-toad', 'extra', 'minion']]);
+    assert.deepEqual(contentOf(packs, 'foes', { pack: 'extra' }).map(record => record.name), ['Mire Toad']);
+    // (the kinds nothing reads any more, and a pack's layouts and screens, are left out of the normalized pack)
+    for (const kind of ['quests', 'creatures', 'shops', 'recipes', 'races', 'talents', 'layouts', 'screens']) assert.deepEqual(contentOf(packs, kind), [], kind);
     assert.deepEqual(contentOf(packs, 'events').map(event => event.id), ['pack.riverside-starter/market-day', 'pack.riverside-starter/rat-trouble']);
-    assert.deepEqual(contentOf(packs, 'layouts'), [{ id: 'board', pack: 'extra' }]);
     assert.deepEqual(contentOf(packs, 'theme'), [{ pack: 'riverside-starter', tokens: { '--ss-accent': '#3f7f8f' } }, { pack: 'extra', tokens: { '--ss-accent': '#000' } }]);
-    assert.deepEqual(contentOf(packs, 'screens'), [{ id: 'rpg-battle/party', template: '<div>{{ q.pc.name }}</div>', theme: {}, pack: 'extra' }]);
     assert.deepEqual(contentOf(packs, 'spells'), []);
-    assert.throws(() => { contentOf(packs, 'creatures')[0].name = 'Changed'; }, TypeError);
-    assert.equal(contentOf(packs, 'creatures')[0].name, 'Weir Rat', 'callers get the pack\'s frozen records');
+    assert.throws(() => { contentOf(packs, 'foes')[0].name = 'Changed'; }, TypeError);
+    assert.equal(contentOf(packs, 'foes')[0].name, 'Weir Rat', 'callers get the pack\'s frozen records');
 });
 
 test('start states merge in pack order', () => {
@@ -146,11 +143,9 @@ test('events come as one flat list of defs for the events part', () => {
     for (const event of events) assert.match(event.id, /^[A-Za-z0-9][A-Za-z0-9._/:-]*$/, 'ids fit the events part\'s id rule');
 });
 
-test('currency suggestions and creation choices by kind', () => {
-    const packs = normalized(sample(), pack({ id: 'gil', currency: { name: 'Gil' }, content: { races: [{ name: 'Moogle' }] } }));
+test('currency suggestions by pack', () => {
+    const packs = normalized(sample(), pack({ id: 'gil', currency: { name: 'Gil' } }));
     assert.deepEqual(contentOf(packs, 'currency'), [{ pack: 'riverside-starter', name: 'pennies', short: 'p' }, { pack: 'gil', name: 'Gil', short: '' }]);
     assert.deepEqual(contentOf(packs, 'currency', { pack: 'gil' }), [{ pack: 'gil', name: 'Gil', short: '' }]);
-    assert.deepEqual(contentOf(packs, 'races').map(race => race.id), ['pack.riverside-starter/riverfolk', 'pack.gil/moogle']);
-    assert.deepEqual(contentOf(packs, 'talents').map(talent => talent.name), ['Patient Angler']);
     assert.deepEqual(mergeStart(packs.slice(1)).currency, { name: 'Gil', short: '' }, 'a pack without a start can still name the currency');
 });

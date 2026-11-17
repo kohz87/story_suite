@@ -1,4 +1,4 @@
-// The example pack (examples/packs/ersveil, Ersveil 2.9.6, the open world) and its lorebook (ersveil-lore.json): the pack
+// The example pack (examples/packs/ersveil, Ersveil 3.0.0, the open world) and its lorebook (ersveil-lore.json): the pack
 // passes the authoring-kit checker and Story Block's own validator without RPG Battle and carries the shape
 // docs/v2/ERSVEIL.md describes; the lorebook has 227 entries with unique uids.
 import test from 'node:test';
@@ -34,10 +34,10 @@ test('examples/packs/ersveil/pack.json passes the authoring-kit checker, in code
     assert.match(printed, /^OK examples\/packs\/ersveil\/pack\.json\n/);
 });
 
-test('Story Block\'s own validator accepts the pack without RPG Battle (scene, inventory, data modules, Story Director\'s lasting changes), and refuses it on a host older than 2.18', () => {
+test('Story Block\'s own validator accepts the pack without RPG Battle (scene, inventory, data modules, Story Director\'s lasting changes), and refuses it on a suite older than 0.1', () => {
     const good = validatePack(pack(), { capabilities: OPEN });
     assert.equal(good.ok, true, JSON.stringify(good.errors));
-    const old = validatePack(pack(), { capabilities: OPEN, hostVersion: '2.30.0' });
+    const old = validatePack(pack(), { capabilities: OPEN, suiteVersion: '0.0.9' });
     assert.equal(old.ok, false);
     assert.ok(old.errors.some(error => error.code === 'HOST_VERSION'));
     // Without the data-modules capability it is refused for that alone.
@@ -48,13 +48,15 @@ test('Story Block\'s own validator accepts the pack without RPG Battle (scene, i
     assert.equal(noDirector.ok, false);
 });
 
-test('the pack is Ersveil 2.9.6, the open world: the map, the calendar, the weather, events and data modules, and none of RPG Battle\'s rules', () => {
+test('the pack is Ersveil 3.0.0, the open world: the map, the calendar, the weather, events and data modules, and none of RPG Battle\'s rules', () => {
     const value = pack();
     assert.equal(value.id, 'ersveil');
-    assert.equal(value.version, '2.9.6');
+    assert.equal(value.version, '3.0.0');
     assert.equal(value.name, 'Ersveil (open world)');
     assert.match(value.description, /Story Block and Story Director:/);
-    assert.equal(value.requires.storyBlock, '^2.31.1', 'names, ripples and replay-safe decisions need the newer host');
+    assert.equal(value.format, 3);
+    assert.equal(value.requires.suite, '^0.1', 'the pack names the suite it needs');
+    assert.equal(value.requires.storyBlock, undefined);
     assert.deepEqual(value.requires.capabilities, OPEN);
     const counts = Object.fromEntries(Object.entries(value.content).map(([kind, list]) => [kind, list.length]));
     // (`you` is the Rank the pack gives Your look and `names` the name lists: one object each, not a list, so no length.)

@@ -44,18 +44,12 @@ test('a story join in a v1 chat makes v1 blocks, and replays as live (swipe, swi
     await rebuilt(host, 'Re-read back');
 });
 
-test('best: luk is refused in a v1 chat; a chat that holds an earlier Character still builds the earlier block for it', { skip }, async t => {
+test('best: luk is refused in a v1 chat, with the seven stats named', { skip }, async t => {
     const host = await v1World();
     t.after(() => host.close());
     await host.send('Mara comes.', reply('+ party Mara | best: luk'));
     assert.equal(blocks(host).includes('pack.chat/mara'), false);
     assert.match(host.store.problems().map(item => item.message).join('\n') + problems(host).join('\n'), /best must be one of str, vit, agi, dex, int, wis, cha/);
-    const old = await world();
-    t.after(() => old.close());
-    await old.send('Ilse comes.', reply('+ party Ilse | best: luk'));
-    assert.equal('luk' in fields(old, 'ilse'), true, 'an earlier chat still builds the earlier Character');
-    assert.equal('hp' in fields(old, 'ilse'), false);
-    await rebuilt(old, 'earlier chat join');
 });
 
 test('a second companion in a v1 chat is v1 too (a chat that holds only v1 Characters has no "old" one), the first of an empty chat brings v1 extras', { skip }, async t => {

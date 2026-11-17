@@ -9,7 +9,7 @@ import { actorIdOf } from '../roster.js';
 import { fightInputOf, witnessOf } from '../combat/input.js';
 import { playBoard } from '../combat/play.js';
 import { fightChangesV1, fightResultV1 } from './v1-settle.js';
-import { gearQuery } from './engine-parts/shared-gear.js';
+import { gearQuery } from './gear-query.js';
 import { gearSoakRecord } from '../gear.js';
 import { dice as portDice } from '../../../core/interaction/dice.js';
 

@@ -222,8 +222,8 @@ test('a pack place may be hidden (or secret); anything else there is refused', (
     assert.equal(validatePack(pack([{ name: 'Vault', x: 1, y: 2, hidden: 'yes' }])).ok, false);
 });
 
-test('the packs panel counts terms and ranks', () => {
-    assert.equal(countsLine({ items: 2, terms: 1, ranks: 7 }, false), '2 items, 1 term set, 7 ranks');
+test('the packs panel no longer counts terms and ranks (pack format 3 leaves them out)', () => {
+    assert.equal(countsLine({ items: 2, terms: 1, ranks: 7 }, false), '2 items');
 });
 
 // ---- Re-read plans a `replan` system step again (B-a1-13) -------------------------------------------

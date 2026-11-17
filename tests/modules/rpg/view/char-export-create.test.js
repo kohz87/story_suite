@@ -149,19 +149,6 @@ test('the RPG\'s dialogs are opaque: the party cards behind the New character wi
 
 // ---- a skill with no stat of its own is never given one ---------------------------------------------------------------------------------
 
-test('a skill whose block has no stat is exported without one: the key is left out, never guessed', async t => {
-    const ctx = await page(t, { persona: 'Wessel' });
-    await begin(ctx.host);
-    await oldSkillsBlock(ctx.host);
-    await settle();
-    const saved = await saveFrom(ctx);
-    const data = JSON.parse(saved.text);
-    assert.equal(data.skills.length, 1);
-    assert.deepEqual(Object.keys(data.skills[0]), ['name', 'about', 'uses', 'rank'], 'no stat key');
-    assert.equal(data.skills[0].name, 'Iron Breath');
-    assert.equal(parseCharacterFile(saved.text).ok, true, 'and it reads back');
-});
-
 test('the Review asks for the stat of an imported skill that has none, like the missing "what it does" line, and Create waits', async t => {
     const ctx = await newcomer(t);
     const saved = JSON.parse(SAVED);
@@ -277,28 +264,4 @@ test('after an import a skill template asks first: Keep leaves the imported skil
     await goTo(again, 'skills');
     assert.equal(wizardOf(again).querySelector('[data-wiz="replace"]'), null);
     again.close();
-});
-
-test('the money in the note and the Review is "to the purse", in the wallet\'s own words with thousands separators', async t => {
-    const ctx = await newcomer(t);
-    const dialog = await wizardWith(ctx);
-    await companion(dialog);
-    await importInto(dialog, JSON.stringify({ ...JSON.parse(SAVED), money: 10_000_000 }));
-    assert.match(wizardOf(dialog).querySelector('[data-wiz="import-done"]').textContent, /adds 3 things to the party's bag and 10,000,000 gold to the purse\. Give/);
-    assert.ok(!wizardOf(dialog).querySelector('[data-wiz="import-done"]').textContent.includes('this chat'));
-    const review = await goTo(dialog, 'review');
-    assert.equal(review.querySelector('[data-review="import-also"]').textContent, 'Also adds: 3 things to the party\'s bag · 10,000,000 gold to the purse. One swipe of this reply takes it all back.');
-    dialog.close();
-    // Mixed coins: each long number gets its separators, short ones are left alone.
-    const coins = await newcomer(t);
-    coins.host.settings.set('story-block', 'coins', [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }, { name: 'gold', value: 100 }]);
-    const w = await wizardWith(coins);
-    await companion(w);
-    await importInto(w, JSON.stringify({ ...JSON.parse(SAVED), money: 123_456_705 }));
-    assert.match(wizardOf(w).querySelector('[data-wiz="import-done"]').textContent, /and 1,234,567 gold 5 copper to the purse\./);
-    w.close();
-    // The Export dialog words it the same way.
-    const first = await story(t, { purse: 12_345_678 });
-    const exp = await exportDialog(first);
-    assert.match(exportOf(exp).querySelector('[data-option="money"]').textContent, /Money · 12,345,678 gold/);
 });

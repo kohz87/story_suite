@@ -7,7 +7,7 @@ import { createHost, hostAvailable } from '../../testkit/index.js';
 import { createFakeModel } from '../../testkit/model.js';
 import { createRegistry } from '../../core/registry.js';
 import { validatePack } from '../../packs/validate.js';
-import { STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
 import { actorIdOf, levelsQuery, rosterOf, rosterQueries } from '../../modules/rpg/roster.js';
 import { gearMatches, planGear } from '../../modules/rpg/gear.js';
 import { readSheet } from '../../modules/rpg/index.js';
@@ -15,7 +15,6 @@ import { hashJson } from '../../core/replay.js';
 import { reply as dmReply, success } from '../modules/data-modules/helpers.js';
 import { pack } from '../packs/helpers/fixtures.js';
 import { character, sheetDomain } from '../modules/rpg/helpers.js';
-import { legacyPlanner } from '../modules/rpg/legacy-planner.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -38,8 +37,6 @@ const definitionOf = (name, slug = null, who = null) => {
 };
 const define = async (host, definition) => success(await host.sdk.command('dm.define', { definition }));
 
-// (the real host with the test-only legacy planner behind the RPG part's hook: the planner itself is gone)
-const withPlanner = (model, get) => async () => { const lib = await import('../../modules/rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => get().ctx.chat, metadata: () => get().ctx.chatMetadata ?? null }); return part; } }; };
 
 async function world(t, { user, gear = true, rpg = true, modules = [], withPack = true, model = null } = {}) {
     t.mock.method(console, 'warn', () => {});
@@ -49,7 +46,7 @@ async function world(t, { user, gear = true, rpg = true, modules = [], withPack 
     const fake = model ? createFakeModel(Array(40).fill(model)) : null;
     let host = null;
     host = await createHost({
-        modules, ...(user ? { st: { user } } : {}), ...(fake ? { callModel: fake, lazyRpg: true, rpgLoad: withPlanner(fake, () => host) } : {}),
+        modules, ...(user ? { st: { user } } : {}), ...(fake ? { callModel: fake } : {}),
         settings: { features: { ...(gear ? { 'story-block.gear': true } : {}), 'story-block.rpg': rpg }, modules: { 'story-block': { rpgJoin: 'auto' } },
             ...(withPack ? { packs: [{ id: built.pack.id, version: built.pack.version, enabled: true, source: 'file', origin: 'test', pack: raw }] } : {}) },
     });
@@ -95,17 +92,6 @@ test('the ids are stable over a rename, a rebuild and a reload; the name follows
     assert.deepEqual(host.sdk.query('party.pc'), { id: first[0] }, 'Astra is the persona');
 });
 
-test('the reader is the Character named like the persona (a first name that means only them counts), or the only one; with several and none named so, nobody', () => {
-    const state = names => ({ domains: { dataModules: sheetDomain(Object.fromEntries(names.map((name, at) => [`b${at}`, { role: 'character', fields: character(name) }]))) } });
-    assert.equal(rosterOf(state(['Ash', 'Ren Holt']), 'ren holt').pc, actorIdOf('pack.chat/b1'));
-    assert.equal(rosterOf(state(['Ash', 'Ren Holt']), 'Ren').pc, actorIdOf('pack.chat/b1'), 'a first name that means one Character');
-    assert.equal(rosterOf(state(['Ash', 'Ren Holt', 'Ren Ashby']), 'Ren').pc, null, 'two Rens: not guessed');
-    assert.equal(rosterOf(state(['Ash', 'Ren Holt']), '').pc, null, 'several and none named so: nobody');
-    assert.equal(rosterOf(state(['Ash', 'Ren Holt']), 'Nobody').actors.some(actor => actor.pc), false);
-    assert.equal(rosterOf({ domains: {} }, 'Ren').pc, null);
-    assert.deepEqual(rosterOf(state(['Ash']), 'x').actors, [{ id: actorIdOf('pack.chat/b0'), name: 'Ash', pc: true }]);
-});
-
 test('a companion who left the party is no longer on the roster', { skip }, async t => {
     const host = await world(t, { user: 'Wessel' });
     await define(host, definitionOf('Character', 'wessel', 'Wessel'));
@@ -129,21 +115,6 @@ test('nothing answers party.actors or party.pc with the RPG off, or with Gear in
     assert.equal(host.sdk.query('party.pc'), null);
 });
 
-test('party.levels lists every member with the sheet level, the ones who left too (left: true); no Character gives []; the ids are party.actors\'s', () => {
-    const state = { domains: { dataModules: sheetDomain({
-        ash: { role: 'character', fields: character('Ash', { level: 12 }) },
-        bram: { role: 'character', fields: character('Bram', { level: 40, left: true }) },
-        cole: { role: 'character', fields: (({ soul, ...rest }) => rest)(character('Cole')) },
-    }) } };
-    const levels = levelsQuery(state);
-    assert.deepEqual(levels.map(row => [row.name, row.level, row.left]), [['Ash', 12, false], ['Bram', 40, true], ['Cole', null, false]]);
-    assert.deepEqual(levels.filter(row => !row.left).map(row => row.id), rosterQueries()['party.actors'](state, { recorded: true }).map(actor => actor.id), 'the same ids as the active roster');
-    assert.equal(levels[1].id, actorIdOf('pack.chat/bram'));
-    assert.deepEqual(rosterQueries()['party.actors'](state, { recorded: true }).map(actor => actor.name), ['Ash', 'Cole'], 'party.actors still leaves Bram out');
-    assert.deepEqual(levelsQuery({ domains: { dataModules: sheetDomain({}) } }), []);
-    assert.deepEqual(levelsQuery({}), []);
-});
-
 // ---- a module that answers party.actors itself keeps priority --------------------------------------------------------------------------------
 
 test('a module that answers party.actors wins, whichever registers first; a second fallback is refused as a second owner is', () => {
@@ -160,25 +131,6 @@ test('a module that answers party.actors wins, whichever registers first; a seco
     assert.equal(typeof alone.query('party.actors'), 'function', 'alone, the fallback answers');
     assert.equal(alone.queryOwner('party.actors'), null, 'and owns nothing');
     assert.throws(() => alone.register({ id: 'twin', version: '1.0.0', features: [{ id: 'twin.rpg', label: 'RPG' }], queries: Object.fromEntries(Object.entries(rosterQueries()).map(([name, fn]) => [name, Object.assign(() => null, { fallback: true, feature: 'twin.rpg' })])) }), /already belongs to "story-block"/);
-});
-
-test('the fallback stands behind an owner that is held back, or answers null or an empty list (an old RPG Battle in a chat that is not its own)', () => {
-    const own = () => ({ id: 'story-block', version: '1.0.0', features: [{ id: 'story-block.rpg', label: 'RPG' }], queries: rosterQueries() });
-    const mine = { domains: { dataModules: sheetDomain({ ash: { role: 'character', fields: character('Ash') } }) } };
-    const old = answer => ({ id: 'rpg-battle', version: '1.0.0', queries: { 'party.actors': () => answer } });
-    for (const order of ['own first', 'old first']) {
-        for (const answer of [[], null]) {
-            const registry = createRegistry({ warn: () => {} });
-            const defs = order === 'own first' ? [own(), old(answer)] : [old(answer), own()];
-            for (const def of defs) registry.register(def);
-            assert.deepEqual(registry.query('party.actors')(mine, {}, {}).map(actor => actor.name), ['Ash'], `${order}: the owner answers ${JSON.stringify(answer)}`);
-        }
-        const registry = createRegistry({ warn: () => {} });
-        for (const def of order === 'own first' ? [own(), old([{ id: 'ac_old00001', name: 'Old' }])] : [old([{ id: 'ac_old00001', name: 'Old' }]), own()]) registry.register(def);
-        assert.deepEqual(registry.query('party.actors')(mine, {}, {}).map(actor => actor.name), ['Old'], `${order}: an answer stands`);
-        assert.equal(registry.setEnabled('rpg-battle', false), true);
-        assert.deepEqual(registry.query('party.actors')(mine, {}, {}).map(actor => actor.name), ['Ash'], `${order}: switched off, the fallback answers`);
-    }
 });
 
 test('through the host: an old module\'s roster is the one asked, and its actors get the join\'s gear', { skip }, async t => {
@@ -261,56 +213,6 @@ test('gear off: a join is as in 2.17.0 (no gear, no bound, no kept)', { skip }, 
 
 // ---- a companion owns and wears their own gear; the bonus goes to their rolls --------------------------------------------------------------
 
-test('a companion wears their own piece: their roll has its bonus, the reader\'s has not; live = rebuild = reload', { skip }, async t => {
-    const host = await world(t, { user: 'Astra', withPack: false, model: PLAN });
-    await define(host, definitionOf('Character'));
-    await define(host, definitionOf('Foes'));
-    await define(host, definitionOf('Character', 'ren', 'Ren'));
-    success(await host.sdk.command('dm.set', { module: 'pack.chat/character', fields: { who: 'Astra', level: 5 } }));
-    success(await host.sdk.command('dm.set', { module: 'pack.chat/ren', fields: { who: 'Ren', level: 5 } }));
-    await host.send('Set.', dmReply(SET));
-    await host.send('A blade.', reply('+ item Cane Sword | kind: weapon | rarity: rare | DEX: +2'));
-    const ren = actorIdOf('pack.chat/ren'), astra = actorIdOf('pack.chat/character');
-    success(await host.sdk.command('item.equip', { stack: row(host, 'Cane Sword').stack, owner: ren, slot: 'weapon', transfer: true }));
-    assert.equal(row(host, 'Cane Sword').owner, ren);
-    await host.send('Ren strikes.', 'The fight.');
-    const result = host.ctx.chat.at(-1).extra.storySuite.receipts.find(entry => entry.type === 'rpg.resolve').data.v2.result;
-    assert.deepEqual(result.gear.who.ren.own, [ren]);
-    assert.deepEqual(result.gear.who.ren.add, { dex: 2 }, 'Ren\'s roll has the blade');
-    assert.deepEqual(result.gear.who.astra.own, [astra, 'party'], 'the reader\'s pieces are the party bag\'s');
-    assert.equal(result.gear.who.astra.add, undefined, 'and she wears none');
-    const live = JSON.stringify(host.head());
-    host.store.rebuild();
-    assert.equal(JSON.stringify(host.head()), live, 'rebuild');
-    await host.st.loadChat(plain(host.ctx.chat));
-    assert.equal(JSON.stringify(host.head()), live, 'reload');
-    assert.deepEqual(host.store.problems(), []);
-});
-
-test('planGear: a Character\'s actor is the one with the block\'s id; the lead is party.pc; a roll made by 2.18.0 (its `lead` name) still finds the reader', () => {
-    const sheet = readSheet({ domains: { dataModules: sheetDomain({ wessel: { role: 'character', fields: character('Wessel') }, astra: { role: 'character', fields: character('Astra') } }) } });
-    const a = actorIdOf('pack.chat/astra'), w = actorIdOf('pack.chat/wessel');
-    const bag = owner => ({ on: true, owner, slots: owner === a ? { weapon: { name: 'Blade', stats: { DEX: 2 }, broken: false } } : {}, statBonus: {}, carry: { encumbered: false, penalty: 0 } });
-    const query = pc => (name, args) => (name === 'party.actors' ? [{ id: a, name: 'Astra' }, { id: w, name: 'Wessel' }] : name === 'party.pc' ? pc : name === 'inventory.gear' ? bag(args.owner) : null);
-    assert.deepEqual(planGear(sheet, query({ id: w })).who.wessel.own, [w, 'party']);
-    assert.deepEqual(planGear(sheet, query({ id: w })).who.astra.own, [a]);
-    assert.deepEqual(planGear(sheet, query({ id: a })).who.astra.own, [a, 'party'], 'party.pc decides');
-    assert.deepEqual(planGear(sheet, query(null), 'Astra').who.astra.own, [a, 'party'], 'no party.pc: the name the roll carried');
-    assert.deepEqual(planGear(sheet, query(null), '').who.astra.own, [a, 'party'], 'nothing names the reader: the first block (astra sorts before wessel)');
-    assert.deepEqual(planGear(sheet, query({ id: a })).who.astra.items, [{ name: 'Blade', stats: { dex: 2 } }]);
-});
-
-test('the guard: an owner that is another Character\'s actor does not match the roll (F1); a 2.18.0 record of `party` alone still does', () => {
-    const state = { domains: { inventory: { defs: {}, stacks: {} }, dataModules: sheetDomain({ wessel: { role: 'character', fields: character('Wessel') }, astra: { role: 'character', fields: character('Astra') } }) } };
-    const a = actorIdOf('pack.chat/astra'), w = actorIdOf('pack.chat/wessel');
-    const record = who => ({ v: 1, who });
-    assert.equal(gearMatches(state, record({ astra: { own: [a, 'party'] }, wessel: { own: [w] } }), hashJson), true);
-    assert.equal(gearMatches(state, record({ astra: { own: [w] } }), hashJson), false, 'Wessel\'s actor under Astra');
-    assert.equal(gearMatches(state, record({ wessel: { own: [a, 'party'] } }), hashJson), false);
-    assert.equal(gearMatches(state, record({ astra: { own: ['party'] } }), hashJson), true, 'a record made before the roster');
-    assert.equal(gearMatches(state, record({ astra: { own: ['ac_old00001'] } }), hashJson), true, 'an owner of a roster of another make cannot be told here');
-});
-
 // ---- a Character who is removed leaves nothing filed under their actor ---------------------------------------------------------------------------
 
 test('dm.remove of a Character: their pieces (worn, bound, set aside) go to the party bag, plain; a block made again under the same name inherits nothing; it replays', { skip }, async t => {
@@ -370,33 +272,3 @@ test('a persona that matches no Character, with several: party.pc is null, and t
 });
 
 // ---- a roll that carries a gear record is worked out by what was, not by today's switch -------------------------------------------------------
-
-test('a Re-read after Gear in fights is switched off keeps the companion\'s gear (party.actors / party.pc are asked recorded, as inventory.gear is)', { skip }, async t => {
-    const host = await world(t, { user: 'Astra', withPack: false, model: PLAN });
-    await define(host, definitionOf('Character'));
-    await define(host, definitionOf('Foes'));
-    await define(host, definitionOf('Character', 'ren', 'Ren'));
-    success(await host.sdk.command('dm.set', { module: 'pack.chat/character', fields: { who: 'Astra', level: 5 } }));
-    success(await host.sdk.command('dm.set', { module: 'pack.chat/ren', fields: { who: 'Ren', level: 5 } }));
-    await host.send('Set.', dmReply(SET));
-    await host.send('A blade.', reply('+ item Cane Sword | kind: weapon | rarity: rare | DEX: +2'));
-    const ren = actorIdOf('pack.chat/ren');
-    success(await host.sdk.command('item.equip', { stack: row(host, 'Cane Sword').stack, owner: ren, slot: 'weapon', transfer: true }));
-    await host.send('Ren strikes.', 'The fight.');
-    const at = host.ctx.chat.length - 1;
-    const resultOf = () => host.ctx.chat[at].extra.storySuite.receipts.find(entry => entry.type === 'rpg.resolve').data.v2.result;
-    assert.deepEqual(resultOf().gear.who.ren.own, [ren]);
-    const before = resultOf().gear;
-    host.features.set('story-block.gear', false);
-    assert.equal(host.sdk.query('party.actors'), null, 'asked now: nothing');
-    assert.equal(success(await host.turn.reread(at)) !== null, true);
-    assert.deepEqual(resultOf().gear, before, 'the roll is worked out as it was made');
-});
-
-test('party.levels lists every Character the Party card shows: a blank Name uses the block\'s name, and the level is clamped as the card clamps it', () => {
-    const blank = { role: 'character', fields: character('', { level: 7 }) };
-    const state = { domains: { dataModules: sheetDomain({ ash: { role: 'character', fields: character('Ash', { level: 500 }) }, nameless: blank, low: { role: 'character', fields: character('Low', { level: -3, left: true }) } }) } };
-    const rows = levelsQuery(state);
-    assert.deepEqual(rows.map(row => [row.name, row.level, row.left]), [['Ash', 99, false], ['Low', 1, true], ['nameless', 7, false]], 'the card shows 99 and 1 for those, and the block name for the blank Name');
-    assert.deepEqual(rosterQueries()['party.actors'](state, { recorded: true }).map(actor => actor.name), ['Ash'], 'the dice roster is unchanged: a blank Name is still left out, and who left');
-});

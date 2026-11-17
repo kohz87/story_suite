@@ -35,6 +35,11 @@ export function createFakePort(options = {}) {
       return { ok: true, type, seq: entry.seq };
     },
 
+    async open(id, payload) {
+      const entry = record({ kind: 'open', id, payload: cloneOrNull(payload) });
+      return { ok: true, id, seq: entry.seq };
+    },
+
     async preview(type, payload) {
       const entry = record({
         kind: 'preview',

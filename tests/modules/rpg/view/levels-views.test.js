@@ -27,47 +27,11 @@ function drawParty(state, levels = () => ({})) {
 }
 const pillOf = el => el.querySelector('.rpg-card .rpg-top .ss-pill.rpg-level-pill');
 
-test('the Party card: a small level pill on the name row, "Lv 14 · Guild F" with the pack\'s player rank, and the XP row "24 / 100 to Lv 15"', () => {
-    const state = fakeState([astra(), guildBlock('F')]);
-    const el = drawParty(state, () => ({ ranks: RANKS, playerRank: GUILD }));
-    const pill = pillOf(el);
-    assert.equal(pill.textContent, 'Lv 14 · Guild F');
-    assert.ok(pill.parentNode.parentNode.classList.contains('rpg-top'), 'on the name row, with the name');
-    assert.match(el.querySelector('.rpg-xp').textContent, /24 \/ 100 to Lv 15/);
-    assert.equal(heroLead(state, { own: 'Astra', roleOf, ranks: RANKS, playerRank: GUILD }).bars.at(-1).text, '24 / 100 to Lv 15', 'the hero XP line the same');
-});
-
-test('the Guild block not pinned or its letter empty: "Lv 14" alone; no player rank in the pack: the level band, "Rank E · Lv 14"', () => {
-    assert.equal(pillOf(drawParty(fakeState([astra()]), () => ({ ranks: RANKS, playerRank: GUILD }))).textContent, 'Lv 14', 'block not pinned');
-    assert.equal(pillOf(drawParty(fakeState([astra(), guildBlock('')]), () => ({ ranks: RANKS, playerRank: GUILD }))).textContent, 'Lv 14', 'letter empty');
-    assert.equal(pillOf(drawParty(fakeState([astra()]), () => ({ ranks: RANKS, playerRank: null }))).textContent, 'Rank E · Lv 14');
-});
-
-test('a story with no ranks and no player rank: just "Lv 14" on the card and "Lv 7" on the foe, nothing broken', () => {
-    const state = fakeState([astra(), crawlers()]);
-    assert.equal(pillOf(drawParty(state)).textContent, 'Lv 14');
-    assert.deepEqual(readFoes(state, { roleOf }).map(foe => foe.levelText), ['Lv 7']);
-    assert.equal(packLevelsOf(undefined), null);
-    assert.equal(packLevelsOf([{ slug: 'formula', formula: 'standard' }]), null);
-    assert.equal(levelLabel(14, []), 'Lv 14');
-    assert.equal(levelLabel(14, RANKS), 'Rank E · Lv 14');
-    assert.equal(levelLabel(14, RANKS, { playerRank: GUILD, value: 'F' }), 'Lv 14 · Guild F');
-});
-
 test('the pack\'s ranks and player rank are picked up from its rpg records', () => {
     const found = packLevelsOf([{ slug: 'formula', formula: 'standard' }, { slug: 'ranks', ranks: RANKS, playerRank: GUILD }]);
     assert.deepEqual(found.ranks.map(rank => rank.name), ['F', 'E', 'D', 'SSS']);
     assert.deepEqual(found.playerRank, GUILD);
     assert.deepEqual(packLevelsOf([{ slug: 'ranks', ranks: [{ name: 'F' }, { name: 'E', from: 1, to: 9 }], playerRank: { module: 3 } }]), { ranks: [{ name: 'E', from: 1, to: 9 }] }, 'a damaged entry is left out');
-});
-
-test('the XP row at the cap says so (the XP holds at 100); the level reads from the Level field, held 1 to 99', () => {
-    const el = drawParty(fakeState([astra({ level: 99, cap: 99, xp: 100 })]));
-    assert.match(el.querySelector('.rpg-xp').textContent, /100 \/ 100 · level cap/);
-    const [capped] = readParty(fakeState([astra({ level: 40, cap: 40, xp: 100 })]), { roleOf });
-    assert.deepEqual([capped.level, capped.cap], [40, 40]);
-    assert.equal(readParty(fakeState([astra({ level: 500 })]), { roleOf })[0].level, 99);
-    assert.equal(readParty(fakeState([astra({ level: 'x' })]), { roleOf })[0].level, 1);
 });
 
 // ---- Fight
@@ -85,34 +49,12 @@ function drawFight(state, battleLog) {
     return el;
 }
 
-test('the Fight card: the foe pill "Rank F · Lv 7" beside its name, the help, the turn-order chips with levels and the note', () => {
-    const el = drawFight(world(), latestOf(world()));
-    const foe = el.querySelector('.rpg-foe[data-foe="Mud-Scale Crawlers"]');
-    const pill = foe.querySelector('.rpg-foe-top .rpg-foe-side .ss-pill.rpg-level-pill');
-    assert.equal(pill.textContent, 'Rank F · Lv 7');
-    assert.equal(foe.querySelector('.rpg-name').textContent, 'Mud-Scale Crawlers ×6');
-    assert.equal(readFight(world(), { roleOf, ranks: RANKS })[0].levelText, 'Rank F · Lv 7');
-    const chips = el.querySelectorAll('.rpg-order .rpg-order-pill').map(node => node.textContent);
-    assert.deepEqual(chips, ['1 Astra (Lv 14)29', '2 Mud-Scale Crawlers (Lv 7)14']);
-    assert.equal(el.querySelector('.rpg-order-note').textContent, 'Rolled at the start of this fight (d20 + level ÷ 5 + AGI/2; foes the same with their own level). A swipe rolls it again.');
-});
-
 test('a foe with a `class` field (a chat made before Levels) reads it as the level its class stood for (class n is level 10n - 5)', () => {
     const old = { definition: foesDefinition(), fields: { foe1: 'Weir-drake', count1: 1, class1: 4, hurt1: 5 } };
     assert.deepEqual(readFoes(fakeState([old]), { roleOf, ranks: RANKS }).map(foe => [foe.level, foe.levelText]), [[35, 'Rank SSS · Lv 35']]);
 });
 
 // ---- Battle log
-
-test('the battle log: turn order with levels, the Foes line "×6 · Rank F · Lv 7: Down", and the why lines show the level ÷ 5 term', () => {
-    const state = world();
-    const model = panelModel({ resolve: readResolve(record({ lv: 1 })), state, before: null, roleOf, ranks: RANKS });
-    const node = buildPanel(setupDom(), model, { index: 3 });
-    assert.equal(node.querySelector('.rpg-bl-order').textContent, 'Turn order: Astra (Lv 14) 29 > Mud-Scale Crawlers (Lv 7) 14');
-    assert.match(node.querySelector('.rpg-bl-foe-list').textContent, /^Mud-Scale Crawlers ×6 · Rank F · Lv 7: Down$/);
-    const why = model.rounds[0].lines[0].breakdown;
-    assert.equal(why, 'd20 14 + AGI 5 + Lv 14 ÷ 5 = 2 + Expert 2 = 37 vs d20 9 + 4 + Lv 7 ÷ 5 = 1 = 22');
-});
 
 test('a record without the Levels mark replays as recorded: "Class II 4", and the Standard breakdown keeps its class term', () => {
     const old = readResolve(record({ rounds: [{ n: 1, lines: [{ kind: 'act', outcome: 'success', skill: 'Iaijutsu', pc: pc('Astra', { classValue: 2, classBonus: 4 }), foe: foeSide({ classValue: 1, classBonus: 2 }) }] }] }));

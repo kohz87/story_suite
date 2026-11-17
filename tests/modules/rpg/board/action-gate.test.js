@@ -2,7 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { knownFoeAction } from '../../../../modules/rpg/board/action-gate.js';
-import { character, foeBlock, setup, skillBlock } from '../helpers.js';
+import { setup } from '../helpers.js';
+import { v1Blocks } from './v1.helpers.js';
 
 const sheet = { foes: [{ name: 'Rat swarms', filled: true, hurt: 4 }], characters: [{ skills: [
     { name: 'Shadow Cut', about: 'Slash a foe with a blade.' }, { name: 'Obscure', about: 'Hide from sight.' },
@@ -21,14 +22,12 @@ test('only an explicit attack on a standing known foe holds the send', () => {
 test('known-foe phrases pause or send through the real host', async () => {
     for (const [text, pause] of [['I attack the rats.', true], ['I stab them.', true], ['I use Shadow Cut on the rats.', true],
         ['I talk to the rats.', false], ['I walk away from the rats.', false], ['I do not attack the rats.', false], ['The rats attack me.', false]]) {
-        const blocks = { hero: { role: 'character', fields: character('Astra') },
-            skills: { role: 'skills', fields: skillBlock('Astra', [['Shadow Cut', 2, 'agi', 'stamina', 'Slash a foe with a blade']]) },
-            foes: { role: 'foes', fields: foeBlock([['Rats', 1, 1, 5]]) } };
-        const { host, callModel } = await setup({ blocks, board: true, answers: ['none'] });
+        const blocks = v1Blocks({ count: 1 });
+        Object.assign(blocks.skills.fields, { skill1: 'Shadow Cut', about1: 'Slash a foe with a blade', stat1: 'agi' });
+        const { host } = await setup({ blocks, board: true, planner: false });
         try {
             const result = await host.send(text, 'A reply.');
             assert.equal(result.aborted === true, pause, text);
-            assert.equal(callModel.calls.length, pause ? 0 : 1, text);
         } finally { host.close(); }
     }
 });

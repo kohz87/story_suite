@@ -1,0 +1,33 @@
+{
+  "id": "riverside-starter",
+  "format": 3,
+  "version": "3.0.0",
+  "name": "Riverside Starter",
+  "author": "Story Suite examples",
+  "description": "A small river village to begin in: a few goods, a weir rat and two village events. A test fixture for pack format 3, not a shipped example.",
+  "requires": { "suite": "^0.1", "capabilities": ["inventory", "scene"] },
+  "currency": { "name": "pennies", "short": "p" },
+  "content": {
+    "items": [
+      { "name": "Moonveil Trout", "aliases": ["trout"], "kind": "goods", "rarity": "uncommon", "value": 45, "tags": ["fish"], "note": "violet-streaked, from the lake" },
+      { "name": "Willow Rod", "slug": "willow-rod", "kind": "equipment", "rarity": "common", "value": 120, "slot": "tool", "note": "light and springy" },
+      { "name": "Hemp Line", "kind": "material", "value": 8, "tags": ["fibre"] },
+      { "name": "Minor Healing Draught", "aliases": ["healing draught"], "kind": "consumable", "value": 60, "effect": { "heal": 20 } }
+    ],
+    "foes": [
+      { "name": "Weir Rat", "aliases": ["rat"], "tier": "mob", "level": 1, "about": "A river rat of the weirs and mill races.", "tags": ["river"] }
+    ],
+    "events": [
+      { "id": "market-day", "when": "query('director.time').minutes >= 480", "cue": "Bells ring across Bluewatch: market day has begun on the green.", "once": true },
+      { "id": "rat-trouble", "after": "market-day", "when": "query('scene.place').name == 'Bluewatch Village'", "cue": "Hollis grumbles that weir rats have been at his nets again.", "once": true }
+    ]
+  },
+  "start": {
+    "scene": { "place": { "name": "Bluewatch Village", "kind": "settlement", "region": "the Lowmere" }, "present": ["Hollis"] },
+    "inventory": {
+      "items": [{ "item": "willow-rod" }, { "item": "Hemp Line", "qty": 3 }, "Minor Healing Draught"],
+      "money": 50
+    }
+  },
+  "theme": { "--ss-accent": "#3f7f8f" }
+}

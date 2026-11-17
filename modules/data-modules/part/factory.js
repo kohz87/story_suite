@@ -5,7 +5,7 @@ import { validateDataMigration, dataModuleDefaults } from '../check.js';
 import { copy } from '../interpreter.js';
 import { activeDefinition, actorsOf, inputsOf, instanceOf, publicView } from '../adapters.js';
 import { rpgLib } from '../../rpg/rpg-lazy.js';
-import { CHECK_GRAMMAR, LEAN_RPG_FEATURE, ROLLS_SETTING, checksOn, practiceFromRollsOnly } from '../../rpg/names.js';
+import { CHECK_GRAMMAR, LEAN_RPG_FEATURE, checksOn } from '../../rpg/names.js';
 import { readSheet } from '../../rpg/read.js';
 import { createCore } from './core.js';
 import { createSkills } from './skills.js';
@@ -85,22 +85,18 @@ export function createDataModulesPart(opts = {}) {
         hooks: { afterCapture, beforeGenerate: (view, info) => info?.commit === false ? undefined : d.due(view) },
         cards: blockCardSlots,
         context: {
-            static: hint => {
+            static: () => {
                 const board = boardOn() === true;
-                return grammarFor(state(), !board && rpgLib()?.isQuiet(hint, state(), settings()) ? rpgLib().QUIET_GRAMMAR : null,
-                    { rolled: board || practiceFromRollsOnly(hint?.view?.feature?.(LEAN_RPG_FEATURE), settings()), board });
+                return grammarFor(state(), null, { rolled: board, board });
             },
             tail: view => {
                 const lines = tailLines(view.state, typeof view.feature === 'function' ? view.feature(LEAN_RPG_FEATURE) === true : true);
                 if (boardOn()) {
                     const lib = rpgLib();
-                    let pack = null;
-                    try { pack = lib?.packRulesOf(view.query?.('packs.content', { kind: 'rpg' })); } catch { /* no pack rules */ }
-                    const manual = settings()?.[ROLLS_SETTING] === 'off' || (lib && !lib.isStandard(lib.rulesFromSettings(settings(), pack)));
                     // (an ended board fight is still a fight for this reply: the clear emptied the Foes block, but the reply that tells its end keeps the fight tail)
                     const ended = ['won', 'fled', 'lost'].includes(view.boardStop);
                     const fight = ended || readSheet(view.state).foes.some(foe => foe.filled);
-                    lines.push(...(lib?.boardReplyGrammar?.(view.state, { fight, ended, manual, practice: settings()?.[ROLLS_SETTING] === 'off' }) ?? []));
+                    lines.push(...(lib?.boardReplyGrammar?.(view.state, { fight, ended }) ?? []));
                 }
                 return { lines, optional: [] };
             },

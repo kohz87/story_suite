@@ -16,7 +16,7 @@ for (const name of ['reputation', 'survival']) test(`worked example ${name} is t
     const input = read(name);
     const installable = readFileSync(new URL(`../../../examples/packs/${input.id}/pack.json`, import.meta.url), 'utf8');
     assert.deepEqual(JSON.parse(installable), input, 'the installable pack matches the worked example');
-    const installed = validatePack(installable, { capabilities: ['data-modules-v1', 'story-director'] });
+    const installed = validatePack(installable, { capabilities: ['data-modules-v1', 'director'] });
     assert.equal(installed.ok, true, JSON.stringify(installed.errors));
     assert.deepEqual(input, examples.find(p => p.id === input.id));
     const before = JSON.stringify(input);
@@ -62,7 +62,10 @@ test('capability is required even for an empty definition list; host capability 
 
 test('old packs and explicitly unused definitions retain raw bytes and detached normalization', () => {
     const old = { id: 'old', name: 'Old', version: '1.0.0', requires: { storyBlock: '^2' }, content: {} };
-    assert.deepEqual(validatePack(old), oldValidatePack(old));
+    // (the same as the earlier host's checker gave, but for the format number and the kinds pack format 3 leaves out)
+    const was = oldValidatePack(old), now = validatePack(old);
+    for (const kind of ['creatures', 'shops', 'recipes', 'quests', 'races', 'talents']) delete was.pack.content[kind];
+    assert.deepEqual(now, was);
     const result = ok(old);
     assert.equal('dataModules' in result.pack.content, false);
     assert.equal('packHash' in result, false);

@@ -4,6 +4,8 @@ import { modelsCommand } from './models.js';
 import { toolsCommand } from './tools.js';
 import { trackerCommand } from './trackers.js';
 
+/** The page event `port.open` sends and the host answers (ui/legacy/ui-host/lean-rpg-sync.js). */
+export const OPEN_EVENT = 'story-suite:open';
 const FAILED = Object.freeze({ ok: false, code: 'FAILED', message: 'The engine could not do that.' });
 
 function failure(error) {
@@ -101,6 +103,14 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         return Object.hasOwn(INTERACTION, verb) ? interact(verb, payload) : Promise.resolve({ ...FAILED, message: `The engine does not take ${type}.` });
       }
       return guarded(sdk, 'command', type, payload, options);
+    },
+    // Opens a screen the host owns (the New character window, filled in from `payload`): the host answers the `story-suite:open` event on the page; no engine command, nothing recorded.
+    async open(id, payload, { onEnd } = {}) {
+      const doc = globalThis.document;
+      if (typeof doc?.dispatchEvent !== 'function' || typeof globalThis.CustomEvent !== 'function') return { ...FAILED, message: 'There is no page to open it on.' };
+      const detail = { id, payload: payload ?? null, handled: false, onEnd: typeof onEnd === 'function' ? onEnd : null };
+      doc.dispatchEvent(new globalThis.CustomEvent(OPEN_EVENT, { detail }));
+      return detail.handled ? { ok: true } : { ...FAILED, message: 'That window is not available now.' };
     },
     preview: (type, payload) => guarded(sdk, 'preview', type, payload),
     commit: token => guarded(sdk, 'commit', token),

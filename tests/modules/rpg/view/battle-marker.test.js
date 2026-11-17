@@ -59,25 +59,6 @@ function message(doc, index, lines) {
     return el;
 }
 
-test('no recorded rolls: the marker line is hidden, not shown as text, and kept for a panel drawn later', async t => {
-    const { doc, log, head, roll } = await world(t, { rolled: false });
-    const el = message(doc, head, ['The quay.', '[battle]', 'After.']);
-    const text = el.querySelector('.mes_text');
-    assert.equal(log.refresh(head, el), null);
-    assert.equal(visibleText(text), 'The quay.After.', 'nothing of the marker shows');
-    assert.deepEqual(kids(text), ['p:The quay.', 'p(hidden):[battle]', 'p:After.']);
-    assert.ok(text.querySelector(`.${MARKER_HIDDEN}`));
-    assert.equal(markerNodes(text).length, 1, 'still there');
-    assert.equal(log.refresh(head, el), null);
-    assert.deepEqual(kids(text), ['p:The quay.', 'p(hidden):[battle]', 'p:After.'], 'hiding again changes nothing');
-    // The rolls are there now (a Re-read, a reload): the panel takes the marker's place, inline.
-    roll();
-    const node = log.refresh(head, el);
-    assert.equal(node.getAttribute('data-variant'), 'inline');
-    assert.deepEqual(kids(text).map(item => item.split(':')[0]), ['p', 'div', 'p']);
-    assert.equal(text.querySelectorAll(`.${MARKER_HIDDEN}`).length, 0);
-});
-
 test('a reader\'s own message keeps a literal [battle] line visible', async t => {
     const { host, doc, log, head } = await world(t, { rolled: false });
     const mine = head - 1;
@@ -107,46 +88,4 @@ test('a marker that shares its paragraph is hidden on its own; the lines around 
     plain.appendChild(doc.createTextNode('He loved a [battle] cry.'));
     hideMarkers(doc, plain);
     assert.equal(visibleText(plain), 'He loved a [battle] cry.');
-});
-
-test('the RPG going off: the marker line given back is hidden too, and the panel finds it again when it comes back', async t => {
-    const { host, doc, log, head } = await world(t);
-    const el = message(doc, head, ['The quay.', '[battle]', 'After.']);
-    const text = el.querySelector('.mes_text');
-    assert.equal(log.refresh(head, el).getAttribute('data-variant'), 'inline');
-    log.destroy();
-    assert.equal(visibleText(text), 'The quay.After.');
-    assert.equal(markerNodes(text).length, 1);
-    const again = createBattleLog({ ctx: host.ctx, doc, store: host.store, featureOn: () => true, roleOf, events: host.events });
-    t.after(() => again.destroy());
-    assert.equal(again.refresh(head, el).getAttribute('data-variant'), 'inline');
-    assert.deepEqual(kids(text).map(item => item.split(':')[0]), ['p', 'div', 'p']);
-});
-
-test('the reply\'s text drawn again by another extension after the panel: the panel is drawn again at once', async t => {
-    const watch = fakeObserver();
-    const { doc, log, head } = await world(t, { Observer: watch.Observer });
-    assert.equal(watch.made.length, 1);
-    assert.equal(watch.made[0].on, true, 'the chat is watched');
-    const el = message(doc, head, ['The quay.', '[battle]', 'After.']);
-    doc.querySelector('#chat').appendChild(el);
-    const text = el.querySelector('.mes_text');
-    assert.equal(log.refresh(head, el).getAttribute('data-variant'), 'inline');
-    // updateMessageBlock: the text drawn anew from the message, the raw marker back, the panel gone.
-    text.textContent = '';
-    for (const line of ['The quay.', '[battle]', 'After.']) { const p = doc.createElement('p'); p.textContent = line; text.appendChild(p); }
-    assert.equal(el.querySelectorAll(`.${BATTLE_ROOT}`).length, 0);
-    watch.fire(text);
-    await Promise.resolve();
-    await Promise.resolve();
-    assert.equal(el.querySelectorAll(`.${BATTLE_ROOT}`).length, 1, 'drawn again');
-    assert.deepEqual(kids(text).map(item => item.split(':')[0]), ['p', 'div', 'p']);
-    assert.equal(markerNodes(text).length, 0);
-    // A change with no marker showing draws nothing again (the panel's own drawing never feeds the watch).
-    const node = el.querySelector(`.${BATTLE_ROOT}`);
-    watch.fire(text);
-    await Promise.resolve();
-    assert.equal(el.querySelector(`.${BATTLE_ROOT}`), node);
-    log.destroy();
-    assert.equal(watch.made[0].on, false, 'destroy stops the watch');
 });

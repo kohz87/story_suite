@@ -1,7 +1,7 @@
 // Packs (SPEC §9, MODULES §E): a part of Story Block's core module.
 //
-// A pack is a pack.json of plain data: items, creatures, shops, recipes, events, quests, a
-// start state, screens, layouts and a theme. Packs are installed from a file or from a character's
+// A pack is a pack.json of plain data (pack format 3): items, foes, events, places, a cast, a
+// start state and a theme. Packs are installed from a file or from a character's
 // lorebook into `extension_settings.storySuite.packs` and read by other parts through the
 // queries and hooks below. The part has no domain and no commands: installing a pack is a
 // settings change, not a story event, and what a pack gives a chat is copied into the chat's
@@ -16,7 +16,7 @@
 //   `packs.content({ kind: 'cast' })` gives each person with `pack` and `packVersion` (cast.js).
 // * query `packs.castGear({ name })` → a cast member's signature gear for the narrator's cast entry (`{ name, line, items }`), or null (cast.js `gear`).
 // * query `packs.calendar` → the first enabled pack's calendar for the story clock, or null.
-// * query `packs.crafts` → the craft table (default crafts, enabled packs' `crafts` laid over them:
+// * query `packs.crafts` → the craft table (the default crafts; packs no longer add crafts:
 //   `[{ craft, title, stats, stations, note?, pack }]`) for modules that use recipes.
 // * query `packs.weather` → the first enabled pack's weather table `{ pack, seasons, tables }`, or null
 //   (MODULES §F122: Story Director's weather by rule).

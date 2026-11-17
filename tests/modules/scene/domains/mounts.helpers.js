@@ -1,5 +1,5 @@
 import { createHost } from '../../../../testkit/index.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { levelOfClass } from '../../../../modules/rpg/formula.js';
 
 export const block = (story, lines) => `${story}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
