@@ -1,0 +1,80 @@
+// World events, the daily step: from the last stepped day to today, one day at a time (spec v0.10 §9 Rolls, Long skips).
+// Each day: timers fade, displacements whose condition cleared lapse, the authored events, then the minor templates. The first
+// step of a chat starts at today (nothing before it is simulated). A skip of more than 30 days says "N world days simulated".
+// Input is the stored state and the world; output is the new state, the new conditions table and a report. Pure.
+
+import { seededDraw } from './chance.js';
+import { readDefs } from './defs.js';
+import { eventsDay } from './events-day.js';
+import { buildGeo } from './geo.js';
+import { fadeConditions } from './holds.js';
+import { recordAnchor } from './anchors.js';
+import { releaseDisplaced } from './cast.js';
+import { templatesDay } from './templates-day.js';
+
+const DAY = 1440;
+export const LONG_SKIP = 30;
+const MAX_DAYS = 3650;
+const list = value => (Array.isArray(value) ? value : []);
+const record = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
+
+function people(world) {
+    const out = new Map();
+    for (const person of list(world.cast)) {
+        if (typeof person?.id !== 'string') continue;
+        const start = person.start && typeof person.start === 'object' ? person.start.place : person.start;
+        out.set(person.id, { id: person.id, name: person.name ?? person.id, protected: person.protected === true, canDieUnmet: person.canDieUnmet !== false, home: person.homeBase ?? start ?? null });
+    }
+    return out;
+}
+
+function standingsOf(world, saved) {
+    const out = {};
+    for (const [kind, rows] of [['power', world.powers], ['score', world.scores]]) {
+        for (const row of list(rows)) if (typeof row?.name === 'string') out[`${kind}:${row.name}`] = Number.isFinite(row.start) ? row.start : 0;
+    }
+    for (const [key, value] of Object.entries(record(saved))) if (key in out && Number.isFinite(value)) out[key] = value;
+    return out;
+}
+
+/**
+ * `runDays({ state, table, world, today, seed, tempo, met, rev, draw? })` → null when there is nothing to step (today was stepped),
+ * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings } }`. `state` is chronicle.daily (or null),
+ * `table` chronicle.conditions, `seed` the campaign seed (kept in the state from the first step), `draw` a test's own draw.
+ */
+export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null }) {
+    if (!Number.isInteger(today)) return null;
+    const prior = Number.isInteger(state?.day) ? state.day : null;
+    if (prior !== null && today <= prior) return null;
+    const campaign = typeof state?.seed === 'string' ? state.seed : String(seed ?? '');
+    const defs = readDefs(world);
+    const ws = {
+        geo: buildGeo(world), people: people(world), met: new Set(met), tempo, rev,
+        declared: new Map(list(world.conditions).filter(row => typeof row?.name === 'string').map(row => [row.name, { name: row.name, scope: row.scope, fades: row.fades ?? null, placeStatus: row.placeStatus === true }])),
+        table: { ...record(table) }, masks: { ...record(state?.masks) }, anchors: structuredClone(record(state?.anchors)),
+        events: structuredClone(record(state?.events)), lastMajor: { ...record(state?.lastMajor) }, cast: structuredClone(record(state?.cast)),
+        standings: standingsOf(world, state?.standings), facts: { ...record(state?.facts) }, minors: list(state?.minors).map(entry => ({ ...entry })),
+        cooldowns: { ...record(state?.cooldowns) }, startDay: Number.isInteger(state?.start) ? state.start : today,
+        draw: draw ?? ((day, key) => seededDraw(campaign, day, key)), warnings: [...defs.warnings], log: [], journal: [], tomb: new Set(), day: today,
+    };
+    ws.anchor = key => recordAnchor(ws.anchors, key, ws.day);
+    const first = prior === null ? today : Math.max(prior + 1, today - MAX_DAYS + 1);
+    if (prior !== null && first > prior + 1) ws.warnings.push(`${first - prior - 1} days before the last ${MAX_DAYS} were not simulated.`);
+    for (let day = first; day <= today; day += 1) {
+        ws.day = day;
+        ws.tomb = new Set();
+        fadeConditions(ws, day * DAY);
+        releaseDisplaced(ws, null, day * DAY);
+        eventsDay(ws, defs.events, day);
+        templatesDay(ws, defs.templates, day);
+    }
+    const days = today - first + 1;
+    const daily = {
+        seed: campaign, start: ws.startDay, day: today, events: ws.events, anchors: ws.anchors, lastMajor: ws.lastMajor, cast: ws.cast,
+        standings: ws.standings, facts: ws.facts, masks: ws.masks, minors: ws.minors, cooldowns: ws.cooldowns,
+    };
+    return {
+        daily, conditions: ws.table,
+        report: { from: first, to: today, days, note: days > LONG_SKIP ? `${days} world days simulated` : '', log: ws.log, journal: ws.journal, warnings: [...new Set(ws.warnings)] },
+    };
+}
