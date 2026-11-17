@@ -103,7 +103,7 @@ export function createInjectionPart(rt, deps) {
         const builtParts = armed || rulesSent
             ? (storySuiteV2Meters()
                 // Hosted (N7): the lines builder; the JSON block is no longer asked for. Without a host the JSON one-pass prompt is unchanged.
-                ? buildLinesParts({ ...noteOptions, existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
+                ? buildLinesParts({ ...noteOptions, levelOn: effectiveCustomFieldNames(settings).some(name => name.toLowerCase() === 'level'), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
                 : buildNarrationCaptureParts(scannerPromptOptions(state, settings, transcript, { dossierAbove: prompt, ...noteOptions })))
             : { rules: '', context: '' };
         const captureParts = { rules: armed || rulesSent ? builtParts.rules : '', context: armed ? builtParts.context : '' };

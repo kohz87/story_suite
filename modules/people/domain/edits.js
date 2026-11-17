@@ -21,8 +21,17 @@ const edited = (summary, data) => ({ summary, data: { ...data, edit: true }, nar
 
 // people.fields { id, fields }: the dossier fields a story change line states (NPC State's `~ npc` labels); only a module's own command may send it, and only
 // these fields, as short text (null removes one). It is a story change, not a reader edit: the reply card does not list it as one.
-const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday']);
+const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday', 'level']);
 const LINE_TEXT_MAX = 300;
+
+// `level` is not a record field: it is the Level custom field (the existing key in any case, else "Level"), written as a number text and never lowered.
+function writeLevel(record, text) {
+    const fields = isObject(record.customFields) ? record.customFields : {};
+    const key = Object.keys(fields).find(name => name.toLowerCase() === 'level') ?? 'Level';
+    const held = String(fields[key] ?? '').trim();
+    if (held && !(/^\d+$/.test(held) && Number(held) < Number(text))) return;
+    record.customFields = { ...fields, [key]: text };
+}
 
 /** The narrow edit commands of the people domain named `domain`. */
 export function peopleEdits(domain) {
@@ -33,9 +42,10 @@ export function peopleEdits(domain) {
                 if (typeof ctx.caller !== 'string' || !ctx.caller || ctx.caller.startsWith('event:')) return ctx.fail('REFUSED', 'Only a module\'s own command may write a person\'s story fields.');
                 const fields = payload?.fields;
                 const names = isObject(fields) ? Object.keys(fields) : [];
-                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, appearance, gender, age or birthday as short text (or null).');
+                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, appearance, gender, age, birthday or level as short text (or null).');
                 const record = recordOf(ctx, domain, payload.id);
                 for (const name of names) {
+                    if (name === 'level') { if (/^\d+$/.test(fields.level ?? '')) writeLevel(record, fields.level); continue; }
                     if (fields[name] === null || fields[name] === '') delete record[name];
                     else record[name] = fields[name];
                 }

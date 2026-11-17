@@ -36,6 +36,7 @@ import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
  *   ownCommand(type, payload) → true while Delta's own adapter is sending exactly this command (its
  *                       scanner's npc.adjust, its tick); a button, screen or pack cannot make it true
  *   linesMode()       → true while the one-pass lines switch is on (N7 turns it on): `+ npc` stubs and the unknown-person rule (npc-lines-parts/stub.js); off by default
+ *   levelOn()         → true while the custom Level field is on (a configured field, or Story Block's RPG feature): a `~ npc` line may then state `level: N` (lines mode only; npc-lines-parts/level.js)
  *   playerNames()     → the player's and the played character's names (a stub is never made for them)
  *   headReply()       → the index of the latest reply (the reader's own values start its window)
  */

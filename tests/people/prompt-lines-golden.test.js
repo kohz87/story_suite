@@ -16,6 +16,7 @@ const VARIANTS = {
     layered_secrets: { layeredSecrets: true },
     notes_and_stages_off: { notes: false, stages: false },
     mood_word_on: { moodWord: true },
+    level_on: { levelOn: true },
     people_list: { existingNpcs: [{ id: 'mira', name: 'Mira Tolk', aliases: ['Mira'], present: true }, { id: 'old', name: 'Old Tam', aliases: [], archived: true }, { id: 'gone', name: 'Gone', aliases: [], lastSeenTurn: 1 }, { id: 'dead', name: 'Dead', aliases: [], lifeState: 'deceased', lifeStateCertainty: 'confirmed' }], turn: 100, dormantAfter: 30, namedNpcIds: ['dead'] },
     event_watch: { eventWatch: [{ key: 'sec_0aaa1111', name: 'Mira', event: 'The duke is exposed as a traitor' }, { key: 'sec_0bbb2222', name: 'Oren', event: 'the seal is shown' }] },
 };

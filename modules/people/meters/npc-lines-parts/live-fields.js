@@ -1,4 +1,4 @@
-// Applies the dossier labels of a `~ npc` line to the person: goal, status and where (and look, gender, age, birthday through ./look.js and ./facts.js)
+// Applies the dossier labels of a `~ npc` line to the person: goal, status and where (and look, gender, age, birthday through ./look.js and ./facts.js, level through ./level.js)
 // as one `people.fields` write on the people domain, and mood (one word → the fixed list's V/A/D numbers) on the meter record. Each refusal is a problem;
 // the line's other labels still apply.
 import { NPC_DOMAIN, clean, isInt, isReplyId, readLeaf } from '../npc-meters-config.js';
@@ -7,6 +7,7 @@ import { applyWord, moodFromWord, restMood, restingMood } from '../npc-mood.js';
 import { sentence, writeMood } from '../npc-meters-slice.js';
 import { factFields, unknownWord } from './facts.js';
 import { lookField } from './look.js';
+import { levelField } from './level.js';
 import { guardFields } from './guard.js';
 
 const LIVE = Object.freeze({ goal: 300, status: 300, where: 120 });
@@ -30,7 +31,7 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
         if (got.problem) { problems.push(got.problem); continue; }
         set[field === 'where' ? 'location' : field] = got.value;
     }
-    for (const part of [lookField(fields), factFields(fields, dossier, lines)]) { Object.assign(set, part.set); problems.push(...part.problems); }
+    for (const part of [lookField(fields), factFields(fields, dossier, lines), levelField(fields, dossier)]) { Object.assign(set, part.set); problems.push(...part.problems); }
     const guarded = guardFields(set, dossier, name);
     problems.push(...guarded.problems);
     for (const key of Object.keys(set)) { if (key in guarded.set) set[key] = guarded.set[key]; else delete set[key]; }
