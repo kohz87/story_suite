@@ -1,5 +1,6 @@
 // Wraps Story Block's sdk as the UI port: views come from injected selectors fed by sdk queries, actions pass through, and nothing throws.
 
+import { peopleCommand } from './people-settings.js';
 import { modelsCommand } from './models.js';
 import { toolsCommand } from './tools.js';
 import { trackerCommand } from './trackers.js';
@@ -91,6 +92,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         try { answer = await modelsCommand(sdk, type, payload, Date.now, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         try { answer = await toolsCommand(tools, type, payload); } catch (error) { answer = failure(error); }
+        if (answer) return answer;
+        try { answer = peopleCommand(type, payload, writes, () => sdk?.settings?.('npc-state-delta') ?? {}); } catch (error) { answer = failure(error); }
         if (answer) return answer;
       }
       if (typeof type === 'string' && type.startsWith('tracker.')) {
