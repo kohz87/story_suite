@@ -8,6 +8,7 @@
 export { extractBlock } from './capture-parts/extract.js';
 export { stripBlock } from './capture-parts/strip.js';
 export { hideBlock } from './capture-parts/hide.js';
+export { dropDoubledDraft } from './capture-parts/draft.js';
 export { OPS, MAX_LINE, lineBody, parseChanges, grammarHeads } from './capture/lines.js';
 export { HIDDEN_MARKER, hasHidden, markOff, markCaps, capsOf, cutLine, withoutReasoning, defangMarker, continuation } from './capture/blocks.js';
 export { assistSections, withAssist, repairState, withoutRepair, sameChangeLine } from './capture/echo.js';

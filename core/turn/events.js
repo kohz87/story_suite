@@ -3,7 +3,7 @@
 // swipes, a deleted swipe), the generation stopped or ended, and install / uninstall of the interceptor and the listeners. `createEvents(s, deps)`
 // is given the turn's state holder `s` and the turn parts it uses; it never imports turn.js.
 import {
-    adoptLegacy, continuation, cutLine, defangMarker, extractBlock, hideBlock, markOff,
+    adoptLegacy, continuation, cutLine, defangMarker, dropDoubledDraft, extractBlock, hideBlock, markOff,
 } from '../capture.js';
 import { cutAt } from '../text.js';
 import { readRecord, swipeLoading } from '../persist.js';
@@ -50,7 +50,8 @@ export function createEvents(s, deps) {
             // reply is read live as Re-read will read the saved message.
             // A v1 envelope (capture.js adoptLegacy): read as the reply's block when it has none, else taken out unread.
             const adopted = adoptLegacy(defangMarker(written, at?.from ?? 0), { at });
-            const text = adopted.text;
+            // A draft the model wrote in front of a second copy of the reply is dropped (a Continue's text is added to, never cut).
+            const text = at ? adopted.text : dropDoubledDraft(adopted.text);
             let edited = false;
             if (text !== written) {
                 message.mes = text;
@@ -65,6 +66,7 @@ export function createEvents(s, deps) {
             const parsed = block === null ? { lines: [], problems: [] } : readBlock(id, block, { fresh: current.type !== 'continue' });
             const problems = [...parsed.problems, ...strayProblems(id, text, heads, { from: at?.from ?? 0, tail: at?.tail === true, stopped }, parsed.lines.map(line => line.raw))];
             if (adopted.legacy === 'read') problems.push(legacyProblem(id));
+            if (text !== adopted.text) problems.push(problem({ index: id, code: 'DRAFT_DROPPED', message: 'The model wrote a draft of the reply in front of the reply itself; the draft was cut and the reply kept.' }));
             const cut = block === null ? null : cutLine(text, 'Changes', at);
             if (cut) problems.push(problem({ index: id, line: cut, code: 'CUT_OFF', message: `The reply ended in the middle of the change line "${cutAt(cut, 80)}" (nothing after it on its line, and the block was not closed), so it was not used. Continue finishes it; or end the line and close the block by hand, then Re-read.` }));
             // The previous reply's safety-net lines that came after the reader sent (not for a Continue).
