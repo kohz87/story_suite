@@ -74,7 +74,9 @@ function condition(ctx, payload) {
     if (refusal) return ctx.fail('REFUSED', `${refusal[0].toUpperCase()}${refusal.slice(1)}.`);
     const table = chronicle.conditions ?? {};
     const key = conditionKey(name, ref);
-    const old = table[key];
+    // An entry past its end that settle has not removed yet is gone: setting it again starts it anew (a `set:` anchor, a new `since`).
+    const held = table[key];
+    const old = held && (held.holds?.length > 0 || !(Number.isInteger(held.fadesAt) && held.fadesAt <= now)) ? held : undefined;
     const why = cleanSummary(typeof payload.why === 'string' ? payload.why : '').slice(0, 200);
     chronicle.conditions = table;
     chronicle.conditions[key] = { name, scope: declared.scope, ref, since: old?.since ?? now, ...lifetime(old, minutes, now), why, by, rev: revOf(ctx) };
@@ -101,7 +103,12 @@ function clear(ctx, payload) {
     const ref = knownRef((type, args) => ctx.query(type, args), declared.scope, given) ?? Object.values(table).find(entry => entry.name === name && entry.ref.toLowerCase() === given.toLowerCase())?.ref;
     if (!ref) return ctx.fail('REFUSED', `"${given}" is not a ${declared.scope} of this world (a ${declared.scope} condition is cleared on a ${declared.scope}).`);
     const found = table[conditionKey(name, ref)];
-    if (!found) return { summary: `${name} is not active on ${ref || 'that place'}.`, narrate: false, data: { key: null } };
+    if (!found) {
+        // Not active: nothing to end, but the day's tomb still holds (spec §2: a clear at a ref is not undone by a set there the same day), as the daily step's clear does.
+        const at = clockOf(ctx);
+        if (at !== null) markLedger(chronicle, { day: Math.floor(at / DAY), tombKeys: [conditionKey(name, ref)] });
+        return { summary: `${name} is not active on ${ref || 'that place'}.`, narrate: false, data: { key: null } };
+    }
     const key = conditionKey(found.name, found.ref);
     // An older reply's condition may be gone when this replays after a delete: the removal is marked ctx.ifThere (SPEC §2.2).
     if (typeof ctx.ifThere === 'function') ctx.ifThere('chronicle', pointerOf(key));

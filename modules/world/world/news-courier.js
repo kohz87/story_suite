@@ -36,7 +36,8 @@ function edgesOf({ geo, routes = [], routeKinds = {}, pace = CLASS_SPEED.road, f
         const a = geo.byName.get(low(route?.from))?.name;
         const b = geo.byName.get(low(route?.to))?.name;
         if (!a || !b) continue;
-        const name = typeof route.name === 'string' && route.name.trim() ? route.name.trim() : `${a}-${b}`;
+        // A nameless route is "From-To" as the pack wrote its ends (an id or a name), the key geo.js and the conditions store keep it under.
+        const name = typeof route.name === 'string' && route.name.trim() ? route.name.trim() : `${String(route.from).trim()}-${String(route.to).trim()}`;
         const days = routeDays(route, routeClass(route.kind, routeKinds), { pace, factor: factorOf(name) });
         if (days === null) continue;
         const km = Number.isFinite(route.km) && route.km > 0 ? route.km : 0;

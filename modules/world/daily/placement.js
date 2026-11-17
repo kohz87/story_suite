@@ -18,22 +18,35 @@ export function masked(ws, place, day) {
     return false;
 }
 
+// Whether a place sits in the region / realm a `where` narrows to (spec §3: kinds "optionally with region/realm"); an entry the map
+// does not resolve, or resolves as another kind, matches nothing (the author's restriction is kept, never dropped).
+function inNarrow(geo, where, place) {
+    for (const [key, kind] of [['region', 'region'], ['realm', 'realm']]) {
+        if (!where?.[key]) continue;
+        const found = resolveRef(geo, where[key]);
+        if (found?.kind !== kind) return false;
+        if (kind === 'region' ? low(found.name) !== low(place.region) : found.name !== place.realm) return false;
+    }
+    return true;
+}
+
 /**
  * The places `where` allows, each `{ place, weight }`, in place id order. `where`: { fit } (anywhere generic), { kinds } (explicit),
- * { refs } (places, or every generic place in the named regions/realms), or null (anywhere generic). `template`: skip masked places.
+ * { refs } (places, or every generic place in the named regions/realms), or null (anywhere generic); `region` / `realm` on a kinds
+ * (or kinds-less) `where` narrow it to that region / realm. `template`: skip masked places.
  */
 export function placesFor(ws, where, day, { template = false } = {}) {
     let list;
     if (where?.kinds?.length) {
         const kinds = new Set(where.kinds.map(low));
-        list = ws.geo.places.filter(place => kinds.has(low(place.kind)) || kinds.has(place.klass)).map(place => ({ place, weight: place.weight ?? 1 }));
+        list = ws.geo.places.filter(place => (kinds.has(low(place.kind)) || kinds.has(place.klass)) && inNarrow(ws.geo, where, place)).map(place => ({ place, weight: place.weight ?? 1 }));
     } else {
         const generic = ws.geo.places.filter(place => place.klass !== 'none').map(place => ({ place, weight: place.weight ?? CLASS_WEIGHT[place.klass] ?? 1 }));
         if (where?.refs?.length) {
             const named = where.refs.map(ref => resolveRef(ws.geo, ref)).filter(Boolean);
             list = generic.filter(({ place }) => named.some(found => (found.kind === 'place' ? found.name === place.name : found.kind === 'region' ? low(found.name) === low(place.region) : found.kind === 'realm' && found.name === place.realm)));
             for (const found of named) if (found.kind === 'place' && found.place.klass === 'none') list.push({ place: found.place, weight: found.place.weight ?? 1 });
-        } else list = generic;
+        } else list = generic.filter(({ place }) => inNarrow(ws.geo, where, place));
     }
     if (template) list = list.filter(({ place }) => !masked(ws, place, day));
     return list.sort((a, b) => (a.place.id < b.place.id ? -1 : a.place.id > b.place.id ? 1 : 0));

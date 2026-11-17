@@ -31,9 +31,22 @@ function envOf(state, tools, now) {
     const geo = buildGeo(world);
     const chronicle = state?.domains?.chronicle ?? {};
     const declared = tryQuery(query, 'chronicle.conditionNames', {}, []);
-    const factorOf = routeFactors({ table: chronicle.conditions ?? {}, declared, geo, masks: slotValue(chronicle.daily)?.masks ?? {}, now });
-    const env = { tools, geo, routes: world.routes, routeKinds: world.routeKinds, pace: courierSpeed(tools), factorOf, cache: new Map() };
-    return env;
+    const masks = slotValue(chronicle.daily)?.masks ?? {};
+    const table = chronicle.conditions ?? {};
+    const factorOf = routeFactors({ table, declared, geo, masks, now });
+    return { tools, geo, routes: world.routes, routeKinds: world.routeKinds, pace: courierSpeed(tools), factorOf, cache: new Map(), table, declared, masks, byTime: new Map() };
+}
+
+// The question's env as the roads stood when the news left (`since`): only the conditions that held then slow it, so a road closed
+// after the courier set out never takes back news that has come (nothing is stored: the table's own `since` and `fadesAt` say so).
+function envAt(env, since) {
+    if (!isInt(since)) return env;
+    if (!env.byTime.has(since)) {
+        const table = Object.fromEntries(Object.entries(env.table).filter(([, entry]) => !isInt(entry?.since) || entry.since <= since));
+        const factorOf = routeFactors({ table, declared: env.declared, geo: env.geo, masks: env.masks, now: since });
+        env.byTime.set(since, { ...env, factorOf, cache: new Map(), edges: undefined });
+    }
+    return env.byTime.get(since);
 }
 
 // The news of one entry at `place` by `clock`: null when it never comes (beyond its reach), else its arrival and how it is heard.
@@ -43,7 +56,7 @@ function arrival(env, event, place, clock) {
     if (world && !withinReach(event.reach, origin, place ? placeInfo(env.geo, env.tools, place) : null)) return null;
     const shown = { place: shownPlace(origin, env.tools, text(event.place)) };
     if (typeof event.rumour === 'string' || !isInt(event.since)) return { ...shown, arrivesAt: isInt(event.since) ? event.since : null, via: 'tier', tag: typeof event.rumour === 'string' ? 'rumour' : 'fact', news: 'fired' };
-    const delay = newsDelay(env, text(event.place), place);
+    const delay = newsDelay(envAt(env, event.since), text(event.place), place);
     if (!delay) return { ...shown, arrivesAt: event.since, via: 'tier', tag: 'fact', news: 'fired' };
     const { days, via, km } = delay;
     const after = Math.ceil(days * DAY);

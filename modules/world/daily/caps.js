@@ -5,12 +5,14 @@
 
 import { scaleDays } from './durations.js';
 import { realmsOf } from './geo-scope.js';
+import { placesFor } from './placement.js';
 
 export const CAPS = Object.freeze({ perRealm: 2, world: 4, newMajorDays: 45 });
 
-/** The realms an event takes slots in: its `where` refs, or the realm of the place it is bound to. */
+/** The realms an event takes slots in: the realm of the place it is bound to, else its `where` refs, else the realms of the places its `where` kinds (and region / realm) match. */
 export function eventRealms(ws, def, bind) {
     if (bind?.place) return [bind.realm].filter(Boolean);
+    if (def.where?.kinds?.length || def.where?.region || def.where?.realm) return [...new Set(placesFor(ws, def.where, 0).map(({ place }) => place.realm))].sort();
     return realmsOf(ws.geo, def.where?.refs ?? []);
 }
 
