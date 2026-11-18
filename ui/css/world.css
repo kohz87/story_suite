@@ -3,7 +3,8 @@
 [data-scheme="light"] .world-tab{--pk-disc:#4a4d68}
 .world-tab .wbody{display:flex;flex-direction:column;gap:12px;min-width:0}
 .world-tab .wplaces ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
-.world-tab .wplaces small,.world-tab .wplaces .st{color:var(--SmartThemeEmColor)}
+.world-tab .wplaces small,.world-tab .wplaces .st{color:var(--su-muted)}
+.world-tab .wplaces .st{margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--su-line2);font:700 12px var(--su-font)}
 .world-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .world-tab .ch{display:flex;align-items:center;gap:10px}
 .world-tab .ch h3{margin:0;font:700 19px var(--su-font);color:var(--su-text);flex:1}

@@ -38,11 +38,11 @@ test('Install sends the ticked state; unticking survives a redraw; Not now and D
   const ctx = ctxFor(c);
   const draw = () => rightNow({ needsYou: [], offers: offerRows(c) }, ctx)[0];
   let node = draw();
-  const box = node.querySelector('input');
-  box.checked = false;
-  box.dispatchEvent({ type: 'change' });
+  assert.equal(node.querySelector('input'), null, 'the tick is the suite switch, not a native checkbox (SOAK2UI 18)');
+  assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), 'true');
+  node.querySelector('.rnr-tick .sw').click();
   node = draw();
-  assert.equal(node.querySelector('input').hasAttribute('checked'), false, 'a redraw does not tick it again');
+  assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), 'false', 'a redraw does not tick it again');
   const [install, later] = node.querySelectorAll('.offer .btn2');
   install.click();
   later.click();

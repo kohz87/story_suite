@@ -6,7 +6,7 @@ import { presentOf } from './people-parts.js';
 
 const SCENE = ['director.time', 'director.status', 'scene.place', 'scene.weather', 'scene.you', 'party.actors', 'party.pc', 'party.levels',
   'party.terms', 'rpg.sheet', 'mounts.pace', 'director.goal', 'director.next', 'atlas.trip', 'inventory.wallet', 'inventory.currency',
-  'inventory.encumbrance', 'npc.cast', 'chatter.head', 'time.overdue', 'reply.changes'];
+  'inventory.encumbrance', 'npc.cast', 'chatter.head', 'time.overdue', 'reply.changes', 'rpg.joinsOpen'];
 
 // Who is here, from the store: the people of `people.list` who are here (isHere: present, or at the scene's place) as [{ id, name, meters, followed, portrait, status, goal }] (the old `npc.present` answer's shape, still the
 // key the selectors read); `status` is what they are doing (the same stored text the dossier's Right now shows) and `goal` what they want (people.dossier's), each null when none; null while the chat has no people slice.

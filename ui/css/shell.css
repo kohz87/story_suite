@@ -336,6 +336,7 @@
 @container (min-width: 600px) {
   .su-strip {
     display: flex;
+    top: -12px; /* sticks at the scroller's top edge, not 12 px below it (the padding), so nothing scrolls through the gap above */
   }
 
   .su-bar {

@@ -63,7 +63,9 @@ const tile = (item, glyphName) => h('span', {
   class: ['ti', item?.rarity && item.rarity !== 'common' ? `r-${item.rarity}` : null],
 }, glyph(glyphName));
 
-const soakText = soak => (soak ? `Soak +${soak}` : 'No soak points');
+// Soak is armour wording: a weapon or offhand piece says what it adds (its stat bonus) or just what it is.
+const NO_SOAK = new Set(['weapon', 'offhand']);
+const soakText = (item, slotKey) => (item.soak ? `Soak +${item.soak}` : NO_SOAK.has(slotKey) ? (item.bonus || SLOT_META[slotKey][1]) : 'No soak points');
 
 function wearBar(torn) {
   return h('span', { class: ['ps-w', torn ? 't' : null] }, [1, 2, 3, 4].map(n => h('i', { class: n <= (torn ? 2 : 4) ? 'on' : null })));
@@ -84,7 +86,7 @@ function wornBlock(member, slot, meta, sheet, ctx) {
       h('div', null, h('div', { class: 'ps-n ps-n2' }, item.name),
         h('div', { class: 'ps-s' }, [RARITY_LABEL[item.rarity], owner].filter(Boolean).join(' · ')))),
     h('dl', { class: 'ps-kv' },
-      h('dt', null, 'Soak'), h('dd', null, soakText(item.soak)),
+      h('dt', null, NO_SOAK.has(slot.key) && !item.soak ? 'Gives' : 'Soak'), h('dd', null, soakText(item, slot.key)),
       h('dt', null, 'Condition'), h('dd', null, wearBar(item.torn), item.torn ? 'Torn' : 'Fine')),
     h('div', { class: 'ps-row' }, unequip),
   ];
@@ -95,7 +97,7 @@ function fitRow(member, slotKey, meta, item, sheet, ctx) {
     'div',
     { class: 'ps-r', dataset: { stack: item.stack } },
     tile(item, meta[0]),
-    h('span', null, h('b', null, item.name), h('small', null, `${soakText(item.soak)} · ${item.wear === 'torn' ? 'Torn' : 'Fine'}`)),
+    h('span', null, h('b', null, item.name), h('small', null, `${soakText(item, slotKey)} · ${item.wear === 'torn' ? 'Torn' : 'Fine'}`)),
     h('button', {
       type: 'button',
       class: 'ps-b pri',

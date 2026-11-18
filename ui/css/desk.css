@@ -32,6 +32,10 @@
     justify-content: center;
   }
 
+  .su-strip {
+    top: -16px; /* the desktop scroller pads 16 px: stick at its edge */
+  }
+
   .su-side,
   .su-page {
     container-type: inline-size;
@@ -81,7 +85,7 @@
 }
 
 .su-root .su-herenow {
-  padding: 14px 16px 0; /* the footnote sits on the card's bottom edge, as drawn */
+  padding: 14px 16px 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -118,6 +122,10 @@
   border-radius: 0;
   border-top: 1px solid var(--su-line2);
   cursor: pointer;
+}
+
+.su-herenow .hp2-body {
+  min-width: 0;
 }
 
 .su-herenow .hp2:first-child {
@@ -176,6 +184,9 @@
 
 .su-herenow .hp2 .wh2 {
   margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .su-herenow .hp2 .th3 {

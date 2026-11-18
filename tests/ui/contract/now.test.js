@@ -113,7 +113,7 @@ describe('NOW_SHAPE', () => {
 
     const errors = checkShape(vm, NOW_SHAPE);
     assert.deepEqual(errors, [
-      'needsYou[0].kind: expected one of [fight, overdue, points], got "other"',
+      'needsYou[0].kind: expected one of [fight, overdue, points, join], got "other"',
       'today.trip.state: expected one of [planned, road, arrived], got "paused"',
       'here[0].where: string length 41 > maxLength 40',
     ]);

@@ -13,7 +13,7 @@ export { joinGrammar, joinGrammarOwn, soulOf, readJoin } from './join-parts/line
 export { JOIN_NO, JOIN_BENCH, JOIN_ADD } from './join-parts/commands.js';
 export { soulNaming, partyOf, partyCap, benchable } from './join-parts/party.js';
 export { joinDraft, joinDefinitions } from './join-parts/draft.js';
-export { joinOffers } from './join-parts/offers.js';
+export { joinOffers, openJoinOffers } from './join-parts/offers.js';
 export { joinCard } from './join-parts/card.js';
 export { partyAdd, partyAddQuery } from './join-parts/add.js';
 export { personOf, pullOf } from './join-parts/from-person.js';

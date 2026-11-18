@@ -27,6 +27,6 @@ test('the light muted text colour reaches 4.5:1 on the glass over the lightest-b
   assert.ok(ratio >= 4.5, `ratio ${ratio.toFixed(2)}`);
 });
 
-test('the wizard footer sticks inside the sheet, off its rounded bottom edge', () => {
-  assert.match(read('wizard'), /\[data-sheet="new-character"\] \.wz-foot\{position:sticky;bottom:14px/);
+test('the wizard footer sticks inside the sheet, its buttons off the rounded bottom edge (14 px of its own padding; SOAK2UI 10)', () => {
+  assert.match(read('wizard'), /\[data-sheet="new-character"\] \.wz-foot\{position:sticky;bottom:0;z-index:1;padding:8px 0 14px/);
 });

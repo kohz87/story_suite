@@ -36,7 +36,7 @@ export function cardRow(scene = {}, handlers = {}) {
     h(
       'div',
       {
-        class: 'meta',
+        class: when || scene.place || scene.weather ? 'meta' : 'meta empty',
         role: 'button',
         tabindex: '0',
         'aria-haspopup': 'dialog',

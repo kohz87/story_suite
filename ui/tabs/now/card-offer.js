@@ -1,6 +1,7 @@
 // The card's pack offers inside the Needs you card: what the card brings, the "Also apply" tick, Install or Update, and Not now.
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
+import { toggle } from '../../kit/controls.js';
 
 // The "Also apply" boxes stay ticked until the reader unticks one; kept here, not in the drawn nodes, so a redraw does not tick it again.
 const ticked = new Map();
@@ -17,8 +18,8 @@ function actionsOf(item, send) {
     return h('div', { class: 'offer' }, h('button', { type: 'button', class: 'btn2', onClick: () => send('dismiss', item.id) }, 'Dismiss'));
   }
   const tick = item.settings.length
-    ? h('label', { class: 'rnr-tick' },
-      h('input', { type: 'checkbox', checked: ticked.get(item.id) !== false, disabled: working, onChange: e => ticked.set(item.id, e.target.checked) }),
+    ? h('div', { class: 'rnr-tick' },
+      toggle({ checked: ticked.get(item.id) !== false, disabled: working, label: `Also apply: ${item.settings.join(' · ')}`, onChange: on => ticked.set(item.id, on) }),
       h('span', null, `Also apply: ${item.settings.join(' · ')}`))
     : null;
   const install = h('button', { type: 'button', class: ['btn2', 'pri'], disabled: working || item.blocked, title: item.blocked ? item.notes[0] ?? '' : null, onClick: () => send('install', item.id, { settings: ticked.get(item.id) !== false }) }, item.update ? 'Update' : 'Install');

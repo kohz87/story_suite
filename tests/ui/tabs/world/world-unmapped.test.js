@@ -35,3 +35,11 @@ test('mapped places keep the Map and add a Places switch only when some have no 
   const all = worldTab(selectWorld({ atlasView: { ...ATLAS, places: [place('a', 'A', { x: 1, y: 1 })] } }), {});
   assert.equal(all.querySelectorAll('.wseg button').length, 0);
 });
+
+test('the Places list is a card, and its here / been marks are chips with their own spacing (SOAK2UI 13)', () => {
+  installFakeDom();
+  const tab = worldTab(selectWorld({ atlasView: ATLAS }), {});
+  const list = tab.querySelector('.wplaces');
+  assert.match(list.className, /\bcard\b/u);
+  assert.deepEqual(tab.querySelectorAll('.wplaces .st').map(s => s.textContent), ['here', 'been']);
+});

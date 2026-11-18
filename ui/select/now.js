@@ -19,6 +19,9 @@ function needsYou(answers, opts) {
     const total = owing.reduce((sum, row) => sum + row.points, 0);
     out.push({ kind: 'points', title: `${total} ${total === 1 ? 'point' : 'points'} to spend`, detail: owing.map(row => text(row.name)).filter(Boolean).join(', ') || null, go: 'party' });
   }
+  // A companion who asked to join and nobody has answered: kept here until Add to party or No (the card under the reply shows only while that reply is the latest).
+  const joining = list(answers['rpg.joinsOpen']).map(row => text(row?.name)).filter(Boolean);
+  if (joining.length) out.push({ kind: 'join', title: joining.length === 1 ? `${joining[0]} asks to join the party` : `${joining.length} ask to join the party`, detail: joining.length === 1 ? 'Add to party or No, on their page' : joining.join(', '), go: 'people' });
   const overdue = list(answers['time.overdue']?.overdue);
   if (overdue.length) {
     const names = overdue.map(row => text(row.key)).filter(Boolean).join(', ');

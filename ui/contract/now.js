@@ -10,7 +10,7 @@ const SUMMARY_ROW = {
 export const NOW_SHAPE = {
   needsYou: [
     {
-      kind: { $enum: ['fight', 'overdue', 'points'] },
+      kind: { $enum: ['fight', 'overdue', 'points', 'join'] },
       title: T.STRING,
       detail: { $nullable: T.STRING },
       go: { $nullable: T.STRING },
