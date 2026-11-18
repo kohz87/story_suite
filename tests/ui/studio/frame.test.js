@@ -6,6 +6,8 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { ROOT, serve } from './serve.js';
 import { navBadges, partLine } from '../../../studio/nav-counts.js';
+import { renderOverview } from '../../../studio/views/overview.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 
 const check = (errors = [], warnings = []) => {
     const byPart = {};
@@ -49,6 +51,18 @@ test('the page line says what a part holds in words, not content keys', () => {
     assert.equal(partLine(map), 'Places, routes, regions, realms. 320 places · 1 route');
     assert.equal(partLine({ desc: 'Months', sections: [{ key: 'calendar', count: 8, value: {} }] }), 'Months');
     assert.equal(partLine({ desc: 'Name', always: true, sections: [] }), 'Name');
+});
+
+test('the Overview\'s Parts rows say what each part holds in words too, not content keys', () => {
+    installFakeDom();
+    const parts = [{ id: 'map', name: 'Places & routes', desc: 'Places, routes', sections: [{ key: 'places', count: 320, value: [] }, { key: 'placeKinds', count: 20, value: {} }] },
+        { id: 'calendar', name: 'Calendar', desc: 'Months, weeks', sections: [{ key: 'calendar', count: 8, value: {} }] },
+        { id: 'lore', name: 'Lore', desc: 'Entries', sections: [{ key: 'lore', count: 0, value: [], absent: true }] }];
+    const nodes = renderOverview({ doc: {}, parts, check: { ok: true, errors: [], warnings: [], total: 0 }, name: 'x.json', portraits: [], onGo: () => {}, fields: [] });
+    const page = document.createElement('div');
+    page.append(...nodes.filter(Boolean));
+    const rows = page.querySelectorAll('.srow .lb').map(lb => [lb.querySelector('b')?.textContent, lb.querySelector('small')?.textContent]).filter(([name]) => parts.some(part => part.name === name));
+    assert.deepEqual(rows, [['Places & routes', '320 places'], ['Calendar', 'Months, weeks'], ['Lore', 'Nothing yet']]);
 });
 
 let ctx = null;
@@ -127,6 +141,16 @@ test('phone: the switch is a row of two halves under the title; no pack open sho
     assert.ok(sw.top >= title.top + title.h - 1 && sw.top + sw.h <= acts.top + 1, 'between the title and the buttons');
     const halves = await page.$$eval('.pswitch button', buttons => buttons.map(b => Math.round(b.getBoundingClientRect().height)));
     assert.deepEqual(halves, [44, 44]);
+    // a pack's ✕ count stays on one line beside its title; in light the lit half's count is pale, not dark red on the accent
+    await page.evaluate(() => globalThis.storySuiteStudio.state.packs.world.commit([{ op: 'set', path: ['version'], value: 'x' }]));
+    await page.evaluate(() => globalThis.storySuiteStudio.state.packs.world.flush());
+    await page.waitForFunction(() => document.querySelector('.pswitch button[data-kind="world"] em')?.getBoundingClientRect().width > 0);
+    // one snapshot of both boxes (the header is drawn again when the draft is saved)
+    const [count, label] = await page.evaluate(() => ['em', 'span'].map(tag => { const r = document.querySelector(`.pswitch button[data-kind="world"] ${tag}`).getBoundingClientRect(); return { top: r.top, h: r.height }; }));
+    assert.ok(count.h > 0 && count.h < 24 && Math.abs(count.top + count.h / 2 - (label.top + label.h / 2)) < 4, `the count sits on the title's line (${JSON.stringify([count, label])})`);
+    await page.evaluate(() => document.querySelector('.st-theme, [aria-label*="theme" i]')?.click());
+    assert.equal(await page.evaluate(() => document.querySelector('.su-root').dataset.scheme), 'light');
+    assert.equal(await page.$eval('.pswitch button[data-kind="world"] em', el => getComputedStyle(el).color), 'rgb(255, 224, 227)');
     assert.ok(Math.abs(sw.w - 358) < 30, `the switch runs the width (${sw.w})`);
     assert.deepEqual(errors, []);
     await page.close();

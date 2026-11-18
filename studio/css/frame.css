@@ -7,8 +7,10 @@
 .st-root .shd .pswitch button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; max-width: 240px; }
 .st-root .pswitch button small { font: 800 12px var(--su-font); letter-spacing: .04em; opacity: .8; }
 .st-root .pswitch button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.st-root .pswitch button em { font: 800 12px var(--su-font); font-style: normal; color: var(--su-bad-t, var(--su-bad)); }
+.st-root .pswitch button em { flex: none; white-space: nowrap; font: 800 12px var(--su-font); font-style: normal; color: var(--su-bad-t, var(--su-bad)); }
 .st-root .pswitch button[aria-pressed="true"] em { color: #7a0f16; }
+/* Light: the lit half is the deep accent, so its count is a pale red (dark red on it is about 1.7:1). */
+.su-root[data-scheme="light"] .pswitch button[aria-pressed="true"] em { color: #ffe0e3; }
 @container (max-width: 600px) {
   .st-root .shd .pswitch { order: 2; flex-basis: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .st-root .shd .pswitch button { max-width: none; min-height: 44px; justify-content: center; }

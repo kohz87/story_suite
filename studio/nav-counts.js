@@ -25,11 +25,16 @@ function countOf(part) {
     return (part.sections ?? []).length && part.sections.every(section => section.absent) ? 0 : null;
 }
 
-/** A part's page line: its description, then what it holds in words (lists only: "320 places · 352 routes"). */
+/** What a part holds in words, lists only ("320 places · 352 routes"); '' when it holds no list. */
+export function countWords(part) {
+    return part.always ? '' : (part.sections ?? []).filter(section => !section.absent && NOUNS[section.key] && Array.isArray(section.value))
+        .map(section => `${section.count} ${NOUNS[section.key][section.count === 1 ? 0 : 1]}`).join(' · ');
+}
+
+/** A part's page line: its description, then what it holds in words. */
 export function partLine(part) {
-    const counts = part.always ? [] : part.sections.filter(section => !section.absent && NOUNS[section.key] && Array.isArray(section.value))
-        .map(section => `${section.count} ${NOUNS[section.key][section.count === 1 ? 0 : 1]}`);
-    return counts.length ? `${part.desc}. ${counts.join(' · ')}` : part.desc;
+    const counts = countWords(part);
+    return counts ? `${part.desc}. ${counts}` : part.desc;
 }
 
 const said = (n, one) => `${n} ${one}${n === 1 ? '' : 's'}`;
