@@ -47,7 +47,7 @@ test('W12: `! time -3h`, a date before the story time and `~ time 25:00` each gi
     assert.deepEqual(found.map(row => row.line), ['! time -3h', '~ time December 1, 1200, 9:00 am', '~ time 25:00']);
     assert.match(found[0].message, /not a date or a stretch of time|only moves forward/);
     assert.match(found[1].message, /names a date before the story time .*the clock never goes back/);
-    assert.match(found[2].message, /"25:00", which is not a clock time/);
+    assert.match(found[2].message, /^"25:00" is not a clock time/);
 });
 
 test('W12: a refused part of a joined line gives its row too', async t => {
@@ -59,5 +59,12 @@ test('W12: a refused part of a joined line gives its row too', async t => {
     assert.equal(clock(host), 'December 5, 1200, 11:00 am');
     const found = rows(host, 4);
     assert.equal(found.length, 1);
-    assert.match(found[0].message, /"25:00", which is not a clock time/);
+    assert.match(found[0].message, /^"25:00" is not a clock time/);
+});
+
+test('S2PD B28: a time line with a bad clock inside a date names the clock once, not "has itself"', async t => {
+    const { timeAfter } = await import('../../../../modules/time/tracker/time-parts/timeline.js');
+    const calendar = { parse: () => null };
+    assert.equal(timeAfter({ op: '~', text: '25:00' }, 0, calendar).error, '"25:00" is not a clock time; the story time is left as it was.');
+    assert.equal(timeAfter({ op: '~', text: 'December 5, 25:00' }, 0, calendar).error, '"December 5, 25:00" has "25:00", which is not a clock time; the story time is left as it was.');
 });
