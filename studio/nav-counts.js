@@ -43,7 +43,7 @@ const said = (n, one) => `${n} ${one}${n === 1 ? '' : 's'}`;
  * Each nav row's badge: part id → `{ text, bad, title }`. `packs`: `{ world, game }` (the open sessions, each with `check` and
  * `legacy`), `active`: the kind the shared parts (Overview, Other, Problems) belong to; `titleOf(pack)` names a pack.
  */
-export function navBadges(parts, packs, active, titleOf = pack => pack.name) {
+export function navBadges(parts, packs, active, titleOf = pack => pack.name, pairOf = null) {
     const out = {};
     for (const part of parts) {
         const pack = part.kind ? packs[part.kind] : packs[active];
@@ -60,7 +60,9 @@ export function navBadges(parts, packs, active, titleOf = pack => pack.name) {
         }
         if (part.id === 'pairing') {
             const blocked = [packs.world, packs.game].find(item => item?.check?.errors.length);
+            const pair = blocked || packs.world?.legacy || packs.game?.legacy ? null : pairOf?.(packs.world?.doc, packs.game?.doc ?? null);
             if (blocked && !blocked.legacy) out[part.id] = { text: '—', bad: false, title: `Not checked: ${titleOf(blocked)} has problems` };
+            else if (pair) out[part.id] = pair.errors ? { text: `✕ ${pair.errors}`, bad: true, title: said(pair.errors, 'problem') } : { text: pair.warnings ? `! ${pair.warnings}` : '0', bad: false, title: pair.warnings ? said(pair.warnings, 'warning') : 'The pair fits' };
             continue;
         }
         const mine = check.byPart?.[part.id] ?? [];

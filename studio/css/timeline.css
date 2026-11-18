@@ -43,15 +43,44 @@
 .st-root .st-line[data-kind="death"] .st-tag { color: var(--su-bad-t, var(--su-bad)); }
 .st-root .st-line[data-kind="holds"] .st-tag { color: var(--su-warn-t, var(--su-warn)); }
 
-.st-root .st-hold, .st-root .st-stand { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; }
+.st-root .st-hsum { padding: 0 4px 6px; display: grid; gap: 2px; }
+.st-root .st-hsum small, .st-root .st-holdat, .st-root .st-axis, .st-root .st-plot small, .st-root .st-still small, .st-root .st-hdays { color: var(--su-muted); }
+.st-root .st-legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 4px 4px 10px; font-size: 12px; color: var(--su-muted); }
+.st-root .st-key::before { content: ""; display: inline-block; width: 22px; height: 8px; border-radius: 4px; margin-right: 6px; background: var(--su-accent); }
+.st-root .st-key.st-begin::before, .st-root .st-holdbar span.st-begin { background: var(--su-text, #ddd); opacity: .85; }
+.st-root .st-hold, .st-root .st-ruler { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr) 70px; gap: 14px; align-items: center; }
+.st-root .st-ruler { height: 18px; font-size: 11.5px; color: var(--su-muted); }
+.st-root .st-rule { position: relative; height: 100%; }
+.st-root .st-rule span { position: absolute; top: 0; white-space: nowrap; }
+.st-root .st-hdays { text-align: right; font-size: 12px; }
+.st-root .st-hold .lb small { display: block; overflow-wrap: anywhere; }
+.st-root .st-hold .lb b { display: inline; }
 .st-root .st-holdbar { position: relative; height: 10px; border-radius: 5px; background: var(--su-line, rgba(127, 127, 127, .2)); overflow: hidden; }
-.st-root .st-holdbar span { position: absolute; top: 0; bottom: 0; min-width: 2px; background: var(--su-warn); border-radius: 5px; }
-.st-root .st-curve { display: block; width: 100%; height: 36px; }
-.st-root .st-curve polyline { stroke: var(--su-accent); stroke-width: 2; }
-.st-root .st-stand[data-kind="score"] .st-curve polyline { stroke: var(--su-hp); }
+.st-root .st-holdbar span { position: absolute; top: 0; bottom: 0; min-width: 3px; background: var(--su-accent); border-radius: 5px; }
+.st-root .st-plots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.st-root .st-plot { background: var(--su-panel2, rgba(127, 127, 127, .12)); border-radius: 12px; padding: 12px; display: grid; gap: 6px; min-width: 0; }
+.st-root .st-plothead { display: flex; justify-content: space-between; gap: 8px; }
+.st-root .st-delta { font-weight: 700; font-size: 13px; }
+.st-root .st-delta.up { color: var(--su-ok-t, var(--su-ok, #3ecf8e)); }
+.st-root .st-delta.down { color: var(--su-bad-t, var(--su-bad)); }
+.st-root .st-curve { display: block; width: 100%; height: 90px; }
+.st-root .st-curve path { stroke: var(--su-accent); stroke-width: 2; }
+.st-root .st-curve .st-first { stroke: var(--su-muted); stroke-width: 1; stroke-dasharray: 4 4; }
+.st-root .st-plot[data-kind="score"] .st-curve path { stroke: var(--su-hp, var(--su-accent)); }
+.st-root .st-axis { display: flex; justify-content: space-between; font-size: 11.5px; }
+.st-root .st-still { padding: 10px 4px 0; display: grid; gap: 2px; border-top: 1px solid var(--su-line, rgba(127, 127, 127, .2)); margin-top: 10px; }
+.st-root .st-dayhead { width: 100%; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; padding: 0; min-height: 28px; }
+.st-root .st-chev { width: 14px; color: var(--su-muted); }
+.st-root .st-peek { color: var(--su-muted); font-size: 13.5px; padding-left: 20px; overflow-wrap: anywhere; }
+.st-root .st-day[data-open="false"] .st-dayhead { margin-bottom: 2px; }
 
 @media (max-width: 640px) {
-    .st-root .st-hold, .st-root .st-stand { grid-template-columns: 1fr; }
+    .st-root .st-hold { grid-template-columns: minmax(0, 1fr) 64px; }
+    .st-root .st-hold .st-holdbar { grid-column: 1 / -1; grid-row: 2; }
+    .st-root .st-hold .st-hdays { grid-row: 1; grid-column: 2; }
+    .st-root .st-ruler { grid-template-columns: minmax(0, 1fr); }
+    .st-root .st-ruler i { display: none; }
+    .st-root .st-plots { grid-template-columns: minmax(0, 1fr); }
 }
 /* Touch (plan §1.7): the day chips and the result tabs are at least 44 px tall below 900 px, as the other row buttons are (records.css). */
 @container (max-width: 900px) {

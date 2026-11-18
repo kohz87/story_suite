@@ -13,7 +13,8 @@ undo and redo and an autosaved draft.
   folder, `/scripts/extensions/third-party/<folder>/studio/index.html`. The release build (`node scripts/release.mjs`,
   `scripts/release/studio.mjs`) copies the page and every file it reaches (its modules, the dry-run worker, the sheets and fonts)
   into the extension's output folder at the same relative paths; the bundle itself does not hold it. A reference to a missing
-  file fails the release (`release:check`). There is no single-file build.
+  file fails the release (`release:check`). The play build (`scripts/play/dist.mjs`) carries the same copy (`studio` is one of its
+  `SOURCES`), so Open Studio opens there too. There is no single-file build.
 
 ## What it does
 
@@ -32,8 +33,9 @@ undo and redo and an autosaved draft.
   active and shows Overview (or the shared part already open), and the search says "Search both packs…". The nav starts with
   **Home** (the start page, `Open or start a pack`, which stays reachable with packs open; Alt+1…9 still count from
   Overview). Each nav row ends in its count, or its problems in red (`✕ 2`) or warnings (`! 1`) from the owning pack's
-  check; Problems shows `errors · warnings` (`0` when clean); Pairing shows `—` while either pack has errors (it is not
-  drawn to list it); Home, Overview and Dry run show nothing. A page's line says what it holds in words (`320 places ·
+  check; Problems shows `errors · warnings` (`0` when clean); Pairing shows `—` while either pack has errors, else its count (`0`, `✕ n`, `! n`) from `studio/pair-count.js`, which never
+  checks the pair in an edit's redraw: it answers with the last result and checks once the packs stand still for 600 ms, keeping
+  the answer per pack hash; Home, Overview and Dry run show nothing. A page's line says what it holds in words (`320 places ·
   352 routes`). The foot bar's problem count is red. With no pack open there is no nav column and no "‹ Parts", and the
   start page is a centred column. The nav's search stays at its top while a long nav scrolls. A part's count is its records, a calendar's months, the coins, the weather tables or the
   name cultures; kind tables and the starting world are not counted, and Rules and a game's Start show none.
@@ -150,7 +152,10 @@ undo and redo and an autosaved draft.
   tracker presets; places, routes, regions, realms, powers and scores get the same card through `askDelete` (same file), which
   needs no page state. Styles: `studio/css/records.css`.
 - **Dry run and errors.** While the world pack has errors the Dry run form stays open with "Fix the N problems first", and both
-  Run and the summary's Run again are held. "Start ›" on the form opens the world's Start, in the Conditions part.
+  Run and the summary's Run again are held. "Start ›" on the form opens the world's Start, in the Conditions part. The result's tabs are
+  `views/dry/` files: `days.js` (day cards that fold; the first two open), `holds.js` (a row per condition at a place, bars on a ruler,
+  Show all, By condition), `curves.js` (plot cards) and `cast.js` (Deaths, Moves, Status changes, As they began). A run's rows carry
+  `heldAt` ("condition@place") and `statuses` (the cast statuses that changed that day).
 
 ## Limits today
 

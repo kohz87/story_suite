@@ -74,13 +74,13 @@ function drawSvg(model, st, vb, u) {
         return { realm, pts: model.places.filter(place => ids.has(place.region)) };
     }).filter(item => item.pts.length).sort((a, b) => b.pts.length - a.pts.length).map(({ realm, pts }) => {
         const top = pts.reduce((a, b) => (b.y < a.y ? b : a));
-        const text = `${String(realm.name ?? realm.id).toUpperCase()} · REALM`;
-        const w = text.length * 11 * u * 0.82, hgt = 11 * u * 1.4;
+        const text = String(realm.name ?? realm.id).toUpperCase();
+        const w = text.length * 10 * u * 0.95, hgt = 10 * u * 1.4;
         const x = Math.min(Math.max(top.x, vb.x + w / 2 + 4 * u), vb.x + vb.w - w / 2 - 4 * u), y = Math.max(top.y - 56, vb.y + hgt);
         const free = !labels.some(o => Math.abs(o.x - x) < (o.w + w) / 2 + 6 * u && Math.abs(o.y - y) < hgt * 1.6);
         if (free) labels.push({ x, y, w });
-        return svgEl('g', { class: 'realm', dataset: { realm: realm.id } }, svgEl('path', { d: hull(pts, 46) }),
-            free ? svgEl('text', { x, y, 'text-anchor': 'middle', style: { 'font-size': `${11 * u}px` } }, text) : null);
+        return { outline: svgEl('g', { class: 'realm', dataset: { realm: realm.id } }, svgEl('path', { d: hull(pts, 46) })),
+            name: free ? svgEl('g', { class: 'realm realm-name', dataset: { realm: realm.id } }, svgEl('text', { x, y, 'text-anchor': 'middle', style: { 'font-size': `${10 * u}px` } }, text)) : null };
     });
     const sel = st.sel ?? {};
     const routes = model.routes.map(({ route, at, a, b, cls }) => svgEl('g', { class: ['rt', `c-${cls}`, sel.route === at ? 'sel' : null], dataset: { rt: String(at) } },
@@ -106,7 +106,7 @@ function drawSvg(model, st, vb, u) {
     return svgEl('svg', { class: 'mp st-mp', viewBox: `${vb.x} ${vb.y} ${vb.w} ${vb.h}`, preserveAspectRatio: 'xMidYMid meet', 'aria-label': 'Map' },
         svgEl('rect', { class: 'land', x: vb.x - vb.w, y: vb.y - vb.h, width: vb.w * 3, height: vb.h * 3 }), grid,
         model.faint.map(p => svgEl('circle', { class: 'faint', cx: p.x, cy: p.y, r: 3 * u })),
-        areas, realms, routes, rubber, places);
+        areas, realms.map(item => item.outline), routes, rubber, places, realms.map(item => item.name)); // the names last, over the places
 }
 
 function legend(model, st) {

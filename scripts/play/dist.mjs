@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildBundleSet } from '../release/bundle.mjs';
+import { copyStudio, STUDIO_ENTRY } from '../release/studio.mjs';
 import { DIST_SET, writeRootFiles } from './dist-sets.mjs';
 import { copyRuntimeAssets } from './dist-assets.mjs';
 import { commitFolder, extractSource, fullCommit } from './dist-git.mjs';
@@ -44,6 +45,11 @@ export async function buildDist({ repo = process.cwd(), commit = 'origin/main', 
     fs.mkdirSync(outDir, { recursive: true });
     await buildBundleSet(DIST_SET, outDir, sourceDir);
     copyRuntimeAssets(sourceDir, outDir);
+    // The Pack Studio, as the release build carries it (Open Studio would 404 without it); a source tree with no studio/ page (a test fixture) has none to copy.
+    if (fs.existsSync(path.join(sourceDir, STUDIO_ENTRY))) {
+      const problems = copyStudio(sourceDir, outDir);
+      if (problems.length) throw new Error(`the play build cannot carry the Studio:\n${problems.join('\n')}`);
+    }
     writeRootFiles(outDir, { commit: full, builtAt: now.toISOString(), sourceDir });
     const sha = write ? commitFolder({ repo, folder: outDir, branch, message: `Play build from ${full}` }) : null;
     return { outDir, commit: full, sha };

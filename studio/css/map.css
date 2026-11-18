@@ -29,7 +29,7 @@
 .st-mp .area { fill-opacity: .16; stroke-opacity: .45; stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
 .st-mp .area.unset { fill-opacity: .08; stroke-dasharray: 4 4; }
 .st-mp .realm path { fill: none; stroke: rgba(255, 255, 255, .45); stroke-width: 1.5px; stroke-dasharray: 7 6; vector-effect: non-scaling-stroke; }
-.st-mp .realm text { font-family: var(--su-font); font-weight: 800; letter-spacing: .14em; fill: rgba(255, 255, 255, .55); }
+.st-mp .realm text { font-family: var(--su-font); font-weight: 800; letter-spacing: .1em; fill: rgba(255, 255, 255, .8); stroke: rgba(10, 12, 24, .75); stroke-width: 3px; paint-order: stroke; pointer-events: none; }
 .st-mp .rt { cursor: pointer; }
 .st-mp .rt .hit { stroke: transparent; fill: none; }
 .st-mp .rt .ln { stroke: #8f9ab8; fill: none; stroke-linecap: round; }
@@ -63,7 +63,7 @@
 .st-root .st-mleg i.st-swatch { border: 0; }
 /* Light. */
 .su-root[data-scheme="light"] .st-mp .realm path { stroke: rgba(40, 40, 60, .45); }
-.su-root[data-scheme="light"] .st-mp .realm text { fill: rgba(40, 40, 60, .6); }
+.su-root[data-scheme="light"] .st-mp .realm text { fill: rgba(30, 30, 50, .85); stroke: rgba(255, 255, 255, .85); }
 .su-root[data-scheme="light"] .st-mp .faint { fill: rgba(40, 40, 60, .25); }
 .su-root[data-scheme="light"] .st-mp .rt .ln { stroke: #a39478; }
 .su-root[data-scheme="light"] .st-mp .rt.c-river .ln, .su-root[data-scheme="light"] .st-mp .rt.c-sea .ln { stroke: #3f78bd; }

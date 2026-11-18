@@ -39,11 +39,12 @@ export function dayList(ctx, st, busy, goButton) {
         const day = jumpTo(list, input.value);
         if (!day) return;
         st.shown = Math.max(st.shown, list.findIndex(item => item.day === day) + 1);
+        (st.folds ??= {})[day] = true;
         st.jump = day;
         ctx.go('timeline');
     });
     const jump = h('div', { class: 'srow st-dry-jumprow' }, h('div', { class: 'lb' }, h('b', 'Jump to'), h('small', 'Days with a death, or a day number')),
-        h('div', { class: 'ctl' }, firstDeath ? h('button', { type: 'button', class: 'lnk st-dry-death', onClick: () => { st.jump = firstDeath.day; st.kind = 'all'; st.shown = Math.max(st.shown, busy.indexOf(firstDeath) + 1); ctx.go('timeline'); } }, `Day ${firstDeath.day} · death ›`) : null, input));
+        h('div', { class: 'ctl' }, firstDeath ? h('button', { type: 'button', class: 'lnk st-dry-death', onClick: () => { (st.folds ??= {})[firstDeath.day] = true; st.jump = firstDeath.day; st.kind = 'all'; st.shown = Math.max(st.shown, busy.indexOf(firstDeath) + 1); ctx.go('timeline'); } }, `Day ${firstDeath.day} · death ›`) : null, input));
     const shown = list.slice(0, st.shown);
     let before = 0;
     const cards = [];
@@ -52,9 +53,12 @@ export function dayList(ctx, st, busy, goButton) {
         if (gap > 0) cards.push(h('div', { class: 'st-quiet', dataset: { gap: String(gap) } }, `${plural(gap, 'quiet day')}`));
         before = item.day;
         const date = dateOf(st.result, st.calendar, item.day);
-        cards.push(h('div', { class: 'srow wide st-day', dataset: { day: String(item.day) } },
-            h('div', { class: 'st-dayhead' }, h('b', date || `Day ${item.day}`), date ? h('small', ` day ${item.day}`) : null, h('small', { class: 'st-lines' }, plural(item.lines.length, 'line'))),
-            item.lines.map(line => h('div', { class: 'st-line', dataset: { kind: line.kind } }, h('span', { class: 'st-tag' }, TAG[line.kind] ?? line.kind), h('span', { class: 'st-lt' }, line.text, line.target ? ' ' : null, goButton(ctx, line.target, 'Go to ›'))))));
+        const open = st.folds?.[item.day] ?? shown.indexOf(item) < 2;
+        const toggle = () => { (st.folds ??= {})[item.day] = !open; ctx.go('timeline'); };
+        cards.push(h('div', { class: 'srow wide st-day', dataset: { day: String(item.day), open: String(open) } },
+            h('button', { type: 'button', class: 'st-dayhead', 'aria-expanded': String(open), onClick: toggle }, h('span', { class: 'st-chev', 'aria-hidden': 'true' }, open ? '⌄' : '›'), h('b', date || `Day ${item.day}`), date ? h('small', ` day ${item.day}`) : null, h('small', { class: 'st-lines' }, plural(item.lines.length, 'line'))),
+            open ? item.lines.map(line => h('div', { class: 'st-line', dataset: { kind: line.kind } }, h('span', { class: 'st-tag' }, TAG[line.kind] ?? line.kind), h('span', { class: 'st-lt' }, line.text, line.target ? ' ' : null, goButton(ctx, line.target, 'Go to ›'))))
+                : h('div', { class: 'st-peek' }, item.lines[0].text)));
     }
     const more = list.length > shown.length ? h('div', { class: 'addrow' }, h('button', { type: 'button', class: 'btn2 st-dry-more', onClick: () => { st.shown += STEP; ctx.go('timeline'); } }, `Show the next ${STEP} days with something`),
         h('small', ` ${list.length - shown.length} more of ${list.length}`)) : null;

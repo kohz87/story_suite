@@ -18,6 +18,7 @@ import { buildRefs } from './model/refs.js';
 import { PARTS, kindOf, partsOf } from './parts.js';
 import { createSession } from './session.js';
 import { navBadges, partLine } from './nav-counts.js';
+import { pairBadge } from './pair-count.js';
 import { createShell } from './shell.js';
 import { reveal } from './wide.js';
 import { renderOverview } from './views/overview.js';
@@ -200,8 +201,9 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
     }
 
     // The record Go to names: the open record (not its row in the list beside it), else the card that carries it.
+    const navFor = part => shell.setNav(state.parts, part.id, navBadges(state.parts, state.packs, state.active, titleOf, (world, game) => pairBadge(world, game, () => navFor(part)))); // Pairing's count settles after the edits
     function draw(part, keep) {
-        shell.setNav(state.parts, part.id, navBadges(state.parts, state.packs, state.active, titleOf));
+        navFor(part);
         shell.setPage({ title: part.title ?? part.name, desc: partLine(part), nodes: pageFor(part, state.focus), section: true, keep });
         const rec = state.focus?.rec ? CSS.escape(state.focus.rec) : null;
         const target = rec ? shell.el.querySelector(`.spage .st-wrec [data-rec="${rec}"]`) ?? shell.el.querySelector(`.spage [data-rec="${rec}"]`) : null;

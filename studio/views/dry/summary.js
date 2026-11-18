@@ -2,7 +2,6 @@
 
 import { h } from '../../../ui/kit/dom.js';
 import { dateOf } from './days.js';
-import { holdSpans } from './series.js';
 
 const plural = (n, one, many = `${one}s`) => `${n.toLocaleString('en-US')} ${n === 1 ? one : many}`;
 const tile = (n, label, bad = false) => h('div', { class: 'st-tile', dataset: { bad: String(bad && n > 0) } }, h('b', String(n)), h('small', label));
@@ -27,6 +26,6 @@ export function headNodes(ctx, st, on) {
         h('div', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 st-dry-warnshow', onClick: on.warns }, st.warnsOpen ? 'Hide' : 'Show'))), ...(st.warnsOpen ? said.map(note) : [])] : [];
     const tiles = h('section', { class: 'sgrp st-dry-tiles' }, h('div', { class: 'gt' }, `What happened in ${plural(result.days, 'day')}`),
         h('div', { class: 'st-tiles' }, tile(count('fired'), 'events fired'), tile(kinds.filter(e => !e.fired && !e.ended && String(e.by ?? '').startsWith('template:')).length, 'template moves'),
-            tile(holdSpans(rows).length, 'conditions held'), tile(count('moves'), 'moves'), tile(count('deaths'), 'deaths', true), tile(kinds.filter(e => e.ended).length, 'events ended')));
+            tile(new Set(rows.flatMap(day => day.held)).size, 'conditions held'), tile(count('moves'), 'moves'), tile(count('deaths'), 'deaths', true), tile(kinds.filter(e => e.ended).length, 'events ended')));
     return [head, ...warns, tiles];
 }

@@ -53,7 +53,7 @@ test('the page draws region areas, the realm outline with its name, routes and p
     const { draw } = setup();
     let root = draw();
     assert.equal(root.querySelectorAll('.st-mp .area').length, 2);
-    assert.match(root.querySelector('.st-mp .realm text').textContent, /LAMP LEAGUE · REALM/);
+    assert.match(root.querySelector('.st-mp .realm text').textContent, /^LAMP LEAGUE$/);
     assert.equal(root.querySelectorAll('.st-mp .rt').length, 2);
     assert.ok(root.querySelector('.st-mp .rt.c-river'));
     assert.ok(placeNode(root, 'cairn').classList.contains('hid'));

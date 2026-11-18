@@ -135,17 +135,72 @@ test('the timeline\'s Go to opens the event and the template; holds and curves a
     riot.click();
     assert.deepEqual(calls.at(-1), ['templates', 'templates.0']);
     document.body.querySelector('.st-dtab[data-tab="curves"]').click();
-    const stands = document.body.querySelectorAll('.st-stand');
-    assert.deepEqual(stands.map(row => [row.dataset.key, row.dataset.kind, row.querySelector('b').textContent]), [['power:lamp-guild', 'power', 'The Lamp Guild'], ['score:calm', 'score', 'Calm']]);
-    assert.match(stands[0].querySelector('small').textContent, /Power · day 1: 20 · day 90: 20 · low 20 · high 20/);
-    assert.ok(stands[0].querySelector('svg polyline').getAttribute('points').startsWith('0,15.00'));
+    assert.equal(document.body.querySelectorAll('.st-stand').length, 0, 'nothing moved in this pack, so no plot card');
+    assert.match(document.body.querySelector('.st-dry-powers .st-still').textContent, /1 did not move.*The Lamp Guild \(20\)/);
+    assert.match(document.body.querySelector('.st-dry-scores .st-still').textContent, /Calm \(0\)/);
     document.body.querySelector('.st-dtab[data-tab="holds"]').click();
     const holds = document.body.querySelectorAll('.st-hold');
-    // The world's start (content.start.world) holds lamps-out from day 1.
+    // The world's start (content.start.world) holds lamps-out from day 1; each row is a condition at a place.
     assert.deepEqual(holds.map(hold => hold.dataset.name), ['lamps-out', 'unrest']);
-    assert.match(holds[0].querySelector('small').textContent, /^\d+ days held: days 1–\d+$/);
-    assert.match(holds[1].querySelector('small').textContent, /^3 days held: days 17–19$/);
+    assert.ok(holds[0].dataset.place, 'a hold names its place');
+    assert.match(holds[0].querySelector('small').textContent, /^first /);
+    assert.equal(holds[0].querySelector('.st-hdays').textContent.replace(/\d+/, 'N'), 'N days');
+    assert.match(holds[1].querySelector('.st-hdays').textContent, /^3 days$/);
     assert.equal(holds[1].querySelector('.st-holdbar span').style.getPropertyValue?.('width') ?? holds[1].querySelector('.st-holdbar span').getAttribute('style'), `${(3 / 90) * 100}%`);
+});
+
+test('a condition held in many places has one row per place, each with its runs; By condition merges them; Show all lifts the 15-row cap', async () => {
+    const day = (n, held) => ({ day: n, fired: [], journal: [], log: [], warnings: [], moves: [], deaths: [], held: held.map(key => key.split('@')[0]), heldAt: held, standings: {} });
+    const places = Array.from({ length: 18 }, (_, at) => `Place ${at + 1}`);
+    const rows = Array.from({ length: 10 }, (_, at) => day(at + 1, [...places.map(place => `unrest@${place}`).slice(0, at < 2 || at > 5 ? 18 : 1), 'wet@Fen']));
+    const { FakeWorker, made } = fakeWorkerClass({ result: { seed: 's', tempo: 1, days: 10, rows, finalEvents: {}, warnings: [] } });
+    const run = setup({ worker: FakeWorker });
+    run.draw().querySelector('.st-dry-run').click();
+    made[0].tick();
+    await settle();
+    document.body.querySelector('.st-dtab[data-tab="holds"]').click();
+    let holds = document.body.querySelectorAll('.st-hold');
+    assert.equal(holds.length, 15, 'the first 15 only');
+    assert.equal(holds[1].dataset.place, 'Place 2');
+    assert.match(holds[1].querySelector('small').textContent, /2 times: days 1–2, days 7–10/);
+    assert.doesNotMatch(document.body.querySelector('.st-dry-holds').textContent, /days \d+–\d+, day \d+, /);
+    document.body.querySelector('.st-dry-holdsall').click();
+    assert.equal(document.body.querySelectorAll('.st-hold').length, 19);
+    document.body.querySelector('.st-dry-holdsby').click();
+    holds = document.body.querySelectorAll('.st-hold');
+    assert.deepEqual(holds.map(hold => hold.dataset.name), ['unrest', 'wet']);
+    assert.match(holds[0].querySelector('small').textContent, /held at 18 places/);
+});
+
+test('Curves are plot cards for what moved, the Cast tab has Deaths, Moves, Status changes and As they began, and a day card folds', async () => {
+    const day = (n, extra = {}) => ({ day: n, fired: [], journal: [], log: [], warnings: [], moves: [], deaths: [], held: [], statuses: [], standings: {}, ...extra });
+    const rows = Array.from({ length: 12 }, (_, at) => day(at + 1, { standings: { 'score:calm': at < 6 ? 0 : 5, 'power:lamp-guild': 20 }, journal: at < 4 ? [{ day: at + 1, text: `News ${at + 1}`, by: 'nobody' }, { day: at + 1, text: `More ${at + 1}`, by: 'nobody' }] : [] }));
+    rows[4] = day(5, { standings: rows[4].standings, moves: [{ id: 'wren', to: 'reedmoor', by: 'levy', day: 5 }], statuses: [{ id: 'wren', status: 'hunted' }] });
+    rows[9] = day(10, { standings: rows[9].standings, deaths: [{ id: 'old-tam', by: 'levy', day: 10 }] });
+    const { FakeWorker, made } = fakeWorkerClass({ result: { seed: 's', tempo: 1, days: 12, rows, finalEvents: {}, warnings: [] } });
+    const run = setup({ worker: FakeWorker });
+    run.ctx.doc.content.cast = [...run.ctx.doc.content.cast, { id: 'bystander', name: 'Bystander' }];
+    run.draw().querySelector('.st-dry-run').click();
+    made[0].tick();
+    await settle();
+    const days = () => document.body.querySelectorAll('.st-day');
+    assert.deepEqual(days().map(card => card.dataset.open), ['true', 'true', 'false', 'false', 'false', 'false'], 'the first two open, the rest folded to a line');
+    assert.match(days()[2].querySelector('.st-peek').textContent, /News 3/);
+    days()[2].querySelector('.st-dayhead').click();
+    assert.equal(days()[2].dataset.open, 'true');
+    assert.equal(days()[2].querySelectorAll('.st-line').length, 2);
+    document.body.querySelector('.st-dtab[data-tab="curves"]').click();
+    assert.deepEqual(document.body.querySelectorAll('.st-dry-curves .gt').map(node => node.textContent), ['Scores · 1 · 1 moved', 'Powers · 1 · 0 moved']);
+    const plot = document.body.querySelector('.st-plot[data-kind="score"]');
+    assert.equal(plot.querySelector('.st-delta').textContent, '0 → 5');
+    assert.match(plot.querySelector('small').textContent, /1 change · biggest \+5 on day 7/);
+    assert.match(document.body.querySelector('.st-still').textContent, /1 did not move.*The Lamp Guild \(20\)|1 did not move.*lamp-guild \(20\)/);
+    document.body.querySelector('.st-dtab[data-tab="cast"]').click();
+    assert.deepEqual(document.body.querySelectorAll('.st-dry-cast .gt').map(node => node.textContent.replace(/ ·.*/, '')), ['Deaths', 'Moves', 'Status changes', 'As they began']);
+    assert.match(document.body.querySelector('.st-dry-status-changes').textContent, /“hunted”/);
+    run.calls.length = 0;
+    document.body.querySelector('.st-dry-moves .st-dry-go[data-part="events"], .st-dry-moves .st-dry-go[data-part="cast"]').click();
+    assert.equal(run.calls.length, 1);
 });
 
 // A fake Worker that answers through the real worker wrapper, or with a set result, or crashes; it never answers until `tick()`.
@@ -208,6 +263,9 @@ test('the cast\'s moves and deaths, a long timeline behind Show all, the engine\
     await settle();
     let page = document.body;
     assert.equal(page.querySelectorAll('.st-day').length, 30);
+    page.querySelector('.st-day[data-day="5"] .st-dayhead').click(); // the days past the first two are folded
+    page.querySelector('.st-day[data-day="10"] .st-dayhead').click();
+    page = document.body;
     assert.match(page.querySelector('.st-day[data-day="5"] .st-line[data-kind="move"]').textContent, /Wren Ashby goes to reedmoor\./);
     assert.match(page.querySelector('.st-day[data-day="10"] .st-line[data-kind="death"]').textContent, /Old Tam dies \(levy\)\./);
     assert.match(page.querySelector('.st-dry-warnhead').textContent, /The engine said 1 thing about the pack/);
@@ -222,9 +280,9 @@ test('the cast\'s moves and deaths, a long timeline behind Show all, the engine\
     assert.equal(document.body.querySelector('.st-dry-result').dataset.stale, 'false');
     document.body.querySelector('.st-dtab[data-tab="cast"]').click();
     page = document.body;
-    assert.deepEqual(texts(page, '.st-cast b'), ['Day 5 · Wren Ashby goes to reedmoor: staying at reedmoor because a levy', 'Day 10 · Old Tam dies (levy)']);
-    assert.match(page.querySelector('.st-dry-cast .gt').textContent, /1 move · 1 death/);
-    page.querySelector('.st-cast .st-dry-go').click();
+    assert.deepEqual(texts(page, '.st-cast b'), ['Old Tam dies', 'Wren Ashby goes to reedmoor: staying at reedmoor because a levy']);
+    assert.deepEqual(texts(page, '.st-dry-cast .gt'), ['Deaths · 1', 'Moves · 1']);
+    page.querySelector('.st-dry-moves .st-dry-go[data-part="cast"]').click();
     assert.deepEqual(run.calls.at(-1), ['cast', 'cast.0']);
     run.ctx.doc = { ...run.ctx.doc };
     assert.equal(run.draw().querySelector('.st-dry-result').dataset.stale, 'true');

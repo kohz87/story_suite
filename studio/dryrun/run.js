@@ -25,8 +25,17 @@ export function worldOf(pack, game = null) {
     return world;
 }
 
+/** The cast statuses that differ from the ones `seen` (updated): [{ id, status }]. */
+function statusChanges(cast, seen) {
+    const out = [];
+    for (const [id, row] of Object.entries(cast ?? {}).sort(([a], [b]) => a.localeCompare(b))) {
+        if (typeof row?.status === 'string' && seen.get(id) !== row.status) { seen.set(id, row.status); out.push({ id, status: row.status }); }
+    }
+    return out;
+}
+
 /** The row of one stepped day: what fired, what the engine logged, who moved or died, what holds and where each power and score stands. */
-function dayRow(day, out) {
+function dayRow(day, out, seen) {
     const report = out.report;
     return {
         day,
@@ -34,6 +43,9 @@ function dayRow(day, out) {
         journal: plain(report.journal), log: plain(report.log), warnings: [...report.warnings],
         moves: plain(report.moves), deaths: plain(report.deaths),
         held: Object.values(out.conditions).map(entry => entry.name).sort(),
+        // each hold with its place ("name@place"), and the cast statuses that changed today
+        heldAt: Object.entries(out.conditions).map(([key, entry]) => (key.includes('@') ? key : `${entry.name}@${entry.ref ?? ''}`)).sort(),
+        statuses: statusChanges(out.daily?.cast, seen),
         standings: plain(out.daily.standings),
     };
 }
@@ -48,13 +60,13 @@ export function simulate({ pack, game = null, seed, tempo = 1, days, calendar = 
     const campaign = String(seed ?? '');
     const start = startDayOf(pack, calendar);
     let state = null, table = {};
-    const rows = [], warnings = new Set();
+    const rows = [], warnings = new Set(), seen = new Map();
     for (let day = 1; day <= count; day += 1) {
         const out = runDays({ state, table, world, today: start.day + day - 1, seed: campaign, tempo, met: [], withYou: [], positions: null, calendar });
         if (out) {
             state = out.daily;
             table = out.conditions;
-            rows.push(dayRow(day, out));
+            rows.push(dayRow(day, out, seen));
             for (const warning of out.report.warnings) warnings.add(warning);
         }
         if (onDay) onDay(day);

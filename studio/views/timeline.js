@@ -7,9 +7,11 @@ import { h } from '../../ui/kit/dom.js';
 import { simulate, startDryRun } from '../dryrun/run.js';
 import { seasonsOf } from '../dryrun/seasons.js';
 import { formNodes } from './dry/form.js';
-import { dayList, STEP } from './dry/days.js';
+import { dateOf, dayList, STEP } from './dry/days.js';
 import { headNodes } from './dry/summary.js';
-import { castGroup, curvesGroup, holdsGroup } from './dry/series.js';
+import { castGroup } from './dry/cast.js';
+import { curvesGroup } from './dry/curves.js';
+import { holdsGroup } from './dry/holds.js';
 
 const WORKER = new URL('../dryrun/worker.js', import.meta.url);
 const TABS = [['timeline', 'Timeline'], ['holds', 'Holds'], ['curves', 'Curves'], ['cast', 'Cast']];
@@ -23,7 +25,7 @@ const group = (cls, title, ...children) => h('section', { class: `sgrp ${cls}` }
 
 function stateOf(ctx) {
     const id = String(ctx.doc?.id ?? '');
-    if (!RUNS.has(id)) RUNS.set(id, { seed: id || 'dry-run', tempo: 1, days: 90, job: null, day: 0, result: null, ranOn: null, against: '', error: '', shown: STEP, tab: 'timeline', kind: 'all', editing: false, jump: 0, calendar: null, warnsOpen: false });
+    if (!RUNS.has(id)) RUNS.set(id, { seed: id || 'dry-run', tempo: 1, days: 90, job: null, day: 0, result: null, ranOn: null, against: '', error: '', shown: STEP, tab: 'timeline', kind: 'all', editing: false, jump: 0, calendar: null, warnsOpen: false, folds: {}, holdsAll: false, holdsBy: 'place', redraw: null });
     return RUNS.get(id);
 }
 
@@ -50,7 +52,7 @@ function start(ctx, st) {
     const job = typeof Worker === 'function'
         ? startDryRun(input, { make: () => new Worker(WORKER, { type: 'module' }), onProgress: day => { st.day = day; const live = liveStatus(); if (live) live.textContent = progress(st); } })
         : { done: new Promise((resolve, reject) => setTimeout(() => { try { resolve(simulate(input)); } catch (error) { reject(error); } }, 0)), cancel() {} };
-    Object.assign(st, { job, day: 0, error: '', shown: STEP, editing: false, jump: 0, calendar });
+    Object.assign(st, { job, day: 0, error: '', shown: STEP, editing: false, jump: 0, calendar, folds: {}, holdsAll: false });
     const redraw = () => { if (liveStatus()) ctx.go('timeline'); };
     job.done.then(result => {
         if (st.job !== job) return;
@@ -93,7 +95,10 @@ function resultPage(ctx, st, on) {
     const rows = st.result.rows ?? [];
     const tabs = h('div', { class: 'st-dtabs', role: 'tablist' }, TABS.map(([key, label]) => h('button', { type: 'button', role: 'tab', class: 'st-dtab', dataset: { tab: key }, 'aria-selected': String(st.tab === key),
         onClick: () => { st.tab = key; ctx.go('timeline'); } }, label)));
-    const body = { timeline: () => dayList(ctx, st, dayLines(ctx, rows), goButton), holds: () => [holdsGroup(rows, Math.max(st.result.days, 1))], curves: () => [curvesGroup(ctx, rows)], cast: () => [castGroup(ctx, rows, goButton, castTarget)] };
+    const date = day => dateOf(st.result, st.calendar, day);
+    st.redraw = () => ctx.go('timeline');
+    const body = { timeline: () => dayList(ctx, st, dayLines(ctx, rows), goButton), holds: () => [holdsGroup(st, rows, Math.max(st.result.days, 1), date)], curves: () => curvesGroup(ctx, rows, date),
+        cast: () => castGroup(ctx, rows, { go: goButton, castTarget, eventTarget: by => targetOf(ctx.doc, by), date }) };
     return [...headNodes(ctx, st, on), tabs, ...(body[st.tab] ?? body.timeline)()];
 }
 
