@@ -2,7 +2,7 @@
 import { validatePack } from '../../../packs/validate.js';
 export const sample = {
   id: 'ersveil-world', version: '1.0.0', format: 3, name: 'Ersveil World',
-  requires: { storyBlock: '0.1.0' },
+  requires: { storyBlock: '^0.1' },
   content: {
     placeKinds: { fort: 'outpost', 'lock town': 'town', district: 'site', sea: 'none', capital: 'capital', town: 'town', dungeon: 'none' },
     routeKinds: { 'bastion road': 'relay-road', 'sea lane': 'sea', road: 'road', river: 'river', 'mountain road': 'pass' },

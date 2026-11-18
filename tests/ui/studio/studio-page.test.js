@@ -98,18 +98,18 @@ test('Ersveil opens, the checker takes it, every part has a page and Export give
   } finally { await page.close(); }
 });
 
-test('a world pack: the checker refuses what main does not know yet; Problems lists it by part and Go to reaches the record', async (t) => {
+test('a world pack: the engine\'s checker refuses what it does not take; Problems lists it by part and Go to reaches the record', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const { page, errors } = await studio(1143);
   try {
     await openFile(page, WORLD);
-    assert.match(await page.textContent('.st-foot .v'), /^\d+ problems$/);
+    assert.equal(await page.textContent('.st-foot .v'), '3 problems · 2 warnings');
     await page.click('.st-foot');
     const groups = await page.evaluate(() => [...document.querySelectorAll('.st-probs')].map(g => g.dataset.part));
-    assert.ok(['lore', 'cast', 'map', 'events'].every(part => groups.includes(part)), groups.join());
-    await page.locator('.st-probs[data-part="cast"] .lnk').first().click();
+    assert.deepEqual([...groups].sort(), ['conditions', 'events']);
+    await page.locator('.st-probs[data-part="events"] .lnk').first().click();
     const hit = await page.evaluate(() => ({ part: document.querySelector('.snav .si3[aria-current="true"]').dataset.part, focused: document.activeElement?.dataset?.rec, marked: document.querySelector('.st-hit')?.dataset.rec }));
-    assert.deepEqual(hit, { part: 'cast', focused: 'cast.0', marked: 'cast.0' });
+    assert.deepEqual(hit, { part: 'events', focused: 'worldEvents.0', marked: 'worldEvents.0' });
     await page.click('.snav .si3[data-part="lore"]');
     const lore = await page.evaluate(() => [...document.querySelectorAll('.st-rec[data-rec^="lore."]')].map(card => [card.querySelector('.st-rt b').textContent, [...card.querySelectorAll('.tg2')].map(tag => tag.textContent).join(' ')]));
     assert.deepEqual(lore, [['The Lamp Road', 'protected'], ['The Drowned Bell', 'hidden']]);
@@ -135,9 +135,9 @@ test('search finds a record and opens it; the keys: / search, Alt+digit a part, 
     await page.keyboard.press('Alt+3');
     assert.equal(await page.textContent('.spage h2'), 'Cast');
     await page.keyboard.press('F8');
-    assert.equal(await page.textContent('.spage h2'), 'Lore');
+    assert.equal(await page.textContent('.spage h2'), 'Conditions');
     await page.keyboard.press('F8');
-    assert.equal(await page.textContent('.spage h2'), 'Places & routes');
+    assert.equal(await page.textContent('.spage h2'), 'Events');
     const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.keyboard.press('Control+o')]);
     assert.equal(chooser.isMultiple(), true);
     const [download] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('Control+s')]);

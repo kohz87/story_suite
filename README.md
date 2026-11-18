@@ -1,4 +1,4 @@
-# Story Suite 0.1.0
+# Story Suite 0.1.1
 
 A SillyTavern extension that keeps the state of your story (items and money, the scene, the people you meet, the clock and calendar, quests, the map, fights) and puts it in front of the narrator and in front of you. It is one extension made from what used to be Story Block, Story Director and NPC State Delta. Version 0.1.0 is its first release; the old three are not kept up to date and nothing is carried over from them.
 

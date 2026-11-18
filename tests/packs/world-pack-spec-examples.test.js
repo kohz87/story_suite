@@ -68,7 +68,7 @@ const lore = [
     { title: 'Tone of the Marches', keys: ['Marches'], constant: true, order: 10, text: '…' },
 ];
 
-const install = content => validatePack(JSON.stringify({ id: 'spec-examples', version: '1.0.0', format: 3, requires: { storyBlock: '0.1.0' }, content }));
+const install = content => validatePack(JSON.stringify({ id: 'spec-examples', version: '1.0.0', format: 3, requires: { storyBlock: '^0.1' }, content }));
 
 test('the spec examples install as written (names where unique, ids in thresholds)', () => {
     const result = install({ ...support, cast, worldEvents: events, templates, lore });
