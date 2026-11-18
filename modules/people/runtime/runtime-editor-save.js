@@ -17,7 +17,7 @@ export function createEditorSave(rt, deps, helpers) {
         const originChatKey = rt.activeEditorChatKey || getChatKey();
         const editorAtStart = rt.activeEditorPopup;
         if (getChatKey() !== originChatKey || !await ensureFreshMutationBoundary('save dossier edits', originChatKey)) {
-            globalThis.toastr?.warning?.('NPC State Delta: this editor belongs to a different or unloaded chat. Reopen the dossier in the active chat.');
+            globalThis.toastr?.warning?.('NPC State: this editor belongs to a different or unloaded chat. Reopen the dossier in the active chat.');
             return false;
         }
         // Cancel/Escape during the freshness wait (or a replaced editor) invalidates this Save: the
@@ -30,7 +30,7 @@ export function createEditorSave(rt, deps, helpers) {
             || (popup && popup.result !== affirmative)
             || (!popup && editorAtStart && editorAtStart.result !== undefined && editorAtStart.result !== affirmative)) return false;
         if (rt.activeEditorBaseRevision !== null && Number(rt.activeEditorBaseRevision) !== workingCopyAdoption(originChatKey)) {
-            globalThis.toastr?.warning?.('NPC State Delta: this editor was opened on an older server revision. Your typed draft is still open, but it was not applied. Review the newly loaded dossier and reopen the editor before saving.');
+            globalThis.toastr?.warning?.('NPC State: this editor was opened on an older server revision. Your typed draft is still open, but it was not applied. Review the newly loaded dossier and reopen the editor before saving.');
             return false;
         }
         const state = getChatState(originChatKey);
@@ -71,7 +71,7 @@ export function createEditorSave(rt, deps, helpers) {
         const storyFields = { level, abilities: pairs('abilities', BUILT_IN_LIMITS.abilities), keepsakes: pairs('keepsakes', BUILT_IN_LIMITS.keepsakes) };
         const nameCollision = state.npcs.some((item, i) => i !== index && npcMatchesLabel(item, stableInputs.name));
         if (nameCollision) {
-            globalThis.toastr?.warning?.(`NPC State Delta: another dossier already matches ${stableInputs.name}.`);
+            globalThis.toastr?.warning?.(`NPC State: another dossier already matches ${stableInputs.name}.`);
             return false;
         }
         if (stableInputs.name !== current.name && current.name) {
@@ -87,12 +87,12 @@ export function createEditorSave(rt, deps, helpers) {
         const currentBirthdayDisplay = String(current.birthDateDisplay || '').trim();
         if (birthdayInput !== currentBirthdayDisplay) {
             if (!birthdayInput) {
-                globalThis.toastr?.warning?.('NPC State Delta: birthday cannot be cleared here. Enter a valid date or cancel the edit.');
+                globalThis.toastr?.warning?.('NPC State: birthday cannot be cleared here. Enter a valid date or cancel the edit.');
                 return false;
             }
             const normalizedBirthday = normalizeBirthDate(birthdayInput);
             if (!normalizedBirthday) {
-                globalThis.toastr?.warning?.('NPC State Delta: birthday is not valid for the active calendar.');
+                globalThis.toastr?.warning?.('NPC State: birthday is not valid for the active calendar.');
                 return false;
             }
             const correctedBirthday = applyNpcBirthdayUpdate(next, {
@@ -131,7 +131,7 @@ export function createEditorSave(rt, deps, helpers) {
             if (v2Edits.meterSetup) next.meterSetup = v2Edits.meterSetup;
             else delete next.meterSetup;
         }
-        if (v2Edits?.problems?.length && !silent) globalThis.toastr?.warning?.(`NPC State Delta: ${v2Edits.problems.join('; ').slice(0, 300)}`);
+        if (v2Edits?.problems?.length && !silent) globalThis.toastr?.warning?.(`NPC State: ${v2Edits.problems.join('; ').slice(0, 300)}`);
         const relationshipDelta = Object.fromEntries(['trust', 'affection', 'desire', 'tension'].map(key => [key, next.relationship[key] - Number(oldRelationship[key] || 0)]));
         if (Object.values(relationshipDelta).some(value => value !== 0)) {
             const progress = normalizeRelationshipProgress(current.relationshipProgress);
@@ -199,7 +199,7 @@ export function createEditorSave(rt, deps, helpers) {
         // with the draft; the edit stays applied in this browser and the pending write is retried.
         const savedName = state.npcs[index].name;
         if (!await persistCriticalDurable(originChatKey)) {
-            if (!silent) globalThis.toastr?.warning?.(`NPC State Delta: the edits for ${savedName} are applied in this browser but could not be saved to the server yet. Save again to retry.`);
+            if (!silent) globalThis.toastr?.warning?.(`NPC State: the edits for ${savedName} are applied in this browser but could not be saved to the server yet. Save again to retry.`);
             return false;
         }
         if (hostedMeters && (meterEdits || v2Edits)) {
@@ -211,7 +211,7 @@ export function createEditorSave(rt, deps, helpers) {
         }
         if (close) closeNpcEditor();
         if (!silent) globalThis.toastr?.success?.(`NPC State: saved your edits for ${savedName}.`);
-        if (!silent && shortened.length) globalThis.toastr?.warning?.(`NPC State Delta: ${shortened.join(', ')} ${shortened.length === 1 ? 'was' : 'were'} shortened or adjusted to fit the dossier's limits for unprotected fields. Tick "Protect edited stable profile fields" to keep a longer Personality, Speech, Background or Mannerisms.`);
+        if (!silent && shortened.length) globalThis.toastr?.warning?.(`NPC State: ${shortened.join(', ')} ${shortened.length === 1 ? 'was' : 'were'} shortened or adjusted to fit the dossier's limits for unprotected fields. Tick "Protect edited stable profile fields" to keep a longer Personality, Speech, Background or Mannerisms.`);
         return true;
     }
 

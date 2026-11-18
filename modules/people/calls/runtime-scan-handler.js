@@ -38,7 +38,7 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         try { await ensureChatStateLoaded(eventChatKey); }
         catch (error) {
             console.error('[NPC State Delta] assistant event deferred because chat hydration failed.', error);
-            notify('error', 'NPC State Delta could not load this chat dossier. Existing sidecar data was preserved; retry after the server is available.');
+            notify('error', 'NPC State could not load this chat dossier. Existing sidecar data was preserved; retry after the server is available.');
             return;
         }
         if (!sourceStillHere()) return;

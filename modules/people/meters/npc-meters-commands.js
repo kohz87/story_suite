@@ -51,6 +51,8 @@ export function createNpcCommands({
         const notes = { run: change => changes.push(...change.changes), flag: (text, cue) => (cue ? (problems.push(text), cues.push(cue)) : cues.push(text)) };
         const rule = noteRule(line.kind, ctx, who.key, reply, labels);
         const out = runKind(line.kind, current, noteLine(line.kind, labels, { current, r: reply, day }), { name: who.name, day, r: reply, userText: ctx.chat?.lastUser ?? '', tier: CAUGHT_TIER, drop: CAUGHT_DROP, notes, tasteRule: rule, knowRule: rule });
+        // A refused know line is a Problem on that line (each line is its own command, so the reply's other know lines are kept); the leaf stays as it was, and someone with no record yet is refused as before.
+        if (out.problem && line.kind === 'know' && isObject(slice.npcs) && Object.hasOwn(slice.npcs, who.key)) return run(ctx, { label: line.name, changes: [], problems: [`Know line not used: ${out.problem}.`], limit: false, reply: null, allowEmpty: true });
         if (out.problem) ctx.fail('REFUSED', out.problem);
         const moves = changes.length > 0;
         const done = run(ctx, {

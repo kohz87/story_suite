@@ -133,14 +133,16 @@ export function createScanOpsPart(rt, deps) {
         return ended;
     }
     function cancelScanOperation(key, reason = 'cancelled') {
-        const operation = scanOperations.cancel(key, reason);
-        if (!operation) return false;
-        operation.requestController?.abort();
+        const operations = scanOperations.cancel(key, reason);
+        if (!operations.length) return false;
+        for (const operation of operations) operation.requestController?.abort();
         if (getChatKey() === key) {
             setScanIndicator(false);
-            const npcId = String(operation.metadata?.npcId || '');
-            if (npcId && operation.metadata?.indicator === 'dossier') setNpcDossierScanIndicator(npcId, false);
-            if (npcId && operation.metadata?.indicator === 'refresh') setNpcChatRefreshIndicator(npcId, false);
+            for (const operation of operations) {
+                const npcId = String(operation.metadata?.npcId || '');
+                if (npcId && operation.metadata?.indicator === 'dossier') setNpcDossierScanIndicator(npcId, false);
+                if (npcId && operation.metadata?.indicator === 'refresh') setNpcChatRefreshIndicator(npcId, false);
+            }
         }
         return true;
     }
@@ -187,7 +189,7 @@ export function createScanOpsPart(rt, deps) {
                     if (await messageGateSettled()) break;
                     if (!entry.told && Date.now() - entry.since >= HEAD_SETTLE_PROBLEM_MS) {
                         entry.told = true;
-                        const text = `NPC State Delta: Story Block has not finished bringing the story to the selected point for ${Math.round(HEAD_SETTLE_PROBLEM_MS / 60000)} minutes, so ${defer.what || 'a scan'} is still pending. It runs as soon as Story Block is ready.`;
+                        const text = `NPC State: Story Block has not finished bringing the story to the selected point for ${Math.round(HEAD_SETTLE_PROBLEM_MS / 60000)} minutes, so ${defer.what || 'a scan'} is still pending. It runs as soon as Story Block is ready.`;
                         console.warn(`[NPC State Delta] ${text}`);
                         globalThis.toastr?.warning?.(text);
                     }

@@ -53,8 +53,8 @@ function mountControl() {
             input.value = String(normalized);
             persistSettings();
             globalThis.toastr?.success?.(normalized
-                ? `NPC State Delta: scanner maximum output set to ${normalized} tokens.`
-                : 'NPC State Delta: scanner output returned to built-in per-request limits.');
+                ? `NPC State: scanner maximum output set to ${normalized} tokens.`
+                : 'NPC State: scanner output returned to built-in per-request limits.');
         });
     }
     return true;

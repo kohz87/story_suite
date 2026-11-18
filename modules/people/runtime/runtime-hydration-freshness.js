@@ -41,7 +41,7 @@ export function installHydrationFreshness(api, rt, deps) {
         });
         if (inspected.exists) {
             installCanonicalServerState(normalized, pointer, inspected, { reason: 'guarded-write-conflict', dirtyConflict: true });
-            if (getChatKey() === normalized) globalThis.toastr?.warning?.('NPC State Delta: another session saved a newer dossier first. This local change was preserved for recovery and was not allowed to overwrite the server copy.');
+            if (getChatKey() === normalized) globalThis.toastr?.warning?.('NPC State: another session saved a newer dossier first. This local change was preserved for recovery and was not allowed to overwrite the server copy.');
         }
         return inspected;
     }
@@ -146,8 +146,8 @@ export function installHydrationFreshness(api, rt, deps) {
                 // another session, so it is always reported, even from a background freshness check.
                 if (preserveLocal && (notify || writerFork)) globalThis.toastr?.warning?.(
                     writerFork
-                        ? 'NPC State Delta: another session replaced the same server revision. This session copy was preserved for recovery; the server copy is now active.'
-                        : 'NPC State Delta: another session advanced this chat. Unsaved local dossier work was preserved for recovery; the server copy is now active.',
+                        ? 'NPC State: another session replaced the same server revision. This session copy was preserved for recovery; the server copy is now active.'
+                        : 'NPC State: another session advanced this chat. Unsaved local dossier work was preserved for recovery; the server copy is now active.',
                 );
                 if (writerFork) recordFreshnessEvent(normalized, 'same-revision-writer-conflict', { reason, hydratedRevision: localRevision, serverRevision: inspected.revision, dirty: true });
                 return state;

@@ -26,6 +26,7 @@ export const RUNTIME_SOURCE_PARTS = [
     { file: 'runtime-targeted.js', before: 'const { prepareCanonicalScanBase,' },
     { file: 'runtime-targeted-refresh.js', before: 'const { prepareCanonicalScanBase,' },
     { file: 'runtime-targeted-backfill.js', before: 'const { prepareCanonicalScanBase,' },
+    { file: 'runtime-backfill-queue.js', before: 'const { prepareCanonicalScanBase,' },
     { file: 'runtime-scan-backfill.js', before: 'const { scanNowInner,' },
     { file: 'runtime-scan-stale.js', before: 'const { scanNowInner,' },
     { file: 'runtime-scan-reply.js', before: 'const { scanNowInner,' },

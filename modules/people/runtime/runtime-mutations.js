@@ -25,7 +25,7 @@ export function createMutationsPart(rt, deps) {
         // newer server copy adopted after the editor opened.
         if (editorIsMounted() && rt.activeEditorChatKey === chatKey && rt.activeEditorBaseRevision !== null
             && Number(rt.activeEditorBaseRevision) !== workingCopyAdoption(chatKey)) {
-            globalThis.toastr?.warning?.('NPC State Delta: this editor was opened on an older server revision. The appearance draft was not applied; review the newly loaded dossier and reopen the editor.');
+            globalThis.toastr?.warning?.('NPC State: this editor was opened on an older server revision. The appearance draft was not applied; review the newly loaded dossier and reopen the editor.');
             return false;
         }
         const state = getChatState(chatKey);
@@ -238,8 +238,8 @@ export function createMutationsPart(rt, deps) {
         updateInjection();
         // The deletion is applied now; completion is announced only once the server holds it.
         reportDurableOutcome(deleteKey,
-            `NPC State Delta: deleted ${result.report.name}; older branch snapshots cannot restore that identity.`,
-            `NPC State Delta: ${result.report.name} was removed in this browser, but the deletion could not be saved to the server yet. It will be retried; the server copy still contains the dossier until then.`);
+            `NPC State: deleted ${result.report.name}; older branch snapshots cannot restore that identity.`,
+            `NPC State: ${result.report.name} was removed in this browser, but the deletion could not be saved to the server yet. It will be retried; the server copy still contains the dossier until then.`);
         return true;
     }
 
@@ -281,9 +281,9 @@ export function createMutationsPart(rt, deps) {
         updateInjection();
         reportDurableOutcome(getChatKey(),
             archived
-                ? `NPC State Delta: archived ${current.name}. Their dossier and history are preserved.`
-                : (correctingDeath ? `NPC State Delta: corrected ${current.name}'s erroneous death record; presence remains unconfirmed.` : `NPC State Delta: restored ${current.name} to the active roster.`),
-            `NPC State Delta: the change to ${current.name} is applied in this browser but could not be saved to the server yet. It will be retried; the server copy is unchanged until then.`);
+                ? `NPC State: archived ${current.name}. Their dossier and history are preserved.`
+                : (correctingDeath ? `NPC State: corrected ${current.name}'s erroneous death record; presence remains unconfirmed.` : `NPC State: restored ${current.name} to the active roster.`),
+            `NPC State: the change to ${current.name} is applied in this browser but could not be saved to the server yet. It will be retried; the server copy is unchanged until then.`);
         return true;
     }
 
@@ -435,7 +435,7 @@ export function createMutationsPart(rt, deps) {
             turn: state.turn,
             relationshipBaseline: settings.relationshipBaseline,
         });
-        if (result.report.status === 'excluded') return globalThis.toastr?.warning?.('NPC State Delta: player/main character cannot be added as an NPC.');
+        if (result.report.status === 'excluded') return globalThis.toastr?.warning?.('NPC State: player/main character cannot be added as an NPC.');
         if (result.report.status === 'full') return globalThis.toastr?.warning?.(capMessage(settings.maxNpcs));
         if (['added', 'exists', 'restored'].includes(result.report.status)) clearUserDismissedSuppression(result.state, name);
         const targetMessageId = latestMessageId(false);
@@ -443,7 +443,7 @@ export function createMutationsPart(rt, deps) {
         setChatState(getChatKey(), result.state);
         persistCritical(); renderDossier(); updateInjection();
         const addedNpc = result.report.npcId ? result.state.npcs.find(npc => npc.id === result.report.npcId) : null;
-        if (addedNpc) globalThis.toastr?.success?.(`NPC State Delta: ${addedNpc.name} created. Use the wand beside the dossier to Scan dossier and populate it.`);
+        if (addedNpc) globalThis.toastr?.success?.(`NPC State: ${addedNpc.name} created. Use the wand beside the dossier to Scan dossier and populate it.`);
     }
 
     return { updateNpcAppearance, updateNpcLifeState, npcFormName, setNpcPortrait, setNpcPortraitSeed, removeNpcPortrait, deleteNpcById, setNpcArchiveStateById, exportBundleBytes, importBundleBytes, addNpcManually };

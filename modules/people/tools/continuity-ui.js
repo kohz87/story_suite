@@ -213,11 +213,11 @@ function bindEvents() {
         const status = editorAppearanceSection(editor)?.querySelector('[data-delta-appearance-status]');
         if (status) status.textContent = 'Applying…';
         void applyAppearanceEditor(editor)
-            .then(npc => { if (npc) globalThis.toastr?.success?.('NPC State Delta: appearance updated and saved.'); })
+            .then(npc => { if (npc) globalThis.toastr?.success?.('NPC State: appearance updated and saved.'); })
             .catch(error => {
                 console.error('[NPC State Delta] appearance-form edit failed', error);
                 if (status) status.textContent = error?.message || String(error);
-                globalThis.toastr?.error?.(`NPC State Delta appearance forms were not updated: ${error?.message || error}`);
+                globalThis.toastr?.error?.(`NPC State appearance forms were not updated: ${error?.message || error}`);
             })
             .finally(() => { apply.disabled = false; });
     });

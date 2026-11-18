@@ -23,8 +23,8 @@ export function createPortraitSettingsPart(rt, deps) {
             rt.portraitSettingsSaveBusy = false;
             syncSettingsControls();
             globalThis.toastr?.success?.(next.portraitThemePreset === 'custom'
-                ? `NPC State Delta: saved custom portrait preset ${portraitCustomPresetFor(next).name}.`
-                : 'NPC State Delta: portrait settings saved.');
+                ? `NPC State: saved custom portrait preset ${portraitCustomPresetFor(next).name}.`
+                : 'NPC State: portrait settings saved.');
             return true;
         } catch (error) {
             Object.assign(settings, before);
