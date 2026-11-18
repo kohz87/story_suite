@@ -87,6 +87,7 @@ test('a row that is only shown, or a bad key, is refused and stores nothing; oth
   assert.deepEqual(h.stored, {});
   assert.equal(peopleCommand('settings.set', { key: 'models.quick', value: 1 }, h.writes, h.read), null);
   assert.equal(peopleCommand('settings.action', { key: 'settings.reset', value: 'Reset Look to defaults' }, h.writes, h.read), null);
+  assert.equal(peopleCommand('settings.action', { key: 'people.ceiling', value: 'x' }, h.writes, h.read), null, 'a people row with no action is not answered here');
 });
 
 test('a host that will not store answers not saved', () => {

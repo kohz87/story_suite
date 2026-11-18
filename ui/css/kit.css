@@ -24,7 +24,7 @@
 .su-root .btn2.pri {
   background: var(--su-accent);
   border-color: transparent;
-  color: var(--su-on-accent);
+  color: var(--su-on-accent, #14102a);
   text-shadow: none;
 }
 
