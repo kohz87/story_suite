@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { createHost } from '../../../testkit/index.js';
 import { NOTE, OPENING, PLAN, TAIL_KEY, said, sent, setUp } from './world-judge.helpers.js';
 

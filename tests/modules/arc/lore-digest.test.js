@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../testkit/index.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { WORLD_EVENTS_FEATURE } from '../../../modules/arc/index.js';
 import { loreEntries } from '../../../modules/arc/lore-digest/entries.js';
 import { buildDigest } from '../../../modules/arc/lore-digest/digest.js';

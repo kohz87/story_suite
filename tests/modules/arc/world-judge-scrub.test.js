@@ -8,7 +8,7 @@ import { SECRET_REASON, scrubJudge, sharesSecret } from '../../../modules/arc/ju
 import { JUDGE_SYSTEM } from '../../../modules/arc/judge/prompt.js';
 import { judgePlan } from '../../../modules/arc/judge/run.js';
 import { readPlan } from '../../../modules/arc/plan.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { createHost } from '../../../testkit/index.js';
 import { OPENING, PLAN, TAIL_KEY, sent, said, setUp } from './world-judge.helpers.js';
 

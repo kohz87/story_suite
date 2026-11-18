@@ -1,9 +1,9 @@
 // Shared set-up for the Director judge tests: a host with the Story Director module, a pack with one Active event (The succession, outcomes heir-crowned and
 // regency), a scripted planner and a scripted judge (told apart by their system text), the arc controller, and the counts of calls made to each.
 import { createFakeModel, createHost } from '../../../testkit/index.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { createArcController } from '../../../modules/arc/index.js';
-import { browserStore, createReveal } from '../../../ui/legacy/director/screens/reveal.js';
+import { browserStore, createReveal } from '../../../modules/director/screens/reveal.js';
 import { overrideWorld } from '../../../modules/world/chronicle/world-daily/read-world.js';
 import { JUDGE_SYSTEM } from '../../../modules/arc/judge/prompt.js';
 

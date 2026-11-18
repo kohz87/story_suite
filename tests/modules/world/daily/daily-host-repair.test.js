@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 
 import { createHost } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { FEATURE, agrees, dailyOf, dailyReceipts, reply, world } from './daily-host.helpers.js';
 
 const minutes = host => host.head().domains.director.time.minutes;

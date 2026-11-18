@@ -6,10 +6,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createFakeModel, createHost } from '../../../testkit/index.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { createArcController } from '../../../modules/arc/index.js';
 import { trackerSummary, worldBriefText } from '../../../modules/arc/plan.js';
-import { browserStore, createReveal } from '../../../ui/legacy/director/screens/reveal.js';
+import { browserStore, createReveal } from '../../../modules/director/screens/reveal.js';
 import { overrideWorld } from '../../../modules/world/chronicle/world-daily/read-world.js';
 import { arcBrief } from '../../../modules/world/chronicle/world-daily/arc-brief.js';
 
