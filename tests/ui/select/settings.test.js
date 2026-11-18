@@ -102,7 +102,7 @@ describe('selectSettings', () => {
     assert.deepEqual(rows.map(r => r.value), [true, 'always on', true, false, true, '900 tokens', ['Time moves on', 'World news']]);
     assert.equal(rows.at(-1).options.length, 15);
     const none = selectSettings(answers({})).sections.find(s => s.id === 'models').rows;
-    assert.deepEqual([none[2].value, none[3].value, none[4].value, none[5].value, none[6].value.length], [true, false, false, 'built-in limits', 10], 'repair is on, the fallback off with nothing stored (Keep blocks is the host's, default on: shown on only when the host says so); no stored kinds: the ten defaults');
+    assert.deepEqual([none[2].value, none[3].value, none[4].value, none[5].value, none[6].value.length], [true, false, false, 'built-in limits', 10], 'repair is on, the fallback off with nothing stored (Keep blocks is a host setting, default on, and shows on only when the host says so); no stored kinds: the ten defaults');
     assert.equal(rowOf(selectSettings(answers({ host: { ...HOST, keepRecentBlocks: true } })), 'models', 'calls.keepBlocks').value, true, 'Keep blocks reads the host setting');
   });
 

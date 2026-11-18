@@ -379,5 +379,21 @@
   "scripts/b4/backup.mjs": "Copies the files of a removal to a new backup folder with a sha256 manifest, and refuses an existing folder.",
   "scripts/b4/dead-exports.mjs": "Fails when a kept file still imports, re-exports or loads a removed path or export, and lists computed specifiers to grep by hand.",
   "scripts/b4/shrink.mjs": "Finds entries added to, or still naming a removed path in, the shrink-only lists under docs/merge.",
-  "scripts/b4/unit.mjs": "Runs the per-unit removal recipe in order: backup, git rm, dead exports, git grep, shrink-only lists, code map, touched tests."
+  "scripts/b4/unit.mjs": "Runs the per-unit removal recipe in order: backup, git rm, dead exports, git grep, shrink-only lists, code map, touched tests.",
+  "studio/index.html": "The Pack Studio page: the suite's own stylesheets and the Studio's, the full-window frame and the module entry.",
+  "studio/main.js": "Starts the Pack Studio on the page's #studio root and leaves its handle on the page for checks.",
+  "studio/studio.css": "Pack Studio page styles: fonts, the full-window frame and the record cards; the rest is ui/css as it is.",
+  "studio/app.js": "Runs the Pack Studio: theme, frame, and what Open, the parts, search, Problems, Go to, Export and the keys do over the pack as written.",
+  "studio/shell.js": "Builds the Pack Studio frame in the Settings overlay's look: header with Open, Export and theme, the parts nav or phone list, one page, the pack-check bar.",
+  "studio/keys.js": "The Pack Studio keyboard: open, export, search, a part by number, the next problem, back.",
+  "studio/parts.js": "The Pack Studio's parts table: which pack keys each screen shows, and which part and record a checker problem's path belongs to.",
+  "studio/load.js": "Opens what the author picked (a pack zip through packs/bundle.js, or pack.json with its portraits) as the text, the parsed pack and the images.",
+  "studio/check.js": "Checks the pack text with the game's own packs/validate.js and groups the problems by Pack Studio part.",
+  "studio/export.js": "What the Pack Studio exports: the pack zip (pack.json and the portraits the cast names) or pack.json alone, as the author wrote it.",
+  "studio/zip-write.js": "Writes a stored zip in the browser or node with the example-zip script's exact layout, for the Pack Studio's export.",
+  "studio/views/value.js": "Draws one value, one labelled field and one record card for the Pack Studio's read-only views.",
+  "studio/views/records.js": "Draws a Pack Studio world part (lore, cast, places and routes, conditions, events, templates, powers, items) read-only, one card per record.",
+  "studio/views/overview.js": "Draws the Pack Studio's Overview page: the pack's key fields, the check result in words and each part's counts.",
+  "studio/views/problems.js": "Draws the Pack Studio's Problems page: the pack checker's problems grouped by part, each with Go to.",
+  "studio/views/search.js": "Finds and draws the records of the open pack whose title, id, name, keys or aliases hold the searched words."
 }
