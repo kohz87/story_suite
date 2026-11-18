@@ -88,7 +88,6 @@ export function mountSuite(options = {}) {
   const picked = pickTheme();
   scheme = picked.scheme;
   const view = createSuiteView({ doc, host, backStack, tokens: picked.tokens, scheme });
-<<<<<<< HEAD
   let shown = '';
   function applyLook(next = pickTheme()) {
     const key = JSON.stringify(next);
@@ -105,9 +104,7 @@ export function mountSuite(options = {}) {
     if (!look) return answer;
     return Promise.resolve(answer).then(done => { if (!destroyed) applyLook(); return done; });
   }
-=======
   applyPanelBg(view.root, prefs.getFold(PANELBG_KEY, false));
->>>>>>> origin/main
   // While the suite is closed its card and tabs are not read; open() draws what changed meanwhile (the tab strip's flags stay live).
   const redraw = createRedraw({ port, initialTab: initial, isOpen: () => view.isOpen(), ...(schedule ? { schedule } : {}) });
   const tabHost = createTabHost({
