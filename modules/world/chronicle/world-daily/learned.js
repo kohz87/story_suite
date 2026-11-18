@@ -3,7 +3,8 @@
 // a note in a dossier made from the pack (`castFrom.id`) whose id is in the person's `unlocked` list, matched to the pack secret by its
 // id or its text — is recorded in the ledger as `learned:<cast id>/<secret id>` on today, with `fact:<writes_fact>` when the secret
 // writes one (the first secret to write a fact writes it; later ones change nothing). The ledger is a slot on the reply, so a swipe,
-// a delete, an edit or a rewind of the reveal takes it back. `learned:lore/<entry id>` has no source yet (nothing learns lore).
+// a delete, an edit or a rewind of the reveal takes it back. `learned:lore/<entry id>` has no source yet (nothing learns lore; a hidden
+// entry whose gate holds is opened for the narrator by lore-open.js, which is not learning it).
 
 import { slotValue } from '../../../rpg/slot.js';
 import { ledgerOf, markLedger } from '../conditions/ledger.js';
