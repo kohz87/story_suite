@@ -35,7 +35,6 @@
 .su-root {
   position: relative;
   width: 100%;
-  max-width: 820px;
   height: 100%;
   overflow: hidden;
   container-type: inline-size;
@@ -87,6 +86,8 @@
   inset: 0;
   overflow: auto;
   padding: 12px 12px 140px;
+  /* Mock v7 Desktop: the root fills the window (sky edge to edge) and the card, tabs and pages keep one 820 px column in the middle; at 820 px and under this is the 12 px edge. */
+  padding-inline: max(12px, calc((100% - 820px) / 2 + 12px));
   display: flex;
   flex-direction: column;
   gap: 12px;

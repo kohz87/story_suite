@@ -5,6 +5,7 @@
 .dov::after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(transparent,rgba(10,12,20,.55))}
 [data-scheme="light"] .dov::after{background:linear-gradient(transparent,rgba(255,255,255,.35))}
 .dscroll{z-index:1;position:absolute;inset:0;overflow:auto;padding:12px 12px 40px;display:flex;flex-direction:column;gap:12px}
+.dscroll{padding-inline:max(12px,calc((100% - 820px)/2 + 12px))} /* the suite's 820 px column at desktop (decisions 1 and 49), as .su-scroll */
 .dscroll>*{flex-shrink:0}
 .dossier .menu-slot:empty{display:none}
 .dtop{display:flex;align-items:center;gap:8px;padding:8px 10px}
