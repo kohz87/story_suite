@@ -2,33 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { index, continuityUi, css, dossierUi } from './ui-layout.helpers.js';
+import { index, continuityUi, css } from './ui-layout.helpers.js';
 import { oldSource } from './helpers/old-source.js';
 import { partsSource } from './helpers/parts-source.js';
-
-test('present NPC pane uses portrait-first cards that open the launcher dossier', () => {
-    assert.match(index, /function inlineRosterHtml/);
-    assert.match(index, /class="npc-state-delta-present-grid"/);
-    assert.match(index, /class="npc-state-delta-present-card"/);
-    assert.match(index, /class="npc-state-delta-present-card-portrait"/);
-    assert.match(index, /class="npc-state-delta-present-card-text"/);
-    assert.match(index, /<b class="npc-state-delta-present-card-name" title="\$\{escapeHtml\(displayName\)\}">/);
-    assert.doesNotMatch(index, /npc-state-delta-present-card-relation/);
-    // One dossier page: cards hand off to the launcher instead of a separate quick viewer.
-    assert.doesNotMatch(index + css, /npc-state-delta-viewer|function openNpcViewer|openViewer:/);
-    assert.match(index, /function openLauncherDossier\(npcId\)[\s\S]*new CustomEvent\('npc-state-delta:open-dossier', \{ detail: request \}\)/);
-    assert.match(index, /eventTargetClosest\(event, '\.npc-state-delta-present-card, \.npc-state-delta-present-chip, \.npc-state-delta-present-cell'\)/);
-    assert.match(index, /openDossier: value =>/);
-    assert.match(dossierUi, /addEventListener\('npc-state-delta:open-dossier'[\s\S]*event\.detail\.handled = true;[\s\S]*ui\.openNpc\(npcId\)/);
-    assert.match(dossierUi, /if \(this\.pendingNpcId\) \{[^}]*this\.screen = openNpc\(createScreenState\(\), this\.pendingNpcId\);[\s\S]*this\.filter = 'all';/, 'the requested NPC survives the chat-change reset, opens its board and is not hidden by a filter');
-    // UI 4c: one compact row per person, full width at every size: a 44px portrait on the left, the name on one
-    // line (an unbroken name is cut with an ellipsis, never pushes the row wider), the stage line under it.
-    assert.match(css, /\.npc-state-delta-present-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s);
-    assert.match(css, /\.npc-state-delta-present-card\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*44px minmax\(0, 1fr\)/s);
-    assert.match(css, /\.npc-state-delta-present-card-portrait\s*\{[^}]*width:\s*44px;[^}]*height:\s*44px/s);
-    assert.match(css, /\.npc-state-delta-present-card-name\s*\{[^}]*white-space:\s*nowrap;[^}]*text-overflow:\s*ellipsis/s);
-    assert.doesNotMatch(css, /present-card-overlay/);
-});
 
 test('present NPCs in chat support Full, Compact, Only in Story Block and Off display modes', () => {
     assert.match(index, /presentCastDisplay: 'full'/);
@@ -40,7 +16,6 @@ test('present NPCs in chat support Full, Compact, Only in Story Block and Off di
     assert.match(index, /class="npc-state-delta-present-chip"/);
     assert.match(css, /\.npc-state-delta-present-chips \{ display: flex;[^}]*overflow-x: auto;/);
 });
-
 
 test('present cards are one full-width row at every size: no tablet or phone grid of tall cards', () => {
     // UI 4c: the grid is a single column from the widest pane to the narrowest, so a card never stretches to a
@@ -56,19 +31,12 @@ test('present cards resolve the current canonical NPC name after identity promot
     assert.match(index, /Open \$\{escapeHtml\(displayName\)\} dossier/);
 });
 
-test('dossier uses trust affection desire tension and strict presence wording', () => {
-    assert.match(dossierUi, /RELATIONSHIP_AXES = Object\.freeze\(\[\['trust', 'Trust'\], \['affection', 'Affection'\], \['desire', 'Desire'\], \['tension', 'Tension'\]\]\)/);
-    assert.doesNotMatch(dossierUi, /'Respect'/);
-    assert.match(index, /Only active NPCs present in the latest scanned scene/);
-});
-
 test('relationship tuning exposes baseline, caps, editable rubrics, and delta audit UI', () => {
     for (const id of ['npc_state_delta_base_trust', 'npc_state_delta_base_affection', 'npc_state_delta_base_desire', 'npc_state_delta_base_tension']) assert.match(index, new RegExp(id));
     for (const id of ['npc_state_delta_cap_ordinary', 'npc_state_delta_cap_meaningful', 'npc_state_delta_cap_major', 'npc_state_delta_cap_extreme']) assert.match(index, new RegExp(id));
     assert.match(index, /npc_state_delta_relationship_criteria/);
     assert.match(index, /npc_state_delta_impact_criteria/);
     assert.match(index, /Reset relationship rules/);
-    assert.match(dossierUi, /Last relationship change/);
     assert.match(css, /npc-state-delta-rubric-textarea/);
 });
 
@@ -82,7 +50,6 @@ test('important memory criteria are editable and resettable from settings', () =
     assert.match(index, /Important memories <small>Max 5/i);
     assert.match(index, /editorList\('memories', IMPORTANT_MEMORY_LIMIT\)/);
 });
-
 
 test('present-only behavior injection and manual dossier editor controls are exposed', () => {
     assert.match(index, /Inject present NPC state/);
@@ -109,7 +76,6 @@ test('present-only behavior injection and manual dossier editor controls are exp
     assert.match(css, /npc-state-delta-editor-popup/);
 });
 
-
 test('the settings roster has no archive control; restore (a death correction) and confirmed hard delete stay', () => {
     assert.match(index, /Archive confirmed deaths/);
     assert.match(index, /Reactivate on clear return/);
@@ -134,13 +100,11 @@ test('roster exposes present versus current off-screen World State activity', ()
     assert.match(index, /Active · Off-screen/);
 });
 
-
 test('generation injection budget is player-configurable in settings', () => {
     assert.match(index, /npc_state_delta_inject_budget/);
     assert.match(index, /Injection budget/);
     assert.match(index, /Upper limit; only what the present NPCs need is used/);
 });
-
 
 test('relationship UI is bipolar around neutral zero and legacy audit values are finite-filtered', () => {
     for (const id of ['npc_state_delta_base_trust', 'npc_state_delta_base_affection', 'npc_state_delta_base_desire', 'npc_state_delta_base_tension']) {
@@ -151,7 +115,6 @@ test('relationship UI is bipolar around neutral zero and legacy audit values are
     }
     assert.match(index, /Number\.isFinite\(value\)/);
 });
-
 
 test('dossier exposes species/race, age, form-owned appearance, and portrait generation controls', () => {
     assert.match(index, /npc_state_delta_edit_species/);

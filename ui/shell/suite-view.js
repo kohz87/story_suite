@@ -1,11 +1,11 @@
-// Builds the suite root that slides in over the chat, sized from its container and centred over a dimmed chat on desktop.
+// Builds the suite root over the chat: it slides in from the edge on phone and tablet, and on desktop opens in place (fade + slight scale) over a dimmed chat (ui/css/shell.css).
 
 import { h } from '../kit/dom.js';
 import { applyTheme } from '../theme/apply.js';
 import { GLASS_DARK } from '../theme/tokens.js';
 
 /**
- * Creates the suite root: a dim layer plus a sliding panel that holds the tab host.
+ * Creates the suite root: a dim layer plus a panel (slide on phone and tablet, fade on desktop) that holds the tab host.
  * Options: `doc`, `host` (where the layer mounts), `backStack` (optional), `tokens`, `scheme`, `onOpen`, `onClose`.
  */
 export function createSuiteView(options = {}) {

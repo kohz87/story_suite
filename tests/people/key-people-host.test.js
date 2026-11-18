@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { createNpcRecord } from '../../modules/people/core/core.js';
 import { FEATURE_DRIFT, FEATURE_STAGES, KEY_PEOPLE_QUERY, observeKeyAway, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { isAway, keyView, returnNote } from '../../modules/people/cast/key-people.js';
-import { keyAwayHtml, keyProjection } from '../../modules/people/legacy/dossier-ui.js';
 import { createDirectorQueriesPart } from '../../modules/people/adapter/queries-director.js';
 import { applyStaleLifecycleAfterScan as staleAfterScan } from '../../modules/people/calls/runtime-scan-stale.js';
 import { REN_AWAY, key, suite } from './key-people.helpers.js';
@@ -90,7 +89,6 @@ test('the memory of the last absence is in the saved slice: the step writes it, 
     assert.equal(after.away, null);
     assert.equal(after.recent.justReturned, true, 'the narrator is still told at the next generation');
     assert.equal(returnNote(after.recent.away), 'WHILE AWAY, NOW BACK (January 12 – January 18): scouting the north road; January 14: reached Wolfmere Outpost');
-    assert.equal(keyAwayHtml(keyProjection(after)).includes('January 14'), true, 'and the dossier still shows the steps');
 
     // The next reply: no longer the return; present replies count once each, and a swipe does not add one.
     await s.say();

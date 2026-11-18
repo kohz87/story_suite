@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt, buildScannerPrompt, createNpcRecord, DURABLE_PROFILE_LIMITS, mergeScanResult } from '../../modules/people/core/core.js';
-import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
+
 import { agreeWithStoredAge, appendedLooks, blankLookFields, describedFeatures, fillLooksLine, fillWanted, missingFeatures, partialLookGaps, splitLook, withSplitLook } from '../../modules/people/appearance/appearance-fill.js';
 
 const NONE = { relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } };
@@ -303,16 +303,6 @@ test('rule: a partial overallAppearance gets only the body traits it lacks; name
     assert.equal(splitLook(person({ appearance: OWNER_WEARING, castFrom: { first: { overallAppearance: 'x' } } })).moved, false);
 });
 
-test('display only: the dossier shows Look and Wearing for the old record; the stored record is untouched', () => {
-    const old = person({ appearance: OWNER_WEARING });
-    const before = JSON.stringify(old);
-    const shown = dossierDetailProjection(old);
-    assert.equal(shown.appearanceModel.overallAppearance, OWNER_BODY);
-    assert.equal(shown.currentPresentation, OWNER_CLOTHES.replace(/\.$/, '').concat('.'));
-    assert.equal(JSON.stringify(old), before);
-    assert.equal(withSplitLook(old).overallAppearance, OWNER_BODY);
-});
-
 test('rule: the next write stores the split, and the fill then only adds what is still missing (eyes)', () => {
     const old = person({ appearance: OWNER_WEARING });
     assert.deepEqual(partialLookGaps(old), ['eyes'], 'hair and build are now described; only eyes are missing');
@@ -332,16 +322,6 @@ test('the capture and Refresh prompts say plainly: overallAppearance = body, app
 // Owner payload after a manual Refresh (12 Nov ~20:55): Look written, the body still repeated in Wearing, the age contradicting the stored one.
 const LOOK2 = 'Human woman of apparent mid-twenties, very petite build no taller than a boy of twelve, dark hair slipping loose from a wooden bodkin, dark tearful eyes, and an extraordinarily heavy, round bust.';
 const WEAR2 = 'barely five feet tall; coarse wool smock straining across extraordinarily heavy, round breasts resting against the wooden counter.';
-
-test('addendum (a): body phrases already in Look leave Wearing; the same trait is never shown in both (owner texts)', () => {
-    const split = splitLook(person({ overallAppearance: LOOK2, appearance: `${LOOK2}; ${WEAR2}` }));
-    assert.equal(split.moved, true);
-    assert.equal(split.overall, LOOK2, 'Look unchanged: nothing appended, so no "boy of twelve" next to "five feet tall"');
-    assert.doesNotMatch(split.appearance.replace(LOOK2, ''), /five feet|breasts/);
-    assert.match(split.appearance, /coarse wool smock/);
-    const shown = dossierDetailProjection(person({ overallAppearance: LOOK2, appearance: `${LOOK2}; ${WEAR2}` }));
-    assert.equal(shown.currentPresentation, 'coarse wool smock.');
-});
 
 test('addendum (a): a body phrase Look lacks is moved, never lost', () => {
     const split = splitLook(person({ overallAppearance: 'Human woman, dark hair', appearance: 'Human woman, dark hair; barely five feet tall; coarse wool smock.' }));

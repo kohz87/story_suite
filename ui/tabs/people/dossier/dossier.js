@@ -98,6 +98,13 @@ export function dossierPage(d, ctx = {}) {
       (error) => { noteSlot.textContent = String(error?.message || 'Refresh did not run.'); });
   }
 
+  // Portrait opens a page dialog; a refusal (NPC State off, no NPC State dossier for this person) is shown in the same line as Refresh's.
+  function portrait() {
+    Promise.resolve(cmd('npc.portrait', { name: d.name })).then(
+      (result) => { if (result?.ok === false) noteSlot.textContent = result.message ?? 'Portrait tools did not open.'; },
+      (error) => { noteSlot.textContent = String(error?.message || 'Portrait tools did not open.'); });
+  }
+
   function drawMenu() {
     top.querySelector('[data-act="menu"]')?.setAttribute('aria-expanded', String(state.menu));
     if (!state.menu) { menuSlot.replaceChildren(); return; }
@@ -107,7 +114,7 @@ export function dossierPage(d, ctx = {}) {
         type: 'button', role: 'menuitem', class: id === 'delete' ? 'dng' : null, dataset: { act: id },
         onClick: () => {
           if (id === 'delete' && !state.sure) { state.sure = true; drawMenu(); return; }
-          if (id === 'refresh') refresh(); else cmd(`npc.${id}`);
+          if (id === 'refresh') refresh(); else if (id === 'portrait') portrait(); else cmd(`npc.${id}`, {});
           closeMenu();
         },
       }, confirm ? 'Tap again to delete' : label, h('small', null, confirm ? 'this cannot be undone' : hint));

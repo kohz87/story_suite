@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { AUTO_SCAN_EVERY_WITHOUT_EVERY_REPLY, autoScanDue } from '../../modules/people/calls/scan-context.js';
 import { FEATURES, FEATURE_SCAN_EVERY_REPLY, FEATURE_SOCIAL, FEATURE_STAGES, FEATURE_DRIFT, FEATURE_PRESETS } from '../../modules/people/meters/npc-meters.js';
 import { runtimeSource } from './helpers/runtime-source.js';
-import { dossierUiSource } from './helpers/dossier-ui-source.js';
+
 import { styleSource } from './helpers/shipped-modules.js';
 
 // UI cleanup (1 Nov): "Scan after every reply" (npc-state-delta.scan-every-reply) and its presets, the settings folds
@@ -73,7 +73,7 @@ test('settings panel: Meter presets fold; Expert holds the four rarely needed gr
     const html = index.slice(index.indexOf('<div class="delta-settings-experience story-suite-folds">'), index.indexOf('const SETTINGS_OPEN_GROUPS_KEY'));
     const top = [...html.matchAll(/\$\{settingsGroup\('(\w+)'/g)].map(match => match[1]);
     assert.deepEqual(top, ['scanning', 'roster', 'presets', 'portrait', 'maintenance', 'expert'], 'everyday groups, then Expert last');
-    assert.match(html, /settingsGroup\('presets', 'Meter presets', .*settingsSlot\('meter-presets'\), \{ hidden: true \}\)/, 'the preset block has its own closed fold, hidden until it holds the block');
+    assert.match(html, /settingsGroup\('presets', 'Meter presets', .*data-delta-meter-presets.*\{ hidden: true \}\)/, 'the preset block has its own closed fold, hidden until it holds the block');
     assert.match(html, /settingsGroup\('expert', 'Expert', "Calendar, scanner rules, what's sent, advanced", expert\)/);
     const expert = index.slice(index.indexOf('const expert = `'), index.indexOf('return `\n    <div id="${UI_ID}"'));
     assert.deepEqual([...expert.matchAll(/settingsGroup\('(\w+)'/g)].map(match => match[1]), ['calendar', 'rules', 'sent', 'advanced']);
@@ -83,7 +83,7 @@ test('settings panel: Meter presets fold; Expert holds the four rarely needed gr
     assert.match(index, /const SETTINGS_OPEN_GROUPS_KEY = 'npc_state_delta_settings_open_groups'/);
     const css = styleSource();
     assert.match(css, /\.delta-settings-group\[hidden\] \{ display: none; \}/);
-    assert.match(css, /\.delta-settings-slot \.npc-state-delta-v2-presets-head \{ display: none; \}/);
+    assert.match(css, /\.delta-meter-presets \.npc-state-delta-v2-presets-head \{ display: none; \}/);
 });
 
 test('the Expert note says the Story Director sentence only while it is true', () => {
@@ -94,15 +94,4 @@ test('the Expert note says the Story Director sentence only while it is true', (
     assert.match(notes, /none: 'Rarely needed\. No Story Director calendar is linked, so the calendar here is the one in use\.'/);
     assert.match(index, /storySuiteV2\?\.calendarLink\?\.\(\) \?\? 'none'/);
     assert.match(index, /function syncSettingsControls\(\) \{\s*syncExpertNote\(\);/);
-});
-
-test('phone: the dossier window is the whole screen even inside Story Suite\'s zoomed root', () => {
-    // Story Suite draws the panel (class ss-cards) at CSS zoom 0.8, so 100vw drew 312px of a 390px phone; the length is
-    // divided by the zoom (--ss-zoomed, unset = 1 outside Story Suite) in both places that size the window.
-    const launcher = read('launcher-ui.js');
-    const phone = launcher.slice(launcher.indexOf('@media (max-width: 1100px)'));
-    assert.match(phone, /#\$\{ROOT_ID\} \.delta-panel \{[^}]*width: calc\(100vw \/ var\(--ss-zoomed, 1\)\) !important;[^}]*height: calc\(100dvh \/ var\(--ss-zoomed, 1\)\) !important;/s);
-    assert.doesNotMatch(phone, /width: 100vw !important/);
-    const ui = dossierUiSource();
-    assert.match(ui, /\.delta-panel \{ width:calc\(100vw \/ var\(--ss-zoomed, 1\)\); height:calc\(100dvh \/ var\(--ss-zoomed, 1\)\);/);
 });

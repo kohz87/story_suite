@@ -322,7 +322,7 @@ export function createRuntime({
         // A reply's state is written before its events go out (a reply's idle save is brought forward only while a listener waits for it).
         saved: async () => { try { if (store.dirty?.() === true) await store.saveSoon?.(); } catch { /* a failed save is told and tried again by the store */ } },
     });
-    // The UI (ui-host.js) plugs its dialog mount in here, for sdk.dialog.open (and .current).
+    // A view with a dialog mount plugs it in here, for sdk.dialog.open (and .current); none does since B4-4, so open answers null.
     const setDialog = (fn, current = null) => {
         dialogOpener = typeof fn === 'function' ? fn : null;
         dialogCurrent = typeof current === 'function' ? current : null;

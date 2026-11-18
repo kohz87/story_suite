@@ -1,4 +1,4 @@
-// The live mount for the new view's tests: the old host (the RPG's real screens and pause controller) on a testkit page with a Combat Rules v1 sheet
+// The live mount for the new view's tests: the RPG's page parts (its pause controller, board and fight offer, modules/rpg/live) on a testkit page with a Combat Rules v1 sheet
 // (Astra and one group of rats), and, with `next`, the new view mounted on the same page as SillyTavern mounts it (ui/entry/turn-on.js).
 import assert from 'node:assert/strict';
 import { page, begin, settle } from '../../modules/rpg/view/page.js';

@@ -28,16 +28,17 @@ export function createPages(settings, ctx) {
   const toolsBody = createToolsPage(settings, ctx, { on: () => developer, own: { onChange: (key, value) => { developer = Boolean(value); ctx.onChange?.(key, value); }, repaint: redraw } });
 
   const cardState = () => ({
-    modules, chat, defs: modules.defs, set: modules[modules.scope], scope: modules.scope, openMods, go: ctx.go,
+    modules, chat, defs: modules.defs, set: modules[modules.scope], scope: modules.scope, openMods, go: ctx.go, has: ctx.has,
     change(id, key, value) {
       const m = modules[modules.scope][id];
       if (key === null) m.on = value; else { m.subs[key] = value; modules.preset = null; }
-      ctx.onChange?.(`modules.${modules.scope}.${id}${key === null ? '' : `.${key}`}`, value);
-      redraw();
+      const answer = ctx.onChange?.(`modules.${modules.scope}.${id}${key === null ? '' : `.${key}`}`, value);
+      if (typeof answer?.then === 'function') redraw();
+      reread(answer);
     },
     toggleOpen(id) { openMods[id] = !openMods[id]; redraw(); },
     setScope(scope) { modules.scope = scope; redraw(); },
-    setPreset(id) { modules.preset = id; ctx.onAction?.('modules.preset', id); redraw(); },
+    setPreset(id) { modules.preset = id; run('modules.preset', id); },
   });
 
   // One tiny call on the card's connection. The host's answer ({ ok, seconds } or { ok: false, message }) is shown on the card;
@@ -92,13 +93,13 @@ export function createPages(settings, ctx) {
     return [];
   }
 
-  // "Reset to Standard" changes the switches in the store, so the open page reads them again (the host's answer) and draws at once; a button with no host answer only draws.
-  const readModules = () => { const fresh = ctx.view?.('settings')?.modules; if (fresh) { modules.chat = structuredClone(fresh.chat ?? modules.chat); modules.preset = fresh.preset ?? null; } };
+  // "Reset to Standard", a preset and a card switch change the switches in the store, so the open page reads them again (the host's answer: the switches, the preset, the cards' and presets' token figures) and draws at once; with no host answer it only draws.
+  const readModules = () => { const fresh = ctx.view?.('settings')?.modules; if (fresh) { modules.chat = structuredClone(fresh.chat ?? modules.chat); modules.preset = fresh.preset ?? null; modules.defs = structuredClone(fresh.defs ?? modules.defs); modules.presets = structuredClone(fresh.presets ?? modules.presets); } };
   const afterReset = answer => { readModules(); redraw(); return answer; };
+  const reread = answer => (typeof answer?.then === 'function' ? answer.then(afterReset, error => afterReset({ ok: false, message: String(error?.message ?? error) })) : afterReset(answer));
   const run = (key, label) => {
     const answer = ctx.onAction?.(key, label);
-    if (key !== 'modules.reset') return answer;
-    return typeof answer?.then === 'function' ? answer.then(afterReset, error => afterReset({ ok: false, message: String(error?.message ?? error) })) : afterReset(answer);
+    return key === 'modules.reset' || key === 'modules.preset' ? reread(answer) : answer;
   };
   const reset = (label, key) => h('button', { type: 'button', class: 'btn2', style: { 'align-self': 'flex-start' }, onClick: () => run(key, label) }, label);
 

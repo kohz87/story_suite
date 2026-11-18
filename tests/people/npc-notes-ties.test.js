@@ -154,8 +154,6 @@ import {
     mergeKeyRelationshipUpdates, tieType, readTieRows, narratorTies, recordTieMentions, TIE_FADE_DAYS,
 } from '../../modules/people/core/core-keyrel.js';
 import { buildInjection, mergeScanResult } from '../../modules/people/core/core.js';
-import { projectDossierState } from '../../modules/people/legacy/dossier-ui-catalog.js';
-import { tiesSectionHtml } from '../../modules/people/legacy/dossier-ui-sections.js';
 
 test('tieType: the keyword table, first matching row wins (rival, owes, ally, interest), else Passing; a set tag wins', () => {
     assert.equal(tieType('rival at the annex'), 'rival');
@@ -242,30 +240,10 @@ test('narrator: faded, left and dead ties are not sent (a dead one only when the
     assert.match(old, /Joren/, 'an untracked chat is injected as before');
 });
 
-test('dossier Ties section: type headings in priority order, every entry its divider, faded and dead ones in Older ties', () => {
-    const rika = { ...npcOf(['Joren — carter who hauled crates', 'Derk — friend; deceased', 'Bregje — rival | clashes at the annex', 'Odda — curious about her'], { joren: 1, derk: 1, bregje: 20, odda: 20 }), present: true };
-    const shown = projectDossierState({ npcs: [rika], storyDay: 22 }, { chatKey: 'c1' }).npcs[0];
-    const html = tiesSectionHtml(shown);
-    assert.ok(html.indexOf('data-tie-type="rival"') < html.indexOf('data-tie-type="interest"'), 'high types first');
-    assert.match(html, /<details class="delta-older-ties"><summary>Older ties · 2<\/summary>/);
-    assert.match(html, /† died/);
-    assert.match(html, /not mentioned for 21 days/);
-    assert.ok(html.indexOf('delta-older-ties') > html.indexOf('Bregje'), 'Older ties last');
-    assert.doesNotMatch(tiesSectionHtml({ ...shown, tieRows: undefined, tieSeen: undefined, keyRelationships: ['Joren — carter'] }), /Older ties/);
-});
-
 // ---- Fix round 2 (review probes): stray digit, hosted story day, cap 8 live, whole-name mentions, one roster map ----
 import { setStoryDayAtSource } from '../../modules/people/core/core.js';
 import { tieDayAt, useTranscriptSource } from '../../modules/people/transcript/transcript.js';
 import { tieRoster } from '../../modules/people/core/core-keyrel.js';
-
-test('Ties section: a tie with no dynamic shows no stray digit, and a relation equal to its type shows no description', () => {
-    const html = tiesSectionHtml({ keyRelationships: ['Hale — mentor', 'Bregje — rival', 'Ann — stranger | met once'] });
-    assert.match(html, /<p>mentor<\/p>/);
-    assert.doesNotMatch(html, /<p>[^<]*\b[01]\b[^<]*<\/p>/);
-    assert.doesNotMatch(html.slice(html.indexOf('Bregje')), /^[^]*?<p>1<\/p>/);
-    assert.match(html, /<p>stranger — met once<\/p>/);
-});
 
 test('story day of ties: the hosted clock at the reply when there is one (the reply\'s own day, not now), else the dated text', () => {
     useTranscriptSource({ context: () => ({ chat: [{ mes: 'one' }, { mes: 'two' }, { mes: 'three' }] }) });
@@ -336,13 +314,10 @@ test('mentions: the whole name or a known alias; no first word, no title ("the h
     assert.equal(recordTieMentions(npc, { day: 31, text: 'Oddarin spoke.', roster }).odda, 1, 'a longer word is not the name');
 });
 
-test('one roster map per projection: readTieRows reads the map it is given, and tieRoster keys names and aliases once', () => {
+test('readTieRows reads the roster map it is given, and tieRoster keys names and aliases once', () => {
     const roster = tieRoster([{ id: 'd', name: 'Derk', aliases: ['Old D'], lifeState: 'deceased' }]);
     assert.equal(roster.get('derk'), roster.get('old d'));
     assert.deepEqual(roster.labels.get(roster.get('derk')), ['derk', 'old d']);
     const rows = readTieRows(npcOf(['Old D — friend'], { 'old d': 1 }), { roster, day: 2 });
     assert.equal(rows[0].state, 'died', 'the other person is read from the given map');
-    const names = Array.from({ length: 50 }, (_, i) => ({ id: `n${i}`, name: `Person ${i}`, keyRelationships: ['Person 1 — friend'] }));
-    const shown = projectDossierState({ npcs: names, storyDay: 3 }, { chatKey: 'c1' }).npcs;
-    assert.equal(shown.length, 50);
 });

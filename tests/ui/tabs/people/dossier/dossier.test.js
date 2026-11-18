@@ -199,3 +199,18 @@ test('a top-bar control nobody answers is left out, never drawn as the text "nul
   assert.equal(drawn.includes(null), false, 'no null handed to the page');
   assert.equal(el.querySelector('[data-act="close"]').parentNode.querySelector('[data-act="edit"]'), null, 'no Edit');
 });
+
+test('⋯ › Portrait shows a refused answer in the note line (as Refresh does), and says nothing when the dialog opens', async () => {
+  const refused = build('temiwa');
+  refused.ctx.port.command = async () => ({ ok: false, message: 'Temiwa has no NPC State dossier to put a portrait on.' });
+  refused.el.querySelector('[data-act="menu"]').click();
+  refused.el.querySelector('.menu [data-act="portrait"]').click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(refused.el.querySelector('.dnote').textContent, 'Temiwa has no NPC State dossier to put a portrait on.');
+  const opened = build('temiwa');
+  opened.ctx.port.command = async () => ({ ok: true });
+  opened.el.querySelector('[data-act="menu"]').click();
+  opened.el.querySelector('.menu [data-act="portrait"]').click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(opened.el.querySelector('.dnote').textContent, '');
+});

@@ -10,7 +10,6 @@ import { aiMessage } from '../../testkit/fake-st.js';
 import { createRegistry, INIT_PREFIX } from '../../core/registry.js';
 import { ensureModules, missingModules } from '../../core/sdk.js';
 import { HOOK_TIMEOUT_MS } from '../../core/turn.js';
-import { headIndexOf, headState } from '../../ui/legacy/view/mounts/common.js';
 
 function captureWarnings() {
     const warnings = [];
@@ -147,7 +146,7 @@ test('a throwing item.define hook leaves the def as before it, records a Problem
     host.close();
 });
 
-test('before the chat has its state: ensureModules waits, and the mounts see an empty head', async () => {
+test('before the chat has its state: ensureModules waits', async () => {
     let commands = 0;
     const bus = { command: async () => { commands += 1; return { ok: true }; } };
     const registry = createRegistry();
@@ -155,13 +154,4 @@ test('before the chat has its state: ensureModules waits, and the mounts see an 
     assert.deepEqual(await ensureModules({ store: { headIndex: () => 0, head: () => null }, bus, registry }), []);
     assert.deepEqual(await ensureModules({ store: { headIndex: () => -1, head: () => ({ domains: {} }) }, bus, registry }), []);
     assert.equal(commands, 0);
-
-    const stateAt = index => {
-        if (index < 0) throw new RangeError(`There is no message ${index} in this chat.`);
-        return { at: index };
-    };
-    assert.equal(headState({ stateAt, headIndex: () => -1 }), null);
-    assert.equal(headIndexOf({ headIndex: () => -1 }), null);
-    assert.deepEqual(headState({ stateAt, headIndex: () => 2 }), { at: 2 });
-    assert.equal(headIndexOf({ headIndex: () => 2 }), 2);
 });

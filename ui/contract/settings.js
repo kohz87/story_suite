@@ -5,7 +5,7 @@ import { SHAPE_TYPES as T } from './shapes.js';
 const SCALAR = { $oneOf: [T.STRING, T.NUMBER, T.BOOLEAN, T.NULL] };
 const MODULE_SET = { $objectOf: { on: T.BOOLEAN, subs: { $objectOf: T.BOOLEAN } } };
 
-export const SETTINGS_ROW_TYPES = ['sw', 'seg', 'num', 'multi', 'sel', 'txt', 'chips', 'btn', 'info', 'lines'];
+export const SETTINGS_ROW_TYPES = ['sw', 'seg', 'num', 'multi', 'sel', 'txt', 'area', 'chips', 'btn', 'info', 'lines']; // area: several lines of text
 
 const ROW = {
   key: T.STRING,
@@ -72,10 +72,10 @@ export const SETTINGS_SHAPE = {
     chat: MODULE_SET,
     newChats: MODULE_SET,
     preset: { $nullable: { $enum: ['lean', 'standard', 'full'] } },
-    presets: [{ id: T.STRING, name: T.STRING, desc: T.STRING, tokens: T.NUMBER }],
+    presets: [{ id: T.STRING, name: T.STRING, desc: T.STRING, tokens: { $nullable: T.NUMBER } }],
     defs: [
       {
-        id: T.STRING, name: T.STRING, icon: T.STRING, section: T.STRING, desc: T.STRING, off: T.STRING, tokens: T.NUMBER,
+        id: T.STRING, name: T.STRING, icon: T.STRING, section: T.STRING, desc: T.STRING, off: T.STRING, tokens: { $nullable: T.NUMBER },
         subs: [{ key: T.STRING, label: T.STRING, hint: T.STRING, on: T.BOOLEAN, tags: { $optional: [T.STRING] }, needs: { $optional: T.STRING } }],
       },
     ],

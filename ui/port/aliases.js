@@ -14,7 +14,7 @@ function blockOf(sdk, member) {
   return (Array.isArray(rows) ? rows : []).find((row) => row?.pinned === true && row.pinnedDefinition?.role === 'character' && actorIdOf(row.module) === member) ?? null;
 }
 
-// The same one `dm.set` the old Spend points sheet sends (modules/rpg/view/distribute.js save): the raised stats and the points left, all or nothing.
+// The same one `dm.set` the removed Spend points sheet sent: the raised stats and the points left, all or nothing.
 async function spend(sdk, payload) {
   const rows = sdk?.query?.('rpg.sheet', {});
   const sheet = (Array.isArray(rows) ? rows : []).find((row) => row?.id === payload?.member);

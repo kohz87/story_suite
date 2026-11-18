@@ -20,7 +20,6 @@ import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js
 import { normalizeSocialGraph } from '../../modules/people/social/social.js';
 import { appearanceFingerprint } from '../../modules/people/appearance/appearance.js';
 import { quarantineUnreadableNpcStateDataFile } from '../../modules/people/storage/storage.js';
-import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
 const CALENDAR = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }] };
 
@@ -289,8 +288,6 @@ test('RB93-15: apparent age owns portrait generation and the stale-portrait mark
     assert.notEqual(appearanceFingerprint(npc), appearanceFingerprint(older), 'a changed apparent age is a changed presentation');
     assert.match(appearanceFingerprint(npc), /^a2:/);
     assert.equal(appearanceFingerprint(npc, { version: 1 }), appearanceFingerprint(older, { version: 1 }), 'portraits recorded before keep their identity');
-    const ui = dossierUiSource();
-    assert.match(ui, /appearanceFingerprint\(npc, \{ version: recorded\.startsWith\('a1:'\) \? 1 : 2 \}\)/);
 });
 
 test('RB93-13: with a configured calendar too, an unchanged Speech profile row leaves Personality development intact', () => {

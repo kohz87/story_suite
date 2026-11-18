@@ -6,10 +6,8 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createNpcRecord, mergeScanResult, normalizeFieldChangeMessages, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
-import { changeStamp, changeSummaryHtml, dossierDetailProjection, lastRelationshipChangeHtml, projectDossierState, replyHeaderLabel } from '../../modules/people/legacy/dossier-ui.js';
-import { buildMapModel } from '../../modules/people/legacy/relationship-map-core.js';
+
 import { runtimeSource } from './helpers/runtime-source.js';
-import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
 // 1.2.3: the dossiers show the chat's reply number (the latest assistant reply's message index, as
 // Story Block's "reply #N") instead of Delta's own turn counter, which keeps its internal meaning.
@@ -24,37 +22,6 @@ const relationshipScan = mood => ({ npcs: [{
     relationshipEvidence: { trust: '', affection: 'Mira accepts and stays to eat with Kazuma.', desire: '', tension: '' },
     relationshipChangeReason: 'Their casual supper leaves her a little warmer toward him.',
 }] });
-
-test('v1.2.3 change stamps: reply #N from the message index, the old counter only as a labelled legacy turn', () => {
-    assert.deepEqual(changeStamp({ turn: 71, message: 12 }), {
-        message: 12, legacy: false, text: 'reply #12', label: 'Reply #12', mark: '#12', title: 'Changed at reply #12',
-    });
-    assert.equal(changeStamp({ turn: 3, message: 0 }).label, 'Reply #0', 'the greeting is reply #0');
-    const legacy = changeStamp({ turn: 71 });
-    assert.equal(legacy.legacy, true);
-    assert.equal(legacy.label, 'Turn 71');
-    assert.equal(legacy.mark, 'T71');
-    assert.match(legacy.title, /before 1\.2\.3; it is not the reply number/);
-    for (const bad of [{}, { turn: null }, { turn: null, message: -1 }, { message: 2.5 }, { message: '' }]) {
-        assert.equal(changeStamp(bad).label, '', JSON.stringify(bad));
-    }
-    assert.equal(changeStamp({ turn: 9, message: -1 }).label, 'Turn 9', 'an invalid message index falls back to the counter');
-});
-
-test('v1.2.3 header: Reply #N from the live chat, never Delta\'s counter', () => {
-    assert.equal(replyHeaderLabel(projectDossierState({ turn: 57, reply: 42 }, { chatKey: 'c1' })), 'Reply #42');
-    assert.equal(replyHeaderLabel(projectDossierState({ turn: 57, reply: 0 }, { chatKey: 'c1' })), 'Reply #0');
-    assert.equal(replyHeaderLabel(projectDossierState({ turn: 57 }, { chatKey: 'c1' })), 'No replies yet');
-    assert.equal(replyHeaderLabel(projectDossierState({ reply: -1 }, { chatKey: 'c1' })), 'No replies yet');
-    assert.equal(replyHeaderLabel(projectDossierState({}, { chatKey: 'no-chat' })), 'No chat');
-    assert.equal(replyHeaderLabel(projectDossierState({}, { chatKey: 'c1', hydrationStatus: 'loading' })), 'Loading…');
-    assert.equal(replyHeaderLabel(projectDossierState({}, { chatKey: 'c1', hydrationStatus: 'error' })), 'Unavailable');
-    const ui = dossierUiSource();
-    assert.match(ui, /const replyLabel = replyHeaderLabel\(projection\)/);
-    assert.doesNotMatch(ui, /`Turn \$\{projection\.turn\}`/);
-    const index = runtimeSource();
-    assert.match(index, /return \{ turn: state\.turn, reply: latestReplyIndex\(\), npcs:/);
-});
 
 test('v1.2.3 a scan stamps the changed fields with the reply\'s message index beside the unchanged turn', () => {
     const out = mergeScanResult({ npcs: [mira()], turn: 71 }, { npcs: [{ id: 'npc_mira', name: 'Mira', present: true, mood: 'forcing composure' }] },
@@ -98,56 +65,6 @@ test('v1.2.3 relationship events recorded by a scan carry the reply\'s message i
     const relationshipPass = partsSource(new URL('../../modules/people/legacy/relationship-pass.js', import.meta.url));
     assert.match(relationshipPass, /turn: Number\.isFinite\(Number\(state\.turn\)\) \? Number\(state\.turn\) : null,\n\s*\.\.\.relationshipEventMessage\(\{ message: sourceMessageId \}\),/, 'focused relationship pass');
     assert.match(index, /\.\.\.relationshipEventMessage\(\{ message: latestReplyIndex\(\) \}\),/, 'manual relationship edit');
-});
-
-test('v1.2.3 the dossier shows reply #N for new records and the old counter as a legacy turn', () => {
-    const fresh = dossierDetailProjection(mira({
-        fieldChanges: { mood: 71, location: 71, goal: 60 }, fieldChangeMessages: { mood: 14, location: 14, goal: 9 },
-        lastRelationshipChange: { impact: 'ordinary', delta: { affection: 1 }, reason: 'Supper.', turn: 71, message: 14 },
-        relationshipEventHistory: [
-            { impact: 'meaningful', reason: 'Old shield.', turn: 40 },
-            { impact: 'ordinary', reason: 'Gift.', turn: 60, message: 9 },
-            { impact: 'ordinary', reason: 'Supper.', turn: 71, message: 14 },
-        ],
-    }));
-    assert.deepEqual(fresh.fieldChanges, { latestTurn: 71, latest: ['mood', 'location'], message: 14 });
-    assert.match(changeSummaryHtml(fresh, { turn: 71, reply: 14 }), /Updated this reply · 2 fields changed: Mood, Location/);
-    assert.match(changeSummaryHtml(fresh, { turn: 75, reply: 18 }), /Updated at reply #14 · 2 fields/);
-    assert.match(lastRelationshipChangeHtml(fresh.lastRelationshipChange), /<small>Reply #14<\/small>/);
-    assert.deepEqual(fresh.recentRelationshipChanges.map(event => [event.turn, event.message]), [[71, 14], [60, 9], [40, null]]);
-
-    const old = dossierDetailProjection(mira({
-        fieldChanges: { mood: 71 },
-        lastRelationshipChange: { impact: 'ordinary', delta: { affection: 1 }, reason: 'Supper.', turn: 71 },
-    }));
-    assert.equal(old.fieldChanges.message, null);
-    const summary = changeSummaryHtml(old, { turn: 71, reply: 14 });
-    assert.match(summary, /Updated <span class="delta-legacy-turn" title="Changed at turn 71 \(Delta&#039;s own scan count, recorded before 1\.2\.3; it is not the reply number\)">turn 71<\/span>/);
-    assert.doesNotMatch(summary, /this reply|this turn/, 'an older record is never called this reply');
-    assert.match(lastRelationshipChangeHtml(old.lastRelationshipChange), /<small class="delta-legacy-turn" title="[^"]+">Turn 71<\/small>/);
-
-    const mixed = dossierDetailProjection(mira({ fieldChanges: { mood: 71, location: 71 }, fieldChangeMessages: { mood: 14 } }));
-    assert.equal(mixed.fieldChanges.message, null, 'a latest change whose fields disagree shows the counter, never a guess');
-
-    const ui = dossierUiSource();
-    assert.match(ui, /• \$\{escapeHtml\(stamp\.mark\)\}/);
-    assert.doesNotMatch(ui, /• T\$\{escapeHtml\(changes\.latestTurn\)\}/);
-    assert.match(ui, /reply: this\.projection\.reply \}\)/, 'a new reply re-renders the change line');
-});
-
-test('v1.2.3 the relationship map labels the last change the same way', () => {
-    const projection = projectDossierState({ turn: 71, reply: 14, npcs: [
-        mira({ lastRelationshipChange: { impact: 'ordinary', delta: { affection: 1 }, reason: 'Supper.', turn: 71, message: 14 } }),
-        { ...mira({ lastRelationshipChange: { impact: 'ordinary', delta: { trust: 1 }, reason: 'Old.', turn: 50 } }), id: 'npc_old', name: 'Olda' },
-    ] }, { chatKey: 'c1' });
-    assert.equal(buildMapModel(projection, { selectedId: 'npc_mira' }).selected.lastWhen, 'Reply #14');
-    assert.equal(buildMapModel(projection, { selectedId: 'npc_old' }).selected.lastWhen, 'Turn 50');
-    const model = buildMapModel(projection, { selectedId: 'npc_mira' });
-    assert.equal(model.reply, 14);
-    assert.equal(model.nodes.find(node => node.id === 'npc_mira').delta, 1, 'the this-turn badge still follows the counter');
-    const map = fs.readFileSync(new URL('../../modules/people/legacy/relationship-map.js', import.meta.url), 'utf8');
-    assert.match(map, /Reply #\$\{model\.reply\}: nobody/);
-    assert.doesNotMatch(map, /Turn \$\{model\.turn\}/);
 });
 
 test('v1.2.3 a foreign-chat import never carries the source chat\'s reply numbers', () => {

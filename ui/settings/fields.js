@@ -68,6 +68,12 @@ function controlFor(row, emit, labelId) {
     el.addEventListener('change', () => emit(el.value));
     return el;
   }
+  if (type === 'area') {
+    const el = h('textarea', { class: 'txt2 area2', rows: 3, placeholder: '—', 'aria-label': label });
+    el.value = value ?? '';
+    el.addEventListener('change', () => emit(el.value));
+    return el;
+  }
   if (type === 'chips') {
     const on = new Set(Array.isArray(value) ? value : []);
     return h('span', { class: 'chips3' }, list.map((o) => {
@@ -93,7 +99,7 @@ function controlFor(row, emit, labelId) {
 }
 
 function isWide(row) {
-  if (row.wide || row.type === 'txt' || row.type === 'chips') return true;
+  if (row.wide || row.type === 'txt' || row.type === 'area' || row.type === 'chips') return true;
   return row.type === 'seg' && Array.isArray(row.options) && row.options.join('').length > 26;
 }
 

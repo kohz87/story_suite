@@ -1,5 +1,14 @@
 # UI and screens
 
+> **B4-4 (Nov 2026):** the old view is removed (`ui/legacy/`, the old RPG screens in `modules/rpg/view/`, `modules/data-modules/screens/`,
+> the layout renderer `packs/layout/render.js`). The sections below that describe its host (`ui-host.js` `mountUi`: the bar, the story panel,
+> the game view, the HUD strip, cards and notes under replies, the settings window, the theme bridge, dialogs) are kept as a record of what it
+> did; that code is gone (copies: `scratch/backups/2026-11-18-retire-B4-4-view/`). The view is `ui/` (`ui/entry/turn-on.js`). Screens stay
+> **data** (D1) and their validators stay (`packs/screens/`, `packs/layout/validate.js`); nothing draws module or pack screens except the
+> Template page (Settings › Tools › Developer tools), and `sdk.dialog.open` answers null (there is no dialog mount). The RPG's fight pause,
+> board, fight offer and battle log run headless from boot (`modules/rpg/live/`); the Inspector, the Diagnostics report and the console
+> capture are built at boot (`core/boot/tools-parts.js`); the Extensions drawer is drawn by the view (`ui/entry/drawer-buttons.js`).
+
 How every screen, card and tab is drawn. Detail: SPEC §13 (screen definition, templates, CSS, mounts,
 widgets, wizards, precedence), TEMPLATES.md, WIDGETS.md, LAYOUTS.md; MODULES §F (F9 widget names, F92 Inspector,
 F93 save points, F95/F96 story-driven, F100 Features); REVIEW.md risky part §4. Reader's view: GUIDE.md "Screens".

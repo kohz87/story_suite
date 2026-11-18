@@ -225,12 +225,8 @@ test('diagnostic sanitizer preserves unknown numeric provenance as null without 
     assert.equal(row.evidence[1].sourceMessageId, 0);
 });
 
-test('v1.0.23 per-NPC diagnostic visibility is presentation-only while Maintenance export uses the runtime store', () => {
-    const experience = fs.readFileSync(new URL('../../modules/people/legacy/dossier-experience.js', import.meta.url), 'utf8');
-    const tools = fs.readFileSync(new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url), 'utf8');
-    assert.match(experience, /const diagnosticVisibleNpcIds = new Set\(\)/);
-    assert.match(experience, /diagnosticsForNpc/);
-    assert.doesNotMatch(experience, /saveSettings.*diagnosticVisibleNpcIds|manualProfileFields.*diagnosticVisibleNpcIds/);
+test('v1.0.23 Maintenance export uses the runtime store', () => {
+    const tools = fs.readFileSync(new URL('../../modules/people/tools/data-tools.js', import.meta.url), 'utf8');
     assert.match(tools, /data-export-diagnostics/);
     assert.match(tools, /diagnosticBundle/);
     assert.match(tools, /clearDiagnostics/);

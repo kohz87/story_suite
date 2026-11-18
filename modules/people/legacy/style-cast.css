@@ -1,6 +1,6 @@
 
 /* Story Block tabs (story-block-tabs.js): the cast reuses the cards below; the dossier list is a
-   search box over compact rows. Tapping a row opens the launcher dossier. */
+   search box over compact rows. Tapping a row opens the dossier in the Story Suite view. */
 .npc-state-delta-story-pane { padding: 8px 12px 12px; box-sizing: border-box; min-width: 0; }
 .npc-state-delta-v2-meters { display: grid; gap: 8px; margin-top: 10px; }
 .npc-state-delta-v2-meter-npc { display: grid; gap: var(--ss-space-1, 4px); padding: var(--ss-space-2, 8px) var(--ss-space-3, 12px); border: 1px solid var(--ss-border, var(--npc-line, rgba(216,190,145,.22))); border-radius: var(--ss-radius-m, 11px); background: var(--ss-glass, var(--SmartThemeBlurTintColor, transparent)); color: var(--ss-text, inherit); }
@@ -95,7 +95,7 @@
 .npc-state-delta-v2-dossiers .npc-state-delta-story-bars { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 8em), 1fr)); gap: 4px 12px; margin-top: 4px; min-width: 0; }
 .npc-state-delta-v2-dossiers .npc-state-delta-story-stage { flex: 0 1 auto; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* Present NPCs in chat (full cards and compact strip). Tapping either opens the launcher dossier. */
+/* Present NPCs in chat (full cards and compact strip). Tapping either opens the dossier in the Story Suite view. */
 .npc-state-delta-present-roster {
   /* The present cards: one row per person in every pane (UI 4c; see the card rules below). */
   --npc-paper: rgba(245, 238, 220, .08);

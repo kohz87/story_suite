@@ -34,9 +34,12 @@ describe('selectAddons', () => {
     assert.equal(byKey(selectAddons(null), 'addons.installedModules').value, 'none yet');
   });
 
-  it('custom views is shown as off, a fact and not a setting (no key is read or written)', () => {
-    const row = byKey(selectAddons(MODULES), 'addons.customViews');
-    assert.deepEqual([row.type, row.value], ['info', 'off · not available yet']);
+  it('has no custom-views row and nothing says unavailable or old view', () => {
+    const rows = selectAddons(MODULES);
+    assert.deepEqual(rows.map(r => r.key), ['addons.installedModules']);
+    assert.doesNotMatch(JSON.stringify(rows), /unavailable|not available|old view|custom view/i);
+    const sec = selectSettings({ host: {}, schema: {}, defaults: {}, features: [], modules: MODULES }).sections.find(x => x.id === 'addons');
+    assert.doesNotMatch(JSON.stringify(sec), /unavailable|not available|old view|custom view/i);
   });
 });
 
@@ -64,7 +67,8 @@ describe('Add-ons in the live settings view-model', () => {
     ov.open();
     ov.show('addons');
     const page = ov.el.querySelector('.spage');
-    assert.equal(page.querySelectorAll('.srow').length, 2);
+    assert.equal(page.querySelectorAll('.srow').length, 1);
+    assert.equal(page.querySelector('[data-key="addons.customViews"]'), null);
     assert.match(page.querySelector('[data-key="addons.installedModules"] .sinfo').textContent, /People 1\.4\.0/);
     assert.equal(page.querySelectorAll('.ctl .sw, .ctl select, .ctl input, .ctl button').length, 0);
     assert.deepEqual(calls, []);

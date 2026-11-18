@@ -1,5 +1,5 @@
 // A foe's stated level: a person the owner or the story has marked. When a foe group's name equals an NPC State Delta dossier's name or one of its aliases EXACTLY (case, surrounding spaces and a leading "the" ignored; "Ash wolf", "Vorn's bodyguard" and "Branch Master Vorn" are not "Ash"/"Vorn" unless an alias) whose
-// custom field "Level" (any case) holds a whole number 1..99 ("30", "Lv 30", "level 30") or one or two of the story's own rank names ("C", "rank C", "C-D",
+// built-in Level (NPC State's `level`, pack format 4) or, without one, custom field "Level" (any case) holds a whole number 1..99 ("30", "Lv 30", "level 30") or one or two of the story's own rank names ("C", "rank C", "C-D",
 // "C or D"), that is the foe's level: it passes the party + 20 cap that guessed levels keep, and it wins over any level or rank the pre-check or the narrator gave.
 // Anything else (empty, "high", a rank the pack does not name, no ranks at all) is ignored and the normal rules apply.
 // REPLAY: the dossier is NSD's sidecar, not chat state. This file is only READ by the host's pre-check step (precheck-run.js), BEFORE the opening is recorded:
@@ -35,7 +35,7 @@ export function parseStatedLevel(text, rankAt = null) {
 
 /**
  * The stated level of the foe group `name`, or null: the first dossier (`npc.known`, `npc.dossier`) whose name or an alias equals the group's name exactly (plain) and
- * whose built-in Level (or, without one, "Level" custom field) reads (parseStatedLevel). No NSD, no match, no field, a throwing query: null, so the normal rules stand.
+ * whose built-in Level (`level`, a whole number 1..99) or, without one, whose "Level" custom field reads (parseStatedLevel). No NSD, no match, no field, a throwing query: null, so the normal rules stand.
  */
 export function statedLevel(query, name) {
     const names = ask(query, 'npc.known', {});
@@ -47,10 +47,11 @@ export function statedLevel(query, name) {
         if (!dossier || typeof dossier !== 'object') continue;
         const aliases = Array.isArray(dossier.aliases) ? dossier.aliases.filter(alias => typeof alias === 'string') : [];
         if (![known, ...aliases].some(label => seen !== '' && plain(label) === seen)) continue;
-        // (pack format 4: the built-in Level, a whole number, first; a custom field "Level" the reader made still reads as before, rank names too)
+        // The person's built-in Level (NPC State's `level`, pack format 4) first; else the older "Level" custom field.
+        const builtIn = Number.isInteger(dossier.level) ? parseStatedLevel(String(dossier.level), rankAt) : null;
         const fields = dossier.customFields && typeof dossier.customFields === 'object' ? dossier.customFields : {};
         const key = Object.keys(fields).find(field => field.trim().toLowerCase() === 'level');
-        const found = Number.isSafeInteger(dossier.level) ? parseStatedLevel(String(dossier.level), rankAt) : key === undefined ? null : parseStatedLevel(fields[key], rankAt);
+        const found = builtIn ?? (key === undefined ? null : parseStatedLevel(fields[key], rankAt));
         if (found) return found;
     }
     return null;

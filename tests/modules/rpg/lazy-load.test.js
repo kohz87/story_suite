@@ -40,7 +40,9 @@ function closure(entry) {
 // The RPG's code proper: everything of modules/rpg/ but the small helpers every block uses (names, blocks, formula, read, soul, tail, cue, foes, levels, roster).
 const SHARED = new Set(['names', 'blocks', 'formula', 'read', 'soul', 'tail', 'cue', 'foes', 'levels', 'roster',
     // (the fight kind's plain members and the fight cue, small and engine-free: the core's lazy stand-in and the prompt build read them at page start)
-    'board/kind-static', 'board/fight-start']);
+    'board/kind-static', 'board/fight-start',
+    // (the page parts' starter, live/sync.js: a few lines that follow the feature and fetch live/index.js (the fight pause, the board, the offers, the battle log) by import() when it is on)
+    'live/sync']);
 // A facade's parts (`blocks.js` → `blocks-parts/*.js`) count as the facade's own file.
 // Before the move these two (and the lazy loader's parts) lived outside the RPG's folder and were never counted as RPG code or shared helpers; they stay out of both.
 const OUTSIDE = new Set(['rpg-lazy', 'start-notes']);
@@ -60,7 +62,8 @@ test('the page start (index.js static imports) reaches none of the RPG\'s code, 
     // (122900: the fight kind's one more internal write, rpg.board.award, is named in names.js / board-steps.js / kind-static.js, +110 bytes: a name, no engine file.)
     // (123200: Combat Rules v1 is the only rules, so the stat lists are four names in names-parts/stats.js (WIS for LUK, the earlier seven, either), +270 bytes: names, no engine file.)
     // (110400, 17 Nov 2026: Combat Rules v1 is the only rules, so the earlier reader, the earlier templates and the no-rolls record left the page start: 110,308 bytes in 76 files, 12,769 fewer than before; 123200 above is the cap they came down from.)
-    assert.ok(bytes(lean) < 110400, `the shared helpers stay small (${bytes(lean)} bytes)`);
+    // (113000, 18 Nov 2026: live/sync.js, the page parts' starter, is a page-start file now that the old view's RPG screens are gone: +~2,500 bytes, no engine file.)
+    assert.ok(bytes(lean) < 113000, `the shared helpers stay small (${bytes(lean)} bytes)`);
     // …and what a dynamic import brings in is the whole RPG (the part and its pieces), so the split is real.
     const whole = closure(RPG + 'index.js').filter(file => file.startsWith(RPG));
     assert.ok(bytes(whole) > 4 * bytes(lean), 'the part is most of the RPG\'s code');
@@ -69,13 +72,12 @@ test('the page start (index.js static imports) reaches none of the RPG\'s code, 
 
 // ---- the pack checker, the Diagnostics page and the UI sample (P4: less code at every page open) ----------------------------------------
 
-test('the page start reaches neither the pack checker\'s checks, nor the Diagnostics page, nor the UI sample', () => {
+test('the page start reaches neither the pack checker\'s checks nor the Diagnostics page', () => {
     const files = closure('../../core/boot/boot.js');
     for (const file of ['../../packs/validate.js', '../../packs/validate/items.js', '../../packs/validate/world.js', '../../packs/validate/events-economy.js',
-        '../../ui/legacy/view/settings/diagnostics-page.js', '../../ui/legacy/screens/ui-sample.js']) assert.ok(!files.includes(file), `${file} comes in by import() only`);
+        '../../ui/settings/diagnostics.js']) assert.ok(!files.includes(file), `${file} comes in by import() only`);
     // …while the checker and the page are reachable on their own, so the split is real.
     assert.ok(closure('../../packs/validate.js').includes('../../packs/validate/items.js'));
-    assert.ok(closure('../../ui/legacy/ui-host/settings.js').every(file => file !== '../../ui/legacy/screens/ui-sample.js'), 'the settings host does not import the sample');
 });
 
 const TINY = { id: 'tiny', name: 'Tiny', version: '1.0.0', format: 4, kind: 'world', requires: { suite: '^0.1' }, content: { items: [{ name: 'Brass key', slot: 'hand' }] } };

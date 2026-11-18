@@ -1,5 +1,5 @@
 // What the new view's New character wizard reads from the story, built from Story Block's sdk and SillyTavern's context with the same
-// modules/rpg helpers the old host's RPG mount uses (modules/rpg/view/index-parts/mount.js): the head state, the persona's name, the head
+// modules/rpg helpers the old view's RPG mount used: the head state, the persona's name, the head
 // reply's block-action key, the numbers in force, the pack's levels, the level cap, and whether the story already has a You.
 
 import { lastCarrier, readRecord } from '../../core/persist.js';

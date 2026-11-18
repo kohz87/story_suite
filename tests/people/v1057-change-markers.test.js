@@ -3,9 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { appearanceFingerprint, createNpcRecord, mergeScanResult, normalizeNpcRecord, normalizeFieldChanges } from '../../modules/people/core/core.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
-import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
+
 import { runtimeSource } from './helpers/runtime-source.js';
-import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
 const base = () => normalizeNpcRecord({ ...createNpcRecord('Elia'), mood: 'calm', location: 'guesthouse', present: true });
 
@@ -41,23 +40,10 @@ test('foreign-chat imports never carry source-turn markers', () => {
     assert.deepEqual(malia.fieldChanges, {}, 'a newly admitted foreign dossier starts clean');
 });
 
-test('the portrait badge appears only after the resolved appearance moves on', () => {
-    const npc = normalizeNpcRecord({ ...createNpcRecord('Elia'), appearance: 'Copper hair; brown bodice.' });
-    const portrait = { dataUrl: 'data:image/png;base64,AA==', appearanceFingerprint: appearanceFingerprint(npc), appearanceForm: '' };
-    assert.equal(dossierDetailProjection({ ...npc, portrait }).portraitAppearanceChanged, false);
-    assert.equal(dossierDetailProjection({ ...npc, appearance: 'Copper hair; emerald ballgown.', portrait }).portraitAppearanceChanged, true);
-    assert.equal(dossierDetailProjection({ ...npc, appearance: 'Copper hair; emerald ballgown.', portrait: { dataUrl: portrait.dataUrl } }).portraitAppearanceChanged, false,
-        'older portraits without a recorded fingerprint never show a guess');
-});
-
-test('portrait attachment records the appearance it was made for and the dossier renders markers', () => {
+test('portrait attachment records the appearance it was made for', () => {
     const index = runtimeSource();
     assert.match(index, /portrait\.appearanceFingerprint = fingerprint/);
     assert.match(index, /portrait\.appearanceForm = /);
-    const ui = dossierUiSource();
-    assert.match(ui, /changedMark\(npc, 'personality'\)/);
-    assert.match(ui, /changedMark\(npc, 'homeBase'\)/);
-    assert.match(ui, /Appearance changed since portrait/, 'the profile portrait carries the stale-portrait note');
 });
 
 test('change markers and portrait fingerprints never reach model-facing prompts or injection', async () => {
