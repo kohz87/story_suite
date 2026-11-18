@@ -111,7 +111,7 @@ undo and redo and an autosaved draft.
 
 - **World-spec packs with no `format`**: these are format 3 to the checker. It knows the world-pack kinds, but such a
   pack's `content.start` is still an `UNKNOWN_KIND` problem; a format 4 world pack holds it.
-- **Missing pieces**: no forms yet (every record is edited as JSON), no Overview fields editing, no dry run, no map or
+- **Missing pieces**: no forms yet (every record is edited as JSON), no Overview fields editing, no map or
   graph view, no Pairing page, no Convert and no New world or New game yet; their slots are in place. Nothing calls
   `setPortrait` or `openDoc` yet (the cast portrait editor, the start page and Convert will).
 
