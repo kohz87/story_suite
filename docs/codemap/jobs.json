@@ -238,7 +238,7 @@
   "tests/people/perf-clock-stamp.test.js": "Tests that NPC State reads the story clock once per task and again after a host event, counting host queries.",
   "tests/people/s2pa-cast-lines.test.js": "Checks that memory, reveal and tie lines and a + npc line about a present pack person make that person's dossier from the pack, with replay equal to live.",
   "tests/people/s2pa-pack-secrets.test.js": "Checks that the lines prompt names a pack note by its own id so a reveal line opens it, and that the dossier counts the pack's gated notes.",
-  "tests/people/s2pa-place-status.test.js": "Checks that people left behind by a move keep the place they were left at, and that a pack status is not shown or told as what a met person does now.",
+  "tests/people/s2pa-place-status.test.js": "Checks that people left behind by a move keep the place they were left at, that a pack status is not shown or told as what a met person does now, and that a status from elsewhere goes on arrival.",
   "tests/people/scan-marker.test.js": "Tests that NPC State's scan marker is stored with its people write and taken back from the store after a swipe, a swipe back, deletes, a regenerate and a reload, and that a change line never makes the cache re-hydrate.",
   "tests/people/settle-edit.test.js": "Tests that NPC State's edit and delete settle wait takes one look on the next tick and ends: no uiStatus reads, no timeout warning, the probe reconcile still runs, and a second edit in the same tick still settles.",
   "tests/people/store-gates.test.js": "Tests that portrait bytes never make a write invalid, that a rewind over a people block that no longer applies refuses like the inventory, and that no sidecar is written before the host accepts.",
