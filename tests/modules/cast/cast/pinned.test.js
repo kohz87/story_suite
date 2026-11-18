@@ -22,8 +22,8 @@ test('a tail far over its budget still carries the meeting cue (once), for a sen
         assert.equal(people(host)['ersveil:brom'].met.why, 'place');
         const lines = castLinesOf(host);
         assert.equal(lines.length, 1, 'once');
-        assert.match(lines[0], /^\[Cast\] Brom comes into the scene in this reply\./);
-        assert.equal((sent(host, TAIL_KEY).at(-1) ?? '').split('[Cast] Brom comes').length - 1, 1, 'never twice in the prompt');
+        assert.match(lines[0], /^\[Cast\] a stranger comes into the scene in this reply\./);
+        assert.equal((sent(host, TAIL_KEY).at(-1) ?? '').split('[Cast] a stranger comes').length - 1, 1, 'never twice in the prompt');
         assert.deepEqual(validatorErrors(host), []);
     } finally {
         host.close();

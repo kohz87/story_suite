@@ -1,0 +1,407 @@
+[
+ {
+  "name": "one",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "system:Your look is not set yet: on this reply write ~ you wearing: … | condition: … for You, from the persona and what they carry.\nWallet (before this reply): 0 gold\nCarried: nothing\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->"
+  ],
+  "stateHash": "bf9fdcbb2b5e2ab6e895151ddad628963f661e28d6943dce9955f6318afc9fcd"
+ },
+ {
+  "name": "two",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "system:Wallet (before this reply): 0 gold\nCarried: Rope\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "You buy bread.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Bread\n</Changes>\n-->"
+  ],
+  "stateHash": "0ab9b25ba1e832cad1ff1fb70ace4c7812bfd2a3786e2792cf5f35207dd1bc39"
+ },
+ {
+  "name": "miss",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "assistant:You buy bread.",
+   "user:I walk.",
+   "system:Wallet (before this reply): 0 gold\nCarried: Bread, Rope\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "You buy bread.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Bread\n</Changes>\n-->",
+   "I walk.",
+   "You walk on."
+  ],
+  "stateHash": "6de702a945c5c9d851ea06ba8410a36161b08d1dc2c3468d3a8138d9e2487ace"
+ },
+ {
+  "name": "three",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "assistant:You buy bread.",
+   "user:I walk.",
+   "assistant:You walk on.",
+   "user:I look.",
+   "system:Wallet (before this reply): 0 gold\nCarried: Bread, Rope\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "You buy bread.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Bread\n</Changes>\n-->",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->"
+  ],
+  "stateHash": "e40ebfa02c255073ed9b919d43de845ab5d8c8e4bafe75c0ab4bdd17ca67a44e"
+ },
+ {
+  "name": "swipe",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "assistant:You buy bread.",
+   "user:I walk.",
+   "assistant:You walk on.",
+   "user:I look.",
+   "system:Wallet (before this reply): 0 gold\nCarried: Bread, Rope\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "You buy bread.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Bread\n</Changes>\n-->",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A map lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Map\n</Changes>\n-->"
+  ],
+  "stateHash": "3d65eedee3c37b7ce51b0799a8abb58c987b498d1abd975c3ebfd208c786f550"
+ },
+ {
+  "name": "swipe back",
+  "prompt": null,
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "You buy bread.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Bread\n</Changes>\n-->",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->"
+  ],
+  "stateHash": "e40ebfa02c255073ed9b919d43de845ab5d8c8e4bafe75c0ab4bdd17ca67a44e"
+ },
+ {
+  "name": "four",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "assistant:You buy bread.",
+   "user:I walk.",
+   "assistant:You walk on.",
+   "user:I look.",
+   "assistant:A lamp lies here.",
+   "user:I take it.",
+   "system:Wallet (before this reply): 0 gold\nCarried: Bread, Lamp, Rope\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "You buy bread.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Bread\n</Changes>\n-->",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->",
+   "I take it.",
+   "You take it.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Coin\n</Changes>\n-->"
+  ],
+  "stateHash": "13312c71eeea057e3be3018052ea7bc72f198cbf733788f0d02c3f1251333aea"
+ },
+ {
+  "name": "grown",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "assistant:You buy bread.",
+   "user:I walk.",
+   "assistant:You walk on.",
+   "user:I look.",
+   "assistant:A lamp lies here.",
+   "user:I take it.",
+   "assistant:You take it and a cup.",
+   "user:I go on.",
+   "system:Wallet (before this reply): 1 gold\nCarried: Bread, Cup, Lamp, Rope\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "You buy bread.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Bread\n</Changes>\n-->",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->",
+   "I take it.",
+   "You take it and a cup.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Coin\n+ item Cup\n</Changes>\n-->",
+   "I go on.",
+   "You go on.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Stick\n</Changes>\n-->"
+  ],
+  "stateHash": "d4e307609995e6d52305f56dd690e925a668c8148fb10d79b588ad8fdc517e8e"
+ },
+ {
+  "name": "shrunk",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "assistant:You buy bread.",
+   "user:I walk.",
+   "assistant:You walk on.",
+   "user:I look.",
+   "assistant:A lamp lies here.",
+   "user:I take it.",
+   "assistant:You take it and a cup.",
+   "user:I go on.",
+   "assistant:You go on, empty-handed.",
+   "user:I stop.",
+   "system:Wallet (before this reply): 1 gold\nCarried: Bread, Cup, Lamp, Rope\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "You buy bread.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Bread\n</Changes>\n-->",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->",
+   "I take it.",
+   "You take it and a cup.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Coin\n+ item Cup\n</Changes>\n-->",
+   "I go on.",
+   "You go on, empty-handed.\n\n<!-- STORY_SUITE_V2\n<Changes>\n\n</Changes>\n-->",
+   "I stop.",
+   "You stop.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Stone\n</Changes>\n-->"
+  ],
+  "stateHash": "396acd0b620fbd38fa6ff45da11a4e19eba537d2d17d514c2f574d4b2787bdb1"
+ },
+ {
+  "name": "middle delete",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "user:I walk.",
+   "assistant:You walk on.",
+   "user:I look.",
+   "assistant:A lamp lies here.",
+   "user:I take it.",
+   "assistant:You take it and a cup.",
+   "user:I go on.",
+   "assistant:You go on, empty-handed.",
+   "user:I stop.",
+   "assistant:You stop.",
+   "user:I rest.",
+   "system:Wallet (before this reply): 1 gold\nCarried: Cup, Lamp, Rope, Stone\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->",
+   "I take it.",
+   "You take it and a cup.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Coin\n+ item Cup\n</Changes>\n-->",
+   "I go on.",
+   "You go on, empty-handed.\n\n<!-- STORY_SUITE_V2\n<Changes>\n\n</Changes>\n-->",
+   "I stop.",
+   "You stop.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Stone\n</Changes>\n-->",
+   "I rest.",
+   "You rest.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Blanket\n</Changes>\n-->"
+  ],
+  "stateHash": "6e1fc9d561c8115b76f13a4b59023070b515c4bbe56a0ba3e02698eca8169d75"
+ },
+ {
+  "name": "rewind",
+  "prompt": null,
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->",
+   "I take it.",
+   "You take it and a cup.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Coin\n+ item Cup\n</Changes>\n-->",
+   "I go on.",
+   "You go on, empty-handed.\n\n<!-- STORY_SUITE_V2\n<Changes>\n\n</Changes>\n-->",
+   "I stop.",
+   "You stop.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Stone\n</Changes>\n-->",
+   "I rest.",
+   "You rest.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Blanket\n</Changes>\n-->"
+  ],
+  "stateHash": "c8ed50e25f68060fdb34ed60d287e8c2ed1c9fde6e2a08427ab83538f5d83efb"
+ },
+ {
+  "name": "reload",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "user:I walk.",
+   "assistant:You walk on.",
+   "user:I look.",
+   "assistant:A lamp lies here.",
+   "user:I take it.",
+   "assistant:You take it and a cup.",
+   "user:I go on.",
+   "assistant:You go on, empty-handed.",
+   "user:I stop.",
+   "assistant:You stop.",
+   "user:I rest.",
+   "assistant:You rest.",
+   "user:I wake again.",
+   "system:Wallet (before this reply): 1 gold\nCarried: Cup, Lamp, Rope, Stone\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->",
+   "I take it.",
+   "You take it and a cup.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Coin\n+ item Cup\n</Changes>\n-->",
+   "I go on.",
+   "You go on, empty-handed.\n\n<!-- STORY_SUITE_V2\n<Changes>\n\n</Changes>\n-->",
+   "I stop.",
+   "You stop.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Stone\n</Changes>\n-->",
+   "I rest.",
+   "You rest.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Blanket\n</Changes>\n-->",
+   "I wake again.",
+   "Morning.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Dew\n</Changes>\n-->"
+  ],
+  "stateHash": "e4de2af95fe79cfd5817b85c996736a062695e82f5c2365bad832d711398a1b1"
+ },
+ {
+  "name": "other chat",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:Hello.",
+   "system:Your look is not set yet: on this reply write ~ you wearing: … | condition: … for You, from the persona and what they carry.\nWallet (before this reply): 0 gold\nCarried: nothing\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "Hello.",
+   "A new tale.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Hat\n</Changes>\n-->"
+  ],
+  "stateHash": "35e3759c5fa330a03314d0028a0fd250534234ed32eca3513855884d78d5761d"
+ },
+ {
+  "name": "chat back",
+  "prompt": [
+   "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "assistant:The story begins.",
+   "user:I wake.",
+   "assistant:You wake at the gate.",
+   "user:I buy bread.",
+   "user:I walk.",
+   "assistant:You walk on.",
+   "user:I look.",
+   "assistant:A lamp lies here.",
+   "user:I take it.",
+   "assistant:You take it and a cup.",
+   "user:I go on.",
+   "assistant:You go on, empty-handed.",
+   "user:I stop.",
+   "assistant:You stop.",
+   "user:I rest.",
+   "assistant:You rest.",
+   "user:I wake again.",
+   "assistant:Morning.",
+   "user:I return.",
+   "system:Wallet (before this reply): 1 gold\nCarried: Cup, Dew, Lamp, Rope, Stone\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+  ],
+  "text": [
+   "The story begins.",
+   "I wake.",
+   "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->",
+   "I buy bread.",
+   "I walk.",
+   "You walk on.",
+   "I look.",
+   "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->",
+   "I take it.",
+   "You take it and a cup.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Coin\n+ item Cup\n</Changes>\n-->",
+   "I go on.",
+   "You go on, empty-handed.\n\n<!-- STORY_SUITE_V2\n<Changes>\n\n</Changes>\n-->",
+   "I stop.",
+   "You stop.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Stone\n</Changes>\n-->",
+   "I rest.",
+   "You rest.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Blanket\n</Changes>\n-->",
+   "I wake again.",
+   "Morning.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Dew\n</Changes>\n-->",
+   "I return.",
+   "Back again.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Key\n</Changes>\n-->"
+  ],
+  "stateHash": "b4dd6f5f05284ac3755a2b8bfc9bebd27c0d82671d705e52ccf5049b9da8ded7"
+ }
+]

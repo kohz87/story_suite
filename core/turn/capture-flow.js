@@ -12,6 +12,7 @@ import { refusedWhy } from '../../modules/assist/safety.js';
 import { notWritten } from '../../modules/assist/extractor.js';
 import { CHATTER_MAX, displayLines } from '../../modules/scene/extras.js';
 import { readRecord } from '../persist.js';
+import { dropRepeats } from './echo-across.js';
 import { createMarkHistory, ruleMarksOf } from './rule-marks.js';
 import { openingStep, settleStep } from '../interaction/watch.js';
 import { createCaptureAfter } from './capture-after.js';
@@ -32,8 +33,8 @@ export function createCaptureFlow(s, deps) {
     // capture handler (bus.run's `capture`), and is stored on the reply before the next one runs.
     // A reply holds at most maxChangeLines change lines; the rest are one Problem (pushed to `found`).
     const lineCap = () => (Number.isInteger(hostSettings()?.maxChangeLines) && hostSettings().maxChangeLines > 0 ? hostSettings().maxChangeLines : MAX_CHANGE_LINES);
-    // A block's lines read, at most maxChangeLines, the rest one Problem. `fresh` (first live capture) or the reply's `caretWords` mark: drop a preset's ^ before each word.
-    function readBlock(index, text, { fresh = false } = {}) {
+    // A block's lines read, at most maxChangeLines, the rest one Problem. `own` (the reply's own block, not a late or repair text): HK-2's guard across replies applies. `fresh` (first live capture) or the reply's `caretWords` mark: drop a preset's ^ before each word.
+    function readBlock(index, text, { fresh = false, own = false } = {}) {
         const cap = lineCap();
         const caret = fresh || ruleMarksOf(readRecord(ctx?.chat?.[index])?.rules).includes('caretWords');
         const parsed = parseChanges(text, { max: cap, caret }), problems = parsed.problems.map(line => problem({ index, code: 'UNREADABLE', message: line }));
@@ -41,7 +42,8 @@ export function createCaptureFlow(s, deps) {
             const { count, total, first } = parsed.over;
             problems.push(problem({ index, code: 'TOO_MANY', message: `The reply has ${total} change lines; only the first ${cap} were read, so ${count} ${count === 1 ? 'line was' : 'lines were'} not used (from "${cutAt(first, 60)}").` }));
         }
-        return { lines: parsed.lines, problems };
+        // HK-2: the reply's own block, with the kept blocks shown (host setting keepRecentBlocks): a `+` line copied from the two before it is dropped.
+        return { lines: own && hostSettings()?.keepRecentBlocks === true ? dropRepeats(parsed.lines, ctx?.chat ?? [], index) : parsed.lines, problems };
     }
     // The heads of the kinds the reply may write ("! encounter", "+ quest"), for the change lines a
     // model writes in the story near the block (capture.js strayLines). Read at each capture, so a

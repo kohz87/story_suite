@@ -43,9 +43,10 @@
 .mp .pl.far circle.b{stroke-dasharray:4 3}
 .mp .pl .hit{stroke:none}
 .mapbox.tidy .pl:not(.big) text{display:none}
-.mp .you circle.r{fill:none;stroke:var(--su-accent);stroke-width:3;animation:wpulse 2s infinite}
-@keyframes wpulse{0%{r:14;opacity:1}100%{r:30;opacity:0}}
-@media (prefers-reduced-motion:reduce){.mp .you circle.r{animation:none}}
+.mapbox .pulse{position:absolute;box-sizing:border-box;border:solid var(--su-accent);border-radius:50%;pointer-events:none;will-change:transform,opacity;animation:wpulse 2s infinite}
+/* the mock's pulse (r 14 to 30, opacity 1 to 0, 2 s, default ease) on the compositor: scale .483 to 1 (see ui/tabs/world/pulse.js), so the tab never lays out per frame */
+@keyframes wpulse{0%{transform:scale(.483);opacity:1}100%{transform:scale(1);opacity:0}}
+@media (prefers-reduced-motion:reduce){.mapbox .pulse{animation:none;transform:scale(.483)}}
 .mp .news circle{fill:var(--su-warn)}
 .mp .news text{font:900 12px var(--su-font);fill:#2a1a05}
 .su-root[data-scheme="light"] .mapbox{background:#e8e3d6}

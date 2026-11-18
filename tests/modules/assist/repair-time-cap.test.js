@@ -67,3 +67,27 @@ test('live: the recorded T6 reply moves the clock 24 hours, not 41, with a Probl
     assert.equal(host.sdk.query('time.now')?.minutes, after, 'Re-read reads the stored, cut line');
     host.close();
 });
+
+// LAB2-4 (live A/B 2): "! time +10d" for a scene "after dusk" left the clock at 11:20 am; the repair now writes the stretch and the clock time.
+const T8 = 'Ten days later you reached the Tallow Pint, the hearth already lit. After dusk the room filled with drovers shaking snow from their coats.';
+
+test('the repair foot teaches the stretch and the clock time as a pair', () => {
+    assert.match(REPAIR_FOOT, /"! time \+10d" then "~ time 7:00 pm"/);
+});
+
+test('live: a repaired "! time +10d" then "~ time 7:00 pm" lands on the evening; swipe back, Re-read and reload keep it', { skip }, async () => {
+    const host = await directorHost(async () => '<Changes>\n! time +10d\n~ time 7:00 pm\n</Changes>');
+    await host.send('Hello.', 'Dawn.\n<Changes>\n~ time June 3, 1200, 11:20 am\n</Changes>');
+    const before = host.sdk.query('time.now')?.minutes;
+    const turn = await host.send('I ride on.', T8);
+    await wait(60);
+    const after = host.sdk.query('time.now')?.minutes;
+    assert.equal(after - before, 10 * DAY + (19 * 60 - (11 * 60 + 20)), 'ten days on, at 7:00 pm');
+    assert.equal(host.turn.problems().some(item => /was not used|refused/.test(item.message)), false, 'the wall accepts the pair');
+    await host.turn.onChatChanged();
+    assert.equal(host.sdk.query('time.now')?.minutes, after, 'reload');
+    await host.sdk.reread(turn.index);
+    await wait(60);
+    assert.equal(host.sdk.query('time.now')?.minutes, after, 'Re-read');
+    host.close();
+});

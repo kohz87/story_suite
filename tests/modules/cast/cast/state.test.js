@@ -52,7 +52,7 @@ test('a first meeting by place and routine: the party is at their place while th
         assert.equal(brom.met.why, 'place');
         assert.equal(brom.met.where, 'Harrow');
         const cue = castCue(host);
-        assert.match(cue, /^\[Cast\] Brom comes into the scene in this reply\./);
+        assert.match(cue, /^\[Cast\] a stranger comes into the scene in this reply\./);
         assert.match(cue, /Look: weathered\./);
         assert.match(cue, /Why now: At the forge in the morning, they are at Harrow/);
         assert.doesNotMatch(cue, /Fenna|Hidden thing|Never said|No roll/, 'no other person, no secret, no card words');
@@ -72,7 +72,7 @@ test('a first meeting by place and routine: the party is at their place while th
         await host.send('Look.', said(`Lamps. ${host.everyone()}`));
         const fenna = people(host)['ersveil:fenna'];
         assert.equal(fenna.met.why, 'place');
-        assert.match(castCue(host), /^\[Cast\] Fenna comes into the scene/);
+        assert.match(castCue(host), /^\[Cast\] a stranger comes into the scene/);
         assert.deepEqual(validatorErrors(host), []);
         assert.deepEqual(host.store.problems(), []);
     } finally {
@@ -196,7 +196,7 @@ test('a pack person the story already has in the scene (under their name or an a
         assert.deepEqual([world['ersveil:fenna'].met.why, world['ersveil:fenna'].met.where, world['ersveil:fenna'].met.reason], ['story', 'Harrow', ''], 'the ferrywoman is Fenna: met where the party is');
         assert.equal(world['ersveil:una'].met, null, 'another alias, not in the scene: not met');
         assert.equal(world['ersveil:brom'].met.why, 'place', 'and the day\'s one new face is still Brom: being in the story used none of the pace');
-        assert.match(castCue(host), /^\[Cast\] Brom comes into the scene/);
+        assert.match(castCue(host), /^\[Cast\] a stranger comes into the scene/);
         assert.doesNotMatch(castCue(host), /Fenna/, 'the narrator has her already: no cue for her');
         assert.deepEqual(slice(host).meeting[0].keys, ['ersveil:brom']);
         const note = Object.values(slice(host).notes).find(item => item.head === 'Paths crossed: Fenna');
