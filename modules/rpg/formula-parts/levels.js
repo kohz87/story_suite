@@ -12,3 +12,6 @@ export const levelOfClass = soul => 10 * Math.max(1, Math.min(9, num(soul))) - 5
 
 /** The Soul Class (1..9) a level stands for where only a class is asked (the `+ party` line's class): the inverse of levelOfClass (10n - 5), floor(level / 10) + 1 (levels 1-9 are class I, 10-19 II ... 80+ IX). */
 export const classOfLevel = level => Math.max(1, Math.min(9, Math.floor(Math.max(1, num(level)) / 10) + 1));
+
+/** The level a `+ party` line's class stands for: I starts at level 1, then II at 15 up to IX at 85 (10n - 5 from II on). */
+export const levelOfJoinClass = soul => (num(soul) <= 1 ? 1 : levelOfClass(soul));

@@ -41,3 +41,18 @@ test('a stale chat lock naming another persona is never used', () => {
   const d = { name1: 'Astra', powerUserSettings: { personas: { 'c.png': 'Other' }, default_persona: 'c.png' }, chatMetadata: { persona: 'c.png' } };
   assert.equal(optsOf(readOf([]), {}, () => d).portrait, null);
 });
+
+test('gearOf adds the stat bonus of what each member wears, asking for the main character as the inventory\'s `party`', async () => {
+  const { gearOf } = await import('../../../ui/select/gather.js');
+  const asked = [];
+  const read = (name, args) => {
+    if (name === 'party.pc') return { id: 'ac_astra' };
+    if (name === 'gear.view') return { on: true, slots: {} };
+    asked.push(args.owner);
+    return { statBonus: { STR: 1 } };
+  };
+  const gear = gearOf(read, [{ id: 'ac_astra' }, { id: 'ac_pell' }]);
+  assert.deepEqual(asked, ['party', 'ac_pell']);
+  assert.deepEqual(gear.ac_pell, { on: true, slots: {}, statBonus: { STR: 1 } });
+  assert.equal(gearOf((name) => (name === 'gear.view' ? null : null), [{ id: 'x' }]).x, null);
+});

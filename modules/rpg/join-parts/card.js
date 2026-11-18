@@ -3,7 +3,7 @@
 import { oneLine } from '../../../core/text.js';
 import { CLASS_NAMES, PARTY_ACTIVE } from '../names.js';
 import { RPG_STRINGS, fill } from '../strings.js';
-import { levelOfClass } from '../formula.js';
+import { levelOfJoinClass } from '../formula.js';
 import { benchable } from './party.js';
 import { JOIN_ADD, JOIN_BENCH, JOIN_NO } from './commands.js';
 
@@ -34,7 +34,7 @@ export function joinCard(offers, state = null, isMe = () => false) {
     // (a cast member's signature skills, as the pack had them when the line came, go with Edit first: the wizard's draft keeps them marked)
     const payload = { name: offer.name, soul: offer.soul, best: offer.best, ...(offer.level ? { level: offer.level } : {}), ...(offer.skills ? { skills: offer.skills } : {}) };
     // (the class a line writes stands for a level, 10n - 5, unless the person's record states one: the card says the level the companion will start at)
-    const rows = [{ icon: 'fa-star', text: fill(J.rowLevel, { level: offer.level ?? levelOfClass(CLASS_NAMES[offer.soul - 1] ? offer.soul : 1) }) }];
+    const rows = [{ icon: 'fa-star', text: fill(J.rowLevel, { level: offer.level ?? levelOfJoinClass(CLASS_NAMES[offer.soul - 1] ? offer.soul : 1) }) }];
     if (offer.best) rows.push({ icon: 'fa-arrow-up', text: fill(J.rowBest, { stat: offer.best.toUpperCase() }) });
     return {
         tone: 'accent', icon: 'fa-user-plus', title: fill(J.title, { name: offer.name }), rows,

@@ -49,6 +49,8 @@ const MEMBER = {
   bars: [{ kind: { $enum: ['hp', 'mp', 'sp'] }, value: T.NUMBER, max: T.NUMBER }],
   effects: [{ id: T.STRING, label: T.STRING, note: T.STRING, tone: { $enum: ['buff', 'debuff'] } }],
   stats: STATS,
+  // The stats worn gear adds ({ STR: 1 }, only those above 0); the stat tiles mark them.
+  bonus: { $optional: T.ANY },
   slots: [SLOT],
   skills: [SKILL],
 };

@@ -103,9 +103,10 @@ function statTiles(member, ctx) {
     type: 'button',
     class: ['sv', can ? 'can' : null],
     dataset: { stat: k },
-    'aria-label': `${STAT_NAME[k]} ${member.stats[k]}`,
+    'aria-label': `${STAT_NAME[k]} ${member.stats[k]}${member.bonus?.[k] ? `, gear adds ${member.bonus[k]}` : ''}`,
+    title: member.bonus?.[k] ? `Base ${member.stats[k]}, gear adds ${member.bonus[k]}` : null,
     onClick: () => statSheet(member, ctx),
-  }, k, h('b', null, member.stats[k]))));
+  }, k, h('b', null, member.stats[k], member.bonus?.[k] ? h('small', { class: 'gb' }, `+${member.bonus[k]}`) : null))));
 }
 
 /** Builds one member's sheet; the player's own sheet skips the name, bars and XP (the card above has them). */
