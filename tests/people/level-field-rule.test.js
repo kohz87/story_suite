@@ -91,59 +91,40 @@ fs.mkdirSync(extRoot, { recursive: true });
 fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'module' }));
 standInTree(extRoot);   // old names, stand-ins for the real files; the host modules are the shared stubs reading __npcMock
 globalThis.__npcMock = { extensionSettings: {}, context: {}, saveSettingsCalls: 0 };
-const { effectiveCustomFieldNames, setRpgProbe } = await import(pathToFileURL(path.join(extRoot, 'runtime-settings.js')).href);
+const { effectiveCustomFieldNames, setRpgProbe, rpgIsOn } = await import(pathToFileURL(path.join(extRoot, 'runtime-settings.js')).href);
 const { buildInjection } = await import('../../modules/people/core/core.js');
 const { suite } = await import('./helpers/pacing-suite.js');
 const setNames = names => ({ customFieldNames: names });
 const rpg = { on: false };
 
-test('the accessor adds Level while the RPG is on, once, and exactly the configured names otherwise', () => {
+test('the accessor no longer adds Level while the RPG is on: Level is a built-in field (pack format 4); the configured names are returned as they are', () => {
     try {
         setRpgProbe(null);
         assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], 'standalone');
         setRpgProbe(() => rpg.on);
-        rpg.on = false;
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], 'RPG off');
-        rpg.on = true;
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class', 'Level']);
-        assert.deepEqual(effectiveCustomFieldNames(setNames([])), ['Level']);
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['LEVEL', 'Class'])), ['LEVEL', 'Class'], 'a configured Level (any case) is not added twice');
-        const settings = setNames(['Class']);
-        effectiveCustomFieldNames(settings);
-        assert.deepEqual(settings.customFieldNames, ['Class'], 'nothing is written to settings');
-        rpg.on = false;
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], 'switched off mid-chat: the next read sees it');
+        for (const on of [false, true]) {
+            rpg.on = on;
+            assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], `RPG ${on ? 'on' : 'off'}: the configured names only`);
+            assert.deepEqual(effectiveCustomFieldNames(setNames([])), [], `RPG ${on ? 'on' : 'off'}: none stays none`);
+            assert.deepEqual(effectiveCustomFieldNames(setNames(['LEVEL', 'Class'])), ['LEVEL', 'Class'], 'a configured Level (any case) is kept as configured');
+        }
         setRpgProbe(() => { throw new Error('host gone'); });
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], 'a probe that throws means off');
+        assert.equal(rpgIsOn(), false, 'a probe that throws means off');
+        setRpgProbe(() => true);
+        assert.equal(rpgIsOn(), true);
     } finally { setRpgProbe(null); }
 });
 
-test('RPG on: prompts, injection and merge use Level; off: byte-identical; the stored value stays', () => {
+test('RPG on adds no Level custom field to the scanner prompt or the injection; a configured Level behaves as before', () => {
     const npcWithLevel = normalizeNpcRecord({ id: 'npc_maelis', name: 'Maelis Varn', present: true, personality: 'Warm.', customFields: { Level: '3', Class: 'Rogue' } });
-    const state = { turn: 1, candidates: [], npcs: [npcWithLevel] };
-    const text = 'Maelis waves.';
-    const inject = names => buildInjection([npcWithLevel], text, 1, 3, undefined, 4000, null, { customFieldNames: names });
+    const inject = names => buildInjection([npcWithLevel], 'Maelis waves.', 1, 3, undefined, 4000, null, { customFieldNames: names });
     try {
-        setRpgProbe(() => rpg.on);
-        rpg.on = false;
-        const off = effectiveCustomFieldNames(setNames(['Class']));
-        const promptOff = buildScannerPrompt({ ...options, customFieldNames: off });
-        const injectedOff = inject(off);
-        assert.equal(promptOff, buildScannerPrompt({ ...options, customFieldNames: ['Class'] }), 'off: the prompt is the configured one');
-        assert.doesNotMatch(promptOff, /Level is the one exception/);
-        assert.doesNotMatch(injectedOff, /Level: 3/, 'the stored Level is not injected while off');
-        rpg.on = true;
-        const on = effectiveCustomFieldNames(setNames(['Class']));
-        assert.match(buildScannerPrompt({ ...options, customFieldNames: on }), /CUSTOM FIELDS \(Class, Level\)[\s\S]*Level is the one exception/);
-        assert.match(inject(on), /Class: Rogue · Level: 3|Level: 3 · Class: Rogue/);
-        const merged = mergeScanResult(state, { npcs: [{ id: 'npc_maelis', name: 'Maelis Varn', customFields: { Level: '4' }, customFieldsReason: 'Level up.' }] },
-            { turn: 2, customFieldNames: on, developmentContext: 'Maelis reached level 4.' }).state.npcs[0];
-        assert.equal(merged.customFields.Level, '4', 'merge accepts Level while on');
-        rpg.on = false;
-        const kept = mergeScanResult({ ...state, npcs: [merged] }, { npcs: [{ id: 'npc_maelis', name: 'Maelis Varn', customFields: { Class: 'Mage' }, customFieldsReason: 'Retrained.' }] },
-            { turn: 3, customFieldNames: effectiveCustomFieldNames(setNames(['Class'])), developmentContext: 'Maelis retrained as a Mage.' }).state.npcs[0];
-        assert.equal(kept.customFields.Level, '4', 'the value stays in the dossier when RPG goes off');
-        assert.doesNotMatch(inject(effectiveCustomFieldNames(setNames(['Class']))), /Level: 4/);
+        setRpgProbe(() => true);
+        const names = effectiveCustomFieldNames(setNames(['Class']));
+        assert.equal(buildScannerPrompt({ ...options, customFieldNames: names }), buildScannerPrompt({ ...options, customFieldNames: ['Class'] }));
+        assert.doesNotMatch(buildScannerPrompt({ ...options, customFieldNames: names }), /Level is the one exception/);
+        assert.doesNotMatch(inject(names), /Level: 3/, 'the stored custom Level is not injected unless it is configured');
+        assert.match(inject(['Class', 'Level']), /Class: Rogue · Level: 3|Level: 3 · Class: Rogue/, 'a configured Level still is');
     } finally { setRpgProbe(null); }
 });
 
