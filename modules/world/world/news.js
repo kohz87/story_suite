@@ -18,6 +18,7 @@ import { isInt, isRecord, text } from './known-parts/shared-text.js';
 import { DAY, newsDelay } from './news-delay.js';
 import { courierSpeed, worldEventsOn } from './news-switch.js';
 import { hearAt, placeInfo, shownPlace, withinReach } from './news-reach.js';
+import { minorIds, reachTag } from './news-rumour.js';
 import { routeFactors } from './news-routes.js';
 import { buildGeo } from '../daily/geo.js';
 import { readWorld } from '../chronicle/world-daily/read-world.js';
@@ -36,7 +37,7 @@ function envOf(state, tools, now) {
     const masks = slotValue(chronicle.daily)?.masks ?? {};
     const table = chronicle.conditions ?? {};
     const factorOf = routeFactors({ table, declared, geo, masks, now });
-    return { tools, geo, routes: world.routes, routeKinds: world.routeKinds, pace: courierSpeed(tools), factorOf, cache: new Map(), table, declared, masks, byTime: new Map() };
+    return { tools, geo, routes: world.routes, routeKinds: world.routeKinds, pace: courierSpeed(tools), factorOf, minor: minorIds(world), cache: new Map(), table, declared, masks, byTime: new Map() };
 }
 
 // The question's env as the roads stood when the news left (`since`): only the conditions that held then slow it, so a road closed
@@ -55,9 +56,13 @@ function envAt(env, since) {
 function arrival(env, event, place, clock) {
     const world = WORLD_BY.test(text(event.by));
     const origin = text(event.place) ? placeInfo(env.geo, env.tools, event.place) : null;
-    if (world && !withinReach(event.reach, origin, place ? placeInfo(env.geo, env.tools, place) : null)) return null;
-    const shown = { place: shownPlace(origin, env.tools, text(event.place)) };
-    if (typeof event.rumour === 'string' || !isInt(event.since)) return { ...shown, arrivesAt: isInt(event.since) ? event.since : null, via: 'tier', tag: typeof event.rumour === 'string' ? 'rumour' : 'fact', news: 'fired' };
+    const minor = env.minor.has(text(event.by).replace(WORLD_BY, ''));
+    const heard = world ? reachTag(env.geo, event.reach, origin, place ? placeInfo(env.geo, env.tools, place) : null, minor) : 'fact';
+    if (!heard) return null;
+    // Beyond its reach (ruling 53) news is rumour only, and names no exact place, just the region.
+    const far = heard === 'rumour';
+    const shown = { place: far && origin ? origin.regionName || origin.region || text(event.place) : shownPlace(origin, env.tools, text(event.place)) };
+    if (typeof event.rumour === 'string' || !isInt(event.since)) return { ...shown, arrivesAt: isInt(event.since) ? event.since : null, via: 'tier', tag: typeof event.rumour === 'string' || far ? 'rumour' : 'fact', news: 'fired' };
     const delay = newsDelay(envAt(env, event.since), text(event.place), place);
     if (!delay) return { ...shown, arrivesAt: event.since, via: 'tier', tag: 'fact', news: 'fired' };
     const { days, via, km } = delay;
@@ -68,7 +73,7 @@ function arrival(env, event, place, clock) {
     const come = !isInt(clock) || out.arrivesAt <= clock;
     // Only the story's own world lines are heard before their courier (as rumour); everything else waits for it.
     if (!come && (world || event.locked === true)) return { ...out, heard: false };
-    out.tag = come ? 'fact' : 'rumour';
+    out.tag = come && !far ? 'fact' : 'rumour';
     out.news = ended && (!isInt(clock) || out.endsAt <= clock) ? 'ended' : 'fired';
     if (ended && out.news === 'fired') out.state = 'ongoing';
     return out;

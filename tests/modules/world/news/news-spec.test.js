@@ -78,8 +78,12 @@ test('test 30: news with reach — fired on day 10 at 08:00 at P, regional; a re
     const s = world();
     assert.equal(arrive(s, 'Highmark').arrivesAt, 12 * DAY + 8 * HOUR);
     assert.equal(arrive(s, 'Riverby').arrivesAt, 11 * DAY + 20 * HOUR);
-    assert.equal(arrive(s, 'Seagate'), null, 'Coast is another region: the news stops at its reach');
-    assert.equal(heardHere(world({ day: 30, at: 'Seagate' }), {}, tools(world({ day: 30, at: 'Seagate' }))).length, 0);
+    // Ruling 53: Coast is another region a sea lane joins: the news is not confirmed there, it comes as rumour by the courier's time.
+    assert.equal(arrive(s, 'Seagate').arrivesAt, 11 * DAY + 20 * HOUR, 'the sea lane (500 km, 36 h) is 1.5 days');
+    const far = world({ day: 30, at: 'Seagate' });
+    assert.deepEqual(heardHere(far, {}, tools(far)).map(entry => entry.tag), ['rumour'], 'never fact in another region');
+    const near = world({ day: 11, at: 'Seagate' });
+    assert.deepEqual(heardHere(near, { now: 11 * DAY }, tools(near)), [], 'rumour too waits for the courier');
     const heard = (day, minutes = 8 * HOUR) => { const st = world({ day, ended: 15 * DAY + 8 * HOUR }); return heardHere(st, { now: day * DAY + minutes }, tools(st)); };
     assert.deepEqual(heard(11).map(entry => entry.name), [], 'day 11 at Highmark: not yet');
     assert.deepEqual(heard(12).map(entry => [entry.tag, entry.news, entry.state]), [['fact', 'fired', 'ongoing']], 'day 12: fact, and still under way as heard here');
@@ -87,8 +91,12 @@ test('test 30: news with reach — fired on day 10 at 08:00 at P, regional; a re
     assert.deepEqual(heard(17).map(entry => [entry.news, entry.state]), [['ended', 'resolved']], 'day 17 at 08:00: the end heard, the same courier time');
     const ended = world({ ended: 15 * DAY + 8 * HOUR });
     assert.equal(newsAt(ended, { entryId: 'ev_w0000001', place: 'Highmark' }, tools(ended)).endsAt, 17 * DAY + 8 * HOUR);
-    for (const [reach, place, reached] of [['local', 'Riverby', false], ['local', 'Ledgerford', true], ['realm', 'Windcutter', true], ['realm', 'Seagate', false], ['world', 'Seagate', true]]) {
-        assert.equal(arrive(world({ reach }), place) !== null, reached, `${reach} at ${place}`);
+    // [reach, place, heard]: 'fact' within the reach, 'rumour' one step further (ruling 53), null beyond.
+    for (const [reach, place, heard] of [['local', 'Riverby', 'rumour'], ['local', 'Ledgerford', 'fact'], ['local', 'Seagate', null], ['regional', 'Windcutter', 'rumour'], ['regional', 'Seagate', 'rumour'],
+        ['realm', 'Windcutter', 'fact'], ['realm', 'Seagate', 'rumour'], ['world', 'Seagate', 'fact']]) {
+        const st = world({ reach, day: 40, at: place });
+        assert.equal(heardHere(st, {}, tools(st))[0]?.tag ?? null, heard, `${reach} at ${place}`);
+        assert.equal(arrive(world({ reach }), place) !== null, heard !== null, `${reach} at ${place}: newsAt`);
     }
 });
 
