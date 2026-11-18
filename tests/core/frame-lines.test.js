@@ -3,6 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { frameHost, frameOf, said, world } from './frame.helpers.js';
+import { selectProblems } from '../../ui/select/tools.js';
 
 const REQ = { suite: '^0.1' };
 const months = [{ name: 'Frost', days: 30 }, { name: 'Bloom', days: 20 }];
@@ -21,6 +22,9 @@ test('the first reply lists the start date that falls back, the dropped birthday
         ['PAIR_BIRTHDAY', 'Mara\'s birthday "Bloom 25": Bloom has 20 days in Rules\'s calendar, so day 25 never comes. The birthday is dropped.', true],
         ['PAIR_CULTURE', 'The names culture "coast" names no region of Ersveil (south). It is unused.', true],
     ]);
+    // the Problems page lists them (quiet only keeps them out of the console)
+    const page = selectProblems({ problems: host.turn.problems() }).items.map(item => JSON.stringify(item));
+    for (const code of ['PAIR_START_DATE', 'PAIR_BIRTHDAY', 'PAIR_CULTURE']) assert.ok(page.some(item => item.includes(code) || item.includes(code === 'PAIR_BIRTHDAY' ? 'birthday' : code === 'PAIR_CULTURE' ? 'culture' : 'start date')), code);
     await host.swipe(said('R1 again.'));
     await host.send('more', said('R2.'));
     assert.equal(lines(host).length, 3, 'not again on a swipe or the next reply');
@@ -46,4 +50,20 @@ test('"changed since this chat began" comes once: a swipe after it does not give
     await host.swipe(said('R1 a third time.'));
     await host.swipe(said('R1 a fourth time.'));
     assert.equal(notes(), 1, 'once, not on every swipe');
+});
+
+// Pinned edges of the rule "a chat whose reader has written more than one message began before anything was selected" (REVPF4 3; an open question for the lead).
+test('edges: deleting the first messages keeps the frame (it rides on the opening); two messages of the reader before the first reply record the built-in game', async t => {
+    const host = await frameHost(t);
+    await host.send('a', said('R1.'));
+    await host.send('b', said('R2.'));
+    const before = JSON.stringify(frameOf(host));
+    await host.st.deleteMessage(0);
+    await host.st.deleteMessage(0);
+    await host.send('c', said('R3.'));
+    assert.equal(JSON.stringify(frameOf(host)), before, 'the frame is kept, not replaced by the built-in game');
+    const two = await frameHost(t);
+    two.st.addUser('first');
+    await two.send('second', said('R1.'));
+    assert.equal(frameOf(two).game, 'built-in', 'the reader wrote twice before any reply: counted as a chat that had begun');
 });
