@@ -1,6 +1,6 @@
-// The Settings module cards' commands for the port: a card's module switch, its feature switches and "Reset to Standard" (Story Block, Story Director and NPC State).
+// The Settings module cards' commands for the port: a card's module switch, its feature switches and "Reset to Standard" (Story Block, Story Director and NPC State), and a preset (Lean, Standard, Full).
 
-import { presetSwitches } from '../../core/features.js';
+import { presetSwitches, PRESET_NAMES } from '../../core/features.js';
 import { EXTRAS_FEATURES, EXTRAS_MODULE } from '../select/extras-keys.js';
 import { isRpgFeature } from '../select/rpg-features.js';
 
@@ -12,7 +12,7 @@ const memoryKey = module => `cardSwitches.${module}`;
 
 /**
  * `settings.set` with key `modules.chat.<module>` switches the module's features (off: all off; on: the ones that start on, or all when none does), `modules.chat.<module>.<feature id>`
- * one feature, both through `writes.features.set` (the store the old view's switches write); `settings.action` `modules.reset` answers with the Standard preset's own switches
+ * one feature, both through `writes.features.set` (the store the old view's switches write); `settings.action` `modules.reset` answers with the Standard preset's own switches and `modules.preset` (value 'lean' | 'standard' | 'full') with that preset's
  * (a feature outside the presets keeps its value). A module switch acts only on the card's own drawn switches (Story Block's Choices, Inner chatter and Your look belong to the Chat extras card, and Pick what you take, Encumbered and Gear in fights to Settings › RPG and fights; they are left as they are); off keeps
  * what was on (`writes.settings.keep`) and on puts that back, or the ones that start on when nothing was kept.
  * Switches apply to every chat (per-chat sets are not built), so another scope is refused. `features()` is the feature list. Any other command: returns null.
@@ -22,6 +22,10 @@ export function moduleCardCommand(type, payload, writes = null, features = () =>
   const list = () => (features() ?? []).filter(f => typeof f?.id === 'string');
   if (type === 'settings.action' && payload?.key === 'modules.reset') {
     return [...presetSwitches(features(), 'standard')].every(([id, on]) => set(id, on)) ? { ok: true } : NO('The switches were not reset.');
+  }
+  if (type === 'settings.action' && payload?.key === 'modules.preset') {
+    if (!PRESET_NAMES.includes(payload.value)) return NO('That is not a preset.');
+    return [...presetSwitches(features(), payload.value)].every(([id, on]) => set(id, on)) ? { ok: true } : NO('The preset was not applied.');
   }
   const match = type === 'settings.set' ? KEY.exec(String(payload?.key ?? '')) : null;
   if (!match) return null;

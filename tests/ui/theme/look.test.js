@@ -28,12 +28,17 @@ test('the defaults are the mock: Glass dark or light (from SillyTavern\'s theme)
   assert.deepEqual(lookTheme(lookOf({}), reader(LIGHT_ST)), { tokens: { ...GLASS_LIGHT }, scheme: 'light', zoom: null });
 });
 
-test('Glass strength moves the panels\' alpha one point per point (50% is the mock\'s .72/.9), never past .98 or under .2', () => {
+test('Glass strength moves the panels\' alpha: 50% is the mock\'s .72/.9, under it one point per point, above it every step denser up to .98 at 90%', () => {
   const at = (strength, vars = DARK_ST) => lookTheme(lookOf({ glassStrength: strength }), reader(vars)).tokens;
   assert.equal(at(30)['--su-panel'], 'rgba(28,30,44,.52)');
   assert.equal(at(30)['--su-panel2'], 'rgba(36,38,56,.7)');
-  assert.equal(at(70)['--su-panel'], 'rgba(28,30,44,.92)');
+  assert.equal(at(70)['--su-panel'], 'rgba(28,30,44,.85)');
+  assert.equal(at(80)['--su-panel'], 'rgba(28,30,44,.92)');
+  assert.equal(at(80)['--su-panel2'], 'rgba(36,38,56,.96)');
   assert.equal(at(90)['--su-panel'], 'rgba(28,30,44,.98)');
+  assert.equal(at(90)['--su-panel2'], 'rgba(36,38,56,.98)');
+  const steps = [50, 60, 70, 80, 90].map(n => [at(n)['--su-panel'], at(n)['--su-panel2']].join());
+  assert.equal(new Set(steps).size, steps.length, 'no dead zone: every step to 90% changes the panels');
   assert.equal(at(30, LIGHT_ST)['--su-panel'], 'rgba(255,255,255,.52)');
   assert.equal(at(30, LIGHT_ST)['--su-panel2'], 'rgba(255,255,255,.68)');
   const rest = ({ '--su-panel': a, '--su-panel2': b, ...others }) => others;
