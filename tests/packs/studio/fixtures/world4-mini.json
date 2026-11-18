@@ -1,0 +1,30 @@
+{
+  "id": "studio-world4-mini",
+  "format": 4,
+  "kind": "world",
+  "version": "0.1.0",
+  "name": "Studio world 4 (test)",
+  "author": "Story Suite tests",
+  "description": "A tiny made-up format 4 world pack, for the Studio's tests.",
+  "requires": { "suite": "^0.1" },
+  "recommends": { "game": { "id": "studio-game4-mini", "version": "^0.1" } },
+  "content": {
+    "lore": [
+      { "title": "The Lamp Road", "keys": ["Lamp Road", "lamps"], "text": "Lamps line the road from Fenhold to Reedmoor.", "protected": true }
+    ],
+    "regions": [ { "id": "the-fen", "name": "The Fen" } ],
+    "placeKinds": { "lock town": "town", "marsh": "none" },
+    "places": [
+      { "id": "fenhold", "name": "Fenhold", "region": "the-fen", "kind": "lock town", "x": 0, "y": 0 },
+      { "id": "reedmoor", "name": "Reedmoor", "region": "the-fen", "kind": "marsh", "x": 3, "y": 2 }
+    ],
+    "routes": [ { "from": "fenhold", "to": "reedmoor", "kind": "road", "km": 12 } ],
+    "cast": [
+      { "kind": "companion", "id": "wren", "name": "Wren Ashby", "role": "lamplighter", "gender": "Female", "age": 24, "look": "Soot on her cuffs.", "start": { "place": "fenhold", "goal": "Keep the lamps lit", "routine": "Rounds at dusk" }, "portrait": "wren.webp" },
+      { "kind": "figure", "id": "old-tam", "name": "Old Tam", "role": "ferryman" }
+    ],
+    "conditions": [ { "name": "lamps-out", "scope": "region", "fades": "10 days", "means": "The road lamps are dark." } ],
+    "start": { "world": { "set": ["lamps-out@the-fen: 10 days"] } },
+    "powers": [ { "id": "lamp-guild", "name": "The Lamp Guild", "start": 20, "holds": ["fenhold"] } ]
+  }
+}

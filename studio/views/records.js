@@ -1,5 +1,6 @@
-// The read-only record views of the world parts (lore, cast, places and routes, conditions, events, templates, powers, items): one
-// card per record, its title, a short line, its flags and every field as written; a section that is not a list is drawn as one card.
+// The read-only view of one pack section (lore, cast, places and routes, conditions, events, templates, powers, items, a game pack's
+// parts and anything else): one card per record, its title, a short line, its flags and every field as written; a section that is not a
+// list is drawn as one card. The editor stubs (studio/edit/*.js) draw this until their form exists.
 
 import { h } from '../../ui/kit/dom.js';
 import { recordCard, valueNode } from './value.js';
@@ -24,8 +25,8 @@ const SPECS = {
     items: { title: r => r.name ?? r.id ?? r.slug, sub: r => join(r.type, r.slot), skip: ['name'] },
     foes: { title: r => r.name ?? r.id, sub: r => join(r.tier), skip: ['name'] },
 };
-const LABELS = { placeKinds: 'Place kinds', routeKinds: 'Route kinds', worldEvents: 'World events', events: 'Legacy events', start: 'Starting world' };
-const labelOf = key => LABELS[key] ?? key.charAt(0).toUpperCase() + key.slice(1);
+const LABELS = { placeKinds: 'Place kinds', routeKinds: 'Route kinds', worldEvents: 'World events', events: 'Legacy events', start: 'Starting world', meterPresets: 'Meter presets', dataModules: 'Data modules', rpg: 'RPG' };
+const labelOf = (key, kind) => (key === 'start' && kind === 'game' ? 'Player start' : LABELS[key] ?? key.charAt(0).toUpperCase() + key.slice(1));
 
 function fieldsOf(record, spec) {
     const skip = new Set([...(spec.skip ?? []), ...(spec.flags ?? [])]);
@@ -54,9 +55,13 @@ function listSection(section, ctx) {
     return [body, more];
 }
 
-/** The sections of one part (`part.sections` from parts.js) as nodes. `ctx`: `{ portrait(name) → node|null, showAll }`. */
-export function renderRecords(part, ctx = {}) {
-    return part.sections.map(section => h('div', { class: 'st-sec', dataset: { key: section.key } },
-        h('div', { class: 'secl2' }, `${labelOf(section.key)} · ${section.count}`),
-        Array.isArray(section.value) ? listSection(section, ctx) : h('section', { class: 'sgrp st-rec', dataset: { rec: section.key } }, valueNode(section.value))));
+/**
+ * One section of a part (`{ key, value, count }` from parts.js) as a node: a list section as one card per record, anything else as
+ * one card. `ctx`: `{ portrait(name) → node|null, focus }`; a `focus` on a record draws the whole list so Go to can reach it.
+ */
+export function renderSection(section, ctx = {}) {
+    const all = { ...ctx, showAll: Boolean(ctx.focus?.rec) };
+    return h('div', { class: 'st-sec', dataset: { key: section.key } },
+        h('div', { class: 'secl2' }, `${labelOf(section.key, ctx.kind)} · ${section.count}`),
+        Array.isArray(section.value) ? listSection(section, all) : h('section', { class: 'sgrp st-rec', dataset: { rec: section.key } }, valueNode(section.value)));
 }

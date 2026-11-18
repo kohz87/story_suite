@@ -1,9 +1,10 @@
 // The Studio's frame in the Settings overlay's look (mock v7 decision 33, ui/css/settings.css): header with Open, Export and the
-// theme switch; the parts as a side nav (tablet and up) or a phone list; one page; the pack-check bar at the foot.
+// theme switch; the parts as a side nav (tablet and up) or a phone list, a world pack's parts under World and a game pack's under Game;
+// one page; the pack-check bar at the foot.
 
 import { h, clear } from '../ui/kit/dom.js';
 
-const GROUPS = ['Pack', 'World', 'Check'];
+const GROUPS = ['Pack', 'World', 'Game', 'Check'];
 
 function searchBox(onQuery) {
     const el = h('input', { type: 'search', class: 'psrch', placeholder: 'Search the pack…', 'aria-label': 'Search the pack' });
@@ -92,7 +93,7 @@ export function createShell({ host, onOpen, onExportZip, onExportJson, onTheme, 
         setFooter,
         showList: () => body.setAttribute('data-page', 'list'),
         setNotice: text => { notice.textContent = text ?? ''; notice.hidden = !text; },
-        setExport: enabled => { exportZip.disabled = !enabled; exportJson.disabled = !enabled; },
+        setExport: ({ zip, json }) => { exportZip.disabled = !zip; exportJson.disabled = !json; },
         setQuery: text => { for (const box of [sideSearch, listSearch]) if (box.value !== text) box.value = text; },
         focusSearch: () => {
             const phone = side.offsetParent === null; // the side nav is hidden under 601 px
