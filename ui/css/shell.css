@@ -1,4 +1,4 @@
-/* Shell styles: sliding root, dimmed chat, sky backdrop, tab strip, phone bar and mini bar. Layout follows the container, never the viewport. */
+/* Shell styles: root (edge slide on phone and tablet, fade in place on desktop), dimmed chat, sky backdrop, tab strip, phone bar and mini bar. Layout follows the container, never the viewport. */
 .su-layer {
   position: fixed;
   inset: 0;
@@ -38,7 +38,7 @@
   height: 100%;
   overflow: hidden;
   container-type: inline-size;
-  transform: translateX(100%);
+  transform: translateX(100%) scale(1); /* every state keeps the same transform list (and a non-none value: sheets inside are fixed and need this box as their frame) */
   transition: transform 0.25s ease;
   background: var(--su-back);
   box-shadow: var(--su-shadow);
@@ -56,7 +56,43 @@
 }
 
 .su-layer[data-state="open"] .su-root {
-  transform: translateX(0);
+  transform: translateX(0) scale(1); /* the same value on desktop, so a resize while open starts no transition */
+}
+
+/* Desktop (a window wider than the 820 px column): the suite opens in place with a quick fade and a slight scale over the dimmed chat, no slide from the edge. Open looks the same at every width, so resizing while open replays nothing. */
+@media (min-width: 821px) {
+  .su-layer {
+    transition-duration: 0s;
+    transition-delay: 0.18s;
+  }
+
+  .su-layer[data-state="open"] {
+    transition-delay: 0s;
+  }
+
+  .su-dim {
+    transition-duration: 0.18s;
+  }
+
+  .su-root {
+    opacity: 0;
+    transform: translateX(0) scale(0.97);
+    transition: transform 0.18s ease-out, opacity 0.18s ease-out;
+  }
+
+  .su-layer[data-state="open"] .su-root {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* No animation anywhere: the suite appears and goes at once. */
+@media (prefers-reduced-motion: reduce) {
+  .su-layer,
+  .su-dim,
+  .su-root {
+    transition: none;
+  }
 }
 
 .su-back {
