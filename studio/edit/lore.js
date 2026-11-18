@@ -95,7 +95,7 @@ function freshTitle(list, base) {
 }
 
 function create(list, ctx, state) {
-    const was = { ...state };
+    const was = { open: state.open, q: state.q, filter: state.filter }; // each key, set or not, so a refusal restores it exactly
     Object.assign(state, { open: list.length, q: '', filter: 'all' }); // before commit: the Studio redraws inside it
     const result = ctx.commit([{ op: 'insert', path: [...BASE, list.length], value: { title: freshTitle(list, 'New entry'), keys: [], text: '' } }]);
     if (!result?.ok) Object.assign(state, was);

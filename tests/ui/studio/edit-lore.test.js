@@ -261,3 +261,16 @@ test('as in the Studio, where commit draws the page again before it returns: Del
     me.root.querySelector('.st-dup').click();
     assert.match(me.root.querySelector('.st-entryhead').textContent, /Lore entry 4 of 4/);
 });
+
+test('a refused New entry leaves the page as it was: the list, its search and its filter', () => {
+    const me = host();
+    const base = me.ctx;
+    me.ctx = () => ({ ...base(), commit: patches => { const result = base().commit(patches); if (result.ok) me.draw(); return result; } });
+    me.refuse = 'A pack below format 4 is read-only here.';
+    me.draw().querySelector('.st-filter[data-filter="hidden"]').click();
+    me.draw().querySelector('.st-new').click();
+    const kept = me.kept[Object.keys(me.kept).find(id => 'filter' in me.kept[id])];
+    assert.equal(kept.filter, 'hidden');
+    assert.equal(kept.open, undefined);
+    assert.equal(me.draw().querySelectorAll('.st-lorerow').length, 1);
+});
