@@ -134,7 +134,7 @@ export function applyRouteLine(ctx, line) {
     const packA = packPlace(pack, from);
     const packB = packPlace(pack, to);
     if (packA && packB && !(pack.routes ?? []).some(route => [packPlace(pack, route.from)?.key, packPlace(pack, route.to)?.key].sort().join('|') === [packA.key, packB.key].sort().join('|')) && !routesBetween(atlas, findPlace(atlas, packA.name)?.id, findPlace(atlas, packB.name)?.id).length) {
-        return ctx.fail('REFUSED', `"${lineText(line)}" was not used: the pack has no road between ${packA.name} and ${packB.name}, and the story cannot add one between two of its places.`);
+        return ctx.fail('REFUSED', `the pack has no road between ${packA.name} and ${packB.name}, and the story cannot add one between two of its places.`);
     }
     const reply = replyOf(ctx);
     const newPlaces = [from, to].filter(name => !onMap(atlas, pack, name)).length;
@@ -143,7 +143,7 @@ export function applyRouteLine(ctx, line) {
     const already = knownA && knownB ? routesBetween(atlas, knownA.id, knownB.id) : [];
     const newRoute = !(kind ? already.some(entry => entry.kind === kind) : already.length);
     const full = noRoom(atlas, reply, { places: newPlaces, routes: newRoute ? 1 : 0 });
-    if (full) return ctx.fail('REFUSED', `"${lineText(line)}" was not used: ${full}.`);
+    if (full) return ctx.fail('REFUSED', `${full}.`);
     const made = (entry, created) => {
         if (created && reply) entry.made = reply;
         return entry;
@@ -192,7 +192,7 @@ export function applyLandmarkLine(ctx, line) {
     const known = onMap(atlas, pack, name);
     const reply = replyOf(ctx);
     const full = known ? '' : noRoom(atlas, reply, { places: 1 });
-    if (full) return ctx.fail('REFUSED', `"${lineText(line)}" was not used: ${full}.`);
+    if (full) return ctx.fail('REFUSED', `${full}.`);
     const aliases = asText(labels.aka ?? labels.alias).split(/\s*[,;]\s*/).map(cleanName).filter(Boolean);
     // A label left out keeps what the place has; one written empty (`| kind: `) clears it.
     const said = (value, options) => (value === undefined || value === null ? undefined : cleanWord(value, options));

@@ -70,3 +70,23 @@ test('a story route between two pack places the pack does not join is refused (L
     const mine = line(base('Auvoth'), '+ route Auvoth — The Sled & Winch | days: 1', opts);
     assert.ok(mine.ok, mine.message);
 });
+
+// LF4-3 rest: a road the narrator puts inside a region sets out from the one pack place in that region its kind of road joins (name only).
+test('a trip from "Region / Road" sets out from the pack place that road joins in the region, the same after a visit (LF4-3 rest)', () => {
+    const name = 'Bluewatch Reach / Frontier Road';
+    const trip = line(away(base('Bluewatch Village'), name), '~ trip Auvoth | by: foot', opts);
+    assert.ok(trip.ok, trip.message);
+    assert.match(trip.result.summary, /On the road to Auvoth/);
+    assert.match(trip.result.summary, /70 km/);
+    const visited = line(away(visitTo('Highmark Capital'), name), '~ trip Auvoth | by: foot', opts);
+    assert.equal(visited.result?.summary, trip.result.summary);
+    // No region in front, or a region the road does not touch: nothing is guessed.
+    assert.equal(line(away(base('Bluewatch Village'), 'Frontier Road'), '~ trip Auvoth | by: foot', opts).code, 'NOT_FOUND');
+    assert.equal(line(away(base('Bluewatch Village'), 'Highmark Empire / Frontier Road'), '~ trip Auvoth | by: foot', opts).code, 'NOT_FOUND');
+});
+
+test('the refusal of a story route does not repeat the quoted line (NB-2)', () => {
+    const bad = line(base('Auvoth'), '+ route Auvoth — Highmark Capital | days: 21', opts);
+    assert.equal(bad.code, 'REFUSED');
+    assert.equal(bad.message.split('was not used').length - 1, 0, 'the line wrapper adds the quote, not the module');
+});
