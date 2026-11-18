@@ -16,6 +16,10 @@ Main has nothing beyond 0.1.2 yet except documentation.
 - The README and this changelog are rewritten to be readable: short sections, tables, and the long notes folded away.
 - Settings › Add-ons no longer shows an "Allow custom views" row (the feature does not exist yet); the page lists the installed modules only.
 
+### For developers
+
+- **NPC State: Level, Abilities and Keepsakes fields (developer, pack format 4).** A person record can now hold a Level (a whole number from 1 to 99), Abilities and Keepsakes (each a list of a name and a one-line description). Abilities hold at most 16 and Keepsakes at most 12; names are cut to 60 characters, descriptions to 200, and a name that repeats (any case) keeps its first entry. A person without them is stored exactly as before. The dossier editor has an Abilities row and a Keepsakes row (one "Name — description" per line), and a Level row only while the RPG feature is on; with RPG off a Save keeps the stored Level. The `npc.dossier` query returns them. **Nothing fills them yet:** the pack cast does not seed them, the narrator has no line for them, the RPG does not read or write them, and the existing custom Level field is unchanged. Those come in the next jobs of the format 4 block.
+
 ## 0.1.2 — 18 Nov 2026
 
 **Highlights**

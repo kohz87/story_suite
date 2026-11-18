@@ -11,6 +11,7 @@ import { normalizeFactMemories } from '../../memory/memory-fact-store.js';
 import { CAST_APPEARANCE_WIDE, castAppearanceKept, normalizeAppearanceCanon, normalizeLifeStateCertainty, normalizeMemoryStamps, normalizePortraitSeed, normalizeStoredMemories, stripRecordCitations } from '../core-record-shared.js';
 import { impactDayProblems } from '../../legacy/relationship-pacing.js';
 import { normalizeCustomFields } from '../core-record-custom-fields.js';
+import { BUILT_IN_LIMITS, normalizeLevel, normalizeStoryList } from './built-in-fields.js';
 
 const ALIAS_KEYS = ['sex', 'race', 'ancestry', 'speciesRace', 'species_race', 'home_base', 'usualLocation', 'usual_location', 'whereToFind', 'where_to_find', 'identity_kind',
     'portrait_prompt_positive', 'portrait_prompt_negative', 'portrait_prompt_replace', 'portrait_seed', 'behavior_profile', 'key_relationships', 'innerCircle', 'inner_circle',
@@ -35,6 +36,15 @@ export function normalizeNpcRecord(rawInput = {}) {
     const customFields = normalizeCustomFields(raw.customFields);
     if (Object.keys(customFields).length) npc.customFields = customFields;
     else delete npc.customFields;
+    // The built-in story fields: absent while empty (built-in-fields.js).
+    const level = normalizeLevel(raw.level);
+    if (level) npc.level = level;
+    else delete npc.level;
+    for (const [field, max] of [['abilities', BUILT_IN_LIMITS.abilities], ['keepsakes', BUILT_IN_LIMITS.keepsakes]]) {
+        const list = normalizeStoryList(raw[field], max);
+        if (list.length) npc[field] = list;
+        else delete npc[field];
+    }
     const ageFields = normalizeStoredAgeFields(raw);
     npc.age = ageFields.age;
     npc.apparentAge = ageFields.apparentAge;

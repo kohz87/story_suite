@@ -1,3 +1,8 @@
+// Whether the host's RPG feature is on right now (the same probe; false with no host or when it throws).
+export function rpgIsOn() {
+    try { return rpgProbe?.() === true; } catch { return false; }
+}
+
 // The custom field names in force: the configured names plus Level while the host's RPG feature is on (holds the probe).
 
 import { normalizeCustomFieldNames } from '../../core/core.js';
