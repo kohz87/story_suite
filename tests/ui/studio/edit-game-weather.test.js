@@ -22,7 +22,7 @@ function host(weather, opts = {}) {
     if (opts.seasons) content.calendar = { ...content.calendar, seasons: structuredClone(opts.seasons) };
     const me = { doc: openDoc({ doc: { ...structuredClone(GAME), content } }), patches: [], kept: {} };
     me.ctx = () => ({ doc: me.doc, kind: 'game', legacy: false, other: opts.world ?? null, problems: [], focus: null, keep: id => (me.kept[id] ??= {}), go: () => {},
-        commit: patches => { me.patches.push(patches); const result = apply(me.doc, patches); if (result.ok) me.doc = result.doc; return result; } });
+        commit: patches => { me.patches.push(patches); const result = apply(me.doc, patches); if (result.ok) me.doc = result.doc; if (result.ok && opts.redraws) me.draw(); return result; } });
     me.draw = () => (me.root = editSection({ key: 'weather', where: 'content', value: me.doc.doc.content.weather, count: 1 }, me.ctx())[0]);
     me.weather = () => me.doc.doc.content.weather;
     me.check = () => validatePack(me.doc.doc).errors ?? [];
@@ -159,4 +159,26 @@ test('a pack with no weather offers to set it; a table naming an unknown climate
     phone.draw().querySelector('.st-gpick').querySelectorAll('button')[2].click();
     assert.equal(phone.kept.weather.column, 'autumn');
     assert.ok(phone.draw().querySelector('.st-gcell[data-row="cold"][data-col="autumn"]').classList.contains('on'));
+});
+
+test('with own tables, a cell with no own or any-season table reads the "Any climate" row, its season\'s table first, as the game does', () => {
+    const tables = [{ season: 'autumn', weather: ['grey', 'damp'] }, { weather: ['plain'] }];
+    const own = host({ style: 'tables', tables });
+    own.draw();
+    assert.equal(own.cell('cold', 'autumn').textContent, 'Any climate · 2');
+    assert.equal(own.cell('cold', 'winter').textContent, 'Any climate · 1');
+    const byClimate = host({ style: 'climate', tables });
+    byClimate.draw();
+    assert.equal(byClimate.cell('cold', 'autumn').textContent, 'Built-in');
+});
+
+test('a new line and a written cell are set before the commit draws the page again (the Studio redraws inside commit)', () => {
+    const me = host({ style: 'climate', tables: [{ climate: 'temperate', season: 'autumn', weather: ['crisp', 'drizzle'] }] }, { redraws: true });
+    me.kept.weather = { open: { row: 'temperate', col: 'autumn' } };
+    me.draw().querySelector('.st-wcell .st-tadd').click();
+    assert.ok(me.root.querySelectorAll('.st-wcell .st-trow')[2].querySelector('input').classList.contains('st-at'), 'the redraw inside the commit focuses the new line');
+    me.kept.weather = { open: { row: 'cold', col: 'winter' } };
+    me.draw().querySelector('.st-wcell .st-wown').click();
+    assert.equal(me.root.querySelector('.st-wcell').dataset.open, 'cold|winter');
+    assert.equal(me.kept.weather.open.at, 1, 'the open cell shows the table just written');
 });

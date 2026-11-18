@@ -257,3 +257,25 @@ test('the patches the editor makes, applied to the pack, still pass the game\'s 
     assert.equal(doc.doc.content.routes[0].kind, 'tow path');
     assert.equal(doc.doc.content.places[0].market, 'market-town');
 });
+
+test('a place kind rename carries the where.kinds of templates and world events; one they name cannot be removed', () => {
+    const pack = world();
+    pack.content.templates = [{ template: 'market-day', where: { kinds: ['lock town', 'village'] } }];
+    pack.content.worldEvents = [{ id: 'flood', where: { kinds: ['lock town'] } }, { id: 'quiet', where: ['fenhold'] }];
+    const renamed = setup('placeKinds', { pack });
+    const box = kindRow(renamed.root, 'lock town').querySelector('input.st-kword');
+    box.value = 'canal town';
+    box.dispatch('change');
+    const patches = renamed.commits.at(-1);
+    assert.deepEqual(patches.filter(patch => patch.path.includes('where')), [
+        { op: 'set', path: ['content', 'templates', 0, 'where', 'kinds'], value: ['canal town', 'village'] },
+        { op: 'set', path: ['content', 'worldEvents', 0, 'where', 'kinds'], value: ['canal town'] }]);
+    // with no place using it, the events and templates that name it still keep it
+    const unused = world();
+    unused.content.places = unused.content.places.filter(place => place.kind !== 'lock town');
+    unused.content.worldEvents = [{ id: 'flood', where: { kinds: ['lock town'] } }];
+    const drop = setup('placeKinds', { pack: unused });
+    kindRow(drop.root, 'lock town').querySelector('.st-remove').click();
+    assert.deepEqual(drop.commits, []);
+    assert.match(kindRow(drop.root, 'lock town').querySelector('.st-problem').textContent, /An event or template names it in where\.kinds/);
+});

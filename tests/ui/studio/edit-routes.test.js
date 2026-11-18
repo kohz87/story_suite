@@ -124,6 +124,13 @@ test('renaming a named route goes through the reference index; naming an unnamed
     assert.deepEqual(plain.calls.commit.at(-1), [{ op: 'set', path: ['content', 'routes', 0, 'name'], value: 'Fen Road' }]);
     assert.match(page2.querySelector('p.st-problem').textContent, /named this route "fenhold–reedmoor"; change those by hand/);
     assert.match(page2.querySelector('.st-usedby').textContent, /1 record in the pack names it, such as content\.start\.world\.set\.0/);
+    // In the Studio the commit has drawn the page again, so the warning goes to ctx.say (the note line a draw keeps).
+    const said = [];
+    const studio = setup({ focus: { rec: 'routes.0', path: null }, edit: pack => { pack.content.start = { world: { set: ['flood@fenhold–reedmoor'] } }; }, ctx: { say: text => said.push(text) } });
+    const name3 = field(studio.draw(), 'name').querySelector('input');
+    name3.value = 'Fen Road'; name3.dispatch('change');
+    assert.deepEqual(said.length, 1);
+    assert.match(said[0], /named this route "fenhold–reedmoor"; change those by hand/);
 });
 
 test('a refused change says why; Duplicate inserts a named copy, Delete removes the route, Back goes to the list', () => {
@@ -148,4 +155,12 @@ test('a checker problem on a field shows under it, and a format 3 pack gets the 
     const page = old.draw();
     assert.equal(page.querySelector('.st-prow'), null);
     assert.ok(page.querySelector('.st-rec'));
+});
+
+test('Go to a route\'s field marks the field, not the JSON row; a path with no field opens the JSON row', () => {
+    const page = setup({ focus: { rec: 'routes.1', path: ['hours'] } }).draw();
+    assert.equal(page.querySelector('.st-at').closest('[data-key]').dataset.key, 'hours');
+    const other = setup({ focus: { rec: 'routes.1', path: ['extra'] } }).draw();
+    assert.equal(other.querySelector('.st-edit .st-at'), null, 'no form field is marked');
+    assert.ok(other.querySelector('.st-at'), 'the JSON row takes the focus instead');
 });

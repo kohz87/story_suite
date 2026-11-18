@@ -29,11 +29,53 @@ function refusalFor(refs, kind, from, to) {
     return clash ? `"${to}" is already the id of a ${LABEL[clash]}.` : null;
 }
 
-/** → { ok: true, patches, elsewhere } | { ok: false, refusal }. `doc` is the document (or pack) `refs` was built from. */
+// A secret is "<person>/<secret>" (gates name it as learned:<person>/<secret>): its id and those terms change, in this pack only.
+function renameSecret(refs, root, from, to) {
+    const cut = String(from).indexOf('/');
+    const who = String(from).slice(0, cut);
+    const old = String(from).slice(cut + 1);
+    const next = typeof to === 'string' && to.startsWith(`${who}/`) ? to.slice(who.length + 1) : null;
+    const cast = Array.isArray(root?.content?.cast) ? root.content.cast : [];
+    const index = cast.findIndex(person => person?.id === who);
+    const secrets = Array.isArray(cast[index]?.secrets) ? cast[index].secrets : [];
+    const at = cut < 1 ? -1 : secrets.findIndex(secret => secret?.id === old);
+    if (at < 0) return refuse(`There is no secret "${from}" to rename.`);
+    if (next === null) return refuse('A secret stays with its person; give it a new id of its own.');
+    if (next === old) return refuse('The new id is the same as the old one.');
+    if (!SLUG.test(next)) return refuse(`"${next}" is not an id: use lower-case words joined by "-".`);
+    if (secrets.some(secret => secret?.id === next)) return refuse(`"${next}" is already the id of another of ${who}'s secrets.`);
+    const visit = (hint, id) => (hint === 'secret' && id === from ? `${who}/${next}` : undefined);
+    const patches = [{ op: 'set', path: ['content', 'cast', index, 'secrets', at, 'id'], value: next }];
+    const seen = new Set();
+    for (const use of refs.uses) {
+        if (use.pack === 'other' || !use.mode || use.kind !== 'cast' || use.id !== who) continue;
+        // a one-line string, or an object whose keys are one-line entries (likelier_if, less_if), rebuilt whole in its key order
+        const at = use.form === 'key' ? use.path.slice(0, -1) : use.path;
+        if (seen.has(JSON.stringify(at))) continue;
+        seen.add(JSON.stringify(at));
+        if (use.form === 'text') {
+            const text = getAt(root, at);
+            const changed = walkText(text, use.mode, visit);
+            if (changed !== text) patches.push({ op: 'set', path: at, value: changed });
+            continue;
+        }
+        const map = getAt(root, at);
+        const keys = Object.keys(map).map(key => walkText(key, use.mode, visit));
+        if (new Set(keys).size !== keys.length) return refuse(`That would give two entries of ${at.join('.')} the same key.`);
+        if (keys.some((key, n) => key !== Object.keys(map)[n])) patches.push({ op: 'set', path: at, value: Object.fromEntries(Object.keys(map).map((key, n) => [keys[n], map[key]])) });
+    }
+    return { ok: true, patches, elsewhere: [] };
+}
+
+/**
+ * → { ok: true, patches, elsewhere } | { ok: false, refusal }. `doc` is the document (or pack) `refs` was built from. Kind 'secret'
+ * takes `from` and `to` as "<person>/<secret>".
+ */
 export function renameId(refs, doc, kind, from, to) {
+    const root = doc?.doc ?? doc;
+    if (kind === 'secret') return renameSecret(refs, root, from, to);
     const problem = refusalFor(refs, kind, from, to);
     if (problem) return refuse(problem);
-    const root = doc?.doc ?? doc;
     const pairs = [{ kind, from, to }];
     if (kind === 'place') {
         for (const route of Array.isArray(root?.content?.routes) ? root.content.routes : []) {

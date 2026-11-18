@@ -28,27 +28,39 @@ undo and redo and an autosaved draft.
   of the other pack makes it active, and Overview's "Also open" row switches too. The game parts are Calendar, Money,
   Weather, Names, Rules, Trackers and Start.
 - **Format 3**: a pack below format 4 (or with no `format`) opens read-only in the world slot. Its subtitle says
-  `Format 3`, a card at the top of Overview says why it cannot be edited, and its rules, calendar, money and the like show
-  under Other as written. The Studio does not convert it (ST-CONV was dropped).
+  `Format 3 · <name> · <version> · Read-only`, a card at the top of Overview says why it cannot be edited, its Pack card reads
+  Name, Id, Version, Author (and what it needs) in words, and its rules, calendar, money and the like show under Other as
+  written. Overview says "Opened read-only: an old-format pack.", the foot bar says "Old format: not checked", and Export is
+  off (Ctrl/Cmd+S too) with no note; the Problems page still lists what the checker says of it. The Studio does not
+  convert it (ST-CONV was dropped).
 - **Check**: `packs/validate.js` `validatePack` on the text as written, so the Studio and the game always agree. Each
   problem's path is filed under a part and a record (`studio/parts.js` `partOfPath`).
 - **Views**: one page per part (`studio/parts.js` `PARTS`). Which content keys a format 4 pack may hold come
   from the game's `CONTENT_KEYS` (`packs/limits-parts/kinds.js`) for its kind; `parts.js` only orders, names and groups them,
-  and anything else shows under Other. Records are cards showing every field as written. A part the pack does not have is
-  left out of the nav.
+  and anything else shows under Other. Records are cards showing every field as written. A format 4 pack's part it holds
+  nothing of (a new pack) is still listed, count 0 and "Nothing yet" on Overview, and draws its editor's empty state from the
+  key's empty value (`parts.js` `EMPTY`; the weather's own "not set" card); the first edit below that key writes the empty
+  value in the same undo step (`app.js`), and looking at the part writes nothing. A format 3 pack's part it does not have is
+  left out of the nav. New world and New game (the start page, `ctx.openDoc`) open on Overview, which says "New in the
+  Studio, not exported yet." until the first export.
 - **Slots** (`studio/views/route.js`): each content key is drawn by its editor file (`EDITORS`, per kind:
   `studio/edit/<name>.js`, `editSection(section, ctx)`), and each page that is not one key by its page file (`PAGES`:
   `studio/views/<id>.js`, `renderPage(ctx)`): the map and the event graph as a "List · Map" or "List · Graph" segment on
   their part, the dry run and Pairing as parts in the Check group, Convert as the card on a format 3 Overview, and the start
-  page. A key with no editor (a format 3 pack's rules, calendar and the like) is drawn as read-only cards; a page that
-  draws nothing is not mounted. `ctx` (built by
+  page. A key with no editor (a format 3 pack's rules, calendar and the like) is drawn as read-only cards; a segment or
+  card page that draws nothing is not mounted, and a Check part (Dry run, Pairing) is listed whenever its `when` holds,
+  without being drawn to find out (its page must then draw something). `ctx` (built by
   `studio/app.js` for each draw) is the contract in `studio/views/route.js`: `doc` (the present pack itself, the parsed pack.json, not a
   `{ text, doc }` document), `kind`, `legacy`, `other`, `refs` (the
   reference index, `studio/model/refs.js`, built once per snapshot), `problems`, `focus` (`{ rec, path }`), `go`, `portrait`,
-  `keep(id)` (a plain object per pack that outlives a redraw), and the edits: `commit(patches)` and `setPortrait(name,
-  bytes | null)` are one undo step each and answer `{ ok, same?, refusal? }`, and `openDoc({ text?, doc?, portraits? })`
-  opens a document as if it had been picked. The stylesheets `studio/css/{edit,records,map,graph,timeline}.css` are linked
-  (the forms, the record lists and heads, the map, the graph and the dry run), and the World tab's `ui/css/world.css` is linked for the map.
+  `keep(id)` (a plain object per pack that outlives a redraw; an editor sets it before it commits, as the page is drawn
+  again inside the commit), `say(text)` (a note in the note line above the page, for what follows a change; a draw keeps it),
+  and the edits: `commit(patches)` and `setPortrait(name | null, bytes | null, { patches, drop }?)` are one undo step each
+  and answer `{ ok, same?, refusal? }` (setPortrait's field patches and the dropped old picture go in its step, so picking or
+  removing a portrait is one undo step), and `openDoc({ text?, doc?, portraits? })` opens a document as if it had been
+  picked. A change made clears the note line; a refusal the editor does not show by its field is said there. The stylesheets
+  `studio/css/{edit,records,map,graph,timeline}.css` are linked (the forms, the record lists and heads, the map, the graph and
+  the dry run), and the World tab's `ui/css/world.css` is linked for the map.
 - **Editing** (`studio/session.js`, one session per open pack): `commit` runs the pure edits (`studio/model/edits.js`) on
   the present document, which gives a new frozen snapshot and one step in that pack's own history; the page is drawn again
   at once, keeping its scroll and the box being typed in. About 300 ms after the last change the snapshot is checked with
@@ -71,8 +83,11 @@ undo and redo and an autosaved draft.
   carry it); a redraw (a check or a draft landing, undo) leaves the phone on the list or the page it showed. The prompt gives the time
   saved but not how many changes it holds (the draft keeps no count).
 - **Problems**: the checker's problems grouped by part, each with **Go to**, which opens the part and the record; for a
-  problem inside a record (`content.cast[3].secrets[1].gate`) it opens the record's JSON row with the caret on that field's
-  line (or the nearest part of it the record has). F8 does the same for the next problem.
+  problem inside a record (`content.cast[3].secrets[1].gate`) it puts the focus on that field in the record's form (the
+  editor marks it `.st-at`; a gate whose builder shows hands it to "Edit as text"), or, when the form has no field for it,
+  opens the record's JSON row with the caret on that field's line (or the nearest part of it the record has). F8 does the
+  same for the next problem. After a change the page is drawn again and the box being typed in keeps the focus (found as
+  the same box of its kind and label in the record).
 - **Search**: records whose title, id, name, keys or aliases hold the words.
 - **Export** is off while the pack has errors (warnings do not stop it): the header's Export buttons are off, a note
   says "Export is off until the 2 problems are fixed. Warnings don’t stop it." with **Go to the first ›**, and the foot bar
@@ -95,7 +110,7 @@ undo and redo and an autosaved draft.
   | `/` | Search |
   | Alt+1…9 | A part |
   | F8 | Next problem, at its field |
-  | Esc | Clear the search, or back to the parts list on a phone |
+  | Esc | Close the open sheet (the id picker, a gate term, New world); else clear the search, or back to the parts list on a phone |
 
 - **Look**: the Settings overlay's frame and classes (`ui/css/settings.css`) and the Glass dark and light tokens
   (`ui/theme/`). The theme switch is remembered in `localStorage` (`storySuite.studio.theme`).
@@ -111,9 +126,8 @@ undo and redo and an autosaved draft.
 
 - **World-spec packs with no `format`**: these are format 3 to the checker. It knows the world-pack kinds, but such a
   pack's `content.start` is still an `UNKNOWN_KIND` problem; a format 4 world pack holds it.
-- **Missing pieces**: no forms yet (every record is edited as JSON), no Overview fields editing, no map or
-  graph view, no Pairing page, no Convert and no New world or New game yet; their slots are in place. Nothing calls
-  `setPortrait` or `openDoc` yet (the cast portrait editor, the start page and Convert will).
+- **Missing pieces**: no Convert (ST-CONV was dropped). The cast portrait editor calls `setPortrait`, and the start page's
+  New world and New game call `openDoc`.
 
 ## Tests
 

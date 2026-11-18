@@ -163,6 +163,12 @@ test('renaming an id that another record names rewrites those records in the sam
     edit(field(me.root, 'id').querySelector('input'), 'Bad Id');
     assert.equal(me.lore()[1].id, 'the-shroud');
     assert.match(me.root.querySelector('.st-problem[role="status"]').textContent, /not an id/);
+    // blanking an id another record names is refused (the gate would dangle), with no edit
+    me.draw();
+    edit(field(me.root, 'id').querySelector('input'), '');
+    assert.equal(me.lore()[1].id, 'the-shroud');
+    assert.equal(me.patches.length, 1);
+    assert.match(me.root.querySelector('.st-problem[role="status"]').textContent, /A record names this entry by its id/);
 });
 
 test('an id with nothing using it is a plain set, and clearing it removes the key', () => {

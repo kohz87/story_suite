@@ -157,6 +157,28 @@ test('restore puts a draft on top of the file (one undo step back to it); setPor
     assert.match(game.setPortrait('a.webp', bytes).refusal, /world pack/);
 });
 
+test('setPortrait with the field and the old picture is one undo step, all or nothing; a name-less step removes the field and the picture', () => {
+    const { session } = make();
+    const old = new Uint8Array([1]);
+    session.setPortrait('wren.webp', old);
+    const field = value => [{ op: 'set', path: ['content', 'cast', 0, 'portrait'], value }];
+    // Replace with another type: the new picture, the field naming it and the old picture go in one step.
+    assert.deepEqual(session.setPortrait('wren.png', new Uint8Array([2]), { patches: field('wren.png'), drop: 'wren.webp' }), { ok: true });
+    assert.deepEqual([session.doc.content.cast[0].portrait, session.portraits.map(file => file.name)], ['wren.png', ['wren.png']]);
+    assert.equal(session.undo(), true);
+    assert.deepEqual([session.doc.content.cast[0].portrait, session.portraits.map(file => file.name)], ['wren.webp', ['wren.webp']]);
+    // A refused field patch keeps the picture out too (nothing is orphaned).
+    const refused = session.setPortrait('wren.png', new Uint8Array([2]), { patches: [{ op: 'set', path: ['content', 'cast', 9, 'portrait'], value: 'x' }], drop: 'wren.webp' });
+    assert.equal(refused.ok, false);
+    assert.deepEqual(session.portraits.map(file => file.name), ['wren.webp']);
+    // Remove: the field and the picture in one step; a dropped name the pack does not hold is not a refusal.
+    assert.deepEqual(session.setPortrait(null, null, { patches: [{ op: 'remove', path: ['content', 'cast', 0, 'portrait'] }], drop: 'wren.webp' }), { ok: true });
+    assert.deepEqual([session.doc.content.cast[0].portrait, session.portraits.length], [undefined, 0]);
+    session.undo();
+    assert.deepEqual([session.doc.content.cast[0].portrait, session.portraits.length], ['wren.webp', 1]);
+    assert.deepEqual(session.setPortrait(null, null, { patches: [{ op: 'remove', path: ['content', 'cast', 0, 'portrait'] }], drop: 'nobody.webp' }), { ok: true });
+});
+
 test('the field below a record: check.js path steps and the JSON row caret at that field (or the nearest part the record has)', () => {
     assert.deepEqual(pathSteps('content.cast[3].secrets[1].gate'), ['content', 'cast', 3, 'secrets', 1, 'gate']);
     const record = { name: 'Wren', secrets: [{ id: 'a', gate: 'x' }, { id: 'b', gate: 'y' }] };

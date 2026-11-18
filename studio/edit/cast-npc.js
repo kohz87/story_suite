@@ -7,6 +7,7 @@ import { CAST_BUILT_IN_METERS, CAST_BUILT_IN_PRESETS, METER_RESERVED, SLUG, WORL
 import { fieldRow, setProblem } from '../form/fields.js';
 import { gateField } from '../form/gate.js';
 import { subRecords } from '../form/records.js';
+import { renameId } from '../model/rename.js';
 import { previewSeed } from '../model/seed-preview.js';
 
 const NO_PRESET = '(none)';
@@ -59,6 +60,18 @@ export function npcGroups(person, list, kit) {
     };
     const field = (spec, change) => mark(fieldRow({ problem: problemOf(spec.key), ...spec }, (_, value) => change(value)));
     const setAt = (path, value) => commit([{ op: 'set', path: [...where, ...path], value }]);
+    // A secret's id: one that gates may name (learned:<person>/<secret>) is renamed with them (model/rename.js); a refusal shows by the field.
+    const secretIdRow = (secret, n) => {
+        const row = field({ type: 'text', key: `secrets.${n}.id`, label: 'Id', hint: 'Gates name it as learned:<person>/<secret>', value: secret.id ?? '' }, value => {
+            const next = String(value).trim();
+            if (next === secret.id) return null;
+            if (typeof secret.id !== 'string' || !secret.id || typeof person.id !== 'string' || !person.id) return setAt(['secrets', n, 'id'], next);
+            const plan = renameId(kit.ctx.refs, kit.ctx.doc, 'secret', `${person.id}/${secret.id}`, `${person.id}/${next}`);
+            if (!plan.ok) return setProblem(row, plan.refusal);
+            return commit(plan.patches);
+        });
+        return row;
+    };
     const meters = isObj(person.meters) ? person.meters : null;
     const meterIds = Object.keys(meters ?? {}).filter(key => key !== 'preset');
 
@@ -104,7 +117,7 @@ export function npcGroups(person, list, kit) {
             title: secret => secret?.id ?? secret?.title ?? '(no id)',
             make: () => ({ id: free(person.secrets, 'new-secret', 'id'), gate: `meter ${meterIds[0] ?? 'trust'} >= 20`, text: '' }),
             form: (secret, n) => (secret.id === undefined && secret.gate === undefined ? [h('p', { class: 'fine' }, 'This secret is in the old form (title, meter, at, when). Edit it in the JSON below, or write it again as id, gate and text.')] : [
-                field({ type: 'text', key: `secrets.${n}.id`, label: 'Id', hint: 'Gates name it as learned:<person>/<secret>', value: secret.id ?? '' }, value => setAt(['secrets', n, 'id'], String(value).trim())),
+                secretIdRow(secret, n),
                 mark(gateField({ key: `secrets.${n}.gate`, label: 'Gate', hint: 'When it can come out. Terms joined by or / and; checked as you type', value: secret.gate ?? '', content: kit.ctx.doc?.doc?.content ?? kit.ctx.doc?.content ?? {}, ownerId: typeof person.id === 'string' ? person.id : null },
                     (_, value) => setAt(['secrets', n, 'gate'], value))),
                 field({ type: 'long', key: `secrets.${n}.text`, label: 'Text', hint: 'The secret itself, at most 600 characters', value: secret.text ?? '', rows: 3 }, value => setAt(['secrets', n, 'text'], value)),
@@ -146,15 +159,23 @@ function listGroup(key, title, noun, person, kit, tools, spec) {
     const items = Array.isArray(person[key]) ? person[key] : [];
     const max = WORLD_CAST_LIMITS[key];
     const nameOf = item => String((spec.title ?? (entry => entry?.name))(item) ?? `(no ${noun === 'secret' ? 'id' : 'name'})`);
+    // The open item is set before the commit (which draws the page again) and put back if the edit is refused.
+    const opening = (open, patches) => {
+        const was = state.open;
+        state.open = open;
+        const result = commit(patches);
+        if (!result?.ok) state.open = was;
+        return result;
+    };
     const add = () => {
         if (items.length >= max) return;
         const value = spec.make();
-        if (commit([Array.isArray(person[key]) ? { op: 'insert', path: [...where, key, items.length], value } : { op: 'set', path: [...where, key], value: [value] }])?.ok) state.open = `${key}.${items.length}`;
+        opening(`${key}.${items.length}`, [Array.isArray(person[key]) ? { op: 'insert', path: [...where, key, items.length], value } : { op: 'set', path: [...where, key], value: [value] }]);
     };
     const group = subRecords({ title, addLabel: `+ Add ${noun === 'ability' ? 'an' : 'a'} ${noun}`, items: items.map(item => ({ title: nameOf(item), sub: spec.sub(item) })) }, {
         add,
-        move: (from, step) => { if (commit([{ op: 'move', path: [...where, key, from], to: from + step }])?.ok && state.open === `${key}.${from}`) state.open = `${key}.${from + step}`; },
-        remove: from => { if (commit([{ op: 'remove', path: items.length === 1 ? [...where, key] : [...where, key, from] }])?.ok && String(state.open).startsWith(`${key}.`)) state.open = null; },
+        move: (from, step) => opening(state.open === `${key}.${from}` ? `${key}.${from + step}` : state.open, [{ op: 'move', path: [...where, key, from], to: from + step }]),
+        remove: from => opening(String(state.open).startsWith(`${key}.`) ? null : state.open, [{ op: 'remove', path: items.length === 1 ? [...where, key] : [...where, key, from] }]),
     });
     group.dataset.key = key;
     group.classList.add(`st-${key}`);

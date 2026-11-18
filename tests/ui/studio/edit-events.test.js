@@ -269,3 +269,10 @@ test('a legacy pack, the dated events key, or a list that is not all records fal
     const odd = { ...WORLD, content: { ...C, worldEvents: [EVENTS[0], 'x'] } };
     assert.equal(setup({ pack: odd }).draw().querySelector('.st-eventrow'), null);
 });
+
+test('the open event\'s data-rec holds its fields: Go to finds the field marked inside the record, as the Studio looks for it', () => {
+    const root = setup({ focus: { rec: 'worldEvents.2', path: ['summary'] } }).draw();
+    const record = root.querySelector('[data-rec="worldEvents.2"]');
+    assert.ok(record.querySelector('.st-at'), 'the marked field is inside the record the Studio finds first');
+    assert.equal(record.querySelector('.st-at').closest('[data-key]').dataset.key, 'summary');
+});

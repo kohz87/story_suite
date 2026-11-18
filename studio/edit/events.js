@@ -261,8 +261,9 @@ function eventPage(list, index, bad, ctx, state, redraw) {
             h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = index; redraw(); } }, 'Delete')));
     const sure = state.confirm === index ? deleteCard({ title: String(event.title ?? event.id ?? `#${index + 1}`), uses: uses.length,
         onDelete: () => { state.confirm = null; if (say(ctx.commit([{ op: 'remove', path: [...BASE, index] }]))?.ok) ctx.go(PART); }, onKeep: () => { state.confirm = null; redraw(); } }) : null;
-    return [head,
-        h('div', { class: 'st-rt st-entryhead', dataset: { rec: `worldEvents.${index}` }, tabindex: '-1' }, h('b', String(event.title ?? event.id ?? `#${index + 1}`)),
+    // The record's `data-rec` holds its fields, so Go to reaches the field (.st-at) and a redraw keeps the box being typed in.
+    return [head, h('section', { class: 'st-recpage', dataset: { rec: `worldEvents.${index}` }, tabindex: '-1' },
+        h('div', { class: 'st-rt st-entryhead' }, h('b', String(event.title ?? event.id ?? `#${index + 1}`)),
             h('small', `Event ${index + 1} of ${list.length}`), ...flagsOf(event).map(flag => h('span', { class: 'tg2' }, flag))),
         sure, note,
         group('Event', idRow, text('title', 'Title', 'Shown in lists and the Journal; blank: the id'),
@@ -293,7 +294,7 @@ function eventPage(list, index, bad, ctx, state, redraw) {
         endsGroup(event, env, put, problemOf),
         group('Used by', ...(uses.length ? uses.map(use => usedRow(use, ctx)) : [h('p', { class: 'fine' }, typeof event.id === 'string' ? `No other record names this event (as fired:${event.id}).` : 'Give the event an id for others to name it.')])),
         extra.length ? h('p', { class: 'fine' }, `Also in this event, only in the JSON below: ${extra.join(', ')}.`) : null,
-        jsonRow({ value: event, steps: [...BASE, index], noun: 'event', problems: bad[index], focus: focusKey && !FIELDS.includes(focusKey) ? ctx.focus : null, state: ctx.keep?.(`json:worldEvents.${index}`) ?? {} }, patches => ctx.commit(patches))].filter(Boolean);
+        jsonRow({ value: event, steps: [...BASE, index], noun: 'event', problems: bad[index], focus: focusKey && !FIELDS.includes(focusKey) ? ctx.focus : null, state: ctx.keep?.(`json:worldEvents.${index}`) ?? {} }, patches => ctx.commit(patches)))];
 }
 
 function usedRow(use, ctx) {

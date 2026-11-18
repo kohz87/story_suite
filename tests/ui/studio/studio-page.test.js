@@ -81,7 +81,7 @@ test('Ersveil opens, the checker takes it, every part has a page and Export give
       title: document.querySelector('.spage h2').textContent,
       check: document.querySelector('.st-check').dataset.ok,
     }));
-    assert.deepEqual(head, { sub: 'World · Ersveil (open world) · 4.0.0', foot: 'No problems', nav: ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
+    assert.deepEqual(head, { sub: 'World · Ersveil (open world) · 4.0.0', foot: 'No problems', nav: ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
     for (const part of head.nav) {
       await page.click(`.snav .si3[data-part="${part}"]`);
       const seen = await page.evaluate(() => ({ title: document.querySelector('.spage h2').textContent, cards: document.querySelectorAll('.spage :is(.sgrp, .reclist > .st-rec)').length }));
@@ -113,7 +113,8 @@ test('a world pack: the engine\'s checker refuses what it does not take; Problem
     const groups = await page.evaluate(() => [...document.querySelectorAll('.st-probs')].map(g => g.dataset.part));
     assert.deepEqual([...groups].sort(), ['conditions', 'events']);
     await page.locator('.st-probs[data-part="events"] .lnk').first().click();
-    const hit = await page.evaluate(() => ({ part: document.querySelector('.snav .si3[aria-current="true"]').dataset.part, focused: document.activeElement?.dataset?.rec, marked: document.querySelector('.st-hit')?.dataset.rec }));
+    // Go to reaches the record, and the field of the problem inside it when the form has one (.st-at).
+    const hit = await page.evaluate(() => ({ part: document.querySelector('.snav .si3[aria-current="true"]').dataset.part, focused: document.activeElement?.closest('[data-rec]')?.dataset.rec, marked: document.querySelector('.st-hit')?.dataset.rec }));
     assert.deepEqual(hit, { part: 'events', focused: 'worldEvents.0', marked: 'worldEvents.0' });
     await page.click('.snav .si3[data-part="lore"]');
     const lore = await page.evaluate(() => [...document.querySelectorAll('.st-rec[data-rec^="lore."]')].map(card => [card.querySelector('.st-rt b').textContent, [...card.querySelectorAll('.tg2')].map(tag => tag.textContent).join(' ')]));
@@ -192,7 +193,7 @@ test('format 4: a world zip with game.json opens both packs; a Game part makes t
   const { page, errors } = await studio(1280);
   try {
     await openFile(page, pick('world4.zip', ZIP4, 'application/zip'));
-    assert.deepEqual(await nav(page), { sub: 'World · Studio world 4 (test) · 0.1.0', groups: ['Pack', 'World', 'Game', 'Check'], parts: ['overview', 'lore', 'cast', 'map', 'conditions', 'powers', 'calendar', 'money', 'names', 'game-start', 'timeline', 'pairing', 'problems'], zip: false });
+    assert.deepEqual(await nav(page), { sub: 'World · Studio world 4 (test) · 0.1.0', groups: ['Pack', 'World', 'Game', 'Check'], parts: ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], zip: false });
     assert.equal(await page.locator('.st-convert').count(), 0);
     assert.equal(await page.locator('.st-seg').count(), 0);
     assert.equal(await page.textContent('.st-other .lb b'), 'Game pack · Studio game 4 (test) · 0.1.0');

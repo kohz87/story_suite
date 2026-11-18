@@ -153,7 +153,7 @@ function recordPage(key, list, at, ctx) {
         if (!id) return tell(`A ${spec.noun} needs an id.`);
         const plan = typeof record.id !== 'string' ? { ok: true, patches: [{ op: 'set', path: [...where, 'id'], value: id }] } : renameId(ctx.refs, ctx.doc, spec.kind, record.id, id);
         if (!plan.ok) return tell(plan.refusal);
-        if (done(ctx.commit(plan.patches))?.ok && plan.elsewhere?.length) tell(`The other open pack names this ${spec.noun} ${plural(plan.elsewhere.length, 'time')}; change those by hand.`);
+        if (done(ctx.commit(plan.patches))?.ok && plan.elsewhere?.length) (ctx.say ?? tell)(`The other open pack names this ${spec.noun} ${plural(plan.elsewhere.length, 'time')}; change those by hand.`);
     };
     const row = (fields, change) => fieldRow({ ...fields, problem: problemOf(fields.key) }, change);
     const whole = (field, value) => { if (value === null) put(field, undefined); else if (Number.isFinite(value)) put(field, value); };

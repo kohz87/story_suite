@@ -183,3 +183,19 @@ test('a format 3 pack, or a list that is not all records, gets the read-only car
     odd.pack.content.realms.push('loose');
     assert.equal(odd.draw('realms').querySelector('.st-prow'), null);
 });
+
+test('Go to a region\'s field marks the field, not the JSON row; a rename the other open pack also names says so through ctx.say', () => {
+    const marked = setup({ focus: { rec: 'regions.1', path: ['climate'] } });
+    const page = marked.draw();
+    assert.equal(page.querySelectorAll('.st-at').length, 1);
+    assert.equal(page.querySelector('.st-at').closest('[data-key]').dataset.key, 'climate');
+    const game = { format: 4, kind: 'game', id: 'g', content: { names: { fen: { regions: ['the-fen'], given: ['Ada'], family: ['Reed'] } } } };
+    const said = [];
+    const named = setup({ focus: { rec: 'regions.0', path: null } });
+    named.ctx.refs = buildRefs(named.pack, game);
+    named.ctx.say = text => said.push(text);
+    const id = field(named.draw(), 'id').querySelector('input');
+    id.value = 'the-fens'; id.dispatch('change');
+    assert.equal(named.calls.commit.length, 1);
+    assert.deepEqual(said, ['The other open pack names this region 1 time; change those by hand.']);
+});

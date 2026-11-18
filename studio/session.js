@@ -9,9 +9,12 @@
 // the result for `checked` (the snapshot it was run on); `stale` is true while the present is not yet checked, and `flush()` checks it
 // now (Export does). `edited` is false when the present is the opened document (undo all the way back gives it again).
 //
-// commit(patches) and setPortrait(name, bytes | null) → `{ ok: true, same? }` or `{ ok: false, refusal }`; an edit that changes nothing
-// is no history step and leaves the text as written. undo() and redo() → whether a step was taken. restore(draft) puts a saved draft on
-// top of the opened document (one undo step back to the file). draftId is the draft slot's id (null: the pack keeps no draft).
+// commit(patches) and setPortrait(name | null, bytes | null, { patches, drop }?) → `{ ok: true, same? }` or `{ ok: false, refusal }`; an
+// edit that changes nothing is no history step and leaves the text as written. setPortrait adds, replaces (bytes) or removes (null) the
+// picture `name` (null: none), and its `patches` (the field that names the picture) and `drop` (a picture no one names any more, taken
+// out if the pack holds it) go in the same step, all or nothing. undo() and redo() → whether a step was
+// taken. restore(draft) puts a saved draft on top of the opened document (one undo step back to the file). draftId is the draft slot's
+// id (null: the pack keeps no draft).
 
 import { checkPack } from './check.js';
 import { apply, setPortrait as portraitStep } from './model/edits.js';
@@ -85,7 +88,14 @@ export function createSession(opened, { kind = 'world', legacy = false, delay = 
         get canRedo() { return history.canRedo; },
         get draft() { return draft; },
         commit: patches => (editable ? step(apply(history.present, patches)) : refuse()),
-        setPortrait: (name, bytes) => (editable && kind === 'world' ? step(portraitStep(history.present, name, bytes)) : (editable ? { ok: false, refusal: 'Portraits belong to a world pack’s cast.' } : refuse())),
+        setPortrait(name, bytes, { patches = [], drop = null } = {}) {
+            if (!editable) return refuse();
+            if (kind !== 'world') return { ok: false, refusal: 'Portraits belong to a world pack’s cast.' };
+            let result = name === null ? { ok: true, doc: history.present } : portraitStep(history.present, name, bytes);
+            if (result.ok && patches.length) result = apply(result.doc, patches);
+            if (result.ok && drop !== null && drop !== name && result.doc.portraits.some(file => file.name === drop)) result = portraitStep(result.doc, drop, null);
+            return step(result);
+        },
         undo: () => moved(undoStep(history)),
         redo: () => moved(redoStep(history)),
         restore(saved) {

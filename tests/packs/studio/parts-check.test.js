@@ -7,6 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { validatePack } from '../../../packs/validate.js';
 import { CONTENT_KEYS } from '../../../packs/limits-parts/kinds.js';
 import { checkText } from '../../../studio/check.js';
+import { blankPack } from '../../../studio/model/blank.js';
 import { PARTS, kindOf, partOfPath, partsOf } from '../../../studio/parts.js';
 import { EDITORS, PAGES } from '../../../studio/views/route.js';
 
@@ -64,14 +65,34 @@ test('the kind of a pack: format 4 says it; anything older (or no format) is for
     assert.deepEqual(kindOf({ format: 4, kind: 'both' }), { kind: 'world', legacy: false });
 });
 
+// The parts a pack holds something of (a part it holds nothing of is listed with only `absent` sections).
+const held = parts => parts.filter(part => !part.sections.length || part.sections.some(section => !section.absent)).map(part => part.id);
+
 test('a format 4 world and game show their own kind\'s parts; a key of the other kind (or none) goes to Other', () => {
-    assert.deepEqual(partsOf(JSON.parse(WORLD4)).map(part => part.id), ['overview', 'lore', 'cast', 'map', 'conditions', 'powers', 'problems']);
+    assert.deepEqual(held(partsOf(JSON.parse(WORLD4))), ['overview', 'lore', 'cast', 'map', 'conditions', 'powers', 'problems']);
     const game = partsOf(JSON.parse(GAME4));
-    assert.deepEqual(game.map(part => part.id), ['overview', 'calendar', 'money', 'names', 'game-start', 'problems']);
+    assert.deepEqual(held(game), ['overview', 'calendar', 'money', 'names', 'game-start', 'problems']);
     assert.deepEqual(game.find(part => part.id === 'overview').sections.map(section => section.key), ['id', 'format', 'kind', 'version', 'name', 'author', 'description', 'requires']);
     const mixed = partsOf({ format: 4, kind: 'world', id: 'w', extra: 1, content: { calendar: {}, events: [], lore: [] } });
     assert.deepEqual(mixed.find(part => part.id === 'other').sections.map(section => [section.key, section.where]), [['calendar', 'content'], ['events', 'content'], ['extra', 'top']]);
-    assert.deepEqual(partsOf({ format: 4, kind: 'game', content: { lore: [], start: {} } }).map(part => part.id), ['overview', 'game-start', 'other', 'problems']);
+    assert.deepEqual(held(partsOf({ format: 4, kind: 'game', content: { lore: [], start: {} } })), ['overview', 'game-start', 'other', 'problems']);
+});
+
+test('a new pack lists every part of its kind with "nothing yet": each key\'s empty value, count 0; a format 3 pack does not', () => {
+    const world = partsOf(blankPack('world', { name: 'Saltmarsh', id: 'saltmarsh' }));
+    assert.deepEqual(world.map(part => part.id), ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'problems']);
+    assert.ok(world.filter(part => !part.always).every(part => part.count === 0 && part.sections.length && part.sections.every(section => section.absent && section.count === 0)));
+    assert.deepEqual(world.find(part => part.id === 'map').sections.map(section => [section.key, section.value]),
+        [['places', []], ['routes', []], ['regions', []], ['placeKinds', {}], ['routeKinds', {}], ['markets', []]]);
+    assert.deepEqual(world.find(part => part.id === 'powers').sections.map(section => section.key), ['powers']);
+    const game = partsOf(blankPack('game', { name: 'Rules', id: 'rules' }));
+    assert.deepEqual(game.map(part => part.id), ['overview', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'problems']);
+    // weather: its editor's own "not set" card; money, rules and trackers: the key whose editor offers the others
+    assert.deepEqual(game.filter(part => !part.always).map(part => part.sections.map(section => [section.key, section.value])),
+        [[['calendar', { months: [] }]], [['economy', {}]], [['weather', undefined]], [['names', {}]], [['you', {}]], [['meterPresets', []]], [['start', {}]]]);
+    // the empty values are copies: an editor that changed one would not change the next draw's
+    assert.notEqual(partsOf(blankPack('world', { id: 'a' }))[1].sections[0].value, partsOf(blankPack('world', { id: 'a' }))[1].sections[0].value);
+    assert.ok(partsOf(JSON.parse(OLD)).every(part => part.sections.every(section => !section.absent)));
 });
 
 test('a checker path in a format 4 pack goes to its kind\'s part', () => {
@@ -93,7 +114,8 @@ test('a game pack shows what it holds, with counts, plus Overview and Problems',
 
 test('a world pack shows lore, the map parts, conditions with the starting world, events, templates and powers', () => {
     const parts = partsOf(JSON.parse(WORLD));
-    assert.deepEqual(parts.map(part => part.id), ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'problems']);
+    assert.deepEqual(held(parts), ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'problems']);
+    assert.deepEqual(parts.find(part => part.id === 'items').sections.map(section => [section.key, section.count, section.absent]), [['items', 0, true]]);
     const map = parts.find(part => part.id === 'map');
     assert.deepEqual(map.sections.map(section => [section.key, section.count]), [['places', 3], ['routes', 2], ['regions', 2], ['realms', 1], ['placeKinds', 2], ['routeKinds', 1]]);
     assert.deepEqual(parts.find(part => part.id === 'conditions').sections.map(section => section.key), ['conditions', 'start']);

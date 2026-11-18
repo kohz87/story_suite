@@ -5,7 +5,7 @@
 import { h } from '../../ui/kit/dom.js';
 import { ROUTE_CLASSES } from '../../packs/limits.js';
 import { classOfKind } from '../../packs/validate/world-pack-parts/kinds.js';
-import { fieldRow } from '../form/fields.js';
+import { fieldRow, markFocus } from '../form/fields.js';
 import { openPicker } from '../form/pick.js';
 import { renderSection } from '../views/records.js';
 import { jsonRow } from '../views/json-row.js';
@@ -113,10 +113,11 @@ function recordPage(section, ctx, at) {
     const users = usedBy(ctx.refs, 'route', keyOf(route));
     // A change to the name, or to an end of an unnamed route, changes the key other records name it by; those are left for the author.
     const keyWarning = () => (users.length ? `${plural(users.length, 'record')} named this route "${keyOf(route)}"; change those by hand.` : null);
+    // A note that follows a change goes to ctx.say: the commit has drawn the page again, so this page's own line is gone.
     const apply = (patches, warn) => {
         const result = ctx.commit(patches);
         if (!result?.ok) tell(result?.refusal ?? 'The change was not made.');
-        else tell(warn);
+        else if (warn) (ctx.say ?? tell)(warn);
         return result;
     };
     // One field: an empty value takes the key out of the record, as the checker reads a missing one.
@@ -155,7 +156,9 @@ function recordPage(section, ctx, at) {
         h('section', { class: 'sgrp st-usedby' }, h('div', { class: 'gt' }, 'Used by'),
             h('div', { class: 'srow wide' }, h('span', { class: 'lb' }, h('small', users.length ? `${plural(users.length, 'record')} in the pack name${users.length === 1 ? 's' : ''} it, such as ${users.slice(0, 3).map(use => use.path.join('.')).join(', ')}.` : `No other record names this route (as "${keyOf(route)}").`)))));
     if (state.json === undefined) state.json = {};
-    const json = jsonRow({ value: route, steps: where, noun: 'route', problems: mine, focus: ctx.focus?.rec === rec ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches));
+    // Go to: the field the path names; a path no field here shows opens the JSON row at it instead.
+    const marked = ctx.focus?.rec === rec && markFocus(form, ctx.focus.path);
+    const json = jsonRow({ value: route, steps: where, noun: 'route', problems: mine, focus: ctx.focus?.rec === rec && !marked ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches));
     const back = h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Routes');
     // A copy joins the same two places, so it carries a name of its own.
     const copy = () => {

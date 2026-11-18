@@ -147,9 +147,12 @@ export function renderPage(ctx) {
     const fitTo = places => { st.vb = fitBox(places.length ? places : model.places, 60, ratio()); };
     if (!st.vb) fitTo(model.places);
     const unit = () => st.vb.w / (box.clientWidth || 640);
-    const commit = (patches, note = '') => {
+    // The note (and any state the caller set, `was` holding what it replaced) is set before the commit, which draws the page again;
+    // a refused edit puts the state back and says why.
+    const commit = (patches, note = '', was = {}) => {
+        st.note = note;
         const result = ctx.commit(patches);
-        st.note = result?.ok ? note : result?.refusal ?? 'The change was not made.';
+        if (!result?.ok) Object.assign(st, was, { note: result?.refusal ?? 'The change was not made.' });
         paint();
         return result;
     };
@@ -208,7 +211,7 @@ export function renderPage(ctx) {
             h('div', { class: 'st-mhead' }, h('b', `${a.name} → ${b.name}`), h('small', [route.kind ?? cls, finite(route.km) ? `${route.km} km` : null, route.name, said].filter(Boolean).join(' · '))),
             !editable ? null : st.confirm
                 ? h('div', { class: 'cfm rec st-rconfirm', role: 'group' }, h('b', `Delete the route ${a.name} → ${b.name}?`), h('small', `${users.length ? said : 'No other record names it.'} Undo brings it back.`),
-                    h('span', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 dng st-rdel-yes', onClick: () => { st.sel = null; st.confirm = false; commit([{ op: 'remove', path: ['content', 'routes', at] }], `Deleted the route ${a.name} → ${b.name}.`); } }, 'Delete'),
+                    h('span', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 dng st-rdel-yes', onClick: () => { const was = { sel: st.sel, confirm: st.confirm }; st.sel = null; st.confirm = false; commit([{ op: 'remove', path: ['content', 'routes', at] }], `Deleted the route ${a.name} → ${b.name}.`, was); } }, 'Delete'),
                         h('button', { type: 'button', class: 'btn2 st-rkeep', onClick: () => { st.confirm = false; paint(); } }, 'Keep it')))
                 : h('div', { class: 'addrow' }, h('button', { type: 'button', class: 'btn2 dng st-rdel', onClick: () => { st.confirm = true; paint(); } }, 'Delete')));
     }
@@ -232,8 +235,9 @@ export function renderPage(ctx) {
             const record = { ...(name ? { name } : {}), from: a.id, to: b.id, kind: d.kind, ...(Number.isFinite(km) && km !== null ? { km } : {}) };
             const at = Array.isArray(model.content.routes) ? model.content.routes.length : 0;
             const patch = Array.isArray(model.content.routes) ? { op: 'insert', path: ['content', 'routes', at], value: record } : { op: 'set', path: ['content', 'routes'], value: [record] };
+            const was = { mode: st.mode, from: st.from, draft: st.draft, sel: st.sel };
             st.mode = 'select'; st.from = null; st.draft = null; st.sel = { route: at };
-            commit([patch], `Added the route ${a.name} → ${b.name}.`);
+            commit([patch], `Added the route ${a.name} → ${b.name}.`, was);
         };
         const field = (label, hint, control, extra = null) => h('div', { class: 'srow', dataset: { key: label.toLowerCase() } }, h('span', { class: 'lb' }, h('b', label), h('small', hint)), h('span', { class: 'ctl' }, control), extra);
         return h('div', { class: 'st-mnew' }, h('div', { class: 'gt' }, 'New route'),

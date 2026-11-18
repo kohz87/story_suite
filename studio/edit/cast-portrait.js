@@ -48,12 +48,14 @@ function nameFor(person, list, type) {
 }
 
 /**
- * The portrait group for `person` (at `where`, one of `list`). `kit`: `{ ctx, commit(patches) → result, tell(text), imageIo? }`
- * (`imageIo` defaults to the browser's). Picking a file stores it with ctx.setPortrait and, when the name changes, writes `portrait`;
- * the old picture leaves when no one else names it. Remove takes the field and, if unshared, the picture.
+ * The portrait group for `person` (at `where`, one of `list`). `kit`: `{ ctx, tell(text), say?(text), imageIo? }`
+ * (`imageIo` defaults to the browser's; `say` shows a note after a change, which draws the page again; default `tell`). Picking a file
+ * is one ctx.setPortrait step: the picture, `portrait` when the name changes, and the old picture when no one else names it. Remove is
+ * one step too: the field and, if unshared, the picture.
  */
 export function portraitGroup(person, where, list, kit) {
-    const { ctx, commit, tell } = kit;
+    const { ctx, tell } = kit;
+    const say = kit.say ?? tell;
     const own = typeof person.portrait === 'string' ? person.portrait : null;
     const shared = name => list.some(other => other !== person && other?.portrait === name);
     const status = h('small', { class: 'fine st-picnote', role: 'status' });
@@ -68,20 +70,20 @@ export function portraitGroup(person, where, list, kit) {
         status.textContent = '';
         if (!fit.ok) return tell(fit.refusal);
         const name = nameFor(person, list, fit.type);
-        const stored = ctx.setPortrait?.(name, fit.bytes);
+        // One undo step: the picture, the field that names it and the old picture no one else names.
+        const named = name !== own;
+        const stored = ctx.setPortrait?.(name, fit.bytes, named ? { patches: [{ op: 'set', path: [...where, 'portrait'], value: name }], drop: own && !shared(own) ? own : null } : {});
         if (!stored?.ok) return tell(stored?.refusal ?? 'The picture was not kept.');
-        if (name !== own) {
-            const result = commit([{ op: 'set', path: [...where, 'portrait'], value: name }]);
-            if (result?.ok && own && !shared(own)) ctx.setPortrait?.(own, null);
-        }
-        tell(fit.bytes.length < bytes.length ? `Made smaller to fit: ${kb(fit.bytes.length)} (was ${kb(bytes.length)}).` : '');
+        // The page was drawn again inside the step, so the note goes where a draw keeps it (kit.say), not into this group.
+        if (fit.bytes.length < bytes.length) say(`Made smaller to fit: ${kb(fit.bytes.length)} (was ${kb(bytes.length)}).`);
         return name;
     };
     // `kit.pending` holds the running read, so a caller (a test) can wait for it.
     input.addEventListener('change', () => { kit.pending = take(); });
     const remove = () => {
         if (!own) return;
-        if (commit([{ op: 'remove', path: [...where, 'portrait'] }])?.ok && !shared(own)) ctx.setPortrait?.(own, null);
+        const done = ctx.setPortrait?.(null, null, { patches: [{ op: 'remove', path: [...where, 'portrait'] }], drop: shared(own) ? null : own });
+        if (!done?.ok) tell(done?.refusal ?? 'The portrait was not removed.');
     };
     const thumb = own ? ctx.portrait?.(own) ?? null : null;
     return h('section', { class: 'sgrp st-portrait', dataset: { key: 'portrait' } }, h('div', { class: 'gt' }, 'Portrait'),

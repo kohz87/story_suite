@@ -210,3 +210,10 @@ test('a focus on a field below the record opens the more fields and marks its co
     const button = field(draw(), 'start.place').querySelector('button');
     assert.ok(button.classList.contains('st-at'));
 });
+
+test('Go to a tie marks that tie\'s row (the rows are keyed ties.<n>)', () => {
+    const tied = setup({ focus: { rec: 'cast.0', path: ['ties', 1, 'with'] }, edit: pack => { pack.content.cast.push({ kind: 'figure', id: 'ma', name: 'Ma Ashby' }); pack.content.cast[0].ties = [{ with: 'old-tam', tag: 'friend' }, { with: 'ma', tag: 'kin' }]; } });
+    const marked = tied.draw().querySelectorAll('.st-at');
+    assert.equal(marked.length, 1);
+    assert.equal(marked[0].closest('[data-key]').dataset.key, 'ties.1');
+});
