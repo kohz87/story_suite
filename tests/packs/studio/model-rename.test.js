@@ -11,7 +11,7 @@ import { renameId } from '../../../studio/model/rename.js';
 import { validatePack } from '../../../packs/validate.js';
 import { SMALL } from './refs-pack.js';
 
-const ERSVEIL = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil-world/pack.json', import.meta.url), 'utf8'));
+const ERSVEIL = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const byId = (refs, kind, id) => refs.uses.filter(use => use.kind === kind && use.id === id && use.by === 'id' && use.pack !== 'other');
 
 function renamed(pack, kind, from, to, other = null) {

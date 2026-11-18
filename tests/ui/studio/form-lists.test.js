@@ -8,7 +8,7 @@ import { subRecords } from '../../../studio/form/records.js';
 import { openPicker } from '../../../studio/form/pick.js';
 import { gateField } from '../../../studio/form/gate.js';
 
-const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil-world/pack.json', import.meta.url), 'utf8'));
+const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const type = (input, text, key = 'Enter') => { input.value = text; input.dispatch('keydown', { key }); };
 
 test('a chip list adds on Enter, trims, skips blanks and repeats, and removes by chip', () => {

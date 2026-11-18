@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { gateField } from '../../../studio/form/gate.js';
 
-const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil-world/pack.json', import.meta.url), 'utf8'));
+const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const C = WORLD.content;
 const CARGO = 'meter trust >= 55 or learned:hush/the-runaways or place:vargate and meter trust >= 30';
 

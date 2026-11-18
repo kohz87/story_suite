@@ -8,7 +8,7 @@ import { buildRefs } from '../../../studio/model/refs.js';
 import { apply } from '../../../studio/model/edits.js';
 import { openDoc } from '../../../studio/model/doc.js';
 
-const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil-world/pack.json', import.meta.url), 'utf8'));
+const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 
 function setup(pack = WORLD, extra = {}) {
     installFakeDom();
