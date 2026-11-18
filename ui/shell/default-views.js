@@ -1,7 +1,8 @@
-// Supplies the default card and tab renderers for mountSuite: the character card, the Now tab, and a "not built yet" card.
+// Supplies the default card and tab renderers for mountSuite: the character card, Here now (desktop), the Now tab, and a "not built yet" card.
 import { h } from '../kit/dom.js';
 import { characterCard } from '../card/character-card.js';
 import { nowTab } from '../tabs/now/now.js';
+import { hereNowCard } from '../tabs/now/here-now.js';
 import { openSceneSheet } from '../sheets/scene-sheet.js';
 import { createTabViews } from './tab-views.js';
 import { dossierPage } from '../tabs/people/dossier/dossier.js';
@@ -17,8 +18,8 @@ export function pendingCard(tab) {
     h('p', { class: 'su-pending-note' }, 'This tab is not built yet.'));
 }
 
-/** Returns the default `{ card, tab, closePage }` renderers wired to a port, back-stack and prefs. */
-export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null }) {
+/** Returns the default `{ card, here, tab, closePage }` renderers wired to a port, back-stack and prefs; `desk()` says whether the desktop layout is drawn. */
+export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null, desk = null }) {
   let dossier = null;
   let peopleStart = null;
   const openDossier = (personId) => {
@@ -52,7 +53,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     if (args) port.command('suite.go', { tab, ...args });
   };
   const takeStart = () => { const s = peopleStart; peopleStart = null; return s; };
-  const ctx = { port, prefs, go };
+  const ctx = { port, prefs, go, desk: () => desk?.() === true };
   const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh, peopleStart: takeStart });
   return {
     // A person's page left open: closed when the suite is opened on a tab (it would cover the tab asked for).
@@ -75,6 +76,8 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
       onSettings: () => (onSettings ? onSettings() : port.command('suite.settings', {})),
       onPace: () => go('bag'),
     }) : null),
+    // Here now, the desktop left column's people present (from the Now view-model's rows).
+    here: vm => hereNowCard(vm?.here, ctx),
     tab: (tab, vm) => (tab === 'now' && vm ? nowTab(vm, ctx) : built(tab, vm) ?? pendingCard(tab)),
   };
 }

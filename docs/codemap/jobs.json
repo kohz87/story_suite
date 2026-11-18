@@ -337,7 +337,7 @@
   "ui/sheets/scene-sheet.js": "Builds the Scene sheet (date, time, place, weather, who is here) as one hand correction, and opens it in a sheet.",
   "ui/shell/default-views.js": "Supplies the default card and tab renderers for mountSuite: the character card, the Now tab, and a \"not built yet\" card.",
   "ui/shell/suite-view.js": "Builds the suite root that slides in over the chat, sized from its container and centred over a dimmed chat on desktop.",
-  "ui/shell/tab-host.js": "Builds the 8-tab host: tablet strip, phone bottom bar, scrolling panel and the mini bar shown after the card scrolls away.",
+  "ui/shell/tab-host.js": "Builds the 8-tab host: tablet strip, phone bottom bar, scrolling panel, the mini bar shown after the card scrolls away, and the desktop columns' wrappers.",
   "ui/shell/tab-views.js": "Builds the renderer for every built tab (Party, Bag, Fight, People, World, Journal, Story) from a view-model and a shared context.",
   "ui/tabs/bag/assets.js": "Builds the Assets card (party pace, Transport and Property lists, folded by default) and the asset detail sheet.",
   "ui/tabs/bag/bag.js": "Composes the Bag tab: Purse with party load and Assets side by side when wide, then the Items card.",
@@ -481,5 +481,10 @@
   "ui/select/people-settings/portraits.js": "Lists the People page's Portraits rows: what portraits use now, written back as the old portrait panel saved it (style, custom preset library, text fields).",
   "ui/port/rpg-custom.js": "Stores the RPG page's Custom difficulty editors into the Custom set the creation of new characters reads, refusing a number that breaks the creation order.",
   "ui/select/rpg-difficulty.js": "Says what each RPG difficulty changes from the engine's own numbers and builds the Custom difficulty's creation-number rows.",
-  "tests/ui/select/rpg-difficulty.test.js": "Tests the RPG difficulty explanations against the engine's numbers and the Custom editors from row to stored key to a new character."
+  "tests/ui/select/rpg-difficulty.test.js": "Tests the RPG difficulty explanations against the engine's numbers and the Custom editors from row to stored key to a new character.",
+  "ui/css/desk.css": "Desktop layout A styles: from a 1100 px suite root, the left column (card, Here now) beside the page column (strip, tab), centred; Here now's light rows.",
+  "ui/shell/desk-layout.js": "Tells whether the suite draws the desktop layout (desk.css decides) and calls back when that changes.",
+  "ui/tabs/now/here-now.js": "Builds Here now, the desktop left column's light rows of the people present; a row opens the dossier.",
+  "tests/ui/tabs/now/here-now.test.js": "Tests Here now, Now without its Here card on desktop, and the desktop watcher.",
+  "tests/ui/rendered/desktop-layout-a.test.js": "Rendered check of desktop layout A against the mock's measured columns, sticky left column, Here now redraw and text size."
 }

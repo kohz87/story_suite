@@ -17,7 +17,7 @@ import { attachWizard } from '../wizard/attach.js';
 import { SUITE_VERSION } from '../../core/version.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
 
-const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings', 'wizard'];
+const STYLES = ['base', 'shell', 'desk', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings', 'wizard'];
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses.
 const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharacterLorebook, lore: { read: refreshLore } });
 const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
