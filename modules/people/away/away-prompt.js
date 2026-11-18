@@ -2,7 +2,7 @@
 // (so a chat with neither sends the prompt it always did), and the `[Elsewhere]` tail, one line per away person within a token budget:
 //   `Ren: away, scouting the north road, back Goldwane 18; latest: reached Wolfmere Outpost.`
 // Ordered by the soonest return (no date last), then the newest news; over budget, the rest are left out of that reply (still kept).
-// A back date that has passed moves nobody: the line says "due back" and the narrator brings them.
+// A back date that has come moves nobody: on that day the line says "due back", from the next day "overdue" (S2PA B24), and the narrator brings them.
 // Someone the people store has as dead (`lifeState: 'deceased'`, matched by name or alias) is left out of the tail, the teaching and the
 // entries, read at answer time (nothing stored): their absence record stays open, and undoing the death brings the line back.
 
@@ -43,8 +43,10 @@ export function awayTaught(state) {
     return people.some(npc => npc?.followed === true && npc.lifeState !== 'deceased');
 }
 
+const DAY = 1440;   // (a back date is the start of its day: away-time.js readBack)
+
 /**
- * The away people in the tail's order: `[{ key, name, doing, since, back, due, last: { date, text } | null, steps }]`. `now`: the story clock,
+ * The away people in the tail's order: `[{ key, name, doing, since, back, due, overdue, last: { date, text } | null, steps }]` (`overdue`: a whole day past the back date). `now`: the story clock,
  * or null; `people`: the people store's rows (`people.list`), whose dead are left out.
  */
 export function awayEntries(slice, now, people = []) {
@@ -56,7 +58,7 @@ export function awayEntries(slice, now, people = []) {
         const last = steps.at(-1) ?? null;
         return {
             key, name: String(away?.name ?? ''), doing: String(away?.doing ?? ''), since: isInt(away?.since) ? away.since : null, back,
-            due: back !== null && isInt(now) && now >= back, last: last ? { date: isInt(last.date) ? last.date : null, text: String(last.text ?? '') } : null, steps,
+            due: back !== null && isInt(now) && now >= back, overdue: back !== null && isInt(now) && now >= back + DAY, last: last ? { date: isInt(last.date) ? last.date : null, text: String(last.text ?? '') } : null, steps,
         };
     });
     const soon = entry => (entry.back === null ? Infinity : entry.back);
@@ -67,7 +69,7 @@ export function awayEntries(slice, now, people = []) {
 function awayLine(entry, calendar) {
     const doing = cutPoints(entry.doing, 90).replace(/[.!?…]+$/, '');
     const when = dateText(calendar, entry.back);
-    const back = when ? (entry.due ? `, due back (${when})` : `, back ${when}`) : '';
+    const back = when ? (entry.overdue ? `, overdue (due back ${when})` : entry.due ? `, due back (${when})` : `, back ${when}`) : '';
     const latest = entry.last?.text ? `; latest: ${cutPoints(entry.last.text, 80).replace(/[.!?…]+$/, '')}` : '';
     return `${entry.name}: away${doing ? `, ${doing}` : ''}${back}${latest}.`;
 }

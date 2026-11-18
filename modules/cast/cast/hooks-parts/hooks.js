@@ -9,12 +9,15 @@ import { ask, castOf, fightOn, foesLeftover, linksOf, packName, partyPlace, puls
 import { MAX_PEOPLE_ASKED, MAX_SOUGHT, MAX_TOKENS, castRequest, readCast, touches } from '../plan.js';
 import { kindWords } from '../sought.js';
 import { CALL_MS, FEATURE, HOLD_MS, castOn } from '../settings.js';
-import { askedAbout, batchKey, chooseMeetings, chooseRumor, dueMove, fingerprint, judgeKey, metInTheStory, moveReach, movable, paceOf, placedOf, refsOf, seekable, sortComes, unshown } from '../world.js';
+import { askedAbout, batchKey, chooseMeetings, chooseRumor, dueMove, fingerprint, judgeKey, meetingAt, metInTheStory, moveReach, movable, paceOf, placedOf, refsOf, seekable, sortComes, unshown } from '../world.js';
 import { copyOf, frameOf, placesOf, queryOf } from './frame.js';
 import { recentStory, shownText, soughtTexts } from './text.js';
 import { basedView, keepsBase, pullsFree } from '../world-parts/bases.js';
 import { storyBases } from '../world-parts/story-bases.js';
 import { worldEventsOn } from '../../../world/chronicle/conditions/feature.js';
+
+// The chat's messages as the part's view gives them (null when it cannot): a meeting finds its reply in them (S2PA B6).
+const chatOf = view => { try { return typeof view?.story?.chat === 'function' ? view.story.chat() : null; } catch { return null; } };
 
 const REPLY_TYPES = new Set(['normal', 'regenerate', 'swipe']);
 const normalizeType = type => String(type ?? 'normal').toLowerCase();
@@ -187,7 +190,7 @@ export function createCastHooks({ plans }) {
         if (info?.commit === false) {
             if (normalizeType(info?.type) !== 'continue') return undefined;
             const cast = castOf(queryOf(view));
-            const lines = cueLines(view?.state?.domains?.cast, cast, isInt(view?.chat?.length) ? view.chat.length : null);
+            const lines = cueLines(view?.state?.domains?.cast, cast, isInt(view?.chat?.length) ? view.chat.length : null, chatOf(view));
             return lines.length ? { lines: pinned(lines) } : undefined;
         }
         if (!REPLY_TYPES.has(normalizeType(info?.type))) return undefined;
@@ -292,7 +295,7 @@ export function createCastHooks({ plans }) {
             }
         }
         // The cue and the rumor go as pinned lines of this reply (Story Block keeps a `keep` cue whatever the tail budget says).
-        const lines = pinned(cueLines(world, frame.cast, isInt(view?.chat?.length) ? view.chat.length : null));
+        const lines = pinned(cueLines(world, frame.cast, isInt(view?.chat?.length) ? view.chat.length : null, chatOf(view)));
         const problems = planFailed ? [PLAN_FAILED] : [];
         return commands.length || lines.length || problems.length ? { ...(commands.length ? { commands } : {}), ...(lines.length ? { lines } : {}), ...(problems.length ? { problems } : {}) } : undefined;
     }
@@ -311,7 +314,9 @@ export function createCastHooks({ plans }) {
         const chat = typeof view?.story?.chat === 'function' ? view.story.chat() : null;
         const message = Array.isArray(chat) ? chat[info.index] : null;
         if (!message || typeof message.mes !== 'string') return moved.length ? { commands: moved } : undefined;
-        const keys = unshown(slice, { index: info.index, text: shownText(message.mes), present: presentKeys(queryOf(view), view?.state), seen: seenKeys(info.receipts) });
+        // The meeting's reply as found now (S2PA B6: after a middle delete the recorded index is an old one).
+        const at = meetingAt(slice.meeting, chat);
+        const keys = unshown(slice, { index: info.index, text: shownText(message.mes), present: presentKeys(queryOf(view), view?.state), seen: seenKeys(info.receipts), at });
         const commands = [...(keys.length ? [{ type: 'cast.withdraw', payload: { at: info.index, keys } }] : []), ...moved];
         return commands.length ? { commands } : undefined;
     }

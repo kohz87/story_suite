@@ -20,7 +20,8 @@ export function meet(ctx, payload = {}) {
     if (payload.names !== undefined && !(isRecord(payload.names) && Object.keys(payload.names).length <= 8 && Object.values(payload.names).every(name => textOk(name, MAX_NAME)))) return ctx.fail('INVALID', 'cast.meet: names is { pack: name }.');
     const cast = ctx.draft('cast');
     const names = isRecord(payload.names) ? payload.names : {};
-    const met = applyMeet(cast, payload, envOf(ctx, cast, names, payload.at));
+    // The reply this step is stored on (`ctx.reply`: { index, sid }), so the meeting can find its own reply after a middle delete (S2PA B6).
+    const met = applyMeet(cast, payload, { ...envOf(ctx, cast, names, payload.at), carrier: isRecord(ctx.reply) ? ctx.reply : null });
     if (!met.length) return { summary: 'No one new crossed your path.', narrate: false, data: { met: 0 } };
     const who = met.map(key => cast.people[key].name);
     return { summary: `Paths crossed: ${who.join(', ')}.`, narrate: false, data: { met: met.length, keys: met } };

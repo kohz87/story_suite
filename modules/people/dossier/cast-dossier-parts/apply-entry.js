@@ -78,7 +78,8 @@ export function applyCastEntry(base, person, { packName = '', portrait = null, g
         met: { on: person.met?.on ?? '', where: person.met?.where ?? '' },
         goal, routine: entry.start.routine,
         // The pack's own words, kept exactly while the stored field still is them (core-mechanics normalizeNpcRecord).
-        first: Object.fromEntries([['overallAppearance', entry.look], ['appearance', entry.wears], ['speech', entry.voice], ['personality', entry.personality], ['background', entry.history], ['behaviorProfile', entry.behaviour], ['mannerisms', entry.mannerisms],
+        // `status` (S2PA B11): what they were doing before the meeting; while the stored status still is it, it is not shown or told as what they do now.
+        first: Object.fromEntries([['overallAppearance', entry.look], ['appearance', entry.wears], ['speech', entry.voice], ['personality', entry.personality], ['background', entry.history], ['behaviorProfile', entry.behaviour], ['mannerisms', entry.mannerisms], ['status', entry.status],
             // An apparent age in words the normalizer cannot read as a number ("looks older") stays as the pack wrote it.
             ['apparentAge', entry.apparentAge && !normalizeApparentAge(entry.apparentAge, npc.name) ? entry.apparentAge : '']].filter(([, words]) => (Array.isArray(words) ? words.length : words)).map(([field, words]) => [field, Array.isArray(words) ? [...words] : words])),
         ...(entry.stages.length ? { stages: entry.stages } : {}),

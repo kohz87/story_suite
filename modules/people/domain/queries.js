@@ -63,13 +63,16 @@ function sceneNames(tools) {
 const inScene = (record, names) => Boolean(names) && record.lifeState !== 'deceased'
     && [record.name, ...(Array.isArray(record.aliases) ? record.aliases : [])].some(label => typeof label === 'string' && names.has(label.trim().toLowerCase()));
 
+// S2PA B11: a status that still is the pack's own words (`castFrom.first.status`) is what they were doing before they were met, not what they do now.
+const packStatus = record => typeof record?.status === 'string' && typeof record?.castFrom?.first?.status === 'string' && record.status === record.castFrom.first.status;
+
 function rowOf(slice, id, after, names = null) {
     const record = slice.npcs[id];
     const bond = slice.bonds?.npcs?.[id];
     const here = record.present === true || inScene(record, names);
     return {
         id, name: String(record.name ?? ''), aliases: Array.isArray(record.aliases) ? record.aliases.filter(item => typeof item === 'string') : [],
-        role: text(record.role), mood: text(record.mood), location: inScene(record, names) ? null : text(record.location), status: text(record.status),
+        role: text(record.role), mood: text(record.mood), location: inScene(record, names) ? null : text(record.location), status: packStatus(record) ? null : text(record.status),
         present: here, followed: record.followed === true,
         lifeState: text(record.lifeState), lifeStateCertainty: text(record.lifeStateCertainty), lifeStateReason: text(record.lifeStateReason),
         lastSeenTurn: Number.isInteger(record.lastSeenTurn) ? record.lastSeenTurn : null, dormant: dormantOf(slice, record, after, here),
@@ -106,6 +109,7 @@ export function peopleQueries(domain) {
             if (!id) return null;
             const { portrait: _file, ...record } = clone(people.npcs[id]);
             if (inScene(record, sceneNames(tools))) delete record.location;   // (F7: here now, so no old "away" place)
+            if (packStatus(record)) delete record.status;   // (S2PA B11: the pack's "before the meeting" status)
             for (const field of HIDDEN_FIELDS) delete record[field];
             const bond = people.bonds?.npcs?.[id];
             delete record.secrets;

@@ -5,6 +5,7 @@ import { cleanName } from './names.js';
 import { STRINGS, fill } from '../../core/strings.js';
 import { MAX_NAME, MAX_PRESENT } from './constants.js';
 import { nameList, told } from './shared.js';
+import { arrivePresent } from './place-follow.js';
 
 const E = STRINGS.editMessages;
 
@@ -94,6 +95,8 @@ export function capturePresent(ctx, line) {
         const gone = names.filter(name => dead.has(name.toLowerCase()));
         if (gone.length === names.length) ctx.fail('REFUSED', `${gone.join(', ')} ${gone.length === 1 ? 'has' : 'have'} died; a death is final.`);
         const out = changePresent(ctx, { add: names.filter(name => !gone.includes(name)) });
+        // (S2PA B11) Who just came in loses the status they had while elsewhere; on a reply marked `placeFromMap` (every new reply), as the move's place-follow.
+        if (out.data.added.length && ctx.carrier?.rules?.includes('placeFromMap')) arrivePresent(ctx, out.data.added);
         return gone.length ? { ...out, summary: `${out.summary} ${gone.join(', ')} ${gone.length === 1 ? 'has' : 'have'} died and ${gone.length === 1 ? 'is' : 'are'} not here.` } : out;
     }
     if (line.op === '-') return changePresent(ctx, { remove: names });
