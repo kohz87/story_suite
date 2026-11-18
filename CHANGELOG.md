@@ -4,7 +4,7 @@ Newest first. Each release has the highlights, then what was added, changed, fix
 
 ## Unreleased
 
-Main has nothing beyond 0.1.2 yet except documentation and the Settings › Director fix below.
+Since 0.1.2: documentation, and the Settings, Story › Director and settings-walk changes below.
 
 ### Added
 
