@@ -168,3 +168,5 @@ uiRoot
 selectedNpcId
 stage1Refresh
 openLauncherDossier
+# B4-11g: the Story Director checks part's read of the retired 2.1 policy field rbActors (modules/rpg/checks/domain-parts/shared-legacy.js).
+LEGACY_POLICY
