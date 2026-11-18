@@ -1,10 +1,10 @@
 // Reads the labels of one `~ npc` line: meter moves (+N, -N, =N or the words up / down), impact, why, the anti-lever approach, disposition, and the
-// dossier labels (goal, status, where, look, gender, age, birthday, mood, and level while the Level field is on). Unknown labels become problems; the rest of the line still applies.
+// dossier labels (goal, status, where, look, gender, age, birthday, mood, level while the RPG is on, and learns and keepsake). Unknown labels become problems; the rest of the line still applies.
 import { normalizeApproachKind } from '../npc-meters-gate.js';
 import { DISPOSITION_MAX, REASON_LABELS, clean, isObject, parseMeterValue, slug, tierOf } from '../npc-meters-config.js';
 import { directionOf } from './direction.js';
 
-export const FIELD_LABELS = Object.freeze(['goal', 'status', 'where', 'look', 'gender', 'age', 'birthday', 'mood']);
+export const FIELD_LABELS = Object.freeze(['goal', 'status', 'where', 'look', 'gender', 'age', 'birthday', 'mood', 'learns', 'keepsake']);
 
 /** → { changes, words, tier, via, reason, disposition, fields, problems }; `words` are { def, dir } to price once the tier is known. */
 export function readLabels(labels, { byLabel, defs, gateOn, levelOn = false }) {
@@ -18,9 +18,9 @@ export function readLabels(labels, { byLabel, defs, gateOn, levelOn = false }) {
         if (key === 'stage' || key === 'stages') { out.problems.push(`Stages are set by code from the meters; "stage: ${clean(raw, 60)}" was not used.`); continue; }
         if (key === 'disposition') { out.disposition = clean(raw, DISPOSITION_MAX); continue; }
         const def = byLabel.get(key);
-        // Level (the custom field, lines mode only): off, it is an unknown label as before.
+        // Level (the built-in field, RPG on, lines mode only): off, it is an unknown label as before.
         if (!def && key === 'level' && levelOn) { out.fields.level = clean(raw, 40); continue; }
-        if (!def && FIELD_LABELS.includes(key)) { out.fields[key] = clean(raw, 300); continue; }
+        if (!def && FIELD_LABELS.includes(key)) { out.fields[key] = clean(raw, key === 'learns' || key === 'keepsake' ? 400 : 300); continue; }
         if (!def) { out.problems.push(`"${clean(label, 40)}" is not a meter (meters: ${defs.map(item => item.id).join(', ')}).`); continue; }
         const dir = directionOf(raw);
         if (dir) { out.words.push({ def, dir }); continue; }

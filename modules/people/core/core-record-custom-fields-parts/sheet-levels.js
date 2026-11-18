@@ -1,5 +1,6 @@
-/* Hosted party-sheet Level handling: reading a member's sheet level, applying it to dossiers, and stripping the scanner's own. */
-import { normalizeCustomFieldNames, normalizeCustomFields } from './names.js';
+/* Hosted party-sheet Level handling: reading a member's sheet level, applying it to dossiers' built-in Level, and stripping the scanner's own.
+   On main until the RPG write-back (job R2) lands; pack format 4 removes this mirror again (job N4). */
+import { normalizeCustomFields } from './names.js';
 
 // (hosted) The sheet level of an ACTIVE party member, matched by exact name or alias (case-insensitive); null when none.
 // `partyLevels` is [{ name, level }] of active members with a whole-number level; Story Block's `party.levels` is read in runtime-hosted.js.
@@ -10,20 +11,15 @@ export function sheetLevelOf(npc, partyLevels) {
     return Number.isInteger(found?.level) ? found.level : null;
 }
 
-// Sets the stored Level of each active party member to the sheet's (the scanner's own Level for them is then not kept).
-// Skipped when Level is not a configured field or the dossier's custom fields are locked by hand. Returns [{ id, reason }].
-export function applySheetLevels(npcs, partyLevels, names) {
-    const level = normalizeCustomFieldNames(names).find(name => name.toLowerCase() === 'level');
+// Sets the built-in Level of each active party member to the sheet's (1 to 99; the sheet is the party member's Level, so it may also lower it).
+// The built-in Level has no editor lock, so the sheet always wins for an active member. The custom fields are left as they are. Returns [{ id, reason }].
+export function applySheetLevels(npcs, partyLevels) {
     const done = [];
-    if (!level || !Array.isArray(partyLevels) || !partyLevels.length) return done;
+    if (!Array.isArray(partyLevels) || !partyLevels.length) return done;
     for (const npc of npcs || []) {
         const sheet = sheetLevelOf(npc, partyLevels);
-        if (sheet === null || (npc.manualProfileFields || []).includes('customFields')) continue;
-        const fields = normalizeCustomFields(npc.customFields);
-        const key = Object.keys(fields).find(other => other.toLowerCase() === 'level');
-        if (key && fields[key] === String(sheet)) continue;
-        if (key) delete fields[key];
-        npc.customFields = { ...fields, [level]: String(sheet) };
+        if (sheet === null || sheet < 1 || sheet > 99 || npc.level === sheet) continue;
+        npc.level = sheet;
         done.push({ id: npc.id, reason: 'Level: from the party sheet' });
     }
     return done;

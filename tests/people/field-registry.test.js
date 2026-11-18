@@ -56,6 +56,7 @@ const TODAY = {
         'background', 'memories', 'keyRelationships', 'relationshipSummary', 'relationship',
         'mood', 'location', 'goal', 'status', 'customFields',
         'lifeState', 'present', 'worldActive', 'minor',
+        'level', 'abilities', 'keepsakes',   // pack format 4: the built-in story fields, after every earlier entry
     ],
 };
 

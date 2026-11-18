@@ -5,6 +5,8 @@ import { getContext } from '../../../../../../extensions.js';
 import { EDITOR_FIELDS, editorManualMemories, editorProfileLocks, settleEditorSave, untouchedEditorFields } from '../dossier/dossier-edit.js';
 import { DEFAULT_RELATIONSHIP, IMPORTANT_MEMORY_LIMIT, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, inferNpcIdentityKind, normalizeRelationshipProgress, inferManualRelationshipMilestones, normalizeRelationshipEvidence, relationshipEventMessage, npcMatchesLabel, normalizeName, normalizeGender, normalizeNpcRecord, PORTRAIT_NPC_PROMPT_LIMIT } from '../core/core.js';
 import { applyNpcBirthdayUpdate, normalizeBirthDate } from '../birthday/birthday.js';
+import { BUILT_IN_LIMITS, normalizeLevel, parsePairLines } from '../core/core-record-parts/built-in-fields.js';
+import { rpgIsOn } from '../settings/runtime-settings.js';
 import { reconcileSocialState, applyManualKeyRelationshipEdit } from '../social/social.js';
 
 export function createEditorSave(rt, deps, helpers) {
@@ -42,7 +44,7 @@ export function createEditorSave(rt, deps, helpers) {
         const hostedMeters = storySuiteV2Meters();
         const shownRelationship = hostedMeters ? { ...hostedMeterView([current])[0].relationship } : null;
         // A field whose control still shows the stored value is kept as stored (never re-cut or compacted).
-        const untouched = untouchedEditorFields(current, editorField);
+        const untouched = untouchedEditorFields(current, editorField, { rpgOn: rpgIsOn() });
         const editorControl = key => editorField(`npc_state_delta_edit_${EDITOR_FIELDS[key].id}`);
         const editorText = key => (untouched.has(key) ? String(current[key] ?? '') : String(editorControl(key)).trim().slice(0, EDITOR_FIELDS[key].max));
         const editorList = (key, max) => (untouched.has(key) ? structuredClone(current[key] || []) : cleanEditorList(editorControl(key), max));
@@ -63,6 +65,10 @@ export function createEditorSave(rt, deps, helpers) {
             customFields: customFieldEditorValues(current),
             aliases: editorList('aliases', 8),
         };
+        // The built-in story fields (built-in-fields.js): kept as stored while untouched, else read from the control; empty clears.
+        const level = untouched.has('level') ? current.level : normalizeLevel(editorControl('level'));
+        const pairs = (key, max) => (untouched.has(key) ? structuredClone(current[key] || []) : parsePairLines(editorControl(key), max));
+        const storyFields = { level, abilities: pairs('abilities', BUILT_IN_LIMITS.abilities), keepsakes: pairs('keepsakes', BUILT_IN_LIMITS.keepsakes) };
         const nameCollision = state.npcs.some((item, i) => i !== index && npcMatchesLabel(item, stableInputs.name));
         if (nameCollision) {
             globalThis.toastr?.warning?.(`NPC State Delta: another dossier already matches ${stableInputs.name}.`);
@@ -73,6 +79,10 @@ export function createEditorSave(rt, deps, helpers) {
         }
         stableInputs.aliases = stableInputs.aliases.filter(alias => normalizeName(alias) !== normalizeName(stableInputs.name));
         Object.assign(next, stableInputs);
+        for (const [key, value] of Object.entries(storyFields)) {
+            if (value === undefined || value === null || (Array.isArray(value) && !value.length)) delete next[key];
+            else next[key] = value;
+        }
         const birthdayInput = String(editorField('npc_state_delta_edit_birthday')).trim().slice(0, 180);
         const currentBirthdayDisplay = String(current.birthDateDisplay || '').trim();
         if (birthdayInput !== currentBirthdayDisplay) {

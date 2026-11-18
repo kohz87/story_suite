@@ -252,7 +252,7 @@ export function createNpcCommands({
                 // Always stored, even at 0/0/0: a person with no temperament words still has a mood (and so a decay and pull) like a cast meeting's.
                 record.mood = restMood(rest, minutes);
             }
-            if (needsDrives) Object.assign(record, seedNotes({ personality: payload?.personality, about: payload?.about }));
+            if (needsDrives) Object.assign(record, seedNotes({ personality: payload?.personality, role: payload?.about }));
             return out;
         },
         /**
@@ -370,9 +370,10 @@ export function createNpcCommands({
                     if (def) seed[def.id] = value;
                     else unknown.push(`${person.name}: "${clean(name, 40)}" is not a meter here (meters: ${defs.map(item => item.id).join(', ')}).`);
                 }
+                for (const [field, left] of Object.entries(person.entry.overflow ?? {})) if (left.length) unknown.push(`${person.name}: ${left.length} ${field} over NPC State's limit were not kept: ${clean(left.join(', '), 160)}.`);
                 try { ensure(ctx, slice.npcs, who, defs, seed); } catch { continue; }
                 // Temperament (feature mood-pull): a person whose pack words give a resting mood starts at it, so it is stored with the record.
-                const rest = moodPull && isInt(minutes) && slice.npcs[who.key] ? restingMood(person.entry.personality, person.entry.about) : null;
+                const rest = moodPull && isInt(minutes) && slice.npcs[who.key] ? restingMood(person.entry.personality, person.entry.role) : null;
                 if (rest && (rest.v || rest.a || rest.d)) slice.npcs[who.key].mood = asStored(ctx, who.key, 'mood', restMood(rest, minutes));
                 // Notes (feature notes): the pack's tastes and drives are the person's first, kept in the record's leaves.
                 if (slice.npcs[who.key] && featureOn(FEATURE_NOTES, ctx)) Object.assign(slice.npcs[who.key], seedNotes(person.entry));

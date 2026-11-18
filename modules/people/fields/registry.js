@@ -8,7 +8,7 @@
 //
 // Entry keys:
 //   kind          'identity' | 'text' | 'list' | 'map' | 'meter' | 'life' | 'part' (a stored part of
-//                 another field) | 'meta' (book-keeping) | 'secret'
+//                 another field) | 'meta' (book-keeping) | 'secret' | 'story' (a built-in story field: level, abilities, keepsakes)
 //   text          TEXT_FIELDS: the free-text fields a scan row can replace (core-mechanics applyIncoming)
 //   evidence      PROFILE_EVIDENCE_FIELDS: the fields with a profile-evidence bucket
 //   tracked       CHANGE_TRACKED_FIELDS: the fields with a "changed at" stamp (core.js)

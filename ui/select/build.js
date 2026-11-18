@@ -21,6 +21,7 @@ import { repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
 import { PREFS_KEY } from '../port/prefs-key.js';
 import { pickOf, pickedFocus } from './focus.js';
+import { PREFS_KEY } from '../port/prefs-key.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 import { createWizardWorld } from '../wizard/world.js';
 import { packPresets } from './people-settings/catalog.js';
@@ -30,7 +31,7 @@ const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.m
 
 const openScene = answer => { const view = selectScene(answer); return view && view.kindId !== FIGHT_KIND ? view : null; };
 
-const directorAnswers = sdk => ({ values: Object.fromEntries(['story-director', 'npc-state-delta'].map(id => [id, sdk?.settings?.(id) ?? null])), features: sdk?.features?.() ?? [] });
+const directorAnswers = (sdk, ctx) => ({ sceneShown: ctx()?.chatMetadata?.[PREFS_KEY]?.scene === true, values: Object.fromEntries(['story-director', 'npc-state-delta'].map(id => [id, sdk?.settings?.(id) ?? null])), features: sdk?.features?.() ?? [] });
 // One engine query for the Packs page; a build without it (or a query that throws) gives an empty page.
 const ask = (sdk, name) => { try { return sdk?.query?.(name, {}); } catch { return null; } };
 
@@ -98,7 +99,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou(), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
     },
     settings: () => selectSettings({
-      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },
+      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk, ctx), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null, staticTokens: tools?.staticTokens,
       peoplePresets: packPresets(sdk),
     }),

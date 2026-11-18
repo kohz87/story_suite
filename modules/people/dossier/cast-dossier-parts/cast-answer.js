@@ -36,6 +36,7 @@ export function normalizeCast(answer, dateText = null) {
     if (!Array.isArray(answer)) return [];
     const out = [];
     const seen = new Set();
+    const names = new Map(answer.slice(0, CAST_MAX).filter(isObject).map(raw => [`${clip(raw.pack, 80)}:${clip(raw.id, 80)}`, clip(raw.name, NAME_MAX)]));
     for (const raw of answer.slice(0, CAST_MAX)) {
         if (!isObject(raw)) continue;
         const pack = clip(raw.pack, 80);
@@ -45,7 +46,7 @@ export function normalizeCast(answer, dateText = null) {
         if (!CAST_KEY.test(key) || !name || seen.has(key)) continue;
         seen.add(key);
         const met = isObject(raw.met) ? { on: dateOf(raw.met.on, dateText), where: clip(raw.met.where, 200), at: Number.isSafeInteger(raw.met.on) ? raw.met.on : null } : null;
-        const entry = met && isObject(raw.entry) ? normalizeEntry({ ...raw.entry, packVersion: raw.entry.packVersion ?? raw.packVersion }) : null;
+        const entry = met && isObject(raw.entry) ? normalizeEntry({ ...raw.entry, packVersion: raw.entry.packVersion ?? raw.packVersion }, id => names.get(`${pack}:${clip(id, 80)}`) ?? '') : null;
         out.push(Object.freeze({
             key, pack, id, name,
             aliases: (Array.isArray(raw.aliases) ? raw.aliases : []).map(alias => clip(alias, NAME_MAX)).filter(Boolean).slice(0, ALIASES_MAX),

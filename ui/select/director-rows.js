@@ -30,3 +30,6 @@ export const DIRECTOR_ROWS = Object.freeze([
   row(G.names, 'cooldown', D, 'tracker.initiativeCooldown', 'Replies before the same person acts again'),
   row(G.names, 'elsewhere', D, 'tracker.elsewhere', 'Threads elsewhere named to the narrator', { tags: ['cost:tokens'] }),
 ]);
+
+/** The one Director row that is not a module setting: this chat's Scene spoilers (the same switch as on Now and in the dossier; stored in the chat's view prefs, written through the view's prefs). On = hidden. */
+export const SCENE_SPOILERS = Object.freeze({ group: G.spoilers, key: 'director.sceneSpoilers', label: 'Scene spoilers hidden by default', hint: 'This scene’s wants and hiding on Now and in the dossier', tags: ['chat'] });

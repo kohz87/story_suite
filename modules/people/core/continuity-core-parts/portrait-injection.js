@@ -15,10 +15,10 @@ export function buildNpcPortraitPrompts(rawNpc = {}, options = {}) {
     }, options);
 }
 
-export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = mechanics.DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = mechanics.DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null } = {}) {
+export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = mechanics.DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = mechanics.DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null, levelOn = false } = {}) {
     const resolved = (Array.isArray(npcs) ? npcs : []).map(npc => ({
         ...normalizeTerminalNpc(npc),
         appearance: resolveNpcAppearance(npc),
     }));
-    return mechanics.buildInjection(resolved, text, turn, limit, behaviorCriteria, budgetTokens, socialGraph, { includeAppearance: true, namedNpcIds, customFieldNames, sceneDeferred: sceneDeferred === true, awayNotes, gearLines, storyDay });
+    return mechanics.buildInjection(resolved, text, turn, limit, behaviorCriteria, budgetTokens, socialGraph, { includeAppearance: true, namedNpcIds, customFieldNames, sceneDeferred: sceneDeferred === true, awayNotes, gearLines, storyDay, levelOn: levelOn === true });
 }

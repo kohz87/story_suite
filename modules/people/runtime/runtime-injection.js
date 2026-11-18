@@ -9,7 +9,8 @@ import { replyScanned } from '../calls/scan-context.js';
 import { cleanMessage, recentTranscript, tieDayAt } from '../transcript/transcript.js';
 import { buildInjection, npcNamedInText, isTerminalNpcDeath, buildNarrationCaptureParts } from '../core/core.js';
 import { buildLinesParts } from '../core/core-prompts-lines.js';
-import { injectDepthOf, getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
+import { withCastLinks } from '../dossier/cast-dossier-parts/cast-links.js';
+import { injectDepthOf, getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
 
 export function createInjectionPart(rt, deps) {
@@ -63,7 +64,7 @@ export function createInjectionPart(rt, deps) {
     function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4) } = {}) {
         const awayNotes = keyReturnNotes(state);
         const gearLines = castGearLines(state);
-        return buildInjection(scenePresenceView(hostedMeterView(state.npcs)), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt() });
+        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), levelOn: rpgIsOn() });
     }
 
     function updateInjection() {
@@ -99,7 +100,7 @@ export function createInjectionPart(rt, deps) {
         const builtParts = armed || rulesSent
             ? (storySuiteV2Meters()
                 // Hosted (N7): the lines builder; the JSON block is no longer asked for. Without a host the JSON one-pass prompt is unchanged.
-                ? buildLinesParts({ ...noteOptions, levelOn: effectiveCustomFieldNames(settings).some(name => name.toLowerCase() === 'level'), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
+                ? buildLinesParts({ ...noteOptions, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
                 : buildNarrationCaptureParts(scannerPromptOptions(state, settings, transcript, { dossierAbove: prompt, ...noteOptions })))
             : { rules: '', context: '' };
         const captureParts = { rules: armed || rulesSent ? builtParts.rules : '', context: armed ? builtParts.context : '' };
