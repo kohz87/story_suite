@@ -13,14 +13,19 @@ const EMPTY = Object.freeze({ lines: [], rev: '' });
  */
 export function createLoreCache({ readLorebook }) {
     let key = '';
+    let text = null;
     let kept = { entries: [], digest: EMPTY };
     let pending = null;
     async function run(packLore) {
         let lorebook = [];
         try { lorebook = (await readLorebook())?.entries ?? []; } catch { lorebook = []; }
         const entries = loreEntries({ pack: packLore, lorebook });
+        // The same text as last time is the same sources: nothing to hash or build (the hash ran on every reply, LPA).
+        const now = JSON.stringify(entries);
+        if (now === text) return kept.digest;
         const hash = hashJson(entries);
         if (hash !== key) { key = hash; kept = { entries, digest: buildDigest(entries) }; }
+        text = now;
         return kept.digest;
     }
     return {

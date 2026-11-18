@@ -1,11 +1,23 @@
 // Story Director v2, part **cast**: reading enabled pack cast entries and matching pack places.
 
 import { hashJson } from '../../../world/hash.js';
+import { isDeepFrozen } from '../../../../core/ops/freeze.js';
 import { MAX_ALIASES, MAX_NAME, MAX_PEOPLE, MAX_PLACE, cutPoints, isRecord, keyOf, personKey } from '../domain.js';
 import { shortName } from './pack-names.js';
 import { ask } from './query.js';
 
 const SLUG = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/;
+
+// What an entry says, not which version of the pack it came in: a bump with nothing changed is no change. A pack's own row is frozen all
+// the way down and comes back the same on every ask (packs.content), so its signature is worked out once per row, not on every read (LPA).
+const sigs = new WeakMap();
+function sigOf(raw) {
+    const kept = sigs.get(raw);
+    if (kept !== undefined) return kept;
+    const sig = (({ pack: _pack, packVersion: _version, ...own }) => hashJson(own).slice(0, 12))(raw);
+    if (isDeepFrozen(raw)) sigs.set(raw, sig);
+    return sig;
+}
 
 /**
  * One listed entry as the world reads it, or null when it is not one: `{ key, pack, id, name, aliases, ver, place, goal, routine,
@@ -36,8 +48,7 @@ export function readEntry(raw) {
         // (a format 4 world cast entry states these as `role` and `history`)
         calling: cutPoints((isRecord(raw.fields) ? raw.fields.Calling : '') || raw.role, 100),
         about: cutPoints(raw.about || raw.history, 400),
-        // What the entry says, not which version of the pack it came in: a bump with nothing changed is no change.
-        sig: (({ pack: _pack, packVersion: _version, ...own }) => hashJson(own).slice(0, 12))(raw),
+        sig: sigOf(raw),
         raw,
     };
 }

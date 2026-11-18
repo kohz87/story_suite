@@ -9,6 +9,7 @@ import { hashJson, isMetaSpan } from '../replay.js';
 import { revOf, deepFreeze, NO_LONGER_DONE } from './constants.js';
 import { allocator, evidenceDigest, merged, recordEntries } from '../evidence.js';
 import { hasMeta } from './digest.js';
+import { isDeepFrozen } from '../ops/freeze.js';
 
 export function createReplayBlocks(s, deps) {
     const { ORPHAN, quarantined, receiptsFor, isGuardedBlock, arr0, intactReason, ownedAlready, publish, asOps, blockParts, receiptsOf, lineOf, current, list, guardHolds, occurrenceFor, withSource, replayGuarded, replayLegacy, advanced, chain, checkpointState, problemText, stamp, step, unpackProblems } = deps;
@@ -17,7 +18,8 @@ export function createReplayBlocks(s, deps) {
     // of ops that no longer applies (a hand-edited chat, a middle reply deleted) is skipped and reported
     // on its own, so a bad change cannot take the rest of its carrier, or anything later, with it.
     // `whole`: from the first carrier's own checkpoint, past every later one (carriedTo, below).
-    function replay(arr, upTo, { whole = false } = {}) {
+    // `onRecord(index, state)`: told the state after each carrier it replays (the head replay keeps them in the prefix memo).
+    function replay(arr, upTo, { whole = false, onRecord = null } = {}) {
         s.counts.replays++;
         let { from } = chain(arr, upTo);
         if (whole) {
@@ -45,6 +47,7 @@ export function createReplayBlocks(s, deps) {
                 s.counts.recordsRead++;
                 s.applying.index = i;
                 state = replayRecord(state, record, i, problems, null, arr[i]);
+                onRecord?.(i, state);
             }
         } finally {
             s.applying = outer;
@@ -203,7 +206,8 @@ export function createReplayBlocks(s, deps) {
             }
             for (const part of earlier) for (const item of part.receipts ?? []) receiptsBefore.push({ index, receipt: item });
         }
-        return rerun(deepFreeze(structuredClone(state)), receipt, {
+        // (a state the replay made is deep-frozen already: it is handed on as it is, not copied and frozen again; LPA)
+        return rerun(isDeepFrozen(state) ? state : deepFreeze(structuredClone(state)), receipt, {
             index, span, replan: span.replan ?? null, occurrence: occurrenceFor(span, receipt, alloc),
             opsBefore: earlier.reduce((sum, part) => sum + part.ops.length, 0),
             ...(receiptsBefore ? { receiptsBefore } : {}),

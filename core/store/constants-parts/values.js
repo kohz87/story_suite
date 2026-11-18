@@ -4,12 +4,8 @@ export const isObject = value => !!value && typeof value === 'object' && !Array.
 const utf8 = new TextEncoder();
 export const jsonBytes = value => utf8.encode(JSON.stringify(value)).length;
 
-export function deepFreeze(value) {
-    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
-        Object.freeze(value);
-        for (const item of Object.values(value)) deepFreeze(item);
-    }
-    return value;
-}
+// The ops' deepFreeze (one freeze for the whole host): it also remembers what it froze all the way down, so a state the store
+// hands out is known deep-frozen at once (ops isDeepFrozen) and a command or a step planned again never walks or copies it again (LPA).
+export { deepFreeze } from '../../ops/freeze.js';
 
 export const revOf = state => (Number.isInteger(state?.meta?.rev) ? state.meta.rev : 0);
