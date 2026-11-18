@@ -265,7 +265,7 @@ test('pulse: the hook adds the flag to every new step', () => {
     assert.deepEqual(pulseHook(view, { type: 'swipe' }).commands[0].payload, { at: 5, age: 1, reach: 3, pulse: 2, persona: '' });
 });
 
-test('names is on by default like the pulse: a chat that never touched the switch teaches the person line and checks a new named person (LIVERUN1 item 11)', async () => {
+test('names is on by default like the pulse: a chat that never touched the switch still reads the old person line and checks a new named person (LIVERUN1 item 11)', async () => {
     assert.equal(namesPart.features[0].default, true);
     const host = await createHost({ modules: [createModule()], settings: { features: { 'story-director.pulse': false } } });
     try {
@@ -274,7 +274,7 @@ test('names is on by default like the pulse: a chat that never touched the switc
         const names = host.head().domains.names;
         assert.equal(names.people.corst.profile.look, 'scarred', 'a new named person is stored with the profile');
         assert.deepEqual(Object.keys(names.taken), ['elara'], 'an overused name is refused');
-        assert.ok(host.st.promptLog.filter(entry => entry.key === 'story_suite_static' && entry.value).at(-1).value.includes('+ person Name'), 'the static prompt teaches the line');
+        assert.equal(host.st.promptLog.filter(entry => entry.key === 'story_suite_static' && entry.value).at(-1).value.includes('+ person Name'), false, 'the static prompt no longer teaches the person line (a new person is taught once, as + npc)');
     } finally {
         host.close();
     }

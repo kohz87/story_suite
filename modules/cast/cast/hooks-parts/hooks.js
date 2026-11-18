@@ -75,6 +75,9 @@ const toldHere = (entry, at) => {
     return entry.toldAt === (at ?? -1);
 };
 
+// {{user}} / {{char}} in a planner prompt are filled with the names, as the arc planner's are (the chat's host does it; none given: the text as it is).
+const filled = (model, text) => (typeof model?.substitute === 'function' ? model.substitute(text) : text);
+
 /** The plans the hooks share (in memory), and the counters tests read. */
 export function createCastHooks({ plans }) {
     // Asks the planner for `mode` over `people`, keeping the answer under `key`.
@@ -95,7 +98,7 @@ export function createCastHooks({ plans }) {
             places: placesOf(frame.query), recent: recentStory(view?.model?.chat?.()),
         });
         return plans.start(key, async () => {
-            const result = await callOnce(model, { role: 'quick', system: request.system, prompt: request.prompt, maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
+            const result = await callOnce(model, { role: 'quick', system: filled(model, request.system), prompt: filled(model, request.prompt), maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
             if (!result?.ok) return { ok: false };
             const read = readCast(result.text, { refs, allow });
             return mode === 'judge' ? { ok: true, moves: [], comes: read.comes, died: [] } : { ok: true, ...read };
@@ -114,7 +117,7 @@ export function createCastHooks({ plans }) {
         });
         const allow = { seek: new Set(asked.map(item => item.key)), kind: new Map(asked.map(item => [item.key, item.entry])) };
         return plans.start(key, async () => {
-            const result = await model.callModel({ role: 'quick', system: request.system, prompt: request.prompt, maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
+            const result = await model.callModel({ role: 'quick', system: filled(model, request.system), prompt: filled(model, request.prompt), maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
             if (!result?.ok) return { ok: false };
             // The cited words must stand in the reader's message or the reply as they were when the planner read them (readCast refuses others).
             return { ok: true, moves: [], comes: [], died: [], sought: readCast(result.text, { refs, allow, texts: [texts.reader, texts.reply] }).sought ?? [] };

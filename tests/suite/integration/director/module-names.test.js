@@ -218,7 +218,7 @@ test('names on the host: a repeated or overused name is a Problem and a pinned c
         assert.ok(cues.length >= 1, 'the rename cue reaches the next reply');
         assert.ok(Object.values(on.head().domains.names.taken).every(entry => entry.told === true));
         const statics = host => host.st.promptLog.filter(entry => entry.key === 'story_suite_static' && entry.value).map(entry => entry.value);
-        assert.ok(statics(on).at(-1).includes('+ person Name'));
+        assert.ok(!statics(on).at(-1).includes('+ person Name'), 'the person line is no longer taught (a new person is taught once, as + npc)');
         assert.ok(!statics(plain).at(-1).includes('+ person Name'));
         const before = structuredClone(on.head());
         on.store.rebuild();

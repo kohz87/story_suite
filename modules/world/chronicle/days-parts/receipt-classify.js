@@ -16,6 +16,7 @@ export const BOOKKEEPING_TYPES = new Set([
 // A block's template result (`capture.dm` / `dm.act`, `data.v2.result.kind`) that is a plain meter set (set-health, set-mana,
 // set-stamina, set-slot-N) or a foe slot clear (clear-N) is bookkeeping; every other kind (register, deed, add-xp ...) is a story event.
 const METER_KIND = /^(set-[a-z]+(-\d+)?|clear-\d+)$/;
+const UPKEEP_SUMMARY = /^[^:]{1,80}: (?:nothing moved|meters started|nothing changed)\.?$/i;
 /** Whether a receipt is the code's own bookkeeping: by type, by a block result's kind, a clock line "(not used)", a names check or an empty summary. */
 export function isBookkeeping(receipt) {
     if (BOOKKEEPING_TYPES.has(receipt.type)) return true;
@@ -24,6 +25,8 @@ export function isBookkeeping(receipt) {
     if (receipt.type === 'npc.tick' && /^(Key people: noted|NPC meters: the reply was counted)/.test(text(receipt.summary).trim())) return true;
     // The names check of a `person` line ("Name: Torger Venn is new; look: …", "… is known already", "… is not a fresh name"): the arrival is "Met", the profile is the dossier's (LAB2-5).
     if (receipt.type === 'capture.person' && /^Name: /.test(text(receipt.summary).trim())) return true;
+    // NPC State's own upkeep receipts ("Joris Veen: meters started.", "…: nothing moved"): nothing the story could say happened, so never a line of the day.
+    if (UPKEEP_SUMMARY.test(text(receipt.summary).trim())) return true;
     if (typeof receipt.summary !== 'string' || !receipt.summary.trim()) return true;
     if (DM_TYPES.has(receipt.type)) return METER_KIND.test(receipt.data?.v2?.result?.kind ?? '');
     return receipt.type === 'capture.time' && /\(not used\)\.?\s*$/.test(receipt.summary);

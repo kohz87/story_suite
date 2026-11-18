@@ -5,6 +5,7 @@
 import { conditionHolds } from '../../daily/holds-read.js';
 import { placeOf } from '../../daily/cast-where.js';
 import { resolveRef } from '../../daily/geo.js';
+import { textPlace } from '../../daily/shown-place.js';
 
 const DAY = 1440;
 const MAX_FIGURES = 12;
@@ -30,7 +31,9 @@ export function slotView(ws, def, slot, world) {
             .filter(person => resolveRef(ws.geo, placeOf(ws, person.id))?.place?.region === slot.region)
             .slice(0, MAX_FIGURES).map(person => `${person.id} (${person.name}, at ${placeOf(ws, person.id)})`)
         : [];
-    return { name: def.id, summary: def.summary, menu: def.open.menu, facts: def.open.facts, ...(def.open.arc ? { arc: def.open.arc } : {}), conditions: conditionsAt(ws, slot, means), figures };
+    // The template's words are filled in as the day fills the fallback's ({place}, {region}, {realm}): the Director is never shown a bare placeholder.
+    const summary = String(def.summary ?? '').replace(/\{place\}/g, textPlace(ws.geo, slot.place, slot.regionName || slot.region)).replace(/\{region\}/g, slot.regionName || slot.region || '').replace(/\{realm\}/g, slot.realm ?? '');
+    return { name: def.id, summary, menu: def.open.menu, facts: def.open.facts, ...(def.open.arc ? { arc: def.open.arc } : {}), conditions: conditionsAt(ws, slot, means), figures };
 }
 
 /** The lore text for a batch: the digest's titles, then the matching entries for each slot, cut to a size. `ask(name, args)` is the view's query. */
