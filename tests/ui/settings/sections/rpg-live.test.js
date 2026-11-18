@@ -31,7 +31,7 @@ test('the live RPG page at Custom draws the four Custom editors after Difficulty
   assert.deepEqual(calls.at(-1), ['c', 'rpg.custom.createPoints', 14]);
 });
 
-test('choosing Custom on the live page draws its editors at once, and a refused number shows why and goes back to the stored one', async () => {
+test('choosing Custom on the live page draws its editors at once; a Custom number updates in place, and a refused one shows why and goes back to the stored one', async () => {
   const doc = installFakeDom();
   const bucket = {};
   const writes = { settings: { set: (_id, key, value) => { bucket[key] = value; return value; } } };
@@ -49,6 +49,7 @@ test('choosing Custom on the live page draws its editors at once, and a refused 
   assert.match(page().querySelector('.srow[data-key="rpg.difficulty"] .lb small').textContent, /^Your numbers:/);
   // As a browser does on Tab: the field loses focus, its change fires (and its promise jobs run), then the next field gets the focus.
   const input = page().querySelector('.srow[data-key="rpg.custom.createMin"] input'), next = page().querySelector('.srow[data-key="rpg.custom.createMax"] input');
+  const sw = page().querySelector('.srow[data-key="rpg.setUpAFightFromMyAttack"] .sw');
   input.value = '9';
   doc.activeElement = null;
   input.dispatch('change');
@@ -58,5 +59,12 @@ test('choosing Custom on the live page draws its editors at once, and a refused 
   assert.match(page().querySelector('.custom-refused').textContent, /lowest ≤ stats start at ≤ highest/);
   assert.equal(page().querySelector('.srow[data-key="rpg.custom.createMin"] input').value, '5');
   assert.equal(bucket.rpgStandard.createMin, 5);
-  assert.ok(doc.activeElement === page().querySelector('.srow[data-key="rpg.custom.createMax"] input'), 'the field tabbed to keeps the focus after the page draws again');
+  assert.ok(doc.activeElement === page().querySelector('.srow[data-key="rpg.custom.createMax"] input'), 'the field tabbed to keeps the focus');
+  assert.ok(page().querySelector('.srow[data-key="rpg.custom.createMin"] input') === input && page().querySelector('.srow[data-key="rpg.setUpAFightFromMyAttack"] .sw') === sw,
+    'a Custom number does not redraw the page, so a click that follows the typing lands on the control it was aimed at');
+  next.value = '12';
+  next.dispatch('change');
+  await new Promise(resolve => setTimeout(resolve, 5));
+  assert.equal(page().querySelector('.custom-refused'), null, 'an accepted number clears the refusal');
+  assert.match(page().querySelector('.srow[data-key="rpg.difficulty"] .lb small').textContent, /each stat 5 to 12$/, 'the hint follows the stored numbers in place');
 });

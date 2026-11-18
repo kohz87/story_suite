@@ -9,8 +9,8 @@ import { available, skip, reply, blocks, fields, problems, rebuilt, world } from
 import { joinDefinitions, joinDraft } from '../../../modules/rpg/join.js';
 import { STANDARD_PRESETS, rulesFromSettings } from '../../../modules/rpg/rules.js';
 
-async function v1World() {
-    const host = await createHost({ settings: { modules: { 'story-block': { rpgJoin: 'auto' } } } });
+async function v1World(more = {}) {
+    const host = await createHost({ settings: { modules: { 'story-block': { rpgJoin: 'auto', ...more } } } });
     host.features.set(CORE_FEATURE.leanRpg, true);
     await host.send('Begin.', 'Opening.');
     const { character, skills } = buildDefinitions(readDraft({ ...newDraft({ persona: 'Wessel' }), name: 'Wessel' }), { used: [] });
@@ -78,4 +78,30 @@ test('a companion who joins keeps its stats under a Custom "Stats start at" abov
     for (const n of [{ startStat: 10, createMin: 10, createMax: 20 }, { startStat: 8 }, { startStat: 3, createMin: 1 }]) assert.equal(str(custom(n)), 16, JSON.stringify(n));
     const draft = joinDraft({ name: 'Torka', soul: 2, best: 'str' }, custom({ startStat: 10, createMin: 10, createMax: 20 }));
     assert.deepEqual([draft.creation.start, draft.creation.min, draft.stats.dex], [5, 5, 12]);
+});
+
+test('under a Custom "Stats start at" of 10 a story join keeps its stats, and replays as live (swipe, swipe back, edited Re-read, rebuild, reload)', { skip }, async t => {
+    const host = await v1World({ rpgDifficulty: 'custom', rpgStandard: { ...STANDARD_PRESETS.standard, startStat: 10, createMin: 10, createMax: 20 } });
+    t.after(() => host.close());
+    const standard = await v1World();
+    t.after(() => standard.close());
+    for (const world of [host, standard]) await world.send('Mara comes.', reply('+ party Mara | about: a sellsword | class: III | best: str'));
+    const mara = fields(host, 'mara');
+    assert.ok(mara.str > 10, 'the best stat is not held to 10');
+    assert.deepEqual(['str', 'dex', 'vit'].map(k => mara[k]), ['str', 'dex', 'vit'].map(k => fields(standard, 'mara')[k]), 'the same stats as the join under Standard');
+    await rebuilt(host, 'after the join');
+    const before = JSON.stringify(host.head());
+    await host.swipe(reply('+ party Ren | class: II | best: str'));
+    await rebuilt(host, 'swipe');
+    await host.st.swipeTo(host.ctx.chat.length - 1, 0);
+    assert.equal(JSON.stringify(host.head()), before, 'swipe back: the state before the swipe');
+    const at = host.ctx.chat.length - 1, text = host.ctx.chat[at].mes;
+    await host.st.editMessage(at, text.replace('best: str', 'best: dex'));
+    assert.equal((await host.sdk.reread(at)).ok, true);
+    assert.ok(fields(host, 'mara').dex > fields(host, 'mara').str, 'an edited Re-read builds the companion again from the edited line');
+    await rebuilt(host, 'edited Re-read');
+    await host.st.editMessage(at, text);
+    assert.equal((await host.sdk.reread(at)).ok, true);
+    assert.deepEqual(fields(host, 'mara'), mara, 'Re-read back: the same companion as the first run made');
+    await rebuilt(host, 'Re-read back');
 });
