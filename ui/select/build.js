@@ -5,6 +5,7 @@ import { selectNow } from './now.js';
 import { selectInlineRow, selectDrawer, selectReplyMenu } from './chat.js';
 import { selectParty } from './party.js';
 import { selectBag } from './bag.js';
+import { selectLoot } from './loot.js';
 import { selectPeople } from './people.js';
 import { selectWorld } from './world.js';
 import { selectJournal } from './journal.js';
@@ -60,7 +61,9 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     chat: (read, args) => {
       const at = Number.isInteger(args?.index) && args.index >= 0 ? args.index : null;
       const s = scene(at === null ? read : (name, a) => read(name, name === 'reply.changes' ? { asOf: at, index: at } : a));
-      return { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(ctx()?.chat, at) }) };
+      // the loot that reply laid out (its own, taken or not), as chips on its row
+      const loot = selectLoot(read('inventory.loot', at === null ? { reply: true } : { reply: true, asOf: at }));
+      return { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at), ...(loot.length ? { loot } : {}) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(ctx()?.chat, at) }) };
     },
     party: read => {
       const actors = read('party.actors', {});
@@ -73,10 +76,13 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const pc = read('party.pc', {});
       // gear.view is the party's with no main character too: only its carriers (which mount is with the party) are taken then.
       const view = read('gear.view', pc?.id ? { id: pc.id } : {});
-      return selectBag({
+      const loot = selectLoot(read('inventory.loot', {}));
+      const bag = selectBag({
         rpg: Array.isArray(actors) && actors.length > 0, items: read('inventory.items', {}), counts: read('inventory.counts', {}), gear: pc?.id ? view : null, carriers: view?.carriers,
         wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), changes: read('reply.changes', {}), pcId: pc?.id ?? null,
       });
+      // every reply's loot not taken yet (the Bag's To pick up)
+      return bag && loot.length ? { ...bag, loot } : bag;
     },
     people: read => selectPeople(peopleParts(read)),
     dossier: read => dossierMap(read),

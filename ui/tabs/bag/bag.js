@@ -1,9 +1,10 @@
-// Composes the Bag tab: Purse with party load and Assets side by side when wide, then the Items card.
+// Composes the Bag tab: Purse with party load and Assets side by side when wide, the loot To pick up, then the Items card.
 import { h } from '../../kit/dom.js';
 import { purseCard } from './purse-load.js';
 import { assetsCard } from './assets.js';
 import { itemsCard } from './item-grid.js';
 import { itemSheet } from './item-sheet.js';
+import { lootCard } from './loot-card.js';
 
 /** Builds the Bag tab from a `bag` view-model; ctx = { prefs, port, members, openSheet(el, label), close() }. Empty cards are left out. */
 export function bagTab(bag = {}, ctx = {}) {
@@ -17,6 +18,7 @@ export function bagTab(bag = {}, ctx = {}) {
     'div',
     { class: 'bag-tab', dataset: { tab: 'bag' } },
     h('div', { class: 'btop' }, top),
+    lootCard(bag, sheetCtx),
     itemsCard(bag, full),
   );
 }
