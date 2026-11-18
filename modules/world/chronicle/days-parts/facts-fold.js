@@ -55,10 +55,10 @@ export function foldEntries(entries, day) {
 
 /**
  * A day's facts out of its entries (entryOf, in order) and the state now (the threads' `taken` and
- * `ended` stamps; `dayOfRev(rev)` → the day a receipt revision belongs to, or null):
+ * `ended` stamps; `dayOfRev(rev)` → the day a receipt revision belongs to, or null; `made`: the ids of the threads a `+ quest` line of that day wrote):
  * `{ count, happened, more, places, quests, fights, money, npcs, world }`.
  */
-export function factsOf(entries, { state = null, day = null, dayOfRev = () => null } = {}) {
+export function factsOf(entries, { state = null, day = null, dayOfRev = () => null, made = null } = {}) {
     const merged = foldEntries(entries, day);
     const npcs = merged.npcs.filter(move => move.from !== move.to).slice(0, MAX_NPCS)
         .map(move => cut(`${flat(move.name)}: ${move.meter} ${move.from ? `${flat(move.from)} → ` : '→ '}${move.to ? flat(move.to) : 'none'}`, MAX_ITEM));
@@ -71,7 +71,7 @@ export function factsOf(entries, { state = null, day = null, dayOfRev = () => nu
         who: merged.happened.map(item => (Array.isArray(item.who) ? [...item.who] : [])),
         more: merged.more,
         places: merged.places,
-        quests: questsOf(state, { dayOfRev, day }),
+        quests: questsOf(state, { dayOfRev, day, made }),
         fights: merged.fights,
         money: merged.money,
         npcs,
@@ -86,12 +86,22 @@ export function factsOf(entries, { state = null, day = null, dayOfRev = () => nu
  * walkDays) and the state now: what factsOf gives for one entry of those receipts.
  */
 export function dayFacts(receipts, { revDay = new Map(), state = null, day = null, lasting = null } = {}) {
-    return factsOf([entryOf(receipts, day, { lasting })], { state, day, dayOfRev: rev => (revDay.has(rev) ? revDay.get(rev) : null) });
+    return factsOf([entryOf(receipts, day, { lasting })], { state, day, dayOfRev: rev => (revDay.has(rev) ? revDay.get(rev) : null), made: madeOf(receipts) });
+}
+
+// The threads a `+ quest` line wrote that day (its receipt says "Director: + quest …" with the thread's id). A quest the story wrote straight
+// was never an offer, so no `taken` stamp is kept for it: the day of that line is the day it was taken.
+function madeOf(receipts) {
+    const ids = new Set();
+    for (const receipt of receipts) {
+        if (/^Director: \+ quest\b/i.test(String(receipt?.summary ?? '')) && typeof receipt.data?.thread === 'string') ids.add(receipt.data.thread);
+    }
+    return ids;
 }
 
 // The quests taken on and ended on that day, by the stamps the threads keep: the day of the receipt
 // whose revision a stamp names, else the day of its story minutes.
-function questsOf(state, { dayOfRev, day }) {
+function questsOf(state, { dayOfRev, day, made }) {
     const out = { taken: [], done: [], failed: [], dropped: [] };
     const seen = { taken: new Set(), done: new Set(), failed: new Set(), dropped: new Set() };
     const threads = Object.values(isRecord(state?.domains?.director?.threads) ? state.domains.director.threads : {})
@@ -106,7 +116,8 @@ function questsOf(state, { dayOfRev, day }) {
     for (const thread of threads) {
         const quest = thread.kind === 'quest' || Boolean(thread.taken);
         if (!quest) continue;
-        if (thread.taken && onDay(thread.taken)) pushUnique(out.taken, thread.key, MAX_QUESTS, seen.taken);
+        const direct = !thread.offer && !thread.taken && made?.has(thread.id) === true;
+        if ((thread.taken && onDay(thread.taken)) || direct) pushUnique(out.taken, thread.key, MAX_QUESTS, seen.taken);
         if (thread.status !== 'active' && thread.ended && onDay(thread.ended)) {
             const outcome = thread.ended.outcome;
             if (outcome === 'done') pushUnique(out.done, thread.key, MAX_QUESTS, seen.done);

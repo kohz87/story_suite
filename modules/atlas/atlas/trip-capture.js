@@ -67,7 +67,10 @@ function stopTrip(ctx, line) {
     clear(atlas.trips);
     delete atlas.trips;
     const where = pos?.mid ? `on the road between ${pos.leg.from} and ${pos.leg.to}, ${pos.along} of ${pos.of} km along` : pos?.node ? `at ${pos.node}` : '';
-    return { summary: `The trip to ${trip.to} ends${where ? ` ${where}` : ''}.`, narrate: false, data: { stopped: true } };
+    // Stopped on the road, the trip's own cue to write `~ place` is gone with it: ask the narrator for the place now, or the header,
+    // the routes line and the map keep the place the party left behind.
+    const cue = pos?.mid ? ` Write ~ place for where {{user}} is, on the road between ${pos.leg.from} and ${pos.leg.to}.` : '';
+    return { summary: `The trip to ${trip.to} ends${where ? ` ${where}` : ''}.${cue}`, narrate: Boolean(cue), data: { stopped: true } };
 }
 
 function delayTrip(ctx, line, text) {
