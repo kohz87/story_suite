@@ -56,7 +56,7 @@ test('every Portraits row is a control: Prompt and Leave out several lines, Comp
   assert.ok(field('composition').value.startsWith('solo character portrait'));
   assert.deepEqual(ctl('stylePreset').querySelectorAll('option').map(o => o.textContent), ['Fantasy Anime', 'Anime Key Visual', 'Painterly Fantasy', 'Dark Medieval', 'Semi-Realistic', 'Custom · Custom 1']);
   assert.deepEqual(ctl('promptFormat').querySelectorAll('option').map(o => o.textContent), ['Structured hybrid', 'Comma tags', 'Natural language']);
-  for (const key of ['useTheCurrentMood', 'useTheCurrentPlace', 'alsoSaveToSillytavernSGa']) assert.ok(ctl(key).querySelector('.sw'), key);
+  for (const key of ['useTheCurrentMood', 'useTheCurrentPlace', 'alsoSaveToSillytavernSGa']) assert.ok(ctl(key).querySelector('.sw') !== null, key);
 });
 
 test('editing Prompt moves the style to the chosen custom preset, is stored there and in the flat keys, and reads back after a reload', async t => {

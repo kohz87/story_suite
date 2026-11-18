@@ -73,15 +73,16 @@ test('switching the RPG on from Start lists the page with its stored values; off
 test('a module card links "Settings ›" only to a page that exists, and the link opens it', async t => {
   const { overlay, card } = await mounted(t);
   const link = id => card(id)?.querySelectorAll('.mf .lnk').find(b => b.textContent === 'Settings ›') ?? null;
-  assert.ok(card('story-block'), 'the Story Block card is drawn');
-  assert.equal(link('story-block'), null, 'Story Block has no settings page of its own');
+  assert.ok(card('story-block') !== null, 'the Story Block card is drawn');
+  // booleans, not elements: a failing assert would print the whole fake page
+  assert.equal(link('story-block') === null, true, 'Story Block has no settings page of its own');
   const director = link('story-director');
-  assert.ok(director, 'Story Director links to its page');
+  assert.ok(director !== null, 'Story Director links to its page');
   assert.equal(director.getAttribute('data-sec'), 'director');
   director.click();
   assert.equal(overlay.el.querySelector('.snav [aria-current="true"]').getAttribute('data-sec'), 'director');
   overlay.show('start');
   for (const b of overlay.el.querySelectorAll('.mods .mf .lnk').filter(x => x.textContent === 'Settings ›')) {
-    assert.ok(overlay.el.querySelector(`.snav [data-sec="${b.getAttribute('data-sec')}"]`), `"Settings ›" to ${b.getAttribute('data-sec')} has a page`);
+    assert.ok(overlay.el.querySelector(`.snav [data-sec="${b.getAttribute('data-sec')}"]`) !== null, `"Settings ›" to ${b.getAttribute('data-sec')} has a page`);
   }
 });
