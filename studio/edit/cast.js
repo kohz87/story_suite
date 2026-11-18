@@ -66,14 +66,14 @@ function listPage(list, bad, ctx, redraw) {
         const needle = (state.q ?? '').trim().toLowerCase();
         const found = list.map((person, index) => ({ person, index })).filter(({ person, index }) => passes(person, index, state.filter ?? 'all', needle));
         const shown = state.all || needle ? found : found.slice(0, SHOWN);
-        rows.replaceChildren(...shown.map(({ person, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-crow', dataset: { rec: `cast.${index}` }, onClick: () => ctx.go(PART, `cast.${index}`) },
+        rows.replaceChildren(...[...shown.map(({ person, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-crow', dataset: { rec: `cast.${index}` }, onClick: () => ctx.go(PART, `cast.${index}`) },
             h('div', { class: 'st-rh' },
                 typeof person.portrait === 'string' ? ctx.portrait?.(person.portrait) ?? null : null,
                 h('div', { class: 'st-rt' }, h('b', person.name ?? person.id ?? `#${index + 1}`), subOf(person) ? h('small', subOf(person)) : null),
                 h('span', { class: 'st-flags' }, person.protected === true ? h('span', { class: 'tg2' }, 'protected') : null,
                     bad[index].length ? h('span', { class: 'st-bad' }, `✕ ${bad[index].length}`) : null)))),
         found.length === 0 ? h('p', { class: 'fine' }, list.length ? 'No one matches.' : 'No people yet.') : null,
-        found.length > shown.length ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null);
+        found.length > shown.length ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null].filter(Boolean));
     };
     const search = h('input', { class: 'txt2 st-search', placeholder: 'Search the cast…', 'aria-label': 'Search the cast' });
     search.value = state.q ?? '';

@@ -68,12 +68,12 @@ function listView(list, bad, ctx, state, draw) {
     const fill = () => {
         const found = list.map((entry, index) => ({ entry, index })).filter(({ entry, index }) => passes(entry, state.filter ?? 'all', state.q ?? '', bad[index].length > 0));
         const shown = state.all ? found : found.slice(0, SHOWN);
-        rows.replaceChildren(...shown.map(({ entry, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-lorerow', dataset: { rec: 'lore.' + index }, onClick: () => { state.open = index; state.confirm = false; draw(); } },
+        rows.replaceChildren(...[...shown.map(({ entry, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-lorerow', dataset: { rec: 'lore.' + index }, onClick: () => { state.open = index; state.confirm = false; draw(); } },
             h('div', { class: 'st-rh' },
                 h('div', { class: 'st-rt' }, h('b', entry.title ?? entry.id ?? '#' + (index + 1)), h('small', keysLine(entry))),
                 h('span', { class: 'st-flags' }, ...flagsOf(entry).map(flag => h('span', { class: 'tg2' }, flag)), bad[index].length ? h('span', { class: 'st-bad' }, '✕ ' + bad[index].length) : null)))),
         found.length === 0 ? h('p', { class: 'fine' }, list.length ? 'No entry matches.' : 'No lore entries yet.') : null,
-        !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, 'Show all ' + found.length) : null);
+        !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, 'Show all ' + found.length) : null].filter(Boolean)); // a null child would print "null"
     };
     const search = h('input', { class: 'txt2 st-search', placeholder: 'Search lore…', 'aria-label': 'Search lore' });
     search.value = state.q ?? '';

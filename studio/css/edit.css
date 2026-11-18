@@ -112,3 +112,5 @@
   .st-root .st-grid .st-grow { grid-template-columns: minmax(0, 1fr) minmax(110px, auto); }
   .st-root .st-grid .st-gcell:not(.on) { display: none; }
 }
+/* A record row in a settings list with no icon (places, routes, regions, templates): the text takes the icon's 30 px column otherwise. */
+.st-root .slist button:not(:has(> i)) { grid-template-columns: minmax(0, 1fr) auto; }

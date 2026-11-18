@@ -61,10 +61,10 @@ function nameChips(spec, onChange) {
         };
         add.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault?.(); take(); } });
         add.addEventListener('change', take);
-        box.replaceChildren(values.length ? null : h('span', { class: 'none' }, spec.none ?? 'None'),
+        box.replaceChildren(...[values.length ? null : h('span', { class: 'none' }, spec.none ?? 'None'),
             ...shown.map((value, at) => h('span', { class: 'kc' }, value, h('button', { type: 'button', 'aria-label': `Remove ${value}`, onClick: () => onChange(values.filter((_, i) => i !== at)) }, '×'))),
             values.length > shown.length ? h('button', { type: 'button', class: 'kc st-all', onClick: () => { spec.state.all = true; draw(); } }, `Show all ${values.length} ›`) : null,
-            add);
+            add].filter(Boolean)); // the DOM writes a null child as the text "null"
     };
     draw();
     return setProblem(row, spec.problem);

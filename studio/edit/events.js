@@ -336,12 +336,12 @@ function listView(list, bad, ctx, state, redraw) {
     const fill = () => {
         const found = list.map((event, index) => ({ event, index })).filter(({ event, index }) => passes(event, filter, state.q ?? '', bad[index].length > 0));
         const shown = state.all ? found : found.slice(0, SHOWN);
-        rows.replaceChildren(...shown.map(({ event, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-eventrow', dataset: { rec: `worldEvents.${index}` }, onClick: () => ctx.go(PART, `worldEvents.${index}`) },
+        rows.replaceChildren(...[...shown.map(({ event, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-eventrow', dataset: { rec: `worldEvents.${index}` }, onClick: () => ctx.go(PART, `worldEvents.${index}`) },
             h('div', { class: 'st-rh' },
                 h('div', { class: 'st-rt' }, h('b', String(event.title ?? event.id ?? `#${index + 1}`)), h('small', subOf(event) || 'no details yet')),
                 h('span', { class: 'st-flags' }, ...flagsOf(event).map(flag => h('span', { class: 'tg2' }, flag)), bad[index].length ? h('span', { class: 'st-bad' }, `✕ ${bad[index].length}`) : null)))),
         found.length ? null : h('p', { class: 'fine' }, list.length ? 'No event matches.' : 'No events yet.'),
-        !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null);
+        !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null].filter(Boolean));
     };
     const search = h('input', { class: 'txt2 st-search', placeholder: 'Search events…', 'aria-label': 'Search events' });
     search.value = state.q ?? '';
