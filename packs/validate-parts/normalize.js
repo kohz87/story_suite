@@ -11,6 +11,7 @@ import { checkCalendar, checkPlace, placeRefs, checkRoute, routeSlug, checkMarke
 import { checkItem, itemRefs, checkFoe, checkMeterPreset, checkRpg, checkYou } from '../validate/items.js';
 import { checkTheme } from '../validate/theme.js';
 import { checkWorldCast, checkWorldPack, WORLD_KINDS } from '../validate/world-pack.js';
+import { checkGameSections } from '../validate/game-parts/run.js';
 import { checkRequires } from './requires.js';
 import { checkTopFields4, checkKindFields, checkContentKeys } from './envelope.js';
 
@@ -38,20 +39,22 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     const addMoney = v4 ? (code, path, message) => add(code, `content.${path}`, message) : add;
     const currency = money.currency === undefined ? null : checkCurrency(money.currency, addMoney);
     const economy = money.economy === undefined ? null : checkEconomy(money.economy, addMoney);
-    const calendar = v4 || raw.calendar === undefined ? null : checkCalendar(raw.calendar, add);
-    const weather = v4 || raw.weather === undefined ? null : checkWeather(raw.weather, add);
+    let calendar = v4 || raw.calendar === undefined ? null : checkCalendar(raw.calendar, add);
+    let weather = v4 || raw.weather === undefined ? null : checkWeather(raw.weather, add);
     const ripples = v4 || raw.ripples === undefined ? null : checkRipples(raw.ripples, warn);
 
     const content = {};
     if (raw.content !== undefined && !isObject(raw.content)) add('BAD_CONTENT', 'content', 'content must be an object of lists: { "items": [ … ], "events": [ … ] }.');
     const rawContent = isObject(raw.content) ? raw.content : {};
     let given = rawContent;
+    let gameSections = null;
     if (v4) {
         given = checkContentKeys(kind, rawContent, add);
-        // Shapes the game validator (a later job) checks: here they only have to be objects, and they are left out of the normalized pack.
-        for (const key of ['calendar', 'weather', 'start', 'pacing']) {
-            if (kind === 'game' && given[key] !== undefined && !isObject(given[key])) add('BAD_CONTENT', `content.${key}`, `content.${key} must be an object.`);
-            else if (kind === 'game' && given[key] !== undefined) warn('NOT_READ_YET', `content.${key}`, `content.${key} is not read yet; it was left out.`);
+        // A game pack's own sections (game-parts/run.js): calendar, weather, start, pacing and the RPG options.
+        if (kind === 'game') {
+            gameSections = checkGameSections({ given, packId, add, warn });
+            calendar = gameSections.calendar;
+            weather = gameSections.weather;
         }
     } else {
         for (const key of Object.keys(given)) if (!CONTENT_KINDS.includes(key) && key !== 'you') add('UNKNOWN_KIND', `content.${key}`, `"${key}" is not a content kind (expected ${[...CONTENT_KINDS, 'you'].join(', ')}).`);
@@ -86,7 +89,7 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
         if (Array.isArray(given.meterPresets) && given.meterPresets.length > METER_LIMITS.presets) add('BAD_CONTENT', 'content.meterPresets', `content.meterPresets holds at most ${METER_LIMITS.presets} presets.`);
         else content.meterPresets = records(given.meterPresets, 'meterPresets', { add, packId, check: (record, path) => checkMeterPreset(record, path, add), slugField: 'id', named: false });
     }
-    if (given.rpg !== undefined) content.rpg = checkRpg(given.rpg, packId, add, warn);
+    if (given.rpg !== undefined) content.rpg = gameSections ? gameSections.rpg : checkRpg(given.rpg, packId, add, warn);
     // The cast (cast.js): kept only when given, so older packs normalize as they always did.
     // A cast with `kind` on its entries is the world pack's (spec §8): one bad person is refused alone, the rest load.
     // A format 4 world pack's cast is always the world cast.
@@ -115,7 +118,7 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     }
 
     // Format 4: `start` is under content; a world's part (world, date, place) is checked above, a game's money and items by a later job.
-    const start = v4 ? (startWorld || startNow.date || startNow.place ? { ...(startWorld ? { world: startWorld } : {}), ...startNow } : null) : raw.start === undefined ? null : checkStart(raw.start, add, ref);
+    const start = gameSections ? gameSections.start : v4 ? (startWorld || startNow.date || startNow.place ? { ...(startWorld ? { world: startWorld } : {}), ...startNow } : null) : raw.start === undefined ? null : checkStart(raw.start, add, ref);
     if (start && startWorld && !v4) start.world = startWorld;
     if (!v4) for (const field of IGNORED_TOP_FIELDS) if (raw[field] !== undefined) warn('IGNORED_FIELD', field, `${field} is not read any more (pack format 3); it was left out.`);
     const theme = v4 || raw.theme === undefined ? {} : checkTheme(raw.theme, add, 'theme');
@@ -135,6 +138,7 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
         calendar,
         // Kept only when given, so older packs normalize as they always did.
         ...(recommends ? { recommends } : {}),
+        ...(gameSections?.pacing ? { pacing: gameSections.pacing } : {}),
         ...(weather ? { weather } : {}),
         ...(ripples ? { ripples } : {}),
         content,

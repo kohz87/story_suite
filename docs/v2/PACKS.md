@@ -19,7 +19,7 @@ With the Settings feature **World events** on (off by default), a legacy event's
 
 Rules packs for RPG Battle cannot be imported. Keep existing RPG Battle chats on the previous versions.
 
-## Pack format 4 (the envelope and the world checks; in progress)
+## Pack format 4 (the envelope, the world checks and the game checks; in progress)
 
 The validator reads format 4 beside format 3 (`FORMAT_NEWER` now starts above 4). The envelope and the world pack's checks are built so far; the design is `scratch/design/pack-format-4.md`.
 
@@ -27,6 +27,13 @@ The validator reads format 4 beside format 3 (`FORMAT_NEWER` now starts above 4)
 - `requires.storyBlock` is refused in format 4; write `requires.suite`.
 - `recommends` (world packs only): `{ "game": { "id": "…", "version": "^1" } }`.
 - A world pack's `content` may hold `lore, placeKinds, routeKinds, places, routes, regions, realms, markets, cast, powers, scores, conditions, worldEvents, templates, start, foes, items`; a game pack's `calendar, currency, economy, weather, names, you, rpg, dataModules, meterPresets, start, pacing`. A key of the other kind is refused with "belongs in a game pack" or "belongs in a world pack"; `events` says to use `worldEvents`; any other key is unknown.
+- **Game pack, format 4 only** (`content`, every section optional):
+  - `calendar`: `months` (`[{ name, days }]`), `era`, `holidays` (checked as in format 3), plus `leapYears` (true or false), `week` (1 to 14 day names, once each) and `seasons` (`[{ name, months }]`, at most 12; a month is named as the calendar spells it, or by its number, and sits in one season). There is no `start`: the story's start date is the world pack's `start.date`.
+  - `weather`: `style` (`climate`, `tables` or `story`; `climate` when left out) and `tables` (`[{ climate?, season?, weather: [text] }]`, at most 120, 1 to 24 lines of at most 60 characters). `climate` is one of the ten climates; `region` is refused (a game pack does not know the world); `seasons` belong in the calendar. A season that is not one of the pack's own (or the four built-in ones when it has none) is a warning, and style `story` with tables is a warning: the tables are never read. **Built so far: only the check.** Nothing reads the new weather yet.
+  - `start`: `money` (a whole number up to a billion) and `items` (`[{ name, qty?, note? }]`, at most 24, a name once). The world's `date`, `place` and `world` belong in the world pack.
+  - `pacing`: `{ tempo }`, 0.25 to 4.
+  - `rpg`: as in format 3, plus `pull` (`{ abilities?: 1 to 6, stance?: true or false }`, kept as one more record with `slug: "pull"`). `playerRank.module` must be a data module of the same pack (its slug, or `pack.<id>/<slug>`), else `UNKNOWN_REF`.
+  - The normalized game pack keeps `calendar` and `weather` at the top as format 3 did (the calendar without `start`), `start` as `{ money?, items? }` and `pacing` when given. **Nothing reads them yet** (the later install and module jobs do); the pairing check is a later job.
 - **World pack, format 4 only** (format 3 packs are read exactly as before):
   - `climate` on a region and on a place (a place's overrides its region's): one of `temperate`, `cold`, `frozen`, `highland`, `arid`, `warm`, `tropical`, `coastal`, `sea`, `underground`. Anything else is refused. It is kept on the normalized region and place; nothing reads it yet.
   - `content.start` holds `world`, `date` and `place` and nothing else. A format 3 key says where it went: `scene` → `start.place`, `inventory` → the game pack's `start`. `date` is `{ "era"?, "year", "month", "day", "hour"?, "minute"? }` with whole numbers (the month is a number; year 0 to 999999, month 1 to 99, day 1 to 999, hour 0 to 99, minute 0 to 999). `place` is the id of a place of this pack. Both are kept in the normalized `start`.

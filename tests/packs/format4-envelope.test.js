@@ -93,7 +93,7 @@ test('a world pack: the world checks run on it (a bad place is refused; the cast
     assert.deepEqual(start, { world: { set: [], facts: [] } });
 });
 
-test('a game pack: money, names, rank, trackers and RPG rules are checked; calendar, weather, start and pacing are only shape-checked for now', () => {
+test('a game pack: money, names, rank, trackers and RPG rules are checked; calendar, weather, start and pacing are refused when not objects', () => {
     const coins = { name: 'mark', plural: 'marks', coins: [{ name: 'mark', plural: 'marks', value: 1 }] };
     const result = ok(game({ content: { currency: coins, economy: { scale: 2 }, you: { rank: { label: 'Rank' } } } }));
     assert.equal(result.pack.currency.name, 'mark');
@@ -101,11 +101,8 @@ test('a game pack: money, names, rank, trackers and RPG rules are checked; calen
     assert.deepEqual(result.pack.content.you, { rank: { label: 'Rank' } });
     assert.equal(refused(game({ content: { currency: 'gold' } }), 'BAD_CURRENCY').errors[0].path, 'content.currency');
     assert.equal(validatePack(game({ content: { economy: { scale: 99999 } } })).ok, false);
-    const later = ok(game({ content: { calendar: { months: [{ name: 'A', days: 30 }] }, weather: {}, start: {}, pacing: {} } }));
-    assert.deepEqual(later.warnings.map(warning => warning.path).sort(), ['content.calendar', 'content.pacing', 'content.start', 'content.weather']);
-    assert.equal(later.pack.calendar, null);
-    for (const key of ['calendar', 'weather', 'start', 'pacing']) refused(game({ content: { [key]: 'x' } }), 'BAD_CONTENT');
-    for (const key of ['calendar', 'weather', 'start', 'pacing']) refused(game({ content: { [key]: [] } }), 'BAD_CONTENT');
+    // The calendar, weather, start and pacing sections are checked by format4-game.test.js; here only that a wrong type is refused.
+    for (const key of ['calendar', 'weather', 'start', 'pacing']) refused(game({ content: { [key]: 'x' } }), key === 'calendar' ? 'BAD_CALENDAR' : key === 'weather' ? 'BAD_WEATHER' : key === 'start' ? 'BAD_START' : 'BAD_CONTENT');
 });
 
 test('hostile files: prototype keys and deep or huge values are refused, and format 3 packs are read as before', () => {
