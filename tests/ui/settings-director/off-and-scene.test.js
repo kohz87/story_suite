@@ -1,4 +1,4 @@
-// Settings › Director on the real host, real selectors and the real mount: a group whose feature is off says which feature to turn on, and Scene spoilers is the chat's own switch.
+// Settings › Director on the real host, real selectors and the real mount: a group whose feature is off is gone whole, and Scene spoilers is the chat's own switch.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
@@ -31,20 +31,34 @@ const openDirector = (port, doc) => {
   return suite;
 };
 
-test('a group whose feature is off says "Turn on X to see these" with the hidden rows, and the rows are not drawn', async t => {
-  const { port } = await live(t, { off: ['story-director.pulse'] });
+test('a group whose feature is off is gone whole, its switch stays on the module card, and it is back with its stored values when switched on', async t => {
+  const { host, port } = await live(t, { off: ['story-director.pulse'] });
   const list = rows(port);
-  assert.equal(list.some(r => r.key === 'director.pulse'), false);
-  const note = list.find(r => r.key === 'director.off.story-director.pulse');
-  assert.equal(note.type, 'info');
-  assert.equal(note.group, 'World pulse');
-  assert.equal(note.label, 'Turn on World pulse to see these');
-  assert.match(note.hint, /Pulse.*The pulse may invent events.*Show the roll under replies/);
+  assert.equal(list.some(r => r.group === 'World pulse'), false, 'no World pulse row');
+  assert.equal(list.some(r => r.type === 'info'), false, 'and no line about it');
+  assert.equal(list.some(r => r.group === 'Planner (arcs and the cast)'), true, 'other groups stay');
   const doc = installFakeDom();
   const suite = openDirector(port, doc);
-  assert.match(doc.body.textContent, /Turn on World pulse to see these/);
+  assert.doesNotMatch(doc.body.textContent, /Turn on|The pulse may invent events|Show the roll under replies/);
+  assert.match(doc.body.textContent, /World pulseBefore each reply/, 'the switch is still on the Director module card');
   assert.equal(doc.body.querySelector('[data-key="director.pulse"]'), null);
   suite.destroy();
+  await host.settings.set('story-director', 'pulse.mode', 'lively');
+  const on = await live(t);
+  await on.host.settings.set('story-director', 'pulse.mode', 'lively');
+  const back = rows(on.port).filter(r => r.group === 'World pulse');
+  assert.equal(back.length, 3, 'on: the group is back');
+  assert.equal(back.find(r => r.key === 'director.pulse').value, 'Lively', 'with the stored value');
+  const doc2 = installFakeDom();
+  const suite2 = openDirector(on.port, doc2);
+  assert.ok(doc2.body.querySelector('[data-key="director.pulse"]'));
+  suite2.destroy();
+});
+
+test('the Arc planning group goes the same way', async t => {
+  const feature = (await import('../../../modules/director/module.js')).storyDirectorModule.settings.schema['arc.trigger'].feature;
+  const { port } = await live(t, { off: [feature] });
+  assert.equal(rows(port).some(r => r.group === 'Planner (arcs and the cast)'), false);
 });
 
 test('with every feature on there is no such line', async t => {
