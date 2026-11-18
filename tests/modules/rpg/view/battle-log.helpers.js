@@ -50,6 +50,8 @@ export async function world(t, { feature = true } = {}) {
     const first = await host.send('To the quay.', 'The quay.\n\n[battle]\n\nAfter.');
     const head = host.store.headIndex();
     await setField(host, 'foes', 'hurt1', 2);
+    // The reply's fight record, as the fight kind's settle keeps it (data.v2.result), so the feature switch has something to hide.
+    host.ctx.chat[head].extra.storySuite.receipts.push({ id: 'rc_fight001', type: 'interaction.settle', module: 'story-block', cause: 'system', summary: '', narrate: false, rev: 99, replan: { payload: { kindId: 'story-block/fight', key: 'k1' } }, data: { v2: { result: result() } } });
     const doc = setupDom();
     doc.defaultView = { localStorage: memory() };
     const log = createBattleLog({ ctx: host.ctx, doc, store: host.store, featureOn: () => feature, roleOf, events: host.events });

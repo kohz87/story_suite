@@ -1,6 +1,6 @@
 // Standalone checks on the real host with nothing but Story Block and Story Director: a fresh chat rolls the story's check and
-// Assist's pre-roll for the player before any character is set, a character set afterwards is used, and every rebuild, reload and
-// swipe gives the live state.
+// Assist's pre-roll for the player before any character is set, a character set afterwards is used, and every rebuild, reload,
+// swipe (and back), edited Re-read and middle delete gives the live state.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createFakeModel, createHost } from '../../../../testkit/index.js';
@@ -43,5 +43,44 @@ test('a fresh chat: the story\'s check and Assist\'s pre-roll roll for the playe
     assert.deepEqual(log(host).at(-1).mod, 2);
     await host.swipe(`This time he turns.\n<Changes>\n? check Stealth — duck behind the cart | dc: normal\n</Changes>`);
     assert.equal(log(host).at(-1).dc, 15);
+    await sameEverywhere(host, t);
+});
+
+// (B4-11g took out the 2.1.1 chat that carried these: the same Re-read, delete and swipe steps on a fresh chat.)
+test('a fresh chat: an edited Re-read (grown and shrunk), a swipe and back, and a middle delete give the live state', async t => {
+    const host = await createHost({ modules: [createModule()] });
+    t.after(() => host.close());
+    const policy = host.sdk.query('checks.policy', {});
+    ok(await host.sdk.command('checks.actor', { write: 'wr_00000001', name: 'Mara', bonuses: { DEX: 2 }, expectedHash: policy.hash }));
+    const [mara] = Object.values(host.sdk.query('checks.policy', {}).actors);
+    await host.send('I sneak past the guard.', `You slip by.\n<Changes>\n${CHECK}\n</Changes>`);
+    await host.send('Past the second guard.', 'You slip by again.\n<Changes>\n? check Stealth — sneak past the second guard | dc: hard\n</Changes>');
+    assert.deepEqual([log(host).length, log(host).at(-1).actor, log(host).at(-1).mod], [2, mara.id, 2]);
+    await sameEverywhere(host, t);
+
+    // Re-read the last reply edited: grown to two checks, then shrunk back to one with another difficulty.
+    const at = host.ctx.chat.length - 1;
+    await host.st.editMessage(at, 'You slip by.\n<Changes>\n? check Stealth — climb the wall | dc: normal\n? check Athletics — drop down | dc: easy\n</Changes>');
+    ok(await host.turn.reread(at));
+    assert.deepEqual(log(host).slice(-2).map(check => check.dc), [15, 10]);
+    assert.equal(log(host).length, 3);
+    await sameEverywhere(host, t);
+    await host.st.editMessage(at, 'You slip by.\n<Changes>\n? check Stealth — climb the wall | dc: hard\n</Changes>');
+    ok(await host.turn.reread(at));
+    assert.deepEqual([log(host).length, log(host).at(-1).dc], [2, 20]);
+    await sameEverywhere(host, t);
+
+    // A swipe, then back to the first try.
+    await host.swipe('He sees you.\n<Changes>\n? check Stealth — hide in the hay | dc: easy\n</Changes>');
+    assert.equal(log(host).at(-1).dc, 10);
+    await sameEverywhere(host, t);
+    await host.st.swipeTo(at, 0);
+    assert.deepEqual([log(host).length, log(host).at(-1).dc], [2, 20], 'back to the first try');
+    await sameEverywhere(host, t);
+
+    // Delete the first reply in the middle: its check goes, the actor and the later check stay.
+    await host.st.deleteMessage(2);
+    assert.equal(host.sdk.query('checks.policy', {}).actors[mara.id].name, 'Mara', 'the actor outlives the old reply');
+    assert.equal(log(host).length, 1);
     await sameEverywhere(host, t);
 });

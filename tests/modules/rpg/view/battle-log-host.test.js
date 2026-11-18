@@ -43,8 +43,11 @@ test('the marker is matched case-folded and trimmed; a second one is hidden; non
 
 // ---- on the real host ----
 
-test('a reply with no recorded rolls, a message of the reader\'s and the feature off draw nothing', async t => {
+test('a reply with no recorded rolls, a message of the reader\'s and the feature off draw nothing; the fight reply draws its panel', async t => {
     const { doc, log, host, head } = await world(t);
+    const fought = message(doc, head, prose('The quay.'));
+    assert.notEqual(log.refresh(head, fought), null, 'the reply with the fight record draws');
+    assert.equal(fought.querySelectorAll(`.${BATTLE_ROOT}`).length, 1);
     const quiet = message(doc, 1, prose('Opening.'));
     assert.equal(log.refresh(1, quiet), null);
     assert.equal(quiet.querySelectorAll(`.${BATTLE_ROOT}`).length, 0);
