@@ -12,6 +12,7 @@ import { selectStory } from './story.js';
 import { listProfiles } from '../../core/model-call.js';
 import { selectSettings } from './settings.js';
 import { selectProblems, selectSent, selectInspector, selectSavePoints } from './tools.js';
+import { selectPrompts } from './prompts.js';
 import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
 import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf } from './gather.js';
@@ -103,6 +104,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     problems: () => (tools ? selectProblems(problemsNow()) : null),
     sent: () => (tools ? selectSent(tools.sent(), selectProblems(problemsNow())) : null),
     savepoints: () => (tools ? selectSavePoints(tools.savePoints()) : null),
+    prompts: () => selectPrompts(Object.fromEntries(['npc-state-delta', 'story-director'].map(id => [id, sdk?.settings?.(id) ?? null]))),
     inspector: (_read, args) => (tools ? selectInspector({ replies: tools.replies(), reply: i => tools.reply(i) }, args?.index) : null),
   };
 }
