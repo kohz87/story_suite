@@ -4,10 +4,9 @@ import { glyph } from '../../kit/glyphs.js';
 import { button } from '../../kit/controls.js';
 import { tripCard, tripSummary } from './trip.js';
 import { labelGeom, nudgeLabels } from './label-nudge.js';
+import { placePulse, pulseRing } from './pulse.js';
 
 const BASE = Object.freeze({ x: 0, y: 0, w: 1000, h: 700 });
-// The you-are-here ring: five fixed radii (14 to 30) that fade in turn, so it pulses with opacity only (no per-frame layout)
-const PULSE_RADII = [14, 18, 22, 26, 30];
 const KIND_GLYPHS = [[/port|harbou?r/i, 'port'], [/ford|bridge|mill/i, 'ford'], [/city/i, 'city'], [/village|hamlet/i, 'village'],
   [/outpost|fort|camp/i, 'outpost'], [/tower|watch/i, 'tower'], [/ruin/i, 'ruin']];
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -82,7 +81,6 @@ function drawSvg(world, vb, scale, state, act) {
   const byId = new Map(world.places.map(p => [p.id, p]));
   const newsIds = new Set(world.news.map(n => n.placeId).filter(Boolean));
   const tripPts = (world.trip?.placeIds ?? []).map(id => byId.get(id)).filter(Boolean);
-  const here = world.places.find(p => p.here);
   const terrain = world.terrain ?? {};
   const shifts = nudgeLabels(world.places, u, vb);
   const grid = [];
@@ -101,8 +99,7 @@ function drawSvg(world, vb, scale, state, act) {
     tripPts.length > 1
       ? svgEl('path', { class: ['trip', world.trip.state === 'arrived' ? 'done' : null], d: `M${tripPts.map(p => `${p.x} ${p.y}`).join('L')}`, style: { 'stroke-width': Math.max(5, 4 * u) } })
       : null,
-    world.places.map(p => placeNode(p, u, newsIds, state, act, vb, shifts.get(p.id) ?? 0)),
-    here ? svgEl('g', { class: 'you' }, PULSE_RADII.map(r => svgEl('circle', { class: 'r', cx: here.x, cy: here.y, r }))) : null);
+    world.places.map(p => placeNode(p, u, newsIds, state, act, vb, shifts.get(p.id) ?? 0)));
 }
 
 function tools(world, regions, on) {
@@ -149,7 +146,8 @@ export function mapCard(world, state, act, ctx = {}) {
   state.center = null;
   const redraw = () => {
     vb.h = vb.w * ratio();
-    box.replaceChildren(drawSvg(data, vb, scale(vb), state, act));
+    const here = places.find(p => p.here);
+    box.replaceChildren(drawSvg(data, vb, scale(vb), state, act), ...(here ? [pulseRing(here, vb, scale(vb))] : []));
   };
   const on = {
     zoom(f) {
@@ -195,6 +193,9 @@ export function mapCard(world, state, act, ctx = {}) {
       vb = { ...vb, x: drag.vx - (e.clientX - drag.x) * drag.s, y: drag.vy - (e.clientY - drag.y) * drag.s };
     } else return;
     svgNow()?.setAttribute('viewBox', viewText(vb));
+    const ring = box.querySelector('.pulse');
+    const here = places.find(p => p.here);
+    if (ring && here) placePulse(ring, here, vb, scale(vb));
   });
   const up = (e) => {
     pointers.delete(e.pointerId);

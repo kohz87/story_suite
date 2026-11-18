@@ -39,12 +39,12 @@ test.after(async () => {
   if (ctx?.server) await new Promise(done => ctx.server.close(done));
 });
 
-test('the you-are-here ring animates opacity only (five fixed radii 14 to 30) and an idle World tab lays out almost never', async (t) => {
+test('the you-are-here ring is the mock pulse (one ring, scale to full, opacity 1 to 0, 2 s) on transform + opacity, sits on the place, and an idle World tab lays out almost never', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const page = await ctx.browser.newPage({ viewport: { width: 1143, height: 900 } });
   await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
   await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=1143&tab=world`);
-  await page.waitForSelector('#hx-frame .mp .you circle.r');
+  await page.waitForSelector('#hx-frame .mapbox .pulse');
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Performance.enable');
   const count = async () => (await cdp.send('Performance.getMetrics')).metrics.find(m => m.name === 'LayoutCount').value;
@@ -53,15 +53,25 @@ test('the you-are-here ring animates opacity only (five fixed radii 14 to 30) an
   await page.waitForTimeout(2000);
   const layouts = (await count()) - before;
   const info = await page.evaluate(() => {
-    const cs = [...document.querySelectorAll('.mp .you circle.r')];
+    const ring = document.querySelector('.mapbox .pulse');
     const as = document.getAnimations().filter(x => x.animationName === 'wpulse');
-    const props = as.flatMap(a => a.effect.getKeyframes().flatMap(k => Object.keys(k)).filter(k => !['offset', 'easing', 'composite', 'computedOffset'].includes(k)));
-    return { running: as.length, props: [...new Set(props)].sort(), radii: cs.map(c => c.getAttribute('r')), stroke: getComputedStyle(cs[0]).strokeWidth };
+    const kf = as[0].effect.getKeyframes();
+    const props = [...new Set(kf.flatMap(k => Object.keys(k)).filter(k => !['offset', 'easing', 'composite', 'computedOffset'].includes(k)))].sort();
+    const dot = document.querySelector('.mapbox .pl.sel circle.b, .mapbox [data-pl] circle.b');
+    const here = document.querySelector('.mapbox .mp');
+    const r = ring.getBoundingClientRect();
+    return { running: as.length, rings: document.querySelectorAll('.mapbox .pulse').length, props, first: kf[0], last: kf.at(-1), timing: as[0].effect.getComputedTiming().duration, svgAnim: !!here.querySelector('animate, animateTransform'), stroke: getComputedStyle(ring).borderTopWidth, w: ring.offsetWidth, hasDot: !!dot, cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
   });
   await page.close();
-  assert.equal(info.running, 5, 'the pulse animation is running on all five rings');
-  assert.deepEqual(info.props, ['opacity']);
-  assert.deepEqual(info.radii, ['14', '18', '22', '26', '30']);
-  assert.equal(info.stroke, '3px');
+  assert.equal(info.running, 1);
+  assert.equal(info.rings, 1);
+  assert.deepEqual(info.props, ['opacity', 'transform']);
+  assert.equal(info.first.opacity, '1');
+  assert.equal(info.last.opacity, '0');
+  assert.match(info.first.transform, /scale\(0\.483/);
+  assert.equal(info.last.transform, 'scale(1)');
+  assert.equal(info.timing, 2000);
+  assert.equal(info.svgAnim, false);
+  assert.ok(info.w > 0 && parseFloat(info.stroke) > 0);
   assert.ok(layouts <= 3, `idle World tab laid out ${layouts} times in 2 s`);
 });
