@@ -21,13 +21,20 @@ function portraitLine(report) {
 }
 
 // What an install said, in words: the pack, then its portraits (saved, dropped, not picked) and each image not used.
-async function finish(packs, name, text, images) {
+async function finish(packs, name, text, images, game = null) {
     const result = await packs.install(text, { source: 'file', origin: name, files: images });
     if (!result.ok) return said(`${name} was not imported.`, errorLines(result.errors));
     const first = result.action === 'unchanged' ? `${result.name} is already installed.` : `${result.action === 'updated' ? 'Updated' : 'Installed'} ${result.name}.`;
     const refused = result.portraits?.refused ?? [];
-    return said([first, portraitLine(result.portraits) ? `${portraitLine(result.portraits)}.` : '', refused.length ? `${plural(refused.length, 'image')} not used.` : ''].filter(Boolean).join(' '),
-        [...(result.warnings ?? []).map(item => `Ignored: ${item.message}`), ...refused.map(item => item.message)]);
+    // A zip's game.json (the world's companion game pack) goes in after the world, on its own: a refused game does not undo the world.
+    let second = null;
+    if (game !== null) {
+        second = await packs.install(game, { source: 'file', origin: `${name}:game.json` });
+        if (!second.ok) return said(`${first} ${name}'s game.json was not imported.`, [...errorLines(second.errors), ...(result.warnings ?? []).map(item => `Ignored: ${item.message}`)]);
+    }
+    const gameLine = second ? `${second.action === 'unchanged' ? `${second.name} is already installed` : `${second.action === 'updated' ? 'Updated' : 'Installed'} ${second.name}`} (its game pack).` : '';
+    return said([first, gameLine, portraitLine(result.portraits) ? `${portraitLine(result.portraits)}.` : '', refused.length ? `${plural(refused.length, 'image')} not used.` : ''].filter(Boolean).join(' '),
+        [...(result.warnings ?? []).map(item => `Ignored: ${item.message}`), ...(second?.warnings ?? []).map(item => `Ignored: ${item.message}`), ...refused.map(item => item.message)]);
 }
 
 // A pack as one zip (bundle.js): pack.json and its portraits/ folder, picked alone.
@@ -42,7 +49,7 @@ async function importZip(packs, file, withOthers) {
     }
     const bundle = await readPackZip(bytes);
     if (!bundle.ok) return said(`${file.name} was not imported.`, [bundle.message]);
-    return finish(packs, file.name, bundle.text, bundle.files);
+    return finish(packs, file.name, bundle.text, bundle.files, bundle.game ?? null);
 }
 
 /** Installs the picked files: one pack.json (any .json) with the images beside it, or one .zip. → `{ text, errors }`, or null when nothing was picked. */

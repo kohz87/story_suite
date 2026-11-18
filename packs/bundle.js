@@ -1,7 +1,8 @@
-// A pack as one zip (Story Studio's export): `pack.json` and a `portraits/` folder of the images its cast names.
+// A pack as one zip (Story Studio's export): `pack.json` and a `portraits/` folder of the images its cast names. A world pack's zip may
+// also carry `game.json`, the game pack that goes with it (format 4); a game pack has no portraits.
 //
 // readPackZip(bytes) → `{ ok: true, text, files }` (`text` the pack.json, `files` the portraits as `[{ name, size, read() }]`, what
-// installed.js `install` takes) or `{ ok: false, message }` in plain words. The zip is refused whole for anything the reader
+// installed.js `install` takes; `game`: the game.json text, present only when the zip has one) or `{ ok: false, message }` in plain words. The zip is refused whole for anything the reader
 // should not trust: what zip.js refuses (encrypted, zip64, several disks, a path with `..`, too much unpacked, a file over its size
 // cap, a squeezed one), a zip with no pack.json or one over the pack size limit, and any file other than pack.json and a portrait
 // the pack's cast names (at `portraits/<file>`); notes at the top level (.md, .txt) are left out, not refused. Whether the pack itself is good, and whether each image is a real image that fits
@@ -20,6 +21,9 @@ export async function readPackZip(bytes, { limits = ZIP_LIMITS } = {}) {
         if (!packEntry) throw new ZipProblem('The zip has no pack.json at its top level.');
         if (packEntry.size > LIMITS.packBytes) throw new ZipProblem(`The pack.json in the zip is larger than ${Math.round(LIMITS.packBytes / 1024)} KB.`);
         const text = new TextDecoder('utf-8').decode(await packEntry.read());
+        const gameEntry = entries.find(entry => entry.name === 'game.json');
+        if (gameEntry && gameEntry.size > LIMITS.packBytes) throw new ZipProblem(`The game.json in the zip is larger than ${Math.round(LIMITS.packBytes / 1024)} KB.`);
+        const game = gameEntry ? new TextDecoder('utf-8').decode(await gameEntry.read()) : null;
         let named = new Set();
         try {
             const cast = JSON.parse(text.replace(/^﻿/, ''))?.content?.cast;
@@ -27,14 +31,14 @@ export async function readPackZip(bytes, { limits = ZIP_LIMITS } = {}) {
         } catch { /* a pack that is not JSON is refused by the install with its own message */ }
         const files = [];
         for (const entry of entries) {
-            if (entry === packEntry) continue;
+            if (entry === packEntry || entry === gameEntry) continue;
             // Notes the author ships beside the pack (README.md, a changelog, a validation log) at the zip's top level are left out, not refused.
             if (!entry.name.includes('/') && /\.(md|txt)$/i.test(entry.name)) continue;
             const file = entry.name.startsWith('portraits/') ? entry.name.slice('portraits/'.length) : null;
             if (!file || file.includes('/') || !named.has(file)) throw new ZipProblem(`The zip holds "${entry.name}", which is not pack.json or a portrait the pack's cast names (portraits/<file>); nothing was imported.`);
             files.push({ name: file, size: entry.size, read: () => entry.read() });
         }
-        return { ok: true, text, files };
+        return { ok: true, text, files, ...(game === null ? {} : { game }) };
     } catch (error) {
         if (error instanceof ZipProblem) return { ok: false, message: error.message };
         throw error;

@@ -6,6 +6,7 @@ import { OWNER_NEEDS } from '../card-settings.js';
 import { compareVersions, parseVersion } from '../version.js';
 import { bringsLine, settingsDone } from './summary.js';
 import { joinWords, plural } from './shared-words.js';
+import { groupOffer, memberNeeded, selectMembers } from './pair.js';
 
 export const MAX_OFFERS = 3;
 const REMEMBER_MAX = 200;
@@ -60,6 +61,7 @@ export function createCardOffer({ readLorebook, packs, cardSettings, remember, s
         const installed = new Map(packs.list().map(entry => [entry.id, entry.version]));
         const offers = [];
         const cardIds = new Set();
+        const v4 = [];   // the card's format 4 world and game: one offer for both (pair.js)
         for (const entry of found) {
             const label = entry.title || entry.origin;
             const checked = packs.inspect(entry.text);
@@ -69,12 +71,21 @@ export function createCardOffer({ readLorebook, packs, cardSettings, remember, s
             const have = installed.get(pack.id);
             const cardVersion = parseVersion(pack.version);
             const haveVersion = have === undefined ? null : parseVersion(have);
+            if (pack.kind) {
+                if (v4.some(member => member.pack.kind === pack.kind || member.pack.id === pack.id)) { line('CARD_REFUSED', `Card pack ${label} was not offered: a card offers one world pack and one game pack.`); continue; }
+                v4.push({ entry, pack, raw: checked.raw, installedVersion: have ?? null, newer: !(have !== undefined && cardVersion && haveVersion && compareVersions(cardVersion, haveVersion) <= 0) });
+                continue;
+            }
             if (have !== undefined && cardVersion && haveVersion && compareVersions(cardVersion, haveVersion) <= 0) continue;
             if (declined(pack.id, pack.version)) continue;
             if (offers.some(offer => offer.packId === pack.id)) { line('CARD_REFUSED', `Card pack ${label} was not offered: another entry of this card already offers ${pack.id}.`); continue; }
-            offers.push({ entry, pack, raw: checked.raw, installedVersion: have ?? null });
+            offers.push(groupOffer([{ entry, pack, raw: checked.raw, installedVersion: have ?? null }]));
         }
-        for (const extra of offers.splice(MAX_OFFERS)) line('CARD_REFUSED', `Card pack ${extra.pack.name} was not offered: a card offers at most ${MAX_OFFERS} packs.`);
+        if (v4.length && memberNeeded(v4)) {
+            const pair = groupOffer(v4);
+            if (!declined(pair.packId, pair.version)) offers.push(pair);
+        }
+        for (const extra of offers.splice(MAX_OFFERS)) line('CARD_REFUSED', `Card pack ${extra.name} was not offered: a card offers at most ${MAX_OFFERS} packs.`);
         if (!offers.length) return;
         // Portraits: one entry for each offered pack; an entry for a pack the card does not offer is told.
         const portraitEntries = findPortraitEntries(entries);
@@ -82,13 +93,13 @@ export function createCardOffer({ readLorebook, packs, cardSettings, remember, s
             const forId = portraitsPackOf(entry.text);
             if (!cardIds.has(forId)) line('CARD_REFUSED', `Card portraits ${entry.title || entry.origin} were not used: no pack on this card has the id ${String(forId ?? '?').slice(0, 60)}.`);
         }
-        for (const offer of offers) {
-            const entry = portraitEntries.find(item => portraitsPackOf(item.text) === offer.pack.id);
-            offer.files = [];
+        for (const member of offers.flatMap(offer => offer.members)) {
+            const entry = portraitEntries.find(item => portraitsPackOf(item.text) === member.pack.id);
+            member.files = [];
             if (!entry) continue;
-            const got = readPortraitsEntry(entry.text, offer.pack);
+            const got = readPortraitsEntry(entry.text, member.pack);
             for (const text of got.lines) line(got.ok ? 'CARD_PORTRAIT_SKIPPED' : 'CARD_REFUSED', text);
-            if (got.ok) offer.files = got.files;
+            if (got.ok) member.files = got.files;
         }
         // Recommended settings are the card's, shown with each pack's notice (what already matches is left out when it is drawn).
         let values = {};
@@ -100,16 +111,7 @@ export function createCardOffer({ readLorebook, packs, cardSettings, remember, s
             if (got.ok) values = got.values;
         });
         const fresh = offers.map(offer => ({
-            id: `${offer.pack.id}@${offer.pack.version}`,
-            packId: offer.pack.id,
-            name: offer.pack.name,
-            version: offer.pack.version,
-            installedVersion: offer.installedVersion,
-            update: offer.installedVersion !== null,
-            pack: offer.pack,
-            text: offer.entry.text,
-            origin: offer.entry.origin,
-            files: offer.files,
+            ...offer,
             values,
             state: 'offer',
             result: '',
@@ -120,8 +122,8 @@ export function createCardOffer({ readLorebook, packs, cardSettings, remember, s
 
     // What an offer shows now: read at each draw, so a module or extension that registers later changes it.
     function view(offer) {
-        const checked = offer.state === 'offer' ? packs.inspect(offer.text) : null;
-        const missing = checked?.ok ? checked.missing : [];
+        const checks = offer.state === 'offer' ? offer.members.map(member => packs.inspect(member.entry.text)) : [];
+        const missing = [...new Set(checks.flatMap(checked => (checked?.ok ? checked.missing : [])))];
         const known = missing.filter(name => CAPABILITY_NEEDS[name]);
         const other = missing.filter(name => !CAPABILITY_NEEDS[name]);
         const needs = [...new Set(known.map(name => CAPABILITY_NEEDS[name]))];
@@ -132,7 +134,7 @@ export function createCardOffer({ readLorebook, packs, cardSettings, remember, s
         return {
             id: offer.id, packId: offer.packId, name: offer.name, version: offer.version, installedVersion: offer.installedVersion, update: offer.update,
             state: offer.state, result: offer.result,
-            brings: bringsLine(offer.pack, offer.files.length),
+            brings: offer.members.map(member => bringsLine(member.pack, member.files.length)).filter(Boolean).join('; '),
             settings: planned.items,
             notes: [...needs, ...owners],
             blocked: missing.length > 0,
@@ -154,26 +156,34 @@ export function createCardOffer({ readLorebook, packs, cardSettings, remember, s
         const done = [];
         let unsaved = false;
         try {
-            const result = await packs.install(offer.text, { source: 'lorebook', origin: offer.origin, files: offer.files });
-            if (!result.ok) {
-                offer.state = 'failed';
-                offer.result = `${offer.name} was not installed: ${result.errors?.[0]?.message ?? 'the checker refused it.'}`;
-                line('CARD_REFUSED', offer.result, { always: true });
-                tell();
-                return result;
+            const installed = [];
+            for (const member of offer.members) {
+                const result = await packs.install(member.entry.text, { source: 'lorebook', origin: member.entry.origin, files: member.files });
+                if (!result.ok) {
+                    offer.state = 'failed';
+                    const what = installed.length ? `${installed.map(item => item.pack.name).join(' and ')} was installed, but ${member.pack.name}` : member.pack.name;
+                    offer.result = `${what} was not installed: ${result.errors?.[0]?.message ?? 'the checker refused it.'}`;
+                    line('CARD_REFUSED', offer.result, { always: true });
+                    tell();
+                    return result;
+                }
+                installed.push(member);
+                const stored = result.portraits?.stored?.length ?? 0;
+                const refused = result.portraits?.refused ?? [];
+                for (const item of refused) line('CARD_PORTRAIT_SKIPPED', `Card portrait ${item.file} was not stored: ${item.message}`, { always: true });
+                done.push(`${result.action === 'updated' ? 'Updated' : result.action === 'unchanged' ? 'Already installed:' : 'Installed'} ${result.name} ${member.pack.version}${stored ? ` with ${plural(stored, 'portrait')}` : ''}.`);
+                if (refused.length) done.push(`${plural(refused.length, 'portrait')} not used.`);
             }
-            const stored = result.portraits?.stored?.length ?? 0;
-            const refused = result.portraits?.refused ?? [];
-            for (const item of refused) line('CARD_PORTRAIT_SKIPPED', `Card portrait ${item.file} was not stored: ${item.message}`, { always: true });
-            done.push(`${result.action === 'updated' ? 'Updated' : result.action === 'unchanged' ? 'Already installed:' : 'Installed'} ${result.name} ${offer.version}${stored ? ` with ${plural(stored, 'portrait')}` : ''}.`);
-            if (refused.length) done.push(`${plural(refused.length, 'portrait')} not used.`);
+            // A world and a game are selected by the click (the first chat-wide choice the card makes is the player's own tap).
+            const chosen = await selectMembers(packs, installed);
+            if (chosen) done.push(chosen);
             // The pack list and the portrait index go to disk before anything is pinned in the chat: a reload now never finds modules
             // pinned for a pack that was not kept. A failed save does not stop the install (the pack is in): the notice warns at the end.
             const first = await flushSettings();
             if (!first.ok) { unsaved = true; line('CARD_REFUSED', `${offer.name}: ${first.message || 'the settings could not be saved'}`, { always: true }); }
-            if (!offer.update) {
+            for (const member of offer.members.filter(item => item.installedVersion === null)) {
                 // A chat switch since the click leaves the modules unpinned: they would go into the wrong chat, or none.
-                const modules = still() ? await enableModules(offer.packId, { still }) : { pinned: 0, failed: [], total: 0, moved: true };
+                const modules = still() ? await enableModules(member.pack.id, { still }) : { pinned: 0, failed: [], total: 0, moved: true };
                 if (modules.pinned) done.push(`${plural(modules.pinned, 'data module')} turned on in this chat.`);
                 if (modules.moved) {
                     done.push('The chat changed, so its data modules were not turned on (Settings, Tabs & Packs, Data modules).');
