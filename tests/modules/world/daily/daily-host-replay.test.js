@@ -1,6 +1,7 @@
 // The world daily step on the real host, replayed over a changed prefix: two replies that each crossed a day, then an edited Re-read
 // of the first (grown, shrunk) and a middle delete of the reply that made the first step (and the campaign seed). Replay applies the
-// later step's records (its state is a slot written whole); no store problems; holds stay on Active events; a later day still steps.
+// later step's records (perf PB9: what each step changed, the whole state at a checkpoint); no store problems; holds stay on Active events;
+// a later day still steps.
 // And test 9 with rolls that matter: swipes of the crossing reply give the same outcome; an unseeded draw would not.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -26,7 +27,7 @@ test('replay over a changed prefix: Re-read of the first crossing (grown, shrunk
     await check(host, 'live');
     await host.st.editMessage(first, reply('Dawn.', ['! time +3d']));
     assert.equal((await host.sdk.reread(first)).ok, true);
-    assert.equal(JSON.stringify(dailyOf(host)), recorded, 'grown: the later reply\'s step is applied as recorded');
+    assert.equal(dailyOf(host).day, JSON.parse(recorded).day, 'grown: the later reply\'s step applies what it changed (its day); the whole recorded state waits for a checkpoint (perf PB9)');
     await check(host, 'grown Re-read');
     await host.st.editMessage(first, reply('Dawn.', ['! time +1h']));
     assert.equal((await host.sdk.reread(first)).ok, true);
@@ -36,13 +37,16 @@ test('replay over a changed prefix: Re-read of the first crossing (grown, shrunk
     await host.send('Wait.', reply('Morning comes.', ['! time +12h']));
     assert.equal(dailyOf(host).day, day(host), 'the next day is stepped once the clock passes the recorded day');
     await check(host, 'after the shrunk Re-read');
-    // The reply that made the first step (and drew the seed) is deleted: the later steps' records still apply.
+    // The reply that made the first step is deleted (perf PB9): the later steps stored only what they changed, inside a state that is no longer
+    // there, so those changes are passed over (marked) and the rest of each reply applies; the world steps again from the next crossing, with
+    // the campaign seed, which the message before the first reply keeps. (A checkpoint after the deleted reply would put the recorded state
+    // back: pb9-replay.test.js.)
     await host.st.deleteMessage(2);
-    assert.equal(dailyOf(host)?.seed, JSON.parse(recorded).seed, 'the later step\'s state, seed included, is replayed');
+    assert.equal(dailyOf(host), null, 'no step state until the next crossing');
     await check(host, 'middle delete of the first step');
-    const before = dailyOf(host).day;
     await host.send('On.', reply('Another day.', ['! time +1d']));
-    assert.equal(dailyOf(host).day, before + 1);
+    assert.equal(dailyOf(host).seed, JSON.parse(recorded).seed, 'the next step starts again, with the campaign seed');
+    assert.equal(dailyOf(host).day, day(host));
     await check(host, 'a live day after the delete');
     host.done();
 });

@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
+import { slotValue } from '../../../../modules/rpg/slot.js';
 
 const FEATURE = 'story-director.world-events';
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
@@ -182,14 +183,14 @@ test('on the host (test 7, the world line\'s side): a clear on a day is not undo
     await host.send('Again.', reply('Shouts again.', ['! time +30m', '+ world New Riot — shouts | state: ongoing | place: Highmark | conditions: +unrest']));
     assert.deepEqual(keys(host), ['grain-dear@The March'], 'cleared earlier today: not set again');
     assert.match(summaries(host), /Not used: "unrest": unrest was cleared on Highmark today/);
-    assert.deepEqual(host.head().domains.chronicle.ledger[0].tomb.keys, ['unrest@Highmark']);
+    assert.deepEqual(slotValue(host.head().domains.chronicle.ledger).tomb.keys, ['unrest@Highmark']);
     await agrees(host, 'tomb');
     const later = host.ctx.chat.length - 1;
     // An edited Re-read of the clearing reply without the clear: unrest stays and no clear is kept for today; the later reply keeps what
     // it recorded (its line was refused then; history is not rewritten).
     await host.st.editMessage(clearing, reply('The crowds stay.', ['! time +30m', '+ world Bread Riots — still | state: ongoing | place: Highmark']));
     assert.equal((await host.sdk.reread(clearing)).ok, true);
-    assert.equal(host.head().domains.chronicle.ledger?.[0]?.tomb, undefined, 'no clear today any more');
+    assert.equal(slotValue(host.head().domains.chronicle.ledger)?.tomb, undefined, 'no clear today any more');
     assert.deepEqual(keys(host), ['grain-dear@The March', 'unrest@Highmark']);
     await agrees(host, 'Re-read of the clear');
     await host.st.deleteMessage(clearing);
@@ -204,15 +205,15 @@ test('on the host (E24): a world line\'s anchors go to the ledger, the next day\
     await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
     await host.send('Look.', reply('The square fills.', [RIOT]));
     const lined = host.ctx.chat.length - 1;
-    assert.deepEqual(Object.keys(host.head().domains.chronicle.ledger[0].anchors).sort(), ['set:grain-dear', 'set:grain-dear@The March', 'set:unrest', 'set:unrest@Highmark']);
+    assert.deepEqual(Object.keys(slotValue(host.head().domains.chronicle.ledger).anchors).sort(), ['set:grain-dear', 'set:grain-dear@The March', 'set:unrest', 'set:unrest@Highmark']);
     await host.send('Sleep.', reply('Morning.', ['! time +1d']));
-    const daily = host.head().domains.chronicle.daily[0];
+    const daily = slotValue(host.head().domains.chronicle.daily);
     assert.equal(host.head().domains.chronicle.ledger, null, 'the step took them');
     assert.ok(Array.isArray(daily.anchors['set:unrest@Highmark']), 'into its own, permanent anchors');
     await agrees(host, 'taken');
     await host.st.deleteMessage(lined);
     assert.deepEqual(host.store.problems(), []);
-    assert.ok(Array.isArray(host.head().domains.chronicle.daily[0].anchors['set:unrest@Highmark']), 'the later step keeps what it recorded');
+    assert.ok(Array.isArray(slotValue(host.head().domains.chronicle.daily).anchors['set:unrest@Highmark']), 'the later step keeps what it recorded');
     await agrees(host, 'world line deleted');
     const saved = structuredClone(host.ctx.chat);
     await host.st.loadChat([], 'other-chat');

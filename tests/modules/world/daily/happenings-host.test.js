@@ -5,6 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { SPEC, agrees, chronicle, newHost, reply } from './daily-host.helpers.js';
+import { slotValue } from '../../../../modules/rpg/slot.js';
 
 const DAY = 1440;
 // The levy fires exactly on the second day (its window opens a day after the start and lasts one day), so the reply that crosses
@@ -12,12 +13,12 @@ const DAY = 1440;
 const LEVY = { id: 'levy', kind: 'one-off', certainty: 'set-in-motion', where: ['Highmark'], window: { after: 'start + 1 day', within: '1 day' }, ends_when: { for: '3 days' }, effects: { set: ['unrest@Highmark'] }, summary: 'The lord calls a levy.' };
 const ONLY_LEVY = { ...SPEC, events: [LEVY] };
 const levies = host => Object.values(chronicle(host).events).filter(event => event.by === 'event:world.levy');
-const firedDay = host => chronicle(host).daily?.[0]?.events?.levy?.fired ?? null;
+const firedDay = host => slotValue(chronicle(host).daily)?.events?.levy?.fired ?? null;
 
 test('E33/E34: the levy fires and ends as one entry (fixed id, its day, its reach); swipes, Re-reads, a middle delete, a rewind and a reload keep one', async () => {
     const host = await newHost(true, ONLY_LEVY);
     await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
-    const start = chronicle(host).daily[0].start;
+    const start = slotValue(chronicle(host).daily).start;
     await host.send('Day.', reply('Dawn.', ['! time +1d']));
     const fired = firedDay(host);
     assert.equal(fired, start + 1, 'fired on the second day, by the reply that crossed into it');

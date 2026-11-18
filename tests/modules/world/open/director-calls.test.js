@@ -8,6 +8,7 @@ import { storeOpen, validateLedger } from '../../../../modules/world/chronicle/c
 import { PRESETS, makeCalendar } from '../../../../modules/time/calendar.js';
 import { toSlot } from '../../../../modules/rpg/slot.js';
 import { ledgerOpen, openHost, reply, settle } from './open-host.helpers.js';
+import { slotValue } from '../../../../modules/rpg/slot.js';
 
 const YEAR = 525600 * 1200;
 const NOW = makeCalendar(PRESETS.gregorian).fromAbs(YEAR + 1000).year;
@@ -42,11 +43,11 @@ test('storeOpen counts a year\'s calls and starts again in the next year; the le
     const chronicle = {};
     storeOpen(chronicle, { calls: 2, year: 1200 });
     storeOpen(chronicle, { calls: 1, year: 1200 });
-    assert.deepEqual(chronicle.ledger[0].open, { results: {}, calls: 3, year: 1200, yearCalls: 3 });
+    assert.deepEqual(slotValue(chronicle.ledger).open, { results: {}, calls: 3, year: 1200, yearCalls: 3 });
     storeOpen(chronicle, { calls: 1, year: 1201 });
-    assert.deepEqual(chronicle.ledger[0].open, { results: {}, calls: 4, year: 1201, yearCalls: 1 });
+    assert.deepEqual(slotValue(chronicle.ledger).open, { results: {}, calls: 4, year: 1201, yearCalls: 1 });
     storeOpen(chronicle, { calls: 1 });
-    assert.deepEqual(chronicle.ledger[0].open, { results: {}, calls: 5 }, 'a call with no year known keeps no year');
+    assert.deepEqual(slotValue(chronicle.ledger).open, { results: {}, calls: 5 }, 'a call with no year known keeps no year');
     assert.deepEqual(validateLedger(chronicle.ledger), []);
     assert.equal(validateLedger([{ anchors: {}, open: { results: {}, calls: 1, year: 1200 } }]).length, 1, 'a year with no tally is refused');
 });

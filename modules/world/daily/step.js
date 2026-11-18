@@ -23,6 +23,8 @@ const DAY = 1440;
 // A step over more days than this shows the long-skip note (seam audit E16: 14, or the reader's longest jump when that is lower; the host passes it).
 export const LONG_SKIP = 14;
 const MAX_DAYS = 3650;
+/** How many world days `runDays` has stepped in this process, dry runs included (the perf tests read it: a long skip should step each day once). */
+export const stepTally = { days: 0 };
 const list = value => (Array.isArray(value) ? value : []);
 const record = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
 
@@ -121,6 +123,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     // A step over several days (a skip): its open slots wait from its last day (open-day.js).
     ws.waitFrom = today > first ? today : null;
     for (let day = first; day <= today; day += 1) {
+        stepTally.days += 1;
         ws.day = day;
         ws.tomb = tombOf(day);
         fadeConditions(ws, day * DAY);

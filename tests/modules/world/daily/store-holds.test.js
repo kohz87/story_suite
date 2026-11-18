@@ -38,8 +38,9 @@ test('test 16 (holders): a world line on a held condition keeps the event hold; 
 test('the chronicle validator takes the daily state and refuses a damaged one', () => {
     const chronicle = must(set(start(), { name: 'unrest', ref: 'Highmark', fades: '2 days' })).state.domains.chronicle;
     const daily = { seed: 'ab', start: 3, day: 5, events: { levy: { state: 'active' } }, anchors: {}, lastMajor: {}, cast: {}, standings: {}, facts: {}, masks: {}, minors: [], cooldowns: {} };
-    assert.deepEqual(validateChronicle({ ...chronicle, daily: [daily] }), []);
-    assert.ok(validateChronicle({ ...chronicle, daily }).length, 'kept as a slot, [state]');
+    assert.deepEqual(validateChronicle({ ...chronicle, daily }), [], 'kept as the state itself, written in place (perf PB9)');
+    assert.deepEqual(validateChronicle({ ...chronicle, daily: [daily] }), [], 'an older state\'s slot, [state], reads the same');
+    assert.ok(validateChronicle({ ...chronicle, daily: [daily, daily] }).length, 'a list of two is no state');
     assert.ok(validateChronicle({ ...chronicle, daily: [{ ...daily, events: { levy: { state: 'sleeping' } } }] }).length);
     assert.ok(validateChronicle({ ...chronicle, daily: [{ ...daily, extra: 1 }] }).length);
     const bad = { ...chronicle.conditions['unrest@Highmark'], open: true };
