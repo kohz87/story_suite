@@ -35,7 +35,7 @@ export function readView(props) {
 
 /**
  * The trip prop (query `atlas.trip`), cleaned: `{ on, phase, to, pace, setOut, arrive, legs, you, movers, delays }`. A leg is `{ index, from, to,
- * km, time, arrive, state, along, fromId, toId }`; `you` `{ fromId, toId, t, along, of }` or null; a mover `{ id, name, summary, from, to, fromId,
+ * km, time, arrive, state, along, fromId, toId (canonical ids, anchor.js) }`; `you` `{ fromId, toId, t, along, of }` or null; a mover `{ id, name, summary, from, to, fromId,
  * toId, arrive, t }`. Nothing (no trip, no mover) reads as `null`.
  */
 export function readTrip(raw) {

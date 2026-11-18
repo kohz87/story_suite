@@ -1,0 +1,38 @@
+/* Studio page styles: the page and its fonts, the frame over the whole window, and the record cards; everything else is ui/css as is. */
+@font-face { font-family: "Nunito"; font-weight: 400 500; src: local("Nunito"), url(../ui/dev/fonts/nunito-latin-400.woff2) format("woff2"); }
+@font-face { font-family: "Nunito"; font-weight: 600; src: local("Nunito SemiBold"), url(../ui/dev/fonts/nunito-latin-600.woff2) format("woff2"); }
+@font-face { font-family: "Nunito"; font-weight: 700; src: local("Nunito Bold"), url(../ui/dev/fonts/nunito-latin-700.woff2) format("woff2"); }
+@font-face { font-family: "Nunito"; font-weight: 800 900; src: local("Nunito ExtraBold"), url(../ui/dev/fonts/nunito-latin-800.woff2) format("woff2"); }
+body.st-page { margin: 0; background: #0d0f18; }
+/* The Studio is a page of its own: no slide-in, and the frame covers the window as Settings does at desktop (decision 17). */
+.st-layer .su-root.st-root { max-width: none; transition: none; }
+.st-root .sov { z-index: 1; }
+.st-root .shd .ttl { min-width: 0; }
+.st-root .shd .ttl b, .st-root .shd .ttl small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-acts { display: flex; align-items: center; gap: 6px; }
+.st-acts .ibtn { width: 44px; height: 44px; }
+.st-root .st-acts .btn2 { min-width: 44px; }
+.st-note { padding: 0 2px; }
+.st-sec { display: flex; flex-direction: column; gap: 8px; }
+.st-list { display: flex; flex-direction: column; gap: 8px; }
+.st-more { align-self: flex-start; }
+.st-rec { padding: 10px 14px 4px; }
+.st-rec:focus { outline: none; }
+.st-rec.st-hit { box-shadow: inset 0 0 0 2px var(--su-accent); }
+.st-rh { display: flex; align-items: center; gap: 10px; padding-bottom: 6px; }
+.st-rt { flex: 1; min-width: 0; }
+.st-rt b { display: block; font: 800 15px var(--su-font); overflow-wrap: anywhere; }
+.st-rt small { display: block; font-size: 12px; color: var(--su-muted); }
+.st-flags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.st-thumb { flex: none; width: 44px; height: 44px; border-radius: 12px; object-fit: cover; object-position: center 20%; background: var(--su-panel2); display: grid; place-items: center; font: 800 15px var(--su-font); color: var(--su-muted); }
+.st-val { font-size: 13.5px; color: var(--su-soft); white-space: pre-wrap; overflow-wrap: anywhere; }
+.st-kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 12px; margin: 0; font-size: 13px; }
+.st-kv dt { color: var(--su-muted); font-weight: 700; }
+.st-kv dd { margin: 0; color: var(--su-soft); overflow-wrap: anywhere; }
+.st-json { max-height: 260px; }
+.st-prob[data-level="warning"] .lb small { color: var(--su-warn); }
+.st-foot[data-ok="false"] > span:first-child { color: var(--su-warn); }
+/* Phone: the four header buttons stay on the title's row, so the header keeps the mock's height; the foot bar is a 44 px target as in the mock. */
+@container (max-width:600px) { .st-acts { gap: 4px; } .st-root .st-acts .btn2 { padding: 7px 9px; } .st-root .sfoot { min-height: 44px; } }
+.st-root .sgrp > .srow:first-child { border-top: 0; }
+.st-root .srow .ctl .st-val { text-align: right; }
