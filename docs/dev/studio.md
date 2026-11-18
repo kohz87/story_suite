@@ -1,7 +1,8 @@
-# Pack Studio (skeleton)
+# Pack Studio
 
-The Pack Studio is a page for writing packs. It replaces the old Story Studio (the separate repository). This first
-skeleton (job S-0 of the Studio plan) only opens, checks, shows and exports a pack; editing comes in later jobs.
+The Pack Studio is a page for writing packs. It replaces the old Story Studio (the separate repository). Today it opens,
+checks, shows and exports format 4 world and game packs (and format 3 packs, read-only); editing comes in later jobs,
+through the slots described below.
 
 ## Opening it
 
@@ -63,9 +64,8 @@ skeleton (job S-0 of the Studio plan) only opens, checks, shows and exports a pa
 
 ## Limits today
 
-- **World packs**: main's checker knows pack format 3 only. A world pack's `lore`, `regions`, `realms`, `placeKinds`,
-  `routeKinds`, `conditions`, `start`, `worldEvents`, `templates`, `powers` and `scores` show as `UNKNOWN_KIND`
-  problems until the world-pack checks are merged. The views show those parts anyway.
+- **World-spec packs with no `format`**: these are format 3 to the checker. It knows the world-pack kinds, but such a
+  pack's `content.start` is still an `UNKNOWN_KIND` problem; a format 4 world pack holds it.
 - **Missing pieces**: no editing, no dry run, no map or graph view, no Pairing page, no Convert and no New world or New
   game yet; their slots are in place.
 
