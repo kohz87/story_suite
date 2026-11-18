@@ -78,6 +78,15 @@ describe('selectPeople', () => {
     assert.equal(bare.lastSeen, null);
   });
 
+  it('an away followed person carries what they are doing and when they are back; one not away carries neither', () => {
+    const away = { people: [{ name: 'Rika', away: true, doing: 'scouting the road', back: 'Goldwane 18', place: 'Bluewatch stables', newsAgo: 'today' }] };
+    const [rika] = selectPeople({ ...ARGS, keyPeople: away }).elsewhere;
+    assert.equal(rika.doing, 'scouting the road');
+    assert.equal(rika.back, 'Goldwane 18');
+    const idle = selectPeople({ ...ARGS, keyPeople: { people: [{ name: 'Rika', away: false, doing: 'x', back: '' }] } }).elsewhere[0];
+    assert.equal('doing' in idle, false);
+  });
+
   it('puts the deceased on a Death card with empty when and where, presumed only when the record says inferred', () => {
     const [marro] = selectPeople(ARGS).deceased;
     assert.deepEqual(marro.death, { how: 'a fall from the toll bridge', when: '', where: null, presumed: false });
