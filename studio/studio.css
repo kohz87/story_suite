@@ -53,3 +53,28 @@ body.st-page { margin: 0; background: #0d0f18; }
 .st-block .lnk { min-height: 0; padding: 0; }
 .st-root .sgrp > .srow:first-child { border-top: 0; }
 .st-root .srow .ctl .st-val { text-align: right; }
+/* The two panes of a record part (mock MK-2; shell.js fitPanes): below 1280 px one shows at a time, the record while one is open, else
+   the list. At 1280 px and wider the list (340 px) and the record sit side by side under the nav, filling the page's height, each
+   scrolling on its own; the page title moves into the list's own head, and the record's back button goes. */
+.st-panes { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.st-pane-list, .st-pane-rec { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.st-panes:not([data-open="true"]) > .st-pane-rec, .st-panes[data-open="true"] > .st-pane-list { display: none; }
+.st-pane-empty { display: none; }
+.st-pane-list [aria-current="true"] { box-shadow: inset 0 0 0 2px var(--su-accent); }
+@container (min-width: 1280px) {
+    .st-root .sbody[data-panes="true"] .smain { overflow: hidden; padding-top: 0; padding-bottom: 0; }
+    .st-root .sbody[data-panes="true"] .smain > .st-note:not([hidden]) { padding-top: 12px; }
+    .st-root .sbody[data-panes="true"] .spage { flex: 1; min-height: 0; }
+    .st-root .sbody[data-panes="true"] .spage > .st-ptitle { display: none; }
+    .st-root .st-panes-up { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .st-root .st-panes { flex: 1; min-height: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 0; margin: 0 -18px; }
+    .st-root .sbody[data-panes="true"] .smain > .st-note:not([hidden]) ~ .spage .st-panes { border-top: 1px solid var(--su-line2); }
+    .st-root .st-panes > .st-pane-list, .st-root .st-panes > .st-pane-rec { display: flex; overflow: auto; min-height: 0; overscroll-behavior: contain; }
+    .st-root .st-pane-list { padding: 14px; border-right: 1px solid var(--su-line2); }
+    .st-root .st-pane-rec { padding: 16px 18px 20px; }
+    .st-root .st-pane-rec .st-back { display: none; }
+    .st-root .st-pane-empty { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--su-soft); }
+    .st-root .st-pane-empty i { font-style: normal; font-size: 24px; color: var(--su-muted); }
+    .st-root .st-pane-empty b { font: 800 16px var(--su-font); color: var(--su-text); }
+    .st-root .st-pane-empty small { font-size: 13px; }
+}
