@@ -546,24 +546,29 @@ card shows before the first reply. The card is one object:
 
 | Field | Meaning |
 |---|---|
-| `tone` | `accent`, `bad`, `good` or `info` (anything else is `info`): the 1px ring, the icon tile. |
-| `icon` | `ph-…` (Phosphor, `view/icons`) or `fa-…`; anything else is replaced. |
+| `tone` | `accent`, `bad`, `good` or `info` (anything else is `info`): the stripe on the card's left edge. |
+| `icon` | Accepted and not drawn (the view draws no icon on these cards). |
 | `title` | Required (at most 60 characters); a card with no title is no card. |
-| `text` | Optional, muted, at most 200 characters. |
-| `rows` | At most four: `{ icon?, text, tag?, tagTone? }`. |
-| `actions` | At most three: `{ id, label, icon?, primary?, command?, payload?, open? }`. `primary` is the accent. An action needs `command` or `open`. |
-| `later` | `true` adds a Later button: the card folds into one line, "<title> · <first row> · Open". The fold is the viewer's (kept per chat and card key in the browser, so a new reply does not reset it; cleared when the card stops being drawn, so a later card of the same id starts unfolded; a chat with no id keeps it for the page only), never game state. |
+| `text` | Optional, muted, at most 240 characters. |
+| `rows` | At most four: `{ text, tag? }` (`icon` and `tagTone` are accepted and not drawn). |
+| `actions` | At most four: `{ id, label, primary?, command?, payload?, open? }` (`icon` is accepted and not drawn). `primary` is the filled button. An action needs `command` or `open`. |
+| `later` | Accepted and ignored: the view has no Later fold, so what a card shows is only the story's (its reply's state and receipts). |
 
-- **`command`** is sent through `sdk.command` with its `payload` (cause `ui`), so it is recorded with the reply and a swipe or
-  delete undoes it. Cards are under the head reply, so their buttons are enabled. In a chat that holds only the greeting, the
-  greeting is the head, so a start card under it works; once a reply follows, the card moves to that reply.
-- **`open`** opens that screen in the game view (a window on desktop, full screen on a phone) when the screen has a `screen`
-  mount; a screen opened this way need not be on the bar. A dialog-only screen (a creation wizard) opens its dialog instead
-  (`sdk.dialog.open`), with the action's `payload` as the dialog's starting draft. A screen with neither mount, or none by that id, opens nothing, and the host logs it once.
-- Text is plain: the host prints it (never markup). Commands are `module.action` names.
+- **`command`** is sent through the view's port (`port.command`, which is `sdk.command`, cause `ui`) with its `payload`, so it is
+  recorded with the head reply: a swipe or a delete undoes it, and a swipe back, a reload or a rebuild brings the answer back. Cards
+  are under the head reply, so their buttons work. In a chat that holds only the greeting, the greeting is the head, so a start card
+  under it works; once a reply follows, the card moves to that reply. A refused command leaves the card as it was and says why on it.
+- **`open`** opens that window through the port (`port.open`, with the action's `payload` as its starting draft). The view answers
+  `story-block/new-character` (the New character window, filled in: a companion's Edit first); any other id sends the page event
+  `story-suite:open`, and a window no one answers is refused on the card.
+- Text is plain: the view prints it (never markup). Commands are `module.action` names.
+- **Cards under replies** off (Settings, Story Block's switches) draws none.
 
-Drawing: under the message, after the changes card, in the same strip. `normalizeCard` and `scanReplyCards` are in
-`src/v2/reply-cards.js`; the view is `src/v2/view/reply-cards-ui.js` (`drawReplyCard`).
+Drawing (the new view): under the head reply's text, above the inline row, one quiet card each in SillyTavern's own look (the
+reply sheet's: a border, a 10 px radius, the muted text, the row's buttons). The engine side is `ui/port/reply-cards.js`
+(`createCardSource`, `StoryBlock.cards.head()`: every registered card asked on the head state, read through `mountQuery`); the
+reader is `ui/select/reply-card.js` (`readCard`, `replyCardsOf`: the chat view-model's `replyCards`); the drawing and the buttons are
+`ui/chat/reply-cards.js` (`replyCardStrip`, `runCardAction`), placed by `ui/chat/chat-surfaces.js`.
 
 ### Default order and active tabs
 

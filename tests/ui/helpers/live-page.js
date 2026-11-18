@@ -9,6 +9,7 @@ import { foesV1 } from '../../../modules/rpg/templates-parts/v1-foes.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { holdStart } from '../../../core/interaction/start-hold.js';
 import { turnOn } from '../../../ui/entry/turn-on.js';
+import { createCardSource } from '../../../ui/port/reply-cards.js';
 
 export { settle };
 
@@ -33,7 +34,7 @@ export async function livePage(t, { next = true, seed = 4401, reply = 'Astra cut
   let replying = null;
   host.ctx.generate = type => { replying = host.st.generate(type, { reply }); return replying; };
   await settle();
-  if (next) t.after(turnOn({ doc, base: 'http://suite.test/ui/', ctx: () => host.ctx, StoryBlock: { sdk: host.sdk, writes: null, tools: null } }));
+  if (next) t.after(turnOn({ doc, base: 'http://suite.test/ui/', ctx: () => host.ctx, StoryBlock: { sdk: host.sdk, writes: null, tools: null, cards: createCardSource({ registry: host.registry, store: host.store, ctx: () => host.ctx }) } }));
   return { ...got, replied: () => replying };
 }
 

@@ -25,6 +25,7 @@ import { peopleParts, dossierMap } from './people-parts.js';
 import { createWizardWorld } from '../wizard/world.js';
 import { packPresets } from './people-settings/catalog.js';
 import { selectRoster } from './roster.js';
+import { replyCardsOf } from './reply-card.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
@@ -35,8 +36,8 @@ const directorAnswers = (sdk, ctx) => ({ sceneShown: ctx()?.chatMetadata?.[PREFS
 // One engine query for the Packs page; a build without it (or a query that throws) gives an empty page.
 const ask = (sdk, name) => { try { return sdk?.query?.(name, {}); } catch { return null; } };
 
-/** Builds the per-tab selector map for the Story Block port: each is `(read) → view-model`, built from sdk queries (UI-PLAN §2). `hold` is the waiting fight's handle (port/hold.js). */
-export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold = null) {
+/** Builds the per-tab selector map for the Story Block port: each is `(read) → view-model`, built from sdk queries (UI-PLAN §2). `hold` is the waiting fight's handle (port/hold.js); `cards` the cards under replies (port/reply-cards.js). */
+export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold = null, cards = null) {
   // The open fight, or the waiting one (the pause before the reader's message goes out: its offer); an open fight the waiting message goes with is `held` (its Send and Discard answer the pause).
   const fightOf = read => {
     const open = selectFightScene(read('interaction.view', {})), info = hold?.view?.() ?? null;
@@ -60,7 +61,10 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     chat: (read, args) => {
       const at = Number.isInteger(args?.index) && args.index >= 0 ? args.index : null;
       const s = scene(at === null ? read : (name, a) => read(name, name === 'reply.changes' ? { asOf: at, index: at } : a));
-      return { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(ctx()?.chat, at) }) };
+      const vm = { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(ctx()?.chat, at) }) };
+      // (the modules' cards are the head reply's: asked only for the head, and left out when no card answers)
+      const replyCards = at === null ? replyCardsOf(cards?.head?.()) : null;
+      return replyCards ? { ...vm, replyCards } : vm;
     },
     party: read => {
       const actors = read('party.actors', {});

@@ -42,6 +42,24 @@ export const CHAT_SHAPE = {
       thought: { $nullable: T.STRING },
     },
   ],
+  // The modules' cards under the head reply (ui/select/reply-card.js); absent when none answers.
+  replyCards: {
+    $optional: {
+      index: T.NUMBER,
+      list: [
+        {
+          key: T.STRING,
+          card: {
+            tone: T.STRING,
+            title: T.STRING,
+            text: T.STRING,
+            rows: [{ text: T.STRING, tag: T.STRING }],
+            actions: [{ id: T.STRING, label: T.STRING, primary: T.BOOLEAN, command: T.STRING, open: T.STRING, payload: T.ANY }],
+          },
+        },
+      ],
+    },
+  },
   replyMenu: {
     at: T.STRING,
     lines: [

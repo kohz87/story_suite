@@ -8,6 +8,9 @@
 > Template page (Settings › Tools › Developer tools), and `sdk.dialog.open` answers null (there is no dialog mount). The RPG's fight pause,
 > board, fight offer and battle log run headless from boot (`modules/rpg/live/`); the Inspector, the Diagnostics report and the console
 > capture are built at boot (`core/boot/tools-parts.js`); the Extensions drawer is drawn by the view (`ui/entry/drawer-buttons.js`).
+> The modules' **cards under replies** (a companion's join card, the death card, a block's own cards) are drawn by the view under the
+> head reply, above the inline row (`ui/port/reply-cards.js`, `ui/select/reply-card.js`, `ui/chat/reply-cards.js`; WIDGETS.md
+> "Cards under replies"); their buttons go through the port. There is no "This reply" card and no Later fold any more.
 
 How every screen, card and tab is drawn. Detail: SPEC §13 (screen definition, templates, CSS, mounts,
 widgets, wizards, precedence), TEMPLATES.md, WIDGETS.md, LAYOUTS.md; MODULES §F (F9 widget names, F92 Inspector,

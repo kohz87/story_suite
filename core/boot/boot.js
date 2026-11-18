@@ -24,6 +24,7 @@ import { startHostParts } from './host-parts.js';
 import { startToolsParts } from './tools-parts.js';
 import { startRpgLive } from '../../modules/rpg/live/sync.js';
 import { createToolsHandle } from '../../ui/port/tools-handle.js';
+import { createCardSource } from '../../ui/port/reply-cards.js';
 
 const LOG = '[Story Block v2]';
 export const OLD_COPY = 'Disable the old Story Block, Story Director and NPC State Delta: Story Suite replaces all three.';
@@ -57,7 +58,9 @@ export async function boot({ late = [] } = {}) {
     });
     const { sdk, api, turn, markReady } = runtime;
     // `writes` is for the Story Suite view only (the Models page); the public sdk reads settings but has no setter.
-    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, toolsParts: () => tools, savePoints: () => parts?.savePoints ?? null }) });
+    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, toolsParts: () => tools, savePoints: () => parts?.savePoints ?? null }),
+        // the view's cards under replies (ui/port/reply-cards.js)
+        cards: createCardSource({ registry: runtime.registry, store: runtime.store, initial: runtime.initial, ctx: () => globalThis.SillyTavern?.getContext?.() ?? ctx }) });
 
     turn.install({ globalName: INTERCEPTOR_NAME });
     turn.onChatChanged().catch(error => console.warn(`${LOG} the first chat could not be read`, error));
