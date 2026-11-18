@@ -48,4 +48,3 @@ export function pairs(value, field, keys, max, say) {
         return [Object.fromEntries(keys.map(key => [key, typeof entry[key] === 'string' ? oneLine(entry[key]) : entry[key]]))];
     });
 }
-
