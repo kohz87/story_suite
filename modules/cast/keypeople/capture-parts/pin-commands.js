@@ -24,14 +24,15 @@ function aliasesOf(ctx, value, name) {
     return out;
 }
 
-const PIN_FIELDS = ['name', 'aliases', 'nsd'];
+const PIN_FIELDS = ['name', 'aliases', 'nsd', 'followed'];
 
-/** `keypeople.pin { name, aliases? }` (cause `ui`): the reader makes someone a key person, up to the cap. */
+/** `keypeople.pin { name, aliases?, followed? }` (cause `ui`): the reader makes someone a key person, up to the cap (a pin made by the Follow star, `followed: true`, is not counted against it). */
 export function pin(ctx, payload = {}) {
     if (ctx.cause !== 'ui') return ctx.fail('REFUSED', 'Only you pin a key person; the story cannot.');
     if (!isRecord(payload) || Object.keys(payload).some(field => !PIN_FIELDS.includes(field))) return ctx.fail('INVALID', 'keypeople.pin takes { name, aliases? }.');
     if (typeof payload.name !== 'string') return ctx.fail('INVALID', 'keypeople.pin needs a name.');
     if (payload.nsd !== undefined && typeof payload.nsd !== 'boolean') return ctx.fail('INVALID', 'keypeople.pin: nsd is true or false.');
+    if (payload.followed !== undefined && typeof payload.followed !== 'boolean') return ctx.fail('INVALID', 'keypeople.pin: followed is true or false.');
     const name = cleanName(payload.name);
     if (!keyOf(name)) return ctx.fail('INVALID', 'keypeople.pin needs a name with letters or digits in it.');
     const aliases = aliasesOf(ctx, payload.aliases, name);
@@ -39,7 +40,7 @@ export function pin(ctx, payload = {}) {
     const found = findPin(kp, name, aliases);
     if (found) return { summary: `${found.pin.name} is already a key person.`, narrate: false, data: { person: found.key, edit: true } };
     const cap = capOf(ctx.settings());
-    if (Object.keys(kp.pins).length >= cap) return ctx.fail('LIMITED', `You can have ${cap} key ${cap === 1 ? 'person' : 'people'}; unpin someone first (Settings, Modules, Story Director, Key people).`);
+    if (payload.followed !== true && Object.keys(kp.pins).length >= cap) return ctx.fail('LIMITED', `You can have ${cap} key ${cap === 1 ? 'person' : 'people'}; unpin someone first (Settings, Modules, Story Director, Key people).`);
     const key = keyOf(name);
     kp.pins[key] = { name, since: nowOf(ctx), rev: revOf(ctx), ...(aliases.length ? { aliases } : {}), ...(payload.nsd === true ? { nsd: true } : {}) };
     delete kp.gone[key];

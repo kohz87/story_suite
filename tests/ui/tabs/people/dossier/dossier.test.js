@@ -128,8 +128,10 @@ test('Follow toggles with the star and sends people.follow with the person id; E
   assert.equal(follow().textContent, '☆ Follow');
   el.querySelector('[data-act="edit"]').click();
   el.querySelector('[data-act="map"]').click();
-  await Promise.resolve();
-  assert.deepEqual(ctx.sent(), [['people.follow', { id: 'rika', on: true }], ['people.follow', { id: 'rika', on: false }], ['npc.edit', { personId: 'rika' }]]);
+  await new Promise(done => setTimeout(done, 5));
+  const sent = ctx.sent();
+  assert.deepEqual(sent.filter(([type]) => type !== 'keypeople.pin' && type !== 'keypeople.unpin'), [['people.follow', { id: 'rika', on: true }], ['people.follow', { id: 'rika', on: false }], ['npc.edit', { personId: 'rika' }]]);
+  assert.deepEqual(sent.filter(([type]) => type.startsWith('keypeople.')).map(([type, payload]) => [type, payload.name]), [['keypeople.pin', 'Rika'], ['keypeople.unpin', 'Rika']], 'the narrator list follows the star');
   assert.deepEqual(seen, ['rika']);
   const noHook = build('temiwa');
   assert.equal(noHook.el.querySelector('[data-act="follow"]').textContent, '★ Following');
