@@ -6,11 +6,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { WORLD_ID, worldScreen } from '../../../../modules/world/world/index.js';
-import { compileTemplate, renderTemplate } from '../../../../ui/legacy/view/template/index.js';
-import { conditionEvaluator } from '../../../../ui/legacy/view/bind.js';
+import { compileTemplate, renderTemplate } from '../../../../packs/template/index.js';
+import { conditionEvaluator } from '../../../../packs/template/bind.js';
 import { compile, evaluate } from '../../../../modules/world/events/index.js';
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 

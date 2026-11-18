@@ -17,9 +17,9 @@
 // and when the current screen changes. Left and Right (Home, End) move the focus between slots. Slots are buttons in the page's Tab order.
 // Built with createElement and textContent only (dom.js); focusNode (scroll.js).
 
-import { h, iconNode, str } from './widgets/dom.js';
-import { focusNode } from './scroll.js';
-import { hasIcon } from './icons/index.js';
+import { h, iconNode, str } from '../../../packs/widgets/dom.js';
+import { focusNode } from '../../../packs/widgets/scroll.js';
+import { hasIcon } from '../../../packs/icons/index.js';
 import { STRINGS, fill } from '../../../core/strings.js';
 
 const S = STRINGS.bar;

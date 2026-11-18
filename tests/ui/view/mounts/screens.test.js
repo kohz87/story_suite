@@ -2,7 +2,7 @@
 // and data bindings resolved in dependency order.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CSS_LIMIT, createScreens, dataOrder, resolveData, validateScreen } from '../../../../ui/legacy/view/screens.js';
+import { CSS_LIMIT, createScreens, dataOrder, resolveData, validateScreen } from '../../../../packs/screens/registry.js';
 import { screen } from './helpers.js';
 
 const ok = def => assert.deepEqual(validateScreen(def), []);

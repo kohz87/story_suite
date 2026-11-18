@@ -6,7 +6,7 @@ import { join } from 'node:path';
 function walk(dir) {
     return readdirSync(dir).flatMap(name => {
         const path = join(dir, name);
-        if (name === 'node_modules' || path === join('ui', 'legacy', 'director')) return [];
+        if (name === 'node_modules' || path === join('modules', 'director')) return [];
         return statSync(path).isDirectory() ? walk(path) : path.endsWith('.js') || path.endsWith('.mjs') ? [path] : [];
     });
 }

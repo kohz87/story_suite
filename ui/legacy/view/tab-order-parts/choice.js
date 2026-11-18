@@ -1,6 +1,6 @@
 // Reads a saved tab choice into a safe shape (strings only, no repeats, no Home, bounded) and tells when it is the default.
 
-import { DEFAULT_HIDDEN, HOME_ID } from '../screens.js';
+import { DEFAULT_HIDDEN, HOME_ID } from '../../../../packs/screens/registry.js';
 import { TAB_ID_MAX, TAB_LIST_MAX } from './constants.js';
 
 export const cleanIds = list => {

@@ -6,8 +6,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FakeElement, installFakeDom } from '../../helpers/ui-fake-dom.js';
-import { compileTemplate, renderTemplate } from '../../../ui/legacy/view/template/index.js';
-import { cssVarValue, scopeCss, themeVars, valueProblem } from '../../../ui/legacy/view/css.js';
+import { compileTemplate, renderTemplate } from '../../../packs/template/index.js';
+import { cssVarValue, scopeCss, themeVars, valueProblem } from '../../../packs/template/css.js';
 import { evaluateCondition } from '../../../modules/world/events/condition.js';
 
 const forbid = name => function () { throw new Error(`markup was parsed: ${name}`); };

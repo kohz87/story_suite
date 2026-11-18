@@ -1,6 +1,6 @@
 // Hiding tabs: which ids are hidden, the list without them, and hiding or showing one.
 
-import { DEFAULT_HIDDEN, HOME_ID } from '../screens.js';
+import { DEFAULT_HIDDEN, HOME_ID } from '../../../../packs/screens/registry.js';
 import { cleanIds, readTabChoice } from './choice.js';
 import { orderNav } from './order.js';
 

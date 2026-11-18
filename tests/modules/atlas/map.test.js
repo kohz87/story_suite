@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { map as mapWidget, visibleOnLayer, mapNodes, mapEdges } from '../../../ui/legacy/view/widgets/map.js';
-import { propProblems } from '../../../ui/legacy/view/widgets/props.js';
+import { map as mapWidget, visibleOnLayer, mapNodes, mapEdges } from '../../../packs/widgets/map.js';
+import { propProblems } from '../../../packs/widgets/props.js';
 import { DEFAULT_ICON, iconFor } from '../../../modules/atlas/atlas/map.js';
 import { at, command, lines, makeState, placeNamed, query } from './helpers/fake-ctx.js';
 

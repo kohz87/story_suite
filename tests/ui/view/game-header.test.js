@@ -114,7 +114,7 @@ test('a module\'s picture answer is a string or an object (`{ url }` / `{ src }`
 });
 
 test('a 70+ character class and role are cut to the header\'s limits (40 each), and the pill line stays bounded', async () => {
-    const { heroLine } = await import('../../../ui/legacy/view/widgets/hero.js');
+    const { heroLine } = await import('../../../packs/widgets/hero.js');
     const long = 'Soul Class of the Long Wakeful Watchers of the Northern Reaches and Beyond'; // 74 characters
     const props = gameHeroProps({ state: STATE, query: answers({ 'party.pc': { ...ren, role: long, className: long } }), formatTime: fmt, context: {} });
     assert.equal(props.title.length, 40);
@@ -193,7 +193,7 @@ test('the portrait with the persona from the list: the persona\'s picture, else 
 // Conditions as the header's status badges: an icon for the kind (never a letter), the time left in its own unit when the entry has one,
 // and a name a screen reader says ("Bleeding, 10 minutes left").
 test('a condition badge has its kind\'s icon, its label, and the time left in the unit the entry gives', async () => {
-    const { ICON_SET } = await import('../../../ui/legacy/view/icons/set.js');
+    const { ICON_SET } = await import('../../../packs/icons/set.js');
     const { conditionIcon, gameHeroProps: props } = await import('../../../ui/legacy/view/game-header.js');
     assert.equal(conditionIcon('bleeding'), 'ph-drop');
     assert.equal(conditionIcon('poison'), 'ph-skull');

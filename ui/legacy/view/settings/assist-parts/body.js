@@ -5,7 +5,7 @@ import { renderAssistSection } from '../../../../../modules/assist/section.js';
 import { renderSettingsForm } from '../../form/form.js';
 import { matchesSearch } from '../../form/schema.js';
 import { sectionBlock } from '../../form/fields.js';
-import { showAndFocus } from '../../scroll.js';
+import { showAndFocus } from '../../../../../packs/widgets/scroll.js';
 import { ASSIST_MODULE, ASSIST_FOLD, ASSIST_TEXT } from './text.js';
 import { assistSchema } from './schema.js';
 

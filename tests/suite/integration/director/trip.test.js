@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { TRIP_FEATURE } from '../../../../modules/atlas/atlas/trip.js';
 
 const STATIC_KEY = 'story_suite_static';

@@ -12,7 +12,7 @@ import { readFileSync } from 'node:fs';
 import { createHost } from '../../../../testkit/index.js';
 import { packsFor } from '../../../../core/runtime.js';
 import { stCapabilities } from '../../../../packs/st-adapter.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { BACKLOG_STATIC } from '../../../../modules/world/chronicle/digest.js';
 import { TAIL_HEADER } from '../../../../modules/world/chronicle/note.js';
 import { validateChronicle } from '../../../../modules/world/chronicle/domain.js';

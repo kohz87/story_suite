@@ -5,10 +5,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createFakeModel, createHost } from '../../../testkit/index.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { ACCEPT, END, FEATURE, UPDATE, createArcController } from '../../../modules/arc/index.js';
 import { FIGHT_RULE, NO_FIGHT_RULE } from '../../../modules/arc/plan.js';
-import { browserStore, createReveal } from '../../../ui/legacy/director/screens/reveal.js';
+import { browserStore, createReveal } from '../../../modules/director/screens/reveal.js';
 import { fakeFightRunner } from '../../suite/integration/director/helpers/fake-fight-runner.js';
 
 const STATIC_KEY = 'story_suite_static';

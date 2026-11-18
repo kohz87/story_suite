@@ -13,9 +13,9 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(here, '../../../..');
 const SB = process.env.SUITE_SB ?? REPO;
 const ROOTS = [process.env.STORY_SUITE_ROOT].filter(Boolean);
-// Story Director's module: in a folder shaped like the old package (src/v2/module.js: the farm's Story_director), else at ui/legacy/director/ of the repo.
+// Story Director's module: in a folder shaped like the old package (src/v2/module.js: the farm's Story_director), else at modules/director/ of the repo.
 const SD_MODULE = 'src/v2/module.js';
-const SD_MOVED = 'ui/legacy/director/module.js';
+const SD_MOVED = 'modules/director/module.js';
 export const sdModuleAt = dir => (existsSync(path.join(dir, SD_MODULE)) ? path.join(dir, SD_MODULE) : path.join(dir, SD_MOVED));
 const find = (env, name, rel, own) => [env, ...ROOTS.map(root => path.join(root, name)), own].filter(Boolean).find(dir => existsSync(path.join(dir, rel)) || (rel === SD_MODULE && existsSync(sdModuleAt(dir))));
 

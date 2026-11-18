@@ -1,7 +1,7 @@
 // Creates and shares the page's arc planner controller lifecycle.
 
 import { makeCalendar } from '../../time/calendar.js';
-import { browserStore, reveal as pageReveal, stChatId } from '../../../ui/legacy/director/screens/reveal.js';
+import { browserStore, reveal as pageReveal, stChatId } from '../../director/screens/reveal.js';
 import { ACCEPT, END, UPDATE } from '../commands.js';
 import { FEATURE, arcQuery, currentArc, threadsWithArc } from '../domain.js';
 import { REASON_TEXT, autoPlanReason, noteMark, planText, plannerRequest, readPlan, refuseResolving, trackerSummary, worldBriefText } from '../plan.js';

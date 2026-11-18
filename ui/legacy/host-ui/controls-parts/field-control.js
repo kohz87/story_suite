@@ -5,10 +5,10 @@ import { SETTING_LIST_ROWS } from '../../../../core/sdk.js';
 import { fill } from '../../../../core/strings.js';
 import { cutAt } from '../../../../core/text.js';
 import { profileSelect } from '../../../../core/model-call/profile-field.js';
-import { SETTINGS_TEXT } from '../text.js';
-import { el, button } from './dom.js';
-import { readInt, optionsOf, emptyValue, subLabel } from './values.js';
-import { listTextFields, listToLines, linesToList, lineForm } from './list-lines.js';
+import { SETTINGS_TEXT } from '../../../../core/settings-text/text.js';
+import { el, button } from '../../../../core/list-lines/dom.js';
+import { readInt, optionsOf, emptyValue, subLabel } from '../../../../core/list-lines/values.js';
+import { listTextFields, listToLines, linesToList, lineForm } from '../../../../core/list-lines/list-lines.js';
 
 // One control for one field; `onChange(value)` gets the new value.
 export function control(doc, field, value, onChange, id, memo = null) {

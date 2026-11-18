@@ -10,7 +10,7 @@ import {
 import { cutAt } from '../text.js';
 import { refusedWhy } from '../../modules/assist/safety.js';
 import { notWritten } from '../../modules/assist/extractor.js';
-import { CHATTER_MAX, displayLines } from '../../ui/legacy/extras.js';
+import { CHATTER_MAX, displayLines } from '../../modules/scene/extras.js';
 import { readRecord } from '../persist.js';
 import { dropRepeats } from './echo-across.js';
 import { createMarkHistory, ruleMarksOf } from './rule-marks.js';

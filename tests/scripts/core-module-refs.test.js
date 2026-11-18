@@ -19,7 +19,7 @@ test('only the core scope is scanned, and the words match in any case', () => {
     file('core/sdk/b.js', "import { x } from '../../modules/rpg/lean-rpg.js'; // fine"),
     file('modules/rpg/c.js', 'const board = 1;'),
     file('ui/legacy/ui-host/d.js', 'const RPG_START = 1;'),
-    file('ui/legacy/screens/e.js', 'const board = 1;'),
+    file('packs/screens/defaults/e.js', 'const board = 1;'),
     file('core/store/f.js', 'const fight = 1;'),
   ]);
   assert.deepEqual(hits, [

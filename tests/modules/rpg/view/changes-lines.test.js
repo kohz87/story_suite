@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { exchangesOf, rpgReplyLines } from '../../../../modules/rpg/view/changes-lines.js';
-import { mergeRpgLines, changesSummary, replyCardLines } from '../../../../ui/legacy/screens/changes-card.js';
+import { mergeRpgLines, changesSummary, replyCardLines } from '../../../../packs/screens/defaults/changes-card.js';
 import { RESOLVE } from '../../../../modules/rpg/index.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 

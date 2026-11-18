@@ -1,5 +1,5 @@
 import { createHost } from '../../testkit/index.js';
-import { CHATTER_FEATURE, CHOICES_FEATURE, displayLines } from '../../ui/legacy/extras.js';
+import { CHATTER_FEATURE, CHOICES_FEATURE, displayLines } from '../../modules/scene/extras.js';
 
 export const BOTH = { features: { [CHOICES_FEATURE]: true, [CHATTER_FEATURE]: true } };
 export const block = (story, lines) => `${story}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

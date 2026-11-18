@@ -2,7 +2,7 @@
 // and scroll-cue.js bringIntoView (the chosen tab kept in view on a phone).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { HOME_ID } from '../../../ui/legacy/view/screens.js';
+import { HOME_ID } from '../../../packs/screens/registry.js';
 import {
     TAB_ID_MAX, TAB_LIST_MAX, createTabOrderStore, isDefaultChoice, isHiddenNav, moveNav, navKey, orderNav, readTabChoice,
     setNavHidden, visibleNav,

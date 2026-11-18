@@ -45,7 +45,7 @@ test('a purse edit is a counted difference and survives rebuild, reload and unch
 });
 
 test('the purse pencil parses mixed coins before sending the command', async () => {
-    const { homeScreen } = await import('../../../ui/legacy/screens/home.js');
+    const { homeScreen } = await import('../../../packs/screens/defaults/home.js');
     const { queries, show, settle } = await import('../screens/helpers.js');
     const module = core({}, { coins: [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }] });
     const state = stocked(module);

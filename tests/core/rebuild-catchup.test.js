@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { nativeModule, rulesModule, clone, NATIVE } from './helpers/timeline.js';
 import { createParticipants } from '../../core/timeline/participants.js';
-import { createRebuildBannerWidget, REBUILD_TEXT } from '../../ui/legacy/screens/rebuild-banner.js';
+import { createRebuildBannerWidget, REBUILD_TEXT } from '../../packs/screens/defaults/rebuild-banner.js';
 import { setupDom } from '../ui/view/mounts/helpers.js';
 
 const spec = extra => ({ module: 'npc-state-delta', schema: 1, checkpoint() {}, prepare() {}, activate() {}, abort() {}, status() {}, ...extra });

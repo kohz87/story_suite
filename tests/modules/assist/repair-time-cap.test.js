@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REPAIR_FOOT } from '../../../modules/assist/index.js';
 import { capStretch, statesLongStretch } from '../../../modules/assist/repair-parts/time-cap.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { createHost } from '../../../testkit/index.js';
 import { skip, wait } from './safety-net.helpers.js';
 

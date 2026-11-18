@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createHost } from '../../../../testkit/index.js';
-import { createModule, MODULE_ID } from '../../../../ui/legacy/director/module.js';
+import { createModule, MODULE_ID } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 
 const STATIC_KEY = 'story_suite_static';

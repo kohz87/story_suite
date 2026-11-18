@@ -6,7 +6,7 @@ import { CORE_FEATURE } from '../../../../core/features.js';
 import { MAX_ROWS, MOUNTS_FEATURE, WALK_PACE } from '../../../../modules/scene/mounts.js';
 import { validateScene } from '../../../../modules/scene/index.js';
 import { mountUi } from '../../../../ui/legacy/ui-host.js';
-import { homeScreen } from '../../../../ui/legacy/screens/index.js';
+import { homeScreen } from '../../../../packs/screens/defaults/index.js';
 import { checkInvariants } from '../../../suite/qa/helpers/oracle.js';
 import { recordingWidgets, renderSkip, show, text } from '../../../ui/screens/helpers.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';

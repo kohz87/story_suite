@@ -1,6 +1,6 @@
 // Mounts: the small DOM builders (node, button, icon) every mount draws with.
 
-import { hasIcon, svgIcon } from '../../icons/index.js';
+import { hasIcon, svgIcon } from '../../../../../packs/icons/index.js';
 
 const DEFAULT_FA_ICON = 'fa-table-columns';
 

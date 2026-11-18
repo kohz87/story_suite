@@ -2,7 +2,7 @@
 // It reads the staged session and calls its pure rules; only metadata holds unsent choices.
 // Text is placed in DOM nodes, never interpreted as markup.
 
-import { button, h } from '../../../ui/legacy/view/widgets/dom.js';
+import { button, h } from '../../../packs/widgets/dom.js';
 import { discardHeld } from '../../../core/interaction/held.js';
 import { readSheet } from '../read.js';
 import { isStandard } from '../rules.js';

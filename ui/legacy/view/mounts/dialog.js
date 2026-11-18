@@ -27,8 +27,8 @@
 // The mount also has closeWhere(test): closes each open dialog whose screen id passes `test`.
 
 import { button, dispose, documentOf, drawScreen, headIndexOf, headState, icon, make, plainCopy } from './common.js';
-import { focusNode } from '../scroll.js';
-import { focusablesIn, stackOf } from '../modal-stack.js';
+import { focusNode } from '../../../../packs/widgets/scroll.js';
+import { focusablesIn, stackOf } from '../../../../packs/widgets/modal-stack.js';
 
 export { focusablesIn };
 

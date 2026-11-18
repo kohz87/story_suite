@@ -1,7 +1,7 @@
 // Keeps the newest reply's card in view: a draw or open that changes its box settles the chat at the
 // bottom only when the reader was there before the change.
 
-import { keepAtBottom } from '../../scroll.js';
+import { keepAtBottom } from '../../../../../packs/widgets/scroll.js';
 
 export function createFollow() {
     let following = null;       // { pass, measured, watch, newest }

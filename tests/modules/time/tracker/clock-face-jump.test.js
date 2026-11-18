@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { PRESETS, makeCalendar } from '../../../../modules/time/calendar.js';
 import { clockFaceAfter } from '../../../../modules/time/tracker/time-parts/clock-face.js';
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { lastProblems, makeState, reply } from './helpers/fake-ctx.js';
 
 const gregorian = makeCalendar(PRESETS.gregorian);

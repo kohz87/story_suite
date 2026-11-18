@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 import { createHost } from '../../../../testkit/index.js';
 import { renderSettingsHost } from '../../../../ui/legacy/host-ui.js';
-import { createModule, MODULE_ID } from '../../../../ui/legacy/director/module.js';
+import { createModule, MODULE_ID } from '../../../../modules/director/module.js';
 import { part as trackerPart } from '../../../../modules/time/tracker/index.js';
 
 const doc = installFakeDom();

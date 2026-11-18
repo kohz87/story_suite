@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { orderedDays } from '../../../../modules/world/chronicle/days.js';
 
 const dir = process.env.STORY_BLOCK_DIR ? path.resolve(process.env.STORY_BLOCK_DIR) : null;

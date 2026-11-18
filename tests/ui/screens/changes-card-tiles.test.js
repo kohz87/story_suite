@@ -2,7 +2,7 @@
 // with the die in a tile, the story-against-dice note only when they disagree, and the lines a module gives as tiles too.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { changesCardScreen, replyCardLines } from '../../../ui/legacy/screens/index.js';
+import { changesCardScreen, replyCardLines } from '../../../packs/screens/defaults/index.js';
 import { core, queries, sceneState, show, stocked, text } from './helpers.js';
 
 const lines = (answer, moduleId = 'rpg-battle') => replyCardLines([{ moduleId, fn: () => answer }], {});

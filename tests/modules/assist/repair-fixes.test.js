@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assistSections } from '../../../core/capture.js';
 import { SETTING, repairPrompt, whereWhy, REPAIR_KINDS, allowedKinds } from '../../../modules/assist/index.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { createHost } from '../../../testkit/index.js';
 import { skip, wait } from './safety-net.helpers.js';
 

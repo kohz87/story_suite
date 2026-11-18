@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { inventoryScreen } from '../../../ui/legacy/screens/inventory.js';
-import { homeScreen } from '../../../ui/legacy/screens/home.js';
+import { inventoryScreen } from '../../../packs/screens/defaults/inventory.js';
+import { homeScreen } from '../../../packs/screens/defaults/home.js';
 import { core, stocked, stack as makeStack } from '../../modules/inventory/fixtures.js';
 import { createHarness } from '../../modules/inventory/helpers/fake-ctx.js';
 import { queries, show, settle, text } from '../screens/helpers.js';

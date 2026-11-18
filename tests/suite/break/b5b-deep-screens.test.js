@@ -2,8 +2,8 @@
 // deeply nested. Packs and character cards may carry screens; pack install accepts both of these.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compileTemplate } from '../../../ui/legacy/view/template/index.js';
-import { scopeCss } from '../../../ui/legacy/view/css.js';
+import { compileTemplate } from '../../../packs/template/index.js';
+import { scopeCss } from '../../../packs/template/css.js';
 import { createHost } from '../../../testkit/index.js';
 
 const deepTemplate = depth => `${'<div>'.repeat(depth)}x`;

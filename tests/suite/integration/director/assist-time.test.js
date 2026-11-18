@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { assistSections } from '../../../../core/capture.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { THREADS_FEATURE } from '../../../../modules/time/tracker/threads.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);

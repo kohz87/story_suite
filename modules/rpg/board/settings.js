@@ -1,6 +1,6 @@
 // Draws the fight-board settings: Auto-fight's cap slider and the pre-check's switch (Settings → RPG → Fight board).
 // The cap is the `rpgAutoCap` setting, 1 to 8 or "Until the end".
-import { h } from '../../../ui/legacy/view/widgets/dom.js';
+import { h } from '../../../packs/widgets/dom.js';
 import { switchField } from '../../../ui/legacy/view/form/fields.js';
 import { AUTO_CAP } from '../names.js';
 

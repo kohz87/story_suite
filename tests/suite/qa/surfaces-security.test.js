@@ -8,15 +8,15 @@ import { readFileSync } from 'node:fs';
 import { sourceOf } from '../../helpers/split-source.js';
 
 const FILES = [
-    'host-ui.js', 'ui-host.js', 'extras-ui.js', 'reply-notes.js', 'screens/changes-card.js',
-    'view/widgets/nav.js', 'view/mounts/dialog.js', 'view/mounts/screen.js', 'view/mounts/card.js', 'view/mounts/hud.js',
+    'host-ui.js', 'ui-host.js', 'extras-ui.js', 'reply-notes.js', '../../packs/screens/defaults/changes-card.js',
+    '../../packs/widgets/nav.js', 'view/mounts/dialog.js', 'view/mounts/screen.js', 'view/mounts/card.js', 'view/mounts/hud.js',
     'view/theme.js',
 ];
 const FORBIDDEN = /innerHTML|outerHTML|insertAdjacentHTML|document\.write|\beval\(|new Function|Math\.random|Date\.now/;
 
 test('no innerHTML, outerHTML, insertAdjacentHTML, document.write, eval or randomness in the surfaces\' sources', () => {
     for (const file of FILES) {
-        const source = sourceOf(`../../ui/legacy/${file}`);
+        const source = sourceOf(file.startsWith('../') ? file : `../../ui/legacy/${file}`);
         const code = source.split('\n').filter(line => !line.trim().startsWith('//')).join('\n');
         assert.doesNotMatch(code, FORBIDDEN, file);
     }
@@ -24,7 +24,7 @@ test('no innerHTML, outerHTML, insertAdjacentHTML, document.write, eval or rando
 
 test('the tab strip built from a hostile title: the title is text, and the strip has no markup from it', () => {
     // host-ui.js passes the tab's title as the block's label (textContent in nav.js); the card and the notes do the same.
-    const nav = sourceOf('../../ui/legacy/view/widgets/nav.js');
+    const nav = sourceOf('../../packs/widgets/nav.js');
     assert.match(nav, /h\(doc, 'span', `ss-\$\{kind\}-label`, item\.label\)/, 'the label is text');
     const hostUi = sourceOf('../../ui/legacy/host-ui.js');
     assert.match(hostUi, /label: tab\.title,/);
@@ -36,7 +36,7 @@ test('the Choices option of hostile text is a button with that text, never an el
     const { setupDom } = await import('../../ui/view/mounts/helpers.js');
     const { mountUi } = await import('../../../ui/legacy/ui-host.js');
     const { makeMessage } = await import('../../helpers/ui-fake-dom.js');
-    const { CHOICES_FEATURE } = await import('../../../ui/legacy/extras.js');
+    const { CHOICES_FEATURE } = await import('../../../modules/scene/extras.js');
     t.mock.method(console, 'warn', () => {});
     const doc = setupDom();
     const box = doc.createElement('textarea');

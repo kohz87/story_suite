@@ -26,7 +26,7 @@
 // `story-director/days` (the old Days screen's id) is kept as a dialog of the Journal alone, so an older
 // layout or a reader's own copy that names it still finds a screen; it is no tab and no game-view screen.
 
-import { BASE_CSS } from '../../../ui/legacy/director/screens/style.js';
+import { BASE_CSS } from '../../director/screens/style.js';
 import { DIGEST_FEATURE } from '../chronicle/days.js';
 import { FEATURE } from './known.js';
 import { PEOPLE_WIDGET } from './people.js';

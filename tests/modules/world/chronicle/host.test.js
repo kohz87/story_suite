@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { TAIL_HEADER } from '../../../../modules/world/chronicle/note.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
 import { seenOf, surfacedOf } from '../../../../modules/world/chronicle/domain.js';

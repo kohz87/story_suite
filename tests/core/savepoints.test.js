@@ -6,9 +6,9 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { SAVEPOINT_LIMITS, STILL_WAITING_MS, createSavePoints, stCreateBranch } from '../../core/timeline/rewind.js';
 import { createSavePointsWidget, savedAt } from '../../ui/legacy/screens/savepoints.js';
-import { homeScreen } from '../../ui/legacy/screens/home.js';
+import { homeScreen } from '../../packs/screens/defaults/home.js';
 import { CORE_FEATURES } from '../../modules/scene/domains/index.js';
-import { host as widgetHost, installDom } from '../ui/view/widgets/fake-dom.js';
+import { host as widgetHost, installDom } from '../packs/widgets/fake-dom.js';
 
 const clone = value => structuredClone(value);
 const NOW = Date.UTC(2026, 9, 21, 18, 30);

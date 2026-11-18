@@ -10,7 +10,7 @@
 
 import { STRINGS, fill } from '../../../core/strings.js';
 import { SAVEPOINT_LIMITS } from '../../../core/timeline/rewind.js';
-import { capToggle } from './show-more.js';
+import { capToggle } from '../../../packs/screens/defaults/show-more.js';
 
 const S = STRINGS.savepoints;
 

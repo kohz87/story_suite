@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { staticText, GRAMMAR } from '../../../../modules/time/tracker/note.js';
 import { createHost } from '../../../../testkit/host.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 
 // Frozen baseline of the non-quest prompt bytes (re-frozen for the lean diet, 3 Nov; before it: main 43c9768): also available in shallow and lone CI clones.
 const main = JSON.parse(readFileSync(new URL('./fixtures/non-quest-prompt.json', import.meta.url), 'utf8'));

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { storyDirectorModule } from '../../../ui/legacy/director/module.js';
+import { storyDirectorModule } from '../../../modules/director/module.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';
 import { buildSelectors } from '../../../ui/select/build.js';
 import { checkShape } from '../../../ui/contract/shapes.js';

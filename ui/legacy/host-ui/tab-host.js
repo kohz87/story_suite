@@ -2,10 +2,10 @@
 // with every module tab, each rendered from the head state's view.
 
 import { createScreenBar } from '../view/screen-bar.js';
-import { iconFor } from '../view/icons/index.js';
+import { iconFor } from '../../../packs/icons/index.js';
 import { dispose } from '../view/mounts/common.js';
 import { el } from './controls.js';
-import { S } from './text.js';
+import { S } from '../../../core/settings-text/text.js';
 import { captureField, restoreField } from './field-carry.js';
 
 /**

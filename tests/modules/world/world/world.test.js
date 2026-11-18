@@ -8,10 +8,10 @@ import assert from 'node:assert/strict';
 
 import { DAYS_ID, FEATURE, FOLD_WIDGET, PEOPLE_WIDGET, WORLD_ID, createFoldWidget, createPeopleWidget, daysScreen, foldMemory, holidays, knownFactions, knownNews, part, worldScreen } from '../../../../modules/world/world/index.js';
 import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
-import { createModule, storyDirectorModule } from '../../../../ui/legacy/director/module.js';
+import { createModule, storyDirectorModule } from '../../../../modules/director/module.js';
 import { makeCalendar } from '../../../../modules/time/calendar.js';
-import { validateScreen } from '../../../../ui/legacy/view/screens.js';
-import { scopeCss } from '../../../../ui/legacy/view/css.js';
+import { validateScreen } from '../../../../packs/screens/registry.js';
+import { scopeCss } from '../../../../packs/template/css.js';
 import { drawWorld, said, squash, worldData, worldHost } from './helpers.js';
 
 // Everything behind the scenes or planned in the story below: none of it may reach World or Journal.

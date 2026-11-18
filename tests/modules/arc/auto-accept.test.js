@@ -7,9 +7,9 @@ import assert from 'node:assert/strict';
 
 import { installFakeDom } from '../../helpers/director/ui-fake-dom.js';
 import { createFakeModel, createHost } from '../../../testkit/index.js';
-import { createModule, storyDirectorModule } from '../../../ui/legacy/director/module.js';
+import { createModule, storyDirectorModule } from '../../../modules/director/module.js';
 import { createArcController, createArcWidget } from '../../../modules/arc/index.js';
-import { browserStore, createReveal } from '../../../ui/legacy/director/screens/index.js';
+import { browserStore, createReveal } from '../../../modules/director/screens/index.js';
 
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();

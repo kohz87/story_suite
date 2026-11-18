@@ -4,7 +4,7 @@
 // Every pack-written string (names, authors, problems) goes in through textContent.
 // The panel only renders and calls `packs` (installed.js); it holds no rules of its own.
 
-import { button, el, plural } from '../ui/legacy/ui/dom.js';
+import { button, el, plural } from './dom.js';
 import { importPicked, importFromLorebook } from './import-run.js';
 
 const COUNT_WORDS = { items: 'item', foes: 'foe', events: 'event', skills: 'skill', places: 'place', routes: 'route', meterPresets: 'meter preset', markets: 'market', rpg: 'skill set', rules: 'rules set', cast: 'cast member', names: 'name list' };
