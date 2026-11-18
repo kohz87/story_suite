@@ -26,8 +26,8 @@ function personRow(person, shown, expanded, ctx, redraw) {
           h('dt', null, 'Wearing'), h('dd', null, person.wearing ?? '—')),
         person.scene
           ? h('dl', { class: 'sec2' },
-              h('dt', null, 'Wants'), h('dd', null, hiddenValue(person.scene.wants ?? '—', shown, 'Hidden · switch on Scene spoilers')),
-              h('dt', null, 'Hiding'), h('dd', null, hiddenValue(person.scene.hiding ?? '—', shown, 'Hidden · switch on Scene spoilers')))
+              ...[['Wants', person.scene.wants], ['Hiding', person.scene.hiding]].filter(([, value]) => value).flatMap(([label, value]) => [
+                h('dt', null, label), h('dd', null, hiddenValue(value, shown, 'Hidden · switch on Scene spoilers'))]))
           : null,
       ]
     : null;

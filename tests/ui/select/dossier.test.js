@@ -133,10 +133,10 @@ describe('selectDossier', () => {
     assert.deepEqual(vm.profile.habits, ['Folds her hands before answering', 'Checks the door']);
   });
 
-  it('flags an unknown gender and writes it in the id line', () => {
+  it('flags an unknown gender (the hero words it once, beside the id line)', () => {
     const vm = selectDossier({ dossier: { id: 'np_9', name: 'Dren', species: 'Human', gender: '' } });
     assert.equal(vm.genderUnknown, true);
-    assert.equal(vm.idLine, 'Human · gender not stated');
+    assert.equal(vm.idLine, 'Human');
     assert.equal(vm.profile.gender, null);
     assert.deepEqual(checkShape(vm, DOSSIER_SHAPE), []);
   });

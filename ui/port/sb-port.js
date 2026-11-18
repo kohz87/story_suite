@@ -21,6 +21,7 @@ import { OWN_NAMES } from './own-names.js';
 import { focusCommand } from './focus.js';
 import { refreshCommand } from './people-refresh.js';
 import { portraitCommand } from './people-portrait.js';
+import { manageCommand } from './people-manage.js';
 import { dataCommand, isDataKey } from './people-data.js';
 
 /** The page event `port.open` sends when the view's own opener does not open the window (nothing in Story Suite answers it since the old view went; a window no one answers is "not available"). */
@@ -153,6 +154,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       if (type === 'npc.refresh' && payload?.name !== undefined) return refreshCommand(payload);
       // The dossier's Portrait opens NPC State's portrait manager (a page dialog, nothing recorded).
       if (type === 'npc.portrait') return portraitCommand(payload);
+      // Edit, Delete and Mark alive go to NPC State's own editor and dossier tools the same way.
+      if (type === 'npc.edit' || type === 'npc.delete' || type === 'npc.markAlive') return manageCommand(type, payload);
       // The waiting fight's answers (board, auto, plain, send, discard): the pause's own, so the old view and this one write the same; the view redraws after.
       if (type === 'interaction.choose') {
         let answer = hold ? null : { ...FAILED, message: 'No fight is waiting.' };
