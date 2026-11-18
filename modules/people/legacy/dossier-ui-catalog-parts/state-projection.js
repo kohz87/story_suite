@@ -36,7 +36,6 @@ export function projectDossierState(state = {}, status = {}) {
     const meterViews = state?.meterViews && typeof state.meterViews === 'object' ? state.meterViews : {};
     const keyViews = state?.keyViews && typeof state.keyViews === 'object' ? state.keyViews : {};
     const castViews = state?.castViews && typeof state.castViews === 'object' ? state.castViews : {};
-    const sheetLevels = state?.sheetLevels && typeof state.sheetLevels === 'object' ? state.sheetLevels : {};
     const tieNames = tieRoster(records);   // once for the whole projection, not once per person
     const details = records.map(npc => {
         const detail = dossierDetailProjection(npc, portraitAssets, formPortraits[npc?.id] || {}, { customFieldNames });
@@ -46,7 +45,7 @@ export function projectDossierState(state = {}, status = {}) {
         // The ties as the board shows them: type, priority order and the Older fold (core-keyrel.js); a tie tag from the notes wins over the words.
         const tieRows = readTieRows(npc, { npcs: records, roster: tieNames, day: Number.isInteger(state?.storyDay) ? state.storyDay : null, tags: noteTieTags(meters?.notes?.ties) })
             .map(({ index, ...row }) => row);
-        return { ...detail, tieRows, ...(meters?.relChange ? { lastRelationshipChange: ownRelationshipChange(detail.lastRelationshipChange, meters.relChange) } : {}), ...(meters?.recent ? { recentMeterChanges: meters.recent } : {}), ...(meters ? { v2Meters: meters } : {}), ...(key ? { key } : {}), ...(cast ? { cast } : {}), ...(Object.hasOwn(sheetLevels, String(npc?.id ?? '')) ? { levelFromSheet: true } : {}) };
+        return { ...detail, tieRows, ...(meters?.relChange ? { lastRelationshipChange: ownRelationshipChange(detail.lastRelationshipChange, meters.relChange) } : {}), ...(meters?.recent ? { recentMeterChanges: meters.recent } : {}), ...(meters ? { v2Meters: meters } : {}), ...(key ? { key } : {}), ...(cast ? { cast } : {}) };
     }).filter(npc => npc.id);
     return {
         chatKey: plain(status?.chatKey, 'no-chat'),
