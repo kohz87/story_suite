@@ -130,6 +130,12 @@ export function applyRouteLine(ctx, line) {
 
     const time = routeTime(line?.labels);
     if (time.error) return ctx.fail('INVALID', `"${lineText(line)}": ${time.error}`);
+    // A pack world's roads are the pack's: the narrator cannot join two pack places the pack does not join (LF4-6).
+    const packA = packPlace(pack, from);
+    const packB = packPlace(pack, to);
+    if (packA && packB && !(pack.routes ?? []).some(route => [packPlace(pack, route.from)?.key, packPlace(pack, route.to)?.key].sort().join('|') === [packA.key, packB.key].sort().join('|')) && !routesBetween(atlas, findPlace(atlas, packA.name)?.id, findPlace(atlas, packB.name)?.id).length) {
+        return ctx.fail('REFUSED', `"${lineText(line)}" was not used: the pack has no road between ${packA.name} and ${packB.name}, and the story cannot add one between two of its places.`);
+    }
     const reply = replyOf(ctx);
     const newPlaces = [from, to].filter(name => !onMap(atlas, pack, name)).length;
     const knownA = findPlace(atlas, from) ?? findPlace(atlas, packPlace(pack, from)?.name);
