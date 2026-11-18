@@ -1,7 +1,8 @@
 // Rendered check of the Studio's edit loop (studio/index.html in Chromium): open a world zip with its game, edit a record through its
 // JSON row (a mistake names its line and keeps Apply off), Undo and Redo (header and keys), the draft saved and offered again after a
 // reload (Restore, or Use the file), an error turning Export off with its note, F8 and "Go to the first" opening the JSON row at the field,
-// warnings leaving Export on, the edited pack exported as 2-space JSON and an unedited one byte for byte, each pack with its own history.
+// warnings leaving Export on, the edited pack exported as 2-space JSON and an unedited one byte for byte, each pack with its own history
+// (the game edited through its Money form's Short field).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -194,12 +195,13 @@ test('reload: the saved draft is offered; Restore gives the edit back one undo s
   } finally { await page.close(); }
 });
 
-test('two packs, two histories: the game edited through its JSON row exports as 2-space JSON, the world stays as opened; phone width', async (t) => {
+test('two packs, two histories: the game edited through its Money form exports as 2-space JSON, the world stays as opened; phone width', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const { page, errors } = await studio(390);
   try {
     await page.click('.slist button[data-part="money"]');
-    await applyJson(page, 'currency', value => ({ ...value, short: 'd' }));
+    await page.fill('.st-currency [data-key="short"] input', 'd');
+    await page.press('.st-currency [data-key="short"] input', 'Tab');
     assert.equal(await page.isDisabled('.st-undo'), false);
     await page.click('.sback');
     await page.waitForFunction(() => document.querySelector('.shd .ttl small').textContent.includes('Draft saved'));

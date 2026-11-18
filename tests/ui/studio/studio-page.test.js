@@ -192,7 +192,7 @@ test('format 4: a world zip with game.json opens both packs; a Game part makes t
     await page.click('.snav .si3[data-part="money"]');
     const game = await nav(page);
     assert.deepEqual([game.sub, game.zip], ['Game · Studio game 4 (test) · 0.1.0', true]);
-    assert.deepEqual(await page.$$eval('.spage .st-sec', secs => secs.map(sec => sec.dataset.key)), ['currency']);
+    assert.equal(await page.locator('.spage .st-currency').count(), 1, 'the Money form draws the currency');
     await page.click('.snav .si3[data-part="overview"]');
     assert.equal(await page.textContent('.st-other .lb b'), 'World pack · Studio world 4 (test) · 0.1.0');
     const [json] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('Control+s')]);
