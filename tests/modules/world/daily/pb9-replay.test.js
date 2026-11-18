@@ -49,6 +49,10 @@ test('PB9: swipe, edited Re-reads, a middle delete, a rewind and a reload agree 
         assert.equal(state(host), recorded, 'a swipe of the last crossing: the same step');
         await agrees(host, 'swiped');
         await host.swipe(reply(`On ${CHECKPOINT_DAYS}.`, ['! time +1d']));
+        await agrees(host, 'swiped again');
+        // A swipe back to the first swipe (the reader's own arrow, not a new reply): its recorded step comes back.
+        await host.st.swipeTo(host.ctx.chat.length - 1, 0);
+        assert.equal(state(host), recorded, 'swiped back to the first swipe: its step');
         await agrees(host, 'swiped back');
         // An edited Re-read of an early crossing, grown then shrunk: replay == live, and the later checkpoint puts the recorded world back.
         await host.st.editMessage(early, reply('Day.', ['! time +3d']));
