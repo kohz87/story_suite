@@ -2,25 +2,15 @@
 
 import { NAME_MAX } from './limits-cast.js';
 import { ALIASES_MAX, TEXT_MAX, WITH_YOU_MAX } from './limits-text.js';
-import { FIELDS_MAX, FIELD_NAME_MAX, FIELD_VALUE_MAX, STAGES_MAX } from './limits-fields.js';
+import { STAGES_MAX } from './limits-fields.js';
+import { isLegacyEntry, legacyFields } from './entry-legacy.js';
+import { castForms, castLinks, castPairs } from './entry-story.js';
+import { BUILT_IN_LIMITS, normalizeLevel } from '../../core/core-record-parts/built-in-fields.js';
 import { castBehaviour, castMannerisms, castSecrets, castTastes } from './entry-lists.js';
 import { castGatedSecrets } from './entry-gated.js';
 import { clip, isObject, labelKey, wholeNumber } from './shared-text.js';
 
 // ---- the pack entry, cleaned ----
-
-function normalizeFields(raw) {
-    const entries = Array.isArray(raw) ? raw.map(item => [item?.name ?? item?.field, item?.value]) : Object.entries(isObject(raw) ? raw : {});
-    const out = {};
-    for (const [key, value] of entries) {
-        const name = clip(key, FIELD_NAME_MAX);
-        const text = clip(typeof value === 'number' ? String(value) : value, FIELD_VALUE_MAX);
-        if (!name || !text || Object.keys(out).some(other => other.toLowerCase() === name.toLowerCase())) continue;
-        out[name] = text;
-        if (Object.keys(out).length >= FIELDS_MAX) break;
-    }
-    return out;
-}
 
 // A stage row in the pack's meterPresets shape, { id, name, needs: [{ meter, at }], milestone }: the needs are met by the meters alone
 // and `milestone` is the line the story is told when the stage is first reached (a rung's `cue`, never a milestone it needs). A
@@ -54,20 +44,34 @@ function normalizeMeters(raw) {
     return { preset, values };
 }
 
-/** The pack entry, cleaned (texts cut and flattened, lists bounded), or null without a usable name. */
-export function normalizeEntry(raw) {
+/**
+ * The world cast entry, cleaned (texts cut and flattened, lists bounded), or null without a usable name. `nameOf(id)` gives the name of a cast id
+ * (the people the entry's ties and key relationships name); without it those two lists are left out.
+ */
+export function normalizeEntry(raw, nameOf = null) {
     if (!isObject(raw)) return null;
     const name = clip(raw.name, NAME_MAX);
     if (!name) return null;
     const start = isObject(raw.start) ? raw.start : {};
+    const legacy = isLegacyEntry(raw);
     const meters = normalizeMeters(raw.meters);
+    const abilities = castPairs(raw.abilities, BUILT_IN_LIMITS.abilities);
+    const keepsakes = castPairs(raw.keepsakes, BUILT_IN_LIMITS.keepsakes);
+    const links = castLinks(raw, nameOf);
+    const level = normalizeLevel(raw.level);
+    const age = typeof raw.age === 'number' ? String(raw.age) : raw.age;
     return {
         id: clip(raw.id, 80),
         name,
         aliases: (Array.isArray(raw.aliases) ? raw.aliases : []).map(alias => clip(alias, NAME_MAX)).filter(alias => alias && labelKey(alias) !== labelKey(name)).slice(0, ALIASES_MAX),
-        about: clip(raw.about, 300),
+        role: legacy ? clip(raw.about, 300) : clip(raw.role, 120),
+        species: clip(raw.species, 60),
+        gender: clip(raw.gender, 40),
+        age: clip(age, 40),
+        apparentAge: clip(raw.apparentAge, 40),
         look: clip(raw.look, TEXT_MAX),
         wears: clip(raw.wears, TEXT_MAX),
+        forms: castForms(raw.forms),
         voice: clip(raw.voice, 600),
         personality: clip(raw.personality, 900),
         history: clip(raw.history, 1200),
@@ -76,11 +80,20 @@ export function normalizeEntry(raw) {
         withYou: clip(raw.withYou, WITH_YOU_MAX),
         portrait: clip(raw.portrait, 120),
         ...(clip(raw.birthday, 80) ? { birthday: clip(raw.birthday, 80) } : {}),
+        homeBase: legacy ? clip(start.place, 300) : clip(raw.homeBase, 80),
+        status: clip(raw.status, 200),
+        goal: clip(raw.goal, 500),
+        keyRelationships: links.keyRelationships,
+        ties: links.ties,
+        ...(level ? { level } : {}),
+        abilities: abilities.list,
+        keepsakes: keepsakes.list,
+        ...(abilities.extra.length || keepsakes.extra.length ? { overflow: { abilities: abilities.extra, keepsakes: keepsakes.extra } } : {}),
         start: { place: clip(start.place, 300), goal: clip(start.goal, 500), routine: clip(start.routine, 300) },
         drawnTo: (Array.isArray(raw.drawnTo) ? raw.drawnTo : []).map(item => clip(item, 120)).filter(Boolean).slice(0, 8),
         meters,
         stages: normalizeStages(raw.stages),
-        fields: normalizeFields(raw.fields),
+        fields: legacy ? legacyFields(raw.fields) : {},
         secrets: castSecrets(raw.secrets),
         ...(castGatedSecrets(raw.secrets).length ? { gated: castGatedSecrets(raw.secrets) } : {}),
         tastes: castTastes(raw.tastes),

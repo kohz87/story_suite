@@ -16,7 +16,7 @@ import { stampMemories } from '../core/core-record-shared.js';
 import { storyDateTextAt } from '../legacy/calendar.js';
 
 // (ONEPASSCAPR2-2) Keep the admission values until the host's meeting step can answer. A later manual edit or scan wins over this seed.
-const SEED_FIELDS = ['aliases', 'role', 'overallAppearance', 'appearance', 'unclassifiedAppearance', 'appearanceForms', 'currentForm', 'currentFormUnknown', 'speech', 'personality', 'background', 'behaviorProfile', 'mannerisms', 'relationshipSummary', 'homeBase', 'goal', 'location', 'customFields', 'species', 'gender', 'age', 'apparentAge', 'birthDate', 'birthDateSource', 'birthDateReason', 'birthDatePrecision', 'birthDateYearSource', 'relationship', 'meterSetup', 'secrets'];
+const SEED_FIELDS = ['aliases', 'role', 'overallAppearance', 'appearance', 'unclassifiedAppearance', 'appearanceForms', 'currentForm', 'currentFormUnknown', 'speech', 'personality', 'background', 'behaviorProfile', 'mannerisms', 'relationshipSummary', 'homeBase', 'goal', 'location', 'customFields', 'species', 'gender', 'age', 'apparentAge', 'birthDate', 'birthDateSource', 'birthDateReason', 'birthDatePrecision', 'birthDateYearSource', 'relationship', 'meterSetup', 'secrets', 'level', 'abilities', 'keepsakes', 'keyRelationships', 'status'];
 const seedValues = npc => Object.fromEntries(SEED_FIELDS.map(field => [field, structuredClone(npc[field] ?? null)]));
 const sameSeedValue = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 export function rememberCastAdmissions(state, ids, messageId, lineage) {
@@ -43,7 +43,7 @@ export function seedCastAdmission(state, npc, person, options = {}) {
         && sameSeedValue(npc.appearance, pending.values.appearance)) {
         seeded.appearance = person.entry.wears || '';
         seeded.unclassifiedAppearance = '';
-        seeded.appearanceForms = [];
+        seeded.appearanceForms = (person.entry.forms ?? []).map(row => ({ ...row }));
         seeded.currentForm = '';
         seeded.currentFormUnknown = false;
     }
