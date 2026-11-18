@@ -18,6 +18,7 @@ export function tabTrap(panel, { doc = panel?.ownerDocument ?? globalThis.docume
     const inside = active && panel.contains?.(active);
     const end = event.shiftKey ? items[0] : items.at(-1);
     if (!items.length) { event.preventDefault?.(); return; }
-    if (!inside || active === end) { event.preventDefault?.(); (event.shiftKey ? items.at(-1) : items[0]).focus(); }
+    // (the panel itself focused, as a sheet with no close button is on open: Tab to its first control, Shift+Tab to its last)
+    if (!inside || active === end || active === panel) { event.preventDefault?.(); (event.shiftKey ? items.at(-1) : items[0]).focus(); }
   };
 }

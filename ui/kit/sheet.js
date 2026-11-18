@@ -5,7 +5,7 @@ import { tabTrap } from './trap.js';
 /**
  * Opens a sheet and returns `{ el, body, close }`; ctx = { doc, backStack, sheetHost }.
  * Options: `title` (header row with a × button; leave empty when the content has its own header), `label` (aria-label), `id` (back-stack id).
- * Closing is safe to repeat; the back-stack gets one `sheet` entry and focus returns to the opener.
+ * It takes the focus (its × button, or the panel when it has none); closing is safe to repeat; the back-stack gets one `sheet` entry and focus returns to the opener.
  */
 export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', onClose = null } = {}) {
   const doc = ctx.doc ?? globalThis.document;
@@ -16,7 +16,8 @@ export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', on
     : null;
   const panel = h(
     'div',
-    { class: 'sh-panel', role: 'dialog', 'aria-modal': 'true', 'aria-label': label ?? (title || 'Sheet') },
+    // (with no close button the panel itself takes the focus, so Tab starts, and stays, inside it)
+    { class: 'sh-panel', role: 'dialog', 'aria-modal': 'true', 'aria-label': label ?? (title || 'Sheet'), tabindex: title ? null : '-1' },
     h('span', { class: 'grab' }),
     title ? h('div', { class: 'sh-h' }, h('h3', null, title), closeBtn) : null,
     body,
@@ -49,6 +50,6 @@ export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', on
   el.addEventListener('keydown', keep);
   host.appendChild(el);
   release = ctx.backStack?.push({ id, layer: 'sheet', close: () => { finish(); } }) ?? null;
-  closeBtn?.focus?.();
+  (closeBtn ?? panel).focus?.();
   return { el, body, close };
 }

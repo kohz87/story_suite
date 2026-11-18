@@ -29,7 +29,7 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 ### Fixed (soak, keyboard, focus and Back)
 
 - Opening the suite puts the focus in it, and SillyTavern behind it is inert (Tab and a screen reader no longer reach the hidden drawers, the chat-name list or the message buttons); a native dialog and the toasts stay usable. Closing the suite gives the page back and returns the focus to what had it before.
-- The Party and Bag sheets (stats, gear slot, member, skill, item, asset) keep Tab inside them, as the other sheets do.
+- The Party and Bag sheets (stats, gear slot, member, skill, item, asset) keep Tab inside them, as the other sheets do. A sheet with no × button (scene, tracker editor and templates, quest and World editors) now takes the focus on its panel when it opens, so its Tab trap holds from the first press.
 - A person's dossier is modal: it takes the focus when it opens, keeps Tab inside it, and on close gives the focus back to the person card that opened it (or that person's card after a redraw, else the suite).
 - Settings: a page picked from the side list, the phone list, a link or the footer opens at its top (it kept the last page's scroll); going back to the phone list opens it at its top too.
 - The browser's Back (a phone's Back button or gesture too) walks the same stack as Escape: one Back closes the top window (a menu, a sheet, the dossier, Settings), the next one the suite; only then does Back leave the page. The suite keeps one history entry while it is open and takes it off when it is closed another way.

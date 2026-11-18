@@ -64,7 +64,7 @@ async function stPage(width) {
 }
 const where = page => page.evaluate(() => {
   const a = document.activeElement;
-  return { behind: Boolean(a?.closest?.('.behind, #hx-controls')), suite: Boolean(a?.closest?.('.su-root')), body: a === document.body, dossier: Boolean(a?.closest?.('.dossier')), sheet: Boolean(a?.closest?.('.pty-sheet')) };
+  return { behind: Boolean(a?.closest?.('.behind, #hx-controls')), suite: Boolean(a?.closest?.('.su-root')), body: a === document.body, dossier: Boolean(a?.closest?.('.dossier')), sheet: Boolean(a?.closest?.('.pty-sheet, .sh-panel')) };
 });
 
 for (const width of [390, 1280]) {
@@ -117,6 +117,20 @@ test('a Party sheet keeps 20 Tabs inside it (soak #2)', async (t) => {
   await page.waitForSelector('.pty-sheet');
   let out = 0;
   for (let n = 0; n < 20; n += 1) { await page.keyboard.press('Tab'); if (!(await where(page)).sheet) out += 1; }
+  assert.equal(out, 0);
+  await page.close();
+});
+
+test('a sheet with no close button (the tracker editor) keeps 14 Tabs and Shift+Tabs inside it', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await stPage(1280);
+  await page.evaluate(() => globalThis.suite.open('story'));
+  await page.click('body > .su-layer .wseg [data-value="trackers"]');
+  await page.click('body > .su-layer .trk [data-act="edit"]');
+  await page.waitForSelector('.sh-ov[data-sheet="tracker-editor"]');
+  assert.equal((await where(page)).sheet, true, 'the sheet has the focus on open');
+  let out = 0;
+  for (const key of [...Array(14).fill('Tab'), ...Array(14).fill('Shift+Tab')]) { await page.keyboard.press(key); if (!(await where(page)).sheet) out += 1; }
   assert.equal(out, 0);
   await page.close();
 });
