@@ -10,6 +10,7 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 - Settings › Look › **Panel background**: Off (the new default) removes the sky picture behind the Story Suite panels and leaves a plain flat colour, dark or light; On brings the picture back. It applies at once and is kept per device.
 - Developer: a click-through test of Settings in a real SillyTavern, `node scripts/ui-walk/settings-walk.mjs --url <replica> --out <folder>`: at 1920, 1280 and 390 wide in dark and light it changes every Settings control with real clicks, checks the visible effect (Look, Panel background, the RPG switch, Calendar, a module switch) or the stored value, that the open page redraws, that a fresh Settings and a reload read it, then puts it back, and writes a pass/fail table with a screenshot of each failure. It starts nothing and refuses model calls. The release walkthrough, `docs/dev/release-walkthrough.md`, lists it with the pages and actions to check by hand. Nothing changes for players.
+- Developer: the settings click-through now runs in CI as the **UI walk** check (`.github/workflows/ui-walk.yml`): a pull request that touches the UI, the SDK, a settings file, css, a pack UI file or the walk, every release pull request and a manual run start a pinned SillyTavern with no secrets and no model calls, walk every Settings control at 1920, 1280 and 390 wide in dark and light, and fail on any failed row; the table and failure screenshots are kept as an artifact.
 
 ### Changed
 
