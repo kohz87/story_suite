@@ -150,7 +150,9 @@ test('phone: the switch is a row of two halves under the title; no pack open sho
     assert.ok(count.h > 0 && count.h < 24 && Math.abs(count.top + count.h / 2 - (label.top + label.h / 2)) < 4, `the count sits on the title's line (${JSON.stringify([count, label])})`);
     await page.evaluate(() => document.querySelector('.st-theme, [aria-label*="theme" i]')?.click());
     assert.equal(await page.evaluate(() => document.querySelector('.su-root').dataset.scheme), 'light');
-    assert.equal(await page.$eval('.pswitch button[data-kind="world"] em', el => getComputedStyle(el).color), 'rgb(255, 224, 227)');
+    // (the header is drawn again after the theme switch: read the count once the new one is in the page)
+    const lit = await page.waitForFunction(() => { const el = document.querySelector('.pswitch button[data-kind="world"] em'); const c = el?.isConnected ? getComputedStyle(el).color : ''; return c === 'rgb(255, 224, 227)' ? c : false; }, null, { timeout: 3000 }).then(h => h.jsonValue()).catch(() => page.$eval('.pswitch button[data-kind="world"] em', el => getComputedStyle(el).color));
+    assert.equal(lit, 'rgb(255, 224, 227)');
     assert.ok(Math.abs(sw.w - 358) < 30, `the switch runs the width (${sw.w})`);
     assert.deepEqual(errors, []);
     await page.close();

@@ -104,4 +104,3 @@ test('the preview equals the record a whole host makes at the first meeting', ()
         assert.deepEqual(made[field], seeded, `field ${field}`);
     }
 });
-
