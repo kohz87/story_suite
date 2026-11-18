@@ -1,6 +1,7 @@
 // Pack format 4, job S1: Settings › Packs (the World and Game pickers, the suggestion card, the pair's lines, the worlds and games, the add-ons) and the Start rows.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { searchRows } from '../../../ui/settings/search.js';
 import { store, world, game, suggesting, months, mountPacks } from './packs-v4-helpers.js';
 
 const tick = () => new Promise(resolve => setImmediate(resolve));
@@ -139,7 +140,9 @@ test('a page with no format 4 pack is the format 3 page: no pickers, the old Pac
 });
 
 test('Start: "You and your start" comes after Reset to Standard and before Gone (decided); Rank label is found by search; no group without a format 4 pack', async () => {
-    const { page } = mountPacks(await store(world(), ERS));
+    const { page, settings } = mountPacks(await store(world(), ERS));
+    assert.deepEqual(searchRows(settings.sections, 'rank').map(hit => [hit.section.id, hit.row.label]), [['start', 'Rank label']]);
+    assert.deepEqual(searchRows(settings.sections, 'starting money').map(hit => hit.row.label), ['Starting money']);
     const el = page('start');
     const gs = groups(el).filter(Boolean);
     assert.deepEqual(gs.slice(-2), ['You and your start', 'Gone (decided)']);
