@@ -82,3 +82,16 @@ test('the Inspector opens as a sheet and reads again on each move to an older or
   assert.ok(sheet.textContent.includes('/at5'));
   assert.deepEqual(asked, [null, 2, 5]);
 });
+
+test('the budget rows are read again on every draw: a changed value shows, not the one Settings opened with', () => {
+  let fresh = null;
+  const { onView } = views({ sent: () => sentOf(5), problems: () => ({ items: [], rebuild: null }), settings: () => (fresh ? { sent: { limits: fresh } } : null) });
+  const { page, settings } = mountSettings({}, { onView });
+  const first = settings.sent.limits.find(l => typeof l.value === 'number');
+  assert.ok(first, 'a numeric budget row');
+  const shown = () => page('tools').querySelector(`[data-key="${first.key}"]`).textContent + page('tools').querySelector(`[data-key="${first.key}"] input`)?.value;
+  const before = shown();
+  fresh = settings.sent.limits.map(l => (l.key === first.key ? { ...l, value: first.value + 1 } : l));
+  assert.notEqual(shown(), before, 'the redraw shows the stored value');
+  assert.ok(shown().includes(String(first.value + 1)));
+});

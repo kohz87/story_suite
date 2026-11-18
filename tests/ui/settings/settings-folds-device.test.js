@@ -2,8 +2,6 @@
 // new port, the same storage) opens the card folded; the view's other folds are not kept by it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { settingsFolds } from '../../../ui/entry/settings-folds.js';
-import { createSbPort } from '../../../ui/port/sb-port.js';
 import { createPrefs } from '../../../ui/runtime/prefs.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { buildSettings } from '../../../ui/fixtures/settings.js';
@@ -11,7 +9,7 @@ import { createSettingsOverlay } from '../../../ui/settings/overlay.js';
 import { renderSettingsSection } from '../../../ui/settings/sections/index.js';
 
 const storage = () => { const m = new Map(); return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), m }; };
-const live = store => createPrefs({ port: createSbPort({ sdk: {}, prefs: { device: settingsFolds(store) } }) });
+const live = store => createPrefs({ storage: store });
 
 test('a folded Settings card is kept on the device and comes back after a reload', () => {
   const store = storage();
@@ -19,24 +17,22 @@ test('a folded Settings card is kept on the device and comes back after a reload
   const open = prefs => { const ov = createSettingsOverlay({ doc, settings: buildSettings(), renderSection: renderSettingsSection, onChange: () => {}, onAction: () => {}, prefs }); ov.open('people'); return ov; };
   const card = (ov, name) => ov.el.querySelectorAll('.sgrp').find(c => c.querySelector('.gt').textContent === name);
   card(open(live(store)), 'Portraits').querySelector('.gt').click();
-  assert.deepEqual(JSON.parse(store.m.get('storySuite.ui.settingsFolds')), { 'settings.fold.people.portraits': true });
+  assert.deepEqual(JSON.parse(store.m.get('storySuite.ui.fold')), { 'settings.fold.people.portraits': true });
   const again = open(live(store));
   assert.equal(card(again, 'Portraits').querySelector('.gt').getAttribute('aria-expanded'), 'false');
   card(again, 'Portraits').querySelector('.gt').click();
-  assert.deepEqual(JSON.parse(store.m.get('storySuite.ui.settingsFolds')), {});
+  assert.deepEqual(JSON.parse(store.m.get('storySuite.ui.fold')), { 'settings.fold.people.portraits': false });
 });
 
-test('only settings card folds are kept; bad stored data and no storage keep nothing', () => {
+test('one store: a fold and the other device prefs share storySuite.ui.fold, bad stored data keeps nothing', () => {
   const store = storage();
-  const folds = settingsFolds(store);
-  folds.set('journal.closed', true);
-  folds.set('settings.fold.look.skin', true);
-  assert.deepEqual(folds.get(), { 'settings.fold.look.skin': true });
-  store.m.set('storySuite.ui.settingsFolds', 'not json');
-  assert.deepEqual(folds.get(), {});
-  const none = settingsFolds(null);
-  none.set('settings.fold.look.skin', true);
-  assert.deepEqual(none.get(), {});
+  const prefs = createPrefs({ storage: store });
+  prefs.setFold('settings.fold.look.skin', true);
+  prefs.setFold('journal.closed', true);
+  assert.deepEqual(JSON.parse(store.m.get('storySuite.ui.fold')), { 'settings.fold.look.skin': true, 'journal.closed': true });
+  assert.deepEqual([...store.m.keys()], ['storySuite.ui.fold'], 'no second key');
+  store.m.set('storySuite.ui.fold', 'not json');
+  assert.equal(createPrefs({ storage: store }).getFold('settings.fold.look.skin'), false);
 });
 
 test('the live entry keeps a folded card through a remount of the view (the device store is wired in turn-on)', async t => {
@@ -64,7 +60,7 @@ test('the live entry keeps a folded card through a remount of the view (the devi
     return doc.querySelectorAll('.su-root .sov .sgrp').find(c => c.querySelector('.gt').textContent === 'Feelings');
   };
   skin().querySelector('.gt').click();
-  assert.deepEqual(JSON.parse(store.m.get('storySuite.ui.settingsFolds')), { 'settings.fold.people.feelings': true });
+  assert.deepEqual(JSON.parse(store.m.get('storySuite.ui.fold')), { 'settings.fold.people.feelings': true });
   // A remount: the view is taken away and started again (a fresh turn-on over the same device storage).
   api.stop();
   const again = await start();
