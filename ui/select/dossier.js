@@ -104,8 +104,13 @@ function profileOf(dossier) {
     // Behaviour is merged into Habits (decision 26).
     habits: [...new Set([...strings(dossier.mannerisms), ...strings(dossier.behaviorProfile)])],
     ...(likesOf(dossier).length ? { likes: likesOf(dossier) } : {}),
+    // What NPC State holds beside the profile (SFF4 #7): the Level, the goal, and the abilities and keepsakes as [name, one line] rows.
+    level: text(String(dossier.level ?? '')), goal: text(dossier.goal), abilities: namedRows(dossier.abilities), keepsakes: namedRows(dossier.keepsakes),
   };
 }
+
+// [{ name, description }] → [[name, description]], nameless rows dropped.
+const namedRows = value => (Array.isArray(value) ? value : []).filter(isRecord).map(row => [text(row.name), text(row.description) ?? '—']).filter(([name]) => name);
 
 // The engine's "Add to party" card (rpg.partyAdd: { name, soul, best, card }) → what the dossier draws: the card's title, rows and buttons, with each button's command or screen as the card gives it. Null without one.
 function partyAddOf(answer) {
