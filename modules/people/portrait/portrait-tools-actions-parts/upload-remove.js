@@ -15,8 +15,8 @@ export async function finishUploadedPortrait(session, file) {
         if (!currentSessionIs(session)) throw new Error('The portrait workflow is no longer current; late completion was rejected from this workflow.');
         const saved = await flushDurably(session.chatKey, 'device portrait');
         if (!currentSessionIs(session)) return;
-        if (saved.persisted) toast('success', `NPC State Delta: ${live.name} portrait updated and saved.`);
-        else toast('warning', `NPC State Delta: portrait applied locally, but durable save failed. ${saved.error?.message || saved.error}`);
+        if (saved.persisted) toast('success', `NPC State: ${live.name} portrait updated and saved.`);
+        else toast('warning', `NPC State: portrait applied locally, but durable save failed. ${saved.error?.message || saved.error}`);
         closeOverlay({ reason: 'portrait-applied', session });
     } catch (error) {
         recordToolEvent('portrait-completion', {
@@ -29,7 +29,7 @@ export async function finishUploadedPortrait(session, file) {
         });
         if (!currentSessionIs(session)) return;
         setBusy(session, false, error?.message || String(error));
-        toast('error', `NPC State Delta portrait: ${error?.message || error}`);
+        toast('error', `NPC State portrait: ${error?.message || error}`);
     }
 }
 
@@ -43,12 +43,12 @@ export async function removePortrait(session) {
         const saved = await flushDurably(session.chatKey, 'portrait removal');
         if (!currentSessionIs(session)) return;
         toast(saved.persisted ? 'success' : 'warning', saved.persisted
-            ? `NPC State Delta: portrait removed from ${npc.name} and saved.`
-            : `NPC State Delta: portrait removed locally, but durable save failed. ${saved.error?.message || saved.error}`);
+            ? `NPC State: portrait removed from ${npc.name} and saved.`
+            : `NPC State: portrait removed locally, but durable save failed. ${saved.error?.message || saved.error}`);
         closeOverlay({ reason: 'portrait-removed', session });
     } catch (error) {
         if (!currentSessionIs(session)) return;
         setBusy(session, false, error?.message || String(error));
-        toast('error', `NPC State Delta portrait removal: ${error?.message || error}`);
+        toast('error', `NPC State portrait removal: ${error?.message || error}`);
     }
 }
