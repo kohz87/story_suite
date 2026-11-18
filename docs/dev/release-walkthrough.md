@@ -26,6 +26,8 @@ Never clicked, and listed as SKIP with the reason: action buttons (Reset, Test, 
 
 If the walk itself stops on a control, that control is marked FAIL (check `walk`), Settings is opened again, the control put back and the walk goes on. If the final reload-and-restore step stops, the script writes the suite's stored settings and device keys back from the snapshot it took before the run (by script, not by clicks) and says so in the notes at the top of `results.md`.
 
+The walk only sees the pages and rows the replica's state draws: Settings › RPG and fights exists only while the RPG is on, and rows such as World's Tempo and Director calls only while World events is on (the walk puts every switch back at once, so it never walks behind one it turned on). Run it a second time with those switches on in the replica (set them in its `settings.json` with the server stopped), for example `--only start,rpg,world`.
+
 Options: `--sizes 1280x800`, `--themes light`, `--only look,rpg` (page ids), `--character <name>` (default: the character chatted with last). Dark and light are forced through SillyTavern's theme colours (`--SmartThemeBodyColor`, `--SmartThemeBlurTintColor`), which the suite's Follow SillyTavern reads; a run whose suite does not turn fails at once.
 
 It writes `results.md` (counts per run, the failures with a screenshot each, then every control), `results.json`, and the screenshots into `--out`, and exits 1 when anything failed. A full run takes a while: one load and up to four reloads per size and theme (kept rows, switches, module switches, the final check).
