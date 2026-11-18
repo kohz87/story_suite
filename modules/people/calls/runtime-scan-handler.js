@@ -10,9 +10,10 @@ import { chatLineage, lineageCheckpointKey } from '../lineage/index.js';
 import { getSettings } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, latestMessageId, notify, replayScope } from './runtime-scan-helpers.js';
 import { captureJournalEntry, recordReadMark } from '../runtime/runtime-narration.js';
+import { sceneNames, stampScenePresence } from './hosted-presence.js';
 
 export function createAssistantHandlerPart(rt, deps, helpers) {
-    const { noteChatLineage, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, hostedOnePass, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, updateInjection } = deps;
+    const { noteChatLineage, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, hostedOnePass, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, storySuiteV2Meters, updateInjection } = deps;
     const { assistantReceipts, narrationCaptures } = rt;
     const { replyParentKey, sameReplyRewritten, scanInner, noteCaptureCatchUp, runCaptureCatchUp, replayCatchUp } = helpers;
 
@@ -95,11 +96,13 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         const countCatchUp = () => {
             if (replay || !hostedOnePass()) return;
             const live = getChatState(eventChatKey);
-            const present = (live?.npcs || []).filter(npc => npc?.present && !npc.archived).map(npc => npc.id);
+            // F7/F23/F45: the scene's own list stamps who is here, last seen and arrived (hosted-presence.js); with no scene answer, the stored flags.
+            const stamped = live ? stampScenePresence(live, sceneNames(storySuiteV2Meters?.())) : null;
+            const present = stamped ?? (live?.npcs || []).filter(npc => npc?.present && !npc.archived).map(npc => npc.id);
             const entry = live ? recordReadMark(live, getContext().chat || [], messageId) : null;
             const due = noteCaptureCatchUp(eventChatKey, present, messageId);
             if (due.length && entry) entry.catchUp = [...due];
-            if (entry) persist();
+            if (entry || stamped) persist();
             if (due.length) void runCaptureCatchUp(eventChatKey, due, 0, messageId);
         };
         if (scanExpected && detachScan && !replay) {

@@ -77,11 +77,25 @@ export function setPresent(ctx, value) {
         data: { added: present.filter(name => !before.includes(name)), removed: before.filter(name => !present.includes(name)), present: [...present] }, narrate: true };
 }
 
-/** `+ present Name`, `- present Name` (several names may be separated by commas). */
+// The names of the people NPC State has recorded as dead, as this reply sees them (`people.list`, the transaction's own state; none when it cannot answer).
+function deadNames(ctx) {
+    let rows = null;
+    try { rows = ctx.query('people.list', {}); } catch { rows = null; }
+    const dead = (Array.isArray(rows) ? rows : []).filter(row => row?.lifeState === 'deceased');
+    return new Set(dead.flatMap(row => [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])]).filter(name => typeof name === 'string').map(name => name.trim().toLowerCase()));
+}
+
+/** `+ present Name`, `- present Name` (several names may be separated by commas). A story line cannot bring someone who has died back on stage (SOAKPEOPLE F44). */
 export function capturePresent(ctx, line) {
     const names = String(line?.name ?? '').split(',').map(cleanName).filter(Boolean);
     if (!names.length) ctx.fail('INVALID', 'A present line needs a name.');
-    if (line.op === '+') return changePresent(ctx, { add: names });
+    if (line.op === '+') {
+        const dead = deadNames(ctx);
+        const gone = names.filter(name => dead.has(name.toLowerCase()));
+        if (gone.length === names.length) ctx.fail('REFUSED', `${gone.join(', ')} ${gone.length === 1 ? 'has' : 'have'} died; a death is final.`);
+        const out = changePresent(ctx, { add: names.filter(name => !gone.includes(name)) });
+        return gone.length ? { ...out, summary: `${out.summary} ${gone.join(', ')} ${gone.length === 1 ? 'has' : 'have'} died and ${gone.length === 1 ? 'is' : 'are'} not here.` } : out;
+    }
     if (line.op === '-') return changePresent(ctx, { remove: names });
     return ctx.fail('INVALID', `"${line.op} present" is not a change the scene understands; use + present or - present.`);
 }

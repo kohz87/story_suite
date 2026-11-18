@@ -41,6 +41,7 @@ export function memoryLine(ctx, line, deps) {
     const raw = typeof line?.raw === 'string' ? line.raw.split('|').slice(1).join('|') : String(line?.text ?? '');
     const found = knownPerson(ctx, line?.name);
     if (!found) ctx.fail('REFUSED', `${clean(line?.name, 40)} has no record yet; write + npc ${clean(line?.name, 40)} | role | look first.`);
+    if (found.record?.lifeState === 'deceased') ctx.fail('REFUSED', `${clean(found.record.name, 40)} has died; lines about them change nothing now.`);   // (F44)
     const at = isInt(ctx.carrier?.index) ? ctx.carrier.index : null;
     const why = saveMemory(ctx, { key: found.key, text: raw, date: deps.date(at), tag: true });
     if (why) ctx.fail('REFUSED', `~ memory ${clean(line?.name, 40)}: ${why}.`);

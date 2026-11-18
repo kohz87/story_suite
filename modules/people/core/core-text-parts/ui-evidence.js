@@ -100,9 +100,12 @@ const STORY_BLOCKS_ENVELOPE = /<!--\s*STORY_BLOCKS_V1\b((?:(?!<!--)[\s\S])*?)(?:
 function unwrapStoryBlocksEnvelope(source) {
     return String(source || '').replace(STORY_BLOCKS_ENVELOPE, (_whole, body) => ` ${body} `);
 }
+// Story Suite's own bookkeeping in a stored reply (SOAKPEOPLE F22): the hidden STORY_SUITE_V2 comment (it holds the reply's change lines) and a bare <Changes>
+// block. Never story evidence: without this the tag strip below left the lines ("~ npc Old Wen | trust: up … -->") in every scan and Refresh window.
+const STORY_SUITE_BOOKKEEPING = /<!--\s*STORY_SUITE_V2\b[\s\S]*?(?:-->|$)|<(Changes(?:-[a-z]+)*)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
 
 export function stripUiNoise(text) {
-    let source = unwrapStoryBlocksEnvelope(extractNarrationCapture(text).text)
+    let source = unwrapStoryBlocksEnvelope(extractNarrationCapture(text).text.replace(STORY_SUITE_BOOKKEEPING, ' '))
         .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
         .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ');
 
@@ -139,7 +142,7 @@ export function stripUiNoise(text) {
  * only appears in a World State's lists (Off-Screen above all) is no part in the scene.
  */
 export function storyProse(text) {
-    let source = unwrapStoryBlocksEnvelope(extractNarrationCapture(text).text)
+    let source = unwrapStoryBlocksEnvelope(extractNarrationCapture(text).text.replace(STORY_SUITE_BOOKKEEPING, ' '))
         .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
         .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
         .replace(/<!--[\s\S]*?(?:-->|$)/g, ' ')
