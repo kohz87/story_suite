@@ -174,7 +174,8 @@ test('pulse: a chance meeting reaches the narrator with the cast cue, names the 
         while (last().kind !== 'CHANCE_MEETING' && tries < 80) { await host.swipe(said('Sera steps out of the crowd.', ['~ time June 3, 1200, 10:30 am'])); tries += 1; }
         assert.equal(last().kind, 'CHANCE_MEETING', 'a swipe rolled the chance meeting');
         const tail = sentTo(host, TAIL_KEY).at(-1) ?? '';
-        assert.match(tail, /World this reply: Sera crosses your path in Harrow/, 'the pulse line names the person');
+        assert.match(tail, /World this reply: A stranger crosses your path in Harrow/, 'the pulse line calls the unmet person a stranger');
+        assert.ok(!/World this reply:[^\n]*Sera/.test(tail), 'the pulse line never names the unmet person');
         assert.match(tail, /\[Cast\] a stranger comes into the scene in this reply/, 'the narrator got the cast cue for the person met');
         assert.ok(!('cue' in last()), 'the cue is told, not stored in the roll');
         // If this ever fails again (TODO: flaky 11 Nov, `met` missing): the message carries what the cast and the pulse held, so the cause can be read off it.

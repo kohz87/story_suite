@@ -20,6 +20,19 @@ function maskName(text, name, label) {
     return String(text ?? '').replace(new RegExp(`(?<![\\p{L}\\p{N}_])${parts.join('\\s+')}(?![\\p{L}\\p{N}_])`, 'giu'), label);
 }
 
+const wordsOf = person => new Set(String(person.name ?? '').toLowerCase().split(/\s+/).filter(Boolean));
+
+// A stranger's name forms ("Tansy" for Tansy Millrace) are names too: only a descriptive alias ("the ferrywoman") is told.
+function descriptiveAliases(person) {
+    const words = wordsOf(person);
+    return (Array.isArray(person.aliases) ? person.aliases : []).filter(alias => !String(alias).toLowerCase().split(/\s+/).some(word => words.has(word)));
+}
+
+/** What the narrator calls someone it has not met by name: their first descriptive alias, else "a stranger" (the pulse's chance-meeting line uses it too). */
+export function strangerLabel(person) {
+    return descriptiveAliases(person)[0] || 'a stranger';
+}
+
 const sentence = text => (/[.!?…]$/.test(text) ? text : `${text}.`);
 
 // The descriptive fields in the order they are kept, each with the most it may take.
@@ -34,10 +47,9 @@ const WHY_MAX = 260;
  */
 export function cueOf(person, entry, room = TAIL_BUDGET * 4 - 8 - '[Cast] '.length) {
     const raw = entry?.raw ?? {};
-    // A stranger's name forms ("Tansy" for Tansy Millrace) are names too: only a descriptive alias ("the ferrywoman") is told.
-    const words = new Set(String(person.name ?? '').toLowerCase().split(/\s+/).filter(Boolean));
+    const words = wordsOf(person);
     const all = Array.isArray(person.aliases) ? person.aliases : [];
-    const aliases = (person.met?.why === 'story' ? all : all.filter(alias => !String(alias).toLowerCase().split(/\s+/).some(word => words.has(word)))).slice(0, 2);
+    const aliases = (person.met?.why === 'story' ? all : descriptiveAliases(person)).slice(0, 2);
     // A stranger met for the first time has no name yet in the story: the cue gives the alias and says so. Someone the story already named (`why: 'story'`) keeps the name.
     const unnamed = person.met?.why !== 'story';
     const label = aliases[0] || 'a stranger';
