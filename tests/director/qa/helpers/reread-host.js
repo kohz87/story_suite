@@ -51,6 +51,3 @@ export const LEFT_OUT = ['arc', 'atlas', 'cast', 'checks', 'chronicle', 'directo
 
 /** The oracle's tolerance: a later reply's trip record the edit left without its trip (the "later reply keeps its record" class, D-1). */
 export const TOLERATE = { domain: 'atlas', field: 'trips' };
-
-/** A trip leg's start that stays a pack place live and a minted one told again, after every reply is Re-read (counted, not triaged). */
-export const COUNTED = [{ name: 'tripLegFrom', at: 'reader atlas.trip', path: /^\/legs\/\d+\/fromId$/ }];

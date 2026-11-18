@@ -100,6 +100,40 @@ test('a delay an edited earlier reply now writes, for the trip of its time, does
     rebuiltSame(host, 'after the Re-read');
 });
 
+// Recorded limit "an edited earlier reply that starts a trip a later reply's trip had replaced can still show as the trip; its records count
+// toward the record limit": it does not hold. The later trip stands, as told that way, and the records stay a go and its delays.
+test('an edited earlier reply that starts a trip a later trip replaced: the later trip stands, no leftover records (grown, shrunk, swipe, delete, reload)', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const story = [['~ place Bluewatch Village'], ['+ quest Q — x | giver: A'], ['~ trip Auvoth | by: foot'], ['~ trip delay: 1 day | because: shoe']];
+    const host = await told(story);
+    t.after(() => host.close());
+    const edit = async (lines) => {
+        const at = replyAt(host, 'R1');
+        await host.st.editMessage(at, said('R1.', lines));
+        assert.equal((await host.sdk.reread(at)).ok, true);
+    };
+    for (const [name, lines] of [['grown', [...pad(10), '~ trip Wolfmere Outpost | by: foot']], ['shrunk', ['~ trip Wolfmere Outpost | by: foot']]]) {
+        await edit(lines);
+        const fresh = await told(story.map((was, i) => (i === 1 ? lines : was)));
+        t.after(() => fresh.close());
+        assert.equal(trip(host).to, 'Auvoth', `${name}: the later trip stands`);
+        assert.equal(Object.keys(atlas(host).trips).length, 2, `${name}: a go and its delay, nothing left over`);
+        sameAsTold(host, fresh, name);
+        rebuiltSame(host, name);
+    }
+    await host.swipe(said('R3 again.', ['~ trip delay: 6 hours']));
+    const swiped = await told([story[0], ['~ trip Wolfmere Outpost | by: foot'], story[2], ['~ trip delay: 6 hours']]);
+    t.after(() => swiped.close());
+    sameAsTold(host, swiped, 'after a swipe');
+    const at = replyAt(host, 'R1');
+    await host.st.deleteMessage(at);
+    await host.st.deleteMessage(at - 1);
+    const deleted = await told([story[0], story[2], ['~ trip delay: 6 hours']]);
+    t.after(() => deleted.close());
+    sameAsTold(host, deleted, 'after a middle delete');
+    rebuiltSame(host, 'after a middle delete');
+});
+
 test('a delay names the go it delays', async t => {
     t.mock.method(console, 'warn', () => {});
     const host = await told([GO, ['! time +1 hour', '~ trip delay: 1 day']]);
