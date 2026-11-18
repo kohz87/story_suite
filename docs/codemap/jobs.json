@@ -167,6 +167,7 @@
   "tests/suite/redraw-count.bench.test.js": "Pins today's tab-pane redraw and NPC State renderCast counts per reply for the three-module suite (quiet and active scenarios, flag off).",
   "tests/suite/static-prompt.test.js": "Pins the whole static prompt of the three-module suite per scenario against the golden and checks it is byte-identical reply to reply.",
   "tests/ui-gaps/live-commands.test.js": "Contract test: every command the new view can send (source scan) is answered by the port or registered, or its control is gated by port.can.",
+  "tests/ui/legacy-cards-new-view.test.js": "Tests that the old view's reply cards are not observed, built or replayed while the new view is on, and are drawn again when \"Use the old view\" removes the class.",
   "tests/ui/gates.test.js": "Tests that a control whose command the live port cannot answer is not drawn, and that the card's ‹ Chat closes the suite.",
   "tests/ui/mount-flags-frame.test.js": "Pins the mount's per-frame reads: a burst of port events reads the light flags view, the card and the open tab once a frame, only the flags while the suite is closed, and applies the flags before the tab draws.",
   "tests/ui/runtime/redraw-closed.test.js": "Pins the redraw scheduler's closed-suite rule (only chat and whileClosed sections are read; reveal draws the rest once), the first-section order and the frame coalescer.",
