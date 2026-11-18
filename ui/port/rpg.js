@@ -5,6 +5,7 @@ import { DIFFICULTY_SETTING, STANDARD_SETTING } from '../../modules/rpg/rules.js
 import { XP_RATE, XP_RATE_SETTING } from '../../modules/rpg/levels.js';
 import { customOf } from '../../modules/rpg/view/settings-data.js';
 import { DIFFICULTY_WORDS, JOIN_WORDS } from '../select/rpg-rows.js';
+import { RPG_FEATURE_ROWS } from '../select/rpg-features.js';
 
 const BUCKET = 'story-block';
 const FAILED = { ok: false, code: 'FAILED', message: 'That setting was not saved.' };
@@ -35,6 +36,10 @@ const DEFAULTS = { 'rpg.difficulty': 'standard', 'rpg.levelCap': LEVEL.max, 'rpg
 export function rpgCommand(type, payload, writes = null, values = () => null) {
   const key = String(payload?.key ?? '');
   const set = (setting, value) => writes?.settings?.set?.(BUCKET, setting, value);
+  if (type === 'settings.set' && Object.hasOwn(RPG_FEATURE_ROWS, key)) { // Pick what you take, Encumbered, Gear in fights: the same feature switches the Story Block card had
+    const stored = writes?.features?.set?.(RPG_FEATURE_ROWS[key], payload.value === true);
+    return stored === undefined ? { ...FAILED, message: 'That switch was not saved.' } : { ok: true, value: payload.value === true };
+  }
   if (type === 'settings.set' && Object.hasOwn(ROWS, key)) {
     const [setting, clean] = ROWS[key];
     const value = clean(payload.value);

@@ -8,6 +8,7 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 ### Changed
 
+- **Settings: Mounts is now Transport; three bag switches moved to RPG and fights.** The Story Block switch and the Home card that said Mounts say Transport (the feature and what it stores are unchanged). Pick what you take, Encumbered and Gear in fights are no longer on the Story Block card: they are switches under Settings › RPG and fights (group Bag and gear), writing the same features, so the card's "N of M on" count has three fewer. The story's own line to the model still says "Mounts:".
 - The README and this changelog are rewritten to be readable: short sections, tables, and the long notes folded away.
 
 ## 0.1.2 — 18 Nov 2026
