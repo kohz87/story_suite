@@ -21,6 +21,7 @@ export function createCardMount(deps) {
     });
     const drawer = createDrawer(context, builders, follow);
     context.refresh = drawer.refresh;
+    context.refreshAll = () => drawer.attachAll();
     events = createEvents(context, drawer, builders, follow);
 
     return {
@@ -35,6 +36,7 @@ export function createCardMount(deps) {
         onChatChanged: events.onChatChanged,
         cacheSize: () => context.cache.size,
         destroy() {
+            context.stop();
             events.destroy();
         },
     };
