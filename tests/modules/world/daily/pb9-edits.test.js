@@ -13,7 +13,8 @@ import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
 
-const ERSVEIL = readFileSync(new URL('../../../../examples/packs/ersveil-world/pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+const ERSVEIL_GAME = readFileSync(new URL('../../../../examples/packs/ersveil-game/pack.json', import.meta.url), 'utf8');
 const PERIOD = 10;
 
 async function ersveil() {
@@ -23,6 +24,7 @@ async function ersveil() {
     host = await createHost({ modules: [fakeFightRunner(), module], settings: { modules: { 'story-director': { 'tracker.maxJump': 60 } } } });
     host.features.set(FEATURE, true);
     assert.equal((await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' })).ok, true);
+    assert.equal((await host.packs.packs.install(ERSVEIL_GAME, { origin: 'pack.json' })).ok, true);
     return host;
 }
 

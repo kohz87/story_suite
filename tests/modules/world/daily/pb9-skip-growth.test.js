@@ -18,7 +18,8 @@ const said = (text, line) => reply(text, [line]);
 const tick = async () => { for (let i = 0; i < 6; i += 1) await new Promise(resolve => setTimeout(resolve, 0)); };
 const dayOf = host => slotValue(host.head().domains.chronicle.daily)?.day ?? null;
 const recordSize = (host, index) => JSON.stringify(host.ctx.chat[index].extra.storySuite).length;
-const ERSVEIL = readFileSync(new URL('../../../../examples/packs/ersveil-world/pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+const ERSVEIL_GAME = readFileSync(new URL('../../../../examples/packs/ersveil-game/pack.json', import.meta.url), 'utf8');
 
 test('L1: a one-year skip in a world with open templates steps each world day once (the look-ahead runs one day, after the step)', async () => {
     const host = await newHost(true, WORLD, { modules: { 'story-director': { 'tracker.maxJump': 365 } } });
@@ -44,6 +45,7 @@ async function ersveil() {
     host = await createHost({ modules: [fakeFightRunner(), module], settings: { modules: { 'story-director': { 'tracker.maxJump': 60 } } } });
     host.features.set(FEATURE, true);
     const installed = await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' });
+    await host.packs.packs.install(ERSVEIL_GAME, { origin: 'pack.json' });
     assert.equal(installed.ok, true);
     return host;
 }
