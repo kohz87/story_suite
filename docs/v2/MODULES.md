@@ -512,9 +512,6 @@ These settle questions agents raised; the host changes they need are made at int
     plural or short form, "gp" for gold, a bare "coin"): `+ coin 40 silver` where money is pennies is a
     Problem naming the chat's money, never 40 pennies (money.js `foreignCoin`, `parseAmount`). With coins,
     a word that is not one of them was already refused (F108). Story Director reads rewards by the same rule.
-    *Removed at B4-11h:* the weather by rule (Story Director's afterCapture step, its feature `story-director.weather` and the
-    `key` of `scene.weather`). Weather is descriptive: the story's `~ weather` line or the reader's edit sets it, `scene.weather({ text })`.
-    The pack `weather` table and `packs.weather` stay (nothing in the suite picks from them now).
 
 ### Beta request: Assist safety net and one queue per connection (2026-10-22, F123)
 

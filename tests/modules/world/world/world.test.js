@@ -252,24 +252,28 @@ test('Story Director alone with no scene, no clock and no chronicle: plain sente
 });
 
 // FL-live3 (final live check, "weather"): with World in the panel, Story Block's Scene tab (which shows the
-// weather) is hidden, so Here shows it. Weather is descriptive (B4-11h): nothing picks one by rule, so Here has
-// none until the story writes `~ weather`, then shows the story's words until it writes another.
-test('Here shows the story\'s weather: none before a ~ weather line, its words after, kept on a new day', async () => {
+// weather) is hidden, so the weather had no place in the panel; only the reply's Status card showed it. Here
+// shows it now, by rule with no `~ weather` line and the story's own over it.
+test('Here shows the weather: the rule\'s with no ~ weather line, the story\'s over it for the day, the rule\'s again on a new day', async () => {
     const host = await worldHost();
     const here = () => host.sdk.query('director.world.here');
     try {
         assert.equal(here().weather, '', 'no reply yet, no weather');
         await host.send('Hello.', said('The harbour at dawn.', ['~ time June 3, 1200, 08:00 am', '~ place Harbour']));
-        assert.equal(here().weather, '', 'no ~ weather line: no weather, none made up');
-        assert.equal(drawWorld(worldData(host)).el.querySelector('.wv-weather'), null);
-        await host.send('The rain sets in.', said('Rain falls hard.', ['~ weather heavy rain']));
-        assert.equal(here().weather, 'heavy rain');
-        assert.equal(here().weather, host.sdk.query('scene.weather').text, 'the same words the Status card shows');
+        const ruled = here().weather;
+        assert.ok(ruled.length > 0, `the rule's weather with no ~ weather line: "${ruled}"`);
+        assert.equal(ruled, host.sdk.query('scene.weather').text, 'the same words the Status card shows');
         const drawn = drawWorld(worldData(host));
         assert.deepEqual(drawn.warnings, []);
-        assert.equal(squash(drawn.el.querySelector('.wv-weather').textContent), 'heavy rain', 'a cloud icon and the words, no label');
+        assert.equal(squash(drawn.el.querySelector('.wv-weather').textContent), ruled, 'a cloud icon and the words, no label');
+        await host.send('The rain sets in.', said('Rain falls hard.', ['~ weather heavy rain']));
+        assert.equal(here().weather, 'heavy rain', 'the story\'s own word wins');
+        assert.equal(squash(drawWorld(worldData(host)).el.querySelector('.wv-weather').textContent), 'heavy rain');
+        await host.send('Later that day.', said('The rain goes on.', []));
+        assert.equal(here().weather, 'heavy rain', 'it stands for the rest of that day and place');
         await host.send('Days later.', said('Another morning.', ['~ time June 9, 1200, 08:00 am']));
-        assert.equal(here().weather, 'heavy rain', 'a new day keeps the story\'s weather until it writes another');
+        assert.notEqual(here().weather, 'heavy rain', 'a new day brings the rule\'s weather back');
+        assert.ok(here().weather.length > 0);
     } finally {
         host.close();
     }

@@ -7,7 +7,7 @@ import { createSbPort } from '../../../ui/port/sb-port.js';
 import { buildSelectors } from '../../../ui/select/build.js';
 import { checkShape } from '../../../ui/contract/shapes.js';
 import { SETTINGS_SHAPE } from '../../../ui/contract/settings.js';
-import { WORLD_KEYS } from '../../../ui/port/world-keys.js';
+import { WORLD_KEYS, WORLD_IDS } from '../../../ui/port/world-keys.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { createSettingsOverlay } from '../../../ui/settings/overlay.js';
 import { renderSettingsSection } from '../../../ui/settings/sections/index.js';
@@ -24,7 +24,7 @@ async function live(t) {
 }
 const SAMPLE = {
   'world.calendar': 'Custom', 'world.era': 'AB', 'world.months': 'First: 20, Second: 30', 'world.weekdays': 'One, Two', 'world.leapYears': false,
-  'world.northIs': 'Down', 'world.eastIs': 'Left', 'world.kmPerMapUnit': 2.5, 'world.roadsWind': 1.5, 'world.waterAndAirSpeeds': 'Modern',
+  'world.weather': 'The story only', 'world.northIs': 'Down', 'world.eastIs': 'Left', 'world.kmPerMapUnit': 2.5, 'world.roadsWind': 1.5, 'world.waterAndAirSpeeds': 'Modern',
   'world.longestTimeJump': 12, 'world.whileAwayRecapAfterAJump': 9, 'world.deadlinesSlipOrLapseAsTi': false, 'world.quietAfter': 7, 'world.quietAfterStoryDays': 11,
   'world.dueSoon': 4, 'world.daysWhole': 10, 'world.daysAll': 99, 'world.remindTheStoryOfTheLastD': false,
 };
@@ -37,6 +37,7 @@ test('the page is in the view-model, fits the contract and its rows read the liv
   assert.equal(by('world.longestTimeJump').value, stored['tracker.maxJump']);
   assert.equal(by('world.kmPerMapUnit').value, Number(stored['atlas.map.kmPerUnit']));
   assert.equal(by('world.northIs').value, 'Up');
+  assert.equal(by('world.weather').value, 'Rolled from the calendar');
   assert.equal(by('world.calendar').value, 'From the pack');
   for (const row of rows()) assert.ok(row.key === 'world.clock' || WORLD_KEYS[row.key], row.key);
 });
@@ -49,6 +50,7 @@ test('a change writes the same key and value the old page writes (settings.set o
     const answer = await port.command('settings.set', { key, value });
     assert.equal(answer.ok, true, key);
     const def = WORLD_KEYS[key];
+    if (def.kind === 'weather') { assert.equal(host.sdk.features().find(f => f.id === WORLD_IDS.weather).on, false); continue; }
     // the old page's path: the host's settings.set with the same namespaced key and the stored-form value
     const was = def.kind === 'months' ? [{ name: 'First', days: 20 }, { name: 'Second', days: 30 }] : def.kind === 'scale' ? String(value) : def.kind === 'choice' ? def.values[def.labels.indexOf(value)] : value;
     old.settings.set(DIR, def.key, was);
@@ -91,5 +93,5 @@ test('the page renders on the live host and a change reaches the port as the row
   ov.open('world');
   const el = ov.el.querySelector('.spage');
   assert.ok(el.querySelectorAll('.srow').length >= 15);
-  assert.equal(el.querySelectorAll('.sgrp .gt').map(g => g.textContent).join('|'), 'Calendar|Map|Time');
+  assert.equal(el.querySelectorAll('.sgrp .gt').map(g => g.textContent).join('|'), 'Calendar|Weather|Map|Time');
 });

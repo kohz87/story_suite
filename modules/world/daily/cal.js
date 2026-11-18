@@ -2,16 +2,10 @@
 // the stretch of a season a day sits in, and a fixed date `<year>-<month>-<day>` (month by number or name) as a clock day. Pure.
 
 import { PRESETS, makeCalendar } from '../../time/calendar.js';
+import { seasonByYear } from '../../time/weather-parts/seasons.js';
 
 const DAY = 1440;
-const SEASONS = ['winter', 'spring', 'summer', 'autumn'];
 const fold = text => String(text ?? '').trim().toLowerCase();
-
-// The season of a day of the year: the year split as on Earth's northern half (the last and first twelfth are the middle of winter).
-function seasonByYear(dayOfYear, yearDays) {
-    const twelfth = ((dayOfYear + 0.5) / yearDays) * 12;
-    return SEASONS[Math.floor(((Math.floor(twelfth) + 1) % 12) / 3)];
-}
 
 /** `makeStepCalendar(config)` → `{ seasonOf(day), stretch(day), dateDay(text) }`; an unreadable or missing config is Gregorian. */
 export function makeStepCalendar(config) {

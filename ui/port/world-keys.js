@@ -1,7 +1,7 @@
 // Translates the World and time page's row keys and shown words to the real settings (Story Director's namespaced keys, one feature) and back.
 
 /** The module the settings sit under and the two features the page reads. */
-export const WORLD_IDS = Object.freeze({ director: 'story-director', digest: 'story-director.digest', events: 'story-director.world-events' });
+export const WORLD_IDS = Object.freeze({ director: 'story-director', weather: 'story-director.weather', digest: 'story-director.digest', events: 'story-director.world-events' });
 
 const pair = (...list) => ({ labels: list.map(p => p[1]), values: list.map(p => p[0]) });
 const num = key => ({ key, kind: 'int' });
@@ -11,13 +11,14 @@ const choice = (key, ...list) => ({ key, kind: 'choice', ...pair(...list) });
 // The map's two scale settings are stored as text, as the old page stores them.
 const scale = key => ({ key, kind: 'scale' });
 
-/** The page's row key → how it is stored: `key` is the setting under story-director (null: a feature, `feature`). */
+/** The page's row key → how it is stored: `key` is the setting under story-director (null: the weather feature). */
 export const WORLD_KEYS = Object.freeze({
   'world.calendar': choice('tracker.calendar.preset', ['pack', 'From the pack'], ['gregorian', 'Gregorian'], ['custom', 'Custom']),
   'world.era': text('tracker.calendar.era'),
   'world.months': { key: 'tracker.calendar.months', kind: 'months' },
   'world.weekdays': text('tracker.calendar.week'),
   'world.leapYears': flag('tracker.calendar.leapYears'),
+  'world.weather': { key: null, kind: 'weather', ...pair([true, 'Rolled from the calendar'], [false, 'The story only']) },
   // The World events switch is a feature (off by default); Tempo is stored as text like the map's scales (0.25-4).
   'world.worldEvents': { key: null, kind: 'feature', feature: WORLD_IDS.events },
   'world.northIs': choice('atlas.map.north', ['up', 'Up'], ['down', 'Down']),
@@ -51,7 +52,7 @@ function parseMonths(raw) {
 export function toStored(uiKey, value) {
   const def = WORLD_KEYS[uiKey];
   if (!def) return undefined;
-  if (def.kind === 'choice') { const i = def.labels.indexOf(value); return i < 0 ? undefined : def.values[i]; }
+  if (def.kind === 'choice' || def.kind === 'weather') { const i = def.labels.indexOf(value); return i < 0 ? undefined : def.values[i]; }
   if (def.kind === 'months') return parseMonths(value) ?? undefined;
   if (def.kind === 'scale') return Number.isFinite(value) && !(uiKey === 'world.tempo' && (value < 0.25 || value > 4)) ? String(value) : undefined;
   if (def.kind === 'int') return Number.isInteger(value) ? value : undefined;
@@ -59,10 +60,10 @@ export function toStored(uiKey, value) {
   return typeof value === 'string' ? value : undefined;
 }
 
-/** The value the page shows for the stored `stored` (a feature's state for a feature row). */
+/** The value the page shows for the stored `stored` (the weather feature's state for the weather row). */
 export function fromStored(uiKey, stored) {
   const def = WORLD_KEYS[uiKey];
-  if (def.kind === 'choice') { const i = def.values.indexOf(stored); return i < 0 ? null : def.labels[i]; }
+  if (def.kind === 'choice' || def.kind === 'weather') { const i = def.values.indexOf(stored); return i < 0 ? null : def.labels[i]; }
   if (def.kind === 'months') return monthsText(stored);
   if (def.kind === 'scale') { const n = Number(stored); return Number.isFinite(n) ? n : null; }
   return stored ?? null;

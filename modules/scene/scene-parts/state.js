@@ -3,7 +3,7 @@
 import { isPlainObject } from '../domains/common.js';
 import { trimText } from '../names.js';
 import { validateMounts } from '../mounts.js';
-import { MAX_NAME, MAX_PRESENT, WEATHER_CHARS, YOU_CHARS, YOU_PARTS, YOU_SHORT, YOU_SHORT_CHARS } from '../constants.js';
+import { MAX_NAME, MAX_PRESENT, WEATHER_CHARS, WEATHER_KEY_CHARS, YOU_CHARS, YOU_PARTS, YOU_SHORT, YOU_SHORT_CHARS } from '../constants.js';
 
 export function initialScene() {
     return { place: { name: '', kind: '', region: '' }, present: [] };
@@ -43,6 +43,7 @@ export function validateScene(slice) {
             if (typeof weather.text !== 'string' || !weather.text.trim()) errors.push('The weather has no text.');
             else if (Array.from(weather.text).length > WEATHER_CHARS) errors.push(`The weather is longer than ${WEATHER_CHARS} characters.`);
             if (!Number.isSafeInteger(weather.rev) || weather.rev < 0) errors.push('The weather\'s rev is not a whole number.');
+            if (weather.key !== undefined && (typeof weather.key !== 'string' || !weather.key || Array.from(weather.key).length > WEATHER_KEY_CHARS)) errors.push(`The weather's key is not text of at most ${WEATHER_KEY_CHARS} characters.`);
         }
     }
     errors.push(...validateMounts(slice));

@@ -24,7 +24,7 @@ const PAGES = {
   [resetLabel('Tools')]: () => ({ settings: hostPairs(BUDGETS), features: [] }),
   [resetLabel('World and time')]: () => ({
     settings: Object.values(WORLD_KEYS).filter(d => d.key).map(d => [D, d.key, MODULE_DEFAULTS[D][d.key]]),
-    features: [WORLD_IDS.events],
+    features: [WORLD_IDS.weather, WORLD_IDS.events],
   }),
   [resetLabel('Director')]: () => ({ settings: DIRECTOR_ROWS.map(r => [r.module, r.field, MODULE_DEFAULTS[r.module]?.[r.field]]), features: [] }),
   [resetLabel('Chat extras')]: () => ({ settings: Object.values(EXTRAS_SETTINGS).map(n => [EXTRAS_MODULE, n, MODULE_DEFAULTS[EXTRAS_MODULE][n]]), features: Object.values(EXTRAS_FEATURES) }),
