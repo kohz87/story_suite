@@ -55,7 +55,8 @@ export function editSection(section, ctx) {
     const list = Array.isArray(section.value) ? section.value : [];
     const state = ctx.keep?.('lore') ?? {};
     const focused = /^lore\.(\d+)$/.exec(ctx.focus?.rec ?? '');
-    if (focused && Number(focused[1]) < list.length) { state.open = Number(focused[1]); state.confirm = false; }
+    // A Go to opens its entry once: a redraw after another entry was picked from the list (beside it at 1280 px) keeps that one.
+    if (focused && Number(focused[1]) < list.length && state.seen !== ctx.focus) { state.seen = ctx.focus; state.open = Number(focused[1]); state.confirm = false; }
     if (state.open !== undefined && state.open !== null && !(state.open < list.length)) state.open = null;
     const root = h('div', { class: 'st-sec st-lore', dataset: { key: 'lore' } });
     const bad = list.map((_, index) => (ctx.problems ?? []).filter(problem => inProblem(problem, index)));

@@ -12,7 +12,7 @@ const isObject = value => value !== null && typeof value === 'object' && !Array.
 
 // `kind`: whose part it is (null: every pack's, drawn for the active pack). `keys`: the content keys it groups, in order.
 export const PARTS = Object.freeze([
-    { id: 'start', name: 'Home', title: 'Open or start a pack', group: 'Pack', icon: '⌂', desc: 'The Studio edits pack format 4. A world pack holds the places, people and events you play in; a game pack holds the calendar, money, weather, names and rules. One of each can be open at once', kind: null, keys: [], page: 'start' },
+    { id: 'start', name: 'Home', title: 'Open or start a pack', brief: 'Open a pack, or start a new world or game', group: 'Pack', icon: '⌂', desc: 'The Studio edits pack format 4. A world pack holds the places, people and events you play in; a game pack holds the calendar, money, weather, names and rules. One of each can be open at once', kind: null, keys: [], page: 'start' },
     { id: 'overview', name: 'Overview', group: 'Pack', icon: '◎', desc: 'Name, version and what it needs', kind: null, keys: [], always: true },
     { id: 'lore', name: 'Lore', group: 'World', icon: '✎', desc: 'Entries, keys, hidden and protected', kind: 'world', keys: ['lore'] },
     { id: 'cast', name: 'Cast', group: 'World', icon: '♥', desc: 'People NPC State starts from', kind: 'world', keys: ['cast'] },

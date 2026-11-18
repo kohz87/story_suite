@@ -47,7 +47,9 @@ undo and redo and an autosaved draft.
   record (with its back button) while one is open. A redraw keeps each side's scroll (the record side's while the same
   record stays open), and opening a record from its list keeps the list where it was. The Studio finds a record for Go to
   in the record side first (its row in the list carries the same `data-rec`). Scrolling to a record, its row or a field
-  moves only the box that holds it (`reveal`), never the nav or the frame (`scrollIntoView` scrolled both).
+  moves only the box that holds it (`reveal`), never the nav or the frame, and the marked field is brought into view. A change
+  that lands while a pointer is down (a field committed on blur by that press) is drawn after the press, so the press's click
+  reaches its row. A lore Go to opens its entry once (`state.seen`), so a later pick from the list stays open across redraws.
   The game parts stay one page each (mock MK-7): Names is a table whose › opens a culture's page, and a tracker preset opens
   as a page.
 - **Short fields**: `fieldRow` takes `size: 'short'` (a 160 px box at the right of the label) or `'narrow'` (a 220 px box

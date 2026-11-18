@@ -121,17 +121,42 @@ test('at 1280: opening a record leaves the list where it was; an edit keeps both
     await page.close();
 });
 
+test('at 1280: after Go to, a row picked beside the record stays open through an edit; a click on a row while a field is being typed in commits the field and opens the row', async t => {
+    if (ctx.skip) return t.skip(ctx.skip);
+    const { page, errors } = await studio(1280);
+    const open = () => page.evaluate(() => document.querySelector('.st-wrec [data-rec]')?.dataset.rec);
+    const lore = () => page.evaluate(() => window.storySuiteStudio.state.packs.world.doc.content.lore);
+    await page.evaluate(() => window.storySuiteStudio.show('lore', 'lore.20'));
+    await page.locator('.st-wlist .st-lorerow[data-rec="lore.3"]').click();
+    await page.fill('.st-wrec .srow[data-key="order"] input', '7');
+    await page.press('.st-wrec .srow[data-key="order"] input', 'Tab');
+    await page.waitForFunction(() => window.storySuiteStudio.state.packs.world.doc.content.lore[3].order === 7);
+    assert.equal(await open(), 'lore.3', 'the Go to entry does not come back');
+    await page.fill('.st-wrec .srow[data-key="order"] input', '8');
+    await page.locator('.st-wlist .st-lorerow[data-rec="lore.5"]').click(); // a real press: the field commits on blur, mid-click
+    await page.waitForFunction(() => document.querySelector('.st-wrec [data-rec]')?.dataset.rec === 'lore.5', null, { timeout: 3000 }).catch(() => {});
+    assert.deepEqual([await open(), (await lore())[3].order], ['lore.5', 8], 'the click opened its row and the typed value was kept');
+    await page.evaluate(() => window.storySuiteStudio.show('cast', 'cast.0'));
+    await page.fill('.st-wrec .srow[data-key="role"] input', 'A new role');
+    await page.locator('.st-wlist .st-crow[data-rec="cast.2"]').click();
+    await page.waitForFunction(() => document.querySelector('.st-wrec [data-rec]')?.dataset.rec === 'cast.2', null, { timeout: 3000 }).catch(() => {});
+    assert.deepEqual([await open(), await page.evaluate(() => window.storySuiteStudio.state.packs.world.doc.content.cast[0].role)], ['cast.2', 'A new role']);
+    assert.deepEqual(errors, []);
+    await page.close();
+});
+
 test('Go to (C22): the record opens at the field and only its own box scrolls; the nav and its search stay in view', async t => {
     if (ctx.skip) return t.skip(ctx.skip);
     for (const width of [1280, 1143]) {
         const { page, errors } = await studio(width, 'dark', 760);
-        await page.evaluate(() => window.storySuiteStudio.show('lore', 'lore.120', { path: ['text'] }));
+        // an entry whose row is in the list beside it (the row carries the same data-rec), at a field below the fold
+        await page.evaluate(() => window.storySuiteStudio.show('lore', 'lore.12', { path: ['order'] }));
         let seen = await layout(page);
         assert.deepEqual([seen.nav, seen.frame], [0, 0], `${width}: the nav and the frame did not scroll`);
         assert.ok(seen.search.top >= 0 && seen.search.bottom <= 760, `${width}: the nav's search shows`);
-        const field = await page.evaluate(() => { const el = document.activeElement; const r = el.getBoundingClientRect(); return { tag: el.tagName, top: r.top, bottom: r.bottom, rec: el.closest('[data-rec]')?.dataset.rec }; });
-        assert.deepEqual([field.tag, field.rec], ['TEXTAREA', 'lore.120']);
-        assert.ok(field.top >= 0 && field.top < 760, `${width}: the field is in view`);
+        const field = await page.evaluate(() => { const el = document.activeElement; const r = el.getBoundingClientRect(); return { tag: el.tagName, top: r.top, bottom: r.bottom, rec: el.closest('[data-rec]')?.dataset.rec, key: el.closest('[data-key]')?.dataset.key, side: Boolean(el.closest('.st-wrec')) }; });
+        assert.deepEqual([field.tag, field.rec, field.key, field.side], ['INPUT', 'lore.12', 'order', true], `${width}: the record's field has the focus, not its row`);
+        assert.ok(field.top >= 0 && field.bottom <= 760, `${width}: the field is in view (${field.top}–${field.bottom})`);
         await part(page, 'problems');
         await part(page, 'pairing');
         seen = await layout(page);

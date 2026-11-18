@@ -118,6 +118,11 @@ test('desktop: Home first, counts at the right of each row, the World / Game swi
 test('phone: the switch is a row of two halves under the title; no pack open shows no "‹ Parts" and no nav column', async t => {
     if (ctx.skip) return t.skip(ctx.skip);
     let { page, errors } = await studio(390);
+    // the phone's parts list says the nav's counts (records, not content keys) and a short line for Home
+    const lines = await page.$$eval('.phonelist .slist button[data-part]', rows => Object.fromEntries(rows.map(row => [row.dataset.part, row.querySelector('small').textContent])));
+    assert.equal(lines.start, 'Open a pack, or start a new world or game');
+    assert.match(lines.map, /^732 · /);
+    assert.match(lines.calendar, /^12 · /);
     const sw = await box(page, '.pswitch'), title = await box(page, '.shd .ttl'), acts = await box(page, '.st-acts');
     assert.ok(sw.top >= title.top + title.h - 1 && sw.top + sw.h <= acts.top + 1, 'between the title and the buttons');
     const halves = await page.$$eval('.pswitch button', buttons => buttons.map(b => Math.round(b.getBoundingClientRect().height)));

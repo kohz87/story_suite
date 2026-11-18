@@ -92,7 +92,7 @@ export function createShell({ host, onOpen, onExportZip, onExportJson, onUndo, o
                     h('i', { 'aria-hidden': 'true' }, part.icon), part.name, badgeOf(badges[part.id])));
             }
             list.appendChild(h('div', { class: 'slist' }, items.map(part => h('button', { type: 'button', dataset: { part: part.id }, onClick: () => onPick(part.id) },
-                h('i', { 'aria-hidden': 'true' }, part.icon), h('span', h('b', part.name), h('small', part.always ? part.desc : `${part.count} · ${part.desc}`)), h('span', '›')))));
+                h('i', { 'aria-hidden': 'true' }, part.icon), h('span', h('b', part.name), h('small', part.always ? part.brief ?? part.desc : [badges[part.id]?.text, part.desc].filter(Boolean).join(' · '))), h('span', '›')))));
         }
     }
 

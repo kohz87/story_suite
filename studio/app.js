@@ -232,7 +232,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
             if (field) {
                 const at = Number(field.dataset.at) || 0;
                 field.focus({ preventScroll: true });
-                field.setSelectionRange?.(at, at);
+                try { field.setSelectionRange?.(at, at); } catch { /* a number box has no caret */ }
                 reveal(field, 'nearest');
             } else target.focus({ preventScroll: true });
         }
@@ -240,7 +240,14 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
     }
 
     // Draws the current page again after a change, keeping its scroll and the box being typed in (with its caret).
+    // A change that lands while a pointer is down (a field committed on blur by that press) is drawn after the press, so its click
+    // reaches the row it was aimed at instead of the row drawn again under it.
+    let pressing = false, held = false;
+    const press = on => () => { pressing = on; if (!on && held) { held = false; setTimeout(redraw); } };
+    const presses = [['pointerdown', press(true)], ['pointerup', press(false)], ['pointercancel', press(false)]];
+    for (const [type, fn] of presses) doc.addEventListener?.(type, fn, true);
     function redraw() {
+        if (pressing) { held = true; return; }
         if (!active() || state.query) { if (active()) refresh(); return; }
         refresh();
         const part = state.parts.find(item => item.id === state.current);
@@ -260,7 +267,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         const again = alike(after)[nth] ?? after[0];
         if (!again) return;
         again.focus({ preventScroll: true });
-        if (caret) again.setSelectionRange?.(...caret);
+        if (caret) try { again.setSelectionRange?.(...caret); } catch { /* a number box has no caret */ }
     }
 
     function searchFor(text) {
@@ -436,6 +443,6 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         show,
         exportAs,
         get state() { return state; },
-        destroy() { unbind(); for (const pack of Object.values(state.packs)) pack?.dispose(); for (const url of urls.values()) URL.revokeObjectURL(url); shell.el.remove(); },
+        destroy() { unbind(); for (const [type, fn] of presses) doc.removeEventListener?.(type, fn, true); for (const pack of Object.values(state.packs)) pack?.dispose(); for (const url of urls.values()) URL.revokeObjectURL(url); shell.el.remove(); },
     };
 }
