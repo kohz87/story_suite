@@ -10,6 +10,7 @@ import { lookField } from './look.js';
 import { levelField } from './level.js';
 import { abilityFields } from './abilities.js';
 import { guardFields } from './guard.js';
+import { noted, fieldWords } from './noted.js';
 
 const LIVE = Object.freeze({ goal: 300, status: 300, where: 120 });
 
@@ -22,7 +23,7 @@ function liveOf(name, raw, { clearable, here }) {
     return { value: text };
 }
 
-/** → { problems, wrote }. `world`: { present: Set (label keys), at, reply, minutes, date, moodOn }; `dossier`: the people record or null. */
+/** → { problems, wrote, stored (the fields written) }. `world`: { present: Set (label keys), at, reply, minutes, date, moodOn }; `dossier`: the people record or null. */
 function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
     const problems = [];
     const set = {};
@@ -37,8 +38,9 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
     problems.push(...guarded.problems);
     for (const key of Object.keys(set)) { if (key in guarded.set) set[key] = guarded.set[key]; else delete set[key]; }
     let wrote = false;
+    const stored = [];
     if (Object.keys(set).length && !dossier) problems.push(`${name} has no dossier yet; ${Object.keys(set).join(', ')} not stored.`);
-    else if (Object.keys(set).length) { ctx.call('people.fields', { id: key, fields: set }); wrote = true; }
+    else if (Object.keys(set).length) { ctx.call('people.fields', { id: key, fields: set }); wrote = true; stored.push(...Object.keys(set)); }
     if (fields.mood !== undefined) {
         const word = clean(fields.mood, 60);
         const target = world.moodOn && isInt(world.minutes) ? moodFromWord(word) : null;
@@ -50,9 +52,10 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
             const { mood } = applyWord(prev, world.minutes, target, word, '');
             writeMood(ctx, key, record, { prev, mood, day: world.minutes, n: isInt(world.at) ? world.at : null, s: isReplyId(world.reply) ? world.reply : null, date: world.date });
             wrote = true;
+            stored.push('mood');
         }
     }
-    return { problems, wrote };
+    return { problems, wrote, stored };
 }
 
 /** The line's dossier labels applied after its meters (`out`: the meters' receipt); their problems join the card's and the receipt's. */
@@ -65,7 +68,8 @@ export function labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMin
     const world = { present, at, reply, minutes, moodOn, date: clockDay(at) === null ? '' : startDate(at) };
     const slice = ctx.draft(NPC_DOMAIN);
     const done = applyLive(ctx, { key, name: out.data.name, record: slice.npcs[key], fields, dossier: ctx.read('people')?.npcs?.[key] ?? null, world, lines });
-    if (!done.problems.length) return out;
+    const told = done.wrote ? noted(out, fieldWords(done.stored)) : out;
+    if (!done.problems.length) return told;
     note(slice, ctx.rev, done.problems);
-    return { ...out, summary: sentence([out.summary, ...done.problems]), data: { ...out.data, problems: [...out.data.problems, ...done.problems] } };
+    return { ...told, summary: sentence([told.summary, ...done.problems]), data: { ...out.data, problems: [...out.data.problems, ...done.problems] } };
 }

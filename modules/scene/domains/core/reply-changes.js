@@ -5,7 +5,8 @@ const ITEM = 'capture.item';
 const COIN = 'capture.coin';
 const PLACE = 'capture.place';
 const PRESENT = 'capture.present';
-const SHOWN = new Set([ITEM, COIN, PLACE, PRESENT]);
+const PERSON = 'capture.npc';
+const SHOWN = new Set([ITEM, COIN, PLACE, PRESENT, PERSON]);
 
 const isRec = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.trim() : '');
@@ -63,6 +64,20 @@ function sceneLines(receipts) {
   return lines;
 }
 
+// What a `~ npc` line moved, from its receipt (NPC State's `data.changes`: { meter, before, after }): "Wenna Coll: trust 0 → 1".
+function personLines(receipts) {
+  const lines = [];
+  for (const receipt of receipts.filter(item => item.type === PERSON)) {
+    const data = isRec(receipt.data) ? receipt.data : {};
+    const name = text(data.name);
+    if (!name) continue;
+    for (const move of Array.isArray(data.changes) ? data.changes : []) {
+      if (isRec(move) && text(move.meter) && Number.isFinite(move.before) && Number.isFinite(move.after)) lines.push({ glyph: 'people', line: `${name}: ${text(move.meter)} ${move.before} → ${move.after}`, detail: null, applied: true });
+    }
+  }
+  return lines;
+}
+
 /**
  * `reply.changes({ index? })` → { lines: [{ glyph, line, detail, applied, assist }], refused: [], stateThen: { place, weather } } for reply `index`
  * (the head reply by default), or null when the reply has no receipts (the card hides). `refused` is [] here: the lines a reply did not use
@@ -77,7 +92,7 @@ export function replyChanges(state, args, tools, headIndex) {
   let weather = null;
   try { weather = tools?.hasQuery?.('scene.weather') ? text(tools.query('scene.weather')?.text) || null : null; } catch { weather = null; }
   // Own lines and Assist's are worked out apart, so a total never mixes them, and each Assist line is marked.
-  const linesOf = list => [...itemLines(list, state), ...coinLines(list), ...sceneLines(list)];
+  const linesOf = list => [...itemLines(list, state), ...coinLines(list), ...sceneLines(list), ...personLines(list)];
   const own = linesOf(receipts.filter(item => !fromAssist(item))).map(line => ({ ...line, assist: false }));
   const assist = linesOf(receipts.filter(fromAssist)).map(line => ({ ...line, assist: true }));
   return {

@@ -17,6 +17,7 @@ const metersOf = found => Object.fromEntries(AXES.map(axis => [axis, Number.isFi
 function cardOf(row, partyKeys) {
   return {
     personId: row.id, name: row.name, portrait: row.portrait ?? null, role: row.role ?? null,
+    aliases: (Array.isArray(row.aliases) ? row.aliases : []).filter(alias => typeof alias === 'string' && alias.trim()),
     followed: row.followed === true, inParty: partyKeys.has(keyOf(row.name)),
     mood: row.mood ?? null, meters: metersOf(row.meters), where: cut(row.location ?? null, WHERE_MAX),
   };
@@ -60,11 +61,15 @@ export function selectPeople({ list, keyPeople, party, ties, place, present, fil
     (row.dormant === true && !card.inParty ? dormant : elsewhere).push(gone);
   }
   const active = [...here, ...elsewhere];
+  // Names the scene has here that no record answers to (a person the story named but NPC State has no dossier for): told, never dropped silently.
+  const known = new Set((Array.isArray(list) ? list : []).filter(isRecord).flatMap(labelsOf));
+  const unrecorded = [...new Set((Array.isArray(present) ? present : []).map(name => String(typeof name === 'string' ? name : name?.name ?? '').trim()).filter(name => name && !known.has(keyOf(name))))];
   const edges = tiesOf(ties);
   return {
     filter: FILTERS.includes(filter) ? filter : 'all',
     counts: { all: active.length, party: active.filter(c => c.inParty).length, followed: active.filter(c => c.followed).length, deceased: deceased.length, notSeenLately: dormant.length },
     here, elsewhere, notSeenLately: dormant.length, dormant, deceased,
+    ...(unrecorded.length ? { unrecorded } : {}),
     ...(edges.length ? { ties: edges } : {}),
   };
 }

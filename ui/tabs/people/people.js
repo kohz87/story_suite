@@ -16,7 +16,7 @@ export function selectPeople(vm = {}, filter = 'all', query = '') {
   const deceased = vm.deceased ?? [];
   const dormant = vm.dormant ?? [];
   const q = String(query).trim().toLowerCase();
-  const match = p => `${p.name} ${p.role ?? ''}`.toLowerCase().includes(q);
+  const match = p => `${p.name} ${p.role ?? ''} ${(p.aliases ?? []).join(' ')}`.toLowerCase().includes(q);
   const keep = filter === 'party' ? p => p.inParty : filter === 'followed' ? p => p.followed : () => true;
   const tag = (list, kind) => list.map(p => ({ p, kind }));
   if (q) {
@@ -64,6 +64,8 @@ export function peopleTab(vm = {}, ctx = {}) {
     const nodes = sections.map(s => h('section', { class: 'psec', dataset: { section: s.kind } },
       s.title ? h('div', { class: 'secl2' }, `${s.title}${s.kind === 'here' || s.kind === 'elsewhere' || found ? ` · ${s.people.length}` : ''}`) : null,
       h('div', { class: 'pgrid' }, s.people.map(({ p, kind }) => personCard(p, { kind, onOpen: open })))));
+    const unrecorded = Array.isArray(vm.unrecorded) ? vm.unrecorded : [];
+    if (unrecorded.length && !state.query && state.filter === 'all') nodes.push(h('p', { class: 'fine', dataset: { note: 'unrecorded' } }, `Here with no record yet: ${unrecorded.join(', ')}.`));
     if (!total) {
       const dormantN = counts.notSeenLately ?? vm.notSeenLately ?? 0;
       const text = state.filter === 'dormant' && !state.query && dormantN

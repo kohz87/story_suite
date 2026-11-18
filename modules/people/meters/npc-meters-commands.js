@@ -11,6 +11,7 @@ import { labelFields } from './npc-lines-parts/live-fields.js';
 import { stepPull } from './npc-instincts.js';
 import { growDrives, DRIVE_RULE } from '../notes/npc-notes-drives.js';
 import { mergeRefreshTastes } from '../notes/npc-notes-tastes.js';
+import { noted, noteWord } from './npc-lines-parts/noted.js';
 import { runKind, noteLine, noteRule, markNote, isNoteKind, noteField, driveScale, seedNotes, lookStamp, readLookStamp, CAUGHT_TIER, CAUGHT_DROP } from '../notes/npc-notes-kinds.js';
 import { applyEvents, applyWord, moodFromWord, moodNumbers, restMood, restingMood } from './npc-mood.js';
 import { CAST_QUERY, observeKeyAway, observeCast, meterValue, sentence, asStored, writeMood } from './npc-meters-slice.js';
@@ -54,7 +55,7 @@ export function createNpcCommands({
             label: line.name, changes, problems, limit: moves, reply: moves ? reply : null, at: moves ? at : null, allowEmpty: true, story: moves,
             impact: moves && tierCaps() ? { tier: CAUGHT_TIER, caps: tierCaps() } : null, reason: moves ? `caught lying to ${clean(labels.to, 40)}` : '', leaf: { field: out.field, text: out.text },
         });
-        const marked = markNote(line.kind, done, labels, rule);
+        const marked = noted(markNote(line.kind, done, labels, rule), noteWord(line.kind));
         return cues.length ? { ...marked, summary: sentence(moves ? [...cues, done.summary] : cues), narrate: true } : marked;
     }
 

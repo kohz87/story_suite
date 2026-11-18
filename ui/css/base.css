@@ -57,3 +57,13 @@
     animation-duration: 0.01ms !important;
   }
 }
+
+/* SillyTavern's "No Blur" turns every backdrop-filter off, so a glass panel's translucent fill shows the chat and the cards behind it. A solid colour under the fill keeps it readable. */
+body.no-blur :is(.su-root, .su-layer) :is(.glass, .su-glass, .sh-panel, .pty-sheet) {
+  background-image: linear-gradient(var(--su-panel), var(--su-panel));
+  background-color: #171a28;
+}
+
+body.no-blur :is(.su-root, .su-layer)[data-scheme='light'] :is(.glass, .su-glass, .sh-panel, .pty-sheet) {
+  background-color: #f3eff6;
+}

@@ -4,6 +4,18 @@
 
 Since 0.1.2: documentation, and the Settings, Story › Director and settings-walk changes below.
 
+### Fixed (soak, People and Now)
+
+- Scene spoilers on Now stay on after a reload or a chat switch: the choice is read from the chat each time, not kept from the first look.
+- A receipt for a tie, taste, know or lie line, or a `~ npc` place, goal, status or gender label, says what was stored (`nothing moved; tie stored`) instead of only `nothing moved`.
+- Now › This reply (and the ✦ menu) also lists the feeling moves of `~ npc` lines.
+- People search finds a person by an alias; People names a person the scene has here but NPC State has no record of (`Here with no record yet`).
+- Journal › a quest's giver opens their dossier when the name or an alias matches a stored person.
+- Now says `Nothing to show yet…` in a new chat instead of a blank panel.
+- `hidden` is a known module field: the console no longer logs `"hidden" is not a module field` on every load.
+- With SillyTavern's No Blur, glass panels keep a solid colour under their fill so Settings and the dossier stay readable; the People map is taller on a phone so names spread out.
+- Not changed: a removed feeling keeps its stages on purpose (Settings marks them "Not used"); an edit of a reply's change block in SillyTavern does not re-read it (an edit never captures; Re-read is the way, docs/dev/edit-prose-only.md); lines refused by a reply are still not kept for the card; a story hook (`+ hook`) stays on Story with the plan shown, as the plan is hidden by design; a secret's `who:` is not stored, so it does not link.
+
 ### Added
 
 - Settings › People ends with **People in this chat**, NPC State's roster as a list: each person with whether they are in the scene, followed, dormant or deceased, an **Open** button (closes Settings and shows their dossier on People) and a **Re-read** button (NPC State's Refresh for that person, with its answer under the list). Removing a person stays on the dossier's ⋯ menu.

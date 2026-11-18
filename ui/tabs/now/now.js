@@ -9,10 +9,13 @@ import { youCard, pinnedCards } from './you-pinned.js';
 export function nowTab(now = {}, ctx = {}) {
   const left = [rightNow(now, ctx), thisTurnCard(now.thisTurn, ctx), youCard(now.you, ctx)];
   const right = [hereCard(now.here, ctx), pinnedCards(now.pinned)];
+  // A new chat has nothing to draw yet: say so, rather than leave a blank panel.
+  const drawn = [...left.flat(), ...right.flat()].filter(Boolean);
   return h(
     'div',
     { class: 'now-tab', dataset: { tab: 'now' } },
     h('div', { class: 'ncol' }, left),
     h('div', { class: 'ncol' }, right),
+    drawn.length ? null : h('p', { class: 'fine', dataset: { note: 'now-empty' } }, 'Nothing to show yet. Where you are, who is here and what a reply changed appear here as the story goes on.'),
   );
 }
