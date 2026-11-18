@@ -34,6 +34,7 @@ export function leadsOf(state, tools) {
             heard,
             heardAgo: ageOf(now, at),
             where: cut(thread.fields?.where ?? thread.fields?.place, 80),
+            giver: cut(thread.fields?.giver, 80),
             ...lapseOf(thread, { calendar, now }),
             at,
         });

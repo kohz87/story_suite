@@ -130,7 +130,7 @@ export function selectJournal(read, opts = {}) {
     const outcome = OUTCOMES[t.ended?.outcome];
     return outcome ? [{ title: text(t.key), outcome, detail: text(t.ended?.reason), paid: null }] : [];
   });
-  const leads = list(read('director.world.leads', {})?.rows).map(r => ({ title: text(r.name), from: '', where: text(r.where), lapses: text(r.lapses) }));
+  const leads = list(read('director.world.leads', {})?.rows).map(r => ({ title: text(r.name), from: text(r.giver), summary: text(r.heard), where: text(r.where), lapses: text(r.lapses) }));
   const journal = read('director.journal', {});
   const currency = journal?.on === true ? read('inventory.currency', {}) : null;
   const days = journal?.on === true ? list(journal.days).map(d => dayOf(d, months, calendar?.today.month ?? 0, currency)) : [];

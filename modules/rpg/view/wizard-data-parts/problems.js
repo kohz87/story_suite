@@ -17,9 +17,11 @@ export function actionsFree(state, key) {
     return DM_LIMITS.replyRoots - (Number.isSafeInteger(used) ? used : 0);
 }
 
-/** What Create is held up by, as plain sentences ([] when it may go). `world`: { persona, names (the characters' names now), room (whether two more blocks fit), hasYou, free (block actions the reply has left) }. */
-export function problemsOf(draft, { persona = '', names = [], room = true, hasYou = false, free = DM_LIMITS.replyRoots, full = false } = {}) {
+/** What Create is held up by, as plain sentences ([] when it may go). `world`: { persona, names (the characters' names now), room (whether two more blocks fit), started (false while the chat has no state yet), hasYou, free (block actions the reply has left) }. */
+export function problemsOf(draft, { persona = '', names = [], room = true, hasYou = false, free = DM_LIMITS.replyRoots, full = false, started = true } = {}) {
     const out = [];
+    // (a chat with no first message has no story state to hold the character: Create says so up front, as the failed Create would)
+    if (!started) out.push(W.noChat);
     const name = draft.name;
     if (!name) out.push(W.needName);
     else if (names.some(other => fold(other) === fold(name))) out.push(fill(W.nameTaken, { name }));

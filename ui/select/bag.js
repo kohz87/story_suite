@@ -7,6 +7,7 @@ import { purseLines } from './purse-lines.js';
 const KIND_OF = { equipment: 'gear', consumable: 'use', goods: 'goods', material: 'material', quest: 'quest' };
 const GLYPH_OF_SLOT = { weapon: 'weapon', body: 'armor', 'off-hand': 'offhand', head: 'head', cloak: 'cloak', feet: 'feet', 'accessory-1': 'accessory', 'accessory-2': 'accessory', accessory: 'accessory' };
 const RARITY = { common: 'common', uncommon: 'uncommon', rare: 'rare', epic: 'epic', legendary: 'epic' };
+// (a record id such as rc_3ek5oxik names no source in words, so the sheet shows no From line for it)
 const FILTER_KEYS = ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'];
 const LOAD_LEVEL = { normal: 'light', heavy: 'heavy', over: 'over' };
 

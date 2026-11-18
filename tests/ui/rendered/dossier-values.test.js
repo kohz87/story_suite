@@ -11,7 +11,7 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
 const SIZES = [[390, 844], [820, 1180]];
 const GOLD = { dark: 'rgb(240, 184, 74)', light: 'rgb(138, 90, 0)' };
 const DISC = { dark: 'rgb(58, 60, 82)', light: 'rgb(74, 77, 104)' };
-const MUTED = { dark: 'rgb(154, 156, 180)', light: 'rgb(106, 110, 134)' };
+const MUTED = { dark: 'rgb(154, 156, 180)', light: 'rgb(86, 90, 114)' };   // light: darker than the mock's #6a6e86 (soak fix: 4.5:1 on the glass)
 const HERE = { dark: 'rgb(79, 211, 154)', light: 'rgb(11, 110, 73)' };
 const TILE = { dark: 'rgb(58, 60, 82)', light: 'rgb(220, 220, 234)' };
 

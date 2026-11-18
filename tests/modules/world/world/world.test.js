@@ -322,7 +322,7 @@ test('Leads: the hooks the story told, newest first, with what was heard, where 
     host.close();
     const alone = await worldHost();
     try {
-        await alone.send('Hello.', said('The guild.', ['~ time June 3, 1200, 08:00 am', '+ hook Toll Audit — customs dispute the seal | where: Guild Office | then: the wagons are impounded']));
+        await alone.send('Hello.', said('The guild.', ['~ time June 3, 1200, 08:00 am', '+ hook Toll Audit — customs dispute the seal | where: Guild Office | giver: Marrit | then: the wagons are impounded']));
         await alone.send('Later.', said('Two days on.', ['~ time June 5, 1200, 08:00 am', '+ hook Broken Axle — a hub cracks']));
         const leads = alone.sdk.query('director.world.leads');
         assert.deepEqual([leads.has, leads.count], [true, 2]);
@@ -330,6 +330,8 @@ test('Leads: the hooks the story told, newest first, with what was heard, where 
         const audit = leads.rows.find(row => row.name === 'Toll Audit');
         assert.equal(audit.heard, 'customs dispute the seal');
         assert.equal(audit.where, 'Guild Office');
+        assert.equal(audit.giver, 'Marrit', 'the hook\'s giver');
+        assert.equal(leads.rows.find(row => row.name === 'Broken Axle').giver, '');
         assert.ok(!JSON.stringify(leads).includes('impounded'), 'never the Next line');
         const drawn = drawWorld({ ...worldData(alone), leads });
         assert.deepEqual(drawn.warnings, []);

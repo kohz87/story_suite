@@ -11,7 +11,7 @@ export function heardLine(heard = []) {
   // A world rumour says "rumour" first; its source word would say it twice.
   const source = last.how === 'rumour' && last.from === 'rumour' ? '' : ` · ${last.from ? `from ${last.from}` : 'you were there'}`;
   // A stamp with no place or no date leaves that part out (no "heard , CY 611").
-  const where = [last.where, last.when].filter(Boolean).join(', ');
+  const where = [last.where, last.when].map(part => String(part ?? '').trim()).filter(Boolean).join(', ');
   return `${last.how ? `${last.how} · ` : ''}${heard.length > 1 ? 'last news: ' : ''}heard${where ? ` ${where}` : ''}${source}`;
 }
 

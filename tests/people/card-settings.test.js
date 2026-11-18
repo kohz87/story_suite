@@ -28,10 +28,10 @@ test('card settings: owner, label and the two keys with their labels', () => {
     const { definition } = memory();
     assert.equal(definition.owner, 'npc-state-delta');
     assert.equal(definition.owner, CARD_SETTINGS_OWNER);
-    assert.equal(definition.label, 'NSD');
+    assert.equal(definition.label, 'NPC State');
     assert.deepEqual(Object.keys(definition.keys), ['portraitPromptFormat', 'scanEvery']);
-    assert.equal(definition.keys.portraitPromptFormat.label, 'NSD portraits');
-    assert.equal(definition.keys.scanEvery.label, 'NSD scan every');
+    assert.equal(definition.keys.portraitPromptFormat.label, 'NPC State portraits');
+    assert.equal(definition.keys.scanEvery.label, 'NPC State scan every');
 });
 
 test('card settings: valueText is the format\'s own name and "5 replies" for Scan every', () => {

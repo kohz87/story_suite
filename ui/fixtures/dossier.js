@@ -139,7 +139,7 @@ const marro = base('marro', {
 
 const dren = base('dren', {
   partyAdd: null,
-  idLine: 'Human · gender not stated',
+  idLine: 'Human',
   life: 'presumed',
   genderUnknown: true,
   mood: null,

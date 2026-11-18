@@ -58,3 +58,17 @@ test('F27: Delete closes the dossier once the engine says yes; a refusal is told
   assert.equal(refused.closed.length, 0);
   assert.equal(refused.note, 'They may already be gone.');
 });
+
+test('SFU2: the Past card fills the row when there are no Ties, the pair when there are; a Right now card with only a thought or wearing has a line', () => {
+  installFakeDom();
+  const root = d => dossierPage(d, makeCtx({ backStack: createBackStack() }));
+  const base = { ...dossier('temiwa'), now: { where: 'the inn', doing: null, wearing: 'a grey cloak', thought: null } };
+  const withTies = root(base);
+  assert.equal(withTies.querySelectorAll('.dpair').length, 1);
+  const alone = root({ ...base, ties: [] });
+  assert.equal(alone.querySelectorAll('.dpair').length, 0, 'Past alone is not half a pair');
+  assert.ok(alone.querySelector('[data-page="past"]'));
+  assert.match(alone.querySelector('[data-page="now"]').textContent, /the inn · wearing a grey cloak/);
+  const onlyWearing = root({ ...base, now: { where: null, doing: null, wearing: 'a grey cloak', thought: null } });
+  assert.match(onlyWearing.querySelector('[data-page="now"] .lc').textContent, /wearing a grey cloak/);
+});

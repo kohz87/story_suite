@@ -99,12 +99,15 @@ export function leadsCard(journal) {
     h('div', null, leads.map(l => h(
       'div',
       { class: 'lead2' },
-      h('span', { class: 'a' }, (l.from || '?')[0]),
-      h('span', null, h('b', null, l.title), h('small', null, [l.from, l.where].filter(Boolean).join(' · ')), l.lapses ? h('small', { class: 'lapse' }, `lapses ${l.lapses}`) : null),
+      h('span', { class: 'a' }, ([...(l.from || l.title || '?')][0] ?? '?').toUpperCase()),
+      h('span', null, h('b', null, l.title), leadSub(l) ? h('small', null, leadSub(l)) : null, l.summary ? h('small', { class: 'lead-sum' }, l.summary) : null, l.lapses ? h('small', { class: 'lapse' }, `lapses ${l.lapses}`) : null),
     ))),
     h('p', { class: 'fine' }, 'You take a lead by saying so in the story. An offer lapses at its deadline, or 2 days later if you spoke of it.'),
   );
 }
+
+/** The giver and place of a lead, joined; '' when it has neither. */
+const leadSub = l => [l.from, l.where].map(part => String(part ?? '').trim()).filter(Boolean).join(' · ');
 
 /** Builds the Closed card (done, failed, given up, declined, lapsed) folded by default; the fold is kept per device. */
 export function closedCard(journal, ctx = {}) {

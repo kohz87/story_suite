@@ -144,3 +144,10 @@ test('F13: the Starting level is held to the story\'s level cap (the setting her
     const fields = ctx.host.sdk.query('dataModules.view', { module: 'pack.chat/wessel' }).chat;
     assert.equal(fields.level ?? fields.soul, 40, 'the block\'s level default is held to the cap');
 });
+
+test('a chat with no state yet (no first message) holds Create up with the "Start the chat first" sentence instead of a Create that does nothing', () => {
+    const none = problemsOf(draftOf('Ren', 'companion'), { started: false });
+    assert.equal(none.length, 1);
+    assert.match(none[0], /^Start the chat first/);
+    assert.deepEqual(problemsOf(draftOf('Ren', 'companion'), {}), [], 'a started chat is not held');
+});
