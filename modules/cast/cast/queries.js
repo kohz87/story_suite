@@ -3,7 +3,8 @@
 // - `director.cast` → `[{ key, pack, id, name, aliases, met: { on, where }, where, doing, lastHeard: { on, text } | null, alive,
 //   entry? }]`: the contract other modules read (NPC State Delta makes a dossier from it at the first meeting). Only people who have
 //   been met: an unmet person never leaves Story Director, not even their name (`director.cast.counts` gives the numbers), except with `{ present: true }`
-//   one the reply's own scene has present (the story itself named them; NPC State makes their dossier when a line names them before the meeting).
+//   one the reply's own scene has present (the story itself named them; NPC State makes their dossier when a line names them before the meeting),
+//   and with `{ named: '<a full name or alias>' }` the one living unmet person it is exactly (LF4-1: a `+ npc` line names them off-scene).
 //   `entry` is the pack's full entry for the person, present only when their pack is enabled now. Frozen copies. `null` while the
 //   feature is off.
 // - `director.cast.counts` → `{ met, total, unmet }` (the numbers, no names).
@@ -42,15 +43,20 @@ function sceneKeys(query, state) {
     return new Set((Array.isArray(list) ? list : []).map(entry => keyOf(typeof entry === 'string' ? entry : entry?.name)).filter(Boolean));
 }
 
-/** `director.cast` (see the header). `{ present: true }` also lists the living people not yet met whom the reply's own scene has present (`met: null`): the story named them. */
+/**
+ * `director.cast` (see the header). `{ present: true }` also lists the living people not yet met whom the reply's own scene has present (`met: null`): the
+ * story named them. `{ named }` also lists the living unmet person whose full name or alias is exactly that (no first name, surname or role).
+ */
 export function castQuery(state, args, tools) {
     if (!onFor(tools)) return null;
     const cast = castOf(queryOf(tools));
-    const here = args?.present === true ? sceneKeys(queryOf(tools), state) : null;
+    const here = args?.present === true ? sceneKeys(queryOf(tools), state) : new Set();
+    const named = typeof args?.named === 'string' ? keyOf(args.named) : '';
+    if (named) here.add(named);
     const out = [];
     for (const person of peopleOf(state?.domains?.cast)) {
         const met = isMet(person);
-        if (!met && !(here && person.alive !== false && keysOfPerson(person).some(key => here.has(key)))) continue;
+        if (!met && !(here.size && person.alive !== false && keysOfPerson(person).some(key => here.has(key)))) continue;
         const entry = cast.byKey.get(person.key)?.raw;
         out.push({
             key: person.key, pack: person.pack, id: person.eid, name: person.name,

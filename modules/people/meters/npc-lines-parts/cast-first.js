@@ -34,17 +34,20 @@ function placeNameOf(ctx, ref) {
 }
 
 // The pack people met or present in this reply's scene who have no dossier yet and were not removed by the reader: { people, rows } (rows: name, aliases and
-// role as a listed person has them, by `cast:<n>`).
-function packCast(ctx) {
-    const answer = ask(ctx, CAST_QUERY, { present: true });
+// role as a listed person has them, by `cast:<n>`). `named` (a `+ npc` line's name, LF4-1): also the unmet person that is exactly their full name or alias,
+// wherever they are (the line names them off-scene; their dossier's place is their own).
+function packCast(ctx, named = '') {
+    const answer = ask(ctx, CAST_QUERY, { present: true, ...(named ? { named } : {}) });
     if (!Array.isArray(answer)) return { people: [], rows: {} };
+    const inScene = named ? new Set((ask(ctx, CAST_QUERY, { present: true }) ?? []).map(raw => raw?.key)) : null;
     const here = ask(ctx, 'scene.place', {});
     const where = typeof here?.name === 'string' ? here.name : '';
     const records = Object.values(ctx.read('people')?.npcs ?? {});
     const listed = new Set(records.flatMap(record => [record?.name, ...(Array.isArray(record?.aliases) ? record.aliases : [])]).map(labelKey).filter(Boolean));
     const made = new Set(records.map(record => record?.castFrom?.key).filter(Boolean));   // (a dossier from the pack the reader renamed is still hers)
     // One not met yet is met here and now (the reply's scene): the dossier's place is this one, as the meeting at the end of the reply records it.
-    const people = normalizeCast(answer.map(raw => (raw && typeof raw === 'object' && !raw.met ? { ...raw, met: { on: null, where } } : raw)))
+    const metAt = raw => (inScene && !inScene.has(raw.key) ? String(raw.where ?? '') : where);
+    const people = normalizeCast(answer.map(raw => (raw && typeof raw === 'object' && !raw.met ? { ...raw, met: { on: null, where: metAt(raw) } } : raw)))
         .filter(person => person.alive && person.entry && !made.has(person.key) && !listed.has(labelKey(person.entry.name || person.name)) && !dismissed(ctx, person));
     const rows = {};
     people.forEach((person, at) => {
@@ -55,9 +58,9 @@ function packCast(ctx) {
 
 // The pack person a name is, with their entry, or null. Found as a listed person is (./names.js, F50): the exact name or alias, else the ONE person a first
 // name, surname or role fits, the people with a dossier counted in that "one" (a short form that also fits one of them is nobody: the line is refused).
-function castPersonNamed(ctx, name) {
+function castPersonNamed(ctx, name, named = false) {
     if (!labelKey(name)) return null;
-    const { people, rows } = packCast(ctx);
+    const { people, rows } = packCast(ctx, named ? name : '');
     const found = personNamed({ ...(ctx.read('people')?.npcs ?? {}), ...rows }, name);
     return found?.key.startsWith('cast:') ? people[Number(found.key.slice(5))] : null;
 }
@@ -72,11 +75,12 @@ function dismissed(ctx, person) {
 /**
  * `tools`: { baseline() → the base relationship values, bond(ctx, slice, who, person) → makes the first meter entry }. → (ctx, name) → the new dossier's
  * `{ id, name }`, or null when the name is no pack person met or present here (the line is then refused as before). `{ entry }`: the key of the only meter
- * entry the name found; the dossier is made only when that entry is the pack person's. `.fits(ctx, name)` (below).
+ * entry the name found; the dossier is made only when that entry is the pack person's. `{ named }` (a `+ npc` line, LF4-1): an unmet pack person off-scene
+ * whose full name or alias the line writes exactly counts too. `.fits(ctx, name)` (below).
  */
 export function createCastFirst({ baseline, bond }) {
-    function castFirst(ctx, name, { entry = null } = {}) {
-        const person = castPersonNamed(ctx, name);
+    function castFirst(ctx, name, { entry = null, named = false } = {}) {
+        const person = castPersonNamed(ctx, name, named);
         if (!person || dismissed(ctx, person)) return null;
         const people = ctx.read('people');
         const bonds = ctx.read(NPC_DOMAIN)?.npcs ?? {};
