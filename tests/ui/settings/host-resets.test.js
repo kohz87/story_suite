@@ -76,7 +76,7 @@ test('each Reset puts back exactly that page, and leaves the others as they were
   const reset = name => port.command('settings.action', { key: 'settings.reset', value: `Reset ${name} to defaults` });
 
   await set('host.glassStrength', 80); await set('host.tailBudget', 3000); await set('world.era', 'Age of Tests'); await set('director.defaultDc', 17);
-  await set('extras.chatterLines', 7); await set('calls.queue', false);
+  await set('extras.chatterLines', 7); await set('calls.queue', false); await set('calls.keepBlocks', true);
   const wasOn = feature('story-block.chatter').on;
   await port.command('settings.set', { key: 'modules.chat.extras.chatter', value: !wasOn });
 
@@ -100,6 +100,7 @@ test('each Reset puts back exactly that page, and leaves the others as they were
   assert.equal(host.sdk.settings().callQueue, false, 'Chat extras leaves Models');
   assert.equal((await reset('Models')).ok, true);
   assert.equal(host.sdk.settings().callQueue, true);
+  assert.equal(host.sdk.settings().keepRecentBlocks, false, 'Models puts Keep blocks back off');
 });
 
 test('the Director page is drawn with its defaults when the host holds no Director settings', () => {

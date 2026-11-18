@@ -5,6 +5,7 @@
     "contextShare": 40,
     "font": "nunito",
     "glassStrength": 50,
+    "keepRecentBlocks": false,
     "maxChangeLines": 150,
     "panelStyle": "glass",
     "quickConnection": "",

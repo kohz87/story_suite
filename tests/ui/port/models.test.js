@@ -61,11 +61,13 @@ test('the real sdk has no setter, so the Calls group and the connections save th
   assert.equal((await port.command('settings.set', { key: 'calls.kinds', value: ['Time set', 'World news'] })).ok, true);
   assert.equal((await port.command('settings.set', { key: 'calls.fallback', value: true })).ok, true);
   assert.equal((await port.command('settings.set', { key: 'calls.repair', value: true })).ok, true);
+  assert.equal((await port.command('settings.set', { key: 'calls.keepBlocks', value: true })).ok, true);
   assert.equal((await port.command('settings.set', { key: 'models.quick', value: 'Cheap' })).ok, true);
   assert.equal(saved().core.callQueue, false);
   assert.equal(saved().modules['story-block'].assistExtractorKinds, '! time, + world');
   assert.equal(saved().features['story-block.extractor'], true);
   assert.equal(saved().modules['story-block'].assistRepair, true, 'Repair a reply’s missing changes is stored on Story Block');
+  assert.equal(saved().core.keepRecentBlocks, true, 'Keep the last two replies’ change blocks is a host setting');
   assert.equal(saved().core.quickConnection, 'Cheap');
   assert.equal(runtime.sdk.settings(null).callQueue, false, 'and the engine reads it back');
   assert.equal(runtime.sdk.feature('story-block.extractor'), true);

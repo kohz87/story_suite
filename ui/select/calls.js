@@ -8,7 +8,7 @@ const FALLBACK = 'story-block.extractor';
 const row = (key, type, label, value, more = {}) => ({ key, group: GROUP, type, label, value, default: null, options: null, hint: null, unit: null, tags: [], wide: false, ...more });
 
 /**
- * `calls`: { queue (host callQueue), repair (the stored assistRepair, or undefined: then the default, on), kinds (the stored assistExtractorKinds text, or undefined), maxOutput (People's scannerMaxOutputTokens, or undefined) };
+ * `calls`: { queue (host callQueue), keepBlocks (host keepRecentBlocks), repair (the stored assistRepair, or undefined: then the default, on), kinds (the stored assistExtractorKinds text, or undefined), maxOutput (People's scannerMaxOutputTokens, or undefined) };
  * `features`: the feature list (the fallback is `story-block.extractor`). → the group's contract rows, in the mock's order.
  */
 export function selectCalls(calls, features) {
@@ -18,6 +18,7 @@ export function selectCalls(calls, features) {
     row('calls.queue', 'sw', 'One call at a time per connection', calls?.queue === true, { hint: 'A local server is never asked twice at once' }),
     row('calls.priority', 'info', 'Calls the reply waits on go first', 'always on', { hint: 'A priority queue: pre-roll checks, fight set-up and cast moves go ahead of planner work on the same connection, and arc plans never start while a reply is being sent' }),
     row('calls.repair', 'sw', FEATURE_TEXT.repair.label, (calls?.repair ?? DEFAULTS[SETTING.repair]) === true, { hint: 'One call on the Quick connection, only when a reply came with no change block: it writes the block from the story, coin and items too, and the lines are marked as from Assist. Repaired lines can be discarded per reply, in that reply’s sheet (Discard repair)', tags: ['cost:model call'] }),
+    row('calls.keepBlocks', 'sw', 'Keep the last two replies’ change blocks in the prompt', calls?.keepBlocks === true, { hint: 'The two newest replies reach the model with the change block the narrator wrote for them. Off by default; about 0.2-1.5k characters more per prompt, no extra call', tags: ['cost:tokens'] }),
     row('calls.fallback', 'sw', 'Fallback when a reply forgot its lines', fallback?.on === true, { hint: 'One extra call, only when the whole change block is missing', tags: ['cost:model call'] }),
     row('calls.maxOutput', 'info', 'Most output per People call', Number.isFinite(calls?.maxOutput) && calls.maxOutput > 0 ? `${calls.maxOutput} tokens` : 'built-in limits', { hint: '0 keeps the built-in limits; the planner has its own (Director). Set in the old view’s NPC State settings' }),
     row('calls.kinds', 'chips', 'The fallback may write', KIND_CHOICES.filter(k => kinds.has(k.value)).map(k => k.label), { hint: 'The ten kinds on by default; world news and faction lines are optional', options: KIND_CHOICES.map(k => k.label), wide: true }),

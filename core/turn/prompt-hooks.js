@@ -5,9 +5,12 @@
 
 import { QUIET_KEEP, appendClosingCue, closingCue, QUIET_WAIT_MS, contentText, firstLine, mapContent, quietMark, restoreMissing, textPattern } from './text.js';
 import { stripMarkers } from '../interaction/markers.js';
+import { keepBlocks } from './keep-blocks.js';
 
 export function createPromptHooks(s, deps) {
-    const { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, HAS_LEGACY, LEGACY_IN_PROMPT, holdsIn, normalizeType } = deps;
+    const { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, HAS_LEGACY, LEGACY_IN_PROMPT, holdsIn, normalizeType, hostSettings } = deps;
+    // One message's content as the history strip leaves it (keep-blocks.js).
+    const stripOne = content => { const one = [{ role: 'assistant', content }]; stripHistory(one); return one[0].content; };
 
     /** GENERATION_STARTED: (type, { quiet_prompt, … }, dryRun). A quiet generation's instruction is remembered (claimQuiet). */
     function onGenerationStarted(type, params, dryRun) {
@@ -48,6 +51,8 @@ export function createPromptHooks(s, deps) {
     /** CHAT_COMPLETION_PROMPT_READY: { chat, dryRun }. */
     function onPromptReady(eventData) {
         if (!eventData || eventData.dryRun === true || !Array.isArray(eventData.chat) || isOwn(eventData)) return;
+        // The host setting `keepRecentBlocks` (default off): the history's content before the strip, for the reply's own prompt.
+        const originals = hostSettings?.()?.keepRecentBlocks === true ? eventData.chat.map(message => message?.content) : null;
         stripHistory(eventData.chat);
         if (quietPrompt(holdsIn(eventData.chat))) {
             const patterns = ownPatterns();
@@ -63,6 +68,7 @@ export function createPromptHooks(s, deps) {
         if (foreignPrompt(holdsIn(eventData.chat))) return;
         if (backgroundPrompt() || !s.session || s.session.prompted) return;
         s.session.prompted = true;
+        if (originals) s.session.keptChars = keepBlocks(eventData.chat, originals, stripOne, { skipLast: s.session.type === 'continue' });
         s.session.restored = restoreMissing(eventData.chat, s.session.staticText, s.session.tailText);
         appendClosingCue(eventData.chat, cueOf());   // after everything else: SillyTavern's own post-processing runs later, on the way out
     }
