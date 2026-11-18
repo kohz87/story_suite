@@ -25,7 +25,7 @@ const sec = (id, group, name, desc, rows, special = null) => ({ id, group, name,
 function worldRowsOf(rows, on) {
   if (!on) return rows;
   const sample = worldEventsRows();
-  return rows.map(r => (r.key === 'world.worldEvents' ? { ...r, value: true } : r)).concat(sample.filter(r => !rows.some(w => w.key === r.key)));
+  return rows.filter(r => r.key !== 'world.eventsOff').map(r => (r.key === 'world.worldEvents' ? { ...r, value: true } : r)).concat(sample.filter(r => !rows.some(w => w.key === r.key)));
 }
 
 function buildSections(worldEvents = false, rpg = true) {
