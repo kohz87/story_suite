@@ -55,7 +55,7 @@ To update later, press the update button in **Extensions → Manage extensions**
 | --- | --- |
 | Start | How a new chat begins |
 | Look | How the view looks (dark or light, and its details) |
-| People | NPC State options |
+| People | NPC State options, and the list of people in this chat (Open a dossier, Re-read the story for one person) |
 | RPG | Combat Rules v1 on or off, and their options |
 | World and time | The clock, the calendar, World events and Tempo |
 | Director | How the Story Director plans |
@@ -63,7 +63,7 @@ To update later, press the update button in **Extensions → Manage extensions**
 | Models | The connection each model call uses: story, quick helpers, background work, the safety net |
 | Packs and trackers | Install, switch off or remove a pack; trackers |
 | Add-ons | Modules and the switch on each one's card |
-| Tools | Save points, the budget view, the inspector, developer tools |
+| Tools | Save points, the budget view, the inspector, NPC State data (back up, restore, diagnostics), developer tools |
 | Diagnostics | Parts that failed to start, and the problems they report |
 
 Each page has its own help lines; the search box at the top of Settings finds a setting by name.

@@ -24,6 +24,7 @@ import { pickOf, pickedFocus } from './focus.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 import { createWizardWorld } from '../wizard/world.js';
 import { packPresets } from './people-settings/catalog.js';
+import { selectRoster } from './roster.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
@@ -105,6 +106,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     // Read again each time the Tools page draws or the Inspector moves (never the overlay's open-time snapshot).
     problems: () => (tools ? selectProblems(problemsNow()) : null),
     sent: () => (tools ? selectSent(tools.sent(), selectProblems(problemsNow())) : null),
+    roster: read => selectRoster(read('people.list', {})),
     savepoints: () => (tools ? selectSavePoints(tools.savePoints()) : null),
     prompts: () => selectPrompts(Object.fromEntries(['npc-state-delta', 'story-director'].map(id => [id, sdk?.settings?.(id) ?? null]))),
     inspector: (_read, args) => (tools ? selectInspector({ replies: tools.replies(), reply: i => tools.reply(i) }, args?.index) : null),
