@@ -2,7 +2,7 @@
 // by their Edit buttons). Each change stores the whole list through the page's onChange (people.<row>, the NPC State key the engine reads),
 // then reads the page's rows again (the engine's view of what it uses); the open editors and their lists live as long as the overlay.
 import { h } from '../../kit/dom.js';
-import { listEditorNodes } from './list-editor.js';
+import { listEditorNodes, patchEditorNodes } from './list-editor.js';
 
 const SECTION = 'people';
 const EDITORS = {
@@ -52,45 +52,66 @@ function read(state, rows) {
   for (const key of Object.keys(EDITORS)) { const r = rows?.find(x => x.key === key); if (r?.list) state.lists[key] = structuredClone(r.list); }
 }
 function stateFor(ctx, section) {
-  if (!STATES.has(ctx)) { const s = { open: {}, lists: {}, error: {} }; read(s, section.rows); STATES.set(ctx, s); }
-  return STATES.get(ctx);
+  if (!STATES.has(ctx)) STATES.set(ctx, { open: {}, lists: {}, error: {} });
+  const state = STATES.get(ctx);
+  read(state, section.rows);
+  return state;
 }
 
 /** Adds the editors under their rows in the People page `nodes` (the rows' own buttons are replaced by ones this page answers). */
 export function attachPeopleLists(nodes, section, ctx) {
   const state = stateFor(ctx, section);
   const boxes = {};
-  const draw = key => {
+  // The row button's state: Edit's aria-expanded, or Add a meter disabled at six.
+  const marks = key => {
     const { box, btn } = boxes[key];
     const def = EDITORS[key];
-    const list = state.lists[key];
     if (def.toggle) btn.setAttribute('aria-expanded', String(Boolean(state.open[key])));
-    else flag(btn, 'disabled', list.items.length >= def.max);
+    else flag(btn, 'disabled', state.lists[key].items.length >= def.max);
+    flag(box, 'hidden', def.toggle && !state.open[key]);
+  };
+  // The handlers read the list when they run, so two edits in a row both land.
+  const on = key => ({
+    edit: (i, f, v) => change(key, state.lists[key].items.map((x, j) => (j === i ? { ...x, [f]: v } : x)), false),
+    remove: i => change(key, state.lists[key].items.filter((_x, j) => j !== i), true),
+    add: () => add(key),
+  });
+  // A full draw of one editor: on opening it, on Add or Remove, or when a change cannot be made in place.
+  const build = key => {
+    const { box } = boxes[key];
+    const def = EDITORS[key];
+    const list = state.lists[key];
     const active = globalThis.document?.activeElement;
     const tag = active && box.contains(active) ? active.dataset?.f : null;
-    const shut = def.toggle && !state.open[key];
-    flag(box, 'hidden', shut);
-    box.replaceChildren(...(shut ? [] : listEditorNodes({ ...def, fields: def.fields(list) }, list, {
-      max: def.max, error: state.error[key] ?? null,
-      on: { edit: (i, f, v) => change(key, list.items.map((x, j) => (j === i ? { ...x, [f]: v } : x))), remove: i => change(key, list.items.filter((_x, j) => j !== i)), add: () => add(key) },
-    })));
+    marks(key);
+    box.replaceChildren(...(def.toggle && !state.open[key] ? [] : listEditorNodes({ ...def, fields: def.fields(list) }, list, { max: def.max, error: state.error[key] ?? null, on: on(key) })));
     if (tag) box.querySelector(`[data-f="${tag}"]`)?.focus();
   };
-  const drawAll = () => { for (const key of Object.keys(boxes)) draw(key); };
+  // A field edit (or another editor's change to this list) changes the drawn editor in place (marks, notes, values the store cleaned, a
+  // choice's options), so the field the reader moved to keeps focus and a click lands.
+  const settle = key => {
+    marks(key);
+    const def = EDITORS[key];
+    const list = state.lists[key];
+    if (def.toggle && !state.open[key]) return;
+    if (!patchEditorNodes(boxes[key].box, { ...def, fields: def.fields(list) }, list, state.error[key] ?? null)) build(key);
+  };
   const refresh = () => read(state, peopleRowsOf(ctx.view?.('settings')));
-  async function change(key, items) {
+  async function change(key, items, structural) {
     state.lists[key] = { ...state.lists[key], items };
+    if (structural) build(key);
     let answer;
     try { answer = await ctx.onChange?.(key, items); } catch (error) { answer = { ok: false, message: String(error?.message ?? error) }; }
     state.error[key] = answer?.ok === false ? String(answer.message ?? 'That was not saved.') : null;
+    const before = Object.fromEntries(Object.keys(boxes).map(k => [k, JSON.stringify(state.lists[k])]));
     refresh();
-    drawAll();
+    for (const k of Object.keys(boxes)) if (k === key || JSON.stringify(state.lists[k]) !== before[k]) settle(k);
   }
   const add = key => {
     const list = state.lists[key];
-    if (list.items.length < EDITORS[key].max) change(key, [...list.items, EDITORS[key].fresh(list.items, list)]);
+    if (list.items.length < EDITORS[key].max) change(key, [...list.items, EDITORS[key].fresh(list.items, list)], true);
   };
-  const toggle = key => { state.open[key] = !state.open[key]; if (state.open[key]) refresh(); draw(key); };
+  const toggle = key => { state.open[key] = !state.open[key]; if (state.open[key]) refresh(); build(key); };
 
   for (const key of Object.keys(EDITORS)) {
     const rowEl = nodes.map(n => n?.querySelector?.(`.srow[data-key="${key}"]`)).find(Boolean);
@@ -105,6 +126,6 @@ export function attachPeopleLists(nodes, section, ctx) {
     rowEl.parentNode.insertBefore(box, rowEl.nextElementSibling);
     boxes[key] = { box, btn };
   }
-  drawAll();
+  for (const key of Object.keys(boxes)) build(key);
   return nodes;
 }

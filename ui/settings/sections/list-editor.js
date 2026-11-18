@@ -47,3 +47,41 @@ export function listEditorNodes(spec, list, { max = Infinity, error = null, on }
     error ? h('p', { class: 'fine eerr', role: 'status' }, error) : null,
   ].filter(Boolean);
 }
+
+/**
+ * Brings an editor drawn by listEditorNodes up to `list` without drawing it again: each item's unused mark and note, every field's value
+ * (not the focused one), a choice's options (`spec.fields`), and the error line. Returns false when it cannot (another number of items, a changed note, a value a choice
+ * does not offer); the caller then draws the editor again.
+ */
+export function patchEditorNodes(box, spec, list, error) {
+  const rows = [...box.children].filter(c => c.classList.contains('erow'));
+  const items = list.items ?? [];
+  const note = [...box.children].find(c => c.classList.contains('fine') && !c.classList.contains('eerr'));
+  if (rows.length !== items.length || (note?.textContent ?? null) !== (list.note ?? null)) return false;
+  const unused = new Set(list.unused ?? []);
+  const active = globalThis.document?.activeElement;
+  for (const [i, row] of rows.entries()) {
+    if (unused.has(i)) row.classList.add('unused'); else row.classList.remove('unused');
+    const mark = row.querySelector('.eun');
+    if (unused.has(i) && !mark) row.appendChild(h('small', { class: 'eun' }, spec.notUsed));
+    if (!unused.has(i) && mark) mark.remove();
+    for (const el of row.querySelectorAll('[data-f]')) {
+      const name = el.dataset.f.split('.')[1];
+      const value = items[i][name];
+      const text = value === null || value === undefined ? '' : String(value);
+      const field = spec.fields.find(x => x.f === name);
+      if (field?.kind === 'sel') {
+        const all = field.options.includes(text) || !text ? field.options : [text, ...field.options];
+        if ([...el.querySelectorAll('option')].map(o => o.textContent).join('\n') !== all.join('\n')) el.replaceChildren(...all.map(o => h('option', { value: o, selected: o === text }, o)));
+      }
+      if (el === active || el.value === text) continue;
+      el.value = text;
+      if (el.value !== text) return false;
+    }
+  }
+  const shown = box.querySelector('.eerr');
+  if (error && shown) shown.textContent = error;
+  else if (error) box.appendChild(h('p', { class: 'fine eerr', role: 'status' }, error));
+  else shown?.remove();
+  return true;
+}

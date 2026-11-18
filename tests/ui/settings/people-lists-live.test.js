@@ -166,3 +166,35 @@ test('a refused save is said under the editor, and Reset People leaves the four 
   for (const key of ['customMeters', 'stages', 'ladder', 'presets']) assert.equal(Object.hasOwn(store, key), false, key);
   assert.equal(peopleCommand('settings.action', { key: 'people.customMeters', value: 'Add a meter' }, writes, () => ({})).ok, false, 'from search, the button says where to edit');
 });
+
+test('a field edit changes the editor in place: the Remove button and the next field are the same nodes, and two quick edits both land', async () => {
+  const s = live({ customMeters: [{ name: 'Fear', min: 0, max: 100 }, { name: 'Debt', min: 0, max: 100 }] });
+  const page = s.page(s.open());
+  const box = page.querySelector('[data-edit="people.customMeters"]');
+  const remove = box.querySelectorAll('.erow')[1].querySelector('.btn2');
+  const min = field(box, '0.min');
+  field(box, '0.name').value = 'Dread';
+  field(box, '0.name').dispatch('change');
+  min.value = '7';
+  min.dispatch('change');
+  await settle();
+  assert.equal(box.querySelectorAll('.erow')[1].querySelector('.btn2'), remove, 'the Remove button was not drawn again');
+  assert.equal(field(box, '0.min'), min, 'the next field was not drawn again');
+  assert.deepEqual(s.stored().customMeters.map(m => [m.name, m.min]), [['Dread', 7], ['Debt', 0]]);
+  await type(box, '1.name', 'Dread');
+  assert.equal(box.querySelectorAll('.erow')[1].className.includes('unused'), true, 'the mark is set in place');
+  assert.equal(box.querySelectorAll('.erow')[1].querySelector('.btn2'), remove);
+});
+
+test('the People page reads its rows again on a repaint: picked presets stay pressed after a module switch, and the next pick keeps them', async () => {
+  const s = live();
+  const ov = s.open();
+  const chip = name => s.page(ov).querySelectorAll('.srow').find(r => r.dataset.key === 'people.presets').querySelectorAll('.chips3 button').find(b => b.textContent === name);
+  chip('Rival').click();
+  await settle();
+  s.page(ov).querySelector('.mh .sw').click();   // the module switch repaints the page
+  assert.equal(chip('Rival').getAttribute('aria-pressed'), 'true');
+  chip('Mentor').click();
+  await settle();
+  assert.deepEqual(s.stored().presets, ['rival', 'mentor']);
+});
