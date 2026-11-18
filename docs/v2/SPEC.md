@@ -556,8 +556,7 @@ One hidden block at the end of the reply:
   as written. A copy of the hidden comment's marker in the model's own text is defanged when the reply is
   read (`STORY_SUITE_V2_`), so only the comment Story Block writes is the hidden one and Re-read of an
   unchanged reply reads what was applied. A story line that repeats a line of the reply's
-  block is never told as not used. An old v1 copy enabled beside v2 (its public object or its settings drawer on the
-  page) is told once (`V1_COPY`). In a block the reply left open, a last line with no line break
+  block is never told as not used. In a block the reply left open, a last line with no line break
   after it is never applied, whether the reader stopped the reply or the length limit cut it ("+ item Ro"
   of "+ item Rope"; a block the model forgot to close loses its last line the same way): it is a Problem
   (`CUT_OFF`), and it is kept in the hidden comment, so a Continue that goes on with the block reads the

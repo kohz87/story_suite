@@ -178,3 +178,9 @@ stripLegacy
 adoptLegacy
 legacyPairs
 LEGACY_IN_PROMPT
+# B4-11b (the v1 copy watch): core/persist/v1-copy.js and its parts, which told of an old Story Block v1 running beside the suite, deleted with its test.
+createV1Watch
+hasV1Settings
+isV1Api
+V1_COPY_CODE
+V1_COPY_PROBLEM

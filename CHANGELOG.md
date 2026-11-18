@@ -47,6 +47,7 @@ Main has nothing beyond 0.1.2 yet except documentation and the Settings › Dire
 ### Removed
 
 - **The v1 capture (B4-11a).** Story Block v1's envelope (`<!-- STORY_BLOCKS_V1 … -->`, `STORY_BLOCKS_V1_CUT`, `INVENTORY_BLOCK_V05`) is no longer read, hidden or kept out of the prompt: `core/capture/legacy.js` and its parts are gone, with the `LEGACY_FORMAT` Problem and the `legacy` mark on the hidden comment (fresh start: no chat from before 0.1.0 is read).
+- The warning that an old Story Block v1 is enabled beside the suite (`core/persist/v1-copy.js`). An old Story Block already running when the suite starts is still told once, and the suite stays out of its way.
 
 ### For developers
 
