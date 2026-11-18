@@ -309,6 +309,7 @@
   "ui/settings/nav.js": "Builds the section navigation: a side list with search and group labels, and the phone section list with the same search.",
   "ui/settings/overlay.js": "Builds the Settings overlay frame: header, section nav, the section or search page, the \"what's sent\" footer, and its back-stack entry.",
   "ui/settings/packs.js": "Renders the Packs and trackers page: installed packs with a remove confirmation, data modules and this chat's trackers.",
+  "ui/settings/panel-bg.js": "Settings › Look › Panel background: the per-device On/Off switch card and the root attribute that hides the suite's backdrop layer when it is Off (the default).",
   "ui/settings/page.js": "Composes one Settings section page: heading, the \"applies to\" note, the module card, the special body, the setting cards and the reset buttons.",
   "ui/settings/search.js": "Finds settings rows by words across label, hint, unit, group and section name, and renders the hits under \"Section › Group\".",
   "ui/settings/sections/director.js": "Renders the Director section through the hook: the overlay's body for it, unchanged.",

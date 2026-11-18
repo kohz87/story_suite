@@ -6,6 +6,10 @@ Newest first. Each release has the highlights, then what was added, changed, fix
 
 Main has nothing beyond 0.1.2 yet except documentation.
 
+### Added
+
+- Settings › Look › **Panel background**: Off (the new default) removes the sky picture behind the Story Suite panels and leaves a plain flat colour, dark or light; On brings the picture back. It applies at once and is kept per device.
+
 ### Changed
 
 - **Settings: Mounts is now Transport; three bag switches moved to RPG and fights.** The Story Block switch and the Home card that said Mounts say Transport (the feature and what it stores are unchanged). Pick what you take, Encumbered and Gear in fights are no longer on the Story Block card: they are switches under Settings › RPG and fights (group Bag and gear), writing the same features, so the card's "N of M on" count has three fewer. The story's own line to the model still says "Mounts:".
