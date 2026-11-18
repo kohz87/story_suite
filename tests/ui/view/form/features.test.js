@@ -31,7 +31,7 @@ const FEATURES = () => [
     { id: 'rb.wear', moduleId: 'rb', moduleName: 'RPG Battle', label: 'Gear wear', describe: 'Equipment wears in fights.', on: true, prompt: true },
     { id: 'rb.craft', moduleId: 'rb', moduleName: 'RPG Battle', label: 'Crafting', describe: 'Recipes and orders.', on: false },
     { id: 'sd.clock', moduleId: 'sd', moduleName: 'Story Director', label: 'Story clock', describe: 'Time passes with the story.', on: true },
-    { id: 'nsd.drift', moduleId: 'nsd', moduleName: 'NPC State Delta', label: 'Meters drift', describe: 'Needs a clock.', on: false, available: false, why: 'Needs Story Director\'s clock.' },
+    { id: 'nsd.drift', moduleId: 'nsd', moduleName: 'NPC State Delta', label: 'Feelings drift', describe: 'Needs a clock.', on: false, available: false, why: 'Needs Story Director\'s clock.' },
 ];
 const texts = (root, selector) => root.querySelectorAll(selector).map(node => node.textContent);
 const tile = (form, id) => form.field(id).tile;

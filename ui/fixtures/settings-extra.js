@@ -11,7 +11,7 @@ export const MODULE_DEFS = [
     subs: [
       {"key": "stagesAndMilestones", "label": "Stages and milestones", "hint": "Named stages that need feelings and a story milestone", "on": true},
       {"key": "feelingsDriftEachStoryDay", "label": "Feelings drift each story day", "hint": "Feelings ease back toward their resting value", "on": false, "needs": "the story clock"},
-      {"key": "meterPresetsAndRules", "label": "Meter presets and rules", "hint": "Companion, Rival, Mentor and pack sets", "on": true, "tags": ["cost:tokens"]},
+      {"key": "feelingPresetsAndRules", "label": "Feeling presets and rules", "hint": "Companion, Rival, Mentor and pack sets", "on": true, "tags": ["cost:tokens"]},
       {"key": "feelingsAddToSocialChecks", "label": "Feelings add to social checks", "hint": "Persuade or charm gets a bonus from how they feel", "on": true, "tags": ["merged:D6"], "needs": "Checks (Director)"},
       {"key": "repeatedApproachesGiveLess", "label": "Repeated approaches give less", "hint": "The same praise or gift loses force within a few days", "on": true, "needs": "the story clock"},
       {"key": "moodAndPull", "label": "Mood and pull", "hint": "Moods shift with drives and what happens", "on": true},
