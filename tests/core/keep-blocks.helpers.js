@@ -8,7 +8,7 @@ export const said = (story, lines) => (lines ? `${story}\n<Changes>\n${lines.joi
 
 // The steps, each → the prompt it sent (or null) and what the chat holds after it.
 export async function runScript(keep) {
-    const host = await createHost({ settings: keep === null ? {} : { core: { keepRecentBlocks: keep } } });
+    const host = await createHost(keep === null ? { realDefaults: true } : { settings: { core: { keepRecentBlocks: keep } } });
     const steps = [];
     const prompt = request => (request?.chat ?? []).map(m => `${m.role}:${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`);
     const snap = (name, request = null) => steps.push({

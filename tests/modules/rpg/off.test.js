@@ -14,19 +14,17 @@ import { MOUNTS_FEATURE } from '../../../modules/scene/mounts.js';
 import { YOU_FEATURE } from '../../../modules/scene/index.js';
 import { fingerprint } from './off-flow.js';
 
-// The fixtures pin the prompts as they were before the kept change blocks (host setting keepRecentBlocks, on by default now): these hosts turn it off.
-const plain = options => createHost({ ...options, settings: { ...options?.settings, core: { keepRecentBlocks: false } } });
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
 const baseline = JSON.parse(readFileSync(new URL('fixtures/off-2.11.0.json', import.meta.url), 'utf8'));
 const before = JSON.parse(readFileSync(new URL('fixtures/off-2.9.4.json', import.meta.url), 'utf8'));
 
 test('the RPG off: the prompts, the draws of randomness and the receipts are those from before the RPG (2.11.0 grammar, Your look and Mounts on)', { skip }, async () => {
-    assert.deepEqual(await fingerprint(plain), baseline);
+    assert.deepEqual(await fingerprint(createHost), baseline);
 });
 
 test('the RPG on but no Character block in the chat: the same, and no model call', { skip }, async () => {
-    const on = await fingerprint(plain, host => host.features.set(LEAN_RPG_FEATURE, true));
+    const on = await fingerprint(createHost, host => host.features.set(LEAN_RPG_FEATURE, true));
     assert.equal(on.calls, 0);
     // (the story-check grammar line, constant text, is the one thing the RPG adds to the static prompt without a party: the prompt hashes differ, nothing else does,
     // and the prompt is the same from reply to reply)
@@ -36,9 +34,9 @@ test('the RPG on but no Character block in the chat: the same, and no model call
 });
 
 test('Your look and mounts off: the fingerprint is the one from 2.9.4, exactly (only the prompt hashes differ with them on)', { skip }, async () => {
-    const off = await fingerprint(plain, host => { host.features.set(YOU_FEATURE, false); host.features.set(MOUNTS_FEATURE, false); });
+    const off = await fingerprint(createHost, host => { host.features.set(YOU_FEATURE, false); host.features.set(MOUNTS_FEATURE, false); });
     assert.deepEqual(off, before);
-    const on = await fingerprint(plain);
+    const on = await fingerprint(createHost);
     assert.notDeepEqual(on.prompts, before.prompts);
     assert.deepEqual({ ...on, prompts: null }, { ...before, prompts: null }, 'draws, calls, receipts, domains and rev are the same');
 });
