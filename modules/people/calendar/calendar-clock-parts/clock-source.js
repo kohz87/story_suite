@@ -2,7 +2,7 @@
 
 // (v2) Hosted by Story Block v2, the story's date can come from Story Director's clock: index.js sets a
 // source that answers { minutes, calendar } (its `director.time` minutes and `director.calendar` config)
-// or null (no host, no Story Director, its clock not set yet, or Delta's calendar kept as "mine"). Without
+// or null (no host, no Story Director, or its clock not set yet). Without
 // a source, or when it answers null, nothing here runs and the dates are Delta's own (v1).
 export let storyClockSource = null;
 

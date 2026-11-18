@@ -14,8 +14,7 @@ import { effectiveChronologicalAge } from '../../modules/people/birthday/birthda
 //     the host's prompt size shows it as a row of its own and counts it toward the share of the context.
 //  2. The story's date from Story Director's clock. Hosted with Story Director, birthdays and ages follow
 //     `director.time` on `director.calendar` (read through the host's queries, never a hard dependency)
-//     where Delta's own calendar agrees with it; without Story Director (or with the calendar kept as
-//     "mine") Delta's own dates stand, exactly as before.
+//     where Delta's own calendar agrees with it; without Story Director Delta's own dates stand, exactly as before.
 
 const GREGORIAN = [
     ['January', 31], ['February', 28], ['March', 31], ['April', 30], ['May', 31], ['June', 30],
@@ -188,7 +187,7 @@ test('Delta with nothing to send (no present NPC): no row of its own', async t =
     assert.deepEqual(host.turn.previewFit().own, []);
 });
 
-test('storyClock: Story Director\'s minutes and calendar while hosted; null alone, unset, or with the calendar kept here', async t => {
+test('storyClock: Story Director\'s minutes and calendar while hosted; null alone, unset, or stopped', async t => {
     const clock = { minutes: gregorianMinutes(611, 3, 15), calendar: SD_GREGORIAN };
     const withSd = await suite(t, { modules: [director(clock)] });
     assert.deepEqual(withSd.adapter.storyClock(), { minutes: clock.minutes, calendar: { era: '', months: GREGORIAN, leapYears: true } });
