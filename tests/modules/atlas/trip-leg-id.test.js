@@ -4,15 +4,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../testkit/index.js';
 import { createModule } from '../../../modules/director/module.js';
 import { PACK as MAP_PACK, TRIP_DAY, TRIP_T0, draw, story } from './widget.helpers.js';
 import { deepFreeze, line, query } from './helpers/fake-ctx.js';
 import { anchorTrip } from '../../../modules/atlas/atlas/widget-view-parts/anchor.js';
+import { installBluewatch } from '../../fixtures/director/bluewatch.js';
 
-const PACK = readFileSync(new URL('../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const GO = ['! time +4 hour', '~ trip Wolfmere Outpost | by: foot'];
 
@@ -20,7 +19,7 @@ async function told(replies) {
     let host = null;
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
     host = await createHost({ modules: [module], settings: { features: { 'story-director.pulse': false } } });
-    await host.packs.packs.install(PACK, { origin: 'pack.json' });
+    await installBluewatch(host.packs.packs);
     for (const [i, lines] of replies.entries()) await host.send(`On ${i}.`, said(`R${i}.`, lines));
     return host;
 }

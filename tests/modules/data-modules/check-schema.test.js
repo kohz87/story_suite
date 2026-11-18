@@ -15,7 +15,10 @@ for (const name of ['reputation', 'survival']) test(`worked example ${name} is t
     const examples = [...doc.matchAll(/```json\n([\s\S]*?)\n```/g)].map(match => JSON.parse(match[1]));
     const input = read(name);
     const installable = readFileSync(new URL(`../../../examples/packs/${input.id}/pack.json`, import.meta.url), 'utf8');
-    assert.deepEqual(JSON.parse(installable), input, 'the installable pack matches the worked example');
+    // The worked example and the fixture are the format 3 file; the shipped one is the same data as a format 4 game pack (job C2): the same id, requires and content, with `kind` and a new version.
+    const shipped = JSON.parse(installable);
+    assert.deepEqual([shipped.format, shipped.kind, shipped.version], [4, 'game', '3.0.0']);
+    assert.deepEqual({ ...shipped, format: input.format, kind: undefined, version: input.version, description: undefined }, { ...input, kind: undefined, description: undefined }, 'the shipped pack matches the worked example');
     const installed = validatePack(installable, { capabilities: ['data-modules-v1', 'director'] });
     assert.equal(installed.ok, true, JSON.stringify(installed.errors));
     assert.deepEqual(input, examples.find(p => p.id === input.id));

@@ -15,7 +15,7 @@ test('the data-module examples pass the same checker as the host', () => {
     }
 });
 
-test('the tiny world example is a valid ordinary pack', () => {
+test('the tiny world example is a valid format 4 world pack', () => {
     const input = readFileSync(new URL('../../authoring-kit/examples/tiny-world/pack.json', import.meta.url), 'utf8');
     const result = checkPack(input);
     assert.equal(result.ok, true, report('tiny-world', result));
@@ -42,9 +42,9 @@ test('the limits reference is generated from the host exports', () => {
     assert.equal(output, readFileSync(new URL('../../authoring-kit/reference/LIMITS.md', import.meta.url), 'utf8'));
 });
 
-test('the checker reports an event condition that cannot be read, naming the event', () => {
-    const input = JSON.parse(readFileSync(new URL('../../authoring-kit/examples/tiny-world/pack.json', import.meta.url), 'utf8'));
-    input.content = { ...(input.content ?? {}), events: [{ id: 'gate', when: "has('Smith's key')", cue: 'The gate opens.' }] };
+// A format 3 pack's legacy `events` (format 4 refuses them: spec events go in worldEvents), so this test goes with the format 3 path at X1.
+test('the checker reports an event condition that cannot be read, naming the event (format 3)', () => {
+    const input = { id: 'old-gate', format: 3, version: '1.0.0', requires: { suite: '^0.1' }, content: { events: [{ id: 'gate', when: "has('Smith's key')", cue: 'The gate opens.' }] } };
     const result = checkPack(input);
     assert.equal(result.ok, false);
     assert.match(report('pack.json', result), /Event "gate": the condition can't be read/);

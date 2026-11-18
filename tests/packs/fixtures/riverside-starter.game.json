@@ -1,0 +1,37 @@
+{
+  "id": "riverside-starter-game",
+  "format": 4,
+  "kind": "game",
+  "version": "1.0.0",
+  "name": "Riverside Starter rules",
+  "author": "Story Suite examples",
+  "description": "The calendar, money and rules that go with Riverside Starter",
+  "requires": {
+    "suite": "^0.1",
+    "capabilities": [
+      "inventory",
+      "scene"
+    ]
+  },
+  "content": {
+    "currency": {
+      "name": "pennies",
+      "short": "p"
+    },
+    "start": {
+      "money": 50,
+      "items": [
+        {
+          "name": "willow-rod"
+        },
+        {
+          "name": "Hemp Line",
+          "qty": 3
+        },
+        {
+          "name": "Minor Healing Draught"
+        }
+      ]
+    }
+  }
+}

@@ -7,7 +7,6 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../testkit/index.js';
 import { packsFor } from '../../../../core/runtime.js';
@@ -17,6 +16,7 @@ import { BACKLOG_STATIC } from '../../../../modules/world/chronicle/digest.js';
 import { TAIL_HEADER } from '../../../../modules/world/chronicle/note.js';
 import { validateChronicle } from '../../../../modules/world/chronicle/domain.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
+import { formatThreeCalendar } from '../../../fixtures/director/bluewatch.js';
 
 const TAIL_KEY = 'story_suite_tail_1';
 const STATIC_KEY = 'story_suite_static';
@@ -323,7 +323,7 @@ test('on the host: an "Any time" event with a lasting change waits for a date, t
 });
 
 test('on the host: a pack that starts on a calendar date has the clock seeded after the event check; the event fires on the next reply and its delayed event a day later', async () => {
-    const base = JSON.parse(readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8'));
+    const base = { calendar: formatThreeCalendar() };
     const pack = JSON.stringify({
         id: 'dated-start', version: '1.0.0', name: 'Dated start', requires: { storyBlock: '^2', capabilities: ['chronicle-lasting'] },
         calendar: base.calendar, start: { scene: { place: { name: 'Bluewatch Village', kind: 'settlement', region: 'River Confederacy' } } },

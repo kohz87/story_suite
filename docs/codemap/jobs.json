@@ -468,6 +468,8 @@
   "tests/core/frame-act.test.js": "Tests the act that writes the frame again, a chat change, the update note, hostile frames and a chat with nothing selected.",
   "scripts/packs/convert-3to4.mjs": "Command line of the pack format 3 to 4 converter: converts any format 3 pack.json into a world pack, a game pack and conversion notes, and rebuilds or checks the shipped Ersveil (--ersveil [--check]).",
   "scripts/packs/convert-3to4-parts/convert.js": "Turns one parsed format 3 pack into a format 4 world pack and its companion game pack (pure), with the notes data: proposed region climates, regional weather tables left out, names re-keyed to region ids, data module ids moved, what was dropped.",
+  "scripts/packs/convert-3to4-parts/kinds.js": "Gives the place and route kinds of a format 3 pack an engine class (a table, with site or none for unknown kinds), keeping any mapping the pack already has, and lists what it added.",
+  "scripts/packs/convert-3to4-parts/places.js": "Makes a format 3 pack's places and routes fit a format 4 world: ids for places, a refused region text rewritten, names for routes that join the same two places, and the start place added as a place.",
   "scripts/packs/convert-3to4-parts/notes.js": "Writes the author's conversion notes of one format 3 to 4 conversion as Markdown: region climates to confirm, the regional weather lines, the names re-keying, data module ids and what was dropped.",
   "scripts/packs/convert-3to4-parts/ersveil.js": "The Ersveil preset of the format 3 to 4 converter: the two packs' ids, names and versions, the lead's proposed climate (with the reason) for each of the 30 regions, and the weather region names no region name contains."
 }

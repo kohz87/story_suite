@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const REPO = join(here, '..', '..', '..', '..');
-export const RIVERSIDE = () => ({ text: readFileSync(join(REPO, 'tests', 'packs', 'fixtures', 'riverside-starter.json'), 'utf8'), origin: 'riverside.json' });
+export const RIVERSIDE = () => ({ text: readFileSync(join(REPO, 'tests', 'fixtures', 'packs', 'riverside-starter-3.json'), 'utf8'), origin: 'riverside.json' });
 // The format 3 Ersveil (2.x), frozen as a test fixture when the shipped Ersveil became a format 4 world pack (job C1).
 export const ERSVEIL = () => ({ text: readFileSync(join(REPO, 'tests', 'fixtures', 'packs', 'ersveil-3', 'pack.json'), 'utf8'), origin: 'ersveil.json' });
 

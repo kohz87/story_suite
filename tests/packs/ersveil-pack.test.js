@@ -104,9 +104,11 @@ test('the converter on any format 3 pack: the command line writes both packs and
         calendar: { months: [{ name: 'Moon', days: 28 }], era: 'AE' }, start: { scene: { place: { name: 'Nowhere' }, present: ['Ann'] }, inventory: { money: 5, items: [{ name: 'Rope', qty: 2 }] } },
         content: { places: [{ id: 'dock', name: 'Dock', x: 1, y: 1 }], events: [{ id: 'e' }], skills: [{ name: 'Jab' }], cast: [{ id: 'ann', name: 'Ann' }] },
     });
-    assert.deepEqual(legacy.notes.dropped, ['content.events', 'content.skills', 'content.cast in the format 3 shape (no `kind`): a world cast is needed',
-        'start.scene.place "Nowhere" names no place of the pack, so the world has no start place', 'start.scene.present (the cast\'s own start.place places people)', 'ripples', 'theme']);
-    assert.deepEqual(Object.keys(legacy.world.content), ['places']);
+    assert.deepEqual(legacy.notes.dropped, ['start.scene.place "Nowhere" was not one of the pack\'s places: it is added as a place, the world\'s start place', 'content.events', 'content.skills', 'content.cast in the format 3 shape (no `kind`): a world cast is needed',
+        'start.scene.present (the cast\'s own start.place places people)', 'ripples', 'theme']);
+    assert.deepEqual(Object.keys(legacy.world.content), ['places', 'start']);
+    assert.deepEqual(legacy.world.content.places.map(place => place.id), ['dock', 'nowhere'], 'the start place is a place of the world');
+    assert.equal(legacy.world.content.start.place, 'nowhere');
     assert.deepEqual(legacy.world.requires, { suite: '^0.1' });
     assert.deepEqual(legacy.game.content, { calendar: { months: [{ name: 'Moon', days: 28 }], era: 'AE' }, start: { money: 5, items: [{ name: 'Rope', qty: 2 }] } });
     assert.equal(validatePack(legacy.game).ok, true, 'the era stays in the game calendar when the world has no start date');

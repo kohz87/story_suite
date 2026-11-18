@@ -45,7 +45,7 @@ test('~ time sets the story clock and ! time moves it on, on the reader\'s calen
 
     // The calendar is the reader's (namespaced settings of part tracker).
     const values = host.settings(MODULE_ID);
-    assert.equal(values['tracker.calendar.preset'], 'pack', 'the pack\'s calendar when a pack has one, else Gregorian');
+    assert.equal(values['tracker.calendar.preset'], 'game', 'the game pack\'s calendar when a game has one, else Gregorian');
     assert.equal(values['tracker.dormantReplies'], 15);
     const custom = await newHost({ settings: { modules: { [MODULE_ID]: {
         'tracker.calendar.preset': 'custom',
@@ -110,7 +110,7 @@ test('the module registers whole: screens instead of tabs, settings fields, capt
         'world.courierKmPerDay', 'world.upcomingDays',
     ]);
     assert.equal(defs.schema['tracker.calendar.preset'].label, 'Calendar: Calendar');
-    assert.deepEqual(defs.schema['tracker.calendar.preset'].options, ['pack', 'gregorian', 'custom']);
+    assert.deepEqual(defs.schema['tracker.calendar.preset'].options, ['game', 'gregorian', 'custom']);
     assert.equal(defs.schema['atlas.map.north'].label, 'Map: North is');
     assert.deepEqual(defs.schema['atlas.map.north'].options, ['up', 'down']);
     host.close();

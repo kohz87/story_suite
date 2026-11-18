@@ -1,6 +1,9 @@
 // The job: turning one format 3 pack (a parsed pack.json) into a format 4 world pack and its companion game pack (pack format 4 §2, §3). Pure: no files.
 // The notes for the author (climates, the regional weather lines, the names re-keying, what was dropped) come back as data; notes.js writes them.
 
+import { kindMaps } from './kinds.js';
+import { placesWithIds, routesNamed, withStartPlace } from './places.js';
+
 const GAME_ONLY_CAPABILITIES = ['inventory', 'data-modules-v1'];
 const GAME_CAPABILITIES = ['scene', 'inventory', 'data-modules-v1'];
 const WORLD_KINDS = ['lore', 'placeKinds', 'routeKinds', 'places', 'routes', 'regions', 'realms', 'markets', 'cast', 'powers', 'scores', 'conditions', 'worldEvents', 'templates', 'foes', 'items'];
@@ -99,7 +102,7 @@ function gameStart(inventory) {
     if (!inventory) return null;
     const out = {};
     if (has(inventory.money)) out.money = inventory.money;
-    if (inventory.items?.length) out.items = inventory.items.map(item => ({ name: item.name, ...(has(item.qty) ? { qty: item.qty } : {}), ...(item.note ? { note: item.note } : {}) }));
+    if (inventory.items?.length) out.items = inventory.items.map(entry => (typeof entry === 'string' ? { item: entry } : entry)).map(item => ({ name: item.item ?? item.name, ...(has(item.qty) ? { qty: item.qty } : {}), ...(item.note ? { note: item.note } : {}) }));
     return Object.keys(out).length ? out : null;
 }
 
@@ -108,8 +111,11 @@ function gameStart(inventory) {
  * weatherRegions: { <fragment>: <region id> } }`. → `{ world, game, notes }`: the two packs (plain JSON values, keys in the order they are written) and the notes.
  */
 export function convert3to4(source, options = {}) {
-    const content = source.content ?? {};
+    const content = { ...(source.content ?? {}) };
     const notes = { climates: [], regionalWeather: [], names: [], dropped: [], renamed: [] };
+    const withStart = withStartPlace(placesWithIds(content.places, notes), source.start?.scene?.place, notes);
+    if (withStart) content.places = withStart;
+    if (content.routes) content.routes = routesNamed(content.routes, notes);
     const climates = options.climates ?? {};
     const regions = (content.regions ?? []).map(region => {
         const [climate, why] = climates[region.id] ?? [null, 'not in the proposals'];
@@ -129,6 +135,8 @@ export function convert3to4(source, options = {}) {
         else if (WORLD_KINDS.includes(kind)) worldContent[kind] = content[kind];
         else if (!['you', 'rpg', 'dataModules', 'meterPresets', 'names'].includes(kind)) notes.dropped.push(`content.${kind}`);
     }
+    const kinds = kindMaps(content, notes);
+    for (const [key, value] of Object.entries(kinds)) if (value) worldContent[key] = value;
     const start = worldStart(source, source.calendar, placeFinder(content.places), notes);
     if (start) worldContent.start = start;
     for (const field of ['ripples', 'layouts', 'screens', 'theme']) if (has(source[field])) notes.dropped.push(field);
