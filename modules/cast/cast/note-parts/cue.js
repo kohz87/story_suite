@@ -12,6 +12,14 @@ export function meetingFresh(slot, at) {
     return Boolean(meeting) && isInt(at) && isInt(meeting.at) && at >= meeting.at && at < meeting.at + FRESH_REPLIES;
 }
 
+/** `text` with the person's name (a whole word, any case) replaced by `label`: a cue for a stranger never carries the name. */
+function maskName(text, name, label) {
+    const said = String(name ?? '').trim();
+    if (!said) return text;
+    const parts = said.split(/\s+/).map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    return String(text ?? '').replace(new RegExp(`(?<![\\p{L}\\p{N}_])${parts.join('\\s+')}(?![\\p{L}\\p{N}_])`, 'giu'), label);
+}
+
 const sentence = text => (/[.!?…]$/.test(text) ? text : `${text}.`);
 
 // The descriptive fields in the order they are kept, each with the most it may take.
@@ -26,14 +34,23 @@ const WHY_MAX = 260;
  */
 export function cueOf(person, entry, room = TAIL_BUDGET * 4 - 8 - '[Cast] '.length) {
     const raw = entry?.raw ?? {};
-    const names = [person.name, ...(Array.isArray(person.aliases) ? person.aliases.slice(0, 2) : [])];
-    const intro = `${names[0]}${names.length > 1 ? ` (also ${names.slice(1).join(', ')})` : ''} comes into the scene in this reply. It is their first meeting with {{user}}.`;
-    const why = sentence(`Why now: ${cutWords(whyNarrator(person), WHY_MAX)}`);
+    // A stranger's name forms ("Tansy" for Tansy Millrace) are names too: only a descriptive alias ("the ferrywoman") is told.
+    const words = new Set(String(person.name ?? '').toLowerCase().split(/\s+/).filter(Boolean));
+    const all = Array.isArray(person.aliases) ? person.aliases : [];
+    const aliases = (person.met?.why === 'story' ? all : all.filter(alias => !String(alias).toLowerCase().split(/\s+/).some(word => words.has(word)))).slice(0, 2);
+    // A stranger met for the first time has no name yet in the story: the cue gives the alias and says so. Someone the story already named (`why: 'story'`) keeps the name.
+    const unnamed = person.met?.why !== 'story';
+    const label = aliases[0] || 'a stranger';
+    const hide = text => (unnamed ? [person.name, ...all].reduce((out, name) => maskName(out, name, label), text) : text);
+    const intro = unnamed
+        ? `${label}${aliases.length > 1 ? ` (also ${aliases.slice(1).join(', ')})` : ''} comes into the scene in this reply. It is their first meeting with {{user}}, and {{user}} does not know their name until it is said in the story: do not use it before someone says it.`
+        : `${person.name}${aliases.length ? ` (also ${aliases.join(', ')})` : ''} comes into the scene in this reply. It is their first meeting with {{user}}.`;
+    const why = sentence(`Why now: ${cutWords(hide(whyNarrator(person)), WHY_MAX)}`);
     let left = room - [intro, why, CLOSING].reduce((sum, part) => sum + Array.from(part).length + 1, 0);
     const kept = [];
     for (const [label, key, max] of [...FIELDS, ['Wants', null, 120]]) {
         const value = key === null ? entry?.goal : raw[key];
-        const flatText = cutWords(value, max);
+        const flatText = cutWords(hide(String(value ?? '')), max);
         if (!flatText) continue;
         // `Label: ` and the full stop are the field's own; a field needs room for a few words at least.
         const overhead = label.length + 3;
