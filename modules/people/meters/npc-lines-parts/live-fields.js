@@ -22,7 +22,23 @@ function liveOf(name, raw, { clearable, here }) {
     return { value: text };
 }
 
-/** → { problems, wrote }. `world`: { present: Set (label keys), at, reply, minutes, date, moodOn }; `dossier`: the people record or null. */
+// The receipt's words for what a line stored on the dossier (SFF4 #9: a keepsake line alone said "nothing moved"): "keepsake Guild licence added", "Level 12".
+const nameOf = text => String(text ?? '').replace(/^[+-]\s*/, '').split(' — ')[0].trim();
+function storedWords(set, mood) {
+    const words = [];
+    for (const [field, value] of Object.entries(set)) {
+        if (field === 'level') words.push(`Level ${value}`);
+        else if (field === 'learns') words.push(`learns ${nameOf(value)}`);
+        else if (field === 'keepsake') words.push(`keepsake ${nameOf(value)} ${String(value).startsWith('-') ? 'removed' : 'added'}`);
+        else if (field === 'appearance') words.push('look noted');
+        else if (field === 'location') words.push('whereabouts noted');
+        else words.push(`${field} ${value === null ? 'cleared' : 'noted'}`);
+    }
+    if (mood) words.push(`mood ${mood}`);
+    return words;
+}
+
+/** → { problems, wrote, stored }. `world`: { present: Set (label keys), at, reply, minutes, date, moodOn }; `dossier`: the people record or null. */
 function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
     const problems = [];
     const set = {};
@@ -37,6 +53,7 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
     problems.push(...guarded.problems);
     for (const key of Object.keys(set)) { if (key in guarded.set) set[key] = guarded.set[key]; else delete set[key]; }
     let wrote = false;
+    let moodWord = '';
     if (Object.keys(set).length && !dossier) problems.push(`${name} has no dossier yet; ${Object.keys(set).join(', ')} not stored.`);
     else if (Object.keys(set).length) { ctx.call('people.fields', { id: key, fields: set }); wrote = true; }
     if (fields.mood !== undefined) {
@@ -50,9 +67,10 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
             const { mood } = applyWord(prev, world.minutes, target, word, '');
             writeMood(ctx, key, record, { prev, mood, day: world.minutes, n: isInt(world.at) ? world.at : null, s: isReplyId(world.reply) ? world.reply : null, date: world.date });
             wrote = true;
+            moodWord = word;
         }
     }
-    return { problems, wrote };
+    return { problems, wrote, stored: wrote ? storedWords(dossier ? set : {}, moodWord) : [] };
 }
 
 /** The line's dossier labels applied after its meters (`out`: the meters' receipt); their problems join the card's and the receipt's. */
@@ -65,7 +83,10 @@ export function labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMin
     const world = { present, at, reply, minutes, moodOn, date: clockDay(at) === null ? '' : startDate(at) };
     const slice = ctx.draft(NPC_DOMAIN);
     const done = applyLive(ctx, { key, name: out.data.name, record: slice.npcs[key], fields, dossier: ctx.read('people')?.npcs?.[key] ?? null, world, lines });
-    if (!done.problems.length) return out;
+    const idle = `${out.data.name}: nothing moved.`;
+    const stored = done.stored.length ? sentence([`${out.data.name}: ${done.stored.join(', ')}`]) : '';
+    const said = !stored ? out : { ...out, summary: String(out.summary).includes(idle) ? out.summary.replace(idle, stored) : sentence([out.summary, stored]) };
+    if (!done.problems.length) return said;
     note(slice, ctx.rev, done.problems);
-    return { ...out, summary: sentence([out.summary, ...done.problems]), data: { ...out.data, problems: [...out.data.problems, ...done.problems] } };
+    return { ...said, summary: sentence([said.summary, ...done.problems]), data: { ...out.data, problems: [...out.data.problems, ...done.problems] } };
 }
