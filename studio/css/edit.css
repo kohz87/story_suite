@@ -17,3 +17,58 @@
 .st-root .srow[data-level="warning"] .st-problem { color: var(--su-warn, inherit); }
 @container (max-width: 900px) { .st-root .kc { min-height: 44px; } .st-root .kc button { width: 36px; } .st-root .subrow .ctl .btn2 { min-height: 44px; } }
 @container (max-width: 600px) { .st-root .srow.subrow { grid-template-columns: minmax(0, 1fr) auto; } .st-root .srow.subrow .ctl { justify-content: flex-end; flex-wrap: nowrap; gap: 4px; } }
+/* ST-FORM4: the table editors (mock MK-7): the row table (months, seasons, coins, a cell's lines) and the climate × season grid. */
+.st-root .st-table .st-thead, .st-root .st-table .st-trow { display: grid; grid-template-columns: var(--st-cols); gap: 10px; align-items: center; }
+.st-root .st-table .st-thead { font: 800 11px var(--su-font); letter-spacing: .08em; text-transform: uppercase; color: var(--su-muted); padding: 4px 0 6px; border-bottom: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.st-root .st-table .st-trow { padding: 8px 0; border-bottom: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.st-root .st-table .st-trow.bad { box-shadow: inset 3px 0 0 var(--su-bad); padding-left: 8px; }
+.st-root .st-table .st-tn { font: 800 12px var(--su-font); color: var(--su-muted); text-align: right; }
+.st-root .st-table .st-tc { min-width: 0; display: flex; align-items: center; gap: 6px; }
+.st-root .st-table .st-tc .txt2, .st-root .st-table .st-tc .sel2 { width: 100%; box-sizing: border-box; }
+.st-root .st-table .st-tc.bad :is(.txt2, .sel2, .num input) { border-color: var(--su-bad); }
+.st-root .st-table .st-tlab { display: none; font: 700 12px var(--su-font); color: var(--su-muted); min-width: 64px; }
+.st-root .st-table .st-tchips { flex: 1; }
+.st-root .st-table .st-tchips .kadd { flex: 1 1 100%; width: auto; }
+.st-root .st-table .st-tc .tg2 { display: inline-block; font: 800 11px var(--su-font); letter-spacing: .04em; border-radius: 999px; padding: 2px 8px; background: var(--su-panel2); color: var(--su-muted); }
+.st-root .st-table .st-tstatic, .st-root .st-table .st-tnone { font: 700 13px var(--su-font); color: var(--su-muted); }
+.st-root .st-table .st-tacts { display: flex; gap: 4px; justify-content: flex-end; }
+.st-root .st-table .st-tacts .btn2 { min-width: 36px; padding: 7px 9px; }
+.st-root .st-table .st-tprob { grid-column: 1 / -1; color: var(--su-bad-t, var(--su-bad)); font-size: 12px; line-height: 1.35; padding-left: 38px; }
+.st-root .st-table .st-tprob.warn { color: var(--su-warn-t, var(--su-warn)); }
+.st-root .st-table .st-tfix { margin-left: 6px; border: 0; background: none; padding: 0; color: var(--su-accent); font: 800 12px var(--su-font); cursor: pointer; }
+.st-root .st-table .st-tempty { margin: 8px 0; font-size: 13px; color: var(--su-muted); }
+.st-root .st-table .st-tnote { margin: 0 0 6px; }
+.st-root .st-table .st-tfoot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.st-root .st-table .st-tcount { margin-left: auto; font-size: 12px; color: var(--su-muted); }
+.st-root .st-grid .st-ghead, .st-root .st-grid .st-grow { display: grid; grid-template-columns: minmax(120px, 1.2fr) repeat(var(--st-gcols), minmax(0, 1fr)); gap: 8px; align-items: center; }
+.st-root .st-grid .st-ghead { font: 800 11px var(--su-font); letter-spacing: .08em; text-transform: uppercase; color: var(--su-muted); padding: 4px 0 6px; }
+.st-root .st-grid .st-ghead .warn, .st-root .st-grid .st-gwarn { color: var(--su-warn-t, var(--su-warn)); }
+.st-root .st-grid .st-grow { padding: 5px 0; border-top: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.st-root .st-grid .st-grow.muted .st-glab b { font-style: italic; }
+.st-root .st-grid .st-glab { min-width: 0; }
+.st-root .st-grid .st-glab b { display: block; font: 800 14px var(--su-font); }
+.st-root .st-grid .st-glab small { display: block; font-size: 12px; color: var(--su-muted); }
+.st-root .st-gcell { min-height: 44px; border-radius: 10px; border: 1px solid var(--su-line2); background: transparent; color: var(--su-muted); font: 700 13px var(--su-font); text-align: left; padding: 6px 10px; cursor: pointer; overflow-wrap: anywhere; }
+.st-root .st-gcell.own { background: rgba(168, 151, 255, .18); border-color: rgba(168, 151, 255, .55); color: var(--su-text); }
+.st-root .st-gcell.warn { border-color: var(--su-warn); }
+.st-root .st-gcell[aria-pressed="true"] { outline: 2px solid var(--su-accent); outline-offset: 1px; color: var(--su-text); }
+.st-root .st-gcell:disabled { opacity: .45; cursor: default; }
+.st-root .st-grid .st-gpick { display: none; margin: 4px 0 8px; }
+.st-root .st-grid .st-glegend { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 8px; font-size: 12px; color: var(--su-muted); }
+.st-root .st-grid .st-glegend span { display: inline-flex; align-items: center; gap: 6px; }
+.st-root .st-gkey { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--su-line2); }
+.st-root .st-gkey.own { background: rgba(168, 151, 255, .35); border-color: rgba(168, 151, 255, .7); }
+@container (max-width: 900px) { .st-root .st-table .st-tacts .btn2 { min-height: 44px; } }
+@container (max-width: 600px) {
+  .st-root .st-table .st-thead { display: none; }
+  .st-root .st-table .st-trow { grid-template-columns: 24px minmax(0, 1fr) auto; row-gap: 8px; }
+  .st-root .st-table .st-tacts { grid-column: 3; grid-row: 1; }
+  .st-root .st-table .st-tc.rest { grid-column: 2 / -1; }
+  .st-root .st-table .st-tlab { display: inline-block; }
+  .st-root .st-table .st-nophone { display: none; }
+  .st-root .st-table .st-tprob { padding-left: 0; }
+  .st-root .st-grid .st-gpick { display: inline-flex; }
+  .st-root .st-grid .st-ghead { display: none; }
+  .st-root .st-grid .st-grow { grid-template-columns: minmax(0, 1fr) minmax(110px, auto); }
+  .st-root .st-grid .st-gcell:not(.on) { display: none; }
+}
