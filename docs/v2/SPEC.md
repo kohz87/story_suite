@@ -172,9 +172,9 @@ branch from the swipe picker; see persist.js.) Readers accept either shape: repl
   when the count already holds that number, so a replay that finds another number there sets it too.
   A counted change of a count that an earlier op of the same block already changed starts from the number that op left (not from the state before the block).
   **Rule (h), an anchored set.** A set whose value depends on the one before it (a clock face: "9:30 pm" is today's 9:30 pm) calls `ctx.anchored(domain, path, { period, roll, to? })`
-  instead of `ctx.absolute`. The op is stored with `was` (the value before it), `period` and `roll` (`same`: never below the value before it; `after`: always after it). On replay
+  instead of `ctx.absolute`. The op is stored with `was` (the value before it), `period` and `roll` (`same`: never below the value before it; `after`: always after it; `day`: its place in the period, below the value before it too). On replay
   (never for a live command), when the count holds `was` the op applies as stored; otherwise it keeps its offset in whole periods from `was`, landing at
-  `value + period × (⌊now/period⌋ − ⌊was/period⌋)`, then `same` goes no lower than `now` and `after` goes one more period when that is not after `now` (`ops/anchored.js`). It is checked before the
+  `value + period × (⌊now/period⌋ − ⌊was/period⌋)`, then `same` goes no lower than `now`, `after` goes one more period when that is not after `now`, and `day` stays there (`ops/anchored.js`; Story Director's earlier `~` clock face on the day a jump landed on, so deleting an earlier reply that moved the day moves the face with it). It is checked before the
   counter rule reads `was` as a move. For a `same` set the count already stood past, the module passes `to` (the face before the clamp); the op stores it (only when the clamp moved the value) and replay uses it
   in place of `value` before the `same` clamp, so a clamped face lands where a fresh telling would. Where the count is not there on replay (its domain's slice is gone), the op applies as stored, not as a move. A first write that makes a deferred domain
   carries no mark (there is no value before it to keep). An op without the mark replays exactly as before; Story Director's clock faces and skips are the first to use it (`rules:h`).

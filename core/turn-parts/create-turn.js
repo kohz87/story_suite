@@ -13,6 +13,7 @@ import { createPromptBuild } from '../turn/prompt-build.js';
 import { createPromptHooks } from '../turn/prompt-hooks.js';
 import { createEvents } from '../turn/events.js';
 import { keepProblems } from '../turn/problem-keep.js';
+import { placedProblems } from '../turn/problem-reply.js';
 import { createInteractionWatch } from '../interaction/watch.js';
 import { createInteractionHooks } from '../interaction/hooks.js';
 import { reconcileInteraction } from '../interaction/reconcile.js';
@@ -194,8 +195,8 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
             if (entry?.toast === true) { try { notify?.(item.message, item.module); } catch { /* a missing toastr is not an error */ } }
             return item;
         },
-        /** The Problems list, oldest first; `moduleId` narrows it (null: the host's own). */
-        problems: moduleId => s.problemLog.filter(item => moduleId === undefined || item.module === moduleId).map(item => ({ ...item })),
+        /** The Problems list, oldest first, each row at its reply's place now (problem-reply.js); `moduleId` narrows it (null: the host's own). */
+        problems: moduleId => placedProblems(s.problemLog.filter(item => moduleId === undefined || item.module === moduleId), ctx?.chat),
         clearProblems: () => { s.problemLog.length = 0; keepLog(); },
         /** Generations a canGenerate hook stopped: [{ moduleId, reason }], oldest first. */
         blocked: () => s.blocks.map(item => ({ ...item })),
