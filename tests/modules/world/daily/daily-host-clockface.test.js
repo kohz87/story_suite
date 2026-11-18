@@ -115,3 +115,31 @@ test('E14 replay: an edited Re-read of the fallback reply, an edited Re-read of 
     await agrees(host, 'rewound');
     host.done();
 });
+
+// Soak W4 on the fallback path: a face back over the fallback hour is an anchored `day` set when it is on the clock's own day, so deleting an
+// earlier skip moves it with the day; a face back over midnight (the day before) stays a plain set, so a sub-day delete does not move it a day.
+async function told(lines) {
+    const host = await newHost();
+    for (const [i, each] of lines.entries()) await host.send(`T${i}.`, reply(`R${i}.`, each));
+    return host;
+}
+test('W4, fallback face: deleting an earlier skip before a fallback hour and `~ time 08:30 pm` gives what a fresh telling gives', async () => {
+    const host = await told([['~ time June 3, 1200, 08:00 pm'], ['! time +3 days'], [], ['~ time 08:30 pm']]);
+    const fresh = await told([['~ time June 3, 1200, 08:00 pm'], [], ['~ time 08:30 pm']]);
+    assert.equal(host.sdk.query('director.time').text, 'June 6, 1200, 08:30 pm');
+    await host.st.deleteMessage(4);
+    await host.st.deleteMessage(3);
+    assert.equal(minutes(host), minutes(fresh), 'the face moved back with the day');
+    await agrees(host, 'fallback face after a deleted skip');
+    host.done(); fresh.done();
+});
+test('W4, fallback face over midnight: deleting an earlier `! time +1h` leaves the face where a fresh telling puts it (not a day early)', async () => {
+    const host = await told([['~ time June 3, 1200, 10:30 pm'], ['! time +1h'], [], ['~ time 11:45 pm']]);
+    const fresh = await told([['~ time June 3, 1200, 10:30 pm'], [], ['~ time 11:45 pm']]);
+    assert.equal(host.sdk.query('director.time').text, 'June 3, 1200, 11:45 pm');
+    await host.st.deleteMessage(4);
+    await host.st.deleteMessage(3);
+    assert.equal(minutes(host), minutes(fresh));
+    await agrees(host, 'fallback face over midnight after a delete');
+    host.done(); fresh.done();
+});

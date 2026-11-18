@@ -60,12 +60,14 @@ export function clockFaceAfter(line, minutes, calendar, options = {}) {
         return { error: `"${shown}" names a date before the story time (${now}); the clock never goes back, so the line was not used.` };
     }
     // `roll`: how this set follows a clock that moved before it (Story Block's anchored set): a `~` clock face is today's time ('same'),
-    // a skip or a bare `!` clock time is the next such time ('after'), an early face on the open day keeps its place in the day, earlier
-    // than the clock before it too ('day': deleting an earlier reply that moved the day moves it with the day, W4). A date and a held jump are plain sets.
+    // a skip or a bare `!` clock time is the next such time ('after'), an early face on the clock's own day (the open day, or back over the
+    // fallback hour) keeps its place in the day, earlier than the clock before it too ('day': deleting an earlier reply that moved the day moves
+    // it with the day, W4). A date, a held jump and a face back over midnight (the day before the clock's) are plain sets.
     const result = { ...held(minutes, target, maxJump, shown, from), set: true };
     if (!result.held) {
-        if (open && target < minutes) result.roll = 'day';
-        else if (skip !== null || (bare && line.op === '!')) result.roll = 'after';
+        if (open && target < minutes) {
+            if (dayKey(target) === dayKey(minutes)) result.roll = 'day';
+        } else if (skip !== null || (bare && line.op === '!')) result.roll = 'after';
         else if (bare) result.roll = 'same';
     }
     return result;
