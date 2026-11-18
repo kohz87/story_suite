@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import { APPEARANCE_MODEL_VERSION, applyAppearanceUpdate, normalizeAppearanceModel, resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
 import { buildScannerPrompt } from '../../modules/people/core/continuity-core.js';
-import { appearanceFormsHtml } from '../../modules/people/legacy/dossier-ui.js';
+
 import {
     BRANCH_LINEAGE_VERSION,
     ensureBranchParentAnchor,
@@ -41,12 +41,6 @@ test('3: an unknown transformed form of an NPC with named forms gets no human bo
     assert.equal(resolveNpcAppearance({ ...base, appearanceModelVersion: APPEARANCE_MODEL_VERSION }), 'A huge shadowy wolf with glowing eyes');
     assert.equal(resolveNpcAppearance({ ...base, appearanceModelVersion: 1 }), `${BODY}; A huge shadowy wolf with glowing eyes`, 'a version-1 record keeps what it showed');
     assert.equal(resolveNpcAppearance({ overallAppearance: BODY, currentFormUnknown: true, unclassifiedAppearance: 'Wreathed in mist' }), `${BODY}; Wreathed in mist`, 'without named forms Physical features still apply');
-});
-
-test('4: the dossier hides Physical features while a named form is current', () => {
-    const model = form => normalizeAppearanceModel({ appearanceModelVersion: APPEARANCE_MODEL_VERSION, overallAppearance: 'Long silver hair', appearanceForms: [{ name: 'Dragon', appearance: 'A silver dragon' }], currentForm: form });
-    assert.doesNotMatch(appearanceFormsHtml({ id: 'n', appearanceModel: model('Dragon') }), /Physical features/);
-    assert.match(appearanceFormsHtml({ id: 'n', appearanceModel: model('') }), /Physical features/);
 });
 
 test('5: deleting a message from before the upgrade still removes the NPC it introduced', () => {

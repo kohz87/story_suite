@@ -162,7 +162,7 @@ test('the meter presets block goes into Delta\'s "Meter presets" fold, which sho
     group.hidden = true;
     slot.closest = selector => (selector === '[data-delta-settings-group]' ? group : null);
     slot.replaceChildren = (...nodes) => { slot.held = nodes; };
-    dom.panel.querySelector = selector => (selector === '[data-delta-settings-slot="meter-presets"]' ? slot : null);
+    dom.panel.querySelector = selector => (selector === '[data-delta-meter-presets]' ? slot : null);
     dom.panel.before = () => {};
     dom.panel.ownerDocument = doc;
     const el = doc.body.appendChild(doc.createElement('section'));

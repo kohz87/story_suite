@@ -166,14 +166,8 @@ test('a configured custom "Level" from the scanner is still not kept for an acti
     assert.equal(done.state.npcs[0].level, 5);
 });
 
-test('the adapter reads party.levels (null without the query), the dossier marks Level "from the party sheet" only for those people', async () => {
+test('the adapter reads party.levels (null without the query)', async () => {
     assert.equal((await suite({})).adapter.partyLevelsAnswer(), null, 'a host without the query: as today (the answer with the query: cast-dossier.test.js)');
-    const { projectDossierState } = await import('../../modules/people/legacy/dossier-ui-catalog.js');
-    const people = [normalizeNpcRecord({ id: 'npc_mira', name: 'Mira', level: 5 }), normalizeNpcRecord({ id: 'npc_bo', name: 'Bo', level: 2 })];
-    const marked = projectDossierState({ npcs: people, sheetLevels: { npc_mira: true } }, { chatKey: 'c1' }).npcs;
-    assert.equal(marked[0].levelFromSheet, true);
-    assert.equal(marked[1].levelFromSheet, undefined, 'a person off the sheet (or left) has no mark');
-    assert.equal(projectDossierState({ npcs: people }, { chatKey: 'c1' }).npcs[0].levelFromSheet, undefined, 'standalone: no mark');
 });
 
 // ---- the sheet level holds on every scan path; the mark only when it matches ----

@@ -114,15 +114,6 @@ test('notes host: the catch-up (again) gives a mood word kept from before the nu
     assert.deepEqual(validateNpcSlice(slice()), []);
 });
 
-test('display: a person with a scanner word and the numbers the command wrote shows the scanner\'s word', async () => {
-    const { moodTile } = await import('../../modules/people/legacy/dossier-ui-view-model.js');
-    const { v2MetersProjection } = await import('../../modules/people/legacy/dossier-ui-meters.js');
-    const view = { mood: { word: 'Alarmed', valence: -2, energy: 2, control: -3, bars: { energy: 5, control: 0, max: 6 }, cause: 'now mortified and flustered', log: [] }, bars: [], secrets: [] };
-    const tile = moodTile({ mood: 'Mortified and flustered', v2Meters: v2MetersProjection(view) }, 4);
-    assert.equal(tile.text, 'Mortified and flustered');
-    assert.deepEqual(tile.rows.map(row => row.value), [-2, 2, -3], 'the three rows hold the numbers');
-});
-
 // ---- VADFIX2: numbers from the scan, the widened word list, negation, history keyed by reply id, the entry-less mood ----
 // Every mood text the scanner wrote in the live runs of 11-12 Nov (liverun2, liverun3), one per line.
 const REAL_MOODS = `quietly relieved

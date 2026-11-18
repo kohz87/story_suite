@@ -2,8 +2,8 @@
 import {
     activeChatKey, api, closeOverlay, currentSessionIs, draftKey, escapeHtml, flushDurably,
     keepPromptDraft, makeSession, mountOverlay, npcById, promptDrafts,
-    recordToolEvent, selectedNpcId, setBusy, stage1Refresh, validatePortraitFile,
-} from '../legacy/dossier-tools-core.js';
+    recordToolEvent, setBusy, validatePortraitFile,
+} from '../tools/tools-core.js';
 import {
     finishUploadedPortrait, generatedPreview, generatedPortraitFile, portraitSeedFromOverlay,
     removePortrait, resetGeneratedSeed, showGeneratedSeed,
@@ -206,7 +206,6 @@ async function savePortraitSeed(session, overlay) {
         }
         const saved = await flushDurably(session.chatKey, 'portrait seed');
         if (!currentSessionIs(session)) return false;
-        stage1Refresh();
         setBusy(session, false, saved.persisted ? 'Portrait seed saved.' : 'Portrait seed changed locally; durable save failed.');
         toast(saved.persisted ? 'success' : 'warning', saved.persisted
             ? `NPC State Delta: portrait seed ${seed === null ? 'cleared' : `saved as ${seed}`}.`
@@ -328,7 +327,6 @@ async function useGeneratedPortrait(session, overlay) {
         if (!currentSessionIs(session) || session.actionSeq !== actionSeq) return false;
         const saved = await flushDurably(session.chatKey, 'generated portrait');
         if (!currentSessionIs(session) || session.actionSeq !== actionSeq) return false;
-        stage1Refresh();
         recordToolEvent('portrait-generation', {
             chatKey: session.chatKey,
             npcId: session.npcId,
@@ -426,7 +424,7 @@ function wirePortraitDialog(session, overlay) {
     });
 }
 
-export function openPortraitTools(npcId = selectedNpcId(), { form = '' } = {}) {
+export function openPortraitTools(npcId, { form = '' } = {}) {
     const npc = npcById(npcId);
     if (!npc) {
         toast('warning', 'NPC State Delta: select an NPC dossier first.');

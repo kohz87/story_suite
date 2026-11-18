@@ -14,7 +14,6 @@ import {
     CAST_SCREEN_ID, CAST_TAB_ID, CAST_WIDGET, DOSSIERS_TITLE, PAGE_SLOT_CLASS, WORLD_FEATURE, createStorySuiteV2Adapter,
 } from '../../modules/people/storysuite-v2.js';
 import { dossierRowNodes } from '../../modules/people/dossier-rows.js';
-import { dossierIndexProjection, filterDossierIndex } from '../../modules/people/legacy/dossier-ui.js';
 import { fakeRoot } from './helpers/fake-dom.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
@@ -149,7 +148,8 @@ function fakeSdk({ world = false } = {}) {
         settings: () => ({}),
     };
 }
-const v1List = async () => ({ rowNodes: dossierRowNodes, project: dossierIndexProjection, filter: filterDossierIndex });
+// The built-in list parts since B4-5 (the old panel's projection is gone): dossier-rows.js row nodes over the plain rows.
+const v1List = async () => ({ rowNodes: dossierRowNodes });
 
 async function setup({ world = false, hostValue = 'v2', loadDossierList = v1List } = {}) {
     const doc = fakePage();
@@ -178,20 +178,21 @@ test('the tab and the screen are titled Dossiers; their ids stay cast and npc-st
     adapter.stop();
 });
 
-test('Dossiers lists every dossier with v1\'s rows; a row opens its dossier; search filters in place', async () => {
+test('Dossiers lists every dossier (plain rows since B4-5: name and status); a row opens its dossier; search filters in place', async () => {
     const { doc, delta, def, adapter } = await setup({ world: true });
     const el = element(doc);
     el.dataset.tabId = CAST_TAB_ID;
     def.tabs[0].render(el, {}, {});
     assert.match(el.innerHTML, /npc-state-delta-v2-dossiers/);
     for (const id of ['npc_mira', 'npc_oren']) assert.match(el.innerHTML, new RegExp(`class="ss-listcard-item npc-state-delta-story-row" data-npc-id="${id}"`));
-    assert.match(el.innerHTML, /Guard/, 'v1\'s row detail (role, status)');
+    assert.match(el.innerHTML, /<b class="ss-listcard-title">Mira<\/b><small class="ss-listcard-sub">Present<\/small>/, 'the row\'s status line');
+    assert.match(el.innerHTML, /<b class="ss-listcard-title">Kael<\/b><small class="ss-listcard-sub">Archived<\/small>/);
     el.fire('click', { target: { closest: selector => (selector === '.npc-state-delta-story-row' ? { dataset: { npcId: 'npc_oren' } } : null) } });
     assert.deepEqual(delta.opened, ['npc_oren'], 'Delta\'s own dossier view');
     // Typing filters the list only (the box is not drawn again, so it keeps its focus).
     const writes = el.writes;
     const box = el.search();
-    box.value = 'mil';
+    box.value = 'ore';
     el.fire('input', { target: box });
     assert.equal(el.writes, writes, 'the pane is not rewritten');
     assert.match(el.list().serialize(), /Oren/);
@@ -200,7 +201,7 @@ test('Dossiers lists every dossier with v1\'s rows; a row opens its dossier; sea
     doc.activeElement = box;
     delta.setPresent(['npc_mira', 'npc_oren']);
     doc.fire('npc-state-delta:cast-rendered');
-    assert.match(el.innerHTML, /value="mil"/);
+    assert.match(el.innerHTML, /value="ore"/);
     assert.equal(doc.activeElement, el.search(), 'the new box has the focus');
     adapter.stop();
 });

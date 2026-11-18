@@ -1,8 +1,8 @@
 
-/* Extensions-tab settings panel. index.js builds the grouped structure once; optional owners
-   mount into [data-delta-settings-slot] placeholders. This is the panel's only stylesheet. */
+/* Extensions-tab settings panel. index.js builds the grouped structure once; the calendar, the scanner output row and the
+   meter presets block are added into it by their own files. This is the panel's only stylesheet. */
 #npc_state_delta_settings .npc-state-delta-drawer { container: npc-delta-settings / inline-size; }
-#npc_state_delta_settings .delta-settings-slot { display: contents; }
+#npc_state_delta_settings .delta-meter-presets { display: contents; }
 #npc_state_delta_settings .delta-settings-quickbar { display: grid; gap: 8px; margin: 0 0 10px; padding: 8px 12px 10px; border: 1px solid var(--npc-line); border-radius: 10px; background: rgba(255,255,255,.03); }
 #npc_state_delta_settings .delta-settings-quick-toggles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 16px; }
 #npc_state_delta_settings .delta-settings-quick-toggles .npc-state-delta-setting-row { border-bottom: 0; padding: 5px 0; }
@@ -21,8 +21,8 @@
 #npc_state_delta_settings .delta-settings-group-body > .delta-expert-note { margin: 6px 0 8px; }
 #npc_state_delta_settings .delta-settings-group-body > .delta-settings-group + .delta-settings-group { margin-top: 8px; }
 /* The meter presets block sits in the "Meter presets" fold: the fold's title says what its own heading said. */
-#npc_state_delta_settings .delta-settings-slot .npc-state-delta-v2-presets-head { display: none; }
-#npc_state_delta_settings .delta-settings-slot .npc-state-delta-v2-presets { margin-bottom: 0; }
+#npc_state_delta_settings .delta-meter-presets .npc-state-delta-v2-presets-head { display: none; }
+#npc_state_delta_settings .delta-meter-presets .npc-state-delta-v2-presets { margin-bottom: 0; }
 #npc_state_delta_settings .delta-settings-subhead { margin: 14px 0 2px; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--npc-gold); opacity: .85; }
 #npc_state_delta_settings .delta-settings-subhead:first-child { margin-top: 6px; }
 #npc_state_delta_settings .delta-settings-subsection + .delta-settings-subsection { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(218,193,148,.12); }

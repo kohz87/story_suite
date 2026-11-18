@@ -5,7 +5,7 @@ import { oldSource } from './helpers/old-source.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const portraitToolsUrl = new URL('../../modules/people/portrait/portrait-tools.js', import.meta.url);
-const controlsUrl = new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url);
+const controlsUrl = new URL('../../modules/people/tools/data-tools.js', import.meta.url);
 
 test('maintained Portrait workflow uses SillyTavern Image Generation with explicit preview application', async () => {
     const source = await readFile(portraitToolsUrl, 'utf8');
@@ -33,17 +33,6 @@ test('maintained Portrait workflow uses SillyTavern Image Generation with explic
     assert.doesNotMatch(source, /\/imagine/);
     assert.doesNotMatch(source, /127\.0\.0\.1:8188|\/prompt\b/);
 });
-
-test('dossier Portrait control routes to the maintained manager and suppresses the legacy image-generation action', async () => {
-    const source = await readFile(controlsUrl, 'utf8');
-    const experience = oldSource('dossier-experience.js');
-    assert.match(experience, /from '\.\/portrait-tools\.js'/);
-    const index = runtimeSource();
-    assert.doesNotMatch(index + source, /npc-state-delta-generate-portrait/, 'the legacy image-generation button is gone, not merely hidden');
-    assert.match(source, /\.npc-state-delta-portrait-run, \.npc-state-delta-portrait-use \{ display:none !important; \}/);
-    assert.match(source, /top layer/i);
-});
-
 
 test('portrait seed controls use the maintained dark dialog styling instead of browser-default number input colors', async () => {
     const source = await readFile(controlsUrl, 'utf8');

@@ -13,7 +13,6 @@ import { awayNpcIds, findKeyEntry, isKey, keyView, normalizeKeyPeople, returnNot
 import { castView, findCastPerson, normalizeCast } from '../dossier/cast-dossier.js';
 import { getSettings, setRpgProbe } from '../settings/runtime-settings.js';
 import { sheetLevelOf } from '../core/core-record.js';
-import { stage1Refresh } from '../legacy/dossier-tools-core.js';
 import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
 import { pageHandles } from './handles.js';
 
@@ -297,7 +296,6 @@ export function createHostedPart(rt, deps) {
             for (const change of changes) {
                 if (!chatHeadUnchanged(head)) return dropped();
                 await adapter.adjust({ ...change, guard: () => markStands(head) });
-                stage1Refresh();   // an open dossier panel draws again once the host's meters took this change
             }
             for (const npc of met) {
                 if (!chatHeadUnchanged(head)) return dropped();
@@ -307,18 +305,15 @@ export function createHostedPart(rt, deps) {
                 // Owed again when the host did not keep it (not REFUSED: nothing to add); taken, or no answer (no host), clears it.
                 if (out?.ok === false && out.code !== 'REFUSED' && out.code !== 'NOT_FOUND') meetOwed.add(key);
                 else meetOwed.delete(key);
-                stage1Refresh();
             }
             for (const npc of moods) {
                 if (!chatHeadUnchanged(head)) return dropped();
                 moodTried.add(`${getChatKey()}|${npc.id}`);
                 await adapter.mood({ name: npc.name, word: moodOf(npc), vad: vadOf(npc), reason: reasonOf(npc), reply: messageId, again: moodOf(npc) === moodOf(prior.get(npc.id)), personality: npc.personality, about: npc.background, guard: () => markStands(head) });
-                stage1Refresh();
             }
             for (const item of grown) {
                 if (!chatHeadUnchanged(head)) return dropped();
                 await adapter.drives({ name: item.name, before: item.before, after: item.after, reply: messageId, guard: () => markStands(head) });
-                stage1Refresh();   // an open dossier draws again when a drive stepped
             }
             for (const flag of [...looks.map(npc => ({ name: npc.name, lock: true })), ...refused.map(item => (item.text ? { name: item.name, text: item.text } : { name: item.name, drift: { before: item.before, incoming: item.incoming, ...(item.swaps ? { swaps: item.swaps } : {}) } }))]) {
                 if (!chatHeadUnchanged(head)) return dropped();

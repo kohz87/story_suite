@@ -49,7 +49,7 @@ function readFlags(port, override) {
  * `theme` ('dark' | 'light' | 'follow'), `tabs` (id → (view, ctx) => node), `card` ((view, ctx) => node),
  * `schedule` (frame scheduler for tests), `initial` (first tab),
  * `look` (() → the host settings: Settings › Look's Panel style, Glass strength, Font and Text size decide the theme in place of `theme`, read again
- * on open, after every Settings change and when SillyTavern's theme changes). Returns `{ open(tab), close(), settings(), destroy(), ... }`.
+ * on open, after every Settings change and when SillyTavern's theme changes). Returns `{ open(tab), close(), person(keys), settings(), destroy(), ... }`.
  */
 export function mountSuite(options = {}) {
   const { port, doc = globalThis.document, host = doc?.body, flags: override = null, theme = 'dark' } = options;
@@ -197,6 +197,13 @@ export function mountSuite(options = {}) {
       return opened;
     },
     close: () => view.close(),
+    // Opens the suite on People with one person's dossier (`keys`: their store id and/or lower-case name); false when nobody matches.
+    person(keys) {
+      if (destroyed) return false;
+      if (!views.personKey(keys)) return false;
+      this.open('people');
+      return views.openPerson(keys);
+    },
     settings: () => (destroyed ? null : openSettings()),
     destroy() {
       if (destroyed) return;

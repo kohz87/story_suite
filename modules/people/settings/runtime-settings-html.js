@@ -21,12 +21,9 @@ export function createSettingsHtmlPart(rt, deps) {
         return `<details class="delta-settings-group story-suite-fold" data-delta-settings-group="${key}"${hidden ? ' hidden' : ''}><summary><b>${title}</b>${hint ? `<small>${hint}</small>` : ''}</summary><div class="delta-settings-group-body story-suite-fold-body">${body}</div></details>`;
     }
 
-    function settingsSlot(name) {
-        return `<div class="delta-settings-slot" data-delta-settings-slot="${name}"></div>`;
-    }
-
-    // The Extensions-tab panel is built once here in its final grouped shape. Optional owners
-    // (full cast, scanner output, calendar) mount their own controls into the named slots.
+    // The Extensions-tab panel is built once here in its final grouped shape. Two controls are added by their own files once it is on the
+    // page: Maximum output tokens after Scan context (scanner-output.js) and the calendar in its group (calendar-settings.js); the meter
+    // presets block fills its group (adapter/cast-ui/section.js).
     function buildSettingsHtml() {
         const scanning = [
             settingRow('npc_state_delta_full_scan_every_turn', 'Full scan every turn', '<input id="npc_state_delta_full_scan_every_turn" type="checkbox">', 'With Auto scan, reconcile the whole scan context after every reply instead of only the latest exchange. Overrides Scan every; relationship deltas still come only from the newest exchange.'),
@@ -42,7 +39,6 @@ export function createSettingsHtmlPart(rt, deps) {
         ${settingRow('npc_state_delta_present_cast_display', 'Present NPCs in chat', '<select id="npc_state_delta_present_cast_display" class="text_pole"><option value="full">Full cards</option><option value="compact">Compact strip</option><option value="storyblock">Only in Story Block</option><option value="off">Off</option></select>', 'Shown under the latest reply (or as a Megumin tab). With Story Block installed, Present NPCs and Dossiers tabs also appear in its sidebar, and until you pick a choice here the chat shows them only there; Only in Story Block keeps the chat clear (full cards without Story Block). Tapping an NPC opens its dossier. Off adds nothing to the chat; presence tracking and injection are unaffected.')}
         <h4 class="delta-settings-subhead story-suite-subhead">Generation injection</h4>
         ${settingRow('npc_state_delta_inject', 'Inject present NPC state', '<input id="npc_state_delta_inject" type="checkbox">', 'Only active NPCs present in the latest scanned scene are injected into generation.')}
-        ${settingsSlot('relationship-map')}
         <h4 class="delta-settings-subhead story-suite-subhead">Custom fields</h4>
         ${settingRow('npc_state_delta_custom_fields', 'Custom fields', '<input id="npc_state_delta_custom_fields" class="text_pole" maxlength="260" placeholder="Level, Class, Faction">', 'Up to 6 names, comma-separated, tracked on every dossier. The scanner fills a value only when the story states it, keeps it until it is explicitly changed, and it is sent with present NPCs. Leave empty to turn off.')}
         <h4 class="delta-settings-subhead story-suite-subhead">Roster lifecycle</h4>
@@ -58,8 +54,6 @@ export function createSettingsHtmlPart(rt, deps) {
         // UI only: every key, default and control id is the same as before.
         const advanced = [
             settingRow('npc_state_delta_scan_depth', 'Scan context', numberControl('npc_state_delta_scan_depth', 2, 30, 'messages'), 'History window for full, manual and Refresh scans. Quick automatic scans read every reply since the last scan (up to 30 messages at a time; the oldest first when more are waiting).'),
-            settingsSlot('scanner-output'),
-            settingsSlot('storage'),
             settingRow('npc_state_delta_inject_limit', 'NPCs in the dossier', numberControl('npc_state_delta_inject_limit', 1, 12, 'NPCs'), 'At most this many present NPCs go into the live dossier each reply, the most relevant first (default 3).'),
             settingRow('npc_state_delta_inject_budget', 'Injection budget', numberControl('npc_state_delta_inject_budget', 512, 6000, 'tokens', { step: 100, prefix: '<small>~</small>' }), 'Upper limit; only what the present NPCs need is used. The default 4000 lets detailed dossiers reach the roleplay model in full. When it runs short, lower-priority fields, then lower-ranked NPCs, are trimmed first.'),
             settingRow('npc_state_delta_mid_delete_rewind', 'Rewind dossiers on middle deletion', '<input id="npc_state_delta_mid_delete_rewind" type="checkbox">', 'Off (default): deleting a message from the middle undoes only what that message changed and keeps later changes. On: every dossier rewinds to how it was just before the deleted message, discarding what later messages changed (no model requests).'),
@@ -158,7 +152,7 @@ export function createSettingsHtmlPart(rt, deps) {
         // One closed fold for what a reader rarely needs; each part keeps its own fold inside, so its key, its slot and its
         // open state stay as they were. The first line says whether the calendar here matters (syncExpertNote).
         const expert = `<p class="npc-state-delta-muted delta-expert-note" data-delta-expert-note></p>
-        ${settingsGroup('calendar', 'Calendar & birthdays', 'Fantasy months and optional campaign clock', settingsSlot('calendar'))}
+        ${settingsGroup('calendar', 'Calendar & birthdays', 'Fantasy months and optional campaign clock', '')}
         ${settingsGroup('rules', 'Scanner rules', 'Advanced relationship, memory and behavior rubrics', rules)}
         ${settingsGroup('sent', "What's sent", 'The text your next reply gets, and its size', `<div class="delta-whats-sent" data-delta-whats-sent><small class="delta-whats-sent-empty">Open this to see it.</small></div><div class="npc-state-delta-actions"><div id="npc_state_delta_sent_refresh" class="menu_button"><i class="fa-solid fa-rotate"></i> Refresh</div></div>`)}
         ${settingsGroup('advanced', 'Advanced', 'Scan context, output and injection limits, branch handling', advanced)}`;
@@ -172,7 +166,6 @@ export function createSettingsHtmlPart(rt, deps) {
               ${settingRow('npc_state_delta_auto', 'Auto scan', '<input id="npc_state_delta_auto" type="checkbox">', 'Runs after assistant replies.')}
             </div>
             <div class="npc-state-delta-actions delta-settings-quick-actions story-suite-actions">
-              <button type="button" class="menu_button" data-delta-settings-open-dossiers><i class="fa-solid fa-address-book"></i> Open dossiers</button>
               <div id="npc_state_delta_scan_now" class="menu_button"><i class="fa-solid fa-wand-magic-sparkles"></i> Scan dossier now</div>
               <div id="npc_state_delta_add_manual" class="menu_button"><i class="fa-solid fa-user-plus"></i> Add NPC</div>
             </div>
@@ -180,7 +173,7 @@ export function createSettingsHtmlPart(rt, deps) {
           <div class="delta-settings-experience story-suite-folds">
             ${settingsGroup('scanning', 'Scanning', 'Connection, cadence and admission', scanning)}
             ${settingsGroup('roster', 'Roster & continuity', 'Injection, lifecycle and stale cleanup', roster)}
-            ${settingsGroup('presets', 'Meter presets', 'One-click meter sets (Companion, Rival, Mentor)', settingsSlot('meter-presets'), { hidden: true })}
+            ${settingsGroup('presets', 'Meter presets', 'One-click meter sets (Companion, Rival, Mentor)', '<div class="delta-meter-presets" data-delta-meter-presets></div>', { hidden: true })}
             ${settingsGroup('portrait', 'Portrait generation', 'Image Generation prompts and style', portrait)}
             ${settingsGroup('maintenance', 'Data & maintenance', 'Backup, diagnostics and this chat', maintenance)}
             ${settingsGroup('expert', 'Expert', "Calendar, scanner rules, what's sent, advanced", expert)}

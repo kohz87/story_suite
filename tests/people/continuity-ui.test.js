@@ -1,11 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { appearanceUiModel } from '../../modules/people/legacy/continuity-ui.js';
+import { appearanceUiModel } from '../../modules/people/tools/continuity-ui.js';
 import { appearanceDraftRecord } from '../../modules/people/appearance/appearance.js';
 import { normalizeNpcRecord, resolveNpcAppearance } from '../../modules/people/core/core.js';
 import { runtimeSource } from './helpers/runtime-source.js';
-import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
 function formNpc() {
     return normalizeNpcRecord({
@@ -92,17 +91,15 @@ test('appearance form editor supports an explicitly unclassified current present
     assert.doesNotMatch(resolveNpcAppearance(next), /ordinary human ears|broad wings/i);
 });
 
-test('continuity UI ships dedicated calendar/birthday and appearance-form surfaces', () => {
-    const source = readFileSync(new URL('../../modules/people/legacy/continuity-ui.js', import.meta.url), 'utf8');
+test('continuity UI ships dedicated calendar and appearance-form surfaces', () => {
+    const source = readFileSync(new URL('../../modules/people/tools/continuity-ui.js', import.meta.url), 'utf8');
     const bootstrap = readFileSync(new URL('../../modules/people/legacy/bootstrap.js', import.meta.url), 'utf8');
     const index = runtimeSource();
-    const calendar = readFileSync(new URL('../../modules/people/legacy/calendar-settings.js', import.meta.url), 'utf8');
+    const calendar = readFileSync(new URL('../../modules/people/settings/calendar-settings.js', import.meta.url), 'utf8');
     assert.match(index, /settingsGroup\('calendar', 'Calendar & birthdays'/);
-    assert.match(calendar, /\[data-delta-settings-slot="calendar"\]/);
+    assert.match(calendar, /\[data-delta-settings-group="calendar"\] > \.delta-settings-group-body/, 'the calendar is drawn into its own group');
     assert.doesNotMatch(source, /ensureCalendarDedicatedSection|npc_state_delta_calendar_birthdays_group/, 'the settings owner places the calendar group; no runtime relocation');
-    const dossier = dossierUiSource();
-    assert.match(dossier, /delta-continuity-birthday-card/);
     assert.match(source, /Named forms/);
     assert.match(source, /Apply appearance</);
-    assert.match(bootstrap, /import\('\.\/continuity-ui\.js'\)/);
+    assert.match(bootstrap, /import\('\.\.\/tools\/continuity-ui\.js'\)/);
 });

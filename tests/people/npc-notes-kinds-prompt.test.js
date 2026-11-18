@@ -6,8 +6,6 @@ import { suite } from './helpers/pacing-suite.js';
 import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
 import { FEATURE_NOTES } from '../../modules/people/meters/npc-meters-config.js';
-import { projectDossierState } from '../../modules/people/legacy/dossier-ui-catalog.js';
-import { dossierProfileHtml } from '../../modules/people/legacy/dossier-ui-profile.js';
 import { ON, oren, crowded } from './npc-notes-kinds.helpers.js';
 
 const exampleOf = grammar => /e\.g\. ([^)]+)\)$/.exec(grammar)?.[1];
@@ -160,26 +158,19 @@ test('notes host: npc.taste records a Refresh\'s tastes on its reply; the narrat
     assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
-test('notes host: the Profile placeholders (Tastes, Drives) reach the real dossier chain only with notes ON (adapter.dossierMeters → projectDossierState → Profile)', async () => {
+test('notes host: adapter.dossierMeters carries the notes flag only with notes ON', async () => {
     const profile = async features => {
         const s = await suite({ allowance: null, features });
         await s.setDay(1);
         await s.say(['~ npc Oren | trust: +1']);
         const npcs = [{ id: 'npc_oren', name: 'Oren' }];
         const meterViews = s.adapter.dossierMeters(npcs);
-        const projected = projectDossierState({ npcs, meterViews }).npcs[0];
-        return { view: meterViews.npc_oren, html: dossierProfileHtml(projected, { layout: 'phone' }) };
+        return { view: meterViews.npc_oren };
     };
     const on = await profile(ON);
     assert.equal(on.view.notesOn, true, 'the adapter keeps the flag');
-    assert.match(on.html, /<h3>Tastes<\/h3>/);
-    assert.match(on.html, /No tastes yet/);
-    assert.match(on.html, /<h3>Drives<\/h3>/);
-    assert.equal((on.html.match(/class="delta-drive" data-level="normal"/g) || []).length, 7, 'no record: seven normal rows');
-    assert.match(on.html, /The middle of each bar is normal/);
     const off = await profile({ [FEATURE_NOTES]: false });
     assert.equal(off.view.notesOn, undefined);
-    assert.doesNotMatch(off.html, /Tastes|Drives|No tastes yet|All normal so far|delta-drive/);
 });
 
 test('notes host: npc.drives grows a drive on the 2nd different reply with a cue; live == rebuild, a swipe takes the step back, a button is refused', async () => {

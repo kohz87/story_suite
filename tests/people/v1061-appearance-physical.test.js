@@ -84,8 +84,8 @@ test('applying the appearance editor on an NPC without named forms keeps its cur
 
 test('the dossier editor identifies its NPC so appearance, life-state and section add-ons mount', () => {
     const index = runtimeSource();
-    const experience = fs.readFileSync(new URL('../../modules/people/legacy/dossier-experience.js', import.meta.url), 'utf8');
-    const continuityUi = fs.readFileSync(new URL('../../modules/people/legacy/continuity-ui.js', import.meta.url), 'utf8');
+    const experience = fs.readFileSync(new URL('../../modules/people/tools/editor-refine.js', import.meta.url), 'utf8');
+    const continuityUi = fs.readFileSync(new URL('../../modules/people/tools/continuity-ui.js', import.meta.url), 'utf8');
     assert.match(index, /content\.id = 'npc_state_delta_editor_content';[\s\S]{0,200}content\.dataset\.npcId = npc\.id;/);
     assert.match(experience, /function editorNpcId\(editor\) \{\s*return plain\(editor\?\.querySelector\?\.\('\[data-npc-id\]'\)/);
     assert.match(continuityUi, /data-delta-current-appearance/);
