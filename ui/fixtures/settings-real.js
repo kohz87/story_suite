@@ -48,7 +48,7 @@ export const REAL_ROWS = {
     {"group":"Map","key":"people.defaultDistance","type":"seg","label":"Default distance","hint":"What the map’s distance shows when it opens; the buttons on the map change it for this session only","unit":null,"tags":[],"wide":false,"options":["Warmth","Trust","Affection","Desire","Tension"],"value":"Warmth","default":null},
   ],
   rpg: [
-    {"key":"rpg.difficulty","group":"Rules","type":"seg","label":"Difficulty","hint":"Custom opens the numbers","value":"Standard","default":"Standard","options":["Gentle","Standard","Harsh","Custom"],"unit":null,"tags":[],"wide":false},
+    {"key":"rpg.difficulty","group":"Rules","type":"seg","label":"Difficulty","hint":"Foe’s base 4; new characters: stats start at 5, 10 points to spend, each stat 5 to 10","value":"Standard","default":"Standard","options":["Gentle","Standard","Harsh","Custom"],"unit":null,"tags":[],"wide":false},
     {"key":"rpg.levelCap","group":"Progression","type":"num","label":"Level cap","hint":"A story or pack can set its own","value":99,"default":99,"options":null,"unit":null,"tags":[],"wide":false},
     {"key":"rpg.xpRate","group":"Progression","type":"num","label":"XP rate","hint":"50 to 300, in steps of 25","value":100,"default":100,"options":null,"unit":"%","tags":[],"wide":false},
     {"key":"rpg.practicePerSkillUse","group":"Progression","type":"num","label":"Practice per skill use","hint":"1 to 5","value":3,"default":3,"options":null,"unit":null,"tags":[],"wide":false},
