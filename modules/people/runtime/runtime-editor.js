@@ -11,7 +11,7 @@ import { getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/run
 import { createEditorSave } from './runtime-editor-save.js';
 
 export function createEditorPart(rt, deps) {
-    const { chatHydrationStatus, commitBranchCheckpoint, currentNpcById, ensureFreshMutationBoundary, eventTargetClosest, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, queueInlineRender, relationshipNumber, requireReadyChatMutation, stampManualEdit, startInlineWatchdog, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;
+    const { chatHydrationStatus, commitBranchCheckpoint, currentNpcById, ensureFreshMutationBoundary, eventTargetClosest, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, queueCastRefresh, relationshipNumber, requireReadyChatMutation, stampManualEdit, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;
     const { hydrationErrors } = rt;
 
     let lastEditorActivation = { npcId: '', at: 0 };
@@ -118,8 +118,7 @@ export function createEditorPart(rt, deps) {
     function renderDossier() {
         if (replayScope()) return;   // nothing is drawn during a history replay
         renderSettingsRoster();
-        startInlineWatchdog();
-        queueInlineRender();
+        queueCastRefresh();
     }
 
     // Each list entry is one line in the editor. Entries themselves may contain semicolons (a bond's

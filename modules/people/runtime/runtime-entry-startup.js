@@ -8,7 +8,7 @@ export function createStartup(rt, deps) {
     const {
         getSettings, clearLegacyPromptKeys, watchHost, SUITE_API, UI_ID, NPC_STATE_VERSION,
         latestReplyIndex, castSync, castPortraitDue, nsdCardSettings, setStoryClockSource, setStoryDateAtSource, setStoryDayAtSource, hostedStoryDateAt, hostedStoryDayAt,
-        hostedStoryClock, bindUi, installUiCaptureBridge, registerEvents, startInlineWatchdog,
+        hostedStoryClock, bindUi, installUiCaptureBridge, registerEvents,
         flushCurrentChatOnPageHide, refreshCurrentChatFromServer, scheduleSettingsMountRetries, getChatKey,
         isCanonicalChatKey, ensureChatStateLoaded, maybeInheritKnownBranch, seedBranchTracking, getChatState,
         renderDossier, updateInjection, evictDormantChatStates,
@@ -33,7 +33,6 @@ export function createStartup(rt, deps) {
         bindUi();
         installUiCaptureBridge();
         registerEvents();
-        startInlineWatchdog();
         globalThis.addEventListener?.('pagehide', flushCurrentChatOnPageHide);
         globalThis.addEventListener?.('pageshow', () => { void refreshCurrentChatFromServer('pageshow'); });
         globalThis.document?.addEventListener?.('visibilitychange', () => {

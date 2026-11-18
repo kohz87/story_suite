@@ -50,8 +50,6 @@ export const DEFAULTS = Object.freeze({
     customFieldNames: [],
     branchRescan: true,
     midDeleteRewind: false,
-    presentCastDisplay: 'full',
-    presentCastDisplayChosen: false,
     relationshipBaseline: { ...DEFAULT_RELATIONSHIP },
     relationshipCaps: { ...DEFAULT_RELATIONSHIP_CAPS },
     relationshipAllowance: { ...DEFAULT_ALLOWANCE },

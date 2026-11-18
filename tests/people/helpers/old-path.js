@@ -15,6 +15,10 @@ const MOVED_LATER = Object.freeze({
     'continuity-ui.js': 'modules/people/tools/continuity-ui.js',
     'calendar-settings.js': 'modules/people/settings/calendar-settings.js',
     'scanner-output-ui.js': 'modules/people/settings/scanner-output.js',
+    // B4-6: the in-chat cards went; the roster markup, the NPC lookup and the cast refresh were rewritten in new files.
+    'runtime-present-cast.js': 'modules/people/legacy/runtime-present-cast.js',
+    'runtime-npc-lookup.js': 'modules/people/legacy/runtime-npc-lookup.js',
+    'runtime-cast-refresh.js': 'modules/people/legacy/runtime-cast-refresh.js',
 });
 
 /** `rel` (from the old package folder) → the absolute path of that file or folder in this repo. */

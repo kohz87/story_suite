@@ -23,7 +23,7 @@ import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordRea
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from '../memory/memory-fact-scan.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 export function createScanPart(rt, deps) {
-    const { attachGeneratedSecrets, beginScanOperation, castList, clearInlineCardsAtMessage, commitBranchCheckpoint, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyAwayScanOptions, partyLevelList, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordInlineCardsInState, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scanInlineNpcIds, scannerPromptOptions, scanOperationCurrent, scanScenePresent, scenePresentAt, setChatState, storySuiteV2Meters, takeNarrationCapture, updateInjection } = deps;
+    const { attachGeneratedSecrets, beginScanOperation, castList, commitBranchCheckpoint, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyAwayScanOptions, partyLevelList, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scannerPromptOptions, scanOperationCurrent, scanScenePresent, setChatState, storySuiteV2Meters, takeNarrationCapture, updateInjection } = deps;
     // Events per story day while Delta works alone (the pass counts them on the dossier). The day is Story Director's clock, which
     // there is not without a host: no day, no limit (relationship-pacing.js). Hosted, the slice counts them when the change is forwarded
     // and Delta's numbers are set from the slice afterwards (runtime-hosted.js), so the pass does not count (null).
@@ -251,7 +251,6 @@ export function createScanPart(rt, deps) {
                 excludeNames: [...currentExclusions(), ...(state.dismissed || [])],
                 turn: state.turn,
                 sourceMessageId: targetMessageId,
-                scenePresent: scenePresentAt(targetMessageId),
                 calendarSource: getContext().chat?.[targetMessageId]?.mes || '',
                 storyDay: storyDayAt(targetMessageId),
                 tieDay: tieDayAt(targetMessageId),
@@ -384,11 +383,8 @@ export function createScanPart(rt, deps) {
             // (v2 hidden notes) The layered notes for the dossiers this scan built.
             if (hostedNotes && settings.layeredSecrets !== false) attachGeneratedSecrets(nextState, newlyAdmittedIds, parsedForMerge, resolvedParsed, parsed);
             if (hostedNotes && newlyAdmittedIds.length) seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId, currentLineage, settings, castList, storySuiteV2Meters });
-            const inlineIds = scanInlineNpcIds(resolvedParsed, merged);
-            if (targetMessageId >= 0) {
-                clearInlineCardsAtMessage(nextState, targetMessageId);
-                if (inlineIds.length) recordInlineCardsInState(nextState, targetMessageId, inlineIds, 'scan');
-            }
+            // Who the merged state says is here: the one-pass catch-up refreshes the people the reply put in the scene.
+            const presentIds = merged.state.npcs.filter(npc => !npc.archived && npc.present && !npc.minor).map(npc => npc.id);
             if (!await scanCanonicalBaseCurrent(scanChatKey, operation, 'dossier scan final commit')) {
                 if (manual) globalThis.toastr?.info?.('NPC State Delta: another session updated this chat during the scan; the stale result was discarded.');
                 return false;
@@ -403,7 +399,7 @@ export function createScanPart(rt, deps) {
             renderDossier();
             updateInjection();
             if (capture && replayScope()) replayRefreshIds = Object.keys(savedCapture.refreshes || {});
-            else if (capture && !hostedOnePass()) catchUpIds = noteCaptureCatchUp(scanChatKey, inlineIds, targetMessageId);
+            else if (capture && !hostedOnePass()) catchUpIds = noteCaptureCatchUp(scanChatKey, presentIds, targetMessageId);
             notifyGenderConflicts(merged.report);
             if (manual) {
                 const { created, updated, candidates, promoted, skipped, staleArchived = [], stalePruned = [] } = merged.report;
