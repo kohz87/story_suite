@@ -2,7 +2,7 @@
 import {
     formatCalendarDate,
     normalizeCalendarDate,
-} from '../../legacy/calendar.js';
+} from '../../calendar/calendar.js';
 import { activeOrProvided } from './shared-config.js';
 
 export function normalizeBirthDate(value, config = undefined) {

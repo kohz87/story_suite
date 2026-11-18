@@ -136,21 +136,6 @@ function captureHelpers(mockState, eventSource, sleep, manualAddNpc) {
 }
 
 
-test('the capture rules in the system prompt are byte-identical on a swipe and a regenerate', () => {
-    runScenario('b6-static-on-swipe', async h => {
-        h.settings.narrationCapture = true;
-        await h.sendUser('Who is at the gate?');
-        await h.generate('normal');
-        const normal = String(h.rulesCalls().at(-1)?.[1] ?? '');
-        h.check(normal.startsWith(h.HEADER), 'a normal reply carries the rules');
-        for (const type of ['swipe', 'regenerate']) {
-            await h.generate(type);
-            h.equal(String(h.rulesCalls().at(-1)?.[1] ?? ''), normal, `the IN_PROMPT rules on a ${type}`);
-            await h.generate('normal');
-        }
-    });
-});
-
 test('a capture block naming many new NPCs does not hold the reply for one model call per NPC', () => {
     runScenario('b6-crowd-backfill', async h => {
         h.settings.narrationCapture = true;

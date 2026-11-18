@@ -27,6 +27,11 @@ const FIGHT_SCREEN = 'story-block/fight';
 // The drawer's status line: the version and the modules that started.
 const drawerStatus = sdk => { let names = []; try { names = [...new Set((sdk?.modules?.() ?? []).filter(module => !module.hidden).map(module => module.name))]; } catch { names = []; } return `Story Suite ${SUITE_VERSION} · ${names.join(', ')}`; };
 
+// This device's store for the device preferences (Panel background, Developer tools, folds); none reachable keeps them in memory.
+function deviceStorage(doc) {
+  try { return doc.defaultView?.localStorage ?? globalThis.localStorage ?? null; } catch { return null; }
+}
+
 function addStyles(doc, base) {
   return STYLES.map(name => {
     const link = doc.createElement('link');
@@ -44,8 +49,8 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   const prefs = { chat: chatPrefs(ctx) };
   const hold = createHold(doc);
   const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, hold, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools, hold), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, screens: { open: (...args) => wizard?.open(...args) ?? false }, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
-  const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow', look: () => StoryBlock.sdk?.settings?.() });
-  // The New character wizard and the first-send hold (the port's `open` reaches it first).
+  const suite = mountSuite({ port, doc, host: doc.body, storage: deviceStorage(doc), theme: 'follow', look: () => StoryBlock.sdk?.settings?.() });
+  // The New character wizard and the first-send hold (the port's `open` reaches it first: the old host's window never opens too).
   const wizard = attachWizard({ doc, ctx, sdk: StoryBlock.sdk, suite });
   const entry = addMenuEntry(doc, { label: 'Story Suite', onClick: () => suite.open('now') });
   const offScreens = showScreens(doc, id => { if (id !== FIGHT_SCREEN) return false; suite.open(port.view('fight') ? 'fight' : 'now'); return true; });

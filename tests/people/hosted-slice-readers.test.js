@@ -12,7 +12,7 @@ import { closeOverlay } from '../../modules/people/tools/tools-core.js';
 import { openDiagnostics } from '../../modules/people/tools/data-tools.js';
 import { oldSource } from './helpers/old-source.js';
 import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
-import { applyFocusedRelationshipDecisions } from '../../modules/people/legacy/relationship-pass.js';
+import { applyFocusedRelationshipDecisions } from '../../modules/people/relationship/relationship-pass.js';
 import { suite, major } from './helpers/pacing-suite.js';
 import { tempDir } from '../../scripts/temp-dir.mjs';
 

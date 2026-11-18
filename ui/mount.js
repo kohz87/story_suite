@@ -48,7 +48,7 @@ function readFlags(port, override) {
  * Mounts the suite. Options: `port` (required), `doc`, `host`, `flags` ({ rpg, fightOpen } overrides),
  * `theme` ('dark' | 'light' | 'follow'), `tabs` (id → (view, ctx) => node), `card` ((view, ctx) => node),
  * `schedule` (frame scheduler for tests), `initial` (first tab),
- * `look` (() → the host settings: Settings › Look's Panel style, Glass strength, Font and Text size decide the theme in place of `theme`, read again
+ * `storage` (a localStorage-like store: device preferences survive a reload), `look` (() → the host settings: Settings › Look's Panel style, Glass strength, Font and Text size decide the theme in place of `theme`, read again
  * on open, after every Settings change and when SillyTavern's theme changes). Returns `{ open(tab), close(), person(keys), settings(), destroy(), ... }`.
  */
 export function mountSuite(options = {}) {
@@ -64,14 +64,14 @@ export function mountSuite(options = {}) {
   let scheme = 'dark';
   let destroyed = false;
 
-  const prefs = options.prefs ?? createPrefs({ port });
+  const prefs = options.prefs ?? createPrefs({ port, storage: options.storage ?? null });
   let settingsOverlay = null;
   const openSettings = () => {
     const settings = port.view('settings');
     if (!settings || destroyed) return port.command('suite.settings', {});
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
-      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
+      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
       onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
       onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });

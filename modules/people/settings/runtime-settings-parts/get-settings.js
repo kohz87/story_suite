@@ -5,13 +5,13 @@ import { npcBucket } from '../bucket.js';
 import { normalizeScannerMaxOutputTokens } from '../../calls/scanner-routing.js';
 import { normalizeRelationshipMapSettings } from './map-settings.js';
 import { normalizeDossierSkin } from './dossier-look.js';
-import { normalizeAllowance, pacingDefaults } from '../../legacy/relationship-pacing.js';
+import { normalizeAllowance, pacingDefaults } from '../../relationship/relationship-pacing.js';
 import { DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitPromptFormat, normalizeCustomFieldNames } from '../../core/core.js';
 import { PORTRAIT_THEME_PRESETS } from './portrait-preset-constants.js';
 import { portraitCustomPresetLibrary } from './portrait-preset-library.js';
 import { DEFAULTS } from './defaults.js';
 import { persistSettings } from './save.js';
-import { injectDepthOf, normalizePresentCastDisplay } from './settings-values.js';
+import { injectDepthOf } from './settings-values.js';
 
 export function getSettings() {
     let settings = npcBucket(extension_settings);
@@ -60,8 +60,6 @@ export function getSettings() {
     assign('memoryCriteria', typeof settings.memoryCriteria === 'string' ? settings.memoryCriteria : DEFAULT_MEMORY_CRITERIA);
     assign('behaviorCriteria', typeof settings.behaviorCriteria === 'string' ? settings.behaviorCriteria : DEFAULT_BEHAVIOR_CRITERIA);
     assign('admissionMode', normalizeNpcAdmissionMode(settings.admissionMode));
-    assign('presentCastDisplay', normalizePresentCastDisplay(settings.presentCastDisplay));
-    assign('presentCastDisplayChosen', settings.presentCastDisplayChosen === true);
     // 1.0.70 raised the default budget from 1800 to 4000 tokens. An install still on the old default
     // is moved once; any value the player chose, including a later deliberate 1800, is kept.
     const legacyDefaultBudget = settings.injectBudgetDefaultUpgraded !== true && Number(settings.injectBudgetTokens) === 1800;
@@ -73,7 +71,6 @@ export function getSettings() {
     assign('layeredSecrets', settings.layeredSecrets !== false);
     assign('fullScanEveryTurn', settings.fullScanEveryTurn === true);
     assign('narrationCapture', settings.narrationCapture !== false);
-    assign('narrationCaptureCompact', settings.narrationCaptureCompact === true);
     assign('narrationCaptureCatchUp', Number.isFinite(Number(settings.narrationCaptureCatchUp)) ? Math.max(0, Math.min(50, Math.round(Number(settings.narrationCaptureCatchUp)))) : 4);
     assign('narrationCaptureCatchUpPeople', Number.isFinite(Number(settings.narrationCaptureCatchUpPeople)) ? Math.max(1, Math.min(3, Math.round(Number(settings.narrationCaptureCatchUpPeople)))) : 1);
     assign('portraitGenerationEnabled', settings.portraitGenerationEnabled !== false);
@@ -117,6 +114,11 @@ export function getSettings() {
     // The v1 Story Suite handshake is gone: its per-area source-of-truth choices are dropped from a saved settings object.
     if ('sourceOfTruth' in settings) {
         delete settings.sourceOfTruth;
+        dirty = true;
+    }
+    // The short one-pass instruction is gone (B4-8): a saved choice is dropped from a saved settings object.
+    if ('narrationCaptureCompact' in settings) {
+        delete settings.narrationCaptureCompact;
         dirty = true;
     }
     assign('schemaVersion', DEFAULTS.schemaVersion);

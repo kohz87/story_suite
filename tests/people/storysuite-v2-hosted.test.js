@@ -168,7 +168,7 @@ test('without a v2 host the sidecar checks are unchanged', () => {
     });
 });
 
-test('hosted: the in-chat cast shows only when the reader chose it; it comes back when the host leaves', () => {
+test('hosted: the Cast tab has the present people and the chat gets no cards (B4-6)', () => {
     runHostScenario('launcher-and-cast-hosted', v2HostPrelude, async () => {
         const api = globalThis.NPCStateDelta;
         const settings = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
@@ -179,53 +179,29 @@ test('hosted: the in-chat cast shows only when the reader chose it; it comes bac
         assert.equal('launcherWithStoryBlockV2' in settings || 'launcherWithStoryBlock' in settings, false, 'the launcher settings are gone');
         assert.equal(uiHandlers.get('change.npcStateDelta|#npc_state_delta_launcher_with_story_block_v2'), undefined, 'and so is their control');
 
-        // The in-chat cast: the Cast tab carries it, so the unchosen default stays out of the chat.
+        // The Cast tab carries the cast; nothing is drawn under the reply.
         mockState.quietResponder = async () => JSON.stringify({ npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } }] });
         const id = await turn('Yunyun waves from the gate.');
         await sleep(200);
         assert.ok(api.getState().npcs.some(npc => npc.name === 'Yunyun' && npc.present), 'Yunyun is present');
         assert.match(api.presentCastHtml(), /Yunyun/, 'the Cast tab has her');
         const inChat = () => inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === String(id));
-        assert.equal(settings.presentCastDisplayChosen, false);
-        api.renderInline();
-        assert.equal(inChat(), false, 'the unchosen default is not shown twice');
-        assert.equal(api.uiStatus().presentCastDisplay, 'full', 'the stored choice is unchanged');
-
-        settings.presentCastDisplay = 'full';
-        settings.presentCastDisplayChosen = true;
-        api.renderInline();
-        assert.equal(inChat(), true, 'Full cards chosen: shown in the chat too');
-        settings.presentCastDisplay = 'storyblock';
-        api.renderInline();
-        assert.equal(inChat(), false, 'Only in Story Block: the Cast tab only');
-        settings.presentCastDisplay = 'compact';
-        api.renderInline();
-        assert.equal(inChat(), true, 'Compact is always a deliberate choice');
-
-        // The host goes away: the unchosen default brings the cards back to the chat.
-        settings.presentCastDisplay = 'full';
-        settings.presentCastDisplayChosen = false;
-        api.renderInline();
-        assert.equal(inChat(), false);
-        globalThis.StoryBlock = undefined;
-        const v2 = await import(pathToFileURL(path.join(extRoot, 'src', 'storysuite-v2.js')).href);
-        const adapter = v2.startStorySuiteV2();
-        assert.equal(adapter.check(), false);
-        assert.equal(globalThis.__handles.hosted, false, 'no longer hosted');
-        assert.ok(await waitFor(inChat), 'the in-chat cast comes back on its own');
-        adapter.stop();
+        assert.equal(inChat(), false, 'no card under the reply');
+        assert.equal('presentCastDisplay' in settings || 'presentCastDisplayChosen' in settings, false, 'the in-chat display setting is gone');
+        assert.equal(api.renderInline, undefined, 'and so is the in-chat render entry');
+        assert.equal('presentCastDisplay' in api.uiStatus(), false);
     });
 });
 
-test('without a v2 host the in-chat cast is as before', () => {
+test('without a v2 host the chat gets no cards either (B4-6)', () => {
     runHostScenario('launcher-and-cast-alone', noHostPrelude, async () => {
         const api = globalThis.NPCStateDelta;
         await sleep(200);
         assert.equal(globalThis.__handles.hosted, false);
         mockState.quietResponder = async () => JSON.stringify({ npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } }] });
-        const id = await turn('Yunyun waves from the gate.');
+        await turn('Yunyun waves from the gate.');
         await sleep(200);
-        api.renderInline();
-        assert.ok(inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === String(id)), 'the default full cards stay in the chat');
+        assert.ok(api.getState().npcs.some(npc => npc.name === 'Yunyun' && npc.present), 'the dossier is kept');
+        assert.equal(inlineAnchors.length, 0, 'but nothing is drawn in the chat');
     });
 });

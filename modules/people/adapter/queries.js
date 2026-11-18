@@ -11,7 +11,7 @@ import { resolveDossierTarget } from '../npc-api/dossier-target.js';
 import { FEATURE_SOCIAL, SOCIAL_QUERY, createNpcPart, normalizeSecrets } from '../meters/npc-meters.js';
 import { normalizeLimits, presetCatalog } from '../meters/npc-meters-presets.js';
 import { RELATIONSHIP_KEYS, dossierFields, portraitUrl } from './queries-dossier.js';
-import { storyMinuteText } from '../legacy/calendar.js';
+import { storyMinuteText } from '../calendar/calendar.js';
 import { createDirectorQueriesPart } from './queries-director.js';
 
 const WORLD_EVENTS_FEATURE = 'story-director.world-events';
@@ -20,7 +20,7 @@ export { dossierFields, safeImageUrl, portraitUrl } from './queries-dossier.js';
 
 export function createQueriesPart(session, deps) {
     const {
-        calendarOwn, delta, doc, headReply, linesMode, levelOn, host, logger, MODULE_ID, panelId, PRESET_KIND, suiteApi, timeline, timers, WORLD_FEATURE,
+        delta, doc, headReply, linesMode, levelOn, host, logger, MODULE_ID, panelId, PRESET_KIND, suiteApi, timeline, timers, WORLD_FEATURE,
     } = deps;
 
     // Delta's own commands on their way to the host, by type and payload: npc.adjust takes a reader's
@@ -117,7 +117,6 @@ export function createQueriesPart(session, deps) {
         baseline: () => runtime()?.relationshipBaseline?.() ?? {},
         caps: () => runtime()?.relationshipCaps?.() ?? null,
         allowance: () => runtime()?.relationshipAllowance?.() ?? null,
-        calendarOwn: () => { try { return calendarOwn?.() === true; } catch { return false; } },
         // The day belongs to the state before this reply, even if its own time line ran first.
         startTime: index => {
             if (!Number.isInteger(index) || index < 1) return null;
@@ -406,7 +405,6 @@ export function createQueriesPart(session, deps) {
     // adapter forces asOf to the replayed reply, which is this same index, so live and replay agree.
     function storyDateText(index) {
         if (!Number.isInteger(index) || index < 0) return '';
-        try { if (calendarOwn?.() === true) return ''; } catch { return ''; }   // the calendar kept in Delta: no Story Director date (as storyClock)
         try {
             const time = session.sdkRef?.query?.('director.time', { asOf: index });
             const minutes = Number.isInteger(time) ? time : time?.minutes;
@@ -417,7 +415,6 @@ export function createQueriesPart(session, deps) {
     // The same clock as a whole story day after reply `index` (minutes / 1440; same asOf rules as storyDateText), null without a clock.
     function storyDayNumber(index) {
         if (!Number.isInteger(index) || index < 0) return null;
-        try { if (calendarOwn?.() === true) return null; } catch { return null; }
         try {
             const time = session.sdkRef?.query?.('director.time', { asOf: index });
             const minutes = Number.isInteger(time) ? time : time?.minutes;

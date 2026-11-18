@@ -122,21 +122,26 @@ function trackersOf(read) {
   return { trackers, trackersHidden: hidden };
 }
 
+// The one plain line the open plan shows when it has nothing to draw: the switch that is off, or that the Director has not planned yet ('' when there are cards).
+const NO_PLAN = 'The Director has no plan yet; it plans after the opening.';
+const THREADS_OFF = 'Beats, clocks, off-screen agendas and secrets are off. Turn on Story Director’s Threads switch in Settings › Director to see them.';
+const noteOf = (shown, threadsOn, parts) => (!shown ? '' : !threadsOn ? THREADS_OFF : parts.some(group => group.count > 0) ? '' : NO_PLAN);
+
 export function selectStory(read, opts = {}) {
   const shown = opts.planShown === true;
   const plan = read('director.plan', {}) ?? {};
   const sway = list(read('ripples.sway', {}));
+  const beats = gate(list(plan.beats), shown, beatOf), clocks = gate(list(plan.clocks), shown, clockOf), hooks = gate(list(plan.hooks), shown, hookOf);
+  const newsOnWay = gate(onTheRoad(read('chronicle.events', { open: true })), shown, x => x);
+  const agendas = gate(list(plan.agendas), shown, agendaOf(ownerOf(read('people.list', {}))));
+  const secrets = gate(list(plan.secrets), shown, secretOf(read('people.secretOwners', {})));
   return {
-    plan: { shown },
+    plan: { shown, note: noteOf(shown, opts.threadsOn !== false, [beats, clocks, hooks, newsOnWay, agendas, secrets]) },
     pulse: pulseOf(read('pulse.view', {}), shown),
     arc: arcOf(read('director.arc', {}), shown),
-    beats: gate(list(plan.beats), shown, beatOf),
-    clocks: gate(list(plan.clocks), shown, clockOf),
-    hooks: gate(list(plan.hooks), shown, hookOf),
-    newsOnWay: gate(onTheRoad(read('chronicle.events', { open: true })), shown, x => x),
-    agendas: gate(list(plan.agendas), shown, agendaOf(ownerOf(read('people.list', {})))),
+    beats, clocks, hooks, newsOnWay, agendas,
     cast: castOf(read('director.cast.counts', {})),
-    secrets: gate(list(plan.secrets), shown, secretOf(read('people.secretOwners', {}))),
+    secrets,
     ripples: gate(sway, shown, row => ({ name: text(row.name), sway: number(row.sway) })),
     ...trackersOf(read),
     trackerTemplates: BLOCK_STARTERS.map(({ id, name, about }) => ({ id, name, about })),

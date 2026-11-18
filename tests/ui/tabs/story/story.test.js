@@ -68,3 +68,12 @@ test('storyTab tolerates no view-model at all', () => {
   const tab = storyTab(undefined, undefined);
   assert.ok(tab.querySelector('.spobar'));
 });
+
+test('the plan note shows as one line above the cards only when the view-model has one', () => {
+  installFakeDom();
+  const quiet = storyTab(buildStory({ planShown: true }), makeCtx());
+  assert.equal(quiet.querySelector('[data-note="plan"]'), null);
+  const vm = buildStory({ planShown: true });
+  vm.plan.note = 'The Director has no plan yet; it plans after the opening.';
+  assert.match(storyTab(vm, makeCtx()).querySelector('[data-note="plan"]').textContent, /no plan yet/);
+});

@@ -23,7 +23,6 @@ import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
  *   baseline()        → Delta's base relationship values (new NPCs start there)
  *   caps()            → Delta's impact-tier caps { ordinary, meaningful, major, extreme } (a story line's step is held to its tier's)
  *   allowance()       → the reader's events per story day { ordinary, meaningful, major, extreme } (null: no limit; relationship-pacing.js)
- *   calendarOwn()     → true while the reader keeps the calendar in Delta (then there is no story day to count on)
  *   startTime(index)  → story-clock minutes before that reply (null when unavailable)
  *   startDate(index)  → that story day as the dossier writes it ("Goldwane 13"; '' when unavailable)
  *   secretRules(name) → that dossier's notes as [{ id, meter?, at?, when?, title? }] (never their text)

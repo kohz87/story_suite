@@ -154,7 +154,7 @@ test('the hidden notes (secrets) never reach any of Delta\'s own model-facing te
     const options = { transcript, currentTranscript: transcript, existingNpcs: [npc], existingNpc: npc, targetNpc: npc, targets: [npc], targetName: 'Mira', dossierText: 'Name: Mira', userName: 'Ari', charName: 'C' };
     const texts = [
         core.buildScannerPrompt(options), core.buildScannerPrompt({ ...options, customFieldNames: ['Level'] }),
-        core.buildNarrationCapturePrompt(options), core.buildNarrationCapturePrompt({ ...options, compactCapture: true }),
+        core.buildNarrationCapturePrompt(options),
         JSON.stringify(core.buildNarrationCaptureParts(options)), core.buildBackfillPrompt(options), core.buildProfileRefreshPrompt(options),
         core.buildDossierImportPrompt(options), core.buildRelationshipPassPrompt(options), core.buildInjection([npc], transcript, 1),
         JSON.stringify(core.buildNpcPortraitPrompts(npc, {})), JSON.stringify(registry.snapshotNpc(npc)),

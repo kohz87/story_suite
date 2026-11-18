@@ -5,7 +5,7 @@ import { autoScanDue, replyMayChangeDossiers } from '../../modules/people/calls/
 import { partsSource } from './helpers/parts-source.js';
 import { buildInjection, buildRelationshipPassPrompt, buildScannerPrompt } from '../../modules/people/core/core.js';
 import { skippedExchangesWindow, useTranscriptSource } from '../../modules/people/transcript/transcript.js';
-import { currentExchangeRelationshipRelevant } from '../../modules/people/legacy/relationship-pass.js';
+import { currentExchangeRelationshipRelevant } from '../../modules/people/relationship/relationship-pass.js';
 
 test('lean: autoScanDue lets a reply that names someone scan at once; a quiet reply waits for the safety scan', () => {
     const due = (sinceScan, extra = {}) => autoScanDue({ autoScan: true, full: false, scanEvery: 5, sinceScan, ...extra });
@@ -208,6 +208,6 @@ test('lean: the relationship evaluator prompt scores a change in the exchange it
 });
 
 test('lean: the relationship evaluator system prompt says exchanges for a window and is unchanged otherwise', () => {
-    const source = partsSource(new URL('../../modules/people/legacy/relationship-pass.js', import.meta.url));
+    const source = partsSource(new URL('../../modules/people/relationship/relationship-pass.js', import.meta.url));
     assert.match(source, /Use only the supplied targets and current exchange\. Return only the requested JSON object\."\.replace\(options\.window === true \? \/current exchange\/ : \/\(\?!\)\/, 'exchanges'\)/);
 });

@@ -10,8 +10,6 @@ export function createRuntimeState() {
     return {
         eventsRegistered: false,
         initialized: false,
-        inlineObserver: null,
-        inlineObserverChat: null,
         activeEditorPopup: null,
         activeEditorChatKey: '',
         activeEditorBaseRevision: null,
@@ -30,7 +28,6 @@ export function createRuntimeState() {
         deferredSwipeMessageId: null,
         swipeSettlementSequence: 0,
         // The size of the last accepted one-pass capture block this session (0 until one arrives).
-        lastCaptureBlockChars: 0,
         captureRulesWithheld: false,
         narrationCaptureArmed: '',
         // (v2 hidden notes) The story events the armed reply's instruction asked about, kept until its block arrives.

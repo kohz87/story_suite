@@ -9,7 +9,7 @@ import { createNpcPart, validateNpcSlice } from '../../modules/people/meters/npc
 
 import { runtimeSource } from './helpers/runtime-source.js';
 
-import { storyMinuteText } from '../../modules/people/legacy/calendar.js';
+import { storyMinuteText } from '../../modules/people/calendar/calendar.js';
 import { eventSummary } from '../../modules/people/meters/npc-meters-pacing.js';
 import { LOOSE, SHUT, STORED, eventOf, pacedSuite, rowOf, suite } from './storysuite-v2-meters-ladder.helpers.js';
 import { tempDir } from '../../scripts/temp-dir.mjs';

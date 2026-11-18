@@ -19,7 +19,7 @@ import { advanceCastAdmission } from '../runtime/runtime-cast-sync.js';
 import { captureJournalEntry, recordAcceptedFill } from '../runtime/runtime-narration.js';
 
 export function createTargetedPart(rt, deps) {
-    const { attachGeneratedSecrets, BACKFILL_MAX_ATTEMPTS, beginScanOperation, chatHydrationStatus, commitBranchCheckpoint, editorIsMounted, endScanOperation, ensureChatStateLoaded, ensureHydratedStateFresh, findMeguminDossierSources, flushStateFile, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, partyLevelList, persist, recordInlineCardsInState, recordScanDiagnostics, removeNpcInlineCardAtMessage, renderDossier, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, scanCanonicalBaseCurrent, scanOperationCurrent, targetMoved, targetFingerprint, scenePresentAt, setChatState, settleStateFileWrite, staleHostActive, targetNoteOptions, updateInjection } = deps;
+    const { attachGeneratedSecrets, BACKFILL_MAX_ATTEMPTS, beginScanOperation, chatHydrationStatus, commitBranchCheckpoint, editorIsMounted, endScanOperation, ensureChatStateLoaded, ensureHydratedStateFresh, findMeguminDossierSources, flushStateFile, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, partyLevelList, persist, recordScanDiagnostics, renderDossier, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, scanCanonicalBaseCurrent, scanOperationCurrent, targetMoved, targetFingerprint, setChatState, settleStateFileWrite, staleHostActive, targetNoteOptions, updateInjection } = deps;
     const { stateVersions, runningTargetedPasses } = rt;
     const { backfillScanMatchesTarget, rowContradictsTarget, soleRowMayBeTarget, scopeProfileUpdatesToTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
 
@@ -158,7 +158,6 @@ export function createTargetedPart(rt, deps) {
                 excludeNames: [...currentExclusions(), ...(latest.dismissed || [])],
                 turn: latest.turn,
                 sourceMessageId: targetMessageId,
-                scenePresent: scenePresentAt(targetMessageId),
                 calendarSource: getContext().chat?.[targetMessageId]?.mes || '',
                 storyDay: storyDayAt(targetMessageId),
                 tieDay: tieDayAt(targetMessageId),

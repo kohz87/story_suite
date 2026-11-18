@@ -78,9 +78,9 @@ test('step 12 I-7: the relationship evaluator gets the whole stored summary it i
 });
 
 test('step 12 I-10: the one-pass rules always carry the Stage 4 and birthday rules, whatever the text before the reply', () => {
-    for (const compactCapture of [false, true]) {
-        const plain = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()], compactCapture }).rules;
-        const eventful = buildNarrationCaptureParts({ transcript: `${transcript} It is her birthday; the dragon dies and she transforms.`, existingNpcs: [rich()], compactCapture }).rules;
+    {
+        const plain = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()] }).rules;
+        const eventful = buildNarrationCaptureParts({ transcript: `${transcript} It is her birthday; the dragon dies and she transforms.`, existingNpcs: [rich()] }).rules;
         assert.equal(plain, eventful, 'the rules do not key on the text before the reply');
         assert.match(plain, /\nSTAGE 4: named forms=>appearanceForms/);
         assert.match(plain, /Explicit death \(deceased\+explicit\) is terminal: never alive\/present\/worldActive again\./);
@@ -109,9 +109,9 @@ test('step 12 I-10: with a calendar the birthday rule keeps the era in the rules
 });
 
 test('b5b r2-8: the one-pass rules name roles; the people are named in the context part', () => {
-    for (const compactCapture of [false, true]) {
-        const solo = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()], userName: 'Ari', charName: 'Elke', compactCapture });
-        const next = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()], userName: 'Ari', charName: 'Brecht', compactCapture });
+    {
+        const solo = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()], userName: 'Ari', charName: 'Elke' });
+        const next = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()], userName: 'Ari', charName: 'Brecht' });
         assert.equal(solo.rules, next.rules);
         assert.ok(!solo.rules.includes('Ari') && !solo.rules.includes('Elke'));
         assert.match(solo.context, /\nNot NPCs: the player is Ari; the character you play is Elke\.\n/);
@@ -120,8 +120,8 @@ test('b5b r2-8: the one-pass rules name roles; the people are named in the conte
 });
 
 test('new dossier backgrounds are requested from grounded facts in both capture sizes and scanner', () => {
-    for (const compactCapture of [false, true]) {
-        const { rules } = buildNarrationCaptureParts({ transcript, compactCapture });
+    {
+        const { rules } = buildNarrationCaptureParts({ transcript });
         assert.match(rules, /background in npcs\[\].*role, workplace, history or ongoing circumstances/);
         assert.match(rules, /omit if (?:the story gives )?none, never invent/i);
     }

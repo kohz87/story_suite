@@ -1,10 +1,13 @@
 // Wraps Story Block's sdk as the UI port: views come from injected selectors fed by sdk queries, actions pass through, and nothing throws.
 
 import { peopleCommand } from './people-settings.js';
+import { packPresets } from '../select/people-settings/catalog.js';
 import { modelsCommand } from './models.js';
 import { rpgCommand } from './rpg.js';
 import { moneyCommand } from './money.js';
 import { toolsCommand } from './tools.js';
+import { promptsCommand } from './prompts.js';
+import { peopleExportCommand } from './people-export.js';
 import { trackerCommand } from './trackers.js';
 import { worldCommand } from './world-settings.js';
 import { directorCommand } from './settings-director.js';
@@ -117,9 +120,11 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) return answer;
         answer = moneyCommand(type, payload, writes);
         if (answer) return answer;
+        try { answer = promptsCommand(type, payload, writes) ?? await peopleExportCommand(type, payload); } catch (error) { answer = failure(error); }
+        if (answer) return answer;
         try { answer = await toolsCommand(tools, type, payload); } catch (error) { answer = failure(error); }
         if (answer) return answer;
-        try { answer = peopleCommand(type, payload, writes, () => sdk?.settings?.('npc-state-delta') ?? {}); } catch (error) { answer = failure(error); }
+        try { answer = peopleCommand(type, payload, writes, () => sdk?.settings?.('npc-state-delta') ?? {}, () => packPresets(sdk)); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         try { answer = await worldCommand(type, payload, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;

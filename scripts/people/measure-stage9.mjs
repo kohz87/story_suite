@@ -18,8 +18,9 @@ const request = await import(pathToFileURL(at('src', 'scanner-request.js')));
 const lengths = Object.fromEntries(Object.entries(request).filter(([name]) => /RESPONSE_LENGTH$/.test(name)));
 const systemPrompts = text => [...text.matchAll(/systemPrompt: "([^"]+)"/g)].map(match => match[1]);
 const systems = systemPrompts(source);
-// The focused relationship pass (systems[3]) lives in src/relationship-pass-parts/run.js (facade: src/relationship-pass.js).
-const relationshipPassPath = at('src', 'relationship-pass-parts', 'run.js');
+// The focused relationship pass (systems[3]) lives in src/relationship-pass-parts/run.js (facade: src/relationship-pass.js); in this repo
+// it left the layout's place for it (B4-7) and is in modules/people/relationship/.
+const relationshipPassPath = process.argv[2] ? at('src', 'relationship-pass-parts', 'run.js') : path.join(repo, 'modules/people/relationship/relationship-pass-parts/run.js');
 if (fs.existsSync(relationshipPassPath)) systems.splice(3, 0, ...systemPrompts(fs.readFileSync(relationshipPassPath, 'utf8')));
 assert.equal(systems.length, 5, 'Review measurement fixture when request owners change.');
 const requestOwner = request.generateParsedNpcJson;

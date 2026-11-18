@@ -97,19 +97,50 @@ function isWide(row) {
   return row.type === 'seg' && Array.isArray(row.options) && row.options.join('').length > 26;
 }
 
-/** Builds one `.srow` for a schema row; ctx = { onChange(key, value, row), onAction(key, label, row) }. */
+/**
+ * Builds one `.srow` for a schema row; ctx = { onChange(key, value, row), onAction(key, label, row) }. What onChange answers is read: a refusal
+ * ({ ok: false, message }) is shown under the row (a switch, choice or chip row goes back to the last value kept), and a number the store held to
+ * its range ({ ok: true, value }) is redrawn in the box. Only the newest change's answer is applied.
+ */
 export function renderRow(row, ctx = {}) {
   const labelId = `sf-${row.key}`;
   const isSwitch = row.type === 'sw';
-  const emit = row.type === 'btn'
-    ? label => ctx.onAction?.(row.key, label, row)
-    : value => ctx.onChange?.(row.key, value, row);
+  let kept = row.value;
+  let latest = 0;
+  const note = h('small', { class: 'snote', role: 'alert' });
+  note.hidden = true;
+  const ctl = h('span', { class: 'ctl' });
+  const draw = () => ctl.replaceChildren(...[controlFor({ ...row, value: kept }, emitted, labelId)].flat());
+  const answered = (value, answer, mine) => {
+    if (mine !== latest) return;
+    const refused = answer?.ok === false;
+    note.textContent = refused ? String(answer.message ?? 'That was not saved.') : '';
+    note.hidden = !refused;
+    if (refused) { if (row.type !== 'num' && row.type !== 'txt' && row.type !== 'multi' && row.type !== 'area') draw(); return; }
+    kept = value;
+    const held = Number(answer?.value);
+    if (row.type === 'num' && answer?.value !== undefined && answer.value !== null && Number.isFinite(held) && held !== value) {
+      kept = held;
+      const box = ctl.querySelector('input');
+      if (box) box.value = String(held);
+    }
+  };
+  async function emit(value) {
+    const mine = ++latest;
+    let answer;
+    try { answer = await ctx.onChange?.(row.key, value, row); } catch (error) { answer = { ok: false, message: String(error?.message ?? error) }; }
+    answered(value, answer, mine);
+  }
+  const act = label => ctx.onAction?.(row.key, label, row);
+  const emitted = row.type === 'btn' ? act : emit;
+  ctl.replaceChildren(...[controlFor(row, emitted, labelId)].flat());
   const tags = tagNodes(row.tags);
   const el = h(
     'div',
     { class: ['srow', isWide(row) && 'wide', isSwitch && 'swrow'], dataset: { key: row.key, type: row.type } },
     h('span', { class: 'lb' }, h('b', { id: labelId, class: tags.length ? 'tagd' : null }, tags.length ? h('span', { class: 'ln' }, row.label) : row.label, tags), row.hint ? h('small', row.hint) : null),
-    h('span', { class: 'ctl' }, controlFor(row, emit, labelId)),
+    ctl,
+    note,
   );
   if (isSwitch) {
     el.addEventListener('click', (event) => {

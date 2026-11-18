@@ -58,7 +58,7 @@ test('Tools shows the sent bars and text, then Problems opens its card and Inspe
   press(el, 'Show');
   assert.equal(page('tools').querySelectorAll('[data-card="problems"]').length, 1);
   assert.equal(calls.some(c => c[1] === 'tools.problems'), false, 'the page opens its own card; it does not ask the host');
-  press(page('tools'), 'Reset Tools to defaults'); assert.deepEqual(calls.at(-1), ['a', 'settings.reset', 'Reset Tools to defaults']);
+  assert.equal(page('tools').querySelectorAll('.btn2').some(b => b.textContent === 'Reset Tools to defaults'), false, 'Tools has no setting to reset (its switches became facts)');
 });
 
 test('without sent or pack data the cards are not drawn and no empty Reset is shown', () => {

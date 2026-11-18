@@ -13,7 +13,7 @@ import {
     hasCompletePrimaryRelationshipDecision,
     runFocusedRelationshipPass,
     suppressPrimaryRelationshipForFocusedDecisions,
-} from '../../modules/people/legacy/relationship-pass.js';
+} from '../../modules/people/relationship/relationship-pass.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { createHost } from '../../testkit/index.js';
 import { newestFlatDay as fromFlatDay } from './helpers/pacing-suite.js';
@@ -82,7 +82,8 @@ test('a scanner decision can accumulate fractional progress without a visible me
 
 test('index.js imports the pass and keeps no copy', () => {
     const index = runtimeSource();
-    assert.match(index, /\} from '\.\/src\/relationship-pass\.js';/);
+    // B4-7 moved the pass out of the old folder's layout (modules/people/relationship/), so its import has no old name.
+    assert.match(index, /\} from '[^']*\/modules\/people\/relationship\/relationship-pass\.js';/);
     assert.doesNotMatch(runtimeSource(), /function (?:runFocusedRelationshipPass|applyFocusedRelationshipDecisions|suppressPrimaryRelationshipForFocusedDecisions|stampNpcChanges|currentExchangeRelationshipRelevant)\(/);
     assert.match(index, /suppressPrimaryRelationshipForFocusedDecisions\(fullWindowRelationship\.mergeSafe, relationshipPass\.decisions, \(\) => getChatState\(\)\.npcs\)/);
 });
@@ -178,7 +179,7 @@ test('hosted: nothing of the slice is written into a Delta record (no adopt func
     try {
         assert.equal(h.adapter.sliceNumbers, undefined);
         assert.doesNotMatch(fs.readFileSync(new URL('../../modules/people/runtime/runtime-hosted.js', import.meta.url), 'utf8'), /adoptSlice|sliceNumbers|persist\(/);
-        assert.doesNotMatch(partsSource(new URL('../../modules/people/legacy/relationship-pass.js', import.meta.url)), /adoptSlice/);
+        assert.doesNotMatch(partsSource(new URL('../../modules/people/relationship/relationship-pass.js', import.meta.url)), /adoptSlice/);
     } finally { h.host.close(); }
 });
 

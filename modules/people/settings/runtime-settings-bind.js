@@ -4,14 +4,14 @@
    index.js without change. */
 
 import { getContext } from '../../../../../../extensions.js';
-import { DEFAULT_ALLOWANCE, normalizeAllowance } from '../legacy/relationship-pacing.js';
+import { DEFAULT_ALLOWANCE, normalizeAllowance } from '../relationship/relationship-pacing.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, normalizeCustomFieldNames } from '../core/core.js';
 import { cutSettingNumber } from './number-cut.js';
 import { chatLineage } from '../legacy/branch.js';
-import { PORTRAIT_THEME_PRESETS, PORTRAIT_CUSTOM_PRESET_LIMIT, portraitCustomPreset, portraitCustomPresetLibrary, portraitCustomPresetFor, nextPortraitCustomPresetId, portraitCustomPresetNameTaken, uniquePortraitCustomPresetName, persistSettings, getSettings, normalizePresentCastDisplay } from './runtime-settings.js';
+import { PORTRAIT_THEME_PRESETS, PORTRAIT_CUSTOM_PRESET_LIMIT, portraitCustomPreset, portraitCustomPresetLibrary, portraitCustomPresetFor, nextPortraitCustomPresetId, portraitCustomPresetNameTaken, uniquePortraitCustomPresetName, persistSettings, getSettings } from './runtime-settings.js';
 
 export function createSettingsBindPart(rt, deps) {
-    const { addNpcManually, afterEnabledChange, bindSettingsGroupMemory, buildSettingsHtml, closePortraitGenerator, confirmDiscardPortraitDraft, deleteNpcById, detachBrokenSidecar, ensureFreshMutationBoundary, freshChatState, generatePortraitFromDialog, getChatKey, getChatState, hostedOnePass, latestMessageId, markPortraitSettingsDirty, openNpcEditorSafely, persistCritical, persistPortraitCustomPresetLibrary, portraitFileFailed, portraitSettingsDraftFromUi, portraitSettingsSnapshot, processPendingBackfills, queueInlineRender, refreshNpcFromChat, renderDossier, renderWhatsSent, resetPortraitGeneratorFromDossier, retryCurrentChatHydration, savePortraitSettingsDraft, scanNow, scanNpcDossier, setChatState, setNpcArchiveStateById, startInlineWatchdog, syncSettingsControls, UI_ID, updateInjection, useGeneratedPortrait, writePortraitCustomPresetOptions, writePortraitSettingsDraftToUi } = deps;
+    const { addNpcManually, afterEnabledChange, bindSettingsGroupMemory, buildSettingsHtml, closePortraitGenerator, confirmDiscardPortraitDraft, deleteNpcById, detachBrokenSidecar, ensureFreshMutationBoundary, freshChatState, generatePortraitFromDialog, getChatKey, getChatState, hostedOnePass, latestMessageId, markPortraitSettingsDirty, openNpcEditorSafely, persistCritical, persistPortraitCustomPresetLibrary, portraitFileFailed, portraitSettingsDraftFromUi, portraitSettingsSnapshot, processPendingBackfills, queueCastRefresh, refreshNpcFromChat, renderDossier, renderWhatsSent, resetPortraitGeneratorFromDossier, retryCurrentChatHydration, savePortraitSettingsDraft, scanNow, scanNpcDossier, setChatState, setNpcArchiveStateById, syncSettingsControls, UI_ID, updateInjection, useGeneratedPortrait, writePortraitCustomPresetOptions, writePortraitSettingsDraftToUi } = deps;
 
     let mountRetryTimer = null;
 
@@ -59,7 +59,6 @@ export function createSettingsBindPart(rt, deps) {
         bindSettingsCheckbox('#npc_state_delta_auto', 'autoScan');
         bindSettingsCheckbox('#npc_state_delta_full_scan_every_turn', 'fullScanEveryTurn');
         bindSettingsCheckbox('#npc_state_delta_narration_capture', 'narrationCapture');
-        bindSettingsCheckbox('#npc_state_delta_narration_capture_compact', 'narrationCaptureCompact');
         bindSettingsCheckbox('#npc_state_delta_inject', 'inject', updateInjection);
         bindSettingsNumber('#npc_state_delta_inject_budget', 'injectBudgetTokens', 512, 6000, 4000, updateInjection);
         bindSettingsNumber('#npc_state_delta_inject_limit', 'injectLimit', 1, 12, 3, updateInjection);
@@ -244,13 +243,6 @@ export function createSettingsBindPart(rt, deps) {
         bindSettingsNumber('#npc_state_delta_scan_depth', 'scanDepth', 2, 30, 6);
         bindSettingsNumber('#npc_state_delta_narration_capture_catch_up', 'narrationCaptureCatchUp', 0, 50, 4);
         bindSettingsNumber('#npc_state_delta_narration_capture_catch_up_people', 'narrationCaptureCatchUpPeople', 1, 3, 1);
-        $(document).on('change.npcStateDelta', '#npc_state_delta_present_cast_display', function () {
-            getSettings().presentCastDisplay = normalizePresentCastDisplay(this.value); this.value = getSettings().presentCastDisplay;
-            getSettings().presentCastDisplayChosen = true;
-            persistSettings();
-            startInlineWatchdog();
-            queueInlineRender(0);
-        });
         $(document).on('change.npcStateDelta', '#npc_state_delta_admission_mode', function () {
             getSettings().admissionMode = normalizeNpcAdmissionMode(this.value); this.value = getSettings().admissionMode; persistSettings();
         });

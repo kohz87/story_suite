@@ -12,16 +12,18 @@ import { selectStory } from './story.js';
 import { listProfiles } from '../../core/model-call.js';
 import { selectSettings } from './settings.js';
 import { selectProblems, selectSent, selectInspector, selectSavePoints } from './tools.js';
+import { selectPrompts } from './prompts.js';
 import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
 import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
 import { repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
-import { pickOf, pickedFocus } from './focus.js';
 import { PREFS_KEY } from '../port/prefs-key.js';
+import { pickOf, pickedFocus } from './focus.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 import { createWizardWorld } from '../wizard/world.js';
+import { packPresets } from './people-settings/catalog.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
@@ -82,7 +84,8 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       return selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null, worldEvents, conditionsHere: worldEvents ? read('chronicle.conditionsHere', {}) : null, regionNames: read('chronicle.regionNames', {}) });
     },
     journal: read => selectJournal(read, { focusId: pickOf(ctx) }),
-    story: read => selectStory(read),
+    // The plan opens from this chat's own pref (the Story tab's Show the plan writes it); the Threads switch decides whether its beats, clocks, agendas and secrets exist at all.
+    story: read => selectStory(read, { planShown: ctx()?.chatMetadata?.[PREFS_KEY]?.plan === true, threadsOn: sdk?.features?.()?.find?.(f => f?.id === 'story-director.threads')?.on !== false }),
     // The open interaction: `interaction.view`, null when none is open. A fight is shown on the Fight tab, not here.
     scene: read => openScene(read('interaction.view', {})),
     // The open fight: the same answer, drawn by the fight renderer on the activity host (the kind's own view is the FIGHT_SHAPE), or the waiting fight's offer; null when neither.
@@ -97,11 +100,13 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     settings: () => selectSettings({
       host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk, ctx), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null, staticTokens: tools?.staticTokens,
+      peoplePresets: packPresets(sdk),
     }),
     // Read again each time the Tools page draws or the Inspector moves (never the overlay's open-time snapshot).
     problems: () => (tools ? selectProblems(problemsNow()) : null),
     sent: () => (tools ? selectSent(tools.sent(), selectProblems(problemsNow())) : null),
     savepoints: () => (tools ? selectSavePoints(tools.savePoints()) : null),
+    prompts: () => selectPrompts(Object.fromEntries(['npc-state-delta', 'story-director'].map(id => [id, sdk?.settings?.(id) ?? null]))),
     inspector: (_read, args) => (tools ? selectInspector({ replies: tools.replies(), reply: i => tools.reply(i) }, args?.index) : null),
   };
 }

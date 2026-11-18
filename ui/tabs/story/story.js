@@ -19,6 +19,7 @@ export function storyTab(story = {}, ctx = {}) {
       secretsCard(story.secrets, shown, ctx), ripplesCard(story.ripples, shown)].filter(Boolean);
     return [
       planBar(shown, (next) => { prefs?.setSpoiler?.('plan', next); ctx.refresh?.(next); }),
+      story.plan?.note ? h('p', { class: 'fine', dataset: { note: 'plan' } }, story.plan.note) : null,
       h('div', { class: 'dgrid2' }, grid),
     ];
   }

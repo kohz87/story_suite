@@ -43,8 +43,7 @@ export function createHostedPart(rt, deps) {
         if (!adapter) return true;
         try { return adapter.scanEveryReply?.() !== false; } catch { return true; }
     }
-    // (v2) Story Director's clock while hosted ({ minutes, calendar }), for calendar.js; null otherwise (and
-    // while the reader keeps the calendar here: the adapter's calendarOwn).
+    // (v2) Story Director's clock while hosted ({ minutes, calendar }), for calendar.js; null otherwise.
     // The story's date after reply `index` as the dossier writes it ("Icewane 27"), '' with no host clock (calendar.js setStoryDateAtSource).
     function hostedStoryDateAt(index) {
         try { return String(storySuiteV2Meters()?.storyDateText?.(index) ?? ''); } catch { return ''; }

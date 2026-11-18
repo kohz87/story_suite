@@ -1,7 +1,7 @@
 // NPC State holds a person still while they are away (Story Director's `director.away`, read only): no meter drift and no count toward
 // losing a stage at the tick, and their stable profile fields held as if locked for one automatic scan's merge (nothing of that is stored).
 
-import { storyMinuteText } from '../legacy/calendar.js';
+import { storyMinuteText } from '../calendar/calendar.js';
 import { labelKey } from '../dossier/cast-dossier-parts/shared-text.js';
 import { entryLabels, findAwayEntry, isAwayEntry, normalizeAwayAnswer } from './away-read.js';
 

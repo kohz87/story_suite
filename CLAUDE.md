@@ -9,6 +9,7 @@ One extension at `0.1.0`:
 - The three old repositories' `README`, `CHANGELOG` and `CLAUDE.md` files are history: `docs/history/packages/<name>/`. Their rules that still hold are in this file.
 - Call it **NPC State** (the people module, `modules/people`), not NSD, in text a person reads.
 - One version number: `node scripts/release.mjs <version>` writes it everywhere; `npm run release:check` fails if a place disagrees. A release is a version bump merged to main, never a tag.
+- Before a release, do the walkthrough in `docs/dev/release-walkthrough.md`: the settings walk (`node scripts/ui-walk/settings-walk.mjs --url <replica> --out <folder>`) and the pages and actions checked by hand in a replica SillyTavern.
 
 ## Non-negotiables
 

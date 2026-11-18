@@ -12,7 +12,7 @@ import { profileEvidenceCount, promptProfileEvidence } from './core-evidence.js'
 import { compactImpactRubric, compactMemoryRubric, compactRelationshipRubric, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_RELATIONSHIP_CRITERIA } from './core-prompts-criteria.js';
 import { scenePresentFocus, selectScannerContextNpcs, selectScannerProfileContextNpcs, withScenePresent } from './core-prompts-select.js';
 import { BEHAVIOR_LEVER_LABELS, PROFILE_STYLE_LINE, PROMPT_CAPS } from './core-prompts-targeted.js';
-import { compactCaptureRules, hiddenNoteEventParagraph, hiddenNotePromptRules, NARRATION_CAPTURE_HEADER, NARRATION_CAPTURE_STORY } from './core-prompts-capture.js';
+import { hiddenNoteEventParagraph, hiddenNotePromptRules, NARRATION_CAPTURE_HEADER, NARRATION_CAPTURE_STORY } from './core-prompts-capture.js';
 export function buildScannerPrompt({
     transcript,
     existingNpcs = [],
@@ -31,7 +31,6 @@ export function buildScannerPrompt({
     fullScanMode = false,
     narrationCapture = false,
     dossierAbove = '',
-    compactCapture = false,
     sceneNames = null,
     layeredSecrets = false,
     eventWatch = null,
@@ -203,9 +202,6 @@ export function buildScannerPrompt({
             ? `Story context:\n${EARLIER_LABEL}:\n${earlierStory}\n\nCURRENT exchange (authoritative for presence, mood and location):\n${currentExchange}`
             : `Story context:\n${String(transcript || '').trim()}${fullScanMode ? `\n\nCURRENT exchange (authoritative for presence, mood and location):\n${currentExchange}` : ''}`;
 
-    // (1.2.17) Opt-in compact one-pass rules: the same fields and gates in fewer words (about 1,200
-    // tokens instead of 2,000). Only for one-pass capture; the scanner keeps its full rules.
-    const rulesBlock = narrationCapture && compactCapture ? compactCaptureRules(caps) : null;
     // (b5b r2-8) One-pass rules go early and must not change from reply to reply; in a group chat the
     // character about to speak does. So the capture rules name roles and this line, in the context
     // part, names the people.
@@ -217,28 +213,6 @@ export function buildScannerPrompt({
     // goes in the context part.
     const hiddenNoteRules = hiddenNotePromptRules({ layeredSecrets, eventWatch, events: !narrationCapture });
     const hiddenNoteContext = narrationCapture ? hiddenNoteEventParagraph(eventWatch) : '';
-    if (rulesBlock) {
-        return `${NARRATION_CAPTURE_HEADER}
-Admission: ${admissionPolicy}
-${rulesBlock}${hiddenNotePromptRules({ layeredSecrets, start: 12, events: false })}
-
-Relationship rubric: ${relationshipRubric || '(none)'}
-Impact rubric: ${impactRubric || '(none)'}
-Memory criteria: ${memoryRubric || '(none configured; store only clearly durable story-relevant events)'}
-Delta caps: ordinary ${caps.ordinary}; meaningful ${caps.meaningful}; major ${caps.major}; extreme ${caps.extreme}. New-NPC baseline: ${JSON.stringify(baseline)}
-
-Identity index (matching only):
-${JSON.stringify(identityIndex)}${captureNames}${sceneLine}
-
-Relevant live context (dynamic fields only):
-${JSON.stringify(liveSent)}
-
-Stable profile context (strongly relevant existing only):
-${JSON.stringify(profileSent)}${dossierNote}${hiddenNoteContext}
-
-${storyContext}`;
-    }
-
     return `${narrationCapture ? NARRATION_CAPTURE_HEADER : 'Private NPC dossier scanner.'}
 Admission: ${admissionPolicy}${fullScanRule}
 Rules:

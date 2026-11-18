@@ -76,6 +76,14 @@ function placeNode(p, u, newsIds, state, act, vb, dy = 0) {
   badge);
 }
 
+// The land and its grid: the old 0-1000 sheet, grown to hold every place (north up makes y negative).
+function landBox(places) {
+  const xs = [-500, 1500, ...places.map(p => p.x - 500), ...places.map(p => p.x + 500)];
+  const ys = [-500, 1200, ...places.map(p => p.y - 500), ...places.map(p => p.y + 500)];
+  const [x, y] = [Math.min(...xs), Math.min(...ys)];
+  return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };
+}
+
 function drawSvg(world, vb, scale, state, act) {
   const u = 1 / scale;
   const byId = new Map(world.places.map(p => [p.id, p]));
@@ -84,9 +92,14 @@ function drawSvg(world, vb, scale, state, act) {
   const terrain = world.terrain ?? {};
   const shifts = nudgeLabels(world.places, u, vb);
   const grid = [];
-  for (let i = 0; i <= 1000; i += 100) grid.push(svgEl('path', { class: 'grid', d: `M${i} -500V1200M-500 ${i}H1500` }));
+  const land = landBox(world.places);
+  const span = k => [Math.min(0, Math.floor(Math.min(...world.places.map(p => p[k])) / 100) * 100), Math.max(1000, Math.ceil(Math.max(...world.places.map(p => p[k])) / 100) * 100)];
+  const [x0, x1] = span('x');
+  const [y0, y1] = span('y');
+  for (let i = x0; i <= x1; i += 100) grid.push(svgEl('path', { class: 'grid', d: `M${i} ${land.y}V${land.y + land.h}` }));
+  for (let i = y0; i <= y1; i += 100) grid.push(svgEl('path', { class: 'grid', d: `M${land.x} ${i}H${land.x + land.w}` }));
   return svgEl('svg', { class: 'mp', viewBox: viewText(vb), preserveAspectRatio: 'xMidYMid slice', 'aria-label': 'Map' },
-    svgEl('rect', { class: 'land', x: -500, y: -500, width: 2000, height: 1700 }),
+    svgEl('rect', { class: 'land', x: land.x, y: land.y, width: land.w, height: land.h }),
     grid,
     terrain.sea ? svgEl('path', { class: 'sea', d: terrain.sea }) : null,
     (terrain.rivers ?? []).map(d => svgEl('path', { class: 'river', d })),

@@ -10,7 +10,8 @@ const FEATURES = [F('hud', true), F('choices', true), F('chatter', false), F('yo
 const extrasOf = vm => vm.sections.find(s => s.id === 'extras');
 
 test('the page has the two Inner chatter rows at the live values, and the module holds the three switches', () => {
-  const vm = selectSettings({ features: FEATURES, extras: { chatterInPrompt: true, chatterMax: 5 } });
+  const features = FEATURES.map(f => (f.id === 'story-block.chatter' ? { ...f, on: true } : f));
+  const vm = selectSettings({ features, extras: { chatterInPrompt: true, chatterMax: 5 } });
   assert.deepEqual(checkShape(vm, SETTINGS_SHAPE), []);
   const rows = extrasOf(vm).rows;
   assert.deepEqual(rows.map(r => [r.key, r.group, r.type, r.label, r.value, r.default]), [
@@ -18,14 +19,23 @@ test('the page has the two Inner chatter rows at the live values, and the module
     ['extras.chatterLines', 'Inner chatter', 'num', 'Most chatter lines per reply', 5, 3],
   ]);
   const def = vm.modules.defs.find(d => d.section === 'extras');
-  assert.deepEqual(def.subs.map(s => [s.key, s.on]), [['choices', true], ['chatter', false], ['you', true]]);
-  assert.deepEqual(vm.modules.chat.extras, { on: true, subs: { choices: true, chatter: false, you: true } });
+  assert.deepEqual(def.subs.map(s => [s.key, s.on]), [['choices', true], ['chatter', true], ['you', true]]);
+  assert.deepEqual(vm.modules.chat.extras, { on: true, subs: { choices: true, chatter: true, you: true } });
   assert.deepEqual(vm.modules.defs.find(d => d.id === 'story-block').subs.map(s => s.key), ['story-block.hud'], 'moved out of Story Block\'s module');
+});
+
+test('with Inner chatter off its group is gone whole (the switch stays on the module), and back with the stored values when on', () => {
+  const stored = { chatterInPrompt: true, chatterMax: 7 };
+  const off = selectSettings({ features: FEATURES, extras: stored });
+  assert.deepEqual(extrasOf(off).rows, []);
+  assert.equal(off.modules.defs.find(d => d.section === 'extras').subs.find(s => s.key === 'chatter').on, false);
+  const on = selectSettings({ features: FEATURES.map(f => (f.id === 'story-block.chatter' ? { ...f, on: true } : f)), extras: stored });
+  assert.deepEqual(extrasOf(on).rows.map(r => r.value), [true, 7]);
 });
 
 test('unset values show the defaults; a host with no features still gets the page', () => {
   const vm = selectSettings({ features: [], extras: {} });
-  assert.deepEqual(extrasOf(vm).rows.map(r => r.value), [false, 3]);
+  assert.deepEqual(extrasOf(vm).rows.map(r => r.value), [false, 3], 'no feature list read: the rows stay');
   assert.equal(vm.modules.defs.some(d => d.id === 'extras'), false);
 });
 
@@ -33,6 +43,7 @@ test('the rows read the live host (sdk.settings(story-block)), so a value set in
   t.mock.method(console, 'warn', () => {});
   const host = await createHost(); t.after(() => host.close());
   host.settings.set('story-block', 'chatterMax', 8);
+  host.features.set('story-block.chatter', true);
   const vm = selectSettings({ features: host.features.list(), extras: host.sdk.settings('story-block') });
   assert.equal(extrasOf(vm).rows[1].value, 8);
   assert.equal(vm.modules.defs.find(d => d.id === 'extras').subs.length, 3);

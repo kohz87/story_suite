@@ -15,7 +15,7 @@ import { FILL_REASON, fillPolicy, fillFailureNote } from '../meters/npc-lines-pa
 const { backfillScanMatchesTarget, rowContradictsTarget, soleRowMayBeTarget, transcriptMentionsBackfillTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
 
 export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase, scopeTargetedChannels }) {
-    const { BACKFILL_MAX_ATTEMPTS, ensureChatStateLoaded, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, persist, recordInlineCardsInState, removeNpcInlineCardAtMessage, requireReadyChatMutation, runTargetedDossierPass, targetNoteOptions } = deps;
+    const { BACKFILL_MAX_ATTEMPTS, ensureChatStateLoaded, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, persist, requireReadyChatMutation, runTargetedDossierPass, targetNoteOptions } = deps;
 
     const BACKFILL_RETRY_COOLDOWN_MS = 60 * 1000;
 
@@ -159,10 +159,6 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
                     finalNpc.relationship = structuredClone(preserved.relationship || DEFAULT_RELATIONSHIP);
                     finalNpc.lastRelationshipChange = structuredClone(preserved.lastRelationshipChange || finalNpc.lastRelationshipChange);
                 }
-            },
-            beforeCheckpoint: (nextState, finalNpc, targetMessageId) => {
-                if (!finalNpc.archived && finalNpc.present) recordInlineCardsInState(nextState, targetMessageId, [finalNpc.id], 'dossier-backfill');
-                else removeNpcInlineCardAtMessage(nextState, targetMessageId, finalNpc.id);
             },
             onDone: savedNpc => {
                 if (!request.silent) globalThis.toastr?.success?.(`NPC State Delta: backfilled ${savedNpc?.name || request.label} from recent story context.`);

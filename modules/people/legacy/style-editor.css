@@ -12,11 +12,10 @@
 
 .npc-state-delta-muted { opacity: .58; font-size: .84rem; }
 
-/* Settings roster and standalone inline mount */
+/* Settings roster */
 .npc-state-delta-roster-summary { margin: 8px 0 2px; padding: 8px 10px; border: 1px solid var(--npc-line); border-radius: 8px; }
 .npc-state-delta-roster-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
 .npc-state-delta-roster-chips > span { border: 1px solid var(--npc-line); border-radius: 999px; padding: 3px 8px; font-size: .76rem; color: var(--npc-gold); background: rgba(0,0,0,.10); }
-.npc-state-delta-inline-anchor { --npc-paper: rgba(245, 238, 220, .08); --npc-line: rgba(216, 190, 145, .22); --npc-gold: #d8bc78; --npc-ink: var(--SmartThemeBodyColor, #ddd); clear: both; width: 100%; margin: 8px 0 2px; }
 /* Relationship tuning controls */
 .npc-state-delta-tuning-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0 10px; }
 .npc-state-delta-tuning-group { border: 1px solid rgba(216,190,145,.13); border-radius: 8px; padding: 8px 10px; display: grid; gap: 6px; }
@@ -113,12 +112,6 @@
 .npc-state-delta-editor-lifecycle b { color: var(--npc-gold); }
 .npc-state-delta-editor-lifecycle small { grid-column: 1 / -1; opacity: .68; }
 
-/* Host/mobile interaction hardening */
-.npc-state-delta-inline-anchor {
-  display: block !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-}
 .npc-state-delta-roster-chips .npc-state-delta-roster-edit {
   pointer-events: auto !important;
   touch-action: manipulation;
@@ -153,16 +146,3 @@
     max-height: 100dvh;
   }
 }
-
-/* Megumin master-block integration */
-.npc-state-delta-megumin-pane {
-  --npc-paper: rgba(245, 238, 220, .08);
-  --npc-line: rgba(216, 190, 145, .22);
-  --npc-gold: #d8bc78;
-  --npc-ink: var(--SmartThemeBodyColor, #ddd);
-  width: 100%;
-  box-sizing: border-box;
-  padding: 2px 0 0;
-  color: var(--npc-ink);
-}
-.npc-state-delta-megumin-tab { touch-action: manipulation; }

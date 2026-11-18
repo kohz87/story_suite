@@ -20,7 +20,7 @@ export { npcNamedInText, countNormalizedPhrase } from './core-merge-names.js';
 
 /**
  * (1.2.10) Presence put right by the reply's World State (`scene`: present names, `none`, and
- * off-screen names; see present-scene.js worldStatePeople). Listed as present: present. Listed
+ * off-screen names). Listed as present: present. Listed
  * off-screen, or the scene says nobody is present: not present. Anyone else keeps what the scan
  * said, since a World State often leaves people out. Nobody dead or archived is made present.
  * Changes `npcs` in place; returns { cleared: [ids], added: [ids] }.

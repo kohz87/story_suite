@@ -184,3 +184,41 @@ lockAwayNpcs
 awayNpcIds
 dossierKeyViews
 keyPeopleList
+# B4-6: the in-chat present cards, the Megumin pane and the Story Block scene/chatter readers (NPC State). The chat gets no cards; the Cast and World panes keep the present-card markup.
+createInlineCardsPart
+createInlineCardsStatePart
+createInlineCardsPresentPart
+createInlineCardsModePart
+createInlineCardsMeguminPart
+createInlineCardsMountPart
+recordInlineCardsInState
+clearInlineCardsAtMessage
+removeNpcInlineCardAtMessage
+purgeInlineCardsInState
+scanInlineNpcIds
+scenePresentAt
+effectivePresentCastChoice
+presentCastDisplayMode
+normalizePresentCastDisplay
+inlineEntriesForRender
+inChatCastMode
+mountNpcStateInsideMeguminBlock
+worldStatePeople
+parseWorldStateNpcs
+parseChatterLines
+chatterSlotsHtml
+speakerChatterHtml
+othersSlotsHtml
+ensureInlineObserver
+startInlineWatchdog
+inlineMountNeedsRepair
+renderInlineCards
+queueInlineRender
+# B4-7: the uncalled external calendar source (the v1 handshake fed it; B4-2 removed the handshake) and the always-off own-calendar switch.
+setExternalCalendarSource
+calendarOwn
+# B4-8: the short one-pass instruction and the JSON-block reading helpers.
+compactCaptureRules
+parseNarrationCapture
+textCapture
+lastCaptureBlockChars

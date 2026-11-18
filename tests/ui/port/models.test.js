@@ -62,8 +62,10 @@ test('the real sdk has no setter, so the Calls group and the connections save th
   assert.equal((await port.command('settings.set', { key: 'calls.fallback', value: true })).ok, true);
   assert.equal((await port.command('settings.set', { key: 'calls.repair', value: true })).ok, true);
   assert.equal((await port.command('settings.set', { key: 'calls.keepBlocks', value: false })).ok, true);
+  assert.equal((await port.command('settings.set', { key: 'calls.maxOutput', value: 700 })).ok, true);
   assert.equal((await port.command('settings.set', { key: 'models.quick', value: 'Cheap' })).ok, true);
   assert.equal(saved().core.callQueue, false);
+  assert.equal(saved().modules['npc-state-delta'].scannerMaxOutputTokens, 700, 'Most output per People call is NPC State’s scannerMaxOutputTokens');
   assert.equal(saved().modules['story-block'].assistExtractorKinds, '! time, + world');
   assert.equal(saved().features['story-block.extractor'], true);
   assert.equal(saved().modules['story-block'].assistRepair, true, 'Repair a reply’s missing changes is stored on Story Block');

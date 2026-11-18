@@ -19,12 +19,12 @@ export function FIXTURES(core) {
 }
 
 /** The prompts pinned per fixture: fallback scanner (full scan, relationships on), backfill, Refresh, and today's one-pass context.
- * (There is no separate compact-capture context pin: compactCapture changes the rules half of the parts, not the context, so it was byte-identical.) */
+ */
 export function PROMPTS(core) {
     return {
         scanner: o => core.buildScannerPrompt({ ...o, fullScanMode: true }),
         backfill: o => core.buildBackfillPrompt(o),
         refresh: o => core.buildProfileRefreshPrompt(o),
-        onePassContext: o => core.buildNarrationCaptureParts({ ...o, compactCapture: false }).context,
+        onePassContext: o => core.buildNarrationCaptureParts(o).context,
     };
 }

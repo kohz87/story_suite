@@ -13,7 +13,7 @@ import { chatContext } from '../calls/runtime-scan-helpers.js';
 import { applyNpcMemories, firstMeetingCandidates } from '../memory/memory-fact-apply.js';
 import { scanMemoryFacts } from '../memory/memory-fact-scan.js';
 import { stampMemories } from '../core/core-record-shared.js';
-import { storyDateTextAt } from '../legacy/calendar.js';
+import { storyDateTextAt } from '../calendar/calendar.js';
 
 // (ONEPASSCAPR2-2) Keep the admission values until the host's meeting step can answer. A later manual edit or scan wins over this seed.
 const SEED_FIELDS = ['aliases', 'role', 'overallAppearance', 'appearance', 'unclassifiedAppearance', 'appearanceForms', 'currentForm', 'currentFormUnknown', 'speech', 'personality', 'background', 'behaviorProfile', 'mannerisms', 'relationshipSummary', 'homeBase', 'goal', 'location', 'customFields', 'species', 'gender', 'age', 'apparentAge', 'birthDate', 'birthDateSource', 'birthDateReason', 'birthDatePrecision', 'birthDateYearSource', 'relationship', 'meterSetup', 'secrets', 'level', 'abilities', 'keepsakes', 'keyRelationships', 'status'];

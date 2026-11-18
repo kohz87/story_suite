@@ -1,7 +1,7 @@
 // What the hosted slice does with a held event: the day rule, the story-clock readers, the reader's words for the receipt and the cut of a forwarded change to a lower tier.
 import { RELATIONSHIP_KEYS, RELATIONSHIP_MILESTONE_REQUIREMENTS, RELATIONSHIP_MILESTONE_THRESHOLDS } from '../../core/core-relationship-model.js';
 import { DAY_MINUTES } from '../npc-meters-config.js';
-import { PACING_TIERS } from '../../legacy/relationship-pacing.js';
+import { PACING_TIERS } from '../../relationship/relationship-pacing.js';
 
 const list = words => (words.length > 1 ? `${words.slice(0, -1).join(', ')} and ${words.at(-1)}` : words[0]);
 
@@ -14,10 +14,10 @@ export const dayRuleFor = (ctx, key) => (!ctx?.standing || (Array.isArray(ctx.st
 
 /**
  * The clock readers of one npc part: `now` is the story minute in effect at the line (the day rule); without it, the minute before the reply
- * (hooks.startTime). clockDay is null without a clock or when Delta owns the calendar; dateOf is the dossier's words for that day ('' without).
+ * (hooks.startTime). clockDay is null without a clock; dateOf is the dossier's words for that day ('' without).
  */
 export function clockReaders(hooks, call) {
-    const clockMinutes = (at, now = null) => (call(hooks.calendarOwn, false) === true ? null : Number.isInteger(now) ? now : (m => (Number.isInteger(m) ? m : null))(call(hooks.startTime, null, at)));
+    const clockMinutes = (at, now = null) => (Number.isInteger(now) ? now : (m => (Number.isInteger(m) ? m : null))(call(hooks.startTime, null, at)));
     const clockDay = (at, now = null) => { const minutes = clockMinutes(at, now); return minutes === null ? null : Math.floor(minutes / DAY_MINUTES); };
     const dateOf = (at, now = null) => (clockDay(at, now) === null ? '' : Number.isInteger(now) ? call(hooks.dateAt, '', now) : call(hooks.startDate, '', at));
     return { clockMinutes, clockDay, dateOf };

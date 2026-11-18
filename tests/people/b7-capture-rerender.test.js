@@ -63,13 +63,10 @@ test('an edit of only the hidden Changes block is not a branch rollback; a prose
         await sleep(600);
         const real = events().filter(event => event.operation === 'edit').at(-1);
         if (!real || real.action === 'content-unchanged') throw new Error('a prose edit was not reconciled: ' + JSON.stringify(real));
-        // The rebuild after a real edit re-reads the reply's one-pass block from its text (valid and complete only), as the live capture did.
         const narration = await import(pathToFileURL(path.join(extRoot, 'runtime-narration.js')).href);
         mockState.extensionSettings.storySuite.modules['npc-state-delta'].narrationCapture = true;
         const block = '<!--npc_state_delta {"npcs":[{"name":"Fenna","present":true,"role":"innkeeper"}]} -->';
         chat[1].mes = `Fenna bows low.\n${block}\n${hidden('~ npc Fenna trust +1')}`;
-        const found = narration.textCapture(chat[1]);
-        if (found?.parsed?.npcs?.[0]?.name !== 'Fenna') throw new Error('the block in the edited text was not read: ' + JSON.stringify(found));
         // An old or swiped reply with a block in its text and no journal entry replays as before (historical read): no invented capture.
         if (narration.captureJournalEntry({ captureJournal: [] }, chat, 1)) throw new Error('the journal invented a capture from the text');
         const marked = { captureJournal: [] };
@@ -85,7 +82,5 @@ test('an edit of only the hidden Changes block is not a branch rollback; a prose
         const plain = { captureJournal: [] };
         narration.recordAcceptedCapture(plain, chat, 1, { parsed: { npcs: [] }, watch: [] });
         if (Object.keys(plain.captureJournal[0].fills).length || 'refreshes' in plain.captureJournal[0]) throw new Error('a live capture entry changed shape');
-        chat[1].mes = `Fenna bows low.\n<!--npc_state_delta {"npcs":[{"name":"Fe`;
-        if (narration.textCapture(chat[1])) throw new Error('a cut-off block was read');
     });
 });

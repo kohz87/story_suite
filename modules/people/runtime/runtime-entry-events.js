@@ -10,12 +10,12 @@ export function createEventRegistration(rt, deps) {
         noteNarrationCaptureVersion, GENERATION_FRESHNESS_REUSE_MS, NARRATION_CAPTURE_TYPES, CAPTURE_RULES_TYPES,
         disarmNarrationCapture, CAPTURE_RULES_KEY, CAPTURE_PROMPT_KEY, CAPTURE_PROMPT_DEPTH,
         holdCaptureRules, keepCaptureRules, receiveNarrationBlock, handleAssistantMessageReceived,
-        renderCapturedReply, queueInlineRender, dropNarrationCaptures, queueBranchReconcile,
+        renderCapturedReply, queueCastRefresh, dropNarrationCaptures, queueBranchReconcile,
         endTargetedRewriteTolerance, stripSwipedNarrationBlock, queueSettledSwipeReconcile,
         flushPendingSettingsSave, castPortraitMisses, cancelScanOperation, closePortraitGenerator,
         closeNpcEditor, staleHostChats, retiredInSessionChats, openingHostChats, isCanonicalChatKey,
         maybeInheritKnownBranch, branchInheritancePending, deferLoadingReceipt, loadingReconcilePending, seedBranchTracking, persist, isScanBusy, renderDossier,
-        ensureInlineObserver, drainPendingAutoScan, castPortraitDue, castSync, evictDormantChatStates,
+        drainPendingAutoScan, castPortraitDue, castSync, evictDormantChatStates,
         runBoundedLifecycleEvent, removeDeletedChatState, moveRenamedChatState, chatStateCache,
     } = deps;
     let lifecycleEventSequence = 0;
@@ -120,9 +120,9 @@ export function createEventRegistration(rt, deps) {
                 await handleAssistantMessageReceived(messageId, { detachScan: true });
             });
         }
-        if (events.CHARACTER_MESSAGE_RENDERED) source.on(events.CHARACTER_MESSAGE_RENDERED, messageId => { renderCapturedReply(messageId); queueInlineRender(0); });
-        if (events.MESSAGE_UPDATED) source.on(events.MESSAGE_UPDATED, () => queueInlineRender(30));
-        if (events.MORE_MESSAGES_LOADED) source.on(events.MORE_MESSAGES_LOADED, () => queueInlineRender(30));
+        if (events.CHARACTER_MESSAGE_RENDERED) source.on(events.CHARACTER_MESSAGE_RENDERED, messageId => { renderCapturedReply(messageId); queueCastRefresh(0); });
+        if (events.MESSAGE_UPDATED) source.on(events.MESSAGE_UPDATED, () => queueCastRefresh(30));
+        if (events.MORE_MESSAGES_LOADED) source.on(events.MORE_MESSAGES_LOADED, () => queueCastRefresh(30));
         if (events.CHAT_LOADED) source.on(events.CHAT_LOADED, async () => {
             const key = getChatKey();
             const sequence = rt.chatOpenSequence || 0;
@@ -130,7 +130,7 @@ export function createEventRegistration(rt, deps) {
             try {
                 await ensureChatStateLoaded(key);
                 if (getChatKey() !== key || (rt.chatOpenSequence || 0) !== sequence) return;
-                renderDossier(); ensureInlineObserver(); queueInlineRender(0);
+                renderDossier(); queueCastRefresh(0);
                 if (branchInheritancePending(key) || getChatState(key)?.lineage?.length) queueBranchReconcile({ chatKey: key, rescan: false, reason: 'chat-loaded' }, 0);
             } catch (error) {
                 if (getChatKey() === key) { renderDossier(); updateInjection(); }
@@ -219,8 +219,7 @@ export function createEventRegistration(rt, deps) {
                     if (inherited) persist();
                     setScanIndicator(key !== 'no-chat' && isScanBusy(key));
                     renderDossier();
-                    ensureInlineObserver();
-                    queueInlineRender(30);
+                    queueCastRefresh(30);
                     updateInjection();
                     if (!inherited && (state?.lineage?.length || branchInheritancePending(key))) queueBranchReconcile({ chatKey: key, rescan: false, reason: 'chat-changed' }, 80);
                     if (key !== 'no-chat') void drainPendingAutoScan(key);

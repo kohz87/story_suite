@@ -9,7 +9,6 @@ import {
     createNpcRecord,
     extractNarrationCapture,
     mergeScanResult,
-    parseNarrationCapture,
     storyProse,
     stripUiNoise,
     tagScanEvidence,
@@ -62,7 +61,7 @@ test('a closing --> at the very end wins over a --> inside the JSON', () => {
     const json = '{"npcs":[{"name":"Yunyun","goal":"A --> B"}]}';
     const result = extractNarrationCapture(`${STORY} <!--npc_state_delta\n${json}\n-->\n`);
     assert.deepEqual(result, { text: STORY, raw: json, status: 'found' }, 'nothing of the block leaks into the story');
-    assert.equal(parseNarrationCapture(result.raw).npcs[0].goal, 'A --> B');
+    assert.equal(JSON.parse(result.raw).npcs[0].goal, 'A --> B');
     const twoBlocks = extractNarrationCapture(`A <!--npc_state_delta {"npcs":[1]} --> B <!--npc_state_delta ${json} -->`);
     assert.equal(twoBlocks.raw, json, 'the last block keeps its inner arrow');
     assert.doesNotMatch(twoBlocks.text, /npc_state_delta|-->|npcs/);
@@ -75,7 +74,6 @@ test('an unterminated comment at the end is stripped in both modes; an untermina
         assert.equal(comment.status, 'unterminated');
         assert.equal(comment.text, STORY);
         assert.equal(comment.raw, '{"npcs":[{"name":"Yun');
-        assert.equal(parseNarrationCapture(comment.raw), null, 'a cut-off body never parses');
     }
     const taggedText = `${STORY}\n<npc_state_delta>{"npcs":[`;
     const tagged = extractNarrationCapture(taggedText, { lenient: true });
@@ -112,17 +110,6 @@ test('text without a block is returned unchanged, including trailing whitespace'
     assert.deepEqual(extractNarrationCapture(null), { text: '', raw: '', status: 'none' });
     // Leading whitespace survives even when a block is removed; only the tail is trimmed.
     assert.equal(extractNarrationCapture(`  ${STORY} <!--npc_state_delta {"npcs":[]} -->\n\n`).text, `  ${STORY}`);
-});
-
-test('parseNarrationCapture returns the parsed object or null', () => {
-    assert.deepEqual(parseNarrationCapture(BLOCK_JSON), JSON.parse(BLOCK_JSON));
-    assert.equal(parseNarrationCapture(''), null);
-    assert.equal(parseNarrationCapture('   \n'), null);
-    assert.equal(parseNarrationCapture(undefined), null);
-    assert.equal(parseNarrationCapture('{"npcs": [ {"name": '), null, 'malformed JSON is null, not an exception');
-    assert.equal(parseNarrationCapture('not json at all, just prose'), null);
-    assert.equal(parseNarrationCapture('42'), null, 'a non-object value is null');
-    assert.equal(parseNarrationCapture('"just a string"'), null);
 });
 
 test('stripUiNoise removes comment blocks (strict) before any transcript reads the message', () => {
@@ -237,7 +224,7 @@ test('v1.1.10 a capture block never swallows another extension\'s comment envelo
     }
     const arrow = extractNarrationCapture('Story.\n<!--npc_state_delta {"npcs":[{"note":"A --> B"}]} -->');
     assert.equal(arrow.text, 'Story.', 'a closing arrow inside the JSON still cannot split a final block');
-    assert.deepEqual(parseNarrationCapture(arrow.raw).npcs, [{ note: 'A --> B' }]);
+    assert.deepEqual(JSON.parse(arrow.raw).npcs, [{ note: 'A --> B' }]);
     assert.equal(stripUiNoise(`Story. ${block} ${envelope}`), stripUiNoise(`Story. ${envelope}`), 'transcripts treat the envelope exactly as without the block');
 });
 
@@ -334,27 +321,4 @@ test('v1.2.17 the capture context leaves out values the live dossier above alrea
     // The scanner's own prompt and a capture with no dossier are untouched.
     assert.equal(buildScannerPrompt({ ...options, dossierAbove: dossier }), buildScannerPrompt(options));
     assert.doesNotMatch(plain, /inDossier/);
-});
-
-test('v1.2.17 the opt-in compact capture rules keep every field, state word and gate, in fewer words, for capture only', () => {
-    const options = { transcript: 'USER: hi', userName: 'Kazuma', charName: 'Megumin', existingNpcs: [{ id: 'npc_yun', name: 'Yunyun', present: true }] };
-    const full = buildNarrationCaptureParts(options).rules;
-    const compact = buildNarrationCaptureParts({ ...options, compactCapture: true }).rules;
-    // (cleanup step 12) Both now carry the short Stage 4 and birthday rules, and compact its restored gates.
-    assert.ok(compact.length < full.length * 0.9, `compact ${compact.length} vs full ${full.length}`);
-    assert.ok(compact.startsWith('NPC STATE DELTA ONE-PASS CAPTURE.'));
-    for (const word of ['profileUpdates', 'keyRelationshipEdges', 'relationshipDelta', 'relationshipEvidence', 'relationshipImpact', 'developmentScale', 'developmentReason', 'memoryRetention', 'homeBaseState', 'ageState', 'apparentAgeState', 'lifeState', 'appearanceState', 'overallAppearance', 'identityKind', 'dossierSignal', 'sameIndividual', 'directInteraction', 'worldActive', 'goalState', 'locationState', 'Disposition|Care|Expression|Independence|Conflict|Threat|Analytical|Presentation|Mercy|Loyalty|Drive|Honesty', 'Delta caps:', 'Relationship rubric:',
-        // (cleanup step 12, I-11) the gates the first compact version dropped
-        'MUST return it when age unknown', 'never dangling "(deceased)"', 'no species-aging inference', 'Inner Chatter gives durable facts only, not monologue',
-        'raw max 1/2/3/6', 'kindness stays general; necessary force != cruelty', 'speech evidence = voice style',
-        'Explicit death (deceased+explicit) is terminal: never alive/present/worldActive again', 'STAGE 4: named forms', 'BIRTHDAY:']) {
-        assert.ok(compact.includes(word), word);
-    }
-    // (b5b r2-8) Roles in the rules, names with the context.
-    assert.ok(!compact.includes('Kazuma') && !compact.includes('Megumin'));
-    assert.match(buildNarrationCaptureParts({ ...options, compactCapture: true }).context, /Not NPCs: the player is Kazuma; the character you play is Megumin\./);
-    // Byte-identical reply to reply, like the full rules.
-    assert.equal(buildNarrationCaptureParts({ ...options, compactCapture: true, existingNpcs: [] }).rules, compact);
-    // The scanner never uses them.
-    assert.equal(buildScannerPrompt({ ...options, compactCapture: true }), buildScannerPrompt(options));
 });

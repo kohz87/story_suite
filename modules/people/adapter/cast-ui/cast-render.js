@@ -78,7 +78,7 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
         el.__npcStateDeltaV2CastNode = el.firstElementChild ?? null;
         const extras = [];
         if (world && cast) {
-            // The chatter sits under the card (its own cell row); the side copy of the now lines and the idle line go.
+            // The side copy of the now lines and the idle line go.
             for (const cell of el.querySelectorAll?.('.npc-state-delta-present-cell') ?? []) {
                 cell.classList?.add?.('npc-state-delta-world-cell');
                 for (const node of [...(cell.children ?? [])]) if (node.classList?.contains?.('npc-state-delta-present-side')) node.remove?.();
@@ -139,7 +139,7 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
             wrap.append(...extras);
             el.append(wrap);
         }
-        // The now lines and chatter bubbles get their text through textContent, never markup.
+        // The now lines get their text through textContent, never markup.
         if (cast) api?.fillPresentCast?.(el);
         if (typing) {
             const box = el.querySelector?.('.npc-state-delta-story-search');

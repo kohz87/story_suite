@@ -19,6 +19,7 @@ const ROW = {
   unit: { $nullable: T.STRING },
   tags: [T.STRING],
   wide: T.BOOLEAN,
+  list: { $optional: { items: [{ $objectOf: SCALAR }], unused: [T.NUMBER], note: { $nullable: T.STRING }, meters: { $optional: [T.STRING] } } },
 };
 
 export const SETTINGS_SHAPE = {
