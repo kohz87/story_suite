@@ -4,6 +4,8 @@ Newest first. Each release has the highlights, then what was added, changed, fix
 
 ## Unreleased
 
+Main has nothing beyond 0.1.2 yet except documentation and the Settings › Director fix below.
+
 ### Added
 
 - Settings › Look › **Panel background**: Off (the new default) removes the sky picture behind the Story Suite panels and leaves a plain flat colour, dark or light; On brings the picture back. It applies at once and is kept per device.
@@ -11,6 +13,9 @@ Newest first. Each release has the highlights, then what was added, changed, fix
 - Settings › RPG and fights: the Difficulty row says what each choice changes and shows the chosen one's numbers; with Custom chosen, four editors set the numbers a character you make in the New character window starts with (stats start at, points to spend, lowest and highest stat at creation).
 
 ### Changed
+
+- Settings › Director: a group whose feature is off now says "Turn on <feature> to see these" (with the names of the hidden rows) instead of vanishing, and the page has a working Scene spoilers switch for this chat (the same one as on Now and in the dossier). Cast moves have no setting (the cast reads the last 3 messages, up to 3,500 characters, and asks for 700 tokens, fixed in code), so the mock no longer lists them.
+- Settings › RPG and fights has no Combat rules button, no Odds switch and no Rolls row: there is no setting behind any of them (Combat Rules v1 is fixed, the fight board always shows its odds, and the Story checks switch already turns rolled checks on or off). The design mock no longer shows them; a test keeps the page to rows that have a real setting.
 
 - **Settings › Packs and trackers: the tracker buttons each do their own thing.** The three buttons that all just opened Story › Trackers are now: **Edit fields** on a tracker (opens Story › Trackers with that tracker's editor already open) and one **Add from a template** (opens the template list there). New tracker and Build it in the chat are gone: there is no blank-tracker form and no chat builder, a tracker is added from a template and changed with Edit fields. A short line under the buttons says so.
 - **Settings: Mounts is now Transport; three bag switches moved to RPG and fights.** The Story Block switch and the Home card that said Mounts say Transport (the feature and what it stores are unchanged). Pick what you take, Encumbered and Gear in fights are no longer on the Story Block card: they are switches under Settings › RPG and fights (group Bag and gear), writing the same features, so the card's "N of M on" count has three fewer. The story's own line to the model still says "Mounts:".
