@@ -1,4 +1,4 @@
-// Story Director v2, part time: the region, key, seed and table the day's weather is picked from.
+// Story Director v2, part time: the region, key, seed and (format 3) region table the day's weather is picked from. Format 3 weather tables are read as before until they are removed (X1).
 
 import { WEATHER_KEY_CHARS } from './names.js';
 import { TEMPERATE } from './seasons.js';
@@ -43,8 +43,12 @@ export function regionOf(state, query) {
     return fold(tryQuery(query, 'atlas.here', {})?.region);
 }
 
-/** The key the weather is set for: the story day (`-` without a clock) and the region, at most 80 code points. */
-export function weatherKey(minutes, region) {
+/**
+ * The key the weather is set for: the story day (`-` without a clock) and the region, at most 80 code points. A climate other than temperate (pack format 4) is added at the
+ * end, so a place of another climate in the same region the same day has its own weather; the region is cut to make room.
+ */
+export function weatherKey(minutes, region, climate = '') {
     const day = Number.isSafeInteger(minutes) ? `day ${Math.floor(minutes / DAY_MINUTES)}` : 'no day';
-    return cutPoints(`${day}|${region}`, WEATHER_KEY_CHARS);
+    if (!climate || climate === 'temperate') return cutPoints(`${day}|${region}`, WEATHER_KEY_CHARS);
+    return `${cutPoints(`${day}|${region}`, WEATHER_KEY_CHARS - climate.length - 1)}|${climate}`;
 }
