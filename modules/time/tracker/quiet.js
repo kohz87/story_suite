@@ -12,6 +12,7 @@
 // `quietThreads` → Set of thread ids; `dropThreads(director, ids)` → the same director without them (the same object when none).
 
 import { lineKey } from '../../world/changes.js';
+import { QUEST_LOG_KEY, questLogOrder, questLogRank } from '../../world/chronicle/days-parts/quest-log-order.js';
 import { ask, cutPoints, flat } from './scene.js';
 
 const MAX_PROBES = 60;
@@ -32,10 +33,11 @@ export function firedByLog(lines) {
 function logsById(chronicle) {
     const out = new Map();
     const log = isRecord(chronicle?.questLog) ? chronicle.questLog : {};
-    for (const [rev, entry] of Object.entries(log)) {
-        if (!/^\d+$/.test(rev) || !isRecord(entry) || typeof entry.thread !== 'string') continue;
+    // Both kinds of key: the note's line under its revision, and a thread line kept by its own reply (`chronicle.threadOutcome`, keyed by the reply, told at `rev`).
+    for (const [key, entry] of Object.entries(log).filter(([key]) => QUEST_LOG_KEY(key)).sort(questLogOrder)) {
+        if (!isRecord(entry) || typeof entry.thread !== 'string') continue;
         if (!out.has(entry.thread)) out.set(entry.thread, []);
-        out.get(entry.thread).push({ rev: Number(rev), text: entry.text });
+        out.get(entry.thread).push({ rev: questLogRank(key, entry), text: entry.text });
     }
     return out;
 }
