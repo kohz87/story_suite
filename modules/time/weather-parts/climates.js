@@ -73,15 +73,30 @@ export function climateWeather(game, season, climate) {
 
 const sameName = (record, want) => Boolean(want) && [record?.id, record?.slug, record?.name, ...(Array.isArray(record?.aliases) ? record.aliases : [])].some(name => fold(name) === want);
 
+// A narrator's region name for a pack region: by id, name or alias, else the one region whose name starts with it as whole words ("Auvoth" for "Auvoth Compact"), or it with the region's ("the Auvoth Compact").
+function regionFor(regions, wanted) {
+    if (!wanted) return null;
+    const exact = regions.find(record => sameName(record, wanted));
+    if (exact) return exact;
+    const words = value => ` ${fold(value)} `;
+    const loose = regions.filter(record => [record?.name, ...(Array.isArray(record?.aliases) ? record.aliases : [])].some(name => fold(name) && (words(name).startsWith(words(wanted).trimEnd()) || words(wanted).includes(words(name)))));
+    return loose.length === 1 ? loose[0] : null;
+}
+
 /**
- * The climate of where the story stands: the pack place's own, `underground` for a place on the underground layer, else its region's (the region by id, name or alias:
- * the place's, else the scene's `region`, folded), else `temperate`. The selected world's records are asked as `packs.content` (an unreadable answer is no climate).
+ * The climate of where the story stands: the pack place's own, `underground` for a place on the underground layer, else (for a place the pack does not name) the pack place it stands for
+ * (the atlas's anchor: its town, its parent, or the last pack place on the map in its region), else its region's (the region by id, name, alias or the start of its name: the place's, else
+ * the scene's `region`, folded), else `temperate`. The selected world's records are asked as `packs.content` (an unreadable answer is no climate).
  */
 export function climateOf(query, placeName, region) {
     const ask = kind => { const out = tryQuery(query, 'packs.content', { kind }); return Array.isArray(out) ? out : []; };
-    const place = fold(placeName) ? ask('places').find(record => sameName(record, fold(placeName))) : null;
-    if (place?.climate) return place.climate;
-    if (fold(place?.layer) === 'underground') return 'underground';
-    const wanted = fold(place?.region) || region;
-    return (wanted ? ask('regions').find(record => sameName(record, wanted))?.climate : null) || (region && region !== wanted ? ask('regions').find(record => sameName(record, region))?.climate : null) || 'temperate';
+    const places = ask('places');
+    const place = fold(placeName) ? places.find(record => sameName(record, fold(placeName))) : null;
+    const anchor = !place && fold(placeName) ? tryQuery(query, 'atlas.anchor', { name: placeName }) : null;
+    const stands = place ?? (anchor?.name && anchor.via !== 'region' ? places.find(record => sameName(record, fold(anchor.name))) : null) ?? null;
+    if (stands?.climate) return stands.climate;
+    if (fold(stands?.layer) === 'underground') return 'underground';
+    const regions = ask('regions');
+    const wanted = fold(stands?.region) || region;
+    return regionFor(regions, wanted)?.climate || (region && region !== wanted ? regionFor(regions, region)?.climate : null) || 'temperate';
 }

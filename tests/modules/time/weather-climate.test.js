@@ -136,3 +136,16 @@ test('swipe, swipe back, an edited Re-read (grown and shrunk), a middle delete, 
     await host.send('again', said('Fresh.', at('Old Farm', 'Midlands')));
     assert.ok(all(TEMPERATE).includes(current(host).text), 'a rewind to the start');
 });
+
+test('LF4-4: a place the pack does not name takes the climate of its region (the narrator\'s short name) or of the last pack place; a narrator ~ weather the same day and town stands', async t => {
+    const host = await newHost(t, [{ ...world(), content: { ...world().content, regions: [...world().content.regions, { id: 'auvoth-compact', name: 'Auvoth Compact', climate: 'cold' }], places: [...world().content.places, place('market', 'Pale Market', 'auvoth-compact')] } }, game('g1')]);
+    const query = (name, args) => host.sdk.query(name, args);
+    assert.equal(climateOf(query, 'Guild Hall', 'auvoth'), 'cold', 'the narrator\'s "Auvoth" is the pack\'s "Auvoth Compact"');
+    assert.equal(climateOf(query, 'Guild Hall', 'elsewhere'), 'temperate');
+    await host.send('a', said('Market.', ['~ weather thin snow', ...at('Pale Market', 'Auvoth')]));
+    const key = current(host).key;
+    assert.match(key, /\|cold$/);
+    await host.send('b', said('Hall.', at('Guild Grand Hall', 'Auvoth')));
+    assert.equal(current(host).key, key, 'the same key at an unmapped place in the same town');
+    assert.equal(current(host).text, 'thin snow', 'the narrator\'s weather is not replaced by a rule roll');
+});

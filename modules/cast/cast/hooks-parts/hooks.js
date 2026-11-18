@@ -11,6 +11,7 @@ import { kindWords } from '../sought.js';
 import { CALL_MS, FEATURE, HOLD_MS, castOn } from '../settings.js';
 import { askedAbout, batchKey, chooseMeetings, chooseRumor, dueMove, fingerprint, judgeKey, meetingAt, metInTheStory, moveReach, movable, paceOf, placedOf, refsOf, seekable, sortComes, unshown } from '../world.js';
 import { copyOf, frameOf, placesOf, queryOf } from './frame.js';
+import { whereText } from './where-text.js';
 import { recentStory, shownText, soughtTexts } from './text.js';
 import { basedView, keepsBase, pullsFree } from '../world-parts/bases.js';
 import { storyBases } from '../world-parts/story-bases.js';
@@ -97,7 +98,7 @@ export function createCastHooks({ plans }) {
             // With world events on, someone held at a base is told as there, with its routine (world-parts/bases.js).
             mode, people: asked.map(item => basedView(askedAbout(item), item.person, worldEventsOn(view))),
             now: frame.calendar?.text ?? '', elapsed: due ? elapsedText(due.from, due.to) : '',
-            place: [frame.party.place, frame.party.region].filter(Boolean).join(', '),
+            place: whereText(frame),
             places: placesOf(frame.query), recent: recentStory(view?.model?.chat?.()),
         });
         return plans.start(key, async () => {
@@ -115,7 +116,7 @@ export function createCastHooks({ plans }) {
         const asked = list.slice(0, MAX_SOUGHT);
         const refs = refsOf(asked);
         const request = castRequest({
-            mode: 'sought', now: frame.calendar?.text ?? '', place: [frame.party.place, frame.party.region].filter(Boolean).join(', '), texts,
+            mode: 'sought', now: frame.calendar?.text ?? '', place: whereText(frame), texts,
             people: asked.map(item => ({ ref: item.ref, name: item.person.name, goal: item.entry.goal, routine: item.entry.routine, where: item.person.where, kind: kindWords(item.entry), met: false })),
         });
         const allow = { seek: new Set(asked.map(item => item.key)), kind: new Map(asked.map(item => [item.key, item.entry])) };

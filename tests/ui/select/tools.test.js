@@ -56,3 +56,9 @@ test('save point rows: the message number SillyTavern shows (it counts from 0) a
   assert.equal(view.rows[1].reply, 0, 'the first message is #0');
   assert.notEqual(view.rows[1].date, '');
 });
+
+test('LF4-7: the Inspector lists what a receipt says it showed (data.shown), not the narrator\'s instruction that is its summary', () => {
+  const receipts = [{ id: 'a', type: 'director.pulse', module: 'director', summary: 'World this reply: [mood swing, noticed, town] invent ONE small plausible thing', data: { shown: 'World this reply: mood swing (noticed): the narrator invents it' } }, { id: 'b', type: 't', module: 'm', summary: 'did', data: {} }];
+  const handle = { replies: [{ index: 1, name: 'A', snippet: 's', rev: 1, head: true }], reply: () => ({ ok: true, name: 'A', rev: 1, head: true, diff: { entries: [], more: 0 }, ops: [], receipts, problems: [], state: {} }) };
+  assert.deepEqual(selectInspector(handle).reply.receipts.map(r => r.summary), ['World this reply: mood swing (noticed): the narrator invents it', 'did']);
+});
