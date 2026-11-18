@@ -26,7 +26,7 @@
 // New fight steps carry `outnumbered: 1`: each foe above the party's non-Left members adds 0.5 to the XP multiplier, up to 2. The multiplier applies after the level gap,
 // before rounding and the rule's cap; a step without the mark keeps its original XP, guard and receipt on replay and Re-read.
 //
-// The record (the step's receipt `data.v2.result.fight`): { lv: 1, groups: [{ slot, name, count, level }], awards: [{ who, module, xp, held? }] } (xp is the member's own). A record without `lv` is an
+// The record (the step's receipt `data.v2.result.fight`): { lv: 1, groups: [{ slot, name, count, level }], awards: [{ who, module, xp, held?, up?: { to, points? } }] } (xp is the member's own; `up` says the award raised the level, for the reply's changes). A record without `lv` is an
 // older one (groups carry `class`); it is read as it is and replays as recorded.
 // Public face: re-exports its parts.
 

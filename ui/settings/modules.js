@@ -21,10 +21,11 @@ function featureRow(def, sub, state) {
   const { set, defs, change } = state;
   const ok = needsOk(sub, defs, set);
   const on = set[def.id].on;
-  const sw = toggle({ checked: set[def.id].subs[sub.key], label: sub.label, disabled: !on, dataset: { sub: `${def.id}:${sub.key}` }, onChange: v => change(def.id, sub.key, v) });
+  const sw = toggle({ checked: set[def.id].subs[sub.key], label: sub.label, disabled: !on || sub.locked === true, dataset: { sub: `${def.id}:${sub.key}` }, onChange: v => change(def.id, sub.key, v) });
   const needs = sub.needs ? [' · ', h('span', { class: ok ? 'needok' : 'needbad' }, `needs ${sub.needs}${ok ? '' : ' (off)'}`)] : null;
-  const row = h('div', { class: ['srow', 'swrow', 'sub', !on && 'dis'] },
-    h('span', { class: 'lb' }, labelWithTags(sub.label, tagNodes(sub.tags)), h('small', sub.hint, needs)), h('span', { class: 'ctl' }, sw));
+  const why = sub.locked === true && sub.lockWhy ? [' · ', h('span', { class: 'needbad' }, sub.lockWhy)] : null;
+  const row = h('div', { class: ['srow', 'swrow', 'sub', (!on || sub.locked === true) && 'dis'] },
+    h('span', { class: 'lb' }, labelWithTags(sub.label, tagNodes(sub.tags)), h('small', sub.hint, needs, why)), h('span', { class: 'ctl' }, sw));
   row.addEventListener('click', (e) => { if (!e.target.closest('button')) sw.click(); });
   return row;
 }

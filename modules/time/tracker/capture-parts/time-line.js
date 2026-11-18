@@ -3,7 +3,7 @@
 import { addProblem, replyDraft } from '../domain.js';
 import { calendarOf, lineStretch, maxJumpMinutes, packCalendarOf, sameStretch, settingsFrom, splitTimeLine, timeAfter } from '../time.js';
 import { clockFaceAfter, dayKey } from '../time-parts/clock-face.js';
-import { clockToRead } from '../time-parts/default-start.js';
+import { clockToRead, clockWords } from '../time-parts/default-start.js';
 import { DAY_MINUTES } from '../time-parts/limits.js';
 import { KEY_CHARS } from './limits.js';
 import { beginTurn } from './reply.js';
@@ -102,7 +102,7 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     else if (set) ctx.absolute('director', '/time/minutes');
     // `kind`: the op the receipt describes, as Story Block replays it (a move: `from` → `minutes`; a set: the stored minute; 'same' / 'after' / 'day': an anchored set).
     return {
-        summary: `Story time: ${calendar.format(next.minutes)}.`,
+        summary: `Story time: ${clockWords(calendar, next.minutes, director.time.fromDefault === true)}.`,
         narrate: false,
         data: { minutes: next.minutes, from: before, kind: roll ?? (set ? 'set' : 'move'), ...(next.held ? { held: next.held } : {}) },
         // A jump cut to the longest time jump says so in the Problems list (W11).

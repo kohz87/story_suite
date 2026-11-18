@@ -45,7 +45,8 @@ export const queries = {
         let days = { weekday: '', firstWeekdays: [] };
         try { if (parts) days = weekdaysAt(calendar, minutes, parts.year); } catch { /* a calendar with no week */ }
         // `weekday`: the day's name; `firstWeekdays`: for each month of this year, the index in `director.calendar`'s `week` of its first day.
-        return { minutes, text, parts, ...days, weekday: days.weekday || '' };
+        // `fromDefault: true` (only then): the clock began at the calendar's default start, not at a date the story or a pack gave, so the screens show the time alone.
+        return { minutes, text, parts, ...days, weekday: days.weekday || '', ...(state?.domains?.director?.time?.fromDefault === true ? { fromDefault: true } : {}) };
     },
     /**
      * The calendar the chat runs on, as plain data (calendar.js normalizeCalendar's shape: `preset`,

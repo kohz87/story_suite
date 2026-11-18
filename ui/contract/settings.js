@@ -77,7 +77,7 @@ export const SETTINGS_SHAPE = {
     defs: [
       {
         id: T.STRING, name: T.STRING, icon: T.STRING, section: T.STRING, desc: T.STRING, off: T.STRING, tokens: { $nullable: T.NUMBER },
-        subs: [{ key: T.STRING, label: T.STRING, hint: T.STRING, on: T.BOOLEAN, tags: { $optional: [T.STRING] }, needs: { $optional: T.STRING } }],
+        subs: [{ key: T.STRING, label: T.STRING, hint: T.STRING, on: T.BOOLEAN, tags: { $optional: [T.STRING] }, needs: { $optional: T.STRING }, locked: { $optional: T.BOOLEAN }, lockWhy: { $optional: T.STRING } }],
       },
     ],
   },

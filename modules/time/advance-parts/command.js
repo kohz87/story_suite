@@ -2,6 +2,7 @@
 
 import { calendarOf, timeSettings } from '../records.js';
 import { advanceClaim, spanText } from './helpers.js';
+import { clockWords } from '../tracker/time-parts/default-start.js';
 import { slotValue, toSlot } from '../../rpg/slot.js';
 
 export const ADVANCE = 'director.advance';
@@ -68,7 +69,7 @@ export function advanceCommand(ctx, payload = {}) {
     }
     const held = minutes < asked;
     return {
-        summary: `Story time: ${calendar.format(next)} (${spanText(minutes)} on: ${why}).`,
+        summary: `Story time: ${clockWords(calendar, next, director.time.fromDefault === true)} (${spanText(minutes)} on: ${why}).`,
         narrate: false,
         data: { minutes: next, from: before, advanced: minutes, cause, reason, ...(held ? { asked } : {}) },
         ...(held ? { problem: `${why}: ${spanText(asked)} asked; the clock moves at most a day (${spanText(MAX_ADVANCE)}) at once.` } : {}),

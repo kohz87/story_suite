@@ -383,7 +383,7 @@ Settings page, only changes the rolls made after it.
 
 The page shows only while the RPG is on.
 
-- **Stat formula.** The roll table of the Standard formula (see [The stat formulas](#the-stat-formulas)) and four numbers: where stats start, the points at creation, the stat points each level-up gives (1 every 3 levels) and the foe's base (`+ floor(level ÷ 5)`; Health `4 + floor(level ÷ 30)` blocks). On a Foes block of the harder-foes rule the foe adds `floor(level ÷ 4)` whatever the divisor says, and its Health is `12 + floor(level ÷ 30)` blocks, 12 to 15 (see [Harder foes](#harder-foes-new-chats)).
+- **Stat formula.** The roll table of the Standard formula (see [The stat formulas](#the-stat-formulas)) and four numbers: where stats start, the points at creation, the stat points each level-up gives (the earlier Character: 1 every 3 levels; the Combat Rules v1 Character: 1 every level) and the foe's base (`+ floor(level ÷ 5)`; Health `4 + floor(level ÷ 30)` blocks). On a Foes block of the harder-foes rule the foe adds `floor(level ÷ 4)` whatever the divisor says, and its Health is `12 + floor(level ÷ 30)` blocks, 12 to 15 (see [Harder foes](#harder-foes-new-chats)).
   Rolls already made keep the numbers they were made with.
 - **Fight board.** The board is on whenever the RPG is: there is no switch for it. This card holds **Auto-fight cap** (`rpgAutoCap`, a slider from 1 to 8 or **Until the end**, default 3): the most exchanges **Auto** plays in one press.
 - **Rolls.** Only **Story checks** (the switch for rolls outside a fight); there is no Rolls setting.
@@ -473,8 +473,8 @@ Ersveil" while the pack decides. Foe Health was `4 + class/3` blocks (the simula
 ## Levels, XP and skill ranks
 
 **Levels.** A character's level runs 1 to 99 (the Character block's `level`). At 100 XP the character goes up one level and the extra XP
-carries over. The rise needs no confirm step and is said in "Changed this reply" ("Wessel reached Lv 15 (+1 point to spend)"). Every third
-level (3, 6, 9 and so on) gives **1 stat point** to spend, and the Party card offers **Spend points**; the points never go above 60.
+carries over. The rise needs no confirm step and is said in "Changed this reply" ("Wessel reached Lv 15 (+1 point to spend)"). On the Combat Rules v1 Character (every new chat) **each level gained gives 1 stat point** to spend
+(a character that starts above Lv 1 gets none for the levels it starts with), and the Party card offers **Spend points**; the points never go above 98. The earlier Character (a chat made under the earlier rules) gave 1 point every third level (3, 6, 9 and so on), up to 60.
 A character's level stops at its **cap**: the setting **Level cap** when you set it below 99, else the selected game pack's `rpg.levelCap` when it names one, else 99. (99 is the setting's default, so it counts as not set.) A game pack's cap applies to new characters; a made character keeps its own.
 A character keeps the cap it was made with. At the cap, XP holds at 100 and nothing more is given. A block carries its own copy of its
 rules, so a character made before a rule existed keeps the rule it has; give such a character points with the pencil on **Points** in its
@@ -508,6 +508,8 @@ The narrator gives XP for other deeds with lines in the story (the XP rate appli
 deeds 5 to 40.
 
 ### Recovery and XP on a new Character
+
+**Combat Rules v1 fight XP (every new chat; what is built).** A won fight pays each member who has not Left, for each foe group: `(15 + 2 for each foe after the first) × max(1, ceil(foe level ÷ 10)) × the level gap per cent (100 + 10 a level above the member, never below 0 or above 200) × the group's tier factor` (Mob a quarter, Minion a half, Standard 1, Elite one and a half, Boss 2, Apex 3: `combat/numbers.js` TIERS); the groups are added, rounded down and held to 1 to 60, then the XP rate applies (`combat/rewards.js winXp`; v1-pay.test.js pins it). The outnumbered multiplier and the 15-per-foe, cap-100 rule below belong to the earlier marked Character (`scale: 2`), not to the Combat Rules v1 Character. Example: a Lv 2 member against four Lv 2 Mob foes and two Lv 1 Standard foes gets 20.
 
 A Character pinned with `scale: 2` (`templates-recovery.js`, `data-modules/recovery.js`) has no `add-xp` kind: **XP comes from board fights only**, and the Combat rules text says nothing about XP lines. A narrator `add-xp` line is refused with one Problems note (code RECOVERY_REFUSED); the reader's own edit of XP stays.
 - **Fight XP.** A new marked board fight pays 15 for each foe, adjusted by 10% per level of difference from each member (a foe 10 or more levels below pays nothing). Sum the groups, apply the outnumbered multiplier described above, round down and cap at 100 per member; then apply the XP rate. At equal level, one member earns 15 against one foe, 45 against two, 90 against three and 100 against four. Two members against three foes each get 67 (45 × 1.5, rounded down). Older marked fights without `xp: 2` use `(15 + 2 x (count - 1)) x max(1, ceil(foe level / 10))` per group, the level-gap percent capped at 200%, and a cap of 60; older fights keep the rules they recorded. A marked fight never holds a narrator XP line. A fight the narrator settled, a pre-check or narrator-won fight, and a mixed party are unmarked and use the old-pin formula, with the outnumbered bonus on new wins.
