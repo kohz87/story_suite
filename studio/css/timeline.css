@@ -1,15 +1,44 @@
-/* Pack Studio styles for the dry-run page (ST-DRYV, studio/views/timeline.js): the timeline's day rows and their tags, the condition hold bars and
-   the power and score curves. Linked from studio/index.html. */
-.st-root .st-dry-intro { margin: 0 0 12px; }
+/* Pack Studio styles for the dry-run page (ST-DRYV, studio/views/timeline.js and views/dry/): the form (MK-5), the result head and tiles, the tabs,
+   the kind filters, the dated day cards with their quiet-day separators, the condition hold bars and the power and score curves. Linked from studio/index.html. */
+
 .st-root .st-dry-act[data-state="running"] .st-dry-status { color: var(--su-accent); }
 .st-root .st-dry-error .lb small { color: var(--su-bad-t, var(--su-bad)); }
-.st-root .st-dry-warn .lb b, .st-root .st-dry-warn .st-mark { color: var(--su-warn); }
+.st-root .st-dry-warn .lb b, .st-root .st-dry-warnhead .lb b, .st-root .st-dry-warn .st-mark { color: var(--su-warn); }
 .st-root .st-dry-result[data-stale="true"] .lb small { color: var(--su-warn); }
+.st-root .st-dry-form [data-key="seed"] .ctl { display: flex; align-items: center; gap: 8px; }
+.st-root .st-dry-form [data-key="seed"] input { flex: 1; min-width: 0; }
+.st-root .st-dry-form [data-key="tempo"] input, .st-root .st-dry-form [data-key="days"] input { width: 100px; max-width: 100%; text-align: left; }
+.st-root .st-dry-form [data-key="days"] .ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.st-root .st-dchip { cursor: pointer; border: 1px solid var(--su-line, rgba(127, 127, 127, .35)); background: none; color: inherit; font: 700 12.5px var(--su-font); padding: 6px 12px; border-radius: 999px; min-height: 36px; }
+.st-root .st-dchip[aria-pressed="true"] { background: var(--su-accent-soft, rgba(150, 120, 255, .25)); border-color: var(--su-accent); }
+.st-root .st-dry-date { font-weight: 700; margin-right: 10px; }
+.st-root .st-dry-act { align-items: flex-start; }
+.st-root .st-dry-act .ctl { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.st-root .st-dry-run, .st-root .st-dry-cancel { min-width: 160px; min-height: 44px; padding: 10px 18px; font-weight: 800; }
+.st-root .st-dry-blocked b { color: var(--su-bad-t, var(--su-bad)); display: block; font-size: 15px; }
+.st-root .st-dry-blocked small { display: block; }
 
-.st-root .st-day .lb { gap: 3px; }
-.st-root .st-day .st-line { display: block; line-height: 1.45; }
-.st-root .st-day .st-line .lnk { font-size: inherit; padding: 0; min-height: 0; }
-.st-root .st-tag { display: inline-block; min-width: 46px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--su-muted); }
+.st-root .st-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0 4px 6px; }
+.st-root .st-tile { background: var(--su-panel2, rgba(127, 127, 127, .12)); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+.st-root .st-tile b { font-size: 22px; }
+.st-root .st-tile[data-bad="true"] b { color: var(--su-bad-t, var(--su-bad)); }
+.st-root .st-tile small { color: var(--su-muted); }
+.st-root .st-dtabs { display: flex; gap: 4px; margin: 12px 0; padding: 4px; border-radius: 12px; background: var(--su-panel2, rgba(127, 127, 127, .12)); }
+.st-root .st-dtab { flex: 1; border: 0; background: none; color: inherit; font: 700 13px var(--su-font); padding: 10px 6px; border-radius: 9px; cursor: pointer; min-height: 40px; }
+.st-root .st-dtab[aria-selected="true"] { background: var(--su-accent); color: var(--su-on-accent, #fff); }
+.st-root .st-dfilters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.st-root .st-dry-jump { width: 170px; max-width: 100%; }
+.st-root .st-dry-jumprow .ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.st-root .st-day { display: block; margin: 0 0 4px; }
+.st-root .st-dayhead { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+.st-root .st-dayhead small { color: var(--su-muted); }
+.st-root .st-dayhead .st-lines { margin-left: auto; }
+.st-root .st-quiet { text-align: left; color: var(--su-muted); font-size: 12.5px; padding: 10px 14px; }
+.st-root .st-line { display: grid; grid-template-columns: 66px minmax(0, 1fr); gap: 10px; padding: 6px 0; line-height: 1.45; border-top: 1px solid var(--su-line, rgba(127, 127, 127, .2)); }
+.st-root .st-line:first-of-type { border-top: 0; }
+.st-root .st-line .lnk { font-size: inherit; padding: 0; min-height: 0; }
+.st-root .st-tag { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--su-muted); }
 .st-root .st-line[data-kind="fired"] .st-tag, .st-root .st-line[data-kind="happens"] .st-tag { color: var(--su-accent); }
 .st-root .st-line[data-kind="death"] .st-tag { color: var(--su-bad-t, var(--su-bad)); }
 .st-root .st-line[data-kind="holds"] .st-tag { color: var(--su-warn); }

@@ -29,7 +29,7 @@ export const PARTS = Object.freeze([
     { id: 'trackers', name: 'Trackers', group: 'Game', icon: '▤', desc: 'Meter presets and data modules', kind: 'game', keys: ['meterPresets', 'dataModules'] },
     { id: 'game-start', name: 'Start', group: 'Game', icon: '➤', desc: 'What the player starts with', kind: 'game', keys: ['start'] },
     { id: 'other', name: 'Other', group: 'Pack', icon: '⚙', desc: 'Anything else the pack holds, as written', kind: null, keys: [], rest: true },
-    { id: 'timeline', name: 'Dry run', group: 'Check', icon: '▶', desc: 'Run the world for some days', kind: 'world', keys: [], page: 'timeline' },
+    { id: 'timeline', name: 'Dry run', group: 'Check', icon: '▶', desc: 'Run the world for some days, as a chat would, and see what fires. Nothing is saved and the pack does not change', kind: 'world', keys: [], page: 'timeline' },
     { id: 'pairing', name: 'Pairing', group: 'Check', icon: '⇄', desc: 'The world against a game', kind: 'world', keys: [], page: 'pairing' },
     { id: 'problems', name: 'Problems', group: 'Check', icon: '⚠', desc: 'What the pack checker says', kind: null, keys: [], always: true },
 ]);

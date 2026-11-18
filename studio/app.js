@@ -192,7 +192,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
             });
         }
         if (part.id === 'problems') return renderProblems({ check: pack.check, onGo: go });
-        if (part.page) return pageNodes(part.page, ctxFor(pack, { focus }));
+        if (part.page) return pageNodes(part.page, ctxFor(pack, { focus, check: pack.check }));
         return withSegment(part, pack, sections, focus);
     }
 
