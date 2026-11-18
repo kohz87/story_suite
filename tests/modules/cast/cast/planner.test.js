@@ -54,7 +54,7 @@ test('a day passes: one planner call after the reply that moved the clock, appli
         assert.equal(world['ersveil:brom'].where, 'Kesh');
         // Sera's goal pulls her to the party: she is met, for that reason, this reply.
         assert.deepEqual([world['ersveil:sera'].met.why, world['ersveil:sera'].met.reason], ['goal', 'her hunt for her brother\'s killer led her to the man you fought at the weir.']);
-        assert.match(castCue(host), /^\[Cast\] Sera comes into the scene in this reply\./);
+        assert.match(castCue(host), /^\[Cast\] a stranger comes into the scene in this reply\./);
         assert.match(castCue(host), /Why now: Her hunt for her brother's killer led her to the man you fought at the weir\. Their own goal brings them/);
         // The cards: the cast moved on (counts, no names of the unmet), and the meeting with its reason.
         const notes = Object.values(slice(host).notes);
@@ -84,7 +84,7 @@ test('a swipe and a Re-read of the reply that used the answer give the same worl
         const plain = () => JSON.stringify(people(host), (key, value) => (key === 'rev' ? undefined : value));
         const before = plain();
         const cue = castCue(host);
-        assert.match(cue, /Sera/);
+        assert.match(cue, /a stranger comes into the scene/);
         await host.swipe(said(`Nobody knows, another take. ${host.everyone()}`));
         assert.equal(model.calls.length, 1, 'a swipe rewrites the scene, not who the cast brings');
         assert.equal(plain(), before, 'the same world (the steps ran again on the rewritten reply)');
