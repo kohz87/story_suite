@@ -12,6 +12,7 @@ import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
 import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
+import { PANELBG_KEY, applyPanelBg } from './settings/panel-bg.js';
 import { DEVELOPER_KEY } from './settings/developer.js';
 
 function resolveTheme(theme, doc) {
@@ -60,8 +61,8 @@ export function mountSuite(options = {}) {
     if (!settings || destroyed) return port.command('suite.settings', {});
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
-      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
-      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : port.command('settings.set', { key, value })),
+      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : port.command('settings.set', { key, value })),
       onAction: (key, value) => (key === 'trackers.open' ? openTrackers() : port.command('settings.action', { key, value })), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
@@ -76,6 +77,7 @@ export function mountSuite(options = {}) {
   const picked = resolveTheme(theme, doc);
   scheme = picked.scheme;
   const view = createSuiteView({ doc, host, backStack, tokens: picked.tokens, scheme });
+  applyPanelBg(view.root, prefs.getFold(PANELBG_KEY, false));
   // While the suite is closed its card and tabs are not read; open() draws what changed meanwhile (the tab strip's flags stay live).
   const redraw = createRedraw({ port, initialTab: initial, isOpen: () => view.isOpen(), ...(schedule ? { schedule } : {}) });
   const tabHost = createTabHost({

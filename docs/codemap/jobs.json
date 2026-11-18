@@ -178,6 +178,7 @@
   "tests/ui/select/people-settings.test.js": "Tests that the live People rows keep mock v7's rows and read the stored NPC State settings.",
   "tests/ui/settings-director/director.test.js": "Settings Director page on a real host: live values, the same stored key as the old view, refused values, feature gating and the drawn page.",
   "tests/ui/settings/packs-page.test.js": "Tests that an import's answer and the re-read list show on the Packs page.",
+  "tests/ui/settings/sections/rpg-features-live.test.js": "Checks the three bag switches sit under RPG and fights, not on the Story Block card, write the same features, and Mounts reads Transport.",
   "tests/ui/settings/sections/rpg-live.test.js": "Tests that the live RPG page draws every row and a change reaches onChange.",
   "tests/ui/tabs/now/card-offer.test.js": "Tests the Now tab's card pack offer: the Needs you row, the tick across a redraw, the answers, the chat chip count and the port's offer command.",
   "tests/ui/port/trackers.test.js": "Tests for ui/port/trackers.js.",
@@ -289,6 +290,7 @@
   "ui/select/people-settings/run.js": "Lists the People page's Refresh and the narrator, Portraits and Map rows from mock v7.",
   "ui/select/people.js": "Turns the store's people rows, the key-people and party answers and the social graph into the People view-model (PEOPLE_SHAPE), leaving gaps null or empty.",
   "ui/select/purse-lines.js": "Turns the head reply's coin lines (reply.changes) into the Bag purse's this-turn list.",
+  "ui/select/rpg-features.js": "Gives the RPG and fights page its three bag switches (Pick what you take, Encumbered, Gear in fights) and takes them off the Story Block card.",
   "ui/select/rpg-rows.js": "Builds the RPG and fights page's rows from Story Block's settings bucket, with the same keys and readers the old view's page uses.",
   "ui/select/settings-director.js": "Builds the Settings Director section from the live module settings, leaving out a row whose feature is off.",
   "ui/select/settings.js": "Builds the Settings view-model from today's host settings (schema, defaults, stored values) and the feature list; gaps come back empty or null.",
@@ -301,6 +303,7 @@
   "ui/settings/nav.js": "Builds the section navigation: a side list with search and group labels, and the phone section list with the same search.",
   "ui/settings/overlay.js": "Builds the Settings overlay frame: header, section nav, the section or search page, the \"what's sent\" footer, and its back-stack entry.",
   "ui/settings/packs.js": "Renders the Packs and trackers page: installed packs with a remove confirmation, data modules and this chat's trackers.",
+  "ui/settings/panel-bg.js": "Settings › Look › Panel background: the per-device On/Off switch card and the root attribute that hides the suite's backdrop layer when it is Off (the default).",
   "ui/settings/page.js": "Composes one Settings section page: heading, the \"applies to\" note, the module card, the special body, the setting cards and the reset buttons.",
   "ui/settings/search.js": "Finds settings rows by words across label, hint, unit, group and section name, and renders the hits under \"Section › Group\".",
   "ui/settings/sections/director.js": "Renders the Director section through the hook: the overlay's body for it, unchanged.",
@@ -429,5 +432,10 @@
   "core/boot/tools-parts.js": "What Settings › Tools reads besides the engine, built at boot: the Inspector's replies and problems, the Diagnostics report and the console errors it keeps.",
   "ui/css/drawer.css": "The Story Suite drawer in SillyTavern's Extensions panel: its status line and button row.",
   "ui/css/fonts.css": "The bundled Nunito font faces the view's stylesheets name.",
-  "ui/css/tokens.css": "The page-level colour tokens from SillyTavern's theme that the battle log, the Check card and NPC State's sheets read in the chat."
+  "ui/css/tokens.css": "The page-level colour tokens from SillyTavern's theme that the battle log, the Check card and NPC State's sheets read in the chat.",
+  "modules/world/chronicle/world-daily/open-arc-prompt.js": "World events, generated arcs: the model-facing wording for a slot that may start an arc, sent only when a slot of the batch allows one.",
+  "modules/world/daily/arc-day.js": "World events, generated arcs: starts an arc from its checked plan and fires its steps and ending on their windows, under the major caps.",
+  "modules/world/daily/arc-plan.js": "World events, generated arcs: checks an open answer with an arc plan as a whole (step count, menu, guards, windows) and returns the one canon plan.",
+  "tests/modules/world/open/arc-replay.test.js": "Tests: generated arcs on the host (plan asked once and stored whole, replay equals live through swipe, Re-read, delete, reload, rewind).",
+  "tests/modules/world/open/arc-step.test.js": "Tests: generated arcs in the daily step (plan copy, schedule, anchors, refusals, caps, template with no arc unchanged)."
 }

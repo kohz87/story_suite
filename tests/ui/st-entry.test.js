@@ -184,3 +184,30 @@ test('the one manifest names the root entry and suite.css; suite.css lists the f
   assert.match(fs.readFileSync(new URL('../../ui/css/fonts.css', import.meta.url), 'utf8'), /url\('\.\.\/\.\.\/assets\/fonts\/nunito\/nunito-latin-400\.woff2'\)/);
   assert.ok(fs.existsSync(new URL('../../assets/fonts/nunito/nunito-latin-400.woff2', import.meta.url)), 'the font path resolves from ui/css');
 });
+
+test('the drawer status names each started module once and skips hidden ones (NPC State registers a hidden twin)', async () => {
+  const doc = page();
+  const block = fakeBlock();
+  block.sdk.modules = () => [{ id: 'people', name: 'NPC State', hidden: true }, { id: 'npc', name: 'NPC State' }, { id: 'sb', name: 'Story Block' }, { id: 'sb2', name: 'Story Block' }];
+  const api = await start(doc, fakeCtx(), { StoryBlock: block });
+  const status = doc.querySelector('#story_suite_v2_drawer .inline-drawer-content').children[0].textContent;
+  assert.match(status, / · NPC State, Story Block$/);
+  api.stop();
+});
+
+test('start takes the stale storySuite.ui.oldView key away, and a storage that throws does not stop the view', async () => {
+  const saved = globalThis.localStorage;
+  const removed = [];
+  globalThis.localStorage = { getItem: () => '1', setItem() {}, removeItem: key => removed.push(key) };
+  try {
+    const api = await start(page(), fakeCtx());
+    assert.deepEqual(removed, ['storySuite.ui.oldView']);
+    api.stop();
+    globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() { throw new Error('storage blocked'); } };
+    const again = await start(page(), fakeCtx());
+    assert.equal(again.isOn(), true);
+    again.stop();
+  } finally {
+    if (saved === undefined) delete globalThis.localStorage; else globalThis.localStorage = saved;
+  }
+});

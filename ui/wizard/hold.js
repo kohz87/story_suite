@@ -1,5 +1,5 @@
 // The first send of a chat with the RPG on and no You, in the new view: the Send (button or Enter) is held and the sheet "Make your character
-// first" opens, with the old dialog's words and rules (modules/rpg/view/start-parts/create-start.js). "Send without the RPG for now" sends it with
+// first" opens, with the old dialog's words and rules. "Send without the RPG for now" sends it with
 // no dice and never asks again in this chat; "Create your character, then send" opens the new wizard and sends when Create made the character
 // (cancelled: the text is back in the box). Closing the sheet puts the text back. What the chat remembers is the same chat metadata
 // (modules/rpg/start.js). This one listens in the window's capture phase, before any listener on the document.

@@ -75,7 +75,7 @@ export function checkOpen(open, ctx, field) {
     }
 }
 
-/** `arc: { steps: [low, high] }` (an open template only): a generated arc of 2-4 steps. */
+/** `arc: { steps: [low, high] }` (an open template only): a generated arc of 2-4 happenings in all (the opening and the ending count). */
 export function checkArc(arc, ctx, field) {
     const steps = isObject(arc) ? arc.steps : null;
     if (!isObject(arc) || Object.keys(arc).some(key => key !== 'steps') || !Array.isArray(steps) || steps.length !== 2 || !steps.every(n => whole(n, 2, 4)) || steps[0] > steps[1]) ctx.say(field, `${field} must be { "steps": [2, 4] } (two whole numbers from 2 to 4, low first).`);

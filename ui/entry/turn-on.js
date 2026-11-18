@@ -24,7 +24,7 @@ const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 const FIGHT_SCREEN = 'story-block/fight';
 
 // The drawer's status line: the version and the modules that started.
-const drawerStatus = sdk => { let names = []; try { names = (sdk?.modules?.() ?? []).map(module => module.name); } catch { names = []; } return `Story Suite ${SUITE_VERSION} · ${names.join(', ')}`; };
+const drawerStatus = sdk => { let names = []; try { names = [...new Set((sdk?.modules?.() ?? []).filter(module => !module.hidden).map(module => module.name))]; } catch { names = []; } return `Story Suite ${SUITE_VERSION} · ${names.join(', ')}`; };
 
 function addStyles(doc, base) {
   return STYLES.map(name => {

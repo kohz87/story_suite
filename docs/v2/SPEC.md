@@ -943,7 +943,7 @@ something is set: `{{user}}: wears …; condition …` (a Rank word first with a
 chatter under each present person, for the Scene screen while Story Director's World is not there (MODULES
 §F115).
 
-**Mounts** (feature `story-block.mounts`, label "Mounts", on; off: no grammar line, no tail line, no capture, no
+**Mounts** (feature `story-block.mounts`, shown as "Transport", on; off: no grammar line, no tail line, no capture, no
 card, and the queries answer null; the rows are kept for when it is on again). `scene.mounts` is an object of at most
 **6** rows `{ name ≤40, kind ≤20, count 1–8 (default 1), pace km/day 1–200, condition ≤60, where ≤80 }`, in the
 order they were added, under a key made from the name when the row was added (`m:` and the name in lower case),
