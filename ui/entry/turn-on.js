@@ -4,6 +4,7 @@ import { mountSuite } from '../mount.js';
 import { createSbPort } from '../port/sb-port.js';
 import { addMenuEntry, chatPrefs } from '../port/st-chat.js';
 import { createChatSurfaces } from '../chat/chat-surfaces.js';
+import { runCardAction } from '../chat/reply-cards.js';
 import { replyMenuButton, replySheet } from '../chat/reply-menu.js';
 import { buildSelectors } from '../select/build.js';
 import { liveOffer } from '../port/live-offer.js';
@@ -50,7 +51,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   const links = addStyles(doc, base);
   const prefs = { chat: chatPrefs(ctx) };
   const hold = createHold(doc);
-  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, hold, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools, hold), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, screens: { open: (...args) => wizard?.open(...args) ?? false }, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
+  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, hold, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools, hold, StoryBlock.cards), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, screens: { open: (...args) => wizard?.open(...args) ?? false }, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
   const suite = mountSuite({ port, doc, host: doc.body, storage: deviceStorage(doc), theme: 'follow', look: () => StoryBlock.sdk?.settings?.() });
   // The New character wizard and the first-send hold (the port's `open` reaches it first: the old host's window never opens too).
   const wizard = attachWizard({ doc, ctx, sdk: StoryBlock.sdk, suite });
@@ -62,7 +63,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   if (form?.parentNode) form.parentNode.insertBefore(drawerHost, form);
   const surfaces = createChatSurfaces({
     messagesEl: doc.querySelector('#chat'), drawerHost, isNarrow: () => (globalThis.innerWidth ?? 1000) < 600,
-    handlers: { onReread: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); if (at >= 0) port.reread(at); }, onOpenSuite: tab => suite.open(tab), onNeedsYou: () => suite.open(port.view('now')?.needsYou?.some(row => row.kind === 'overdue') ? 'journal' : 'now'), onFight: () => suite.open('fight'), onOpenPerson: id => { suite.open('people'); port.command('suite.go', { tab: 'people', personId: id }); } },
+    handlers: { onCardAction: action => runCardAction(port, action), onReread: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); if (at >= 0) port.reread(at); }, onOpenSuite: tab => suite.open(tab), onNeedsYou: () => suite.open(port.view('now')?.needsYou?.some(row => row.kind === 'overdue') ? 'journal' : 'now'), onFight: () => suite.open('fight'), onOpenPerson: id => { suite.open('people'); port.command('suite.go', { tab: 'people', personId: id }); } },
   });
   // NPC State's "open this person's dossier" (a present card, the world's People list, its public openDossier) opens it here.
   const openPerson = ({ id, name } = {}) => suite.person([String(id ?? ''), String(name ?? '').trim().toLocaleLowerCase()]);
