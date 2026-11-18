@@ -6,7 +6,6 @@ import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { overrideWorld } from '../../../../modules/world/chronicle/world-daily/read-world.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
-import { slotValue } from '../../../../modules/rpg/slot.js';
 
 export const FEATURE = 'story-director.world-events';
 export const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
@@ -47,7 +46,7 @@ export async function newHost(on = true, spec = SPEC, settings = { modules: { 's
 
 export const chronicle = host => host.head().domains.chronicle;
 /** The daily step's state (kept as a slot, `[state]`), or null. */
-export const dailyOf = host => slotValue(chronicle(host).daily) ?? null;
+export const dailyOf = host => chronicle(host).daily?.[0] ?? null;
 export const world = host => JSON.stringify({ daily: chronicle(host).daily ?? null, conditions: chronicle(host).conditions ?? null, time: host.head().domains.director?.time?.minutes ?? null });
 export const dailyReceipts = host => host.sdk.receipts().filter(entry => entry.receipt.type === 'chronicle.world.daily');
 

@@ -1,12 +1,11 @@
 // World events, the daily step on the host: the `chronicle.world.daily` command (world-events switch). Run by code after a reply's
 // lines (afterCapture) when the story day has changed since the last step: it steps every day from the last stepped one to today (spec v0.10 §9) and
-// writes the results into the chronicle (`daily`, the step's state, and `conditions`, each written key by key: a reply records what it changed). The changes are recorded in the reply that
+// writes the results into the chronicle (`daily`, the step's state as a slot written whole, and `conditions`). The changes are recorded in the reply that
 // carries the step, so replay applies them and never rolls again. Its card lists what fired, ended and lapsed, the long-skip note
 // and every warning. The first step of a chat starts at today with the campaign seed minted before the first reply (seed.js; drawn here only when there is none) and keeps it in its state.
 
 import { revOf } from '../domain-parts/lookup.js';
-import { slotValue } from '../../../rpg/slot.js';
-import { writeInPlace } from '../domain-parts/in-place.js';
+import { slotValue, toSlot } from '../../../rpg/slot.js';
 import { clockOf } from '../capture/text.js';
 import { pointerOf } from '../conditions/key.js';
 import { worldEventsOn } from '../capture/world-parts/switch.js';
@@ -26,9 +25,6 @@ import { mirrorCast, tickInputs } from './cast-tie.js';
 
 export const DAILY = 'chronicle.world.daily';
 const DAY = 1440;
-// A step that reaches a new period of this many story days writes the state whole (a checkpoint, domain-parts/in-place.js); the others write what
-// they changed. After an edited or deleted earlier reply, the later replies are replayed as recorded again from the next checkpoint on (perf PB9).
-export const CHECKPOINT_DAYS = 10;
 
 function newSeed(ctx) {
     let out = '';
@@ -103,17 +99,13 @@ function daily(ctx, payload = {}) {
     if (cast) mirrorCast(ctx, cast, out.report, tie.keys, now);
     writeConditions(ctx, chronicle, out.conditions);
     // The ledger's anchors are now the step's own; today's clears stay in its tomb (spec §2 clear beats set, also against a later world line today).
-    // A step that reaches a new period of CHECKPOINT_DAYS writes the state and the ledger whole (a checkpoint). The first step writes them whole
-    // anyway (they are not there yet), as plain objects, so the next steps' changes apply on it.
-    const checkpoint = Boolean(state) && Math.floor(today / CHECKPOINT_DAYS) !== Math.floor(state.day / CHECKPOINT_DAYS);
-    markLedger(chronicle, { day: today, take: true, tombKeys: out.report.tomb, reset: true, whole: checkpoint }, ctx);
+    markLedger(chronicle, { day: today, take: true, tombKeys: out.report.tomb, reset: true });
     // What fired and ended is news (spec §4): one chronicle entry per occurrence, dated on its own day.
     const calendar = calendarFrom(query);
     const { skipped } = writeHappenings(ctx, chronicle, out.report.journal, { geo: buildGeo(world), rev: revOf(ctx), dateOf: day => dateText(calendar, day * DAY).replace(/,? \d{1,2}:\d{2}.*$/, '') });
     if (skipped.length) out.report.warnings.push(`The chronicle is full of events under way: ${skipped.length} happening(s) were not written as news (${skipped.slice(0, 3).join('; ')}).`);
-    // Written in place (perf PB9): the reply records the entries the step changed; one an earlier reply made is marked, so a replay after that
-    // reply is deleted passes over the change inside it and keeps the rest (domain-parts/in-place.js). A checkpoint writes it whole.
-    writeInPlace(ctx, chronicle, 'daily', out.daily, { whole: checkpoint });
+    // A slot (a one-entry list) is written whole: replay puts the step's state back as recorded even when the reply that made it first is gone.
+    chronicle.daily = toSlot(out.daily);
     const { report } = out;
     const fired = report.journal.filter(entry => entry.fired).map(entry => entry.by);
     // The warnings go to Problems, on this reply (the one sink, spec §9 Warnings), as well as on its card.

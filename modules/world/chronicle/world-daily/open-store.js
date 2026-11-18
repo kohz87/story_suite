@@ -31,7 +31,7 @@ function store(ctx, payload = {}) {
     const bad = Object.entries(results).some(([key, row]) => !key.includes('|') || !isRecord(row) || !OUTCOMES.has(row.outcome) || (row.answer !== undefined && (typeof row.answer !== 'string' || row.answer.length > 7000)) || (row.why !== undefined && typeof row.why !== 'string'));
     if (bad || !Number.isInteger(payload.calls ?? 0) || (payload.calls ?? 0) < 0) return ctx.fail('INVALID', 'The stored answers are not in the form the world reads.');
     const query = typeof ctx.query === 'function' ? (name, args) => ctx.query(name, args) : null;
-    storeOpen(ctx.draft('chronicle'), { results, calls: payload.calls ?? 0, year: yearOf(calendarFrom(query), nowFrom(query, { domains: { director: ctx.draft('director') } })) }, ctx);
+    storeOpen(ctx.draft('chronicle'), { results, calls: payload.calls ?? 0, year: yearOf(calendarFrom(query), nowFrom(query, { domains: { director: ctx.draft('director') } })) });
     return { summary: '', narrate: false, data: { stored: Object.keys(results).length, calls: payload.calls ?? 0 } };
 }
 

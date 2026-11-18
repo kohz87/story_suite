@@ -1,5 +1,6 @@
 // Perf PB9, measured on the host: a long skip steps each world day once (L1: the look-ahead for open templates no longer dry-runs the skip's
-// days before the step runs them), and a day-crossing reply stores what its step changed, with a whole copy only at a checkpoint (L7).
+// days before the step runs them). L7 (a day-crossing reply storing only what its step changed) is not built: each step still writes its whole
+// state, as on next; the chat growth per crossing is printed for comparison.
 // The numbers are printed (node --test shows them); the asserts hold the shape, not the machine's speed.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -9,7 +10,6 @@ import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
 import { stepTally } from '../../../../modules/world/daily/step.js';
-import { CHECKPOINT_DAYS } from '../../../../modules/world/chronicle/world-daily/command.js';
 import { slotValue } from '../../../../modules/rpg/slot.js';
 import { FEATURE, newHost, reply } from './daily-host.helpers.js';
 import { WORLD } from '../open/open-host.helpers.js';
@@ -48,7 +48,7 @@ async function ersveil() {
     return host;
 }
 
-test('L7: 30 day-crossing replies on Ersveil store what each step changed; the state is written whole only at a checkpoint', async () => {
+test('chat growth: 30 day-crossing replies on Ersveil each store the whole step state (L7 not built)', async () => {
     const host = await ersveil();
     try {
         await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
@@ -73,9 +73,7 @@ test('L7: 30 day-crossing replies on Ersveil store what each step changed; the s
         const state = JSON.stringify(slotValue(host.head().domains.chronicle.daily)).length;
         const average = crossings.reduce((sum, size) => sum + size, 0) / crossings.length;
         const smallest = Math.min(...crossings);
-        console.log(`PB9 L7: chat +${Math.round(grown / 30)} B per day-crossing reply; record ${Math.round(average)} B on average (smallest ${smallest} B), a reply that crosses no day ${plain} B; the step state ${state} B; a checkpoint every ${CHECKPOINT_DAYS} days`);
-        assert.ok(smallest - plain < state / 2, `a crossing between checkpoints stores much less than the whole state (${smallest - plain} B over a plain reply; the state is ${state} B)`);
-        const whole = crossings.filter(size => size - plain > state).length;
-        assert.ok(whole >= 2 && whole <= 8, `whole copies only around the checkpoints (${whole} of 30)`);
+        console.log(`PB9 growth: chat +${Math.round(grown / 30)} B per day-crossing reply; record ${Math.round(average)} B on average (smallest ${smallest} B), a reply that crosses no day ${plain} B; the step state ${state} B`);
+        assert.ok(smallest - plain > state / 2, `each crossing stores the whole state (${smallest - plain} B over a plain reply; the state is ${state} B)`);
     } finally { host.close(); }
 });

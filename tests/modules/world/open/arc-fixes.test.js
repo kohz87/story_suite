@@ -12,7 +12,6 @@ import { ARC_SYSTEM, arcLine } from '../../../../modules/world/chronicle/world-d
 import { loreText } from '../../../../modules/world/chronicle/world-daily/open-context.js';
 import { storeOpen } from '../../../../modules/world/chronicle/conditions/ledger.js';
 import { answerFor, fakeModel, ledgerOpen, open, openHost, reply, settle, WORLD } from './open-host.helpers.js';
-import { slotValue } from '../../../../modules/rpg/slot.js';
 
 const row = (name, after = 2) => ({ name, summary: `${name} happens.`, people: ['warden'], effects: {}, after, within: 3 });
 const bind = { place: 'Highmark', region: 'The March', realm: 'March Realm' };
@@ -159,11 +158,11 @@ test('the ledger keeps its answers within a size: the oldest go first, never one
     const chronicle = {};
     storeOpen(chronicle, { results: { a: big(1), b: big(2), c: big(3) } });
     storeOpen(chronicle, { results: { d: big(4), e: big(5) } });
-    const kept = Object.keys(slotValue(chronicle.ledger).open.results);
+    const kept = Object.keys(chronicle.ledger[0].open.results);
     assert.deepEqual(kept, ['b', 'c', 'd', 'e'].slice(-4).filter(key => kept.includes(key)));
     assert.ok(kept.includes('d') && kept.includes('e'), 'the newest are kept');
     assert.equal(kept.includes('a'), false, 'the oldest went first');
-    const size = Object.values(slotValue(chronicle.ledger).open.results).reduce((sum, item) => sum + JSON.stringify(item).length, 0);
+    const size = Object.values(chronicle.ledger[0].open.results).reduce((sum, item) => sum + JSON.stringify(item).length, 0);
     assert.ok(size <= 120000);
 });
 

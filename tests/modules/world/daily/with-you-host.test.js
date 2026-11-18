@@ -7,7 +7,6 @@ import assert from 'node:assert/strict';
 
 import { overrideWorld } from '../../../../modules/world/chronicle/world-daily/read-world.js';
 import { OPENING, TAIL_KEY, castHost, castSource, createFakeModel, entry, people, said, sent, validatorErrors, withRoads } from '../../cast/cast/helpers.js';
-import { slotValue } from '../../../../modules/rpg/slot.js';
 
 const FEATURE = 'story-director.world-events';
 const DAY2 = ['~ time June 4, 1200, 08:00 am'];
@@ -23,7 +22,7 @@ async function started(spec) {
     return host;
 }
 
-const daily = host => slotValue(host.head().domains.chronicle.daily) ?? null;
+const daily = host => host.head().domains.chronicle.daily?.[0] ?? null;
 const lothar = host => people(host)['ersveil:lothar'];
 
 test('tests 104-105 (host): with You in the scene at the tick he is not moved; the first tick after the scene moved on without him moves him', async () => {
@@ -34,7 +33,7 @@ test('tests 104-105 (host): with You in the scene at the tick he is not moved; t
         assert.equal(lothar(host).base, undefined, 'not moved while with You');
         const live = JSON.stringify(host.head().domains);
         await host.swipe(said('Morning, grey. Lothar is here.', [...DAY2, '+ present Lothar']));
-        assert.equal(JSON.stringify(daily(host)), JSON.stringify(slotValue(JSON.parse(live).chronicle.daily)), 'a swipe decides the same way');
+        assert.equal(JSON.stringify(daily(host)), JSON.stringify(JSON.parse(live).chronicle.daily[0]), 'a swipe decides the same way');
         await host.send('Go.', said('He rides off.', ['- present Lothar']));
         assert.ok(daily(host).cast.lothar.deferred, 'no tick yet: still deferred');
         await host.send('Sleep.', said('Another morning.', DAY3));
