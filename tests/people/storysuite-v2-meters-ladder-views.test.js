@@ -5,7 +5,7 @@ import { validateScreen } from '../../packs/screens/registry.js';
 import { MODULE_ID, meterBarNode } from '../../modules/people/storysuite-v2.js';
 import { DEFAULT_CHANGE_CAP, FEATURE_DRIFT, FEATURE_PRESETS, FEATURE_STAGES, createNpcPart, normalizeMeterSettings, parseNeeds, secretId, secretsFromLines, secretsToLines, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { metersCardScreen } from '../../modules/people/meters/npc-meters-screen.js';
-import { v2MetersHtml, v2MetersProjection, v2SecretsHtml } from '../../modules/people/legacy/dossier-ui.js';
+
 import { fakeRoot, fakeDocument } from './helpers/fake-dom.js';
 import { withoutDossiers } from './helpers/seed-people.js';
 import { DATING_PACK, LADDER, SECRET, dossiers, fuzzSeeds, lastReceipt, prng, suite } from './storysuite-v2-meters-ladder.helpers.js';
@@ -46,31 +46,6 @@ test('teasers: editor lines carry an optional [title]; the id does not depend on
 });
 
 // ---- 5. custom meters in the dossier view ----
-
-test('the dossier view shows custom meters, the ladder line, milestones and teasers (escaped); nothing without a host', async () => {
-    const s = await suite({ settings: { ladder: LADDER, customMeters: [{ name: '<Awe>', min: 0, max: 50 }] } });
-    await s.say(['~ npc Mira | awe: +7 | trust: +12', '+ milestone Mira — saved her brother']);
-    const views = s.adapter.dossierMeters(Object.values(s.delta.records));
-    // (people store P4) every stored person has a view: npc.cast is the store's people, Oren at the meters he would start at.
-    assert.deepEqual(Object.keys(views), ['npc_mira', 'npc_oren']);
-    const projection = v2MetersProjection(views.npc_mira);
-    assert.deepEqual(projection.bars.map(bar => [bar.id, bar.value, bar.max]), [['awe', 7, 50]], 'only the meters beyond the four axes');
-    assert.equal(projection.rank, 'Friend');
-    assert.deepEqual(projection.milestones, ['saved her brother']);
-    const html = v2MetersHtml(projection);
-    assert.match(html, /&lt;Awe&gt;/);
-    assert.doesNotMatch(html, /<Awe>/);
-    assert.match(html, /Next: Confidant — trust 22\/60, affection 0\/40/);
-    assert.doesNotMatch(html, /Her past|Hidden note|🔒/, 'the notes are in their own Secrets section, not among the meters');
-    const secrets = v2SecretsHtml(projection);
-    assert.match(secrets, /Secrets <small class="delta-secrets-count">· 0 opened · 1 still hidden<\/small>/);
-    assert.match(secrets, /delta-secret-bar[^>]*><\/span><span class="delta-secret-when">Opens at Trust 30<\/span>/);
-    assert.doesNotMatch(secrets, /Her past|lost heir|🔒/, 'a hidden note is a bar and its rule');
-    assert.equal(v2MetersHtml(v2MetersProjection(null)), '');
-    assert.equal(v2SecretsHtml(v2MetersProjection(null)), '');
-    s.adapter.stop();
-    assert.deepEqual(s.adapter.dossierMeters(Object.values(s.delta.records)), {});
-});
 
 // ---- 6. meter bars with ss.meter's newer props ----
 
@@ -227,7 +202,6 @@ test('the meter setup is kept on the dossier and never reaches Delta\'s own prom
 });
 
 // ---- standalone: Story Block alone (no RPG Battle, no Story Director), a dating sim from a pack ----
-
 
 test('standalone: with Story Block alone, a pack\'s meter preset gives a dating sim its meters, words and stages', async () => {
     const records = dossiers();

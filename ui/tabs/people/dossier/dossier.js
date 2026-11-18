@@ -107,7 +107,7 @@ export function dossierPage(d, ctx = {}) {
         type: 'button', role: 'menuitem', class: id === 'delete' ? 'dng' : null, dataset: { act: id },
         onClick: () => {
           if (id === 'delete' && !state.sure) { state.sure = true; drawMenu(); return; }
-          if (id === 'refresh') refresh(); else cmd(`npc.${id}`);
+          if (id === 'refresh') refresh(); else cmd(`npc.${id}`, id === 'portrait' ? { name: d.name } : {});
           closeMenu();
         },
       }, confirm ? 'Tap again to delete' : label, h('small', null, confirm ? 'this cannot be undone' : hint));

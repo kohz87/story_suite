@@ -5,8 +5,8 @@ import { applyNpcStateCommand, buildInjection, mergeScanResult, normalizeNpcReco
 import { deriveAgeFromBirthDate, extractStructuredWorldDate } from '../../modules/people/legacy/calendar.js';
 import { decodeNpcStateBundle, encodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
 import { buildHistoryArchive, prepareNativeImport } from '../../modules/people/transfer/native-transfer.js';
-import { nativeImportResultSummary } from '../../modules/people/legacy/dossier-tools.js';
-import { recordToolEvent, toolEvents } from '../../modules/people/legacy/dossier-tools-core.js';
+import { nativeImportResultSummary } from '../../modules/people/tools/data-tools.js';
+import { recordToolEvent, toolEvents } from '../../modules/people/tools/tools-core.js';
 import { execFileSync } from 'node:child_process';
 
 const calendar = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }] };

@@ -15,9 +15,8 @@ import {
     relationshipDiagnosticRows,
     summarizeDecodedBundle,
     toolEvents,
-    uiRoot,
     validatePortraitFile,
-} from '../../modules/people/legacy/dossier-tools-core.js';
+} from '../../modules/people/tools/tools-core.js';
 import {
     augmentNativeBundle,
     buildHistoryArchive,
@@ -30,21 +29,9 @@ function portraitData(bytes = [1, 2, 3, 4]) {
 }
 
 test('Diagnostics has no full-cast scan action (owner decision D dropped the full-cast scan)', () => {
-    const source = fs.readFileSync(fileURLToPath(new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url)), 'utf8');
+    const source = fs.readFileSync(fileURLToPath(new URL('../../modules/people/tools/data-tools.js', import.meta.url)), 'utf8');
     assert.doesNotMatch(source, /full-cast|Full scan current cast/);
     assert.match(source, /data-export-diagnostics/);
-});
-
-test('supporting tools bind to the accepted Stage 1 dossier root', () => {
-    const previousDocument = globalThis.document;
-    const root = { id: 'npc_state_delta_dossier_root' };
-    globalThis.document = { getElementById: id => id === root.id ? root : null };
-    try {
-        assert.equal(uiRoot(), root);
-    } finally {
-        if (previousDocument === undefined) delete globalThis.document;
-        else globalThis.document = previousDocument;
-    }
 });
 
 test('portrait validation accepts images and rejects invalid/oversized inputs without mutation', () => {

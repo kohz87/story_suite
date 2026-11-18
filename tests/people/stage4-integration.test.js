@@ -15,7 +15,6 @@ import {
 } from '../../modules/people/core/core.js';
 import { BRANCH_LINEAGE_VERSION, recordBranchCheckpoint, reconcileBranchState } from '../../modules/people/legacy/branch.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
-import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 
 function formNpc(name = 'Sora') {
     return normalizeNpcRecord({
@@ -178,14 +177,6 @@ test('Stage 4 native bundle merge cannot implicitly revive an existing terminal 
     assert.equal(npc.mood, dead.mood);
     assert.equal(npc.location, dead.location);
     assert.deepEqual(npc.relationship, dead.relationship);
-});
-
-test('Stage 4 canonical state gives the retained dossier the same resolved current appearance as portrait/injection', () => {
-    const npc = formNpc();
-    const projected = dossierDetailProjection(npc);
-    assert.equal(projected.appearance, resolveNpcAppearance(npc));
-    assert.match(projected.appearance, /ordinary human ears/i);
-    assert.doesNotMatch(projected.appearance, /Storm-blue plumage/i);
 });
 
 test('Stage 4 branch rollback restores the owned pre-switch appearance form snapshot', () => {

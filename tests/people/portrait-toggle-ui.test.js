@@ -29,7 +29,7 @@ test('portrait copying lazy-loads SillyTavern host utility and exposes a selecte
 });
 
 test('settings booleans use CSS-only row status pills with grey and green dots', () => {
-    const script = fs.readFileSync(new URL('../../modules/people/legacy/scanner-output-ui.js', import.meta.url), 'utf8');
+    const script = fs.readFileSync(new URL('../../modules/people/settings/scanner-output.js', import.meta.url), 'utf8');
     const source = styleSource();
     assert.doesNotMatch(script, /function enhanceSettingsToggles\(/, 'startup must not mutate checkbox sibling DOM');
     assert.doesNotMatch(script, /insertAdjacentElement\('afterend'/, 'startup must not inject toggle siblings from the global observer');
@@ -46,7 +46,7 @@ test('settings booleans use CSS-only row status pills with grey and green dots',
 });
 
 test('settings owner events replace document observation without rewriting toggle DOM', () => {
-    const source = fs.readFileSync(new URL('../../modules/people/legacy/scanner-output-ui.js', import.meta.url), 'utf8');
+    const source = fs.readFileSync(new URL('../../modules/people/settings/scanner-output.js', import.meta.url), 'utf8');
     assert.doesNotMatch(source, /new MutationObserver/);
     assert.match(source, /addEventListener\('npc-state-delta:settings-mounted', mountControl\)/);
     assert.match(source, /attempt < 40/);

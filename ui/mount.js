@@ -38,7 +38,7 @@ function readFlags(port, override) {
 /**
  * Mounts the suite. Options: `port` (required), `doc`, `host`, `flags` ({ rpg, fightOpen } overrides),
  * `theme` ('dark' | 'light' | 'follow'), `tabs` (id → (view, ctx) => node), `card` ((view, ctx) => node),
- * `schedule` (frame scheduler for tests), `initial` (first tab). Returns `{ open(tab), close(), settings(), destroy(), ... }`.
+ * `schedule` (frame scheduler for tests), `initial` (first tab). Returns `{ open(tab), close(), person(keys), settings(), destroy(), ... }`.
  */
 export function mountSuite(options = {}) {
   const { port, doc = globalThis.document, host = doc?.body, flags: override = null, theme = 'dark' } = options;
@@ -161,6 +161,12 @@ export function mountSuite(options = {}) {
       return opened;
     },
     close: () => view.close(),
+    // Opens the suite on People with one person's dossier (`keys`: their store id and/or lower-case name); false when nobody matches.
+    person(keys) {
+      if (destroyed) return false;
+      this.open('people');
+      return views.openPerson(keys);
+    },
     settings: () => (destroyed ? null : openSettings()),
     destroy() {
       if (destroyed) return;

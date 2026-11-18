@@ -151,9 +151,8 @@ export function createStorySuiteV2Adapter({
     linesMode = () => false,
     // True while the custom Level field is on (a configured field, or the host's RPG feature): a `~ npc` line may then state `level: N` (src/npc-lines-parts/level.js). Off, a `level:` label is an unknown one.
     levelOn = () => false,
-    // Delta's dossier list markup and projection (dossier-rows.js, dossier-ui.js), as v1's Dossiers tab.
-    loadDossierList = () => Promise.all([import('./dossier-rows.js'), import('./legacy/dossier-ui.js')])
-        .then(([tabs, ui]) => ({ rowNodes: tabs.dossierRowNodes, project: ui.dossierIndexProjection, filter: ui.filterDossierIndex })),
+    // Delta's dossier list markup (dossier-rows.js) for the Dossiers tab; its rows are the plain ones (adapter/cast-ui/dossier-list.js).
+    loadDossierList = () => import('./dossier-rows.js').then(tabs => ({ rowNodes: tabs.dossierRowNodes })),
     // How long Delta waits for the host's head-selection barrier to come down, and how often it looks (messageGate.settled).
     settleMs = HEAD_SETTLE_MS,
     settlePollMs = HEAD_SETTLE_POLL_MS,

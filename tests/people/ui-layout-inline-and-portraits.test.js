@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { standInTree } from './helpers/temp-tree.js';
 import { snapshotNpc } from '../../modules/people/fields/registry.js';
 import path from 'node:path';
-import { root, index, css, dossierUi } from './ui-layout.helpers.js';
+import { root, index, css } from './ui-layout.helpers.js';
 import { tempDir } from '../../scripts/temp-dir.mjs';
 
 test('inline card truth follows merged presence and settings roster editor uses direct mobile-safe binding', () => {
@@ -26,7 +26,6 @@ test('inline card truth follows merged presence and settings roster editor uses 
     assert.match(css, /npc-state-delta-editor-popup/);
     assert.equal((index.match(/id="npc_state_delta_edit_personality"/g) || []).length, 1, 'editor must not render duplicate Personality controls');
 });
-
 
 test('UI integration remounts inline cards on SillyTavern render lifecycle and captures roster editor clicks', () => {
     assert.match(index, /CHARACTER_MESSAGE_RENDERED/);
@@ -118,9 +117,7 @@ test('per-NPC Scan dossier workflow and Key Relationships controls are exposed',
     assert.match(index, /Key relationships/);
     assert.match(index, /editorList\('keyRelationships', KEY_RELATIONSHIP_LIMIT\)/);
     assert.deepEqual(snapshotNpc({ id: 'npc_x', keyRelationships: ['Ilse — sister'] }).keyRelationships, ['Ilse — sister'], 'the inline snapshot copies the bonds');
-    assert.match(dossierUi, /No important ties recorded yet/);
 });
-
 
 test('stale NPC lifecycle is configurable and recurring NPCs can be protected', () => {
     assert.match(index, /npc_state_delta_auto_prune_stale/);
@@ -143,7 +140,6 @@ test('minor NPC toggle hides portrait cards without disabling dossier tracking',
     assert.match(index, /next\.minor = Boolean/);
     assert.match(index, /still scans, updates, stores memories\/relationships, and injects when present/);
 });
-
 
 test('v0.2 portrait generation settings expose theme, positive/negative prompts, and backend-neutral controls', () => {
     for (const id of [
@@ -195,27 +191,10 @@ test('native portrait bridge uses quiet SillyTavern imagine command and separate
     assert.match(index, /compressPortrait\(file\)/);
 });
 
-
-test('portrait generator top layer stays above the full-screen dossier on tablet and mobile', () => {
-    const dossier = dossierUi.match(/\.delta-panel \{\s*position: fixed; z-index: (\d+)/);
-    const generator = css.match(/\.npc-state-delta-portrait-generator-overlay\s*\{[\s\S]*?z-index:\s*(\d+)/);
-    assert.ok(dossier, 'dossier panel z-index should be explicit');
-    assert.ok(generator, 'portrait generator z-index should be explicit');
-    assert.ok(Number(generator[1]) > Number(dossier[1]), `portrait generator (${generator[1]}) must sit above dossier (${dossier[1]})`);
-    assert.match(index, /overlay\.style\.zIndex\s*=\s*'2147483600'/);
-});
 test('settings panel buttons override the host min-content button width', () => {
     // SillyTavern's .menu_button is width:min-content, which stacks each word of a label inside a grid cell.
     assert.match(css, /\.delta-settings-quick-actions \.menu_button,\n#npc_state_delta_settings \.npc-state-delta-custom-preset-actions \.menu_button,\n#npc_state_delta_settings \.delta-settings-maintenance-actions > \.menu_button \{ width: 100%; \}/);
     assert.match(css, /\.npc-state-delta-calendar-actions > \.menu_button,\n#npc_state_delta_settings \.delta-settings-danger > \.menu_button \{ width: auto; white-space: nowrap; \}/);
-});
-
-test('opening the dossier never focuses the search box (no phone/tablet keyboard)', () => {
-    const open = dossierUi.slice(dossierUi.indexOf('    async open() {'), dossierUi.indexOf('    async openNpc('));
-    assert.ok(open.length > 0, 'open() was not found');
-    assert.doesNotMatch(open, /delta-search/);
-    assert.match(open, /querySelector\('\.delta-panel'\)\?\.focus\?\.\(\{ preventScroll: true \}\)/);
-    assert.doesNotMatch(dossierUi, /focusSearch/);
 });
 
 test('switched off, Delta renders no in-chat cards, and the Enable switch redraws them (BH2, 12 Nov)', async () => {

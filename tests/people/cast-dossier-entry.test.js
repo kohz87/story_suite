@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { buildInjection, createNpcRecord, normalizeNpcRecord as normalizeProduction } from '../../modules/people/core/core.js';
 import { normalizeNpcRecord } from '../../modules/people/core/core-mechanics.js';
 import { resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
-import { castFromHtml, castProjection, projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
+
 import { normalizeSecrets, observeCast, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import {
     applyCastEntry, castBadge, castSecrets, castView, dossierFor, findCastPerson, metWithEntry, normalizeCast, normalizeEntry, parsePeople, shortPackName,
@@ -115,31 +115,6 @@ test('a dossier already standing for the person is found by the cast key, name o
     assert.equal(dossierFor([createNpcRecord('Mira', []), createNpcRecord('FENNA', [])], p)?.name, 'FENNA', 'a dossier a scan made, by name');
     assert.equal(dossierFor([byName], p), byName, 'by an alias');
     assert.equal(dossierFor([createNpcRecord('Mira', [])], p), null);
-});
-
-test('what the dossier shows: the badge, first met, their own path, last heard (words escaped); Story Director gone, the pack\'s words stand', () => {
-    const [p] = normalizeCast([person()], dateText);
-    const made = normalizeNpcRecord(applyCastEntry(createNpcRecord('Fenna', []), p, { packName: 'Ersveil' }));
-    assert.equal(castBadge(made.castFrom), 'Ersveil cast');
-    assert.equal(castBadge({}), 'Cast');
-    const view = castProjection(castView(made, p));
-    assert.deepEqual([view.badge, view.firstMet, view.goal, view.routine], ['Ersveil cast', 'Gw 12 at Bluewatch docks', 'Find out who opened the weir', 'evenings at the ferry']);
-    const html = castFromHtml(view);
-    assert.match(html, /From the Ersveil cast · first met Gw 12 at Bluewatch docks/);
-    assert.match(html, /<b>Their own path:<\/b> Find out who opened the weir/);
-    assert.match(html, /<b>Last heard:<\/b> took the ferry upriver to Ashford \(Gw 15\)/);
-    assert.match(castFromHtml(castProjection({ ...view, goal: '<img src=x onerror=1>', lastHeard: { text: '<b>x</b>', on: '' } })), /&lt;img src=x onerror=1&gt;[\s\S]*&lt;b&gt;x&lt;\/b&gt;/);
-    const alone = castProjection(castView(made, null));
-    assert.equal(alone.lastHeard, null);
-    assert.equal(alone.goal, 'Find out who opened the weir', 'the starting words the pack gave');
-    assert.doesNotMatch(castFromHtml(alone), /Last heard/);
-    assert.match(castFromHtml(castProjection({ ...view, lastHeard: null, doing: 'Walks the road. ', where: 'Hollin\'s Reach' })), /<b>Now:<\/b> Walks the road · at Hollin&#039;s Reach|<b>Now:<\/b> Walks the road · at Hollin's Reach/, 'no lastHeard: what they do now and where, no stray full stop');
-    assert.equal(castView(createNpcRecord('Mira', []), p), null, 'any other dossier shows none of it');
-    assert.equal(castFromHtml(null), '');
-    // The projection carries it to the view by dossier id.
-    const state = projectDossierState({ npcs: [{ ...made, id: 'npc_fenna' }, { ...createNpcRecord('Mira', []), id: 'npc_mira' }], castViews: { npc_fenna: castView(made, p) } });
-    assert.equal(state.npcs.find(npc => npc.id === 'npc_fenna').cast.badge, 'Ersveil cast');
-    assert.equal(state.npcs.find(npc => npc.id === 'npc_mira').cast, undefined);
 });
 
 test('the twelve Ersveil entries all make a dossier: profile whole, fields, three to five notes, stages in the pack\'s shape with their cue', () => {

@@ -1,6 +1,7 @@
 /* NPC State Delta - present-card event helpers (role: runtime-entry-ui-events). The present-card activation
-   guard, launcher-dossier event bridge and closest-target lookup split from index.js. Built once per module
-   instance with the controller bindings it calls, so the activation memory stays per instance. */
+   guard, the open-a-dossier call (the view's People dossier, through pageHandles.openPerson) and closest-target lookup split
+   from index.js. Built once per module instance with the controller bindings it calls, so the activation memory stays per instance. */
+import { pageHandles } from './handles.js';
 
 export function createUiCaptureParts(deps) {
     const { currentNpcById } = deps;
@@ -14,14 +15,15 @@ export function createUiCaptureParts(deps) {
     }
 
 
-    // Present-cast cards open the same launcher dossier page as the floating launcher.
-    function openLauncherDossier(npcId) {
+    // Present-cast cards (and openDossier) open the person's dossier in the Story Suite view, on People.
+    function openPersonDossier(npcId) {
         const id = String(npcId || '').trim();
-        if (!id || !currentNpcById(id)) return false;
-        const request = { npcId: id, handled: false };
-        document.dispatchEvent?.(new CustomEvent('npc-state-delta:open-dossier', { detail: request }));
-        if (!request.handled) globalThis.toastr?.warning?.('NPC State Delta dossier UI is still mounting.');
-        return request.handled;
+        const npc = id ? currentNpcById(id) : null;
+        if (!npc) return false;
+        const open = pageHandles.openPerson;
+        const opened = typeof open === 'function' && open({ id, name: npc.name }) === true;
+        if (!opened) globalThis.toastr?.warning?.(typeof open === 'function' ? `Story Suite has no dossier for ${npc.name || 'this person'} yet.` : 'Story Suite is still starting.');
+        return opened;
     }
 
     function activatePresentCardFromEvent(event) {
@@ -41,9 +43,9 @@ export function createUiCaptureParts(deps) {
         event.preventDefault?.();
         event.stopImmediatePropagation?.();
         event.stopPropagation?.();
-        openLauncherDossier(npcId);
+        openPersonDossier(npcId);
         return true;
     }
 
-    return { eventTargetClosest, openLauncherDossier, activatePresentCardFromEvent };
+    return { eventTargetClosest, openPersonDossier, activatePresentCardFromEvent };
 }

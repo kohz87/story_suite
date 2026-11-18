@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { runtimeSource } from './helpers/runtime-source.js';
-import { dossierUiSource } from './helpers/dossier-ui-source.js';
+
 import { adapterSource } from './helpers/adapter-source.js';
 import { FEATURE_STAGES, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { readLeaf } from '../../modules/people/meters/npc-meters-config.js';
@@ -144,27 +144,7 @@ test('with no Story Director the per-reply step and the slice are exactly as bef
     assert.equal(s.meters('Ren').meters.trust, 5);
 });
 
-test('the cast box sits in Right now, and the "Next:" line has its own space under the meters', () => {
-    const ui = dossierUiSource();
-    // The section bar is gone with the one long page: the cast and away blocks head the Right now section.
-    assert.doesNotMatch(ui, /delta-section-nav/);
-    assert.match(ui, /castFromHtml\(npc\.cast\)/, 'the cast block is drawn in Right now');
-    assert.match(ui, /keyAwayHtml\(npc\.key\)/, 'so is the away block');
-    // `.delta-section p { margin:0 }` outranks a bare class: the 6px of the rank, next and milestones lines never applied.
-    assert.match(ui, /\.delta-section p\.delta-v2-next, [^\n]*\.delta-section p\.delta-v2-note \{ margin:6px 0 0;/);
-    assert.doesNotMatch(ui, /#\$\{ROOT_ID\} \.delta-v2-next/, 'no bare-class rule for the lines (it loses to .delta-section p)');
-    assert.match(ui, /\.delta-section \.delta-rel-grid \+ p \{ margin-top:12px; \}/, 'the first line under the meter grid gets 12px');
-});
-
 // ---- the opaque panel and section bar (a follow-up from the mockup) ----
-
-test('the dossier panel is opaque: a floor under the tint, the tint over it', () => {
-    const ui = dossierUiSource();
-    assert.match(ui, /\.delta-panel \{[^}]*background-color:var\(--delta-floor\); background-image:linear-gradient\(var\(--delta-bg\),var\(--delta-bg\)\);/s);
-    assert.doesNotMatch(ui, /\.delta-panel \{[^}]*background:var\(--delta-bg\)/s, 'the translucent tint alone is gone');
-    assert.match(ui, /--delta-floor: var\(--ss-sheet-floor, #18191d\)/, 'a fixed floor where the host gives none');
-    assert.match(ui, /@supports \(color: rgb\(from red r g b\)\)[\s\S]*--delta-floor: var\(--ss-sheet-floor, rgb\(from var\(--delta-bg\) r g b \/ 1\)\)/, 'the tint with its alpha dropped where relative colours exist');
-});
 
 test('index.js wiring: the cast reader, the checkpoint, the dismissal check, the views (source)', () => {
     const index = runtimeSource();

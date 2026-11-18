@@ -6,7 +6,7 @@ import { TIE_TAGS, TIE_FAMILIES, ONE_WAY_TAGS, applyTags, readTies, tiesText, ta
 import { foldTies } from '../../modules/people/notes/npc-notes-kinds.js';
 import { TIE_TYPE_LABELS, TIE_TYPE_RANK, tieType } from '../../modules/people/core/core-keyrel.js';
 import { noteKinds } from '../../modules/people/notes/npc-notes-kinds-parts/grammar.js';
-import { tieTone } from '../../modules/people/legacy/dossier-ui-bond-tone.js';
+
 import { suite } from './helpers/pacing-suite.js';
 import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { ON, oren, shape } from './npc-notes-kinds.helpers.js';
@@ -68,17 +68,6 @@ test('relation text maps as before: partner, kin and mentor words give ally or n
     assert.equal(tieType('stranger', ['kin', 'owes']), 'owes');
     assert.equal(tieType('stranger', ['kin', 'mentor']), 'kin');
     assert.equal(tieType('friend', ['ally', 'owes']), 'owes');
-});
-
-test('tie types and tones: a label and top rank for each tag; hostile, duty and close tones', () => {
-    for (const tag of NINE) { assert.ok(TIE_TYPE_LABELS[tag], tag); assert.equal(TIE_TYPE_RANK[tag], 0, tag); }
-    assert.equal(TIE_TYPE_RANK.interest, 1);
-    assert.equal(tieTone(['enemy']), 'hostile');
-    assert.equal(tieTone(['kin', 'rival']), 'hostile');
-    assert.equal(tieTone(['serves']), 'duty');
-    assert.equal(tieTone(['kin']), 'close');
-    assert.equal(tieTone(['mentor']), 'close');
-    assert.equal(tieTone([]), null);
 });
 
 test('the model-visible `~ tie` grammar line is the owner-approved nine-tag line (16 Nov, shipped in N7)', () => {

@@ -5,7 +5,6 @@ import { buildInjection, buildScannerPrompt, createNpcRecord, mergeScanResult } 
 import { decodeNpcStateBundle, encodeNpcStateBundle, mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 import { reconcileBranchState, recordBranchCheckpoint, snapshotBranchState, BRANCH_LINEAGE_VERSION } from '../../modules/people/legacy/branch.js';
 import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
-import { dossierDetailProjection, dossierIndexProjection, projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
 import { decodeStateFilePayload, encodeStateFilePayload, readPortraitFileDataUrl, savePortraitFile, verifyPortraitFiles } from '../../modules/people/storage/storage.js';
 import {
     PORTRAIT_FILE_PREFIX, isPortraitFileRecord, markPortraitFileMissing, markPortraitFilePresent, parseImageDataUrl,
@@ -56,6 +55,9 @@ async function fileRecord(dataUrl = PNG, s = server()) {
     return { record, s };
 }
 
+// What a dossier shows (the old panel's rule; B4-5 removed the panel): the main portrait's source, else the chat's stored asset.
+const shownPortrait = (npc, assets = {}) => String(portraitSrc(npc?.portrait) || portraitSrc(assets?.[npc?.id]) || '').trim();
+
 test('the picture is named by its content: the hash is the platform\'s SHA-256, and a path that is not the record\'s own is never trusted', async () => {
     const bytes = new Uint8Array(1000).map((_, i) => (i * 7) % 256);
     assert.equal(sha256Hex(bytes), createHash('sha256').update(bytes).digest('hex'));
@@ -104,43 +106,38 @@ test('a server that cannot say still saves the picture, and a failed write or a 
     assert.deepEqual(none.calls, [], 'nothing is asked for a picture that is not stored');
 });
 
-test('a portrait file that is gone shows the normal no-portrait look: the list, the dossier and the hosted portrait query; one that is back shows again', async () => {
+test('a portrait file that is gone shows the normal no-portrait look: the dossier\'s source and the hosted portrait query; one that is back shows again', async () => {
     const { record, s } = await fileRecord();
     const npc = castNpc('Fenna', record);
-    assert.equal(dossierIndexProjection(npc).portrait, record.path, 'the list shows the file');
-    assert.equal(dossierDetailProjection(npc).portrait, record.path, 'the dossier shows the file');
+    assert.equal(shownPortrait(npc), record.path, 'the dossier shows the file');
     assert.equal(portraitUrl(npc), record.path, 'and so does the hosted portrait query');
     s.files.delete(record.path);
     assert.equal(await verifyPortraitFiles([npc.portrait], { fetchFn: s.fetchFn, headers: HEADERS }), 1, 'one file gone, said in one request');
     assert.equal(s.calls.filter(call => call.url === '/api/files/verify').length, 2, 'save asked once, the check once');
     assert.deepEqual(s.gets(), [], 'no fetch of the missing file: no 404');
-    assert.equal(dossierIndexProjection(npc).portrait, '');
-    assert.equal(dossierDetailProjection(npc).portrait, '');
+    assert.equal(shownPortrait(npc), '');
     assert.equal(portraitUrl(npc), null);
     assert.equal(portraitHasImage(npc.portrait), true, 'it is still the person\'s portrait record; nothing is deleted from the state');
-    const html = projectDossierState({ npcs: [npc] }).index[0];
-    assert.equal(html.portrait, '');
     markPortraitFilePresent(record.path);
-    assert.equal(dossierIndexProjection(npc).portrait, record.path, 'the file came back');
+    assert.equal(shownPortrait(npc), record.path, 'the file came back');
 });
 
 test('a file the picture fails to load from is remembered as gone', () => {
     const npc = castNpc('Brecht', { path: `/user/files/${PORTRAIT_FILE_PREFIX}${hashOf(PNG).slice(0, 40)}.png`, type: 'image/png', hash: hashOf(PNG) });
-    assert.equal(dossierIndexProjection(npc).portrait, npc.portrait.path);
+    assert.equal(shownPortrait(npc), npc.portrait.path);
     markPortraitFileMissing(npc.portrait.path);
-    assert.equal(dossierIndexProjection(npc).portrait, '');
+    assert.equal(shownPortrait(npc), '');
     markPortraitFilePresent(npc.portrait.path);
 });
 
 test('records that hold the picture (an upload, a chat made before) are read exactly as before, beside the file form', () => {
     const old = castNpc('Mira', { dataUrl: PNG, mime: 'image/png', sourceName: 'mira.png', updatedAt: 1 });
     assert.equal(portraitSrc(old.portrait), PNG);
-    assert.equal(dossierIndexProjection(old).portrait, PNG);
-    assert.equal(dossierDetailProjection(old).portrait, PNG);
+    assert.equal(shownPortrait(old), PNG);
     assert.equal(portraitUrl(old), PNG);
     assert.equal(portraitHasImage(old.portrait), true);
     const assetOnly = createNpcRecord('Tom');
-    assert.equal(dossierIndexProjection(assetOnly, { [assetOnly.id]: { dataUrl: WEBP } }).portrait, WEBP, 'an asset copy still shows for a record without its picture');
+    assert.equal(shownPortrait(assetOnly, { [assetOnly.id]: { dataUrl: WEBP } }), WEBP, 'an asset copy still shows for a record without its picture');
     assert.equal(portraitUrl({ portrait: { url: '/user/images/Mira.png' } }), '/user/images/Mira.png');
     assert.equal(portraitSrc(null), '');
 });

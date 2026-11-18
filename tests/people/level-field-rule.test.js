@@ -182,17 +182,8 @@ test('active party member: stored Level follows the sheet and the scanner\'s Lev
     assert.equal(scan({ npcs: [{ ...mira, manualProfileFields: ['customFields'] }], candidates: [], turn: 1 }, {}, active).state.npcs[0].customFields.Level, '4', 'a hand-set value is never overwritten');
 });
 
-test('the adapter reads party.levels (null without the query), the dossier marks Level "from the party sheet" only for those people', async () => {
+test('the adapter reads party.levels (null without the query)', async () => {
     assert.equal((await suite({})).adapter.partyLevelsAnswer(), null, 'a host without the query: as today (the answer with the query: cast-dossier.test.js)');
-    const { projectDossierState } = await import('../../modules/people/legacy/dossier-ui-catalog.js');
-    const { currentCard } = await import('../../modules/people/legacy/dossier-ui-html.js');
-    const people = [normalizeNpcRecord({ id: 'npc_mira', name: 'Mira', customFields: { Level: '5' } }), normalizeNpcRecord({ id: 'npc_bo', name: 'Bo', customFields: { Level: '2' } })];
-    const marked = projectDossierState({ npcs: people, customFieldNames: ['Level'], sheetLevels: { npc_mira: true } }, { chatKey: 'c1' }).npcs;
-    assert.equal(marked[0].levelFromSheet, true);
-    assert.equal(marked[1].levelFromSheet, undefined, 'a person off the sheet (or left) has no mark');
-    assert.equal(projectDossierState({ npcs: people, customFieldNames: ['Level'] }, { chatKey: 'c1' }).npcs[0].levelFromSheet, undefined, 'standalone: no mark');
-    assert.match(currentCard('Level', '5', '', '', 'from the party sheet'), /5<em class="delta-from">from the party sheet<\/em>/);
-    assert.doesNotMatch(currentCard('Level', '5', ''), /delta-from/);
 });
 
 // ---- the sheet level holds on every scan path; the mark only when it matches ----
