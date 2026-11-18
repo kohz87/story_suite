@@ -153,7 +153,7 @@ for (const seed of SEEDS) {
         const oracle = await createHost({ modules: [guarded()], core: false });
         t.after(() => oracle.close());
         let stale = false;      // a skipped edit's stamps not yet stamped again by a reconcile on both sides
-        const stats = { skipped: skip.skipped, landed: 0, actions: {} };
+        const stats = { skipped: skip.skipped, landed: 0, actions: {}, rereads: skip.trace.filter(entry => entry.reread === true).length, rewinds: skip.trace.filter(entry => entry.rewind === true).length };
         for (let i = 0; i < STEPS; i++) {
             const a = skip.trace[i], b = full.trace[i];
             const label = `seed ${seed} step ${i} ${a.action}${a.at !== undefined ? ` at ${a.at}` : ''}`;
@@ -169,5 +169,10 @@ for (const seed of SEEDS) {
             assert.deepEqual(plain(oracle.store.head()), a.head, `${label}: a reload of the chat equals live`);
         }
         if (process.env.QA_FUZZ_STATS) console.log(JSON.stringify({ seed, ...stats }));
+        // The CI seeds' Re-reads and rewinds ran for real, not refused (a local hunt's seed may draw none: its stats show it).
+        if (!process.env.QA_EDIT_SEEDS) {
+            assert.ok(stats.rereads > 0, `seed ${seed}: some Re-reads were made`);
+            assert.ok(stats.rewinds > 0, `seed ${seed}: some rewinds were made`);
+        }
     });
 }

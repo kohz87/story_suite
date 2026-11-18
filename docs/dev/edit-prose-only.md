@@ -44,7 +44,9 @@ Tests: `tests/core/edit-prose-only.test.js` (the skip and the full path) and `te
 2. The text the message had before the edit is known. A snapshot of every message's `mes` and `swipe_id`
    (references only, nothing copied) is taken when the turn is installed, and again on every `head`, `turn` and
    `committed` event. These are the events after which Story Suite or the reader may have changed a message.
-   The edit must find:
+   The verdict is taken by a listener that runs before every other listener of the edit (SillyTavern's
+   `makeFirst`). Another extension's edit listener, such as NPC State's, may publish a head, and the snapshot
+   would then already hold the new text. The edit must find:
    - the same message object in the snapshot;
    - the same `swipe_id`;
    - the same chat length.
@@ -67,8 +69,11 @@ Tests: `tests/core/edit-prose-only.test.js` (the skip and the full path) and `te
    A guard is given the text's hash as it was stored and as it is now (`askGuard`'s `payload`). So a guard that
    reads it could turn a block of the edited reply off. The full path would then plan that reply's `replan`
    steps again with the new hash. No shipped guard reads `payload`; the test module's `strict` guard does.
-   Requiring that every block of the edited reply applied keeps the skip exact even then. A block that was off
-   before the edit, for any reason, also takes the full path.
+   Requiring that every block of the edited reply applied covers that case. A block that was off before the edit,
+   for any reason, also takes the full path. One case is not caught. A guard that reads `payload` could turn a
+   block of the edited reply back *on* (an edit that restores the text). The state before later steps would
+   change, and the full path would plan those steps again on it. The skip is exact for guards that do not read
+   `payload`, which is every shipped guard.
 
 If the snapshot is stale, the edit takes the full path whenever the block region it remembers differs from the
 text now. There is one exception: a change to the block region that no event announced, which the edit then
@@ -142,18 +147,27 @@ rewinds, reloads and chat changes. After every step:
 - after the next reconcile (a swipe or a delete), the stored records of the two hosts are equal too, so the
   deferred stamps land as main's would.
 
+**Checked under the full boot** (the perf rig, 201 messages, with every module and NPC State's own edit
+listeners): three prose edits were skipped (messages 6, 40 and 200), with the head and the Problems unchanged.
+Then a full-path edit with no index ran on the text as it stood. It planned 0 steps differently and took 0
+back. It only restamped, from carrier 2, and the head and the Problems were unchanged. A block edit of message 8
+then reached the reconcile. (`scratch/perfaudit/rig-pb8/check-equiv.mjs`, with its output in
+`scratch/perfaudit/pb8-logs/check-equiv.json`.)
+
 ## Measured
 
-The perf rig's `run-edit` ran at 201 messages with the World tab open, in two back-to-back pairs against main
-(load 10–26). Each figure is the blocking task.
+The perf rig's `run-edit` ran at 201 messages with the World tab open, as back-to-back pairs against main
+(`a68919033`). Each figure is the blocking task.
 
 | Edit | main | PB8 |
 |---|---|---|
-| Message 6 (an early edit) | 1,607–2,171 ms | **133–400 ms**: 133, 139 and 150 ms, plus one 400 ms run at a load spike, which was all rebuild |
-| The last reply | 402–647 ms | **32–45 ms** |
+| Message 6 (an early edit) | 922–938 ms | **126–136 ms** |
+| The last reply | 166–218 ms | **28–44 ms** |
+| A user message, next (full path) | 150–168 ms | 969–1,017 ms |
 
-In the PB8 profiles of these edits, `reconcileNow`, `walkSuffix` and `replanned` do not appear.
-
-**The deferred walk** shows in the rig's next step: an edit of a user message, which takes the full path. It took
-1,084–1,674 ms against main's 299–382 ms. Main had already done that walk during the early edits. Over the
-sequence, main blocked 3.6–4.6 s on the two early edits and the user-message edit together. PB8 blocked 1.4–2.2 s.
+- **Conditions.** These are the final tree's two pairs, at load 1.5–2.2. Two earlier pairs on the first commit,
+  at load 10–26, gave 1,607–2,171 ms against 133–400 ms for message 6.
+- **Profiles.** In PB8's prose-only edits, `reconcileNow`, `walkSuffix` and `replanned` do not appear.
+- **The deferred walk.** The user-message edit takes the full path. After the skipped edits, it does the walk
+  they skipped. Main had already done that walk during the early edits.
+- **The whole sequence** (two early edits, then the user-message edit): main blocked 2.0 s and PB8 1.2–1.3 s.

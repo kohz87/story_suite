@@ -92,3 +92,15 @@ test('a second prose edit of the same reply skips too (the text is remembered af
     assert.equal(reconciles(), 1);
     assert.equal(host.store.head().domains.gt.minutes, head.domains.gt.minutes);
 });
+
+test('another extension\'s edit listener that runs first and publishes a head does not make a block edit read as prose-only', async t => {
+    const { host, replies, reconciles } = await chat(t);
+    // (as NPC State's: added with `on` before Story Suite's own listeners, it publishes a head, which remembers the new text)
+    host.turn.uninstall({ globalName: null });
+    host.ctx.eventSource.on(host.ctx.eventTypes.MESSAGE_EDITED, () => host.events.emit('head', { index: host.store.headIndex() }));
+    host.turn.install({ globalName: null });
+    await host.st.editMessage(replies[1], host.ctx.chat[replies[1]].mes.replace('! tick 30', '! tick 31'));
+    assert.equal(reconciles(), 1, 'the block edit still plans the steps again');
+    await host.st.editMessage(replies[2], prose(host, replies[2], 'Story 2 goes on.', 'Story 2, retold.'));
+    assert.equal(reconciles(), 1, 'a prose edit still skips');
+});

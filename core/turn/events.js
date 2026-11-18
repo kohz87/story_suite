@@ -222,8 +222,10 @@ export function createEvents(s, deps) {
      * reaches the story (docs/dev/edit-prose-only.md). Without an index, or any other edit, the full path runs.
      */
     async function onTimelineChanged(reason, index = null) {
-        // (told from the text first: what was remembered is replaced by the head event below)
-        const prose = reason === 'edit' ? proseEdits.proseOnly(index) : null;
+        // (told from the text first, best by the edit's first listener: a listener before this one may publish a head, which remembers the new text)
+        const told = s.proseVerdict;
+        s.proseVerdict = null;
+        const prose = reason !== 'edit' ? null : told && told.index === index ? told.prose : proseEdits.proseOnly(index);
         if (typeof prepare === 'function') { try { await within(prepare({ scan: false }), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         rebuild({ publish: false });
         resumeHeldBoard();
@@ -310,6 +312,12 @@ export function createEvents(s, deps) {
         for (const [event, reason] of [[names.MESSAGE_DELETED, 'delete'], [names.MESSAGE_SWIPED, 'swipe'], [names.CHARACTER_FIRST_MESSAGE_SELECTED, 'swipe']]) on(event, () => onTimelineChanged(reason));
         // (the edited message's index goes with it: a prose-only edit skips the reconcile)
         on(names.MESSAGE_EDITED, index => onTimelineChanged('edit', index));
+        // Whether an edit is prose-only is told before any other listener of the edit runs (SillyTavern's makeFirst).
+        const tell = index => { s.proseVerdict = { index, prose: proseEdits.proseOnly(index) }; };
+        if (names.MESSAGE_EDITED && typeof source?.makeFirst === 'function') {
+            source.makeFirst(names.MESSAGE_EDITED, tell);
+            s.listeners.push([names.MESSAGE_EDITED, tell]);
+        }
         on(names.MESSAGE_SWIPE_DELETED, onSwipeDeleted);
         return getApi();
     }
