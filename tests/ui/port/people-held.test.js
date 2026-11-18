@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { createSettings } from '../../../core/sdk/settings.js';
 import { SETTINGS_SCHEMA, SETTINGS_DEFAULTS } from '../../../modules/people/meters/npc-meters-schema.js';
 import { peopleCommand } from '../../../ui/port/people-settings.js';
-import { peopleRows } from '../../../ui/select/people-settings/index.js';
+import { peopleRows, peopleSpec } from '../../../ui/select/people-settings/index.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { renderRow } from '../../../ui/settings/fields.js';
 
@@ -42,4 +42,21 @@ test('the People row redraws the held number and says it was held', async () => 
   await new Promise(r => setTimeout(r, 0));
   assert.equal(box.value, '30');
   assert.equal(el.querySelector('.snote').textContent, 'Dormant after cannot be empty; kept 30.');
+});
+
+test('every People number row answers what the row then shows: in range as typed, out of range held, a typed 0 where 0 is allowed kept', () => {
+  const s = live();
+  const nums = peopleRows(s.bucket()).filter(r => r.type === 'num');
+  assert.ok(nums.length >= 6);
+  for (const row of nums) {
+    const range = peopleSpec(row.key).range;
+    const tries = range ? [range.min, range.max, Math.floor((range.min + range.max) / 2), range.max + 1000, range.min - 1000] : [7, 99999, -99999];
+    for (const typed of tries) {
+      const answer = s.set(row.key, typed);
+      assert.equal(answer.ok, true, `${row.key} ${typed}`);
+      const shown = peopleRows(s.bucket()).find(r => r.key === row.key).value;
+      assert.equal(answer.value, shown, `${row.key} ${typed}: the answer is what the row shows`);
+      if (range && typed >= range.min && typed <= range.max) assert.equal(answer.value, typed, `${row.key} ${typed} in range comes back as typed`);
+    }
+  }
 });
