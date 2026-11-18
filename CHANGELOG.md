@@ -8,6 +8,8 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 ### Added
 
+- **Settings › Tools › Prompts: the prompts can be read and changed.** People: how feelings are judged, People: how big a moment is, People: what is worth remembering, People: feelings into behaviour, and the Arc planner prompt each have **Read and edit** (a box with the text sent now, Save and Cancel) and **Reset to default** (only when the text is your own). They are saved in the same settings the old NPC State and planner panels used, so the next People read, people notes or arc plan uses them. The planner keeps its default as an empty setting, as its old editor did.
+- **Settings › Tools › Chat data.** **Export this chat’s people** saves NPC State’s own file of the open chat’s dossiers and portraits (nothing is saved if the chat changes meanwhile). Two lines say what the suite does on its own: deleting a message in the middle takes its changes back, a swipe brings back that swipe’s changes, and an edited reply keeps its changes until you choose Re-read this reply. There is no Import (an import would only reach NPC State’s copy, not the story the suite keeps, so a reload or swipe would lose it) and no switches for rewind and re-read (the old NPC State switches are not read while the suite holds the chat).
 - Settings › Look › **Panel background**: Off (the new default) removes the sky picture behind the Story Suite panels and leaves a plain flat colour, dark or light; On brings the picture back. It applies at once and is kept per device.
 
 ### Changed
