@@ -4,6 +4,10 @@
 
 Since 0.1.2: documentation, and the Settings, Story › Director and settings-walk changes below.
 
+### Fixed
+
+- Fight board (bug-hunt batch): **Discard fight** asks first (Discard / Keep it); a fight started from the standing-foes offer and discarded gives the offer back, so the Fight tab stays while the foes stand and a typed attack is held again. The board's **Auto** plays up to Most exchanges Auto plays (3 unset; 9 = until the end), stopping on a win, a loss or a badly hurt hero, like Auto-fight. **Send with this** is shown only while your message waits. The end card says the loot line only on a win and no longer states a Practice number; a disabled heal says "nobody is hurt"; the Flee tile says it is for the whole party and a failed flee says the others acted on Auto (Flee stays one pick for the party, by design); the header reads "Fight · place" and the pill follows the exchange being chosen; the battle log tells Down and Stamina words and puts the side that won initiative first in the turn order.
+
 ### Added
 
 - Settings › People ends with **People in this chat**, NPC State's roster as a list: each person with whether they are in the scene, followed, dormant or deceased, an **Open** button (closes Settings and shows their dossier on People) and a **Re-read** button (NPC State's Refresh for that person, with its answer under the list). Removing a person stays on the dossier's ⋯ menu.

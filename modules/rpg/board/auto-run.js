@@ -20,19 +20,20 @@ export function autoNote({ stop, done, who = [], waiting = false } = {}) {
 
 /**
  * runAuto({ api, cap })
- * `api` is `sdk.interaction`; `cap` is the most exchanges this run may play (Infinity for "until the end").
+ * `api` is `sdk.interaction`; `cap` is the most exchanges this run may play (Infinity for "until the end"); `held` is the stance switch as the reader left it, for the first exchange only; `id` (optional) must be the open fight's id.
  * → { done, stop, who, error? }. `stop` is 'won', 'lost', 'hurt', 'cap', 'none' (no pick to make) or 'error'.
  */
-export function runAuto({ api, cap = 3 } = {}) {
+export function runAuto({ api, cap = 3, held, id } = {}) {
     let done = 0;
     for (;;) {
         const now = api?.current?.();
         if (!now) return { done, stop: 'error', who: [], error: 'There is no fight to play.' };
+        if (id && now.id !== id) return { done, stop: 'error', who: [], error: 'There is no fight to play.' };
         const before = now.view?.result;
         if (!before) return { done, stop: 'error', who: [], error: 'The fight could not be played.' };
         if (before.stop !== 'open') return { done, stop: before.stop, who: [] };
         if (done >= cap) return { done, stop: 'cap', who: [] };
-        const staged = api.auto(now.id, 1);
+        const staged = done === 0 && held ? api.auto(now.id, 1, held) : api.auto(now.id, 1);
         if (!staged.ok) return { done, stop: /nothing to do/iu.test(String(staged.message)) ? 'none' : 'error', who: [], ...(/nothing to do/iu.test(String(staged.message)) ? {} : { error: staged.message }) };
         done += 1;
         const last = staged.view?.result, stop = autoStop(last, { cap, done });

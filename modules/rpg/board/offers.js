@@ -125,6 +125,16 @@ export function createFightOffers({ ctx, doc, store, meta, on, view, open, save,
     };
     // The new view's answer: `how` 'board' or 'auto' on the offer that stands now (the same choose the old line's buttons call).
     const answer = how => { const offer = find(); if (offer) choose({ sid: offer.sid }, how); };
+    // A fight started from an offer was discarded (the reply `origin` it was opened on): the mark of that choice goes, so the foes that still stand are offered again (the Fight tab stays, and a typed attack is held).
+    const restore = origin => {
+        const marks = meta()?.rpgFightOffers;
+        if (typeof origin !== 'string' || !marks || marks[origin] !== true) return false;
+        delete marks[origin];
+        if (!Object.keys(marks).length) delete meta().rpgFightOffers;
+        try { save?.(); } catch { /* saved with the next chat write */ }
+        update();
+        return true;
+    };
     const listen = fn => { listeners.add(fn); return () => listeners.delete(fn); };
-    return { find, update, choose, info, answer, listen };
+    return { find, update, choose, info, answer, restore, listen };
 }

@@ -28,7 +28,7 @@ function foeGroupsOf(record, sheet) {
 function actionsOf(hero, anyFoe, wounded) {
     const groups = { Attack: [], Magic: [], Item: [], Flee: [] }, resources = { sp: whole(hero.sp), mp: whole(hero.mp) };
     const owned = type => (hero.skills ?? []).find(skill => skill.type === type) ?? null;
-    const tile = (group, id, label, cost, target, pick, enabled = true) => groups[group].push({ id, label, cost, target, damage: null, odds: null, enabled, pick });
+    const tile = (group, id, label, cost, target, pick, enabled = true, reason = null) => groups[group].push({ id, label, cost, target, damage: null, odds: null, enabled, pick, ...(enabled || !reason ? {} : { reason }) });
     tile('Attack', 'normal', 'Attack', 'Free', 'member', { choice: 'normal', args: {} }, anyFoe);
     for (const [type, choice, target, extra] of [['attack', 'attack', 'member', {}], ['area', 'area', 'none', { area: true }]]) {
         const skill = owned(type);
@@ -39,9 +39,9 @@ function actionsOf(hero, anyFoe, wounded) {
     const heal = owned('heal');
     if (heal) {
         const price = skillCost({ type: 'heal', stat: heal.stat }, resources);
-        tile('Magic', 'heal', heal.name || 'Heal', `${heal.stat ? `${heal.stat.toUpperCase()} · ` : ''}${price.cost} ${POOL[price.pool]}`, 'ally', { choice: 'heal', args: {} }, price.affordable && wounded);
+        tile('Magic', 'heal', heal.name || 'Heal', `${heal.stat ? `${heal.stat.toUpperCase()} · ` : ''}${price.cost} ${POOL[price.pool]}`, 'ally', { choice: 'heal', args: {} }, price.affordable && wounded, price.affordable ? 'nobody is hurt' : null); // (the tile says why it is off: nobody to heal, else the cost)
     }
-    tile('Flee', 'flee', 'Flee', 'Escape', 'none', { choice: 'flee', args: {}, alone: true });
+    tile('Flee', 'flee', 'Flee', 'Whole party · escape', 'none', { choice: 'flee', args: {}, alone: true });
     return groups;
 }
 

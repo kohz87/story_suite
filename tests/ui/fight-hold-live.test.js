@@ -67,6 +67,7 @@ test('Discard fight on a board the message waits for puts the offer back, as bef
   const discard = tab(doc).querySelector('[data-discard]');
   assert.ok(discard);
   discard.click();
+  tab(doc).querySelector('[data-confirm="discard"]').click(); // (Discard asks first)
   await settle();
   assert.equal(box(host).open, undefined, 'the fight is gone');
   assert.equal(box(host).start?.choice, null, 'the waiting choice is back');
