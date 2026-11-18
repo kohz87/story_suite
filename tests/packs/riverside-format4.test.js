@@ -3,13 +3,17 @@
 // `present` have no format 4 home and are dropped; the start place, a place record in format 3, becomes a place of the world.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { checkPack, report } from '../../authoring-kit/check.mjs';
 import { checkPairing, validatePack } from '../../packs/validate.js';
 import { createInstalled } from '../../packs/installed.js';
 import { mergeStart } from '../../packs/content.js';
 import { convertText } from '../../scripts/packs/convert-3to4.mjs';
-import { sampleGameText, sampleText, sampleWorldText } from './helpers/fixtures.js';
+import { sampleText } from './helpers/fixtures.js';
 import { fakeSettings } from './helpers/fake-settings.js';
+
+const sampleWorldText = readFileSync(new URL('./fixtures/riverside-starter.json', import.meta.url), 'utf8');
+const sampleGameText = readFileSync(new URL('./fixtures/riverside-starter.game.json', import.meta.url), 'utf8');
 
 test('the format 4 pair is what the converter makes of the frozen format 3 copy, apart from the world description', () => {
     const made = convertText(sampleText, {}, 'tests/packs/fixtures/riverside-starter.json');
