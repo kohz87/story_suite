@@ -79,3 +79,14 @@ test('"Not now" on a pair is remembered for that pair of versions', async t => {
     assert.equal(world.notices().length, 0, 'not offered again');
     assert.equal(world.runtime.packs.packs.list().length, 0);
 });
+
+test('a card never downgrades: a member older than the installed copy is kept (and still selected); only the new game is installed (REVPF4 6)', async t => {
+    const world = await cardWorld(t, { installed: [worldPack('ersveil', '2.0.0'), { ...worldPack('mine'), name: 'Mine' }], entries: [entry(worldPack('ersveil', '1.0.0'), 1), entry(gamePack(), 2)] });
+    await world.runtime.packs.packs.select('world', 'mine');
+    assert.equal(world.notices().length, 1, 'the new game brings the offer');
+    await world.offer.install(world.notices()[0].id);
+    await settle();
+    assert.deepEqual(world.runtime.packs.packs.list().map(item => [item.id, item.version]).sort(), [['ersveil', '2.0.0'], ['ersveil-rules', '1.0.0'], ['mine', '1.0.0']]);
+    assert.deepEqual(selected(world), { world: 'ersveil', game: 'ersveil-rules' });
+    assert.match(world.notices()[0].result, /^Kept Ersveil 2\.0\.0 \(the card has the older 1\.0\.0\)\. Installed Ersveil rules 1\.0\.0\./);
+});
