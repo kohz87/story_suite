@@ -5,6 +5,7 @@ import { CORE_MODULE_ID, createCoreModule } from '../../modules/scene/domains/in
 import { SETTING as ASSIST_SETTING, TIMEOUT_MS as ASSIST_TIMEOUT_MS, createAssistPart } from '../../modules/assist/index.js';
 import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
 import { createCardSettings } from '../../packs/card-settings.js';
+import { currencyOffer } from '../../modules/inventory/money.js';
 import { moneySections } from '../../modules/scene/domains/core/game-sections.js';
 import { rpgSections } from '../../modules/rpg/game-sections.js';
 import { skipOf } from '../../modules/rpg/start-notes.js';
@@ -64,7 +65,9 @@ export function createRuntime({
     const packPart = packs ?? packsFor(ctx);
     const base = createSettings({ root: () => ctx.extensionSettings, registry, save: () => ctx.saveSettingsDebounced?.() });
     // The chat's rule settings (a restore sets them, docs/v2/TIMELINE.md) are read in preference to the global ones.
-    const settings = withRuleOverlay(withPackCurrency(base, () => packPart.startState().currency), {
+    // The chat's frame (the currency its game had when it began), or null before one is written.
+    const frameNow = () => { try { return store.head()?.domains?.frame ?? null; } catch { return null; } };
+    const settings = withRuleOverlay(withPackCurrency(base, () => currencyOffer(frameNow(), packPart.startState().currency)), {
         registry, state: () => { try { return store.head(); } catch { return null; } },
     });
     // The settings a card may recommend (packs/card-settings.js); Story Block's own are registered below, the others' through sdk.registerCardSettings.
