@@ -5,8 +5,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
-import { compileTemplate, renderTemplate } from '../../../ui/legacy/view/template/index.js';
-import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
+import { compileTemplate, renderTemplate } from '../../../packs/template/index.js';
+import { standardWidgets } from '../../../packs/widgets/index.js';
 
 const template = depth => `<ss-widget name="ss.badge" data-props='${'{"a":'.repeat(depth)}1${'}'.repeat(depth)}'></ss-widget>`;
 

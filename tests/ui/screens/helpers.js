@@ -1,9 +1,9 @@
 // Helpers for the default screens' tests: the template renderer when it is there (it is loaded
 // dynamically, so these tests skip with a reason on a tree that does not have it yet), the core module's
 // queries over a state, extra fake module queries, and a renderer for one screen.
-import { resolveData } from '../../../ui/legacy/view/screens.js';
-import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
-import { createInventoryAddWidget, createInventoryGridWidget, createInventoryViewWidget, createWornFoldWidget, INVENTORY_ADD_WIDGET, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET, WORN_FOLD_WIDGET } from '../../../ui/legacy/screens/inventory-add.js';
+import { resolveData } from '../../../packs/screens/registry.js';
+import { standardWidgets } from '../../../packs/widgets/index.js';
+import { createInventoryAddWidget, createInventoryGridWidget, createInventoryViewWidget, createWornFoldWidget, INVENTORY_ADD_WIDGET, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET, WORN_FOLD_WIDGET } from '../../../packs/screens/defaults/inventory-add.js';
 import { compile, evaluate } from '../../../modules/world/events/index.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { core, stocked } from '../../modules/inventory/fixtures.js';
@@ -16,9 +16,9 @@ async function load(path) {
     }
 }
 
-const template = await load('../../../ui/legacy/view/template/index.js');
-const bind = await load('../../../ui/legacy/view/bind.js');
-export const css = await load('../../../ui/legacy/view/css.js');
+const template = await load('../../../packs/template/index.js');
+const bind = await load('../../../packs/template/bind.js');
+export const css = await load('../../../packs/template/css.js');
 
 /** null when the renderer can be used; else the reason the render tests are skipped. */
 export const renderSkip = template && bind

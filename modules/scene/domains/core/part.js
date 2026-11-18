@@ -8,8 +8,8 @@ import {
 import { capturePlace, capturePresent, captureWeather, captureYou, initialScene, sceneCommands, sceneQueries, sceneTail, validateScene } from '../../index.js';
 import { MOUNTS_FEATURE, captureMount, createMountsQueries, mountsCommands, mountsTail } from '../../mounts.js';
 import { moneyLine, resolveCurrency } from '../../../inventory/money.js';
-import { renderInventoryTab } from '../../../../ui/legacy/ui/inventory-tab.js';
-import { renderSceneTab } from '../../../../ui/legacy/ui/scene-tab.js';
+import { renderInventoryTab } from './inventory-tab.js';
+import { renderSceneTab } from './scene-tab.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { rpgLib } from '../../../rpg/rpg-lazy.js';
 import { CORE_BUDGET, CORE_SETTINGS, CORE_STATIC, GEAR_ITEM_GRAMMAR } from './constants.js';

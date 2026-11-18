@@ -5,7 +5,7 @@ import { compatReport, renderCompat } from '../../../../../core/persist/compat.j
 import { fill } from '../../../../../core/strings.js';
 import { newId, sectionBlock } from '../../form/fields.js';
 import { matchesSearch } from '../../form/schema.js';
-import { showAndFocus } from '../../scroll.js';
+import { showAndFocus } from '../../../../../packs/widgets/scroll.js';
 import { MODULES_TEXT } from './text.js';
 import { h } from './shared-draw.js';
 import { parseGroup } from './schema.js';

@@ -30,10 +30,10 @@
 // → { mount(el, screenId, opts) → handle, open(screenId?) → bool, close(), isOpen(), current(), update(), destroy() }
 
 import { activeNow, button, documentOf, headState, headStateSafe, icon, isEnabled, make, mountHead, onHead, screensFor } from './common.js';
-import { hero } from '../widgets/hero.js';
-import { focusNode } from '../scroll.js';
-import { stackOf } from '../modal-stack.js';
-import { iconFor } from '../icons/index.js';
+import { hero } from '../../../../packs/widgets/hero.js';
+import { focusNode } from '../../../../packs/widgets/scroll.js';
+import { stackOf } from '../../../../packs/widgets/modal-stack.js';
+import { iconFor } from '../../../../packs/icons/index.js';
 import { barItems, createScreenBar } from '../screen-bar.js';
 import { STRINGS } from '../../../../core/strings.js';
 

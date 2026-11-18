@@ -3,12 +3,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule, namespaced, partSettings, PARTS, storyDirectorModule } from '../../../../ui/legacy/director/module.js';
+import { createModule, namespaced, partSettings, PARTS, storyDirectorModule } from '../../../../modules/director/module.js';
 import { STATIC_TEXT, staticText } from '../../../../modules/time/tracker/note.js';
 import { STATIC_TEXT as ATLAS_STATIC, TAIL_BUDGET as ATLAS_BUDGET, TRIP_TAIL_BUDGET } from '../../../../modules/atlas/atlas/note.js';
 import { STATIC_TEXT as KEY_PEOPLE_STATIC } from '../../../../modules/cast/keypeople/note.js';
 import { RECAP_BUDGET } from '../../../../modules/time/recap.js';
-import { screens as SCREENS } from '../../../../ui/legacy/director/screens/index.js';
+import { screens as SCREENS } from '../../../../modules/director/screens/index.js';
 import { mapScreen } from '../../../../modules/atlas/atlas/screen.js';
 import { chronicleScreen } from '../../../../modules/world/chronicle/screen.js';
 import { daysScreen, worldScreen } from '../../../../modules/world/world/index.js';

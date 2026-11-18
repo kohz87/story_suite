@@ -20,10 +20,10 @@ import { CALENDAR_FIELDS, CALENDAR_HOLIDAY_FIELDS, CALENDAR_LIMITS, CALENDAR_STA
 import { byteLength, checkPlain } from '../../../../packs/safety.js';
 import { parseRange, satisfies } from '../../../../packs/version.js';
 import { foldKey, oneLine } from '../../../../core/text.js';
-import { MAX_DEPTH as MAX_TEMPLATE_DEPTH, tooDeep } from '../../../../ui/legacy/view/template/html.js';
-import { MAX_LOOP_DEPTH, templateShape } from '../../../../ui/legacy/view/template/index.js';
-import { MAX_JSON_DEPTH } from '../../../../ui/legacy/view/template/json.js';
-import { MAX_AT_DEPTH, cssDepth, sheetEscape } from '../../../../ui/legacy/view/css.js';
+import { MAX_DEPTH as MAX_TEMPLATE_DEPTH, tooDeep } from '../../../../packs/template/html.js';
+import { MAX_LOOP_DEPTH, templateShape } from '../../../../packs/template/index.js';
+import { MAX_JSON_DEPTH } from '../../../../packs/template/json.js';
+import { MAX_AT_DEPTH, cssDepth, sheetEscape } from '../../../../packs/template/css.js';
 import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../../modules/inventory/money.js';
 
 export const HOST_VERSION = '2.0.0';

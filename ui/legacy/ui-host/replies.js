@@ -1,7 +1,7 @@
 // Reply-card scopes, scans and actions for the page host. The scan and its listeners live for one mount.
 
-import { CHANGES_CARD_SCREEN_ID, replyCardLines } from '../screens/index.js';
-import { mergeRpgLines } from '../screens/changes-card.js';
+import { CHANGES_CARD_SCREEN_ID, replyCardLines } from '../../../packs/screens/defaults/index.js';
+import { mergeRpgLines } from '../../../packs/screens/defaults/changes-card.js';
 import { readRecord } from '../../../core/persist.js';
 import { laterStore, replyEdits, replyRules, scanReplyCards } from '../reply-cards.js';
 import { createReplyFailures } from './reply-failures.js';

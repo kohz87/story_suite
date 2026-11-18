@@ -6,9 +6,9 @@ import { compatReport, renderCompat } from '../../../core/persist/compat.js';
 import { contextNotice } from '../../../core/prompt.js';
 import { fill } from '../../../core/strings.js';
 import { cutAt } from '../../../core/text.js';
-import { focusNode, revealIn } from '../view/scroll.js';
+import { focusNode, revealIn } from '../../../packs/widgets/scroll.js';
 import { el, fold, button, fieldRow, rowValue, fieldReadOnly, groupFields, humanize } from '../host-ui/controls.js';
-import { FEATURES_FOLD, FEATURE_TEXT, featuresFoldOf, SETTINGS_TEXT, SUB_FOLD, VERSIONS_FOLD } from '../host-ui/text.js';
+import { FEATURES_FOLD, FEATURE_TEXT, featuresFoldOf, SETTINGS_TEXT, SUB_FOLD, VERSIONS_FOLD } from '../../../core/settings-text/text.js';
 import { featureInputId, featureRow } from './feature-row.js';
 
 const FOLD_SELECTOR = 'details.story-suite-fold, details.story-suite-subfold';

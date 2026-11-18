@@ -2,7 +2,7 @@
 // The panel and its tab host are read when navigation changes, after they have been mounted.
 
 import { TABS_TEXT } from '../host-ui.js';
-import { HOME_ID } from '../view/screens.js';
+import { HOME_ID } from '../../../packs/screens/registry.js';
 import { activeNow } from '../view/mounts/common.js';
 import { isDefaultChoice, isHiddenNav, isInBar, moveNav, navKey, orderNav, setNavHidden, setNavInBar, visibleNav } from '../view/tab-order.js';
 

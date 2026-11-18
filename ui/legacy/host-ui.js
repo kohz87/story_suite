@@ -30,7 +30,7 @@
 export { featureInputId } from './host-ui-parts/feature-row.js';
 export { renderSettingsHost } from './host-ui-parts/settings-host.js';
 export { diagnosticsKeys } from './host-ui-parts/diagnostics-keys.js';
-export { OPEN_CLASS, HOST_FOLD, FEATURES_FOLD, VERSIONS_FOLD, DIAGNOSTICS_FOLD, SENT_FOLD, TABS_FOLD, PACKS_FOLD, EVENTS_FOLD, SUB_FOLD, featuresFoldOf, SETTINGS_TEXT, TABS_TEXT, DIAGNOSTICS_TEXT, FEATURE_TEXT } from './host-ui/text.js';
+export { OPEN_CLASS, HOST_FOLD, FEATURES_FOLD, VERSIONS_FOLD, DIAGNOSTICS_FOLD, SENT_FOLD, TABS_FOLD, PACKS_FOLD, EVENTS_FOLD, SUB_FOLD, featuresFoldOf, SETTINGS_TEXT, TABS_TEXT, DIAGNOSTICS_TEXT, FEATURE_TEXT } from '../../core/settings-text/text.js';
 export { emptyValue, readInt, listTextFields, listToLines, linesToList, fieldReadOnly, rowValue, groupFields } from './host-ui/controls.js';
-export { promptSize, sentText, redactSentOf } from './host-ui/sent.js';
+export { promptSize, sentText, redactSentOf } from '../../core/sent/sent.js';
 export { createTabHost } from './host-ui/tab-host.js';

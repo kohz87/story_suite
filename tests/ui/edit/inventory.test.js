@@ -81,7 +81,7 @@ test('an item edit agrees live, rebuilt, and reloaded and goes with a swipe', as
 });
 
 test('inventory pencils and Add item send reader commands from their inline forms', async () => {
-    const { inventoryScreen } = await import('../../../ui/legacy/screens/inventory.js');
+    const { inventoryScreen } = await import('../../../packs/screens/defaults/inventory.js');
     const { queries, show, settle } = await import('../screens/helpers.js');
     const module = core();
     const state = stocked(module);

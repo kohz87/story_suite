@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { barItems, createScreenBar, stripOrder } from '../../../ui/legacy/view/screen-bar.js';
 import { STRINGS, fill } from '../../../core/strings.js';
-import { installDom, host } from './widgets/fake-dom.js';
+import { installDom, host } from '../../packs/widgets/fake-dom.js';
 
 const ITEMS = [
     { id: 'story-block/home', label: 'Home', icon: 'fa-house' },

@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { displayLines } from '../../../ui/legacy/extras.js';
+import { displayLines } from '../../../modules/scene/extras.js';
 
 test('choices told "not used" while Choices was off are not shown when it is turned on', async t => {
     t.mock.method(console, 'warn', () => {});

@@ -1,6 +1,6 @@
 // Which screens sit in the bar and which under More, and moving one between them.
 
-import { HOME_ID, inDefaultBar } from '../screens.js';
+import { HOME_ID, inDefaultBar } from '../../../../packs/screens/registry.js';
 import { readTabChoice } from './choice.js';
 
 /**

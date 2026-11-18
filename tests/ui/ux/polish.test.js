@@ -5,15 +5,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { HOME_ID, REST_ORDER, byNavOrder, createScreens, screenOrder, validateScreen } from '../../../ui/legacy/view/screens.js';
+import { HOME_ID, REST_ORDER, byNavOrder, createScreens, screenOrder, validateScreen } from '../../../packs/screens/registry.js';
 import { hiddenSides, overflowAxis, scrollCue } from '../../../ui/legacy/view/scroll-cue.js';
 import { calendarFrom, clockText, dateOf, formatStoryTime, storyCalendar, timeFormatter } from '../../../ui/legacy/view/clock.js';
 import { hasReplyRecord } from '../../../ui/legacy/ui-host.js';
 import { writeRecord } from '../../../core/persist.js';
 import { createDialogMount, focusablesIn } from '../../../ui/legacy/view/mounts/dialog.js';
 import { createScreenMount } from '../../../ui/legacy/view/mounts/screen.js';
-import { LABEL_MIN_PX, labelUnits } from '../../../ui/legacy/view/widgets/radar.js';
-import { homeScreen } from '../../../ui/legacy/screens/home.js';
+import { LABEL_MIN_PX, labelUnits } from '../../../packs/widgets/radar.js';
+import { homeScreen } from '../../../packs/screens/defaults/home.js';
 import { sourceOf } from '../../helpers/split-source.js';
 import { screen, screensWith, setupDom } from '../view/mounts/helpers.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
@@ -170,7 +170,7 @@ test('the host gives templates the calendar fmt.time; Home and Scene use it', ()
     const host = sourceOf('../../ui/legacy/ui-host.js');
     assert.match(host, /time: minutes => formatStoryTime\(minutes, calendar\)/);
     assert.match(homeScreen.template, /fmt\.time\(state\.director\.time\.minutes\)/);
-    assert.match(read('screens/scene.js'), /fmt\.time\(state\.director\.time\.minutes\)/);
+    assert.match(readFileSync(new URL('../../../packs/screens/defaults/scene.js', import.meta.url), 'utf8'), /fmt\.time\(state\.director\.time\.minutes\)/);
 });
 
 // ---- cards ----------------------------------------------------------------------------------------
@@ -261,7 +261,7 @@ test('radar labels: never under the minimum on screen, growing with a big chart'
     assert.equal(labelUnits(150), 23.5);
     assert.equal(labelUnits(640), LABEL_MIN_PX, 'a big chart keeps 11 units, drawn at 22px');
     assert.equal(labelUnits(0), LABEL_MIN_PX);
-    assert.match(read('view/widgets/styles.js'), /\.ss-w-radar-label\) \{[^}]*font-size: calc\(var\(--ss-w-radar-label, 11\) \* 1px\)/);
+    assert.match(readFileSync(new URL('../../../packs/widgets/styles.js', import.meta.url), 'utf8'), /\.ss-w-radar-label\) \{[^}]*font-size: calc\(var\(--ss-w-radar-label, 11\) \* 1px\)/);
 });
 
 test('Home shows Story Director\'s own status line for each quest (an offer says Offered), never its own', () => {

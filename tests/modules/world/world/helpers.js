@@ -2,11 +2,11 @@
 // NPC State Delta (its queries `npc.known`, `npc.dossier`, `npc.meters`) and example fight runner.
 import { createHost } from '../../../../testkit/index.js';
 import { withD1 } from '../../../helpers/director/d1.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
 import { FOLD_WIDGET, foldWidget, worldScreen } from '../../../../modules/world/world/index.js';
-import { compileTemplate, renderTemplate } from '../../../../ui/legacy/view/template/index.js';
-import { conditionEvaluator } from '../../../../ui/legacy/view/bind.js';
+import { compileTemplate, renderTemplate } from '../../../../packs/template/index.js';
+import { conditionEvaluator } from '../../../../packs/template/bind.js';
 import { compile, evaluate } from '../../../../modules/world/events/index.js';
 import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 

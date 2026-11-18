@@ -4,7 +4,7 @@ import { SETTINGS_TEXT } from '../../../host-ui.js';
 import { renderSettingsForm } from '../../form/form.js';
 import { sectionBlock } from '../../form/fields.js';
 import { matchesSearch } from '../../form/schema.js';
-import { focusNode, revealIn, showAndFocus } from '../../scroll.js';
+import { focusNode, revealIn, showAndFocus } from '../../../../../packs/widgets/scroll.js';
 import { PROMPT_FOLD, PROMPT_SCHEMA, PROMPT_TEXT } from './text.js';
 import { el } from './shared-dom.js';
 import { paintSize } from './size.js';

@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { presetValue } from '../../../../core/features.js';
 import { makeCalendar, PRESETS } from '../../../../modules/time/calendar.js';
 import { FEATURE, DEFAULT_TOKENS } from '../../../../modules/cast/keypeople/domain.js';

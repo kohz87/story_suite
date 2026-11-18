@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/host.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { withD1 } from '../../../helpers/director/d1.js';
 import { initialDirector, validateDirector } from '../../../../modules/time/tracker/domain.js';
 

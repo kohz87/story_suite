@@ -17,7 +17,7 @@
     },
     {
       "link": "Story_director",
-      "dir": "ui/legacy/director",
+      "dir": "modules/director",
       "at": "src/v2"
     },
     {

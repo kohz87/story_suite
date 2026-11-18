@@ -8,7 +8,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { ROOT_SELECTOR, THEME_ROOTS, themeCss, themeTokens } from '../../../ui/legacy/view/theme.js';
-import { changesCardScreen } from '../../../ui/legacy/screens/changes-card.js';
+import { changesCardScreen } from '../../../packs/screens/defaults/changes-card.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../ui/legacy/${path}`, import.meta.url), 'utf8');

@@ -2,7 +2,7 @@
 // a fake renderer that records what it was asked to draw, a small chat of carriers with their own
 // states, and a fake command api.
 import { installFakeDom, makeMessage } from '../../../helpers/ui-fake-dom.js';
-import { createScreens } from '../../../../ui/legacy/view/screens.js';
+import { createScreens } from '../../../../packs/screens/registry.js';
 
 export function setupDom() {
     const doc = installFakeDom();

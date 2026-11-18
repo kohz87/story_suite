@@ -35,7 +35,7 @@ import { PRESET_NAMES, PROMPT_HINT, applyPreset, inPresets, presetSwitches, sele
 import { estimateTokens } from '../../../../core/prompt.js';
 import { featuresFoldOf } from '../../host-ui.js';
 import { renderPresetPicker } from './presets.js';
-import { focusNode, showAndFocus } from '../scroll.js';
+import { focusNode, showAndFocus } from '../../../../packs/widgets/scroll.js';
 
 const h = (doc, tag, className = '', text) => {
     const node = doc.createElement(tag);

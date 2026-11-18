@@ -2,7 +2,7 @@
 // `packs.content({ kind: 'cast' })` is answered from `source`), and a scripted model for the planner.
 import { createHost } from '../../../../testkit/index.js';
 import { createFakeModel } from '../../../../testkit/model.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { castPlans } from '../../../../modules/cast/cast/index.js';
 
 export const STATIC_KEY = 'story_suite_static';

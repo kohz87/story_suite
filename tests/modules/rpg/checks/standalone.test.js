@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createFakeModel, createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 
 const OLD = JSON.parse(readFileSync(new URL('../../../fixtures/director/checks-2.1.1-chat.json', import.meta.url), 'utf8'));
 const CHECK = '? check Stealth — sneak past the guard | dc: hard';

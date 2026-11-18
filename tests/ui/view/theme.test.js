@@ -10,7 +10,7 @@ import {
     luminance, parseColor, schemeTokens, TEXT_SIZES, textSizeOf, themeChoice, themeCss, themeTokens,
 } from '../../../ui/legacy/view/theme.js';
 import { HOST_SETTINGS_DEFAULTS, HOST_SETTINGS_SCHEMA, createSettings } from '../../../core/sdk.js';
-import { installDom } from './widgets/fake-dom.js';
+import { installDom } from '../../packs/widgets/fake-dom.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
 
 const REQUIRED = [

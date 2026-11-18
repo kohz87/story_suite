@@ -5,8 +5,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createDialogMount } from '../../../../ui/legacy/view/mounts/dialog.js';
 import { createScreenRenderer } from '../../../../ui/legacy/view/render-screen.js';
-import { standardWidgets } from '../../../../ui/legacy/view/widgets/index.js';
-import { stackOf } from '../../../../ui/legacy/view/modal-stack.js';
+import { standardWidgets } from '../../../../packs/widgets/index.js';
+import { stackOf } from '../../../../packs/widgets/modal-stack.js';
 import { fakeApi, fakeChat, fakeQuery, screensWith, setupDom } from './helpers.js';
 
 const observers = new Set();

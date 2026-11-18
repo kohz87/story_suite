@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyReport, moduleFailures } from '../../../core/turn/apply-report.js';
 import { inspectorProblemsFor } from '../../../ui/legacy/ui-host/inspector-problems.js';
-import { changesCardScreen } from '../../../ui/legacy/screens/index.js';
+import { changesCardScreen } from '../../../packs/screens/defaults/index.js';
 import { core, queries, show, stocked, text } from '../../ui/screens/helpers.js';
 
 const problems = [

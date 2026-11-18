@@ -43,25 +43,25 @@ export const SPLIT_PARTS = Object.freeze({
         'src/v2/domains/inventory/prompt-parts/packing.js', 'src/v2/domains/inventory/prompt-parts/phrases.js', 'src/v2/domains/inventory/prompt-parts/tail.js',
     ],
     '../../ui/legacy/host-ui.js': [
-        '../../ui/legacy/host-ui/text.js',
+        '../../core/settings-text/text.js',
         '../../ui/legacy/host-ui/controls.js',
-        '../../ui/legacy/host-ui/sent.js',
+        '../../core/sent/sent.js',
         '../../ui/legacy/host-ui/tab-host.js',
         '../../ui/legacy/host-ui-parts/diagnostics-keys.js',
         '../../ui/legacy/host-ui-parts/feature-row.js',
         '../../ui/legacy/host-ui-parts/settings-host.js',
-        '../../ui/legacy/host-ui/text-parts/fold-ids-main.js',
-        '../../ui/legacy/host-ui/text-parts/fold-ids-more.js',
-        '../../ui/legacy/host-ui/text-parts/fold-ids-sub.js',
-        '../../ui/legacy/host-ui/text-parts/page-text.js',
-        '../../ui/legacy/host-ui/text-parts/settings-text.js',
-        '../../ui/legacy/host-ui/controls-parts/dom.js',
+        '../../core/settings-text/text-parts/fold-ids-main.js',
+        '../../core/settings-text/text-parts/fold-ids-more.js',
+        '../../core/settings-text/text-parts/fold-ids-sub.js',
+        '../../core/settings-text/text-parts/page-text.js',
+        '../../core/settings-text/text-parts/settings-text.js',
+        '../../core/list-lines/dom.js',
         '../../ui/legacy/host-ui/controls-parts/field-control.js',
         '../../ui/legacy/host-ui/controls-parts/field-row.js',
         '../../ui/legacy/host-ui/controls-parts/groups.js',
-        '../../ui/legacy/host-ui/controls-parts/list-lines.js',
+        '../../core/list-lines/list-lines.js',
         '../../ui/legacy/host-ui/controls-parts/row-value.js',
-        '../../ui/legacy/host-ui/controls-parts/values.js',
+        '../../core/list-lines/values.js',
     ],
     '../../packs/validate.js': [
         '../../packs/validate/core.js', '../../packs/validate/items.js', '../../packs/validate/events-economy.js', '../../packs/validate/world.js', '../../packs/validate/theme.js',
@@ -81,10 +81,10 @@ export const SPLIT_PARTS = Object.freeze({
     '../../packs/version.js': [
         '../../packs/version-parts/shared-tag.js', '../../packs/version-parts/single.js', '../../packs/version-parts/range.js', '../../packs/version-parts/satisfy.js',
     ],
-    '../../ui/legacy/view/template/render.js': [
-        '../../ui/legacy/view/template/render/view.js', '../../ui/legacy/view/template/render/blocks.js', '../../ui/legacy/view/template/render/elements.js',
-        '../../ui/legacy/view/template/render/widgets.js', '../../ui/legacy/view/template/render/dom.js', '../../ui/legacy/view/template/render/page-ids.js',
-        '../../ui/legacy/view/template/render/dom-parts/access.js', '../../ui/legacy/view/template/render/dom-parts/controls.js', '../../ui/legacy/view/template/render/page-ids-parts/copies.js', '../../ui/legacy/view/template/render/page-ids-parts/prefix.js', '../../ui/legacy/view/template/render/page-ids-parts/value.js',
+    '../../packs/template/render.js': [
+        '../../packs/template/render/view.js', '../../packs/template/render/blocks.js', '../../packs/template/render/elements.js',
+        '../../packs/template/render/widgets.js', '../../packs/template/render/dom.js', '../../packs/template/render/page-ids.js',
+        '../../packs/template/render/dom-parts/access.js', '../../packs/template/render/dom-parts/controls.js', '../../packs/template/render/page-ids-parts/copies.js', '../../packs/template/render/page-ids-parts/prefix.js', '../../packs/template/render/page-ids-parts/value.js',
     ],
     '../../core/runtime.js': ['../../core/runtime-parts/version.js', '../../core/runtime-parts/create.js'],
     '../../ui/legacy/reply-notes.js': ['../../ui/legacy/reply-notes-parts/problems.js', '../../ui/legacy/reply-notes-parts/notes.js'],
@@ -97,19 +97,19 @@ export const SPLIT_PARTS = Object.freeze({
     '../../ui/legacy/view/theme.js': [
         '../../ui/legacy/view/theme-parts/bridge.js', '../../ui/legacy/view/theme-parts/colors.js', '../../ui/legacy/view/theme-parts/css.js', '../../ui/legacy/view/theme-parts/defaults.js', '../../ui/legacy/view/theme-parts/fonts.js', '../../ui/legacy/view/theme-parts/glass.js', '../../ui/legacy/view/theme-parts/options.js', '../../ui/legacy/view/theme-parts/palettes.js', '../../ui/legacy/view/theme-parts/roots.js', '../../ui/legacy/view/theme-parts/scheme-choice.js', '../../ui/legacy/view/theme-parts/scheme-tokens.js', '../../ui/legacy/view/theme-parts/sheet-tokens.js', '../../ui/legacy/view/theme-parts/text-size.js', '../../ui/legacy/view/theme-parts/tint.js', '../../ui/legacy/view/theme-parts/tokens.js',
     ],
-    '../../ui/legacy/view/template/sanitize.js': [
-        '../../ui/legacy/view/template/sanitize-parts/attr-tables.js', '../../ui/legacy/view/template/sanitize-parts/attrs.js', '../../ui/legacy/view/template/sanitize-parts/control-types.js', '../../ui/legacy/view/template/sanitize-parts/filter.js', '../../ui/legacy/view/template/sanitize-parts/paint.js', '../../ui/legacy/view/template/sanitize-parts/purify-config.js', '../../ui/legacy/view/template/sanitize-parts/reserved.js', '../../ui/legacy/view/template/sanitize-parts/run.js', '../../ui/legacy/view/template/sanitize-parts/tags.js', '../../ui/legacy/view/template/sanitize-parts/urls.js',
+    '../../packs/template/sanitize.js': [
+        '../../packs/template/sanitize-parts/attr-tables.js', '../../packs/template/sanitize-parts/attrs.js', '../../packs/template/sanitize-parts/control-types.js', '../../packs/template/sanitize-parts/filter.js', '../../packs/template/sanitize-parts/paint.js', '../../packs/template/sanitize-parts/purify-config.js', '../../packs/template/sanitize-parts/reserved.js', '../../packs/template/sanitize-parts/run.js', '../../packs/template/sanitize-parts/tags.js', '../../packs/template/sanitize-parts/urls.js',
     ],
-    '../../ui/legacy/view/widgets/dialog.js': [
-        '../../ui/legacy/view/widgets/dialog-parts/content.js', '../../ui/legacy/view/widgets/dialog-parts/props.js', '../../ui/legacy/view/widgets/dialog-parts/render.js', '../../ui/legacy/view/widgets/dialog-parts/shared-text.js', '../../ui/legacy/view/widgets/dialog-parts/widget.js',
+    '../../packs/widgets/dialog.js': [
+        '../../packs/widgets/dialog-parts/content.js', '../../packs/widgets/dialog-parts/props.js', '../../packs/widgets/dialog-parts/render.js', '../../packs/widgets/dialog-parts/shared-text.js', '../../packs/widgets/dialog-parts/widget.js',
     ],
-    '../../ui/legacy/view/template/render/dom.js': ['../../ui/legacy/view/template/render/dom-parts/access.js', '../../ui/legacy/view/template/render/dom-parts/controls.js'],
-    '../../ui/legacy/view/template/render/page-ids.js': ['../../ui/legacy/view/template/render/page-ids-parts/copies.js', '../../ui/legacy/view/template/render/page-ids-parts/prefix.js', '../../ui/legacy/view/template/render/page-ids-parts/value.js'],
-    '../../ui/legacy/view/widgets/nav.js': [
-        '../../ui/legacy/view/widgets/nav-parts/shared-limits.js', '../../ui/legacy/view/widgets/nav-parts/shared-short.js', '../../ui/legacy/view/widgets/nav-parts/items.js',
-        '../../ui/legacy/view/widgets/nav-parts/reveal.js', '../../ui/legacy/view/widgets/nav-parts/widget.js',
+    '../../packs/template/render/dom.js': ['../../packs/template/render/dom-parts/access.js', '../../packs/template/render/dom-parts/controls.js'],
+    '../../packs/template/render/page-ids.js': ['../../packs/template/render/page-ids-parts/copies.js', '../../packs/template/render/page-ids-parts/prefix.js', '../../packs/template/render/page-ids-parts/value.js'],
+    '../../packs/widgets/nav.js': [
+        '../../packs/widgets/nav-parts/shared-limits.js', '../../packs/widgets/nav-parts/shared-short.js', '../../packs/widgets/nav-parts/items.js',
+        '../../packs/widgets/nav-parts/reveal.js', '../../packs/widgets/nav-parts/widget.js',
     ],
-    '../../ui/legacy/view/widgets/map.js': ['../../ui/legacy/view/widgets/map-parts/props.js', '../../ui/legacy/view/widgets/map-parts/widget.js'],
+    '../../packs/widgets/map.js': ['../../packs/widgets/map-parts/props.js', '../../packs/widgets/map-parts/widget.js'],
 });
 
 /** The text of `rel` (a path from tests/helpers/) and of the parts moved out of it. */

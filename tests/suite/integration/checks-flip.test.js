@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 
-const director = (await import('../../../ui/legacy/director/module.js')).createModule;
+const director = (await import('../../../modules/director/module.js')).createModule;
 
 test('a pre-roll uses Director checks without a battle module and replays with the reply', async t => {
     let sdk;

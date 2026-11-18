@@ -150,7 +150,7 @@ test('the page: the header\'s one editor changes the scene through the real comm
 
 test('the header\'s one Edit button is a pill in the corner (a phone: beside the name), the editor stacks its groups on a phone, and the lines it edits are hidden while it is open', () => {
     const css = cssOf('glass');
-    const widgetCss = readFileSync(new URL('../../../ui/legacy/view/widgets/styles.js', import.meta.url), 'utf8');
+    const widgetCss = readFileSync(new URL('../../../packs/widgets/styles.js', import.meta.url), 'utf8');
     const rule = selector => {
         const at = css.indexOf(`${selector} {`);
         assert.ok(at >= 0, `${selector} has a rule`);

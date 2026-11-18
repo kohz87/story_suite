@@ -6,7 +6,7 @@ import { createScreenRenderer, layoutEvaluator } from '../../../ui/legacy/view/r
 import { createDialogMount } from '../../../ui/legacy/view/mounts/dialog.js';
 import { createRegistry } from '../../../core/registry.js';
 import { createCoreModule } from '../../../modules/scene/domains/index.js';
-import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
+import { standardWidgets } from '../../../packs/widgets/index.js';
 import { fakeApi, fakeChat, fakeQuery, screensWith, setupDom } from './mounts/helpers.js';
 
 const state = { v: 2, meta: { rev: 3, claims: {} }, domains: { n: 4 } };
@@ -106,7 +106,7 @@ test('the host registers the ss.* widgets; any other module must use its own id'
 });
 
 test('contains(a, b): case-insensitive text search for filter boxes, in templates', async () => {
-    const { contains } = await import('../../../ui/legacy/view/bind.js');
+    const { contains } = await import('../../../packs/template/bind.js');
     assert.equal(contains('Moonveil Trout', 'TROUT'), true);
     assert.equal(contains('Rope', 'lamp'), false);
     assert.equal(contains('Rope', ''), true, 'an empty filter keeps everything');
@@ -140,7 +140,7 @@ test('card scopes carry the state before the reply and the reply\'s own ops; eve
 });
 
 test('a card screen with defaultOn shows until the reader turns it off', async () => {
-    const { createScreens } = await import('../../../ui/legacy/view/screens.js');
+    const { createScreens } = await import('../../../packs/screens/registry.js');
     let saved = {};
     const screens = createScreens({ reader: () => saved, saveReader: next => { saved = next; } });
     screens.addModule('story-block', [

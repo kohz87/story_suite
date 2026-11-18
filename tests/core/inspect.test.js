@@ -4,10 +4,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { createInspectorSource, diffStates, inspectReply, matchPaths, pointer, preview, replyList } from '../../ui/legacy/inspect.js';
-import { createInspectorWidget, drawTree, inspectorScreen } from '../../ui/legacy/screens/inspector.js';
-import { validateScreen } from '../../ui/legacy/view/screens.js';
-import { host as widgetHost, installDom } from '../ui/view/widgets/fake-dom.js';
+import { createInspectorSource, diffStates, inspectReply, matchPaths, pointer, preview, replyList } from '../../packs/screens/inspect.js';
+import { createInspectorWidget, drawTree, inspectorScreen } from '../../packs/screens/defaults/inspector.js';
+import { validateScreen } from '../../packs/screens/registry.js';
+import { host as widgetHost, installDom } from '../packs/widgets/fake-dom.js';
 
 async function played() {
     const host = await createHost();

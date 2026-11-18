@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { createFakeModel } from '../../../../testkit/model.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { castPlans } from '../../../../modules/cast/cast/index.js';
 import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 import { problemList } from '../../../../modules/time/tracker/domain.js';

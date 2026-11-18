@@ -7,11 +7,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const SOURCES = [
-    '../../../ui/legacy/screens/inspector.js',
-    '../../../ui/legacy/view/widgets/map.js',
-    '../../../ui/legacy/view/widgets/map-parts/widget.js',
-    '../../../ui/legacy/view/widgets/listcard.js',
-    '../../../ui/legacy/view/widgets/dialog.js',
+    '../../../packs/screens/defaults/inspector.js',
+    '../../../packs/widgets/map.js',
+    '../../../packs/widgets/map-parts/widget.js',
+    '../../../packs/widgets/listcard.js',
+    '../../../packs/widgets/dialog.js',
 ];
 
 test('the inspector, the map, the list card and the dialog: no scrollIntoView, and every focus call passes preventScroll', () => {

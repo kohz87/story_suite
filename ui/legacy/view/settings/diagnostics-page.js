@@ -20,7 +20,7 @@ import { fill } from '../../../../core/strings.js';
 import { newId, sectionBlock } from '../form/fields.js';
 import { matchesSearch } from '../form/schema.js';
 import { createModuleCard } from './modules.js';
-import { showAndFocus } from '../scroll.js';
+import { showAndFocus } from '../../../../packs/widgets/scroll.js';
 import { saveTextFile } from '../download.js';
 
 const h = (doc, tag, className = '', text = '') => {

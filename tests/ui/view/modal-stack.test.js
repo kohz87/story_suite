@@ -3,7 +3,7 @@
 // are there only while a layer is open.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { focusablesIn, stackOf } from '../../../ui/legacy/view/modal-stack.js';
+import { focusablesIn, stackOf } from '../../../packs/widgets/modal-stack.js';
 import { createDialogMount } from '../../../ui/legacy/view/mounts/dialog.js';
 import { createScreenMount } from '../../../ui/legacy/view/mounts/screen.js';
 import { fakeApi, fakeChat, fakeQuery, fakeRenderer, screensWith, setupDom } from './mounts/helpers.js';

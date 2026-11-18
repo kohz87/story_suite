@@ -1,6 +1,6 @@
 // The page's own Fight board for a Combat Rules v1 fight: it draws the kind's view (FIGHT_SHAPE, `interaction.current().view`), asks each standing hero in turn, then stages one step.
 // It holds only the picks of the open exchange (keyed by the fight's id and its step count); the engine, the foes' bars and the results are the kind's.
-import { button, h } from '../../../ui/legacy/view/widgets/dom.js';
+import { button, h } from '../../../packs/widgets/dom.js';
 
 let held = { key: '', picks: [], sel: null };
 const keyOf = (id, view, steps) => `${id}:${steps}:${view.actors.map(actor => actor.id).join(',')}`;

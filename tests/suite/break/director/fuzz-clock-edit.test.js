@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { PRESETS, makeCalendar } from '../../../../modules/time/calendar.js';
 import { dayOf, orderedDays, writtenOf } from '../../../../modules/world/chronicle/days.js';
 

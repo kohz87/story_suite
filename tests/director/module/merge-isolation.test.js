@@ -3,8 +3,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { mergeHook } from '../../../ui/legacy/director/module/merge.js';
-import { LIVE_HOST } from '../../../ui/legacy/director/module/shared.js';
+import { mergeHook } from '../../../modules/director/module/merge.js';
+import { LIVE_HOST } from '../../../modules/director/module/shared.js';
 
 const shared = () => ({ env: { fights: false }, story: {} });
 const boom = () => { throw new Error('bad weather'); };

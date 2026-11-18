@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { createHost } from '../../../../testkit/index.js';
 import { probeModule } from '../../../suite/qa/helpers/probe-module.js';
 import { READERS } from '../../../suite/qa/helpers/reread-fuzz-run.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { withD1 } from '../../../helpers/director/d1.js';
 
 const PACK = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');

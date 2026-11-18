@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createHost } from '../../../testkit/index.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { makeCalendar, normalizeCalendar, PRESETS } from '../../../modules/time/calendar.js';
 import { TEMPERATE, WEATHER_FEATURE, hashOf, seasonByYear, seasonOf, tableFor, weatherFor, weatherHook, weatherKey } from '../../../modules/time/weather.js';
 import { fakeFightRunner } from '../../suite/integration/director/helpers/fake-fight-runner.js';
