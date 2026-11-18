@@ -314,6 +314,7 @@
   "ui/settings/page.js": "Composes one Settings section page: heading, the \"applies to\" note, the module card, the special body, the setting cards and the reset buttons.",
   "ui/settings/search.js": "Finds settings rows by words across label, hint, unit, group and section name, and renders the hits under \"Section › Group\".",
   "ui/settings/fold-groups.js": "Turns each Settings card title into a fold button with aria-expanded and keeps which cards are folded per device.",
+  "ui/entry/settings-folds.js": "Keeps this device's folded Settings cards in localStorage, as the port's device prefs store.",
   "ui/settings/sections/director.js": "Renders the Director section through the hook: the overlay's body for it, unchanged.",
   "ui/settings/sections/index.js": "Maps each settings section id to its hook renderer; sections with no entry get the overlay's default body.",
   "ui/settings/sections/look.js": "Renders the Look section: the overlay's body plus a note on what Follow SillyTavern does.",
