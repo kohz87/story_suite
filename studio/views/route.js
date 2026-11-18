@@ -5,7 +5,11 @@
 //   studio/edit/<x>.js  export function editSection(section, ctx) → Node[]    section: { key, where: 'content'|'top', value, count }
 //   studio/views/<x>.js export function renderPage(ctx) → Node[]             (no nodes: the page is not mounted)
 //   ctx: { doc, kind, legacy, other, refs, problems, focus, commit(patches), setPortrait(name, bytes), openDoc(opened), go(partId, rec, path?),
-//          portrait(name) } — app.js builds it; until the editing jobs land, commit, setPortrait and openDoc refuse.
+//          portrait(name), keep(id) } — app.js builds it per draw from the pack's present document. commit and setPortrait are one undo
+//          step each → { ok, same?, refusal? } (a format 3 pack refuses); the page is drawn again after a change and again when the check
+//          lands, so an editor keeps what must outlive a draw (an open row, typed text) in keep(id), a plain object per pack. refs is the
+//          reference index (studio/model/refs.js), built once per snapshot. focus is { rec, path } (Go to, F8: path is the field below
+//          the record, or null): the editor marks the control for it with the class `st-at` and the caret offset in `data-at`.
 
 import * as overview from '../edit/overview.js';
 import * as lore from '../edit/lore.js';

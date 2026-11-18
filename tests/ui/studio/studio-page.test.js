@@ -115,7 +115,7 @@ test('a world pack: the engine\'s checker refuses what it does not take; Problem
   } finally { await page.close(); }
 });
 
-test('search finds a record and opens it; the keys: / search, Alt+digit a part, F8 the next problem, Esc clears the search, Ctrl+O opens, Ctrl+S exports', async (t) => {
+test('search finds a record and opens it; the keys: / search, Alt+digit a part, F8 the next problem, Esc clears the search, Ctrl+O opens, Ctrl+S exports (not while the pack has errors)', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const { page, errors } = await studio(1280);
   try {
@@ -138,8 +138,13 @@ test('search finds a record and opens it; the keys: / search, Alt+digit a part, 
     assert.equal(await page.textContent('.spage h2'), 'Events');
     const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.keyboard.press('Control+o')]);
     assert.equal(chooser.isMultiple(), true);
-    const [download] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('Control+s')]);
-    assert.equal(download.suggestedFilename(), 'studio-world-mini-0.1.0.zip');
+    let downloaded = false;
+    page.on('download', () => { downloaded = true; });
+    await page.keyboard.press('Control+s');
+    assert.equal(await page.textContent('.st-block'), 'Export is off until the 3 problems are fixed. Warnings don’t stop it. Go to the first ›');
+    assert.deepEqual(await page.evaluate(() => [document.querySelector('.st-zip').disabled, document.querySelector('.st-zip').getAttribute('aria-describedby')]), [true, 'st-block']);
+    await page.waitForTimeout(300);
+    assert.equal(downloaded, false);
     assert.deepEqual(errors, []);
   } finally { await page.close(); }
 });
@@ -153,9 +158,9 @@ test('phone: the parts list first, a part opens as a page, ‹ Parts goes back; 
     assert.deepEqual(await state(), { page: 'list', list: 'flex', spage: 'none', side: 'none', scheme: 'light' });
     const header = await page.evaluate(() => {
       const shd = document.querySelector('.shd').getBoundingClientRect();
-      return { height: Math.round(shd.height), small: [...document.querySelectorAll('.shd button')].map(b => b.getBoundingClientRect()).filter(r => r.width < 44 || r.height < 44).length };
+      return { height: Math.round(shd.height), small: [...document.querySelectorAll('.shd button')].map(b => b.getBoundingClientRect()).filter(r => r.width < 36 || r.height < 44).length, ic: [...document.querySelectorAll('.shd .ic')].map(b => Math.round(b.getBoundingClientRect().width)) };
     });
-    assert.deepEqual(header, { height: 69, small: 0 }, 'one header row as tall as the mock Settings header, every button at least 44 x 44');
+    assert.deepEqual(header, { height: 123, small: 0, ic: [36, 36] }, 'the mock\'s phone header (MK-1): the buttons on their own row under the title, every button 44 tall, Undo and Redo 36 wide as drawn');
     await page.click('.slist button[data-part="cast"]');
     assert.deepEqual(await state(), { page: 'section', list: 'none', spage: 'flex', side: 'none', scheme: 'light' });
     await page.click('.sback');
