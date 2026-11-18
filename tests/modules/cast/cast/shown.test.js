@@ -115,14 +115,14 @@ test('swipe: a new swipe may show her or not; a Re-read decides again; a rebuild
         await host.swipe(said('Sister Temiwa kneels by the well.', LINE));
         assert.equal(people(host)['ersveil:temiwa'].met.why, 'place', 'the new swipe shows her: met as before');
         assert.equal(notes(host).length, 1);
-        assert.match(castCue(host), /Sister Temiwa \(also/);
+        assert.match(castCue(host), /Last Candle comes into the scene/);
         const shown = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), shown);
         await host.swipe(said('Only smoke.', LINE));
         assert.equal(people(host)['ersveil:temiwa'].met, null, 'the next swipe does not');
         assert.deepEqual(notes(host), []);
-        assert.match(castCue(host), /Sister Temiwa \(also/, 'the cue is for the rewritten reply as before');
+        assert.match(castCue(host), /Last Candle comes into the scene/, 'the cue is for the rewritten reply as before');
         const gone = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), gone);

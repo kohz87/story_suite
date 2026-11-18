@@ -76,7 +76,7 @@ test('sought at the same place: she comes in as a meeting why "sought", with the
         await host.send('I look around.', said(`Sister Temiwa looks up from the cots. ${host.everyone()}`));
         const person = people(host)['ersveil:temiwa'];
         assert.deepEqual([person.met.why, person.met.reason, person.met.where], ['sought', 'a healer or a sister', 'Harrow']);
-        assert.match(castCue(host), /^\[Cast\] Sister Temiwa \(also Temiwa, Last Candle\) comes into the scene in this reply\./);
+        assert.match(castCue(host), /^\[Cast\] Last Candle comes into the scene in this reply\./);
         assert.match(castCue(host), /Why now: You asked for "a healer or a sister"; they are at Harrow, the place of this scene\./);
         const note = Object.values(slice(host).notes).find(item => item.kind === 'met');
         assert.deepEqual([note.head, note.line], ['Paths crossed: Sister Temiwa', 'Paths crossed: Sister Temiwa — you sought “a healer or a sister”']);

@@ -56,7 +56,7 @@ test('the cue: who they are and why now, from the pack entry; cut to the budget;
     const raw = entry('fenna', { aliases: ['the ferrywoman'], about: 'A'.repeat(500), look: 'tall', voice: 'dry', personality: 'wary', start: { place: 'Docks', goal: 'keep the ferry', routine: 'works the night ferry' } });
     const person = { name: 'Fenna', aliases: ['the ferrywoman'], where: 'Docks', doing: 'works the night ferry', met: { why: 'place', where: 'Docks', reason: '' } };
     const cue = cueOf(person, { raw, goal: 'keep the ferry' });
-    assert.match(cue, /^Fenna \(also the ferrywoman\) comes into the scene in this reply\. It is their first meeting with \{\{user\}\}\. Who: A+… Look: tall\. Voice: dry\. Manner: wary\. Wants: keep the ferry\. Why now: Works the night ferry, they are at Docks, the place of this scene\. Bring them in naturally; do not treat them as known to \{\{user\}\} yet\.$/);
+    assert.match(cue, /^the ferrywoman comes into the scene in this reply\. It is their first meeting with \{\{user\}\}, and \{\{user\}\} does not know their name until it is said in the story: do not use it before someone says it\. Who: A+… Look: tall\. Voice: dry\. Manner: wary\. Wants: keep the ferry\. Why now: Works the night ferry, they are at Docks, the place of this scene\. Bring them in naturally; do not treat them as known to \{\{user\}\} yet\.$/);
     assert.ok(!cue.includes('Hidden thing'), 'a secret is never in the cue');
     const slot = [{ at: 6, keys: ['ersveil:fenna'], rev: 3 }];
     assert.deepEqual([meetingFresh(slot, 6), meetingFresh(slot, 7), meetingFresh(slot, 8), meetingFresh(slot, 5), meetingFresh(null, 6), meetingFresh(slot, null)], [true, true, false, false, false, false]);
@@ -66,7 +66,17 @@ test('the cue: who they are and why now, from the pack entry; cut to the budget;
     });
     const lines = tail(view()).lines;
     assert.equal(lines.length, 1);
-    assert.ok(lines[0].startsWith('[Cast] Fenna (also the ferrywoman) comes into the scene'));
+    assert.ok(lines[0].startsWith('[Cast] the ferrywoman comes into the scene'));
+    assert.doesNotMatch(lines[0], /Fenna/, 'LAB2-6: a stranger\'s name is not in the cue');
+    const named = cueOf({ ...person, met: { ...person.met, why: 'story' } }, { raw, goal: 'keep the ferry' });
+    assert.match(named, /^Fenna \(also the ferrywoman\) comes into the scene in this reply\. It is their first meeting with \{\{user\}\}\./, 'named in the story: the name is used');
+    assert.match(cueOf({ ...person, aliases: [] }, { raw: { ...raw, aliases: [], about: 'Fenna keeps the ferry.' }, goal: '' }), /^a stranger comes into the scene/);
+    assert.doesNotMatch(cueOf({ ...person, aliases: [] }, { raw: { ...raw, aliases: [], about: 'Fenna keeps the ferry.' }, goal: '' }), /Fenna/, 'the name is masked inside the fields too');
+    const full = { name: 'Tansy Millrace', aliases: [], where: 'Docks', doing: 'poles the ferry', met: { why: 'place', where: 'Docks', reason: '' } };
+    const fullCue = cueOf(full, { raw: { ...raw, aliases: [], about: 'Tansy keeps the ferry.', look: "Tansy's hands; Mistress Millrace is known here", voice: 'dry', personality: 'wary' }, goal: 'Millrace land' });
+    assert.doesNotMatch(fullCue, /Tansy|Millrace/i, 'any part of the name, first or family, is masked with no alias');
+    assert.match(fullCue, /^a stranger comes into the scene/);
+    assert.match(cueOf({ ...full, met: { ...full.met, why: 'story' } }, { raw: { ...raw, about: 'Tansy keeps the ferry.' }, goal: '' }), /Tansy keeps the ferry/, 'named in the story: kept');
     assert.ok(Array.from(lines[0]).length <= TAIL_BUDGET * 4, 'within the cue\'s budget');
     assert.deepEqual(tail(view({ chat: { length: 9 } })).lines, [], 'a later reply is told nothing');
     assert.deepEqual(tail(view({ feature: () => false })).lines, [], 'off');
@@ -127,7 +137,7 @@ test('the cue keeps why now and how to bring them in whole for every real-length
             assert.ok(Array.from(cue).length <= room, `${entry_.name}: ${Array.from(cue).length} characters`);
             assert.ok(cue.includes(`Why now: ${whyNarrator(person)}`), `${entry_.name} (${met.why}): the reason is whole`);
             assert.ok(cue.endsWith(CLOSING), `${entry_.name}: the closing sentence is last and whole`);
-            assert.match(cue, /^[^.]+ comes into the scene in this reply\. It is their first meeting with \{\{user\}\}\./);
+            assert.match(cue, /^[^.]+ comes into the scene in this reply\. It is their first meeting with \{\{user\}\}/);
         }
     }
     assert.ok(longest > room * 0.8, 'the real entries do fill the cue');
@@ -147,13 +157,13 @@ test('on the host: Siebert comes by his goal with the story\'s reason, Tansy by 
         await host.send('Look.', said('Dusk.', []));
         // Tansy first (her routine has her at the quay after dusk), by place.
         const tansy = castCue(host);
-        assert.match(tansy, /^\[Cast\] Tansy Millrace/);
+        assert.match(tansy, /^\[Cast\] the night-ferry woman comes into the scene/);
         assert.match(tansy, /Why now: They are at Bluewatch Village, the place of this scene\. Bring them in naturally; do not treat them as known to You yet\.$/);
         await host.send('Next day.', said('Morning, and talk of someone asking about Master Somner.', ['~ time June 4, 1200, 08:00 am', '+ hook Somner\'s questions — someone is asking about Master Somner at the inn | giver: Siebert Maas | goal: find out who']));
         await settle();
         await host.send('Look.', said(`Smoke. ${host.everyone()}`));
         const cue = castCue(host);
-        assert.match(cue, /^\[Cast\] Siebert Maas/);
+        assert.match(cue, /^\[Cast\] the lamp clerk comes into the scene/);
         assert.match(cue, /Why now: Someone is asking about Master Somner at the inn and the news reached him on the north road\. Their own goal brings them to You\./);
         assert.ok(cue.endsWith(CLOSING.replace('{{user}}', 'You')));
         assert.ok(Array.from(cue).length <= TAIL_BUDGET * 4 - 8);

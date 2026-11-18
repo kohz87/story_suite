@@ -175,7 +175,7 @@ test('pulse: a chance meeting reaches the narrator with the cast cue, names the 
         assert.equal(last().kind, 'CHANCE_MEETING', 'a swipe rolled the chance meeting');
         const tail = sentTo(host, TAIL_KEY).at(-1) ?? '';
         assert.match(tail, /World this reply: Sera crosses your path in Harrow/, 'the pulse line names the person');
-        assert.match(tail, /\[Cast\] Sera comes into the scene in this reply/, 'the narrator got the cast cue for the person met');
+        assert.match(tail, /\[Cast\] a stranger comes into the scene in this reply/, 'the narrator got the cast cue for the person met');
         assert.ok(!('cue' in last()), 'the cue is told, not stored in the roll');
         // If this ever fails again (TODO: flaky 11 Nov, `met` missing): the message carries what the cast and the pulse held, so the cause can be read off it.
         const evidence = () => JSON.stringify({ person: host.head().domains.cast.people['ersveil:sera'], meeting: host.head().domains.cast.meeting, roll: last(), tries, receipts: host.sdk.receipts().slice(-8).map(item => [item.index, item.receipt.type, item.receipt.summary]) });
