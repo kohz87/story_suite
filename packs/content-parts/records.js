@@ -3,6 +3,18 @@
 import { CONTENT_KINDS, DEFAULT_CRAFTS } from '../limits.js';
 import { copy, shared } from './shared-copy.js';
 
+// Each pack's cast rows (each person with the pack's version), made once per pack and kept while its cast list and version are the
+// ones they were made from: the same rows come back on every ask, so a reader may key a cache on them (the cast's entry signature, LPA).
+const castByPack = new WeakMap();
+function castRows(entry) {
+    const cast = entry.content.cast ?? [];
+    const kept = castByPack.get(entry);
+    if (kept && kept.cast === cast && kept.version === entry.version) return kept.rows;
+    const rows = cast.map(person => ({ ...person, packVersion: entry.version }));
+    castByPack.set(entry, { cast, version: entry.version, rows });
+    return rows;
+}
+
 /**
  * Records of one kind from every enabled pack, in pack order then file order.
  * `kind`: a content kind (items, creatures, shops, recipes, events, quests, races, talents,
@@ -23,7 +35,7 @@ export function contentOf(packs, kind, { pack = null } = {}) {
     if (kind === 'currency') return shared(packs.filter(entry => entry.currency && (!pack || entry.id === pack)).map(entry => ({ pack: entry.id, ...entry.currency })));
     const chosen = pack ? packs.filter(entry => entry.id === pack) : packs;
     // The cast: each person with the version of the pack that gave them (a newer version changes who is new and who changed).
-    if (kind === 'cast') return shared(chosen.flatMap(entry => (entry.content.cast ?? []).map(person => ({ ...person, packVersion: entry.version }))));
+    if (kind === 'cast') return shared(chosen.flatMap(castRows));
     if (CONTENT_KINDS.includes(kind)) return shared(chosen.flatMap(entry => entry.content[kind] ?? []));
     if (kind === 'layouts' || kind === 'screens') return shared(chosen.flatMap(entry => entry[kind]));
     if (kind === 'theme') return shared(chosen.filter(entry => Object.keys(entry.theme).length).map(entry => ({ pack: entry.id, tokens: entry.theme })));

@@ -18,7 +18,7 @@ import {
 import { rebaseOps } from '../ops.js';
 
 export function createWalk(s, deps) {
-    const { apply, receiptKeep, scratch, seed, validate, list, current, blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash, replay, replayBlocks, appliedOf, proofBefore, packOwners, listProofs } = deps;
+    const { apply, receiptKeep, scratch, seed, validate, list, current, headProblems, blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash, replay, replayBlocks, appliedOf, proofBefore, packOwners, listProofs } = deps;
 
     function stamp(arr, index, record, block, ops, receipt, earlier, offset) {
         const entry = record.source;
@@ -82,7 +82,8 @@ export function createWalk(s, deps) {
     // blocks with a `replan` are planned again when `rerun` is given. → { state, writes: [[message, record]],
     // planned } (`writes`: the checkpoints made true again and the records that were planned again).
     function walkSuffix(arr, state, first, { rerun = null, overlay, prior = null }) {
-        const known = replay(arr, lastCarrier(arr)).problems;
+        // (the head replay's own Problems when the head is still the one it made: memo.js headProblems)
+        const known = headProblems(arr) ?? replay(arr, lastCarrier(arr)).problems;
         const broken = new Set(known
             .filter(problem => problem.code !== 'REPLAY_PREREQUISITE').map(problem => `${problem.index}:${problem.block}`));
         // The Problems so far, for the checkpoints rewritten on the way (`carried`): those before the walk, then each record's.

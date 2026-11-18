@@ -16,6 +16,8 @@ starter pack), SPEC §9 and §13, MODULES §E and §F.
   `packs.content({ kind, pack? })`, `packs.markets`, `packs.crafts` (the default crafts), `packs.calendar`, `packs.economy`,
   `packs.item({ name })` (and hook `item.resolve`), `packs.start` (and hook `start()`), `packs.portrait({ pack, file })` (a cast
   portrait's URL or null).
+- `packs.content` answers with the packs' own records, frozen all the way down: the same objects on every ask, not copies (every other
+  query's answer is a fresh copy). A reader that wants to change a record copies it first.
 - Lorebook packs: entries tagged as a pack (`PACK_TAG`) and `market:` lines are read from the lorebook
   (`packs/lorebook.js`); a lorebook line only tags a place, it never adds goods.
 - Currency, coins, calendar and ranks come from the first enabled pack that has them, under the reader's own

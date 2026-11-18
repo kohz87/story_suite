@@ -347,6 +347,18 @@ state object. Each caller gets a new answer object; the state in it is deep-froz
 
 `node scripts/bench-query.mjs` (600 replies, 50 queries): replays 100 → 0 after the first. With `--boundaries 300` (a native change after each of 300 replies, 5 queries): 3000 replays, 723 ms → 300 replays (the first query only), 82 ms.
 
+## Re-read and delete after a rebuild (LPA)
+
+An edit, a delete or a swipe rebuilds: the head is replayed from its checkpoint. The Re-read that follows (`store.before`) and the
+reconcile after a delete (its base, then the Problems of a whole replay) replayed the same prefix from the checkpoint again, twice
+for a delete. The head replay now keeps the state after each reply it passed in the prefix memo (store/prefix-memo.js `seed`; taken in
+at the next prefix read while the chat, the epoch, the replay environment and the checkpoint are what they were, each reply's message,
+record, swipe and text checked), with the replan point found so far, so a carrier after that checkpoint starts from the state before it.
+The reconcile takes the head replay's Problems while the head is still the one that replay made (store/memo.js `headProblems`). A state
+the store made is registered as deep-frozen (core/ops/freeze.js), so a command or a step planned again neither walks nor copies it.
+Measured on the LIVEPERF chat with 20 replies more (night/lpa/bench.mjs); the states, chat, requests, Problems and replan point after
+every step are the same, byte for byte, as without these.
+
 ## Memory of the caches
 
 The store's own caches (the head state and the frozen copy of the checkpoint it started from) stay under

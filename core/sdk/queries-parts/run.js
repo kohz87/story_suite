@@ -1,7 +1,15 @@
-// Runs a registered query on a state with its tools: the answer is a plain copy.
+// Runs a registered query on a state with its tools: the answer is a plain copy (the packs' own frozen records excepted).
+
+import { isDeepFrozen } from '../../ops/freeze.js';
+
+// The queries whose answer is the packs' own records, frozen all the way down (packs/content-parts/records.js contentOf): that answer
+// is handed out as it is, not copied. It was copied on every ask (thousands of times a reply, the whole world's places and events each
+// time: LIVEPERF finding 1). Nothing can change a pack through it; a reader that wants to edit a record copies it first.
+const SHARED_ANSWERS = new Set(['packs.content']);
 
 /**
- * Runs a registered query on `state`; the answer is a plain copy. Throws for an unknown query.
+ * Runs a registered query on `state`; the answer is a plain copy, except a `packs.content` answer that is frozen all the way
+ * down (the packs' own records), which is handed out as it is. Throws for an unknown query.
  * A query is called (state, args, tools) with tools.query(name, args) over the same state,
  * tools.receipts() → [{ index, receipt }], the stored receipts in chat order (`receipts` option),
  * tools.pendingProofs() → [{ proof }], a Re-read's planned proof (`pendingProofs` option, story.evidence), and
@@ -22,10 +30,9 @@ export function runQuery(registry, state, name, args, { receipts = () => [], rep
     const answer = query(state, args === undefined ? undefined : structuredClone(args), tools);
     // A query that has to read outside the state (the checkpoint reference scan) may answer a promise. Keep it a
     // promise so its caller can await it; every ordinary query still answers its copied value in the same tick.
-    if (answer !== null && typeof answer === 'object' && typeof answer.then === 'function') {
-        return Promise.resolve(answer).then(value => (value === undefined ? undefined : structuredClone(value)));
-    }
-    return answer === undefined ? undefined : structuredClone(answer);
+    const out = value => (value === undefined ? undefined : SHARED_ANSWERS.has(name) && isDeepFrozen(value) ? value : structuredClone(value));
+    if (answer !== null && typeof answer === 'object' && typeof answer.then === 'function') return Promise.resolve(answer).then(out);
+    return out(answer);
 }
 
 /**
