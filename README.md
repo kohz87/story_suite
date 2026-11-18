@@ -26,6 +26,7 @@ To update later, press the update button in **Extensions → Manage extensions**
 
 **NPC State**
 - Keeps a dossier for every person you meet: who they are, where they are, how they feel about you.
+- Four feelings are always kept for each person: Trust, Affection, Desire and Tension, from −100 to +100, where 0 is neutral. Settings › People adds up to six meters of your own (Fear, Respect, Debt…), meter presets, named stages on one meter and a stage ladder.
 - A person you have not met by name stays unnamed to the narrator until the story names them.
 - A pack's secrets for a person stay hidden until their condition is met.
 

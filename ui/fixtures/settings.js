@@ -15,6 +15,7 @@ function row(group, key, type, label, value, extra = {}) {
     unit: extra.unit ?? null,
     tags: extra.tags ?? [],
     wide: Boolean(extra.wide),
+    ...(extra.list ? { list: extra.list } : {}),
   };
 }
 

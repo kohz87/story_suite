@@ -1,13 +1,15 @@
-// The People page's first groups from mock v7: Feelings, Pacing, Stages, Pull and drift and Who gets a dossier, each row tied to its NPC State setting.
+// The People page's first groups from mock v7: Feelings, Pacing, Stages, Pull and drift and Who gets a dossier, each row tied to its NPC State setting
+// (the fixed "four feelings" row is gone, owner 18 Nov: nothing to set; the People README explains the four).
 import { normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeCustomFieldNames } from '../../../modules/people/core/core.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS } from '../../../modules/people/core/core.js';
 import { normalizeAllowance, DEFAULT_ALLOWANCE } from '../../../modules/people/legacy/relationship-pacing.js';
 import { intRow, schemaRow, segRow } from './kit.js';
 import { multiRow, shownRow, clamp } from './kit-more.js';
+import { customMetersRow, stagesRow } from './meter-list.js';
+import { presetsRow, ladderRow } from './ladder-list.js';
 
 const FEEL = ['Trust', 'Affection', 'Desire', 'Tension'];
 const TIERS = ['Ordinary', 'Meaningful', 'Major', 'Extreme'];
-const NOT_YET = 'set in the old view for now';
 const caps = clamp(0, Infinity, 0);
 
 /** The custom-field names as the box shows them: the configured list only; Level joins it by itself while RPG is on. */
@@ -21,15 +23,14 @@ const fieldsRow = {
 /** Returns the rows of the first five People groups. */
 export function feelRows() {
   return [
-    shownRow('Feelings', 'meters', 'The four feelings', 'fixed', { hint: 'Trust, Affection, Desire, Tension · −100 to +100, 0 means neutral' }),
-    shownRow('Feelings', 'customMeters', 'Custom meters', NOT_YET, { hint: 'Add your own (Fear, Respect, Debt…), up to 6' }),
-    shownRow('Feelings', 'presets', 'Meter presets (up to 12)', NOT_YET, { hint: 'Companion, Rival, Mentor and pack sets; none are on until you pick them' }),
+    customMetersRow(),
+    presetsRow(),
     multiRow('Feelings', 'startingValues', 'Starting values', 'relationshipBaseline', FEEL, { hint: 'Trust, Affection, Desire, Tension for new people', cut: clamp(-100, 100, 0), clean: normalizeRelationshipBaseline, dflt: DEFAULT_RELATIONSHIP }),
-    shownRow('Feelings', 'perMeterStages', 'Per-meter stages', NOT_YET, { hint: 'Named thresholds on one meter (separate from the ladder)' }),
+    stagesRow(),
     multiRow('Pacing', 'tierCaps', 'How far one moment moves a feeling', 'relationshipCaps', TIERS, { hint: 'Each change line is rated by how much the moment matters; a deep value resists more', cut: caps, clean: normalizeRelationshipCaps, dflt: DEFAULT_RELATIONSHIP_CAPS }),
     multiRow('Pacing', 'daily', 'Moments per story day, per person', 'relationshipAllowance', TIERS, { hint: 'Over the allowance a moment counts as the tier below; blank is no limit', cut: v => Number(v), clean: normalizeAllowance, blank: null, dflt: DEFAULT_ALLOWANCE }),
     schemaRow('Pacing', 'ceiling', 'Safety ceiling per reply', 'changeCap', 15, { hint: 'The most one feeling moves in one reply, all lines together; rarely reached' }),
-    shownRow('Stages', 'stageLadder', 'Stage ladder', NOT_YET, { hint: 'The named rungs and what each needs' }),
+    ladderRow(),
     schemaRow('Stages', 'repliesBeforeAStageIsLos', 'Replies before a stage is lost', 'demoteAfter', 3, { hint: 'After a sustained low', unit: 'replies' }),
     schemaRow('Pull and drift', 'repeatedApproachesWindow', 'Repeated approaches: window', 'gateDays', 3, { unit: 'story days' }),
     segRow('Pull and drift', 'repeatedApproachesStreng', 'Repeated approaches: strength', 'gateStrength', 'normal', [['Light', 'light'], ['Normal', 'normal'], ['Strong', 'strong']]),
