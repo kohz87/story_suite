@@ -100,7 +100,7 @@ export function leadsCard(journal) {
       'div',
       { class: 'lead2' },
       h('span', { class: 'a' }, (l.from || '?')[0]),
-      h('span', null, h('b', null, l.title), h('small', null, `${l.from} · ${l.where}`), h('small', { class: 'lapse' }, `lapses ${l.lapses}`)),
+      h('span', null, h('b', null, l.title), h('small', null, [l.from, l.where].filter(Boolean).join(' · ')), l.lapses ? h('small', { class: 'lapse' }, `lapses ${l.lapses}`) : null),
     ))),
     h('p', { class: 'fine' }, 'You take a lead by saying so in the story. An offer lapses at its deadline, or 2 days later if you spoke of it.'),
   );

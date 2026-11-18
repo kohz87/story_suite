@@ -26,9 +26,13 @@ import { peopleParts, dossierMap } from './people-parts.js';
 import { createWizardWorld } from '../wizard/world.js';
 import { packPresets } from './people-settings/catalog.js';
 import { selectRoster } from './roster.js';
+import { arcController } from '../../modules/arc/controller.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
+
+// The arc planner's waiting plan and state (the page's controller; none without a page).
+const arcStatus = () => { try { return arcController().status(); } catch { return null; } };
 
 const openScene = answer => { const view = selectScene(answer); return view && view.kindId !== FIGHT_KIND ? view : null; };
 
@@ -87,7 +91,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     journal: read => selectJournal(read, { focusId: pickOf(ctx) }),
     // The plan opens from this chat's own pref (the Story tab's Show the plan writes it); the Threads switch decides whether its beats, clocks, agendas and secrets exist at all.
-    story: read => selectStory(read, { planShown: ctx()?.chatMetadata?.[PREFS_KEY]?.plan === true, threadsOn: sdk?.features?.()?.find?.(f => f?.id === 'story-director.threads')?.on !== false }),
+    story: read => selectStory(read, { arcStatus: arcStatus(), planShown: ctx()?.chatMetadata?.[PREFS_KEY]?.plan === true, threadsOn: sdk?.features?.()?.find?.(f => f?.id === 'story-director.threads')?.on !== false }),
     // The open interaction: `interaction.view`, null when none is open. A fight is shown on the Fight tab, not here.
     scene: read => openScene(read('interaction.view', {})),
     // The open fight: the same answer, drawn by the fight renderer on the activity host (the kind's own view is the FIGHT_SHAPE), or the waiting fight's offer; null when neither.

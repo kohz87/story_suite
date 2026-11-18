@@ -41,7 +41,7 @@ export function arcQuery(state) {
     const before = list.at(-2) ?? null;
     return {
         current: {
-            id: current.id, key: current.key, desc: current.desc, active: current.active, reason: current.reason, note: current.note,
+            id: current.id, key: current.key, desc: current.desc, active: current.active, minutes: Number.isSafeInteger(current.minutes) ? current.minutes : null, reason: current.reason, note: current.note,
             beats: { done, total }, ended: current.ended ? { reason: current.ended.reason } : null,
         },
         previous: before ? { key: before.key, desc: before.desc } : null,

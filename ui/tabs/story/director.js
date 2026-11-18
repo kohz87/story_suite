@@ -65,13 +65,21 @@ function castCard(cast) {
 function arcCard(arc, shown, ctx) {
   const note = h('textarea', { class: 'note2', placeholder: 'A note for the next plan (optional): e.g. more about Torka’s past' });
   const plan = arc?.plan;
+  const draft = arc?.draft;
+  const waiting = draft ? h('div', { class: 'arcbox draft' }, h('b', null, 'A plan is waiting'), shown && draft.text ? h('p', null, draft.text) : h('p', { class: 'fine' }, 'Hidden while the plan is hidden; you can accept or discard it without reading.')) : null;
   const body = !shown
     ? h('div', { class: 'hiddenrow' }, h('i', null, '🔒'), 'The arc plan is hidden')
     : plan ? h('div', { class: 'arcbox' }, h('b', null, plan.title), h('p', null, plan.text), h('span', { class: 'm' }, plan.summary)) : h('p', { class: 'fine' }, 'No arc is planned yet.');
+  const send = (type, payload) => ctx.command?.(type, payload);
+  const buttons = draft
+    ? [can(ctx, 'arc.accept') ? button({ label: 'Accept this plan', dataset: { act: 'arc-accept' }, onClick: () => send('arc.accept', {}) }) : null,
+      can(ctx, 'arc.discard') ? button({ label: 'Discard', dataset: { act: 'arc-discard' }, onClick: () => send('arc.discard', {}) }) : null]
+    : [can(ctx, 'arc.plan') ? button({ label: arc?.busy ? 'Planning…' : 'Plan the next arc', disabled: arc?.busy === true, dataset: { act: 'arc-plan' }, onClick: () => send('arc.plan', { note: note.value ?? '' }) }) : null];
+  const accepted = arc?.accepted;
   return h('section', { class: 'card glass dc wide', dataset: { card: 'arc' } },
-    h('div', { class: 'ch' }, h('h3', null, 'Arc'), h('span', { class: 'cnt' }, arc?.accepted ? `accepted ${arc.accepted}` : 'none accepted')), body,
-    h('div', { class: 'prow' },
-      can(ctx, 'arc.plan') ? button({ label: 'Plan the next arc', dataset: { act: 'arc-plan' }, onClick: () => ctx.command?.('arc.plan', { note: note.value ?? '' }) }) : null,
+    h('div', { class: 'ch' }, h('h3', null, 'Arc'), h('span', { class: 'cnt' }, typeof accepted === 'string' ? `accepted${accepted ? ` ${accepted}` : ''}` : 'none accepted')), body, waiting,
+    arc?.error ? h('p', { class: 'fine err' }, arc.error) : null,
+    h('div', { class: 'prow' }, ...buttons,
       arc?.open === false ? null : button({ label: 'End this arc', dataset: { act: 'arc-end' }, onClick: () => ctx.command?.('arc.end', {}) })), note);
 }
 
@@ -83,7 +91,7 @@ export function directorCards(story = {}, ctx = {}) {
     castCard(story.cast),
     arcCard(story.arc, shown, ctx),
     gatedCard('Beats', story.beats, shown, b => item(b.title, b.state === 'ready' ? 'ready' : 'waiting', b.text, b.when, b.state)),
-    gatedCard('Clocks', story.clocks, shown, c => item(c.title, `due ${c.due}`, c.text, `shown in the story: ${CLOCK_SHOWN[c.shown] ?? c.shown}`)),
+    gatedCard('Clocks', story.clocks, shown, c => item(c.title, `${c.overdue ? 'overdue · ' : ''}due ${c.due}`, c.text, `shown in the story: ${CLOCK_SHOWN[c.shown] ?? c.shown}`, c.overdue ? 'late' : '')),
     gatedCard('Hooks the story is planning', story.hooks, shown, k => item(k.title, 'planned', k.text, k.when)),
     gatedCard('News on its way', story.newsOnWay, shown, n => item(n.title, n.reaches, n.text, n.how)),
   ];

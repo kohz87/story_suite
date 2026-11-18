@@ -6,8 +6,8 @@ const BEATS = [
   { title: 'Hal in the Saltmarsh', state: 'wait', text: 'Hal is found alive, hiding from the men who sank his boat.', when: 'Saltmarsh ruin · after asking at the Auvoth docks', personId: null },
 ];
 const CLOCKS = [
-  { title: 'Rising river', text: 'the Old Weir ford closes when the Vein crests', due: 'Goldwane 16', shown: 'sign' },
-  { title: 'The Red Cord closes in', text: 'they reach Bluewatch', due: 'Goldwane 15', shown: 'none' },
+  { title: 'Rising river', text: 'the Old Weir ford closes when the Vein crests', due: 'Goldwane 16', shown: 'sign', overdue: false },
+  { title: 'The Red Cord closes in', text: 'they reach Bluewatch', due: 'Goldwane 15', shown: 'none', overdue: false },
 ];
 const HOOKS = [
   { title: 'A buyer for the east-quay crate', text: 'A harbour clerk offers coin for whatever the unclaimed crate holds. It is a separate offer from the crate lead you already heard of.', when: 'offered after the harbour letter' },
@@ -76,7 +76,7 @@ export function buildStory(opts = {}) {
     return {
       plan: { shown, note: '' },
       pulse: { mode: 'lively', quiet: false, latest: null, recent: [] },
-      arc: { accepted: null, plan: null },
+      arc: { accepted: null, draft: null, busy: false, error: '', plan: null },
       beats: gate([], shown), clocks: gate([], shown), hooks: gate([], shown), newsOnWay: gate([], shown),
       agendas: gate([], shown),
       cast: { total: 0, met: 0, unmet: 0, lastMoved: null },
@@ -94,7 +94,7 @@ export function buildStory(opts = {}) {
       recent: RECENT.map(r => ({ ...r, kind: shown || r.skipped ? r.kind : 'Rolled', text: shown || r.skipped ? r.text : '', effect: shown ? r.effect : null })),
     },
     arc: {
-      accepted: 'Goldwane 12',
+      accepted: 'Goldwane 12', draft: null, busy: false, error: '',
       plan: shown
         ? {
           title: 'The Grey Toll',

@@ -9,6 +9,7 @@ import { THREAD_KINDS } from './convert.js';
 import { initialDirector, queries, validateDirector } from './domain.js';
 import { GRAMMAR, GRAMMAR_ALONE, PACING_TEXT, TAIL_BUDGET, directorTail, grammarOf, staticText } from './note.js';
 import { threadCommands, threadReplayGuard } from './writers.js';
+import { questCommands } from './quest-edit.js';
 import { intentCommand } from './acceptance.js';
 import { SEED, seedCommand, seedHook } from './seed.js';
 import { CALENDAR_NAMES, CLOCK, calendarNamesCommand, calendarNamesHook, clockCommand } from './clock-set.js';
@@ -58,7 +59,7 @@ export const part = {
         default: true,
         presets: { lean: false },
     }],
-    commands: { [SEED]: seedCommand, [CLOCK]: clockCommand, [CALENDAR_NAMES]: calendarNamesCommand, ...threadCommands, 'threads.intent': intentCommand, [INITIATIVE]: Object.assign((ctx, payload) => initiativeCommand(ctx, payload), { feature: INITIATIVE_FEATURE }) },
+    commands: { [SEED]: seedCommand, [CLOCK]: clockCommand, [CALENDAR_NAMES]: calendarNamesCommand, ...threadCommands, ...questCommands, 'threads.intent': intentCommand, [INITIATIVE]: Object.assign((ctx, payload) => initiativeCommand(ctx, payload), { feature: INITIATIVE_FEATURE }) },
     queries,
     kinds,
     context: {
