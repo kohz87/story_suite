@@ -73,7 +73,7 @@ test('a second edit before the tick still settles against the first one\'s basel
     assert.equal(host.reconciles[2].explicitDivergence, 3);
 
     reset(story());
-    host.swipe = 'swiping';   // read from SillyTavern's context, as runtime-branch.js reads it
+    host.swipe = 'swiping';   // read from SillyTavern's context, as runtime-chat-branch.js reads it
     host.chat[1].mes = 'a1 revised';
     await emit(EVENTS.MESSAGE_EDITED, 1);
     host.chat[3].mes = 'a3 revised';

@@ -7,8 +7,8 @@ import { APPEARANCE_FORM_LIMIT, clean, formKey } from './appearance-text.js';
 import { resolveNpcAppearance } from './appearance-model.js';
 
 // Per-form portraits are user-owned image assets kept beside the main portrait in
-// state.formPortraitAssets[npcId][formKey]. Like the main portrait assets they are never copied
-// into checkpoints or the rollback journal, and they are bounded to the appearance-form limit.
+// state.formPortraitAssets[npcId][formKey]. Like the main portrait assets they are bounded, here to the
+// appearance-form limit.
 export function formPortraitKey(name) { return formKey(name); }
 
 export function normalizeFormPortraitAssets(value) {

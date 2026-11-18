@@ -46,8 +46,6 @@ export const DEFAULTS = Object.freeze({
     injectLimit: 3,
     injectBudgetTokens: 4000,
     customFieldNames: [],
-    branchRescan: true,
-    midDeleteRewind: false,
     relationshipBaseline: { ...DEFAULT_RELATIONSHIP },
     relationshipCaps: { ...DEFAULT_RELATIONSHIP_CAPS },
     relationshipAllowance: { ...DEFAULT_ALLOWANCE },

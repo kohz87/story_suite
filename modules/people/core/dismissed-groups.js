@@ -1,6 +1,11 @@
 // User-dismissed NPC groups: normalizing, adding and clearing the groups a reader dismissed on purpose.
-import { normalizeName } from '../../core/core.js';
-import { npcLabels } from './shared-npc-records.js';
+import { normalizeName } from './core.js';
+
+function npcLabels(npc) {
+    return [npc?.name, ...(Array.isArray(npc?.aliases) ? npc.aliases : [])]
+        .map(normalizeName)
+        .filter(Boolean);
+}
 
 export function normalizeUserDismissedGroups(value = []) {
     const groups = [];

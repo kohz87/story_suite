@@ -11,7 +11,7 @@ import { getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/run
 import { createEditorSave } from './runtime-editor-save.js';
 
 export function createEditorPart(rt, deps) {
-    const { chatHydrationStatus, commitBranchCheckpoint, currentNpcById, ensureFreshMutationBoundary, eventTargetClosest, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, queueCastRefresh, relationshipNumber, requireReadyChatMutation, stampManualEdit, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;
+    const { chatHydrationStatus, noteChatLineage, currentNpcById, ensureFreshMutationBoundary, eventTargetClosest, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, queueCastRefresh, relationshipNumber, requireReadyChatMutation, stampManualEdit, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;
     const { hydrationErrors } = rt;
 
     let lastEditorActivation = { npcId: '', at: 0 };

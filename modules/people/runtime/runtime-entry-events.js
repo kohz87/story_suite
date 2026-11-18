@@ -4,7 +4,7 @@
 
 export function createEventRegistration(rt, deps) {
     const {
-        getContext, extension_prompt_types, extension_prompt_roles, migrateLegacyLineage, chatLineage,
+        getContext, extension_prompt_types, extension_prompt_roles, chatLineage,
         setScanIndicator, narrationCaptureEnabled, getChatKey, ensureChatStateLoaded,
         chatHydrationStatus, getChatState, staleHostActive, generationReady, updateInjection,
         noteNarrationCaptureVersion, GENERATION_FRESHNESS_REUSE_MS, NARRATION_CAPTURE_TYPES, CAPTURE_RULES_TYPES,
@@ -14,7 +14,7 @@ export function createEventRegistration(rt, deps) {
         endTargetedRewriteTolerance, stripSwipedNarrationBlock, queueSettledSwipeReconcile,
         flushPendingSettingsSave, castPortraitMisses, cancelScanOperation, closePortraitGenerator,
         closeNpcEditor, staleHostChats, retiredInSessionChats, openingHostChats, isCanonicalChatKey,
-        maybeInheritKnownBranch, branchInheritancePending, deferLoadingReceipt, loadingReconcilePending, seedBranchTracking, persist, isScanBusy, renderDossier,
+        branchInheritancePending, decideBranch, deferLoadingReceipt, loadingReconcilePending, seedBranchTracking, isScanBusy, renderDossier,
         drainPendingAutoScan, castPortraitDue, castSync, evictDormantChatStates,
         runBoundedLifecycleEvent, removeDeletedChatState, moveRenamedChatState, chatStateCache,
     } = deps;
@@ -49,7 +49,6 @@ export function createEventRegistration(rt, deps) {
                 // the player names reaches this generation; text never dispatches mutations.
                 const sentState = getChatState();
                 if (!loadingReconcilePending(key)) {
-                    migrateLegacyLineage(sentState, getContext().chat || []);
                     // A turn typed on a chat that is behind the adopted dossier must not replace its lineage.
                     if (!staleHostActive(key)) sentState.lineage = chatLineage(getContext().chat || []);
                 }
@@ -131,7 +130,7 @@ export function createEventRegistration(rt, deps) {
                 await ensureChatStateLoaded(key);
                 if (getChatKey() !== key || (rt.chatOpenSequence || 0) !== sequence) return;
                 renderDossier(); queueCastRefresh(0);
-                if (branchInheritancePending(key) || getChatState(key)?.lineage?.length) queueBranchReconcile({ chatKey: key, rescan: false, reason: 'chat-loaded' }, 0);
+                if (branchInheritancePending(key) || getChatState(key)?.lineage?.length) queueBranchReconcile({ chatKey: key, reason: 'chat-loaded' }, 0);
             } catch (error) {
                 if (getChatKey() === key) { renderDossier(); updateInjection(); }
                 console.error('[NPC State Delta] post-load hydration/render failed; durable data was not overwritten.', error);
@@ -142,9 +141,7 @@ export function createEventRegistration(rt, deps) {
             source.on(events.MESSAGE_DELETED, (messageId) => {
                 dropNarrationCaptures();
                 queueBranchReconcile({
-                    explicitDivergence: Number.isInteger(messageId) ? messageId : null,
                     operation: 'delete',
-                    rescan: true,
                     reason: 'message-deleted',
                 }, 70);
             });
@@ -155,9 +152,7 @@ export function createEventRegistration(rt, deps) {
             source.on(events.MESSAGE_SWIPED, (messageId) => {
                 endTargetedRewriteTolerance(messageId);
                 queueSettledSwipeReconcile({
-                    explicitDivergence: Number.isInteger(messageId) ? messageId : null,
                     operation: 'swipe',
-                    rescan: true,
                     reason: 'message-swiped',
                 });
             });
@@ -166,9 +161,7 @@ export function createEventRegistration(rt, deps) {
             source.on(events.MESSAGE_SWIPE_DELETED, (messageId) => {
                 dropNarrationCaptures();
                 queueSettledSwipeReconcile({
-                    explicitDivergence: Number.isInteger(messageId) ? messageId : null,
                     operation: 'swipe',
-                    rescan: true,
                     reason: 'swipe-deleted',
                 });
             });
@@ -178,9 +171,7 @@ export function createEventRegistration(rt, deps) {
                 endTargetedRewriteTolerance(messageId);
                 dropNarrationCaptures();
                 queueBranchReconcile({
-                    explicitDivergence: Number.isInteger(messageId) ? messageId : null,
                     operation: 'edit',
-                    rescan: true,
                     reason: 'message-edited',
                 }, 110);
             });
@@ -212,16 +203,14 @@ export function createEventRegistration(rt, deps) {
                 try {
                     if (isCanonicalChatKey(key)) await ensureChatStateLoaded(key);
                     if (getChatKey() !== key || rt.chatOpenSequence !== sequence) return;
-                    const inherited = isCanonicalChatKey(key) ? await maybeInheritKnownBranch() : false;
-                    if (getChatKey() !== key || rt.chatOpenSequence !== sequence) return;
+                    decideBranch(key);
                     const state = key === 'no-chat' ? null : getChatState(key);
                     if (state) seedBranchTracking(state);
-                    if (inherited) persist();
                     setScanIndicator(key !== 'no-chat' && isScanBusy(key));
                     renderDossier();
                     queueCastRefresh(30);
                     updateInjection();
-                    if (!inherited && (state?.lineage?.length || branchInheritancePending(key))) queueBranchReconcile({ chatKey: key, rescan: false, reason: 'chat-changed' }, 80);
+                    if (state?.lineage?.length || branchInheritancePending(key)) queueBranchReconcile({ chatKey: key, reason: 'chat-changed' }, 80);
                     if (key !== 'no-chat') void drainPendingAutoScan(key);
                     // A cast dossier made while its picture was missing gets it now if Story Block has it (no new chat needed).
                     if (key !== 'no-chat' && castPortraitDue()) castSync().catch(error => console.debug('[NPC State Delta] cast portraits were not filled', error));

@@ -11,42 +11,12 @@ import {
     setActiveCalendarConfig,
     speechSupportContext,
 } from '../../modules/people/core/core.js';
-import {
-    BRANCH_LINEAGE_VERSION,
-    ensureBranchParentAnchor,
-    ensureRollbackJournalBaseline,
-    recordBranchCheckpoint,
-    reconcileBranchState,
-} from '../../modules/people/legacy/branch.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 import { applyManualKeyRelationshipEdit, normalizeSocialGraph, reconcileSocialState, remapSocialGraphNpcIds } from '../../modules/people/social/social.js';
 import { quarantineUnreadableNpcStateDataFile } from '../../modules/people/storage/storage.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const CALENDAR = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }], currentYear: 821, currentMonth: 'Redleaf', currentDay: 16 };
-
-function branchState(npcs) {
-    const state = {
-        npcs, candidates: [], pendingBackfills: [], socialGraph: { edges: [], unresolved: [] }, dismissed: [],
-        turn: 0, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null, scanCount: 0, checkpoints: [], inlineCards: [],
-        lineage: [], branchLineageVersion: BRANCH_LINEAGE_VERSION, portraitAssets: {}, userDismissedGroups: [],
-    };
-    ensureRollbackJournalBaseline(state, []);
-    return state;
-}
-
-function play(state, chat, count, change = () => {}) {
-    for (let i = 1; i <= count; i += 1) {
-        chat.push({ is_user: true, is_system: false, name: 'User', mes: `user-${i}` }, { is_user: false, is_system: false, name: 'Narrator', mes: `assistant-${i}` });
-        const messageId = chat.length - 1;
-        ensureBranchParentAnchor(state, chat, messageId, 'assistant-parent');
-        state.turn += 1;
-        change(state, i, messageId);
-        recordBranchCheckpoint(state, chat, messageId, 'scan');
-    }
-}
-
-const deleteMiddle = (state, chat, index) => reconcileBranchState(state, chat.filter((_, i) => i !== index), { explicitDivergence: index, operation: 'delete' });
 
 test('RB92-06 (storage): detach preserves the unreadable bytes and leaves a replaceable retired marker', async () => {
     const files = new Map([['/user/files/broken.json', '{"format": not json']]);
@@ -63,36 +33,6 @@ test('RB92-06 (storage): detach preserves the unreadable bytes and leaves a repl
     assert.ok(preserved?.path && preserved.path !== '/user/files/broken.json');
     assert.equal(files.get(preserved.path), '{"format": not json', 'the exact broken bytes are kept');
     assert.match(files.get('/user/files/broken.json'), /"retired":\s*true/, 'the canonical path now holds a retired marker a fresh write may replace');
-});
-
-test('RB92-07: deleting a middle message undoes its own effects on an NPC who died independently later', () => {
-    const mira = createNpcRecord('Mira');
-    mira.mood = 'calm';
-    const state = branchState([mira]);
-    const history = [];
-    play(state, history, 6, (s, n) => {
-        if (n === 3) { s.npcs[0].mood = 'angry'; s.npcs[0].memories = ['Saw the stolen locket']; }
-        if (n === 4) Object.assign(s.npcs[0], { lifeState: 'deceased', lifeStateCertainty: 'explicit', lifeStateReason: 'Died in the fire', archived: true, archiveReason: 'deceased' });
-    });
-    const after = deleteMiddle(state, history, 5).state.npcs[0];
-    assert.equal(after.lifeState, 'deceased', 'the independent death stays');
-    assert.equal(after.mood, 'calm', 'the deleted message\'s mood is undone');
-    assert.deepEqual(after.memories, [], 'the deleted message\'s memory is undone');
-});
-
-test('RB92-08: a manually saved seed does not keep an NPC whose only introduction was deleted', () => {
-    const run = change => {
-        const keeper = createNpcRecord('Keeper');
-        const state = branchState([keeper]);
-        const history = [];
-        play(state, history, 6, (s, n) => {
-            if (n === 3) s.npcs.push(createNpcRecord('Mira Gone'));
-            if (n === 4) change(s.npcs.find(npc => npc.name === 'Mira Gone'));
-        });
-        return deleteMiddle(state, history, 5).state.npcs.map(npc => npc.name);
-    };
-    assert.ok(!run(npc => { npc.portraitSeed = 123; }).includes('Mira Gone'));
-    assert.ok(run(npc => { npc.goal = 'find the keeper'; }).includes('Mira Gone'), 'genuine later story use keeps her');
 });
 
 test('RB92-09/10: Speech support keeps the target\'s own clauses and drops foreign, denied and hypothetical voice', () => {

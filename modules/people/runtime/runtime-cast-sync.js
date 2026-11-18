@@ -8,7 +8,7 @@ import { savePortraitFile } from '../storage/storage.js';
 import { portraitHasImage } from '../portrait/portrait-file.js';
 import { applyCastEntry, applyCastPortrait, castPortraitWanted, dossierFor, findCastPerson, metWithEntry } from '../dossier/cast-dossier.js';
 import { getSettings } from '../settings/runtime-settings.js';
-import { chatLineage, lineageCheckpointKey } from '../legacy/branch.js';
+import { chatLineage, lineageCheckpointKey } from '../lineage/index.js';
 import { chatContext } from '../calls/runtime-scan-helpers.js';
 import { applyNpcMemories, firstMeetingCandidates } from '../memory/memory-fact-apply.js';
 import { scanMemoryFacts } from '../memory/memory-fact-scan.js';
@@ -61,7 +61,7 @@ export function advanceCastAdmission(state, before, after) {
 }
 
 export function createCastSyncPart(rt, deps) {
-    const { castList, chatHeadMark, chatHeadUnchanged, chatHydrationStatus, commitBranchCheckpoint, ensureFreshMutationBoundary, getChatKey, getChatState, latestMessageId, persistCritical, renderDossier, requestHeaders, setChatState, storySuiteV2Meters, updateInjection } = deps;
+    const { castList, chatHeadMark, chatHeadUnchanged, chatHydrationStatus, noteChatLineage, ensureFreshMutationBoundary, getChatKey, getChatState, latestMessageId, persistCritical, renderDossier, requestHeaders, setChatState, storySuiteV2Meters, updateInjection } = deps;
     const { castPortraitMisses } = rt;
 
     // (v2, the living cast) Delta reads Story Director's `director.cast` and Story Block's `packs.portrait` (never writes to them). At
@@ -259,8 +259,7 @@ export function createCastSyncPart(rt, deps) {
             given.push(next.id);
         }
         if (!made.length && !given.length) { if (pictures.size) renderDossier(); return false; } // a same-file repair changes no state, but the blank picture is drawn again
-        if (messageId >= 0 && made.length) commitBranchCheckpoint(working, messageId, 'cast-dossier');
-        else if (messageId >= 0) commitBranchCheckpoint(working, messageId, 'cast-portrait');
+        if (messageId >= 0) noteChatLineage(working);
         setChatState(key, working);
         persistCritical(key);
         renderDossier();

@@ -5,11 +5,17 @@
 import { replayScope } from '../calls/runtime-scan-helpers.js';
 import { normalizeAutomaticBackfillRequest } from '../calls/scan-context.js';
 import { normalizeNpcRecord, normalizeNpcCandidate, normalizeFormPortraitAssets, refreshCalendarAges, storyDateKey, withStoryDateMemo } from '../core/core.js';
-import { BRANCH_LINEAGE_VERSION, ROLLBACK_JOURNAL_VERSION, normalizeUserDismissedGroups } from '../legacy/branch.js';
+import { BRANCH_LINEAGE_VERSION } from '../lineage/index.js';
+import { normalizeUserDismissedGroups } from '../core/dismissed-groups.js';
 import { normalizeSocialGraph, reconcileSocialState } from '../social/social.js';
 import { undurableNpcStateSnapshot } from '../storage/storage.js';
 import { portraitHasImage } from '../portrait/portrait-file.js';
 import { getSettings } from '../settings/runtime-settings.js';
+
+// What the removed branch journal kept in a chat's state (checkpoints, the rollback journal, the branch's parent and root snapshot, inline cards).
+const RETIRED_BRANCH_FIELDS = ['checkpoints', 'inlineCards', 'branchParent', 'branchForkMessageId', 'branchRootSnapshot', 'branchFamilyId',
+    'rollbackJournalVersion', 'rollbackJournal', 'rollbackJournalSequence', 'rollbackHead', 'rollbackJournalFloorMessageId', 'rollbackJournalBytes',
+    'rollbackJournalBudgetExceeded', 'rollbackJournalCoverageMessages'];
 
 export function installHydrationState(api, rt, deps) {
     const { BACKFILL_MAX_ATTEMPTS, checkPortraitFilesSoon, getChatKey, touchChatCache } = deps;
@@ -30,14 +36,9 @@ export function installHydrationState(api, rt, deps) {
             readAhead: [],
             scanCount: 0,
             dismissed: [],
-            inlineCards: [],
             portraitAssets: {},
-            checkpoints: [],
             lineage: [],
             branchLineageVersion: BRANCH_LINEAGE_VERSION,
-            branchParent: null,
-            branchForkMessageId: null,
-            branchRootSnapshot: null,
             userDismissedGroups: [],
         };
     }
@@ -49,26 +50,10 @@ export function installHydrationState(api, rt, deps) {
 
     function normalizeChatStateOnce(raw = {}) {
         const state = { ...freshChatState(), ...(raw && typeof raw === 'object' ? structuredClone(raw) : {}) };
-        const currentBranchFormat = Number(raw?.branchLineageVersion || 0) === BRANCH_LINEAGE_VERSION;
         state.branchLineageVersion = BRANCH_LINEAGE_VERSION;
-        if (!currentBranchFormat) {
-            state.checkpoints = [];
-            state.lineage = [];
-            state.inlineCards = [];
-            state.branchParent = null;
-            state.branchForkMessageId = null;
-            state.branchRootSnapshot = null;
-        }
-        if (!currentBranchFormat || Number(raw?.rollbackJournalVersion || 0) !== ROLLBACK_JOURNAL_VERSION) {
-            delete state.rollbackJournalVersion;
-            delete state.rollbackJournal;
-            delete state.rollbackJournalSequence;
-            delete state.rollbackHead;
-            delete state.rollbackJournalFloorMessageId;
-            delete state.rollbackJournalBytes;
-            delete state.rollbackJournalBudgetExceeded;
-            delete state.rollbackJournalCoverageMessages;
-        }
+        if (Number(raw?.branchLineageVersion || 0) !== BRANCH_LINEAGE_VERSION) state.lineage = [];
+        // The branch journal is gone (B4-10a): a state saved with checkpoints, the rollback journal or inline cards loads with them dropped.
+        for (const field of RETIRED_BRANCH_FIELDS) delete state[field];
         state.npcs = Array.isArray(state.npcs) ? state.npcs.map(normalizeNpcRecord) : [];
         state.candidates = Array.isArray(state.candidates) ? state.candidates.map(normalizeNpcCandidate).filter(Boolean) : [];
         state.socialGraph = normalizeSocialGraph(state.socialGraph);
@@ -84,29 +69,8 @@ export function installHydrationState(api, rt, deps) {
             : [];
         state.dismissed = Array.isArray(state.dismissed) ? [...state.dismissed] : [];
         state.userDismissedGroups = normalizeUserDismissedGroups(state.userDismissedGroups);
-        state.inlineCards = Array.isArray(state.inlineCards) ? state.inlineCards.map(entry => ({
-            ...entry,
-            cards: Array.isArray(entry?.cards) ? entry.cards.map(card => normalizeNpcRecord(card)) : [],
-        })) : [];
         state.portraitAssets = state.portraitAssets && typeof state.portraitAssets === 'object' ? state.portraitAssets : {};
         state.formPortraitAssets = normalizeFormPortraitAssets(state.formPortraitAssets);
-        state.checkpoints = Array.isArray(state.checkpoints) ? state.checkpoints.map(checkpoint => {
-            if (!checkpoint || typeof checkpoint !== 'object' || !checkpoint.snapshot || typeof checkpoint.snapshot !== 'object') return checkpoint;
-            const snapshot = { ...checkpoint.snapshot };
-            snapshot.npcs = Array.isArray(snapshot.npcs) ? snapshot.npcs.map(normalizeNpcRecord) : [];
-            snapshot.candidates = Array.isArray(snapshot.candidates) ? snapshot.candidates.map(normalizeNpcCandidate).filter(Boolean) : [];
-            snapshot.socialGraph = normalizeSocialGraph(snapshot.socialGraph);
-            return { ...checkpoint, snapshot };
-        }).filter(Boolean) : [];
-        if (state.branchRootSnapshot && typeof state.branchRootSnapshot === 'object') {
-            const root = { ...state.branchRootSnapshot };
-            root.npcs = Array.isArray(root.npcs) ? root.npcs.map(normalizeNpcRecord) : [];
-            root.candidates = Array.isArray(root.candidates) ? root.candidates.map(normalizeNpcCandidate).filter(Boolean) : [];
-            root.socialGraph = normalizeSocialGraph(root.socialGraph);
-            state.branchRootSnapshot = root;
-        } else {
-            state.branchRootSnapshot = null;
-        }
         state.lineage = Array.isArray(state.lineage) ? state.lineage : [];
         const socialMigration = reconcileSocialState(state, { provenance: 'migration', confidence: 'migration' });
         state.socialGraph = socialMigration.socialGraph;

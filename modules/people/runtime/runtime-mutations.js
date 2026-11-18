@@ -7,7 +7,7 @@ import { currentExclusions } from '../transcript/transcript.js';
 import { NPC_STATE_VERSION, rosterCount, capMessage, applyNpcStateCommand, isTerminalNpcDeath, manualLifeStateRecord, normalizeName, normalizeNpcRecord, setNpcArchived, normalizePortraitSeed, appearanceDraftRecord, appearanceFingerprint, formPortraitKey, normalizeFormPortraitAssets } from '../core/core.js';
 import { encodeNpcStateBundle, mergeImportedDossierState } from '../bundle/bundle.js';
 import { decodeDeltaNativeBundle, nativeStateForTarget } from '../transfer/native-transfer.js';
-import { addUserDismissedGroup } from '../legacy/branch.js';
+import { addUserDismissedGroup } from '../core/dismissed-groups.js';
 import { reconcileSocialState, removeNpcFromSocialGraph, purgeNpcStructuredReferences } from '../social/social.js';
 import { readPortraitFileDataUrl, savePortraitFile } from '../storage/storage.js';
 import { isPortraitFileRecord } from '../portrait/portrait-file.js';
@@ -16,7 +16,7 @@ import { markCastPortraitRemoved } from '../dossier/cast-dossier.js';
 import { getSettings } from '../settings/runtime-settings.js';
 
 export function createMutationsPart(rt, deps) {
-    const { clearUserDismissedSuppression, closeNpcEditor, commitBranchCheckpoint, editorIsMounted, ensureFreshMutationBoundary, ensureHydratedStateFresh, getChatKey, getChatState, hydratedRevision, latestMessageId, ownershipEpoch, ownershipEpochCurrent, persistCritical, persistCriticalDurable, recordFreshnessEvent, renderDossier, requestHeaders, requireReadyChatMutation, setChatState, stampManualEdit, updateInjection, workingCopyAdoption } = deps;
+    const { clearUserDismissedSuppression, closeNpcEditor, noteChatLineage, editorIsMounted, ensureFreshMutationBoundary, ensureHydratedStateFresh, getChatKey, getChatState, hydratedRevision, latestMessageId, ownershipEpoch, ownershipEpochCurrent, persistCritical, persistCriticalDurable, recordFreshnessEvent, renderDossier, requestHeaders, requireReadyChatMutation, setChatState, stampManualEdit, updateInjection, workingCopyAdoption } = deps;
     const { hydratedStateMeta, stateVersions, portraitActions } = rt;
 
     function updateNpcAppearance(npcId, draft, { chatKey, lockAppearance = false } = {}) {
@@ -38,7 +38,7 @@ export function createMutationsPart(rt, deps) {
         next.updatedAt = Date.now();
         state.npcs[index] = stampManualEdit(state, normalizeNpcRecord(next), before);
         const messageId = latestMessageId(false);
-        if (messageId >= 0) commitBranchCheckpoint(state, messageId, 'manual-edit');
+        if (messageId >= 0) noteChatLineage(state);
         persistCritical(chatKey);
         renderDossier();
         updateInjection();
@@ -58,7 +58,7 @@ export function createMutationsPart(rt, deps) {
             allowDeathCorrection: true, sourceMessageId: messageId,
         }) : current;
         state.npcs[index] = stampManualEdit(state, normalizeNpcRecord(manualLifeStateRecord(corrected, choice)), current);
-        if (messageId >= 0) commitBranchCheckpoint(state, messageId, correctingDeath ? 'manual-death-correction' : 'manual-life-state');
+        if (messageId >= 0) noteChatLineage(state);
         persistCritical(chatKey);
         renderDossier();
         updateInjection();
@@ -230,7 +230,7 @@ export function createMutationsPart(rt, deps) {
         if (working.portraitAssets && typeof working.portraitAssets === 'object') delete working.portraitAssets[current.id];
         if (working.formPortraitAssets && typeof working.formPortraitAssets === 'object') delete working.formPortraitAssets[current.id];
         const targetMessageId = latestMessageId(false);
-        if (targetMessageId >= 0) commitBranchCheckpoint(working, targetMessageId, 'manual-delete');
+        if (targetMessageId >= 0) noteChatLineage(working);
         const deleteKey = getChatKey();
         setChatState(deleteKey, working);
         closeNpcEditor();
@@ -275,7 +275,7 @@ export function createMutationsPart(rt, deps) {
             sourceMessageId: latestMessageId(false),
         });
         const targetMessageId = latestMessageId(false);
-        if (targetMessageId >= 0) commitBranchCheckpoint(state, targetMessageId, archived ? 'manual-archive' : (correctingDeath ? 'manual-death-correction' : 'manual-restore'));
+        if (targetMessageId >= 0) noteChatLineage(state);
         closeNpcEditor();
         renderDossier();
         updateInjection();
@@ -413,7 +413,7 @@ export function createMutationsPart(rt, deps) {
         merged.socialGraph = socialImport.socialGraph;
         merged.npcs = socialImport.state.npcs;
         const targetMessageId = latestMessageId(false);
-        if (targetMessageId >= 0) commitBranchCheckpoint(merged, targetMessageId, 'import');
+        if (targetMessageId >= 0) noteChatLineage(merged);
         setChatState(getChatKey(), merged);
         persistCritical();
         renderDossier();
@@ -439,7 +439,7 @@ export function createMutationsPart(rt, deps) {
         if (result.report.status === 'full') return globalThis.toastr?.warning?.(capMessage(settings.maxNpcs));
         if (['added', 'exists', 'restored'].includes(result.report.status)) clearUserDismissedSuppression(result.state, name);
         const targetMessageId = latestMessageId(false);
-        if (targetMessageId >= 0) commitBranchCheckpoint(result.state, targetMessageId, 'manual-add');
+        if (targetMessageId >= 0) noteChatLineage(result.state);
         setChatState(getChatKey(), result.state);
         persistCritical(); renderDossier(); updateInjection();
         const addedNpc = result.report.npcId ? result.state.npcs.find(npc => npc.id === result.report.npcId) : null;

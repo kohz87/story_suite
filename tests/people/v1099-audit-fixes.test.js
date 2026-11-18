@@ -5,13 +5,6 @@ import { createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../../modu
 import { APPEARANCE_MODEL_VERSION, applyAppearanceUpdate, normalizeAppearanceModel, resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
 import { buildScannerPrompt } from '../../modules/people/core/continuity-core.js';
 
-import {
-    BRANCH_LINEAGE_VERSION,
-    ensureBranchParentAnchor,
-    ensureRollbackJournalBaseline,
-    recordBranchCheckpoint,
-    reconcileBranchState,
-} from '../../modules/people/legacy/branch.js';
 
 const BODY = 'Tall and slender, long silver hair, violet eyes';
 
@@ -41,32 +34,6 @@ test('3: an unknown transformed form of an NPC with named forms gets no human bo
     assert.equal(resolveNpcAppearance({ ...base, appearanceModelVersion: APPEARANCE_MODEL_VERSION }), 'A huge shadowy wolf with glowing eyes');
     assert.equal(resolveNpcAppearance({ ...base, appearanceModelVersion: 1 }), `${BODY}; A huge shadowy wolf with glowing eyes`, 'a version-1 record keeps what it showed');
     assert.equal(resolveNpcAppearance({ overallAppearance: BODY, currentFormUnknown: true, unclassifiedAppearance: 'Wreathed in mist' }), `${BODY}; Wreathed in mist`, 'without named forms Physical features still apply');
-});
-
-test('5: deleting a message from before the upgrade still removes the NPC it introduced', () => {
-    const state = {
-        npcs: [Object.assign(createNpcRecord('Keeper'), { id: 'npc_keeper' })], candidates: [], pendingBackfills: [], socialGraph: { edges: [], unresolved: [] }, dismissed: [],
-        turn: 0, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null, scanCount: 0, checkpoints: [], inlineCards: [],
-        lineage: [], branchLineageVersion: BRANCH_LINEAGE_VERSION, portraitAssets: {}, userDismissedGroups: [],
-    };
-    ensureRollbackJournalBaseline(state, []);
-    const chat = [];
-    for (let i = 1; i <= 6; i += 1) {
-        chat.push({ is_user: true, is_system: false, name: 'User', mes: `user-${i}` }, { is_user: false, is_system: false, name: 'Narrator', mes: `assistant-${i}` });
-        const id = chat.length - 1;
-        ensureBranchParentAnchor(state, chat, id, 'assistant-parent');
-        state.turn += 1;
-        if (i === 3) {
-            state.npcs[0].mood = 'angry';
-            state.npcs.push({ ...createNpcRecord('Noela'), id: 'npc_noela', appearanceModelVersion: 1, overallAppearance: 'Long silver hair',
-                appearanceForms: [{ name: 'Human', appearance: 'Grey cloak' }, { name: 'Dragon', appearance: 'A silver dragon' }], currentForm: 'Human' });
-        }
-        recordBranchCheckpoint(state, chat, id, 'scan');
-    }
-    state.npcs = state.npcs.map(normalizeNpcRecord);    // 1.0.98+ converted the live records
-    const result = reconcileBranchState(state, chat.filter((_, index) => index !== 5), { explicitDivergence: 5, operation: 'delete' }).state;
-    assert.deepEqual(result.npcs.map(npc => npc.name), ['Keeper']);
-    assert.notEqual(result.npcs[0].mood, 'angry');
 });
 
 test('7/8: unused Physical features do not reject a portrait, and other forms are bounded in scan context', () => {
