@@ -73,13 +73,18 @@ export const createInventoryQueries = env => ({
     },
     'inventory.equipment': (state, args, tools) => equipmentView(state, tools),
     // The loot laid out and not taken yet, newest first: [{ sid, where, n, items: [{ name, qty }] }].
-    'inventory.loot': Object.assign((state) => {
+    // `{ reply: true }`: only what the reply the state is the head of laid out (tools.reply), taken or not ([] or one offer, with `taken`).
+    'inventory.loot': Object.assign((state, args, tools) => {
         const inventory = state?.domains?.inventory;
         const claims = state?.meta?.claims ?? {};
+        const own = args?.reply === true;
+        const sid = own ? tools?.reply?.sid : null;
+        if (own && typeof sid !== 'string') return [];
+        const taken = offer => Object.hasOwn(claims, offer.claim || `loot:${offer.sid}`);
         return Object.values(isPlainObject(inventory?.loot) ? inventory.loot : {})
-            .filter(offer => isPlainObject(offer) && typeof offer.sid === 'string' && !Object.hasOwn(claims, offer.claim || `loot:${offer.sid}`) && lootItems(offer)?.length)
+            .filter(offer => isPlainObject(offer) && typeof offer.sid === 'string' && (own ? offer.sid === sid : !taken(offer)) && lootItems(offer)?.length)
             .sort((a, b) => (b.n ?? 0) - (a.n ?? 0) || (a.sid < b.sid ? -1 : 1))
-            .map(offer => ({ sid: offer.sid, where: offer.where, n: offer.n, items: clone(lootItems(offer)) }));
+            .map(offer => ({ sid: offer.sid, where: offer.where, n: offer.n, items: clone(lootItems(offer)), ...(own ? { taken: taken(offer) } : {}) }));
     }, { feature: FEATURE.loot }),
     // { stack } → { stack, cond, events: [{ key, d, n }] } (the events as they apply), or null.
     'inventory.condition': (state, args = {}) => {

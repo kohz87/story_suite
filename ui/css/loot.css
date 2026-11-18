@@ -1,0 +1,24 @@
+/* Loot to pick up: under a reply (SillyTavern theme variables, the inline row's own chips, mock v7 .ssbtn and .chlist) and on the Bag's To pick up card (suite tokens, mock v7 .chips3 and .btn2). */
+.sslootp{flex-basis:100%;margin:6px 0 0}
+.sslootp[hidden]{display:none}
+.lootpk{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lootpk.row{padding:8px 10px;border:1px solid var(--SmartThemeBorderColor);border-radius:10px;font-size:.92em;color:var(--SmartThemeBodyColor)}
+.lootpk.row+.lootpk.row{margin-top:6px}
+.lootpk.row .where,.lootpk.row .lpnote{color:var(--SmartThemeEmColor)}
+.lootpk .lpchips{display:flex;flex-wrap:wrap;gap:6px}
+.lootpk .lpnote,.lootpk .lperr{margin:0}
+.lootpk .lperr:empty{display:none}
+.lootpk.row .lperr{color:var(--SmartThemeUnderlineColor)}
+.lootpk .lpact{display:flex;justify-content:flex-end}
+.ssbtn.lpchip{white-space:normal;text-align:left}
+.ssbtn.lpchip[aria-pressed="true"]{background:var(--SmartThemeBotMesBlurTintColor);border-color:var(--SmartThemeBodyColor)}
+.ssbtn.lptake[disabled]{opacity:.5;cursor:default}
+.ssrow .ssbtn[data-loot] .n{color:var(--SmartThemeBodyColor)}
+.bag-tab .lootpk.bag{padding-top:10px;border-top:1px solid var(--su-line2)}
+.bag-tab .loot .ch+.lootpk.bag{padding-top:0;border-top:0}
+.bag-tab .lootpk.bag .lphead{font:700 14px var(--su-font);color:var(--su-text)}
+.bag-tab .lootpk.bag .where,.bag-tab .lootpk.bag .lpnote{font:600 12.5px var(--su-font);color:var(--su-muted)}
+.bag-tab .lootpk.bag .lperr{font:700 12.5px var(--su-font);color:var(--su-bad)}
+.bag-tab .chips3{display:flex;flex-wrap:wrap;gap:5px}
+.bag-tab .chips3 button{min-height:44px;font:700 12px var(--su-font);border-radius:999px;padding:4px 12px;border:1px solid var(--su-line2);background:transparent;color:var(--su-soft);cursor:pointer}
+.bag-tab .chips3 button[aria-pressed="true"]{background:rgba(168,151,255,.18);border-color:rgba(168,151,255,.5);color:var(--su-text)}

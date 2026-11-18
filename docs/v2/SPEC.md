@@ -1053,9 +1053,10 @@ writes are never scaled. Modules read it with `tryQuery('inventory.economy')`, f
   counted for the reply like a `+ coin` line and paid into the party's wallet on Take; never an item.
   One offer per reply, `inventory.loot[<sid>] = { sid, n, where, claim, items: { "0": { name, qty }, … } }`
   (a record keyed by position, not a list, so a second loot line of the reply adds keys); `loot` is scratch
-  like `perReply`, and a reply keeps the 5 newest offers. The reply's card shows them as chips with **Take
-  selected**, and so does the Inventory screen's **To pick up** section (query `inventory.loot` → the offers
-  not taken yet, newest first, `[{ sid, where, n, items }]`), so loot works with the cards off:
+  like `perReply`, and a reply keeps the 5 newest offers. The reply's row under it shows them as chips with **Take
+  selected** (its **Loot** chip folds them; query `inventory.loot { reply: true }` → only the offer the head reply laid out,
+  `tools.reply`, taken or not, each with `taken`; `asOf` asks it of an earlier reply), and so does the Bag tab's **To pick
+  up** card (query `inventory.loot` → the offers not taken yet, newest first, `[{ sid, where, n, items }]`):
   `inventory.lootTake { sid, pick: [index…] }` (cause `ui`, the reader's) claims `loot:<sid>`
   (each reply's loot is taken once; a second take is `REFUSED`), skips what is carried by then, and puts the
   rest in the party's bag as the offer held it, making the definitions then; past the carry limit it is

@@ -18,7 +18,7 @@ import { attachWizard } from '../wizard/attach.js';
 import { SUITE_VERSION } from '../../core/version.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
 
-const STYLES = ['base', 'shell', 'desk', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings', 'wizard'];
+const STYLES = ['base', 'shell', 'desk', 'kit', 'card', 'now', 'chat', 'loot', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings', 'wizard'];
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses.
 const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharacterLorebook, lore: { read: refreshLore } });
 const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
@@ -63,7 +63,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   if (form?.parentNode) form.parentNode.insertBefore(drawerHost, form);
   const surfaces = createChatSurfaces({
     messagesEl: doc.querySelector('#chat'), drawerHost, isNarrow: () => (globalThis.innerWidth ?? 1000) < 600,
-    handlers: { onCardAction: action => runCardAction(port, action), onReread: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); if (at >= 0) port.reread(at); }, onOpenSuite: tab => suite.open(tab), onNeedsYou: () => suite.open(port.view('now')?.needsYou?.some(row => row.kind === 'overdue') ? 'journal' : 'now'), onFight: () => suite.open('fight'), onOpenPerson: id => { suite.open('people'); port.command('suite.go', { tab: 'people', personId: id }); } },
+    handlers: { onCardAction: action => runCardAction(port, action), onReread: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); if (at >= 0) port.reread(at); }, onOpenSuite: tab => suite.open(tab), onNeedsYou: () => suite.open(port.view('now')?.needsYou?.some(row => row.kind === 'overdue') ? 'journal' : 'now'), onFight: () => suite.open('fight'), onLootTake: (sid, pick) => port.command('inventory.lootTake', { sid, pick }), onOpenPerson: id => { suite.open('people'); port.command('suite.go', { tab: 'people', personId: id }); } },
   });
   // NPC State's "open this person's dossier" (a present card, the world's People list, its public openDossier) opens it here.
   const openPerson = ({ id, name } = {}) => suite.person([String(id ?? ''), String(name ?? '').trim().toLocaleLowerCase()]);

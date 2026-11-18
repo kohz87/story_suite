@@ -1,5 +1,6 @@
-// Builds the quiet inline row under the latest reply: time, place, weather, money, Needs you, Fight, Choices and the Suite link.
+// Builds the quiet inline row under the latest reply: time, place, weather, money, Needs you, Fight, Loot, Choices and the Suite link.
 import { h } from '../kit/dom.js';
+import { lootPart } from './loot-part.js';
 
 function item(icon, text, extra = {}) {
   return h('span', { class: 'it3', ...extra }, h('i', { 'aria-hidden': 'true' }, icon), text);
@@ -68,12 +69,13 @@ function choicesPart(choices, on) {
   return { chip, list };
 }
 
-/** Builds the inline row element from the inlineRow view-model; handlers: onOpenSuite(tab), onNeedsYou, onFight, onChoice(text). */
+/** Builds the inline row element from the inlineRow view-model; handlers: onOpenSuite(tab), onNeedsYou, onFight, onChoice(text), onLootTake(sid, pick). */
 export function inlineRow(row, handlers = {}) {
   const vm = row || {};
   const on = handlers || {};
   const money = vm.money || null;
   const { chip, list } = choicesPart(vm.choices, on);
+  const loot = lootPart(vm.loot, on);
   const line1 = h(
     'div',
     { class: 'ssl1' },
@@ -98,10 +100,11 @@ export function inlineRow(row, handlers = {}) {
       ? h('button', { type: 'button', class: 'ssbtn fight', 'aria-label': 'Fight open, open the Fight tab', onClick: () => on.onFight?.() }, '⚔ Fight open ›')
       : null,
     needsChip(vm.needsYou, on),
+    loot.chip,
     chip,
     suiteButton(vm, on),
   );
   // (the badge has a line of its own: its words are long, and the phone row hides its chips' labels)
   const unrecorded = unrecordedChip(vm, on);
-  return h('div', { class: ['ssrow', vm.fightOpen ? 'fo' : null], dataset: { ssRow: '1' } }, line1, line2, unrecorded ? h('div', { class: 'ssl3' }, unrecorded) : null, list);
+  return h('div', { class: ['ssrow', vm.fightOpen ? 'fo' : null], dataset: { ssRow: '1' } }, line1, line2, unrecorded ? h('div', { class: 'ssl3' }, unrecorded) : null, list, loot.panel);
 }
