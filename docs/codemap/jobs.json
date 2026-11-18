@@ -421,6 +421,7 @@
   "tests/ui/studio/form-lists.test.js": "Tests the chip list, sub-record list, id picker and gate field: adds, removals, moves, filtering, disabled rows and the gate problem line.",
   "studio/form/fields.js": "Draws a Studio form row for text, long text, number, select, toggle or segmented input, with an inline problem line under it.",
   "tests/ui/studio/form-fields.test.js": "Tests that each field row reports its edit, keeps line breaks, ignores bad numbers and shows, replaces and clears its problem line.",
+  "studio/model/seed-preview.js": "Shows what NPC State seeds for one world cast entry, by running the game's own cast seeding on it, and lists the fields it fills.",
   "studio/model/gate.js": "Reads a hidden gate into or-groups of and-terms, writes it back, and checks it with the game's own gate rules against a pack's content.",
   "studio/model/refs.js": "Indexes the ids a pack defines and every place that names one (fields, one-line strings, object keys, gates), by id or by name, for Used by, pickers and rename.",
   "studio/model/rename.js": "Gives the set patches that rewrite an id's definition and every reference written as that id, or a refusal in words.",
