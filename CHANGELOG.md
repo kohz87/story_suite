@@ -45,6 +45,7 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 - Settings › Look: the Panel style and Glass strength hints no longer mention Solid (the skin is gone); the Glass strength hint now says Follow SillyTavern ignores it.
 
 ### Fixed
+- Settings › People › Per-feeling stages: the Feeling choice, the At number and the Stage name sit on one line at one height (SillyTavern's own select margin had lifted the choice and its label), and the row says "feeling" throughout: the Feeling label, the row hint ("Named thresholds on one feeling") and the not-used note.
 - Settings › People: a refused Portraits Prompt or Leave out text box keeps what was typed beside the note (it was drawn again from the stored value).
 - Settings › People: the rows and the off-hint say "feelings" like the module switch: Custom feelings, Feeling presets (up to 12), Per-feeling stages, "Feeling presets and rules is off".
 - Developer: the UI walk gives the Coins row a line it reads and accepts a number the engine holds to its range (Most output per People call 1 becomes 128) when the page, the store and a fresh Settings agree; it also runs for a change inside a `modules/**/settings*` folder.
