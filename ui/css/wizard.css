@@ -1,8 +1,6 @@
 /* The New character wizard and the first-send hold (ui/wizard): the kit sheet with the Party sheet's parts (.ps-st rows, .ps-b, .ps-p, .ps-sec,
    .ps-kv), the Journal editor's .ef fields and the kit buttons. Only the layout the wizard adds is here, in the mock's own tokens and sizes. */
 .su-root .wz .sh-panel{gap:12px}
-/* the title is the mock's sheet title (.dn): a theme's own h3 rule (a side bar, padding, spacing) stays off it */
-.su-root [data-sheet="new-character"] .sh-h h3,.su-root [data-sheet="rpg-hold"] .sh-h h3{border:0;padding:0;letter-spacing:0;text-align:left}
 /* the × is the mock's .x (44 px, radius 10, no border, 16 px glyph), as the Inspector and Scene sheets draw it */
 .su-root [data-sheet="new-character"] .sh-x,.su-root [data-sheet="rpg-hold"] .sh-x{width:44px;height:44px;flex:none;padding:1px 6px;background:var(--su-line2);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}
 .su-root .wz-steps{align-self:stretch}

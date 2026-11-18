@@ -96,7 +96,7 @@ fields (name, what it does, then Stat, Type and Starts at).
    buy: `Health 5 blocks (VIT 5, next at 10) · Stamina 4 (AGI 5, next at 10) · Mana 4 (INT 5, next at 10) · Edge −2..+3 (next at LUK 7)` (the old-pin sizes; a new chat's Character shows 10 / 10 / 10 at stat 5, 12 at stat 10, see [Doubled bars](#doubled-bars-new-chats)). Points you leave unspent stay on the character for Spend points. Spend
    points shows the same line and keeps it up to date as you move the steppers.
 3. **Skills.** Start from a template (Guild fighter, River scout, Hedge mage, Field medic, Silver tongue, and the sets a
-   pack adds) or write your own. Up to five skills, each with a name, what it does (up to 120 characters, which the
+   pack adds) or write your own. Five combat skills to start (one more at level 20, 40 and 60, up to eight) and up to three utility skills, each with a name, what it does (up to 120 characters, which the
    narrator reads), the **Stat** it rolls with, what it **Uses** (stamina or mana) and what it **Starts at**: Novice, or
    Adept for one skill at most. Rank and practice are never typed in.
 4. **Review.** Everything in one place. **Create** makes two blocks, the Character block (named for the character) and the
@@ -126,7 +126,7 @@ anything about the story. Both buttons exist only while the RPG is on.
 
 **Export.** **Export** on a character's card, next to **Spend points** and **Skills**, opens **Export <name>**:
 
-- **Character** (always): the level, the unspent points, the seven stats and up to five skills (name, what it does, stat,
+- **Character** (always): the level, the unspent points, the seven stats and its skills (up to eight combat and three utility: name, what it does, stat,
   Stamina or Mana, rank). A skill whose block has no stat of its own (an old Skills block) is saved without one: a stat is never guessed.
 - **Inventory** (a checkbox, on): the things that character carries, as the Inventory tab lists them: names, counts and notes,
   with the kind and rarity each has. A You carries what is in the party's bag; any character also carries what the party
@@ -147,7 +147,7 @@ anything about the story. Both buttons exist only while the RPG is on.
 An item may also carry `slot` and `stats` (a piece set up by hand, kept exactly) and `carry`: the carry capacity you set on it, a whole number from 1 to 500, left out when none (a file without it loads as before; on import it is set as your own carry setting for that item).
 
 `items` and `money` are there only when left on. `level` is 1 to 99. A file saved before Levels has only `soul` (Soul Class 1 to 9), which stands for the level 10n − 5; a file saved now also carries `soul` for older builds to read. A file is checked when it is read, with the RPG's own limits (level 1 to 99, or a Soul Class 1 to 9 in a file without a level,
-points 0 to 60, stats 1 to 20, at most five skills with a rank from 0 to 3, names and text cut to the fields' lengths, at most 60
+points 0 to 60, stats 1 to 20, at most eight combat and three utility skills with a rank from 0 to 3, names and text cut to the fields' lengths, at most 60
 things with a count of 1 to 999, money a whole number up to 1,000,000,000, the whole file under 64 KB). A skill's `stat` may be missing or null; any other value that is not a stat refuses the file. Keys it does not know are ignored. A
 file that does not pass is refused with one plain sentence ("This is not a saved character file.", "The file has no valid STR (1 to
 20).") and nothing is filled.
@@ -527,7 +527,7 @@ with the pencils on the block.
 | Template | What it holds |
 |---|---|
 | **Character** | Name, Health, Mana, Stamina, the seven stats (1 to 20), points (1 more every third level), level, cap, XP, Alive, Left. The narrator sets Health, Mana, Stamina, XP and Alive; Left is set by a `- party` line; the reader sets stats and points. Rest refills Stamina and Mana. This row is the old pin; the new Character (`scale: 2`) has no narrator XP and gains the story's rest, full-rest and heal (no buttons), see [Recovery and XP on a new Character](#recovery-and-xp-on-a-new-character). The Standard formula's Character (`STANDARD_TEMPLATES`, `templatesFor`) keeps the blocks left in Health 0 to 8, Stamina 0 to 7 and Mana 0 to 7, stats start at 5 and a level-up gives points as above; see [Standard formula: bars of blocks](#standard-formula-bars-of-blocks). |
-| **Skills** | Up to five skills (a new chat's typed block: eleven slots, each combat or utility, see [Skill slots](#skill-slots)), each with a name, what it does, the stat it rolls with, what it uses (stamina or mana), a rank and practice. The narrator names a skill with a learn line (name, what it does, stat, uses) and adds practice. Rank and practice cannot be typed in. |
+| **Skills** | Up to eleven skills (a new chat's typed block: five combat slots to start, up to eight with level, and three utility ones; see [Skill slots](#skill-slots)), each with a name, what it does, the stat it rolls with, what it uses (stamina or mana), a rank and practice. The narrator names a skill with a learn line (name, what it does, stat, uses) and adds practice. Rank and practice cannot be typed in. |
 | **Foes** | Up to four foe groups, one slot each (`level1` to `level4` for the level, which replaces `class1` to `class4`): the name, how many are left (0 means the slot is empty), the level and the group's health (Standard: 0 to 8 blocks, `4 + floor(level/30)` when the group arrives; a Foes block of the harder-foes rule: 0 to 15 blocks, `12 + floor(level/30)`, see [Harder foes](#harder-foes-new-chats)). |
 | **Combat rules** | The combat text, which the narrator reads on every reply, and the XP guidance. It has no fields. |
 

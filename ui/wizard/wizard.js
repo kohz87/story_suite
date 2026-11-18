@@ -14,6 +14,7 @@ import { drawWho } from './who.js';
 import { drawStats } from './stats.js';
 import { drawSkills } from './skills.js';
 import { drawReview } from './review.js';
+import { markFocus, restoreFocus } from './focus.js';
 
 const W = RPG_STRINGS.wizard;
 const NEXT = 'Next';
@@ -63,7 +64,10 @@ export function createNewWizard({ world, command, sheetCtx = () => ({}) }) {
       at > 0 ? button({ label: W.back, dataset: { wiz: 'back' }, onClick: () => go(own, WIZARD_STEPS[at - 1]) }) : null,
       at < WIZARD_STEPS.length - 1 ? button({ label: NEXT, tone: 'primary', dataset: { wiz: 'next' }, onClick: () => go(own, WIZARD_STEPS[at + 1]) }) : null);
     const body = h('div', { class: `wz-body wz-${own.step}`, dataset: { step: own.step } }, DRAW[own.step](ctx));
+    // (the keyboard stays on the equivalent control: the tab or the Next / Back button used, or the field, stepper or skill row being worked)
+    const marks = markFocus(sheet.body, sheet.el.ownerDocument?.activeElement ?? null);
     sheet.body.replaceChildren(steps, summary, body, foot);
+    restoreFocus(sheet.body, marks);
     sheet.el.dataset.step = own.step;
   }
 

@@ -201,6 +201,8 @@
 .su-root .sh-panel{position:absolute;left:0;right:0;bottom:0;max-height:86%;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:10px 18px 22px;color:var(--su-text);background:var(--su-panel2);backdrop-filter:blur(28px) saturate(1.3);-webkit-backdrop-filter:blur(28px) saturate(1.3);border:1px solid var(--su-line);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.35)}
 .su-root .sh-panel .grab{align-self:center;width:40px;height:4px;border-radius:2px;background:var(--su-line2)}
 .su-root .sh-h{display:flex;align-items:center;gap:8px}.su-root .sh-h h3{margin:0;flex:1;font:800 20px/1.15 var(--su-font)}
+/* the title is the mock's sheet title: a theme's own h3 rule (a side bar, padding, spacing) stays off it in every sheet */
+.su-root .sh-ov .sh-panel .sh-h h3{border:0;padding:0;letter-spacing:0;text-align:left}
 .su-root .sh-body{display:flex;flex-direction:column;gap:12px}
 .su-root .sh-ov .x{min-width:44px;min-height:44px}
 /* The Scene sheet keeps the mock's .scsheet values: darker, blurred scrim and a 480px panel (the quest editor keeps .45 and 460). */

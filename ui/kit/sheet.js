@@ -25,11 +25,24 @@ export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', on
   let release = null;
   let open = true;
 
+  // (focus goes back to the opener only when it was in this sheet or nowhere: a window opened over this one has it now, and keeps it)
   function finish() {
     open = false;
+    const active = doc.activeElement ?? null;
+    const mine = !active || active === doc.body || el.contains?.(active) === true;
     el.remove();
-    opener?.focus?.();
+    if (mine) opener?.focus?.();
     onClose?.();
+  }
+  // Tab stays inside the sheet (it is aria-modal): from the last control it goes to the first, from the first with Shift to the last.
+  function keep(event) {
+    if (event.key !== 'Tab' || !open) return;
+    const items = [...panel.querySelectorAll('button, input, select, textarea, a[href], [tabindex]')].filter(n => n.disabled !== true && !n.hasAttribute?.('disabled') && !n.hasAttribute?.('hidden') && n.getAttribute?.('tabindex') !== '-1');
+    const active = doc.activeElement ?? null;
+    const inside = active && panel.contains?.(active);
+    const end = event.shiftKey ? items[0] : items.at(-1);
+    if (!items.length) { event.preventDefault?.(); return; }
+    if (!inside || active === end) { event.preventDefault?.(); (event.shiftKey ? items.at(-1) : items[0]).focus(); }
   }
   function close() {
     if (!open) return false;
@@ -40,6 +53,7 @@ export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', on
 
   el.addEventListener('click', event => { if (event.target === el) close(); });
   closeBtn?.addEventListener('click', close);
+  el.addEventListener('keydown', keep);
   host.appendChild(el);
   release = ctx.backStack?.push({ id, layer: 'sheet', close: () => { finish(); } }) ?? null;
   closeBtn?.focus?.();
