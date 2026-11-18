@@ -1,5 +1,5 @@
 /* NPC State Delta stamping the per-field change markers when a record changes. */
-import { STORY_DAY_SCHEME, storyDateTextAt } from '../../legacy/calendar.js';
+import { STORY_DAY_SCHEME, storyDateTextAt } from '../../calendar/calendar.js';
 import { stampMemories } from '../core-record-shared.js';
 import { CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS } from '../../fields/registry.js';
 import { resolveNpcAppearance } from '../../appearance/appearance.js';

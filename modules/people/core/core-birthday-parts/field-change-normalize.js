@@ -1,5 +1,5 @@
 /* NPC State Delta normalizing the per-field change markers (turn, story day, reply index). */
-import { migrateLegacyStoryDay, STORY_DAY_SCHEME } from '../../legacy/calendar.js';
+import { migrateLegacyStoryDay, STORY_DAY_SCHEME } from '../../calendar/calendar.js';
 import { CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS } from '../../fields/registry.js';
 
 // Deterministic per-field "last changed at turn" markers for the dossier. They are presentation

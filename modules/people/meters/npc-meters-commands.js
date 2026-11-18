@@ -1,6 +1,6 @@
 // NPC meter story-line capture and hosted commands. A pure part of npc-meters.js (same owner, moved without change);
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
-import { storyMinuteText } from '../legacy/calendar.js';
+import { storyMinuteText } from '../calendar/calendar.js';
 import { isAway, labelKey, labelsOf, normalizeKeyPeople } from '../cast/key-people.js';
 import { normalizeCast } from '../dossier/cast-dossier.js';
 import { normalizeApproachKind } from './npc-meters-gate.js';

@@ -5,7 +5,7 @@
 import { readAheadOf } from '../calls/scan-context.js';
 import { activeReplyIds } from '../transcript/transcript.js';
 import { chatContext, inReplay } from '../calls/runtime-scan-helpers.js';
-import { normalizeAllowance } from '../legacy/relationship-pacing.js';
+import { normalizeAllowance } from '../relationship/relationship-pacing.js';
 import { effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { convertJournal, recordReadMark } from './runtime-narration.js';
 

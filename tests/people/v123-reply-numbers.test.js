@@ -62,7 +62,7 @@ test('v1.2.3 relationship events recorded by a scan carry the reply\'s message i
     assert.equal('message' in legacy.lastRelationshipChange, false);
 
     const index = runtimeSource();
-    const relationshipPass = partsSource(new URL('../../modules/people/legacy/relationship-pass.js', import.meta.url));
+    const relationshipPass = partsSource(new URL('../../modules/people/relationship/relationship-pass.js', import.meta.url));
     assert.match(relationshipPass, /turn: Number\.isFinite\(Number\(state\.turn\)\) \? Number\(state\.turn\) : null,\n\s*\.\.\.relationshipEventMessage\(\{ message: sourceMessageId \}\),/, 'focused relationship pass');
     assert.match(index, /\.\.\.relationshipEventMessage\(\{ message: latestReplyIndex\(\) \}\),/, 'manual relationship edit');
 });

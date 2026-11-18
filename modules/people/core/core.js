@@ -3,7 +3,7 @@ export * from './core-mechanics.js';
 export * from '../appearance/appearance.js';
 export * from './terminal-lifecycle.js';
 export * from './roster-count.js';
-export * from '../legacy/calendar.js';
+export * from '../calendar/calendar.js';
 
 export {
     BIRTHDAY_PROMPT_RULE,

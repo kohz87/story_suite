@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
 import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { DEFAULT_RELATIONSHIP_CAPS, normalizeNpcRecord } from '../../modules/people/core/core.js';
-import { applyFocusedRelationshipDecisions } from '../../modules/people/legacy/relationship-pass.js';
+import { applyFocusedRelationshipDecisions } from '../../modules/people/relationship/relationship-pass.js';
 import { DEFAULT_IMPACT_CRITERIA } from '../../modules/people/core/core-prompts-criteria.js';
-import { DEFAULT_ALLOWANCE, flatDayProblems, fromFlatDay, impactDayProblems, toFlatDay, normalizeAllowance, pacingDefaults, spendEvent, spendFlatEvent } from '../../modules/people/legacy/relationship-pacing.js';
+import { DEFAULT_ALLOWANCE, flatDayProblems, fromFlatDay, impactDayProblems, toFlatDay, normalizeAllowance, pacingDefaults, spendEvent, spendFlatEvent } from '../../modules/people/relationship/relationship-pacing.js';
 import { cutToTier, eventSummary, pacingNote, readEvent } from '../../modules/people/meters/npc-meters-pacing.js';
 import { DAY, dossiers, suite, major } from './helpers/pacing-suite.js';
 import { TEMIWA } from './relationship-pacing.helpers.js';
@@ -242,16 +242,11 @@ test('a downgraded major cannot cross a gate that needs a major', async () => {
     assert.equal(t.npc('Oren').meters.trust, 50, 'with no major today the move counts as meaningful and stops on the gate');
 });
 
-test('no story clock, or the calendar kept in Delta: no limit and nothing counted', async () => {
+test('no story clock: no limit and nothing counted', async () => {
     const free = await suite({ clock: false });
     for (let n = 0; n < 3; n += 1) await free.say([major()]);
     assert.equal(free.npc('Oren').meters.trust, 9);
     assert.equal(free.day('oren'), undefined);
-    const own = await suite({ calendarOwn: true });
-    await own.setDay(1);
-    for (let n = 0; n < 3; n += 1) await own.say([major()]);
-    assert.equal(own.npc('Oren').meters.trust, 9);
-    assert.equal(own.day('oren'), undefined);
     const blank = await suite({ allowance: { major: null, ordinary: null } });
     await blank.setDay(1);
     for (let n = 0; n < 3; n += 1) await blank.say([major()]);

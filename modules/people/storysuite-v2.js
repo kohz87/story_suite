@@ -145,8 +145,6 @@ export function createStorySuiteV2Adapter({
     aliveMs = HOST_ALIVE_MS,
     watchMs = SECTION_WATCH_MS,
     logger = console,
-    // True while the reader keeps the calendar in Delta (no longer a choice; always false): no story clock.
-    calendarOwn = () => false,
     // True while the one-pass lines switch is on (N7: the production start-up passes true): `+ npc` stubs and the unknown-person rule (src/npc-lines-parts/stub.js). Off, nothing differs.
     linesMode = () => false,
     // True while the custom Level field is on (a configured field, or the host's RPG feature): a `~ npc` line may then state `level: N` (src/npc-lines-parts/level.js). Off, a `level:` label is an unknown one.
@@ -178,7 +176,7 @@ export function createStorySuiteV2Adapter({
     // The parts, in the order the closure declared them: each gets the options and constants (deps) and what the parts before it return.
     const deps = {
         suiteApi, delta, panelId, version, host, headReply, castSync, castPortraitDue, doc, timers, loadEmptyCast, retryMs,
-        attempts, aliveMs, watchMs, logger, calendarOwn, linesMode, levelOn, loadDossierList, settleMs,
+        attempts, aliveMs, watchMs, logger, linesMode, levelOn, loadDossierList, settleMs,
         settlePollMs, cardSettings, MODULE_ID, MODULE_NAME, CAST_TAB_ID, DOSSIERS_TITLE, DOSSIERS_ICON, CAST_SCREEN_ID,
         CAST_WIDGET, CAST_SCREEN_ORDER, WORLD_FEATURE, PAGE_SLOT_CLASS, TICK_TURNS, PRESET_KIND,
         V2_HOST_EVENT,
@@ -304,7 +302,7 @@ export function createStorySuiteV2Adapter({
         scanEveryReply: () => part.featureOn(FEATURE_SCAN_EVERY_REPLY) !== false,
         /**
          * Where the calendar in Delta's settings stands: 'story-director' (Story Director's calendar is the one in
-         * use), 'own' (the reader keeps the calendar in Delta) or 'none' (no host, or no Story Director calendar).
+         * use) or 'none' (no host, or no Story Director calendar).
          */
         calendarLink,
         /** While hosted: Story Director's clock, { minutes, calendar: { era, months, leapYears } }, or null. */

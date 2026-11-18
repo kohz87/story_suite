@@ -248,10 +248,9 @@ export function createSettingsHtmlPart(rt, deps) {
     }
 
     // The Expert fold's first line: whether the calendar in Delta's settings matters. It says the Story Director sentence only
-    // while that is true (Story Director's calendar answers and the reader has not kept the calendar here).
+    // while that is true (Story Director's calendar answers).
     const EXPERT_NOTES = Object.freeze({
         'story-director': 'Rarely needed. With Story Director installed its calendar is used, so the calendar here only matters on its own.',
-        own: "Rarely needed. You keep the calendar here (Source of truth), so Story Director's calendar is not used.",
         none: 'Rarely needed. No Story Director calendar is linked, so the calendar here is the one in use.',
     });
     function syncExpertNote(root = globalThis.document) {

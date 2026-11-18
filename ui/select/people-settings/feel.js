@@ -2,7 +2,7 @@
 // (the fixed "four feelings" row is gone, owner 18 Nov: nothing to set; the People README explains the four).
 import { normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeCustomFieldNames } from '../../../modules/people/core/core.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS } from '../../../modules/people/core/core.js';
-import { normalizeAllowance, DEFAULT_ALLOWANCE } from '../../../modules/people/legacy/relationship-pacing.js';
+import { normalizeAllowance, DEFAULT_ALLOWANCE } from '../../../modules/people/relationship/relationship-pacing.js';
 import { intRow, schemaRow, segRow } from './kit.js';
 import { multiRow, shownRow, clamp } from './kit-more.js';
 import { customMetersRow, stagesRow } from './meter-list.js';
