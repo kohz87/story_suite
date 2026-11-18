@@ -45,10 +45,11 @@ export function createParty(deps) {
     const peopleState = ctx => { let people = null; try { people = ctx.read('people'); } catch { people = null; } return { domains: { people } }; };
     // What `name`'s NPC State record gives the sheet (the pull, rpg join-parts/from-person.js), read from the reply's own prefix: { level?, best, skills, keepsakes }. With no abilities of
     // theirs it has no signature skills. `soul` and `best` are the join line's (or the card's).
+    // (`top`: the party's highest level in the prefix, which a companion's level from the class never passes: rpg levelOfJoinClass)
     function pullFor(ctx, name, soul = 1, best = '') {
-        const state = peopleState(ctx);
+        const state = peopleState(ctx), top = rpg().partyTop(stateOf(ctx));
         const list = packs?.packs?.() ?? [], records = list.flatMap(entry => entry?.content?.rpg ?? []);
-        return rpg().pullOf(state, { name, soul, best, pull: records.find(record => record?.slug === 'pull'), cap: rpg().levelCapFor(settings(), packLevelsOf(records)?.levelCap), fallback: [] });
+        return rpg().pullOf(state, { name, soul, best, pull: records.find(record => record?.slug === 'pull'), cap: rpg().levelCapFor(settings(), packLevelsOf(records)?.levelCap), top, fallback: [] });
     }
     // The skills the pull gives `name` now, the ones the person does not hold by name already (what a first read of a join, a return or an offer plans).
     function packSeeds(ctx, name, pulled = null) {
@@ -210,7 +211,8 @@ export function createParty(deps) {
         const seeds = castSeeds(ctx, request.name, 'join', pulled);
         const cap = rpg().levelCapFor(settings(), packLevelsOf(rpgRecords)?.levelCap);
         // Re-reading an existing join uses its own pinned character, even if the prefix had no characters at all.
-        const made = rpg().joinDefinitions({ ...request, best: pulled.best, ...(pulled.level ? { level: pulled.level } : {}), skills: seeds }, { used: Object.keys(domain?.active ?? {}), soul, rules, cap });
+        // (a level from the class never passes the party's highest level: a class II companion joins a party of level 1 at level 1)
+        const made = rpg().joinDefinitions({ ...request, best: pulled.best, ...(pulled.level ? { level: pulled.level } : {}), skills: seeds }, { used: Object.keys(domain?.active ?? {}), soul, rules, cap, top: rpg().partyTop(prefix) });
         // The story's first character also brings the Combat rules and Foes blocks it lacks, as far as they fit (nothing is refused for them).
         const first = rpg().partyOf(prefix).length === 0, plan = first ? rpg().extrasPlan(prefix) : { add: [], skipped: [] };
         const extras = rpg().extraDefinitions(plan.add, { used: [...Object.keys(domain?.active ?? {}), made.character.slug, made.skills.slug] });

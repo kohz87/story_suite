@@ -32,12 +32,12 @@ const listOf = value => (Array.isArray(value) ? value.filter(entry => entry && t
 
 /**
  * What a joining person's sheet is built from: `{ level?, best, skills, keepsakes }`. `level` only when the record states one, held to `cap`; the join line's class stands
- * otherwise (the caller's `soul`). `best` is the line's, else the keyword table's over role, history and abilities, else ''. `skills`: one per ability in order, up to
+ * otherwise (the caller's `soul`, never above `top`, the party's highest level). `best` is the line's, else the keyword table's over role, history and abilities, else ''. `skills`: one per ability in order, up to
  * `pull.abilities` (default 4), each by the keyword table, then one stance skill unless `pull.stance` is false or an ability already is one; with no abilities the
  * `fallback` (the format 3 cast skills) is what there is. `keepsakes`: their names, for the gear. Each skill needs a slot of its kind (the combat slots of the level, three
  * utility ones); `left`: `[{ name, kind }]` of the abilities that found none (only when there are some), for the join's Problems line.
  */
-export function pullOf(state, { name, soul = 1, best = '', pull = null, cap = null, fallback = [] } = {}) {
+export function pullOf(state, { name, soul = 1, best = '', pull = null, cap = null, top = null, fallback = [] } = {}) {
     const record = personOf(state, name);
     const stated = Number.isSafeInteger(record?.level) && record.level >= 1 ? record.level : 0;
     const level = stated ? Math.min(stated, Number.isSafeInteger(cap) ? Math.max(1, cap) : V1.level.max) : undefined;
@@ -45,7 +45,7 @@ export function pullOf(state, { name, soul = 1, best = '', pull = null, cap = nu
     const lead = best || (record ? leanStat([record.role, record.background, ...abilities.map(entry => `${entry.name} ${entry.description ?? ''}`)]) : '');
     if (!abilities.length) return { ...(level ? { level } : {}), best: lead, skills: Array.isArray(fallback) ? fallback : [], keepsakes };
     const count = Math.max(1, Math.min(ABILITY_MAX, Number.isSafeInteger(pull?.abilities) ? pull.abilities : DEFAULT_ABILITIES));
-    const at = level ?? levelOfJoinClass(soul), rank = rankAtLevel(at);
+    const at = level ?? levelOfJoinClass(soul, top), rank = rankAtLevel(at);
     // (each skill takes a slot of its kind: the combat slots the level opens, the three utility ones; one that finds its pool full is left out and named in `left`)
     const room = { combat: skillSlots(at), utility: UTILITY_SLOTS }, skills = [], left = [];
     const place = skill => { const kind = skill.type === 'utility' ? 'utility' : 'combat'; if (room[kind] > 0) { room[kind] -= 1; skills.push(skill); return true; } return false; };

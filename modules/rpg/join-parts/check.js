@@ -9,6 +9,9 @@ import { partyCap, partyOf } from './party.js';
 
 const J = RPG_STRINGS.join;
 
+/** The highest level among the characters who are in the party (1 when there is none): a companion made from a class never starts above it (formula.js levelOfJoinClass). */
+export const partyTop = state => Math.max(1, ...partyOf(state).filter(person => !person.left).map(person => person.level));
+
 /** The setting's value: 'ask' (the default), 'auto' or 'off'. */
 export const joinMode = values => (JOINS.includes(values?.[JOIN_SETTING]) ? values[JOIN_SETTING] : JOINS[0]);
 
