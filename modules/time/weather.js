@@ -24,5 +24,6 @@
 
 export { WEATHER_FEATURE, HOST_WEATHER_FEATURE, WEATHER_COMMAND, WEATHER_KEY_CHARS } from './weather-parts/names.js';
 export { SEASONS, TEMPERATE, seasonByYear, seasonOf } from './weather-parts/seasons.js';
+export { CLIMATE_TABLES, climateOf, climateWeather } from './weather-parts/climates.js';
 export { hashOf, tableFor, regionOf, weatherKey } from './weather-parts/pick.js';
 export { weatherFor, weatherHook } from './weather-parts/rule.js';

@@ -7,6 +7,7 @@ import { XP_RATE, scaleXp, xpRateOf } from '../levels.js';
 import { foeGroupsOf, usesOfV1, winXp } from '../combat/rewards.js';
 import { givePractice } from '../practice-parts/give.js';
 import { itemsOf } from '../practice-parts/slots.js';
+import { heroesOf, raiseToStory, writeBack } from './v1-story-facts.js';
 
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const whole = value => Number.isSafeInteger(value);
@@ -50,7 +51,10 @@ function giveXp(ctx, awards) {
 export function awardCommand(ctx, payload) {
     const given = checked(payload);
     if (!given) ctx.fail('INVALID', 'The fight\'s awards are damaged.');
+    const heroes = heroesOf(given.xp, itemsOf(ctx.read('dataModules'), given.uses));
+    const before = raiseToStory(ctx, heroes);   // NPC State's higher Level first, then the fight's XP; a level the XP gained is written back to the person
     giveXp(ctx, given.xp);
     const domain = ctx.read('dataModules'), items = itemsOf(domain, given.uses), skills = items.length ? givePractice(ctx, domain, items, given.perUse) : [];
+    writeBack(ctx, heroes, before);
     return { summary: '', narrate: false, data: { awarded: { xp: given.xp.length, practice: skills.length } } };
 }
