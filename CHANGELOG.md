@@ -4,7 +4,7 @@ Newest first. Each release has the highlights, then what was added, changed, fix
 
 ## Unreleased
 
-Main has nothing beyond 0.1.2 yet except documentation.
+Main has nothing beyond 0.1.2 yet except documentation and the Settings › Director fix below.
 
 ### Added
 
@@ -14,6 +14,7 @@ Main has nothing beyond 0.1.2 yet except documentation.
 ### Changed
 
 - **The suite view opens in place on desktop.** On a window wider than 820 px the suite fades in with a slight scale (about 0.18 s) over the dimmed chat and closes the same way back, with no slide from the edge. Phone and tablet keep the edge slide. With reduced motion on, it appears and goes at once at every width. Resizing while it is open starts no animation.
+- Settings › Director: a group whose feature is off now says "Turn on <feature> to see these" (with the names of the hidden rows) instead of vanishing, and the page has a working Scene spoilers switch for this chat (the same one as on Now and in the dossier). Cast moves have no setting (the cast reads the last 3 messages, up to 3,500 characters, and asks for 700 tokens, fixed in code), so the mock no longer lists them.
 - Settings › RPG and fights has no Combat rules button, no Odds switch and no Rolls row: there is no setting behind any of them (Combat Rules v1 is fixed, the fight board always shows its odds, and the Story checks switch already turns rolled checks on or off). The design mock no longer shows them; a test keeps the page to rows that have a real setting.
 
 - **Settings › Packs and trackers: the tracker buttons each do their own thing.** The three buttons that all just opened Story › Trackers are now: **Edit fields** on a tracker (opens Story › Trackers with that tracker's editor already open) and one **Add from a template** (opens the template list there). New tracker and Build it in the chat are gone: there is no blank-tracker form and no chat builder, a tracker is added from a template and changed with Edit fields. A short line under the buttons says so.
