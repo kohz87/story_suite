@@ -7,7 +7,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fuzzReread } from '../../suite/qa/helpers/reread-fuzz-run.js';
-import { makeDirectorHost, directorLines, DIRECTOR_READERS, LEFT_OUT, TOLERATE, COUNTED } from './helpers/reread-host.js';
+import { makeDirectorHost, directorLines, DIRECTOR_READERS, LEFT_OUT, TOLERATE } from './helpers/reread-host.js';
 
 import { seedList } from '../../suite/qa/helpers/seed-list.js';
 
@@ -20,7 +20,7 @@ const RUNS = process.env.QA_REREAD_SEEDS ? seedList(process.env.QA_REREAD_SEEDS)
 
 for (const seed of RUNS) {
     test(`Story Director edit-then-Re-read fuzz seed ${seed}: no key clash, and every Re-read equals the story told the edited way`, async t => {
-        const stats = await fuzzReread(t, seed, STEPS, { makeHost: makeDirectorHost, extraLines: directorLines, readers: DIRECTOR_READERS, leave: LEFT_OUT, tolerate: TOLERATE, counted: COUNTED });
+        const stats = await fuzzReread(t, seed, STEPS, { makeHost: makeDirectorHost, extraLines: directorLines, readers: DIRECTOR_READERS, leave: LEFT_OUT, tolerate: TOLERATE });
         assert.ok(stats.tolerated <= TOLERATED_CAP, `seed ${seed}: the oracle tolerated ${stats.tolerated} reply-checks (cap ${TOLERATED_CAP}): the D-1 drift spreads`);
         if (process.env.QA_FUZZ_STATS) console.log(JSON.stringify({ seed, ...stats }));
     });
