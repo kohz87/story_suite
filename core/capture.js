@@ -6,6 +6,7 @@
 // Public face: re-exports its parts.
 
 export { extractBlock } from './capture-parts/extract.js';
+export { blankOpen } from './capture-parts/blank-open.js';
 export { stripBlock } from './capture-parts/strip.js';
 export { hideBlock } from './capture-parts/hide.js';
 export { dropDoubledDraft } from './capture-parts/draft.js';
