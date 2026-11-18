@@ -14,7 +14,7 @@ const CLI = path.join(REPO, 'scripts/ai-readme/build.mjs');
 function copyRepo() {
   const dir = tempDir('ai-readme-');
   execFileSync('git', ['init', '-q'], { cwd: dir });
-  for (const rel of ['core', 'packs', 'studio', 'modules', 'ui', 'docs/dev/ai-readme', 'scripts/codemap', 'scripts/ai-readme', 'package.json']) {
+  for (const rel of ['core', 'packs', 'studio', 'modules', 'ui', 'docs/dev', 'docs/v2', 'docs/codemap.md', 'docs/codemap/jobs.json', 'authoring-kit/reference', 'authoring-kit/check.mjs', 'examples/packs/ersveil/pack.json', 'tests/suite/static-prompt.golden.json', 'scripts/release.mjs', 'scripts/codemap', 'scripts/ai-readme', 'package.json']) {
     fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
     fs.cpSync(path.join(REPO, rel), path.join(dir, rel), { recursive: true, filter: src => !src.endsWith('node_modules') });
   }
@@ -78,3 +78,18 @@ test('a marker naming no table fails the build', withRepo(async dir => {
   fs.appendFileSync(path.join(dir, 'docs/dev/ai-readme/rules.md'), '\n<!-- generated:nope -->\n');
   await assert.rejects(renderReadme(dir), /unknown generated block "nope"/);
 }));
+
+test('each hand-written part has prose, not only headings and markers', () => {
+  for (const part of ['purpose', 'concepts', 'rules', 'modules', 'packs']) {
+    const prose = fs.readFileSync(path.join(REPO, `docs/dev/ai-readme/${part}.md`), 'utf8')
+      .split('\n').filter(line => line.trim() && !/^#/.test(line) && !/^<!--/.test(line));
+    assert.ok(prose.length >= 5, `${part}.md has only ${prose.length} lines of prose`);
+  }
+});
+
+test('the guide says NPC State and keeps the rules from CLAUDE.md', async () => {
+  const text = await renderReadme(REPO);
+  assert.match(text, /\*\*NPC State\*\*/);
+  assert.doesNotMatch(text, /\bNSD\b/);
+  for (const rule of ['450 lines', 'Replay == live', 'static-prompt.golden.json', 'interaction port']) assert.ok(text.includes(rule), `missing: ${rule}`);
+});
