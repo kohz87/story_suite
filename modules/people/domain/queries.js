@@ -1,11 +1,12 @@
 // The reader's questions about the people domain, answered from the stored slice alone (pure over the state, so a swipe, a delete, a rewind or a reload
 // answers what the head holds): `people.list` (one row per stored person), `people.dossier` (one person's stored fields plus their meters),
-// `people.ties` (the social graph's edges between stored people) and `people.secretOwners` (whose dossier holds a secret of that title).
+// `people.ties` (the social graph's edges between stored people, with the story's tie lines) and `people.secretOwners` (whose dossier holds a secret of that title).
 // Definitions: here = the record's `present` flag (NPC State sets it from the reply); dormant = 30 or more replies (the slice's `turn` minus the record's
 // `lastSeenTurn`) unseen, never for someone present, followed, deceased or without a `lastSeenTurn` (decision 36.12; the party is excluded by the caller).
 // A portrait is the file path of its file reference, when that is a safe URL (a path on the page's own server, or https); never image bytes.
 
 import { castLinksNamed, metCastNames } from '../dossier/cast-dossier-parts/cast-links.js';
+import { edgesWithTies, tieLines } from './ties.js';
 
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
@@ -88,6 +89,9 @@ export function peopleQueries(domain) {
             // A pack tie or key relationship to someone met after this person is named once they are (cast-links.js; derived, never stored).
             const linked = castLinksNamed(people.npcs[id], metCastNames(ids(people).map(other => people.npcs[other]))).keyRelationships;
             if (linked.length) record.keyRelationships = [...(Array.isArray(record.keyRelationships) ? record.keyRelationships : []), ...linked];
+            // The story's `~ tie` lines too (./ties.js, derived): someone a key relationship line already names keeps that line.
+            const tied = tieLines(people, ids(people), id, Array.isArray(record.keyRelationships) ? record.keyRelationships : []);
+            if (tied.length) record.keyRelationships = [...(Array.isArray(record.keyRelationships) ? record.keyRelationships : []), ...tied];
             return {
                 ...record, id, ...(meters ? { relationship: meters } : {}),
                 ...(isObject(bond?.meters) ? { meters: bond.meters } : {}), ...(isObject(bond?.stages) ? { stages: clone(bond.stages) } : {}),
@@ -95,13 +99,14 @@ export function peopleQueries(domain) {
                 portrait: portraitOf(people, id, people.npcs[id]),
             };
         },
-        // [{ aId, bId, aToB, bToA }] of the social graph's edges whose two ends are stored, active people.
+        // [{ aId, bId, aToB, bToA }] of the social graph's edges whose two ends are stored, active people, with the story's `~ tie` lines joined in (./ties.js).
         'people.ties': state => {
             const people = slice(state);
             if (!people) return null;
             const edges = Array.isArray(people.socialGraph?.edges) ? people.socialGraph.edges : [];
-            return edges.filter(edge => isObject(edge) && active(people, edge.aId) && active(people, edge.bId))
+            const graph = edges.filter(edge => isObject(edge) && active(people, edge.aId) && active(people, edge.bId))
                 .map(edge => ({ aId: edge.aId, bId: edge.bId, aToB: String(edge.aToB ?? ''), bToA: String(edge.bToA ?? '') }));
+            return edgesWithTies(graph, people, ids(people));
         },
         // { [lowercase secret title or id]: { id, name } }: whose dossier holds each OPENED secret (a locked note's title is never a key).
         'people.secretOwners': state => {
