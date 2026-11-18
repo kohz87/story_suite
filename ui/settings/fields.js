@@ -80,6 +80,12 @@ function controlFor(row, emit, labelId) {
       return b;
     }));
   }
+  if (type === 'lines') {
+    const box = h('textarea', { class: 'lines-ed', hidden: true, rows: 4, 'aria-label': label, placeholder: 'One item a line: Rope, or Rope x3' }, value ?? '');
+    box.addEventListener('change', () => emit(box.value));
+    const open = h('button', { type: 'button', class: 'btn2', 'aria-expanded': 'false', onClick: () => { box.hidden = !box.hidden; open.setAttribute('aria-expanded', String(!box.hidden)); if (!box.hidden) box.focus(); } }, list[0] ?? 'Edit list');
+    return [open, box];
+  }
   if (type === 'btn') {
     return list.map(o => h('button', { type: 'button', class: 'btn2', onClick: () => emit(o) }, o));
   }

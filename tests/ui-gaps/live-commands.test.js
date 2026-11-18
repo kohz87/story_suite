@@ -11,7 +11,7 @@ import { createSbPort } from '../../ui/port/sb-port.js';
 import { buildSelectors } from '../../ui/select/build.js';
 
 // Not the new view's: old code, fixtures, the harness, contract text, the selectors' query names, the settings pages (keys sent through settings.set / settings.action), the port's answers to those keys and the old Fight tab (nothing mounts it).
-const SKIP = /^ui\/(legacy|fixtures|dev|contract|select|settings)(\/|$)|^ui\/port\/(people-settings|rpg|world-keys|world-settings|settings-director|money|extras|host-settings|resets|module-cards)\.js$|^ui\/tabs\/fight\//;
+const SKIP = /^ui\/(legacy|fixtures|dev|contract|select|settings)(\/|$)|^ui\/port\/(people-settings|rpg|world-keys|world-settings|settings-director|money|extras|host-settings|resets|module-cards|packs)\.js$|^ui\/tabs\/fight\//;
 // Strings of the right shape that are not commands: fold keys, a settings row key, view-model ids, the queries ui/wizard reads, and the like.
 const NOT_COMMANDS = new Set(['bag.assets', 'journal.calendar', 'journal.closed', 'story.agendas.all', 'story.trackers', 'rpg.difficulty', 'now.turn.all', 'now.you', 'fight.party', 'svg.mp', 'rpg.sheet', 'models.test', 'tools.rebuild', 'tools.report', 'tools.savepoint.forget', 'tools.savepoint.make', 'tools.savepoint.return', 'calls.fallback', 'calls.repair', 'calls.kinds', 'calls.queue', 'calls.keepBlocks', 'trackers.open', 'packs.import', 'packs.lorebook', 'packs.remove', 'inventory.currency', 'packs.content', 'packs.list']);
 // Sent after the work is done locally, or only as a fallback the live mount never takes (See on map has the host's hook; the spoiler pref has port.prefs): nothing waits for the answer.

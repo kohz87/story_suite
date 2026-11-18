@@ -1,6 +1,7 @@
 // Renders the Packs and trackers page: installed packs with a remove confirmation, data modules and this chat's trackers.
 import { h } from '../kit/dom.js';
 import { toggle } from '../kit/controls.js';
+import { renderV4 } from './packs-v4.js';
 
 function group(title, ...rows) {
   return h('div', { class: 'sgrp' }, h('div', { class: 'gt' }, title), rows);
@@ -43,15 +44,20 @@ function statusBlock(status) {
   return h('div', { class: 'srow wide' }, h('span', { class: 'lb' }, h('b', { role: 'status' }, status.text), (status.errors ?? []).map(e => h('small', e))));
 }
 
-/** Builds the Packs page body: `state` = { packs, status, confirming, setConfirm(bool), change(settingKey, on), act(key, value) }. */
+/**
+ * Builds the Packs page body: `state` = { packs, status, confirming, setConfirm(bool), change(settingKey, on), act(key, value) }; the format 4 page (`packs.v4`) also takes
+ * { kept, setKept(bool), removing, setRemoving(id) }. A format 4 page lists the worlds and games itself; the older packs keep their switch in their own group.
+ */
 export function renderPacks(state) {
   const { packs, change, act, status } = state;
   const btn = (label, key, pri) => h('button', { type: 'button', class: ['btn2', pri && 'pri'], onClick: () => act(key, label) }, label);
   const { trackers } = packs;
+  const importRow = () => [statusBlock(status), h('div', { class: 'srow wide' }, h('span', { class: 'ctl' }, importButton(act), btn('Read from the character’s lorebook', 'packs.lorebook')))];
+  const top = packs.v4
+    ? [...renderV4(packs.v4, state, { group, importRow }), packs.packs.length ? group('Older packs (format 3)', packs.packs.map(p => packBlock(p, state))) : null]
+    : [group('Packs', packs.packs.map(p => packBlock(p, state)), importRow())];
   return [
-    group('Packs', packs.packs.map(p => packBlock(p, state)),
-      statusBlock(status),
-      h('div', { class: 'srow wide' }, h('span', { class: 'ctl' }, importButton(act), btn('Read from the character’s lorebook', 'packs.lorebook')))),
+    ...top,
     group('Data modules in this chat', packs.modules.map(m => switchLine(m, change))),
     group(`Trackers in this chat · ${trackers.items.length} of ${trackers.cap}`,
       trackers.items.map(t => line(t.name, t.desc, btn('Edit fields', 'trackers.open'))),

@@ -110,6 +110,11 @@
 .sgrp>.gt,.snav .grpl{font-size:12px}
 .usesw .ul,.cn .uses span,.mc,.pre em,.tst2 small{font-size:12px}
 .needok{color:var(--su-muted)}.needbad{color:var(--su-warn)}
+/* Format 4 Packs page: the suggestion card (the confirm card's shape in the accent tint), a pairing problem line, the add-on status */
+.cfm.rec{border-color:rgba(168,151,255,.5);background:rgba(168,151,255,.12)}
+.pairerr{color:var(--su-hp)}
+.always{font:700 12.5px var(--su-font);color:var(--su-muted)}
+.lines-ed{display:block;width:100%;min-height:72px;margin-top:6px;font:700 13px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);border-radius:10px;padding:8px 10px;box-sizing:border-box}
 .mod.off .mt small{opacity:1}.mod.off .mt b,.mod.off .mi{opacity:.55}
 .swrow{cursor:pointer}
 .extnote{color:var(--su-muted)}
@@ -117,7 +122,7 @@
 [data-scheme="light"] .needbad,[data-scheme="light"] .custom{color:#8a5300}
 [data-scheme="light"] .lnk,[data-scheme="light"] .custom,[data-scheme="light"] .tier.Elite{color:#5a3cd8}
 [data-scheme="light"] .oc.S{color:#0b7a4a}[data-scheme="light"] .oc.C{color:#8a5300}
-[data-scheme="light"] .cfm b{color:#a3232a}
+[data-scheme="light"] .cfm b{color:#a3232a}[data-scheme="light"] .cfm.rec b{color:var(--su-text)}[data-scheme="light"] .pairerr{color:#a3232a}
 @container (max-width:900px){
  .conn{grid-template-columns:minmax(0,1fr);grid-template-rows:none}.cn{grid-row:auto;grid-template-rows:none}
  .sseg2 button,.chips3 button{min-height:44px}

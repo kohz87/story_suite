@@ -23,14 +23,16 @@ import { byteLength } from './safety.js';
 import { packTag } from './kind.js';
 import { isAddOn, readPacks } from './selection.js';
 import { deepFreeze } from '../core/ops/freeze.js';
+import { createOwn } from './own.js';
 
 const SOURCES = ['file', 'lorebook'];
 
 // The checker, once loaded (shared by every installed list), and the load on its way.
 let validator = null;
+let pairer = null;
 let loading = null;
 const loadChecker = () => {
-    loading ??= import('./validate.js').then(lib => { validator = lib.validatePack; return validator; }, error => { loading = null; throw error; });
+    loading ??= import('./validate.js').then(lib => { pairer = lib.checkPairing; validator = lib.validatePack; return validator; }, error => { loading = null; throw error; });
     return loading;
 };
 /** Whether the pack checker is loaded (tests). */
@@ -126,7 +128,22 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
         return names || picked.length || report.dropped ? { portraits: report } : {};
     };
 
+    // The reader's own rank label and start (own.js) count only while a format 4 world or game is installed: that is when the Settings rows that hold them are drawn,
+    // so values left over after the last one is removed can neither show nor be cleared. (The stored kind decides, so a pack that no longer checks still counts.)
+    const rows = createOwn(() => settings.read() ?? {});   // (not root(): reading creates nothing)
+    const hasFormat4 = () => { const list = settings.read()?.packs; return Array.isArray(list) && list.some(entry => entry?.kind === 'world' || entry?.kind === 'game'); };   // (the Packs page draws the rows on the same rule: a list row with a kind)
+    const own = { read: () => (hasFormat4() ? rows.read() : { rankLabel: '', money: null, items: [] }), set: rows.set };
     return {
+        /** The reader's own rank label and starting money and items (own.js): `own.read()`, and `own.set(key, value)` (the caller saves through `setOwn`). */
+        own,
+        /** `checkPairing(world, game)` of the selected pair (the checker is there once a pack has been read: no lines while it loads). */
+        pair: (world, game) => (pairer ? pairer(world, game) : { errors: [], warnings: [], info: [] }),
+        async setOwn(key, value) {
+            if (!own.set(key, value)) return false;
+            await changed();
+            return true;
+        },
+
         /**
          * Checks a pack (text or parsed) as install would, but for its capabilities, and installs nothing: `{ ok: true, pack, missing }`
          * (`missing`: the capability names it needs that no installed module provides, none while they are unknown) or `{ ok: false, errors }`.
@@ -159,7 +176,9 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
                     author: pack?.author ?? '',
                     description: pack?.description ?? '',
                     enabled: isOn(entry, pack),
-                    ...(pack?.kind ? { kind: pack.kind, addOn: isAddOn(pack) } : {}),
+                    // (a format 4 pack that no longer checks keeps its stored kind, so it is listed as a world or game that cannot be used, not as a format 3 pack)
+                    ...(!pack && (entry.kind === 'world' || entry.kind === 'game') ? { kind: entry.kind, addOn: false } : {}),
+                    ...(pack?.kind ? { kind: pack.kind, addOn: isAddOn(pack), has: { rank: Boolean(pack.content?.you?.rank?.label), rpg: Array.isArray(pack.content?.rpg) && pack.content.rpg.length > 0 } } : {}),
                     source: SOURCES.includes(entry.source) ? entry.source : 'file',
                     origin: String(entry.origin ?? ''),
                     counts: pack ? Object.fromEntries(Object.entries(pack.content).map(([kind, list]) => [kind, kind === 'names' ? Object.keys(list).filter(id => id !== 'banned').length : kind === 'rpg' ? list.filter(record => !['formula', 'ranks', 'pull'].includes(record?.slug)).length : list.length])) : {},

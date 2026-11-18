@@ -4,9 +4,10 @@ import { copy } from './shared-copy.js';
 
 /**
  * The Rank the first enabled pack (in list order) that declares one gives {{user}}'s look (`content.you.rank`, MODULES §F126), as
- * `{ pack, label }`, or null: a story with no such pack has no Rank.
+ * `{ pack, label }`, or null: a story with no such pack has no Rank. `own` is the reader's own label (Settings › Start): when set it is the label (`pack` is then null).
  */
-export function youRankOf(packs) {
+export function youRankOf(packs, own = '') {
+    if (typeof own === 'string' && own.trim()) return { pack: null, label: own.trim() };
     const pack = packs.find(entry => entry.content?.you?.rank?.label);
     return pack ? { pack: pack.id, label: pack.content.you.rank.label } : null;
 }

@@ -2,6 +2,7 @@
 
 import { addsLine } from '../../packs/panel.js';
 import { DM_LIMITS } from '../../modules/data-modules/schema.js';
+import { pairLines } from './packs-pair.js';
 
 const list = value => (Array.isArray(value) ? value.filter(item => item && typeof item === 'object') : []);
 const text = value => (typeof value === 'string' ? value.trim() : '');
@@ -13,6 +14,41 @@ function packLine(pack) {
   return { id: text(pack.id), name: `${pack.name} ${pack.version}`.trim(), desc: [facts, warn].filter(Boolean).join(' · '), on: pack.enabled !== false, ...(pack.problem ? { problem: pack.problem } : {}) };
 }
 
+const countWord = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+const label = pack => `${pack.name} · ${pack.version}`.trim();
+
+// What a world or game pack holds, in the page's words, joined by " · " (the mock's lines); the counts come from the list rows.
+function summary(pack) {
+  const c = pack.counts ?? {};
+  if (pack.kind === 'world') return [c.places && countWord(c.places, 'place', 'places'), c.routes && countWord(c.routes, 'route', 'routes'), c.worldEvents && countWord(c.worldEvents, 'world event', 'world events'), c.cast && `${c.cast} cast`, c.lore && countWord(c.lore, 'lore entry', 'lore entries')].filter(Boolean).join(' · ') || 'no content';
+  const coins = (pack.extras ?? []).find(word => /coins?$/.test(word));
+  const parts = [(pack.extras ?? []).includes('a calendar') && 'a calendar', coins, (pack.extras ?? []).some(word => /weather table/.test(word)) && 'weather', pack.has?.rank && 'rank', pack.hasStart && 'your start', c.names && 'names', pack.has?.rpg && 'RPG options', c.dataModules && countWord(c.dataModules, 'data module', 'data modules'), c.meterPresets && countWord(c.meterPresets, 'meter preset', 'meter presets')];
+  return parts.filter(Boolean).join(' · ') || 'no content';
+}
+
+const packRow = pack => ({ id: text(pack.id), name: label(pack), tag: pack.addOn ? 'add-on' : pack.kind, desc: pack.addOn ? `${summary(pack)}; offered in every chat, beside any game` : [summary(pack), pack.author ? `by ${pack.author}` : ''].filter(Boolean).join(' · '), ...(pack.problem ? { problem: `Not usable: ${pack.problem}` } : {}) });
+const picker = (rows, kind, none) => {
+  const own = rows.filter(row => row.kind === kind && !row.addOn && !row.problem);
+  return { value: own.find(row => row.enabled)?.id ?? '', options: [{ value: '', label: none }, ...own.map(row => ({ value: text(row.id), label: label(row) }))] };
+};
+
+/** The format 4 page (the World and Game pickers, the suggestion, the pair's problems, the worlds and games, add-ons), or null when no format 4 pack is installed. */
+function selectV4(rows, pairing) {
+  if (!rows.some(row => row.kind)) return null;
+  const info = pairing && typeof pairing === 'object' ? pairing : {};
+  const wanted = info.recommends ?? null;
+  return {
+    world: picker(rows, 'world', 'None'),
+    game: picker(rows, 'game', 'Built-in'),
+    worldName: text(info.world?.name),
+    gameName: text(info.game?.name) || 'Built-in',
+    suggest: wanted && !wanted.selected ? { id: text(wanted.id), game: text(wanted.name), installed: wanted.installed === true } : null,
+    lines: pairLines(info),
+    installed: rows.filter(row => row.kind && !row.addOn).map(packRow),
+    addOns: rows.filter(row => row.addOn).map(packRow),
+  };
+}
+
 /**
  * `answers` = { list: packs.list, setup: dataModules.setup }. → the contract's `packs`: the installed packs (switch = enabled), the data modules
  * a pack brings (switch = used by this chat; a module already in use has no way off, so its switch is locked on) and this chat's trackers.
@@ -21,11 +57,16 @@ export function selectPacks(answers) {
   const a = answers && typeof answers === 'object' ? answers : {};
   const rows = list(a.setup);
   const pinned = rows.filter(row => row.pinned === true);
+  const packs = list(a.list);
+  const v4 = selectV4(packs, a.pairing);
+  const names = Object.fromEntries(packs.map(pack => [text(pack.id), text(pack.name)]));
   return {
-    packs: list(a.list).map(packLine),
+    // Format 4: the page lists the worlds and games itself (`v4`); `packs` keeps only the older packs with their on/off switch.
+    packs: packs.filter(pack => !v4 || !pack.kind).map(packLine),
+    ...(v4 ? { v4 } : {}),
     modules: rows.filter(row => row.packId !== 'chat').map(row => ({
       id: text(row.module), name: nameOf(row), on: row.pinned === true, locked: row.pinned === true || row.available === false,
-      desc: [text(row.packId) && `from ${row.packId}`, row.pinned ? 'in use in this chat' : row.status, row.reason].filter(Boolean).join(' · '),
+      desc: [text(row.packId) && `from ${v4 ? names[text(row.packId)] || row.packId : row.packId}`, row.pinned ? 'in use in this chat' : row.status, row.reason].filter(Boolean).join(' · '),
     })),
     trackers: {
       cap: DM_LIMITS.pins,
