@@ -16,12 +16,15 @@ import { settleStep } from '../interaction/watch.js';
 import { createLateEvents } from './events-late.js';
 import { createReplyHooks } from './events-hooks.js';
 import { keptProblems } from './problem-keep.js';
+import { createProseEdits } from './edit-prose.js';
 export function createEvents(s, deps) {
     const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
     const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
     const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate, keepLog: () => s.keepLog?.() });
     s.afterReply = afterReply;   // (Re-read asks it for a repair of a reply that still has no block: reread.js)
+    // The text each message had, for telling a prose-only edit (docs/dev/edit-prose-only.md).
+    const proseEdits = createProseEdits({ ctx, isCarrier, changeHeads });
 
     /** MESSAGE_RECEIVED: (messageId, type). */
     async function onMessageReceived(messageId) {
@@ -212,17 +215,24 @@ export function createEvents(s, deps) {
     }
 
     /**
-     * Deleted messages, swipes, a greeting picked: the state is rebuilt from what is stored. `reason` ('delete', 'swipe',
-     * 'edit'; anything else is none) rides on the head event for the public API's `story:rebuilt`.
+     * Deleted messages, swipes, a greeting picked, an edit: the state is rebuilt from what is stored. `reason` ('delete', 'swipe',
+     * 'edit'; anything else is none) rides on the head event for the public API's `story:rebuilt`. `index`: the message an
+     * edit changed (MESSAGE_EDITED). A prose-only edit (its change block and stray change lines as they were, and every block
+     * of the reply applied after the rebuild) skips the reconcile: an edit plans nothing again by itself, Re-read is how it
+     * reaches the story (docs/dev/edit-prose-only.md). Without an index, or any other edit, the full path runs.
      */
-    async function onTimelineChanged(reason) {
+    async function onTimelineChanged(reason, index = null) {
+        // (told from the text first: what was remembered is replaced by the head event below)
+        const prose = reason === 'edit' ? proseEdits.proseOnly(index) : null;
         if (typeof prepare === 'function') { try { await within(prepare({ scan: false }), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         rebuild({ publish: false });
         resumeHeldBoard();
         restoreHeldBoard();
-        const carry = timeline?.carryBoundaries?.();
-        reconcileNow();
-        carry?.();
+        if (prose === null || store.problems().some(entry => entry?.index === prose)) {
+            const carry = timeline?.carryBoundaries?.();
+            reconcileNow();
+            carry?.();
+        }
         timeline?.settle();
         if (timeline?.needsRecovery()) await timeline.recover();
         // one head, after the steps that follow the change are planned again
@@ -276,6 +286,10 @@ export function createEvents(s, deps) {
         // The unsent interaction scratch follows every head move (a rewind or a restore announces only this event).
         const offScratch = events?.on?.('head', reconcileScratch);
         if (offScratch) s.offBoard.push(offScratch);
+        // The text each message has after every change Story Suite or the reader makes (a prose-only edit is told against it).
+        for (const off of s.offProse ?? []) off();
+        s.offProse = ['head', 'turn', 'committed'].map(name => events?.on?.(name, proseEdits.remember)).filter(Boolean);
+        proseEdits.remember();
         const source = ctx?.eventSource;
         const names = ctx?.eventTypes ?? ctx?.event_types ?? {};
         const on = (event, fn) => {
@@ -293,7 +307,9 @@ export function createEvents(s, deps) {
         on(names.CHAT_RENAMED, onChatRenamed);
         // MESSAGE_EDITED too: a record's swipe mark follows an edit (persist.js restamp), so a Continue
         // after it still finds the record.
-        for (const [event, reason] of [[names.MESSAGE_DELETED, 'delete'], [names.MESSAGE_SWIPED, 'swipe'], [names.CHARACTER_FIRST_MESSAGE_SELECTED, 'swipe'], [names.MESSAGE_EDITED, 'edit']]) on(event, () => onTimelineChanged(reason));
+        for (const [event, reason] of [[names.MESSAGE_DELETED, 'delete'], [names.MESSAGE_SWIPED, 'swipe'], [names.CHARACTER_FIRST_MESSAGE_SELECTED, 'swipe']]) on(event, () => onTimelineChanged(reason));
+        // (the edited message's index goes with it: a prose-only edit skips the reconcile)
+        on(names.MESSAGE_EDITED, index => onTimelineChanged('edit', index));
         on(names.MESSAGE_SWIPE_DELETED, onSwipeDeleted);
         return getApi();
     }
@@ -301,6 +317,8 @@ export function createEvents(s, deps) {
     function uninstall({ globalName = INTERCEPTOR_NAME } = {}) {
         s.offModules?.();
         s.offModules = null;
+        for (const off of s.offProse ?? []) off();
+        s.offProse = [];
         for (const off of s.offBoard) off();
         s.offBoard = [];
         const source = ctx?.eventSource;
