@@ -12,6 +12,7 @@
 import { DEFAULT_MAP, DEFAULT_PACES, mapSettings, parseLocation } from '../places.js';
 import { MAX_NAME, cleanName, revOf } from './domain.js';
 import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, basePace, goKeyOf, modeOf, modeWords, planTrip, positionOf, startOf, tripOf } from './trip.js';
+import { packRegions } from './anchor.js';
 import { startNode } from './trip-start.js';
 import { packWorld, worldOf } from './world.js';
 import { replyKey } from '../../world/reply-keys.js';
@@ -137,7 +138,7 @@ export function applyTripLine(ctx, line) {
     if (here.road) from = { road: here.road };
     else {
         // A place the narrator made up has no route: set out from the pack place its name stands for (LF4-3; by name only, LF4B2).
-        const start = startNode(world, pack, here.node);
+        const start = startNode(world, pack, here.node, packRegions(queryOf(ctx)));
         if (!start) return ctx.fail('NOT_FOUND', `${here.node} is not on the map, so no known route starts there.`);
         from = { node: start.id };
     }

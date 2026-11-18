@@ -13,6 +13,8 @@ export const receiptView = receipt => ({
     rev: Number.isInteger(receipt?.rev) ? receipt.rev : null,
     summary: oneLine(receiptCue(receipt), 300),
     narrate: receipt?.narrate !== false,
+    // What the receipt says it showed the reader (LF4-7): the Inspector lists this, not the narrator's instruction in `summary`.
+    ...(typeof receipt?.data?.shown === 'string' && receipt.data.shown ? { data: { shown: oneLine(receipt.data.shown, 300) } } : {}),
 });
 
 /**

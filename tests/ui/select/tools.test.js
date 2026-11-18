@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { selectSavePoints, selectProblems, selectSent, selectInspector } from '../../../ui/select/tools.js';
+import { receiptView } from '../../../packs/screens/inspect-parts/reply-view.js';
 import { selectSettings } from '../../../ui/select/settings.js';
 
 const size = { tail: 551, static: 900, own: [{ tokens: 40 }], total: 1491 };
@@ -58,7 +59,11 @@ test('save point rows: the message number SillyTavern shows (it counts from 0) a
 });
 
 test('LF4-7: the Inspector lists what a receipt says it showed (data.shown), not the narrator\'s instruction that is its summary', () => {
-  const receipts = [{ id: 'a', type: 'director.pulse', module: 'director', summary: 'World this reply: [mood swing, noticed, town] invent ONE small plausible thing', data: { shown: 'World this reply: mood swing (noticed): the narrator invents it' } }, { id: 'b', type: 't', module: 'm', summary: 'did', data: {} }];
+  // The receipts go through the real receiptView (what the inspector keeps of a stored receipt), not straight into the selector.
+  const stored = [{ id: 'a', type: 'director.pulse', module: 'director', summary: 'World this reply: [mood swing, noticed, town] invent ONE small plausible thing', data: { shown: 'World this reply: mood swing (noticed): the narrator invents it', secret: 'x' } }, { id: 'b', type: 't', module: 'm', summary: 'did', data: {} }];
+  const receipts = stored.map(receiptView);
+  assert.deepEqual(receipts[0].data, { shown: 'World this reply: mood swing (noticed): the narrator invents it' }, 'only data.shown is kept');
+  assert.equal(receipts[1].data, undefined);
   const handle = { replies: [{ index: 1, name: 'A', snippet: 's', rev: 1, head: true }], reply: () => ({ ok: true, name: 'A', rev: 1, head: true, diff: { entries: [], more: 0 }, ops: [], receipts, problems: [], state: {} }) };
   assert.deepEqual(selectInspector(handle).reply.receipts.map(r => r.summary), ['World this reply: mood swing (noticed): the narrator invents it', 'did']);
 });

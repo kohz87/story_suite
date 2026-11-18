@@ -5,6 +5,7 @@
 import { conditionHolds } from '../../daily/holds-read.js';
 import { placeOf } from '../../daily/cast-where.js';
 import { resolveRef } from '../../daily/geo.js';
+import { regionLabel } from '../../daily/region-label.js';
 import { textPlace } from '../../daily/shown-place.js';
 import { shownMenu } from './open-menu.js';
 
@@ -13,12 +14,12 @@ const MAX_FIGURES = 12;
 const MAX_LORE_CHARS = 2400;
 const MAX_TITLES = 40;
 
-/** The conditions active at the slot's place, region and realm: ["name at ref: means"]. */
+/** The conditions active at the slot's place, region and realm: ["name at place, region or realm (the region by its name): means"]. */
 function conditionsAt(ws, slot, means) {
     const out = [];
     for (const ref of [slot.place, slot.region, slot.realm].filter(Boolean)) {
         for (const name of [...ws.declared.keys()].sort()) {
-            if (ws.table[`${name}@${ref}`] && conditionHolds(ws, name, ref, ws.day * DAY)) out.push(`${name} at ${ref}${means.get(name) ? `: ${means.get(name)}` : ''}`);
+            if (ws.table[`${name}@${ref}`] && conditionHolds(ws, name, ref, ws.day * DAY)) out.push(`${name} at ${ref === slot.region ? slot.regionName || regionLabel(ws.geo, ref) : ref}${means.get(name) ? `: ${means.get(name)}` : ''}`);
         }
     }
     return out;
@@ -34,7 +35,7 @@ export function slotView(ws, def, slot, world) {
         : [];
     // The template's words are filled in as the day fills the fallback's ({place}, {region}, {realm}): the Director is never shown a bare placeholder.
     const summary = String(def.summary ?? '').replace(/\{place\}/g, textPlace(ws.geo, slot.place, slot.regionName || slot.region)).replace(/\{region\}/g, slot.regionName || slot.region || '').replace(/\{realm\}/g, slot.realm ?? '');
-    return { name: def.id, summary, menu: shownMenu(ws, def.open.menu, slot), facts: def.open.facts, ...(def.open.arc ? { arc: def.open.arc } : {}), conditions: conditionsAt(ws, slot, means), figures };
+    return { name: def.id, summary, regionName: slot.region ? slot.regionName || regionLabel(ws.geo, slot.region) : '', menu: shownMenu(ws, def.open.menu, slot), facts: def.open.facts, ...(def.open.arc ? { arc: def.open.arc } : {}), conditions: conditionsAt(ws, slot, means), figures };
 }
 
 /** The lore text for a batch: the digest's titles, then the matching entries for each slot, cut to a size. `ask(name, args)` is the view's query. */
