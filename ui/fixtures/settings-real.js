@@ -57,6 +57,9 @@ export const REAL_ROWS = {
     {"key":"rpg.autoExchanges","group":"Fights","type":"num","label":"Most exchanges Auto plays","hint":"On the fight board; 9 plays until the end","value":3,"default":3,"options":null,"unit":null,"tags":[],"wide":false},
     {"key":"rpg.overLoad","group":"Fights","type":"info","label":"Over the load limit","hint":"−2 to AGI and DEX checks and −25% travel pace; items have their own weights","value":"rule","default":"rule","options":null,"unit":null,"tags":[],"wide":false},
     {"key":"rpg.storyChecksUseYourStats","group":"Fights","type":"sw","label":"Story checks use your stats","hint":"Out-of-fight checks use your stats; their numbers are in Director › Checks","value":true,"default":true,"options":null,"unit":null,"tags":[],"wide":false},
+    {"key":"rpg.pickWhatYouTake","group":"Bag and gear","type":"sw","label":"Pick what you take","hint":"The story can lay out loot (? loot A, B, C — where); the reply's card shows it as chips and you take the ones you want.","value":true,"default":true,"options":null,"unit":null,"tags":[],"wide":false},
+    {"key":"rpg.encumbered","group":"Bag and gear","type":"sw","label":"Encumbered","hint":"What the story gives past the carry limit is kept, and the party is encumbered (a check penalty) until something is put down. Your own buys and takes are still refused.","value":true,"default":true,"options":null,"unit":null,"tags":[],"wide":false},
+    {"key":"rpg.gearInFights","group":"Bag and gear","type":"sw","label":"Gear in fights","hint":"Worn gear adds a few points to the stats by rarity and wears down; what a member can carry follows their strength (and the party is encumbered past it).","value":false,"default":false,"options":null,"unit":null,"tags":[],"wide":false},
   ],
   world: [
     {"key":"world.calendar","group":"Calendar","type":"seg","label":"Calendar","hint":"From the pack, or a preset","value":"From the pack","default":null,"options":["From the pack","Gregorian","Custom"],"unit":null,"tags":["merged:D4"],"wide":false},
@@ -126,7 +129,6 @@ export const REAL_ROWS = {
     {"key":"calls.kinds","group":"Calls","type":"chips","label":"The fallback may write","value":["Time set","Time moves on","Place","Someone arrives","Someone leaves","Weather","Quest progress","Quest turned in","Wounds","Item handed over"],"default":null,"options":["Time set","Time moves on","Place","Someone arrives","Someone leaves","Weather","Quest progress","Quest turned in","Wounds","Item handed over","World news","World news update","Faction","Faction update","Hook closed"],"hint":"The ten kinds on by default; world news and faction lines are optional","unit":null,"tags":[],"wide":true},
   ],
   addons: [
-    {"key":"addons.customViews","group":"Custom views","type":"info","label":"Allow custom views","hint":"Sandboxed pages a pack can bring; they can only ask the suite to do things","value":"off · not available yet","default":null,"options":null,"unit":null,"tags":[],"wide":false},
     {"key":"addons.installedModules","group":"Modules","type":"info","label":"Installed modules","hint":"Plug-in code that adds tabs or rules","value":"Story Block 2.33.0, Story Director 2.16.0","default":null,"options":null,"unit":null,"tags":[],"wide":false},
   ],
   tools: [
