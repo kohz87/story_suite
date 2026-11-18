@@ -6,6 +6,7 @@ import { areaLineGroups } from '../../board/order.js';
 import { RPG_STRINGS, fill } from '../../strings.js';
 import { BARS, readFoes, readParty } from '../party-data.js';
 import { B } from './constants.js';
+import { barWord } from './bar-word.js';
 
 // What moved between the state before the reply and the reply's own: "Sluice Rat A Wounded", "Ren Tired".
 function consequences(state, before, roleOf) {
@@ -19,7 +20,14 @@ function consequences(state, before, roleOf) {
     for (const character of readParty(state, { roleOf })) {
         const old = was.get(`${character.module}|${character.subject}`);
         if (!old) continue;
-        for (const key of BARS) if (old.bars[key].value !== character.bars[key].value) out.push({ name: character.name, kind: key, text: key === 'health' ? `${character.name} ${character.bars[key].word}` : fill(B.arrowBar, { name: character.name, bar: character.definition.state?.[key]?.label ?? RPG_STRINGS.bars[key], word: character.bars[key].word }) });
+        for (const key of BARS) {
+            const bar = character.bars[key];
+            if (old.bars[key].value === bar.value) continue;
+            // (a Combat Rules v1 bar is numbers with no stage word: its words come from the stage list, and its HP line already shows the numbers, so only a Down is added)
+            const word = barWord(key, bar);
+            if (key === 'health' && bar.numbers) { if (bar.value <= 0) out.push({ name: character.name, kind: key, text: `${character.name} is ${word}` }); continue; }
+            out.push({ name: character.name, kind: key, text: key === 'health' ? `${character.name} ${word}` : fill(B.arrowBar, { name: character.name, bar: character.definition.state?.[key]?.label ?? RPG_STRINGS.bars[key], word }) });
+        }
     }
     return out;
 }

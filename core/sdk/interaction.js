@@ -5,7 +5,7 @@ import { dice, interactionSeed } from '../interaction/dice.js';
 import { STORY_ACTION_POLICY, policyProblem } from '../interaction/policy.js';
 import { markSend } from '../interaction/send.js';
 import { discardHeld } from '../interaction/held.js';
-import { actorsOf, currentFor, playPreview } from '../interaction/preview.js';
+import { actorsOf, currentFor as currentOf, playPreview } from '../interaction/preview.js';
 import { createSession, stageInteraction } from '../interaction/session.js';
 import { hashJson } from '../replay.js';
 import { hashText } from '../../modules/assist/common.js';
@@ -151,6 +151,13 @@ export function createInteractionApi({
         try { return preview(session.opening.payload, session.opening.seed, head) ?? head; } catch { return head; }
     };
     const ask = (name, args) => (typeof query === 'function' ? query(name, args) : undefined);
+    // `canSend` stays "something is staged"; `waiting: false` is added when no message of the reader's waits for this session (send() would refuse), so a view shows no "Send with this" that does nothing (a fight started from the offer).
+    const currentFor = (box, ...rest) => {
+        const current = currentOf(box, ...rest);
+        if (!current?.canSend) return current;
+        const pending = pendingOf(chat);
+        return pending && pending.anchor === box?.open?.anchor ? current : { ...current, waiting: false };
+    };
 
     function open(kindId, args = {}) {
         const kind = kindOf(registry, kindId);

@@ -2,9 +2,9 @@
 
 import { HOLD_EVENT, SCREEN_EVENT } from '../../modules/rpg/board/hold-bridge.js';
 
-const ask = (doc, op) => {
+const ask = (doc, op, extra = {}) => {
   if (typeof doc?.dispatchEvent !== 'function' || typeof globalThis.CustomEvent !== 'function') return null;
-  const detail = { op, answer: null, handled: false };
+  const detail = { ...extra, op, answer: null, handled: false };
   try { doc.dispatchEvent(new globalThis.CustomEvent(HOLD_EVENT, { detail })); } catch { return null; }
   return detail;
 };
@@ -13,8 +13,8 @@ const ask = (doc, op) => {
 export function createHold(doc = globalThis.document) {
   return Object.freeze({
     view: () => ask(doc, 'view')?.answer ?? null,
-    choose(op) {
-      const detail = ask(doc, op);
+    choose(op, extra) {
+      const detail = ask(doc, op, extra);
       if (!detail?.handled) return { ok: false, code: 'FAILED', message: 'The waiting fight cannot be reached.' };
       if (detail.error) return { ok: false, code: 'FAILED', message: detail.error };
       return { ok: true, view: detail.answer };

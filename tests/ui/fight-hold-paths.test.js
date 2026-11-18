@@ -42,6 +42,7 @@ test('a reload into a waiting fight shows its offer; a reload with the board cho
   await settled();
   assert.equal(tab(doc).dataset.step, 'choose', 'the board after a reload');
   tab(doc).querySelector('[data-discard]').click();
+  tab(doc).querySelector('[data-confirm="discard"]').click(); // (Discard asks first)
   await settled();
   assert.equal(box(host).start?.choice, null, 'Discard still answers the pause (the offer is back)');
 });

@@ -60,3 +60,17 @@ test('a settle that cannot be prepared holds the send with the reason', async ()
         assert.match(host.turn.blocked().at(-1).reason, /changed/);
     } finally { host.close(); }
 });
+
+test('the view says no message waits (waiting: false) until the reader\'s message is typed, then Send is on', async () => {
+    const host = await createHost({ modules: [iaModule()] });
+    try {
+        await host.send('Hello.', 'The door is north.');
+        const api = iaApi(host), id = api.open(IA_KIND).id;
+        assert.equal(api.stage(id, GO).ok, true);
+        assert.equal(api.current().canSend, true, 'something is staged');
+        assert.equal(api.current().waiting, false, 'but no message waits to go with it');
+        host.st.addUser('I go.');
+        assert.equal(api.current().waiting, undefined, 'a waiting message makes Send real');
+        assert.equal(api.send(id).ok, true);
+    } finally { host.close(); }
+});

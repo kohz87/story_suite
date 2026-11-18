@@ -41,7 +41,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
   // The open fight, or the waiting one (the pause before the reader's message goes out: its offer); an open fight the waiting message goes with is `held` (its Send and Discard answer the pause).
   const fightOf = read => {
     const open = selectFightScene(read('interaction.view', {})), info = hold?.view?.() ?? null;
-    if (open) return info?.choice === 'board' ? { ...open, held: true } : open;
+    if (open) { const place = read('scene.place', {})?.name ?? null, shown = place ? { ...open, place } : open; return info?.choice === 'board' ? { ...shown, held: true } : shown; } // (the header reads "Fight · place")
     return selectHold(info, { sheet: read('rpg.sheet', {}), place: read('scene.place', {})?.name ?? null });
   };
   const wizard = createWizardWorld({ sdk, ctx });

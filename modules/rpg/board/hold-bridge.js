@@ -4,12 +4,12 @@
 
 import { foeStats } from '../combat/foes.js';
 
-/** `{ op, answer }`: op 'view' answers the waiting choice; 'board', 'auto', 'plain', 'send' and 'discard' run the reader's answer and give the new view. The bridge itself sends op 'changed' when it starts or stops answering and when the pause changes. */
+/** `{ op, answer }`: op 'view' answers the waiting choice; 'board', 'auto', 'plain', 'send' and 'discard' run the reader's answer and give the new view; 'restore' (with `origin`, the reply a discarded fight was opened on) gives the offer back that the fight's choice had marked done. The bridge itself sends op 'changed' when it starts or stops answering and when the pause changes. */
 export const HOLD_EVENT = 'story-suite:fight-hold';
 /** `{ id, handled }`: a screen the old view is about to open; a view that shows it itself sets `handled`. */
 export const SCREEN_EVENT = 'story-suite:screen';
 
-const OPS = ['board', 'auto', 'plain', 'send', 'discard'];
+const OPS = ['board', 'auto', 'plain', 'send', 'discard', 'restore'];
 
 /** Tells the page the waiting choice (the pause or the standing-foes offer) changed or can now be read. */
 function notifyHold(doc) {
@@ -36,7 +36,7 @@ export function attachHoldBridge({ doc, start, discard = () => {}, offers = null
         const info = start.info() ?? offers?.info?.() ?? null;
         return info ? { ...info, foes: (info.foes ?? []).map(foe => ({ ...foe, hp: foeStats(foe).hp })) } : null;
     };
-    const run = op => {
+    const run = (op, origin) => {
         const offered = (op === 'board' || op === 'auto') && !start.info() && offers?.info?.();
         if (offered) offers.answer(op);
         else if (op === 'board') start.board();
@@ -44,12 +44,13 @@ export function attachHoldBridge({ doc, start, discard = () => {}, offers = null
         else if (op === 'plain') start.plain();
         else if (op === 'send') start.send();
         else if (op === 'discard') start.discard(discard);
+        else if (op === 'restore') offers?.restore?.(origin);
     };
     const answer = event => {
         const detail = event?.detail;
         if (!detail || typeof detail !== 'object') return;
         try {
-            if (OPS.includes(detail.op)) run(detail.op);
+            if (OPS.includes(detail.op)) run(detail.op, detail.origin);
             else if (detail.op !== 'view') return;
             detail.answer = view();
             detail.handled = true;
