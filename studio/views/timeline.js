@@ -167,7 +167,7 @@ function resultPage(ctx, st) {
     const fired = rows.reduce((sum, day) => sum + day.fired.length, 0);
     const stale = st.ranOn !== ctx.doc ? ' The pack has changed since: run it again to see the change.' : '';
     const summary = group('st-dry-sum', 'The run',
-        row('st-dry-result', `${plural(result.days, 'day')} · seed “${result.seed}” · tempo ${result.tempo}×: ${plural(fired, 'event')} fired`, `On ${st.against}.${stale}`, null, { stale: String(Boolean(stale)) }),
+        row('st-dry-result', `${plural(result.days, 'day')} · seed “${result.seed}” · tempo ${result.tempo}×: ${plural(fired, 'event')} fired`, `${result.start?.date ? `From ${result.start.date.day} ${result.start.date.month} ${result.start.date.year}, the world’s start date, on` : 'From day 1, since the world gives no start date, on'} ${st.against}.${stale}`, null, { stale: String(Boolean(stale)) }),
         (result.warnings ?? []).map(text => row('st-dry-warn', h('span', h('span', { class: 'st-mark', 'aria-hidden': 'true' }, '! '), text), 'What the engine said about the pack', null, { level: 'warning' })));
     return [summary, timelineGroup(ctx, st, busy), holdsGroup(rows, Math.max(result.days, 1)), curvesGroup(ctx, rows), castGroup(ctx, rows)];
 }

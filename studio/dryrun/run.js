@@ -3,12 +3,13 @@
 // `simulate` is pure (the same seed gives the same days); `startDryRun` runs it in a Worker (studio/dryrun/worker.js) and can be cancelled.
 
 import { runDays } from '../../modules/world/daily/step.js';
+import { startDayOf, startWorldOf } from './start.js';
 
 const MAX_DAYS = 3650;
 const list = value => (Array.isArray(value) ? value : []);
 const plain = value => JSON.parse(JSON.stringify(value ?? null));
 
-/** The world the step reads, from a pack's content (the keys `readWorld` builds for a chat). `game` may carry `seasons`; a pack's `start.world` is applied on day 1. */
+/** The world the step reads, from a pack's content (the keys `readWorld` builds for a chat). `game` may carry `seasons`; the pack's start state (`content.start.world`, or the older `start.world`) is applied on day 1. */
 export function worldOf(pack, game = null) {
     const content = pack?.content ?? {};
     const merged = rows => Object.assign({}, ...list(rows).filter(item => item && typeof item === 'object' && !Array.isArray(item)));
@@ -19,8 +20,8 @@ export function worldOf(pack, game = null) {
         templates: list(content.templates), powers: list(content.powers), scores: list(content.scores), cast: list(content.cast), lore: list(content.lore), regions: list(content.regions),
         seasons: list(game?.seasons ?? pack?.weather?.seasons).length ? list(game?.seasons ?? pack?.weather?.seasons) : null,
     };
-    const begin = pack?.start?.world;
-    if (begin && typeof begin === 'object') world.startWorld = { set: list(begin.set), facts: list(begin.facts) };
+    const begin = startWorldOf(pack);
+    if (begin) world.startWorld = begin;
     return world;
 }
 
@@ -38,17 +39,18 @@ function dayRow(day, out) {
 }
 
 /**
- * `simulate({ pack, game?, seed, tempo?, days, calendar?, onDay? })` → `{ seed, tempo, days, rows, finalEvents, warnings }`: day 1 to `days` stepped one at a time.
- * `calendar` is the chat's calendar config (the step reads seasons and dates from it); none means Gregorian. `onDay(day)` is called after each day.
+ * `simulate({ pack, game?, seed, tempo?, days, calendar?, onDay? })` → `{ seed, tempo, days, start, rows, finalEvents, warnings }`: day 1 to `days` stepped one at a time, from the world's start date.
+ * `calendar` is the chat's calendar config (the step reads seasons and dates from it); none means Gregorian. `start` is `{ day, date }` (start.js): the first stepped day's absolute number and the start date, or `date: null` when the pack gives none (the run then begins on day 1). `onDay(day)` is called after each day.
  */
 export function simulate({ pack, game = null, seed, tempo = 1, days, calendar = null, onDay = null }) {
     const count = Number.isInteger(days) ? Math.min(Math.max(days, 1), MAX_DAYS) : 1;
     const world = worldOf(pack, game);
     const campaign = String(seed ?? '');
+    const start = startDayOf(pack, calendar);
     let state = null, table = {};
     const rows = [], warnings = new Set();
     for (let day = 1; day <= count; day += 1) {
-        const out = runDays({ state, table, world, today: day, seed: campaign, tempo, met: [], withYou: [], positions: null, calendar });
+        const out = runDays({ state, table, world, today: start.day + day - 1, seed: campaign, tempo, met: [], withYou: [], positions: null, calendar });
         if (out) {
             state = out.daily;
             table = out.conditions;
@@ -57,7 +59,7 @@ export function simulate({ pack, game = null, seed, tempo = 1, days, calendar = 
         }
         if (onDay) onDay(day);
     }
-    return { seed: campaign, tempo, days: count, rows, finalEvents: Object.fromEntries(Object.entries(state?.events ?? {}).map(([id, row]) => [id, row.state])), warnings: [...warnings] };
+    return { seed: campaign, tempo, days: count, start, rows, finalEvents: Object.fromEntries(Object.entries(state?.events ?? {}).map(([id, row]) => [id, row.state])), warnings: [...warnings] };
 }
 
 /**

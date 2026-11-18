@@ -39,6 +39,15 @@ function setup({ world = busyWorld(), game = null, worker = undefined } = {}) {
     }
     return { ctx, calls, draw, get page() { return page; } };
 }
+test('the run row names the world\u2019s start date, from content.start', async () => {
+    const world = busyWorld();
+    world.content.start = { date: { year: 611, month: 10, day: 1 }, world: { set: [], facts: [] } };
+    const { draw } = setup({ world });
+    draw().querySelector('.st-dry-run').click();
+    await settle();
+    assert.match(document.body.querySelector('.st-dry-result').textContent, /From 1 October 611, the world’s start date, on the built-in calendar\./);
+});
+
 const settle = () => new Promise(resolve => setTimeout(resolve, 5));
 const field = (page, key) => page.querySelector(`[data-key="${key}"]`);
 const texts = (page, selector) => page.querySelectorAll(selector).map(node => node.textContent);
@@ -68,7 +77,7 @@ test('Run (no Worker: in the page) shows Running, then the result, which is the 
     const fired = expected.rows.reduce((sum, row) => sum + row.fired.length, 0);
     assert.equal(page.querySelector('.st-dry-act').dataset.state, 'idle');
     assert.match(page.querySelector('.st-dry-result').textContent, new RegExp(`90 days · seed “${ctx.doc.id}” · tempo 1×: ${fired} events? fired`));
-    assert.match(page.querySelector('.st-dry-result').textContent, /On the built-in calendar\./);
+    assert.match(page.querySelector('.st-dry-result').textContent, /From day 1, since the world gives no start date, on the built-in calendar\./);
     const busy = expected.rows.filter(row => row.journal.length || row.moves.length || row.deaths.length).map(row => String(row.day));
     for (const day of busy) assert.ok(page.querySelector(`.st-day[data-day="${day}"]`), `day ${day} is on the timeline`);
     assert.ok(texts(page, '.st-line').some(text => /A levy is called in the Fen\./.test(text)));
@@ -125,9 +134,11 @@ test('the timeline\'s Go to opens the event and the template; holds and curves a
     assert.match(stands[0].querySelector('small').textContent, /Power · day 1: 20 · day 90: 20 · low 20 · high 20/);
     assert.ok(stands[0].querySelector('svg polyline').getAttribute('points').startsWith('0,15.00'));
     const holds = page.querySelectorAll('.st-hold');
-    assert.deepEqual(holds.map(hold => hold.dataset.name), ['unrest']);
-    assert.match(holds[0].querySelector('small').textContent, /^3 days held: days 17–19$/);
-    assert.equal(holds[0].querySelector('.st-bar span').style.getPropertyValue?.('width') ?? holds[0].querySelector('.st-bar span').getAttribute('style'), `${(3 / 90) * 100}%`);
+    // The world's start (content.start.world) holds lamps-out from day 1.
+    assert.deepEqual(holds.map(hold => hold.dataset.name), ['lamps-out', 'unrest']);
+    assert.match(holds[0].querySelector('small').textContent, /^\d+ days held: days 1–\d+$/);
+    assert.match(holds[1].querySelector('small').textContent, /^3 days held: days 17–19$/);
+    assert.equal(holds[1].querySelector('.st-bar span').style.getPropertyValue?.('width') ?? holds[1].querySelector('.st-bar span').getAttribute('style'), `${(3 / 90) * 100}%`);
 });
 
 // A fake Worker that answers through the real worker wrapper, or with a set result, or crashes; it never answers until `tick()`.

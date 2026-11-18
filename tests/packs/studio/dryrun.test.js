@@ -83,3 +83,33 @@ test('startDryRun: an engine error, a crashed worker and a cancel all reject wit
     await assert.rejects(run2.done, /cancelled/);
     assert.equal(worker.terminated, 1);
 });
+
+// A format 4 world keeps its start in content.start; the run begins on that date, as a chat's first step reads it, and holds the start state on day 1.
+const format4 = () => {
+    const world = structuredClone(pack);
+    delete world.start;
+    world.content.start = { date: { year: 611, month: 10, day: 1 }, world: { set: ['unrest@Oakhollow: 5 days'], facts: ['early-flood'] } };
+    return world;
+};
+
+test('the start state is read from content.start (format 4) and still from the older top-level start', () => {
+    assert.deepEqual(worldOf(format4()).startWorld, { set: ['unrest@Oakhollow: 5 days'], facts: ['early-flood'] });
+    assert.deepEqual(worldOf(pack).startWorld.set, ['unrest@Oakhollow: 5 days']);
+    assert.equal(worldOf({ content: {} }).startWorld, undefined);
+    assert.ok(simulate({ pack: format4(), seed: 'a', days: 3 }).rows[0].held.includes('unrest'), 'day 1 holds the start condition');
+});
+
+test('the run starts on the world\u2019s start date on the calendar, not on day 0; the same seed on another date plays out differently', () => {
+    const world = format4();
+    const gregorian = simulate({ pack: world, seed: 'a', days: 5 });
+    assert.deepEqual(gregorian.start, { day: 223436, date: { year: 611, month: 'October', day: 1 } });
+    const calendar = { months: [{ name: 'Alpha', days: 30 }, { name: 'Beta', days: 30 }, { name: 'Gamma', days: 30 }, { name: 'Delta', days: 30 }, { name: 'Epsilon', days: 30 }, { name: 'Zeta', days: 30 }, { name: 'Eta', days: 30 }, { name: 'Theta', days: 30 }, { name: 'Iota', days: 30 }, { name: 'Kappa', days: 30 }], era: 'CY' };
+    const custom = simulate({ pack: world, seed: 'a', days: 5, calendar });
+    assert.equal(custom.start.day, 611 * 300 + 9 * 30, 'the tenth month of 611, day 1, on a 300-day year');
+    assert.equal(custom.start.date.month, 'Kappa');
+    assert.equal(simulate({ pack, seed: 'a', days: 5 }).start.date, null, 'no start date: the run begins on day 1');
+    assert.equal(simulate({ pack, seed: 'a', days: 5 }).start.day, 1);
+    // The step is fed the real day: season-driven events differ with the date.
+    const many = date => JSON.stringify(simulate({ pack: { ...world, content: { ...world.content, start: { ...world.content.start, date } } }, seed: 'a', days: 90 }).rows.map(row => row.fired));
+    assert.notEqual(many({ year: 611, month: 1, day: 1 }), many({ year: 611, month: 7, day: 1 }));
+});
