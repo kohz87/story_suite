@@ -102,3 +102,12 @@ test('Settings carries the format 4 page and the Start rows to the contract shap
     const off = selectSettings({ features: [], packsAnswers: { list: [], setup: [] } });
     assert.deepEqual([off.sections.find(s => s.id === 'start').rows, off.sections.find(s => s.id === 'packs').desc], [[], 'Content packs, data modules and your trackers.']);
 });
+
+test('a world that cannot be used is listed under worlds and games with its problem, not as an older pack and not as a choice', () => {
+    const rows = [{ id: 'bad', name: 'bad', version: '1.0.0', kind: 'world', addOn: false, enabled: true, counts: {}, extras: [], missing: [], problem: 'a route needs a kind' }, { id: 'old', name: 'Old', version: '1', enabled: true, counts: {}, extras: [], missing: [], problem: '' }];
+    const vm = selectPacks({ list: rows, setup: [] });
+    assert.deepEqual(vm.packs.map(p => p.id), ['old']);
+    assert.deepEqual(vm.v4.installed.map(p => [p.id, p.problem]), [['bad', 'Not usable: a route needs a kind']]);
+    assert.deepEqual(vm.v4.world.options.map(o => o.value), ['']);
+    assert.equal(vm.v4.world.value, '');
+});

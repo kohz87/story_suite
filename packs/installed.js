@@ -172,6 +172,8 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
                     author: pack?.author ?? '',
                     description: pack?.description ?? '',
                     enabled: isOn(entry, pack),
+                    // (a format 4 pack that no longer checks keeps its stored kind, so it is listed as a world or game that cannot be used, not as a format 3 pack)
+                    ...(!pack && (entry.kind === 'world' || entry.kind === 'game') ? { kind: entry.kind, addOn: false } : {}),
                     ...(pack?.kind ? { kind: pack.kind, addOn: isAddOn(pack), has: { rank: Boolean(pack.content?.you?.rank?.label), rpg: Array.isArray(pack.content?.rpg) && pack.content.rpg.length > 0 } } : {}),
                     source: SOURCES.includes(entry.source) ? entry.source : 'file',
                     origin: String(entry.origin ?? ''),

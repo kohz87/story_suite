@@ -61,3 +61,13 @@ test('refused values change nothing and are not saved', async () => {
     assert.equal(await installed.setOwn('nope', 'x'), false);
     assert.equal(installed.own.read().money, null);
 });
+
+test('a stored world or game that no longer checks is still listed as that kind, with its problem', async () => {
+    const settings = fakeSettings();
+    const installed = createInstalled({ settings });
+    assert.equal((await installed.install(world())).ok, true);
+    settings.root.packs[0].pack = { ...settings.root.packs[0].pack, content: { places: [{ name: 'A' }] } };
+    const [row] = createInstalled({ settings }).list();
+    assert.deepEqual([row.kind, row.addOn], ['world', false]);
+    assert.ok(row.problem);
+});
