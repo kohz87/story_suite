@@ -127,6 +127,10 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 - **A Settings gate test (`tests/ui/settings/no-unavailable.test.js`).** It draws every Settings page and module card from the real selectors on a full host (the RPG on, the engine's token count wired in) and fails on a row whose words say it is unavailable or set elsewhere, a shown-only row that is not on its reasoned allowlist (`no-unavailable-allow.js`), a stale allowlist entry, a settable row with no control, a module card with no icon, description or token figure, and a "Settings ›" link to a page that does not exist. The Tools page's quoted prompt text is not scanned.
 - **The fight board's stated level reads NPC State's built-in Level (developer, F4).** A foe whose name matches a dossier takes that person's built-in Level (`npc.dossier`'s `level`) as its stated level; a person without one is read from the "Level" custom field as before.
 
+### Removed
+
+- **For developers: the file-moving tool and the old package leftovers.** `scripts/codemod/` (the layout planner, apply, verify and port-branch commands) and its tests, `npm run layout:plan` and its CI job, `npm run verify-import`, the per-package code maps in `docs/codemap/`, the root `workspaces` entry and the `packages/` ignore line are gone; the code map now builds one map. Kept because they have live users: the layout rule files with their reader (`scripts/codemod/rules.mjs`, `layout-map.mjs`, `load-layout-rules.mjs`, `layout/`), which the old-path test helpers and the size ratchet read, and `docs/merge/layout-old-files.txt` and `layout-nonliteral.txt`.
+
 ## 0.1.2 — 18 Nov 2026
 
 **Highlights**

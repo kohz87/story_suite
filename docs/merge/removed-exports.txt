@@ -245,3 +245,33 @@ LEGACY_POLICY
 # B4-11h: the Days screen id (story-director/days).
 daysScreen
 DAYS_ID
+# B4-12: the file-moving tool (scripts/codemod/) and the per-package code map builders, deleted with their tests.
+applyLayout
+areaMapper
+areaOf
+buildPlan
+devMapJobs
+dropKnownProblems
+loadKnownProblems
+makeMapper
+occurringStale
+PACKAGE_BASED
+packageMap
+packageOutputs
+planForArea
+planLayout
+planProblems
+portBranch
+quotedValues
+rewriteImports
+rewriteStrings
+runApply
+runPort
+runVerify
+scanSpecifiers
+splitApplyKnown
+splitKnown
+unresolvedBaseline
+verifyApplied
+verifyDiff
+verifyTree

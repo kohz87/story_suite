@@ -22,9 +22,8 @@ function resolveInternalImports(filePath, specifiers, fileSet) {
 /**
  * Builds codemap rows and validation problems for a set of repo files.
  */
-export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/jobs.json', legacyPackage = false, legacyExports = new Set(), isLegacyFile = p => p.startsWith('packages/') }) {
+export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/jobs.json', legacyExports = new Set() }) {
   const problems = [];
-  const overLimit = [];
   const sortedFiles = [];
   const jsFiles = new Set();
   for (const filePath of files.slice().sort()) {
@@ -32,12 +31,12 @@ export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/job
     if (nul) problems.push(nul);
     if (MODULE_EXT.test(filePath)) jsFiles.add(filePath);
     if (MAPPED_EXT.test(filePath)) { sortedFiles.push(filePath); continue; }
-    // Outside the package roots every file needs an extension (a script without one hides its language); only
+    // Every file needs an extension (a script without one hides its language); only
     // these well-known names are accepted, as text that is size-checked but not parsed.
     const base = filePath.split('/').pop();
     const extensionless = !base.replace(/^\.+/, '').includes('.');
     if (!extensionless) problems.push(`${filePath}: this language is not used in this repo`);
-    else if (!isLegacyFile(filePath) && !EXTENSIONLESS_OK.has(base)) problems.push(`${filePath}: files need an extension here`);
+    else if (!EXTENSIONLESS_OK.has(base)) problems.push(`${filePath}: files need an extension here`);
     else if (BUILD_FILES.has(base)) sortedFiles.push(filePath);
   }
   const fileSet = new Set(sortedFiles);
@@ -57,7 +56,7 @@ export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/job
       problems.push(`${filePath}: cannot be parsed as an ES module`);
     } else if (filePath.endsWith('.cjs')) {
       problems.push(`${filePath}: CommonJS is not allowed here`);
-    } else if (parsed.commonJs && !legacyPackage) {
+    } else if (parsed.commonJs) {
       problems.push(`${filePath}: uses the name module, exports, require, __filename or __dirname (CommonJS is not allowed here; rename it)`);
     }
 
@@ -87,9 +86,8 @@ export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/job
     const over = !isTestFile(filePath) && names.size > MAX_EXPORTS && !parsedByPath.get(filePath).facade;
     if (legacyExports.has(filePath) && !over) problems.push(`${filePath}: now within the export limit; remove it from the legacy exports list`);
     if (over) {
-      // A legacy package lists its over-limit files as a backlog instead of failing the check; so does a moved legacy file on the shrink-only list.
-      if (legacyPackage) overLimit.push({ path: filePath, count: names.size });
-      else if (legacyExports.has(filePath)) continue;
+      // A moved legacy file on the shrink-only list is not an error.
+      if (legacyExports.has(filePath)) continue;
       else problems.push(`${filePath}: ${names.size} exports (one job per file allows at most ${MAX_EXPORTS})`);
     }
   }
@@ -123,5 +121,5 @@ export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/job
   }
 
   problems.sort();
-  return { rows: Array.from(byPath.values()), problems, overLimit };
+  return { rows: Array.from(byPath.values()), problems };
 }

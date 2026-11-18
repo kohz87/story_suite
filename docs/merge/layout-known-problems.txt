@@ -1,2 +1,0 @@
-# Expected layout:plan problems, one exact line each. The plan passes when every problem is listed here
-# and fails on any other. Shrink only: never add a line. Empty now: the story-block package.json moves to docs/history, so no plan problem is expected.

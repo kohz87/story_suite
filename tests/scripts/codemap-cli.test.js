@@ -9,9 +9,8 @@ const CLI = path.resolve(import.meta.dirname, '../../scripts/codemap/cli.mjs');
 const FILES = {
   'package.json': '{"type":"module"}\n',
   'docs/codemap/jobs.json': '{}\n',
-  'docs/codemap/features-demo.json': '[{"name":"Main","entry":"src/a.js","about":"The a part."}]\n',
-  'packages/demo/src/a.js': '// Does a.\nexport const a = 1;\n',
-  'packages/demo/tests/a.test.js': "import { a } from '../src/a.js';\n",
+  'core/demo/a.js': '// Does a.\nexport const a = 1;\n',
+  'core/demo/a.test.js': "import { a } from './a.js';\n",
 };
 
 function makeRepo() {
@@ -33,66 +32,61 @@ const withRepo = fn => async () => {
   try { await fn(dir); } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 };
 
-test('--check fails when a map is missing; --write creates the root and package maps; --check then passes', withRepo(dir => {
+test('--check fails when the map is missing; --write creates it; --check then passes', withRepo(dir => {
   const missing = run(dir, '--check');
   assert.equal(missing.status, 1);
   assert.match(missing.out, /docs\/codemap\.md is stale/);
-  assert.match(missing.out, /docs\/codemap\/demo\.md is stale/);
   assert.equal(run(dir, '--write').status, 0);
-  assert.ok(fs.existsSync(path.join(dir, 'docs/codemap/demo.md')));
   const ok = run(dir, '--check');
   assert.equal(ok.status, 0, ok.out);
-  assert.match(ok.out, /docs\/codemap\/demo\.md demo 2 files \(\d+ over the export limit\), up to date/);
+  assert.match(ok.out, /docs\/codemap\.md \d+ files, up to date/);
 }));
 
-test('--check fails when a package file changes after the map was written, and --write repairs it', withRepo(dir => {
+test('--check fails when a file changes after the map was written, and --write repairs it', withRepo(dir => {
   run(dir, '--write');
-  put(dir, 'packages/demo/src/a.js', '// Does a.\nexport const a = 1;\nexport const b = 2;\n');
+  put(dir, 'core/demo/a.js', '// Does a.\nexport const a = 1;\nexport const b = 2;\n');
   const stale = run(dir, '--check');
   assert.equal(stale.status, 1);
-  assert.match(stale.out, /docs\/codemap\/demo\.md is stale/);
+  assert.match(stale.out, /docs\/codemap\.md is stale/);
   assert.equal(run(dir, '--write').status, 0);
   assert.equal(run(dir, '--check').status, 0);
 }));
 
-test('--check fails when a package test file is added or removed', withRepo(dir => {
+test('--check fails when a test file is added or removed', withRepo(dir => {
   run(dir, '--write');
-  put(dir, 'packages/demo/tests/extra.test.js', "import { a } from '../src/a.js';\n");
+  put(dir, 'core/demo/extra.test.js', "import { a } from './a.js';\n");
   assert.equal(run(dir, '--check').status, 1);
   run(dir, '--write');
-  fs.rmSync(path.join(dir, 'packages/demo/tests/a.test.js'));
+  fs.rmSync(path.join(dir, 'core/demo/a.test.js'));
   assert.equal(run(dir, '--check').status, 1);
 }));
 
-test('a package file without a job fails even when its map is current', withRepo(dir => {
-  put(dir, 'packages/demo/src/b.js', 'export const b = 1;\n');
+test('a file without a job fails even when its map is current', withRepo(dir => {
+  put(dir, 'docs/dev/b.mjs', 'export const b = 1;\n');
   const written = run(dir, '--write');
   assert.equal(written.status, 1);
-  assert.match(written.out, /packages\/demo\/src\/b\.js: no job sentence in docs\/codemap\/jobs-demo\.json/);
-  put(dir, 'docs/codemap/jobs-demo.json', '{"src/b.js":"Holds b."}\n');
+  assert.match(written.out, /docs\/dev\/b\.mjs: no job sentence in docs\/codemap\/jobs\.json/);
+  put(dir, 'docs/codemap/jobs.json', '{"docs/dev/b.mjs":"Holds b."}\n');
   assert.equal(run(dir, '--write').status, 0);
   assert.equal(run(dir, '--check').status, 0);
 }));
 
 test('a generated map has no totals line, and an edit changes only its own row and its neighbours', withRepo(dir => {
-  put(dir, 'packages/demo/src/c.js', '// Does c.\nexport const c = 3;\n');
-  put(dir, 'docs/codemap/jobs-demo.json', '{"src/c.js":"Holds c."}\n');
+  put(dir, 'core/demo/c.js', '// Does c.\nexport const c = 3;\n');
   run(dir, '--write');
-  const mapPath = path.join(dir, 'docs/codemap/demo.md');
+  const mapPath = path.join(dir, 'docs/codemap.md');
   const before = fs.readFileSync(mapPath, 'utf8').split('\n');
   assert.ok(!before.some(l => /\d+ files?, \d+ lines/.test(l)));
   assert.ok(!before.some(l => l.includes('| Lines |')));
-  put(dir, 'packages/demo/src/c.js', '// Does c.\n\n\nexport const c = 3;\n');
+  put(dir, 'core/demo/c.js', '// Does c.\n\n\nexport const c = 3;\n');
   run(dir, '--write');
   assert.equal(fs.readFileSync(mapPath, 'utf8'), before.join('\n'));
-  put(dir, 'packages/demo/src/c.js', '// Does c.\nexport const c = 3;\n');
-  run(dir, '--write');
-  put(dir, 'packages/demo/src/c.js', '// Does c.\nexport const c = 3;\nexport const d = 4;\n');
+  put(dir, 'core/demo/c.js', '// Does c.\nexport const c = 3;\nexport const d = 4;\n');
   run(dir, '--write');
   const after = fs.readFileSync(mapPath, 'utf8').split('\n');
   const changed = after.filter(l => !before.includes(l));
   assert.equal(changed.length, 1);
-  assert.match(changed[0], /^\| `src\/c\.js` /);
+  assert.match(changed[0], /^\| `core\/demo\/c\.js` /);
   assert.equal(before.filter(l => !after.includes(l)).length, 1);
 }));
 
@@ -102,7 +96,7 @@ test('an unknown mode prints usage and fails', () => {
   assert.match(r.stderr, /usage/);
 });
 
-test('docs/codemap/features.json lists feature entry points for files outside the packages: rendered in the root map, a missing file fails', withRepo(dir => {
+test('docs/codemap/features.json lists feature entry points rendered in the root map, a missing file fails', withRepo(dir => {
   put(dir, 'core/b.js', '// Does b.\nexport const b = 1;\n');
   put(dir, 'docs/codemap/features.json', '[{"name":"Core b","entry":"core/b.js","about":"The b part."}]\n');
   assert.equal(run(dir, '--write').status, 0);
