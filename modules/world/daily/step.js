@@ -13,6 +13,7 @@ import { recordAnchor } from './anchors.js';
 import { releaseDisplaced } from './cast.js';
 import { applyDeferred } from './cast-defer.js';
 import { templatesDay } from './templates-day.js';
+import { arcsDay } from './arc-day.js';
 import { authoredReads } from './open-reads.js';
 import { settleOpen } from './open-day.js';
 import { makeStepCalendar } from './cal.js';
@@ -80,6 +81,7 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
     ws.opens = { results: record(opens?.results) };
     ws.slots = structuredClone(record(state?.slots));
     ws.pending = structuredClone(list(state?.pending));
+    ws.arcs = structuredClone(record(state?.arcs));
     ws.rolled = 0;
     ws.templates = new Map(defs.templates.map(def => [def.id, def]));
     ws.reads = authoredReads(world, defs.events);
@@ -125,6 +127,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
         releaseDisplaced(ws, null, day * DAY);
         applyDeferred(ws, day);
         eventsDay(ws, defs.events, day);
+        arcsDay(ws, day);
         templatesDay(ws, defs.templates, day);
     }
     if (first > today && ws.pending.length) settleOpen(ws, today);
@@ -133,6 +136,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
         seed: campaign, start: ws.startDay, day: today, events: ws.events, anchors: ws.anchors, lastMajor: ws.lastMajor, cast: ws.cast,
         standings: ws.standings, facts: ws.facts, masks: ws.masks, minors: ws.minors, cooldowns: ws.cooldowns,
         ...(Object.keys(ws.slots).length ? { slots: ws.slots } : {}), ...(ws.pending.length ? { pending: ws.pending } : {}),
+        ...(Object.keys(ws.arcs).length ? { arcs: ws.arcs } : {}),
     };
     return {
         daily, conditions: ws.table,

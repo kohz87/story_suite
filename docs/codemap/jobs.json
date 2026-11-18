@@ -429,5 +429,10 @@
   "ui/wizard/stats.js": "Draws the wizard's Stats step in the new view: the stat sheet's − / + rows under the creation budget, Reset and the notes.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
   "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary row and Back / Next.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona, reply key, rules, levels, and whether the story has You."
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona, reply key, rules, levels, and whether the story has You.",
+  "modules/world/chronicle/world-daily/open-arc-prompt.js": "World events, generated arcs: the model-facing wording for a slot that may start an arc, sent only when a slot of the batch allows one.",
+  "modules/world/daily/arc-day.js": "World events, generated arcs: starts an arc from its checked plan and fires its steps and ending on their windows, under the major caps.",
+  "modules/world/daily/arc-plan.js": "World events, generated arcs: checks an open answer with an arc plan as a whole (step count, menu, guards, windows) and returns the one canon plan.",
+  "tests/modules/world/open/arc-replay.test.js": "Tests: generated arcs on the host (plan asked once and stored whole, replay equals live through swipe, Re-read, delete, reload, rewind).",
+  "tests/modules/world/open/arc-step.test.js": "Tests: generated arcs in the daily step (plan copy, schedule, anchors, refusals, caps, template with no arc unchanged)."
 }

@@ -70,5 +70,7 @@ export function readOpen(raw) {
     if (menu.why) return menu;
     const per = perOf(raw.per);
     if (!per) return { why: 'per must read "region per season"' };
-    return { open: { menu, facts: ids(raw.open.writes_facts) }, fallback: fallbackOf(raw.fallback), per };
+    // `arc: { steps: [low, high] }` (generated arcs, spec §5): the open template may start an arc of that many steps, the opening happening counted.
+    const arc = raw.arc !== undefined && Array.isArray(raw.arc?.steps) && raw.arc.steps.length === 2 && raw.arc.steps.every(n => Number.isInteger(n) && n >= 2 && n <= 4) && raw.arc.steps[0] <= raw.arc.steps[1] ? { steps: [...raw.arc.steps] } : null;
+    return { open: { menu, facts: ids(raw.open.writes_facts), ...(arc ? { arc } : {}) }, fallback: fallbackOf(raw.fallback), per };
 }

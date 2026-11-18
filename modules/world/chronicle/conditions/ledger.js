@@ -12,6 +12,7 @@ import { recordAnchor } from '../../daily/anchors.js';
 const MAX_KEYS = 64;
 const MAX_ANCHORS = 256;
 const MAX_RESULTS = 64;
+const MAX_RESULTS_CHARS = 120000;
 
 /** `{ anchors, tomb: { day, keys } }` from the stored slot (empty when there is none). */
 export function ledgerOf(stored) {
@@ -38,7 +39,7 @@ export function markLedger(chronicle, { day, anchors = [], tombKeys = [], take =
 }
 
 /**
- * Open templates (spec §9): the Director's stored answers by slot key (`{ outcome, answer? }`, the newest 64 kept) and the count of model calls made
+ * Open templates (spec §9): the Director's stored answers by slot key (`{ outcome, answer? }`, the newest 64 kept, and within about 120000 characters: the oldest go first) and the count of model calls made
  * (a retry counts as a call). Written whole into the ledger slot, so a swipe or delete of the reply after it never loses it.
  */
 export function storeOpen(chronicle, { results = {}, calls = 0, year = null }) {
@@ -46,6 +47,14 @@ export function storeOpen(chronicle, { results = {}, calls = 0, year = null }) {
     const merged = { ...(old.open?.results ?? {}), ...results };
     const keys = Object.keys(merged);
     for (const key of keys.slice(0, Math.max(0, keys.length - MAX_RESULTS))) delete merged[key];
+    // The newest 64 are also kept within a size: the oldest go first (never one stored now), so a run of long arc plans cannot grow the chat state without a bound.
+    let size = Object.values(merged).reduce((sum, row) => sum + JSON.stringify(row).length, 0);
+    for (const key of Object.keys(merged)) {
+        if (size <= MAX_RESULTS_CHARS) break;
+        if (key in results) continue;
+        size -= JSON.stringify(merged[key]).length;
+        delete merged[key];
+    }
     // `yearCalls`: the calls of game year `year` (the Settings counter); a call in a later year starts it again from its own calls.
     const same = isInt(year) && old.open?.year === year;
     const tally = isInt(year) ? { year, yearCalls: (same ? old.open.yearCalls : 0) + calls } : {};
