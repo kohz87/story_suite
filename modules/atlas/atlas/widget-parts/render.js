@@ -10,6 +10,7 @@ import { createDom } from '../widget-dom.js';
 import { createPlaces } from '../widget-places.js';
 import { createPointer } from '../widget-pointer.js';
 import { ALL, onLayer, readTrip, readView, text } from '../widget-view.js';
+import { anchorTrip } from '../widget-view-parts/anchor.js';
 import { wireControls } from './controls.js';
 import { views } from './views.js';
 
@@ -219,7 +220,7 @@ export function render(el, props, api) {
 
     function load(next, first) {
         s.data = readView(next);
-        s.trip = readTrip(next?.trip ?? next?.value?.trip);
+        s.trip = anchorTrip(readTrip(next?.trip ?? next?.value?.trip), s.data.places);
         // The map opens on the layer of the place {{user}} is at; with a trip on whose stages do not all lie there (the road runs on into
         // another region), it opens on All, where the whole route can be seen.
         if (first && s.trip?.on && s.data.layer !== ALL) {

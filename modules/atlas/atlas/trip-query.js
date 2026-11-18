@@ -5,6 +5,7 @@
 
 import { lineKey } from '../../world/changes.js';
 import { parseLeg } from '../routes.js';
+import { canonicalOf } from './canonical.js';
 import { scenePlace } from './note.js';
 import { calendarOf, dateText, tripOf, tripView } from './trip.js';
 import { packWorld, worldOf } from './world.js';
@@ -35,7 +36,7 @@ function ask(query, name, fallback) {
  * anything the arc planner made, and an event named like one of those. `[{ id, name, summary, from, to, fromId, toId, arrive, t }]`, `t` the
  * share of the leg done (from when the leg was written to its arrival), soonest arrival first.
  */
-export function moversOf(state, world, { now, calendar }) {
+export function moversOf(state, world, { now, calendar, idOf = place => place.id }) {
     const director = state?.domains?.director;
     const threads = Object.values(isRecord(director?.threads) ? director.threads : {}).filter(isRecord);
     if (!isInt(now) || !threads.length) return [];
@@ -60,7 +61,7 @@ export function moversOf(state, world, { now, calendar }) {
         const started = [thread.track?.legSince?.time, thread.track?.created?.time].find(isInt);
         const t = isInt(started) && at > started ? Math.min(1, Math.max(0, (now - started) / (at - started))) : 0.5;
         out.push({
-            id: text(thread.id), name: cut(thread.key, 80), summary: cut(thread.summary, 80), from: from.name, to: to.name, fromId: from.id, toId: to.id,
+            id: text(thread.id), name: cut(thread.key, 80), summary: cut(thread.summary, 80), from: from.name, to: to.name, fromId: idOf(from), toId: idOf(to),
             arrive: dateText(calendar, at, now), t: Math.round(t * 1000) / 1000, at,
         });
     }
@@ -68,7 +69,7 @@ export function moversOf(state, world, { now, calendar }) {
 }
 
 /**
- * `atlas.trip`: `{ on, ...tripView (phase `planned` before the first leg starts, with `departs`), legs: [… with fromId, toId], you: { fromId, toId, t } | null, movers, hasMovers }` or null.
+ * `atlas.trip`: `{ on, ...tripView (phase `planned` before the first leg starts, with `departs`), legs: [… with fromId, toId: canonical place ids (the pack definition id, else the atlas id; the widget finds the node by name, widget-view-parts/anchor.js)], you: { fromId, toId, t } | null, movers, hasMovers }` or null.
  * `on`: there is a trip (else only movers). Tagged with the feature (index.js), so Story Block answers null while it is off.
  */
 export function tripQuery(state, _args, tools) {
@@ -80,12 +81,16 @@ export function tripQuery(state, _args, tools) {
     const now = isInt(minutes) ? minutes : null;
     if (now === null) return null;
     const calendar = calendarOf(query ? (name, args) => query(name, args) : null);
-    const world = worldOf(atlas, packWorld(query));
+    const pack = packWorld(query);
+    const world = worldOf(atlas, pack);
+    // A place's id here is its canonical one (the pack's definition id, or the atlas's own): the same whether or not the story has minted the atlas place
+    // yet, which a Re-read leaves undone until the next send. A place no pack or atlas knows by that name keeps the map's node id.
+    const canonical = place => canonicalOf(atlas, pack, place.atlasId ?? place.name)?.id ?? place.id;
     const here = scenePlace({ state, query }).name;
     const view = tripView(atlas, { now, here, calendar });
-    const movers = moversOf(state, world, { now, calendar });
+    const movers = moversOf(state, world, { now, calendar, idOf: canonical });
     if (!view && !movers.length) return null;
-    const idOf = name => world.find(name)?.id ?? '';
+    const idOf = name => { const place = world.find(name); return place ? canonical(place) : ''; };
     const base = view ? {
         ...view,
         legs: view.legs.map(leg => ({ ...leg, fromId: idOf(leg.from), toId: idOf(leg.to) })),

@@ -6,7 +6,7 @@ import { startView, firstPaint } from '../../ui/entry/start.js';
 import { buildSelectors } from '../../ui/select/build.js';
 import { readOldView, writeOldView, OLD_VIEW_KEY } from '../../ui/entry/flag.js';
 
-const TABS = ['card', 'now', 'chat', 'party', 'bag', 'people', 'dossier', 'world', 'journal', 'story', 'scene', 'fight', 'settings'];
+const TABS = ['card', 'now', 'chat', 'party', 'bag', 'people', 'dossier', 'world', 'journal', 'story', 'scene', 'fight', 'flags', 'settings'];
 
 function page() {
   const doc = installFakeDom();
