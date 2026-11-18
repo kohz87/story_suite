@@ -9,8 +9,9 @@ const said = check => (check.ok
 const KIND = { world: 'World pack', game: 'Game pack' };
 
 /**
- * `ctx`: `{ doc, parts, check, name, fresh, portraits, parseError, onGo(partId), cards: [nodes], fields: [nodes],
- * other: { kind, title } | null, onSwitch() }`. `parts` are the active pack's; `fresh`: made in the Studio, not exported yet.
+ * `ctx`: `{ doc, parts, check, name, fresh, old, portraits, parseError, onGo(partId), cards: [nodes], fields: [nodes],
+ * other: { kind, title } | null, onSwitch() }`. `parts` are the active pack's; `fresh`: made in the Studio, not exported yet; `old`: an
+ * old-format pack, read-only and not checked here (MK-9 "old").
  */
 export function renderOverview(ctx) {
     const { doc, parts, check } = ctx;
@@ -21,7 +22,8 @@ export function renderOverview(ctx) {
     return [
         ...(ctx.cards ?? []),
         h('section', { class: 'sgrp st-check', dataset: { ok: String(check.ok) } },
-            h('div', { class: 'srow wide' }, h('div', { class: 'lb' }, h('b', said(check)), h('small', ctx.fresh ? 'New in the Studio, not exported yet.' : `Opened from ${ctx.name}${ctx.portraits.length ? ` with ${ctx.portraits.length} portrait${ctx.portraits.length === 1 ? '' : 's'}` : ''}.`)))),
+            h('div', { class: 'srow wide' }, h('div', { class: 'lb' }, h('b', ctx.old ? 'Opened read-only: an old-format pack.' : said(check)),
+                h('small', ctx.fresh ? 'New in the Studio, not exported yet.' : `Opened from ${ctx.name}${ctx.portraits.length ? ` with ${ctx.portraits.length} portrait${ctx.portraits.length === 1 ? '' : 's'}` : ''}.${ctx.old ? ' You can look through every part.' : ''}`)))),
         h('section', { class: 'sgrp' }, h('div', { class: 'gt' }, 'Pack'), ctx.fields ?? []),
         rows.length ? h('section', { class: 'sgrp' }, h('div', { class: 'gt' }, 'Parts'),
             rows.map(part => h('div', { class: 'srow' },

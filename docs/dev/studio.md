@@ -30,8 +30,9 @@ undo and redo and an autosaved draft.
 - **Format 3**: a pack below format 4 (or with no `format`) opens read-only in the world slot. Its subtitle says
   `Format 3 · <name> · <version> · Read-only`, a card at the top of Overview says why it cannot be edited, its Pack card reads
   Name, Id, Version, Author (and what it needs) in words, and its rules, calendar, money and the like show under Other as
-  written. The Studio does not check it: the foot bar says "Old format: not checked", and Export is off with no note. The
-  Studio does not convert it (ST-CONV was dropped).
+  written. Overview says "Opened read-only: an old-format pack.", the foot bar says "Old format: not checked", and Export is
+  off (Ctrl/Cmd+S too) with no note; the Problems page still lists what the checker says of it. The Studio does not
+  convert it (ST-CONV was dropped).
 - **Check**: `packs/validate.js` `validatePack` on the text as written, so the Studio and the game always agree. Each
   problem's path is filed under a part and a record (`studio/parts.js` `partOfPath`).
 - **Views**: one page per part (`studio/parts.js` `PARTS`). Which content keys a format 4 pack may hold come
@@ -46,8 +47,9 @@ undo and redo and an autosaved draft.
   `studio/edit/<name>.js`, `editSection(section, ctx)`), and each page that is not one key by its page file (`PAGES`:
   `studio/views/<id>.js`, `renderPage(ctx)`): the map and the event graph as a "List · Map" or "List · Graph" segment on
   their part, the dry run and Pairing as parts in the Check group, Convert as the card on a format 3 Overview, and the start
-  page. A key with no editor (a format 3 pack's rules, calendar and the like) is drawn as read-only cards; a page that
-  draws nothing is not mounted. `ctx` (built by
+  page. A key with no editor (a format 3 pack's rules, calendar and the like) is drawn as read-only cards; a segment or
+  card page that draws nothing is not mounted, and a Check part (Dry run, Pairing) is listed whenever its `when` holds,
+  without being drawn to find out (its page must then draw something). `ctx` (built by
   `studio/app.js` for each draw) is the contract in `studio/views/route.js`: `doc` (the present pack itself, the parsed pack.json, not a
   `{ text, doc }` document), `kind`, `legacy`, `other`, `refs` (the
   reference index, `studio/model/refs.js`, built once per snapshot), `problems`, `focus` (`{ rec, path }`), `go`, `portrait`,

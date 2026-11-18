@@ -48,11 +48,21 @@ function renameSecret(refs, root, from, to) {
     const patches = [{ op: 'set', path: ['content', 'cast', index, 'secrets', at, 'id'], value: next }];
     const seen = new Set();
     for (const use of refs.uses) {
-        if (use.pack === 'other' || use.form !== 'text' || use.kind !== 'cast' || use.id !== who || seen.has(JSON.stringify(use.path))) continue;
-        seen.add(JSON.stringify(use.path));
-        const text = getAt(root, use.path);
-        const changed = walkText(text, use.mode, visit);
-        if (changed !== text) patches.push({ op: 'set', path: use.path, value: changed });
+        if (use.pack === 'other' || !use.mode || use.kind !== 'cast' || use.id !== who) continue;
+        // a one-line string, or an object whose keys are one-line entries (likelier_if, less_if), rebuilt whole in its key order
+        const at = use.form === 'key' ? use.path.slice(0, -1) : use.path;
+        if (seen.has(JSON.stringify(at))) continue;
+        seen.add(JSON.stringify(at));
+        if (use.form === 'text') {
+            const text = getAt(root, at);
+            const changed = walkText(text, use.mode, visit);
+            if (changed !== text) patches.push({ op: 'set', path: at, value: changed });
+            continue;
+        }
+        const map = getAt(root, at);
+        const keys = Object.keys(map).map(key => walkText(key, use.mode, visit));
+        if (new Set(keys).size !== keys.length) return refuse(`That would give two entries of ${at.join('.')} the same key.`);
+        if (keys.some((key, n) => key !== Object.keys(map)[n])) patches.push({ op: 'set', path: at, value: Object.fromEntries(Object.keys(map).map((key, n) => [keys[n], map[key]])) });
     }
     return { ok: true, patches, elsewhere: [] };
 }

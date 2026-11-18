@@ -122,6 +122,13 @@ test('New game: Calendar, Rules and Trackers draw their forms from nothing; the 
       assert.ok(await page.locator('.spage .st-sec input, .spage .st-sec button').count() > 0, `${part} draws its form`);
     }
     assert.deepEqual(await game(), { content: {}, edited: false });
+    // search reads the parts' sections, the weather's empty one too
+    await page.keyboard.press('/');
+    await page.keyboard.type('weather');
+    assert.equal(await page.textContent('.spage h2'), 'Search');
+    assert.match(await page.textContent('.spage'), /Weather/);
+    assert.doesNotMatch(await page.textContent('.spage'), /null|undefined|NaN|\[object Object\]/);
+    await page.keyboard.press('Escape');
     await page.click('.snav .si3[data-part="calendar"]');
     await page.click('.spage button:has-text("+ Add a month")');
     const after = await game();
@@ -195,6 +202,9 @@ test('an old-format pack: the subtitle says read-only, the foot bar says not che
       pack: [...document.querySelectorAll('.spage .sgrp')].find(group => group.querySelector('.gt')?.textContent === 'Pack')?.querySelectorAll('.srow b').length,
     }));
     assert.match(seen.sub, / · Read-only$/);
+    assert.equal(await page.textContent('.st-check b'), 'Opened read-only: an old-format pack.');
+    await page.keyboard.press('Control+s');
+    assert.equal(await page.evaluate(() => document.querySelector('.st-note').hidden || !/Exported/.test(document.querySelector('.st-note').textContent)), true, 'Ctrl+S exports nothing');
     assert.deepEqual([seen.foot, seen.off, seen.note], ['Old format: not checked', true, false]);
     assert.ok(seen.pack >= 3);
     assert.deepEqual(errors, []);

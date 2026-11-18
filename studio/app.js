@@ -186,7 +186,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         if (part.id === 'overview') {
             const other = state.packs[OTHER[pack.kind]];
             return renderOverview({
-                doc: pack.doc, parts: partsOf(pack.doc), check: pack.check, name: pack.name, fresh: pack.fresh === true, portraits: pack.portraits, parseError: pack.parseError, onGo: go,
+                doc: pack.doc, parts: partsOf(pack.doc), check: pack.check, name: pack.name, fresh: pack.fresh === true, old: Boolean(pack.legacy && pack.doc), portraits: pack.portraits, parseError: pack.parseError, onGo: go,
                 cards: mounts('convert') ? pageNodes('convert', ctxFor(pack)) : [], fields: sections,
                 other: other ? { kind: other.kind, title: titleOf(other) } : null, onSwitch: () => { setActive(other.kind); show('overview'); },
             });
@@ -347,7 +347,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
     // A check still waiting is run first; a pack with errors (or a zip whose game has them) is not exported.
     function exportAs(kind) {
         const pack = active();
-        if (!pack?.doc) return null;
+        if (!pack?.doc || pack.legacy) return null; // an old-format pack is read-only: no Export, Ctrl/Cmd+S included
         const zip = kind === 'zip' && pack.kind === 'world';
         const game = zip ? state.packs.game : null;
         const before = [pack.check, game?.check];

@@ -148,9 +148,12 @@ test('Ersveil: every id of every kind renames cleanly, leaves nothing behind, an
 });
 
 test('a secret rename rewrites its id and the learned:<person>/<secret> terms of this pack, and refuses in words', () => {
-    const { doc } = renamed(SMALL(), 'secret', 'wren/lamp', 'wren/old-lamp');
+    const pack = SMALL();
+    pack.content.worldEvents[0].likelier_if = { 'fired:flood': 3, 'learned:wren/lamp': 2 };
+    const { doc } = renamed(pack, 'secret', 'wren/lamp', 'wren/old-lamp');
     assert.equal(doc.doc.content.cast[0].secrets[0].id, 'old-lamp');
     assert.equal(doc.doc.content.lore[0].gate, 'learned:wren/old-lamp or died:tam and set:lamps-out@the-fen and stage of wren >= 2');
+    assert.deepEqual(Object.entries(doc.doc.content.worldEvents[0].likelier_if), [['fired:flood', 3], ['learned:wren/old-lamp', 2]]);
     assert.deepEqual(validatePack(JSON.stringify(doc.doc)).errors.filter(problem => /learned/.test(problem.message)), []);
     const why = to => { const d = openDoc({ doc: SMALL() }); return renameId(buildRefs(d), d, 'secret', 'wren/lamp', to).refusal; };
     assert.match(why('wren/'), /is not an id/);

@@ -156,3 +156,11 @@ test('a checker problem on a field shows under it, and a format 3 pack gets the 
     assert.equal(page.querySelector('.st-prow'), null);
     assert.ok(page.querySelector('.st-rec'));
 });
+
+test('Go to a route\'s field marks the field, not the JSON row; a path with no field opens the JSON row', () => {
+    const page = setup({ focus: { rec: 'routes.1', path: ['hours'] } }).draw();
+    assert.equal(page.querySelector('.st-at').closest('[data-key]').dataset.key, 'hours');
+    const other = setup({ focus: { rec: 'routes.1', path: ['extra'] } }).draw();
+    assert.equal(other.querySelector('.st-edit .st-at'), null, 'no form field is marked');
+    assert.ok(other.querySelector('.st-at'), 'the JSON row takes the focus instead');
+});
