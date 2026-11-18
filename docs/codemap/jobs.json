@@ -295,6 +295,7 @@
   "ui/select/people-settings/index.js": "Reads the People rows from the stored NPC State settings and looks a row up by key for a write or a reset.",
   "ui/select/people-settings/kit-more.js": "Builds a People row of named numbers or a shown-only row, and holds the whole-number clamp the old panel's boxes use.",
   "ui/select/people-settings/kit.js": "Builds a People settings row for a number, a switch or a choice: its NPC State setting, how it reads and how a change is cut and stored.",
+  "ui/select/people-settings/portraits.js": "Lists the People page's Portraits rows: what portraits use now, written back as the old portrait panel saved it (style, custom preset library, text fields).",
   "ui/select/people-settings/run.js": "Lists the People page's Refresh and the narrator, Portraits and Map rows from mock v7.",
   "ui/select/people.js": "Turns the store's people rows, the key-people and party answers and the social graph into the People view-model (PEOPLE_SHAPE), leaving gaps null or empty.",
   "ui/select/purse-lines.js": "Turns the head reply's coin lines (reply.changes) into the Bag purse's this-turn list.",
