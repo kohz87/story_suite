@@ -635,5 +635,9 @@
   "ui/wizard/stats.js": "Draws the wizard's Stats step in the new view: the stat sheet's − / + rows under the creation budget, Reset and the notes.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
   "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary row and Back / Next.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona, reply key, rules, levels, and whether the story has You."
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona, reply key, rules, levels, and whether the story has You.",
+  "modules/rpg/board/lapse.js": "A standing fight the reader does not play lapses: offers the prelude that clears foes left unplayed for two of the reader's messages, and the prelude itself (clear with a receipt, a no-op when the slot changed).",
+  "modules/rpg/names-parts/lapse.js": "Names: the lapse prelude's command name and how many unplayed messages a standing fight lasts.",
+  "tests/modules/rpg/board/lapse.test.js": "Tests NB-1 through a host with the Ersveil pair: foes standing unplayed keep the board lines and get no Combat rules text, and the second unplayed message lapses them; swipe, Re-read, delete, rewind and reload agree.",
+  "tests/modules/rpg/board/prompt-sections.test.js": "Tests the board reply grammar's three cases and that the board-owned Combat rules sections are left out by label."
 }

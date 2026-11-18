@@ -1,5 +1,7 @@
 // With the RPG off (and with it on but no fight played) a scripted chat sends the same prompts and keeps the same metadata, records and text as the build before Combat C11 did.
 // The fixtures were recorded by running this same script on the commit before C11 (combat/v1-only), not by this code. The guard mark's `;kinds:` suffix is cut before comparing.
+// NB-1 (LIVEF4B) re-recorded flag-off-v1-rpg-on for its two intended changes only: "I look around." (foes standing unplayed) gets the start and story-goes-on lines, and "I rest." (the second
+// message past the fight) lapses the Rats with a prelude after the unchanged dice. Everything else is the pre-C11 recording.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

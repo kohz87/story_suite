@@ -17,6 +17,7 @@ import { FOES_FRESH_REPLIES } from './board/offers.js';
 import { FOES_TOUCH_QUERY } from './names.js';
 import { isNamedIn } from './open.js';
 import { runPrecheck, wantsPrecheck } from './board/precheck-run.js';
+import { lapseOffer } from './board/lapse.js';
 
 // The fight kind the board offers and carries (the registry's id; the core never names it), and the choices the pause offers.
 const FIGHT_KIND = 'story-block/fight', CHOICES = ['board', 'auto', 'plain'];
@@ -159,9 +160,12 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
         // rules, difficulty numbers and practice in force now and each member's bonuses (a Re-read and a replay use these, never the settings of the day). The switch is
         // Story checks alone, as the grammar line is: Rolls (the fights' setting) does not matter, so the static prompt does not move with it.
         const dice = reason ? null : makeDice();
+        // Foes a reply set that the reader keeps typing past lapse (board/lapse.js): a prelude after the dice (their seed stays as it was) clears them with a receipt.
+        const lapse = lapseOffer(view, { sheet: readSheet(view.state), messages, index, text, meta });
         // No model is asked for a plan: with no fight to carry the reply goes out as one the planner once answered "none" to.
-        const first = noFight(sheet, stale);
-        return dice ? { ...(first ?? {}), commands: [dice] } : skipped(reason, first);
+        const first = lapse ? null : noFight(sheet, stale), commands = [dice, lapse].filter(Boolean);
+        const answer = commands.length ? { ...(first ?? {}), commands } : first;
+        return reason ? skipped(reason, answer) : answer;
     }
 
     function beforeGenerate(view, info = {}) {

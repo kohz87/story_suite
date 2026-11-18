@@ -1,9 +1,9 @@
 // Whether a chat and its metadata hold anything the RPG wrote (holdsRpg), so its code is fetched before the chat is replayed.
 
-import { CHECK_STEP, DICE, FIGHT, PRACTICE_STEP } from '../names.js';
+import { BOARD_LAPSE, CHECK_STEP, DICE, FIGHT, PRACTICE_STEP } from '../names.js';
 
 // (`capture.party` is the receipt of a `+ party` line; the guarded block it makes is `dm.join`.)
-const GUARD_KINDS = new Set([FIGHT, PRACTICE_STEP, CHECK_STEP, DICE, 'dm.join', 'capture.party', 'capture.roll']);
+const GUARD_KINDS = new Set([FIGHT, PRACTICE_STEP, CHECK_STEP, DICE, BOARD_LAPSE, 'dm.join', 'capture.party', 'capture.roll']);
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 // The fight board is an interaction kind (I6): its settle receipt, its guard and its unsent scratch are the RPG's too.
 const FIGHT_KIND = 'story-block/fight';

@@ -23,7 +23,8 @@ let keptPrelude = 0;
         if (result?.ok) {
             // A settled interaction moves bars (a fight's hits, heals, skill costs): the tail's block lines are read from the state it leaves, so they say what the
             // cue says; an opening and its segment chain the same way (the segment is previewed on the state its opening leaves).
-            if (preludeType === SETTLE && result.state) previewState = result.state;
+            // A module's prelude that changes state the tail reads marks its receipt `data.chain === true`: the later preludes and the tail read the state it leaves too.
+            if ((preludeType === SETTLE || result.receipt?.data?.chain === true) && result.state) previewState = result.state;
             // How the carried fight ended (won / fled / lost / open): the tail reads it to allow a new foe group only after an ended fight (an opening's own stop is not it).
             if (preludeType === SETTLE && payload?.opening !== true) boardStop = result.receipt?.data?.interaction?.stop ?? null;
             prechecks.push({ type: preludeType, payload, seed: result.receipt.seed });
