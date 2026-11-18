@@ -15,9 +15,9 @@ import { tellFrame, useFrame, writeFrame } from './frame-parts/commands.js';
  */
 const BUILT_IN = Object.freeze({ world: null, game: 'built-in', calendar: null, currency: null });
 
-export function createFramePart({ installed }) {
-    // The update notes given in this session, by the frame they were about: the "told" mark is kept on the reply the note came with, so a swipe of
-    // that reply takes it away; this keeps the note from coming again with every swipe (a reload may give it once more).
+export function createFramePart({ installed, chatId = () => '' }) {
+    // The update notes given in this session, by the chat and the frame they were about: the "told" mark is kept on the reply the note came with, so a swipe of
+    // that reply takes it away; this keeps the note from coming again with every swipe (a reload may give it once more). Each chat has its own.
     const toldNow = new Set();
     const beforeGenerate = (view, info = {}) => {
         if (info?.commit === false) return undefined;
@@ -37,7 +37,7 @@ export function createFramePart({ installed }) {
         }
         const note = updateNote(frame, installed);
         if (!note || note.key === frame.told) return undefined;
-        const seen = `${frame.world?.hash ?? ''}|${frame.game?.hash ?? frame.game}|${note.key}`;
+        const seen = `${chatId()}|${frame.world?.hash ?? ''}|${frame.game?.hash ?? frame.game}|${note.key}`;
         if (toldNow.has(seen)) return undefined;
         toldNow.add(seen);
         return { commands: [{ type: 'packs.frameTold', payload: { key: note.key } }], problems: [{ code: 'PACK_CHANGED', message: note.message, quiet: true }] };

@@ -52,6 +52,22 @@ test('"changed since this chat began" comes once: a swipe after it does not give
     assert.equal(notes(), 1, 'once, not on every swipe');
 });
 
+test('"changed since this chat began" is given to each chat once, not only to the first chat to reply (PF4FIX2)', async t => {
+    const host = await frameHost(t);
+    const blank = structuredClone(host.ctx.chat);
+    await host.send('hi', said('R1.'));
+    const first = structuredClone(host.ctx.chat), id = host.ctx.chatId;
+    await host.st.loadChat(blank, 'other');
+    await host.send('there', said('Elsewhere.'));
+    assert.equal((await host.packs.packs.install(world('1.1.0'))).ok, true);
+    const notes = () => host.turn.problems().filter(entry => entry.code === 'PACK_CHANGED').length;
+    await host.send('more', said('R2 elsewhere.'));
+    assert.equal(notes(), 1, 'the second chat is told');
+    await host.st.loadChat(first, id);
+    await host.send('again', said('R2 first.'));
+    assert.equal(notes(), 2, 'the first chat is told too: both chats have a note');
+});
+
 // Pinned edges of the rule "a chat whose reader has written more than one message began before anything was selected" (REVPF4 3; an open question for the lead).
 test('edges: deleting the first messages keeps the frame (it rides on the opening); two messages of the reader before the first reply record the built-in game', async t => {
     const host = await frameHost(t);

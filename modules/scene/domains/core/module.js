@@ -56,7 +56,7 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
     const dataPart = createDataModulesPart({ packs: packs.packs, settings: () => settings(), ...dataModules });
     // The RPG's pre-call and rolls (`leanRpg`: the runtime's queued model call, the chat and its metadata; src/v2/lean-rpg/).
     const rpg = createLazyRpgPart({ ...leanRpg, persona: () => extras?.persona?.() ?? '', rosterOn: () => { try { return extras?.rpgOn?.() === true && extras?.gearOn?.() === true; } catch { return false; } } });
-    const merged = mergeParts([core, packs.part, createFramePart({ installed: packs.packs }), events, assist ?? createAssistPart({ settings: () => settings() }), createTimelinePart({ timeline }), dataPart, rpg, createPeoplePart()], { flagOn: name => { try { return flagOn(name) === true; } catch { return false; } } });
+    const merged = mergeParts([core, packs.part, createFramePart({ installed: packs.packs, chatId: () => { try { return extras?.chatId?.() ?? ''; } catch { return ''; } } }), events, assist ?? createAssistPart({ settings: () => settings() }), createTimelinePart({ timeline }), dataPart, rpg, createPeoplePart()], { flagOn: name => { try { return flagOn(name) === true; } catch { return false; } } });
     const timelineGuard = merged.hooks.replayGuard;
     // The interaction kinds modules register (`interaction(kindId)`: the kind or null) and the settle that plays them (interaction/settle.js).
     const interactionGuard = interactionGuardFor(interaction);

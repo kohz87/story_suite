@@ -199,7 +199,7 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
         },
 
         /**
-         * The normalized packs a chat reads (selection.js): the enabled format 3 packs, then the selected world and game of format 4, then the trackers of the other
+         * The normalized packs a chat reads (selection.js): the selected world and game, then the trackers of the other
          * game packs.
          */
         packs() {
