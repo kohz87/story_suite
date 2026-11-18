@@ -63,7 +63,7 @@ export function applyStaleNpcLifecycle(state = {}, options = {}) {
         const age = Math.max(0, turn - activityTurn);
 
         // P6: no archive step. A dossier that does not matter and has been quiet for deleteAfter turns is removed (the timing is unchanged);
-        // one that matters (portrait, cast, bond off its start, key person) is kept however long it has been quiet.
+        // one that matters (portrait, cast, bond off its start, followed or away) is kept however long it has been quiet.
         const matters = noDelete || npcMattersForRetention(npc, keepIds, formIds, options.baseline);
         if (age >= deleteAfter && !matters) {
             removed.push({ id: npc.id, name: npc.name, age, activityTurn, archiveReason: 'stale' });

@@ -87,7 +87,7 @@ export const WORLD_FEATURE = 'story-director.world';
 export const PAGE_SLOT_CLASS = 'npc-state-delta-v2-slot';
 // Story Block's lean RPG feature (its names.js LEAN_RPG_FEATURE); an extension cannot import Story Block.
 const RPG_FEATURE = 'story-block.rpg';
-export const QUERY_NAMES = Object.freeze(['npc.present', 'npc.dossier', 'npc.known', 'npc.portrait', 'npc.meters', 'npc.cast', 'npc.next', 'npc.castMade', 'npc.socialModifier', 'npc.identity', 'npc.catchUp']);
+export const QUERY_NAMES = Object.freeze(['npc.present', 'npc.dossier', 'npc.known', 'npc.portrait', 'npc.meters', 'npc.cast', 'npc.next', 'npc.awayMemory', 'npc.castMade', 'npc.socialModifier', 'npc.identity', 'npc.catchUp']);
 export const COMMAND_NAMES = Object.freeze(['npc.adjust', 'npc.set', 'npc.refresh', 'npc.milestone', 'npc.open', 'npc.tick', 'npc.flag', 'npc.meet', 'npc.mood', 'npc.taste', 'npc.drives']);
 // The replies after which Delta takes its per-reply step (npc.tick): a new reply or a new swipe of
 // one, never a Continue, a Re-read or late change lines (the same reply again).
@@ -221,7 +221,7 @@ export function createStorySuiteV2Adapter({
     const editorPart = createEditorPart(session, deps);
     Object.assign(deps, editorPart);
     const { watchers, pageApi, offerPage } = castUiPart;
-    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, send, sliceView, worldSecretsOn } = queriesPart;
+    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, awayAnswer, awayReadable, awayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, send, sliceView, worldSecretsOn } = queriesPart;
     const { ownPrompt, storyClock, calendarLink, definition, scenePresentNames } = timelinePart;
     const { poll, unhost, check } = connectPart;
     const { editorHtml, readEditor, dossierMeters, eventWatch } = editorPart;
@@ -275,6 +275,11 @@ export function createStorySuiteV2Adapter({
         storyDateText,
         /** While hosted: the story day (whole days of Story Director's clock) after reply `index`, null without a clock; ties' last mention uses it. */
         storyDayNumber,
+        /** While hosted: Story Director's people away (`director.away`) as it answers, or null when it cannot; whether that list can be trusted. */
+        awayAnswer,
+        awayReadable,
+        /** While hosted: the memory of the last absences (npc.awayMemory), {} without one. */
+        awayMemory,
         /** While hosted: Story Director's cast (`director.cast`) as it answers, or null when it cannot. */
         castAnswer,
         /** The same, cleaned (src/cast-dossier.js normalizeCast), dates written on Story Director's calendar. */

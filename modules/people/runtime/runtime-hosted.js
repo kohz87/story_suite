@@ -13,10 +13,11 @@ import { castView, findCastPerson, normalizeCast } from '../dossier/cast-dossier
 import { getSettings, setRpgProbe } from '../settings/runtime-settings.js';
 import { sheetLevelOf } from '../core/core-record.js';
 import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
+import { createAwayHosted } from './runtime-hosted-parts/away.js';
 import { pageHandles } from './handles.js';
 
 export function createHostedPart(rt, deps) {
-    const { chatHydrationStatus, getChatKey, getChatState, latestMessageId } = deps;
+    const { chatHydrationStatus, getChatKey, getChatState, latestMessageId, latestReplyIndex } = deps;
     // Meetings the host did not keep, `${chatKey}|${npcId}`: sent again with that person's next scan (forwardRelationshipChangesToHost).
     // meetTried / moodTried: the entry-missing repeat and the catch-up of a mood word kept from before the numbers existed are each tried once a session.
     const meetOwed = new Set(), meetTried = new Set(), moodTried = new Set();
@@ -161,15 +162,18 @@ export function createHostedPart(rt, deps) {
             return copy;
         });
     }
-    // The ids of followed dossiers (the Follow star): the stale pass archives, never deletes, them.
+    // Story Director's people away (runtime-hosted-parts/away.js): the "While away" note, the scan hold and their dossier ids.
+    const { awayReturnNotes, awayScanOptions, awayKeepIds } = createAwayHosted(rt, { getChatKey, latestReplyIndex, storySuiteV2Meters });
+    // The ids of followed dossiers (the Follow star) and of those away now: the stale pass archives, never deletes, them.
     function keyKeepIds(state) {
-        return (state?.npcs || []).filter(npc => npc?.followed === true).map(npc => npc.id);
+        return [...new Set([...(state?.npcs || []).filter(npc => npc?.followed === true).map(npc => npc.id), ...awayKeepIds(state)])];
     }
-    // True while hosted and a read really failed: the meter read. The stale pass then only archives.
+    // True while hosted and a read really failed: the away list (a present query that errors or answers a non-list; Story Director absent is
+    // no list, not a failure) or the meter read. The stale pass then only archives.
     function hostedReadsFailed() {
         const adapter = storySuiteV2Meters();
         if (!adapter) return false;
-        try { return !Array.isArray(adapter.meterEntries?.()); } catch { return true; }
+        try { return adapter.awayReadable?.() === false || !Array.isArray(adapter.meterEntries?.()); } catch { return true; }
     }
     // The chat state a scan works from: with the slice's relationship numbers while hosted (a copy;
     // the stored state is never changed here), the state itself otherwise.
@@ -348,5 +352,5 @@ export function createHostedPart(rt, deps) {
         return { text: 'The latest scan found no NPC in the scene.', scan: true };
     }
 
-    return { storyBlockV2Hosted, storySuiteV2Meters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, partyLevelList, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason };
+    return { storyBlockV2Hosted, storySuiteV2Meters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, awayReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, awayScanOptions, partyLevelList, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason };
 }

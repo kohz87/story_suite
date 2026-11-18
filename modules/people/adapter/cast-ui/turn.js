@@ -5,7 +5,7 @@ import { metWithEntry } from '../../dossier/cast-dossier.js';
 
 export function createTurnPart(session, deps) {
     const {
-        castMade, castPeople, castPortraitDue, castSync, enabled, part, send, TICK_TURNS, warn,
+        awayAnswer, awayMemory, castMade, castPeople, castPortraitDue, castSync, enabled, part, send, TICK_TURNS, warn,
     } = deps;
 
     // ---- the per-reply step (npc.tick) ----
@@ -16,6 +16,8 @@ export function createTurnPart(session, deps) {
         try { wanted = part.tickWanted(); } catch { wanted = false; }
         // The living cast: someone met whose dossier is not yet made, or a made one with a stage ladder of their own.
         if (!wanted) wanted = castWanted();
+        // People away (Story Director's): the step holds their meters and keeps the memory of their last absence up to date.
+        if (!wanted) wanted = (awayAnswer()?.length ?? 0) > 0 || Object.keys(awayMemory()).length > 0;
         if (!wanted) {
             // Nothing for the step to do: a cast dossier made while its picture was missing may still get it now.
             portraitFill();

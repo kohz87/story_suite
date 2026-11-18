@@ -10,6 +10,7 @@ import { readApproachRing } from '../npc-meters-gate.js';
 import { validateNotes } from '../../notes/npc-notes-kinds.js';
 import { validateCast } from './cast-memory.js';
 import { moodPullProblems } from './mood-problems.js';
+import { validateAwayMemory } from '../../away/away-memory.js';
 
 /** The slice of a chat with no NPC meters yet. */
 export function initialNpcSlice() {
@@ -91,7 +92,8 @@ export function validateNpcSlice(slice) {
         if (slice.problems.some(item => !isObject(item) || !isInt(item.rev) || typeof item.text !== 'string')) errors.push('An NPC meters problem is not { rev, text }.');
     }
     if (slice.cast !== undefined) errors.push(...validateCast(slice.cast));
-    // `keyAway` is the memory the removed Key people feature wrote: a chat saved before B4-9 may still hold it; nothing reads it and it is not checked.
+    // `keyAway`: the memory of the last absences of people away (people/away/away-memory.js, written by npc.tick).
+    if (slice.keyAway !== undefined) errors.push(...validateAwayMemory(slice.keyAway));
     for (const field of Object.keys(slice)) if (!['npcs', 'problems', 'keyAway', 'cast'].includes(field)) errors.push(`The NPC meters have an unknown field "${field}".`);
     return errors;
 }

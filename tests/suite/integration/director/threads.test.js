@@ -77,9 +77,10 @@ test('on: the static part and the kinds are what the fixtures hold, byte for byt
     try {
         const was = fixture('prompt-threads-on.json');
         const now = fixture('prompt-threads-off.json');
-        const got = { static: contextOf(on).static(), kinds: contextOf(on).kinds };
+        // The retired `- key` head (people/away: read and dropped quietly, never taught) is not in the fixtures.
+        const got = { static: contextOf(on).static(), kinds: contextOf(on).kinds.filter(entry => entry.kind !== 'key') };
         assert.deepEqual(got, was, 'with the feature on the prompt is unchanged');
-        const gone = { static: contextOf(off).static(), kinds: contextOf(off).kinds };
+        const gone = { static: contextOf(off).static(), kinds: contextOf(off).kinds.filter(entry => entry.kind !== 'key') };
         assert.deepEqual(gone, now);
         // A fresh story keeps no world event or faction, so the World paragraphs are not taught on either side (the lean diet).
         assert.ok(got.static.includes(PACING_TEXT));

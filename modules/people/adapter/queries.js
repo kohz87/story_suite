@@ -279,6 +279,8 @@ export function createQueriesPart(session, deps) {
         'npc.cast': (state, args) => castFor(state, args),
         /** npc.next({ name }) → the NPC's ladder from here: { rank, next, risk, text } ("what's missing"), or null. */
         'npc.next': (state, args) => part.queries['npc.next'](state, args ?? {}),
+        /** npc.awayMemory() → the memory of the last absences (the slice's `keyAway`: { [name key]: { name, aliases, away, returnedAt, presentReplies } }), {} when none. */
+        'npc.awayMemory': (state, args) => part.queries['npc.awayMemory'](state, args ?? {}),
         /** npc.castMade() → the people Delta made a dossier for from the cast (the slice's `cast`: { [castKey]: { name, rungs? } }), {} when none. */
         'npc.castMade': (state, args) => part.queries['npc.castMade'](state, args ?? {}),
         /**

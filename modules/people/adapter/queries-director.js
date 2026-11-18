@@ -107,5 +107,39 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
             return null;
         }
     }
-    return { worldShown, partyLevelsAnswer, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar };
+    // Story Director's people away (`director.away`, read only) as it answers, or null: not hosted, no Story Director, or one without the query.
+    function awayAnswer() {
+        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return null;
+        try {
+            const answer = session.sdkRef.query('director.away', {});
+            return Array.isArray(answer) ? answer : null;
+        } catch {
+            return null;
+        }
+    }
+    // Whether the away list can be trusted: true when Story Director is not registered on the host (then there is simply no list) or it answers a
+    // list or null; false when a registered Story Director throws or answers a non-list, or when the host cannot say. The stale pass deletes nothing while false.
+    function awayReadable() {
+        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return true;
+        try {
+            if (!(session.sdkRef.modules?.() ?? []).some(module => module?.id === 'story-director')) return true;
+        } catch { return false; }
+        try {
+            const answer = session.sdkRef.query('director.away', {});
+            return answer === null || answer === undefined || Array.isArray(answer);
+        } catch {
+            return false;
+        }
+    }
+    // The memory of the last absences (npc.awayMemory; the slice's `keyAway`), {} when there is none or no host.
+    function awayMemory() {
+        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return {};
+        try {
+            const memory = session.sdkRef.query('npc.awayMemory', {});
+            return memory && typeof memory === 'object' && !Array.isArray(memory) ? memory : {};
+        } catch {
+            return {};
+        }
+    }
+    return { worldShown, partyLevelsAnswer, awayAnswer, awayReadable, awayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar };
 }

@@ -1,6 +1,8 @@
 // src/v2/module.js: how the parts are merged into module `story-director` (MODULES §A), plus tail query caching and pulse/foes rules.
 
 import { test } from 'node:test';
+import { part as awayPart } from '../../../../modules/people/away/away-part.js';
+import { TEXT as AWAY_TEXT } from '../../../../modules/people/away/away-prompt.js';
 import assert from 'node:assert/strict';
 
 import { createModule, namespaced, partSettings, PARTS, storyDirectorModule } from '../../../../modules/director/module.js';
@@ -41,10 +43,14 @@ test('statics in part order, budgets summed, kinds dispatched to their part', ()
     assert.equal(hostStatic(def, plain), STATIC_TEXT);
     assert.equal(chroniclePart.context.static({ chronicle: true }), CHRONICLE_STATIC);
     assert.equal(checksPart.context.static(), '');
+    // People away (people/away): the paragraph is taught only while someone is followed or away, so the static above (nobody) has none.
+    assert.equal(awayPart.context.static({ away: true }), AWAY_TEXT.static);
+    assert.equal(awayPart.context.static({ away: false }), '');
+    assert.equal(awayPart.context.budget, 300);
     assert.equal(hostStatic(def, id => plain(id) && id !== 'story-director.threads'), staticText({ threads: false }));
     assert.equal(hostStatic(def, () => true, {}), `${STATIC_TEXT}\n${def.context.parts.find(part => part.feature === 'story-director.initiative').static()}\n${def.context.parts.find(part => part.feature === 'story-director.world-events').static()}\n${PULSE_STATIC}`);
-    assert.equal(def.context.budget, 500 + RECAP_BUDGET + ATLAS_BUDGET + TRIP_TAIL_BUDGET + CHRONICLE_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET + CAST_BUDGET + ARC_TAIL_BUDGET + checksPart.context.budget);
-    assert.deepEqual(PARTS.map(([id]) => id), ['tracker', 'time', 'atlas', 'chronicle', 'world', 'cast', 'names', 'pulse', 'arc', 'checks', 'ripples', 'screens']);
+    assert.equal(def.context.budget, 500 + RECAP_BUDGET + ATLAS_BUDGET + TRIP_TAIL_BUDGET + CHRONICLE_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET + awayPart.context.budget + CAST_BUDGET + ARC_TAIL_BUDGET + checksPart.context.budget);
+    assert.deepEqual(PARTS.map(([id]) => id), ['tracker', 'time', 'atlas', 'chronicle', 'world', 'away', 'cast', 'names', 'pulse', 'arc', 'checks', 'ripples', 'screens']);
     assert.match(def.capture.kinds.hook.grammar, /a quest is a job/);
     assert.equal(def.capture.kinds.quest.grammar(), '', 'the quest rides on the hook line');
     assert.equal(def.capture.kinds.time.apply, undefined, 'the kinds table holds only grammar');

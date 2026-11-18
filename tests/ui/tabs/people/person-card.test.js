@@ -65,10 +65,9 @@ test('initialOf drops titles; portraitDisc uses safe URLs only and falls back to
   assert.equal(word.dataset.portrait, 'cy');
 });
 
-test('an Elsewhere tile shows the place and last seen, and the said line when there is one (no away record any more)', () => {
+test('an away followed person\'s Elsewhere tile adds back and what they are doing when nothing was said', () => {
   installFakeDom();
-  const tile = personCard({ personId: 'ren', name: 'Ren', followed: true, meters: {}, lastPlace: 'North road', lastSeen: 'today', said: 'On my way.' }, { kind: 'elsewhere' });
-  assert.equal(tile.querySelector('.wh').textContent, 'north road · last seen today');
-  assert.equal(tile.querySelector('.sd').textContent, 'On my way.');
-  assert.equal(personCard({ personId: 'ren', name: 'Ren', meters: {}, lastPlace: 'North road', lastSeen: null, said: null }, { kind: 'elsewhere' }).querySelector('.sd'), null);
+  const tile = personCard({ personId: 'ren', name: 'Ren', followed: true, meters: {}, lastPlace: 'North road', lastSeen: 'today', said: null, doing: 'scouting', back: 'Goldwane 18' }, { kind: 'elsewhere' });
+  assert.equal(tile.querySelector('.wh').textContent, 'north road · last seen today · back Goldwane 18');
+  assert.equal(tile.querySelector('.sd').textContent, 'scouting');
 });

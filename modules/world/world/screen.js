@@ -4,7 +4,7 @@
 // day: where {{user}} went, who they met, the news, the quests; the day digest's data, which the Days
 // screen showed before). Only what {{user}} knows (known.js); the Director screen (game view only) is the author's view of the plan. The view picked is the screen's own draft (nothing is saved);
 // Now shows until Journal is picked. Read-only: nothing here is a story action (F95), and the only
-// buttons are the people's dossier links (widget `story-director.people`, people.js) and the Pin / Unpin of Elsewhere.
+// buttons are the people's dossier links (widget `story-director.people`, people.js).
 //
 // Here covers what Story Block's Scene tab shows, so Story Block hides Scene by default while World is there
 // (MODULES §F119): the place with its kind and region and "moved here this reply" (Story Block's
@@ -16,9 +16,10 @@
 // One scene header: the Game view's hero header shows the place, the time and the weather above every screen, so there Here
 // shows the people (and the trip) only; the Story panel's tab has no hero and keeps the place, region, time and weather lines.
 // Here is one block with a purple line: the place line "Town · Spot" (`place.line`) and its kind chip, the region, "moved here
-// this reply", ◷ time · date, ☁ weather; then People here. Every Now section folds (People here, Leads, Upcoming, News
+// this reply", ◷ time · date, ☁ weather; then People here. Every Now section folds (People here, Elsewhere, Leads, Upcoming, News
 // and events, Factions): a centred chevron and the count in its head (widget `story-director.fold`, elsewhere.js), remembered per
-// chat on this device. Leads are the hooks the player has heard of (`director.world.leads`); the date tag of Upcoming and the state tag
+// chat on this device. Elsewhere is the people away and the followed people who are not in the scene (`director.away.view`,
+// people/away; read-only: the star is set in People, the away lines are the narrator's); Leads are the hooks the player has heard of (`director.world.leads`); the date tag of Upcoming and the state tag
 // of News sit on the title line, in its right corner; Factions show only once one is known. There is no Around here. The News
 // and events and the Factions are the feature `story-director.threads`' (src/v2/threads.js): off, they are not drawn.
 //
@@ -109,6 +110,20 @@ const NOW = `
         <ss-widget name="${PEOPLE_WIDGET}" data-props='{"bind":"q.world.here"}' data-if="q.world.here.hasPeople"></ss-widget>
         <p class="sd-empty" data-if="!q.world.here.hasPeople">No one else is in the scene.</p>
       </div>
+    </div>
+  </section>
+  <section class="sd-kind sd-fold wv-key ss-glass" data-kind="key" data-fold="elsewhere" aria-label="Elsewhere" data-if="q.away.hasPeople">
+    ${fold('elsewhere', 'Elsewhere', '{{ q.away.elsewhere }}')}
+    <div class="sd-fold-body">
+      <ul class="wv-key-list">
+        <li class="wv-key-row" data-each="q.away.people as p" data-if="!p.here">
+          <span class="wv-key-star" aria-hidden="true" data-if="p.followed">★</span>
+          <span class="wv-key-head"><span class="wv-key-name">{{ p.name }}</span> <span class="wv-key-pill" data-if="p.away" data-away="1">{{ p.status }}</span><span class="wv-key-pill" data-if="!p.away">{{ p.status }}</span></span>
+          <span class="wv-key-sub" data-if="p.away && len(p.step) > 0">{{ p.step }}</span>
+          <span class="wv-key-sub" data-if="p.away && len(p.step) == 0 && len(p.doing) > 0">{{ p.doing }}</span>
+          <span class="wv-key-sub" data-if="len(p.newsAgo) > 0">News {{ p.newsAgo }}</span>
+        </li>
+      </ul>
     </div>
   </section>
   <section class="sd-kind sd-fold wv-leads ss-glass" data-kind="leads" data-fold="leads" aria-label="Leads" data-if="q.leads.has">
@@ -219,7 +234,17 @@ const CSS = `${BASE_CSS}
 /* The "Here" heading is one of them: with the place and weather lines gone, a bare heading would sit above the people. */
 .wv-label.wv-scene { display: var(--sd-line-display, flex); }
 .wv-scene[hidden] { display: none; }
-.wv-upcoming, .wv-news, .wv-factions, .wv-leads { min-width: 0; }
+.wv-upcoming, .wv-news, .wv-factions, .wv-key, .wv-leads { min-width: 0; }
+/* Elsewhere: a star for a followed person, the name and a pill (Away · back <date>, Not here), what an away person is doing and how old their news is. */
+.wv-key-list { display: grid; margin: 0; padding: 0; list-style: none; }
+.wv-key-row { display: grid; grid-template-columns: 1.2em minmax(0, 1fr); gap: 2px 8px; align-items: start; padding: 8px 0; border-top: 1px solid var(--sd-border); }
+.wv-key-row:first-child { border-top: 0; padding-top: 2px; }
+.wv-key-star { grid-column: 1; color: var(--sd-warn); line-height: 1.3; }
+.wv-key-head { grid-column: 2; }
+.wv-key-name { font-weight: 700; overflow-wrap: anywhere; }
+.wv-key-pill { display: inline-block; padding: 0 8px; border: 1px solid var(--sd-border); border-radius: var(--ss-radius-pill); font-size: 0.8em; white-space: nowrap; }
+.wv-key-pill[data-away] { border-color: var(--sd-accent); color: var(--sd-accent-text); }
+.wv-key-sub { grid-column: 2; font-size: 0.85em; line-height: 1.45; overflow-wrap: anywhere; }
 .wv-leads { display: grid; gap: 4px; padding: 12px 14px; align-content: start; }
 .wv-leadlist { gap: 8px; }
 .sd-lead { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
@@ -239,9 +264,6 @@ const CSS = `${BASE_CSS}
 .wv-rowcol { display: grid; gap: 2px; min-width: 0; }
 .wv-line1 { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; min-width: 0; }
 .wv-line1 .ss-pill { flex: none; max-width: 45%; white-space: normal; }
-/* The host keeps every button at least 44px (a touch target): pills at that height here, and on a phone Unpin is a link-like button, not a circle. */
-@media (pointer: coarse) { .wv-key-unpin { margin-block: -8px; padding: 0 6px; border-color: transparent; text-decoration: underline; color: var(--sd-accent-text); } }
-/* The Pin list stays inside the card and scrolls there (a phone keeps the card within the room under the header). */
 .wv-item .ss-listcard-title, .wv-item .ss-listcard-sub { overflow-wrap: anywhere; }
 .wv-item .ss-listcard-value { max-width: 45%; min-width: 0; }
 .wv-item .ss-pill { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
@@ -326,6 +348,8 @@ const DATA = Object.freeze({
     chat: Object.freeze({ query: 'director.world.chat' }),
     // The trip (atlas.trip, feature story-director.trip), shown under the weather while one is on: null with none.
     trip: Object.freeze({ query: 'atlas.trip' }),
+    // The Elsewhere section: people away and the followed people not in the scene (people/away/away-queries.js).
+    away: Object.freeze({ query: 'director.away.view' }),
 });
 
 /** The World screen (feature `story-director.world`). */

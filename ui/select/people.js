@@ -1,4 +1,4 @@
-// Turns the store's people rows, the party answers and the social graph into the People view-model (PEOPLE_SHAPE), leaving gaps null or empty.
+// Turns the store's people rows, the people away (director.away.view), the party answers and the social graph into the People view-model (PEOPLE_SHAPE), leaving gaps null or empty.
 
 import { tieKind } from './tie-kinds.js';
 
@@ -36,12 +36,13 @@ export const isHere = (row, place, present = null) => row.lifeState !== 'decease
     || (Array.isArray(present) && labelsOf(row).some(label => present.some(name => keyOf(typeof name === 'string' ? name : name?.name) === label))));
 
 /**
- * People view-model from { list: people.list (the store's rows), party?: party.actors,
+ * People view-model from { list: people.list (the store's rows), away?: director.away.view (news, doing and return date of those away), party?: party.actors,
  * ties?: people.ties, place?: the scene's place name, filter? }; an empty view while the chat has no people yet (list null). here = isHere; elsewhere = not present, not dormant;
  * dormant (36.12: 30 replies unseen; followed, present and party people never) leaves All and is its own list; the dead are listed with their card.
  * Gaps: `said`, and the death's when and where (the store holds neither).
  */
-export function selectPeople({ list, party, ties, place, present, filter } = {}) {
+export function selectPeople({ list, away: awayView, party, ties, place, present, filter } = {}) {
+  const away = new Map((isRecord(awayView) && Array.isArray(awayView.people) ? awayView.people : []).filter(isRecord).map(row => [keyOf(row.name), row]));
   const partyKeys = new Set((Array.isArray(party) ? party : []).filter(isRecord).map(row => keyOf(row.name)));
   const here = [];
   const elsewhere = [];
@@ -54,7 +55,8 @@ export function selectPeople({ list, party, ties, place, present, filter } = {})
       continue;
     }
     if (isHere(row, place, present)) { here.push(card); continue; }
-    const gone = { ...card, lastPlace: cut(row.location ?? null, 80), lastSeen: null, said: null };
+    const kp = away.get(keyOf(row.name));
+    const gone = { ...card, lastPlace: cut(kp?.place ?? row.location ?? null, 80), lastSeen: kp?.newsAgo || null, said: null, ...(kp?.away ? { doing: cut(kp.doing || null, 160), back: kp.back || null } : {}) };
     (row.dormant === true && !card.inParty ? dormant : elsewhere).push(gone);
   }
   const active = [...here, ...elsewhere];

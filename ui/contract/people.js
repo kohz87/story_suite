@@ -21,6 +21,9 @@ const ELSEWHERE_CARD = {
   lastPlace: { $nullable: T.STRING },
   lastSeen: { $nullable: T.STRING },
   said: { $nullable: T.STRING },
+  // Someone away (followed or not): what they are doing and when they are due back (Story Director's away record, director.away.view); absent for the rest.
+  doing: { $optional: { $nullable: T.STRING } },
+  back: { $optional: { $nullable: T.STRING } },
 };
 
 const DECEASED_CARD = {

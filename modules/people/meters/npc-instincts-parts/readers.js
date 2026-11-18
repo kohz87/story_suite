@@ -3,6 +3,7 @@ import { CLOSURE_MIN_DAYS, NEW_MEMBER_DAYS } from './kinds.js';
 import { idOf, dayOf, plainCause, samePlace } from './shared-input.js';
 
 const BENCHED_SCORE = 3;
+const AWAY_SCORE = 2;
 const NEW_MEMBER_SCORE = 1;
 const AWE_SCORE = 2;
 
@@ -14,16 +15,20 @@ export function closureScore(ageDays) {
     return 1;
 }
 
-// Belonging: benched (left out of the party) beats a new member
+// Belonging: benched (left out of the party) beats away (someone away from the scene, director.away) beats a new member
 // who joined within NEW_MEMBER_DAYS. Only the NPC's own id counts. Null when nothing applies.
 export function readBelonging(input) {
-    const { id, day, benched, joins } = input || {};
+    const { id, day, benched, away: awayRows, joins } = input || {};
     const npc = idOf(id);
     const now = dayOf(day);
     if (!npc || now === null) return null;
     const benchedRow = Array.isArray(benched) ? benched.find(row => idOf(row?.id) === npc) : null;
     if (benchedRow && dayOf(benchedRow.since) !== null) {
         return { kind: 'belonging', score: BENCHED_SCORE, cause: 'benched from the party', since: dayOf(benchedRow.since) };
+    }
+    const away = Array.isArray(awayRows) ? awayRows.find(row => idOf(row?.id) === npc && row.away === true) : null;
+    if (away && dayOf(away.since) !== null) {
+        return { kind: 'belonging', score: AWAY_SCORE, cause: 'left behind while the group moved on', since: dayOf(away.since) };
     }
     const join = Array.isArray(joins) ? joins.find(row => idOf(row?.id) === npc) : null;
     const joinDay = join ? dayOf(join.day) : null;

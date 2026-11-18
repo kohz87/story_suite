@@ -34,6 +34,8 @@ const REPLIES = [
 // - npc_state_delta_off: NSD itself off (the adapter's isEnabled() false) with one-pass still set: no NSD part at all.
 // - npc_state_delta_one_pass_off: one-pass capture switched off in Settings › People: no NSD part, the rest as default.
 // - npc_caps_on: the host gives impact-tier caps, so the meter paragraph's impact clause is pinned (none of the others has it).
+// - away_on: someone is away (a reply before the three sends `+ away Ren`), so the away grammar line and the away paragraph are pinned (people/away; the same
+//   lines are taught while someone is followed). Default has neither, so it is byte-identical to main's default.
 const SCENARIOS = [
     {
         id: 'default',
@@ -80,6 +82,15 @@ const SCENARIOS = [
         onePass: true,
         nsdEnabled: false,
         configure: () => {},
+    },
+    {
+        id: 'away_on',
+        title: 'someone away (Story Director sends the away grammar line and the away paragraph)',
+        configure: async host => {
+            const res = await host.send('Ren rides out.', host.reply('Ren rides north.', ['+ away Ren — scouting the north road | back: in 6 days']));
+            assert.ok(res.index >= 0, 'the away reply should be written');
+            assert.ok(host.head().domains.away.away.ren, 'Ren should be away');
+        },
     },
     {
         id: 'npc_caps_on',

@@ -1,6 +1,8 @@
 // NPC meter story-line capture and hosted commands. A pure part of npc-meters.js (same owner, moved without change);
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
 import { labelKey } from '../dossier/cast-dossier-parts/shared-text.js';
+import { awayAtTick } from '../away/away-hold.js';
+import { observeAway } from '../away/away-memory.js';
 import { normalizeCast } from '../dossier/cast-dossier.js';
 import { normalizeApproachKind } from './npc-meters-gate.js';
 import { NPC_DOMAIN, BUILT_IN_METERS, FEATURE_GATE, FEATURE_MOOD_PULL, FEATURE_NOTES, MILESTONE_KIND, DAY_MINUTES, MILESTONE_MAX, DISPOSITION_MAX, REASON_LABELS, FEATURE_STAGES, FEATURE_DRIFT, isObject, isInt, isReplyId, readLeaf, replyKey, clamp, clean, slug, wordKey, tierOf, parseMeterValue } from './npc-meters-config.js';
@@ -105,12 +107,12 @@ export function createNpcCommands({
         };
     }
 
-    // One record's mood decay and pull for this tick (feature mood-pull).
-    function moodPullStep(ctx, key, record, day, world, minutes) {
+    // One record's mood decay and pull for this tick (feature mood-pull). `awayDay`: the story day this person went away on, or null.
+    function moodPullStep(ctx, key, record, day, world, awayDay, minutes) {
         const labels = new Set([record.name, ...(resolve(record.name)?.aliases ?? [])].map(labelKey).filter(Boolean));
         const has = list => list.some(label => labels.has(label));
         const out = stepPull(readLeaf(record.track), {
-            day, party: world.party ? has([...world.party]) : null, here: world.here, present: has([...world.present]),
+            day, party: world.party ? has([...world.party]) : null, here: world.here, present: has([...world.present]), awayDay,
             threads: world.threads.filter(thread => has(thread.names)),
             // Drives (notes feature): the person's instinct strengths scale what pulls at them; none stored: the scores as they are.
             scale: featureOn(FEATURE_NOTES) && record.drives ? driveScale(record.drives) : undefined,
@@ -337,7 +339,11 @@ export function createNpcCommands({
             let castPeople = null;
             try { castPeople = normalizeCast(ctx.query(CAST_QUERY, {})); } catch { castPeople = null; }
             const castSeen = observeCast(before?.cast, castPeople);
-            if ((!isObject(before?.npcs) || !Object.keys(before.npcs).length) && !castSeen.fresh.length) ctx.fail('REFUSED', 'Nothing to update.');
+            // People away (Story Director's `director.away`, read only): their meters stay as they are, so no drift and no count toward losing a
+            // stage; the memory of the last absence (away-memory.js) is noted at this reply. Without that query: nobody.
+            const away = awayAtTick(ctx);
+            const observed = away.people ? observeAway(before?.keyAway, away.people, ctx.reply?.index) : null;
+            if ((!isObject(before?.npcs) || !Object.keys(before.npcs).length) && !observed?.changed && !castSeen.fresh.length) ctx.fail('REFUSED', 'Nothing to update.');
             const slice = ctx.draft(NPC_DOMAIN);
             const castNames = [];
             for (const person of castSeen.fresh) {
@@ -377,12 +383,13 @@ export function createNpcCommands({
                 if (!Array.isArray(record.unlocked)) record.unlocked = [];
                 const was = JSON.stringify(record);
                 const drift = [];
+                const held = away.held([record.name, ...(resolve(record.name)?.aliases ?? [])]);
                 if (day !== null) {
                     const days = isInt(record.day) ? day - record.day : 0;
                     if (record.day !== day) record.day = day;
                     const setup = setupFor(record.name);
                     const limits = limitsFor(settings, setup);
-                    for (const def of days > 0 ? drifting : []) {
+                    for (const def of days > 0 && !held ? drifting : []) {
                         const value = meterValue(record, def);
                         const { perDay, to } = def.drift;
                         const step = Math.min(Math.abs(to - value), perDay * days);
@@ -396,8 +403,8 @@ export function createNpcCommands({
                         drift.push({ meter: def.id, before: value, after: next });
                     }
                 }
-                if (moodPull && day !== null) moodPullStep(ctx, key, record, day, worldNow(), minutes);
-                const settled = settleRecord(record, [record.name], settings, defs, featureOn(FEATURE_STAGES, ctx));
+                if (moodPull && day !== null) moodPullStep(ctx, key, record, day, worldNow(), away.awayDay([record.name, ...(resolve(record.name)?.aliases ?? [])]), minutes);
+                const settled = settleRecord(record, [record.name], settings, defs, featureOn(FEATURE_STAGES, ctx) && !held);
                 if (JSON.stringify(record) === was) continue;
                 changed = true;
                 if (drift.length) texts.push(`${record.name}: ${drift.map(item => `${defs.find(def => def.id === item.meter)?.label.toLocaleLowerCase() ?? item.meter} ${item.before} → ${item.after}`).join(', ')} (story days passed)`);
@@ -407,6 +414,12 @@ export function createNpcCommands({
             }
             if (castNames.length) {
                 if (!changed) texts.push(`Cast dossier: ${castNames.join(', ')}`);
+                changed = true;
+            }
+            if (observed?.changed) {
+                if (Object.keys(observed.memory).length) slice.keyAway = observed.memory;
+                else delete slice.keyAway;
+                if (!changed) texts.push('Away: noted');
                 changed = true;
             }
             if (!changed) ctx.fail('REFUSED', 'Nothing to update.');

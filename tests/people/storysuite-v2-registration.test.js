@@ -50,7 +50,7 @@ test('registers module npc-state-delta once, with the npc domain, its queries an
     assert.equal(def.name, 'NPC State');
     assert.equal(def.version, '1.18.0');
     assert.equal(def.domains, undefined, 'no domain of its own: the NPC meters live in the people domain (people store P4)');
-    assert.deepEqual(Object.keys(def.queries).sort(), ['npc.cast', 'npc.castMade', 'npc.catchUp', 'npc.dossier', 'npc.identity', 'npc.known', 'npc.meters', 'npc.next', 'npc.portrait', 'npc.present', 'npc.socialModifier']);
+    assert.deepEqual(Object.keys(def.queries).sort(), ['npc.awayMemory', 'npc.cast', 'npc.castMade', 'npc.catchUp', 'npc.dossier', 'npc.identity', 'npc.known', 'npc.meters', 'npc.next', 'npc.portrait', 'npc.present', 'npc.socialModifier']);
     assert.deepEqual([...QUERY_NAMES].sort(), Object.keys(def.queries).sort());
     assert.deepEqual(Object.keys(def.commands).sort(), ['npc.adjust', 'npc.drives', 'npc.flag', 'npc.meet', 'npc.milestone', 'npc.mood', 'npc.open', 'npc.refresh', 'npc.set', 'npc.taste', 'npc.tick']);
     assert.deepEqual(Object.keys(def.capture.kinds), ['npc', 'milestone', 'lie', 'know', 'taste', 'tie', 'memory', 'reveal']);

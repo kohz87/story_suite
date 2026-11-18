@@ -219,6 +219,11 @@ export function createNpcQueries({
                 })
                 .sort((a, b) => Number(b.present) - Number(a.present) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
         },
+        /** npc.awayMemory → the memory of the last absences (people/away/away-memory.js), {} when none. Read by NPC State's injection ("While away"). */
+        'npc.awayMemory'(state) {
+            const memory = sliceOf(state).keyAway;
+            return isObject(memory) ? JSON.parse(JSON.stringify(memory)) : {};
+        },
         /** npc.castMade → the people Delta made a dossier for from the cast, { [castKey]: { name, rungs? } }, {} when none. */
         'npc.castMade'(state) {
             const cast = sliceOf(state).cast;

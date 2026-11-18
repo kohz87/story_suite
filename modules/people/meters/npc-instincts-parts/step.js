@@ -5,7 +5,7 @@ import { readInstincts } from './pull.js';
 // ---- the per-NPC step (the tick's one call; pure) ----
 // `track` is the private memory the readers need and the state does not otherwise keep: whether the NPC was in the party,
 // the day they were benched or joined, the day each open thread naming them was first seen, and up to PLACES_MAX places
-// they were present at. facts: { day, party: true|false|null (null = no party answer), threads:
+// they were present at. facts: { day, party: true|false|null (null = no party answer), awayDay: int|null, threads:
 // [{ id, title, opened?: day }] (open threads that name them), here: place name | '', present: boolean }.
 // → { track, inst, pull } with `track` and `pull` left out when empty. All whole numbers and short plain text.
 export const PLACES_MAX = 6;
@@ -41,6 +41,7 @@ export function stepPull(before, facts) {
         // The first place ever seen is the baseline, not an arrival: awe needs a history.
         visited: known.length ? known : null,
         benched: track.bench !== undefined && track.party === 0 ? [{ id: SELF, since: track.bench }] : [],
+        away: dayOf(facts.awayDay) !== null ? [{ id: SELF, away: true, since: facts.awayDay }] : [],
         joins: track.join !== undefined ? [{ id: SELF, day: track.join }] : [],
         threads, scale: facts.scale,
     });
