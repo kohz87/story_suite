@@ -3,7 +3,7 @@
 
 import { foldKey } from '../../../core/text.js';
 
-const GREGORIAN = Object.freeze(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+export const GREGORIAN = Object.freeze(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     .map((name, n) => ({ name, days: [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][n] })));
 
 /** `612-07-30`, `612-Goldwane-12` → true when it reads (a year, a month by number or name, a day); says the Problem or warns otherwise. */

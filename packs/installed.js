@@ -143,7 +143,7 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
                     enabled: entry.enabled !== false,
                     source: SOURCES.includes(entry.source) ? entry.source : 'file',
                     origin: String(entry.origin ?? ''),
-                    counts: pack ? Object.fromEntries(Object.entries(pack.content).map(([kind, list]) => [kind, kind === 'names' ? Object.keys(list).filter(id => id !== 'banned').length : kind === 'rpg' ? list.filter(record => record?.slug !== 'formula' && record?.slug !== 'ranks').length : list.length])) : {},
+                    counts: pack ? Object.fromEntries(Object.entries(pack.content).map(([kind, list]) => [kind, kind === 'names' ? Object.keys(list).filter(id => id !== 'banned').length : kind === 'rpg' ? list.filter(record => !['formula', 'ranks', 'pull'].includes(record?.slug)).length : list.length])) : {},
                     hasStart: Boolean(pack?.start),
                     // What else it adds, beside its content lists: its coins, a money scale, a calendar, weather tables, screens, a theme.
                     extras: pack ? extrasOf(pack) : [],
