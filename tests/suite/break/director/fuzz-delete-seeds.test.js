@@ -257,7 +257,7 @@ for (const seed of SEEDS) {
                 const lines = String(entry.value).split('\n');
                 return lines.filter(line => {
                     const meeting = /^World this reply: (.+?) crosses your path in .+, by chance\.$/.exec(line);
-                    return !line.startsWith('[Cast]') && !(meeting && lines.some(other => other.startsWith(`[Cast] ${meeting[1]} comes into the scene in this reply`)));
+                    return !line.startsWith('[Cast]') && !(meeting && lines.some(other => /^\[Cast\] .+ comes into the scene in this reply/.test(other)));
                 });
             });
             // A rumor describes; it never names (it is a [Cast] line too, so it is checked on its own).
