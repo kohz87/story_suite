@@ -37,7 +37,7 @@ export async function loadSuite() {
     if (!existsSync(path.join(r.nsd, 'src/npc-notes-kinds.js'))) return { skip: `the npc_state_delta checkout at ${r.nsd} is older than its notes batch (no src/npc-notes-kinds.js): update it, or point SUITE_NSD at a current one`, roots: r };
     const at = (dir, rel) => import(pathToFileURL(path.join(dir, rel)).href);
     const [kit, SD, NSD] = await Promise.all([at(r.sb, 'testkit/index.js'), import(pathToFileURL(sdModuleAt(r.sd)).href), at(r.nsd, 'src/storysuite-v2.js')]);
-    return { roots: r, createHost: kit.createHost, SD, NSD, at: rel => at(r.sb, rel), 
+    return { roots: r, createHost: kit.createHost, SD, NSD, at: rel => at(r.sb, rel),
         // The shipped Ersveil pair (world pack + game pack), as main's suite installed the shipped Ersveil pack.
         pairTexts: ['examples/packs/ersveil/pack.json', 'examples/packs/ersveil-game/pack.json'].map(rel => readFileSync(path.join(r.sb, rel), 'utf8')) };
 }
@@ -52,7 +52,7 @@ export async function suiteHost(loaded, { seed = 1, settings = null, nsdNpcs = [
     // reads Story Director's clock through); handing its bare definition to the host would leave its story day unknown.
     const adapter = loaded.NSD.createStorySuiteV2Adapter({ suiteApi: { npcs: () => nsdNpcs }, delta: () => ({ isEnabled: () => true, getNpc: () => null }), host: () => globalThis.StoryBlock, doc: null, timers: {}, logger: { warn() {} } });
     const probe = await loaded.createHost({ settings: settings ?? {} });
-    // The shipped Ersveil world pack and its game pack (`pair` is kept for the callers that name it; it is the default).
+    // The shipped Ersveil world pack and its game pack (a caller's `pair: true` asks for the same pair).
     for (const text of loaded.pairTexts) {
         const done = await probe.packs.packs.install(text, { origin: 'pack.json' });
         if (!done.ok) throw new Error('pack install failed: ' + JSON.stringify(done.errors));

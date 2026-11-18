@@ -225,6 +225,10 @@ test('calendarRule: only a custom calendar without a week; foreignNames: whole w
     const custom = makeCalendar({ preset: 'custom', era: 'CY', months: [{ name: 'Goldwane', days: 30 }, { name: 'Icewane', days: 30 }], leapYears: false });
     assert.equal(calendarRule(custom), "Dates use this world's calendar only: months Goldwane, Icewane; no weekdays. Never use Monday–Sunday or January–December, in narration or speech; say 'three days ago', 'yesterday' or the date (Goldwane 14).");
     assert.equal(calendarRule(GREGORIAN), '');
+    // A game whose months are the real ones (the format 4 Ersveil game) is not told to avoid its own month names; a calendar with some of them bans only the others.
+    const named = makeCalendar({ preset: 'custom', months: GREGORIAN.config.months.map(month => ({ ...month })), leapYears: false });
+    assert.match(calendarRule(named), /; no weekdays\. Never use Monday–Sunday, in narration or speech; say .* \(January 14\)\.$/);
+    assert.match(calendarRule(makeCalendar({ preset: 'custom', months: [{ name: 'March', days: 30 }, { name: 'Icewane', days: 30 }] })), /Never use Monday–Sunday or January, February, April, May, June, July, August, September, October, November, December, in narration/);
     assert.equal(calendarRule(makeCalendar({ preset: 'custom', months: [{ name: 'A', days: 30 }], week: ['Ax', 'Bx'] })), '');
     assert.deepEqual(foreignNames('On Tuesday and Friday; Tuesdays no; tuesday no; Mayhem no; in December, of May, May 4. "May I?" Maybe.', custom), ['Tuesday', 'Friday', 'December', 'May']);
     assert.deepEqual(foreignNames('March on at August noon. The August hall.', custom), []);
