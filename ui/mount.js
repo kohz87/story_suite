@@ -13,6 +13,7 @@ import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
 import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
+import { PANELBG_KEY, applyPanelBg } from './settings/panel-bg.js';
 import { DEVELOPER_KEY, OLD_VIEW_KEY } from './settings/developer.js';
 
 // SillyTavern's theme variables, read on <html> (follow-st.js reads the same).
@@ -68,8 +69,8 @@ export function mountSuite(options = {}) {
     if (!settings || destroyed) return port.command('suite.settings', {});
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
-      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
-      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === OLD_VIEW_KEY ? options.onOldView?.(Boolean(value)) : relook(port.command('settings.set', { key, value }))),
+      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === OLD_VIEW_KEY ? options.onOldView?.(Boolean(value)) : relook(port.command('settings.set', { key, value }))),
       onAction: (key, value) => (key === 'trackers.open' ? openTrackers() : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
@@ -87,6 +88,7 @@ export function mountSuite(options = {}) {
   const picked = pickTheme();
   scheme = picked.scheme;
   const view = createSuiteView({ doc, host, backStack, tokens: picked.tokens, scheme });
+<<<<<<< HEAD
   let shown = '';
   function applyLook(next = pickTheme()) {
     const key = JSON.stringify(next);
@@ -103,6 +105,9 @@ export function mountSuite(options = {}) {
     if (!look) return answer;
     return Promise.resolve(answer).then(done => { if (!destroyed) applyLook(); return done; });
   }
+=======
+  applyPanelBg(view.root, prefs.getFold(PANELBG_KEY, false));
+>>>>>>> origin/main
   // While the suite is closed its card and tabs are not read; open() draws what changed meanwhile (the tab strip's flags stay live).
   const redraw = createRedraw({ port, initialTab: initial, isOpen: () => view.isOpen(), ...(schedule ? { schedule } : {}) });
   const tabHost = createTabHost({

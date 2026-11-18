@@ -7,6 +7,7 @@ import { selectMoneyRows } from './money-rows.js';
 import { selectProblems, selectSent } from './tools.js';
 import { peopleRows } from './people-settings/index.js';
 import { selectRpgRows } from './rpg-rows.js';
+import { rpgFeatureRows, withoutRpgFeatures } from './rpg-features.js';
 import { worldRows } from './settings-world.js';
 import { extrasRows, withExtras } from './settings-extras.js';
 import { selectPacks } from './packs.js';
@@ -101,12 +102,12 @@ export function selectSettings(answers) {
   const budgetRows = rowsOf('Budgets', BUDGETS, host, schema, defaults);
   const t = isObj(a.tools) ? a.tools : {};
   const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
-  const { defList, set } = withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []);
+  const { defList, set } = withoutRpgFeatures(withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []));
   const sections = [
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
     section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people)),
-    section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', selectRpgRows(a.rpg)),
+    section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression, fights, and what you take, carry and wear. The checks’ numbers are in Director.', [...selectRpgRows(a.rpg), ...rpgFeatureRows(hasFeatures ? a.features : [])]),
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [], a.directorCalls)),
     ...[selectDirector(a.directorPage)].filter(Boolean),
     section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
