@@ -17,7 +17,9 @@ import { openDoc as documentOf } from './model/doc.js';
 import { buildRefs } from './model/refs.js';
 import { PARTS, kindOf, partsOf } from './parts.js';
 import { createSession } from './session.js';
+import { navBadges, partLine } from './nav-counts.js';
 import { createShell } from './shell.js';
+import { reveal } from './wide.js';
 import { renderOverview } from './views/overview.js';
 import { renderProblems } from './views/problems.js';
 import { PAGES, pageNodes, sectionNodes } from './views/route.js';
@@ -135,6 +137,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         const json = pack.doc ? exportBlock(pack) : null;
         shell.setExport(old ? { zip: false, json: false, blocked: null } : { zip: Boolean(pack.doc) && pack.kind === 'world' && !zip, json: Boolean(pack.doc) && !json, blocked: (json ?? zip)?.text ?? null });
         shell.setHistory(pack);
+        shell.setPacks(['world', 'game'].filter(kind => state.packs[kind]).map(kind => ({ kind, title: titleOf(state.packs[kind]), errors: state.packs[kind].legacy ? 0 : state.packs[kind].check.errors.length, active: kind === state.active })));
     }
 
     // The restore prompt for a pack whose saved draft differs from what was opened (until it is answered or the pack is edited).
@@ -192,17 +195,16 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
             });
         }
         if (part.id === 'problems') return renderProblems({ check: pack.check, onGo: go });
-        if (part.page) return pageNodes(part.page, ctxFor(pack, { focus, check: pack.check }));
+        if (part.page) return pageNodes(part.page, ctxFor(pack, { focus, check: pack.check, pick: () => shell.file.click() }));
         return withSegment(part, pack, sections, focus);
     }
 
+    // The record Go to names: the open record (not its row in the list beside it), else the card that carries it.
     function draw(part, keep) {
-        const held = part.sections.filter(section => !section.absent);
-        const desc = part.always || !held.length ? part.desc : `${part.desc}. ${held.map(s => `${s.key} ${s.count}`).join(' · ')}`;
-        shell.setNav(state.parts, part.id);
-        shell.setPage({ title: part.name, desc, nodes: pageFor(part, state.focus), section: true, keep });
-        const rec = state.focus?.rec;
-        const target = rec ? shell.el.querySelector(`.spage [data-rec="${CSS.escape(rec)}"]`) : null;
+        shell.setNav(state.parts, part.id, navBadges(state.parts, state.packs, state.active, titleOf));
+        shell.setPage({ title: part.title ?? part.name, desc: partLine(part), nodes: pageFor(part, state.focus), section: true, keep });
+        const rec = state.focus?.rec ? CSS.escape(state.focus.rec) : null;
+        const target = rec ? shell.el.querySelector(`.spage .st-wrec [data-rec="${rec}"]`) ?? shell.el.querySelector(`.spage [data-rec="${rec}"]`) : null;
         target?.classList.add('st-hit');
         return target;
     }
@@ -212,16 +214,18 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         if (!active()) return false;
         const wanted = PARTS.find(item => item.id === partId);
         if (wanted?.kind) setActive(wanted.kind);
-        const part = state.parts.find(item => item.id === partId) ?? state.parts[0];
-        if (part.id !== state.current) active().keep.clear();
+        const part = state.parts.find(item => item.id === partId) ?? state.parts.find(item => item.id === 'overview') ?? state.parts[0];
+        const same = part.id === state.current;
+        if (!same) active().keep.clear();
         state.current = part.id;
         state.focus = rec ? { rec, path: Array.isArray(path) ? path : null } : null;
         state.query = '';
         shell.setQuery('');
-        const target = draw(part, false);
+        const target = draw(part, same ? 'list' : false); // a record opened from its list keeps the list where it was
         if (!section) shell.showList();
         if (target) {
-            target.scrollIntoView?.({ block: 'start' });
+            reveal(target, 'start'); // its own scrolling box only: the nav and its search stay put
+            reveal(shell.el.querySelector(`.st-wlist [data-rec="${CSS.escape(rec)}"]`), 'nearest');
             // A marked control that is hidden (a gate's text box while its builder shows) hands over to its row's `data-goto` control.
             const marked = target.querySelector('.st-at');
             const field = marked?.closest('[hidden]') ? marked.closest('.srow')?.querySelector('[data-goto]') ?? null : marked;
@@ -229,6 +233,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
                 const at = Number(field.dataset.at) || 0;
                 field.focus({ preventScroll: true });
                 field.setSelectionRange?.(at, at);
+                reveal(field, 'nearest');
             } else target.focus({ preventScroll: true });
         }
         return true;
@@ -239,7 +244,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         if (!active() || state.query) { if (active()) refresh(); return; }
         refresh();
         const part = state.parts.find(item => item.id === state.current);
-        if (!part) { show(state.parts[0].id); return; }
+        if (!part) { show('overview'); return; }
         const typing = doc.activeElement?.closest?.('.spage') ? doc.activeElement : null;
         const rec = typing?.closest('[data-rec]')?.dataset.rec;
         const cls = typing?.classList?.[0];
@@ -403,6 +408,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         onBack: () => shell.showList(),
         onProblems: () => show('problems'),
         onGoFirst: goFirst,
+        onSwitch: kind => { if (kind === state.active) return; setActive(kind); show(['overview', 'problems', 'other', 'start'].includes(state.current) ? state.current : 'overview'); },
     });
     const unbind = bindKeys(doc, {
         open: () => shell.file.click(),
@@ -410,7 +416,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         undo: step('undo'),
         redo: step('redo'),
         search: () => shell.focusSearch(),
-        part: n => { const part = state.parts[n - 1]; if (part) show(part.id); },
+        part: n => { const part = state.parts.filter(item => item.id !== 'start')[n - 1]; if (part) show(part.id); },
         nextProblem,
         // Esc closes the open sheet first (the id picker, a gate term, New world): the Studio has no back stack, so it is closed as a
         // tap on its backdrop closes it (ui/kit/sheet.js), which hands the focus back to its opener.
@@ -422,7 +428,8 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         },
     });
     paintTheme();
-    shell.setPage({ title: 'Open a pack', desc: 'A pack .zip (pack.json, its portraits and the game.json that goes with it), or a pack.json with its portrait images and game.json. The Studio checks it with the game’s own pack checker.', nodes: pageNodes('start', { pick: () => shell.file.click(), openDoc: opened => openDocument(opened) }), section: true });
+    const home = PARTS.find(part => part.id === 'start');
+    shell.setPage({ title: home.title, desc: `${home.desc}.`, nodes: pageNodes('start', { pick: () => shell.file.click(), openDoc: opened => openDocument(opened) }), section: true });
 
     return {
         open,

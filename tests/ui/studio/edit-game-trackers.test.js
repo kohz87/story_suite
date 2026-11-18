@@ -101,13 +101,15 @@ test('a module\'s problems show on its row, and Go to opens its JSON at the fiel
     assert.match(page.textContent, /Missing required field/);
 });
 
-test('the preset page edits its fields as set patches; with a preset open the data modules section draws nothing', () => {
+test('the preset page edits its fields as set patches; with a preset open the data modules stay in the list (beside it at 1280 px)', () => {
     const { calls, draw } = preset();
     const page = draw('meterPresets');
     assert.match(page.textContent, /Preset 1 of 1/);
     change(field(page, 'title').querySelector('input'), 'Bonds');
     assert.deepEqual(calls.commit.at(-1), [{ op: 'set', path: ['content', 'meterPresets', 0, 'title'], value: 'Bonds' }]);
-    assert.equal(draw('dataModules').childNodes.length, 0);
+    const modules = draw('dataModules');
+    assert.match(modules.textContent, /Data modules/);
+    assert.equal(modules.querySelector('.st-pane-rec'), null, 'no second record pane');
 });
 
 test('a meter opens below its row; numbers out of range are refused in words, bands and drift are written as the checker reads them', () => {

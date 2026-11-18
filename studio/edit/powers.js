@@ -4,6 +4,7 @@
 // "scores.<n>"); while one is open, the other key's section draws nothing, so the page is that one record.
 
 import { h, svgEl } from '../../ui/kit/dom.js';
+import { recordPanes } from '../form/panes.js';
 import { STANDING } from '../../packs/limits.js';
 import { fieldRow, setProblem } from '../form/fields.js';
 import { chipList } from '../form/list.js';
@@ -212,9 +213,10 @@ export function editSection(section, ctx) {
     const content = contentOf(ctx);
     const open = /^(powers|scores)\.(\d+)$/.exec(ctx.focus?.rec ?? '');
     const openList = open && Array.isArray(content[open[1]]) ? content[open[1]] : null;
-    if (open && openList && Number(open[2]) < openList.length) return open[1] === key ? [h('div', { class: 'st-sec', dataset: { key } }, recordPage(key, list, Number(open[2]), ctx))] : [];
+    const rec = open && openList && open[1] === key && Number(open[2]) < openList.length ? recordPage(key, list, Number(open[2]), ctx) : null;
     // The pack has only one of the two keys: its section also offers the other, so the first score (or power) can be added here.
     const other = key === 'powers' ? 'scores' : 'powers';
     const sibling = content[other] === undefined ? listNode(other, [], ctx) : null;
-    return key === 'powers' ? [listNode(key, list, ctx), sibling] : [sibling, listNode(key, list, ctx)];
+    const own = h('div', { class: 'st-sec', dataset: { key } }, recordPanes({ noun: KEYS[key].noun, icon: '⚖', list: listNode(key, list, ctx), rec }));
+    return key === 'powers' ? [own, sibling] : [sibling, own];
 }

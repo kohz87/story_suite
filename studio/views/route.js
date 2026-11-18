@@ -60,7 +60,8 @@ export const EDITORS = Object.freeze({
 /**
  * Page id → `studio/views/<id>.js` and where it mounts (`when` says whether the mount applies; the page must also draw something, and a
  * `part` page must draw something whenever `when` holds, as the nav lists it without drawing it):
- * `segment` a "List · <label>" switch at the top of that part, `part` a part of its own (parts.js), `card` at the top of Overview.
+ * `segment` a "List · <label>" switch at the top of that part, `part` a part of its own (parts.js), `card` at the top of Overview, `start`
+ * the page shown before a pack is open, which is also the Home part once one is.
  */
 export const PAGES = Object.freeze({
     map: Object.freeze({ file: 'views/map.js', mount: 'segment', part: 'map', label: 'Map', when: ({ pack }) => pack?.kind === 'world' }),
@@ -68,7 +69,7 @@ export const PAGES = Object.freeze({
     timeline: Object.freeze({ file: 'views/timeline.js', mount: 'part', part: 'timeline', when: ({ world }) => Boolean(world && !world.legacy) }),
     pairing: Object.freeze({ file: 'views/pairing.js', mount: 'part', part: 'pairing', when: ({ world }) => Boolean(world) }),
     convert: Object.freeze({ file: 'views/convert.js', mount: 'card', part: 'overview', when: ({ pack }) => Boolean(pack?.legacy && pack.doc) }),
-    start: Object.freeze({ file: 'views/start.js', mount: 'start', part: null, when: () => true }),
+    start: Object.freeze({ file: 'views/start.js', mount: 'start', part: 'start', when: () => true }),
 });
 
 /** One section's nodes: its editor's, or the read-only cards when the key has none. `ctx.kind` picks the table. */

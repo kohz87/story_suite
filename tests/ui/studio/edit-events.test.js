@@ -272,7 +272,7 @@ test('a legacy pack, the dated events key, or a list that is not all records fal
 
 test('the open event\'s data-rec holds its fields: Go to finds the field marked inside the record, as the Studio looks for it', () => {
     const root = setup({ focus: { rec: 'worldEvents.2', path: ['summary'] } }).draw();
-    const record = root.querySelector('[data-rec="worldEvents.2"]');
+    const record = root.querySelector('.st-pane-rec [data-rec="worldEvents.2"]'); // the record pane's, not the row's in the list beside it
     assert.ok(record.querySelector('.st-at'), 'the marked field is inside the record the Studio finds first');
     assert.equal(record.querySelector('.st-at').closest('[data-key]').dataset.key, 'summary');
 });

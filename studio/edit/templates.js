@@ -4,6 +4,7 @@
 // it writes; the arc; the fallback); "used by" and the JSON row. A record is opened with Go to (focus "templates.<n>"), like places.
 
 import { h } from '../../ui/kit/dom.js';
+import { recordPanes } from '../form/panes.js';
 import { EVENT_REACH, SLUG } from '../../packs/limits.js';
 import { SCOPES } from '../../modules/world/chronicle/conditions/limits.js';
 import { fieldRow, setProblem } from '../form/fields.js';
@@ -297,5 +298,6 @@ export function editSection(section, ctx) {
     if (!list || list.some(t => !t || typeof t !== 'object' || Array.isArray(t)) || ctx.legacy || typeof ctx.commit !== 'function') return [renderSection(section, ctx)];
     const bad = list.map((_, index) => (ctx.problems ?? []).filter(problem => inRecord(problem, index)));
     const index = recordIndex(ctx, list.length);
-    return [h('div', { class: 'st-sec', dataset: { key: 'templates' } }, index < 0 ? [h('div', { class: 'secl2' }, `Templates · ${list.length}`), ...listPage(list, bad, ctx)] : recordPage(list, index, bad, ctx))];
+    return [h('div', { class: 'st-sec', dataset: { key: 'templates' } }, recordPanes({ noun: 'template', icon: '❖', list: [h('div', { class: 'secl2' }, `Templates · ${list.length}`), ...listPage(list, bad, ctx)],
+        rec: index < 0 ? null : recordPage(list, index, bad, ctx) }))];
 }

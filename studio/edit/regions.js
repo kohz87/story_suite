@@ -3,6 +3,7 @@
 // A record is opened with Go to (focus on "regions.<n>" or "realms.<n>"); renaming an id goes through the reference index (model/rename.js).
 
 import { h } from '../../ui/kit/dom.js';
+import { recordPanes } from '../form/panes.js';
 import { foldKey } from '../../core/text.js';
 import { CLIMATES } from '../../packs/limits.js';
 import { fieldRow, markFocus } from '../form/fields.js';
@@ -209,9 +210,8 @@ export function editSection(section, ctx) {
     const clean = Array.isArray(section.value) && section.value.every(isObj);
     // a section that is not a clean list of records stays readable and editable as JSON
     if (!NOUN[key] || !clean || ctx.legacy || typeof ctx.commit !== 'function') return [renderSection(section, ctx)];
-    const { at, elsewhere } = recordIndex(ctx, key, section.value.length);
-    if (elsewhere) return [];
+    const { at } = recordIndex(ctx, key, section.value.length); // a record open in another section leaves this list beside it
     const head = h('div', { class: 'secl2' }, `${key === 'regions' ? 'Regions' : 'Realms'} · ${section.count}`);
-    const body = at < 0 ? [head, listPage(section, ctx)] : (key === 'regions' ? regionPage : realmPage)(section, ctx, at);
-    return [h('div', { class: 'st-sec', dataset: { key } }, body)];
+    const rec = at < 0 ? null : (key === 'regions' ? regionPage : realmPage)(section, ctx, at);
+    return [h('div', { class: 'st-sec', dataset: { key } }, recordPanes({ noun: NOUN[key].one, icon: '◍', list: [head, listPage(section, ctx)], rec }))];
 }

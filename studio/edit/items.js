@@ -6,6 +6,7 @@
 // of the two lists can start the other from the first one's page.
 
 import { h } from '../../ui/kit/dom.js';
+import { recordPanes } from '../form/panes.js';
 import { ITEM_FIELDS, ITEM_KINDS, RARITIES, STAT_NAME, ITEM_CARRY, ITEM_BONUS, ITEM_SOAK, ITEM_WEIGHT, FOE_FIELDS, FOE_TIERS, FOE_LIMITS, LIMITS, RECORD_LIMITS } from '../../packs/limits.js';
 import { slugify } from '../../packs/validate/core-parts/record-ids.js';
 import { fieldRow, setProblem } from '../form/fields.js';
@@ -56,11 +57,10 @@ export function editSection(section, ctx) {
     const list = Array.isArray(section.value) ? section.value : null;
     // a section that is not a clean list of records stays readable and editable as JSON
     if (!spec || !list || !list.every(isRecord) || ctx.legacy || typeof ctx.commit !== 'function') return [renderSection(section, ctx)];
-    const open = openOf(ctx);
-    if (open && open.key !== spec.key) return [];
+    const open = openOf(ctx); // a record open in the other list leaves this one beside it
     const bad = list.map((_, index) => (ctx.problems ?? []).filter(problem => inRecord(problem, spec.key, index)));
     const root = h('div', { class: 'st-sec st-items', dataset: { key: spec.key } });
-    root.append(...(open ? recordView(spec, list, open.index, bad[open.index], ctx) : listView(spec, list, bad, ctx)));
+    root.append(recordPanes({ noun: spec.noun, icon: '▣', list: listView(spec, list, bad, ctx), rec: open?.key === spec.key ? recordView(spec, list, open.index, bad[open.index], ctx) : null }));
     return [root];
 }
 

@@ -82,11 +82,12 @@ test('a record with problems is marked in the list and found by the Problems fil
     assert.equal(me.draw().querySelector('[data-key="items"] [data-filter="problems"]'), null, 'no chip where nothing is wrong');
 });
 
-test('a row opens its record through Go to; the other list is not drawn while it is open, and Back returns', () => {
+test('a row opens its record through Go to; the other list stays in the list pane while it is open, and Back returns', () => {
     const me = host();
     const root = open(me, 'items', 0);
     assert.deepEqual(me.went.at(-1), ['items', 'items.0']);
-    assert.equal(root.querySelector('[data-key="foes"]'), null);
+    assert.ok(root.querySelector('[data-key="foes"] .st-pane-list .st-itemrow'), 'the foes list stays (beside the item at 1280 px)');
+    assert.equal(root.querySelector('[data-key="foes"] .st-pane-rec').childNodes.length, 0, 'with no foe open');
     assert.equal(root.querySelector('.st-entryhead b').textContent, 'Iron Sword');
     assert.match(root.querySelector('.st-entryhead small').textContent, /Item 1 of 3/);
     assert.equal(field(root, 'name').querySelector('input').value, 'Iron Sword');
@@ -222,7 +223,7 @@ test('New adds a record under a free name and opens it; Duplicate copies without
     me.draw().querySelector('[data-key="items"] .st-new').click();
     assert.deepEqual(me.patches.at(-1), [{ op: 'insert', path: ['content', 'items', 2], value: { name: 'New item 2', kind: 'goods' } }]);
     assert.deepEqual(me.went.at(-1), ['items', 'items.2']);
-    assert.equal(me.draw().querySelector('[data-key="foes"]'), null, 'the foes list waits while an item is open');
+    assert.equal(me.draw().querySelector('[data-key="foes"] .st-pane-rec').childNodes.length, 0, 'the foes list has no record open while an item is');
     let root = open(me, 'items', 1);
     root.querySelector('.st-dup').click();
     assert.deepEqual(me.content().items[2], { name: 'Cord copy' });
@@ -255,7 +256,7 @@ test('a focus on a field marks its control, and a checker problem shows under it
     me.focus = { rec: 'foes.1', path: ['tier'] };
     me.problems = [{ path: 'content.foes[1].tier', message: 'tier must be one of mob.', level: 'error' }, { path: 'content.foes[1]', message: 'two foes share the slug.', level: 'error' }];
     const root = me.draw();
-    assert.equal(root.querySelector('[data-key="items"]'), null);
+    assert.equal(root.querySelector('[data-key="items"] .st-pane-rec').childNodes.length, 0);
     assert.ok(field(root, 'tier').querySelector('select').classList.contains('st-at'));
     assert.equal(field(root, 'tier').querySelector('.st-problem').textContent, 'tier must be one of mob.');
     assert.equal(root.querySelector('.st-problem[role="status"]').textContent, 'two foes share the slug.');
@@ -272,7 +273,7 @@ test('a pack that cannot be edited, or a list that is not all records, falls bac
 test('the open item\'s data-rec holds its fields: Go to finds the field marked inside the record, as the Studio looks for it', () => {
     const me = host();
     me.focus = { rec: 'items.0', path: ['name'] };
-    const record = me.draw().querySelector('[data-rec="items.0"]');
+    const record = me.draw().querySelector('.st-pane-rec [data-rec="items.0"]'); // the record pane's, not the row's in the list beside it
     assert.ok(record.querySelector('.st-at'));
     assert.equal(record.querySelector('.st-at').closest('[data-key]').dataset.key, 'name');
 });

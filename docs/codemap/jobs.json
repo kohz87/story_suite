@@ -1,4 +1,8 @@
 {
+  "studio/wide.js": "Fits a Studio record part into its two panes (every section's list on one side, the open record on the other, the empty pane) and scrolls a record, a row or a field into view in its own box only, keeping each side's scroll across a redraw.",
+  "studio/form/panes.js": "Draws a Studio record editor's two panes: its list and its open record, or nothing open.",
+  "studio/nav-counts.js": "Says what the Studio nav and page heads show for each part: its count, its problems or warnings, Problems' totals, Pairing not checked, and the page line of counts in words.",
+  "studio/css/frame.css": "Pack Studio stylesheet for the frame: the World / Game switch, the nav counts, the start page column, the foot bar's red count and the two panes of a record part at 1280 px and wider.",
   ".github/workflows/ci.yml": "The CI workflow: rules checks and the three package test jobs plus the cross-package suite job.",
   "authoring-kit/check.mjs": "Check a pack using the same validator as Story Block.",
   "authoring-kit/scripts/limits.mjs": "Prints the host's limits for packs and data modules.",
@@ -204,7 +208,7 @@
   "studio/load.js": "Opens what the author picked (a pack zip through packs/bundle.js, or pack.json with its portraits and game.json) as the text, the parsed pack, the images and the game pack.",
   "studio/main.js": "Starts the Pack Studio on the page's #studio root and leaves its handle on the page for checks.",
   "studio/parts.js": "The Pack Studio's parts: order, names and groups, which content key each part shows per pack kind, a pack's kind, and which part a checker problem's path belongs to.",
-  "studio/shell.js": "Builds the Pack Studio frame in the Settings overlay's look: header with Undo, Redo, Open, Export and theme, the note saying why Export is off, the parts nav or phone list grouped Pack, World, Game and Check, one page, the pack-check bar.",
+  "studio/shell.js": "Builds the Pack Studio frame in the Settings overlay's look: header with the World / Game switch, Undo, Redo, Open, Export and theme, the note saying why Export is off, the parts nav (each part's count or problems) or phone list grouped Pack, World, Game and Check, one page, the pack-check bar.",
   "studio/studio.css": "Pack Studio page styles: fonts, the full-window frame, the record cards, the header's Undo and Redo, the JSON row and the restore prompt; the rest is ui/css as it is.",
   "studio/views/overview.js": "Draws the Pack Studio's Overview page: the mounted cards, the check result in words, the pack's fields, each part's counts and the other open pack.",
   "studio/views/problems.js": "Draws the Pack Studio's Problems page: the pack checker's problems grouped by part, each with Go to the record and field.",
@@ -581,5 +585,5 @@
   "tests/ui/studio/start-page.test.js": "Tests the Studio start page: the blank packs pass the check, the id made from the name, the New sheet and openDoc, and New in the rendered Studio.",
   "tests/ui/studio/lists-render.test.js": "Tests the record lists in Chromium on the shipped Ersveil pair: no stray \"null\" text, rows without an icon use the row\u2019s width, and the lore bar is not squashed.",
   "tests/ui/studio/records-look.test.js": "Tests the record lists and record heads in Chromium against the mock: filled left-aligned rows with pill tags, pill filter chips, one back button over a page-heading title, the red delete card, no stray \"null\" on a record page, 44 px phone targets (chips, row buttons, the graph \u25ce) and the light-theme frames.",
-  "tests/ui/studio/wide.test.js": "Tests the wide layout in Chromium: nav | list | record at 1280 and 1920 with the empty pane and its New, panes scrolling on their own, one pane at a time at 1143 and 390, and the shell's marking alone."
+  "tests/ui/studio/wide.test.js": "Tests the wide layout in Chromium with the real editors on Ersveil: nav | list | record for every record part at 1280 and 1920, the open row marked, the list and record scroll kept across opening and editing, Places & routes joined, Go to scrolling only its own box, one side at a time at 1143 and 390, and the shell's joining alone."
 }

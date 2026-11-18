@@ -27,6 +27,26 @@ undo and redo and an autosaved draft.
   the foot bar and Export are its own. The nav lists the world's parts under World and the game's under Game; picking a part
   of the other pack makes it active, and Overview's "Also open" row switches too. The game parts are Calendar, Money,
   Weather, Names, Rules, Trackers and Start.
+- **Header and nav** (`studio/shell.js`, `studio/nav-counts.js`): with both packs open, the header has a World / Game switch
+  (`.pswitch`, its own row of two halves on a phone) naming each pack, with a pack's error count (`✕ 2`); it makes that pack
+  active and shows Overview (or the shared part already open), and the search says "Search both packs…". The nav starts with
+  **Home** (the start page, `Open or start a pack`, which stays reachable with packs open; Alt+1…9 still count from
+  Overview). Each nav row ends in its count, or its problems in red (`✕ 2`) or warnings (`! 1`) from the owning pack's
+  check; Problems shows `errors · warnings` (`0` when clean); Pairing shows `—` while either pack has errors (it is not
+  drawn to list it); Home, Overview and Dry run show nothing. A page's line says what it holds in words (`320 places ·
+  352 routes`). The foot bar's problem count is red. With no pack open there is no nav column and no "‹ Parts", and the
+  start page is a centred column.
+- **The two panes** (mock MK-2; `studio/form/panes.js`, `studio/wide.js`): every record editor (lore, cast, places, routes,
+  regions and realms, events, templates, powers and scores, items and foes, name cultures, tracker presets) draws its list
+  and its open record on every draw, in a `.st-panes` box (`recordPanes`). The shell joins a part's boxes: the page's title,
+  a List · Map switch and every section's list go into one list side (`.st-wlist`) and the open record into one record side
+  (`.st-wrec`), inside `.st-wide`; the open record's row is marked `aria-current`. At 1280 px and wider the two sides sit
+  next to each other under the nav (the list 340 px), each scrolling on its own, the record's back button hidden, and the
+  record side says "No <noun> open" with the list's New while nothing is open; below that the page shows the list, or the
+  record (with its back button) while one is open. A redraw keeps each side's scroll (the record side's while the same
+  record stays open), and opening a record from its list keeps the list where it was. The Studio finds a record for Go to
+  in the record side first (its row in the list carries the same `data-rec`). Scrolling to a record, its row or a field
+  moves only the box that holds it (`reveal`), never the nav or the frame (`scrollIntoView` scrolled both).
 - **Format 3**: a pack below format 4 (or with no `format`) opens read-only in the world slot. Its subtitle says
   `Format 3 · <name> · <version> · Read-only`, a card at the top of Overview says why it cannot be edited, its Pack card reads
   Name, Id, Version, Author (and what it needs) in words, and its rules, calendar, money and the like show under Other as

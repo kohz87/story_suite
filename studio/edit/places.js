@@ -3,6 +3,7 @@
 // so the Studio's own redraw and back button keep working.
 
 import { h } from '../../ui/kit/dom.js';
+import { recordPanes } from '../form/panes.js';
 import { CLIMATES } from '../../packs/limits.js';
 import { fieldRow, markFocus } from '../form/fields.js';
 import { chipList } from '../form/list.js';
@@ -149,5 +150,5 @@ export function editSection(section, ctx) {
     // a section that is not a clean list of records stays readable and editable as JSON
     if (!list || list.length !== section.value.length || ctx.legacy || typeof ctx.commit !== 'function') return [renderSection(section, ctx)];
     const at = recordIndex(ctx, list.length);
-    return [h('div', { class: 'st-sec', dataset: { key: 'places' } }, at < 0 ? [head, listPage(section, ctx)] : recordPage(section, ctx, at))];
+    return [h('div', { class: 'st-sec', dataset: { key: 'places' } }, recordPanes({ noun: 'place', icon: '◍', list: [head, listPage(section, ctx)], rec: at < 0 ? null : recordPage(section, ctx, at) }))];
 }

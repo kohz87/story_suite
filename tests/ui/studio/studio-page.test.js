@@ -81,7 +81,7 @@ test('Ersveil opens, the checker takes it, every part has a page and Export give
       title: document.querySelector('.spage h2').textContent,
       check: document.querySelector('.st-check').dataset.ok,
     }));
-    assert.deepEqual(head, { sub: 'World · Ersveil (open world) · 4.0.0', foot: 'No problems', nav: ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
+    assert.deepEqual(head, { sub: 'World · Ersveil (open world) · 4.0.0', foot: 'No problems', nav: ['start', 'overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
     for (const part of head.nav) {
       await page.click(`.snav .si3[data-part="${part}"]`);
       const seen = await page.evaluate(() => ({ title: document.querySelector('.spage h2').textContent, cards: document.querySelectorAll('.spage :is(.sgrp, .reclist > .st-rec)').length }));
@@ -168,7 +168,8 @@ test('phone: the parts list first, a part opens as a page, ‹ Parts goes back; 
       const shd = document.querySelector('.shd').getBoundingClientRect();
       return { height: Math.round(shd.height), small: [...document.querySelectorAll('.shd button')].map(b => b.getBoundingClientRect()).filter(r => r.width < 36 || r.height < 44).length, ic: [...document.querySelectorAll('.shd .ic')].map(b => Math.round(b.getBoundingClientRect().width)) };
     });
-    assert.deepEqual(header, { height: 123, small: 0, ic: [36, 36] }, 'the mock\'s phone header (MK-1): the buttons on their own row under the title, every button 44 tall, Undo and Redo 36 wide as drawn');
+    // (Ersveil's zip opens its game too, so the World / Game switch takes a row of its own between the title and the buttons, MK-6)
+    assert.deepEqual(header, { height: 181, small: 0, ic: [36, 36] }, 'the mock\'s phone header (MK-1, MK-6): the switch and the buttons on their own rows under the title, every button 44 tall, Undo and Redo 36 wide as drawn');
     await page.click('.slist button[data-part="cast"]');
     assert.deepEqual(await state(), { page: 'section', list: 'none', spage: 'flex', side: 'none', scheme: 'light' });
     await page.click('.sback');
@@ -193,7 +194,7 @@ test('format 4: a world zip with game.json opens both packs; a Game part makes t
   const { page, errors } = await studio(1280);
   try {
     await openFile(page, pick('world4.zip', ZIP4, 'application/zip'));
-    assert.deepEqual(await nav(page), { sub: 'World · Studio world 4 (test) · 0.1.0', groups: ['Pack', 'World', 'Game', 'Check'], parts: ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], zip: false });
+    assert.deepEqual(await nav(page), { sub: 'World · Studio world 4 (test) · 0.1.0', groups: ['Pack', 'World', 'Game', 'Check'], parts: ['start', 'overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], zip: false });
     assert.equal(await page.locator('.st-convert').count(), 0);
     assert.equal(await page.locator('.st-seg').count(), 0);
     assert.equal(await page.textContent('.st-other .lb b'), 'Game pack · Studio game 4 (test) · 0.1.0');

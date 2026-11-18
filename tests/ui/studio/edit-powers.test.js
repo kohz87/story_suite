@@ -59,9 +59,9 @@ test('a pack with powers and no scores offers the first score from the powers se
     assert.deepEqual(calls.go.at(-1), ['powers', 'scores.0']);
 });
 
-test('an open power draws its page and the scores section draws nothing; fields edit as one patch at their path', () => {
+test('an open power draws its page and the scores section only its list; fields edit as one patch at their path', () => {
     const { calls, draw } = setup({ focus: { rec: 'powers.0', path: null } });
-    assert.deepEqual(draw('scores'), []);
+    assert.equal(one(draw('scores')).querySelector('.st-pane-rec').childNodes.length, 0);
     const page = one(draw('powers'));
     assert.equal(page.querySelector('.st-rec').dataset.rec, 'powers.0');
     assert.match(page.textContent, /Power 1 of 1/);
@@ -122,7 +122,7 @@ test('renaming a power rewrites its uses in one commit; a bad id is refused in w
 
 test('a score\'s range, start and drift edit as patches; drift on takes the key out, off writes false', () => {
     const { calls, draw } = setup({ focus: { rec: 'scores.0', path: null } });
-    assert.deepEqual(draw('powers'), []);
+    assert.equal(one(draw('powers')).querySelector('.st-pane-rec').childNodes.length, 0);
     const page = one(draw('scores'));
     assert.match(page.textContent, /Score 1 of 2/);
     const high = field(page, 'range.high').querySelector('input');

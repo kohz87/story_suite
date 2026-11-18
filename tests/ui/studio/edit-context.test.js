@@ -89,7 +89,7 @@ test('New world on a phone: Overview says it is new, every World part is listed 
     assert.equal(rows.length, 8, 'Lore, Cast, Places & routes, Conditions, Events, Templates, Powers & scores, Items & foes');
     await page.click('.sback');
     assert.deepEqual(await page.$$eval('.slist button[data-part]', buttons => buttons.map(button => button.dataset.part)),
-      ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'timeline', 'pairing', 'problems']);
+      ['start', 'overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'timeline', 'pairing', 'problems']);
     // Looking at every part writes nothing.
     for (const part of ['lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items']) {
       await page.click(`.slist button[data-part="${part}"]`);

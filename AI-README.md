@@ -230,6 +230,7 @@ extension, shows each part read only and exports it again as a zip or JSON; edit
 <!-- generated:studio -->
 | Part | Group | Shows |
 |---|---|---|
+| Home | Pack | The Studio edits pack format 4. A world pack holds the places, people and events you play in; a game pack holds the calendar, money, weather, names and rules. One of each can be open at once |
 | Overview | Pack | Name, version and what it needs |
 | Lore | World | Entries, keys, hidden and protected |
 | Cast | World | People NPC State starts from |

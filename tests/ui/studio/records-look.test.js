@@ -71,11 +71,16 @@ test('an open record: one back button, the title as the page heading, Delete ope
     const page = await studio(width);
     await part(page, 'lore');
     await page.locator('.spage .st-lorerow').first().click();
-    assert.equal(await page.locator('.spage .st-ptitle').isVisible(), false, `${width}: the page title gives way`);
     assert.equal(await page.locator('.spage .sback').isVisible(), false, `${width}: no "‹ Parts" over the record`);
     assert.equal(await page.locator('.spage .st-back').count(), 1);
     const back = await style(page, '.spage .st-back'), dup = await style(page, '.spage .st-dup');
-    assert.ok(Math.abs(back.top - dup.top) < 4, `${width}: back and Duplicate share a row`);
+    if (width < 1280) {
+      assert.equal(await page.locator('.spage .st-ptitle').isVisible(), false, `${width}: the page title gives way`);
+      assert.ok(Math.abs(back.top - dup.top) < 4, `${width}: back and Duplicate share a row`);
+    } else { // the wide layout (MK-2): the title heads the list beside the record, which needs no back button
+      assert.ok(await page.locator('.st-wlist .st-ptitle').isVisible(), `${width}: the page title heads the list`);
+      assert.ok(!back.visible && dup.visible, `${width}: no back button beside the list; Duplicate shows`);
+    }
     assert.equal((await style(page, '.spage .st-entryhead b', 'font-size'))['font-size'], '22px');
     await page.click('.spage .st-del');
     const card = await style(page, '.spage .st-delcard', 'border-top-color');

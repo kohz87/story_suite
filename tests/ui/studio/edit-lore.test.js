@@ -228,13 +228,14 @@ test('a checker problem shows under its field, and Go to on a field marks it; an
     assert.match(field(root, 'title').querySelector('.st-problem').textContent, /short text/);
     assert.ok(field(root, 'title').querySelector('input').classList.contains('st-at'));
     // The Studio looks for the marked field inside the record's [data-rec] (Go to, F8) and keeps a box being typed in by it after a redraw.
-    assert.equal(root.querySelectorAll('[data-rec="lore.0"]').length, 1);
-    assert.ok(root.querySelector('[data-rec="lore.0"]').querySelector('input.st-at'));
-    assert.ok(root.querySelector('[data-rec="lore.0"]').querySelector('.st-jsonrow'));
+    // (the list beside it has the entry's row, which carries the same data-rec: the Studio looks in the record pane first)
+    assert.equal(root.querySelectorAll('.st-pane-rec [data-rec="lore.0"]').length, 1);
+    assert.ok(root.querySelector('.st-pane-rec [data-rec="lore.0"]').querySelector('input.st-at'));
+    assert.ok(root.querySelector('.st-pane-rec [data-rec="lore.0"]').querySelector('.st-jsonrow'));
     me.focus = { rec: 'lore.2', path: ['extra'] };
     const json = me.draw();
     assert.match(json.textContent, /Also in this entry, only in the JSON below: extra/);
-    assert.ok(json.querySelector('[data-rec="lore.2"]').querySelector('.st-jsonin.st-at'));
+    assert.ok(json.querySelector('.st-pane-rec [data-rec="lore.2"]').querySelector('.st-jsonin.st-at'));
 });
 
 test('a pack with no commit (a format 3 pack) is not offered an editor change', () => {

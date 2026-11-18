@@ -14,6 +14,7 @@ import { fieldRow, setProblem } from '../form/fields.js';
 import { chipList } from '../form/list.js';
 import { openPicker } from '../form/pick.js';
 import { jsonRow } from '../views/json-row.js';
+import { recordPanes } from '../form/panes.js';
 import { renderSection } from '../views/records.js';
 import { definedIds, usedBy } from '../model/refs.js';
 import { renameId } from '../model/rename.js';
@@ -365,7 +366,8 @@ export function editSection(section, ctx) {
     const root = h('div', { class: 'st-sec st-events', dataset: { key: 'worldEvents' } });
     const bad = list.map((_, index) => (ctx.problems ?? []).filter(problem => inRecord(problem, index)));
     const open = /^worldEvents\.(\d+)$/.exec(ctx.focus?.rec ?? '');
-    const redraw = () => root.replaceChildren(...(open && Number(open[1]) < list.length ? eventPage(list, Number(open[1]), bad, ctx, state, redraw) : listView(list, bad, ctx, state, redraw)));
+    const redraw = () => root.replaceChildren(recordPanes({ noun: 'event', icon: '✦', list: listView(list, bad, ctx, state, redraw),
+        rec: open && Number(open[1]) < list.length ? eventPage(list, Number(open[1]), bad, ctx, state, redraw) : null }));
     redraw();
     return [root];
 }

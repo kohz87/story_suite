@@ -3,6 +3,7 @@
 // opened with Go to (focus on "routes.<n>"), so the Studio's own redraw and back button keep working.
 
 import { h } from '../../ui/kit/dom.js';
+import { recordPanes } from '../form/panes.js';
 import { ROUTE_CLASSES } from '../../packs/limits.js';
 import { classOfKind } from '../../packs/validate/world-pack-parts/kinds.js';
 import { fieldRow, markFocus } from '../form/fields.js';
@@ -181,5 +182,5 @@ export function editSection(section, ctx) {
     // a section that is not a clean list of records stays readable and editable as JSON
     if (!list || list.length !== section.value.length || ctx.legacy || typeof ctx.commit !== 'function') return [renderSection(section, ctx)];
     const at = recordIndex(ctx, list.length);
-    return [h('div', { class: 'st-sec', dataset: { key: 'routes' } }, at < 0 ? [head, listPage(section, ctx)] : recordPage(section, ctx, at))];
+    return [h('div', { class: 'st-sec', dataset: { key: 'routes' } }, recordPanes({ noun: 'route', icon: '◍', list: [head, listPage(section, ctx)], rec: at < 0 ? null : recordPage(section, ctx, at) }))];
 }

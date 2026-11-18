@@ -4,6 +4,7 @@
 // pack holds, so the section that is drawn also shows the other one's empty state ("No meter presets" and its add button).
 
 import { h } from '../../ui/kit/dom.js';
+import { recordPanes } from '../form/panes.js';
 import { METER_LIMITS, METER_RESERVED, SLUG } from '../../packs/limits.js';
 import { fieldRow, setProblem } from '../form/fields.js';
 import { chipList } from '../form/list.js';
@@ -270,10 +271,10 @@ export function editSection(section, ctx) {
     const presets = section.key === 'meterPresets' ? section.value : clean(content.meterPresets) ? content.meterPresets : null;
     const at = presets ? (() => { const match = /^meterPresets\.(\d+)$/.exec(ctx.focus?.rec ?? ''); return match && Number(match[1]) < presets.length ? Number(match[1]) : -1; })() : -1;
     if (section.key === 'meterPresets') {
-        if (at >= 0) return [h('div', { class: 'st-sec', dataset: { key: 'meterPresets' } }, presetPage(presets, at, ctx))];
-        return [h('div', { class: 'st-sec', dataset: { key: 'meterPresets' } }, presetsList(presets, ctx), content.dataModules === undefined ? modulesGroup([], ctx) : null)];
+        return [h('div', { class: 'st-sec', dataset: { key: 'meterPresets' } }, recordPanes({ noun: 'preset', icon: '▤', list: [presetsList(presets, ctx), content.dataModules === undefined ? modulesGroup([], ctx) : null],
+            rec: at >= 0 ? presetPage(presets, at, ctx) : null }))];
     }
-    // dataModules: with a preset open its page fills the part; with no meterPresets key, the presets' empty state comes first
-    if (at >= 0) return [];
+    // dataModules: listed with the presets (a preset's page sits beside them, or alone below 1280 px); with no meterPresets key, the
+    // presets' empty state comes first
     return [h('div', { class: 'st-sec', dataset: { key: 'dataModules' } }, content.meterPresets === undefined ? presetsList([], ctx) : null, modulesGroup(section.value, ctx))];
 }

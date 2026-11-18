@@ -59,9 +59,9 @@ test('a place or template row gives its text the row (no icon column), and the l
   const page = await studio();
   const textWidth = sel => page.locator(sel).first().evaluate(row => row.firstElementChild.getBoundingClientRect().width);
   await part(page, 'map');
-  assert.ok(await textWidth('.spage .st-prow[data-rec="places.0"]') > 300, 'place row text');
+  assert.ok(await textWidth('.spage .st-prow[data-rec="places.0"]') > 240, 'place row text'); // (the list is 340 px wide at 1280)
   await part(page, 'templates');
-  assert.ok(await textWidth('.spage .st-trow[data-rec="templates.0"]') > 300, 'template row text');
+  assert.ok(await textWidth('.spage .st-trow[data-rec="templates.0"]') > 240, 'template row text');
   await part(page, 'lore');
   const bar = await page.locator('.spage .st-bar').first().evaluate(el => el.getBoundingClientRect().height);
   assert.ok(bar > 30, `the lore bar is ${bar} px high`);

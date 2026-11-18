@@ -6,6 +6,7 @@ import { fieldRow } from '../form/fields.js';
 import { chipList } from '../form/list.js';
 import { gateField } from '../form/gate.js';
 import { jsonRow } from '../views/json-row.js';
+import { recordPanes } from '../form/panes.js';
 import { usedBy } from '../model/refs.js';
 import { renameId } from '../model/rename.js';
 import { partOfPath } from '../parts.js';
@@ -58,7 +59,9 @@ export function editSection(section, ctx) {
     if (state.open !== undefined && state.open !== null && !(state.open < list.length)) state.open = null;
     const root = h('div', { class: 'st-sec st-lore', dataset: { key: 'lore' } });
     const bad = list.map((_, index) => (ctx.problems ?? []).filter(problem => inProblem(problem, index)));
-    const draw = () => root.replaceChildren(...(typeof state.open === 'number' ? entryView(list, state.open, bad, ctx, state, draw) : listView(list, bad, ctx, state, draw)));
+    // Both panes on every draw (form/panes.js): the list stays beside the open entry at 1280 px and wider.
+    const draw = () => root.replaceChildren(recordPanes({ noun: 'entry', icon: '✎', list: listView(list, bad, ctx, state, draw),
+        rec: typeof state.open === 'number' ? entryView(list, state.open, bad, ctx, state, draw) : null }));
     draw();
     return [root];
 }

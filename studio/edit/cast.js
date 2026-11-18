@@ -12,6 +12,7 @@ import { openPicker } from '../form/pick.js';
 import { subRecords } from '../form/records.js';
 import { renderSection } from '../views/records.js';
 import { jsonRow } from '../views/json-row.js';
+import { recordPanes } from '../form/panes.js';
 import { definedIds, usedBy } from '../model/refs.js';
 import { renameId } from '../model/rename.js';
 import { partOfPath } from '../parts.js';
@@ -252,7 +253,7 @@ export function editSection(section, ctx) {
     const focused = /^cast\.(\d+)$/.exec(ctx.focus?.rec ?? '');
     const open = focused && Number(focused[1]) < list.length ? Number(focused[1]) : -1;
     const root = h('div', { class: 'st-sec st-cast', dataset: { key: 'cast' } });
-    const draw = () => root.replaceChildren(open < 0 ? listPage(list, bad, ctx, draw) : recordPage(list, open, bad, ctx, draw));
+    const draw = () => root.replaceChildren(recordPanes({ noun: 'person', icon: '♥', list: listPage(list, bad, ctx, draw), rec: open < 0 ? null : recordPage(list, open, bad, ctx, draw) }));
     draw();
     return [root];
 }

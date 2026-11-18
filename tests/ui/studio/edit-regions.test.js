@@ -103,7 +103,7 @@ test('a region page lists its places, which open with Go to, and the realm picke
 test('a realm page lists its regions; the region picker marks those already held, by id or by name', () => {
     const { calls, draw, pack } = setup({ focus: { rec: 'realms.1', path: null } });
     pack.content.realms.push({ id: 'moorfolk', name: 'Moorfolk', regions: ['the moor', 'nowhere'] });
-    const page = draw('realms');
+    const page = draw('realms').querySelector('.st-pane-rec'); // the record pane (the realms list is beside it)
     assert.match(page.textContent, /Realm 2 of 2/);
     const rows = page.querySelectorAll('.subrow');
     assert.match(rows[0].textContent, /High Moor.*high-moor/);
@@ -121,7 +121,7 @@ test('a realm page lists its regions; the region picker marks those already held
 
 test('the region picker adds a free region to the realm by id', () => {
     const { calls, draw } = setup({ focus: { rec: 'realms.0', path: null } });
-    draw('realms').querySelector('.addrow button').click();
+    draw('realms').querySelector('.st-pane-rec .addrow button').click();
     const items = sheetRows();
     assert.equal(items[1].getAttribute('aria-disabled'), null);
     items[1].click();
@@ -163,10 +163,13 @@ test('a refused change says why; Duplicate (a realm copy holds no regions) and D
     assert.deepEqual(calls.go.at(-1), ['map']);
 });
 
-test('while another record of the part is open the section draws nothing; problems show under their field', () => {
+test('while another record of the part is open the section draws only its list; problems show under their field', () => {
     const open = setup({ focus: { rec: 'places.0', path: null } });
-    assert.deepEqual(editSection(section(open.pack, 'regions'), open.ctx), []);
-    assert.deepEqual(editSection(section(open.pack, 'realms'), open.ctx), []);
+    for (const key of ['regions', 'realms']) {
+        const [node] = editSection(section(open.pack, key), open.ctx);
+        assert.ok(node.querySelector('.st-pane-list .addrow'), `${key}: its list stays`);
+        assert.equal(node.querySelector('.st-pane-rec').childNodes.length, 0, `${key}: no record of its own`);
+    }
     const problems = [{ path: 'content.regions[1].climate', message: 'climate must be one of the ten.' }, { path: 'content.realms[0].regions', message: 'the region is already in realm "x".' }];
     const one = setup({ focus: { rec: 'regions.1', path: null }, ctx: { problems } });
     assert.match(field(one.draw(), 'climate').querySelector('.st-problem').textContent, /must be one of/);
