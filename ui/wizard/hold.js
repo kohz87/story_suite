@@ -38,8 +38,18 @@ export function createSendHold({ doc, ctx = () => null, world, wizard, suite, sh
   // The suite opened for the sheet is closed again when the choice is made, so the reader is back at the chat, typing in the box.
   const leave = own => { if (own.openedSuite) { own.openedSuite = false; suite?.close?.(); if (!touch()) box()?.focus?.({ preventScroll: true }); } };
 
+  // A story that already has a character, but none named like the persona (the persona was changed): the hold says so, and does not offer a second character.
+  const mismatch = () => {
+    try {
+      const persona = world.readerName?.() ?? '';
+      const names = (world.world?.().names ?? []).filter(Boolean);
+      return persona && names.length ? { persona, names: names.join(' and ') } : null;
+    } catch { return null; }
+  };
+
   function openHold(text) {
     if (hold) return;
+    const clash = mismatch();
     const own = { text, decided: false, sheet: null, openedSuite: false };
     hold = own;
     if (!suite?.isOpen?.()) own.openedSuite = Boolean(suite?.open?.());
@@ -51,7 +61,7 @@ export function createSendHold({ doc, ctx = () => null, world, wizard, suite, sh
     sheet.el.classList.add('wz-hold');
     const decide = () => { own.decided = true; sheet.close(); };
     sheet.body.append(
-      h('p', { class: 'ps-p' }, S.holdText),
+      h('p', { class: 'ps-p', dataset: clash ? { hold: 'mismatch' } : {} }, clash ? S.holdMismatch.replaceAll('{names}', clash.names).replace('{persona}', clash.persona) : S.holdText),
       h('blockquote', { class: 'wz-quote', 'aria-label': S.holdLabel }, cut(text, QUOTE_MAX)),
       h('div', { class: 'ps-row wz-hold-acts' },
         button({ label: S.holdWithout, dataset: { hold: 'without' }, onClick: () => {
@@ -61,7 +71,7 @@ export function createSendHold({ doc, ctx = () => null, world, wizard, suite, sh
           leave(own);
           sendAgain();
         } }),
-        button({ label: S.holdCreate, tone: 'primary', dataset: { hold: 'create' }, onClick: () => {
+        clash ? null : button({ label: S.holdCreate, tone: 'primary', dataset: { hold: 'create' }, onClick: () => {
           decide();
           const opened = wizard.open(null, { onEnd: created => { leave(own); if (created) sendAgain(); else restore(own.text); } });
           if (!opened) { leave(own); restore(own.text); }

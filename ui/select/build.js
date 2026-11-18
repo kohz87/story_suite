@@ -31,6 +31,8 @@ import { arcController } from '../../modules/arc/controller.js';
 import { replyCardsOf } from './reply-card.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
+// Story Director is on while any of its switches is on (the Settings Director card reads it the same way); a host with no feature list counts as on.
+const directorOn = sdk => { const own = sdk?.features?.()?.filter?.(f => f?.moduleId === 'story-director'); return !own?.length || own.some(f => f.on === true); };
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
 
 // The arc planner's waiting plan and state (the page's controller; none without a page).
@@ -103,7 +105,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     journal: read => selectJournal(read, { focusId: pickOf(ctx) }),
     // The plan opens from this chat's own pref (the Story tab's Show the plan writes it); the Threads switch decides whether its beats, clocks, agendas and secrets exist at all.
-    story: read => selectStory(read, { arcStatus: arcStatus(), planShown: ctx()?.chatMetadata?.[PREFS_KEY]?.plan === true, threadsOn: sdk?.features?.()?.find?.(f => f?.id === 'story-director.threads')?.on !== false }),
+    story: read => selectStory(read, { arcStatus: arcStatus(), planShown: ctx()?.chatMetadata?.[PREFS_KEY]?.plan === true, threadsOn: sdk?.features?.()?.find?.(f => f?.id === 'story-director.threads')?.on !== false, directorOn: directorOn(sdk) }),
     // The open interaction: `interaction.view`, null when none is open. A fight is shown on the Fight tab, not here.
     scene: read => openScene(read('interaction.view', {})),
     // The open fight: the same answer, drawn by the fight renderer on the activity host (the kind's own view is the FIGHT_SHAPE), or the waiting fight's offer; null when neither.

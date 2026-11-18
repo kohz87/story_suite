@@ -74,7 +74,7 @@ export function buildStory(opts = {}) {
   const shown = Boolean(opts.planShown);
   if (opts.empty) {
     return {
-      plan: { shown, note: '' },
+      plan: { shown, note: '', off: false },
       pulse: { mode: 'lively', quiet: false, latest: null, recent: [] },
       arc: { accepted: null, draft: null, busy: false, error: '', plan: null },
       beats: gate([], shown), clocks: gate([], shown), hooks: gate([], shown), newsOnWay: gate([], shown),
@@ -85,7 +85,7 @@ export function buildStory(opts = {}) {
     };
   }
   return {
-    plan: { shown, note: '' },
+    plan: { shown, note: '', off: false },
     pulse: {
       mode: 'lively',
       quiet: Boolean(opts.quiet),

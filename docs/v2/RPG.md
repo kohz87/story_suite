@@ -187,7 +187,7 @@ one, in two places. Neither is there with the RPG off, and neither changes anyth
   message stays in the box and **Make your character first** opens, with your message quoted. **Send without the RPG for now**
   sends it as usual, with no dice for that reply, and the chat is never asked again (the Party tab still offers **Create your character**).
   **Create your character, then send** opens the New character window and sends the message when you press Create; if you
-  close the window instead, the text is still in the box and the next Send asks again. Closing the dialog also leaves the text
+  close the window instead, the text is still in the box and the next Send asks again. When the story already has a character but you are playing as another name (the persona was changed), the dialog says so and offers only **Send without the RPG for now**; switch the persona back to the character's name to play on. Closing the dialog also leaves the text
   in the box. On a phone the dialog is a bottom sheet. In the new view it is the suite's own sheet: the suite opens for it and
   closes again once you have chosen. Only a normal Send is held: a swipe, a regenerate, a continue, an
   impersonation, a quiet or dry run, an empty box and a slash command are not.

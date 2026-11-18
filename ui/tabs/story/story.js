@@ -14,6 +14,12 @@ export function storyTab(story = {}, ctx = {}) {
   let view = prefs?.getFold?.('story.trackers', false) ? 'trackers' : 'director';
 
   function director() {
+    // With the Story Director off nothing plans or rolls: one card says so (the plan bar, the arc planner and the cards would only be dead controls).
+    if (story.plan?.off === true) {
+      return [h('section', { class: 'card glass dc wide', dataset: { card: 'director-off' } },
+        h('div', { class: 'ch' }, h('h3', null, 'Story Director is off')),
+        h('p', { class: 'fine', role: 'status' }, 'Nothing plans arcs or rolls the world pulse, so there is nothing to show here. Turn it on in Settings › Director.'))];
+    }
     const [pulse, cast, arc, beats, clocks, hooks, news] = directorCards(story, ctx);
     const grid = [pulse, cast, arc, beats, clocks, agendasCard(story.agendas, shown, ctx), hooks, news,
       secretsCard(story.secrets, shown, ctx), ripplesCard(story.ripples, shown)].filter(Boolean);
