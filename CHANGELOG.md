@@ -9,6 +9,8 @@ Main has nothing beyond 0.1.2 yet except documentation.
 ### Added
 
 - Settings › Look › **Panel background**: Off (the new default) removes the sky picture behind the Story Suite panels and leaves a plain flat colour, dark or light; On brings the picture back. It applies at once and is kept per device.
+- Settings › People: **Custom meters** (Add a meter; each meter's name, lowest, highest, start, its rule for the story and the words shown instead of its number; Remove), **Meter presets** (pick Companion, Rival, Mentor or a pack's sets), **Per-meter stages** (meter, threshold, stage name) and the **Stage ladder** (stage, what it needs, milestone, track) can now be set in the new view. They store the same NPC State settings the engine reads, apply to the open chat at the next reply, and mark a row NPC State does not use. Renaming a custom meter also renames it in the stages that name it.
+- Every Settings page's cards fold: the card title is a button with a chevron; a folded card is remembered on this device.
 
 ### Changed
 
@@ -23,6 +25,10 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 - Settings › Look works in the new view: Panel style (Glass or Follow SillyTavern), Glass strength, Font and Text size now change the Story Suite panel at once and stay after a reload; Reset Look puts the Glass look back. The panel now opens in Glass by default (light or dark from your SillyTavern theme) instead of always taking SillyTavern's colours.
 - The Send pending note shows above the message box in the new view again (sends when the story is ready, not sent yet, sent); its fight-held state stays hidden there, as the Fight tab shows the fight. The Send pending note switch turns it off.
+
+### Removed
+
+- The fixed "The four feelings" row on Settings › People (nothing could be set there); the README's NPC State section explains the four feelings.
 
 ## 0.1.2 — 18 Nov 2026
 

@@ -111,7 +111,7 @@ export function selectSettings(answers) {
   const sections = [
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
-    section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people)),
+    section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people, { presets: a.peoplePresets, features: a.features })),
     section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression, fights, and what you take, carry and wear. The checks’ numbers are in Director.', [...selectRpgRows(a.rpg), ...rpgFeatureRows(hasFeatures ? a.features : [])]),
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [], a.directorCalls)),
     ...[selectDirector(a.directorPage)].filter(Boolean),

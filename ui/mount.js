@@ -70,7 +70,7 @@ export function mountSuite(options = {}) {
     if (!settings || destroyed) return port.command('suite.settings', {});
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
-      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
+      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
       onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : relook(port.command('settings.set', { key, value }))),
       onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });

@@ -3,6 +3,7 @@
 import { mountSuite } from '../mount.js';
 import { createSbPort } from '../port/sb-port.js';
 import { addMenuEntry, chatPrefs } from '../port/st-chat.js';
+import { settingsFolds } from './settings-folds.js';
 import { createChatSurfaces } from '../chat/chat-surfaces.js';
 import { replyMenuButton, replySheet } from '../chat/reply-menu.js';
 import { buildSelectors } from '../select/build.js';
@@ -41,7 +42,7 @@ function addStyles(doc, base) {
 // Draws the new view and returns the one function that takes it all away again.
 export function turnOn({ doc, base, ctx, StoryBlock }) {
   const links = addStyles(doc, base);
-  const prefs = { chat: chatPrefs(ctx) };
+  const prefs = { chat: chatPrefs(ctx), device: settingsFolds() };
   const hold = createHold(doc);
   const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, hold, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools, hold), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, screens: { open: (...args) => wizard?.open(...args) ?? false }, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
   const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow', look: () => StoryBlock.sdk?.settings?.() });
