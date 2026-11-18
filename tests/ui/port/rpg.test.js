@@ -7,6 +7,7 @@ import { selectRpgRows } from '../../../ui/select/rpg-rows.js';
 import { rpgCommand } from '../../../ui/port/rpg.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';
 import { renderSettingsSection } from '../../../ui/settings/sections/index.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { AUTO_CAP_SETTING, CHECKS_SETTING, JOIN_SETTING, LEVEL_CAP_SETTING, PRACTICE_SETTING, PRECHECK_SETTING } from '../../../modules/rpg/names.js';
 import { DIFFICULTY_SETTING, STANDARD_SETTING } from '../../../modules/rpg/rules.js';
 import { XP_RATE_SETTING } from '../../../modules/rpg/levels.js';
@@ -29,7 +30,8 @@ describe('RPG page rows', () => {
     assert.deepEqual(checkShape(vm, SETTINGS_SHAPE), []);
     const section = vm.sections.find(s => s.id === 'rpg');
     assert.equal(valueOf(section.rows, 'rpg.companions'), 'Off');
-    assert.equal(renderSettingsSection(section, { body: () => ['rows'] }).length, 1);
+    installFakeDom();
+    assert.equal(renderSettingsSection(section, { body: () => [] }).flatMap(n => n.querySelectorAll('.srow')).length, section.rows.length);
   });
 });
 

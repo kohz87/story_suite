@@ -6,6 +6,7 @@ import { XP_RATE, XP_RATE_SETTING } from '../../modules/rpg/levels.js';
 import { customOf } from '../../modules/rpg/view/settings-data.js';
 import { DIFFICULTY_WORDS, JOIN_WORDS } from '../select/rpg-rows.js';
 import { RPG_FEATURE_ROWS } from '../select/rpg-features.js';
+import { rpgCustomCommand } from './rpg-custom.js';
 
 const BUCKET = 'story-block';
 const FAILED = { ok: false, code: 'FAILED', message: 'That setting was not saved.' };
@@ -31,7 +32,8 @@ const DEFAULTS = { 'rpg.difficulty': 'standard', 'rpg.levelCap': LEVEL.max, 'rpg
 /**
  * `settings.set` with a key `rpg.<row>` stores that row (a value outside its range is held to it; a word that is not one of the row's is refused);
  * `settings.action` `settings.reset` with the label "Reset RPG and fights to defaults" stores every row's default. `values()` reads the bucket
- * (a first switch to Custom starts from the numbers in force, as the old page does). Any other command is not this page's: returns null.
+ * (a first switch to Custom starts from the numbers in force, as the old page does); a key `rpg.custom.<field>` is a Custom editor (rpg-custom.js).
+ * Any other command is not this page's: returns null.
  */
 export function rpgCommand(type, payload, writes = null, values = () => null) {
   const key = String(payload?.key ?? '');
@@ -40,6 +42,7 @@ export function rpgCommand(type, payload, writes = null, values = () => null) {
     const stored = writes?.features?.set?.(RPG_FEATURE_ROWS[key], payload.value === true);
     return stored === undefined ? { ...FAILED, message: 'That switch was not saved.' } : { ok: true, value: payload.value === true };
   }
+  if (type === 'settings.set' && key.startsWith('rpg.custom.')) return rpgCustomCommand(key, payload.value, writes, values);
   if (type === 'settings.set' && Object.hasOwn(ROWS, key)) {
     const [setting, clean] = ROWS[key];
     const value = clean(payload.value);
