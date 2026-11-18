@@ -63,9 +63,48 @@ export function createTimelinePart(session, deps) {
     // host, no Story Director (the queries are unknown), its clock not set yet, or the reader keeps the
     // calendar in Delta (`calendarOwn`). calendar.js turns it
     // into a date on Delta's own calendar (storyClockDate) when the two calendars agree.
+    // One read of the clock answers every ask until something can have moved it: a host event (a commit, a head move, a turn, a feature or module
+    // change) or the end of the current task (a settings edit sends no event; the next task asks again). Nothing moves the clock inside a synchronous
+    // run, as withStoryDateMemo already assumes. Without host events (no `sdk.on`) nothing is kept.
+    const HOST_CLOCK_EVENTS = ['committed', 'head', 'turn', 'feature', 'modules'];
+    let clockMemo = null;
+    let clockWatched = null;
+    let clockOffs = [];
+    const dropClockMemo = () => { clockMemo = null; };
+    function unwatchClock() {
+        for (const off of clockOffs) { try { off?.(); } catch { /* gone */ } }
+        clockOffs = [];
+        clockWatched = null;
+        clockMemo = null;
+    }
+    function watchClock(sdk) {
+        if (clockWatched === sdk) return true;
+        unwatchClock();
+        if (typeof sdk?.on !== 'function') return false;
+        try {
+            for (const name of HOST_CLOCK_EVENTS) {
+                const off = sdk.on(name, dropClockMemo);
+                if (typeof off !== 'function') throw new Error('no off');
+                clockOffs.push(off);
+            }
+        } catch { unwatchClock(); return false; }
+        clockWatched = sdk;
+        return true;
+    }
     function storyClock() {
         if (!session.hosted || typeof session.sdkRef?.query !== 'function') return null;
         try { if (calendarOwn?.() === true) return null; } catch { return null; }
+        const keep = watchClock(session.sdkRef);
+        if (keep && clockMemo) return clockMemo.clock === null ? null : structuredClone(clockMemo.clock);
+        const clock = readClock();
+        if (keep) {
+            clockMemo = { clock };
+            const timer = setTimeout(dropClockMemo, 0);
+            timer?.unref?.();
+        }
+        return clock === null ? null : structuredClone(clock);
+    }
+    function readClock() {
         let time = null;
         let calendar = null;
         try {
@@ -148,6 +187,7 @@ export function createTimelinePart(session, deps) {
         try { offNativeChange?.(); } catch { /* gone */ }
         offNativeChange = null;
         try { runtime()?.useMessageGate?.(null); } catch { /* gone */ }
+        unwatchClock();
     }
     const definition = Object.freeze({
         id: MODULE_ID,

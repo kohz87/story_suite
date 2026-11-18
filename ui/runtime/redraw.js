@@ -53,8 +53,29 @@ function swapChildren(target, built) {
   target.replaceChildren(...nodes.filter(Boolean));
 }
 
-/** Creates a frame-coalescing redraw scheduler bound to an optional port. */
-export function createRedraw({ port = null, schedule = defaultSchedule, initialTab = null } = {}) {
+/** Runs `fn` at most once per frame however often `request()` is called; `cancel()` drops a pending run and stops later ones. */
+export function frameCoalesced(fn, schedule = defaultSchedule) {
+  let pending = false;
+  let stopped = false;
+  return {
+    request() {
+      if (stopped || pending) return;
+      pending = true;
+      schedule(() => {
+        pending = false;
+        if (!stopped) fn();
+      });
+    },
+    cancel() { stopped = true; },
+  };
+}
+
+/**
+ * Creates a frame-coalescing redraw scheduler bound to an optional port. `isOpen()` says whether the suite is open: while it is closed only
+ * `tab: 'chat'` and `whileClosed` sections are read and drawn, the rest go stale and `reveal()` (on open) draws them. A `first` section is drawn
+ * before the others in a flush.
+ */
+export function createRedraw({ port = null, schedule = defaultSchedule, initialTab = null, isOpen = null } = {}) {
   const sections = new Map();
   const lastDigest = new Map();
   const dirtyIds = new Set();
@@ -67,6 +88,7 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
   let destroyed = false;
 
   function isVisible(entry) {
+    if (isOpen && entry.tab !== 'chat' && entry.whileClosed !== true && !isOpen()) return false;
     if (typeof entry.isVisible === 'function') return Boolean(entry.isVisible());
     if (!entry.tab || entry.tab === 'always' || entry.tab === 'chat') return true;
     return entry.tab === activeTab;
@@ -115,6 +137,18 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
     requestFlush();
   }
 
+  // On open: every visible section that went stale (or was never drawn) while the suite was closed is drawn in the next flush.
+  function reveal() {
+    if (destroyed) return;
+    for (const [id, entry] of sections.entries()) {
+      if (isVisible(entry) && (staleIds.has(id) || !lastDigest.has(id))) {
+        dirtyIds.add(id);
+        staleIds.delete(id);
+      }
+    }
+    requestFlush();
+  }
+
   function register(id, section) {
     if (!id || typeof id !== 'string') {
       throw new TypeError('Section id must be a non-empty string');
@@ -127,6 +161,8 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
       render: section.render ?? null,
       draw: section.draw ?? null,
       target: section.target ?? null,
+      whileClosed: section.whileClosed === true,
+      first: section.first === true,
     };
     sections.set(id, entry);
     let seeded = false;
@@ -180,7 +216,7 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
       return { drawn: [], skipped: [], failed: [] };
     }
 
-    const toProcess = Array.from(dirtyIds);
+    const toProcess = Array.from(dirtyIds).sort((a, b) => Number(sections.get(b)?.first === true) - Number(sections.get(a)?.first === true));
     dirtyIds.clear();
 
     const drawn = [];
@@ -252,6 +288,7 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
     register,
     unregister,
     setVisibleTab,
+    reveal,
     markDirty,
     changed,
     flush: () => flush(),
