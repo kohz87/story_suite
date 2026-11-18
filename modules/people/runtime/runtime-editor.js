@@ -187,7 +187,7 @@ export function createEditorPart(rt, deps) {
         content.dataset.npcId = npc.id;
         content.innerHTML = `
       <div class="npc-state-delta-editor-head"><div><span class="npc-state-delta-kicker">Dossier</span><h3 id="npc_state_delta_editor_title">Edit ${editorValue(npc.name)}</h3></div></div>
-      <p class="npc-state-delta-muted">Edits are saved with this chat's NPC State. Relationship numbers are authoritative current values on a -100 to +100 scale where 0 is neutral; future story deltas continue from them.</p>
+      <p class="npc-state-delta-muted">Edits save to this story's NPC State. Relationship numbers are authoritative current values on a -100 to +100 scale where 0 is neutral; future story deltas continue from them.</p>
       <div class="npc-state-delta-editor-lifecycle"><b>Lifecycle</b><span>${isTerminalNpcDeath(npc) ? 'Confirmed deceased' : (npc.present ? 'Active · Present' : (npc.worldActive ? 'Active · Off-screen' : 'Active'))}</span>${npc.lifeStateReason ? `<small>${editorValue(npc.lifeStateReason)}</small>` : ''}</div>
       <div class="npc-state-delta-editor-grid npc-state-delta-editor-profile">
         <label>Name<input id="npc_state_delta_edit_name" class="text_pole" maxlength="${EDITOR_FIELDS.name.max}" value="${editorValue(npc.name)}"></label>
