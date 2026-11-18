@@ -59,6 +59,8 @@
   "modules/world/chronicle/conditions/director-calls.js": "The chronicle.directorCalls query: how many Director calls this game year the world ledger holds (0 until the Director part writes it), for Settings.",
   "modules/world/chronicle/conditions/here-query.js": "The chronicle.conditionsHere query: the world conditions in force where the party is, with date, reason, meaning and told effects, for the World tab.",
   "modules/world/chronicle/world-daily/anchors-query.js": "The query chronicle.world.anchors: the anchors the world has recorded, for NPC State's secret gates (world-events switch).",
+  "modules/world/chronicle/world-daily/lore-gate.js": "Whether a hidden lore entry is open (spec §7, LF4-5): its gate read against the recorded anchors and the scene's place, or an opening a reply recorded.",
+  "modules/world/chronicle/world-daily/lore-open.js": "Hidden lore that opens (world-events switch): the after-reply command that records an opening in the ledger, and the capped narrator lines for the open entries.",
   "modules/world/chronicle/world-daily/open-arc-prompt.js": "World events, generated arcs: the model-facing wording for a slot that may start an arc, sent only when a slot of the batch allows one.",
   "modules/world/chronicle/world-daily/tempo.js": "Reads the world tempo setting (chronicle.tempo, text) as the number the daily step runs at.",
   "modules/world/chronicle/world-note-parts/here.js": "Reads the world conditions that hold where the scene is (place, routes from it, region, realm) with what the pack declares for each; the note's and the World tab's one reading.",
