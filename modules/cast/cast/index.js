@@ -39,7 +39,7 @@ export const part = {
     features: [{
         id: FEATURE,
         label: 'The cast',
-        describe: 'A pack\'s hand-written cast lives off-screen: they move on when the day changes or time skips, and you meet them by place and routine, or when their goal leads them to you. Unmet cast is hidden from you and from the narrator\'s text.',
+        describe: 'A pack\'s hand-written cast lives off-screen: they move on when the day changes or time skips, and you meet them by place and routine, or when their goal leads them to you. Unmet cast is hidden from you; the narrator is told who is here.',
         default: true,
     }],
     domains: { cast: { initial: initialCast, validate: validateCast } },
