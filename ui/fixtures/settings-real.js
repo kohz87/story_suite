@@ -60,7 +60,7 @@ export const REAL_ROWS = {
     {"key":"rpg.gearInFights","group":"Bag and gear","type":"sw","label":"Gear in fights","hint":"Worn gear adds a few points to the stats by rarity and wears down; what a member can carry follows their strength (and the party is encumbered past it).","value":false,"default":false,"options":null,"unit":null,"tags":[],"wide":false},
   ],
   world: [
-    {"key":"world.calendar","group":"Calendar","type":"seg","label":"Calendar","hint":"From the pack, or a preset","value":"From the pack","default":null,"options":["From the pack","Gregorian","Custom"],"unit":null,"tags":["merged:D4"],"wide":false},
+    {"key":"world.calendar","group":"Calendar","type":"seg","label":"Calendar","hint":"From the pack, or a preset","value":"From the game pack","default":null,"options":["From the game pack","Gregorian","Custom"],"unit":null,"tags":["merged:D4"],"wide":false},
     {"key":"world.era","group":"Calendar","type":"txt","label":"Era","hint":"Written before the year. Used only with Custom","value":"","default":null,"options":null,"unit":null,"tags":[],"wide":false},
     {"key":"world.months","group":"Calendar","type":"txt","label":"Months","hint":"Name: days, separated by commas. Used only with Custom","value":"January: 31, February: 28, March: 31, April: 30, May: 31, June: 30, July: 31, August: 31, September: 30, October: 31, November: 30, December: 31","default":null,"options":null,"unit":null,"tags":[],"wide":true},
     {"key":"world.weekdays","group":"Calendar","type":"txt","label":"Weekdays","hint":"Separated by commas; empty for none. Used only with Custom","value":"","default":null,"options":null,"unit":null,"tags":[],"wide":true},

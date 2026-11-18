@@ -103,7 +103,8 @@ export function createSettingsOverlay(options = {}) {
     const fresh = section && onView?.('settings')?.sections?.find(s => s.id === section.id);
     const others = rows => JSON.stringify((rows ?? []).filter(r => r.key !== key));
     if (!fresh || others(fresh.rows) === others(section.rows)) return;
-    sections = sections.map(s => (s === section ? { ...section, rows: fresh.rows } : s));
+    // (in place: the Packs page writes a new pick's Start rows into the same section object, so the overlay and the page keep one copy)
+    section.rows = fresh.rows;
     paint();
   }
 

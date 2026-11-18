@@ -96,7 +96,7 @@ test('World: None says so and shows no pairing lines; a pair that fits says noth
     const installed = await store(world(), TIDE);
     await installed.select('world', null);
     const none = mountPacks(installed).page('packs');
-    assert.deepEqual(texts(none, '.srow.wide small'), ['i No world: the story makes up places and people as it goes.']);
+    assert.deepEqual(texts(none, '.srow.wide small').filter(text => !text.startsWith('A tracker')), ['i No world: the story makes up places and people as it goes.'], 'the pairing lines (the trackers row has its own)');
     assert.equal(none.querySelector('.cfm.rec'), null);
 });
 
