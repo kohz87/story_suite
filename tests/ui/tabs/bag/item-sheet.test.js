@@ -36,7 +36,8 @@ test('unworn gear offers Wear on; picking a member sends item.equip and closes',
   assert.equal(el.querySelectorAll('.pick .mb').length, 4);
   assert.equal(el.querySelector('.secl').textContent, 'Wear on');
   el.querySelectorAll('.pick .mb')[1].click();
-  assert.deepEqual(ctx.sent, [['item.equip', { stack: 'spare-dagger', member: 'brann' }], ['close']]);
+  // (the command reads `owner`; `transfer` hands the piece to them first, whoever has it now)
+  assert.deepEqual(ctx.sent, [['item.equip', { stack: 'spare-dagger', owner: 'brann', transfer: true }], ['close']]);
 });
 
 test('Take off, Give to and Drop send the unequip, transfer and drop commands', () => {
@@ -47,9 +48,9 @@ test('Take off, Give to and Drop send the unequip, transfer and drop commands', 
   el.querySelectorAll('.brow .btn2')[1].click();
   el.querySelectorAll('.pick .mb')[2].click();
   assert.deepEqual(ctx.sent, [
-    ['inventory.unequip', { stack: 'chain-shirt', member: 'brann' }], ['close'],
+    ['inventory.unequip', { stack: 'chain-shirt' }], ['close'],
     ['inventory.drop', { stack: 'chain-shirt' }], ['close'],
-    ['inventory.transfer', { stack: 'chain-shirt', member: 'rika' }], ['close'],
+    ['inventory.transfer', { stack: 'chain-shirt', to: 'rika' }], ['close'],
   ]);
 });
 
@@ -80,4 +81,24 @@ test('bag-slot items label the slot Bag; no port or close is tolerated', () => {
   const el = itemSheet(find('Antidote'), {});
   el.querySelector('.btn2.dng').click();
   assert.equal(el.querySelector('.pick-wrap').children.length, 0);
+});
+
+test('the main character is the inventory\'s `party`: Wear on and Give to name that owner for them', () => {
+  installFakeDom();
+  const ctx = { ...makeCtx(), rpg: true, pcId: 'astra' };
+  const el = itemSheet(find('Spare dagger'), ctx);
+  el.querySelector('.btn2.pri').click();
+  el.querySelector('.pick .mb').click();
+  assert.deepEqual(ctx.sent[0], ['item.equip', { stack: 'spare-dagger', owner: 'party', transfer: true }]);
+  const worn = itemSheet(find('Chain shirt'), ctx);
+  worn.querySelectorAll('.brow .btn2')[1].click();
+  worn.querySelector('.pick .mb').click();
+  assert.deepEqual(ctx.sent[2], ['inventory.transfer', { stack: 'chain-shirt', to: 'party' }]);
+});
+
+test('a piece with a stat bonus shows it on the sheet', () => {
+  installFakeDom();
+  const [el] = sheet({ ...find('Spare dagger'), bonus: '+1 STR +1 DEX' });
+  assert.match(el.querySelector('.kv').textContent, /Stats\+1 STR \+1 DEX/);
+  assert.doesNotMatch(sheet(find('Spare dagger'))[0].querySelector('.kv').textContent, /Stats/);
 });

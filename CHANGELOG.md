@@ -6,6 +6,10 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 
 ### Fixed
 
+- Bag › Wear on… and Give to… now act on the member you pick (before, Wear on… put the piece on the main character whoever you chose). The Party slot sheet lists the matching unworn gear from the Bag with an Equip button, Equip hands the piece to that member, and its Unequip takes the piece off (it sent nothing before).
+- Bag: **+ Add** opens a form (name, kind, count, your note) and adds the item. "In bag" and the kind chips count only the items the grid shows, not the worn ones. An item sheet shows the stats a piece adds, and the Party stat tiles mark what worn gear adds (a small +n).
+- Party sheet: a skill the Skills block types as defence, area, evasion or heal shows as a Stance, Area attack or Heal with its own cost; before, they all read as attacks. The wizard's Review names Mana for INT and WIS skills and heals, as the sheet does; it says "Adept (works from Lv 10)" while the level is lower; and it will not let Create go with two stance skills.
+- A companion who joins with `class: I` starts at Level 1 (best stat 9, the others 5), as the rules say; before, they started at Level 5.
 - World › News, Factions and the place sheet: **Edit** now opens an editor (title or name, summary, state, place, area, stance, kind, region) and saves only what changed.
 - World › News: with World events off, happenings the world made that you have not heard of are no longer listed; the Rumours filter counts the items labelled rumour; a news line with no place or date no longer reads "heard , …"; world event titles end on a whole word.
 - World › Map: the place sheet says visited or here and lists its routes; Find (Enter) opens the place or says nothing matched; the region picker keeps its width. The tab strip on wide screens has a panel background so labels do not draw over the cards. (The map's label crowding at default zoom is not changed.)

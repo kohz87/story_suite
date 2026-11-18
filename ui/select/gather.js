@@ -1,6 +1,7 @@
 // Reads the scene answers from Story Block queries: one pass over the query names, plus the portrait and gear lookups the selectors need.
 
 import { isHere } from './people.js';
+import { ownerOf } from '../runtime/owner-id.js';
 import { presentOf } from './people-parts.js';
 
 const SCENE = ['director.time', 'director.status', 'scene.place', 'scene.weather', 'scene.you', 'party.actors', 'party.pc', 'party.levels',
@@ -55,6 +56,13 @@ export function optsOf(read, answers, ctx) {
 
 export function gearOf(read, actors) {
   const gear = {};
-  for (const actor of Array.isArray(actors) ? actors : []) if (actor?.id) gear[actor.id] = read('gear.view', { id: actor.id });
+  const pc = read('party.pc', {})?.id ?? null;
+  for (const actor of Array.isArray(actors) ? actors : []) {
+    if (!actor?.id) continue;
+    const view = read('gear.view', { id: actor.id });
+    // (the stats the worn pieces add: inventory.gear's statBonus, by the owner the inventory files the member under)
+    const bonus = view ? read('inventory.gear', { owner: ownerOf(actor.id, pc) })?.statBonus : null;
+    gear[actor.id] = bonus && typeof bonus === 'object' ? { ...view, statBonus: bonus } : view;
+  }
   return gear;
 }

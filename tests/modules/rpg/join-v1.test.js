@@ -87,7 +87,8 @@ test('under a Custom "Stats start at" of 10 a story join keeps its stats, and re
     t.after(() => standard.close());
     for (const world of [host, standard]) await world.send('Mara comes.', reply('+ party Mara | about: a sellsword | class: III | best: str'));
     const mara = fields(host, 'mara');
-    assert.ok(mara.str > 10, 'the best stat is not held to 10');
+    // (the first companion's class I starts at level 1: the best stat 9, below the Custom start of 10, so it is not raised to it)
+    assert.deepEqual([mara.level, mara.str, mara.dex], [1, 9, 5], 'the best stat is not held to 10');
     assert.deepEqual(['str', 'dex', 'vit'].map(k => mara[k]), ['str', 'dex', 'vit'].map(k => fields(standard, 'mara')[k]), 'the same stats as the join under Standard');
     await rebuilt(host, 'after the join');
     const before = JSON.stringify(host.head());
@@ -104,4 +105,11 @@ test('under a Custom "Stats start at" of 10 a story join keeps its stats, and re
     assert.equal((await host.sdk.reread(at)).ok, true);
     assert.deepEqual(fields(host, 'mara'), mara, 'Re-read back: the same companion as the first run made');
     await rebuilt(host, 'Re-read back');
+});
+
+test('a class I companion joins at Level 1 (best stat 9, the others 5); class II at 15, as the rules say', () => {
+    const at = (soul, best) => { const draft = joinDraft({ name: 'Pell', soul, best }, null); return [draft.level ?? 1, ...['str', 'vit', 'agi', 'dex'].map(key => draft.stats[key])]; };
+    assert.deepEqual(at(1, 'dex'), [1, 5, 5, 5, 9]);
+    assert.deepEqual(at(2, 'str')[0], 15);
+    assert.equal(joinDefinitions({ name: 'Pell', soul: 1, best: 'dex' }).character.state.level.default, 1);
 });

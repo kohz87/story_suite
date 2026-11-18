@@ -200,6 +200,8 @@ export const CHARACTER_STRINGS = Object.freeze({
         nameTaken: 'A character called {name} is already in this story.',
         needSkillName: 'Every skill needs a name.',
         sameSkill: 'Two skills are called {name}.',
+        twoStances: 'Only one stance skill (defence, evasion, movement or support) may be kept, and {names} are all stances.',
+        adeptFrom: '{rank} (works from Lv {level})',
         needAbout: '{name} needs a line about what it does.',
         needStat: '{name} needs a stat.',
         youName: 'You are shown as the character named like your persona ({persona}). Use that name, or choose A companion.',

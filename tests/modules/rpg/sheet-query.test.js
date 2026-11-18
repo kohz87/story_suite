@@ -86,3 +86,13 @@ test('replay: a change on a reply goes with the reply (swipe takes it away), sta
     await host.swipe('Reply two, again.');
     assert.equal(points(), 1, 'a swipe of the later reply leaves the earlier change');
 });
+
+test('a typed Skills block shows each skill by the type it wrote on the Party sheet (stance, area, heal), not as an attack', async () => {
+    const { skillsOf } = await import('../../../modules/rpg/view/party-data-parts/skills.js');
+    const fields = { type1: 'defence', skill1: 'Shield work', stat1: 'vit', uses1: 'stamina', practice1: 0, type2: 'area', skill2: 'Cleave', stat2: 'str', uses2: 'stamina', practice2: 0,
+        type3: 'heal', skill3: 'Bind wounds', stat3: 'wis', uses3: 'mana', practice3: 0, type4: '', skill4: 'Slash', stat4: 'str', uses4: 'stamina', practice4: 0 };
+    const rows = skillsOf({ fields, definition: { state: {} } });
+    assert.deepEqual(rows.map(row => [row.name, row.type, row.typeName]), [['Shield work', 'combat', 'defence'], ['Cleave', 'combat', 'area'], ['Bind wounds', 'combat', 'heal'], ['Slash', 'combat', '']]);
+    assert.deepEqual(sheetSkills(rows, 2).map(row => [row.name, row.kind, row.resource, row.cost]),
+        [['Shield work', 'stance', 'stamina', 1], ['Cleave', 'area', 'stamina', 2], ['Bind wounds', 'heal', 'mana', 2], ['Slash', 'attack', 'stamina', 1]]);
+});

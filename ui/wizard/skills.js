@@ -60,7 +60,7 @@ function skillCard(ctx, skill, at) {
   const type = select(SKILL_TYPES, skill.type ?? 'attack', fill(W.skillType, { name: label }), 'type');
   const ranked = Number.isSafeInteger(skill.rank);
   const start = ranked ? select(RANK_WORDS.map((word, rank) => ({ value: rank, label: word, disabled: true })), skill.rank, fill(W.skillStart, { name: label }), 'start')
-    : select(START_RANKS.map(rank => ({ value: rank, label: RANK_NAMES[rank], disabled: rank === 1 && !mayStartAdept(run.draft, at) })), skill.start, fill(W.skillStart, { name: label }), 'start');
+    : select(START_RANKS.map(rank => ({ value: rank, label: RANK_NAMES[rank], disabled: rank === 1 && !mayStartAdept(run.draft, at), ...(rank === 1 && (run.draft.level ?? 1) < RANKS[2].minLevel ? { label: fill(W.adeptFrom, { rank: RANK_NAMES[rank], level: RANKS[2].minLevel }) } : {}) })), skill.start, fill(W.skillStart, { name: label }), 'start');
   if (ranked) start.disabled = true;
   stat.addEventListener('change', () => patch({ stat: stat.value }));
   type.addEventListener('change', () => patch({ type: type.value }, true));

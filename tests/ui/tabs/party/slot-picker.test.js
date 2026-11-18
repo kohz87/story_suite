@@ -63,7 +63,8 @@ test('slot sheet for a worn slot shows the item, soak, condition, Unequip and ma
   assert.match(text, /Nothing in the Bag fits this slot\./);
   sheetEl().querySelector('[data-unequip]').click();
   await flush();
-  assert.deepEqual(commands(ctx.port), [['inventory.unequip', { owner: 'astra', slot: 'offhand' }]]);
+  // (the command reads the stack; the main character's things belong to `party`)
+  assert.deepEqual(commands(ctx.port), [['inventory.unequip', { stack: 'oak-round-shield' }]]);
   assert.equal(sheetEl(), null);
 });
 
@@ -78,7 +79,7 @@ test('slot sheet for an empty slot lists Bag items that fit and Equip sends item
   assert.match(rows[0].textContent, /Soak \+1 · Fine/);
   rows[0].querySelector('[data-equip]').click();
   await flush();
-  assert.deepEqual(commands(ctx.port), [['item.equip', { owner: 'astra', slot: 'head', stack: 'steel-helm' }]]);
+  assert.deepEqual(commands(ctx.port), [['item.equip', { owner: 'party', slot: 'head', stack: 'steel-helm', transfer: true }]]);
   assert.equal(sheetEl(), null);
 });
 
@@ -102,4 +103,12 @@ test('slot sheet tolerates a missing bag view and a member without that slot', (
   assert.match(sheetEl().textContent, /Nothing worn here/);
   assert.match(sheetEl().textContent, /Nothing in the Bag fits this slot/);
   sheet.close();
+});
+
+test('Equip for a companion names their own id, and hands the piece over to them', async () => {
+  const ctx = makeCtx();
+  slotSheet(ctx.party.members[1], 'head', ctx);
+  sheetEl().querySelector('[data-equip]').click();
+  await flush();
+  assert.deepEqual(commands(ctx.port), [['item.equip', { owner: ctx.party.members[1].id, slot: 'head', stack: 'steel-helm', transfer: true }]]);
 });

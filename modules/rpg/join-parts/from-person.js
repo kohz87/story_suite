@@ -4,7 +4,7 @@
 
 import { oneLine } from '../../../core/text.js';
 import { UTILITY_SLOTS, skillSlots, typeKey } from '../../../core/runtime/skill-slots.js';
-import { levelOfClass } from '../formula.js';
+import { levelOfJoinClass } from '../formula.js';
 import { RANKS, V1 } from '../combat/numbers.js';
 import { abilityWord, leanStat } from './pull-words.js';
 
@@ -45,7 +45,7 @@ export function pullOf(state, { name, soul = 1, best = '', pull = null, cap = nu
     const lead = best || (record ? leanStat([record.role, record.background, ...abilities.map(entry => `${entry.name} ${entry.description ?? ''}`)]) : '');
     if (!abilities.length) return { ...(level ? { level } : {}), best: lead, skills: Array.isArray(fallback) ? fallback : [], keepsakes };
     const count = Math.max(1, Math.min(ABILITY_MAX, Number.isSafeInteger(pull?.abilities) ? pull.abilities : DEFAULT_ABILITIES));
-    const at = level ?? levelOfClass(soul), rank = rankAtLevel(at);
+    const at = level ?? levelOfJoinClass(soul), rank = rankAtLevel(at);
     // (each skill takes a slot of its kind: the combat slots the level opens, the three utility ones; one that finds its pool full is left out and named in `left`)
     const room = { combat: skillSlots(at), utility: UTILITY_SLOTS }, skills = [], left = [];
     const place = skill => { const kind = skill.type === 'utility' ? 'utility' : 'combat'; if (room[kind] > 0) { room[kind] -= 1; skills.push(skill); return true; } return false; };

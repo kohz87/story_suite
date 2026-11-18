@@ -584,7 +584,7 @@ slots left out, and a Foes block lists only the groups in the fight.
 
 ### Built-in skill sets
 
-The five built-in sets (`modules/rpg/templates-parts/skill-sets.js`) give each skill a Combat Rules v1 `type`, and the wizard writes it into the draft (attack is the unwritten default). A set holds at most one stance skill (defence, evasion, movement or support); a test checks every built-in set. A set's utility skills fill the utility slots and its other skills the combat slots. Pack sets have no `type` field, so their skills are attacks until the reader changes them.
+The five built-in sets (`modules/rpg/templates-parts/skill-sets.js`) give each skill a Combat Rules v1 `type`, and the wizard writes it into the draft (attack is the unwritten default). A set holds at most one stance skill (defence, evasion, movement or support); a test checks every built-in set. The wizard's Review names the pool a skill draws on as the board prices it (INT, WIS and a heal: Mana) and holds Create while two skills are stances. "One may start at Adept" stores Adept; the Party sheet shows the rank the level allows (Adept works from Lv 10), so the wizard and Review say "Adept (works from Lv 10)" while the level is lower. A set's utility skills fill the utility slots and its other skills the combat slots. Pack sets have no `type` field, so their skills are attacks until the reader changes them.
 
 ### Skill sets in a pack
 

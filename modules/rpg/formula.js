@@ -8,7 +8,7 @@ export { STAT_KEYS, ROLL_TYPES, STANDARD_NUMBERS, TYPE_STATS } from './formula-p
 export { pair, statPart } from './formula-parts/stat-part.js';
 export { luckWindow, LUCK_STEPS, edgeWithLuck } from './formula-parts/luck.js';
 export { blocksFor } from './formula-parts/bars.js';
-export { levelBonus, levelOfClass, classOfLevel } from './formula-parts/levels.js';
+export { levelBonus, levelOfClass, levelOfJoinClass, classOfLevel } from './formula-parts/levels.js';
 export { foeHealthBlocks, foeBonus } from './formula-parts/foe-numbers.js';
 export { initiativeBonus, foeInitiativeBonus, quickStart, turnOrder } from './formula-parts/turn-order.js';
 export { companionStats } from './formula-parts/companion.js';

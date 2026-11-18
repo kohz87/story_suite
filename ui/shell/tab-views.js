@@ -24,7 +24,8 @@ export function createTabViews(ctx) {
   return (tab, vm) => {
     const build = BUILDERS[tab];
     if (!build || !vm) return null;
-    const members = Object.fromEntries((port.view('party')?.members ?? []).map(m => [m.id, m.name]));
+    const party = port.view('party');
+    const members = Object.fromEntries((party?.members ?? []).map(m => [m.id, m.name]));
     let sheet = null;
     const own = {
       ...ctx,
@@ -32,6 +33,7 @@ export function createTabViews(ctx) {
       backStack,
       back: backStack,
       members,
+      pcId: party?.pcId ?? null,
       refresh: () => ctx.refresh?.(),
       command: (type, payload) => port.command(type, payload),
       openSheet: (el, label) => { sheet?.close(); sheet = openSheet({ ...ctx, doc, backStack }, { title: label }); sheet.body.appendChild(el); },
