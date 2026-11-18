@@ -71,3 +71,15 @@ test('an away followed person\'s Elsewhere tile adds back and what they are doin
   assert.equal(tile.querySelector('.wh').textContent, 'north road · last seen today · back Goldwane 18');
   assert.equal(tile.querySelector('.sd').textContent, 'scouting');
 });
+
+test('an Elsewhere tile keeps the capital of a place name and lowers only a phrase (SFF4 #10)', () => {
+  installFakeDom();
+  const line = lastPlace => personCard({ personId: 'rika', name: 'Rika', meters: {}, lastPlace, lastSeen: null, said: null }, { kind: 'elsewhere' }).querySelector('.wh').textContent;
+  assert.equal(line('Bluewatch Village'), 'Bluewatch Village');
+  assert.equal(line('Auvoth / Pale Market'), 'Auvoth / Pale Market');
+  assert.equal(line('Highmark Capital / Crown Keep'), 'Highmark Capital / Crown Keep');
+  assert.equal(line('At the Gull'), 'at the Gull');
+  assert.equal(line('The toll gate on the coast road'), 'the toll gate on the coast road');
+  assert.equal(line('The Glass Pits'), 'The Glass Pits', 'a name that starts with The');
+  assert.equal(line('North Pass'), 'North Pass');
+});

@@ -9,7 +9,7 @@ import { mapSettings, parseLocation } from '../places.js';
 import { findPlace, keyOf } from './domain.js';
 import { ensurePlace } from './capture.js';
 import { courierDays } from './courier.js';
-import { anchorOf } from './anchor.js';
+import { anchorOf, packRegions } from './anchor.js';
 import { atlasView, mapProps } from './map.js';
 import { scenePlace } from './note.js';
 import { placeLine, tidyPlaces } from './parent.js';
@@ -146,7 +146,7 @@ export const queries = {
         const asked = name ?? scene.name;
         const bare = text => keyOf(String(text ?? '').replace(/^\s*the\s+/i, ''));
         const region = bare(asked) === bare(scene.name) ? scene.region : '';
-        return anchorOf(worldFrom(state, tools), state?.domains?.atlas ?? null, packWorld(toolsQuery(tools)), asked, { region });
+        return anchorOf(worldFrom(state, tools), state?.domains?.atlas ?? null, packWorld(toolsQuery(tools)), asked, { region, regions: packRegions(toolsQuery(tools)) });
     },
     /** The trip between two places (travel.js `travelTime`), or null. */
     'atlas.travel': (state, { from = null, to = null, mode = null, map = null } = {}, tools) => travelTime(worldFrom(state, tools), from, to, { map: mapSettings(map ?? {}), mode }),

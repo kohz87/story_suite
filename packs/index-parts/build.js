@@ -76,7 +76,7 @@ export function createPacksPart({ settings, readLorebook = async () => ({ charac
             // rules module freezes with inventory.registerDefinition. `ids` narrows to those IDs.
             'packs.itemDefs': (_state, args) => itemDefsIn(packs.packs(), args && typeof args === 'object' && Array.isArray(args.ids) ? args.ids : null),
             'packs.start': () => startState(),
-            'packs.calendar': () => calendarOf(packs.packs()),
+            'packs.calendar': (_state, args) => calendarOf(packs.packs(), { builtIn: args?.builtIn === true }),
             'packs.weather': () => weatherOf(packs.packs()),
             // The first enabled pack's ripples table `{ pack, powers, … }`, or null (Story Director's hidden sway per power).
             'packs.ripples': (_state, args) => ripplesOf(packs.packs(), args),

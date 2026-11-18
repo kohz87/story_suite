@@ -122,3 +122,30 @@ test('a rewind before the frame drops it, and the next reply takes the game sele
     await host.send('fresh', said('R1.'));
     assert.deepEqual(names(host), ['Sun'], 'the frame that began the chat again');
 });
+
+test('SFF4 #2: a chat begun on a world with the built-in game keeps the world\'s era when a game is installed later; swipe, Re-read, reload and a delete agree', async t => {
+    t.mock.method(console, 'warn', () => {});
+    let host = null;
+    const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text), query: (name, args) => host?.sdk.query(name, args), chat: () => host?.ctx.chat ?? [] } });
+    host = await createHost({ modules: [module] });
+    t.after(() => host.close());
+    assert.equal((await host.packs.packs.install(world())).ok, true);
+    await host.send('a', said('R1.'));
+    assert.equal(host.head().domains.frame.game, 'built-in');
+    const at = plain(clock(host));
+    assert.equal(at.text, 'AE 5, February 3, 08:30 am', 'the world\'s date and era on the built-in Gregorian calendar');
+    await host.send('b', said('R2.'));
+    assert.equal((await host.packs.packs.install(game('g1', FROST, { era: 'GE' }))).ok, true);
+    assert.equal(await host.packs.packs.select('game', 'g1'), true);
+    assert.equal(host.sdk.query('director.calendar').era, 'AE', 'the era stays');
+    assert.match(clock(host).text, /^AE 5, February 3/, 'the chat\'s dates do not move');
+    await host.swipe(said('R2 again.'));
+    await host.st.swipeTo(host.ctx.chat.length - 1, 0);
+    await reread(host, 2, 'A longer first reply.\n\n<Changes>\n+ coin 10 | from: Bob\n+ coin 20 | from: Bob\n</Changes>');
+    await reread(host, 2, 'Short.\n\n<Changes>\n+ coin 5 | from: Bob\n</Changes>');
+    host.store.rebuild();
+    assert.equal(host.sdk.query('director.calendar').era, 'AE', 'a reload');
+    await host.st.deleteMessage(1);
+    assert.equal(host.sdk.query('director.calendar').era, 'AE', 'a middle delete');
+    assert.match(clock(host).text, /^AE 5, February 3/);
+});

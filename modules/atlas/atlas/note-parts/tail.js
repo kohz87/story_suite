@@ -6,7 +6,7 @@ import { parentOf } from '../parent.js';
 import { travelTime } from '../travel.js';
 import { TRIP_FEATURE, calendarOf, tripLines, tripView } from '../trip.js';
 import { TAIL_BUDGET } from './grammar.js';
-import { anchorOf } from '../anchor.js';
+import { anchorOf, packRegions } from '../anchor.js';
 
 // Characters the line may take: Story Block estimates tokens as characters / 4.
 const MAX_CHARS = TAIL_BUDGET * 4;
@@ -87,7 +87,7 @@ export function atlasTail(view) {
     let line = routesLine(world, here, { map });
     // World events on (LAB2-3): a place with no routes of its own the story made (a tavern) gives the routes of the pack place it stands for (anchor.js), as the news and conditions do.
     if (!line && worldEventsOn(view)) {
-        const anchor = anchorOf(world, atlas, packOf(view), here, { region: scenePlace(view).region });
+        const anchor = anchorOf(world, atlas, packOf(view), here, { region: scenePlace(view).region, regions: packRegions(typeof view?.query === 'function' ? (name, args) => view.query(name, args) : null) });
         if (anchor?.name && anchor.via !== 'pack') line = routesLine(world, anchor.name, { map });
     }
     return { lines: [], optional: line ? [line] : [] };

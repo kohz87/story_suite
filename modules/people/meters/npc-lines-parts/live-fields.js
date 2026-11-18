@@ -24,7 +24,35 @@ function liveOf(name, raw, { clearable, here }) {
     return { value: text };
 }
 
-/** → { problems, wrote, stored (the fields written) }. `world`: { present: Set (label keys), at, reply, minutes, date, moodOn }; `dossier`: the people record or null. */
+// The receipt's words for a Level, an ability or a keepsake a line stored, with its value (SFF4 #9): "keepsake Guild licence added", "learns Snare craft", "Level 12".
+// Any other field is only named (F2, ./noted.js: "place, goal stored").
+const VALUED = new Set(['level', 'learns', 'keepsake']);
+const nameOf = text => String(text ?? '').replace(/^[+-]\s*/, '').split(' — ')[0].trim();
+function valuedWords(set) {
+    const words = [];
+    for (const [field, value] of Object.entries(set)) {
+        if (field === 'level') words.push(`Level ${value}`);
+        else if (field === 'learns') words.push(`learns ${nameOf(value)}`);
+        else if (field === 'keepsake') words.push(`keepsake ${nameOf(value)} ${String(value).startsWith('-') ? 'removed' : 'added'}`);
+    }
+    return words;
+}
+
+// The receipt telling what the line stored. With a Level, an ability or a keepsake (SFF4 #9): "<Name>: keepsake Guild licence added, goal stored." in place of
+// "<Name>: nothing moved." (after the meters' words when meters moved). Only other fields (F2): "<Name>: nothing moved; place, goal stored", which the Journal
+// still reads as upkeep; a receipt whose meters moved is then left as it is.
+function toldOf(out, done) {
+    if (!done.wrote) return out;
+    const valued = valuedWords(done.set);
+    if (!valued.length) return noted(out, fieldWords(done.stored));
+    const rest = done.stored.filter(field => !VALUED.has(field));
+    const name = out.data.name;
+    const words = sentence([`${name}: ${[...valued, ...(rest.length ? [fieldWords(rest)] : [])].join(', ')}`]);
+    const idle = `${name}: nothing moved.`;
+    return { ...out, summary: String(out.summary).includes(idle) ? out.summary.replace(idle, words) : sentence([out.summary, words]) };
+}
+
+/** → { problems, wrote, stored (the fields written), set (their values on the dossier) }. `world`: { present: Set (label keys), at, reply, minutes, date, moodOn }; `dossier`: the people record or null. */
 function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
     const problems = [];
     const set = {};
@@ -56,7 +84,7 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
             stored.push('mood');
         }
     }
-    return { problems, wrote, stored };
+    return { problems, wrote, stored, set: dossier ? set : {} };
 }
 
 /** The line's dossier labels applied after its meters (`out`: the meters' receipt); their problems join the card's and the receipt's. */
@@ -69,7 +97,7 @@ export function labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMin
     const world = { present, at, reply, minutes, moodOn, date: clockDay(at) === null ? '' : startDate(at) };
     const slice = ctx.draft(NPC_DOMAIN);
     const done = applyLive(ctx, { key, name: out.data.name, record: slice.npcs[key], fields, dossier: ctx.read('people')?.npcs?.[key] ?? null, world, lines });
-    const told = done.wrote ? noted(out, fieldWords(done.stored)) : out;
+    const told = toldOf(out, done);
     if (!done.problems.length) return told;
     note(slice, ctx.rev, done.problems);
     return { ...told, summary: sentence([told.summary, ...done.problems]), data: { ...out.data, problems: [...out.data.problems, ...done.problems] } };

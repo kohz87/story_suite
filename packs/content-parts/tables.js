@@ -18,12 +18,13 @@ export function youRankOf(packs, own = '') {
  * `{ pack, world, era, months: [{ name, days }], start: { year, month, day, hour, minute } | null }`,
  * or null. `start.month` is the month's name; `world` is the id of the world the start came from (null without one). Calendars are not mixed across packs.
  * With no game calendar, a world with a start date gives the built-in game's: `{ pack: null, world, builtIn: true, era, months: [], start }`, the date on the
- * Gregorian calendar (the time module runs its Gregorian preset; design §1.3).
+ * Gregorian calendar (the time module runs its Gregorian preset; design §1.3). `{ builtIn: true }` gives that built-in shape whatever game is selected.
  */
-export function calendarOf(packs) {
+export function calendarOf(packs, { builtIn = false } = {}) {
     const pack = packs.find(entry => entry.calendar);
     const world = packs.find(entry => entry.kind === 'world' && entry.start?.date) ?? null;
-    if (!pack) return world ? builtInStart(world) : null;
+    // `builtIn`: the built-in game's calendar of the selected world even while a game is selected (a chat whose frame is the built-in game, SFF4 #2).
+    if (!pack || builtIn) return world ? builtInStart(world) : null;
     const out = { pack: pack.id, world: null, ...pack.calendar };
     // Format 4: the game's calendar has no start; the selected world's `start.date` (a month number) gives it. A month the calendar lacks, or a day past the month,
     // falls back to day 1 of month 1 of that year (the pairing check's PAIR_START_DATE says so).

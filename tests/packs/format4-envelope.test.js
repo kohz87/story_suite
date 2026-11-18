@@ -125,3 +125,9 @@ test('hostile files: prototype keys and deep or huge values are refused', () => 
     assert.equal(validatePack(JSON.stringify(world({ name: 'x'.repeat(81) }))).ok, false);
     assert.equal(validatePack(JSON.stringify(world({ description: 5 }))).ok, false);
 });
+
+test('recommends.game may name the game (SFF4 #11): kept trimmed, a blank name left out, a long or non-text name refused', () => {
+    assert.deepEqual(ok(world({ recommends: { game: { id: 'ers-rules', version: '^1', name: '  Ersveil   rules ' } } })).pack.recommends, { game: { id: 'ers-rules', version: '^1', name: 'Ersveil rules' } });
+    assert.deepEqual(ok(world({ recommends: { game: { id: 'ers-rules', version: '^1', name: ' ' } } })).pack.recommends, { game: { id: 'ers-rules', version: '^1' } });
+    for (const name of [5, null, 'x'.repeat(81)]) assert.equal(validatePack(world({ recommends: { game: { id: 'g', version: '^1', name } } })).ok, false, String(name));
+});

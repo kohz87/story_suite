@@ -90,3 +90,27 @@ test('a line with one label: only the filled one is said to come from the map', 
     assert.match(result.result.summary, /\(kind settlement, from the map\)/);
     assert.doesNotMatch(result.result.summary, /Marches/);
 });
+
+test('SFF4 #3: a format 4 pack place names its region by id; the scene keeps the region\'s name, as the pack start does, so the weather key stays the same', async () => {
+    const { weatherKey } = await import('../../../../modules/time/weather.js');
+    const village = { id: 'bluewatch-village', name: 'Bluewatch Village', aliases: ['Bluewatch'], region: 'bluewatch-reach', kind: 'village' };
+    const module = core({});
+    Object.assign(module.queries, {
+        'atlas.places': () => [], 'atlas.place': () => null,
+        'packs.content': (_state, { kind }) => (kind === 'places' ? [village] : kind === 'regions' ? [{ id: 'bluewatch-reach', name: 'Bluewatch Reach', climate: 'cold' }] : []),
+    });
+    const h = createHarness([module], { state: stocked(module) });
+    h.capture(line('~', 'place', 'Bluewatch Village / Guild Office', { kind: 'guild office', region: 'Bluewatch Reach' }), MARK);
+    const result = h.capture(line('~', 'place', 'Bluewatch'), MARK);
+    assert.equal(result.ok, true, result.message);
+    assert.deepEqual(place(h), { name: 'Bluewatch', kind: 'village', region: 'Bluewatch Reach' });
+    assert.match(result.result.summary, /\(village, Bluewatch Reach, from the map\)/);
+    assert.equal(weatherKey(321535200, place(h).region, 'cold'), weatherKey(321535200, 'Bluewatch Reach', 'cold'));
+    // An atlas record that kept the id is named the same way.
+    const atlas = core({});
+    Object.assign(atlas.queries, { 'atlas.places': () => [], 'atlas.place': (_state, { name }) => (name === 'Auvoth' ? { name: 'Auvoth', kind: 'city', region: 'auvoth-compact' } : null),
+        'packs.content': (_state, { kind }) => (kind === 'regions' ? [{ id: 'auvoth-compact', name: 'Auvoth Compact' }] : []) });
+    const a = createHarness([atlas], { state: stocked(atlas) });
+    a.capture(line('~', 'place', 'Auvoth'), MARK);
+    assert.equal(place(a).region, 'Auvoth Compact');
+});
