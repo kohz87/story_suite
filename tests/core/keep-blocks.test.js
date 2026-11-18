@@ -1,4 +1,4 @@
-// HISTKEEP: the host setting `keepRecentBlocks` (default off) keeps the narrator's own change block on the two newest replies of the
+// HISTKEEP: the host setting `keepRecentBlocks` (default on) keeps the narrator's own change block on the two newest replies of the
 // reply's own prompt. Off, every prompt is what origin/main sent (fixture recorded there); on, only those two replies change and the
 // chat's records and state are the same as main's at every step (swipe, swipe back, edited Re-read grown and shrunk, middle delete,
 // rewind, reload, chat change).
@@ -16,8 +16,13 @@ const seeded = async keep => { const restore = seedCrypto(42); try { return awai
 const replies = step => step.prompt.filter(line => line.startsWith('assistant:')).map(line => line.slice('assistant:'.length));
 const stepOf = (steps, name) => steps.find(step => step.name === name);
 
-test('off (not stored, or stored false): every step sends what origin/main sent and keeps the same records and state', async () => {
-    for (const keep of [null, false]) assert.deepEqual(compact(await seeded(keep)), MAIN, `keepRecentBlocks ${keep}`);
+test('off (stored false): every step sends what origin/main sent and keeps the same records and state', async () => {
+    assert.deepEqual(compact(await seeded(false)), MAIN);
+});
+
+test('default (not stored): on', async () => {
+    assert.deepEqual(compact(await seeded(null)), compact(await seeded(true)));
+    assert.notDeepEqual(compact(await seeded(null)), MAIN, 'the default is not main\'s prompts');
 });
 
 test('on: the two newest replies keep the narrator\'s own block, older ones lose it; records and state are main\'s at every step', async () => {

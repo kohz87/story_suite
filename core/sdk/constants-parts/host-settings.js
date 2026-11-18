@@ -2,7 +2,7 @@
 
 import { MAX_CHANGE_LINES } from './limits.js';
 
-export const HOST_SETTINGS_DEFAULTS = Object.freeze({ tailBudget: 1500, contextShare: 40, maxChangeLines: MAX_CHANGE_LINES, callQueue: true, keepRecentBlocks: false, panelStyle: 'glass', glassStrength: 50, font: 'nunito', textSize: '100', sendPending: true, quickConnection: '', backgroundConnection: '' });
+export const HOST_SETTINGS_DEFAULTS = Object.freeze({ tailBudget: 1500, contextShare: 40, maxChangeLines: MAX_CHANGE_LINES, callQueue: true, keepRecentBlocks: true, panelStyle: 'glass', glassStrength: 50, font: 'nunito', textSize: '100', sendPending: true, quickConnection: '', backgroundConnection: '' });
 export const HOST_SETTINGS_SCHEMA = Object.freeze({
     tailBudget: Object.freeze({
         type: 'int', min: 100, max: 20000, label: 'Notes per reply (tokens)',
@@ -20,10 +20,10 @@ export const HOST_SETTINGS_SCHEMA = Object.freeze({
         type: 'bool', label: 'Run extra calls one at a time per connection',
         help: 'Story Suite\'s own model calls (Delta\'s scan, the arc planner, Assist) wait for each other when they use the same connection profile, so a local server that answers one request at a time is never asked twice at once. Calls on different profiles still go side by side.',
     }),
-    // keep-blocks.js: the history keeps the narrator's own change blocks on its two newest replies (default off).
+    // keep-blocks.js: the history keeps the narrator's own change blocks on its two newest replies (default on).
     keepRecentBlocks: Object.freeze({
         type: 'bool', label: 'Keep the last two replies\' change blocks in the prompt',
-        help: 'The two newest replies reach the model with the change block the narrator wrote for them, so it sees its own recent blocks. Older replies lose theirs as before. Adds about 0.7-3k characters to each prompt (measured live); no extra call.',
+        help: 'The two newest replies reach the model with the change block the narrator wrote for them, so it sees its own recent blocks. Older replies lose theirs as before. On by default. Adds about 0.7-3k characters to each prompt (measured live); no extra call. A `+` line it copies from those blocks is not applied again unless the story shows it happening again.',
     }),
     // The Models page's two roles (core/model-call/connection-for.js): '' is the chat's connection. Story is always the chat's.
     quickConnection: Object.freeze({

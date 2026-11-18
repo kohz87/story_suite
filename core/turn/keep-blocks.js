@@ -1,5 +1,5 @@
 // Story Suite v2: the history keeps the narrator's own change blocks on its newest replies (host setting `keepRecentBlocks`,
-// default off; Settings › Models › Calls). Every other reply loses its blocks as before (prompt-build.js stripHistory). Only the
+// default on; Settings › Models › Calls). Every other reply loses its blocks as before (prompt-build.js stripHistory). Only the
 // reply's own chat-completion prompt gets them (prompt-hooks.js); quiet, background and other callers' prompts never do.
 
 import { extractBlock } from '../capture.js';
@@ -12,10 +12,15 @@ export const KEEP_REPLIES = 2;
 // A block the reply was cut off in (hideBlock's `open` mark): its last line may be unfinished, so it is never shown back.
 const cutOff = text => hiddenPairs(text).some(pair => new RegExp(`^[ \\t]+${CUT_MARK}\\b`).test(text.slice(pair.bodyStart, pair.bodyEnd)));
 
+// The narrator's own lines in one text (trimmed, none blank); [] when it has none or its block was cut off.
+export function keptLines(text) {
+    if (cutOff(text)) return [];
+    return String(extractBlock(text) ?? '').split('\n').map(line => line.trimEnd()).filter(line => line.trim());
+}
+
 // The narrator's own lines in one text, written back as a bare block after its stripped story; '' when it has none.
 function keptBlock(text) {
-    if (cutOff(text)) return '';
-    const lines = String(extractBlock(text) ?? '').split('\n').map(line => line.trimEnd()).filter(line => line.trim()).join('\n');
+    const lines = keptLines(text).join('\n');
     return lines ? `\n\n<Changes>\n${lines}\n</Changes>` : '';
 }
 

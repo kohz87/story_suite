@@ -51,7 +51,7 @@ export function createPromptHooks(s, deps) {
     /** CHAT_COMPLETION_PROMPT_READY: { chat, dryRun }. */
     function onPromptReady(eventData) {
         if (!eventData || eventData.dryRun === true || !Array.isArray(eventData.chat) || isOwn(eventData)) return;
-        // The host setting `keepRecentBlocks` (default off): the history's content before the strip, for the reply's own prompt.
+        // The host setting `keepRecentBlocks` (default on): the history's content before the strip, for the reply's own prompt.
         const originals = hostSettings?.()?.keepRecentBlocks === true ? eventData.chat.map(message => message?.content) : null;
         stripHistory(eventData.chat);
         if (quietPrompt(holdsIn(eventData.chat))) {
