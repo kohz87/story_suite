@@ -317,6 +317,7 @@
   "ui/settings/overlay.js": "Builds the Settings overlay frame: header, section nav, the section or search page, the \"what's sent\" footer, and its back-stack entry.",
   "ui/settings/packs.js": "Renders the Packs and trackers page: installed packs with a remove confirmation, data modules and this chat's trackers.",
   "ui/settings/panel-bg.js": "Settings › Look › Panel background: the per-device On/Off switch card and the root attribute that hides the suite's backdrop layer when it is Off (the default).",
+  "ui/settings/off-grey.js": "Greys out a section page's setting rows while that section's module card is off, with one line saying why.",
   "ui/settings/page.js": "Composes one Settings section page: heading, the \"applies to\" note, the module card, the special body, the setting cards and the reset buttons.",
   "ui/settings/search.js": "Finds settings rows by words across label, hint, unit, group and section name, and renders the hits under \"Section › Group\".",
   "ui/settings/fold-groups.js": "Turns each Settings card title into a fold button with aria-expanded and keeps which cards are folded per device.",
