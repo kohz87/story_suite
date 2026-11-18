@@ -68,7 +68,8 @@ function measure() {
 
 for (const width of [1100, 1280, 1920]) {
   for (const theme of ['dark', 'light']) {
-    for (const tab of ['now', 'people', 'bag', 'world']) {
+    // every tab in dark (the card and Here now on the left on each); the four drawn ones in light
+    for (const tab of theme === 'dark' ? ['now', 'party', 'bag', 'people', 'world', 'journal', 'story'] : ['now', 'people', 'bag', 'world']) {
       test(`layout A at ${width} in ${theme} on ${tab}: card and Here now on the left, strip and page on the right`, async t => {
         if (ctx.skip) return t.skip(ctx.skip);
         const page = await open(width, `theme=${theme}&variant=default&tab=${tab}`);

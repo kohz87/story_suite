@@ -196,6 +196,7 @@ export function mountSuite(options = {}) {
       if (tab && tab !== tabHost.current()) tabHost.select(tab);
       if (look) applyLook();
       const opened = view.open();
+      desk.check();   // (the stylesheets are added at mount: a size check that ran before desk.css applied is read again here)
       redraw.setVisibleTab(tabHost.current());
       redraw.reveal();
       redraw.flush();
