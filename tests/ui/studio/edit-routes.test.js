@@ -142,6 +142,8 @@ test('a refused change says why; Duplicate inserts a named copy, Delete removes 
     page.querySelector('.st-dup').click();
     assert.deepEqual(calls.commit.at(-1), [{ op: 'insert', path: ['content', 'routes', 1], value: { from: 'fenhold', to: 'reedmoor', kind: 'road', km: 12, name: 'fenhold–reedmoor copy' } }]);
     page.querySelector('.st-del').click();
+    assert.ok(page.querySelector('.st-delcard'), 'Delete asks first');
+    page.querySelector('.st-sure').click();
     assert.deepEqual(calls.commit.at(-1), [{ op: 'remove', path: ['content', 'routes', 0] }]);
     page.querySelector('.st-back').click();
     assert.deepEqual(calls.go.at(-1), ['map']);

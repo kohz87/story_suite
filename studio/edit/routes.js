@@ -4,6 +4,7 @@
 
 import { h } from '../../ui/kit/dom.js';
 import { recordPanes } from '../form/panes.js';
+import { askDelete } from '../form/confirm.js';
 import { ROUTE_CLASSES } from '../../packs/limits.js';
 import { classOfKind } from '../../packs/validate/world-pack-parts/kinds.js';
 import { fieldRow, markFocus } from '../form/fields.js';
@@ -166,8 +167,8 @@ function recordPage(section, ctx, at) {
         const made = ctx.commit([{ op: 'insert', path: [...BASE, at + 1], value: { ...route, name: freeName(section, `${keyOf(route)} copy`) } }]);
         if (made?.ok) ctx.go(PART, `routes.${at + 1}`);
     };
-    const drop = () => { if (ctx.commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); };
     const title = titleOf(route, name);
+    const drop = askDelete(said, { title, remove: () => { if (ctx.commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); } });
     return h('section', { class: 'st-rec', dataset: { rec }, tabindex: '-1', 'aria-label': title },
         h('div', { class: 'st-rh' }, back, h('span', { class: 'st-rt' }, h('b', title)), h('small', `Route ${at + 1} of ${section.value.length}`),
             h('span', { class: 'st-flags' }, route.kind ? h('span', { class: 'tg2' }, route.kind) : null,

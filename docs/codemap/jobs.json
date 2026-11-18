@@ -531,7 +531,7 @@
   "studio/edit/start.js": "Edits a world pack's start in the Pack Studio: the start date with the month named from the paired calendar, the start place picker, the conditions and facts that hold at the start, and keys a format 4 start does not take.",
   "studio/edit/templates.js": "Pack Studio templates editor: the list with find and filters, one template's record page, the open-template menu with delta ranges, rename, used-by and delete.",
   "studio/form/fields.js": "Draws a Studio form row for text, long text, number, select, toggle or segmented input, with an inline problem line under it.",
-  "studio/form/confirm.js": "Draws the Studio's delete confirm: a red card that names the record, says whether anything else names it, and offers Delete and Keep it.",
+  "studio/form/confirm.js": "Draws the Studio's delete confirm: a red card that names the record, says whether anything else names it, and offers Delete and Keep it; askDelete wires it to a Delete button on a page with no state of its own.",
   "studio/form/gate.js": "Draws the Studio's gate text box and checks it with the game's gate rules on every keystroke, showing the first problem.",
   "studio/form/list.js": "Draws the Studio's editable chip list: removable pills and a box that adds a trimmed, new value on Enter or blur.",
   "studio/form/pick.js": "Opens the Studio's id picker sheet: a search box over a list of records, where a used row is shown but cannot be picked.",

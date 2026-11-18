@@ -53,3 +53,7 @@
 @media (max-width: 640px) {
     .st-root .st-hold, .st-root .st-stand { grid-template-columns: 1fr; }
 }
+/* Touch (plan §1.7): the day chips and the result tabs are at least 44 px tall below 900 px, as the other row buttons are (records.css). */
+@container (max-width: 900px) {
+    .st-root .st-dchip, .st-root .st-dtab { min-height: 44px; }
+}

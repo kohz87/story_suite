@@ -5,6 +5,7 @@
 
 import { h, svgEl } from '../../ui/kit/dom.js';
 import { recordPanes } from '../form/panes.js';
+import { askDelete } from '../form/confirm.js';
 import { STANDING } from '../../packs/limits.js';
 import { fieldRow, setProblem } from '../form/fields.js';
 import { chipList } from '../form/list.js';
@@ -190,10 +191,9 @@ function recordPage(key, list, at, ctx) {
         const id = freeId(ctx, key, list, `${record.id ?? spec.noun}-copy`);
         if (done(ctx.commit([{ op: 'insert', path: ['content', key, at + 1], value: { ...structuredClone(record), id, name: `${record.name ?? id} copy` } }]))?.ok) ctx.go(PART, `${key}.${at + 1}`);
     };
-    const drop = () => {
-        if (uses) return tell(`Used in ${plural(uses, 'place')}: take those out first.`);
-        if (done(ctx.commit([{ op: 'remove', path: where }]))?.ok) ctx.go(PART);
-    };
+    const ask = askDelete(said, { title: String(record.name ?? record.id ?? `${spec.title} ${at + 1}`), uses: () => (typeof record.id === 'string' ? usedBy(ctx.refs, spec.kind, record.id).filter(use => use.pack !== 'other').length : null),
+        remove: () => { if (done(ctx.commit([{ op: 'remove', path: where }]))?.ok) ctx.go(PART); } });
+    const drop = () => (uses ? tell(`Used in ${plural(uses, 'place')}: take those out first.`) : ask());
     const page = h('section', { class: 'st-rec', dataset: { rec }, tabindex: '-1', 'aria-label': String(record.name ?? record.id ?? `${spec.title} ${at + 1}`) },
         h('div', { class: 'st-bar', style: 'display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap' },
             h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Powers & scores'),

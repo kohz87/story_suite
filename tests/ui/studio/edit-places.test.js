@@ -116,7 +116,17 @@ test('a refused change says why, and Duplicate and Delete are one patch each', (
     assert.equal(page.querySelector('p.st-problem').textContent, 'No.');
     page.querySelector('.st-dup').click();
     assert.deepEqual([calls.commit.at(-1)[0].op, calls.commit.at(-1)[0].path], ['insert', ['content', 'places', 2]]);
+    const made = calls.commit.length;
+    page.querySelector('.st-del').click(); // the red card first (mock MK-2 delete); Keep it takes it away
+    assert.equal(calls.commit.length, made);
+    assert.match(page.querySelector('.st-delcard').textContent, /^Delete “.+”\?.*Undo brings it back\./);
+    page.querySelector('.st-keep').click();
+    assert.equal(page.querySelector('.st-delcard'), null);
     page.querySelector('.st-del').click();
+    page.querySelector('.st-del').click(); // a second press does not draw a second card
+    assert.equal(page.querySelectorAll('.st-delcard').length, 1);
+    page.querySelector('.st-sure').click();
+    assert.equal(page.querySelector('.st-delcard'), null);
     assert.deepEqual(calls.commit.at(-1), [{ op: 'remove', path: ['content', 'places', 1] }]);
     page.querySelector('.st-back').click();
     assert.deepEqual(calls.go.at(-1), ['map']);

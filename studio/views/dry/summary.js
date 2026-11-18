@@ -7,7 +7,7 @@ import { holdSpans } from './series.js';
 const plural = (n, one, many = `${one}s`) => `${n.toLocaleString('en-US')} ${n === 1 ? one : many}`;
 const tile = (n, label, bad = false) => h('div', { class: 'st-tile', dataset: { bad: String(bad && n > 0) } }, h('b', String(n)), h('small', label));
 
-/** `headNodes(ctx, st, on)`: `on`: `{ change, again, warns }`. The summary line, then the tiles. */
+/** `headNodes(ctx, st, on)`: `on`: `{ change, again, warns }`. The summary line, then the tiles. Run again is held while the pack has errors. */
 export function headNodes(ctx, st, on) {
     const { result } = st;
     const rows = result.rows ?? [];
@@ -19,7 +19,7 @@ export function headNodes(ctx, st, on) {
     const sub = `${first ? `${first} to ${last} · ` : 'From day 1, since the world gives no start date · '}on ${st.against}.${stale}`;
     const head = h('div', { class: 'srow wide st-dry-result', dataset: { stale: String(Boolean(stale)) } },
         h('div', { class: 'lb' }, h('b', `Seed ${result.seed} · tempo ${result.tempo} · ${plural(result.days, 'day')}: ${plural(count('fired'), 'event')} fired`), h('small', sub)),
-        h('div', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 st-dry-change', onClick: on.change }, 'Change'), h('button', { type: 'button', class: 'btn2 st-dry-again', onClick: on.again }, 'Run again')));
+        h('div', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 st-dry-change', onClick: on.change }, 'Change'), h('button', { type: 'button', class: 'btn2 st-dry-again', disabled: (ctx.check?.errors?.length ?? 0) > 0, onClick: on.again }, 'Run again')));
     const said = result.warnings ?? [];
     const note = text => h('div', { class: 'srow st-dry-warn', dataset: { level: 'warning' } }, h('div', { class: 'lb' }, h('b', h('span', { class: 'st-mark', 'aria-hidden': 'true' }, '! '), text)));
     const warns = said.length ? [h('div', { class: 'srow st-dry-warnhead', dataset: { level: 'warning' } }, h('div', { class: 'lb' },

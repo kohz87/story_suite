@@ -103,6 +103,7 @@ test('used by lists the event that tests and changes the power, with Go to; Dele
     page.querySelector('.st-del').click();
     assert.equal(calls.commit.length, 0);
     assert.match(page.querySelector('p.st-problem').textContent, /Used in 2 places/);
+    assert.equal(page.querySelector('.st-delcard'), null, 'a power places use gets no card');
 });
 
 test('renaming a power rewrites its uses in one commit; a bad id is refused in words', () => {
@@ -185,6 +186,8 @@ test('a refused change says why; Duplicate inserts a copy with a free id after i
     assert.deepEqual(ok.calls.commit.at(-1), [{ op: 'insert', path: ['content', 'scores', 2], value: { id: 'lamp-trust-copy', name: 'Lamp Trust copy', start: 0, drift: false } }]);
     assert.deepEqual(ok.calls.go.at(-1), ['powers', 'scores.2']);
     page2.querySelector('.st-del').click();
+    assert.ok(page2.querySelector('.st-delcard'), 'Delete asks first');
+    page2.querySelector('.st-sure').click();
     assert.deepEqual(ok.calls.commit.at(-1), [{ op: 'remove', path: ['content', 'scores', 1] }]);
     page2.querySelector('.st-back').click();
     assert.deepEqual(ok.calls.go.at(-1), ['powers']);

@@ -4,6 +4,7 @@
 
 import { h } from '../../ui/kit/dom.js';
 import { recordPanes } from '../form/panes.js';
+import { askDelete } from '../form/confirm.js';
 import { CLIMATES } from '../../packs/limits.js';
 import { fieldRow, markFocus } from '../form/fields.js';
 import { chipList } from '../form/list.js';
@@ -135,7 +136,8 @@ function recordPage(section, ctx, at) {
         const made = ctx.commit([{ op: 'insert', path: [...BASE, at + 1], value: { ...place, id, name: `${place.name ?? id} copy` } }]);
         if (made?.ok) ctx.go(PART, `places.${at + 1}`);
     };
-    const drop = () => { if (ctx.commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); };
+    const drop = askDelete(said, { title: String(place.name ?? place.id ?? `Place ${at + 1}`), uses: () => (typeof place.id === 'string' ? usedBy(ctx.refs, 'place', place.id).filter(use => use.pack !== 'other').length : null),
+        remove: () => { if (ctx.commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); } });
     return h('section', { class: 'st-rec', dataset: { rec }, tabindex: '-1', 'aria-label': String(place.name ?? place.id ?? `Place ${at + 1}`) },
         h('div', { class: 'st-rh' }, back, h('span', { class: 'st-rt' }, h('b', String(place.name ?? place.id ?? ''))), h('small', `Place ${at + 1} of ${section.value.length}`),
             h('span', { class: 'st-flags' }, place.hidden ? h('span', { class: 'tg2' }, 'hidden') : null,

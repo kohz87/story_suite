@@ -4,6 +4,7 @@
 
 import { h } from '../../ui/kit/dom.js';
 import { recordPanes } from '../form/panes.js';
+import { askDelete } from '../form/confirm.js';
 import { foldKey } from '../../core/text.js';
 import { CLIMATES } from '../../packs/limits.js';
 import { fieldRow, markFocus } from '../form/fields.js';
@@ -119,7 +120,8 @@ function recordKit(section, ctx, at) {
         if (key === 'realms') value.regions = [];
         if (ctx.commit([{ op: 'insert', path: ['content', key, at + 1], value }])?.ok) ctx.go(PART, `${key}.${at + 1}`);
     };
-    const drop = () => { if (ctx.commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); };
+    const drop = askDelete(said, { title: titleOf(record, at), uses: () => (typeof record.id === 'string' ? usedBy(ctx.refs, noun.kind, record.id).filter(use => use.pack !== 'other').length : null),
+        remove: () => { if (ctx.commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); } });
     const page = (...groups) => {
         const state = ctx.keep?.(`${key}:${rec}`) ?? {};
         state.json ??= {};

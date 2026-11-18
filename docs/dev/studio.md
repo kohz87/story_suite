@@ -147,7 +147,10 @@ undo and redo and an autosaved draft.
   record's head is its back button with Duplicate and Delete at the right, then the title as the page heading; the page's own
   title and the phone's "‹ Parts" give way to it. Delete opens a red card under the head (`deleteCard`, `studio/form/confirm.js`:
   "Delete “…”?", whether anything else names it, Delete and Keep it) on lore, cast, events, items, foes, templates, cultures and
-  tracker presets. Styles: `studio/css/records.css`.
+  tracker presets; places, routes, regions, realms, powers and scores get the same card through `askDelete` (same file), which
+  needs no page state. Styles: `studio/css/records.css`.
+- **Dry run and errors.** While the world pack has errors the Dry run form stays open with "Fix the N problems first", and both
+  Run and the summary's Run again are held. "Start ›" on the form opens the world's Start, in the Conditions part.
 
 ## Limits today
 

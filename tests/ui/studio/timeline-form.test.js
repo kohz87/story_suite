@@ -70,3 +70,19 @@ test('the dry run reads seasons written with month numbers as the chat does', ()
     assert.deepEqual(seasonsOf(calendar).map(season => season.months), [['Frost', 'Thaw'], ['Bloom']]);
     assert.equal(seasonsOf({ months: calendar.months }), null);
 });
+
+test('after a run, an error in the pack holds Run again and opens the form with its fix-first note; Start › opens the world Start', async () => {
+    const { ctx, draw, calls } = setup();
+    draw().querySelector('.st-dry-run').click();
+    await settle();
+    assert.equal(document.body.querySelector('.st-dry-again').getAttribute('disabled'), null);
+    ctx.check = { errors: [{ part: 'map', rec: 'places.0', field: ['region'], message: 'x' }], warnings: [] };
+    const page = draw();
+    assert.notEqual(page.querySelector('.st-dry-again').getAttribute('disabled'), null, 'Run again is held');
+    assert.match(page.querySelector('.st-dry-blocked').textContent, /Fix the 1 problem first\./);
+    const runs = calls.length;
+    page.querySelector('.st-dry-again').click(); // a held button that is clicked anyway starts nothing
+    assert.equal(calls.length, runs);
+    page.querySelectorAll('.st-dry-note button.lnk')[0].click();
+    assert.deepEqual(calls.at(-1), ['conditions', 'start']);
+});

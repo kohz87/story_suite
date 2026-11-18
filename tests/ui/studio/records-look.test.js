@@ -98,7 +98,7 @@ test('an open record: one back button, the title as the page heading, Delete ope
   }
 });
 
-test('below 900 px the filter chips, the table row buttons and the graph ◎ are 44 px targets', async t => {
+test('below 900 px the filter chips, the table row buttons, the graph ◎ and the Dry run day chips are 44 px targets', async t => {
   if (ctx.skip) return t.skip(ctx.skip);
   const page = await studio(390);
   await part(page, 'lore');
@@ -111,6 +111,8 @@ test('below 900 px the filter chips, the table row buttons and the graph ◎ are
   await page.locator('.spage .st-gtopbtn').first().click();
   const centre = await style(page, '.spage .st-glist .st-gcentre');
   assert.ok(centre.w >= 44 && centre.h >= 44, `graph ◎ ${centre.w}×${centre.h}`);
+  await part(page, 'timeline');
+  assert.ok((await style(page, '.spage .st-dchip')).h >= 44, 'Dry run day chip');
   await page.close();
 });
 

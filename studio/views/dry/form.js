@@ -32,9 +32,9 @@ export function formNodes(ctx, st, on) {
     const date = startDayOf(ctx.doc, ctx.other?.content?.calendar ?? null).date;
     const starts = note('Starts on', game ? `Dates, months and seasons come from the game pack, ${game}.` : 'No game pack is open, so the built-in calendar gives the dates.',
         h('span', { class: 'st-dry-date' }, date ? dateText(date) : 'Not set: the run begins on day 1'),
-        h('button', { type: 'button', class: 'lnk', onClick: () => ctx.go('start') }, 'Start ›'));
+        h('button', { type: 'button', class: 'lnk', onClick: () => ctx.go('conditions', 'start') }, 'Start ›'));
     const begins = note('Begins with', facts ? `The world’s Start sets ${plural(begin.world?.set?.length ?? 0, 'condition')} and ${plural(begin.world?.facts?.length ?? 0, 'fact')} on the first day.` : 'The world’s Start sets nothing, so the run begins as the pack is written.',
-        h('button', { type: 'button', class: 'lnk', onClick: () => ctx.go('start') }, 'Start ›'));
+        h('button', { type: 'button', class: 'lnk', onClick: () => ctx.go('conditions', 'start') }, 'Start ›'));
     const label = `Run ${plural(st.days, 'day')}`;
     const run = running
         ? h('button', { type: 'button', class: 'btn2 st-dry-cancel', onClick: on.cancel }, 'Cancel')

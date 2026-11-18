@@ -43,6 +43,7 @@ const castName = (doc, id) => (doc?.content?.cast ?? []).find(person => person?.
 
 // Runs the pack: in a Worker where the page has one, else in the page. A redraw shows the result; progress is written into the open page.
 function start(ctx, st) {
+    if ((ctx.check?.errors?.length ?? 0) > 0) return; // a chat does not load a pack with problems
     const game = isObject(ctx.other) ? ctx.other : null;
     const calendar = isObject(game?.content?.calendar) ? game.content.calendar : null;
     const input = { pack: ctx.doc, game: seasonsOf(calendar) ? { seasons: seasonsOf(calendar) } : null, seed: st.seed, tempo: st.tempo, days: st.days, calendar };
@@ -106,7 +107,7 @@ export function renderPage(ctx) {
         warns: () => { st.warnsOpen = !st.warnsOpen; ctx.go('timeline'); },
         change: () => { st.editing = true; ctx.go('timeline'); },
     };
-    const open = !st.result || st.editing || st.job || st.error;
+    const open = !st.result || st.editing || st.job || st.error || (ctx.check?.errors?.length ?? 0) > 0; // with errors the form says to fix them first
     const form = open ? [group('st-dry-form', 'Run', ...formNodes(ctx, st, on))] : [];
     const done = st.result ? resultPage(ctx, st, on) : [h('div', { class: 'srow st-dry-none' }, h('div', { class: 'lb' }, h('small', 'No run yet. A run is kept until you close the pack or run again; it is not saved in the draft.')))];
     return [...form, ...done];

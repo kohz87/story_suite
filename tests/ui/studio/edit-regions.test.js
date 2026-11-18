@@ -158,6 +158,8 @@ test('a refused change says why; Duplicate (a realm copy holds no regions) and D
     page.querySelector('.st-dup').click();
     assert.deepEqual(calls.commit.at(-1), [{ op: 'insert', path: ['content', 'realms', 1], value: { id: 'lampwardens-copy', name: 'The Lampwardens copy', regions: [] } }]);
     page.querySelector('.st-del').click();
+    assert.ok(page.querySelector('.st-delcard'), 'Delete asks first');
+    page.querySelector('.st-sure').click();
     assert.deepEqual(calls.commit.at(-1), [{ op: 'remove', path: ['content', 'realms', 0] }]);
     page.querySelector('.st-back').click();
     assert.deepEqual(calls.go.at(-1), ['map']);
