@@ -45,13 +45,15 @@ test('the evaluator: anchors, place by id, name, alias or a spot under it; and b
 
 async function ersveil(chat = null) {
     let host = null;
+    const calls = [];
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text), feature: id => host?.features.on(id),
-        callModel: async () => ({ ok: false, error: 'BUSY', text: '' }), canCallModel: () => true, chat: () => [] } });
+        callModel: async (...args) => { calls.push(JSON.stringify(args)); return { ok: false, error: 'BUSY', text: '' }; }, canCallModel: () => true, chat: () => [] } });
     host = await createHost({ modules: [fakeFightRunner(), module], settings: { modules: { 'story-director': { 'tracker.maxJump': 60 } } } });
     host.features.set(FEATURE, true);
     assert.equal((await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' })).ok, true);
     assert.equal((await host.packs.packs.install(ERSVEIL_GAME, { origin: 'pack.json' })).ok, true);
     if (chat) await host.st.loadChat(structuredClone(chat));
+    host.calls = calls;
     return host;
 }
 
@@ -86,6 +88,7 @@ test('LF4-5: closed lore is in no prompt; the reply that reaches the keep opens 
         await host.send('In.', reply('The keep.', ['! time +1h', `~ place ${KEEP}`]));
         const reached = host.ctx.chat.length - 1;
         assert.deepEqual(leaks(prompts(host)), [], 'before the gate, and in the prompt of the reply that reached it: no hidden sentence');
+        assert.deepEqual(leaks(host.calls.join('\n')), [], 'nor in any helper or Director call made so far');
         assert.equal(opened(host), true, 'the reply that reached the keep opened the entry');
         await host.swipe(reply('Still at the gates.', ['! time +1h']));
         assert.equal(opened(host), false, 'a swipe that does not reach the keep: closed');
@@ -93,10 +96,12 @@ test('LF4-5: closed lore is in no prompt; the reply that reaches the keep opens 
         assert.equal(opened(host), true, 'swipe back: open again');
         await agrees(host, 'swipe back');
         const keep = await nextPrompt(host);
-        assert.ok(keep.includes(`Lore (now open) — ${CHAMBER.title}: ${CHAMBER_FIRST}`), 'the next prompt carries it after the world note');
+        assert.ok(keep.includes(`Lore (now open) — ${CHAMBER.title}: ${CHAMBER_FIRST}`), 'the next prompt carries it');
         const line = keep.split('\n').find(text => text.startsWith('Lore (now open)'));
         assert.ok(line.length <= 600, 'capped');
         assert.deepEqual(leaks(keep).filter(sentence => !CHAMBER.text.includes(sentence)), [], 'only the open entry');
+        // The helper and Director calls (as many as ran: they depend on timing, about 7 here when the file runs alone) carry no hidden lore, open or not.
+        assert.deepEqual(leaks(host.calls.join('\n')), [], 'the story prompt only: no helper or Director call carries it');
         await host.send('Out.', reply('The lower town.', ['! time +1h', '~ place Highmark Capital / Lower Market']));
         assert.ok((await nextPrompt(host)).includes(CHAMBER_FIRST), 'it stays open after You leave');
         const before = stateOf(host);
@@ -142,5 +147,32 @@ test('switch off: nothing opens and the prompt carries no lore line', async () =
         assert.equal(host.head().domains.chronicle.ledger ?? null, null);
         assert.equal(prompts(host).includes('Lore (now open)'), false);
         assert.deepEqual(leaks(prompts(host)), []);
+    } finally { host.close(); }
+});
+
+test('a later reply that stepped the day keeps the opening it recorded: a middle delete or a shrunk Re-read of the opening reply leaves it open, rebuild == live', async () => {
+    const host = await ersveil();
+    try {
+        await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 am', '~ place Bluewatch Village / Guild Office']));
+        await host.send('In.', reply('The keep.', ['! time +1h', `~ place ${KEEP}`]));
+        const reached = host.ctx.chat.length - 1;
+        await host.send('Out.', reply('The lower town, next morning.', ['! time +1d', '~ place Highmark Capital / Lower Market']));
+        await host.send('Look.', reply('A crowd.', ['! time +1h', '+ world Bread Riots — crowds fill the market | state: ongoing | place: Highmark Capital']));
+        assert.equal(opened(host), true);
+        assert.ok((await nextPrompt(host)).includes(CHAMBER_FIRST), 'open after the day step');
+        await agrees(host, 'after the day step');
+        const chat = structuredClone(host.ctx.chat);
+        // The day step on the later reply took the opening into its own anchors (history is not rewritten, as with learned secrets).
+        await host.st.deleteMessage(reached);
+        assert.deepEqual(host.store.problems(), []);
+        assert.equal(opened(host), true, 'a middle delete of the opening reply: still open, as the later step recorded it');
+        await agrees(host, 'middle delete after the step');
+        await host.st.loadChat([], 'other');
+        await host.st.loadChat(structuredClone(chat), 'back');
+        await host.st.editMessage(reached, reply('The gates.', ['! time +1h']));
+        assert.equal((await host.sdk.reread(reached)).ok, true);
+        assert.deepEqual(host.store.problems(), []);
+        assert.equal(opened(host), true, 'a shrunk Re-read of the opening reply: still open');
+        await agrees(host, 'shrunk Re-read after the step');
     } finally { host.close(); }
 });

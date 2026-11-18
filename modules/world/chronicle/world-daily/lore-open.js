@@ -1,7 +1,8 @@
 // World events on the host: hidden lore that opens (switch story-director.world-events; spec §7, LF4-5). After a reply's lines, a hidden
 // entry whose gate holds and that no reply has opened yet is recorded in the ledger as `opened:lore/<key>` (a slot on that reply: a swipe,
-// a delete, an edited Re-read or a rewind of the reply takes it back), so a `place:` gate stays open after You leave the place. Before each
-// reply the open entries (lore-gate.js) go to the narrator as lines after the world note, small and capped; a closed one is in no prompt.
+// a delete, an edited Re-read or a rewind of the reply takes it back until a later reply's daily step has taken it into its own anchors;
+// then it stays, as a learned secret does), so a `place:` gate stays open after You leave the place. Before each reply the open entries
+// (lore-gate.js) go to the narrator as the world tail's last optional lines, small and capped; a closed one is in no prompt.
 // Opening an entry is not learning it: `learned:lore/<id>` and the entry's `writes_fact` have no source yet.
 
 import { markLedger } from '../conditions/ledger.js';
@@ -74,7 +75,7 @@ function loreOpen(ctx) {
     const { fresh } = readOpen(queryOf(ctx), chronicle, scene);
     if (!fresh.length) return none;
     markLedger(chronicle, { day: Math.floor(now / DAY), anchors: fresh.map(key => `${OPENED}${key}`) });
-    return { summary: `World: hidden lore opened (${fresh.join(', ')}).`, narrate: false, data: { opened: fresh } };
+    return { summary: 'World: hidden lore opened.', narrate: false, data: { opened: fresh } };
 }
 
 /** The command, tagged with the feature and internal (never from a click or the sdk). */

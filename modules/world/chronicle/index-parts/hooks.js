@@ -22,14 +22,15 @@ export function beforeGenerate(view) {
 
 /**
  * `context.tail(view)`: the [World] lines (while the threads feature is on) and the last day's line after a time skip (optional). The [Earlier days] cue is pinned (beforeGenerate); its older day lines are optional.
- * With the world-events switch on the world note takes the [World] lines' place (seam audit E23: the same news, pinned first), followed by
- * the hidden lore that has opened (lore-open.js, at most two capped lines); off adds nothing.
+ * With the world-events switch on the world note takes the [World] lines' place (seam audit E23: the same news, pinned first), and the
+ * hidden lore that has opened (lore-open.js, at most two capped lines) is the last optional line; off adds nothing.
  */
 export function tail(view) {
     const on = worldEventsOn(view);
     const base = threadsOn(view) && !on ? chronicleTail(view) : { lines: [], optional: [] };
-    const note = on ? [...worldNote(view), ...openLoreLines(view)] : [];
+    const note = on ? worldNote(view) : [];
     const out = note.length ? { ...base, lines: [...note, ...base.lines] } : base;
-    const optional = [...out.optional, digestTailLine(view), ...backlogOlder(view)].filter(Boolean);
+    // The open hidden lore is optional and last of this part: it takes only the room left, and a tight tail cuts it before any required line.
+    const optional = [...out.optional, digestTailLine(view), ...backlogOlder(view), ...(on ? openLoreLines(view) : [])].filter(Boolean);
     return optional.length ? { lines: out.lines, optional } : out;
 }
