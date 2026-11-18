@@ -98,3 +98,19 @@ test('F41: with "Who gets a dossier: Manual only" a + npc line makes nobody; Con
     await say(usual, ['+ npc Tamsa Vell | the clerk | ink-stained cuffs']);
     assert.equal(Object.values(people(usual).npcs).some(record => record.name === 'Tamsa Vell'), true);
 });
+
+test('F3: ~ npc Name | aka: another name keeps it as an alias, so a later line by that name finds them; someone else\'s name is refused', async () => {
+    const s = await suite({ lines: true, records: records() });
+    const at = await say(s, ['~ npc Hesk Dalla | aka: the Iron Captain', '~ npc Wenna Coll | aka: Ovren Tash']);
+    assert.deepEqual(people(s).npcs.npc_hesk_dalla.aliases, ['the Iron Captain']);
+    assert.deepEqual(people(s).npcs.npc_wenna_coll.aliases, ['Old Wen'], 'another person\'s name is not taken');
+    await say(s, ['~ npc the Iron Captain | trust: +1']);
+    assert.equal(bond(s, 'npc_hesk_dalla')?.meters?.trust, 1);
+    same(s, 'replay equals live');
+    await quiet(async () => { await s.host.st.deleteMessage(at); await s.host.st.deleteMessage(at - 1); });
+    assert.deepEqual(people(s).npcs.npc_hesk_dalla.aliases, [], 'a middle delete takes the alias back');
+    same(s, 'middle delete equals live');
+    const off = await suite({ lines: false, records: records() });
+    await say(off, ['~ npc Hesk Dalla | aka: the Iron Captain']);
+    assert.deepEqual(people(off).npcs.npc_hesk_dalla.aliases, [], 'switch off: aka is an unknown label, as on main');
+});

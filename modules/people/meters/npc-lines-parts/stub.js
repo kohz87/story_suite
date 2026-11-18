@@ -40,8 +40,9 @@ export function knownPerson(ctx, name) {
     return null;
 }
 
-// The line under the full name of the person it names (unchanged when it already writes the name or an alias, or when only a meter entry knows them).
-const named = (line, found) => (typeof found.record?.name === 'string' && !labelsWrite(found.record, line.name) ? { ...line, name: found.record.name } : line);
+// The line under the full name of the person it names (unchanged when it already writes that name, or when only a meter entry knows them): an alias or a
+// first name would otherwise make the meter entry look for a person by a name the dossier list may not hold yet.
+const named = (line, found) => (typeof found.record?.name === 'string' && labelKey(found.record.name) !== labelKey(line.name) ? { ...line, name: found.record.name } : line);
 const labelsWrite = (record, name) => [record.name, ...(Array.isArray(record.aliases) ? record.aliases : [])].map(labelKey).includes(labelKey(name));
 
 // A tie's `with:` names someone with a record (refused otherwise, as `~ npc` of an unknown name is), written as their full name.

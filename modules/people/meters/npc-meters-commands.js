@@ -64,7 +64,7 @@ export function createNpcCommands({
         const settings = normalized(ctx.settings(), ctx);
         const defs = defsFrom(settings);
         const byLabel = new Map(defs.flatMap(def => [[def.id, def], [slug(def.label), def]]));
-        const read = readLabels(line.labels, { byLabel, defs, gateOn: featureOn(FEATURE_GATE, ctx), levelOn: line.linesOn === true && call(hooks.levelOn, false) === true });
+        const read = readLabels(line.labels, { byLabel, defs, gateOn: featureOn(FEATURE_GATE, ctx), levelOn: line.linesOn === true && call(hooks.levelOn, false) === true, linesOn: line.linesOn === true });
         const { problems, tier, via, reason, disposition, fields } = read;
         const changes = [...read.changes, ...wordChanges(read.words, tier, tierCaps())];
         // F44 (lines mode): a person who has died feels nothing new; a line of feelings alone is refused, one with dossier labels keeps them (guard.js decides those).

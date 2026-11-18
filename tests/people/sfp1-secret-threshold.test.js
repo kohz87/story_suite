@@ -24,3 +24,20 @@ test('F47: a hidden note keeps its meter threshold through view → store → hy
     assert.deepEqual(again.map(note => note.id), secrets.map(note => note.id), 'both notes survive the hydrate with their ids');
     assert.deepEqual(again[0], secrets[0]);
 });
+
+// SOAKPEOPLE F46 (one-pass on): a stub's fill-in (which also asks for its first hidden notes) is found by the stub's reply stamp (createdAt = index + 1),
+// but the stamp was dropped as a clock on the way into NPC State's cache, so no fill-in was ever queued and no note was ever written.
+test('F46: a stub\'s reply stamp reaches the cache, so its fill-in is queued; a clock createdAt is still dropped', async () => {
+    const { newStubs } = await import('../../modules/people/adapter/stub-fills.js');
+    const view = { v: 1, order: ['npc_tamsa', 'npc_scan'], npcs: {
+        npc_tamsa: { id: 'npc_tamsa', name: 'Tamsa Vell', role: 'the clerk', createdAt: 5 },
+        npc_scan: { id: 'npc_scan', name: 'Scan', createdAt: 1794869494082 },
+    } };
+    const cache = peopleState(view);
+    assert.equal(cache.npcs[0].createdAt, 5);
+    assert.equal(cache.npcs[1].createdAt, undefined, 'a clock is not kept');
+    assert.deepEqual(newStubs(cache.npcs, 4), [{ id: 'npc_tamsa', name: 'Tamsa Vell' }], 'the reply at index 4 queues her fill-in');
+    const back = peopleView({ npcs: cache.npcs, turn: 3 });
+    assert.equal(back.npcs.npc_tamsa.createdAt, 5, 'the cache\'s write keeps the stamp in the store');
+    assert.deepEqual(validatePeople(back), []);
+});

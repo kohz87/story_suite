@@ -26,6 +26,16 @@ export function stripVolatile(value, keepAt = false) {
 
 const list = value => (Array.isArray(value) ? value : []);
 
+// A `+ npc` stub's `createdAt` is no clock: it is the reply's place (index + 1, npc-lines-parts/derived.js), and the fill-in finds the reply's new people by it
+// (adapter/stub-fills.js newStubs). Stripped like a clock, the cache never had it and no fill-in was ever queued (SOAKPEOPLE F46). A clock stamp is milliseconds
+// (far above this bound) and is still dropped.
+const REPLY_STAMP_MAX = 1000000;
+const isReplyStamp = value => Number.isInteger(value) && value >= 1 && value <= REPLY_STAMP_MAX;
+const person = record => {
+    const out = stripVolatile(record);
+    return isPlain(out) && isPlain(record) && isReplyStamp(record.createdAt) ? { ...out, createdAt: record.createdAt } : out;
+};
+
 // Portraits go to the store as file references only (the people domain refuses image bytes, and one data URL would make every write of the chat INVALID).
 // `noBytes` drops every `dataUrl` key and every data-URL string (NPC State still makes such records when a portrait file write fails); `fileRefs`
 // keeps only the portraitAssets entries that are `{ path, type, hash }`. A portrait held only as bytes stays in NPC State's memory, not in the store.
@@ -76,7 +86,7 @@ export function peopleView(state, { warn = () => {} } = {}) {
         if (!id) { warn('people view: a record has no id'); return null; }
         if (Object.prototype.hasOwnProperty.call(npcs, id)) { warn(`people view: duplicate id ${id}`); return null; }
         order.push(id);
-        npcs[id] = noBytes(stripVolatile(record));
+        npcs[id] = noBytes(person(record));
     }
     return {
         v: 1,
@@ -98,7 +108,7 @@ export function peopleState(view) {
     if (view.order.length !== keys.length || !view.order.every(id => Object.prototype.hasOwnProperty.call(view.npcs, id))) return null;
     if (new Set(view.order).size !== view.order.length) return null;
     return {
-        npcs: view.order.map(id => stripVolatile(view.npcs[id])),
+        npcs: view.order.map(id => person(view.npcs[id])),
         candidates: stripVolatile(list(view.candidates)),
         dismissed: stripVolatile(list(view.dismissed)),
         userDismissedGroups: stripVolatile(list(view.userDismissedGroups)),
