@@ -96,7 +96,6 @@ for (const fixture of captureFixtures) {
   const captureOptions = { transcript: fixture.generationTranscript, existingNpcs: fixture.npcs, userName: fixture.userName, charName };
   const parts = buildNarrationCaptureParts(captureOptions);
   const sentContext = buildNarrationCaptureParts({ ...captureOptions, dossierAbove: dossierInjection }).context;
-  const compactRules = buildNarrationCaptureParts({ ...captureOptions, compactCapture: true }).rules;
   console.log(JSON.stringify({
     name: `narration-capture-${fixture.name}`,
     captureChars: capture.length,
@@ -107,7 +106,6 @@ for (const fixture of captureFixtures) {
     finalExtensionPromptChars: finalExtensionPrompt.length,
     finalExtensionPromptEstimatedTokens: estimateTokens(finalExtensionPrompt),
     staticRulesEstimatedTokens: estimateTokens(parts.rules),
-    compactRulesEstimatedTokens: estimateTokens(compactRules),
     contextEstimatedTokens: estimateTokens(parts.context),
     contextWithoutDossierRepeatsEstimatedTokens: estimateTokens(sentContext),
   }));

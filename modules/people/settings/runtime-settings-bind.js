@@ -59,7 +59,6 @@ export function createSettingsBindPart(rt, deps) {
         bindSettingsCheckbox('#npc_state_delta_auto', 'autoScan');
         bindSettingsCheckbox('#npc_state_delta_full_scan_every_turn', 'fullScanEveryTurn');
         bindSettingsCheckbox('#npc_state_delta_narration_capture', 'narrationCapture');
-        bindSettingsCheckbox('#npc_state_delta_narration_capture_compact', 'narrationCaptureCompact');
         bindSettingsCheckbox('#npc_state_delta_inject', 'inject', updateInjection);
         bindSettingsNumber('#npc_state_delta_inject_budget', 'injectBudgetTokens', 512, 6000, 4000, updateInjection);
         bindSettingsNumber('#npc_state_delta_inject_limit', 'injectLimit', 1, 12, 3, updateInjection);

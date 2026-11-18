@@ -20,8 +20,6 @@ export const DEFAULTS = Object.freeze({
     narrationCaptureCatchUp: 4,
     // How many people one captured reply may Refresh (1-3), each waiting N replies between Refreshes (rolling catch-up).
     narrationCaptureCatchUpPeople: 1,
-    // (1.2.17) Opt-in: the one-pass rules in fewer words (about 500 tokens less per armed reply).
-    narrationCaptureCompact: false,
     portraitGenerationEnabled: true,
     portraitThemePreset: 'fantasy_anime',
     portraitCustomPresetId: DEFAULT_CUSTOM_PORTRAIT_PRESET_ID,

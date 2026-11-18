@@ -1,5 +1,4 @@
-/* One-pass narration capture: finding, removing and parsing the hidden quick-scan block. */
-import { parseScanJson } from './scan-json.js';
+/* One-pass narration capture: finding and removing the hidden quick-scan block. */
 
 // One-pass narration capture (opt-in). The roleplay model ends its reply with the quick-scan JSON
 // inside a hidden comment; the block is removed from the stored message before any lineage key or
@@ -26,9 +25,4 @@ export function extractNarrationCapture(text, { lenient = false } = {}) {
     const found = { raw: '', status: 'none' };
     const clean = removeNarrationCaptureBlocks(lenient ? removeNarrationCaptureBlocks(source, NARRATION_CAPTURE_NEAR_MISS, found) : source, NARRATION_CAPTURE_COMMENT, found);
     return found.status === 'none' ? { text: source, ...found } : { text: clean.replace(/\s+$/, ''), ...found };
-}
-
-export function parseNarrationCapture(raw) {
-    if (!String(raw ?? '').trim()) return null;
-    try { return parseScanJson(raw); } catch { return null; }
 }

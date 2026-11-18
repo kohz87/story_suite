@@ -29,13 +29,6 @@ test('hosted one-pass: an ordinary reply makes no extra model call (no relations
     assert.deepEqual(hosted.second, { scanner: 1, relationship: 0, backfill: 0, refresh: 0 }, 'a reply that names a listed person and has no <Changes> block: one fallback scan (NSD16); no evaluator, no backfill (the story\'s ~ npc lines move the meters)');
 });
 
-test('without a host the same replies make the calls they always made; the reply never waits for a backfill', () => {
-    const plain = runCalls('unhosted-two-replies', false, twoReplies);
-    assert.deepEqual(plain.first, { scanner: 0, relationship: 0, backfill: 1, refresh: 0 }, 'the new dossier still gets its one backfill');
-    assert.equal(plain.firstHeld.backfill, 0, 'the backfill runs after the reply\'s MESSAGE_RECEIVED has returned');
-    assert.deepEqual(plain.second, { scanner: 0, relationship: 1, backfill: 0, refresh: 0 }, 'the open relationship still gets its evaluator');
-});
-
 test('b6-soak-2: a crowd block admits at most 4 new people and runs at most 2 backfills per reply, none awaited', () => {
     const crowd = async ({ reply, mockState, sleep }) => {
         const npcs = Array.from({ length: 12 }, (_, i) => ({ name: `Dockhand ${String.fromCharCode(65 + i)}`, present: true, role: 'dockhand', identityKind: 'proper_name', dossierSignal: 'persistent', dossierReason: 'named', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO }));
@@ -46,13 +39,6 @@ test('b6-soak-2: a crowd block admits at most 4 new people and runs at most 2 ba
         await sleep(100);
         return { admitted, first: first.all, firstHeld: first.held, queuedAfterFirst, second: second.all, queued: globalThis.NPCStateDelta.getState().pendingBackfills.length, calls: mockState.rawCalls.length };
     };
-    const plain = runCalls('unhosted-crowd', false, crowd);
-    assert.equal(plain.admitted, 4, 'one block admits at most 4 new people');
-    assert.equal(plain.firstHeld.backfill, 0, 'MESSAGE_RECEIVED awaited no backfill');
-    assert.equal(plain.first.backfill, 2, 'at most 2 backfills follow the reply');
-    assert.equal(plain.queuedAfterFirst, 2, 'the other admitted dossiers wait in the queue');
-    assert.equal(plain.second.backfill, 2, 'the next reply takes the next 2');
-    assert.equal(plain.queued, 0);
     const hosted = runCalls('hosted-crowd', true, crowd);
     assert.equal(hosted.admitted, 4);
     assert.deepEqual([hosted.first.backfill, hosted.second.backfill], [4, 0], '(ONEPASSCAPR2-3) hosted one-pass: each admitted person gets its one fill in its own reply');

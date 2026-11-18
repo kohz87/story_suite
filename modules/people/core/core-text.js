@@ -5,5 +5,5 @@ export { normalizeName, cleanText, cleanTextBoundary, cleanList } from './core-t
 export { cleanWords, cleanWordsList } from './core-text-parts/clean-words.js';
 export { stripMessageCitations } from './core-text-parts/citations.js';
 export { normaliseScanKeys, parseScanJson } from './core-text-parts/scan-json.js';
-export { extractNarrationCapture, parseNarrationCapture } from './core-text-parts/capture.js';
+export { extractNarrationCapture } from './core-text-parts/capture.js';
 export { hasCompactMeguminWorldState, stripUiNoise, storyProse } from './core-text-parts/ui-evidence.js';

@@ -201,3 +201,8 @@ queueInlineRender
 # B4-7: the uncalled external calendar source (the v1 handshake fed it; B4-2 removed the handshake) and the always-off own-calendar switch.
 setExternalCalendarSource
 calendarOwn
+# B4-8: the short one-pass instruction and the JSON-block reading helpers.
+compactCaptureRules
+parseNarrationCapture
+textCapture
+lastCaptureBlockChars

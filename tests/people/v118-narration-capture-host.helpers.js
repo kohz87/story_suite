@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \'index.js\'))';
 
-export function runScenario(name, scenario, { makeFirst = false } = {}) {
+export function runScenario(name, scenario, { makeFirst = false, hosted = false } = {}) {
     let source = fs.readFileSync(new URL('./runtime-smoke.mjs', import.meta.url), 'utf8');
     source = source.replace('const here = path.dirname(fileURLToPath(import.meta.url));', `const here = ${JSON.stringify(fileURLToPath(new URL('.', import.meta.url)))};`);
     const cut = source.indexOf(TRY_MARKER);
@@ -20,6 +20,16 @@ mockState.context.eventTypes.CHAT_COMPLETION_PROMPT_READY = 'chat_completion_pro
 mockState.updatedBlocks = [];
 mockState.context.updateMessageBlock = (id, message) => { mockState.updatedBlocks.push({ id, mes: message.mes }); };
 mockState.earlierListenerSaw = [];
+if (${hosted}) {
+    // Story Block hosts Delta: the stub registers it, so the lines are asked for (as in nsd16-runtime.test.js).
+    globalThis.document.documentElement = { dataset: {} };
+    globalThis.document.readyState = 'loading';
+    fs.cpSync(path.join(sourceRoot, 'src'), path.join(extRoot, 'src'), { recursive: true });
+    mockState.storyBlockTabs = [];
+    const sdk = { registered: [], sent: [], registerModule(def) { sdk.registered.push(def); }, command: async () => ({ ok: true, receipt: { summary: '' } }), query: () => null, settings: () => ({}) };
+    mockState.sdk = sdk;
+    globalThis.StoryBlock = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
+}
 if (${makeFirst}) {
     eventSource.makeFirst = (event, fn) => {
         const list = mockState.listeners.get(event) || [];
@@ -35,6 +45,7 @@ try {
     eventSource.emit('app_ready');
     eventSource.emit('extension_settings_loaded');
     await sleep(30);
+    if (${hosted}) await waitFor(() => mockState.sdk.registered.length === 1);
     const helpers = (${captureHelpers.toString()})(mockState, eventSource, sleep, manualAddNpc);
     await (${scenario.toString()})(helpers);
     console.log('narration capture scenario ${name} passed');

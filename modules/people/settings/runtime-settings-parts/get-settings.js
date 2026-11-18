@@ -71,7 +71,6 @@ export function getSettings() {
     assign('layeredSecrets', settings.layeredSecrets !== false);
     assign('fullScanEveryTurn', settings.fullScanEveryTurn === true);
     assign('narrationCapture', settings.narrationCapture !== false);
-    assign('narrationCaptureCompact', settings.narrationCaptureCompact === true);
     assign('narrationCaptureCatchUp', Number.isFinite(Number(settings.narrationCaptureCatchUp)) ? Math.max(0, Math.min(50, Math.round(Number(settings.narrationCaptureCatchUp)))) : 4);
     assign('narrationCaptureCatchUpPeople', Number.isFinite(Number(settings.narrationCaptureCatchUpPeople)) ? Math.max(1, Math.min(3, Math.round(Number(settings.narrationCaptureCatchUpPeople)))) : 1);
     assign('portraitGenerationEnabled', settings.portraitGenerationEnabled !== false);
@@ -115,6 +114,11 @@ export function getSettings() {
     // The v1 Story Suite handshake is gone: its per-area source-of-truth choices are dropped from a saved settings object.
     if ('sourceOfTruth' in settings) {
         delete settings.sourceOfTruth;
+        dirty = true;
+    }
+    // The short one-pass instruction is gone (B4-8): a saved choice is dropped from a saved settings object.
+    if ('narrationCaptureCompact' in settings) {
+        delete settings.narrationCaptureCompact;
         dirty = true;
     }
     assign('schemaVersion', DEFAULTS.schemaVersion);

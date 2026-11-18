@@ -42,9 +42,9 @@ test('Dormant after pushes Auto-delete after up when it reaches it, as the old b
 
 test('switches and choices store their values; the dossier choice stores the engine\'s word', () => {
   const h = host();
-  set(h, 'shortOnePassInstruction', true); set(h, 'portraits', false);
+  set(h, 'portraits', false);
   set(h, 'dossier', 'Manual only'); set(h, 'repeatedApproachesStreng', 'Strong');
-  assert.deepEqual(h.stored, { narrationCaptureCompact: true, portraitGenerationEnabled: false, admissionMode: 'manual_only', gateStrength: 'strong' });
+  assert.deepEqual(h.stored, { portraitGenerationEnabled: false, admissionMode: 'manual_only', gateStrength: 'strong' });
   assert.equal(set(h, 'dossier', 'Generous').ok, false);
 });
 

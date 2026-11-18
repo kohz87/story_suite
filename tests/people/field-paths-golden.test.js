@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import {
     mergeScanResult,
     normalizeNpcRecord,
-    parseNarrationCapture,
+    parseScanJson,
     prepareFullWindowRelationshipPayload,
     tagScanEvidence,
 } from '../../modules/people/core/core.js';
@@ -126,7 +126,7 @@ const paths = {
     },
     // P3 one-pass capture: the block parsed from the reply, evidence tagged with its message.
     capture: reply => {
-        const parsed = tagScanEvidence(parseNarrationCapture(JSON.stringify(reply)), 7);
+        const parsed = tagScanEvidence(parseScanJson(JSON.stringify(reply)), 7);
         return mergeScanResult(resetPresence(baseState()), parsed, common({
             customFieldNames: settings.customFieldNames, autoReactivateArchived: true,
             developmentContext: exchange, userDevelopmentContext: exchange.split('\n')[0],
