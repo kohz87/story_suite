@@ -6,6 +6,10 @@ Newest first. Each release has the highlights, then what was added, changed, fix
 
 Main has nothing beyond 0.1.2 yet except documentation.
 
+### Added
+
+- Settings › Look › **Panel background**: Off (the new default) removes the sky picture behind the Story Suite panels and leaves a plain flat colour, dark or light; On brings the picture back. It applies at once and is kept per device.
+
 ### Changed
 
 - The README and this changelog are rewritten to be readable: short sections, tables, and the long notes folded away.
