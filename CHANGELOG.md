@@ -58,6 +58,10 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 - **The old Days screen id (B4-11h).** The Journal's old Days screen id `story-director/days` (a dialog kept for older layouts) is gone; the World screen's Journal is the one place the days show. The weather by rule stays: Story Director still picks a day's weather from the calendar and the region, and Settings › World and time keeps its "Weather comes from" row.
 
 ### Fixed
+
+- **A portrait you upload from your device now stays.** ⋯ › Portrait › Upload from device kept the picture only in NPC State's memory, so the dossier, the list rings and Here kept the letter and a reload lost the picture. The upload is now saved once as its own file (named by its content, like a cast portrait) and the person's record names it; if the file cannot be written the picture is kept in the record as before.
+- The portrait dialog (⋯ › Portrait) is now glass in the Story Suite look, dark or light, instead of the flat grey tools panel.
+- Portrait messages say "NPC State" instead of "NPC State Delta".
 - Settings › People: a refused Portraits Prompt or Leave out text box keeps what was typed beside the note (it was drawn again from the stored value).
 - Settings › People: the rows and the off-hint say "feelings" like the module switch: Custom feelings, Feeling presets (up to 12), Per-feeling stages, "Feeling presets and rules is off".
 - Developer: the UI walk gives the Coins row a line it reads and accepts a number the engine holds to its range (Most output per People call 1 becomes 128) when the page, the store and a fresh Settings agree; it also runs for a change inside a `modules/**/settings*` folder.

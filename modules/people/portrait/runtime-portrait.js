@@ -132,12 +132,12 @@ export function createPortraitPart(rt, deps) {
         const npc = currentNpcById(id);
         if (!npc) return false;
         if (getSettings().portraitGenerationEnabled === false) {
-            globalThis.toastr?.info?.('NPC State Delta: Generate Portrait is disabled in settings.');
+            globalThis.toastr?.info?.('NPC State: Generate Portrait is disabled in settings.');
             return false;
         }
         const prompts = npcImagePromptPair(npc);
         if (!prompts.positive) {
-            globalThis.toastr?.warning?.(`NPC State Delta: ${npc.name} needs an Appearance description or a per-NPC positive prompt before image generation.`);
+            globalThis.toastr?.warning?.(`NPC State: ${npc.name} needs an Appearance description or a per-NPC positive prompt before image generation.`);
             return false;
         }
         closePortraitGenerator();
@@ -209,7 +209,7 @@ export function createPortraitPart(rt, deps) {
         const positive = String(overlay.querySelector?.('#npc_state_delta_portrait_positive')?.value || '').trim();
         const negative = String(overlay.querySelector?.('#npc_state_delta_portrait_negative')?.value || '').trim();
         if (!positive) {
-            globalThis.toastr?.warning?.('NPC State Delta: positive portrait prompt is empty.');
+            globalThis.toastr?.warning?.('NPC State: positive portrait prompt is empty.');
             return false;
         }
         const revision = Number(stateVersions.get(originChatKey) || 0);
@@ -236,7 +236,7 @@ export function createPortraitPart(rt, deps) {
             if (rt.activePortraitGeneratorOverlay !== overlay || getChatKey() !== originChatKey) return false;
             console.error('[NPC State Delta] portrait generation failed', error);
             setPortraitGeneratorBusy(false, 'Generation failed.');
-            globalThis.toastr?.error?.(`NPC State Delta portrait generation: ${error?.message || error}`);
+            globalThis.toastr?.error?.(`NPC State portrait generation: ${error?.message || error}`);
             return false;
         }
     }
@@ -276,12 +276,12 @@ export function createPortraitPart(rt, deps) {
             await flushStateFile(originChatKey);
             if (!current()) return false;
             closePortraitGenerator();
-            globalThis.toastr?.success?.(`NPC State Delta: generated portrait applied to ${npc.name} and saved.`);
+            globalThis.toastr?.success?.(`NPC State: generated portrait applied to ${npc.name} and saved.`);
             return true;
         } catch (error) {
             if (!current()) return false;
             setPortraitGeneratorBusy(false, applied ? 'Applied locally; durable save failed.' : 'Could not import the generated result.');
-            globalThis.toastr?.[applied ? 'warning' : 'error']?.(`NPC State Delta portrait import: ${error?.message || error}`);
+            globalThis.toastr?.[applied ? 'warning' : 'error']?.(`NPC State portrait import: ${error?.message || error}`);
             return false;
         } finally {
             if (current()) setPortraitGeneratorBusy(false);
