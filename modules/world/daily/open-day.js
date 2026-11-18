@@ -1,6 +1,7 @@
 // World events, open templates (spec §5, §9): what the daily step does with an open template's slot. Cooldown, density and the `per`
 // budget are recorded when the slot rolls. The slot's key is campaign seed + day + template id + place id. A slot with a stored result
-// (the chat's ledger) is applied at once; one without waits in `pending` (answered on a later reply, or its fallback after 3 days); the
+// (the chat's ledger) is applied at once; one without waits in `pending` (answered on a later reply, or its fallback after 3 days, counted
+// from the last day of the step that rolled it); the
 // 5th and later slots of one step use their `fallback` (one batched call, at most 4 slots). The step reads only state: stored
 // results, never a call. A stored answer is checked again when applied; an invalid one applies the fallback. Pure on `ws`.
 
@@ -9,6 +10,7 @@ import { scaleDays } from './durations.js';
 import { bindOf } from './placement.js';
 import { checkOpen } from './open-check.js';
 import { BATCH, PENDING_DAYS, slotKey } from './open-slot.js';
+import { textPlace } from './shown-place.js';
 
 const KEEP = 48;
 
@@ -30,7 +32,7 @@ function fixed(ws, def, slot, day, outcome, why) {
     const source = { kind: 'template', id: def.id, title: def.id, held: false };
     if (def.fallback && (def.fallback.sets.length || def.fallback.clears.length)) {
         applyEffects(ws, { clear: def.fallback.clears, set: def.fallback.sets }, source, day, bind);
-        const text = String(def.summary).replace(/\{place\}/g, slot.place).replace(/\{region\}/g, slot.regionName || slot.region).replace(/\{realm\}/g, slot.realm);
+        const text = String(def.summary).replace(/\{place\}/g, textPlace(ws.geo, slot.place, slot.regionName || slot.region)).replace(/\{region\}/g, slot.regionName || slot.region).replace(/\{realm\}/g, slot.realm);
         ws.journal.push({ day, text, by: `template:${def.id}`, place: slot.place, reach: def.reach });
         record(ws, slot, { resolved: day, outcome });
     } else record(ws, slot, { resolved: day, outcome: 'nothing' });
@@ -59,7 +61,9 @@ export function rollOpen(ws, def, place, day) {
     if (ws.rolled > BATCH) return fixed(ws, def, slot, day, 'fallback', 'more than 4 open slots in one step');
     const result = ws.opens.results[slot.key];
     if (result) return resolveSlot(ws, def, slot, result, day);
-    ws.pending.push(slot);
+    // A slot rolled inside a step over several days (a skip) waits from the step's last day (`wait`), not from its own: the skip's slots are
+    // asked in one batched call after the reply and settled on a later one, never run out inside the step that rolled them (spec §5, LAB2-2).
+    ws.pending.push(Number.isInteger(ws.waitFrom) ? { ...slot, wait: ws.waitFrom } : slot);
     record(ws, slot, { outcome: 'waiting' });
 }
 
@@ -72,7 +76,7 @@ export function settleOpen(ws, day) {
         const result = ws.opens.results[slot.key];
         if (!def) continue;
         if (result) resolveSlot(ws, def, slot, result, day);
-        else if (day - slot.day >= PENDING_DAYS) fixed(ws, def, slot, day, 'fallback', 'no answer came in time');
+        else if (day - (Number.isInteger(slot.wait) ? slot.wait : slot.day) >= PENDING_DAYS) fixed(ws, def, slot, day, 'fallback', 'no answer came in time');
         else ws.pending.push(slot);
     }
 }

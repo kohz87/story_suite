@@ -116,6 +116,8 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     const orphans = new Set(Object.values(ws.table).flatMap(entry => entry.holds ?? []).filter(id => ws.events[id]?.state !== 'active'));
     for (const id of [...orphans].sort()) releaseHolds(ws, id, first * DAY);
     if (prior === null && world.startWorld) { ws.day = first; ws.tomb = tombOf(first); applyStartWorld(ws, world.startWorld, first); }
+    // A step over several days (a skip): its open slots wait from its last day (open-day.js).
+    ws.waitFrom = today > first ? today : null;
     for (let day = first; day <= today; day += 1) {
         ws.day = day;
         ws.tomb = tombOf(day);

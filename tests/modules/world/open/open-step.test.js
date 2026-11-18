@@ -75,3 +75,17 @@ test('a world with no open template steps exactly as before: no slots, no pendin
     assert.ok(out.conditions['unrest@Highmark']);
     assert.deepEqual(Object.keys(out.daily).sort(), ['anchors', 'cast', 'cooldowns', 'day', 'events', 'facts', 'lastMajor', 'masks', 'minors', 'seed', 'standings', 'start']);
 });
+
+test('LAB2-2: a happening placed at a sub-place ("Highmark / Guild Office") names its town in its text; its place stays the sub-place', () => {
+    const places = [{ id: 'hm', name: 'Highmark', region: 'The March', x: 0, y: 0, kind: 'village' }, { id: 'hm-go', name: 'Highmark / Guild Office', region: 'The March', x: 0, y: 0, kind: 'town' }];
+    const spec = { ...WORLD, places, templates: [open('border-incident')] };
+    const first = runDays({ ...base(spec), state: null });
+    const [slot] = first.daily.pending;
+    assert.equal(slot.place, 'Highmark / Guild Office');
+    const fell = runDays({ ...base(spec), state: first.daily, table: first.conditions, settle: true, opens: { results: { [slot.key]: { outcome: 'fallback', why: 'the Director did not answer' } } } });
+    const [line] = fell.report.journal;
+    assert.equal(line.text, 'A border-incident near Highmark.', 'the fallback names the town, not the guild office');
+    assert.equal(line.place, 'Highmark / Guild Office', 'the news still starts at the sub-place');
+    const plain = { ...spec, templates: [{ template: 'riot', scope: 'place', severity: 'minor', chance: '100% per season', where: { kinds: ['town'] }, sets: ['unrest@place: 3 days'], summary: 'Riot at {place}.' }] };
+    assert.equal(runDays({ ...base(plain), state: null }).report.journal[0].text, 'Riot at Highmark.', 'a code-written template names the town too');
+});

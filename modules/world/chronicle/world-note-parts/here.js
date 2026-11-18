@@ -12,9 +12,11 @@ const low = text => String(text ?? '').trim().toLowerCase();
  */
 export function hereConditions(query, scene) {
     const declared = new Map((ask(query, 'chronicle.conditionNames', {}) ?? []).map(entry => [entry.name, entry]));
-    const known = ask(query, 'atlas.place', { name: scene });
+    // A place no pack names reads the conditions of the pack place (or the region) it stands for (atlas.anchor; LAB2-3), as the news does.
+    const anchor = ask(query, 'atlas.anchor', { name: scene });
+    const known = ask(query, 'atlas.place', { name: anchor?.name || scene });
     const place = typeof known?.name === 'string' && known.name.trim() ? known.name.trim() : scene;
-    const region = known?.region;
+    const region = known?.region || anchor?.region;
     const at = ask(query, 'chronicle.conditions', { at: place, ...(region ? { region } : {}) }) ?? [];
     const geo = hostGeo((name, args) => ask(query, name, args));
     const routes = [...new Set([...geo.routes.values()].filter(route => low(route.from) === low(place) || low(route.to) === low(place)).map(route => route.name))].sort();

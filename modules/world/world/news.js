@@ -3,7 +3,9 @@
 //
 // `world.newsAt { entryId, place }` → `{ arrivesAt, via, km?, days?, endsAt? }` and `world.heardHere { place, now }` → the entries heard at
 // `place` by `now`, newest news first, each with `arrivesAt`, `via`, `tag` ('fact' | 'rumour'), `news` ('fired' | 'ended') and the place
-// as news names it. Both default `place` to the scene's and `now` to the Director's clock, and are null with the switch off.
+// as news names it. Both default `place` to the scene's and `now` to the Director's clock, and are null with the switch off. A place no
+// pack names (a tavern the story made) is heard at as the pack place it stands for (news-reach.js `hearAt`: its town, its parent, the
+// pack place last visited in its region, else its region), so the same news comes the same way in the tavern as in the town.
 // * A world happening (the daily step's, `by: event:world.…`) travels from where it happened by courier (news-delay.js) and is heard
 //   as fact when the courier comes; it stops at its `reach`; its end is news of its own, from the day it ended, at the same speed.
 //   A pack's legacy event (`event:pack.…`) travels the same way, with no reach.
@@ -15,7 +17,7 @@ import { queryOf, tryQuery } from './known-parts/query.js';
 import { isInt, isRecord, text } from './known-parts/shared-text.js';
 import { DAY, newsDelay } from './news-delay.js';
 import { courierSpeed, worldEventsOn } from './news-switch.js';
-import { placeInfo, shownPlace, withinReach } from './news-reach.js';
+import { hearAt, placeInfo, shownPlace, withinReach } from './news-reach.js';
 import { routeFactors } from './news-routes.js';
 import { buildGeo } from '../daily/geo.js';
 import { readWorld } from '../chronicle/world-daily/read-world.js';
@@ -75,7 +77,7 @@ function arrival(env, event, place, clock) {
 /** The entries whose news has reached `place` by `now`: `[{ ...event, arrivesAt, via, tag, news, km?, days?, endsAt? }]`, or null with the switch off. */
 export function heardHere(state, { place = null, now = null } = {}, tools) {
     if (!worldEventsOn(tools)) return null;
-    const here = text(place) || sceneName(state, tools);
+    const here = hearAt(tools, text(place) || sceneName(state, tools));
     const clock = isInt(now) ? now : nowFrom(queryOf(tools), state);
     const events = tryQuery(queryOf(tools), 'chronicle.events', {}, []);
     const env = envOf(state, tools, clock);
@@ -90,7 +92,7 @@ export function newsAt(state, { entryId = null, place = null } = {}, tools) {
     if (!worldEventsOn(tools)) return null;
     const event = tryQuery(queryOf(tools), 'chronicle.event', { id: entryId }, null);
     if (!isRecord(event)) return null;
-    const out = arrival(envOf(state, tools, null), event, text(place) || sceneName(state, tools), null);
+    const out = arrival(envOf(state, tools, null), event, hearAt(tools, text(place) || sceneName(state, tools)), null);
     if (!out) return null;
     return { arrivesAt: out.arrivesAt, via: out.via, ...(out.km ? { km: out.km } : {}), ...(typeof out.days === 'number' ? { days: out.days } : {}), ...(isInt(out.endsAt) ? { endsAt: out.endsAt } : {}) };
 }
@@ -102,7 +104,7 @@ export function newsAt(state, { entryId = null, place = null } = {}, tools) {
  */
 export function cueToday(state, { now = null, place = null } = {}, tools) {
     if (!worldEventsOn(tools)) return null;
-    const here = text(place) || sceneName(state, tools);
+    const here = hearAt(tools, text(place) || sceneName(state, tools));
     const clock = isInt(now) ? now : nowFrom(queryOf(tools), state);
     if (!here || !isInt(clock)) return null;
     const env = envOf(state, tools, clock);

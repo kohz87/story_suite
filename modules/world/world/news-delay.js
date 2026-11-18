@@ -3,7 +3,8 @@
 // Between two places of the packs' map: the courier over their routes (news-courier.js: speeds by route class, the world's conditions
 // on each route). A place only the atlas knows (the story made it) goes by the atlas's courier (`atlas.courier`, at the reader's pace).
 // Where no courier-usable route joins them, by reach steps: the same place no time, the same region 1 day, the same realm 4 days
-// (the Wilds count as one), anywhere else 10. A place nobody knows is told apart by its name alone (the same name is the same place).
+// (the Wilds count as one), anywhere else 10; a happening at a region itself is heard in that region at once. A place nobody knows is
+// told apart by its name alone (the same name is the same place).
 
 import { lineKey } from '../changes.js';
 import { parseLocation } from '../../atlas/places.js';
@@ -34,8 +35,9 @@ export function newsDelay(env, from, to) {
     if (pa && pb && mapped(pa.name) && mapped(pb.name)) trip = courierDays(env, pa.name, pb.name);
     else trip = tryQuery(queryOf(env.tools), 'atlas.courier', { from: ta || a, to: tb || b, kmPerDay: env.pace }, null);
     if (trip && typeof trip.days === 'number') return { days: trip.days, via: 'route', ...(trip.km > 0 ? { km: trip.km } : {}) };
-    if (pa && pb && lineKey(pa.name) === lineKey(pb.name)) return { days: TIER_DAYS.place, via: 'tier' };
     const same = key => Boolean(pa && pb && text(pa[key]) && lineKey(text(pa[key])) === lineKey(text(pb[key])));
+    // A happening that names a whole region (news-reach.js `area`) is where every place of that region is: heard there at once.
+    if ((pa && pb && lineKey(pa.name) === lineKey(pb.name)) || (pa?.area && same('region'))) return { days: TIER_DAYS.place, via: 'tier' };
     if (same('region')) return { days: TIER_DAYS.region, via: 'tier' };
     if (same('realm')) return { days: TIER_DAYS.realm, via: 'tier' };
     return { days: TIER_DAYS.far, via: 'tier' };
