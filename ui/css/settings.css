@@ -30,7 +30,7 @@
 .srow.wide .ctl{justify-content:flex-start}
 .sseg2{display:inline-flex;background:var(--su-panel2);border-radius:10px;padding:2px;gap:2px;flex-wrap:wrap}
 .sseg2 button{border:0;background:transparent;color:var(--su-soft);font:700 12.5px var(--su-font);padding:5px 10px;border-radius:8px;cursor:pointer}
-.sseg2 button[aria-pressed="true"]{background:var(--su-accent);color:#14102a}
+.sseg2 button[aria-pressed="true"]{background:var(--su-accent);color:var(--su-on-accent);text-shadow:none}
 .num{display:inline-flex;align-items:center;gap:6px;font:700 13px var(--su-font)}
 .num input{width:64px;font:800 13px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);border-radius:9px;padding:5px 8px;text-align:right}
 .num span{color:var(--su-muted)}
@@ -141,7 +141,7 @@
 /* Overrides so the overlay's controls keep the mock's look over the shared kit rules (same selectors plus .sov). */
 .su-root .sov .sseg2{border:0;border-radius:10px;overflow:visible}
 .su-root .sov .sseg2 button{min-width:0;padding:5px 10px;border-radius:8px;font:700 12.5px var(--su-font);color:var(--su-soft)}
-.su-root .sov .sseg2 button[aria-pressed="true"]{background:var(--su-accent);color:#14102a}
+.su-root .sov .sseg2 button[aria-pressed="true"]{background:var(--su-accent);color:var(--su-on-accent);text-shadow:none} /* text-shadow: SillyTavern gives every element a glow in its shadow colour, which smears dark text on the accent */
 .su-root .sov .lnk{font:800 12.5px var(--su-font);color:var(--su-accent)}
 [data-scheme="light"] .sov .lnk{color:#5a3cd8}
 .su-root .sov .sw{width:62px}

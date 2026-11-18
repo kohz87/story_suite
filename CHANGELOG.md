@@ -5,6 +5,7 @@
 **Fixes from the owner's report of 18 Nov (UIFIX5).**
 
 - **Desktop layout.** On a window wider than 820 px the suite was a narrow 820 px panel over the dimmed chat. It now fills the window like mock v7's Desktop: the sky reaches both edges and the card, the tab strip and the page stay in one 820 px column in the middle (decisions 1 and 49); a dossier keeps the same column. The chat is no longer seen dimmed beside it. At 820 px and under nothing moves. Because the suite's width is now the window's, the layouts that switch at a width read the window too, as the mock's do: from 900 px World › Map shows the trip beside the map.
+- **Selected buttons are readable.** Text on the accent colour (a selected Settings choice such as Look's "Glass", "Nunito" or "Normal", the primary button, the Journal's today and step numbers, the World trip's current leg, the fight's chosen mark) was dark ink with SillyTavern's glow around it, which SillyTavern puts on every element in its shadow colour; on a blue accent it smeared. The glow is gone there, and the ink is picked for the accent in use: dark or white, whichever reads better, at least 4.5:1 (WCAG AA) on the mock's colours and on SillyTavern's. In Glass light the text on the violet accent is now white (the mock's dark ink is 3.4:1 there).
 
 ## 0.1.2
 
