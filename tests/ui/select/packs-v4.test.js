@@ -114,3 +114,21 @@ test('a world that cannot be used is listed under worlds and games with its prob
     assert.deepEqual(vm.v4.world.options.map(o => o.value), ['']);
     assert.equal(vm.v4.world.value, '');
 });
+
+test('a format 3 entry stored before X1: the one kind-less row, under Packs alone or under Older packs beside a world, marked Not usable with the converter named', async () => {
+    const { createPacksPart } = await import('../../../packs/index-parts/build.js');
+    const { fakeSettings } = await import('../../packs/helpers/fake-settings.js');
+    const { sample } = await import('../../packs/helpers/fixtures.js');   // (the frozen format 3 copy)
+    const made = createPacksPart({ settings: fakeSettings({ packs: [{ id: 'riverside-starter', version: '3.0.0', enabled: true, source: 'file', pack: sample() }] }) });
+    await made.packs.ready({ force: true });
+    const alone = selectPacks({ list: made.packs.list(), setup: [] });
+    assert.equal(alone.v4, undefined, 'no world or game: the page without pickers');
+    assert.deepEqual(alone.packs.map(row => row.id), ['riverside-starter']);
+    assert.match(alone.packs[0].problem, /format 3; this suite reads format 4 only.*scripts\/packs\/convert-3to4\.mjs/);
+    assert.match(alone.packs[0].desc, /Not usable: /);
+    assert.equal((await made.packs.install({ id: 'w1', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' }, content: {} })).ok, true);
+    const beside = selectPacks({ list: made.packs.list(), setup: [] });
+    assert.deepEqual(beside.v4.installed.map(row => row.id), ['w1']);
+    assert.deepEqual(beside.packs.map(row => row.id), ['riverside-starter'], 'the Older packs (format 3) group');
+    assert.ok(beside.packs[0].problem);
+});
