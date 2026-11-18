@@ -31,7 +31,7 @@ test('runtime: a cast member admitted by the same reply as her first meeting is 
         const sdk = {
             registered: [], people: [], made: {}, handlers: {},
             registerModule(def) { sdk.registered.push(def); },
-            on(name, fn) { sdk.handlers[name] = fn; return () => {}; },
+            on(name, fn) { const was = sdk.handlers[name]; sdk.handlers[name] = async (...args) => { await was?.(...args); return fn(...args); }; return () => {}; },
             command: async type => {
                 if (type === 'npc.tick') for (const person of sdk.people) if (person.met && person.entry) sdk.made[person.key] = { name: person.name };
                 return { ok: true, receipt: { summary: '' } };
@@ -82,7 +82,7 @@ test('runtime: the other order (the host\'s turn makes the cast dossier first, t
         const sdk = {
             registered: [], people: [], made: {}, handlers: {},
             registerModule(def) { sdk.registered.push(def); },
-            on(name, fn) { sdk.handlers[name] = fn; return () => {}; },
+            on(name, fn) { const was = sdk.handlers[name]; sdk.handlers[name] = async (...args) => { await was?.(...args); return fn(...args); }; return () => {}; },
             command: async type => {
                 if (type === 'npc.tick') for (const person of sdk.people) if (person.met && person.entry) sdk.made[person.key] = { name: person.name };
                 return { ok: true, receipt: { summary: '' } };
@@ -134,7 +134,7 @@ const firstMeetingRun = (name, turnFirst, mention = false, castOnly = false) => 
         const sdk = {
             registered: [], people: [], made: {}, handlers: {},
             registerModule(def) { sdk.registered.push(def); },
-            on(name, fn) { sdk.handlers[name] = fn; return () => {}; },
+            on(name, fn) { const was = sdk.handlers[name]; sdk.handlers[name] = async (...args) => { await was?.(...args); return fn(...args); }; return () => {}; },
             command: async type => {
                 if (type === 'npc.tick') for (const person of sdk.people) if (person.met && person.entry) sdk.made[person.key] = { name: person.name };
                 return { ok: true, receipt: { summary: '' } };

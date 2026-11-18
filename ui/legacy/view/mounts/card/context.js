@@ -3,6 +3,7 @@
 
 import { documentOf } from '../common.js';
 import { RECENT } from './summary.js';
+import { NEW_VIEW_CLASS } from '../../../../entry/flag.js';
 
 export function createCardContext(deps) {
     if (typeof deps?.render !== 'function') throw new TypeError('The card mount needs a render(el, screen, scope) function.');
@@ -25,7 +26,11 @@ export function createCardContext(deps) {
     const swipeAt = deps.swipeAt ?? (() => 0);
     const changesAt = deps.changesAt ?? (() => []);
     const opsAt = deps.opsAt ?? (() => []);
-    const hasCard = deps.hasCard ?? (() => true);
+    // The new view hides the old reply cards (next-hide.css), so while it is on none are looked for, observed or built.
+    const body = () => doc.body ?? null;
+    const newViewOn = () => Boolean(body()?.classList?.contains(NEW_VIEW_CLASS));
+    const ownHasCard = deps.hasCard ?? (() => true);
+    const hasCard = index => !newViewOn() && ownHasCard(index);
     // The state at the carrier before `index` (null for the first carrier).
     const beforeOf = index => {
         const list = deps.carriers();
@@ -36,11 +41,11 @@ export function createCardContext(deps) {
     };
     const cacheLimit = deps.cacheLimit ?? 200;
     // Reply cards are looked for only when a module declares some (`hasReplyCards`); without one nothing is looked up for them.
-    const repliesOn = () => Boolean(deps.replyCards && (typeof deps.hasReplyCards !== 'function' || deps.hasReplyCards()));
+    const repliesOn = () => Boolean(!newViewOn() && deps.replyCards && (typeof deps.hasReplyCards !== 'function' || deps.hasReplyCards()));
     const Observer = deps.IntersectionObserver === undefined ? globalThis.IntersectionObserver : deps.IntersectionObserver;
 
     const context = {
-        deps, doc, messageElement, recentCount, drawnMessages, swipeAt, changesAt, opsAt, hasCard, beforeOf, cacheLimit, repliesOn, Observer,
+        deps, doc, messageElement, recentCount, drawnMessages, swipeAt, changesAt, opsAt, hasCard, newViewOn, beforeOf, cacheLimit, repliesOn, Observer,
         cache: new Map(),            // key → { node, index }, oldest first
         cards: new WeakMap(),        // card node → { index, head, body, sections: [{ id, body }], drawn, handles }
         expanded: new Set(),         // indexes whose card is open
@@ -48,7 +53,22 @@ export function createCardContext(deps) {
         observed: new WeakSet(),
         observer: null,
         refresh: () => {},
+        refreshAll: () => {},        // the controller fills it in: draws every card again once the old view is shown
+        stop: () => {},
     };
+
+    // "Use the old view" removes the class: the cards are drawn then (the next pass observes the messages and draws those on screen).
+    const Mutations = globalThis.MutationObserver;
+    if (typeof Mutations === 'function' && body()?.nodeType === 1) {
+        let was = newViewOn();
+        const watch = new Mutations(() => {
+            const now = newViewOn();
+            if (was && !now) context.refreshAll();
+            was = now;
+        });
+        watch.observe(body(), { attributes: true, attributeFilter: ['class'] });
+        context.stop = () => watch.disconnect();
+    }
 
     if (typeof Observer === 'function') {
         context.observer = new Observer(entries => {

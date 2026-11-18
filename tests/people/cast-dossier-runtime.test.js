@@ -101,7 +101,7 @@ test('runtime: the dossier is made at the first meeting from the pack entry, wit
         const sdk = {
             registered: [], people: [], made: {}, ticks: 0, handlers: {}, present: [],
             registerModule(def) { sdk.registered.push(def); },
-            on(name, fn) { sdk.handlers[name] = fn; return () => {}; },
+            on(name, fn) { const was = sdk.handlers[name]; sdk.handlers[name] = async (...args) => { await was?.(...args); return fn(...args); }; return () => {}; },
             turn: async turn => { await sdk.handlers.turn?.(turn); },
             command: async type => {
                 if (type === 'npc.tick') {
@@ -216,7 +216,7 @@ test('runtime: removing the cast dossier is final; a dossier a scan made earlier
         const sdk = {
             registered: [], people: [], made: {}, handlers: {},
             registerModule(def) { sdk.registered.push(def); },
-            on(name, fn) { sdk.handlers[name] = fn; return () => {}; },
+            on(name, fn) { const was = sdk.handlers[name]; sdk.handlers[name] = async (...args) => { await was?.(...args); return fn(...args); }; return () => {}; },
             turn: async turn => { await sdk.handlers.turn?.(turn); },
             command: async type => {
                 if (type === 'npc.tick') for (const person of sdk.people) if (person.met && person.entry) sdk.made[person.key] = { name: person.name };
@@ -238,7 +238,7 @@ test('runtime: removing the cast dossier is final; a dossier a scan made earlier
     assert.deepEqual(hosted.afterDelete, ['Yunyun'], 'removed by the reader: not made again');
 
     const alone = scenarioOutput(runHostScenario('cast-dossier-none', async () => {
-        const sdk = { registered: [], handlers: {}, registerModule(def) { sdk.registered.push(def); }, on(name, fn) { sdk.handlers[name] = fn; return () => {}; }, command: async () => ({ ok: true }), query: name => (name === 'scene.present' ? [] : null), settings: () => ({}) };
+        const sdk = { registered: [], handlers: {}, registerModule(def) { sdk.registered.push(def); }, on(name, fn) { const was = sdk.handlers[name]; sdk.handlers[name] = async (...args) => { await was?.(...args); return fn(...args); }; return () => {}; }, command: async () => ({ ok: true }), query: name => (name === 'scene.present' ? [] : null), settings: () => ({}) };
         mockState.sdk = sdk;
         globalThis.StoryBlock = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
     }, async () => {

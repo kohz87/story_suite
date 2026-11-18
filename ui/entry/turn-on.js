@@ -13,6 +13,7 @@ import { isCarrier } from '../../core/persist.js';
 import { NEW_VIEW_CLASS } from './flag.js';
 import { addDrawerButtons, DRAWER_ROW_ID } from './drawer-buttons.js';
 import { createHold, showScreens } from '../port/hold.js';
+import { frameCoalesced } from '../runtime/redraw.js';
 
 const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings'];
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses.
@@ -77,16 +78,19 @@ export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
     });
     bar.appendChild(button);
   };
-  const offs = EVENTS.map(event => port.on(event, refresh));
+  // A burst of port and SillyTavern events redraws the chat surfaces once, in the next frame (always: their DOM may change with an equal view).
+  const frame = frameCoalesced(refresh);
+  const offs = EVENTS.map(event => port.on(event, frame.request));
   const types = ctx()?.eventTypes ?? ctx()?.event_types ?? {};
-  for (const type of [types.CHAT_CHANGED, types.MESSAGE_RECEIVED, types.MESSAGE_SENT]) if (type) ctx()?.eventSource?.on?.(type, refresh);
+  for (const type of [types.CHAT_CHANGED, types.MESSAGE_RECEIVED, types.MESSAGE_SENT]) if (type) ctx()?.eventSource?.on?.(type, frame.request);
   const box = doc.querySelector('#send_textarea');
   const typing = () => surfaces.setTyping(String(box?.value ?? '').length > 0);
   box?.addEventListener('input', typing);
   refresh();
   return () => {
+    frame.cancel();
     for (const off of offs) off();
-    for (const type of [types.CHAT_CHANGED, types.MESSAGE_RECEIVED, types.MESSAGE_SENT]) if (type) ctx()?.eventSource?.removeListener?.(type, refresh);
+    for (const type of [types.CHAT_CHANGED, types.MESSAGE_RECEIVED, types.MESSAGE_SENT]) if (type) ctx()?.eventSource?.removeListener?.(type, frame.request);
     box?.removeEventListener?.('input', typing);
     offScreens();
     suite.destroy();

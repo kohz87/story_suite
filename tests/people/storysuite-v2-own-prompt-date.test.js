@@ -194,6 +194,7 @@ test('storyClock: Story Director\'s minutes and calendar while hosted; null alon
     assert.deepEqual(withSd.adapter.storyClock(), { minutes: clock.minutes, calendar: { era: '', months: GREGORIAN, leapYears: true } });
     assert.deepEqual(storyClockDate(withSd.adapter.storyClock(), null), { era: '', year: 611, month: '03', day: 15 });
     clock.minutes = null;
+    await new Promise(resolve => setTimeout(resolve, 5));   // the kept clock ends with its task
     assert.equal(withSd.adapter.storyClock(), null, 'the story has not set the time yet');
     // Story Block alone (no Story Director): its queries are unknown, so no clock and no error.
     const alone = await suite(t, {});
@@ -215,6 +216,7 @@ test('end to end: hosted with Story Director, Delta\'s age arithmetic reads the 
     const npc = { name: 'Mira', birthDate: { era: 'AR', year: 590, month: 'Bloom', day: 10 }, birthDateSource: 'established', birthDateYearSource: 'established' };
     assert.equal(effectiveChronologicalAge(npc), '21');
     clock.minutes = fantasyMinutes(611, 2, 9);
+    await new Promise(resolve => setTimeout(resolve, 5));   // the kept clock ends with its task
     assert.equal(effectiveChronologicalAge(npc), '20');
 });
 
