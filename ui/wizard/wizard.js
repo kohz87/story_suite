@@ -18,7 +18,7 @@ import { markFocus, restoreFocus } from './focus.js';
 
 const W = RPG_STRINGS.wizard;
 const NEXT = 'Next';
-/** The screen id `port.open` names for this window (the old wizard's, modules/rpg/view/wizard.js WIZARD_SCREEN_ID). */
+/** The screen id `port.open` names for this window (the old wizard's). */
 export const WIZARD_ID = 'story-block/new-character';
 
 const safe = (fn, fallback) => { try { return fn() ?? fallback; } catch { return fallback; } };

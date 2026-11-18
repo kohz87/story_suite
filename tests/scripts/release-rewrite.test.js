@@ -115,5 +115,5 @@ for (const set of BUNDLE_SETS) {
 
 test('the extension holds the two known references, so the check above is not empty', () => {
   const all = metaUsers(setFiles()).map(file => path.relative(repoRoot, file));
-  assert.deepEqual(all.sort(), ['modules/rpg/view/index-parts/mount.js', 'ui/entry/start.js']);
+  assert.deepEqual(all.sort(), ['modules/rpg/live/index.js', 'ui/entry/start.js']);
 });

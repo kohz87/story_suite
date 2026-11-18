@@ -5,13 +5,13 @@ import { createCastPanels } from '../../modules/people/adapter/cast-ui/panels.js
 import { createCastViews } from '../../modules/people/adapter/cast-ui/cast-views.js';
 import { createWatchers } from '../../modules/people/adapter/cast-ui/watchers.js';
 import { createPanels } from '../../core/sdk/panels.js';
-import { wireRedraw } from '../../ui/legacy/ui-host/redraw-wiring.js';
+import { panelsTarget } from '../helpers/panels-target.js';
 
-// The real hub bound to the real scheduler (frames run by hand); the Cast views draw what `people.now` says.
+// The real hub bound to a stand-in scheduler (frames run by hand); the Cast views draw what `people.now` says.
 function page({ flag = { on: true } } = {}) {
-    const frames = [];
     const hub = createPanels({ on: () => flag.on });
-    hub.bind(wireRedraw({ on: () => flag.on, mounts: { tab: { register() {} } }, getPanel: () => ({ hidden: false }), getTabHost: () => null, getOverlay: () => null, schedule: fn => frames.push(fn) }));
+    const { target, frame } = panelsTarget();
+    hub.bind(target);
     const session = { hosted: true, sdkRef: { panels: hub.panels } };
     const castPanels = createCastPanels(session, { doc: { getElementById: () => null }, warn() {} });
     const people = { now: 'Mira' };
@@ -23,7 +23,7 @@ function page({ flag = { on: true } } = {}) {
     const watchers = createWatchers({ warn() {}, delta: () => ({ generationActive: () => false }), touch: castPanels.touch });
     // What `rerender` does after any change (a rewind, an edited Re-read): the notice, then the old loop for the views the flag does not cover.
     const rerender = () => { watchers.notifyChange(); views.redrawCastViews(); };
-    return { hub, castPanels, people, shown, mount, rerender, flag, runFrame: () => frames.splice(0).forEach(fn => fn()) };
+    return { hub, castPanels, people, shown, mount, rerender, flag, runFrame: frame };
 }
 
 test('two Cast views: one people change redraws both, and letting one go leaves the other a section', () => {

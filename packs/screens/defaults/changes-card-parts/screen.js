@@ -9,7 +9,7 @@ const C = STRINGS.card;
 // `assisted` (MODULES §F123): the lines the Assist safety net applied on this reply ([{ line, late }],
 // from its receipts), each shown with "(assist)" or "(assist, from the previous reply)".
 // `refused` is not a state path: the host puts the reply's refused change lines in the card's scope
-// (ui-host.js, from the turn's problems for that reply: [{ line, reason }]). A screen drawn without it
+// (the host, from the turn's problems for that reply: [{ line, reason }]). A screen drawn without it
 // (another host, a test) simply has none.
 const TEMPLATE = `
 <div class="chg">

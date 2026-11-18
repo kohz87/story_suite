@@ -125,6 +125,8 @@ Rules of thumb for a new module:
 Detail: `docs/v2/MODULES.md` (layouts and decisions), `docs/v2/LIFECYCLE.md` (peers and restore),
 `docs/v2/EVIDENCE.md` and `docs/v2/REPLAY.md` (guarded blocks).
 
+## How a module plugs in
+
 ## The module SDK
 
 <!-- generated:sdk -->

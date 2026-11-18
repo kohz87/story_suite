@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PEOPLE_WIDGET, createPeopleWidget } from '../../../../modules/world/world/index.js';
 import { createPanels } from '../../../../core/sdk/panels.js';
-import { wireRedraw } from '../../../../ui/legacy/ui-host/redraw-wiring.js';
+import { panelsTarget } from '../../../helpers/panels-target.js';
 import { drawWorld, said, squash, worldData, worldHost } from './helpers.js';
 
 // NPC State Delta's page API as a stand-in (cards in its classes; onChange kept so a subscriber would be seen).
@@ -39,15 +39,15 @@ async function setup({ flag = true } = {}) {
     await host.send('Hello.', said('The harbour.', ['~ place Harbour | kind: settlement', '+ present Mira']));
     const data = worldData(host);
     const state = { on: flag };
-    const frames = [];
     const hub = createPanels({ on: () => state.on });
-    hub.bind(wireRedraw({ on: () => state.on, mounts: { tab: { register() {} } }, getPanel: () => ({ hidden: false }), getTabHost: () => null, getOverlay: () => null, schedule: fn => frames.push(fn) }));
+    const { target, frame } = panelsTarget();
+    hub.bind(target);
     const people = { Mira: {} };
     const cast = fakeCast(() => people);
     const widget = createPeopleWidget({ open: () => () => {}, cast: () => cast });
     const api = { query: (name, args) => host.sdk.query(name, args), panels: hub.panels };
     const draw = () => drawWorld(data, { widgets: { [PEOPLE_WIDGET]: { ...widget, render: (node, props) => widget.render(node, props, api) } } });
-    return { host, cast, draw, hub, state, runFrame: () => frames.splice(0).forEach(fn => fn()) };
+    return { host, cast, draw, hub, state, runFrame: frame };
 }
 
 test('flag on: NPC State changed([people]) is one people draw in the next frame; no onChange subscription is made', async () => {

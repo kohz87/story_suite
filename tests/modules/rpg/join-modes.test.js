@@ -5,7 +5,6 @@ import { PARTY_MAX, JOINS, JOIN_SETTING, LEAN_RPG_FEATURE } from "../../../modul
 import { DM_OLD_ROOM } from "../../../modules/data-modules/schema.js";
 import { JOIN_ADD, JOIN_NO, checkJoin, joinCard, joinDefinitions, joinDraft, joinGrammar, joinMode, joinOffers, partyCap, partyOf, readJoin, soulOf } from "../../../modules/rpg/join.js";
 import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from "../../../modules/rpg/templates.js";
-import { partyLines } from "../../../modules/rpg/view/changes-lines.js";
 import { fakeState, characterDefinition, skillsDefinition } from "./view/helpers.js";
 import { MARA, blocks, fields, grammar, lastReceipts, make, problems, rebuilt, reply, skip, statics, world } from "./join.helpers.js";
 
@@ -114,7 +113,6 @@ test('- party Name marks the companion as Left (kept, never deleted), out of the
     assert.deepEqual(blocks(host), ['pack.chat/mara', 'pack.chat/mara-skills', 'pack.chat/wessel', 'pack.chat/wessel-skills'], 'kept');
     assert.deepEqual(problems(host), []);
     assert.equal(lastReceipts(host).find(entry => entry.type === 'capture.party').summary, 'Mara left the party.');
-    assert.deepEqual(partyLines(host.ctx.chat.at(-1).extra.storySuite).map(line => line.text), ['Mara left the party']);
     // Not on the sheet the dice are rolled for, and the narrator is told she left.
     const { readSheet } = await import('../../../modules/rpg/read.js');
     assert.deepEqual(readSheet(host.head()).characters.map(character => character.who), ['Wessel']);
@@ -173,7 +171,7 @@ test('Ask: Add to party makes the companion as Automatically does; the card goes
     assert.deepEqual(blocks(host), ['pack.chat/mara', 'pack.chat/mara-skills', 'pack.chat/wessel', 'pack.chat/wessel-skills']);
     assert.deepEqual([fields(host, 'mara').level, fields(host, 'mara').int, fields(host, 'mara').points], [25, 21, 0]);
     assert.deepEqual(host.sdk.query('rpg.joins', {}), [], 'answered: the card goes');
-    assert.deepEqual(partyLines(host.ctx.chat.at(-1).extra.storySuite).map(line => line.text), ['Mara joined the party']);
+    assert.equal(lastReceipts(host).some(entry => entry.data?.join?.op === 'added' && entry.data.join.name === 'Mara'), true, 'the reply records the join');
     const again = await host.sdk.command(JOIN_ADD, { name: 'Mara', soul: 1, best: '' });
     assert.equal(again.ok, false);
     assert.match(again.message, /Mara is already in the party/);

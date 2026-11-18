@@ -18,7 +18,7 @@ import { OWN_NAMES } from './own-names.js';
 import { focusCommand } from './focus.js';
 import { refreshCommand } from './people-refresh.js';
 
-/** The page event `port.open` sends when the view's own opener does not open the window (the old host answers it: ui/legacy/ui-host/lean-rpg-sync.js). */
+/** The page event `port.open` sends when the view's own opener does not open the window (nothing in Story Suite answers it since the old view went; a window no one answers is "not available"). */
 export const OPEN_EVENT = 'story-suite:open';
 const FAILED = Object.freeze({ ok: false, code: 'FAILED', message: 'The engine could not do that.' });
 
@@ -156,7 +156,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       }
       return guarded(sdk, 'command', type, payload, options);
     },
-    // Opens a screen the host owns (the New character window, filled in from `payload`): the host answers the `story-suite:open` event on the page; no engine command, nothing recorded.
+    // Opens a window (the New character window, filled in from `payload`): the view's own opener first, else the `story-suite:open` page event; no engine command, nothing recorded.
     async open(id, payload, { onEnd } = {}) {
       let own = false;
       try { own = screens?.open?.(id, payload ?? null, { onEnd: typeof onEnd === 'function' ? onEnd : null }) ?? false; } catch (error) { own = failure(error); }

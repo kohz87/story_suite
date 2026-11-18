@@ -10,7 +10,7 @@ import { withPackCurrency } from '../../../../core/runtime.js';
 import { validatePack } from '../../../../packs/validate.js';
 import { createCoreModule } from '../../../../modules/scene/domains/index.js';
 import { changesSummary } from '../../../../packs/screens/defaults/changes-card.js';
-import { linesToList } from '../../../../ui/legacy/host-ui.js';
+import { linesToList } from '../../../../core/list-lines/list-lines.js';
 import { createHost } from '../../../../testkit/index.js';
 import { pack } from '../../../packs/helpers/fixtures.js';
 

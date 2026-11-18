@@ -1,5 +1,5 @@
 // The wizard's Skills step in the new view: the starting sets (built in and the packs'), then one stacked card of fields per skill (name, what it
-// does, stat, type, starts at) and "+ Add a skill", with the old step's words and rules (modules/rpg/view/wizard/skills.js): the draft is changed
+// does, stat, type, starts at) and "+ Add a skill", with the old step's words and rules: the draft is changed
 // only by wizard-data's withSet / withSkill / withSkillPatch / withoutSkill, so the caps, the one Adept and the signature skills hold as before.
 
 import { h } from '../kit/dom.js';

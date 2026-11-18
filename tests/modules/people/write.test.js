@@ -5,7 +5,6 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { hashJson } from '../../../core/replay.js';
 import { readRecord } from '../../../core/persist.js';
-import { replyEdits } from '../../../ui/legacy/reply-cards.js';
 import { isPeopleView, validatePeople } from '../../../modules/people/domain/validate.js';
 
 async function peopleHost(t) {
@@ -58,7 +57,7 @@ test('a sid that is not the head is STALE, a bad view is INVALID, and neither st
     assert.equal(opsOnHead(host).some(op => String(op.path).startsWith('/domains/people')), false);
 });
 
-test('the write receipt is not a reader edit (it never shows on the reply card)', async t => {
+test('the write receipt is not a reader edit (it is never marked as a reader edit)', async t => {
     const host = await peopleHost(t);
     await host.send('Go.', 'The road.');
     await send(host, sourceOf(host), view());
@@ -66,7 +65,7 @@ test('the write receipt is not a reader edit (it never shows on the reply card)'
     const mine = record.receipts.filter(receipt => receipt.type === 'people.write');
     assert.equal(mine.length, 1);
     assert.notEqual(mine[0].data?.edit, true);
-    assert.deepEqual(replyEdits(record), []);
+    assert.deepEqual(record.receipts.filter(receipt => receipt.data?.edit === true), []);
 });
 
 test('an equal hash means the sender has nothing to send (the query is the comparison)', async t => {

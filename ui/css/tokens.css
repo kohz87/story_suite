@@ -1,0 +1,22 @@
+/* Page-level colour tokens from SillyTavern's theme, for Story Suite parts drawn in the chat outside the view's own root: the RPG's battle log
+   and Check card (modules/rpg/view/lean-rpg.css, check-card.css) and NPC State's sheets (modules/people/legacy/suite.css). These were declared
+   by the old view's mounts-game.css and host-furniture.css (B4-4 removed them); the values are unchanged. */
+:root {
+    --ss-text: var(--SmartThemeBodyColor, CanvasText);
+    --ss-surface: var(--SmartThemeBlurTintColor, Canvas);
+    --ss-chat-surface: var(--SmartThemeChatTintColor, var(--ss-surface));
+    --ss-border: var(--SmartThemeBorderColor, currentColor);
+    --ss-accent: var(--SmartThemeQuoteColor, currentColor);
+    --ss-muted: var(--SmartThemeEmColor, currentColor);
+    --ss-shadow: var(--SmartThemeShadowColor, transparent);
+    --ss-radius: 10px;
+    --ss-gap: 8px;
+    --ss-fade: 40px;
+}
+:root {
+    --story-suite-line: var(--SmartThemeBorderColor, rgba(128, 128, 128, 0.35));
+    --story-suite-bg: var(--SmartThemeBlurTintColor, rgba(20, 20, 24, 0.96));
+    --story-suite-fg: var(--SmartThemeBodyColor, inherit);
+    --story-suite-accent: var(--SmartThemeQuoteColor, #e1a95f);
+    --story-suite-sheet-width: clamp(300px, 34vw, 420px);
+}

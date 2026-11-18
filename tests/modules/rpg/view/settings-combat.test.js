@@ -1,32 +1,25 @@
-// Settings → RPG (src/v2/lean-rpg/view/settings.js and settings-data.js): the Combat rules text saved through the real host and settings-data.
+// The Combat rules text (modules/rpg/view/settings-data.js): the text is saved as an edit of the chat's Combat rules block (`dm.redefine`) through the real host.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { DIFFICULTY_SETTING, STANDARD, STANDARD_PRESETS, STANDARD_SETTING } from '../../../../modules/rpg/index.js';
 import { CHOOSER_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, withPrompt } from '../../../../modules/rpg/view/settings-data.js';
 import { reload } from '../../data-modules/helpers.js';
-import { settle } from './page.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
-import { open, promptOf, typeInto } from './settings.helpers.js';
+import { combat, open, promptOf, saveCombat } from './settings.helpers.js';
 
-test('Combat: the chat\'s Combat rules text is edited here and saved as an edit of that block; it reaches the narrator and survives a rebuild and a reload', async t => {
-    const { host, root, card, win } = await open(t, { rules: true });
+test('Combat: the chat\'s Combat rules text is saved as an edit of that block; it reaches the narrator and survives a rebuild and a reload', async t => {
+    const { host } = await open(t, { rules: true });
     host.features.set(CORE_FEATURE.fightBoard, false);
-    const area = card('combat').querySelector('textarea');
-    assert.equal(area.value, COMBAT_DEFAULT, 'the block\'s own text');
-    assert.equal(card('combat').querySelector('.rpg-set-count').textContent, `${[...COMBAT_DEFAULT].length} / 1200`);
-    assert.match(card('combat').textContent, /The Combat rules block of this chat\. Each chat can have its own; new chats start from the default\./);
+    assert.equal(promptOf(host), COMBAT_DEFAULT, 'the block\'s own text');
     const hashBefore = host.head().domains.dataModules.active['pack.chat/combat-rules'].hash;
     const text = '[COMBAT SYSTEM] Fights are short and cruel. {{user}} loses against odds.';
-    typeInto(area, text);
-    await settle();
+    assert.equal((await saveCombat(host, text)).ok, true);
     assert.equal(promptOf(host), text);
     const active = host.head().domains.dataModules.active['pack.chat/combat-rules'];
     assert.notEqual(active.hash, hashBefore, 'a new definition hash');
     assert.ok(active.generation > 1, 'a new generation of the block');
-    assert.equal(root.querySelector('.rpg-set-status').textContent, 'Saved on the latest reply: swipe or delete that reply to take it back.');
     const head = host.store.headIndex();
     const receipts = host.ctx.chat[head].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine');
     assert.equal(receipts.length, 1, 'one recorded edit on the latest reply');
@@ -39,58 +32,44 @@ test('Combat: the chat\'s Combat rules text is edited here and saved as an edit 
     const { request } = await host.send('I strike.', 'Steel rings.');
     assert.ok(request.chat.some(message => message.content?.includes('Fights are short and cruel.')), 'in the prompt');
     assert.ok(!request.chat.some(message => message.content?.includes('No Plot Armor')), 'and the old text is gone');
+    host.store.rebuild();
+    assert.equal(promptOf(host), text, 'rebuild = live');
     await reload(host);
-    assert.equal(promptOf(host), text);
-    win.close();
+    assert.equal(promptOf(host), text, 'reload = live');
 });
 
 test('Combat: an edit rides on the latest reply, so deleting that reply takes it back', async t => {
-    const { host, card } = await open(t, { rules: true });
+    const { host } = await open(t, { rules: true });
     await host.send('Go on.', 'A later reply, so the block itself is older than the edit.');
-    typeInto(card('combat').querySelector('textarea'), 'Only this.');
-    await settle();
+    assert.equal((await saveCombat(host, 'Only this.')).ok, true);
     assert.equal(promptOf(host), 'Only this.');
     await host.st.deleteMessage(host.store.headIndex());
     assert.equal(promptOf(host), COMBAT_DEFAULT);
 });
 
-test('Combat: Reset to the default puts the template\'s text back; an unchanged or too long text is not saved', async t => {
-    const { host, root, card } = await open(t, { rules: true });
-    typeInto(card('combat').querySelector('textarea'), 'Short.');
-    await settle();
+test('Combat: a swipe of the reply that carried an edit takes it back', async t => {
+    const { host } = await open(t, { rules: true });
+    await host.send('Go on.', 'Quiet.');
+    assert.equal((await saveCombat(host, 'Only this.')).ok, true);
+    await host.swipe('Another reply.');
+    assert.equal(promptOf(host), COMBAT_DEFAULT, 'the swipe takes the edit back');
+});
+
+test('Combat: saving the default again puts the template\'s text back; a text of exactly the limit is fine', async t => {
+    const { host } = await open(t, { rules: true });
+    assert.equal((await saveCombat(host, 'Short.')).ok, true);
     assert.equal(promptOf(host), 'Short.');
-    root.querySelector('[data-act="combat-reset"]').click();
-    await settle();
+    assert.equal((await saveCombat(host, COMBAT_DEFAULT)).ok, true);
     assert.equal(promptOf(host), COMBAT_DEFAULT, 'the template\'s text, as a block keeps it');
-    assert.equal(root.querySelector('[data-field="combat"]').value, COMBAT_DEFAULT);
-    const generation = () => host.head().domains.dataModules.active['pack.chat/combat-rules'].generation;
-    const was = generation();
-    typeInto(root.querySelector('[data-field="combat"]'), COMBAT_DEFAULT);
-    await settle();
-    assert.equal(generation(), was, 'the same text is no edit');
-    const area = root.querySelector('[data-field="combat"]');
-    typeInto(area, 'x'.repeat(COMBAT_MAX + 1), 'input');
-    assert.equal(root.querySelector('[data-card="combat"] .rpg-set-count').textContent, `${COMBAT_MAX + 1} / 1200`);
-    assert.ok(root.querySelector('[data-card="combat"] .rpg-set-count').classList.contains('rpg-over'));
-    area.dispatch('change');
-    await settle();
-    assert.equal(generation(), was, 'too long: nothing is saved');
-    assert.equal(root.querySelector('.rpg-set-status').textContent, 'That is more than 1200 characters; shorten it to save.');
-    assert.equal(promptOf(host), COMBAT_DEFAULT);
-    typeInto(area, 'x'.repeat(COMBAT_MAX));
-    await settle();
+    assert.equal((await saveCombat(host, 'x'.repeat(COMBAT_MAX))).ok, true);
     assert.equal([...promptOf(host)].length, COMBAT_MAX, 'exactly the limit is fine');
 });
 
-test('Combat: with no Combat rules block the page says so and offers to add one', async t => {
-    const { host, root, card } = await open(t);
-    assert.match(card('combat').querySelector('.rpg-combat-none').textContent, /This chat has no Combat rules block/);
-    assert.equal(card('combat').querySelector('textarea'), null);
-    root.querySelector('[data-act="combat-add"]').click();
-    await settle();
+test('Combat: with no Combat rules block there is none to read, and the template\'s block can be made', async t => {
+    const { host } = await open(t);
+    assert.equal(combatBlock(host.head(), {}), null);
+    assert.equal((await host.sdk.command('dm.define', { definition: combat() })).ok, true);
     assert.equal(promptOf(host), COMBAT_DEFAULT, 'the template\'s block was made');
-    const fresh = root.querySelector('[data-card="combat"]');
-    assert.equal(fresh.querySelector('textarea').value, COMBAT_DEFAULT, 'and the page shows its text');
 });
 
 // ---- the pure parts ---------------------------------------------------------------------------------------------------------------
@@ -119,96 +98,19 @@ test('settings-data: customOf keeps the stored numbers, else the numbers in forc
     assert.deepEqual(customOf({ [DIFFICULTY_SETTING]: 'custom' }), STANDARD);
 });
 
-test('the page\'s stylesheet: the numbers wrap to two columns on a phone; theme tokens only', () => {
-    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
-    assert.match(css, /\.rpg-set-nums \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-    assert.match(css, /@media \(max-width: 600px\) \{ \.rpg-set-nums \{ grid-template-columns: 1fr 1fr; \} \}/);
-});
-
-test('B17 (views): a refused save because the chat holds as many block versions as it can is said in plain words, and Reset still works', async t => {
-    let refuse = true;
-    const wrap = (type, payload, options, run) => (refuse && type === 'dm.redefine' && payload.definition.prompt !== COMBAT_DEFAULT
+test('B17 (views): a refused save because the chat holds as many block versions as it can is said in plain words', async t => {
+    const { host } = await open(t, { rules: true });
+    const refuse = (type, payload) => (type === 'dm.redefine' && payload.definition.prompt !== COMBAT_DEFAULT
         ? { ok: false, code: 'DM_BUDGET', message: 'Combat rules: Retained pin budget exhausted; nothing applied.' }
-        : run(type, payload, options));
-    const { host, root, card } = await open(t, { rules: true, wrap });
-    typeInto(card('combat').querySelector('textarea'), 'A new text.');
-    await settle();
-    assert.equal(root.querySelector('.rpg-set-status').textContent, 'This chat has kept as many block versions as it can. Reset to the default, or try again after your next message.');
+        : host.sdk.command(type, payload));
+    const { refusalText } = await import('../../../../core/strings.js');
+    const refused = await saveCombat(host, 'A new text.', refuse);
+    assert.equal(refusalText(refused), 'This chat has kept as many block versions as it can. Try again after your next message.');
     assert.equal(promptOf(host), COMBAT_DEFAULT, 'nothing changed');
     // The words are the helper's, so the other screens say it too (the wizard's Create, a block edit).
-    const { refusalText } = await import('../../../../core/strings.js');
     assert.equal(refusalText({ ok: false, code: 'DM_BUDGET', message: 'x: Retained pin budget exhausted; nothing applied.' }), 'This chat has kept as many block versions as it can. Try again after your next message.');
     assert.match(refusalText({ ok: false, code: 'DM_BUDGET', message: 'Data module reply budget exhausted.' }), /^This reply already holds as many changes/);
-    // Reset to the default is the text already pinned, and goes through.
-    refuse = false;
-    typeInto(card('combat').querySelector('textarea'), 'Another.');
-    await settle();
+    // The default is the text already pinned, and goes through.
+    assert.equal((await saveCombat(host, 'Another.')).ok, true);
     assert.equal(promptOf(host), 'Another.');
-});
-
-test('F1: text typed in the Combat box is saved when the settings window is closed with the box still holding it (no change event comes)', async t => {
-    const { host, card, win } = await open(t, { rules: true });
-    const area = card('combat').querySelector('textarea');
-    typeInto(area, 'Typed, then Escape.', 'input');
-    assert.equal(promptOf(host), COMBAT_DEFAULT, 'nothing saved yet: only typed');
-    win.close();
-    await settle();
-    assert.equal(promptOf(host), 'Typed, then Escape.');
-    assert.equal(host.ctx.chat[host.store.headIndex()].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine').length, 1, 'one edit');
-});
-
-test('F1: the page going out of sight saves what is typed, once; leaving the box after that does not save it again', async t => {
-    const { host, doc, card, root } = await open(t, { rules: true });
-    const area = card('combat').querySelector('textarea');
-    typeInto(area, 'Typed, then the tab is hidden.', 'input');
-    doc.visibilityState = 'hidden';
-    const hide = doc.listeners.filter(entry => entry.type === 'visibilitychange');
-    assert.ok(hide.length >= 1, 'the page listens');
-    for (const entry of hide) entry.fn();
-    area.dispatch('focusout');
-    area.dispatch('change');
-    await settle();
-    assert.equal(promptOf(host), 'Typed, then the tab is hidden.');
-    assert.equal(host.ctx.chat[host.store.headIndex()].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine').length, 1, 'saved once, not once per event');
-    assert.ok(root);
-});
-
-// Fix round 5, B8: the Combat text's saves are serialised, and the last action the reader took is the one that is kept.
-test('B8: Reset clicked while the first Combat save is still running is saved after it, and the default wins', async t => {
-    // The host holds the first save until the test lets it go (the SDK can wait on one before it applies it), so the page does not know yet.
-    let release; let entered;
-    const held = new Promise(resolve => { release = resolve; });
-    const reached = new Promise(resolve => { entered = resolve; });
-    let first = true;
-    const wrap = async (type, payload, options, run) => {
-        if (type === 'dm.redefine' && first) { first = false; entered(); await held; }
-        return run(type, payload, options);
-    };
-    // Waits for the real outcome, not a fixed delay; a hang fails with the message below instead of passing by luck.
-    const until = async (done, what) => { for (let n = 0; n < 2000 && !done(); n += 1) await new Promise(resolve => setTimeout(resolve, 5)); assert.ok(done(), what); };
-    const { host, root, card } = await open(t, { rules: true, wrap });
-    const redefines = () => host.ctx.chat[host.store.headIndex()].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine').length;
-    const area = card('combat').querySelector('textarea');
-    area.value = 'Unsaved edit';
-    area.dispatch('focusout');
-    await reached;
-    assert.equal(promptOf(host), COMBAT_DEFAULT, 'the first save is still waiting');
-    root.querySelector('[data-act="combat-reset"]').click();
-    await settle();
-    assert.equal(promptOf(host), COMBAT_DEFAULT, 'the reset waits behind the first save');
-    release();
-    await until(() => redefines() === 2, 'both saves were recorded');
-    await settle();
-    assert.equal(promptOf(host), COMBAT_DEFAULT, 'the default is what the story holds');
-    assert.equal(root.querySelector('[data-field="combat"]').value, COMBAT_DEFAULT, 'and what the box shows');
-    assert.equal(redefines(), 2, 'two saves, one after the other');
-    // and the other way round: the same text asked twice while it is being saved is saved once
-    const again = root.querySelector('[data-field="combat"]');
-    again.value = 'Second edit';
-    again.dispatch('focusout');
-    again.dispatch('change');
-    await until(() => promptOf(host) === 'Second edit', 'the second edit was saved');
-    await settle();
-    assert.equal(promptOf(host), 'Second edit');
-    assert.equal(redefines(), 3);
 });

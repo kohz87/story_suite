@@ -5,7 +5,6 @@ import { fightKind } from '../../../../modules/rpg/board/interaction.js';
 import { dice } from '../../../../core/interaction/dice.js';
 import { boardWin } from '../../../../modules/rpg/board/awards.js';
 import { fightResults } from '../../../../modules/rpg/board/results.js';
-import { exchangesOf } from '../../../../modules/rpg/view/changes-lines-parts/rolls.js';
 import { resolveOf } from '../../../../modules/rpg/view/battle-log.js';
 import { rollOf, usesOf } from '../../../../modules/rpg/practice-parts/uses.js';
 import { boardGroups, openedSlots } from '../../../../modules/rpg/fight-parts/opened.js';
@@ -24,7 +23,6 @@ test('a settled v1 fight is read by every reader of the record without a throw, 
         assert.equal(won.stop, 'won');
         const receipt = receiptOf(won), record = { receipts: [receipt] };
         assert.equal(fightResults([receipt]).length, 1);
-        assert.equal(exchangesOf(record).exchanges, won.rounds.length);
         assert.doesNotThrow(() => resolveOf(record));
         assert.doesNotThrow(() => receiptCue(receipt));
         assert.deepEqual(usesOf(won), [], 'no practice is drawn from the rows (v1 practice comes with the v1 roll)');

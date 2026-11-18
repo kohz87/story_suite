@@ -82,7 +82,7 @@ Node 24. Run `npm ci` first (`acorn`, `acorn-walk`, `esbuild`, `playwright`).
 Layout:
 - `core/`: host runtime, store, persistence and replay, command bus, prompt assembly, the module SDK.
 - `modules/`: scene, inventory, data-modules, assist, rpg, time, atlas, world, cast, arc, people (NPC State).
-- `ui/`: the new view and its settings; `ui/legacy/` is the old view, kept until it is removed.
+- `ui/`: the new view and its settings; the old view was removed at B4-4.
 - `packs/`: pack import, validation, portraits, installed packs.
 - `testkit/`, `examples/`, `authoring-kit/`, `assets/`: test fakes, the Fishing example and example packs, the pack authoring kit, images.
 - `scripts/`, `tests/`: checks, code map, release build and gate; all tests.

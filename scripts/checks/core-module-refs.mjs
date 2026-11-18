@@ -1,4 +1,4 @@
-// The core-module gate: the core's turn, prompt, sdk, registry, commands, interaction and old-view host code names no RPG or fight-board word, except the lines in docs/merge/core-module-refs.txt (which may only shrink).
+// The core-module gate: the core's turn, prompt, sdk, registry, commands, interaction code names no RPG or fight-board word, except the lines in docs/merge/core-module-refs.txt (which may only shrink).
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const LIST = 'docs/merge/core-module-refs.txt';
 const WORDS = /lean-rpg|board|fight|RPG_|rpgLib/i;
-const SCOPE = /^(core\/(turn|turn-parts|prompt|prompt-parts|sdk|sdk-parts|registry|registry-parts|commands|commands-parts|interaction)(\/|\.js$)|ui\/legacy\/ui-host(\/|\.js$))/;
+const SCOPE = /^(core\/(turn|turn-parts|prompt|prompt-parts|sdk|sdk-parts|registry|registry-parts|commands|commands-parts|interaction)(\/|\.js$))/;
 const SEP = ' :: ';
 
 /** A line without its comment: a whole-line comment is empty, a trailing `// …` after a space is cut. */

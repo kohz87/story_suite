@@ -1,10 +1,9 @@
-// The reader's narrow people edits: people.edit, people.follow and people.portrait.set change one record on the head's reply, show on the reply card
+// The reader's narrow people edits: people.edit, people.follow and people.portrait.set change one record on the head's reply, are marked on the receipt
 // as reader edits (data.edit), refuse an unknown person, an id change and image bytes, and replay like any other write.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { readRecord } from '../../../core/persist.js';
-import { replyEdits } from '../../../ui/legacy/reply-cards.js';
 import { carriers, rebuildAt } from '../../suite/qa/helpers/oracle.js';
 
 const plain = value => (value === undefined ? null : JSON.parse(JSON.stringify(value)));
@@ -35,7 +34,6 @@ test('edit, follow and a portrait change the record and are listed as reader edi
     const record = readRecord(host.ctx.chat[host.store.headIndex()]);
     const types = record.receipts.filter(receipt => receipt.data?.edit === true).map(receipt => receipt.type);
     assert.deepEqual(types, ['people.edit', 'people.follow', 'people.portrait.set']);
-    assert.equal(replyEdits(record).length, 3);
     assert.equal((await host.sdk.command('people.follow', { id: 'npc_ann', on: false })).ok, true);
     assert.equal(Object.hasOwn(ann(host), 'followed'), false);
     assert.equal((await host.sdk.command('people.edit', { id: 'npc_ann', fields: { goal: null } })).ok, true);

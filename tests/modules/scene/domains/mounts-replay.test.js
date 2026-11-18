@@ -3,13 +3,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
-import { MAX_ROWS, MOUNTS_FEATURE, WALK_PACE } from '../../../../modules/scene/mounts.js';
+import { MAX_ROWS, WALK_PACE } from '../../../../modules/scene/mounts.js';
 import { validateScene } from '../../../../modules/scene/index.js';
-import { mountUi } from '../../../../ui/legacy/ui-host.js';
 import { homeScreen } from '../../../../packs/screens/defaults/index.js';
 import { checkInvariants } from '../../../suite/qa/helpers/oracle.js';
 import { recordingWidgets, renderSkip, show, text } from '../../../ui/screens/helpers.js';
-import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { MARE, block, character, fresh, lastIndex, names, problems } from './mounts.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------
@@ -192,57 +190,19 @@ test('Home shows the Mounts card only while the party has a mount: a row each, t
     assert.equal(text(card().el.querySelector('.mount-note')), 'Not enough mounts for everyone: the party walks (20 km/day).', 'one mount, two riders');
 });
 
-test('the pencil on a Home row opens the six fields (gear off), saves only what changed on the latest reply, and shows the row again', { skip: renderSkip }, async t => {
-    const doc = setupDom(), form = doc.createElement('div');
-    form.id = 'send_form';
-    doc.body.appendChild(form);
+test('mounts.edit saves only what changed: a pace past the limit is held, and Carry is taken with gear on (G5)', async t => {
     const host = await fresh(t);
-    const ui = mountUi({ runtime: host, ctx: host.ctx, doc });
-    t.after(() => ui.destroy());
     await host.send('Saddle up.', block('The yard.', [MARE, '+ mount Burr | kind: mule']));
-    assert.equal(ui.mounts.screen.open('story-block/home'), true);
-    const rows = () => doc.querySelectorAll('.ss-gameview .mounts .mount');
-    assert.equal(rows().length, 2);
-    const pencil = rows()[1].querySelector('.ss-w-editable-pencil');
-    assert.equal(pencil.getAttribute('aria-label'), 'Edit mount');
-    pencil.click();
-    const inputs = rows()[1].querySelectorAll('.ss-w-editable-form input');
-    assert.deepEqual(inputs.map(input => input.getAttribute('aria-label')), ['Name', 'Kind', 'How many', 'Pace (km/day)', 'Condition', 'Where']);
-    assert.deepEqual(inputs.map(input => input.value), ['Burr', 'mule', '1', '25', '', '']);
-    inputs[4].value = 'lame';
-    inputs[5].value = 'stabled at the Stray Oar';
-    inputs[3].value = '999';
-    rows()[1].querySelector('.ss-w-editable-save').click();
-    await new Promise(resolve => setImmediate(resolve));
-    await new Promise(resolve => setImmediate(resolve));
+    const edit = await host.sdk.command('mounts.edit', { mount: 'Burr', condition: 'lame', where: 'stabled at the Stray Oar', pace: 999 });
+    assert.equal(edit.ok, true, edit.message);
     assert.deepEqual(host.sdk.query('mounts.list')[1], { name: 'Burr', kind: 'mule', count: 1, pace: 200, condition: 'lame', where: 'stabled at the Stray Oar' }, 'a pace past the limit is held');
     assert.equal(host.ctx.chat.at(-1).extra.storySuite.receipts.at(-1).type, 'mounts.edit');
-    assert.equal(text(rows()[1].querySelector('.mount-sub')), 'mule · lame · stabled at the Stray Oar');
-    assert.equal(text(rows()[1].querySelector('.mount-pace')), '200 km/day');
-    // Nothing changed: no command.
-    const receipts = host.ctx.chat.at(-1).extra.storySuite.receipts.length;
-    rows()[0].querySelector('.ss-w-editable-pencil').click();
-    rows()[0].querySelector('.ss-w-editable-save').click();
-    await new Promise(resolve => setImmediate(resolve));
-    assert.equal(host.ctx.chat.at(-1).extra.storySuite.receipts.length, receipts);
-    // Off: the card goes with the feature.
-    host.features.set(MOUNTS_FEATURE, false);
-    assert.equal(rows().length, 0);
-});
-
-test('the pencil has the seventh field, Carry, only with gear on (G5)', { skip: renderSkip }, async t => {
-    const doc = setupDom(), form = doc.createElement('div');
-    form.id = 'send_form';
-    doc.body.appendChild(form);
-    const host = await fresh(t);
     host.features.set(CORE_FEATURE.leanRpg, true);
     host.features.set('story-block.gear', true);
-    const ui = mountUi({ runtime: host, ctx: host.ctx, doc });
-    t.after(() => ui.destroy());
-    await host.send('Saddle up.', block('The yard.', [MARE, '+ mount Burr | kind: mule']));
-    assert.equal(ui.mounts.screen.open('story-block/home'), true);
-    const rows = () => doc.querySelectorAll('.ss-gameview .mounts .mount');
-    rows()[1].querySelector('.ss-w-editable-pencil').click();
-    const inputs = rows()[1].querySelectorAll('.ss-w-editable-form input');
-    assert.deepEqual(inputs.map(input => input.getAttribute('aria-label')), ['Name', 'Kind', 'How many', 'Pace (km/day)', 'Condition', 'Where', 'Carry (empty: the kind\'s usual)']);
+    const carry = await host.sdk.command('mounts.edit', { mount: 'Burr', carry: 40 });
+    assert.equal(carry.ok, true, carry.message);
+    assert.equal(host.sdk.query('mounts.list')[1].carry, 40);
+    assert.equal((await host.sdk.command('mounts.edit', { mount: 'Burr', carry: 9999 })).ok, false, 'a carry past the limit is refused');
+    await host.swipe('Nothing happens.');
+    assert.deepEqual(host.sdk.query('mounts.list'), [], 'a swipe takes the mounts and their edits back');
 });

@@ -1,7 +1,7 @@
 // Story Block v2 for SillyTavern (docs/v2/SPEC.md): the host Story Suite's modules register with.
 //
-// This file only wires SillyTavern to the v2 runtime (src/v2/runtime.js) and puts the host's UI on the
-// page (src/v2/ui-host.js). v1's code is not in this repository; it lives on the `v1` branch.
+// This file only wires SillyTavern to the v2 runtime (src/v2/runtime.js) and starts the host's page parts; the view is
+// ui/entry/start.js (root index.js starts it after this). v1's code is not in this repository; it lives on the `v1` branch.
 //
 // Order of things:
 // 1. `globalThis.StoryBlock = { apiVersion: 2, ready, sdk, api }` is set at once (`api`: the public API, docs/v2/PUBLIC-API.md), so a module loaded before
@@ -10,12 +10,11 @@
 //    settings under extension_settings.storySuite, the store over the chat, the command bus, the turn.
 // 3. The turn is installed: the generate interceptor named in manifest.json, the prompt and message
 //    events, and the v1 prompt keys cleared.
-// 4. The UI (bar, story panel, settings overlay, drawer, mounts), then markReady().
+// 4. The host's page parts (card offer, save points, the Tools page's parts, the RPG's fight parts), the modules, then markReady().
 
 import { createRuntime, HOST_VERSION } from '../runtime.js';
 import { SUITE_VERSION } from '../version.js';
 import { INTERCEPTOR_NAME } from '../turn.js';
-import { mountUi } from '../../ui/legacy/ui-host.js';
 import { noteError, noteSaveError } from '../diagnostics.js';
 import { createV1Watch } from '../persist/v1-copy.js';
 import { registerSbMacro } from '../runtime/sb-macro.js';
@@ -23,6 +22,8 @@ import { BUILTIN_MODULES } from '../modules-list.js';
 import { registerIsolated, startIsolated } from './register-isolated.js';
 import { packs as livePacks, part as livePacksPart, portraits as livePortraits, refreshLore, resolveItem, startState } from '../../packs/index.js';
 import { startHostParts } from './host-parts.js';
+import { startToolsParts } from './tools-parts.js';
+import { startRpgLive } from '../../modules/rpg/live/sync.js';
 import { createToolsHandle } from '../../ui/port/tools-handle.js';
 
 const LOG = '[Story Block v2]';
@@ -45,42 +46,39 @@ export async function boot({ late = [] } = {}) {
         console.error(`${LOG} SillyTavern's context is not available; Story Block did not start.`);
         return false;
     }
-    let ui = null;
     let parts = null;
+    let tools = null;
     const runtime = createRuntime({
         ctx,
         packs: { part: livePacksPart, packs: livePacks, resolveItem, startState },
-        onBlocked: (reason, moduleId) => ui?.blocked(reason, moduleId),
         onSaveError: error => {
             noteSaveError(error);
             globalThis.toastr?.error?.(`The story could not be saved: ${error?.message ?? error}`, 'Story Block');
         },
-        onRegister: () => ui?.syncScreens(),
     });
     const { sdk, api, turn, markReady } = runtime;
     // (An old v1 copy loaded before this one left its own object here: src/v2/v1-copy.js.)
     const before = globalThis.StoryBlock ?? null;
     // `writes` is for the Story Suite view only (the Models page); the public sdk reads settings but has no setter.
-    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, ui: () => ui, savePoints: () => parts?.savePoints ?? null }) });
+    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, toolsParts: () => tools, savePoints: () => parts?.savePoints ?? null }) });
     const v1 = createV1Watch({ before, report: entry => turn.report(entry), problems: () => turn.problems() });
     const lookForV1 = () => { try { v1.check(); } catch { /* never in the way of the story */ } };
 
     turn.install({ globalName: INTERCEPTOR_NAME });
     turn.onChatChanged().catch(error => console.warn(`${LOG} the first chat could not be read`, error));
     parts = startHostParts({ runtime, ctx });
+    tools = startToolsParts({ runtime, ctx, version: SUITE_VERSION, cardLog: parts.cardLog });
     try {
-        ui = mountUi({ runtime, ctx, version: SUITE_VERSION, parts });
+        startRpgLive({ runtime, ctx });
     } catch (error) {
-        console.error(`${LOG} the Story Suite UI could not be shown`, error);
+        console.error(`${LOG} the RPG's fight parts could not start`, error);
     }
     parts.refreshOffer();
-    // A pack installed or switched on changes the screens and the start of new chats.
-    livePacks.subscribe?.(() => ui?.syncScreens());
     const types = ctx.eventTypes ?? ctx.event_types ?? {};
-    if (types.APP_READY) ctx.eventSource?.on?.(types.APP_READY, () => { ui?.refresh(); lookForV1(); });
+    if (types.APP_READY) ctx.eventSource?.on?.(types.APP_READY, lookForV1);
     // The open character's lorebook `market:` lines (PACKS.md "Markets"), read for each chat.
     const readLore = () => refreshLore().catch(error => console.warn(`${LOG} the lorebook's market lines could not be read`, error));
-    if (types.CHAT_CHANGED) ctx.eventSource?.on?.(types.CHAT_CHANGED, () => { ui?.clearBlocked(); ui?.refresh(); readLore(); lookForV1(); });
+    if (types.CHAT_CHANGED) ctx.eventSource?.on?.(types.CHAT_CHANGED, () => { readLore(); lookForV1(); });
     readLore();
     // Cast portraits are files on the server: the ones that went missing (a cleaned user-files folder) answer nothing until imported again.
     livePortraits.verify().catch(error => console.warn(`${LOG} the pack portraits could not be checked`, error));

@@ -26,7 +26,6 @@ test('only the core scope is scanned, and the words match in any case', () => {
     "core/sdk/b.js :: import { x } from '../../modules/rpg/lean-rpg.js';",
     'core/turn/a.js :: const boardStop = 1;',
     'core/turn/a.js :: stopChangedBoard();',
-    'ui/legacy/ui-host/d.js :: const RPG_START = 1;',
   ]);
 });
 
