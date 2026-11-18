@@ -343,7 +343,7 @@
   "ui/tabs/now/right-now.js": "Builds the two \"Right now\" cards: Needs you (actions only) and Today (focus, trip, due soon, torn gear).",
   "ui/tabs/now/this-turn.js": "Builds the This reply card: what the reply changed, exceptions first, five rows then Show all, with Why on held-back lines.",
   "ui/tabs/now/you-pinned.js": "Builds the folded You card (look, position, condition) and the pinned tracker cards.",
-  "ui/tabs/party/party.js": "Composes the Party tab: the row of member portraits with Invite, then the selected member's sheet.",
+  "ui/tabs/party/party.js": "Composes the Party tab: the row of member portraits with Invite and, while the story has no You, New character; then the selected member's sheet.",
   "ui/tabs/party/sheet.js": "Builds one member's sheet (name, bars, doll, stats, skills) plus the stat-spend sheet and the ⋯ menu sheet.",
   "ui/tabs/party/skills.js": "Builds the Skills list (glyph, kind line, rank pill, seven-step mastery bar) and the one-skill sheet.",
   "ui/tabs/party/slot-picker.js": "Opens the Party tab's bottom sheet and fills it for one gear slot: the worn item and the Bag's matching items with Equip.",
@@ -418,5 +418,16 @@
   "studio/views/records.js": "Draws a Pack Studio world part (lore, cast, places and routes, conditions, events, templates, powers, items) read-only, one card per record.",
   "studio/views/overview.js": "Draws the Pack Studio's Overview page: the pack's key fields, the check result in words and each part's counts.",
   "studio/views/problems.js": "Draws the Pack Studio's Problems page: the pack checker's problems grouped by part, each with Go to.",
-  "studio/views/search.js": "Finds and draws the records of the open pack whose title, id, name, keys or aliases hold the searched words."
+  "studio/views/search.js": "Finds and draws the records of the open pack whose title, id, name, keys or aliases hold the searched words.",
+  "modules/rpg/view/wizard-data-parts/create-run.js": "The New character wizard's Create without a DOM: the old Review step's commands in its order (two defines, the fight blocks, an imported file's things and money), for the new view's sheet.",
+  "ui/css/wizard.css": "New character wizard and first-send hold styles: the layout the sheets add to the Party sheet parts, the .ef fields and the kit buttons, in the mock's tokens.",
+  "ui/dev/wizard-demo.js": "Dev harness only: draws the New character sheet on a step, the first-send hold or the empty Party tab on the fake port.",
+  "ui/wizard/attach.js": "Puts the New character wizard and the first-send hold on the new view: answers the port's open of story-block/new-character itself and closes both sheets on a chat change.",
+  "ui/wizard/hold.js": "Holds the first Send of a chat with the RPG on and no You in the new view: the 'Make your character first' sheet and its two answers.",
+  "ui/wizard/review.js": "Draws the wizard's Review step in the new view and runs Create through modules/rpg's create-run.",
+  "ui/wizard/skills.js": "Draws the wizard's Skills step in the new view: the starting sets and one card of fields per skill.",
+  "ui/wizard/stats.js": "Draws the wizard's Stats step in the new view: the stat sheet's − / + rows under the creation budget, Reset and the notes.",
+  "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
+  "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary row and Back / Next.",
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona, reply key, rules, levels, and whether the story has You."
 }

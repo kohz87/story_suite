@@ -5,6 +5,7 @@ import { mountSuite } from '../mount.js';
 import { createFakePort } from '../port/fake-port.js';
 import { usePortraits } from './portraits.js';
 import { SAVEPOINTS } from '../fixtures/savepoints.js';
+import { wizardDemo } from './wizard-demo.js';
 
 const THEMES = ['dark', 'light', 'follow'];
 const VARIANTS = ['default', 'rpgOff', 'fightOpen', 'empty'];
@@ -20,7 +21,7 @@ function pick(value, allowed, fallback) {
 
 /**
  * Builds the harness controls and mounts the suite in `frame`. Query: theme, variant, width, tab, plan (on/off),
- * fight (a board step; opens the fight), bag (a load variant).
+ * fight (a board step; opens the fight), bag (a load variant), wizard (ui/dev/wizard-demo.js).
  * Returns `{ port, state, apply(patch), suite() }`; `apply` remounts with a changed theme, variant or width.
  */
 export function startHarness({ doc = globalThis.document, search = '', controls, frame, schedule } = {}) {
@@ -81,6 +82,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     frame.style.width = `${state.width}px`;
     suite = mountSuite({ port, doc, host: frame, theme: state.theme, initial: state.tab, schedule });
     suite.open(state.tab);
+    wizardDemo(query.get('wizard'), { doc, suite, port });
     stopPortraits?.();
     stopPortraits = typeof globalThis.MutationObserver === 'function' ? usePortraits(frame) : null;
   }

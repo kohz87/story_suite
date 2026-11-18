@@ -70,3 +70,44 @@ test('sheetHost and the fallback label "Sheet" are honoured', () => {
   assert.equal(host.querySelector('[role="dialog"]').getAttribute('aria-label'), 'Sheet');
   sheet.close();
 });
+
+const tabbing = (target, shiftKey = false) => target.dispatch('keydown', { key: 'Tab', shiftKey });
+
+test('Tab stays inside an open sheet: the last control wraps to the first, Shift+Tab the other way, and focus from outside is pulled in', () => {
+  installFakeDom();
+  const outside = globalThis.document.createElement('button');
+  globalThis.document.body.appendChild(outside);
+  openSheet({}, { title: 'Trap', id: 'trap' });
+  const panel = ov().querySelector('.sh-panel');
+  const first = ov().querySelector('.sh-x');
+  const a = globalThis.document.createElement('button');
+  const hidden = globalThis.document.createElement('input');
+  hidden.setAttribute('hidden', '');
+  const last = globalThis.document.createElement('button');
+  panel.querySelector('.sh-body').append(a, hidden, last);
+  last.focus();
+  assert.equal(tabbing(last).defaultPrevented, true);
+  assert.equal(globalThis.document.activeElement, first, 'forward from the last goes to the first (the hidden input is skipped)');
+  assert.equal(tabbing(first, true).defaultPrevented, true);
+  assert.equal(globalThis.document.activeElement, last, 'Shift+Tab from the first goes to the last');
+  a.focus();
+  assert.equal(tabbing(a).defaultPrevented, false, 'in the middle the browser moves it');
+  outside.focus();
+  tabbing(ov());
+  assert.equal(globalThis.document.activeElement, first, 'from the page behind, back into the sheet');
+});
+
+test('closing a sheet does not take the focus from a window opened over it', () => {
+  installFakeDom();
+  const opener = globalThis.document.createElement('button');
+  globalThis.document.body.appendChild(opener);
+  opener.focus();
+  const under = openSheet({}, { title: 'Under', id: 'under' });
+  const over = openSheet({}, { title: 'Over', id: 'over' });
+  const overX = globalThis.document.activeElement;
+  assert.equal(overX.closest('.sh-ov').dataset.sheet, 'over');
+  under.close();
+  assert.equal(globalThis.document.activeElement, overX, 'the top window keeps the focus');
+  over.close();
+  assert.ok(globalThis.document.activeElement !== overX);
+});
