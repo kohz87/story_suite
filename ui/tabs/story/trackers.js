@@ -56,6 +56,6 @@ export function trackersView(story = {}, ctx = {}) {
         button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => editTracker(t, ctx) })),
       (t.fields ?? []).map(field))),
     hidden ? h('div', { class: 'hiddenrow' }, h('i', null, '🔒'), `${hidden} ${hidden === 1 ? 'tracker is' : 'trackers are'} hidden by the pack`) : null,
-    h('p', { class: 'fine' }, `Up to 20 trackers, 28 shown on Now at most. ${list.length} here, ${hidden} hidden by the pack, ${onNow} shown on Now.${templates.length ? '' : ' New trackers and field changes are in Settings › Trackers.'}`),
+    h('p', { class: 'fine' }, `A chat holds up to 28 blocks in all, and any of them can be shown on Now. ${list.length} here, ${hidden} hidden by the pack, ${onNow} shown on Now.${templates.length ? '' : ' New trackers and field changes are in Settings › Trackers.'}`),
     addRow);
 }

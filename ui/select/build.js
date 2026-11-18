@@ -17,6 +17,7 @@ import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from
 import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
+import { pinnedFeed } from './pinned.js';
 import { repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
 import { PREFS_KEY } from '../port/prefs-key.js';
@@ -55,7 +56,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
   };
   return {
     card: read => { const s = scene(read); return selectCard(s.answers, s.opts); },
-    now: read => { const s = scene(read); return selectNow(s.answers, s.opts); },
+    now: read => { const s = scene(read); return selectNow(s.answers, { ...s.opts, pinned: pinnedFeed(read) }); },
     // `args.index` asks for that reply's own changes (its state, not the head's); without it the head reply.
     chat: (read, args) => {
       const at = Number.isInteger(args?.index) && args.index >= 0 ? args.index : null;

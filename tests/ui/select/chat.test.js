@@ -31,7 +31,7 @@ describe('selectDrawer', () => {
 describe('replyLines', () => {
   it('lists applied lines then lines not applied', () => {
     const lines = replyLines(ANSWERS);
-    assert.deepEqual(lines.map(line => line.line), ['+1 Rope', '+30', 'To Auvoth', 'Fenna arrived', '+ item Moon Blade']);
+    assert.deepEqual(lines.map(line => line.line), ['+1 Rope', '+30 copper', 'To Auvoth', 'Fenna arrived', '+ item Moon Blade']);
     assert.equal(lines.at(-1).applied, false);
     assert.equal(lines.at(-1).detail, 'No such item.');
   });

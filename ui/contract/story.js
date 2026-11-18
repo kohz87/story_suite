@@ -30,6 +30,7 @@ export const STORY_SHAPE = {
   arc: {
     accepted: { $nullable: T.STRING },
     plan: { $nullable: { title: T.STRING, text: T.STRING, summary: T.STRING } },
+    open: { $optional: T.BOOLEAN },
   },
   beats: gated({
     title: T.STRING,

@@ -36,6 +36,7 @@ function pulseCard(pulse, shown, ctx) {
   const latest = pulse.latest;
   const head = pulse.quiet
     ? h('p', { class: 'fine' }, 'Quiet scene: no rolls until the scene changes.')
+    : !latest ? h('p', { class: 'fine' }, 'No roll yet. The world rolls with the first reply.')
     : h('div', { class: 'pulse' },
       h('span', { class: 'die' }, shown && latest?.roll != null ? String(latest.roll) : '?'),
       h('span', null, h('b', null, shown && latest?.kind ? latest.kind : 'Rolled this reply'),
@@ -71,7 +72,7 @@ function arcCard(arc, shown, ctx) {
     h('div', { class: 'ch' }, h('h3', null, 'Arc'), h('span', { class: 'cnt' }, arc?.accepted ? `accepted ${arc.accepted}` : 'none accepted')), body,
     h('div', { class: 'prow' },
       can(ctx, 'arc.plan') ? button({ label: 'Plan the next arc', dataset: { act: 'arc-plan' }, onClick: () => ctx.command?.('arc.plan', { note: note.value ?? '' }) }) : null,
-      button({ label: 'End this arc', dataset: { act: 'arc-end' }, onClick: () => ctx.command?.('arc.end', {}) })), note);
+      arc?.open === false ? null : button({ label: 'End this arc', dataset: { act: 'arc-end' }, onClick: () => ctx.command?.('arc.end', {}) })), note);
 }
 
 /** Returns the Director cards in phone order, leaving out the empty ones; ctx = { command(name, payload) }. */

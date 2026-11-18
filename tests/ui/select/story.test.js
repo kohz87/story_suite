@@ -55,7 +55,7 @@ describe('selectStory', () => {
     assert.equal(vm.plan.shown, false);
     for (const key of ['beats', 'clocks', 'hooks', 'agendas', 'secrets', 'ripples']) assert.deepEqual(vm[key].items, [], key);
     assert.deepEqual([vm.beats.count, vm.clocks.count, vm.hooks.count, vm.agendas.count, vm.secrets.count, vm.ripples.count], [2, 2, 1, 1, 1, 2]);
-    assert.deepEqual(vm.arc, { accepted: null, plan: null });
+    assert.deepEqual(vm.arc, { accepted: null, plan: null, open: true });
   });
 
   it('hides what a roll was and caused while the plan is hidden', () => {
@@ -81,8 +81,8 @@ describe('selectStory', () => {
   });
 
   it('shows the arc plan with the plan', () => {
-    assert.deepEqual(selectStory(recorded(), { planShown: true }).arc, { accepted: null, plan: { title: 'The Grey Toll', text: 'The bandits are paid from Thousand Sails.', summary: '1 of 3 beats' } });
-    assert.deepEqual(selectStory(recorded({ 'director.arc': { current: null, previous: null, count: 0 } }), { planShown: true }).arc, { accepted: null, plan: null });
+    assert.deepEqual(selectStory(recorded(), { planShown: true }).arc, { accepted: null, open: true, plan: { title: 'The Grey Toll', text: 'The bandits are paid from Thousand Sails.', summary: '1 of 3 beats' } });
+    assert.deepEqual(selectStory(recorded({ 'director.arc': { current: null, previous: null, count: 0 } }), { planShown: true }).arc, { accepted: null, plan: null, open: false });
   });
 
   it('maps beats, clocks and hooks', () => {

@@ -75,6 +75,8 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 - The off-screen cast helper's prompts are sent with the player's and the character's names filled in (they went out as `{{user}}` / `{{char}}`).
 - The world-events prompt shows a template's summary with its place, region and realm filled in (it showed `{region}`).
 - The narrator note's weather is cut at a whole word (it stopped mid-word: `thin and drif…`), and NPC State's own `meters started` / `nothing moved` lines no longer appear as a day's events in the digest.
+- Now: a tracker with **Show on Now** switched on appears as a card on Now (it never did); a finished trip no longer stays under Today for weeks (the place row says where you are); a quest whose date has passed says "overdue" instead of "due now"; the coin change under This reply names its unit ("−3 copper"); a fresh chat shows one line instead of a blank page.
+- Story › Trackers: the footer names one limit (28 blocks in a chat) instead of two numbers that disagreed with Settings › Packs. Story › Director: no "Rolled this reply ?" before the first roll, and no **End this arc** while there is no arc.
 - Settings › People: a refused Portraits Prompt or Leave out text box keeps what was typed beside the note (it was drawn again from the stored value).
 - Settings › People: the rows and the off-hint say "feelings" like the module switch: Custom feelings, Feeling presets (up to 12), Per-feeling stages, "Feeling presets and rules is off".
 - Developer: the UI walk gives the Coins row a line it reads and accepts a number the engine holds to its range (Most output per People call 1 becomes 128) when the page, the store and a fresh Settings agree; it also runs for a change inside a `modules/**/settings*` folder.

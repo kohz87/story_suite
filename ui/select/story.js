@@ -40,9 +40,10 @@ function pulseOf(view, shown) {
 // accepted: no query gives the accept date, so null. The plan text is the arc's own and shows only with the plan.
 function arcOf(view, shown) {
   const current = view?.current && typeof view.current === 'object' ? view.current : null;
-  if (!current || !shown) return { accepted: null, plan: null };
+  if (!current) return { accepted: null, plan: null, open: false };
+  if (!shown) return { accepted: null, plan: null, open: true };
   const beats = current.beats ?? {};
-  return { accepted: null, plan: { title: text(current.key), text: text(current.desc), summary: `${number(beats.done)} of ${number(beats.total)} beats` } };
+  return { accepted: null, open: true, plan: { title: text(current.key), text: text(current.desc), summary: `${number(beats.done)} of ${number(beats.total)} beats` } };
 }
 
 // A beat is "ready" while its row carries a `now` field; its `when` is the on/place condition (the plan row only has those fields).

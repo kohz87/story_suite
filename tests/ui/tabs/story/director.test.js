@@ -89,3 +89,14 @@ test('beats, clocks, hooks and news render their rows with plan on', () => {
   assert.match(text(c[6]), /reaches you Goldwane 14/);
   assert.equal(directorCards(buildStory({ empty: true })).filter(Boolean).length, 2);
 });
+
+test('before any roll or arc, no "Rolled this reply ?" and no End this arc', () => {
+  installFakeDom();
+  const base = buildStory();
+  const cards = directorCards({ ...base, plan: { ...base.plan, shown: true }, pulse: { mode: 'lively', quiet: false, latest: null, recent: [] }, arc: { accepted: null, plan: null, open: false } }, makeCtx());
+  const pulse = cards.find(c => c?.dataset?.card === 'pulse'), arc = cards.find(c => c?.dataset?.card === 'arc');
+  assert.match(text(pulse), /No roll yet/);
+  assert.doesNotMatch(text(pulse), /Rolled this reply/);
+  assert.equal(arc.querySelector('[data-act="arc-end"]'), null);
+  assert.notEqual(arc.querySelector('[data-act="arc-plan"]') ?? true, null);
+});
