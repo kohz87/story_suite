@@ -6,5 +6,5 @@
 // no static text, so a story with no cast in its packs sends the same prompt as before.
 // Public face: re-exports its parts.
 
-export { meetingFresh, cueOf } from './note-parts/cue.js';
+export { meetingFresh, cueOf, strangerLabel } from './note-parts/cue.js';
 export { cueLines, pinned, tail } from './note-parts/tail.js';
