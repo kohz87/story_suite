@@ -132,7 +132,17 @@ test('a format 3 entry stored before X1: the one kind-less row, under Packs alon
     assert.equal(alone.v4, undefined, 'no world or game: the page without pickers');
     assert.deepEqual(alone.packs.map(row => row.id), ['riverside-starter']);
     assert.match(alone.packs[0].problem, /format 3; this suite reads format 4 only.*scripts\/packs\/convert-3to4\.mjs/);
-    assert.match(alone.packs[0].desc, /Not usable: /);
+    assert.equal(alone.packs[0].desc, 'Old format: remove it or convert it', 'the design\'s line (pack-format-4.md §7)');
+    // (REVPF4 17) drawn with its Remove and the converter's words, and no switch that would do nothing
+    const { installFakeDom } = await import('../../helpers/ui-fake-dom.js');
+    installFakeDom();
+    const { renderPacks } = await import('../../../ui/settings/packs.js');
+    const nodes = renderPacks({ packs: alone, status: null, confirming: false, setConfirm() {}, change() {}, act() {} }).filter(Boolean);
+    const row = nodes[0].querySelectorAll('.srow').find(node => node.textContent.includes('Old format'));
+    assert.ok(row, 'the old-format row');
+    assert.equal(row.querySelectorAll('input, [role="switch"], .sw').length, 0, 'no switch');
+    assert.deepEqual(row.querySelectorAll('button').map(button => button.textContent), ['Remove']);
+    assert.match(row.textContent, /convert-3to4\.mjs/);
     assert.equal((await made.packs.install({ id: 'w1', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' }, content: {} })).ok, true);
     const beside = selectPacks({ list: made.packs.list(), setup: [] });
     assert.deepEqual(beside.v4.installed.map(row => row.id), ['w1']);

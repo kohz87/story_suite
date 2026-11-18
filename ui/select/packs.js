@@ -9,6 +9,8 @@ const text = value => (typeof value === 'string' ? value.trim() : '');
 const nameOf = row => text((row.pinnedDefinition ?? row.definition)?.name) || text(row.module);
 
 function packLine(pack) {
+  // A format 3 entry stored before format 4 (refused, never read): the design's line (pack-format-4.md §7), with the checker's words on how to convert it.
+  if (pack.problem && /reads format 4 only/.test(pack.problem)) return { id: text(pack.id), name: `${pack.name} ${pack.version}`.trim(), desc: 'Old format: remove it or convert it', on: false, problem: pack.problem };
   const facts = [addsLine(pack), pack.author ? `by ${pack.author}` : ''].filter(Boolean).join(' · ');
   const warn = pack.problem ? `Not usable: ${pack.problem}` : pack.missing?.length ? `Needs ${pack.missing.join(', ')}; its content is offered but those parts will not use it.` : '';
   return { id: text(pack.id), name: `${pack.name} ${pack.version}`.trim(), desc: [facts, warn].filter(Boolean).join(' · '), on: pack.enabled !== false, ...(pack.problem ? { problem: pack.problem } : {}) };

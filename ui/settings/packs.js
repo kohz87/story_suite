@@ -21,14 +21,15 @@ function switchLine(item, onChange) {
 function packBlock(pack, state) {
   const { confirming, setConfirm, change, act } = state;
   const key = pack.id ?? pack.name;
-  const sw = toggle({ checked: pack.on, label: pack.name, onChange: v => change(`packs.on.${key}`, v) });
+  // (a pack that cannot be used has no switch: an old-format entry is removed or converted, never switched on)
+  const sw = pack.problem ? null : toggle({ checked: pack.on, label: pack.name, onChange: v => change(`packs.on.${key}`, v) });
   const remove = h('button', { type: 'button', class: 'btn2 dng', onClick: () => setConfirm(!confirming) }, 'Remove');
   const name = pack.name.replace(/ \(.*$/, '');
   const confirm = confirming ? h('div', { class: 'cfm' }, h('b', `Remove ${name}?`),
     h('small', 'Its content leaves the game. Stories already told keep what they used from it.'),
     h('span', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 dng', onClick: () => { setConfirm(false); act('packs.remove', key); } }, 'Remove'),
       h('button', { type: 'button', class: 'btn2', onClick: () => setConfirm(false) }, 'Keep it'))) : null;
-  return [line(pack.name, pack.desc, sw, remove), confirm];
+  return [pack.problem ? h('div', { class: 'srow' }, h('span', { class: 'lb' }, h('b', pack.name), h('small', pack.desc), h('small', pack.problem)), h('span', { class: 'ctl' }, remove)) : line(pack.name, pack.desc, sw, remove), confirm];
 }
 
 // The picked files go to `act('packs.import', files)`: a pack.json with its images, or one .zip (the same picker the old panel has).
