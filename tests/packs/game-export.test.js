@@ -81,3 +81,21 @@ test('registry: sections need read and apply; one owner per section; a failing a
     assert.equal(done.ok, false);
     assert.match(done.failed[0].message, /could not apply/);
 });
+
+test('loadSections: lazily offered sections appear only after it is awaited, once; the export handle awaits it; a failing loader leaves them out', async () => {
+    const registry = createCardSettings();
+    let loads = 0;
+    registry.register({ owner: 'lazy', label: 'Lazy', loadSections: async () => { loads += 1; return { economy: { read: () => ({ scale: 3 }), apply: async () => true } }; } });
+    registry.register({ owner: 'broken', label: 'Broken', loadSections: async () => { throw new Error('offline'); } });
+    assert.deepEqual(registry.sections(), [], 'nothing is loaded before it is asked for');
+    await Promise.all([registry.loadSections(), registry.loadSections()]);
+    await registry.loadSections();
+    assert.equal(loads, 1);
+    assert.deepEqual(registry.sections().map(item => item.section), ['economy']);
+    const { createToolsHandle } = await import('../../ui/port/tools-handle.js');
+    const fresh = createCardSettings();
+    fresh.register({ owner: 'lazy', label: 'Lazy', loadSections: async () => ({ economy: { read: () => ({ scale: 3 }), apply: async () => true } }) });
+    const made = await createToolsHandle({ runtime: { cardSettings: fresh }, ui: () => null }).exportGamePack('Lazy');
+    assert.equal(made.ok, true);
+    assert.equal(made.pack.content.economy.scale, 3);
+});

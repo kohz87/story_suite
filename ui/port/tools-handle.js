@@ -1,7 +1,6 @@
 // The Tools page's handle on the engine: what the next reply is sent, the problems, the Inspector's replies, the report, and the rebuild and save points (the reader's own buttons; nothing else here writes).
 import { promptSize, sentText, redactSentOf } from '../../core/sent/sent.js';
 import { DEFAULT_TAIL_BUDGET } from '../../core/prompt.js';
-import { buildGamePack } from '../../packs/game-export.js';
 import { CORE_FEATURE } from '../../core/features.js';
 
 const NONE = { ok: false, code: 'FAILED', message: 'Save points are not available.' };
@@ -44,7 +43,12 @@ export function createToolsHandle({ runtime, ui, savePoints = () => null }) {
     returnToSavePoint: id => savePoints()?.returnTo(id) ?? Promise.resolve(NONE),
     forgetSavePoint: id => savePoints()?.forget(id) ?? Promise.resolve(NONE),
     /** The settings now in force as a game pack: `{ ok, pack, text, sections }` or `{ ok: false, message }`. */
-    exportGamePack: name => (runtime.cardSettings ? buildGamePack(runtime.cardSettings, { name }) : { ok: false, message: 'Settings are not available.' }),
+    exportGamePack: async name => {
+      if (!runtime.cardSettings) return { ok: false, message: 'Settings are not available.' };
+      // (rare: the builder, the pack checker and the sections' code are fetched now, not at the page start)
+      const [{ buildGamePack }] = await Promise.all([import('../../packs/game-export.js'), runtime.cardSettings.loadSections?.()]);
+      return buildGamePack(runtime.cardSettings, { name });
+    },
     report: () => (typeof ui()?.diagnostics?.report === 'function' ? ui().diagnostics.report() : Promise.resolve('')),
   });
 }

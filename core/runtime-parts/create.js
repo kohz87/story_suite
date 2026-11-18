@@ -5,8 +5,6 @@ import { CORE_MODULE_ID, createCoreModule } from '../../modules/scene/domains/in
 import { SETTING as ASSIST_SETTING, TIMEOUT_MS as ASSIST_TIMEOUT_MS, createAssistPart } from '../../modules/assist/index.js';
 import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
 import { createCardSettings } from '../../packs/card-settings.js';
-import { moneySections } from '../../modules/scene/domains/core/game-sections.js';
-import { rpgSections } from '../../modules/rpg/game-sections.js';
 import { skipOf } from '../../modules/rpg/start-notes.js';
 import { XP_RATE_SETTING, xpRateFrom, xpRateOf } from '../../modules/rpg/levels.js';
 import { connectionFor } from '../model-call/connection-for.js';
@@ -260,7 +258,11 @@ export function createRuntime({
         cardSettings.registerOwn({
             owner: CORE_MODULE_ID,
             label: 'Story Block',
-            sections: { ...moneySections(io), ...rpgSections(io) },
+            // (fetched when the export is asked for: the page start reaches neither the RPG's code nor the pack checker)
+            loadSections: async () => {
+                const [money, rpg] = await Promise.all([import('../../modules/scene/domains/core/game-sections.js'), import('../../modules/rpg/game-sections.js')]);
+                return { ...money.moneySections(io), ...rpg.rpgSections(io) };
+            },
             keys: {
                 rpg: { label: 'RPG', valueText: onOff, valid: value => typeof value === 'boolean' },
                 gear: { label: 'Gear', valueText: onOff, valid: value => typeof value === 'boolean' },
