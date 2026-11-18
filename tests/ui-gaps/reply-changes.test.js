@@ -9,7 +9,9 @@ import { checkShape } from '../../ui/contract/shapes.js';
 import { CHAT_SHAPE } from '../../ui/contract/chat.js';
 
 const BLOCK = '\n<Changes>\n+ item Rope | qty: 2\n- item Lantern | qty: 1\n+ coin 5\n~ place Auvoth\n+ present Fenna\n</Changes>';
+// The engine's lines; the view adds the coin's unit (W33).
 const LINES = ['+2 Rope', '+5', 'To Auvoth', 'Fenna arrived'];
+const VIEW_LINES = ['+2 Rope', '+5 gold', 'To Auvoth', 'Fenna arrived'];
 
 const portOf = host => createSbPort({ sdk: host.sdk, selectors: buildSelectors(() => host.ctx, host.sdk) });
 const linesOf = (host, index) => host.sdk.query('reply.changes', index === undefined ? {} : { index, asOf: index })?.lines.map(row => row.line);
@@ -27,7 +29,7 @@ test('the reply menu and the inline row read one reply\'s applied lines, and fit
   const host = await story(t);
   const view = portOf(host).view('chat');
   assert.deepEqual(checkShape(view.replyMenu, CHAT_SHAPE.replyMenu), []);
-  assert.deepEqual(view.replyMenu.lines.map(row => row.line), LINES);
+  assert.deepEqual(view.replyMenu.lines.map(row => row.line), VIEW_LINES);
   assert.deepEqual(view.replyMenu.counts, { changes: 4, heldBack: 0, notApplied: 0 });
   assert.equal(view.replyMenu.stateThen.place, 'Auvoth');
   assert.equal(view.inlineRow.changes, 4);
@@ -69,7 +71,7 @@ test('swipe, swipe back, a middle delete, a rewind and a reload give the same li
   await host.st.deleteMessage(4);
   await host.st.deleteMessage(3);
   assert.deepEqual(linesOf(host), LINES, 'rewind');
-  assert.deepEqual(menuOf(host).lines.map(row => row.line), LINES);
+  assert.deepEqual(menuOf(host).lines.map(row => row.line), VIEW_LINES);
   // Middle delete: the reader's message before a reply goes; the reply's lines stay on its reply.
   const again = await createHost({ core: true });
   t.after(() => again.close());
