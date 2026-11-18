@@ -1,4 +1,5 @@
-// Pack format 4, job S1: the reader's own rank label and starting money and items come before the selected game's; blank means the game's; format 3 is unchanged.
+// Pack format 4, job S1: the reader's own rank label and starting money and items come before the selected game's; blank means the game's; they count only while a
+// world or game is installed (a stored format 3 entry left from before X1 is refused and does not count).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createInstalled } from '../../packs/installed.js';
@@ -7,7 +8,7 @@ import { parseItems, itemsText, createOwn } from '../../packs/own.js';
 import { withOwnStart } from '../../packs/content-parts/own-start.js';
 import { mergeStart, youRankOf } from '../../packs/content.js';
 import { fakeSettings } from './helpers/fake-settings.js';
-import { sample } from './helpers/fixtures.js';
+import { sample } from './helpers/fixtures.js';   // (the frozen format 3 copy: stored as an entry left from before X1, never installed)
 
 const REQ = { suite: '^0.1' };
 const world = { id: 'w1', format: 4, kind: 'world', version: '1.0.0', requires: REQ, content: { items: [{ name: 'Rope', kind: 'goods' }] } };
@@ -94,13 +95,11 @@ test('replay: a reload over the same settings, and a swap of the selection and b
     assert.deepEqual(again.part.queries['packs.start'](null, {}, {}), query('packs.start'));
 });
 
-test('format 3 is unchanged: with nothing set the start and the rank are what the packs give, and no key is written', async () => {
-    const settings = fakeSettings();
-    const made = createPacksPart({ settings });
-    assert.equal((await made.packs.install(sample())).ok, true);
+test('nothing set: the start and the rank are what the packs give, and no key is written', async () => {
+    const { settings, made, query } = await part(world, game);
     const before = JSON.stringify(settings.root);
     assert.deepEqual(made.startState(), mergeStart(made.packs.packs()));
-    assert.equal(made.part.queries['packs.youRank'](null, {}, {}), youRankOf(made.packs.packs()));
+    assert.deepEqual(query('packs.youRank'), youRankOf(made.packs.packs()));
     assert.equal(JSON.stringify(settings.root), before);
     assert.equal(Object.hasOwn(settings.root, 'you') || Object.hasOwn(settings.root, 'start'), false);
 });
@@ -113,19 +112,32 @@ test('a pack added, removed or switched leaves the reader\'s own values alone, a
     assert.equal(createInstalled({ settings }).own.read().money, 3);
 });
 
-test('the reader\'s own values count only while a format 4 world or game is installed: after the last is removed the start and the rank are the packs\'', async () => {
+test('the reader\'s own values count only while a world or game is installed: after the last is removed the start and the rank are the packs\'', async () => {
     const { settings, made, query } = await part(world, game);
-    assert.equal((await made.packs.install(sample())).ok, true);
     await made.packs.setOwn('rankLabel', 'Standing'); await made.packs.setOwn('money', '7'); await made.packs.setOwn('items', 'Rope');
     assert.equal(query('packs.youRank').label, 'Standing');
     await made.packs.remove('w1'); await made.packs.remove('g1');
+    assert.deepEqual(settings.root.packs, []);
     assert.deepEqual(made.packs.own.read(), { rankLabel: '', money: null, items: [] });
-    assert.deepEqual(made.startState(), mergeStart(made.packs.packs()), 'only a format 3 pack is left: its start as it is');
-    assert.equal(query('packs.youRank'), youRankOf(made.packs.packs()));
-    assert.equal(made.startState().packs.includes('settings'), false);
-    for (const entry of [...settings.root.packs]) await made.packs.remove(entry.id);
     assert.deepEqual(made.startState(), mergeStart([]), 'no pack at all: no start');
+    assert.equal(made.startState().packs.includes('settings'), false);
     assert.equal(query('packs.youRank'), null);
     await made.packs.install(world);
-    assert.equal(made.packs.own.read().money, 7, 'the values were kept: a format 4 pack again brings them back');
+    assert.equal(made.packs.own.read().money, 7, 'the values were kept: a world or game again brings them back');
+});
+
+test('a stored format 3 entry left from before X1 is listed as refused (FORMAT_OLD, pointing to the converter) and the reader\'s own values do not count', async () => {
+    const settings = fakeSettings({ packs: [{ id: 'riverside-starter', version: '3.0.0', enabled: true, source: 'file', pack: sample() }], you: { rankLabel: 'Standing' }, start: { money: 7 } });
+    const made = createPacksPart({ settings });
+    await made.packs.ready({ force: true });
+    const [row] = made.packs.list();
+    assert.equal(row.kind, undefined);
+    assert.match(row.problem, /format 3; this suite reads format 4 only.*scripts\/packs\/convert-3to4\.mjs/);
+    assert.deepEqual(made.packs.packs(), []);
+    assert.deepEqual(made.packs.own.read(), { rankLabel: '', money: null, items: [] });
+    assert.deepEqual(made.startState(), mergeStart([]));
+    assert.equal(made.part.queries['packs.youRank'](null, {}, {}), null);
+    const again = await made.packs.install(sample());
+    assert.deepEqual(again.errors.map(error => error.code), ['FORMAT_OLD']);
+    assert.match(again.errors[0].message, /scripts\/packs\/convert-3to4\.mjs/);
 });
