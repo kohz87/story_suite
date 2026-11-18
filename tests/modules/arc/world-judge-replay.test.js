@@ -122,6 +122,7 @@ test('a second plan writes a new note and replaces the old one in the prompt; th
 });
 
 // The literals are origin/world/engine's output for this fixture with the switch off (a pack with an Active succession event and the plan below).
+// One change since: the arc's rev is 6, not 7, because B4-11h removed the weather-by-rule step that wrote one more receipt after the opening reply.
 const OFF_PLAN = '<plan>\nARC: Succession — a crown in doubt\nBEAT: Refugees — families leave Highmark\nBEAT: Settlement — the lords settle who rules\nBEAT: Coronation — heir-crowned in the hall\nCLOCK: Rumours — whispers grow | due: in 2 days\nHOOK: Letter — a sealed letter\n</plan>';
 test('switch off is byte-identical to origin/world/engine: the planner request, the draft, the receipt, the arc record and the tail', async () => {
     const t = await setUp(false, { plans: [OFF_PLAN], lore: false });
@@ -135,7 +136,7 @@ test('switch off is byte-identical to origin/world/engine: the planner request, 
         assert.equal(createHash('sha256').update(t.planned[0].system).digest('hex').slice(0, 16), '51287b5b7808c4c7');
         assert.deepEqual(planned.draft, JSON.parse(String.raw`{"text": "ARC: Succession \u2014 a crown in doubt\nBEAT: Refugees \u2014 families leave Highmark\nBEAT: Settlement \u2014 the lords settle who rules\nBEAT: Coronation \u2014 heir-crowned in the hall\nCLOCK: Rumours \u2014 whispers grow | due: June 5, 08:00 am\nHOOK: Letter \u2014 a sealed letter", "findings": [], "reason": "manual", "note": "", "noteUsed": false}`));
         assert.equal(accepted.receipt.summary, 'New arc: Succession (3 beats, 1 hook, 1 clock).');
-        assert.deepEqual(arcOf(t.host), { id: arcOf(t.host).id, key: 'Succession', desc: 'a crown in doubt', rev: 7, minutes: 631361280, reason: 'manual', note: '' });
+        assert.deepEqual(arcOf(t.host), { id: arcOf(t.host).id, key: 'Succession', desc: 'a crown in doubt', rev: 6, minutes: 631361280, reason: 'manual', note: '' });
         const tail = sent(t.host, TAIL_KEY).at(-1).split('\n').filter(line => /^(Clocks|Arc)/.test(line));
         assert.deepEqual(tail, ['Clocks: Rumours — whispers grow (June 5, 08:00 am)', 'Arc: Succession — a crown in doubt']);
     } finally { t.done(); }
