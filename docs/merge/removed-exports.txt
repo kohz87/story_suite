@@ -168,3 +168,8 @@ uiRoot
 selectedNpcId
 stage1Refresh
 openLauncherDossier
+# B4-8: the short one-pass instruction and the JSON-block reading helpers.
+compactCaptureRules
+parseNarrationCapture
+textCapture
+lastCaptureBlockChars

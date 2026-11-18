@@ -22,12 +22,10 @@ test('scanner and capture maxima follow configured caps, including custom values
             if (!amount) assert.equal(example.relationshipEvidence[axis], '');
         }
         if (!caps.major) assert.equal(example.relationshipImpact, 'none');
-        for (const compactCapture of [false, true]) {
-            const first = buildNarrationCaptureParts({ ...options, compactCapture });
-            const second = buildNarrationCaptureParts({ ...options, compactCapture, transcript: 'A different exchange.' });
-            assert.equal(first.rules, second.rules, 'the static capture rules remain identical between replies');
-            assert.ok(first.rules.includes(`${compactCapture ? 'raw' : 'Raw'} max ${maxima}`));
-        }
+        const first = buildNarrationCaptureParts(options);
+        const second = buildNarrationCaptureParts({ ...options, transcript: 'A different exchange.' });
+        assert.equal(first.rules, second.rules, 'the static capture rules remain identical between replies');
+        assert.ok(first.rules.includes(`Raw max ${maxima}`));
     }
 });
 

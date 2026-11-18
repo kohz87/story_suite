@@ -4,5 +4,5 @@
 
 export { captureJournalEntry, recordAcceptedCapture, recordReadMark, recordAcceptedFill } from './runtime-narration-parts/capture-journal.js';
 export { convertJournal } from './runtime-narration-parts/journal-convert.js';
-export { textCapture, backgroundRuleOn } from './runtime-narration-parts/capture-text.js';
+export { backgroundRuleOn } from './runtime-narration-parts/capture-text.js';
 export { createNarrationPart } from './runtime-narration-parts/narration-part.js';

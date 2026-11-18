@@ -78,6 +78,7 @@ Main has nothing beyond 0.1.2 yet except documentation and the Settings › Dire
 
 ### Removed
 
+- **NPC State: the Short one-pass instruction switch** (Settings › People) and the JSON-block path that served a chat without Story Block. The suite asks the narrator for change lines only; a saved choice is dropped. Without Story Block nothing is asked of the narrator and replies are scanned in the ordinary way.
 - The unused Fight tab composer (`ui/tabs/fight/fight.js`).
 
 <details><summary>Full notes</summary>
