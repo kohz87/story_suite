@@ -12,6 +12,7 @@
 import { DEFAULT_MAP, DEFAULT_PACES, mapSettings, parseLocation } from '../places.js';
 import { MAX_NAME, cleanName, revOf } from './domain.js';
 import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, basePace, goKeyOf, modeOf, modeWords, planTrip, positionOf, startOf, tripOf } from './trip.js';
+import { startNode } from './trip-start.js';
 import { packWorld, worldOf } from './world.js';
 import { replyKey } from '../../world/reply-keys.js';
 
@@ -27,6 +28,15 @@ function sceneName(ctx) {
     try {
         const place = typeof ctx?.query === 'function' ? ctx.query('scene.place') : null;
         return asText(place?.name).trim();
+    } catch {
+        return '';
+    }
+}
+
+function sceneRegion(ctx) {
+    try {
+        const place = typeof ctx?.query === 'function' ? ctx.query('scene.place') : null;
+        return asText(place?.region).trim();
     } catch {
         return '';
     }
@@ -120,7 +130,8 @@ export function applyTripLine(ctx, line) {
     if (!mode) return ctx.fail('INVALID', `"${by}" is not a way of travelling here. Use ${modern ? 'foot, car, bike, bus, train, ferry, ship or plane' : 'foot, riding, wagon, boat, ship, flight or courier'}.`);
 
     const atlas = ctx.draft('atlas');
-    const world = worldOf(atlas, packWorld(queryOf(ctx)));
+    const pack = packWorld(queryOf(ctx));
+    const world = worldOf(atlas, pack);
     const end = world.find(destination);
     if (!end || end.hidden) return ctx.fail('NOT_FOUND', `${destination} is not on the map. Add it with + landmark or + route.`);
     const vias = [];
@@ -134,7 +145,8 @@ export function applyTripLine(ctx, line) {
     let from;
     if (here.road) from = { road: here.road };
     else {
-        const start = world.find(here.node);
+        // A place the narrator made up has no route: set out from the pack place it stands for (LF4-3).
+        const start = startNode(world, atlas, pack, here.node, { query: queryOf(ctx), region: sceneRegion(ctx) });
         if (!start) return ctx.fail('NOT_FOUND', `${here.node} is not on the map, so no known route starts there.`);
         from = { node: start.id };
     }

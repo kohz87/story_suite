@@ -6,6 +6,8 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 
 ### Fixed
 
+- A trip the narrator starts from a place of their own (a road south of a town, not on the pack map) sets out from the pack place it stands for, else the last pack place visited, so the pack route is used ("on the road x of 70 km") instead of "not on the map".
+- A story `+ route` between two pack places the pack does not join is refused ("the pack has no road between …"); roads to places the story made up still work.
 - Two wordings: a refused clock time reads `"25:00" is not a clock time` (it no longer says the line "has" itself; a time inside a longer line still reads `"…" has "25:00", which is not a clock time`), and the prompt's know-line for a fact that opens with a verb reads `Astra knows: Torka hunts the singing orc` (it was `Torka's hunts…`).
 - Settings window: it is a modal window now, like the suite's sheets: Tab stays inside it, the suite behind it is inert, the × takes the focus, and Escape gives the focus back to the ⚙. Escape with a Prompts editor open closes the editor first, not the whole window.
 - Story › Director with Story Director off: the view is one card, "Story Director is off", instead of a plan bar, an arc planner button and cards that do nothing. Trackers still work.
