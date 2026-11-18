@@ -527,5 +527,7 @@
   "tests/ui/studio/start-page.test.js": "Tests the Studio start page: the blank packs pass the check, the id made from the name, the New sheet and openDoc, and New in the rendered Studio.",
   "tests/ui/studio/edit-places.test.js": "Tests the places editor: the list and find box, a record page, edits as patches, the id rename, the pickers, the climate list and the read-only fallback.",
   "tests/ui/studio/edit-templates.test.js": "Tests the templates editor: the list and filters, edits as patches, odds chips, delta ranges, menu picks and pickers, open and arc, rename, used-by, delete and the read-only fallback.",
-  "tests/ui/studio/edit-loop.test.js": "Tests the Studio's edit loop in Chromium: a JSON row edit, Undo and Redo, the draft offered after a reload, Export off on errors with F8 and Go to at the field, warnings, and each pack's own history and export."
+  "tests/ui/studio/edit-loop.test.js": "Tests the Studio's edit loop in Chromium: a JSON row edit, Undo and Redo, the draft offered after a reload, Export off on errors with F8 and Go to at the field, warnings, and each pack's own history and export.",
+  "studio/edit/cast-npc.js": "Pack Studio cast editor's NPC State groups for one person: Level, meters, stages, secrets with gates, abilities and keepsakes, and the 'what NPC State seeds' preview.",
+  "studio/edit/cast-portrait.js": "Pack Studio cast editor's portrait group: add or replace a person's picture from a picked file, resized the way install does."
 }
