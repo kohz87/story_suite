@@ -36,7 +36,7 @@ export function joinOffers(entries, index, party = []) {
         if (!key || answered.has(key)) continue;
         const known = seen.get(key);
         if (known) { known.recorded ||= join.full === true; known.back ||= join.back === true; known.four ||= join.four === true; continue; }
-        const offer = { name: oneLine(join.name), soul: Number.isSafeInteger(join.soul) ? join.soul : 1, best: STATS.includes(join.best) ? join.best : '',
+        const offer = { name: oneLine(join.name), soul: Number.isSafeInteger(join.soul) ? join.soul : 1, best: STATS.includes(join.best) ? join.best : '', ...(Number.isSafeInteger(join.level) && join.level >= 1 ? { level: join.level } : {}),
             ...(Array.isArray(join.skills) && join.skills.length ? { skills: join.skills.slice(0, 8).map(skill => ({ name: oneLine(skill?.name), about: oneLine(skill?.about), stat: skill?.stat, uses: skill?.uses, rank: skill?.rank, ...typeKey(skill?.type) })) } : {}) };
         const state = { offer, recorded: join.full === true, back: join.back === true, four: join.four === true };
         seen.set(key, state);

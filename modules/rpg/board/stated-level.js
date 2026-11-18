@@ -35,7 +35,7 @@ export function parseStatedLevel(text, rankAt = null) {
 
 /**
  * The stated level of the foe group `name`, or null: the first dossier (`npc.known`, `npc.dossier`) whose name or an alias equals the group's name exactly (plain) and
- * whose "Level" custom field reads (parseStatedLevel). No NSD, no match, no field, a throwing query: null, so the normal rules stand.
+ * whose built-in Level (or, without one, "Level" custom field) reads (parseStatedLevel). No NSD, no match, no field, a throwing query: null, so the normal rules stand.
  */
 export function statedLevel(query, name) {
     const names = ask(query, 'npc.known', {});
@@ -47,9 +47,10 @@ export function statedLevel(query, name) {
         if (!dossier || typeof dossier !== 'object') continue;
         const aliases = Array.isArray(dossier.aliases) ? dossier.aliases.filter(alias => typeof alias === 'string') : [];
         if (![known, ...aliases].some(label => seen !== '' && plain(label) === seen)) continue;
+        // (pack format 4: the built-in Level, a whole number, first; a custom field "Level" the reader made still reads as before, rank names too)
         const fields = dossier.customFields && typeof dossier.customFields === 'object' ? dossier.customFields : {};
         const key = Object.keys(fields).find(field => field.trim().toLowerCase() === 'level');
-        const found = key === undefined ? null : parseStatedLevel(fields[key], rankAt);
+        const found = Number.isSafeInteger(dossier.level) ? parseStatedLevel(String(dossier.level), rankAt) : key === undefined ? null : parseStatedLevel(fields[key], rankAt);
         if (found) return found;
     }
     return null;

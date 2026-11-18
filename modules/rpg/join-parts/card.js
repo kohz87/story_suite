@@ -32,9 +32,9 @@ export function joinCard(offers, state = null, isMe = () => false) {
             text: fill(offer.declined ? J.benchDeclined : J.benchWho, { name: offer.name }), actions };
     }
     // (a cast member's signature skills, as the pack had them when the line came, go with Edit first: the wizard's draft keeps them marked)
-    const payload = { name: offer.name, soul: offer.soul, best: offer.best, ...(offer.skills ? { skills: offer.skills } : {}) };
-    // (the class a line writes stands for a level, 10n - 5: the card says the level the companion will start at)
-    const rows = [{ icon: 'fa-star', text: fill(J.rowLevel, { level: levelOfClass(CLASS_NAMES[offer.soul - 1] ? offer.soul : 1) }) }];
+    const payload = { name: offer.name, soul: offer.soul, best: offer.best, ...(offer.level ? { level: offer.level } : {}), ...(offer.skills ? { skills: offer.skills } : {}) };
+    // (the class a line writes stands for a level, 10n - 5, unless the person's record states one: the card says the level the companion will start at)
+    const rows = [{ icon: 'fa-star', text: fill(J.rowLevel, { level: offer.level ?? levelOfClass(CLASS_NAMES[offer.soul - 1] ? offer.soul : 1) }) }];
     if (offer.best) rows.push({ icon: 'fa-arrow-up', text: fill(J.rowBest, { stat: offer.best.toUpperCase() }) });
     return {
         tone: 'accent', icon: 'fa-user-plus', title: fill(J.title, { name: offer.name }), rows,

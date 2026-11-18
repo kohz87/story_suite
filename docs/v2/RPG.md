@@ -601,3 +601,7 @@ A set has a name (up to 40 characters, unique in the pack), an optional `about` 
 name (up to 40, unique in its set), `about` (1 to 120, what it does: the narrator reads it), `stat` (`str`, `vit`, `agi`,
 `dex`, `int`, `luk` or `cha`) and `uses` (`stamina`, the default, or `mana`). Sets never carry ranks: every skill starts at
 Novice, and the reader may start one at Adept.
+
+## The pull from NPC State (pack format 4)
+
+A joining person's sheet is built from their NPC State record (`join-parts/from-person.js`, words in `pull-words.js`): level (the record's, held to the level cap; else the join line's class), best stat (the line's, else a fixed keyword table over role, background and abilities), one signature skill per ability (up to `rpg.pull.abilities` of the selected game pack, default 4, at most 6) with its type, stat and resource from the same table and its rank one under the highest the level allows, one stance skill unless an ability is one or `rpg.pull.stance` is false, and gear from keepsakes that name pack equipment. Add and Edit first make the same sheet. A person with no abilities keeps format 3 cast skills and gear until the format 3 removal. The sheet writes nothing back yet (R2).
