@@ -30,7 +30,7 @@ function featureRow(def, sub, state) {
 }
 
 function moduleCard(def, state, open, withLinks) {
-  const { set, change, toggleOpen, go } = state;
+  const { set, change, toggleOpen, go, has = () => true } = state;
   const on = set[def.id].on;
   const count = def.subs.filter(x => set[def.id].subs[x.key]).length;
   const head = h('div', { class: 'mh' }, h('span', { class: 'mi', 'aria-hidden': 'true' }, def.icon),
@@ -39,7 +39,8 @@ function moduleCard(def, state, open, withLinks) {
     toggle({ checked: on, label: def.name, dataset: { mod: def.id }, onChange: v => change(def.id, null, v) }));
   const links = withLinks ? h('div', { class: 'mf' },
     h('button', { type: 'button', class: 'lnk', onClick: () => toggleOpen(def.id) }, `${open ? 'Hide features' : 'Features'} ${open ? '▴' : '▾'}`),
-    h('button', { type: 'button', class: 'lnk', dataset: { sec: def.section }, onClick: () => go(def.section) }, 'Settings ›')) : null;
+    // "Settings ›" only when the module has a page of its own (Story Block has none; the RPG page is gone while the RPG is off)
+    def.section && has(def.section) ? h('button', { type: 'button', class: 'lnk', dataset: { sec: def.section }, onClick: () => go(def.section) }, 'Settings ›') : null) : null;
   const subs = open ? h('div', { class: 'msubs' }, def.subs.map(sub => featureRow(def, sub, state))) : null;
   return h('div', { class: ['mod', !on && 'off'], dataset: { mod: def.id } }, head, subs, links);
 }

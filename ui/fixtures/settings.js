@@ -20,14 +20,14 @@ function row(group, key, type, label, value, extra = {}) {
 
 const sec = (id, group, name, desc, rows, special = null) => ({ id, group, name, desc, special, rows });
 
-function buildSections(worldEvents = false) {
+function buildSections(worldEvents = false, rpg = true) {
   const R = (...args) => row(...args);
   const rows = id => (SECTION_ROWS[id] ? SECTION_ROWS[id](R) : []);
   return [
     sec('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     sec('look', 'Play', 'Look', 'Skin and text.', rows('look')),
     sec('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', rows('people')),
-    sec('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', rows('rpg')),
+    ...(rpg ? [sec('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', rows('rpg'))] : []), // the page only while the RPG is on
     sec('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', [...rows('world'), ...(worldEvents ? worldEventsRows() : [])]),
     sec('director', 'Rules', 'Director', 'Checks, spoilers, the pulse, one planner for arcs and the cast, names.', rows('director')),
     sec('money', 'Rules', 'Money', 'Coins and prices.', rows('money')),
@@ -57,7 +57,7 @@ export function buildSettings(opts = {}) {
   const rpg = opts.rpg !== false;
   return {
     subtitle: 'this chat: Ersveil · Astra',
-    sections: buildSections(opts.worldEvents === true),
+    sections: buildSections(opts.worldEvents === true, rpg),
     modules: {
       scope: 'chat',
       chat: buildModuleSet(rpg),

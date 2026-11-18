@@ -14,6 +14,7 @@ async function live(t) {
   const host = await createHost({ core: true, modules: BUILTIN_MODULES });
   t.after(() => host.close());
   const writes = { settings: host.settings, features: host.features };
+  host.features.set('story-block.rpg', true); // the RPG and fights page is listed only while the RPG is on (UIFIX5)
   const port = createSbPort({ sdk: host.sdk, writes, selectors: buildSelectors(() => null, host.sdk), rpgValues: () => host.sdk.settings('story-block') });
   return { host, port, sections: () => port.view('settings').sections };
 }

@@ -12,6 +12,7 @@ import { extrasRows, withExtras } from './settings-extras.js';
 import { selectPacks } from './packs.js';
 import { selectAddons } from './addons.js';
 import { BUDGETS, LOOK } from './host-keys.js';
+import { LEAN_RPG_FEATURE } from '../../modules/rpg/names-parts/feature.js';
 
 // The Settings page a module's feature switches belong to, when it is not the module's own id.
 const SECTION_OF = { 'npc-state-delta': 'people', 'story-director': 'director' };
@@ -102,11 +103,13 @@ export function selectSettings(answers) {
   const t = isObj(a.tools) ? a.tools : {};
   const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
   const { defList, set } = withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []);
+  // The RPG and fights page only while the RPG is on (its stored values stay as they are); a host without the RPG feature keeps the page.
+  const rpgOff = hasFeatures && a.features.some(f => f?.id === LEAN_RPG_FEATURE && f.on !== true);
   const sections = [
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
     section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people)),
-    section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', selectRpgRows(a.rpg)),
+    ...(rpgOff ? [] : [section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', selectRpgRows(a.rpg))]),
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [], a.directorCalls)),
     ...[selectDirector(a.directorPage)].filter(Boolean),
     section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
