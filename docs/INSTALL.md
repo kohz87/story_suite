@@ -1,4 +1,4 @@
-# Install Story Suite 0.1.1
+# Install Story Suite 0.1.2
 
 Story Suite is one SillyTavern extension. It replaces three: Story Block, Story Director and NPC State Delta (called NPC State here). It starts fresh: your old settings, chats' story data and NPC files are not read or migrated.
 
@@ -12,7 +12,7 @@ Story Suite is one SillyTavern extension. It replaces three: Story Block, Story 
 
 1. Open **Extensions → Install extension**.
 2. Paste `https://github.com/kohz87/story_suite` and install it for you (or for all users).
-3. Reload SillyTavern. The browser console prints `Story Suite 0.1.1 ready` once, and the Extensions drawer reads `Story Suite 0.1.1`.
+3. Reload SillyTavern. The browser console prints `Story Suite 0.1.2 ready` once, and the Extensions drawer reads `Story Suite 0.1.2`.
 
 This installs the source tree, which SillyTavern loads file by file. The packed build (a handful of files; `npm run release` builds it) is not published yet.
 

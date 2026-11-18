@@ -26,6 +26,8 @@ test('suite.person opens nothing for someone with no dossier, and nothing once d
   const suite = mountSuite({ port: createFakePort(), doc });
   assert.equal(suite.person(['nobody', 'no one']), false);
   assert.equal(doc.body.querySelector('.dossier'), null);
+  assert.equal(suite.tabHost.current(), 'now', 'the suite did not move to People');
+  assert.equal(doc.body.querySelector('[data-state]').getAttribute('data-state'), 'closed', 'the suite was not opened');
   suite.destroy();
   assert.equal(suite.person(['torka']), false);
 });

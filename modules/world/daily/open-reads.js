@@ -18,7 +18,9 @@ export function authoredReads(world = {}, events = []) {
     for (const person of list(world.cast)) for (const secret of list(person?.secrets)) strings(secret?.gate, texts);
     const conds = new Set();
     const facts = new Set();
-    for (const text of texts) {
+    for (const raw of texts) {
+        // `arc-ended:<template>@<ref>` names a template, not a condition.
+        const text = raw.replace(/arc-ended:[^\s+]+/g, '');
         for (const match of text.matchAll(/([a-z0-9]+(?:-[a-z0-9]+)*)@/g)) conds.add(match[1]);
         for (const match of text.matchAll(/\b(?:set|cleared):([a-z0-9]+(?:-[a-z0-9]+)*)/g)) conds.add(match[1]);
         for (const match of text.matchAll(/\bfact:([a-z0-9]+(?:-[a-z0-9]+)*)/g)) facts.add(match[1]);

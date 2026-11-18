@@ -1,5 +1,5 @@
 // The wizard's Who step in the new view: "Start from a saved character" (import a file, or undo it), the name and the starting level, with the
-// old step's words and rules (modules/rpg/view/wizard/who.js): the file is read by charfile.js, the draft changed by wizard-data's withImport.
+// old step's words and rules: the file is read by charfile.js, the draft changed by wizard-data's withImport.
 
 import { h } from '../kit/dom.js';
 import { button } from '../kit/controls.js';

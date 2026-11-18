@@ -1,4 +1,4 @@
-// Builds the Add-ons page rows: the custom-views switch (not built yet, so shown as a fact, never a setting) and the installed modules, read live from the sdk.
+// Builds the Add-ons page rows: the installed modules, read live from the sdk.
 
 const STATUS = { dormant: 'waiting for a module it needs', 'restore-pending': 'held while a restore finishes' };
 
@@ -16,12 +16,11 @@ function moduleValue(m) {
 
 /**
  * `modules`: sdk.modules() ([{ id, name, version, status, reason, … }], in id order) or null when it was not read; a module with `hidden: true` is not listed.
- * → the Add-ons rows. No setting is read or written: the suite has no custom-view host yet (and so no switch to keep), so the row says so.
+ * → the Add-ons rows (the installed modules). No setting is read or written. There is no custom-views row: the feature does not exist yet.
  */
 export function selectAddons(modules) {
   const list = Array.isArray(modules) ? modules.filter(isModule) : [];
   return [
-    info('addons.customViews', 'Custom views', 'Allow custom views', 'Sandboxed pages a pack can bring; they can only ask the suite to do things', 'off · not available yet'),
     info('addons.installedModules', 'Modules', 'Installed modules', 'Plug-in code that adds tabs or rules', list.length ? list.map(moduleValue).join(', ') : 'none yet'),
   ];
 }

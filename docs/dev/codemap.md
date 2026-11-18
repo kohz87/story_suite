@@ -1,3 +1,5 @@
+> **Historic (B4-4):** this map was last checked 2026-11-07 and still lists files that are gone (`ui/legacy/`, `modules/rpg/view/` screens, `modules/data-modules/screens/`, `packs/card-offer-ui.js`). The current map is `docs/codemap.md`; the deleted code is backed up in `scratch/backups/2026-11-18-retire-B4-4-view*`.
+
 This map covers files under `src/` that are not named by path or file name in the other repository documentation.
 Files already mapped elsewhere are listed in `CLAUDE.md`, `AI-README.md`, `README.md`, and `../../docs/**/*.md`.
 Last checked: 2026-11-07.
