@@ -81,9 +81,10 @@ test('a port event updates flags and redraws through one coalesced frame', () =>
   suite.open();
   assert.equal(suite.tabHost.tabs().includes('fight'), false);
   port.setVariant('fightOpen', { notify: true });
-  assert.equal(suite.tabHost.tabs().includes('fight'), true);
+  assert.equal(suite.tabHost.tabs().includes('fight'), false, 'not before the frame');
   port.emit('head'); port.emit('committed');
   f.run();
+  assert.equal(suite.tabHost.tabs().includes('fight'), true);
   suite.destroy();
 });
 

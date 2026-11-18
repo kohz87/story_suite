@@ -8,7 +8,9 @@ import { sceneFixture } from '../../../../ui/fixtures/interaction.js';
 test('the activity tab, named after the activity, appears when an interaction opens, opens on its own view, and goes when it is discarded', () => {
   const doc = installFakeDom();
   const port = createFakePort();
-  const suite = mountSuite({ port, doc });
+  const frames = [];
+  const frame = () => { while (frames.length) frames.shift()(); };   // the flags are read in the next frame
+  const suite = mountSuite({ port, doc, schedule: fn => frames.push(fn) });
   suite.open();
   assert.equal(suite.tabHost.tabs().includes('scene'), false);
   const views = { ...Object.fromEntries(['card', 'now', 'chat'].map(tab => [tab, port.view(tab)])), scene: sceneFixture('open') };
@@ -16,12 +18,14 @@ test('the activity tab, named after the activity, appears when an interaction op
   const answer = { ...views };
   port.view = tab => structuredClone(answer[tab] ?? null);
   port.emit('interaction', { ok: true });
+  frame();
   assert.equal(suite.tabHost.tabs().includes('scene'), true);
   assert.equal(suite.tabHost.el.querySelector('.su-tab[data-tab="scene"]').textContent, 'The ferry cross…');
   suite.open('scene');
   assert.ok(doc.body.querySelector('[data-tab="scene"][data-kind="probe/ferry"]'));
   delete answer.scene;
   port.emit('interaction', { ok: true, discarded: true });
+  frame();
   assert.equal(suite.tabHost.tabs().includes('scene'), false);
   suite.destroy();
 });
