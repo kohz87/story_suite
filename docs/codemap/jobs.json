@@ -471,7 +471,7 @@
   "studio/edit/regions.js": "Pack Studio editor slot for the regions and realms sections; a stub that draws the read-only cards until its form exists.",
   "studio/edit/routes.js": "Pack Studio editor slot for the routes section; a stub that draws the read-only cards until its form exists.",
   "studio/edit/start.js": "Pack Studio editor slot for the world pack's starting world; a stub that draws the read-only cards until its form exists.",
-  "studio/edit/templates.js": "Pack Studio editor slot for the templates section; a stub that draws the read-only cards until its form exists.",
+  "studio/edit/templates.js": "Pack Studio templates editor: the list with find and filters, one template's record page, the open-template menu with delta ranges, rename, used-by and delete.",
   "studio/views/convert.js": "Pack Studio page slot for Convert: the card at the top of a format 3 pack's Overview saying it opens read-only.",
   "studio/views/graph.js": "Pack Studio page slot for the event graph (a List · Graph segment on Events); a stub that draws nothing, so the segment stays hidden.",
   "studio/views/map.js": "Pack Studio page slot for the map (a List · Map segment on Places & routes); a stub that draws nothing, so the segment stays hidden.",
@@ -524,5 +524,6 @@
   "tests/packs/studio/wire.test.js": "Tests the Studio's edit loop without a page: commit, debounce, draft save, undo and redo, no-op edits, format 3 refusals, restore, export bytes before and after an edit, the export block, field paths and the undo keys.",
   "tests/ui/studio/pairing.test.js": "Tests the Pairing page: Check against, the result line, the lists with Go to into either pack, the waiting state, Open a game pack and a format 3 world.",
   "tests/ui/studio/edit-places.test.js": "Tests the places editor: the list and find box, a record page, edits as patches, the id rename, the pickers, the climate list and the read-only fallback.",
+  "tests/ui/studio/edit-templates.test.js": "Tests the templates editor: the list and filters, edits as patches, odds chips, delta ranges, menu picks and pickers, open and arc, rename, used-by, delete and the read-only fallback.",
   "tests/ui/studio/edit-loop.test.js": "Tests the Studio's edit loop in Chromium: a JSON row edit, Undo and Redo, the draft offered after a reload, Export off on errors with F8 and Go to at the field, warnings, and each pack's own history and export."
 }
