@@ -122,11 +122,11 @@ function trackersOf(read) {
   return { trackers, trackersHidden: hidden };
 }
 
-// The one plain line the plan shows when it has nothing to draw, hidden or shown (it names no part of a plan): the switch that is off, or that the
-// Director has not planned yet (no arc and no thread). '' when there is something: the cards, or their counts while the plan is hidden.
+// The one plain line the plan shows when it has nothing to draw: with the Threads switch off, the switch (only while the plan is shown); else, hidden
+// or shown, that the Director has not planned yet (no arc and no thread; it names no part of a plan). '' when there are cards or their counts.
 const NO_PLAN = 'The Director has no plan yet; it plans after the opening.';
 const THREADS_OFF = 'Beats, clocks, off-screen agendas and secrets are off. Turn on Story Director’s Threads switch in Settings › Director to see them.';
-const noteOf = (threadsOn, parts, hasArc) => (!threadsOn ? THREADS_OFF : hasArc || parts.some(group => group.count > 0) ? '' : NO_PLAN);
+const noteOf = (shown, threadsOn, parts, hasArc) => (!threadsOn ? (shown ? THREADS_OFF : '') : hasArc || parts.some(group => group.count > 0) ? '' : NO_PLAN);
 
 export function selectStory(read, opts = {}) {
   const shown = opts.planShown === true;
@@ -139,7 +139,7 @@ export function selectStory(read, opts = {}) {
   const arcView = read('director.arc', {});
   const hasArc = Boolean(arcView?.current && typeof arcView.current === 'object');
   return {
-    plan: { shown, note: noteOf(opts.threadsOn !== false, [beats, clocks, hooks, newsOnWay, agendas, secrets], hasArc) },
+    plan: { shown, note: noteOf(shown, opts.threadsOn !== false, [beats, clocks, hooks, newsOnWay, agendas, secrets], hasArc) },
     pulse: pulseOf(read('pulse.view', {}), shown),
     arc: arcOf(arcView, shown),
     beats, clocks, hooks, newsOnWay, agendas,

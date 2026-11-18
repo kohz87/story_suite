@@ -92,7 +92,8 @@ function controlFor(row, emit, labelId) {
   return h('span', { class: 'sinfo' }, value === null || value === undefined ? '' : String(value));
 }
 
-// The note under a number the engine held: its range when the answer gives one ({ min, max, step? }: "Level cap is 1-99; kept 99."), else that it was held.
+// The note under a number the engine held: its range when the answer gives one ({ min, max, step? }: "Level cap is 1-99; kept 99."), else that it was
+// held (an emptied box that came back with a number says it cannot be empty).
 function heldText(label, held, range) {
   const ok = Number.isFinite(range?.min) && Number.isFinite(range?.max);
   const steps = ok && Number.isFinite(range.step) && range.step > 1 ? ` in steps of ${range.step}` : '';
@@ -131,7 +132,7 @@ export function renderRow(row, ctx = {}) {
       kept = held;
       const box = ctl.querySelector('input');
       if (box) box.value = String(held);
-      note.textContent = heldText(row.label, held, answer.range);
+      note.textContent = value === null ? `${row.label} cannot be empty; kept ${held}.` : heldText(row.label, held, answer.range);
       note.hidden = false;
     }
   };

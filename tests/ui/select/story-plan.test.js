@@ -36,6 +36,7 @@ describe('Story: Show the plan, through the real selector map', () => {
   it('shown with the Threads switch off names the switch', () => {
     const off = storyOf({ [PREFS_KEY]: { plan: true } }, EMPTY, [{ id: 'story-director.threads', on: false }]);
     assert.match(off.plan.note, /Threads switch in Settings/);
+    assert.equal(storyOf({}, EMPTY, [{ id: 'story-director.threads', on: false }]).plan.note, '', 'hidden: the Threads line waits for Show the plan');
     assert.equal(selectStory(readOf(EMPTY), { planShown: true, threadsOn: true }).plan.note.includes('Threads'), false);
   });
 });
