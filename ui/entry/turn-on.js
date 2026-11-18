@@ -42,7 +42,7 @@ export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
   const prefs = { chat: chatPrefs(ctx), device: settingsFolds() };
   const hold = createHold(doc);
   const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, hold, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools, hold), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, screens: { open: (...args) => wizard?.open(...args) ?? false }, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
-  const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow', onOldView });
+  const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow', look: () => StoryBlock.sdk?.settings?.(), onOldView });
   // The New character wizard and the first-send hold (the port's `open` reaches it first: the old host's window never opens too).
   const wizard = attachWizard({ doc, ctx, sdk: StoryBlock.sdk, suite });
   const entry = addMenuEntry(doc, { label: 'Story Suite', onClick: () => suite.open('now') });

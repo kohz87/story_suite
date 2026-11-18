@@ -63,7 +63,8 @@ test('a module switch acts only on the card\'s own switches; on again puts back 
   t.after(() => host.close());
   const port = createSbPort({ sdk: host.sdk, writes: wiresOf(host) });
   const extras = ['story-block.choices', 'story-block.chatter', 'story-block.you'];
-  const own = () => host.sdk.features().filter(f => f.moduleId === 'story-block' && !extras.includes(f.id));
+  const moved = ['story-block.loot', 'story-block.encumbrance', 'story-block.gear']; // on Settings › RPG and fights now
+  const own = () => host.sdk.features().filter(f => f.moduleId === 'story-block' && !extras.includes(f.id) && !moved.includes(f.id));
   for (const id of ['story-block.choices', 'story-block.chatter']) host.features.set(id, true);
   const flipped = own().find(f => f.default !== false);
   host.features.set(flipped.id, false);
@@ -71,7 +72,7 @@ test('a module switch acts only on the card\'s own switches; on again puts back 
   const before = onMap(host);
   await port.command('settings.set', { key: 'modules.chat.story-block', value: false });
   assert.ok(own().every(f => !f.on));
-  for (const id of extras) assert.equal(onMap(host)[id], before[id], `${id} (Chat extras) is untouched`);
+  for (const id of [...extras, ...moved]) assert.equal(onMap(host)[id], before[id], `${id} (Chat extras, RPG and fights) is untouched`);
   await port.command('settings.set', { key: 'modules.chat.story-block', value: true });
   assert.deepEqual(onMap(host), before, 'the player\'s own switches come back');
   await port.command('settings.set', { key: 'modules.chat.story-block', value: false });

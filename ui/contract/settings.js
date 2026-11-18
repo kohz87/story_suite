@@ -58,10 +58,10 @@ export const SETTINGS_SHAPE = {
     chat: MODULE_SET,
     newChats: MODULE_SET,
     preset: { $nullable: { $enum: ['lean', 'standard', 'full'] } },
-    presets: [{ id: T.STRING, name: T.STRING, desc: T.STRING, tokens: T.NUMBER }],
+    presets: [{ id: T.STRING, name: T.STRING, desc: T.STRING, tokens: { $nullable: T.NUMBER } }],
     defs: [
       {
-        id: T.STRING, name: T.STRING, icon: T.STRING, section: T.STRING, desc: T.STRING, off: T.STRING, tokens: T.NUMBER,
+        id: T.STRING, name: T.STRING, icon: T.STRING, section: T.STRING, desc: T.STRING, off: T.STRING, tokens: { $nullable: T.NUMBER },
         subs: [{ key: T.STRING, label: T.STRING, hint: T.STRING, on: T.BOOLEAN, tags: { $optional: [T.STRING] }, needs: { $optional: T.STRING } }],
       },
     ],

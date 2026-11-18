@@ -8,11 +8,19 @@ import { createTabHost } from './shell/tab-host.js';
 import { GLASS_DARK, GLASS_LIGHT } from './theme/tokens.js';
 import { followSt, watchSt } from './theme/follow-st.js';
 import { skyFor } from './theme/sky.js';
+import { lookOf, lookTheme } from './theme/look.js';
 import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
 import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
+import { PANELBG_KEY, applyPanelBg } from './settings/panel-bg.js';
 import { DEVELOPER_KEY, OLD_VIEW_KEY } from './settings/developer.js';
+import { leaveTrackerIntent } from './tabs/story/tracker-intent.js';
+
+// SillyTavern's theme variables, read on <html> (follow-st.js reads the same).
+const stVar = doc => name => {
+  try { return String(doc?.defaultView?.getComputedStyle?.(doc.documentElement)?.getPropertyValue?.(name) ?? ''); } catch { return ''; }
+};
 
 function resolveTheme(theme, doc) {
   if (theme === 'light') return { tokens: GLASS_LIGHT, scheme: 'light' };
@@ -38,11 +46,13 @@ function readFlags(port, override) {
 /**
  * Mounts the suite. Options: `port` (required), `doc`, `host`, `flags` ({ rpg, fightOpen } overrides),
  * `theme` ('dark' | 'light' | 'follow'), `tabs` (id → (view, ctx) => node), `card` ((view, ctx) => node),
- * `schedule` (frame scheduler for tests), `initial` (first tab), `onOldView(on)` (Settings › Tools › Developer tools › Use the old view). Returns `{ open(tab), close(), settings(), destroy(), ... }`.
+ * `schedule` (frame scheduler for tests), `initial` (first tab), `onOldView(on)` (Settings › Tools › Developer tools › Use the old view),
+ * `look` (() → the host settings: Settings › Look's Panel style, Glass strength, Font and Text size decide the theme in place of `theme`, read again
+ * on open, after every Settings change and when SillyTavern's theme changes). Returns `{ open(tab), close(), settings(), destroy(), ... }`.
  */
 export function mountSuite(options = {}) {
   const { port, doc = globalThis.document, host = doc?.body, flags: override = null, theme = 'dark' } = options;
-  const { tabs = {}, card = null, schedule, initial = 'now' } = options;
+  const { tabs = {}, card = null, schedule, initial = 'now', look = null } = options;
   const verdict = checkPort(port);
   if (!verdict.ok) throw new TypeError(`mountSuite needs a working port: ${verdict.errors.join('; ')}`);
 
@@ -60,22 +70,42 @@ export function mountSuite(options = {}) {
     if (!settings || destroyed) return port.command('suite.settings', {});
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
-      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
-      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === OLD_VIEW_KEY ? options.onOldView?.(Boolean(value)) : port.command('settings.set', { key, value })),
-      onAction: (key, value) => (key === 'trackers.open' ? openTrackers() : port.command('settings.action', { key, value })), onView: (name, args) => port.view(name, args),
+      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === OLD_VIEW_KEY ? options.onOldView?.(Boolean(value)) : relook(port.command('settings.set', { key, value }))),
+      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
     return port.command('suite.settings', {});
   };
-  // Settings › Packs and trackers: a tracker is made and edited on Story › Trackers, so the buttons there close Settings and go to it.
-  const openTrackers = () => { settingsOverlay?.close(); prefs.setFold('story.trackers', true); showTab('story'); return { ok: true }; };
+  // Settings › Packs and trackers: a tracker is added from a template and edited on Story › Trackers, so each button there closes Settings and opens its own sheet.
+  const openTrackers = (where) => { settingsOverlay?.close(); leaveTrackerIntent(where); prefs.setFold('story.trackers', true); showTab('story'); return { ok: true }; };
   const views = defaultViews({
     port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
     onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,
   });
-  const picked = resolveTheme(theme, doc);
+  // Settings › Look (theme/look.js) when the mount reads it: its theme, and its Text size as the root's `data-text` (the zoom in shell.css).
+  const readLook = () => { try { return lookOf(look()); } catch { return lookOf(null); } };
+  const pickTheme = () => (look ? lookTheme(readLook(), stVar(doc)) : { ...resolveTheme(theme, doc), zoom: null });
+  const picked = pickTheme();
   scheme = picked.scheme;
   const view = createSuiteView({ doc, host, backStack, tokens: picked.tokens, scheme });
+  let shown = '';
+  function applyLook(next = pickTheme()) {
+    const key = JSON.stringify(next);
+    if (key === shown) return;
+    shown = key;
+    scheme = next.scheme;
+    view.setTheme(next.tokens, next.scheme);
+    if (next.zoom) view.root.setAttribute('data-text', String(Math.round(next.zoom * 100)));
+    else view.root.removeAttribute('data-text');
+    view.root.style.setProperty('--su-sky', skyFor(skyTime, scheme));
+  }
+  // A Settings write (or reset) answered: the look is read again, so a Look change shows at once.
+  function relook(answer) {
+    if (!look) return answer;
+    return Promise.resolve(answer).then(done => { if (!destroyed) applyLook(); return done; });
+  }
+  applyPanelBg(view.root, prefs.getFold(PANELBG_KEY, false));
   // While the suite is closed its card and tabs are not read; open() draws what changed meanwhile (the tab strip's flags stay live).
   const redraw = createRedraw({ port, initialTab: initial, isOpen: () => view.isOpen(), ...(schedule ? { schedule } : {}) });
   const tabHost = createTabHost({
@@ -88,8 +118,10 @@ export function mountSuite(options = {}) {
   });
   view.content.appendChild(tabHost.el);
 
+  let skyTime = null;   // the scene time the backdrop was last painted for: a look change paints with it and never reads the card
   function paintSky(cardVm = port.view('card')) {
     const time = cardVm?.scene?.time ?? null;
+    skyTime = time;
     view.root.style.setProperty('--su-sky', skyFor(time, scheme));
   }
 
@@ -133,9 +165,11 @@ export function mountSuite(options = {}) {
   // An interaction call changes chat metadata only, so the engine says nothing: the port does (`interaction`), and the open tab and the tab strip redraw.
   offs.push(port.on('interaction', () => redraw.markDirty()));
 
-  if (theme === 'follow') {
+  if (look) applyLook(picked);
+  if (look || theme === 'follow') {
     offs.push(watchSt(doc, () => {
       if (destroyed) return;
+      if (look) { applyLook(); return; }
       const next = resolveTheme('follow', doc);
       scheme = next.scheme;
       view.setTheme(next.tokens, next.scheme);
@@ -154,6 +188,7 @@ export function mountSuite(options = {}) {
       if (tab && !tabHost.tabs().includes(tab)) refreshFlags();
       if (tab) views.closePage?.();
       if (tab && tab !== tabHost.current()) tabHost.select(tab);
+      if (look) applyLook();
       const opened = view.open();
       redraw.setVisibleTab(tabHost.current());
       redraw.reveal();

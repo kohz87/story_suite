@@ -54,7 +54,7 @@ export function renderPacks(state) {
       h('div', { class: 'srow wide' }, h('span', { class: 'ctl' }, importButton(act), btn('Read from the character’s lorebook', 'packs.lorebook')))),
     group('Data modules in this chat', packs.modules.map(m => switchLine(m, change))),
     group(`Trackers in this chat · ${trackers.items.length} of ${trackers.cap}`,
-      trackers.items.map(t => line(t.name, t.desc, btn('Edit fields', 'trackers.open'))),
-      h('div', { class: 'srow wide' }, h('span', { class: 'ctl' }, btn('New tracker', 'trackers.open', true), btn('From a template', 'trackers.open'), btn('Build it in the chat', 'trackers.open')))),
+      trackers.items.map(t => line(t.name, t.desc, h('button', { type: 'button', class: 'btn2', onClick: () => act('trackers.open', { edit: t.id }) }, 'Edit fields'))),
+      h('div', { class: 'srow wide' }, h('span', { class: 'lb' }, h('small', 'A tracker is added from a template, then changed with Edit fields.')), h('span', { class: 'ctl' }, h('button', { type: 'button', class: ['btn2', 'pri'], onClick: () => act('trackers.open', { template: true }) }, 'Add from a template')))),
   ];
 }
