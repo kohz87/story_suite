@@ -47,6 +47,11 @@ test('a visit to another pack place does not change where a trip from an unmappe
         }
     }
     assert.equal(line(away(visitTo('Bluewatch Village'), 'The Weir'), '~ trip Auvoth | by: foot', opts).code, 'NOT_FOUND');
+    // A system visit of the unmapped place itself (with its saved parent) changes nothing either.
+    const own = command(base('Frontier Road south of Bluewatch'), 'atlas.visit', { name: 'Frontier Road south of Bluewatch', parents: true }, opts);
+    assert.ok(own.ok, own.message);
+    const fromOwn = line(own.state, '~ trip Auvoth | by: foot', opts);
+    assert.equal(fromOwn.result?.summary, line(away(base('Bluewatch Village'), 'Frontier Road south of Bluewatch'), '~ trip Auvoth | by: foot', opts).result?.summary);
 });
 
 test('a trip from an unmapped place with nothing visited still says it is not on the map', () => {
