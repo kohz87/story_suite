@@ -9,6 +9,7 @@ import { foldKey, oneLine } from '../../core/text.js';
 import { setProblem, fieldRow } from '../form/fields.js';
 import { openPicker } from '../form/pick.js';
 import { rowTable } from '../form/table.js';
+import { deleteCard } from '../form/confirm.js';
 import { jsonRow } from '../views/json-row.js';
 import { renderSection } from '../views/records.js';
 
@@ -165,14 +166,11 @@ function culturePage(names, ids, id, ctx, problems) {
         const made = commit([{ op: 'set', path: BASE, value: rebuild(entries.flatMap(entry => (entry[0] === id ? [entry, [next, structuredClone(culture)]] : [entry]))) }]);
         return made?.ok ? ctx.go(PART, `names.${next}`) : null;
     };
-    const drop = () => {
-        if (!state.confirm) { state.confirm = true; flags.replaceChildren(...buttons()); return null; }
-        state.confirm = false;
-        return commit([{ op: 'remove', path: where }])?.ok ? ctx.go(PART) : null;
-    };
-    const buttons = () => [h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'),
-        h('button', { type: 'button', class: `btn2 dng ${state.confirm ? 'st-sure' : 'st-del'}`, onClick: drop }, state.confirm ? 'Delete this culture' : 'Delete')];
-    const flags = h('span', { class: 'st-flags' }, buttons());
+    const card = () => deleteCard({ title: id, uses: 0, onDelete: () => { state.confirm = false; if (commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); },
+        onKeep: () => { state.confirm = false; sure?.remove(); sure = null; } });
+    let sure = state.confirm ? card() : null;
+    const drop = () => { if (!sure) { state.confirm = true; sure = card(); said.before(sure); } };
+    const flags = h('span', { class: 'st-flags' }, h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'), h('button', { type: 'button', class: 'btn2 dng st-del', onClick: drop }, 'Delete'));
     const given = listOf(culture.given);
     const family = listOf(culture.family);
     state.given ??= {};
@@ -181,7 +179,7 @@ function culturePage(names, ids, id, ctx, problems) {
     const page = h('section', { class: 'st-rec', dataset: { rec }, tabindex: '-1', 'aria-label': id },
         h('div', { class: 'st-rh' }, h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Names'),
             h('span', { class: 'st-rt' }, h('b', id)), h('small', `Culture ${at + 1} of ${ids.length} · ${ordinal(at)} in the list`), flags),
-        said,
+        sure, said,
         h('div', { class: 'st-edit', dataset: { rec: 'names' } },
             h('section', { class: 'sgrp' }, h('div', { class: 'gt' }, 'Culture'),
                 fieldRow({ type: 'text', key: 'id', label: 'Id', hint: 'A short name for the list. Nothing else names it', value: id }, rename),

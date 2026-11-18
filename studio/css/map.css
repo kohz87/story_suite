@@ -67,3 +67,6 @@
 .su-root[data-scheme="light"] .st-mp .rt.c-river .ln, .su-root[data-scheme="light"] .st-mp .rt.c-sea .ln { stroke: #3f78bd; }
 .su-root[data-scheme="light"] .st-mp .pl circle.b { fill: #fbf8f1; }
 .su-root[data-scheme="light"] .st-mp .pl .g { color: #3c3a4c; }
+/* Light: a frozen place's white ring gets a grey edge (mock MK-3 climate), and the legend's road samples take the map's light road colour. */
+.su-root[data-scheme="light"] .st-mp .pl[data-climate="frozen"] circle.b { stroke: #9aa7b6 !important; }
+.su-root[data-scheme="light"] .st-mleg i.rk:not(.c-river):not(.c-sea):not(.realm) { border-top-color: #a39478; }

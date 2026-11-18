@@ -14,7 +14,7 @@
 .sh-panel .psrch { width: 100%; box-sizing: border-box; margin: 6px 0; }
 .sh-panel .slist button[aria-disabled="true"] { opacity: .5; cursor: default; }
 .sh-panel .slist .tg2 { margin-left: 6px; }
-.st-root .srow[data-level="warning"] .st-problem { color: var(--su-warn, inherit); }
+.st-root .srow[data-level="warning"] .st-problem { color: var(--su-warn-t, var(--su-warn, inherit)); }
 @container (max-width: 900px) { .st-root .kc { min-height: 44px; } .st-root .kc button { width: 36px; } .st-root .subrow .ctl .btn2 { min-height: 44px; } }
 @container (max-width: 600px) { .st-root .srow.subrow { grid-template-columns: minmax(0, 1fr) auto; } .st-root .srow.subrow .ctl { justify-content: flex-end; flex-wrap: nowrap; gap: 4px; } }
 /* ST-FORM3: the gate builder (mock MK-8): ways of term chips joined by "or", the gate as text, and the add / change sheet. */
@@ -32,10 +32,10 @@
 .st-root .st-term[data-level="error"] { border-color: var(--su-bad); background: rgba(255, 90, 90, .12); }
 .st-root .st-term[data-level="error"] .st-tag { color: var(--su-bad-t, var(--su-bad)); }
 .st-root .st-term[data-level="warning"] { border-color: var(--su-warn, #f0b35a); background: rgba(240, 179, 90, .12); }
-.st-root .st-term[data-level="warning"] .st-tag { color: var(--su-warn, #f0b35a); }
+.st-root .st-term[data-level="warning"] .st-tag { color: var(--su-warn-t, var(--su-warn, #f0b35a)); }
 .st-root .st-and { font: 700 12px var(--su-font); color: var(--su-muted, inherit); }
 .st-root .st-termbad { font-size: 12px; line-height: 1.35; color: var(--su-bad-t, var(--su-bad)); }
-.st-root .st-termbad[data-level="warning"] { color: var(--su-warn, inherit); }
+.st-root .st-termbad[data-level="warning"] { color: var(--su-warn-t, var(--su-warn, inherit)); }
 .st-root .st-or { display: flex; align-items: center; gap: 10px; font: 800 12px var(--su-font); letter-spacing: .12em; text-transform: uppercase; color: var(--su-accent, #a897ff); }
 .st-root .st-or::before, .st-root .st-or::after { content: ""; flex: 1; border-top: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
 .st-root .st-gate .st-or-add, .st-root .st-gate .st-tobuilder { align-self: flex-start; }

@@ -107,6 +107,7 @@ function recordKit(section, ctx, at) {
     const rename = (_, to) => {
         const id = String(to).trim();
         if (id === record.id) return;
+        if (!id) return tell(`A ${noun.one} needs an id.`);
         const done = record.id === undefined ? { ok: true, patches: [{ op: 'set', path: [...where, 'id'], value: id }] } : renameId(ctx.refs, ctx.doc, noun.kind, record.id, id);
         if (!done.ok) return tell(done.refusal);
         if (commit(done.patches)?.ok && done.elsewhere?.length) (ctx.say ?? tell)(`The other open pack names this ${noun.one} ${plural(done.elsewhere.length, 'time')}; change those by hand.`);

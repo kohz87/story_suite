@@ -6,7 +6,7 @@ import { h } from '../../ui/kit/dom.js';
 import { SCOPES } from '../../modules/world/chronicle/conditions/limits.js';
 import { fieldRow, setProblem } from '../form/fields.js';
 import { chipList } from '../form/list.js';
-import { jsonRow } from '../views/json-row.js';
+import { jsonRow, oddRecordCard } from '../views/json-row.js';
 import { renderSection } from '../views/records.js';
 import { usedBy } from '../model/refs.js';
 import { renameId } from '../model/rename.js';
@@ -76,7 +76,9 @@ function card(record, index, ctx) {
     const nameRow = fieldRow({ type: 'text', key: 'name', label: 'Name', hint: 'Lower-case words joined by "-"; other records that use it follow a rename', value: record.name, problem: problemFor('name') }, (key, value) => {
         const next = value.trim();
         if (next === record.name) return;
-        const done = ctx.refs ? renameId(ctx.refs, ctx.doc, 'condition', record.name, next) : { ok: true, patches: [{ op: 'set', path: [...steps, 'name'], value: next }], elsewhere: [] };
+        if (!next) { setProblem(nameRow, 'A condition needs a name.'); return; }
+        // An unnamed condition is named with a plain set: nothing can name it yet, so there is nothing to rename.
+        const done = ctx.refs && typeof record.name === 'string' && record.name ? renameId(ctx.refs, ctx.doc, 'condition', record.name, next) : { ok: true, patches: [{ op: 'set', path: [...steps, 'name'], value: next }], elsewhere: [] };
         if (!done.ok) { setProblem(nameRow, done.refusal); return; }
         ctx.commit(done.patches);
     });
@@ -132,6 +134,7 @@ export function editSection(section, ctx) {
     const add = () => ctx.commit([{ op: 'insert', path: ['content', 'conditions', list.length], value: { name: freshName(list), scope: 'region', fades: 'until cleared', means: '' } }]);
     return [h('div', { class: 'st-sec', dataset: { key: 'conditions' } },
         h('div', { class: 'secl2' }, `Conditions · ${list.length}`),
-        h('div', { class: 'st-list' }, list.map((record, index) => (record !== null && typeof record === 'object' && !Array.isArray(record) ? recordNode(record, index, ctx, on) : null)).filter(Boolean)),
+        h('div', { class: 'st-list' }, list.map((record, index) => (record !== null && typeof record === 'object' && !Array.isArray(record) ? recordNode(record, index, ctx, on)
+            : oddRecordCard({ value: record, steps: ['content', 'conditions', index], rec: `conditions.${index}`, index, noun: 'condition', problems: here(ctx, { index }), state: ctx.keep?.(`json:conditions.${index}`) ?? {} }, patches => ctx.commit(patches))))),
         h('div', { class: 'addrow' }, h('button', { type: 'button', class: 'btn2 st-add', onClick: add }, '+ Add a condition')))];
 }

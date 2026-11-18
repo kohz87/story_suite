@@ -109,7 +109,7 @@ test('edit through a JSON row; Undo and Redo; the edited world exports as 2-spac
 
     await page.click('.st-undo');
     assert.equal(await loreTitle(page), 'The Lamp Road');
-    await page.click('.spage h2');
+    await page.click('.spage .st-entryhead b'); // the open record's heading (the page's own title gives way to it)
     await page.keyboard.press('Control+Shift+z');
     assert.equal(await loreTitle(page), 'The Lamplit Road');
     await page.keyboard.press('Control+z');
@@ -141,7 +141,7 @@ test('an error turns Export off with its note; F8 and Go to the first open the J
     await page.click('.st-block .lnk');
     assert.deepEqual(await caret(), { rec: 'lore.0', box: true, at: '"bogus": 1' });
 
-    await page.click('.spage h2');
+    await page.click('.spage .st-entryhead b'); // the open record's heading (the page's own title gives way to it)
     await page.click('.st-undo');
     await page.waitForSelector('.st-block', { state: 'hidden' });
     assert.equal(await page.isDisabled('.st-zip'), false);

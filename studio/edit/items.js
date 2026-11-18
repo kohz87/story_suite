@@ -12,6 +12,8 @@ import { fieldRow, setProblem } from '../form/fields.js';
 import { chipList } from '../form/list.js';
 import { renderSection } from '../views/records.js';
 import { jsonRow } from '../views/json-row.js';
+import { recordRow, filterChips } from '../form/reclist.js';
+import { deleteCard } from '../form/confirm.js';
 
 const PART = 'items';
 const SHOWN = 40;
@@ -70,19 +72,17 @@ function listView(spec, list, bad, ctx) {
         const needle = String(query ?? '').trim().toLowerCase();
         return !needle || [record.name, record.slug, ...(Array.isArray(record.aliases) ? record.aliases : []), ...(Array.isArray(record.tags) ? record.tags : [])].join(' ').toLowerCase().includes(needle);
     };
-    const rows = h('div', { class: 'st-list' });
+    const rows = h('div', { class: 'slist reclist st-list' });
     const fill = () => {
         const found = list.map((record, index) => ({ record, index })).filter(({ record, index }) => passes(record, index, state.filter ?? 'all', state.q));
         const shown = state.all ? found : found.slice(0, SHOWN);
         // (no null children: replaceChildren would print them as text)
-        rows.replaceChildren(...[...shown.map(({ record, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-itemrow', dataset: { rec: `${spec.key}.${index}` }, onClick: () => ctx.go(PART, `${spec.key}.${index}`) },
-            h('div', { class: 'st-rh' },
-                h('div', { class: 'st-rt' }, h('b', String(record.name ?? `#${index + 1}`)), h('small', spec.sub(record))),
-                h('span', { class: 'st-flags' }, h('span', { class: 'tg2' }, spec.facet(record) || 'no tier'), bad[index].length ? h('span', { class: 'st-bad' }, `✕ ${bad[index].length}`) : null)))),
+        rows.replaceChildren(...[...shown.map(({ record, index }) => recordRow({ cls: 'st-itemrow', rec: `${spec.key}.${index}`, title: record.name ?? `#${index + 1}`, tags: [spec.facet(record) || 'no tier'],
+            sub: spec.sub(record), bad: bad[index].length, onClick: () => ctx.go(PART, `${spec.key}.${index}`) })),
         found.length ? null : h('p', { class: 'fine' }, list.length ? `No ${spec.noun} matches.` : `No ${spec.noun}s yet.`),
         !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null].filter(Boolean));
     };
-    const search = h('input', { class: 'txt2 st-search', placeholder: `Search ${spec.noun}s…`, 'aria-label': `Search ${spec.noun}s` });
+    const search = h('input', { class: 'psrch st-search', placeholder: `Search ${spec.noun}s…`, 'aria-label': `Search ${spec.noun}s` });
     search.value = state.q ?? '';
     search.addEventListener('input', () => { state.q = search.value; state.all = false; fill(); });
     const facets = spec.facets.filter(value => list.some(record => spec.facet(record) === value));
@@ -90,8 +90,7 @@ function listView(spec, list, bad, ctx) {
     const filters = [['all', 'All'], ...facets.map(value => [value, value]), ...(nBad ? [['problems', `Problems · ${nBad}`]] : [])];
     if (!filters.some(([key]) => key === (state.filter ?? 'all'))) state.filter = 'all';
     const on = state.filter ?? 'all';
-    const chips = h('div', { class: 'st-filters' }, ...filters.map(([key, label]) => h('button', { type: 'button', class: 'tg2 st-filter', dataset: { filter: key }, 'aria-pressed': String(on === key),
-        onClick: () => { state.filter = key; state.all = false; chips.querySelectorAll('.st-filter').forEach(chip => chip.setAttribute('aria-pressed', String(chip.dataset.filter === key))); fill(); } }, label)));
+    const chips = filterChips(filters, on, key => { state.filter = key; state.all = false; chips.querySelectorAll('.st-filter').forEach(chip => chip.setAttribute('aria-pressed', String(chip.dataset.filter === key))); fill(); });
     const add = () => {
         const made = ctx.commit([{ op: 'insert', path: ['content', spec.key, list.length], value: spec.blank(freshName(list, spec.fresh)) }]);
         if (made?.ok) ctx.go(PART, `${spec.key}.${list.length}`);
@@ -197,10 +196,9 @@ function recordView(spec, list, index, bad, ctx) {
         h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, `‹ ${spec.title}`),
         h('span', { class: 'st-acts' },
             h('button', { type: 'button', class: 'btn2 st-dup', onClick: () => duplicate(spec, list, index, ctx) }, 'Duplicate'),
-            state.confirm
-                ? [h('button', { type: 'button', class: 'btn2 dng st-sure', onClick: () => { state.confirm = false; if (say(ctx.commit([{ op: 'remove', path: where }]))?.ok) ctx.go(PART); } }, `Delete this ${spec.noun}`),
-                    h('button', { type: 'button', class: 'btn2 st-keep', onClick: () => { state.confirm = false; ctx.go(PART, rec); } }, 'Keep it')]
-                : h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; ctx.go(PART, rec); } }, 'Delete')));
+            h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; ctx.go(PART, rec); } }, 'Delete')));
+    const sure = state.confirm ? deleteCard({ title: String(record.name ?? `${spec.one} ${index + 1}`), uses: null,
+        onDelete: () => { state.confirm = false; if (say(ctx.commit([{ op: 'remove', path: where }]))?.ok) ctx.go(PART); }, onKeep: () => { state.confirm = false; ctx.go(PART, rec); } }) : null;
     const whole = bad.filter(problem => problem.path === `content.${spec.key}[${index}]`).map(problem => problem.message).join(' ');
     if (whole) note.textContent = whole;
     const body = spec.key === 'items' ? itemGroups(record, { field, num, words, pairs, group, nameRow, idRow, edit }, ctx) : foeGroups(record, { field, num, words, group, nameRow, idRow, edit });
@@ -209,7 +207,7 @@ function recordView(spec, list, index, bad, ctx) {
     return [head, h('section', { class: 'st-recpage', dataset: { rec }, tabindex: '-1' },
         h('div', { class: 'st-rt st-entryhead' }, h('b', String(record.name ?? '(no name)')),
             h('small', `${spec.one} ${index + 1} of ${list.length}`), h('span', { class: 'tg2' }, spec.facet(record) || 'no tier')),
-        note, ...body,
+        sure, note, ...body,
         extra.length ? h('p', { class: 'fine' }, `Also in this ${spec.noun}, only in the JSON below: ${extra.join(', ')}.`) : null,
         jsonRow({ value: record, steps: where, noun: spec.noun, problems: bad, focus: focusKey && !spec.fields.includes(focusKey) ? ctx.focus : null, state: ctx.keep?.(`json:${rec}`) ?? {} }, patches => ctx.commit(patches)))];
 }

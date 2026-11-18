@@ -91,6 +91,7 @@ function recordPage(section, ctx, at) {
     const rename = (key, to) => {
         const id = String(to).trim();
         if (id === place.id) return;
+        if (!id) return tell('A place needs an id.');
         const done = place.id === undefined ? { ok: true, patches: [{ op: 'set', path: [...where, 'id'], value: id }] } : renameId(ctx.refs, ctx.doc, 'place', place.id, id);
         if (!done.ok) return tell(done.refusal);
         const result = ctx.commit(done.patches);

@@ -150,6 +150,7 @@ function recordPage(key, list, at, ctx) {
     const rename = (field, value) => {
         const id = String(value).trim();
         if (id === record.id) return;
+        if (!id) return tell(`A ${spec.noun} needs an id.`);
         const plan = typeof record.id !== 'string' ? { ok: true, patches: [{ op: 'set', path: [...where, 'id'], value: id }] } : renameId(ctx.refs, ctx.doc, spec.kind, record.id, id);
         if (!plan.ok) return tell(plan.refusal);
         if (done(ctx.commit(plan.patches))?.ok && plan.elsewhere?.length) (ctx.say ?? tell)(`The other open pack names this ${spec.noun} ${plural(plan.elsewhere.length, 'time')}; change those by hand.`);
@@ -158,6 +159,7 @@ function recordPage(key, list, at, ctx) {
     const whole = (field, value) => { if (value === null) put(field, undefined); else if (Number.isFinite(value)) put(field, value); };
     const [low, high] = rangeOf(record);
     const setRange = (index, value) => {
+        if (value === null) return put('range', undefined); // a blank end clears the range: the default, as the hint says
         if (!Number.isFinite(value)) return;
         const next = index === 0 ? [value, high] : [low, value];
         if (next[0] !== low || next[1] !== high) put('range', next);

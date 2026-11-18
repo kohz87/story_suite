@@ -31,8 +31,8 @@ body.st-page { margin: 0; background: #0d0f18; }
 .st-kv dt { color: var(--su-muted); font-weight: 700; }
 .st-kv dd { margin: 0; color: var(--su-soft); overflow-wrap: anywhere; }
 .st-json { max-height: 260px; }
-.st-prob[data-level="warning"] .lb small { color: var(--su-warn); }
-.st-foot[data-ok="false"] > span:first-child { color: var(--su-warn); }
+.st-prob[data-level="warning"] .lb small { color: var(--su-warn-t, var(--su-warn)); }
+.st-foot[data-ok="false"] > span:first-child { color: var(--su-warn-t, var(--su-warn)); }
 /* The header's Undo and Redo (studio mock MK-1); a button that is off is dimmed. Phone: the buttons take their own row under the title
    (Undo and Redo at the left, Open and Export at the right); the foot bar is a 44 px target as in the mock. */
 .st-acts .ic { min-width: 36px; padding: 7px 10px; font-size: 15px; line-height: 1; }

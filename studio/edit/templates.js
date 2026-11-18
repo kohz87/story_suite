@@ -14,6 +14,8 @@ import { jsonRow } from '../views/json-row.js';
 import { definedIds, usedBy } from '../model/refs.js';
 import { renameId } from '../model/rename.js';
 import { partOfPath } from '../parts.js';
+import { recordRow, filterChips } from '../form/reclist.js';
+import { deleteCard } from '../form/confirm.js';
 
 const PART = 'templates';
 const BASE = ['content', 'templates'];
@@ -55,25 +57,23 @@ const passes = (t, filter, needle, bad) => (filter !== 'open' || t.open !== unde
 
 function listPage(list, bad, ctx) {
     const kept = ctx.keep?.('templates:list') ?? {};
-    const rows = h('div', { class: 'slist st-tlist' });
+    const rows = h('div', { class: 'slist reclist st-tlist' });
     const count = h('p', { class: 'fine' });
     const fill = () => {
         const needle = (kept.q ?? '').trim().toLowerCase();
         const hits = list.map((t, index) => ({ t, index })).filter(({ t, index }) => passes(t, kept.filter ?? 'all', needle, bad[index].length > 0));
         const shown = kept.all || needle ? hits : hits.slice(0, SHOWN);
-        rows.replaceChildren(...shown.map(({ t, index }) => h('button', { type: 'button', class: 'st-trow', dataset: { rec: `templates.${index}` }, onClick: () => ctx.go(PART, `templates.${index}`) },
-            h('span', null, h('b', t.template ?? `#${index + 1}`, t.open !== undefined ? h('span', { class: 'tg2' }, 'open') : null), h('small', [sub(t), t.summary].filter(Boolean).join(' — '))),
-            bad[index].length ? h('span', { class: 'st-bad' }, `✕ ${bad[index].length}`) : null, h('span', { 'aria-hidden': 'true' }, '›'))));
+        rows.replaceChildren(...shown.map(({ t, index }) => recordRow({ cls: 'st-trow', rec: `templates.${index}`, title: t.template ?? `#${index + 1}`, tags: [t.open !== undefined ? 'open' : null],
+            sub: [sub(t), t.summary].filter(Boolean).join(' — '), bad: bad[index].length, onClick: () => ctx.go(PART, `templates.${index}`) })));
         if (!hits.length) rows.append(h('p', { class: 'fine' }, list.length ? 'No template matches.' : 'No templates yet.'));
         if (hits.length > shown.length) rows.append(h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { kept.all = true; fill(); } }, `Show all ${hits.length}`));
         count.textContent = `${hits.length} of ${list.length}`;
     };
-    const find = h('input', { class: 'psrch txt2', placeholder: 'Find a template…', 'aria-label': 'Find a template' });
+    const find = h('input', { class: 'psrch st-search', placeholder: 'Find a template…', 'aria-label': 'Find a template' });
     find.value = kept.q ?? '';
     find.addEventListener('input', () => { kept.q = find.value; fill(); });
-    const chips = h('div', { class: 'st-filters' }, FILTERS.map(([key, label]) => h('button', { type: 'button', class: 'tg2 st-filter', dataset: { filter: key }, 'aria-pressed': String((kept.filter ?? 'all') === key),
-        onClick: () => { kept.filter = key; kept.all = false; chips.querySelectorAll('.st-filter').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.filter === key))); fill(); } },
-    key === 'problems' ? `${label} · ${bad.filter(b => b.length).length}` : label)));
+    const chips = filterChips(FILTERS.map(([key, label]) => [key, key === 'problems' ? `${label} · ${bad.filter(b => b.length).length}` : label]), kept.filter ?? 'all',
+        key => { kept.filter = key; kept.all = false; chips.querySelectorAll('.st-filter').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.filter === key))); fill(); });
     const add = () => {
         const made = ctx.commit([{ op: 'insert', path: [...BASE, list.length], value: { template: freeId(list, ctx.refs, 'new-template'), scope: 'place' } }]);
         if (made?.ok) ctx.go(PART, `templates.${list.length}`);
@@ -256,20 +256,20 @@ function recordPage(list, index, bad, ctx) {
     const json = jsonRow({ value: t, steps: where, noun: 'template', problems: mine, focus: ctx.focus?.rec === rec ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches));
     const copy = () => { if (commit([{ op: 'insert', path: [...BASE, index + 1], value: { ...structuredClone(t), template: freeId(list, ctx.refs, `${t.template ?? 'template'}-copy`) } }])?.ok) ctx.go(PART, `templates.${index + 1}`); };
     const used = t.template ? usedBy(ctx.refs, 'template', t.template).length : 0;
+    const card = () => deleteCard({ title: String(t.template ?? `Template ${index + 1}`), uses: 0, onDelete: () => { state.confirm = false; if (commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); },
+        onKeep: () => { state.confirm = false; sure?.remove(); sure = null; } });
+    let sure = state.confirm && !used ? card() : null;
     const drop = () => {
         if (used) return tell(`Named in ${plural(used, 'place')} (arc-ended:${t.template}): take those out first.`);
-        if (!state.confirm) { state.confirm = true; flags.replaceChildren(...buttons()); return null; }
-        state.confirm = false;
-        if (commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART);
+        if (!sure) { state.confirm = true; sure = card(); said.before(sure); }
         return null;
     };
-    const buttons = () => [t.open !== undefined ? h('span', { class: 'tg2' }, 'open') : null, h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'),
-        h('button', { type: 'button', class: `btn2 dng ${state.confirm ? 'st-sure' : 'st-del'}`, onClick: drop }, state.confirm ? 'Delete this template' : 'Delete')];
-    const flags = h('span', { class: 'st-flags' }, buttons());
+    const flags = h('span', { class: 'st-flags' }, t.open !== undefined ? h('span', { class: 'tg2' }, 'open') : null, h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'),
+        h('button', { type: 'button', class: 'btn2 dng st-del', onClick: drop }, 'Delete'));
     const page = h('section', { class: 'st-rec', dataset: { rec }, tabindex: '-1', 'aria-label': String(t.template ?? `Template ${index + 1}`) },
         h('div', { class: 'st-rh' }, h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Templates'),
             h('span', { class: 'st-rt' }, h('b', String(t.template ?? ''))), h('small', `Template ${index + 1} of ${list.length}`), flags),
-        said, form, json);
+        sure, said, form, json);
     markFocus(page, ctx.focus?.rec === rec ? ctx.focus.path : null);
     return page;
 }

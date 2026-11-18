@@ -1,0 +1,56 @@
+/* Pack Studio styles for the record lists and record heads (mock MK-1 / MK-2: `.reclist`, `.mtools`, `.rech` and the delete card) and
+   their phone touch sizes. Linked from studio/index.html. The rows come from studio/form/reclist.js, the card from studio/form/confirm.js. */
+
+/* The list's tools (search, filter chips, New): the search and New share a row, the chips take the next. A record head's bar has a back button. */
+.st-root .st-bar:not(:has(> .st-back)) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.st-root .st-bar:not(:has(> .st-back)) > .psrch { flex: 1 1 200px; width: auto; min-width: 0; box-sizing: border-box; }
+.st-root .st-bar:not(:has(> .st-back)) > .btn2 { flex: none; }
+.st-root .st-bar:not(:has(> .st-back)) > .st-filters { order: 3; flex-basis: 100%; }
+.st-root .st-counts { margin: 0; }
+
+/* The rows: a settings `.slist` button with no icon column; the title and its tags, the line under it, then the problem count and ›. */
+.st-root .reclist > button.st-rec { grid-template-columns: minmax(0, 1fr) auto; margin: 0; padding: 11px 12px; box-shadow: none; }
+.st-root .reclist > button.st-rec.st-hasthumb { grid-template-columns: 44px minmax(0, 1fr) auto; }
+.st-root .reclist > button.st-rec.st-hit, .st-root .reclist > button.st-rec[aria-current="true"] { background: rgba(168, 151, 255, .16); box-shadow: inset 0 0 0 2px rgba(168, 151, 255, .6); }
+.st-root .reclist .st-rt { min-width: 0; }
+.st-root .reclist .st-tl b { display: inline; font: 800 14.5px var(--su-font); overflow-wrap: anywhere; }
+.st-root .reclist .st-rt small { display: block; font-size: 12px; line-height: 1.5; color: var(--su-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-root .reclist .rcnt { display: flex; align-items: center; gap: 10px; font: 800 12.5px var(--su-font); color: var(--su-muted); }
+.st-root .reclist > .st-more { align-self: flex-start; }
+.st-root .reclist > p.fine { margin: 4px 2px; }
+
+/* Tags (hidden, protected, a tier…) in rows and record heads; a problem count in the danger red. */
+.st-root :is(.st-tl, .st-entryhead, .st-rh) .tg2 { display: inline-block; font: 800 12px var(--su-font); letter-spacing: .04em; border-radius: 999px; padding: 1px 7px; margin-left: 6px; vertical-align: 1px;
+  background: var(--su-panel2); color: var(--su-muted); white-space: nowrap; }
+.st-root .st-bad { font: 800 12.5px var(--su-font); color: var(--su-bad-t, var(--su-bad)); }
+
+/* A record page: its groups stand apart as cards, as on a settings page; the JSON row is a card of its own. Go to marks the field, not the page. */
+.st-root section.st-rec:not(.sgrp) { display: flex; flex-direction: column; gap: 14px; padding: 0; }
+.st-root section.st-rec.st-hit:not(.sgrp), .st-root .st-entryhead.st-hit { box-shadow: none; }
+.st-root :not(.sgrp) > .st-jsonrow.sgrp { margin: 0; padding: 4px 14px; border-radius: 16px; background: var(--su-line2); }
+
+/* The record's head (mock `.rech`): back at the left and Duplicate / Delete at the right, then the title as the page heading and its line. */
+.st-root .st-bar:has(> .st-back) { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.st-root .st-bar:has(> .st-back) > .st-acts { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; }
+.st-root .st-entryhead b { display: block; margin: 0; font: 800 22px var(--su-font); overflow-wrap: anywhere; }
+.st-root .st-entryhead small { display: inline; margin: 2px 0 0; font-size: 13.5px; color: var(--su-soft); }
+.st-root .st-entryhead small.fine { display: block; }
+.st-root .st-rh:has(> .st-back) { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 0; }
+.st-root .st-rh:has(> .st-back) > .st-back { grid-column: 1; grid-row: 1; }
+.st-root .st-rh:has(> .st-back) > .st-flags { grid-column: 2; grid-row: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+.st-root .st-rh:has(> .st-back) > .st-rt { grid-column: 1 / -1; grid-row: 2; margin-top: 6px; }
+.st-root .st-rh:has(> .st-back) > .st-rt b { font: 800 22px var(--su-font); }
+.st-root .st-rh:has(> .st-back) > small { grid-column: 1 / -1; grid-row: 3; margin-top: -6px; font-size: 13.5px; color: var(--su-soft); }
+/* With a record open, its own "‹ Lore" is the way back: the page's title and the phone's "‹ Parts" give way to the record's head. */
+.st-root .spage:has(.st-back):not(:has(.st-panes:not([data-open="true"]))) > :is(.sback, .st-ptitle) { display: none; }
+
+/* The delete confirm: a red card under the head (settings `.cfm`). */
+.st-root .st-delcard { margin: 0; }
+.st-root .st-delcard b { overflow-wrap: anywhere; }
+.st-root .st-delcard .ctl { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+
+/* Touch (plan §1.7): every row button and the graph's ◎ at least 44 px square below 900 px; the filter chips get their 44 px from settings.css. */
+@container (max-width: 900px) {
+  .st-root .st-table .st-tacts .btn2, .st-root .subrow .ctl .btn2, .st-root .st-glist .st-gcentre { min-width: 44px; min-height: 44px; }
+  .st-root .st-gnode .st-gcentre { width: 44px; }
+}

@@ -8,7 +8,7 @@ import { h } from '../../ui/kit/dom.js';
 import { MARKET_LIMITS, MARKET_WORD, PLACE_CLASSES, ROUTE_CLASSES, WORLD_LIMITS } from '../../packs/limits.js';
 import { fieldRow, setProblem } from '../form/fields.js';
 import { chipList } from '../form/list.js';
-import { jsonRow } from '../views/json-row.js';
+import { jsonRow, oddRecordCard } from '../views/json-row.js';
 import { renderSection } from '../views/records.js';
 
 const PART = 'map';
@@ -205,7 +205,8 @@ function marketNodes(section, ctx) {
     };
     return h('div', { class: 'st-sec', dataset: { key: 'markets' } },
         h('div', { class: 'secl2' }, `Markets · ${list.length}`),
-        h('div', { class: 'st-list' }, list.map((record, index) => (isObject(record) ? marketCard(record, index, ctx, on) : null)).filter(Boolean)),
+        h('div', { class: 'st-list' }, list.map((record, index) => (isObject(record) ? marketCard(record, index, ctx, on)
+            : oddRecordCard({ value: record, steps: ['content', 'markets', index], rec: `markets.${index}`, index, noun: 'market', problems: (ctx.problems ?? []).filter(problem => String(problem.path).startsWith(`content.markets[${index}]`)), state: ctx.keep(`json:markets.${index}`) }, patches => ctx.commit(patches))))),
         h('div', { class: 'addrow' },
             h('button', { type: 'button', class: 'btn2 st-add', dataset: { add: 'type' }, disabled: full, onClick: () => add(true) }, '+ Add a settlement type'),
             h('button', { type: 'button', class: 'btn2 st-add', dataset: { add: 'tag' }, disabled: full, onClick: () => add(false) }, '+ Add an environment tag')),

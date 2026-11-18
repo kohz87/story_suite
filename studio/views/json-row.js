@@ -104,3 +104,15 @@ export function jsonRow({ value, steps, noun, problems = [], focus = null, state
         h('span', { class: 'ctl' }, box, line, apply, reset)));
     return group;
 }
+
+/**
+ * A card for a list record that is not an object (a number, a string, a list), which the form cannot draw: what it is, then its JSON row.
+ * `spec`: `{ value, steps, rec, index, noun, problems, state }`; `commit` as for jsonRow. Returns the card's `.sgrp.st-rec`.
+ */
+export function oddRecordCard({ value, steps, rec, index, noun, problems = [], state = {} }, commit) {
+    const shape = value === null ? 'null' : Array.isArray(value) ? 'a list' : typeof value;
+    return h('section', { class: 'sgrp st-rec st-odd', dataset: { rec }, tabindex: '-1' },
+        h('div', { class: 'gt' }, `#${index + 1} · not a ${noun}`),
+        h('p', { class: 'fine' }, `This record is ${shape}, not a ${noun} the form can show. Fix it as JSON, or remove it there.`),
+        jsonRow({ value, steps, noun: 'record', problems, state }, commit));
+}

@@ -18,6 +18,8 @@ import { renderSection } from '../views/records.js';
 import { definedIds, usedBy } from '../model/refs.js';
 import { renameId } from '../model/rename.js';
 import { partOfPath } from '../parts.js';
+import { recordRow, filterChips } from '../form/reclist.js';
+import { deleteCard } from '../form/confirm.js';
 
 const PART = 'events';
 const BASE = ['content', 'worldEvents'];
@@ -256,15 +258,14 @@ function eventPage(list, index, bad, ctx, state, redraw) {
         h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Events'),
         h('span', { class: 'st-acts' },
             h('button', { type: 'button', class: 'btn2 st-dup', onClick: () => duplicate(list, index, ctx) }, 'Duplicate'),
-            state.confirm === index
-                ? [h('button', { type: 'button', class: 'btn2 dng st-sure', onClick: () => { state.confirm = null; if (say(ctx.commit([{ op: 'remove', path: [...BASE, index] }]))?.ok) ctx.go(PART); } }, uses.length ? `Delete (${plural(uses.length, 'record')} name it)` : 'Delete this event'),
-                    h('button', { type: 'button', class: 'btn2 st-keep', onClick: () => { state.confirm = null; redraw(); } }, 'Keep it')]
-                : h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = index; redraw(); } }, 'Delete')));
+            h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = index; redraw(); } }, 'Delete')));
+    const sure = state.confirm === index ? deleteCard({ title: String(event.title ?? event.id ?? `#${index + 1}`), uses: uses.length,
+        onDelete: () => { state.confirm = null; if (say(ctx.commit([{ op: 'remove', path: [...BASE, index] }]))?.ok) ctx.go(PART); }, onKeep: () => { state.confirm = null; redraw(); } }) : null;
     // The record's `data-rec` holds its fields, so Go to reaches the field (.st-at) and a redraw keeps the box being typed in.
     return [head, h('section', { class: 'st-recpage', dataset: { rec: `worldEvents.${index}` }, tabindex: '-1' },
         h('div', { class: 'st-rt st-entryhead' }, h('b', String(event.title ?? event.id ?? `#${index + 1}`)),
             h('small', `Event ${index + 1} of ${list.length}`), ...flagsOf(event).map(flag => h('span', { class: 'tg2' }, flag))),
-        note,
+        sure, note,
         group('Event', idRow, text('title', 'Title', 'Shown in lists and the Journal; blank: the id'),
             choose('kind', 'Kind', 'One-off, a stage of a chain, or recurring', EVENT_KINDS, 'one-off'),
             choose('certainty', 'Certainty', 'How sure it is to happen', EVENT_CERTAINTY),
@@ -333,23 +334,20 @@ function duplicate(list, index, ctx) {
 
 function listView(list, bad, ctx, state, redraw) {
     const filter = state.filter ?? 'all';
-    const rows = h('div', { class: 'st-list' });
+    const rows = h('div', { class: 'slist reclist st-list' });
     const fill = () => {
         const found = list.map((event, index) => ({ event, index })).filter(({ event, index }) => passes(event, filter, state.q ?? '', bad[index].length > 0));
         const shown = state.all ? found : found.slice(0, SHOWN);
-        rows.replaceChildren(...[...shown.map(({ event, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-eventrow', dataset: { rec: `worldEvents.${index}` }, onClick: () => ctx.go(PART, `worldEvents.${index}`) },
-            h('div', { class: 'st-rh' },
-                h('div', { class: 'st-rt' }, h('b', String(event.title ?? event.id ?? `#${index + 1}`)), h('small', subOf(event) || 'no details yet')),
-                h('span', { class: 'st-flags' }, ...flagsOf(event).map(flag => h('span', { class: 'tg2' }, flag)), bad[index].length ? h('span', { class: 'st-bad' }, `✕ ${bad[index].length}`) : null)))),
+        rows.replaceChildren(...[...shown.map(({ event, index }) => recordRow({ cls: 'st-eventrow', rec: `worldEvents.${index}`, title: event.title ?? event.id ?? `#${index + 1}`, tags: flagsOf(event),
+            sub: subOf(event) || 'no details yet', bad: bad[index].length, onClick: () => ctx.go(PART, `worldEvents.${index}`) })),
         found.length ? null : h('p', { class: 'fine' }, list.length ? 'No event matches.' : 'No events yet.'),
         !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null].filter(Boolean));
     };
-    const search = h('input', { class: 'txt2 st-search', placeholder: 'Search events…', 'aria-label': 'Search events' });
+    const search = h('input', { class: 'psrch st-search', placeholder: 'Search events…', 'aria-label': 'Search events' });
     search.value = state.q ?? '';
     search.addEventListener('input', () => { state.q = search.value; state.all = false; fill(); });
     const count = key => list.filter((event, index) => passes(event, key, '', bad[index].length > 0)).length;
-    const chips = h('div', { class: 'st-filters' }, ...FILTERS.map(([key, label]) => h('button', { type: 'button', class: 'tg2 st-filter', dataset: { filter: key }, 'aria-pressed': String(filter === key),
-        onClick: () => { state.filter = key; state.all = false; redraw(); } }, key === 'all' ? label : `${label} · ${count(key)}`)));
+    const chips = filterChips(FILTERS.map(([key, label]) => [key, key === 'all' ? label : `${label} · ${count(key)}`]), filter, key => { state.filter = key; state.all = false; redraw(); });
     fill();
     const kinds = EVENT_KINDS.map(kind => `${count(kind)} ${kind}`).join(' · ');
     return [h('p', { class: 'fine st-counts' }, `${plural(list.length, 'event')} · ${kinds}`),

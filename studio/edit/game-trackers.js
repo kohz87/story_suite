@@ -7,6 +7,7 @@ import { h } from '../../ui/kit/dom.js';
 import { METER_LIMITS, METER_RESERVED, SLUG } from '../../packs/limits.js';
 import { fieldRow, setProblem } from '../form/fields.js';
 import { chipList } from '../form/list.js';
+import { deleteCard } from '../form/confirm.js';
 import { jsonRow } from '../views/json-row.js';
 import { renderSection } from '../views/records.js';
 
@@ -209,11 +210,11 @@ function presetPage(list, index, ctx, into = null) {
         return made?.ok ? ctx.go(PART, `meterPresets.${index + 1}`) : null;
     };
     const drop = () => {
-        if (!state.confirm) { state.confirm = true; return io.draw(); }
         state.confirm = false;
         const made = commit(list.length === 1 ? [{ op: 'remove', path: BASE }] : [{ op: 'remove', path: where }]);
         return made?.ok ? ctx.go(PART) : null;
     };
+    const sure = state.confirm ? deleteCard({ title: String(preset.title ?? preset.id ?? `Preset ${index + 1}`), uses: null, onDelete: drop, onKeep: () => { state.confirm = false; io.draw(); } }) : null;
     const textRow = (field, label, hint) => fieldRow({ type: 'text', key: field, label, hint, value: preset[field], problem: problem(field) }, (k, value) => put([field], value.trim()));
     const form = h('div', { class: 'st-edit', dataset: { rec: 'meterPresets' } },
         group('Preset', textRow('id', 'Id', 'A person\'s meter setup names the preset by this'), textRow('title', 'Title', `At most ${METER_LIMITS.title} characters`)),
@@ -222,8 +223,8 @@ function presetPage(list, index, ctx, into = null) {
     root.replaceChildren(h('div', { class: 'st-rh' }, h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Trackers'),
         h('span', { class: 'st-rt' }, h('b', String(preset.title ?? preset.id ?? ''))), h('small', `Preset ${index + 1} of ${list.length}`),
         h('span', { class: 'st-flags' }, h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'),
-            h('button', { type: 'button', class: `btn2 dng ${state.confirm ? 'st-sure' : 'st-del'}`, onClick: drop }, state.confirm ? 'Delete this preset' : 'Delete'))),
-    said, form, jsonRow({ value: preset, steps: where, noun: 'preset', problems: mine, focus: focused ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches)));
+            h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; io.draw(); } }, 'Delete'))),
+    sure, said, form, jsonRow({ value: preset, steps: where, noun: 'preset', problems: mine, focus: focused ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches)));
     if (focused && !into) markFocus(root, focused);
     return root;
 }
