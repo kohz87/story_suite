@@ -114,7 +114,7 @@ export function selectSettings(answers) {
     section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter, your look and trackers.', extrasRows(a.extras)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, keepBlocks: host.keepRecentBlocks, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
     section('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
-    section('addons', 'Setup', 'Add-ons', 'Modules, custom views and skins from packs.', selectAddons(a.modules)),
+    section('addons', 'Setup', 'Add-ons', 'The plug-in modules installed.', selectAddons(a.modules)),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
   return {
