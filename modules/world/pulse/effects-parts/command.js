@@ -45,8 +45,9 @@ export function pulseCommand(ctx, payload = {}) {
     // The line rides the reply's own receipt as its [Happened] cue (a prelude: previewed for the prompt, stored with the generated reply), so
     // a swipe, a regenerate or a delete of the reply takes the roll and its effects back; a CALM or skipped roll tells nothing.
     const line = skipped || entry.kind === 'CALM' ? '' : worldLine(entry.brief ?? entry.text, entry.brief ? BRIEF_CHARS : TAIL_CHARS);
+    // `data.shown`: what the receipt lists (Inspector) when the summary is the narrator's instruction: the kind and intensity of what the narrator invents, never the brief itself.
     // A chance meeting also carries the cast's cue for the person met: the prelude is previewed on the head state, which has no meeting yet.
-    return { summary: cue && line ? `${line}\n${cue}` : line, narrate: Boolean(line), data: { keep: true, kind: entry.kind, ...(entry.d20 ? { d20: entry.d20 } : {}), ...(skipped ? { skipped } : {}) } };
+    return { summary: cue && line ? `${line}\n${cue}` : line, narrate: Boolean(line), data: { keep: true, kind: entry.kind, ...(entry.brief && line ? { shown: worldLine(entry.text) } : {}), ...(entry.d20 ? { d20: entry.d20 } : {}), ...(skipped ? { skipped } : {}) } };
 }
 
 /** `director.pulse.quiet { on }` (the reader's): the quiet-scene flag, a slot written whole; while it is on every reply is skipped. */

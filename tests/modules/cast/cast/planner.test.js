@@ -340,3 +340,12 @@ test('reach rule 2: a goal pull from three days away sets out on a journey, and 
         host.close();
     }
 });
+
+test('LF4-8: a planner prompt names the party\'s region, never its pack id', async () => {
+    const { whereText, regionName } = await import('../../../../modules/cast/cast/hooks-parts/where-text.js');
+    const query = (name, args) => (name === 'packs.content' && args.kind === 'regions' ? [{ id: 'bluewatch-reach', name: 'Bluewatch Reach' }] : null);
+    assert.equal(whereText({ party: { place: 'Bluewatch Village / Guild Office', region: 'bluewatch-reach' }, query }), 'Bluewatch Village / Guild Office, Bluewatch Reach');
+    assert.equal(regionName(query, 'Auvoth'), 'Auvoth', 'a narrator\'s region name stays');
+    assert.equal(whereText({ party: { place: 'Harrow', region: '' }, query }), 'Harrow');
+    assert.equal(whereText({ party: { place: 'Harrow', region: 'x-y' }, query: null }), 'Harrow, x-y');
+});
