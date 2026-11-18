@@ -103,17 +103,19 @@ export function createNpcQueries({
             if (!rule || typeof rule.id !== 'string') continue;
             const meter = isInt(rule.at) && typeof rule.meter === 'string' && rule.meter ? `${byId.get(rule.meter)?.label ?? rule.meter} ${rule.at}` : '';
             const event = typeof rule.when === 'string' && rule.when.trim() !== '';
-            if (!meter && !event) continue;
+            // A pack note with a gate (S2PA B3) opens only with the story (its `~ reveal` line, once the gate is open): counted, in the Edit dialog's words.
+            const gated = !meter && !event && typeof rule.gate === 'string' && rule.gate.trim() !== '';
+            if (!meter && !event && !gated) continue;
             const title = clean(rule.title, SECRET_TITLE_MAX) || 'A hidden note';
             if (unlocked.has(rule.id)) {
                 // What opened it: its meter (when the meter is past the rule), else the story's event, else the reader's hand.
                 const def = byId.get(rule.meter);
                 const reached = Boolean(meter) && Boolean(def) && isObject(record.meters) && thresholdReached(meterValue(record, def), rule.at);
-                const how = reached ? meter : event ? 'with the story' : 'by you';
+                const how = reached ? meter : event || gated ? 'with the story' : 'by you';
                 opened.push({ id: rule.id, title, rule: how, text: `Opened · ${how}` });
                 continue;
             }
-            const opens = meter && event ? `Opens at ${meter} or with the story` : meter ? `Opens at ${meter}` : 'Opens with the story';
+            const opens = meter && event ? `Opens at ${meter} or with the story` : meter ? `Opens at ${meter}` : gated ? 'Opens when the story earns it' : 'Opens with the story';
             locked.push({ id: rule.id, ...(meter ? { meter: rule.meter, at: rule.at } : {}), event, opens, text: `Hidden note · ${opens[0].toLocaleLowerCase()}${opens.slice(1)}` });
         }
         return { locked, opened };
