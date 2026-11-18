@@ -192,7 +192,7 @@ test('1.10.1 own write: the read-back of the bytes just written is not parsed, a
 test('hosted live read: calendarAge follows the story clock; dossiers are re-derived only when the clock, the set or the state version moved', () => {
     const prelude = async () => {
         const sdk = {
-            clock: null, registerModule() {}, on() { return () => {}; }, command: async () => ({ ok: true, receipt: { summary: '' } }), settings: () => ({}),
+            clock: null, registerModule() {}, handlers: new Map(), on(name, fn) { sdk.handlers.set(name, fn); return () => sdk.handlers.delete(name); }, command: async () => ({ ok: true, receipt: { summary: '' } }), settings: () => ({}),
             query: name => name === 'director.time' ? (sdk.clock ? { minutes: sdk.clock } : null)
                 : name === 'director.calendar' ? { era: '', leapYears: true, months: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31].map((days, at) => ({ name: `M${at + 1}`, days })) } : null,
         };
@@ -209,14 +209,16 @@ test('hosted live read: calendarAge follows the story clock; dossiers are re-der
         await api.installState(state);
         const age = () => api.getState().npcs[0].calendarAge;
         out.noClock = age();
-        sdk.clock = (621 * 365 + 200) * 1440;
+        // the story clock only moves through a command, which the host announces (`committed`)
+        const moveClock = value => { sdk.clock = value; sdk.handlers.get('committed')?.(); };
+        moveClock((621 * 365 + 200) * 1440);
         out.withClock = age();
         const { calendarAgeStats } = await import(pathToFileURL(path.join(extRoot, 'core.js')).href);
         const passes = calendarAgeStats.passes;
         for (let at = 0; at < 20; at += 1) age();
         out.passesTotal = passes;
         out.passesSameClock = calendarAgeStats.passes - passes;
-        sdk.clock = (631 * 365 + 200) * 1440;
+        moveClock((631 * 365 + 200) * 1440);
         out.clockMoved = age();
         console.log('RESULT ' + JSON.stringify(out));
     };

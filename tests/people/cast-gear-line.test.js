@@ -105,7 +105,7 @@ test('runtime: the line joins the entry of a pack cast dossier, stays the same a
         const sdk = {
             registered: [], people: [], made: {}, handlers: {}, present: [], mode: 'missing', asked: [],
             registerModule(def) { sdk.registered.push(def); },
-            on(name, fn) { sdk.handlers[name] = fn; return () => {}; },
+            on(name, fn) { const was = sdk.handlers[name]; sdk.handlers[name] = async (...args) => { await was?.(...args); return fn(...args); }; return () => {}; },
             turn: async turn => { await sdk.handlers.turn?.(turn); },
             command: async type => {
                 if (type === 'npc.tick') for (const person of sdk.people) if (person.met && person.entry) sdk.made[person.key] = { name: person.name };

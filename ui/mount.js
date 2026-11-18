@@ -14,8 +14,6 @@ import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
 import { DEVELOPER_KEY, OLD_VIEW_KEY } from './settings/developer.js';
 
-const PORT_EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
-
 function resolveTheme(theme, doc) {
   if (theme === 'light') return { tokens: GLASS_LIGHT, scheme: 'light' };
   if (theme === 'follow') {
@@ -25,13 +23,15 @@ function resolveTheme(theme, doc) {
   return { tokens: GLASS_DARK, scheme: 'dark' };
 }
 
+// The tab strip's flags: the port's light `flags` view (no scene gather, no cast); a port without one (or whose view failed) is read the old way, from the card, fight and scene views.
 function readFlags(port, override) {
-  const card = port.view('card');
+  const light = port.view('flags');
+  const scene = light ? null : port.view('scene');
   return {
-    rpg: override?.rpg ?? card?.rpg !== false,
-    fightOpen: override?.fightOpen ?? Boolean(port.view('fight')),
-    sceneOpen: override?.sceneOpen ?? Boolean(port.view('scene')),
-    sceneTitle: override?.sceneTitle ?? port.view('scene')?.title ?? '',
+    rpg: override?.rpg ?? (light ? light.rpg !== false : port.view('card')?.rpg !== false),
+    fightOpen: override?.fightOpen ?? (light ? Boolean(light.fightOpen) : Boolean(port.view('fight'))),
+    sceneOpen: override?.sceneOpen ?? (light ? Boolean(light.sceneOpen) : Boolean(scene)),
+    sceneTitle: override?.sceneTitle ?? (light ? light.sceneTitle ?? '' : scene?.title ?? ''),
   };
 }
 
@@ -48,7 +48,6 @@ export function mountSuite(options = {}) {
 
   const backStack = createBackStack();
   const unbindKeys = backStack.bindDocument(doc);
-  const redraw = createRedraw({ port, initialTab: initial, ...(schedule ? { schedule } : {}) });
   const offs = [];
   let flags = readFlags(port, override);
   let scheme = 'dark';
@@ -77,6 +76,8 @@ export function mountSuite(options = {}) {
   const picked = resolveTheme(theme, doc);
   scheme = picked.scheme;
   const view = createSuiteView({ doc, host, backStack, tokens: picked.tokens, scheme });
+  // While the suite is closed its card and tabs are not read; open() draws what changed meanwhile (the tab strip's flags stay live).
+  const redraw = createRedraw({ port, initialTab: initial, isOpen: () => view.isOpen(), ...(schedule ? { schedule } : {}) });
   const tabHost = createTabHost({
     doc,
     flags,
@@ -87,8 +88,8 @@ export function mountSuite(options = {}) {
   });
   view.content.appendChild(tabHost.el);
 
-  function paintSky() {
-    const time = port.view('card')?.scene?.time ?? null;
+  function paintSky(cardVm = port.view('card')) {
+    const time = cardVm?.scene?.time ?? null;
     view.root.style.setProperty('--su-sky', skyFor(time, scheme));
   }
 
@@ -108,26 +109,29 @@ export function mountSuite(options = {}) {
     redraw.flush();
   }
 
+  // Port events mark the flags dirty with every section: they are read once a frame, before the card and the tab, so a fight's tab is there in the frame that draws it.
+  redraw.register('flags', { tab: 'always', whileClosed: true, first: true, read: () => readFlags(port, override), draw: next => applyFlags(next) });
   redraw.register('card', {
     tab: 'always',
     read: () => {
-      paintSky();
-      return port.view('card');
+      const vm = port.view('card');
+      paintSky(vm);
+      return vm;
     },
     target: tabHost.cardSlot,
     render: vm => (card ? card(vm, { port, backStack }) : views.card(vm)),
   });
   register(tabHost.current());
 
-  function refreshFlags() {
-    flags = readFlags(port, override);
+  function applyFlags(next) {
+    flags = next;
     const before = tabHost.current();
     tabHost.setFlags(flags);
     if (tabHost.current() !== before) showTab(tabHost.current());
   }
-  for (const event of PORT_EVENTS) offs.push(port.on(event, refreshFlags));
+  const refreshFlags = () => applyFlags(readFlags(port, override));
   // An interaction call changes chat metadata only, so the engine says nothing: the port does (`interaction`), and the open tab and the tab strip redraw.
-  offs.push(port.on('interaction', () => { redraw.markDirty(); refreshFlags(); }));
+  offs.push(port.on('interaction', () => redraw.markDirty()));
 
   if (theme === 'follow') {
     offs.push(watchSt(doc, () => {
@@ -152,6 +156,7 @@ export function mountSuite(options = {}) {
       if (tab && tab !== tabHost.current()) tabHost.select(tab);
       const opened = view.open();
       redraw.setVisibleTab(tabHost.current());
+      redraw.reveal();
       redraw.flush();
       return opened;
     },
