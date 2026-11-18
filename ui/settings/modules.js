@@ -35,7 +35,7 @@ function moduleCard(def, state, open, withLinks) {
   const count = def.subs.filter(x => set[def.id].subs[x.key]).length;
   const head = h('div', { class: 'mh' }, h('span', { class: 'mi', 'aria-hidden': 'true' }, def.icon),
     h('span', { class: 'mt' }, h('b', def.name), h('small', on ? def.desc : def.off)),
-    h('span', { class: 'mc' }, on ? `${count} of ${def.subs.length} on · ≈ ${def.tokens} tokens` : 'off'),
+    h('span', { class: 'mc' }, on ? `${count} of ${def.subs.length} on${def.tokens > 0 ? ` · ≈ ${def.tokens.toLocaleString('en-US')} tokens` : ''}` : 'off'),
     toggle({ checked: on, label: def.name, dataset: { mod: def.id }, onChange: v => change(def.id, null, v) }));
   const links = withLinks ? h('div', { class: 'mf' },
     h('button', { type: 'button', class: 'lnk', onClick: () => toggleOpen(def.id) }, `${open ? 'Hide features' : 'Features'} ${open ? '▴' : '▾'}`),
@@ -65,7 +65,7 @@ export function renderStart(state) {
         ? 'Only this chat changes. New chats start from the New chats set; a branched chat keeps its parent’s set.'
         : 'The starting set for every new chat; existing chats keep their own (an existing chat with no set of its own keeps today’s switches).'));
   const presets = h('div', { class: 'presets' }, modules.presets.map(p => h('button', { type: 'button', class: 'pre', dataset: { pre: p.id }, 'aria-pressed': String(preset === p.id), onClick: () => setPreset(p.id) },
-    h('b', p.name), h('small', p.desc), h('em', `≈ ${p.tokens.toLocaleString('en-US')} tokens of rules each reply`))));
+    h('b', p.name), h('small', p.desc), Number.isFinite(p.tokens) ? h('em', `≈ ${p.tokens.toLocaleString('en-US')} tokens of rules each reply`) : null)));
   return [
     scopeCard,
     preset ? null : h('div', { class: 'custom' }, 'Custom · your switches differ from the presets'),

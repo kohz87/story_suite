@@ -13,6 +13,8 @@ import { extrasRows, withExtras } from './settings-extras.js';
 import { selectPacks } from './packs.js';
 import { selectAddons } from './addons.js';
 import { BUDGETS, LOOK } from './host-keys.js';
+import { CARD_TEXT, PRESET_TEXT } from './module-text.js';
+import { moduleCosts } from './module-costs.js';
 import { LEAN_RPG_FEATURE } from '../../modules/rpg/names-parts/feature.js';
 
 // The Settings page a module's feature switches belong to, when it is not the module's own id.
@@ -75,7 +77,7 @@ function moduleParts(features) {
   for (const f of features) {
     if (!isObj(f) || typeof f.id !== 'string') continue;
     const id = String(f.moduleId ?? 'story-block');
-    if (!defs.has(id)) defs.set(id, { id, name: String(f.moduleName ?? id), icon: '', section: SECTION_OF[id] ?? id, desc: '', off: '', tokens: 0, subs: [] });
+    if (!defs.has(id)) defs.set(id, { id, name: String(f.moduleName ?? id), icon: '', section: SECTION_OF[id] ?? id, desc: '', off: '', tokens: null, ...CARD_TEXT[id], subs: [] });
     const sub = { key: f.id, label: String(f.label ?? f.id), hint: String(f.describe ?? ''), on: f.on === true };
     if (f.available === false && typeof f.why === 'string') sub.needs = f.why;
     defs.get(id).subs.push(sub);
@@ -88,9 +90,9 @@ function moduleParts(features) {
 
 /**
  * `answers`: { host: settings() (SB sdk/settings.js:74, stored over defaults), defaults: HOST_SETTINGS_DEFAULTS (sdk/constants.js:10),
- * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), modules?: sdk.modules() (the Add-ons page's installed list), subtitle?, people?: the NPC State settings (sdk.settings('npc-state-delta')), director?: settings('story-director') (the World page's values), directorPage?: { values: settings per module id, features } (the Director page), tools?: { sent: the handle's sent(), problems, blocked, nameOf } }.
+ * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), modules?: sdk.modules() (the Add-ons page's installed list), subtitle?, people?: the NPC State settings (sdk.settings('npc-state-delta')), director?: settings('story-director') (the World page's values), directorPage?: { values: settings per module id, features } (the Director page), tools?: { sent: the handle's sent(), problems, blocked, nameOf }, staticTokens?: the tools handle's staticTokens(switches) (the Start cards' and presets' token figures; absent: no figure) }.
  * → the settings view-model (contract/settings.js), or null when neither host settings nor a feature list was read.
- * Gaps (packs, presets, per-chat module sets) are empty or null.
+ * Gaps (per-chat module sets) are empty or null.
  */
 export function selectSettings(answers) {
   const a = isObj(answers) ? answers : {};
@@ -103,7 +105,10 @@ export function selectSettings(answers) {
   const budgetRows = rowsOf('Budgets', BUDGETS, host, schema, defaults);
   const t = isObj(a.tools) ? a.tools : {};
   const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
-  const { defList, set } = withoutRpgFeatures(withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []));
+  const parts = withoutRpgFeatures(withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []));
+  const costs = moduleCosts(hasFeatures ? a.features : [], parts.defList.filter(d => CARD_TEXT[d.id]), a.staticTokens);
+  const defList = parts.defList.map(d => (CARD_TEXT[d.id] ? { ...d, tokens: costs.cards[d.id] } : d));
+  const set = parts.set;
   // The RPG and fights page only while the RPG is on (its stored values stay as they are); a host without the RPG feature keeps the page.
   const rpgOff = hasFeatures && a.features.some(f => f?.id === LEAN_RPG_FEATURE && f.on !== true);
   const sections = [
@@ -126,7 +131,7 @@ export function selectSettings(answers) {
     removed: [],
     packs: selectPacks(a.packsAnswers),
     sections,
-    modules: { scope: 'chat', chat: set, newChats: {}, preset: hasFeatures ? presetOf(a.features) : null, presets: [], defs: defList },
+    modules: { scope: 'chat', chat: set, newChats: {}, preset: hasFeatures ? presetOf(a.features) : null, presets: hasFeatures ? PRESET_TEXT.map(p => ({ ...p, tokens: costs.presets[p.id] })) : [], defs: defList },
     connections: selectConnections(host, isObj(a.profiles) ? a.profiles : null),
   };
 }
