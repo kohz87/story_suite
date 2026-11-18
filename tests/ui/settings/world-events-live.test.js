@@ -25,7 +25,7 @@ test('off (the default): one switch row with its help line; Tempo and the count 
   assert.deepEqual(checkShape(port.view('settings'), SETTINGS_SHAPE), []);
   assert.equal(by('world.worldEvents').type, 'sw');
   assert.equal(by('world.worldEvents').value, false);
-  assert.match(by('world.worldEvents').hint, /^The world keeps its own news/);
+  assert.match(by('world.worldEvents').hint, /^Same switch as Director › World events\. The world keeps its own news/);
   assert.equal(by('world.tempo'), undefined);
   assert.equal(by('world.directorCalls'), undefined);
   assert.equal(rows().filter(r => r.group === 'Time' && /^world\.(worldEvents|tempo|directorCalls)$/.test(r.key)).length, 1);

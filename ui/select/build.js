@@ -21,7 +21,6 @@ import { repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
 import { PREFS_KEY } from '../port/prefs-key.js';
 import { pickOf, pickedFocus } from './focus.js';
-import { PREFS_KEY } from '../port/prefs-key.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 import { createWizardWorld } from '../wizard/world.js';
 import { packPresets } from './people-settings/catalog.js';

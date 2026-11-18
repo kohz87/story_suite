@@ -9,12 +9,14 @@ import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { createSettingsOverlay } from '../../../ui/settings/overlay.js';
 import { renderSettingsSection } from '../../../ui/settings/sections/index.js';
 
-async function open(t, page) {
+// `first({ host, port })`: run before the page opens (a row that shows only under another setting, or a page that shows only while its module is on).
+async function open(t, page, first = () => {}) {
   t.mock.method(console, 'warn', () => {});
   const host = await createHost({ modules: [storyDirectorModule] });
   t.after(() => host.close());
   const writes = { settings: { set: (id, key, value) => host.settings.set(id, key, value) }, features: { set: (id, on) => host.features.set(id, on) } };
   const port = createSbPort({ sdk: host.sdk, writes, selectors: buildSelectors(() => null, host.sdk) });
+  await first({ host, port });
   const doc = installFakeDom();
   const ov = createSettingsOverlay({
     doc, settings: port.view('settings'), renderSection: renderSettingsSection,
@@ -34,7 +36,7 @@ async function open(t, page) {
 }
 
 test('World: an invalid Months list shows the refusal under its row, and a good list clears it', async t => {
-  const { row, type } = await open(t, 'world');
+  const { row, type } = await open(t, 'world', ({ port }) => port.command('settings.set', { key: 'world.calendar', value: 'Custom' }));
   await type('world.months', 'nonsense');
   const note = row('world.months').querySelector('.snote');
   assert.equal(note.hidden, false);
@@ -54,7 +56,7 @@ test('World: a number held to the engine range is redrawn in its box', async t =
 });
 
 test('RPG: Level cap 100 shows 99 and XP rate 101 shows 100 at once; an in-range number is left as typed', async t => {
-  const { row, type } = await open(t, 'rpg');
+  const { row, type } = await open(t, 'rpg', ({ host }) => host.features.set('story-block.rpg', true));
   assert.equal((await type('rpg.levelCap', '100')).value, '99');
   assert.equal((await type('rpg.xpRate', '101')).value, '100');
   assert.equal((await type('rpg.xpRate', '150')).value, '150');
