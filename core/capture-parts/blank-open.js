@@ -18,5 +18,7 @@ export function blankOpen(mes, tag = 'Changes') {
     const text = String(mes ?? '');
     const { blocks, bodies, strays } = readParts(text, tag, null, []);
     if (!blocks.length || strays.length || bodies.some(body => body.trim())) return false;
-    return blocks.at(-1).open === true || endsOpen(text);
+    const last = blocks.at(-1);
+    // (`<Changes></Changes>` on one line reads as open with the close tag in its raw body: it is a block, the model's "nothing changed".)
+    return (last.open === true && !String(last.body ?? '').trim()) || endsOpen(text);
 }

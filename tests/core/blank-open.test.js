@@ -14,6 +14,7 @@ test('blankOpen: only a block left open with no line', () => {
     assert.equal(blankOpen('Story.\n\n<Changes>'), true);
     assert.equal(blankOpen(HIDDEN(true, '')), true, 'hidden with the open mark, as Re-read finds it');
     assert.equal(blankOpen('Story.\n\n<Changes>\n</Changes>'), false, 'a closed empty block is "nothing changed"');
+    assert.equal(blankOpen('Story.\n<Changes></Changes>'), false, 'so is one written on one line');
     assert.equal(blankOpen(HIDDEN(false, '')), false);
     assert.equal(blankOpen('Story.\n\n<Changes>\n+ item Rope\n'), false, 'an open block with a line has something');
     assert.equal(blankOpen(HIDDEN(true, '+ item Rope')), false);
