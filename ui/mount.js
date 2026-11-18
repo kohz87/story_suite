@@ -73,13 +73,15 @@ export function mountSuite(options = {}) {
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
       onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
-      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
+      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : key === 'people.open' ? openPerson(value) : key === 'people.reread' ? port.command('npc.refresh', value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
     return port.command('suite.settings', {});
   };
   // Settings › Packs and trackers: a tracker is added from a template and edited on Story › Trackers, so each button there closes Settings and opens its own sheet.
   const openTrackers = (where) => { settingsOverlay?.close(); leaveTrackerIntent(where); prefs.setFold('story.trackers', true); showTab('story'); return { ok: true }; };
+  // Settings › People › People in this chat: Open closes Settings and shows the person's dossier on People.
+  const openPerson = ({ id, name } = {}) => { settingsOverlay?.close(); showTab('people'); return { ok: views.openPerson([String(id ?? ''), String(name ?? '').trim().toLocaleLowerCase()]) }; };
   const views = defaultViews({
     port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
     onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,

@@ -64,6 +64,14 @@ export function createPublicApiReadPart(deps) {
     openPortraitGenerator: value => { const npc = findNpcByIdOrName(value); return npc ? openPortraitGenerator(npc.id) : false; },
     // The portrait manager (view, upload, generate, remove) for one person by id, name or alias: the view's dossier ⋯ › Portrait opens it.
     openPortraitTools: value => { const npc = findNpcByIdOrName(value); return npc ? Boolean(openPortraitTools(npc.id)) : false; },
+    // NPC State's data dialogs for the view's Settings › Tools › NPC State data: 'backup' downloads this chat's bundle, 'restore' opens the import review, 'diagnostics' the diagnostics window. Page dialogs, nothing recorded; false for any other word.
+    openDataTool: kind => {
+        if (kind !== 'backup' && kind !== 'restore' && kind !== 'diagnostics') return false;
+        // Loaded when asked: the dialogs' file puts its styles on the page as it loads.
+        void import('../tools/data-tools.js').then(tools => (kind === 'backup' ? tools.exportNativeTools() : kind === 'restore' ? tools.openImportTools() : tools.openDiagnostics()))
+            .catch(error => globalThis.toastr?.error?.(`NPC State: that data tool did not open: ${error?.message || error}`));
+        return true;
+    },
     portraitSettings: () => portraitSettingsSnapshot(getSettings()),
     portraitSettingsDirty: () => rt.portraitSettingsDirty,
     savePortraitSettings: draft => savePortraitSettingsDraft(draft),

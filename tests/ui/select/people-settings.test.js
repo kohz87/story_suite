@@ -60,7 +60,7 @@ test('selectSettings adds the People section, it matches the contract and its mo
 test('the People page draws every row without errors', () => {
   const { page, settings, calls } = mountSettings({ sections: selectSettings({ features: [], people: {} }).sections });
   const el = page('people');
-  assert.equal(el.querySelectorAll('.sgrp .srow').length, settings.sections.find(s => s.id === 'people').rows.length);
+  assert.equal(el.querySelectorAll('.sgrp .srow').filter(row => !row.closest('[data-card="roster"]')).length, settings.sections.find(s => s.id === 'people').rows.length);
   assert.equal(calls.length, 0);
 });
 
