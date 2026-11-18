@@ -9,7 +9,6 @@ import {
     tagScanEvidence,
 } from '../../modules/people/core/core.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
-import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
 
 // Cleanup step 3: characterisation ("golden") outputs for every dossier write path, frozen before
 // the field logic is refactored. Each path is the real merge (core.js mergeScanResult) with the
@@ -180,15 +179,12 @@ function computeGolden() {
     for (const [path, run] of Object.entries(paths)) {
         for (const [shape, reply] of Object.entries(replies)) out[`${path}/${shape}`] = summarize(run(reply()));
     }
-    // P16 bundle import onto the same dossier (a foreign copy with newer text); P19 branch restore
-    // of an older copy under the current locks; P9 editor normalisation of a hand-entered record.
+    // P16 bundle import onto the same dossier (a foreign copy with newer text); P9 editor normalisation of a hand-entered record
+    // (P19, the branch restore, went with the branch journal at B4-10a).
     const current = baseState();
     const imported = structuredClone(current.npcs[0]);
     Object.assign(imported, { id: 'foreign_myla', mood: 'Calm', speech: 'Imported speech', memories: ['Imported memory.'], customFields: { Level: '9', Rank: 'Gold' } });
     out['bundleImport'] = stable(mergeImportedDossierState(current, { npcs: [imported] }, { foreignOwnership: true }).npcs);
-    const older = structuredClone(baseState().npcs);
-    older[0].speech = 'An older speech'; older[0].mood = 'Older mood';
-    out['branchRestore'] = stable(preserveUserNpcMetadata(older, baseState().npcs));
     out['editorNormalize'] = stable(normalizeNpcRecord({
         ...baseState().npcs[0], personality: 'Kind; patient; dutiful; wry humour; protective of apprentices; distrusts nobles; loves rain; hates bells',
         mannerisms: ['One.', 'Two.', 'Three.', 'Four.', 'Five.', 'Six.'], memories: ['Promised Ari she would guard the gate.', 'Promised Ari she would guard the bridge.'],

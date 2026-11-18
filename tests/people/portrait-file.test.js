@@ -3,8 +3,6 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { buildInjection, buildScannerPrompt, createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
 import { decodeNpcStateBundle, encodeNpcStateBundle, mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
-import { reconcileBranchState, recordBranchCheckpoint, snapshotBranchState, BRANCH_LINEAGE_VERSION } from '../../modules/people/legacy/branch.js';
-import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
 import { decodeStateFilePayload, encodeStateFilePayload, readPortraitFileDataUrl, savePortraitFile, verifyPortraitFiles } from '../../modules/people/storage/storage.js';
 import {
     PORTRAIT_FILE_PREFIX, isPortraitFileRecord, markPortraitFileMissing, markPortraitFilePresent, parseImageDataUrl,
@@ -156,14 +154,14 @@ test('the chat\'s saved state: a file-form portrait is a few hundred bytes with 
     const big = `data:image/webp;base64,${Buffer.alloc(150 * 1024, 7).toString('base64')}`;
     const { record } = await fileRecord(PNG);
     const filed = { ...createNpcRecord('Fenna'), portrait: { ...record, sourceName: 'fenna.webp', updatedAt: 5, appearanceFingerprint: 'a2:x' } };
-    const text = encodeStateFilePayload('chat:a.png:one', { npcs: [filed], portraitAssets: {}, checkpoints: [] }, 'test');
+    const text = encodeStateFilePayload('chat:a.png:one', { npcs: [filed], portraitAssets: {} }, 'test');
     assert.ok(!text.includes('data:image'), 'no picture in the saved state');
     const back = decodeStateFilePayload(text);
     assert.deepEqual(back.state.npcs[0].portrait, filed.portrait, 'the record comes back as it was saved');
     assert.deepEqual(back.state.portraitAssets, {}, 'and no second copy is kept in portraitAssets');
     // An older chat: the picture is in the dossier and its asset copy; the file keeps the one copy (portraitAssets) as it always did.
     const old = { ...createNpcRecord('Mira'), portrait: { dataUrl: big, mime: 'image/webp' } };
-    const oldText = encodeStateFilePayload('chat:a.png:two', { npcs: [old], portraitAssets: { [old.id]: old.portrait }, checkpoints: [] }, 'test');
+    const oldText = encodeStateFilePayload('chat:a.png:two', { npcs: [old], portraitAssets: { [old.id]: old.portrait } }, 'test');
     const oldBack = decodeStateFilePayload(oldText);
     assert.equal(oldBack.state.portraitAssets[old.id].dataUrl, big, 'the older form is saved and read as before');
     assert.equal(oldBack.state.npcs[0].portrait, null, 'as before: the picture is held once in the file, by portraitAssets');
@@ -177,45 +175,7 @@ test('the chat\'s saved state: a file-form portrait is a few hundred bytes with 
     assert.equal(Object.keys(bothBack.portraitAssets).length, 1);
 });
 
-const user = text => ({ is_user: true, is_system: false, name: 'Kazuma', mes: text });
-const assistant = (text, swipe = 0) => ({ is_user: false, is_system: false, name: 'Megumin', mes: text, swipe_id: swipe });
-const baseState = () => ({ npcs: [], dismissed: [], inlineCards: [], checkpoints: [], lineage: [], branchLineageVersion: BRANCH_LINEAGE_VERSION, turn: 0, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null, scanCount: 0 });
-
-test('checkpoints and rollback: a file-form portrait stays in the snapshot (a few hundred bytes) and a rollback, swipe or middle delete restores the person with it; the picture itself is still left out', async () => {
-    const { record } = await fileRecord();
-    const chat = [user('Hello.'), assistant('Fenna looks up.', 0), user('And then?'), assistant('She nods.', 0)];
-    const state = baseState();
-    const fenna = castNpc('Fenna', structuredClone(record));
-    state.npcs = [fenna];
-    recordBranchCheckpoint(state, chat, 1, 'cast-dossier');
-    assert.deepEqual(state.checkpoints[0].snapshot.npcs[0].portrait, record, 'the record is in the checkpoint');
-    const withPicture = baseState();
-    withPicture.npcs = [castNpc('Mira', { dataUrl: PNG, mime: 'image/png' })];
-    recordBranchCheckpoint(withPicture, chat, 1, 'scan');
-    assert.equal(withPicture.checkpoints[0].snapshot.npcs[0].portrait, null, 'a picture in the dossier is still left out of snapshots, as before');
-    assert.equal(snapshotBranchState(state).npcs[0].portrait.path, record.path);
-    // A later reply; then the head swipes. Fenna exists in both, the portrait stays.
-    state.turn = 1;
-    recordBranchCheckpoint(state, chat, 3, 'scan');
-    const swiped = structuredClone(chat);
-    swiped[3] = assistant('She shakes her head.', 1);
-    const swipe = reconcileBranchState(state, swiped, { explicitDivergence: 3 });
-    assert.equal(swipe.state.npcs.find(npc => npc.name === 'Fenna').portrait.path, record.path, 'a swipe keeps the portrait');
-    // A middle delete of the later exchange; the person is restored from the checkpoint with the portrait, even after being removed from the live state.
-    const gone = structuredClone(swipe.state);
-    gone.npcs = [];
-    gone.portraitAssets = {};
-    const rolled = reconcileBranchState(gone, chat.slice(0, 2), { explicitDivergence: 2 });
-    const restored = rolled.state.npcs.find(npc => npc.name === 'Fenna');
-    assert.ok(restored, 'the person is back');
-    assert.deepEqual(restored.portrait, record, 'with their portrait, with no asset kept for them');
-    // The user's current portrait wins over the snapshot's.
-    const current = castNpc('Fenna', { dataUrl: PNG, mime: 'image/png' }, { id: fenna.id });
-    const metadata = preserveUserNpcMetadata([{ ...fenna, portrait: structuredClone(record) }], [current]);
-    assert.equal(metadata[0].portrait.dataUrl, PNG);
-    const filedCurrent = preserveUserNpcMetadata([{ ...fenna, portrait: null }], [castNpc('Fenna', structuredClone(record), { id: fenna.id })]);
-    assert.equal(filedCurrent[0].portrait.path, record.path);
-});
+const baseState = () => ({ npcs: [], dismissed: [], lineage: [], turn: 0, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null, scanCount: 0 });
 
 test('export and import: a bundle carries the picture (inlined at export, with its hash as the mark) and the import side can make the file again', async () => {
     const { record, s } = await fileRecord(WEBP);

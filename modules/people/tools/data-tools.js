@@ -196,8 +196,6 @@ function diagnosticsHtml(npc) {
     const status = api()?.uiStatus?.() || {};
     const routing = status.scannerRouting || api()?.scannerRouting?.() || {};
     const scan = status.lastScan || api()?.scanMetrics?.() || null;
-    const branchHistory = status.branchHistory || { available: false };
-    const branchReconciliations = Array.isArray(status.branchReconciliations) ? status.branchReconciliations : [];
     const diagnosticSummary = api()?.diagnosticsSummary?.() || { operationCount: 0, profileRows: 0, birthdayRows: 0, npcCount: 0, limit: 0 };
     const diagnosticRecords = api()?.diagnosticsRecords?.({ limit: 20 }) || [];
     const rel = npc ? relationshipDiagnosticRows(npc) : [];
@@ -234,7 +232,6 @@ function diagnosticsHtml(npc) {
         <section><h3>Request routing</h3><pre>${escapeHtml(JSON.stringify({ actual, lastRequest: routing.last || null }, null, 2))}</pre></section>
         <section><h3>Latest scan accounting</h3><pre>${escapeHtml(JSON.stringify(latest || { available: false }, null, 2))}</pre><small>Retry/focused flags describe the latest scan. The dispatcher aggregate above is the authoritative actual request count; Delta does not fabricate a per-pass provider count it does not expose.</small></section>
         <section><h3>Persistence</h3><pre>${escapeHtml(JSON.stringify({ currentChat: api()?.persistenceStatus?.() || { available: false }, recentStage8Failures: recentPersistenceFailures }, null, 2))}</pre><small>Stage 8 waits for canonical flush and distinguishes local mutation from durable save. Pending and in-flight write flags describe this chat only, not a global database counter.</small></section>
-        <section><h3>Branch reconciliation</h3><pre>${escapeHtml(JSON.stringify({ history: branchHistory, recent: branchReconciliations }, null, 2))}</pre><small>Delete/edit recovery is exact-boundary only: journal or exact-parent checkpoint, never an older ancestor. Deep edits with a retained assistant suffix fail closed and keep canonical dossiers. Exact SillyTavern swipe siblings restore directly; unseen siblings rebuild from their exact parent/root. Reconciliation records contain no story text.</small></section>
         ${npc ? `<section><h3>Relationship fractions / gate audit · ${escapeHtml(npc.name)}</h3><pre>${escapeHtml(JSON.stringify(rel, null, 2))}</pre></section>` : ''}
         <section><h3>Always-on NPC decision diagnostics</h3><pre>${escapeHtml(JSON.stringify({ summary: diagnosticSummary, recentOperations: diagnosticRecords }, null, 2))}</pre><small>These bounded records are collected regardless of per-NPC display visibility. Export includes all retained NPC traces but excludes full story text, prompts, credentials, and provider payloads.</small></section>
         <section><h3>Recent Stage 8 events</h3><pre>${escapeHtml(JSON.stringify(toolEvents.slice(-12).reverse(), null, 2))}</pre><small>Bounded records exclude credentials, full prompts, and provider responses.</small></section>

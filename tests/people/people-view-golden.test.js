@@ -18,8 +18,8 @@ function asState(key, value) {
 
 const keys = Object.keys(golden);
 
-test('golden people view: the fixture has all 15 write paths', () => {
-    assert.equal(keys.length, 15);
+test('golden people view: the fixture has all 14 write paths (the branch-restore path went with the branch journal, B4-10a)', () => {
+    assert.equal(keys.length, 14);
 });
 
 for (const key of keys) {

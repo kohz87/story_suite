@@ -9,7 +9,7 @@ import { FULL_SCAN_RESPONSE_LENGTH, SCAN_RESPONSE_LENGTH, generateParsedNpcJson 
 import { applyFocusedRelationshipDecisions, runFocusedRelationshipPass, suppressPrimaryRelationshipForFocusedDecisions } from '../relationship/relationship-pass.js';
 import { prepareFullWindowRelationshipPayload, buildScannerPrompt, mergeScanResult, tagScanEvidence, resolveInterimIdentityPromotions, hasCompactMeguminWorldState, extractExplicitKeyRelationshipEdges } from '../core/core.js';
 import { secretEventsShown } from '../core/core-prompts-capture.js';
-import { chatLineage, fingerprintMessage, lineageCheckpointKey } from '../legacy/branch.js';
+import { chatLineage, fingerprintMessage, lineageCheckpointKey } from '../lineage/index.js';
 import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { clockNow, lineageMoved, notify, replayScope, setScanIndicator, latestMessageId } from './runtime-scan-helpers.js';
 import { createCatchUpPart } from './runtime-catchup.js';
@@ -23,7 +23,7 @@ import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordRea
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from '../memory/memory-fact-scan.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 export function createScanPart(rt, deps) {
-    const { attachGeneratedSecrets, awayScanOptions, beginScanOperation, castList, commitBranchCheckpoint, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scannerPromptOptions, scanOperationCurrent, scanScenePresent, setChatState, storySuiteV2Meters, takeNarrationCapture, updateInjection } = deps;
+    const { attachGeneratedSecrets, awayScanOptions, beginScanOperation, castList, noteChatLineage, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scannerPromptOptions, scanOperationCurrent, scanScenePresent, setChatState, storySuiteV2Meters, takeNarrationCapture, updateInjection } = deps;
     // Events per story day while Delta works alone (the pass counts them on the dossier). The day is Story Director's clock, which
     // there is not without a host: no day, no limit (relationship-pacing.js). Hosted, the slice counts them when the change is forwarded
     // and Delta's numbers are set from the slice afterwards (runtime-hosted.js), so the pass does not count (null).
@@ -388,7 +388,7 @@ export function createScanPart(rt, deps) {
                 if (manual) globalThis.toastr?.info?.('NPC State Delta: another session updated this chat during the scan; the stale result was discarded.');
                 return false;
             }
-            if (targetMessageId >= 0) commitBranchCheckpoint(nextState, targetMessageId, 'scan');
+            if (targetMessageId >= 0) noteChatLineage(nextState);
             setChatState(chatKey, nextState);
             // ONEPASSMISS-1: this notice describes a completed fallback, never a stale or failed scan.
             rt.lastCaptureFallback = fallback ? { chatKey, messageId } : null;   // the notice follows the latest committed scan only

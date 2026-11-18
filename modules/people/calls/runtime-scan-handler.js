@@ -6,17 +6,17 @@ import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { autoScanDue as autoScanDueAfterReply, replyMayChangeDossiers, replyScanned } from './scan-context.js';
 import { currentExchangeBodies } from '../transcript/transcript.js';
 import { markLiveReply, memoryFactsOn } from '../memory/memory-fact-marks.js';
-import { chatLineage, lineageCheckpointKey, ensureBranchParentAnchor, migrateLegacyLineage } from '../legacy/branch.js';
+import { chatLineage, lineageCheckpointKey } from '../lineage/index.js';
 import { getSettings } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, latestMessageId, notify, replayScope } from './runtime-scan-helpers.js';
 import { captureJournalEntry, recordReadMark } from '../runtime/runtime-narration.js';
 
 export function createAssistantHandlerPart(rt, deps, helpers) {
-    const { commitBranchCheckpoint, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, hostedOnePass, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, updateInjection } = deps;
+    const { noteChatLineage, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, hostedOnePass, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, updateInjection } = deps;
     const { assistantReceipts, narrationCaptures } = rt;
     const { replyParentKey, sameReplyRewritten, scanInner, noteCaptureCatchUp, runCaptureCatchUp, replayCatchUp } = helpers;
 
-    async function handleAssistantMessageReceivedInner(messageId, { bypassSwipeGuard = false, forceBranchRescan = false, detachScan = false } = {}) {
+    async function handleAssistantMessageReceivedInner(messageId, { bypassSwipeGuard = false, detachScan = false } = {}) {
         const settings = getSettings();
         if (!settings.enabled) return;
         const eventChatKey = getChatKey();
@@ -47,33 +47,26 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         // dossier generation in that window; settlement will replay this message safely.
         if (!bypassSwipeGuard && isHostSwipeActive()) {
             if (Number.isInteger(messageId)) rt.deferredSwipeMessageId = messageId;
-            queueSettledSwipeReconcile({
-                explicitDivergence: Number.isInteger(messageId) ? messageId : null,
-                rescan: true,
-                reason: 'message-swiped-received',
-            });
+            queueSettledSwipeReconcile({ reason: 'message-swiped-received' });
             return;
         }
 
         const state = getChatState();
-        migrateLegacyLineage(state, getContext().chat || []);
         // A history replay keeps its own receipts, catch-up marks and (no) captures, so the live ones are never touched.
         const replay = replayScope();
         const receipts = (replay ? replay.receipts : assistantReceipts).get(eventChatKey) || new Set();
-        if (!forceBranchRescan && (receipts.has(eventSourceKey)
-            || (replyScanned(state, messageId) && eventSourceKey === lineageCheckpointKey(state.lineage, messageId)))) return;
+        if (receipts.has(eventSourceKey)
+            || (replyScanned(state, messageId) && eventSourceKey === lineageCheckpointKey(state.lineage, messageId))) return;
         // Receipt deduplication is separate from successful scan completion and cadence.
         // Store bounded source keys, never copies of narrative text or dossier state.
         receipts.add(eventSourceKey);
-        if (!replay && !forceBranchRescan) markLiveReply(state, eventSourceKey, { enabled: memoryFactsOn(settings) });   // (memory facts) a genuinely new live reply
+        if (!replay) markLiveReply(state, eventSourceKey, { enabled: memoryFactsOn(settings) });   // (memory facts) a genuinely new live reply
         while (receipts.size > 64) receipts.delete(receipts.values().next().value);
         (replay ? replay.receipts : assistantReceipts).set(eventChatKey, receipts);
-        if (Number.isInteger(messageId) && !staleHostActive(eventChatKey)) ensureBranchParentAnchor(state, getContext().chat || [], messageId, 'assistant-parent');
         state.turn = Number(state.turn || 0) + 1;
         // Presence remains last-confirmed until a successful scanner observation replaces it.
         // A skipped, busy, failed, or timed-out scan must not make every NPC disappear.
         state.assistantSinceScan = Number(state.assistantSinceScan || 0) + 1;
-        const shouldForceBranchScan = forceBranchRescan && settings.branchRescan !== false;
         // NSD16 (hosted one-pass): the story's own lines carry the changes, so no scan by cadence; only the fallback scan (captureDue below) runs.
         const autoScanDue = !hostedOnePass() && autoScanDueAfterReply({
             autoScan: settings.autoScan,
@@ -88,10 +81,10 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         // ONEPASSMISS-1: a hosted missing-capture marker and a paid-for block both own this reply, irrespective of cadence.
         const captureDue = replay ? Boolean((e => e?.parsed || e?.fallbackParsed)(captureJournalEntry(replay, getContext().chat || [], messageId)))
             : narrationCaptureEnabled(settings) && narrationCaptures.has(narrationCaptureKey(eventChatKey, messageId));
-        const scanExpected = shouldForceBranchScan || autoScanDue || captureDue;
+        const scanExpected = autoScanDue || captureDue;
         // Receipt state belongs to this assistant even if scanning fails, skips or is busy.
         // A successful scan coalesces its changes into this same owned boundary.
-        commitBranchCheckpoint(state, messageId, 'turn');
+        noteChatLineage(state);
         persist();
         renderDossier();
         updateInjection();

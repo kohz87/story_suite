@@ -7,7 +7,7 @@ import { getContext } from '../../../../../../extensions.js';
 import { DEFAULT_ALLOWANCE, normalizeAllowance } from '../relationship/relationship-pacing.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, normalizeCustomFieldNames } from '../core/core.js';
 import { cutSettingNumber } from './number-cut.js';
-import { chatLineage } from '../legacy/branch.js';
+import { chatLineage } from '../lineage/index.js';
 import { PORTRAIT_THEME_PRESETS, PORTRAIT_CUSTOM_PRESET_LIMIT, portraitCustomPreset, portraitCustomPresetLibrary, portraitCustomPresetFor, nextPortraitCustomPresetId, portraitCustomPresetNameTaken, uniquePortraitCustomPresetName, persistSettings, getSettings } from './runtime-settings.js';
 
 export function createSettingsBindPart(rt, deps) {
@@ -66,8 +66,6 @@ export function createSettingsBindPart(rt, deps) {
         bindCustomFieldSettings();
         bindSettingsCheckbox('#npc_state_delta_reactivate_archived', 'autoReactivateArchived');
         bindSettingsCheckbox('#npc_state_delta_layered_secrets', 'layeredSecrets');
-        bindSettingsCheckbox('#npc_state_delta_branch_rescan', 'branchRescan');
-        bindSettingsCheckbox('#npc_state_delta_mid_delete_rewind', 'midDeleteRewind');
         $(document).on('change.npcStateDelta', '#npc_state_delta_portrait_theme_preset', function () {
             const settings = getSettings();
             const saved = portraitSettingsSnapshot(settings);

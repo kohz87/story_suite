@@ -57,3 +57,22 @@ tracker summary, answer parser, plan checks, change ops, auto-plan rules and the
 `planner-parse.test.js` and `planner.helpers.js`. The arc part (`modules/arc/plan`) has had its own copy of each since it was built. Moved, not removed:
 `resolveRelative` (relative dates in a plan), the one piece the arc plan reader still called, to `modules/arc/plan/read-parts/relative.js`, with its
 cases in `tests/modules/arc/relative.test.js`.
+Removed at B4-10a (the branch journal): `legacy/branch*.js` with their part folders (checkpoints, the rollback journal and its undo records, delete
+recovery, the reconcile rules, branch ancestry and the parent-chat inheritance, snapshots, user metadata restore, lineage migration and remapping),
+`legacy/checkpoint-pack.js` with its parts, `legacy/runtime-branch.js` and `legacy/runtime-reconcile.js`; the settings `branchRescan` and
+`midDeleteRewind` with their Advanced rows (a saved value is dropped when settings are read); the Branch reconciliation diagnostics (`uiStatus().branchHistory`,
+`branchReconciliations`, the diagnostic bundle's `branch.history` and `branch.reconciliations`); the runtime call `inheritBranch`;
+the `checkpoints`, `inlineCards`, `branchParent`, `branchForkMessageId`, `branchRootSnapshot`, `branchFamilyId` and `rollbackJournal*` fields (dropped
+when a state is read; the sidecar is written as format 1, a format 2 file is read with its packed checkpoints dropped). Moved (`git mv`), unchanged apart from
+dropping the exports nothing calls any more and one rename (`shared-message-fingerprint.js` to `message-hash.js`): `modules/people/lineage/` (message fingerprints, a message's lineage key, the lineage version and
+comparison; the same strings as before), `calls/scan-operations.js`, `core/dismissed-groups.js`. Kept, rewritten as two small parts with the hosted
+path's behaviour: `runtime/runtime-chat-branch.js` (the lineage a change stands on, which also prunes pictures: while hosted only those of people the
+reader deleted, without the store those of people no longer held; the host's swipe state; the stale-chat mark used by the sidecar adoption; and the
+wait for a new chat's state file, `branchInheritancePending` with `branchInheritanceChecked`, which a hosted chat never leaves until its file is saved,
+as before, and an unhosted chat leaves when it opens) and `runtime/runtime-settle.js` (the swipe settle wait, merged settle requests, replies held
+while a chat opens or waits; the public `reconcile`). Still here for later steps: the destructive-settlement controller (`core/destructive-settlement*.js`,
+it now only asks for the settle pass), the bundle's audit history (`transfer/native-transfer-parts/history-archive.js` writes empty checkpoint and
+inline-card lists so a bundle keeps its shape), the field registry's `revertGroup`, `revertList` and `userMeta` lists (`NPC_REVERT_GROUPS`,
+`NPC_REVERT_LIST_FIELDS`, `BRANCH_USER_METADATA_FIELDS`, now read by tests only), and the sidecar writer with its pointers and tombstones (B4-10b).
+Without a host (a refused or never-ready Story Suite host) NPC State keeps its dossiers on a swipe or delete instead of rolling them back.
+Backup: `scratch/backups/b4-10a/`.

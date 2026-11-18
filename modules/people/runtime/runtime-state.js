@@ -49,7 +49,6 @@ export function createRuntimeState() {
         // reply arrives or is stopped (sentCaptureRules, '' otherwise), never on a dry run, never in a
         // prompt without the chat's replies (another extension's call), never in Delta's own requests.
         sentCaptureRules: '',
-        branchReconciliationEvents: [],
         chatStateCache: new Map(),
         hydratedChatKeys: new Set(),
         hydratedStateMeta: new Map(),
@@ -61,7 +60,7 @@ export function createRuntimeState() {
         // (sidecarMissTrusted). The reader's own actions, page resume and the first save still look, and
         // that save never overwrites a file another session created. Without a v2 host nothing changes.
         missingSidecarChats: new Set(),
-        // Chats whose branch inheritance (maybeInheritKnownBranch) has decided in this session (inherited, or nothing to inherit).
+        // Chats decided in this session (runtime-chat-branch.js decideBranch): no longer waiting for their state file.
         branchInheritanceChecked: new Set(),
         freshnessEvents: [],
         loadingChatStates: new Map(),

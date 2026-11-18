@@ -18,8 +18,10 @@ test('runtime: hydratePeople and rescanLatest on the real runtime', () => {
         state.pendingBackfills = [{ id: 'x' }];
         state.readAhead = [1];
         state.lastScannedMessageId = 40;
-        state.checkpoints = [{ id: 'keep-me' }];
+        state.keepMe = { id: 'keep-me' };
+        Object.assign(state, { checkpoints: [{ messageId: 1 }], rollbackJournal: [{ seq: 1 }], inlineCards: [{ messageId: 1, cards: [] }], branchRootSnapshot: { npcs: [] } });
         await api.installState(state);
+        out.retired = ['checkpoints', 'rollbackJournal', 'inlineCards', 'branchRootSnapshot'].filter(key => key in api.getState());
         let news = 0;
         api.onNativeChange(() => { news += 1; });
         out.ready = api.stateReady();
@@ -27,7 +29,7 @@ test('runtime: hydratePeople and rescanLatest on the real runtime', () => {
         out.took = api.hydratePeople({ npcs: [fresh], candidates: [], socialGraph: { edges: [] }, turn: 3 });
         const after = api.getState();
         out.names = after.npcs.map(npc => npc.name);
-        out.keptCheckpoints = after.checkpoints.length;
+        out.kept = after.keepMe?.id ?? null;
         out.backfills = after.pendingBackfills.length;
         out.readAhead = after.readAhead.length;
         out.marker = after.lastScannedMessageId;
@@ -45,8 +47,9 @@ test('runtime: hydratePeople and rescanLatest on the real runtime', () => {
     };
     const out = scenarioOutput(runHostScenario('people-hydrate', () => {}, scenario));
     assert.equal(out.took, true);
+    assert.deepEqual(out.retired, [], 'a state saved with the removed branch journal loads with it dropped (B4-10a)');
     assert.deepEqual(out.names, ['Fenna']);
-    assert.equal(out.keptCheckpoints, 1, 'keys that are not people stay');
+    assert.equal(out.kept, 'keep-me', 'keys that are not people stay');
     assert.equal(out.backfills, 0);
     assert.equal(out.readAhead, 0);
     assert.ok(out.marker <= 1, 'the marker is held to the chat');
@@ -64,25 +67,24 @@ const v2HostPrelude = async () => {
     globalThis.StoryBlock = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
 };
 
-test('runtime: hosted, the journal reconcile is the store\'s (no rollback) and no parent dossiers are inherited; standalone is unchanged', () => {
-    const scenario = async () => {
+// B4-10a: the branch journal is gone. Hosted or alone, the public reconcile is the settle pass: it rolls nothing back, reports no recovery, and no
+// parent chat's dossiers are inherited (the hook is gone).
+test('runtime: reconcile is the settle pass, hosted or alone: no rollback and no inherited dossiers', () => {
+    const settle = async () => {
         const api = globalThis.NPCStateDelta;
-        assert.ok(await waitFor(() => mockState.sdk.registered.length === 1), 'Delta registers with the v2 host');
-        await sleep(200);
-        const done = await api.reconcile({ rescan: false });
-        console.log(`RESULT ${JSON.stringify({ action: done?.recoveryAction ?? null, relation: done?.lineageRelation ?? null, inherited: await api.inheritBranch() })}`);
+        if (mockState.sdk) assert.ok(await waitFor(() => mockState.sdk.registered.length === 1), 'Delta registers with the v2 host');
+        await sleep(mockState.sdk ? 200 : 300);
+        const before = JSON.stringify(api.getState().npcs);
+        const done = await api.reconcile({ operation: 'delete' });
+        console.log(`RESULT ${JSON.stringify({ keys: Object.keys(done || {}).sort(), same: JSON.stringify(done?.state?.npcs) === before, inherit: typeof api.inheritBranch })}`);
     };
-    const hosted = scenarioOutput(runHostScenario('people-bypass-hosted', v2HostPrelude, scenario));
-    assert.equal(hosted.action, 'store-owned');
-    assert.equal(hosted.relation, 'store-timeline');
-    assert.equal(hosted.inherited, false);
-    const alone = scenarioOutput(runHostScenario('people-bypass-alone', async () => {}, async () => {
-        const api = globalThis.NPCStateDelta;
-        await sleep(300);
-        const done = await api.reconcile({ rescan: false });
-        console.log(`RESULT ${JSON.stringify({ action: done?.recoveryAction ?? null, relation: done?.lineageRelation ?? null })}`);
-    }));
-    assert.notEqual(alone.action, 'store-owned', 'without a host the old reconcile runs');
+    const hosted = scenarioOutput(runHostScenario('people-settle-hosted', v2HostPrelude, settle));
+    const alone = scenarioOutput(runHostScenario('people-settle-alone', async () => {}, settle));
+    for (const out of [hosted, alone]) {
+        assert.deepEqual(out.keys, ['operation', 'state'], 'no recovery fields: nothing was rolled back');
+        assert.equal(out.same, true);
+        assert.equal(out.inherit, 'undefined');
+    }
 });
 
 // The two P4 hooks on the real runtime: setScanMarker takes the store's marker (and the replies since the scan) in place, dropping only the pending backfills and
@@ -101,7 +103,7 @@ test('runtime: setScanMarker and setPeopleRecord on the real runtime', () => {
         state.readAhead = [1];
         state.lastScannedMessageId = 0;
         state.assistantSinceScan = 0;
-        state.checkpoints = [{ id: 'keep-me' }];
+        state.keepMe = { id: 'keep-me' };
         await api.installState(state);
         out.before = [api.getState().pendingBackfills?.length ?? null, api.getState().readAhead?.length ?? null];
         let news = 0;
@@ -113,7 +115,7 @@ test('runtime: setScanMarker and setPeopleRecord on the real runtime', () => {
         out.lives = afterRecord.npcs.map(npc => [npc.name, npc.lifeState]);
         out.recordBackfills = afterRecord.pendingBackfills.length;
         out.recordReadAhead = afterRecord.readAhead.length;
-        out.recordCheckpoints = afterRecord.checkpoints.length;
+        out.recordKept = afterRecord.keepMe?.id ?? null;
         out.refusedUnknown = api.setPeopleRecord({ id: 'npc_nobody', name: 'Nobody' });
         out.refusedBad = api.setPeopleRecord(null);
         // The store's marker: the latest reply (index 1) was read, one reply since; then none read.
@@ -136,7 +138,7 @@ test('runtime: setScanMarker and setPeopleRecord on the real runtime', () => {
     assert.equal(out.before[1], 1, 'the read-ahead is set before the hooks run');
     assert.equal(out.recordBackfills, out.before[0], 'a death keeps the pending backfills as they were');
     assert.equal(out.recordReadAhead, 1, 'and the read-ahead');
-    assert.equal(out.recordCheckpoints, 1, 'and every other key');
+    assert.equal(out.recordKept, 'keep-me', 'and every other key');
     assert.equal(out.refusedUnknown, false);
     assert.equal(out.refusedBad, false);
     assert.equal(out.mark, true);

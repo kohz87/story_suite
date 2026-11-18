@@ -28,7 +28,7 @@ test('2/3: no unused imports or uncalled functions remain in shipped modules', (
     const sources = Object.fromEntries(modules.map(path => [path, fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')]));
     const all = Object.values(sources).join('\n');
     // Exported only so the test suite can drive them.
-    const testHooks = new Set(['cancelScannerRequests', 'estimateInjectionTokens', 'sameChatOwnerScope', 'pendingNpcStateDurabilityKeys', 'modalTopLayerSupported', 'diffJson' /* checkpoint-pack's public diff; packing uses its internal walk, the tests drive this one */,
+    const testHooks = new Set(['cancelScannerRequests', 'estimateInjectionTokens', 'sameChatOwnerScope', 'pendingNpcStateDurabilityKeys', 'modalTopLayerSupported',
         // Called from src/ (the hosted adapter, which the shipped-module list does not hold).
         'applyEvents', 'applyWord', 'nextMoodLog', 'moodWord', 'storedMoodWord', 'moodBars', 'stepPull', 'restingMood', 'restMood', 'emptyCastHtml', 'dossierRowNodes', 'unionMarks' /* memory-fact-marks: its caller, the participant's restoredState, was removed in P7; tests drive it, a later step may remove it */,
         // Called from the root index.js (through startIsolated), which the shipped-module list does not hold.

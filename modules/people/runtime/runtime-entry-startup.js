@@ -10,7 +10,7 @@ export function createStartup(rt, deps) {
         latestReplyIndex, castSync, castPortraitDue, nsdCardSettings, setStoryClockSource, setStoryDateAtSource, setStoryDayAtSource, hostedStoryDateAt, hostedStoryDayAt,
         hostedStoryClock, bindUi, installUiCaptureBridge, registerEvents,
         flushCurrentChatOnPageHide, refreshCurrentChatFromServer, scheduleSettingsMountRetries, getChatKey,
-        isCanonicalChatKey, ensureChatStateLoaded, maybeInheritKnownBranch, seedBranchTracking, getChatState,
+        isCanonicalChatKey, ensureChatStateLoaded, decideBranch, seedBranchTracking, getChatState,
         renderDossier, updateInjection, evictDormantChatStates,
     } = deps;
 
@@ -45,8 +45,7 @@ export function createStartup(rt, deps) {
             if (isCanonicalChatKey(key)) {
                 await ensureChatStateLoaded(key);
                 if (getChatKey() !== key) return;
-                await maybeInheritKnownBranch();
-                if (getChatKey() !== key) return;
+                decideBranch(key);
                 seedBranchTracking(getChatState(key));
             }
         } catch (error) {

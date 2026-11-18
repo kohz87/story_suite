@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import { mergeImportantMemories, normalizeStoredMemories } from '../../modules/people/core/core-record.js';
 import { stampMemories } from '../../modules/people/core/core-record-shared.js';
-import { chatLineage, lineageCheckpointKey } from '../../modules/people/legacy/branch.js';
+import { chatLineage, lineageCheckpointKey } from '../../modules/people/lineage/index.js';
 import { withoutSourceReplyNumbers } from '../../modules/people/bundle/bundle-import-helpers.js';
 import { buildNarrationCaptureParts } from '../../modules/people/core/core.js';
 import { base64url, canonicalTuple, factKey, hashText, sha256Bytes } from '../../modules/people/memory/memory-fact-key.js';

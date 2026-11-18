@@ -10,7 +10,7 @@ import { rpgIsOn } from '../settings/runtime-settings.js';
 import { reconcileSocialState, applyManualKeyRelationshipEdit } from '../social/social.js';
 
 export function createEditorSave(rt, deps, helpers) {
-    const { commitBranchCheckpoint, ensureFreshMutationBoundary, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, stampManualEdit, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;
+    const { noteChatLineage, ensureFreshMutationBoundary, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, stampManualEdit, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;
     const { clampEditorRelationshipStat, cleanEditorList, closeNpcEditor, customFieldEditorValues, editorField, renderDossier } = helpers;
 
     async function saveNpcEditor(npcId, { close = true, silent = false, popup = null } = {}) {
@@ -192,7 +192,7 @@ export function createEditorSave(rt, deps, helpers) {
         });
         state.socialGraph = reconciledSocial.socialGraph;
         state.npcs = reconciledSocial.state.npcs;
-        if (targetMessageId >= 0) commitBranchCheckpoint(state, targetMessageId, 'manual-edit');
+        if (targetMessageId >= 0) noteChatLineage(state);
         renderDossier();
         updateInjection();
         // Report success only once the edit is on the server. A failed write keeps the editor open

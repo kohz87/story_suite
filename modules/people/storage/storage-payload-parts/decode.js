@@ -1,5 +1,4 @@
 // Decodes sidecar JSON text to its payload, or reads only its head cheaply.
-import { unpackCheckpoints } from '../../legacy/checkpoint-pack.js';
 import { NPC_STATE_FILE_FORMAT, NPC_STATE_FILE_READ_VERSIONS } from './format.js';
 
 export function decodeStateFilePayload(text) {
@@ -12,13 +11,10 @@ export function decodeStateFilePayload(text) {
         throw Object.assign(new Error(`Unsupported NPC State Delta data file version: ${payload.formatVersion} (saved by a newer NPC State Delta; update the extension).`), { code: 'NPC_STATE_UNSUPPORTED_FORMAT' });
     }
     if (!payload.state || typeof payload.state !== 'object' || Array.isArray(payload.state)) throw new Error('NPC State Delta data file is missing its state object.');
+    // A format 2 file packed the branch journal's checkpoints (removed at B4-10a): its packing header and checkpoints are dropped unread.
     if (payload.formatVersion === 2) {
-        if (!payload.packing || typeof payload.packing !== 'object') throw new Error('NPC State Delta data file is missing its packing header.');
-        if (Array.isArray(payload.state.checkpoints)) {
-            try { payload.state.checkpoints = unpackCheckpoints(payload.state.checkpoints, payload.packing); }
-            catch (error) { throw new Error(`NPC State Delta data file checkpoint history could not be rebuilt: ${error?.message || error}`); }
-        }
         delete payload.packing;
+        delete payload.state.checkpoints;
     }
     payload.retired = payload.retired === true;
     payload.revision = Math.max(0, Math.trunc(Number(payload.revision) || 0));
@@ -28,7 +24,7 @@ export function decodeStateFilePayload(text) {
 
 // (inspection hot path) A boundary check wants only the revision, writer, chat key, time and retired flag. encodeStateFilePayload writes those
 // scalar keys first and `state` last, and a quote inside a string value is always escaped, so the first `,"state":` is the real one: the head
-// alone is parsed (a few hundred bytes) instead of the whole file (megabytes of checkpoints). Any file that does not look like that (older
+// alone is parsed (a few hundred bytes) instead of the whole file (megabytes of portraits). Any file that does not look like that (older
 // layout, pretty-printed, damaged) answers null and the caller decodes the whole file exactly as before. The state itself is not read here.
 const HEAD_LIMIT = 4096;
 export function decodeStateFileHead(text) {

@@ -75,13 +75,11 @@ test('form portrait cleanup follows the same retention as main portraits', () =>
     const npc = shifter();
     const state = {
         npcs: [npc],
-        checkpoints: [{ snapshot: { npcs: [shifter({ id: 'npc_old', name: 'Old Mira' })] } }],
         formPortraitAssets: {
             [npc.id]: { fox: { dataUrl: PNG, form: 'Fox' } },
             npc_old: { fox: { dataUrl: PNG, form: 'Fox' } },
             npc_gone: { fox: { dataUrl: PNG, form: 'Fox' } },
         },
     };
-    assert.deepEqual(Object.keys(pruneFormPortraitAssetsForState(state)).sort(), [npc.id, 'npc_old'].sort(),
-        'images stay while a live or checkpointed record can show them');
+    assert.deepEqual(Object.keys(pruneFormPortraitAssetsForState(state)), [npc.id], 'images stay while a live record can show them');
 });

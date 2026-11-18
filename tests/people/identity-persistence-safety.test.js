@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { partsSource } from './helpers/parts-source.js';
-import { bestAncestorState, chatLineage, recordBranchCheckpoint } from '../../modules/people/legacy/branch.js';
 import { encodeRetiredStateFilePayload, decodeStateFilePayload, makeNpcStateRecoveryFileName } from '../../modules/people/storage/storage.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
@@ -10,14 +9,6 @@ const index = runtimeSource();
 const runtimeState = fs.readFileSync(new URL('../../modules/people/runtime/runtime-state.js', import.meta.url), 'utf8');
 const identity = partsSource('identity.js');
 const ci = fs.readFileSync(new URL('../../docs/history/packages/npc-state-delta/.github/workflows/ci.yml', import.meta.url), 'utf8');
-
-function msg(text, isUser = false) { return { mes: text, is_user: isUser, is_system: false, name: isUser ? 'User' : 'Character' }; }
-function stateFor(chat) {
-    const state = { npcs: [{ id: 'npc_a', name: 'A' }], candidates: [], pendingBackfills: [], socialGraph: { edges: [], unresolved: [] }, dismissed: [], turn: 1, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null, scanCount: 0, checkpoints: [], lineage: [], inlineCards: [] };
-    recordBranchCheckpoint(state, chat, chat.length - 1, 'test');
-    state.lineage = chatLineage(chat);
-    return state;
-}
 
 test('group identity takes precedence over host chatId and pending identities are noncanonical', () => {
     assert.match(identity, /if \(hasGroup\)/);
@@ -60,22 +51,6 @@ test('broken sidecar recovery is explicit rather than silently destructive', () 
     assert.match(index, /Detach Broken Sidecar/);
     assert.match(index, /settings\.recoveryFiles\[key\]/);
     assert.match(index, /settings\.sidecarTombstones\[key\]/);
-});
-
-test('independent chats never inherit without explicit host branch provenance', () => {
-    const shortA = [msg('Welcome.'), msg('I enter.', true), msg('The guard nods.')];
-    const shortB = [msg('Welcome.'), msg('I enter.', true), msg('The guard nods differently.')];
-    assert.equal(bestAncestorState({ 'chat:a': stateFor(shortA) }, 'chat:b', shortB), null);
-    const longA = [msg('Welcome.'), msg('I enter.', true), msg('The guard nods.'), msg('I ask for work.', true), msg('A ledger opens.')];
-    const longB = [msg('Welcome.'), msg('I enter.', true), msg('The guard nods.'), msg('I ask for work.', true), msg('A different ledger opens.')];
-    const inherited = bestAncestorState({ 'chat:a': stateFor(longA.slice(0, 4)) }, 'chat:b', longB);
-    assert.equal(inherited, null);
-});
-
-test('branch inheritance loads only the explicit host parent', () => {
-    assert.match(index, /if \(!hasExplicitParent\) return false/);
-    assert.match(index, /await ensureChatStateLoaded\(explicitParentKey\)/);
-    assert.doesNotMatch(index, /branchIndex|ensureLikelyAncestorStatesLoaded|BRANCH_DISCOVERY_LIMIT/);
 });
 
 test('CI is version-neutral and uses Node 24 actions', () => {
