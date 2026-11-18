@@ -4,6 +4,7 @@ import { createNav } from './nav.js';
 import { createPages } from './page.js';
 import { searchRows, renderSearchResults } from './search.js';
 import { foldGroups, foldStore } from './fold-groups.js';
+import { tabTrap } from '../kit/trap.js';
 
 function footerBar(sent, onGo) {
   const pct = sent.cap > 0 ? Math.min(100, Math.round((sent.used / sent.cap) * 100)) : 0;
@@ -50,6 +51,8 @@ export function createSettingsOverlay(options = {}) {
   let isOpen = false;
   let release = null;
   let destroyed = false;
+  let opener = null;   // what had the focus before Settings opened: it gets it back on close
+  let stilled = [];    // what Settings made inert behind it (nothing that was inert already)
 
   const makeNav = () => createNav(sections, {
     onPick: (id, via) => { query = ''; nav.setQuery(''); if (via === 'list') page = 'section'; show(id); },
@@ -65,9 +68,13 @@ export function createSettingsOverlay(options = {}) {
     body,
     sent ? footerBar(sent, () => { query = ''; nav.setQuery(''); page = 'section'; show('tools'); }) : null,
   ];
-  const el = h('div', { class: 'sov', role: 'dialog', 'aria-label': 'Story Suite settings', hidden: true },
+  const el = h('div', { class: 'sov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Story Suite settings', hidden: true },
     h('div', { class: 'glass' }, parts));
   host.appendChild(el);
+  // Settings is a modal window: Tab stays inside it, the page behind is inert while it is open, and the × takes the focus (the suite's own sheets work the same way).
+  el.addEventListener('keydown', tabTrap(el, { doc, isOn: () => isOpen }));
+  const stillBehind = () => { stilled = [...(host.children ?? [])].filter(n => n !== el && !n.hasAttribute?.('inert')); for (const n of stilled) n.setAttribute('inert', ''); };
+  const wakeBehind = () => { for (const n of stilled) n.removeAttribute('inert'); stilled = []; };
 
   function backButton() {
     return h('button', { type: 'button', class: 'btn2 sback', onClick: () => { page = 'list'; query = ''; nav.setQuery(''); paint(); scroller.scrollTop = 0; } }, '‹ Settings');
@@ -123,6 +130,9 @@ export function createSettingsOverlay(options = {}) {
   }
 
   function back() {
+    // An editor that is open on the page (Prompts › Read and edit) closes first: Escape does not take the whole window with it.
+    const editor = main.querySelector?.('[data-dismiss]');
+    if (editor) { editor.click(); return false; }
     if (page === 'section' || query !== '') {
       page = 'list';
       query = '';
@@ -141,7 +151,10 @@ export function createSettingsOverlay(options = {}) {
     isOpen = true;
     page = id ? 'section' : 'list';
     paint();
+    opener = doc.activeElement ?? null;
     el.removeAttribute('hidden');
+    stillBehind();
+    closeBtn.focus?.();
     if (backStack) release = backStack.push({ id: 'settings', layer: 'settings', close: () => (back() ? close(true) : false) });
     return true;
   }
@@ -150,6 +163,11 @@ export function createSettingsOverlay(options = {}) {
     if (destroyed || !isOpen) return false;
     isOpen = false;
     el.setAttribute('hidden', '');
+    wakeBehind();
+    const active = doc.activeElement ?? null;
+    // (focus goes back to the opener only when it was in Settings or nowhere: a window opened over it keeps it)
+    if (!active || active === doc.body || el.contains?.(active) === true) opener?.focus?.();
+    opener = null;
     if (release && !fromStack) release();
     release = null;
     if (typeof onClose === 'function') onClose();

@@ -40,3 +40,14 @@ describe('Story: Show the plan, through the real selector map', () => {
     assert.equal(selectStory(readOf(EMPTY), { planShown: true, threadsOn: true }).plan.note.includes('Threads'), false);
   });
 });
+
+describe('Story: Story Director off (soak bug #4)', () => {
+  const feature = on => ({ id: 'story-director.threads', moduleId: 'story-director', on });
+  const off = features => buildSelectors(() => ({ chatMetadata: {} }), { features: () => features }).story(readOf(PLAN)).plan.off;
+  it('the view says off only while every Story Director switch is off', () => {
+    assert.equal(off([feature(false), { ...feature(false), id: 'story-director.pulse' }]), true);
+    assert.equal(off([feature(false), { ...feature(true), id: 'story-director.pulse' }]), false);
+    assert.equal(off([{ id: 'story-block.x', moduleId: 'story-block', on: true }]), false, 'no Director switches listed: not off');
+    assert.equal(off([]), false);
+  });
+});

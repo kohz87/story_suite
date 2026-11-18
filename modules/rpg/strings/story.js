@@ -105,6 +105,7 @@ export const STORY_STRINGS = Object.freeze({
         homeNotNow: 'Not now',
         holdTitle: 'Make your character first',
         holdText: 'The RPG is on, but this story has no character for you yet, so there is nothing to roll for. Your message is kept; it is sent as soon as you choose.',
+        holdMismatch: 'The RPG is on, and this story has a character, {names}, but you are playing as {persona}, so there is nothing to roll for. Switch your persona to {names} to play on as them, or send this one without the RPG. Your message is kept.',
         holdLabel: 'Your message',
         holdWithout: 'Send without the RPG for now',
         holdCreate: 'Create your character, then send',

@@ -6,7 +6,7 @@ import { SHAPE_TYPES as T } from './shapes.js';
 const gated = item => ({ count: T.NUMBER, items: [item] });
 
 export const STORY_SHAPE = {
-  plan: { shown: T.BOOLEAN, note: T.STRING },
+  plan: { shown: T.BOOLEAN, note: T.STRING, off: T.BOOLEAN },
   pulse: {
     mode: { $enum: ['off', 'quiet', 'lively'] },
     quiet: T.BOOLEAN,

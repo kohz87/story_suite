@@ -162,7 +162,7 @@ export function selectStory(read, opts = {}) {
   const arcView = read('director.arc', {});
   const hasArc = Boolean(arcView?.current && typeof arcView.current === 'object');
   return {
-    plan: { shown, note: noteOf(shown, opts.threadsOn !== false, [beats, clocks, hooks, newsOnWay, agendas, secrets], hasArc) },
+    plan: { shown, note: noteOf(shown, opts.threadsOn !== false, [beats, clocks, hooks, newsOnWay, agendas, secrets], hasArc), off: opts.directorOn === false },
     pulse: pulseOf(read('pulse.view', {}), shown),
     arc: arcOf(arcView, shown, read('director.calendar', {}), opts.arcStatus),
     beats, clocks, hooks, newsOnWay, agendas,

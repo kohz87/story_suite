@@ -23,7 +23,7 @@ export function renderPrompts(view, state) {
       h('span', { class: 'lb' }, box),
       h('span', { class: 'ctl' },
         h('button', { type: 'button', class: 'btn2', disabled: state.busy, onClick: () => { state.type(p.id, box.value); state.save(p.id); } }, 'Save'),
-        h('button', { type: 'button', class: 'btn2', onClick: () => state.setOpen(null) }, 'Cancel')));
+        h('button', { type: 'button', class: 'btn2', dataset: { dismiss: 'editor' }, onClick: () => state.setOpen(null) }, 'Cancel')));
     return [head, edit];
   });
   return h('div', { class: 'sgrp', dataset: { card: 'prompts' } }, h('div', { class: 'gt' }, 'Prompts'), rows);
