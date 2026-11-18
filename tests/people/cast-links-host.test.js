@@ -19,6 +19,8 @@ test('a waiting link follows the head: named once the other person is stored; a 
     await rig.reply('Fenna at the ferry.', state => { state.npcs.push(structuredClone(fenna)); });
     assert.deepEqual(bonds(rig), [], 'Orrin not met: nothing of him');
     assert.doesNotMatch(JSON.stringify(rig.host.sdk.query('people.dossier', { name: 'Fenna' })), /orrin|ORRIN/);
+    assert.equal(rig.host.sdk.query('npc.dossier', { name: 'Fenna' })?.castFrom, undefined, 'npc.dossier never carries castFrom (or its waiting ids)');
+    assert.doesNotMatch(JSON.stringify(rig.host.sdk.query('npc.dossier', { name: 'Fenna' })), /orrin|ORRIN/);
     const stored = storedFenna(rig);
     await rig.reply('Orrin walks up the quay.', state => { state.npcs.push(structuredClone(orrin)); });
     const metAt = rig.host.store.headIndex();
