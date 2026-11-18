@@ -3,7 +3,8 @@
 // The editor's own controls for dossier fields: element id (after npc_state_delta_edit_), the label the
 // reader sees, and for a text the most the stored record keeps (normalizeNpcRecord; for a lockable
 // text the locked maximum, since an unlocked one is compacted further). A null maximum is a select or
-// a one-per-line list, whose line count the Save caps instead.
+// a one-per-line list, whose line count the Save caps instead. `pairs`: each line is "Name — description" (an entry of { name, description }).
+// `when: 'rpg'`: the control is drawn only while the RPG feature is on; with it off the stored value is kept as it is (untouchedEditorFields).
 export const EDITOR_FIELDS = Object.freeze({
     name: { id: 'name', label: 'Name', max: 120 },
     species: { id: 'species', label: 'Species', max: 160 },
@@ -25,18 +26,28 @@ export const EDITOR_FIELDS = Object.freeze({
     goal: { id: 'goal', label: 'Goal', max: 500 },
     status: { id: 'status', label: 'Condition / Activity', max: 500 },
     memories: { id: 'memories', label: 'Important memories', max: null, list: true },
+    level: { id: 'level', label: 'Level', max: null, when: 'rpg' },
+    abilities: { id: 'abilities', label: 'Abilities', max: null, list: true, pairs: true },
+    keepsakes: { id: 'keepsakes', label: 'Keepsakes', max: null, list: true, pairs: true },
 });
+
+// A pair entry as the editor's line: "Name — description" (the name alone when it has no description).
+const pairLine = entry => (entry?.description ? `${entry.name} — ${entry.description}` : String(entry?.name ?? ''));
 
 // The text the editor shows for a field of this record.
 export function editorShownValue(npc, key) {
-    return EDITOR_FIELDS[key]?.list ? (Array.isArray(npc?.[key]) ? npc[key] : []).join('\n') : String(npc?.[key] ?? '');
+    const field = EDITOR_FIELDS[key];
+    if (field?.pairs) return (Array.isArray(npc?.[key]) ? npc[key] : []).map(pairLine).join('\n');
+    return field?.list ? (Array.isArray(npc?.[key]) ? npc[key] : []).join('\n') : String(npc?.[key] ?? '');
 }
 
 // Fields whose control still holds exactly what the editor showed for the record (readControl(id)
 // returns a control's raw value). A Save keeps these as they are stored, never re-cut or compacted.
-export function untouchedEditorFields(current, readControl) {
+// `rpgOn` false: a control drawn only with RPG on is not there, so its stored value is kept.
+export function untouchedEditorFields(current, readControl, { rpgOn = true } = {}) {
     const untouched = new Set();
     for (const [key, field] of Object.entries(EDITOR_FIELDS)) {
+        if (field.when === 'rpg' && !rpgOn) { untouched.add(key); continue; }
         if (String(readControl(`npc_state_delta_edit_${field.id}`) ?? '') === editorShownValue(current, key)) untouched.add(key);
     }
     return untouched;

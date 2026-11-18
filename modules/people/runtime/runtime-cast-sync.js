@@ -16,7 +16,7 @@ import { stampMemories } from '../core/core-record-shared.js';
 import { storyDateTextAt } from '../legacy/calendar.js';
 
 // (ONEPASSCAPR2-2) Keep the admission values until the host's meeting step can answer. A later manual edit or scan wins over this seed.
-const SEED_FIELDS = ['aliases', 'role', 'overallAppearance', 'appearance', 'unclassifiedAppearance', 'appearanceForms', 'currentForm', 'currentFormUnknown', 'speech', 'personality', 'background', 'behaviorProfile', 'mannerisms', 'relationshipSummary', 'homeBase', 'goal', 'location', 'customFields', 'species', 'gender', 'age', 'apparentAge', 'birthDate', 'birthDateSource', 'birthDateReason', 'birthDatePrecision', 'birthDateYearSource', 'relationship', 'meterSetup', 'secrets'];
+const SEED_FIELDS = ['aliases', 'role', 'overallAppearance', 'appearance', 'unclassifiedAppearance', 'appearanceForms', 'currentForm', 'currentFormUnknown', 'speech', 'personality', 'background', 'behaviorProfile', 'mannerisms', 'relationshipSummary', 'homeBase', 'goal', 'location', 'customFields', 'species', 'gender', 'age', 'apparentAge', 'birthDate', 'birthDateSource', 'birthDateReason', 'birthDatePrecision', 'birthDateYearSource', 'relationship', 'meterSetup', 'secrets', 'level', 'abilities', 'keepsakes', 'keyRelationships', 'status'];
 const seedValues = npc => Object.fromEntries(SEED_FIELDS.map(field => [field, structuredClone(npc[field] ?? null)]));
 const sameSeedValue = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 export function rememberCastAdmissions(state, ids, messageId, lineage) {
@@ -43,7 +43,7 @@ export function seedCastAdmission(state, npc, person, options = {}) {
         && sameSeedValue(npc.appearance, pending.values.appearance)) {
         seeded.appearance = person.entry.wears || '';
         seeded.unclassifiedAppearance = '';
-        seeded.appearanceForms = [];
+        seeded.appearanceForms = (person.entry.forms ?? []).map(row => ({ ...row }));
         seeded.currentForm = '';
         seeded.currentFormUnknown = false;
     }
@@ -210,7 +210,7 @@ export function createCastSyncPart(rt, deps) {
         for (const person of castDue(working, adapter)) {
             const existing = dossierFor(working.npcs, person);
             if (existing && working.castSeedPending?.[existing.id]) {
-                const seeded = seedCastAdmission(working, existing, person, { packName: names[person.pack] ?? '', gated: adapter.worldSecretsOn?.() === true });
+                const seeded = seedCastAdmission(working, existing, person, { packName: names[person.pack] ?? '', gated: adapter.worldSecretsOn?.() === true, placeName: adapter.placeName });
                 if (seeded) { working.npcs = working.npcs.map(npc => npc.id === seeded.id ? seeded : npc); made.push(seeded); }
                 continue;
             }
@@ -220,7 +220,7 @@ export function createCastSyncPart(rt, deps) {
             if (added.report.status !== 'added') continue;
             const base = added.state.npcs.find(npc => npc.id === added.report.npcId);
             const portrait = portraits.get(person.key) ?? null;
-            const filled = base ? applyCastEntry(base, person, { packName: names[person.pack] ?? '', portrait, gated: adapter.worldSecretsOn?.() === true }) : null;
+            const filled = base ? applyCastEntry(base, person, { packName: names[person.pack] ?? '', portrait, gated: adapter.worldSecretsOn?.() === true, placeName: adapter.placeName }) : null;
             if (!filled) continue;
             // (first meeting) The person was met at this reply (Story Director's answer): the dossier made here has never been present, so the fact is hers too.
             const facts = scanMemoryFacts(working, settings, chatLineage(chatContext().chat || []), messageId, chatContext().name1, { hosted: true });

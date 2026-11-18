@@ -87,4 +87,9 @@ export const FIELDS = Object.freeze({
     // (the living cast) Where a dossier made from the pack's cast came from: { key, pack, id, packName?, packVersion?, met: { on, where },
     // goal, routine, stages? } (src/cast-dossier.js). The person's own stage ladder (`stages`) is read by the v2 slice's handlers only.
     castFrom: { kind: 'meta', prompt: 'never' },
+    // (pack format 4) The built-in story fields: a whole Level (1-99) and the Abilities and Keepsakes lists of { name, description } (core-record-parts/built-in-fields.js).
+    // Absent while empty. Only the v2 dossier query carries them: a scan, a Refresh, an alias merge, a lock and the inline card's snapshot do not touch them.
+    level: { kind: 'story', v2: 32 },
+    abilities: { kind: 'story', v2: 33 },
+    keepsakes: { kind: 'story', v2: 34 },
 });
