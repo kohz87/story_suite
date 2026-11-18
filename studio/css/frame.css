@@ -24,7 +24,8 @@
 /* No pack open: no nav column, no "‹ Parts", and the start page is a centred column (MK-9). */
 .st-root .snav:empty { display: none; }
 .st-root .sbody:has(> .snav:empty) .sback { display: none; }
-.st-root .spage:has(.st-start) { width: 100%; max-width: 760px; margin: 0 auto; }
+.st-root .spage:has(> .st-open-grp) { width: 100%; max-width: 760px; margin: 0 auto; }
+.st-root :is(.st-open-grp, .st-new-grp) .srow .ctl .btn2 { min-width: 110px; }
 
 /* The foot bar: the problem count in the danger red, the warnings after it as written. */
 .st-root .st-foot .st-ferr { color: var(--su-bad-t, var(--su-bad)); }
