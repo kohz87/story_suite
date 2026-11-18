@@ -5,13 +5,14 @@ import { renderDiagnostics } from './diagnostics.js';
 import { renderDeveloper } from './developer.js';
 import { openInspector } from './inspector.js';
 import { renderSavePoints } from './savepoints.js';
+import { renderGameExport, saveGamePack } from './game-export.js';
 
 /**
  * Creates the page body builder. `settings` = the view-model, `ctx` = the overlay's { onAction, view(name, args), doc, backStack, repaint },
  * `developer` = { on, own } for the Developer cards. Returns `() => nodes`. The sent card, problems and the Inspector come from `ctx.view` (live); with none, from the snapshot.
  */
 export function createToolsPage(settings, ctx, developer) {
-  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '' };
+  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '', packNote: '' };
   const redraw = () => ctx.repaint?.();
   const ask = (key, value) => Promise.resolve(ctx.onAction?.(key, value));
 
@@ -38,6 +39,15 @@ export function createToolsPage(settings, ctx, developer) {
     }, error => { local.note = String(error?.message ?? error); }).finally(redraw);
   }
 
+  // Export settings as a game pack: the engine builds and checks it; the file is saved here.
+  function exportPack() {
+    ask('tools.gamepack.export', { name: 'My settings' }).then(answer => {
+      if (answer?.ok === false || typeof answer?.text !== 'string') { local.packNote = String(answer?.message ?? 'The pack could not be made.'); return; }
+      saveGamePack(ctx.doc, answer.text, `${answer.pack?.id ?? 'my-settings'}.json`);
+      local.packNote = `Saved ${answer.pack?.id ?? 'my-settings'}.json: ${answer.sections.map(item => item.section).join(', ')}.`;
+    }, error => { local.packNote = String(error?.message ?? error); }).finally(redraw);
+  }
+
   return function body() {
     const fresh = ctx.view?.('sent');
     const sent = fresh ? { ...fresh, limits: settings.sent?.limits ?? [] } : settings.sent;
@@ -56,6 +66,7 @@ export function createToolsPage(settings, ctx, developer) {
       ...(sent?.budget ? renderSent(sent, sent.limits ?? [], ctx, open) : []),
       renderProblems(problems, state),
       points,
+      renderGameExport({ note: local.packNote, run: exportPack }),
       renderDiagnostics({ note: local.note, copy }),
       ...renderDeveloper({ on: developer.on() }, developer.own),
     ].filter(Boolean);

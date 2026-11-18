@@ -396,7 +396,7 @@ The page shows only while the RPG is on.
   **Stat adds** (half the stat, a third of the stat, or full above 10), **"At a cost" when short by** (0 to 5; 0 turns it off), **Decisive at a margin
   of** (4 to 15, or a natural 1 or 20) and **Most exchanges per reply** (1 to 8). A number outside its range is held to
   it, and a roll already made keeps its own.
-- **Levels and practice.** **Level cap** (1 to 99, default 99; the pack's cap wins when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
+- **Levels and practice.** **Level cap** (1 to 99, default 99; a cap you set below 99 wins over the game pack's; at 99 the game pack's cap applies when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
 - **What the narrator is told about combat.** The text of this chat's Combat rules block (up to 1200 characters, counted
   as you type). It is saved when you leave the box (or close the settings window with text still in it), as an edit of that
   block on the latest reply: swipe or delete that reply to take it back. A chat keeps a limited number of block versions;
@@ -471,7 +471,7 @@ Ersveil" while the pack decides. Foe Health was `4 + class/3` blocks (the simula
 **Levels.** A character's level runs 1 to 99 (the Character block's `level`). At 100 XP the character goes up one level and the extra XP
 carries over. The rise needs no confirm step and is said in "Changed this reply" ("Wessel reached Lv 15 (+1 point to spend)"). Every third
 level (3, 6, 9 and so on) gives **1 stat point** to spend, and the Party card offers **Spend points**; the points never go above 60.
-A character's level stops at its **cap**: the pack's `rpg.levelCap` when it names one, else the setting **Level cap** (1 to 99, default 99).
+A character's level stops at its **cap**: the setting **Level cap** when you set it below 99, else the selected game pack's `rpg.levelCap` when it names one, else 99. (99 is the setting's default, so it counts as not set.) A game pack's cap applies to new characters; a made character keeps its own.
 A character keeps the cap it was made with. At the cap, XP holds at 100 and nothing more is given. A block carries its own copy of its
 rules, so a character made before a rule existed keeps the rule it has; give such a character points with the pencil on **Points** in its
 Character block.

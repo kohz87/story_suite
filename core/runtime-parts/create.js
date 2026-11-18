@@ -5,6 +5,8 @@ import { CORE_MODULE_ID, createCoreModule } from '../../modules/scene/domains/in
 import { SETTING as ASSIST_SETTING, TIMEOUT_MS as ASSIST_TIMEOUT_MS, createAssistPart } from '../../modules/assist/index.js';
 import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
 import { createCardSettings } from '../../packs/card-settings.js';
+import { moneySections } from '../../modules/scene/domains/core/game-sections.js';
+import { rpgSections } from '../../modules/rpg/game-sections.js';
 import { skipOf } from '../../modules/rpg/start-notes.js';
 import { XP_RATE_SETTING, xpRateFrom, xpRateOf } from '../../modules/rpg/levels.js';
 import { connectionFor } from '../model-call/connection-for.js';
@@ -253,9 +255,12 @@ export function createRuntime({
     // (the feature store's set, the settings' set).
     function registerOwnCardSettings() {
         const onOff = value => (value ? 'on' : 'off');
+        // The sections of a game pack Story Block's own settings fill (Tools: Export settings as a game pack); read from the reader's own settings (not the pack currency laid over them).
+        const io = { read: key => base(CORE_MODULE_ID)?.[key], write: (key, value) => settings.set(CORE_MODULE_ID, key, value) };
         cardSettings.registerOwn({
             owner: CORE_MODULE_ID,
             label: 'Story Block',
+            sections: { ...moneySections(io), ...rpgSections(io) },
             keys: {
                 rpg: { label: 'RPG', valueText: onOff, valid: value => typeof value === 'boolean' },
                 gear: { label: 'Gear', valueText: onOff, valid: value => typeof value === 'boolean' },
