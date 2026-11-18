@@ -92,7 +92,7 @@ test('by default the new view mounts: body class, styles, the "Story Suite" menu
   assert.ok(doc.body.classList.contains('ss-ui-next'));
   assert.ok(doc.querySelector('.su-root'));
   assert.equal(doc.querySelector('#story-suite-ui-menu').textContent, 'Story Suite');
-  assert.equal(doc.head.querySelectorAll('link').length, 16);
+  assert.equal(doc.head.querySelectorAll('link').length, 17);
   assert.equal(doc.querySelector('#story-suite-old-view'), null, 'no switch on the default path');
   assert.equal(/preview/i.test(doc.body.textContent), false);
 });

@@ -27,7 +27,7 @@ function store(ctx, payload = {}) {
     if (ctx.cause !== 'system' || ctx.caller) return ctx.fail('REFUSED', 'The Director\'s answers for open templates are stored by code before a reply.');
     if (!worldEventsOn(ctx)) return ctx.fail('REFUSED', 'World events are off.');
     const results = isRecord(payload.results) ? payload.results : {};
-    const bad = Object.entries(results).some(([key, row]) => !key.includes('|') || !isRecord(row) || !OUTCOMES.has(row.outcome) || (row.answer !== undefined && (typeof row.answer !== 'string' || row.answer.length > 3000)) || (row.why !== undefined && typeof row.why !== 'string'));
+    const bad = Object.entries(results).some(([key, row]) => !key.includes('|') || !isRecord(row) || !OUTCOMES.has(row.outcome) || (row.answer !== undefined && (typeof row.answer !== 'string' || row.answer.length > 7000)) || (row.why !== undefined && typeof row.why !== 'string'));
     if (bad || !Number.isInteger(payload.calls ?? 0) || (payload.calls ?? 0) < 0) return ctx.fail('INVALID', 'The stored answers are not in the form the world reads.');
     const query = typeof ctx.query === 'function' ? (name, args) => ctx.query(name, args) : null;
     storeOpen(ctx.draft('chronicle'), { results, calls: payload.calls ?? 0, year: yearOf(calendarFrom(query), nowFrom(query, { domains: { director: ctx.draft('director') } })) });

@@ -18,7 +18,9 @@ export function eventRealms(ws, def, bind) {
 
 /** Why a major cannot start today (a sentence), or '' when the caps allow it. */
 export function capBlock(ws, realms, day) {
-    const active = Object.values(ws.events).filter(row => row.state === 'active' && row.major);
+    // A running generated arc with a major step holds one slot in its realm for as long as it runs (arc-day.js).
+    const arcs = Object.values(ws.arcs ?? {}).filter(arc => arc.state === 'running' && arc.major).map(arc => ({ realms: [arc.realm] }));
+    const active = [...Object.values(ws.events).filter(row => row.state === 'active' && row.major), ...arcs];
     if (active.length >= CAPS.world) return `the world already has ${CAPS.world} active major events`;
     const wait = scaleDays(CAPS.newMajorDays, ws.tempo);
     for (const realm of realms) {

@@ -18,7 +18,9 @@ import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
 import { repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
+import { pickOf, pickedFocus } from './focus.js';
 import { peopleParts, dossierMap } from './people-parts.js';
+import { createWizardWorld } from '../wizard/world.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
@@ -37,12 +39,15 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     if (open) return info?.choice === 'board' ? { ...open, held: true } : open;
     return selectHold(info, { sheet: read('rpg.sheet', {}), place: read('scene.place', {})?.name ?? null });
   };
+  const wizard = createWizardWorld({ sdk, ctx });
   const problemsNow = () => ({ problems: tools?.problems?.() ?? [], blocked: tools?.blocked?.() ?? null, nameOf: tools?.nameOf });
   const scene = read => {
     const answers = gather(read);
     const opts = { ...optsOf(read, answers, ctx), offers: offerRows(liveOffer()) };
     const fight = fightOf(read); // the open or waiting fight, if one is: the inline chip and the Now card read it
-    return { answers, opts: fight ? { ...opts, fightOpen: true, fight: needsOf(fight) } : opts };
+    const picked = pickedFocus(read, pickOf(ctx)); // the Journal's focus pick, while that quest is open
+    const base = picked ? { ...opts, focusPick: picked } : opts;
+    return { answers, opts: fight ? { ...base, fightOpen: true, fight: needsOf(fight) } : base };
   };
   return {
     card: read => { const s = scene(read); return selectCard(s.answers, s.opts); },
@@ -55,7 +60,9 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     party: read => {
       const actors = read('party.actors', {});
-      return selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}) });
+      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}) });
+      // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
+      return wizard.needsYou() ? { pcId: null, max: 4, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
     },
     bag: read => {
       const actors = read('party.actors', {});
@@ -64,7 +71,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const view = read('gear.view', pc?.id ? { id: pc.id } : {});
       return selectBag({
         rpg: Array.isArray(actors) && actors.length > 0, items: read('inventory.items', {}), counts: read('inventory.counts', {}), gear: pc?.id ? view : null, carriers: view?.carriers,
-        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), pcId: pc?.id ?? null,
+        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), changes: read('reply.changes', {}), pcId: pc?.id ?? null,
       });
     },
     people: read => selectPeople(peopleParts(read)),
@@ -73,7 +80,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const worldEvents = sdk?.features?.()?.find?.(f => f?.id === 'story-director.world-events')?.on === true;
       return selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null, worldEvents, conditionsHere: worldEvents ? read('chronicle.conditionsHere', {}) : null, regionNames: read('chronicle.regionNames', {}) });
     },
-    journal: read => selectJournal(read),
+    journal: read => selectJournal(read, { focusId: pickOf(ctx) }),
     story: read => selectStory(read),
     // The open interaction: `interaction.view`, null when none is open. A fight is shown on the Fight tab, not here.
     scene: read => openScene(read('interaction.view', {})),
@@ -84,7 +91,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const view = read('interaction.view', {});
       const scene = openScene(view);
       const actors = read('party.actors', {});
-      return { rpg: Array.isArray(actors) && actors.length > 0, fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
+      return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou(), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
     },
     settings: () => selectSettings({
       host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },

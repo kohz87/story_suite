@@ -1,0 +1,100 @@
+// The new view's New character wizard: one bottom sheet (kit/sheet.js) with the old wizard's four steps, Who · Stats · Skills · Review, the
+// summary row of the character so far on top and Back / Next under each step. The rules, the draft and Create are modules/rpg's own
+// (wizard-data.js, join.js, wizard-data-parts/create-run.js); only the drawing is this view's. `open(prefill, { onEnd })` opens it on a fresh
+// You, or filled in from a join payload ({ name, soul, best, skills }: People › Add to party › Edit first); `onEnd(created)` is told once when it closes.
+
+import { h } from '../kit/dom.js';
+import { button, segmented } from '../kit/controls.js';
+import { openSheet } from '../kit/sheet.js';
+import { skillLine } from '../../modules/rpg/charfile.js';
+import { joinDraft } from '../../modules/rpg/join.js';
+import { RPG_STRINGS, fill } from '../../modules/rpg/strings.js';
+import { WIZARD_STEPS, draftSlots, newDraft, pointsLeft, readDraft, statsLine } from '../../modules/rpg/view/wizard-data.js';
+import { drawWho } from './who.js';
+import { drawStats } from './stats.js';
+import { drawSkills } from './skills.js';
+import { drawReview } from './review.js';
+import { markFocus, restoreFocus } from './focus.js';
+
+const W = RPG_STRINGS.wizard;
+const NEXT = 'Next';
+/** The screen id `port.open` names for this window (the old wizard's, modules/rpg/view/wizard.js WIZARD_SCREEN_ID). */
+export const WIZARD_ID = 'story-block/new-character';
+
+const safe = (fn, fallback) => { try { return fn() ?? fallback; } catch { return fallback; } };
+const DRAW = { who: drawWho, stats: drawStats, skills: drawSkills, review: drawReview };
+
+// Fills the summary row (a <section> kept for the step's life, so typing redraws it in place and the field keeps its focus).
+function fillSummary(row, run) {
+  const now = readDraft(run.draft);
+  const skills = now.skills.filter(skill => skill.name).map(skill => (Number.isSafeInteger(skill.rank) ? skillLine({ name: skill.name, rank: skill.rank }) : skill.name)).join(', ') || W.noSkills;
+  const count = now.skills.length;
+  const pill = run.step === 'who' || run.step === 'stats' ? fill(W.pointsLeft, { n: pointsLeft(now) }) : fill(count === 1 ? W.skillCountOne : W.skillCount, { n: count, max: draftSlots(now) });
+  row.replaceChildren(
+    h('span', { class: 'wz-ava', 'aria-hidden': 'true' }, [...now.name][0]?.toUpperCase() ?? '?'),
+    h('div', { class: 'wz-k wz-who' }, h('b', null, now.name || W.title), h('small', null, `${now.kind === 'you' ? W.you : W.companion} · ${fill(W.soulFrom, { level: now.level ?? 1 })}`)),
+    h('span', { class: 'chip2 wz-pill', role: 'status' }, pill),
+    h('div', { class: 'wz-k' }, h('small', null, W.statsHead), h('span', null, statsLine(now))),
+    h('div', { class: 'wz-k' }, h('small', null, W.skillsHead), h('span', null, skills)));
+  return row;
+}
+
+/**
+ * `createNewWizard({ world, command, sheetCtx })`: `world` is ui/wizard/world.js's; `command(type, payload)` the engine's (sent as the old wizard
+ * sends it); `sheetCtx()` → { doc, backStack, sheetHost } for the sheet. → { open(prefill?, { onEnd }?) → true when it opened, isOpen(), close(), session() }.
+ */
+export function createNewWizard({ world, command, sheetCtx = () => ({}) }) {
+  let run = null;
+
+  function draw(own) {
+    if (!own.alive) return;
+    const sheet = own.sheet;
+    const at = WIZARD_STEPS.indexOf(own.step);
+    const summary = fillSummary(h('section', { class: 'wz-sum', 'aria-label': W.summaryLabel }), own);
+    const ctx = {
+      run: own, world, command,
+      put: next => { own.draft = next; },
+      summary: () => { if (own.alive) fillSummary(summary, own); },
+      redraw: () => draw(own),
+      close: () => sheet.close(),
+    };
+    const steps = segmented({ items: WIZARD_STEPS.map(id => ({ value: id, label: W.steps[id] })), value: own.step, role: 'tablist', label: W.title, className: 'wz-steps', onChange: id => go(own, id) });
+    // (after a Create that left something out only Done stays: the steps are not walked again)
+    const foot = own.finished ? null : h('div', { class: 'ps-row wz-foot' },
+      at > 0 ? button({ label: W.back, dataset: { wiz: 'back' }, onClick: () => go(own, WIZARD_STEPS[at - 1]) }) : null,
+      at < WIZARD_STEPS.length - 1 ? button({ label: NEXT, tone: 'primary', dataset: { wiz: 'next' }, onClick: () => go(own, WIZARD_STEPS[at + 1]) }) : null);
+    const body = h('div', { class: `wz-body wz-${own.step}`, dataset: { step: own.step } }, DRAW[own.step](ctx));
+    // (the keyboard stays on the equivalent control: the tab or the Next / Back button used, or the field, stepper or skill row being worked)
+    const marks = markFocus(sheet.body, sheet.el.ownerDocument?.activeElement ?? null);
+    sheet.body.replaceChildren(steps, summary, body, foot);
+    restoreFocus(sheet.body, marks);
+    sheet.el.dataset.step = own.step;
+  }
+
+  function go(own, step) {
+    if (!own.alive || own.busy || own.finished || !WIZARD_STEPS.includes(step) || step === own.step) return;
+    own.step = step;
+    draw(own);
+  }
+
+  function open(prefill = null, { onEnd = null } = {}) {
+    if (run?.alive) return false;
+    const numbers = safe(world.rules, null);
+    const draft = prefill && typeof prefill === 'object' ? joinDraft(prefill, numbers) : { ...newDraft({ persona: safe(world.readerName, ''), rules: numbers }) };
+    const own = { draft, step: WIZARD_STEPS[0], busy: false, message: '', created: false, finished: '', imported: null, importError: '', pendingSet: null, alive: true, sheet: null,
+      onEnd: typeof onEnd === 'function' ? onEnd : null, chat: safe(world.chatId, '') };
+    run = own;
+    own.sheet = openSheet(sheetCtx() ?? {}, { title: W.title, id: 'new-character', onClose: () => {
+      own.alive = false;
+      if (run === own) run = null;
+      const end = own.onEnd;
+      own.onEnd = null;
+      try { end?.(own.created); } catch { /* the caller's follow-up never breaks closing */ }
+    } });
+    own.sheet.el.classList.add('wz');
+    draw(own);
+    return true;
+  }
+
+  return { open, isOpen: () => Boolean(run?.alive), close: () => { run?.sheet?.close(); }, session: () => run };
+}
