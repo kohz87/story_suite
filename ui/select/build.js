@@ -19,6 +19,7 @@ import { offerRows } from './offers.js';
 import { repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
 import { peopleParts, dossierMap } from './people-parts.js';
+import { createWizardWorld } from '../wizard/world.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
@@ -37,6 +38,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     if (open) return info?.choice === 'board' ? { ...open, held: true } : open;
     return selectHold(info, { sheet: read('rpg.sheet', {}), place: read('scene.place', {})?.name ?? null });
   };
+  const wizard = createWizardWorld({ sdk, ctx });
   const problemsNow = () => ({ problems: tools?.problems?.() ?? [], blocked: tools?.blocked?.() ?? null, nameOf: tools?.nameOf });
   const scene = read => {
     const answers = gather(read);
@@ -55,7 +57,9 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     party: read => {
       const actors = read('party.actors', {});
-      return selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}) });
+      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}) });
+      // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
+      return wizard.needsYou() ? { pcId: null, max: 4, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
     },
     bag: read => {
       const actors = read('party.actors', {});
@@ -81,7 +85,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const view = read('interaction.view', {});
       const scene = openScene(view);
       const actors = read('party.actors', {});
-      return { rpg: Array.isArray(actors) && actors.length > 0, fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
+      return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou(), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
     },
     settings: () => selectSettings({
       host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },

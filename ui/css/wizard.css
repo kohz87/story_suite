@@ -1,0 +1,49 @@
+/* The New character wizard and the first-send hold (ui/wizard): the kit sheet with the Party sheet's parts (.ps-st rows, .ps-b, .ps-p, .ps-sec,
+   .ps-kv), the Journal editor's .ef fields and the kit buttons. Only the layout the wizard adds is here, in the mock's own tokens and sizes. */
+.su-root .wz .sh-panel{gap:12px}
+/* the title is the mock's sheet title (.dn): a theme's own h3 rule (a side bar, padding, spacing) stays off it */
+.su-root [data-sheet="new-character"] .sh-h h3,.su-root [data-sheet="rpg-hold"] .sh-h h3{border:0;padding:0;letter-spacing:0;text-align:left}
+/* the × is the mock's .x (44 px, radius 10, no border, 16 px glyph), as the Inspector and Scene sheets draw it */
+.su-root [data-sheet="new-character"] .sh-x,.su-root [data-sheet="rpg-hold"] .sh-x{width:44px;height:44px;flex:none;padding:1px 6px;background:var(--su-line2);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}
+.su-root .wz-steps{align-self:stretch}
+.su-root .wz-steps button{flex:1 1 0}
+/* the summary row: the Party sheet's 44 px tile and name, the points or skills pill, then the stats and skills lines */
+.su-root .wz-sum{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--su-line2)}
+.su-root .wz-ava{width:44px;height:44px;border-radius:12px;background:var(--su-tile);border:2px solid var(--su-tileline);display:grid;place-items:center;font:800 18px var(--su-font);color:var(--su-glyph);box-sizing:border-box}
+.su-root .wz-k{display:flex;flex-direction:column;min-width:0}
+.su-root .wz-k b{font:800 15px/1.2 var(--su-font);color:var(--su-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.su-root .wz-k small{display:block;font:600 12px/18px var(--su-font);color:var(--su-muted)}
+.su-root .wz-k span{font:600 13px/1.4 var(--su-font);color:var(--su-soft);overflow-wrap:anywhere}
+.su-root .wz-sum>.wz-k:not(.wz-who){grid-column:1 / -1}
+.su-root .wz-pill{justify-self:end;white-space:nowrap}
+.su-root .wz-body{display:flex;flex-direction:column;gap:12px}
+.su-root .wz-form,.su-root .wz-stats,.su-root .wz-skills,.su-root .wz-review{display:flex;flex-direction:column;gap:10px}
+.su-root .wz-help{margin-top:-4px;font-size:12px;color:var(--su-muted)}
+.su-root .wz-import,.su-root .wz-ask{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:14px;background:var(--su-line2)}
+.su-root .wz-import .btn2{align-self:flex-start}
+.su-root .wz-err,.su-root .wz-problems{margin:0;font:700 13px/1.4 var(--su-font);color:var(--su-bad-t)}
+.su-root .wz-problems{padding-left:18px}.su-root .wz-problems-head{list-style:none;margin-left:-18px}
+.su-root .wz-left{justify-content:flex-start}
+.su-root .wz-growth{font-weight:700;color:var(--su-text)}
+/* the starting sets: one button row each, as the Party sheet's rows */
+.su-root .wz-sets{display:flex;flex-direction:column;gap:8px}
+.su-root .wz-set{display:flex;flex-direction:column;gap:2px;text-align:left;min-height:44px;padding:10px 12px;border-radius:12px;border:1px solid var(--su-line2);background:var(--su-panel2);color:var(--su-text);cursor:pointer;font:600 13px var(--su-font)}
+.su-root .wz-set[aria-pressed="true"]{border-color:var(--su-accent)}
+.su-root .wz-set-top{display:flex;align-items:center;gap:8px}.su-root .wz-set-top b{font:800 14px var(--su-font)}
+.su-root .wz-set small{font:600 12px/1.4 var(--su-font);color:var(--su-soft)}.su-root .wz-set .wz-src{color:var(--su-muted)}
+.su-root .wz-tag{font:800 11px var(--su-font);color:var(--su-ok-t);background:rgba(79,211,154,.13);border-radius:999px;padding:1px 8px}
+/* one skill: name and ×, what it does, then stat · type · starts at */
+.su-root .wz-skill{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:14px;border:1px solid var(--su-line2)}
+.su-root .wz-skill-top{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px;align-items:end}
+.su-root .wz-x{width:44px;padding:0;font-size:18px}
+.su-root .wz-trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.su-root .wz-trio select{padding-left:8px;padding-right:4px}
+.su-root .wz-add{display:flex;flex-direction:column;gap:6px}.su-root .wz-add .btn2{align-self:flex-start}
+.su-root .wz-list{margin:0;padding-left:18px}
+.su-root .wz-status:empty{display:none}
+.su-root .wz-foot{padding-top:2px;justify-content:flex-start}.su-root .wz-foot [data-wiz="next"]{margin-left:auto}
+/* the hold: the message, quoted as it stays in the box */
+.su-root .wz-quote{margin:0;padding:8px 12px;border-left:3px solid var(--su-accent);border-radius:0 12px 12px 0;background:var(--su-line2);font:600 14px/1.45 var(--su-font);color:var(--su-text);white-space:pre-wrap;overflow-wrap:anywhere}
+.su-root .wz-hold-acts .btn2{white-space:normal;text-align:center}
+/* the Party tab with nobody yet */
+.su-root .mem-empty{align-self:center;font:600 13px var(--su-font);color:var(--su-muted)}

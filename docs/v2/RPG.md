@@ -77,7 +77,11 @@ Weir-drake d20 9 + 3 + Lv 7 ÷ 5 = 1 = 13 · Weir-drake loses 1 block (5 of 6)")
 
 ## Making a character
 
-**+ New character** opens a window with four steps and a summary of the character so far on top.
+**+ New character** opens a window with four steps and a summary of the character so far on top. In the new view it is a bottom
+sheet (a centred card on a wide screen) with the four steps as tabs, Back and Next under each, the same words and rules; the Party
+tab shows it (**Create your character** with nobody yet, **+ New character** with companions only) while the story has no You,
+and the tab itself shows for it then. Its Stats step has the stat sheet's − and + rows (no radar), and each skill is a card of
+fields (name, what it does, then Stat, Type and Starts at).
 
 1. **Who.** The name, which is your persona's (the window makes **You** only: there is no choice between You and a companion, and no
    "Who they are" box). A story has one You: the party shows you as the character named like your persona, so the **+ New
@@ -178,7 +182,7 @@ character itself cannot be made, none of the file's things or money are added.
 With the RPG on and no character for you in the story (a character named like your persona), Story Block asks you to make
 one, in two places. Neither is there with the RPG off, and neither changes anything a reply is told.
 
-- **Home** shows a **Your character** card at the top: "The RPG is on, and this story has no character yet. Make yours to roll
+- **Home** (the old view only; in the new view the Party tab's **Create your character** stands in) shows a **Your character** card at the top: "The RPG is on, and this story has no character yet. Make yours to roll
   for what you do; your persona fills in the name and who you are." **Create your character** opens the New character window.
   **Not now** hides the card for this chat (kept in the chat's own metadata, not in the game, so a swipe or a rewind does not
   touch it); the Party tab's own **Create your character** stays. The card is gone as soon as you have a character, and a
@@ -188,7 +192,8 @@ one, in two places. Neither is there with the RPG off, and neither changes anyth
   sends it as usual, with no dice for that reply, and the chat is never asked again (the Home card still reminds you).
   **Create your character, then send** opens the New character window and sends the message when you press Create; if you
   close the window instead, the text is still in the box and the next Send asks again. Closing the dialog also leaves the text
-  in the box. On a phone the dialog is a bottom sheet. Only a normal Send is held: a swipe, a regenerate, a continue, an
+  in the box. On a phone the dialog is a bottom sheet. In the new view it is the suite's own sheet: the suite opens for it and
+  closes again once you have chosen. Only a normal Send is held: a swipe, a regenerate, a continue, an
   impersonation, a quiet or dry run, an empty box and a slash command are not.
 
 A new chat that has no Combat rules block or Foes block gets them when its first character is made: by **Create** in the

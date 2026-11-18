@@ -17,7 +17,7 @@ import { ALIAS_NAMES, aliasCommand } from './aliases.js';
 import { OWN_NAMES } from './own-names.js';
 import { refreshCommand } from './people-refresh.js';
 
-/** The page event `port.open` sends and the host answers (ui/legacy/ui-host/lean-rpg-sync.js). */
+/** The page event `port.open` sends when the view's own opener does not open the window (the old host answers it: ui/legacy/ui-host/lean-rpg-sync.js). */
 export const OPEN_EVENT = 'story-suite:open';
 const FAILED = Object.freeze({ ok: false, code: 'FAILED', message: 'The engine could not do that.' });
 
@@ -67,8 +67,8 @@ async function offerCommand(controller, payload) {
   return { ...FAILED, message: 'The engine does not take that offer answer.' };
 }
 
-/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `rpgValues()` reads Story Block’s settings bucket (the RPG page’s Custom start); `packs` is the Packs page's handle ({ packs, readLorebook, lore }); `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach; `hold` is the waiting fight's handle (port/hold.js) that `interaction.choose` answers. */
-export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, rpgValues = () => null, packs = null, hold = null } = {}) {
+/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `rpgValues()` reads Story Block’s settings bucket (the RPG page’s Custom start); `packs` is the Packs page's handle ({ packs, readLorebook, lore }); `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach; `hold` is the waiting fight's handle (port/hold.js) that `interaction.choose` answers; `screens.open(id, payload, { onEnd })` is the view's own opener (ui/wizard/attach.js): true when it opened the window or a refusal for a window it owns, and then no page event is sent; false sends it. */
+export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, rpgValues = () => null, packs = null, hold = null, screens = null } = {}) {
   const read = makeReader(sdk);
   const heard = new Set();
   // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
@@ -156,6 +156,10 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
     },
     // Opens a screen the host owns (the New character window, filled in from `payload`): the host answers the `story-suite:open` event on the page; no engine command, nothing recorded.
     async open(id, payload, { onEnd } = {}) {
+      let own = false;
+      try { own = screens?.open?.(id, payload ?? null, { onEnd: typeof onEnd === 'function' ? onEnd : null }) ?? false; } catch (error) { own = failure(error); }
+      if (own === true) return { ok: true };
+      if (own && typeof own === 'object') return own;
       const doc = globalThis.document;
       if (typeof doc?.dispatchEvent !== 'function' || typeof globalThis.CustomEvent !== 'function') return { ...FAILED, message: 'There is no page to open it on.' };
       const detail = { id, payload: payload ?? null, handled: false, onEnd: typeof onEnd === 'function' ? onEnd : null };
