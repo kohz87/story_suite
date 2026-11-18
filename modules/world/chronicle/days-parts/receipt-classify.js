@@ -8,11 +8,10 @@ import { isInt, isRecord, text } from './shared-values.js';
 // as a settle is only a checkpoint there; no module calls it that way (tests/v2/time/advance-callers.test.js pins it).
 const CLOCK_TYPES = new Set(['capture.time', 'director.seed', 'director.clock', 'time.settle', 'director.advance']);
 // Receipts that are the code's own bookkeeping, never an event of the day (neither picked nor counted under "happened"): Story Block's
-// fight board result (`rpg.resolve`, whose summary is the narrator's instruction), its no-roll step, field edits, timer ticks and
-// reply-end settles (`dm.set`, `dm.tick`, `dm.settle`), the Director's own initiative pick and world pulse, the story-time settle and the cast's
+// field edits, timer ticks and reply-end settles (`dm.set`, `dm.tick`, `dm.settle`), the Director's own initiative pick and world pulse, the story-time settle and the cast's
 // "nothing changed". Practice lines and add-xp are the reader's progress and stay.
 export const BOOKKEEPING_TYPES = new Set([
-    'rpg.resolve', 'rpg.noroll', 'dm.set', 'dm.tick', 'dm.settle', 'director.initiative', 'director.pulse', 'time.settle', 'cast.advance',
+    'dm.set', 'dm.tick', 'dm.settle', 'director.initiative', 'director.pulse', 'time.settle', 'cast.advance',
 ]);
 // A block's template result (`capture.dm` / `dm.act`, `data.v2.result.kind`) that is a plain meter set (set-health, set-mana,
 // set-stamina, set-slot-N) or a foe slot clear (clear-N) is bookkeeping; every other kind (register, deed, add-xp ...) is a story event.

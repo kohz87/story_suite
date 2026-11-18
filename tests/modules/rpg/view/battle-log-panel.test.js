@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { buildPanel, headerText, outcomeOf, panelModel, readResolve, resolveOf, rollText } from '../../../../modules/rpg/view/battle-log.js';
-import { RESOLVE } from '../../../../modules/rpg/index.js';
 import { roleOf } from './helpers.js';
 import { after, before, foe, panel, pc, result, state } from './battle-log.helpers.js';
 

@@ -37,7 +37,7 @@ const happenedCue = text => {
  * - `ownTokens` (optional): what modules send on their own this reply (contextFit), 0 by default.
  * - `keptTokens` (optional): the tokens the kept prelude cues already took of KEPT_TAIL_TOKENS; a module's own tail lines given as
  *   `{ text, keep: true }` are kept while the rest of that cap and KEPT_TAIL_LINES allow, in tail order; any more are ordinary lines.
- * - `rolled` (optional): the reply has automatic rolls (an old planner record or the fight board rolled some), told to the static parts as `hint.rolled`.
+ * - `rolled` (optional): the reply has automatic rolls (the fight board rolled some), told to the static parts as `hint.rolled`.
  * Returns { staticText, tailText, parts: [{ module, label, place, text, tokens, dropped? }],
  * problems, fit (contextFit, or null) }. `parts` is what the What's-sent preview lists, in prompt order.
  */
@@ -60,14 +60,14 @@ export function assemble({ registry, view, untold = [], settings = {}, cues = {}
     const sections = [];
     for (const context of tailOrder(registry.contexts())) {
         // A cue may be `{ text, keep: true }`: kept whole, whatever the budget says (the rolls the narrator must tell). One marked `interaction: true` (a settled
-        // interaction's note; `board: true` is the fight board's own, until it moves onto the port) also joins the leading note; the RPG's ordinary roll cues stay in their section.
+        // interaction's note) also joins the leading note; the RPG's ordinary roll cues stay in their section.
         const given = Array.isArray(cues?.[context.moduleId]) ? cues[context.moduleId] : [];
         const ordinary = [];
         const pinned = new Set();
         for (const cue of given) {
             const text = typeof cue?.text === 'string' ? cue.text : typeof cue === 'string' ? cue : '';
             if (!text.trim()) continue;
-            const body = cue?.keep === true && (cue.interaction === true || cue.board === true) ? happenedCue(text) : null;
+            const body = cue?.keep === true && cue.interaction === true ? happenedCue(text) : null;
             if (body !== null) {
                 cueHappened.push(fill(body));
                 continue;

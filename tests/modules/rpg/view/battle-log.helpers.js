@@ -2,12 +2,11 @@ import { createHost } from '../../../../testkit/index.js';
 import { makeMessage } from '../../../helpers/ui-fake-dom.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { BATTLE_ROOT, buildPanel, createBattleLog, panelModel, readResolve } from '../../../../modules/rpg/view/battle-log.js';
-import { RESOLVE } from '../../../../modules/rpg/index.js';
 import { characterDefinition, defineAll, fakeState, foesDefinition, roleOf, setField, skillsDefinition } from './helpers.js';
 
 export const settle = () => new Promise(resolve => setImmediate(resolve));
 
-// What the rolls piece records for a reply (data.v2.result, see lean-rpg/resolve.js).
+// What a fight records for a reply (data.v2.result of its settle receipt).
 export const pc = (who, stat, extra = {}) => ({ who, die: 10, stat, statBonus: 5, classValue: 2, classBonus: 4, rank: 0, edge: 0, total: 19, ...extra });
 export const foe = (name, extra = {}) => ({ slot: 1, name, die: 9, base: 5, classValue: 1, classBonus: 2, total: 16, ...extra });
 export const result = () => ({
@@ -51,7 +50,6 @@ export async function world(t, { feature = true } = {}) {
     const first = await host.send('To the quay.', 'The quay.\n\n[battle]\n\nAfter.');
     const head = host.store.headIndex();
     await setField(host, 'foes', 'hurt1', 2);
-    host.ctx.chat[head].extra.storySuite.receipts.push({ id: 'rc_rpg0001', type: RESOLVE, module: 'story-block', cause: 'system', summary: '', narrate: false, rev: 99, data: { v2: { result: result() } } });
     const doc = setupDom();
     doc.defaultView = { localStorage: memory() };
     const log = createBattleLog({ ctx: host.ctx, doc, store: host.store, featureOn: () => feature, roleOf, events: host.events });

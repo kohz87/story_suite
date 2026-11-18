@@ -7,7 +7,7 @@
  * with it carries `lv: 1` (LV_VERSION) and the divisor in its rules (`levelDivisor`); a roll without them replays with the Soul Class exactly as before.
  */
 export const LEVEL = Object.freeze({ min: 1, max: 99, xpPerLevel: 100, xpMax: 9999, pointEvery: 3, divisor: 5, minDivisor: 3, maxDivisor: 8 });
-/** The version of the roll term a payload asks for (`lv` in the payload of `rpg.resolve`): 1 = level bonus. */
+/** The version of the roll term a payload asks for (`lv` in a fight's recorded payload): 1 = level bonus. */
 export const LV_VERSION = 1;
 /** The setting (Story Block's own bucket, Settings → RPG): the highest level a character can reach, 1 to 99 (99 unset). A pack's own cap comes first (levelCapFor: pack, then this setting, then 99). */
 export const LEVEL_CAP_SETTING = 'rpgLevelCap';

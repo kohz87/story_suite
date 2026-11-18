@@ -13,8 +13,6 @@ const r = (type, summary, fields = {}) => ({ type, module: 'story-block', cause:
 const dm = kind => r('capture.dm', `Astra: ${kind}.`, { data: { v2: { result: { kind } } } });
 const story = summary => r('capture.item', summary);
 const bookkeeping = [
-    r('rpg.resolve', 'Tell the settled fight results in order; do not reroll them. | Write [battle] on its own line where the fight is told.', { narrate: true, cause: 'ui' }),
-    r('rpg.noroll', 'No roll.'),
     dm('set-health'), dm('set-mana'), dm('set-stamina'),
     r('dm.set', 'Astra: edited.'), r('dm.tick', 'Astra: story time settled.'),
     r('dm.settle', 'Astra: settled at the end of the reply.', { cause: 'system' }),
@@ -29,7 +27,7 @@ test('bookkeeping receipts are neither picked nor counted under "happened", what
     assert.deepEqual(entry.happened.map(item => item.text), ['You added Cane Sword.', 'Sister Temiwa: trust 12 → 14.']);
     assert.equal(entry.more, 0);
     assert.equal(factsOf([entry]).more, 0);
-    assert.ok(['rpg.resolve', 'dm.settle', 'director.initiative'].every(type => BOOKKEEPING_TYPES.has(type)));
+    assert.ok(['dm.set', 'dm.settle', 'director.initiative'].every(type => BOOKKEEPING_TYPES.has(type)));
 });
 
 test('a story event with the narrator note\'s words is still an event: the rule is the receipt, not the text', () => {
@@ -53,7 +51,7 @@ test('eventsOf gives the whole list in chat order, deduplicated, bookkeeping and
 
 test('chronicle.dayEvents lists that day\'s events from the chat\'s receipts, nothing stored', () => {
     const clock = minutes => r('capture.time', 'Story time.', { module: 'story-director', data: { minutes } });
-    const receipts = [clock(10 * 1440), story('Day ten A.'), bookkeeping[3], clock(11 * 1440), story('Day eleven A.'), story('Day eleven B.')];
+    const receipts = [clock(10 * 1440), story('Day ten A.'), bookkeeping[1], clock(11 * 1440), story('Day eleven A.'), story('Day eleven B.')];
     const tools = { receipts: () => receipts.map((receipt, index) => ({ index, receipt })) };
     assert.deepEqual(dayEventsQuery({}, { day: 11 }, tools), { day: 11, events: ['Day eleven A.', 'Day eleven B.'] });
     assert.deepEqual(dayEventsQuery({}, { day: 10 }, tools).events, ['Day ten A.']);

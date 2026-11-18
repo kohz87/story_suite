@@ -10,7 +10,7 @@ import { isObject, lower } from './shared-helpers.js';
 
 /**
  * What the owners `own` of one member give: { add?, enc?, items? } from the inventory's answers (`answerOf(owner)`; `party` is the shared bag's, which also
- * says whether the load is too much). Shared by the roll (the live queries; old planner records too) and the guard (the state before the roll), so both read it the same way.
+ * says whether the load is too much). Shared by the roll (the live queries) and the guard (the state before the roll), so both read it the same way.
  */
 export function dressOf(own, party, answerOf) {
     const add = {}, items = [];

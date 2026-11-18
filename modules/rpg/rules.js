@@ -5,7 +5,7 @@
 // Harsh move the foe's base; Custom is what the reader typed (each number held to its range). Classic rules are gone: a payload with no `formula` replays as Standard.
 //
 // REPLAY RULE: the numbers in force are chosen here, once, when the roll is planned (precall.js), and travel inside the
-// `rpg.resolve` payload (`rules`). The payload is what a Re-read, a rebuild and a reload run again, so a roll is always
+// fight's recorded payload (`rules`). The payload is what a Re-read, a rebuild and a reload run again, so a roll is always
 // made again with the numbers it was first made with, never with today's settings. Changing a setting changes new rolls only.
 //
 // The Standard stat formula's numbers (`formula: 'standard'` plus the rest) travel in the same payload.

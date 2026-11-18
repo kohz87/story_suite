@@ -27,8 +27,6 @@ const sheetOf = b => readSheet({ domains: { dataModules: sheetDomain(b) } });
 const PLAN_TEXT = 'pace: all\nact Astra | target: Mud Crawlers\nfoe Mud Crawlers | target: Astra | defend: AGI';
 const SET = '+ dm foes — why | kind: set-slot-1 | name: Mud Crawlers | count: 6 | level: 60';
 const GEAR_LINES = ['+ item Cane Sword | kind: weapon | rarity: rare | DEX: +2 | equipped: weapon', '+ item Jerkin | kind: armour | rarity: uncommon | VIT: +1 | equipped: body'];
-const resultAt = (host, index) => host.ctx.chat[index].extra?.storySuite?.receipts?.find(entry => entry.type === 'rpg.resolve')?.data?.v2?.result;
-const payloadAt = (host, index) => host.ctx.chat[index].extra?.storySuite?.receipts?.find(entry => entry.type === 'rpg.resolve')?.replan?.payload;
 const stable = host => JSON.stringify(host.head());
 
 async function fightWorld(t, { gear = true } = {}) {

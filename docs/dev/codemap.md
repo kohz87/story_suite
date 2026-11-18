@@ -42,11 +42,10 @@ Last checked: 2026-11-07.
 - `../../modules/rpg/templates-recovery.js`: the marked Character's recovery kinds (rest, full-rest, heal, Short rest and Full rest buttons), no narrator `add-xp`, its prompt.
 - `../../modules/rpg/templates-skills.js`: turns the eight-slot Skills template into the typed one (three utility slots 9 to 11, a `type` per slot, the learn line's optional `type` label, matching rank-up rules).
 - `../../modules/rpg/levels.js`: level, rank, level-cap and XP-rate helpers plus the RPG rank query.
-- `../../modules/rpg/noroll.js`: replay-only: shows and re-reads the per-reply receipt an old chat's retired roll planner left when it gave no usable plan.
 - `../../modules/rpg/checks/dice.js`: story checks: a reply's three d20 from its recorded seed, the rules, difficulty numbers, practice and bonus table recorded with them (`dicePayload`, `diceOf`) and the `rpg.dice` prelude's handler.
 - `../../modules/rpg/checks/line.js`: story checks: parses a narrator's `? roll Who | skill or stat | difficulty` line (a solo party takes an unnamed roll; an older reply also wrote the die) and validates it against the party and the dice offered and used; under the `diceInOrder` mark code gives each check the next die.
 - `../../modules/rpg/checks/result.js`: story checks: works a validated check (d20 + stat÷2 + level÷4 (+ half mastery of a utility skill) against the recorded difficulty: success or fail, decisive as in fights, one practice use, no XP), a reply's lines in order (`workChecks`) and the bonus table the note tells.
-- `../../modules/rpg/open.js`: checks and fills new foes that the roll planner opens during a fight.
+- `../../modules/rpg/open.js`: fills the foe slots a fight opens (the foe pre-check's groups) and the name rule a typed attack is read by.
 - `../../modules/rpg/quiet.js`: trims combat and foe prompt grammar on replies where rolls cannot be used.
 - `../../modules/rpg/board/auto.js`: chooses deterministic Auto-fight actions by the party policy and decides why Auto stops.
 - `../../modules/rpg/board/auto-run.js`: plays Auto exchanges on the staged board fight until the cap, a won or lost fight or a badly hurt hero, and words why it stopped.

@@ -7,16 +7,8 @@ import { createHost } from '../../../../testkit/index.js';
 import { makeMessage } from '../../../helpers/ui-fake-dom.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { BATTLE_ROOT, MARKER_HIDDEN, createBattleLog, hideMarkers, markerNodes } from '../../../../modules/rpg/view/battle-log.js';
-import { RESOLVE } from '../../../../modules/rpg/index.js';
 import { characterDefinition, defineAll, foesDefinition, roleOf, setField, skillsDefinition } from './helpers.js';
 
-const pc = (who, stat, extra = {}) => ({ who, die: 10, stat, statBonus: 5, classValue: 2, classBonus: 4, rank: 0, edge: 0, total: 19, ...extra });
-const foe = (name, extra = {}) => ({ slot: 1, name, die: 9, base: 5, classValue: 1, classBonus: 2, total: 16, ...extra });
-const result = () => ({
-    v: 1, key: '3-abc', pace: 'normal', stop: 'pace', checks: [],
-    rounds: [{ n: 1, decisive: false, lines: [{ kind: 'act', outcome: 'success', skill: 'Iron Breath', pc: pc('Wessel', 'str', { total: 26 }), foe: foe('Sluice Rat A') }] }],
-    refused: [], summary: { exchanges: 1, acts: [], refused: 0 },
-});
 const memory = () => { const map = new Map(); return { getItem: key => map.get(key) ?? null, setItem: (key, value) => map.set(key, value) }; };
 const visibleText = node => (node.hidden ? '' : node.nodeType === 3 ? String(node.data ?? node.textContent ?? '') : Array.from(node.childNodes ?? []).map(visibleText).join(''));
 const kids = text => text.children.map(node => `${node.tagName.toLowerCase()}${node.hidden ? '(hidden)' : ''}:${node.textContent}`);
@@ -32,7 +24,7 @@ function fakeObserver() {
     return { Observer, fire: target => { for (const one of made) if (one.on) one.callback([{ target, type: 'childList' }]); }, made };
 }
 
-async function world(t, { rolled = true, Observer = null } = {}) {
+async function world(t, { Observer = null } = {}) {
     t.mock.method(console, 'warn', () => {});
     const host = await createHost();
     t.after(() => host.close());
@@ -41,8 +33,6 @@ async function world(t, { rolled = true, Observer = null } = {}) {
     await setField(host, 'foes', 'foe1', 'Sluice Rat A');
     await host.send('To the quay.', 'The quay.\n\n[battle]\n\nAfter.');
     const head = host.store.headIndex();
-    const roll = () => host.ctx.chat[head].extra.storySuite.receipts.push({ id: 'rc_rpg0001', type: RESOLVE, module: 'story-block', cause: 'system', summary: '', narrate: false, rev: 99, data: { v2: { result: result() } } });
-    if (rolled) roll();
     const doc = setupDom();
     doc.defaultView = { localStorage: memory() };
     const chat = doc.createElement('div');
@@ -50,7 +40,7 @@ async function world(t, { rolled = true, Observer = null } = {}) {
     doc.body.appendChild(chat);
     const log = createBattleLog({ ctx: host.ctx, doc, store: host.store, featureOn: () => true, roleOf, events: host.events, Observer });
     t.after(() => log.destroy());
-    return { host, doc, log, head, roll };
+    return { host, doc, log, head };
 }
 function message(doc, index, lines) {
     const el = makeMessage(doc, index), text = el.querySelector('.mes_text');
@@ -60,7 +50,7 @@ function message(doc, index, lines) {
 }
 
 test('a reader\'s own message keeps a literal [battle] line visible', async t => {
-    const { host, doc, log, head } = await world(t, { rolled: false });
+    const { host, doc, log, head } = await world(t);
     const mine = head - 1;
     assert.equal(host.ctx.chat[mine].is_user, true);
     const el = message(doc, mine, ['I type this:', '[battle]']);
@@ -71,7 +61,7 @@ test('a reader\'s own message keeps a literal [battle] line visible', async t =>
 });
 
 test('a marker that shares its paragraph is hidden on its own; the lines around it stay', async t => {
-    const { doc, log, head } = await world(t, { rolled: false });
+    const { doc, log, head } = await world(t);
     const el = makeMessage(doc, head), text = el.querySelector('.mes_text');
     text.textContent = '';
     const p = doc.createElement('p');

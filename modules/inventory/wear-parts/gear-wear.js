@@ -12,7 +12,7 @@ import { condOf, condWrite, RPG_MODULE, gearOn } from '../state.js';
 const WEAR_SLOTS = Object.freeze({ weapon: 'weapon', body: 'body', armour: 'body', 'off-hand': 'off-hand', shield: 'off-hand', defence: 'defence' });
 
 export function gearWear(ctx, payload) {
-    // (a roll that carries a gear mark wears by it even if the switch is off now: `recorded`, and only the RPG's own `rpg.resolve` may say so: its nested call has
+    // (a roll that carries a gear mark wears by it even if the switch is off now: `recorded`, and only the RPG's own fight may say so: its nested call has
     // the Story Block module as `ctx.caller`; a pack event step (`event:<id>`), another module or a top-level call is refused the flag, whatever the switch says)
     if (payload.recorded === true && !(ctx.cause === 'system' && ctx.caller === RPG_MODULE)) ctx.fail('REFUSED', 'Only the fight\'s own rolls wear gear by their record.');
     if (!gearOn(ctx) && payload.recorded !== true) ctx.fail('REFUSED', 'Gear is not switched on.');

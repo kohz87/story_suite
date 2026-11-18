@@ -6,7 +6,7 @@ const stem = word => (word.length > 3 && word.endsWith('s') ? word.slice(0, -1) 
 const wordsOf = text => String(text ?? '').normalize('NFKC').toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean).map(stem);
 
 /** The distinctive words of a foe's name: not an article or a small joining word. */
-export const distinctiveWords = name => wordsOf(name).filter(word => !STOP.has(word));
+const distinctiveWords = name => wordsOf(name).filter(word => !STOP.has(word));
 
 /** Whether at least one distinctive word of `name` appears, as a whole word, in any of `texts` (the reader's message, the shown text before). */
 export function isNamedIn(name, texts) {
