@@ -1,6 +1,12 @@
 // The Studio's frame in the Settings overlay's look (mock v7 decision 33, ui/css/settings.css; the Studio mock's record page MK-1):
 // header with Undo and Redo, Open, Export and the theme switch, and the note that says why Export is off; the parts as a side nav (tablet and up) or a phone list, a world pack's parts under World and a game pack's under Game;
 // one page; the pack-check bar at the foot.
+//
+// The two panes (mock MK-2): a page whose nodes hold a `.st-panes` box with a `.st-pane-list` and a `.st-pane-rec` is a record part. At
+// 1280 px and wider the list and the record sit side by side under the nav, each scrolling on its own; below that only one shows, the
+// record while the box says `data-open="true"`, else the list. With no record open, the shell puts the "No <noun> open" pane in the
+// record side (`data-noun`, `data-icon` on the box), whose New button presses the list's `[data-act="new"]` button. The editor marks the
+// open record's row `aria-current="true"`, and the record's own back button (`.st-back`) is hidden while the list is beside it.
 
 import { h, clear } from '../ui/kit/dom.js';
 
@@ -20,6 +26,31 @@ function footerText(check) {
     if (check.errors.length) parts.push(`${check.errors.length} problem${check.errors.length === 1 ? '' : 's'}`);
     if (check.warnings.length) parts.push(`${check.warnings.length} warning${check.warnings.length === 1 ? '' : 's'}`);
     return parts.join(' · ');
+}
+
+// The record side with no record open: what it is for, and the list's own New button again.
+function emptyPane(panes) {
+    const add = panes.querySelector('.st-pane-list [data-act="new"]');
+    const noun = panes.dataset.noun || 'record';
+    return h('div', { class: 'st-pane-empty', role: 'note' }, h('i', { 'aria-hidden': 'true' }, panes.dataset.icon || '◇'), h('b', `No ${noun} open`),
+        h('small', add ? 'Pick one in the list, or make a new one.' : 'Pick one in the list.'),
+        add ? h('button', { type: 'button', class: 'btn2 pri st-pane-new', onClick: () => add.click() }, add.textContent) : null);
+}
+
+// Marks the page for the two panes: the body says whether it has them, the boxes between the page and the panes stretch to its height,
+// and a record side with nothing open gets the empty pane (taken out again once a record opens). Running it twice changes nothing.
+function fitPanes(body, page) {
+    const all = page.querySelectorAll('.st-panes');
+    body.setAttribute('data-panes', String(all.length > 0));
+    for (const panes of all) {
+        for (let up = panes.parentNode; up && up !== page; up = up.parentNode) if (!up.classList.contains('st-panes-up')) up.classList.add('st-panes-up');
+        const rec = panes.querySelector(':scope > .st-pane-rec');
+        if (!rec) continue;
+        const empty = rec.querySelector(':scope > .st-pane-empty');
+        const open = panes.dataset.open === 'true';
+        if (open && empty) empty.remove();
+        if (!open && !empty) rec.append(emptyPane(panes));
+    }
 }
 
 const iconButton = (cls, name, title, glyph, onClick) => h('button', { type: 'button', class: `btn2 ic ${cls}`, 'aria-label': name, title, disabled: true, onClick: () => onClick() }, glyph);
@@ -56,6 +87,8 @@ export function createShell({ host, onOpen, onExportZip, onExportJson, onUndo, o
     const footer = h('button', { type: 'button', class: 'sfoot st-foot', hidden: true, onClick: () => onProblems() });
     const el = h('div', { class: 'sov st-app', role: 'main', 'aria-label': 'Pack Studio' }, h('div', { class: 'glass' }, header, body, footer));
     host.appendChild(el);
+    // An editor that opens or closes a record inside its own nodes is fitted again without a new setPage.
+    if (typeof MutationObserver === 'function') new MutationObserver(() => fitPanes(body, page)).observe(page, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-open'] });
 
     function setNav(parts, current) {
         clear(side);
@@ -80,7 +113,8 @@ export function createShell({ host, onOpen, onExportZip, onExportJson, onUndo, o
     function setPage({ title, desc = '', nodes = [], section = true, keep = false }) {
         const scroll = body.querySelector('.smain').scrollTop;
         clear(page);
-        page.append(h('button', { type: 'button', class: 'btn2 sback', onClick: () => onBack() }, '‹ Parts'), h('div', h('h2', title), desc ? h('p', { class: 'sdesc' }, desc) : null), ...nodes.flat().filter(Boolean));
+        page.append(h('button', { type: 'button', class: 'btn2 sback', onClick: () => onBack() }, '‹ Parts'), h('div', { class: 'st-ptitle' }, h('h2', title), desc ? h('p', { class: 'sdesc' }, desc) : null), ...nodes.flat().filter(Boolean));
+        fitPanes(body, page);
         if (!keep) body.setAttribute('data-page', section ? 'section' : 'list'); // a redraw leaves the phone on the list or the page it showed
         body.querySelector('.smain').scrollTop = keep ? scroll : 0;
     }
