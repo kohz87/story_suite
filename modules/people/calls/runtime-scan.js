@@ -39,7 +39,7 @@ export function createScanPart(rt, deps) {
         const settings = getSettings();
         if (!settings.enabled) return false;
         if (!allowDuringSwipe && isHostSwipeActive()) {
-            if (manual) globalThis.toastr?.info?.('NPC State Delta: wait for the current swipe to finish before scanning.');
+            if (manual) globalThis.toastr?.info?.('NPC State: wait for the current swipe to finish before scanning.');
             return false;
         }
         const ctx = getContext();
@@ -59,7 +59,7 @@ export function createScanPart(rt, deps) {
         if (!replayScope()) await refreshMessageGate();   // the host's fade flags are for the whole chat, not a replay's prefix
         if (sourceMoved()) return false;
         if (isScanBusy(scanChatKey)) {
-            if (manual) globalThis.toastr?.info?.('NPC State Delta: another dossier scan is already running in this chat.');
+            if (manual) globalThis.toastr?.info?.('NPC State: another dossier scan is already running in this chat.');
             else if (Number.isInteger(messageId) && !replayScope()) queuePendingAutoScan(scanChatKey, messageId, 'busy-auto-scan');
             return false;
         }
@@ -93,7 +93,7 @@ export function createScanPart(rt, deps) {
             ? recentUserDevelopmentContext(settings.scanDepth, { messageIds: true })
             : (skippedWindow?.userDevelopmentContext ?? currentExchangeUserDevelopmentContext(messageId));
         if (!transcript) {
-            if (manual) globalThis.toastr?.warning?.('NPC State Delta: no story text to scan yet.');
+            if (manual) globalThis.toastr?.warning?.('NPC State: no story text to scan yet.');
             return false;
         }
 
@@ -162,7 +162,7 @@ export function createScanPart(rt, deps) {
                     at: Date.now(),
                 };
                 console.info('[NPC State Delta] discarded stale dossier scan after chat or dossier state changed.');
-                if (manual) globalThis.toastr?.info?.('NPC State Delta: chat changed during scan; stale result was discarded.');
+                if (manual) globalThis.toastr?.info?.('NPC State: chat changed during scan; stale result was discarded.');
                 return false;
             }
 
@@ -229,7 +229,7 @@ export function createScanPart(rt, deps) {
                 || !scanOperationCurrent(scanChatKey, operation) || getChatKey() !== scanChatKey
                 || lineageMoved(scanLineage, currentLineage, messageId) || Number(stateVersions.get(scanChatKey) || 0) !== scanStateVersion) {
                 console.info('[NPC State Delta] discarded stale dossier scan after chat, dossier, or canonical state changed during relationship evaluation.');
-                if (manual) globalThis.toastr?.info?.('NPC State Delta: chat changed during scan; stale result was discarded.');
+                if (manual) globalThis.toastr?.info?.('NPC State: chat changed during scan; stale result was discarded.');
                 return false;
             }
             const targetMessageId = Number.isInteger(messageId) ? messageId : latestMessageId(true);
@@ -326,7 +326,7 @@ export function createScanPart(rt, deps) {
                 || lineageMoved(scanLineage, currentLineage, messageId)
                 || Number(stateVersions.get(scanChatKey) || 0) !== scanStateVersion) {
                 console.info('[NPC State Delta] discarded stale dossier scan after new-NPC relationship evaluation.');
-                if (manual) globalThis.toastr?.info?.('NPC State Delta: chat changed during scan; stale result was discarded.');
+                if (manual) globalThis.toastr?.info?.('NPC State: chat changed during scan; stale result was discarded.');
                 return false;
             }
             if (rt.lastScanMetrics) {
@@ -385,7 +385,7 @@ export function createScanPart(rt, deps) {
             // Who the merged state says is here: the one-pass catch-up refreshes the people the reply put in the scene.
             const presentIds = merged.state.npcs.filter(npc => !npc.archived && npc.present && !npc.minor).map(npc => npc.id);
             if (!await scanCanonicalBaseCurrent(scanChatKey, operation, 'dossier scan final commit')) {
-                if (manual) globalThis.toastr?.info?.('NPC State Delta: another session updated this chat during the scan; the stale result was discarded.');
+                if (manual) globalThis.toastr?.info?.('NPC State: another session updated this chat during the scan; the stale result was discarded.');
                 return false;
             }
             if (targetMessageId >= 0) noteChatLineage(nextState);
@@ -402,7 +402,7 @@ export function createScanPart(rt, deps) {
             notifyGenderConflicts(merged.report);
             if (manual) {
                 const { created, updated, candidates, promoted, skipped, staleArchived = [], stalePruned = [] } = merged.report;
-                globalThis.toastr?.success?.(`NPC State Delta scan complete: ${created.length} new, ${updated.length} updated${promoted.length ? `, ${promoted.length} promoted` : ''}${candidates.length ? `, ${candidates.length} candidate${candidates.length === 1 ? '' : 's'} held` : ''}${staleArchived.length ? `, ${staleArchived.length} stale archived` : ''}${stalePruned.length ? `, ${stalePruned.length} stale deleted` : ''}${skipped.length ? `, ${skipped.length} skipped` : ''}.`);
+                globalThis.toastr?.success?.(`NPC State scan complete: ${created.length} new, ${updated.length} updated${promoted.length ? `, ${promoted.length} promoted` : ''}${candidates.length ? `, ${candidates.length} candidate${candidates.length === 1 ? '' : 's'} held` : ''}${staleArchived.length ? `, ${staleArchived.length} stale archived` : ''}${stalePruned.length ? `, ${stalePruned.length} stale deleted` : ''}${skipped.length ? `, ${skipped.length} skipped` : ''}.`);
             } else notifyStaleCleanup(merged.report);
             return true;
         } catch (error) {
@@ -412,7 +412,7 @@ export function createScanPart(rt, deps) {
             // or the next reply means that reply's own scan reads the window, and re-asking would be one more paid call than before.
             if (!manual && !replayScope() && (!operation?.cancelled || (operation.cancelReason === 'server revision advanced' && !rerunOnce.has(`${scanChatKey}|${messageId}`) && rerunOnce.add(`${scanChatKey}|${messageId}`))) && Number.isInteger(messageId) && latestMessageId() === messageId && isScannerRoutingError(error) && error.code === 'NPC_SCANNER_ROUTE_CANCELLED') queuePendingAutoScan(scanChatKey, messageId, 'stale-auto-scan');
             if (replayScope()) replayScope().failed = `The scan failed: ${error?.message || error}`;
-            if (manual || (isScannerRoutingError(error) && error.code !== 'NPC_SCANNER_ROUTE_CANCELLED')) notify('error', `NPC State Delta scan failed: ${error?.message || error}`);
+            if (manual || (isScannerRoutingError(error) && error.code !== 'NPC_SCANNER_ROUTE_CANCELLED')) notify('error', `NPC State scan failed: ${error?.message || error}`);
             return false;
         } finally {
             endScanOperation(scanChatKey, operation);

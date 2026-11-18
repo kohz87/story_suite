@@ -10,14 +10,12 @@ import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-sett
 import { fillAllowed, FILL_MERGE_OPTION } from '../appearance/appearance-fill.js';
 import { createTargetedScopePart } from './runtime-targeted-scope.js';
 import { backgroundRuleOn, captureJournalEntry } from '../runtime/runtime-narration.js';
-import { FILL_REASON, fillPolicy, fillFailureNote } from '../meters/npc-lines-parts/fill-in.js';
+import { FILL_REASON } from '../meters/npc-lines-parts/fill-in.js';
 
 const { backfillScanMatchesTarget, rowContradictsTarget, soleRowMayBeTarget, transcriptMentionsBackfillTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
 
 export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase, scopeTargetedChannels }) {
-    const { BACKFILL_MAX_ATTEMPTS, ensureChatStateLoaded, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, persist, requireReadyChatMutation, runTargetedDossierPass, targetNoteOptions } = deps;
-
-    const BACKFILL_RETRY_COOLDOWN_MS = 60 * 1000;
+    const { ensureChatStateLoaded, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isScanBusy, noteScanFailure, requireReadyChatMutation, runTargetedDossierPass, targetNoteOptions } = deps;
 
     // The live state a backfill that preserves it keeps: the record's own, whatever the model returned.
     function backfillLiveState(liveBefore, keptPresent) {
@@ -31,14 +29,14 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
         };
     }
 
-    async function backfillNpcFromHistory(request, messageId = null, { automatic = false, retried = false } = {}) {
+    async function backfillNpcFromHistory(request, messageId = null, { automatic = false, retried = false, parallel = false, batch = null } = {}) {
         const settings = getSettings();
         const ctx = getContext();
         const chatKey = getChatKey();
         if (!request?.npcId || !request?.label || chatKey === 'no-chat') return false;
         try { await ensureChatStateLoaded(chatKey); } catch { return false; }
         if (getChatKey() !== chatKey || !requireReadyChatMutation('backfill a dossier', chatKey, { notify: false })) return false;
-        if (isScanBusy(chatKey)) return false;
+        if (isScanBusy(chatKey, { ignoreParallel: parallel })) return false;   // a sibling backfill of the same batch is no reason to stand down
         if (!await prepareCanonicalScanBase(chatKey, 'dossier backfill')) return false;
         // (timeline) The window is read from the messages the story stands on: the gate is asked first.
         await awayFromReplay(refreshMessageGate());   // a history replay's scope steps aside while the host answers (no-op live)
@@ -87,7 +85,8 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
             label: `backfill for ${request.label}`,
             systemPrompt: "You are NPC State Delta's isolated dossier backfill scanner. Use only the supplied scanner payload. Return only the requested JSON object.",
             indicator: 'backfill',
-            retry: () => retried ? false : backfillNpcFromHistory(request, messageId, { automatic, retried: true }),   // (REFRESHCANCEL) only its target changed
+            parallel,
+            retry: () => retried ? false : backfillNpcFromHistory(request, messageId, { automatic, retried: true, parallel, batch }),   // (REFRESHCANCEL) only its target changed
             staleLabel: 'dossier backfill',
             checkpoint: 'dossier-backfill',
             metricsLabel: 'dossier-backfill',
@@ -123,7 +122,7 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
                 if (!parsed.npcs.length) {
                     const literalMention = transcriptMentionsBackfillTarget(transcript, request.label);
                     console.warn('[NPC State Delta] targeted backfill returned no accepted NPC', { target: request.label, literalMention, returnedCount: returned.length });
-                    if (!request.silent) globalThis.toastr?.warning?.(`NPC State Delta: ${request.label} was added, but the backfill model returned no matching dossier details from the last ${settings.scanDepth} messages.`);
+                    if (!request.silent) globalThis.toastr?.warning?.(`NPC State: ${request.label} was added, but the backfill model returned no matching dossier details from the last ${settings.scanDepth} messages.`);
                     return { ok: false, result: false };
                 }
                 // A single-target backfill may change only its target, in every result channel: profile
@@ -161,7 +160,8 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
                 }
             },
             onDone: savedNpc => {
-                if (!request.silent) globalThis.toastr?.success?.(`NPC State Delta: backfilled ${savedNpc?.name || request.label} from recent story context.`);
+                if (batch) { if (!request.silent) batch.done.push(savedNpc?.name || request.label); }   // the queue says it once for the batch
+                else if (!request.silent) globalThis.toastr?.success?.(`NPC State: backfilled ${savedNpc?.name || request.label} from recent story context.`);
                 return true;
             },
             onError: error => {
@@ -169,79 +169,11 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
                 if (request.reason === FILL_REASON) request.lastError = error?.jsonFailed ? 'json' : 'call';   // (fillPolicy: a call error gets one queue retry)
                 if (error?.code === 'NPC_SCANNER_ROUTE_CANCELLED' || error?.code === 'NPC_SCANNER_ROUTE_TIMEOUT') return null;
                 // (a stub's fill-in tells the reader once, when the queue gives it up: fillFailureNote)
-                if (request.reason !== FILL_REASON && (!request.silent || (isScannerRoutingError(error) && error.code !== 'NPC_SCANNER_ROUTE_CANCELLED'))) globalThis.toastr?.warning?.(`NPC State Delta backfill failed for ${request.label}: ${error?.message || error}`);
+                if (request.reason !== FILL_REASON && (!request.silent || (isScannerRoutingError(error) && error.code !== 'NPC_SCANNER_ROUTE_CANCELLED'))) globalThis.toastr?.warning?.(`NPC State backfill failed for ${request.label}: ${error?.message || error}`);
                 return false;
             },
         });
     }
 
-    async function processPendingBackfillsInner(messageId = null, { limit = Infinity, skipNpcIds = [], admissions = false } = {}) {
-        const chatKey = getChatKey();
-        if (chatKey === 'no-chat' || !requireReadyChatMutation('process queued dossier backfills', chatKey, { notify: false }) || isScanBusy(chatKey) || isHostSwipeActive()) return 0;
-        let processed = 0;
-        // Model calls made (each backfill is one request, plus a compact retry at most).
-        let calls = 0;
-        const attemptedNpcIds = new Set(skipNpcIds);
-        while (getChatKey() === chatKey && !isScanBusy(chatKey)) {
-            const state = getChatState(chatKey);
-            if (!Array.isArray(state.pendingBackfills) || !state.pendingBackfills.length) break;
-            // (ONEPASSCAPR2-3) Hosted one-pass: each new admission owns its queued fill, once (the four-stubs-a-reply cap in npc-lines-parts/stub.js bounds it); the per-reply cap still limits other repairs.
-            const request = state.pendingBackfills.find(item => item?.npcId && !attemptedNpcIds.has(item.npcId)
-                && (calls < limit || (admissions && fillPolicy(item).ownsCall)));
-            if (!request) break;
-            attemptedNpcIds.add(request.npcId);
-            const savedCapture = replayScope() && captureJournalEntry(replayScope(), getContext().chat || [], request.requestedMessageId);
-            if (savedCapture?.parsed && !savedCapture.fills?.[request.npcId]) continue; // (ONEPASSCAPR2-1) an unaccepted fill cannot be invented by replay
-            const target = state.npcs.find(npc => npc.id === request.npcId);
-            const owningExchange = Number.isInteger(request.requestedMessageId) ? currentExchangeTranscript(request.requestedMessageId) : '';
-            if (!automaticBackfillStillRelevant(request, target, state.npcs, owningExchange)) {
-                state.pendingBackfills = state.pendingBackfills.filter(item => item.npcId !== request.npcId);
-                persist();
-                continue;
-            }
-            const attempts = Math.max(0, Math.round(Number(request.attempts) || 0));
-            const policy = fillPolicy(request, { max: BACKFILL_MAX_ATTEMPTS, cooldown: true });
-            if (attempts >= policy.max) {
-                state.pendingBackfills = state.pendingBackfills.filter(item => item.npcId !== request.npcId);
-                persist();
-                if (!request.silent) globalThis.toastr?.warning?.(request.reason === FILL_REASON ? fillFailureNote(request.label) : `NPC State Delta: stopped automatic backfill retries for ${request.label} after ${BACKFILL_MAX_ATTEMPTS} failed attempts. The bare dossier is preserved; use Scan dossier to retry manually.`);
-                continue;
-            }
-            const lastAttemptAt = Math.max(0, Number(request.lastAttemptAt || 0) || 0);
-            if (policy.cooldown && attempts > 0 && lastAttemptAt && Date.now() - lastAttemptAt < BACKFILL_RETRY_COOLDOWN_MS) continue;
-
-            calls += 1;
-            const succeeded = await backfillNpcFromHistory(request, messageId, { automatic: true });
-            if (succeeded === null) break;
-            if (getChatKey() !== chatKey || !requireReadyChatMutation('settle queued dossier backfill', chatKey, { notify: false })) break;
-            // (1.10.1) A scan that began while this backfill was getting ready holds the chat: the backfill made no request (it found the chat
-            // busy). Writing the queue now would change the dossier state under that scan, which then discards its result; the request stays
-            // queued, uncounted, for the next run.
-            if (isScanBusy(chatKey)) break;
-            const latest = getChatState(chatKey);
-            const currentRequest = (latest.pendingBackfills || []).find(item => item.npcId === request.npcId);
-            if (!currentRequest || currentRequest.requestedAt !== request.requestedAt || currentRequest.requestedMessageId !== request.requestedMessageId) continue;
-            if (!succeeded) {
-                const queued = (latest.pendingBackfills || []).find(item => item.npcId === request.npcId);
-                if (queued) {
-                    queued.attempts = attempts + 1;
-                    queued.lastAttemptAt = Date.now();
-                    if (request.lastError) queued.lastError = request.lastError;
-                    if (queued.attempts >= fillPolicy(queued, { max: BACKFILL_MAX_ATTEMPTS, cooldown: true }).max) {
-                        latest.pendingBackfills = latest.pendingBackfills.filter(item => item.npcId !== request.npcId);
-                        if (!queued.silent) globalThis.toastr?.warning?.(queued.reason === FILL_REASON ? fillFailureNote(queued.label) : `NPC State Delta: automatic backfill for ${queued.label} failed ${BACKFILL_MAX_ATTEMPTS} times and was removed from the retry queue. The dossier itself was not deleted.`);
-                    }
-                }
-                persist();
-                // One failed dossier must not starve other queued targeted repairs.
-                continue;
-            }
-            latest.pendingBackfills = (latest.pendingBackfills || []).filter(item => item.npcId !== request.npcId);
-            persist();
-            processed += 1;
-        }
-        return processed;
-    }
-
-    return { backfillNpcFromHistory, processPendingBackfillsInner };
+    return { backfillNpcFromHistory };
 }

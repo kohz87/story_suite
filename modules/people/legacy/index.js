@@ -139,7 +139,7 @@ const scanOperations = createScanOperationRegistry({
         }
     },
 });
-function isScanBusy(key = getChatKey()) { return scanOperations.isBusy(key); }
+function isScanBusy(key = getChatKey(), options) { return scanOperations.isBusy(key, options); }
 
 
 // A v2-hosted automatic boundary may skip the deterministic-path probe: this session already found

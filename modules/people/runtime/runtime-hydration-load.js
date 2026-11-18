@@ -16,13 +16,13 @@ export function installHydrationLoad(api, rt, deps) {
     async function ensureFreshMutationBoundary(action, key = getChatKey(), { notify = true } = {}) {
         const normalized = String(key || '');
         if (!normalized || normalized === 'no-chat' || !isCanonicalChatKey(normalized)) {
-            if (notify) globalThis.toastr?.warning?.(`NPC State Delta: open a chat before attempting to ${action}.`);
+            if (notify) globalThis.toastr?.warning?.(`NPC State: open a chat before attempting to ${action}.`);
             return false;
         }
         try {
             await ensureChatStateLoaded(normalized, { probeMissing: true });
         } catch (error) {
-            if (notify) globalThis.toastr?.warning?.(`NPC State Delta: cannot ${action} because the canonical server dossier could not be verified. ${error?.message || error}`);
+            if (notify) globalThis.toastr?.warning?.(`NPC State: cannot ${action} because the canonical server dossier could not be verified. ${error?.message || error}`);
             return false;
         }
         if (getChatKey() !== normalized || !requireReadyChatMutation(action, normalized, { notify })) return false;
@@ -50,12 +50,12 @@ export function installHydrationLoad(api, rt, deps) {
 
     function requireReadyChatMutation(action = 'modify NPC State Delta', key = getChatKey(), { notify = true } = {}) {
         if (!key || key === 'no-chat' || !isCanonicalChatKey(key)) {
-            if (notify) globalThis.toastr?.warning?.(`NPC State Delta: open a chat before attempting to ${action}.`);
+            if (notify) globalThis.toastr?.warning?.(`NPC State: open a chat before attempting to ${action}.`);
             return false;
         }
         if (chatHydrationStatus(key) === 'ready') return true;
         const error = hydrationErrors.get(key);
-        if (notify) globalThis.toastr?.warning?.(`NPC State Delta: cannot ${action} until this chat dossier loads successfully.${error?.message ? ` ${error.message}` : ''}`);
+        if (notify) globalThis.toastr?.warning?.(`NPC State: cannot ${action} until this chat dossier loads successfully.${error?.message ? ` ${error.message}` : ''}`);
         return false;
     }
 

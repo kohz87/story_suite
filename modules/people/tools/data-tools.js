@@ -70,23 +70,23 @@ async function chooseImportFile() {
 
 export async function openImportTools() {
     const chatKey = activeChatKey();
-    if (!chatKey || chatKey === 'no-chat') return toast('warning', 'NPC State Delta: open the target chat before importing.');
+    if (!chatKey || chatKey === 'no-chat') return toast('warning', 'NPC State: open the target chat before importing.');
     const selection = ++importSelectionSequence;
     const openingSession = activeSession;
     const selectionCurrent = () => selection === importSelectionSequence && activeSession === openingSession;
     const file = await chooseImportFile();
     if (!file || !selectionCurrent()) return;
     if (file.size > 32 * 1024 * 1024) return toast('error', 'NPC State Delta import exceeds the 32 MB safety limit.');
-    if (activeChatKey() !== chatKey) return toast('warning', 'NPC State Delta: the target chat changed while the import picker was open. Reopen Data and choose the file again.');
+    if (activeChatKey() !== chatKey) return toast('warning', 'NPC State: the target chat changed while the import picker was open. Reopen Data and choose the file again.');
     let raw;
     try { raw = new Uint8Array(await file.arrayBuffer()); }
     catch (error) { return toast('error', `NPC State Delta import: could not read file. ${error?.message || error}`); }
     if (!selectionCurrent()) return;
-    if (activeChatKey() !== chatKey) return toast('warning', 'NPC State Delta: the target chat changed while the import file was being read. No import was applied.');
+    if (activeChatKey() !== chatKey) return toast('warning', 'NPC State: the target chat changed while the import file was being read. No import was applied.');
     let prepared;
     try { prepared = prepareNativeImport(raw, chatKey); }
     catch (error) { return toast('error', `NPC State Delta import rejected before mutation: ${error?.message || error}`); }
-    if (activeChatKey() !== chatKey) return toast('warning', 'NPC State Delta: the target chat changed during import validation. No import was applied.');
+    if (activeChatKey() !== chatKey) return toast('warning', 'NPC State: the target chat changed during import validation. No import was applied.');
     const summary = summarizeDecodedBundle(prepared.decoded);
     const session = makeSession('import');
     session.importBytes = prepared.importBytes;
@@ -130,13 +130,13 @@ async function applyImport(session) {
         recordToolEvent('native-import', { chatKey: session.chatKey, action: 'apply', outcome: saved.persisted ? 'saved' : 'local-only', persisted: saved.persisted });
         const fullySuccessful = saved.persisted && !settingsWarning;
         toast(fullySuccessful ? 'success' : 'warning', saved.persisted
-            ? `NPC State Delta: ${nativeImportResultSummary(result)}. Target chat saved.${settingsWarning}`
-            : `NPC State Delta: import applied locally, but durable save failed. ${saved.error?.message || saved.error}${settingsWarning}`);
+            ? `NPC State: ${nativeImportResultSummary(result)}. Target chat saved.${settingsWarning}`
+            : `NPC State: import applied locally, but durable save failed. ${saved.error?.message || saved.error}${settingsWarning}`);
         closeOverlay({ reason: 'imported', session });
     } catch (error) {
         if (dossierApplied) {
             recordToolEvent('native-import', { chatKey: session.chatKey, action: 'apply', outcome: 'local-only', persisted: false, detail: error?.message || error });
-            toast('warning', `NPC State Delta: the validated import was applied locally, but durable confirmation failed: ${error?.message || error}`);
+            toast('warning', `NPC State: the validated import was applied locally, but durable confirmation failed: ${error?.message || error}`);
             closeOverlay({ reason: 'import-local-only', session });
             return;
         }
@@ -148,7 +148,7 @@ async function applyImport(session) {
 
 export async function exportNativeTools() {
     const chatKey = activeChatKey();
-    if (!chatKey || chatKey === 'no-chat') return toast('warning', 'NPC State Delta: open a chat before exporting.');
+    if (!chatKey || chatKey === 'no-chat') return toast('warning', 'NPC State: open a chat before exporting.');
     // The export belongs to the chat it was requested in; a switch while the freshness read is
     // pending must not download another chat's dossiers under this request.
     const sameChat = () => activeChatKey() === chatKey;
@@ -163,7 +163,7 @@ export async function exportNativeTools() {
         });
         downloadBytes(output, `npc-state-delta-${Date.now()}.npcstatedelta`);
         recordToolEvent('native-export', { chatKey, action: 'export', outcome: 'downloaded' });
-        toast('success', 'NPC State Delta: native bundle exported with portraits, portable portrait settings, and source-history audit data.');
+        toast('success', 'NPC State: native bundle exported with portraits, portable portrait settings, and source-history audit data.');
     } catch (error) {
         toast('error', `NPC State Delta export failed: ${error?.message || error}`);
     }
@@ -245,15 +245,15 @@ export function openDiagnostics(npcId = '') {
     overlay.addEventListener('click', event => {
         if (event.target.closest?.('[data-export-diagnostics]')) {
             const bundle = api()?.diagnosticBundle?.();
-            if (!bundle) return toast('warning', 'NPC State Delta: diagnostic bundle is unavailable for this chat.');
+            if (!bundle) return toast('warning', 'NPC State: diagnostic bundle is unavailable for this chat.');
             downloadJson(bundle, `npc-state-delta-diagnostics-${Date.now()}.json`);
             recordToolEvent('diagnostic-export', { chatKey: activeChatKey(), action: 'export', outcome: 'downloaded' });
-            toast('success', 'NPC State Delta: compact diagnostic bundle exported.');
+            toast('success', 'NPC State: compact diagnostic bundle exported.');
         }
         if (event.target.closest?.('[data-clear-diagnostics]')) {
             const count = Number(api()?.clearDiagnostics?.() || 0);
             recordToolEvent('diagnostic-clear', { chatKey: activeChatKey(), action: 'clear', outcome: 'cleared', detail: `${count} operations` });
-            toast('success', `NPC State Delta: cleared ${count} retained diagnostic operations.`);
+            toast('success', `NPC State: cleared ${count} retained diagnostic operations.`);
             closeOverlay({ reason: 'diagnostics-cleared', session });
         }
     });

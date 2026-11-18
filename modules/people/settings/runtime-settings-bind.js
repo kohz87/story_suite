@@ -138,7 +138,7 @@ export function createSettingsBindPart(rt, deps) {
             const snapshot = portraitSettingsDraftFromUi();
             const presets = portraitCustomPresetLibrary(settings.portraitCustomPresets);
             if (presets.length >= PORTRAIT_CUSTOM_PRESET_LIMIT) {
-                globalThis.toastr?.warning?.(`NPC State Delta: custom portrait preset limit is ${PORTRAIT_CUSTOM_PRESET_LIMIT}.`);
+                globalThis.toastr?.warning?.(`NPC State: custom portrait preset limit is ${PORTRAIT_CUSTOM_PRESET_LIMIT}.`);
                 return;
             }
             const duplicate = this.id.endsWith('_duplicate');
@@ -158,7 +158,7 @@ export function createSettingsBindPart(rt, deps) {
             const name = String(globalThis.window?.prompt?.('Custom portrait preset name:', suggested) || '').trim().slice(0, 80);
             if (!name) return;
             if (portraitCustomPresetNameTaken(presets, name)) {
-                globalThis.toastr?.warning?.(`NPC State Delta: a custom portrait preset named "${name}" already exists.`);
+                globalThis.toastr?.warning?.(`NPC State: a custom portrait preset named "${name}" already exists.`);
                 return;
             }
             const id = nextPortraitCustomPresetId(presets);
@@ -166,7 +166,7 @@ export function createSettingsBindPart(rt, deps) {
             const saved = await persistPortraitCustomPresetLibrary(settings, [...presets, created], id, {
                 operational: snapshot,
             });
-            if (saved) globalThis.toastr?.success?.(`NPC State Delta: saved custom portrait preset ${created.name}.`);
+            if (saved) globalThis.toastr?.success?.(`NPC State: saved custom portrait preset ${created.name}.`);
         });
         $(document).on('click.npcStateDelta', '#npc_state_delta_portrait_custom_rename', async function () {
             if (rt.portraitSettingsSaveBusy) return;
@@ -179,7 +179,7 @@ export function createSettingsBindPart(rt, deps) {
             const name = String(globalThis.window?.prompt?.('Rename custom portrait preset:', current.name) || '').trim().slice(0, 80);
             if (!name || name === current.name) return;
             if (portraitCustomPresetNameTaken(snapshot.portraitCustomPresets, name, id)) {
-                globalThis.toastr?.warning?.(`NPC State Delta: a custom portrait preset named "${name}" already exists.`);
+                globalThis.toastr?.warning?.(`NPC State: a custom portrait preset named "${name}" already exists.`);
                 return;
             }
             if (rt.portraitSettingsDirty && !(await savePortraitSettingsDraft())) return;
@@ -191,14 +191,14 @@ export function createSettingsBindPart(rt, deps) {
             const presets = structuredClone(snapshot.portraitCustomPresets);
             presets[index] = { ...current, name };
             const saved = await persistPortraitCustomPresetLibrary(settings, presets, id, { theme: snapshot.portraitThemePreset });
-            if (saved) globalThis.toastr?.success?.(`NPC State Delta: renamed portrait preset to ${name}.`);
+            if (saved) globalThis.toastr?.success?.(`NPC State: renamed portrait preset to ${name}.`);
         });
         $(document).on('click.npcStateDelta', '#npc_state_delta_portrait_custom_delete', async function () {
             if (rt.portraitSettingsSaveBusy) return;
             const settings = getSettings();
             let snapshot = portraitSettingsSnapshot(settings);
             if (snapshot.portraitCustomPresets.length <= 1) {
-                globalThis.toastr?.warning?.('NPC State Delta: keep at least one custom portrait preset.');
+                globalThis.toastr?.warning?.('NPC State: keep at least one custom portrait preset.');
                 return;
             }
             let id = String($('#npc_state_delta_portrait_custom_preset').val() || snapshot.portraitCustomPresetId);
@@ -218,7 +218,7 @@ export function createSettingsBindPart(rt, deps) {
             const saved = await persistPortraitCustomPresetLibrary(getSettings(), presets, nextId, {
                 theme: snapshot.portraitThemePreset === 'custom' ? 'custom' : snapshot.portraitThemePreset,
             });
-            if (saved) globalThis.toastr?.success?.(`NPC State Delta: deleted custom portrait preset ${target.name}.`);
+            if (saved) globalThis.toastr?.success?.(`NPC State: deleted custom portrait preset ${target.name}.`);
         });
         $(document).on('click.npcStateDelta', '#npc_state_delta_reset_portrait_theme', () => {
             writePortraitSettingsDraftToUi({
@@ -234,7 +234,7 @@ export function createSettingsBindPart(rt, deps) {
                 portraitSaveToGallery: false,
             });
             markPortraitSettingsDirty();
-            globalThis.toastr?.info?.('NPC State Delta: Fantasy Anime defaults loaded as an unsaved portrait-settings draft.');
+            globalThis.toastr?.info?.('NPC State: Fantasy Anime defaults loaded as an unsaved portrait-settings draft.');
         });
         $(document).on('click.npcStateDelta', '#npc_state_delta_save_portrait_settings', () => { void savePortraitSettingsDraft(); });
         bindSettingsNumber('#npc_state_delta_scan_every', 'scanEvery', 1, 20, 2);
@@ -289,17 +289,17 @@ export function createSettingsBindPart(rt, deps) {
             settings.relationshipCriteria = DEFAULT_RELATIONSHIP_CRITERIA;
             settings.relationshipImpactCriteria = DEFAULT_IMPACT_CRITERIA;
             syncSettingsControls(); persistSettings();
-            globalThis.toastr?.success?.('NPC State Delta: relationship tuning reset to defaults.');
+            globalThis.toastr?.success?.('NPC State: relationship tuning reset to defaults.');
         });
         $(document).on('click.npcStateDelta', '#npc_state_delta_reset_memory_rules', () => {
             getSettings().memoryCriteria = DEFAULT_MEMORY_CRITERIA;
             syncSettingsControls(); persistSettings();
-            globalThis.toastr?.success?.('NPC State Delta: important memory criteria reset to default.');
+            globalThis.toastr?.success?.('NPC State: important memory criteria reset to default.');
         });
         $(document).on('click.npcStateDelta', '#npc_state_delta_reset_behavior_rules', () => {
             getSettings().behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA;
             syncSettingsControls(); persistSettings(); updateInjection();
-            globalThis.toastr?.success?.('NPC State Delta: behavior rubric reset to default.');
+            globalThis.toastr?.success?.('NPC State: behavior rubric reset to default.');
         });
         $(document).on('click.npcStateDelta', '.npc-state-delta-retry-hydration', () => { void retryCurrentChatHydration(); });
         $(document).on('click.npcStateDelta', '.npc-state-delta-detach-sidecar', () => { void detachBrokenSidecar(); });

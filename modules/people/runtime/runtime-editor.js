@@ -36,7 +36,7 @@ export function createEditorPart(rt, deps) {
             return true;
         } catch (error) {
             console.error('[NPC State Delta] dossier editor failed to open', error);
-            globalThis.toastr?.error?.(`NPC State Delta editor failed: ${error?.message || error}`);
+            globalThis.toastr?.error?.(`NPC State editor failed: ${error?.message || error}`);
             return false;
         }
     }
@@ -260,7 +260,7 @@ export function createEditorPart(rt, deps) {
         Promise.resolve(popup.show()).catch(error => {
             if (rt.activeEditorPopup === popup) rt.activeEditorPopup = null;
             console.error('[NPC State Delta] native dossier popup failed', error);
-            globalThis.toastr?.error?.(`NPC State Delta editor failed: ${error?.message || error}`);
+            globalThis.toastr?.error?.(`NPC State editor failed: ${error?.message || error}`);
         });
         return popup;
     }

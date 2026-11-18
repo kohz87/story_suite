@@ -4,7 +4,7 @@
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { REFRESH_CHANGED_FIELDS } from '../fields/registry.js';
-import { storyDayAt, tieDayAt, currentExclusions, refreshMessageGate, activeChat } from '../transcript/transcript.js';
+import { storyDayAt, tieDayAt, currentExclusions, currentExchangeTranscript, refreshMessageGate, activeChat } from '../transcript/transcript.js';
 import { BACKFILL_RESPONSE_LENGTH, generateParsedNpcJson } from './scanner-request.js';
 import { buildDossierImportPrompt, mergeScanResult, protectTerminalNpc } from '../core/core.js';
 import { secretEventsShown } from '../core/core-prompts-capture.js';
@@ -12,9 +12,11 @@ import { chatLineage } from '../lineage/index.js';
 import { isScannerRoutingError } from './scanner-routing.js';
 import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { replayScope, setNpcDossierScanIndicator, lineageMoved, setScanIndicator, latestMessageId } from './runtime-scan-helpers.js';
+import { automaticBackfillStillRelevant } from './scan-context.js';
 import { createTargetedScopePart } from './runtime-targeted-scope.js';
 import { createTargetedRefreshPart } from './runtime-targeted-refresh.js';
 import { createTargetedBackfillPart } from './runtime-targeted-backfill.js';
+import { createBackfillQueuePart } from './runtime-backfill-queue.js';
 import { advanceCastAdmission } from '../runtime/runtime-cast-sync.js';
 import { captureJournalEntry, recordAcceptedFill } from '../runtime/runtime-narration.js';
 
@@ -29,7 +31,7 @@ export function createTargetedPart(rt, deps) {
             await settleStateFileWrite(key, { flush: true });
             await ensureHydratedStateFresh(key, { reason: `${label}-start` });
             if (staleHostActive(key)) {
-                globalThis.toastr?.warning?.('NPC State Delta: this chat has not loaded the newest messages another session added, so scanning it would roll the dossier back. Reload the chat first.');
+                globalThis.toastr?.warning?.('NPC State: this chat has not loaded the newest messages another session added, so scanning it would roll the dossier back. Reload the chat first.');
                 return false;
             }
             return getChatKey() === key && chatHydrationStatus(key) === 'ready';
@@ -95,7 +97,7 @@ export function createTargetedPart(rt, deps) {
         const lineage = chatLineage(ctx.chat || []);
         const boundMessageId = latestMessageId(true);
         const startedAt = performance.now?.() ?? Date.now();
-        const operation = beginScanOperation(chatKey, label, { npcId: id, indicator: job.indicator });
+        const operation = beginScanOperation(chatKey, label, { npcId: id, indicator: job.indicator, parallel: job.parallel === true });
         if (!operation) {
             job.onBusy?.();
             return false;
@@ -228,10 +230,10 @@ export function createTargetedPart(rt, deps) {
         const ctx = getContext();
         const chatKey = getChatKey();
         if (!id || chatKey === 'no-chat') return false;
-        try { await ensureChatStateLoaded(chatKey); } catch (error) { globalThis.toastr?.warning?.(`NPC State Delta: cannot scan this dossier until the canonical server state is available. ${error?.message || error}`); return false; }
+        try { await ensureChatStateLoaded(chatKey); } catch (error) { globalThis.toastr?.warning?.(`NPC State: cannot scan this dossier until the canonical server state is available. ${error?.message || error}`); return false; }
         if (getChatKey() !== chatKey || !requireReadyChatMutation('scan a dossier', chatKey)) return false;
         if (isScanBusy(chatKey)) {
-            globalThis.toastr?.info?.('NPC State Delta: another dossier scan is already running in this chat.');
+            globalThis.toastr?.info?.('NPC State: another dossier scan is already running in this chat.');
             return false;
         }
         if (!await prepareCanonicalScanBase(chatKey, 'dossier import')) return false;
@@ -243,7 +245,7 @@ export function createTargetedPart(rt, deps) {
         if (!existing) return false;
         const sources = findMeguminDossierSources(existing, activeChat(ctx.chat || []));
         if (!sources.length) {
-            globalThis.toastr?.info?.(`NPC State Delta: no matching Megumin dossier block found for ${existing.name}; scanning recent story context instead.`);
+            globalThis.toastr?.info?.(`NPC State: no matching Megumin dossier block found for ${existing.name}; scanning recent story context instead.`);
             return backfillNpcFromHistory({ npcId: existing.id, label: existing.name, requestedAt: Date.now() }, latestMessageId(true));
         }
         const sourceText = sources.map(item => `[message ${item.messageId + 1} · ${item.kind}]\n${item.text}`).join('\n\n');
@@ -265,13 +267,13 @@ export function createTargetedPart(rt, deps) {
             checkpoint: 'dossier-import',
             metricsLabel: 'dossier-import',
             setIndicator: busy => setNpcDossierScanIndicator(id, busy),
-            onBusy: () => globalThis.toastr?.info?.('NPC State Delta: another dossier scan is already running in this chat.'),
-            onStale: () => globalThis.toastr?.info?.('NPC State Delta: chat changed during dossier import; stale result was discarded.'),
+            onBusy: () => globalThis.toastr?.info?.('NPC State: another dossier scan is already running in this chat.'),
+            onStale: () => globalThis.toastr?.info?.('NPC State: chat changed during dossier import; stale result was discarded.'),
             scope: (parsed, { latest }) => {
                 const returned = Array.isArray(parsed.npcs) ? parsed.npcs : [];
                 const match = targetedRowFor(returned, existing, latest.npcs, { labels: [existing.name, ...(existing.aliases || [])] });
                 if (!match) {
-                    globalThis.toastr?.warning?.(`NPC State Delta: the dossier importer did not return ${existing.name}.`);
+                    globalThis.toastr?.warning?.(`NPC State: the dossier importer did not return ${existing.name}.`);
                     return { ok: false, result: false };
                 }
                 parsed.npcs = [{
@@ -288,12 +290,12 @@ export function createTargetedPart(rt, deps) {
             },
             mergeOptions: { developmentContext: sourceText, userDevelopmentContext: sourceText },
             onDone: saved => {
-                globalThis.toastr?.success?.(`NPC State Delta: imported ${saved?.name || existing.name} from ${sources.length} Megumin dossier block${sources.length === 1 ? '' : 's'}.`);
+                globalThis.toastr?.success?.(`NPC State: imported ${saved?.name || existing.name} from ${sources.length} Megumin dossier block${sources.length === 1 ? '' : 's'}.`);
                 return true;
             },
             onError: error => {
                 console.error('[NPC State Delta] structured dossier import failed', error);
-                globalThis.toastr?.warning?.(`NPC State Delta dossier import failed for ${existing.name}: ${error?.message || error}`);
+                globalThis.toastr?.warning?.(`NPC State dossier import failed for ${existing.name}: ${error?.message || error}`);
                 return false;
             },
         });
@@ -304,7 +306,15 @@ export function createTargetedPart(rt, deps) {
     }
 
     const { refreshNpcFromChat } = createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, targetedRowFor, refreshChangedFields });
-    const { backfillNpcFromHistory, processPendingBackfillsInner } = createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase, scopeTargetedChannels });
+    const { backfillNpcFromHistory } = createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase, scopeTargetedChannels });
+    const { processPendingBackfillsInner } = createBackfillQueuePart({
+        ...deps, backfillNpcFromHistory,
+        replayLacksFill: request => {
+            const saved = replayScope() && captureJournalEntry(replayScope(), getContext().chat || [], request.requestedMessageId);
+            return Boolean(saved?.parsed && !saved.fills?.[request.npcId]);
+        },
+        stillRelevant: (request, target, npcs) => automaticBackfillStillRelevant(request, target, npcs, Number.isInteger(request.requestedMessageId) ? currentExchangeTranscript(request.requestedMessageId) : ''),
+    });
 
     return { prepareCanonicalScanBase, endTargetedRewriteTolerance, runTargetedDossierPassInner, scanNpcDossier, refreshNpcFromChat, processPendingBackfillsInner };
 }

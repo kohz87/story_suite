@@ -313,7 +313,7 @@ async function retireCharacterOwner(avatar, reason = 'character-deleted') {
 
 function reportLifecycleError(label, error) {
     console.error(`[NPC State Delta] ${label} failed`, error);
-    try { globalThis.toastr?.error?.(`NPC State Delta ${label} failed safely. Existing state was preserved or recovery-staged.`, 'NPC State Delta'); } catch { /* noop */ }
+    try { globalThis.toastr?.error?.(`NPC State ${label} failed safely. Existing state was preserved or recovery-staged.`, 'NPC State'); } catch { /* noop */ }
 }
 
 function queueActiveCharacterCacheRefresh(newAvatar) {

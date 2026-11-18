@@ -27,7 +27,7 @@ import { createToolsHandle } from '../../ui/port/tools-handle.js';
 import { createCardSource } from '../../ui/port/reply-cards.js';
 
 const LOG = '[Story Block v2]';
-export const OLD_COPY = 'Disable the old Story Block, Story Director and NPC State Delta: Story Suite replaces all three.';
+export const OLD_COPY = 'Disable the old Story Block, Story Director and NPC State: Story Suite replaces all three.';
 
 /**
  * Starts Story Suite: one call from the root index.js. Resolves true once the host is up; false when it did not start.

@@ -8,6 +8,8 @@ const REPO = path.resolve(import.meta.dirname, '../../..');
 
 // Files the layout rules put under modules/people/legacy/ that later left it (B4-5: the old dossier panel's survivors), by their old name.
 const MOVED_LATER = Object.freeze({
+    // LPB: the queued-backfill runner split out of runtime-targeted-backfill.js.
+    'runtime-backfill-queue.js': 'modules/people/calls/runtime-backfill-queue.js',
     'dossier-tools-core.js': 'modules/people/tools/tools-core.js',
     'dossier-tools.js': 'modules/people/tools/data-tools.js',
     'dossier-experience.js': 'modules/people/tools/editor-refine.js',

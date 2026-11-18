@@ -29,7 +29,7 @@ export function notifyStaleCleanup(report) {
     const parts = [];
     if (archivedCount) parts.push(`${archivedCount} stale archived`);
     if (removed.length) parts.push(`${removed.length} stale deleted${names ? ` (${names}${extra})` : ''}`);
-    notify('info', `NPC State Delta: ${parts.join(', ')}. Deleted stale NPCs can be rediscovered if they return.`);
+    notify('info', `NPC State: ${parts.join(', ')}. Deleted stale NPCs can be rediscovered if they return.`);
 }
 
 /** The story contradicted a stored gender and the stored word stayed (report.warnings, set by mergeScanResult): one warning per person. */
