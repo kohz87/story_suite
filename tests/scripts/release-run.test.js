@@ -12,7 +12,7 @@ import { tempDir } from '../../scripts/temp-dir.mjs';
 // compares what both report (register, two replies through capture, a query from each module, the RPG's lazy load).
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const child = path.join(import.meta.dirname, 'release-run/child.mjs');
-const pack = path.join(repoRoot, 'tests/fixtures/packs/ersveil-3/pack.json');
+const pack = ['pack', 'game'].map(kind => path.join(repoRoot, `tests/fixtures/director/ersveil-bluewatch.${kind}.json`)).join(',');
 const seeded = path.join(repoRoot, 'tests/suite/qa/helpers/seeded.js');
 const SB_LAZY = BUNDLE_SETS[0].lazy;
 const KIT = [
@@ -45,7 +45,7 @@ test('the smoke run on the source does what it should (so the comparison is not 
   assert.equal(fromSource.packInstalled, true);
   assert.equal(fromSource.nsdRegistered, true);
   assert.deepEqual([fromSource.reply1, fromSource.reply2], ['ok', 'ok']);
-  assert.deepEqual(fromSource.sbQueries.items, ['Bedroll x1', 'Bread x2']);
+  assert.deepEqual(fromSource.sbQueries.items, ['Bedroll x1', 'Bread x2', 'Cane-Blade x1', 'Knife x1', 'Patched Oilcloth Coat x1', 'Whetstone x1'], 'the two bought items and the game pack\'s start items');
   assert.equal(typeof fromSource.sdQueries.time.minutes, 'number');
   // P3 (PEOPLE-PLAN.md, line 35 and the P3 section): no timeline participant, so npc.catchUp answers the idle null (adapter/identity.js); a store-backed NPC State has no catch-up to report.
   assert.equal(fromSource.nsdQueries.catchUp, null);

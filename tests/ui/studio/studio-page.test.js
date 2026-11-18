@@ -7,10 +7,11 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readPackZip } from '../../../packs/bundle.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.webp': 'image/webp' };
-const ZIP = path.join(ROOT, 'tests/fixtures/packs/ersveil-3/ersveil.zip');
+const ZIP = path.join(ROOT, 'examples/packs/ersveil.zip');
 const WORLD = path.join(ROOT, 'tests/packs/studio/fixtures/world-mini.json');
 
 function serve() {
@@ -68,7 +69,7 @@ const sideways = page => page.evaluate(() => {
   }).map(el => el.className || el.tagName).slice(0, 5);
 });
 
-test('Ersveil opens, the checker takes it, every part has a page and Export gives back the same zip', async (t) => {
+test('Ersveil opens, the checker takes it, every part has a page and Export gives back the same pack.json and portraits', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const { page, errors } = await studio(1280);
   try {
@@ -81,19 +82,24 @@ test('Ersveil opens, the checker takes it, every part has a page and Export give
       title: document.querySelector('.spage h2').textContent,
       check: document.querySelector('.st-check').dataset.ok,
     }));
-    assert.deepEqual(head, { sub: 'Ersveil (open world) · 3.0.0', foot: 'No problems', nav: ['overview', 'other', 'cast', 'map', 'events', 'items', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
+    assert.deepEqual(head, { sub: 'Ersveil (open world) · 4.0.0', foot: 'No problems', nav: ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
     for (const part of head.nav) {
       await page.click(`.snav .si3[data-part="${part}"]`);
       const seen = await page.evaluate(() => ({ title: document.querySelector('.spage h2').textContent, cards: document.querySelectorAll('.spage .sgrp').length }));
       assert.ok(seen.cards > 0, `${part} draws something`);
     }
     await page.click('.snav .si3[data-part="cast"]');
-    assert.equal(await page.locator('.spage .st-rec[data-rec^="cast."]').count(), 12);
+    assert.equal(await page.locator('.spage .st-rec[data-rec^="cast."]').count(), 31);
     assert.equal(await page.locator('.spage img.st-thumb').count(), 12);
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('.st-zip')]);
-    assert.equal(download.suggestedFilename(), 'ersveil-3.0.0.zip');
-    assert.deepEqual(fs.readFileSync(await download.path()), fs.readFileSync(ZIP));
-    assert.match(await page.textContent('.st-note'), /Exported ersveil-3\.0\.0\.zip\./);
+    assert.equal(download.suggestedFilename(), 'ersveil-4.0.0.zip');
+    // The example zip also holds game.json and notes, which the Studio does not keep: pack.json and every portrait come back the same.
+    const got = await readPackZip(fs.readFileSync(await download.path())), want = await readPackZip(fs.readFileSync(ZIP));
+    assert.equal(got.ok && want.ok, true);
+    assert.equal(got.text, want.text, 'pack.json comes back as it was');
+    assert.deepEqual(got.files.map(file => [file.name, file.size]), want.files.map(file => [file.name, file.size]), 'the same portraits come back');
+    assert.equal(got.files.length, 12);
+    assert.match(await page.textContent('.st-note'), /Exported ersveil-4\.0\.0\.zip\./);
     assert.deepEqual(errors, []);
   } finally { await page.close(); }
 });
@@ -103,7 +109,7 @@ test('a world pack: the engine\'s checker refuses what it does not take; Problem
   const { page, errors } = await studio(1143);
   try {
     await openFile(page, WORLD);
-    assert.equal(await page.textContent('.st-foot .v'), '3 problems · 2 warnings');
+    assert.equal(await page.textContent('.st-foot .v'), '2 problems · 2 warnings');
     await page.click('.st-foot');
     const groups = await page.evaluate(() => [...document.querySelectorAll('.st-probs')].map(g => g.dataset.part));
     assert.deepEqual([...groups].sort(), ['conditions', 'events']);
@@ -135,7 +141,7 @@ test('search finds a record and opens it; the keys: / search, Alt+digit a part, 
     await page.keyboard.press('Alt+3');
     assert.equal(await page.textContent('.spage h2'), 'Cast');
     await page.keyboard.press('F8');
-    assert.equal(await page.textContent('.spage h2'), 'Conditions');
+    assert.equal(await page.textContent('.spage h2'), 'Events');
     await page.keyboard.press('F8');
     assert.equal(await page.textContent('.spage h2'), 'Events');
     const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.keyboard.press('Control+o')]);

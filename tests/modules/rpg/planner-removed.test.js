@@ -49,7 +49,7 @@ test('the New character wizard shows no Classic note on any step', { skip }, asy
 });
 
 test('a pack with content.rpg.formula "classic" is refused in plain words; "standard" is accepted', () => {
-    const refused = validatePack(JSON.stringify(pack({ content: { rpg: { formula: 'classic' } } })));
+    const refused = validatePack(JSON.stringify(pack({ kind: 'game', content: { rpg: { formula: 'classic' } } })));
     assert.equal(refused.ok, false);
     const hit = refused.errors.find(error => error.path === 'content.rpg.formula');
     assert.ok(hit, JSON.stringify(refused.errors));
@@ -57,7 +57,7 @@ test('a pack with content.rpg.formula "classic" is refused in plain words; "stan
     assert.match(hit.message, /"classic" is no longer supported/);
     assert.match(hit.message, /Use "v1" or leave the formula out/);
     for (const formula of ['standard', undefined]) {
-        const result = validatePack(JSON.stringify(pack({ content: { rpg: { formula, numbers: { foeBase: 6 } } } })));
+        const result = validatePack(JSON.stringify(pack({ kind: 'game', content: { rpg: { formula, numbers: { foeBase: 6 } } } })));
         assert.equal(result.ok, true, JSON.stringify(result.errors));
     }
 });

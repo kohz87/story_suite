@@ -1,19 +1,14 @@
-// A cast member's v1 skill types reach the Skills block (a join and a return), and replay equals live: rebuild, reload, Re-read (also of an edited reply), swipe and swipe back, delete in the middle.
+// A person's v1 skill types (read from their NPC State abilities) reach the Skills block (a join and a return), and replay equals live: rebuild, reload, Re-read (also of an edited reply), swipe and swipe back, delete in the middle.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { skip, reply, person, world, fieldsOf, bytes } from './cast-skills.helpers.js';
+import { skip, reply, fieldsOf, bytes } from './cast-skills.helpers.js';
+import { pullWorld } from './skills-pull.helpers.js';
 
-const SKILLS = [
-    { name: 'Mending Prayer', about: 'Closes a wound.', stat: 'wis', uses: 'mp', type: 'heal', rank: 'adept' },
-    { name: 'Wild Surge', about: 'Hits every foe in reach.', stat: 'int', uses: 'mp', type: 'area' },
-    { name: 'Gentle Word', about: 'Talks people round.', stat: 'cha', type: 'utility' },
-    { name: 'Plain Cut', about: 'A cut.', stat: 'str' },
-];
 const typesOf = fields => [1, 2, 3, 4, 5].map(n => [fields[`skill${n}`], fields[`type${n}`]]).filter(([name]) => name);
-const EXPECTED = [['Mending Prayer', 'heal'], ['Wild Surge', 'area'], ['Gentle Word', 'utility'], ['Plain Cut', 'attack']];
+const EXPECTED = [['Mend', 'heal'], ['Lantern Ward', 'defence'], ['Ferry Lore', 'utility']];
 
-test('a join writes each skill with its v1 type (attack when the pack names none), and a rebuild, a reload and a Re-read keep them', { skip }, async t => {
-    const host = await world(t, { list: [person({ skills: SKILLS })] });
+test('a join writes each ability as a skill with its v1 type, and a rebuild, a reload and a Re-read keep them', { skip }, async t => {
+    const host = await pullWorld(t);
     await host.send('Mara walks in.', reply('+ party Mara'));
     assert.deepEqual(typesOf(fieldsOf(host, 'mara-skills')), EXPECTED);
     const live = bytes(host);
@@ -27,7 +22,7 @@ test('a join writes each skill with its v1 type (attack when the pack names none
 });
 
 test('swipe and swipe back, an edited Re-read (grown) and a delete in the middle keep the typed skills as the live join wrote them', { skip }, async t => {
-    const host = await world(t, { list: [person({ skills: SKILLS })] });
+    const host = await pullWorld(t);
     await host.send('Mara walks in.', reply('+ party Mara'));
     const at = host.ctx.chat.length - 1;
     const joined = bytes(host);
@@ -51,7 +46,7 @@ test('swipe and swipe back, an edited Re-read (grown) and a delete in the middle
 });
 
 test('an edited Re-read that shrinks the reply (the join line is gone) takes the join and its typed skills away, and the chat still rebuilds to the same bytes', { skip }, async t => {
-    const host = await world(t, { list: [person({ skills: SKILLS })] });
+    const host = await pullWorld(t);
     await host.send('Mara walks in.', reply('+ party Mara'));
     const at = host.ctx.chat.length - 1;
     host.ctx.chat[at].mes = reply('+ coin 5');

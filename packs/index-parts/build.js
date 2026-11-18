@@ -6,7 +6,6 @@ import { calendarOf, contentOf, craftsOf, economyOf, itemDefsIn, mergeStart, res
 import { renderPacksPanel } from '../panel.js';
 import { HOST_VERSION } from '../validate/core.js';
 import { marketEntries } from '../lorebook.js';
-import { castGearOf, gearLine } from '../cast-gear.js';
 import { readSheet, sameWho } from '../../modules/rpg/read.js';
 import { marketsOf } from './markets.js';
 
@@ -87,19 +86,6 @@ export function createPacksPart({ settings, readLorebook = async () => ({ charac
             'packs.markets': () => markets(),
             // The URL of a cast portrait (see above): a file name the installed pack names and has a stored picture for, else null.
             'packs.portrait': (_state, { pack, file } = {}) => portraits.url(pack, file),
-            // `{ name }` → `{ name, line: 'Gear: Cane Sword, Oak Buckler', items: [{ id, name, slot }] }`: a cast member's signature gear (cast.js `gear`) for the
-            // narrator's cast entry, or null: no such person, no gear, they are in the party now (by their name, first name or an alias: sameWho), or gear is off (`story-block.gear` and the RPG).
-            'packs.castGear': (state, { name } = {}, tools) => {
-                let on = false;
-                try { on = tools?.query?.('inventory.gear', { owner: 'party' })?.on === true; } catch { on = false; }
-                if (!on) return null;
-                const found = castGearOf(packs.packs(), name);
-                if (!found?.items.length) return null;
-                // (the sheet holds the Characters in the party now: one who left is not on it; read.js is the RPG's small shared reader, the rest stays lazy)
-                const party = readSheet(state).characters;
-                if (party.some(person => sameWho(person, found.name, found.aliases, party))) return null;
-                return { name: found.name, line: gearLine(found.items), items: found.items };
-            },
         },
         kinds: {},
         context: { static: () => '', tail: () => ({ lines: [], optional: [] }), budget: 0 },

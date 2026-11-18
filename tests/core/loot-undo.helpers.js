@@ -10,12 +10,9 @@ export const take = (host, sid, pick) => host.sdk.command('inventory.lootTake', 
 export const at = (host, start) => host.ctx.chat.findIndex(message => !message.is_user && message.mes.startsWith(start));
 export const claimed = (host, sid) => Object.hasOwn(host.head().meta.claims, `loot:${sid}`);
 export const offPs = host => host.store.problems().filter(problem => problem.code === 'REPLAY_PREREQUISITE');
-export const riverside = () => {
-    const sample = JSON.parse(readFileSync(new URL('../fixtures/packs/riverside-starter-3.json', import.meta.url), 'utf8'));
-    sample.start.inventory = { items: [], money: 0 };
-    return sample;
-};
-export const packEntry = (sample, enabled) => ({ id: sample.id, version: sample.version, enabled, source: 'file', origin: 'test', pack: sample });
+// The format 4 Riverside world (items only; its start is a place, so the bag starts empty).
+export const riverside = () => JSON.parse(readFileSync(new URL('../packs/fixtures/riverside-starter.json', import.meta.url), 'utf8'));
+export const packEntry = (sample, enabled) => ({ id: sample.id, version: sample.version, enabled, kind: sample.kind, source: 'file', origin: 'test', pack: sample });
 
 export async function fresh(t, options = {}) {
     t.mock.method(console, 'warn', () => {});

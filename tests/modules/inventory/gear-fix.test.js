@@ -1,6 +1,5 @@
 // Gear, final review fixes (Story Block 2.18.0): R1 a change before a roll changes its gear (the payload keeps only the mark), R2 `gear.wear { recorded }` only from
-// the RPG's own nested call, R3 a join's signature gear never fails the join, R4 a first name or alias counts only when it means one Character, R5 `packs.castGear`
-// asks the same question.
+// the RPG's own nested call, R3 a join's signature gear never fails the join.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
@@ -15,6 +14,7 @@ import { createHarness } from './helpers/fake-ctx.js';
 import { core, stocked } from './fixtures.js';
 import { reply, success } from '../data-modules/helpers.js';
 import { pack } from '../../packs/helpers/fixtures.js';
+import { writeKeepsakes } from './gear-keepsakes.helpers.js';
 import { character, sheetDomain } from '../rpg/helpers.js';
 import { seedCrypto } from '../../suite/qa/helpers/seeded.js';
 
@@ -114,22 +114,23 @@ const ITEMS = [
     { name: 'Cane Sword', kind: 'equipment', slot: 'weapon', rarity: 'uncommon' },
     { name: 'Oak Buckler', kind: 'equipment', slot: 'shield', rarity: 'common' },
 ];
-const person = (extra = {}) => ({ id: 'mara', name: 'Mara', aliases: [], about: 'Runs the night ferry.', look: 'Wiry.', start: { place: 'Docks', goal: 'Keep the ferry running.' }, ...extra });
+const person = (extra = {}) => ({ id: 'npc_mara', name: 'Mara', aliases: [], ...extra });
 // (a party module that lists Mara and Tam as actors: their pieces are theirs; without it they are the shared bag's)
 const ACTORS = { id: 'zz-party', version: '0.0.0', queries: { 'party.actors': () => [{ id: 'ac_mara0001', name: 'Mara' }, { id: 'ac_tam00001', name: 'Tam' }] } };
 async function joinWorld(t, { list = [person({ gear: ['Cane Sword', 'Oak Buckler'] })], enabled = true, actors = true } = {}) {
     t.mock.method(console, 'warn', () => {});
-    const raw = pack({ content: { items: ITEMS, cast: list } });
+    const raw = pack({ content: { items: ITEMS } });
     const built = validatePack(raw);
     assert.equal(built.ok, true, JSON.stringify(built.errors));
     const host = await createHost({
         modules: actors === 'other' ? [{ id: 'zz-party', version: '0.0.0', queries: { 'party.actors': () => [{ id: 'ac_wessel01', name: 'Wessel' }] } }] : actors ? [ACTORS] : [],
         settings: { features: { 'story-block.gear': true, 'story-block.rpg': true }, modules: { 'story-block': { rpgJoin: 'auto', rpgFormula: 'classic' } },
-            packs: [{ id: built.pack.id, version: built.pack.version, enabled, source: 'file', origin: 'test', pack: raw }] },
+            packs: [{ id: built.pack.id, version: built.pack.version, enabled, kind: raw.kind, source: 'file', origin: 'test', pack: raw }], ...(enabled ? { selected: { [raw.kind]: raw.id } } : {}) },
     });
     t.after(() => host.close());
     host.packId = built.pack.id;
     await host.send('Begin.', 'Opening.');
+    await writeKeepsakes(host, list);
     const defs = Object.fromEntries(STANDARD_TEMPLATES.filter(entry => ['character', 'skills'].includes(entry.definition.role)).map(entry => [entry.definition.role, structuredClone(entry.definition)]));
     defs.character.slug = 'wessel'; defs.character.name = 'Wessel'; defs.character.state.who.default = 'Wessel';
     defs.skills.slug = 'wessel-skills'; defs.skills.name = 'Wessel skills'; defs.skills.state.who.default = 'Wessel';
@@ -153,7 +154,7 @@ test('R3: a story item with the same name does not stand in the way: the pack\'s
 });
 
 test('R3: a duplicate name (two defs called Cane Sword already) is no longer ambiguous for the next person', { skip }, async t => {
-    const host = await joinWorld(t, { enabled: false, list: [person({ gear: ['Cane Sword'] }), person({ id: 'tam', name: 'Tam', gear: ['Cane Sword'] })] });
+    const host = await joinWorld(t, { enabled: false, list: [person({ gear: ['Cane Sword'] }), person({ id: 'npc_tam', name: 'Tam', gear: ['Cane Sword'] })] });
     await host.send('A blade.', reply('+ item Cane Sword | kind: weapon'));
     assert.equal(await host.packs.packs.setEnabled(host.packId, true), true);
     await host.send('Mara walks in.', reply('+ party Mara'));
@@ -176,22 +177,6 @@ test('R3: a taken slot does not fail the join: the piece is carried, not worn, a
     assert.equal(rows(host).find(row => row.def === 'pack.mini/oak-buckler').equipped, 'off-hand', 'the free slot is filled');
     assert.equal(rows(host).find(row => row.name === 'Old Blade').equipped, 'weapon', 'what was worn stays');
     assert.ok(host.turn.problems().some(problem => /Cane Sword is carried, not worn/.test(JSON.stringify(problem))), JSON.stringify(host.turn.problems()));
-});
-
-// ---- R4 / R5: a first name or alias means one Character -------------------------------------------------------------------------------------
-
-test('R5: packs.castGear counts "already in the party" the way sameWho does: by first name when one Character is meant, not when two are', { skip }, async t => {
-    const host = await joinWorld(t, { list: [person({ aliases: ['the ferrywoman'], gear: ['Cane Sword'] })] });
-    const define = async (slug, name) => {
-        const definition = structuredClone(STANDARD_TEMPLATES.find(entry => entry.definition.role === 'character').definition);
-        definition.slug = slug; definition.name = name; definition.state.who.default = name;
-        assert.equal((await host.sdk.command('dm.define', { definition })).ok, true);
-    };
-    assert.ok(host.sdk.query('packs.castGear', { name: 'Mara' }), 'not in the party: the line');
-    await define('mara-quill', 'Mara Quill');
-    assert.equal(host.sdk.query('packs.castGear', { name: 'Mara' }), null, 'Mara is Mara Quill: in the party');
-    await define('mara-holt', 'Mara Holt');
-    assert.ok(host.sdk.query('packs.castGear', { name: 'Mara' }), 'two Maras: not guessed, the line stands');
 });
 
 // ---- a join with no party roster, and the kind word of an item line --------------------------------------------------------------------------

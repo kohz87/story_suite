@@ -1,4 +1,4 @@
-// Ersveil's Standing, Fame and Guild are sections of one Reputation tab (BLOCKS-UI), and the layouts change nothing the story is told.
+// The format 4 Ersveil game pack's Standing, Fame and Guild are sections of one Reputation tab (BLOCKS-UI), and the layouts change nothing the story is told.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -11,12 +11,12 @@ import { editableLayout } from '../../modules/data-modules/editable-layout.js';
 import { createFieldsWidgets } from '../../modules/data-modules/screens/block-fields.js';
 import { FIELDS_WIDGET } from '../../modules/data-modules/fields-widget.js';
 
-const ersveil = () => JSON.parse(readFileSync(new URL('../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
+const ersveil = () => JSON.parse(readFileSync(new URL('../../examples/packs/ersveil-game/pack.json', import.meta.url), 'utf8'));
 const MODULES = ['standing', 'fame', 'guild-membership'];
 async function pinned(t, only = MODULES, input = ersveil()) {
     const host = await world(t, input);
     for (const slug of only) {
-        const offer = host.sdk.query('dataModules.offers').find(row => row.module === `pack.ersveil/${slug}`);
+        const offer = host.sdk.query('dataModules.offers').find(row => row.module === `pack.ersveil-game/${slug}`);
         success(await host.sdk.command('dm.pin', { module: offer.module, hash: offer.hash, packHash: offer.packHash }));
     }
     return host;
@@ -46,7 +46,7 @@ test('Standing, Fame and Guild draw as a record card and maps of numbers with th
     const doc = setupDom();
     const host = await pinned(t);
     await host.send('Begin.', 'Opening.');
-    const set = async (module, field, value, key) => success(await host.sdk.command('dm.set', { module: `pack.ersveil/${module}`, field, value, ...(key ? { key } : {}) }));
+    const set = async (module, field, value, key) => success(await host.sdk.command('dm.set', { module: `pack.ersveil-game/${module}`, field, value, ...(key ? { key } : {}) }));
     await set('standing', 'standing', 12, 'highmark'); await set('standing', 'standing', -20, 'hand'); await set('fame', 'fame', 18, 'bluewatch');
     await set('guild-membership', 'registered', true);
     const merged = mergeTabs(host.sdk.query('dataModules.presentation', { kind: 'screens' }))[0];
@@ -75,7 +75,7 @@ test('what the story is told is the same with or without the screens: the static
     for (const module of plain.content.dataModules) { delete module.screens; }
     const withScreens = await pinned(t), without = await pinned(t, MODULES, plain);
     assert.equal(grammarFor(withScreens.head()), grammarFor(without.head()), 'the static data-module lines');
-    for (const slug of MODULES) assert.equal(summaryOf(withScreens.head(), `pack.ersveil/${slug}`), summaryOf(without.head(), `pack.ersveil/${slug}`), slug);
+    for (const slug of MODULES) assert.equal(summaryOf(withScreens.head(), `pack.ersveil-game/${slug}`), summaryOf(without.head(), `pack.ersveil-game/${slug}`), slug);
     assert.ok(grammarFor(withScreens.head()).length > 0);
 });
 
@@ -106,7 +106,7 @@ test('in the host the three screens are one tab, Reputation, and none of them a 
     success(await host.packs.packs.install(ersveil()));
     await host.send('Begin.', 'Opening.');
     for (const slug of MODULES) {
-        const offer = host.sdk.query('dataModules.offers').find(row => row.module === `pack.ersveil/${slug}`);
+        const offer = host.sdk.query('dataModules.offers').find(row => row.module === `pack.ersveil-game/${slug}`);
         success(await host.sdk.command('dm.pin', { module: offer.module, hash: offer.hash, packHash: offer.packHash }));
     }
     ui.syncScreens();
@@ -137,7 +137,7 @@ test('a ~ you rank line that contradicts the Guild module is refused with a Prob
 test('once the module says registered, the letter must match it', async t => {
     const host = await pinned(t);
     await host.send('Begin.', 'Opening.');
-    success(await host.sdk.command('dm.set', { module: 'pack.ersveil/guild-membership', field: 'registered', value: true }));
+    success(await host.sdk.command('dm.set', { module: 'pack.ersveil-game/guild-membership', field: 'registered', value: true }));
     await host.send('Pay.', block(['~ you rank: E-rank | wearing: coat']));
     assert.equal(host.sdk.query('scene.you').rank, '', 'a different letter is refused');
     assert.equal(host.sdk.query('scene.you').wearing, 'coat');

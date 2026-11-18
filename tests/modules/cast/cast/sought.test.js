@@ -15,6 +15,7 @@ import { OPENING, castCue, castHost, castSource, createFakeModel, entry, people,
 
 const castFor = (...entries) => castOf((name, args) => (name === 'packs.content' && args?.kind === 'cast' ? entries : name === 'packs.list' ? [{ id: 'ersveil', name: 'Ersveil', version: '1.1.0', enabled: true }] : null));
 
+const inPack = ({ fields, ...own }) => ({ ...own, role: fields.Calling }); // a world pack's cast has no custom `fields`: a calling is its `role`
 const quiet = t => t.mock.method(console, 'warn', () => {});
 
 const temiwa = (place, more = {}) => entry('temiwa', {
@@ -62,7 +63,7 @@ test('the words a planner cites must stand in the message as whole words; a made
 test('sought at the same place: she comes in as a meeting why "sought", with the reader\'s words, the cue and the card line; the pace is used', async t => {
     quiet(t);
     const model = planner({ sought: () => '? cast temiwa | "a healer or a sister"' });
-    const host = await asked({ source: castSource([temiwa('Harrow')]), model });
+    const host = await asked({ source: castSource([inPack(temiwa('Harrow'))]), model });
     try {
         // The planner is told the message, the story's last reply and who might fit (calling and who they are, no more), and answers in its own form.
         assert.equal(soughtCalls(model).length, 1);
@@ -92,7 +93,7 @@ test('sought at the same place: she comes in as a meeting why "sought", with the
 test('sought but the cited words are not in the message or the reply: refused, nobody comes, nothing is told', async t => {
     quiet(t);
     const model = planner({ sought: () => '? cast temiwa | "a mighty priest"' });
-    const host = await asked({ source: castSource([temiwa('Kesh')]), model });
+    const host = await asked({ source: castSource([inPack(temiwa('Kesh'))]), model });
     try {
         assert.equal(soughtCalls(model).length, 1);
         await host.send('I look around.', said(`Quiet. ${host.everyone()}`));
@@ -108,7 +109,7 @@ test('sought but the cited words are not in the message or the reply: refused, n
 test('a message that cannot be asking for her kind does not even ask the planner, whatever the story\'s reply says', async t => {
     quiet(t);
     const model = planner({ sought: () => '? cast temiwa | "the road"' });
-    const host = await asked({ source: castSource([temiwa('Harrow')]), model }, 'Let us walk down the road.', 'A healer, a sister, a saintess candidate and a candle pass by, tired and cold, behind a long grey veil.');
+    const host = await asked({ source: castSource([inPack(temiwa('Harrow'))]), model }, 'Let us walk down the road.', 'A healer, a sister, a saintess candidate and a candle pass by, tired and cold, behind a long grey veil.');
     try {
         assert.equal(soughtCalls(model).length, 0);
         await host.send('I look around.', said('Quiet.'));
@@ -121,7 +122,7 @@ test('a message that cannot be asking for her kind does not even ask the planner
 test('sought elsewhere: a rumor, not a meeting; the tail describes her with no name or alias, the card says "Heard of", and it is told once', async t => {
     quiet(t);
     const model = planner({ sought: () => '? cast temiwa | "a healer"' });
-    const host = await asked({ source: castSource([temiwa('Kesh')]), model });
+    const host = await asked({ source: castSource([inPack(temiwa('Kesh'))]), model });
     try {
         await host.send('I look around.', said('Harrow is quiet.'));
         const person = people(host)['ersveil:temiwa'];
@@ -157,7 +158,7 @@ test('a rumor is told again after she moves', async t => {
         sought: () => '? cast temiwa | "a healer"',
         other: call => (/\ntemiwa\b|- temiwa/.test(call.prompt) ? '~ cast temiwa | Ashford | tending the road dead' : ''),
     });
-    const host = await asked({ source: castSource([temiwa('Kesh')]), model });
+    const host = await asked({ source: castSource([inPack(temiwa('Kesh'))]), model });
     try {
         await host.send('I look around.', said('Quiet.'));
         assert.equal(receipts(host, 'cast.rumor').length, 1);
@@ -180,7 +181,7 @@ test('a live fight: nobody is sought in and no rumor is told', async t => {
     quiet(t);
     for (const place of ['Harrow', 'Kesh']) {
         const model = planner({ sought: () => '? cast temiwa | "a healer"' });
-        const host = await asked({ source: castSource([temiwa(place)]), model, queries: { 'combat.session': () => ({ status: 'active', round: 2 }) } });
+        const host = await asked({ source: castSource([inPack(temiwa(place))]), model, queries: { 'combat.session': () => ({ status: 'active', round: 2 }) } });
         try {
             await host.send('I look around.', said(`Blades ring. ${host.everyone()}`));
             assert.equal(soughtCalls(model).length, 1);
@@ -196,9 +197,9 @@ test('a live fight: nobody is sought in and no rumor is told', async t => {
 test('the pace: one new face a day; a second sought person waits (and, being here, is no rumor)', async t => {
     quiet(t);
     const second = entry('brandt', {
-        name: 'Brandt', about: 'A dour smith.', fields: { Calling: 'Smith, farrier' }, start: { place: 'Harrow', goal: 'Shoe the horses.', routine: 'the forge by day' },
+        name: 'Brandt', about: 'A dour smith.', role: 'Smith, farrier', start: { place: 'Harrow', goal: 'Shoe the horses.', routine: 'the forge by day' },
     });
-    const first = entry('lena', { name: 'Lena', about: 'A quiet scout.', fields: { Calling: 'Scout' }, start: { place: 'Harrow', goal: 'Watch the road.', routine: 'the road by day' } });
+    const first = entry('lena', { name: 'Lena', about: 'A quiet scout.', role: 'Scout', start: { place: 'Harrow', goal: 'Watch the road.', routine: 'the road by day' } });
     let answer = '? cast lena | "a scout"';
     const model = planner({ sought: () => answer });
     const host = await castHost({ source: castSource([first, second]), model });
@@ -223,7 +224,7 @@ test('the pace: one new face a day; a second sought person waits (and, being her
 test('a reply that does not show the sought person takes the meeting back: unmet, no card line, and a later request may bring her again', async t => {
     quiet(t);
     const model = planner({ sought: () => '? cast temiwa | "a healer or a sister"' });
-    const host = await asked({ source: castSource([temiwa('Harrow')]), model });
+    const host = await asked({ source: castSource([inPack(temiwa('Harrow'))]), model });
     try {
         await host.send('I look around.', said('Nobody comes. The cots are empty.'));
         assert.equal(people(host)['ersveil:temiwa'].met, null, 'the reply did not show her');
@@ -242,7 +243,7 @@ test('a swipe, a Re-read and a rebuild keep the decision (a meeting and a rumor)
     quiet(t);
     for (const place of ['Harrow', 'Kesh']) {
         const model = planner({ sought: () => '? cast temiwa | "a healer or a sister"' });
-        const host = await asked({ source: castSource([temiwa(place)]), model });
+        const host = await asked({ source: castSource([inPack(temiwa(place))]), model });
         try {
             await host.send('I look around.', said(`Sister Temiwa is here. ${host.everyone()}`));
             const calls = model.calls.length;
@@ -270,7 +271,7 @@ test('deleting the reply that held the decision takes it back: she is unmet and 
     quiet(t);
     for (const place of ['Harrow', 'Kesh']) {
         const model = planner({ sought: () => '? cast temiwa | "a healer or a sister"' });
-        const host = await asked({ source: castSource([temiwa(place)]), model });
+        const host = await asked({ source: castSource([inPack(temiwa(place))]), model });
         try {
             await host.send('I look around.', said(`Sister Temiwa is here. ${host.everyone()}`));
             assert.equal(Boolean(people(host)['ersveil:temiwa'].met || people(host)['ersveil:temiwa'].rumored), true);
@@ -350,7 +351,7 @@ test('the rumor never carries the name, an alias or a name-like word of the entr
 test('the sought step is part of the cast feature: off, nothing is asked or told', async t => {
     quiet(t);
     const model = planner({ sought: () => '? cast temiwa | "a healer or a sister"' });
-    const host = await asked({ source: castSource([temiwa('Kesh')]), model, settings: { 'cast.on': false } });
+    const host = await asked({ source: castSource([inPack(temiwa('Kesh'))]), model, settings: { 'cast.on': false } });
     try {
         await host.send('I look around.', said('Quiet.'));
         assert.equal(model.calls.length, 0);

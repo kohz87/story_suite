@@ -1,18 +1,12 @@
-// The sample world pack (examples/packs/ersveil-world, Ersveil 3.0.0, the new world): its pack passes the authoring-kit checker and Story
-// Block's install check with no errors, the twelve portraits are web size, and examples/packs/ersveil-world.zip is exactly what
-// scripts/core/build-example-zip.mjs builds, reads back through the zip reader and installs. It is also the source scripts/packs/convert-3to4.mjs
-// turns into the format 4 Ersveil (examples/packs/ersveil and ersveil-game); the old format 3 Ersveil that tests pin is tests/fixtures/packs/ersveil-3.
+// The sample world source (examples/packs/ersveil-world, Ersveil 3.0.0, the new world): the twelve portraits are web size, and examples/packs/ersveil-world.zip is exactly what
+// scripts/core/build-example-zip.mjs builds and reads back through the zip reader. It is the source scripts/packs/convert-3to4.mjs turns into the format 4 Ersveil
+// (examples/packs/ersveil and ersveil-game, checked by ersveil-pack, ersveil-cast and ersveil-zip); this suite no longer reads it as a pack, only as files.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { checkPack, report } from '../../authoring-kit/check.mjs';
-import { validatePack } from '../../packs/validate.js';
 import { readPackZip } from '../../packs/bundle.js';
-import { createPacksPart } from '../../packs/index.js';
 import { readZip } from '../../packs/zip.js';
 import { buildErsveilWorldZip } from '../../scripts/core/build-example-zip.mjs';
-import { fakeSettings } from './helpers/fake-settings.js';
-import { fakeFiles } from './helpers/portraits.js';
 
 const packs = new URL('../../examples/packs/', import.meta.url);
 const folder = new URL('ersveil-world/', packs);
@@ -20,7 +14,6 @@ const packText = readFileSync(new URL('pack.json', folder), 'utf8');
 const pack = () => JSON.parse(packText);
 const zipBytes = () => new Uint8Array(readFileSync(new URL('ersveil-world.zip', packs)));
 const NAMES = ['asphodel', 'barney', 'gorm', 'harrak', 'hush', 'lothar', 'nerissa', 'nysseth', 'rika', 'temiwa', 'torka', 'ysmeth'];
-const OPEN = ['scene', 'inventory', 'data-modules-v1', 'chronicle-lasting'];
 
 test('the folder holds pack.json, README.md and twelve web-size WebP portraits the cast names (512 px at most, 150 KB at most)', () => {
     assert.deepEqual(readdirSync(folder).sort(), ['README.md', 'pack.json', 'portraits']);
@@ -39,21 +32,6 @@ test('the folder holds pack.json, README.md and twelve web-size WebP portraits t
         const height = bytes.readUInt16LE(28) & 0x3fff;
         assert.ok(Math.max(width, height) <= 512 && Math.min(width, height) > 0, `${name} is ${width}x${height}`);
     }
-});
-
-test('pack.json passes the authoring-kit checker', () => {
-    const result = checkPack(packText);
-    assert.equal(result.ok, true, report('examples/packs/ersveil-world/pack.json', result));
-});
-
-test('Story Block\'s install check accepts it with no errors and no warnings, and refuses it on a suite older than 0.1', () => {
-    const good = validatePack(pack(), { capabilities: OPEN });
-    assert.equal(good.ok, true, JSON.stringify(good.errors));
-    assert.deepEqual(good.errors ?? [], []);
-    assert.deepEqual(good.warnings ?? [], []);
-    const old = validatePack(pack(), { capabilities: OPEN, suiteVersion: '0.0.9' });
-    assert.equal(old.ok, false);
-    assert.ok(old.errors.some(error => error.code === 'HOST_VERSION'));
 });
 
 test('it is the new Ersveil: 31 people, the world-pack parts, and no legacy events or items', () => {
@@ -80,16 +58,4 @@ test('the zip lists pack.json, the twelve portraits, then README.md, and its fil
     assert.equal(read.ok, true, read.message);
     assert.equal(read.text, packText);
     for (const file of read.files) assert.ok(Buffer.from(await file.read()).equals(readFileSync(new URL(`portraits/${file.name}`, folder))), file.name);
-});
-
-test('Story Block installs the zip: twelve portraits saved, 31 people in the cast, nothing refused', async () => {
-    const read = await readPackZip(zipBytes());
-    const portraitFiles = fakeFiles();
-    const made = createPacksPart({ settings: fakeSettings(), portraitFiles });
-    const result = await made.packs.install(read.text, { source: 'file', origin: 'ersveil-world.zip', files: read.files });
-    assert.equal(result.ok, true, JSON.stringify(result.errors));
-    assert.equal(result.portraits.stored.length, 12);
-    assert.deepEqual(result.portraits.refused, []);
-    assert.equal(portraitFiles.files.size, 12);
-    assert.equal(made.packs.list()[0].counts.cast, 31);
 });

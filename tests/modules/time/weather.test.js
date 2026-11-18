@@ -140,12 +140,13 @@ test('off: either feature off, nothing is asked', async () => {
     host.close();
 });
 
-test('a pack\'s weather table is used for its season and region', async () => {
+test('a game pack\'s weather table is used for its season (style "tables")', async () => {
     const pack = {
-        id: 'sky', version: '1.0.0', requires: { storyBlock: '^2' },
-        weather: { seasons: [{ name: 'wet', months: ['June'] }], tables: [{ season: 'wet', region: 'the Lowmere', weather: ['warm rain off the marsh'] }] },
+        id: 'sky', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1' },
+        content: { calendar: { months: [{ name: 'Rainmonth', days: 30 }, { name: 'June', days: 30 }], seasons: [{ name: 'wet', months: ['June'] }, { name: 'dry', months: ['Rainmonth'] }] },
+            weather: { style: 'tables', tables: [{ season: 'wet', weather: ['warm rain off the marsh'] }] } },
     };
-    const host = await createHost({ modules: [createModule()], settings: { packs: [{ id: pack.id, version: pack.version, enabled: true, source: 'file', origin: 'test', pack }] } });
+    const host = await createHost({ modules: [createModule()], settings: { packs: [{ id: pack.id, version: pack.version, kind: 'game', enabled: true, source: 'file', origin: 'test', pack }], selected: { game: 'sky' } } });
     assert.equal(host.sdk.query('packs.weather')?.pack, 'sky');
     await host.send('Morning.', reply('Bluewatch wakes.', START));
     assert.equal(weather(host).text, 'warm rain off the marsh');

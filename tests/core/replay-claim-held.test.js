@@ -1,6 +1,6 @@
 // REPLAY.md rule 4 for legacy (unguarded) blocks: replay that meets a block claiming a key the line already holds skips the
 // block (its ops stay off) and raises one Problem naming the claim and the command, as it does for guarded blocks. The real
-// legacy claim families (a once event, wear) are per reply or made by hooks a Re-read never re-runs: nothing changes for them.
+// legacy claim families (wear) are per reply or made by hooks a Re-read never re-runs: nothing changes for them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
@@ -106,30 +106,6 @@ test('a Re-read whose new story takes the claim of a kept legacy block on the sa
 });
 
 // CLAIMLEGACY's families on a Story Block host: nothing changes (the Story Director families are in its time tests).
-const bells = JSON.stringify({ id: 'cl-events', version: '1.0.0', name: 'CL', requires: { storyBlock: '^2' },
-    content: { events: [{ id: 'bells', when: "query('scene.place').name == 'Bluewatch Village'", cue: 'Bells ring.', once: true,
-        then: [{ command: 'wallet.receive', payload: { owner: 'party', amount: 1000 } }] }] } });
-const coin = h => h.head().domains.inventory.wallets?.party?.coin ?? 0;
-
-test('a once event (legacy, whole-story key): an edited Re-read that moves its place earlier still pays once, no Problem', async t => {
-    quiet(t);
-    const h = await host(t, []);
-    await h.packs.packs.install(bells);
-    await h.send('Go.', said('R0.', ['+ item Rope']));
-    await h.send('Go.', said('R1.', ['~ place Bluewatch Village | kind: settlement']));
-    await h.send('Go.', said('R2.'));
-    await h.send('Go.', said('R3.'));
-    assert.equal(coin(h), 1000);
-    const before = claimsOf(h);
-    assert.ok(before.includes('event:pack.cl-events/bells'));
-    await h.st.editMessage(2, said('R0.', ['+ item Rope', '~ place Bluewatch Village | kind: settlement']));
-    assert.equal((await h.sdk.reread(2)).ok, true);
-    for (const index of [4, 6, 8]) assert.equal((await h.sdk.reread(index)).ok, true, `Re-read ${index}`);
-    assert.equal(coin(h), 1000);
-    assert.deepEqual(claimsOf(h), before);
-    assert.deepEqual(held(h), []);
-});
-
 test('wear (legacy, per reply and stack): an edited Re-read adds its own key beside the later ones, no Problem', async t => {
     quiet(t);
     const h = await host(t, []);

@@ -243,7 +243,7 @@ test('the builder refuses a role that names a missing part or one of the wrong k
     assert.match(bad(d => { d.fields[0].max = 80; }).message, /1 to 50/);
 });
 
-test('templates keep the new keys and open in the editor; an export of them asks for Story Block 2.22', async () => {
+test('templates keep the new keys and open in the editor; an export of them is a format 4 game pack', async () => {
     const built = buildBlock(starter('quest-log').draft());
     const settings = {}, templates = createBlockTemplates({ read: () => settings });
     assert.equal((await templates.put(built.checked)).ok, true);
@@ -253,12 +253,9 @@ test('templates keep the new keys and open in the editor; an export of them asks
     assert.ok(editableBlockDraft(saved.definition), 'a saved template opens as a form');
     const exported = await exportBlockPack(built.checked);
     assert.equal(exported.ok, true, JSON.stringify(exported.errors));
-    assert.equal(exported.pack.requires.storyBlock, '^2.22.0');
-    assert.equal(validatePack(exported.text, { hostVersion: '2.22.0' }).ok, true);
-    assert.equal(validatePack(exported.text, { hostVersion: '2.21.2' }).ok, false, 'an older Story Block refuses it by its version');
-    // a block with none of the new keys keeps the old requirement
-    const plain = buildBlock({ name: 'Notes', fields: [{ name: 'Mood', type: 'text', max: 30, default: 'calm' }], functions: [], prompt: '', show: { tab: true, card: false, tabName: 'Notes', icon: 'ph-star' } });
-    assert.equal((await exportBlockPack(plain.checked)).pack.requires.storyBlock, '^2');
+    assert.deepEqual([exported.pack.format, exported.pack.kind, exported.pack.requires.suite, exported.pack.requires.storyBlock], [4, 'game', '^0.1', undefined]);
+    assert.equal(validatePack(exported.text).ok, true);
+    assert.equal(validatePack(exported.text.replace('"suite": "^0.1"', '"suite": "^9"')).ok, false, 'a suite older than the pack asks for refuses it by its version');
 });
 
 test('an old block opens as it was, shows the layout its shape suggests, and saving it again keeps its bytes (no layout is written)', async t => {

@@ -6,9 +6,9 @@ const here = new URL('../../fixtures/packs/riverside-starter-3.json', import.met
 export const sampleText = readFileSync(here, 'utf8');
 export const sample = () => JSON.parse(sampleText);
 
-/** A minimal valid pack; `extra` is merged over it. */
+/** A minimal valid format 4 world pack; `extra` is merged over it. */
 export function pack(extra = {}) {
-    return { id: 'mini', version: '1.0.0', requires: { storyBlock: '^2' }, content: {}, ...extra };
+    return { id: 'mini', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' }, content: {}, ...extra };
 }
 
 /** A pack with items, for resolution tests. */

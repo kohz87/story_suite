@@ -3,11 +3,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { normalizeEvents } from '../../modules/world/events/engine.js';
 import { createInstalled } from '../../packs/installed.js';
 import { resolveItemIn, contentOf } from '../../packs/content.js';
 import { fakeSettings } from './helpers/fake-settings.js';
-import { itemsPack, pack, sample, sampleText } from './helpers/fixtures.js';
+import { itemsPack, pack } from './helpers/fixtures.js';
+
+const sampleText = readFileSync(new URL('./fixtures/riverside-starter.json', import.meta.url), 'utf8');
+const sample = () => JSON.parse(sampleText);
 
 const setup = (options = {}, initial = {}) => {
     const settings = fakeSettings(initial);
@@ -17,16 +19,16 @@ const setup = (options = {}, initial = {}) => {
 test('installing keeps the pack as given, under its id, switched on', async () => {
     const { settings, installed } = setup();
     const result = await installed.install(sampleText, { source: 'file', origin: 'riverside.json' });
-    assert.deepEqual(result, { ok: true, id: 'riverside-starter', name: 'Riverside Starter', action: 'installed' });
+    assert.deepEqual({ ...result, warnings: result.warnings.map(item => item.code) }, { ok: true, id: 'riverside-starter', name: 'Riverside Starter', action: 'installed', warnings: ['REGIONS_UNDECLARED'] });
     assert.equal(settings.saves, 1);
     const [stored] = settings.root.packs;
-    assert.deepEqual({ ...stored, pack: undefined }, { id: 'riverside-starter', version: '3.0.0', enabled: true, source: 'file', origin: 'riverside.json', pack: undefined });
+    assert.deepEqual({ ...stored, pack: undefined }, { id: 'riverside-starter', version: '4.0.0', kind: 'world', enabled: true, source: 'file', origin: 'riverside.json', pack: undefined });
     assert.deepEqual(stored.pack, sample(), 'the raw pack, not the normalized form');
-    assert.deepEqual(installed.list(), [{
-        id: 'riverside-starter', version: '3.0.0', name: 'Riverside Starter', author: 'Story Suite examples',
+    assert.deepEqual(JSON.parse(JSON.stringify(installed.list())).map(row => ({ ...row, warnings: row.warnings.map(item => item.code) })), [{
+        id: 'riverside-starter', version: '4.0.0', name: 'Riverside Starter', author: 'Story Suite examples',
         description: sample().description, enabled: true, source: 'file', origin: 'riverside.json',
-        counts: { items: 4, foes: 1, events: 2 }, hasStart: true, extras: ['a money word', 'a theme'], missing: [], problem: '',
-        tag: 'Story Block pack', warnings: [],
+        counts: { items: 4, events: 0, places: 1, foes: 1 }, hasStart: true, extras: [], missing: [], problem: '',
+        tag: 'World pack', warnings: ['REGIONS_UNDECLARED'], kind: 'world', addOn: false,
     }]);
     assert.equal(installed.packs()[0].content.items.length, 4);
 });
@@ -35,7 +37,7 @@ test('a refused pack saves nothing and leaves the list as it was', async () => {
     const { settings, installed } = setup();
     await installed.install(pack({ id: 'first' }));
     const before = structuredClone(settings.root);
-    for (const bad of ['{ nope', pack({ id: 'Bad Id' }), pack({ id: 'first', version: 'x' }), pack({ id: 'evil', name: '<script>' }), pack({ requires: { storyBlock: '^9' } })]) {
+    for (const bad of ['{ nope', pack({ id: 'Bad Id' }), pack({ id: 'first', version: 'x' }), pack({ id: 'evil', name: '<script>' }), pack({ requires: { storyBlock: '^2' } })]) {
         const result = await installed.install(bad);
         assert.equal(result.ok, false);
         assert.ok(result.errors.length);
@@ -44,37 +46,38 @@ test('a refused pack saves nothing and leaves the list as it was', async () => {
     assert.equal(settings.saves, 1);
 });
 
-test('the same id updates in place, keeps its switch; the same pack again changes nothing', async () => {
+test('the same id updates in place, keeps its selection; the same pack again changes nothing', async () => {
     const { settings, installed } = setup();
     await installed.install(pack({ id: 'a' }));
     await installed.install(pack({ id: 'b', name: 'B one' }));
     await installed.install(pack({ id: 'c' }));
-    await installed.setEnabled('b', false);
+    assert.deepEqual(installed.list().map(entry => entry.enabled), [true, false, false], 'the first world installed is the selected one');
+    await installed.setEnabled('b', true);
     const saves = settings.saves;
     assert.equal((await installed.install(pack({ id: 'b', name: 'B one' }))).action, 'unchanged');
     assert.equal(settings.saves, saves);
     const updated = await installed.install(pack({ id: 'b', version: '1.1.0', name: 'B two' }), { source: 'lorebook', origin: 'lorebook:x#1' });
     assert.equal(updated.action, 'updated');
     assert.deepEqual(installed.list().map(entry => [entry.id, entry.version, entry.name, entry.enabled, entry.source]), [
-        ['a', '1.0.0', 'a', true, 'file'], ['b', '1.1.0', 'B two', false, 'lorebook'], ['c', '1.0.0', 'c', true, 'file'],
+        ['a', '1.0.0', 'a', false, 'file'], ['b', '1.1.0', 'B two', true, 'lorebook'], ['c', '1.0.0', 'c', false, 'file'],
     ]);
 });
 
-test('switching a pack off takes its content and items out of every lookup', async () => {
+test('only the selected world\'s content and items are in the lookups; selecting another, or none, changes them', async () => {
     const { installed } = setup();
     await installed.install(itemsPack('alpha', [{ name: 'Rope', value: 3 }]));
     await installed.install(itemsPack('beta', [{ name: 'Rope', value: 9 }, { name: 'Tar' }]));
     const lookup = name => resolveItemIn(installed.packs(), name)?.id ?? null;
-    assert.equal(lookup('rope'), 'pack.alpha/rope');
-    assert.equal(contentOf(installed.packs(), 'items').length, 3);
-    assert.equal(await installed.setEnabled('alpha', false), true);
-    assert.equal(lookup('rope'), 'pack.beta/rope', 'the next pack now answers');
+    assert.equal(lookup('rope'), 'pack.alpha/rope', 'the first world installed is the selected one');
+    assert.equal(contentOf(installed.packs(), 'items').length, 1, 'the other world adds nothing');
+    assert.equal(await installed.setEnabled('beta', true), true);
+    assert.equal(lookup('rope'), 'pack.beta/rope', 'the chosen world now answers');
     assert.deepEqual(contentOf(installed.packs(), 'items').map(item => item.id), ['pack.beta/rope', 'pack.beta/tar']);
+    assert.equal(lookup('pack.alpha/rope'), null, 'a full ID of a world that is not selected is not found');
     await installed.setEnabled('beta', false);
     assert.equal(lookup('rope'), null);
     assert.deepEqual(contentOf(installed.packs(), 'items'), []);
     await installed.setEnabled('alpha', true);
-    assert.equal(lookup('pack.beta/tar'), null, 'a full ID of a switched-off pack is not found');
     assert.equal(lookup('rope'), 'pack.alpha/rope');
     assert.equal(await installed.setEnabled('nobody', true), false);
 });
@@ -95,8 +98,8 @@ test('a stored pack is checked again on read; one that fails is listed with its 
         { id: 'tampered', version: '1.0.0', enabled: true, source: 'file', origin: '', pack: tampered },
         { id: 'empty', version: '1.0.0', enabled: true },
         'junk',
-        { id: 'fine', version: '1.0.0', source: 'odd', pack: pack({ id: 'fine', content: { items: [{ name: 'Tar' }] } }) },
-    ] });
+        { id: 'fine', version: '1.0.0', source: 'odd', kind: 'world', pack: pack({ id: 'fine', content: { items: [{ name: 'Tar' }] } }) },
+    ], selected: { world: 'fine' } });
     const list = installed.list();
     assert.deepEqual(list.map(entry => entry.id), ['tampered', 'empty', 'fine']);
     assert.match(list[0].problem, /HTML tag/);
@@ -127,7 +130,7 @@ test('limits on how many packs and how much data are installed', async () => {
 test('capabilities: refused at install when known missing, reported live afterwards', async () => {
     let have = ['inventory', 'scene'];
     const { installed } = setup({ capabilities: () => have });
-    const needsParty = pack({ id: 'battle', requires: { storyBlock: '^2', capabilities: ['party'] } });
+    const needsParty = pack({ id: 'battle', requires: { suite: '^0.1', capabilities: ['party'] } });
     assert.equal((await installed.install(needsParty)).errors[0].code, 'MISSING_CAPABILITY');
     have = ['inventory', 'scene', 'party'];
     assert.equal((await installed.install(needsParty)).ok, true);
@@ -136,13 +139,11 @@ test('capabilities: refused at install when known missing, reported live afterwa
     assert.equal(installed.packs().length, 1, 'its content is still offered');
 });
 
-test('the host version decides requires.storyBlock', async () => {
-    let version = '2.0.0-alpha.1';
-    const { installed } = setup({ hostVersion: () => version });
-    const needs21 = pack({ requires: { storyBlock: '^2.1' } });
-    assert.equal((await installed.install(needs21)).errors[0].code, 'HOST_VERSION');
-    version = '2.1.0';
-    assert.equal((await installed.install(needs21)).ok, true);
+test('a pack that needs a newer suite than this one is refused at install', async () => {
+    const { settings, installed } = setup();
+    const result = await installed.install(pack({ requires: { suite: '^9' } }));
+    assert.equal(result.errors[0].code, 'HOST_VERSION');
+    assert.equal(settings.saves, 0);
 });
 
 test('listeners hear every change', async () => {
@@ -158,58 +159,6 @@ test('listeners hear every change', async () => {
     assert.equal(heard, 3, 'a switch to the same value is no change');
 });
 
-// ---- 2.11.3: a stored pack is not held to the strict `when` check of install ----
-// A pack installed before the check existed, with one event whose condition the events part cannot read, must keep working.
-const unreadable = () => {
-    const modules = JSON.parse(readFileSync(new URL('../../authoring-kit/reference/data-modules/faction-standing.pack.json', import.meta.url), 'utf8'));
-    return pack({
-        id: modules.id, name: 'Gate Pack', requires: modules.requires,
-        content: {
-            ...modules.content,
-            items: [{ name: 'Rope', kind: 'goods' }],
-            events: [
-                { id: 'fine', when: 'true', cue: 'The gate opens.' },
-                { id: 'quoted', when: "has('Smith's key')", cue: 'Never closed.' },
-                { id: 'bare', when: 'hp > 3', cue: 'A bare name.' },
-            ],
-        },
-        start: { scene: { place: { name: 'Harbor' } }, inventory: { items: ['Rope'], money: 7 } },
-    });
-};
-
-test('a stored pack with an unreadable event condition stays usable; that one event alone is invalid', () => {
-    const stored = unreadable();
-    const { installed } = setup({}, { packs: [{ id: 'faction-standing', version: '1.0.0', enabled: true, source: 'file', origin: '', pack: stored }] });
-    const [row] = installed.list();
-    assert.equal(row.problem, '', 'listed without a problem');
-    assert.equal(row.name, 'Gate Pack');
-    assert.equal(row.counts.items, 1);
-    assert.equal(row.counts.events, 3);
-    assert.equal(row.counts.dataModules, stored.content.dataModules.length, 'its data-module offers are still counted');
-    assert.equal(row.hasStart, true);
-    const [usable] = installed.packs();
-    assert.equal(usable.id, 'faction-standing', 'the pack is read');
-    assert.equal(resolveItemIn(installed.packs(), 'Rope')?.name, 'Rope', 'its item resolves');
-    assert.equal(usable.start.inventory.money, 7, 'its start state is there');
-    assert.equal(contentOf(installed.packs(), 'dataModules').length, stored.content.dataModules.length, 'its data modules are offered');
-    const events = normalizeEvents(contentOf(installed.packs(), 'events'));
-    assert.deepEqual(events.defs.map(def => def.id), ['pack.faction-standing/fine'], 'the readable event works');
-    assert.equal(events.invalid.length, 2, 'the two unreadable ones are invalid, as the events part always treated them');
-});
-
-test('installing or importing the same pack is still refused, with the plain message naming the event', async () => {
-    const { settings, installed } = setup();
-    const result = await installed.install(unreadable());
-    assert.equal(result.ok, false);
-    assert.match(result.errors[0].message, /^Event "quoted": the condition can't be read: .*double quotes/);
-    assert.equal(settings.saves, 0, 'nothing saved');
-    assert.deepEqual(installed.list(), []);
-    const lore = await installed.importLorebook([{ book: 'Gate lore', uid: 1, title: 'Gate [storysuite:pack]', content: '```json\n' + JSON.stringify(unreadable()) + '\n```' }]);
-    assert.equal(lore.found, 1);
-    assert.equal(lore.results[0].ok, false, 'a lorebook import of it is refused too');
-    assert.match(lore.results[0].errors[0].message, /^Event "quoted": the condition can't be read/);
-});
-
 test('packs.content hands out the pack\'s own frozen records: same objects each call, nothing a caller can change, same JSON as a copy', async () => {
     const { settings, installed } = setup();
     await installed.install(sampleText, { source: 'file', origin: 'riverside.json' });
@@ -220,7 +169,7 @@ test('packs.content hands out the pack\'s own frozen records: same objects each 
     assert.ok(Object.isFrozen(first) && first.every(item => Object.isFrozen(item) && Object.isFrozen(item.tags)), 'frozen all the way down');
     assert.throws(() => { first[0].name = 'changed'; }, TypeError);
     assert.throws(() => first.push({}), TypeError);
-    for (const kind of ['items', 'creatures', 'shops', 'recipes', 'events', 'races', 'talents', 'cast', 'currency', 'layouts', 'screens', 'theme', 'nothing']) {
+    for (const kind of ['items', 'foes', 'places', 'cast', 'currency', 'nothing']) {
         const got = contentOf(installed.packs(), kind);
         assert.equal(JSON.stringify(got), JSON.stringify(JSON.parse(JSON.stringify(got))), kind);
     }

@@ -9,7 +9,9 @@ import { createHost } from '../../../testkit/index.js';
 import { reply, success } from './helpers.js';
 
 const ID = 'pack.ersveil/guild-membership';
-const ersveil = () => JSON.parse(readFileSync(new URL('../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
+// The frozen format 3 Ersveil; only its data modules matter, so they are lifted into a format 4 game pack.
+const ersveil = () => { const old = JSON.parse(readFileSync(new URL('../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
+    return { id: old.id, format: 4, kind: 'game', version: old.version, requires: { suite: '^0.1', capabilities: ['data-modules-v1'] }, content: { dataModules: old.content.dataModules } }; };
 const guild = host => host.sdk.query('dataModules.view', { module: ID }).chat;
 const dmProblems = host => host.turn.problems().filter(problem => ['DM_LABEL', 'REFUSED'].includes(problem.code));
 

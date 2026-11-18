@@ -11,7 +11,7 @@ export const FEATURE = 'story-director.world-events';
 export const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 
 const PACK = JSON.stringify({
-    id: 'world-daily', version: '1.0.0', name: 'World daily', requires: { storyBlock: '^2' },
+    id: 'world-daily', version: '1.0.0', name: 'World daily', format: 4, kind: 'world', requires: { suite: '^0.1' },
     content: {
         places: [{ name: 'Highmark', region: 'The March', x: 0, y: 0, kind: 'town' }, { name: 'Bluewatch', region: 'The March', x: 5, y: 5, kind: 'village' }],
         conditions: [

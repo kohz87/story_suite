@@ -1,4 +1,4 @@
-// The world pack installs (spec v0.13): one full sample keeps every field; the legacy pieces still behave; warnings are Problems, not refusals.
+// The world pack installs (spec v0.13): one full sample keeps every field; warnings are Problems, not refusals.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validatePack } from '../../packs/validate.js';
@@ -74,18 +74,14 @@ test('a sea lane may carry hours (B14); hours on a road is a warning, not a refu
     assert.ok(result.warnings.some(warning => warning.code === 'HOURS_ON_NON_SEA' && /lane time of a sea route/.test(warning.message)));
 });
 
-test('a legacy event `when` may use the world calls whatever the switch says; a spec event in content.events points to content.worldEvents', () => {
-    const legacy = validatePack(pack({ content: { events: [{ id: 'cue', when: "condition('grain-dear') && !active('x')", cue: 'Bread is dear.' }] } }));
-    assert.equal(legacy.ok, true, JSON.stringify(legacy.errors));
-    const spec = validatePack(pack({ content: { events: [{ id: 'cue', when: 'true', cue: 'x', ends_when: 'instant' }] } }));
-    assert.equal(spec.ok, false);
-    assert.match(spec.errors[0].message, /write spec events in content\.worldEvents/);
-});
-
-test('a pack with a world part but old free-word kinds is refused at the kind; a conditions-only pack does not need kind maps', () => {
-    const only = validatePack(pack({ content: { places: [{ name: 'Bluewatch', kind: 'harbour town', x: 0, y: 0 }], conditions: [{ name: 'unrest', scope: 'place', means: 'Crowds.' }] } }));
+test('a place with a free-word kind that placeKinds does not map is refused at the kind; a conditions-only pack does not need kind maps', () => {
+    const conditions = [{ name: 'unrest', scope: 'place', means: 'Crowds.' }];
+    const only = validatePack(pack({ content: { conditions } }));
     assert.equal(only.ok, true, JSON.stringify(only.errors));
-    const world = validatePack(pack({ content: { places: [{ name: 'Bluewatch', kind: 'harbour town', x: 0, y: 0 }], realms: [{ id: 'r', name: 'R', regions: [] }] } }));
-    assert.equal(world.ok, false);
-    assert.match(world.errors[0].message, /not in placeKinds and is not an engine class/);
+    const places = [{ id: 'bluewatch', name: 'Bluewatch', kind: 'harbour town', x: 0, y: 0 }];
+    const unmapped = validatePack(pack({ content: { places, conditions } }));
+    assert.equal(unmapped.ok, false);
+    assert.match(unmapped.errors[0].message, /not in placeKinds and is not an engine class/);
+    const mapped = validatePack(pack({ content: { places, conditions, placeKinds: { 'harbour town': 'town' } } }));
+    assert.equal(mapped.ok, true, JSON.stringify(mapped.errors));
 });

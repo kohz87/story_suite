@@ -7,7 +7,7 @@ import { MAX_CAPABILITIES, definitionProblems, definitionWarnings } from '../../
 import { stCapabilities } from '../../packs/st-adapter.js';
 import { validatePack } from '../../packs/validate.js';
 
-const PACK = { id: 'capability-demo', version: '1.0.0', requires: { storyBlock: '^2', capabilities: ['custom-ledger'] }, content: {} };
+const PACK = { id: 'capability-demo', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1', capabilities: ['custom-ledger'] }, content: {} };
 const mod = (id, extra = {}) => ({ id, name: id, version: '1.0.0', domains: { [`${id}-state`.replace(/[^a-z-]/g, '')]: { initial: () => ({}) } }, ...extra });
 
 async function withHost(modules, fn) {

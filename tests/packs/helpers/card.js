@@ -10,12 +10,17 @@ import { fakeFiles, webp } from './portraits.js';
 export const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 export const settle = async () => { for (let i = 0; i < 8; i += 1) await tick(); };
 
-/** The Sealcrown-like pack: one data module (the shipped reputation fixture), a cast with portraits when `portraits` is set. */
+/**
+ * The Sealcrown-like pack (format 4): a game pack with one data module (the shipped reputation fixture); with `portraits` it is instead a
+ * world pack whose cast names those picture files (a pack is a world or a game, so the two never share one).
+ */
 export function cardPack({ version = '1.0.0', id = 'sealcrown', capabilities = ['data-modules-v1'], portraits = [] } = {}) {
     // (the fixture names its own pack id inside its screens: the new id replaces it everywhere)
     const base = JSON.parse(JSON.stringify(fixture('reputation')).replaceAll('ersveil-factions', id));
-    const person = file => ({ id: file.replace(/\W/g, ''), name: file.replace(/\..*/, ''), about: 'About.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait: file });
-    return { ...base, id, name: 'Sealcrown Blocks', version, requires: { storyBlock: '^2', capabilities }, content: { dataModules: base.content.dataModules, ...(portraits.length ? { cast: portraits.map(person) } : {}) } };
+    const person = file => ({ kind: 'companion', id: file.replace(/\W/g, ''), name: file.replace(/\..*/, ''), role: 'A friend.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait: file });
+    const head = { id, format: 4, name: 'Sealcrown Blocks', version, requires: { suite: '^0.1', capabilities } };
+    if (portraits.length) return { ...head, kind: 'world', content: { cast: portraits.map(person) } };
+    return { ...head, kind: 'game', content: { dataModules: base.content.dataModules } };
 }
 
 export const packEntry = (pack, title = `${pack.name} [storysuite:pack]`) => ({ book: 'card', uid: 1, title, keys: [], content: JSON.stringify(pack) });

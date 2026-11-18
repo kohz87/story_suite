@@ -2,6 +2,7 @@
 // form engine's look (Tabs, Packs, Prompt) in place of Story Suite's fold and the Packs fold, and the footer bar "What's sent each reply".
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { createRegistry } from '../../../core/registry.js';
@@ -13,7 +14,7 @@ import { estimateTokens } from '../../../core/prompt.js';
 import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
 import { PROMPT_FOLD, PROMPT_KEYS, PROMPT_SCHEMA, PROMPT_TEXT, createPromptReader, footerSummary } from '../../../ui/legacy/view/settings/prompt.js';
 import { renderTabsCard } from '../../../ui/legacy/view/settings/tabs-list.js';
-import { sampleText } from '../../packs/helpers/fixtures.js';
+const sampleText = readFileSync(new URL('../../packs/fixtures/riverside-starter.json', import.meta.url), 'utf8');
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 const texts = (root, selector) => root.querySelectorAll(selector).map(node => node.textContent);
@@ -178,8 +179,8 @@ test('Packs: the Packs fold\'s panel in a card, as list rows; Import has the foc
     assert.ok(doc.activeElement === card.querySelector('.ss-packs-import'), 'Import has the focus');
     const rowNode = card.querySelector('.ss-packs-row');
     assert.ok(rowNode.classList.contains('ss-listcard-row'), 'an ss.listcard row');
-    assert.equal(rowNode.querySelector('.ss-packs-name').textContent, 'Riverside Starter 3.0.0');
-    assert.match(rowNode.querySelector('.ss-packs-facts').textContent, /^4 items, 1 foe, 2 events.* · by Story Suite examples · riverside\.json$/);
+    assert.equal(rowNode.querySelector('.ss-packs-name').textContent, 'Riverside Starter 4.0.0');
+    assert.match(rowNode.querySelector('.ss-packs-facts').textContent, /^4 items, 1 foe, 1 place, start state · by Story Suite examples · riverside\.json$/);
     assert.equal(rowNode.querySelector('.ss-packs-enabled').getAttribute('role'), 'switch');
     // Searched by the pack's name.
     search(win.root, 'riverside');

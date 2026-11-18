@@ -13,7 +13,7 @@ import { fakeFiles, fakeImageIo, png, pngOf, webp } from './helpers/portraits.js
 import { pack } from './helpers/fixtures.js';
 import { zip } from './helpers/zip.js';
 
-const person = (id, portrait) => ({ id, name: id[0].toUpperCase() + id.slice(1), about: 'About.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait });
+const person = (id, portrait) => ({ kind: 'companion', id, name: id[0].toUpperCase() + id.slice(1), role: 'A friend.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait });
 const packText = (...people) => JSON.stringify(pack({ content: { cast: people } }));
 const text = value => new TextEncoder().encode(value);
 const good = () => zip([

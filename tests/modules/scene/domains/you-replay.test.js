@@ -1,7 +1,6 @@
 // Your look (MODULES §F126, src/v2/domains/scene.js): reader's edit, replay, Home header and rank packs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { createHost } from '../../../../testkit/index.js';
 import { validatePack } from '../../../../packs/validate.js';
 import { YOU_CHARS, YOU_FEATURE, validateScene } from '../../../../modules/scene/index.js';
@@ -202,18 +201,18 @@ test('no pack gives a Rank: none anywhere (no grammar word, no answer, no tail w
     assert.equal('rank' in gameHeroProps({ state: { meta: { rev: 1 } }, query: () => host.sdk.query('scene.you') }).you, false);
 });
 
-test('a pack with content.you.rank gives the Rank its word everywhere; the first enabled pack that has one wins; turned off, the Rank is hidden and its value kept', async t => {
+test('a pack with content.you.rank gives the Rank its word everywhere; the word of the selected game is the one used; turned off, the Rank is hidden and its value kept', async t => {
     const host = await fresh(t, { rank: false });
     assert.equal((await host.packs.packs.install(rankPack('first', 'Guild rank'))).ok, true);
     assert.equal((await host.packs.packs.install(rankPack('second', 'Standing'))).ok, true);
-    assert.deepEqual(host.sdk.query('packs.youRank'), { pack: 'first', label: 'Guild rank' }, 'the first enabled pack wins');
+    assert.deepEqual(host.sdk.query('packs.youRank'), { pack: 'first', label: 'Guild rank' }, 'the selected game (the first one installed) wins');
     await host.send('We walk.', block('Rain.', ['~ you rank: F-rank, Adventurer Guild | wearing: a coat']));
     assert.deepEqual(host.sdk.query('scene.you'), { rank: 'F-rank, Adventurer Guild', rankLabel: 'Guild rank', wearing: 'a coat', condition: '' });
     assert.equal(staticText(host).split('\n').find(item => item.startsWith('~ you ')), '~ you rank: Guild rank | wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)');
     await host.send('On.', 'On.');
     assert.match(tailText(host), /^You: Guild rank F-rank, Adventurer Guild; wears a coat$/m);
-    // The first pack off: the next one's word; both off: no Rank (the instructions change back), the value stays stored.
-    assert.equal(await host.packs.packs.setEnabled('first', false), true);
+    // Another game selected: its word; the selected game off: no Rank (the instructions change back), the value stays stored.
+    assert.equal(await host.packs.packs.select('game', 'second'), true);
     assert.equal(host.sdk.query('scene.you').rankLabel, 'Standing');
     assert.equal(await host.packs.packs.setEnabled('second', false), true);
     assert.deepEqual(host.sdk.query('scene.you'), { wearing: 'a coat', condition: '' });
@@ -228,9 +227,8 @@ test('a pack with content.you.rank gives the Rank its word everywhere; the first
     assert.match(tailText(host), /^You: Guild rank F-rank, Adventurer Guild; wears a coat$/m);
 });
 
-test('the Ersveil example pack gives the Rank the word "Guild rank"; its content.you checks like the rest of a pack', async t => {
-    const ersveil = JSON.parse(readFileSync(new URL('../../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
-    assert.deepEqual(ersveil.content.you, { rank: { label: 'Guild rank' } });
+test('a game pack gives the Rank the word "Guild rank"; its content.you checks like the rest of a pack', async t => {
+    const ersveil = rankPack('ersveil', 'Guild rank');
     const host = await fresh(t, { rank: false });
     assert.equal((await host.packs.packs.install(ersveil)).ok, true);
     assert.deepEqual(host.sdk.query('packs.youRank'), { pack: ersveil.id, label: 'Guild rank' });
@@ -238,7 +236,7 @@ test('the Ersveil example pack gives the Rank the word "Guild rank"; its content
     assert.equal(host.sdk.query('scene.you').rankLabel, 'Guild rank');
     assert.equal(host.sdk.query('scene.you').rank, 'F-rank, Adventurer Guild (provisional)');
     // The validator: the shape, the label and unknown keys.
-    const check = you => validatePack({ id: 'p', version: '1.0.0', requires: { storyBlock: '^2' }, content: { you } });
+    const check = you => validatePack({ id: 'p', version: '1.0.0', format: 4, kind: 'game', requires: { suite: '^0.1' }, content: { you } });
     assert.equal(check({ rank: { label: 'Guild rank' } }).ok, true);
     assert.deepEqual(check({ rank: { label: ' Guild   rank ' } }).pack.content.you, { rank: { label: 'Guild rank' } });
     assert.deepEqual(check({}).pack.content.you, {}, 'nothing to opt in to');
@@ -258,5 +256,5 @@ test('the Ersveil example pack gives the Rank the word "Guild rank"; its content
     bad({ rank: 'Guild rank' }, 'BAD_CONTENT', 'content.you.rank');
     bad(['rank'], 'BAD_CONTENT', 'content.you');
     // A pack that does not use it normalizes as it always did (no `you` key).
-    assert.equal('you' in validatePack({ id: 'p', version: '1.0.0', requires: { storyBlock: '^2' }, content: {} }).pack.content, false);
+    assert.equal('you' in validatePack({ id: 'p', version: '1.0.0', format: 4, kind: 'game', requires: { suite: '^0.1' }, content: {} }).pack.content, false);
 });

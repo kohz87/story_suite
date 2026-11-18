@@ -2,8 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MAX_SECRETS, normalizeSecrets, secretId, secretsFromLines, secretsToLines } from '../../modules/people/meters/npc-meters.js';
 import { normalizeNpcRecord } from '../../modules/people/core/core.js';
-import { validatePack } from '../../packs/validate.js';
-import { contentOf } from '../../packs/content.js';
 import { castSecrets } from '../../modules/people/dossier/cast-dossier.js';
 import { ERSVEIL, fakeDelta, handedOver, host, plain } from './storysuite-v2-meters.helpers.js';
 
@@ -105,16 +103,10 @@ test('secrets from the cast: a mixed list (meter, event-only, both) is read, edi
     assert.equal(h.npc('Mira').unlocked.includes(target.id), false);
 });
 
+// A cast entry's secret with both rules (a meter value or a story event), as `castSecrets` reads it. A format 4 world cast writes its secrets as gates (`{ id, gate, text }`, the gated
+// notes of cast-dossier-entry.test.js), so this one is handed to `castSecrets` as written, not through the pack checker.
 function eitherNotes() {
-    const checked = validatePack(JSON.stringify({
-        id: 'either-pack', name: 'Either', version: '1.0.0', requires: { storyBlock: '>=2.15.0' },
-        content: { cast: [{
-            id: 'mira', name: 'Mira', about: 'A smith.', look: 'Broad, soot-streaked.', start: { place: 'The forge', goal: 'Keep the fire lit.' },
-            secrets: [{ title: 'Either way', text: 'She forged the duke\'s seal.', meter: 'trust', at: 90, when: 'the party asks her about the seal' }],
-        }] },
-    }));
-    assert.equal(checked.ok, true, JSON.stringify(checked.errors));
-    const [entry] = contentOf([checked.pack], 'cast');
+    const entry = { secrets: [{ title: 'Either way', text: 'She forged the duke\'s seal.', meter: 'trust', at: 90, when: 'the party asks her about the seal' }] };
     return normalizeSecrets(castSecrets(entry.secrets));
 }
 

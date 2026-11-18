@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { coinLine, coinValue, currencyOf, foreignCoin, moneyLine, parseAmount } from '../../../modules/inventory/money.js';
 import { createHost } from '../../../testkit/index.js';
 
-const ERSVEIL = readFileSync(new URL('../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../examples/packs/ersveil-game/pack.json', import.meta.url), 'utf8');
 const staticPart = host => host.st.requests.at(-1).chat.find(message => message.role === 'system').content;
 const moneyOf = text => text.split('\n').filter(line => /^Money /.test(line));
 
@@ -16,7 +16,10 @@ async function start(t, { settings = {}, ersveil = false } = {}) {
     t.mock.method(console, 'warn', () => {});
     const host = await createHost({ settings: { modules: { 'story-block': settings } } });
     t.after(() => host.close());
-    if (ersveil) assert.equal((await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' })).ok, true);
+    if (ersveil) {
+        assert.equal((await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' })).ok, true);
+        assert.equal(await host.packs.packs.select('game', 'ersveil-game'), true);
+    }
     await host.send('Hello.', 'The road.');
     return host;
 }

@@ -7,12 +7,16 @@ import { readFileSync } from 'node:fs';
 import { validatePack } from '../../packs/validate.js';
 import { economyOf as packEconomyOf } from '../../packs/content.js';
 import { createPacksPart } from '../../packs/index.js';
-import { ECONOMY_LIMITS, PACK_FIELDS } from '../../packs/limits.js';
+import { ECONOMY_LIMITS, CONTENT_KEYS } from '../../packs/limits.js';
 import { createInventoryQueries, economyOf, scaledDefault } from '../../modules/inventory/index.js';
 import { CORE_SETTINGS } from '../../modules/scene/domains/index.js';
 import { createHost } from '../../testkit/index.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
+
+// The money scale belongs to a game pack (format 4), under content; the world pack holds the items.
+const game = (content = {}, extra = {}) => ({ id: 'mini', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1' }, content, ...extra });
+const withEconomy = (economy, extra) => game({ economy }, extra);
 
 function ok(value) {
     const result = validatePack(value);
@@ -29,33 +33,34 @@ function refused(value, code, path) {
     assert.ok(hit.message.length > 20, 'a sentence the reader can act on');
 }
 
-test('economy is an optional top-level field: { scale 0.001–1000 (default 1), note }', () => {
-    assert.ok(PACK_FIELDS.includes('economy'));
-    assert.equal(ok(pack()).economy, null, 'left out: no scale');
-    assert.deepEqual(ok(pack({ economy: {} })).economy, { scale: 1, note: '' });
-    assert.deepEqual(ok(pack({ economy: { scale: 0.01, note: ' One coin is a copper. ' } })).economy, { scale: 0.01, note: 'One coin is a copper.' });
-    for (const scale of [ECONOMY_LIMITS.min, 1, 2.5, ECONOMY_LIMITS.max]) assert.equal(ok(pack({ economy: { scale } })).economy.scale, scale);
-    for (const scale of [0, -1, 0.0009, 1001, '1', null, true]) refused(pack({ economy: { scale } }), 'BAD_ECONOMY', 'economy.scale');
-    for (const economy of [1, 'copper', [], null]) refused(pack({ economy }), 'BAD_ECONOMY', 'economy');
-    for (const note of [7, 'x'.repeat(501)]) refused(pack({ economy: { note } }), 'BAD_ECONOMY', 'economy.note');
-    refused(pack({ economy: { scale: 1, coin: 'mark' } }), 'UNKNOWN_FIELD', 'economy.coin');
+test('economy is an optional field of a game pack, under content: { scale 0.001–1000 (default 1), note }', () => {
+    assert.ok(CONTENT_KEYS.game.includes('economy') && !CONTENT_KEYS.world.includes('economy'));
+    assert.equal(ok(game()).economy, null, 'left out: no scale');
+    assert.deepEqual(ok(withEconomy({})).economy, { scale: 1, note: '' });
+    assert.deepEqual(ok(withEconomy({ scale: 0.01, note: ' One coin is a copper. ' })).economy, { scale: 0.01, note: 'One coin is a copper.' });
+    for (const scale of [ECONOMY_LIMITS.min, 1, 2.5, ECONOMY_LIMITS.max]) assert.equal(ok(withEconomy({ scale })).economy.scale, scale);
+    for (const scale of [0, -1, 0.0009, 1001, '1', null, true]) refused(withEconomy({ scale }), 'BAD_ECONOMY', 'content.economy.scale');
+    for (const economy of [1, 'copper', [], null]) refused(withEconomy(economy), 'BAD_ECONOMY', 'content.economy');
+    for (const note of [7, 'x'.repeat(501)]) refused(withEconomy({ note }), 'BAD_ECONOMY', 'content.economy.note');
+    refused(withEconomy({ scale: 1, coin: 'mark' }), 'UNKNOWN_FIELD', 'content.economy.coin');
 });
 
 test('numbers the pack writes stay exactly as written', () => {
-    const made = ok(pack({ economy: { scale: 0.01 }, content: { items: [{ name: 'Draught', value: 30 }] } }));
+    assert.equal(ok(withEconomy({ scale: 0.01 })).economy.scale, 0.01);
+    const made = ok(pack({ content: { items: [{ name: 'Draught', value: 30 }] } }));
     assert.equal(made.content.items[0].value, 30);
 });
 
 test('packs.economy: the first enabled pack that sets one; scales are not mixed', async () => {
-    const plain = ok(pack({ id: 'plain' }));
-    const copper = ok(pack({ id: 'copper', economy: { scale: 0.01, note: 'copper' } }));
-    const rich = ok(pack({ id: 'rich', economy: { scale: 10 } }));
+    const plain = ok(game({}, { id: 'plain' }));
+    const copper = ok(withEconomy({ scale: 0.01, note: 'copper' }, { id: 'copper' }));
+    const rich = ok(withEconomy({ scale: 10 }, { id: 'rich' }));
     assert.equal(packEconomyOf([]), null);
     assert.equal(packEconomyOf([plain]), null);
     assert.deepEqual(packEconomyOf([plain, copper, rich]), { pack: 'copper', scale: 0.01, note: 'copper' });
     const { part, packs, economy } = createPacksPart({ settings: fakeSettings() });
     assert.equal(part.queries['packs.economy'](), null);
-    await packs.install(JSON.stringify(pack({ id: 'copper', economy: { scale: 0.01 } })));
+    await packs.install(JSON.stringify(withEconomy({ scale: 0.01 }, { id: 'copper' })));
     assert.deepEqual(economy(), { pack: 'copper', scale: 0.01, note: '' });
     await packs.setEnabled('copper', false);
     assert.equal(part.queries['packs.economy'](), null, 'a switched-off pack sets nothing');
@@ -99,7 +104,7 @@ async function fresh(t) {
 
 test('money scale and an old saved cap set no limit on what the story pays', async t => {
     const host = await fresh(t);
-    assert.equal((await host.packs.packs.install(pack({ id: 'copper', economy: { scale: 0.01 } }))).ok, true);
+    assert.equal((await host.packs.packs.install(withEconomy({ scale: 0.01 }, { id: 'copper' }))).ok, true);
     await host.send('Chest.', reply('Coins.', ['+ coin 500']));
     assert.equal(coin(host), 500);
     host.settings.set('story-block', 'storyCoinPerReply', 7);   // the removed cap: ignored

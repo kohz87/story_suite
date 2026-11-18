@@ -78,7 +78,7 @@ test('the page start reaches neither the pack checker\'s checks, nor the Diagnos
     assert.ok(closure('../../ui/legacy/ui-host/settings.js').every(file => file !== '../../ui/legacy/screens/ui-sample.js'), 'the settings host does not import the sample');
 });
 
-const TINY = { id: 'tiny', name: 'Tiny', version: '1.0.0', requires: { storyBlock: '^2' }, content: { items: [{ name: 'Brass key', slot: 'hand' }] } };
+const TINY = { id: 'tiny', name: 'Tiny', version: '1.0.0', format: 4, kind: 'world', requires: { suite: '^0.1' }, content: { items: [{ name: 'Brass key', slot: 'hand' }] } };
 
 test('no pack stored: a whole session never loads the pack checker; the first install loads it and works', { skip }, async t => {
     const host = await createHost({});
@@ -95,7 +95,7 @@ test('no pack stored: a whole session never loads the pack checker; the first in
 });
 
 test('a stored pack: the checker is awaited before the chat is read, so the pack gives its content from the first read', { skip }, async t => {
-    const host = await createHost({ settings: { packs: [{ id: 'tiny', version: '1.0.0', enabled: true, source: 'file', origin: '', pack: TINY }] } });
+    const host = await createHost({ settings: { packs: [{ id: 'tiny', version: '1.0.0', kind: 'world', enabled: true, source: 'file', origin: '', pack: TINY }], selected: { world: 'tiny' } } });
     t.after(() => host.close());
     await host.send('Begin.', 'Opening.');
     assert.equal(checkerLoaded(), true);

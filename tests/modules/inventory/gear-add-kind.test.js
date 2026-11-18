@@ -20,7 +20,7 @@ async function world(t, { packs = false } = {}) {
         const raw = pack({ content: { items: [{ name: 'Pack Rope', kind: 'goods' }] } });
         const built = validatePack(raw);
         assert.equal(built.ok, true, JSON.stringify(built.errors));
-        settings.packs = [{ id: built.pack.id, version: built.pack.version, enabled: true, source: 'file', origin: 'test', pack: raw }];
+        settings.packs = [{ id: built.pack.id, version: built.pack.version, enabled: true, kind: raw.kind, source: 'file', origin: 'test', pack: raw }]; settings.selected = { [raw.kind]: raw.id };
     }
     const host = await createHost({ modules: [ACTORS], settings });
     t.after(() => host.close());

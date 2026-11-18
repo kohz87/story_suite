@@ -1,6 +1,5 @@
 // The follow-ups finished with the break-round fixes: sdk.reread (F40), the currency plural on the
-// screens and from packs, a used consumable going to item.use (F96), events fired only from their
-// pack definition, owners who must be in the party, pack places that are hidden, and the packs
+// screens and from packs, a used consumable going to item.use (F96), owners who must be in the party, pack places that are hidden, and the packs
 // panel's counts. Each test fails on the code before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -103,12 +102,14 @@ test('the changes card summary uses the currency plural for amounts other than o
 });
 
 test('a pack\'s currency plural passes through to the settings suggestion', async t => {
-    const checked = validatePack(JSON.stringify({ id: 'mk', version: '1.0.0', name: 'Marks', requires: { storyBlock: '^2' }, currency: { name: 'crown', plural: 'crownen', short: 'c' } }));
+    const marks = content => JSON.stringify({ id: 'mk', format: 4, kind: 'game', version: '1.0.0', name: 'Marks', requires: { suite: '^0.1' }, content });
+    const checked = validatePack(marks({ currency: { name: 'crown', plural: 'crownen', short: 'c' } }));
     assert.equal(checked.ok, true, JSON.stringify(checked.errors));
     assert.deepEqual(checked.pack.currency, { name: 'crown', short: 'c', plural: 'crownen' });
-    assert.equal(validatePack(JSON.stringify({ id: 'mk', version: '1.0.0', name: 'M', requires: { storyBlock: '^2' }, currency: { name: 'c', plural: 'x'.repeat(25) } })).ok, false);
+    assert.equal(validatePack(marks({ currency: { name: 'c', plural: 'x'.repeat(25) } })).ok, false);
     const probe = await createHost();
-    await probe.packs.packs.install(JSON.stringify({ id: 'mk', version: '1.0.0', name: 'Marks', requires: { storyBlock: '^2' }, currency: { name: 'crown', plural: 'crownen' } }), { origin: 'pack.json' });
+    assert.equal((await probe.packs.packs.install(marks({ currency: { name: 'crown', plural: 'crownen' } }), { origin: 'pack.json' })).ok, true);
+    assert.equal(await probe.packs.packs.select('game', 'mk'), true);
     const settings = structuredClone(probe.ctx.extensionSettings.storySuite);
     probe.close();
     const host = await fresh(t, { settings });
@@ -165,38 +166,6 @@ test('- item X used without a module answering item.use consumes as before; a no
     assert.ok(USED_WORDS.test('swallowed'));
 });
 
-// ---- events (B3-1, B3-9) --------------------------------------------------------------------------
-
-const eventPack = event => JSON.stringify({ id: 'ev', version: '1.0.0', name: 'Events', requires: { storyBlock: '^2' }, content: { events: [event] } });
-
-test('a pack event\'s steps come from its definition and run as caller event:<id>', async t => {
-    const seen = [];
-    const spy = {
-        id: 'spy', name: 'Spy', version: '0.0.0',
-        commands: { 'spy.note'(ctx) { seen.push(ctx.caller); return { summary: 'noted' }; } },
-    };
-    const host = await fresh(t, { modules: [spy] });
-    assert.equal((await host.packs.packs.install(eventPack({ id: 'bells', when: 'true', cue: 'Bells ring.', then: [{ command: 'spy.note' }] }), { origin: 'pack.json' })).ok, true);
-    await host.send('Listen.', 'Bells.');
-    assert.deepEqual(seen, ['event:pack.ev/bells']);
-    const forged = host.bus.command('events.fire', { id: 'pack.ev/bells', cue: 'Forged.', then: [{ command: 'wallet.receive', payload: { amount: 50 } }] }, { cause: 'system' });
-    assert.equal(forged.code, 'CLAIMED', 'once: already happened; the payload\'s cue and steps never count');
-});
-
-test('a repeating event pays once per reply: not again on a regenerate, a Continue or a dry run', async t => {
-    const host = await fresh(t);
-    await host.packs.packs.install(eventPack({ id: 'tithe', when: 'true', cue: 'A tithe.', once: false, then: [{ command: 'wallet.receive', payload: { owner: 'party', amount: 10 } }] }), { origin: 'pack.json' });
-    const coin = () => host.head().domains.inventory.wallets.party?.coin ?? 0;
-    await host.send('Wait.', 'One.');
-    assert.equal(coin(), 10);
-    await host.regenerate('One again.');
-    await host.cont(' On.');
-    await host.st.generate('normal', { reply: 'x', dryRun: true });
-    assert.equal(coin(), 10);
-    await host.send('Wait more.', 'Two.');
-    assert.equal(coin(), 20, 'the next reply pays again');
-});
-
 // ---- owners (B3-7) ----------------------------------------------------------------------------------
 
 test('grants, transfers and payments to an owner not in the party are refused; party.actors decides', async t => {
@@ -215,7 +184,7 @@ test('grants, transfers and payments to an owner not in the party are refused; p
 // ---- packs: hidden places, panel counts (f, g) ------------------------------------------------------
 
 test('a pack place may be hidden (or secret); anything else there is refused', () => {
-    const pack = places => JSON.stringify({ id: 'map', version: '1.0.0', name: 'Map', requires: { storyBlock: '^2' }, content: { places } });
+    const pack = places => JSON.stringify({ id: 'map', format: 4, kind: 'world', version: '1.0.0', name: 'Map', requires: { suite: '^0.1' }, content: { places } });
     const checked = validatePack(pack([{ name: 'Vault', x: 1, y: 2, hidden: true }, { name: 'Grotto', x: 3, y: 4, secret: true }, { name: 'Square', x: 0, y: 0 }]));
     assert.equal(checked.ok, true, JSON.stringify(checked.errors));
     assert.deepEqual(checked.pack.content.places.map(place => place.hidden ?? false), [true, true, false]);

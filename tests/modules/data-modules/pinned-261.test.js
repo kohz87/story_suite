@@ -9,16 +9,18 @@ import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 const chat = () => readFileSync(new URL('../../core/fixtures/fixture-2.6.1-pinned-ersveil.jsonl', import.meta.url), 'utf8')
     .trim().split('\n').slice(1).map(line => JSON.parse(line));
 // The chat was saved with Ersveil 2.0.0; 2.1.0 (the example pack now) changed only lore and place names.
-const pack = () => JSON.parse(readFileSync(new URL('../../core/fixtures/ersveil-2.0.0-pack.json', import.meta.url), 'utf8'));
-const current = () => JSON.parse(readFileSync(new URL('../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
+// The saved packs are format 3 files; only their data modules matter here, so they are lifted into a format 4 game pack with the same id and version.
+const asGame = old => ({ id: old.id, format: 4, kind: 'game', version: old.version, requires: { suite: '^0.1', capabilities: ['data-modules-v1'] }, content: { dataModules: old.content.dataModules } });
+const pack = () => asGame(JSON.parse(readFileSync(new URL('../../core/fixtures/ersveil-2.0.0-pack.json', import.meta.url), 'utf8')));
+const current = () => asGame(JSON.parse(readFileSync(new URL('../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8')));
 const hashes = {
     'pack.ersveil/standing': '208561d9520010fca4d537a520be3ab4b735711a12614846e7dd201050e0a627',
     'pack.ersveil/fame': '208a5fa654a78c475a7820154bc8630f5ccd643ac1cbdd41a7d9dec99b3a9d8a',
     'pack.ersveil/guild-membership': '6938a74e11fd618cb0fba021a0011f3c6872e32aa1c8b80104bd6a828c27f62f',
 };
 const packHash = '2d25e224ca30e1a0a77693f31f19ce31f03b4c5be9045d1972e23f0936004623';
-// What the pack checker gives the same 2.0.0 pack now: pack format 3 no longer writes the empty lists of the kinds nothing reads (creatures, shops, recipes, quests, races, talents), so its identity differs from the one the chat recorded; the pins keep the recorded one.
-const freshPackHash = '6728d2128a035f061386acf8c0da2929e4d700171ec4ff3c34cbe3e4d17832b3';
+// What the pack checker gives the same 2.0.0 data modules now, as a format 4 game pack: its identity differs from the one the chat recorded; the pins keep the recorded one.
+const freshPackHash = '6d8341e10ef25e928002202a80297181439efb51cdf30b6649016bf8d8dab11f';
 const expected = {
     'pack.ersveil/standing': { standing: { highmark: 0, confederacy: 0, shornmarch: 0, church: 0, auvoth: 0, guild: 2, nightingale: 0, hand: 0, veil: 0, 'broken-chain': 0 } },
     'pack.ersveil/fame': { fame: { bluewatch: 4, shornmarch: 0, auvoth: 0, confederacy: 0, highmark: 0, aurelion: 0, 'border-kingdoms': 0, ironanvil: 0, chieftainates: 0, ardelia: 0, shackles: 0, vargate: 0, tidebound: 0, verdantleaf: 0, ashkaran: 0, startrace: 0 } },
@@ -89,11 +91,11 @@ test('a 2.6.1 chat with a rules hash keeps its pin and guarded action', async t 
     const rules = { id: 'test-rules', version: '1.0.0', domains: { rules: { initial: () => ({ rulesVersion: 1, rulesHash }) } } };
     const host = await createHost({ modules: [rules], st: { chat: saved.chat } });
     t.after(() => host.close());
-    assert.equal((await host.packs.packs.install(saved.pack)).ok, true);
+    assert.equal((await host.packs.packs.install(asGame(saved.pack))).ok, true);
     const module = 'pack.history/counter';
     const hash = '2c257b2d20fbf6589343e316b5c0330733386fa127aeac673855ec2b753eb4ee';
     const packHash = 'ccbd291fcf2e58951e48c7b008d05964aa3ac1b260f42b245decf0cecd528187';   // (the identity the chat recorded)
-    const offerHash = '0665b3ef9701ae8412fb7cf3fd0b51aa276c593804f507bd533da2388e0982de';   // (what the checker gives the same pack now: the empty lists of the kinds nothing reads are gone)
+    const offerHash = '4a0d7efee642ae345ae885946cef128c8a31b2c50ae425df06c9a2478c7f17f6';   // (what the checker gives the same pack now, as a format 4 game pack)
     const guards = saved.chat.flatMap(message => message.extra?.storySuite?.spans ?? []).filter(span => span.guard?.predicate?.module === module);
     assert.deepEqual(guards.map(span => span.guard.rulesHash), [rulesHash, rulesHash]);
     assert.deepEqual(guards.map(span => span.guard.inputHash), [

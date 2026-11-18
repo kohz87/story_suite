@@ -44,9 +44,14 @@ export function withRoads(source, roads = [['Gwenmar', 'Harrow', 5]]) {
 /** The pack `source` describes, as the file a person would import. */
 export function packOf(source) {
     const [meta] = source.packs;
-    // What the packs part adds itself (`pack`, `packVersion`) is not written; an empty routine is a routine left out.
-    const cast = source.entries.map(({ pack: _pack, packVersion: _version, ...own }) => ({ ...own, start: Object.fromEntries(Object.entries(own.start).filter(([key, value]) => key !== 'routine' || value)) }));
-    return { id: meta.id, version: meta.version, name: meta.name, requires: { storyBlock: '^2' }, content: { ...(source.places ? { places: source.places } : {}), ...(source.routes ? { routes: source.routes } : {}), cast } };
+    // What the packs part adds itself (`pack`, `packVersion`) is not written; an empty routine is a routine left out. A format 4 world pack keeps
+    // a person's text as `history` (the entry's `about`) and a secret by its title as an id.
+    const cast = source.entries.map(({ pack: _pack, packVersion: _version, about, secrets, ...own }) => ({
+        kind: 'companion', ...own, history: about,
+        start: Object.fromEntries(Object.entries(own.start).filter(([key, value]) => key !== 'routine' || value)),
+        secrets: (secrets ?? []).map(secret => ({ id: secret.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'), gate: `meter ${secret.meter} of ${own.id} >= ${secret.at}`, text: secret.text })),
+    }));
+    return { id: meta.id, format: 4, kind: 'world', version: meta.version, name: meta.name, requires: { suite: '^0.1' }, content: { ...(source.places ? { places: source.places } : {}), ...(source.routes ? { routes: source.routes } : {}), cast } };
 }
 
 /** Installs (or updates) `source`'s pack in the host and switches it on or off, as the reader would. A pack that is refused is an error. */
