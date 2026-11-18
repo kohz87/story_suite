@@ -7,7 +7,7 @@
 // marker to the end, the stray change lines in the story, and no v1 envelope either side) and the edit adds or removes no word a capture reads (edit-words.js: a day or month name, a cast name or alias, a "#N"). Anything else: null (the full path).
 
 import { readRecord } from '../persist.js';
-import { adoptLegacy, strayLines } from '../capture.js';
+import { strayLines } from '../capture.js';
 import { touchesCaptureWords } from './edit-words.js';
 
 // (the cut payloadText makes: the reply up to its <Changes> block, or the hidden comment that holds it once read)
@@ -44,7 +44,6 @@ export function createProseEdits({ ctx, isCarrier, changeHeads, names = () => nu
         if (!isCarrier(message) || !readRecord(message)) return null;
         const before = was.mes, after = message.mes;
         if (blockRegion(before) !== blockRegion(after)) return null;
-        if (adoptLegacy(before).legacy !== null || adoptLegacy(after).legacy !== null) return null;
         if (touchesCaptureWords(before, after, names)) return null;
         const heads = changeHeads();
         return strayKey(before, heads) === strayKey(after, heads) ? at : null;

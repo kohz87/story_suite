@@ -168,3 +168,13 @@ uiRoot
 selectedNpcId
 stage1Refresh
 openLauncherDossier
+# B4-11a: the v1 capture (Story Block v1's envelope: core/capture/legacy.js and its parts). HAS_LEGACY is not listed: two lines of
+# docs/merge/core-module-refs.txt still name it (an unused binding in core/turn-parts/create-turn.js).
+LEGACY_PROBLEM
+LEGACY_MARK
+legacyRead
+hasLegacy
+stripLegacy
+adoptLegacy
+legacyPairs
+LEGACY_IN_PROMPT

@@ -1,16 +1,14 @@
-// capture.js was split into parts (now capture/{lines,blocks,echo,legacy,stray}.js hold the parsing; the entry points extractBlock, stripBlock and hideBlock stay here); this file keeps its old path and every export it had.
-// The list is the file's export list from before the split (27 names): each must still be there, of the same kind.
+// capture.js was split into parts (now capture/{lines,blocks,echo,stray}.js hold the parsing; the entry points extractBlock, stripBlock and hideBlock stay here); this file keeps its old path and every export it had.
+// The list is the file's export list from before the split (27 names; the 5 of the v1 envelope went at B4-11a): each must still be there, of the same kind.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as facade from '../../../core/capture.js';
 
 const EXPORTS = {
     HIDDEN_MARKER: 'string',
-    LEGACY_PROBLEM: 'string',
     MAX_LINE: 'number',
     OPS: 'object',
     STRAY_PARAGRAPHS: 'number',
-    adoptLegacy: 'function',
     assistSections: 'function',
     capsOf: 'function',
     continuation: 'function',
@@ -19,9 +17,7 @@ const EXPORTS = {
     extractBlock: 'function',
     grammarHeads: 'function',
     hasHidden: 'function',
-    hasLegacy: 'function',
     hideBlock: 'function',
-    legacyRead: 'function',
     lineBody: 'function',
     markCaps: 'function',
     markOff: 'function',
@@ -29,7 +25,6 @@ const EXPORTS = {
     sameChangeLine: 'function',
     strayLines: 'function',
     stripBlock: 'function',
-    stripLegacy: 'function',
     withAssist: 'function',
     withoutReasoning: 'function',
 };

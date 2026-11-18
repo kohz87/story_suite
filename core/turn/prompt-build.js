@@ -3,7 +3,7 @@
 // the generation interceptor, and the history stripped of hidden blocks. `createPromptBuild(s, deps)` is given the turn's state
 // holder `s` and the turn parts it uses; it never imports turn.js.
 
-import { extractBlock, hasHidden, hasLegacy, stripBlock } from '../capture.js';
+import { extractBlock, hasHidden, stripBlock } from '../capture.js';
 import { HOST_MODULE } from '../registry.js';
 import { assemble, contextNotice, estimateTokens } from '../prompt.js';
 import { ensureModules, makeView } from '../sdk.js';
@@ -368,11 +368,11 @@ export function createPromptBuild(s, deps) {
     }
 
     function strippedText(text) {
-        if (!HAS_BLOCK.test(text) && !HAS_LEGACY.test(text)) return text;
+        if (!HAS_BLOCK.test(text)) return text;
         let out = s.stripped.get(text);
         if (out === undefined) {
-            // (A hidden comment may hold only lines left in the story, B-a1-3: it goes too. So does a v1 envelope.)
-            out = extractBlock(text) === null && !hasHidden(text) && !hasLegacy(text) ? text : stripBlock(text);
+            // (A hidden comment may hold only lines left in the story, B-a1-3: it goes too.)
+            out = extractBlock(text) === null && !hasHidden(text) ? text : stripBlock(text);
             if (s.stripped.size >= STRIP_CACHE) s.stripped.delete(s.stripped.keys().next().value);
             s.stripped.set(text, out);
         }
