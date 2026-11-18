@@ -1,18 +1,12 @@
-// The People page's last groups from mock v7: Refresh and the narrator, Portraits and Map, each row tied to its NPC State setting
+// The People page's last groups from mock v7: Refresh and the narrator and Portraits, each row tied to its NPC State setting
 // (Refresh every and NPCs refreshed per reply are N8's rolling Refresh: narrationCaptureCatchUp and narrationCaptureCatchUpPeople).
-import { intRow, swRow, segRow } from './kit.js';
+import { intRow, swRow } from './kit.js';
 import { portraitRows } from './portraits.js';
-
-const LENSES = [['Warmth', 'warmth'], ['Trust', 'trust'], ['Affection', 'affection'], ['Desire', 'desire'], ['Tension', 'tension']];
 
 /** N8's rolling Refresh: each person waits this many replies between Refreshes, and 0 (as stored, not a blank) turns it off. */
 const zeroOff = r => ({ ...r, write: (v, b) => (v === 0 || v === '0' ? [[r.store, 0]] : r.write(v, b)) });
 
-const MAP = { enabled: true, defaultLens: 'warmth' };
-/** One half of the map's settings object: reads its field, and a change keeps the other half (as the old panel's patch does). */
-const mapRow = (row, field, make, show) => ({ ...row, store: 'relationshipMap', reset: field === 'enabled' ? [['relationshipMap', { ...MAP }]] : [], read: b => show((b.relationshipMap ?? MAP)[field] ?? MAP[field]), write: (v, b) => [['relationshipMap', { ...MAP, ...(b.relationshipMap ?? {}), [field]: make(v) }]] });
-
-/** Returns the rows of Refresh and the narrator, Portraits and Map. */
+/** Returns the rows of Refresh and the narrator and Portraits. */
 export function runRows() {
   return [
     swRow('Refresh and the narrator', 'onePassCapture', 'One-pass capture', 'narrationCapture', true, { hint: 'The narrator writes NPC State’s changes in its reply; off = background scans' }),
@@ -24,7 +18,5 @@ export function runRows() {
     intRow('Refresh and the narrator', 'peopleBlockBudget', 'People block budget', 'injectBudgetTokens', 4000, { min: 512, max: 6000, unit: 'tokens', tags: ['cost:tokens'], hint: 'Kept separate from the notes budget, as today' }),
     intRow('Refresh and the narrator', 'mostPeopleKeptActive', 'Most people kept active', 'maxNpcs', 40, { min: 1, max: 100 }),
     ...portraitRows(),
-    mapRow(swRow('Map', 'relationshipMap', 'Relationship map', 'relationshipMap', true, { hint: 'Adds a Map view to the dossier panel; read-only' }), 'enabled', Boolean, v => v !== false),
-    mapRow(segRow('Map', 'defaultDistance', 'Default distance', 'relationshipMap', 'warmth', LENSES, { hint: 'What the map’s distance shows when it opens; the buttons on the map change it for this session only' }), 'defaultLens', v => (LENSES.find(p => p[0] === v) ?? LENSES[0])[1], v => (LENSES.find(p => p[1] === v) ?? LENSES[0])[0]),
   ];
 }

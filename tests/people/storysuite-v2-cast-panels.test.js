@@ -65,7 +65,7 @@ test('flag on: touch is changed([people]); a view and the pane register as peopl
     section.draw();
     view.draw();
     assert.deepEqual(drawn, ['pane', 'view']);
-    assert.ok(fake.sections.has('npc-state-delta.dossier-panel'), 'the dossier panel is a people section too');
+    assert.equal(fake.sections.has('npc-state-delta.dossier-panel'), false, 'the old dossier panel is gone (B4-5): no section for it');
     castPanels.touch();
     assert.deepEqual(fake.log.changed, [['people']]);
     off();
@@ -121,5 +121,4 @@ test('every section names its root, so Story Block holds its redraw while a fiel
     castPanels.touch();
     assert.equal(fake.sections.get('npc-state-delta.cast-view.1').root(), box);
     assert.equal(fake.sections.get('npc-state-delta.dossiers-pane').root(), pane);
-    assert.equal(typeof fake.sections.get('npc-state-delta.dossier-panel').root, 'function');
 });

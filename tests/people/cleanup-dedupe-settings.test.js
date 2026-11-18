@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { escapeHtml } from '../../modules/people/util/html.js';
-import { escapeHtml as toolsEscape } from '../../modules/people/legacy/dossier-tools-core.js';
+import { escapeHtml as toolsEscape } from '../../modules/people/tools/tools-core.js';
 import { matchingNpcRecords, scanRowMatchesNpc } from '../../modules/people/core/core.js';
 import { runEditorHostScenario } from './editor-host.mjs';
 import { runtimeSource } from './helpers/runtime-source.js';
@@ -19,7 +19,7 @@ const sources = Object.fromEntries([...runtime, 'src/storysuite-v2.js', 'src/ada
 test('one escapeHtml: every module imports src/util/html.js', () => {
     const owners = Object.entries(sources).filter(([, source]) => /(?:function escapeHtml\(|const escapeHtml\s*=)/.test(source)).map(([path]) => path);
     assert.deepEqual(owners, ['src/util/html.js']);
-    assert.equal(toolsEscape, escapeHtml, 'dossier-tools-core re-exports the same function');
+    assert.equal(toolsEscape, escapeHtml, 'the tools core re-exports the same function');
     assert.equal(escapeHtml(`<a href="x">Tom & 'Ann'</a>`), '&lt;a href=&quot;x&quot;&gt;Tom &amp; &#039;Ann&#039;&lt;/a&gt;');
     assert.equal(escapeHtml(null), '');
 });

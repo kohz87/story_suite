@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
-import { dossierDetailProjection, projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
 import { dossierFields } from '../../modules/people/storysuite-v2.js';
 import { adapterSource } from './helpers/adapter-source.js';
 import { runtimeSource } from './helpers/runtime-source.js';
@@ -74,12 +73,8 @@ test('the Megumin dossier import merges configured custom fields like every othe
     assert.equal(out.state.npcs[0].customFields.Level, '4');
 });
 
-test('the dossier view and npc.dossier show the configured custom fields only', () => {
+test('npc.dossier shows the configured custom fields only', () => {
     const npc = normalizeNpcRecord({ id: 'npc_myla', name: 'Myla', customFields: { Level: '4', Retired: 'old value' } });
-    assert.deepEqual(dossierDetailProjection(npc, {}, {}, { customFieldNames: ['level'] }).customFields, [['Level', '4']]);
-    assert.equal(dossierDetailProjection(npc).customFields.length, 2, 'older callers without names see every stored value');
-    const projection = projectDossierState({ npcs: [npc], customFieldNames: ['Level'] }, { chatKey: 'c1' });
-    assert.deepEqual(projection.npcs[0].customFields, [['Level', '4']], 'getDossierState passes the configured names');
     assert.deepEqual(dossierFields(npc, { customFieldNames: ['Level'] }).customFields, { Level: '4' });
     assert.deepEqual(dossierFields(npc).customFields, { Level: '4', Retired: 'old value' });
     assert.equal('customFields' in dossierFields(npc, { customFieldNames: [] }), false);

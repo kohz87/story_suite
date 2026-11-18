@@ -12,7 +12,6 @@ import {
     normalizeCustomFieldNames,
     normalizeNpcRecord,
 } from '../../modules/people/core/core.js';
-import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const dead = (extra = {}) => normalizeNpcRecord({
@@ -83,11 +82,10 @@ test('prompts gain the custom-field rule only when fields are configured', () =>
     assert.match(buildBackfillPrompt({ transcript: 'Maelis waves.', targetName: 'Maelis Varn', existingNpc: npc, customFieldNames: ['Level'] }), /CUSTOM FIELDS \(Level\)/);
 });
 
-test('configured custom fields reach the roleplay injection and the dossier page', () => {
+test('configured custom fields reach the roleplay injection', () => {
     const npc = live({ customFields: { Level: '3', Class: 'Rogue', Old: 'x' } });
     assert.match(buildInjection([npc], 'Maelis waves.', 1, 3, undefined, 4000, null, { customFieldNames: ['Level', 'Class'] }), /AGENCY\/BONDS: established details: Level: 3 · Class: Rogue/);
     assert.doesNotMatch(buildInjection([npc], 'Maelis waves.', 1, 3), /established details/, 'nothing is sent when no fields are configured');
-    assert.deepEqual(dossierDetailProjection(npc).customFields, [['Level', '3'], ['Class', 'Rogue'], ['Old', 'x']]);
 });
 
 test('settings, editor, scans and imports are wired to the custom fields', () => {

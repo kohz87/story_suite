@@ -41,13 +41,12 @@ test('a row reads the stored value of its NPC State setting', () => {
     relationshipBaseline: { trust: 5, affection: 0, desire: 0, tension: 0 }, relationshipAllowance: { ordinary: null, meaningful: 2, major: 1, extreme: 1 },
     changeCap: 20, gateStrength: 'strong', admissionMode: 'manual_only', staleArchiveAfter: 45, customFieldNames: ['Level', 'Class'],
     narrationCaptureCatchUp: 7, narrationCaptureCatchUpPeople: 3, scanEvery: 11, scanDepth: 9, narrationCaptureCompact: true, injectLimit: 5, injectBudgetTokens: 3000, maxNpcs: 25, portraitGenerationEnabled: false,
-    relationshipMap: { enabled: false, defaultLens: 'tension' },
   };
   const r = byKey(peopleRows(bucket));
   assert.equal(r['people.startingValues'].value.Trust, 5);
   assert.equal(r['people.daily'].value.Ordinary, null);
-  const flat = ['ceiling', 'repeatedApproachesStreng', 'dossier', 'dormant', 'customFields', 'refreshEvery', 'npcsRefreshedPerReply', 'refreshReadsBack', 'shortOnePassInstruction', 'peopleTheNarratorIsToldA', 'peopleBlockBudget', 'mostPeopleKeptActive', 'portraits', 'relationshipMap', 'defaultDistance'];
-  assert.deepEqual(flat.map(k => r[`people.${k}`].value), [20, 'Strong', 'Manual only', 45, 'Level, Class', 7, 3, 9, true, 5, 3000, 25, false, false, 'Tension']);
+  const flat = ['ceiling', 'repeatedApproachesStreng', 'dossier', 'dormant', 'customFields', 'refreshEvery', 'npcsRefreshedPerReply', 'refreshReadsBack', 'shortOnePassInstruction', 'peopleTheNarratorIsToldA', 'peopleBlockBudget', 'mostPeopleKeptActive', 'portraits'];
+  assert.deepEqual(flat.map(k => r[`people.${k}`].value), [20, 'Strong', 'Manual only', 45, 'Level, Class', 7, 3, 9, true, 5, 3000, 25, false]);
 });
 
 test('selectSettings adds the People section, it matches the contract and its module card opens on it', () => {

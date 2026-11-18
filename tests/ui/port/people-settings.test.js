@@ -73,14 +73,6 @@ test('Custom fields store the cleaned names (Level is the host\'s, kept once)', 
   assert.deepEqual(h.stored.customFieldNames, []);
 });
 
-test('the two map rows each keep the other half of the object', () => {
-  const h = host({ relationshipMap: { enabled: true, defaultLens: 'trust' } });
-  set(h, 'relationshipMap', false);
-  assert.deepEqual(h.stored.relationshipMap, { enabled: false, defaultLens: 'trust' });
-  set(h, 'defaultDistance', 'Tension');
-  assert.deepEqual(h.stored.relationshipMap, { enabled: false, defaultLens: 'tension' });
-});
-
 test('a row that is only shown, or a bad key, is refused and stores nothing; other commands are not ours', () => {
   const h = host();
   for (const key of ['customMeters', 'savedPortraitPresets', 'nope']) assert.equal(set(h, key, 'x').ok, false);
@@ -98,7 +90,6 @@ test('Reset People stores the default of every written row', () => {
   const h = host({ narrationCaptureCatchUp: 9, narrationCaptureCatchUpPeople: 3, relationshipMap: { enabled: false, defaultLens: 'tension' }, customFieldNames: ['A'] });
   assert.equal(peopleCommand('settings.action', { key: 'settings.reset', value: 'Reset People to defaults' }, h.writes, h.read).ok, true);
   assert.deepEqual([h.stored.narrationCaptureCatchUp, h.stored.narrationCaptureCatchUpPeople], [4, 1]);
-  assert.deepEqual(h.stored.relationshipMap, { enabled: true, defaultLens: 'warmth' });
   assert.deepEqual(h.stored.customFieldNames, []);
   assert.deepEqual(h.stored.relationshipCaps, { ordinary: 1, meaningful: 2, major: 3, extreme: 6 });
 });

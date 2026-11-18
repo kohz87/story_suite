@@ -7,7 +7,6 @@ import { buildInjection as baselineInjection } from '../../modules/people/core/c
 import { scoringCases, canonicalResult } from './fixtures/scoring-cases.mjs';
 import { BRANCH_LINEAGE_VERSION, recordBranchCheckpoint, reconcileBranchState } from '../../modules/people/legacy/branch.js';
 import { decodeStateFilePayload, encodeStateFilePayload, readNpcStateDataFile, writeNpcStateDataFile } from '../../modules/people/storage/storage.js';
-import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 
 const zero = { trust: 0, affection: 0, desire: 0, tension: 0 };
 const OLD_CAPS = { ordinary: 1, meaningful: 2, major: 5, extreme: 10 };
@@ -63,7 +62,7 @@ test('Stage 5 parsed proposal persists one award, preserves fractional state on 
     assert.deepEqual(state.npcs[0].relationshipProgress, first.relationshipProgress);
     assert.deepEqual(state.npcs[0].relationshipEventHistory, first.relationshipEventHistory);
     const saved = decodeStateFilePayload(encodeStateFilePayload('chat:card.png:scoring', state, '0.1.0')).state;
-    assert.deepEqual(dossierDetailProjection(saved.npcs[0]).relationship, first.relationship);
+    assert.deepEqual(saved.npcs[0].relationship, first.relationship);
     assert.deepEqual(saved.npcs[0].relationshipMilestones, first.relationshipMilestones);
     const rolled = reconcileBranchState(saved, chat.slice(0, 3), { explicitDivergence: 3 }).state.npcs[0];
     assert.equal(rolled.relationship.trust, 50);

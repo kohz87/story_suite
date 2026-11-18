@@ -16,20 +16,15 @@ const MODULE = 'npc-state-delta';
 export function createConnectPart(session, deps) {
     const {
         aliveMs, announceHosted, attempts, cardSettings, chatKeyOf, definition, dossiersReady, host, listen, loadDossierList,
-        doc, loadEmptyCast, onTurn: runTurn, peopleSync, portraitFill: fillPortraits, registerCardSettings, registerPublicPaths, retryMs, startTimeline, stopTimeline,
+        loadEmptyCast, onTurn: runTurn, peopleSync, portraitFill: fillPortraits, registerCardSettings, registerPublicPaths, retryMs, startTimeline, stopTimeline,
         syncDrawer, timers, unmountSection, warn,
     } = deps;
 
-    // A host capture or Re-read that settles after Delta's last render: an open dossier panel asks to draw again (it draws only
-    // when its view token moved).
-    function refreshPanel() {
-        try { doc?.getElementById?.('npc_state_delta_dossier_root')?.__npcStateDeltaStage1Ui?.scheduleRefresh?.(); } catch { /* no panel open */ }
-    }
-    // The host's 'turn' and 'head' events run Delta's own steps, then the panel's refresh.
+    // The host's 'turn' and 'head' events run Delta's own steps.
     // The cache stands on the head's reply (a swipe, a delete, a rewind or a new reply moved the head): the look is queued before any commit of Delta's own, so a
     // commit never goes out for a reply the cache does not stand on. Delta's own step is not held for it.
-    const onTurn = turn => { void peopleSync.sync().catch(() => {}); try { return runTurn(turn); } finally { refreshPanel(); } };
-    const portraitFill = (...args) => { void peopleSync.sync().catch(() => {}); try { return fillPortraits(...args); } finally { refreshPanel(); } };
+    const onTurn = turn => { void peopleSync.sync().catch(() => {}); return runTurn(turn); };
+    const portraitFill = (...args) => { void peopleSync.sync().catch(() => {}); return fillPortraits(...args); };
 
     let aliveTimer = null;
     let hostRef = null;          // the Story Block global we connected to

@@ -15,7 +15,6 @@ import {
 } from '../../modules/people/core/core.js';
 import { BRANCH_LINEAGE_VERSION, recordBranchCheckpoint, reconcileBranchState } from '../../modules/people/legacy/branch.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
-import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 
 function formNpc(name = 'Sora') {
     return normalizeNpcRecord({

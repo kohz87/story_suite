@@ -43,8 +43,6 @@ export const REAL_ROWS = {
     {"group":"Portraits","key":"people.useTheCurrentMood","type":"sw","label":"Use the current mood","hint":null,"unit":null,"tags":[],"wide":false,"options":null,"value":true,"default":null},
     {"group":"Portraits","key":"people.useTheCurrentPlace","type":"sw","label":"Use the current place","hint":null,"unit":null,"tags":[],"wide":false,"options":null,"value":false,"default":null},
     {"group":"Portraits","key":"people.alsoSaveToSillytavernSGa","type":"sw","label":"Also save to SillyTavern’s gallery","hint":null,"unit":null,"tags":[],"wide":false,"options":null,"value":false,"default":null},
-    {"group":"Map","key":"people.relationshipMap","type":"sw","label":"Relationship map","hint":"Adds a Map view to the dossier panel; read-only","unit":null,"tags":[],"wide":false,"options":null,"value":true,"default":null},
-    {"group":"Map","key":"people.defaultDistance","type":"seg","label":"Default distance","hint":"What the map’s distance shows when it opens; the buttons on the map change it for this session only","unit":null,"tags":[],"wide":false,"options":["Warmth","Trust","Affection","Desire","Tension"],"value":"Warmth","default":null},
   ],
   rpg: [
     {"key":"rpg.difficulty","group":"Rules","type":"seg","label":"Difficulty","hint":"Foe’s base 4; new characters: stats start at 5, 10 points to spend, each stat 5 to 10","value":"Standard","default":"Standard","options":["Gentle","Standard","Harsh","Custom"],"unit":null,"tags":[],"wide":false},

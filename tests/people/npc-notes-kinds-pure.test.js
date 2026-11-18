@@ -8,9 +8,6 @@ import { tiesText } from '../../modules/people/notes/npc-notes-ties.js';
 import { stepPull } from '../../modules/people/meters/npc-instincts.js';
 import { setDrives } from '../../modules/people/notes/npc-notes-drives.js';
 import { normalizeEntry } from '../../modules/people/dossier/cast-dossier.js';
-import { bondToneOf } from '../../modules/people/legacy/relationship-map-focus.js';
-import { resolveMapBonds } from '../../modules/people/legacy/relationship-map-core.js';
-import { tieTone } from '../../modules/people/legacy/dossier-ui-bond-tone.js';
 import { said, notesSpy } from './npc-notes-kinds.helpers.js';
 
 test('NOTE_FIELDS lists the six record fields the kinds own, and KINDS maps the four line kinds to their fields', () => {
@@ -154,19 +151,13 @@ test('notes pure: drives scale the pull, a muted instinct gives none; tie rows d
     assert.equal(dossierNotes({ lies: addLie('', { to: 'A', said: 'x', day: 1, r: 'sw_a' }).text }).lies[0].said, null);
 });
 
-test('notes pure: a pack entry\'s tastes and drives are the person\'s first; the map line takes its tone from a tie tag', () => {
+test('notes pure: a pack entry\'s tastes and drives are the person\'s first', () => {
     const entry = normalizeEntry({ name: 'Rika', about: 'a calm clerk', personality: 'Wants closure above all.', tastes: [{ item: 'toffee', like: true, why: 'barge crews' }, { item: 'bad' }], drives: { closure: 3 } });
     assert.deepEqual(entry.tastes, [{ sign: '+', item: 'toffee', from: 'barge crews' }]);
     const seeded = seedNotes(entry);
     assert.equal(JSON.parse(seeded.tastes)[0].item, 'toffee');
     assert.ok(seeded.drives, 'a pack drive is a stored leaf');
     assert.deepEqual(seedNotes(normalizeEntry({ name: 'Plain' })), {}, 'nothing for a default');
-    assert.equal(tieTone(['ally', 'rival']), 'hostile');
-    assert.equal(tieTone(['owes']), 'duty');
-    assert.equal(bondToneOf('friend', 'friend', { tags: ['rival'] }), 'bad');
-    assert.equal(bondToneOf('friend', 'friend', { tags: ['owes'] }), 'gold');
-    const npcs = [{ id: 'a', name: 'Rika', keyRelationships: ['Joren — friend'], v2Meters: { ties: { b: ['owes'] } } }, { id: 'b', name: 'Joren', keyRelationships: [] }];
-    assert.deepEqual(resolveMapBonds(npcs, new Set(['a', 'b']))[0].tags, ['owes']);
 });
 
 test('a stored taste leaf with "[m2]" citations (valid on main) still validates, displays clean, and a taste write keeps its old rows as stored', () => {

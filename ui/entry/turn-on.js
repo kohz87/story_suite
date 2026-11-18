@@ -16,6 +16,7 @@ import { createHold, showScreens } from '../port/hold.js';
 import { frameCoalesced } from '../runtime/redraw.js';
 import { attachWizard } from '../wizard/attach.js';
 import { SUITE_VERSION } from '../../core/version.js';
+import { pageHandles } from '../../modules/people/runtime/handles.js';
 
 const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings', 'wizard'];
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses.
@@ -57,6 +58,9 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
     messagesEl: doc.querySelector('#chat'), drawerHost, isNarrow: () => (globalThis.innerWidth ?? 1000) < 600,
     handlers: { onReread: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); if (at >= 0) port.reread(at); }, onOpenSuite: tab => suite.open(tab), onNeedsYou: () => suite.open(port.view('now')?.needsYou?.some(row => row.kind === 'overdue') ? 'journal' : 'now'), onFight: () => suite.open('fight'), onOpenPerson: id => { suite.open('people'); port.command('suite.go', { tab: 'people', personId: id }); } },
   });
+  // NPC State's "open this person's dossier" (a present card, the world's People list, its public openDossier) opens it here.
+  const openPerson = ({ id, name } = {}) => suite.person([String(id ?? ''), String(name ?? '').trim().toLocaleLowerCase()]);
+  pageHandles.openPerson = openPerson;
   let button = null;
   let sheet = null;
   const refresh = () => {
@@ -99,6 +103,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
     for (const type of [types.CHAT_CHANGED, types.MESSAGE_RECEIVED, types.MESSAGE_SENT]) if (type) ctx()?.eventSource?.removeListener?.(type, frame.request);
     box?.removeEventListener?.('input', typing);
     offScreens();
+    if (pageHandles.openPerson === openPerson) pageHandles.openPerson = null;
     wizard.destroy();
     suite.destroy();
     entry?.remove();

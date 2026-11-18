@@ -10,7 +10,6 @@ import {
     parseAppearanceFormsText,
     resolveNpcAppearance,
 } from '../../modules/people/core/core.js';
-import { appearanceFormsHtml, dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 
 function formNpc(name = 'Sora') {
     return normalizeNpcRecord({
@@ -30,63 +29,6 @@ test('Stage 4 flat appearance remains a scalar current presentation without old-
     assert.equal(npc.currentForm, '');
     assert.deepEqual(npc.appearanceForms, []);
     assert.equal(resolveNpcAppearance(npc), npc.appearance);
-});
-
-
-test('Stage 4 scalar-only current Appearance is rendered as the current dossier presentation', () => {
-    const text = 'Slender jawline, hazel eyes, pale skin, and thick neck-length waves of burnished bronze hair; developed figure with narrow waist; fitted charcoal-gray wool smock, heavy wool hose, and bull-hide mountain boots.';
-    const npc = normalizeNpcRecord({
-        ...createNpcRecord('Cerys'),
-        appearanceModelVersion: 1,
-        appearance: text,
-        appearanceForms: [],
-        currentForm: '',
-        currentFormUnknown: false,
-    });
-    const projected = dossierDetailProjection(npc);
-    const html = appearanceFormsHtml(projected);
-
-    assert.equal(npc.currentForm, '');
-    assert.equal(npc.currentFormUnknown, false);
-    assert.equal(npc.appearanceForms.length, 0);
-    assert.match(projected.appearanceModel.appearance, /burnished bronze hair/i);
-    assert.match(projected.appearance, /charcoal-gray wool smock/i);
-    assert.match(html, /Current presentation/i);
-    assert.match(html, /bull-hide mountain boots/i);
-    assert.doesNotMatch(html, /No named forms established/i);
-});
-
-test('Stage 4 flat scanner Appearance on a form-less record is visible without changing form identity', () => {
-    const base = normalizeNpcRecord({
-        ...createNpcRecord('Cerys'),
-        appearanceModelVersion: 1,
-        appearance: '',
-        appearanceForms: [],
-        currentForm: '',
-        currentFormUnknown: false,
-    });
-    const narration = 'Her hair was not dark at all; thick waves of burnished bronze framed her neck. A fitted charcoal-gray wool smock showed a narrow waist, and she wore heavy hose with greased bull-hide mountain boots.';
-    const currentAppearance = 'Thick waves of burnished bronze hair; developed figure with narrow waist; fitted charcoal-gray wool smock, heavy wool hose, and greased bull-hide mountain boots.';
-    const result = mergeScanResult({ npcs: [base], turn: 1 }, {
-        profileUpdates: [{
-            id: base.id,
-            evidence: { appearance: [narration] },
-            appearance: currentAppearance,
-            appearanceState: 'change',
-            appearanceReason: 'Her cleaned appearance and fitted travel clothing are explicitly revealed.',
-        }],
-    }, { turn: 2, sourceMessageId: 118, developmentContext: narration });
-
-    const npc = result.state.npcs[0];
-    const projected = dossierDetailProjection(npc);
-    const html = appearanceFormsHtml(projected);
-    assert.equal(npc.currentForm, '');
-    assert.equal(npc.currentFormUnknown, false);
-    assert.equal(npc.appearanceForms.length, 0);
-    assert.match(npc.appearance, /burnished bronze hair/i);
-    assert.match(projected.appearance, /charcoal-gray wool smock/i);
-    assert.match(html, /Current presentation/i);
-    assert.match(html, /bull-hide mountain boots/i);
 });
 
 test('Stage 4 dossier fallback does not suppress species identity in portrait prompts', () => {

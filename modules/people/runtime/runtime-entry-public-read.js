@@ -1,6 +1,7 @@
 /* NPC State Delta - public scan, portrait, status and diagnostics API (role: runtime-entry-public-read). The first
    half of the public runtime API surface (pageHandles.deltaApi) split from index.js. Built by index.js with the controller closure so every
    method keeps its live bindings; index.js still assigns and freezes the combined object in its original order. */
+import { openPortraitTools } from '../portrait/portrait-tools.js';
 
 export function createPublicApiReadPart(deps) {
     const {
@@ -9,7 +10,7 @@ export function createPublicApiReadPart(deps) {
         pendingAutoScans, cancelScanOperation, processPendingBackfills, ensureFreshMutationBoundary,
         findNpcByIdOrName, scanNpcDossier, refreshNpcFromChat, npcFormName, npcImagePromptPair,
         executeNativePortraitGeneration, openPortraitGenerator, portraitSettingsSnapshot, savePortraitSettingsDraft,
-        nsdCardSettings, renderDossier, renderInlineCards, openNpcEditorSafely, openLauncherDossier,
+        nsdCardSettings, renderDossier, renderInlineCards, openNpcEditorSafely, openPersonDossier,
         injectionPreview, chatHydrationStatus, hydrationErrors, isScanBusy, scanOperations,
         narrationCaptureStats, narrationCaptures, getChatState, editorIsMounted, presentCastDisplayMode,
         inlineMountNeedsRepair, branchHistoryDiagnostic, branchReconciliationEvents, hostSwipeState,
@@ -61,6 +62,8 @@ export function createPublicApiReadPart(deps) {
         );
     },
     openPortraitGenerator: value => { const npc = findNpcByIdOrName(value); return npc ? openPortraitGenerator(npc.id) : false; },
+    // The portrait manager (view, upload, generate, remove) for one person by id, name or alias: the view's dossier ⋯ › Portrait opens it.
+    openPortraitTools: value => { const npc = findNpcByIdOrName(value); return npc ? Boolean(openPortraitTools(npc.id)) : false; },
     portraitSettings: () => portraitSettingsSnapshot(getSettings()),
     portraitSettingsDirty: () => rt.portraitSettingsDirty,
     savePortraitSettings: draft => savePortraitSettingsDraft(draft),
@@ -69,7 +72,7 @@ export function createPublicApiReadPart(deps) {
     render: renderDossier,
     renderInline: renderInlineCards,
     openEditor: value => { const npc = findNpcByIdOrName(value); return npc ? openNpcEditorSafely(npc.id) : false; },
-    openDossier: value => { const npc = findNpcByIdOrName(value); return npc ? openLauncherDossier(npc.id) : false; },
+    openDossier: value => { const npc = findNpcByIdOrName(value); return npc ? openPersonDossier(npc.id) : false; },
     injectionPreview: () => structuredClone(injectionPreview()),
     isEnabled: () => getSettings().enabled !== false,
     uiStatus: () => ({

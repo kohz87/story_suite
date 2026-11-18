@@ -17,7 +17,7 @@ const NOT_COMMANDS = new Set(['bag.assets', 'journal.calendar', 'journal.closed'
 // Sent after the work is done locally, or only as a fallback the live mount never takes (See on map has the host's hook; the spoiler pref has port.prefs): nothing waits for the answer.
 const LOCAL = new Set(['suite.go', 'suite.settings', 'prefs.spoiler.set', 'people.focus']);
 // Nobody registers these yet: the control is drawn only while `port.can` says yes.
-const UNWIRED = ['npc.edit', 'npc.portrait', 'npc.inspect', 'npc.merge', 'npc.delete', 'npc.memory.add', 'npc.markAlive', 'npc.add', 'party.invite', 'party.bench', 'party.export', 'party.leave', 'rpg.skill.edit', 'item.use', 'quest.edit', 'quest.giveup', 'quest.delete', 'arc.plan', 'scene.correct'];
+const UNWIRED = ['npc.edit', 'npc.inspect', 'npc.merge', 'npc.delete', 'npc.memory.add', 'npc.markAlive', 'npc.add', 'party.invite', 'party.bench', 'party.export', 'party.leave', 'rpg.skill.edit', 'item.use', 'quest.edit', 'quest.giveup', 'quest.delete', 'arc.plan', 'scene.correct'];
 
 const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
   const path = join(dir, entry.name);

@@ -3,9 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS } from '../../modules/people/fields/registry.js';
 import { buildInjection, createNpcRecord, isRoleDescriptionLabel, mergeScanResult, normalizeNpcRecord, npcNamedInText } from '../../modules/people/core/core.js';
-import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 import { runtimeSource } from './helpers/runtime-source.js';
-import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
 const hask = { id: 'h', name: 'Capt. Orrin Hask' };
 const roster = [hask, { id: 'm', name: 'Maelis Varn' }, { id: 'a', name: 'Adaine Varn' }, { id: 'w', name: 'Will Turner' },
@@ -58,17 +56,15 @@ test('mention lines are capped at four, living first, and never displace the cas
     assert.match(buildInjection([live, ...away], 'Arlo Fenn is mentioned.', 1, 3, undefined, 512), /- Maelis Varn: IDENTITY/, 'the cast survives a tight budget');
 });
 
-test('hand-edited aliases are kept from scanner additions and shown on the dossier', () => {
+test('hand-edited aliases are kept from scanner additions', () => {
     const base = { npcs: [{ ...createNpcRecord('Redmond Shaw'), id: 'npc_red', aliases: ['Red'], manualProfileFields: ['aliases'] }], candidates: [], turn: 1 };
     const locked = mergeScanResult(base, { npcs: [{ id: 'npc_red', name: 'Redmond Shaw', aliases: ['Old Red', 'the barkeep'] }] }, { turn: 1 }).state.npcs[0];
     assert.deepEqual(locked.aliases, ['Red']);
     base.npcs[0].manualProfileFields = [];
     assert.deepEqual(mergeScanResult(base, { npcs: [{ id: 'npc_red', name: 'Redmond Shaw', aliases: ['Old Red'] }] }, { turn: 1 }).state.npcs[0].aliases, ['Red', 'Old Red']);
-    assert.match(dossierDetailProjection(locked).aliases.join(','), /Red/);
     const index = runtimeSource();
     assert.match(index, /id="npc_state_delta_edit_aliases"/);
     assert.match(index, /aliases: editorList\('aliases', 8\)/);
     assert.ok(EDITOR_LOCKABLE_FIELDS.includes('aliases'), 'hand-edited aliases can be locked');
-    assert.match(dossierUiSource(), /currentCard\('Known as'/);
     assert.deepEqual(LOCKED_FIELD_KEYS.aliases, ['aliases'], 'the lock map bundle import and branch restore share');
 });
