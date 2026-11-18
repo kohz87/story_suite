@@ -14,7 +14,7 @@ export function selectScene(current) {
     title: text(current.title) || 'Activity',
     state: SCENE_STATES.includes(current.state) ? current.state : 'open',
     steps: Array.isArray(current.steps) ? current.steps.length : 0,
-    canSend: current.canSend === true,
+    canSend: current.canSend === true && current.waiting !== false, // (the engine says `waiting: false` when no message waits to go with the fight)
     canDiscard: current.canDiscard !== false,
     view: current.view === undefined ? null : current.view,
   };

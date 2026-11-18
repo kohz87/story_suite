@@ -252,21 +252,26 @@ test('a block result line keeps its kind and the Journal splits Standing, Fame a
     assert.equal(classify({ type: 'capture.dm', text: 'Fame by region: deed.' }), 'reputation');
 });
 
-test('3: "is here / not here" and "Key people: noted" are bookkeeping: not a happened line; a day of only those has no events', () => {
+test('3: "is here / not here" and "NPC meters: the reply was counted" are bookkeeping: not a happened line; a day of only those has no events', () => {
     const entry = entryOf([
         present('Marrit is not here.'), present('Sister Temiwa is here.', ['Sister Temiwa']),
-        r('npc.tick', { module: 'npc-state-delta', summary: 'Key people: noted' }), r('capture.item', { module: 'story-block', summary: 'The party gains Rope.' }),
+        r('npc.tick', { module: 'npc-state-delta', summary: 'NPC meters: the reply was counted' }), r('capture.item', { module: 'story-block', summary: 'The party gains Rope.' }),
     ], D);
     assert.deepEqual(entry.happened.map(item => item.text), ['The party gains Rope.']);
     assert.deepEqual(entry.met, ['Sister Temiwa'], 'the arrival stays under Met');
     assert.equal(classify({ type: 'capture.present', text: 'Marrit is here.' }), 'bookkeeping', 'an older day\'s line is dropped from the kinds too');
-    assert.deepEqual(bucketDay({ happened: ['Marrit is not here.', 'Key people: noted'], tags: ['capture.present', 'npc.tick'] }), {});
+    assert.deepEqual(bucketDay({ happened: ['Marrit is not here.', 'NPC meters: the reply was counted'], tags: ['capture.present', 'npc.tick'] }), {});
 });
 
 test('3b: the NPC State "the reply was counted" tick is bookkeeping: a day of only that has no events line', () => {
     const entry = entryOf([r('npc.tick', { module: 'npc-state-delta', summary: 'NPC meters: the reply was counted' }), r('capture.item', { module: 'story-block', summary: 'The party gains Rope.' })], D);
     assert.deepEqual(entry.happened.map(item => item.text), ['The party gains Rope.']);
     assert.deepEqual(entryOf([r('npc.tick', { module: 'npc-state-delta', summary: 'NPC meters: the reply was counted' })], D).happened, []);
+});
+
+test('3c: NPC State\'s "Away: noted" tick (people away, only the memory of an absence moved) is bookkeeping too', () => {
+    assert.deepEqual(entryOf([r('npc.tick', { module: 'npc-state-delta', summary: 'Away: noted' })], D).happened, []);
+    assert.deepEqual(entryOf([r('npc.tick', { module: 'npc-state-delta', summary: 'Away: noted' }), r('capture.item', { module: 'story-block', summary: 'The party gains Rope.' })], D).happened.map(item => item.text), ['The party gains Rope.']);
 });
 
 test('5: the fight board\'s "Fight won: …" counts as a fight of the day', () => {

@@ -14,7 +14,7 @@
 /* map tools */
 .mtools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .mtools .psrch{flex:1 1 100%;min-height:44px;font:600 14px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 12px}
-.mtools select{flex:1 1 0;min-width:0;min-height:44px;font:700 13px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 10px}
+.mtools select{flex:1 1 0;min-width:9em;min-height:44px;font:700 13px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 10px}
 .mtools .ibtn{width:44px;height:44px;min-height:44px;flex:none;border-radius:11px}
 .mtools .ibtn svg{width:17px;height:17px}
 @container (min-width:620px){.mtools .psrch{flex:1 1 160px}.mtools select{flex:0 0 auto}}

@@ -74,7 +74,7 @@ test('Auto is one auto command for one exchange', async () => {
   const { tab, port } = build(vm);
   tap(tab, '[data-auto]');
   await flush();
-  assert.deepEqual(sent(port), [['interaction.auto', { id: vm.id, n: 1 }]]);
+  assert.deepEqual(sent(port), [['interaction.auto', { id: vm.id, cap: true }]]);
 });
 
 test('picks are kept for the same interaction and step count, and dropped when the count or the id changes', () => {
@@ -110,6 +110,7 @@ test('a resolved exchange: the after card, Send and Discard on the session id, C
   tap(tab, '[data-act="send"]');
   await flush();
   tap(tab, '[data-discard]');
+  tap(tab, '[data-confirm="discard"]');
   await flush();
   assert.deepEqual(sent(port), [['interaction.send', { id: vm.id }], ['interaction.discard', { id: vm.id }]]);
 });
@@ -274,7 +275,7 @@ test('Auto after the switch was turned off in this exchange says so; Auto with t
   tap(tab, '[data-stance]');
   tap(tab, '[data-auto]');
   await flush();
-  assert.deepEqual(sent(port), [['interaction.auto', { id: vm.id, n: 1, stance: { [vm.view.actors[0].id]: false } }]]);
+  assert.deepEqual(sent(port), [['interaction.auto', { id: vm.id, cap: true, stance: { [vm.view.actors[0].id]: false } }]]);
 });
 
 test('a switch the view says is off and the player turns on writes stance true into the pick (the carried off would stay otherwise)', async () => {
@@ -284,4 +285,42 @@ test('a switch the view says is off and the player turns on writes stance true i
   tap(tab, '[data-act="flee"]');
   await flush();
   assert.equal(port.recorded[0].payload.step.inputs[0].args.stance, true);
+});
+
+test('Discard fight asks first: nothing is sent until "Discard" is pressed, and "Keep it" puts the board back', async () => {
+  installFakeDom();
+  const vm = open('choose');
+  const { tab, port } = build(vm);
+  tap(tab, '[data-discard]');
+  await flush();
+  assert.equal(sent(port).length, 0, 'the first press only asks');
+  assert.equal(tab.querySelectorAll('[data-card="discard-ask"]').length, 1);
+  tap(tab, '[data-keep="fight"]');
+  assert.equal(tab.querySelector('[data-card="discard-ask"]'), null);
+  assert.equal(sent(port).length, 0);
+  tap(tab, '[data-discard]');
+  tap(tab, '[data-confirm="discard"]');
+  await flush();
+  assert.deepEqual(sent(port), [['interaction.discard', { id: vm.id }]]);
+});
+
+test('the pill names the exchange being chosen, not the one just done, and the header carries the place', () => {
+  installFakeDom();
+  const vm = open('realafter');
+  vm.view.title = 'Fight'; // (the kind's own title has no place)
+  vm.place = 'Lower Gate';
+  const { tab } = build(vm);
+  assert.equal(tab.querySelector('.fpill').textContent, `exchange ${vm.view.exchange} done`);
+  tap(tab, '[data-next]');
+  assert.equal(tab.querySelector('.fpill').textContent, `exchange ${vm.view.exchange + 1}`, 'choosing the next one');
+  assert.match(tab.querySelector('[data-card="fight-head"] .t b').textContent, /^Fight · Lower Gate$/);
+});
+
+test('after a failed flee the card says the others acted on Auto; after a won flee it does not', () => {
+  installFakeDom();
+  const vm = open('realafter');
+  vm.view.log = [{ n: 1, summary: '2 rolls', rows: [{ who: 'Astra', what: 'Flees', outcome: 'FAILS', math: '' }] }];
+  assert.match(build(vm).tab.querySelector('[data-card="after"] .anote').textContent, /The flee failed\. The others in the party acted on Auto\./);
+  vm.view.log[0].rows[0].outcome = 'SUCCESS';
+  assert.doesNotMatch(build(vm).tab.querySelector('[data-card="after"] .anote').textContent, /flee failed/);
 });

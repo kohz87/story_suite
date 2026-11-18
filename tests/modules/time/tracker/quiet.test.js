@@ -106,16 +106,7 @@ test('without NPC State Delta, or with nobody dead named, the note is byte for b
     assert.equal(quietThreads(state.domains.director, { state, query: null }).size, 0);
 });
 
-test('the story\'s own death line for a pinned person counts; a person who is back brings the threads back', () => {
-    const state = baseState();
-    const dead = structuredClone(state);
-    dead.domains.keypeople = { pins: {}, away: {}, notes: {}, gone: { vorn: { name: 'Vorn', reason: 'died', on: null, rev: 3 } } };
-    const keys = [...quietThreads(dead.domains.director, { state: dead })].map(id => dead.domains.director.threads[id].key).sort();
-    assert.deepEqual(keys, ['Vorn']);
-    assert.equal(quietThreads(state.domains.director, { state, query: nsd([]) }).size, 0);
-});
-
-test('directorTail still returns the lines of a state with no chronicle or keypeople slice', () => {
+test('directorTail still returns the lines of a state with no chronicle slice', () => {
     const tail = directorTail({ state: baseState(), settings: {}, chat: { length: 9, lastUser: '' } });
     assert.ok(tail.lines.length > 0);
 });

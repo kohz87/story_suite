@@ -3,7 +3,7 @@
 import { STATS_V1 } from '../names.js';
 import { typeKey } from '../../../core/runtime/skill-slots.js';
 import { buildDefinitions, creationOf, readDraft } from '../view/wizard-data.js';
-import { levelOfClass } from '../formula.js';
+import { levelOfJoinClass } from '../formula.js';
 import { companionStatsV1 } from '../formula-parts/companion-v1.js';
 import { V1 } from '../combat/numbers.js';
 import { STANDARD_FORMULA, isStandard } from '../rules.js';
@@ -15,14 +15,14 @@ export function joinDraft({ name = '', soul = 1, best = '', skills = [], level =
     // Every stat 5 and the best 9, then a point for every third level the class stands for (companionStatsV1); the draft's budget is
     // exactly what they cost, so "Edit first" can move points around but is not handed more. (Without rules: the Standard preset's creation numbers.)
     const standard = isStandard(rules) ? rules : STANDARD_FORMULA;
-    // (a level the person's record states stands for itself; without one the class does: levelOfClass)
-    const stated = Number.isSafeInteger(level) && level >= 1, start = stated ? level : levelOfClass(soul);
+    // (a level the person's record states stands for itself; without one the class does: levelOfJoinClass)
+    const stated = Number.isSafeInteger(level) && level >= 1, start = stated ? level : levelOfJoinClass(soul);
     // (the draft's numbers start where companionStatsV1 starts, V1's 5, whatever Custom's "Stats start at" says: else a higher start leaves the cost below 0,
     // the draft's numbers are refused and its stats are held to the preset's 5 to 10)
     const stats = companionStatsV1(best, start), preset = creationOf(standard);
     const creation = { ...preset, start: V1.stat.start, min: Math.min(preset.min, V1.stat.start) };
     const spent = STATS_V1.reduce((sum, stat) => sum + stats[stat] - creation.start, 0);
-    return readDraft({ name, soul: stated ? 0 : soul, level: stated ? level : 0, stats, kind: 'companion', skills: signed, set: '', creation: { ...creation, budget: spent, max: creation.statMax } });
+    return readDraft({ name, soul: 0, level: start, stats, kind: 'companion', skills: signed, set: '', creation: { ...creation, budget: spent, max: creation.statMax } });
 }
 
 /**

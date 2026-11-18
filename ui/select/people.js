@@ -1,4 +1,4 @@
-// Turns the store's people rows, the key-people and party answers and the social graph into the People view-model (PEOPLE_SHAPE), leaving gaps null or empty.
+// Turns the store's people rows, the people away (director.away.view), the party answers and the social graph into the People view-model (PEOPLE_SHAPE), leaving gaps null or empty.
 
 import { tieKind } from './tie-kinds.js';
 
@@ -17,6 +17,7 @@ const metersOf = found => Object.fromEntries(AXES.map(axis => [axis, Number.isFi
 function cardOf(row, partyKeys) {
   return {
     personId: row.id, name: row.name, portrait: row.portrait ?? null, role: row.role ?? null,
+    aliases: (Array.isArray(row.aliases) ? row.aliases : []).filter(alias => typeof alias === 'string' && alias.trim()),
     followed: row.followed === true, inParty: partyKeys.has(keyOf(row.name)),
     mood: row.mood ?? null, meters: metersOf(row.meters), where: cut(row.location ?? null, WHERE_MAX),
   };
@@ -36,13 +37,13 @@ export const isHere = (row, place, present = null) => row.lifeState !== 'decease
     || (Array.isArray(present) && labelsOf(row).some(label => present.some(name => keyOf(typeof name === 'string' ? name : name?.name) === label))));
 
 /**
- * People view-model from { list: people.list (the store's rows), keyPeople?: director.keyPeople.view (place and news of those away), party?: party.actors,
+ * People view-model from { list: people.list (the store's rows), away?: director.away.view (news, doing and return date of those away), party?: party.actors,
  * ties?: people.ties, place?: the scene's place name, filter? }; an empty view while the chat has no people yet (list null). here = isHere; elsewhere = not present, not dormant;
  * dormant (36.12: 30 replies unseen; followed, present and party people never) leaves All and is its own list; the dead are listed with their card.
  * Gaps: `said`, and the death's when and where (the store holds neither).
  */
-export function selectPeople({ list, keyPeople, party, ties, place, present, filter } = {}) {
-  const away = new Map((isRecord(keyPeople) && Array.isArray(keyPeople.people) ? keyPeople.people : []).filter(isRecord).map(row => [keyOf(row.name), row]));
+export function selectPeople({ list, away: awayView, party, ties, place, present, filter } = {}) {
+  const away = new Map((isRecord(awayView) && Array.isArray(awayView.people) ? awayView.people : []).filter(isRecord).map(row => [keyOf(row.name), row]));
   const partyKeys = new Set((Array.isArray(party) ? party : []).filter(isRecord).map(row => keyOf(row.name)));
   const here = [];
   const elsewhere = [];
@@ -56,15 +57,19 @@ export function selectPeople({ list, keyPeople, party, ties, place, present, fil
     }
     if (isHere(row, place, present)) { here.push(card); continue; }
     const kp = away.get(keyOf(row.name));
-    const gone = { ...card, lastPlace: cut(kp?.place ?? row.location ?? null, 80), lastSeen: kp?.newsAgo || null, said: null, ...(kp?.away ? { doing: cut(kp.doing || null, 160), back: kp.back || null } : {}) };
+    const gone = { ...card, lastPlace: cut(row.location ?? null, 80), lastSeen: kp?.newsAgo || null, said: null, ...(kp?.away ? { doing: cut(kp.doing || null, 160), back: kp.back || null } : {}) };
     (row.dormant === true && !card.inParty ? dormant : elsewhere).push(gone);
   }
   const active = [...here, ...elsewhere];
+  // Names the scene has here that no record answers to (a person the story named but NPC State has no dossier for): told, never dropped silently.
+  const known = new Set((Array.isArray(list) ? list : []).filter(isRecord).flatMap(labelsOf));
+  const unrecorded = [...new Set((Array.isArray(present) ? present : []).map(name => String(typeof name === 'string' ? name : name?.name ?? '').trim()).filter(name => name && !known.has(keyOf(name))))];
   const edges = tiesOf(ties);
   return {
     filter: FILTERS.includes(filter) ? filter : 'all',
     counts: { all: active.length, party: active.filter(c => c.inParty).length, followed: active.filter(c => c.followed).length, deceased: deceased.length, notSeenLately: dormant.length },
     here, elsewhere, notSeenLately: dormant.length, dormant, deceased,
+    ...(unrecorded.length ? { unrecorded } : {}),
     ...(edges.length ? { ties: edges } : {}),
   };
 }

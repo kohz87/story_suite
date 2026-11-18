@@ -20,13 +20,20 @@ const MENU = Object.freeze([
 ]);
 const lower = text => (text ? text[0].toLowerCase() + text.slice(1) : '');
 
-/** Lists the pages a dossier has: the living get With, Mood, Right now, Ties, Past, Secrets, Profile; the dead get Death, Ties, Past, Secrets, Profile. Empty Ties, Secrets and Mood are left out. */
+// Right now has nothing to say: no place, doing, wearing, thought or scene for someone here; no last place, last seen or word for someone away (F14).
+const nowEmpty = (d) => {
+  const now = d.now ?? {};
+  const facts = Object.hasOwn(now, 'where') ? [now.where, now.doing, now.wearing, now.thought] : [now.lastPlace, now.lastSeen, now.said];
+  return !facts.some(Boolean) && !d.scene;
+};
+
+/** Lists the pages a dossier has: the living get With, Mood, Right now, Ties, Past, Secrets, Profile; the dead get Death, Ties, Past, Secrets, Profile. Empty Ties, Secrets, Mood and Right now are left out. */
 export function dossierPages(d, youName = 'you') {
   const dead = d.life !== 'alive';
   const all = dead
     ? [['death', 'Death'], ['ties', 'Ties'], ['past', 'Past'], ['secrets', 'Secrets'], ['profile', 'Profile']]
     : [['with', `With ${youName}`], ['mood', 'Mood'], ['now', 'Right now'], ['ties', 'Ties'], ['past', 'Past'], ['secrets', 'Secrets'], ['profile', 'Profile']];
-  const skip = { ties: !d.ties?.length, secrets: !d.secrets?.total, mood: !d.mood };
+  const skip = { ties: !d.ties?.length, secrets: !d.secrets?.total, mood: !d.mood, now: nowEmpty(d) };
   return all.filter(([id]) => !skip[id]).map(([id, title]) => ({ id, title }));
 }
 
@@ -61,7 +68,7 @@ const BODIES = { death: deathPage, with: withPage, mood: moodPage, now: nowPage,
 
 /**
  * Builds the dossier for a `dossier` view-model. ctx = { port, prefs, backStack, go(tab, args), onClose(), seeOnMap(id), origin, youName }.
- * Commands: people.follow (the store's Follow flag; the star goes back if the engine refuses), npc.edit (opens NPC State's editor; no field edit here yet), npc.refresh, npc.portrait, npc.inspect, npc.merge, npc.delete (asks twice), npc.markAlive, npc.memory.add.
+ * Commands: people.follow (the store's Follow flag; the star goes back if the engine refuses), npc.edit (opens NPC State's editor), npc.refresh, npc.portrait, npc.inspect, npc.merge, npc.delete (asks twice; the dossier closes once they are gone), npc.markAlive, npc.memory.add.
  * Returns the root element; `root.close()` takes the dossier down from the back-stack too.
  */
 export function dossierPage(d, ctx = {}) {
@@ -105,6 +112,13 @@ export function dossierPage(d, ctx = {}) {
       (error) => { noteSlot.textContent = String(error?.message || 'Portrait tools did not open.'); });
   }
 
+  // Edit, Delete, Merge and the like: what the engine answers is told under the top bar when it refuses; a deleted person takes the dossier down with them.
+  function act(type) {
+    Promise.resolve(cmd(type)).then(
+      (result) => { if (result?.ok === false) noteSlot.textContent = result.message ?? 'That did not work.'; else if (type === 'npc.delete') close(); },
+      (error) => { noteSlot.textContent = String(error?.message || 'That did not work.'); });
+  }
+
   function drawMenu() {
     top.querySelector('[data-act="menu"]')?.setAttribute('aria-expanded', String(state.menu));
     if (!state.menu) { menuSlot.replaceChildren(); return; }
@@ -114,7 +128,7 @@ export function dossierPage(d, ctx = {}) {
         type: 'button', role: 'menuitem', class: id === 'delete' ? 'dng' : null, dataset: { act: id },
         onClick: () => {
           if (id === 'delete' && !state.sure) { state.sure = true; drawMenu(); return; }
-          if (id === 'refresh') refresh(); else if (id === 'portrait') portrait(); else cmd(`npc.${id}`, {});
+          if (id === 'refresh') refresh(); else if (id === 'portrait') portrait(); else act(`npc.${id}`);
           closeMenu();
         },
       }, confirm ? 'Tap again to delete' : label, h('small', null, confirm ? 'this cannot be undone' : hint));
@@ -126,7 +140,7 @@ export function dossierPage(d, ctx = {}) {
     top.replaceChildren(...[
       button({ label: ctx.origin ?? '‹ People', className: 'bk2', dataset: { act: 'close' }, onClick: close }),
       h('span', { class: 'sp' }),
-      can(ctx, 'npc.edit') ? button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => cmd('npc.edit') }) : null,
+      can(ctx, 'npc.edit') ? button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => act('npc.edit') }) : null,
       !MENU.some(([id]) => can(ctx, `npc.${id}`)) ? null : h('button', { type: 'button', class: 'ibtn', 'aria-label': 'More', 'aria-expanded': 'false', dataset: { act: 'menu' },
         onClick: () => { if (state.menu) { closeMenu(); return; } state.menu = true; hold('menu', 'menu', () => { state.menu = false; state.sure = false; drawMenu(); }); drawMenu(); } }, '⋯')].filter(Boolean));
   }
@@ -146,7 +160,7 @@ export function dossierPage(d, ctx = {}) {
       h('div', { class: 'chips dchips' }, dead
         ? h('span', { class: ['deadb', d.life === 'presumed' ? 'pres' : null] }, d.life === 'presumed' ? 'Presumed dead' : 'Deceased')
         : follow),
-      h('div', { class: 'idl' }, d.idLine, d.genderUnknown ? h('span', { class: 'gflag' }, ' · gender not stated') : null),
+      h('div', { class: 'idl' }, d.idLine, d.genderUnknown ? h('span', { class: 'gflag' }, `${d.idLine ? ' · ' : ''}gender not stated`) : null),
       h('div', { class: 'idl' }, [dead ? where : (d.now && Object.hasOwn(d.now, 'where') ? 'Here' : where), d.inParty ? 'in your party' : null].filter(Boolean).join(' · ')),
       dead ? null : partyAddButton(d, { ...ctx, onAdded: () => { d.partyAdd = null; d.inParty = true; drawGrid(); },
         onEdited: () => { const fresh = ctx.port?.view?.('dossier')?.[d.id]; if (fresh) { d.partyAdd = fresh.partyAdd ?? null; d.inParty = fresh.inParty; } drawGrid(); } }),

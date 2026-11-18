@@ -2,7 +2,7 @@
 import * as continuity from '../continuity-core.js';
 import * as mechanics from '../core-mechanics.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
-import { lockAwayNpcs } from '../../cast/key-people.js';
+import { holdAwayDossiers } from '../../away/away-hold.js';
 import { getActiveCalendarConfig, normalizeCalendarDate, withStoryDateMemo } from '../../calendar/calendar.js';
 import { applyNpcBirthdayUpdate, mergeNpcBirthdayKnowledge, normalizeNpcBirthday, reanchorDerivedBirthYearFromAge } from '../../birthday/birthday.js';
 import { birthdayUpdateGrounded, withAppearanceDerivedApparentAge, birthdayUpdateRow, stampFieldChanges, calendarReference, applyDeterministicBirthdayRollover } from '../core-birthday.js';
@@ -11,15 +11,15 @@ import { finalizeProfileDevelopment } from '../core-profile-finalize.js';
 import { storyDayFromText } from './calendar-days.js';
 import { normalizeNpcRecord } from './npc-records.js';
 
-// A scan's merge. `awayNpcIds` (the dossiers of key people who are away, from Story Director): their stable
-// profile fields and custom fields are held as if locked for this merge only (src/key-people.js); nothing of
+// A scan's merge. `heldAwayIds` (the dossiers of people away, Story Director's director.away): their stable
+// profile fields and custom fields are held as if locked for this merge only (people/away/away-hold.js); nothing of
 // the hold is stored, and without it the merge is exactly as before.
 export function mergeScanResult(state, scanResult, rawOptions = {}) {
     return withStoryDateMemo(() => mergeScanResultInPass(state, scanResult, rawOptions));
 }
 
 function mergeScanResultInPass(state, scanResult, rawOptions = {}) {
-    const hold = lockAwayNpcs(state, rawOptions.awayNpcIds);
+    const hold = holdAwayDossiers(state, rawOptions.heldAwayIds);
     if (!hold) return mergeScanResultHeld(state, scanResult, rawOptions);
     const result = mergeScanResultHeld(hold.state, scanResult, rawOptions);
     result.state.npcs = hold.restore(result.state.npcs);

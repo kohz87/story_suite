@@ -21,7 +21,7 @@ function world(people, { keys = [], absent = false } = {}) {
             if (name === 'npc.dossier') return find(args.name) ? { name: find(args.name), id: people[find(args.name)].id, role: people[find(args.name)].role, mood: people[find(args.name)].mood, aliases: people[find(args.name)].aliases ?? [] } : null;
             if (name === 'npc.meters') return find(args.name) ? { rank: people[find(args.name)].rank } : null;
             if (name === 'npc.portrait') return find(args.name) ? people[find(args.name)].portrait ?? null : null;
-            if (name === 'director.keyPeople') return keys.map(key => ({ name: key }));
+            if (name === 'people.list') return keys.map(key => ({ name: key, followed: true }));
             return null;
         },
         on: (name, fn) => { if (name === 'changed') listeners.add(fn); return () => listeners.delete(fn); },
@@ -50,7 +50,7 @@ test('flag on: one card per present person in npc.present order, with portrait o
     assert.deepEqual(cells.map(cell => cell.querySelector('.npc-state-delta-present-card-name').textContent), ['Mira', 'Old Tom']);
     assert.equal(cells[0].querySelector('img').getAttribute('src'), PORTRAIT);
     assert.equal(cells[1].querySelector('.npc-state-delta-present-card-placeholder').textContent, 'O');
-    assert.equal(cells[0].querySelector('.npc-state-delta-key-tag').textContent, '★ Key', 'a key person by alias');
+    assert.equal(cells[0].querySelector('.npc-state-delta-key-tag').textContent, '★ Key', 'a followed person by alias');
     assert.equal(cells[1].querySelector('.npc-state-delta-key-tag'), null);
     assert.equal(cells[0].querySelector('.npc-state-delta-present-card-stage').textContent, 'Friend');
     assert.equal(cells[0].querySelector('.npc-state-delta-present-card-role').textContent, 'Captain · calm');

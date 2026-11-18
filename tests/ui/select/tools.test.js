@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { selectProblems, selectSent, selectInspector } from '../../../ui/select/tools.js';
+import { selectSavePoints, selectProblems, selectSent, selectInspector } from '../../../ui/select/tools.js';
 import { selectSettings } from '../../../ui/select/settings.js';
 
 const size = { tail: 551, static: 900, own: [{ tokens: 40 }], total: 1491 };
 
 test('a permanent dossier block is a Problems entry with the two ways to start again; a transient one is not', () => {
   const hard = selectProblems({ problems: [{ module: 'people', code: 'X', message: 'bad', index: 2 }], blocked: { blockedBy: { module: 'npc', code: 'SNAPSHOT_UNAVAILABLE' } }, nameOf: id => `N:${id}` });
-  assert.equal(hard.items[0].reply, 3);
+  assert.equal(hard.items[0].reply, 2, 'the number SillyTavern shows (it counts from 0)');
   assert.equal(hard.rebuild.name, 'N:npc');
   assert.deepEqual(hard.rebuild.choices.map(c => c.read), ['last-40', 'all']);
   assert.equal(selectProblems({ problems: [], blocked: { blockedBy: { module: 'npc', code: 'TIMEOUT' } } }).rebuild, null);
@@ -44,4 +44,15 @@ test('the Inspector view follows the newest reply, clamps a stale index and read
   assert.deepEqual(asked, [5, 5, 2]);
   assert.deepEqual(selectInspector({ replies: [], reply: () => assert.fail('no reply to read') }).reply, null);
   assert.equal(selectInspector({ replies: handle.replies, reply: () => ({ ok: false, message: 'no story' }) }).reply.message, 'no story');
+});
+
+test('save point rows: the message number SillyTavern shows (it counts from 0) and the story date, the real date only for an older point (soak W34)', () => {
+  const view = selectSavePoints({ on: true, here: '', points: [
+    { id: 'a', name: 'A', index: 16, at: '2026-11-18T10:00:00.000Z', story: 'Oct 5, 611', branch: 'b1' },
+    { id: 'b', name: 'B', index: 0, at: '2026-11-18T10:00:00.000Z', branch: 'b2' },
+  ] });
+  assert.equal(view.rows[0].reply, 16);
+  assert.equal(view.rows[0].date, 'Oct 5, 611');
+  assert.equal(view.rows[1].reply, 0, 'the first message is #0');
+  assert.notEqual(view.rows[1].date, '');
 });

@@ -21,7 +21,9 @@ export function applyTimeLine(ctx, line) {
     if (parts.length < 2) return last;
     const from = parts.map(part => part.data.from).find(Number.isSafeInteger);
     const kind = parts.some(part => part.data.kind === 'set') ? 'set' : 'move';
-    return { ...last, data: { ...last.data, kind, ...(Number.isSafeInteger(from) ? { from } : {}) } };
+    // Each part's reason (a clamp, a refusal) goes to the Problems list, not only the last part's.
+    const problem = parts.map(part => part.problem).filter(Boolean).join(' ');
+    return { ...last, data: { ...last.data, kind, ...(Number.isSafeInteger(from) ? { from } : {}) }, ...(problem ? { problem } : {}) };
 }
 
 // `again`: the second half of a joined line, which is the same line (the same place in the reply), not a new reply.
@@ -75,9 +77,10 @@ function timeLine(ctx, line, again = false, anchorable = true) {
         // A refused `~` clock face keeps its mark: after an edit that moves the day it is today's face on the new day (the clock stays when it is not).
         if (anchoring && Number.isSafeInteger(next.face)) {
             ctx.anchored('director', '/time/minutes', { period: DAY_MINUTES, roll: 'same', to: next.face });
-            return { summary: `Director: ${lineText(line)} (not used)`, narrate: false, data: { minutes: now, from: now, kind: 'same', to: next.face } };
+            return { summary: `Director: ${lineText(line)} (not used)`, narrate: false, data: { minutes: now, from: now, kind: 'same', to: next.face }, problem: next.error };
         }
-        return { summary: `Director: ${lineText(line)} (not used)`, narrate: false, data: { minutes: now, kind: 'move' } };
+        // `problem`: why the line was not used, for the Problems list (W12; Story Block keeps it out of the receipt, so replay is unchanged).
+        return { summary: `Director: ${lineText(line)} (not used)`, narrate: false, data: { minutes: now, kind: 'move' }, problem: next.error };
     }
     const before = director.time.minutes;
     if (next.minutes !== before) director.time.minutes = next.minutes;
@@ -97,10 +100,12 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     const set = Boolean(next.set) && !roll && typeof ctx.absolute === 'function';
     if (roll) ctx.anchored('director', '/time/minutes', { period: DAY_MINUTES, roll });
     else if (set) ctx.absolute('director', '/time/minutes');
-    // `kind`: the op the receipt describes, as Story Block replays it (a move: `from` → `minutes`; a set: the stored minute; 'same' / 'after': an anchored set).
+    // `kind`: the op the receipt describes, as Story Block replays it (a move: `from` → `minutes`; a set: the stored minute; 'same' / 'after' / 'day': an anchored set).
     return {
         summary: `Story time: ${calendar.format(next.minutes)}.`,
         narrate: false,
         data: { minutes: next.minutes, from: before, kind: roll ?? (set ? 'set' : 'move'), ...(next.held ? { held: next.held } : {}) },
+        // A jump cut to the longest time jump says so in the Problems list (W11).
+        ...(next.problem ? { problem: next.problem } : {}),
     };
 }

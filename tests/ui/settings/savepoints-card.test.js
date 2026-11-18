@@ -46,7 +46,7 @@ test('Save point asks for a name, makes the branch at the latest reply and lists
   assert.deepEqual(made, [4]);
   el = page.page('tools');
   const row = el.querySelector('[data-savepoint]');
-  assert.ok(row.textContent.includes('Before the bridge') && row.textContent.includes('Message 5'));
+  assert.ok(row.textContent.includes('Before the bridge') && row.textContent.includes('Message 4'));
   assert.equal(tools.savePoints().points.length, 1);
   assert.deepEqual(clone(host.head()), head, 'no receipt, no rev');
   assert.ok(el.querySelectorAll('.srow').find(r => r.textContent.includes('Saved.')), 'the card says it saved');

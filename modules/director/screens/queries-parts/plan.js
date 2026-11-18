@@ -44,6 +44,9 @@ export function planView(state, args, tools, { settings = null } = {}) {
     const agendas = open('agenda').map(agenda => ({ ...agenda, steps: agendaSteps(agenda.fields, { calendar, now, query }), ...(told.has(agenda.id) ? { told: true } : {}) }));
     // Newest first (the lists are kept oldest first), so a card's first rows are the latest reply's problems.
     const problems = [...problemsList(state, { behind: false }, tools).reverse(), ...[...behind.problems].reverse()];
-    const view = { hooks, clocks: open('clock'), beats: open('beat'), agendas, secrets: open('secret'), problems };
+    // A clock past its due time is overdue; a hook the arc planner made is `planned` (the narrator's own are leads the reader knows).
+    const threadOf = id => state?.domains?.director?.threads?.[id];
+    const overdue = clock => { const due = calendar ? dateOf({ fields: clock.fields }, 'due', { calendar, reference: Number.isSafeInteger(now) ? now : null }) : null; return Boolean(due) && Number.isSafeInteger(now) && due.abs < now; };
+    const view = { hooks: hooks.map(hook => ({ ...hook, planned: Boolean(threadOf(hook.id)?.track?.arc) })), clocks: open('clock').map(clock => ({ ...clock, overdue: overdue(clock) })), beats: open('beat'), agendas, secrets: open('secret'), problems };
     return { ...view, any: Object.values(view).some(list => list.length > 0) };
 }

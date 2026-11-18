@@ -57,10 +57,15 @@ describe('selectNow', () => {
     assert.deepEqual(planned.today.trip, { state: 'planned', title: 'Auvoth', detail: 'Bluewatch → Auvoth · leaves Goldwane 14', progressPct: 0 });
   });
 
-  it('shows an arrived trip at 100 percent and skips one not on the road yet', () => {
-    const arrived = selectNow({ 'atlas.trip': { on: true, to: 'X', phase: 'arrived', row: 'Arrived', leg: 1, legCount: 1, fraction: 0 } });
-    assert.equal(arrived.today.trip.progressPct, 100);
+  it('lists no finished trip (the engine keeps an arrived one for weeks) and skips one not on the road yet', () => {
+    assert.equal(selectNow({ 'atlas.trip': { on: true, to: 'X', phase: 'arrived', row: 'Arrived', leg: 1, legCount: 1, fraction: 0 } }).today.trip, null);
     assert.equal(selectNow({ 'atlas.trip': { on: false, phase: '' } }).today.trip, null);
+  });
+
+  it('says "overdue" for a date the time check lists, "due now" for one that fell today', () => {
+    const next = { id: 't1', key: 'Pay', kind: 'quest', summary: 'Pay the guild', when: 'Goldwane 14', reached: true };
+    assert.equal(selectNow({ 'director.next': next }).today.dueSoon.detail, 'Goldwane 14 · due now');
+    assert.equal(selectNow({ 'director.next': next, 'time.overdue': { overdue: [{ id: 't1', key: 'Pay' }] } }).today.dueSoon.detail, 'Goldwane 14 · overdue');
   });
 
   it('adds one points row from rpg.sheet (singular for one, names the members), none when nobody has points', () => {

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { OPENING, castHost, castSource, createFakeModel, entry, receipts, said, settle, validatorErrors } from './helpers.js';
+import { OPENING, castHost, castSource, createFakeModel, entry, followPeople, receipts, said, settle, validatorErrors } from './helpers.js';
 import { forWorldPack, realEntries } from './real-entries.js';
 
 const quiet = t => t.mock.method(console, 'warn', () => {});
@@ -77,7 +77,7 @@ test('director.cast.view: Around here\'s numbers: met n of N always, how many un
     }
 });
 
-test('a person met from the cast can be pinned as a key person: the Pin chooser lists them (not the unmet), and once pinned the planner leaves them to the key people track', async t => {
+test('a followed person met from the cast is left alone by the planner (the Follow star)', async t => {
     quiet(t);
     const host = await castHost({
         source: castSource([entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' }, aliases: ['the smith'] }), entry('fenna', { start: { place: 'Bluewatch docks', goal: 'f', routine: 'works the night ferry' } })]),
@@ -86,13 +86,10 @@ test('a person met from the cast can be pinned as a key person: the Pin chooser 
     try {
         await host.send('Hello.', said('Dawn.', OPENING));
         await host.send('Look.', said(`Smoke. ${host.everyone()}`));
-        const choices = host.sdk.query('director.keyPeople.view').choices;
-        assert.deepEqual(choices.map(choice => [choice.name, choice.source, choice.aliases]), [['Brom', 'cast', ['the smith']]]);
-        assert.ok((await host.sdk.command('keypeople.pin', { name: 'Brom', aliases: ['the smith'] })).ok);
-        assert.deepEqual(host.sdk.query('director.keyPeople.view').choices, []);
+        await followPeople(host, [{ name: 'Brom', aliases: ['the smith'] }]);
         await host.send('Sleep.', said('Morning.', ['~ time June 4, 1200, 08:00 am']));
         await settle();
-        assert.doesNotMatch(host.model.calls.at(-1).prompt, /- brom \|/, 'a key person is not moved by the cast planner');
+        assert.doesNotMatch(host.model.calls.at(-1).prompt, /- brom \|/, 'a followed person is not moved by the cast planner');
         assert.match(host.model.calls.at(-1).prompt, /- fenna \|/);
     } finally {
         host.close();

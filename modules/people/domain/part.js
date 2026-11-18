@@ -61,7 +61,7 @@ export function createPeoplePart() {
                     return { summary: 'People stored.', narrate: false };
                 },
             },
-            // Replaces the stored `bonds` ({ npcs: { [npc_id]: record }, problems, keyAway?, cast? }) with the given one, inside the transaction of the module
+            // Replaces the stored `bonds` ({ npcs: { [npc_id]: record }, problems, cast? }) with the given one, inside the transaction of the module
             // command that calls it (ctx.call); a reader's button or a page cannot send it on its own. Every other key of the slice stays.
             'people.bonds': {
                 internal: false,   // (a reader's own meter edit calls it through NPC State's command, which a ui cause may do; the caller check below holds it to modules)

@@ -6,6 +6,7 @@ import { h } from '../kit/dom.js';
 import { button } from '../kit/controls.js';
 import { moneyText } from '../../modules/rpg/charfile.js';
 import { RANKS } from '../../modules/rpg/combat/numbers.js';
+import { skillCost } from '../../modules/rpg/combat/skills.js';
 import { RANK_NAMES } from '../../modules/rpg/names.js';
 import { RPG_STRINGS, fill } from '../../modules/rpg/strings.js';
 import { blockNames, extraName, pointsLeft, problemsOf, readDraft, statsLine } from '../../modules/rpg/view/wizard-data.js';
@@ -15,6 +16,17 @@ import { currencyOf, thingsPhrase } from './who.js';
 const W = RPG_STRINGS.wizard;
 const RANK_WORDS = RANKS.map(rank => rank.name);
 const rankWord = skill => (Number.isSafeInteger(skill?.rank) ? RANK_WORDS[skill.rank] : RANK_NAMES[skill?.start ?? 0]);
+// The pool a skill draws on, as the Party sheet and the board price it (INT or WIS, and a heal, draw Mana); a utility skill has no price, so its stat says.
+const poolWord = skill => {
+  const pool = skillCost({ type: skill.type ?? 'attack', stat: skill.stat }).pool;
+  return W[pool === 'mp' ? 'mana' : pool === 'sp' ? 'stamina' : ['int', 'wis'].includes(skill.stat) ? 'mana' : 'stamina'];
+};
+// "Adept (works from Lv 10)" while the level is below what the rank needs (the Party sheet shows the rank the level allows).
+const startWord = (skill, level) => {
+  const word = rankWord(skill);
+  const need = RANKS.find(rank => rank.name === word)?.minLevel ?? 1;
+  return level < need ? fill(W.adeptFrom, { rank: word, level: need }) : word;
+};
 const kindWord = kind => (kind === 'you' ? W.you : W.companion);
 const note = (text, review = null) => h('p', { class: 'ps-p', dataset: { review } }, text);
 
@@ -72,7 +84,7 @@ export function drawReview(ctx) {
   }
   const now = readDraft(run.draft), where = world.world();
   const problems = problemsOf(now, where);
-  const skills = now.skills.length ? now.skills.map(skill => h('li', null, `${skill.name || '—'} · ${skill.stat ? skill.stat.toUpperCase() : '—'} · ${W[skill.uses]} · ${W.startsAt} ${rankWord(skill)}`)) : [h('li', null, W.noSkills)];
+  const skills = now.skills.length ? now.skills.map(skill => h('li', null, `${skill.name || '—'} · ${skill.stat ? skill.stat.toUpperCase() : '—'} · ${poolWord(skill)} · ${W.startsAt} ${startWord(skill, now.level ?? 1)}`)) : [h('li', null, W.noSkills)];
   const status = h('p', { class: 'ps-p wz-status', role: 'status' }, run.message);
   const make = button({ label: run.busy ? W.creating : W.create, tone: 'primary', disabled: problems.length > 0 || run.busy, dataset: { wiz: 'create' }, onClick: () => create(ctx, make, status) });
   return h('div', { class: 'wz-review' },

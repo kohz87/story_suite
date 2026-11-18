@@ -1,12 +1,14 @@
 // The new view's command names that the engine registers under another name or as one dm.set: Quiet scene, End this arc and Spend points.
 
+import { arcController } from '../../modules/arc/controller.js';
 import { actorIdOf } from '../../modules/rpg/roster-parts/actor-id.js';
 
 const NO = (message) => ({ ok: false, code: 'FAILED', message });
 const RENAMED = Object.freeze({ 'pulse.quiet': 'director.pulse.quiet', 'arc.end': 'director.arc.end' });
 
 /** The names `aliasCommand` answers (the port's `can` counts them). */
-export const ALIAS_NAMES = Object.freeze([...Object.keys(RENAMED), 'rpg.stats.spend']);
+export const ARC_NAMES = Object.freeze(['arc.plan', 'arc.accept', 'arc.discard']);
+export const ALIAS_NAMES = Object.freeze([...Object.keys(RENAMED), ...ARC_NAMES, 'rpg.stats.spend']);
 
 // The member's Character block row of dataModules.setup, found by the actor id the sheet gives it.
 function blockOf(sdk, member) {
@@ -35,9 +37,18 @@ async function spend(sdk, payload) {
   return sdk.command('dm.set', { module: block.module, fields, ...(subject ? { who: subject } : {}) });
 }
 
+// Plan the next arc, accept the plan that waits, or discard it: the page's planner (modules/arc/controller.js), which writes only through the engine's director.arc.* commands.
+async function arcCommand(controller, type, payload) {
+  const answer = type === 'arc.discard' ? controller.discard()
+    : type === 'arc.accept' ? await controller.accept()
+      : await controller.plan({ reason: 'manual', note: typeof payload?.note === 'string' ? payload.note : '' });
+  return answer?.ok === false ? NO(answer.message) : { ok: true };
+}
+
 /** The alias answer for `type`, or null when it is not one of ours. Quiet scene and End this arc are the Director's own commands under their registered names. */
-export async function aliasCommand(sdk, type, payload) {
+export async function aliasCommand(sdk, type, payload, arc = arcController) {
   if (!ALIAS_NAMES.includes(type)) return null;
+  if (ARC_NAMES.includes(type)) return arcCommand(arc(), type, payload);
   if (typeof sdk?.command !== 'function') return NO('The engine has no command.');
   if (type === 'rpg.stats.spend') return spend(sdk, payload);
   return sdk.command(RENAMED[type], payload ?? {});

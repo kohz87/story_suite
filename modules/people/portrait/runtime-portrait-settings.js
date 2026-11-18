@@ -32,7 +32,7 @@ export function createPortraitSettingsPart(rt, deps) {
             rt.portraitSettingsDirty = true;
             updatePortraitSettingsSaveUi();
             console.error('[NPC State Delta] portrait settings save failed', error);
-            globalThis.toastr?.error?.(`NPC State Delta portrait settings were not saved: ${error?.message || error}`);
+            globalThis.toastr?.error?.(`NPC State portrait settings were not saved: ${error?.message || error}`);
             return false;
         }
     }
@@ -84,7 +84,7 @@ export function createPortraitSettingsPart(rt, deps) {
             rt.portraitSettingsDirty = true;
             updatePortraitSettingsSaveUi();
             console.error('[NPC State Delta] custom portrait preset save failed', error);
-            globalThis.toastr?.error?.(`NPC State Delta custom portrait preset was not saved: ${error?.message || error}`);
+            globalThis.toastr?.error?.(`NPC State custom portrait preset was not saved: ${error?.message || error}`);
             return null;
         }
     }

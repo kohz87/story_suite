@@ -10,7 +10,7 @@ export function renderProblems(view, state) {
   const rb = view?.rebuild ?? null;
   if (!items.length && !rb && !state.force) return null;
   const rows = items.map(p => h('div', { class: 'srow', dataset: { problem: p.code } },
-    h('span', { class: 'lb' }, h('b', p.message || p.code), h('small', [p.module, p.code, p.reply ? `reply ${p.reply}` : null].filter(Boolean).join(' · ')))));
+    h('span', { class: 'lb' }, h('b', p.message || p.code), h('small', [p.module, p.code, Number.isInteger(p.reply) ? `message ${p.reply}` : null].filter(Boolean).join(' · ')))));
   if (rb) {
     const working = state.rebuilding;
     const confirm = state.confirming && !working ? h('div', { class: 'cfm' }, h('b', 'Start this branch’s dossiers from the chat?'),

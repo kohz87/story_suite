@@ -4,9 +4,7 @@
 // Block's `scene.weather`, when the story set one), a Travel row while a trip is on (feature `story-director.trip`), {{user}}'s rank, what they are wearing and their condition (Story Block's
 // `scene.you`, 2.10.0 and later, when the story set them; the Rank only in a game whose pack gives one, under that pack's own word, such as
 // "Guild rank"), the current goal (the active quest touched last:
-// its goal and step, with that quest's progress). A row with no value is left out. What the reply did to the key people list (someone
-// back, someone no longer a key person) leads the card and its closed line, from the keypeople part's notes (`state.keypeople.notes`), and
-// what the cast did (paths crossed, the cast moved on, a pack updated) heads it the same way, from the cast part's notes (`state.cast.notes`);
+// its goal and step, with that quest's progress). A row with no value is left out. What the cast did (paths crossed, the cast moved on, a pack updated) heads it the same way, from the cast part's notes (`state.cast.notes`);
 // a cast step is stored on the reply before the one it is for, so a note names the message its card goes under (`at`, compared with the
 // card's `index`) instead of the reply's own changes. Only what {{user}} knows (world/known.js): the next thing coming
 // due is not here (a planned beat or clock would spoil the story); the Director screen shows it, behind
@@ -28,9 +26,6 @@ const TEMPLATE = `
     <span class="sd-castnote-ico" aria-hidden="true"><i class="fa-solid fa-user-plus" data-if="n.kind == 'met'"></i><i class="fa-solid fa-hourglass-half" data-if="n.kind == 'moved'"></i><i class="fa-solid fa-cloud-arrow-up" data-if="n.kind == 'updated'"></i><i class="fa-solid fa-ear-listen" data-if="n.kind == 'heard'"></i></span>
     <span class="sd-castnote-body"><span class="sd-castnote-head"><b>{{ n.head }}</b> <span class="ss-pill ss-pill-soft">{{ n.tag }}</span></span><small>{{ n.rest }}</small></span>
   </div>
-</div>
-<div class="sd-keynotes" data-if="len(state.keypeople.notes) > 0">
-  <p class="sd-keynote" data-each="state.keypeople.notes as n" data-if="changed(n) && (n.key == null || state.keypeople.gone[n.key].rev == n.goneRev)" data-kind="{{ n.kind }}"><span class="sd-keynote-star" aria-hidden="true">★</span> <span><b>{{ n.head }}</b> {{ n.rest }}</span></p>
 </div>
 <dl class="sd-status">
   <div class="sd-row sd-time" data-if="q.status.when" data-class="sd-new: changed('state.director.time')">
@@ -93,10 +88,6 @@ const CSS = `${BASE_CSS}
 .sd-step { display: block; }
 .sd-new > dd { color: var(--sd-accent-text); }
 .sd-new > dt::after { content: " •"; color: var(--sd-accent); }
-.sd-keynotes { display: grid; gap: 6px; margin: 0 0 10px; }
-.sd-keynotes:not(:has(.sd-keynote)) { display: none; }
-.sd-keynote { display: flex; gap: 8px; align-items: baseline; margin: 0; padding: 6px 10px; font-size: 0.9em; line-height: 1.45; border: 1px solid var(--sd-border); border-radius: var(--sd-radius); overflow-wrap: anywhere; }
-.sd-keynote[data-kind="back"] { border-color: var(--sd-warn); }
 .sd-castnotes { display: grid; gap: 6px; margin: 0 0 10px; }
 .sd-castnotes:not(:has(.sd-castnote)) { display: none; }
 .sd-castnote { display: flex; gap: 10px; align-items: baseline; margin: 0; padding: 8px 12px; font-size: 0.9em; line-height: 1.45; border: 1px solid var(--sd-border); border-radius: var(--sd-radius); overflow-wrap: anywhere; }
@@ -105,7 +96,6 @@ const CSS = `${BASE_CSS}
 .sd-castnote-body { display: grid; gap: 4px; min-width: 0; }
 .sd-castnote-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
 .sd-castnote-body small { color: var(--sd-muted); }
-.sd-keynote-star { color: var(--sd-warn); }
 .sd-progress { display: block; margin-top: 4px; }
 .sd-progress .ss-bar-label { font-variant-numeric: tabular-nums; }
 .sd-met .ss-bar { --ss-bar-color: var(--sd-good); }
@@ -115,8 +105,8 @@ const CSS = `${BASE_CSS}
 // card's one line ("1:30 pm, Bluewatch Village"), a template read in the card's scope like the body (`q.status.summary` is the
 // same text, from `director.status`). A host that draws the card on its own shows the title in its header, as before.
 export const STATUS_TITLE = 'Where things stand';
-// A key person's return or removal this reply leads the line ("Ren is back · 1:30 pm, Bluewatch Village"): their notes are what the reply changed in `keypeople.notes`.
-export const STATUS_SUMMARY = '<span data-each="state.cast.notes as n" data-if="n.at == index">{{ n.line }}<span data-if="len(q.status.summary) > 0"> · </span></span><span data-each="state.keypeople.notes as n" data-if="changed(n) && (n.key == null || state.keypeople.gone[n.key].rev == n.goneRev)"><span data-if="n.lead != true && len(q.status.summary) == 0"> · </span>{{ n.head }}<span data-if="len(q.status.summary) > 0"> · </span></span>{{ q.status.summary }}';
+// A cast note this reply leads the line.
+export const STATUS_SUMMARY = '<span data-each="state.cast.notes as n" data-if="n.at == index">{{ n.line }}<span data-if="len(q.status.summary) > 0"> · </span></span>{{ q.status.summary }}';
 
 export const statusCardScreen = Object.freeze({
     id: STATUS_CARD_ID,

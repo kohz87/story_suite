@@ -3,7 +3,6 @@
 // re-exports every name it exported before. Never imports npc-meters.js.
 // Public face: re-exports its parts.
 export { initialNpcSlice, validateNpcSlice, findNpcKey } from './npc-meters-slice-parts/shape.js';
-export { observeKeyAway } from './npc-meters-slice-parts/key-away.js';
 export { CAST_QUERY, CAST_MADE_MAX, observeCast } from './npc-meters-slice-parts/cast-memory.js';
 export { moodPullProblems } from './npc-meters-slice-parts/mood-problems.js';
 export { meterValue } from './npc-meters-slice-parts/meter-value.js';

@@ -8,7 +8,7 @@ import { h } from '../kit/dom.js';
 export function renderSavePoints(view, state) {
   if (!view) return null;
   const rows = view.rows.map(p => h('div', { class: 'srow', dataset: { savepoint: p.id } },
-    h('span', { class: 'lb' }, h('b', p.name), h('small', [p.reply ? `Message ${p.reply}` : '', p.date].filter(Boolean).join(' · '))),
+    h('span', { class: 'lb' }, h('b', p.name), h('small', [Number.isInteger(p.reply) ? `Message ${p.reply}` : '', p.date].filter(Boolean).join(' · '))),
     h('span', { class: 'ctl' },
       p.here ? h('small', 'You are here') : h('button', { type: 'button', class: 'btn2', disabled: state.busy, title: 'Open the branch made at this save point', onClick: () => state.back(p.id) }, 'Return here'),
       h('button', { type: 'button', class: 'btn2 dng', disabled: state.busy, title: 'Take this save point off the list (the branch itself is kept in SillyTavern)', onClick: () => state.forget(p.id) }, 'Forget'))));

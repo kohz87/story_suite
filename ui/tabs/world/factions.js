@@ -23,6 +23,8 @@ function memberChip(m, act) {
     : h('span', { class: 'a', title: m.name }, inner);
 }
 
+const seenIn = summary => /^Seen in: (.+?)\.?$/.exec(String(summary ?? ''))?.[1] ?? null;
+
 function factionRow(f, index, news, act) {
   const [icon, colour] = emblemFor(f.id, index);
   const event = news.find(n => n.factionId === f.id);
@@ -34,7 +36,8 @@ function factionRow(f, index, news, act) {
         h('b', null, f.name),
         h('span', { class: ['stn', f.stance] }, f.stance),
         h('button', { type: 'button', class: 'btn2 ed', 'aria-label': `Edit ${f.name}`, onClick: () => act.edit({ kind: 'faction', id: f.id }) }, 'Edit')),
-      h('p', null, f.summary),
+      // "Seen in: <event>" says what the event chip below already says.
+      seenIn(f.summary) === event?.title ? null : h('p', null, f.summary),
       h('div', { class: 'fl' },
         (f.areaPlaceIds ?? []).map(id => act.placeName(id)
           ? h('a', { href: '#', class: 'xlink', dataset: { goto: id }, onClick: (e) => { e.preventDefault?.(); act.gotoPlace(id); } }, `📍 ${act.placeName(id)}`)

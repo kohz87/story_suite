@@ -4,6 +4,7 @@ import { button } from '../../kit/controls.js';
 import { itemTile, memberName, KIND_LABEL } from './item-grid.js';
 import { itemEditForm } from './item-edit.js';
 import { can } from '../../runtime/can.js';
+import { ownerOf } from '../../runtime/owner-id.js';
 
 const RARITY_LABEL = { uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic' };
 const RARITY_CLASS = { uncommon: 'rar-unc', rare: 'rar-rare', epic: 'rar-epic' };
@@ -30,6 +31,7 @@ function details(item, rpg, ctx) {
     { class: 'kv' },
     wearer,
     rpg && item.soak ? row('Bonus', `+${item.soak} soak`) : [],
+    rpg && item.bonus ? row('Stats', item.bonus) : [],
     wear,
     rpg ? row('Weight', weightText(item)) : [],
     row('Worth here', item.worth),
@@ -46,12 +48,19 @@ export function itemSheet(item, ctx = {}) {
     ctx.port?.command(type, payload);
     ctx.close?.();
   };
+  // What each pick sends (the commands read `owner` / `to`, and the main character's things belong to `party`).
+  const body = (type, id) => {
+    const owner = ownerOf(id, ctx.pcId);
+    if (type === 'item.equip') return { stack: item.stack, owner, transfer: true };
+    if (type === 'inventory.transfer') return { stack: item.stack, to: owner };
+    return { stack: item.stack, member: id };
+  };
   const pick = (label, type) => {
     picker.replaceChildren(
       h('div', { class: 'secl' }, label),
       h('div', { class: 'pick' }, names.map(id => h(
         'button',
-        { type: 'button', class: 'mb', dataset: { member: id }, onClick: () => send(type, { stack: item.stack, member: id }) },
+        { type: 'button', class: 'mb', dataset: { member: id }, onClick: () => send(type, body(type, id)) },
         h('span', { class: 'a', dataset: { portrait: id } }), memberName(id, ctx),
       ))),
     );
@@ -59,7 +68,7 @@ export function itemSheet(item, ctx = {}) {
   const gear = item.kind === 'gear';
   const actions = [];
   if (gear && item.wornBy) {
-    actions.push(button({ label: 'Take off', tone: 'primary', onClick: () => send('inventory.unequip', { stack: item.stack, member: item.wornBy }) }));
+    actions.push(button({ label: 'Take off', tone: 'primary', onClick: () => send('inventory.unequip', { stack: item.stack }) }));
     actions.push(button({ label: 'Give to…', onClick: () => pick('Give to', 'inventory.transfer') }));
   } else if (gear) {
     actions.push(button({ label: 'Wear on…', tone: 'primary', onClick: () => pick('Wear on', 'item.equip') }));

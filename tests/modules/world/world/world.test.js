@@ -348,11 +348,11 @@ test('folds: every Now section folds with a chevron and its count; remembered pe
     const store = new Map();
     const storage = { getItem: key => store.get(key) ?? null, setItem: (key, value) => store.set(key, value) };
     const memory = foldMemory(storage);
-    const widgets = { [FOLD_WIDGET]: createFoldWidget({ memory }), 'story-director.key-people': { props: {}, primary: 'value', validate: () => [], render: () => ({}) } };
+    const widgets = { [FOLD_WIDGET]: createFoldWidget({ memory }) };
     const drawn = drawWorld(data, { widgets });
     assert.deepEqual(drawn.warnings, []);
     const ids = drawn.el.querySelectorAll('[data-fold]').map(node => node.getAttribute('data-fold'));
-    assert.deepEqual(ids, ['people', 'elsewhere', 'leads', 'upcoming', 'news', 'factions']);
+    assert.deepEqual(ids, ['people', 'leads', 'upcoming', 'news', 'factions']);
     const head = id => drawn.el.querySelector(`[data-fold="${id}"] .sd-fold-head`);
     assert.deepEqual(['upcoming', 'news', 'factions', 'leads'].map(id => squash(head(id).textContent)), ['Upcoming next 30 days', 'News and events 1', 'Factions 1', 'Leads 1']);
     assert.ok(head('news').querySelector('.sd-fold-chev'), 'a chevron in the head');
@@ -411,4 +411,11 @@ test('W5: "Seen in: <event>" shows only while that event is in News (a rumour no
     assert.equal(knownFactions(stateWith(), rumour)[0].summary, '');
     const plain = { ...redCords, summary: 'the Red Cords hold the quay' };
     assert.equal(knownFactions(stateWith(), auditTools({ factions: [plain] }))[0].summary, 'the Red Cords hold the quay', 'another summary is untouched');
+});
+
+test('W7: with World events off, a world happening nobody has heard of is not news; one the story named is', () => {
+    const world = { ...blockade, id: 'w9', name: 'The harvest in Valegard', by: 'event:world.harvest' };
+    assert.deepEqual(knownNews(stateWith(), auditTools({ events: [world] })), [], 'unheard, so no news');
+    const told = { ...auditTools({ events: [world] }), receipts: () => [{ type: 'capture.place', data: { name: 'Harbour' } }, { type: 'capture.world', data: { event: 'w9' } }] };
+    assert.equal(knownNews(stateWith(), told).length, 1, 'the story\'s own world line makes it news');
 });

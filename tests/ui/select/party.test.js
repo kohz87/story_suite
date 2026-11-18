@@ -19,6 +19,12 @@ const GEAR = {
 };
 
 describe('selectParty', () => {
+  it('lists the stats worn gear adds (inventory.gear\'s statBonus), only those above 0', () => {
+    const gear = { ...GEAR, astra: { ...GEAR.astra, statBonus: { STR: 1, VIT: 2, DEX: 0, AGI: 0 } } };
+    const [astra, brann] = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear }).members;
+    assert.deepEqual([astra.bonus, brann.bonus], [{ STR: 1, VIT: 2 }, {}]);
+  });
+
   it('builds members in actor order with level from party.levels and the pc id', () => {
     const vm = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear: GEAR });
     assert.equal(vm.pcId, 'astra');

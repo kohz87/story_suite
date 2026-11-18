@@ -1,4 +1,4 @@
-// The npc meters live in the store's people domain (people store P4): `people.bonds` = { npcs: { [npc_id]: record }, problems, keyAway?, cast? }, keyed by the
+// The npc meters live in the store's people domain (people store P4): `people.bonds` = { npcs: { [npc_id]: record }, problems, cast? }, keyed by the
 // same npc_ ids as the dossiers. Story Block owns that domain, so the meter code (written for its own `npc` slice) runs on a copy: `folded(handler)` gives the
 // handler a ctx whose read/draft of `npc` are that copy (and whose `standing` shows the Re-read's earlier bonds as `npc`), then checks the copy with the
 // slice's own rules and hands it to `people.bonds` in the same transaction (one diff into leaf ops, as before). A handler that refuses stores nothing.

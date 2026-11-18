@@ -19,7 +19,8 @@ function kindOf(price, stat) {
  */
 export function sheetSkills(skills, level) {
     return (Array.isArray(skills) ? skills : []).map(skill => {
-        const price = skillCost(skill), stat = typeof skill.stat === 'string' ? skill.stat : '', rank = rankOf(skill.practice, level), kind = kindOf(price, stat);
+        // (`typeName` is the type the block wrote; `type` is only combat or utility, which prices as an attack)
+        const price = skillCost(skill.typeName ? { ...skill, type: skill.typeName } : skill), stat = typeof skill.stat === 'string' ? skill.stat : '', rank = rankOf(skill.practice, level), kind = kindOf(price, stat);
         return {
             glyph: GLYPH[kind], name: skill.name, kind, stat: stat.toUpperCase(), resource: RESOURCE[price.pool] ?? 'stamina', cost: price.cost, rank: rank.name, mastery: rank.mastery,
             ...(price.type === 'utility' ? { line: `Utility · ${stat.toUpperCase()} · story only` } : {}),

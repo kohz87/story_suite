@@ -12,7 +12,7 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 function problemItem(p) {
   const module = text(p?.module);
-  return { module, code: text(p?.code ?? p?.why), message: text(p?.message ?? p?.reason ?? p?.line ?? ''), reply: Number.isInteger(p?.index) ? p.index + 1 : null };
+  return { module, code: text(p?.code ?? p?.why), message: text(p?.message ?? p?.reason ?? p?.line ?? ''), reply: Number.isInteger(p?.index) ? p.index : null };
 }
 
 /**
@@ -87,6 +87,6 @@ export function selectSavePoints(read) {
   const points = Array.isArray(read.points) ? read.points : [];
   return {
     full: points.length >= SAVEPOINT_LIMITS.count, max: { name: SAVEPOINT_LIMITS.name },
-    rows: points.map(p => ({ id: text(p.id), name: text(p.name), reply: Number.isInteger(p.index) ? p.index + 1 : null, date: when(p.at), here: Boolean(read.here) && read.here === p.branch })),
+    rows: points.map(p => ({ id: text(p.id), name: text(p.name), reply: Number.isInteger(p.index) ? p.index : null, date: text(p.story) || when(p.at), here: Boolean(read.here) && read.here === p.branch })),
   };
 }

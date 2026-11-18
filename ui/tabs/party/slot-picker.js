@@ -1,6 +1,7 @@
 // Opens the Party tab's bottom sheet and fills it for one gear slot: the worn item and the Bag's matching items with Equip.
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
+import { ownerOf } from '../../runtime/owner-id.js';
 
 /** Slot key → [glyph name, long label, short label]. */
 export const SLOT_META = Object.freeze({
@@ -74,7 +75,7 @@ function wornBlock(member, slot, meta, sheet, ctx) {
     type: 'button',
     class: 'ps-b',
     dataset: { unequip: slot.key },
-    onClick: async () => { await ctx.port?.command('inventory.unequip', { owner: member.id, slot: slot.key }); sheet.close(); },
+    onClick: async () => { await ctx.port?.command('inventory.unequip', { stack: item.stack }); sheet.close(); },
   }, 'Unequip');
   return [
     h('div', { class: 'ps-i' }, tile(item, meta[0]),
@@ -97,7 +98,7 @@ function fitRow(member, slotKey, meta, item, sheet, ctx) {
       type: 'button',
       class: 'ps-b pri',
       dataset: { equip: item.stack, at: slotKey },
-      onClick: async () => { await ctx.port?.command('item.equip', { owner: member.id, slot: slotKey, stack: item.stack }); sheet.close(); },
+      onClick: async () => { await ctx.port?.command('item.equip', { owner: ownerOf(member.id, ctx.port?.view?.('party')?.pcId), slot: slotKey, stack: item.stack, transfer: true }); sheet.close(); },
     }, 'Equip'),
   );
 }

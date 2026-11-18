@@ -5,6 +5,7 @@
 // dataModules.view (SB/data-modules/part/views.js:51), chronicle.events (news on the road), people.list (an agenda's owner). `read(name, args)` returns the recorded answer, or null/undefined when the query is absent.
 
 import { BLOCK_STARTERS } from '../../modules/data-modules/block-starters.js';
+import { makeCalendar } from '../../modules/time/calendar.js';
 
 const MODES = ['off', 'quiet', 'lively'];
 const list = value => (Array.isArray(value) ? value.filter(item => item && typeof item === 'object') : []);
@@ -14,6 +15,16 @@ const number = value => (Number.isFinite(value) ? value : 0);
 // Plan-gated lists carry their count always and their items only while the plan is shown (spoilers, decision 36.1).
 const gate = (rows, shown, make) => ({ count: rows.length, items: shown ? rows.map(make) : [] });
 
+// A pulse line begins with its own kind ("mundane interruption (noticed): the narrator invents it") that the row's title already says:
+// shown once, "the narrator invents it · noticed".
+function afterKind(kind, line) {
+  const words = text(kind).toLowerCase();
+  const said = text(line);
+  if (!words || !said.toLowerCase().startsWith(words)) return said;
+  const rest = /^\s*(?:\(([^)]*)\))?\s*:?\s*([\s\S]*)$/.exec(said.slice(words.length));
+  return rest?.[2] ? `${rest[2]}${rest[1] ? ` · ${rest[1]}` : ''}` : said;
+}
+
 function pulseOf(view, shown) {
   if (!view || typeof view !== 'object') return { mode: 'off', quiet: false, latest: null, recent: [] };
   const now = view.now && typeof view.now === 'object' ? view.now : null;
@@ -22,7 +33,7 @@ function pulseOf(view, shown) {
   return {
     mode: MODES.includes(view.mode) ? view.mode : 'lively',
     quiet,
-    latest: now && !quiet ? { roll, kind: shown ? text(now.label) || null : null, cause: shown ? text(now.effect) || text(now.text) || null : null } : null,
+    latest: now && !quiet ? { roll, kind: shown ? text(now.label) || null : null, cause: shown ? text(now.effect) || afterKind(now.label, now.text) || null : null } : null,
     recent: list(view.recent).map(row => {
       const skipped = row.skipped === true;
       const open = shown || skipped;
@@ -30,19 +41,31 @@ function pulseOf(view, shown) {
         skipped,
         roll: skipped || row.die === undefined || row.die === null ? null : String(row.die),
         kind: open ? text(row.label) : 'Rolled',
-        text: open ? text(row.text) : '',
+        text: open ? afterKind(row.label, row.text) : '',
         effect: shown ? text(row.effect) || null : null,
       };
     }),
   };
 }
 
-// accepted: no query gives the accept date, so null. The plan text is the arc's own and shows only with the plan.
-function arcOf(view, shown) {
+// accepted: the date the current arc was accepted ('' when its time is unknown, null when no arc is running). The plan text is the arc's own and shows only with the plan.
+// draft: the plan that waits for Accept or Discard (its text only with the plan shown); busy: the planner is being asked; error: why the last ask failed.
+function arcOf(view, shown, calendar, status) {
   const current = view?.current && typeof view.current === 'object' ? view.current : null;
-  if (!current || !shown) return { accepted: null, plan: null };
+  const waiting = status?.draft && typeof status.draft === 'object' ? status.draft : null;
+  const base = {
+    accepted: current?.active ? acceptedOn(current.minutes, calendar) : null,
+    draft: waiting ? { reason: text(waiting.reason), text: shown ? text(waiting.text) : '' } : null,
+    busy: status?.busy === true, error: text(status?.error), open: Boolean(current),
+  };
+  if (!current || !shown) return { ...base, plan: null };
   const beats = current.beats ?? {};
-  return { accepted: null, plan: { title: text(current.key), text: text(current.desc), summary: `${number(beats.done)} of ${number(beats.total)} beats` } };
+  return { ...base, plan: { title: text(current.key), text: text(current.desc), summary: `${number(beats.done)} of ${number(beats.total)} beats` } };
+}
+
+function acceptedOn(minutes, config) {
+  if (!Number.isSafeInteger(minutes)) return '';
+  try { return makeCalendar(config).format(minutes); } catch { return ''; }
 }
 
 // A beat is "ready" while its row carries a `now` field; its `when` is the on/place condition (the plan row only has those fields).
@@ -52,7 +75,7 @@ const beatOf = row => ({
 });
 const clockOf = row => ({
   title: text(row.key), text: text(row.summary), due: text(row.fields?.due),
-  shown: ['sign', 'warning'].includes(row.fields?.shown) ? row.fields.shown : 'none',
+  shown: ['sign', 'warning'].includes(row.fields?.shown) ? row.fields.shown : 'none', overdue: row.overdue === true,
 });
 const hookOf = row => ({ title: text(row.key), text: text(row.summary), when: text(row.fields?.on) });
 // An agenda is kept under its owner's name (the key), so `who` is the stored person of that name or alias (people.list), else '' and no id; toldThisReply is the plan row's `told`; the step line reads "step 2 of 3 · since Goldwane 12".
@@ -132,7 +155,7 @@ export function selectStory(read, opts = {}) {
   const shown = opts.planShown === true;
   const plan = read('director.plan', {}) ?? {};
   const sway = list(read('ripples.sway', {}));
-  const beats = gate(list(plan.beats), shown, beatOf), clocks = gate(list(plan.clocks), shown, clockOf), hooks = gate(list(plan.hooks), shown, hookOf);
+  const beats = gate(list(plan.beats), shown, beatOf), clocks = gate(list(plan.clocks), shown, clockOf), hooks = gate(list(plan.hooks).filter(row => row.planned !== false), shown, hookOf);
   const newsOnWay = gate(onTheRoad(read('chronicle.events', { open: true })), shown, x => x);
   const agendas = gate(list(plan.agendas), shown, agendaOf(ownerOf(read('people.list', {}))));
   const secrets = gate(list(plan.secrets), shown, secretOf(read('people.secretOwners', {})));
@@ -141,7 +164,7 @@ export function selectStory(read, opts = {}) {
   return {
     plan: { shown, note: noteOf(shown, opts.threadsOn !== false, [beats, clocks, hooks, newsOnWay, agendas, secrets], hasArc) },
     pulse: pulseOf(read('pulse.view', {}), shown),
-    arc: arcOf(arcView, shown),
+    arc: arcOf(arcView, shown, read('director.calendar', {}), opts.arcStatus),
     beats, clocks, hooks, newsOnWay, agendas,
     cast: castOf(read('director.cast.counts', {})),
     secrets,

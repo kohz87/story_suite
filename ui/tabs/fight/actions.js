@@ -42,7 +42,7 @@ function tile(action, index, sel, onPick) {
       onClick: () => onPick?.(action),
     },
     h('b', null, action.label),
-    h('small', null, action.enabled ? action.cost : `${action.cost} · not enough`),
+    h('small', null, action.enabled ? action.cost : `${action.cost} · ${action.reason || 'not enough'}`),
     h('span', { class: ['odds', action.damage ? null : oddsClass(action.odds)] }, info),
   );
 }

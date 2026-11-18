@@ -1,21 +1,25 @@
 // Reads the scene answers from Story Block queries: one pass over the query names, plus the portrait and gear lookups the selectors need.
 
 import { isHere } from './people.js';
+import { ownerOf } from '../runtime/owner-id.js';
 import { presentOf } from './people-parts.js';
 
 const SCENE = ['director.time', 'director.status', 'scene.place', 'scene.weather', 'scene.you', 'party.actors', 'party.pc', 'party.levels',
-  'party.terms', 'rpg.sheet', 'mounts.pace', 'director.goal', 'director.next', 'director.keyPeople', 'atlas.trip', 'inventory.wallet', 'inventory.currency',
+  'party.terms', 'rpg.sheet', 'mounts.pace', 'director.goal', 'director.next', 'atlas.trip', 'inventory.wallet', 'inventory.currency',
   'inventory.encumbrance', 'npc.cast', 'chatter.head', 'time.overdue', 'reply.changes'];
 
-// Who is here, from the store: the people of `people.list` who are here (isHere: present, or at the scene's place) as [{ id, name, meters, followed, portrait }] (the old `npc.present` answer's shape, still the
-// key the selectors read); null while the chat has no people slice.
-const hereOf = (list, place, present) => (Array.isArray(list)
-  ? list.filter(row => row && isHere(row, place, present)).map(row => ({ id: row.id, name: row.name, meters: row.meters, followed: row.followed === true, portrait: row.portrait ?? null }))
+// Who is here, from the store: the people of `people.list` who are here (isHere: present, or at the scene's place) as [{ id, name, meters, followed, portrait, status, goal }] (the old `npc.present` answer's shape, still the
+// key the selectors read); `status` is what they are doing (the same stored text the dossier's Right now shows) and `goal` what they want (people.dossier's), each null when none; null while the chat has no people slice.
+const hereOf = (list, place, present, read) => (Array.isArray(list)
+  ? list.filter(row => row && isHere(row, place, present)).map(row => ({
+    id: row.id, name: row.name, meters: row.meters, followed: row.followed === true, portrait: row.portrait ?? null,
+    status: row.status ?? null, goal: (typeof read('people.dossier', { id: row.id })?.goal === 'string' && read('people.dossier', { id: row.id }).goal.trim()) || null,
+  }))
   : null);
 
 // Asks each query once; the people come from the store (`people.list`). A query that is not there is a gap (null), never an error.
 export function gather(read, names = SCENE) {
-  const answers = { 'npc.present': hereOf(read('people.list', {}), read('scene.place', {})?.name, presentOf(read)) };
+  const answers = { 'npc.present': hereOf(read('people.list', {}), read('scene.place', {})?.name, presentOf(read), read) };
   for (const name of names) answers[name] = read(name, {});
   return answers;
 }
@@ -55,6 +59,13 @@ export function optsOf(read, answers, ctx) {
 
 export function gearOf(read, actors) {
   const gear = {};
-  for (const actor of Array.isArray(actors) ? actors : []) if (actor?.id) gear[actor.id] = read('gear.view', { id: actor.id });
+  const pc = read('party.pc', {})?.id ?? null;
+  for (const actor of Array.isArray(actors) ? actors : []) {
+    if (!actor?.id) continue;
+    const view = read('gear.view', { id: actor.id });
+    // (the stats the worn pieces add: inventory.gear's statBonus, by the owner the inventory files the member under)
+    const bonus = view ? read('inventory.gear', { owner: ownerOf(actor.id, pc) })?.statBonus : null;
+    gear[actor.id] = bonus && typeof bonus === 'object' ? { ...view, statBonus: bonus } : view;
+  }
   return gear;
 }

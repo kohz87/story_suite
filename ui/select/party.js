@@ -23,6 +23,9 @@ function slotsOf(gearView) {
   return SLOT_KEYS.map(key => ({ key, item: worn[key] ?? null }));
 }
 
+// inventory.gear statBonus ({ STR: 1, VIT: 2 }) → only the stats a worn piece raises ({} for none).
+const bonusOf = raw => Object.fromEntries(Object.entries(isRecord(raw) ? raw : {}).filter(([, n]) => Number.isSafeInteger(n) && n > 0));
+
 // One member: what party.actors, party.levels and gear.view give; every sheet field is a gap unless `sheet` (the member's `rpg.sheet` row) carries it.
 function memberOf(actor, level, gearView, sheet) {
   const known = Number.isSafeInteger(level) ? level : null;
@@ -32,7 +35,7 @@ function memberOf(actor, level, gearView, sheet) {
     line: own.line ?? (known === null ? '' : `Lv ${known}`),
     level: known ?? (Number.isSafeInteger(own.level) ? own.level : null), xpPct: own.xpPct ?? null, points: own.points ?? null, away: own.away ?? null, soakPct: own.soakPct ?? null,
     bars: Array.isArray(own.bars) ? own.bars : [], effects: Array.isArray(own.effects) ? own.effects : [],
-    stats: isRecord(own.stats) ? own.stats : null, slots: slotsOf(gearView), skills: Array.isArray(own.skills) ? own.skills : [],
+    stats: isRecord(own.stats) ? own.stats : null, bonus: bonusOf(gearView?.statBonus), slots: slotsOf(gearView), skills: Array.isArray(own.skills) ? own.skills : [],
   };
 }
 

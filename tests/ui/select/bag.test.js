@@ -64,8 +64,22 @@ describe('selectBag', () => {
     assert.equal(selectBag({ ...BASE, currency: undefined }).items[0].worth, '120 coins');
   });
 
-  it('counts the filters over the shown items', () => {
-    assert.deepEqual(Object.fromEntries(vm.filters.map(f => [f.key, f.count])), { all: 7, worn: 2, gear: 3, use: 1, goods: 1, material: 1, quest: 1 });
+  it('counts In bag and the kind chips over the unworn items the grid shows, and Worn over the worn ones', () => {
+    assert.deepEqual(Object.fromEntries(vm.filters.map(f => [f.key, f.count])), { all: 5, worn: 2, gear: 1, use: 1, goods: 1, material: 1, quest: 1 });
+  });
+
+  it('gives an unworn piece the glyph of the slot its def names, so the Party slot sheet finds it; a worn one the place it is worn at', () => {
+    const made = selectBag({ ...BASE, items: [
+      row({ stack: 'ms', name: 'Mail shirt', kind: 'equipment', slot: 'body' }), row({ stack: 'oh', name: 'Buckler', kind: 'equipment', slot: 'off-hand' }),
+      row({ stack: 'rg', name: 'Ring', kind: 'equipment', slot: 'accessory' }), row({ stack: 'x', name: 'Odd', kind: 'equipment' }),
+      row({ stack: 'wn', name: 'Worn helm', kind: 'equipment', slot: 'head', equipped: 'head', owner: 'astra' }),
+    ] });
+    assert.deepEqual(made.items.map(i => i.glyph), ['armor', 'offhand', 'accessory', 'gear', 'head']);
+  });
+
+  it('carries the stat bonus words of gear.view\'s row, and \'\' when it has none', () => {
+    const made = selectBag({ ...BASE, gear: { ...GEAR, rows: { ...GEAR.rows, dg: { word: 'good', bonus: '+1 STR +1 DEX' } } } });
+    assert.deepEqual([made.items.find(i => i.stack === 'dg').bonus, made.items.find(i => i.stack === 'hd').bonus], ['+1 STR +1 DEX', '']);
   });
 
   it('returns weight, desc, isNew, soak as null (gaps) and the purse split as null', () => {

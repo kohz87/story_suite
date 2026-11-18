@@ -1,14 +1,14 @@
-// Story Director v2, part **cast**: collecting pinned key-people, present scene names, and reply-seen names.
+// Story Director v2, part **cast**: collecting followed people, present scene names, and reply-seen names.
 
 import { keyOf, keysOfPerson } from '../domain.js';
 import { ask } from './query.js';
 
-/** The keys of the people the reader pinned as Key people (never moved, never met by the cast). */
+/** The keys of the people the reader follows (the star, `people.list`'s `followed`; never moved, never met by the cast). */
 export function pinnedKeys(query) {
     const pinned = new Set();
-    const list = ask(query, 'director.keyPeople', {}, null);
+    const list = ask(query, 'people.list', {}, null);
     for (const entry of Array.isArray(list) ? list : []) {
-        if (entry && typeof entry === 'object' && !entry.removed) for (const key of keysOfPerson(entry)) pinned.add(key);
+        if (entry && typeof entry === 'object' && entry.followed === true && entry.lifeState !== 'deceased') for (const key of keysOfPerson(entry)) pinned.add(key);
     }
     return pinned;
 }

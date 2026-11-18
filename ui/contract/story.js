@@ -29,7 +29,11 @@ export const STORY_SHAPE = {
   },
   arc: {
     accepted: { $nullable: T.STRING },
+    draft: { $nullable: { reason: T.STRING, text: T.STRING } },
+    busy: T.BOOLEAN,
+    error: T.STRING,
     plan: { $nullable: { title: T.STRING, text: T.STRING, summary: T.STRING } },
+    open: { $optional: T.BOOLEAN },
   },
   beats: gated({
     title: T.STRING,
@@ -43,6 +47,7 @@ export const STORY_SHAPE = {
     text: T.STRING,
     due: T.STRING,
     shown: { $enum: ['none', 'sign', 'warning'] },
+    overdue: T.BOOLEAN,
   }),
   hooks: gated({ title: T.STRING, text: T.STRING, when: T.STRING }),
   newsOnWay: gated({ title: T.STRING, text: T.STRING, reaches: T.STRING, how: T.STRING }),

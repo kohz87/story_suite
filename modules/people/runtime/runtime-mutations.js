@@ -11,6 +11,7 @@ import { addUserDismissedGroup } from '../legacy/branch.js';
 import { reconcileSocialState, removeNpcFromSocialGraph, purgeNpcStructuredReferences } from '../social/social.js';
 import { readPortraitFileDataUrl, savePortraitFile } from '../storage/storage.js';
 import { isPortraitFileRecord } from '../portrait/portrait-file.js';
+import { portraitAsFile } from './portrait-as-file.js';
 import { markCastPortraitRemoved } from '../dossier/cast-dossier.js';
 import { getSettings } from '../settings/runtime-settings.js';
 
@@ -92,7 +93,7 @@ export function createMutationsPart(rt, deps) {
         const epoch = ownershipEpoch(chatKey);
         const { key, action } = portraitAction(chatKey, npc.id);
         try {
-            const portrait = await compressPortrait(file);
+            const portrait = await compressPortrait(file).then(picked => (form ? picked : portraitAsFile(picked, requestHeaders())));
             try { await ensureHydratedStateFresh(chatKey, { reason: 'portrait-commit' }); } catch { return false; }
             if (portraitActions.get(key) !== action || !isCurrent() || getChatKey() !== chatKey
                 || !ownershipEpochCurrent(chatKey, epoch) || Number(stateVersions.get(chatKey) || 0) !== originRevision
@@ -137,7 +138,7 @@ export function createMutationsPart(rt, deps) {
             if (fingerprint) portrait.appearanceFingerprint = fingerprint;
             portrait.appearanceForm = String(live.currentForm || '').slice(0, 120);
             live.portrait = portrait;
-            getChatState(chatKey).portraitAssets[live.id] = structuredClone(portrait);
+            if (portrait.dataUrl) getChatState(chatKey).portraitAssets[live.id] = structuredClone(portrait); else delete getChatState(chatKey).portraitAssets[live.id];
             live.updatedAt = Date.now();
             persistCritical(chatKey);
             renderDossier();

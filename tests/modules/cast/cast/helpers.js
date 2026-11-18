@@ -1,5 +1,6 @@
 // The living cast tests: a real Story Block host (the testkit) with Story Director, the packs' cast stood in for (Story Block's
 // `packs.content({ kind: 'cast' })` is answered from `source`), and a scripted model for the planner.
+import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { createFakeModel } from '../../../../testkit/model.js';
 import { createModule } from '../../../../modules/director/module.js';
@@ -112,3 +113,18 @@ export function validatorErrors(host) {
 }
 
 export { createFakeModel };
+
+/** Gives the people (`{ name, aliases? }`) a dossier in the people store on the head reply and the Follow star (people.follow), as the reader's click does. */
+export async function followPeople(host, people) {
+    const npcs = {};
+    const order = [];
+    people.forEach((person, at) => {
+        const id = `npc_f${at}`;
+        order.push(id);
+        npcs[id] = { id, name: person.name, ...(person.aliases ? { aliases: person.aliases.join(', ') } : {}), role: 'cast' };
+    });
+    const source = host.store.sourceAt(host.store.headIndex());
+    const view = { v: 1, order, npcs, candidates: [], dismissed: [], userDismissedGroups: [], socialGraph: {}, portraitAssets: {}, turn: 1 };
+    assert.equal((await host.sdk.command('people.write', { v: 1, source: { sid: source.sid, swipeKey: source.swipeKey }, view })).ok, true);
+    for (const id of order) assert.equal((await host.sdk.command('people.follow', { id, on: true })).ok, true);
+}

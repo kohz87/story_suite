@@ -5,6 +5,7 @@ import { createBackStack } from './runtime/back-stack.js';
 import { createRedraw } from './runtime/redraw.js';
 import { createSuiteView } from './shell/suite-view.js';
 import { createTabHost } from './shell/tab-host.js';
+import { watchDesk } from './shell/desk-layout.js';
 import { GLASS_DARK, GLASS_LIGHT } from './theme/tokens.js';
 import { followSt, watchSt } from './theme/follow-st.js';
 import { skyFor } from './theme/sky.js';
@@ -63,6 +64,7 @@ export function mountSuite(options = {}) {
   let flags = readFlags(port, override);
   let scheme = 'dark';
   let destroyed = false;
+  let desk = null;   // the desktop layout watcher (shell/desk-layout.js), made once the tab host is in place
 
   const prefs = options.prefs ?? createPrefs({ port, storage: options.storage ?? null });
   let settingsOverlay = null;
@@ -84,7 +86,7 @@ export function mountSuite(options = {}) {
   const openPerson = ({ id, name } = {}) => { settingsOverlay?.close(); showTab('people'); return { ok: views.openPerson([String(id ?? ''), String(name ?? '').trim().toLocaleLowerCase()]) }; };
   const views = defaultViews({
     port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
-    onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,
+    onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth, desk: () => desk?.on() === true,
   });
   // Settings › Look (theme/look.js) when the mount reads it: its theme, and its Text size as the root's `data-text` (the zoom in shell.css).
   const readLook = () => { try { return lookOf(look()); } catch { return lookOf(null); } };
@@ -157,6 +159,9 @@ export function mountSuite(options = {}) {
     render: vm => (card ? card(vm, { port, backStack }) : views.card(vm)),
   });
   register(tabHost.current());
+  // Desktop (ui/css/desk.css): Here now under the card on every tab, read only while drawn; crossing the width draws it and redraws Now without (or with) its Here card.
+  redraw.register('here', { tab: 'always', isVisible: () => desk?.on() === true, read: () => port.view('now')?.here ?? [], target: tabHost.hereSlot, render: vm => views.here({ here: vm }) });
+  desk = watchDesk({ probe: tabHost.scroll.firstChild, root: view.root, onChange: () => { if (tabHost.current() === 'now') showTab('now'); redraw.reveal(); } });
 
   function applyFlags(next) {
     flags = next;
@@ -193,6 +198,7 @@ export function mountSuite(options = {}) {
       if (tab && tab !== tabHost.current()) tabHost.select(tab);
       if (look) applyLook();
       const opened = view.open();
+      desk.check();   // (the stylesheets are added at mount: a size check that ran before desk.css applied is read again here)
       redraw.setVisibleTab(tabHost.current());
       redraw.reveal();
       redraw.flush();
@@ -211,6 +217,7 @@ export function mountSuite(options = {}) {
       if (destroyed) return;
       destroyed = true;
       for (const off of offs) off();
+      desk.stop();
       unbindKeys();
       redraw.destroy();
       settingsOverlay?.destroy();

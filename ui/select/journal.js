@@ -69,7 +69,13 @@ function dueOf(thread, upcoming) {
 
 // The planned trip is `planned` below; steps come from the thread's trail, difficulty from its label.
 const DIFFICULTIES = ['easy', 'normal', 'hard'];
-function questOf(thread, rpg, upcoming, trail) {
+// The stored person a giver's name (or alias) names, so the quest can open their dossier; null when nobody stored answers to it.
+const personOf = (people, name) => {
+  const key = text(name).toLowerCase();
+  return key ? list(people).find(p => [p.name, ...(Array.isArray(p.aliases) ? p.aliases : [])].some(n => text(n).toLowerCase() === key)) ?? null : null;
+};
+
+function questOf(thread, rpg, upcoming, trail, people) {
   const fields = thread.fields ?? {};
   const step = text(fields.step);
   const steps = trail.length && step ? trail : step ? [step] : [];
@@ -77,7 +83,7 @@ function questOf(thread, rpg, upcoming, trail) {
   return {
     id: text(thread.id), title: text(thread.key), summary: text(fields.goal) || text(thread.summary),
     step, stepIndex: Math.max(0, steps.length - 1), stepCount: steps.length, steps,
-    giver: { personId: null, name: text(fields.giver) },
+    giver: { personId: text(personOf(people, fields.giver)?.id) || null, name: text(fields.giver) },
     due: dueOf(thread, upcoming), place: text(fields.place) || null, trip: null,
     reward: rpg ? text(fields.reward) || null : null, difficulty: DIFFICULTIES.includes(difficulty) ? difficulty : null,
   };
@@ -118,7 +124,8 @@ export function selectJournal(read, opts = {}) {
   const goalId = text(read('director.goal', {})?.id);
   const wanted = text(opts.focusId);
   const focusId = [wanted, goalId].find(id => id && open.some(t => t.id === id)) ?? null;
-  const quests = open.map(t => questOf(t, rpg, upcoming, strings(board.get(t.id)?.steps))).sort((a, b) => (b.id === focusId) - (a.id === focusId));
+  const people = read('people.list', {});
+  const quests = open.map(t => questOf(t, rpg, upcoming, strings(board.get(t.id)?.steps), people)).sort((a, b) => (b.id === focusId) - (a.id === focusId));
   const closed = list(read('director.threads', { kind: 'quest', status: 'resolved' })).reverse().flatMap(t => {
     const outcome = OUTCOMES[t.ended?.outcome];
     return outcome ? [{ title: text(t.key), outcome, detail: text(t.ended?.reason), paid: null }] : [];

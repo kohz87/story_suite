@@ -128,3 +128,13 @@ test('afterCard: names the resolved exchange, the next one, and calls the handle
   assert.deepEqual(hit, ['next', 'auto']);
   assert.equal(afterCard().querySelector('.anote'), null);
 });
+
+test('actions: a tile that is off for another reason than cost says that reason', () => {
+  installFakeDom();
+  const vm = fightFixture('choose');
+  vm.actor.groups.Attack[1].enabled = false;
+  vm.actor.groups.Attack[1].reason = 'nobody is hurt';
+  const card = actionsCard(vm.actor, vm.party[3], { party: vm.party });
+  assert.match(card.querySelectorAll('.at')[1].querySelector('small').textContent, /nobody is hurt$/);
+  assert.doesNotMatch(card.querySelectorAll('.at')[1].querySelector('small').textContent, /not enough/);
+});

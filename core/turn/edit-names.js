@@ -1,4 +1,4 @@
-// Story Suite v2: every cast person's name and alias the story knows (packs, NPC State, the cast store, key people), for the
+// Story Suite v2: every cast person's name and alias the story knows (packs, NPC State, the cast store), for the
 // prose-only edit check (edit-words.js). Asked at an edit only; a query that is missing or throws gives nothing, and a name list
 // that cannot be built at all makes the edit take the full path.
 
@@ -26,6 +26,5 @@ export function castNames(view) {
     }
     const domains = view?.state?.domains;
     for (const person of Object.values(record(domains?.cast?.people) ? domains.cast.people : {})) take(person);
-    for (const group of [domains?.keypeople?.pins, domains?.keypeople?.gone]) for (const person of Object.values(record(group) ? group : {})) take(person);
     return out;
 }

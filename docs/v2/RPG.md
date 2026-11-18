@@ -54,7 +54,7 @@ reason. Defence is automatic: the best usable defence skill, else the plain defe
 **Auto** plays up to the cap's exchanges for you (the **Auto-fight cap** setting, 1 to 8 or **Until the end**, default 3) with ordinary attacks. It stops on a win, a loss, a badly hurt hero (2 or more Health blocks lost in one exchange; in a fight with doubled bars, a loss of a fifth of the bar, see [Doubled bars](#doubled-bars-new-chats)) or the cap, and it never flees. After it stops, **Auto again** plays on and **Send with this fight** sends the reply. A fight against foes that a fled or lost fight left starts from their exact bars; the board says "These foes are as you left them: N of M standing, with their bars from the last fight."
 
 The bars stay above a scrolling battle log, and the next choices stay at the bottom on a phone. Each rolled exchange is final.
-**Discard fight** asks first and gives the next opening a new seed. A changed sheet or equipment holds a staged board fight until
+**Discard fight** asks first (Discard / Keep it) and gives the next opening a new seed; on a fight started from the standing-foes offer it also gives that offer back, so the Fight tab stays while the foes stand. **Flee** is one pick for the whole party (the tile says so); when the roll fails, the members who were not asked act on Auto and the card says it. **Send with this** shows only while your message waits for the fight. A changed sheet or equipment holds a staged board fight until
 the original inputs are restored or the fight is discarded. While the reply is being written, wait until it finishes before changing that fight's sheet or gear.
 If a reply is held after its inputs change, restore them to finish it, or discard the fight and regenerate it. A held reply survives a reload.
 The log shows bar changes as words with the dice and totals. The board labels defence results as the defender's and sends each
@@ -584,7 +584,7 @@ slots left out, and a Foes block lists only the groups in the fight.
 
 ### Built-in skill sets
 
-The five built-in sets (`modules/rpg/templates-parts/skill-sets.js`) give each skill a Combat Rules v1 `type`, and the wizard writes it into the draft (attack is the unwritten default). A set holds at most one stance skill (defence, evasion, movement or support); a test checks every built-in set. A set's utility skills fill the utility slots and its other skills the combat slots. Pack sets have no `type` field, so their skills are attacks until the reader changes them.
+The five built-in sets (`modules/rpg/templates-parts/skill-sets.js`) give each skill a Combat Rules v1 `type`, and the wizard writes it into the draft (attack is the unwritten default). A set holds at most one stance skill (defence, evasion, movement or support); a test checks every built-in set. The wizard's Review names the pool a skill draws on as the board prices it (INT, WIS and a heal: Mana) and holds Create while two skills are stances. "One may start at Adept" stores Adept; the Party sheet shows the rank the level allows (Adept works from Lv 10), so the wizard and Review say "Adept (works from Lv 10)" while the level is lower. A set's utility skills fill the utility slots and its other skills the combat slots. Pack sets have no `type` field, so their skills are attacks until the reader changes them.
 
 ### Skill sets in a pack
 

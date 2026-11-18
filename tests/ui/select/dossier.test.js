@@ -29,8 +29,8 @@ const NEXT = { rank: 'Acquaintance', next: { name: 'Friend', needs: [
 const CAST = { key: 'sister temiwa', name: 'Sister Temiwa', present: true, mood: { word: 'hopeful' },
   opened: [{ id: 's1', title: 'Same orphanage as Torka', rule: 'Trust 15', text: 'Opened · Trust 15' }],
   locked: [{ id: 's2', event: false, opens: 'Opens at Trust 40', text: 'Hidden note · opens at Trust 40' }, { id: 's3', event: true, opens: 'Opens with the story', text: 'Hidden note · opens with the story' }] };
-const KEY_PEOPLE = { people: [{ key: 'sister temiwa', name: 'Sister Temiwa', here: true, place: '', newsAgo: '' }] };
-const ALL = { dossier: DOSSIER, meters: METERS, next: NEXT, cast: CAST, portrait: 'https://example.invalid/t.png', keyPeople: KEY_PEOPLE, party: [{ id: 'torka', name: 'Torka' }] };
+const AWAY = { people: [{ key: 'sister temiwa', name: 'Sister Temiwa', here: true, newsAgo: '' }] };
+const ALL = { dossier: DOSSIER, meters: METERS, next: NEXT, cast: CAST, portrait: 'https://example.invalid/t.png', away: AWAY, party: [{ id: 'torka', name: 'Torka' }] };
 
 describe('selectDossier', () => {
   it('builds the page and matches DOSSIER_SHAPE', () => {
@@ -63,8 +63,8 @@ describe('selectDossier', () => {
 
   it('gives Now for a present person, with wearing and thought as gaps, and Last seen for an away one', () => {
     assert.deepEqual(selectDossier(ALL).now, { where: 'by the notice board', doing: 'Waiting for the clerk', wearing: null, thought: null });
-    const away = selectDossier({ dossier: { ...DOSSIER, present: false, followed: true }, keyPeople: { people: [{ name: 'Sister Temiwa', place: 'Bluewatch stables', newsAgo: 'yesterday' }] } });
-    assert.deepEqual(away.now, { lastPlace: 'Bluewatch stables', lastSeen: 'yesterday', said: null });
+    const away = selectDossier({ dossier: { ...DOSSIER, present: false, followed: true }, away: { people: [{ name: 'Sister Temiwa', newsAgo: 'yesterday' }] } });
+    assert.deepEqual(away.now, { lastPlace: 'by the notice board', lastSeen: 'yesterday', said: null }, 'the away view has no place: the stored location');
     assert.equal(away.following, true);
   });
 
@@ -74,9 +74,9 @@ describe('selectDossier', () => {
     assert.equal('lastPlace' in selectDossier({ dossier: { ...DOSSIER, present: false } }).now, true);
   });
 
-  it('reads Following from the store flag alone, not from the key people', () => {
+  it('reads Following from the store flag alone, not from the people away', () => {
     const { followed: _f, ...plain } = DOSSIER;
-    assert.equal(selectDossier({ dossier: plain, keyPeople: KEY_PEOPLE }).following, false);
+    assert.equal(selectDossier({ dossier: plain, away: AWAY }).following, false);
     assert.equal(selectDossier({ dossier: DOSSIER }).following, true);
   });
 
@@ -133,10 +133,10 @@ describe('selectDossier', () => {
     assert.deepEqual(vm.profile.habits, ['Folds her hands before answering', 'Checks the door']);
   });
 
-  it('flags an unknown gender and writes it in the id line', () => {
+  it('flags an unknown gender (the hero words it once, beside the id line)', () => {
     const vm = selectDossier({ dossier: { id: 'np_9', name: 'Dren', species: 'Human', gender: '' } });
     assert.equal(vm.genderUnknown, true);
-    assert.equal(vm.idLine, 'Human · gender not stated');
+    assert.equal(vm.idLine, 'Human');
     assert.equal(vm.profile.gender, null);
     assert.deepEqual(checkShape(vm, DOSSIER_SHAPE), []);
   });

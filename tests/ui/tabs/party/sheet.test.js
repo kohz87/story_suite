@@ -110,3 +110,15 @@ test('stat sheet with no points says so and keeps every button off', () => {
   assert.equal(sheetEl().querySelector('.ps-s').textContent, 'No points to spend');
   assert.equal(sheetEl().querySelectorAll('.ps-st .ps-b').filter(b => !b.hasAttribute('disabled')).length, 0);
 });
+
+test('a stat tile marks what worn gear adds, and says so for a screen reader; a tile with no bonus has no mark', () => {
+  const ctx = makeCtx();
+  const base = member(ctx, 'astra');
+  const el = memberSheet({ ...base, bonus: { STR: 1, VIT: 2 } }, ctx, { pc: true });
+  const tile = key => el.querySelector(`.sv[data-stat="${key}"]`);
+  assert.equal(tile('STR').querySelector('.gb').textContent, '+1');
+  assert.equal(tile('VIT').querySelector('.gb').textContent, '+2');
+  assert.match(tile('VIT').getAttribute('aria-label'), /gear adds 2$/);
+  assert.equal(tile('DEX').querySelector('.gb'), null);
+  assert.equal(memberSheet(base, ctx, { pc: true }).querySelector('.gb'), null);
+});

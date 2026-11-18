@@ -41,6 +41,7 @@ export function readResolveV1(result) {
     const rounds = list(result.rounds).map((rows, index) => ({ n: first + index + 1, lines: list(rows).map(row => lineOf(row, before[at++], heroes)).filter(line => line?.who) })).filter(round => round.lines.length);
     if (!rounds.length) return null;
     const names = new Map([...list(result.party), ...list(result.foes)].filter(isRecord).map(actor => [String(actor.id), words(actor.label, 40)]));
-    const order = [...list(result.order?.party), ...list(result.order?.foes)].map(id => names.get(String(id)) ?? words(String(id), 40)).filter(Boolean);
+    const sides = result.order?.first === 'foes' ? [list(result.order?.foes), list(result.order?.party)] : [list(result.order?.party), list(result.order?.foes)]; // (the side that won initiative goes first, as the board says)
+    const order = sides.flat().map(id => names.get(String(id)) ?? words(String(id), 40)).filter(Boolean);
     return { rounds, checks: [], refused: [], order, stop: typeof result.stop === 'string' ? result.stop : '', pace: '', flow: 2, cap: 0, board: true };
 }

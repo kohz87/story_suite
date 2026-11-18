@@ -54,8 +54,8 @@ function measure() {
   };
 }
 
-// pitch: the mock's value at that width (RECBLK render of suite.html); the built page sits 3-4 px short of it from older sub-pixel rounding
-const MOCK_PITCH = { 390: 1739.8, 1280: 781 };
+// pitch: the mock's value at that width (RECBLK render of suite.html at 390; desktop.html ?layout=a at 1280, where Show all sits in Now's right column); the built page sits 3-4 px short of it from older sub-pixel rounding
+const MOCK_PITCH = { 390: 1739.8, 1280: 259 };
 for (const width of [390, 700, 860, 1143, 1280, 1920]) {
   for (const theme of ['dark', 'light']) {
     test(`desktop chrome at ${width} in ${theme}: tab pills, card buttons and Now sublines`, async t => {
@@ -68,7 +68,7 @@ for (const width of [390, 700, 860, 1143, 1280, 1920]) {
         await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
         const m = await page.evaluate(measure);
         assert.equal(m.bk, '6px 12px | 999px | 800');
-        assert.equal(m.bkH, width <= 900 ? 44 : 32);   // the window, 44 px up to 900 wide
+        assert.equal(m.bkH, width <= 900 || width >= 1100 ? 44 : 32);   // the window, 44 px up to 900 wide; from 1100 the card is in the 360 px desktop column, 44 px as drawn (desktop.html A)
         assert.equal(m.ibtn, '1px 6px | 400');
         assert.equal(m.sub, 18); // the mock's .rnr small is a flex item on an 18 px line
         if (MOCK_PITCH[width]) assert.ok(Math.abs(m.pitch - MOCK_PITCH[width]) <= 4, `rows drift from the mock: ${m.pitch} vs ${MOCK_PITCH[width]}`);
