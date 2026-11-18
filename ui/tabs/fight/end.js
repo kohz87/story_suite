@@ -5,7 +5,8 @@ import { button } from '../../kit/controls.js';
 const HEADLINE = { won: 'Won', fled: 'Fled', lost: 'Lost' };
 const LINE = {
   won: 'The foes are beaten.',
-  fled: 'You got away; the foes are still out there.',
+  // (a fled fight's foes leave the Foes block, board/foe-writes.js clearFoes; if the story writes them again the board picks up from their bars, board/resume-v1.js)
+  fled: 'You got away. The foes are off the board; if the story brings them back, they return as you left them.',
   lost: 'The party fell. The story picks up from here.',
 };
 

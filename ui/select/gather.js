@@ -73,9 +73,12 @@ export function gearOf(read, actors) {
   const pc = read('party.pc', {})?.id ?? null;
   for (const actor of Array.isArray(actors) ? actors : []) {
     if (!actor?.id) continue;
-    const view = read('gear.view', { id: actor.id });
-    // (the stats the worn pieces add: inventory.gear's statBonus, by the owner the inventory files the member under)
-    const bonus = view ? read('inventory.gear', { owner: ownerOf(actor.id, pc) })?.statBonus : null;
+    // (gear.view and inventory.gear both take the owner the inventory files the member under: `party` for the main character, else the member's id;
+    // gear.view has no `id` argument, and without an owner it answers the main character's slots)
+    const owner = ownerOf(actor.id, pc);
+    const view = read('gear.view', { owner });
+    // (the stats the worn pieces add: inventory.gear's statBonus)
+    const bonus = view ? read('inventory.gear', { owner })?.statBonus : null;
     gear[actor.id] = bonus && typeof bonus === 'object' ? { ...view, statBonus: bonus } : view;
   }
   return gear;

@@ -56,3 +56,16 @@ test('gearOf adds the stat bonus of what each member wears, asking for the main 
   assert.deepEqual(gear.ac_pell, { on: true, slots: {}, statBonus: { STR: 1 } });
   assert.equal(gearOf((name) => (name === 'gear.view' ? null : null), [{ id: 'x' }]).x, null);
 });
+
+test('gearOf asks gear.view for each member\'s own slots: a companion\'s owner is their id, the main character\'s `party`', async () => {
+  const { gearOf } = await import('../../../ui/select/gather.js');
+  const viewed = [];
+  const read = (name, args) => {
+    if (name === 'party.pc') return { id: 'ac_astra' };
+    if (name === 'gear.view') { viewed.push(args?.owner); return { on: true, owner: args?.owner ?? 'party', slots: {} }; }
+    return null;
+  };
+  const gear = gearOf(read, [{ id: 'ac_astra' }, { id: 'ac_pell' }]);
+  assert.deepEqual(viewed, ['party', 'ac_pell']);
+  assert.equal(gear.ac_pell.owner, 'ac_pell');
+});

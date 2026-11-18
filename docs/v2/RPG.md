@@ -46,7 +46,7 @@ The board is on by default; Combat Rules v1 is the only rules a chat is made wit
 **Settings → RPG** and **Settings → Features**. When a reply introduces foes, a line beneath it offers **Fight on the board** or
 **Auto-fight**, and a dot marks the Fight tab while the offer is open. The board remains available in the Fight tab.
 
-When you type an attack on a standing foe, the send is held with only those two choices (titled "This is an attack on <foes>"). Nothing waits on a model call. Choose one numbered line for each standing party member: Attack with
+When you type an attack on a standing foe, the send is held with only those two choices (titled "This is an attack on <foes>"). A count or which-one word before the foe still names it ("the two raiders", "both raiders", "the 3 wolves", "the other raider"). Nothing waits on a model call. Choose one numbered line for each standing party member: Attack with
 the equipped weapon, a skill with one target or every foe in reach, or Flee. Tap a line or press its number; when there is
 more than one foe group, choose the target next, or press Esc to go back. A line that cannot be used stays visible with its
 reason. Defence is automatic: the best usable defence skill, else the plain defence roll. Foes act by code.
@@ -54,7 +54,7 @@ reason. Defence is automatic: the best usable defence skill, else the plain defe
 **Auto** plays up to the cap's exchanges for you (the **Auto-fight cap** setting, 1 to 8 or **Until the end**, default 3) with ordinary attacks. It stops on a win, a loss, a badly hurt hero (2 or more Health blocks lost in one exchange; in a fight with doubled bars, a loss of a fifth of the bar, see [Doubled bars](#doubled-bars-new-chats)) or the cap, and it never flees. After it stops, **Auto again** plays on and **Send with this fight** sends the reply. A fight against foes that a fled or lost fight left starts from their exact bars; the board says "These foes are as you left them: N of M standing, with their bars from the last fight."
 
 The bars stay above a scrolling battle log, and the next choices stay at the bottom on a phone. Each rolled exchange is final.
-**Discard fight** asks first (Discard / Keep it) and gives the next opening a new seed; on a fight started from the standing-foes offer it also gives that offer back, so the Fight tab stays while the foes stand. **Flee** is one pick for the whole party (the tile says so); when the roll fails, the members who were not asked act on Auto and the card says it. **Send with this** shows only while your message waits for the fight. A changed sheet or equipment holds a staged board fight until
+**Discard fight** asks first (Discard / Keep it) and gives the next opening a new seed; on a fight started from the standing-foes offer it also gives that offer back, so the Fight tab stays while the foes stand. **Flee** is one pick for the whole party (the tile says so); when the roll fails, the members who were not asked act on Auto and the card says it. In a fight opened under the `fleeIdle` mark (every new fight), a member who picked nothing in that exchange takes up their stance only when their own turn comes: a flee made before it that gets away costs them no Stamina or Mana and gives no stance practice, and a failed one has them take it up before they act (and before the foes strike). With the foes moving first every stance is held from the start, as before; a fight opened before the mark plays as it was recorded. A fled fight's foes leave the Foes block like a won or lost fight's; the end card says "You got away. The foes are off the board; if the story brings them back, they return as you left them." **Send with this** shows only while your message waits for the fight. A changed sheet or equipment holds a staged board fight until
 the original inputs are restored or the fight is discarded. While the reply is being written, wait until it finishes before changing that fight's sheet or gear.
 If a reply is held after its inputs change, restore them to finish it, or discard the fight and regenerate it. A held reply survives a reload.
 The log shows bar changes as words with the dice and totals. The board labels defence results as the defender's and sends each
@@ -206,11 +206,16 @@ When the story says someone joins the party for good, the narrator writes one li
 - party Mara
 ```
 
+<<<<<<< HEAD
 `class` is a Soul Class word from I to IX (still read: a companion starts at the level that class stands for, II at 15 up to IX at 85, I at 1) and `best` is one of str, vit, agi, dex, int, wis, cha;
+=======
+`class` is a Soul Class word from I to IX (still read: a companion starts at the level that class stands for, II at 15 up to IX at 85, I at 1, but never above the highest level among those in the party, so a class II companion joins a level 1 party at level 1) and `best` is one of str, vit, agi, dex, int, luk, cha;
+>>>>>>> origin/fix/soak-s2ca
 the last two are optional (a line that still carries `about:` is accepted and the text ignored; a chat that still holds an earlier-rules Character reads it, as before). The line is in the narrator's instructions only while the RPG is on, the story has a Character block
 and the setting is not Off; with the RPG off, nothing is told and nothing changes.
 
 - **What is made.** A Character block (a companion) and an empty Skills block for that name, as one action of the reply: every
+<<<<<<< HEAD
   stat 5 with the named best stat 9, no unspent points, Health, Mana and Stamina full, and the Soul Class as written but never
   above the highest Soul Class among those in the party. Then each level above the first adds one point (the Character's own rise),
   spent one at a time on the best stat and DEX in turn up to 30, then on VIT, AGI, INT, CHA, WIS and STR, so no point is left over. The skills
@@ -218,6 +223,19 @@ and the setting is not Off; with the RPG off, nothing is told and nothing change
 - **Ask.** The line makes nothing. The reply gets a card, "Mara joins the party", with **Add to party** (makes them as above),
   **Edit first** (opens the New character window filled in with the same stats, spread as above for the level (no points left to spend): name, class, every field editable) and **No** (dismisses it). The card is read from the reply's own record, so a swipe or a delete takes it away and nothing
   is kept in the game for it.
+=======
+  stat 10 with the named best stat 14, no unspent points, Health, Mana and Stamina full, and the Soul Class as written but never
+  above the highest Soul Class among those in the party, at the level that class stands for but never above the highest level among those in the party
+  (a level their NPC State record states is kept, up to the level cap). On the Standard formula every stat is 5 and the best stat 9, and each Soul
+  Class above I adds the points per Soul Class (4), one at a time to the best stat and DEX in turn up to 20, then to VIT, AGI, INT, CHA,
+  LUK and STR, so no point is left over. The skills fill in when the story has them learn something, as for
+  anyone.
+- **Ask.** The line makes nothing. The reply gets a card, "Mara joins the party", with **Add to party** (makes them as above),
+  **Edit first** (opens the New character window filled in: name, class, the best stat raised to 14, every field editable; you spend the
+  rest) and **No** (dismisses it). The card says the level they will start at, and Edit first opens the window at that level. The card is read from the reply's own record, so a swipe or a delete takes it away and nothing
+  is kept in the game for it. A companion taken from the card (Add to party, or Edit first then Create) is listed in that reply's "This reply"
+  ("Mara joined the party"), as an automatic join is; a swipe takes the line away with the reply.
+>>>>>>> origin/fix/soak-s2ca
 - **Automatically.** They are made at once and listed in "Changed this reply" ("Mara joined the party"). Like every other line of
   the reply it is taken back by a swipe or a delete, and a Re-read makes it the same way.
 - **The first character.** Normally the wizard has made yours first. When Add to party (or an automatic join) makes the story's very

@@ -1,7 +1,7 @@
 // `reply.changes`: what one reply changed, for the ✦ reply menu and the inline row under it. Built only from the reply's own receipts
 // (tools.receipts) and the state the query is asked on, so a swipe, a middle delete, a rewind, a reload and an edited Re-read answer as a rebuild does.
 
-import { isPartyReceipt, partyLines } from './reply-party-lines.js';
+import { isPartyReceipt, partyLines, readerJoins } from './reply-party-lines.js';
 
 const ITEM = 'capture.item';
 const COIN = 'capture.coin';
@@ -18,11 +18,14 @@ const headOf = headIndex => {
     try { return typeof headIndex === 'function' ? headIndex() : -1; } catch { return -1; }
 };
 
-function receiptsAt(tools, index) {
+function receiptsAt(tools, index, state) {
     let list = [];
     try { list = typeof tools?.receipts === 'function' ? tools.receipts() ?? [] : []; } catch { list = []; }
-    // The reader's own edits are not the reply's changes (a `ui` receipt); every other cause is.
-    return list.filter(entry => entry?.index === index && isRec(entry.receipt) && (SHOWN.has(entry.receipt.type) || isPartyReceipt(entry.receipt)) && entry.receipt.cause !== 'ui').map(entry => entry.receipt);
+    const all = list.filter(entry => entry?.index === index && isRec(entry.receipt)).map(entry => entry.receipt);
+    // The reader's own edits are not the reply's changes (a `ui` receipt); every other cause is. The join card's answers are (Add to party, a bench choice, Edit first's
+    // Character: readerJoins): the reply offered the companion, so their joining is the reply's.
+    const joins = new Set(readerJoins(all, state));
+    return all.filter(receipt => ((SHOWN.has(receipt.type) || isPartyReceipt(receipt)) && receipt.cause !== 'ui') || joins.has(receipt));
 }
 
 // A line Assist wrote (the repair's or the safety net's lines; capture marks their receipts `assist`), not the reply's own.
@@ -89,12 +92,12 @@ function personLines(receipts) {
 export function replyChanges(state, args, tools, headIndex) {
   const wanted = isRec(args) && Number.isInteger(args.index) ? args.index : headOf(headIndex);
   if (!Number.isInteger(wanted) || wanted < 0) return null;
-  const receipts = receiptsAt(tools, wanted);
+  const receipts = receiptsAt(tools, wanted, state);
   if (!receipts.length) return null;
   let weather = null;
   try { weather = tools?.hasQuery?.('scene.weather') ? text(tools.query('scene.weather')?.text) || null : null; } catch { weather = null; }
   // Own lines and Assist's are worked out apart, so a total never mixes them, and each Assist line is marked.
-  const linesOf = list => [...itemLines(list, state), ...coinLines(list), ...sceneLines(list), ...personLines(list), ...partyLines(list)];
+  const linesOf = list => [...itemLines(list, state), ...coinLines(list), ...sceneLines(list), ...personLines(list), ...partyLines(list, state)];
   const own = linesOf(receipts.filter(item => !fromAssist(item))).map(line => ({ ...line, assist: false }));
   const assist = linesOf(receipts.filter(fromAssist)).map(line => ({ ...line, assist: true }));
   return {

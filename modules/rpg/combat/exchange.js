@@ -254,7 +254,7 @@ function choiceFor(choices, actor, index) {
 /**
  * Play one exchange on a copy of `sheet` ({ party, foes }). `choices` is an object keyed by hero id/label or an array in
  * party order; a missing hero choice is automatic (the simulator's policy). `options.roll(kind, slot)` returns each d20,
- * `options.order` is the fight's fixed per-side order, and `options.rotation` keeps the foe target rotation.
+ * `options.order` is the fight's fixed per-side order, `options.rotation` keeps the foe target rotation, and `options.fleeIdle` defers an idle member's stance in a flee exchange.
  * Returns { sheet, lines, moves, order, rotation, result } with result null while the fight is open.
  */
 export function playExchange(sheet, choices = null, options = {}) {
@@ -267,19 +267,32 @@ export function playExchange(sheet, choices = null, options = {}) {
     let rotation = Math.max(0, Math.floor(number(options.rotation))), result = null;
     const turn = options.number ?? 1;
     lines.push(['exchange', turn]);
+    // A Flee is the whole party's: in a fight opened under the `fleeIdle` mark (options.fleeIdle; board/v1-kind.js openV1), when the party moves first and someone
+    // flees, a member who picked nothing holds (and pays for) their stance only once their own turn comes, so a flee that gets away costs them nothing and earns
+    // no practice (SOAK2CORE #5). With the foes first, every stance is held up front as always: it guarded them through the foes' blows. A fight opened before
+    // the mark plays as it was recorded.
+    const fleeing = options.fleeIdle === true && order.first === 'party' && order.party.some((id, index) => { const actor = byId.get(String(id)); return actor && number(actor.hp) > 0 && choiceFor(choices, actor, index)?.kind === 'flee'; });
+    const later = new Set();
     order.party.forEach((id, index) => {
         const actor = byId.get(String(id));
-        if (actor && number(actor.hp) > 0) stanceUpkeep(actor, choiceFor(choices, actor, index), index, lines, moves);
+        if (!actor || number(actor.hp) <= 0) return;
+        const choice = choiceFor(choices, actor, index);
+        if (fleeing && !choice?.kind) later.add(actor);
+        else stanceUpkeep(actor, choice, index, lines, moves);
     });
+    const upkeepLater = (actor, index) => { if (later.delete(actor)) stanceUpkeep(actor, choiceFor(choices, actor, index), index, lines, moves); };
     const partyPhase = () => {
         for (const [index, id] of order.party.entries()) {
             const actor = byId.get(String(id));
             if (!actor || number(actor.hp) <= 0 || !living(foes).length) continue;
+            upkeepLater(actor, index);
             const done = heroTurn(actor, { party, foes }, choiceFor(choices, actor, index), options.roll, index, lines, moves);
             if (done.result) { result = done.result; return; }
         }
         if (!living(foes).length) result = 'win';
         else if (!living(party).length) result = 'loss';
+        // (the flee failed and the fight goes on: whoever still holds a stance unpaid takes it up before the foes strike)
+        if (!result) order.party.forEach((id, index) => { const actor = byId.get(String(id)); if (actor && number(actor.hp) > 0) upkeepLater(actor, index); });
     };
     const foePhase = () => {
         const attackers = foeAttacks(party, foes), targets = living(party);

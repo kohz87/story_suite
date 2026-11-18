@@ -16,6 +16,7 @@ test('a v1 sheet opens a v1 setup: the filled groups fight, no seed or dice is s
         const { setup, error } = open(host);
         assert.equal(error, undefined);
         assert.equal(setup.v1, 1);
+        assert.equal(setup.fleeIdle, 1, 'a new fight opens under the fleeIdle mark (SOAK2CORE #5)');
         assert.deepEqual(setup.groups, [1]);
         assert.equal(setup.offset, 0);
         assert.equal(Object.hasOwn(setup, 'seed'), false, 'the port owns the dice');

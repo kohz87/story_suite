@@ -67,3 +67,11 @@ test('end: the loot line is only on a win, and the practice line gives no number
   assert.doesNotMatch(words('won'), /\+1 for each/);
   assert.match(words('won'), /Settings/);
 });
+
+test('end: the fled card says the foes leave the board (they are cleared from the Foes block) and come back as left (SOAK2CORE #9)', () => {
+  installFakeDom();
+  const card = endCard({ ...fightFixture('end').end, outcome: 'fled' });
+  const text = card.textContent;
+  assert.match(text, /The foes are off the board; if the story brings them back, they return as you left them\./);
+  assert.doesNotMatch(text, /still out there/);
+});
