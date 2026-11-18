@@ -43,9 +43,15 @@
 .mp .pl.far circle.b{stroke-dasharray:4 3}
 .mp .pl .hit{stroke:none}
 .mapbox.tidy .pl:not(.big) text{display:none}
-.mp .you circle.r{fill:none;stroke:var(--su-accent);stroke-width:3;animation:wpulse 2s infinite}
-@keyframes wpulse{0%{r:14;opacity:1}100%{r:30;opacity:0}}
-@media (prefers-reduced-motion:reduce){.mp .you circle.r{animation:none}}
+.mp .you circle.r{fill:none;stroke:var(--su-accent);stroke-width:3;opacity:0;animation:wpulse 2s infinite}
+/* the ring widens in five fixed steps that fade in turn: only opacity animates, so the World tab never lays out per frame */
+.mp .you circle.r:nth-child(1){--p:1;animation-delay:-.25s}
+.mp .you circle.r:nth-child(2){--p:.75;animation-delay:.25s}
+.mp .you circle.r:nth-child(3){--p:.5;animation-delay:.75s}
+.mp .you circle.r:nth-child(4){--p:.25;animation-delay:1.25s}
+.mp .you circle.r:nth-child(5){--p:0;animation-delay:1.75s}
+@keyframes wpulse{0%{opacity:0}12.5%{opacity:var(--p)}25%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.mp .you circle.r{animation:none}.mp .you circle.r:nth-child(1){opacity:1}}
 .mp .news circle{fill:var(--su-warn)}
 .mp .news text{font:900 12px var(--su-font);fill:#2a1a05}
 .su-root[data-scheme="light"] .mapbox{background:#e8e3d6}

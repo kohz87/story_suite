@@ -6,6 +6,8 @@ import { tripCard, tripSummary } from './trip.js';
 import { labelGeom, nudgeLabels } from './label-nudge.js';
 
 const BASE = Object.freeze({ x: 0, y: 0, w: 1000, h: 700 });
+// The you-are-here ring: five fixed radii (14 to 30) that fade in turn, so it pulses with opacity only (no per-frame layout)
+const PULSE_RADII = [14, 18, 22, 26, 30];
 const KIND_GLYPHS = [[/port|harbou?r/i, 'port'], [/ford|bridge|mill/i, 'ford'], [/city/i, 'city'], [/village|hamlet/i, 'village'],
   [/outpost|fort|camp/i, 'outpost'], [/tower|watch/i, 'tower'], [/ruin/i, 'ruin']];
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -100,7 +102,7 @@ function drawSvg(world, vb, scale, state, act) {
       ? svgEl('path', { class: ['trip', world.trip.state === 'arrived' ? 'done' : null], d: `M${tripPts.map(p => `${p.x} ${p.y}`).join('L')}`, style: { 'stroke-width': Math.max(5, 4 * u) } })
       : null,
     world.places.map(p => placeNode(p, u, newsIds, state, act, vb, shifts.get(p.id) ?? 0)),
-    here ? svgEl('g', { class: 'you' }, svgEl('circle', { class: 'r', cx: here.x, cy: here.y, r: 14 })) : null);
+    here ? svgEl('g', { class: 'you' }, PULSE_RADII.map(r => svgEl('circle', { class: 'r', cx: here.x, cy: here.y, r }))) : null);
 }
 
 function tools(world, regions, on) {
