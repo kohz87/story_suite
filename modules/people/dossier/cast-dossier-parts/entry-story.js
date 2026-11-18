@@ -24,19 +24,28 @@ export function castForms(raw) {
 
 /**
  * The people the entry names, by cast id, as the person's names: `keyRelationships` ["Name — text"] (at most eight) and `ties` [{ name, tag }].
- * `nameOf(id)` gives the name of a cast id or '' (a person the cast does not have is skipped).
+ * `nameOf(id)` gives the name of a cast id or '' (a person not met yet: Story Director's answer names only the met). Those rows are kept by id in
+ * `pending` ({ keyRelationships: [{ id, text }], ties: [{ id, tag }] }, at most eight and twelve), never by name: cast-links.js resolves them once
+ * that person is met.
  */
 export function castLinks(entry, nameOf) {
     const keyRelationships = [];
+    const pending = { keyRelationships: [], ties: [] };
     for (const item of Array.isArray(entry?.keyRelationships) ? entry.keyRelationships : []) {
-        const name = isObject(item) ? clip(nameOf?.(item.id), 120) : '';
+        const id = isObject(item) ? clip(item.id, 80) : '';
+        const name = id ? clip(nameOf?.(id), 120) : '';
         const text = clip(isObject(item) ? item.text : '', 400);
-        if (name && text && keyRelationships.length < 8) keyRelationships.push(`${name} — ${text}`);
+        if (!text || keyRelationships.length + pending.keyRelationships.length >= 8) continue;
+        if (name) keyRelationships.push(`${name} — ${text}`);
+        else if (id && nameOf) pending.keyRelationships.push({ id, text });
     }
     const ties = [];
     for (const item of Array.isArray(entry?.ties) ? entry.ties : []) {
-        const name = isObject(item) ? clip(nameOf?.(item.with), 120) : '';
-        if (name && TIE_TAGS.includes(item.tag) && !ties.some(row => row.name === name && row.tag === item.tag)) ties.push({ name, tag: item.tag });
+        const id = isObject(item) ? clip(item.with, 80) : '';
+        const name = id ? clip(nameOf?.(id), 120) : '';
+        if (!TIE_TAGS.includes(item?.tag)) continue;
+        if (name) { if (!ties.some(row => row.name === name && row.tag === item.tag)) ties.push({ name, tag: item.tag }); }
+        else if (id && nameOf && pending.ties.length < 12 && !pending.ties.some(row => row.id === id && row.tag === item.tag)) pending.ties.push({ id, tag: item.tag });
     }
-    return { keyRelationships, ties };
+    return { keyRelationships, ties, pending };
 }

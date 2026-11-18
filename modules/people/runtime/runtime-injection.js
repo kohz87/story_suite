@@ -9,6 +9,7 @@ import { replyScanned } from '../calls/scan-context.js';
 import { cleanMessage, recentTranscript, tieDayAt } from '../transcript/transcript.js';
 import { buildInjection, npcNamedInText, isTerminalNpcDeath, buildNarrationCaptureParts } from '../core/core.js';
 import { buildLinesParts } from '../core/core-prompts-lines.js';
+import { withCastLinks } from '../dossier/cast-dossier-parts/cast-links.js';
 import { injectDepthOf, getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
 
@@ -63,7 +64,7 @@ export function createInjectionPart(rt, deps) {
     function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4) } = {}) {
         const awayNotes = keyReturnNotes(state);
         const gearLines = castGearLines(state);
-        return buildInjection(scenePresenceView(hostedMeterView(state.npcs)), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt() });
+        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), levelOn: rpgIsOn() });
     }
 
     function updateInjection() {

@@ -210,7 +210,7 @@ export function createCastSyncPart(rt, deps) {
         for (const person of castDue(working, adapter)) {
             const existing = dossierFor(working.npcs, person);
             if (existing && working.castSeedPending?.[existing.id]) {
-                const seeded = seedCastAdmission(working, existing, person, { packName: names[person.pack] ?? '', gated: adapter.worldSecretsOn?.() === true });
+                const seeded = seedCastAdmission(working, existing, person, { packName: names[person.pack] ?? '', gated: adapter.worldSecretsOn?.() === true, placeName: adapter.placeName });
                 if (seeded) { working.npcs = working.npcs.map(npc => npc.id === seeded.id ? seeded : npc); made.push(seeded); }
                 continue;
             }
@@ -220,7 +220,7 @@ export function createCastSyncPart(rt, deps) {
             if (added.report.status !== 'added') continue;
             const base = added.state.npcs.find(npc => npc.id === added.report.npcId);
             const portrait = portraits.get(person.key) ?? null;
-            const filled = base ? applyCastEntry(base, person, { packName: names[person.pack] ?? '', portrait, gated: adapter.worldSecretsOn?.() === true }) : null;
+            const filled = base ? applyCastEntry(base, person, { packName: names[person.pack] ?? '', portrait, gated: adapter.worldSecretsOn?.() === true, placeName: adapter.placeName }) : null;
             if (!filled) continue;
             // (first meeting) The person was met at this reply (Story Director's answer): the dossier made here has never been present, so the fact is hers too.
             const facts = scanMemoryFacts(working, settings, chatLineage(chatContext().chat || []), messageId, chatContext().name1, { hosted: true });

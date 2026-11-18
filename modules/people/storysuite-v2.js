@@ -223,7 +223,7 @@ export function createStorySuiteV2Adapter({
     const editorPart = createEditorPart(session, deps);
     Object.assign(deps, editorPart);
     const { watchers, pageApi, offerPage } = castUiPart;
-    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, packPortraitUrl, castGearLine, directorCalendar, keyPeople, send, sliceView, worldSecretsOn } = queriesPart;
+    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, keyPeople, send, sliceView, worldSecretsOn } = queriesPart;
     const { ownPrompt, storyClock, calendarLink, definition, scenePresentNames } = timelinePart;
     const { poll, unhost, check } = connectPart;
     const { editorHtml, readEditor, dossierMeters, eventWatch } = editorPart;
@@ -292,6 +292,8 @@ export function createStorySuiteV2Adapter({
         castMade,
         /** While hosted: packs' names by id. */
         packNames,
+        /** While hosted: a pack place's name for its id (or name or alias), or ''. */
+        placeName,
         worldSecretsOn,
         /** While hosted: a pack portrait's safe image URL, or null. */
         packPortraitUrl,
