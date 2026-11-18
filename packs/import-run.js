@@ -29,6 +29,10 @@ async function finish(packs, name, text, images, game = null) {
     // A zip's game.json (the world's companion game pack) goes in after the world, on its own: a refused game does not undo the world.
     let second = null;
     if (game !== null) {
+        // It must be a game pack with an id of its own: a world there would install a second world, and the world's id would replace the world just installed.
+        const looked = typeof packs.inspect === 'function' ? packs.inspect(game) : null;
+        const wrong = !looked?.ok ? '' : looked.pack.kind !== 'game' ? `game.json must be a game pack (it says kind "${looked.pack.kind ?? 'none'}").` : looked.pack.id === result.id ? `game.json has the world's own id "${result.id}"; a game pack needs an id of its own.` : '';
+        if (wrong) return said(`${first} ${name}'s game.json was not imported.`, [wrong]);
         second = await packs.install(game, { source: 'file', origin: `${name}:game.json` });
         if (!second.ok) return said(`${first} ${name}'s game.json was not imported.`, [...errorLines(second.errors), ...(result.warnings ?? []).map(item => `Ignored: ${item.message}`)]);
     }
