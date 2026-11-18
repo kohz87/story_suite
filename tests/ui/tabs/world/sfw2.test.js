@@ -53,3 +53,7 @@ test('W27: the place sheet says here / visited and lists the routes', () => {
   const linked = w.routes.some(r => r.a === 'auvoth' || r.b === 'auvoth');
   assert.equal(keys.includes('Routes to'), linked);
 });
+
+test('a blank (spaces only) where or when is left out of the heard line, with no stray comma', () => {
+  assert.equal(heardLine([{ where: 'in Bluewatch Guild Hall', when: '  ', from: null }]), 'heard in Bluewatch Guild Hall · you were there');
+});

@@ -30,7 +30,7 @@ export const JOURNAL_SHAPE = {
     },
   ],
   focusId: { $nullable: T.STRING },
-  leads: [{ title: T.STRING, from: T.STRING, where: T.STRING, lapses: T.STRING }],
+  leads: [{ title: T.STRING, from: T.STRING, summary: { $optional: T.STRING }, where: T.STRING, lapses: T.STRING }],
   closed: [
     {
       title: T.STRING,

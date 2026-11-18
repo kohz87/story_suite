@@ -52,6 +52,11 @@ describe('selectBag', () => {
     assert.equal(by.hd, null);
   });
 
+  it('keeps no From text for a record id, and keeps the words a story gave', () => {
+    const made = selectBag({ ...BASE, items: [row({ stack: 'a', name: 'A', from: 'rc_3ek5oxik' }), row({ stack: 'b', name: 'B', from: 'the Guild Hall' })] });
+    assert.deepEqual(made.items.map(i => i.from), ['', 'the Guild Hall']);
+  });
+
   it('turns the condition word into good or torn, only for gear', () => {
     const by = Object.fromEntries(vm.items.map(i => [i.stack, i.wear]));
     assert.deepEqual([by.sw, by.sh, by.dg, by.hd, by.fish], ['good', 'torn', 'good', null, null]);

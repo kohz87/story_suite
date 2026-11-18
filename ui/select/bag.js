@@ -7,6 +7,8 @@ import { purseLines } from './purse-lines.js';
 const KIND_OF = { equipment: 'gear', consumable: 'use', goods: 'goods', material: 'material', quest: 'quest' };
 const GLYPH_OF_SLOT = { weapon: 'weapon', body: 'armor', 'off-hand': 'offhand', head: 'head', cloak: 'cloak', feet: 'feet', 'accessory-1': 'accessory', 'accessory-2': 'accessory', accessory: 'accessory' };
 const RARITY = { common: 'common', uncommon: 'uncommon', rare: 'rare', epic: 'epic', legendary: 'epic' };
+// (a record id such as rc_3ek5oxik names no source in words, so the sheet shows no From line for it)
+const RECORD_ID = /^rc_[a-z0-9]+$/;
 const FILTER_KEYS = ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'];
 const LOAD_LEVEL = { normal: 'light', heavy: 'heavy', over: 'over' };
 
@@ -30,7 +32,7 @@ function itemOf(row, ctx) {
     stack: String(row.stack), name: String(row.name), kind, glyph: glyphSlot, rarity: RARITY[row.rarity] ?? 'common', realRarity: typeof row.rarity === 'string' ? row.rarity : null,
     qty: Number.isSafeInteger(row.qty) ? row.qty : 1, count: Number.isSafeInteger(ctx.counts?.[row.stack]) ? ctx.counts[row.stack] : null, wornBy: worn ? wearer ?? null : null, isNew: null,
     wear: kind === 'gear' && word ? (word === 'torn' || word === 'broken' ? 'torn' : 'good') : null,
-    weight: whole(info?.weight), bonus: typeof info?.bonus === 'string' ? info.bonus : '', worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: typeof row.from === 'string' ? row.from : '',
+    weight: whole(info?.weight), bonus: typeof info?.bonus === 'string' ? info.bonus : '', worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: typeof row.from === 'string' && !RECORD_ID.test(row.from) ? row.from : '',
     note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
   };
 }

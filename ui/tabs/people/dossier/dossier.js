@@ -46,7 +46,9 @@ function summary(d, id) {
   }
   if (id === 'mood') return [h('span', { class: 'mw' }, d.mood), moodMeters(d.moodBars)];
   if (id === 'now') {
-    const line = Object.hasOwn(now, 'where') ? [now.where, lower(now.doing)].filter(Boolean).join(' · ') : [now.lastPlace, now.lastSeen && `last seen ${now.lastSeen}`].filter(Boolean).join(' · ');
+    const here = Object.hasOwn(now, 'where');
+    // (a person with only a wearing or a thought still gets a line, and one with only a said word too)
+    const line = here ? [now.where, lower(now.doing), now.wearing && `wearing ${lower(now.wearing)}`, now.thought && `“${now.thought}”`].filter(Boolean).join(' · ') : [now.lastPlace, now.lastSeen && `last seen ${now.lastSeen}`, now.said].filter(Boolean).join(' · ');
     return [h('span', { class: 'lc' }, line), d.scene ? h('span', { class: 'hint' }, 'This scene: wants and hiding · spoiler') : null];
   }
   if (id === 'ties') return [h('span', { class: 'avs' }, d.ties.map(t => tieDisc(t, 'a'))), h('span', { class: 'lc sm' }, `${d.ties.length} · ${d.ties.map(t => t.name).join(', ')}`)];
@@ -173,8 +175,10 @@ export function dossierPage(d, ctx = {}) {
   function cards() {
     const byId = Object.fromEntries(pages.map(p => [p.id, p]));
     const title = id => (id === 'past' ? `Past · ${(d.past ?? []).length}` : id === 'with' ? `${byId.with.title} · last change` : byId[id].title);
+    // (Ties and Past sit side by side; one alone fills the row instead of taking half of it)
+    const pair = (...two) => (two.every(Boolean) ? h('div', { class: 'dpair' }, ...two) : two.find(Boolean) ?? null);
     const make = id => (byId[id] ? card(id, title(id), summary(d, id)) : null);
-    return [make('death'), make('with'), make('mood'), make('now'), h('div', { class: 'dpair' }, make('ties'), make('past')), make('secrets'), make('profile')].filter(Boolean);
+    return [make('death'), make('with'), make('mood'), make('now'), pair(make('ties'), make('past')), make('secrets'), make('profile')].filter(Boolean);
   }
 
   function drawGrid() {

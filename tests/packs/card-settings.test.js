@@ -9,7 +9,7 @@ const nsd = (state = { portraitPromptFormat: 'hybrid', scanEvery: 4 }) => ({
     owner: 'npc-state-delta',
     label: 'NPC State Delta',
     keys: {
-        portraitPromptFormat: { label: 'NSD portraits', valueText: v => (v === 'natural' ? 'Natural' : 'Structured hybrid'), valid: v => ['natural', 'hybrid'].includes(v) },
+        portraitPromptFormat: { label: 'NPC State portraits', valueText: v => (v === 'natural' ? 'Natural' : 'Structured hybrid'), valid: v => ['natural', 'hybrid'].includes(v) },
         scanEvery: { label: 'Scan every', valueText: v => `${v} replies`, valid: v => Number.isInteger(v) && v >= 1 && v <= 20 },
     },
     read: key => state[key],
@@ -25,9 +25,9 @@ test('Story Block registers its own owner (RPG, Gear, XP rate) and the sdk lets 
     const off = host.sdk.registerCardSettings(nsd(state));
     assert.equal(typeof off, 'function');
     const card = { 'story-block.rpg': true, 'story-block.gear': true, 'story-block.rpgXpRate': 150, 'npc-state-delta.portraitPromptFormat': 'natural' };
-    assert.deepEqual(cs.plan(card).items.map(item => item.text), ['RPG on', 'Gear on', 'XP rate 150%', 'NSD portraits Natural']);
+    assert.deepEqual(cs.plan(card).items.map(item => item.text), ['RPG on', 'Gear on', 'XP rate 150%', 'NPC State portraits Natural']);
     host.features.set('story-block.rpg', true);
-    assert.deepEqual(cs.plan(card).items.map(item => item.text), ['Gear on', 'XP rate 150%', 'NSD portraits Natural'], 'the RPG is on already');
+    assert.deepEqual(cs.plan(card).items.map(item => item.text), ['Gear on', 'XP rate 150%', 'NPC State portraits Natural'], 'the RPG is on already');
     assert.deepEqual(cs.plan({ 'story-block.rpgXpRate': 100, 'story-block.rpg': 'yes' }).items, [], '100 is the current rate; "yes" is not a boolean');
     off();
     assert.deepEqual(cs.plan(card).missing, ['npc-state-delta'], 'an owner that is not registered is a missing extension');
@@ -75,7 +75,7 @@ test('the plan lists differences only, drops an unregistered owner\'s keys and s
     registry.register(nsd(state));
     const values = { 'npc-state-delta.portraitPromptFormat': 'natural', 'npc-state-delta.scanEvery': 4, 'story-block.rpg': true };
     const plan = registry.plan(values);
-    assert.deepEqual(plan.items.map(item => item.text), ['NSD portraits Natural'], 'scanEvery is already 4: left out');
+    assert.deepEqual(plan.items.map(item => item.text), ['NPC State portraits Natural'], 'scanEvery is already 4: left out');
     assert.deepEqual(plan.missing, ['story-block'], 'story-block is not registered in this registry: its key is dropped');
     const bad = registry.plan({ 'npc-state-delta.scanEvery': 99, 'npc-state-delta.nope': 1 });
     assert.deepEqual(bad.items, []);

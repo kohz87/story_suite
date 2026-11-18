@@ -123,4 +123,5 @@ button.rnr{cursor:pointer}
 .rnr.need-pack .offer{display:flex;flex-direction:column;gap:10px;margin-top:8px}
 .rnr.need-pack .offer .btn2{padding:11px 14px;font-size:14px;text-align:center}
 .rnr.need-pack .rnr-tick{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--su-muted);margin-top:6px}
+.rnr.need-pack .rnr-tick input{accent-color:var(--su-accent);width:16px;height:16px;margin:0;flex:none}
 .rnr.need-pack .rnr-note{display:block;margin-top:4px}

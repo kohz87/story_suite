@@ -23,7 +23,7 @@ export function bringsLine(pack, portraits = 0) {
     return [head, portraits ? plural(portraits, 'portrait') : ''].filter(Boolean).join(', ');
 }
 
-/** What an install did to the settings, in words: "RPG and Gear are on; NSD portraits set to Natural." */
+/** What an install did to the settings, in words: "RPG and Gear are on; NPC State portraits set to Natural." */
 export function settingsDone(applied) {
     const parts = [];
     for (const state of ['on', 'off']) {
