@@ -152,8 +152,21 @@
   gap: 12px;
 }
 
-.su-scroll > * {
+.su-scroll > *,
+.su-side > *,
+.su-page > * {
   flex-shrink: 0;
+}
+
+/* The desktop wrappers (ui/css/desk.css) draw nothing below the desktop width: the card, strip and page are the scroll's own column, and Here now is off. */
+.su-desk,
+.su-side,
+.su-page {
+  display: contents;
+}
+
+.su-here-slot {
+  display: none;
 }
 
 .su-panel {

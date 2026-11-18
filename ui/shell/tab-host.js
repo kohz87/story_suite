@@ -1,4 +1,4 @@
-// Builds the 8-tab host: tablet strip, phone bottom bar, scrolling panel and the mini bar shown after the card scrolls away.
+// Builds the 8-tab host: tablet strip, phone bottom bar, scrolling panel and the mini bar shown after the card scrolls away; on desktop (ui/css/desk.css) the card and Here now form a left column beside the strip and page.
 
 import { h } from '../kit/dom.js';
 import { glyph } from '../kit/glyphs.js';
@@ -24,7 +24,7 @@ export function visibleTabs({ rpg = true, fightOpen = false, sceneOpen = false }
 
 /**
  * Creates the tab host. Options: `doc`, `flags` ({ rpg, fightOpen }), `initial`, `onSelect(id)`,
- * `onChat()`, `onSettings()`. Returns `el` plus the `scroll`, `cardSlot` and `panel` elements to fill.
+ * `onChat()`, `onSettings()`. Returns `el` plus the `scroll`, `cardSlot`, `hereSlot` (Here now, drawn on desktop only) and `panel` elements to fill.
  */
 export function createTabHost(options = {}) {
   const { flags: startFlags = {}, initial = 'now', onSelect = null, onChat = null, onSettings = null } = options;
@@ -35,7 +35,11 @@ export function createTabHost(options = {}) {
   const bar = h('nav', { class: 'su-bar su-glass', 'aria-label': 'Story Suite tabs' });
   const cardSlot = h('div', { class: 'su-card-slot' });
   const panel = h('div', { class: 'su-panel', role: 'tabpanel', 'data-tab': current });
-  const scroll = h('div', { class: 'su-scroll' }, cardSlot, strip, panel);
+  const hereSlot = h('div', { class: 'su-here-slot' });
+  // Two wrappers that only draw on desktop (ui/css/desk.css); under it they are `display: contents`, so the card, strip and page stack as before.
+  const scroll = h('div', { class: 'su-scroll' }, h('div', { class: 'su-desk' },
+    h('aside', { class: 'su-side' }, cardSlot, hereSlot),
+    h('div', { class: 'su-page' }, strip, panel)));
   const mini = h(
     'div',
     { class: 'su-mini', role: 'toolbar', 'aria-label': 'Shortcuts' },
@@ -110,6 +114,7 @@ export function createTabHost(options = {}) {
     el,
     scroll,
     cardSlot,
+    hereSlot,
     panel,
     select: pick,
     current: () => current,

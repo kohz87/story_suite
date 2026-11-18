@@ -46,7 +46,7 @@ The "no placeholder wording" check (`tests/ui/settings/no-unavailable.test.js`) 
 
 | Page or action | Check |
 |---|---|
-| Open the suite view | From the Extensions menu (Story Suite) and from the drawer's Open Story Suite: the card, tab strip (desktop) or bottom bar (phone), and ⚙ are there and nothing overlaps. |
+| Open the suite view | From the Extensions menu (Story Suite) and from the drawer's Open Story Suite: the card, tab strip (desktop) or bottom bar (phone), and ⚙ are there and nothing overlaps. From a 1100 px window the card and Here now stand in a left column beside the tab strip and page, on every tab. |
 | Reply row, swipes 1/1 | On a reply with one swipe: the row under the reply (state chips, reply menu) and SillyTavern's swipe arrows are both usable. |
 | Reply row, swipes 2/3 | Swipe to a second of three swipes: the row shows that swipe's state; swipe back and it shows the first one's again. |
 | Every tab | Now, Party (RPG on), Bag, People, World, Journal, Story; Activity and Fight while one is open. Each draws with no "unavailable" placeholder and no empty card that should have data. |

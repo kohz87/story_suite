@@ -1,14 +1,15 @@
-// Composes the Now tab in phone order: Right now, Here, This turn, You, Pinned; two columns when the container is wide.
+// Composes the Now tab in phone order: Right now, Here, This turn, You, Pinned; two columns when the container is wide. On desktop (layout A) Here lives in the left column as Here now, so Now leaves it out.
 import { h } from '../../kit/dom.js';
 import { rightNow } from './right-now.js';
 import { hereCard } from './here.js';
 import { thisTurnCard } from './this-turn.js';
 import { youCard, pinnedCards } from './you-pinned.js';
 
-/** Builds the Now tab from a `now` view-model; ctx = { prefs, go(tab, args) }. Empty cards are left out. */
+/** Builds the Now tab from a `now` view-model; ctx = { prefs, go(tab, args), desk() }. Empty cards are left out. On desktop: Needs you and Today | This reply, You and the pinned trackers. */
 export function nowTab(now = {}, ctx = {}) {
-  const left = [rightNow(now, ctx), thisTurnCard(now.thisTurn, ctx), youCard(now.you, ctx)];
-  const right = [hereCard(now.here, ctx), pinnedCards(now.pinned)];
+  const desk = ctx.desk?.() === true;
+  const left = desk ? [rightNow(now, ctx)] : [rightNow(now, ctx), thisTurnCard(now.thisTurn, ctx), youCard(now.you, ctx)];
+  const right = desk ? [thisTurnCard(now.thisTurn, ctx), youCard(now.you, ctx), pinnedCards(now.pinned)] : [hereCard(now.here, ctx), pinnedCards(now.pinned)];
   return h(
     'div',
     { class: 'now-tab', dataset: { tab: 'now' } },
