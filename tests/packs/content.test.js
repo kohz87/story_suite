@@ -149,3 +149,10 @@ test('currency suggestions by pack', () => {
     assert.deepEqual(contentOf(packs, 'currency', { pack: 'gil' }), [{ pack: 'gil', name: 'Gil', short: '' }]);
     assert.deepEqual(mergeStart(packs.slice(1)).currency, { name: 'Gil', short: '' }, 'a pack without a start can still name the currency');
 });
+
+test('content kinds are read from the packs given, so a format 4 world and the trackers of a game both answer', () => {
+    const world = { id: 'w', kind: 'world', content: { items: [{ id: 'pack.w/rope', name: 'Rope' }], events: [] } };
+    const trackers = { id: 'g', kind: 'game', content: { items: [], events: [], meterPresets: [{ id: 'pack.g/p' }] } };
+    assert.deepEqual(contentOf([world, trackers], 'items').map(record => record.name), ['Rope']);
+    assert.deepEqual(contentOf([world, trackers], 'meterPresets').map(record => record.id), ['pack.g/p']);
+});

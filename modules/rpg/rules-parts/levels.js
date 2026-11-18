@@ -22,8 +22,8 @@ export const classTerm = (rules, character) => (hasLevels(rules)
 
 // ---- the level cap -----------------------------------------------------------------------------------------------------
 
-/**
- * The highest level a new character may reach: the story's pack asks for one (`packCap`, a whole number 1..99), else the reader's setting `rpgLevelCap`, else 99.
- * It is the default of the Character block's `cap` field (a made character keeps its own).
- */
-export const levelCapFor = (values, packCap = null) => levelCapOf(packCap) ?? levelCapOf(values?.[LEVEL_CAP_SETTING]) ?? LEVEL.max;
+/** The cap of a new character (the default of the Character block's `cap`): the setting below 99 (99 is its default: unset), else the game pack's `gameCap`, else 99. */
+export const levelCapFor = (values, gameCap = null) => {
+    const reader = levelCapOf(values?.[LEVEL_CAP_SETTING]);
+    return (reader !== null && reader < LEVEL.max ? reader : null) ?? levelCapOf(gameCap) ?? LEVEL.max;
+};
