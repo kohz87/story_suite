@@ -126,6 +126,8 @@ test('Review: the problems stop Create (no name); Back and Next walk the steps',
   assert.equal(problems.hasAttribute('hidden'), false);
   assert.match(problems.textContent, /Give the character a name\./);
   assert.equal(off(w.sheet().querySelector('[data-wiz="create"]')), true);
+  assert.ok(w.sheet().querySelector('.wz-foot [data-wiz="create"]'), 'Create sits in the sticky footer beside Back, where Next was, so a long review never covers it (SOAK2UI 10)');
+  assert.equal(w.sheet().querySelector('.wz-body [data-wiz="create"]'), null);
 });
 
 test('a block the fights need refused: the character is made, the sheet says what was not added, Done closes; onEnd(true) once', { skip }, async t => {

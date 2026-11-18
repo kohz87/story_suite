@@ -511,7 +511,7 @@
   "ui/select/now.js": "Builds the Now-tab view-model from recorded query answers; gaps come back as null or empty lists.",
   "ui/select/offers.js": "Turns the card-offer controller's offers into the plain rows the new view draws and counts the waiting ones.",
   "ui/select/packs.js": "Builds Settings › Packs and trackers from the installed packs and the data-module setup.",
-  "ui/select/party-max.js": "The party limit the view shows (the RPG's PARTY_MAX, kept here so the view does not import a module).",
+  "ui/select/party-max.js": "The party limits the view shows: the active limit (the RPG's PARTY_ACTIVE, 4) and the most members listed (PARTY_MAX, 8), kept here so the view does not import a module.",
   "ui/select/party.js": "Turns the recorded party and gear query answers into the Party view-model (PARTY_SHAPE), leaving gaps null.",
   "ui/select/people-parts.js": "Reads the People tab's parts and the per-person dossier map from the store's people queries.",
   "ui/select/people-settings/catalog.js": "Reads the packs' meter presets and gives the People rows the preset catalog and which NPC State features are on.",

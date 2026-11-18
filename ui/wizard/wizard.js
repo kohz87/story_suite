@@ -64,6 +64,9 @@ export function createNewWizard({ world, command, sheetCtx = () => ({}) }) {
       at > 0 ? button({ label: W.back, dataset: { wiz: 'back' }, onClick: () => go(own, WIZARD_STEPS[at - 1]) }) : null,
       at < WIZARD_STEPS.length - 1 ? button({ label: NEXT, tone: 'primary', dataset: { wiz: 'next' }, onClick: () => go(own, WIZARD_STEPS[at + 1]) }) : null);
     const body = h('div', { class: `wz-body wz-${own.step}`, dataset: { step: own.step } }, DRAW[own.step](ctx));
+    // (on Review, Create takes Next's place in the sticky footer: left at the end of a long review, the footer covered half of it, SOAK2UI 10)
+    const create = foot ? body.querySelector('[data-wiz="create"]') : null;
+    if (create) { const row = create.parentElement; foot.append(create); if (row && !row.children.length) row.remove(); }
     // (the keyboard stays on the equivalent control: the tab or the Next / Back button used, or the field, stepper or skill row being worked)
     const marks = markFocus(sheet.body, sheet.el.ownerDocument?.activeElement ?? null);
     sheet.body.replaceChildren(steps, summary, body, foot);

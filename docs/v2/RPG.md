@@ -233,13 +233,15 @@ and the setting is not Off; with the RPG off, nothing is told and nothing change
   a companion takes two), there is no room for two more blocks, or the reply has used all the block actions it can take. A class
   that is not I to IX, a `best` that is not a stat and a line with no name are refused the same way.
 
-**The party limit, every way in.** The party holds at most 8 active members (20 blocks of their own, 28 pins; the check-bonus table covers eight).
-A Character comes in by a `+ party` line (new or returning), **Add to party**, the wizard (New character, Edit first), a template, or a pack's
-Character pinned with Enable; each of them is refused plainly at eight active and each records the party it relied on, so a reload, a rebuild
-or a deleted earlier leave decides it the same way: a join that relied on a leave that went is skipped, never a ninth. A reply captured
-before the `partyRoom` mark has no such record and keeps the old room (8 blocks, 16 pins, those who left counted) whenever it is read again.
-A Character pin made before this change has no record and replays as it was. The check does not need the RPG library, so a chat with the
-RPG off replays the same.
+**The party limit, every way in.** The party holds at most 4 active members, You included (a reply from before the `partyFour` mark keeps 8:
+20 blocks of their own, 28 pins; the check-bonus table covers eight). A Character comes in by a `+ party` line (new or returning), **Add to party**,
+the wizard (New character, Edit first), a template, or a pack's Character pinned with Enable. The reader's own ways are refused plainly at four
+active; a `+ party` line that meets four active puts a bench card under its reply ("who steps out") instead of a fifth member. Each records the
+party it relied on, so a reload, a rebuild or a deleted earlier leave decides it the same way: a join that relied on a leave that went is skipped,
+never one over the limit. A reply captured before the `partyRoom` mark has no such record and keeps the old room (8 blocks, 16 pins, those who
+left counted) whenever it is read again. A Character pin made before this change has no record and replays as it was. The check does not need
+the RPG library, so a chat with the RPG off replays the same. The card's party chip and the Party tab show the active members against 4 ("3/4"),
+and the Party tab offers no Invite at four active (an older chat with more active members lists up to eight).
 
 ## Skill slots
 

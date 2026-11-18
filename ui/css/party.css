@@ -114,3 +114,10 @@
 .ps-pv i{display:block;height:6px;border-radius:3px;background:var(--su-line2);overflow:hidden;margin-top:4px}
 .ps-menu{display:flex;flex-direction:column;gap:8px}.ps-menu .ps-b{text-align:left}
 .ps-p{margin:0;font:600 13px/1.4 var(--su-font);color:var(--su-soft)}
+/* The Export sheet's choices (export-sheet.js): one row each, like the slot sheet's Bag rows: the tick in the first column, the name over its help. */
+.ps-opt{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:12px;align-items:center;min-height:44px;padding:6px 0;border-top:1px solid var(--su-line2)}
+label.ps-opt{cursor:pointer}
+.ps-opt b{grid-column:2;font:700 14px var(--su-font);color:var(--su-text)}
+.ps-opt small{grid-column:2;font:600 12px/1.4 var(--su-font);color:var(--su-muted)}.ps-opt small:empty{display:none}
+.su-root .ps-opt input{grid-column:1;grid-row:1 / span 2;justify-self:center;width:20px;height:20px;margin:0;accent-color:var(--su-accent)}
+.ps-opt:has(input:disabled){cursor:default}.ps-opt:has(input:disabled) b{color:var(--su-muted)}

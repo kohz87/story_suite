@@ -95,8 +95,9 @@
 }
 
 .su-root .chip2.slow {
-  color: var(--su-warn);
-  background: var(--su-warn-t);
+  /* the mock's slow pace chip: warn text on a light warn tint (before, warn on warn-t: both #f2b45a in dark, so "20 km/day" was orange on orange) */
+  color: var(--su-warn-t);
+  background: color-mix(in srgb, var(--su-warn) 16%, transparent);
 }
 
 .su-root .sw {
@@ -224,9 +225,11 @@
 .scsheet .who .who-in{width:140px}
 .scsheet .brow .grow{flex:1}.scsheet .brow button{min-height:44px}
 
-/* SillyTavern gives every element a dark text-shadow: on the bright fills (white Equip, the green points badge, the pace chip) it smears the dark label. */
+/* SillyTavern gives every element a dark text-shadow: on the bright fills (white Equip, the green points badge, the pace chip) it smears the dark label.
+   (ST sets it on every element, so a chip's own spans, as the pace chip's "20 km/day", need it too) */
 .su-root .ps-b,
 .su-root .pts,
-.su-root .chip2 {
+.su-root .chip2,
+.su-root .chip2 * {
   text-shadow: none;
 }

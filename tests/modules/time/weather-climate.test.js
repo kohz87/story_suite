@@ -137,7 +137,7 @@ test('swipe, swipe back, an edited Re-read (grown and shrunk), a middle delete, 
     assert.ok(all(TEMPERATE).includes(current(host).text), 'a rewind to the start');
 });
 
-test('LF4-4: a place the pack does not name takes the climate of its region (the narrator\'s short name) or of the last pack place; a narrator ~ weather the same day and town stands', async t => {
+test('LF4-4: a place the pack does not name takes the climate of its region (the narrator\'s short name); a narrator ~ weather the same day and town stands', async t => {
     const host = await newHost(t, [{ ...world(), content: { ...world().content, regions: [...world().content.regions, { id: 'auvoth-compact', name: 'Auvoth Compact', climate: 'cold' }], places: [...world().content.places, place('market', 'Pale Market', 'auvoth-compact')] } }, game('g1')]);
     const query = (name, args) => host.sdk.query(name, args);
     assert.equal(climateOf(query, 'Guild Hall', 'auvoth'), 'cold', 'the narrator\'s "Auvoth" is the pack\'s "Auvoth Compact"');
@@ -148,4 +148,15 @@ test('LF4-4: a place the pack does not name takes the climate of its region (the
     await host.send('b', said('Hall.', at('Guild Grand Hall', 'Auvoth')));
     assert.equal(current(host).key, key, 'the same key at an unmapped place in the same town');
     assert.equal(current(host).text, 'thin snow', 'the narrator\'s weather is not replaced by a rule roll');
+});
+
+test('FIXBATCH3: an unmapped place takes the climate of the pack place its own words name (itself or its town), never of the last pack place the atlas saw in its region', async t => {
+    const host = await newHost(t, [{ ...world(), content: { ...world().content, regions: [...world().content.regions, { id: 'auvoth-compact', name: 'Auvoth Compact', climate: 'cold' }], places: [...world().content.places, place('market', 'Pale Market', 'auvoth-compact', { climate: 'arid' })] } }, game('g1')]);
+    const query = (name, args) => host.sdk.query(name, args);
+    await host.send('a', said('Market.', at('Pale Market', 'Auvoth Compact')));
+    await host.send('b', said('Hall.', at('Guild Hall', 'Auvoth Compact')));
+    assert.equal(query('atlas.anchor', { name: 'Guild Hall' })?.via, 'last', 'the atlas reads the hall as the last pack place in its region');
+    assert.equal(climateOf(query, 'Guild Hall', 'auvoth compact'), 'cold', 'the region\'s climate, not the last-seen Pale Market\'s: an edited Re-read keeps the visit a fresh telling may not make');
+    assert.match(current(host).key, /\|cold$/);
+    assert.equal(climateOf(query, 'Pale Market / Lantern Inn', ''), 'arid', 'its town part names a pack place: that place\'s climate');
 });

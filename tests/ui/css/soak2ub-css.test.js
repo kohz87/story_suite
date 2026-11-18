@@ -25,7 +25,9 @@ test('12: the sticky tab strip sticks at the scroller edge, past its padding', (
 });
 
 test('16: dark labels on bright fills take no text shadow', () => {
-  assert.match(css('kit'), /\.su-root \.ps-b,\s*\.su-root \.pts,\s*\.su-root \.chip2 \{\s*text-shadow: none;/u);
+  assert.match(css('kit'), /\.su-root \.ps-b,\s*\.su-root \.pts,\s*\.su-root \.chip2,\s*\.su-root \.chip2 \* \{\s*text-shadow: none;/u);
+  // the slow pace chip is warn text on a warn tint, not warn on warn-t (the same colour in dark: SOAK2UI 16's unreadable "20 km/day", FIXBATCH3)
+  assert.match(css('kit'), /\.su-root \.chip2\.slow \{[^}]*color: var\(--su-warn-t\);\s*background: color-mix\(in srgb, var\(--su-warn\) 16%, transparent\);/u);
 });
 
 test('17: a pinned tracker label stays on one line', () => {

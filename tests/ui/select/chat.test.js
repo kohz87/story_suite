@@ -6,6 +6,16 @@ import { checkShape } from '../../../ui/contract/shapes.js';
 import { ANSWERS } from './recorded.js';
 
 describe('selectDrawer', () => {
+  it('cuts a place name over 40 characters with "…" (it said "…House of the" with no mark: FIXBATCH3)', () => {
+    const name = 'Grand Exchange-and-Counting-House of the Upper Riverbank Merchants Confederacy';
+    const [row] = selectDrawer({ 'npc.present': ['Marrit'], 'scene.place': { name } });
+    assert.equal(row.where, 'Grand Exchange-and-Counting-House of th…');
+    assert.equal(row.where.length, 40);
+    const emoji = selectDrawer({ 'npc.present': ['Marrit'], 'scene.place': { name: 'At the 🏛️ Grand Exchange-and-Counting-House of the Upper Riverbank' } })[0].where;
+    assert.ok(emoji.length <= 40 && emoji.endsWith('…') && emoji.includes('🏛'), `the contract's 40 units, whole characters: ${emoji}`);
+    assert.equal(selectDrawer({ 'npc.present': ['Marrit'], 'scene.place': { name: 'Bluewatch' } })[0].where, 'Bluewatch');
+  });
+
   it('builds one row per present person and matches the contract', () => {
     const rows = selectDrawer(ANSWERS, { portraits: { Fenna: 'fenna.webp' } });
     assert.deepEqual(checkShape(rows, CHAT_SHAPE.drawer), []);

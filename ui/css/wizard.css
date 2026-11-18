@@ -42,7 +42,7 @@
 .su-root .wz-add{display:flex;flex-direction:column;gap:6px}.su-root .wz-add .btn2{align-self:flex-start}
 .su-root .wz-list{margin:0;padding-left:18px}
 .su-root .wz-status:empty{display:none}
-.su-root .wz-foot{padding-top:2px;justify-content:flex-start}.su-root .wz-foot [data-wiz="next"]{margin-left:auto}
+.su-root .wz-foot{padding-top:2px;justify-content:flex-start}.su-root .wz-foot :is([data-wiz="next"],[data-wiz="create"]){margin-left:auto}
 /* Back / Next stay in view, inset from the sheet's rounded bottom edge (at 1280x800 the panel scrolls, and Next sat under the corner) */
 .su-root [data-sheet="new-character"] .wz-foot{position:sticky;bottom:0;z-index:1;padding:8px 0 14px;background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#191a2b)}
 .su-root[data-scheme="light"] [data-sheet="new-character"] .wz-foot{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#e8e9f1)}
