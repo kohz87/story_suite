@@ -11,6 +11,9 @@ import { eventSummary } from '../meters/npc-meters-pacing.js';
 import { escapeHtml } from '../util/html.js';
 import { gateOpen } from '../meters/npc-meters-secrets-parts/revealable.js';
 import { tieRows, owedBy, foldTies, aliasCanon } from '../notes/npc-notes-kinds.js';
+import { TIE_TAGS } from '../notes/npc-notes-ties.js';
+import { npcKey } from '../meters/npc-meters-config.js';
+import { castLinksNamed, metCastNames, withCastLinks } from '../dossier/cast-dossier-parts/cast-links.js';
 
 // The scan's short list of story events to watch for: this many people, this many events each.
 const EVENT_WATCH_NPCS = 6;
@@ -240,7 +243,20 @@ export function createEditorPart(session, deps) {
             if (found && Object.hasOwn(byKey, found.key)) idByKey[found.key] = npc.id;
         }
         const canon = aliasCanon(npcs);
-        const allTies = Object.fromEntries(cast.map(item => [item.key, item.notes?.ties ? foldTies(item.notes.ties, canon) : null]));
+        // A pack tie to someone met after this person is added at read once they are (cast-links.js; never stored).
+        const met = metCastNames(npcs);
+        const npcById = new Map(npcs.filter(npc => npc?.id).map(npc => [npc.id, npc]));
+        const withPackTies = (ties, npc) => {
+            const out = { ...ties };
+            for (const { name, tag } of castLinksNamed(npc, met).ties) {
+                const key = npcKey(name);
+                if (key) out[key] = TIE_TAGS.filter(each => each === tag || (out[key] ?? []).includes(each));
+            }
+            return out;
+        };
+        const tiesOf = item => (item.notes ? withPackTies(foldTies(item.notes.ties, canon), npcById.get(idByKey[item.key])) : null);
+        const allTies = Object.fromEntries(cast.map(item => [item.key, tiesOf(item)]));
+        const linked = new Map(withCastLinks(npcs).filter(npc => npc?.id).map(npc => [npc.id, npc]));
         for (const npc of npcs) {
             if (!npc?.id) continue;
             const who = part.identify(byKey, npc.name);
@@ -262,7 +278,7 @@ export function createEditorPart(session, deps) {
                 // Dossier notes ON (npc.cast's `notesOn`): the Profile shows its Tastes and Drives placeholders only then.
                 ...(entry?.notesOn === true ? { notesOn: true } : {}),
                 // Dossier notes (feature notes): the rows, the Ties rows for this person's bonds and the tags by dossier id (the map's lines).
-                ...(entry?.notes ? { notes: { ...entry.notes, ties: tieRows(foldTies(entry.notes.ties, canon), npc.keyRelationships, owedBy(entry.key, allTies)) }, ties: Object.fromEntries(Object.entries(foldTies(entry.notes.ties, canon)).map(([key, tags]) => [idByKey[key] ?? key, tags])) } : {}),
+                ...(entry?.notes ? { notes: { ...entry.notes, ties: tieRows(allTies[entry.key] ?? {}, linked.get(npc.id)?.keyRelationships, owedBy(entry.key, allTies)) }, ties: Object.fromEntries(Object.entries(allTies[entry.key] ?? {}).map(([key, tags]) => [idByKey[key] ?? key, tags])) } : {}),
                 milestones: Object.values(slice?.milestones ?? {}),
                 secrets,
             };

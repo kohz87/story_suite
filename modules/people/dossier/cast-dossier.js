@@ -44,5 +44,6 @@ export { findCastPerson, metWithEntry, normalizeCast } from './cast-dossier-part
 export { dossierFor, shortPackName } from './cast-dossier-parts/dossier-lookup.js';
 export { parsePeople } from './cast-dossier-parts/people-field.js';
 export { applyCastEntry } from './cast-dossier-parts/apply-entry.js';
+export { castLinksNamed, metCastNames, withCastLinks } from './cast-dossier-parts/cast-links.js';
 export { applyCastPortrait, castPortraitWanted, markCastPortraitRemoved } from './cast-dossier-parts/portrait.js';
 export { castBadge, castView } from './cast-dossier-parts/view.js';

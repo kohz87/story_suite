@@ -5,6 +5,7 @@
 // The domain's validator checks the whole slice after each edit (plain JSON, no image bytes, file-ref portraits), so a bad value refuses the command.
 
 import { BUILT_IN_LIMITS, normalizeLevel, normalizeStoryList } from '../core/core-record-parts/built-in-fields.js';
+import { storedLevel } from '../core/core-record-parts/stored-level.js';
 
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -30,7 +31,7 @@ const LINE_TEXT_MAX = 300;
 // ("- Name") one keepsake, on the built-in lists (names unique without regard to case, at most 16 and 12); the narrator's line reader has already checked the lists.
 function writeLevel(record, text) {
     const value = normalizeLevel(text);
-    if (value === null || value <= (normalizeLevel(record.level) ?? 0)) return;
+    if (value === null || value <= (storedLevel(record) ?? 0)) return;
     record.level = value;
 }
 function writeList(record, key, max, entries) {

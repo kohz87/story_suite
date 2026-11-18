@@ -453,5 +453,8 @@
   "packs/validate/game-parts/run.js": "Runs the game pack's own section checks in order and collects what they keep.",
   "tests/packs/format4-game.test.js": "Tests the format 4 game validator: calendar and seasons, weather by climate, start, pacing, rpg.pull and the player rank module.",
   "packs/validate-parts/pairing.js": "Checks a world pack against a game pack's calendar, seasons and names (the pairing check) and names each part to switch off.",
-  "tests/packs/pairing.test.js": "Tests the pairing check: start date, date and season anchors, birthdays, culture regions and the recommended-game info line."
+  "tests/packs/pairing.test.js": "Tests the pairing check: start date, date and season anchors, birthdays, culture regions and the recommended-game info line.",
+  "packs/selection.js": "Decides which installed packs a chat reads: enabled format 3 packs, the selected world and game, and the trackers of every other game pack.",
+  "packs/content-parts/start-v4.js": "Puts a format 4 world's place and world state, and a game's money and items, into the shape the start merge reads.",
+  "tests/packs/selection.test.js": "Tests the store's kind, the selected world and game, the trackers of every game pack, the start and the calendar start, and format 3 left as it was."
 }

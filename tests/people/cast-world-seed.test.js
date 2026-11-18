@@ -21,7 +21,8 @@ const WORLD = {
     ties: [{ with: 'orrin', tag: 'kin' }, { with: 'orrin', tag: 'owes' }, { with: 'sera', tag: 'friend' }],
     tastes: [{ item: 'strong tea', like: true, why: 'warms her' }, { item: 'crowds', like: false, why: 'too loud' }],
 };
-const row = (id, name, extra = {}) => ({ key: `ersveil:${id}`, pack: 'ersveil', id, name, aliases: [], met: null, alive: true, ...extra });
+// Story Director's answer as it is sent: met people only (an unmet person never leaves Story Director), each with their entry.
+const row = (id, name, extra = {}) => ({ key: `ersveil:${id}`, pack: 'ersveil', id, name, aliases: [], met: { on: 0, where: '' }, alive: true, entry: { kind: 'figure', id, name }, ...extra });
 const answer = () => [row('fenna', 'Fenna', { met: { on: 0, where: 'The quay' }, entry: structuredClone(WORLD) }), row('orrin', 'Orrin'), row('sera', 'Sera')];
 const made = (entry = WORLD, options = {}) => {
     const [p] = normalizeCast(answer().map(r => (r.id === 'fenna' ? { ...r, entry: structuredClone(entry) } : r)));
@@ -57,9 +58,10 @@ test('abilities and keepsakes over NPC State\'s limits are left out and counted 
     assert.equal(normalizeEntry(WORLD).overflow, undefined);
 });
 
-test('key relationships and ties name the people by their cast id; an unknown id is skipped', () => {
+test('key relationships and ties name the met people by their cast id; an id nobody met is kept by id only, never by name', () => {
     const { p, npc } = made();
     assert.deepEqual(npc.keyRelationships, ['Orrin — her late husband\'s brother']);
+    assert.deepEqual(npc.castFrom.links, { keyRelationships: [{ id: 'nobody', text: 'unknown id' }], ties: [] });
     assert.deepEqual(p.entry.ties, [{ name: 'Orrin', tag: 'kin' }, { name: 'Orrin', tag: 'owes' }, { name: 'Sera', tag: 'friend' }]);
     const ties = readTies(seedNotes(p.entry).ties);
     assert.deepEqual(ties, { orrin: ['kin', 'owes'], sera: ['friend'] });
@@ -98,4 +100,28 @@ test('seeding is the same twice, and an edit made before the meeting reply wins 
     assert.equal(seeded.role, 'Ferrywoman', 'what nobody touched is seeded');
     assert.deepEqual(seeded.keepsakes.map(r => r.name), ['Oar']);
     assert.equal(state.castSeedPending, undefined);
+});
+
+test('without a meeting place, a format 4 entry shows its starting place by name (the host\'s pack places), never the place id', () => {
+    const v4 = { ...WORLD, start: { place: 'bluewatch-village', goal: 'g' } };
+    const noPlace = { met: { on: 0, where: '' } };
+    const [p] = normalizeCast([row('fenna', 'Fenna', { ...noPlace, entry: structuredClone(v4) })]);
+    const places = id => (id === 'bluewatch-village' ? 'Bluewatch Village' : '');
+    assert.equal(applyCastEntry(createNpcRecord('Fenna', []), p, { placeName: places }).location, 'Bluewatch Village');
+    assert.equal(applyCastEntry(createNpcRecord('Fenna', []), p, {}).location ?? '', '', 'no name to give: nothing, not the id');
+    assert.equal(applyCastEntry(createNpcRecord('Fenna', []), p, { placeName: () => { throw new Error('x'); } }).location ?? '', '');
+    const v3 = { ...v4, kind: undefined, start: { place: 'The mill' } };
+    const [old] = normalizeCast([row('fenna', 'Fenna', { ...noPlace, entry: structuredClone(v3) })]);
+    assert.equal(applyCastEntry(createNpcRecord('Fenna', []), old, { placeName: places }).location, 'The mill', 'format 3 wrote the place in words: as before');
+});
+
+test('an apparent age in words is kept as the pack wrote it while the field still is those words; a number still reads as ~N', () => {
+    for (const words of ['looks older', 'dwarven middle age', 'older than he is']) {
+        const npc = made({ ...WORLD, apparentAge: words }).npc;
+        assert.equal(npc.apparentAge, words);
+        assert.equal(normalizeNpcRecord(structuredClone(npc)).apparentAge, words, 'a save round trip keeps it');
+        assert.equal(normalizeNpcRecord({ ...structuredClone(npc), apparentAge: 'seems older now' }).apparentAge, '', 'changed words are judged as any other');
+    }
+    assert.equal(made({ ...WORLD, apparentAge: 'about 25' }).npc.apparentAge, '~25');
+    assert.equal(made({ ...WORLD, apparentAge: 'about 25' }).npc.castFrom.first.apparentAge, undefined, 'a readable age is not kept as words');
 });

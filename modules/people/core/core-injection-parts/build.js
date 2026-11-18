@@ -5,7 +5,7 @@ import { DEFAULT_BEHAVIOR_CRITERIA } from '../core-prompts.js';
 import { APPROX_CHARS_PER_TOKEN, INJECTION_CAP_BASE_TOKENS, DEFAULT_INJECTION_BUDGET_TOKENS, normalizeInjectionBudgetTokens, selectRelevantNpcs } from '../core-injection-selection.js';
 import { clauseBoundedInjection, compactInjectionBehaviorRubric, injectionEssentialBlock, injectionOptionalFields, lowPlayerStanding, referenceBlock, truncateInjectionText } from '../core-injection-parts.js';
 
-export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null } = {}) {
+export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null, levelOn = false } = {}) {
     const named = new Set(Array.isArray(namedNpcIds) ? namedNpcIds : []);
     const calledIn = npc => !npc?.present && named.has(npc?.id);
     const present = (npcs || []).filter(npc => (Boolean(npc?.present) || calledIn(npc)) && !npc?.archived);
@@ -16,7 +16,7 @@ export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria
     const budget = normalizeInjectionBudgetTokens(budgetTokens);
     const budgetChars = budget * APPROX_CHARS_PER_TOKEN;
     if (!relevant.length) {
-        const references = referenceBlock(npcs || [], text, new Set(), customFieldNames);
+        const references = referenceBlock(npcs || [], text, new Set(), customFieldNames, levelOn);
         return references ? truncateInjectionText(['NPC STATE DELTA DOSSIER. Treat these as established story facts; never mention the dossier.', references].join('\n'), budgetChars) : '';
     }
     const headerFor = () => [
@@ -50,7 +50,7 @@ export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria
         return line ? `; ${line}` : '';
     };
     const renderEssentials = () => relevant.map(npc => {
-        const block = injectionEssentialBlock(npc, behaviorCap, identityCap, agencyCap, stateCap, customFieldNames, sceneDeferred) + awayNote(npc) + gearNote(npc);
+        const block = injectionEssentialBlock(npc, behaviorCap, identityCap, agencyCap, stateCap, customFieldNames, sceneDeferred, levelOn) + awayNote(npc) + gearNote(npc);
         return calledIn(npc) ? block.replace(`- ${npc.name}: `, `- ${npc.name} (named by player): `) : block;
     });
     while (relevant.length > 1 && (header.length + 1 + renderEssentials().join('\n').length) > budgetChars) {
@@ -92,7 +92,7 @@ export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria
     // Mentioned and deceased references outrank optional enrichment but never the injected cast's
     // essentials; NPCs dropped from the cast for budget may still get their one line.
     const referenceText = (() => {
-        const block = referenceBlock(npcs || [], text, new Set(relevant.map(npc => npc.id)), customFieldNames);
+        const block = referenceBlock(npcs || [], text, new Set(relevant.map(npc => npc.id)), customFieldNames, levelOn);
         const room = budgetChars - currentLength - 1;
         return block && room >= 80 ? truncateInjectionText(block, room) : '';
     })();

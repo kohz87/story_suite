@@ -228,3 +228,13 @@ test('packs.content hands out the pack\'s own frozen records: same objects each 
     assert.deepEqual(settings.root.packs[0].pack, sample(), 'the stored raw pack is untouched, and not frozen');
     assert.equal(Object.isFrozen(settings.root.packs[0].pack), false);
 });
+
+test('an installed format 4 pack keeps its kind in the store and is read through the selection, not the on/off switch', async () => {
+    const { settings, installed } = setup();
+    const world = { id: 'w', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' }, content: {} };
+    assert.equal((await installed.install(world)).ok, true);
+    assert.equal(settings.root.packs[0].kind, 'world');
+    assert.deepEqual(installed.packs().map(each => each.id), ['w']);
+    await installed.select('world', null);
+    assert.deepEqual(installed.packs(), []);
+});

@@ -46,7 +46,8 @@ function normalizeMeters(raw) {
 
 /**
  * The world cast entry, cleaned (texts cut and flattened, lists bounded), or null without a usable name. `nameOf(id)` gives the name of a cast id
- * (the people the entry's ties and key relationships name); without it those two lists are left out.
+ * (the people the entry's ties and key relationships name); without it those two lists are left out. The rows whose person `nameOf` cannot
+ * name (not met yet) are `pendingLinks` ({ keyRelationships: [{ id, text }], ties: [{ id, tag }] }), absent when there are none.
  */
 export function normalizeEntry(raw, nameOf = null) {
     if (!isObject(raw)) return null;
@@ -62,6 +63,7 @@ export function normalizeEntry(raw, nameOf = null) {
     const age = typeof raw.age === 'number' ? String(raw.age) : raw.age;
     return {
         id: clip(raw.id, 80),
+        kind: legacy ? '' : clip(raw.kind, 40),
         name,
         aliases: (Array.isArray(raw.aliases) ? raw.aliases : []).map(alias => clip(alias, NAME_MAX)).filter(alias => alias && labelKey(alias) !== labelKey(name)).slice(0, ALIASES_MAX),
         role: legacy ? clip(raw.about, 300) : clip(raw.role, 120),
@@ -85,6 +87,7 @@ export function normalizeEntry(raw, nameOf = null) {
         goal: clip(raw.goal, 500),
         keyRelationships: links.keyRelationships,
         ties: links.ties,
+        ...(links.pending.keyRelationships.length || links.pending.ties.length ? { pendingLinks: links.pending } : {}),
         ...(level ? { level } : {}),
         abilities: abilities.list,
         keepsakes: keepsakes.list,
