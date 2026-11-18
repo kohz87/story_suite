@@ -1,1 +1,75 @@
-/* Pack Studio styles for the event graph page (ST-GRAPH). Linked from studio/index.html; empty until that job draws its page. */
+/* Pack Studio styles for the event graph page (ST-GRAPH, mock MK-4). Linked from studio/index.html. A wide Studio draws the boxes and lines;
+   a narrow one (the Studio's container at 700px or less) shows the same graph as lists. Line colours: sets green, clears red, requires the
+   accent, not before dotted, not after amber, likelier if faint. */
+.st-root .st-graph, .st-root .st-gwide { min-width: 0; max-width: 100%; }
+.st-root .st-graph { --st-g-sets: var(--su-ok, #4cc38a); --st-g-clears: var(--su-bad, #ff7b72); --st-g-requires: var(--su-accent, #a897ff);
+  --st-g-before: var(--su-soft, #c9c9d6); --st-g-after: var(--su-warn, #f2b45a); --st-g-likelier: var(--su-muted, #8b8b99); display: grid; gap: 10px; }
+.st-root .st-gbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.st-root .st-gbar .gap { flex: 1; }
+.st-root .st-glabel { font: 800 11px var(--su-font); letter-spacing: .12em; text-transform: uppercase; color: var(--su-muted, inherit); min-width: 64px; }
+.st-root .st-gtype { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--su-line2, rgba(128, 128, 128, .3));
+  background: var(--su-panel2, rgba(128, 128, 128, .12)); font: 700 12px var(--su-font); }
+.st-root .st-gtype[aria-pressed="false"] { opacity: .6; background: none; }
+.st-root .st-gkey { display: inline-block; width: 18px; border-top: 2px solid currentColor; }
+.st-root .st-gl-sets { color: var(--st-g-sets); }
+.st-root .st-gl-clears { color: var(--st-g-clears); }
+.st-root .st-gl-requires { color: var(--st-g-requires); }
+.st-root .st-gl-before { color: var(--st-g-before); }
+.st-root .st-gl-after { color: var(--st-g-after); }
+.st-root .st-gl-likelier { color: var(--st-g-likelier); }
+.st-root .st-gtype .st-gkey { color: inherit; }
+.st-root .st-gtype { color: var(--su-text, inherit); }
+.st-root .st-gtype.st-gl-sets .st-gkey { color: var(--st-g-sets); }
+.st-root .st-gtype.st-gl-clears .st-gkey { color: var(--st-g-clears); border-top-style: dashed; }
+.st-root .st-gtype.st-gl-requires .st-gkey { color: var(--st-g-requires); }
+.st-root .st-gtype.st-gl-before .st-gkey { color: var(--st-g-before); border-top-style: dotted; }
+.st-root .st-gtype.st-gl-after .st-gkey { color: var(--st-g-after); border-top-style: dashed; }
+.st-root .st-gtype.st-gl-likelier .st-gkey { color: var(--st-g-likelier); border-top-style: dotted; }
+.st-root .st-goff .st-gall { margin-left: 4px; }
+
+/* the wide view: one scrolling box, the lines under the boxes */
+.st-root .st-gscroll { overflow-x: auto; overflow-y: hidden; border-radius: 16px; border: 1px solid var(--su-line, rgba(128, 128, 128, .25)); background: var(--su-tile, rgba(0, 0, 0, .18)); cursor: grab; }
+.st-root .st-gcanvas { position: relative; margin: 0 auto; }
+.st-root .st-glines { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.st-root .st-gl { fill: none; stroke: currentColor; stroke-width: 2; pointer-events: stroke; }
+.st-root .st-gl:hover { stroke-width: 3.5; }
+.st-root .st-gl-clears.st-gl, .st-root .st-gl-after.st-gl { stroke-dasharray: 6 5; }
+.st-root .st-gl-before.st-gl, .st-root .st-gl-likelier.st-gl { stroke-dasharray: 2 4; }
+.st-root .st-gm path { fill: currentColor; }
+.st-root .st-gnode { position: absolute; box-sizing: border-box; display: flex; align-items: stretch; border-radius: 12px; border: 1px solid var(--su-line, rgba(128, 128, 128, .3));
+  background: var(--su-panel2, rgba(128, 128, 128, .12)); color: var(--su-text, inherit); overflow: hidden; }
+.st-root .st-gcondition { border-radius: 27px; border-color: color-mix(in srgb, var(--st-g-after) 55%, transparent); }
+.st-root .st-gcur { border: 2px solid var(--su-accent, #a897ff); background: color-mix(in srgb, var(--su-accent, #a897ff) 18%, transparent); }
+.st-root .st-gmiss { border: 1.5px dashed var(--su-bad, #ff7b72); background: none; }
+.st-root .st-gmiss b { color: var(--su-bad-t, var(--su-bad)); }
+.st-root .st-gnode .st-gopen { flex: 1; min-width: 0; display: grid; align-content: center; gap: 2px; padding: 0 12px; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; }
+.st-root .st-gnode .st-gopen:disabled { cursor: default; }
+.st-root .st-gnode b, .st-root .st-gnode small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-root .st-gnode b { font: 800 13px var(--su-font); }
+.st-root .st-gnode small { font: 600 11.5px var(--su-font); color: var(--su-muted, inherit); }
+.st-root .st-gnode .st-gcentre { width: 34px; border: 0; border-left: 1px solid var(--su-line, rgba(128, 128, 128, .25)); background: none; color: var(--su-muted, inherit); cursor: pointer; font-size: 14px; }
+.st-root .st-gnode .st-gcentre:hover, .st-root .st-gnode .st-gopen:hover { background: color-mix(in srgb, var(--su-accent, #a897ff) 12%, transparent); }
+.st-root .st-gmore { position: absolute; box-sizing: border-box; display: grid; place-content: center; gap: 2px; border-radius: 12px; border: 1.5px dashed var(--su-line, rgba(128, 128, 128, .4));
+  background: none; color: inherit; cursor: pointer; font: 700 12px var(--su-font); }
+.st-root .st-gmore small { color: var(--su-muted, inherit); font-weight: 600; }
+
+/* most linked, the narrow lists */
+.st-root .st-gtop { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-start; }
+.st-root .st-gtopbtn small { color: var(--su-muted, inherit); margin-left: 4px; }
+.st-root .st-glist { display: none; gap: 10px; }
+.st-root .st-gchips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.st-root .st-gchip { font-size: 11.5px; }
+.st-root .srow .lb .st-gchip.st-gl-sets { color: var(--st-g-sets); }
+.st-root .srow .lb .st-gchip.st-gl-clears { color: var(--st-g-clears); }
+.st-root .srow .lb .st-gchip.st-gl-requires { color: var(--st-g-requires); }
+.st-root .srow .lb .st-gchip.st-gl-before { color: var(--st-g-before); }
+.st-root .srow .lb .st-gchip.st-gl-after { color: var(--st-g-after); }
+.st-root .srow .lb .st-gchip.st-gl-likelier { color: var(--st-g-likelier); }
+.st-root .st-gcentrecard { border: 2px solid var(--su-accent, #a897ff); }
+
+@container (max-width: 700px) {
+  .st-root .st-gwide { display: none; }
+  .st-root .st-glist { display: grid; }
+  .st-root .st-gbar .st-glabel { min-width: 100%; }
+  .st-root .st-grow .ctl .btn2, .st-root .st-gtype { min-height: 44px; }
+}
