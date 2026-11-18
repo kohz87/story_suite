@@ -23,7 +23,7 @@ export const HOST_SETTINGS_SCHEMA = Object.freeze({
     // keep-blocks.js: the history keeps the narrator's own change blocks on its two newest replies (default off).
     keepRecentBlocks: Object.freeze({
         type: 'bool', label: 'Keep the last two replies\' change blocks in the prompt',
-        help: 'The two newest replies reach the model with the change block the narrator wrote for them, so it sees its own recent blocks. Older replies lose theirs as before. Adds about 0.2-1.5k characters to each prompt; no extra call.',
+        help: 'The two newest replies reach the model with the change block the narrator wrote for them, so it sees its own recent blocks. Older replies lose theirs as before. Adds about 0.7-3k characters to each prompt (measured live); no extra call.',
     }),
     // The Models page's two roles (core/model-call/connection-for.js): '' is the chat's connection. Story is always the chat's.
     quickConnection: Object.freeze({
