@@ -33,15 +33,6 @@ function sceneName(ctx) {
     }
 }
 
-function sceneRegion(ctx) {
-    try {
-        const place = typeof ctx?.query === 'function' ? ctx.query('scene.place') : null;
-        return asText(place?.region).trim();
-    } catch {
-        return '';
-    }
-}
-
 // Story Block's mount pace for a ride: `mounts.pace` → { pace, mounts, riders, short, slowest } or null (no mount, or no such query).
 function mountPace(ctx) {
     let out = null;
@@ -145,8 +136,8 @@ export function applyTripLine(ctx, line) {
     let from;
     if (here.road) from = { road: here.road };
     else {
-        // A place the narrator made up has no route: set out from the pack place it stands for (LF4-3).
-        const start = startNode(world, atlas, pack, here.node, { query: queryOf(ctx), region: sceneRegion(ctx) });
+        // A place the narrator made up has no route: set out from the pack place its name stands for (LF4-3; by name only, LF4B2).
+        const start = startNode(world, pack, here.node);
         if (!start) return ctx.fail('NOT_FOUND', `${here.node} is not on the map, so no known route starts there.`);
         from = { node: start.id };
     }

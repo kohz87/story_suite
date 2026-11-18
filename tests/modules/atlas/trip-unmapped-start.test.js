@@ -1,4 +1,5 @@
-// LF4-3 and LF4-6 on the format 4 Ersveil pack: a trip from the narrator's own place sets out from the pack place it stands for;
+// LF4-3 and LF4-6 on the format 4 Ersveil pack: a trip from the narrator's own place sets out from the pack place its name stands for
+// (never from the atlas's visits, LF4B2);
 // a story route between two pack places the pack does not join is refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -16,15 +17,36 @@ const base = place => {
 };
 const opts = { time: T0, pack: PACK };
 
-test('a trip from an unmapped road starts from the last mapped place (LF4-3)', () => {
-    const visited = command(base('Bluewatch Village'), 'atlas.visit', { name: 'Bluewatch Village' }, opts);
+const away = (state, place) => deepFreeze({ ...state, domains: { ...state.domains, scene: { place: { name: place, kind: '', region: '' }, present: [] } } });
+const visitTo = name => {
+    const visited = command(base(name), 'atlas.visit', { name }, opts);
     assert.ok(visited.ok, visited.message);
-    const state = visited.state;
-    const away = deepFreeze({ ...state, domains: { ...state.domains, scene: { place: { name: 'Frontier Road south of Bluewatch', kind: '', region: '' }, present: [] } } });
-    const trip = line(away, '~ trip Auvoth | by: foot', opts);
+    return visited.state;
+};
+
+test('a trip from an unmapped road sets out from the pack place its name stands for (LF4-3)', () => {
+    const trip = line(away(base('Bluewatch Village'), 'Frontier Road south of Bluewatch'), '~ trip Auvoth | by: foot', opts);
     assert.ok(trip.ok, trip.message);
     assert.match(trip.result.summary, /On the road to Auvoth/);
     assert.match(trip.result.summary, /70 km/);
+    const town = line(away(base('Auvoth'), 'Auvoth / Guild Grand Hall'), '~ trip Bluewatch Village | by: foot', opts);
+    assert.ok(town.ok, town.message);
+    assert.match(town.result.summary, /On the road to Bluewatch Village/);
+});
+
+// LF4B2: the start reads the place's name and the pack, never the atlas's visits (a system step an edited Re-read keeps from the old text).
+test('a visit to another pack place does not change where a trip from an unmapped place sets out (replay == told again)', () => {
+    for (const place of ['The Weir', 'Frontier Road south of Bluewatch']) {
+        const plain = line(away(base('Bluewatch Village'), place), '~ trip Auvoth | by: foot', opts);
+        const visited = line(away(visitTo('Bluewatch Village'), place), '~ trip Auvoth | by: foot', opts);
+        const elsewhere = line(away(visitTo('Highmark Capital'), place), '~ trip Auvoth | by: foot', opts);
+        for (const other of [visited, elsewhere]) {
+            assert.equal(other.ok, plain.ok, `${place}: ${other.message ?? other.result?.summary}`);
+            assert.equal(other.code, plain.code, place);
+            assert.equal(other.result?.summary, plain.result?.summary, place);
+        }
+    }
+    assert.equal(line(away(visitTo('Bluewatch Village'), 'The Weir'), '~ trip Auvoth | by: foot', opts).code, 'NOT_FOUND');
 });
 
 test('a trip from an unmapped place with nothing visited still says it is not on the map', () => {

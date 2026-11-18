@@ -1,25 +1,34 @@
-// Story Director v2, atlas part: where a trip sets out from when the scene's place is not a mapped one (LF4-3).
-// The narrator's own place ("Frontier Road south of Bluewatch") has no route, so the trip starts from the pack place the scene stands for
-// (anchor.js: its town, its parent, the last pack place written in its region), else the last pack place the story visited. Pure: it reads
-// the stored atlas and the packs only, so a replay picks the same place.
+// Story Director v2, atlas part: where a trip sets out from when the scene's place is not on a road (LF4-3, LF4B2).
+// The narrator's own place ("Frontier Road south of Bluewatch") has no route, so the trip starts from the pack place its name
+// stands for: the name itself, its town part ("Auvoth / Guild Grand Hall") or the place it names ("… south of Bluewatch",
+// "X (Y)"), read against the pack's places alone. It never reads the atlas's visits, saved parents or the scene's region: those
+// come from system steps (beforeGenerate's `atlas.visit`) that an edited Re-read keeps from the old text, so the same lines told
+// again would set out from somewhere else. The pack and the story's own route lines are all it reads.
 
-import { anchorOf, packRegions } from './anchor.js';
-import { orderedPlaces } from './domain.js';
+import { parseLocation } from '../places.js';
+import { initialAtlas, keyOf } from './domain.js';
+import { parentOf } from './parent.js';
+import { packPlace, worldOf } from './world.js';
 
 const joined = (world, id) => world.routes.some(route => route.from === id || route.to === id);
 
-/** `startNode(world, atlas, pack, name, { query, region })` → the world place a trip from `name` starts at, or null. */
-export function startNode(world, atlas, pack, name, { query = null, region = '' } = {}) {
+// The pack place a name stands for by its words alone, or null.
+function packFor(pack, name) {
+    const packs = worldOf(initialAtlas(), pack);
+    const inPack = place => (place && packPlace(pack, place.name) ? place : null);
+    const raw = String(name ?? '').trim();
+    const own = inPack(packs.find(raw) ?? packs.find(raw.replace(/^the\s+/i, '')));
+    if (own) return own;
+    const town = parseLocation(raw).name.trim();
+    return (town && keyOf(town) !== keyOf(raw) ? inPack(packs.find(town)) : null) ?? inPack(parentOf(raw, packs)?.parent ?? null);
+}
+
+/** `startNode(world, pack, name)` → the world place a trip from `name` starts at: the place itself when a road joins it, else the pack place its name stands for when a road joins that, else the place (or null). */
+export function startNode(world, pack, name) {
     const own = world.find(name);
     if (own && joined(world, own.id)) return own;
-    const anchor = anchorOf(world, atlas, pack, name, { region, regions: packRegions(query) });
-    const named = anchor?.name ? world.find(anchor.name) : null;
-    if (named && joined(world, named.id)) return named;
-    let last = null;
-    for (const visit of orderedPlaces(atlas)) {
-        const seen = visit.discovered ? world.find(visit.id) : null;
-        if (!seen || seen.source !== 'atlas' || !joined(world, seen.id) || !pack.places?.some(place => place.key === seen.key)) continue;
-        if (!last || (visit.rev ?? -1) >= last.rev) last = { rev: visit.rev ?? -1, place: seen };
-    }
-    return last?.place ?? own ?? null;
+    const stands = packFor(pack, name);
+    const node = stands ? world.find(stands.name) : null;
+    if (node && joined(world, node.id)) return node;
+    return own ?? null;
 }
