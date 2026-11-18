@@ -128,7 +128,11 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
         return names || picked.length || report.dropped ? { portraits: report } : {};
     };
 
-    const own = createOwn(() => settings.read() ?? {});   // (not root(): reading creates nothing)
+    // The reader's own rank label and start (own.js) count only while a format 4 world or game is installed: that is when the Settings rows that hold them are drawn,
+    // so values left over after the last one is removed can neither show nor be cleared. (The stored kind decides, so a pack that no longer checks still counts.)
+    const rows = createOwn(() => settings.read() ?? {});   // (not root(): reading creates nothing)
+    const hasFormat4 = () => { const list = settings.read()?.packs; return Array.isArray(list) && list.some(entry => entry?.kind === 'world' || entry?.kind === 'game'); };   // (the Packs page draws the rows on the same rule: a list row with a kind)
+    const own = { read: () => (hasFormat4() ? rows.read() : { rankLabel: '', money: null, items: [] }), set: rows.set };
     return {
         /** The reader's own rank label and starting money and items (own.js): `own.read()`, and `own.set(key, value)` (the caller saves through `setOwn`). */
         own,

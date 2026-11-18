@@ -112,3 +112,20 @@ test('a pack added, removed or switched leaves the reader\'s own values alone, a
     assert.equal(settings.root.start.money, 3);
     assert.equal(createInstalled({ settings }).own.read().money, 3);
 });
+
+test('the reader\'s own values count only while a format 4 world or game is installed: after the last is removed the start and the rank are the packs\'', async () => {
+    const { settings, made, query } = await part(world, game);
+    assert.equal((await made.packs.install(sample())).ok, true);
+    await made.packs.setOwn('rankLabel', 'Standing'); await made.packs.setOwn('money', '7'); await made.packs.setOwn('items', 'Rope');
+    assert.equal(query('packs.youRank').label, 'Standing');
+    await made.packs.remove('w1'); await made.packs.remove('g1');
+    assert.deepEqual(made.packs.own.read(), { rankLabel: '', money: null, items: [] });
+    assert.deepEqual(made.startState(), mergeStart(made.packs.packs()), 'only a format 3 pack is left: its start as it is');
+    assert.equal(query('packs.youRank'), youRankOf(made.packs.packs()));
+    assert.equal(made.startState().packs.includes('settings'), false);
+    for (const entry of [...settings.root.packs]) await made.packs.remove(entry.id);
+    assert.deepEqual(made.startState(), mergeStart([]), 'no pack at all: no start');
+    assert.equal(query('packs.youRank'), null);
+    await made.packs.install(world);
+    assert.equal(made.packs.own.read().money, 7, 'the values were kept: a format 4 pack again brings them back');
+});

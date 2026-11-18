@@ -105,7 +105,7 @@ export function selectSettings(answers) {
   const { defList, set } = withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []);
   const packs = selectPacks(a.packsAnswers);
   const sections = [
-    section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', packs.v4 ? selectYouStartRows(a.packsAnswers?.own) : [], 'start'),
+    section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', packs.v4 ? selectYouStartRows(a.packsAnswers?.own, a.money) : [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
     section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people)),
     section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', selectRpgRows(a.rpg)),

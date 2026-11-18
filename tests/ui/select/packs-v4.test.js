@@ -83,12 +83,15 @@ test('the Start rows say what blank means for the game in use, and for the built
     const { ownView } = await import('../../../packs/index-parts/page-queries.js');
     const rows = selectYouStartRows(ownView(installed));
     assert.deepEqual(rows.map(r => [r.key, r.type, r.group]), [['packs.you.rankLabel', 'txt', 'You and your start'], ['packs.start.money', 'num', 'You and your start'], ['packs.start.items', 'lines', 'You and your start']]);
-    assert.match(rows[1].hint, /Blank: the game pack’s \(Game one: 40 gold\)$/);
+    assert.match(rows[1].hint, /^For new chats, in the smallest coin\. Blank: the game pack’s \(Game one: 40 gold\)$/);
+    assert.match(rows[2].hint, /^For new chats; your list replaces/);
     assert.match(rows[2].hint, /\(Game one: Rope, Lantern\)$/);
     await installed.select('game', null);
     const built = selectYouStartRows(ownView(installed));
     assert.match(built[0].hint, /Blank: none \(the built-in game has none\)$/);
-    assert.equal(built[1].unit, 'copper');
+    assert.equal(built[1].unit, 'gold', 'the built-in game counts in gold');
+    assert.equal(selectYouStartRows(ownView(installed), { coins: [{ name: 'penny', value: 1 }, { name: 'crown', value: 12 }], currency: 'gold' })[1].unit, 'penny', 'the reader\'s coins first: the smallest');
+    assert.equal(selectYouStartRows(ownView(installed), { coins: [], currency: 'mark' })[1].unit, 'mark');
     assert.deepEqual(selectYouStartRows(null).map(r => r.value), ['', null, '']);
 });
 

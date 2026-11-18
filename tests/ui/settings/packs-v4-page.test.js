@@ -148,7 +148,7 @@ test('Start: "You and your start" comes after Reset to Standard and before Gone 
     const rows = el.querySelectorAll('.srow').filter(r => ['Rank label', 'Starting money', 'Starting items'].includes(r.querySelector('b')?.textContent));
     assert.equal(rows.length, 3);
     assert.match(rows[0].querySelector('small').textContent, /Blank: the game pack’s \(Ersveil rules: Guild rank\)$/);
-    assert.match(rows[1].querySelector('small').textContent, /Blank: the game pack’s \(Ersveil rules: 40 copper\)$/);
+    assert.match(rows[1].querySelector('small').textContent, /^For new chats, in the smallest coin. Blank: the game pack’s \(Ersveil rules: 40 copper\)$/);
     assert.match(rows[2].querySelector('small').textContent, /your list replaces the game pack’s \(Ersveil rules: none\)$/);
     const plain = mountPacks(await store()).page('start');
     assert.ok(!groups(plain).includes('You and your start'));
