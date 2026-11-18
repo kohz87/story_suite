@@ -37,7 +37,7 @@ export async function loadSuite() {
     if (!existsSync(path.join(r.nsd, 'src/npc-notes-kinds.js'))) return { skip: `the npc_state_delta checkout at ${r.nsd} is older than its notes batch (no src/npc-notes-kinds.js): update it, or point SUITE_NSD at a current one`, roots: r };
     const at = (dir, rel) => import(pathToFileURL(path.join(dir, rel)).href);
     const [kit, SD, NSD] = await Promise.all([at(r.sb, 'testkit/index.js'), import(pathToFileURL(sdModuleAt(r.sd)).href), at(r.nsd, 'src/storysuite-v2.js')]);
-    return { roots: r, createHost: kit.createHost, SD, NSD, at: rel => at(r.sb, rel), packText: readFileSync(path.join(r.sb, 'examples/packs/ersveil/pack.json'), 'utf8') };
+    return { roots: r, createHost: kit.createHost, SD, NSD, at: rel => at(r.sb, rel), packText: readFileSync(path.join(r.sb, 'tests/fixtures/packs/ersveil-3/pack.json'), 'utf8') };
 }
 
 /** A host with the two modules and the Ersveil pack installed before the chat starts. crypto is seeded while it lives. */

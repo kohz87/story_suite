@@ -8,7 +8,7 @@ import { checkText } from '../../../studio/check.js';
 import { PARTS, partOfPath, partsOf } from '../../../studio/parts.js';
 
 const read = rel => readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8');
-const ERSVEIL = read('examples/packs/ersveil/pack.json');
+const ERSVEIL = read('tests/fixtures/packs/ersveil-3/pack.json');
 const TINY = read('authoring-kit/examples/tiny-world/pack.json');
 const WORLD = read('tests/packs/studio/fixtures/world-mini.json');
 const ERSVEIL_WORLD = read('examples/packs/ersveil-world/pack.json');

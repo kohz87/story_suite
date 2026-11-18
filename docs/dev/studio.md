@@ -50,7 +50,7 @@ skeleton (job S-0 of the Studio plan) only opens, checks, shows and exports a pa
 - `tests/packs/studio/`:
   - the parts table;
   - the checker wiring (the Studio's verdict equals `validatePack`'s);
-  - open and export (the writer rebuilds `examples/packs/ersveil.zip` byte for byte);
+  - open and export (the writer rebuilds the format 3 Ersveil zip, `tests/fixtures/packs/ersveil-3/ersveil.zip`, byte for byte);
   - an exported pack installed in a testkit host (`testkit/host.js`) gives the same verdict.
 - `tests/ui/studio/`: the page in Chromium. It covers open, every part, Problems and Go to, search, the keys, the phone
   list and back, the theme, and no overflow at 390, 1143, 1280 and 1920, dark and light.

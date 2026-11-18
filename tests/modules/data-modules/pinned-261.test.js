@@ -10,7 +10,7 @@ const chat = () => readFileSync(new URL('../../core/fixtures/fixture-2.6.1-pinne
     .trim().split('\n').slice(1).map(line => JSON.parse(line));
 // The chat was saved with Ersveil 2.0.0; 2.1.0 (the example pack now) changed only lore and place names.
 const pack = () => JSON.parse(readFileSync(new URL('../../core/fixtures/ersveil-2.0.0-pack.json', import.meta.url), 'utf8'));
-const current = () => JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+const current = () => JSON.parse(readFileSync(new URL('../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
 const hashes = {
     'pack.ersveil/standing': '208561d9520010fca4d537a520be3ab4b735711a12614846e7dd201050e0a627',
     'pack.ersveil/fame': '208a5fa654a78c475a7820154bc8630f5ccd643ac1cbdd41a7d9dec99b3a9d8a',

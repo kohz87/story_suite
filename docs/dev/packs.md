@@ -32,7 +32,10 @@ starter pack), SPEC §9 and §13, MODULES §E and §F.
   `mergeStart`, `applyStart`.
 - `src/v2/packs/cast.js` (`content.cast`), `portraits.js` (portrait files on ST user files + index in settings), `zip.js` and `bundle.js` (a pack as one zip).
 - `src/v2/packs/installed.js` (where packs are kept), `panel.js` (the Packs fold), `st-adapter.js`, `lorebook.js`.
-- `examples/packs/ersveil/pack.json` (Ersveil 2.2.0, the open world, with its lorebook `ersveil-lore.json`),
+- `examples/packs/ersveil/pack.json` (Ersveil 4.0.0, a format 4 world pack, with `CONVERSION-NOTES.md` and the portraits) and
+  `examples/packs/ersveil-game/pack.json` (its game pack, "Ersveil rules" 1.0.0), both written by `scripts/packs/convert-3to4.mjs --ersveil` from the
+  format 3 `examples/packs/ersveil-world/pack.json`; `examples/packs/ersveil.zip` holds both (`game.json`). The old format 3 Ersveil (2.x, with its
+  lorebook `ersveil-lore.json` and zip) is a frozen test fixture, `tests/fixtures/packs/ersveil-3`, read by the format 3 tests until X1;
   `examples/packs/ersveil-factions` and `ersveil-survival` (add-ons: data modules only). A pack is format 3 (`format`, `requires.suite`; PACKS.md "Pack format 3"); `PACK_FORMAT` (4) and the ignored kinds are in `packs/limits-parts/format.js`; a format 4 pack's fields and per-kind content keys are in `packs/limits-parts/kinds.js` and checked in `packs/validate-parts/envelope.js` (PACKS.md "Pack format 4"), the format 4 world fields (`climate`, `start.date`/`start.place`, cast `birthday`) in `packs/limits-parts/world-climate.js`, `packs/validate/world-pack-parts/start-v4.js` and `cast-birthday.js`, the format 4 game sections (calendar and seasons, weather, start, pacing, `rpg.pull`) in `packs/validate/game-parts/` with their limits in `packs/limits-parts/game-*.js`, `SUITE_VERSION` in `packs/validate/core-parts/host-version.js`.
 - `tests/packs/fixtures/riverside-starter.json`: the small format 3 pack the pack tests share (not a shipped example).
 
@@ -46,5 +49,7 @@ starter pack), SPEC §9 and §13, MODULES §E and §F.
 ## When you change it
 
 - A new field or kind: validator + safety + limit + PACKS.md section + a test that a hostile value is refused.
-- Changing Ersveil values: keep ERSVEIL.md and `ersveil-pack.test.js` in step; bump the pack's version. The Bluewatch fixture
+- Changing Ersveil values: change the format 3 source (`examples/packs/ersveil-world`) or the converter's Ersveil preset
+  (`scripts/packs/convert-3to4-parts/ersveil.js`), run `node scripts/packs/convert-3to4.mjs --ersveil` and `node scripts/core/build-example-zip.mjs`;
+  `ersveil-pack.test.js` fails while the shipped files differ from what the converter builds. Never edit `tests/fixtures/packs/ersveil-3`. The Bluewatch fixture
   (`ersveil-values.test.js` and the other tests that load it) must never change: its bytes are pinned by the unused-chat baseline.

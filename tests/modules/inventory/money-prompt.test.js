@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { coinLine, coinValue, currencyOf, foreignCoin, moneyLine, parseAmount } from '../../../modules/inventory/money.js';
 import { createHost } from '../../../testkit/index.js';
 
-const ERSVEIL = readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8');
 const staticPart = host => host.st.requests.at(-1).chat.find(message => message.role === 'system').content;
 const moneyOf = text => text.split('\n').filter(line => /^Money /.test(line));
 

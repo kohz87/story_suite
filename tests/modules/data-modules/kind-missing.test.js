@@ -9,7 +9,7 @@ import { createHost } from '../../../testkit/index.js';
 import { reply, success } from './helpers.js';
 
 const ID = 'pack.ersveil/guild-membership';
-const ersveil = () => JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+const ersveil = () => JSON.parse(readFileSync(new URL('../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
 const guild = host => host.sdk.query('dataModules.view', { module: ID }).chat;
 const dmProblems = host => host.turn.problems().filter(problem => ['DM_LABEL', 'REFUSED'].includes(problem.code));
 

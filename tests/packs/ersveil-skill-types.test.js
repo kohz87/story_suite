@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { SKILL_SETS } from '../../modules/rpg/templates-parts/skill-sets.js';
 
-const pack = JSON.parse(readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+const pack = JSON.parse(readFileSync(new URL('../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
 const skillsOf = id => pack.content.cast.find(person => person.id === id).skills;
 const STANCES = ['defence', 'evasion', 'movement', 'support'];
 

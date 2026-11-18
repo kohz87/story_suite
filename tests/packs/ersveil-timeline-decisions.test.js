@@ -1,4 +1,4 @@
-// Ersveil 2.2.0's hidden timeline (examples/packs/ersveil/pack.json): replay decisions on the real host (a decision
+// Ersveil 2.2.0's hidden timeline (tests/fixtures/packs/ersveil-3/pack.json): replay decisions on the real host (a decision
 // once made stays made) and 2.9.6 flood news.
 import test from 'node:test';
 import assert from 'node:assert/strict';

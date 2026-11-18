@@ -100,7 +100,7 @@
   "scripts/core/bench-long.mjs": "Story Suite v2 long-chat benchmark (docs/v2/PERFORMANCE.md, \"Long chats\").",
   "scripts/core/bench-query.mjs": "Query burst benchmark (docs/v2/PERFORMANCE.md, \"Queries on an unchanged chat\").",
   "scripts/core/bench-v2.mjs": "Story Suite v2 storage benchmark (docs/v2/PERFORMANCE.md).",
-  "scripts/core/build-example-zip.mjs": "Builds examples/packs/ersveil.zip and examples/packs/ersveil-world.zip (the sample world pack, plus its README.md): pack.json first, then portraits/<file> for each picture the cast names, in cast order.",
+  "scripts/core/build-example-zip.mjs": "Builds examples/packs/ersveil.zip (the format 4 world pack examples/packs/ersveil with its portraits, the game pack examples/packs/ersveil-game as game.json and CONVERSION-NOTES.md) and examples/packs/ersveil-world.zip (the format 3 sample world pack, plus its README.md): pack.json first, then portraits/<file> for each picture the cast names, in cast order, then the extra files.",
   "scripts/core/check.mjs": "Syntax-checks every shipped `.js` and `.mjs` file under core, ui (except the Director folder), modules, packs, testkit, examples, scripts, authoring-kit and the NPC State folder, printing \"syntax ok\".",
   "scripts/core/fuzz-data-modules.mjs": "node scripts/fuzz-data-modules.mjs <seed> <steps> one run; prints { seed, steps, fails, stats } for s in $(seq 1 200); do node scripts/fuzz-data-modules.mjs $s 60; done \\| grep -v '\"fails\":\\[\\]' The r…",
   "scripts/core/fuzz-replay-parts/messages.js": "Fake SillyTavern messages for the fuzz: a user line and a reply, each dated a minute after the last.",
@@ -465,5 +465,9 @@
   "core/runtime/frame-parts/commands.js": "Holds the frame's commands: write it, mark its update note given, and ask the next reply to write it again.",
   "tests/core/frame.helpers.js": "Gives the frame tests a host with a world and game selected and the games to swap in.",
   "tests/core/frame.test.js": "Tests that the frame is written once and a swapped game does not move it, through swipes, a swipe back, an edited Re-read, a middle delete, a rewind and a reload.",
-  "tests/core/frame-act.test.js": "Tests the act that writes the frame again, a chat change, the update note, hostile frames and a chat with nothing selected."
+  "tests/core/frame-act.test.js": "Tests the act that writes the frame again, a chat change, the update note, hostile frames and a chat with nothing selected.",
+  "scripts/packs/convert-3to4.mjs": "Command line of the pack format 3 to 4 converter: converts any format 3 pack.json into a world pack, a game pack and conversion notes, and rebuilds or checks the shipped Ersveil (--ersveil [--check]).",
+  "scripts/packs/convert-3to4-parts/convert.js": "Turns one parsed format 3 pack into a format 4 world pack and its companion game pack (pure), with the notes data: proposed region climates, regional weather tables left out, names re-keyed to region ids, data module ids moved, what was dropped.",
+  "scripts/packs/convert-3to4-parts/notes.js": "Writes the author's conversion notes of one format 3 to 4 conversion as Markdown: region climates to confirm, the regional weather lines, the names re-keying, data module ids and what was dropped.",
+  "scripts/packs/convert-3to4-parts/ersveil.js": "The Ersveil preset of the format 3 to 4 converter: the two packs' ids, names and versions, the lead's proposed climate (with the reason) for each of the 30 regions, and the weather region names no region name contains."
 }

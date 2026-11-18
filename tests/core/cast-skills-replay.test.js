@@ -117,7 +117,7 @@ test('Edit first carries the signature skills: the offer records them, the card\
 // ---- Ersveil ----------------------------------------------------------------------------------------------------------------------------
 
 test('Ersveil gives each of its 12 cast members exactly 2 skills (owner list, 10 Nov), and the pack still checks', () => {
-    const raw = readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+    const raw = readFileSync(new URL('../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8');
     const result = validatePack(raw);
     assert.equal(result.ok, true, JSON.stringify(result.errors?.slice(0, 3)));
     const cast = result.pack.content.cast;

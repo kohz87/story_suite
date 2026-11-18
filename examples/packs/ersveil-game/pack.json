@@ -1,0 +1,2565 @@
+{
+  "id": "ersveil-game",
+  "format": 4,
+  "kind": "game",
+  "version": "1.0.0",
+  "name": "Ersveil rules",
+  "author": "Story Suite examples",
+  "description": "Calendar, coins, guild ranks, names and trackers for Ersveil",
+  "requires": {
+    "suite": "^0.1",
+    "capabilities": [
+      "scene",
+      "inventory",
+      "data-modules-v1"
+    ]
+  },
+  "content": {
+    "calendar": {
+      "months": [
+        {
+          "name": "January",
+          "days": 31
+        },
+        {
+          "name": "February",
+          "days": 28
+        },
+        {
+          "name": "March",
+          "days": 31
+        },
+        {
+          "name": "April",
+          "days": 30
+        },
+        {
+          "name": "May",
+          "days": 31
+        },
+        {
+          "name": "June",
+          "days": 30
+        },
+        {
+          "name": "July",
+          "days": 31
+        },
+        {
+          "name": "August",
+          "days": 31
+        },
+        {
+          "name": "September",
+          "days": 30
+        },
+        {
+          "name": "October",
+          "days": 31
+        },
+        {
+          "name": "November",
+          "days": 30
+        },
+        {
+          "name": "December",
+          "days": 31
+        }
+      ],
+      "seasons": [
+        {
+          "name": "spring",
+          "months": [
+            "March",
+            "April",
+            "May"
+          ]
+        },
+        {
+          "name": "summer",
+          "months": [
+            "June",
+            "July",
+            "August"
+          ]
+        },
+        {
+          "name": "autumn",
+          "months": [
+            "September",
+            "October",
+            "November"
+          ]
+        },
+        {
+          "name": "winter",
+          "months": [
+            "December",
+            "January",
+            "February"
+          ]
+        }
+      ]
+    },
+    "currency": {
+      "name": "copper",
+      "plural": "copper",
+      "short": "c",
+      "coins": [
+        {
+          "name": "copper",
+          "plural": "copper",
+          "value": 1
+        },
+        {
+          "name": "silver",
+          "plural": "silver",
+          "value": 10
+        },
+        {
+          "name": "gold",
+          "plural": "gold",
+          "value": 100
+        }
+      ]
+    },
+    "weather": {
+      "style": "climate",
+      "tables": [
+        {
+          "climate": "temperate",
+          "season": "spring",
+          "weather": [
+            "cold rain, thawing mud",
+            "wet grey morning, low cloud",
+            "cold wind, rain showers",
+            "late frost, clearing by noon",
+            "river mist, then drizzle"
+          ]
+        },
+        {
+          "climate": "temperate",
+          "season": "summer",
+          "weather": [
+            "short hot spell, haze on the horizon",
+            "warm and clear, dry wind",
+            "close heat, thunder building",
+            "hot noon, cool evening",
+            "heavy shower, then sun"
+          ]
+        },
+        {
+          "climate": "temperate",
+          "season": "autumn",
+          "weather": [
+            "crisp and clear, first frost at dawn",
+            "cold drizzle, low fog",
+            "grey sky, leaves driving on the wind",
+            "harvest-dry, cool breeze",
+            "sleet at dusk"
+          ]
+        },
+        {
+          "climate": "temperate",
+          "season": "winter",
+          "weather": [
+            "hard frost, clear sky",
+            "snow on the wind",
+            "sleet and grey cloud",
+            "cold, still and clear",
+            "freezing fog, ice on the roads"
+          ]
+        }
+      ]
+    },
+    "names": {
+      "banned": [
+        "Elara",
+        "Lyra",
+        "Kael",
+        "Kaelen",
+        "Aria",
+        "Seraphina",
+        "Thorne",
+        "Rowan",
+        "Finn",
+        "Elias",
+        "Silas",
+        "Marcus",
+        "Mira",
+        "Kira",
+        "Zara",
+        "Lysandra",
+        "Cedric",
+        "Garrick",
+        "Gareth",
+        "Bram",
+        "Eldrin",
+        "Sylas",
+        "Vex",
+        "Nyx",
+        "Liora",
+        "Isolde",
+        "Tobias",
+        "Jareth",
+        "Aldric",
+        "Elowen",
+        "Theron",
+        "Arwen",
+        "Eldara",
+        "Lyanna",
+        "Draven",
+        "Morgana",
+        "Alaric",
+        "Faelan",
+        "Thalia",
+        "Aeliana",
+        "Galadriel",
+        "Legolas",
+        "Gandalf",
+        "Aragorn",
+        "Elric",
+        "Vesper"
+      ],
+      "highmark": {
+        "regions": [
+          "highmark-empire"
+        ],
+        "given": [
+          "Aldemar",
+          "Brunhelm",
+          "Eckhelm",
+          "Gundric",
+          "Hartwald",
+          "Ingmar",
+          "Jorwald",
+          "Leuthric",
+          "Meinhelm",
+          "Notker",
+          "Osmar",
+          "Radwald",
+          "Sieghelm",
+          "Tankmar",
+          "Udalric",
+          "Wenzhelm",
+          "Ansgar",
+          "Berthold",
+          "Dagomar",
+          "Ebbric",
+          "Folkwald",
+          "Giselhelm",
+          "Adalhild",
+          "Berthine",
+          "Clothilde",
+          "Dietrun",
+          "Ermenhild",
+          "Frideline",
+          "Hedwine",
+          "Irmentrud",
+          "Kunigisse",
+          "Lothilde",
+          "Mechthild",
+          "Notburga",
+          "Odelinde",
+          "Rothilde",
+          "Swanhild",
+          "Theudine",
+          "Uodelisse",
+          "Walburine",
+          "Alheid",
+          "Gisline",
+          "Roswitha"
+        ],
+        "family": [
+          "Marrowvale",
+          "Thornwaller",
+          "Ironwarden",
+          "Hartstein",
+          "Rimmelmark",
+          "Brandhelm",
+          "Kesselring",
+          "Waldmann",
+          "Eisenhart",
+          "Falkenrath",
+          "Grauwald",
+          "Steinmetz",
+          "Brückner",
+          "Holzknecht",
+          "Rotbart",
+          "Schildwart",
+          "Kornfeld",
+          "Mühlbach",
+          "Kornmeister",
+          "Zinsbauer",
+          "Hohenlohe",
+          "Rabenstein",
+          "Wolfsgraben",
+          "Schwertfeger",
+          "Lindenmark",
+          "Burgwart"
+        ]
+      },
+      "river": {
+        "regions": [
+          "confederacy-heartland",
+          "bluewatch-reach",
+          "ledger-locks",
+          "shornmarch"
+        ],
+        "given": [
+          "Wenna",
+          "Gerrit",
+          "Beerke",
+          "Cobus",
+          "Daantje",
+          "Eefje",
+          "Floris",
+          "Geertje",
+          "Hielke",
+          "Ineke",
+          "Jaap",
+          "Keesje",
+          "Lieke",
+          "Meinke",
+          "Noortje",
+          "Okke",
+          "Pieter",
+          "Quirijn",
+          "Reinout",
+          "Sieke",
+          "Teunis",
+          "Uurke",
+          "Vaske",
+          "Wiebke",
+          "Anneke",
+          "Brecht",
+          "Diederik",
+          "Egbert",
+          "Froukje",
+          "Hendrik",
+          "Ilse",
+          "Jeltje",
+          "Klaasje",
+          "Lubbert",
+          "Marijke",
+          "Neeltje",
+          "Oene",
+          "Pleun",
+          "Roelof",
+          "Sjoerd",
+          "Tjalle",
+          "Ulbe",
+          "Wouter",
+          "Yvonne",
+          "Zwaantje"
+        ],
+        "family": [
+          "Barge-Haller",
+          "Lockkeeper",
+          "Tollwater",
+          "Eelman",
+          "Ropewalker",
+          "Sluiswacht",
+          "Koopmans",
+          "Vanderlock",
+          "Tidemaker",
+          "Pennywise",
+          "Ledgerman",
+          "Oarsmith",
+          "Ferrymann",
+          "Pilotsen",
+          "Cargoman",
+          "Quaymaster",
+          "Netwright",
+          "Mudlark",
+          "Wharfinger",
+          "Saltfisher",
+          "Reedcutter",
+          "Hillcrofter",
+          "Grayfleece",
+          "Cairnwalker",
+          "Peatcutter",
+          "Lochsider",
+          "Bogfisher"
+        ]
+      },
+      "flame": {
+        "regions": [
+          "aurelion",
+          "kingdom-of-ashmere"
+        ],
+        "given": [
+          "Ambrosine",
+          "Bonifacia",
+          "Caelestin",
+          "Dominik",
+          "Eulalia",
+          "Faustin",
+          "Gaudenz",
+          "Honorine",
+          "Ignatia",
+          "Justinian",
+          "Kolumban",
+          "Leocadia",
+          "Maximin",
+          "Narcissa",
+          "Octavian",
+          "Placidus",
+          "Quirina",
+          "Rufina",
+          "Severin",
+          "Teodora",
+          "Ursicin",
+          "Valeria",
+          "Wilhelmina",
+          "Xaverin",
+          "Zenobia",
+          "Amandus",
+          "Beatrix",
+          "Clemens",
+          "Dorothea",
+          "Evaristus",
+          "Felicitas",
+          "Gregor",
+          "Hilarion",
+          "Innocenz",
+          "Jovita",
+          "Lucan",
+          "Marcellin",
+          "Nonna",
+          "Oriel",
+          "Pelagia",
+          "Remigius",
+          "Scholastika",
+          "Theophil",
+          "Ulrika",
+          "Vitalis"
+        ],
+        "family": [
+          "Ashmarked",
+          "Candlewright",
+          "Vowbearer",
+          "Hospicer",
+          "Reliquarian",
+          "Brazier-Born",
+          "Lampwick",
+          "Graveward",
+          "Wickman",
+          "Ember-Reeve",
+          "Saintsworn",
+          "Fastday",
+          "Bellringer",
+          "Tallowman",
+          "Censerman",
+          "Ashenhand",
+          "Pilgrimsfoot",
+          "Almsgiver",
+          "Vigilkeeper",
+          "Chantrell",
+          "Thurifer",
+          "Hymnwright",
+          "Lazarwell"
+        ]
+      },
+      "north": {
+        "regions": [
+          "border-kingdoms",
+          "valegard-region"
+        ],
+        "given": [
+          "Arnvid",
+          "Bergthor",
+          "Eirik",
+          "Frode",
+          "Gunhild",
+          "Haldor",
+          "Ingeborg",
+          "Jorund",
+          "Kolbein",
+          "Leif",
+          "Magnhild",
+          "Njal",
+          "Olvir",
+          "Ragnvald",
+          "Solveig",
+          "Steinar",
+          "Tora",
+          "Ulfhild",
+          "Vigdis",
+          "Yngvar",
+          "Asgrim",
+          "Brynja",
+          "Geirrod",
+          "Hallfrid",
+          "Lagertha",
+          "Orm",
+          "Rannveig",
+          "Sigmund",
+          "Thorbjorn",
+          "Aslak",
+          "Bodil",
+          "Dorte",
+          "Eyvind",
+          "Finnbjorn",
+          "Gudrun",
+          "Halla",
+          "Jarl",
+          "Knut"
+        ],
+        "family": [
+          "Hrafnsson",
+          "Stormhand",
+          "Beaconwarden",
+          "Hirdmann",
+          "Fostermother",
+          "Oatcake",
+          "Horsebreaker",
+          "Wintertooth",
+          "Snowmantle",
+          "Ironbrow",
+          "Longfurrow",
+          "Bridgekeeper",
+          "Foalwatcher",
+          "Saddlewright",
+          "Herdmaster",
+          "Beaconkin",
+          "Skaldson",
+          "Birchhall",
+          "Rimfaxsen",
+          "Tideyarn",
+          "Fenwolf",
+          "Hearthward"
+        ]
+      },
+      "frostbound": {
+        "regions": [
+          "deep-northern-apex"
+        ],
+        "given": [
+          "Asbjorn",
+          "Brynhild",
+          "Erlend",
+          "Freydis",
+          "Grettir",
+          "Hjalmar",
+          "Ivar",
+          "Jorunn",
+          "Kari",
+          "Leidolf",
+          "Mjoll",
+          "Nanna",
+          "Ragnfrid",
+          "Skuli",
+          "Torvi",
+          "Valdis",
+          "Yrsa",
+          "Aud",
+          "Bard",
+          "Dalla",
+          "Egil",
+          "Fjola",
+          "Helga",
+          "Ingvar",
+          "Katla",
+          "Meldun",
+          "Ottar",
+          "Svala",
+          "Thrand",
+          "Una",
+          "Vermund",
+          "Yngild",
+          "Aldis",
+          "Bera",
+          "Eldgrim"
+        ],
+        "family": [
+          "Whalebane",
+          "Icewalker",
+          "Longoar",
+          "Frostmantle",
+          "Mammothrider",
+          "Sagaspeaker",
+          "Bearbrow",
+          "Hornblower",
+          "Seal-Tamer",
+          "Auroraeye",
+          "Floebreaker",
+          "Wolfsbane",
+          "Walrusbelly",
+          "Tuskhand",
+          "Rimebeard",
+          "Sleddriver",
+          "Coldforge",
+          "Bathhouser",
+          "Gleamtooth",
+          "Stormsinger"
+        ]
+      },
+      "dwarf": {
+        "regions": [
+          "ironanvil",
+          "deepwalkers"
+        ],
+        "given": [
+          "Balgrim",
+          "Dorgak",
+          "Brunna",
+          "Thurda",
+          "Kelmund",
+          "Gavrik",
+          "Rundi",
+          "Okkar",
+          "Barthak",
+          "Thulgrim",
+          "Brokka",
+          "Dhaka",
+          "Karak",
+          "Mordi",
+          "Nolgrund",
+          "Runa",
+          "Skarn",
+          "Tharuk",
+          "Ulgrim",
+          "Varnak",
+          "Zorra",
+          "Bargrim",
+          "Dwala",
+          "Fargun",
+          "Grundi",
+          "Hakka",
+          "Kelda",
+          "Orgrim",
+          "Thrain",
+          "Bokka",
+          "Dorna",
+          "Gavra",
+          "Kelbrak",
+          "Okka",
+          "Rundak",
+          "Thulda"
+        ],
+        "family": [
+          "Ashbellow",
+          "Copperseam",
+          "Anvilhand",
+          "Stonepick",
+          "Deepdelver",
+          "Lanternwright",
+          "Emberforge",
+          "Oathhammer",
+          "Runecutter",
+          "Seamfinder",
+          "Echomason",
+          "Bolthewer",
+          "Coalheart",
+          "Slagbeard",
+          "Ironvein",
+          "Gatekeeper",
+          "Tunnelwife",
+          "Hallwarden",
+          "Smeltwater",
+          "Crucible"
+        ]
+      },
+      "chieftain": {
+        "regions": [
+          "united-chieftainates"
+        ],
+        "given": [
+          "Aruhai",
+          "Besha",
+          "Chunai",
+          "Dakesh",
+          "Eshura",
+          "Fanuwa",
+          "Gohai",
+          "Hakaru",
+          "Ishuwa",
+          "Jumai",
+          "Kesha",
+          "Lunai",
+          "Mahesh",
+          "Nokuru",
+          "Orahai",
+          "Pesha",
+          "Rukesh",
+          "Sunaru",
+          "Tahesh",
+          "Umai",
+          "Vakuru",
+          "Wanesh",
+          "Yakuma",
+          "Zahai",
+          "Akesh",
+          "Bunuwa",
+          "Chakoru",
+          "Dehai",
+          "Esha",
+          "Fukuru",
+          "Hanu",
+          "Ikesh",
+          "Kumai",
+          "Lahesh",
+          "Moshu",
+          "Nahai",
+          "Oku",
+          "Rahu",
+          "Shanai"
+        ],
+        "family": [
+          "Swiftstride",
+          "Red-Dust",
+          "Longhoof",
+          "Windreader",
+          "Two-Spears",
+          "Ashfire",
+          "Skyclaw",
+          "Plainwalker",
+          "Mesa-Born",
+          "Tallgrass",
+          "Bonebeads",
+          "Hidepainter",
+          "Fireside",
+          "Stormhoof",
+          "Herdspeaker",
+          "Scarbearer",
+          "Eagleward",
+          "Redcliffer",
+          "Dawnrider",
+          "Ridgewatcher"
+        ]
+      },
+      "ardelia": {
+        "regions": [
+          "ardelian-empire-and-southmarch"
+        ],
+        "given": [
+          "Aldous",
+          "Belisa",
+          "Cornelis",
+          "Dagmar",
+          "Edeltrud",
+          "Fridolin",
+          "Gerlach",
+          "Hedda",
+          "Isenbert",
+          "Jorunde",
+          "Konrad",
+          "Leonhild",
+          "Magnus",
+          "Notgard",
+          "Ottilie",
+          "Perchta",
+          "Rupert",
+          "Sibylle",
+          "Tilmar",
+          "Ulfrich",
+          "Veronika",
+          "Wigand",
+          "Adelgund",
+          "Burkhard",
+          "Dietlind",
+          "Engelbert",
+          "Franziska",
+          "Gottfried",
+          "Hiltrud",
+          "Ingolf",
+          "Kunibert",
+          "Liselotte",
+          "Merten",
+          "Norbert",
+          "Odalric",
+          "Rosamund",
+          "Sieglind",
+          "Theodoric"
+        ],
+        "family": [
+          "Citizentoken",
+          "Ninefolder",
+          "Electorsman",
+          "Marketwardt",
+          "Kesselmann",
+          "Saelwright",
+          "Pollmaster",
+          "Tallyman",
+          "Ballotkeeper",
+          "Bridgetoller",
+          "Quillhand",
+          "Councilborn",
+          "Guildmoot",
+          "Wahlmeister",
+          "Tokenwright",
+          "Disputant",
+          "Dietsman",
+          "Pollwarden",
+          "Quorum",
+          "Fairmarker"
+        ]
+      },
+      "coast": {
+        "regions": [
+          "emerald-coast"
+        ],
+        "given": [
+          "Amadora",
+          "Brisco",
+          "Calisto",
+          "Dorinda",
+          "Esmerio",
+          "Fiorenza",
+          "Gaspero",
+          "Isadora",
+          "Jacinta",
+          "Lucio",
+          "Marisol",
+          "Nerio",
+          "Orlanda",
+          "Paolo",
+          "Renzo",
+          "Sabina",
+          "Tullia",
+          "Ulpio",
+          "Valerio",
+          "Zenia",
+          "Aurelio",
+          "Brunetta",
+          "Cosimo",
+          "Dalmira",
+          "Ettore",
+          "Fulvia",
+          "Gianna",
+          "Ilario",
+          "Lorenza",
+          "Mattia",
+          "Nicandro",
+          "Pirro",
+          "Rosalba",
+          "Silvio",
+          "Teodoro",
+          "Vittoria"
+        ],
+        "family": [
+          "Drowned-Step",
+          "Factorwell",
+          "Silkwarden",
+          "Maskmaker",
+          "Tolerated",
+          "Wardkeeper",
+          "Silkmerchant",
+          "Cutlassmaker",
+          "Capewright",
+          "Patronsworn",
+          "Cargoless",
+          "Lanternquay",
+          "Tidefactor",
+          "Shipwrit",
+          "Pirateborn",
+          "Debtholder",
+          "Netmender",
+          "Ledgerfish",
+          "Sunhat",
+          "Harborlaw"
+        ]
+      },
+      "sea": {
+        "regions": [
+          "stormmere-isles"
+        ],
+        "given": [
+          "Abel",
+          "Bosun",
+          "Caley",
+          "Dunstan",
+          "Gilly",
+          "Hobb",
+          "Idony",
+          "Jessop",
+          "Kitt",
+          "Lugger",
+          "Mabyn",
+          "Nance",
+          "Oakes",
+          "Peggy",
+          "Quillon",
+          "Robyn",
+          "Sennet",
+          "Tamsen",
+          "Ulla",
+          "Vesey",
+          "Wynne",
+          "Yorrick",
+          "Zeb",
+          "Annick",
+          "Cormac",
+          "Dilys",
+          "Enid",
+          "Fosco",
+          "Gwen",
+          "Hake",
+          "Isbel",
+          "Jenna",
+          "Kerrow",
+          "Lowen",
+          "Morwen"
+        ],
+        "family": [
+          "Halyard",
+          "Dunlin",
+          "Bowline",
+          "Marlinspike",
+          "Gaffer",
+          "Fathom",
+          "Sheetbend",
+          "Keelhaul",
+          "Capstan",
+          "Cleat",
+          "Ballast",
+          "Reefpoint",
+          "Wrecktither",
+          "Lightkeeper",
+          "Rigger",
+          "Bilgewater",
+          "Ropewalk",
+          "Gullcatcher",
+          "Tarhand",
+          "Mastwright",
+          "Skerrison"
+        ]
+      },
+      "atlantis": {
+        "regions": [
+          "atlantis-region"
+        ],
+        "given": [
+          "Aleuthe",
+          "Brenmora",
+          "Caelune",
+          "Doressa",
+          "Eluthe",
+          "Fenothe",
+          "Galyne",
+          "Hesperil",
+          "Ilethe",
+          "Jaethys",
+          "Kelvane",
+          "Lirune",
+          "Maelith",
+          "Neriel",
+          "Oselune",
+          "Pelagrin",
+          "Quelune",
+          "Rhemora",
+          "Selthe",
+          "Tavelune",
+          "Uvenne",
+          "Velune",
+          "Wenthys",
+          "Yselle",
+          "Zelthe",
+          "Amphine",
+          "Coralune",
+          "Delvane",
+          "Eshyra",
+          "Fathome"
+        ],
+        "family": [
+          "of the Shellward",
+          "of Pearlquiet",
+          "of Tidevoice",
+          "of the Abyssal Gate",
+          "of the Luminous Ward",
+          "of Singing Sand",
+          "of the Drowned Archive",
+          "Coralcrown",
+          "Deepcurrent",
+          "Nacrebound",
+          "Saltsinger",
+          "Reefwarden",
+          "Wavecaller",
+          "Kelpweaver",
+          "Pressureborn",
+          "Brightfin",
+          "Lowtide",
+          "Moonwater",
+          "Undertow",
+          "Shoalkeeper"
+        ]
+      },
+      "elf": {
+        "regions": [
+          "verdantleaf"
+        ],
+        "given": [
+          "Aelithwyn",
+          "Belisiel",
+          "Caldrith",
+          "Daewyn",
+          "Elunis",
+          "Faelis",
+          "Galavith",
+          "Halliel",
+          "Ithrawyn",
+          "Jaelis",
+          "Kelthiel",
+          "Lorewyn",
+          "Maelis",
+          "Nythiel",
+          "Orilith",
+          "Phaelis",
+          "Quenwyn",
+          "Raelith",
+          "Silvenis",
+          "Thaleth",
+          "Ulwyn",
+          "Vaelith",
+          "Wynthis",
+          "Yavelis",
+          "Zaelith",
+          "Brethil",
+          "Caerwyn",
+          "Dryselle",
+          "Elothiel",
+          "Fenwyth",
+          "Gaelith",
+          "Haelwen",
+          "Iriswyn",
+          "Lunaris",
+          "Meliel",
+          "Naerith"
+        ],
+        "family": [
+          "Remembers-the-Oak",
+          "Veilwood-Born",
+          "Leafsinger",
+          "Willow-Speaker",
+          "Walks-Beneath-Rain",
+          "Heir-of-Saelroot",
+          "Keeper-of-Mirrorroot",
+          "Sings-the-Dawn-Leaf",
+          "Of-the-Third-Spring",
+          "Rootbound",
+          "Stillwater",
+          "Moonwhisper",
+          "Greenveil",
+          "Starwater",
+          "Bough-Reader",
+          "Rainbough",
+          "Mossmantle",
+          "Lantern-of-Thalannis",
+          "Seed-of-Aurelith",
+          "Dusk-Warden"
+        ]
+      },
+      "fairy": {
+        "regions": [
+          "fairy-court"
+        ],
+        "given": [
+          "Bluebell",
+          "Cowslip",
+          "Dusk-Lily",
+          "Eglantine",
+          "Gossamer",
+          "Harebell",
+          "Iris-at-Noon",
+          "Jasmine-by-Night",
+          "Kingcup",
+          "Larkspur",
+          "Marigold",
+          "Nettlebloom",
+          "Orchid-in-Mist",
+          "Pansy",
+          "Quillwort",
+          "Rosehip",
+          "Tansy",
+          "Thistledown",
+          "Umbel",
+          "Violet-at-Dawn",
+          "Woodruff",
+          "Yarrow",
+          "Zinnia",
+          "Aster",
+          "Buttercup",
+          "Clover-and-Dew",
+          "Daisychain",
+          "Elderflower",
+          "Fennel",
+          "Honeysuckle",
+          "Meadowsweet"
+        ],
+        "family": [
+          "Dawnpetal",
+          "Silverbell",
+          "Tearlight",
+          "Moonlit",
+          "Fungus-Ring",
+          "Rainbow-Perch",
+          "Petalspeech",
+          "Wingdust",
+          "Glowmoss",
+          "Lanternfly",
+          "Bindweed",
+          "Honeydew",
+          "Mothwing",
+          "Pollenhand",
+          "Dewcup",
+          "Starcap",
+          "Brambleward",
+          "Glimmerbell",
+          "Sunpetal",
+          "Cobwebber",
+          "Mushroomwright"
+        ]
+      },
+      "ashkar": {
+        "regions": [
+          "glass-wastes-and-ashkaran-dominion"
+        ],
+        "given": [
+          "Arshan",
+          "Bahira",
+          "Cyrun",
+          "Dariush",
+          "Esfir",
+          "Farhan",
+          "Golnar",
+          "Hormoz",
+          "Isfar",
+          "Jamshir",
+          "Kavan",
+          "Laleh",
+          "Mazdan",
+          "Nasrin",
+          "Orsan",
+          "Parvaz",
+          "Qadir",
+          "Rostam",
+          "Soraya",
+          "Tahmin",
+          "Ushan",
+          "Yazdan",
+          "Zarir",
+          "Anushir",
+          "Behrad",
+          "Dilara",
+          "Elnaz",
+          "Fariba",
+          "Gushtasp",
+          "Hamun",
+          "Ismar",
+          "Kasra",
+          "Laila",
+          "Mihran"
+        ],
+        "family": [
+          "ul-Sunwell",
+          "ul-Pit",
+          "ul-Brightmarket",
+          "ul-Mirror",
+          "ul-Saltglass",
+          "ul-Glassmouth",
+          "ul-Regent",
+          "ul-Sandgate",
+          "ul-Wellspring",
+          "ul-Veilhouse",
+          "bin-Dawnglass",
+          "bin-Surveyor",
+          "bin-Kilnmaster",
+          "bin-Cistern",
+          "bin-Heliograph",
+          "ul-Ashkar",
+          "bin-Lampwright",
+          "bin-Wellsounder",
+          "bin-Glasswright",
+          "ul-Fireglass"
+        ]
+      }
+    },
+    "you": {
+      "rank": {
+        "label": "Guild rank"
+      }
+    },
+    "rpg": {
+      "formula": "v1",
+      "levelCap": 99,
+      "ranks": [
+        {
+          "name": "F",
+          "from": 1,
+          "to": 9
+        },
+        {
+          "name": "E",
+          "from": 10,
+          "to": 19
+        },
+        {
+          "name": "D",
+          "from": 20,
+          "to": 29
+        },
+        {
+          "name": "C",
+          "from": 30,
+          "to": 39
+        },
+        {
+          "name": "B",
+          "from": 40,
+          "to": 49
+        },
+        {
+          "name": "A",
+          "from": 50,
+          "to": 59
+        },
+        {
+          "name": "S",
+          "from": 60,
+          "to": 69
+        },
+        {
+          "name": "SS",
+          "from": 70,
+          "to": 79
+        },
+        {
+          "name": "SSS",
+          "from": 80,
+          "to": 99
+        }
+      ],
+      "playerRank": {
+        "module": "guild-membership",
+        "field": "letter",
+        "label": "Guild"
+      },
+      "skillSets": [
+        {
+          "name": "Sealwarden recruit",
+          "about": "Sworn to the Order of the Sealwardens for a year: a month at the upper seals, then the gates of the Auvoth Depths.",
+          "skills": [
+            {
+              "name": "Gate spear",
+              "about": "Holding a gate or a stair with a long spear, shoulder to shoulder, against what comes up.",
+              "stat": "str"
+            },
+            {
+              "name": "Ward-reading",
+              "about": "Reading the seals and wards on a door, and feeling when one strains.",
+              "stat": "int",
+              "uses": "mana"
+            },
+            {
+              "name": "Lamp-keeping",
+              "about": "Keeping the never-out lamps burning through bad air, smoke, cold and long watches.",
+              "stat": "vit"
+            },
+            {
+              "name": "Breach drill",
+              "about": "Falling back in order through a gate before a swarm, and closing it behind the last.",
+              "stat": "agi"
+            },
+            {
+              "name": "Gate challenge",
+              "about": "Stopping parties at the descents, reading permits and spotting forged badges.",
+              "stat": "cha"
+            }
+          ]
+        }
+      ]
+    },
+    "dataModules": [
+      {
+        "slug": "standing",
+        "name": "Standing with the powers",
+        "schema": 1,
+        "stateVersion": 2,
+        "scope": "chat",
+        "state": {
+          "standing": {
+            "type": "map",
+            "keys": [
+              "highmark",
+              "confederacy",
+              "shornmarch",
+              "church",
+              "auvoth",
+              "guild",
+              "nightingale",
+              "hand",
+              "veil",
+              "broken-chain"
+            ],
+            "values": {
+              "type": "int",
+              "min": -100,
+              "max": 100,
+              "default": 0
+            }
+          }
+        },
+        "rewards": {
+          "favour": {
+            "bindings": {
+              "faction": {
+                "type": "enum",
+                "values": [
+                  "highmark",
+                  "confederacy",
+                  "shornmarch",
+                  "church",
+                  "auvoth",
+                  "guild",
+                  "nightingale",
+                  "hand",
+                  "veil",
+                  "broken-chain"
+                ]
+              },
+              "size": {
+                "type": "enum",
+                "values": [
+                  "small",
+                  "great"
+                ]
+              }
+            },
+            "values": {
+              "amount": {
+                "binding": "size",
+                "table": {
+                  "small": {
+                    "min": 1,
+                    "max": 4,
+                    "pick": "midpoint"
+                  },
+                  "great": {
+                    "min": 5,
+                    "max": 12,
+                    "pick": "midpoint"
+                  }
+                }
+              }
+            },
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "standing",
+                  [
+                    "bind",
+                    "faction"
+                  ]
+                ],
+                "value": [
+                  "reward",
+                  "amount"
+                ],
+                "bounds": "clamp"
+              }
+            ]
+          },
+          "offence": {
+            "bindings": {
+              "faction": {
+                "type": "enum",
+                "values": [
+                  "highmark",
+                  "confederacy",
+                  "shornmarch",
+                  "church",
+                  "auvoth",
+                  "guild",
+                  "nightingale",
+                  "hand",
+                  "veil",
+                  "broken-chain"
+                ]
+              },
+              "size": {
+                "type": "enum",
+                "values": [
+                  "small",
+                  "great"
+                ]
+              }
+            },
+            "values": {
+              "amount": {
+                "binding": "size",
+                "table": {
+                  "small": {
+                    "min": 2,
+                    "max": 6,
+                    "pick": "midpoint"
+                  },
+                  "great": {
+                    "min": 10,
+                    "max": 25,
+                    "pick": "midpoint"
+                  }
+                }
+              }
+            },
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "standing",
+                  [
+                    "bind",
+                    "faction"
+                  ]
+                ],
+                "value": [
+                  "mul",
+                  [
+                    "reward",
+                    "amount"
+                  ],
+                  -1
+                ],
+                "bounds": "clamp"
+              }
+            ]
+          }
+        },
+        "kinds": {
+          "gain": {
+            "op": "+",
+            "oncePerReply": [
+              "faction"
+            ],
+            "labels": {
+              "faction": {
+                "type": "enum",
+                "values": [
+                  "highmark",
+                  "confederacy",
+                  "shornmarch",
+                  "church",
+                  "auvoth",
+                  "guild",
+                  "nightingale",
+                  "hand",
+                  "veil",
+                  "broken-chain"
+                ]
+              },
+              "size": {
+                "type": "enum",
+                "values": [
+                  "small",
+                  "great"
+                ]
+              }
+            },
+            "effects": [
+              {
+                "op": "reward",
+                "template": "favour",
+                "bind": {
+                  "faction": [
+                    "arg",
+                    "faction"
+                  ],
+                  "size": [
+                    "arg",
+                    "size"
+                  ]
+                }
+              }
+            ]
+          },
+          "loss": {
+            "op": "-",
+            "oncePerReply": [
+              "faction"
+            ],
+            "labels": {
+              "faction": {
+                "type": "enum",
+                "values": [
+                  "highmark",
+                  "confederacy",
+                  "shornmarch",
+                  "church",
+                  "auvoth",
+                  "guild",
+                  "nightingale",
+                  "hand",
+                  "veil",
+                  "broken-chain"
+                ]
+              },
+              "size": {
+                "type": "enum",
+                "values": [
+                  "small",
+                  "great"
+                ]
+              }
+            },
+            "effects": [
+              {
+                "op": "reward",
+                "template": "offence",
+                "bind": {
+                  "faction": [
+                    "arg",
+                    "faction"
+                  ],
+                  "size": [
+                    "arg",
+                    "size"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "exports": {
+          "standing": {
+            "fields": [
+              "standing"
+            ]
+          }
+        },
+        "screens": [
+          {
+            "id": "ersveil-standing",
+            "title": "Standing with the powers",
+            "icon": "fa-flag",
+            "mounts": [
+              "tab",
+              "card"
+            ],
+            "tab": "reputation",
+            "tabTitle": "Reputation",
+            "order": 43,
+            "layout": {
+              "root": {
+                "type": "story-block.fields",
+                "props": {
+                  "module": "pack.ersveil-game/standing",
+                  "field": "standing",
+                  "title": "Standing with the powers",
+                  "names": {
+                    "highmark": "Highmark",
+                    "confederacy": "River Confederacy",
+                    "shornmarch": "Shornmarch",
+                    "church": "Church of the Eternal Flame",
+                    "auvoth": "Auvoth Compact",
+                    "guild": "Adventurer Guild",
+                    "nightingale": "Nightingale",
+                    "hand": "Hand of Oblivion",
+                    "veil": "Ashen Veil",
+                    "broken-chain": "Broken Chain"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "migrations": [
+          {
+            "from": 1,
+            "to": 2,
+            "add": {}
+          }
+        ]
+      },
+      {
+        "slug": "fame",
+        "name": "Fame by region",
+        "schema": 1,
+        "stateVersion": 2,
+        "scope": "chat",
+        "state": {
+          "fame": {
+            "type": "map",
+            "keys": [
+              "bluewatch",
+              "shornmarch",
+              "auvoth",
+              "confederacy",
+              "highmark",
+              "aurelion",
+              "border-kingdoms",
+              "ironanvil",
+              "chieftainates",
+              "ardelia",
+              "shackles",
+              "vargate",
+              "tidebound",
+              "verdantleaf",
+              "ashkaran",
+              "startrace"
+            ],
+            "values": {
+              "type": "int",
+              "min": 0,
+              "max": 100,
+              "default": 0
+            }
+          }
+        },
+        "rewards": {
+          "renown": {
+            "bindings": {
+              "region": {
+                "type": "enum",
+                "values": [
+                  "bluewatch",
+                  "shornmarch",
+                  "auvoth",
+                  "confederacy",
+                  "highmark",
+                  "aurelion",
+                  "border-kingdoms",
+                  "ironanvil",
+                  "chieftainates",
+                  "ardelia",
+                  "shackles",
+                  "vargate",
+                  "tidebound",
+                  "verdantleaf",
+                  "ashkaran",
+                  "startrace"
+                ]
+              },
+              "size": {
+                "type": "enum",
+                "values": [
+                  "small",
+                  "notable",
+                  "great"
+                ]
+              }
+            },
+            "values": {
+              "amount": {
+                "binding": "size",
+                "table": {
+                  "small": {
+                    "min": 1,
+                    "max": 2,
+                    "pick": "midpoint"
+                  },
+                  "notable": {
+                    "min": 3,
+                    "max": 6,
+                    "pick": "midpoint"
+                  },
+                  "great": {
+                    "min": 8,
+                    "max": 15,
+                    "pick": "midpoint"
+                  }
+                }
+              }
+            },
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "fame",
+                  [
+                    "bind",
+                    "region"
+                  ]
+                ],
+                "value": [
+                  "reward",
+                  "amount"
+                ],
+                "bounds": "clamp"
+              }
+            ]
+          }
+        },
+        "kinds": {
+          "deed": {
+            "op": "+",
+            "oncePerReply": [
+              "region"
+            ],
+            "labels": {
+              "region": {
+                "type": "enum",
+                "values": [
+                  "bluewatch",
+                  "shornmarch",
+                  "auvoth",
+                  "confederacy",
+                  "highmark",
+                  "aurelion",
+                  "border-kingdoms",
+                  "ironanvil",
+                  "chieftainates",
+                  "ardelia",
+                  "shackles",
+                  "vargate",
+                  "tidebound",
+                  "verdantleaf",
+                  "ashkaran",
+                  "startrace"
+                ]
+              },
+              "size": {
+                "type": "enum",
+                "values": [
+                  "small",
+                  "notable",
+                  "great"
+                ]
+              },
+              "witnessed": {
+                "type": "bool"
+              }
+            },
+            "when": [
+              "eq",
+              [
+                "arg",
+                "witnessed"
+              ],
+              true
+            ],
+            "refusal": "Deeds need witnesses: a deed nobody lived to tell earns no fame. Write witnessed: true only when someone saw it.",
+            "effects": [
+              {
+                "op": "reward",
+                "template": "renown",
+                "bind": {
+                  "region": [
+                    "arg",
+                    "region"
+                  ],
+                  "size": [
+                    "arg",
+                    "size"
+                  ]
+                }
+              }
+            ]
+          },
+          "spread": {
+            "op": "~",
+            "oncePerReply": [
+              "to"
+            ],
+            "labels": {
+              "from": {
+                "type": "enum",
+                "values": [
+                  "bluewatch",
+                  "shornmarch",
+                  "auvoth",
+                  "confederacy",
+                  "highmark",
+                  "aurelion",
+                  "border-kingdoms",
+                  "ironanvil",
+                  "chieftainates",
+                  "ardelia",
+                  "shackles",
+                  "vargate",
+                  "tidebound",
+                  "verdantleaf",
+                  "ashkaran",
+                  "startrace"
+                ]
+              },
+              "to": {
+                "type": "enum",
+                "values": [
+                  "bluewatch",
+                  "shornmarch",
+                  "auvoth",
+                  "confederacy",
+                  "highmark",
+                  "aurelion",
+                  "border-kingdoms",
+                  "ironanvil",
+                  "chieftainates",
+                  "ardelia",
+                  "shackles",
+                  "vargate",
+                  "tidebound",
+                  "verdantleaf",
+                  "ashkaran",
+                  "startrace"
+                ]
+              }
+            },
+            "when": [
+              "ne",
+              [
+                "arg",
+                "from"
+              ],
+              [
+                "arg",
+                "to"
+              ]
+            ],
+            "refusal": "News spreads from one region to another; name two different regions.",
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "fame",
+                  [
+                    "arg",
+                    "to"
+                  ]
+                ],
+                "value": [
+                  "floorDiv",
+                  [
+                    "max",
+                    0,
+                    [
+                      "sub",
+                      [
+                        "get",
+                        [
+                          "fame",
+                          [
+                            "arg",
+                            "from"
+                          ]
+                        ]
+                      ],
+                      [
+                        "get",
+                        [
+                          "fame",
+                          [
+                            "arg",
+                            "to"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  4
+                ],
+                "bounds": "clamp"
+              }
+            ]
+          }
+        },
+        "exports": {
+          "fame": {
+            "fields": [
+              "fame"
+            ]
+          }
+        },
+        "screens": [
+          {
+            "id": "ersveil-fame",
+            "title": "Fame by region",
+            "icon": "fa-bullhorn",
+            "mounts": [
+              "tab",
+              "card"
+            ],
+            "tab": "reputation",
+            "tabTitle": "Reputation",
+            "order": 44,
+            "layout": {
+              "root": {
+                "type": "story-block.fields",
+                "props": {
+                  "module": "pack.ersveil-game/fame",
+                  "field": "fame",
+                  "title": "Fame by region",
+                  "names": {
+                    "bluewatch": "Bluewatch",
+                    "shornmarch": "Shornmarch",
+                    "auvoth": "Auvoth",
+                    "confederacy": "River Confederacy",
+                    "highmark": "Highmark",
+                    "aurelion": "Aurelion and Ashmere",
+                    "border-kingdoms": "Border Kingdoms",
+                    "ironanvil": "Ironanvil",
+                    "chieftainates": "Chieftainates",
+                    "ardelia": "Ardelia",
+                    "shackles": "Shackles and the Barrens",
+                    "vargate": "Vargate and the Emerald Coast",
+                    "tidebound": "Tidebound",
+                    "verdantleaf": "Verdantleaf",
+                    "ashkaran": "Ashkaran",
+                    "startrace": "Startrace"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "migrations": [
+          {
+            "from": 1,
+            "to": 2,
+            "add": {}
+          }
+        ]
+      },
+      {
+        "slug": "guild-membership",
+        "name": "Adventurer Guild membership",
+        "schema": 1,
+        "stateVersion": 2,
+        "scope": "chat",
+        "state": {
+          "registered": {
+            "type": "bool",
+            "default": false
+          },
+          "letter": {
+            "type": "enum",
+            "values": [
+              "F",
+              "E",
+              "D",
+              "C",
+              "B",
+              "A",
+              "S"
+            ],
+            "default": "F"
+          },
+          "standing": {
+            "type": "enum",
+            "values": [
+              "unregistered",
+              "probation",
+              "good",
+              "dues-owed",
+              "lapsed"
+            ],
+            "default": "unregistered"
+          },
+          "dues": {
+            "type": "int",
+            "min": 0,
+            "max": 500,
+            "default": 50
+          },
+          "unpaid-years": {
+            "type": "int",
+            "min": 0,
+            "max": 2,
+            "default": 0
+          },
+          "idle-years": {
+            "type": "int",
+            "min": 0,
+            "max": 2,
+            "default": 0
+          },
+          "member-years": {
+            "type": "int",
+            "min": 0,
+            "max": 99,
+            "default": 0
+          }
+        },
+        "kinds": {
+          "register": {
+            "op": "+",
+            "labels": {},
+            "when": [
+              "not",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "registered"
+                  ]
+                ],
+                true
+              ]
+            ],
+            "refusal": "Already registered: everyone registers once and starts at F.",
+            "effects": [
+              {
+                "op": "set",
+                "path": [
+                  "registered"
+                ],
+                "value": true
+              },
+              {
+                "op": "set",
+                "path": [
+                  "letter"
+                ],
+                "value": "F"
+              },
+              {
+                "op": "set",
+                "path": [
+                  "member-years"
+                ],
+                "value": 0
+              },
+              {
+                "op": "set",
+                "path": [
+                  "unpaid-years"
+                ],
+                "value": 0
+              },
+              {
+                "op": "set",
+                "path": [
+                  "idle-years"
+                ],
+                "value": 0
+              }
+            ]
+          },
+          "dues": {
+            "op": "+",
+            "labels": {},
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "registered"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Register at a Guild hall first.",
+            "effects": [
+              {
+                "op": "set",
+                "path": [
+                  "unpaid-years"
+                ],
+                "value": 0
+              }
+            ]
+          },
+          "contract": {
+            "op": "+",
+            "labels": {},
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "registered"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Only a registered member works Guild contracts.",
+            "effects": [
+              {
+                "op": "set",
+                "path": [
+                  "idle-years"
+                ],
+                "value": 0
+              }
+            ]
+          },
+          "promote": {
+            "op": "~",
+            "labels": {
+              "letter": {
+                "type": "enum",
+                "values": [
+                  "F",
+                  "E",
+                  "D",
+                  "C",
+                  "B",
+                  "A",
+                  "S"
+                ]
+              }
+            },
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "registered"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Register first; an examiner panel sets the letter.",
+            "effects": [
+              {
+                "op": "set",
+                "path": [
+                  "letter"
+                ],
+                "value": [
+                  "arg",
+                  "letter"
+                ]
+              }
+            ]
+          },
+          "yearend": {
+            "op": "!",
+            "labels": {},
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "registered"
+                ]
+              ],
+              true
+            ],
+            "refusal": "The Guild year only turns for a registered member.",
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "unpaid-years"
+                ],
+                "value": 1,
+                "bounds": "clamp"
+              },
+              {
+                "op": "add",
+                "path": [
+                  "idle-years"
+                ],
+                "value": 1,
+                "bounds": "clamp"
+              },
+              {
+                "op": "add",
+                "path": [
+                  "member-years"
+                ],
+                "value": 1,
+                "bounds": "clamp"
+              }
+            ]
+          }
+        },
+        "rules": [
+          {
+            "id": "dues-f-e",
+            "when": [
+              "or",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "F"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "E"
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "dues"
+                ],
+                "value": 50
+              }
+            ]
+          },
+          {
+            "id": "dues-d-c",
+            "when": [
+              "or",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "D"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "C"
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "dues"
+                ],
+                "value": 100
+              }
+            ]
+          },
+          {
+            "id": "dues-b-up",
+            "when": [
+              "or",
+              [
+                "or",
+                [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "letter"
+                    ]
+                  ],
+                  "B"
+                ],
+                [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "letter"
+                    ]
+                  ],
+                  "A"
+                ]
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "S"
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "dues"
+                ],
+                "value": 500
+              }
+            ]
+          },
+          {
+            "id": "not-registered",
+            "when": [
+              "not",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "registered"
+                  ]
+                ],
+                true
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "standing"
+                ],
+                "value": "unregistered"
+              }
+            ]
+          },
+          {
+            "id": "lapsed",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "registered"
+                  ]
+                ],
+                true
+              ],
+              [
+                "ge",
+                [
+                  "get",
+                  [
+                    "unpaid-years"
+                  ]
+                ],
+                2
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "standing"
+                ],
+                "value": "lapsed"
+              }
+            ]
+          },
+          {
+            "id": "dues-owed",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "registered"
+                  ]
+                ],
+                true
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "unpaid-years"
+                  ]
+                ],
+                1
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "standing"
+                ],
+                "value": "dues-owed"
+              }
+            ]
+          },
+          {
+            "id": "probation",
+            "when": [
+              "and",
+              [
+                "and",
+                [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "registered"
+                    ]
+                  ],
+                  true
+                ],
+                [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "unpaid-years"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "or",
+                [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "member-years"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "ge",
+                  [
+                    "get",
+                    [
+                      "idle-years"
+                    ]
+                  ],
+                  1
+                ]
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "standing"
+                ],
+                "value": "probation"
+              }
+            ]
+          },
+          {
+            "id": "good",
+            "when": [
+              "and",
+              [
+                "and",
+                [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "registered"
+                    ]
+                  ],
+                  true
+                ],
+                [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "unpaid-years"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "and",
+                [
+                  "ge",
+                  [
+                    "get",
+                    [
+                      "member-years"
+                    ]
+                  ],
+                  1
+                ],
+                [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "idle-years"
+                    ]
+                  ],
+                  0
+                ]
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "standing"
+                ],
+                "value": "good"
+              }
+            ]
+          }
+        ],
+        "exports": {
+          "membership": {
+            "fields": [
+              "registered",
+              "letter",
+              "standing"
+            ]
+          }
+        },
+        "screens": [
+          {
+            "id": "ersveil-guild-membership",
+            "title": "Adventurer Guild",
+            "icon": "ph-scales",
+            "mounts": [
+              "tab",
+              "card"
+            ],
+            "tab": "reputation",
+            "tabTitle": "Reputation",
+            "order": 42,
+            "layout": {
+              "root": {
+                "type": "story-block.fields",
+                "props": {
+                  "module": "pack.ersveil-game/guild-membership",
+                  "as": "record",
+                  "fields": [
+                    "letter",
+                    "standing",
+                    "dues"
+                  ],
+                  "tiles": true,
+                  "title": "Adventurer Guild",
+                  "labels": {
+                    "letter": "Rank",
+                    "standing": "Standing",
+                    "dues": "Dues"
+                  },
+                  "units": {
+                    "dues": "c / year"
+                  },
+                  "tones": {
+                    "standing": {
+                      "unregistered": "accent",
+                      "probation": "warn",
+                      "good": "good",
+                      "dues-owed": "bad",
+                      "lapsed": "bad"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "migrations": [
+          {
+            "from": 1,
+            "to": 2,
+            "add": {}
+          }
+        ]
+      }
+    ],
+    "start": {
+      "money": 40
+    }
+  }
+}

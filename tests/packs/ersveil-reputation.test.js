@@ -11,7 +11,7 @@ import { editableLayout } from '../../modules/data-modules/editable-layout.js';
 import { createFieldsWidgets } from '../../modules/data-modules/screens/block-fields.js';
 import { FIELDS_WIDGET } from '../../modules/data-modules/fields-widget.js';
 
-const ersveil = () => JSON.parse(readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+const ersveil = () => JSON.parse(readFileSync(new URL('../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
 const MODULES = ['standing', 'fame', 'guild-membership'];
 async function pinned(t, only = MODULES, input = ersveil()) {
     const host = await world(t, input);
