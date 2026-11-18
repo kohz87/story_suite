@@ -44,8 +44,15 @@ export function openWorldEditor(ctx = {}, target) {
   const sheet = openSheet(ctx, { id: 'world-editor', label: `Edit ${spec.noun}` });
   const current = target.current ?? {};
   const inputs = Object.fromEntries(spec.fields.map(([key, , kind]) => [key, control(key, kind, current[key])]));
+  // A refused edit (a name already taken, an entry the command cannot change) keeps the sheet open with the engine's reason.
+  const refusal = h('p', { class: 'fine err', role: 'alert', hidden: true });
   const done = async payload => {
-    if (payload) await send(spec.command, payload);
+    const answer = payload ? await send(spec.command, payload) : null;
+    if (answer?.ok === false) {
+      refusal.textContent = String(answer.message ?? 'That change was not kept.');
+      refusal.removeAttribute('hidden');
+      return;
+    }
     sheet.close();
     ctx.refresh?.();
   };
@@ -53,6 +60,7 @@ export function openWorldEditor(ctx = {}, target) {
     h('div', { class: 'qeh' }, h('div', { class: 'dn' }, `Edit ${spec.noun}`), button({ label: '×', icon: h('span', null, '×'), tone: 'icon', ariaLabel: 'Close', className: 'x qclose', onClick: () => sheet.close() })),
     ...spec.fields.map(([key, label]) => h('label', { class: 'ef' }, label, inputs[key])),
     h('p', { class: 'fine' }, 'A blank field keeps what is there. Changes are kept as written by you.'),
+    refusal,
     h('div', { class: 'brow' },
       button({ label: 'Save', tone: 'primary', className: 'save', onClick: () => done(editPayload(target.kind, target.id, Object.fromEntries(spec.fields.map(([k]) => [k, inputs[k].value])), current)) }),
       button({ label: 'Cancel', className: 'cancel', onClick: () => sheet.close() }))));

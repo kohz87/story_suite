@@ -81,7 +81,8 @@ export function runCommand(state, handler, payload, { said = null, settings = SE
             drafts[domain] ??= structuredClone(state.domains[domain]);
             return drafts[domain];
         },
-        call: type => { throw new Rejected('UNKNOWN_COMMAND', `No command ${type} in this test.`); },
+        // The chronicle part is not in this test: its quest-log write (a fired beat's or an accepted quest's outcome, thread-line.js) does nothing here.
+        call: type => { if (type === 'chronicle.threadOutcome') return null; throw new Rejected('UNKNOWN_COMMAND', `No command ${type} in this test.`); },
         claim: key => (claims[key] ? false : (claims[key] = true)),
         rng: sfc32(seed),
         roll: () => ({ total: 0, dice: [] }),
