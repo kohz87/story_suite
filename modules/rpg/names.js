@@ -5,6 +5,7 @@
 export { LEAN_RPG_FEATURE, BOARD_SKILL, BOARD_SKILL_CARRY } from './names-parts/feature.js';
 export { USE_ITEM, DICE, CHECK_STEP } from './names-parts/steps.js';
 export { BOARD_HURTS, BOARD_CLEAR_FOES, BOARD_OPEN_FOES, BOARD_AWARD } from './names-parts/board-steps.js';
+export { BOARD_LAPSE, LAPSE_REPLIES } from './names-parts/lapse.js';
 export { ROLL_KIND, CHECKS_SETTING, checksOn, CHECK_GRAMMAR } from './names-parts/checks.js';
 export { FOES_TOUCH_QUERY, FIGHT, PRACTICE_STEP, ROLLS_QUERY } from './names-parts/queries.js';
 export { PRACTICE, PRACTICE_SETTING, practiceOf, practiceFromRollsOnly } from './names-parts/practice.js';

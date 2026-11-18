@@ -1,6 +1,6 @@
 // The RPG part's stand-in: the same commands, cards, queries, hooks, settings and guard, handed to the real part once the library is there.
 
-import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_AWARD, BOARD_CLEAR_FOES, BOARD_HURTS, BOARD_OPEN_FOES, BOARD_SKILL, BOARD_SKILL_CARRY, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, FOES_TOUCH_QUERY, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, USE_ITEM } from '../names.js';
+import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_AWARD, BOARD_CLEAR_FOES, BOARD_LAPSE, BOARD_HURTS, BOARD_OPEN_FOES, BOARD_SKILL, BOARD_SKILL_CARRY, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, FOES_TOUCH_QUERY, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, USE_ITEM } from '../names.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../levels.js';
 import { levelsQuery, rosterQueries } from '../roster.js';
 import { rpgLib } from './library.js';
@@ -39,6 +39,7 @@ export function createLazyRpgPart(deps = {}) {
             [BOARD_AWARD]: Object.assign(run(BOARD_AWARD, ctx => waiting(ctx)), { internal: true }),
             // (the story-check dice are asked for by the loaded part's hook only; a chat that holds them loads the library first: GUARD_KINDS)
             [DICE]: Object.assign(run(DICE, ctx => waiting(ctx)), { prelude: true, internal: true }),
+            [BOARD_LAPSE]: Object.assign(run(BOARD_LAPSE, ctx => waiting(ctx)), { prelude: true, internal: true }),
             [CHECK_STEP]: Object.assign(run(CHECK_STEP, ctx => waiting(ctx)), { internal: true }),
             [FIGHT]: Object.assign(run(FIGHT, ctx => waiting(ctx)), { internal: true }),
             [PRACTICE_STEP]: Object.assign(run(PRACTICE_STEP, ctx => waiting(ctx)), { internal: true }),

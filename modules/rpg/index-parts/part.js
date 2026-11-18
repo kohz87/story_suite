@@ -10,6 +10,8 @@ import { fold } from '../read.js';
 import { createPrecall } from '../precall.js';
 import { FOES_TOUCH_QUERY } from '../names.js';
 import { lastFoeTouch } from '../board/offers.js';
+import { BOARD_LAPSE } from '../names.js';
+import { lapseCommand } from '../board/lapse.js';
 import { leanRpgGuard } from '../guard.js';
 import { rollsOf } from '../rolls-read.js';
 import { skipOf } from '../start.js';
@@ -49,6 +51,8 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
             ...board.commands,
             // A reply's three story-check dice (checks/dice.js): a prelude, drawn from the receipt's seed, so a swipe rolls anew and a Re-read keeps them. Not tied to the feature either.
             [DICE]: Object.assign((ctx, payload) => diceRecord(ctx, payload), { prelude: true, internal: true }),
+            // A standing fight the reader did not play, cleared as a prelude of the reply (board/lapse.js). Not tied to the feature either: a Re-read keeps it.
+            [BOARD_LAPSE]: Object.assign((ctx, payload) => lapseCommand(ctx, payload), { prelude: true, internal: true }),
             // The results of a reply's story checks, a step after its lines (practice.js). Not tied to the feature either: a Re-read keeps it.
             [CHECK_STEP]: Object.assign((ctx, payload) => checkStep(ctx, payload), { internal: true }),
             // XP for a won fight, a step after the reply's lines (fight.js). Not tied to the feature either: a Re-read keeps it.
