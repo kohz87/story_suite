@@ -1,7 +1,8 @@
 // S2PA (SOAK2PEOPLE B11, B12) on the shipped format 4 Ersveil pair. B12: someone the scene had who did not come along on a `~ place` move had no place
 // afterwards (People › Elsewhere with no place, no Right now card): they now keep the place the scene moved away from (a broader stored place gives way to
 // it; the same place or one inside it stays as written). B11: a pack person's `status` is what they were doing before the meeting ("Hunting in the
-// Wildzone"); while it still is the pack's words it is not shown as Right now nor told to the narrator as their state. Replay == live.
+// Wildzone"); while it still is the pack's words it is not shown as Right now nor told to the narrator as their state; and a status the story gave someone
+// while they were elsewhere ("copying ledgers" at the quay) goes when they come back into the scene (`+ present`), unless the same reply writes a new one. Replay == live.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ersveilLines } from './helpers/ersveil-lines.js';
@@ -72,5 +73,27 @@ test('B11: a pack status is what they did before the meeting: not Right now whil
         assert.equal(s.host.sdk.query('people.dossier', { name: 'Torka' }).status, 'arguing at the bier');
         assert.match(injectionEssentialBlock(s.person('Torka')), /status: arguing at the bier/);
         same(s, 'rebuild');
+    } finally { s.close(); }
+});
+
+test('B11: a status written while elsewhere goes when they come back (`+ present`); a status line in the same reply stays; swipe, Re-read and rebuild agree', async t => {
+    const s = await soak(t);
+    try {
+        await s.say('Ilka heads for the quay.', ['- present Ilka Sorn', '~ npc Ilka Sorn | where: the inspection quay | status: copying ledgers']);
+        assert.equal(s.person('Ilka Sorn').status, 'copying ledgers');
+        const back = ['+ present Ilka Sorn', '~ npc Ilka Sorn | trust: up | why: he shared his bread'];
+        const at = await s.say('Ilka is back from the quay and sits at your table.', back);
+        assert.equal(s.person('Ilka Sorn').status, undefined, 'back: the quay status is gone');
+        assert.equal(s.host.sdk.query('people.dossier', { name: 'Ilka Sorn' }).status, undefined);
+        const live = snap(s);
+        same(s, 'rebuild');
+        await s.swipe('Ilka is back, eating.', ['+ present Ilka Sorn', '~ npc Ilka Sorn | status: eating bread']);
+        assert.equal(s.person('Ilka Sorn').status, 'eating bread', 'a status in the same reply lands after the arrival');
+        await s.host.st.swipeTo(at, 0);
+        assert.equal(snap(s), live, 'swipe back');
+        await edit(s, at, ['~ npc Ilka Sorn | trust: up | why: he shared his bread']);
+        assert.equal(s.person('Ilka Sorn').status, 'copying ledgers', 'shrunk: not back, the status stays');
+        await edit(s, at, back);
+        assert.equal(snap(s), live, 'grown back');
     } finally { s.close(); }
 });
