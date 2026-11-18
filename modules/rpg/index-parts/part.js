@@ -16,6 +16,7 @@ import { skipOf } from '../start.js';
 import { levelsQuery, rosterQueries } from '../roster.js';
 import { createBoardPart } from '../board/overrides.js';
 import { sheetQuery } from '../sheet-query.js';
+import { characterFileQuery } from '../export-query.js';
 import { termsQuery } from '../terms.js';
 
 /** The part's settings (Story Block's own bucket). */
@@ -78,6 +79,8 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
             'party.levels': Object.assign(levelsQuery, { feature: LEAN_RPG_FEATURE }),
             // Each member's sheet for the Party tab, the Card and the Now tab (sheet-query.js), and the word a level is called (terms.js).
             'rpg.sheet': Object.assign((state, args, tools) => sheetQuery(state, { persona: args?.persona ?? persona() }, tools), { feature: LEAN_RPG_FEATURE }),
+            // One member's saved character file for Export (export-query.js).
+            'rpg.characterFile': Object.assign((state, args, tools) => characterFileQuery(state, { ...args, persona: args?.persona ?? persona() }, tools), { feature: LEAN_RPG_FEATURE }),
             'party.terms': Object.assign(termsQuery, { feature: LEAN_RPG_FEATURE }) },
         hooks: {
             canGenerate: Object.assign((view, info) => precall.canGenerate(view, info), { feature: LEAN_RPG_FEATURE }),

@@ -22,7 +22,7 @@ one block for the whole chat and carries the combat text.
 With the feature on, the **Party** tab shows one card for each Character block: the name, the level (with the pack's rank or guild letter, see [Levels, XP and skill ranks](#levels-xp-and-skill-ranks)) and XP,
 the three stage bars, the seven stats in a row and the skills with their ranks. When a character has unspent
 points, the card offers **Spend points**, which opens the stat view with steppers under the point budget. **Stats**
-opens the same view for the stats alone, and **Skills** opens the character's [Skills view](#the-skills-view). **Export**
+opens the same view for the stats alone, and **Skills** opens the character's [Skills view](#the-skills-view). **Export** (an **Export <name>** button under your own sheet, and in a companion's ⋯ menu)
 saves the character to a file (see [Export / Import a character](#export--import-a-character)). **+ New
 character** in the header (shown only while the story has no You) opens the wizard; with no character yet the tab says so and offers **Create your character**.
 
@@ -124,7 +124,7 @@ points, the seven stats, the skills (and, if you leave them on, the things the c
 It never carries the name, whether they are You or a companion, XP, Health, Mana or Stamina, skill practice, or
 anything about the story. Both buttons exist only while the RPG is on.
 
-**Export.** **Export** on a character's card, next to **Spend points** and **Skills**, opens **Export <name>**:
+**Export.** **Export** (under your own sheet, or in a companion's ⋯ menu) opens **Export <name>**:
 
 - **Character** (always): the level, the unspent points, the seven stats and its skills (up to eight combat and three utility: name, what it does, stat,
   Stamina or Mana, rank). A skill whose block has no stat of its own (an old Skills block) is saved without one: a stat is never guessed.
@@ -206,19 +206,17 @@ When the story says someone joins the party for good, the narrator writes one li
 - party Mara
 ```
 
-`class` is a Soul Class word from I to IX (still read: a companion starts at the level that class stands for, II at 15 up to IX at 85, I at 1) and `best` is one of str, vit, agi, dex, int, luk, cha;
+`class` is a Soul Class word from I to IX (still read: a companion starts at the level that class stands for, II at 15 up to IX at 85, I at 1) and `best` is one of str, vit, agi, dex, int, wis, cha;
 the last two are optional (a line that still carries `about:` is accepted and the text ignored; a chat that still holds an earlier-rules Character reads it, as before). The line is in the narrator's instructions only while the RPG is on, the story has a Character block
 and the setting is not Off; with the RPG off, nothing is told and nothing changes.
 
 - **What is made.** A Character block (a companion) and an empty Skills block for that name, as one action of the reply: every
-  stat 10 with the named best stat 14, no unspent points, Health, Mana and Stamina full, and the Soul Class as written but never
-  above the highest Soul Class among those in the party. On the Standard formula every stat is 5 and the best stat 9, and each Soul
-  Class above I adds the points per Soul Class (4), one at a time to the best stat and DEX in turn up to 20, then to VIT, AGI, INT, CHA,
-  LUK and STR, so no point is left over. The skills fill in when the story has them learn something, as for
-  anyone.
+  stat 5 with the named best stat 9, no unspent points, Health, Mana and Stamina full, and the Soul Class as written but never
+  above the highest Soul Class among those in the party. Then each level above the first adds one point (the Character's own rise),
+  spent one at a time on the best stat and DEX in turn up to 30, then on VIT, AGI, INT, CHA, WIS and STR, so no point is left over. The skills
+  fill in when the story has them learn something, as for anyone.
 - **Ask.** The line makes nothing. The reply gets a card, "Mara joins the party", with **Add to party** (makes them as above),
-  **Edit first** (opens the New character window filled in: name, class, the best stat raised to 14, every field editable; you spend the
-  rest) and **No** (dismisses it). The card is read from the reply's own record, so a swipe or a delete takes it away and nothing
+  **Edit first** (opens the New character window filled in with the same stats, spread as above for the level (no points left to spend): name, class, every field editable) and **No** (dismisses it). The card is read from the reply's own record, so a swipe or a delete takes it away and nothing
   is kept in the game for it.
 - **Automatically.** They are made at once and listed in "Changed this reply" ("Mara joined the party"). Like every other line of
   the reply it is taken back by a swipe or a delete, and a Re-read makes it the same way.

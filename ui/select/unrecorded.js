@@ -1,4 +1,4 @@
-// What the chat view tells of a reply's stored lines: the "no changes recorded" badge (no block, nothing stored for it) and the reply sheet's "Discard repair" (the repair's lines are stored).
+// What the chat view tells of a reply's stored lines: the "no changes recorded" badge (no block, nothing stored for it) and the reply sheet's "Discard repair" (the repair's lines are stored), and whether a reply has a record at all.
 
 import { assistSections, extractBlock, repairState } from '../../core/capture.js';
 import { isCarrier, readRecord } from '../../core/persist.js';
@@ -23,4 +23,11 @@ export function repairedAt(chat, at = null) {
   if (!isCarrier(message) || message.is_system) return false;
   const mes = String(message.mes ?? '');
   return extractBlock(mes) === null && repairState(mes) === 'repaired';
+}
+
+/** True when the last story reply of `chat` (or reply `at`) has a story record: its ✦ sheet is offered even when no change line came of it (a delete or a rewind can leave such a reply last), so Re-read stays reachable. */
+export function recordedAt(chat, at = null) {
+  const list = Array.isArray(chat) ? chat : [];
+  const message = list[Number.isInteger(at) ? at : list.findLastIndex(isCarrier)];
+  return isCarrier(message) && !message.is_system && Boolean(readRecord(message));
 }

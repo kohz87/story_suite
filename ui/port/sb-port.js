@@ -18,6 +18,7 @@ import { resetCommand } from './resets.js';
 import { moduleCardCommand } from './module-cards.js';
 import { ALIAS_NAMES, aliasCommand } from './aliases.js';
 import { OWN_NAMES } from './own-names.js';
+import { exportCommand } from './party-export.js';
 import { focusCommand } from './focus.js';
 import { refreshCommand } from './people-refresh.js';
 import { portraitCommand } from './people-portrait.js';
@@ -151,6 +152,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) { announce(answer); return answer; }
       }
       if (ALIAS_NAMES.includes(type)) { const answer = await aliasCommand(sdk, type, payload).catch(failure); announce(answer); return answer; }
+      // Export asks the RPG for the member's saved file and gives it back; the sheet saves it.
+      if (type === 'party.export') return exportCommand(sdk, payload);
       if (type === 'packs.offer') return offerCommand(offer?.(), payload);
       if (type === 'quest.focus') { const answer = focusCommand(prefs?.chat, payload); announce(answer); return answer; }
       // The dossier's Refresh re-reads the story with NPC State's Refresh (the engine's `npc.refresh` only works the stages out again).

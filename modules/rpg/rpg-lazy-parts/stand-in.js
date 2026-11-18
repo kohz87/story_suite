@@ -60,6 +60,8 @@ export function createLazyRpgPart(deps = {}) {
             'party.levels': Object.assign(levelsQuery, { feature: LEAN_RPG_FEATURE }),
             // (the sheet reads the blocks through the library's view code: [] until it is loaded, which it is whenever the feature is on)
             'rpg.sheet': Object.assign((...args) => part()?.queries['rpg.sheet'](...args) ?? [], { feature: LEAN_RPG_FEATURE }),
+            // (a member's saved character file: the library's too)
+            'rpg.characterFile': Object.assign((...args) => part()?.queries['rpg.characterFile'](...args) ?? { ok: false, message: 'The RPG is not loaded.' }, { feature: LEAN_RPG_FEATURE }),
             // (the level word: the library's, null until it is loaded; the readers fall back to "Lv" by themselves)
             'party.terms': Object.assign((...args) => part()?.queries['party.terms'](...args) ?? null, { feature: LEAN_RPG_FEATURE }),
         },

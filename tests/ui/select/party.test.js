@@ -29,7 +29,7 @@ describe('selectParty', () => {
     const vm = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear: GEAR });
     assert.equal(vm.pcId, 'astra');
     assert.deepEqual(vm.members.map(m => [m.id, m.name, m.level, m.line]), [['astra', 'Astra', 14, 'Lv 14'], ['brann', 'Brann', 9, 'Lv 9']]);
-    assert.equal(vm.max, 4);
+    assert.equal(vm.max, 8, 'the RPG\'s party limit');
     assert.equal(vm.canInvite, true);
   });
 
@@ -69,10 +69,10 @@ describe('selectParty', () => {
     assert.ok(errors.length > 0 && errors.every(e => /soak: expected number, got null/.test(e)), errors.join('\n'));
   });
 
-  it('hides invite at four members and caps the roster at four', () => {
-    const five = ['a', 'b', 'c', 'd', 'e'].map(id => ({ id, name: id.toUpperCase() }));
-    const vm = selectParty({ actors: five, pc: { id: 'a' }, levels: [], gear: {} });
-    assert.equal(vm.members.length, 4);
+  it('hides invite at eight members and caps the roster at eight (the RPG\'s limit)', () => {
+    const nine = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'].map(id => ({ id, name: id.toUpperCase() }));
+    const vm = selectParty({ actors: nine, pc: { id: 'a' }, levels: [], gear: {} });
+    assert.equal(vm.members.length, 8);
     assert.equal(vm.canInvite, false);
   });
 
