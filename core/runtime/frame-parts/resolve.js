@@ -27,12 +27,15 @@ function selectedPacks(packs) {
 /**
  * The frame a chat would begin with now: `{ world, game, calendar, currency }`, or null when no world and no game is selected (a chat of format 3 packs
  * or of none has no frame). `always` gives one anyway (the built-in game, no world) for "Use the current game in this chat". `packs`: the installed list
- * (`packs/installed.js`). The calendar and currency are the game pack's own; a built-in game has none here, and the time and money modules use their own.
+ * (`packs/installed.js`). The calendar (with the world's era, when it names one) and currency are the game pack's own; a built-in game has none here, and the time and money modules use their own.
  */
 export function resolveFrame(packs, { always = false } = {}) {
     const { world, game } = selectedPacks(packs);
     if (!world && !game && !always) return null;
-    return { world: world ? entryOf(world) : null, game: game ? entryOf(game) : 'built-in', calendar: copy(game?.calendar), currency: copy(game?.currency) };
+    const calendar = copy(game?.calendar);
+    // The era: the world's own (`start.date.era`, a year number is lore) comes before the game calendar's; the reader's Settings row comes before both (time module).
+    if (calendar && typeof world?.start?.date?.era === 'string' && world.start.date.era) calendar.era = world.start.date.era;
+    return { world: world ? entryOf(world) : null, game: game ? entryOf(game) : 'built-in', calendar, currency: copy(game?.currency) };
 }
 
 const major = version => Number.parseInt(String(version).split('.')[0], 10);

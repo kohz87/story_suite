@@ -38,7 +38,7 @@ test('the page is in the view-model, fits the contract and its rows read the liv
   assert.equal(by('world.kmPerMapUnit').value, Number(stored['atlas.map.kmPerUnit']));
   assert.equal(by('world.northIs').value, 'Up');
   assert.equal(by('world.weather').value, 'Rolled from the calendar');
-  assert.equal(by('world.calendar').value, 'From the pack');
+  assert.equal(by('world.calendar').value, 'From the game pack');
   for (const row of rows()) assert.ok(row.key === 'world.clock' || WORLD_KEYS[row.key], row.key);
 });
 

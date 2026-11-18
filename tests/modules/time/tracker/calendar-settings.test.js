@@ -26,10 +26,10 @@ test('the words: where the calendar comes from, and read-only fields unless Cust
     const pack = { pack: 'e', era: 'CY', months: [{ name: 'Dawnwane', days: 30 }, { name: 'Rainmoot', days: 30 }] };
     assert.deepEqual(packCalendarFields(pack), { era: 'CY', months: pack.months, leapYears: false, week: '' });
     assert.equal(packCalendarFields(null), null);
-    assert.equal(presetHelp('pack', pack, 'Ersveil'), 'From the pack: Ersveil (CY, 2 months), shown below. Switch to Custom to edit it.');
-    assert.match(presetHelp('pack', null), /No enabled pack has a calendar: the built-in Gregorian/);
+    assert.equal(presetHelp('game', pack, 'Ersveil'), 'From the game pack: Ersveil (CY, 2 months), shown below. Switch to Custom to edit it.');
+    assert.match(presetHelp('game', null), /The game has no calendar of its own: the built-in Gregorian/);
     assert.match(presetHelp('custom', pack, 'Ersveil'), /Your own calendar/);
-    assert.match(fieldHelp('pack', pack), /switch to Custom to edit/);
+    assert.match(fieldHelp('game', pack), /switch to Custom to edit/);
     assert.equal(fieldHelp('custom', pack), '');
     assert.equal(gregorianFields().months.length, 12);
 });
@@ -37,7 +37,7 @@ test('the words: where the calendar comes from, and read-only fields unless Cust
 test('alone, no pack: the fields show the built-in Gregorian calendar, as before', async t => {
     const { host, module } = await director(t);
     const values = host.sdk.settings('story-director');
-    assert.equal(values[CALENDAR_KEYS.preset], 'pack');
+    assert.equal(values[CALENDAR_KEYS.preset], 'game');
     assert.equal(values[CALENDAR_KEYS.months][0].name, gregorianFields().months[0].name);
     assert.match(module.settings.schema[CALENDAR_KEYS.preset].help, /built-in Gregorian/);
     assert.equal(host.sdk.query('director.calendar').months?.length ?? 12, 12);
@@ -53,7 +53,7 @@ test('with the Ersveil pack: the fields show its calendar; Custom starts from it
     assert.deepEqual(values[CALENDAR_KEYS.months], pack.months);
     assert.equal(values[CALENDAR_KEYS.leapYears], false);
     const help = module.settings.schema[CALENDAR_KEYS.preset].help;
-    assert.match(help, /^From the pack: Ersveil: Bluewatch Starter \(CY, 12 months\), shown below\. Switch to Custom to edit it\.$/);
+    assert.match(help, /^From the game pack: Ersveil: Bluewatch Starter \(CY, 12 months\), shown below\. Switch to Custom to edit it\.$/);
     assert.match(module.settings.schema[CALENDAR_KEYS.months].help, /switch to Custom to edit/);
     // Custom, nothing typed yet: the pack's calendar, so the story's dates do not jump.
     host.settings.set('story-director', CALENDAR_KEYS.preset, 'custom');
@@ -70,7 +70,8 @@ test('with the Ersveil pack: the fields show its calendar; Custom starts from it
 // editable; switching to Custom makes them editable and pre-filled with the pack's calendar.
 test('while Calendar is pack the calendar fields are read-only; Custom makes them editable, pre-filled', async t => {
     assert.equal(calendarReadOnly({}), true, 'pack is the default');
-    assert.equal(calendarReadOnly({ [CALENDAR_KEYS.preset]: 'pack' }), true);
+    assert.equal(calendarReadOnly({ [CALENDAR_KEYS.preset]: 'game' }), true);
+    assert.equal(calendarReadOnly({ [CALENDAR_KEYS.preset]: 'pack' }), true, 'format 3 stored pack: read as game');
     assert.equal(calendarReadOnly({ [CALENDAR_KEYS.preset]: 'custom' }), false);
     assert.equal(calendarReadOnly({ [CALENDAR_KEYS.preset]: 'gregorian' }), false);
     const doc = installFakeDom();
@@ -123,7 +124,7 @@ test('back on pack after editing under Custom: the rows show the pack\'s calenda
     host.settings.set('story-director', CALENDAR_KEYS.preset, 'custom');
     host.settings.set('story-director', CALENDAR_KEYS.era, 'AR');
     host.settings.set('story-director', CALENDAR_KEYS.months, [{ name: 'Frostmoon', days: 30 }]);
-    host.settings.set('story-director', CALENDAR_KEYS.preset, 'pack');
+    host.settings.set('story-director', CALENDAR_KEYS.preset, 'game');
     const root = doc.createElement('div');
     doc.body.appendChild(root);
     t.after(() => root.remove());

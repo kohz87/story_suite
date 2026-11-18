@@ -28,6 +28,8 @@ export function calendarOf(packs) {
         const fits = month && date.day <= month.days;
         const at = fits ? { month: month.name, day: date.day } : { month: pack.calendar.months[0].name, day: 1 };
         out.start = { year: date.year, ...at, hour: date.hour ?? 0, minute: date.minute ?? 0 };
+        // The world's era comes before the game calendar's (a year number is lore); the reader's Settings row comes before both.
+        if (typeof date.era === 'string' && date.era) out.era = date.era;
     }
     return copy(out);
 }
