@@ -2,7 +2,7 @@
    The approved NSD4 (goal and status), NSD5 (where, never presence) and NSD9 (what is not written; look, gender, age, birthday) texts;
    The approved NSD8 (memories come from the lines; ~ memory only for a moment no line covers) text;
    The approved NSD6 (a new person is a one-line stub) and NSD7 (changed fields only; the identity sentence kept) texts.
-   The approved NSD13 (death is a line) text.
+   The approved NSD13 (death is a line) text. The aka sentence (SOAKPEOPLE F3, the lead's wording, recorded in NSD-WORDING.md) follows it.
    The Level sentence follows NSD9 while the RPG is on (`levelOn`); the abilities and keepsakes sentence (pack format 4, N3) follows it, always.
    `moodWord` (default off, A/B-gated) adds the held NSD3 mood text. The relationships paragraph (NSD2) is not here: see src/npc-meters-prompt-parts/lines-text.js. */
 const HEADER = 'NPC CHANGES. Write your complete in-character reply first, exactly as you otherwise would; nothing below changes the story, its length or its voice. Then put every change to a named person in your <Changes> block, one line each, as described below. There is no other block; never write JSON, and never mention these lines in the story. Write a line only for something that happened in this reply. A line that is wrong is refused by itself and shown on the changes card; the others still count.';
@@ -15,9 +15,10 @@ const MEMORIES = 'Memories: the words of a line you write (why:, a lie, a milest
 const DEATH = 'Death: when the story shows that a named person died (not "almost", not a rumour, not a wound), write ~ npc Name | died | how: one sentence. This is final: never write that person as alive, present or speaking afterwards. Never write died for someone whose death you are unsure of.';
 const LEVEL = 'level: write it only when the story states a person\'s level outright, as a number (e.g. ~ npc Mira | level: 5); code keeps it and a line never lowers it.';
 const STORY_FACTS = 'abilities and keepsakes: when this reply shows a named person learn something new, write ~ npc Name | learns: <ability> — <one line> (e.g. ~ npc Mira | learns: Shield wall — drilled with the guard). When this reply shows them gain or lose something they keep, write ~ npc Name | keepsake: + <name> — <one line> or ~ npc Name | keepsake: - <name>. Write one only when it happens in this reply; code ignores one the person already has.';
+const AKA = 'Other names: when the story calls a listed person by another name (a nickname, a title they go by), write ~ npc Name | aka: the other name, once; after that either name finds them.';
 const MOOD_WORD = 'Write mood as one plain word (mood: wary). Never write numbers for it.';
 
 // `levelOn`: the RPG feature is on (the Level sentence is sent only then). The abilities and keepsakes sentence is always sent.
 export function buildLinesRules({ moodWord = false, levelOn = false } = {}) {
-    return [HEADER, GOAL_STATUS, WHERE, NOT_WRITTEN, ...(levelOn ? [LEVEL] : []), STORY_FACTS, NEW_PEOPLE, CHANGED_ONLY, MEMORIES, DEATH, ...(moodWord ? [MOOD_WORD] : [])].join('\n');
+    return [HEADER, GOAL_STATUS, WHERE, NOT_WRITTEN, ...(levelOn ? [LEVEL] : []), STORY_FACTS, NEW_PEOPLE, CHANGED_ONLY, MEMORIES, DEATH, AKA, ...(moodWord ? [MOOD_WORD] : [])].join('\n');
 }

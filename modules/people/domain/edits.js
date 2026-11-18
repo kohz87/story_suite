@@ -24,7 +24,8 @@ const edited = (summary, data) => ({ summary, data: { ...data, edit: true }, nar
 
 // people.fields { id, fields }: the dossier fields a story change line states (NPC State's `~ npc` labels); only a module's own command may send it, and only
 // these fields, as short text (null removes one). It is a story change, not a reader edit: the reply card does not list it as one.
-const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday', 'level', 'learns', 'keepsake']);
+const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday', 'level', 'learns', 'keepsake', 'aka']);
+const ALIASES_MAX = 8;   // (npc-lines-parts/aka.js has already refused a name that is someone else's)
 const LINE_TEXT_MAX = 300;
 
 // `level` is the built-in whole Level (1-99), written as a number text and never lowered. `learns` adds one ability and `keepsake` adds ("+ Name — line") or removes
@@ -38,6 +39,12 @@ function writeList(record, key, max, entries) {
     const list = normalizeStoryList(record[key], max);
     const next = normalizeStoryList([...list, ...entries], max);
     if (next.length) record[key] = next; else delete record[key];
+}
+// `aka` adds one alias (another name the story uses for them), unique without regard to case, at most ALIASES_MAX.
+function writeAlias(record, text) {
+    const aliases = Array.isArray(record.aliases) ? record.aliases.filter(item => typeof item === 'string') : [];
+    if (aliases.length >= ALIASES_MAX || aliases.some(item => item.toLowerCase() === text.toLowerCase()) || String(record.name ?? '').toLowerCase() === text.toLowerCase()) return;
+    record.aliases = [...aliases, text];
 }
 function writeKeepsake(record, text) {
     if (text.startsWith('-')) {
@@ -56,12 +63,13 @@ export function peopleEdits(domain) {
                 if (typeof ctx.caller !== 'string' || !ctx.caller || ctx.caller.startsWith('event:')) return ctx.fail('REFUSED', 'Only a module\'s own command may write a person\'s story fields.');
                 const fields = payload?.fields;
                 const names = isObject(fields) ? Object.keys(fields) : [];
-                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, appearance, gender, age, birthday, level, learns or keepsake as short text (or null).');
+                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, appearance, gender, age, birthday, level, learns, keepsake or aka as short text (or null).');
                 const record = recordOf(ctx, domain, payload.id);
                 for (const name of names) {
                     if (name === 'level') { if (/^\d+$/.test(fields.level ?? '')) writeLevel(record, fields.level); continue; }
                     if (name === 'learns') { if (fields.learns) writeList(record, 'abilities', BUILT_IN_LIMITS.abilities, [fields.learns]); continue; }
                     if (name === 'keepsake') { if (fields.keepsake) writeKeepsake(record, fields.keepsake); continue; }
+                    if (name === 'aka') { if (fields.aka) writeAlias(record, fields.aka); continue; }
                     if (fields[name] === null || fields[name] === '') delete record[name];
                     else record[name] = fields[name];
                 }

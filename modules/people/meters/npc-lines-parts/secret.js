@@ -23,7 +23,8 @@ export function secretLine(ctx, line, { identify, rulesFor, run, call = () => ({
     const text = `${ctx.chat?.lastUser ?? ''}\n${ctx.chat?.reply ?? ''}`;
     if (!secretEventsShown({ secretEvents: [id], secretEventEvidence: { [id]: quote } }, text).length) ctx.fail('REFUSED', `~ reveal ${name}: no quote found in this reply; the note stays closed.`);
     const slice = ctx.draft(NPC_DOMAIN);
-    const who = identify(slice.npcs ?? {}, line.name);
+    const full = typeof found.record?.name === 'string' ? found.record.name : line.name;   // (F50: a first name finds the person; their entry is found by the full name)
+    const who = identify(slice.npcs ?? {}, full);
     const record = who ? slice.npcs?.[who.key] : null;
     const rule = rulesFor(who?.name ?? found.record?.name ?? line.name, who?.labels ?? []).find(item => item?.id === id);
     if (!rule?.when && typeof rule?.gate !== 'string') ctx.fail('REFUSED', `~ reveal ${name}: ${clean(id, 40)} is not one of their hidden notes with a story event.`);
@@ -37,5 +38,5 @@ export function secretLine(ctx, line, { identify, rulesFor, run, call = () => ({
         if (!gateOpen(rule, record ?? {}, new Map(defs().map(def => [def.id, def])), inputs)) ctx.fail('REFUSED', `~ reveal ${name}: ${clean(id, 40)} is not ready to come out yet; the note stays closed.`);
     }
     if (Array.isArray(record?.unlocked) && record.unlocked.includes(id)) ctx.fail('REFUSED', `~ reveal ${name}: that note is already open.`);
-    return run(ctx, { label: line.name, changes: [], problems: [], limit: false, reply: null, allowEmpty: true, notes: { open: [id], close: [], story: true, ...(gated ? { gated: true } : {}) } });
+    return run(ctx, { label: full, changes: [], problems: [], limit: false, reply: null, allowEmpty: true, notes: { open: [id], close: [], story: true, ...(gated ? { gated: true } : {}) } });
 }

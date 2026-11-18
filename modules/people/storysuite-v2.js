@@ -87,7 +87,7 @@ export const WORLD_FEATURE = 'story-director.world';
 export const PAGE_SLOT_CLASS = 'npc-state-delta-v2-slot';
 // Story Block's lean RPG feature (its names.js LEAN_RPG_FEATURE); an extension cannot import Story Block.
 const RPG_FEATURE = 'story-block.rpg';
-export const QUERY_NAMES = Object.freeze(['npc.present', 'npc.dossier', 'npc.known', 'npc.portrait', 'npc.meters', 'npc.cast', 'npc.next', 'npc.awayMemory', 'npc.castMade', 'npc.socialModifier', 'npc.identity', 'npc.catchUp']);
+export const QUERY_NAMES = Object.freeze(['npc.present', 'npc.dossier', 'npc.known', 'npc.portrait', 'npc.meters', 'npc.cast', 'npc.next', 'npc.awayMemory', 'npc.castMade', 'npc.socialModifier', 'npc.identity', 'npc.catchUp', 'npc.dormantAfter']);
 export const COMMAND_NAMES = Object.freeze(['npc.adjust', 'npc.set', 'npc.refresh', 'npc.milestone', 'npc.open', 'npc.tick', 'npc.flag', 'npc.meet', 'npc.mood', 'npc.taste', 'npc.drives']);
 // The replies after which Delta takes its per-reply step (npc.tick): a new reply or a new swipe of
 // one, never a Continue, a Re-read or late change lines (the same reply again).

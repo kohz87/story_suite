@@ -66,9 +66,12 @@ export function createNpcCommands({
         const settings = normalized(ctx.settings(), ctx);
         const defs = defsFrom(settings);
         const byLabel = new Map(defs.flatMap(def => [[def.id, def], [slug(def.label), def]]));
-        const read = readLabels(line.labels, { byLabel, defs, gateOn: featureOn(FEATURE_GATE, ctx), levelOn: line.linesOn === true && call(hooks.levelOn, false) === true });
+        const read = readLabels(line.labels, { byLabel, defs, gateOn: featureOn(FEATURE_GATE, ctx), levelOn: line.linesOn === true && call(hooks.levelOn, false) === true, linesOn: line.linesOn === true });
         const { problems, tier, via, reason, disposition, fields } = read;
         const changes = [...read.changes, ...wordChanges(read.words, tier, tierCaps())];
+        // F44 (lines mode): a person who has died feels nothing new; a line of feelings alone is refused, one with dossier labels keeps them (guard.js decides those).
+        if (line.dead === true && changes.length && !Object.keys(fields).length) ctx.fail('REFUSED', `${clean(line.name, 40)} has died; lines about them change nothing now.`);
+        if (line.dead === true && changes.length) problems.push(`${clean(line.name, 40)} has died; ${changes.splice(0).map(change => change.meter).join(', ')} not changed.`);
         // B-a1-15: the window is the reply's by its record ID, so after a middle delete a new reply at an
         // index an older one had is its own reply, with its own cap.
         const at = isInt(ctx.carrier?.index) ? ctx.carrier.index : null;

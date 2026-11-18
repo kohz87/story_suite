@@ -226,6 +226,8 @@ export function createQueriesPart(session, deps) {
                 return { name: String(npc.name ?? '').trim(), meters: entry?.meters ?? null, stages: entry?.stages ?? {} };
             }).filter(item => item.name);
         },
+        /** The reader's "Dormant after" (replies unseen), or null when Delta cannot say; people.list asks it. */
+        'npc.dormantAfter': () => { try { return runtime()?.dormantAfter?.() ?? null; } catch { return null; } },
         /** Names of every tracked (not archived) NPC, in dossier order. */
         'npc.known': () => names(npcList().filter(npc => npc.archived !== true)),
         /**
