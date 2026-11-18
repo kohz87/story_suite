@@ -11,7 +11,7 @@ import { PORTRAIT_THEME_PRESETS } from './portrait-preset-constants.js';
 import { portraitCustomPresetLibrary } from './portrait-preset-library.js';
 import { DEFAULTS } from './defaults.js';
 import { persistSettings } from './save.js';
-import { injectDepthOf, normalizePresentCastDisplay } from './settings-values.js';
+import { injectDepthOf } from './settings-values.js';
 
 export function getSettings() {
     let settings = npcBucket(extension_settings);
@@ -60,8 +60,6 @@ export function getSettings() {
     assign('memoryCriteria', typeof settings.memoryCriteria === 'string' ? settings.memoryCriteria : DEFAULT_MEMORY_CRITERIA);
     assign('behaviorCriteria', typeof settings.behaviorCriteria === 'string' ? settings.behaviorCriteria : DEFAULT_BEHAVIOR_CRITERIA);
     assign('admissionMode', normalizeNpcAdmissionMode(settings.admissionMode));
-    assign('presentCastDisplay', normalizePresentCastDisplay(settings.presentCastDisplay));
-    assign('presentCastDisplayChosen', settings.presentCastDisplayChosen === true);
     // 1.0.70 raised the default budget from 1800 to 4000 tokens. An install still on the old default
     // is moved once; any value the player chose, including a later deliberate 1800, is kept.
     const legacyDefaultBudget = settings.injectBudgetDefaultUpgraded !== true && Number(settings.injectBudgetTokens) === 1800;

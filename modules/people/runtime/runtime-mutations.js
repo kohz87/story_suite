@@ -15,7 +15,7 @@ import { markCastPortraitRemoved } from '../dossier/cast-dossier.js';
 import { getSettings } from '../settings/runtime-settings.js';
 
 export function createMutationsPart(rt, deps) {
-    const { clearUserDismissedSuppression, closeNpcEditor, commitBranchCheckpoint, editorIsMounted, ensureFreshMutationBoundary, ensureHydratedStateFresh, getChatKey, getChatState, hydratedRevision, latestMessageId, ownershipEpoch, ownershipEpochCurrent, persistCritical, persistCriticalDurable, purgeInlineCardsInState, recordFreshnessEvent, renderDossier, requestHeaders, requireReadyChatMutation, setChatState, stampManualEdit, updateInjection, workingCopyAdoption } = deps;
+    const { clearUserDismissedSuppression, closeNpcEditor, commitBranchCheckpoint, editorIsMounted, ensureFreshMutationBoundary, ensureHydratedStateFresh, getChatKey, getChatState, hydratedRevision, latestMessageId, ownershipEpoch, ownershipEpochCurrent, persistCritical, persistCriticalDurable, recordFreshnessEvent, renderDossier, requestHeaders, requireReadyChatMutation, setChatState, stampManualEdit, updateInjection, workingCopyAdoption } = deps;
     const { hydratedStateMeta, stateVersions, portraitActions } = rt;
 
     function updateNpcAppearance(npcId, draft, { chatKey, lockAppearance = false } = {}) {
@@ -224,7 +224,6 @@ export function createMutationsPart(rt, deps) {
         const socialAfterDelete = reconcileSocialState(working, { provenance: 'manual', confidence: 'manual' });
         working.socialGraph = socialAfterDelete.socialGraph;
         working.npcs = socialAfterDelete.state.npcs;
-        purgeInlineCardsInState(working, result.report.npcId, result.report.name);
         const reportKey = normalizeName(result.report.name);
         working.pendingBackfills = (working.pendingBackfills || []).filter(item => item.npcId !== result.report.npcId && normalizeName(item.label) !== reportKey);
         if (working.portraitAssets && typeof working.portraitAssets === 'object') delete working.portraitAssets[current.id];

@@ -27,7 +27,7 @@ export function createUiCaptureParts(deps) {
     }
 
     function activatePresentCardFromEvent(event) {
-        const card = eventTargetClosest(event, '.npc-state-delta-present-card, .npc-state-delta-present-chip, .npc-state-delta-present-cell');
+        const card = eventTargetClosest(event, '.npc-state-delta-present-card, .npc-state-delta-present-cell');
         if (!card) return false;
         if (event.type === 'keydown' && !['Enter', ' '].includes(event.key)) return false;
         const npcId = String(card.dataset?.npcId || '').trim();

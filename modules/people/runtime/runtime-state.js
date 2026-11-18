@@ -10,8 +10,6 @@ export function createRuntimeState() {
     return {
         eventsRegistered: false,
         initialized: false,
-        inlineObserver: null,
-        inlineObserverChat: null,
         activeEditorPopup: null,
         activeEditorChatKey: '',
         activeEditorBaseRevision: null,

@@ -1,17 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import { standInTree } from './helpers/temp-tree.js';
 import { snapshotNpc } from '../../modules/people/fields/registry.js';
-import path from 'node:path';
-import { root, index, css } from './ui-layout.helpers.js';
-import { tempDir } from '../../scripts/temp-dir.mjs';
+import { index, css } from './ui-layout.helpers.js';
 
-test('inline card truth follows merged presence and settings roster editor uses direct mobile-safe binding', () => {
-    assert.match(index, /function scanInlineNpcIds\(_parsed, merged\)/);
-    assert.doesNotMatch(index, /const touched = new Set/);
-    assert.match(index, /recordInlineCardsInState\(nextState, targetMessageId, \[finalNpc\.id\], 'dossier-backfill'\)/);
-    assert.match(index, /removeNpcInlineCardAtMessage/);
+test('the settings roster editor uses direct mobile-safe binding', () => {
     assert.match(index, /function wireSettingsRosterEditor/);
     assert.match(index, /querySelectorAll\('\.npc-state-delta-roster-edit'\)/);
     assert.match(index, /addEventListener\?\.\('pointerup'/);
@@ -27,13 +19,10 @@ test('inline card truth follows merged presence and settings roster editor uses 
     assert.equal((index.match(/id="npc_state_delta_edit_personality"/g) || []).length, 1, 'editor must not render duplicate Personality controls');
 });
 
-test('UI integration remounts inline cards on SillyTavern render lifecycle and captures roster editor clicks', () => {
+test('UI integration refreshes the cast panes on SillyTavern render lifecycle and captures roster editor clicks', () => {
     assert.match(index, /CHARACTER_MESSAGE_RENDERED/);
     assert.match(index, /MORE_MESSAGES_LOADED/);
     assert.match(index, /MESSAGE_UPDATED/);
-    assert.match(index, /INLINE_RENDER_RETRY_DELAYS/);
-    assert.match(index, /function inlineEntriesForRender/);
-    assert.match(index, /live-present-grid/);
     assert.match(index, /function installUiCaptureBridge/);
     assert.match(index, /document\.addEventListener\('pointerup', activatePresentCardFromEvent, true\);/);
     assert.match(index, /document\.addEventListener\('pointerup', activateNpcEditorFromEvent, true\);/);
@@ -44,54 +33,6 @@ test('UI integration remounts inline cards on SillyTavern render lifecycle and c
     assert.match(index, /class="menu_button npc-state-delta-roster-edit"/);
     assert.match(index, /\$\(document\)\.on\('click\.npcStateDelta', '\.npc-state-delta-roster-edit'/);
     assert.match(index, /uiStatus:/);
-});
-
-test('visible inline rendering is latest-scene present cast only while historical snapshots remain internal', () => {
-    assert.match(index, /Visible NPC State Delta is a live present-cast view, not a historical dossier timeline/);
-    assert.match(index, /const latestAssistantId = latestMessageId\(true\)/);
-    assert.match(index, /return \[\{[\s\S]*reason: 'live-present-grid'/s);
-    assert.doesNotMatch(index, /function inlineEntriesForRender\(state\) \{[\s\S]*state\.inlineCards\.map/s);
-});
-
-test('inline renderer self-heals host redraws without destructive full remounts', () => {
-    assert.match(index, /new globalThis\.MutationObserver/);
-    assert.match(index, /inlineMountNeedsRepair/);
-    assert.match(index, /startInlineWatchdog/);
-    assert.match(index, /existingById/);
-    assert.match(index, /if \(!anchor\) \{/);
-    // Filled now/chatter text makes innerHTML differ from the markup, so the last written markup decides.
-    assert.match(index, /else if \(anchor\.innerHTML !== html && \(anchor\.__npcStateDeltaHtml !== html \|\| !String\(anchor\.innerHTML \|\| ''\)\.trim\(\)\)\)/);
-    assert.doesNotMatch(index, /querySelectorAll\?\.\('\.npc-state-delta-inline-anchor'\)\.forEach\(node => node\.remove\(\)\)/);
-});
-
-test('Megumin master block receives Present NPCs as an in-card tab with standalone fallback preserved', () => {
-    assert.match(index, /function mountNpcStateInsideMeguminBlock/);
-    assert.match(index, /querySelector\?\.\('\.meg-blocks'\)|querySelector\('\.meg-blocks'\)/);
-    assert.match(index, /\.meg-blocks-tabs/);
-    assert.match(index, /\.meg-blocks-panel/);
-    assert.match(index, /className = 'meg-blocks-tab npc-state-delta-megumin-tab'/);
-    assert.match(index, /className = 'meg-block-body npc-state-delta-megumin-pane'/);
-    assert.match(index, /pane\.dataset\.key = button\.dataset\.key/);
-    assert.match(index, /npcStateDeltaSnapshotSignature/);
-    assert.match(index, /closest\('\.npc-state-delta-inline-anchor, \.npc-state-delta-megumin-pane'\)/);
-    assert.match(index, /<span class="meg-blocks-tab-label">Present NPCs<\/span>/);
-    assert.match(index, /button\.title = 'Present NPCs'/);
-    assert.match(index, /mountNpcStateInsideMeguminBlock\(message, messageId, html\)/);
-    assert.match(index, /anchor\?\.remove\?\.\(\)/, 'successful Megumin integration should remove the duplicate standalone card');
-    assert.match(index, /className = 'npc-state-delta-inline-anchor'/, 'standalone rendering remains the fallback when no Megumin block exists');
-    assert.match(index, /cleanupStaleMeguminIntegrations/);
-    assert.match(index, /integratedMeguminBlocks:/);
-    assert.match(css, /\.npc-state-delta-megumin-pane\s*\{/);
-    assert.match(css, /\.npc-state-delta-megumin-tab\s*\{/);
-});
-
-test('Megumin integration never rewrites canonical message text and reattaches through the existing render watchdog', () => {
-    assert.doesNotMatch(index, /message\.mes\s*=.*NPC_State|\.mes\s*\+=.*NPC_State|<NPC_State>/s);
-    assert.match(index, /new globalThis\.MutationObserver/);
-    assert.match(index, /\.npc-state-delta-megumin-pane/);
-    assert.match(index, /inlineMountNeedsRepair/);
-    assert.match(index, /CHARACTER_MESSAGE_RENDERED/);
-    assert.match(index, /MESSAGE_UPDATED/);
 });
 
 test('compact Megumin World State preserves omitted off-screen activity while still resetting physical presence', () => {
@@ -197,34 +138,7 @@ test('settings panel buttons override the host min-content button width', () => 
     assert.match(css, /\.npc-state-delta-calendar-actions > \.menu_button,\n#npc_state_delta_settings \.delta-settings-danger > \.menu_button \{ width: auto; white-space: nowrap; \}/);
 });
 
-test('switched off, Delta renders no in-chat cards, and the Enable switch redraws them (BH2, 12 Nov)', async () => {
-    assert.match(index, /function afterEnabledChange\(\) \{[\s\S]*renderDossier\(\);[\s\S]*pageHandles\.deltaApi\?\.renderInline\?\.\(\);/);
-    // The real part, beside a stub of the host's extensions.js (as the other runtime-copy tests do).
-    const os = await import('node:os');
-    const { pathToFileURL } = await import('node:url');
-    const temp = tempDir('delta-enabled-cards-');
-    const ext = path.join(temp, 'a', 'b', 'ext');
-    fs.mkdirSync(ext, { recursive: true });
-    standInTree(ext);   // old names, stand-ins for the real files; the host's extensions.js is the shared stub reading __npcMock
-    globalThis.__npcMock = { extensionSettings: {}, context: { chat: [] }, saveSettingsCalls: 0 };
-    const savedDocument = globalThis.document;
-    globalThis.document = { documentElement: { dataset: {} } };
-    try {
-        const { createInlineCardsModePart } = await import(pathToFileURL(path.join(ext, 'runtime-inline-cards-mode.js')).href);
-        const extension_settings = globalThis.__npcMock.extensionSettings;
-        const state = { npcs: [{ id: 'n1', name: 'Mira', present: true }] };
-        const part = createInlineCardsModePart({
-            chatHydrationStatus: () => 'ready', getChatKey: () => 'k', getChatState: () => state, latestMessageId: () => 4,
-            scenePresenceView: npcs => npcs, storyBlockV2Hosted: () => false,
-        }, () => '');
-        extension_settings.storySuite = { schema: 1, modules: { 'npc-state-delta': { enabled: true } } };
-        assert.equal(part.inlineEntriesForRender(state).length, 1, 'on: the latest reply gets the live present grid');
-        extension_settings.storySuite.modules['npc-state-delta'].enabled = false;
-        assert.deepEqual(part.inlineEntriesForRender(state), [], 'off: no cards');
-        extension_settings.storySuite.modules['npc-state-delta'].enabled = true;
-        assert.equal(part.inlineEntriesForRender(state).length, 1, 'on again: they come back');
-    } finally {
-        if (savedDocument === undefined) delete globalThis.document; else globalThis.document = savedDocument;
-        fs.rmSync(temp, { recursive: true, force: true });
-    }
+test('switching NPC State on or off refreshes the cast panes; nothing is drawn in the chat (B4-6)', () => {
+    assert.match(index, /function afterEnabledChange\(\) \{[\s\S]*renderDossier\(\);[\s\S]*queueCastRefresh\(0\);/);
+    assert.doesNotMatch(index, /npc-state-delta-inline-anchor|renderInline\b/, 'no in-chat card mount is left');
 });

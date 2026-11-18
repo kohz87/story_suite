@@ -32,3 +32,12 @@ Diagnostics buttons), the NPC editor's refinements (`editor-refine.js`, `editor-
 `continuity-ui.js`), the calendar and scanner-output controls to `modules/people/settings/` (they draw into the section's own groups), and the two
 setting normalizers to `settings/runtime-settings-parts/{map-settings,dossier-look}.js`. The portrait manager opens from the view's dossier
 (⋯ › Portrait, `ui/port/people-portrait.js`). Backup: `scratch/backups/b4-5/`.
+
+Removed at B4-6 (the in-chat present cards): `legacy/runtime-inline-cards.js` with its `-megumin`, `-mode`, `-mount` and `-state` parts (the chat
+observer, watchdog and renderer, the Megumin "Present NPCs" tab, the display choice, the `inlineCards` writers), the setting `presentCastDisplay` with
+`presentCastDisplayChosen` and its row, `legacy/present-scene-parts/{chatter-parse,world-state-parse,story-block-tags,scene-groups,shared-patterns}.js`
+(the Story Block scene and NPC Inner Chatter readers, dead since the v1 registry went: nothing defines `StoryBlock.listBlocks`), the chatter, chip and
+Megumin pane CSS. Kept, because the Cast and World panes draw them: `legacy/present-scene.js` (now the now-lines parts only) and the roster markup, rewritten
+as `legacy/runtime-present-cast.js`; the NPC lookup (`runtime-npc-lookup.js`) and a cast refresh (`runtime-cast-refresh.js`) are the two small parts of the
+old state and mount files that other code still calls. The `inlineCards` field and its branch, transfer and hydration readers stay for B4-10a.
+`megumin_state`: zero hits in code before and after. Backup: `scratch/backups/b4-6/`.

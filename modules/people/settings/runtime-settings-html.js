@@ -7,7 +7,7 @@ import { escapeHtml } from '../util/html.js';
 import { PORTRAIT_THEME_PRESETS, getSettings } from './runtime-settings.js';
 
 export function createSettingsHtmlPart(rt, deps) {
-    const { effectivePresentCastChoice, portraitSettingsSnapshot, UI_ID, updatePortraitSettingsSaveUi, writePortraitSettingsDraftToUi } = deps;
+    const { portraitSettingsSnapshot, UI_ID, updatePortraitSettingsSaveUi, writePortraitSettingsDraftToUi } = deps;
 
     function settingRow(id, label, control, hint = '') {
         return `<label class="npc-state-delta-setting-row story-suite-row" for="${id}"><span><b>${label}</b>${hint ? `<small>${hint}</small>` : ''}</span>${control}</label>`;
@@ -35,8 +35,6 @@ export function createSettingsHtmlPart(rt, deps) {
             settingRow('npc_state_delta_admission_mode', 'NPC admission', '<select id="npc_state_delta_admission_mode" class="text_pole"><option value="conservative">Conservative</option><option value="balanced">Balanced</option><option value="manual_only">Manual only</option></select>', 'Conservative: proper names immediately, role labels after recurrence. Balanced: also direct or persistent role NPCs. Manual only: every dossier needs Add NPC.'),
         ].join('');
         const roster = `
-        <h4 class="delta-settings-subhead story-suite-subhead">In-chat display</h4>
-        ${settingRow('npc_state_delta_present_cast_display', 'Present NPCs in chat', '<select id="npc_state_delta_present_cast_display" class="text_pole"><option value="full">Full cards</option><option value="compact">Compact strip</option><option value="storyblock">Only in Story Block</option><option value="off">Off</option></select>', 'Shown under the latest reply (or as a Megumin tab). With Story Block installed, Present NPCs and Dossiers tabs also appear in its sidebar, and until you pick a choice here the chat shows them only there; Only in Story Block keeps the chat clear (full cards without Story Block). Tapping an NPC opens its dossier. Off adds nothing to the chat; presence tracking and injection are unaffected.')}
         <h4 class="delta-settings-subhead story-suite-subhead">Generation injection</h4>
         ${settingRow('npc_state_delta_inject', 'Inject present NPC state', '<input id="npc_state_delta_inject" type="checkbox">', 'Only active NPCs present in the latest scanned scene are injected into generation.')}
         <h4 class="delta-settings-subhead story-suite-subhead">Custom fields</h4>
@@ -291,7 +289,6 @@ export function createSettingsHtmlPart(rt, deps) {
         $('#npc_state_delta_layered_secrets').prop('checked', s.layeredSecrets !== false);
         $('#npc_state_delta_branch_rescan').prop('checked', s.branchRescan !== false);
         $('#npc_state_delta_mid_delete_rewind').prop('checked', s.midDeleteRewind === true);
-        $('#npc_state_delta_present_cast_display').val(effectivePresentCastChoice());
         if (!rt.portraitSettingsDirty) writePortraitSettingsDraftToUi(portraitSettingsSnapshot(s));
         updatePortraitSettingsSaveUi();
         $('#npc_state_delta_base_trust').val(s.relationshipBaseline.trust);

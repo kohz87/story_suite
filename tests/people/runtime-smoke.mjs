@@ -192,7 +192,6 @@ globalThis.URL = globalThis.URL || { createObjectURL: () => 'blob:mock', revokeO
 
 const inlineAnchors = [];
 const messageElements = new Map();
-const meguminBlocks = new Map();
 const documentListeners = new Map();
 const mutationObservers = [];
 
@@ -290,30 +289,6 @@ function makeMockDomNode(tag = 'div') {
     return node;
 }
 
-function createMockMeguminBlock() {
-    const card = makeMockDomNode('div'); card.className = 'meg-blocks';
-    const tabs = makeMockDomNode('div'); tabs.className = 'meg-blocks-tabs';
-    const nativeTab = makeMockDomNode('button'); nativeTab.className = 'meg-blocks-tab active'; nativeTab.dataset.key = 'world'; nativeTab.dataset.blockId = 'world';
-    const collapse = makeMockDomNode('button'); collapse.className = 'meg-blocks-collapse';
-    const panel = makeMockDomNode('div'); panel.className = 'meg-blocks-panel';
-    const nativePane = makeMockDomNode('div'); nativePane.className = 'meg-block-body'; nativePane.dataset.key = 'world'; nativePane.style.display = '';
-    tabs.appendChild(nativeTab); tabs.appendChild(collapse); panel.appendChild(nativePane); card.appendChild(tabs); card.appendChild(panel);
-
-    // Mirror Megumin's private selected-key closure closely enough to catch foreign-tab
-    // integrations that only change DOM state. With no CYOA/resting tab, clicking the
-    // active native tab closes the card and clicking it from null opens it.
-    let current = 'world';
-    const select = key => {
-        current = key;
-        nativeTab.classList.toggle('active', key === 'world');
-        nativePane.style.display = key === 'world' ? '' : 'none';
-        card.classList.toggle('meg-blocks-shut', key === null);
-    };
-    nativeTab.addEventListener('click', () => select(current === 'world' ? null : 'world'));
-    collapse.addEventListener('click', () => select(null));
-
-    return { card, tabs, panel, nativeTab, nativePane, collapse, current: () => current };
-}
 const chatRoot = {
     closest() { return null; },
     querySelectorAll(selector) { return globalThis.document?.querySelectorAll?.(selector) || []; },
@@ -332,7 +307,6 @@ function getMessageElement(id) {
         messageElements.set(id, {
             querySelector(selector) {
                 if (selector === '.mes_text') return text;
-                if (selector === '.meg-blocks') return meguminBlocks.get(id)?.card || null;
                 return null;
             },
             appendChild(node) { if (!inlineAnchors.includes(node)) inlineAnchors.push(node); },
@@ -359,9 +333,6 @@ globalThis.document = {
     querySelectorAll(selector) {
         if (selector === '.npc-state-delta-inline-anchor') return [...inlineAnchors];
         if (selector === '#chat .mes') return mockState.messageDomReady ? [...messageElements.values()] : [];
-        if (String(selector).includes('npc-state-delta-megumin')) {
-            return [...meguminBlocks.values()].flatMap(item => item.card.querySelectorAll(selector));
-        }
         return [];
     },
     createElement(tag) { return makeMockDomNode(tag); },
@@ -557,16 +528,7 @@ try {
     assert.match(portraitCommand, /negative="[^"]+/);
     assert.match(portraitCommand, /Crimson Demon/);
     assert.equal(mockState.context.chat.length, 2, 'quiet native portrait generation must not add a chat message in the runtime harness');
-    await waitFor(() => inlineAnchors.length === 1);
-    assert.equal(inlineAnchors.length, 1, 'only the latest present-cast roster should mount');
-    assert.match(inlineAnchors[0].innerHTML, /npc-state-delta-present-grid/);
-    assert.match(inlineAnchors[0].innerHTML, /npc-state-delta-present-card/);
-    assert.match(inlineAnchors[0].innerHTML, /Yunyun/);
-    assert.doesNotMatch(inlineAnchors[0].innerHTML, />Wiz</);
-    assert.match(inlineAnchors[0].innerHTML, /npc-state-delta-present-card-text/);
-    assert.match(inlineAnchors[0].innerHTML, /<small class="npc-state-delta-present-card-role" title="[^"]*">adventurer(?: · [^<]+)?<\/small>/i);
-    assert.doesNotMatch(inlineAnchors[0].innerHTML, /T \+3 · A -9|npc-state-delta-present-card-relation/, 'gallery cards should keep relationship metrics in the launcher dossier');
-    assert.doesNotMatch(inlineAnchors[0].innerHTML, /Desire|Mannerisms|Species \/ Race|Copy portrait prompts|Current thoughts|Thought basis/, 'portrait grid should stay compact; detailed fields belong in the launcher dossier');
+    assert.equal(inlineAnchors.length, 0, 'the present-cast roster is not drawn in the chat any more (B4-6)');
     // Present-cast cards hand off to the Story Suite view's dossier (the view sets pageHandles.openPerson; B4-5).
     const presentYunyunId = state.npcs.find(n => n.name === 'Yunyun').id;
     const dossierRequests = [];
@@ -576,29 +538,10 @@ try {
     emitDocumentEvent('click', { type: 'click', target: { closest: selector => (selector.includes('npc-state-delta-present-card') ? presentCardTarget : null) }, preventDefault() {}, stopPropagation() {}, stopImmediatePropagation() {} });
     assert.deepEqual(dossierRequests, [presentYunyunId, presentYunyunId], 'API and card clicks open the same dossier');
     globalThis.__handles.openPerson = null;
-    assert.equal(globalThis.NPCStateDelta.uiStatus().presentCastDisplay, 'full', 'Full cards remain the default in-chat display');
     assert.equal(globalThis.NPCStateDelta.openPortraitGenerator('Yunyun'), true, 'portrait generator API still opens directly');
     assert.equal(globalThis.NPCStateDelta.uiStatus().portraitGeneratorOpen, true);
     emitDocumentEvent('keydown', { key: 'Escape', preventDefault() {}, stopPropagation() {} });
     assert.equal(globalThis.NPCStateDelta.uiStatus().portraitGeneratorOpen, false, 'Escape closes the portrait-generator layer');
-    // Compact renders a one-line strip; Off removes the block and stops chat observation.
-    mockState.extensionSettings.storySuite.modules['npc-state-delta'].presentCastDisplay = 'compact';
-    globalThis.NPCStateDelta.renderInline();
-    assert.equal(inlineAnchors.length, 1);
-    assert.match(inlineAnchors[0].innerHTML, /npc-state-delta-present-strip/);
-    assert.match(inlineAnchors[0].innerHTML, /class="npc-state-delta-present-chip" data-npc-id="[^"]+"[^>]*aria-label="Open Yunyun dossier"/);
-    assert.doesNotMatch(inlineAnchors[0].innerHTML, /npc-state-delta-present-grid/);
-    mockState.extensionSettings.storySuite.modules['npc-state-delta'].presentCastDisplay = 'off';
-    globalThis.NPCStateDelta.render();
-    globalThis.NPCStateDelta.renderInline();
-    assert.equal(inlineAnchors.length, 0, 'Off removes the in-chat block');
-    assert.equal(globalThis.NPCStateDelta.uiStatus().inlineObserver, false, 'Off stops observing host message redraws');
-    assert.ok((globalThis.NPCStateDelta.getState().inlineCards || []).length > 0, 'inlineCards history is still retained while display is Off');
-    mockState.extensionSettings.storySuite.modules['npc-state-delta'].presentCastDisplay = 'full';
-    globalThis.NPCStateDelta.render();
-    globalThis.NPCStateDelta.renderInline();
-    assert.equal(inlineAnchors.length, 1, 'switching back to Full remounts the block');
-    assert.match(inlineAnchors[0].innerHTML, /npc-state-delta-present-grid/);
 
     // v0.2.23: portrait settings are an explicit transaction. A custom draft must not rely on
     // saveSettingsDebounced; Save calls the host persistence API and retains every parameter.
@@ -691,51 +634,6 @@ try {
     assert.equal(profileMetrics.profileUpdates, 1);
     assert.equal(profileMetrics.profileApplied, 1);
 
-    const meguminBlock = createMockMeguminBlock();
-    meguminBlocks.set(1, meguminBlock);
-    eventSource.emit('character_message_rendered', 1);
-    await sleep(80);
-    assert.equal(inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === '1'), false, 'Megumin-integrated message must not keep a duplicate standalone dossier anchor');
-    const integratedTab = meguminBlock.card.querySelector('.npc-state-delta-megumin-tab');
-    const integratedPane = meguminBlock.card.querySelector('.npc-state-delta-megumin-pane');
-    assert.ok(integratedTab, 'NPC State Delta tab should be inserted into Megumin master block');
-    assert.ok(integratedPane, 'NPC State Delta pane should be inserted into Megumin master block');
-    assert.match(integratedPane.innerHTML, /Yunyun/);
-    assert.equal(globalThis.NPCStateDelta.uiStatus().integratedMeguminBlocks, 1);
-    integratedTab.click();
-    assert.equal(integratedPane.style.display, '', 'clicking NPC State Delta tab should show its pane');
-    assert.equal(meguminBlock.panel.style.display, '', 'clicking NPC State Delta tab should explicitly reopen the shared Megumin panel');
-    assert.equal(meguminBlock.nativePane.style.display, 'none', 'clicking NPC State Delta tab should hide native Megumin panes');
-    assert.equal(meguminBlock.current(), null, 'opening NPC State Delta should synchronize Megumin private selection to null');
-    assert.equal(integratedPane.dataset.key, integratedTab.dataset.key, 'foreign Megumin integrations should be able to restore NPC State Delta by the same tab/pane key');
-
-    integratedTab.click();
-    assert.equal(meguminBlock.card.classList.contains('meg-blocks-shut'), true, 'clicking the active NPC State Delta tab again should collapse the master card like a native tab');
-    assert.equal(integratedPane.style.display, 'none', 'collapsing NPC State Delta should hide its pane');
-    assert.equal(integratedTab.classList.contains('active'), false, 'collapsing NPC State Delta should clear its active tab state');
-    meguminBlock.nativeTab.click();
-    assert.equal(meguminBlock.card.classList.contains('meg-blocks-shut'), false, 'a native Megumin tab should reopen in one click after NPC State Delta collapses');
-    assert.equal(meguminBlock.nativePane.style.display, '', 'native Megumin pane should reopen in that same click');
-
-    integratedTab.click();
-    assert.equal(integratedPane.style.display, '', 'NPC State Delta should reopen from a native Megumin pane');
-    assert.equal(meguminBlock.current(), null, 'reopening NPC State Delta should reset the native selected-key closure again');
-    meguminBlock.nativeTab.click();
-    assert.equal(meguminBlock.card.classList.contains('meg-blocks-shut'), false, 'switching directly from NPC State Delta to the prior native tab must open it, not close it');
-    assert.equal(meguminBlock.nativePane.style.display, '', 'switching from NPC State Delta should show the native pane on the first click');
-    assert.equal(integratedPane.style.display, 'none', 'switching to a native Megumin tab should dismiss the NPC State Delta pane');
-
-    integratedTab.click();
-    const openedSnapshotHtml = integratedPane.innerHTML.replace('<details ', '<details open ');
-    integratedPane.innerHTML = openedSnapshotHtml;
-    globalThis.NPCStateDelta.renderInline();
-    assert.equal(integratedPane.innerHTML, openedSnapshotHtml, 'repair renders must not replace unchanged pane HTML and collapse an opened NPC dossier');
-    meguminBlock.nativeTab.click();
-    assert.equal(integratedPane.style.display, 'none', 'choosing a native Megumin tab should dismiss the NPC State Delta pane');
-    meguminBlocks.delete(1);
-    eventSource.emit('message_updated', 1);
-    await sleep(90);
-    assert.equal(inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === '1'), true, 'standalone dossier should return when no compatible Megumin card is present');
 
     const yunyunBeforeRepair = state.npcs.find(n => n.name === 'Yunyun');
     const wizBeforeRepair = state.npcs.find(n => n.name === 'Wiz');
@@ -845,10 +743,7 @@ try {
     state = globalThis.NPCStateDelta.getState();
     assert.equal(state.npcs.find(n => n.name === 'Yunyun').present, false);
     assert.equal(state.npcs.find(n => n.name === 'Wiz').present, true);
-    assert.equal(inlineAnchors.length, 1, 'only the latest scene should keep a visible present-cast roster');
-    assert.equal(inlineAnchors[0].dataset.npcStateDeltaMessageId, '2');
-    assert.match(inlineAnchors[0].innerHTML, /Wiz/);
-    assert.doesNotMatch(inlineAnchors[0].innerHTML, /Yunyun/);
+    assert.equal(inlineAnchors.length, 0, 'the chat gets no present-cast roster (B4-6)');
 
     mockState.context.chat.length = 2;
     eventSource.emit('message_deleted', 2);
@@ -865,9 +760,7 @@ try {
     assert.equal(deleteReconcile?.operation, 'delete');
     assert.equal(deleteReconcile?.linearHistoryPruned, true);
     assert.equal(deleteReconcile?.restoredFromRoot, false, 'ordinary delete must never fall back to the branch root');
-    assert.equal(inlineAnchors.length, 1, 'rollback should remount one live present-cast roster');
-    assert.equal(inlineAnchors[0].dataset.npcStateDeltaMessageId, '1');
-    assert.match(inlineAnchors[0].innerHTML, /Yunyun/);
+    assert.equal(inlineAnchors.length, 0, 'rollback draws nothing in the chat (B4-6)');
 
     // Deleting a message from the middle keeps later dossiers, but the relationship change that
     // message caused is undone exactly (only when no later message touched it).
@@ -1306,24 +1199,12 @@ try {
     mockState.messageDomReady = false;
     await globalThis.NPCStateDelta.scan();
     state = globalThis.NPCStateDelta.getState();
-    assert.ok(state.inlineCards.find(entry => entry.messageId === lateDomMessageId)?.cards.some(card => card.name === 'Liora'), 'scan should record card state even if DOM is late');
-    assert.equal(inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === String(lateDomMessageId)), false, 'card cannot mount before host message DOM exists');
+    assert.equal(inlineAnchors.length, 0, 'nothing is drawn in the chat, whether or not the message DOM exists yet (B4-6)');
+    assert.deepEqual(state.inlineCards || [], [], 'a scan records no card history any more (B4-6)');
     mockState.messageDomReady = true;
     eventSource.emit('character_message_rendered', lateDomMessageId);
     await sleep(120);
-    assert.equal(inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === String(lateDomMessageId)), true, 'render lifecycle event should mount delayed inline card');
-
-    const redrawnAnchor = inlineAnchors.find(anchor => anchor.dataset.npcStateDeltaMessageId === String(lateDomMessageId));
-    redrawnAnchor?.remove?.();
-    assert.equal(inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === String(lateDomMessageId)), false, 'simulated host redraw should remove the card anchor');
-    assert.ok(mutationObservers.some(observer => observer.target === chatRoot), 'inline MutationObserver should be attached to #chat');
-    mutationObservers.find(observer => observer.target === chatRoot)?.trigger();
-    await sleep(100);
-    assert.equal(inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === String(lateDomMessageId)), true, 'chat mutation should self-heal a removed inline card');
-
-    globalThis.NPCStateDelta.renderInline();
-    globalThis.NPCStateDelta.renderInline();
-    assert.equal(inlineAnchors.filter(anchor => anchor.dataset.npcStateDeltaMessageId === String(lateDomMessageId)).length, 1, 'inline reconciliation should never duplicate an existing card anchor');
+    assert.equal(inlineAnchors.length, 0, 'a render event draws nothing in the chat');
 
     const rawCallsBeforeSwipe = mockState.rawCalls.length;
     const broadScansBeforeSwipe = mockState.rawCalls.filter(call => /isolated dossier scanner/i.test(String(call?.[0]?.systemPrompt || ''))).length;
