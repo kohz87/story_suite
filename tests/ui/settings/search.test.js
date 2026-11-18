@@ -15,10 +15,10 @@ test('blank or missing queries find nothing', () => {
 
 test('matches label, hint, group and section name, all words, any case', () => {
   const skin = searchRows(sections, 'SKIN');
-  assert.ok(skin.some(h => h.row.key === 'look.skin'));
+  assert.ok(skin.some(h => h.row.key === 'host.panelStyle'));
   assert.ok(skin.every(h => h.section.id === 'look'));
   const hint = searchRows(sections, 'see-through');
-  assert.deepEqual(hint.map(h => h.row.key), ['look.glass']);
+  assert.deepEqual(hint.map(h => h.row.key), ['host.panelStyle']);
   const both = searchRows(sections, 'dormant seen');
   assert.deepEqual(both.map(h => h.row.key), ['people.dormant']);
   assert.deepEqual(searchRows(sections, 'dormant zzzz'), []);
@@ -30,8 +30,8 @@ test('hits come in section order and keep the section reference', () => {
   assert.ok(hits.length === 0 || hits.every(h => h.section && h.row));
   const days = searchRows(sections, 'story days');
   const dayKeys = days.map(h => h.row.key);
-  assert.ok(dayKeys.includes('world.dueSoon') && dayKeys.includes('world.lookAhead'));
-  assert.ok(dayKeys.indexOf('world.dueSoon') < dayKeys.indexOf('world.lookAhead'));
+  assert.ok(dayKeys.includes('world.dueSoon') && dayKeys.includes('world.longestTimeJump'));
+  assert.ok(dayKeys.indexOf('world.longestTimeJump') < dayKeys.indexOf('world.dueSoon'));
   const order = searchRows(sections, 'a').map(h => sections.indexOf(h.section));
   assert.deepEqual(order, [...order].sort((x, y) => x - y));
 });
