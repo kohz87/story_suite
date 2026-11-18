@@ -16,6 +16,6 @@ export function nowTab(now = {}, ctx = {}) {
     { class: 'now-tab', dataset: { tab: 'now' } },
     h('div', { class: 'ncol' }, left),
     h('div', { class: 'ncol' }, right),
-    drawn.length ? null : h('p', { class: 'fine', dataset: { note: 'now-empty' } }, 'Nothing to show yet. Where you are, who is here and what a reply changed appear here as the story goes on.'),
+    drawn.length ? null : h('p', { class: 'fine now-empty', dataset: { note: 'now-empty' } }, 'Nothing here yet. The place, the time and what changed show up here after the first reply.'),
   );
 }

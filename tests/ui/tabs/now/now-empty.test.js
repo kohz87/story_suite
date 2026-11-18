@@ -10,6 +10,6 @@ test('a Now with no cards shows the empty line; one with cards does not', () => 
   installFakeDom();
   const bare = nowTab({}, makeCtx());
   assert.equal(bare.querySelectorAll('[data-card]').length, 0);
-  assert.match(bare.querySelector('[data-note="now-empty"]').textContent, /Nothing to show yet/);
+  assert.match(bare.querySelector('[data-note="now-empty"]').textContent, /Nothing here yet/);
   assert.equal(nowTab(fixture().now, makeCtx()).querySelector('[data-note="now-empty"]'), null);
 });
