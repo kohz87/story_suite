@@ -1,12 +1,14 @@
-// The world's ledger of marks made outside the daily step (switch story-director.world-events): `chronicle.ledger`, a slot
-// `[{ anchors, tomb }]` written whole (rpg/slot.js), so replay after a delete never breaks a later reply.
+// The world's ledger of marks made outside the daily step (switch story-director.world-events): `chronicle.ledger`, `{ anchors, tomb, open }`
+// written in place (domain-parts/in-place.js: a reply records what it changed, and replay after a delete passes over a change inside an entry
+// the deleted reply made, so it never breaks a later reply; an older state's slot `[value]` reads the same).
 //   anchors  `set:`/`cleared:` anchors a world line (or the Director) made: `{ "<anchor>": [days] }`. The daily step takes them into
 //            its own anchors (the permanent ledger, seam audit E24) at its next step.
 //   tomb     the conditions cleared today, `{ day, keys }`: a clear at a ref on day T is not undone by a set there on day T (spec §2
 //            Same-day order, "clear beats set"), whoever clears and whoever sets (world line or daily step). Pure.
 
 import { isInt, isRecord } from '../domain-parts/shared-basics.js';
-import { slotValue, toSlot } from '../../../rpg/slot.js';
+import { slotValue } from '../../../rpg/slot.js';
+import { writeInPlace } from '../domain-parts/in-place.js';
 import { recordAnchor } from '../../daily/anchors.js';
 
 const MAX_KEYS = 64;
@@ -14,7 +16,7 @@ const MAX_ANCHORS = 256;
 const MAX_RESULTS = 64;
 const MAX_RESULTS_CHARS = 120000;
 
-/** `{ anchors, tomb: { day, keys } }` from the stored slot (empty when there is none). */
+/** `{ anchors, tomb: { day, keys } }` from the stored ledger (empty when there is none). */
 export function ledgerOf(stored) {
     const value = slotValue(stored);
     const anchors = isRecord(value?.anchors) ? value.anchors : {};
@@ -24,25 +26,25 @@ export function ledgerOf(stored) {
 }
 
 /**
- * Writes the slot whole on the `chronicle` draft: `anchors` recorded on `day`, and `tomb` keys cleared on `day` (a tomb of an
+ * Writes the ledger on the `chronicle` draft: `anchors` recorded on `day`, and `tomb` keys cleared on `day` (a tomb of an
  * earlier day is dropped). `take`: the daily step took the anchors into its own (they are dropped here); `reset`: the tomb starts again.
+ * `ctx`: the command's context, which marks the entries an earlier reply made (in-place.js); `whole`: the daily step's checkpoint, written whole.
  */
-export function markLedger(chronicle, { day, anchors = [], tombKeys = [], take = false, reset = false }) {
+export function markLedger(chronicle, { day, anchors = [], tombKeys = [], take = false, reset = false, whole = false }, ctx = null) {
     const old = ledgerOf(chronicle.ledger);
     const kept = take ? {} : structuredClone(old.anchors);
     for (const key of anchors) recordAnchor(kept, key, day);
     const sameDay = old.tomb && old.tomb.day === day && !reset;
     const keys = [...new Set([...(sameDay ? old.tomb.keys : []), ...tombKeys])].sort().slice(-MAX_KEYS);
     const value = { anchors: kept, ...(keys.length ? { tomb: { day, keys } } : {}), ...(old.open ? { open: old.open } : {}) };
-    if (Object.keys(kept).length || keys.length || old.open) chronicle.ledger = toSlot(value);
-    else if (chronicle.ledger !== undefined) chronicle.ledger = null;
+    writeInPlace(ctx, chronicle, 'ledger', Object.keys(kept).length || keys.length || old.open ? value : null, { whole });
 }
 
 /**
  * Open templates (spec §9): the Director's stored answers by slot key (`{ outcome, answer? }`, the newest 64 kept, and within about 120000 characters: the oldest go first) and the count of model calls made
- * (a retry counts as a call). Written whole into the ledger slot, so a swipe or delete of the reply after it never loses it.
+ * (a retry counts as a call). Written into the ledger (in place, `ctx` marking what an earlier reply made), so a swipe or delete of the reply after it never loses it.
  */
-export function storeOpen(chronicle, { results = {}, calls = 0, year = null }) {
+export function storeOpen(chronicle, { results = {}, calls = 0, year = null }, ctx = null) {
     const old = ledgerOf(chronicle.ledger);
     const merged = { ...(old.open?.results ?? {}), ...results };
     const keys = Object.keys(merged);
@@ -58,14 +60,15 @@ export function storeOpen(chronicle, { results = {}, calls = 0, year = null }) {
     // `yearCalls`: the calls of game year `year` (the Settings counter); a call in a later year starts it again from its own calls.
     const same = isInt(year) && old.open?.year === year;
     const tally = isInt(year) ? { year, yearCalls: (same ? old.open.yearCalls : 0) + calls } : {};
-    chronicle.ledger = toSlot({ anchors: old.anchors, ...(old.tomb ? { tomb: old.tomb } : {}), open: { results: merged, calls: (old.open?.calls ?? 0) + calls, ...tally } });
+    writeInPlace(ctx, chronicle, 'ledger', { anchors: old.anchors, ...(old.tomb ? { tomb: old.tomb } : {}), open: { results: merged, calls: (old.open?.calls ?? 0) + calls, ...tally } });
 }
 
 /** `validateLedger(stored) → string[]`: optional; a slot holding `{ anchors, tomb? }`. */
 export function validateLedger(stored) {
     if (stored === undefined || stored === null) return [];
-    if (!Array.isArray(stored) || stored.length !== 1 || !isRecord(stored[0])) return ['chronicle.ledger must be null or a one-entry list (a slot).'];
-    const { anchors, tomb, open, ...rest } = stored[0];
+    const value = Array.isArray(stored) && stored.length === 1 ? stored[0] : stored;
+    if (!isRecord(value)) return ['chronicle.ledger must be null, the ledger, or a one-entry list of it.'];
+    const { anchors, tomb, open, ...rest } = value;
     const errors = [];
     if (!isRecord(anchors) || Object.keys(anchors).length > MAX_ANCHORS || Object.values(anchors).some(days => !Array.isArray(days) || !days.length || days.length > 8 || !days.every(isInt))) {
         errors.push(`chronicle.ledger.anchors must be at most ${MAX_ANCHORS} anchors, each a list of 1 to 8 days.`);

@@ -6,7 +6,8 @@
 // from the recorded replies. An unmet person's death is mirrored into the cast store (never a dossier).
 
 import { revOf } from '../domain-parts/lookup.js';
-import { slotValue, toSlot } from '../../../rpg/slot.js';
+import { slotValue } from '../../../rpg/slot.js';
+import { writeInPlace } from '../domain-parts/in-place.js';
 import { worldEventsOn } from '../capture/world-parts/switch.js';
 import { WORLD_EVENTS_FEATURE } from '../conditions/feature.js';
 import { settleCues } from '../../daily/cues.js';
@@ -35,7 +36,7 @@ function cue(ctx) {
     const names = new Map((Array.isArray(world.cast) ? world.cast : []).filter(entry => typeof entry?.id === 'string').map(entry => [entry.id, entry.name ?? entry.id]));
     const out = state ? settleCues(state, { dead: deadIds(people), rev: revOf(ctx), names }) : null;
     if (!out) return { summary: '', narrate: false, data: { applied: [] } };
-    chronicle.daily = toSlot(out.daily);
+    writeInPlace(ctx, chronicle, 'daily', out.daily);
     let cast = null;
     try { cast = ctx.draft('cast'); } catch { cast = null; }
     if (cast && out.applied.length) {

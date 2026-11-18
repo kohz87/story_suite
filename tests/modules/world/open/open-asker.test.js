@@ -61,11 +61,10 @@ test('final review L6 (seam F1): beforeGenerate hands the drain the keys the loo
     try {
         await begin(host);
         await settle();
-        await step(host, 'Hours pass.', '! time +1h');
         const key = dailyOf(host).pending[0].key;
+        await step(host, 'Hours pass.', '! time +1h');
         assert.ok(wanted.length >= 1);
         for (const keys of wanted) assert.deepEqual(keys instanceof Set ? [...keys] : keys, [key], 'the drain gets the wanted set: the waiting slot only');
-        await step(host, 'More hours.', '! time +1h');
-        assert.deepEqual(Object.keys(ledgerOpen(host).results), [key], 'stored before the next reply');
+        assert.deepEqual(Object.keys(ledgerOpen(host).results), [key], 'stored before the next reply (asked ahead after the first one, perf PB9)');
     } finally { openAsker.drain = real; host.done(); }
 });

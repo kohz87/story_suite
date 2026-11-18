@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 
 import { overrideWorld } from '../../../../modules/world/chronicle/world-daily/read-world.js';
 import { OPENING, castHost, castSource, createFakeModel, entry, said, validatorErrors, withRoads } from '../../cast/cast/helpers.js';
+import { slotValue } from '../../../../modules/rpg/slot.js';
 
 const FEATURE = 'story-director.world-events';
 const LOTHAR = entry('lothar', { start: { place: 'Kesh', goal: 'keep the march quiet', routine: 'drills the guard at dawn' } });
@@ -42,7 +43,7 @@ test('replay == live for the cast mirror and a deferred move: swipe and back, ed
         const crossing = host.ctx.chat.length - 1;
         const cast = host.head().domains.cast.people;
         assert.equal(cast['ersveil:lothar'].base[0].by, 'event:summons', 'Lothar moved');
-        assert.equal(host.head().domains.chronicle.daily[0].cast.temiwa.deferred.to, 'Gwenmar', 'Temiwa with You: deferred');
+        assert.equal(slotValue(host.head().domains.chronicle.daily).cast.temiwa.deferred.to, 'Gwenmar', 'Temiwa with You: deferred');
         const before = worldOf(host);
         await agrees(host, 'live');
         await host.swipe(said('Morning, grey. Temiwa is here.', ['~ time June 4, 1200, 08:00 am', '+ present Temiwa']));

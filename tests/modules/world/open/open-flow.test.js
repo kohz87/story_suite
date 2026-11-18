@@ -15,11 +15,10 @@ test('a slot rolled on the first day waits for its answer; the next reply stores
     assert.equal(dailyOf(host).pending.length, 1, 'rolled, nothing stored: the slot waits (the reply was not held up)');
     assert.equal(slotRows(host)[0].outcome, 'waiting');
     assert.equal(chronicle(host).conditions?.['unrest@Highmark'], undefined, 'nothing applied yet');
+    assert.equal(host.model.calls, 1, 'asked ahead right after the first reply, from the state its step left (perf PB9: afterReceive)');
     await step(host, 'Hours pass.', '! time +1h');
-    assert.equal(host.model.calls, 1, 'asked ahead before the second reply (the first reply had no step yet to read)');
-    assert.equal(dailyOf(host).pending.length, 1, 'the answer is stored in the message before the next reply');
-    await step(host, 'More hours.', '! time +1h');
-    assert.equal(dailyOf(host).pending, undefined, 'settled on the reply after');
+    assert.ok(Object.keys(ledgerOpen(host).results).length === 1, 'the answer is stored in the message before the next reply');
+    assert.equal(dailyOf(host).pending, undefined, 'and settled on that reply');
     const [row] = slotRows(host);
     assert.deepEqual([row.outcome, row.name, row.people], ['ok', 'Border scuffle', ['warden']]);
     assert.ok(chronicle(host).conditions['unrest@Highmark'], 'the menu-picked condition is set');
