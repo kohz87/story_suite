@@ -65,6 +65,7 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 - **Portrait settings can be edited.** People › Portraits: Prompt and Leave out are boxes of several lines, Composition a line, Style preset a list of the built-in styles and your saved presets, Prompt format a list, and the mood, place and gallery rows switches, all showing what portraits use now and saved as the old portrait panel saved them (editing Prompt or Leave out moves the style to your custom preset). Saved portrait presets has Save as a new preset and Delete this preset.
 
 ### Removed
+- **NPC State: the Short one-pass instruction switch** (Settings › People) and the JSON-block path that served a chat without Story Block. The suite asks the narrator for change lines only; a saved choice is dropped. Without Story Block nothing is asked of the narrator and replies are scanned in the ordinary way.
 
 - The fixed "The four feelings" row on Settings › People (nothing could be set there); the README's NPC State section explains the four feelings.
 
@@ -105,7 +106,6 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 
 ### Removed
 
-- **NPC State: the Short one-pass instruction switch** (Settings › People) and the JSON-block path that served a chat without Story Block. The suite asks the narrator for change lines only; a saved choice is dropped. Without Story Block nothing is asked of the narrator and replies are scanned in the ordinary way.
 - The unused Fight tab composer (`ui/tabs/fight/fight.js`).
 
 <details><summary>Full notes</summary>
