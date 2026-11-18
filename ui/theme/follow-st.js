@@ -77,6 +77,19 @@ function defaultReader(doc) {
   };
 }
 
+const ON_ACCENT = ['#14102a', '#ffffff'];
+const contrast = (a, b) => { const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); };
+
+// The text colour for an accent fill: dark ink or white, whichever reads better on the accent as drawn (a see-through accent over the panel).
+function onAccent(accent, under, fallback) {
+  const fill = parseColor(accent);
+  if (!fill) return fallback;
+  const back = parseColor(under) ?? { r: 0, g: 0, b: 0, a: 1 };
+  const mix = k => fill[k] * fill.a + back[k] * (1 - fill.a);
+  const shown = { r: mix('r'), g: mix('g'), b: mix('b') };
+  return ON_ACCENT.map(hex => [hex, contrast(shown, parseColor(hex))]).sort((x, y) => y[1] - x[1])[0][0];
+}
+
 /**
  * Maps SillyTavern's CSS theme variables onto the `--su-*` token set.
  */
@@ -118,6 +131,7 @@ export function followSt(input) {
     '--su-tileline': quote || base['--su-tileline'],
     '--su-glyph': body || base['--su-glyph'],
     '--su-accent': quote || base['--su-accent'],
+    '--su-on-accent': quote ? onAccent(quote, tint && parseColor(tint)?.a >= 0.35 ? tint : base['--su-panel2'], base['--su-on-accent']) : base['--su-on-accent'],
     '--su-shadow': shadow ? `0 10px 30px ${shadow}` : base['--su-shadow'],
     '--su-font': font || base['--su-font'],
   });

@@ -11,6 +11,7 @@ export async function realSettings({ worldEvents = false } = {}) {
   console.warn = () => {};
   const host = await createHost({ core: true, modules: BUILTIN_MODULES });
   console.warn = warn;
+  host.features.set('story-block.rpg', true); // the RPG and fights page is listed only while the RPG is on: the dump has every page
   if (worldEvents) host.features.set('story-director.world-events', true);
   try { return structuredClone(buildSelectors(() => null, host.sdk).settings()); } finally { host.close(); }
 }

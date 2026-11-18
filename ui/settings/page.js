@@ -26,7 +26,7 @@ export function createPages(settings, ctx) {
   const toolsBody = createToolsPage(settings, ctx, { on: () => developer, own: { onChange: (key, value) => { developer = Boolean(value); ctx.onChange?.(key, value); }, repaint: redraw } });
 
   const cardState = () => ({
-    modules, chat, defs: modules.defs, set: modules[modules.scope], scope: modules.scope, openMods, go: ctx.go,
+    modules, chat, defs: modules.defs, set: modules[modules.scope], scope: modules.scope, openMods, go: ctx.go, has: ctx.has,
     change(id, key, value) {
       const m = modules[modules.scope][id];
       if (key === null) m.on = value; else { m.subs[key] = value; modules.preset = null; }
