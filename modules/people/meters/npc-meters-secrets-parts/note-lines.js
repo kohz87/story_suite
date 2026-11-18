@@ -4,7 +4,7 @@ import { normalizeSecrets, secretId } from './notes.js';
 
 /** The notes as editor lines: `trust 40: [Her past] She is the duke's daughter.`; an event note: `when the duke falls => text`. */
 export function secretsToLines(list) {
-    return normalizeSecrets(list).map(secret => {
+    return normalizeSecrets(list).filter(secret => !secret.gate).map(secret => {
         const body = `${secret.title ? `[${secret.title}] ` : ''}${secret.text}`;
         if (secret.meter === undefined) return `when ${secret.when} => ${body}`;
         return secret.when ? `${secret.meter} ${secret.at} or when ${secret.when} => ${body}` : `${secret.meter} ${secret.at}: ${body}`;

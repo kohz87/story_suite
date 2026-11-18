@@ -8,10 +8,19 @@ import { SUMMARY_POINTS } from './shared-limits.js';
 import { heardStamps } from './heard.js';
 import { memberFinder, placeIdOf, placeIds } from './links.js';
 import { queryOf, tryQuery } from './query.js';
+import { worldEventsOn } from '../news-switch.js';
 import { threadsOf, planned } from './shared-threads.js';
 import { isRecord, isInt, text, cut } from './shared-text.js';
 
 const DAY = 1440;
+
+// When and how a world happening's news came to the scene's place: `{ where, when, from }` (from: a courier, travellers, or rumour).
+function arrivalStamp(news, here, calendar) {
+    const at = news.news === 'ended' && isInt(news.endsAt) ? news.endsAt : news.arrivesAt;
+    if (!isInt(at)) return null;
+    const from = news.tag === 'rumour' ? 'rumour' : news.via === 'route' ? 'a courier' : 'travellers';
+    return { where: here ? `in ${cut(here, 80)}` : '', when: calendar ? dateText(calendar, at, { time: false }) : '', from };
+}
 
 /**
  * The known news, newest first: the chronicle's events and the Director's event threads, each
@@ -26,7 +35,15 @@ export function knownNews(state, tools, { hidden = hiddenNames(state), calendar 
     let stamps = null;
     const stampsOf = id => (stamps ??= heardStamps(tools, calendar)).get(id) ?? [];
     const events = tryQuery(query, 'chronicle.events', {}, null);
-    for (const event of Array.isArray(events) ? events : []) {
+    // With the world-events switch on, only the entries whose news has reached the scene's place (world.heardHere, news.js); a world
+    // happening's card shows the place and state as heard here and, last, when its news came (seam audit E36).
+    const heardList = worldEventsOn(tools) ? tryQuery(query, 'world.heardHere', {}, null) : null;
+    const reached = Array.isArray(heardList) ? new Map(heardList.map(item => [item?.id, item])) : null;
+    const here = reached ? text(tryQuery(query, 'scene.place', {}, null)?.name) : '';
+    for (const raw of Array.isArray(events) ? events : []) {
+        if (reached && !reached.has(raw?.id)) continue;
+        const news = reached && typeof raw?.by === 'string' ? reached.get(raw.id) : null;
+        const event = news ? { ...raw, place: news.place, state: news.state ?? raw.state } : raw;
         // A pulse rumour is unknown to {{user}} until the story's own world line named it (`heard`).
         if (!isRecord(event) || hidden.words.has(lineKey(text(event.name))) || (event.rumour !== undefined && event.heard !== true)) continue;
         out.push({
@@ -34,7 +51,7 @@ export function knownNews(state, tools, { hidden = hiddenNames(state), calendar 
             state: text(event.state), open: event.open === true, when: text(event.updatedText), ago: text(event.updatedAgo),
             place: cut(event.place, 80), factions: cut(event.factionsText, 160),
             placeId: placeIdOf(ids, event.place), factionIds: (Array.isArray(event.factions) ? event.factions : []).map(entry => text(entry?.id)).filter(Boolean),
-            heard: stampsOf(text(event.id)),
+            heard: news ? [...stampsOf(text(event.id)), arrivalStamp(news, here, calendar)].filter(Boolean) : stampsOf(text(event.id)),
             at: isInt(event.updated) ? event.updated : null, rev: isInt(event.rev) ? event.rev : 0,
         });
     }

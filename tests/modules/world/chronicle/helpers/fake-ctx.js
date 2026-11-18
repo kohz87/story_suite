@@ -69,8 +69,10 @@ export class Rejected extends Error {
  * atlas's `atlas.routes` / `atlas.place` from `atlas` `{ routes: { place: [names] }, regions: { place: region } }`
  * when given (else those are missing, as without the atlas part).
  */
-export function queryFor({ atlas = null } = {}) {
+export function queryFor({ atlas = null, packs = null } = {}) {
     const run = (state, name, args = {}) => {
+        if (name === 'packs.content' && packs) return packs[args.kind] ?? [];
+        if (name === 'packs.list' && packs) return packs.list ?? [];
         if (name === 'director.time') return { minutes: state.domains.director?.time?.minutes ?? null, text: '' };
         if (name === 'scene.place') return { ...state.domains.scene.place };
         if (name === 'atlas.routes' || name === 'atlas.place') {
@@ -95,12 +97,12 @@ export function query(state, name, args, options = {}) {
  * `{ ok: false, code, message, state }` with the state untouched. `time`: what `ctx.time()`
  * answers (a function of the state; default: none, so the clock is read through `director.time`).
  */
-export function runCommand(state, handler, payload, { seed = 7, cause = 'story', atlas = null, time = undefined, owned = ['chronicle'], caller = null, carrier = undefined } = {}) {
+export function runCommand(state, handler, payload, { seed = 7, cause = 'story', atlas = null, time = undefined, owned = ['chronicle'], caller = null, carrier = undefined, packs = null, features = null, call = null, answers = null } = {}) {
     const rev = state.meta.rev + 1;
     const drafts = {};
     const random = sfc32(seed);
     const current = () => ({ ...state, domains: { ...state.domains, ...drafts } });
-    const ask = queryFor({ atlas });
+    const ask = queryFor({ atlas, packs });
     const ctx = {
         rev,
         cause,
@@ -113,11 +115,14 @@ export function runCommand(state, handler, payload, { seed = 7, cause = 'story',
             drafts[domain] ??= structuredClone(state.domains[domain]);
             return drafts[domain];
         },
-        call: type => { throw new Rejected('UNKNOWN_COMMAND', `No command ${type} in this test.`); },
+        // `features`: a list of the ids that are on (world line tests) or { id: true } (conditions tests).
+        ...(features ? { feature: id => (Array.isArray(features) ? features.includes(id) : features[id] === true) } : {}),
+        // `call(type, payload, ctx)`: the test's sub-command, on this same command's drafts (as the host's ctx.call).
+        call: call ? (type, payload) => call(type, payload, ctx) : (type => { throw new Rejected('UNKNOWN_COMMAND', `No command ${type} in this test.`); }),
         claim: () => true,
         rng: random,
         fail: (code, message) => { throw new Rejected(code, message); },
-        query: (name, args) => deepFreeze(ask(current(), name, args)),
+        query: (name, args) => (answers && Object.hasOwn(answers, name) ? deepFreeze(structuredClone(answers[name])) : deepFreeze(ask(current(), name, args))),
     };
     if (time !== undefined) ctx.time = () => time(current());
     let result;

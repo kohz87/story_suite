@@ -14,6 +14,8 @@ import { RELATIONSHIP_KEYS, dossierFields, portraitUrl } from './queries-dossier
 import { storyMinuteText } from '../legacy/calendar.js';
 import { createDirectorQueriesPart } from './queries-director.js';
 
+const WORLD_EVENTS_FEATURE = 'story-director.world-events';
+
 export { dossierFields, safeImageUrl, portraitUrl } from './queries-dossier.js';
 
 export function createQueriesPart(session, deps) {
@@ -75,6 +77,8 @@ export function createQueriesPart(session, deps) {
         } catch { /* the default */ }
         return undefined;
     };
+    // Whether the world-events switch is on (a pack's spec secrets are then seeded, gated and withheld from the narrator until their gate opens).
+    const worldSecretsOn = () => hostFeature(WORLD_EVENTS_FEATURE) === true;
     // The presets the reader may use: the built-in ones and the enabled packs' `meterPresets`.
     const catalog = () => {
         let records = [];
@@ -94,6 +98,16 @@ export function createQueriesPart(session, deps) {
     // The same for the stage logic: a person made from the cast also brings their own stages (castFrom.stages), which the
     // editor's setup never holds (so saving the editor cannot lose them).
     const stageSetupOf = npc => ({ ...setupOf(npc), ladder: Array.isArray(npc?.castFrom?.stages) ? npc.castFrom.stages : [] });
+
+    // What a pack secret's gate is read against besides the person's record: their pack stages, the anchors the world has recorded, the scene's place.
+    const gateInputs = name => {
+        const npc = dossierOf(name);
+        let anchors = [];
+        let place = '';
+        try { const list = session.sdkRef?.query?.('chronicle.world.anchors', {}); anchors = Array.isArray(list) ? list : []; } catch { anchors = []; }
+        try { const here = session.sdkRef?.query?.('scene.place', {}); place = typeof here === 'string' ? here : here?.name ?? ''; } catch { place = ''; }
+        return { stages: Array.isArray(npc?.castFrom?.stages) ? npc.castFrom.stages : [], anchors, place };
+    };
 
     const part = createNpcPart({
         resolve: name => {
@@ -123,14 +137,18 @@ export function createQueriesPart(session, deps) {
         },
         // Only the rules (and the titles screens show while locked) leave the dossier for the
         // handlers and screens; the texts go to the tail and to an unlocked note's screen line alone.
+        // A pack's gated secrets (`gate`, no meter or event) are only read with the world-events switch on; with it off they are not there.
         secretRules: (name, labels = []) => {
             const npc = dossierOf(name) ?? labels.map(dossierOf).find(Boolean);
-            return normalizeSecrets(npc?.secrets).map(({ id, meter, at, when, title }) => ({ id, ...(meter ? { meter, at } : {}), ...(when ? { when } : {}), ...(title ? { title } : {}) }));
+            const gatedOn = worldSecretsOn();
+            return normalizeSecrets(npc?.secrets).filter(note => gatedOn || !note.gate).map(({ id, meter, at, when, title, gate }) => ({ id, ...(meter ? { meter, at } : {}), ...(when ? { when } : {}), ...(gate ? { gate } : {}), ...(title ? { title } : {}) }));
         },
         secretTexts: (name, ids = []) => {
             const npc = dossierOf(name);
-            return normalizeSecrets(npc?.secrets).filter(secret => ids.includes(secret.id)).map(({ id, text }) => ({ id, text }));
+            const gatedOn = worldSecretsOn();
+            return normalizeSecrets(npc?.secrets).filter(secret => ids.includes(secret.id) && (gatedOn || !secret.gate)).map(({ id, text }) => ({ id, text }));
         },
+        gateInputs,
         setup: (name, labels = []) => stageSetupOf(dossierOf(name) ?? labels.map(dossierOf).find(Boolean)),
         presets: catalog,
         feature: hostFeature,
@@ -409,6 +427,6 @@ export function createQueriesPart(session, deps) {
 
     return {
         warn, storyDateText, storyDayNumber, runtime, enabled, panel, npcList, presentList, dossierOf, storedSettings, catalog, setupOf, part, sliceEntries,
-        entryFor, queries, ...director, send, sliceView,
+        entryFor, queries, ...director, send, sliceView, worldSecretsOn, gateInputs,
     };
 }

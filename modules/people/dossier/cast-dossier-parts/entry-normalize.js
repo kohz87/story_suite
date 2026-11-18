@@ -4,6 +4,7 @@ import { NAME_MAX } from './limits-cast.js';
 import { ALIASES_MAX, TEXT_MAX, WITH_YOU_MAX } from './limits-text.js';
 import { FIELDS_MAX, FIELD_NAME_MAX, FIELD_VALUE_MAX, STAGES_MAX } from './limits-fields.js';
 import { castBehaviour, castMannerisms, castSecrets, castTastes } from './entry-lists.js';
+import { castGatedSecrets } from './entry-gated.js';
 import { clip, isObject, labelKey, wholeNumber } from './shared-text.js';
 
 // ---- the pack entry, cleaned ----
@@ -81,6 +82,7 @@ export function normalizeEntry(raw) {
         stages: normalizeStages(raw.stages),
         fields: normalizeFields(raw.fields),
         secrets: castSecrets(raw.secrets),
+        ...(castGatedSecrets(raw.secrets).length ? { gated: castGatedSecrets(raw.secrets) } : {}),
         tastes: castTastes(raw.tastes),
         drives: isObject(raw.drives) || Array.isArray(raw.drives) ? raw.drives : undefined,
         packVersion: clip(raw.packVersion, 40),

@@ -25,20 +25,23 @@ const ROWS = [
   ['world.daysWhole', 'Time', 'Days kept whole', { hint: 'Older days keep a short record', unit: 'days', feature: WORLD_IDS.digest }],
   ['world.daysAll', 'Time', 'Days kept in all', { hint: 'Older ones are dropped', unit: 'days', feature: WORLD_IDS.digest }],
   ['world.remindTheStoryOfTheLastD', 'Time', 'Remind the story of the last day after a time skip', { feature: WORLD_IDS.digest }],
+  ['world.worldEvents', 'Time', 'World events', { hint: 'The world keeps its own news, conditions and events while the story goes on. Off: the story runs as before' }],
+  ['world.tempo', 'Time', 'Tempo', { hint: 'How fast the world moves: 2 = seasons last twice as long', feature: WORLD_IDS.events }],
+  ['world.directorCalls', 'Time', 'Director calls this game year', { type: 'info', hint: 'Read only. How many times the Director was asked to write something for the world', feature: WORLD_IDS.events }],
 ];
-const TYPES = { choice: 'seg', weather: 'seg', text: 'txt', months: 'txt', bool: 'sw', int: 'num', scale: 'num' };
+const TYPES = { choice: 'seg', weather: 'seg', text: 'txt', months: 'txt', bool: 'sw', feature: 'sw', int: 'num', scale: 'num' };
 
 /** Returns the World and time rows: `values` is `sdk.settings('story-director')`, `features` the feature list (the weather and digest switches). */
-export function worldRows(values, features = []) {
+export function worldRows(values, features = [], calls = 0) {
   const on = id => features.find(f => f.id === id)?.on === true;
   const v = values && typeof values === 'object' ? values : {};
   const rows = [];
   for (const [key, group, label, extra] of ROWS) {
     if (extra.feature && !on(extra.feature)) continue;
-    const def = WORLD_KEYS[key];
+    const def = WORLD_KEYS[key] ?? {};
     const info = extra.type === 'info';
     const type = info ? 'info' : TYPES[def.kind];
-    const value = info ? 'always on' : fromStored(key, def.kind === 'weather' ? on(WORLD_IDS.weather) : v[def.key]);
+    const value = key === 'world.directorCalls' ? String(Number.isInteger(calls) && calls > 0 ? calls : 0) : info ? 'always on' : fromStored(key, def.kind === 'weather' ? on(WORLD_IDS.weather) : def.kind === 'feature' ? on(def.feature) : v[def.key]);
     const base = { key, group, type, label, hint: extra.hint ?? null, value, default: null, options: null, unit: extra.unit ?? null, tags: extra.tags ?? [], wide: extra.wide === true };
     rows.push(def?.labels ? { ...base, options: def.labels } : base);
   }

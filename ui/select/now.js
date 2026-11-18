@@ -3,14 +3,14 @@
 import { selectDrawer, replyLines } from './chat.js';
 import { selectCard } from './card.js';
 
-// answers: { [queryName]: answer } as the port read them. opts: as selectDrawer, plus `fight` (a `fight.board` answer, not a query yet),
+// answers: { [queryName]: answer } as the port read them. opts: as selectDrawer, plus `fight` (the open fight's needs, from the interaction view),
 // `torn` (`gear.view` answer) and `pinned` ([{ id, name, view }]: each pinned block's `dataModules.view` answer, SB/data-modules/part/views.js:51).
 
 const isRec = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.trim() : '');
 const list = value => (Array.isArray(value) ? value : []);
 
-// `time.overdue` (SD/time/index.js:183): { overdue, pay, due } lists of { id, key, kind, due }. An open fight has no query (UI-PLAN §2.1); points to spend come from `rpg.sheet` (SB/lean-rpg/sheet-query.js: per member `points`).
+// `time.overdue` (SD/time/index.js:183): { overdue, pay, due } lists of { id, key, kind, due }. An open fight comes in `opts.fight` (the interaction view); points to spend come from `rpg.sheet` (SB/lean-rpg/sheet-query.js: per member `points`).
 function needsYou(answers, opts) {
   const out = [];
   if (isRec(opts.fight) && opts.fight.state && opts.fight.state !== 'end') out.push({ kind: 'fight', title: opts.fight.offer ? 'Foes are standing' : 'A fight is open', detail: opts.fight.offer ? list(opts.fight.names).join(', ') || null : null, go: 'fight' });
@@ -37,7 +37,7 @@ function tripOf(trip) {
 }
 
 // `director.goal` (SD/screens/queries.js:72): { goal, step, ... }; `director.next` (:131): { summary, key, when, reached }. The focus is the newest quest
-// until the reader's own pick exists (a per-chat pref: a gap).
+// until the reader's own pick (a per-chat pref; `opts.focusPick`, select/focus.js) names an open quest.
 function focusOf(goal) {
   return isRec(goal) && text(goal.goal) ? { title: text(goal.goal), detail: text(goal.step) || null } : null;
 }
@@ -89,7 +89,7 @@ export function selectNow(answers = {}, opts = {}) {
     needsYou: needsYou(answers, opts),
     // The card's pack offers (select/offers.js rows), told next to the actions; [] when the card offers none.
     offers: list(opts.offers),
-    today: { where: whereOf(answers, opts), focus: focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
+    today: { where: whereOf(answers, opts), focus: opts.focusPick ?? focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
     // The scene line (doing, wearing) and the situational secrets are gaps (UI-PLAN §2.2).
     here: selectDrawer(answers, opts).map(row => ({ ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: null, wearing: null, scene: null })),
     thisTurn: thisTurn(answers),

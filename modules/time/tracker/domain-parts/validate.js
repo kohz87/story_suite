@@ -18,6 +18,9 @@ export function validateDirector(slice) {
     const errors = [];
     const minutes = slice.time?.minutes;
     if (!isRecord(slice.time) || !(minutes === null || isInt(minutes))) errors.push('director.time.minutes must be null or whole minutes.');
+    // `soft` (world events' clock fallback, advance-parts/command.js): a slot `[{ at, minutes }]`, absent otherwise.
+    const soft = slice.time?.soft;
+    if (soft !== undefined && !(Array.isArray(soft) && soft.length === 1 && isInt(soft[0]?.at) && isInt(soft[0]?.minutes) && soft[0].minutes > 0 && (soft[0].sid === undefined || (typeof soft[0].sid === 'string' && isInt(soft[0].own))))) errors.push('director.time.soft must be [{ at, minutes }].');
     if (!isRecord(slice.threads)) errors.push('director.threads is not an object.');
     else for (const [id, thread] of Object.entries(slice.threads)) errors.push(...threadErrors(id, thread));
     if (!isRecord(slice.keys)) errors.push('director.keys is not an object.');

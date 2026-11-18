@@ -11,12 +11,15 @@ function dangerOf(tier) {
   return tier <= 5 ? 'risky' : 'dangerous';
 }
 
+const regionName = (region, names) => (names && typeof names === 'object' && typeof names[key(region)] === 'string' ? names[key(region)] : text(region));
+
 // atlas.view places (SD/atlas/map.js:113-122); a place without coordinates cannot be drawn and is left out.
-function placesOf(view, tiers) {
+// `names`: chronicle.regionNames (the pack's `content.regions`, with or without World events): the region's name by its id, name or alias; the id itself when the pack names none.
+function placesOf(view, tiers, names) {
   return list(view?.places)
     .filter(p => Number.isFinite(p?.x) && Number.isFinite(p?.y) && text(p.id))
     .map(p => ({
-      id: p.id, name: text(p.name), kind: text(p.kind), region: text(p.region) || null,
+      id: p.id, name: text(p.name), kind: text(p.kind), region: regionName(p.region, names) || null,
       x: p.x, y: p.y, visited: p.visited === true, here: p.here === true, danger: dangerOf(tiers?.[p.id]),
     }));
 }
@@ -65,21 +68,27 @@ const membersOf = raw => list(raw).filter(m => text(m?.name)).map(m => ({ person
 
 // director.world factions (SD/world/known-parts/news.js): areaPlaceIds and members come from the answer; an older answer
 // without areaPlaceIds falls back to the area's name matching a place or region.
-function factionsOf(world, places) {
+// `ids`: a place's region id as the atlas has it (its `region` is the name now); an area text is matched against the name and the id.
+function factionsOf(world, places, ids) {
   return list(world?.factions).filter(f => text(f?.id)).map(f => {
     const area = key(f.area);
-    const named = area ? places.filter(p => key(p.name) === area || key(p.region) === area).map(p => p.id) : [];
+    const named = area ? places.filter(p => key(p.name) === area || key(p.region) === area || key(ids.get(p.id)) === area).map(p => p.id) : [];
     const given = list(f.areaPlaceIds).filter(id => places.some(p => p.id === id));
     return { id: f.id, name: text(f.name), stance: stanceOf(f.stance), summary: text(f.summary), areaPlaceIds: given.length ? given : named, members: membersOf(f.members) };
   });
 }
 
 // The heard stamps a news item lists (where the party was, when, who told them or null); an empty one is dropped.
-const heardOf = raw => list(raw).map(h => ({ where: text(h?.where), when: text(h?.when), from: text(h?.from) || null })).filter(h => h.where || h.when);
+// With World events on, a stamp the world's own courier wrote (from rumour, a courier or travellers) also says how the news came: rumour or confirmed.
+const ARRIVALS = ['rumour', 'a courier', 'travellers'];
+const heardOf = (raw, worldEvents) => list(raw).map(h => ({
+  where: text(h?.where), when: text(h?.when), from: text(h?.from) || null,
+  ...(worldEvents && ARRIVALS.includes(text(h?.from)) ? { how: h.from === 'rumour' ? 'rumour' : 'confirmed' } : {}),
+})).filter(h => h.where || h.when);
 
 // director.world news (known-parts/news.js): '' state is an open event thread (ongoing); place and faction ids and the heard stamp come
 // from the answer (an older answer falls back to name matching).
-function newsOf(world, places, factions) {
+function newsOf(world, places, factions, worldEvents) {
   return list(world?.news).filter(n => text(n?.id)).map(n => {
     const place = places.find(p => p.id === n.placeId) ?? places.find(p => key(p.name) === key(n.place));
     const factionText = key(n.factions);
@@ -87,21 +96,31 @@ function newsOf(world, places, factions) {
     const state = ['looming', 'ongoing', 'resolved'].includes(n.state) ? n.state : n.open === false ? 'resolved' : 'ongoing';
     return {
       id: n.id, title: text(n.name), state, summary: text(n.summary),
-      placeId: place?.id ?? null, factionId: faction?.id ?? null, heard: heardOf(n.heard),
+      placeId: place?.id ?? null, factionId: faction?.id ?? null, heard: heardOf(n.heard, worldEvents),
     };
   });
 }
 
-/** selectWorld({ atlasView, tiers, selected, worldView }) → the world view-model; a missing answer leaves that part empty or null. */
-export function selectWorld({ atlasView = null, tiers = null, selected = null, worldView = null } = {}) {
-  const places = withQuests(placesOf(atlasView, tiers), worldView);
+// chronicle.conditionsHere (world events on): the conditions in scope at the party's place, narrowest first; null when the answer is missing.
+function conditionsOf(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const rows = list(raw.conditions).filter(c => text(c?.name)).map(c => ({
+    key: text(c.key), name: text(c.name), ref: text(c.ref), since: text(c.sinceText), why: text(c.why), means: text(c.means), told: text(c.told),
+  }));
+  return { place: text(raw.place), rows };
+}
+
+/** selectWorld({ atlasView, tiers, selected, worldView, worldEvents, conditionsHere, regionNames }) → the world view-model; a missing answer leaves that part empty or null; `conditions` only with `worldEvents` on. */
+export function selectWorld({ atlasView = null, tiers = null, selected = null, worldView = null, worldEvents = false, conditionsHere = null, regionNames = null } = {}) {
+  const places = withQuests(placesOf(atlasView, tiers, regionNames), worldView);
   const ids = new Set(places.map(p => p.id));
-  const factions = factionsOf(worldView, places);
+  const factions = factionsOf(worldView, places, new Map(list(atlasView?.places).map(p => [p?.id, text(p?.region)])));
   return {
     places,
     routes: routesOf(atlasView, ids),
     trip: tripOf(selected),
-    news: newsOf(worldView, places, factions),
+    news: newsOf(worldView, places, factions, worldEvents === true),
     factions,
+    ...(worldEvents === true ? { conditions: conditionsOf(conditionsHere) } : {}),
   };
 }

@@ -11,4 +11,4 @@
 // Public face: re-exports its parts.
 
 export { THREADS_FEATURE, threadsOn, THREADS_TAG } from './threads-parts/feature.js';
-export { THREAD_KINDS_OWNED, ownedKind, withoutOwnedThreads } from './threads-parts/kinds.js';
+export { THREAD_KINDS_OWNED, WORLD_EVENT_KIND, ownedKind, withoutOwnedThreads } from './threads-parts/kinds.js';

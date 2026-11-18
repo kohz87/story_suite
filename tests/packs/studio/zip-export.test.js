@@ -78,8 +78,15 @@ test('the picks the game refuses are refused in words', async () => {
     assert.match((await openPicked([fileOf('a.zip', ZIP), fileOf('pack.json', WORLD)])).message, /alone/);
     assert.match((await openPicked([fileOf('a.json', WORLD), fileOf('b.json', WORLD)])).message, /one pack\.json/);
     assert.match((await openPicked([fileOf('x.png', new Uint8Array(4))])).message, /Pick a pack/);
-    const stray = writeStoredZip([{ name: 'pack.json', bytes: WORLD }, { name: 'notes.txt', bytes: new Uint8Array(3) }]);
+    // As the game's import reads a zip: a stray file is refused whole; notes at the top level (.md, .txt) are left out, not refused.
+    const stray = writeStoredZip([{ name: 'pack.json', bytes: WORLD }, { name: 'notes.bin', bytes: new Uint8Array(3) }]);
     const refused = await openPicked([fileOf('w.zip', stray)]);
     assert.equal(refused.ok, false);
-    assert.match(refused.message, /notes\.txt/);
+    assert.match(refused.message, /notes\.bin/);
+    const nested = writeStoredZip([{ name: 'pack.json', bytes: WORLD }, { name: 'docs/notes.txt', bytes: new Uint8Array(3) }]);
+    assert.match((await openPicked([fileOf('n.zip', nested)])).message, /docs\/notes\.txt/);
+    const notes = writeStoredZip([{ name: 'pack.json', bytes: WORLD }, { name: 'notes.txt', bytes: new Uint8Array(3) }, { name: 'README.md', bytes: new Uint8Array(3) }]);
+    const kept = await openPicked([fileOf('k.zip', notes)]);
+    assert.equal(kept.ok, true);
+    assert.deepEqual(kept.portraits, []);
 });

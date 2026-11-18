@@ -18,6 +18,7 @@ import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
 import { repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
+import { pickOf, pickedFocus } from './focus.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 import { createWizardWorld } from '../wizard/world.js';
 
@@ -44,7 +45,9 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     const answers = gather(read);
     const opts = { ...optsOf(read, answers, ctx), offers: offerRows(liveOffer()) };
     const fight = fightOf(read); // the open or waiting fight, if one is: the inline chip and the Now card read it
-    return { answers, opts: fight ? { ...opts, fightOpen: true, fight: needsOf(fight) } : opts };
+    const picked = pickedFocus(read, pickOf(ctx)); // the Journal's focus pick, while that quest is open
+    const base = picked ? { ...opts, focusPick: picked } : opts;
+    return { answers, opts: fight ? { ...base, fightOpen: true, fight: needsOf(fight) } : base };
   };
   return {
     card: read => { const s = scene(read); return selectCard(s.answers, s.opts); },
@@ -68,13 +71,16 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const view = read('gear.view', pc?.id ? { id: pc.id } : {});
       return selectBag({
         rpg: Array.isArray(actors) && actors.length > 0, items: read('inventory.items', {}), counts: read('inventory.counts', {}), gear: pc?.id ? view : null, carriers: view?.carriers,
-        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), pcId: pc?.id ?? null,
+        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), changes: read('reply.changes', {}), pcId: pc?.id ?? null,
       });
     },
     people: read => selectPeople(peopleParts(read)),
     dossier: read => dossierMap(read),
-    world: read => selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null }),
-    journal: read => selectJournal(read),
+    world: read => {
+      const worldEvents = sdk?.features?.()?.find?.(f => f?.id === 'story-director.world-events')?.on === true;
+      return selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null, worldEvents, conditionsHere: worldEvents ? read('chronicle.conditionsHere', {}) : null, regionNames: read('chronicle.regionNames', {}) });
+    },
+    journal: read => selectJournal(read, { focusId: pickOf(ctx) }),
     story: read => selectStory(read),
     // The open interaction: `interaction.view`, null when none is open. A fight is shown on the Fight tab, not here.
     scene: read => openScene(read('interaction.view', {})),
@@ -88,7 +94,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou(), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
     },
     settings: () => selectSettings({
-      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },
+      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null,
     }),
     // Read again each time the Tools page draws or the Inspector moves (never the overlay's open-time snapshot).

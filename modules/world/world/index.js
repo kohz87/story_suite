@@ -12,6 +12,8 @@
 // * `director.world.leads` (the hooks the player has heard of) and the widget `story-director.fold` (every Now section folds,
 //   remembered per chat on this device): elsewhere.js.
 // * Setting `world.upcomingDays` (30): how many story days ahead Upcoming looks.
+// * Feature `story-director.world-events` (off): `world.newsAt` and `world.heardHere` (news.js, news-delay.js) say when the news of a
+//   chronicle entry reaches a place; the News list and the narrator's [World] lines keep only what has arrived. Setting `world.courierKmPerDay` (60).
 // * The Days screen is folded into the Journal; its id `story-director/days` stays as a dialog of the
 //   Journal alone, for older layouts.
 // Works with any set of modules (WAVE rule 11): without NPC State Delta the people are plain names, without

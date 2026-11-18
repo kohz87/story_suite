@@ -23,7 +23,7 @@ export function createEventsPart({
     const engine = createEngine({ events, command, query });
     // A query is called (state, args, tools) with tools.query over the same state (MODULES §F.3);
     // without tools it asks through the injected query.
-    const status = (state, args, tools) => engine.status(state, typeof tools?.query === 'function' ? { state, query: tools.query } : null);
+    const status = (state, args, tools) => engine.status(state, typeof tools?.query === 'function' ? { state, query: tools.query, feature: tools.feature } : null);
     return {
         domains: {},
         commands: { [FIRE]: createFireEvent(events) },

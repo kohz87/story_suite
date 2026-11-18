@@ -57,6 +57,11 @@ export function knownDay(entry, hidden, { now = null, threads = new Map(), forma
         world,
         met,
         npcs,
+        // The day's own facts, as the digest kept them (names {{user}} must not know taken out): where the scene went, the quests by outcome, the fights ended and the money in and out (smallest unit).
+        places: list(entry.places).filter(name => !namesHidden(String(name), hidden.words)),
+        quests: Object.fromEntries(['taken', 'done', 'failed', 'dropped'].map(key => [key, list(quests[key]).filter(name => !namesHidden(String(name), hidden.words))])),
+        fightCount: isInt(entry.fights?.count) ? entry.fights.count : 0,
+        money: { in: isInt(entry.money?.in) ? entry.money.in : 0, out: isInt(entry.money?.out) ? entry.money.out : 0 },
         cats,
         hasCats: cats.length > 0,
         ago,

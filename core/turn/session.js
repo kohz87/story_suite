@@ -160,5 +160,5 @@ export function createSession(s, deps) {
         }
     }
 
-    return { markBusy, markIdle, setPrompt, setPrompts, clearPrompts, problem, trySave, ensureInitial, held, held, repairActions, repair, startOver, rebuild, planAgain, reconcileNow };
+    return { markBusy, markIdle, setPrompt, setPrompts, clearPrompts, problem, trySave, ensureInitial, held, repairActions, repair, startOver, rebuild, planAgain, reconcileNow };
 }
