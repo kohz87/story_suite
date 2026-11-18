@@ -56,3 +56,16 @@ test('replay == live: a swipe, then an edited Re-read, judge the copy the same w
         assert.equal(ropes(h), 1, 'and an edit back drops it again');
     } finally { h.close(); }
 });
+
+test('a repeat that differs in any part stays (another quantity or note); a mention only in the first paragraph does not count', async () => {
+    const h = await host(true);
+    try {
+        await h.send('Look.', said('You find a rope.', ['+ item Rope | qty 1']));
+        await h.send('Go.', said('You find a length of hemp.', ['+ item Rope | qty 2']));
+        assert.equal(ropes(h), 2, 'a synonym story with another note is a different line: kept');
+        await h.send('Go.', said('The rope hangs slack.\n\nYou walk on.', ['+ item Rope | qty 2']));
+        assert.equal(ropes(h), 2, 'identical line, rope named only in the first paragraph: dropped');
+        await h.send('Go.', said('You walk.\n\nA second rope lies by the door.', ['+ item Rope | qty 2']));
+        assert.equal(ropes(h), 3, 'named after the first paragraph: applied');
+    } finally { h.close(); }
+});

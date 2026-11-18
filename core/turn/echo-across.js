@@ -1,6 +1,6 @@
 // Story Suite v2: the guard across replies (HK-2). With the host setting `keepRecentBlocks` on, the model sees the change blocks of the two
-// replies before this one, and may copy a `+` line from them. A `+ item` or `+ coin` line of this reply's own block with the same op, kind and name as a line
-// of those two blocks is dropped unless the reply's story shows it happening again (the story names one of the line's words): so a copied line is never applied twice. Conservative: a line with no word to look for stays. Read from the stored chat only, so a
+// replies before this one, and may copy a `+` line from them. A `+ item` or `+ coin` line of this reply's own block identical in every part (op, kind, name, text and each label) to a line
+// of those two blocks is dropped unless the reply's story, after its first paragraph, shows it happening again (names one of the line's words): so a copied line is never applied twice. Conservative: a line with no word to look for stays. Read from the stored chat only, so a
 // Re-read, a swipe and a reload judge it the same way as the live reply did.
 
 import { parseLine } from '../capture/lines.js';
@@ -11,7 +11,10 @@ import { KEEP_REPLIES, keptLines } from './keep-blocks.js';
 // entry, where the same line is refused or changes nothing, or (a data module) names only the module, not the thing.
 const ADDITIVE = new Set(['item', 'coin']);
 
-const keyOf = line => `${line.op}|${line.kind}|${String(line.name ?? '').toLowerCase().replace(/\s+/g, ' ').trim()}`;
+const norm = value => String(value ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+// The whole line: op, kind, name, the free text and every label/value. Any difference (another quantity, another note) makes it a different line.
+const keyOf = line => JSON.stringify([line.op, line.kind, norm(line.name), norm(line.text), Object.entries(line.labels ?? {}).map(([k, v]) => [norm(k), norm(v)]).sort()]);
+const wordsOf = text => String(text ?? '').toLowerCase().match(/\p{L}{3,}/gu) ?? [];
 
 // The `+` keys of the own blocks of the KEEP_REPLIES replies before `index` (the ones the prompt shows).
 function earlierKeys(chat, index) {
@@ -34,10 +37,12 @@ export function dropRepeats(lines, chat, index) {
     if (!lines.some(line => line.op === '+')) return lines;
     const earlier = earlierKeys(chat, index);
     if (!earlier.size) return lines;
-    const story = stripBlock(withoutReasoning(String(chat[index]?.mes ?? ''))).toLowerCase();
+    const paragraphs = stripBlock(withoutReasoning(String(chat[index]?.mes ?? ''))).toLowerCase().split(/\n\s*\n/).filter(part => part.trim());
+    // The first paragraph may only recall the last reply, so a mention counts when it comes after it; a one-paragraph reply is read whole.
+    const story = (paragraphs.length > 1 ? paragraphs.slice(1) : paragraphs).join('\n');
     return lines.filter(line => {
         if (line.op !== '+' || !ADDITIVE.has(line.kind) || !earlier.has(keyOf(line))) return true;
-        const words = String(line.name ?? '').toLowerCase().match(/\p{L}{3,}/gu) ?? [];
+        const words = [...wordsOf(line.name), ...wordsOf(line.text), ...Object.values(line.labels ?? {}).flatMap(wordsOf)];
         return !words.length || words.some(word => story.includes(word));
     });
 }
