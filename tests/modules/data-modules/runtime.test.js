@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseChanges } from '../../../core/capture.js';
-import { refusedFrom } from '../../../ui/legacy/reply-notes.js';
+import { refusedFrom } from '../../helpers/refused-from.js';
 import { validatePack } from '../../../packs/validate.js';
 import { createEvaluation, DataModuleError } from '../../../modules/data-modules/interpreter.js';
 import { dataModuleDefaults } from '../../../modules/data-modules/check.js';

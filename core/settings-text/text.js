@@ -1,4 +1,4 @@
-// Story Suite v2: the settings host's wording and fold ids (moved out of host-ui.js unchanged; host-ui.js re-exports them).
+// Story Suite v2: the old settings host's wording and fold ids (moved out of host-ui.js; that host went at B4-4, a few words are still read).
 // The ids of the folds and the class the settings window carries, and the texts the settings, Tabs, Diagnostics and Features
 // folds draw. Constants only.
 // Public face: re-exports its parts.

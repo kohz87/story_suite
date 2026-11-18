@@ -1,5 +1,5 @@
-// Story Suite v2: the "what is sent" figures of the settings host (moved out of host-ui.js unchanged; host-ui.js re-exports the
-// public ones): the size of the prompt parts, the text of what a reply is sent with, and what a registry redacts from it.
+// Story Suite v2: the "what is sent" figures (once the old settings host's; Settings › Tools reads them through the Tools handle):
+// the size of the prompt parts, the text of what a reply is sent with, and what a registry redacts from it.
 
 import { estimateTokens, DEFAULT_TAIL_BUDGET } from '../prompt.js';
 import { fill } from '../strings.js';

@@ -1,5 +1,5 @@
 // Entry 1 on the live mount: the first Send of a chat with the RPG on and no You is held by the new view's sheet "Make your character first"
-// (not the old dialog, whose own hold is still attached on the page), and its two answers and its close do what the old dialog's did.
+// and its two answers and its close do what the earlier dialog did.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hostAvailable } from '../../../testkit/index.js';
@@ -20,7 +20,7 @@ async function held(t, text = 'I step onto the barge.') {
   return { ...p, event };
 }
 
-test('the first Send is held by the new sheet: the text stays in the box, nothing is sent, the old hold never opens', { skip }, async t => {
+test('the first Send is held by the new sheet: the text stays in the box, nothing is sent', { skip }, async t => {
   const p = await held(t);
   assert.ok(p.event.defaultPrevented, 'the click is stopped');
   assert.deepEqual(p.sent, [], 'SillyTavern did not send');
@@ -31,8 +31,6 @@ test('the first Send is held by the new sheet: the text stays in the box, nothin
   assert.equal(hold.querySelector('.sh-h h3').textContent, 'Make your character first');
   assert.equal(hold.querySelector('.wz-quote').textContent, 'I step onto the barge.');
   assert.deepEqual(hold.querySelectorAll('.wz-hold-acts button').map(b => b.textContent), ['Send without the RPG for now', 'Create your character, then send']);
-  assert.equal(p.oldDialog(), null, 'no old dialog');
-  assert.equal(p.rpg().start.session(), null, 'the old host\'s hold did not see the click');
 });
 
 test('Create your character, then send: the wizard opens; Create makes You, closes the suite and sends the message', { skip }, async t => {
@@ -42,7 +40,6 @@ test('Create your character, then send: the wizard opens; Create makes You, clos
   assert.equal(p.hold(), null);
   const sheet = p.sheet();
   assert.ok(sheet, 'the new wizard');
-  assert.equal(p.oldDialog(), null);
   click(sheet, '.wz-steps button[data-value="review"]');
   click(sheet, '[data-wiz="create"]');
   await settleLong();

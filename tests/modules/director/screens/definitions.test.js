@@ -3,7 +3,7 @@
 // CSS within what §13.3 allows.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CSS_LIMIT, resolveData, runtime, validateScreen, liveScreens } from './helpers/runtime.js';
+import { CSS_LIMIT, resolveData, validateScreen, liveScreens } from './helpers/runtime.js';
 import { headState, makeQueries, makeRunner } from './helpers/fixtures.js';
 import { DIRECTOR_ID, QUESTS_ID, STATUS_CARD_ID, createScreensPart, part, screens } from '../../../../modules/director/screens/index.js';
 import { worldScreen } from '../../../../modules/world/world/screen.js';
@@ -58,7 +58,7 @@ test('Quests, World and Map say `bar: true` (in the bar by default); the Directo
     assert.equal(byId[DIRECTOR_ID].bar, true);
     assert.equal(byId[STATUS_CARD_ID].bar, undefined);
     // A Story Block that knows the key (2.12.0) reads it back from the registry; an older one ignores it and the screens still register.
-    const registry = runtime.createScreens({ reader: () => ({}), saveReader() {} });
+    const registry = liveScreens({ reader: () => ({}), saveReader() {} });
     registry.addModule('story-director', [...part.screens, worldScreen, mapScreen]);
     assert.deepEqual(registry.problems(), []);
     if (typeof registry.declaredBar === 'function') {

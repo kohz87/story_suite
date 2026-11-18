@@ -104,7 +104,7 @@ test('Text size: 120% and 110% set the root\'s data-text (the zoom in shell.css)
   assert.equal(suite.root.hasAttribute('data-text'), false);
 });
 
-test('Send pending note: the switch stores the setting the note reads (ui/legacy/ui-host.js: settings().sendPending)', async t => {
+test('Send pending note: the switch stores settings().sendPending (nothing reads it since the old view went at B4-4)', async t => {
   const { host, mount } = await live(t);
   const { doc, suite } = mount();
   const row = await lookRow(doc, suite, 'sendPending');

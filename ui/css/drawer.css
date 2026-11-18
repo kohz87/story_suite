@@ -1,0 +1,4 @@
+/* The Story Suite drawer in SillyTavern's Extensions panel (ui/entry/drawer-buttons.js): its status line and the two buttons in a row. */
+.story-suite-drawer .story-suite-muted { opacity: 0.75; font-size: 0.9em; margin: 4px 0; }
+.story-suite-drawer-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.story-suite-drawer-buttons .menu_button { width: auto; display: inline-flex; gap: 6px; align-items: center; }

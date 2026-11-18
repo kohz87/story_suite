@@ -33,7 +33,8 @@ test('the stylesheet is one file with no @import left, and the fonts it names si
   assert.equal(stylesheetRequests(dir, 'suite.css'), 1);
   assert.doesNotMatch(css, /@import/);
   for (const [, url] of css.matchAll(/url\("([^"]+\.woff2)"\)/g)) assert.ok(fs.existsSync(path.join(dir, url)), url);
-  assert.ok(css.indexOf('/* ui/legacy/view/host.css */') < css.indexOf('/* modules/people/legacy/suite.css */') && css.indexOf('/* modules/people/legacy/suite.css */') < css.indexOf('/* ui/css/next-hide.css */'), 'the sheets keep their @import order');
+  assert.ok(css.indexOf('/* ui/css/fonts.css */') < css.indexOf('/* ui/css/tokens.css */') && css.indexOf('/* ui/css/tokens.css */') < css.indexOf('/* ui/css/drawer.css */') && css.indexOf('/* ui/css/drawer.css */') < css.indexOf('/* modules/people/legacy/suite.css */'), 'the sheets keep their @import order');
+  assert.doesNotMatch(css, /ui\/legacy|next-hide/);
 });
 
 test('the People part starts with the entry, so it is packed into it and is not a chunk of its own', () => {

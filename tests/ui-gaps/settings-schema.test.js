@@ -46,7 +46,7 @@ test('an sdk without the two fields gives no host rows', async t => {
   assert.equal(rowsOf(viewOf(bare)).some(r => r.key.startsWith('host.')), false);
 });
 
-test('the Settings view of a real host draws the Tools page body: Diagnostics and the Developer card (Problems only when there are some) (with Use the old view behind Developer tools)', async t => {
+test('the Settings view of a real host draws the Tools page body: Diagnostics and the Developer card (Problems only when there are some)', async t => {
   t.mock.method(console, 'warn', () => {});
   const { installFakeDom } = await import('../helpers/ui-fake-dom.js');
   const { createPages } = await import('../../ui/settings/page.js');
@@ -59,5 +59,4 @@ test('the Settings view of a real host draws the Tools page body: Diagnostics an
   const box = globalThis.document.createElement('div');
   createPages({ ...vm, developer: true }, { onChange() {}, repaint() {} }).page(tools, null).forEach(n => box.appendChild(n));
   for (const card of ['diagnostics', 'developer']) assert.ok(box.querySelector(`[data-card="${card}"]`), card);
-  assert.ok(box.querySelector('[data-key="dev.oldView"]'));
 });

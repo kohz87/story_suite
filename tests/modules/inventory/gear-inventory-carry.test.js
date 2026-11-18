@@ -174,24 +174,15 @@ test('a cart, barrow, wagon, sledge, carriage, coach or barge the story names (a
     assert.equal(Object.values(off.state.domains.inventory.defs)[0].carry, undefined, 'off: the story never gives a capacity');
 });
 
-test('the gear switch lives in Settings → RPG, off the Features list, and counts only while the RPG is on', async t => {
+test('the gear switch is a feature that is off until switched on, and counts only while the RPG is on', async t => {
     const ctx = await page(t, { feature: true });
     const host = ctx.host;
     assert.equal(host.sdk.feature('story-block.gear'), false);
-    assert.equal(host.sdk.features().some(feature => feature.id === 'story-block.gear'), true, 'still a feature');
-    const win = ctx.ui.openSettings();
-    win.select('features');
-    await settle();
-    assert.equal(ctx.doc.querySelector('[data-feature="story-block.gear"]'), null, 'not in the Features list');
-    win.select('rpg');
-    await settle();
-    const card = ctx.doc.querySelector('[data-ss-section="rpg"] [data-card="gear"]');
-    assert.equal(card.querySelector('.rpg-set-title').textContent, 'Gear in fights');
-    assert.equal(card.querySelector('[aria-pressed="true"]').textContent, 'Off');
-    card.querySelector('.rpg-chip[data-value="on"]').click();
+    assert.equal(host.sdk.features().some(feature => feature.id === 'story-block.gear'), true, 'a feature');
+    host.features.set('story-block.gear', true);
     await settle();
     assert.equal(host.sdk.feature('story-block.gear'), true);
-    assert.equal(ctx.doc.querySelector('[data-ss-section="rpg"] [data-card="gear"] [aria-pressed="true"]').textContent, 'On');
+    assert.notEqual(host.sdk.query('inventory.gear', { owner: 'party' }), null, 'with the RPG on the gear answers');
     // With the RPG off the gear answers nothing, whatever is stored.
     host.features.set('story-block.rpg', false);
     assert.equal(host.sdk.query('inventory.gear', { owner: 'party' }), null);

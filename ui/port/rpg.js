@@ -16,7 +16,7 @@ const whole = (min, max, step = 1) => (raw) => {
   return Number.isFinite(n) && raw !== null && raw !== '' ? Math.min(max, Math.max(min, Math.round(n / step) * step)) : undefined;
 };
 
-// The same clamps the old page's rows use (modules/rpg/view/settings/sections.js).
+// The same clamps the old page's rows use (the removed RPG settings page).
 const ROWS = {
   'rpg.difficulty': [DIFFICULTY_SETTING, wordToValue(DIFFICULTY_WORDS)],
   'rpg.levelCap': [LEVEL_CAP_SETTING, whole(LEVEL.min, LEVEL.max)],

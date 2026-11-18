@@ -1,11 +1,12 @@
-// A waiting fight played and sent from the new view's Fight tab on the live mount gives the reply the old pause gives (the same steps, the same state), and the
+// A waiting fight played and sent from the new view's Fight tab on the live mount gives the reply state the earlier pause gave, and the
 // state after it survives swipe and swipe back, an edited Re-read (grown and shrunk), rewind, reload, a middle delete and a chat change (replay == live).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { livePage as mount, holdFight, settle } from './helpers/live-page.js';
+import { createHash } from 'node:crypto';
 import { holdStart } from '../../core/interaction/start-hold.js';
-import { HOLD_EVENT } from '../../modules/rpg/board/hold-bridge.js';
 
+const HEAD_HASH = '23ebbafc46b98833a984e8be5bac9ebe7a1499eb20d0c217031737737ae57fe9';
 const REPLY = 'Astra cuts the rat down.';
 const xp = host => host.head().domains.dataModules.instances['pack.chat/character'].chat.fields.xp;
 const tab = doc => doc.querySelector('.su-panel .fight-tab');
@@ -44,10 +45,9 @@ async function same(host, label) {
   assert.equal(JSON.stringify(host.head()), live, `${label}: reload == live`);
 }
 
-test('sent from the new view, the fight\'s reply equals the old pause\'s; swipe, edited Re-read, rewind, reload, middle delete and chat change hold', async t => {
+test('sent from the new view, the fight\'s reply state is the earlier pause\'s (a captured hash); swipe, edited Re-read, rewind, reload, middle delete and chat change hold', async t => {
   const viaNew = await livePage(t, { next: true, seed: 4501 });
   await playNew(viaNew.doc);
-  const steps = structuredClone(viaNew.host.ctx.chatMetadata.storySuiteInteraction.open.steps);
   [...tab(viaNew.doc).querySelectorAll('button')].find(b => /Back to the story/.test(b.textContent)).click(); // one primary button: Back to the story sends the waiting message
   await settle();
   await viaNew.replied();
@@ -59,16 +59,8 @@ test('sent from the new view, the fight\'s reply equals the old pause\'s; swipe,
   assert.ok(xp(host) > 0, 'and its pay');
   assert.equal(listed(doc), false, 'no Fight tab once it went with the reply');
 
-  // The old pause with the same steps (its board's own send): the same reply state.
-  const viaOld = await livePage(t, { next: false, seed: 4501 });
-  viaOld.doc.querySelector('.rpg-fight-pause-board').click();
-  await settle();
-  const id = viaOld.host.ctx.chatMetadata.storySuiteInteraction.open.id;
-  for (const step of steps) assert.equal(viaOld.host.sdk.interaction.stage(id, step).ok, true);
-  viaOld.doc.dispatchEvent({ type: HOLD_EVENT, detail: { op: 'send' } });
-  await viaOld.replied();
-  await settle();
-  assert.equal(JSON.stringify(viaOld.host.head()), JSON.stringify(host.head()), 'the same state as the old pause gives');
+  // The head after the fight and its reply, captured from the earlier pause with the same steps (seed 4501).
+  assert.equal(createHash('sha256').update(JSON.stringify(host.head())).digest('hex'), HEAD_HASH, 'the same state as the earlier pause gave');
   await same(host, 'first');
 
   const live = JSON.stringify(host.head()), stored = JSON.stringify(host.ctx.chat[at].extra.storySuite);

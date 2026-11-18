@@ -1,19 +1,17 @@
-// The real page for the Skills view and the wizard tests: the testkit host with Story Block's UI mounted on a fake DOM, the RPG
-// feature on, and the real view loader (the definitions' own `role` key is read; nothing is faked about it).
+// The real page for the RPG tests: the testkit host on a fake DOM, the RPG feature on, and the RPG's page parts (modules/rpg/live: the fight pause,
+// the board, the fight offer, the battle log and the bridge the new view reads) started as boot starts them (the definitions' own `role` key is read; nothing is faked about it).
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { makeMessage } from '../../../helpers/ui-fake-dom.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
-import { mountUi } from '../../../../ui/legacy/ui-host.js';
+import { startRpgLive } from '../../../../modules/rpg/live/sync.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { STANDARD_TEMPLATES as EARLIER_TEMPLATES } from '../fixtures/templates-2.16.js';
 
 export const settle = async () => { for (let n = 0; n < 8; n += 1) await new Promise(resolve => setImmediate(resolve)); };
-export const PARTY = 'story-block/party';
-export const party = doc => doc.querySelector(`.ss-gameview [data-ss-screen="${PARTY}"]`);
 
-/** { doc, host, ui, loads, draw, rpg }; `formula` is the stat formula the chat is on ('classic' unless a test asks for 'standard': most of these pin Classic's screens); `feature` turns the RPG on first, `persona` is the reader's name, `wrap` stands between the page and the host's commands, `modules` are modules the host runs (a stand-in for a party module, say), `spy(name)` hears each sdk query the page asks. */
+/** { doc, host, loads, draw, rpg }; `formula` is the stat formula the chat is on ('classic' unless a test asks for 'standard'); `feature` turns the RPG on first, `persona` is the reader's name, `wrap` stands between the page and the host's commands, `modules` are modules the host runs (a stand-in for a party module, say), `spy(name)` hears each sdk query the page asks. `rpg()` is the mounted page parts (live/index.js), or null while the feature is off. */
 export async function page(t, { feature = true, persona = null, wrap = null, modules = [], formula = 'classic', callModel = null, spy = null } = {}) {
     const doc = setupDom();
     const form = doc.createElement('div'); form.id = 'send_form'; doc.body.appendChild(form);
@@ -22,21 +20,16 @@ export async function page(t, { feature = true, persona = null, wrap = null, mod
     if (persona !== null) host.ctx.name1 = persona;
     if (feature) host.features.set(CORE_FEATURE.leanRpg, true);
     const loads = [];
-    // (the mounted RPG view is kept, so a test can open the wizard on its own, as a join card's Edit first does: `rpg()`)
-    let mounted = null;
-    const loadLeanRpg = async () => { loads.push(1); const view = await import('../../../../modules/rpg/view/index.js'); return { ...view, mountLeanRpg: (...args) => { mounted = view.mountLeanRpg(...args); return mounted; } }; };
-    // The testkit host has no dialog opener (runtime.setDialog is the page's to plug in): the same plug, over the host's own sdk.
-    let opener = null, topmost = null;
+    const load = async () => { loads.push(1); return import('../../../../modules/rpg/live/index.js'); };
     // `wrap(type, payload, options, run)` may answer a command itself (a test makes one fail); `run` is the real one.
     const command = (type, payload, options) => (wrap ? wrap(type, payload, options, (...args) => host.sdk.command(...args)) : host.sdk.command(type, payload, options));
-    const sdk = { ...host.sdk, command, ...(spy ? { query: (name, args) => { spy(name); return host.sdk.query(name, args); } } : {}), dialog: Object.freeze({ open: (id, opts) => opener?.(id, opts) ?? null, current: () => topmost?.() ?? null }) };
-    const runtime = { registry: host.registry, store: host.store, sdk, settings: host.settings, events: host.events, turn: host.turn, features: host.features,
-        packs: host.packs, setDialog: (open, current) => { opener = open; topmost = current; } };
-    const ui = mountUi({ runtime, ctx: host.ctx, doc, loadLeanRpg });
-    t.after(() => { ui.destroy(); host.close(); });
+    const sdk = { ...host.sdk, command, ...(spy ? { query: (name, args) => { spy(name); return host.sdk.query(name, args); } } : {}) };
+    const runtime = { registry: host.registry, store: host.store, sdk, settings: host.settings, events: host.events, turn: host.turn, features: host.features, packs: host.packs };
+    const live = startRpgLive({ runtime, ctx: host.ctx, doc, load });
+    t.after(() => { live.stop(); host.close(); });
     const draw = () => { for (const old of doc.querySelectorAll('.mes')) old.remove(); host.ctx.chat.forEach((message, index) => makeMessage(doc, index)); };
     await settle();
-    return { doc, host, ui, loads, draw, rpg: () => mounted };
+    return { doc, host, loads, draw, rpg: () => live.current() };
 }
 
 /** A chat with its first reply, so blocks can be made (a block is made by an action on a reply). */

@@ -1,5 +1,5 @@
 // Puts the New character wizard and the first-send hold on the new view: built once the suite is mounted, answering the port's
-// `open('story-block/new-character', payload)` itself (the old host's page event is then never sent), closing both sheets when the chat changes.
+// `open('story-block/new-character', payload)` itself (the page event is then never sent), closing both sheets when the chat changes.
 
 import { createWizardWorld } from './world.js';
 import { createNewWizard, WIZARD_ID } from './wizard.js';
@@ -24,8 +24,8 @@ export function attachWizard({ doc, ctx = () => null, sdk, suite }) {
   const types = ctx()?.eventTypes ?? ctx()?.event_types ?? {};
   if (types.CHAT_CHANGED) ctx()?.eventSource?.on?.(types.CHAT_CHANGED, closeAll);
 
-  // The window is this view's to draw: true when it opened, or a refusal ({ ok: false, message }) the port hands back without the old host's
-  // page event (a second open while one is up, or the RPG off), so the old dialog never opens over it; false for any other window.
+  // The window is this view's to draw: true when it opened, or a refusal ({ ok: false, message }) the port hands back without the
+  // page event (a second open while one is up, or the RPG off); false for any other window.
   function open(id, payload, { onEnd = null } = {}) {
     if (id !== WIZARD_ID) return false;
     if (wizard.isOpen()) return { ok: false, code: 'FAILED', message: BUSY };

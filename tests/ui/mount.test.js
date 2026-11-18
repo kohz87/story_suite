@@ -148,18 +148,16 @@ test('fixed themes do not watch ST', () => {
   }
 });
 
-test('Settings › Tools › Developer tools › Use the old view goes to onOldView, never to the host settings', () => {
+test('Settings › Tools › Developer tools has no "Use the old view" switch; the developer switch is this device\'s, never a host setting', () => {
   const doc = installFakeDom();
   const port = createFakePort();
-  const asked = [];
-  const suite = mountSuite({ port, doc, onOldView: on => asked.push(on) });
+  const suite = mountSuite({ port, doc });
   suite.open('now');
   suite.settings();
   doc.body.querySelector('.si3[data-sec="tools"]').click();
-  assert.equal(doc.body.querySelector('[data-key="dev.oldView"]'), null, 'hidden while developer tools are off');
   doc.body.querySelector('[data-key="dev.tools"] .sw').click();
-  doc.body.querySelector('[data-key="dev.oldView"] .sw').click();
-  assert.deepEqual(asked, [true]);
+  assert.ok(doc.body.querySelector('[data-card="template"]'), 'developer tools are on');
+  assert.equal(doc.body.querySelector('[data-key="dev.oldView"]'), null);
   assert.equal(port.recorded.filter(c => c.type === 'settings.set').length, 0);
   suite.destroy();
   assert.equal(suite.settings(), null, 'nothing opens after destroy');

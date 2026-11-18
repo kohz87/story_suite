@@ -13,7 +13,7 @@
 // reader sees the whole report before copying it.
 //
 // Pure apart from `captureConsole` (wraps console.error once) and `noteSaveError`: the report is built
-// from a `source` the settings host gives (ui-host.js).
+// from a `source` boot gives (core/boot/tools-parts.js).
 // Public face: re-exports its parts.
 export { PROBLEMS_SHOWN, ERRORS_KEPT, HOOK_TIMEOUT_MS } from './diagnostics-parts/limits.js';
 export { isSecretKey, REMOVED, scrubSecrets, scrubLine } from './diagnostics-parts/secrets.js';

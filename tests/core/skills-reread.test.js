@@ -9,7 +9,6 @@ import { createHost, hostAvailable } from '../../testkit/index.js';
 import { validatePack } from '../../packs/validate.js';
 import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
 import { skillSlots } from '../../core/runtime/skill-slots.js';
-import { partyLines } from '../../modules/rpg/view/changes-lines.js';
 import { joinCard, joinDraft, joinOffers } from '../../modules/rpg/join.js';
 import { buildDefinitions, draftSlots, readDraft, withImport, withSet, withSkill, withSkillPatch, withoutSkill } from '../../modules/rpg/view/wizard-data.js';
 import { buildCharacterFile, parseCharacterFile } from '../../modules/rpg/charfile.js';
@@ -103,9 +102,9 @@ test('F1: Edit first keeps signature skills as written (the pencil\'s rules) and
     for (const definition of [made.character, made.skills]) assert.equal((await host.sdk.command('dm.define', { definition })).ok, true);
     assert.equal(fieldsOf(host, made.skills.slug).sig, 7);
     const record = host.ctx.chat.at(-1).extra.storySuite;
-    const tiles = partyLines(record);
-    assert.deepEqual(tiles.slice(1).map(line => [line.text, line.flag]), [['Tide Step', 'signature · Adept'], ['Ferry Spark', 'signature · Novice'], ['Rope Haul', 'signature · Expert']]);
-    assert.match(tiles[0].summary, /Mara joined, \+3 skills/);
+    const offered = record.receipts.find(receipt => receipt.data?.join?.op === 'offer');
+    assert.equal(offered.data.join.name, 'Mara');
+    assert.deepEqual(offered.data.join.skills.map(skill => [skill.name, skill.rank]), [['Tide Step', 2], ['Ferry Spark', 0], ['Rope Haul', 3]], 'the offer receipt still holds the three skills');
 });
 
 // ---- F2: character files after a level drop ---------------------------------------------------------------------------------------------------------

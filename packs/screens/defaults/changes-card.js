@@ -13,7 +13,7 @@
 // answers [{ text, summary?, flag?, note?, icon? }] for that reply (an example module: the checks it rolled, the die,
 // the modifiers and the total against the difficulty). `replyCardLines` cleans them (one line each, cut by
 // code points, at most REPLY_LINES_MAX per module, a Font Awesome icon name or a default); the host puts them in
-// the card's scope as `moduleLines` (ui-host.js) and their `summary` (else their `text`) in the header line.
+// the card's scope as `moduleLines` (the host) and their `summary` (else their `text`) in the header line.
 // Plain text only: the template prints them escaped.
 // Pure: no DOM.
 // Public face: re-exports its parts.

@@ -1,5 +1,4 @@
-// The live mount for the New character wizard's tests: the old host with the RPG on (its own hold and `story-suite:open` listener attached, as on
-// SillyTavern until B4-4) and the new view mounted over it by ui/entry/turn-on.js, on a testkit chat with no character. A page path is played by
+// The live mount for the New character wizard's tests: the RPG's live parts on (modules/rpg/live) and the new view mounted by ui/entry/turn-on.js, on a testkit chat with no character. A page path is played by
 // hand: the window's capture listeners, then the document's, then the target's own (SillyTavern's Send listener).
 import { page, begin, settle } from '../../modules/rpg/view/page.js';
 import { turnOn } from '../../../ui/entry/turn-on.js';
@@ -8,7 +7,7 @@ export { settle };
 
 export async function settleLong() { for (let n = 0; n < 6; n += 1) await settle(); }
 
-/** `{ doc, host, rpg(), win, field, sent, commands, press(), enter(), sheet(), hold(), oldDialog() }`; `chat: false` leaves the chat with no message; `commands` lists what the new view sent the engine. */
+/** `{ doc, host, rpg(), win, field, sent, commands, press(), enter(), sheet(), hold() }`; `chat: false` leaves the chat with no message; `commands` lists what the new view sent the engine. */
 export async function wizardPage(t, { persona = 'Wessel', chat = true, feature = true } = {}) {
   const got = await page(t, { formula: 'standard', persona, feature });
   const { doc, host } = got;
@@ -46,7 +45,6 @@ export async function wizardPage(t, { persona = 'Wessel', chat = true, feature =
     enter: (init = {}) => { doc.activeElement = field; return through('keydown', field, { key: 'Enter', ...init }); },
     sheet: () => doc.querySelector('.sh-ov[data-sheet="new-character"]'),
     hold: () => doc.querySelector('.sh-ov[data-sheet="rpg-hold"]'),
-    oldDialog: () => doc.querySelector('.ss-dialog'),
   };
 }
 

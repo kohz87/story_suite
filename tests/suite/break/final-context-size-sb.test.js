@@ -10,10 +10,6 @@ import { createHost } from '../../../testkit/index.js';
 import { DEFAULT_CONTEXT_SHARE, MIN_TAIL_BUDGET, assemble, contextFit, contextNotice, estimateTokens } from '../../../core/prompt.js';
 import { contextRoom } from '../../../core/turn.js';
 import { createRegistry } from '../../../core/registry.js';
-import { createSettings } from '../../../core/sdk.js';
-import { SETTINGS_TEXT } from '../../../ui/legacy/host-ui.js';
-import { createPromptReader, renderPromptCard } from '../../../ui/legacy/view/settings/prompt.js';
-import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 
 // A module with a big static part (`words` × 5 characters) and a long tail: 4 required lines, 150 optional.
 const big = (words = 600) => ({
@@ -138,28 +134,4 @@ test('assemble: the static text never depends on the context; fit says how it wa
     assert.equal(tight.fit.tooSmall, true);
     assert.equal(tight.fit.budget, MIN_TAIL_BUDGET);
     assert.equal(contextNotice(tight.fit), `Your context size (2,000 tokens) is too small for Story Suite's instructions (about ${tight.fit.static.toLocaleString('en-US')} tokens). Raise the context size or turn features off.`);
-});
-
-test('the settings\' prompt size shows the context size, the share and the notice', () => {
-    const doc = installFakeDom();
-    const registry = createRegistry();
-    const es = {};
-    const settings = createSettings({ root: () => es, registry, save: () => {} });
-    const parts = [{ module: 'story-suite', place: 'static', text: 'x'.repeat(4000) }, { module: 'story-suite', place: 'tail', text: 'y'.repeat(400) }];
-    const fit = contextFit({ size: 2000, reply: 300, room: 1700 }, 1000, {});
-    const root = doc.createElement('div');
-    renderPromptCard(root, { doc, settings, reader: createPromptReader({ registry, settings, promptParts: () => ({ parts, fit }) }) });
-    const size = root.querySelector('.story-suite-size');
-    const rows = size.querySelectorAll('.story-suite-size-sum > li').map(li => [li.querySelector('span').textContent, li.querySelector('b').textContent]);
-    assert.deepEqual(rows.slice(0, 2), [
-        [SETTINGS_TEXT.size.context, '2,000 tokens (300 of them for the reply)'],
-        [SETTINGS_TEXT.size.share, '680 of 1,700 tokens (40%)'],
-    ]);
-    assert.equal(size.querySelector('.story-suite-size-warn').textContent, contextNotice(fit));
-    assert.match(rows[3][1], new RegExp(`of ${MIN_TAIL_BUDGET}$`), 'the tail budget the context leaves');
-    // An older source (parts only): no context lines, a note instead.
-    const old = doc.createElement('div');
-    renderPromptCard(old, { doc, settings, reader: createPromptReader({ registry, settings, promptParts: () => parts }) });
-    assert.equal(old.querySelector('.story-suite-size-warn'), null);
-    assert.equal(old.querySelector('.story-suite-size-context-unknown').textContent, SETTINGS_TEXT.size.contextUnknown);
 });

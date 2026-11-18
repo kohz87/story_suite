@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyReport, moduleFailures } from '../../../core/turn/apply-report.js';
-import { inspectorProblemsFor } from '../../../ui/legacy/ui-host/inspector-problems.js';
+import { inspectorProblems } from '../../../core/boot/tools-parts.js';
 import { changesCardScreen } from '../../../packs/screens/defaults/index.js';
 import { core, queries, show, stocked, text } from '../../ui/screens/helpers.js';
 
@@ -68,10 +68,9 @@ test('card: with nothing failed (flag off) the card is byte-identical to main\'s
 
 test('Inspector: flag off lists the problems as before; flag on groups a module failure under its name', () => {
     const store = { problems: () => [] };
-    const notes = { refusedAt: () => [] };
-    const runtime = { turn: { problems: () => problems.filter(item => item.module !== 'c') } };
-    const off = inspectorProblemsFor(4, { store, runtime, notes });
-    const on = inspectorProblemsFor(4, { store, runtime, notes, isolated: () => true, nameOf: id => `Mod ${id}` });
+    const turn = { problems: () => problems.filter(item => item.module !== 'c') };
+    const off = inspectorProblems(4, { store, turn });
+    const on = inspectorProblems(4, { store, turn, isolated: () => true, nameOf: id => `Mod ${id}` });
     assert.equal(on.length, off.length - 1, 'the repeated failure is listed once');
     assert.ok(off.some(item => item.message === 'turn failed: torn'));
     assert.ok(on.some(item => item.message === 'Mod a: turn failed: torn' && item.code === 'FAILED'));

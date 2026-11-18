@@ -1,5 +1,5 @@
-// Rendered check: Settings › Look's two CSS links in a real browser. Text size 110% / 120% (the root's data-text) draws the suite's text larger while
-// its frame keeps its width; under the new view the Send note shows (pending, not sent yet, sent), only its fight-held state stays hidden.
+// Rendered check: Settings › Look's Text size in a real browser. 110% / 120% (the root's data-text) draws the suite's text larger while
+// its frame keeps its width.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -80,31 +80,3 @@ for (const width of [390, 1280]) {
     assert.ok(Math.abs(at120.card - normal.card) <= 6, `120% card ${at120.card}`);
   });
 }
-
-test('the new view shows the Send note (pending, not sent yet, sent) and hides only its fight-held state', async t => {
-  if (ctx.skip) return t.skip(ctx.skip);
-  const page = await ctx.browser.newPage({ viewport: { width: 1280, height: 600 } });
-  await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
-  await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=390&tab=now`);
-  const shown = await page.evaluate(async () => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = '/ui/css/next-hide.css';
-    const loaded = new Promise(resolve => { link.onload = resolve; });
-    document.head.appendChild(link);
-    await loaded;
-    document.body.classList.add('ss-ui-next');
-    return Object.fromEntries(['pending', 'stalled', 'sent', 'interactionHeld'].map(state => {
-      const note = document.createElement('div');
-      note.className = 'ss-send-note';
-      note.setAttribute('data-state', state);
-      note.textContent = state;
-      document.body.appendChild(note);
-      const display = getComputedStyle(note).display;
-      note.remove();
-      return [state, display];
-    }));
-  });
-  await page.close();
-  assert.deepEqual(shown, { pending: 'block', stalled: 'block', sent: 'block', interactionHeld: 'none' });
-});
