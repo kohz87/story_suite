@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../testkit/index.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { PACK as MAP_PACK, TRIP_DAY, TRIP_T0, draw, story } from './widget.helpers.js';
 import { deepFreeze, line, query } from './helpers/fake-ctx.js';
 import { anchorTrip } from '../../../modules/atlas/atlas/widget-view-parts/anchor.js';
