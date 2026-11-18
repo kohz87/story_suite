@@ -2,3 +2,18 @@
 .st-root .srow .st-long { resize: vertical; min-height: 88px; line-height: 1.4; font-family: var(--su-font); box-sizing: border-box; }
 .st-root .srow.bad :is(.txt2, .sel2, .num input) { border-color: var(--su-bad); }
 .st-root .srow .st-problem { grid-column: 1 / -1; color: var(--su-bad-t, var(--su-bad)); font-size: 12px; line-height: 1.35; }
+/* ST-FORM2: the chip list, the sub-record rows, the id picker and the gate field (mock v7 studio-record page). */
+.st-root .chips3 { display: flex; flex-wrap: wrap; gap: 5px; }
+.st-root .chips3 .none { font: 700 12px var(--su-font); color: var(--su-muted, inherit); align-self: center; }
+.st-root .chips3 .kadd { width: 150px; padding: 4px 10px; border-radius: 999px; }
+.st-root .kc { display: inline-flex; align-items: center; gap: 2px; font: 700 12px var(--su-font); border-radius: 999px; padding: 0 2px 0 10px; border: 1px solid rgba(168, 151, 255, .5); background: rgba(168, 151, 255, .18); }
+.st-root .kc button { border: 0; background: none; color: inherit; font: 800 14px var(--su-font); width: 26px; height: 26px; border-radius: 999px; cursor: pointer; padding: 0; }
+.st-root .subrow .ctl .btn2 { min-width: 36px; padding: 7px 9px; }
+.st-root .subrow .lb b, .st-root .subrow .lb small { overflow-wrap: anywhere; }
+.st-root .sgrp .addrow { padding: 10px 0; border-top: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.sh-panel .psrch { width: 100%; box-sizing: border-box; margin: 6px 0; }
+.sh-panel .slist button[aria-disabled="true"] { opacity: .5; cursor: default; }
+.sh-panel .slist .tg2 { margin-left: 6px; }
+.st-root .srow[data-level="warning"] .st-problem { color: var(--su-warn, inherit); }
+@container (max-width: 900px) { .st-root .kc { min-height: 44px; } .st-root .kc button { width: 36px; } .st-root .subrow .ctl .btn2 { min-height: 44px; } }
+@container (max-width: 600px) { .st-root .srow.subrow { grid-template-columns: minmax(0, 1fr) auto; } .st-root .srow.subrow .ctl { justify-content: flex-end; flex-wrap: nowrap; gap: 4px; } }
