@@ -5,6 +5,7 @@ import { createHost } from '../../../testkit/index.js';
 import { BUILTIN_MODULES } from '../../../core/modules-list.js';
 import { buildSelectors } from '../../../ui/select/build.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';
+import { createToolsHandle } from '../../../ui/port/tools-handle.js';
 import { createSettingsOverlay } from '../../../ui/settings/overlay.js';
 import { renderSettingsSection } from '../../../ui/settings/sections/index.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
@@ -17,8 +18,11 @@ async function live(t) {
   t.mock.method(console, 'warn', () => {});
   const host = await createHost({ core: true, modules: BUILTIN_MODULES });
   t.after(() => host.close());
+  // The RPG on, so its page is drawn and checked too (it is hidden while the RPG is off); the tools handle gives the Start cards their engine-counted token figures, as in the live view.
+  host.features.set('story-block.rpg', true);
   const writes = { settings: host.settings, features: host.features };
-  const port = createSbPort({ sdk: host.sdk, writes, selectors: buildSelectors(() => null, host.sdk), rpgValues: () => host.sdk.settings('story-block') });
+  const tools = createToolsHandle({ runtime: host });
+  const port = createSbPort({ sdk: host.sdk, writes, tools, selectors: buildSelectors(() => null, host.sdk, tools), rpgValues: () => host.sdk.settings('story-block') });
   return { host, port };
 }
 
@@ -41,6 +45,7 @@ test('no row on any Settings page says it is unavailable, unbuilt or set elsewhe
   for (const s of settings.sections) {
     overlay.show(s.id);
     for (const el of pageOf(root).querySelectorAll('.srow, .mod, .sdesc, .fine, .sinfo, .note')) {
+      if (el.querySelector('pre.sent')) continue; // Tools' "The text sent with this reply" quotes the prompt itself (its words, such as "not yet on the map", are the model's instructions)
       const text = textOf(el);
       if (PLACEHOLDER.test(text)) caught.push(`${s.id}: ${text.slice(0, 120)}`);
     }
@@ -79,7 +84,7 @@ test('every row that can be edited draws a control', async (t) => {
       if (!el) { caught.push(`${s.id}: ${r.key} "${r.label}" is not drawn`); continue; }
       if (r.type === 'info') continue;
       const ctl = el.querySelector('.ctl');
-      const drawn = ctl && ctl.querySelector('input, select, button, .sw, .sseg2, .chips3, .multi');
+      const drawn = ctl && ctl.querySelector('input, textarea, select, button, .sw, .sseg2, .chips3, .multi');
       if (!drawn) caught.push(`${s.id}: ${r.key} "${r.label}" (${r.type}) has no control`);
     }
   }
