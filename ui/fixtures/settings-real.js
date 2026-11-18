@@ -110,8 +110,7 @@ export const REAL_ROWS = {
     {"key":"money.priceScale","group":"Coins","type":"num","label":"Price scale","hint":"0 keeps the pack’s prices","value":0,"default":0,"options":null,"unit":null,"tags":[],"wide":false},
   ],
   extras: [
-    {"key":"extras.sendBack","group":"Inner chatter","type":"sw","label":"Send the last reply’s thoughts back to the story","hint":null,"value":false,"default":false,"options":null,"unit":null,"tags":[],"wide":false},
-    {"key":"extras.chatterLines","group":"Inner chatter","type":"num","label":"Most chatter lines per reply","hint":null,"value":3,"default":3,"options":null,"unit":null,"tags":[],"wide":false},
+
   ],
   models: [
     {"key":"calls.queue","group":"Calls","type":"sw","label":"One call at a time per connection","value":true,"default":null,"options":null,"hint":"A local server is never asked twice at once","unit":null,"tags":[],"wide":false},

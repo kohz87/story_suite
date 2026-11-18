@@ -9,8 +9,10 @@ const shortOf = id => Object.keys(EXTRAS_FEATURES).find(k => EXTRAS_FEATURES[k] 
 /** Mock v7's Chat extras module card text (settings-extra.js: desc, off line and the ≈ token figure). */
 const CARD = { id: 'extras', name: 'Chat extras', icon: '✦', section: 'extras', desc: 'Small things around each reply', off: 'Replies read as plain text; the rest of the suite is unchanged.', tokens: 180 };
 
-/** Returns the two Inner chatter rows from Story Block's own settings (`values`: sdk.settings('story-block')), the schema's label, limits and default. */
-export function extrasRows(values) {
+/** Returns the two Inner chatter rows from Story Block's own settings (`values`: sdk.settings('story-block')), the schema's label, limits and default.
+ *  `features` (the feature list): with the Inner chatter switch off the group is left out whole (its stored values are kept); without a list the rows stay. */
+export function extrasRows(values, features) {
+  if (Array.isArray(features) && features.some(f => f?.id === EXTRAS_FEATURES.chatter && f.on !== true)) return [];
   const v = values && typeof values === 'object' ? values : {};
   const { defaults, schema } = CORE_SETTINGS;
   return [

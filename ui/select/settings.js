@@ -119,7 +119,7 @@ export function selectSettings(answers) {
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [], a.directorCalls)),
     ...[selectDirector(a.directorPage)].filter(Boolean),
     section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
-    section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter and your look.', extrasRows(a.extras)),
+    section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter and your look.', extrasRows(a.extras, hasFeatures ? a.features : undefined)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, keepBlocks: host.keepRecentBlocks, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
     section('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
     section('addons', 'Setup', 'Add-ons', 'The plug-in modules installed.', selectAddons(a.modules)),
