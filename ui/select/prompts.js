@@ -35,13 +35,13 @@ export function promptText(spec, values) {
   return stored;
 }
 
-/** `values`: { [module id]: that module's stored settings }. → { rows: [{ id, key, label, hint, text, own }] }; `own` = the text is not the built-in one. */
+/** `values`: { [module id]: that module's stored settings }. → { rows: [{ id, key, label, hint, text, own, max }] }; `own` = the text is not the built-in one, `max` = the longest text kept. */
 export function selectPrompts(values) {
   const of = id => (isObj(values) && isObj(values[id]) ? values[id] : {});
   return {
     rows: PROMPTS.map(spec => {
       const text = promptText(spec, of(spec.module));
-      return { id: spec.id, key: `tools.prompt.${spec.id}`, label: spec.label, hint: spec.hint, text, own: text !== spec.fallback };
+      return { id: spec.id, key: `tools.prompt.${spec.id}`, label: spec.label, hint: spec.hint, text, own: text !== spec.fallback, max: spec.max };
     }),
   };
 }

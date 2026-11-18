@@ -63,7 +63,7 @@ test('Export saves NPC State’s bundle of this chat’s people, and the bundle 
   const decoded = decodeNpcStateBundle(bytes);
   assert.deepEqual(decoded.state.npcs.map(n => n.name), ['Torka']);
   assert.equal(decoded.metadata.sourceChatKey, 'Ersveil - one');
-  assert.match(row('tools.people.export').querySelector('small').textContent, /Exported this chat’s people/);
+  assert.equal(row('tools.people.export').querySelector('small').textContent, 'Exported 1 person.');
 });
 
 test('a chat change while the export is made saves nothing and says so; with no chat or no NPC State it says why', async t => {

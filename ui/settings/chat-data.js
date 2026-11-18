@@ -6,9 +6,9 @@ export function renderChatData(state) {
   const fact = (key, label, text) => h('div', { class: 'srow', dataset: { key } }, h('span', { class: 'lb' }, h('b', label), h('small', text)));
   return h('div', { class: 'sgrp', dataset: { card: 'chat-data' } }, h('div', { class: 'gt' }, 'Chat data'),
     h('div', { class: 'srow', dataset: { key: 'tools.people.export' } },
-      h('span', { class: 'lb' }, h('b', 'Export this chat’s people'), h('small', state.note || 'Their dossiers and portraits, as an NPC State file for safekeeping')),
+      h('span', { class: 'lb' }, h('b', 'Export this chat’s people'), h('small', state.note || 'Their dossiers and portraits, as an NPC State file')),
       h('span', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2', disabled: state.busy, onClick: () => state.exportPeople() }, 'Export'))),
-    fact('tools.chat.middleDelete', 'Deleting a message in the middle', 'Always takes back that message’s changes; the story is rebuilt from the replies that are left'),
+    fact('tools.chat.middleDelete', 'Deleting a message in the middle', 'Its changes are taken back and the story is rebuilt from the replies that are left; there is nothing to switch on'),
     fact('tools.chat.edited', 'Swiped and edited replies', 'A swipe brings back that swipe’s own changes. An edited reply keeps its changes until you choose Re-read this reply in its message menu'));
 }
 

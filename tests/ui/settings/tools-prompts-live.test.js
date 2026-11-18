@@ -61,6 +61,7 @@ test('the Prompts card lists the four People prompts and the arc planner prompt,
   assert.equal(box('arc').value, DEFAULT_PLANNER_PROMPT);
   button(row('behaviour'), 'Read and edit').click();
   assert.equal(box('behaviour').value, DEFAULT_BEHAVIOR_CRITERIA);
+  assert.equal(box('behaviour').getAttribute('maxlength'), '20000', 'the box takes no more than is kept');
   assert.equal(box('arc'), null, 'one box open at a time');
 });
 
