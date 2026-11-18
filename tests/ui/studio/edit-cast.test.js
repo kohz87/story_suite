@@ -191,13 +191,13 @@ test('a refused change says why; Duplicate copies without aliases; Delete asks f
     assert.deepEqual(back.calls.go, [['cast']]);
 });
 
-test('checker problems show under their field and on the list; NPC State fields are named for the JSON row; a format 3 pack is read-only', () => {
+test('checker problems show under their field and on the list; fields with no form are named for the JSON row; a format 3 pack is read-only', () => {
     const problems = [{ path: 'content.cast[0].birthday', message: 'birthday must be a month and a day.' }, { path: 'content.cast[0].ties[0].tag', message: 'tag must be one of the tie kinds.' }];
-    const { draw } = open(0, { ctx: { problems, keep: () => ({ more: true }) }, edit: pack => { pack.content.cast[0].ties = [{ with: 'old-tam', tag: 'pal' }]; pack.content.cast[0].meters = { trust: 10 }; } });
+    const { draw } = open(0, { ctx: { problems, keep: () => ({ more: true }) }, edit: pack => { pack.content.cast[0].ties = [{ with: 'old-tam', tag: 'pal' }]; pack.content.cast[0].tastes = [{ item: 'tea', like: 'loves', why: 'warmth' }]; } });
     const page = draw();
     assert.match(field(page, 'birthday').querySelector('.st-problem').textContent, /month and a day/);
     assert.match(page.querySelector('.st-ties').textContent, /one of the tie kinds/);
-    assert.match(page.querySelector('.st-extra').textContent, /portrait, meters/);
+    assert.match(page.querySelector('.st-extra').textContent, /^Also in this person, only in the JSON below: tastes\.$/);
     const list = setup({ ctx: { problems } }).draw();
     assert.match(list.querySelector('[data-rec="cast.0"]').textContent, /✕ 2/);
     const old = setup({ ctx: { legacy: true } }).draw();
