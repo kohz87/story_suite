@@ -26,7 +26,7 @@ const SET = { name: 'demo', entries: ['packages/demo/boot.js'], lazy: [] };
 
 test('an output folder that is the repo, a parent of it, or in or around the source is refused', () => {
   const root = makeRepo(['guard-repo']);
-  for (const bad of [root, temp, path.join(root, 'packages'), path.join(root, 'packages/demo'), path.join(root, 'packages/demo/out'), path.join(root, 'ui'), path.join(root, 'scripts'), path.join(root, 'tests/x')]) {
+  for (const bad of [root, temp, path.join(root, 'packages'), path.join(root, 'packages/demo'), path.join(root, 'packages/demo/out'), path.join(root, 'ui'), path.join(root, 'scripts'), path.join(root, 'tests/x'), path.join(root, 'studio'), path.join(root, 'studio/out')]) {
     assert.throws(() => assertSafeOut(bad, root), /release: --out/, bad);
   }
   assertSafeOut(path.join(root, 'dist/release'), root);

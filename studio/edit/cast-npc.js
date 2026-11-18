@@ -105,7 +105,7 @@ export function npcGroups(person, list, kit) {
             make: () => ({ id: free(person.secrets, 'new-secret', 'id'), gate: `meter ${meterIds[0] ?? 'trust'} >= 20`, text: '' }),
             form: (secret, n) => (secret.id === undefined && secret.gate === undefined ? [h('p', { class: 'fine' }, 'This secret is in the old form (title, meter, at, when). Edit it in the JSON below, or write it again as id, gate and text.')] : [
                 field({ type: 'text', key: `secrets.${n}.id`, label: 'Id', hint: 'Gates name it as learned:<person>/<secret>', value: secret.id ?? '' }, value => setAt(['secrets', n, 'id'], String(value).trim())),
-                mark(gateField({ key: `secrets.${n}.gate`, label: 'Gate', hint: 'When it can come out. Terms joined by or / and; checked as you type', value: secret.gate ?? '', content: kit.ctx.doc?.doc?.content ?? {}, ownerId: typeof person.id === 'string' ? person.id : null },
+                mark(gateField({ key: `secrets.${n}.gate`, label: 'Gate', hint: 'When it can come out. Terms joined by or / and; checked as you type', value: secret.gate ?? '', content: kit.ctx.doc?.doc?.content ?? kit.ctx.doc?.content ?? {}, ownerId: typeof person.id === 'string' ? person.id : null },
                     (_, value) => setAt(['secrets', n, 'gate'], value))),
                 field({ type: 'long', key: `secrets.${n}.text`, label: 'Text', hint: 'The secret itself, at most 600 characters', value: secret.text ?? '', rows: 3 }, value => setAt(['secrets', n, 'text'], value)),
                 field({ type: 'text', key: `secrets.${n}.writes_fact`, label: 'Fact it records', hint: 'Set when it is learned; events and gates test it as fact:<id>. Blank: none', value: secret.writes_fact ?? '' },
@@ -183,9 +183,9 @@ function seedPanel(person, list, kit) {
         h('span', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 st-seedshow', 'aria-expanded': String(Boolean(state.seed)), onClick: () => { state.seed = !state.seed; kit.redraw(); } }, state.seed ? 'Hide' : 'Show')));
     const group = h('section', { class: 'sgrp st-seed' }, h('div', { class: 'gt' }, 'Seeding'), head);
     if (!state.seed) return group;
-    const places = new Map((kit.ctx.doc?.doc?.content?.places ?? []).map(place => [place?.id, place?.name]));
+    const places = new Map((kit.ctx.doc?.doc?.content?.places ?? kit.ctx.doc?.content?.places ?? []).map(place => [place?.id, place?.name]));
     let seeded;
-    try { seeded = previewSeed(person, { cast: list, placeName: id => places.get(id) ?? null, gated: state.gated === true, packName: kit.ctx.doc?.doc?.name ?? '' }); } catch (error) { seeded = { ok: false, error }; }
+    try { seeded = previewSeed(person, { cast: list, placeName: id => places.get(id) ?? null, gated: state.gated === true, packName: kit.ctx.doc?.doc?.name ?? kit.ctx.doc?.name ?? '' }); } catch (error) { seeded = { ok: false, error }; }
     if (!seeded.ok) {
         group.append(h('p', { class: 'fine' }, seeded.error ? `The preview could not run: ${seeded.error.message ?? seeded.error}.` : 'Give this person a name (and fix the problems above) to see what NPC State would make of them.'));
         return group;

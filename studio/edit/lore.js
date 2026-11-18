@@ -95,16 +95,20 @@ function freshTitle(list, base) {
 }
 
 function create(list, ctx, state) {
+    const was = { ...state };
+    Object.assign(state, { open: list.length, q: '', filter: 'all' }); // before commit: the Studio redraws inside it
     const result = ctx.commit([{ op: 'insert', path: [...BASE, list.length], value: { title: freshTitle(list, 'New entry'), keys: [], text: '' } }]);
-    if (result?.ok) { state.open = list.length; state.q = ''; state.filter = 'all'; }
+    if (!result?.ok) Object.assign(state, was);
 }
 
 function duplicate(list, index, ctx, state) {
     const copy = JSON.parse(JSON.stringify(list[index]));
     copy.title = freshTitle(list, String(copy.title ?? 'Entry') + ' (copy)');
     delete copy.id; // an id names one entry
+    const was = state.open;
+    state.open = index + 1;
     const result = ctx.commit([{ op: 'insert', path: [...BASE, index + 1], value: copy }]);
-    if (result?.ok) state.open = index + 1;
+    if (!result?.ok) state.open = was;
 }
 
 function entryView(list, index, bad, ctx, state, draw) {
@@ -145,7 +149,7 @@ function entryView(list, index, bad, ctx, state, draw) {
     const ruleValue = Object.fromEntries(RULES.map(([value, label]) => [label, value]));
     const keys = (key, label, hint, placeholder) => mark(chipList({ key, label, hint, values: Array.isArray(entry[key]) ? entry[key] : [], placeholder }, (_, values) => put(key, values, key === 'secondaryKeys' && !values.length)));
     const gate = entry.hidden === true || entry.gate !== undefined
-        ? mark(gateField({ key: 'gate', label: 'Gate', hint: 'Terms joined by or / and; and binds first. Checked as you type', value: entry.gate ?? '', content: ctx.doc?.doc?.content ?? {}, ownerId: null }, (_, value) => put('gate', value, value === '')))
+        ? mark(gateField({ key: 'gate', label: 'Gate', hint: 'Terms joined by or / and; and binds first. Checked as you type', value: entry.gate ?? '', content: ctx.doc?.doc?.content ?? ctx.doc?.content ?? {}, ownerId: null }, (_, value) => put('gate', value, value === '')))
         : null;
     const uses = typeof entry.id === 'string' ? usedBy(ctx.refs, 'lore', entry.id) : [];
     const head = h('div', { class: 'st-bar' },
@@ -153,7 +157,7 @@ function entryView(list, index, bad, ctx, state, draw) {
         h('span', { class: 'st-acts' },
             h('button', { type: 'button', class: 'btn2 st-dup', onClick: () => duplicate(list, index, ctx, state) }, 'Duplicate'),
             state.confirm
-                ? [h('button', { type: 'button', class: 'btn2 dng st-sure', onClick: () => { const result = say(ctx.commit([{ op: 'remove', path: [...BASE, index] }])); if (result?.ok) { state.open = null; state.confirm = false; } } }, 'Delete this entry'),
+                ? [h('button', { type: 'button', class: 'btn2 dng st-sure', onClick: () => { Object.assign(state, { open: null, confirm: false }); const result = say(ctx.commit([{ op: 'remove', path: [...BASE, index] }])); if (!result?.ok) Object.assign(state, { open: index, confirm: true }); } }, 'Delete this entry'),
                     h('button', { type: 'button', class: 'btn2 st-keep', onClick: () => { state.confirm = false; draw(); } }, 'Keep it')]
                 : h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; draw(); } }, 'Delete')));
     const extra = Object.keys(entry).filter(key => !FIELDS.includes(key));

@@ -15,8 +15,8 @@
 .st-root .st-line[data-kind="holds"] .st-tag { color: var(--su-warn); }
 
 .st-root .st-hold, .st-root .st-stand { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; }
-.st-root .st-bar { position: relative; height: 10px; border-radius: 5px; background: var(--su-line, rgba(127, 127, 127, .2)); overflow: hidden; }
-.st-root .st-bar span { position: absolute; top: 0; bottom: 0; min-width: 2px; background: var(--su-warn); border-radius: 5px; }
+.st-root .st-holdbar { position: relative; height: 10px; border-radius: 5px; background: var(--su-line, rgba(127, 127, 127, .2)); overflow: hidden; }
+.st-root .st-holdbar span { position: absolute; top: 0; bottom: 0; min-width: 2px; background: var(--su-warn); border-radius: 5px; }
 .st-root .st-curve { display: block; width: 100%; height: 36px; }
 .st-root .st-curve polyline { stroke: var(--su-accent); stroke-width: 2; }
 .st-root .st-stand[data-kind="score"] .st-curve polyline { stroke: var(--su-hp); }

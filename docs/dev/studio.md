@@ -1,9 +1,9 @@
 # Pack Studio
 
 The Pack Studio is a page for writing packs. It replaces the old Story Studio (the separate repository). Today it opens,
-checks, shows, edits and exports format 4 world and game packs (and shows format 3 packs, read-only). Every record can be
-edited as JSON (its JSON row), with undo and redo and an autosaved draft; the forms for each part come in later jobs,
-through the slots described below.
+checks, shows, edits and exports format 4 world and game packs (and shows format 3 packs, read-only). Each part has its
+form (the editor files in the slots described below), and every record can also be edited as JSON (its JSON row), with
+undo and redo and an autosaved draft.
 
 ## Opening it
 
@@ -29,10 +29,10 @@ through the slots described below.
   Weather, Names, Rules, Trackers and Start.
 - **Format 3**: a pack below format 4 (or with no `format`) opens read-only in the world slot. Its subtitle says
   `Format 3`, a card at the top of Overview says why it cannot be edited, and its rules, calendar, money and the like show
-  under Other as written. Converting it to format 4 is a later job (ST-CONV).
+  under Other as written. The Studio does not convert it (ST-CONV was dropped).
 - **Check**: `packs/validate.js` `validatePack` on the text as written, so the Studio and the game always agree. Each
   problem's path is filed under a part and a record (`studio/parts.js` `partOfPath`).
-- **Views**: one page per part (`studio/parts.js` `PARTS`), read only. Which content keys a format 4 pack may hold come
+- **Views**: one page per part (`studio/parts.js` `PARTS`). Which content keys a format 4 pack may hold come
   from the game's `CONTENT_KEYS` (`packs/limits-parts/kinds.js`) for its kind; `parts.js` only orders, names and groups them,
   and anything else shows under Other. Records are cards showing every field as written. A part the pack does not have is
   left out of the nav.
@@ -40,9 +40,10 @@ through the slots described below.
   `studio/edit/<name>.js`, `editSection(section, ctx)`), and each page that is not one key by its page file (`PAGES`:
   `studio/views/<id>.js`, `renderPage(ctx)`): the map and the event graph as a "List · Map" or "List · Graph" segment on
   their part, the dry run and Pairing as parts in the Check group, Convert as the card on a format 3 Overview, and the start
-  page. Today every editor is a stub drawing the cards with their JSON rows, and the map, graph, dry-run and Pairing stubs
-  draw nothing, so their mounts stay hidden. The later Studio jobs each replace one of these files. `ctx` (built by
-  `studio/app.js` for each draw) is the contract in `studio/views/route.js`: `doc`, `kind`, `legacy`, `other`, `refs` (the
+  page. A key with no editor (a format 3 pack's rules, calendar and the like) is drawn as read-only cards; a page that
+  draws nothing is not mounted. `ctx` (built by
+  `studio/app.js` for each draw) is the contract in `studio/views/route.js`: `doc` (the present pack itself, the parsed pack.json, not a
+  `{ text, doc }` document), `kind`, `legacy`, `other`, `refs` (the
   reference index, `studio/model/refs.js`, built once per snapshot), `problems`, `focus` (`{ rec, path }`), `go`, `portrait`,
   `keep(id)` (a plain object per pack that outlives a redraw), and the edits: `commit(patches)` and `setPortrait(name,
   bytes | null)` are one undo step each and answer `{ ok, same?, refusal? }`, and `openDoc({ text?, doc?, portraits? })`

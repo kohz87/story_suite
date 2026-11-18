@@ -12,7 +12,7 @@ const plain = value => JSON.parse(JSON.stringify(value ?? null));
 /** The world the step reads, from a pack's content (the keys `readWorld` builds for a chat). `game` may carry `seasons`; the pack's start state (`content.start.world`, or the older `start.world`) is applied on day 1. */
 export function worldOf(pack, game = null) {
     const content = pack?.content ?? {};
-    const merged = rows => Object.assign({}, ...list(rows).filter(item => item && typeof item === 'object' && !Array.isArray(item)));
+    const merged = rows => Object.assign({}, ...(Array.isArray(rows) ? rows : [rows]).filter(item => item && typeof item === 'object' && !Array.isArray(item)));
     const world = {
         places: list(content.places), routes: list(content.routes), realms: list(content.realms),
         placeKinds: merged(content.placeKinds), routeKinds: merged(content.routeKinds),

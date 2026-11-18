@@ -126,7 +126,7 @@ function holdsGroup(rows, days) {
     if (!spans.length) return group('st-dry-holds', 'Condition holds', row('st-dry-quiet', 'No condition held.', 'No condition was set on any day of the run.'));
     return group('st-dry-holds', `Condition holds · ${spans.length}`, spans.map(([name, list]) => {
         const total = list.reduce((sum, [from, to]) => sum + to - from + 1, 0);
-        const bar = h('div', { class: 'st-bar', role: 'img', 'aria-label': `${name}: held ${plural(total, 'day')}` },
+        const bar = h('div', { class: 'st-holdbar', role: 'img', 'aria-label': `${name}: held ${plural(total, 'day')}` },
             list.map(([from, to]) => h('span', { style: { left: `${((from - 1) / days) * 100}%`, width: `${((to - from + 1) / days) * 100}%` } })));
         return h('div', { class: 'srow wide st-hold', dataset: { name } }, h('div', { class: 'lb' }, h('b', name),
             h('small', `${plural(total, 'day')} held: ${list.map(([from, to]) => (from === to ? `day ${from}` : `days ${from}–${to}`)).join(', ')}`)), bar);

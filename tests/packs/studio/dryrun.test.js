@@ -48,6 +48,12 @@ test('worldOf reads the game seasons, and merges the kind tables', () => {
     assert.equal(worldOf({ content: {} }).seasons, null);
 });
 
+test('worldOf keeps a format 4 pack\u2019s kind tables, which are one object each (as play reads them)', () => {
+    const world = worldOf({ content: { placeKinds: { fort: 'fort', camp: 'wild' }, routeKinds: { ferry: 'water' } } });
+    assert.deepEqual(world.placeKinds, { fort: 'fort', camp: 'wild' });
+    assert.deepEqual(world.routeKinds, { ferry: 'water' });
+});
+
 // A fake Worker that answers on the next tick through the real wrapper.
 function fakeWorker({ crash = false } = {}) {
     const worker = {

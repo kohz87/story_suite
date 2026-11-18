@@ -138,7 +138,7 @@ test('the timeline\'s Go to opens the event and the template; holds and curves a
     assert.deepEqual(holds.map(hold => hold.dataset.name), ['lamps-out', 'unrest']);
     assert.match(holds[0].querySelector('small').textContent, /^\d+ days held: days 1–\d+$/);
     assert.match(holds[1].querySelector('small').textContent, /^3 days held: days 17–19$/);
-    assert.equal(holds[1].querySelector('.st-bar span').style.getPropertyValue?.('width') ?? holds[1].querySelector('.st-bar span').getAttribute('style'), `${(3 / 90) * 100}%`);
+    assert.equal(holds[1].querySelector('.st-holdbar span').style.getPropertyValue?.('width') ?? holds[1].querySelector('.st-holdbar span').getAttribute('style'), `${(3 / 90) * 100}%`);
 });
 
 // A fake Worker that answers through the real worker wrapper, or with a set result, or crashes; it never answers until `tick()`.
@@ -220,4 +220,10 @@ test('a world that is not JSON draws no page, so the part is not mounted', () =>
     const { ctx } = setup();
     ctx.doc = null;
     assert.deepEqual(renderPage(ctx), []);
+});
+
+test('the hold bar has its own class: the editors\u2019 .st-bar (list and record heads) is not styled by the dry-run sheet', () => {
+    const sheet = readFileSync(new URL('../../../studio/css/timeline.css', import.meta.url), 'utf8');
+    assert.doesNotMatch(sheet, /\.st-bar\b/);
+    assert.match(sheet, /\.st-holdbar\b/);
 });

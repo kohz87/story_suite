@@ -236,3 +236,28 @@ test('a pack with no commit (a format 3 pack) is not offered an editor change', 
     const root = open(me, 0);
     assert.ok(root.querySelector('.st-jsonrow'));
 });
+
+test('the gate reads the pack the Studio passes (ctx.doc is the pack itself): a place of the pack is no problem', () => {
+    const me = host([{ title: 'Gated', id: 'g', hidden: true, gate: 'place:harbor', text: 't' }]);
+    me.doc = openDoc({ doc: { id: 'w', kind: 'world', content: { lore: me.lore().map(entry => ({ ...entry })), places: [{ id: 'harbor', name: 'Harbor' }] } } });
+    const base = me.ctx;
+    me.ctx = () => ({ ...base(), doc: me.doc.doc, refs: buildRefs(me.doc.doc) });
+    const root = open(me, 0);
+    assert.doesNotMatch(root.textContent, /not a place of this pack/);
+});
+
+test('as in the Studio, where commit draws the page again before it returns: Delete shows the list (nothing armed), New and Duplicate open the new entry', () => {
+    const me = host();
+    const base = me.ctx;
+    me.ctx = () => ({ ...base(), commit: patches => { const result = base().commit(patches); if (result.ok) me.draw(); return result; } });
+    let root = open(me, 1);
+    root.querySelector('.st-del').click();
+    me.draw().querySelector('.st-sure').click();
+    assert.equal(me.lore().length, 2);
+    assert.equal(me.root.querySelector('.st-sure'), null);
+    assert.equal(me.root.querySelectorAll('.st-lorerow').length, 2);
+    me.root.querySelector('.st-new').click();
+    assert.match(me.root.querySelector('.st-entryhead').textContent, /Lore entry 3 of 3/);
+    me.root.querySelector('.st-dup').click();
+    assert.match(me.root.querySelector('.st-entryhead').textContent, /Lore entry 4 of 4/);
+});
