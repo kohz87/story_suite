@@ -45,12 +45,17 @@ export function knownPerson(ctx, name) {
 const named = (line, found) => (typeof found.record?.name === 'string' && labelKey(found.record.name) !== labelKey(line.name) ? { ...line, name: found.record.name } : line);
 const labelsWrite = (record, name) => [record.name, ...(Array.isArray(record.aliases) ? record.aliases : [])].map(labelKey).includes(labelKey(name));
 
-// A tie's `with:` names someone with a record (refused otherwise, as `~ npc` of an unknown name is), written as their full name.
-function tieWith(ctx, line) {
+// A tie's `with:` names someone with a record (refused otherwise, as `~ npc` of an unknown name is), written as their full name. A pack person met or present
+// here with no dossier yet gets it from the pack first (S2PA B1, `castFirst`: ./cast-first.js).
+function tieWith(ctx, line, castFirst) {
     const label = Object.keys(isObject(line.labels) ? line.labels : {}).find(key => labelKey(key) === 'with');
     const other = label ? String(line.labels[label] ?? '').trim() : '';
     if (!other) return line;
-    const found = knownPerson(ctx, other);
+    let found = knownPerson(ctx, other);
+    if (!found?.record && typeof castFirst === 'function') {
+        const made = castFirst(ctx, other, { entry: found?.key ?? null });
+        if (made) found = { key: made.id, record: { name: made.name } };
+    }
     if (!found) ctx.fail('REFUSED', `~ tie ${clean(line.name, 40)}: ${clean(other, 40)} has no record yet; write + npc ${clean(other, 40)} | role | look first.`);
     const full = typeof found.record?.name === 'string' && !labelsWrite(found.record, other) ? found.record.name : other;
     return { ...line, labels: { ...line.labels, [label]: full } };
@@ -87,6 +92,10 @@ export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst
             if (refused) ctx.fail('REFUSED', refused);
             // F41: "Who gets a dossier: Manual only" (admissionMode manual_only): every dossier needs the reader's + Add, so the story's line makes nobody.
             if (manualOnly(ctx)) ctx.fail('REFUSED', `Who gets a dossier is Manual only; ${stub.name} gets a dossier only when you add them.`);
+            // S2PA B2: a pack person met or present here (the story brings them in) is not someone new: their dossier is made from the pack (./cast-first.js),
+            // with the pack's role, look, abilities, keepsakes and portrait, and the line's own role and look are not used.
+            const pack = typeof castFirst === 'function' ? castFirst(ctx, stub.name) : null;
+            if (pack) return handler(ctx, { ...on, labels: {}, name: pack.name, stubKey: pack.id });
             // This reply's stubs are the people stamped with its index (the identity the fill-in finds them by).
             const stamp = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1;
             const made = Object.values(ctx.read('people')?.npcs ?? {}).filter(record => record?.createdAt === stamp && !record.castFrom).length;   // (a pack person's dossier, ./cast-first.js, is not a new person)
@@ -114,6 +123,6 @@ export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst
         // under the person's full name (the meter entry and the dossier are found by it; also an alias of someone made in this very reply); F34: a tie names a known person.
         const dead = found.record?.lifeState === 'deceased';
         if (dead && line.kind !== 'npc') ctx.fail('REFUSED', `${clean(found.record.name, 40)} has died; lines about them change nothing now.`);
-        return handler(ctx, line.kind === 'tie' ? tieWith(ctx, named(on, found)) : { ...named(on, found), ...(dead ? { dead: true } : {}) });
+        return handler(ctx, line.kind === 'tie' ? tieWith(ctx, named(on, found), castFirst) : { ...named(on, found), ...(dead ? { dead: true } : {}) });
     };
 }

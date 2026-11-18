@@ -4,7 +4,7 @@
 // The open is the line's own op (the same run as `npc.open` by a story event), so a swipe, a Re-read, an edit, a Continue and a reload decide it again the same way.
 import { NPC_DOMAIN, clean, slug } from '../npc-meters-config.js';
 import { secretEventsShown } from '../../core/core-prompts-capture.js';
-import { knownPerson } from './stub.js';
+import { knownOrCast } from './cast-first.js';
 import { gateOpen } from '../npc-meters-secrets-parts/revealable.js';
 
 const fold = value => String(value ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
@@ -12,11 +12,14 @@ const fold = value => String(value ?? '').replace(/\s+/g, ' ').trim().toLowerCas
 /** The line's labels as { opened, quote } (by slugged label). */
 const labelsOf = line => Object.fromEntries(Object.entries(line?.labels ?? {}).map(([label, raw]) => [slug(label), String(raw ?? '')]));
 
-/** Runs one `~ reveal` line. `deps`: { identify, rulesFor, run } (the part's record helpers and its run). → the run's receipt. */
-export function secretLine(ctx, line, { identify, rulesFor, run, call = () => ({}), hooks = {}, defs = () => [] }) {
+/**
+ * Runs one `~ reveal` line. `deps`: { identify, rulesFor, run } (the part's record helpers and its run); `castFirst` (./cast-first.js): a pack person met or
+ * present here gets their dossier from the pack first (S2PA B1). → the run's receipt.
+ */
+export function secretLine(ctx, line, { identify, rulesFor, run, call = () => ({}), hooks = {}, defs = () => [], castFirst = null }) {
     const name = clean(line?.name, 40);
     const { opened = '', quote = '' } = labelsOf(line);
-    const found = knownPerson(ctx, line?.name);
+    const found = knownOrCast(ctx, line?.name, castFirst);
     if (!found) ctx.fail('REFUSED', `${name} has no record yet; write + npc ${name} | role | look first.`);
     const id = clean(opened, 80);
     if (!id) ctx.fail('REFUSED', `~ reveal ${name}: opened: is empty.`);

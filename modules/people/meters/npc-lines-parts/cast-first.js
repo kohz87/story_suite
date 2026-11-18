@@ -13,6 +13,7 @@ import { CAST_QUERY } from '../npc-meters-slice.js';
 import { seedCastBond } from '../npc-meters-parts/cast-bond.js';
 import { stubRecord } from './derived.js';
 import { personNamed } from './names.js';
+import { knownPerson } from './stub.js';
 
 const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 const WORLD_EVENTS = 'story-director.world-events';
@@ -102,4 +103,18 @@ export function createCastFirst({ baseline, bond }) {
     // person is then two people, so nobody (./stub.js).
     castFirst.fits = (ctx, name) => Object.values(packCast(ctx).rows).some(row => personNamed({ row }, name) !== null);
     return castFirst;
+}
+
+/**
+ * The person `name` is for a line that names someone (S2PA B1: `~ memory`, `~ reveal` and a tie's `with:`): the listed person (./stub.js knownPerson), else
+ * the pack person met or present here whose dossier `castFirst` makes now, as a `~ npc` line would (a short form that also fits such a pack person is
+ * nobody, as there). → { key, record? } or null (the line is then refused as before).
+ */
+export function knownOrCast(ctx, name, castFirst) {
+    let found = knownPerson(ctx, name);
+    const exact = found?.record && [found.record.name, ...(Array.isArray(found.record.aliases) ? found.record.aliases : [])].map(labelKey).includes(labelKey(name));
+    if (found?.record && !exact && typeof castFirst?.fits === 'function' && castFirst.fits(ctx, name)) found = null;
+    if (found?.record || typeof castFirst !== 'function') return found;
+    const made = castFirst(ctx, name, { entry: found?.key ?? null });
+    return made ? { key: made.id, record: { name: made.name } } : found;
 }
