@@ -12,4 +12,4 @@ export { hurtsOf } from './cue-parts/bars.js';
 export { cueText } from './cue-parts/text.js';
 export { OPEN_FIGHT_LINE, NO_ROLLS_LINE } from './cue-parts/fixed-lines.js';
 export { fitCue } from './cue-parts/fit.js';
-export { cueOfResult, receiptWithCue, entriesWithCue, receiptCue } from './cue-parts/receipt.js';
+export { cueOfResult, receiptCue } from './cue-parts/receipt.js';

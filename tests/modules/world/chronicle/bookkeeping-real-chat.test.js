@@ -25,7 +25,6 @@ const CHAT = [
     make('time.settle', 'Story time settled at Goldwane 12, 06:40 am.', 'system', 'story-director'),
     make('cast.advance', 'The cast: nothing changed.', 'system', 'story-director'),
     make('director.initiative', 'Initiative for the next reply: Nelje.', 'system', 'story-director'),
-    make('rpg.resolve', 'Tell the settled fight results in order; do not reroll them. | Write [battle] on its own line where the fight is told.', 'system'),
     make('capture.time', 'Director: ~ time <CY 611, Goldwane 12, 07:30 am> (not used)', 'story', 'story-director'),
     make('keypeople.sync', '', 'system', 'story-director'),
     make('chronicle.note', '', 'system', 'story-director'),

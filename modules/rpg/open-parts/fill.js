@@ -15,7 +15,7 @@ export const FIX_VERSION = 3;
  * Fills a free slot (empty or Down) of the Foes blocks in `domain` (the data-module domain) for each entry of `open`, in order, through the block's
  * own `set-slot-N` kind (its effects, run by the block interpreter); a block with no such kind (a bare sheet) has the same four fields set, the
  * health full. An entry whose name is on a standing slot already, or that finds no free (empty or Down) slot, is passed over; a Down group of the same name is replaced in its own slot. The domain is changed in place.
- * An entry carries its `level` (the Levels rules, once resolve.js has settled it) or its `class` (a plan from before). → [{ slot, module, name, count, level | class }] the
+ * An entry carries its `level` (the Levels rules) or its `class` (a Foes block of the earlier rules). → [{ slot, module, name, count, level | class }] the
  * slots filled (the sheet's slot numbers).
  */
 export function openFoes(domain, open, { fix = FIX_VERSION, stale = [] } = {}) {

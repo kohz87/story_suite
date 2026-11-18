@@ -56,8 +56,8 @@ reply), §4.4 (grammar, display kinds), §4.5 (free-text actions), §2.2 (spans,
   The entry points `extractBlock`, `stripBlock`, `hideBlock` live in this file; the rest is in `src/v2/capture/`
   and re-exported from here: `lines.js` (`parseLine`, `parseChanges`, `lineBody`, `grammarHeads`), `blocks.js`
   (`findBlocks`, `readBlocks`, `hasHidden`, `markOff`, `continuation`, `withoutReasoning`, `cutLine`, `defangMarker`),
-  `echo.js` (`assistSections`, `withAssist`, echoed lines, `readParts`), `legacy.js` (the v1 envelope),
-  `stray.js` (`strayLines`, `inOrder`, `dropLines`). Import order is one way: lines, blocks, echo, legacy / stray.
+  `echo.js` (`assistSections`, `withAssist`, echoed lines, `readParts`),
+  `stray.js` (`strayLines`, `inOrder`, `dropLines`). Import order is one way: lines, blocks, echo / stray.
 - `src/v2/turn/events.js`: `onMessageReceived`, `captureLate`, `captureAssist` (and the other events, `install` / `uninstall`) (`createEvents`); `src/v2/turn/capture-flow.js`: `captureLines`,
   `captureEach`, `afterCapture`, `readBlock`, `strayProblems`, `capped`, `storySeeds`, `stepSeeds` (`createCaptureFlow`);
   `src/v2/turn/reread.js`: `reread`, `saveText`, `redraw` (`createReread`); `src/v2/turn/reread-scene.js`:

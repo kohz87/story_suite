@@ -8,7 +8,7 @@ import { stripMarkers } from '../interaction/markers.js';
 import { keepBlocks } from './keep-blocks.js';
 
 export function createPromptHooks(s, deps) {
-    const { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, HAS_LEGACY, LEGACY_IN_PROMPT, holdsIn, normalizeType, hostSettings } = deps;
+    const { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, holdsIn, normalizeType, hostSettings } = deps;
     // One message's content as the history strip leaves it (keep-blocks.js).
     const stripOne = content => { const one = [{ role: 'assistant', content }]; stripHistory(one); return one[0].content; };
 
@@ -79,7 +79,6 @@ export function createPromptHooks(s, deps) {
         // Only the hidden form: the static text's own example block must stay.
         const hidden = new RegExp(`\\s*<!--\\s*STORY_SUITE_V2\\b[\\s\\S]*?-->`, 'g');
         eventData.prompt = eventData.prompt.replace(hidden, '');
-        if (HAS_LEGACY.test(eventData.prompt)) eventData.prompt = eventData.prompt.replace(LEGACY_IN_PROMPT, '');
         eventData.prompt = stripMarkers(eventData.prompt, markers());
         if (quietPrompt(mark => eventData.prompt.includes(mark))) {
             for (const pattern of ownPatterns()) eventData.prompt = eventData.prompt.replace(pattern, '');

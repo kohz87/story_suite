@@ -20,7 +20,7 @@
 // code's XP, so the narrator's line and the rise it brought are gone, and one Problems line says so. XP in any other reply (a quest, a discovery) is
 // untouched: the step exists only in the reply that won the fight.
 //
-// A board win (the reply's `rpg.resolve` receipt says `won`) is paid whatever the story did to the Foes block after it: a new group the narrator opened in the same
+// A board win (the reply's fight receipt says `won`) is paid whatever the story did to the Foes block after it: a new group the narrator opened in the same
 // reply (the reinforcements a finished fight allows), or the Down groups it cleared, no longer hide the win. When the block still shows the fight's groups Down, the step is
 // asked for as ever; when it does not, the step carries `groups` (the fight's groups as the reply began, or as its roll opened them), and pays from those.
 // New fight steps carry `outnumbered: 1`: each foe above the party's non-Left members adds 0.5 to the XP multiplier, up to 2. The multiplier applies after the level gap,

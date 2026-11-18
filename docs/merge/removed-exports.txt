@@ -206,3 +206,42 @@ compactCaptureRules
 parseNarrationCapture
 textCapture
 lastCaptureBlockChars
+# B4-11a: the v1 capture (Story Block v1's envelope: core/capture/legacy.js and its parts). HAS_LEGACY is not listed: two lines of
+# docs/merge/core-module-refs.txt still name it (an unused binding in core/turn-parts/create-turn.js).
+LEGACY_PROBLEM
+LEGACY_MARK
+legacyRead
+hasLegacy
+stripLegacy
+adoptLegacy
+legacyPairs
+LEGACY_IN_PROMPT
+# B4-11b (the v1 copy watch): core/persist/v1-copy.js and its parts, which told of an old Story Block v1 running beside the suite, deleted with its test.
+createV1Watch
+hasV1Settings
+isV1Api
+V1_COPY_CODE
+V1_COPY_PROBLEM
+# B4-11c: the RPG planner's replay paths (open.js vetOpen, the rpg.noroll and rpg.resolve record names and readers, the receipt cue wrappers), deleted with their tests.
+vetOpen
+OPEN_MAX_COUNT
+NOROLL
+RESOLVE
+receiptWithCue
+entriesWithCue
+withCue
+# B4-11e: narrated fights (modules/rpg/board/narrated-grammar.js); its foe-kind lines now live privately in board/prompt.js.
+narratedFoeGrammar
+# B4-11f (18 Nov 2026): the Story Director v1 arc planner (modules/atlas/planner*), replaced by modules/arc/plan; resolveRelative moved to modules/arc/plan/read-parts/relative.js.
+summarizeTracker
+buildPlannerMessages
+parsePlan
+validatePlan
+planToOps
+noteAfterAccept
+resolveDates
+# B4-11g: the Story Director checks part's read of the retired 2.1 policy field rbActors (modules/rpg/checks/domain-parts/shared-legacy.js).
+LEGACY_POLICY
+# B4-11h: the Days screen id (story-director/days).
+daysScreen
+DAYS_ID

@@ -22,19 +22,14 @@
 // note is an ⓘ); Leads are the hooks the player has heard of (`director.world.leads`); the date tag of Upcoming and the state tag
 // of News sit on the title line, in its right corner; Factions show only once one is known. There is no Around here. The News
 // and events and the Factions are the feature `story-director.threads`' (src/v2/threads.js): off, they are not drawn.
-//
-// `story-director/days` (the old Days screen's id) is kept as a dialog of the Journal alone, so an older
-// layout or a reader's own copy that names it still finds a screen; it is no tab and no game-view screen.
 
 import { BASE_CSS } from '../../director/screens/style.js';
-import { DIGEST_FEATURE } from '../chronicle/days.js';
 import { FEATURE } from './known.js';
 import { PEOPLE_WIDGET } from './people.js';
 import { KEY_PEOPLE_WIDGET } from '../../cast/keypeople/widget.js';
 import { FOLD_WIDGET } from './elsewhere.js';
 
 export const WORLD_ID = 'story-director/world';
-export const DAYS_ID = 'story-director/days';
 
 // The one place a World section label is drawn: its words, an optional count (shown when `when` holds), and
 // the rule after it. The separator is `.wv-label::after` in CSS (a 1px hairline in the border token), so
@@ -370,16 +365,4 @@ export const worldScreen = Object.freeze({
     template: TEMPLATE,
     css: CSS,
     data: DATA,
-});
-
-/** The old Days screen's id: the Journal alone, as a dialog (no tab, no game-view screen). */
-export const daysScreen = Object.freeze({
-    id: DAYS_ID,
-    title: 'Journal',
-    icon: 'fa-book',
-    mounts: Object.freeze(['dialog']),
-    feature: DIGEST_FEATURE,
-    template: `<div class="wv"><div class="wv-journal">${JOURNAL}\n</div></div>`,
-    css: CSS,
-    data: Object.freeze({ journal: Object.freeze({ query: 'director.journal' }) }),
 });

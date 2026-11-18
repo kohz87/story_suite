@@ -1,9 +1,5 @@
-// Story Director: resolving the arc planner relative dates (pure).
-
-import { isNumber } from './shared.js';
-
-const DATE_FIELDS = ['on', 'due', 'arrive'];
-export const FIRE_FIELDS = ['on', 'due'];
+// Story Director v2, part **arc**: a planner's relative date ("in 2 days", "tomorrow at dusk", "next morning") written as a date on the
+// story calendar (pure). The plan reader calls it only with a calendar and a story time.
 
 const DAY_MINUTES = 1440;
 const UNIT_MINUTES = Object.freeze({ minute: 1, hour: 60, day: DAY_MINUTES, week: 7 * DAY_MINUTES });
@@ -30,17 +26,6 @@ const DAY_WORD = new RegExp(`^(?:the\\s+)?(${Object.keys(DAY_WORDS)
 // `next morning`, `the following evening`, `this afternoon`: the word must be a time of day,
 // which the calendar decides (so a reader's own parts of day work too).
 const NEXT_PART = /^(?:the\s+)?(next|following|this)\s+(\p{L}+)$/u;
-
-export function resolveDates(fields, { calendar, now }) {
-    const out = { ...fields };
-    if (!calendar || !isNumber(now)) return out;
-    for (const name of DATE_FIELDS) {
-        if (!out[name]) continue;
-        const resolved = resolveRelative(out[name], { calendar, now });
-        if (resolved !== null) out[name] = resolved;
-    }
-    return out;
-}
 
 // A relative date written as a calendar date, or null when the text is not one (an absolute
 // date, or something unreadable, which then stays as written).

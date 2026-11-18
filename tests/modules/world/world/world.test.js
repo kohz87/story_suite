@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DAYS_ID, FEATURE, FOLD_WIDGET, PEOPLE_WIDGET, WORLD_ID, createFoldWidget, createPeopleWidget, daysScreen, foldMemory, holidays, knownFactions, knownNews, part, worldScreen } from '../../../../modules/world/world/index.js';
+import { FEATURE, FOLD_WIDGET, PEOPLE_WIDGET, WORLD_ID, createFoldWidget, createPeopleWidget, foldMemory, holidays, knownFactions, knownNews, part, worldScreen } from '../../../../modules/world/world/index.js';
 import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
 import { createModule, storyDirectorModule } from '../../../../modules/director/module.js';
 import { makeCalendar } from '../../../../modules/time/calendar.js';
@@ -50,15 +50,13 @@ async function story(options = {}) {
 
 const leaks = data => HIDDEN.filter(word => JSON.stringify(data).includes(word));
 
-test('the part: feature on by default; the World screen and the old Days id; queries, setting and widget registered', () => {
+test('the part: feature on by default; the World screen (and no old Days id); queries, setting and widget registered', () => {
     assert.deepEqual(part.features.map(feature => [feature.id, feature.default]), [[FEATURE, true]]);
     assert.equal(WORLD_ID, 'story-director/world');
-    assert.equal(DAYS_ID, 'story-director/days');
     assert.deepEqual([...worldScreen.mounts], ['tab', 'screen']);
     assert.equal(worldScreen.feature, FEATURE);
-    assert.deepEqual([...daysScreen.mounts], ['dialog'], 'the old Days id is no tab and no game-view screen any more');
-    assert.equal(daysScreen.feature, DIGEST_FEATURE);
-    for (const screen of [worldScreen, daysScreen]) {
+    assert.ok(!storyDirectorModule.screens.some(screen => screen.id === 'story-director/days'), 'the old Days id is gone');
+    for (const screen of [worldScreen]) {
         assert.deepEqual(validateScreen(screen), [], screen.id);
         assert.deepEqual(scopeCss(screen.css, screen.id).warnings, [], screen.id);
         for (const binding of Object.values(screen.data)) assert.ok(Object.hasOwn(storyDirectorModule.queries, binding.query), binding.query);

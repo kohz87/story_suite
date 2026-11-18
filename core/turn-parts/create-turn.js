@@ -33,10 +33,10 @@ const MAX_PROBLEMS = 200;
 // Stripped history texts kept between prompts (each is read again for every later prompt).
 const STRIP_CACHE = 500;
 const HAS_BLOCK = /<changes/i;
-// Story Block v1's envelope (capture.js adoptLegacy): never sent to the model. In a text completion prompt only a closed
-// one, and never across another comment's start, so one left open cannot take the rest of the prompt with it.
-const HAS_LEGACY = /<!--\s*(?:STORY_BLOCKS_V1|INVENTORY_BLOCK_V05)/i;
-const LEGACY_IN_PROMPT = /\s*<!--\s*(?:STORY_BLOCKS_V1_CUT|STORY_BLOCKS_V1|INVENTORY_BLOCK_V05)\b(?:(?!<!--)[\s\S])*?-->/gi;
+// Kept only so two lines listed in docs/merge/core-module-refs.txt (the createPromptBuild and createEvents calls below) stay as
+// written: the list may only shrink, and those lines still name the RPG load wait. The v1 envelope is gone (B4-11a); both are unused.
+const HAS_LEGACY = null;
+const legacyProblem = null;
 
 const defaultNotify = reason => globalThis.toastr?.warning?.(reason, 'Story Suite');
 
@@ -147,14 +147,14 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     const stopChangedBoard = () => watch.stopChanged();
     const interactionError = watch.errorOf;
     // The capture flow (turn/capture-flow.js): wired here, after the session's `problem` it is given and before the Re-read that calls it.
-    const { changeHeads, readBlock, strayProblems, legacyProblem, capped, assistRoom, lateLines, nowLines, captureLines, afterCapture, stepSeeds, captureEach, storySeeds, heldInReply, withCaps, LATE, NOW } = createCaptureFlow(s, { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, PRACTICE_LINE, HOOK_TIMEOUT_MS, isolated, interactionError });
-    const { reread, saveText, redraw } = createReread(s, { ctx, metadata, store, events, timeline, refusal, changeHeads, readBlock, strayProblems, capped, lateLines, assistRoom, nowLines, heldInReply, legacyProblem, storySeeds, afterCapture, captureEach, stepSeeds, withCaps, isPrelude, LATE, NOW, planAgain, problem, trySave });
+    const { changeHeads, readBlock, strayProblems, capped, assistRoom, lateLines, nowLines, captureLines, afterCapture, stepSeeds, captureEach, storySeeds, heldInReply, withCaps, LATE, NOW } = createCaptureFlow(s, { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, PRACTICE_LINE, HOOK_TIMEOUT_MS, isolated, interactionError });
+    const { reread, saveText, redraw } = createReread(s, { ctx, metadata, store, events, timeline, refusal, changeHeads, readBlock, strayProblems, capped, lateLines, assistRoom, nowLines, heldInReply, storySeeds, afterCapture, captureEach, stepSeeds, withCaps, isPrelude, LATE, NOW, planAgain, problem, trySave });
 
     const { discardRepair } = createDiscard({ ctx, reread, refusal });
 
     // The prompt side of a turn (turn/prompt-build.js, turn/prompt-hooks.js): wired here, after every const they are given. The interceptor asks for claimQuiet only when it runs.
     const { runCues, build, askCanGenerate, runOnBlocked, interceptor, markers, stripHistory, backgroundPrompt, foreignPrompt } = createPromptBuild(s, { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet: () => claimQuiet(), FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType });
-    const { onGenerationStarted, claimQuiet, onPromptReady, onTextPromptReady } = createPromptHooks(s, { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, HAS_LEGACY, LEGACY_IN_PROMPT, holdsIn, normalizeType, hostSettings });
+    const { onGenerationStarted, claimQuiet, onPromptReady, onTextPromptReady } = createPromptHooks(s, { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, holdsIn, normalizeType, hostSettings });
 
     // The SillyTavern event handlers (turn/events.js): wired here, after every part they are given. `getApi` is read only when install runs, after the api below exists.
     const { install, uninstall, onMessageReceived, onChatChanged, seed, onChatRenamed, onTimelineChanged, onGenerationEnded } = createEvents(s, { ia, markIdle, clearPrompts, ctx, metadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, interactionError, reconcileScratch, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi: () => api, isolated });

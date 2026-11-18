@@ -5,8 +5,6 @@ import { headReply, replyAt } from '../commands.js';
 import { KEY as RECORD_KEY, isCarrier, recordFault } from '../persist.js';
 import { cutAt } from '../text.js';
 import { MODEL_CALL_ERRORS, MODEL_CALL_TEXT, profileName } from '../model-call.js';
-import { RESOLVE as RPG_RESOLVE } from '../../modules/rpg/names.js';
-import { receiptCue, entriesWithCue } from '../../modules/rpg/cue.js';
 import { createPublicPaths } from '../persist/public-paths.js';
 
 import { createCardSettings } from '../../packs/card-settings.js';
@@ -18,7 +16,7 @@ import { newId } from '../sdk/ids.js';
 import { createPanels } from '../sdk/panels.js';
 import { createInteractionApi } from '../sdk/interaction.js';
 import { createChangedFeed } from '../sdk/changed.js';
-import { featureOn, makeView, missingModules, runQuery, withCue } from '../sdk/queries.js';
+import { featureOn, makeView, missingModules, runQuery } from '../sdk/queries.js';
 import { announceModules, ensureModules, preflight, rememberTimeline } from '../sdk/lifecycle.js';
 
 // sdk.check comes from check.js (SB-commands); the sdk still loads without it.
@@ -150,7 +148,7 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
             return runQuery(registry, store.head(), name, args, { receipts: () => store.receipts?.() ?? [], reply: headReply(store) });
         },
         /** The stored receipts on the current line of history, in chat order: [{ index, receipt }]. */
-        receipts: () => withCue(store.receipts?.() ?? []),
+        receipts: () => store.receipts?.() ?? [],
         /**
          * Return in time (MODULES §F17): a SillyTavern branch of the chat at carrier `index`, without
          * that carrier's receipts from `beforeRev` on, opened as the current chat. → Promise<{ ok, … }>.

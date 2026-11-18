@@ -7,7 +7,6 @@ import {
     commentSafe, wholeLines, CUT_MARK, HIDDEN_MARKER,
 } from '../capture/blocks.js';
 import { trimEnd } from '../capture/lines.js';
-import { LEGACY_MARK } from '../capture/legacy.js';
 
 /**
  * `mes` with its bare <Changes> blocks moved into one hidden comment at the end, so
@@ -16,10 +15,9 @@ import { LEGACY_MARK } from '../capture/legacy.js';
  * block on (a Continue's own text), are moved; the ones before are left as they are. A block left
  * open is kept with the word `open` after the marker, so a Continue can tell it goes on with it, and its
  * unfinished last line is kept beside it (<Changes-cut>). With `heads`, the change lines a capture left in
- * the story are listed in it (<Changes-story>), so a Re-read leaves them too. `legacy`: the block was read from a v1
- * envelope (adoptLegacy), which the comment says.
+ * the story are listed in it (<Changes-story>), so a Re-read leaves them too.
  */
-export function hideBlock(mes, tag = 'Changes', { from = 0, skip = 0, tail = false, cut = null, stopped = false, heads = null, legacy = false } = {}) {
+export function hideBlock(mes, tag = 'Changes', { from = 0, skip = 0, tail = false, cut = null, stopped = false, heads = null } = {}) {
     const given = String(mes ?? '');
     // `heads` (grammarHeads): the change lines written in the story near the block (strayLines) are
     // taken out of the story and kept after the blocks, in a block of their own.
@@ -56,8 +54,7 @@ export function hideBlock(mes, tag = 'Changes', { from = 0, skip = 0, tail = fal
     const unfinished = open ? wholeLines(bare.at(-1)).cut : '';
     if (unfinished && !unfinished.includes('<')) parts.push(`<${names.cut}>\n${commentSafe(unfinished)}\n</${names.cut}>`);
     // A block left open (the reply was cut off in it) is said so, for a Continue (continuation()).
-    // `legacy`: the block was read from a v1 envelope (adoptLegacy), said so a Re-read tells it again (legacyRead).
-    const mark = `${open ? ` ${CUT_MARK}` : ''}${legacy && bare.length ? ` ${LEGACY_MARK}` : ''}`;
+    const mark = open ? ` ${CUT_MARK}` : '';
     return `${trimEnd(story)}\n\n<!-- ${HIDDEN_MARKER}${mark}\n${parts.join('\n')}\n-->`;
 }
 

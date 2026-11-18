@@ -1,7 +1,5 @@
 // Runs a registered query on a state with its tools: the answer is a plain copy.
 
-import { entriesWithCue } from '../../../modules/rpg/cue.js';
-
 /**
  * Runs a registered query on `state`; the answer is a plain copy. Throws for an unknown query.
  * A query is called (state, args, tools) with tools.query(name, args) over the same state,
@@ -10,10 +8,6 @@ import { entriesWithCue } from '../../../modules/rpg/cue.js';
  * tools.reply ({ index, sid } or null, the `reply` option): the reply the state is the head of, as a
  * command's ctx.reply (commands.js).
  */
-// A roll's receipt keeps no cue text (stage 51: it is rebuilt from the record); a reader of the receipts (Story Director's chronicle) is given the text in
-// `summary`, computed here and not stored, so the day facts of a roll are still there.
-export const withCue = entriesWithCue;
-
 export function runQuery(registry, state, name, args, { receipts = () => [], reply = null, pendingProofs = null } = {}) {
     const query = registry.query(name);
     if (!query) throw new Error(`Story Suite: no module answers the query "${name}".`);
@@ -21,7 +15,7 @@ export function runQuery(registry, state, name, args, { receipts = () => [], rep
         reply,
         hasQuery: other => Boolean(registry.query(other)),
         query: (other, otherArgs) => runQuery(registry, state, other, otherArgs, { receipts, reply, pendingProofs }),
-        receipts: () => withCue(receipts() ?? []),
+        receipts: () => receipts() ?? [],
         // The proof a Re-read has planned but not stored (evidence.js), for story.evidence; none otherwise.
         ...(typeof pendingProofs === 'function' ? { pendingProofs } : {}),
     });

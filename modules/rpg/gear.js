@@ -1,7 +1,7 @@
 // Gear in the rolls (`story-block.gear`, docs/v2/GEAR.md "In the rolls"). Pure, apart from the questions put to `query`.
 //
-// What it does. While the switch is on, the roll (the board; the old planner did so too) asks the inventory what each party member has on and carries (`planGear`),
-// and the roll carries only the version mark in its payload (`gear: { v: 1 }`); `rpg.resolve` works the gear out from the state before the roll (`planGear`
+// What it does. While the switch is on, the roll (the board) asks the inventory what each party member has on and carries (`planGear`),
+// and the roll carries only the version mark in its payload (`gear: { v: 1 }`); the fight works the gear out from the state before the roll (`planGear`
 // over the inventory's own answers) into the record `gear: { v: 1, who: { <member key>: { own, add?, enc?, items? } } }`:
 //   own    the inventory owners the member's gear is filed under (their party actor, and `party` for the reader's lead: the first character);
 //   add    { str…cha: +n } what the worn pieces give (broken ones give none), summed;

@@ -555,14 +555,8 @@ One hidden block at the end of the reply:
   it applies; a block before it is kept. Hiding a block leaves reasoning that sat inside it in the story,
   as written. A copy of the hidden comment's marker in the model's own text is defanged when the reply is
   read (`STORY_SUITE_V2_`), so only the comment Story Block writes is the hidden one and Re-read of an
-  unchanged reply reads what was applied. Story Block v1's envelope (`<!-- STORY_BLOCKS_V1 … -->`, also
-  `STORY_BLOCKS_V1_CUT` and `INVENTORY_BLOCK_V05`) is never sent to the model (history, the greeting, a Continue, text
-  completion) nor shown; a reply with no block of its own has the envelope's change lines read as its block, each once,
-  with one Problem (`LEGACY_FORMAT`, "The narrator wrote its changes in an old format; they were read anyway.") and the
-  word `legacy` on its hidden comment, so a Re-read tells it again; a reply with a block has the envelope taken out
-  unread. A Re-read of an older reply reads its envelope the same way. A story line that repeats a line of the reply's
-  block is never told as not used. An old v1 copy enabled beside v2 (its public object or its settings drawer on the
-  page) is told once (`V1_COPY`). In a block the reply left open, a last line with no line break
+  unchanged reply reads what was applied. A story line that repeats a line of the reply's
+  block is never told as not used. In a block the reply left open, a last line with no line break
   after it is never applied, whether the reader stopped the reply or the length limit cut it ("+ item Ro"
   of "+ item Rope"; a block the model forgot to close loses its last line the same way): it is a Problem
   (`CUT_OFF`), and it is kept in the hidden comment, so a Continue that goes on with the block reads the
@@ -855,8 +849,8 @@ sdk.registerModule({
     `assistClassifier` and `assistExtractor` settings) are the choice until the reader sets the feature.
   * The fight board is the interaction kind `story-block/fight` (since I6): its unsent exchanges, discard counts, Send copy, waiting
     choice and last payload live in `chatMetadata.storySuiteInteraction` (`open`, `send`, `start`, `last`, `attempts`, `held`); they are
-    not game state and add no prompt text. Its committed rolls are ordinary reply-bound `interaction.settle` receipts (a fight made
-    before the port is a board `rpg.resolve` receipt, still read and re-planned; the old `rpgFight*` keys are dropped on chat load). Explicit skill flags are reserved under the
+    not game state and add no prompt text. Its committed rolls are ordinary reply-bound `interaction.settle` receipts (the old
+    `rpgFight*` keys are dropped on chat load). Explicit skill flags are reserved under the
     `dataModules.boardFlags` scratch map, keyed by reply `sid`, block, slot and skill name (DATA_MODULES.md). A fight records
     `bars: 2` in its setup and result (like `aoe` and `fix`) only when every sheet character is pinned `scale: 2`; only then
     single-target skills hit 2 (3 decisive), an area skill costs 2 and Auto stops at a fifth of the bar. An unmarked fight and

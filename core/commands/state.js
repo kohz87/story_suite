@@ -5,7 +5,6 @@
 import { clone, deepFreeze, frozenCopy } from '../ops.js';
 import { blockIdOf } from '../replay.js';
 import { submitProof } from '../evidence.js';
-import { entriesWithCue } from '../../modules/rpg/cue.js';
 import { isRecord } from './shared.js';
 
 export function createStateTools({ store, findQuery, fail, originOf }) {
@@ -53,7 +52,7 @@ export function createStateTools({ store, findQuery, fail, originOf }) {
                 if (!fn) fail('NOT_FOUND', `There is no query called "${name}".`);
                 return frozenCopy(fn(state, deepFreeze(clone(args)), tools));
             },
-            receipts: () => entriesWithCue(tx.receiptsBefore ?? store.receipts?.() ?? []),
+            receipts: () => tx.receiptsBefore ?? store.receipts?.() ?? [],
             // The proof this root has given so far (not stored yet), for story.evidence (evidence.js).
             pendingProofs: () => [...(tx.planned ?? []), ...(tx.proofs?.list ?? [])].map(proof => ({ proof, block: null })),
         });

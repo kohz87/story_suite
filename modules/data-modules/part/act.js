@@ -167,7 +167,7 @@ export function createAct(deps) {
         const who = String(instance.fields.who || definition.name);
         if (restKind && ctx.cause === 'story' && fullRestTooSoon(clock, instance.fields[RESTED_FIELD], instance.fields[RESTED_KNOWN])) ctx.fail('RECOVERY_REFUSED', recoveryNote.fullRest(who).slice(0, 280));
         evaluation.timers();
-        // A foe group the narrator sets by a name already on a slot of the same Foes block (the pre-call may have opened this very fight, lean-rpg/open.js)
+        // A foe group the narrator sets by a name already on a slot of the same Foes block (the foe pre-check may have opened this very fight, rpg/open.js)
         // is that group: the slot is updated (count and class), never a second slot with the same name; its health stays as it is.
         const route = practiceRoute ?? (definition.role === 'skills' && line ? skillRoute(instance.fields, labels.kind, args, line.text, skillRoom(prefix, definition, instance.fields)) : null);
         if (route?.refuse) refuse('DM_CONDITION', '', route.refuse);

@@ -1,5 +1,5 @@
 // The battle log (display D, approved mockup): a dark monospace panel drawn inside the reply at the narrator's
-// `[battle]` marker, from the reply's recorded rolls (A's `rpg.resolve` receipt, `data.v2.result`); when the reply has
+// `[battle]` marker, from the reply's recorded rolls (the fight receipt's `data.v2.result`); when the reply has
 // no marker the same panel is a card under the reply, above "Changed this reply". It has a one-line header that folds
 // (the fold is the viewer's: localStorage, per chat and reply), the turn order, one short line per action with the
 // coloured result word and "(26 vs 16)", the breakdown on tap, the consequence arrow ("→ Sluice Rat A Wounded", from
@@ -18,7 +18,7 @@
 //                        area?, support? (kind 'check', `target` the one helped), opening? }; the breakdown on tap is built from these
 //                        ("Physical: d20 17 + (AGI 10 + DEX 6/2)/2 = 6 + Expert 2 + Lv 14 ÷ 5 = 2 = 29 · vs Weir-drake d20 9 + 3 + Lv 7 ÷ 5 = 1 = 24"; a record made before Levels says "Class II 4")
 //   Line.breakdown     (or the roll's breakdown as one plain string, which then wins)
-// A's result record (`data.v2.result` of the `rpg.resolve` receipt; see the header of lean-rpg/resolve.js), as `readResolve` reads it:
+// The result record (`data.v2.result` of the fight receipt), as `readResolve` reads it:
 //   { v: 1, key, pace, stop, checks: [Line], rounds: [{ n, decisive, lines: [Line] }], refused: [{ who, text }], summary: { exchanges, acts, refused } }
 //   Line = { kind: 'act' | 'foe' | 'check', outcome: 'success' | 'cost' | 'fail', skill: string | null, why?,
 //            pc: { who, die, stat, statBonus, classValue, classBonus, rank, edge, total },

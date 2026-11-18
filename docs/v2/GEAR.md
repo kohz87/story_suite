@@ -251,7 +251,7 @@ without it. A roll with no `gear` (made before) is exactly as before, and off no
   has `wear: [{ n, who, item, from, to }]`; the cue and the log say "Boiled Leather Jerkin is worn (Torn)". The wear lines count inside the cue budget (the
   rounds told are fitted with the wear they would cause), and the cue a reader gets from the receipt is rebuilt from the record, wear included. A roll
   that is planned again (Re-read, rebuild) wears by its stored `gear` record, never by today's switch, so switching gear off does not take wear away.
-  `gear.wear { recorded: true }` is accepted only from the RPG's own nested call in `rpg.resolve`; a pack event step or a top-level call is refused it.
+  `gear.wear { recorded: true }` is accepted only from the RPG's own nested call in a fight's settle; a pack event step or a top-level call is refused it.
 * A later delete, equip or unequip never changes a stored roll's bonus: the record in the roll wins (and a later repair or wear does not rewrite what it
   said), so what a roll rolled with is what it keeps.
 * `wear: ruin` from the story breaks the piece in one step (condition 0); scuff and tear are as before.

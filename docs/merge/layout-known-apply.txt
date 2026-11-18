@@ -12,7 +12,6 @@ test tests/core/skills-reread.test.js:245
 test tests/core/skills-reread.test.js:288
 test tests/core/skills-reread.test.js:57
 test tests/core/timeline-active-history.test.js:271
-test tests/core/v1-copy.test.js:21
 stale packages/story-block/tests/v2/break/helpers/suite.js tests/v2/qa/helpers/seeded.js
 stale packages/story-block/tests/v2/qa/surfaces-security.test.js src/v2/view/widgets/nav.js
 stale packages/story-block/tests/v2/qa/surfaces-security.test.js src/v2/host-ui.js
