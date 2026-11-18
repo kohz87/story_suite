@@ -81,8 +81,8 @@ export function createPages(settings, ctx) {
     return [];
   }
 
-  // "Reset to Standard", a preset and a card switch change the switches in the store, so the open page reads them again (the host's answer: the switches, the preset and the cards' token figures) and draws at once; with no host answer it only draws.
-  const readModules = () => { const fresh = ctx.view?.('settings')?.modules; if (fresh) { modules.chat = structuredClone(fresh.chat ?? modules.chat); modules.preset = fresh.preset ?? null; modules.defs = structuredClone(fresh.defs ?? modules.defs); } };
+  // "Reset to Standard", a preset and a card switch change the switches in the store, so the open page reads them again (the host's answer: the switches, the preset, the cards' and presets' token figures) and draws at once; with no host answer it only draws.
+  const readModules = () => { const fresh = ctx.view?.('settings')?.modules; if (fresh) { modules.chat = structuredClone(fresh.chat ?? modules.chat); modules.preset = fresh.preset ?? null; modules.defs = structuredClone(fresh.defs ?? modules.defs); modules.presets = structuredClone(fresh.presets ?? modules.presets); } };
   const afterReset = answer => { readModules(); redraw(); return answer; };
   const reread = answer => (typeof answer?.then === 'function' ? answer.then(afterReset, error => afterReset({ ok: false, message: String(error?.message ?? error) })) : afterReset(answer));
   const run = (key, label) => {

@@ -112,6 +112,21 @@ test('one card switch changes the card’s token figure at once', async t => {
   assert.equal(page().querySelector('.pre[aria-pressed="true"]'), null, 'Custom');
 });
 
+test('a switch outside the presets (RPG) redraws the three tiles’ figures: Standard stays today’s', async t => {
+  const { host, page } = await live(t);
+  const em = () => page().querySelectorAll('.pre em').map(e => e.textContent);
+  const before = em();
+  card(page(), 'story-block').querySelector('.lnk').click();
+  page().querySelector('[data-sub="story-block:story-block.rpg"]').click();
+  await settle();
+  assert.equal(host.sdk.features().find(f => f.id === 'story-block.rpg').on, true);
+  const list = host.sdk.features();
+  const want = ['lean', 'standard', 'full'].map(name => `≈ ${tokens(host, presetSwitches(list, name)).toLocaleString('en-US')} tokens of rules each reply`);
+  assert.notDeepEqual(want, before, 'RPG adds rules to every preset');
+  assert.deepEqual(em(), want);
+  assert.equal(want[1], `≈ ${tokens(host).toLocaleString('en-US')} tokens of rules each reply`);
+});
+
 test('an unknown preset is refused and switches nothing', async t => {
   const { host, port } = await live(t);
   const was = host.sdk.features().map(f => f.on);
