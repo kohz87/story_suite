@@ -53,7 +53,7 @@ export function renderPacks(state) {
   const { packs, change, act, status } = state;
   const btn = (label, key, pri) => h('button', { type: 'button', class: ['btn2', pri && 'pri'], onClick: () => act(key, label) }, label);
   const { trackers } = packs;
-  const importRow = () => [statusBlock(status), h('div', { class: 'srow wide' }, h('span', { class: 'ctl' }, importButton(act), btn('Read from the character’s lorebook', 'packs.lorebook')))];
+  const importRow = () => [statusBlock(status), h('div', { class: 'srow wide' }, h('span', { class: 'ctl' }, importButton(act), btn('Read from the character’s lorebook', 'packs.lorebook'), h('a', { class: 'btn2', href: new URL('../../studio/index.html', import.meta.url).href, target: '_blank', rel: 'noopener' }, 'Open Studio')))];
   const top = packs.v4
     ? [...renderV4(packs.v4, state, { group, importRow }), packs.packs.length ? group('Older packs (format 3)', packs.packs.map(p => packBlock(p, state))) : null]
     : [group('Packs', packs.packs.map(p => packBlock(p, state)), importRow())];

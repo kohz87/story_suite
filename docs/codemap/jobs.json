@@ -192,6 +192,7 @@
   "scripts/release/outdir.mjs": "Decides where the release build may write: refuses the source and the repo root, and empties only folders carrying its own marker file.",
   "scripts/release/rewrite.mjs": "Rewrites a module's source by syntax tree for the bundle: packs eager import() calls and keeps import.meta.url on the module's original location.",
   "scripts/release/versions.mjs": "Lists the places that carry the suite's version, reports the ones that disagree and rewrites them all to one number.",
+  "scripts/release/studio.mjs": "Copies the Pack Studio page and every file it reaches into the release output beside the extension bundle, and names any reference to a missing file.",
   "scripts/temp-dir.mjs": "Makes temporary folders for scripts and tests and removes them when the process ends, including on an error, Ctrl-C or kill.",
   "scripts/ui/gen-fixture-rows.mjs": "Writes ui/fixtures/settings-real.js from the real Settings selectors on a real host at code defaults.",
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",

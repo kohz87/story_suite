@@ -9,8 +9,11 @@ through the slots described below.
 
 - From a checkout, serve the repo root with any static server, e.g. `python3 -m http.server 8080`, then open
   `http://127.0.0.1:8080/studio/`. ES modules do not load from a `file:` URL.
-- From an installed copy of the extension, the same page is at `/scripts/extensions/third-party/<folder>/studio/index.html`
-  when the folder holds the source. The release bundles do not include it.
+- From the installed extension: Settings › Packs has an **Open Studio** link (a new tab) to `studio/index.html` in the extension
+  folder, `/scripts/extensions/third-party/<folder>/studio/index.html`. The release build (`node scripts/release.mjs`,
+  `scripts/release/studio.mjs`) copies the page and every file it reaches (its modules, the dry-run worker, the sheets and fonts)
+  into the extension's output folder at the same relative paths; the bundle itself does not hold it. A reference to a missing
+  file fails the release (`release:check`). There is no single-file build.
 
 ## What it does
 
