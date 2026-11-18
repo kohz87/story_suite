@@ -94,7 +94,8 @@ export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst
             if (manualOnly(ctx)) ctx.fail('REFUSED', `Who gets a dossier is Manual only; ${stub.name} gets a dossier only when you add them.`);
             // S2PA B2: a pack person met or present here (the story brings them in) is not someone new: their dossier is made from the pack (./cast-first.js),
             // with the pack's role, look, abilities, keepsakes and portrait, and the line's own role and look are not used.
-            const pack = typeof castFirst === 'function' ? castFirst(ctx, stub.name) : null;
+            // LF4-1: also a pack person off-scene whom the line names exactly (their full name or an alias), so no plain double of them is made.
+            const pack = typeof castFirst === 'function' ? castFirst(ctx, stub.name, { named: true }) : null;
             if (pack) return handler(ctx, { ...on, labels: {}, name: pack.name, stubKey: pack.id });
             // This reply's stubs are the people stamped with its index (the identity the fill-in finds them by).
             const stamp = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1;

@@ -64,3 +64,31 @@ test('LF4-1 + LF4-2: at Bluewatch the cue names Edda Rorke, the narrator uses th
         assert.equal(JSON.stringify([s.people(), s.host.head().domains.cast]), live, 'rebuild == live');
     } finally { s.close(); }
 });
+
+// The two paths the cue's new wording leads to: the narrator keeps the name out of the prose (only the lines carry it), and a `+ npc` for someone the
+// [People here] line named who is not in the scene (no `+ present`): both make the one dossier from the pack.
+test('LF4-1: the name only in the lines still meets her; a + npc off-scene (no + present) by full name or alias is made from the pack, a role is not', async t => {
+    quiet(t);
+    const s = await ersveilLines({ features: { 'story-director.world-events': true } });
+    try {
+        await s.host.st.loadChat([{ name: 'Narrator', is_user: false, is_system: false, mes: 'You arrive at the guild office.' }], 'lf4b');
+        await s.say('A tired woman in a blue coat looks up from the ledger.', ['+ present Edda Rorke', '+ npc Edda Rorke | the watch-captain | tall']);
+        assert.ok(s.host.head().domains.cast.people['ersveil:edda-rorke']?.met, 'the meeting stands with the name only in the lines');
+        fromPack(s, 'Edda', 'ersveil:edda-rorke', /Edda|Rorke/);
+        await s.say('The clerk mentions the healer.', ['- present Edda Rorke', '+ npc Sister Temiwa | the infirmary sister | sturdy, human']);
+        const temiwa = fromPack(s, 'Temiwa', 'ersveil:temiwa', /Temiwa/);
+        assert.equal(temiwa.species, 'dogfolk', 'the pack entry, though she is not in the scene');
+        assert.equal(s.host.head().domains.cast.people['ersveil:temiwa'].met, null, 'not met by being mentioned');
+        await s.say('She walks in.', ['+ present Sister Temiwa', '~ npc Sister Temiwa | trust: up | why: kind']);
+        await s.say('Later.', ['- present Sister Temiwa']);
+        fromPack(s, 'Temiwa', 'ersveil:temiwa', /Temiwa/);
+        assert.ok(s.bonds()[temiwa.id].meters.trust > 0, 'the later line lands on the same dossier');
+        await s.say('Talk of the Keep.', ['+ npc Adalmar | the old emperor']);
+        assert.ok(fromPack(s, 'Adalmar', 'ersveil:adalmar', /Adalmar/).secrets?.some(secret => secret.packId === 'the-forgery' && !secret.revealed), 'by an alias, off-scene: from the pack');
+        await s.say('A berserker is talked of.', ['+ npc the frontier berserker | a berserker | big']);
+        assert.equal(Object.values(s.people().npcs).filter(npc => npc?.castFrom?.key === 'ersveil:torka').length, 0, 'a role is not a name: no pack dossier from it');
+        const live = JSON.stringify([s.people(), s.host.head().domains.cast]);
+        s.host.store.rebuild();
+        assert.equal(JSON.stringify([s.people(), s.host.head().domains.cast]), live, 'rebuild == live');
+    } finally { s.close(); }
+});

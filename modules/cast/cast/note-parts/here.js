@@ -55,8 +55,9 @@ export function hereLine(slice, frame, { persona = '' } = {}) {
         .slice(0, HERE_MAX);
     if (!people.length) return '';
     const said = people.map(({ entry }) => {
-        const role = cutWords(entry.raw?.role ?? '', ROLE_MAX);
-        const look = cutWords(entry.raw?.look ?? '', LOOK_MAX);
+        // (a "; " stays the list's own separator: one inside a role or look reads as a comma)
+        const role = cutWords(String(entry.raw?.role ?? '').replace(/;/g, ','), ROLE_MAX);
+        const look = cutWords(String(entry.raw?.look ?? '').replace(/;/g, ','), LOOK_MAX);
         return `${entry.name}${role ? `, ${role}` : ''}${look ? ` (${look.replace(/[.]$/, '')})` : ''}`;
     });
     return `${HEAD} ${said.join('; ')}.`;

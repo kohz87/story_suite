@@ -260,7 +260,8 @@ for (const seed of SEEDS) {
             for (const lines of prompts) {
                 const here = lines.filter(line => line.startsWith('[People here]'));
                 assert.ok(here.length <= 1, `seed ${seed}: one [People here] line a prompt at most`);
-                for (const line of here) assert.ok(CAST_IDS.filter(id => new RegExp(`\\b${id}\\d*\\b`, 'i').test(line)).length <= HERE_MAX, `seed ${seed}: [People here] names at most ${HERE_MAX}: ${line}`);
+                // The list follows the one instruction ("…says it: A, role (look); B, …."): count its entries, whoever they are.
+                for (const line of here) assert.ok(line.slice(line.indexOf('says it: ')).split('; ').length <= HERE_MAX, `seed ${seed}: [People here] names at most ${HERE_MAX}: ${line}`);
             }
             peopleHere += prompts.flat().filter(line => line.startsWith('[People here]')).length;
             const told = prompts.flat().filter(line => !line.startsWith('[Cast]') && !line.startsWith('[People here]'));
