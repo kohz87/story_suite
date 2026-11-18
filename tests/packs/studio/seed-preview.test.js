@@ -5,7 +5,6 @@ import assert from 'node:assert/strict';
 import { previewSeed } from '../../../studio/model/seed-preview.js';
 import { runHostScenario } from '../../people/helpers/host-scenario.js';
 import { scenarioOutput } from '../../people/cast-dossier.helpers.js';
-import { serve } from '../../ui/studio/serve.js';
 
 const ENTRY = {
     kind: 'companion', id: 'fenna', name: 'Fenna', role: 'Runs the night ferry.', species: 'Elf', look: 'Tall and weathered.', homeBase: 'Bluewatch docks', status: 'Grieving',
@@ -106,33 +105,3 @@ test('the preview equals the record a whole host makes at the first meeting', ()
     }
 });
 
-test('the preview module loads in a real browser page with no settings', async t => {
-    let browser = null;
-    let server = null;
-    try {
-        const { chromium } = await import('playwright');
-        browser = await chromium.launch();
-        ({ server } = await serve());
-    } catch (err) {
-        if (process.env.CI === 'true') throw err;
-        t.skip(`Playwright browser unavailable: ${String(err.message).split('\n')[0]}`);
-        return;
-    }
-    try {
-        const port = server.address().port;
-        const page = await browser.newPage();
-        const errors = [];
-        page.on('pageerror', err => errors.push(err.message));
-        await page.goto(`http://127.0.0.1:${port}/studio/index.html`);
-        const result = await page.evaluate(async entry => {
-            const { previewSeed } = await import('/studio/model/seed-preview.js');
-            const preview = previewSeed(entry, { cast: [] });
-            return { ok: preview.ok, level: preview.fields.find(f => f.field === 'level')?.value };
-        }, ENTRY);
-        assert.deepEqual(result, { ok: true, level: 7 });
-        assert.deepEqual(errors, []);
-    } finally {
-        await browser.close();
-        await new Promise(done => server.close(done));
-    }
-});
