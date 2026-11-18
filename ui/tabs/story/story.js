@@ -21,9 +21,10 @@ export function storyTab(story = {}, ctx = {}) {
       planBar(shown, (next) => { prefs?.setSpoiler?.('plan', next); ctx.refresh?.(next); }),
       story.plan?.note ? h('p', { class: 'fine', dataset: { note: 'plan' } }, story.plan.note) : null,
       h('div', { class: 'dgrid2' }, grid),
-    ];
+    ].filter(Boolean);
   }
 
+  // replaceChildren writes a null as the text "null" (no plan line while the plan is hidden), so only nodes go in.
   function draw() {
     body.dataset.view = view;
     body.replaceChildren(...(view === 'trackers' ? [trackersView(story, ctx)] : director()));

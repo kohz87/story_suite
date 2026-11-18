@@ -17,7 +17,7 @@ export function directorCommand(type, payload, writes, chat = null) {
   let value = payload.value;
   if (spec.labels) {
     const stored = Object.keys(spec.labels).find(k => spec.labels[k] === value);
-    if (stored === undefined) return FAILED;
+    if (stored === undefined) return { ...FAILED, message: `Choose one of: ${Object.values(spec.labels).join(', ')}.` };
     value = stored;
   }
   const done = writes?.settings?.set?.(spec.module, spec.field, value);

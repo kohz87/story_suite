@@ -24,14 +24,19 @@ describe('Story: Show the plan, through the real selector map', () => {
     assert.equal(storyOf({ [PREFS_KEY]: { scene: true } }, PLAN).plan.shown, false);
   });
 
-  it('shown with no plan yet says so in one line; hidden says nothing', () => {
+  it('no plan yet says so in one line, shown or hidden (owner, drop 2); an arc or a counted thread is a plan, so no line', () => {
     assert.match(storyOf({ [PREFS_KEY]: { plan: true } }, EMPTY).plan.note, /no plan yet/);
-    assert.equal(storyOf({}, EMPTY).plan.note, '');
+    assert.match(storyOf({}, EMPTY).plan.note, /no plan yet/);
+    assert.equal(storyOf({}, PLAN).plan.note, '', 'hidden with a beat: its count shows, no line');
+    const arc = name => (name === 'director.plan' ? EMPTY : name === 'director.arc' ? { current: { key: 'The flood', desc: 'x', beats: { done: 0, total: 0 } } } : null);
+    assert.equal(selectStory(arc, { planShown: false }).plan.note, '');
+    assert.equal(selectStory(arc, { planShown: true }).plan.note, '');
   });
 
   it('shown with the Threads switch off names the switch', () => {
     const off = storyOf({ [PREFS_KEY]: { plan: true } }, EMPTY, [{ id: 'story-director.threads', on: false }]);
     assert.match(off.plan.note, /Threads switch in Settings/);
+    assert.equal(storyOf({}, EMPTY, [{ id: 'story-director.threads', on: false }]).plan.note, '', 'hidden: the Threads line waits for Show the plan');
     assert.equal(selectStory(readOf(EMPTY), { planShown: true, threadsOn: true }).plan.note.includes('Threads'), false);
   });
 });

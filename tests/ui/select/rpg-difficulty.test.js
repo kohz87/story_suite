@@ -45,7 +45,7 @@ describe('Custom difficulty editors', () => {
   });
   it('store into the Custom set (rpgStandard), held to the range, keeping the other numbers', () => {
     const { bucket, values, writes } = store(custom({ foeBase: 9 }));
-    assert.deepEqual(rpgCommand('settings.set', { key: 'rpg.custom.createPoints', value: 99 }, writes, values), { ok: true, value: 30 });
+    assert.deepEqual(rpgCommand('settings.set', { key: 'rpg.custom.createPoints', value: 99 }, writes, values), { ok: true, value: 30, range: { min: 0, max: 30 } });
     assert.equal(bucket[STANDARD_SETTING].createPoints, 30);
     assert.equal(bucket[STANDARD_SETTING].foeBase, 9);
     assert.equal(rpgCommand('settings.set', { key: 'rpg.custom.startStat', value: 7.4 }, writes, values).value, 7);
@@ -56,7 +56,9 @@ describe('Custom difficulty editors', () => {
     const late = rpgCommand('settings.set', { key: 'rpg.custom.createMin', value: 8 }, writes, values);
     assert.equal(late.ok, false);
     assert.match(late.message, /lowest ≤ stats start at ≤ highest ≤ 20/);
-    assert.equal(rpgCommand('settings.set', { key: 'rpg.custom.createMax', value: 'lots' }, writes, values).ok, false);
+    const lots = rpgCommand('settings.set', { key: 'rpg.custom.createMax', value: 'lots' }, writes, values);
+    assert.equal(lots.ok, false);
+    assert.match(lots.message, /^It takes a whole number, \d+-\d+\.$/);
     assert.equal(rpgCommand('settings.set', { key: 'rpg.custom.startStat', value: '' }, writes, values).ok, false);
     assert.deepEqual(bucket, before);
     assert.equal(rpgCommand('settings.set', { key: 'rpg.custom.foeBase', value: 3 }, writes, values), null);

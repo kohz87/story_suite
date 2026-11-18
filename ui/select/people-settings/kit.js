@@ -2,9 +2,9 @@
 
 import { clamp, row } from './kit-more.js';
 
-/** A number row over bucket `key`: shown as stored (else `dflt`), written the way the old panel's box wrote it: whole number cut to min..max, a blank is `dflt`. */
+/** A number row over bucket `key`: shown as stored (else `dflt`), written the way the old panel's box wrote it: whole number cut to min..max (`range`, said under the row when it holds a number), a blank is `dflt`. */
 export const intRow = (group, key, label, store, dflt, { min, max, hint = null, unit = null, tags = [], fallback = dflt } = {}) => row(group, key, 'num', label, {
-  hint, unit, tags, store, dflt, reset: [[store, dflt]], read: b => b[store] ?? dflt, write: v => [[store, clamp(min, max, fallback)(v)]],
+  hint, unit, tags, store, dflt, range: { min, max }, reset: [[store, dflt]], read: b => b[store] ?? dflt, write: v => [[store, clamp(min, max, fallback)(v)]],
 });
 
 /** A number row for a setting the host's own schema cuts (the sdk's `settings.set` applies min and max), written as given. */

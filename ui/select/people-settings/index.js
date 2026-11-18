@@ -13,7 +13,7 @@ export function peopleRows(bucket, answers = {}) {
   const b = bucket && typeof bucket === 'object' ? bucket : {};
   const env = peopleEnv(answers);
   // optionsOf and hintOf: a row whose choices or note depend on what is stored (the Portraits style list and preset count); act: a button row's action; view: a list row's editor.
-  return ALL().map(({ read, write, store, dflt, reset, optionsOf, hintOf, act, view, ...rest }) => ({
+  return ALL().map(({ read, write, store, dflt, range, reset, optionsOf, hintOf, act, view, ...rest }) => ({
     ...rest, value: read(b, env), default: null, ...(optionsOf ? { options: optionsOf(b) } : {}), ...(hintOf ? { hint: hintOf(b) } : {}), ...(view ? view(b, env) : {}),
   }));
 }

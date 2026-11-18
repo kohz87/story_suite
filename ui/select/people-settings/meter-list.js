@@ -62,7 +62,7 @@ export function customMetersRow() {
 /** The Per-feeling stages row: named thresholds, each on one meter (a built-in, the reader's own or a preset's in use), at most eight a meter. */
 export function stagesRow() {
   return listRow('Feelings', 'perMeterStages', 'btn', 'Per-feeling stages', 'stages', {
-    hint: 'Named thresholds on one meter (separate from the ladder)', options: ['Edit'],
+    hint: 'Named thresholds on one feeling (separate from the ladder)', options: ['Edit'],
     view: (b, env) => {
       const settings = normalizeMeterSettings(b, { presets: env.on(FEATURE_PRESETS) ? env.catalog : [] });
       const defs = meterDefs(settings);

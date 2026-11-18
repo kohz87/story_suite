@@ -122,10 +122,11 @@ function trackersOf(read) {
   return { trackers, trackersHidden: hidden };
 }
 
-// The one plain line the open plan shows when it has nothing to draw: the switch that is off, or that the Director has not planned yet ('' when there are cards).
+// The one plain line the plan shows when it has nothing to draw: with the Threads switch off, the switch (only while the plan is shown); else, hidden
+// or shown, that the Director has not planned yet (no arc and no thread; it names no part of a plan). '' when there are cards or their counts.
 const NO_PLAN = 'The Director has no plan yet; it plans after the opening.';
 const THREADS_OFF = 'Beats, clocks, off-screen agendas and secrets are off. Turn on Story Director’s Threads switch in Settings › Director to see them.';
-const noteOf = (shown, threadsOn, parts) => (!shown ? '' : !threadsOn ? THREADS_OFF : parts.some(group => group.count > 0) ? '' : NO_PLAN);
+const noteOf = (shown, threadsOn, parts, hasArc) => (!threadsOn ? (shown ? THREADS_OFF : '') : hasArc || parts.some(group => group.count > 0) ? '' : NO_PLAN);
 
 export function selectStory(read, opts = {}) {
   const shown = opts.planShown === true;
@@ -135,10 +136,12 @@ export function selectStory(read, opts = {}) {
   const newsOnWay = gate(onTheRoad(read('chronicle.events', { open: true })), shown, x => x);
   const agendas = gate(list(plan.agendas), shown, agendaOf(ownerOf(read('people.list', {}))));
   const secrets = gate(list(plan.secrets), shown, secretOf(read('people.secretOwners', {})));
+  const arcView = read('director.arc', {});
+  const hasArc = Boolean(arcView?.current && typeof arcView.current === 'object');
   return {
-    plan: { shown, note: noteOf(shown, opts.threadsOn !== false, [beats, clocks, hooks, newsOnWay, agendas, secrets]) },
+    plan: { shown, note: noteOf(shown, opts.threadsOn !== false, [beats, clocks, hooks, newsOnWay, agendas, secrets], hasArc) },
     pulse: pulseOf(read('pulse.view', {}), shown),
-    arc: arcOf(read('director.arc', {}), shown),
+    arc: arcOf(arcView, shown),
     beats, clocks, hooks, newsOnWay, agendas,
     cast: castOf(read('director.cast.counts', {})),
     secrets,

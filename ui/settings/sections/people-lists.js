@@ -19,8 +19,8 @@ const EDITORS = {
   },
   'people.perMeterStages': {
     noun: 'Stage', max: 80, toggle: true, addLabel: 'Add a stage',
-    notUsed: 'Not used: pick a meter in use, a name, and a threshold no other stage of that meter has (eight a meter at most).',
-    fields: list => [{ f: 'meter', label: 'Meter', kind: 'sel', options: list.meters ?? [] }, { f: 'at', label: 'At', kind: 'num' }, { f: 'name', label: 'Stage', kind: 'txt', size: 'grow' }],
+    notUsed: 'Not used: pick a feeling in use, a name, and a threshold no other stage of that feeling has (eight a feeling at most).',
+    fields: list => [{ f: 'meter', label: 'Feeling', kind: 'sel', options: list.meters ?? [] }, { f: 'at', label: 'At', kind: 'num' }, { f: 'name', label: 'Stage', kind: 'txt', size: 'grow' }],
     fresh: (items, list) => {
       const meter = list.meters?.[0] ?? 'Trust';
       const taken = new Set(items.filter(s => s.meter === meter).map(s => s.at));

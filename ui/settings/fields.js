@@ -98,6 +98,14 @@ function controlFor(row, emit, labelId) {
   return h('span', { class: 'sinfo' }, value === null || value === undefined ? '' : String(value));
 }
 
+// The note under a number the engine held: its range when the answer gives one ({ min, max, step? }: "Level cap is 1-99; kept 99."), else that it was
+// held (an emptied box that came back with a number says it cannot be empty).
+function heldText(label, held, range) {
+  const ok = Number.isFinite(range?.min) && Number.isFinite(range?.max);
+  const steps = ok && Number.isFinite(range.step) && range.step > 1 ? ` in steps of ${range.step}` : '';
+  return ok ? `${label} is ${range.min}-${range.max}${steps}; kept ${held}.` : `${label} was held to the range it allows; kept ${held}.`;
+}
+
 function isWide(row) {
   if (row.wide || row.type === 'txt' || row.type === 'area' || row.type === 'chips') return true;
   return row.type === 'seg' && Array.isArray(row.options) && row.options.join('').length > 26;
@@ -106,7 +114,8 @@ function isWide(row) {
 /**
  * Builds one `.srow` for a schema row; ctx = { onChange(key, value, row), onAction(key, label, row) }. What onChange answers is read: a refusal
  * ({ ok: false, message }) is shown under the row (a switch, choice or chip row goes back to the last value kept), and a number the store held to
- * its range ({ ok: true, value }) is redrawn in the box. Only the newest change's answer is applied.
+ * its range ({ ok: true, value, range? }) is redrawn in the box with a note under the row saying so (with the range when the answer gives it).
+ * Only the newest change's answer is applied.
  */
 export function renderRow(row, ctx = {}) {
   const labelId = `sf-${row.key}`;
@@ -129,6 +138,8 @@ export function renderRow(row, ctx = {}) {
       kept = held;
       const box = ctl.querySelector('input');
       if (box) box.value = String(held);
+      note.textContent = value === null ? `${row.label} cannot be empty; kept ${held}.` : heldText(row.label, held, answer.range);
+      note.hidden = false;
     }
   };
   async function emit(value) {

@@ -28,7 +28,11 @@ export function peopleCommand(type, payload, writes, bucket = () => ({}), preset
   if (type === 'settings.set' && key.startsWith('people.')) {
     const spec = peopleSpec(key);
     const pairs = spec?.write ? spec.write(payload.value, bucket(), peopleEnv({ presets: presets() })) : null;
-    return pairs ? store(writes, coupled(pairs, bucket())) : { ...FAILED, message: 'That setting cannot be changed here.' };
+    if (!pairs) return { ...FAILED, message: 'That setting cannot be changed here.' };
+    const answer = store(writes, coupled(pairs, bucket()));
+    // A number row answers with what is stored (and its range when the row has one), so Settings redraws a held number and says so.
+    if (answer.ok && spec.type === 'num' && pairs[0]?.[0] === spec.store) return { ok: true, value: bucket()[spec.store], ...(spec.range ? { range: spec.range } : {}) };
+    return answer;
   }
   if (type === 'settings.action' && key === 'settings.reset' && /^Reset People\b/.test(String(payload?.value ?? ''))) return store(writes, coupled(peopleResets(), {}));
   // A button row (Portraits › Saved portrait presets): its action by the button's label.
