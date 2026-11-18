@@ -44,9 +44,9 @@ test('pack switches, import buttons and tracker buttons emit their keys', () => 
   const file = page('packs').querySelectorAll('input').find(i => i.getAttribute('type') === 'file');
   assert.ok(file && file.getAttribute('multiple') !== null, 'Import opens the same picker the old panel has: pack.json with images, or a .zip');
   press(page('packs'), 'Read from the character’s lorebook'); assert.equal(calls.at(-1)[1], 'packs.lorebook');
-  press(page('packs'), 'New tracker'); assert.equal(calls.at(-1)[1], 'trackers.open');
-  press(page('packs'), 'From a template'); assert.equal(calls.at(-1)[1], 'trackers.open');
-  press(page('packs'), 'Build it in the chat'); assert.equal(calls.at(-1)[1], 'trackers.open');
+  press(page('packs'), 'Add from a template'); assert.deepEqual(calls.at(-1).slice(1), ['trackers.open', { template: true }]);
+  press(page('packs'), 'Edit fields'); assert.equal(calls.at(-1)[1], 'trackers.open');
+  assert.ok(calls.at(-1)[2].edit, 'Edit fields names the tracker it opens');
 });
 
 test('Tools shows the sent bars and text, then Problems opens its card and Inspector opens the sheet', () => {
