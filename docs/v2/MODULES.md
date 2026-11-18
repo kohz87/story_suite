@@ -506,7 +506,8 @@ These settle questions agents raised; the host changes they need are made at int
     with `key`, its words kept. `scene.weather` becomes `{ text, rev, key? }`; a story `~ weather` writes
     `{ text, rev }`, so its key goes. A module sets it as an `afterCapture` step (F121): Story Director picks
     the day's weather from its calendar's season and the region, seeded per story day and region, and keeps
-    the story's own weather for the rest of that day and place by marking it. A pack may give a **`weather`**
+    the story's own weather while the party stays in that day and place, by marking it (leaving the region or
+    the day brings the rule's weather back; a return the same day reads the rule's pick for that day and region, not the story's word). A pack may give a **`weather`**
     table (PACKS.md "Weather", query `packs.weather` → `{ pack, seasons, tables }` | null). *Money:* a chat
     without coins reads a coin line's number and refuses a coin word that is not its own currency (its name,
     plural or short form, "gp" for gold, a bare "coin"): `+ coin 40 silver` where money is pennies is a

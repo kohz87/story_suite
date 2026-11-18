@@ -54,6 +54,7 @@
 .trsheet ul{margin:0;padding-left:18px}
 .trsheet small{color:var(--SmartThemeEmColor)}
 .trsheet p{margin:0;color:var(--SmartThemeEmColor)}
+.trsheet .gl svg{width:14px;height:14px;vertical-align:-2px}
 .trsheet li.na{opacity:.7}
 .tra{display:flex;gap:6px;flex-wrap:wrap}
 /* The modules' cards under the head reply: quiet cards in SillyTavern's own look (the reply sheet's), a tone stripe on the left. */

@@ -17,3 +17,14 @@ test('a person present with no record is named under the lists', () => {
   assert.deepEqual(vm.unrecorded, ['Ilka Sorn']);
   assert.equal(shape({ list: [{ id: 'wenna', name: 'Wenna Coll', aliases: ['Old Wen'] }], present: ['old wen'] }).unrecorded, undefined);
 });
+
+// Soak bug 6: a story that only writes `+ present` / `+ person` has people here with no NPC State record: the tab names them and does not also say "No one here."
+test('the tab names people with no record and does not say nobody is here', async () => {
+  const { installFakeDom } = await import('../../helpers/dom.js');
+  const { peopleTab } = await import('../../../../ui/tabs/people/people.js');
+  installFakeDom();
+  const tab = peopleTab(shape({ list: [], place: 'Stray Oar', present: ['Osk', 'Little Fen'] }), {});
+  assert.match(tab.textContent, /Here with no record yet: Osk, Little Fen\./u);
+  assert.doesNotMatch(tab.textContent, /No one here/u);
+  assert.match(peopleTab(shape({ list: [], present: [] }), {}).textContent, /No one here/u);
+});

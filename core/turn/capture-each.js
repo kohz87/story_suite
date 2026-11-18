@@ -10,7 +10,7 @@ import { occurrenceOf } from '../evidence.js';
 import { readRecord } from '../persist.js';
 import { LEAN_RPG_FEATURE, practiceFromRollsOnly } from '../../modules/rpg/names.js';
 import { allRuleNames, foeLine, ruleMarksFor, ruleMarksOf } from './rule-marks.js';
-import { earlierReceipts, moneyWarning } from './money-guard.js';
+import { earlierReceipts, moneyWarning, openRewards } from './money-guard.js';
 import { lineMark, occurrenceFor } from './capture-seeds.js';
 
 // The Assist safety net's marks on its receipts and Problems (MODULES §F123).
@@ -144,7 +144,7 @@ export function createCaptureEach(s, deps) {
             }
             state = result.state ?? (base ? state : store.head());
             // The money guard (warns only; the line is applied): a repeated payment or one far above the purse.
-            const warned = line.op === '+' ? moneyWarning(result.receipt, [...earlierReceipts(ctx?.chat, index), ...receipts], earlierReceipts(ctx?.chat, index, 1)) : null;
+            const warned = line.op === '+' ? moneyWarning(result.receipt, [...earlierReceipts(ctx?.chat, index), ...receipts], earlierReceipts(ctx?.chat, index, 1), openRewards(state)) : null;
             if (warned) found.push(problem({ module: entry.moduleId, index, line: line.raw, code: 'LIMITED', message: warned }));
             receipts.push(result.receipt);
             // Used, but not all of it (a clamp): the owner says why, and that goes to the Problems list.

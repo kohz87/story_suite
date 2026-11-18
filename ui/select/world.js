@@ -27,6 +27,13 @@ function placesOf(view, tiers, names) {
     }));
 }
 
+// The places the atlas holds that have no map position (the story made them up): shown as a list, not drawn.
+function unmappedOf(view, names) {
+  return list(view?.places)
+    .filter(p => text(p?.id) && text(p.name) && !(Number.isFinite(p.x) && Number.isFinite(p.y)))
+    .map(p => ({ id: p.id, name: text(p.name), kind: text(p.kind), region: regionName(p.region, names) || null, visited: p.visited === true, here: p.here === true }));
+}
+
 // The open quests that name a place (director.world quests[]), by place id; people per place wait for the people store.
 function withQuests(places, world) {
   const quests = list(world?.quests).filter(q => text(q?.name) && text(q?.placeId));
@@ -120,6 +127,7 @@ export function selectWorld({ atlasView = null, tiers = null, selected = null, w
   const factions = factionsOf(worldView, places, new Map(list(atlasView?.places).map(p => [p?.id, text(p?.region)])));
   return {
     places,
+    unmapped: unmappedOf(atlasView, regionNames),
     routes: routesOf(atlasView, ids),
     trip: tripOf(selected),
     news: newsOf(worldView, places, factions, worldEvents === true),
