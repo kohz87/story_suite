@@ -26,7 +26,8 @@ test('each card title on every page is a button that starts expanded; the title 
   for (const id of ['look', 'people', 'rpg', 'world', 'director', 'money', 'extras', 'packs', 'tools', 'start']) {
     ov.show(id);
     const titles = page().querySelectorAll('.sgrp > .gt');
-    assert.ok(titles.length > 0, id);
+    // Chat extras' groups are hidden while their features are off (the default), so that page may draw no card.
+    if (id !== 'extras') assert.ok(titles.length > 0, id);
     for (const t of titles) {
       assert.equal(t.tagName, 'BUTTON', `${id}: ${t.textContent}`);
       assert.equal(t.getAttribute('type'), 'button');
