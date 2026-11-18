@@ -144,6 +144,7 @@
   "scripts/release/outdir.mjs": "Decides where the release build may write: refuses the source and the repo root, and empties only folders carrying its own marker file.",
   "scripts/release/rewrite.mjs": "Rewrites a module's source by syntax tree for the bundle: packs eager import() calls and keeps import.meta.url on the module's original location.",
   "scripts/release/versions.mjs": "Lists the places that carry the suite's version, reports the ones that disagree and rewrites them all to one number.",
+  "scripts/ui/gen-fixture-rows.mjs": "Writes ui/fixtures/settings-real.js from the real Settings selectors on a real host at code defaults.",
   "scripts/sync-redraw-copy.mjs": "Writes the generated Story Block copy of the redraw scheduler and, with --check, fails when it drifts from ui/runtime/redraw.js.",
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",
   "suite.css": "The one stylesheet SillyTavern loads: lists the host, people and hide sheets in cascade order.",
@@ -239,7 +240,8 @@
   "ui/fixtures/party.js": "Builds the shared Party fixture: Astra, Brann, Rika and Torka with sheets, gear slots and skills.",
   "ui/fixtures/people.js": "Shared cast fixture covering present NPCs, away party/contacts, deceased, dormant, and bridge-fight overrides.",
   "ui/fixtures/settings-extra.js": "Settings fixture data beyond plain rows: module definitions, presets, the removed list, packs, trackers and the \"what's sent\" breakdown.",
-  "ui/fixtures/settings-rows.js": "Builds every Settings section's schema rows from the approved mock (decision 33), keyed by section id; `R` makes one row.",
+  "ui/fixtures/settings-rows.js": "The Settings rows the real selectors do not have yet (Tools prompts, chat data, diagnostics; one sample add-on view), each with its job.",
+  "ui/fixtures/settings-real.js": "GENERATED: the real Settings selectors' rows at code defaults, for the harness; regenerate with scripts/ui/gen-fixture-rows.mjs.",
   "ui/fixtures/settings.js": "Builds the Settings overlay fixture (schema rows per section, module sets, three connections) at code defaults.",
   "ui/fixtures/story.js": "Builds the Story tab fixture (plan switch, pulse, arc, agendas, cast, secrets, ripples, trackers) from the shared moment.",
   "ui/fixtures/world.js": "Shared world fixtures (map, trip, news, factions) with variants: default, fightOpen (on the road), empty.",
@@ -381,6 +383,7 @@
   "ui/tabs/world/world.js": "Composes the World tab: a Map / News / Factions switch over one body, the place sheet, and links between the views.",
   "ui/theme/apply.js": "Writes a token set on the suite root and refuses values that are not colour, length or font.",
   "ui/theme/follow-st.js": "Maps SillyTavern's theme variables to tokens and decides light or dark.",
+  "ui/theme/look.js": "Settings › Look in the new view: the stored Panel style, Glass strength, Font and Text size as the suite root's tokens, scheme and text zoom.",
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
   "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
   "ui/port/world-keys.js": "Translates the World and time page's row keys and shown words to Story Director's namespaced settings and the weather feature, and back.",
@@ -437,5 +440,8 @@
   "modules/world/daily/arc-day.js": "World events, generated arcs: starts an arc from its checked plan and fires its steps and ending on their windows, under the major caps.",
   "modules/world/daily/arc-plan.js": "World events, generated arcs: checks an open answer with an arc plan as a whole (step count, menu, guards, windows) and returns the one canon plan.",
   "tests/modules/world/open/arc-replay.test.js": "Tests: generated arcs on the host (plan asked once and stored whole, replay equals live through swipe, Re-read, delete, reload, rewind).",
-  "tests/modules/world/open/arc-step.test.js": "Tests: generated arcs in the daily step (plan copy, schedule, anchors, refusals, caps, template with no arc unchanged)."
+  "tests/modules/world/open/arc-step.test.js": "Tests: generated arcs in the daily step (plan copy, schedule, anchors, refusals, caps, template with no arc unchanged).",
+  "ui/select/module-text.js": "Gives the Start page's reader-facing words: each module card's icon, description and off line, and the three presets' names and descriptions.",
+  "ui/select/module-costs.js": "Counts the Start page's token figures: what each module card's switches add to the fixed prompt and the fixed prompt under each preset, without switching anything.",
+  "tests/ui/settings/sections/start-cards-live.test.js": "Checks the Start module cards' text and engine token figures and that Lean, Standard and Full apply through the port and redraw, on a live host."
 }

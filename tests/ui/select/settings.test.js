@@ -74,11 +74,13 @@ describe('selectSettings', () => {
     assert.equal(selectSettings(answers({ features: FEATURES.map((f, i) => ({ ...f, on: i === 0 })) })).modules.preset, null);
   });
 
-  it('leaves gaps empty: packs, sent, presets, per-chat sets', () => {
+  it('leaves gaps empty: packs, sent, per-chat sets; the three presets carry no token figure without a count', () => {
     const vm = selectSettings(answers({ subtitle: 'this chat' }));
     assert.equal(vm.sent, null);
     assert.equal(vm.subtitle, 'this chat');
-    assert.deepEqual([vm.modules.presets, vm.modules.newChats, vm.packs.packs], [[], {}, []]);
+    assert.deepEqual([vm.modules.newChats, vm.packs.packs], [{}, []]);
+    assert.deepEqual(vm.modules.presets.map(p => [p.id, p.name, p.tokens]), [['lean', 'Lean', null], ['standard', 'Standard', null], ['full', 'Full', null]]);
+    assert.deepEqual(checkShape(vm, SETTINGS_SHAPE), []);
     assert.equal(selectSettings(answers({ features: undefined })).modules.defs.length, 0);
   });
 
