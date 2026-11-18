@@ -15,7 +15,7 @@ describe('selectCard', () => {
     assert.equal(card.scene.weekday, null);
     assert.equal(card.you.levelText, 'Level 14');
     assert.deepEqual(card.bars.map(bar => bar.kind), ['hp', 'mp', 'sp']);
-    assert.deepEqual(card.chips.party, { n: 2, max: 4 });
+    assert.deepEqual(card.chips.party, { n: 2, max: 8 });
     assert.deepEqual(card.chips.pace, { kmDay: 25, by: 'Burr', slowed: true, why: '1 on foot' });
     assert.equal(card.statuses[0].id, 'encumbered');
   });

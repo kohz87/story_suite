@@ -145,6 +145,10 @@ test('the death card: a Character left Down at the end of a reply dies, and "The
   assert.equal(host.sdk.query('dataModules.view', { module: 'pack.chat/character' })?.chat?.alive, false, 'the Character died');
   assert.ok(titles(doc).includes('The story ends here'), `the death card (cards: ${JSON.stringify(titles(doc))})`);
   assert.deepEqual(under(doc), [String(host.ctx.chat.length - 1)]);
+  const who = host.sdk.query('dataModules.view', { module: 'pack.chat/character' })?.chat?.who;
+  assert.ok(who, 'the Character has a name');
+  assert.ok((page.doc.body.textContent ?? '').includes(`${who} has died. Swipe or delete`), 'the death card names who died');
+  assert.ok(!(page.doc.body.textContent ?? '').includes('This character has died'), 'no nameless death card');
   // delete the reply that ended it: the card goes with it (a swipe of it would end the same way, HP still 0 and Down)
   await host.st.deleteMessage(host.ctx.chat.length - 1);
   await redraw(page);

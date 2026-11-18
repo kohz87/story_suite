@@ -1,9 +1,10 @@
 // Turns the recorded party and gear query answers into the Party view-model (PARTY_SHAPE), leaving gaps null.
 
+import { PARTY_MAX as MAX_PARTY } from './party-max.js';
+
 // gear.view place keys (packages/story-block/src/v2/domains/gear/stats.js:10) → the contract's slot keys; mount and bag have no source yet.
 const SLOT_OF_PLACE = { head: 'head', body: 'armor', cloak: 'cloak', feet: 'feet', weapon: 'weapon', 'off-hand': 'offhand', 'accessory-1': 'accessory1', 'accessory-2': 'accessory2' };
 const SLOT_KEYS = ['head', 'armor', 'cloak', 'feet', 'mount', 'weapon', 'offhand', 'accessory1', 'accessory2', 'bag'];
-const MAX_PARTY = 4;
 const RARITY = { common: 'common', uncommon: 'uncommon', rare: 'rare', epic: 'epic', legendary: 'epic' };
 
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);

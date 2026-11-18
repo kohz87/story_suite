@@ -19,7 +19,8 @@ import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
 import { pinnedFeed } from './pinned.js';
-import { repairedAt, unrecordedAt } from './unrecorded.js';
+import { PARTY_MAX } from './party-max.js';
+import { recordedAt, repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
 import { PREFS_KEY } from '../port/prefs-key.js';
 import { pickOf, pickedFocus } from './focus.js';
@@ -73,7 +74,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const s = scene(at === null ? read : (name, a) => read(name, name === 'reply.changes' ? { asOf: at, index: at } : a));
       // the loot that reply laid out (its own, taken or not), as chips on its row
       const loot = selectLoot(read('inventory.loot', at === null ? { reply: true } : { reply: true, asOf: at }));
-      const vm = { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at), ...(loot.length ? { loot } : {}) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(ctx()?.chat, at) }) };
+      const vm = { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at), ...(loot.length ? { loot } : {}) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(ctx()?.chat, at), recorded: recordedAt(ctx()?.chat, at) }) };
       // (the modules' cards are the head reply's: asked only for the head, and left out when no card answers)
       const replyCards = at === null ? replyCardsOf(cards?.head?.()) : null;
       return replyCards ? { ...vm, replyCards } : vm;
@@ -82,7 +83,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const actors = read('party.actors', {});
       const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}) });
       // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
-      return wizard.needsYou() ? { pcId: null, max: 4, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
+      return wizard.needsYou() ? { pcId: null, max: PARTY_MAX, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
     },
     bag: read => {
       const actors = read('party.actors', {});

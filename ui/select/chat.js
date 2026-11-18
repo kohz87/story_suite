@@ -99,8 +99,8 @@ export function selectInlineRow(answers = {}, opts = {}) {
 }
 
 export function selectReplyMenu(answers = {}, opts = {}) {
-  // A reply with a stored repair keeps its sheet even when no shown line came of it (a hook or a time line), so it can still be discarded.
-  const lines = replyLines(answers) ?? (opts.repaired === true ? [] : null);
+  // A reply with a stored repair keeps its sheet even when no shown line came of it (a hook or a time line), so it can still be discarded; so does a reply with a record (the ✦ button stays on the latest reply after a delete).
+  const lines = replyLines(answers) ?? (opts.repaired === true || opts.recorded === true ? [] : null);
   if (!lines) return null;
   const notApplied = lines.filter(line => !line.applied).length;
   // `stateThen` is the place and weather of the state the reply query was asked on (`{ asOf }` for an earlier reply).

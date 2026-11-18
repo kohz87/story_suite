@@ -31,6 +31,9 @@ const item = (title, tag, text, meta, tagClass = '') => h('div', { class: 'it2' 
   h('div', { class: 'h' }, h('b', null, title), tag ? h('span', { class: ['tagx', tagClass] }, tag) : null),
   text ? h('p', null, text) : null, meta ? h('div', { class: 'm' }, h('span', null, meta)) : null);
 
+// A roll's number hides behind a "?" until the plan is shown: the mark says so (hover, and read out), so it does not look like a missing icon.
+const HIDDEN = { title: 'Hidden while the plan is hidden: Show the plan to see it', 'aria-label': 'Roll hidden while the plan is hidden' };
+
 function pulseCard(pulse, shown, ctx) {
   if (!pulse || (pulse.mode === 'off' && !pulse.recent?.length)) return null;
   const latest = pulse.latest;
@@ -38,11 +41,11 @@ function pulseCard(pulse, shown, ctx) {
     ? h('p', { class: 'fine' }, 'Quiet scene: no rolls until the scene changes.')
     : !latest ? h('p', { class: 'fine' }, 'No roll yet. The world rolls with the first reply.')
     : h('div', { class: 'pulse' },
-      h('span', { class: 'die' }, shown && latest?.roll != null ? String(latest.roll) : '?'),
+      h('span', { class: 'die', ...(shown && latest?.roll != null ? {} : HIDDEN) }, shown && latest?.roll != null ? String(latest.roll) : '?'),
       h('span', null, h('b', null, shown && latest?.kind ? latest.kind : 'Rolled this reply'),
         h('small', null, shown && latest?.cause ? latest.cause : 'What it caused is part of the plan.')));
   const recent = (pulse.recent ?? []).map(r => h('div', { class: ['rrow', r.skipped ? 'skip' : null] },
-    h('span', { class: 'rd' }, r.skipped || shown ? (r.roll ?? '—') : '?'),
+    h('span', { class: 'rd', ...(r.skipped || shown ? {} : HIDDEN) }, r.skipped || shown ? (r.roll ?? '—') : '?'),
     h('span', { class: 'rt2' }, h('b', null, r.kind),
       h('small', null, r.skipped || shown ? r.text + (shown && r.effect ? ` · ${r.effect}` : '') : 'what it caused is part of the plan'))));
   return h('section', { class: 'card glass dc', dataset: { card: 'pulse' } },

@@ -49,7 +49,8 @@ test('a reply with no receipts answers null, so the card hides', async t => {
   const host = await story(t);
   await host.send('Quiet.', 'Nothing happens.');
   assert.equal(host.sdk.query('reply.changes', {}), null);
-  assert.equal(menuOf(host), null);
+  // (the ✦ sheet stays on a recorded reply with no lines, so Re-read is still reachable)
+  assert.deepEqual(menuOf(host).lines, []);
   assert.equal(portOf(host).view('chat').inlineRow.changes, 0);
 });
 
@@ -101,10 +102,20 @@ test('a Re-read (unedited, grown, shrunk) gives the lines its text has', async t
   assert.deepEqual(linesOf(host), ['+2'], 'reload after the Re-read');
 });
 
-test('with the query gone the selectors give no lines and no menu (the fix is what fills them)', async t => {
+test('with the query gone the selectors give no lines (the fix is what fills them)', async t => {
   const host = await story(t);
   const sdk = { ...host.sdk, query: (name, args) => (name === 'reply.changes' ? undefined : host.sdk.query(name, args)) };
   const view = createSbPort({ sdk, selectors: buildSelectors(() => host.ctx, sdk) }).view('chat');
-  assert.equal(view.replyMenu, null);
+  assert.deepEqual(view.replyMenu.lines, []);
   assert.equal(view.inlineRow.changes, 0);
+});
+
+test('a delete that leaves a reply with no change lines last keeps its ✦ sheet (the button stays reachable)', async t => {
+  const host = await story(t);
+  await host.send('Quiet.', 'Nothing happens.');
+  await host.send('More.', 'Still nothing.');
+  await host.st.deleteMessage(1);
+  assert.deepEqual(menuOf(host).lines, []);
+  await host.st.deleteMessage(host.ctx.chat.length - 1);
+  assert.notEqual(menuOf(host), null);
 });

@@ -57,6 +57,8 @@ test('⋯ opens the menu and each entry sends one party command for that member'
   moreSheet(member(ctx, 'torka'), ctx);
   sheetEl().querySelector('[data-act="party.export"]').click();
   await flush();
+  assert.equal(sheetEl().querySelector('.ps-n').textContent, 'Export Torka', 'Export opens its own sheet');
+  sheetEl().querySelector('[data-cancel]').click();
   moreSheet(member(ctx, 'torka'), ctx);
   sheetEl().querySelector('[data-act="party.leave"]').click();
   await flush();
@@ -121,4 +123,14 @@ test('a stat tile marks what worn gear adds, and says so for a screen reader; a 
   assert.match(tile('VIT').getAttribute('aria-label'), /gear adds 2$/);
   assert.equal(tile('DEX').querySelector('.gb'), null);
   assert.equal(memberSheet(base, ctx, { pc: true }).querySelector('.gb'), null);
+});
+
+test('the player sheet has an Export button, and it opens the Export sheet for them (no ⋯ menu on their own sheet)', async () => {
+  const ctx = makeCtx();
+  const el = memberSheet(member(ctx, 'astra'), ctx, { pc: true });
+  assert.equal(el.querySelector('[data-more]'), null);
+  el.querySelector('[data-export-own]').click();
+  await flush();
+  assert.equal(sheetEl().querySelector('.ps-n').textContent, 'Export Astra');
+  assert.deepEqual(commands(ctx.port), [['party.export', { member: 'astra' }]]);
 });
