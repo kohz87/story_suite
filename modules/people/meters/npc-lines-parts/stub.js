@@ -51,7 +51,7 @@ function refusalOf(ctx, name, hooks) {
 
 /**
  * `handler` (the npc line handler) with the stub and the unknown-person rule in front, while lines mode is on. `deps`: { hooks, linesMode(ctx) → boolean, baseline() → meters, note(slice, rev, problems),
- * castFirst(ctx, name) → the id of a pack person's dossier it made, or null }.
+ * castFirst(ctx, name) → { id, name } of a pack person's dossier it made, or null }.
  * Runs inside the reply's transaction: a refusal makes no person and no meter entry.
  */
 export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst = null }) {
@@ -66,7 +66,7 @@ export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst
             if (refused) ctx.fail('REFUSED', refused);
             // This reply's stubs are the people stamped with its index (the identity the fill-in finds them by).
             const stamp = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1;
-            const made = Object.values(ctx.read('people')?.npcs ?? {}).filter(record => record?.createdAt === stamp).length;
+            const made = Object.values(ctx.read('people')?.npcs ?? {}).filter(record => record?.createdAt === stamp && !record.castFrom).length;   // (a pack person's dossier, ./cast-first.js, is not a new person)
             if (made >= STUBS_PER_REPLY) ctx.fail('REFUSED', `Only four new people a reply; ${stub.name} waits for a later reply that names them again.`);
             // One id for the dossier and its meter entry: free among the people and the meter entries both.
             const taken = [...Object.keys(ctx.read('people')?.npcs ?? {}), ...Object.keys(ctx.read(NPC_DOMAIN)?.npcs ?? {})];
@@ -77,12 +77,18 @@ export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst
             if (stub.problems.length) note(ctx.draft(NPC_DOMAIN), ctx.rev, stub.problems);
             return stub.problems.length ? { ...out, data: { ...out.data, problems: [...(out.data?.problems ?? []), ...stub.problems] } } : out;
         }
-        if (!knownPerson(ctx, line.name)) {
+        const known = knownPerson(ctx, line.name);
+        if (!known) {
             // A pack person met or present in this reply's scene has their dossier made from the pack here (./cast-first.js); anyone else is refused.
             const made = typeof castFirst === 'function' ? castFirst(ctx, line.name) : null;
             if (!made) ctx.fail('REFUSED', `${clean(line.name, 40)} has no record yet; write + npc ${clean(line.name, 40)} | role | look first.`);
-            return handler(ctx, { ...on, stubKey: made });
+            return handler(ctx, { ...on, name: made.name, stubKey: made.id });
         }
+        // A person made in this very reply (a stub or a pack person's dossier) named by an alias: NPC State's own list does not hold them yet, so the line goes by
+        // their stored name and lands on their id (never a second entry under the alias).
+        const stamp = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1;
+        const record = known.record;
+        if (record?.createdAt === stamp && typeof record.name === 'string' && labelKey(record.name) !== labelKey(line.name)) return handler(ctx, { ...on, name: record.name });
         return handler(ctx, on);
     };
 }

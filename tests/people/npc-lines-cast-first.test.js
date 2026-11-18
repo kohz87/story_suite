@@ -5,15 +5,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { suite } from './helpers/pacing-suite.js';
+import { newStubs } from '../../modules/people/adapter/stub-fills.js';
 
 const ENTRY = {
     id: 'torka', name: 'Torka', aliases: ['Bloodsong'], kind: 'person', about: 'frontier berserker', look: 'Broad, scarred, grey-green skin.', personality: 'Loud and loyal.',
     level: 5, abilities: [{ name: 'Blood Rage', description: 'hits harder when hurt' }], keepsakes: [{ name: 'Bone token', description: 'her father\'s' }],
     start: { place: 'bluewatch-village', goal: 'Clear the orc camps.' }, meters: { trust: 10 },
+    secrets: [{ title: 'Her debt', text: 'She owes the Guild for her axe.', meter: 'trust', at: 20 }, { id: 'the-raid', gate: 'place:highmark-capital', text: 'She led the raid on the convoy.', title: 'The raid' }],
 };
 // A stand-in for Story Director's cast (the same rule as modules/cast/cast/queries.js): the met, and with { present: true } the unmet the reply's scene has.
 const castModule = {
-    id: 'zz-cast', name: 'Cast',
+    id: 'story-director', name: 'Story Director stand-in (cast)',
+    features: [{ id: 'story-director.world-events', label: 'World events', describe: 'The world switch (a stand-in).', default: false }],
     domains: { zzcast: { initial: () => ({ met: false }) } },
     commands: { 'zz.meet': ctx => { ctx.draft('zzcast').met = true; return { summary: 'met' }; } },
     queries: {
@@ -38,7 +41,8 @@ async function warned(run) {
     try { await run(); } finally { console.warn = original; }
     return seen.join('\n');
 }
-const make = () => suite({ lines: true, levelOn: true, modules: [castModule], records: {} });
+const make = (features = null) => suite({ lines: true, levelOn: true, modules: [castModule], records: {}, ...(features ? { features } : {}) });
+const secrets = s => (torka(s).secrets ?? []).map(note => `${note.from}:${note.packId ?? ''}:${note.text}`);
 
 test('a line in the reply that brings a pack person in makes their dossier from the pack, then applies (Level, ability, keepsake, goal, trust)', async () => {
     const s = await make();
@@ -97,4 +101,18 @@ test('replay == live: swipe, swipe back, an edited Re-read grown and shrunk, a m
     s.host.store.rebuild();
     assert.equal(snap(s), after, 'a middle delete, then a rebuild');
     assert.equal(String(torka(s).level), '9');
+});
+
+test('an alias in the same reply lands on the person (one entry, never one under the alias); the pack\'s secrets come too, the gated one only with world events on; no fill-in is asked', async () => {
+    const s = await make();
+    await s.say(['+ present Torka', '~ npc Bloodsong | level: 9', '~ npc Bloodsong | trust: up | impact: meaningful | why: shared a fire']);
+    assert.equal(String(torka(s).level), '9');
+    assert.deepEqual(Object.keys(people(s).npcs), [torka(s).id], 'one dossier');
+    assert.deepEqual(Object.keys(people(s).bonds.npcs), [torka(s).id], 'one meter entry, under her id');
+    assert.ok(people(s).bonds.npcs[torka(s).id].meters.trust > 10);
+    assert.deepEqual(secrets(s), ['pack::She owes the Guild for her axe.']);
+    assert.deepEqual(newStubs(Object.values(people(s).npcs), s.host.store.headIndex()), [], 'a pack person\'s dossier asks no fill-in');
+    const w = await make({ 'story-director.world-events': true });
+    await w.say(['+ present Torka', '~ npc Torka | level: 9']);
+    assert.deepEqual(secrets(w), ['pack::She owes the Guild for her axe.', 'pack:the-raid:She led the raid on the convoy.'], 'with world events on, the gated secret as the after-reply dossier keeps it');
 });

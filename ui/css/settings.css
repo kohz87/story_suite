@@ -4,7 +4,9 @@
 /* Decision 17 (mock wins): at desktop the overlay covers the window (18px in); the suite root fills the window at every width (shell.css). */
 .sov>.glass{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:22px;background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-back)}
 /* SFF4 #12: the mock draws the sheet's glass over the sky backdrop, never over the suite: the panel colour is laid on the backdrop in one background, so the open
-   suite's card and rows never read through it at 390, with SillyTavern's No Blur Effect on (body.no-blur unsets every backdrop-filter) or off. */
+   suite's card and rows never read through it at 390, with SillyTavern's No Blur Effect on (body.no-blur unsets every backdrop-filter) or off. With
+   Settings › Look › Panel background Off (shell.css) the sheet lies on the same flat surface as the suite, not on the sky. */
+.su-root[data-panelbg="off"] .sov>.glass{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat, #191a2b)}
 .shd{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--su-line2)}
 .shd .ttl{flex:1;min-width:0}.shd .ttl b{display:block;font:800 17px var(--su-font)}.shd .ttl small{display:block;font:700 12px var(--su-font);color:var(--su-muted)}
 .shd .x{align-self:center}

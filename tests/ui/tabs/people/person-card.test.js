@@ -80,4 +80,6 @@ test('an Elsewhere tile keeps the capital of a place name and lowers only a phra
   assert.equal(line('Highmark Capital / Crown Keep'), 'Highmark Capital / Crown Keep');
   assert.equal(line('At the Gull'), 'at the Gull');
   assert.equal(line('The toll gate on the coast road'), 'the toll gate on the coast road');
+  assert.equal(line('The Glass Pits'), 'The Glass Pits', 'a name that starts with The');
+  assert.equal(line('North Pass'), 'North Pass');
 });

@@ -76,3 +76,24 @@ for (const [width, height] of [[390, 800], [1280, 900]]) {
     }
   }
 }
+
+test('Panel background Off: the sheet lies on the flat surface, not on the sky; On: on the sky (390, dark and light)', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  for (const theme of ['dark', 'light']) {
+    const page = await ctx.browser.newPage({ viewport: { width: 390, height: 800 } });
+    await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+    try {
+      await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=390&tab=now`);
+      await page.click('button.ibtn >> visible=true');
+      await page.waitForSelector('.shd .ttl small');
+      const under = value => page.evaluate(v => { const root = document.querySelector('.su-root'); root.setAttribute('data-panelbg', v); const bg = getComputedStyle(document.querySelector('.sov>.glass')); return { image: bg.backgroundImage, color: bg.backgroundColor, flat: getComputedStyle(root).backgroundColor }; }, value);
+      const off = await under('off');
+      assert.doesNotMatch(off.image, /135deg/, `${theme} off: ${JSON.stringify(off)}`);
+      assert.equal(off.color, off.flat, `${theme} off: the sheet's base is the suite's flat colour`);
+      const on = await under('on');
+      assert.match(on.image, /135deg/, `${theme} on: ${JSON.stringify(on)}`);
+    } finally {
+      await page.close();
+    }
+  }
+});

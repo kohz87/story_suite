@@ -53,7 +53,7 @@ function dismissed(ctx, person) {
 
 /**
  * `tools`: { baseline() → the base relationship values, bond(ctx, slice, who, person) → makes the first meter entry }. → (ctx, name) → the new dossier's
- * id, or null when the name is no pack person met or present here (the line is then refused as before).
+ * `{ id, name }`, or null when the name is no pack person met or present here (the line is then refused as before).
  */
 export function createCastFirst({ baseline, bond }) {
     return function castFirst(ctx, name) {
@@ -73,6 +73,6 @@ export function createCastFirst({ baseline, bond }) {
         if (!filled) return null;
         ctx.call('people.stub', { id, record: normalizeNpcRecord(filled) });
         bond(ctx, ctx.draft(NPC_DOMAIN), { key: id, name: shown }, person);
-        return id;
+        return { id, name: shown };
     };
 }
