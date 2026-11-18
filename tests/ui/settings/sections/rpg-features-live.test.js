@@ -6,7 +6,8 @@ import { createSbPort } from '../../../../ui/port/sb-port.js';
 import { INVENTORY_FEATURES } from '../../../../modules/inventory/state-parts/features.js';
 import { CORE_FEATURES } from '../../../../modules/scene/domains/core/constants-parts/features.js';
 
-const features = [...CORE_FEATURES, ...INVENTORY_FEATURES].map(f => ({ ...f, on: f.default !== false, moduleId: 'story-block', moduleName: 'Story Block' }));
+// the RPG on: the RPG and fights page (and these rows on it) is listed only while it is (UIFIX5)
+const features = [...CORE_FEATURES, ...INVENTORY_FEATURES].map(f => ({ ...f, on: f.id === 'story-block.rpg' || f.default !== false, moduleId: 'story-block', moduleName: 'Story Block' }));
 const build = list => selectSettings({ host: {}, schema: {}, defaults: {}, features: list });
 const KEYS = { 'rpg.pickWhatYouTake': 'story-block.loot', 'rpg.encumbered': 'story-block.encumbrance', 'rpg.gearInFights': 'story-block.gear' };
 
