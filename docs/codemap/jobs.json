@@ -147,6 +147,7 @@
   "scripts/sync-redraw-copy.mjs": "Writes the generated Story Block copy of the redraw scheduler and, with --check, fails when it drifts from ui/runtime/redraw.js.",
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",
   "suite.css": "The one stylesheet SillyTavern loads: lists the host, people and hide sheets in cascade order.",
+  "tests/people/perf-clock-stamp.test.js": "Tests that NPC State reads the story clock once per task and again after a host event, counting host queries.",
   "tests/people/cast-remake.test.js": "Tests that a person made for a reply, swiped away and made again is held once in the store, Delta's cache, npc.cast and npc.dossier, also after a swipe back.",
   "tests/people/cast-store.test.js": "Tests that npc.cast lists exactly the store's not-archived people (a line about someone with no dossier keeps meters only) after replies, a swipe, a middle delete and a reload.",
   "tests/people/head-race.test.js": "Tests that a reply landing between Delta's change and its people write is refused as stale, the change discarded and the cache hydrated from the store.",

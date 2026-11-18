@@ -191,7 +191,7 @@ test('runtime: a cast dossier made without its picture gets it when Story Block 
         const sdk = {
             registered: [], people: [], made: {}, handlers: {}, present: [], pics: {},
             registerModule(def) { sdk.registered.push(def); },
-            on(name, fn) { sdk.handlers[name] = fn; return () => {}; },
+            on(name, fn) { const was = sdk.handlers[name]; sdk.handlers[name] = async (...args) => { await was?.(...args); return fn(...args); }; return () => {}; },
             turn: async turn => { await sdk.handlers.turn?.(turn); },
             command: async type => {
                 if (type === 'npc.tick') for (const person of sdk.people) if (person.met && person.entry) sdk.made[person.key] = { name: person.name };
