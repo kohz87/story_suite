@@ -11,7 +11,6 @@ Last checked: 2026-11-07.
 - `../../modules/rpg/rpg-lazy.js`: lazy loader and stand-in part that keeps the optional Lean RPG unloaded until needed.
 - `../../core/runtime/sb-macro.js`: registers the `{{sb::path}}` macro for SillyTavern prompts, scripts and status bars.
 - `../../core/runtime/skill-slots.js`: skill-slot counts and signature-bit helpers kept outside Lean RPG for small startup.
-- `../../core/persist/v1-copy.js`: detects an old Story Block v1 copy running alongside v2 and reports it once.
 
 ## ../../modules/assist/
 - `../../modules/assist/section.js`: read-only Settings Assist section showing helper switches and recent run outcomes.

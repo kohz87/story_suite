@@ -32,3 +32,7 @@ Diagnostics buttons), the NPC editor's refinements (`editor-refine.js`, `editor-
 `continuity-ui.js`), the calendar and scanner-output controls to `modules/people/settings/` (they draw into the section's own groups), and the two
 setting normalizers to `settings/runtime-settings-parts/{map-settings,dossier-look}.js`. The portrait manager opens from the view's dossier
 (⋯ › Portrait, `ui/port/people-portrait.js`). Backup: `scratch/backups/b4-5/`.
+
+Removed at B4-11b (the v1 copy watch): `core/persist/v1-copy.js` with `v1-copy-parts/` (the `V1_COPY` Problem for an old Story Block v1
+running beside the suite), its test and frozen fixture. `core/boot/boot.js` keeps its start-up guard (`OLD_COPY`: an old Story Block already on
+the page stops the start). `core/persist/compat.js`, the row's other file, had already gone at B4-4.

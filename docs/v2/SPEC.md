@@ -561,8 +561,7 @@ One hidden block at the end of the reply:
   with one Problem (`LEGACY_FORMAT`, "The narrator wrote its changes in an old format; they were read anyway.") and the
   word `legacy` on its hidden comment, so a Re-read tells it again; a reply with a block has the envelope taken out
   unread. A Re-read of an older reply reads its envelope the same way. A story line that repeats a line of the reply's
-  block is never told as not used. An old v1 copy enabled beside v2 (its public object or its settings drawer on the
-  page) is told once (`V1_COPY`). In a block the reply left open, a last line with no line break
+  block is never told as not used. In a block the reply left open, a last line with no line break
   after it is never applied, whether the reader stopped the reply or the length limit cut it ("+ item Ro"
   of "+ item Rope"; a block the model forgot to close loses its last line the same way): it is a Problem
   (`CUT_OFF`), and it is kept in the hidden comment, so a Continue that goes on with the block reads the
