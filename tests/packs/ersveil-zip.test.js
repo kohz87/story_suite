@@ -1,6 +1,7 @@
 // examples/packs/ersveil.zip (built by scripts/core/build-example-zip.mjs) can never drift from the format 4 Ersveil: pack.json is the world pack
 // (examples/packs/ersveil), the portraits are its folder's byte for byte, game.json is the game pack (examples/packs/ersveil-game), and the conversion notes
-// ride along; Story Block's readPackZip reads it, importing it installs both packs and selects them, and rebuilding gives the same bytes.
+// ride along; Story Block's readPackZip reads it, importing it installs both packs (selected only when no world or game was chosen before), and rebuilding gives
+// the same bytes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -47,7 +48,7 @@ test('its pack.json, game.json and every portrait are the files in the repo, byt
     }
 });
 
-test('importing the shipped zip installs the world and its game and selects both: twelve portraits saved, 31 people, the game\'s data modules', async () => {
+test('importing the shipped zip into a fresh store installs the world and its game and selects both: twelve portraits saved, 31 people, the game\'s data modules', async () => {
     const portraitFiles = fakeFiles();
     const made = createPacksPart({ settings: fakeSettings(), portraitFiles });
     const result = await importPicked(made.packs, [zipFile()]);
@@ -59,4 +60,16 @@ test('importing the shipped zip installs the world and its game and selects both
     assert.equal(list[0].counts.cast, 31);
     assert.equal(list[1].counts.dataModules, 3);
     assert.deepEqual(made.packs.selected(), { world: 'ersveil', game: 'ersveil-game' });
+});
+
+test('importing it where a world and a game are already chosen installs both and keeps the choice (the zip import does not select)', async () => {
+    const made = createPacksPart({ settings: fakeSettings(), portraitFiles: fakeFiles() });
+    const requires = { suite: '^0.1' };
+    for (const pack of [{ id: 'w1', format: 4, kind: 'world', version: '1.0.0', requires, content: { places: [{ id: 'dock', name: 'The Dock', x: 1, y: 1 }] } },
+        { id: 'g1', format: 4, kind: 'game', version: '1.0.0', requires, content: { currency: { name: 'mark', coins: [{ name: 'mark', value: 1 }] } } }]) assert.equal((await made.packs.install(pack)).ok, true, pack.id);
+    assert.deepEqual(made.packs.selected(), { world: 'w1', game: 'g1' });
+    const result = await importPicked(made.packs, [zipFile()]);
+    assert.deepEqual(result.errors, []);
+    assert.deepEqual(made.packs.list().map(entry => entry.id), ['w1', 'g1', 'ersveil', 'ersveil-game']);
+    assert.deepEqual(made.packs.selected(), { world: 'w1', game: 'g1' });
 });
