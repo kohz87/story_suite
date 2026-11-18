@@ -62,7 +62,9 @@ through the slots described below.
 - **Drafts** (`studio/draft.js`, IndexedDB, one slot per `<kind>:<id>`): saved after each checked change (the header then
   says "Draft saved 21:14"); undoing back to the opened document deletes it. Opening a pack whose draft differs from the
   file shows "Restore your draft?" at the top of the page: **Restore the draft** puts it on top of the file (one undo step
-  back to the file), **Use the file** deletes it. Editing before answering lets the old draft go. The prompt gives the time
+  back to the file), **Use the file** deletes it. Editing before answering lets the old draft go. A draft that differs only
+  in its portraits is offered too. On a phone the prompt is at the top of whichever part is opened (the parts list does not
+  carry it); a redraw (a check or a draft landing, undo) leaves the phone on the list or the page it showed. The prompt gives the time
   saved but not how many changes it holds (the draft keeps no count).
 - **Problems**: the checker's problems grouped by part, each with **Go to**, which opens the part and the record; for a
   problem inside a record (`content.cast[3].secrets[1].gate`) it opens the record's JSON row with the caret on that field's

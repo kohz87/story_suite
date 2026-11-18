@@ -76,12 +76,12 @@ export function createShell({ host, onOpen, onExportZip, onExportJson, onUndo, o
         }
     }
 
-    /** `{ title, desc, nodes, section, keep }`: `section` true shows the page on the phone (false shows the parts list); `keep` keeps the scroll. */
+    /** `{ title, desc, nodes, section, keep }`: `section` true shows the page on the phone (false shows the parts list); `keep` (a redraw) keeps the scroll and which of the two the phone shows. */
     function setPage({ title, desc = '', nodes = [], section = true, keep = false }) {
         const scroll = body.querySelector('.smain').scrollTop;
         clear(page);
         page.append(h('button', { type: 'button', class: 'btn2 sback', onClick: () => onBack() }, '‹ Parts'), h('div', h('h2', title), desc ? h('p', { class: 'sdesc' }, desc) : null), ...nodes.flat().filter(Boolean));
-        body.setAttribute('data-page', section ? 'section' : 'list');
+        if (!keep) body.setAttribute('data-page', section ? 'section' : 'list'); // a redraw leaves the phone on the list or the page it showed
         body.querySelector('.smain').scrollTop = keep ? scroll : 0;
     }
 

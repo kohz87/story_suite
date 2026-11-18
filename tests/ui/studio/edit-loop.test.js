@@ -33,11 +33,16 @@ test.after(async () => {
   if (ctx?.server) await new Promise(done => ctx.server.close(done));
 });
 
-async function studio(width = 1280) {
+// `swap`: { '/studio/views/timeline.js': source } serves a slot file of the test's own, as a later job's page would be.
+async function studio(width = 1280, swap = {}) {
   const page = await ctx.browser.newPage({ viewport: { width, height: 900 }, acceptDownloads: true });
   const errors = [];
   page.on('pageerror', err => errors.push(err.message));
   page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
+  await page.route('**/*', route => {
+    const own = swap[new URL(route.request().url()).pathname];
+    return own ? route.fulfill({ contentType: 'text/javascript', body: own }) : route.continue();
+  });
   await page.goto(`http://127.0.0.1:${ctx.port}/studio/index.html`);
   await page.waitForSelector('.st-app .st-start');
   await openZip(page);
@@ -190,6 +195,10 @@ test('two packs, two histories: the game edited through its JSON row exports as 
     await page.click('.slist button[data-part="money"]');
     await applyJson(page, 'currency', value => ({ ...value, short: 'd' }));
     assert.equal(await page.isDisabled('.st-undo'), false);
+    await page.click('.sback');
+    await page.waitForFunction(() => document.querySelector('.shd .ttl small').textContent.includes('Draft saved'));
+    assert.equal(await page.getAttribute('.sbody', 'data-page'), 'list', 'the check and the draft landing redraw the page but leave the phone on the parts list');
+    await page.click('.slist button[data-part="money"]');
     const sideways = await page.evaluate(() => {
       const app = document.querySelector('.st-app').getBoundingClientRect();
       return [...document.querySelectorAll('.st-app *')].filter(el => { const box = el.getBoundingClientRect(); return box.width > 0 && (box.right > app.right + 1 || box.left < app.left - 1); }).length;
@@ -204,6 +213,63 @@ test('two packs, two histories: the game edited through its JSON row exports as 
     const game = new TextDecoder().decode(await files['game.json'].read());
     assert.equal(JSON.parse(game).content.currency.short, 'd');
     assert.equal(game, JSON.stringify(JSON.parse(game), null, 2));
+    assert.deepEqual(errors, []);
+  } finally { await page.close(); }
+});
+
+test('an error applied and Ctrl+S in the same moment: Export runs the waiting check first and is refused', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const { page, errors } = await studio();
+  try {
+    let downloaded = false;
+    page.on('download', () => { downloaded = true; });
+    await page.click('.snav .si3[data-part="lore"]');
+    await page.click(`${row('lore.0')} .st-jsonshow`);
+    const blockHidden = await page.evaluate(() => {
+      const box = document.querySelector('[data-rec="lore.0"] .st-jsonin');
+      box.value = JSON.stringify({ ...JSON.parse(box.value), bogus: 1 }, null, 2);
+      box.dispatchEvent(new Event('input'));
+      document.querySelector('[data-rec="lore.0"] .st-apply').click();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }));
+      return document.querySelector('.st-block').hidden;
+    });
+    assert.equal(blockHidden, false);
+    await page.waitForTimeout(400);
+    assert.equal(downloaded, false);
+    assert.deepEqual(errors, []);
+  } finally { await page.close(); }
+});
+
+test('the editing context a later page gets: refs, setPortrait as one undo step (the cast shows the picture), openDoc as if picked', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const pic = JSON.parse(fs.readFileSync(path.join(ROOT, 'examples/packs/ersveil/pack.json'), 'utf8')).content.cast[0].portrait;
+  const own = `import { h } from '../../ui/kit/dom.js';
+export function renderPage(ctx) {
+  if (ctx.kind !== 'world') return [];
+  return [h('p', { class: 'st-own' }, 'cast ids ' + ctx.refs.defs.cast.map(d => d.id).join(',')),
+    h('button', { class: 'st-pic', onClick: async () => { const bytes = new Uint8Array(await (await fetch('/examples/packs/ersveil/portraits/${pic}')).arrayBuffer()); document.body.dataset.pic = JSON.stringify(ctx.setPortrait('wren.webp', bytes)); } }, 'picture'),
+    h('button', { class: 'st-new', onClick: () => { document.body.dataset.made = JSON.stringify(ctx.openDoc({ doc: { ...ctx.doc, id: 'made-world', name: 'Made world' } })); } }, 'new')];
+}`;
+  const { page, errors } = await studio(1280, { '/studio/views/timeline.js': own });
+  try {
+    const thumb = () => page.evaluate(() => { const el = document.querySelector('.spage .st-thumb'); return el.tagName === 'IMG' ? (el.complete && el.naturalWidth > 0 ? 'img' : 'loading') : el.textContent; });
+    assert.equal(WORLD.content.cast[0].portrait, 'wren.webp');
+    await page.click('.snav .si3[data-part="cast"]');
+    assert.equal(await thumb(), '?');
+    await page.click('.snav .si3[data-part="timeline"]');
+    assert.equal(await page.textContent('.st-own'), `cast ids ${WORLD.content.cast.map(person => person.id).join(',')}`);
+    await page.click('.st-pic');
+    await page.waitForFunction(() => document.body.dataset.pic);
+    assert.equal(await page.evaluate(() => document.body.dataset.pic), '{"ok":true}');
+    await page.click('.snav .si3[data-part="cast"]');
+    await page.waitForFunction(() => document.querySelector('.spage img.st-thumb')?.naturalWidth > 0);
+    await page.click('.st-undo');
+    assert.equal(await thumb(), '?');
+    await page.click('.snav .si3[data-part="timeline"]');
+    await page.click('.st-new');
+    assert.equal(await page.evaluate(() => document.body.dataset.made), '{"ok":true}');
+    assert.equal(await page.textContent('.shd .ttl small'), 'World · Made world · 0.1.0');
+    assert.equal(await page.textContent('.st-other .lb b'), 'Game pack · Studio game 4 (test) · 0.1.0');
     assert.deepEqual(errors, []);
   } finally { await page.close(); }
 });

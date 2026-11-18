@@ -41,6 +41,8 @@ function saveFile(doc, { name, bytes }, type) {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// Two portrait lists hold the same images (a draft can differ from the file in its portraits alone).
+const samePictures = (a = [], b = []) => a.length === b.length && a.every((file, i) => file.name === b[i].name && file.bytes.length === b[i].bytes.length && file.bytes.every((byte, j) => byte === b[i].bytes[j]));
 const titleOf = pack => (pack.doc ? [pack.doc.name ?? pack.doc.id ?? pack.name, pack.doc.version].filter(Boolean).join(' · ') : pack.name);
 const kindLabel = pack => (pack.legacy ? (typeof pack.doc?.format === 'number' ? `Format ${pack.doc.format}` : 'Old format') : (pack.kind === 'game' ? 'Game' : 'World'));
 // The problems of one section: those whose path is the key or under it.
@@ -262,7 +264,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         if (!pack.draftId) return;
         const found = await loadDraft(pack.kind, pack.draftId, store);
         if (!found.ok || !found.draft || state.packs[pack.kind] !== pack || pack.edited) return;
-        if (found.draft.text === pack.text) { drafts.clear(pack.kind, pack.draftId); return; }
+        if (found.draft.text === pack.text && samePictures(found.draft.portraits, pack.portraits)) { drafts.clear(pack.kind, pack.draftId); return; }
         pack.offer = found.draft;
         redraw();
     }
