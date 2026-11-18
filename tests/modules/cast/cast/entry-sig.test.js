@@ -1,4 +1,4 @@
-// LIVEPERF finding 2 (LPA): the cast read every pack person again on each capture and prompt build and hashed each one for its signature
+// LIVEPERF finding 1 (LPA): the cast read every pack person again on each prompt build (and capture) and hashed each one for its signature
 // (`sig`, what the entry says). A pack's row is frozen and comes back the same on every ask (packs.content), so its signature is hashed
 // once per row; a row that is not frozen is hashed each time.
 import test from 'node:test';

@@ -356,8 +356,10 @@ at the next prefix read while the chat, the epoch, the replay environment and th
 record, swipe and text checked), with the replan point found so far, so a carrier after that checkpoint starts from the state before it.
 The reconcile takes the head replay's Problems while the head is still the one that replay made (store/memo.js `headProblems`). A state
 the store made is registered as deep-frozen (core/ops/freeze.js), so a command or a step planned again neither walks nor copies it.
-Measured on the LIVEPERF chat with 20 replies more (night/lpa/bench.mjs); the states, chat, requests, Problems and replan point after
-every step are the same, byte for byte, as without these.
+Measured with a bench outside the repository on the LIVEPERF live chat with 20 replies more; the states, chat, requests, Problems
+and replan point after every step (swipes, prose and change-line Re-reads, deletes, rewind, chat change, reload) are the same, byte
+for byte, as without these. tests/core/replay-suffix-seed.test.js counts the guards asked: a Re-read's base after a rebuild 11 → 0,
+a middle delete's reconcile 22 → 7 (the replies from the change on).
 
 ## Memory of the caches
 
