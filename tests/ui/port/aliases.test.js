@@ -63,3 +63,19 @@ test('can: the port answers its own names and every registered command, and noth
   for (const name of ['rpg.stats.spend', 'pulse.quiet', 'arc.end', 'settings.set', 'tracker.pin', 'interaction.stage', 'dm.set']) assert.equal(port.can(name), true, name);
   for (const name of ['npc.edit', 'party.invite', 'scene.correct', '', undefined]) assert.equal(port.can(name), false, String(name));
 });
+
+test('Plan the next arc, Accept and Discard go to the page planner; a refused plan comes back as a failure with its words', async () => {
+  const { aliasCommand, ALIAS_NAMES } = await import('../../../ui/port/aliases.js');
+  const calls = [];
+  const arc = () => ({
+    plan: async options => { calls.push(['plan', options]); return options.note === 'bad' ? { ok: false, message: 'Planning failed: no answer' } : { ok: true, draft: {} }; },
+    accept: async () => { calls.push(['accept']); return { ok: true, receipt: {} }; },
+    discard: () => { calls.push(['discard']); return { ok: true }; },
+  });
+  for (const name of ['arc.plan', 'arc.accept', 'arc.discard']) assert.ok(ALIAS_NAMES.includes(name), name);
+  assert.deepEqual(await aliasCommand(null, 'arc.plan', { note: 'more Joris' }, arc), { ok: true });
+  assert.deepEqual(await aliasCommand(null, 'arc.accept', {}, arc), { ok: true });
+  assert.deepEqual(await aliasCommand(null, 'arc.discard', {}, arc), { ok: true });
+  assert.deepEqual(await aliasCommand(null, 'arc.plan', { note: 'bad' }, arc), { ok: false, code: 'FAILED', message: 'Planning failed: no answer' });
+  assert.deepEqual(calls[0], ['plan', { reason: 'manual', note: 'more Joris' }]);
+});
