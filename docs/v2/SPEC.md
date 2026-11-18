@@ -172,9 +172,9 @@ branch from the swipe picker; see persist.js.) Readers accept either shape: repl
   when the count already holds that number, so a replay that finds another number there sets it too.
   A counted change of a count that an earlier op of the same block already changed starts from the number that op left (not from the state before the block).
   **Rule (h), an anchored set.** A set whose value depends on the one before it (a clock face: "9:30 pm" is today's 9:30 pm) calls `ctx.anchored(domain, path, { period, roll, to? })`
-  instead of `ctx.absolute`. The op is stored with `was` (the value before it), `period` and `roll` (`same`: never below the value before it; `after`: always after it). On replay
+  instead of `ctx.absolute`. The op is stored with `was` (the value before it), `period` and `roll` (`same`: never below the value before it; `after`: always after it; `day`: its place in the period, below the value before it too). On replay
   (never for a live command), when the count holds `was` the op applies as stored; otherwise it keeps its offset in whole periods from `was`, landing at
-  `value + period × (⌊now/period⌋ − ⌊was/period⌋)`, then `same` goes no lower than `now` and `after` goes one more period when that is not after `now` (`ops/anchored.js`). It is checked before the
+  `value + period × (⌊now/period⌋ − ⌊was/period⌋)`, then `same` goes no lower than `now`, `after` goes one more period when that is not after `now`, and `day` stays there (`ops/anchored.js`; Story Director's `~` clock face earlier than the clock on the clock's own day, on the day a jump landed on or back over the world's fallback hour, so deleting an earlier reply that moved the day moves the face with it). It is checked before the
   counter rule reads `was` as a move. For a `same` set the count already stood past, the module passes `to` (the face before the clamp); the op stores it (only when the clamp moved the value) and replay uses it
   in place of `value` before the `same` clamp, so a clamped face lands where a fresh telling would. Where the count is not there on replay (its domain's slice is gone), the op applies as stored, not as a move. A first write that makes a deferred domain
   carries no mark (there is no value before it to keep). An op without the mark replays exactly as before; Story Director's clock faces and skips are the first to use it (`rules:h`).
@@ -337,7 +337,7 @@ commands: {
   on replay when the list holds the item already (§2.2 rule e). All three only for a domain the module owns (`NOT_OWNER`), `path` a pointer
   inside it (`INVALID`).
 * `ctx.anchored(domain, path, { period, roll, to? })`: this command's write of the number at `path` is a set that depends on the value before it (§2.2 rule h);
-  `period` a whole number of 1 or more, `roll` `'same'` or `'after'`, `to` (optional) a whole number, the face before a `same` clamp; owner only (`NOT_OWNER`), `INVALID` for a bad path, period or roll, `CONFLICT` with `ctx.absolute` on the same path.
+  `period` a whole number of 1 or more, `roll` `'same'`, `'after'` or `'day'`, `to` (optional) a whole number, the face before a `same` clamp; owner only (`NOT_OWNER`), `INVALID` for a bad path, period or roll, `CONFLICT` with `ctx.absolute` on the same path.
 * `ctx.query(name, args)` runs a registered query against the transaction's current state (drafts included).
 * `ctx.proof({ kind, payload, parents? })` → `{ id, payloadHash }`: the owner of `kind` (Story Director: visit, acceptance,
   event) gives closed proof on the command's block; `story.evidence({ ids? })` lists
@@ -555,14 +555,8 @@ One hidden block at the end of the reply:
   it applies; a block before it is kept. Hiding a block leaves reasoning that sat inside it in the story,
   as written. A copy of the hidden comment's marker in the model's own text is defanged when the reply is
   read (`STORY_SUITE_V2_`), so only the comment Story Block writes is the hidden one and Re-read of an
-  unchanged reply reads what was applied. Story Block v1's envelope (`<!-- STORY_BLOCKS_V1 … -->`, also
-  `STORY_BLOCKS_V1_CUT` and `INVENTORY_BLOCK_V05`) is never sent to the model (history, the greeting, a Continue, text
-  completion) nor shown; a reply with no block of its own has the envelope's change lines read as its block, each once,
-  with one Problem (`LEGACY_FORMAT`, "The narrator wrote its changes in an old format; they were read anyway.") and the
-  word `legacy` on its hidden comment, so a Re-read tells it again; a reply with a block has the envelope taken out
-  unread. A Re-read of an older reply reads its envelope the same way. A story line that repeats a line of the reply's
-  block is never told as not used. An old v1 copy enabled beside v2 (its public object or its settings drawer on the
-  page) is told once (`V1_COPY`). In a block the reply left open, a last line with no line break
+  unchanged reply reads what was applied. A story line that repeats a line of the reply's
+  block is never told as not used. In a block the reply left open, a last line with no line break
   after it is never applied, whether the reader stopped the reply or the length limit cut it ("+ item Ro"
   of "+ item Rope"; a block the model forgot to close loses its last line the same way): it is a Problem
   (`CUT_OFF`), and it is kept in the hidden comment, so a Continue that goes on with the block reads the
@@ -677,7 +671,7 @@ Story Block is the only v2 code that calls `setExtensionPrompt` for the host and
 * `context.tail` returns `{ lines: string[], optional: string[] }`; each module has a `budget` (tokens,
   estimated chars/4); optional lines drop first. The host's total tail budget is a setting (default 1,500).
 * **Interaction note.** A settled interaction's note is its `interaction.settle` receipt's `summary` (the kind's `note(...)` joined with ` | `), a kept prelude cue that joins the leading `[Happened]` note. It counts inside the tail total ahead of module sections and outside the 120-token kept pool. Its allowance, `INTERACTION_NOTE_TOKENS` = 1290 (the longest board note measured, plus 20 %), is what the kind is told; a longer note is never cut, only the quiet Problem `NOTE_LONG` is raised. A kind's `marker` word (one per kind; the board's `[battle]`) is dropped from the history lines of the prompt (the board's gate is the RPG feature). The static part is unchanged: an interaction adds no static text.
-* **Kept cues.** A `beforeGenerate` line may be `{ text, keep: true }`, and a prelude command (marked `prelude`) whose receipt carries `data: { keep: true }` has its `[Happened]` cue pinned the same way: kept whatever the budget says. A module keeps at most 4 lines / 4,000 characters through `beforeGenerate`, and the host pins prelude cues up to 120 tokens in all per reply (`KEPT_PRELUDE_TOKENS`); the rest are ordinary cues. A module's own `context.tail().lines` may hold `{ text, keep: true }` items too (kept whole, in the module's section): at most 4 per module (`KEPT_TAIL_LINES`) and 120 tokens in all per reply (`KEPT_TAIL_TOKENS`, counted after names are filled in), shared with the kept prelude cues and first come first served in tail order; any more are ordinary lines. Unmarked lines behave as before. The static part is not affected.
+* **Kept cues.** A `beforeGenerate` line may be `{ text, keep: true }`, and a prelude command (marked `prelude`) whose receipt carries `data: { keep: true }` has its `[Happened]` cue pinned the same way: kept whatever the budget says. A prelude whose receipt carries `data: { chain: true }` passes the state it leaves on, as an interaction's settle does: the later preludes and the reply's tail read it (the RPG's fight lapse, which clears foes). A module keeps at most 4 lines / 4,000 characters through `beforeGenerate`, and the host pins prelude cues up to 120 tokens in all per reply (`KEPT_PRELUDE_TOKENS`); the rest are ordinary cues. A module's own `context.tail().lines` may hold `{ text, keep: true }` items too (kept whole, in the module's section): at most 4 per module (`KEPT_TAIL_LINES`) and 120 tokens in all per reply (`KEPT_TAIL_TOKENS`, counted after names are filled in), shared with the kept prelude cues and first come first served in tail order; any more are ordinary lines. Unmarked lines behave as before. The static part is not affected.
 * **The context size.** SillyTavern fits the extension prompts first and drops the conversation when the
   rest no longer fits, so the static part and the tail together are held to a share of the room the prompt
   has: the interceptor's context size (SillyTavern 1.19 hands it less the reply's length; a size that still
@@ -855,8 +849,8 @@ sdk.registerModule({
     `assistClassifier` and `assistExtractor` settings) are the choice until the reader sets the feature.
   * The fight board is the interaction kind `story-block/fight` (since I6): its unsent exchanges, discard counts, Send copy, waiting
     choice and last payload live in `chatMetadata.storySuiteInteraction` (`open`, `send`, `start`, `last`, `attempts`, `held`); they are
-    not game state and add no prompt text. Its committed rolls are ordinary reply-bound `interaction.settle` receipts (a fight made
-    before the port is a board `rpg.resolve` receipt, still read and re-planned; the old `rpgFight*` keys are dropped on chat load). Explicit skill flags are reserved under the
+    not game state and add no prompt text. Its committed rolls are ordinary reply-bound `interaction.settle` receipts (the old
+    `rpgFight*` keys are dropped on chat load). Explicit skill flags are reserved under the
     `dataModules.boardFlags` scratch map, keyed by reply `sid`, block, slot and skill name (DATA_MODULES.md). A fight records
     `bars: 2` in its setup and result (like `aoe` and `fix`) only when every sheet character is pinned `scale: 2`; only then
     single-target skills hit 2 (3 decisive), an area skill costs 2 and Auto stops at a fifth of the bar. An unmarked fight and
@@ -922,7 +916,9 @@ stored kind, and a move to another place takes the kind a pack gives a place of 
 (`packs.content({ kind: 'places' })`), else none: never the old place's. The region is kept unless the line
 gives one. Only an explicit empty value (`kind:` with nothing after it) clears one. After a move only those
 named in `with:` are present. Exception: an Assist place on a reply with the `assistPlace` mark keeps the
-people present, and explicit departures take precedence over its `with:` names (MODULES §F123). Queries `scene.place`, `scene.present` and `scene.moved` (true while the head
+people present, and explicit departures take precedence over its `with:` names (MODULES §F123). On a reply with the `placeFromMap`
+mark a move's `with:` companions who have a dossier (not party members, not the dead) get the new place as their dossier `location` (`people.fields`),
+unless its stored place already is that place or a place inside it (or the place it is inside; read from the store, since `people.list` hides the old place of someone the scene has here), so a companion left behind later keeps where they were left (modules/scene/place-follow.js). Queries `scene.place`, `scene.present` and `scene.moved` (true while the head
 reply's receipts moved the place; MODULES §F119). Query `reply.changes({ index? })` answers `{ lines: [{ glyph, line, detail, applied }], refused, stateThen: { place, weather } }` for one reply (the head by default; `{ asOf, index }` for an earlier one), built from that reply's receipts only (items, net coin, a move, who arrived or left; the reader's own `ui` edits are left out), or null when it has none. `refused` is always `[]`: a refused line is told once by the turn and is not stored.
 Capture kind `weather` (`~ weather cold drizzle, low fog`, feature `story-block.weather`, on; MODULES §F120):
 the text flattened, without markup, cut at 60 code points; `rev` the `meta.rev` of the receipt that wrote it;
@@ -1059,9 +1055,10 @@ writes are never scaled. Modules read it with `tryQuery('inventory.economy')`, f
   counted for the reply like a `+ coin` line and paid into the party's wallet on Take; never an item.
   One offer per reply, `inventory.loot[<sid>] = { sid, n, where, claim, items: { "0": { name, qty }, … } }`
   (a record keyed by position, not a list, so a second loot line of the reply adds keys); `loot` is scratch
-  like `perReply`, and a reply keeps the 5 newest offers. The reply's card shows them as chips with **Take
-  selected**, and so does the Inventory screen's **To pick up** section (query `inventory.loot` → the offers
-  not taken yet, newest first, `[{ sid, where, n, items }]`), so loot works with the cards off:
+  like `perReply`, and a reply keeps the 5 newest offers. The reply's row under it shows them as chips with **Take
+  selected** (its **Loot** chip folds them; query `inventory.loot { reply: true }` → only the offer the head reply laid out,
+  `tools.reply`, taken or not, each with `taken`; `asOf` asks it of an earlier reply), and so does the Bag tab's **To pick
+  up** card (query `inventory.loot` → the offers not taken yet, newest first, `[{ sid, where, n, items }]`):
   `inventory.lootTake { sid, pick: [index…] }` (cause `ui`, the reader's) claims `loot:<sid>`
   (each reply's loot is taken once; a second take is `REFUSED`), skips what is carried by then, and puts the
   rest in the party's bag as the offer held it, making the definitions then; past the carry limit it is

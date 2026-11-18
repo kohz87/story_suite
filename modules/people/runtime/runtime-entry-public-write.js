@@ -5,7 +5,7 @@
 import { readAheadOf } from '../calls/scan-context.js';
 import { activeReplyIds } from '../transcript/transcript.js';
 import { chatContext, inReplay } from '../calls/runtime-scan-helpers.js';
-import { normalizeAllowance } from '../legacy/relationship-pacing.js';
+import { normalizeAllowance } from '../relationship/relationship-pacing.js';
 import { effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { convertJournal, recordReadMark } from './runtime-narration.js';
 
@@ -88,7 +88,7 @@ export function createPublicApiStatePart(deps) {
     const {
         normalizeChatState, getChatKey, requestHeaders, ensureFreshMutationBoundary, quietly, setChatState,
         persistCriticalDurable, renderDossier, updateInjection, getChatState, nativeChangeListeners, chatStateCache,
-        branchInheritancePending, maybeInheritKnownBranch, chatHydrationStatus, loadingReconcilePending, scanWorkPending, scanIdle,
+        branchInheritancePending, chatHydrationStatus, loadingReconcilePending, scanWorkPending, scanIdle,
         useMessageGate, normalizeRelationshipBaseline, normalizeRelationshipCaps, getSettings, storyBlockCastHtml,
         castEmptyReason, addNpcManually, fillPresentSceneText, stateVersions, latestReplyIndex, viewNpcCopies,
         hostedMeterView, scenePresenceView, dossierHostViews, hydrationErrors, portraitFilesVersion, persistedVersions,
@@ -219,9 +219,8 @@ export function createPublicApiStatePart(deps) {
     // Whether the open chat uses the timeline (its state has a story line), read without cloning the state; whether the open chat's dossier state is
     // loaded; and whether a scan or pass is in flight.
     timelineStarted: () => Boolean(chatStateCache.get(getChatKey())?.timeline?.lineage),
-    // A branch still waiting for its parent's dossiers, and the inheritance itself (run now; idempotent: an inherited state is not empty).
+    // A new chat still waiting for its state file (runtime-chat-branch.js).
     branchPending: () => branchInheritancePending(),
-    inheritBranch: () => maybeInheritKnownBranch(),
     stateReady: () => chatHydrationStatus() === 'ready',
     timelineReady: () => chatHydrationStatus() === 'ready' && !loadingReconcilePending(),
     stateFailed: () => chatHydrationStatus() === 'error',
@@ -242,10 +241,12 @@ export function createPublicApiStatePart(deps) {
     playerNames: () => [chatContext()?.name1, chatContext()?.name2].filter(name => typeof name === 'string' && name.trim()),
     // (v2 meters) The events each person can have per story day, by impact tier (null: no limit; src/relationship-pacing.js).
     relationshipAllowance: () => normalizeAllowance(getSettings().relationshipAllowance),
+    // The "Dormant after" setting (replies unseen; 10-999, the getter's clamp): the store's people.list reads it through npc.dormantAfter (SOAKPEOPLE F45).
+    dormantAfter: () => getSettings().staleArchiveAfter,
     presentCastHtml: () => storyBlockCastHtml(),
     // (1.2.13) Why the present cast is empty ({ text, scan }), and Add NPC, for the Story Block tabs.
     castEmptyReason: () => castEmptyReason(),
-    addNpc: () => addNpcManually(),
+    addNpc: name => addNpcManually(typeof name === 'string' ? name : ''),
     /** Fill the now/chatter text of present-cast markup inserted under `root` (textContent only). */
     fillPresentCast: root => fillPresentSceneText(root),
     dossierRevision: () => `${getChatKey()}|${Number(stateVersions.get(getChatKey()) || 0)}`,

@@ -4,13 +4,12 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../testkit/index.js';
 import { createModule } from '../../../modules/director/module.js';
 import { withD1 } from '../../helpers/director/d1.js';
+import { installBluewatch } from '../../fixtures/director/bluewatch.js';
 
-const PACK = readFileSync(new URL('../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const claimsOf = h => Object.keys(h.head().meta.claims ?? {}).sort();
 const held = h => h.store.problems().filter(p => p.code === 'REPLAY_PREREQUISITE');
@@ -21,7 +20,7 @@ async function sdHost(t) {
     const director = withD1(createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } }));
     host = await createHost({ modules: [director], settings: { 'story-director.pulse': false } });
     t.after(() => host.close());
-    await host.packs.packs.install(PACK, { origin: 'pack.json' });
+    await installBluewatch(host.packs.packs);
     return host;
 }
 async function reread(h, index, text) {

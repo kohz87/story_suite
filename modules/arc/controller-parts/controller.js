@@ -147,15 +147,17 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
         return { ok: false, message: text };
     }
 
-    /** Asks the planner for the next arc; the plan waits for review (or is used at once). */
-    async function plan({ reason = 'manual' } = {}) {
+    /** Asks the planner for the next arc (`note`: the reader's note for this plan); the plan waits for review (or is used at once). */
+    async function plan({ reason = 'manual', note = '' } = {}) {
         const api = host();
         const id = chatId();
         if (!api || typeof api.callModel !== 'function') return fail(id, NEEDS_TEXT);
         if (!featureOn(api)) return { ok: false, message: 'Arc planning is turned off (Features).' };
         if (busy) return { ok: false, message: 'The next arc is already being planned.' };
         const messages = chat();
-        const settings = settingsOf(api);
+        // A note typed on the Arc card goes with this plan (the setting's own note is used when the box is empty).
+        const typed = String(note ?? '').trim();
+        const settings = typed ? { ...settingsOf(api), note: typed } : settingsOf(api);
         const seen = situation(api);
         const controller = typeof AbortController === 'function' ? new AbortController() : null;
         busy = { chat: id, controller };

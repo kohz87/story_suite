@@ -2,7 +2,11 @@
 .sov{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column}
 @container (min-width:601px){.sov{inset:18px}}
 /* Decision 17 (mock wins): at desktop the overlay covers the window (18px in); the suite root fills the window at every width (shell.css). */
-.sov>.glass{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:22px;background:var(--su-panel2)}
+.sov>.glass{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:22px;background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-back)}
+/* SFF4 #12: the mock draws the sheet's glass over the sky backdrop, never over the suite: the panel colour is laid on the backdrop in one background, so the open
+   suite's card and rows never read through it at 390, with SillyTavern's No Blur Effect on (body.no-blur unsets every backdrop-filter) or off. With
+   Settings › Look › Panel background Off (shell.css) the sheet lies on the same flat surface as the suite, not on the sky. */
+.su-root[data-panelbg="off"] .sov>.glass{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat, #191a2b)}
 .shd{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--su-line2)}
 .shd .ttl{flex:1;min-width:0}.shd .ttl b{display:block;font:800 17px var(--su-font)}.shd .ttl small{display:block;font:700 12px var(--su-font);color:var(--su-muted)}
 .shd .x{align-self:center}
@@ -34,7 +38,7 @@
 .num{display:inline-flex;align-items:center;gap:6px;font:700 13px var(--su-font)}
 .num input{width:64px;font:800 13px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);border-radius:9px;padding:5px 8px;text-align:right}
 .num span{color:var(--su-muted)}
-.sel2{font:700 13px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);border-radius:10px;padding:6px 10px;min-width:160px}
+.sel2{font:700 13px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);border-radius:10px;padding:6px 10px;min-width:160px;appearance:auto}
 .txt2{font:600 13px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);border-radius:10px;padding:7px 10px;width:100%}
 .area2{display:block;min-height:66px;resize:vertical;line-height:1.4}
 .chips3{display:flex;flex-wrap:wrap;gap:5px}
@@ -58,6 +62,26 @@
 .brow2 span:last-child{text-align:right;color:var(--su-soft)}
 .sent{font:500 12px/1.5 ui-monospace,Menlo,monospace;color:var(--su-soft);background:var(--su-panel2);border-radius:12px;padding:10px 12px;white-space:pre-wrap;max-height:220px;overflow:auto;margin:0}
 .removed{font-size:12.5px;color:var(--su-muted);margin:0;padding-left:18px}
+/* A card's title is a fold button (owner 18 Nov): the title's own look, a chevron at the right; a folded card shows only its title. */
+.sgrp>button.gt{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:0;border:0;background:none;text-align:left;cursor:pointer;border-radius:0}
+.sgrp>button.gt::before{content:'›';order:2;font-size:16px;line-height:1;letter-spacing:0;text-transform:none;color:var(--su-muted);transform:rotate(90deg);transition:transform .15s}
+.sgrp>button.gt[aria-expanded="false"]::before{transform:none}
+.sgrp>button.gt{position:relative}.sgrp>button.gt::after{content:'';position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%)}
+.sgrp.folded>:not(.gt){display:none}
+.sgrp.folded{padding-bottom:6px}
+/* The People page's list editors (custom meters, per-meter stages, the stage ladder) under their rows; the fields are the Journal editor's .ef. */
+.sedit{display:flex;flex-direction:column;gap:8px;padding:0 0 12px}
+.sedit:empty,.sedit[hidden]{display:none}
+.sedit .erow{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px;padding:10px 12px;border-radius:12px;border:1px solid var(--su-line2)}
+.sedit .erow.unused{border-color:rgba(240,184,74,.45)}
+.sedit .erow .ef{flex:0 1 104px;min-width:0}.sedit .erow .ef.grow{flex:1 1 160px}.sedit .erow .ef.wide{flex:1 1 100%}
+.sedit .erow>.btn2{min-height:44px}
+/* One row height for a choice, a number and a text box: SillyTavern's own select rule adds a 5px bottom margin, which lifts that field's label and box above the others. */
+.sedit .ef select,.sedit .ef input{margin:0;height:44px;box-sizing:border-box}
+.sedit .eun{flex-basis:100%;font-size:12px;color:var(--su-warn)}
+.sedit .eadd{align-self:flex-start}
+.sedit .fine{margin:0}
+[data-scheme="light"] .sedit .eun{color:#8a5300}
 .hitrow{display:flex;flex-direction:column;gap:2px;text-align:left;background:var(--su-line2);border:0;border-radius:12px;padding:9px 12px;color:var(--su-text);cursor:pointer;font:inherit}
 .hitrow b{font:800 13.5px var(--su-font)}.hitrow small{font-size:12px;color:var(--su-muted)}
 .slist{display:flex;flex-direction:column;gap:6px}
@@ -83,6 +107,8 @@
 .msubs{margin:4px 0 0 40px;border-left:2px solid var(--su-line2);padding-left:12px}
 .msubs .srow{padding:8px 0}
 .srow.dis{opacity:.45}
+.srow .snote{grid-column:1/-1;margin:0;font-size:12px;line-height:1.35;color:var(--su-bad-t)}
+.offnote{margin:0}
 .mf{display:flex;gap:14px;margin-left:40px}
 .mf:empty{display:none}
 .lnk{background:none;border:0;padding:0;font:800 12.5px var(--su-font);color:var(--su-accent);cursor:pointer}
@@ -94,7 +120,7 @@
 .applies{margin:4px 0 0;font-size:12px;color:var(--su-muted)}
 .tst2{display:flex;align-items:center;gap:8px;margin-top:2px}.tst2 small{font-size:11.5px;color:var(--su-muted)}
 .cfm{display:flex;flex-direction:column;gap:6px;padding:10px 12px;margin:4px 0 8px;border-radius:12px;border:1px solid rgba(255,107,107,.4);background:rgba(255,107,107,.08)}
-.cfm b{font:800 14px var(--su-font)}.cfm small{font-size:12.5px;color:var(--su-soft)}
+.cfm b{font:800 14px var(--su-font)}.cfm small{font-size:12px;color:var(--su-soft)}
 .conn{grid-template-rows:repeat(5,auto);align-items:start}
 .cn{display:grid;grid-row:span 5;grid-template-rows:subgrid;gap:8px;align-content:start}
 .cn .cdesc{align-self:start}
@@ -110,6 +136,11 @@
 .sgrp>.gt,.snav .grpl{font-size:12px}
 .usesw .ul,.cn .uses span,.mc,.pre em,.tst2 small{font-size:12px}
 .needok{color:var(--su-muted)}.needbad{color:var(--su-warn)}
+/* Format 4 Packs page: the suggestion card (the confirm card's shape in the accent tint), a pairing problem line, the add-on status */
+.cfm.rec{border-color:rgba(168,151,255,.5);background:rgba(168,151,255,.12)}
+.pairerr{color:var(--su-hp)}
+.always{font:700 12.5px var(--su-font);color:var(--su-muted)}
+.lines-ed{display:block;width:100%;min-height:72px;margin-top:6px;font:700 13px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);border-radius:10px;padding:8px 10px;box-sizing:border-box}
 .mod.off .mt small{opacity:1}.mod.off .mt b,.mod.off .mi{opacity:.55}
 .swrow{cursor:pointer}
 .extnote{color:var(--su-muted)}
@@ -117,7 +148,7 @@
 [data-scheme="light"] .needbad,[data-scheme="light"] .custom{color:#8a5300}
 [data-scheme="light"] .lnk,[data-scheme="light"] .custom,[data-scheme="light"] .tier.Elite{color:#5a3cd8}
 [data-scheme="light"] .oc.S{color:#0b7a4a}[data-scheme="light"] .oc.C{color:#8a5300}
-[data-scheme="light"] .cfm b{color:#a3232a}
+[data-scheme="light"] .cfm b{color:#a3232a}[data-scheme="light"] .cfm.rec b{color:var(--su-text)}[data-scheme="light"] .pairerr{color:#a3232a}
 @container (max-width:900px){
  .conn{grid-template-columns:minmax(0,1fr);grid-template-rows:none}.cn{grid-row:auto;grid-template-rows:none}
  .sseg2 button,.chips3 button{min-height:44px}

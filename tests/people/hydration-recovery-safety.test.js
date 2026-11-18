@@ -45,7 +45,7 @@ test('automatic backfill retries are durable cooled down bounded and version-sco
     assert.match(index, /\.map\(normalizeAutomaticBackfillRequest\)/);
     assert.match(index, /attempts: Math\.max\(0, Math\.min\(BACKFILL_MAX_ATTEMPTS, item\.attempts\)\)/);
     assert.match(index, /queueVersion: AUTOMATIC_BACKFILL_QUEUE_VERSION/);
-    assert.match(index, /automaticBackfillStillRelevant\(request, target, state\.npcs, owningExchange\)/);
+    assert.match(index, /automaticBackfillStillRelevant\(request, target, npcs, /);
     assert.match(index, /stopped automatic backfill retries/);
 });
 

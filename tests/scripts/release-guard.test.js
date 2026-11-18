@@ -16,17 +16,17 @@ after(() => fs.rmSync(temp, { recursive: true, force: true }));
 
 function makeRepo(parts) {
   const root = path.join(temp, ...parts);
-  for (const dir of ['packages/demo', 'ui', 'scripts', 'tests']) fs.mkdirSync(path.join(root, dir), { recursive: true });
-  fs.writeFileSync(path.join(root, 'packages/demo/boot.js'), "import { a } from '../../../../../../script.js';\nimport { b } from './deep/mod.js';\nexport const both = [a, b];\n");
-  fs.mkdirSync(path.join(root, 'packages/demo/deep'));
-  fs.writeFileSync(path.join(root, 'packages/demo/deep/mod.js'), "import { c } from '../../../../../../../script.js';\nimport { d } from '../../../../../../extensions.js';\nexport const b = [c, d];\n");
+  for (const dir of ['core/demo', 'ui', 'scripts', 'tests']) fs.mkdirSync(path.join(root, dir), { recursive: true });
+  fs.writeFileSync(path.join(root, 'core/demo/boot.js'), "import { a } from '../../../../../../script.js';\nimport { b } from './deep/mod.js';\nexport const both = [a, b];\n");
+  fs.mkdirSync(path.join(root, 'core/demo/deep'));
+  fs.writeFileSync(path.join(root, 'core/demo/deep/mod.js'), "import { c } from '../../../../../../../script.js';\nimport { d } from '../../../../../../extensions.js';\nexport const b = [c, d];\n");
   return root;
 }
-const SET = { name: 'demo', entries: ['packages/demo/boot.js'], lazy: [] };
+const SET = { name: 'demo', entries: ['core/demo/boot.js'], lazy: [] };
 
 test('an output folder that is the repo, a parent of it, or in or around the source is refused', () => {
   const root = makeRepo(['guard-repo']);
-  for (const bad of [root, temp, path.join(root, 'packages'), path.join(root, 'packages/demo'), path.join(root, 'packages/demo/out'), path.join(root, 'ui'), path.join(root, 'scripts'), path.join(root, 'tests/x')]) {
+  for (const bad of [root, temp, path.join(root, 'core'), path.join(root, 'core/demo'), path.join(root, 'core/demo/out'), path.join(root, 'ui'), path.join(root, 'scripts'), path.join(root, 'tests/x'), path.join(root, 'studio'), path.join(root, 'studio/out')]) {
     assert.throws(() => assertSafeOut(bad, root), /release: --out/, bad);
   }
   assertSafeOut(path.join(root, 'dist/release'), root);
@@ -40,8 +40,8 @@ test('the build refuses an unmarked folder and leaves it as it was', async () =>
   fs.writeFileSync(path.join(out, 'keep.txt'), 'mine');
   await assert.rejects(buildBundleSet(SET, out, root), /not made by the release build/);
   assert.equal(fs.readFileSync(path.join(out, 'keep.txt'), 'utf8'), 'mine');
-  await assert.rejects(buildBundleSet(SET, path.join(root, 'packages'), root), /release: --out/);
-  assert.ok(fs.existsSync(path.join(root, 'packages/demo/boot.js')));
+  await assert.rejects(buildBundleSet(SET, path.join(root, 'core'), root), /release: --out/);
+  assert.ok(fs.existsSync(path.join(root, 'core/demo/boot.js')));
 });
 
 test('a folder the build made is rebuilt in place, marker included, and nothing else is touched', async () => {

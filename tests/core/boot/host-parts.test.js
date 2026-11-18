@@ -33,7 +33,7 @@ test('after boot the live offer and the Tools handle\'s save points exist', asyn
 
 test('selectSavePoints: the message is the position the point was made at, the open branch is marked', () => {
   const view = selectSavePoints({ on: true, here: 'b2', points: [{ id: 'sp_aaaaaaaa', name: 'A', index: 4, branch: 'b1', at: '2026-11-18T09:05:00.000Z' }, { id: 'sp_bbbbbbbb', name: 'B', index: null, branch: 'b2', at: '' }] });
-  assert.deepEqual(view.rows.map(r => [r.reply, r.here]), [[5, false], [null, true]]);
+  assert.deepEqual(view.rows.map(r => [r.reply, r.here]), [[4, false], [null, true]], 'the message number as SillyTavern shows it, from 0 (W34)');
   assert.equal(view.rows[1].date, '');
   assert.match(view.rows[0].date, /2026|Nov/);
 });

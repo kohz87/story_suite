@@ -6,13 +6,14 @@ import { createHost } from '../../../../testkit/index.js';
 import { createFakeModel } from '../../../../testkit/model.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { castPlans } from '../../../../modules/cast/cast/index.js';
+import { HERE_MAX } from '../../../../modules/cast/cast/note.js';
 import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 import { problemList } from '../../../../modules/time/tracker/domain.js';
-import { fakeDelta } from '../../../modules/cast/keypeople/helpers.js';
-import { LASTING_PACK, lastingEdit, lastingLines } from '../../../modules/world/chronicle/helpers/lasting-pack.js';
+import { fakeDelta } from '../../helpers/fake-delta.js';
+import { LASTING_NAMES, lastingEdit, lastingLines } from '../../../modules/world/chronicle/helpers/lasting-pack.js';
 import {
-    BASE, BASE_OFFERS, BASE_PLACES, BASE_WORLD, CAST_IDS, FACTIONS, KEY_BASE, NEAR, RIPPLES, SOUGHT_ASK, STATES, TIE,
-    castAnswer, castEdits, castEntry, editOf, expectedClock, keyEdits, keyLines, nameLines, nearLines, prng, replyLines,
+    BASE, BASE_OFFERS, BASE_PLACES, BASE_WORLD, CAST_IDS, FACTIONS, KEY_BASE, NEAR, SOUGHT_ASK, STATES, TIE,
+    castAnswer, castEdits, castEntry, editOf, expectedClock, nameLines, nearLines, prng, replyLines,
     said, seedCrypto, timeOf, tripLines, validatorErrors, word, wrenEntry, ylvaEntry,
 } from './fuzz-delete.helpers.js';
 
@@ -70,6 +71,8 @@ function dayLines(rd, n) {
 }
 
 let soughtRumors = 0;
+// Prompts that carried a [People here] line (counted over all seeds): the second channel was reached.
+let peopleHere = 0;
 let soughtMeetings = 0;
 // Near-name quest lines that settled on the quest (counted over all seeds, asserted after them).
 let nearPicks = 0;
@@ -107,18 +110,18 @@ for (const seed of SEEDS) {
         host = await createHost({ modules: [fakeFightRunner(), fakeDelta(delta), module], callModel: createFakeModel([], { fallback: castAnswer(rc, rs) }), settings: { features: { 'story-director.names': true, 'story-director.trip': !lateTrips }, modules: { 'story-director': { 'cast.faces': 'day2', 'cast.unmetDie': rc.chance(0.5) } } } });
         // The cast is a real pack, installed (and switched on or off) as the fuzz edits it.
         const installCast = async () => {
-            const pack = { id: 'ersveil', version: source.version, name: 'Ersveil', requires: { storyBlock: '^2' }, ripples: RIPPLES, content: { cast: source.entries.map(({ pack: _pack, packVersion: _version, ...own }) => ({ ...own, start: Object.fromEntries(Object.entries(own.start).filter(([key, value]) => key !== 'routine' || value)) })) } };
-            { const done = await host.packs.packs.install(JSON.stringify(pack), { origin: 'cast-fuzz' }); assert.equal(done.ok, true, JSON.stringify(done)); }
+            const pack = { id: 'ersveil', format: 4, kind: 'world', version: source.version, name: 'Ersveil', requires: { suite: '^0.1' }, content: { cast: source.entries.map(({ pack: _pack, packVersion: _version, ...own }) => ({ ...own, start: Object.fromEntries(Object.entries(own.start).filter(([key, value]) => key !== 'routine' || value)) })) } };
+            { const done = await host.packs.packs.install(JSON.stringify(pack), { origin: 'cast-fuzz' }); assert.equal(done.ok, true, JSON.stringify(done.errors)); }
             await host.packs.packs.setEnabled('ersveil', source.enabled);
         };
         await installCast();
         try {
-            assert.equal((await host.packs.packs.install(LASTING_PACK, { origin: 'pack.json' })).ok, true);
             await host.send('Hello.', said('The road.', ['~ time June 3, 1200, 08:00 am', `~ place ${BASE_PLACES[0]} | kind: town`, ...BASE.map(key => `+ hook ${key} — an old tale | now: the inn`),
                 ...BASE_OFFERS.map(key => `+ hook ${key} — a job on offer | giver: Brom | reward: 8 gold`),
                 ...BASE_PLACES.map(place => `+ landmark ${place} | region: Vale | kind: town`),
-                ...BASE_WORLD.map(key => `+ world ${key} — afoot | state: ongoing`)]));
-            for (const name of KEY_BASE) assert.ok((await host.sdk.command('keypeople.pin', { name })).ok);
+                ...BASE_WORLD.map(key => `+ world ${key} — afoot | state: ongoing`),
+                // The entries the story's lines and the reader's edits name are made by the first exchange (never deleted).
+                ...LASTING_NAMES.map(name => `+ world ${name} — it begins | state: looming`)]));
             const start = host.head().domains.director.time.minutes;
             const times = new Map();
             let wrenMet = false;
@@ -130,7 +133,7 @@ for (const seed of SEEDS) {
                 if (lateTrips && n === 4) host.features.set('story-director.trip', true);
                 const near = nearLines(rn, n);
                 const day = seed >= EXTRAS_FROM ? dayLines(rd, n) : [];
-                const lines = [...replyLines(r, n), ...near.lines, ...lastingLines(rl), ...(lateTrips && n < 4 ? [] : tripLines(rt, n)), ...keyLines(rk, host, n), ...nameLines(rk, n), ...offerLines(ro, n, madeOffers), ...day];
+                const lines = [...replyLines(r, n), ...near.lines, ...lastingLines(rl), ...(lateTrips && n < 4 ? [] : tripLines(rt, n)), ...nameLines(rk, n), ...offerLines(ro, n, madeOffers), ...day];
                 const seeking = rs.chance(0.6) ? rs.pick(SOUGHT_ASK) : '';
                 // The planner's answer is used by the reply after the one it was asked about: the reply after a request for her names her too.
                 const names = seeking === 'cartographer' || sought === 'cartographer';
@@ -186,7 +189,6 @@ for (const seed of SEEDS) {
                 } else if (ra.chance(0.15) && host.sdk.query('director.arc')?.current?.active) {
                     assert.ok((await host.sdk.command('director.arc.end', {})).ok);
                 }
-                await keyEdits(rk, host, n, delta);
                 // The reader's quiet scene switch now and then, on the latest reply (a delete may take it back).
                 // On for a reply or two, then off again, so the pulse is not starved for the rest of the chat.
                 if (seed >= EXTRAS_FROM && (quietOn || rd.chance(0.2))) {
@@ -231,10 +233,10 @@ for (const seed of SEEDS) {
                 if (closedHere.length) assert.ok(skipped.length <= closedHere.length * 2 + 1, `${where}: only the payments of the deleted turn-in are skipped (${skipped.join(' / ')})`);
                 else assert.deepEqual(skipped, [], `${where}: a later block no longer applies; the deleted pair: ${dump}`);
                 const live = JSON.stringify(host.head());
-                const shown = JSON.stringify([host.sdk.query('director.world'), host.sdk.query('director.journal'), host.sdk.query('ripples.sway'), host.sdk.query('chronicle.factions')]);
+                const shown = JSON.stringify([host.sdk.query('director.world'), host.sdk.query('director.journal'), host.sdk.query('chronicle.factions')]);
                 host.store.rebuild();
                 assert.equal(JSON.stringify(host.head()), live, `${where}: rebuild != live`);
-                assert.equal(JSON.stringify([host.sdk.query('director.world'), host.sdk.query('director.journal'), host.sdk.query('ripples.sway'), host.sdk.query('chronicle.factions')]), shown, `${where}: World, Journal, sway and factions after a rebuild`);
+                assert.equal(JSON.stringify([host.sdk.query('director.world'), host.sdk.query('director.journal'), host.sdk.query('chronicle.factions')]), shown, `${where}: World, Journal and factions after a rebuild`);
                 assert.deepEqual(validatorErrors(host), [], where);
                 assert.equal(clock(), expectedClock(host.ctx.chat, times, start), `${where}: the clock`);
             }
@@ -242,7 +244,6 @@ for (const seed of SEEDS) {
             assert.deepEqual(validatorErrors(host), [], `seed ${seed}: the head state`);
             assert.ok(editsMade >= 1, `seed ${seed}: the reader set the clock by hand`);
             t.diagnostic(`seed ${seed}: clock edits ${editsMade}`);
-            assert.ok(host.sdk.receipts().some(entry => entry.receipt.type === 'events.fire' && entry.receipt.data?.then?.includes('chronicle.lasting')), `seed ${seed}: a pack event wrote a lasting change`);
             const summaries = host.sdk.receipts().map(entry => entry.receipt.summary ?? '');
             const tripsMade = summaries.filter(text => /^On the road to /.test(text)).length;
             assert.ok(tripsMade >= 1, `seed ${seed}: the fuzz set out on a trip`);
@@ -252,8 +253,18 @@ for (const seed of SEEDS) {
             assert.ok(castDone.length >= 1, `seed ${seed}: the cast joined the world`);
             const world = Object.values(host.head().domains.cast.people);
             t.diagnostic(`seed ${seed}: cast steps ${castDone.length} (met ${castDone.filter(text => /^Paths crossed/.test(text)).length}, moved ${castDone.filter(text => /moved on/.test(text)).length}), people ${world.length}, met ${world.filter(person => person.met).length}, dead ${world.filter(person => !person.alive).length}`);
-            // Nothing but a first-meeting cue names an unmet person: not even the pulse's chance-meeting line.
-            const told = host.st.promptLog.filter(entry => entry.value).flatMap(entry => String(entry.value).split('\n').filter(line => !line.startsWith('[Cast]')));
+            // Only two channels name an unmet person to the narrator: a first-meeting cue ([Cast]) and the [People here] line (LACA2, the lead's decision:
+            // the narrator may know the world's own names so it invents no doubles; the prompt is never shown to the reader). Nothing else does, not even
+            // the pulse's chance-meeting line. [People here] stays small: at most one a prompt, naming at most HERE_MAX people.
+            const prompts = host.st.promptLog.filter(entry => entry.value).map(entry => String(entry.value).split('\n'));
+            for (const lines of prompts) {
+                const here = lines.filter(line => line.startsWith('[People here]'));
+                assert.ok(here.length <= 1, `seed ${seed}: one [People here] line a prompt at most`);
+                // The list follows the one instruction ("…says it: A, role (look); B, …."): count its entries, whoever they are.
+                for (const line of here) assert.ok(line.slice(line.indexOf('says it: ')).split('; ').length <= HERE_MAX, `seed ${seed}: [People here] names at most ${HERE_MAX}: ${line}`);
+            }
+            peopleHere += prompts.flat().filter(line => line.startsWith('[People here]')).length;
+            const told = prompts.flat().filter(line => !line.startsWith('[Cast]') && !line.startsWith('[People here]'));
             // A rumor describes; it never names (it is a [Cast] line too, so it is checked on its own).
             const rumors = host.st.promptLog.filter(entry => entry.value).flatMap(entry => String(entry.value).split('\n')).filter(line => line.startsWith('[Cast] People here know of'));
             for (const id of [...CAST_IDS, 'ylva']) assert.ok(!rumors.some(line => new RegExp(`\\b${id}\\d*\\b`, 'i').test(line)), `seed ${seed}: ${id} is named in a rumor`);
@@ -261,13 +272,8 @@ for (const seed of SEEDS) {
                 const leaked = told.find(line => new RegExp(`\\b${id}\\d*\\b`, 'i').test(line));
                 assert.equal(leaked, undefined, `seed ${seed}: ${id} is named outside a meeting's cue: ${leaked}`);
             }
-            const keyDone = summaries.filter(text => /^Key person: /.test(text));
-            assert.ok(keyDone.length >= 1, `seed ${seed}: the fuzz sent a key person away`);
-            t.diagnostic(`seed ${seed}: key people receipts ${keyDone.length} (away ${keyDone.filter(text => / is away/.test(text)).length}, back ${keyDone.filter(text => / is back/.test(text)).length}, steps ${keyDone.filter(text => /^Key person: \w+, /.test(text)).length}, died ${keyDone.filter(text => /died/.test(text)).length}, archived in Delta ${keyDone.filter(text => /archived in NPC State Delta/.test(text)).length}), lines told ${Object.values(host.head().domains.keypeople.notes).filter(note => note.key !== undefined).length}, pinned now ${Object.keys(host.head().domains.keypeople.pins).length}`);
-            t.diagnostic(`seed ${seed}: faction lines ${factionLines}, quiet flips ${quietFlips}, passers-by ${passersBy}, pulse steps ${host.sdk.receipts().filter(entry => entry.receipt.type === 'director.pulse').length}, passers met ${passersMet}, swipes ${swipes}, pulse kinds ${JSON.stringify(Object.fromEntries(host.sdk.receipts().filter(entry => entry.receipt.type === 'director.pulse').map(entry => entry.receipt.data?.kind).reduce((map, kind) => map.set(kind, (map.get(kind) ?? 0) + 1), new Map())))}, rumour events ${Object.values(host.head().domains.chronicle.events).filter(event => event.rumour !== undefined).length}, new factions ${host.sdk.receipts().filter(entry => /New factions?:/.test(entry.receipt.summary ?? '')).length}, places with a parent ${Object.values(host.head().domains.atlas?.places ?? {}).filter(place => place.parent).length}, sway ${JSON.stringify((host.sdk.query('ripples.sway') ?? []).map(power => power.sway))}`);
-            assert.ok(!source.enabled || host.sdk.query('ripples.sway')?.length === 2, `seed ${seed}: the pack's ripples table is read`);
+            t.diagnostic(`seed ${seed}: faction lines ${factionLines}, quiet flips ${quietFlips}, passers-by ${passersBy}, pulse steps ${host.sdk.receipts().filter(entry => entry.receipt.type === 'director.pulse').length}, passers met ${passersMet}, swipes ${swipes}, pulse kinds ${JSON.stringify(Object.fromEntries(host.sdk.receipts().filter(entry => entry.receipt.type === 'director.pulse').map(entry => entry.receipt.data?.kind).reduce((map, kind) => map.set(kind, (map.get(kind) ?? 0) + 1), new Map())))}, rumour events ${Object.values(host.head().domains.chronicle.events).filter(event => event.rumour !== undefined).length}, new factions ${host.sdk.receipts().filter(entry => /New factions?:/.test(entry.receipt.summary ?? '')).length}, places with a parent ${Object.values(host.head().domains.atlas?.places ?? {}).filter(place => place.parent).length}`);
             t.diagnostic(`seed ${seed}: trips set out ${tripsMade}, delayed ${summaries.filter(text => /is delayed/.test(text)).length}, stopped ${summaries.filter(text => /^The trip to .* ends/.test(text)).length}`);
-            t.diagnostic(`seed ${seed}: pack events that fired: ${[...new Set(host.sdk.receipts().filter(entry => entry.receipt.type === 'events.fire').map(entry => entry.receipt.data?.event?.split('/')[1]))].join(', ')}`);
             undatedLapsed += host.sdk.receipts().filter(entry => entry.receipt.type === 'time.settle')
                 .flatMap(entry => entry.receipt.data?.lapsed ?? []).filter(entry => madeOffers.includes(entry.key)).length;
             const again = await createHost({ modules: [fakeFightRunner(), createModule()] });
@@ -288,6 +294,11 @@ for (const seed of SEEDS) {
 test('delete fuzz: the reader sought a kind of person and the cast answered (a meeting, a rumor) in the seeds', () => {
     assert.ok(soughtMeetings > 0, 'a person the reader sought came in');
     assert.ok(soughtRumors > 0, 'a person the reader sought who was elsewhere was heard of');
+});
+
+test('delete fuzz: the [People here] line was sent (the second channel the narrator hears unmet names on)', t => {
+    t.diagnostic(`prompts with [People here] ${peopleHere}`);
+    assert.ok(peopleHere > 0, 'the line was reached');
 });
 
 test('delete fuzz: a person who passed through a scene inside one reply counted as met', t => {

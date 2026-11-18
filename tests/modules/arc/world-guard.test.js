@@ -14,7 +14,7 @@ import { overrideWorld } from '../../../modules/world/chronicle/world-daily/read
 const FEATURE = 'story-director.world-events';
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const PLAN = '<plan>\nARC: Succession — a crown in doubt\nBEAT: Refugees — families leave Highmark\nBEAT: Coronation — the succession is settled, heir-crowned in the hall\nCLOCK: Rumours — whispers grow | due: in 2 days\n</plan>';
-const PACK = JSON.stringify({ id: 'guard', version: '1.0.0', name: 'Guard', requires: { storyBlock: '^2' }, content: { places: [{ name: 'Highmark', region: 'The March', x: 0, y: 0, kind: 'town' }] } });
+const PACK = JSON.stringify({ id: 'guard', version: '1.0.0', name: 'Guard', format: 4, kind: 'world', requires: { suite: '^0.1' }, content: { places: [{ name: 'Highmark', region: 'The March', x: 0, y: 0, kind: 'town' }] } });
 const SPEC = {
     realms: [{ name: 'March Realm', regions: ['The March'] }],
     events: [{

@@ -3,6 +3,8 @@ import { KNOWS_TAIL_PER_NPC, KNOWS_TAIL_MAX } from './shared-marks.js';
 import { clean } from './shared-clean.js';
 import { listOf } from './read.js';
 
+// A fact that opens with a verb ("hunts the singing orc", "is afraid of rain") follows the name with no "'s"; a noun phrase ("debt to the guild") is the name's.
+const VERB_FIRST = /^(?:is|are|was|were|has|have|had|will|can|could|would|does|did|[a-z]+s(?= (?:the|a|an|his|her|their|its|that|every|no)\b))\b/i;
 const SECRET_TAIL_NOTE = 'never reveal it unless the story shows them telling.';
 
 /**
@@ -44,7 +46,7 @@ export function knowsTail(people) {
         const list = listOf(person.knows).reverse();
         const pick = list.find(entry => entry.secret) ?? list[0];
         if (!pick) continue;
-        const about = `${pick.about}'s ${pick.fact}`;
+        const about = VERB_FIRST.test(pick.fact) ? `${pick.about} ${pick.fact}` : `${pick.about}'s ${pick.fact}`;
         lines.push(pick.secret ? `${name} (hidden): knows ${about}; ${SECRET_TAIL_NOTE}` : `${name} knows: ${about}`);
     }
     return lines.slice(0, KNOWS_TAIL_MAX);

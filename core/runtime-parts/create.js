@@ -5,6 +5,7 @@ import { CORE_MODULE_ID, createCoreModule } from '../../modules/scene/domains/in
 import { SETTING as ASSIST_SETTING, TIMEOUT_MS as ASSIST_TIMEOUT_MS, createAssistPart } from '../../modules/assist/index.js';
 import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
 import { createCardSettings } from '../../packs/card-settings.js';
+import { currencyOffer } from '../../modules/inventory/money.js';
 import { skipOf } from '../../modules/rpg/start-notes.js';
 import { XP_RATE_SETTING, xpRateFrom, xpRateOf } from '../../modules/rpg/levels.js';
 import { connectionFor } from '../model-call/connection-for.js';
@@ -62,7 +63,9 @@ export function createRuntime({
     const packPart = packs ?? packsFor(ctx);
     const base = createSettings({ root: () => ctx.extensionSettings, registry, save: () => ctx.saveSettingsDebounced?.() });
     // The chat's rule settings (a restore sets them, docs/v2/TIMELINE.md) are read in preference to the global ones.
-    const settings = withRuleOverlay(withPackCurrency(base, () => packPart.startState().currency), {
+    // The chat's frame (the currency its game had when it began), or null before one is written.
+    const frameNow = () => { try { return store.head()?.domains?.frame ?? null; } catch { return null; } };
+    const settings = withRuleOverlay(withPackCurrency(base, () => currencyOffer(frameNow(), packPart.startState().currency)), {
         registry, state: () => { try { return store.head(); } catch { return null; } },
     });
     // The settings a card may recommend (packs/card-settings.js); Story Block's own are registered below, the others' through sdk.registerCardSettings.
@@ -122,7 +125,7 @@ export function createRuntime({
             // The chatter the reader may send back to the story (its setting): the replies and how to read one.
             // The head reply's index too, for `scene.moved` (the store is made below; asked only later).
             // Whether Story Director's World screen is there (it shows the chatter; else Scene does: `scene.chatter`).
-            extras: { interaction: () => sdk?.interaction ?? null, promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), receipts: () => store.receipts?.() ?? [], readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
+            extras: { chatId: () => (typeof ctx.getCurrentChatId === 'function' ? ctx.getCurrentChatId() : ctx.chatId) ?? '', interaction: () => sdk?.interaction ?? null, promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), receipts: () => store.receipts?.() ?? [], readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
             version: HOST_VERSION,
             interaction: kindId => registry.interaction(kindId),
             flagOn: name => flagOn(() => ctx.extensionSettings, name),
@@ -253,9 +256,16 @@ export function createRuntime({
     // (the feature store's set, the settings' set).
     function registerOwnCardSettings() {
         const onOff = value => (value ? 'on' : 'off');
+        // The sections of a game pack Story Block's own settings fill (Tools: Export settings as a game pack); read from the reader's own settings (not the pack currency laid over them).
+        const io = { read: key => base(CORE_MODULE_ID)?.[key], write: (key, value) => settings.set(CORE_MODULE_ID, key, value) };
         cardSettings.registerOwn({
             owner: CORE_MODULE_ID,
             label: 'Story Block',
+            // (fetched when the export is asked for: the page start reaches neither the RPG's code nor the pack checker)
+            loadSections: async () => {
+                const [money, rpg] = await Promise.all([import('../../modules/scene/domains/core/game-sections.js'), import('../../modules/rpg/game-sections.js')]);
+                return { ...money.moneySections(io), ...rpg.rpgSections(io) };
+            },
             keys: {
                 rpg: { label: 'RPG', valueText: onOff, valid: value => typeof value === 'boolean' },
                 gear: { label: 'Gear', valueText: onOff, valid: value => typeof value === 'boolean' },

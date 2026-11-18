@@ -157,40 +157,8 @@ export function tripLines(rt, n) {
     return ['~ trip stop'];
 }
 
-// Key people (own stream): the first reply's people are pinned by the reader after it (so on a reply never deleted); later the reader pins and
-// unpins now and then (on whatever reply is the latest, which a delete may take), and the replies' lines send people away, add steps, change
-// their plans, bring them back, and now and then record a death. A line may name someone no longer pinned (it is refused, quietly) or whose
-// away record a deleted reply made (a step then has nothing to join: passed over on replay, never a failing block). A stand-in for NPC State
-// Delta lists the base people and loses one now and then (archived there): the sync step takes it off the list before the next reply, and the
-// tell step after that reply's lines writes its card line on the reply (a delete may take either; a swipe of the reply says it again).
+// The people NPC State's stand-in lists for the names check (the fuzz's base people).
 export const KEY_BASE = ['Ren', 'Odda', 'Fenna'];
-export function keyLines(rk, host, n) {
-    const pinned = Object.values(host.head().domains.keypeople?.pins ?? {}).map(entry => entry.name);
-    const pool = [...KEY_BASE, ...pinned, `Gone${n}`];
-    const lines = [];
-    for (let i = rk.int(0, 3); i > 0; i -= 1) {
-        const who = rk.pick(pool);
-        const roll = rk();
-        if (roll < 0.3) lines.push(`+ away ${who} — on the road number ${n} | back: June ${rk.int(4, 28)}, 1200`);
-        else if (roll < 0.5) lines.push(`! away ${who} — reached stop ${n}.${i}`);
-        else if (roll < 0.65) lines.push(`~ away ${who} — held up | back: June ${rk.int(4, 28)}, 1200`);
-        else if (roll < 0.85) lines.push(`- away ${who}`);
-        else if (roll < 0.9) lines.push(`- key ${who} | died`);
-        else lines.push(`- key ${who}`);
-    }
-    return lines;
-}
-export async function keyEdits(rk, host, n, delta) {
-    if (rk.chance(0.3)) {
-        const known = Object.keys(delta);
-        if (known.length) delete delta[rk.pick(known)];
-    }
-    if (rk.chance(0.2)) delta[rk.pick([...KEY_BASE, `Key${n}`])] ??= {};
-    if (rk.chance(0.25)) await host.sdk.command('keypeople.pin', { name: `Key${n}` });
-    const pinned = Object.values(host.head().domains.keypeople?.pins ?? {}).map(entry => entry.name);
-    if (pinned.length && rk.chance(0.12)) await host.sdk.command('keypeople.unpin', { name: rk.pick(pinned) });
-    if (rk.chance(0.1)) await host.sdk.command('keypeople.pin', { name: rk.pick([...KEY_BASE, `Key${n}`]) });
-}
 
 // Names (feature story-director.names, own stream): replies declare people now and then, some again (the same person), some with an overused
 // name or a near spelling; the part's `names.seen` / `names.told` steps and its refusals must replay the same after a delete or a swipe.
@@ -198,22 +166,20 @@ const NAME_POOL = ['Corst', 'Hald', 'Wenna', 'Joost', 'Elara', 'Bregje', 'Bregja
 export const nameLines = (rn, n) => (rn.chance(0.6) ? [`+ person ${rn.chance(0.2) ? `Extra${n}` : rn.pick(NAME_POOL)} | look: scar ${n} | flaw: proud`] : []);
 
 export const FACTIONS = ['Fuzz Guild', 'Red Hand', 'Salt Court', 'Grey Wardens'];
-export const RIPPLES = { powers: [{ id: 'crown', name: 'The Crown', base: 50, aliases: ['Crown'], givers: ['Fenna'], factions: ['Red Hand'] }, { id: 'guild', name: 'Fuzz Guild', base: 40, givers: ['Brom'], factions: ['Salt Court'] }],
-    worldDirections: [{ event: 'Salt Riots', favours: 'crown', unless: ['bloody'] }, { event: 'Hill Rains', favours: 'guild' }] };
-
 export const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
 // The cast (own stream): six people at the first reply's places and one elsewhere; `drawnTo` words that every reply's text holds, so the
 // story "touches" them; two may die. The pack's entries and version change now and then (castEdits); the scripted planner (castAnswer) moves
 // some people, brings one whose goal was touched and now and then kills one who may die.
 const CAST_PLACES = [...BASE_PLACES, 'Wayside4', 'Kesh'];
+// (a format 4 world cast entry: `role` is the calling, `history` the line about them; the pack's key and version are added when the pack is built)
 export const castEntry = (id, rc, version) => ({
-    pack: 'ersveil', packVersion: version, id, name: id[0].toUpperCase() + id.slice(1), about: `${id} is somebody.`, look: 'weathered',
+    pack: 'ersveil', packVersion: version, kind: 'companion', id, name: id[0].toUpperCase() + id.slice(1), history: `${id} is somebody.`, look: 'weathered', role: callingOf(id),
     start: { place: rc.pick(CAST_PLACES), goal: `${id} goal`, routine: rc.pick(['', 'works the night ferry', 'at the forge in the morning', 'sells wares by day']) },
-    drawnTo: rc.chance(0.4) ? ['the reply'] : [], canDieUnmet: rc.chance(0.3), fields: { Calling: callingOf(id) },
+    drawnTo: rc.chance(0.4) ? ['the reply'] : [], canDieUnmet: rc.chance(0.3),
 });
 // A person the replies name when she passes through a scene inside one reply (like Ylva, not one of CAST_IDS).
-export const wrenEntry = version => ({ pack: 'ersveil', packVersion: version, id: 'wren', name: 'Wren', about: 'Wren is somebody.', look: 'weathered', fields: { Calling: 'courier' }, start: { place: BASE_PLACES[0], goal: 'wren goal', routine: '' }, drawnTo: [] });
+export const wrenEntry = version => ({ pack: 'ersveil', packVersion: version, kind: 'figure', id: 'wren', name: 'Wren', history: 'Wren is somebody.', look: 'weathered', role: 'courier', start: { place: BASE_PLACES[0], goal: 'wren goal', routine: '' }, drawnTo: [] });
 export const CAST_IDS = ['aino', 'borka', 'cael', 'dren', 'eska', 'fotu'];
 // A calling each person can be sought by ("Is there a ferryman around?"): the reader asks for one now and then and the scripted planner names the person.
 const CALLINGS = { aino: 'ferryman', borka: 'scout', cael: 'smith', dren: 'healer', eska: 'priest', fotu: 'guide' };
@@ -221,7 +187,7 @@ const callingOf = id => CALLINGS[id] ?? 'tinker';
 export const SOUGHT_ASK = ['ferryman', 'scout', 'smith', 'healer', 'priest', 'guide', 'tinker', 'cartographer', 'cartographer', 'cartographer'];
 // Ylva is the one the replies name when she is asked for (a meeting counts only if the reply shows the person), so a sought meeting survives.
 // She is not one of CAST_IDS: the guard that no prompt names an unmet person holds for the others; a rumor must not name her either.
-export const ylvaEntry = version => ({ pack: 'ersveil', packVersion: version, id: 'ylva', name: 'Ylva', about: 'Ylva is somebody.', look: 'weathered', fields: { Calling: 'cartographer' }, start: { place: BASE_PLACES[0], goal: 'ylva goal', routine: '' }, drawnTo: [] });
+export const ylvaEntry = version => ({ pack: 'ersveil', packVersion: version, kind: 'figure', id: 'ylva', name: 'Ylva', history: 'Ylva is somebody.', look: 'weathered', role: 'cartographer', start: { place: BASE_PLACES[0], goal: 'ylva goal', routine: '' }, drawnTo: [] });
 export function castEdits(rc, source, n) {
     if (!rc.chance(0.3)) return;
     const roll = rc();

@@ -56,3 +56,22 @@ test('end: each member row shows that member\'s own +N XP, none when the fight p
   const rows = endCard(end, { party: vm.party }).querySelectorAll('.endr');
   assert.deepEqual(rows.map(r => r.querySelector('.xp')?.textContent ?? null), [' · +30 XP', ' · +45 XP', null, ' · +12 XP']);
 });
+
+test('end: the loot line is only on a win, and the practice line gives no number the setting could contradict', () => {
+  installFakeDom();
+  const end = fightFixture('end').end;
+  const words = outcome => endCard({ ...end, outcome }).querySelectorAll('.fine').map(p => p.textContent).join(' | ');
+  assert.match(words('won'), /writes what you find on them/);
+  assert.doesNotMatch(words('lost'), /what you find/);
+  assert.doesNotMatch(words('fled'), /what you find/);
+  assert.doesNotMatch(words('won'), /\+1 for each/);
+  assert.match(words('won'), /Settings/);
+});
+
+test('end: the fled card says the foes leave the board (they are cleared from the Foes block) and come back as left (SOAK2CORE #9)', () => {
+  installFakeDom();
+  const card = endCard({ ...fightFixture('end').end, outcome: 'fled' });
+  const text = card.textContent;
+  assert.match(text, /The foes are off the board; if the story brings them back, they return as you left them\./);
+  assert.doesNotMatch(text, /still out there/);
+});

@@ -4,7 +4,7 @@
 // `runPreludes` fills the caller's `cues` and `prechecks`; it never imports turn.js.
 
 import { estimateTokens, KEPT_TAIL_TOKENS } from '../prompt.js';
-import { DICE as RPG_DICE, RESOLVE as RPG_RESOLVE } from '../../modules/rpg/names.js';
+import { DICE as CHECK_DICE } from '../../modules/rpg/names.js';
 import { receiptCue } from '../../modules/rpg/cue.js';
 import { noteLong } from '../interaction/note.js';
 import { kindName } from '../interaction/kind-name.js';
@@ -21,16 +21,15 @@ let keptPrelude = 0;
         const prior = s.session?.prechecks?.find(step => step.type === preludeType && JSON.stringify(step.payload) === JSON.stringify(payload));
         const result = bus.run(preludeType, payload, { cause: 'system', ...(previewState ? { state: previewState } : {}), ...(prior || seed !== undefined ? { seed: prior?.seed ?? seed } : {}) });
         if (result?.ok) {
-            // The RPG's rolls move bars (hits, heals, skill costs): the tail's block lines are read from the state they leave, so they say what the cue says.
-            // (An interaction's opening and segment chain the same way: the segment is previewed on the state its opening leaves.)
-            if ((preludeType === RPG_RESOLVE || preludeType === SETTLE) && result.state) previewState = result.state;
+            // A settled interaction moves bars (a fight's hits, heals, skill costs): the tail's block lines are read from the state it leaves, so they say what the
+            // cue says; an opening and its segment chain the same way (the segment is previewed on the state its opening leaves).
+            // A module's prelude that changes state the tail reads marks its receipt `data.chain === true`: the later preludes and the tail read the state it leaves too.
+            if ((preludeType === SETTLE || result.receipt?.data?.chain === true) && result.state) previewState = result.state;
             // How the carried fight ended (won / fled / lost / open): the tail reads it to allow a new foe group only after an ended fight (an opening's own stop is not it).
-            // (a record of a fight made before the port is carried by the same pin: `payload.board`)
-            if (preludeType === RPG_RESOLVE && payload?.board) boardStop = result.receipt?.data?.v2?.result?.stop ?? null;
             if (preludeType === SETTLE && payload?.opening !== true) boardStop = result.receipt?.data?.interaction?.stop ?? null;
             prechecks.push({ type: preludeType, payload, seed: result.receipt.seed });
             // The reply's story-check dice: told as the tail note itself (kept whole, no [Happened] marker), drawn from the receipt's recorded dice.
-            if (preludeType === RPG_DICE) { cues[moduleId] = [...(cues[moduleId] ?? []), { text: receiptCue(result.receipt), keep: true }]; continue; }
+            if (preludeType === CHECK_DICE) { cues[moduleId] = [...(cues[moduleId] ?? []), { text: receiptCue(result.receipt), keep: true }]; continue; }
             // A prelude that says it is not for the narrator (`narrate: false`, the RPG's no-rolls note) is stored with the reply and told to no one.
             if (result.receipt.narrate === false) continue;
             const told = `[Happened]\n${preludeType === SETTLE ? String(result.receipt.summary ?? '') : receiptCue(result.receipt)}`;
@@ -47,11 +46,11 @@ let keptPrelude = 0;
             // A module may mark its prelude cue kept (`receipt.data.keep === true`): pinned like the RPG's, but only while the pinned
             // prelude text of the reply stays within KEPT_PRELUDE_TOKENS in all, so pinning can never starve the rest of the tail.
             let pin = false;
-            if (preludeType !== RPG_RESOLVE && result.receipt.data?.keep === true) {
+            if (result.receipt.data?.keep === true) {
                 const size = estimateTokens(told);
                 if (keptPrelude + size <= KEPT_PRELUDE_TOKENS) { keptPrelude += size; pin = true; }
             }
-            cues[moduleId] = [...(cues[moduleId] ?? []), preludeType === RPG_RESOLVE ? { text: told, keep: true, ...(payload?.board ? { board: true } : {}) } : pin ? { text: told, keep: true } : told];
+            cues[moduleId] = [...(cues[moduleId] ?? []), pin ? { text: told, keep: true } : told];
         } else if (preludeType === SETTLE) {
             // An interaction that cannot be settled (what it read changed) holds the send with the reason; nothing goes out without it.
             const reason = result?.message ?? 'The interaction could not be prepared.';

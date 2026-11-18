@@ -4,7 +4,7 @@
 
 import { AUTOMATIC_BACKFILL_QUEUE_VERSION, AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT, npcParticipatesInExchange } from './scan-context.js';
 import { npcMatchesLabel } from '../core/core.js';
-import { rawScanMatchesExisting } from '../legacy/relationship-pass.js';
+import { rawScanMatchesExisting } from '../relationship/relationship-pass.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { FILL_REASON } from '../meters/npc-lines-parts/fill-in.js';
 

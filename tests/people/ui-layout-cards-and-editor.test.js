@@ -6,15 +6,10 @@ import { index, continuityUi, css } from './ui-layout.helpers.js';
 import { oldSource } from './helpers/old-source.js';
 import { partsSource } from './helpers/parts-source.js';
 
-test('present NPCs in chat support Full, Compact, Only in Story Block and Off display modes', () => {
-    assert.match(index, /presentCastDisplay: 'full'/);
-    assert.match(index, /PRESENT_CAST_DISPLAY_MODES = Object\.freeze\(\['full', 'compact', 'storyblock', 'off'\]\)/);
-    assert.match(index, /assign\('presentCastDisplay', normalizePresentCastDisplay\(settings\.presentCastDisplay\)\)/);
-    assert.match(index, /id="npc_state_delta_present_cast_display"[^>]*><option value="full">Full cards<\/option><option value="compact">Compact strip<\/option><option value="storyblock">Only in Story Block<\/option><option value="off">Off<\/option>/);
-    assert.match(index, /function inlineEntriesForRender\(state\) \{\s*\/\/[^\n]*\n\s*if \(getSettings\(\)\.enabled === false \|\| inChatCastMode\(\) === 'off'\) return \[\];/);
-    assert.match(index, /function startInlineWatchdog\(\) \{[\s\S]*?if \(inChatCastMode\(\) === 'off'\) return stopInlineWatchdog\(\);/);
-    assert.match(index, /class="npc-state-delta-present-chip"/);
-    assert.match(css, /\.npc-state-delta-present-chips \{ display: flex;[^}]*overflow-x: auto;/);
+test('there is no in-chat display choice: the present cards live in the Cast and World panes only (B4-6)', () => {
+    assert.doesNotMatch(index, /presentCastDisplay|PRESENT_CAST_DISPLAY_MODES|npc_state_delta_present_cast_display/);
+    assert.doesNotMatch(index, /class="npc-state-delta-present-chip"/);
+    assert.doesNotMatch(css, /npc-state-delta-present-chips/);
 });
 
 test('present cards are one full-width row at every size: no tablet or phone grid of tall cards', () => {
@@ -85,7 +80,7 @@ test('the settings roster has no archive control; restore (a death correction) a
     assert.match(index, /Delete \${escapeHtml\(npc\.name\)} dossier/);
     assert.match(index, /function deleteNpcById/);
     assert.match(index, /window\.confirm\(message\)/);
-    assert.match(index, /commitBranchCheckpoint\(working, targetMessageId, 'manual-delete'\)/);
+    assert.match(index, /if \(targetMessageId >= 0\) noteChatLineage\(working\);/);
     assert.match(index, /click\.npcStateDelta', '\.npc-state-delta-delete-npc'/);
     assert.match(index, /keydown\.npcStateDelta', '\.npc-state-delta-delete-npc'/);
     assert.doesNotMatch(index, /npc-state-delta-inline-delete-npc/);

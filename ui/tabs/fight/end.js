@@ -5,7 +5,8 @@ import { button } from '../../kit/controls.js';
 const HEADLINE = { won: 'Won', fled: 'Fled', lost: 'Lost' };
 const LINE = {
   won: 'The foes are beaten.',
-  fled: 'You got away; the foes are still out there.',
+  // (a fled fight's foes leave the Foes block, board/foe-writes.js clearFoes; if the story writes them again the board picks up from their bars, board/resume-v1.js)
+  fled: 'You got away. The foes are off the board; if the story brings them back, they return as you left them.',
   lost: 'The party fell. The story picks up from here.',
 };
 
@@ -46,8 +47,8 @@ export function endCard(end, ctx = {}) {
       h('div', null, h('b', null, String(end.exchanges)), end.exchanges === 1 ? 'exchange' : 'exchanges'),
       down ? h('div', null, h('b', null, `${down.down} of ${down.total}`), 'foes down') : null),
     h('div', { class: 'endp' }, end.members.map(m => memberRow(m, party.find(p => p.id === m.id)))),
-    h('p', { class: 'fine' }, 'Practice: +1 for each use of a skill, +1 for each exchange a stance was up.'),
-    h('p', { class: 'fine' }, 'Goes to the story with your next message. The story writes what you find on them.'),
+    h('p', { class: 'fine' }, 'Practice: each use of a skill counts, and so does each exchange a stance was up. How much is set in Settings › RPG.'),
+    h('p', { class: 'fine' }, end.outcome === 'won' ? 'Goes to the story with your next message. The story writes what you find on them.' : 'Goes to the story with your next message.'),
     h('div', { class: 'fbtns' },
       onBack ? button({ label: 'Back to the story ›', tone: 'primary', dataset: { finish: '1' }, onClick: onBack }) : null,
       h('span', { style: 'flex:1' }),

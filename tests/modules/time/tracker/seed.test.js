@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 
 import { part } from '../../../../modules/time/tracker/index.js';
 import { SEED, seedCommand, seedHook } from '../../../../modules/time/tracker/seed.js';
-import { PACK_PRESET, SEED_CLAIM, calendarConfig, calendarOf, settingsDefaults, startMinutes } from '../../../../modules/time/tracker/time.js';
+import { GAME_PRESET, SEED_CLAIM, calendarConfig, calendarOf, settingsDefaults, startMinutes } from '../../../../modules/time/tracker/time.js';
 import { makeState, reply, runCommand } from './helpers/fake-ctx.js';
 
 const MONTHS = ['Dawnwane', 'Rainmoot', 'Greengale', 'Highsun', 'Goldwane', 'Haywane', 'Emberwane', 'Nightfall', 'Frostfall', 'Deepwinter', 'Icewane', 'Yearsend']
@@ -26,7 +26,7 @@ const viewOf = (state, { settings = {}, queries = packs() } = {}) => ({
 });
 
 test('the calendar: the pack\'s by default, Gregorian without one, the reader\'s own whatever the pack says', () => {
-    assert.equal(settingsDefaults().calendar.preset, PACK_PRESET);
+    assert.equal(settingsDefaults().calendar.preset, GAME_PRESET);
     const fromPack = calendarConfig(settingsDefaults(), ERSVEIL);
     assert.deepEqual([fromPack.preset, fromPack.era, fromPack.months.length, fromPack.leapYears], ['custom', 'CY', 12, false]);
     assert.equal(calendarConfig(settingsDefaults(), null).preset, 'gregorian');

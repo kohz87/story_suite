@@ -37,6 +37,7 @@ function readPoint(id, value) {
         index: Number.isInteger(value.index) && value.index >= 0 ? value.index : null,
         branch: value.branch,
         at: typeof value.at === 'string' ? value.at : '',
+        story: flat(value.story, 80),
         rev: Number.isInteger(value.rev) ? value.rev : null,
     };
 }
@@ -50,11 +51,12 @@ function readPoint(id, value) {
  *   chatId() → the chat open now }.
  * `live()`: SillyTavern's live context (its chatMetadata and saveMetadata follow the chat open now);
  * `createBranch(index)`: stCreateBranch; `open(name)`: stReopen; `now()`: the time a save point is
- * stamped with (only shown to the reader; nothing is ordered by it).
+ * stamped with (only shown to the reader; nothing is ordered by it); `story()`: the story's date as written for the reader ('' when
+ * unset), kept with the point so the list can show it.
  */
 export function createSavePoints({
     ctx, store, live = () => globalThis.SillyTavern?.getContext?.() ?? ctx,
-    createBranch = stCreateBranch(ctx, { live }), open = stReopen(ctx, { live }), now = () => Date.now(), id = () => newId('sp'),
+    createBranch = stCreateBranch(ctx, { live }), open = stReopen(ctx, { live }), now = () => Date.now(), id = () => newId('sp'), story = () => '',
 }) {
     let running = false;
     const context = () => {
@@ -94,6 +96,21 @@ export function createSavePoints({
         return entries.map((point, at) => ({ point, at })).sort((a, b) => (b.point.index ?? -1) - (a.point.index ?? -1) || b.at - a.at).map(item => item.point);
     }
 
+    const storyText = () => { try { return flat(story(), 80); } catch { return ''; } };
+
+    // A branch is a copy of the chat as it was when the point was made, so its own list starts without the point (and the others made
+    // later): the list the reader left is carried into the branch, with one row back to the chat they left.
+    function carry(from, left) {
+        const into = table({ make: true });
+        if (!into) return;
+        // (a way back that leads to the chat now open is left out: it would point at itself)
+        for (const [key, value] of Object.entries(from)) if (!Object.hasOwn(into, key) && !(value?.back === true && value.branch === chatId())) into[key] = value;
+        const back = left.chat;
+        if (back && back !== chatId() && !Object.values(into).some(entry => entry?.branch === back)) {
+            into[id()] = { name: `Back to ${back}`, index: left.index, branch: back, at: new Date(now()).toISOString(), story: left.story, rev: null, back: true };
+        }
+    }
+
     async function save({ name = '' } = {}) {
         if (running) return fail('STALE', 'A save point is already being made.');
         const chat = context()?.chat ?? ctx?.chat ?? [];
@@ -121,8 +138,8 @@ export function createSavePoints({
                 return fail('FAILED', `Another chat was opened while the save point was made; the branch "${branch}" was kept in SillyTavern but is not listed.`);
             }
             const key = id();
-            const point = { id: key, name: label, index, branch, at: new Date(now()).toISOString(), rev: Number.isInteger(rev) ? rev : null };
-            table({ make: true })[key] = { name: point.name, index, branch, at: point.at, rev: point.rev };
+            const point = { id: key, name: label, index, branch, at: new Date(now()).toISOString(), story: storyText(), rev: Number.isInteger(rev) ? rev : null };
+            table({ make: true })[key] = { name: point.name, index, branch, at: point.at, story: point.story, rev: point.rev };
             try { await persist(); } catch (error) {
                 return { ok: true, point, warning: `The save point is listed, but the chat could not be saved yet: ${error?.message ?? error}` };
             }
@@ -140,9 +157,12 @@ export function createSavePoints({
         running = true;
         try {
             try { await store?.flush?.(); } catch { /* kept unsaved; the store tries again */ }
+            const left = { chat: chatId(), index: store?.headIndex?.() ?? null, story: storyText() };
+            const kept = structuredClone(table() ?? {});
             try { await limited(() => open(point.branch), 'open the branch'); } catch (error) {
                 return fail('FAILED', `The branch "${point.branch}" could not be opened (it may have been renamed or deleted in SillyTavern): ${error?.message ?? error}`);
             }
+            try { carry(kept, left); await persist(); } catch { /* the list is only a convenience; the branch is open */ }
             return { ok: true, branch: point.branch };
         } finally {
             running = false;

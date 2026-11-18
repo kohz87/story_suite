@@ -9,21 +9,33 @@ export const PEOPLE_KEYS = Object.freeze(['npcs', 'candidates', 'dismissed', 'us
 const VOLATILE = new Set(['updatedAt', 'createdAt', 'archivedAt', 'correctedAt', 'at']);
 const isPlain = value => !!value && typeof value === 'object' && !Array.isArray(value);
 
-// A deep plain-JSON copy without the clock fields and without undefined values.
-export function stripVolatile(value) {
-    if (Array.isArray(value)) return value.map(item => (item === undefined ? null : stripVolatile(item)));
+// A deep plain-JSON copy without the clock fields and without undefined values. A hidden note's `at` (in a record's `secrets` list) is its meter
+// threshold ("opens at Trust 2"), not a clock: it is kept (SOAKPEOPLE F47: without it the note lost its rule and vanished from the dossier).
+export function stripVolatile(value, keepAt = false) {
+    if (Array.isArray(value)) return value.map(item => (item === undefined ? null : stripVolatile(item, keepAt)));
     if (!isPlain(value)) return value;
     const out = {};
     for (const key of Object.keys(value)) {
         const item = value[key];
         if (item === undefined) continue;
-        if (VOLATILE.has(key) && (typeof item === 'number' || item === null)) continue;
-        out[key] = stripVolatile(item);
+        if (VOLATILE.has(key) && (typeof item === 'number' || item === null) && !(keepAt && key === 'at' && typeof item === 'number')) continue;
+        out[key] = key === 'secrets' && Array.isArray(item) ? item.map(note => (note === undefined ? null : stripVolatile(note, true))) : stripVolatile(item);
     }
     return out;
 }
 
 const list = value => (Array.isArray(value) ? value : []);
+
+// A `+ npc` stub's `createdAt` is no clock: it is the reply's place (index + 1, npc-lines-parts/derived.js), and the fill-in finds the reply's new people by it
+// (adapter/stub-fills.js newStubs, right after the reply's hydrate). Stripped like a clock, the cache never had it and no fill-in was ever queued (SOAKPEOPLE F46).
+// It is kept one way only, store → cache (peopleState): the cache's own write (peopleView) still leaves it out, so the store holds what it held before.
+// A clock stamp is milliseconds (far above this bound) and is still dropped.
+const REPLY_STAMP_MAX = 1000000;
+const isReplyStamp = value => Number.isInteger(value) && value >= 1 && value <= REPLY_STAMP_MAX;
+const person = record => {
+    const out = stripVolatile(record);
+    return isPlain(out) && isPlain(record) && isReplyStamp(record.createdAt) ? { ...out, createdAt: record.createdAt } : out;
+};
 
 // Portraits go to the store as file references only (the people domain refuses image bytes, and one data URL would make every write of the chat INVALID).
 // `noBytes` drops every `dataUrl` key and every data-URL string (NPC State still makes such records when a portrait file write fails); `fileRefs`
@@ -97,7 +109,7 @@ export function peopleState(view) {
     if (view.order.length !== keys.length || !view.order.every(id => Object.prototype.hasOwnProperty.call(view.npcs, id))) return null;
     if (new Set(view.order).size !== view.order.length) return null;
     return {
-        npcs: view.order.map(id => stripVolatile(view.npcs[id])),
+        npcs: view.order.map(id => person(view.npcs[id])),
         candidates: stripVolatile(list(view.candidates)),
         dismissed: stripVolatile(list(view.dismissed)),
         userDismissedGroups: stripVolatile(list(view.userDismissedGroups)),

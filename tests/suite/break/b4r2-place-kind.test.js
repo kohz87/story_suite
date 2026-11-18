@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 
-const PACK = { id: 'places', version: '1.0.0', requires: { storyBlock: '^2' }, content: { places: [{ name: 'Bluewatch Village', kind: 'settlement', x: 1, y: 1 }] } };
+const PACK = { id: 'places', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' }, content: { placeKinds: { settlement: 'village' }, places: [{ name: 'Bluewatch Village', kind: 'settlement', x: 1, y: 1 }] } };
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const kind = host => host.head().domains.scene.place.kind;
 

@@ -4,7 +4,6 @@ import { readFileSync } from 'node:fs';
 import { validatePack } from '../../../packs/validate.js';
 import { contentOf } from '../../../packs/content.js';
 import { HOST_CAPABILITIES } from '../../../packs/limits.js';
-import { validatePack as oldValidatePack } from '../../packs/fixtures/old-host/validate.js';
 import { validateDataModules, dataModuleDefaults, dataModuleHash,
     DM_LIMITS as L, DM_DESCRIPTORS as D, DM_DIAGNOSTICS } from '../../../modules/data-modules/check.js';
 import * as packsApi from '../../../packs/index.js';
@@ -15,10 +14,13 @@ for (const name of ['reputation', 'survival']) test(`worked example ${name} is t
     const examples = [...doc.matchAll(/```json\n([\s\S]*?)\n```/g)].map(match => JSON.parse(match[1]));
     const input = read(name);
     const installable = readFileSync(new URL(`../../../examples/packs/${input.id}/pack.json`, import.meta.url), 'utf8');
-    assert.deepEqual(JSON.parse(installable), input, 'the installable pack matches the worked example');
+    // The fixture is the format 4 game pack; the shipped one is the same data with a new version (the same id, requires and content). The worked example in the doc is the same JSON written as format 3.
+    const shipped = JSON.parse(installable);
+    assert.deepEqual([shipped.format, shipped.kind, shipped.version], [4, 'game', '3.0.0']);
+    assert.deepEqual({ ...shipped, version: input.version, description: undefined }, { ...input, description: undefined }, 'the shipped pack matches the worked example');
     const installed = validatePack(installable, { capabilities: ['data-modules-v1', 'director'] });
     assert.equal(installed.ok, true, JSON.stringify(installed.errors));
-    assert.deepEqual(input, examples.find(p => p.id === input.id));
+    assert.deepEqual({ ...input, format: undefined, kind: undefined }, { ...examples.find(p => p.id === input.id), format: undefined, kind: undefined });
     const before = JSON.stringify(input);
     const result = ok(input);
     assert.equal(JSON.stringify(input), before, 'the caller is untouched');
@@ -60,13 +62,12 @@ test('capability is required even for an empty definition list; host capability 
     ok(pack());
 });
 
-test('old packs and explicitly unused definitions retain raw bytes and detached normalization', () => {
+test('an old pack is refused with its own code; explicitly unused definitions retain raw bytes and detached normalization', () => {
     const old = { id: 'old', name: 'Old', version: '1.0.0', requires: { storyBlock: '^2' }, content: {} };
-    // (the same as the earlier host's checker gave, but for the format number and the kinds pack format 3 leaves out)
-    const was = oldValidatePack(old), now = validatePack(old);
-    for (const kind of ['creatures', 'shops', 'recipes', 'quests', 'races', 'talents']) delete was.pack.content[kind];
-    assert.deepEqual(now, was);
-    const result = ok(old);
+    const now = validatePack(old);
+    assert.equal(now.ok, false);
+    assert.deepEqual(now.errors.map(error => error.code), ['FORMAT_OLD']);
+    const result = ok({ ...pack(), content: {} });
     assert.equal('dataModules' in result.pack.content, false);
     assert.equal('packHash' in result, false);
     const input = pack();

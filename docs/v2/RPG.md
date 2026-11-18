@@ -22,7 +22,7 @@ one block for the whole chat and carries the combat text.
 With the feature on, the **Party** tab shows one card for each Character block: the name, the level (with the pack's rank or guild letter, see [Levels, XP and skill ranks](#levels-xp-and-skill-ranks)) and XP,
 the three stage bars, the seven stats in a row and the skills with their ranks. When a character has unspent
 points, the card offers **Spend points**, which opens the stat view with steppers under the point budget. **Stats**
-opens the same view for the stats alone, and **Skills** opens the character's [Skills view](#the-skills-view). **Export**
+opens the same view for the stats alone, and **Skills** opens the character's [Skills view](#the-skills-view). **Export** (an **Export <name>** button under your own sheet, and in a companion's ⋯ menu)
 saves the character to a file (see [Export / Import a character](#export--import-a-character)). **+ New
 character** in the header (shown only while the story has no You) opens the wizard; with no character yet the tab says so and offers **Create your character**.
 
@@ -46,7 +46,7 @@ The board is on by default; Combat Rules v1 is the only rules a chat is made wit
 **Settings → RPG** and **Settings → Features**. When a reply introduces foes, a line beneath it offers **Fight on the board** or
 **Auto-fight**, and a dot marks the Fight tab while the offer is open. The board remains available in the Fight tab.
 
-When you type an attack on a standing foe, the send is held with only those two choices (titled "This is an attack on <foes>"). Nothing waits on a model call. Choose one numbered line for each standing party member: Attack with
+When you type an attack on a standing foe, the send is held with only those two choices (titled "This is an attack on <foes>"). A count or which-one word before the foe still names it ("the two raiders", "both raiders", "the 3 wolves", "the other raider"). Nothing waits on a model call. Choose one numbered line for each standing party member: Attack with
 the equipped weapon, a skill with one target or every foe in reach, or Flee. Tap a line or press its number; when there is
 more than one foe group, choose the target next, or press Esc to go back. A line that cannot be used stays visible with its
 reason. Defence is automatic: the best usable defence skill, else the plain defence roll. Foes act by code.
@@ -54,7 +54,7 @@ reason. Defence is automatic: the best usable defence skill, else the plain defe
 **Auto** plays up to the cap's exchanges for you (the **Auto-fight cap** setting, 1 to 8 or **Until the end**, default 3) with ordinary attacks. It stops on a win, a loss, a badly hurt hero (2 or more Health blocks lost in one exchange; in a fight with doubled bars, a loss of a fifth of the bar, see [Doubled bars](#doubled-bars-new-chats)) or the cap, and it never flees. After it stops, **Auto again** plays on and **Send with this fight** sends the reply. A fight against foes that a fled or lost fight left starts from their exact bars; the board says "These foes are as you left them: N of M standing, with their bars from the last fight."
 
 The bars stay above a scrolling battle log, and the next choices stay at the bottom on a phone. Each rolled exchange is final.
-**Discard fight** asks first and gives the next opening a new seed. A changed sheet or equipment holds a staged board fight until
+**Discard fight** asks first (Discard / Keep it) and gives the next opening a new seed; on a fight started from the standing-foes offer it also gives that offer back, so the Fight tab stays while the foes stand. **Flee** is one pick for the whole party (the tile says so); when the roll fails, the members who were not asked act on Auto and the card says it. In a fight opened under the `fleeIdle` mark (every new fight), a member who picked nothing in that exchange takes up their stance only when their own turn comes: a flee made before it that gets away costs them no Stamina or Mana and gives no stance practice, and a failed one has them take it up before they act (and before the foes strike). With the foes moving first every stance is held from the start, as before; a fight opened before the mark plays as it was recorded. A fled fight's foes leave the Foes block like a won or lost fight's; the end card says "You got away. The foes are off the board; if the story brings them back, they return as you left them." **Send with this** shows only while your message waits for the fight. A changed sheet or equipment holds a staged board fight until
 the original inputs are restored or the fight is discarded. While the reply is being written, wait until it finishes before changing that fight's sheet or gear.
 If a reply is held after its inputs change, restore them to finish it, or discard the fight and regenerate it. A held reply survives a reload.
 The log shows bar changes as words with the dice and totals. The board labels defence results as the defender's and sends each
@@ -124,7 +124,7 @@ points, the seven stats, the skills (and, if you leave them on, the things the c
 It never carries the name, whether they are You or a companion, XP, Health, Mana or Stamina, skill practice, or
 anything about the story. Both buttons exist only while the RPG is on.
 
-**Export.** **Export** on a character's card, next to **Spend points** and **Skills**, opens **Export <name>**:
+**Export.** **Export** (under your own sheet, or in a companion's ⋯ menu) opens **Export <name>**:
 
 - **Character** (always): the level, the unspent points, the seven stats and its skills (up to eight combat and three utility: name, what it does, stat,
   Stamina or Mana, rank). A skill whose block has no stat of its own (an old Skills block) is saved without one: a stat is never guessed.
@@ -187,7 +187,7 @@ one, in two places. Neither is there with the RPG off, and neither changes anyth
   message stays in the box and **Make your character first** opens, with your message quoted. **Send without the RPG for now**
   sends it as usual, with no dice for that reply, and the chat is never asked again (the Party tab still offers **Create your character**).
   **Create your character, then send** opens the New character window and sends the message when you press Create; if you
-  close the window instead, the text is still in the box and the next Send asks again. Closing the dialog also leaves the text
+  close the window instead, the text is still in the box and the next Send asks again. When the story already has a character but you are playing as another name (the persona was changed), the dialog says so and offers only **Send without the RPG for now**; switch the persona back to the character's name to play on. Closing the dialog also leaves the text
   in the box. On a phone the dialog is a bottom sheet. In the new view it is the suite's own sheet: the suite opens for it and
   closes again once you have chosen. Only a normal Send is held: a swipe, a regenerate, a continue, an
   impersonation, a quiet or dry run, an empty box and a slash command are not.
@@ -206,20 +206,20 @@ When the story says someone joins the party for good, the narrator writes one li
 - party Mara
 ```
 
-`class` is a Soul Class word from I to IX (still read: a companion starts at the level that class stands for, II at 15 up to IX at 85, I at 1) and `best` is one of str, vit, agi, dex, int, luk, cha;
+`class` is a Soul Class word from I to IX (still read: a companion starts at the level that class stands for, II at 15 up to IX at 85, I at 1, but never above the highest level among those in the party, so a class II companion joins a level 1 party at level 1) and `best` is one of str, vit, agi, dex, int, wis, cha;
 the last two are optional (a line that still carries `about:` is accepted and the text ignored; a chat that still holds an earlier-rules Character reads it, as before). The line is in the narrator's instructions only while the RPG is on, the story has a Character block
 and the setting is not Off; with the RPG off, nothing is told and nothing changes.
 
 - **What is made.** A Character block (a companion) and an empty Skills block for that name, as one action of the reply: every
-  stat 10 with the named best stat 14, no unspent points, Health, Mana and Stamina full, and the Soul Class as written but never
-  above the highest Soul Class among those in the party. On the Standard formula every stat is 5 and the best stat 9, and each Soul
-  Class above I adds the points per Soul Class (4), one at a time to the best stat and DEX in turn up to 20, then to VIT, AGI, INT, CHA,
-  LUK and STR, so no point is left over. The skills fill in when the story has them learn something, as for
-  anyone.
+  stat 5 with the named best stat 9, no unspent points, Health, Mana and Stamina full, and the Soul Class as written but never
+  above the highest Soul Class among those in the party, at the level that class stands for but never above the highest level among those in the party
+  (a level their NPC State record states is kept, up to the level cap). Then each level above the first adds one point (the Character's own rise),
+  spent one at a time on the best stat and DEX in turn up to 30, then on VIT, AGI, INT, CHA, WIS and STR, so no point is left over. The skills
+  fill in when the story has them learn something, as for anyone.
 - **Ask.** The line makes nothing. The reply gets a card, "Mara joins the party", with **Add to party** (makes them as above),
-  **Edit first** (opens the New character window filled in: name, class, the best stat raised to 14, every field editable; you spend the
-  rest) and **No** (dismisses it). The card is read from the reply's own record, so a swipe or a delete takes it away and nothing
-  is kept in the game for it.
+  **Edit first** (opens the New character window filled in with the same stats, spread as above for the level (no points left to spend): name, class, every field editable) and **No** (dismisses it). The card says the level they will start at, and Edit first opens the window at that level. The card is read from the reply's own record, so a swipe or a delete takes it away and nothing
+  is kept in the game for it. A companion taken from the card (Add to party, or Edit first then Create) is listed in that reply's "This reply"
+  ("Mara joined the party"), as an automatic join is; a swipe takes the line away with the reply.
 - **Automatically.** They are made at once and listed in "Changed this reply" ("Mara joined the party"). Like every other line of
   the reply it is taken back by a swipe or a delete, and a Re-read makes it the same way.
 - **The first character.** Normally the wizard has made yours first. When Add to party (or an automatic join) makes the story's very
@@ -233,13 +233,15 @@ and the setting is not Off; with the RPG off, nothing is told and nothing change
   a companion takes two), there is no room for two more blocks, or the reply has used all the block actions it can take. A class
   that is not I to IX, a `best` that is not a stat and a line with no name are refused the same way.
 
-**The party limit, every way in.** The party holds at most 8 active members (20 blocks of their own, 28 pins; the check-bonus table covers eight).
-A Character comes in by a `+ party` line (new or returning), **Add to party**, the wizard (New character, Edit first), a template, or a pack's
-Character pinned with Enable; each of them is refused plainly at eight active and each records the party it relied on, so a reload, a rebuild
-or a deleted earlier leave decides it the same way: a join that relied on a leave that went is skipped, never a ninth. A reply captured
-before the `partyRoom` mark has no such record and keeps the old room (8 blocks, 16 pins, those who left counted) whenever it is read again.
-A Character pin made before this change has no record and replays as it was. The check does not need the RPG library, so a chat with the
-RPG off replays the same.
+**The party limit, every way in.** The party holds at most 4 active members, You included (a reply from before the `partyFour` mark keeps 8:
+20 blocks of their own, 28 pins; the check-bonus table covers eight). A Character comes in by a `+ party` line (new or returning), **Add to party**,
+the wizard (New character, Edit first), a template, or a pack's Character pinned with Enable. The reader's own ways are refused plainly at four
+active; a `+ party` line that meets four active puts a bench card under its reply ("who steps out") instead of a fifth member. Each records the
+party it relied on, so a reload, a rebuild or a deleted earlier leave decides it the same way: a join that relied on a leave that went is skipped,
+never one over the limit. A reply captured before the `partyRoom` mark has no such record and keeps the old room (8 blocks, 16 pins, those who
+left counted) whenever it is read again. A Character pin made before this change has no record and replays as it was. The check does not need
+the RPG library, so a chat with the RPG off replays the same. The card's party chip and the Party tab show the active members against 4 ("3/4"),
+and the Party tab offers no Invite at four active (an older chat with more active members lists up to eight).
 
 ## Skill slots
 
@@ -383,7 +385,7 @@ Settings page, only changes the rolls made after it.
 
 The page shows only while the RPG is on.
 
-- **Stat formula.** The roll table of the Standard formula (see [The stat formulas](#the-stat-formulas)) and four numbers: where stats start, the points at creation, the stat points each level-up gives (1 every 3 levels) and the foe's base (`+ floor(level ÷ 5)`; Health `4 + floor(level ÷ 30)` blocks). On a Foes block of the harder-foes rule the foe adds `floor(level ÷ 4)` whatever the divisor says, and its Health is `12 + floor(level ÷ 30)` blocks, 12 to 15 (see [Harder foes](#harder-foes-new-chats)).
+- **Stat formula.** The roll table of the Standard formula (see [The stat formulas](#the-stat-formulas)) and four numbers: where stats start, the points at creation, the stat points each level-up gives (the earlier Character: 1 every 3 levels; the Combat Rules v1 Character: 1 every level) and the foe's base (`+ floor(level ÷ 5)`; Health `4 + floor(level ÷ 30)` blocks). On a Foes block of the harder-foes rule the foe adds `floor(level ÷ 4)` whatever the divisor says, and its Health is `12 + floor(level ÷ 30)` blocks, 12 to 15 (see [Harder foes](#harder-foes-new-chats)).
   Rolls already made keep the numbers they were made with.
 - **Fight board.** The board is on whenever the RPG is: there is no switch for it. This card holds **Auto-fight cap** (`rpgAutoCap`, a slider from 1 to 8 or **Until the end**, default 3): the most exchanges **Auto** plays in one press.
 - **Rolls.** Only **Story checks** (the switch for rolls outside a fight); there is no Rolls setting.
@@ -400,9 +402,10 @@ The page shows only while the RPG is on.
   (1 to 10) and **Highest stat at creation** (3 to 20). They are stored in the Custom set (`rpgStandard`); a number that breaks lowest ≤ start ≤ highest ≤
   the highest a stat can be is refused, and the page says why. A Difficulty change draws the page again; a Custom number updates its field and the hint in place. Characters already made keep their stats,
   and a companion who joins keeps its own (every stat 5, its best raised), whatever **Stats start at** says.
-- **Levels and practice.** **Level cap** (1 to 99, default 99; the pack's cap wins when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
+- **Levels and practice.** **Level cap** (1 to 99, default 99; a cap you set below 99 wins over the game pack's; at 99 the game pack's cap applies when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
 - **What the narrator is told about combat.** The text of this chat's Combat rules block (up to 1200 characters, counted
-  as you type). It is saved when you leave the box (or close the settings window with text still in it), as an edit of that
+  as you type). The narrator reads it only in a reply that tells a fight played on the board, and never its `Exchanges:`, `Rolls:` or
+  `XP guide:` parts (the board plays those); while foes stand and no board fight is played it is not sent at all. It is saved when you leave the box (or close the settings window with text still in it), as an edit of that
   block on the latest reply: swipe or delete that reply to take it back. A chat keeps a limited number of block versions;
   when it has kept as many as it can, the box says so in plain words. **Reset to the default** puts the template's text back (a Standard chat's
   default also explains the roll types and that code moves the Health bars for rolled hits). Each chat has its own text; a new chat
@@ -473,9 +476,9 @@ Ersveil" while the pack decides. Foe Health was `4 + class/3` blocks (the simula
 ## Levels, XP and skill ranks
 
 **Levels.** A character's level runs 1 to 99 (the Character block's `level`). At 100 XP the character goes up one level and the extra XP
-carries over. The rise needs no confirm step and is said in "Changed this reply" ("Wessel reached Lv 15 (+1 point to spend)"). Every third
-level (3, 6, 9 and so on) gives **1 stat point** to spend, and the Party card offers **Spend points**; the points never go above 60.
-A character's level stops at its **cap**: the pack's `rpg.levelCap` when it names one, else the setting **Level cap** (1 to 99, default 99).
+carries over. The rise needs no confirm step and is said in "Changed this reply" ("Wessel reached Lv 15 (+1 point to spend)"). On the Combat Rules v1 Character (every new chat) **each level gained gives 1 stat point** to spend
+(a character that starts above Lv 1 gets none for the levels it starts with), and the Party card offers **Spend points**; the points never go above 98. The earlier Character (a chat made under the earlier rules) gave 1 point every third level (3, 6, 9 and so on), up to 60.
+A character's level stops at its **cap**: the setting **Level cap** when you set it below 99, else the selected game pack's `rpg.levelCap` when it names one, else 99. (99 is the setting's default, so it counts as not set.) A game pack's cap applies to new characters; a made character keeps its own.
 A character keeps the cap it was made with. At the cap, XP holds at 100 and nothing more is given. A block carries its own copy of its
 rules, so a character made before a rule existed keeps the rule it has; give such a character points with the pencil on **Points** in its
 Character block.
@@ -509,6 +512,8 @@ deeds 5 to 40.
 
 ### Recovery and XP on a new Character
 
+**Combat Rules v1 fight XP (every new chat; what is built).** A won fight pays each member who has not Left, for each foe group: `(15 + 2 for each foe after the first) × max(1, ceil(foe level ÷ 10)) × the level gap per cent (100 + 10 a level above the member, never below 0 or above 200) × the group's tier factor` (Mob a quarter, Minion a half, Standard 1, Elite one and a half, Boss 2, Apex 3: `combat/numbers.js` TIERS); the groups are added, rounded down and held to 1 to 60, then the XP rate applies (`combat/rewards.js winXp`; v1-pay.test.js pins it). The outnumbered multiplier and the 15-per-foe, cap-100 rule below belong to the earlier marked Character (`scale: 2`), not to the Combat Rules v1 Character. Example: a Lv 2 member against four Lv 2 Mob foes and two Lv 1 Standard foes gets 20.
+
 A Character pinned with `scale: 2` (`templates-recovery.js`, `data-modules/recovery.js`) has no `add-xp` kind: **XP comes from board fights only**, and the Combat rules text says nothing about XP lines. A narrator `add-xp` line is refused with one Problems note (code RECOVERY_REFUSED); the reader's own edit of XP stays.
 - **Fight XP.** A new marked board fight pays 15 for each foe, adjusted by 10% per level of difference from each member (a foe 10 or more levels below pays nothing). Sum the groups, apply the outnumbered multiplier described above, round down and cap at 100 per member; then apply the XP rate. At equal level, one member earns 15 against one foe, 45 against two, 90 against three and 100 against four. Two members against three foes each get 67 (45 × 1.5, rounded down). Older marked fights without `xp: 2` use `(15 + 2 x (count - 1)) x max(1, ceil(foe level / 10))` per group, the level-gap percent capped at 200%, and a cap of 60; older fights keep the rules they recorded. A marked fight never holds a narrator XP line. A fight the narrator settled, a pre-check or narrator-won fight, and a mixed party are unmarked and use the old-pin formula, with the outnumbered bonus on new wins.
 - **Recovery.** Story kinds: `rest` (Stamina and Mana), `full-rest` (all three bars; refused when the last full rest was under 6 story hours earlier; no story clock means allowed; the minute is stored in the action, so rebuild and Re-read never ask the clock again) and `heal` (amount 1 to 3, one line a reply). There are no rest buttons: resting is narrative only (the sheet shows none, and a Character pinned earlier with Short rest and Full rest buttons shows none either; their recorded lines still replay). Hidden fields `rested-at` and `rested-known` keep the minute of the last full rest.
@@ -533,7 +538,7 @@ with the pencils on the block.
 | **Character** | Name, Health, Mana, Stamina, the seven stats (1 to 20), points (1 more every third level), level, cap, XP, Alive, Left. The narrator sets Health, Mana, Stamina, XP and Alive; Left is set by a `- party` line; the reader sets stats and points. Rest refills Stamina and Mana. This row is the old pin; the new Character (`scale: 2`) has no narrator XP and gains the story's rest, full-rest and heal (no buttons), see [Recovery and XP on a new Character](#recovery-and-xp-on-a-new-character). The Standard formula's Character (`STANDARD_TEMPLATES`, `templatesFor`) keeps the blocks left in Health 0 to 8, Stamina 0 to 7 and Mana 0 to 7, stats start at 5 and a level-up gives points as above; see [Standard formula: bars of blocks](#standard-formula-bars-of-blocks). |
 | **Skills** | Up to eleven skills (a new chat's typed block: five combat slots to start, up to eight with level, and three utility ones; see [Skill slots](#skill-slots)), each with a name, what it does, the stat it rolls with, what it uses (stamina or mana), a rank and practice. The narrator names a skill with a learn line (name, what it does, stat, uses) and adds practice. Rank and practice cannot be typed in. |
 | **Foes** | Up to four foe groups, one slot each (`level1` to `level4` for the level, which replaces `class1` to `class4`): the name, how many are left (0 means the slot is empty), the level and the group's health (Standard: 0 to 8 blocks, `4 + floor(level/30)` when the group arrives; a Foes block of the harder-foes rule: 0 to 15 blocks, `12 + floor(level/30)`, see [Harder foes](#harder-foes-new-chats)). |
-| **Combat rules** | The combat text, which the narrator reads on every reply, and the XP guidance. It has no fields. |
+| **Combat rules** | The combat text, which the narrator reads in a reply that tells a fight played on the board (without its `Exchanges:`, `Rolls:` and `XP guide:` parts), and the XP guidance. It has no fields. |
 
 A new chat gets a Combat rules block and a Foes block when you make its first character (see [A new chat](#a-new-chat)),
 so the Fight tab and the combat text work without adding them by hand. The combat text of this chat can be changed on [Settings → RPG](#settings--rpg). To read or change a template's rules, make a block from it, then use the block's actions menu to
@@ -584,7 +589,7 @@ slots left out, and a Foes block lists only the groups in the fight.
 
 ### Built-in skill sets
 
-The five built-in sets (`modules/rpg/templates-parts/skill-sets.js`) give each skill a Combat Rules v1 `type`, and the wizard writes it into the draft (attack is the unwritten default). A set holds at most one stance skill (defence, evasion, movement or support); a test checks every built-in set. A set's utility skills fill the utility slots and its other skills the combat slots. Pack sets have no `type` field, so their skills are attacks until the reader changes them.
+The five built-in sets (`modules/rpg/templates-parts/skill-sets.js`) give each skill a Combat Rules v1 `type`, and the wizard writes it into the draft (attack is the unwritten default). A set holds at most one stance skill (defence, evasion, movement or support); a test checks every built-in set. The wizard's Review names the pool a skill draws on as the board prices it (INT, WIS and a heal: Mana) and holds Create while two skills are stances. "One may start at Adept" stores Adept; the Party sheet shows the rank the level allows (Adept works from Lv 10), so the wizard and Review say "Adept (works from Lv 10)" while the level is lower. A set's utility skills fill the utility slots and its other skills the combat slots. Pack sets have no `type` field, so their skills are attacks until the reader changes them.
 
 ### Skill sets in a pack
 
@@ -605,3 +610,13 @@ A set has a name (up to 40 characters, unique in the pack), an optional `about` 
 name (up to 40, unique in its set), `about` (1 to 120, what it does: the narrator reads it), `stat` (`str`, `vit`, `agi`,
 `dex`, `int`, `luk` or `cha`) and `uses` (`stamina`, the default, or `mana`). Sets never carry ranks: every skill starts at
 Novice, and the reader may start one at Adept.
+
+## The pull from NPC State (pack format 4)
+
+A joining person's sheet is built from their NPC State record (`join-parts/from-person.js`, words in `pull-words.js`): level (the record's, held to the level cap; else the join line's class), best stat (the line's, else a fixed keyword table over role, background and abilities), one signature skill per ability (up to `rpg.pull.abilities` of the selected game pack, default 4, at most 6) with its type, stat and resource from the same table and its rank one under the highest the level allows, one stance skill unless an ability is one or `rpg.pull.stance` is false, and gear from keepsakes that name pack equipment. Each skill takes a slot of its kind: the combat slots the level opens (5, then 6 at Lv 20, 7 at 40, 8 at 60) and the three utility slots; an ability that finds its kind full is left out, and the join says so in Problems ("Ann's Old lore has no free utility skill slot."); the stance comes last and only into a free combat slot. Add and Edit first make the same sheet. A person with no abilities joins with no signature skills (format 3 cast skills are gone).
+
+Not built (design §5.3 and §5.4): the sheet is made only when a person joins the party, not when an ally or a named foe first appears on the fight board; a new NPC State ability is not offered as a sheet skill on the next join card or fight-board review.
+
+### The Level kept in step (R2)
+
+When a v1 fight settles (the one `rpg.board.award` call that pays XP and practice; `board/v1-story-facts.js`), each hero that is paid XP or practice is matched by name or alias to one NPC State record. If that record's Level is higher than the sheet's, the sheet is raised to it first (held to the sheet's `cap`, one point to spend per level gained, never lowered). The fight's XP is then paid, and a level that XP gained is written to the person with `people.fields` (`level`, only up), in the same change set. A hero with no single matching record is left alone. Replay reads the reply's prefix and the sheet, so a swipe, a Re-read, a middle delete, a rewind and a reload give the same Level both places. Not built: a skill learned or a keepsake gained on the sheet is not written back as an NPC State ability or keepsake; a level is written back only at a fight's settle, so a level-up from the narrator's XP lines, the level a join made and the reader's own edit of the sheet are not written to NPC State; and a story Level only raises a sheet when that person is next paid by a fight.

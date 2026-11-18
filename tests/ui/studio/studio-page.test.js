@@ -3,28 +3,19 @@
 // zip, and the phone list → page → back; at 390, 1143, 1280 and 1920, dark and light, nothing runs sideways.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { ROOT, serve } from './serve.js';
+import { writeStoredZip } from '../../../studio/zip-write.js';
+import { readPackZip } from '../../../packs/bundle.js';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.webp': 'image/webp' };
 const ZIP = path.join(ROOT, 'examples/packs/ersveil.zip');
+const ZIP3 = path.join(ROOT, 'tests/fixtures/packs/ersveil-3/ersveil.zip');
 const WORLD = path.join(ROOT, 'tests/packs/studio/fixtures/world-mini.json');
-
-function serve() {
-  const server = http.createServer((req, res) => {
-    const file = path.join(ROOT, decodeURIComponent(new URL(req.url, 'http://x').pathname));
-    if (!file.startsWith(ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) { res.writeHead(404); res.end(); return; }
-    res.writeHead(200, { 'content-type': MIME[path.extname(file)] ?? 'application/octet-stream' });
-    res.end(fs.readFileSync(file));
-  });
-  return new Promise((resolve, reject) => {
-    server.once('error', reject);
-    server.listen(0, '127.0.0.1', () => resolve({ server, port: server.address().port }));
-  });
-}
+const WORLD4 = fs.readFileSync(path.join(ROOT, 'tests/packs/studio/fixtures/world4-mini.json'));
+const GAME4 = fs.readFileSync(path.join(ROOT, 'tests/packs/studio/fixtures/game4-mini.json'));
+const WREN = fs.readFileSync(path.join(ROOT, 'examples/packs/ersveil/portraits', JSON.parse(fs.readFileSync(path.join(ROOT, 'examples/packs/ersveil/pack.json'))).content.cast[0].portrait));
+const ZIP4 = Buffer.from(writeStoredZip([{ name: 'pack.json', bytes: WORLD4 }, { name: 'game.json', bytes: GAME4 }, { name: 'portraits/wren.webp', bytes: WREN }]));
 
 let ctx = null;
 test.before(async () => {
@@ -43,20 +34,29 @@ test.after(async () => {
   if (ctx?.server) await new Promise(done => ctx.server.close(done));
 });
 
-async function studio(width, { theme = 'dark' } = {}) {
+// `swap`: { '/studio/views/map.js': source } serves a slot file of the test's own, as a later job's page would be.
+async function studio(width, { theme = 'dark', swap = {} } = {}) {
   const page = await ctx.browser.newPage({ viewport: { width, height: 900 }, acceptDownloads: true });
   const errors = [];
   page.on('pageerror', err => errors.push(err.message));
   page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
-  await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+  await page.route('**/*', route => {
+    const url = route.request().url();
+    if (!url.startsWith(`http://127.0.0.1:${ctx.port}/`)) return route.abort();
+    const own = swap[new URL(url).pathname];
+    return own ? route.fulfill({ contentType: 'text/javascript', body: own }) : route.continue();
+  });
   await page.addInitScript(value => localStorage.setItem('storySuite.studio.theme', value), theme);
   await page.goto(`http://127.0.0.1:${ctx.port}/studio/index.html`);
   await page.waitForSelector('.st-app .st-start');
   return { page, errors };
 }
 
+// `file`: a path, a { name, mimeType, buffer } or a list of them. Waits until the header names what was opened.
 async function openFile(page, file) {
+  const before = await page.textContent('.shd .ttl small');
   await page.setInputFiles('.st-file', file);
+  await page.waitForFunction(text => document.querySelector('.shd .ttl small').textContent !== text, before);
   await page.waitForSelector('.st-foot:not([hidden])');
 }
 
@@ -68,7 +68,7 @@ const sideways = page => page.evaluate(() => {
   }).map(el => el.className || el.tagName).slice(0, 5);
 });
 
-test('Ersveil opens, the checker takes it, every part has a page and Export gives back the same zip', async (t) => {
+test('Ersveil opens, the checker takes it, every part has a page and Export gives back the same pack.json and portraits', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const { page, errors } = await studio(1280);
   try {
@@ -81,19 +81,24 @@ test('Ersveil opens, the checker takes it, every part has a page and Export give
       title: document.querySelector('.spage h2').textContent,
       check: document.querySelector('.st-check').dataset.ok,
     }));
-    assert.deepEqual(head, { sub: 'Ersveil (open world) · 3.0.0', foot: 'No problems', nav: ['overview', 'other', 'cast', 'map', 'events', 'items', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
+    assert.deepEqual(head, { sub: 'World · Ersveil (open world) · 4.0.0', foot: 'No problems', nav: ['start', 'overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
     for (const part of head.nav) {
       await page.click(`.snav .si3[data-part="${part}"]`);
-      const seen = await page.evaluate(() => ({ title: document.querySelector('.spage h2').textContent, cards: document.querySelectorAll('.spage .sgrp').length }));
+      const seen = await page.evaluate(() => ({ title: document.querySelector('.spage h2').textContent, cards: document.querySelectorAll('.spage :is(.sgrp, .reclist > .st-rec)').length }));
       assert.ok(seen.cards > 0, `${part} draws something`);
     }
     await page.click('.snav .si3[data-part="cast"]');
-    assert.equal(await page.locator('.spage .st-rec[data-rec^="cast."]').count(), 12);
+    assert.equal(await page.locator('.spage .st-rec[data-rec^="cast."]').count(), 31);
     assert.equal(await page.locator('.spage img.st-thumb').count(), 12);
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('.st-zip')]);
-    assert.equal(download.suggestedFilename(), 'ersveil-3.0.0.zip');
-    assert.deepEqual(fs.readFileSync(await download.path()), fs.readFileSync(ZIP));
-    assert.match(await page.textContent('.st-note'), /Exported ersveil-3\.0\.0\.zip\./);
+    assert.equal(download.suggestedFilename(), 'ersveil-4.0.0.zip');
+    // The example zip also holds game.json and notes, which the Studio does not keep: pack.json and every portrait come back the same.
+    const got = await readPackZip(fs.readFileSync(await download.path())), want = await readPackZip(fs.readFileSync(ZIP));
+    assert.equal(got.ok && want.ok, true);
+    assert.equal(got.text, want.text, 'pack.json comes back as it was');
+    assert.deepEqual(got.files.map(file => [file.name, file.size]), want.files.map(file => [file.name, file.size]), 'the same portraits come back');
+    assert.equal(got.files.length, 12);
+    assert.match(await page.textContent('.st-note'), /Exported ersveil-4\.0\.0\.zip\./);
     assert.deepEqual(errors, []);
   } finally { await page.close(); }
 });
@@ -103,12 +108,13 @@ test('a world pack: the engine\'s checker refuses what it does not take; Problem
   const { page, errors } = await studio(1143);
   try {
     await openFile(page, WORLD);
-    assert.equal(await page.textContent('.st-foot .v'), '3 problems · 2 warnings');
+    assert.equal(await page.textContent('.st-foot .v'), '2 problems · 2 warnings');
     await page.click('.st-foot');
     const groups = await page.evaluate(() => [...document.querySelectorAll('.st-probs')].map(g => g.dataset.part));
     assert.deepEqual([...groups].sort(), ['conditions', 'events']);
     await page.locator('.st-probs[data-part="events"] .lnk').first().click();
-    const hit = await page.evaluate(() => ({ part: document.querySelector('.snav .si3[aria-current="true"]').dataset.part, focused: document.activeElement?.dataset?.rec, marked: document.querySelector('.st-hit')?.dataset.rec }));
+    // Go to reaches the record, and the field of the problem inside it when the form has one (.st-at).
+    const hit = await page.evaluate(() => ({ part: document.querySelector('.snav .si3[aria-current="true"]').dataset.part, focused: document.activeElement?.closest('[data-rec]')?.dataset.rec, marked: document.querySelector('.st-hit')?.dataset.rec }));
     assert.deepEqual(hit, { part: 'events', focused: 'worldEvents.0', marked: 'worldEvents.0' });
     await page.click('.snav .si3[data-part="lore"]');
     const lore = await page.evaluate(() => [...document.querySelectorAll('.st-rec[data-rec^="lore."]')].map(card => [card.querySelector('.st-rt b').textContent, [...card.querySelectorAll('.tg2')].map(tag => tag.textContent).join(' ')]));
@@ -117,7 +123,7 @@ test('a world pack: the engine\'s checker refuses what it does not take; Problem
   } finally { await page.close(); }
 });
 
-test('search finds a record and opens it; the keys: / search, Alt+digit a part, F8 the next problem, Esc clears the search, Ctrl+O opens, Ctrl+S exports', async (t) => {
+test('search finds a record and opens it; the keys: / search, Alt+digit a part, F8 the next problem, Esc clears the search, Ctrl+O opens, Ctrl+S exports (not while the pack has errors)', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const { page, errors } = await studio(1280);
   try {
@@ -135,13 +141,18 @@ test('search finds a record and opens it; the keys: / search, Alt+digit a part, 
     await page.keyboard.press('Alt+3');
     assert.equal(await page.textContent('.spage h2'), 'Cast');
     await page.keyboard.press('F8');
-    assert.equal(await page.textContent('.spage h2'), 'Conditions');
+    assert.equal(await page.textContent('.spage h2'), 'Events');
     await page.keyboard.press('F8');
     assert.equal(await page.textContent('.spage h2'), 'Events');
     const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.keyboard.press('Control+o')]);
     assert.equal(chooser.isMultiple(), true);
-    const [download] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('Control+s')]);
-    assert.equal(download.suggestedFilename(), 'studio-world-mini-0.1.0.zip');
+    let downloaded = false;
+    page.on('download', () => { downloaded = true; });
+    await page.keyboard.press('Control+s');
+    assert.equal(await page.textContent('.st-block'), 'Export is off until the 2 problems are fixed. Warnings don’t stop it. Go to the first ›');
+    assert.deepEqual(await page.evaluate(() => [document.querySelector('.st-zip').disabled, document.querySelector('.st-zip').getAttribute('aria-describedby')]), [true, 'st-block']);
+    await page.waitForTimeout(300);
+    assert.equal(downloaded, false);
     assert.deepEqual(errors, []);
   } finally { await page.close(); }
 });
@@ -155,9 +166,10 @@ test('phone: the parts list first, a part opens as a page, ‹ Parts goes back; 
     assert.deepEqual(await state(), { page: 'list', list: 'flex', spage: 'none', side: 'none', scheme: 'light' });
     const header = await page.evaluate(() => {
       const shd = document.querySelector('.shd').getBoundingClientRect();
-      return { height: Math.round(shd.height), small: [...document.querySelectorAll('.shd button')].map(b => b.getBoundingClientRect()).filter(r => r.width < 44 || r.height < 44).length };
+      return { height: Math.round(shd.height), small: [...document.querySelectorAll('.shd button')].map(b => b.getBoundingClientRect()).filter(r => r.width < 36 || r.height < 44).length, ic: [...document.querySelectorAll('.shd .ic')].map(b => Math.round(b.getBoundingClientRect().width)) };
     });
-    assert.deepEqual(header, { height: 69, small: 0 }, 'one header row as tall as the mock Settings header, every button at least 44 x 44');
+    // (Ersveil's zip opens its game too, so the World / Game switch takes a row of its own between the title and the buttons, MK-6)
+    assert.deepEqual(header, { height: 181, small: 0, ic: [36, 36] }, 'the mock\'s phone header (MK-1, MK-6): the switch and the buttons on their own rows under the title, every button 44 tall, Undo and Redo 36 wide as drawn');
     await page.click('.slist button[data-part="cast"]');
     assert.deepEqual(await state(), { page: 'section', list: 'none', spage: 'flex', side: 'none', scheme: 'light' });
     await page.click('.sback');
@@ -165,6 +177,90 @@ test('phone: the parts list first, a part opens as a page, ‹ Parts goes back; 
     await page.click('.st-theme');
     assert.equal((await state()).scheme, 'dark');
     assert.equal(await page.evaluate(() => localStorage.getItem('storySuite.studio.theme')), 'dark');
+    assert.deepEqual(errors, []);
+  } finally { await page.close(); }
+});
+
+const pick = (name, buffer, mimeType = 'application/json') => ({ name, mimeType, buffer });
+const nav = page => page.evaluate(() => ({
+  sub: document.querySelector('.shd .ttl small').textContent,
+  groups: [...document.querySelectorAll('.snav .grpl')].map(g => g.textContent),
+  parts: [...document.querySelectorAll('.snav .si3')].map(b => b.dataset.part),
+  zip: document.querySelector('.st-zip').disabled,
+}));
+
+test('format 4: a world zip with game.json opens both packs; a Game part makes the game active; Export gives back each pack', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const { page, errors } = await studio(1280);
+  try {
+    await openFile(page, pick('world4.zip', ZIP4, 'application/zip'));
+    assert.deepEqual(await nav(page), { sub: 'World · Studio world 4 (test) · 0.1.0', groups: ['Pack', 'World', 'Game', 'Check'], parts: ['start', 'overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], zip: false });
+    assert.equal(await page.locator('.st-convert').count(), 0);
+    assert.equal(await page.locator('.st-seg').count(), 0);
+    assert.equal(await page.textContent('.st-other .lb b'), 'Game pack · Studio game 4 (test) · 0.1.0');
+    await page.click('.snav .si3[data-part="money"]');
+    const game = await nav(page);
+    assert.deepEqual([game.sub, game.zip], ['Game · Studio game 4 (test) · 0.1.0', true]);
+    assert.equal(await page.locator('.spage .st-currency').count(), 1, 'the Money form draws the currency');
+    await page.click('.snav .si3[data-part="overview"]');
+    assert.equal(await page.textContent('.st-other .lb b'), 'World pack · Studio world 4 (test) · 0.1.0');
+    const [json] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('Control+s')]);
+    assert.equal(json.suggestedFilename(), 'pack.json');
+    assert.deepEqual(fs.readFileSync(await json.path()), GAME4);
+    await page.click('.st-other .lnk');
+    assert.equal((await nav(page)).sub, 'World · Studio world 4 (test) · 0.1.0');
+    await page.click('.snav .si3[data-part="cast"]');
+    // The world's portrait still loads after the game was active (a revoked URL never would).
+    await page.waitForFunction(() => { const img = document.querySelector('.spage img.st-thumb'); return img?.complete && img.naturalWidth > 0; }, null, { timeout: 5000 });
+    const [zip] = await Promise.all([page.waitForEvent('download'), page.click('.st-zip')]);
+    assert.equal(zip.suggestedFilename(), 'studio-world4-mini-0.1.0.zip');
+    assert.deepEqual(fs.readFileSync(await zip.path()), ZIP4);
+    // Opening a game alone keeps the world; a world alone keeps the game.
+    await openFile(page, pick('game.json', GAME4));
+    assert.equal((await nav(page)).sub, 'Game · Studio game 4 (test) · 0.1.0');
+    assert.ok((await nav(page)).parts.includes('cast'));
+    await page.click('.snav .si3[data-part="cast"]');
+    await page.waitForFunction(() => { const img = document.querySelector('.spage img.st-thumb'); return img?.complete && img.naturalWidth > 0; }, null, { timeout: 5000 });
+    await page.click('.snav .si3[data-part="money"]'); // the game active again, so the header changes when the world opens
+    await openFile(page, [pick('pack.json', WORLD4), pick('wren.webp', WREN, 'image/webp')]);
+    assert.ok((await nav(page)).parts.includes('calendar'));
+    assert.deepEqual(errors, []);
+  } finally { await page.close(); }
+});
+
+test('format 3 opens read-only with the Convert card at the top of Overview; a game part never shows for it', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const { page, errors } = await studio(1143);
+  try {
+    await openFile(page, ZIP3);
+    assert.match(await page.textContent('.spage > .st-convert .lb b'), /format 3, so it opens read-only/);
+    assert.equal(await page.evaluate(() => document.querySelector('.spage > .st-convert').nextElementSibling.classList.contains('st-check')), true);
+    assert.ok(!(await nav(page)).groups.includes('Game'));
+    assert.deepEqual(errors, []);
+  } finally { await page.close(); }
+});
+
+test('the slots: a page that draws something is mounted where route.js says (segment, Check part); an empty stub is not', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const drawn = label => `import { h } from '../../ui/kit/dom.js'; export function renderPage(ctx) { return [h('p', { class: 'st-own' }, '${label} ' + ctx.kind + ' ' + Boolean(ctx.other))]; }`;
+  const { page, errors } = await studio(1280, { swap: { '/studio/views/map.js': drawn('map'), '/studio/views/timeline.js': drawn('dry run'), '/studio/views/pairing.js': drawn('pairing') } });
+  try {
+    await openFile(page, pick('world4.zip', ZIP4, 'application/zip'));
+    assert.deepEqual((await nav(page)).parts.slice(-3), ['timeline', 'pairing', 'problems']);
+    await page.click('.snav .si3[data-part="map"]');
+    assert.deepEqual(await page.$$eval('.st-seg button', bs => bs.map(b => [b.textContent, b.getAttribute('aria-pressed')])), [['List', 'true'], ['Map', 'false']]);
+    assert.equal(await page.locator('.spage .st-sec').count(), 4);
+    await page.click('.st-seg button[data-view="map"]');
+    assert.equal(await page.textContent('.st-own'), 'map world true');
+    assert.equal(await page.locator('.spage .st-sec').count(), 0);
+    await page.click('.snav .si3[data-part="timeline"]');
+    assert.equal(await page.textContent('.st-own'), 'dry run world true');
+    // The graph stub draws nothing: no segment on Events. A format 3 world gets no Dry run (its mount needs format 4).
+    await openFile(page, ZIP3);
+    const legacy = (await nav(page)).parts;
+    assert.ok(!legacy.includes('timeline') && legacy.includes('pairing'));
+    await page.click('.snav .si3[data-part="events"]');
+    assert.equal(await page.locator('.st-seg').count(), 0);
     assert.deepEqual(errors, []);
   } finally { await page.close(); }
 });

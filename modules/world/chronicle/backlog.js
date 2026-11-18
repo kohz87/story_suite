@@ -2,7 +2,7 @@
 //
 // classify(entry): the Journal category of one happened line, from its receipt's type (`{ type, text }`, carried
 // through the day facts). A stored day with no types (older digests) falls back to the known shapes of its text
-// (classifyText), else Events. Bookkeeping ("is here" / "is not here" presence, the key people's "noted" tick, the
+// (classifyText), else Events. Bookkeeping ("is here" / "is not here" presence, the NPC State ticks, the
 // code's own receipts) is its own category, which the Journal does not show.
 //
 // backlogBlock(input): the optional tail block "[Earlier days]": at most six lines, one per past day, picked by

@@ -30,7 +30,7 @@ export function setNpcArchived(npc, archived, { reason = 'manual', lifeState = n
 
 // A dossier that matters is never deleted by the stale pass (no count bound): it holds a portrait image (the main one or
 // a form's, in `formIds`), comes from the cast pack, has a relationship meter off the configured starting value, or its id is in
-// options.keepIds (Story Director's key people and away list). Stored memories alone do not count.
+// options.keepIds (the followed people). Stored memories alone do not count.
 export function npcMattersForRetention(npc, keepIds = new Set(), formIds = new Set(), baseline = null) {
     const start = normalizeRelationshipBaseline(baseline || {});
     const moved = RELATIONSHIP_KEYS.some(key => Number.isFinite(Number(npc?.relationship?.[key])) && Number(npc.relationship[key]) !== Number(start[key] ?? 0));
@@ -63,7 +63,7 @@ export function applyStaleNpcLifecycle(state = {}, options = {}) {
         const age = Math.max(0, turn - activityTurn);
 
         // P6: no archive step. A dossier that does not matter and has been quiet for deleteAfter turns is removed (the timing is unchanged);
-        // one that matters (portrait, cast, bond off its start, key person) is kept however long it has been quiet.
+        // one that matters (portrait, cast, bond off its start, followed or away) is kept however long it has been quiet.
         const matters = noDelete || npcMattersForRetention(npc, keepIds, formIds, options.baseline);
         if (age >= deleteAfter && !matters) {
             removed.push({ id: npc.id, name: npc.name, age, activityTurn, archiveReason: 'stale' });
@@ -76,12 +76,6 @@ export function applyStaleNpcLifecycle(state = {}, options = {}) {
     if (removedIds.size) {
         if (Array.isArray(state?.pendingBackfills)) {
             next.pendingBackfills = state.pendingBackfills.filter(item => !removedIds.has(String(item?.npcId || '')));
-        }
-        if (Array.isArray(state?.inlineCards)) {
-            next.inlineCards = state.inlineCards.map(entry => ({
-                ...entry,
-                cards: Array.isArray(entry?.cards) ? entry.cards.filter(card => !removedIds.has(String(card?.id || ''))) : [],
-            })).filter(entry => Array.isArray(entry.cards) && entry.cards.length > 0);
         }
         if (state?.portraitAssets && typeof state.portraitAssets === 'object') {
             next.portraitAssets = { ...state.portraitAssets };

@@ -7,9 +7,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DAYS_ID, WORLD_ID, daysScreen, hiddenNames, knownDay, part, worldScreen } from '../../../../modules/world/world/index.js';
+import { WORLD_ID, hiddenNames, knownDay, part, worldScreen } from '../../../../modules/world/world/index.js';
 import { backlogBlock } from '../../../../modules/world/chronicle/backlog.js';
-import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
 import { part as chronicle } from '../../../../modules/world/chronicle/index.js';
 import { validateScreen } from '../../../../packs/screens/registry.js';
 import { compileTemplate, renderTemplate } from '../../../../packs/template/index.js';
@@ -57,23 +56,12 @@ function draw(journal, { screen = worldScreen } = {}) {
     return { el, view, warnings, find: text => { draft.find = text; view.update(scopeOf()); } };
 }
 
-test('the Days screen is gone from the tabs: its id is a dialog of the Journal; the World screen draws the Journal', () => {
-    assert.ok(part.screens.includes(daysScreen) && part.screens.includes(worldScreen));
-    assert.ok(!chronicle.screens.some(screen => screen.id === DAYS_ID));
-    assert.equal(DAYS_ID, 'story-director/days');
+test('the Days screen is gone: no screen has its old id; the World screen draws the Journal', () => {
+    assert.deepEqual(part.screens, [worldScreen]);
+    assert.ok(![...part.screens, ...chronicle.screens].some(screen => screen.id === 'story-director/days'));
     assert.equal(WORLD_ID, 'story-director/world');
-    assert.equal(daysScreen.feature, DIGEST_FEATURE);
-    assert.deepEqual([...daysScreen.mounts], ['dialog']);
-    assert.deepEqual(validateScreen(daysScreen), []);
-    for (const binding of Object.values(daysScreen.data)) assert.ok(Object.hasOwn(part.queries, binding.query));
-    assert.deepEqual(scopeCss(daysScreen.css, DAYS_ID).warnings, []);
-});
-
-test('the old Days id draws the same Journal', async () => {
-    const journal = await threeDays();
-    const { el, warnings } = draw(journal, { screen: daysScreen });
-    assert.deepEqual(warnings, []);
-    assert.deepEqual(el.querySelectorAll('.wv-day').map(node => node.querySelector('.wv-date').textContent), ['June 5, 1200', 'June 4, 1200', 'June 3, 1200']);
+    assert.deepEqual(validateScreen(worldScreen), []);
+    assert.deepEqual(scopeCss(worldScreen.css, WORLD_ID).warnings, []);
 });
 
 test('drawn: newest day first, each folded to its line; an older day keeps its line only; no warnings', async () => {
@@ -118,11 +106,9 @@ test('no day yet: one plain sentence, no search box', () => {
 });
 
 test('every World section label is drawn by the one label helper (.wv-label, where the separator is set)', () => {
-    for (const screen of [worldScreen, daysScreen]) {
-        const headings = [...screen.template.matchAll(/<h[45]\b[^>]*>/g)].map(match => match[0]);
-        if (screen === worldScreen) assert.ok(headings.length > 0, `${screen.id} has section labels`);
-        for (const heading of headings) assert.match(heading, /\bwv-label\b/, `${screen.id}: ${heading}`);
-    }
+    const headings = [...worldScreen.template.matchAll(/<h[45]\b[^>]*>/g)].map(match => match[0]);
+    assert.ok(headings.length > 0, 'the World screen has section labels');
+    for (const heading of headings) assert.match(heading, /\bwv-label\b/, heading);
 });
 
 // ---- Journal by kind (spec items 1 to 7) -------------------------------------------------------------------------------------
@@ -136,7 +122,7 @@ const stored = (extra = {}) => ({
     quests: { taken: [], done: ['Perimeter Sweep'], failed: [], dropped: [] }, fights: { count: 1, won: 1, lost: 0, fled: 0 }, money: { in: 0, out: 0 }, moneyText: '1100 copper in',
     npcs: ['Rika: trust wary → friendly'], world: ['World: Red Plague spreads.'], met: ['Sister Temiwa', 'Bregje'], facts: ['Went to: Bluewatch', 'Finished: Perimeter Sweep', 'Money: 1100 copper in'],
     happened: ['Sweep: the deadfall held.', 'Sweep: the basilisk bled out.', 'Fight won: Astra +60 XP.', 'Torka: affection 9 -> 10, desire 7 -> 8 (held at 7).', 'Torka: affection 10 -> 11.', 'Lost Ridge Boar Ears x36 (0 left).', 'Lost Hide x12 (3 left).',
-        'Torka Bloodsong left the party. Their bound gear leaves with them: a.', 'Adventurer Guild membership: contract.', 'Marrit is not here.', 'Key people: noted'],
+        'Torka Bloodsong left the party. Their bound gear leaves with them: a.', 'Adventurer Guild membership: contract.', 'Marrit is not here.', 'NPC meters: the reply was counted'],
     tags: ['quest.step th_a', 'quest.step th_a', 'rpg.fight', 'capture.npc', 'capture.npc', 'capture.item', 'capture.item', 'capture.party', 'capture.dm', 'capture.present', 'npc.tick'],
     ...extra,
 });
@@ -154,9 +140,9 @@ test('1/4: a day has its date, "3 days ago" and the event count; the summary onc
     assert.equal(knownDay(stored({ npcs: [], world: [], met: [], happened: [], tags: [], quests: { taken: [], done: [], failed: [], dropped: [] }, moneyText: '' }), HIDDEN, { now: NOW }).hasCats, false);
 });
 
-test('3: noise is out of the kinds (presence, "Key people: noted"); a day\'s "Lost X" lines are one line', () => {
+test('3: noise is out of the kinds (presence, "NPC meters: the reply was counted"); a day\'s "Lost X" lines are one line', () => {
     const day = knownDay(stored(), HIDDEN, { now: NOW, threads, format });
-    assert.doesNotMatch(JSON.stringify(day.cats), /is not here|Key people/);
+    assert.doesNotMatch(JSON.stringify(day.cats), /is not here|NPC meters/);
     assert.deepEqual(kindOf(day, 'items').items.map(row => row.detail), ['Money: 1100 copper in', 'Lost: Ridge Boar Ears x36, Hide x12']);
     // A lone loss stays as it was.
     assert.deepEqual(kindOf(knownDay(stored({ happened: ['Lost Hide x12 (3 left).'], tags: ['capture.item'], moneyText: '' }), HIDDEN), 'items').items.map(row => row.detail), ['Lost Hide x12 (3 left).']);
@@ -423,4 +409,9 @@ test('W9: a faction whose only summary was "Seen in:" draws no summary line (no 
     const card = el.querySelector('.wv-factions .wv-item');
     assert.ok(card, 'the faction card is drawn');
     assert.equal(card.querySelectorAll('.ss-listcard-sub').length, 0);
+});
+
+test('B20: a quest taken and given up on the same day is still recorded as taken (the row says it began today)', () => {
+    const both = knownDay(stored({ quests: { taken: ['Perimeter Sweep'], done: [], failed: [], dropped: ['Perimeter Sweep'] }, happened: ['Sweep: set out.'], tags: ['quest.step th_a'] }), HIDDEN, { threads: new Map([...threads].map(([id, t]) => [id, { ...t, taken: null }])), format });
+    assert.deepEqual(kindOf(both, 'events').items.map(row => [row.title, row.chip, row.note]), [['Perimeter Sweep', 'gave up', 'began today']]);
 });

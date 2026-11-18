@@ -382,3 +382,17 @@ test('pulse (seam audit E35): a world happening the daily step wrote (by event:w
     }
     assert.deepEqual([...used], ['Rumour of Wolf Plague']);
 });
+
+test('LF4-7: an invented pulse\'s receipt carries what to show (kind and intensity), the summary stays the narrator\'s brief', () => {
+    const state = clocked();
+    const receipts = [];
+    for (let seed = 1; seed <= 40 && receipts.length < 3; seed += 1) {
+        const result = pulseAt(state, seed * 7 + 3, { at: seed, payload: V2 });
+        if (result.result?.data?.shown) receipts.push(result.result);
+    }
+    assert.ok(receipts.length > 0, 'an invented roll');
+    for (const receipt of receipts) {
+        assert.match(receipt.summary, /invent ONE small plausible thing/);
+        assert.match(receipt.data.shown, /^World this reply: [a-z ]+ \((around|noticed|intrusive)\): the narrator invents it$/);
+    }
+});

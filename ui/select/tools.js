@@ -12,7 +12,7 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 function problemItem(p) {
   const module = text(p?.module);
-  return { module, code: text(p?.code ?? p?.why), message: text(p?.message ?? p?.reason ?? p?.line ?? ''), reply: Number.isInteger(p?.index) ? p.index + 1 : null };
+  return { module, code: text(p?.code ?? p?.why), message: text(p?.message ?? p?.reason ?? p?.line ?? ''), reply: Number.isInteger(p?.index) ? p.index : null };
 }
 
 /**
@@ -44,7 +44,8 @@ export function selectSent(read, problems, limits = []) {
     { name: 'Fixed part', used: size.static, cap: null, color: BAR.fixed },
     ...(own > 0 ? [{ name: 'Modules on their own', used: own, cap: null, color: BAR.own }] : []),
   ];
-  const count = problems.items.length + (problems.rebuild ? 1 : 0);
+  // The "planned again" note is information, not something to look at: it stays in the list but is not counted.
+  const count = problems.items.filter(item => item.code !== 'REPLANNED').length + (problems.rebuild ? 1 : 0);
   return {
     used: size.tail, cap: budget, total: size.total, budget: bars, text: read.text, limits,
     tools: [
@@ -69,7 +70,7 @@ export function selectInspector(handle, index = null) {
     replies, index: at,
     reply: {
       ok: true, name: got.name, rev: got.rev, head: got.head, lines: got.diff.entries.map(lineOf), more: got.diff.more,
-      ops: Array.isArray(got.ops) ? got.ops.length : 0, receipts: got.receipts.map(r => ({ id: r.id, type: r.type, module: r.module, summary: r.summary })),
+      ops: Array.isArray(got.ops) ? got.ops.length : 0, receipts: got.receipts.map(r => ({ id: r.id, type: r.type, module: r.module, summary: typeof r.shown === 'string' && r.shown ? r.shown : r.summary })),
       problems: got.problems, state: state.length > STATE_CUT ? `${state.slice(0, STATE_CUT)}\n…` : state,
     },
   };
@@ -87,6 +88,6 @@ export function selectSavePoints(read) {
   const points = Array.isArray(read.points) ? read.points : [];
   return {
     full: points.length >= SAVEPOINT_LIMITS.count, max: { name: SAVEPOINT_LIMITS.name },
-    rows: points.map(p => ({ id: text(p.id), name: text(p.name), reply: Number.isInteger(p.index) ? p.index + 1 : null, date: when(p.at), here: Boolean(read.here) && read.here === p.branch })),
+    rows: points.map(p => ({ id: text(p.id), name: text(p.name), reply: Number.isInteger(p.index) ? p.index : null, date: text(p.story) || when(p.at), here: Boolean(read.here) && read.here === p.branch })),
   };
 }

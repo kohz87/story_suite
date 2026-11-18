@@ -38,8 +38,8 @@ test('the page is in the view-model, fits the contract and its rows read the liv
   assert.equal(by('world.kmPerMapUnit').value, Number(stored['atlas.map.kmPerUnit']));
   assert.equal(by('world.northIs').value, 'Up');
   assert.equal(by('world.weather').value, 'Rolled from the calendar');
-  assert.equal(by('world.calendar').value, 'From the pack');
-  for (const row of rows()) assert.ok(row.key === 'world.clock' || WORLD_KEYS[row.key], row.key);
+  assert.equal(by('world.calendar').value, 'From the game pack');
+  for (const row of rows()) assert.ok(row.key === 'world.clock' || row.type === 'info' || WORLD_KEYS[row.key], row.key);
 });
 
 test('a change writes the same key and value the old page writes (settings.set on story-director), read back by the row', async t => {
@@ -94,4 +94,32 @@ test('the page renders on the live host and a change reaches the port as the row
   const el = ov.el.querySelector('.spage');
   assert.ok(el.querySelectorAll('.srow').length >= 15);
   assert.equal(el.querySelectorAll('.sgrp .gt').map(g => g.textContent).join('|'), 'Calendar|Weather|Map|Time');
+});
+
+test('Era, Months, Weekdays and Leap years show only while Calendar is Custom', async t => {
+  const { port, rows } = await live(t);
+  const keys = ['world.era', 'world.months', 'world.weekdays', 'world.leapYears'];
+  const shown = () => keys.filter(k => rows().some(r => r.key === k));
+  assert.deepEqual(shown(), []);
+  await port.command('settings.set', { key: 'world.calendar', value: 'Gregorian' });
+  assert.deepEqual(shown(), []);
+  await port.command('settings.set', { key: 'world.calendar', value: 'Custom' });
+  assert.deepEqual(shown(), keys);
+  assert.equal(rows().some(r => /Used only with Custom/.test(r.hint ?? '')), false);
+  await port.command('settings.set', { key: 'world.calendar', value: 'From the game pack' });
+  assert.deepEqual(shown(), []);
+});
+
+test('Weather and World events say they are the Director card\'s switches; a line names the switch where rows are hidden', async t => {
+  const { host, rows } = await live(t);
+  const by = key => rows().find(r => r.key === key);
+  assert.match(by('world.weather').hint, /^Same switch as Director › Weather from the calendar/);
+  assert.match(by('world.worldEvents').hint, /^Same switch as Director › World events/);
+  assert.equal(by('world.eventsOff')?.hint?.includes('World events is on'), true);
+  assert.equal(by('world.digestOff'), undefined);
+  host.features.set('story-director.digest', false);
+  assert.match(by('world.digestOff').hint, /Day digest is on/);
+  host.features.set(WORLD_IDS.events, true);
+  assert.equal(by('world.eventsOff'), undefined);
+  assert.ok(by('world.tempo'));
 });

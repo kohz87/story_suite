@@ -1,5 +1,5 @@
 // Story Suite v2: what the store keeps of what it has read, moved out of createStore unchanged: the head state and its cache
-// (current, retain), the state at an earlier carrier (memoAt), the memos a long chat is read through and when they are forgotten
+// (current, retain; the head replay keeps the states it passed in the prefix memo, and its Problems for a reconcile: headProblems), the state at an earlier carrier (memoAt), the memos a long chat is read through and when they are forgotten
 // (forgetMemos, lineOf, frozenReceipts), the timeline witness memo of one generation (witnessKeyOf, walkChat, witnessEnv, witnessHolds,
 // witnessGeneration, prefixWitnessUncached), and the record helpers a write builds on (carrierAt, baseFor, stateBefore, needsCheckpoint,
 // checkpointSize, take, sidFor, carriedTo, spansOf, spansFor, blockParts, receiptsOf, asOps). `createMemo(s, deps)` is given the store's
@@ -12,7 +12,7 @@ import { hashJson } from '../replay.js';
 import { payloadHashOf } from './digest.js';
 
 export function createMemo(s, deps) {
-    const { KEPT_ASIDE, WHY, api, appliedOf, archive, bareHash, blocksBefore, chain, chainHash, chatId, checkpointBytes, checkpointEvery, checkpointState, headKey, list, markNow, marked, metadata, packOwners, packProblems, preservedAt, proofBefore, proofsBefore, rawKind, rawSidAt, recordId, replay, replayEnv, replayRecord, sameKey, settleBehind, sourceFor, spineBefore, stateAfterPrefix, stillHolds, windowHash } = deps;
+    const { KEPT_ASIDE, WHY, api, appliedOf, archive, bareHash, blocksBefore, chain, chainHash, chatId, checkpointBytes, checkpointEvery, checkpointState, headKey, list, markNow, marked, metadata, packOwners, packProblems, preservedAt, proofBefore, proofsBefore, rawKind, rawSidAt, recordId, replay, replayEnv, replayRecord, sameKey, settleBehind, sourceFor, spineBefore, stateAfterPrefix, seedPrefixes, stillHolds, windowHash } = deps;
 
     // Memos of what a reply reads over the whole chat (docs/v2/PERFORMANCE.md, "Long chats"): the stored
     // receipts and the untold ones, each kept until a record is written or the store rebuilds (`epoch`) or
@@ -36,13 +36,28 @@ export function createMemo(s, deps) {
             // so do not let a cached prefix suppress that discovery after the reset.
             s.prefixes.clear();
             s.replanFrom = Infinity;
-            const { state, problems, applied = [], from = -1 } = key.index < 0 ? { state: null, problems: [] } : replay(arr, key.index);
+            const passed = [];
+            const onRecord = (index, at) => passed.push({ index, state: at, replan: s.replanFrom });
+            const { state, problems, applied = [], from = -1 } = key.index < 0 ? { state: null, problems: [] } : replay(arr, key.index, { onRecord });
+            seedPrefixes(arr, passed, from);
             const kept = !state && s.fallback ? preservedAt(arr, true) : null;
-            s.cache = { key, state: kept ? s.fallback : state, problems, applied, from, ...(kept ? { readOnly: kept } : {}) };
+            s.cache = { key, state: kept ? s.fallback : state, problems, applied, from, ...(kept ? { readOnly: kept } : {}), replayed: { epoch: s.epoch, problems: structuredClone(problems) } };
             s.cacheEnv = envNow();      // the Features the head was replayed under (they change with a module held, so a bank is kept per mark and env)
             if (state) s.known = carrierIndexes(arr).map(i => arr[i]);
         }
         return s.cache;
+    }
+
+    // The Problems of a replay of the head, without replaying it again: those the head replay found, while the head is still the one that
+    // replay made (no write or rebuild since, the same chat and head, Features and guards' mark, the same checkpoint to start from; the
+    // trust the head cache itself has) and nothing is staged or applying. Else null (LPA: a reconcile asked for them right after the rebuild
+    // had replayed the head, a second whole replay).
+    function headProblems(arr) {
+        const cache = s.cache;
+        if (!cache?.replayed || cache.replayed.epoch !== s.epoch || s.applying || s.staged || arr !== list() || !sameKey(cache.key, headKey(arr))) return null;
+        if (s.cacheEnv !== envNow() || (s.guardSeen && markNow() !== s.lastMark)) return null;
+        if (chain(arr, cache.key.index).from !== cache.from) return null;      // (a change before the checkpoint can move where a replay starts)
+        return structuredClone(cache.replayed.problems);
     }
 
     // The guards' mark changed (a module held or released, a barrier flip) with no write: the chat's data is the same, so what was read
@@ -396,5 +411,5 @@ export function createMemo(s, deps) {
         };
     }
 
-    return { current, retain, markFlipped, carrierAt, memoAt, frozenReceipts, forgetMemos, witnessKeyOf, markSeen, witnessGeneration, lineOf, baseFor, stateBefore, take, sidFor, carriedTo, spansOf, spansFor, blockParts, receiptsOf, asOps, prefixWitnessUncached };
+    return { headProblems, current, retain, markFlipped, carrierAt, memoAt, frozenReceipts, forgetMemos, witnessKeyOf, markSeen, witnessGeneration, lineOf, baseFor, stateBefore, take, sidFor, carriedTo, spansOf, spansFor, blockParts, receiptsOf, asOps, prefixWitnessUncached };
 }

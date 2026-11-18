@@ -2,14 +2,13 @@
 // (state-fuzz-reread-director.test.js): Story Block's fuzz host (core module, probe module, gear on) with
 // Story Director and the Ersveil Bluewatch pack (trips need its clock), the RPG and the pulse off.
 // Not a test file (the test glob does not match helpers/).
-import { readFileSync } from 'node:fs';
 import { createHost } from '../../../../testkit/index.js';
 import { probeModule } from '../../../suite/qa/helpers/probe-module.js';
 import { READERS } from '../../../suite/qa/helpers/reread-fuzz-run.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { withD1 } from '../../../helpers/director/d1.js';
+import { installBluewatch } from '../../../fixtures/director/bluewatch.js';
 
-const PACK = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const QUESTS = ['Lost Road', 'Old Debt', 'Red Fox'];
 
 /** A new host with Story Director plugged in (the same maker serves the live chat and every told-again one). */
@@ -17,7 +16,7 @@ export async function makeDirectorHost() {
     let host = null;
     const director = withD1(createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } }));
     host = await createHost({ modules: [probeModule(), director], settings: { features: { 'story-block.gear': true, 'story-director.pulse': false } } });
-    await host.packs.packs.install(PACK, { origin: 'pack.json' });
+    await installBluewatch(host.packs.packs);
     return host;
 }
 
@@ -45,9 +44,12 @@ export const DIRECTOR_READERS = [...READERS.filter(name => !['inventory.loot', '
  * Story Director's own domains, left out of the state-at-every-reply compare (their stored records carry keys and
  * order a fresh telling does not reproduce; chronicle also for the reason above). What the owner reads from them is
  * compared through DIRECTOR_READERS; Story Block's domains are compared in full, except the pack events' claims and
- * the weather (its key and text follow the atlas region: seed 6 step 28 and others, not triaged, reported).
+ * the weather. Since FIXBATCH3 its climate no longer reads the atlas's saved parent or last place, but it still falls back to the scene's region and takes
+ * its place name from atlas.here (the Bluewatch pack names no climate, so it is temperate here and that part is not exercised). The key's region part is
+ * the scene's region, else atlas.here's, the same region left out below: tried in, seed 6 step 28 still differs there ("day 220091|river confederacy -
+ * core cities" live, "day 220091|" told again), so the weather stays out until the scene region holds.
  */
-export const LEFT_OUT = ['arc', 'atlas', 'cast', 'checks', 'chronicle', 'director', 'keypeople', 'names', 'claims:event:', 'path:domains/scene/weather', 'path:domains/scene/place/region'];
+export const LEFT_OUT = ['arc', 'atlas', 'cast', 'checks', 'chronicle', 'director', 'names', 'claims:event:', 'path:domains/scene/weather', 'path:domains/scene/place/region'];
 
 /** The oracle's tolerance: a later reply's trip record the edit left without its trip (the "later reply keeps its record" class, D-1). */
 export const TOLERATE = { domain: 'atlas', field: 'trips' };

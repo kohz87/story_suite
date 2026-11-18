@@ -54,8 +54,24 @@
 .trsheet ul{margin:0;padding-left:18px}
 .trsheet small{color:var(--SmartThemeEmColor)}
 .trsheet p{margin:0;color:var(--SmartThemeEmColor)}
+.trsheet .gl svg{width:14px;height:14px;vertical-align:-2px}
 .trsheet li.na{opacity:.7}
 .tra{display:flex;gap:6px;flex-wrap:wrap}
+/* The modules' cards under the head reply: quiet cards in SillyTavern's own look (the reply sheet's), a tone stripe on the left. */
+.sscards{display:flex;flex-direction:column;gap:6px;margin:8px 0 2px}
+.mes.last_mes .sscards:last-child{margin-bottom:calc(var(--swipeCounterHeight,15px) + var(--swipeCounterMargin,5px) + 30px)}
+.sscd{padding:8px 10px;border:1px solid var(--SmartThemeBorderColor);border-left-width:4px;border-radius:10px;font-size:.88em;display:flex;flex-direction:column;gap:4px;background:color-mix(in srgb,var(--SmartThemeBlurTintColor) 60%,transparent)}
+.sscd[data-tone="accent"]{border-left-color:var(--SmartThemeQuoteColor)}
+.sscd[data-tone="bad"]{border-left-color:#c0504d}
+.sscd[data-tone="good"]{border-left-color:#4f9a5b}
+.sscd-t{color:var(--SmartThemeBodyColor)}
+.sscd p{margin:0;color:var(--SmartThemeEmColor)}
+.sscd-rows{margin:0;padding-left:18px;color:var(--SmartThemeEmColor)}
+.sscd-rows .tag{margin-left:6px;font-size:.9em;opacity:.85}
+.sscd-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.sscd .ssbtn.pri{background:color-mix(in srgb,var(--SmartThemeBodyColor) 14%,transparent);border-color:var(--SmartThemeBodyColor);font-weight:700}
+.sscd .ssbtn:disabled{opacity:.6;cursor:default}
+.sscd-why{font-size:.92em}
 @media (max-width:900px){.xbt{min-width:44px;min-height:44px}}
 @container (max-width:599px){
  .ssrow{display:block}

@@ -6,6 +6,7 @@ import { slotsDoll } from './slots.js';
 import { skillsCard } from './skills.js';
 import { openSheet } from './slot-picker.js';
 import { can } from '../../runtime/can.js';
+import { exportSheet } from './export-sheet.js';
 
 const STATS = ['STR', 'DEX', 'AGI', 'VIT', 'INT', 'WIS', 'CHA'];
 const STAT_NAME = {
@@ -71,7 +72,7 @@ export function moreSheet(member, ctx = {}) {
     type: 'button',
     class: ['ps-b', danger ? 'bad' : null],
     dataset: { act: type },
-    onClick: async () => { await ctx.port?.command(type, { member: member.id }); sheet.close(); },
+    onClick: async () => { if (type === 'party.export') { sheet.close(); await exportSheet(member, ctx); return; } await ctx.port?.command(type, { member: member.id }); sheet.close(); },
   }, label);
   const items = [['party.bench', `Bench ${member.name}`], ['party.export', `Export ${member.name}`], ['party.leave', `${member.name} leaves the party`, true]]
     .filter(([type]) => can(ctx, type)).map(([type, label, danger]) => item(label, type, danger));
@@ -103,9 +104,10 @@ function statTiles(member, ctx) {
     type: 'button',
     class: ['sv', can ? 'can' : null],
     dataset: { stat: k },
-    'aria-label': `${STAT_NAME[k]} ${member.stats[k]}`,
+    'aria-label': `${STAT_NAME[k]} ${member.stats[k]}${member.bonus?.[k] ? `, gear adds ${member.bonus[k]}` : ''}`,
+    title: member.bonus?.[k] ? `Base ${member.stats[k]}, gear adds ${member.bonus[k]}` : null,
     onClick: () => statSheet(member, ctx),
-  }, k, h('b', null, member.stats[k]))));
+  }, k, h('b', null, member.stats[k], member.bonus?.[k] ? h('small', { class: 'gb' }, `+${member.bonus[k]}`) : null))));
 }
 
 /** Builds one member's sheet; the player's own sheet skips the name, bars and XP (the card above has them). */
@@ -121,5 +123,7 @@ export function memberSheet(member, ctx = {}, { pc = false } = {}) {
     { class: 'card glass psheet', dataset: { member: member.id } },
     pc ? null : head(member, ctx),
     h('div', { class: 'sgrid' }, slotsDoll(member, ctx), h('div', { class: 'lower' }, h('div', { class: 'lcol' }, left), skillsCard(member, ctx))),
+    // (the reader's own character has no ⋯ menu: their Export is here)
+    pc && can(ctx, 'party.export') ? h('div', { class: 'ps-row' }, h('button', { type: 'button', class: 'ps-b', dataset: { exportOwn: '1' }, onClick: () => exportSheet(member, ctx) }, `Export ${member.name}`)) : null,
   );
 }

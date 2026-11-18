@@ -17,7 +17,7 @@ const FEATURE = 'story-director.world-events';
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const PLAN = '<plan>\nARC: Quiet Days — nothing much\nBEAT: Market — the market opens\n</plan>';
 const PACK = JSON.stringify({
-    id: 'world-brief', version: '1.0.0', name: 'World brief', requires: { storyBlock: '^2' },
+    id: 'world-brief', version: '1.0.0', name: 'World brief', format: 4, kind: 'world', requires: { suite: '^0.1' },
     content: {
         places: [{ name: 'Highmark', region: 'The March', x: 0, y: 0, kind: 'town' }, { name: 'Farcliff', region: 'The Coast', x: 50, y: 0, kind: 'town' }],
         conditions: [{ name: 'unrest', scope: 'place', fades: '10 days', means: 'Crowds in the streets.' }],

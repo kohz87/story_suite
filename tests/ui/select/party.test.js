@@ -19,11 +19,17 @@ const GEAR = {
 };
 
 describe('selectParty', () => {
+  it('lists the stats worn gear adds (inventory.gear\'s statBonus), only those above 0', () => {
+    const gear = { ...GEAR, astra: { ...GEAR.astra, statBonus: { STR: 1, VIT: 2, DEX: 0, AGI: 0 } } };
+    const [astra, brann] = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear }).members;
+    assert.deepEqual([astra.bonus, brann.bonus], [{ STR: 1, VIT: 2 }, {}]);
+  });
+
   it('builds members in actor order with level from party.levels and the pc id', () => {
     const vm = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear: GEAR });
     assert.equal(vm.pcId, 'astra');
     assert.deepEqual(vm.members.map(m => [m.id, m.name, m.level, m.line]), [['astra', 'Astra', 14, 'Lv 14'], ['brann', 'Brann', 9, 'Lv 9']]);
-    assert.equal(vm.max, 4);
+    assert.equal(vm.max, 4, 'the active limit the engine holds a party to');
     assert.equal(vm.canInvite, true);
   });
 
@@ -31,13 +37,21 @@ describe('selectParty', () => {
     const [astra] = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear: GEAR }).members;
     assert.deepEqual(astra.slots.map(s => s.key), ['head', 'armor', 'cloak', 'feet', 'mount', 'weapon', 'offhand', 'accessory1', 'accessory2', 'bag']);
     const by = Object.fromEntries(astra.slots.map(s => [s.key, s.item]));
-    assert.deepEqual(by.weapon, { stack: 's1', name: 'Steel longsword', rarity: 'rare', soak: null, torn: false });
+    assert.deepEqual(by.weapon, { stack: 's1', name: 'Steel longsword', rarity: 'rare', soak: null, torn: false, bonus: '' });
     assert.equal(by.armor.name, 'Travel leathers');
     assert.equal(by.offhand.torn, true);
     assert.equal(by.accessory1.rarity, 'epic', 'legendary has no contract value, so it folds to epic');
     assert.equal(by.head, null);
     assert.equal(by.mount, null);
     assert.equal(by.bag, null);
+  });
+
+  it('a worn piece carries the stat bonus gear.view gives it (the slot sheet\'s "Gives" line), \'\' when it has none', () => {
+    const gear = { astra: { on: true, slots: { ...GEAR.astra.slots, weapon: { ...piece('s1', 'Steel longsword', 'rare'), bonus: '+2 STR' }, 'off-hand': { ...piece('s3', 'Oak round shield', 'uncommon'), bonus: '+1 VIT +1 DEX' } } } };
+    const [astra] = selectParty({ actors: ACTORS.slice(0, 1), pc: PC, levels: LEVELS, gear }).members;
+    const by = Object.fromEntries(astra.slots.map(s => [s.key, s.item]));
+    assert.deepEqual([by.weapon.bonus, by.offhand.bonus, by.armor.bonus], ['+2 STR', '+1 VIT +1 DEX', '']);
+    assert.deepEqual(checkShape(selectParty({ actors: ACTORS.slice(0, 1), pc: PC, levels: LEVELS, gear, sheet: [] }), PARTY_SHAPE).filter(e => /bonus/.test(e)), []);
   });
 
   it('returns gaps as null or empty when no sheet answers', () => {
@@ -63,10 +77,19 @@ describe('selectParty', () => {
     assert.ok(errors.length > 0 && errors.every(e => /soak: expected number, got null/.test(e)), errors.join('\n'));
   });
 
-  it('hides invite at four members and caps the roster at four', () => {
-    const five = ['a', 'b', 'c', 'd', 'e'].map(id => ({ id, name: id.toUpperCase() }));
-    const vm = selectParty({ actors: five, pc: { id: 'a' }, levels: [], gear: {} });
-    assert.equal(vm.members.length, 4);
+  it('hides invite at four active members: the limit shown is the active one, 4', () => {
+    const four = ['a', 'b', 'c', 'd'].map(id => ({ id, name: id.toUpperCase() }));
+    const vm = selectParty({ actors: four, pc: { id: 'a' }, levels: [], gear: {} });
+    assert.equal(vm.max, 4);
+    assert.equal(vm.canInvite, false);
+    assert.equal(selectParty({ actors: four.slice(0, 3), pc: { id: 'a' }, levels: [], gear: {} }).canInvite, true);
+  });
+
+  it('lists an older chat\'s larger party (before the partyFour mark) up to eight, with no Invite', () => {
+    const nine = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'].map(id => ({ id, name: id.toUpperCase() }));
+    const vm = selectParty({ actors: nine, pc: { id: 'a' }, levels: [], gear: {} });
+    assert.equal(vm.members.length, 8);
+    assert.equal(vm.max, 4);
     assert.equal(vm.canInvite, false);
   });
 

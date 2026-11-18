@@ -132,11 +132,9 @@ test('the modules use the derived lists, not copies of their own', () => {
     assert.match(read('core-merge-incoming.js'), /import \{ TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-merge-aliases.js'), /import \{ ALIAS_MERGE_TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-birthday-parts/field-change-stamp.js'), /import \{ CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS \} from '\.\.\/src\/fields\/registry\.js';/);
-    assert.match(read('branch-delete-recovery.js'), /import \{ NPC_REVERT_GROUPS, NPC_REVERT_LIST_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
-    assert.match(read('branch-core-parts/user-metadata.js'), /const globallyPreserved = BRANCH_USER_METADATA_FIELDS;/);
     assert.match(read('terminal-lifecycle.js'), /for \(const field of TERMINAL_FROZEN_FIELDS\)/);
     assert.match(read('runtime-targeted.js'), /return REFRESH_CHANGED_FIELDS\.filter\(/);
-    for (const path of ['core-mechanics.js', 'core-text.js', 'core-identity.js', 'core-portrait.js', 'core-relationship.js', 'core-durable.js', 'core-behavior.js', 'core-evidence.js', 'core-keyrel.js', 'core-record.js', 'core-development.js', 'core-merge-incoming.js', 'core-merge.js', 'core-merge-aliases.js', 'core-merge-names.js', 'core-prompts.js', 'core-injection.js', 'core-birthday.js', 'core-profile-development.js', 'core-profile-finalize.js', 'core.js', 'branch.js', 'branch-delete-recovery.js', 'index.js', 'runtime-scan-helpers.js', 'runtime-injection.js', 'runtime-narration.js', 'runtime-scan-ops.js', 'runtime-targeted.js', 'runtime-scan.js', ...adapterFiles().map(name => `src/${name}`), 'src/dossier-edit.js', 'bundle.js']) {
+    for (const path of ['core-mechanics.js', 'core-text.js', 'core-identity.js', 'core-portrait.js', 'core-relationship.js', 'core-durable.js', 'core-behavior.js', 'core-evidence.js', 'core-keyrel.js', 'core-record.js', 'core-development.js', 'core-merge-incoming.js', 'core-merge.js', 'core-merge-aliases.js', 'core-merge-names.js', 'core-prompts.js', 'core-injection.js', 'core-birthday.js', 'core-profile-development.js', 'core-profile-finalize.js', 'core.js', 'index.js', 'runtime-scan-helpers.js', 'runtime-injection.js', 'runtime-narration.js', 'runtime-scan-ops.js', 'runtime-targeted.js', 'runtime-scan.js', ...adapterFiles().map(name => `src/${name}`), 'src/dossier-edit.js', 'bundle.js']) {
         assert.doesNotMatch(read(path), /const (?:TEXT_FIELDS|CHANGE_TRACKED_FIELDS|DAY_TRACKED_FIELDS|NPC_REVERT_GROUPS|DOSSIER_FIELDS|IMPORT_LOCKED_FIELD_KEYS) = /, `${path} keeps no copy`);
     }
 });
@@ -154,7 +152,7 @@ test('the hidden notes (secrets) never reach any of Delta\'s own model-facing te
     const options = { transcript, currentTranscript: transcript, existingNpcs: [npc], existingNpc: npc, targetNpc: npc, targets: [npc], targetName: 'Mira', dossierText: 'Name: Mira', userName: 'Ari', charName: 'C' };
     const texts = [
         core.buildScannerPrompt(options), core.buildScannerPrompt({ ...options, customFieldNames: ['Level'] }),
-        core.buildNarrationCapturePrompt(options), core.buildNarrationCapturePrompt({ ...options, compactCapture: true }),
+        core.buildNarrationCapturePrompt(options),
         JSON.stringify(core.buildNarrationCaptureParts(options)), core.buildBackfillPrompt(options), core.buildProfileRefreshPrompt(options),
         core.buildDossierImportPrompt(options), core.buildRelationshipPassPrompt(options), core.buildInjection([npc], transcript, 1),
         JSON.stringify(core.buildNpcPortraitPrompts(npc, {})), JSON.stringify(registry.snapshotNpc(npc)),

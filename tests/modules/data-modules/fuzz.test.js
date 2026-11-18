@@ -29,7 +29,7 @@ test('malformed definitions are refused or accepted by the checker without ever 
         const r = rng(seed);
         const alpha = generate(r, 'alpha', { clock: r.chance(0.5), offers: r.chance(0.5) });
         const beta = generate(r, 'beta', { scope: 'character', clock: true, source: 'pack.fz/alpha' });
-        const pack = (...definitions) => ({ id: 'fz', version: '1.0.0', requires: { storyBlock: '^2', capabilities: ['data-modules-v1', 'story-director'] }, content: { dataModules: definitions } });
+        const pack = (...definitions) => ({ id: 'fz', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1', capabilities: ['data-modules-v1', 'story-director'] }, content: { dataModules: definitions } });
         assert.equal(validatePack(pack(alpha, beta, witnessDefinition(r))).ok, true, `generated definitions ${seed}`);
         for (let n = 0; n < 4; n += 1) {
             const result = validatePack(pack(mutate(r, alpha), beta));

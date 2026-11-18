@@ -2,35 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { partsSource } from './helpers/parts-source.js';
-import { BRANCH_SNAPSHOT_BUDGET_BYTES, chatLineage, pruneBranchCheckpoints } from '../../modules/people/legacy/branch.js';
-import { prunePortraitAssetsForState } from '../../modules/people/storage/storage.js';
+import { pruneFormPortraitAssetsForState, prunePortraitAssetsForState } from '../../modules/people/storage/storage.js';
 import { buildQualifiedChatKey } from '../../modules/people/core/identity.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const index = runtimeSource().replace(/\r\n/g, '\n');
 const ci = fs.readFileSync(new URL('../../docs/history/packages/npc-state-delta/.github/workflows/ci.yml', import.meta.url), 'utf8');
 
-function msg(text, isUser = false) { return { mes: text, is_user: isUser, is_system: false, name: isUser ? 'User' : 'Character' }; }
 
-test('branch snapshots obey a bounded character budget while retaining useful anchors', () => {
-    const chat = Array.from({ length: 30 }, (_, i) => msg(`turn-${i}`, i % 2 === 1));
-    const lineage = chatLineage(chat);
-    const checkpoints = lineage.map((fingerprint, i) => ({
-        messageId: i, fingerprint, lineageKey: '', parentLineageKey: '', createdAt: i + 1,
-        snapshot: { npcs: [{ id: `npc-${i}`, personality: 'x'.repeat(320000) }] },
-    }));
-    const pruned = pruneBranchCheckpoints(checkpoints, lineage, 160);
-    const size = pruned.reduce((sum, item) => sum + JSON.stringify(item.snapshot || {}).length + 256, 0);
-    assert.ok(size <= BRANCH_SNAPSHOT_BUDGET_BYTES || pruned.length === 1);
-    assert.ok(pruned.length < checkpoints.length);
-    assert.ok(pruned.some(item => item.messageId === 29), 'newest checkpoint must survive budget compaction');
-});
-
-test('portrait GC removes unreachable and manually deleted assets but keeps branch-restorable assets', () => {
+// B4-10a: no checkpoints are kept, so a portrait is kept only for a live record (a checkpoint a saved state still carries counts for nothing).
+test('portrait GC removes unreachable and manually deleted assets, and keeps only live ones', () => {
     const state = {
-        npcs: [{ id: 'live' }],
-        checkpoints: [{ snapshot: { npcs: [{ id: 'branch-old' }, { id: 'deleted' }] } }],
-        branchRootSnapshot: null,
+        npcs: [{ id: 'live' }, { id: 'deleted' }],
+        checkpoints: [{ snapshot: { npcs: [{ id: 'branch-old' }] } }],
         userDismissedGroups: [{ ids: ['deleted'] }],
         portraitAssets: {
             live: { dataUrl: 'data:image/webp;base64,AA==' },
@@ -39,13 +23,24 @@ test('portrait GC removes unreachable and manually deleted assets but keeps bran
             orphan: { dataUrl: 'data:image/webp;base64,Aw==' },
         },
     };
-    assert.deepEqual(Object.keys(prunePortraitAssetsForState(state)).sort(), ['branch-old', 'live']);
+    assert.deepEqual(Object.keys(prunePortraitAssetsForState(state)).sort(), ['live']);
 });
 
-test('branch inheritance is explicit-parent only', () => {
-    assert.match(index, /if \(!hasExplicitParent\) return false/);
-    assert.match(index, /chatStateCache\.get\(explicitParentKey\)/);
-    assert.doesNotMatch(index, /likelyAncestorKeys|ensureLikelyAncestorStatesLoaded|branchIndex/);
+// While the store holds the chat it can bring back a person the state no longer holds (a swipe back, a delete of the reply that removed them),
+// and their form pictures live only in NPC State's memory: noteChatLineage keeps them (keepHeld), a person the reader deleted still loses them.
+test('portrait GC while the store holds the chat keeps the pictures of people it can bring back, not of a deleted one', () => {
+    const png = 'data:image/webp;base64,AA==';
+    const state = {
+        npcs: [{ id: 'live' }],
+        userDismissedGroups: [{ ids: ['deleted'] }],
+        portraitAssets: { live: { dataUrl: png }, gone: { dataUrl: png }, deleted: { dataUrl: png } },
+        formPortraitAssets: { gone: { fox: { dataUrl: png } }, deleted: { fox: { dataUrl: png } } },
+    };
+    assert.deepEqual(Object.keys(prunePortraitAssetsForState(state, { keepHeld: true })).sort(), ['gone', 'live']);
+    assert.deepEqual(Object.keys(pruneFormPortraitAssetsForState(state, { keepHeld: true })), ['gone']);
+    assert.deepEqual(Object.keys(pruneFormPortraitAssetsForState(state)), [], 'without the store only live people keep them');
+    const runtime = runtimeSource();
+    assert.match(runtime, /prunePortraitAssetsInPlace\(state, \{ keepHeld: storeOwnsState\(\) === 'hosted' \}\);/);
 });
 
 test('tombstones override stale live pointers before hydration', () => {

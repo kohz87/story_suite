@@ -1,8 +1,10 @@
 {
   "id": "ersveil-survival",
-  "format": 3,
-  "version": "2.0.0",
+  "format": 4,
+  "kind": "game",
+  "version": "3.0.0",
   "name": "Ersveil survival meters",
+  "description": "Hunger and fatigue for each character, as a tracker you can add to any chat",
   "requires": {
     "suite": "^0.1",
     "capabilities": [

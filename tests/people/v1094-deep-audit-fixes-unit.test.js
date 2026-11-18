@@ -8,43 +8,13 @@ import {
     normalizeNpcRecord,
     setActiveCalendarConfig,
 } from '../../modules/people/core/core.js';
-import * as calendar from '../../modules/people/legacy/calendar.js';
-import {
-    BRANCH_LINEAGE_VERSION,
-    ensureBranchParentAnchor,
-    ensureRollbackJournalBaseline,
-    recordBranchCheckpoint,
-    reconcileBranchState,
-} from '../../modules/people/legacy/branch.js';
+import * as calendar from '../../modules/people/calendar/calendar.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 import { normalizeSocialGraph } from '../../modules/people/social/social.js';
 import { appearanceFingerprint } from '../../modules/people/appearance/appearance.js';
 import { quarantineUnreadableNpcStateDataFile } from '../../modules/people/storage/storage.js';
 
 const CALENDAR = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }] };
-
-function branchState(npcs) {
-    const state = {
-        npcs, candidates: [], pendingBackfills: [], socialGraph: { edges: [], unresolved: [] }, dismissed: [],
-        turn: 0, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null, scanCount: 0, checkpoints: [], inlineCards: [],
-        lineage: [], branchLineageVersion: BRANCH_LINEAGE_VERSION, portraitAssets: {}, userDismissedGroups: [],
-    };
-    ensureRollbackJournalBaseline(state, []);
-    return state;
-}
-
-function play(state, chat, count, change = () => {}) {
-    for (let i = 1; i <= count; i += 1) {
-        chat.push({ is_user: true, is_system: false, name: 'User', mes: `user-${i}` }, { is_user: false, is_system: false, name: 'Narrator', mes: `assistant-${i}` });
-        const messageId = chat.length - 1;
-        ensureBranchParentAnchor(state, chat, messageId, 'assistant-parent');
-        state.turn += 1;
-        change(state, i, messageId);
-        recordBranchCheckpoint(state, chat, messageId, 'scan');
-    }
-}
-
-const deleteMiddle = (state, chat, index) => reconcileBranchState(state, chat.filter((_, i) => i !== index), { explicitDivergence: index, operation: 'delete' });
 
 const memoryFiles = () => {
     const files = new Map();
@@ -92,47 +62,6 @@ test('RB93-06 (storage): the verified Detach backup is registered before the can
     files.set('/user/files/other.json', '{"format": not json either');
     const normal = await quarantineUnreadableNpcStateDataFile({ chatKey: 'chat:a.png:y', pointer: { name: 'other.json', path: '/user/files/other.json' }, fetchFn });
     assert.equal(files.get(normal.path), '{"format": not json either');
-});
-
-test('RB93-07: deleting a middle message removes the unresolved slots it alone added', () => {
-    const brina = Object.assign(createNpcRecord('Brina'), { id: 'npc_brina', mood: 'calm' });
-    const run = changeLater => {
-        const state = branchState([structuredClone(brina)]);
-        const history = [];
-        play(state, history, 6, (s, n) => {
-            if (n === 3) {
-                s.npcs[0].mood = 'proud';
-                s.socialGraph.unresolved.push(
-                    { id: 'slot_brina_child_1', ownerId: 'npc_brina', relation: 'daughter', groupId: 'group_brina_child', sharedDescriptor: 'twins', provenance: 'explicit', confidence: 'explicit' },
-                    { id: 'slot_brina_child_2', ownerId: 'npc_brina', relation: 'daughter', groupId: 'group_brina_child', sharedDescriptor: 'twins', provenance: 'explicit', confidence: 'explicit' },
-                );
-            }
-            if (n === 5 && changeLater) s.socialGraph.unresolved[0].descriptor = 'elder';
-        });
-        return deleteMiddle(state, history, 5).state;
-    };
-    const after = run(false);
-    assert.equal(after.npcs[0].mood, 'calm');
-    assert.deepEqual(after.socialGraph.unresolved, [], 'the deleted twin-daughter slots are gone');
-    const kept = run(true);
-    assert.deepEqual(kept.socialGraph.unresolved.map(slot => slot.id), ['slot_brina_child_1'], 'a slot a retained message changed is preserved');
-});
-
-test('RB93-08: a later hidden graph edge keeps an NPC whose introduction was deleted', () => {
-    const keeper = Object.assign(createNpcRecord('Keeper'), { id: 'npc_keeper' });
-    const run = edgeLater => {
-        const state = branchState([structuredClone(keeper)]);
-        const history = [];
-        play(state, history, 6, (s, n) => {
-            if (n === 3) s.npcs.push(Object.assign(createNpcRecord('Gone Courier'), { id: 'npc_courier' }));
-            if (n === 5 && edgeLater) s.socialGraph.edges.push({ id: 'edge_keeper_courier', aId: 'npc_keeper', bId: 'npc_courier', aToB: 'friend', bToA: 'friend', provenance: 'explicit', confidence: 'explicit' });
-        });
-        return deleteMiddle(state, history, 5).state;
-    };
-    const used = run(true);
-    assert.ok(used.npcs.some(npc => npc.id === 'npc_courier'), 'the later friendship is independent use');
-    assert.ok(used.socialGraph.edges.some(edge => edge.id === 'edge_keeper_courier'), 'the retained-message edge survives');
-    assert.ok(!run(false).npcs.some(npc => npc.id === 'npc_courier'), 'with no later use the introduction still goes with its message');
 });
 
 test('RB93-09: a skipped duplicate-identity import donates no social state', () => {

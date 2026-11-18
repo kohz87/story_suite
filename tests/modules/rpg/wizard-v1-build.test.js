@@ -53,7 +53,7 @@ test('a character made by the wizard keeps its sheet through a reply, a rebuild 
 test('a joining companion is built under v1', () => {
     const request = { name: 'Mara', about: 'a hedge-witch', soul: 1, best: 'wis' };
     const made = joinDefinitions(request, { used: [] });
-    assert.deepEqual([made.character.state.wis.default, made.character.state.dex.default, made.character.state.str.default], [11, 7, 5]);   // (level 5: four points, the best stat and DEX in turn)
+    assert.deepEqual([made.character.state.wis.default, made.character.state.dex.default, made.character.state.str.default], [9, 5, 5]);   // (class I is level 1: the best stat 9, the others 5)
     assert.equal(Object.hasOwn(made.character.state, 'luk'), false);
     assert.equal(made.character.state.points.default, 0);
     assert.equal(made.character.state.hp.default, made.character.state['hp-max'].default);
@@ -99,7 +99,9 @@ test('the prompt of a v1 chat made by the wizard never says LUK, Health blocks, 
     const next = await host.send('I strike.', 'Steel rings.');
     const text = prompts(next.request);
     assert.doesNotMatch(text, /LUK|\bluk\b|undefined|NaN|Health \d+ blocks/);
-    assert.match(text, /No Plot Armor/, 'a fight stands (the Foes slot is filled): the Combat rules text is told');
+    // (NB-1: a fight that stands unplayed tells no Combat rules text; the board owns it, and the story goes on)
+    assert.doesNotMatch(text, /No Plot Armor|Exchanges:/, 'a fight stands unplayed (the Foes slot is filled): the Combat rules text is not told');
+    assert.match(text, /tell no blows yourself/, 'the board owns the fight');
     assert.deepEqual(problems(host).filter(message => /hash|not run/.test(message)), [], 'no step failed');
 });
 

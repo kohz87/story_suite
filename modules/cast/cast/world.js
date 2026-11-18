@@ -20,7 +20,7 @@
 // * A meeting counts only if the reply shows the person (`unshown`, after the reply: `cast.withdraw`): the narration (not its hidden
 //   comments) names them (name or alias, whole word) or a `+ present` line does; else they stay unmet, the pace is not used up and
 //   they may come again later. Someone met in the story is no planned meeting and is never withdrawn.
-// * People the narrator already has in the scene (present), people the reader pinned as Key people, the dead and people whose pack
+// * People the narrator already has in the scene (present), people the reader follows, the dead and people whose pack
 //   is not enabled now are left alone.
 // Public face: re-exports its parts.
 
@@ -33,4 +33,4 @@ export { holds, linkOf } from './world-parts/links.js';
 export { canBeHere, canReach, moveFits, moveReach } from './world-parts/reach.js';
 export { chanceCandidates, sortComes } from './world-parts/comes.js';
 export { chooseMeetings, chooseRumor, metInTheStory, seekable } from './world-parts/meetings.js';
-export { namedIn, unshown } from './world-parts/shown.js';
+export { meetingAt, namedIn, unshown } from './world-parts/shown.js';

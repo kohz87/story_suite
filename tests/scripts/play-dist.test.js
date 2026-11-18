@@ -75,3 +75,19 @@ test('parseArgs reads the options and rejects an unknown one', () => {
   assert.throws(() => parseArgs(['--out']));
   assert.throws(() => parseArgs(['--install-folder', 'x']));
 });
+
+test('the play build carries the Pack Studio, so Open Studio opens; a reference the Studio cannot resolve fails the build', async () => {
+  const repo = tempDir('play-dist-studio-');
+  try {
+    for (const file of ['manifest.json', 'suite.css', 'ui/look.css']) fs.cpSync(path.join(source, file), path.join(repo, file), { recursive: true });
+    put(repo, 'index.js', 'globalThis.suite = 1;\n');
+    put(repo, 'studio/index.html', '<script type="module" src="./main.js"></script>');
+    put(repo, 'studio/main.js', "import { zip } from '../packs/zip.js';\nglobalThis.zip = zip;\n");
+    put(repo, 'packs/zip.js', 'export const zip = 1;\n');
+    const dist = path.join(repo, 'out');
+    await buildDist({ repo, commit: 'b'.repeat(40), source: repo, out: dist, write: false });
+    for (const file of ['studio/index.html', 'studio/main.js', 'packs/zip.js']) assert.ok(fs.existsSync(path.join(dist, file)), file);
+    put(repo, 'studio/main.js', "import { zip } from '../packs/none.js';\n");
+    await assert.rejects(buildDist({ repo, commit: 'b'.repeat(40), source: repo, out: dist, write: false }), /cannot carry the Studio[\s\S]*none\.js/);
+  } finally { fs.rmSync(repo, { recursive: true, force: true }); }
+});

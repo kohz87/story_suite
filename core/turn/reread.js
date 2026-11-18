@@ -3,14 +3,14 @@
 // state holder `s` and the turn parts it calls (the capture flow's functions, the session's problem / trySave / planAgain); it never
 // imports turn.js.
 
-import { adoptLegacy, blankOpen, extractBlock, hideBlock, legacyRead, markOff } from '../capture.js';
+import { blankOpen, extractBlock, hideBlock, markOff } from '../capture.js';
 import { replacedProofs, reusePlan } from '../evidence.js';
 import { readRecord } from '../persist.js';
 import { heldForMessage as heldInteraction } from '../interaction/held.js';
 import { logSceneReread, sceneBeforeReread } from './reread-scene.js';
 
 export function createReread(s, deps) {
-    const { ctx, metadata = () => ctx?.chatMetadata, store, events, timeline, refusal, changeHeads, readBlock, strayProblems, capped, lateLines, assistRoom, nowLines, heldInReply, legacyProblem, storySeeds, afterCapture, captureEach, stepSeeds, withCaps, isPrelude, LATE, NOW, planAgain, problem, trySave } = deps;
+    const { ctx, metadata = () => ctx?.chatMetadata, store, events, timeline, refusal, changeHeads, readBlock, strayProblems, capped, lateLines, assistRoom, nowLines, heldInReply, storySeeds, afterCapture, captureEach, stepSeeds, withCaps, isPrelude, LATE, NOW, planAgain, problem, trySave } = deps;
 
     async function reread(index) {
         const chat = ctx?.chat ?? [];
@@ -25,14 +25,11 @@ export function createReread(s, deps) {
         const base = store.before?.(index);
         if (!base) return refusal('FAILED', 'This chat has no story state yet.');
         const stored = String(message.mes ?? '');
-        // A v1 envelope is read as the live capture reads it (an older reply that wrote its changes only there gets them now).
-        const adopted = adoptLegacy(stored);
-        const mes = adopted.text;
+        const mes = stored;
         const heads = changeHeads();
         const block = extractBlock(mes, 'Changes', null, { heads });
         const parsed = block === null ? { lines: [], problems: [] } : readBlock(index, block, { own: true });
         const problems = [...parsed.problems, ...strayProblems(index, mes, heads, {}, parsed.lines.map(line => line.raw))];
-        if (adopted.legacy === 'read' || legacyRead(mes)) problems.push(legacyProblem(index));
         const receipts = [];
         const lines = capped(index, parsed.lines, problems);
         // The safety net's stored lines (MODULES §F123): the previous reply's late ones, then this reply's
@@ -119,7 +116,7 @@ export function createReread(s, deps) {
         }
         // The lines it left in the story are listed in the hidden comment (capture.js), and every comment's
         // display lines are marked as this read found their features (markOff).
-        const hidden = withCaps(markOff(hideBlock(mes, 'Changes', { heads, legacy: adopted.legacy === 'read' }), off, 0), 0, true);
+        const hidden = withCaps(markOff(hideBlock(mes, 'Changes', { heads }), off, 0), 0, true);
         if (hidden !== stored) {
             message.mes = hidden;
             if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) message.swipes[message.swipe_id] = hidden;

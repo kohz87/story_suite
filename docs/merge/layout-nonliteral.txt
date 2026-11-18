@@ -82,7 +82,6 @@ packages/story-block/tests/v2/ux/settings-css.test.js
 packages/story-block/tests/v2/ux/settings-window-pages.test.js
 packages/story-block/tests/v2/ux/surfaces-css.test.js
 packages/story-block/tests/v2/ux/ui-size.test.js
-packages/story-block/tests/v2/v1-copy.test.js
 packages/story-block/tests/v2/view/icons.test.js
 packages/story-director/tests/v2/atlas/screen.test.js
 packages/story-director/tests/v2/break/rx-timeline-digest-trimmed.test.js
@@ -103,4 +102,3 @@ tests/suite/nsd-static-part.js
 tests/suite/redraw-count.bench.test.js
 scripts/dryrun/suite-at.mjs
 tests/scripts/dryrun-suite-at.test.js
-tests/modules/cast/keypeople/pin-list.test.js

@@ -63,10 +63,10 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
         const ctx = getContext();
         const chatKey = getChatKey();
         if (!id || chatKey === 'no-chat') return false;
-        try { await ensureChatStateLoaded(chatKey); } catch (error) { notify('warning', `NPC State Delta: cannot refresh this dossier until the canonical server state is available. ${error?.message || error}`); return false; }
+        try { await ensureChatStateLoaded(chatKey); } catch (error) { notify('warning', `NPC State: cannot refresh this dossier until the canonical server state is available. ${error?.message || error}`); return false; }
         if (getChatKey() !== chatKey || !requireReadyChatMutation('refresh a dossier', chatKey, automatic ? { notify: false } : undefined)) return false;
         if (isScanBusy(chatKey)) {
-            notify('info', 'NPC State Delta: another dossier scan is already running in this chat.');
+            notify('info', 'NPC State: another dossier scan is already running in this chat.');
             return false;
         }
         // Preserve any edits currently visible in this dossier before reading history. Otherwise
@@ -89,7 +89,7 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
         const developmentSourceMessageIds = [...transcript.matchAll(/^\[m(\d+)\]/gm)]
             .map(match => Number(match[1])).filter(Number.isInteger);
         if (!transcript) {
-            notify('info', `NPC State Delta: no recent story text is available to refresh ${existing.name}.`);
+            notify('info', `NPC State: no recent story text is available to refresh ${existing.name}.`);
             return false;
         }
         const before = structuredClone(existing);
@@ -117,16 +117,16 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
             systemPrompt: "You are NPC State Delta's targeted dossier reconciliation scanner. Re-read the supplied recent-story window for exactly one existing NPC. Return only the requested JSON object.",
             indicator: 'refresh',
             // (REFRESHCANCEL) Only this person's record changed while it ran: read again once on the new record, then report.
-            retry: () => retried ? (notify('info', 'NPC State Delta: this dossier kept changing during the refresh; stale result was discarded.'), false)
+            retry: () => retried ? (notify('info', 'NPC State: this dossier kept changing during the refresh; stale result was discarded.'), false)
                 : refreshNpcFromChat(id, { automatic, fillLooks, retried: true, at }),
             staleLabel: 'dossier refresh',
             checkpoint: 'chat-refresh',
             metricsLabel: 'targeted-refresh',
             reportsScanMetrics: true,
             setIndicator: busy => setNpcChatRefreshIndicator(id, busy),
-            onBusy: () => notify('info', 'NPC State Delta: another dossier scan is already running in this chat.'),
-            onStale: () => notify('info', 'NPC State Delta: chat or dossier state changed during dossier refresh; stale result was discarded.'),
-            onLateStale: () => notify('info', 'NPC State Delta: another session updated this chat during the refresh; the stale result was discarded.'),
+            onBusy: () => notify('info', 'NPC State: another dossier scan is already running in this chat.'),
+            onStale: () => notify('info', 'NPC State: chat or dossier state changed during dossier refresh; stale result was discarded.'),
+            onLateStale: () => notify('info', 'NPC State: another session updated this chat during the refresh; the stale result was discarded.'),
             scope: (parsed, { latest, liveBefore }) => {
                 const roster = latest.npcs;
                 const labels = [existing.name, ...(existing.aliases || [])];
@@ -157,7 +157,7 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
                 const modelEdges = (Array.isArray(parsed.keyRelationshipEdges) ? parsed.keyRelationshipEdges : []).filter(edgeTouchesTarget);
                 parsed.keyRelationshipEdges = [...modelEdges, ...localEdges];
                 if (!parsed.npcs.length && !(parsed.profileUpdates || []).length && !parsed.keyRelationshipEdges.length) {
-                    notify('info', `NPC State Delta: no grounded dossier changes found for ${existing.name} in the last ${settings.scanDepth} messages.`);
+                    notify('info', `NPC State: no grounded dossier changes found for ${existing.name} in the last ${settings.scanDepth} messages.`);
                     // The reader's own Refresh counts as the last Refresh whether or not it changed anything.
                     if (!automatic && getChatKey() === chatKey && noteManualRefresh(getChatState(chatKey), getContext().chat || [], id)) persist();
                     return { ok: false, noChange: true, result: true, localEdges };
@@ -200,13 +200,13 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
                 syncOpenNpcEditorFields(saved);
                 const changed = refreshChangedFields(before, saved);
                 if (automatic) {
-                    if (changed.length) globalThis.toastr?.info?.(`NPC State Delta: caught up ${saved?.name || existing.name} from the last ${settings.scanDepth} messages (${changed.join(', ')}).`);
+                    if (changed.length) globalThis.toastr?.info?.(`NPC State: caught up ${saved?.name || existing.name} from the last ${settings.scanDepth} messages (${changed.join(', ')}).`);
                 } else {
                     // The reader's own Refresh counts as the person's last Refresh for the rolling catch-up (nothing was written if the chat moved on).
                     if (getChatKey() === chatKey && noteManualRefresh(getChatState(chatKey), getContext().chat || [], id)) persist();
                     globalThis.toastr?.success?.(changed.length
-                        ? `NPC State Delta: refreshed ${saved?.name || existing.name} from the last ${settings.scanDepth} messages (${changed.join(', ')}).`
-                        : `NPC State Delta: ${saved?.name || existing.name} is already consistent with the last ${settings.scanDepth} messages.`);
+                        ? `NPC State: refreshed ${saved?.name || existing.name} from the last ${settings.scanDepth} messages (${changed.join(', ')}).`
+                        : `NPC State: ${saved?.name || existing.name} is already consistent with the last ${settings.scanDepth} messages.`);
                 }
                 return true;
             },
@@ -215,7 +215,7 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
                 // (NSD11) A failed catch-up shows the same note as a failed fill-in; nothing was written (the call failed before the merge).
                 // A cancelled or discarded call (chat change, cancel, scope no longer current) failed nothing, so it stays silent; an error or a timeout shows the note.
                 if (automatic) { if (error?.code !== 'NPC_SCANNER_ROUTE_CANCELLED') globalThis.toastr?.warning?.(fillFailureNote(existing.name)); }
-                else notify('warning', `NPC State Delta refresh failed for ${existing.name}: ${error?.message || error}`);
+                else notify('warning', `NPC State refresh failed for ${existing.name}: ${error?.message || error}`);
                 return false;
             },
         });

@@ -13,9 +13,11 @@ import { CONDITIONS_SETTLE, settleConditions } from '../conditions/settle.js';
 import { DAILY, dailyCommand } from '../world-daily/command.js';
 import { CUE, cueCommand } from '../world-daily/cue-command.js';
 import { LEARNED, learnedCommand } from '../world-daily/learned.js';
+import { LORE_OPEN, loreOpenCommand } from '../world-daily/lore-open.js';
 import { worldBriefQuery } from '../world-daily/arc-brief.js';
 import { anchorsQuery } from '../world-daily/anchors-query.js';
 import { dailyAfterCapture } from '../world-daily/hook.js';
+import { openAfterReceive } from '../world-daily/open-store.js';
 import { WORLD_SEED, worldSeedCommand } from '../world-daily/seed.js';
 import { OPEN, openCommand } from '../world-daily/open-store.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
@@ -68,6 +70,7 @@ export const part = {
         [DAILY]: dailyCommand,
         [CUE]: cueCommand,
         [LEARNED]: learnedCommand,
+        [LORE_OPEN]: loreOpenCommand,
         [WORLD_SEED]: worldSeedCommand,
         [OPEN]: openCommand,
         [SURFACE]: surfaceHandler,
@@ -89,8 +92,9 @@ export const part = {
         tail: view => tail(view),
         budget: TAIL_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET,
     },
-    // afterCapture: the world's clock fallback and daily step (switch story-director.world-events; nothing while it is off).
-    hooks: { beforeGenerate, afterCapture: dailyAfterCapture },
+    // afterCapture: the world's clock fallback and daily step; afterReceive: the open templates' asking ahead from the stepped state
+    // (switch story-director.world-events; nothing while it is off).
+    hooks: { beforeGenerate, afterCapture: dailyAfterCapture, afterReceive: openAfterReceive },
     settings: {
         section: 'Chronicle',
         defaults: { ...DIGEST_DEFAULTS, tempo: '1' },

@@ -31,3 +31,11 @@ test('known-foe phrases pause or send through the real host', async () => {
         } finally { host.close(); }
     }
 });
+
+test('a count or which-one word between the article and the foe still names it (SOAK2CORE #2)', () => {
+    const raiders = { foes: [{ name: 'Raider', filled: true, hurt: 6 }], characters: [] };
+    for (const text of ['I attack the two raiders at the gate.', 'I attack the raiders with my blade.', 'I attack both raiders.', 'I strike the 2 raiders.', 'I swing my sword at the other raider.'])
+        assert.equal(knownFoeAction(text, raiders), true, text);
+    for (const text of ['I attack the two guards at the gate.', 'I attack the two doors.', 'I talk to the two raiders.'])
+        assert.equal(knownFoeAction(text, raiders), false, text);
+});

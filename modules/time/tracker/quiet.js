@@ -12,6 +12,7 @@
 // `quietThreads` → Set of thread ids; `dropThreads(director, ids)` → the same director without them (the same object when none).
 
 import { lineKey } from '../../world/changes.js';
+import { QUEST_LOG_KEY, questLogOrder, questLogRank } from '../../world/chronicle/days-parts/quest-log-order.js';
 import { ask, cutPoints, flat } from './scene.js';
 
 const MAX_PROBES = 60;
@@ -32,10 +33,11 @@ export function firedByLog(lines) {
 function logsById(chronicle) {
     const out = new Map();
     const log = isRecord(chronicle?.questLog) ? chronicle.questLog : {};
-    for (const [rev, entry] of Object.entries(log)) {
-        if (!/^\d+$/.test(rev) || !isRecord(entry) || typeof entry.thread !== 'string') continue;
+    // Both kinds of key: the note's line under its revision, and a thread line kept by its own reply (`chronicle.threadOutcome`, keyed by the reply, told at `rev`).
+    for (const [key, entry] of Object.entries(log).filter(([key]) => QUEST_LOG_KEY(key)).sort(questLogOrder)) {
+        if (!isRecord(entry) || typeof entry.thread !== 'string') continue;
         if (!out.has(entry.thread)) out.set(entry.thread, []);
-        out.get(entry.thread).push({ rev: Number(rev), text: entry.text });
+        out.get(entry.thread).push({ rev: questLogRank(key, entry), text: entry.text });
     }
     return out;
 }
@@ -43,8 +45,8 @@ function logsById(chronicle) {
 const aliasesOf = value => (Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : []);
 const namesOf = dossier => [dossier?.name, ...aliasesOf(dossier?.aliases)].map(name => cutPoints(name, 80)).filter(name => name.length >= 3);
 
-/** The names of the dead among the threads' own names and the pinned: `[{ names: [name…] }]`. */
-function deadPeople(query, director, state) {
+/** The names of the dead among the threads' own names: `[{ names: [name…] }]`. */
+function deadPeople(query, director) {
     if (!Array.isArray(ask(query, 'npc.known', {}, null))) return [];
     const dead = [];
     const seen = new Set();
@@ -74,20 +76,7 @@ function deadPeople(query, director, state) {
             if (isRecord(dossier) && namesOf(dossier).some(own => lineKey(own) === key)) take(dossier);
         }
     }
-    const pins = isRecord(state?.domains?.keypeople?.pins) ? Object.values(state.domains.keypeople.pins) : [];
-    for (const pin of pins.slice(0, 40)) {
-        if (!isRecord(pin) || typeof pin.npc !== 'string' || !NP_ID.test(pin.npc) || probes >= MAX_PROBES) continue;
-        probes += 1;
-        const dossier = ask(query, 'npc.dossier', { id: pin.npc }, null);
-        if (isRecord(dossier)) take(dossier, [pin.name, ...aliasesOf(pin.aliases)].map(name => cutPoints(name, 80)).filter(name => name.length >= 3));
-    }
     return dead;
-}
-
-// A gone record with reason died: NPC State's release of a pinned person, or an old reply's "- key Name | died".
-function storyDead(state) {
-    const gone = isRecord(state?.domains?.keypeople?.gone) ? Object.values(state.domains.keypeople.gone) : [];
-    return gone.filter(entry => isRecord(entry) && entry.reason === 'died').map(entry => ({ names: [cutPoints(entry.name, 80)].filter(name => name.length >= 3) })).filter(person => person.names.length);
 }
 
 /** The ids of the open beats the story has fired (see `firedByLog`); the arc's played count reads the same set. */
@@ -106,7 +95,7 @@ export function quietThreads(director, { state = null, query = null } = {}) {
     const threads = Object.values(isRecord(director?.threads) ? director.threads : {}).filter(thread => isRecord(thread) && thread.status === 'active');
     if (!threads.some(thread => thread.kind === 'beat' || thread.kind === 'agenda')) return ids;
     for (const id of firedBeatIds(director, state)) ids.add(id);
-    const dead = [...deadPeople(query, director, state), ...storyDead(state)];
+    const dead = deadPeople(query, director);
     if (!dead.length) return ids;
     for (const thread of threads) {
         const key = flat(thread.key);

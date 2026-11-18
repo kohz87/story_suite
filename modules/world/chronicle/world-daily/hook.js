@@ -5,6 +5,7 @@
 //   the daily step: the story day is now past the last stepped one → `chronicle.world.daily` (the reply that crossed the day)
 //   the death cue: an earlier reply left a must-happen death pending → `chronicle.world.cue` (written now, counted, or applied)
 //   learned secrets: NPC State opened a pack secret not yet recorded → `chronicle.world.learned` (after the step: it holds from the next one)
+//   hidden lore: a hidden entry's gate holds after the reply's lines and no reply opened it yet → `chronicle.world.loreOpen` (lore-open.js)
 
 import { isInt } from '../domain-parts/shared-basics.js';
 import { worldEventsOn } from '../conditions/feature.js';
@@ -12,9 +13,10 @@ import { DAILY } from './command.js';
 import { CUE } from './cue-command.js';
 import { pendingCues } from '../../daily/cues.js';
 import { LEARNED, knownAnchors, learnedAnchors } from './learned.js';
+import { LORE_OPEN, loreOpenDue } from './lore-open.js';
 import { readWorld } from './read-world.js';
 import { slotValue } from '../../../rpg/slot.js';
-import { openAfterCapture } from './open-store.js';
+import { ledgerOf } from '../conditions/ledger.js';
 
 const DAY = 1440;
 export const FALLBACK_MINUTES = 60;
@@ -44,12 +46,20 @@ function afterCapture(view, info = {}) {
     // A Re-read of a reply that is not the last (seam audit E21): the events its old step fired go with the step, so the step can say
     // which of them it no longer fires; the later replies keep what they recorded (history is not rewritten), so that is a warning.
     const before = rereadFired(view, info);
-    const settle = openAfterCapture(view);
+    const settle = answered(state, view.state.domains.chronicle?.ledger);
     if (!state || Math.floor(now / DAY) > state.day || before || settle) commands.push({ type: DAILY, payload: { ...(before ? { before } : {}), ...(settle ? { settle: true } : {}) } });
     if (state && pendingCues(state).length) commands.push({ type: CUE, payload: {} });
     if (opened(view)) commands.push({ type: LEARNED, payload: {} });
+    if (loreOpenDue(view)) commands.push({ type: LORE_OPEN, payload: {} });
     return commands.length ? { commands } : undefined;
 }
+
+/** Whether a slot waiting for the Director's answer has it stored now (open templates: the daily step settles it). The asking ahead is not
+ * done here (its state is the one before the step): open-store.js asks after the reply (afterReceive), from the state the step left. */
+const answered = (state, ledger) => {
+    const results = ledgerOf(ledger).open?.results ?? {};
+    return (state?.pending ?? []).some(slot => slot.key in results);
+};
 
 /** Whether NPC State holds an opened pack secret the world has not recorded (only read when someone has an opened note). */
 function opened(view) {

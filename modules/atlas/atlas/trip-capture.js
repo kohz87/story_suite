@@ -12,6 +12,8 @@
 import { DEFAULT_MAP, DEFAULT_PACES, mapSettings, parseLocation } from '../places.js';
 import { MAX_NAME, cleanName, revOf } from './domain.js';
 import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, basePace, goKeyOf, modeOf, modeWords, planTrip, positionOf, startOf, tripOf } from './trip.js';
+import { packRegions } from './anchor.js';
+import { startNode } from './trip-start.js';
 import { packWorld, worldOf } from './world.js';
 import { replyKey } from '../../world/reply-keys.js';
 
@@ -67,7 +69,10 @@ function stopTrip(ctx, line) {
     clear(atlas.trips);
     delete atlas.trips;
     const where = pos?.mid ? `on the road between ${pos.leg.from} and ${pos.leg.to}, ${pos.along} of ${pos.of} km along` : pos?.node ? `at ${pos.node}` : '';
-    return { summary: `The trip to ${trip.to} ends${where ? ` ${where}` : ''}.`, narrate: false, data: { stopped: true } };
+    // Stopped on the road, the trip's own cue to write `~ place` is gone with it: ask the narrator for the place now, or the header,
+    // the routes line and the map keep the place the party left behind.
+    const cue = pos?.mid ? ` Write ~ place for where {{user}} is, on the road between ${pos.leg.from} and ${pos.leg.to}.` : '';
+    return { summary: `The trip to ${trip.to} ends${where ? ` ${where}` : ''}.${cue}`, narrate: Boolean(cue), data: { stopped: true } };
 }
 
 function delayTrip(ctx, line, text) {
@@ -117,7 +122,8 @@ export function applyTripLine(ctx, line) {
     if (!mode) return ctx.fail('INVALID', `"${by}" is not a way of travelling here. Use ${modern ? 'foot, car, bike, bus, train, ferry, ship or plane' : 'foot, riding, wagon, boat, ship, flight or courier'}.`);
 
     const atlas = ctx.draft('atlas');
-    const world = worldOf(atlas, packWorld(queryOf(ctx)));
+    const pack = packWorld(queryOf(ctx));
+    const world = worldOf(atlas, pack);
     const end = world.find(destination);
     if (!end || end.hidden) return ctx.fail('NOT_FOUND', `${destination} is not on the map. Add it with + landmark or + route.`);
     const vias = [];
@@ -131,7 +137,8 @@ export function applyTripLine(ctx, line) {
     let from;
     if (here.road) from = { road: here.road };
     else {
-        const start = world.find(here.node);
+        // A place the narrator made up has no route: set out from the pack place its name stands for (LF4-3; by name only, LF4B2).
+        const start = startNode(world, pack, here.node, packRegions(queryOf(ctx)));
         if (!start) return ctx.fail('NOT_FOUND', `${here.node} is not on the map, so no known route starts there.`);
         from = { node: start.id };
     }

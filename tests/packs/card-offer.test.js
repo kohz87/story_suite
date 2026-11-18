@@ -8,7 +8,7 @@ import { cardPack, cardWorld, goodPortrait, packEntry, portraitsEntry, settingsE
 
 const nsd = (state = { portraitPromptFormat: 'hybrid' }) => ({
     owner: 'npc-state-delta', label: 'NPC State Delta',
-    keys: { portraitPromptFormat: { label: 'NSD portraits', valueText: v => (v === 'natural' ? 'Natural' : 'Structured hybrid'), valid: v => ['natural', 'hybrid'].includes(v) } },
+    keys: { portraitPromptFormat: { label: 'NPC State portraits', valueText: v => (v === 'natural' ? 'Natural' : 'Structured hybrid'), valid: v => ['natural', 'hybrid'].includes(v) } },
     read: key => state[key],
     apply: async values => { Object.assign(state, values); return { applied: Object.keys(values) }; },
 });
@@ -27,7 +27,7 @@ test('a card that brings a new pack: one offer, to Install or Not now, the contr
 
 test('a pack of data modules alone is described by the modules it adds', async t => {
     const world = await cardWorld(t, { entries: [packEntry(cardPack())] });
-    assert.equal(world.notices()[0].brings, 'adds Reputation');
+    assert.equal(world.notices()[0].brings, '1 data module');
 });
 
 test('the settings line lists only the settings that differ; a missing NPC State Delta drops its keys with a muted note, Install still works', async t => {
@@ -41,7 +41,7 @@ test('the settings line lists only the settings that differ; a missing NPC State
     world.runtime.sdk.registerCardSettings(nsd());
     await settle();
     const again = world.notices()[0];
-    assert.equal(also(again), 'RPG on · Gear on · NSD portraits Natural', 'NSD registered after the chat opened: the offer follows');
+    assert.equal(also(again), 'RPG on · Gear on · NPC State portraits Natural', 'NPC State registered after the chat opened: the offer follows');
     assert.deepEqual(again.notes, []);
     // with nothing different the line is left out
     world.runtime.features.set('story-block.rpg', true);
@@ -67,7 +67,8 @@ test('a pack that needs a capability nobody provides: a muted note, Install bloc
 
 test('Install: the pack is installed from the lorebook, the portraits stored, the data modules turned on in this chat at once, the settings applied, and the notice says what was done', async t => {
     const pack = cardPack({ portraits: ['fenna.webp'] });
-    const world = await cardWorld(t, { entries: [packEntry(pack), portraitsEntry(pack, goodPortrait()), settingsEntry({ 'story-block.rpg': true, 'story-block.gear': true })] });
+    const rules = { ...cardPack({ id: 'sealcrown-blocks' }), name: 'Sealcrown rules' };
+    const world = await cardWorld(t, { entries: [packEntry(pack), { ...packEntry(rules), uid: 4 }, portraitsEntry(pack, goodPortrait()), settingsEntry({ 'story-block.rpg': true, 'story-block.gear': true })] });
     let saved = 0;
     const real = world.runtime.store.saveSoon.bind(world.runtime.store);
     world.runtime.store.saveSoon = async (...args) => { saved += 1; return real(...args); };
@@ -76,18 +77,18 @@ test('Install: the pack is installed from the lorebook, the portraits stored, th
     await world.offer.install(notice.id);
     await settle();
     const listed = world.runtime.packs.packs.list();
-    assert.deepEqual(listed.map(item => [item.id, item.version, item.source]), [['sealcrown', '1.0.0', 'lorebook']]);
+    assert.deepEqual(listed.map(item => [item.id, item.version, item.source]), [['sealcrown', '1.0.0', 'lorebook'], ['sealcrown-blocks', '1.0.0', 'lorebook']]);
     assert.equal(world.files.files.size, 1, 'the portrait went through the same store a zip import uses');
     assert.match(world.runtime.sdk.query('packs.portrait', { pack: 'sealcrown', file: 'fenna.webp' }), /^\/user\/files\/storysuite-portrait-sealcrown-/);
     const rows = world.runtime.sdk.query('dataModules.setup');
-    assert.deepEqual(rows.map(row => [row.packId, row.pinned, row.status]), [['sealcrown', true, 'Pinned']], 'enabled in this chat now');
+    assert.deepEqual(rows.map(row => [row.packId, row.pinned, row.status]), [['sealcrown-blocks', true, 'Pinned']], 'enabled in this chat now');
     assert.ok(saved >= 1, 'the chat was saved at once, not left to the idle save');
     assert.equal(world.runtime.store.dirty(), false);
     assert.equal(world.runtime.registry.featureOn('story-block.rpg'), true);
     assert.equal(world.runtime.registry.featureOn('story-block.gear'), true);
     const done = world.notices()[0];
     assert.equal(done.state, 'done');
-    assert.equal(done.result, 'Installed Sealcrown Blocks 1.0.0 with 1 portrait. 1 data module turned on in this chat. RPG and Gear are on.');
+    assert.equal(done.result, 'Installed Sealcrown Blocks 1.0.0 with 1 portrait. Installed Sealcrown rules 1.0.0. Sealcrown Blocks is the world now. 1 data module turned on in this chat. RPG and Gear are on.');
     assert.equal(world.waiting(), false, 'the dot goes when the offer is answered');
 });
 
@@ -177,19 +178,6 @@ test('skipped portraits and skipped settings keys each write a line; the offer i
     assert.equal(also(world.notices()[0]), 'RPG on', 'the invalid rate is not offered');
 });
 
-test('one notice per pack, at most three; the rest are told', async t => {
-    const packs = ['a', 'b', 'c', 'd'].map(id => cardPack({ id: `pack-${id}` }));
-    const world = await cardWorld(t, { entries: packs.map(pack => packEntry(pack, `${pack.id} [storysuite:pack]`)) });
-    assert.equal(world.notices().length, 3);
-    assert.deepEqual(world.notices().map(node => node.packId), ['pack-a', 'pack-b', 'pack-c']);
-    assert.equal(problems(world).length, 1);
-    // answering one leaves the others waiting
-    world.offer.notNow(world.notices()[0].id);
-    await settle();
-    assert.equal(world.notices().length, 2);
-    assert.equal(world.waiting(), true);
-});
-
 test('a group chat shows no offer and does not even read the card', async t => {
     const world = await cardWorld(t, { entries: [packEntry(cardPack())], group: true });
     assert.equal(world.notices().length, 0);
@@ -242,20 +230,21 @@ test('the Packs row says "N data modules" for a pack that holds data modules and
 
 test('Install saves SillyTavern\'s settings now (not after its debounce): the pack list, portraits and settings are on disk before the chat pins anything and before the notice says "Installed"', async t => {
     const pack = cardPack({ portraits: ['fenna.webp'] });
+    const rules = { ...cardPack({ id: 'sealcrown-blocks' }), name: 'Sealcrown rules' };
     const disk = [];
     let world = null;
     const flushSettings = async () => {
         const root = world.st.ctx.extensionSettings.storySuite;
-        disk.push({ packs: (root.packs ?? []).map(entry => entry.id), portraits: Object.keys(root.portraits?.sealcrown ?? {}), rpg: root.features?.['story-block.rpg'] ?? null,
+        disk.push({ packs: (root.packs ?? []).map(entry => entry.id).sort(), portraits: Object.keys(root.portraits?.sealcrown ?? {}), rpg: root.features?.['story-block.rpg'] ?? null,
             pinned: world.runtime.sdk.query('dataModules.setup').filter(row => row.pinned).length, noticeState: world.notices()[0]?.state });
         return { ok: true, message: '' };
     };
-    world = await cardWorld(t, { entries: [packEntry(pack), portraitsEntry(pack, goodPortrait()), settingsEntry({ 'story-block.rpg': true })], flushSettings });
+    world = await cardWorld(t, { entries: [packEntry(pack), { ...packEntry(rules), uid: 4 }, portraitsEntry(pack, goodPortrait()), settingsEntry({ 'story-block.rpg': true })], flushSettings });
     await world.offer.install(world.notices()[0].id);
     await settle();
     assert.equal(disk.length, 2, 'once after the install, once after the settings');
-    assert.deepEqual(disk[0], { packs: ['sealcrown'], portraits: ['fenna.webp'], rpg: null, pinned: 0, noticeState: 'working' }, 'the pack and the portrait index are saved before any pin');
-    assert.deepEqual(disk[1], { packs: ['sealcrown'], portraits: ['fenna.webp'], rpg: true, pinned: 1, noticeState: 'working' }, 'then the pins and settings, still before the notice says done');
+    assert.deepEqual(disk[0], { packs: ['sealcrown', 'sealcrown-blocks'], portraits: ['fenna.webp'], rpg: null, pinned: 0, noticeState: 'working' }, 'the pack and the portrait index are saved before any pin');
+    assert.deepEqual(disk[1], { packs: ['sealcrown', 'sealcrown-blocks'], portraits: ['fenna.webp'], rpg: true, pinned: 1, noticeState: 'working' }, 'then the pins and settings, still before the notice says done');
     assert.equal(world.notices()[0].state, 'done');
 });
 

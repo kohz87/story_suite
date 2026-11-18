@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { castPlans } from '../../../../modules/cast/cast/index.js';
-import { OPENING, castCue, castHost, castSource, createFakeModel, withRoads, entry, people, receipts, said, sent, settle, slice, validatorErrors, TAIL_KEY } from './helpers.js';
+import { OPENING, castCue, castHost, castSource, createFakeModel, followPeople, withRoads, entry, people, receipts, said, sent, settle, slice, validatorErrors, TAIL_KEY } from './helpers.js';
 
 const FENNA = entry('fenna', { start: { place: 'Bluewatch docks', goal: 'keep the night ferry running', routine: 'works the night ferry' } });
 const SERA = entry('sera', { start: { place: 'Gwenmar', goal: 'find her brother\'s killer', routine: '' }, drawnTo: ['the man you fought at the weir', 'Harrow'] });
@@ -54,7 +54,7 @@ test('a day passes: one planner call after the reply that moved the clock, appli
         assert.equal(world['ersveil:brom'].where, 'Kesh');
         // Sera's goal pulls her to the party: she is met, for that reason, this reply.
         assert.deepEqual([world['ersveil:sera'].met.why, world['ersveil:sera'].met.reason], ['goal', 'her hunt for her brother\'s killer led her to the man you fought at the weir.']);
-        assert.match(castCue(host), /^\[Cast\] a stranger comes into the scene in this reply\./);
+        assert.match(castCue(host), /^\[Cast\] a stranger comes into the scene in this reply; their name is [^.]+\./);
         assert.match(castCue(host), /Why now: Her hunt for her brother's killer led her to the man you fought at the weir\. Their own goal brings them/);
         // The cards: the cast moved on (counts, no names of the unmet), and the meeting with its reason.
         const notes = Object.values(slice(host).notes);
@@ -173,17 +173,17 @@ test('a goal the story touches between two days is judged at once: the planner i
     }
 });
 
-test('a person who is in the scene, or pinned as a key person, is not moved by the planner', async t => {
+test('a person who is in the scene, or followed (the Follow star), is not moved by the planner', async t => {
     quiet(t);
     const model = createFakeModel(['~ cast sera | Elsewhere | gone']);
     const host = await started({ source: withRoads(castSource([FENNA, SERA, BROM])), model });
     try {
-        await host.sdk.command('keypeople.pin', { name: 'Fenna' });
+        await followPeople(host, [{ name: 'Fenna' }]);
         await host.send('Sleep.', said('Morning.', [...DAY2, '+ present Sera']));
         await settle();
         const prompt = model.calls[0].prompt;
         assert.match(prompt, /- brom \|/, 'the others are asked about');
-        assert.doesNotMatch(prompt, /- fenna \|/, 'a key person has the key people track');
+        assert.doesNotMatch(prompt, /- fenna \|/, 'a followed person is not moved');
         assert.doesNotMatch(prompt, /- sera \|/, 'someone in the scene is where the scene says');
     } finally {
         host.close();
@@ -339,4 +339,13 @@ test('reach rule 2: a goal pull from three days away sets out on a journey, and 
     } finally {
         host.close();
     }
+});
+
+test('LF4-8: a planner prompt names the party\'s region, never its pack id', async () => {
+    const { whereText, regionName } = await import('../../../../modules/cast/cast/hooks-parts/where-text.js');
+    const query = (name, args) => (name === 'packs.content' && args.kind === 'regions' ? [{ id: 'bluewatch-reach', name: 'Bluewatch Reach' }] : null);
+    assert.equal(whereText({ party: { place: 'Bluewatch Village / Guild Office', region: 'bluewatch-reach' }, query }), 'Bluewatch Village / Guild Office, Bluewatch Reach');
+    assert.equal(regionName(query, 'Auvoth'), 'Auvoth', 'a narrator\'s region name stays');
+    assert.equal(whereText({ party: { place: 'Harrow', region: '' }, query }), 'Harrow');
+    assert.equal(whereText({ party: { place: 'Harrow', region: 'x-y' }, query: null }), 'Harrow, x-y');
 });

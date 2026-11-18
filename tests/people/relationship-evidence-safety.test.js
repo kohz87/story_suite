@@ -160,6 +160,6 @@ test('runtime wires targeted new-NPC enrichment and post-admission relationship 
     assert.match(source, /allowTargetedDurableSeed: true/);
     assert.match(source, /finalNpc\.seenCount = Number\(preserved\.seenCount \|\| 0\)/);
     assert.match(partsSource(new URL('../../modules/people/calls/scanner-request.js', import.meta.url)), /targetedMemoryLimit = \/\(\?:backfill\|chat refresh\)\/i/);
-    assert.match(partsSource(new URL('../../modules/people/legacy/relationship-pass.js', import.meta.url)), /const reasonPresent = Boolean\(String\(normalized\.relationshipChangeReason/);
+    assert.match(partsSource(new URL('../../modules/people/relationship/relationship-pass.js', import.meta.url)), /const reasonPresent = Boolean\(String\(normalized\.relationshipChangeReason/);
     assert.match(source, /schemaVersion: 30/);
 });

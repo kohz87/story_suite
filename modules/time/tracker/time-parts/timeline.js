@@ -33,8 +33,8 @@ export function timeAfter(line, minutes, calendar, { maxJump = MAX_JUMP_DAYS * D
         if (!known) return { error: `The story time is not set yet, so "${shown}" cannot move it on; write "~ time <date, clock time>" first.` };
         return held(minutes, minutes + stretch, maxJump, shown, from);
     }
-    const bad = badClock(words);
-    if (bad) return { error: `"${shown}" has ${bad}, which is not a clock time; the story time is left as it was.` };
+    const bad = badClock(words, shown);
+    if (bad) return { error: bad };
     const parsed = calendar.parse(words, { reference: known ? minutes : null });
     if (!parsed || !Number.isFinite(parsed.abs)) return { error: `"${shown}" is not a date or a stretch of time on this calendar.` };
     if (!Number.isSafeInteger(parsed.year) || Math.abs(parsed.year) > MAX_YEAR) return { error: `"${shown}" names a year past ${MAX_YEAR}; the story time is left as it was.` };
@@ -63,17 +63,21 @@ export function held(minutes, next, maxJump, shown, from) {
     };
 }
 
-// A written clock time no clock shows ("25:99 pm", "13 pm", "0 am"), in words, or ''. The calendar's
+// A written clock time no clock shows ("25:99 pm", "13 pm", "0 am"), as the whole reason in words (`shown` is the line as the row quotes it), or ''. The calendar's
 // reader skips such a time and reads the date alone, at its day's start.
 const CLOCKISH = /(?<![\p{L}\d:.])(\d{1,3})(?::(\d{1,3}))?(?:\s*([ap])\.?\s?m\.?)?(?![\p{L}\d])/giu;
-export function badClock(words) {
+export function badClock(words, shown = words) {
     for (const match of words.matchAll(CLOCKISH)) {
         const [, hourText, minuteText, half] = match;
         if (minuteText === undefined && !half) continue;
         const hour = Number(hourText);
         const minute = minuteText === undefined ? 0 : Number(minuteText);
         const ok = minuteText === undefined || minuteText.length === 2;
-        if (!ok || minute > 59 || (half ? hour < 1 || hour > 12 : hour > 23)) return `"${match[0].trim()}"`;
+        if (!ok || minute > 59 || (half ? hour < 1 || hour > 12 : hour > 23)) {
+            const token = match[0].trim();
+            const tail = 'not a clock time; the story time is left as it was.';
+            return token === shown ? `"${token}" is ${tail}` : `"${shown}" has "${token}", which is ${tail}`;
+        }
     }
     return '';
 }

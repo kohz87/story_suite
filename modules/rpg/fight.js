@@ -20,13 +20,13 @@
 // code's XP, so the narrator's line and the rise it brought are gone, and one Problems line says so. XP in any other reply (a quest, a discovery) is
 // untouched: the step exists only in the reply that won the fight.
 //
-// A board win (the reply's `rpg.resolve` receipt says `won`) is paid whatever the story did to the Foes block after it: a new group the narrator opened in the same
+// A board win (the reply's fight receipt says `won`) is paid whatever the story did to the Foes block after it: a new group the narrator opened in the same
 // reply (the reinforcements a finished fight allows), or the Down groups it cleared, no longer hide the win. When the block still shows the fight's groups Down, the step is
 // asked for as ever; when it does not, the step carries `groups` (the fight's groups as the reply began, or as its roll opened them), and pays from those.
 // New fight steps carry `outnumbered: 1`: each foe above the party's non-Left members adds 0.5 to the XP multiplier, up to 2. The multiplier applies after the level gap,
 // before rounding and the rule's cap; a step without the mark keeps its original XP, guard and receipt on replay and Re-read.
 //
-// The record (the step's receipt `data.v2.result.fight`): { lv: 1, groups: [{ slot, name, count, level }], awards: [{ who, module, xp, held? }] } (xp is the member's own). A record without `lv` is an
+// The record (the step's receipt `data.v2.result.fight`): { lv: 1, groups: [{ slot, name, count, level }], awards: [{ who, module, xp, held?, up?: { to, points? } }] } (xp is the member's own; `up` says the award raised the level, for the reply's changes). A record without `lv` is an
 // older one (groups carry `class`); it is read as it is and replays as recorded.
 // Public face: re-exports its parts.
 

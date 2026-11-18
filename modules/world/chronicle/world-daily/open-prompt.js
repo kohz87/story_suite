@@ -20,9 +20,9 @@ const menuLine = (key, menu) => {
     return `cast: move up to ${menu.pick} of ${menu.of === 'figures' ? 'the figures listed' : menu.of.join(', ')} to a place in the region`;
 };
 
-/** One slot's block: `slot` { key, place, region, realm }, `view` { name, summary, menu, facts, conditions, figures }. */
+/** One slot's block: `slot` { key, place, region, realm }, `view` { name, summary, regionName?, menu, facts, conditions, figures }. */
 export function slotBlock(slot, view) {
-    const lines = [`Slot ${slot.key}`, `Happening: ${view.name} — ${view.summary}`, `Where: ${slot.place} (region ${slot.region || 'none'}, realm ${slot.realm})`];
+    const lines = [`Slot ${slot.key}`, `Happening: ${view.name} — ${view.summary}`, `Where: ${slot.place} (region ${view.regionName || slot.regionName || slot.region || 'none'}, realm ${slot.realm})`];
     lines.push(`Conditions there now: ${view.conditions.length ? view.conditions.join('; ') : 'none'}`);
     lines.push(`Menu: ${Object.entries(view.menu).map(([key, menu]) => menuLine(key, menu)).join(' | ') || 'nothing (write only the name and summary)'}`);
     if (view.arc) lines.push(arcLine(view.arc));

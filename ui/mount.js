@@ -2,9 +2,11 @@
 
 import { checkPort } from './port/contract.js';
 import { createBackStack } from './runtime/back-stack.js';
+import { bindBackHistory } from './runtime/back-history.js';
 import { createRedraw } from './runtime/redraw.js';
 import { createSuiteView } from './shell/suite-view.js';
 import { createTabHost } from './shell/tab-host.js';
+import { watchDesk } from './shell/desk-layout.js';
 import { GLASS_DARK, GLASS_LIGHT } from './theme/tokens.js';
 import { followSt, watchSt } from './theme/follow-st.js';
 import { skyFor } from './theme/sky.js';
@@ -48,7 +50,7 @@ function readFlags(port, override) {
  * Mounts the suite. Options: `port` (required), `doc`, `host`, `flags` ({ rpg, fightOpen } overrides),
  * `theme` ('dark' | 'light' | 'follow'), `tabs` (id → (view, ctx) => node), `card` ((view, ctx) => node),
  * `schedule` (frame scheduler for tests), `initial` (first tab),
- * `look` (() → the host settings: Settings › Look's Panel style, Glass strength, Font and Text size decide the theme in place of `theme`, read again
+ * `storage` (a localStorage-like store: device preferences survive a reload), `look` (() → the host settings: Settings › Look's Panel style, Glass strength, Font and Text size decide the theme in place of `theme`, read again
  * on open, after every Settings change and when SillyTavern's theme changes). Returns `{ open(tab), close(), person(keys), settings(), destroy(), ... }`.
  */
 export function mountSuite(options = {}) {
@@ -59,30 +61,34 @@ export function mountSuite(options = {}) {
 
   const backStack = createBackStack();
   const unbindKeys = backStack.bindDocument(doc);
+  const unbindBack = bindBackHistory(backStack, doc?.defaultView);
   const offs = [];
   let flags = readFlags(port, override);
   let scheme = 'dark';
   let destroyed = false;
+  let desk = null;   // the desktop layout watcher (shell/desk-layout.js), made once the tab host is in place
 
-  const prefs = options.prefs ?? createPrefs({ port });
+  const prefs = options.prefs ?? createPrefs({ port, storage: options.storage ?? null });
   let settingsOverlay = null;
   const openSettings = () => {
     const settings = port.view('settings');
     if (!settings || destroyed) return port.command('suite.settings', {});
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
-      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
+      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
       onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
-      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
+      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : key === 'people.open' ? openPerson(value) : key === 'people.reread' ? port.command('npc.refresh', value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
     return port.command('suite.settings', {});
   };
   // Settings › Packs and trackers: a tracker is added from a template and edited on Story › Trackers, so each button there closes Settings and opens its own sheet.
   const openTrackers = (where) => { settingsOverlay?.close(); leaveTrackerIntent(where); prefs.setFold('story.trackers', true); showTab('story'); return { ok: true }; };
+  // Settings › People › People in this chat: Open closes Settings and shows the person's dossier on People.
+  const openPerson = ({ id, name } = {}) => { settingsOverlay?.close(); showTab('people'); return { ok: views.openPerson([String(id ?? ''), String(name ?? '').trim().toLocaleLowerCase()]) }; };
   const views = defaultViews({
     port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
-    onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,
+    onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth, desk: () => desk?.on() === true,
   });
   // Settings › Look (theme/look.js) when the mount reads it: its theme, and its Text size as the root's `data-text` (the zoom in shell.css).
   const readLook = () => { try { return lookOf(look()); } catch { return lookOf(null); } };
@@ -154,7 +160,12 @@ export function mountSuite(options = {}) {
     target: tabHost.cardSlot,
     render: vm => (card ? card(vm, { port, backStack }) : views.card(vm)),
   });
+  // A person's page left open over the tabs follows the story: it is read again with every change.
+  redraw.register('dossier', { tab: 'always', isVisible: () => views.hasDossier(), read: () => views.openDossier(), draw: vm => views.updateDossier(vm) });
   register(tabHost.current());
+  // Desktop (ui/css/desk.css): Here now under the card on every tab, read only while drawn; crossing the width draws it and redraws Now without (or with) its Here card.
+  redraw.register('here', { tab: 'always', isVisible: () => desk?.on() === true, read: () => { const now = port.view('now'); return { here: now?.here ?? [], unrecorded: now?.unrecorded ?? [] }; }, target: tabHost.hereSlot, render: vm => views.here(vm) });
+  desk = watchDesk({ probe: tabHost.scroll.firstChild, root: view.root, onChange: () => { if (tabHost.current() === 'now') showTab('now'); redraw.reveal(); } });
 
   function applyFlags(next) {
     flags = next;
@@ -165,6 +176,8 @@ export function mountSuite(options = {}) {
   const refreshFlags = () => applyFlags(readFlags(port, override));
   // An interaction call changes chat metadata only, so the engine says nothing: the port does (`interaction`), and the open tab and the tab strip redraw.
   offs.push(port.on('interaction', () => redraw.markDirty()));
+  // The arc planner changes on its own (automatic plan, Planning…): the port says so (`arc`), and the story tab redraws.
+  offs.push(port.on('arc', () => redraw.markDirty()));
 
   if (look) applyLook(picked);
   if (look || theme === 'follow') {
@@ -191,6 +204,7 @@ export function mountSuite(options = {}) {
       if (tab && tab !== tabHost.current()) tabHost.select(tab);
       if (look) applyLook();
       const opened = view.open();
+      desk.check();   // (the stylesheets are added at mount: a size check that ran before desk.css applied is read again here)
       redraw.setVisibleTab(tabHost.current());
       redraw.reveal();
       redraw.flush();
@@ -209,7 +223,9 @@ export function mountSuite(options = {}) {
       if (destroyed) return;
       destroyed = true;
       for (const off of offs) off();
+      desk.stop();
       unbindKeys();
+      unbindBack();
       redraw.destroy();
       settingsOverlay?.destroy();
       view.destroy();

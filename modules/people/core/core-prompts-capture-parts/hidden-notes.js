@@ -42,11 +42,15 @@ export function hiddenNoteEventParagraph(eventWatch) {
 const LINE_FORM = 'Because there is no JSON block in the reply, a secret event is written as a line: ~ reveal Name | opened: <key> | quote: "short exact quote from this reply". Only when the event happened as written, by the actor it names. No quote, no line.';
 const EVENT_FIRST_SENTENCE = EVENT_STRICT_RULE.slice(0, EVENT_STRICT_RULE.indexOf(' Also return'));
 
-/** The story events to look for in the lines builder ('' with none): [{ key (a note id), name, event }]. */
+/**
+ * The story events to look for in the lines builder ('' with none): [{ key, name, event, note? }]. The key the line is taught is the note's own id (`note`, as
+ * the watch carries it beside the scan's short `sN` key; S2PA B3: a `~ reveal` line takes only a note id), else `key`.
+ */
 export function hiddenNoteEventLinesParagraph(eventWatch) {
     const watch = watchItems(eventWatch);
     if (!watch.length) return '';
-    return `\n\nSTORY EVENTS to look for (present NPCs' hidden notes): ${watch.map(item => `${item.key} = ${item.name}: ${item.event}`).join(' | ')}. ${EVENT_FIRST_SENTENCE} ${LINE_FORM}`;
+    const keyOf = item => (typeof item.note === 'string' && item.note ? item.note : item.key);
+    return `\n\nSTORY EVENTS to look for (present NPCs' hidden notes): ${watch.map(item => `${keyOf(item)} = ${item.name}: ${item.event}`).join(' | ')}. ${EVENT_FIRST_SENTENCE} ${LINE_FORM}`;
 }
 
 /**

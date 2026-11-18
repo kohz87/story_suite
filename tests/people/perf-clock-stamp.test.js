@@ -24,7 +24,7 @@ function build({ withOn = true } = {}) {
         features: {}, commands: { 'npc.milestone': () => {} }, kinds: { [NPC_KIND]: kind, [MILESTONE_KIND]: kind },
         context: {}, settings: { defaults: {}, schema: {} }, defs: () => [], redact: text => text,
     };
-    const deps = { calendarOwn: () => false, runtime: () => null, queries: {}, enabled: () => true, version: '1', settleMs: 1, settlePollMs: 1, warn() {}, notifyChange() {} };
+    const deps = { runtime: () => null, queries: {}, enabled: () => true, version: '1', settleMs: 1, settlePollMs: 1, warn() {}, notifyChange() {} };
     const timeline = createTimelinePart(session, { ...deps, part });
     return { timeline, counts, handlers, setMinutes: value => { minutes = value; } };
 }

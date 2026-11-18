@@ -116,12 +116,18 @@ describe('selectJournal', () => {
   it('maps closed quests newest first and leaves out an unknown outcome', () => {
     const vm = selectJournal(recorded());
     assert.deepEqual(vm.closed.map(c => c.outcome), ['lapsed', 'declined', 'gaveup', 'done']);
-    assert.deepEqual(vm.closed[3], { title: 'Wolf tracks', outcome: 'done', detail: 'Finished Goldwane 13', paid: null });
+    assert.deepEqual(vm.closed[3], { id: 'th_5', title: 'Wolf tracks', outcome: 'done', detail: 'Finished Goldwane 13', paid: null });
   });
 
   it('turns lead rows into leads with the unknown parts empty', () => {
-    assert.deepEqual(selectJournal(recorded()).leads, [{ title: 'Guards wanted', from: '', where: 'notice board · Bluewatch', lapses: '' }]);
+    assert.deepEqual(selectJournal(recorded()).leads, [{ title: 'Guards wanted', from: '', summary: 'On the notice board.', where: 'notice board · Bluewatch', lapses: '' }]);
   });
+  it('a lead\'s giver is the hook\'s giver, and its summary is shown with it', () => {
+    const rows = [{ id: 'th_11', name: 'The Errand', heard: 'find the seal', heardAgo: 'today', where: '', giver: 'Marrit' }];
+    const [lead] = selectJournal(recorded({ 'director.world.leads': { rows, has: true, count: 1 } })).leads;
+    assert.deepEqual([lead.from, lead.summary], ['Marrit', 'find the seal']);
+  });
+
 
   it('groups coming up: late, soon, week, later, with a tone and a kind word', () => {
     const up = selectJournal(recorded()).upcoming;

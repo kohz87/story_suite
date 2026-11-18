@@ -7,6 +7,7 @@ import { peopleTab } from '../tabs/people/people.js';
 import { worldTab } from '../tabs/world/world.js';
 import { journalTab } from '../tabs/journal/journal.js';
 import { openQuestEditor } from '../tabs/journal/quest-editor.js';
+import { openWorldEditor } from '../tabs/world/editor.js';
 import { storyTab } from '../tabs/story/story.js';
 
 const BUILDERS = { party: partyTab, bag: bagTab, fight: sceneTab, scene: sceneTab, people: peopleTab, world: worldTab, journal: journalTab, story: storyTab };
@@ -23,7 +24,8 @@ export function createTabViews(ctx) {
   return (tab, vm) => {
     const build = BUILDERS[tab];
     if (!build || !vm) return null;
-    const members = Object.fromEntries((port.view('party')?.members ?? []).map(m => [m.id, m.name]));
+    const party = port.view('party');
+    const members = Object.fromEntries((party?.members ?? []).map(m => [m.id, m.name]));
     let sheet = null;
     const own = {
       ...ctx,
@@ -31,11 +33,13 @@ export function createTabViews(ctx) {
       backStack,
       back: backStack,
       members,
+      pcId: party?.pcId ?? null,
       refresh: () => ctx.refresh?.(),
       command: (type, payload) => port.command(type, payload),
       openSheet: (el, label) => { sheet?.close(); sheet = openSheet({ ...ctx, doc, backStack }, { title: label }); sheet.body.appendChild(el); },
       close: () => { sheet?.close(); sheet = null; },
       editQuest: q => openQuestEditor({ ...ctx, doc, backStack }, q, { rpg: vm.rpg !== false }),
+      edit: target => openWorldEditor({ ...ctx, doc, backStack }, target),
       get width() { return ctx.width?.() ?? 0; },
     };
     return build(vm, own);

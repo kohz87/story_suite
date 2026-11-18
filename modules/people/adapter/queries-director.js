@@ -1,14 +1,13 @@
 // Story Director and pack lookups for the Story Suite v2 adapter. A pure part of src/adapter/queries.js
 // (same owner, moved without change); queries.js re-exports every public name it exported before.
-import { storyMinuteText } from '../legacy/calendar.js';
-import { CAST_QUERY, KEY_PEOPLE_QUERY } from '../meters/npc-meters.js';
-import { normalizeKeyPeople } from '../cast/key-people.js';
+import { storyMinuteText } from '../calendar/calendar.js';
+import { CAST_QUERY } from '../meters/npc-meters.js';
 import { normalizeCast } from '../dossier/cast-dossier.js';
 import { safeImageUrl } from './queries-dossier.js';
 
 // Story Block's query for a pack portrait's image URL (read only): packs.portrait({ pack, file }) → a safe URL or null.
 const PORTRAIT_QUERY = 'packs.portrait';
-// Story Block 2.18.0's query for a pack cast member's signature gear line (read only): packs.castGear({ name }) → { name, line: "Gear: A, B", items } or null.
+// Story Block 2.18.0's query for a format 3 cast member's signature gear line. Pack format 4 removed it (X1): the query is refused, so castGearLine is always '' (left until NPC State's cast entry drops the line).
 const CAST_GEAR_QUERY = 'packs.castGear';
 
 export function createDirectorQueriesPart(session, deps, { hostFeature }) {
@@ -23,42 +22,6 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
         try { return (session.sdkRef?.modules?.() ?? []).some(module => module?.id === 'story-director'); } catch { return false; }
     }
 
-    // Story Director's key people (`director.keyPeople`, read only) as it answers, or null: not hosted, no Story Director,
-    // or one without the query. Null means "no key people anywhere", never an error.
-    function keyPeopleAnswer() {
-        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return null;
-        try {
-            const answer = session.sdkRef.query(KEY_PEOPLE_QUERY, {});
-            return Array.isArray(answer) ? answer : null;
-        } catch {
-            return null;
-        }
-    }
-    // Whether the key list can be trusted: true when Story Director is not registered on the host (read from the host's modules, as
-    // worldShown does, never from an error code: then there is simply no key list), or when it answers a list or null (its feature off);
-    // false when a registered Story Director throws or answers a non-list, or when the host cannot say. The stale pass deletes nothing while false.
-    function keyPeopleReadable() {
-        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return true;
-        try {
-            if (!(session.sdkRef.modules?.() ?? []).some(module => module?.id === 'story-director')) return true;
-        } catch { return false; }
-        try {
-            const answer = session.sdkRef.query(KEY_PEOPLE_QUERY, {});
-            return answer === null || answer === undefined || Array.isArray(answer);
-        } catch {
-            return false;
-        }
-    }
-    // The memory of key people's last absences (npc.keyAway; the slice's `keyAway`), {} when there is none or no host.
-    function keyAwayMemory() {
-        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return {};
-        try {
-            const memory = session.sdkRef.query('npc.keyAway', {});
-            return memory && typeof memory === 'object' && !Array.isArray(memory) ? memory : {};
-        } catch {
-            return {};
-        }
-    }
     // The living cast (Story Director's `director.cast`, read only): the cleaned answer with its dates written on Story Director's
     // calendar, or null (not hosted, no Story Director, or one without the query). Null means "no cast anywhere".
     function castAnswer() {
@@ -117,7 +80,7 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
         if (!session.hosted || typeof session.sdkRef?.query !== 'function' || !pack || !file) return null;
         try { return safeImageUrl(session.sdkRef.query(PORTRAIT_QUERY, { pack, file })); } catch { return null; }
     }
-    // A pack cast member's one "Gear: A, B" line (`packs.castGear`), or '' (no host, an older Story Block without the query, or it answers null).
+    // A format 3 cast member's one "Gear: A, B" line (`packs.castGear`), or '': since pack format 4 the query is gone, so always ''.
     function castGearLine(name) {
         if (!session.hosted || typeof session.sdkRef?.query !== 'function' || !name) return '';
         try {
@@ -125,8 +88,7 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
             return typeof line === 'string' ? line.replace(/\s+/g, ' ').trim() : '';
         } catch { return ''; }
     }
-    // Story Director's calendar (`director.calendar`: { era, months, leapYears }), or null when it has none to give; Story Director's
-    // key people carry their dates as story minutes, which index.js writes on it (calendar.js storyMinuteText).
+    // Story Director's calendar (`director.calendar`: { era, months, leapYears }), or null when it has none to give;
     function directorCalendar() {
         try {
             const config = session.hosted && typeof session.sdkRef?.query === 'function' ? session.sdkRef.query('director.calendar', {}) : null;
@@ -145,11 +107,39 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
             return null;
         }
     }
-    // The key people, cleaned (src/key-people.js normalizeKeyPeople); the dates are left to the caller (they are not needed for names).
-    function keyPeople() {
-        const answer = keyPeopleAnswer();
-        return answer ? normalizeKeyPeople(answer) : null;
+    // Story Director's people away (`director.away`, read only) as it answers, or null: not hosted, no Story Director, or one without the query.
+    function awayAnswer() {
+        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return null;
+        try {
+            const answer = session.sdkRef.query('director.away', {});
+            return Array.isArray(answer) ? answer : null;
+        } catch {
+            return null;
+        }
     }
-
-    return { worldShown, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, keyPeople };
+    // Whether the away list can be trusted: true when Story Director is not registered on the host (then there is simply no list) or it answers a
+    // list or null; false when a registered Story Director throws or answers a non-list, or when the host cannot say. The stale pass deletes nothing while false.
+    function awayReadable() {
+        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return true;
+        try {
+            if (!(session.sdkRef.modules?.() ?? []).some(module => module?.id === 'story-director')) return true;
+        } catch { return false; }
+        try {
+            const answer = session.sdkRef.query('director.away', {});
+            return answer === null || answer === undefined || Array.isArray(answer);
+        } catch {
+            return false;
+        }
+    }
+    // The memory of the last absences (npc.awayMemory; the slice's `keyAway`), {} when there is none or no host.
+    function awayMemory() {
+        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return {};
+        try {
+            const memory = session.sdkRef.query('npc.awayMemory', {});
+            return memory && typeof memory === 'object' && !Array.isArray(memory) ? memory : {};
+        } catch {
+            return {};
+        }
+    }
+    return { worldShown, partyLevelsAnswer, awayAnswer, awayReadable, awayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar };
 }

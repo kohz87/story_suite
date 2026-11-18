@@ -7,7 +7,7 @@ import { escapeHtml } from '../util/html.js';
 import { PORTRAIT_THEME_PRESETS, getSettings } from './runtime-settings.js';
 
 export function createSettingsHtmlPart(rt, deps) {
-    const { effectivePresentCastChoice, portraitSettingsSnapshot, UI_ID, updatePortraitSettingsSaveUi, writePortraitSettingsDraftToUi } = deps;
+    const { portraitSettingsSnapshot, UI_ID, updatePortraitSettingsSaveUi, writePortraitSettingsDraftToUi } = deps;
 
     function settingRow(id, label, control, hint = '') {
         return `<label class="npc-state-delta-setting-row story-suite-row" for="${id}"><span><b>${label}</b>${hint ? `<small>${hint}</small>` : ''}</span>${control}</label>`;
@@ -28,15 +28,12 @@ export function createSettingsHtmlPart(rt, deps) {
         const scanning = [
             settingRow('npc_state_delta_full_scan_every_turn', 'Full scan every turn', '<input id="npc_state_delta_full_scan_every_turn" type="checkbox">', 'With Auto scan, reconcile the whole scan context after every reply instead of only the latest exchange. Overrides Scan every; relationship deltas still come only from the newest exchange.'),
             settingRow('npc_state_delta_narration_capture', 'One-pass narration capture (experimental)', '<input id="npc_state_delta_narration_capture" type="checkbox">', 'Works on its own, with Auto scan on or off: the roleplay model ends each reply with a hidden NPC update block that replaces the separate scan request. Adds about 2,000-3,000 tokens to every roleplay prompt plus the block to each reply; a missing or broken block falls back to the normal scan. Not used with Full scan every turn.'),
-            settingRow('npc_state_delta_narration_capture_compact', 'Compact one-pass instruction', '<input id="npc_state_delta_narration_capture_compact" type="checkbox">', 'Needs One-pass narration capture. The same rules in fewer words: about 1,500 tokens instead of 2,000 on every asked-for reply. Every field, gate and cap is kept, but check the blocks your model writes before relying on it; off sends the full rules.'),
             settingRow('npc_state_delta_narration_capture_catch_up', 'One-pass catch-up', numberControl('npc_state_delta_narration_capture_catch_up', 0, 50, 'replies'), 'Needs One-pass narration capture. Each person waits this many replies between Refreshes: after a reply, someone who was in the last this-many replies and has waited that long gets a quiet Refresh (one scanner request) that writes their slow fields. 0 turns it off.'),
             settingRow('npc_state_delta_narration_capture_catch_up_people', 'NPCs refreshed per reply', numberControl('npc_state_delta_narration_capture_catch_up_people', 1, 3, 'people'), 'Needs the one-pass catch-up. The most people one reply may Refresh (1 to 3). Fewer than this many may go: nobody is taken twice inside the wait.'),
             settingRow('npc_state_delta_scan_every', 'Scan every', numberControl('npc_state_delta_scan_every', 1, 20, 'replies'), 'Safety scan cadence when Full scan every turn is off. A reply that names someone new, a tracked person or an NPC State line scans at once; a quiet reply waits for this many replies, and the scan then reads every reply since the last one.'),
             settingRow('npc_state_delta_admission_mode', 'NPC admission', '<select id="npc_state_delta_admission_mode" class="text_pole"><option value="conservative">Conservative</option><option value="balanced">Balanced</option><option value="manual_only">Manual only</option></select>', 'Conservative: proper names immediately, role labels after recurrence. Balanced: also direct or persistent role NPCs. Manual only: every dossier needs Add NPC.'),
         ].join('');
         const roster = `
-        <h4 class="delta-settings-subhead story-suite-subhead">In-chat display</h4>
-        ${settingRow('npc_state_delta_present_cast_display', 'Present NPCs in chat', '<select id="npc_state_delta_present_cast_display" class="text_pole"><option value="full">Full cards</option><option value="compact">Compact strip</option><option value="storyblock">Only in Story Block</option><option value="off">Off</option></select>', 'Shown under the latest reply (or as a Megumin tab). With Story Block installed, Present NPCs and Dossiers tabs also appear in its sidebar, and until you pick a choice here the chat shows them only there; Only in Story Block keeps the chat clear (full cards without Story Block). Tapping an NPC opens its dossier. Off adds nothing to the chat; presence tracking and injection are unaffected.')}
         <h4 class="delta-settings-subhead story-suite-subhead">Generation injection</h4>
         ${settingRow('npc_state_delta_inject', 'Inject present NPC state', '<input id="npc_state_delta_inject" type="checkbox">', 'Only active NPCs present in the latest scanned scene are injected into generation.')}
         <h4 class="delta-settings-subhead story-suite-subhead">Custom fields</h4>
@@ -56,8 +53,6 @@ export function createSettingsHtmlPart(rt, deps) {
             settingRow('npc_state_delta_scan_depth', 'Scan context', numberControl('npc_state_delta_scan_depth', 2, 30, 'messages'), 'History window for full, manual and Refresh scans. Quick automatic scans read every reply since the last scan (up to 30 messages at a time; the oldest first when more are waiting).'),
             settingRow('npc_state_delta_inject_limit', 'NPCs in the dossier', numberControl('npc_state_delta_inject_limit', 1, 12, 'NPCs'), 'At most this many present NPCs go into the live dossier each reply, the most relevant first (default 3).'),
             settingRow('npc_state_delta_inject_budget', 'Injection budget', numberControl('npc_state_delta_inject_budget', 512, 6000, 'tokens', { step: 100, prefix: '<small>~</small>' }), 'Upper limit; only what the present NPCs need is used. The default 4000 lets detailed dossiers reach the roleplay model in full. When it runs short, lower-priority fields, then lower-ranked NPCs, are trimmed first.'),
-            settingRow('npc_state_delta_mid_delete_rewind', 'Rewind dossiers on middle deletion', '<input id="npc_state_delta_mid_delete_rewind" type="checkbox">', 'Off (default): deleting a message from the middle undoes only what that message changed and keeps later changes. On: every dossier rewinds to how it was just before the deleted message, discarding what later messages changed (no model requests).'),
-            settingRow('npc_state_delta_branch_rescan', 'Rescan changed branches', '<input id="npc_state_delta_branch_rescan" type="checkbox">', 'Re-evaluate the surviving branch after a swipe, edit or middle-message deletion.'),
         ].join('');
         const portrait = `
         <p class="npc-state-delta-muted">Builds positive and negative prompts from the dossier for the native SillyTavern Image Generation handoff. The configured image backend (including ComfyUI) stays host-owned.</p>
@@ -250,10 +245,9 @@ export function createSettingsHtmlPart(rt, deps) {
     }
 
     // The Expert fold's first line: whether the calendar in Delta's settings matters. It says the Story Director sentence only
-    // while that is true (Story Director's calendar answers and the reader has not kept the calendar here).
+    // while that is true (Story Director's calendar answers).
     const EXPERT_NOTES = Object.freeze({
         'story-director': 'Rarely needed. With Story Director installed its calendar is used, so the calendar here only matters on its own.',
-        own: "Rarely needed. You keep the calendar here (Source of truth), so Story Director's calendar is not used.",
         none: 'Rarely needed. No Story Director calendar is linked, so the calendar here is the one in use.',
     });
     function syncExpertNote(root = globalThis.document) {
@@ -272,7 +266,6 @@ export function createSettingsHtmlPart(rt, deps) {
         $('#npc_state_delta_auto').prop('checked', !!s.autoScan);
         $('#npc_state_delta_full_scan_every_turn').prop('checked', !!s.fullScanEveryTurn);
         $('#npc_state_delta_narration_capture').prop('checked', !!s.narrationCapture);
-        $('#npc_state_delta_narration_capture_compact').prop('checked', !!s.narrationCaptureCompact);
         $('#npc_state_delta_scan_every').val(s.scanEvery);
         $('#npc_state_delta_scan_depth').val(s.scanDepth);
         $('#npc_state_delta_narration_capture_catch_up').val(s.narrationCaptureCatchUp);
@@ -289,9 +282,6 @@ export function createSettingsHtmlPart(rt, deps) {
         $('#npc_state_delta_archive_deaths').prop('checked', s.autoArchiveDeaths !== false);
         $('#npc_state_delta_reactivate_archived').prop('checked', s.autoReactivateArchived !== false);
         $('#npc_state_delta_layered_secrets').prop('checked', s.layeredSecrets !== false);
-        $('#npc_state_delta_branch_rescan').prop('checked', s.branchRescan !== false);
-        $('#npc_state_delta_mid_delete_rewind').prop('checked', s.midDeleteRewind === true);
-        $('#npc_state_delta_present_cast_display').val(effectivePresentCastChoice());
         if (!rt.portraitSettingsDirty) writePortraitSettingsDraftToUi(portraitSettingsSnapshot(s));
         updatePortraitSettingsSaveUi();
         $('#npc_state_delta_base_trust').val(s.relationshipBaseline.trust);

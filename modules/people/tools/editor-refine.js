@@ -172,9 +172,9 @@ function bindDocumentEvents() {
                 if (!npc) return;
                 const preserveChoice = editor.querySelector('[data-delta-life-state]')?.value !== requested;
                 syncEditorLifecycle(editor, npc, { preserveChoice });
-                toast('success', `NPC State Delta: ${npc.name || 'NPC'} life state set to ${lifeStateChoice(npc)}.`);
+                toast('success', `NPC State: ${npc.name || 'NPC'} life state set to ${lifeStateChoice(npc)}.`);
             })
-            .catch(error => toast('error', `NPC State Delta life-state update failed: ${error?.message || error}`))
+            .catch(error => toast('error', `NPC State life-state update failed: ${error?.message || error}`))
             .finally(() => { if (apply.isConnected) apply.disabled = false; });
     });
 }

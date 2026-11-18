@@ -56,7 +56,7 @@ export function createWizardWorld({ sdk, ctx = () => null }) {
     const state = headState(), persona = readerName();
     const party = readParty(state, { own: persona });
     const free = actionsFree(state, safe(replyKey, ''));
-    return { persona, names: party.map(character => character.name), hasYou: party.some(character => character.own), full: party.filter(character => character.left !== true).length >= PARTY_ACTIVE,
+    return { started: state != null, persona, names: party.map(character => character.name), hasYou: party.some(character => character.own), full: party.filter(character => character.left !== true).length >= PARTY_ACTIVE,
       room: hasRoom(state), free, extras: extrasPlan(state, { free }), used: Object.keys(state?.domains?.dataModules?.active ?? {}) };
   };
   const chatId = () => String(safe(() => ctx()?.getCurrentChatId?.() ?? ctx()?.chatId, '') ?? '');

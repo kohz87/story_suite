@@ -76,3 +76,16 @@ test('with RPG off it says task, and ctx.command is used when there is no port',
   assert.deepEqual(calls, [['quest.giveup', { id: 'boat' }]]);
   openQuestEditor({}, boat()).close();
 });
+
+test('a quest with no step list shows no empty Current step box, and due and reward save to their own fields', async () => {
+  const { ctx, port } = setup();
+  openQuestEditor(ctx, { ...boat(), steps: [], stepIndex: 0 });
+  const labels = [...open().querySelectorAll('label.ef')].map(l => l.textContent);
+  assert.equal(labels.some(t => t.startsWith('Current step')), false);
+  const inputs = [...open().querySelectorAll('input')];
+  inputs[1].value = 'CY 611, October 6';
+  inputs[2].value = '30 copper';
+  open().querySelector('.save').click();
+  await flush();
+  assert.deepEqual(sent(port), [['quest.edit', { id: 'boat', patch: { due: 'CY 611, October 6', reward: '30 copper' } }]]);
+});

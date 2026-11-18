@@ -62,6 +62,7 @@ export function eventRows(day, events, { threads, format, fit = same }) {
             const key = String(title).toLowerCase();
             const group = groups.get(key) ?? { title, lines: [], thread: [...threads.values()].find(item => String(item?.key ?? '').toLowerCase() === key) ?? null };
             if (!groups.has(key)) { groups.set(key, group); rows.push(group); }
+            if (list === 'taken') group.took = true;
             group.chip = list === 'taken' && group.chip ? group.chip : chip;
         }
     }
@@ -69,7 +70,8 @@ export function eventRows(day, events, { threads, format, fit = same }) {
         if (!row.lines) return { ...plain(''), detail: row.detail, ...whoOf(row.who) };
         const ends = ['finished', 'failed', 'gave up'].includes(row.chip);
         const began = ends && isInt(row.thread?.taken?.at) && typeof format === 'function' ? format(row.thread.taken.at) : '';
-        const since = began && dayOfMinutes(row.thread.taken.at) !== day.day ? `began ${began}` : '';
+        // (taken and ended on this very day: the row says it began today, so the day still records the quest being taken)
+        const since = began && dayOfMinutes(row.thread.taken.at) !== day.day ? `began ${began}` : ends && row.took ? 'began today' : '';
         const stepsLabel = row.lines.length > 1 ? `${row.lines.length} steps today` : '';
         return { ...plain(row.lines.at(-1) ?? '', fit), title: row.title, chip: row.chip || 'step', note: [stepsLabel, since].filter(Boolean).join(' · '), since, stepsLabel, steps: row.lines.length > 1 ? row.lines.map(fit) : [], ...whoOf(row.who) };
     });

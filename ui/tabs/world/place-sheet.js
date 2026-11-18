@@ -36,7 +36,11 @@ export function placeSheet(place, world = {}, ctx = {}, onClose = () => {}) {
   const from = fromYou(place, world);
   const rows = [];
   const add = (label, value) => rows.push(h('dt', null, label), h('dd', null, value));
+  add('Status', place.here ? 'You are here' : place.visited ? 'Visited' : 'Not visited yet');
   if (from) add('From you', from);
+  const links = (world.routes ?? []).filter(r => r.a === place.id || r.b === place.id)
+    .map(r => (world.places ?? []).find(p => p.id === (r.a === place.id ? r.b : r.a))?.name).filter(Boolean);
+  if (links.length) add('Routes to', [...new Set(links)].join(', '));
   if (news.length) add('News', news.map((t, i) => [i ? h('br') : null, t]));
   if (place.quests?.length) add('Quests', place.quests.map((t, i) => [i ? h('br') : null, t]));
   if (place.people?.length) {

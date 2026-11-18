@@ -1,14 +1,16 @@
 // The Packs settings section over a fake DOM: list, import from a file and a lorebook,
 // switch on and off, remove, and pack text always shown as text.
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { installFakeDom, texts } from '../helpers/ui-fake-dom.js';
 import { renderPacksPanel, countsLine } from '../../packs/panel.js';
 import { createInstalled } from '../../packs/installed.js';
 import { LIMITS } from '../../packs/limits.js';
 import { fakeSettings } from './helpers/fake-settings.js';
-import { pack, sampleText } from './helpers/fixtures.js';
+import { pack } from './helpers/fixtures.js';
 
+const sampleText = readFileSync(new URL('./fixtures/riverside-starter.json', import.meta.url), 'utf8');
 const doc = installFakeDom();
 const tick = () => new Promise(resolve => setImmediate(resolve));
 
@@ -41,8 +43,8 @@ test('an empty list, then a pack imported from a file', async () => {
     await tick();
     assert.deepEqual(notes, ['Installed Riverside Starter.']);
     assert.deepEqual(texts(root, '.ss-packs-message'), ['Installed Riverside Starter.']);
-    assert.deepEqual(texts(root, '.ss-packs-name'), ['Riverside Starter 3.0.0']);
-    assert.deepEqual(texts(root, '.ss-packs-facts'), ['4 items, 1 foe, 2 events, start state, a money word, a theme · by Story Suite examples · riverside.json']);
+    assert.deepEqual(texts(root, '.ss-packs-name'), ['Riverside Starter 4.0.0']);
+    assert.deepEqual(texts(root, '.ss-packs-facts'), ['4 items, 1 foe, 1 place, start state · by Story Suite examples · riverside.json']);
     const again = root.querySelector('.ss-packs-file');
     again.files = [fakeFile('riverside.json', sampleText)];
     again.dispatch('change');
@@ -87,7 +89,10 @@ test('reading the character lorebook', async () => {
     root.querySelector('.ss-packs-lorebook').click();
     await tick();
     assert.deepEqual(texts(root, '.ss-packs-message'), ['Read 1 pack from the lorebook: Riverside Starter. 1 entry was not imported.']);
-    assert.match(texts(root, '.ss-packs-errors li')[0], /^Broken: The pack is not valid JSON/);
+    const lines = texts(root, '.ss-packs-errors li');
+    assert.equal(lines.length, 2);
+    assert.match(lines[0], /^Riverside: Ignored: The pack declares no content\.regions/, 'the good pack\'s own warning');
+    assert.match(lines[1], /^Broken: The pack is not valid JSON/);
     assert.deepEqual(texts(root, '.ss-packs-facts')[0].split(' · ').at(-1), 'from a lorebook');
 
     const untagged = mount({ entries: [{ book: 'b', uid: 0, title: 'Mill', content: 'x' }] });
@@ -101,20 +106,19 @@ test('reading the character lorebook', async () => {
     assert.deepEqual(texts(none.root, '.ss-packs-message'), ['Open a chat with a character first.']);
 });
 
-test('each pack row carries its tag as plain text: which module it is for, or "Pack"', async () => {
+test('each pack row carries its tag as plain text: "World pack" or "Game pack" from the pack\'s kind', async () => {
     const { root, packs } = mount();
-    await packs.install(pack({ id: 'world', name: 'Harbour <b>Calendar</b>', requires: { storyBlock: '^2', capabilities: ['story-director'] }, content: { places: [{ name: 'Harbour', x: 1, y: 2 }] } }));
-    await packs.install(pack({ id: 'plain', name: 'Plain Items', content: { items: [{ name: 'Rope', kind: 'goods', value: 3 }] } }));
-    await packs.install(pack({ id: 'unknown', name: 'Mystery', requires: { storyBlock: '^2', capabilities: ['unknown-module'] }, content: {} }));
+    await packs.install(pack({ id: 'world', name: 'Harbour <b>Calendar</b>', content: { places: [{ id: 'harbour', name: 'Harbour', x: 1, y: 2 }] } }));
+    await packs.install(pack({ id: 'rules', kind: 'game', name: 'Plain Rules', content: { currency: { name: 'mark', coins: [{ name: 'mark', value: 1 }] } } }));
     const panel = renderPacksPanel(root, { packs, readLorebook: async () => ({}), doc });
-    assert.deepEqual(texts(root, '.ss-packs-tag'), ['World pack · Story Director', 'Story Block pack', 'Pack']);
+    assert.deepEqual(texts(root, '.ss-packs-tag'), ['World pack', 'Game pack']);
     const tags = root.querySelectorAll('.ss-packs-tag');
     assert.ok(tags.every(tag => tag.tagName === 'SPAN' && tag.children.length === 0), 'a text node, no markup');
     // The name is still the name alone: the tag is its own element beside it, never inside the name.
-    assert.deepEqual(texts(root, '.ss-packs-name'), ['Harbour <b>Calendar</b> 1.0.0', 'Plain Items 1.0.0', 'Mystery 1.0.0']);
+    assert.deepEqual(texts(root, '.ss-packs-name'), ['Harbour <b>Calendar</b> 1.0.0', 'Plain Rules 1.0.0']);
     assert.equal(root.querySelector('.ss-packs-name').querySelector('b'), null, 'a pack name is text, not markup');
     panel.refresh();
-    assert.equal(root.querySelectorAll('.ss-packs-tag').length, 3, 'a redraw keeps one tag a row');
+    assert.equal(root.querySelectorAll('.ss-packs-tag').length, 2, 'a redraw keeps one tag a row');
 });
 
 test('switching off, and removing after a question (Remove, then Remove or Cancel, the focus on Cancel)', async () => {
@@ -164,8 +168,8 @@ test('switching off, and removing after a question (Remove, then Remove or Cance
 
 test('pack text is shown as text, problems and missing parts are shown', async () => {
     const settings = fakeSettings({ packs: [
-        { id: 'bad', version: '1.0.0', enabled: true, pack: pack({ id: 'bad', name: '<img src=x onerror=alert(1)>' }) },
-        { id: 'needs', version: '1.0.0', enabled: true, pack: pack({ id: 'needs', name: 'Tags <b>bold</b>', description: 'Two & three', requires: { storyBlock: '^2', capabilities: ['party'] } }) },
+        { id: 'bad', version: '1.0.0', enabled: true, kind: 'world', pack: pack({ id: 'bad', name: '<img src=x onerror=alert(1)>' }) },
+        { id: 'needs', version: '1.0.0', enabled: true, kind: 'world', pack: pack({ id: 'needs', name: 'Tags <b>bold</b>', description: 'Two & three', requires: { suite: '^0.1', capabilities: ['party'] } }) },
     ] });
     const packs = createInstalled({ settings, capabilities: () => ['inventory'] });
     const root = doc.createElement('div');

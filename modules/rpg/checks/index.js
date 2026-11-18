@@ -28,7 +28,7 @@ export const part = {
         defaults: { ...DEFAULTS },
         schema: {
             defaultDc: { type: 'int', label: 'Difficulty when none is written', min: 1, max: 40 },
-            social: { type: 'bool', label: 'Add how a person feels about you (NPC State Delta)' },
+            social: { type: 'bool', label: 'Add how a person feels about you (NPC State)' },
         },
     },
 };

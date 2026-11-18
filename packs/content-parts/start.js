@@ -3,6 +3,7 @@
 import { foldKey } from '../../core/text.js';
 import { copy } from './shared-copy.js';
 import { itemDef } from './items.js';
+import { startOf4 } from './start-v4.js';
 
 /**
  * The enabled packs' `start` merged into one (SPEC §2.6):
@@ -22,10 +23,12 @@ export function mergeStart(packs) {
     const out = { scene: { place: null, present: [] }, inventory: { items: [], money: 0 }, currency: null, packs: [], problems: [] };
     const items = new Map();
     for (const item of packs.flatMap(pack => pack.content.items)) if (!items.has(item.id)) items.set(item.id, item);
+    const worldItems = packs.filter(pack => pack.kind === 'world').flatMap(pack => pack.content.items);
     const present = new Set();
     for (const pack of packs) {
         if (pack.currency && !out.currency) out.currency = copy(pack.currency);
-        const start = pack.start;
+        // A format 4 pack's start (start-v4.js) is in the same shape, its item lines already resolved to a def.
+        const start = pack.kind ? startOf4(pack, worldItems) : pack.start;
         if (!start) continue;
         let gave = false;
         if (start.scene.place && !out.scene.place) {
@@ -39,15 +42,16 @@ export function mergeStart(packs) {
             out.scene.present.push(name);
         }
         for (const line of start.inventory.items) {
-            const item = items.get(line.item);
-            if (!item) {
+            const item = line.def ? null : items.get(line.item);
+            if (!line.def && !item) {
                 out.problems.push(`${pack.name} starts with ${line.item}, but the pack that defines it is not enabled.`);
                 continue;
             }
             gave = true;
-            const same = out.inventory.items.find(entry => entry.def.id === item.id && entry.note === line.note);
+            const def = line.def ?? itemDef(item);
+            const same = out.inventory.items.find(entry => entry.def.id === def.id && entry.note === line.note);
             if (same) same.qty += line.qty;
-            else out.inventory.items.push({ def: itemDef(item), aliases: [...item.aliases], qty: line.qty, note: line.note });
+            else out.inventory.items.push({ def, aliases: line.def ? [...line.aliases] : [...item.aliases], qty: line.qty, note: line.note });
         }
         if (start.inventory.money) {
             gave = true;

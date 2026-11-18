@@ -1,5 +1,6 @@
-// Keeps the inline row on the latest reply and the people drawer above the input: moves, hides and folds them as the chat changes.
+// Keeps the inline row on the latest reply, the modules' cards under the head reply and the people drawer above the input: moves, hides and folds them as the chat changes.
 import { inlineRow } from './inline-row.js';
+import { replyCardStrip } from './reply-cards.js';
 import { peopleDrawer } from './people-drawer.js';
 
 function isUser(el) {
@@ -19,7 +20,7 @@ export function drawerLayout(rows, { open = true, typing = false, narrow = false
   return { hidden, folded: !open || (typing && narrow), perPage: narrow ? 2 : 4 };
 }
 
-/** Creates the controller: refresh(chatVm) redraws, setTyping(bool) and toggleDrawer() refold; options: messagesEl, drawerHost, handlers, isNarrow(). */
+/** Creates the controller: refresh(chatVm) redraws, setTyping(bool) and toggleDrawer() refold; options: messagesEl, drawerHost, handlers (onCardAction(action) runs a card's button), isNarrow(). */
 export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNarrow = () => false } = {}) {
   const on = handlers || {};
   let vm = null;
@@ -27,6 +28,9 @@ export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNa
   let typing = false;
   let page = 0;
   let rowEl = null;
+  let cardsEl = null;
+
+  const boxOf = host => host.querySelector('.bx') || host.querySelector('.mes_block') || host;
 
   function drawRow() {
     if (rowEl) rowEl.remove();
@@ -34,7 +38,21 @@ export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNa
     const host = latestReplyOf(messagesEl);
     if (!host || !vm?.inlineRow) return;
     rowEl = inlineRow(vm.inlineRow, on);
-    (host.querySelector('.bx') || host.querySelector('.mes_block') || host).appendChild(rowEl);
+    boxOf(host).appendChild(rowEl);
+  }
+
+  // The cards go under the reply they were asked about (the head, by its index), above the inline row when that reply carries it.
+  function drawCards() {
+    if (cardsEl) cardsEl.remove();
+    cardsEl = null;
+    const cards = vm?.replyCards;
+    const host = cards ? messagesEl?.querySelector?.(`.mes[mesid="${cards.index}"]`) : null;
+    if (!host) return;
+    cardsEl = replyCardStrip(cards.list, action => on.onCardAction?.(action));
+    if (!cardsEl) return;
+    const box = boxOf(host);
+    if (rowEl && rowEl.parentNode === box) box.insertBefore(cardsEl, rowEl);
+    else box.appendChild(cardsEl);
   }
 
   function drawDrawer() {
@@ -60,7 +78,7 @@ export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNa
   }
 
   return {
-    refresh(next) { vm = next || null; drawRow(); drawDrawer(); },
+    refresh(next) { vm = next || null; drawRow(); drawCards(); drawDrawer(); },
     setTyping(value) { const t = Boolean(value); if (t !== typing) { typing = t; drawDrawer(); } },
     toggleDrawer() { open = !open; drawDrawer(); },
   };

@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS, editorProfileLocks } from '../../modules/people/dossier/dossier-edit.js';
-import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
 import { runEditorHostScenario } from './editor-host.mjs';
 import { runtimeSource } from './helpers/runtime-source.js';
 
@@ -23,26 +22,6 @@ test('editor locks: the Save keeps existing locks, adds changed fields and is al
     const index = runtimeSource();
     assert.doesNotMatch(index, /locked\.length/, 'the editor reads the Set size');
     assert.match(index, /editorProfileLocks\(current, next, \{ protect: Boolean\(document\.getElementById\('npc_state_delta_edit_lock_profile'\)\?\.checked\) \}\)/);
-});
-
-test('a branch restore keeps every key a lock covers, the same keys a bundle import keeps', () => {
-    const current = {
-        id: 'npc_y', name: 'Yunyun', identityKind: 'proper_name', appearance: 'Crimson eyes; a red scarf.', overallAppearance: 'Crimson eyes.',
-        appearanceForms: [{ name: 'Cloaked', appearance: 'Black cloak.' }], currentForm: '', currentFormUnknown: false, appearanceModelVersion: 2,
-        apparentAge: '~14', apparentAgeAnchor: { apparent: 14, result: 14 }, mood: 'calm',
-        ...editorProfileLocks({ manualProfileFields: ['appearance', 'apparentAge'] }, {}, { protect: true }),
-    };
-    const restored = { id: 'npc_y', name: 'Yunyun', identityKind: 'proper_name', appearance: 'Plain.', overallAppearance: 'Brown eyes.', appearanceForms: [],
-        unclassifiedAppearance: 'old leftover', apparentAge: '~13', apparentAgeAnchor: { apparent: 13, result: 13 }, mood: 'tired' };
-    const [npc] = preserveUserNpcMetadata([restored], [current]);
-    for (const key of [...LOCKED_FIELD_KEYS.appearance, ...LOCKED_FIELD_KEYS.apparentAge]) {
-        assert.deepEqual(npc[key], current[key], `${key} follows the lock`);
-    }
-    assert.equal('unclassifiedAppearance' in npc, false, 'a part the current dossier does not have is not kept from the old copy');
-    assert.equal(npc.mood, 'tired', 'an unlocked field is the restored one');
-    assert.deepEqual(npc.manualProfileFields, ['appearance', 'apparentAge']);
-    const bundle = fs.readFileSync(new URL('../../modules/people/bundle/bundle-import-helpers-parts/records.js', import.meta.url), 'utf8');
-    assert.match(bundle, /for \(const key of LOCKED_FIELD_KEYS\[field\] \|\| \[\]\)/, 'bundle import uses the same map');
 });
 
 test('editor locks through the synthetic host: a second Save, a later scan, a swipe and a branch restore keep them', () => {

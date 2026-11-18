@@ -67,8 +67,8 @@ test('row changes and button actions reach the callbacks with the row key', () =
   ov.open('look');
   ov.el.querySelector('.srow[data-key="host.sendPending"] .sw').click();
   ov.show('tools');
-  ov.el.querySelectorAll('.srow[data-key="tools.arcPrompt"] .btn2')[1].click();
-  assert.deepEqual(got, [['c', 'host.sendPending', false], ['a', 'tools.arcPrompt', 'Reset to default']]);
+  ov.el.querySelectorAll('.srow[data-key="tools.packEvents"] .btn2')[0].click();
+  assert.deepEqual(got, [['c', 'host.sendPending', false], ['a', 'tools.packEvents', 'Show']]);
 });
 
 test('typing a query shows search results and clears the section mark; clearing returns', () => {
@@ -154,4 +154,23 @@ test('an empty view-model still mounts', () => {
   const ov = createSettingsOverlay({ doc });
   assert.equal(ov.open(), true);
   assert.equal(ov.el.querySelectorAll('.spage .sgrp').length, 0);
+});
+
+test('another Settings page opens at its top: a side or list pick resets the scroller, a redraw on the same page keeps it (soak #7)', () => {
+  const { ov } = make();
+  ov.open();
+  const scroller = ov.el.querySelector('.smain');
+  ov.el.querySelector('button.si3[data-sec="rpg"]').click();
+  scroller.scrollTop = 550;
+  ov.setQuery('');
+  assert.equal(scroller.scrollTop, 550, 'a redraw of the same page keeps the place');
+  ov.el.querySelector('button.si3[data-sec="people"]').click();
+  assert.equal(ov.el.querySelector('.spage h2').textContent, 'People');
+  assert.equal(scroller.scrollTop, 0, 'People opens at the top, not mid-page');
+  scroller.scrollTop = 400;
+  ov.el.querySelector('.sback').click();
+  assert.equal(scroller.scrollTop, 0, 'the phone list opens at its top too');
+  scroller.scrollTop = 300;
+  ov.el.querySelector('.phonelist button[data-sec="money"]').click();
+  assert.equal(scroller.scrollTop, 0);
 });

@@ -1,17 +1,23 @@
-// Builds the Tools page: what is sent, Inspector and Problems (with the rebuild entry), Diagnostics and the developer cards. Reads the live engine each time it draws.
+// Builds the Tools page: what is sent, Inspector and Problems (with the rebuild entry), save points, Prompts, Chat data, the Game pack export, Diagnostics and the developer cards. Reads the live engine each time it draws.
 import { renderSent } from './sent.js';
 import { renderProblems } from './problems.js';
 import { renderDiagnostics } from './diagnostics.js';
 import { renderDeveloper } from './developer.js';
 import { openInspector } from './inspector.js';
 import { renderSavePoints } from './savepoints.js';
+import { renderPrompts } from './prompts.js';
+import { renderChatData, saveFile } from './chat-data.js';
+import { renderGameExport, saveGamePack } from './game-export.js';
+import { renderNpcData } from './npc-data.js';
 
 /**
  * Creates the page body builder. `settings` = the view-model, `ctx` = the overlay's { onAction, view(name, args), doc, backStack, repaint },
  * `developer` = { on, own } for the Developer cards. Returns `() => nodes`. The sent card, problems and the Inspector come from `ctx.view` (live); with none, from the snapshot.
  */
 export function createToolsPage(settings, ctx, developer) {
-  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '' };
+  const prompt = { open: null, draft: {}, busy: false, notes: {} };
+  const people = { note: '', busy: false };
+  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '', packNote: '', dataNote: '' };
   const redraw = () => ctx.repaint?.();
   const ask = (key, value) => Promise.resolve(ctx.onAction?.(key, value));
 
@@ -30,6 +36,12 @@ export function createToolsPage(settings, ctx, developer) {
       error => { local.spNote = `${failed}: ${error?.message ?? error}`; }).finally(() => { local.busy = false; redraw(); });
   }
 
+  // NPC State data: a dialog or download is started by the port; only a failure leaves a line.
+  function data(key) {
+    local.dataNote = '';
+    ask(key).then(answer => { local.dataNote = answer?.ok === false ? String(answer.message ?? 'It did not open.') : ''; }, error => { local.dataNote = String(error?.message ?? error); }).finally(redraw);
+  }
+
   function copy() {
     ask('tools.report').then(async answer => {
       if (answer?.ok === false) { local.note = String(answer.message ?? 'The report could not be made.'); return; }
@@ -38,9 +50,48 @@ export function createToolsPage(settings, ctx, developer) {
     }, error => { local.note = String(error?.message ?? error); }).finally(redraw);
   }
 
+  // A prompt's Save or Reset: the answer's words on its row; a saved prompt closes its box, and the row is drawn again from the stored text.
+  function promptWrite(key, id, value, done) {
+    Object.assign(prompt, { busy: true, notes: { ...prompt.notes, [id]: '' } });
+    redraw();
+    ask(key, value).then(answer => {
+      if (answer?.ok === false) { prompt.notes[id] = `Not saved: ${answer.message ?? '?'}`; return; }
+      prompt.notes[id] = done;
+      delete prompt.draft[id];
+      if (prompt.open === id) prompt.open = null;
+    }, error => { prompt.notes[id] = `Not saved: ${error?.message ?? error}`; }).finally(() => { prompt.busy = false; redraw(); });
+  }
+  const prompts = {
+    setOpen: id => { if (prompt.open) delete prompt.draft[prompt.open]; prompt.open = id; redraw(); },
+    type: (id, text) => { prompt.draft[id] = text; },
+    save: id => promptWrite('tools.prompt.save', id, { id, text: prompt.draft[id] }, 'Saved.'),
+    reset: id => promptWrite('tools.prompt.reset', id, { id }, 'The built-in text is back.'),
+  };
+
+  function exportPeople() {
+    Object.assign(people, { busy: true, note: '' });
+    redraw();
+    ask('tools.people.export').then(answer => {
+      if (answer?.ok === false) { people.note = String(answer.message ?? 'Nothing was exported.'); return; }
+      saveFile(ctx.doc, answer.bytes, answer.name);
+      people.note = String(answer.message ?? '');
+    }, error => { people.note = String(error?.message ?? error); }).finally(() => { people.busy = false; redraw(); });
+  }
+
+  // Export settings as a game pack: the engine builds and checks it; the file is saved here.
+  function exportPack() {
+    ask('tools.gamepack.export', { name: 'My settings' }).then(answer => {
+      if (answer?.ok === false || typeof answer?.text !== 'string') { local.packNote = String(answer?.message ?? 'The pack could not be made.'); return; }
+      saveGamePack(ctx.doc, answer.text, `${answer.pack?.id ?? 'my-settings'}.json`);
+      local.packNote = `Saved ${answer.pack?.id ?? 'my-settings'}.json: ${answer.sections.map(item => item.section).join(', ')}.`;
+    }, error => { local.packNote = String(error?.message ?? error); }).finally(redraw);
+  }
+
   return function body() {
     const fresh = ctx.view?.('sent');
-    const sent = fresh ? { ...fresh, limits: settings.sent?.limits ?? [] } : settings.sent;
+    // The budget rows are the host's current values (read again each draw), not the snapshot taken when Settings opened.
+    const limits = ctx.view?.('settings')?.sent?.limits ?? settings.sent?.limits ?? [];
+    const sent = fresh ? { ...fresh, limits } : settings.sent;
     const problems = ctx.view?.('problems') ?? { items: [], rebuild: null };
     const open = { Inspector: () => openInspector(ctx), Problems: () => { local.force = true; redraw(); } };
     const rb = problems.rebuild;
@@ -56,7 +107,11 @@ export function createToolsPage(settings, ctx, developer) {
       ...(sent?.budget ? renderSent(sent, sent.limits ?? [], ctx, open) : []),
       renderProblems(problems, state),
       points,
+      renderPrompts(ctx.view?.('prompts') ?? null, { ...prompt, ...prompts }),
+      renderChatData({ ...people, exportPeople }),
+      renderGameExport({ note: local.packNote, run: exportPack }),
       renderDiagnostics({ note: local.note, copy }),
+      renderNpcData({ note: local.dataNote, ask: data }),
       ...renderDeveloper({ on: developer.on() }, developer.own),
     ].filter(Boolean);
   };

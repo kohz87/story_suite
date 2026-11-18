@@ -1,5 +1,5 @@
 /* NPC State - the in-page api (role: npc-api). What `pageHandles.suiteApi` holds: the tracked NPCs, their profiles and the text
-   the next reply gets (Key people and the Story Block adapter read it), plus what the Enable checkbox does after saving.
+   the next reply gets (the Story Block adapter reads it), plus what the Enable checkbox does after saving.
    Built by index.js once per module instance with the shared runtime state and the controller functions it calls. */
 
 import { recentTranscript } from '../transcript/transcript.js';
@@ -11,7 +11,7 @@ import { replyPreview } from '../npc-api/reply-preview.js';
 import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 
 export function createNpcApiPart(rt, deps) {
-    const { chatHydrationStatus, effectivePresentCastChoice, getChatKey, getChatState, hostedNotePromptOptions, liveInjectionText, narrationCaptureEnabled, queueInlineRender, renderDossier, scannerPromptOptions, scenePresenceView, startInlineWatchdog, updateInjection } = deps;
+    const { chatHydrationStatus, getChatKey, getChatState, hostedNotePromptOptions, liveInjectionText, narrationCaptureEnabled, queueCastRefresh, renderDossier, scannerPromptOptions, scenePresenceView, updateInjection } = deps;
 
     // The texts the next ordinary reply gets: { injection, capture }.
     function nextReplyTexts() {
@@ -93,18 +93,15 @@ export function createNpcApiPart(rt, deps) {
     function afterEnabledChange() {
         updateInjection();
         renderDossier();
-        // The in-chat cast leaves with NPC State and comes back with it.
-        try { pageHandles.deltaApi?.renderInline?.(); } catch { /* the cards follow at the next render */ }
+        // The cast panes follow NPC State on and off.
+        queueCastRefresh(0);
         if (typeof CustomEvent === 'function') globalThis.document?.dispatchEvent?.(new CustomEvent('npc-state-delta:enabled-changed', { detail: { enabled: getSettings().enabled !== false } }));
     }
 
-    // When NPC State registers with a Story Block host, or that host goes away: the in-chat cast's "Only in Story Block" default
-    // and the settings shown for it follow.
+    // When NPC State registers with a Story Block host, or that host goes away: the cast panes redraw.
     function watchHost() {
         globalThis.document?.addEventListener?.('npc-state-delta:v2-host', () => {
-            try { $('#npc_state_delta_present_cast_display').val(effectivePresentCastChoice()); } catch { /* settings not mounted */ }
-            startInlineWatchdog();
-            queueInlineRender(0);
+            queueCastRefresh(0);
         });
     }
 

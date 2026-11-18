@@ -15,13 +15,23 @@ const regionName = (region, names) => (names && typeof names === 'object' && typ
 
 // atlas.view places (SD/atlas/map.js:113-122); a place without coordinates cannot be drawn and is left out.
 // `names`: chronicle.regionNames (the pack's `content.regions`, with or without World events): the region's name by its id, name or alias; the id itself when the pack names none.
+// Pack y grows north and east grows right; the SVG's y grows down, so the map is drawn with y flipped (north up) unless the map settings say north is down (orient, as the old atlas widget's mapPoint does).
 function placesOf(view, tiers, names) {
+  const flipY = view?.orient?.north !== 'down';
+  const flipX = view?.orient?.east === 'left';
   return list(view?.places)
     .filter(p => Number.isFinite(p?.x) && Number.isFinite(p?.y) && text(p.id))
     .map(p => ({
       id: p.id, name: text(p.name), kind: text(p.kind), region: regionName(p.region, names) || null,
-      x: p.x, y: p.y, visited: p.visited === true, here: p.here === true, danger: dangerOf(tiers?.[p.id]),
+      x: flipX ? -p.x || 0 : p.x, y: flipY ? -p.y || 0 : p.y, visited: p.visited === true, here: p.here === true, danger: dangerOf(tiers?.[p.id]),
     }));
+}
+
+// The places the atlas holds that have no map position (the story made them up): shown as a list, not drawn.
+function unmappedOf(view, names) {
+  return list(view?.places)
+    .filter(p => text(p?.id) && text(p.name) && !(Number.isFinite(p.x) && Number.isFinite(p.y)))
+    .map(p => ({ id: p.id, name: text(p.name), kind: text(p.kind), region: regionName(p.region, names) || null, visited: p.visited === true, here: p.here === true }));
 }
 
 // The open quests that name a place (director.world quests[]), by place id; people per place wait for the people store.
@@ -74,7 +84,7 @@ function factionsOf(world, places, ids) {
     const area = key(f.area);
     const named = area ? places.filter(p => key(p.name) === area || key(p.region) === area || key(ids.get(p.id)) === area).map(p => p.id) : [];
     const given = list(f.areaPlaceIds).filter(id => places.some(p => p.id === id));
-    return { id: f.id, name: text(f.name), stance: stanceOf(f.stance), summary: text(f.summary), areaPlaceIds: given.length ? given : named, members: membersOf(f.members) };
+    return { id: f.id, name: text(f.name), stance: stanceOf(f.stance), areaText: text(f.area), stanceText: text(f.stance), summary: text(f.summary), areaPlaceIds: given.length ? given : named, members: membersOf(f.members) };
   });
 }
 
@@ -117,6 +127,7 @@ export function selectWorld({ atlasView = null, tiers = null, selected = null, w
   const factions = factionsOf(worldView, places, new Map(list(atlasView?.places).map(p => [p?.id, text(p?.region)])));
   return {
     places,
+    unmapped: unmappedOf(atlasView, regionNames),
     routes: routesOf(atlasView, ids),
     trip: tripOf(selected),
     news: newsOf(worldView, places, factions, worldEvents === true),

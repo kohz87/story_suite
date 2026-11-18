@@ -16,7 +16,7 @@ export function selectPeople(vm = {}, filter = 'all', query = '') {
   const deceased = vm.deceased ?? [];
   const dormant = vm.dormant ?? [];
   const q = String(query).trim().toLowerCase();
-  const match = p => `${p.name} ${p.role ?? ''}`.toLowerCase().includes(q);
+  const match = p => `${p.name} ${p.role ?? ''} ${(p.aliases ?? []).join(' ')}`.toLowerCase().includes(q);
   const keep = filter === 'party' ? p => p.inParty : filter === 'followed' ? p => p.followed : () => true;
   const tag = (list, kind) => list.map(p => ({ p, kind }));
   if (q) {
@@ -64,7 +64,15 @@ export function peopleTab(vm = {}, ctx = {}) {
     const nodes = sections.map(s => h('section', { class: 'psec', dataset: { section: s.kind } },
       s.title ? h('div', { class: 'secl2' }, `${s.title}${s.kind === 'here' || s.kind === 'elsewhere' || found ? ` · ${s.people.length}` : ''}`) : null,
       h('div', { class: 'pgrid' }, s.people.map(({ p, kind }) => personCard(p, { kind, onOpen: open })))));
-    if (!total) {
+    const unrecorded = Array.isArray(vm.unrecorded) ? vm.unrecorded : [];
+    const told = unrecorded.length > 0 && !state.query && state.filter === 'all';
+    if (told) {
+      // (each name can be given a record by hand: Manual only makes none by itself)
+      const add = name => (can(ctx, 'npc.add') ? h('button', { type: 'button', class: 'lnk2', dataset: { add: name }, onClick: () => ctx.port?.command?.('npc.add', { name }) }, `+ Add ${name}`) : null);
+      nodes.push(h('p', { class: 'fine', dataset: { note: 'unrecorded' } }, `Here with no record yet: ${unrecorded.join(', ')}.`), ...unrecorded.map(add).filter(Boolean));
+    }
+    // (the note above already says who is here: "No one here." beside it would contradict it)
+    if (!total && !told) {
       const dormantN = counts.notSeenLately ?? vm.notSeenLately ?? 0;
       const text = state.filter === 'dormant' && !state.query && dormantN
         ? `${dormantN} not seen lately. They come back here when seen again.`

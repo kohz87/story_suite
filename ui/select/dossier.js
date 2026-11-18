@@ -27,21 +27,42 @@ function moodBarsOf(tile, cast) {
   return ok ? { feeling: raw[0], energy: raw[1], control: raw[2] } : undefined;
 }
 
-// "Species · gender · age"; an unstated gender reads "gender not stated" (26).
+// "Species · gender · age", only what is stated; an unstated gender is flagged by the hero itself (genderUnknown), so it is not worded here too (F8).
 function idLineOf(dossier, genderUnknown) {
   const gender = text(dossier.gender)?.toLocaleLowerCase();
-  return [text(dossier.species), genderUnknown ? 'gender not stated' : gender, text(dossier.age)].filter(Boolean).join(' · ');
+  return [text(dossier.species), genderUnknown ? null : gender, text(dossier.age)].filter(Boolean).join(' · ');
+}
+
+// The reader's own feelings beyond the four (Settings › People › Add a meter, presets): from the cast row's bars (label, range, words, stage), else from the dossier's meter numbers.
+// Absent (undefined) when there are none, so a person with only the four reads as before (F21).
+function extraMetersOf(dossier, cast) {
+  const bars = (Array.isArray(cast?.bars) ? cast.bars : []).filter(bar => isRecord(bar) && text(bar.id) && !AXES.includes(bar.id) && Number.isFinite(bar.value));
+  const rows = bars.length ? bars.map(bar => ({
+    key: bar.id, label: text(bar.label) ?? bar.id, value: bar.value, min: Number.isFinite(bar.min) ? bar.min : -100, max: Number.isFinite(bar.max) ? bar.max : 100,
+    ...(text(bar.stage) ? { stage: text(bar.stage) } : {}),
+  })) : Object.entries(isRecord(dossier.meters) ? dossier.meters : {}).filter(([key, value]) => !AXES.includes(key) && Number.isFinite(value)).map(([key, value]) => ({
+    key, label: key[0].toLocaleUpperCase() + key.slice(1), value, min: -100, max: 100, ...(text(dossier.stages?.[key]) ? { stage: text(dossier.stages[key]) } : {}),
+  }));
+  return rows.length ? rows : undefined;
+}
+
+// A stage word for each of the four built-in feelings that has one: the cast row's bars, else the dossier's `stages` (F25). Undefined when none.
+function axisStagesOf(dossier, cast) {
+  const fromBars = Object.fromEntries((Array.isArray(cast?.bars) ? cast.bars : []).filter(bar => isRecord(bar) && AXES.includes(bar.id) && text(bar.stage)).map(bar => [bar.id, text(bar.stage)]));
+  const fromDossier = Object.fromEntries(AXES.filter(axis => text(dossier.stages?.[axis])).map(axis => [axis, text(dossier.stages[axis])]));
+  const found = { ...fromDossier, ...fromBars };
+  return Object.keys(found).length ? found : undefined;
 }
 
 // npc.next (packages/npc-state-delta/src/npc-meters-queries.js:47-77 (ladderView), served by npc.next :213): { rank, next: { name, needs: [{ label, at, below, met }], milestone }, risk, text }; null without a ladder.
-function stageOf(next) {
-  if (!isRecord(next)) return null;
+function stageOf(next, castRank) {
+  if (!isRecord(next)) return text(castRank) ? { now: text(castRank), next: null, needs: null } : null;
   const upcoming = isRecord(next.next) ? next.next : null;
   const lacking = [
     ...(Array.isArray(upcoming?.needs) ? upcoming.needs : []).filter(need => isRecord(need) && need.met !== true && text(need.label)).map(need => `${need.label} ${need.at}`),
     ...(isRecord(upcoming?.milestone) && upcoming.milestone.met !== true && text(upcoming.milestone.name) ? [upcoming.milestone.name] : []),
   ];
-  return { now: text(next.rank) ?? '', next: text(upcoming?.name), needs: lacking.length ? lacking.join(' and ') : null };
+  return { now: text(next.rank) ?? text(castRank) ?? '', next: text(upcoming?.name), needs: lacking.length ? lacking.join(' and ') : null };
 }
 
 // npc.meters `recent` rows (eventLog, packages/npc-state-delta/src/npc-meters-pacing.js:126-128): { at, date, mv?: {axis:n} | ask?: {axis:n}, held, note?, why? }, newest first → one change per meter moved.
@@ -96,7 +117,15 @@ const pastOf = memories => (Array.isArray(memories) ? memories : [])
   .filter(Boolean)
   .map(line => ({ date: '', text: showSourceTag(line), dayRef: null }));
 
-function profileOf(dossier) {
+// What the notes feature holds of them (cast row `notes`): tastes as "likes x" / "dislikes y" rows and what they know, as far as the story has told it (a hidden fact has no words).
+function notesOf(notes) {
+  if (!isRecord(notes)) return {};
+  const tastes = (Array.isArray(notes.tastes) ? notes.tastes : []).filter(isRecord).map(row => [(row.sign === '-' || row.sign === 'dislikes') ? 'Dislikes' : 'Likes', text(row.item)]).filter(([, item]) => item);
+  const knows = (Array.isArray(notes.knows) ? notes.knows : []).filter(row => isRecord(row) && !row.hidden).map(row => text(row.text)).filter(Boolean);
+  return { ...(tastes.length ? { tastes } : {}), ...(knows.length ? { knows } : {}) };
+}
+
+function profileOf(dossier, notes) {
   const aliases = strings(dossier.aliases).join(', ');
   return {
     gender: text(dossier.gender), species: text(dossier.species), age: text(dossier.age), home: text(dossier.homeBase), aliases: aliases || null,
@@ -104,8 +133,14 @@ function profileOf(dossier) {
     // Behaviour is merged into Habits (decision 26).
     habits: [...new Set([...strings(dossier.mannerisms), ...strings(dossier.behaviorProfile)])],
     ...(likesOf(dossier).length ? { likes: likesOf(dossier) } : {}),
+    // What NPC State holds beside the profile (SFF4 #7): the Level, the goal, and the abilities and keepsakes as [name, one line] rows.
+    role: text(dossier.role), ...notesOf(notes),
+    level: text(String(dossier.level ?? '')), goal: text(dossier.goal), abilities: namedRows(dossier.abilities), keepsakes: namedRows(dossier.keepsakes),
   };
 }
+
+// [{ name, description }] → [[name, description]], nameless rows dropped.
+const namedRows = value => (Array.isArray(value) ? value : []).filter(isRecord).map(row => [text(row.name), text(row.description) ?? '—']).filter(([name]) => name);
 
 // The engine's "Add to party" card (rpg.partyAdd: { name, soul, best, card }) → what the dossier draws: the card's title, rows and buttons, with each button's command or screen as the card gives it. Null without one.
 function partyAddOf(answer) {
@@ -117,14 +152,14 @@ function partyAddOf(answer) {
 
 /**
  * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
- * keyPeople?: director.keyPeople.view (place and news of someone away), party?: party.actors, join?: rpg.partyAdd, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
+ * away?: director.away.view (news and return date of someone away), party?: party.actors, join?: rpg.partyAdd, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
  * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), memory dates, secret text, death when/where/reference line.
  */
-export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party, join, moodTile, people, place, present } = {}) {
+export function selectDossier({ dossier, meters, next, cast, portrait, away: awayView, party, join, moodTile, people, place, present } = {}) {
   if (!isRecord(dossier)) return null;
   const key = keyOf(dossier.name);
-  const away = (isRecord(keyPeople) && Array.isArray(keyPeople.people) ? keyPeople.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
+  const away = (isRecord(awayView) && Array.isArray(awayView.people) ? awayView.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
   const dead = dossier.lifeState === 'deceased';
   const presumed = dead && dossier.lifeStateCertainty === 'inferred';
   const gender = text(dossier.gender)?.toLocaleLowerCase();
@@ -142,18 +177,20 @@ export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople
     // (the join card is offered to the living who are not in the party; the engine's answer holds the rest: RPG on, not You, room, a person the party does not know)
     partyAdd: !dead && !(Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key) ? partyAddOf(join) : null,
     meters: metersOf(dossier),
-    stage: stageOf(next),
+    stage: stageOf(next, cast?.rank),
+    ...(extraMetersOf(dossier, cast) ? { extraMeters: extraMetersOf(dossier, cast) } : {}),
+    ...(axisStagesOf(dossier, cast) ? { axisStages: axisStagesOf(dossier, cast) } : {}),
     changes: changesOf(meters),
     mood: text(dossier.mood) ?? text(cast?.mood?.word),
     ...(moodBarsOf(moodTile, cast) ? { moodBars: moodBarsOf(moodTile, cast) } : {}),
     now: isHere
       ? { where: text(dossier.location), doing: text(dossier.status), wearing: null, thought: null }
-      : { lastPlace: text(away?.place) ?? text(dossier.location), lastSeen: text(away?.newsAgo), said: null },
-    scene: null,
+      : { lastPlace: text(dossier.location), lastSeen: text(away?.newsAgo), said: null },
+    scene: isHere && text(dossier.goal) ? { wants: text(dossier.goal), hiding: null } : null,
     ties: tiesOf(dossier.keyRelationships, people),
     past: pastOf(dossier.memories),
     secrets: secretsOf(cast),
-    profile: profileOf(dossier),
+    profile: profileOf(dossier, cast?.notes),
     death: dead ? { how: text(dossier.lifeStateReason) ?? '', when: '', where: null, certainty: presumed ? 'presumed' : 'confirmed', referenceLine: '' } : null,
   };
 }

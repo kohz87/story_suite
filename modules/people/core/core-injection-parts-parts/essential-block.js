@@ -118,7 +118,8 @@ function injectionCurrentStateCore(npc, stateCap = 180, sceneDeferred = false) {
     const mood = sceneDeferred ? '' : injectedMood(npc);
     const parts = [
         mood && `mood: ${mood}`,
-        npc.status && `status: ${npc.status}`,
+        // (S2PA B11) A status that still is the pack's own words is what they did before the meeting, not now: left out.
+        npc.status && npc.status !== npc.castFrom?.first?.status && `status: ${npc.status}`,
         sceneDeferred && SCENE_DEFERRED_STATE,
     ].filter(Boolean);
     return fairInjectionParts(parts, stateCap) || 'no overriding live emotional/condition state established';

@@ -1,6 +1,7 @@
 {
   "id": "ersveil-survival",
-  "format": 3,
+  "format": 4,
+  "kind": "game",
   "version": "2.0.0",
   "name": "Ersveil survival meters",
   "requires": {

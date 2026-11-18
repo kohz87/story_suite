@@ -10,7 +10,7 @@ const SUMMARY_ROW = {
 export const NOW_SHAPE = {
   needsYou: [
     {
-      kind: { $enum: ['fight', 'overdue', 'points'] },
+      kind: { $enum: ['fight', 'overdue', 'points', 'join'] },
       title: T.STRING,
       detail: { $nullable: T.STRING },
       go: { $nullable: T.STRING },
@@ -56,6 +56,8 @@ export const NOW_SHAPE = {
       },
     ],
   },
+  // Names the scene has here that no record answers to (told in Here now, as People tells them).
+  unrecorded: { $optional: [T.STRING] },
   here: [
     {
       personId: T.STRING,

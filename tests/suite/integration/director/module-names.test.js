@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 import { createModule } from '../../../../modules/director/module.js';
 import { createHost } from '../../../../testkit/index.js';
-import { fakeDelta } from '../../../modules/cast/keypeople/helpers.js';
+import { fakeDelta } from '../../helpers/fake-delta.js';
 import {
     OVERUSED, applyPerson, beforeGenerate as namesBefore, bareKey, capMinor, checkName, clampCount, initialNames, nameKey, parseBanned, parseProfile, pickSuggestions,
     part as namesPart, profileText, tail as namesTail, validateNames,
@@ -107,20 +107,19 @@ test('names: a unique full, given, middle, surname, partial or titled name keeps
     assert.equal(namesBefore(namesView(slice, { settings: { suggestions: 0 } }), {})?.lines, undefined);
 });
 
-test('names: cast, dossier and pin aliases stay linked in recorded history, including a scene alias', () => {
+test('names: cast and dossier aliases stay linked in recorded history, including a scene alias', () => {
     const slice = initialNames();
     const view = namesView(slice, { present: ['Red Fox'], settings: { suggestions: 0 } });
     view.state.domains.cast = { people: { 'pack:joris': { name: 'Captain Joris Brand', aliases: ['Red Fox', 'Joss the Swift'] } } };
-    view.state.domains.keypeople = { pins: { mara: { name: 'Mara Kess', aliases: ['Swift Quill'] }, fox: { name: 'Red Fox', aliases: ['Watch Fox'] } }, gone: {} };
     view.query = (name, args) => name === 'scene.present' ? ['Red Fox'] : name === 'npc.known' ? ['Leonie West'] : name === 'npc.dossier' && args.name === 'Leonie West' ? { name: 'Leonie West', aliases: ['Mistress Willow'] } : name === 'npc.identity' ? { id: 'np_12345678' } : null;
     const step = namesBefore(view, {}).commands.find(command => command.type === 'names.seen');
-    assert.equal(step.payload.identities.length, 4);
+    assert.equal(step.payload.identities.length, 2);
     const ctx = { cause: 'system', rev: 4, draft: () => slice, settings: () => ({}), query: () => null, fail: (code, text) => ({ code, text }) };
     assert.equal(namesPart.commands['names.seen'](ctx, step.payload).summary, 'Names noted.');
     assert.deepEqual(validateNames(slice), []);
     assert.equal(namesBefore(view, {}), undefined, 'unchanged aliases do not keep writing steps');
     const before = structuredClone(slice);
-    for (const name of ['Joris', 'Captain Brand', 'Joss', 'Red Fox', 'Fox', 'Watch Fox', 'Leonie', 'West', 'Willow', 'Mara', 'Kess', 'Swift Quill']) {
+    for (const name of ['Joris', 'Captain Brand', 'Joss', 'Red Fox', 'Fox', 'Leonie', 'West', 'Willow']) {
         const result = applyPerson(ctx, { op: '+', name, text: 'look: invented' });
         assert.equal(result.data.known, true, name);
         assert.equal(result.problem, undefined, name);
@@ -145,7 +144,6 @@ test('names: ambiguous given names, surnames, aliases and identical full names r
         'p:d': { name: 'Riva North', aliases: ['Sparrow'] },
         'p:e': { name: 'Riva North', aliases: ['Wren'] },
     } };
-    view.state.domains.keypeople = { pins: { fox: { name: 'Fox', aliases: ['Night Fox'] } }, gone: {} };
     const ctx = { cause: 'system', rev: 3, draft: () => slice, settings: () => ({}), query: () => null, fail: (code, text) => ({ code, text }) };
     namesPart.commands['names.seen'](ctx, namesBefore(view, {}).commands[0].payload);
     for (const name of ['Joris Brand', 'Joris Voss', 'Mara Brand', 'Sparrow', 'Wren']) {
@@ -218,7 +216,7 @@ test('names on the host: a repeated or overused name is a Problem and a pinned c
         assert.ok(cues.length >= 1, 'the rename cue reaches the next reply');
         assert.ok(Object.values(on.head().domains.names.taken).every(entry => entry.told === true));
         const statics = host => host.st.promptLog.filter(entry => entry.key === 'story_suite_static' && entry.value).map(entry => entry.value);
-        assert.ok(statics(on).at(-1).includes('+ person Name'));
+        assert.ok(!statics(on).at(-1).includes('+ person Name'), 'the person line is no longer taught (a new person is taught once, as + npc)');
         assert.ok(!statics(plain).at(-1).includes('+ person Name'));
         const before = structuredClone(on.head());
         on.store.rebuild();
@@ -229,7 +227,7 @@ test('names on the host: a repeated or overused name is a Problem and a pinned c
     }
 });
 
-test('names: the step before a reply notes who else is in use (scene, cast, dossiers, key people) and marks a told cue once; a Continue tells it again without a step', () => {
+test('names: the step before a reply notes who else is in use (scene, cast, dossiers) and marks a told cue once; a Continue tells it again without a step', () => {
     const view = namesView({ people: {}, seen: {}, taken: { elara: { name: 'Elara', rev: 2, told: false } } }, { present: ['Rika'] });
     view.state.domains.cast = { people: { 'p:a': { name: 'Brom', aliases: ['Old Brom'] } } };
     const out = namesBefore(view, {});

@@ -1,46 +1,32 @@
-// What a pack is for (src/v2/packs/kind.js): the tag the Packs list shows under a pack's name, read from its own fields: the modules
-// it declares (requires.capabilities), else what it holds (places and calendars, races and skills), else "Pack".
+// What a pack is for (packs/kind.js): the tag the Packs list shows under a pack's name, read from the kind the pack states:
+// "World pack", "Game pack", or "Pack" for anything that states neither.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { packTag } from '../../packs/kind.js';
 import { validatePack } from '../../packs/validate.js';
 
-const content = (lists = {}) => ({ items: [], creatures: [], shops: [], recipes: [], events: [], quests: [], races: [], talents: [], skills: [], presets: [], places: [], routes: [], terms: [], ranks: [], crafts: [], meterPresets: [], markets: [], ...lists });
-const pack = ({ capabilities = [], lists = {}, extra = {} } = {}) => ({ requires: { storyBlock: '^2', capabilities }, content: content(lists), ...extra });
+const pack = (kind, extra = {}) => ({ id: 'tag-x', format: 4, version: '1.0.0', requires: { suite: '^0.1' }, content: {}, ...(kind ? { kind } : {}), ...extra });
 
-test('a declared module names the pack: its tag says what it is for', () => {
-    assert.equal(packTag(pack({ capabilities: ['story-director'] })), 'World pack · Story Director');
-    assert.equal(packTag(pack({ capabilities: ['director'] })), 'World pack · Story Director', 'the state area Story Director owns');
-    assert.equal(packTag(pack({ capabilities: ['inventory', 'scene'] })), 'Story Block pack');
+test('a world is a "World pack" and a game is a "Game pack", whatever else the pack declares or holds', () => {
+    assert.equal(packTag(pack('world')), 'World pack');
+    assert.equal(packTag(pack('game')), 'Game pack');
+    assert.equal(packTag(pack('world', { requires: { suite: '^0.1', capabilities: ['inventory', 'scene'] } })), 'World pack', 'a declared module changes nothing');
+    assert.equal(packTag(pack('game', { content: { currency: { name: 'mark' } } })), 'Game pack', 'neither does what it holds');
 });
 
-test('a pack that declares two modules, or none it knows, is "Pack" when it holds nothing to tell by', () => {
-    assert.equal(packTag(pack({ capabilities: ['npc-state-delta'] })), 'Pack', 'a module this list does not name, and no content');
-    assert.equal(packTag(pack()), 'Pack', 'nothing declared, nothing held');
+test('a pack that states neither kind, states an unknown one, or is not usable is "Pack"', () => {
+    assert.equal(packTag(pack()), 'Pack', 'no kind');
+    assert.equal(packTag(pack('story-block')), 'Pack', 'a kind this list does not name');
+    assert.equal(packTag(pack('World')), 'Pack', 'the kind is read exactly');
     assert.equal(packTag(null), 'Pack', 'a pack that is not usable');
+    assert.equal(packTag(undefined), 'Pack');
 });
 
-test('with nothing declared, what the pack holds decides', () => {
-    assert.equal(packTag(pack({ lists: { places: [{ name: 'Harbour' }] } })), 'World pack · Story Director');
-    assert.equal(packTag(pack({ extra: { calendar: { months: [] } } })), 'World pack · Story Director', 'a calendar');
-    assert.equal(packTag(pack({ extra: { weather: { tables: {} } } })), 'World pack · Story Director', 'weather');
-    assert.equal(packTag(pack({ lists: { items: [{ name: 'Rope' }] } })), 'Story Block pack', 'items alone are the host\'s');
-    assert.equal(packTag(pack({ extra: { currency: { name: 'mark' } } })), 'Story Block pack', 'a currency alone');
-    // Creatures and quests are read by both modules, so they say nothing; a world and a rules pack at once are not sorted.
-    assert.equal(packTag(pack({ lists: { creatures: [{ name: 'Wolf' }], quests: [{ name: 'Q' }] } })), 'Story Block pack');
-});
-
-test('a validated pack gets the same tag (its declared modules and its content)', () => {
-    const checked = validatePack({ id: 'world-x', version: '1.0.0', name: 'Harbour', requires: { storyBlock: '^2', capabilities: ['story-director'] }, content: { places: [{ name: 'Harbour', x: 1, y: 2 }] } });
-    assert.equal(checked.ok, true, JSON.stringify(checked.errors));
-    assert.equal(packTag(checked.pack), 'World pack · Story Director');
-});
-
-test('a validated pack that holds nothing and declares nothing is "Pack" (its empty theme and nulls do not count as content)', () => {
-    const checked = validatePack({ id: 'nothing-x', version: '1.0.0', requires: { storyBlock: '^2' }, content: {} });
-    assert.equal(checked.ok, true, JSON.stringify(checked.errors));
-    assert.equal(packTag(checked.pack), 'Pack');
-    const themed = validatePack({ id: 'theme-x', version: '1.0.0', requires: { storyBlock: '^2' }, content: {}, theme: { '--ss-accent': '#3f7f8f' } });
-    assert.equal(themed.ok, true, JSON.stringify(themed.errors));
-    assert.equal(packTag(themed.pack), 'Story Block pack', 'a theme is what the pack holds');
+test('a validated pack gets the tag of its kind', () => {
+    const world = validatePack({ id: 'world-x', format: 4, kind: 'world', version: '1.0.0', name: 'Harbour', requires: { suite: '^0.1' }, content: { places: [{ id: 'harbour', name: 'Harbour', x: 1, y: 2 }] } });
+    assert.equal(world.ok, true, JSON.stringify(world.errors));
+    assert.equal(packTag(world.pack), 'World pack');
+    const game = validatePack({ id: 'game-x', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1' }, content: {} });
+    assert.equal(game.ok, true, JSON.stringify(game.errors));
+    assert.equal(packTag(game.pack), 'Game pack');
 });

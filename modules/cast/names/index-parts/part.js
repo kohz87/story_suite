@@ -9,14 +9,16 @@ import { profileOf } from './scene.js';
 import { beforeGenerate } from './before-generate.js';
 import { tail } from './tail.js';
 
-const GRAMMAR = '+ person Name | look: … | flaw: … | voice: … | temper: … (once, when a named person first appears: a new name, never the player, a known or pack person)';
+// A new person is taught in one place only: NPC State's `+ npc Name | role | look`. The `+ person` line is still read (no grammar line in the
+// prompt, `heads` only) so an older reply's line goes on checking the name; it makes no NPC State record.
+const HEADS = ['+ person'];
 
 export const part = {
     features: [{ id: FEATURE, label: 'Names', describe: 'Checks the name of a person who first appears (banned, overused and already-used names), offers unused names from the pack, and remembers a one-line profile for minor people.', default: true }],
     domains: { names: { initial: initialNames, validate: validateNames } },
     commands: { 'names.seen': Object.assign(seeSeen, { feature: FEATURE }), 'names.told': Object.assign(told, { feature: FEATURE }) },
     queries: { 'names.profile': Object.assign((state, args = {}, tools) => (namesOn(tools) ? profileOf(state?.domains?.names, args?.name) : null), { feature: FEATURE }) },
-    kinds: { person: { grammar: GRAMMAR, apply: applyPerson, feature: FEATURE } },
+    kinds: { person: { grammar: '', heads: HEADS, apply: applyPerson, feature: FEATURE } },
     context: { static: () => '', tail },
     hooks: { beforeGenerate: Object.assign(beforeGenerate, { feature: FEATURE }) },
     settings: {

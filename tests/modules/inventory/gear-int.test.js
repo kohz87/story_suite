@@ -24,7 +24,7 @@ test('G2: exactly at the limit is encumbered only with gear on; with gear off it
 });
 
 test('G4: legendary lasts once an earlier roll of the record had legend: 1, or a quest ended done; a reply taken away takes it back', () => {
-    const roll = (index, legend) => ({ index, receipt: { type: 'rpg.resolve', data: { v2: { result: legend ? { legend: 1 } : {} } } } });
+    const roll = (index, legend) => ({ index, receipt: { type: 'interaction.settle', replan: { payload: { kindId: 'story-block/fight' } }, data: { v2: { result: legend ? { legend: 1 } : {} } } } });
     const tools = (entries, threads = [], at = 8) => ({ reply: { index: at }, receipts: () => entries, query: () => threads });
     assert.equal(legendEarned(tools([roll(2, false), roll(4, false)])), false);
     assert.equal(legendEarned(tools([roll(2, true), roll(4, false)])), true, 'an earlier roll won big');

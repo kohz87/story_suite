@@ -10,6 +10,8 @@ import { kept } from '../shared.js';
 // nth card of the active blocks, in pin order and, within a block, in the order written. A card with a button runs that Button of the
 // same block as a reader command on the latest reply.
 export const CARD_SLOTS = 8;
+// A Character's card names who it is about: a text that opens "This character" opens with the name the instance holds instead (the stored template, so its pin and every old chat's, stays as written).
+const filled = (text, instance) => { const who = String(instance?.fields?.who ?? '').trim(); return typeof text === 'string' && who ? text.replace(/^This character\b/, who) : text; };
 const CARD_LOOK = Object.freeze({ info: { tone: 'info', icon: 'ph-info' }, warn: { tone: 'accent', icon: 'ph-warning' }, end: { tone: 'bad', icon: 'ph-skull' } });
 const cardLists = new WeakMap();
 
@@ -31,7 +33,7 @@ export function blockCards(state) {
                 if (!createEvaluation(definition, instance).condition(['card', at], entry.when, {})) return [];
             } catch { return []; }
             const look = CARD_LOOK[entry.tone] ?? CARD_LOOK.info, kind = entry.button ? definition.kinds[entry.button] : null;
-            return [{ module, rank: entry.tone === 'end' && definition.role === 'character' ? 0 : CARD_RANK[entry.tone] ?? CARD_RANK.info, card: { ...look, title: entry.title, text: entry.text,
+            return [{ module, rank: entry.tone === 'end' && definition.role === 'character' ? 0 : CARD_RANK[entry.tone] ?? CARD_RANK.info, card: { ...look, title: entry.title, text: definition.role === 'character' ? filled(entry.text, instance) : entry.text,
                 actions: kind ? [{ id: entry.button, label: oneLine(kind.title ?? entry.button.replace(/^button-/, '')), primary: true,
                     command: 'dm.act', payload: { module, kind: entry.button } }] : [] } }];
         });

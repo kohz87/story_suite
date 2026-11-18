@@ -20,12 +20,12 @@ export function createCardSettingsDefinition({ readFormat, saveFormat, readScanE
         label: CARD_SETTINGS_LABEL,
         keys: {
             portraitPromptFormat: {
-                label: 'NSD portraits',
+                label: 'NPC State portraits',
                 valueText: value => FORMAT_NAMES[normalizePortraitPromptFormat(value)],
                 valid: validPortraitPromptFormat,
             },
             scanEvery: {
-                label: 'NSD scan every',
+                label: 'NPC State scan every',
                 valueText: value => `${value} ${Number(value) === 1 ? 'reply' : 'replies'}`,
                 valid: validScanEvery,
             },

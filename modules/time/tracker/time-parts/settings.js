@@ -2,13 +2,13 @@
 
 import { PRESETS } from '../../calendar.js';
 import { DEFAULTS } from '../../../atlas/relevance.js';
-import { PACK_PRESET } from './constants.js';
+import { GAME_PRESET } from './constants.js';
 import { DAY_MINUTES, MAX_JUMP_DAYS } from './limits.js';
 
 /** The part's settings defaults: v1's calendar and relevance defaults, plain copies. */
 export function settingsDefaults() {
     return {
-        calendar: { ...structuredClone(PRESETS.gregorian), preset: PACK_PRESET },
+        calendar: { ...structuredClone(PRESETS.gregorian), preset: GAME_PRESET },
         dormantReplies: DEFAULTS.dormantReplies,
         dormantDays: DEFAULTS.dormantDays,
         dueSoonDays: DEFAULTS.dueSoonDays,

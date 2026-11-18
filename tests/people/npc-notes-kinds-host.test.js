@@ -46,7 +46,7 @@ test('notes host: know lines of one reply are kept together, a secret reads as h
     assert.equal(JSON.parse(oren(s).knows).length, 2);
     assert.equal((await cast(s)).notes.knows.find(item => item.about === 'Astra').hidden, true);
     assert.doesNotMatch(JSON.stringify((await cast(s)).notes), /gate-logs/);
-    assert.ok(optional(s).some(line => /(^|\n)Oren \(hidden\): knows Astra's copies the gate-logs/.test(line)));
+    assert.ok(optional(s).some(line => /(^|\n)Oren \(hidden\): knows Astra copies the gate-logs/.test(line)));
     await s.say(['~ know Oren | about: Astra | fact: copies the gate-logs | told: yes']);
     assert.equal((await cast(s)).notes.knows.find(item => item.about === 'Astra').hidden, false);
     const before = oren(s).knows;

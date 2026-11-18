@@ -11,18 +11,20 @@ import { rpgCustomCommand } from './rpg-custom.js';
 const BUCKET = 'story-block';
 const FAILED = { ok: false, code: 'FAILED', message: 'That setting was not saved.' };
 const wordToValue = words => word => Object.keys(words).find(k => words[k] === word);
-const whole = (min, max, step = 1) => (raw) => {
+// A number row: `range` is what the Settings row says when it holds a number ("Level cap is 1-99; kept 99."), `why` why a value is refused.
+const whole = (min, max, step = 1) => Object.assign((raw) => {
   const n = Number(raw);
   return Number.isFinite(n) && raw !== null && raw !== '' ? Math.min(max, Math.max(min, Math.round(n / step) * step)) : undefined;
-};
+}, { range: { min, max, ...(step > 1 ? { step } : {}) }, why: `It takes a whole number, ${min}-${max}${step > 1 ? ` in steps of ${step}` : ''}.` });
+const words = list => Object.assign(wordToValue(list), { why: `Choose one of: ${Object.values(list).join(', ')}.` });
 
 // The same clamps the old page's rows use (the removed RPG settings page).
 const ROWS = {
-  'rpg.difficulty': [DIFFICULTY_SETTING, wordToValue(DIFFICULTY_WORDS)],
+  'rpg.difficulty': [DIFFICULTY_SETTING, words(DIFFICULTY_WORDS)],
   'rpg.levelCap': [LEVEL_CAP_SETTING, whole(LEVEL.min, LEVEL.max)],
   'rpg.xpRate': [XP_RATE_SETTING, whole(XP_RATE.min, XP_RATE.max, XP_RATE.step)],
   'rpg.practicePerSkillUse': [PRACTICE_SETTING, whole(PRACTICE.minPerUse, PRACTICE.maxPerUse)],
-  'rpg.companions': [JOIN_SETTING, wordToValue(JOIN_WORDS)],
+  'rpg.companions': [JOIN_SETTING, words(JOIN_WORDS)],
   'rpg.setUpAFightFromMyAttack': [PRECHECK_SETTING, v => v === true],
   'rpg.autoExchanges': [AUTO_CAP_SETTING, whole(AUTO_CAP.min, AUTO_CAP.max)],
   'rpg.storyChecksUseYourStats': [CHECKS_SETTING, v => v === true],
@@ -30,7 +32,8 @@ const ROWS = {
 const DEFAULTS = { 'rpg.difficulty': 'standard', 'rpg.levelCap': LEVEL.max, 'rpg.xpRate': XP_RATE.default, 'rpg.practicePerSkillUse': PRACTICE.perUse, 'rpg.companions': 'ask', 'rpg.setUpAFightFromMyAttack': true, 'rpg.autoExchanges': AUTO_CAP.default, 'rpg.storyChecksUseYourStats': true };
 
 /**
- * `settings.set` with a key `rpg.<row>` stores that row (a value outside its range is held to it; a word that is not one of the row's is refused);
+ * `settings.set` with a key `rpg.<row>` stores that row (a value outside its range is held to it and the answer carries the row's `range`; a word
+ * that is not one of the row's, or a number row's non-number, is refused with the reason);
  * `settings.action` `settings.reset` with the label "Reset RPG and fights to defaults" stores every row's default. `values()` reads the bucket
  * (a first switch to Custom starts from the numbers in force, as the old page does); a key `rpg.custom.<field>` is a Custom editor (rpg-custom.js).
  * Any other command is not this page's: returns null.
@@ -46,11 +49,11 @@ export function rpgCommand(type, payload, writes = null, values = () => null) {
   if (type === 'settings.set' && Object.hasOwn(ROWS, key)) {
     const [setting, clean] = ROWS[key];
     const value = clean(payload.value);
-    if (value === undefined) return { ...FAILED, message: 'That value is not one this setting takes.' };
+    if (value === undefined) return { ...FAILED, message: clean.why ?? 'That value is not one this setting takes.' };
     const bucket = values() ?? {};
     if (key === 'rpg.difficulty' && value === 'custom' && !bucket[STANDARD_SETTING]) set(STANDARD_SETTING, customOf(bucket));
     const stored = set(setting, value);
-    return stored === undefined ? FAILED : { ok: true, value: stored };
+    return stored === undefined ? FAILED : { ok: true, value: stored, ...(clean.range ? { range: clean.range } : {}) };
   }
   if (type === 'settings.action' && key === 'settings.reset' && payload?.value === 'Reset RPG and fights to defaults') {
     const done = Object.keys(ROWS).map(k => set(ROWS[k][0], DEFAULTS[k]));

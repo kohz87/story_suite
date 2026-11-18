@@ -3,13 +3,6 @@ import assert from 'node:assert/strict';
 import { createNpcRecord, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig } from '../../modules/people/core/core.js';
 import { appearanceFingerprint, resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
-import {
-    BRANCH_LINEAGE_VERSION,
-    ensureBranchParentAnchor,
-    ensureRollbackJournalBaseline,
-    recordBranchCheckpoint,
-    reconcileBranchState,
-} from '../../modules/people/legacy/branch.js';
 import { quarantineUnreadableNpcStateDataFile } from '../../modules/people/storage/storage.js';
 
 const CALENDAR = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }] };
@@ -76,45 +69,6 @@ test('B: importing an older copy keeps one family group with the named twin', ()
     };
     const merged = mergeImportedDossierState(current, { npcs: [normalizeNpcRecord({ id: 'npc_x', name: 'Brina' })], socialGraph: { edges: [], unresolved: [slot(1), slot(2)] } }, {});
     assert.deepEqual([...new Set(merged.socialGraph.unresolved.map(item => item.groupId))], ['group_x_child']);
-});
-
-function branchState(npcs) {
-    const state = {
-        npcs, candidates: [], pendingBackfills: [], socialGraph: { edges: [], unresolved: [] }, dismissed: [],
-        turn: 0, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null, scanCount: 0, checkpoints: [], inlineCards: [],
-        lineage: [], branchLineageVersion: BRANCH_LINEAGE_VERSION, portraitAssets: {}, userDismissedGroups: [],
-    };
-    ensureRollbackJournalBaseline(state, []);
-    return state;
-}
-
-test('C: deleting the message that named a relative restores the unnamed slot it used', () => {
-    const run = keepLater => {
-        const state = branchState([Object.assign(createNpcRecord('Brina'), { id: 'npc_brina' })]);
-        const chat = [];
-        const slot = n => ({ id: `slot_brina_child_${n}`, ownerId: 'npc_brina', relation: 'daughter', groupId: 'group_brina_child', provenance: 'explicit', confidence: 'explicit' });
-        for (let i = 1; i <= 6; i += 1) {
-            chat.push({ is_user: true, is_system: false, name: 'User', mes: `user-${i}` }, { is_user: false, is_system: false, name: 'Narrator', mes: `assistant-${i}` });
-            const id = chat.length - 1;
-            ensureBranchParentAnchor(state, chat, id, 'assistant-parent');
-            state.turn += 1;
-            if (i === 1) state.socialGraph.unresolved.push(slot(1), slot(2));
-            if (i === 2) state.npcs.push(Object.assign(createNpcRecord('Astra'), { id: 'npc_astra' }));
-            if (i === 3) {
-                state.socialGraph.unresolved = state.socialGraph.unresolved.filter(item => item.id !== 'slot_brina_child_1');
-                state.socialGraph.edges.push({ id: 'edge_brina_astra', aId: 'npc_brina', bId: 'npc_astra', aToB: 'mother', bToA: 'daughter', groupId: 'group_brina_child', provenance: 'explicit', confidence: 'explicit' });
-            }
-            if (i === 5 && keepLater) state.socialGraph.edges[0].aDynamic = 'teaches her to sail';
-            recordBranchCheckpoint(state, chat, id, 'scan');
-        }
-        return reconcileBranchState(state, chat.filter((_, index) => index !== 5), { explicitDivergence: 5, operation: 'delete' }).state.socialGraph;
-    };
-    const undone = run(false);
-    assert.equal(undone.edges.length, 0, 'the naming bond is undone');
-    assert.deepEqual(undone.unresolved.map(item => item.id).sort(), ['slot_brina_child_1', 'slot_brina_child_2'], 'Brina has two daughters again');
-    const kept = run(true);
-    assert.equal(kept.edges.length, 1, 'a bond a retained message changed stays');
-    assert.deepEqual(kept.unresolved.map(item => item.id), ['slot_brina_child_2'], 'its slot stays consumed');
 });
 
 test('D: a form\'s own trait replaces a shared one joined by "and", and size words count as height', () => {

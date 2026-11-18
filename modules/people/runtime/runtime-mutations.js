@@ -7,15 +7,16 @@ import { currentExclusions } from '../transcript/transcript.js';
 import { NPC_STATE_VERSION, rosterCount, capMessage, applyNpcStateCommand, isTerminalNpcDeath, manualLifeStateRecord, normalizeName, normalizeNpcRecord, setNpcArchived, normalizePortraitSeed, appearanceDraftRecord, appearanceFingerprint, formPortraitKey, normalizeFormPortraitAssets } from '../core/core.js';
 import { encodeNpcStateBundle, mergeImportedDossierState } from '../bundle/bundle.js';
 import { decodeDeltaNativeBundle, nativeStateForTarget } from '../transfer/native-transfer.js';
-import { addUserDismissedGroup } from '../legacy/branch.js';
+import { addUserDismissedGroup } from '../core/dismissed-groups.js';
 import { reconcileSocialState, removeNpcFromSocialGraph, purgeNpcStructuredReferences } from '../social/social.js';
 import { readPortraitFileDataUrl, savePortraitFile } from '../storage/storage.js';
 import { isPortraitFileRecord } from '../portrait/portrait-file.js';
+import { portraitAsFile } from './portrait-as-file.js';
 import { markCastPortraitRemoved } from '../dossier/cast-dossier.js';
 import { getSettings } from '../settings/runtime-settings.js';
 
 export function createMutationsPart(rt, deps) {
-    const { clearUserDismissedSuppression, closeNpcEditor, commitBranchCheckpoint, editorIsMounted, ensureFreshMutationBoundary, ensureHydratedStateFresh, getChatKey, getChatState, hydratedRevision, latestMessageId, ownershipEpoch, ownershipEpochCurrent, persistCritical, persistCriticalDurable, purgeInlineCardsInState, recordFreshnessEvent, renderDossier, requestHeaders, requireReadyChatMutation, setChatState, stampManualEdit, updateInjection, workingCopyAdoption } = deps;
+    const { clearUserDismissedSuppression, closeNpcEditor, noteChatLineage, editorIsMounted, ensureFreshMutationBoundary, ensureHydratedStateFresh, getChatKey, getChatState, hydratedRevision, latestMessageId, ownershipEpoch, ownershipEpochCurrent, persistCritical, persistCriticalDurable, recordFreshnessEvent, renderDossier, requestHeaders, requireReadyChatMutation, setChatState, stampManualEdit, updateInjection, workingCopyAdoption } = deps;
     const { hydratedStateMeta, stateVersions, portraitActions } = rt;
 
     function updateNpcAppearance(npcId, draft, { chatKey, lockAppearance = false } = {}) {
@@ -24,7 +25,7 @@ export function createMutationsPart(rt, deps) {
         // newer server copy adopted after the editor opened.
         if (editorIsMounted() && rt.activeEditorChatKey === chatKey && rt.activeEditorBaseRevision !== null
             && Number(rt.activeEditorBaseRevision) !== workingCopyAdoption(chatKey)) {
-            globalThis.toastr?.warning?.('NPC State Delta: this editor was opened on an older server revision. The appearance draft was not applied; review the newly loaded dossier and reopen the editor.');
+            globalThis.toastr?.warning?.('NPC State: this editor was opened on an older server revision. The appearance draft was not applied; review the newly loaded dossier and reopen the editor.');
             return false;
         }
         const state = getChatState(chatKey);
@@ -37,7 +38,7 @@ export function createMutationsPart(rt, deps) {
         next.updatedAt = Date.now();
         state.npcs[index] = stampManualEdit(state, normalizeNpcRecord(next), before);
         const messageId = latestMessageId(false);
-        if (messageId >= 0) commitBranchCheckpoint(state, messageId, 'manual-edit');
+        if (messageId >= 0) noteChatLineage(state);
         persistCritical(chatKey);
         renderDossier();
         updateInjection();
@@ -57,7 +58,7 @@ export function createMutationsPart(rt, deps) {
             allowDeathCorrection: true, sourceMessageId: messageId,
         }) : current;
         state.npcs[index] = stampManualEdit(state, normalizeNpcRecord(manualLifeStateRecord(corrected, choice)), current);
-        if (messageId >= 0) commitBranchCheckpoint(state, messageId, correctingDeath ? 'manual-death-correction' : 'manual-life-state');
+        if (messageId >= 0) noteChatLineage(state);
         persistCritical(chatKey);
         renderDossier();
         updateInjection();
@@ -92,7 +93,7 @@ export function createMutationsPart(rt, deps) {
         const epoch = ownershipEpoch(chatKey);
         const { key, action } = portraitAction(chatKey, npc.id);
         try {
-            const portrait = await compressPortrait(file);
+            const portrait = await compressPortrait(file).then(picked => (form ? picked : portraitAsFile(picked, requestHeaders())));
             try { await ensureHydratedStateFresh(chatKey, { reason: 'portrait-commit' }); } catch { return false; }
             if (portraitActions.get(key) !== action || !isCurrent() || getChatKey() !== chatKey
                 || !ownershipEpochCurrent(chatKey, epoch) || Number(stateVersions.get(chatKey) || 0) !== originRevision
@@ -137,7 +138,7 @@ export function createMutationsPart(rt, deps) {
             if (fingerprint) portrait.appearanceFingerprint = fingerprint;
             portrait.appearanceForm = String(live.currentForm || '').slice(0, 120);
             live.portrait = portrait;
-            getChatState(chatKey).portraitAssets[live.id] = structuredClone(portrait);
+            if (portrait.dataUrl) getChatState(chatKey).portraitAssets[live.id] = structuredClone(portrait); else delete getChatState(chatKey).portraitAssets[live.id];
             live.updatedAt = Date.now();
             persistCritical(chatKey);
             renderDossier();
@@ -224,13 +225,12 @@ export function createMutationsPart(rt, deps) {
         const socialAfterDelete = reconcileSocialState(working, { provenance: 'manual', confidence: 'manual' });
         working.socialGraph = socialAfterDelete.socialGraph;
         working.npcs = socialAfterDelete.state.npcs;
-        purgeInlineCardsInState(working, result.report.npcId, result.report.name);
         const reportKey = normalizeName(result.report.name);
         working.pendingBackfills = (working.pendingBackfills || []).filter(item => item.npcId !== result.report.npcId && normalizeName(item.label) !== reportKey);
         if (working.portraitAssets && typeof working.portraitAssets === 'object') delete working.portraitAssets[current.id];
         if (working.formPortraitAssets && typeof working.formPortraitAssets === 'object') delete working.formPortraitAssets[current.id];
         const targetMessageId = latestMessageId(false);
-        if (targetMessageId >= 0) commitBranchCheckpoint(working, targetMessageId, 'manual-delete');
+        if (targetMessageId >= 0) noteChatLineage(working);
         const deleteKey = getChatKey();
         setChatState(deleteKey, working);
         closeNpcEditor();
@@ -238,8 +238,8 @@ export function createMutationsPart(rt, deps) {
         updateInjection();
         // The deletion is applied now; completion is announced only once the server holds it.
         reportDurableOutcome(deleteKey,
-            `NPC State Delta: deleted ${result.report.name}; older branch snapshots cannot restore that identity.`,
-            `NPC State Delta: ${result.report.name} was removed in this browser, but the deletion could not be saved to the server yet. It will be retried; the server copy still contains the dossier until then.`);
+            `NPC State: deleted ${result.report.name}; older branch snapshots cannot restore that identity.`,
+            `NPC State: ${result.report.name} was removed in this browser, but the deletion could not be saved to the server yet. It will be retried; the server copy still contains the dossier until then.`);
         return true;
     }
 
@@ -275,15 +275,15 @@ export function createMutationsPart(rt, deps) {
             sourceMessageId: latestMessageId(false),
         });
         const targetMessageId = latestMessageId(false);
-        if (targetMessageId >= 0) commitBranchCheckpoint(state, targetMessageId, archived ? 'manual-archive' : (correctingDeath ? 'manual-death-correction' : 'manual-restore'));
+        if (targetMessageId >= 0) noteChatLineage(state);
         closeNpcEditor();
         renderDossier();
         updateInjection();
         reportDurableOutcome(getChatKey(),
             archived
-                ? `NPC State Delta: archived ${current.name}. Their dossier and history are preserved.`
-                : (correctingDeath ? `NPC State Delta: corrected ${current.name}'s erroneous death record; presence remains unconfirmed.` : `NPC State Delta: restored ${current.name} to the active roster.`),
-            `NPC State Delta: the change to ${current.name} is applied in this browser but could not be saved to the server yet. It will be retried; the server copy is unchanged until then.`);
+                ? `NPC State: archived ${current.name}. Their dossier and history are preserved.`
+                : (correctingDeath ? `NPC State: corrected ${current.name}'s erroneous death record; presence remains unconfirmed.` : `NPC State: restored ${current.name} to the active roster.`),
+            `NPC State: the change to ${current.name} is applied in this browser but could not be saved to the server yet. It will be retried; the server copy is unchanged until then.`);
         return true;
     }
 
@@ -413,7 +413,7 @@ export function createMutationsPart(rt, deps) {
         merged.socialGraph = socialImport.socialGraph;
         merged.npcs = socialImport.state.npcs;
         const targetMessageId = latestMessageId(false);
-        if (targetMessageId >= 0) commitBranchCheckpoint(merged, targetMessageId, 'import');
+        if (targetMessageId >= 0) noteChatLineage(merged);
         setChatState(getChatKey(), merged);
         persistCritical();
         renderDossier();
@@ -422,12 +422,12 @@ export function createMutationsPart(rt, deps) {
     }
 
     // The panel's Add NPC and (1.2.13) the Dossiers tab's: ask a name, add a dossier for it.
-    async function addNpcManually() {
+    async function addNpcManually(given = '') {
         if (!await ensureFreshMutationBoundary('add an NPC')) return;
         const settings = getSettings();
         const state = getChatState();
         if (rosterCount(state.npcs, state.turn, settings.staleArchiveAfter) >= settings.maxNpcs) return globalThis.toastr?.warning?.(capMessage(settings.maxNpcs));
-        const name = window.prompt('NPC name to add to this chat dossier:')?.trim();
+        const name = String(given ?? '').trim() || window.prompt('NPC name to add to this chat dossier:')?.trim();
         if (!name) return;
         const result = applyNpcStateCommand(state, { action: 'add', name }, {
             maxNpcs: settings.maxNpcs, archiveAfter: settings.staleArchiveAfter,
@@ -435,15 +435,15 @@ export function createMutationsPart(rt, deps) {
             turn: state.turn,
             relationshipBaseline: settings.relationshipBaseline,
         });
-        if (result.report.status === 'excluded') return globalThis.toastr?.warning?.('NPC State Delta: player/main character cannot be added as an NPC.');
+        if (result.report.status === 'excluded') return globalThis.toastr?.warning?.('NPC State: player/main character cannot be added as an NPC.');
         if (result.report.status === 'full') return globalThis.toastr?.warning?.(capMessage(settings.maxNpcs));
         if (['added', 'exists', 'restored'].includes(result.report.status)) clearUserDismissedSuppression(result.state, name);
         const targetMessageId = latestMessageId(false);
-        if (targetMessageId >= 0) commitBranchCheckpoint(result.state, targetMessageId, 'manual-add');
+        if (targetMessageId >= 0) noteChatLineage(result.state);
         setChatState(getChatKey(), result.state);
         persistCritical(); renderDossier(); updateInjection();
         const addedNpc = result.report.npcId ? result.state.npcs.find(npc => npc.id === result.report.npcId) : null;
-        if (addedNpc) globalThis.toastr?.success?.(`NPC State Delta: ${addedNpc.name} created. Use the wand beside the dossier to Scan dossier and populate it.`);
+        if (addedNpc) globalThis.toastr?.success?.(`NPC State: ${addedNpc.name} created. Use the wand beside the dossier to Scan dossier and populate it.`);
     }
 
     return { updateNpcAppearance, updateNpcLifeState, npcFormName, setNpcPortrait, setNpcPortraitSeed, removeNpcPortrait, deleteNpcById, setNpcArchiveStateById, exportBundleBytes, importBundleBytes, addNpcManually };

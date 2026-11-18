@@ -135,9 +135,9 @@ checked when the pack is read. With the switch on:
 * **Bound.** The granted stacks carry `bound: <actor id>` (`inventory.grant { bound: true }`): they stay with that member. The rows of `inventory.items` and `gear.view` (rows and slots) carry `bound: { who: "Mara" }` for the screens' chip. No path moves or unequips one: `item.equip` to another owner or slot, `inventory.equip` into another slot or over it, `inventory.unequip`, `transfer`, `drop`, `consume`, `edit` (the Edit form's commands), `split`, `merge`, and the narrator's `- item` and `~ item … | qty:` are refused with "Bound to Mara: Cane Sword stays with them." (the story's line goes to the Problems list). Wear and repair go on (`gear.wear`, `inventory.wear/repair`, `~ item … | wear:` and `repair:`). Bound stacks never join another stack. With the switch off the mark is only kept and every command acts as in 2.17.0.
 * **Leaving.** `- party` sets their bound pieces aside (`inventory.stow`: the inventory's `kept[<actor>]`) in the same receipt: they leave the party's inventory, the summary adds "Their bound gear leaves with them: ...", and `data.gear.away` lists them.
 * **Coming back.** `+ party` brings them back once (`inventory.restore`, then the grant for any piece they do not own): bound again, in the condition they left in (the wear is kept), worn in the slot they had when it is free (else carried). Nothing is duplicated; a piece they own unbound is not given again. If the switch was off when they left, the pieces never left and stay where they are.
-* **The narrator's cast entry.** While the person is not in the party the query `packs.castGear { name }` answers
-  `{ name, line: "Gear: Cane Sword, Oak Buckler", items }`; the cast entry that names the person (NPC State Delta's) adds `line` as one
-  short line in its static part. It answers null once they are in the party, with no gear, or while the switch is off, so the prompt
+* **The narrator's cast entry (format 3; removed in pack format 4).** Pack format 4 has no cast gear (X1 removed `packs.castGear`; a format 4 cast member's keepsakes become gear at the join, RPG.md "The pull"), so the cast entry has no `Gear:` line. Before it, while the person was not in the party the query `packs.castGear { name }` answered
+  `{ name, line: "Gear: Cane Sword, Oak Buckler", items }`; the cast entry that names the person (NPC State Delta's) added `line` as one
+  short line in its static part. It answered null once they are in the party, with no gear, or while the switch is off, so the prompt
   is byte-identical then.
 * **Off.** Nothing runs: a join is exactly as it was, with identical receipts.
 
@@ -242,7 +242,7 @@ without it. A roll with no `gear` (made before) is exactly as before, and off no
   when none matches is it the first block (a companion who sorts first is not the reader).
 * A party member is a Character when the names are the same, or one is the first name of the other ("Ren" is "Ren Ashby"), or an alias of the member says so
   (`sameWho`, lean-rpg/read.js). An exact name wins, and a first name or alias counts only when it means exactly one Character: with "Ren Ashby" and "Ren Holt"
-  a member "Ren" is neither. `packs.castGear` asks the same question for "already in the party".
+  a member "Ren" is neither. (`packs.castGear`, gone in pack format 4, asked the same question for "already in the party".)
 * Encumbered is at 100 % and over (load at or over the capacity; an empty load never) **only with gear on**; with gear off the limit is as it always was
   (more than the capacity: exactly 5 of 5 is not encumbered). The roll penalty, `inventory.encumbrance`, and the Carry card
   (red "Encumbered" from 100 %, yellow "Heavy load" from 80 % to below 100 %).
@@ -251,7 +251,7 @@ without it. A roll with no `gear` (made before) is exactly as before, and off no
   has `wear: [{ n, who, item, from, to }]`; the cue and the log say "Boiled Leather Jerkin is worn (Torn)". The wear lines count inside the cue budget (the
   rounds told are fitted with the wear they would cause), and the cue a reader gets from the receipt is rebuilt from the record, wear included. A roll
   that is planned again (Re-read, rebuild) wears by its stored `gear` record, never by today's switch, so switching gear off does not take wear away.
-  `gear.wear { recorded: true }` is accepted only from the RPG's own nested call in `rpg.resolve`; a pack event step or a top-level call is refused it.
+  `gear.wear { recorded: true }` is accepted only from the RPG's own nested call in a fight's settle; a pack event step or a top-level call is refused it.
 * A later delete, equip or unequip never changes a stored roll's bonus: the record in the roll wins (and a later repair or wear does not rewrite what it
   said), so what a roll rolled with is what it keeps.
 * `wear: ruin` from the story breaks the piece in one step (condition 0); scuff and tear are as before.

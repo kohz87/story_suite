@@ -6,7 +6,7 @@ import { PEOPLE_WIDGET, peopleWidget } from '../people.js';
 import { EVENTS_WIDGET, eventsWidget } from '../events-widget.js';
 import { stChatId } from '../../../director/screens/reveal.js';
 import { FOLD_WIDGET, foldWidget, leadsOf } from '../elsewhere.js';
-import { daysScreen, worldScreen } from '../screen.js';
+import { worldScreen } from '../screen.js';
 import { cueToday, heardHere, newsAt } from '../news.js';
 import { WORLD_EVENTS } from '../news-switch.js';
 import { COURIER_KM_PER_DAY } from '../../../atlas/atlas/courier.js';
@@ -51,6 +51,6 @@ export const part = {
         },
     },
     tabs: [],
-    screens: [worldScreen, daysScreen],
+    screens: [worldScreen],
     widgets: { [PEOPLE_WIDGET]: peopleWidget, [EVENTS_WIDGET]: eventsWidget, [FOLD_WIDGET]: foldWidget },
 };

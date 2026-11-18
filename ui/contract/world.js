@@ -20,6 +20,8 @@ export const WORLD_SHAPE = {
       quests: { $optional: [T.STRING] },
     },
   ],
+  // Places the story made up (no map position): listed, not drawn.
+  unmapped: { $optional: [{ id: T.STRING, name: T.STRING, kind: T.STRING, region: NULL_STR, visited: T.BOOLEAN, here: T.BOOLEAN }] },
   terrain: { $optional: { sea: NULL_STR, rivers: [T.STRING], labels: [{ text: T.STRING, x: T.NUMBER, y: T.NUMBER, italic: { $optional: T.BOOLEAN } }] } },
   routes: [{ kind: { $enum: ['road', 'track'] }, a: T.STRING, b: T.STRING }],
   trip: {
@@ -51,6 +53,9 @@ export const WORLD_SHAPE = {
       id: T.STRING,
       name: T.STRING,
       stance: { $enum: ['friendly', 'warm', 'neutral', 'unfriendly', 'hostile'] },
+      // The words as stored (what Edit shows); empty when none.
+      areaText: { $optional: { $nullable: T.STRING } },
+      stanceText: { $optional: { $nullable: T.STRING } },
       summary: T.STRING,
       areaPlaceIds: [T.STRING],
       members: [{ personId: NULL_STR, name: T.STRING }],

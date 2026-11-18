@@ -1,5 +1,6 @@
 // The living cast tests: a real Story Block host (the testkit) with Story Director, the packs' cast stood in for (Story Block's
 // `packs.content({ kind: 'cast' })` is answered from `source`), and a scripted model for the planner.
+import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { createFakeModel } from '../../../../testkit/model.js';
 import { createModule } from '../../../../modules/director/module.js';
@@ -44,9 +45,14 @@ export function withRoads(source, roads = [['Gwenmar', 'Harrow', 5]]) {
 /** The pack `source` describes, as the file a person would import. */
 export function packOf(source) {
     const [meta] = source.packs;
-    // What the packs part adds itself (`pack`, `packVersion`) is not written; an empty routine is a routine left out.
-    const cast = source.entries.map(({ pack: _pack, packVersion: _version, ...own }) => ({ ...own, start: Object.fromEntries(Object.entries(own.start).filter(([key, value]) => key !== 'routine' || value)) }));
-    return { id: meta.id, version: meta.version, name: meta.name, requires: { storyBlock: '^2' }, content: { ...(source.places ? { places: source.places } : {}), ...(source.routes ? { routes: source.routes } : {}), cast } };
+    // What the packs part adds itself (`pack`, `packVersion`) is not written; an empty routine is a routine left out. A format 4 world pack keeps
+    // a person's text as `history` (the entry's `about`) and a secret by its title as an id.
+    const cast = source.entries.map(({ pack: _pack, packVersion: _version, about, secrets, ...own }) => ({
+        kind: 'companion', ...own, history: about,
+        start: Object.fromEntries(Object.entries(own.start).filter(([key, value]) => key !== 'routine' || value)),
+        secrets: (secrets ?? []).map(secret => ({ id: secret.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'), gate: `meter ${secret.meter} of ${own.id} >= ${secret.at}`, text: secret.text })),
+    }));
+    return { id: meta.id, format: 4, kind: 'world', version: meta.version, name: meta.name, requires: { suite: '^0.1' }, content: { ...(source.places ? { places: source.places } : {}), ...(source.routes ? { routes: source.routes } : {}), cast } };
 }
 
 /** Installs (or updates) `source`'s pack in the host and switches it on or off, as the reader would. A pack that is refused is an error. */
@@ -107,3 +113,18 @@ export function validatorErrors(host) {
 }
 
 export { createFakeModel };
+
+/** Gives the people (`{ name, aliases? }`) a dossier in the people store on the head reply and the Follow star (people.follow), as the reader's click does. */
+export async function followPeople(host, people) {
+    const npcs = {};
+    const order = [];
+    people.forEach((person, at) => {
+        const id = `npc_f${at}`;
+        order.push(id);
+        npcs[id] = { id, name: person.name, ...(person.aliases ? { aliases: person.aliases.join(', ') } : {}), role: 'cast' };
+    });
+    const source = host.store.sourceAt(host.store.headIndex());
+    const view = { v: 1, order, npcs, candidates: [], dismissed: [], userDismissedGroups: [], socialGraph: {}, portraitAssets: {}, turn: 1 };
+    assert.equal((await host.sdk.command('people.write', { v: 1, source: { sid: source.sid, swipeKey: source.swipeKey }, view })).ok, true);
+    for (const id of order) assert.equal((await host.sdk.command('people.follow', { id, on: true })).ok, true);
+}

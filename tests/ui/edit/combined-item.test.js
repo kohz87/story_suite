@@ -37,7 +37,7 @@ test('the single item form validates, cancels and saves only changed fields', as
 
 test('a combined edit of separate pieces is one guarded transaction and replays safely', async t => {
     const host = await createHost(); t.after(() => host.close());
-    assert.equal((await host.packs.packs.install({ id: 'pieces', version: '1.0.0', requires: { storyBlock: '^2' },
+    assert.equal((await host.packs.packs.install({ id: 'pieces', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' },
         content: { items: [{ name: 'Lantern', stack: false }] } })).ok, true);
     await host.send('Find.', 'Found.\n<Changes>\n+ item Lantern | qty: 2\n</Changes>');
     const earlier = host.store.headIndex(), stack = host.sdk.query('inventory.items')[0].stack;

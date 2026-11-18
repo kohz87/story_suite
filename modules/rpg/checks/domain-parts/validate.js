@@ -4,7 +4,6 @@ import { ledgerProblems } from '../../../world/writes.js';
 import { STATS } from '../words.js';
 import { ACTOR_ID, CHECK_ID, MAX_NAME } from './shared-ids.js';
 import { BONUS_LIMIT, MAX_ACTORS, MAX_BONUSES, MAX_LOG } from './shared-limits.js';
-import { LEGACY_POLICY } from './shared-legacy.js';
 import { isRecord } from './shared-record.js';
 
 const isInt = value => Number.isSafeInteger(value);
@@ -39,8 +38,7 @@ export function validateChecks(slice, topics) {
     if (!isRecord(actors) || Object.keys(actors).length > MAX_ACTORS) return [`checks.policy.actors is a record of at most ${MAX_ACTORS}.`];
     for (const [id, actor] of Object.entries(actors)) errors.push(...actorProblems(id, actor, topics));
     if (!(defaultActor === null || (typeof defaultActor === 'string' && Object.hasOwn(actors, defaultActor)))) errors.push('checks.policy.defaultActor is null or an actor.');
-    if (Object.hasOwn(slice.policy, LEGACY_POLICY) && !isRecord(slice.policy[LEGACY_POLICY])) errors.push(`checks.policy.${LEGACY_POLICY} is not an object.`);
-    for (const key of Object.keys(slice.policy)) if (!['actors', 'defaultActor', LEGACY_POLICY].includes(key)) errors.push(`checks.policy has an unknown field "${key}".`);
+    for (const key of Object.keys(slice.policy)) if (!['actors', 'defaultActor'].includes(key)) errors.push(`checks.policy has an unknown field "${key}".`);
     errors.push(...ledgerProblems(slice.writes, 'checks.writes'));
     errors.push(...logProblems(slice.log));
     for (const key of Object.keys(slice)) if (!['policy', 'writes', 'log'].includes(key)) errors.push(`checks has an unknown field "${key}".`);

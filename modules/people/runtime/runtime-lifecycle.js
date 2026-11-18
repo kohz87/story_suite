@@ -5,7 +5,7 @@
 import { getContext } from '../../../../../../extensions.js';
 import { saveSettings as saveHostSettings } from '../../../../../../../script.js';
 import { NPC_STATE_VERSION } from '../core/core.js';
-import { chatLineage } from '../legacy/branch.js';
+import { chatLineage } from '../lineage/index.js';
 import { deleteNpcStateDataFile, makeNpcStateDataFileName, makeNpcStateRecoveryFileName, readNpcStateDataFile, retireNpcStateDataFile, quarantineUnreadableNpcStateDataFile, writeNpcStateDataFile } from '../storage/storage.js';
 import { buildQualifiedChatKey, getCharacterOwnerId, parseQualifiedChatKey } from '../core/identity.js';
 import { lifecycleRenameStateIsEmpty } from '../core/hardening-core.js';
@@ -28,11 +28,11 @@ export function createLifecyclePart(rt, deps) {
             if (getChatKey() !== key) return false;
             renderDossier();
             updateInjection();
-            globalThis.toastr?.success?.('NPC State Delta: chat dossier loaded successfully.');
+            globalThis.toastr?.success?.('NPC State: chat dossier loaded successfully.');
             return true;
         } catch (error) {
             if (getChatKey() === key) { renderDossier(); updateInjection(); }
-            globalThis.toastr?.error?.(`NPC State Delta still cannot load this chat dossier: ${error?.message || error}`);
+            globalThis.toastr?.error?.(`NPC State still cannot load this chat dossier: ${error?.message || error}`);
             return false;
         }
     }
@@ -42,7 +42,7 @@ export function createLifecyclePart(rt, deps) {
         const settings = getSettings();
         const pointer = settings.dataFiles?.[key] || null;
         if (!isCanonicalChatKey(key) || !pointer?.path || chatHydrationStatus(key) !== 'error') return false;
-        if (!window.confirm('Detach the broken NPC State Delta sidecar for this chat and start a fresh empty dossier? The old pointer is retained under recovery metadata and is not deleted automatically.')) return false;
+        if (!window.confirm('Detach the broken NPC State sidecar for this chat and start a fresh empty dossier? The old pointer is retained under recovery metadata and is not deleted automatically.')) return false;
         let preserved = null;
         let registered = false;
         const registerBackup = copy => {
@@ -55,8 +55,8 @@ export function createLifecyclePart(rt, deps) {
         } catch (error) {
             console.error('[NPC State Delta] broken sidecar detach did not complete.', error);
             globalThis.toastr?.error?.(registered
-                ? `NPC State Delta: the broken sidecar was preserved and its backup registered, but detaching did not complete. Retry Detach. ${error?.message || error}`
-                : `NPC State Delta: the broken sidecar could not be preserved, so it was not detached. ${error?.message || error}`);
+                ? `NPC State: the broken sidecar was preserved and its backup registered, but detaching did not complete. Retry Detach. ${error?.message || error}`
+                : `NPC State: the broken sidecar could not be preserved, so it was not detached. ${error?.message || error}`);
             return false;
         }
         if (getChatKey() !== key) return false;
@@ -86,7 +86,7 @@ export function createLifecyclePart(rt, deps) {
         persistSettings();
         renderDossier();
         updateInjection();
-        globalThis.toastr?.warning?.('NPC State Delta: broken sidecar detached. The chat now has a fresh dossier; the previous pointer remains in recovery metadata.');
+        globalThis.toastr?.warning?.('NPC State: broken sidecar detached. The chat now has a fresh dossier; the previous pointer remains in recovery metadata.');
         return true;
     }
 

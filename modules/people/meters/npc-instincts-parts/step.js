@@ -41,7 +41,7 @@ export function stepPull(before, facts) {
         // The first place ever seen is the baseline, not an arrival: awe needs a history.
         visited: known.length ? known : null,
         benched: track.bench !== undefined && track.party === 0 ? [{ id: SELF, since: track.bench }] : [],
-        keyPeople: dayOf(facts.awayDay) !== null ? [{ id: SELF, away: true, since: facts.awayDay }] : [],
+        away: dayOf(facts.awayDay) !== null ? [{ id: SELF, away: true, since: facts.awayDay }] : [],
         joins: track.join !== undefined ? [{ id: SELF, day: track.join }] : [],
         threads, scale: facts.scale,
     });

@@ -16,6 +16,7 @@ function row(group, key, type, label, value, extra = {}) {
     unit: extra.unit ?? null,
     tags: extra.tags ?? [],
     wide: Boolean(extra.wide),
+    ...(extra.list ? { list: extra.list } : {}),
   };
 }
 
@@ -25,7 +26,7 @@ const sec = (id, group, name, desc, rows, special = null) => ({ id, group, name,
 function worldRowsOf(rows, on) {
   if (!on) return rows;
   const sample = worldEventsRows();
-  return rows.map(r => (r.key === 'world.worldEvents' ? { ...r, value: true } : r)).concat(sample.filter(r => !rows.some(w => w.key === r.key)));
+  return rows.filter(r => r.key !== 'world.eventsOff').map(r => (r.key === 'world.worldEvents' ? { ...r, value: true } : r)).concat(sample.filter(r => !rows.some(w => w.key === r.key)));
 }
 
 function buildSections(worldEvents = false, rpg = true) {
@@ -40,7 +41,7 @@ function buildSections(worldEvents = false, rpg = true) {
     sec('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRowsOf(rows('world'), worldEvents)),
     sec('director', 'Rules', 'Director', 'Checks, spoilers, the pulse, one planner for arcs and the cast, names.', rows('director')),
     sec('money', 'Rules', 'Money', 'Coins and prices.', rows('money')),
-    sec('extras', 'Rules', 'Chat extras', 'Choices, inner chatter, your look and trackers.', rows('extras')),
+    sec('extras', 'Rules', 'Chat extras', 'Choices, inner chatter and your look.', rows('extras')),
     sec('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', rows('models'), 'models'),
     sec('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
     sec('addons', 'Setup', 'Add-ons', 'Modules, custom views and skins from packs.', rows('addons')),

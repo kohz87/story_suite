@@ -17,17 +17,16 @@ test('a NUL byte is a problem, in any file', () => {
   assert.deepEqual(buildMap({ files: ['core/x.dat'], readSource: () => 'a\0b', jobs: {} }).problems, ['core/x.dat: contains a NUL byte; text files must not', 'core/x.dat: this language is not used in this repo'].sort());
 });
 
-test('outside packages/, extensionless files are refused except an allow-list', () => {
+test('extensionless files are refused except an allow-list', () => {
   const refused = p => buildMap({ files: [p], readSource: () => 'echo hi\n', jobs: {} }).problems;
   for (const p of ['scripts/run', 'bin/tool', 'core/extensionless', 'LICENSE', 'docs/NOTES']) assert.deepEqual(refused(p), [`${p}: files need an extension here`], p);
   assert.deepEqual(refused('bin/tool2'), ['bin/tool2: files need an extension here']);
   assert.deepEqual(buildMap({ files: ['core/t'], readSource: () => '#!/usr/bin/env node\nmodule.exports = 1;\n', jobs: {} }).problems, ['core/t: files need an extension here']);
 });
 
-test('allow-listed extensionless names are accepted as text; packages/ is exempt', () => {
+test('allow-listed extensionless names are accepted as text', () => {
   const names = ['.gitignore', '.gitattributes', '.nvmrc', '.npmrc', 'CODEOWNERS', '.github/CODEOWNERS'];
   assert.deepEqual(buildMap({ files: names, readSource: () => 'x\n', jobs: {} }).problems, []);
-  assert.deepEqual(buildMap({ files: ['packages/a/LICENSE', 'packages/a/VERSION'], readSource: () => 'x\n', jobs: {} }).problems, []);
   assert.deepEqual(buildMap({ files: ['core/Makefile.bak'], readSource: () => 'x\n', jobs: {} }).problems, ['core/Makefile.bak: this language is not used in this repo']);
 });
 
@@ -36,9 +35,9 @@ test('workflow YAML is a mapped file type that needs a job', () => {
   assert.deepEqual(r.problems, ['.github/workflows/ci.yml: no job sentence in docs/codemap/jobs.json']);
 });
 
-test('a nested package.json is not allowed outside packages/', () => {
+test('a nested package.json is not allowed', () => {
   const read = () => '{"type":"module"}';
-  assert.deepEqual(packageScopeProblems(['package.json', 'packages/a/package.json', 'packages/a/x/package.json'], read), []);
+  assert.deepEqual(packageScopeProblems(['package.json'], read), []);
   assert.deepEqual(
     packageScopeProblems(['package.json', 'core/revb1f/commonjs/package.json', 'package.json.bak', 'tests/package.json'], read),
     ['core/revb1f/commonjs/package.json: nested package.json is not allowed here', 'tests/package.json: nested package.json is not allowed here'],

@@ -76,23 +76,6 @@ jobs:
         # Same command as npm run test:core, plus a per-test timeout.
         run: node --test --test-timeout=900000 "tests/core/**/*.test.js"
 
-  # Informational: a file a lane adds without a rule shows up here, and only this job fails.
-  # The verify aggregate job must not list this job in needs.
-  layout-dry-run:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-      - name: Install root dev dependencies
-        run: npm ci
-      - name: Plan every layout area (no writes)
-        run: npm run layout:plan
-
   ui:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -232,7 +215,7 @@ jobs:
 
   # The one gate for branch protection: it passes only when every required job passed, and it adds up the
   # suite shards' test counts against the floor. Add a new required job to `needs` here. Informational jobs
-  # (continue-on-error: true, such as layout-dry-run) stay out of `needs`.
+  # (continue-on-error: true) stay out of `needs`.
   verify:
     if: ${{ always() }}
     needs: [rules, core, ui, modules, people, suite]

@@ -32,7 +32,7 @@
 .bigring .prof{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);font:800 12px var(--su-font);color:#fff;background:rgba(10,12,20,.7);border-radius:999px;padding:3px 10px;white-space:nowrap}
 .bigring .ml{position:absolute;display:flex;flex-direction:column;align-items:center;font:800 12px var(--su-font);letter-spacing:.1em;line-height:1.1}
 .bigring .ml b{font:800 17px var(--su-font);letter-spacing:0}
-.ml.c-tr{right:0;top:0}.ml.c-br{right:0;bottom:0}.ml.c-bl{left:0;bottom:0}.ml.c-tl{left:0;top:0}
+.ml.c-tr{right:8px;top:0}.ml.c-br{right:8px;bottom:0}.ml.c-bl{left:8px;bottom:0}.ml.c-tl{left:8px;top:0}   /* (8px in from the ring, so a floating third-party button at the phone edge never covers a label) */
 .dossier{--m0:#5aa0ff;--m1:#ff7aa8;--m2:#c08aff;--m3:#f0b84a;--pk-gold:#f0b84a;--pk-disc:#3a3c52}
 [data-scheme="light"] .dossier{--m0:#1f5fbf;--m1:#b8265f;--m2:#7a3fc0;--m3:#8a5a00;--pk-gold:#8a5a00;--pk-disc:#4a4d68}
 .dossier .f0{color:var(--m0)}.dossier .f1{color:var(--m1)}.dossier .f2{color:var(--m2)}.dossier .f3{color:var(--m3)}
@@ -71,6 +71,7 @@
 .mrow{display:grid;grid-template-columns:76px minmax(0,1fr) 40px;gap:10px;align-items:center;font:800 12px var(--su-font)}
 .mrow i{position:relative;height:6px;border-radius:3px;background:var(--su-line2)}
 .mrow i::before{content:"";position:absolute;left:50%;top:-2px;width:1px;height:10px;background:var(--su-muted)}
+.mrow>span{overflow-wrap:anywhere}.mrow .stg{display:block;font:600 10px var(--su-font);opacity:.8}.mrow.own i::before{display:none}
 .mrow i b{position:absolute;top:0;height:100%;border-radius:3px;background:currentColor}
 .mrow>b{text-align:right}
 .tl2{display:flex;flex-direction:column;gap:8px}

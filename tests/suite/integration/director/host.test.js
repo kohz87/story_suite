@@ -45,7 +45,7 @@ test('~ time sets the story clock and ! time moves it on, on the reader\'s calen
 
     // The calendar is the reader's (namespaced settings of part tracker).
     const values = host.settings(MODULE_ID);
-    assert.equal(values['tracker.calendar.preset'], 'pack', 'the pack\'s calendar when a pack has one, else Gregorian');
+    assert.equal(values['tracker.calendar.preset'], 'game', 'the game pack\'s calendar when a game has one, else Gregorian');
     assert.equal(values['tracker.dormantReplies'], 15);
     const custom = await newHost({ settings: { modules: { [MODULE_ID]: {
         'tracker.calendar.preset': 'custom',
@@ -92,10 +92,10 @@ test('the module registers whole: screens instead of tabs, settings fields, capt
     assert.equal(mine.version, '2.16.0');
     assert.deepEqual(mine.tabs, [], 'the hand-built tabs are gone: the screens show quests, threads and the map');
     assert.deepEqual([...mine.kinds].sort(), ['agenda', 'away', 'beat', 'check', 'clock', 'event', 'faction', 'hook', 'key', 'landmark', 'person', 'quest', 'route', 'secret', 'time', 'trip', 'world']);
-    assert.deepEqual([...mine.commands].sort(), ['atlas.dangerSet', 'atlas.edit', 'atlas.focus', 'atlas.mark', 'atlas.placeBind', 'atlas.placeRegion', 'atlas.region', 'atlas.visit', 'cast.advance', 'cast.journey', 'cast.meet', 'cast.rumor', 'cast.story', 'cast.sync', 'cast.withdraw', 'checks.actor', 'checks.roll', 'chronicle.condition.clear', 'chronicle.condition.set', 'chronicle.conditions.settle', 'chronicle.digest', 'chronicle.edit', 'chronicle.lasting', 'chronicle.note', 'chronicle.remove', 'chronicle.rumor', 'chronicle.surface', 'chronicle.threadOutcome', 'chronicle.world.cue', 'chronicle.world.daily', 'chronicle.world.learned', 'chronicle.world.open', 'chronicle.world.seed', 'director.advance', 'director.arc.accept', 'director.arc.end', 'director.arc.update', 'director.calendarNames', 'director.clock', 'director.initiative', 'director.pulse', 'director.pulse.quiet', 'director.seed', 'keypeople.pin', 'keypeople.sync', 'keypeople.tell', 'keypeople.unpin', 'names.seen', 'names.told', 'threads.accept', 'threads.intent', 'threads.offer', 'time.settle']);
+    assert.deepEqual([...mine.commands].sort(), ['atlas.dangerSet', 'atlas.edit', 'atlas.focus', 'atlas.mark', 'atlas.placeBind', 'atlas.placeRegion', 'atlas.region', 'atlas.visit', 'cast.advance', 'cast.journey', 'cast.meet', 'cast.rumor', 'cast.story', 'cast.sync', 'cast.withdraw', 'checks.actor', 'checks.roll', 'chronicle.condition.clear', 'chronicle.condition.set', 'chronicle.conditions.settle', 'chronicle.digest', 'chronicle.edit', 'chronicle.lasting', 'chronicle.note', 'chronicle.remove', 'chronicle.rumor', 'chronicle.surface', 'chronicle.threadOutcome', 'chronicle.world.cue', 'chronicle.world.daily', 'chronicle.world.learned', 'chronicle.world.loreOpen', 'chronicle.world.open', 'chronicle.world.seed', 'director.advance', 'director.arc.accept', 'director.arc.end', 'director.arc.update', 'director.calendarNames', 'director.clock', 'director.initiative', 'director.pulse', 'director.pulse.quiet', 'director.seed', 'names.seen', 'names.told', 'quest.delete', 'quest.edit', 'quest.giveup', 'threads.accept', 'threads.intent', 'threads.offer', 'time.settle']);
     assert.deepEqual(host.sdk.query('director.time'), { minutes: null, text: '', parts: null, weekday: '', firstWeekdays: [] });
     assert.deepEqual(host.registry.screens().filter(screen => screen.moduleId === MODULE_ID).map(screen => screen.id), [
-        'story-director/map', 'story-director/chronicle', 'story-director/world', 'story-director/days', 'story-director/quests', 'story-director/director', 'story-director/status-card',
+        'story-director/map', 'story-director/chronicle', 'story-director/world', 'story-director/quests', 'story-director/director', 'story-director/status-card',
     ]);
     const defs = host.registry.settingsDefs().find(entry => entry.moduleId === MODULE_ID);
     assert.deepEqual(Object.keys(defs.schema).sort(), [
@@ -103,14 +103,14 @@ test('the module registers whole: screens instead of tabs, settings fields, capt
         'atlas.map.east', 'atlas.map.era', 'atlas.map.kmPerUnit', 'atlas.map.north', 'atlas.map.roadFactor',
         'cast.faces', 'cast.on', 'cast.unmetDie',
         'checks.defaultDc', 'checks.social',
-        'chronicle.digestDays', 'chronicle.digestKeep', 'chronicle.digestTail', 'chronicle.tempo', 'keypeople.cap', 'keypeople.tokens', 'names.banned', 'names.suggestions', 'pulse.invents', 'pulse.mode', 'pulse.showUnderReply',
+        'chronicle.digestDays', 'chronicle.digestKeep', 'chronicle.digestTail', 'chronicle.tempo', 'names.banned', 'names.suggestions', 'pulse.invents', 'pulse.mode', 'pulse.showUnderReply',
         'screens.hideBehind', 'time.lapses', 'time.recapHours',
         'tracker.calendar.era', 'tracker.calendar.leapYears', 'tracker.calendar.months', 'tracker.calendar.preset', 'tracker.calendar.week',
         'tracker.dormantDays', 'tracker.dormantReplies', 'tracker.dueSoonDays', 'tracker.elsewhere', 'tracker.initiativeCooldown', 'tracker.maxJump',
         'world.courierKmPerDay', 'world.upcomingDays',
     ]);
     assert.equal(defs.schema['tracker.calendar.preset'].label, 'Calendar: Calendar');
-    assert.deepEqual(defs.schema['tracker.calendar.preset'].options, ['pack', 'gregorian', 'custom']);
+    assert.deepEqual(defs.schema['tracker.calendar.preset'].options, ['game', 'gregorian', 'custom']);
     assert.equal(defs.schema['atlas.map.north'].label, 'Map: North is');
     assert.deepEqual(defs.schema['atlas.map.north'].options, ['up', 'down']);
     host.close();

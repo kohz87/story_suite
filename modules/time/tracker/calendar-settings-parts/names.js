@@ -14,9 +14,14 @@ export function calendarRule(calendar) {
     if (!hasNoWeek(calendar)) return '';
     const months = calendar.config.months;
     const example = `${months[0].name} ${Math.min(14, Number(months[0].days) || 1)}`;
-    return `Dates use this world's calendar only: months ${months.map(month => month.name).join(', ')}; no weekdays. Never use Monday–Sunday or January–December, in narration or speech; say 'three days ago', 'yesterday' or the date (${example}).`;
+    // The real month names the calendar does not own itself (a game whose months are January to December keeps them: only the weekdays are banned).
+    const own = new Set(months.map(month => month.name.toLowerCase()));
+    const banned = REAL_MONTHS.filter(name => !own.has(name.toLowerCase()));
+    const real = banned.length === REAL_MONTHS.length ? ' or January–December' : banned.length ? ` or ${banned.join(', ')}` : '';
+    return `Dates use this world's calendar only: months ${months.map(month => month.name).join(', ')}; no weekdays. Never use Monday–Sunday${real}, in narration or speech; say 'three days ago', 'yesterday' or the date (${example}).`;
 }
 
+const REAL_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const PLAIN_MONTHS = ['January', 'February', 'April', 'June', 'July', 'September', 'October', 'November', 'December'];
 // Also ordinary words ("May I", "March on", "an August hall"): a date only after "in"/"of" or before a number.

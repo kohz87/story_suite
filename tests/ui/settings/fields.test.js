@@ -120,3 +120,74 @@ test('every fixture row type renders without throwing', () => {
     for (const r of s.rows) assert.ok(renderRow(r).classList.contains('srow'), r.key);
   }
 });
+
+const flush = () => new Promise(r => setTimeout(r, 0));
+const change = (el, value) => { el.value = value; el.dispatchEvent(new globalThis.Event('change')); };
+
+test('a refused change shows its message under the row; a switch goes back to the kept value and the note clears on the next good answer', async () => {
+  installFakeDom();
+  const answers = [{ ok: false, message: 'Not today.' }, { ok: true }];
+  const el = renderRow(row({ type: 'sw', value: true }), { onChange: () => answers.shift() });
+  const note = el.querySelector('.snote');
+  assert.equal(note.hidden, true);
+  el.querySelector('.sw').click();
+  await flush();
+  assert.equal(note.hidden, false);
+  assert.equal(note.textContent, 'Not today.');
+  assert.equal(el.querySelector('.sw').getAttribute('aria-checked'), 'true');
+  el.querySelector('.sw').click();
+  await flush();
+  assert.equal(note.hidden, true);
+  assert.equal(el.querySelector('.sw').getAttribute('aria-checked'), 'false');
+});
+
+test('a refused number keeps what was typed beside the note; a thrown error is shown the same way', async () => {
+  installFakeDom();
+  const el = renderRow(row({ type: 'num', value: 5 }), { onChange: () => { throw new Error('Broke.'); } });
+  change(el.querySelector('input'), '9');
+  await flush();
+  assert.equal(el.querySelector('.snote').textContent, 'Broke.');
+  assert.equal(el.querySelector('input').value, '9');
+});
+
+test('a refused text area keeps what was typed beside the note', async () => {
+  installFakeDom();
+  const el = renderRow(row({ type: 'area', value: 'old' }), { onChange: () => ({ ok: false, message: 'No.' }) });
+  const box = el.querySelector('textarea');
+  change(box, 'my longer prompt');
+  await flush();
+  assert.equal(el.querySelector('.snote').textContent, 'No.');
+  assert.equal(el.querySelector('textarea'), box, 'the same box, not drawn again from the stored value');
+  assert.equal(el.querySelector('textarea').value, 'my longer prompt');
+});
+
+test('a number the store held to its range is redrawn; an answer with no value or the same number leaves the box alone', async () => {
+  installFakeDom();
+  const answers = [{ ok: true, value: 99 }, { ok: true }, { ok: true, value: '7' }];
+  const el = renderRow(row({ type: 'num', value: 5 }), { onChange: () => answers.shift() });
+  const input = el.querySelector('input');
+  change(input, '100');
+  await flush();
+  assert.equal(input.value, '99');
+  change(input, '12');
+  await flush();
+  assert.equal(input.value, '12');
+  change(input, '7');
+  await flush();
+  assert.equal(input.value, '7');
+});
+
+test('only the newest change\'s answer is applied', async () => {
+  installFakeDom();
+  let slow;
+  const calls = [];
+  const el = renderRow(row({ type: 'num', value: 1 }), {
+    onChange: (k, v) => { calls.push(v); return calls.length === 1 ? new Promise(r => { slow = r; }) : { ok: true }; },
+  });
+  const input = el.querySelector('input');
+  change(input, '5');
+  change(input, '6');
+  slow({ ok: false, message: 'Old answer.' });
+  await flush();
+  assert.equal(el.querySelector('.snote').hidden, true);
+});

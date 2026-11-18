@@ -9,7 +9,7 @@ export const settle = () => new Promise(resolve => setImmediate(resolve));
 export const NONE = { rank: '', wearing: '', condition: '' };
 
 // A pack that gives {{user}}'s look a Rank (`content.you.rank`); without one a story has no Rank.
-export const rankPack = (id = 'guild', label = 'Guild rank') => ({ id, version: '1.0.0', requires: { storyBlock: '^2' }, content: { you: { rank: { label } } } });
+export const rankPack = (id = 'guild', label = 'Guild rank') => ({ id, version: '1.0.0', format: 4, kind: 'game', requires: { suite: '^0.1' }, content: { you: { rank: { label } } } });
 // scene.you without the label's word, or null (what most of these tests compare).
 export const look = host => {
     const found = host.sdk.query('scene.you');

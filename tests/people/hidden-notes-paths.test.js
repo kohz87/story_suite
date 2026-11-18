@@ -10,7 +10,7 @@ import { appendHiddenNotePrompt } from '../../modules/people/core/core-mechanics
 import { secretEventsShown } from '../../modules/people/core/core-prompts-capture.js';
 
 // Hidden notes (layered notes for a new dossier, the story events of present people's locked notes) in every path that
-// builds a dossier or scans a present person, not only the ordinary scan: the one-pass block (full and compact rules),
+// builds a dossier or scans a present person, not only the ordinary scan: the one-pass block (its rules),
 // the targeted backfill of a new dossier and the targeted Refresh. Off, or with nobody to watch, every prompt is as before.
 //
 // Which path runs by default: `narrationCapture` (one-pass) is OFF and `fullScanEveryTurn` is OFF, so Standard and Full both
@@ -25,23 +25,23 @@ const base = { transcript: 'USER: hi\nASSISTANT: Mira laughs.', currentTranscrip
 // ---- the prompts ----
 
 test('one-pass block: the layered-notes rule rides with the rules, the events with the context; off or nobody to watch is byte-identical', () => {
-    for (const compactCapture of [false, true]) {
-        const plain = buildNarrationCaptureParts({ ...base, compactCapture });
+    {
+        const plain = buildNarrationCaptureParts({ ...base });
         assert.equal(plain.rules.includes('HIDDEN NOTES'), false);
         assert.equal(plain.context.includes('STORY EVENTS'), false);
-        assert.deepEqual(buildNarrationCaptureParts({ ...base, compactCapture, layeredSecrets: false, eventWatch: [] }), plain, 'asked for nothing: byte-identical');
-        assert.deepEqual(buildNarrationCaptureParts({ ...base, compactCapture, eventWatch: [{ name: 'x' }, null] }), plain, 'an item with no key or event is no watch');
+        assert.deepEqual(buildNarrationCaptureParts({ ...base, layeredSecrets: false, eventWatch: [] }), plain, 'asked for nothing: byte-identical');
+        assert.deepEqual(buildNarrationCaptureParts({ ...base, eventWatch: [{ name: 'x' }, null] }), plain, 'an item with no key or event is no watch');
 
-        const layered = buildNarrationCaptureParts({ ...base, compactCapture, layeredSecrets: true });
-        assert.match(layered.rules, /\n(?:12|16)\. HIDDEN NOTES: for each NEW dossier-worthy NPC only/, `rules carry the layered rule (compact ${compactCapture})`);
+        const layered = buildNarrationCaptureParts({ ...base, layeredSecrets: true });
+        assert.match(layered.rules, /\n(?:12|16)\. HIDDEN NOTES: for each NEW dossier-worthy NPC only/, `rules carry the layered rule`);
         assert.equal(layered.context, plain.context, 'the context part is unchanged by it');
         assert.equal(layered.rules.replace(/\n(?:12|16)\. HIDDEN NOTES:[^\n]*/, ''), plain.rules, 'it adds that one rule and nothing else');
 
         // The events change from reply to reply: they go in the context, so the rules stay byte-identical (cacheable).
-        const watched = buildNarrationCaptureParts({ ...base, compactCapture, layeredSecrets: true, eventWatch: WATCH });
+        const watched = buildNarrationCaptureParts({ ...base, layeredSecrets: true, eventWatch: WATCH });
         assert.equal(watched.rules, layered.rules, 'the rules do not change with the events');
         assert.match(watched.context, /\n\nSTORY EVENTS to look for \(present NPCs' hidden notes\): s1 = Mira: The duke is exposed as a traitor\. Return top-level "secretEvents":\["<key>",\.\.\.\] with ONLY the keys whose event the CURRENT exchange clearly shows/);
-        const other = buildNarrationCaptureParts({ ...base, compactCapture, layeredSecrets: true, eventWatch: [{ key: 's1', name: 'Oren', event: 'The bridge falls' }] });
+        const other = buildNarrationCaptureParts({ ...base, layeredSecrets: true, eventWatch: [{ key: 's1', name: 'Oren', event: 'The bridge falls' }] });
         assert.equal(other.rules, watched.rules);
         assert.ok(watched.context.includes(NARRATION_CAPTURE_CONTEXT_MARKER.slice(0, 8)) || watched.context.startsWith('NPC STATE DELTA ONE-PASS CAPTURE'));
     }

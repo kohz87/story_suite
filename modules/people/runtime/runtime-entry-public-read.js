@@ -10,10 +10,10 @@ export function createPublicApiReadPart(deps) {
         pendingAutoScans, cancelScanOperation, processPendingBackfills, ensureFreshMutationBoundary,
         findNpcByIdOrName, scanNpcDossier, refreshNpcFromChat, npcFormName, npcImagePromptPair,
         executeNativePortraitGeneration, openPortraitGenerator, portraitSettingsSnapshot, savePortraitSettingsDraft,
-        nsdCardSettings, renderDossier, renderInlineCards, openNpcEditorSafely, openPersonDossier,
+        nsdCardSettings, renderDossier, openNpcEditorSafely, openPersonDossier,
         injectionPreview, chatHydrationStatus, hydrationErrors, isScanBusy, scanOperations,
-        narrationCaptureStats, narrationCaptures, getChatState, editorIsMounted, presentCastDisplayMode,
-        inlineMountNeedsRepair, branchHistoryDiagnostic, branchReconciliationEvents, hostSwipeState,
+        narrationCaptureStats, narrationCaptures, getChatState, editorIsMounted,
+        hostSwipeState,
         hydratedRevision, hydratedStateMeta, freshnessEvents, hydratedChatKeys, ensureChatStateLoaded,
         ensureHydratedStateFresh, exportBundleBytes, importBundleBytes, reconcileCurrentBranch, diagnosticStore,
     } = deps;
@@ -64,13 +64,20 @@ export function createPublicApiReadPart(deps) {
     openPortraitGenerator: value => { const npc = findNpcByIdOrName(value); return npc ? openPortraitGenerator(npc.id) : false; },
     // The portrait manager (view, upload, generate, remove) for one person by id, name or alias: the view's dossier ⋯ › Portrait opens it.
     openPortraitTools: value => { const npc = findNpcByIdOrName(value); return npc ? Boolean(openPortraitTools(npc.id)) : false; },
+    // NPC State's data dialogs for the view's Settings › Tools › NPC State data: 'backup' downloads this chat's bundle, 'restore' opens the import review, 'diagnostics' the diagnostics window. Page dialogs, nothing recorded; false for any other word.
+    openDataTool: kind => {
+        if (kind !== 'backup' && kind !== 'restore' && kind !== 'diagnostics') return false;
+        // Loaded when asked: the dialogs' file puts its styles on the page as it loads.
+        void import('../tools/data-tools.js').then(tools => (kind === 'backup' ? tools.exportNativeTools() : kind === 'restore' ? tools.openImportTools() : tools.openDiagnostics()))
+            .catch(error => globalThis.toastr?.error?.(`NPC State: that data tool did not open: ${error?.message || error}`));
+        return true;
+    },
     portraitSettings: () => portraitSettingsSnapshot(getSettings()),
     portraitSettingsDirty: () => rt.portraitSettingsDirty,
     savePortraitSettings: draft => savePortraitSettingsDraft(draft),
     /** What a character card may recommend (the definition Story Block 2.21.0 registers as card settings). */
     cardSettings: () => nsdCardSettings(),
     render: renderDossier,
-    renderInline: renderInlineCards,
     openEditor: value => { const npc = findNpcByIdOrName(value); return npc ? openNpcEditorSafely(npc.id) : false; },
     openDossier: value => { const npc = findNpcByIdOrName(value); return npc ? openPersonDossier(npc.id) : false; },
     injectionPreview: () => structuredClone(injectionPreview()),
@@ -84,26 +91,14 @@ export function createPublicApiReadPart(deps) {
         scanOperation: scanOperations.status(getChatKey()),
         scannerRouting: scannerRoutingMetrics(),
         narrationCapture: { ...narrationCaptureStats, enabled: narrationCaptureEnabled(), armed: Boolean(rt.narrationCaptureArmed), pending: narrationCaptures.size },
-        inlineEntries: chatHydrationStatus(getChatKey()) === 'ready' ? (getChatState().inlineCards?.length || 0) : 0,
-        mountedInlineAnchors: document.querySelectorAll?.('.npc-state-delta-inline-anchor')?.length || 0,
-        integratedMeguminBlocks: document.querySelectorAll?.('.npc-state-delta-megumin-pane')?.length || 0,
         settingsPanelMounted: Boolean(document.querySelector?.(`#${UI_ID}`)),
         rosterMounted: Boolean(document.querySelector?.('#npc_state_delta_roster_summary')),
         editorMounted: editorIsMounted(),
         editorMode: rt.activeEditorPopup ? 'sillytavern-popup' : 'closed',
-        presentCastDisplay: presentCastDisplayMode(),
         portraitGeneratorOpen: Boolean(rt.activePortraitGeneratorOverlay),
         portraitGeneratorNpcId: rt.activePortraitGeneratorNpcId || null,
         portraitGenerationBusy: rt.portraitGenerationBusy,
-        inlineAnchors: document.querySelectorAll?.('.npc-state-delta-inline-anchor')?.length || 0,
-        inlineObserver: Boolean(rt.inlineObserver && rt.inlineObserverChat),
-        inlineNeedsRepair: inlineMountNeedsRepair(),
         lastScan: rt.lastScanMetrics ? { ...rt.lastScanMetrics } : null,
-        branchHistory: chatHydrationStatus(getChatKey()) === 'ready' ? branchHistoryDiagnostic(getChatState()) : null,
-        branchReconciliations: branchReconciliationEvents
-            .filter(event => event.chatKey === getChatKey())
-            .slice(-8)
-            .map(event => structuredClone(event)),
         swipeState: hostSwipeState(),
         swipeSettlementPending: Boolean(rt.swipeSettlementPending || rt.swipeSettlementTimer),
         hydratedRevision: hydratedRevision(getChatKey()),
@@ -141,7 +136,7 @@ export function createPublicApiReadPart(deps) {
     diagnosticBundle: () => {
         const key = getChatKey();
         const bundle = diagnosticStore.bundle(key, { applicationVersion: NPC_STATE_VERSION });
-        // Rollback diagnostics carry counts, message numbers and outcomes only: no story text and no chat key.
+        // The chat's shape carries counts and message numbers only: no story text and no chat key.
         const chatMessages = getContext().chat || [];
         bundle.branch = {
             chat: key === 'no-chat' ? null : {
@@ -150,9 +145,6 @@ export function createPublicApiReadPart(deps) {
                 storedLineageDivergence: firstLineageDivergence(getChatState(key)?.lineage || [], chatLineage(chatMessages)),
                 turn: Number(getChatState(key)?.turn || 0),
             },
-            history: key === 'no-chat' ? null : branchHistoryDiagnostic(getChatState(key)),
-            reconciliations: branchReconciliationEvents.filter(event => event.chatKey === key).slice(-20)
-                .map(({ chatKey, history, ...event }) => event),
         };
         // Session counters only; the instruction and blocks themselves are never exported.
         bundle.narrationCapture = { ...narrationCaptureStats, enabled: narrationCaptureEnabled(), pending: narrationCaptures.size };

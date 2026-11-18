@@ -5,7 +5,6 @@ import { listCodeFiles, listRepoFiles } from '../checks/code-files.mjs';
 import { packageScopeProblems } from '../checks/package-scope.mjs';
 import { loadLayout } from '../layout.mjs';
 import { buildMap } from './build-map.mjs';
-import { packageOutputs } from './package-outputs.mjs';
 import { renderFeatures } from './package-features.mjs';
 import { renderMap } from './render-map.mjs';
 import { sourceRootJobs } from './root-jobs.mjs';
@@ -26,21 +25,16 @@ const readOptional = relPath => (fs.existsSync(abs(relPath)) ? readSource(relPat
 
 const jobs = JSON.parse(readOptional('docs/codemap/jobs.json') || '{}');
 const layout = loadLayout();
-const rootFiles = allFiles.filter(p => !layout.isPackageFile(p));
-const rootJobs = sourceRootJobs({ files: rootFiles.filter(layout.isSourceFile), readSource, readOptional, layout, repoRoot, explicit: jobs });
+const rootJobs = sourceRootJobs({ files: allFiles.filter(layout.isSourceFile), readSource, explicit: jobs });
 const legacyExports = parseExportsList(readOptional('docs/merge/legacy-exports.txt'));
-const built = buildMap({ files: rootFiles, readSource, jobs: { ...rootJobs, ...jobs }, legacyExports, isLegacyFile: layout.isPackageFile });
-const problems = [...built.problems, ...packageScopeProblems(listRepoFiles(repoRoot), readSource, layout.isPackageFile)];
-// Feature entry points for files outside the packages (docs/codemap/features.json, repo paths); the packages' own sit in their maps.
+const built = buildMap({ files: allFiles, readSource, jobs: { ...rootJobs, ...jobs }, legacyExports });
+const problems = [...built.problems, ...packageScopeProblems(listRepoFiles(repoRoot), readSource)];
+// Feature entry points for files (docs/codemap/features.json, repo paths).
 const rootFeatureText = readOptional('docs/codemap/features.json');
 const rootFeatures = rootFeatureText ? renderFeatures(JSON.parse(rootFeatureText), new Set(built.rows.map(r => r.path)), 'docs/codemap/features.json') : null;
 if (rootFeatures) problems.push(...rootFeatures.problems);
 const rootMarkdown = renderMap(built.rows).replace(/\n$/, '') + '\n' + (rootFeatures ? rootFeatures.lines.join('\n') + '\n' : '');
 const outputs = [{ mapPath: 'docs/codemap.md', markdown: rootMarkdown, summary: `${built.rows.length} files` }];
-for (const out of packageOutputs({ files: allFiles.filter(layout.isPackageFile), readSource, readOptional, layout })) {
-  outputs.push(out);
-  problems.push(...out.problems);
-}
 problems.sort();
 
 let failed = problems.length > 0;

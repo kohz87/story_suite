@@ -3,18 +3,22 @@
 import { applyAdvance, applyJourney, applyMeet, applyRumor, applySync, planSync, syncEmpty, syncPayload } from '../apply.js';
 import { sha256 } from '../../../world/hash.js';
 import { personaName } from '../../../time/tracker/initiative.js';
-import { cueLines, pinned } from '../note.js';
+import { cueLines, hereLine, pinned } from '../note.js';
 import { cutPoints, isInt, slotOf } from '../domain.js';
-import { ask, castOf, fightOn, foesLeftover, linksOf, packName, partyPlace, pulseResults, presentKeys, roadsOf, seenKeys } from '../entries.js';
+import { ask, fightOn, foesLeftover, linksOf, packName, partyPlace, pulseResults, presentKeys, roadsOf, seenKeys } from '../entries.js';
 import { MAX_PEOPLE_ASKED, MAX_SOUGHT, MAX_TOKENS, castRequest, readCast, touches } from '../plan.js';
 import { kindWords } from '../sought.js';
 import { CALL_MS, FEATURE, HOLD_MS, castOn } from '../settings.js';
-import { askedAbout, batchKey, chooseMeetings, chooseRumor, dueMove, fingerprint, judgeKey, metInTheStory, moveReach, movable, paceOf, placedOf, refsOf, seekable, sortComes, unshown } from '../world.js';
+import { askedAbout, batchKey, chooseMeetings, chooseRumor, dueMove, fingerprint, judgeKey, meetingAt, metInTheStory, moveReach, movable, paceOf, placedOf, refsOf, seekable, sortComes, unshown } from '../world.js';
 import { copyOf, frameOf, placesOf, queryOf } from './frame.js';
+import { whereText } from './where-text.js';
 import { recentStory, shownText, soughtTexts } from './text.js';
 import { basedView, keepsBase, pullsFree } from '../world-parts/bases.js';
 import { storyBases } from '../world-parts/story-bases.js';
 import { worldEventsOn } from '../../../world/chronicle/conditions/feature.js';
+
+// The chat's messages as the part's view gives them (null when it cannot): a meeting finds its reply in them (S2PA B6).
+const chatOf = view => { try { return typeof view?.story?.chat === 'function' ? view.story.chat() : null; } catch { return null; } };
 
 const REPLY_TYPES = new Set(['normal', 'regenerate', 'swipe']);
 const normalizeType = type => String(type ?? 'normal').toLowerCase();
@@ -75,6 +79,15 @@ const toldHere = (entry, at) => {
     return entry.toldAt === (at ?? -1);
 };
 
+// {{user}} / {{char}} in a planner prompt are filled with the names, as the arc planner's are (the chat's host does it; none given: the text as it is).
+const filled = (model, text) => (typeof model?.substitute === 'function' ? model.substitute(text) : text);
+
+// The meeting cue and rumor, then the world's own unmet people at the scene's place (LA-2: named, so the story uses them and invents no double).
+const withHere = (lines, slice, frame) => {
+    const here = hereLine(slice, frame, { persona: personaName() });
+    return here ? [...lines, here] : lines;
+};
+
 /** The plans the hooks share (in memory), and the counters tests read. */
 export function createCastHooks({ plans }) {
     // Asks the planner for `mode` over `people`, keeping the answer under `key`.
@@ -91,11 +104,11 @@ export function createCastHooks({ plans }) {
             // With world events on, someone held at a base is told as there, with its routine (world-parts/bases.js).
             mode, people: asked.map(item => basedView(askedAbout(item), item.person, worldEventsOn(view))),
             now: frame.calendar?.text ?? '', elapsed: due ? elapsedText(due.from, due.to) : '',
-            place: [frame.party.place, frame.party.region].filter(Boolean).join(', '),
+            place: whereText(frame),
             places: placesOf(frame.query), recent: recentStory(view?.model?.chat?.()),
         });
         return plans.start(key, async () => {
-            const result = await callOnce(model, { role: 'quick', system: request.system, prompt: request.prompt, maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
+            const result = await callOnce(model, { role: 'quick', system: filled(model, request.system), prompt: filled(model, request.prompt), maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
             if (!result?.ok) return { ok: false };
             const read = readCast(result.text, { refs, allow });
             return mode === 'judge' ? { ok: true, moves: [], comes: read.comes, died: [] } : { ok: true, ...read };
@@ -109,12 +122,12 @@ export function createCastHooks({ plans }) {
         const asked = list.slice(0, MAX_SOUGHT);
         const refs = refsOf(asked);
         const request = castRequest({
-            mode: 'sought', now: frame.calendar?.text ?? '', place: [frame.party.place, frame.party.region].filter(Boolean).join(', '), texts,
+            mode: 'sought', now: frame.calendar?.text ?? '', place: whereText(frame), texts,
             people: asked.map(item => ({ ref: item.ref, name: item.person.name, goal: item.entry.goal, routine: item.entry.routine, where: item.person.where, kind: kindWords(item.entry), met: false })),
         });
         const allow = { seek: new Set(asked.map(item => item.key)), kind: new Map(asked.map(item => [item.key, item.entry])) };
         return plans.start(key, async () => {
-            const result = await model.callModel({ role: 'quick', system: request.system, prompt: request.prompt, maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
+            const result = await model.callModel({ role: 'quick', system: filled(model, request.system), prompt: filled(model, request.prompt), maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
             if (!result?.ok) return { ok: false };
             // The cited words must stand in the reader's message or the reply as they were when the planner read them (readCast refuses others).
             return { ok: true, moves: [], comes: [], died: [], sought: readCast(result.text, { refs, allow, texts: [texts.reader, texts.reply] }).sought ?? [] };
@@ -183,8 +196,10 @@ export function createCastHooks({ plans }) {
         // A Continue (the same reply goes on) commits nothing but is told the same cue again (from the state it has).
         if (info?.commit === false) {
             if (normalizeType(info?.type) !== 'continue') return undefined;
-            const cast = castOf(queryOf(view));
-            const lines = cueLines(view?.state?.domains?.cast, cast, isInt(view?.chat?.length) ? view.chat.length : null);
+            const frame = frameOf(view);
+            const at = isInt(view?.chat?.length) ? view.chat.length : null;
+            const slice = view?.state?.domains?.cast;
+            const lines = withHere(cueLines(slice, frame.cast, at, chatOf(view)), slice, frame);
             return lines.length ? { lines: pinned(lines) } : undefined;
         }
         if (!REPLY_TYPES.has(normalizeType(info?.type))) return undefined;
@@ -289,7 +304,8 @@ export function createCastHooks({ plans }) {
             }
         }
         // The cue and the rumor go as pinned lines of this reply (Story Block keeps a `keep` cue whatever the tail budget says).
-        const lines = pinned(cueLines(world, frame.cast, isInt(view?.chat?.length) ? view.chat.length : null));
+        const now = isInt(view?.chat?.length) ? view.chat.length : null;
+        const lines = pinned(withHere(cueLines(world, frame.cast, now, chatOf(view)), world, frame));
         const problems = planFailed ? [PLAN_FAILED] : [];
         return commands.length || lines.length || problems.length ? { ...(commands.length ? { commands } : {}), ...(lines.length ? { lines } : {}), ...(problems.length ? { problems } : {}) } : undefined;
     }
@@ -308,7 +324,9 @@ export function createCastHooks({ plans }) {
         const chat = typeof view?.story?.chat === 'function' ? view.story.chat() : null;
         const message = Array.isArray(chat) ? chat[info.index] : null;
         if (!message || typeof message.mes !== 'string') return moved.length ? { commands: moved } : undefined;
-        const keys = unshown(slice, { index: info.index, text: shownText(message.mes), present: presentKeys(queryOf(view), view?.state), seen: seenKeys(info.receipts) });
+        // The meeting's reply as found now (S2PA B6: after a middle delete the recorded index is an old one).
+        const at = meetingAt(slice.meeting, chat);
+        const keys = unshown(slice, { index: info.index, text: shownText(message.mes), present: presentKeys(queryOf(view), view?.state), seen: seenKeys(info.receipts), at });
         const commands = [...(keys.length ? [{ type: 'cast.withdraw', payload: { at: info.index, keys } }] : []), ...moved];
         return commands.length ? { commands } : undefined;
     }

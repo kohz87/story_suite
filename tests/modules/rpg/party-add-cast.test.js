@@ -1,24 +1,8 @@
-// "Add to party" for a pack's cast member carries the same signature skills as the reply's card (so Edit first keeps them marked), and a chat change answers for the chat it lands on.
+// "Add to party": a chat change answers for the chat it lands on (a person's skills come from their NPC State record now; join-pull.test.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { JOIN_ADD } from '../../../modules/rpg/join.js';
-import { joinDraft } from '../../../modules/rpg/join-parts/draft.js';
-import { skip, reply, world, person, SKILLS, fieldsOf } from '../../core/cast-skills.helpers.js';
-
-test('a cast member from a pack: the People card and the reply card give the same payload, skills included, and Add seeds them', { skip }, async t => {
-    const host = await world(t, { list: [person({ skills: SKILLS })], join: 'ask' });
-    await host.send('Mara walks in.', reply('+ party Mara'));
-    const [story] = host.sdk.query('rpg.joins', {});
-    assert.ok(story.skills?.length, 'the reply\'s offer carries the pack skills');
-    const page = host.sdk.query('rpg.partyAdd', { name: 'Mara' });
-    assert.deepEqual(page.card.actions[1].payload, { name: 'Mara', soul: story.soul, best: story.best, skills: story.skills }, 'Edit first: the same payload');
-    assert.deepEqual(page.card.actions[0].payload, page.card.actions[1].payload);
-    // a person the pack does not know has no skills in the payload
-    assert.equal('skills' in host.sdk.query('rpg.partyAdd', { name: 'Stranger' }).card.actions[1].payload, false);
-    const added = await host.sdk.command(JOIN_ADD, page.card.actions[0].payload, { cause: 'ui' });
-    assert.equal(added.ok, true, added.message);
-    assert.ok(fieldsOf(host, 'mara-skills'), 'Mara\'s Skills block was made with her pack skills');
-});
+import { skip, world } from '../../core/cast-skills.helpers.js';
 
 test('a chat change: the query answers for the chat it lands on, and coming back gives the same story', { skip }, async t => {
     const host = await world(t, { join: 'ask' });
@@ -32,16 +16,4 @@ test('a chat change: the query answers for the chat it lands on, and coming back
     await host.st.loadChat(saved);
     assert.equal(JSON.stringify(host.head()), live, 'back in the first chat: the same story');
     assert.equal(host.sdk.query('rpg.partyAdd', { name: 'Mara' }), null);
-});
-
-test('Edit first keeps a cast skill\'s heal, defence and area type, in the payload and in the wizard draft', { skip }, async t => {
-    const typed = [
-        { name: 'Ferry Balm', about: 'Binds a wound.', stat: 'wis', uses: 'mana', type: 'heal' },
-        { name: 'Deck Brace', about: 'Plants the feet.', stat: 'str', type: 'defence' },
-        { name: 'Wake Sweep', about: 'A wide swing.', stat: 'agi', type: 'area' },
-    ];
-    const host = await world(t, { list: [person({ skills: typed })], join: 'ask' });
-    const edit = host.sdk.query('rpg.partyAdd', { name: 'Mara' }).card.actions[1];
-    assert.deepEqual(edit.payload.skills.map(skill => skill.type), ['heal', 'defence', 'area']);
-    assert.deepEqual(joinDraft(edit.payload).skills.map(skill => skill.type), ['heal', 'defence', 'area']);
 });

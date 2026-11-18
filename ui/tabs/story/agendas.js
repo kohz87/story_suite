@@ -12,7 +12,8 @@ function agendaRow(a, ctx) {
     h('div', { class: 'h' }, h('b', null, a.title),
       a.toldThisReply ? h('span', { class: 'tagx told', title: 'The narrator was told this in this reply' }, 'told this reply') : null,
       h('span', { class: 'tagx' }, `step ${a.step} of ${a.of}`)),
-    h('p', null, h('b', null, who), ` · ${a.text}`),
+    // The row's title is often the person's own name: said once.
+    a.who === a.title ? h('p', null, a.text) : h('p', null, h('b', null, who), ` · ${a.text}`),
     h('div', { class: 'agbar' }, h('b', { style: { width: `${pct}%` } })),
     h('div', { class: 'm' }, h('span', { class: 'why' }, a.why), h('span', null, `since ${a.since}`),
       h('span', null, `📍 ${a.place}`), h('span', null, `next: ${a.next}`)));

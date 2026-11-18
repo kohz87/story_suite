@@ -3,8 +3,9 @@
 import { oneLine } from '../../../core/text.js';
 import { CLASS_NAMES, PARTY_ACTIVE } from '../names.js';
 import { RPG_STRINGS, fill } from '../strings.js';
-import { levelOfClass } from '../formula.js';
+import { levelOfJoinClass } from '../formula.js';
 import { benchable } from './party.js';
+import { partyTop } from './check.js';
 import { JOIN_ADD, JOIN_BENCH, JOIN_NO } from './commands.js';
 
 const J = RPG_STRINGS.join;
@@ -32,15 +33,17 @@ export function joinCard(offers, state = null, isMe = () => false) {
             text: fill(offer.declined ? J.benchDeclined : J.benchWho, { name: offer.name }), actions };
     }
     // (a cast member's signature skills, as the pack had them when the line came, go with Edit first: the wizard's draft keeps them marked)
-    const payload = { name: offer.name, soul: offer.soul, best: offer.best, ...(offer.skills ? { skills: offer.skills } : {}) };
-    // (the class a line writes stands for a level, 10n - 5: the card says the level the companion will start at)
-    const rows = [{ icon: 'fa-star', text: fill(J.rowLevel, { level: levelOfClass(CLASS_NAMES[offer.soul - 1] ? offer.soul : 1) }) }];
+    const payload = { name: offer.name, soul: offer.soul, best: offer.best, ...(offer.level ? { level: offer.level } : {}), ...(offer.skills ? { skills: offer.skills } : {}) };
+    // (the class a line writes stands for a level, 10n - 5, never above the party's highest level, unless the person's record states one: the card says the level the
+    // companion will start at, and Edit first opens the wizard at that level, as Add to party makes them)
+    const level = offer.level ?? levelOfJoinClass(CLASS_NAMES[offer.soul - 1] ? offer.soul : 1, state ? partyTop(state) : null);
+    const rows = [{ icon: 'fa-star', text: fill(J.rowLevel, { level }) }];
     if (offer.best) rows.push({ icon: 'fa-arrow-up', text: fill(J.rowBest, { stat: offer.best.toUpperCase() }) });
     return {
         tone: 'accent', icon: 'fa-user-plus', title: fill(J.title, { name: offer.name }), rows,
         actions: [
             { id: 'add', label: J.add, icon: 'fa-check', primary: true, command: JOIN_ADD, payload: offer.four ? { ...payload, four: true } : payload },
-            { id: 'edit', label: J.edit, icon: 'fa-pencil', open: 'story-block/new-character', payload },
+            { id: 'edit', label: J.edit, icon: 'fa-pencil', open: 'story-block/new-character', payload: { ...payload, level } },
             { id: 'no', label: J.no, icon: 'fa-xmark', command: JOIN_NO, payload: { name: offer.name } },
         ],
     };

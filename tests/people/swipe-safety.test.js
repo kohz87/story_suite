@@ -16,9 +16,9 @@ test('swipe branch handling waits for SillyTavern swipe idle before dossier gene
     assert.doesNotMatch(index, /events\.MESSAGE_SWIPED[\s\S]{0,450}?queueBranchReconcile/);
     assert.match(index, /if \(!allowDuringSwipe && isHostSwipeActive\(\)\)/, 'scanNow must refuse hidden generation during host swipe');
     assert.match(index, /MESSAGE_RECEIVED while swipeState is still SWIPING[\s\S]*?queueSettledSwipeReconcile/, 'early MESSAGE_RECEIVED must be deferred');
-    assert.match(index, /const reconciliation = await reconcileCurrentBranch\([\s\S]*?if \(reconciliation\?\.requiresRescan === false\) return;/, 'an exact known sibling must skip another LLM scan while a parent/root restore still rebuilds the new swipe');
+    assert.match(index, /rt\.deferredSwipeMessageId = null;\n\s+try \{\n\s+await reconcileCurrentBranch\(/, 'the settled swipe only settles: the swiped reply is read again through the store head, not here');
     assert.match(index, /lineageMoved\(scanLineage, currentLineage, messageId\) \|\| Number\(stateVersions\.get\(scanChatKey\)[\s\S]*?stale result was discarded/, 'async scan results must be invalidated by either branch lineage or dossier-state changes');
-    assert.match(index, /const scanExpected = shouldForceBranchScan \|\| autoScanDue \|\| captureDue;[\s\S]*?commitBranchCheckpoint\(state, messageId, 'turn'\)/, 'assistant receipt must be checkpointed independently of whether its scan succeeds');
+    assert.match(index, /const scanExpected = autoScanDue \|\| captureDue;[\s\S]*?noteChatLineage\(state\)/, 'the assistant receipt notes the lineage whether or not its scan succeeds');
 });
 
 test('a reply rewritten in place by another extension is still the same reply (1.2.9)', () => {

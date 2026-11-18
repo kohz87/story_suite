@@ -5,17 +5,20 @@ import { fightHook, fightXp } from '../fight.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../levels.js';
 import { checkStep, checksHook, practiceHook, practiceStep } from '../practice.js';
 import { diceRecord } from '../checks/dice.js';
-import { JOIN_NO, joinCard, joinOffers, partyAdd, partyOf } from '../join.js';
+import { JOIN_NO, joinCard, joinOffers, openJoinOffers, partyAddQuery, partyOf } from '../join.js';
 import { fold } from '../read.js';
 import { createPrecall } from '../precall.js';
 import { FOES_TOUCH_QUERY } from '../names.js';
 import { lastFoeTouch } from '../board/offers.js';
+import { BOARD_LAPSE } from '../names.js';
+import { lapseCommand } from '../board/lapse.js';
 import { leanRpgGuard } from '../guard.js';
 import { rollsOf } from '../rolls-read.js';
 import { skipOf } from '../start.js';
 import { levelsQuery, rosterQueries } from '../roster.js';
 import { createBoardPart } from '../board/overrides.js';
 import { sheetQuery } from '../sheet-query.js';
+import { characterFileQuery } from '../export-query.js';
 import { termsQuery } from '../terms.js';
 
 /** The part's settings (Story Block's own bucket). */
@@ -24,6 +27,8 @@ export const DEFAULT_SETTINGS = Object.freeze({ [PRACTICE_SETTING]: PRACTICE.per
 /** The offers a reply's `+ party` lines made under Ask (the card under the reply reads them): `rpg.joins { index? }` → [{ name, soul, best }] on the head reply (or the reply `index`). */
 export const JOINS_QUERY = 'rpg.joins';
 export const PARTY_ADD_QUERY = 'rpg.partyAdd';
+/** Every companion offer nobody has answered yet, across the whole chat (the Now tab's Needs you reads it): `rpg.joinsOpen {}` → [{ name, soul, best }]. */
+const JOINS_OPEN_QUERY = 'rpg.joinsOpen';
 
 /**
  * The part merged into Story Block's core module (domains/index.js). `deps` (all optional):
@@ -46,6 +51,8 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
             ...board.commands,
             // A reply's three story-check dice (checks/dice.js): a prelude, drawn from the receipt's seed, so a swipe rolls anew and a Re-read keeps them. Not tied to the feature either.
             [DICE]: Object.assign((ctx, payload) => diceRecord(ctx, payload), { prelude: true, internal: true }),
+            // A standing fight the reader did not play, cleared as a prelude of the reply (board/lapse.js). Not tied to the feature either: a Re-read keeps it.
+            [BOARD_LAPSE]: Object.assign((ctx, payload) => lapseCommand(ctx, payload), { prelude: true, internal: true }),
             // The results of a reply's story checks, a step after its lines (practice.js). Not tied to the feature either: a Re-read keeps it.
             [CHECK_STEP]: Object.assign((ctx, payload) => checkStep(ctx, payload), { internal: true }),
             // XP for a won fight, a step after the reply's lines (fight.js). Not tied to the feature either: a Re-read keeps it.
@@ -65,8 +72,9 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
         queries: {
             ...board.queries,
             [JOINS_QUERY]: Object.assign((state, args, tools) => joinOffers(tools?.receipts?.() ?? [], Number.isInteger(args?.index) ? args.index : tools?.reply?.index, partyOf(state)), { feature: LEAN_RPG_FEATURE }),
+            [JOINS_OPEN_QUERY]: Object.assign((state, _args, tools) => openJoinOffers(tools?.receipts?.() ?? [], partyOf(state)), { feature: LEAN_RPG_FEATURE }),
             // "Add to party" on a person's People page: { name } → the join card for them, or null when they may not join (join-parts/add.js).
-            [PARTY_ADD_QUERY]: Object.assign((state, args, tools) => partyAdd(state, args?.name, isMe, (() => { try { return tools?.query?.('packs.content', { kind: 'cast' }); } catch { return []; } })()), { feature: LEAN_RPG_FEATURE }),
+            [PARTY_ADD_QUERY]: Object.assign(partyAddQuery(isMe), { feature: LEAN_RPG_FEATURE }),
             // The rank a level falls in, by the story's pack (levels.js): { level } → { name } | null.
             [RANK_QUERY]: Object.assign(rankQuery, { feature: LEAN_RPG_FEATURE }),
             // The chat index of the latest reply that touched the Foes block, -1 when none (board/offers.js lastFoeTouch): the stale-foes rule reads it.
@@ -78,6 +86,8 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
             'party.levels': Object.assign(levelsQuery, { feature: LEAN_RPG_FEATURE }),
             // Each member's sheet for the Party tab, the Card and the Now tab (sheet-query.js), and the word a level is called (terms.js).
             'rpg.sheet': Object.assign((state, args, tools) => sheetQuery(state, { persona: args?.persona ?? persona() }, tools), { feature: LEAN_RPG_FEATURE }),
+            // One member's saved character file for Export (export-query.js).
+            'rpg.characterFile': Object.assign((state, args, tools) => characterFileQuery(state, { ...args, persona: args?.persona ?? persona() }, tools), { feature: LEAN_RPG_FEATURE }),
             'party.terms': Object.assign(termsQuery, { feature: LEAN_RPG_FEATURE }) },
         hooks: {
             canGenerate: Object.assign((view, info) => precall.canGenerate(view, info), { feature: LEAN_RPG_FEATURE }),

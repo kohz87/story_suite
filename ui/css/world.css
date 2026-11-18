@@ -2,6 +2,9 @@
 .world-tab{display:flex;flex-direction:column;gap:12px;min-width:0;--pk-disc:#3a3c52}
 [data-scheme="light"] .world-tab{--pk-disc:#4a4d68}
 .world-tab .wbody{display:flex;flex-direction:column;gap:12px;min-width:0}
+.world-tab .wplaces ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.world-tab .wplaces small,.world-tab .wplaces .st{color:var(--su-muted)}
+.world-tab .wplaces .st{margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--su-line2);font:700 12px var(--su-font)}
 .world-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .world-tab .ch{display:flex;align-items:center;gap:10px}
 .world-tab .ch h3{margin:0;font:700 19px var(--su-font);color:var(--su-text);flex:1}
@@ -14,7 +17,7 @@
 /* map tools */
 .mtools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .mtools .psrch{flex:1 1 100%;min-height:44px;font:600 14px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 12px}
-.mtools select{flex:1 1 0;min-width:0;min-height:44px;font:700 13px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 10px}
+.mtools select{flex:1 1 0;min-width:9em;min-height:44px;font:700 13px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 10px}
 .mtools .ibtn{width:44px;height:44px;min-height:44px;flex:none;border-radius:11px}
 .mtools .ibtn svg{width:17px;height:17px}
 @container (min-width:620px){.mtools .psrch{flex:1 1 160px}.mtools select{flex:0 0 auto}}

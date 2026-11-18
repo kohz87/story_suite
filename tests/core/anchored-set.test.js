@@ -83,6 +83,15 @@ test('anchored value: as stored when now == was; a whole-day shift; same clamps;
     assert.equal(isAnchored({ ...op(1, 0), to: 1.5 }), false);
 });
 
+test('anchored value, roll `day` (soak W4): its place in the period moves with the period, below now too', () => {
+    const face = op(130, 180, 'day');   // set to 130 when the count stood at 180, in the same period
+    assert.equal(isAnchored(face), true);
+    assert.equal(anchoredValue(face, 180), 130, 'as stored');
+    assert.equal(anchoredValue(face, 20), 30, 'a period back: a period earlier');
+    assert.equal(anchoredValue(face, 150), 130, 'the same period: the same place, though below now');
+    assert.equal(anchoredValue(face, 390), 330, 'two periods on');
+});
+
 test('rebaseOps: an anchored set stands as stored on the value it was made on, follows another one, and an op without the mark is unchanged', () => {
     const stored = op(150, 120);
     assert.equal(rebase(120, stored)[0], stored, 'now == was: the op itself');

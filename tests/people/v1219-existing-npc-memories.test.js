@@ -7,7 +7,7 @@ import {
     buildScannerPrompt,
     extractNarrationCapture,
     mergeScanResult,
-    parseNarrationCapture,
+    parseScanJson,
 } from '../../modules/people/core/core.js';
 
 // (1.2.19) An NPC already in the dossier gains new memories: they are added to the stored ones,
@@ -71,23 +71,20 @@ test('v1.2.19 a one-pass block that adds a memory for a known NPC parses and mer
     const reply = `Elke leans over the counter. "Brecht's boys watch the docks."\n<!--npc_state_delta {"npcs":[{"id":"${elke(state).id}","name":"Elke","present":true,"memories":["${M2}"]}]} -->`;
     const found = extractNarrationCapture(reply);
     assert.equal(found.status, 'found');
-    const scan = parseNarrationCapture(found.raw);
+    const scan = parseScanJson(found.raw);
     assert.deepEqual(scan.npcs[0].memories, [M2]);
     state = merge(state, scan, 2);
     assert.deepEqual(elke(state).memories, [M1, M2]);
 });
 
-test('v1.2.19 the capture rules ask for only new memories, in the npcs[] entry, as additions (full, compact, scanner, reminder)', () => {
+test('v1.2.19 the capture rules ask for only new memories, in the npcs[] entry, as additions (full, scanner, reminder)', () => {
     const options = { transcript: 'USER: hi', userName: 'Astra', charName: 'Narrator', existingNpcs: [{ id: 'npc_elke', name: 'Elke', present: true, memories: [M1] }] };
     const full = buildNarrationCaptureParts(options).rules;
-    const compact = buildNarrationCaptureParts({ ...options, compactCapture: true }).rules;
     const scanner = buildScannerPrompt(options);
     for (const text of [full, scanner]) {
         assert.match(text, /14\. Memories: max3 NEW in npcs\[\] \(existing too\), ADDED to cap5 stored; no duplicate\/paraphrased memories\./);
     }
-    assert.match(compact, /10\. memories, in npcs\[\] for existing NPCs too: only NEW events from this exchange \(max 3\), added to the stored \(cap 5\); never resend or paraphrase those/);
     assert.match(NARRATION_CAPTURE_REMINDER, /\(memories: only the new one, in its npcs\[\] entry\)/);
     // Static rules stay byte-identical when the dossier changes.
     assert.equal(buildNarrationCaptureParts({ ...options, existingNpcs: [] }).rules, full);
-    assert.equal(buildNarrationCaptureParts({ ...options, compactCapture: true, existingNpcs: [] }).rules, compact);
 });

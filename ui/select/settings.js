@@ -11,10 +11,12 @@ import { rpgFeatureRows, withoutRpgFeatures } from './rpg-features.js';
 import { worldRows } from './settings-world.js';
 import { extrasRows, withExtras } from './settings-extras.js';
 import { selectPacks } from './packs.js';
+import { selectYouStartRows } from './you-start.js';
 import { selectAddons } from './addons.js';
 import { BUDGETS, LOOK } from './host-keys.js';
 import { CARD_TEXT, PRESET_TEXT } from './module-text.js';
 import { moduleCosts } from './module-costs.js';
+import { CORE_FEATURE } from '../../core/features.js';
 import { LEAN_RPG_FEATURE } from '../../modules/rpg/names-parts/feature.js';
 
 // The Settings page a module's feature switches belong to, when it is not the module's own id.
@@ -72,7 +74,10 @@ function presetOf(list) {
   return ['lean', 'standard', 'full'].find(n => own.every(f => (f.on === true) === presetValue(f, n))) ?? null;
 }
 
-function moduleParts(features) {
+// Shown on the "Roll checks before the reply" row while the RPG has a Character: the pre-roll steps aside then (modules/assist/classifier-parts/create.js), so the row is drawn locked, with the reason.
+const ROLLS_HELD = 'Not used while the RPG has a Character: its fight board rolls the checks.';
+
+function moduleParts(features, held = false) {
   const defs = new Map();
   for (const f of features) {
     if (!isObj(f) || typeof f.id !== 'string') continue;
@@ -80,6 +85,7 @@ function moduleParts(features) {
     if (!defs.has(id)) defs.set(id, { id, name: String(f.moduleName ?? id), icon: '', section: SECTION_OF[id] ?? id, desc: '', off: '', tokens: null, ...CARD_TEXT[id], subs: [] });
     const sub = { key: f.id, label: String(f.label ?? f.id), hint: String(f.describe ?? ''), on: f.on === true };
     if (f.available === false && typeof f.why === 'string') sub.needs = f.why;
+    if (held && f.id === CORE_FEATURE.preroll) Object.assign(sub, { locked: true, lockWhy: ROLLS_HELD });
     defs.get(id).subs.push(sub);
   }
   const defList = [...defs.values()];
@@ -91,7 +97,7 @@ function moduleParts(features) {
 /**
  * `answers`: { host: settings() (SB sdk/settings.js:74, stored over defaults), defaults: HOST_SETTINGS_DEFAULTS (sdk/constants.js:10),
  * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), modules?: sdk.modules() (the Add-ons page's installed list), subtitle?, people?: the NPC State settings (sdk.settings('npc-state-delta')), director?: settings('story-director') (the World page's values), directorPage?: { values: settings per module id, features } (the Director page), tools?: { sent: the handle's sent(), problems, blocked, nameOf }, staticTokens?: the tools handle's staticTokens(switches) (the Start cards' and presets' token figures; absent: no figure) }.
- * → the settings view-model (contract/settings.js), or null when neither host settings nor a feature list was read.
+ * → the settings view-model (contract/settings.js; `rollsHeld`: the RPG is on and has a Character, so the pre-roll row is locked), or null when neither host settings nor a feature list was read.
  * Gaps (per-chat module sets) are empty or null.
  */
 export function selectSettings(answers) {
@@ -105,23 +111,24 @@ export function selectSettings(answers) {
   const budgetRows = rowsOf('Budgets', BUDGETS, host, schema, defaults);
   const t = isObj(a.tools) ? a.tools : {};
   const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
-  const parts = withoutRpgFeatures(withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []));
+  const parts = withoutRpgFeatures(withExtras(moduleParts(hasFeatures ? a.features : [], a.rollsHeld === true), hasFeatures ? a.features : []));
   const costs = moduleCosts(hasFeatures ? a.features : [], parts.defList.filter(d => CARD_TEXT[d.id]), a.staticTokens);
   const defList = parts.defList.map(d => (CARD_TEXT[d.id] ? { ...d, tokens: costs.cards[d.id] } : d));
   const set = parts.set;
   // The RPG and fights page only while the RPG is on (its stored values stay as they are); a host without the RPG feature keeps the page.
   const rpgOff = hasFeatures && a.features.some(f => f?.id === LEAN_RPG_FEATURE && f.on !== true);
+  const packs = selectPacks(a.packsAnswers);
   const sections = [
-    section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
+    section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', packs.v4 ? selectYouStartRows(a.packsAnswers?.own, a.money) : [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
-    section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people)),
+    section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people, { presets: a.peoplePresets, features: a.features })),
     ...(rpgOff ? [] : [section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression, fights, and what you take, carry and wear. The checks’ numbers are in Director.', [...selectRpgRows(a.rpg), ...rpgFeatureRows(hasFeatures ? a.features : [])])]),
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [], a.directorCalls)),
     ...[selectDirector(a.directorPage)].filter(Boolean),
     section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
-    section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter, your look and trackers.', extrasRows(a.extras)),
+    section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter and your look.', extrasRows(a.extras, hasFeatures ? a.features : undefined)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, keepBlocks: host.keepRecentBlocks, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
-    section('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
+    section('packs', 'Setup', 'Packs and trackers', packs.v4 ? 'Your world and game, add-on packs, data modules and your trackers.' : 'Content packs, data modules and your trackers.', [], 'packs'),
     section('addons', 'Setup', 'Add-ons', 'The plug-in modules installed.', selectAddons(a.modules)),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
@@ -129,7 +136,7 @@ export function selectSettings(answers) {
     subtitle: typeof a.subtitle === 'string' ? a.subtitle : null,
     sent,
     removed: [],
-    packs: selectPacks(a.packsAnswers),
+    packs,
     sections,
     modules: { scope: 'chat', chat: set, newChats: {}, preset: hasFeatures ? presetOf(a.features) : null, presets: hasFeatures ? PRESET_TEXT.map(p => ({ ...p, tokens: costs.presets[p.id] })) : [], defs: defList },
     connections: selectConnections(host, isObj(a.profiles) ? a.profiles : null),

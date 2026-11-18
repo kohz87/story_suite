@@ -10,7 +10,8 @@ import { occurrenceOf } from '../evidence.js';
 import { readRecord } from '../persist.js';
 import { LEAN_RPG_FEATURE, practiceFromRollsOnly } from '../../modules/rpg/names.js';
 import { allRuleNames, foeLine, ruleMarksFor, ruleMarksOf } from './rule-marks.js';
-import { earlierReceipts, moneyWarning } from './money-guard.js';
+import { earlierReceipts, moneyWarning, openRewards } from './money-guard.js';
+import { currencyOf } from '../../modules/inventory/money-parts/coins.js';
 import { lineMark, occurrenceFor } from './capture-seeds.js';
 
 // The Assist safety net's marks on its receipts and Problems (MODULES §F123).
@@ -46,6 +47,9 @@ export function createCaptureEach(s, deps) {
         // Display kinds (written words) whose lines were read while their feature was off (capture.js markOff).
         const off = new Set();
         let state = base ?? store.head();
+        // The open quests' rewards as the reply began (a line of this reply that closes a quest does not make its payment "far above"), in the chat's coins.
+        const currency = currencyOf(settings?.('story-block'));
+        const startRewards = openRewards(state, currency);
         // ctx.carrier and ctx.chat for the capture handlers (MODULES §F2's capture context).
         const message = ctx?.chat?.[index];
         // `sid`: the reply's record ID, which stays with the reply when earlier messages are deleted.
@@ -144,7 +148,7 @@ export function createCaptureEach(s, deps) {
             }
             state = result.state ?? (base ? state : store.head());
             // The money guard (warns only; the line is applied): a repeated payment or one far above the purse.
-            const warned = line.op === '+' ? moneyWarning(result.receipt, [...earlierReceipts(ctx?.chat, index), ...receipts], earlierReceipts(ctx?.chat, index, 1)) : null;
+            const warned = line.op === '+' ? moneyWarning(result.receipt, [...earlierReceipts(ctx?.chat, index), ...receipts], earlierReceipts(ctx?.chat, index, 1), [...startRewards, ...openRewards(state, currency)]) : null;
             if (warned) found.push(problem({ module: entry.moduleId, index, line: line.raw, code: 'LIMITED', message: warned }));
             receipts.push(result.receipt);
             // Used, but not all of it (a clamp): the owner says why, and that goes to the Problems list.

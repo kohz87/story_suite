@@ -9,7 +9,9 @@ import { checkShape } from '../../ui/contract/shapes.js';
 import { CHAT_SHAPE } from '../../ui/contract/chat.js';
 
 const BLOCK = '\n<Changes>\n+ item Rope | qty: 2\n- item Lantern | qty: 1\n+ coin 5\n~ place Auvoth\n+ present Fenna\n</Changes>';
+// The engine's lines; the view adds the coin's unit (W33).
 const LINES = ['+2 Rope', '+5', 'To Auvoth', 'Fenna arrived'];
+const VIEW_LINES = ['+2 Rope', '+5 gold', 'To Auvoth', 'Fenna arrived'];
 
 const portOf = host => createSbPort({ sdk: host.sdk, selectors: buildSelectors(() => host.ctx, host.sdk) });
 const linesOf = (host, index) => host.sdk.query('reply.changes', index === undefined ? {} : { index, asOf: index })?.lines.map(row => row.line);
@@ -27,7 +29,7 @@ test('the reply menu and the inline row read one reply\'s applied lines, and fit
   const host = await story(t);
   const view = portOf(host).view('chat');
   assert.deepEqual(checkShape(view.replyMenu, CHAT_SHAPE.replyMenu), []);
-  assert.deepEqual(view.replyMenu.lines.map(row => row.line), LINES);
+  assert.deepEqual(view.replyMenu.lines.map(row => row.line), VIEW_LINES);
   assert.deepEqual(view.replyMenu.counts, { changes: 4, heldBack: 0, notApplied: 0 });
   assert.equal(view.replyMenu.stateThen.place, 'Auvoth');
   assert.equal(view.inlineRow.changes, 4);
@@ -47,7 +49,8 @@ test('a reply with no receipts answers null, so the card hides', async t => {
   const host = await story(t);
   await host.send('Quiet.', 'Nothing happens.');
   assert.equal(host.sdk.query('reply.changes', {}), null);
-  assert.equal(menuOf(host), null);
+  // (the ✦ sheet stays on a recorded reply with no lines, so Re-read is still reachable)
+  assert.deepEqual(menuOf(host).lines, []);
   assert.equal(portOf(host).view('chat').inlineRow.changes, 0);
 });
 
@@ -69,7 +72,7 @@ test('swipe, swipe back, a middle delete, a rewind and a reload give the same li
   await host.st.deleteMessage(4);
   await host.st.deleteMessage(3);
   assert.deepEqual(linesOf(host), LINES, 'rewind');
-  assert.deepEqual(menuOf(host).lines.map(row => row.line), LINES);
+  assert.deepEqual(menuOf(host).lines.map(row => row.line), VIEW_LINES);
   // Middle delete: the reader's message before a reply goes; the reply's lines stay on its reply.
   const again = await createHost({ core: true });
   t.after(() => again.close());
@@ -99,10 +102,20 @@ test('a Re-read (unedited, grown, shrunk) gives the lines its text has', async t
   assert.deepEqual(linesOf(host), ['+2'], 'reload after the Re-read');
 });
 
-test('with the query gone the selectors give no lines and no menu (the fix is what fills them)', async t => {
+test('with the query gone the selectors give no lines (the fix is what fills them)', async t => {
   const host = await story(t);
   const sdk = { ...host.sdk, query: (name, args) => (name === 'reply.changes' ? undefined : host.sdk.query(name, args)) };
   const view = createSbPort({ sdk, selectors: buildSelectors(() => host.ctx, sdk) }).view('chat');
-  assert.equal(view.replyMenu, null);
+  assert.deepEqual(view.replyMenu.lines, []);
   assert.equal(view.inlineRow.changes, 0);
+});
+
+test('a delete that leaves a reply with no change lines last keeps its ✦ sheet (the button stays reachable)', async t => {
+  const host = await story(t);
+  await host.send('Quiet.', 'Nothing happens.');
+  await host.send('More.', 'Still nothing.');
+  await host.st.deleteMessage(1);
+  assert.deepEqual(menuOf(host).lines, []);
+  await host.st.deleteMessage(host.ctx.chat.length - 1);
+  assert.notEqual(menuOf(host), null);
 });

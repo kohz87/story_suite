@@ -1,0 +1,101 @@
+name: UI walk
+
+# A click-through of every Settings control in a real SillyTavern (scripts/ui-walk/settings-walk.mjs), one job per size and theme.
+# It runs for a manual run, for a release pull request (head branch release/...), and for a pull request that touches
+# ui/, core/sdk/, a modules/**/settings* file, css, a UI file in packs/ or the walk itself (scripts/ci/ui-walk-scope.sh decides).
+# It is a separate workflow, not a job in ci.yml: it is skipped for other pull requests, so it is not one of verify's needs.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ui-walk-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The SillyTavern release the walk runs against: the one the owner's replica uses. Change it with the replica.
+  SILLYTAVERN_TAG: 1.19.0
+
+jobs:
+  scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.scope.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Does this change need the walk?
+        id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          files=""
+          if [ "$EVENT" = "pull_request" ] && [ -n "$BASE" ]; then files="$(git diff --name-only --no-renames "$BASE" HEAD)"; fi
+          FILES="$files" bash scripts/ci/ui-walk-scope.sh
+          cat "$GITHUB_OUTPUT"
+
+  walk:
+    needs: scope
+    if: ${{ needs.scope.outputs.run == 'true' }}
+    runs-on: ubuntu-latest
+    # One size and theme takes about 8 minutes (a full run of all six, one after another, about 47).
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        size: ["1920x1080", "1280x800", "390x844"]
+        theme: [dark, light]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install root dev dependencies (the browser package)
+        run: npm ci
+      - name: SillyTavern at the pinned release
+        uses: actions/checkout@v4
+        with:
+          repository: SillyTavern/SillyTavern
+          ref: ${{ env.SILLYTAVERN_TAG }}
+          path: st
+      - name: Cache SillyTavern's packages
+        uses: actions/cache@v4
+        with:
+          path: st/node_modules
+          key: st-modules-${{ env.SILLYTAVERN_TAG }}-${{ runner.os }}-${{ hashFiles('st/package-lock.json') }}
+      - name: Install SillyTavern's packages
+        working-directory: st
+        run: npm ci --no-audit --no-fund
+      - name: Cache the browser
+        id: browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install the browser
+        run: |
+          if [ "${{ steps.browser.outputs.cache-hit }}" = "true" ]; then npx playwright install-deps chromium; else npx playwright install --with-deps chromium; fi
+      - name: Walk every Settings control (a failed row fails this check)
+        run: bash scripts/ci/ui-walk-run.sh st 8000 "$RUNNER_TEMP/walk" --sizes "${{ matrix.size }}" --themes "${{ matrix.theme }}"
+      - name: Put the table in the run summary
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/walk/results.md" ]; then
+            { echo "### ${{ matrix.size }} ${{ matrix.theme }}"; sed -n '1,60p' "$RUNNER_TEMP/walk/results.md"; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Keep the table and the failure screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-walk-${{ matrix.size }}-${{ matrix.theme }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/walk
+          if-no-files-found: warn
+          retention-days: 7

@@ -21,10 +21,11 @@ function featureRow(def, sub, state) {
   const { set, defs, change } = state;
   const ok = needsOk(sub, defs, set);
   const on = set[def.id].on;
-  const sw = toggle({ checked: set[def.id].subs[sub.key], label: sub.label, disabled: !on, dataset: { sub: `${def.id}:${sub.key}` }, onChange: v => change(def.id, sub.key, v) });
+  const sw = toggle({ checked: set[def.id].subs[sub.key], label: sub.label, disabled: !on || sub.locked === true, dataset: { sub: `${def.id}:${sub.key}` }, onChange: v => change(def.id, sub.key, v) });
   const needs = sub.needs ? [' · ', h('span', { class: ok ? 'needok' : 'needbad' }, `needs ${sub.needs}${ok ? '' : ' (off)'}`)] : null;
-  const row = h('div', { class: ['srow', 'swrow', 'sub', !on && 'dis'] },
-    h('span', { class: 'lb' }, labelWithTags(sub.label, tagNodes(sub.tags)), h('small', sub.hint, needs)), h('span', { class: 'ctl' }, sw));
+  const why = sub.locked === true && sub.lockWhy ? [' · ', h('span', { class: 'needbad' }, sub.lockWhy)] : null;
+  const row = h('div', { class: ['srow', 'swrow', 'sub', (!on || sub.locked === true) && 'dis'] },
+    h('span', { class: 'lb' }, labelWithTags(sub.label, tagNodes(sub.tags)), h('small', sub.hint, needs, why)), h('span', { class: 'ctl' }, sw));
   row.addEventListener('click', (e) => { if (!e.target.closest('button')) sw.click(); });
   return row;
 }
@@ -58,7 +59,7 @@ export function renderStart(state) {
   // No New chats set is stored yet (per-chat sets are not built): the switches are one set for every chat, so the scope switch is not drawn.
   const perChat = Object.keys(modules.newChats ?? {}).length > 0;
   const scopeCard = !perChat
-    ? h('div', { class: 'scope' }, h('small', 'These switches apply to every chat.'))
+    ? h('div', { class: 'scope' }, h('small', 'These switches are the same in every chat.'))
     : h('div', { class: 'scope' }, h('span', 'Modules and features for'),
       segmented({ items: [['chat', chat ? `This chat · ${chat}` : 'This chat'], ['newChats', 'New chats']], value: scope, label: 'Modules and features for', className: 'sseg2', onChange: setScope }),
       h('small', chatScope

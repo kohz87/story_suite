@@ -36,12 +36,15 @@ test('pulse hides what a roll caused until the plan is shown', () => {
   installFakeDom();
   const hid = directorCards(buildStory())[0];
   assert.equal(hid.querySelector('.die').textContent, '?');
+  assert.match(hid.querySelector('.die').getAttribute('title'), /Show the plan/, 'the "?" says why it is a "?"');
+  assert.match(hid.querySelectorAll('.rrow .rd')[0].getAttribute('aria-label'), /hidden/i);
   assert.match(text(hid), /Rolled this reply/);
   assert.equal(hid.querySelectorAll('.rrow').length, 5);
   assert.match(text(hid.querySelectorAll('.rrow')[0]), /part of the plan/);
   assert.match(text(hid.querySelectorAll('.rrow')[2]), /Skipped.*quiet scene/);
   const shown = directorCards(buildStory({ planShown: true }))[0];
   assert.equal(shown.querySelector('.die').textContent, '14');
+  assert.equal(shown.querySelector('.die').getAttribute('title'), null, 'a shown roll carries no hidden mark');
   assert.match(text(shown), /Rumour/);
   assert.match(text(shown), /rumour recorded/);
 });
@@ -88,4 +91,15 @@ test('beats, clocks, hooks and news render their rows with plan on', () => {
   assert.match(text(c[5]), /A buyer for the east-quay crate/);
   assert.match(text(c[6]), /reaches you Goldwane 14/);
   assert.equal(directorCards(buildStory({ empty: true })).filter(Boolean).length, 2);
+});
+
+test('before any roll or arc, no "Rolled this reply ?" and no End this arc', () => {
+  installFakeDom();
+  const base = buildStory();
+  const cards = directorCards({ ...base, plan: { ...base.plan, shown: true }, pulse: { mode: 'lively', quiet: false, latest: null, recent: [] }, arc: { accepted: null, plan: null, open: false } }, makeCtx());
+  const pulse = cards.find(c => c?.dataset?.card === 'pulse'), arc = cards.find(c => c?.dataset?.card === 'arc');
+  assert.match(text(pulse), /No roll yet/);
+  assert.doesNotMatch(text(pulse), /Rolled this reply/);
+  assert.equal(arc.querySelector('[data-act="arc-end"]'), null);
+  assert.notEqual(arc.querySelector('[data-act="arc-plan"]') ?? true, null);
 });

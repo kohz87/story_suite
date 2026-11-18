@@ -151,7 +151,7 @@ export function createCtxTools({
             },
             // A count this command sets to a value that depends on the one before it (a clock face is today's time: SPEC §2.2 rule h): its write
             // keeps `was` and a `period` (whole units, a day's 1440 minutes) and a `roll` ('same': never below the value before it; 'after': always
-            // after it). `to` is the face before a 'same' clamp (the number asked for, when the count stood past it): replay clamps it again, so an
+            // after it; 'day': the same place in the period, below the value before it too). `to` is the face before a 'same' clamp (the number asked for, when the count stood past it): replay clamps it again, so an
             // edit or delete before it lands where a fresh telling would. When replay finds the count as it was, it applies as written; otherwise it
             // keeps its offset in whole periods.
             anchored(domain, path, { period, roll, to } = {}) {
@@ -160,7 +160,7 @@ export function createCtxTools({
                 if (owner !== moduleId) fail('NOT_OWNER', `${moduleId} cannot set a count in ${domain}: only its owner can.`);
                 if (typeof path !== 'string' || !/^\/[^~]/.test(path)) fail('INVALID', `A count to set is a path inside the domain, like "/time/minutes", not "${path}".`);
                 if (!Number.isSafeInteger(period) || period < 1) fail('INVALID', 'An anchored set needs a period of a whole number, 1 or more.');
-                if (!ROLLS.has(roll)) fail('INVALID', `An anchored set rolls "same" or "after", not "${roll}".`);
+                if (!ROLLS.has(roll)) fail('INVALID', `An anchored set rolls "same", "after" or "day", not "${roll}".`);
                 if (to !== undefined && !Number.isSafeInteger(to)) fail('INVALID', 'The face (to) of an anchored set is a whole number.');
                 const at = `/domains/${escapeKey(domain)}${path}`;
                 if (tx.absolute.has(at)) fail('CONFLICT', `${path} is already marked as a set (ctx.absolute); it cannot be anchored too.`);

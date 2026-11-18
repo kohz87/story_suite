@@ -65,16 +65,15 @@ export const tailOf = s => s.host.registry.module(MODULE_ID).context.tail({ stat
 export const lowTrust = () => { const records = dossiers(); records.npc_oren.relationship.trust = -50; return records; };
 
 export const MOOD_ON = { 'npc-state-delta.mood-pull': true };
-// A stand-in for Story Director's threads and key people and Story Block's party: one domain, queries read it as of the reply.
+// A stand-in for Story Director's threads and Story Block's party: one domain, queries read it as of the reply.
 export const worldModule = {
     id: 'zz-world', name: 'World',
-    // One text leaf (the host checks every field called `id`): { party, threads, away } as JSON.
+    // One text leaf (the host checks every field called `id`): { party, threads } as JSON.
     domains: { world: { initial: () => ({ data: '{}' }) } },
     commands: { 'zz.world': (ctx, patch) => { const slice = ctx.draft('world'); slice.data = JSON.stringify({ ...JSON.parse(slice.data), ...patch }); return { summary: 'the world moves' }; } },
     queries: {
         'party.actors': state => JSON.parse(state?.domains?.world?.data ?? '{}').party ?? null,
         'director.threads': state => JSON.parse(state?.domains?.world?.data ?? '{}').threads ?? [],
-        'director.keyPeople': state => JSON.parse(state?.domains?.world?.data ?? '{}').away ?? [],
     },
 };
 export const moodSuite = (extra = {}) => suite({ allowance: null, features: MOOD_ON, modules: [worldModule], ...extra });

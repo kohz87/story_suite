@@ -7,7 +7,8 @@ import { runCreate } from '../../../../modules/rpg/view/wizard-data-parts/create
 import { createWizardWorld } from '../../../../ui/wizard/world.js';
 import { begin, makeBlocks, page } from './page.js';
 
-export const PACK = JSON.parse(readFileSync(new URL('../fixtures/skill-sets-pack.json', import.meta.url), 'utf8'));
+// The shared fixture is still written in format 3; its content is installed here as a game pack (skill sets live in a game pack's content.rpg).
+export const PACK = { ...JSON.parse(readFileSync(new URL('../fixtures/skill-sets-pack.json', import.meta.url), 'utf8')), format: 4, kind: 'game', requires: { suite: '^0.1' } };
 export const CHECK = { packId: 'chat', capabilities: ['data-modules-v1', 'story-director'] };
 export const FIGHTER = SKILL_SETS[0];
 

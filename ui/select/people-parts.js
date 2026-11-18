@@ -1,6 +1,6 @@
 // Reads the People tab's parts and the per-person dossier map from Story Block queries: the people come from the store (people.*). Still asked of
 // NPC State for now (P7 moves them): npc.next (the ladder: its rungs are NPC State settings, not in the store), npc.cast (the notes' rules: the store's secrets lose `at`; the mood numbers),
-// npc.meters ({ name }) (Recent changes: derived from the bonds' lastEvent, no store reader yet); and of the Director: the place and news of key people.
+// npc.meters ({ name }) (Recent changes: derived from the bonds' lastEvent, no store reader yet); and of the Director: the place and news of people away (director.away.view).
 
 import { selectDossier } from './dossier.js';
 
@@ -13,7 +13,7 @@ export function presentOf(read) {
 }
 
 export function peopleParts(read) {
-  return { list: read('people.list', {}), keyPeople: read('director.keyPeople.view', {}), party: read('party.actors', {}), ties: read('people.ties', {}), place: read('scene.place', {})?.name ?? null, present: presentOf(read) };
+  return { list: read('people.list', {}), away: read('director.away.view', {}), party: read('party.actors', {}), ties: read('people.ties', {}), place: read('scene.place', {})?.name ?? null, present: presentOf(read) };
 }
 
 // Dossier pages keyed by person id (what a card and a tie carry), and by lowercase name for a caller that has only the name.
@@ -26,7 +26,7 @@ export function dossierMap(read) {
     const dossier = read('people.dossier', { id: row.id });
     const vm = selectDossier({
       dossier, meters: read('npc.meters', { name: row.name }), next: read('npc.next', { name: row.name }), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
-      portrait: dossier?.portrait, keyPeople: parts.keyPeople, party: parts.party, join: read('rpg.partyAdd', { name: row.name }), people: parts.list, place: parts.place, present: parts.present,
+      portrait: dossier?.portrait, away: parts.away, party: parts.party, join: read('rpg.partyAdd', { name: row.name }), people: parts.list, place: parts.place, present: parts.present,
     });
     if (!vm) continue;
     out[row.id] = vm;

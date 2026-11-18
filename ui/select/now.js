@@ -19,6 +19,9 @@ function needsYou(answers, opts) {
     const total = owing.reduce((sum, row) => sum + row.points, 0);
     out.push({ kind: 'points', title: `${total} ${total === 1 ? 'point' : 'points'} to spend`, detail: owing.map(row => text(row.name)).filter(Boolean).join(', ') || null, go: 'party' });
   }
+  // A companion who asked to join and nobody has answered: kept here until Add to party or No (the card under the reply shows only while that reply is the latest).
+  const joining = list(answers['rpg.joinsOpen']).map(row => text(row?.name)).filter(Boolean);
+  if (joining.length) out.push({ kind: 'join', title: joining.length === 1 ? `${joining[0]} asks to join the party` : `${joining.length} ask to join the party`, detail: joining.length === 1 ? 'Add to party or No, on their page' : joining.join(', '), go: 'people' });
   const overdue = list(answers['time.overdue']?.overdue);
   if (overdue.length) {
     const names = overdue.map(row => text(row.key)).filter(Boolean).join(', ');
@@ -28,11 +31,11 @@ function needsYou(answers, opts) {
 }
 
 // `atlas.trip` (SD/atlas/trip-query.js:74 over tripView trip.js:363): phase planned | road | arrived, `to`, `row`, `leg`, `legCount`, `fraction` (of the leg).
-// phase `planned` (before the first leg starts) is a trip not begun: 0 percent, the detail says when it leaves.
+// phase `planned` (before the first leg starts) is a trip not begun: 0 percent, the detail says when it leaves. An `arrived` trip is a finished one (the engine keeps it while the story stays at the destination, for weeks): Now does not list it, the where row says the place.
 function tripOf(trip) {
-  if (!isRec(trip) || trip.on !== true || !['planned', 'road', 'arrived'].includes(trip.phase)) return null;
+  if (!isRec(trip) || trip.on !== true || !['planned', 'road'].includes(trip.phase)) return null;
   if (trip.phase === 'planned') return { state: 'planned', title: text(trip.to), detail: [text(trip.row), text(trip.departs) && `leaves ${text(trip.departs)}`].filter(Boolean).join(' · '), progressPct: 0 };
-  const done = trip.phase === 'arrived' ? 1 : ((trip.leg - 1) + (trip.fraction || 0)) / trip.legCount;
+  const done = ((trip.leg - 1) + (trip.fraction || 0)) / trip.legCount;
   return { state: trip.phase, title: text(trip.to), detail: text(trip.row), progressPct: Number.isFinite(done) ? Math.round(done * 100) : null };
 }
 
@@ -42,11 +45,12 @@ function focusOf(goal) {
   return isRec(goal) && text(goal.goal) ? { title: text(goal.goal), detail: text(goal.step) || null } : null;
 }
 
-function dueOf(next) {
+// A date that has come reads "due now" the day it falls, "overdue" once `time.overdue` lists the thread (the Journal's word for it).
+function dueOf(next, overdue) {
   if (!isRec(next)) return null;
   const title = text(next.summary) || text(next.key);
   if (!title) return null;
-  return { title, detail: [text(next.when), next.reached === true ? 'due now' : ''].filter(Boolean).join(' · ') || null };
+  return { title, detail: [text(next.when), next.reached !== true ? '' : list(overdue).some(row => isRec(row) && row.id === next.id) ? 'overdue' : 'due now'].filter(Boolean).join(' · ') || null };
 }
 
 // `gear.view` (SB/domains/gear/views.js:156): rows { [stack]: { word, broken } } and names from slots (worn) and bag (unworn).
@@ -89,9 +93,13 @@ export function selectNow(answers = {}, opts = {}) {
     needsYou: needsYou(answers, opts),
     // The card's pack offers (select/offers.js rows), told next to the actions; [] when the card offers none.
     offers: list(opts.offers),
-    today: { where: whereOf(answers, opts), focus: opts.focusPick ?? focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
-    // The scene line (doing, wearing) and the situational secrets are gaps (UI-PLAN §2.2).
-    here: selectDrawer(answers, opts).map(row => ({ ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: null, wearing: null, scene: null })),
+    today: { where: whereOf(answers, opts), focus: opts.focusPick ?? focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next'], answers['time.overdue']?.overdue), torn: tornOf(opts.torn) },
+    // Doing is the stored status and Wants the stored goal (the dossier's Right now reads the same fields); wearing and the hiding secret are gaps (UI-PLAN §2.2).
+    here: selectDrawer(answers, opts).map((row) => {
+      const stored = list(answers['npc.present']).find(item => item?.name === row.name);
+      return { ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: text(stored?.status) || null, wearing: null, scene: text(stored?.goal) ? { wants: text(stored.goal), hiding: null } : null };
+    }),
+    ...(list(answers['scene.unrecorded']).length ? { unrecorded: list(answers['scene.unrecorded']).map(text).filter(Boolean) } : {}),
     thisTurn: thisTurn(answers),
     // `scene.you` (SB/domains/scene.js:102) answers wearing, condition and position (null when unset); the answer is null while the feature is off.
     you: { look: you ? text(you.wearing) || null : null, position: you ? text(you.position) || null : null, condition: you ? text(you.condition) || null : null },

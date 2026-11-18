@@ -5,11 +5,12 @@ import { mountSuite } from '../mount.js';
 import { createFakePort } from '../port/fake-port.js';
 import { usePortraits } from './portraits.js';
 import { SAVEPOINTS } from '../fixtures/savepoints.js';
+import { ROSTER } from '../fixtures/roster.js';
 import { wizardDemo } from './wizard-demo.js';
 
 const THEMES = ['dark', 'light', 'follow'];
 const VARIANTS = ['default', 'rpgOff', 'fightOpen', 'empty'];
-const WIDTHS = [360, 390, 820, 1280];
+const WIDTHS = [360, 390, 820, 1100, 1280, 1920];
 const PLANS = ['off', 'on'];
 const FIGHT_STEPS = ['offer', 'choose', 'target', 'ally', 'after', 'end', 'real', 'realafter']; // fight board steps 1, 2, 3 (target), ally, 4, 5; then a captured v1 fight, choosing and after one exchange
 const SCENES = ['off', 'open', 'staged', 'sent', 'invalidated']; // the Scene tab: off, or an interaction in that state
@@ -76,9 +77,9 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     clear(frame);
     port = createFakePort({ variant: fixtureOptions() });
     honourPlanToggle(port);
-    // The Tools page's Save points card has a view of its own (the fixtures' key list stays as it was).
+    // The Tools page's Save points card and the People page's roster have views of their own (the fixtures' key list stays as it was).
     const view = port.view.bind(port);
-    port.view = (tab, args) => (tab === 'savepoints' ? structuredClone(SAVEPOINTS) : view(tab, args));
+    port.view = (tab, args) => (tab === 'savepoints' ? structuredClone(SAVEPOINTS) : tab === 'roster' ? structuredClone(ROSTER) : view(tab, args));
     frame.style.width = `${state.width}px`;
     suite = mountSuite({ port, doc, host: frame, theme: state.theme, initial: state.tab, schedule });
     suite.open(state.tab);

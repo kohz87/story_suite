@@ -25,21 +25,23 @@ if (SD_FILE) {
 }
 const skip = SD?.createModule && SD.createModule().queries?.['director.world'] ? false : 'no Story Director checkout with the World screen beside this one (Story_director, or STORY_SUITE_ROOT)';
 
-const PACK = {
-    id: 'holiday-test', version: '1.0.0', name: 'Holiday test', requires: { storyBlock: '^2' },
-    calendar: {
-        era: 'CY',
-        months: [{ name: 'Dawnwane', days: 30 }, { name: 'Rainmoot', days: 30 }, { name: 'Goldwane', days: 30 }],
-        start: { year: 611, month: 'Rainmoot', day: 20, hour: 8 },
-        holidays: [{ name: 'Lantern Night', month: 'Goldwane', day: 2 }, { name: 'First Light', month: 1, day: 1 }, { name: 'Rain Feast', month: 'Rainmoot', day: 25 }],
-    },
+// Format 4: the calendar and its holidays are the game pack's; the clock's start date (month by number) is the world pack's.
+const CALENDAR = {
+    era: 'CY',
+    months: [{ name: 'Dawnwane', days: 30 }, { name: 'Rainmoot', days: 30 }, { name: 'Goldwane', days: 30 }],
+    holidays: [{ name: 'Lantern Night', month: 'Goldwane', day: 2 }, { name: 'First Light', month: 1, day: 1 }, { name: 'Rain Feast', month: 'Rainmoot', day: 25 }],
 };
+const REQ = { suite: '^0.1' };
+const WORLD = { id: 'holiday-world', format: 4, kind: 'world', version: '1.0.0', name: 'Holiday test world', requires: REQ, content: { places: [{ id: 'bluewatch', name: 'Bluewatch', x: 0, y: 0 }], start: { place: 'bluewatch', date: { era: 'CY', year: 611, month: 2, day: 20, hour: 8 } } } };
+const GAME = { id: 'holiday-game', format: 4, kind: 'game', version: '1.0.0', name: 'Holiday test rules', requires: REQ, content: { calendar: CALENDAR } };
 
 test('Story Director\'s World Upcoming shows the pack\'s holidays in its range', { skip }, async () => {
     // Install the pack before the chat starts, so the chat's clock runs on its calendar from its start.
     const probe = await createHost({ settings: {} });
-    const done = await probe.packs.packs.install(JSON.stringify(PACK), { origin: 'pack.json' });
-    assert.equal(done.ok, true, JSON.stringify(done.errors));
+    for (const pack of [WORLD, GAME]) {
+        const done = await probe.packs.packs.install(JSON.stringify(pack), { origin: 'pack.json' });
+        assert.equal(done.ok, true, JSON.stringify(done.errors));
+    }
     const settings = structuredClone(probe.ctx.extensionSettings.storySuite);
     probe.close();
     let host = null;

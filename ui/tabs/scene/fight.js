@@ -14,6 +14,8 @@ const PILL = { end: v => v.end?.outcome ?? 'won', after: v => `exchange ${v.exch
 const SCENE_PILL = { sent: 'sent', invalidated: 'taken back' };
 const NOTE = { sent: 'Sent. It plays out with the next reply.', invalidated: 'The earlier part was taken back. Restore that reply or discard this.' };
 const joinNames = list => (list.length < 2 ? list.join('') : `${list.slice(0, -1).join(', ')} and ${list.at(-1)}`);
+// Flee is one pick for the whole party (its tile says so); when the roll fails, the members who were not asked act on Auto, and the card says it.
+const fleeFailed = view => (view.log.at(-1)?.rows ?? []).some(row => row.what === 'Flees' && row.outcome === 'FAILS');
 const usable = view => isRecord(view) && Array.isArray(view.foeGroups) && view.foeGroups.length > 0 && Array.isArray(view.party);
 
 /** Builds the fight body for the scene view-model `vm` (`vm.view` is a FIGHT_SHAPE; a waiting fight's offer has `vm.hold`). `api` = { stage(step), auto(n), send(), discard(), choose(choice), note }. The renderer draws its own header and Send / Discard. */
@@ -49,7 +51,7 @@ export function fightScene(vm, api = {}) {
   const stanceOn = who => (who.stance ? stanceSwitch.get(who.id) ?? who.stance.on : null);
 
   const stanceArg = who => (stanceOn(who) === false ? { stance: false } : stanceSwitch.get(who.id) === true && who.stance?.on === false ? { stance: true } : {}); // (on, over a switch the view says is off: written, or the carried off would stay)
-  const autoOne = () => { const held = Object.fromEntries(actors.filter(who => who.stance && stanceSwitch.has(who.id)).map(who => [who.id, stanceSwitch.get(who.id)])); return api.auto?.(1, Object.keys(held).length ? held : undefined); }; // (Auto keeps the switch as left for this exchange)
+  const autoOne = () => { const held = Object.fromEntries(actors.filter(who => who.stance && stanceSwitch.has(who.id)).map(who => [who.id, stanceSwitch.get(who.id)])); return api.auto?.(Object.keys(held).length ? held : undefined); }; // (Auto plays up to the setting's exchanges, keeping the switch as left for the first)
 
   function commit(action, target) {
     const list = heldFor(vm, actors), who = actors[list.length];
@@ -70,7 +72,12 @@ export function fightScene(vm, api = {}) {
 
   const back = () => { if (sel) sel = null; else undoPick(vm); draw(); };
 
-  const discard = vm.canDiscard ? () => api.discard?.() : null;
+  let asking = false; // Discard asks first (RPG.md): the first press shows the question, "Discard" on it does it
+  const discardNow = vm.canDiscard ? () => api.discard?.() : null;
+  const discard = discardNow ? () => { asking = true; draw(); } : null;
+  const askCard = () => h('section', { class: 'card glass cfm', role: 'alertdialog', dataset: { card: 'discard-ask' } },
+    h('b', null, 'Discard this fight?'), h('p', { class: 'fine' }, 'The exchanges played here are thrown away. The foes stay as they were before it.'),
+    h('div', { class: 'fbtns' }, button({ label: 'Discard', tone: 'danger', dataset: { confirm: 'discard' }, onClick: discardNow }), button({ label: 'Keep it', dataset: { keep: 'fight' }, onClick: () => { asking = false; draw(); } })));
   let carried = false; // a card on screen carries the danger Discard (mock v7); otherwise the foot draws it
 
   function board(phase, list) {
@@ -81,7 +88,7 @@ export function fightScene(vm, api = {}) {
     const foes = foesCard(view.foeGroups, { pick: phase === 'target' ? sel.kind : null, onPick: target => commit(sel.action, target) });
     const strip = partyCard(party, { step: phase, exchange: view.exchange, actorId: member?.id, open, onToggle: toggle, onAlly: id => commit(sel.action, { kind: 'ally', id, arg: view.party.find(p => p.id === id)?.arg }) });
     let panel = null;
-    if (phase === 'after') panel = afterCard({ exchange: view.exchange, note: view.log.at(-1)?.summary ? `${view.log.at(-1).summary}.` : '', onNext: actors.length ? () => { moved = true; draw(); } : null, onAuto: live ? autoOne : null });
+    if (phase === 'after') panel = afterCard({ exchange: view.exchange, note: [view.log.at(-1)?.summary ? `${view.log.at(-1).summary}.` : '', fleeFailed(view) ? 'The flee failed. The others in the party acted on Auto.' : ''].filter(Boolean).join(' '), onNext: actors.length ? () => { moved = true; draw(); } : null, onAuto: live ? autoOne : null });
     else if (asked && member) panel = actionsCard({ id: member.id, stance: asked.stance ? { ...asked.stance, on: stanceOn(asked) } : null, groups: asked.groups }, member, { sel: sel?.action.id, party, onPick: pick, onStance: on => { stanceSwitch.set(asked.id, on); draw(); }, onBack: back, onAuto: autoOne, onDiscard: discard });
     else if (live && phase === 'choose' && actors.length) panel = h('section', { class: 'card glass actp', dataset: { card: 'ready' } }, h('p', { class: 'anote' }, 'Everyone has chosen.'), h('div', { class: 'fbtns' }, button({ label: 'Stage again', tone: 'primary', dataset: { stage: '1' }, onClick: stageAll }), button({ label: 'Back', dataset: { back: '1' }, onClick: back }), discard ? h('span', { style: { flex: '1' } }) : null, discard ? button({ label: 'Discard fight', tone: 'danger', dataset: { discard: '1' }, onClick: discard }) : null));
     carried = phase === 'after' ? actors.length > 0 : Boolean(panel && discard); // the live after card has "Choose exchange N+1" and no Discard (mock v7)
@@ -99,9 +106,9 @@ export function fightScene(vm, api = {}) {
     if (!actors.length && phase === 'choose') phase = view?.state === 'offer' ? 'offer' : phase;
     root.dataset.step = phase;
     root.dataset.fold = phase === 'choose' ? '1' : '0';
-    const pill = SCENE_PILL[vm.state] ?? (view ? (PILL[view.state] ?? (v => `exchange ${v.exchange}`))(view) : vm.state);
+    const pill = SCENE_PILL[vm.state] ?? (view ? (((phase === 'after' || phase === 'end') && PILL[view.state]) || (v => `exchange ${v.exchange + (v.state === 'after' ? 1 : 0)}`))(view) : vm.state); // (choosing the next exchange after one resolved says that exchange, not the one done)
     const head = h('section', { class: 'glass fhead', dataset: { card: 'fight-head' } },
-      h('span', { class: 't' }, h('b', null, view?.title || vm.title), view ? h('small', null, view.subtitle ?? joinNames(view.foeGroups.map(g => g.name))) : null),
+      h('span', { class: 't' }, h('b', null, typeof vm.place === 'string' && vm.place.trim() && !String(view?.title).includes('·') ? `${view?.title || vm.title} · ${vm.place.trim()}` : view?.title || vm.title), view ? h('small', null, view.subtitle ?? joinNames(view.foeGroups.map(g => g.name))) : null),
       h('span', { class: ['fpill', view?.end?.outcome === 'won' ? 'won' : null] }, pill));
     let body;
     carried = false;
@@ -116,7 +123,7 @@ export function fightScene(vm, api = {}) {
       ? h('div', { class: 'brow3 scene-actions', dataset: { card: 'scene-actions' } },
         footSend ? button({ label: 'Send with this', tone: 'primary', dataset: { act: 'send' }, onClick: () => api.send?.() }) : null,
         footDiscard ? button({ label: 'Discard fight', tone: 'danger', dataset: { discard: '1' }, onClick: discard }) : null) : null;
-    root.replaceChildren(...[head, NOTE[vm.state] ? h('p', { class: 'fine scene-state' }, NOTE[vm.state]) : null, ...[].concat(body), api.note, foot].filter(Boolean)); // (a null child would be drawn as the text "null")
+    root.replaceChildren(...[head, asking && discard ? askCard() : null, NOTE[vm.state] ? h('p', { class: 'fine scene-state' }, NOTE[vm.state]) : null, ...[].concat(body), api.note, foot].filter(Boolean)); // (a null child would be drawn as the text "null")
   }
 
   draw();

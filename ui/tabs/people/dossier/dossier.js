@@ -13,6 +13,7 @@ import { deathPage, deathCard } from './death.js';
 import { partyAddButton } from './party-add.js';
 import { can } from '../../../runtime/can.js';
 import { sendFollow } from './follow.js';
+import { tabTrap } from '../../../kit/trap.js';
 
 const MENU = Object.freeze([
   ['refresh', 'Refresh', 're-read the recent story for them'], ['portrait', 'Portrait', 'view, upload or generate'],
@@ -20,13 +21,20 @@ const MENU = Object.freeze([
 ]);
 const lower = text => (text ? text[0].toLowerCase() + text.slice(1) : '');
 
-/** Lists the pages a dossier has: the living get With, Mood, Right now, Ties, Past, Secrets, Profile; the dead get Death, Ties, Past, Secrets, Profile. Empty Ties, Secrets and Mood are left out. */
+// Right now has nothing to say: no place, doing, wearing, thought or scene for someone here; no last place, last seen or word for someone away (F14).
+const nowEmpty = (d) => {
+  const now = d.now ?? {};
+  const facts = Object.hasOwn(now, 'where') ? [now.where, now.doing, now.wearing, now.thought] : [now.lastPlace, now.lastSeen, now.said];
+  return !facts.some(Boolean) && !d.scene;
+};
+
+/** Lists the pages a dossier has: the living get With, Mood, Right now, Ties, Past, Secrets, Profile; the dead get Death, Ties, Past, Secrets, Profile. Empty Ties, Secrets, Mood and Right now are left out. */
 export function dossierPages(d, youName = 'you') {
   const dead = d.life !== 'alive';
   const all = dead
     ? [['death', 'Death'], ['ties', 'Ties'], ['past', 'Past'], ['secrets', 'Secrets'], ['profile', 'Profile']]
     : [['with', `With ${youName}`], ['mood', 'Mood'], ['now', 'Right now'], ['ties', 'Ties'], ['past', 'Past'], ['secrets', 'Secrets'], ['profile', 'Profile']];
-  const skip = { ties: !d.ties?.length, secrets: !d.secrets?.total, mood: !d.mood };
+  const skip = { ties: !d.ties?.length, secrets: !d.secrets?.total, mood: !d.mood, now: nowEmpty(d) };
   return all.filter(([id]) => !skip[id]).map(([id, title]) => ({ id, title }));
 }
 
@@ -34,12 +42,15 @@ function summary(d, id) {
   const now = d.now ?? {};
   if (id === 'death') return deathCard(d);
   if (id === 'with') {
-    const c = d.changes?.[0];
+    // (a change the day's allowance held back moved nothing, so it is not "the last change")
+    const c = d.changes?.find(change => !change.heldBack);
     return c ? h('span', { class: 'lc' }, h('b', { class: `f${Math.max(0, FEELING_KEYS.indexOf(c.meter))}` }, `${c.meter[0].toUpperCase()}${c.meter.slice(1)} ${c.delta > 0 ? '+' : ''}${c.delta}`), ` · ${c.why}`) : h('span', { class: 'fine' }, 'Nothing yet');
   }
   if (id === 'mood') return [h('span', { class: 'mw' }, d.mood), moodMeters(d.moodBars)];
   if (id === 'now') {
-    const line = Object.hasOwn(now, 'where') ? [now.where, lower(now.doing)].filter(Boolean).join(' · ') : [now.lastPlace, now.lastSeen && `last seen ${now.lastSeen}`].filter(Boolean).join(' · ');
+    const here = Object.hasOwn(now, 'where');
+    // (a person with only a wearing or a thought still gets a line, and one with only a said word too)
+    const line = here ? [now.where, lower(now.doing), now.wearing && `wearing ${lower(now.wearing)}`, now.thought && `“${now.thought}”`].filter(Boolean).join(' · ') : [now.lastPlace, now.lastSeen && `last seen ${now.lastSeen}`, now.said].filter(Boolean).join(' · ');
     return [h('span', { class: 'lc' }, line), d.scene ? h('span', { class: 'hint' }, 'This scene: wants and hiding · spoiler') : null];
   }
   if (id === 'ties') return [h('span', { class: 'avs' }, d.ties.map(t => tieDisc(t, 'a'))), h('span', { class: 'lc sm' }, `${d.ties.length} · ${d.ties.map(t => t.name).join(', ')}`)];
@@ -61,14 +72,15 @@ const BODIES = { death: deathPage, with: withPage, mood: moodPage, now: nowPage,
 
 /**
  * Builds the dossier for a `dossier` view-model. ctx = { port, prefs, backStack, go(tab, args), onClose(), seeOnMap(id), origin, youName }.
- * Commands: people.follow (the store's Follow flag; the star goes back if the engine refuses), npc.edit (opens NPC State's editor; no field edit here yet), npc.refresh, npc.portrait, npc.inspect, npc.merge, npc.delete (asks twice), npc.markAlive, npc.memory.add.
+ * Commands: people.follow (the store's Follow flag; the star goes back if the engine refuses), npc.edit (opens NPC State's editor), npc.refresh, npc.portrait, npc.inspect, npc.merge, npc.delete (asks twice; the dossier closes once they are gone), npc.markAlive, npc.memory.add.
  * Returns the root element; `root.close()` takes the dossier down from the back-stack too.
  */
-export function dossierPage(d, ctx = {}) {
+export function dossierPage(first, ctx = {}) {
+  let d = first;
   const state = { page: null, menu: false, sure: false, following: Boolean(d.following) };
   const cmd = (type, extra = {}) => ctx.port?.command?.(type, { personId: d.id, ...extra });
-  const pages = dossierPages(d, ctx.youName);
-  const dead = d.life !== 'alive';
+  let pages = dossierPages(d, ctx.youName);
+  let dead = d.life !== 'alive';
   const releases = { dossier: null, page: null, menu: null };
   const release = (key) => { releases[key]?.(); releases[key] = null; };
   const hold = (key, layer, close) => { release(key); releases[key] = ctx.backStack?.push({ id: `dossier-${d.id}-${key}`, layer, close }) ?? null; };
@@ -77,8 +89,11 @@ export function dossierPage(d, ctx = {}) {
   const menuSlot = h('div', { class: 'menu-slot' });
   const noteSlot = h('div', { class: 'fine dnote', role: 'status', 'aria-live': 'polite' });
   const grid = h('div', { class: 'dgrid' });
-  const root = h('div', { class: 'dossier dov', role: 'dialog', 'aria-label': `${d.name}’s dossier`, dataset: { personId: d.id } },
+  // (it covers the tabs, so it is modal: Tab stays inside it until it closes)
+  const root = h('div', { class: 'dossier dov', role: 'dialog', 'aria-modal': 'true', 'aria-label': `${d.name}’s dossier`, dataset: { personId: d.id } },
     h('div', { class: 'dscroll' }, top, menuSlot, noteSlot, grid));
+  let shut = false;
+  root.addEventListener('keydown', tabTrap(root, { isOn: () => !shut }));
 
   function closeMenu() { release('menu'); state.menu = false; state.sure = false; drawMenu(); }
   function openPage(id) {
@@ -87,8 +102,18 @@ export function dossierPage(d, ctx = {}) {
     drawGrid();
   }
   function closePage() { release('page'); state.page = null; drawGrid(); }
-  function close() { release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
+  function close() { shut = true; release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
   root.close = close;
+  // The person changed while the page is open (a reply, an Edit save): the same page is drawn again from the fresh record.
+  root.update = (next) => {
+    if (!next || shut) return;
+    d = next;
+    pages = dossierPages(d, ctx.youName);
+    dead = d.life !== 'alive';
+    state.following = Boolean(d.following);
+    if (!pages.some(p => p.id === state.page)) { release('page'); state.page = null; }
+    drawGrid();
+  };
 
   // Refresh runs a model call: the line under the top bar says it is going and then what came of it (the answer's own words).
   function refresh() {
@@ -105,6 +130,13 @@ export function dossierPage(d, ctx = {}) {
       (error) => { noteSlot.textContent = String(error?.message || 'Portrait tools did not open.'); });
   }
 
+  // Edit, Delete, Merge and the like: what the engine answers is told under the top bar when it refuses; a deleted person takes the dossier down with them.
+  function act(type) {
+    Promise.resolve(cmd(type)).then(
+      (result) => { if (result?.ok === false) noteSlot.textContent = result.message ?? 'That did not work.'; else if (type === 'npc.delete') close(); },
+      (error) => { noteSlot.textContent = String(error?.message || 'That did not work.'); });
+  }
+
   function drawMenu() {
     top.querySelector('[data-act="menu"]')?.setAttribute('aria-expanded', String(state.menu));
     if (!state.menu) { menuSlot.replaceChildren(); return; }
@@ -114,7 +146,7 @@ export function dossierPage(d, ctx = {}) {
         type: 'button', role: 'menuitem', class: id === 'delete' ? 'dng' : null, dataset: { act: id },
         onClick: () => {
           if (id === 'delete' && !state.sure) { state.sure = true; drawMenu(); return; }
-          if (id === 'refresh') refresh(); else if (id === 'portrait') portrait(); else cmd(`npc.${id}`, {});
+          if (id === 'refresh') refresh(); else if (id === 'portrait') portrait(); else act(`npc.${id}`);
           closeMenu();
         },
       }, confirm ? 'Tap again to delete' : label, h('small', null, confirm ? 'this cannot be undone' : hint));
@@ -126,7 +158,7 @@ export function dossierPage(d, ctx = {}) {
     top.replaceChildren(...[
       button({ label: ctx.origin ?? '‹ People', className: 'bk2', dataset: { act: 'close' }, onClick: close }),
       h('span', { class: 'sp' }),
-      can(ctx, 'npc.edit') ? button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => cmd('npc.edit') }) : null,
+      can(ctx, 'npc.edit') ? button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => act('npc.edit') }) : null,
       !MENU.some(([id]) => can(ctx, `npc.${id}`)) ? null : h('button', { type: 'button', class: 'ibtn', 'aria-label': 'More', 'aria-expanded': 'false', dataset: { act: 'menu' },
         onClick: () => { if (state.menu) { closeMenu(); return; } state.menu = true; hold('menu', 'menu', () => { state.menu = false; state.sure = false; drawMenu(); }); drawMenu(); } }, '⋯')].filter(Boolean));
   }
@@ -146,7 +178,7 @@ export function dossierPage(d, ctx = {}) {
       h('div', { class: 'chips dchips' }, dead
         ? h('span', { class: ['deadb', d.life === 'presumed' ? 'pres' : null] }, d.life === 'presumed' ? 'Presumed dead' : 'Deceased')
         : follow),
-      h('div', { class: 'idl' }, d.idLine, d.genderUnknown ? h('span', { class: 'gflag' }, ' · gender not stated') : null),
+      h('div', { class: 'idl' }, d.idLine, d.genderUnknown ? h('span', { class: 'gflag' }, `${d.idLine ? ' · ' : ''}gender not stated`) : null),
       h('div', { class: 'idl' }, [dead ? where : (d.now && Object.hasOwn(d.now, 'where') ? 'Here' : where), d.inParty ? 'in your party' : null].filter(Boolean).join(' · ')),
       dead ? null : partyAddButton(d, { ...ctx, onAdded: () => { d.partyAdd = null; d.inParty = true; drawGrid(); },
         onEdited: () => { const fresh = ctx.port?.view?.('dossier')?.[d.id]; if (fresh) { d.partyAdd = fresh.partyAdd ?? null; d.inParty = fresh.inParty; } drawGrid(); } }),
@@ -159,8 +191,10 @@ export function dossierPage(d, ctx = {}) {
   function cards() {
     const byId = Object.fromEntries(pages.map(p => [p.id, p]));
     const title = id => (id === 'past' ? `Past · ${(d.past ?? []).length}` : id === 'with' ? `${byId.with.title} · last change` : byId[id].title);
+    // (Ties and Past sit side by side; one alone fills the row instead of taking half of it)
+    const pair = (...two) => (two.every(Boolean) ? h('div', { class: 'dpair' }, ...two) : two.find(Boolean) ?? null);
     const make = id => (byId[id] ? card(id, title(id), summary(d, id)) : null);
-    return [make('death'), make('with'), make('mood'), make('now'), h('div', { class: 'dpair' }, make('ties'), make('past')), make('secrets'), make('profile')].filter(Boolean);
+    return [make('death'), make('with'), make('mood'), make('now'), pair(make('ties'), make('past')), make('secrets'), make('profile')].filter(Boolean);
   }
 
   function drawGrid() {
@@ -176,6 +210,6 @@ export function dossierPage(d, ctx = {}) {
 
   drawTop();
   drawGrid();
-  hold('dossier', 'page', () => { release('menu'); release('page'); ctx.onClose?.(); });
+  hold('dossier', 'page', () => { shut = true; release('menu'); release('page'); ctx.onClose?.(); });
   return root;
 }

@@ -1,0 +1,144 @@
+/* Pack Studio styles for the editor forms (ST-FORM1: the field rows and their inline problem; the form lane adds the rest). Linked from studio/index.html. */
+.st-root .srow .st-long { resize: vertical; min-height: 88px; line-height: 1.4; font-family: var(--su-font); box-sizing: border-box; }
+.st-root .srow.bad :is(.txt2, .sel2, .num input) { border-color: var(--su-bad); }
+.st-root .srow .st-problem { grid-column: 1 / -1; color: var(--su-bad-t, var(--su-bad)); font-size: 12px; line-height: 1.35; }
+/* ST-FORM2: the chip list, the sub-record rows, the id picker and the gate field (mock v7 studio-record page). */
+.st-root .chips3 { display: flex; flex-wrap: wrap; gap: 5px; }
+.st-root .chips3 .none { font: 700 12px var(--su-font); color: var(--su-muted, inherit); align-self: center; }
+.st-root .chips3 .kadd { width: 150px; padding: 4px 10px; border-radius: 999px; }
+.st-root .kc { display: inline-flex; align-items: center; gap: 2px; font: 700 12px var(--su-font); border-radius: 999px; padding: 0 2px 0 10px; border: 1px solid rgba(168, 151, 255, .5); background: rgba(168, 151, 255, .18); }
+.st-root .kc button { border: 0; background: none; color: inherit; font: 800 14px var(--su-font); width: 26px; height: 26px; border-radius: 999px; cursor: pointer; padding: 0; }
+.st-root .subrow .ctl .btn2 { min-width: 36px; padding: 7px 9px; }
+.st-root .subrow .lb b, .st-root .subrow .lb small { overflow-wrap: anywhere; }
+.st-root .sgrp .addrow { padding: 10px 0; border-top: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.sh-panel .psrch { width: 100%; box-sizing: border-box; margin: 6px 0; }
+.sh-panel .slist button[aria-disabled="true"] { opacity: .5; cursor: default; }
+.sh-panel .slist .tg2 { margin-left: 6px; }
+.st-root .srow[data-level="warning"] .st-problem { color: var(--su-warn-t, var(--su-warn, inherit)); }
+@container (max-width: 900px) { .st-root .kc { min-height: 44px; } .st-root .kc button { width: 36px; } .st-root .subrow .ctl .btn2 { min-height: 44px; } }
+@container (max-width: 600px) { .st-root .srow.subrow { grid-template-columns: minmax(0, 1fr) auto; } .st-root .srow.subrow .ctl { justify-content: flex-end; flex-wrap: nowrap; gap: 4px; } }
+/* ST-FORM3: the gate builder (mock MK-8): ways of term chips joined by "or", the gate as text, and the add / change sheet. */
+.st-root .st-gate .ctl { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.st-root .st-gate .st-gb { display: flex; flex-direction: column; gap: 8px; }
+.st-root .st-way { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 14px; background: var(--su-line2, rgba(0, 0, 0, .18)); }
+.st-root .st-way.st-empty { flex-direction: row; align-items: center; justify-content: flex-end; gap: 10px; }
+.st-root .st-way.st-empty .none { margin-right: auto; font: 700 13px var(--su-font); color: var(--su-muted, inherit); }
+.st-root .st-terms { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.st-root .st-term { display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid rgba(168, 151, 255, .5); background: rgba(168, 151, 255, .18); }
+.st-root .st-term .st-chip { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; color: inherit; font: 700 13px var(--su-font); padding: 6px 4px 6px 12px; cursor: pointer; text-align: left; }
+.st-root .st-term .st-tag { font: 800 11px var(--su-font); letter-spacing: .1em; text-transform: uppercase; color: var(--su-accent, #a897ff); }
+.st-root .st-term.raw .st-chip span { font-family: ui-monospace, monospace; }
+.st-root .st-term .st-x { border: 0; background: none; color: inherit; font: 800 14px var(--su-font); width: 28px; height: 28px; border-radius: 999px; cursor: pointer; padding: 0; }
+.st-root .st-term[data-level="error"] { border-color: var(--su-bad); background: rgba(255, 90, 90, .12); }
+.st-root .st-term[data-level="error"] .st-tag { color: var(--su-bad-t, var(--su-bad)); }
+.st-root .st-term[data-level="warning"] { border-color: var(--su-warn, #f0b35a); background: rgba(240, 179, 90, .12); }
+.st-root .st-term[data-level="warning"] .st-tag { color: var(--su-warn-t, var(--su-warn, #f0b35a)); }
+.st-root .st-and { font: 700 12px var(--su-font); color: var(--su-muted, inherit); }
+.st-root .st-termbad { font-size: 12px; line-height: 1.35; color: var(--su-bad-t, var(--su-bad)); }
+.st-root .st-termbad[data-level="warning"] { color: var(--su-warn-t, var(--su-warn, inherit)); }
+.st-root .st-or { display: flex; align-items: center; gap: 10px; font: 800 12px var(--su-font); letter-spacing: .12em; text-transform: uppercase; color: var(--su-accent, #a897ff); }
+.st-root .st-or::before, .st-root .st-or::after { content: ""; flex: 1; border-top: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.st-root .st-gate .st-or-add, .st-root .st-gate .st-tobuilder { align-self: flex-start; }
+.st-root .st-astext, .sh-panel .st-astext { display: flex; align-items: baseline; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px dashed var(--su-line, rgba(128, 128, 128, .35)); background: rgba(0, 0, 0, .15); }
+.st-root .st-astext small, .sh-panel .st-astext small { font: 800 11px var(--su-font); letter-spacing: .1em; text-transform: uppercase; color: var(--su-muted, inherit); white-space: nowrap; }
+.st-root .st-astext code, .sh-panel .st-astext code { flex: 1; font: 13px/1.5 ui-monospace, monospace; overflow-wrap: anywhere; }
+.st-root .st-gate .lnk { border: 0; background: none; padding: 0; color: var(--su-accent, #a897ff); font: 700 12px var(--su-font); cursor: pointer; }
+.st-root .st-gate .st-ok { font-size: 12px; color: var(--su-muted, inherit); }
+.st-root .st-gate .st-gnote { margin: 0; }
+.sh-panel .slist button code { font: 600 12px ui-monospace, monospace; color: var(--su-muted, inherit); margin-left: 4px; }
+.sh-panel .st-gform { display: flex; flex-direction: column; }
+.sh-panel .st-gform .srow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.sh-panel .st-gform .srow .lb small { display: block; font-size: 12px; color: var(--su-muted, inherit); }
+.sh-panel .st-gform .sseg2 { display: flex; gap: 4px; }
+.sh-panel .st-gform .sseg2 button[aria-pressed="true"] { background: var(--su-accent, #a897ff); color: #1b1630; }
+.sh-panel .st-gfoot { display: flex; justify-content: flex-end; gap: 8px; }
+.sh-panel .st-gfoot .st-gdel { margin-right: auto; }
+.sh-panel .sh-h .st-gback { margin-right: 10px; min-width: 32px; }
+.st-app .sh-panel .sh-x, .sh-panel .sh-x { width: 44px; height: 44px; border: 0; border-radius: 12px; background: var(--su-line2, rgba(255, 255, 255, .12)); color: var(--su-text, inherit); font: 800 18px var(--su-font); cursor: pointer; }
+@container (max-width: 900px) { .st-root .st-term .st-chip, .st-root .st-term .st-x { min-height: 44px; } .st-root .st-term .st-x { width: 40px; } .st-root .st-gate .btn2 { min-height: 44px; } }
+@container (max-width: 600px) { .st-root .st-way.st-empty { flex-wrap: wrap; } .sh-panel .st-gform .srow { grid-template-columns: minmax(0, 1fr); } }
+/* ST-FORM4: the table editors (mock MK-7): the row table (months, seasons, coins, a cell's lines) and the climate × season grid. */
+.st-root .st-table .st-thead, .st-root .st-table .st-trow { display: grid; grid-template-columns: var(--st-cols); gap: 10px; align-items: center; }
+.st-root .st-table .st-thead { font: 800 11px var(--su-font); letter-spacing: .08em; text-transform: uppercase; color: var(--su-muted); padding: 4px 0 6px; border-bottom: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.st-root .st-table .st-trow { padding: 8px 0; border-bottom: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.st-root .st-table .st-trow.bad { box-shadow: inset 3px 0 0 var(--su-bad); padding-left: 8px; }
+.st-root .st-table .st-tn { font: 800 12px var(--su-font); color: var(--su-muted); text-align: right; }
+.st-root .st-table .st-tc { min-width: 0; display: flex; align-items: center; gap: 6px; }
+.st-root .st-table .st-tc .txt2, .st-root .st-table .st-tc .sel2 { width: 100%; box-sizing: border-box; }
+.st-root .st-table .st-tc.bad :is(.txt2, .sel2, .num input) { border-color: var(--su-bad); }
+.st-root .st-table .st-tlab { display: none; font: 700 12px var(--su-font); color: var(--su-muted); min-width: 64px; }
+.st-root .st-table .st-tchips { flex: 1; }
+.st-root .st-table .st-tchips .kadd { flex: 1 1 100%; width: auto; }
+.st-root .st-table .st-tc .tg2 { display: inline-block; font: 800 11px var(--su-font); letter-spacing: .04em; border-radius: 999px; padding: 2px 8px; background: var(--su-panel2); color: var(--su-muted); }
+.st-root .st-table .st-tstatic, .st-root .st-table .st-tnone { font: 700 13px var(--su-font); color: var(--su-muted); }
+.st-root .st-table .st-tacts { display: flex; gap: 4px; justify-content: flex-end; }
+.st-root .st-table .st-tacts .btn2 { min-width: 36px; padding: 7px 9px; }
+.st-root .st-table .st-tprob { grid-column: 1 / -1; color: var(--su-bad-t, var(--su-bad)); font-size: 12px; line-height: 1.35; padding-left: 38px; }
+.st-root .st-table .st-tprob.warn { color: var(--su-warn-t, var(--su-warn)); }
+.st-root .st-table .st-tfix { margin-left: 6px; border: 0; background: none; padding: 0; color: var(--su-accent); font: 800 12px var(--su-font); cursor: pointer; }
+.st-root .st-table .st-tempty { margin: 8px 0; font-size: 13px; color: var(--su-muted); }
+.st-root .st-table .st-tnote { margin: 0 0 6px; }
+.st-root .st-table .st-tfoot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.st-root .st-table .st-tcount { margin-left: auto; font-size: 12px; color: var(--su-muted); }
+.st-root .st-grid .st-ghead, .st-root .st-grid .st-grow { display: grid; grid-template-columns: minmax(120px, 1.2fr) repeat(var(--st-gcols), minmax(0, 1fr)); gap: 8px; align-items: center; }
+.st-root .st-grid .st-ghead { font: 800 11px var(--su-font); letter-spacing: .08em; text-transform: uppercase; color: var(--su-muted); padding: 4px 0 6px; }
+.st-root .st-grid .st-ghead .warn, .st-root .st-grid .st-gwarn { color: var(--su-warn-t, var(--su-warn)); }
+.st-root .st-grid .st-grow { padding: 5px 0; border-top: 1px solid var(--su-line, rgba(128, 128, 128, .25)); }
+.st-root .st-grid .st-grow.muted .st-glab b { font-style: italic; }
+.st-root .st-grid .st-glab { min-width: 0; }
+.st-root .st-grid .st-glab b { display: block; font: 800 14px var(--su-font); }
+.st-root .st-grid .st-glab small { display: block; font-size: 12px; color: var(--su-muted); }
+.st-root .st-gcell { min-height: 44px; border-radius: 10px; border: 1px solid var(--su-line2); background: transparent; color: var(--su-muted); font: 700 13px var(--su-font); text-align: left; padding: 6px 10px; cursor: pointer; overflow-wrap: anywhere; }
+.st-root .st-gcell.own { background: rgba(168, 151, 255, .18); border-color: rgba(168, 151, 255, .55); color: var(--su-text); }
+.st-root .st-gcell.warn { border-color: var(--su-warn); }
+.st-root .st-gcell[aria-pressed="true"] { outline: 2px solid var(--su-accent); outline-offset: 1px; color: var(--su-text); }
+.st-root .st-gcell:disabled { opacity: .45; cursor: default; }
+.st-root .st-grid .st-gpick { display: none; margin: 4px 0 8px; }
+.st-root .st-grid .st-glegend { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 8px; font-size: 12px; color: var(--su-muted); }
+.st-root .st-grid .st-glegend span { display: inline-flex; align-items: center; gap: 6px; }
+.st-root .st-gkey { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--su-line2); }
+.st-root .st-gkey.own { background: rgba(168, 151, 255, .35); border-color: rgba(168, 151, 255, .7); }
+@container (max-width: 900px) { .st-root .st-table .st-tacts .btn2 { min-height: 44px; } }
+@container (max-width: 600px) {
+  .st-root .st-table .st-thead { display: none; }
+  .st-root .st-table .st-trow { grid-template-columns: 24px minmax(0, 1fr) auto; row-gap: 8px; }
+  .st-root .st-table .st-tacts { grid-column: 3; grid-row: 1; }
+  .st-root .st-table .st-tc.rest { grid-column: 2 / -1; }
+  .st-root .st-table .st-tlab { display: inline-block; }
+  .st-root .st-table .st-nophone { display: none; }
+  .st-root .st-table .st-tprob { padding-left: 0; }
+  .st-root .st-grid .st-gpick { display: inline-flex; }
+  .st-root .st-grid .st-ghead { display: none; }
+  .st-root .st-grid .st-grow { grid-template-columns: minmax(0, 1fr) minmax(110px, auto); }
+  .st-root .st-grid .st-gcell:not(.on) { display: none; }
+}
+/* A record row in a settings list with no icon (places, routes, regions, templates): the text takes the icon's 30 px column otherwise. */
+.st-root .slist button:not(:has(> i)) { grid-template-columns: minmax(0, 1fr) auto; }
+/* The id picker (form/pick.js; mock MK-1 "picker", MK-4 "pick"): the search stays at the top and the count line ("N of M · Esc closes.") at the
+   foot while the list scrolls between them; a row's kind is a tag. */
+.st-root .sh-ov[data-sheet="st-pick"] .sh-panel { overflow: hidden; }
+.st-root .sh-ov[data-sheet="st-pick"] .sh-body { flex: 1 1 auto; min-height: 0; }
+.st-root .sh-ov[data-sheet="st-pick"] .sh-body > .slist { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.st-root .sh-ov[data-sheet="st-pick"] .sh-body > .slist > * { flex: none; }
+.st-root .sh-ov[data-sheet="st-pick"] .sh-body > .fine { margin: 0; }
+.st-root .sh-ov[data-sheet="st-pick"] .slist b .tg2 { display: inline-block; font: 800 12px var(--su-font); letter-spacing: .04em; border-radius: 999px; padding: 1px 7px; margin-left: 6px;
+  vertical-align: 1px; background: var(--su-panel2); color: var(--su-muted); white-space: nowrap; }
+/* A short text field (form/fields.js `size`): 'short' a 160 px box at the right of its label, 'narrow' a 220 px box under it (mock MK-7). */
+.st-root .srow.st-short .ctl .txt2 { width: min(160px, 100%); }
+.st-root .srow.st-narrow .ctl .txt2 { max-width: 220px; }
+/* The Rules ranks (mock MK-7 "rules"): a table with column heads, # | rank | from | to, then ↑ ↓ ×; on a phone each rank is a row as before. */
+.st-root .st-rhead { display: none; }
+@container (min-width: 601px) {
+  .st-root .st-rhead, .st-root .srow.st-rank { display: grid; grid-template-columns: 24px minmax(120px, 220px) 70px 80px minmax(0, 1fr) auto auto auto; gap: 0 10px; align-items: center; }
+  .st-root .st-rhead { font: 800 11px var(--su-font); letter-spacing: .08em; text-transform: uppercase; color: var(--su-muted); padding: 4px 0 6px; border-bottom: 1px solid var(--su-line2); }
+  .st-root .srow.st-rank > :is(.lb, .ctl) { display: contents; }
+  .st-root .srow.st-rank .st-up { grid-column: 6; }
+  .st-root .srow.st-rank .st-down { grid-column: 7; }
+  .st-root .srow.st-rank .st-remove { grid-column: 8; }
+  .st-root .srow.st-rank > .st-problem { grid-column: 1 / -1; }
+  .st-root .srow.st-rank .num input { width: 70px; }
+}
+.st-root .srow.st-rank .st-remove.dng { color: var(--su-text); } /* the mock draws a rank's × plain, as the calendar's */
+/* A culture's cell in the Names table: its id, and its regions on the line under it (mock MK-7 "names"). */
+.st-root .st-cult b { display: block; font: 800 13.5px var(--su-font); }
+.st-root .st-cult small { display: block; font-size: 12px; color: var(--su-muted); overflow-wrap: anywhere; }

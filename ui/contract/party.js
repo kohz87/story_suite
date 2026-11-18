@@ -19,6 +19,8 @@ const SLOT = {
       rarity: { $enum: RARITIES },
       soak: T.NUMBER,
       torn: T.BOOLEAN,
+      // What the worn piece adds to stats, as gear.view writes it ("+2 STR", '' for none): a weapon or offhand piece's slot sheet says "Gives" it.
+      bonus: { $optional: T.STRING },
     },
   },
 };
@@ -49,6 +51,8 @@ const MEMBER = {
   bars: [{ kind: { $enum: ['hp', 'mp', 'sp'] }, value: T.NUMBER, max: T.NUMBER }],
   effects: [{ id: T.STRING, label: T.STRING, note: T.STRING, tone: { $enum: ['buff', 'debuff'] } }],
   stats: STATS,
+  // The stats worn gear adds ({ STR: 1 }, only those above 0); the stat tiles mark them.
+  bonus: { $optional: T.ANY },
   slots: [SLOT],
   skills: [SKILL],
 };

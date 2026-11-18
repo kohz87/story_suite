@@ -26,7 +26,7 @@
 // so the oracle folds names exactly as the inventory does); none, two, or one an earlier taken name took, and it does not
 // hold. A guarded block of any other kind does not apply here (the QA chats make none).
 // Rule (g), a deferred domain that is not there: an add or replace under it (the domain not written whole earlier in the block) finds
-// it as its initial slice, written out here on its own (DEFERRED: people and dataModules); a block of removes alone makes nothing.
+// it as its initial slice, written out here on its own (DEFERRED: people, dataModules and frame); a block of removes alone makes nothing.
 // A legacy (unguarded) block whose claim (an add under /meta/claims) the state before it already holds is skipped whole, ops and
 // claims alike, as the store's replay does (REPLAY.md rule 4, store/guards.js claimHeld): the first holder wins, one Problem.
 
@@ -35,6 +35,7 @@ import { createHash } from 'node:crypto';
 import { readRecord } from '../../../../core/persist.js';
 import { initial as dmInitial } from '../../../../modules/data-modules/part/shared.js';
 import { createStore } from '../../../../core/store.js';
+import { initialFrame, validateFrame } from '../../../../core/runtime/frame-parts/shape.js';
 import { validateInventory } from '../../../../modules/inventory/index.js';
 import { aliasKey, resolveDef } from '../../../../modules/scene/names.js';
 import { validateScene } from '../../../../modules/scene/index.js';
@@ -60,9 +61,9 @@ const at = (root, keys) => keys.reduce((node, key) => (node !== null && typeof n
 const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
 // The validators of the domains the QA chats hold (Story Block's core two and the probe's), by domain name.
-const VALIDATORS = Object.freeze({ inventory: validateInventory, scene: validateScene, people: validatePeople, probe: probeModule().domains.probe.validate });
-// The deferred domains the QA chats write and the slice an absent one replays as (rule g; Story Block's `people`).
-const DEFERRED = Object.freeze({ people: () => ({ v: 1, order: [], npcs: {}, bonds: { npcs: {}, problems: [] } }), dataModules: () => structuredClone(dmInitial()) });
+const VALIDATORS = Object.freeze({ inventory: validateInventory, scene: validateScene, people: validatePeople, frame: validateFrame, probe: probeModule().domains.probe.validate });
+// The deferred domains the QA chats write and the slice an absent one replays as (rule g; Story Block's `people`, and the chat frame once a format 4 world or game is selected).
+const DEFERRED = Object.freeze({ people: () => ({ v: 1, order: [], npcs: {}, bonds: { npcs: {}, problems: [] } }), dataModules: () => structuredClone(dmInitial()), frame: initialFrame });
 // Rule (g): `root` with each deferred domain the block writes under, while it is not there, set to its initial slice.
 function seedDeferred(root, ops) {
     const whole = new Set();
@@ -266,7 +267,7 @@ export function guardHolds(state, guard, span = null) {
     if (predicate?.kind === 'inventory.reader-edit' && predicate.action === 'inventory.add' && predicate.decision !== undefined) {
         return inventoryEditGuard({ state, hash: hashJson }, { guard, source: span?.source, operation: span?.operation }).ok === true;
     }
-    if (String(predicate?.kind ?? '').startsWith('dm.') || predicate?.kind === 'rpg.resolve' || predicate?.kind === 'interaction') return true;
+    if (String(predicate?.kind ?? '').startsWith('dm.') || predicate?.kind === 'interaction') return true;
     if (predicate?.kind === 'loot.offer') return guard.replyBound === true;
     if (predicate?.kind === 'inventory.reader-edit') {
         if (predicate.action === 'inventory.add') return !predicate.target && !predicate.pieces;

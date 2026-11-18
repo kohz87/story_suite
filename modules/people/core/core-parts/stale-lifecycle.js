@@ -10,8 +10,8 @@ export function applyStaleNpcLifecycle(state = {}, options = {}) {
     const removed = Array.isArray(result?.removed) ? result.removed : [];
     if (!removed.length) return result;
 
-    // Complete stale-removal cleanup at the public mechanics facade while preserving
-    // portrait bytes until branch/history pruning proves the NPC is no longer rollback-reachable.
+    // Complete stale-removal cleanup at the public mechanics facade; the portrait bytes go with the
+    // next portrait pruning (a removed NPC is no longer a live record).
     const next = result.state;
     for (const item of removed) {
         const id = String(item?.id || '');

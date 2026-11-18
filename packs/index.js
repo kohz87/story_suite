@@ -14,7 +14,6 @@
 // * query `packs.portrait({ pack, file })` → the safe image URL of a cast portrait the pack names (`/user/files/…`), or null: the pack
 //   is not installed, does not name that file, no picture was imported with it, or the file is gone (portraits.js).
 //   `packs.content({ kind: 'cast' })` gives each person with `pack` and `packVersion` (cast.js).
-// * query `packs.castGear({ name })` → a cast member's signature gear for the narrator's cast entry (`{ name, line, items }`), or null (cast.js `gear`).
 // * query `packs.calendar` → the first enabled pack's calendar for the story clock, or null.
 // * query `packs.crafts` → the craft table (the default crafts; packs no longer add crafts:
 //   `[{ craft, title, stats, stations, note?, pack }]`) for modules that use recipes.

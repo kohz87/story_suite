@@ -11,7 +11,7 @@ import { getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/run
 import { createEditorSave } from './runtime-editor-save.js';
 
 export function createEditorPart(rt, deps) {
-    const { chatHydrationStatus, commitBranchCheckpoint, currentNpcById, ensureFreshMutationBoundary, eventTargetClosest, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, queueInlineRender, relationshipNumber, requireReadyChatMutation, stampManualEdit, startInlineWatchdog, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;
+    const { chatHydrationStatus, noteChatLineage, currentNpcById, ensureFreshMutationBoundary, eventTargetClosest, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, queueCastRefresh, relationshipNumber, requireReadyChatMutation, stampManualEdit, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;
     const { hydrationErrors } = rt;
 
     let lastEditorActivation = { npcId: '', at: 0 };
@@ -36,7 +36,7 @@ export function createEditorPart(rt, deps) {
             return true;
         } catch (error) {
             console.error('[NPC State Delta] dossier editor failed to open', error);
-            globalThis.toastr?.error?.(`NPC State Delta editor failed: ${error?.message || error}`);
+            globalThis.toastr?.error?.(`NPC State editor failed: ${error?.message || error}`);
             return false;
         }
     }
@@ -118,8 +118,7 @@ export function createEditorPart(rt, deps) {
     function renderDossier() {
         if (replayScope()) return;   // nothing is drawn during a history replay
         renderSettingsRoster();
-        startInlineWatchdog();
-        queueInlineRender();
+        queueCastRefresh();
     }
 
     // Each list entry is one line in the editor. Entries themselves may contain semicolons (a bond's
@@ -187,8 +186,8 @@ export function createEditorPart(rt, deps) {
         // Editor add-ons (appearance forms, life state, sections) identify their NPC from this.
         content.dataset.npcId = npc.id;
         content.innerHTML = `
-      <div class="npc-state-delta-editor-head"><div><span class="npc-state-delta-kicker">LIVE DOSSIER</span><h3 id="npc_state_delta_editor_title">Edit ${editorValue(npc.name)}</h3></div></div>
-      <p class="npc-state-delta-muted">Edits save to NPC State Delta's extension-owned JSON data. Relationship numbers are authoritative current values on a -100 to +100 scale where 0 is neutral; future story deltas continue from them.</p>
+      <div class="npc-state-delta-editor-head"><div><span class="npc-state-delta-kicker">Dossier</span><h3 id="npc_state_delta_editor_title">Edit ${editorValue(npc.name)}</h3></div></div>
+      <p class="npc-state-delta-muted">Edits save to this story's NPC State. Relationship numbers are authoritative current values on a -100 to +100 scale where 0 is neutral; future story deltas continue from them.</p>
       <div class="npc-state-delta-editor-lifecycle"><b>Lifecycle</b><span>${isTerminalNpcDeath(npc) ? 'Confirmed deceased' : (npc.present ? 'Active · Present' : (npc.worldActive ? 'Active · Off-screen' : 'Active'))}</span>${npc.lifeStateReason ? `<small>${editorValue(npc.lifeStateReason)}</small>` : ''}</div>
       <div class="npc-state-delta-editor-grid npc-state-delta-editor-profile">
         <label>Name<input id="npc_state_delta_edit_name" class="text_pole" maxlength="${EDITOR_FIELDS.name.max}" value="${editorValue(npc.name)}"></label>
@@ -261,7 +260,7 @@ export function createEditorPart(rt, deps) {
         Promise.resolve(popup.show()).catch(error => {
             if (rt.activeEditorPopup === popup) rt.activeEditorPopup = null;
             console.error('[NPC State Delta] native dossier popup failed', error);
-            globalThis.toastr?.error?.(`NPC State Delta editor failed: ${error?.message || error}`);
+            globalThis.toastr?.error?.(`NPC State editor failed: ${error?.message || error}`);
         });
         return popup;
     }

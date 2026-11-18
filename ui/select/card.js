@@ -3,6 +3,8 @@
 // answers: { [queryName]: answer } as the port read them (a missing key is a query that is not there).
 // opts: { rpg: bool (the RPG is on), persona: string (the reader's name), portrait: string|null (the `npc.portrait` answer for the lead) }.
 
+import { PARTY_ACTIVE } from './party-max.js';
+
 const isRec = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.trim() : '');
 const orNull = value => text(value) || null;
@@ -12,19 +14,21 @@ const whole = value => (Number.isFinite(value) ? Math.round(value) : null);
 function dateAndClock(time) {
   const full = text(time?.text);
   const at = full.lastIndexOf(', ');
+  // A clock that began at the calendar's default start (no pack date, `fromDefault`) has no date to show yet: the time alone.
+  if (time?.fromDefault === true) return { date: '', time: at < 0 ? full : full.slice(at + 2), undated: true };
   return at < 0 ? { date: '', time: full } : { date: full.slice(0, at), time: full.slice(at + 2) };
 }
 
 // `director.status` (SD/screens/queries.js:386 statusExtras) gives the place line and region; `scene.place` (SB/domains/scene.js:92) is the fallback.
 function sceneOf(answers) {
-  const { date, time } = dateAndClock(answers['director.time']);
+  const { date, time, undated } = dateAndClock(answers['director.time']);
   const status = isRec(answers['director.status']) ? answers['director.status'] : {};
   const place = isRec(answers['scene.place']) ? answers['scene.place'] : {};
   const weather = isRec(answers['scene.weather']) ? text(answers['scene.weather'].text) : '';
   return {
     date,
     // director.time answers the weekday's name ('' while there is no clock or no week).
-    weekday: orNull(isRec(answers['director.time']) ? text(answers['director.time'].weekday) : ''),
+    weekday: undated ? null : orNull(isRec(answers['director.time']) ? text(answers['director.time'].weekday) : ''),
     time,
     place: text(status.place) || text(place.name),
     region: orNull(status.region) || orNull(place.region),
@@ -96,7 +100,7 @@ export function selectCard(answers = {}, opts = {}) {
   // soak % and the exp bar come from the sheet row (null while it is not answered).
   card.chips = {
     soakPct: whole(row?.soakPct),
-    party: Array.isArray(actors) ? { n: actors.length, max: 4 } : null,
+    party: Array.isArray(actors) ? { n: actors.length, max: PARTY_ACTIVE } : null,
     pace: paceOf(answers['mounts.pace']),
   };
   card.bars = barsOf(lead) ?? (Array.isArray(row?.bars) && row.bars.length ? row.bars : null);

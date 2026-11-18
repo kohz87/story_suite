@@ -1,6 +1,7 @@
-// Defines the view-model shape for the Bag tab (items, purse, load, pace, assets).
+// Defines the view-model shape for the Bag tab (items, purse, load, pace, assets, loot to pick up).
 
 import { SHAPE_TYPES as T } from './shapes.js';
+import { LOOT_OFFER_SHAPE } from './loot.js';
 
 const ITEM = {
   stack: T.STRING,
@@ -23,6 +24,8 @@ const ITEM = {
   slot: { $optional: { $nullable: T.STRING } },
   // The most soak the piece's slot lets it give (body and off-hand 2, head 1, the rest 0): the Edit form's Soak field.
   soakMax: { $optional: T.NUMBER },
+  // What the piece adds to stats, as gear.view words it ("STR +1 · DEX +1"); '' for none.
+  bonus: { $optional: T.STRING },
   // The grouped piece count (inventory.counts) the Edit form's Count starts from; null when the query gave none.
   // The item's own rarity word (the tile class folds legendary into epic); the Edit form's Rarity starts from it.
   realRarity: { $optional: { $nullable: T.STRING } },
@@ -64,4 +67,6 @@ export const BAG_SHAPE = {
   },
   pace: { kmDay: T.NUMBER, by: T.STRING, slowed: T.BOOLEAN, why: T.STRING, alt: T.STRING },
   assets: { transport: [ASSET], property: [ASSET] },
+  // Every reply's loot not taken yet (the To pick up card); left out when none is laid out.
+  loot: { $optional: [LOOT_OFFER_SHAPE] },
 };

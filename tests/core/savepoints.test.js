@@ -54,7 +54,7 @@ test('save: a branch at the latest reply, named, listed in the chat\'s metadata;
     assert.equal(result.ok, true, result.message);
     assert.deepEqual(st.made, [{ index: 4, name: 'chat-1 - Branch #1' }]);
     assert.match(result.point.id, /^sp_[a-z0-9]{8}$/);
-    assert.deepEqual({ ...result.point, id: 'x' }, { id: 'x', name: 'Before the bridge', index: 4, branch: 'chat-1 - Branch #1', at: new Date(NOW).toISOString(), rev: head.meta.rev });
+    assert.deepEqual({ ...result.point, id: 'x' }, { id: 'x', name: 'Before the bridge', index: 4, branch: 'chat-1 - Branch #1', at: new Date(NOW).toISOString(), story: '', rev: head.meta.rev });
     // Kept by id in the chat's metadata, saved with it.
     const stored = host.ctx.chatMetadata.storySuite.savePoints;
     assert.deepEqual(Object.keys(stored), [result.point.id]);
@@ -194,5 +194,27 @@ test('a branch call that never settles fails after STILL_WAITING_MS and the next
     assert.match(first.message, /did not make the branch within 60 s/);
     const again = await points.save();
     assert.equal(again.ok, true, 'the running flag was cleared');
+    host.close();
+});
+
+test('the branch\'s own list: a branch is a copy from before the point existed, so Return here carries the list into it (soak W20) with a row back', async () => {
+    const { host, st } = await played();
+    // SillyTavern gives the branch the chat's metadata as it was when the branch was made, and the chat open then has the branch's own.
+    const swap = async name => { await st.open(name); host.ctx.chatMetadata = clone(st.metadata[name]); };
+    const points = createSavePoints({ ctx: host.ctx, store: host.store, live: () => host.ctx, createBranch: st.createBranch, open: swap, now: () => NOW, story: () => 'Oct 5, 611' });
+    const saved = await points.save({ name: 'Bridge' });
+    assert.equal(saved.point.story, 'Oct 5, 611', 'the story date is kept with the point');
+    assert.equal(points.list().length, 1);
+    assert.deepEqual(await points.returnTo(saved.point.id), { ok: true, branch: 'chat-1 - Branch #1' });
+    assert.equal(host.ctx.chatId, 'chat-1 - Branch #1');
+    const rows = points.list();
+    assert.ok(rows.some(row => row.id === saved.point.id && row.branch === host.ctx.chatId), 'the point is listed in the branch it opened (it reads "You are here")');
+    const back = rows.find(row => row.branch === 'chat-1');
+    assert.ok(back, 'a row leads back to the chat the reader left');
+    assert.equal(back.story, 'Oct 5, 611');
+    // Back out again and in: nothing is listed twice.
+    assert.deepEqual(await points.returnTo(back.id), { ok: true, branch: 'chat-1' });
+    assert.equal(points.list().filter(row => row.branch === 'chat-1 - Branch #1').length, 1);
+    assert.equal(points.list().filter(row => row.branch === 'chat-1').length, 0, 'the chat the reader is in is not listed as a place to go to');
     host.close();
 });

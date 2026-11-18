@@ -126,3 +126,24 @@ test('Closed hides pay with RPG off and is absent when empty', () => {
   assert.equal(closedCard(buildJournal({ empty: true }), ctx), null);
   assert.equal(closedCard(undefined), null);
 });
+
+test('a lead with a giver and a summary shows both; one with neither shows no empty line and no "?" disc', () => {
+  installFakeDom();
+  const card = leadsCard({ leads: [{ title: 'The Errand', from: 'Marrit', where: '', summary: 'find the seal', lapses: '' }, { title: 'Quiet', from: '', where: ' ', lapses: '' }], quests: [] });
+  const [a, b] = card.querySelectorAll('.lead2');
+  assert.equal(a.querySelector('.a').textContent, 'M');
+  assert.match(a.textContent, /Marrit/);
+  assert.equal(a.querySelector('.lead-sum').textContent, 'find the seal');
+  assert.equal(b.querySelector('.a').textContent, 'Q');
+  assert.equal(b.querySelectorAll('small').length, 0);
+});
+
+test('B17: a closed quest with an id has a Remove button that sends quest.delete; its reason is not the outcome word twice', () => {
+  installFakeDom();
+  const ctx = mk();
+  ctx.prefs.setFold('journal.closed', true);
+  const card = closedCard({ rpg: true, closed: [{ id: 'q1', title: 'Ferryman', outcome: 'gaveup', detail: '', paid: null }] }, ctx);
+  assert.equal(card.querySelector('.cq small').textContent, '');
+  card.querySelector('button.qedit').click();
+  assert.deepEqual(ctx.sent, [['quest.delete', { id: 'q1' }]]);
+});

@@ -7,7 +7,8 @@ const seen = new Set();
 
 /** The stubs of the reply at `index` that still need their fill: [{ id, name }]. */
 export function newStubs(npcs, index) {
-    return (Array.isArray(npcs) ? npcs : []).filter(npc => npc && !npc.archived && npc.createdAt === index + 1 && !String(npc.background || '').trim()).map(npc => ({ id: npc.id, name: npc.name }));
+    // A dossier made from a pack entry by a line (castFrom, SFF4 #1) has its profile from the pack: no fill-in.
+    return (Array.isArray(npcs) ? npcs : []).filter(npc => npc && !npc.archived && !npc.castFrom && npc.createdAt === index + 1 && !String(npc.background || '').trim()).map(npc => ({ id: npc.id, name: npc.name }));
 }
 
 /** `runtime`: { getState, queueFills, processBackfills }; `at`: { index, sid, swipeKey }; `chat`: the chat key. Returns the number of fills queued. */

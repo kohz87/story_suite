@@ -85,10 +85,9 @@ export const WORLD_FEATURE = 'story-director.world';
  * not); the caller redraws then.
  */
 export const PAGE_SLOT_CLASS = 'npc-state-delta-v2-slot';
-// Story Director's reader-only pin for key people (its feature switch is `story-director.key-people`).
 // Story Block's lean RPG feature (its names.js LEAN_RPG_FEATURE); an extension cannot import Story Block.
 const RPG_FEATURE = 'story-block.rpg';
-export const QUERY_NAMES = Object.freeze(['npc.present', 'npc.dossier', 'npc.known', 'npc.portrait', 'npc.meters', 'npc.cast', 'npc.next', 'npc.keyAway', 'npc.castMade', 'npc.socialModifier', 'npc.identity', 'npc.catchUp']);
+export const QUERY_NAMES = Object.freeze(['npc.present', 'npc.dossier', 'npc.known', 'npc.portrait', 'npc.meters', 'npc.cast', 'npc.next', 'npc.awayMemory', 'npc.castMade', 'npc.socialModifier', 'npc.identity', 'npc.catchUp', 'npc.dormantAfter']);
 export const COMMAND_NAMES = Object.freeze(['npc.adjust', 'npc.set', 'npc.refresh', 'npc.milestone', 'npc.open', 'npc.tick', 'npc.flag', 'npc.meet', 'npc.mood', 'npc.taste', 'npc.drives']);
 // The replies after which Delta takes its per-reply step (npc.tick): a new reply or a new swipe of
 // one, never a Continue, a Re-read or late change lines (the same reply again).
@@ -145,8 +144,6 @@ export function createStorySuiteV2Adapter({
     aliveMs = HOST_ALIVE_MS,
     watchMs = SECTION_WATCH_MS,
     logger = console,
-    // True while the reader keeps the calendar in Delta (no longer a choice; always false): no story clock.
-    calendarOwn = () => false,
     // True while the one-pass lines switch is on (N7: the production start-up passes true): `+ npc` stubs and the unknown-person rule (src/npc-lines-parts/stub.js). Off, nothing differs.
     linesMode = () => false,
     // True while the custom Level field is on (a configured field, or the host's RPG feature): a `~ npc` line may then state `level: N` (src/npc-lines-parts/level.js). Off, a `level:` label is an unknown one.
@@ -178,7 +175,7 @@ export function createStorySuiteV2Adapter({
     // The parts, in the order the closure declared them: each gets the options and constants (deps) and what the parts before it return.
     const deps = {
         suiteApi, delta, panelId, version, host, headReply, castSync, castPortraitDue, doc, timers, loadEmptyCast, retryMs,
-        attempts, aliveMs, watchMs, logger, calendarOwn, linesMode, levelOn, loadDossierList, settleMs,
+        attempts, aliveMs, watchMs, logger, linesMode, levelOn, loadDossierList, settleMs,
         settlePollMs, cardSettings, MODULE_ID, MODULE_NAME, CAST_TAB_ID, DOSSIERS_TITLE, DOSSIERS_ICON, CAST_SCREEN_ID,
         CAST_WIDGET, CAST_SCREEN_ORDER, WORLD_FEATURE, PAGE_SLOT_CLASS, TICK_TURNS, PRESET_KIND,
         V2_HOST_EVENT,
@@ -222,7 +219,7 @@ export function createStorySuiteV2Adapter({
     const editorPart = createEditorPart(session, deps);
     Object.assign(deps, editorPart);
     const { watchers, pageApi, offerPage } = castUiPart;
-    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, keyPeople, send, sliceView, worldSecretsOn } = queriesPart;
+    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, awayAnswer, awayReadable, awayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, send, sliceView, worldSecretsOn } = queriesPart;
     const { ownPrompt, storyClock, calendarLink, definition, scenePresentNames } = timelinePart;
     const { poll, unhost, check } = connectPart;
     const { editorHtml, readEditor, dossierMeters, eventWatch } = editorPart;
@@ -268,21 +265,19 @@ export function createStorySuiteV2Adapter({
         },
         /** While hosted: Story Block's `party.levels` as it answers, or null (no host, no query, RPG off). */
         partyLevelsAnswer,
-        /** While hosted: Story Director's key people (`director.keyPeople`) as it answers, or null when it cannot. */
-        keyPeopleAnswer,
-        keyPeopleReadable,
         /** While hosted: the slice's entries (npc.meters) at the head, or null when the host cannot answer. */
         meterEntries: sliceEntries,
-        /** While hosted: the memory of key people's last absences (npc.keyAway), {} without one. */
-        keyAwayMemory,
-        /** The same, cleaned (normalizeKeyPeople), without dates written. */
-        keyPeople,
         /** While hosted: Story Director's calendar (`director.calendar`), or null. */
         directorCalendar,
         /** While hosted: the story's date after reply `index` ("Icewane 27"), '' without a clock; dates a memory when it is recorded. */
         storyDateText,
         /** While hosted: the story day (whole days of Story Director's clock) after reply `index`, null without a clock; ties' last mention uses it. */
         storyDayNumber,
+        /** While hosted: Story Director's people away (`director.away`) as it answers, or null when it cannot; whether that list can be trusted. */
+        awayAnswer,
+        awayReadable,
+        /** While hosted: the memory of the last absences (npc.awayMemory), {} without one. */
+        awayMemory,
         /** While hosted: Story Director's cast (`director.cast`) as it answers, or null when it cannot. */
         castAnswer,
         /** The same, cleaned (src/cast-dossier.js normalizeCast), dates written on Story Director's calendar. */
@@ -304,7 +299,7 @@ export function createStorySuiteV2Adapter({
         scanEveryReply: () => part.featureOn(FEATURE_SCAN_EVERY_REPLY) !== false,
         /**
          * Where the calendar in Delta's settings stands: 'story-director' (Story Director's calendar is the one in
-         * use), 'own' (the reader keeps the calendar in Delta) or 'none' (no host, or no Story Director calendar).
+         * use) or 'none' (no host, or no Story Director calendar).
          */
         calendarLink,
         /** While hosted: Story Director's clock, { minutes, calendar: { era, months, leapYears } }, or null. */

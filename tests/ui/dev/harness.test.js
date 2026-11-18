@@ -38,7 +38,7 @@ test('falls back on unknown query values', () => {
 
 test('controls remount with the chosen switch', () => {
   const { h, controls, frame } = setup();
-  assert.equal(controls.querySelectorAll('button').length, 31);
+  assert.equal(controls.querySelectorAll('button').length, 33); // (widths: 360, 390, 820, 1100, 1280, 1920)
   controls.querySelector('[data-key="variant"][data-value="fightOpen"]').click();
   assert.equal(h.state.variant, 'fightOpen');
   assert.equal(h.suite().tabHost.tabs().includes('fight'), true);

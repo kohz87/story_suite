@@ -1,10 +1,11 @@
 // Turns the recorded inventory, gear, wallet and mount query answers into the Bag view-model (BAG_SHAPE), leaving gaps null.
 
 import { money } from './money.js';
+import { slotWordOf } from '../../modules/inventory/gear.js';
 import { purseLines } from './purse-lines.js';
 
 const KIND_OF = { equipment: 'gear', consumable: 'use', goods: 'goods', material: 'material', quest: 'quest' };
-const GLYPH_OF_SLOT = { weapon: 'weapon', body: 'armor', 'off-hand': 'offhand', head: 'head', cloak: 'cloak', feet: 'feet', 'accessory-1': 'accessory', 'accessory-2': 'accessory' };
+const GLYPH_OF_SLOT = { weapon: 'weapon', body: 'armor', 'off-hand': 'offhand', head: 'head', cloak: 'cloak', feet: 'feet', 'accessory-1': 'accessory', 'accessory-2': 'accessory', accessory: 'accessory' };
 const RARITY = { common: 'common', uncommon: 'uncommon', rare: 'rare', epic: 'epic', legendary: 'epic' };
 const FILTER_KEYS = ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'];
 const LOAD_LEVEL = { normal: 'light', heavy: 'heavy', over: 'over' };
@@ -23,12 +24,13 @@ function itemOf(row, ctx) {
   const word = info?.word;
   const worn = row.equipped !== null && row.equipped !== undefined;
   const wearer = row.owner === 'party' ? ctx.pcId : row.owner;
-  const glyphSlot = GLYPH_OF_SLOT[row.equipped] ?? (kind === 'gear' ? 'gear' : kind);
+  // (a worn piece shows the place it is worn at, an unworn one the slot its own def names: the Party slot sheet matches on it)
+  const glyphSlot = GLYPH_OF_SLOT[row.equipped] ?? (kind === 'gear' ? GLYPH_OF_SLOT[slotWordOf(row.slot)] ?? 'gear' : kind);
   return {
     stack: String(row.stack), name: String(row.name), kind, glyph: glyphSlot, rarity: RARITY[row.rarity] ?? 'common', realRarity: typeof row.rarity === 'string' ? row.rarity : null,
     qty: Number.isSafeInteger(row.qty) ? row.qty : 1, count: Number.isSafeInteger(ctx.counts?.[row.stack]) ? ctx.counts[row.stack] : null, wornBy: worn ? wearer ?? null : null, isNew: null,
     wear: kind === 'gear' && word ? (word === 'torn' || word === 'broken' ? 'torn' : 'good') : null,
-    weight: whole(info?.weight), worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: typeof row.from === 'string' ? row.from : '',
+    weight: whole(info?.weight), bonus: typeof info?.bonus === 'string' ? info.bonus : '', worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: originOf(row.from),
     note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
   };
 }
@@ -41,6 +43,9 @@ const assetOf = (row, carried) => ({
   condition: row.condition || null, note: '', meta: [row.kind, `${row.pace} km/day`, ...(Number.isSafeInteger(carried?.carry) && carried.carry > 0 ? [`+${carried.carry} load`] : [])].filter(Boolean), tag: '',
 });
 
+// Where a stack came from, for the item sheet: a receipt id (`rc_…`, what the stack records) means nothing to a reader, so only a worded origin shows.
+const originOf = from => (typeof from === 'string' && !/^rc_/u.test(from) ? from : '');
+
 /**
  * Bag view-model from { rpg, items: inventory.items, counts: inventory.counts (pieces per def+owner for unstacked items), gear: gear.view, wallet: inventory.wallet, currency: inventory.currency,
  * mounts: mounts.list, pace: mounts.pace, changes: reply.changes (the head reply's lines; the purse's coin lines are the turn's), carriers: gear.view's `carriers` (mounts with the party, what each adds), pcId }; null when inventory.items does not answer.
@@ -49,11 +54,13 @@ export function selectBag({ rpg = false, items, counts, gear, wallet, currency, 
   if (!Array.isArray(items)) return null;
   const ctx = { rows: gear?.rows, currency, pcId, counts: isRecord(counts) ? counts : {} };
   const list = items.filter(row => isRecord(row) && KIND_OF[row.kind]).map(row => itemOf(row, ctx));
-  const countOf = { all: list.length, worn: list.filter(item => item.wornBy !== null).length };
+  // (the grid lists a worn piece under Worn only, so "In bag" and the kind chips count the unworn ones)
+  const loose = list.filter(item => item.wornBy === null);
+  const countOf = { all: loose.length, worn: list.length - loose.length };
   const carry = gear?.carry;
   return {
     rpg: rpg === true,
-    filters: FILTER_KEYS.map(key => ({ key, count: countOf[key] ?? list.filter(item => item.kind === key).length })),
+    filters: FILTER_KEYS.map(key => ({ key, count: countOf[key] ?? loose.filter(item => item.kind === key).length })),
     items: list,
     // The wallet keeps one amount under `coin` (inventory/state.js WALLET_KEY): the denominations are in `words`, so `coins` stays null; `thisTurn` is the head reply's coin line; no rates yet.
     purse: { coins: null, words: money(wallet?.coin ?? 0, currency), thisTurn: purseLines(changes, currency), rates: null },

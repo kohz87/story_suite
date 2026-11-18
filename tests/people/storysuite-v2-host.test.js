@@ -61,7 +61,7 @@ test('with a Story Block v2 host, Delta registers through the sdk only, answers 
         assert.ok(await waitFor(() => sdk.registered.length === 1), 'Delta registers with the v2 host');
         const def = sdk.registered[0];
         assert.equal(def.id, 'npc-state-delta');
-        assert.deepEqual(Object.keys(def.queries).sort(), ['npc.cast', 'npc.castMade', 'npc.catchUp', 'npc.dossier', 'npc.identity', 'npc.keyAway', 'npc.known', 'npc.meters', 'npc.next', 'npc.portrait', 'npc.present', 'npc.socialModifier']);
+        assert.deepEqual(Object.keys(def.queries).sort(), ['npc.awayMemory', 'npc.cast', 'npc.castMade', 'npc.catchUp', 'npc.dormantAfter', 'npc.dossier', 'npc.identity', 'npc.known', 'npc.meters', 'npc.next', 'npc.portrait', 'npc.present', 'npc.socialModifier']);
         assert.deepEqual(mockState.storyBlockTabs, [], 'no v1 Present NPCs / Dossiers tabs');
         assert.equal(globalThis.document.documentElement.dataset.npcStateDeltaStoryBlock, undefined);
         assert.equal(globalThis.StorySuite, undefined, 'the v1 Story Suite registry is gone: NPC State never creates it');
@@ -83,8 +83,10 @@ test('with a Story Block v2 host, Delta registers through the sdk only, answers 
         const file = name => ({ name, type: 'image/png', size: 100 });
         try {
             assert.equal(await api.setPortrait(npc.id, file('mira.png'), { chatKey }), true);
-            assert.equal(def.queries['npc.portrait']({}, { name: 'mira' }), 'data:image/png;base64,iVBORw0KGgo=');
-            assert.equal(def.queries['npc.portrait']({}, { name: npc.id }), 'data:image/png;base64,iVBORw0KGgo=');
+            // A device upload is filed once and the record names the file (so the store and a reload keep it).
+            const filed = def.queries['npc.portrait']({}, { name: 'mira' });
+            assert.match(filed, /^\/user\/files\/npc-state-delta-portrait-[0-9a-f]{40,64}\.png$/);
+            assert.equal(def.queries['npc.portrait']({}, { name: npc.id }), filed);
             // The current form's own image wins, as in the dossier.
             assert.equal(await api.updateAppearance(npc.id, { currentForm: 'Human', formsText: 'Human | Brown hair.\nRaven | Black feathers.' }, { chatKey, lockAppearance: true }), true);
             assert.equal(await api.updateAppearance(npc.id, { currentForm: 'Raven' }, { chatKey, lockAppearance: true }), true);
@@ -92,7 +94,7 @@ test('with a Story Block v2 host, Delta registers through the sdk only, answers 
             assert.equal(await api.setPortrait(npc.id, file('raven.png'), { chatKey, form: 'Raven' }), true);
             assert.equal(def.queries['npc.portrait']({}, { name: 'Mira' }), 'data:image/png;base64,UmF2ZW4=');
             assert.equal(await api.updateAppearance(npc.id, { currentForm: 'Human' }, { chatKey, lockAppearance: true }), true);
-            assert.equal(def.queries['npc.portrait']({}, { name: 'Mira' }), 'data:image/png;base64,iVBORw0KGgo=');
+            assert.equal(def.queries['npc.portrait']({}, { name: 'Mira' }), filed);
         } finally {
             document.createElement = originalCreate;
             globalThis.FileReader = originalReader;

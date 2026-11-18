@@ -36,7 +36,7 @@ export function joinOffers(entries, index, party = []) {
         if (!key || answered.has(key)) continue;
         const known = seen.get(key);
         if (known) { known.recorded ||= join.full === true; known.back ||= join.back === true; known.four ||= join.four === true; continue; }
-        const offer = { name: oneLine(join.name), soul: Number.isSafeInteger(join.soul) ? join.soul : 1, best: STATS.includes(join.best) ? join.best : '',
+        const offer = { name: oneLine(join.name), soul: Number.isSafeInteger(join.soul) ? join.soul : 1, best: STATS.includes(join.best) ? join.best : '', ...(Number.isSafeInteger(join.level) && join.level >= 1 ? { level: join.level } : {}),
             ...(Array.isArray(join.skills) && join.skills.length ? { skills: join.skills.slice(0, 8).map(skill => ({ name: oneLine(skill?.name), about: oneLine(skill?.about), stat: skill?.stat, uses: skill?.uses, rank: skill?.rank, ...typeKey(skill?.type) })) } : {}) };
         const state = { offer, recorded: join.full === true, back: join.back === true, four: join.four === true };
         seen.set(key, state);
@@ -51,4 +51,23 @@ export function joinOffers(entries, index, party = []) {
         shown.push({ ...offer, ...(four ? { four: true } : {}), ...(full ? { full: true, ...(back ? { back: true } : {}), ...(declined.has(key) ? { declined: true } : {}) } : {}) });
     }
     return [...shown, ...done];
+}
+
+/**
+ * Every companion offer still waiting, from the whole chat's receipts (not one reply's): a `+ party` line that asked stays open until a later
+ * `No`, an Add (or a return, or a bench choice) answers it, or the name is in the party. → [{ name, soul, best }] in the order they were first asked.
+ * Read from receipts, so a swipe, a delete, a rewind or a reload takes an offer away or brings it back with its reply. An offer that met a full party is the card's own business and is left out.
+ */
+export function openJoinOffers(entries, party = []) {
+    const list = (Array.isArray(entries) ? entries : []).filter(entry => Number.isInteger(entry?.index) && isRecord(entry.receipt?.data?.join))
+        .map((entry, at) => ({ entry, at })).sort((a, b) => a.entry.index - b.entry.index || a.at - b.at).map(item => item.entry);
+    const open = new Map();
+    for (const { receipt } of list) {
+        const join = receipt.data.join, key = fold(join.name);
+        if (!key) continue;
+        if (join.op === 'offer') {
+            if (!open.has(key) && join.full !== true) open.set(key, { name: oneLine(join.name), soul: Number.isSafeInteger(join.soul) ? join.soul : 1, best: STATS.includes(join.best) ? join.best : '' });
+        } else if (join.op === 'no' || join.op === 'added' || join.op === 'back' || (typeof join.benched === 'string' && join.benched)) open.delete(key);
+    }
+    return [...open.entries()].filter(([key]) => !party.some(person => fold(person.name) === key && !person.left)).map(([, offer]) => offer);
 }

@@ -6,10 +6,11 @@ import { readFileSync } from 'node:fs';
 import { validatePack } from '../../packs/validate.js';
 import { contentOf } from '../../packs/content.js';
 import { countsLine } from '../../packs/panel.js';
-import { CONTENT_KINDS, LEAN_RPG_LIMITS, OPTIONAL_KINDS } from '../../packs/limits.js';
+import { CONTENT_KEYS, LEAN_RPG_LIMITS } from '../../packs/limits.js';
 import { CREATION, STATS, USES } from '../../modules/rpg/names.js';
-import { pack } from './helpers/fixtures.js';
 
+// The skill sets belong to a game pack (format 4), under content.rpg.
+const pack = (extra = {}) => ({ id: 'mini', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1' }, content: {}, ...extra });
 const skill = (extra = {}) => ({ name: 'Spear', about: 'Holding a line with a long spear.', stat: 'str', ...extra });
 const set = (extra = {}) => ({ name: 'Sealwarden recruit', about: 'Trained at the gates.', skills: [skill()], ...extra });
 const withSets = list => pack({ content: { rpg: { skillSets: list } } });
@@ -31,9 +32,9 @@ function refused(value, code, path) {
     return hit;
 }
 
-test('rpg is a content kind added after the first format, and its limits are the Skills block\'s', () => {
-    assert.ok(CONTENT_KINDS.includes('rpg') && OPTIONAL_KINDS.includes('rpg'));
-    assert.equal('rpg' in ok(pack()).content, false, 'an older pack normalizes as it always did');
+test('rpg is a game pack content key, and its limits are the Skills block\'s', () => {
+    assert.ok(CONTENT_KEYS.game.includes('rpg') && !CONTENT_KEYS.world.includes('rpg'));
+    assert.equal('rpg' in ok(pack()).content, false, 'a game pack without it has no rpg key');
     assert.deepEqual(ok(withSets([])).content.rpg, []);
     assert.deepEqual([LEAN_RPG_LIMITS.sets, LEAN_RPG_LIMITS.skills, LEAN_RPG_LIMITS.skillName, LEAN_RPG_LIMITS.skillAbout], [12, 5, CREATION.skillName, CREATION.skillAbout]);
     assert.deepEqual([...LEAN_RPG_LIMITS.stats].filter(stat => stat !== 'luk'), [...STATS], 'the same seven stats as the Skills block (and LUK, which a v1 sheet reads as WIS, so an earlier pack still loads)');
@@ -57,8 +58,9 @@ test('a set keeps its skills, with the stat in lower case, the pool sp unless it
 });
 
 test('the shipped test fixture pack is valid and its set comes out of the query with its pack', () => {
+    // The shared fixture (tests/modules/rpg/fixtures) is still written in format 3; its content is read here as a game pack.
     const fixture = JSON.parse(readFileSync(new URL('../modules/rpg/fixtures/skill-sets-pack.json', import.meta.url), 'utf8'));
-    const made = ok(fixture);
+    const made = ok({ ...fixture, format: 4, kind: 'game', requires: { suite: '^0.1' } });
     const found = contentOf([made], 'rpg');
     assert.equal(found.length, 1);
     assert.deepEqual([found[0].name, found[0].pack, found[0].skills.map(entry => [entry.name, entry.stat, entry.uses])],

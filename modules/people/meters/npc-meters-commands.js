@@ -1,19 +1,22 @@
 // NPC meter story-line capture and hosted commands. A pure part of npc-meters.js (same owner, moved without change);
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
-import { storyMinuteText } from '../legacy/calendar.js';
-import { isAway, labelKey, labelsOf, normalizeKeyPeople } from '../cast/key-people.js';
+import { labelKey } from '../dossier/cast-dossier-parts/shared-text.js';
+import { awayAtTick } from '../away/away-hold.js';
+import { observeAway } from '../away/away-memory.js';
 import { normalizeCast } from '../dossier/cast-dossier.js';
 import { normalizeApproachKind } from './npc-meters-gate.js';
-import { NPC_DOMAIN, BUILT_IN_METERS, FEATURE_GATE, FEATURE_MOOD_PULL, FEATURE_NOTES, MILESTONE_KIND, DAY_MINUTES, MILESTONE_MAX, DISPOSITION_MAX, REASON_LABELS, FEATURE_STAGES, FEATURE_DRIFT, KEY_PEOPLE_QUERY, isObject, isInt, isReplyId, readLeaf, replyKey, clamp, clean, slug, wordKey, tierOf, parseMeterValue } from './npc-meters-config.js';
+import { NPC_DOMAIN, BUILT_IN_METERS, FEATURE_GATE, FEATURE_MOOD_PULL, FEATURE_NOTES, MILESTONE_KIND, DAY_MINUTES, MILESTONE_MAX, DISPOSITION_MAX, REASON_LABELS, FEATURE_STAGES, FEATURE_DRIFT, isObject, isInt, isReplyId, readLeaf, replyKey, clamp, clean, slug, wordKey, tierOf, parseMeterValue } from './npc-meters-config.js';
 import { readLabels } from './npc-lines-parts/labels.js';
 import { wordChanges } from './npc-lines-parts/direction.js';
 import { labelFields } from './npc-lines-parts/live-fields.js';
 import { stepPull } from './npc-instincts.js';
 import { growDrives, DRIVE_RULE } from '../notes/npc-notes-drives.js';
 import { mergeRefreshTastes } from '../notes/npc-notes-tastes.js';
+import { noted, noteWord } from './npc-lines-parts/noted.js';
 import { runKind, noteLine, noteRule, markNote, isNoteKind, noteField, driveScale, seedNotes, lookStamp, readLookStamp, CAUGHT_TIER, CAUGHT_DROP } from '../notes/npc-notes-kinds.js';
 import { applyEvents, applyWord, moodFromWord, moodNumbers, restMood, restingMood } from './npc-mood.js';
-import { CAST_QUERY, observeKeyAway, observeCast, meterValue, sentence, asStored, writeMood } from './npc-meters-slice.js';
+import { CAST_QUERY, observeCast, meterValue, sentence, asStored, writeMood } from './npc-meters-slice.js';
+import { seedCastBond } from './npc-meters-parts/cast-bond.js';
 
 export function createNpcCommands({
     featureOn, normalized, defsFrom, tierCaps, ownOrModule, readerAction, headReply, commandReply,
@@ -48,13 +51,15 @@ export function createNpcCommands({
         const notes = { run: change => changes.push(...change.changes), flag: (text, cue) => (cue ? (problems.push(text), cues.push(cue)) : cues.push(text)) };
         const rule = noteRule(line.kind, ctx, who.key, reply, labels);
         const out = runKind(line.kind, current, noteLine(line.kind, labels, { current, r: reply, day }), { name: who.name, day, r: reply, userText: ctx.chat?.lastUser ?? '', tier: CAUGHT_TIER, drop: CAUGHT_DROP, notes, tasteRule: rule, knowRule: rule });
+        // A refused know line is a Problem on that line (each line is its own command, so the reply's other know lines are kept); the leaf stays as it was, and someone with no record yet is refused as before.
+        if (out.problem && line.kind === 'know' && isObject(slice.npcs) && Object.hasOwn(slice.npcs, who.key)) return run(ctx, { label: line.name, changes: [], problems: [`Know line not used: ${out.problem}.`], limit: false, reply: null, allowEmpty: true });
         if (out.problem) ctx.fail('REFUSED', out.problem);
         const moves = changes.length > 0;
         const done = run(ctx, {
             label: line.name, changes, problems, limit: moves, reply: moves ? reply : null, at: moves ? at : null, allowEmpty: true, story: moves,
             impact: moves && tierCaps() ? { tier: CAUGHT_TIER, caps: tierCaps() } : null, reason: moves ? `caught lying to ${clean(labels.to, 40)}` : '', leaf: { field: out.field, text: out.text },
         });
-        const marked = markNote(line.kind, done, labels, rule);
+        const marked = noted(markNote(line.kind, done, labels, rule), noteWord(line.kind));
         return cues.length ? { ...marked, summary: sentence(moves ? [...cues, done.summary] : cues), narrate: true } : marked;
     }
 
@@ -64,9 +69,12 @@ export function createNpcCommands({
         const settings = normalized(ctx.settings(), ctx);
         const defs = defsFrom(settings);
         const byLabel = new Map(defs.flatMap(def => [[def.id, def], [slug(def.label), def]]));
-        const read = readLabels(line.labels, { byLabel, defs, gateOn: featureOn(FEATURE_GATE, ctx), levelOn: line.linesOn === true && call(hooks.levelOn, false) === true });
+        const read = readLabels(line.labels, { byLabel, defs, gateOn: featureOn(FEATURE_GATE, ctx), levelOn: line.linesOn === true && call(hooks.levelOn, false) === true, linesOn: line.linesOn === true });
         const { problems, tier, via, reason, disposition, fields } = read;
         const changes = [...read.changes, ...wordChanges(read.words, tier, tierCaps())];
+        // F44 (lines mode): a person who has died feels nothing new; a line of feelings alone is refused, one with dossier labels keeps them (guard.js decides those).
+        if (line.dead === true && changes.length && !Object.keys(fields).length) ctx.fail('REFUSED', `${clean(line.name, 40)} has died; lines about them change nothing now.`);
+        if (line.dead === true && changes.length) problems.push(`${clean(line.name, 40)} has died; ${changes.splice(0).map(change => change.meter).join(', ')} not changed.`);
         // B-a1-15: the window is the reply's by its record ID, so after a middle delete a new reply at an
         // index an older one had is its own reply, with its own cap.
         const at = isInt(ctx.carrier?.index) ? ctx.carrier.index : null;
@@ -106,14 +114,12 @@ export function createNpcCommands({
         };
     }
 
-    // One record's mood decay and pull for this tick (feature mood-pull). `rawPeople`: Story Director's key people as answered.
-    function moodPullStep(ctx, key, record, day, world, rawPeople, minutes) {
+    // One record's mood decay and pull for this tick (feature mood-pull). `awayDay`: the story day this person went away on, or null.
+    function moodPullStep(ctx, key, record, day, world, awayDay, minutes) {
         const labels = new Set([record.name, ...(resolve(record.name)?.aliases ?? [])].map(labelKey).filter(Boolean));
         const has = list => list.some(label => labels.has(label));
-        const gone = (Array.isArray(rawPeople) ? rawPeople : []).find(person => isObject(person?.away) && !person.removed && has([person.name, ...(Array.isArray(person.aliases) ? person.aliases : [])].map(labelKey)));
         const out = stepPull(readLeaf(record.track), {
-            day, party: world.party ? has([...world.party]) : null, here: world.here, present: has([...world.present]),
-            awayDay: isInt(gone?.away?.since) ? Math.floor(gone.away.since / DAY_MINUTES) : null,
+            day, party: world.party ? has([...world.party]) : null, here: world.here, present: has([...world.present]), awayDay,
             threads: world.threads.filter(thread => has(thread.names)),
             // Drives (notes feature): the person's instinct strengths scale what pulls at them; none stored: the scores as they are.
             scale: featureOn(FEATURE_NOTES) && record.drives ? driveScale(record.drives) : undefined,
@@ -335,25 +341,15 @@ export function createNpcCommands({
                 try { minutes = ctx.time(); } catch { minutes = null; }
             }
             const day = isInt(minutes) ? Math.floor(minutes / DAY_MINUTES) : null;
-            // Key people (Story Director's `director.keyPeople`, read only): while one is away their meters stay as
-            // the reader set them, so no drift and no count toward losing a stage. Without that query: nobody.
-            let people = null;
-            let rawPeople = null;
-            try {
-                let calendar = null;
-                try { calendar = ctx.query('director.calendar', {}); } catch { calendar = null; }
-                rawPeople = ctx.query(KEY_PEOPLE_QUERY, {});
-                people = normalizeKeyPeople(rawPeople, minutes => storyMinuteText(minutes, calendar));
-            } catch { people = null; }
-            const awayKeys = new Set();
-            for (const entry of people ?? []) if (isAway(entry)) for (const label of labelsOf(entry)) awayKeys.add(label);
             const before = ctx.read(NPC_DOMAIN);
-            // The memory of the last absence (above): noted at this reply.
-            const observed = people ? observeKeyAway(before?.keyAway, people, ctx.reply?.index) : null;
             // The living cast (Story Director's `director.cast`, read only): the people met for the first time at this reply.
             let castPeople = null;
             try { castPeople = normalizeCast(ctx.query(CAST_QUERY, {})); } catch { castPeople = null; }
             const castSeen = observeCast(before?.cast, castPeople);
+            // People away (Story Director's `director.away`, read only): their meters stay as they are, so no drift and no count toward losing a
+            // stage; the memory of the last absence (away-memory.js) is noted at this reply. Without that query: nobody.
+            const away = awayAtTick(ctx);
+            const observed = away.people ? observeAway(before?.keyAway, away.people, ctx.reply?.index) : null;
             if ((!isObject(before?.npcs) || !Object.keys(before.npcs).length) && !observed?.changed && !castSeen.fresh.length) ctx.fail('REFUSED', 'Nothing to update.');
             const slice = ctx.draft(NPC_DOMAIN);
             const castNames = [];
@@ -361,23 +357,7 @@ export function createNpcCommands({
                 castNames.push(person.name);
                 const who = identify(slice.npcs, person.name);
                 if (!who || Object.hasOwn(slice.npcs, who.key)) continue;
-                // The pack's first meter values (by id or label); a meter this chat does not have is a problem line, not an error.
-                const byId = new Map(defs.flatMap(def => [[def.id, def], [slug(def.label), def]]));
-                const seed = {};
-                const unknown = [];
-                for (const [name, value] of Object.entries(person.entry.meters.values)) {
-                    const def = byId.get(slug(name));
-                    if (def) seed[def.id] = value;
-                    else unknown.push(`${person.name}: "${clean(name, 40)}" is not a meter here (meters: ${defs.map(item => item.id).join(', ')}).`);
-                }
-                for (const [field, left] of Object.entries(person.entry.overflow ?? {})) if (left.length) unknown.push(`${person.name}: ${left.length} ${field} over NPC State's limit were not kept: ${clean(left.join(', '), 160)}.`);
-                try { ensure(ctx, slice.npcs, who, defs, seed); } catch { continue; }
-                // Temperament (feature mood-pull): a person whose pack words give a resting mood starts at it, so it is stored with the record.
-                const rest = moodPull && isInt(minutes) && slice.npcs[who.key] ? restingMood(person.entry.personality, person.entry.role) : null;
-                if (rest && (rest.v || rest.a || rest.d)) slice.npcs[who.key].mood = asStored(ctx, who.key, 'mood', restMood(rest, minutes));
-                // Notes (feature notes): the pack's tastes and drives are the person's first, kept in the record's leaves.
-                if (slice.npcs[who.key] && featureOn(FEATURE_NOTES, ctx)) Object.assign(slice.npcs[who.key], seedNotes(person.entry));
-                note(slice, ctx.rev, unknown);
+                seedCastBond(ctx, slice, who, person, { defs, ensure, note, moodPull, minutes, notesOn: featureOn(FEATURE_NOTES, ctx) });
             }
             if (castSeen.fresh.length) slice.cast = castSeen.cast;
             // The world (four reads) is read once for this tick, and only when a person's record is there to use it.
@@ -394,13 +374,13 @@ export function createNpcCommands({
                 if (!Array.isArray(record.unlocked)) record.unlocked = [];
                 const was = JSON.stringify(record);
                 const drift = [];
-                const away = awayKeys.size > 0 && [record.name, ...(resolve(record.name)?.aliases ?? [])].some(label => awayKeys.has(labelKey(label)));
+                const held = away.held([record.name, ...(resolve(record.name)?.aliases ?? [])]);
                 if (day !== null) {
                     const days = isInt(record.day) ? day - record.day : 0;
                     if (record.day !== day) record.day = day;
                     const setup = setupFor(record.name);
                     const limits = limitsFor(settings, setup);
-                    for (const def of days > 0 && !away ? drifting : []) {
+                    for (const def of days > 0 && !held ? drifting : []) {
                         const value = meterValue(record, def);
                         const { perDay, to } = def.drift;
                         const step = Math.min(Math.abs(to - value), perDay * days);
@@ -414,8 +394,8 @@ export function createNpcCommands({
                         drift.push({ meter: def.id, before: value, after: next });
                     }
                 }
-                if (moodPull && day !== null) moodPullStep(ctx, key, record, day, worldNow(), rawPeople, minutes);
-                const settled = settleRecord(record, [record.name], settings, defs, featureOn(FEATURE_STAGES, ctx) && !away);
+                if (moodPull && day !== null) moodPullStep(ctx, key, record, day, worldNow(), away.awayDay([record.name, ...(resolve(record.name)?.aliases ?? [])]), minutes);
+                const settled = settleRecord(record, [record.name], settings, defs, featureOn(FEATURE_STAGES, ctx) && !held);
                 if (JSON.stringify(record) === was) continue;
                 changed = true;
                 if (drift.length) texts.push(`${record.name}: ${drift.map(item => `${defs.find(def => def.id === item.meter)?.label.toLocaleLowerCase() ?? item.meter} ${item.before} → ${item.after}`).join(', ')} (story days passed)`);
@@ -423,14 +403,14 @@ export function createNpcCommands({
                 if (settled.stages.length || settled.ranks.length) narrate = true;
                 data.push({ key, drift, stages: settled.stages.map(({ meter, from, to }) => ({ meter, from, to })), ranks: settled.ranks.map(({ from, to }) => ({ from, to })), unlocked: settled.unlocked.map(item => item.id), ...(isInt(record.low) ? { low: record.low } : {}) });
             }
+            if (castNames.length) {
+                if (!changed) texts.push(`Cast dossier: ${castNames.join(', ')}`);
+                changed = true;
+            }
             if (observed?.changed) {
                 if (Object.keys(observed.memory).length) slice.keyAway = observed.memory;
                 else delete slice.keyAway;
-                if (!changed) texts.push('Key people: noted');
-                changed = true;
-            }
-            if (castNames.length) {
-                if (!changed) texts.push(`Cast dossier: ${castNames.join(', ')}`);
+                if (!changed) texts.push('Away: noted');
                 changed = true;
             }
             if (!changed) ctx.fail('REFUSED', 'Nothing to update.');

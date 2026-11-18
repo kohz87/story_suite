@@ -1,7 +1,8 @@
 // World events, open templates on the host (spec §9): the Director's answers reach the chat through one command, `chronicle.world.open`,
 // run in beforeGenerate (the message before the reply, so a swipe, delete or Re-read of the reply never takes a stored answer away, as the
 // campaign seed). It writes the answers and the call count into the ledger. The hooks also start the asking ahead of time: for the slots
-// waiting and for the slots tomorrow's roll will make (a dry run of the step), never awaited, so no reply waits for a call.
+// waiting and for the slots tomorrow's roll will make (a dry run of the step), never awaited, so no reply waits for a call. The dry run after a
+// reply starts from the state the reply's own step left (afterReceive), so a long skip's days are stepped once, not twice (perf PB9, L1).
 // The daily step reads only what is stored: an answer that is not stored when the day crosses leaves the slot waiting (settled after the
 // reply that stores it). Everything here is off with the world-events switch.
 
@@ -77,11 +78,9 @@ export function openBeforeGenerate(view) {
     return ready ? [{ type: OPEN, payload: ready }] : [];
 }
 
-/** afterCapture: ask ahead (the clock has moved), and whether a waiting slot's answer is stored now (the daily step settles it). */
-export function openAfterCapture(view) {
-    if (!worldEventsOn(view)) return false;
+/** afterReceive (a reply has arrived and its steps have run): ask ahead from the state the reply's step left, one day on. Never awaits. */
+export function openAfterReceive(view) {
+    if (!worldEventsOn(view)) return;
     const input = inputOf(view);
-    if (!input) return false;
-    ask(view, input);
-    return (input.state.pending ?? []).some(slot => slot.key in (input.opens?.results ?? {}));
+    if (input) ask(view, input);
 }

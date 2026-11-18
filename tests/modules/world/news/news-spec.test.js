@@ -135,9 +135,9 @@ test('rumour vs fact: a world happening is never heard before its courier and is
     const [item] = knownNews(after, tools(after));
     assert.equal(item.name, 'The Levy · day 10');
     assert.deepEqual(item.heard.at(-1), { where: 'in Highmark', when: '', from: 'a courier' });
-    // With the switch off the same state shows the entry as any other (no arrival, no stamp).
+    // With the switch off nothing travels: a world happening no world line of the story named (no heard stamp) is not news (W7).
     const off = knownNews(before, hostFor(before, { pack: PACK, on: false }));
-    assert.deepEqual([off.length, off[0].heard], [1, []]);
+    assert.deepEqual(off, []);
 });
 
 test('world.cueToday: the world happening fired today in the scene\'s region is today\'s cue; another day, another region, no place, or the switch off give none', () => {

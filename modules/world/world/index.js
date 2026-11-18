@@ -14,8 +14,7 @@
 // * Setting `world.upcomingDays` (30): how many story days ahead Upcoming looks.
 // * Feature `story-director.world-events` (off): `world.newsAt` and `world.heardHere` (news.js, news-delay.js) say when the news of a
 //   chronicle entry reaches a place; the News list and the narrator's [World] lines keep only what has arrived. Setting `world.courierKmPerDay` (60).
-// * The Days screen is folded into the Journal; its id `story-director/days` stays as a dialog of the
-//   Journal alone, for older layouts.
+// * The Days screen is folded into the Journal (its old id `story-director/days` is gone).
 // Works with any set of modules (WAVE rule 11): without NPC State Delta the people are plain names, without
 // a pack there are no holidays, without the story clock nothing has a date, without the day digest the
 // Journal says it is off.
@@ -23,7 +22,7 @@
 
 export { part } from './index-parts/part.js';
 export { FEATURE } from './known.js';
-export { WORLD_ID, DAYS_ID, worldScreen, daysScreen } from './screen.js';
+export { WORLD_ID, worldScreen } from './screen.js';
 export { PEOPLE_WIDGET, createPeopleWidget, peopleWidget } from './people.js';
 export { EVENTS_WIDGET, eventsWidget } from './events-widget.js';
 export { FOLD_WIDGET, createFoldWidget, foldMemory, foldWidget, leadsOf } from './elsewhere.js';

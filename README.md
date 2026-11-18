@@ -26,6 +26,7 @@ To update later, press the update button in **Extensions → Manage extensions**
 
 **NPC State**
 - Keeps a dossier for every person you meet: who they are, where they are, how they feel about you.
+- Four feelings are always kept for each person: Trust, Affection, Desire and Tension, from −100 to +100, where 0 is neutral. Settings › People adds up to six meters of your own (Fear, Respect, Debt…), meter presets, named stages on one meter and a stage ladder.
 - A person you have not met by name stays unnamed to the narrator until the story names them.
 - A pack's secrets for a person stay hidden until their condition is met.
 
@@ -54,7 +55,7 @@ To update later, press the update button in **Extensions → Manage extensions**
 | --- | --- |
 | Start | How a new chat begins |
 | Look | How the view looks (dark or light, and its details) |
-| People | NPC State options |
+| People | NPC State options, and the list of people in this chat (Open a dossier, Re-read the story for one person) |
 | RPG | Combat Rules v1 on or off, and their options |
 | World and time | The clock, the calendar, World events and Tempo |
 | Director | How the Story Director plans |
@@ -62,16 +63,16 @@ To update later, press the update button in **Extensions → Manage extensions**
 | Models | The connection each model call uses: story, quick helpers, background work, the safety net |
 | Packs and trackers | Install, switch off or remove a pack; trackers |
 | Add-ons | Modules and the switch on each one's card |
-| Tools | Save points, the budget view, the inspector, developer tools |
+| Tools | Save points, the budget view, the inspector, NPC State data (back up, restore, diagnostics), developer tools |
 | Diagnostics | Parts that failed to start, and the problems they report |
 
 Each page has its own help lines; the search box at the top of Settings finds a setting by name.
 
 ## Packs
 
-- A world pack is a `.zip` (or a `pack.json` with its images). Packs use **format 3**; a pack names the suite it needs with `requires.suite`.
-- Install one in **Settings → Packs and trackers → Import a pack file**, then start a new chat.
-- The sample world pack is **Ersveil**: `examples/packs/ersveil-world.zip` (source in `examples/packs/ersveil-world/`). It has 31 people, lore, realms, conditions and 103 world events. Its world events run only with World events on. A smaller `examples/packs/ersveil.zip` is also there.
+- Packs use **format 4**: a pack is a **world** (places, people, lore, events) or a **game** (calendar, money, weather, names, rules). A pack file is a `.zip` (its `pack.json`, portraits and, for a world, an optional `game.json`) or a `pack.json` with its images; it names the suite it needs with `requires.suite`. An older pack is refused; convert it with the Pack Studio or `scripts/packs/convert-3to4.mjs`.
+- Install one in **Settings → Packs and trackers → Import a pack file**, pick the world and the game there, then start a new chat (a chat that has begun keeps the world and game it began with).
+- The sample is **Ersveil**: `examples/packs/ersveil.zip` holds the world (`examples/packs/ersveil/`) and its game, "Ersveil rules" (`examples/packs/ersveil-game/`). The world has 31 people, lore, realms, conditions and 103 world events; its world events run only with World events on.
 - The author spec and the install checks are in [docs/v2/PACKS.md](docs/v2/PACKS.md) and [authoring-kit/reference/PACK-FORMAT.md](authoring-kit/reference/PACK-FORMAT.md). [docs/v2/ERSVEIL.md](docs/v2/ERSVEIL.md) walks through playing Ersveil.
 - Pack Studio (`studio/index.html`) opens and checks a pack, read only: see [docs/dev/studio.md](docs/dev/studio.md).
 

@@ -4,7 +4,7 @@ import { atParty } from '../entries.js';
 import { isAlive, isInt, isMet, keysOfPerson, peopleOf } from '../domain.js';
 
 /**
- * Everyone who can be moved: alive, their entry readable now, not in the scene, not pinned as Key people, joined before `to`.
+ * Everyone who can be moved: alive, their entry readable now, not in the scene, not followed, joined before `to`.
  * The most stale first. Each: `{ key, ref, person, entry, met, mayDie }`.
  */
 export function movable(slice, cast, { to = null, present = new Set(), pinned = new Set(), unmetDie = false } = {}) {

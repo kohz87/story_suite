@@ -137,67 +137,31 @@ test('the adapter answers rpgOn from the host feature (hosted), false when off',
     assert.equal(s.adapter.rpgOn(), false, 'switched off mid-chat: the next read sees it');
 });
 
-// ---- (hosted, main until job R2) an active party member's built-in Level follows their sheet (Story Block's `party.levels`) ----
-test('active party member: the built-in Level follows the sheet (even past a custom-fields lock); after leaving the last sheet level stays', async () => {
-    const mira = normalizeNpcRecord({ ...createNpcRecord('Mira'), id: 'npc_mira', aliases: ['the Ranger'], level: 4, customFields: { Class: 'Rogue' } });
-    const scan = (state, party, extra = {}) => mergeScanResult(state, { npcs: [{ id: 'npc_mira', name: 'Mira' }] }, { turn: 2, ...(party ? { partyLevels: party } : {}), ...extra });
-    const active = [{ name: 'Mira', level: 5 }];
-    const a = scan({ npcs: [mira], candidates: [], turn: 1 }, active);
-    assert.equal(a.state.npcs[0].level, 5, 'the sheet level');
-    assert.deepEqual(a.state.npcs[0].customFields, { Class: 'Rogue' }, 'the custom fields are left as they are');
-    assert.deepEqual(a.report.sheetLevels, [{ id: 'npc_mira', reason: 'Level: from the party sheet' }]);
-    assert.ok(a.report.updated.includes('npc_mira'));
-    assert.equal(scan(a.state, [{ name: 'the ranger', level: 6 }]).state.npcs[0].level, 6, 'an alias matches, in any case');
-    assert.equal(scan(a.state, [{ name: 'Mira', level: 3 }]).state.npcs[0].level, 3, 'the sheet is the member\'s Level: it may lower it');
-    assert.equal(scan(a.state, active).report.sheetLevels.length, 0, 'unchanged: nothing written');
-    assert.equal(scan(a.state, []).state.npcs[0].level, 5, 'after leaving: the last sheet level stays');
-    for (const party of [undefined, null, []]) assert.equal(scan({ npcs: [mira], candidates: [], turn: 1 }, party).state.npcs[0].level, 4, `no sheet (${JSON.stringify(party)}): as stored`);
-    assert.equal(scan({ npcs: [{ ...mira, manualProfileFields: ['customFields'] }], candidates: [], turn: 1 }, active).state.npcs[0].level, 5, 'the built-in Level has no editor lock; a custom-fields lock does not cover it');
-    assert.equal(scan({ npcs: [mira], candidates: [], turn: 1 }, [{ name: 'Mira', level: 120 }]).state.npcs[0].level, 4, 'outside 1 to 99: not written');
-});
-
-test('a configured custom "Level" from the scanner is still not kept for an active member (the sheet sets the Level)', () => {
+// ---- N4: the sheet no longer overwrites the stored Level on a scan (it used to: `applySheetLevels`); the sheet writes back through people.fields ----
+test('a scan keeps the scanner\'s Level for an active party member: no party-sheet overwrite, no sheetLevels in the report', () => {
     const reason = 'Level: "far beyond anything I can sense"';
     const story = 'The captain whispers: he is far beyond anything I can sense. Mira is level 3.';
-    const mira = { ...createNpcRecord('Mira'), id: 'npc_mira', customFields: { Level: '4' } };
-    const done = mergeScanResult({ npcs: [mira], candidates: [], turn: 1 }, { npcs: [{ id: 'npc_mira', name: 'Mira', customFields: { Level: '40' }, customFieldsReason: reason }] },
-        { turn: 2, customFieldNames: ['Level'], developmentContext: story, partyLevels: [{ name: 'Mira', level: 5 }] });
-    assert.equal(done.state.npcs[0].customFields.Level, '4', 'the scanner\'s 40 is stripped for a party member');
-    assert.equal(done.state.npcs[0].level, 5);
+    const mira = { ...createNpcRecord('Mira'), id: 'npc_mira', aliases: ['the Ranger'], customFields: { Level: '4' } };
+    const scan = (state, fields, extra) => mergeScanResult(state, { npcs: [{ id: 'npc_mira', name: 'Mira', customFields: fields, customFieldsReason: reason }] },
+        { turn: 2, customFieldNames: ['Level'], developmentContext: story, ...extra });
+    const done = scan({ npcs: [mira], candidates: [], turn: 1 }, { Level: '40' }, { partyLevels: [{ name: 'Mira', level: 5 }] });
+    assert.equal(done.state.npcs[0].customFields.Level, '40', 'the scanner\'s Level stands; the sheet\'s 5 is not written');
+    assert.equal(done.report.sheetLevels, undefined);
+    const quiet = scan({ npcs: [mira], candidates: [], turn: 1 }, {}, { partyLevels: [{ name: 'the ranger', level: 6 }] });
+    assert.equal(quiet.state.npcs[0].customFields.Level, '4', 'nothing is written for a member either');
 });
 
-test('the adapter reads party.levels (null without the query)', async () => {
+test('the adapter still reads party.levels (null without the query); the hosted views no longer mark Level "from the party sheet"', async () => {
     assert.equal((await suite({})).adapter.partyLevelsAnswer(), null, 'a host without the query: as today (the answer with the query: cast-dossier.test.js)');
+    const source = oldSource('runtime-hosted.js');
+    assert.equal(/sheetLevels|partyLevelList/.test(source), false, 'no sheet-level mark and no party level list in the hosted part');
 });
 
-// ---- the sheet level holds on every scan path; the mark only when it matches ----
-const hostedPart = async answer => {
-    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } } }; globalThis.__handles.hosted = true;
-    const { createHostedPart } = await import(pathToFileURL(path.join(extRoot, 'runtime-hosted.js')).href);
-    const rt = { storySuiteV2: { hosted: () => true, partyLevelsAnswer: () => answer } };
-    return createHostedPart(rt, { chatHydrationStatus: () => 'ready', getChatKey: () => 'c1', getChatState: () => ({ npcs: [] }), latestMessageId: () => 1, latestReplyIndex: () => 1 });
-};
-
-test('partyLevelList drops a member who left (rule 2), keeps whole-number levels only, and the mark needs the stored Level to equal the sheet', async () => {
-    const prior = globalThis.document;
-    try {
-        const part = await hostedPart([{ name: 'Mira', level: 5, left: false }, { name: 'Bo', level: 3, left: true }, { name: 'Cy', level: 2.5 }, { name: 'Di', level: 4 }]);
-        assert.deepEqual(part.partyLevelList(), [{ name: 'Mira', level: 5 }, { name: 'Di', level: 4 }], 'Bo left; Cy has no whole level');
-        const person = (id, name, level) => normalizeNpcRecord({ id, name, ...(level === null ? {} : { level }) });
-        const state = { npcs: [person('m', 'Mira', 5), person('b', 'Bo', 3), person('d', 'Di', 9), person('x', 'Xu', 5)] };
-        assert.deepEqual(part.dossierHostViews({ ...state }).sheetLevels, { m: true }, 'Mira matches; Bo left; Di holds another value (hand-locked or not yet scanned); Xu is not a member');
-        assert.equal(part.dossierHostViews({ npcs: [person('d', 'Di', null)] }).sheetLevels, undefined, 'no stored Level: no mark');
-    } finally { globalThis.document = prior; }
-});
-
-test('every merge call site passes the party levels: the reply scan and the targeted passes (backfill, Refresh, catch-up and import go through them)', () => {
-    const read = oldSource;
+test('no scan call site passes the party levels any more', () => {
     for (const file of ['runtime-scan.js', 'runtime-targeted.js']) {
-        const source = read(file);
-        const calls = source.split('mergeScanResult(').length - 1;
-        assert.equal(source.split('partyLevels: partyLevelList()').length - 1, calls, `${file}: each mergeScanResult call passes partyLevels`);
-        assert.ok(calls >= 1, file);
+        const source = oldSource(file);
+        assert.ok(source.includes('mergeScanResult('), file);
+        assert.equal(source.includes('partyLevels'), false, `${file}: no partyLevels`);
     }
-    assert.match(read('index.js'), /createTargetedPart\(rt, \{[^}]*partyLevelList/, 'the targeted part is given the one shared helper');
 });
-test.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));   // last: the hosted-part test above imports from it
+test.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));

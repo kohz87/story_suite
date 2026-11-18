@@ -32,12 +32,18 @@ export function closeOverlay({ reason = 'closed', restore = true, session: expec
     document.body?.classList?.remove?.('npc-state-delta-tools-open');
     if (restore) restoreFocus(session);
 }
+// The dialog sits on <body>, outside the Story Suite view that holds the theme: it takes the view's --su-* values so it is glass in the same look (dark or light).
+function carryTheme(overlay) {
+    const style = document.querySelector?.('.su-root')?.style;
+    for (let i = 0; style && i < style.length; i += 1) if (style[i].startsWith('--su-')) overlay.style.setProperty(style[i], style.getPropertyValue(style[i]));
+}
 export function mountOverlay(html, session) {
     closeOverlay({ reason: 'replaced', restore: false });
     const overlay = document.createElement('dialog');
     overlay.id = OVERLAY_ID;
     overlay.className = 'npc-state-delta-tools-overlay';
     overlay.innerHTML = html;
+    carryTheme(overlay);
     overlay.addEventListener('click', event => {
         if (event.target === overlay && (!session.busy || session.cancelableBusy)) closeOverlay({ reason: 'backdrop' });
         const close = event.target.closest?.('[data-delta-tools-close]');

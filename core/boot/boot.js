@@ -16,7 +16,6 @@ import { createRuntime, HOST_VERSION } from '../runtime.js';
 import { SUITE_VERSION } from '../version.js';
 import { INTERCEPTOR_NAME } from '../turn.js';
 import { noteError, noteSaveError } from '../diagnostics.js';
-import { createV1Watch } from '../persist/v1-copy.js';
 import { registerSbMacro } from '../runtime/sb-macro.js';
 import { BUILTIN_MODULES } from '../modules-list.js';
 import { registerIsolated, startIsolated } from './register-isolated.js';
@@ -25,6 +24,7 @@ import { startHostParts } from './host-parts.js';
 import { startToolsParts } from './tools-parts.js';
 import { startRpgLive } from '../../modules/rpg/live/sync.js';
 import { createToolsHandle } from '../../ui/port/tools-handle.js';
+import { createCardSource } from '../../ui/port/reply-cards.js';
 
 const LOG = '[Story Block v2]';
 export const OLD_COPY = 'Disable the old Story Block, Story Director and NPC State Delta: Story Suite replaces all three.';
@@ -57,12 +57,10 @@ export async function boot({ late = [] } = {}) {
         },
     });
     const { sdk, api, turn, markReady } = runtime;
-    // (An old v1 copy loaded before this one left its own object here: src/v2/v1-copy.js.)
-    const before = globalThis.StoryBlock ?? null;
     // `writes` is for the Story Suite view only (the Models page); the public sdk reads settings but has no setter.
-    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, toolsParts: () => tools, savePoints: () => parts?.savePoints ?? null }) });
-    const v1 = createV1Watch({ before, report: entry => turn.report(entry), problems: () => turn.problems() });
-    const lookForV1 = () => { try { v1.check(); } catch { /* never in the way of the story */ } };
+    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, toolsParts: () => tools, savePoints: () => parts?.savePoints ?? null }),
+        // the view's cards under replies (ui/port/reply-cards.js)
+        cards: createCardSource({ registry: runtime.registry, store: runtime.store, initial: runtime.initial, ctx: () => globalThis.SillyTavern?.getContext?.() ?? ctx }) });
 
     turn.install({ globalName: INTERCEPTOR_NAME });
     turn.onChatChanged().catch(error => console.warn(`${LOG} the first chat could not be read`, error));
@@ -75,14 +73,12 @@ export async function boot({ late = [] } = {}) {
     }
     parts.refreshOffer();
     const types = ctx.eventTypes ?? ctx.event_types ?? {};
-    if (types.APP_READY) ctx.eventSource?.on?.(types.APP_READY, lookForV1);
     // The open character's lorebook `market:` lines (PACKS.md "Markets"), read for each chat.
     const readLore = () => refreshLore().catch(error => console.warn(`${LOG} the lorebook's market lines could not be read`, error));
-    if (types.CHAT_CHANGED) ctx.eventSource?.on?.(types.CHAT_CHANGED, () => { readLore(); lookForV1(); });
+    if (types.CHAT_CHANGED) ctx.eventSource?.on?.(types.CHAT_CHANGED, readLore);
     readLore();
     // Cast portraits are files on the server: the ones that went missing (a cleaned user-files folder) answer nothing until imported again.
     livePortraits.verify().catch(error => console.warn(`${LOG} the pack portraits could not be checked`, error));
-    lookForV1();
     // `{{sb::path}}` for SillyTavern's prompts, regex scripts and status bars (src/v2/sb-macro.js), registered once.
     registerSbMacro({ ctx, api });
     // The modules after the core one, in the fixed order of core/modules-list.js; one that fails is switched off and the rest start.

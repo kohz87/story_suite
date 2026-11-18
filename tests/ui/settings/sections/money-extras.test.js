@@ -14,8 +14,9 @@ test('Chat extras leads with its module block, then lists its rows', () => {
   const { page, sec } = mountSettings();
   const el = page('extras');
   assert.equal(el.querySelectorAll('.mod[data-mod="extras"] .msubs .srow').length, 4);
-  assert.ok(el.querySelector('.sgrp .gt'));
+  // Inner chatter's group shows only while its switch is on (Director hide, owner 18 Nov); with it off the page has the module block alone.
   assert.equal(el.querySelectorAll('.sgrp .srow').length, sec('extras').rows.length);
+  if (sec('extras').rows.length) assert.ok(el.querySelector('.sgrp .gt'));
 });
 
 test('Money on a real host draws its six rows from the live values and names a coin line that does not read', async () => {
@@ -32,21 +33,23 @@ test('Money on a real host draws its six rows from the live values and names a c
   const port = createSbPort({ sdk: runtime.sdk, writes: runtime.writes, selectors: buildSelectors(() => st.ctx, runtime.sdk) });
   const doc = installFakeDom();
   const calls = [];
-  const ov = createSettingsOverlay({ doc, settings: port.view('settings'), renderSection: renderSettingsSection, onChange: (k, v) => calls.push([k, v]), onAction() {} });
+  const ov = createSettingsOverlay({ doc, settings: port.view('settings'), renderSection: renderSettingsSection, onChange: (k, v) => { calls.push([k, v]); return port.command('settings.set', { key: k, value: v }); }, onAction() {} });
   ov.open();
   ov.show('money');
   const page = ov.el.querySelector('.spage');
   assert.equal(page.querySelectorAll('.sgrp .srow').length, 6);
   assert.equal(page.querySelector('[data-key="money.moneyWord"] input').value, 'mark');
   const coins = page.querySelector('[data-key="money.coins"] input');
-  const note = page.querySelector('p.fine[role="alert"]');
+  const note = page.querySelector('[data-key="money.coins"] .snote');
   assert.equal(note.hidden, true);
   coins.value = 'silver: ten';
   coins.dispatchEvent(new globalThis.Event('change'));
+  await new Promise(r => setTimeout(r, 0));
   assert.equal(note.hidden, false);
   assert.match(note.textContent, /Coin 1/);
   coins.value = 'copper: 1, silver: 10';
   coins.dispatchEvent(new globalThis.Event('change'));
+  await new Promise(r => setTimeout(r, 0));
   assert.equal(note.hidden, true);
   assert.deepEqual(calls.at(-1), ['money.coins', 'copper: 1, silver: 10']);
 });

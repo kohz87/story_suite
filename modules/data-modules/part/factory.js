@@ -96,7 +96,9 @@ export function createDataModulesPart(opts = {}) {
                     // (an ended board fight is still a fight for this reply: the clear emptied the Foes block, but the reply that tells its end keeps the fight tail)
                     const ended = ['won', 'fled', 'lost'].includes(view.boardStop);
                     const fight = ended || readSheet(view.state).foes.some(foe => foe.filled);
-                    lines.push(...(lib?.boardReplyGrammar?.(view.state, { fight, ended }) ?? []));
+                    // (played: the board settled a segment in this reply, so the narrator tells its note; foes that stand unplayed get the "story goes on" line instead)
+                    const played = ended || typeof view.boardStop === 'string';
+                    lines.push(...(lib?.boardReplyGrammar?.(view.state, { fight, ended, played }) ?? []));
                 }
                 return { lines, optional: [] };
             },

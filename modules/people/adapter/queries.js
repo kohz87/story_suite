@@ -1,6 +1,6 @@
 // The adapter's read-only side (src/storysuite-v2.js): Delta's npc.* queries, the npc slice the host holds (src/npc-meters.js) and
 // the lookups every other part of the adapter uses (Delta's runtime, its NPC list and dossiers, the host's features), the answers
-// Story Director gives about key people and the cast, and the commands Delta sends to the host.
+// Story Director gives about the cast, and the commands Delta sends to the host.
 //
 // A part of the adapter closure: createQueriesPart(session, deps) gets the adapter's shared state (session) and the adapter's options,
 // constants and the parts built before it (deps), and returns what the other parts and the adapter use. Pure apart from the DOM it
@@ -11,7 +11,7 @@ import { resolveDossierTarget } from '../npc-api/dossier-target.js';
 import { FEATURE_SOCIAL, SOCIAL_QUERY, createNpcPart, normalizeSecrets } from '../meters/npc-meters.js';
 import { normalizeLimits, presetCatalog } from '../meters/npc-meters-presets.js';
 import { RELATIONSHIP_KEYS, dossierFields, portraitUrl } from './queries-dossier.js';
-import { storyMinuteText } from '../legacy/calendar.js';
+import { storyMinuteText } from '../calendar/calendar.js';
 import { createDirectorQueriesPart } from './queries-director.js';
 
 const WORLD_EVENTS_FEATURE = 'story-director.world-events';
@@ -20,7 +20,7 @@ export { dossierFields, safeImageUrl, portraitUrl } from './queries-dossier.js';
 
 export function createQueriesPart(session, deps) {
     const {
-        calendarOwn, delta, doc, headReply, linesMode, levelOn, host, logger, MODULE_ID, panelId, PRESET_KIND, suiteApi, timeline, timers, WORLD_FEATURE,
+        delta, doc, headReply, linesMode, levelOn, host, logger, MODULE_ID, panelId, PRESET_KIND, suiteApi, timeline, timers, WORLD_FEATURE,
     } = deps;
 
     // Delta's own commands on their way to the host, by type and payload: npc.adjust takes a reader's
@@ -117,7 +117,6 @@ export function createQueriesPart(session, deps) {
         baseline: () => runtime()?.relationshipBaseline?.() ?? {},
         caps: () => runtime()?.relationshipCaps?.() ?? null,
         allowance: () => runtime()?.relationshipAllowance?.() ?? null,
-        calendarOwn: () => { try { return calendarOwn?.() === true; } catch { return false; } },
         // The day belongs to the state before this reply, even if its own time line ran first.
         startTime: index => {
             if (!Number.isInteger(index) || index < 1) return null;
@@ -227,6 +226,8 @@ export function createQueriesPart(session, deps) {
                 return { name: String(npc.name ?? '').trim(), meters: entry?.meters ?? null, stages: entry?.stages ?? {} };
             }).filter(item => item.name);
         },
+        /** The reader's "Dormant after" (replies unseen), or null when Delta cannot say; people.list asks it. */
+        'npc.dormantAfter': () => { try { return runtime()?.dormantAfter?.() ?? null; } catch { return null; } },
         /** Names of every tracked (not archived) NPC, in dossier order. */
         'npc.known': () => names(npcList().filter(npc => npc.archived !== true)),
         /**
@@ -279,8 +280,8 @@ export function createQueriesPart(session, deps) {
         'npc.cast': (state, args) => castFor(state, args),
         /** npc.next({ name }) → the NPC's ladder from here: { rank, next, risk, text } ("what's missing"), or null. */
         'npc.next': (state, args) => part.queries['npc.next'](state, args ?? {}),
-        /** npc.keyAway() → the memory of key people's last absences (the slice's `keyAway`: { [name key]: { name, aliases, away, returnedAt, presentReplies } }), {} when none. */
-        'npc.keyAway': (state, args) => part.queries['npc.keyAway'](state, args ?? {}),
+        /** npc.awayMemory() → the memory of the last absences (the slice's `keyAway`: { [name key]: { name, aliases, away, returnedAt, presentReplies } }), {} when none. */
+        'npc.awayMemory': (state, args) => part.queries['npc.awayMemory'](state, args ?? {}),
         /** npc.castMade() → the people Delta made a dossier for from the cast (the slice's `cast`: { [castKey]: { name, rungs? } }), {} when none. */
         'npc.castMade': (state, args) => part.queries['npc.castMade'](state, args ?? {}),
         /**
@@ -406,7 +407,6 @@ export function createQueriesPart(session, deps) {
     // adapter forces asOf to the replayed reply, which is this same index, so live and replay agree.
     function storyDateText(index) {
         if (!Number.isInteger(index) || index < 0) return '';
-        try { if (calendarOwn?.() === true) return ''; } catch { return ''; }   // the calendar kept in Delta: no Story Director date (as storyClock)
         try {
             const time = session.sdkRef?.query?.('director.time', { asOf: index });
             const minutes = Number.isInteger(time) ? time : time?.minutes;
@@ -417,7 +417,6 @@ export function createQueriesPart(session, deps) {
     // The same clock as a whole story day after reply `index` (minutes / 1440; same asOf rules as storyDateText), null without a clock.
     function storyDayNumber(index) {
         if (!Number.isInteger(index) || index < 0) return null;
-        try { if (calendarOwn?.() === true) return null; } catch { return null; }
         try {
             const time = session.sdkRef?.query?.('director.time', { asOf: index });
             const minutes = Number.isInteger(time) ? time : time?.minutes;

@@ -2,7 +2,7 @@
 
 import { portraitHasImage } from '../../portrait/portrait-file.js';
 import { PACK_BIRTHDAY_REASON, normalizeBirthDate } from '../../birthday/birthday.js';
-import { getActiveCalendarConfig, normalizeCalendarConfig } from '../../legacy/calendar.js';
+import { getActiveCalendarConfig, normalizeCalendarConfig } from '../../calendar/calendar.js';
 import { ALIASES_MAX } from './limits-text.js';
 import { castSecrets } from './entry-lists.js';
 import { castGatedSecrets } from './entry-gated.js';
@@ -13,10 +13,7 @@ import { normalizeApparentAge } from '../../core/core-identity.js';
 
 // The writer's birthday, "Month day" or "Month day, year" (Story Block checks it against the pack's calendar), read on the active
 // calendar: the date as established, or null when it does not fit that calendar (the dossier then keeps Delta's own date).
-// Skipped with a reason when Delta runs its own calendar (`calendarOwn`): the pack's date is in the pack's calendar, which is not
-// the active one then, so reading it here would give a wrong date. Delta's own date stands and the story can still state one.
-function castBirthday(text, calendarOwn = false) {
-    if (calendarOwn) return null;
+function castBirthday(text) {
     const match = /^(.+?)\s+(\d{1,3})(?:,\s*(-?\d{1,9}))?$/u.exec(String(text ?? '').trim());
     if (!match) return null;
     const config = normalizeCalendarConfig(getActiveCalendarConfig(), { requireCurrentDate: false });
@@ -32,7 +29,7 @@ const BUILT_IN_METERS = Object.freeze(['trust', 'affection', 'desire', 'tension'
  * ({ path, type, hash, … } or, when the file could not be written, { dataUrl, … }) or null; `placeName(id)` gives a pack place's name (the starting place's
  * fallback). Returns a new record; null without an entry.
  */
-export function applyCastEntry(base, person, { packName = '', portrait = null, calendarOwn = false, gated = false, placeName = null } = {}) {
+export function applyCastEntry(base, person, { packName = '', portrait = null, gated = false, placeName = null } = {}) {
     const entry = person?.entry;
     if (!isObject(base) || !entry) return null;
     const npc = { ...base };
@@ -53,7 +50,7 @@ export function applyCastEntry(base, person, { packName = '', portrait = null, c
     if (entry.withYou) npc.relationshipSummary = entry.withYou;
     // A birthday the writer gave is the person's starting date, kept as 'established' (twins and calendar changes treat it so) but marked
     // as the pack's: a birthday the story states later, 'establish' or 'correct', replaces it. Without one, Delta's date stands.
-    const birthDate = castBirthday(entry.birthday, calendarOwn);
+    const birthDate = castBirthday(entry.birthday);
     if (birthDate) Object.assign(npc, { birthDate, birthDateSource: 'established', birthDateReason: PACK_BIRTHDAY_REASON, birthDatePrecision: birthDate.year === null ? 'month-day' : 'full', birthDateYearSource: birthDate.year === null ? '' : 'established' });
     const goal = entry.goal || entry.start.goal;
     if (goal) npc.goal = goal;
@@ -81,7 +78,8 @@ export function applyCastEntry(base, person, { packName = '', portrait = null, c
         met: { on: person.met?.on ?? '', where: person.met?.where ?? '' },
         goal, routine: entry.start.routine,
         // The pack's own words, kept exactly while the stored field still is them (core-mechanics normalizeNpcRecord).
-        first: Object.fromEntries([['overallAppearance', entry.look], ['appearance', entry.wears], ['speech', entry.voice], ['personality', entry.personality], ['background', entry.history], ['behaviorProfile', entry.behaviour], ['mannerisms', entry.mannerisms],
+        // `status` (S2PA B11): what they were doing before the meeting; while the stored status still is it, it is not shown or told as what they do now.
+        first: Object.fromEntries([['overallAppearance', entry.look], ['appearance', entry.wears], ['speech', entry.voice], ['personality', entry.personality], ['background', entry.history], ['behaviorProfile', entry.behaviour], ['mannerisms', entry.mannerisms], ['status', entry.status],
             // An apparent age in words the normalizer cannot read as a number ("looks older") stays as the pack wrote it.
             ['apparentAge', entry.apparentAge && !normalizeApparentAge(entry.apparentAge, npc.name) ? entry.apparentAge : '']].filter(([, words]) => (Array.isArray(words) ? words.length : words)).map(([field, words]) => [field, Array.isArray(words) ? [...words] : words])),
         ...(entry.stages.length ? { stages: entry.stages } : {}),

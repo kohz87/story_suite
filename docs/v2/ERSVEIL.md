@@ -1,8 +1,15 @@
 # Playing v2 in Ersveil
 
+> **Pack format 4 (job C1):** the shipped Ersveil is now two format 4 packs, the world pack
+> [`examples/packs/ersveil`](../../examples/packs/ersveil/pack.json) (4.0.0) and its game pack
+> [`examples/packs/ersveil-game`](../../examples/packs/ersveil-game/pack.json) ("Ersveil rules", 1.0.0); `examples/packs/ersveil.zip` holds both
+> (`pack.json`, `game.json`, the portraits and `CONVERSION-NOTES.md`). The packs are edited directly and the zip is built by `node scripts/core/build-example-zip.mjs`. The rest of
+> this page still describes the **old format 3 pack**, which is now a frozen test fixture (`tests/fixtures/packs/ersveil-3`, with its lorebook and zip);
+> it is rewritten with the format 4 docs (job D1).
+
 This page sets up a v2 chat in the Ersveil world with the **Ersveil example pack 3.0.0, the open world** (pack format 3)
-([`examples/packs/ersveil/pack.json`](../../examples/packs/ersveil/pack.json)) and its lorebook
-([`examples/packs/ersveil/ersveil-lore.json`](../../examples/packs/ersveil/ersveil-lore.json)). A new
+([`tests/fixtures/packs/ersveil-3/pack.json`](../../tests/fixtures/packs/ersveil-3/pack.json)) and its lorebook
+([`tests/fixtures/packs/ersveil-3/ersveil-lore.json`](../../tests/fixtures/packs/ersveil-3/ersveil-lore.json)). A new
 story begins in Bluewatch Village, at the Adventurer Guild office, with four silver.
 
 The pack holds the world's structure: the map (320 places, 350 routes), the calendar, 84 weather tables,
@@ -26,7 +33,7 @@ SillyTavern profile.
 
 ## 2. Import the pack
 
-1. Story Suite settings → **Tabs & Packs** → **Packs** → **Import pack file** → `examples/packs/ersveil.zip`. This is the one-step way:
+1. Story Suite settings → **Tabs & Packs** → **Packs** → **Import pack file** → `tests/fixtures/packs/ersveil-3/ersveil.zip`. This is the one-step way:
    it holds `pack.json` and the twelve portraits ("12 portraits saved"). Picking `pack.json` alone imports no pictures.
    The message says "Installed Ersveil (open world)." and the list shows "16 items, 135 events, 320 places, 350 routes,
    1 skill set, 12 cast members, 14 name lists, start state, 4 coins, a calendar, 84 weather tables". The 3 data modules are not in that line; they
@@ -48,7 +55,7 @@ SillyTavern profile.
 2.6.1 trims the always-on lore and makes Classification, Currency, Naming and Knowledge keyword entries (the story sends them when the topic comes up).
 2.6.0 adds sixteen signature items (each cast member's own gear, given and bound to them when they join the party while Gear in fights is on) and needs Story Block 2.18.0.
 2.5.0 adds the guild rank bands and the guild letter as the party's rank (§6, Ranks), turns the cast's Soul Class field into Level (each of the twelve set by role, 8 to 56), and needs Story Block 2.17.0.
-2.4.0 replaced the two sample cast entries with twelve people (§6, "The twelve"), each with a portrait; import `examples/packs/ersveil.zip` (`pack.json` and `portraits/`; rebuild it with `node scripts/build-example-zip.mjs`) or pick `pack.json` and the twelve `.webp` files together; `pack.json` alone leaves the portraits unset. 2.3.0 added the cast kind (`content.cast`, see PACKS.md "The cast"); a Story Block that knows it (after 2.14) reads the people, and Story Director's cast brings them into a story. 2.2.1 (needs Story Block 2.10) adds the Guild rank line; 2.2.0 added the world's hidden history (§6), the Court favour module (§5), the Sealwarden recruit skill set for the RPG,
+2.4.0 replaced the two sample cast entries with twelve people (§6, "The twelve"), each with a portrait; import `tests/fixtures/packs/ersveil-3/ersveil.zip` (`pack.json` and `portraits/`; frozen, no longer rebuilt) or pick `pack.json` and the twelve `.webp` files together; `pack.json` alone leaves the portraits unset. 2.3.0 added the cast kind (`content.cast`, see PACKS.md "The cast"); a Story Block that knows it (after 2.14) reads the people, and Story Director's cast brings them into a story. 2.2.1 (needs Story Block 2.10) adds the Guild rank line; 2.2.0 added the world's hidden history (§6), the Court favour module (§5), the Sealwarden recruit skill set for the RPG,
 and 56 notable people to the lorebook. Re-import the lorebook too.
 2.1.0 changes only lore and names: Auvoth is the Guild's city, its Depths sealed by Veyr the Unbound in CY 384; the Guild Grand Hall ward is Sealcrown (was Delver's Crown) and Rimeglass Delve is the Rimeglass Galleries. The old names stay as aliases, so a chat already at one of those places still finds it, and the data modules are unchanged. Re-import the lorebook too.
 
@@ -56,7 +63,7 @@ Importing 3.0.0 replaces an installed pack with the same id. Start a new chat to
 
 ## 3. Import the lorebook
 
-* SillyTavern → World Info → **Import World Info** → `examples/packs/ersveil/ersveil-lore.json`, a book
+* SillyTavern → World Info → **Import World Info** → `tests/fixtures/packs/ersveil-3/ersveil-lore.json`, a book
   named **Ersveil Lore** with 227 entries. Make it active for the chat (attach it to the narrator card or
   set it as a global book).
 * It is lore, not rules: levels, the Guild letters F to S (with what a contract of each pays), the ten

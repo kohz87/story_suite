@@ -13,7 +13,7 @@ import { fakeFiles, fakeImageIo, png, pngOf, webp } from './helpers/portraits.js
 import { pack } from './helpers/fixtures.js';
 import { zip } from './helpers/zip.js';
 
-const person = (id, portrait) => ({ id, name: id[0].toUpperCase() + id.slice(1), about: 'About.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait });
+const person = (id, portrait) => ({ kind: 'companion', id, name: id[0].toUpperCase() + id.slice(1), role: 'A friend.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait });
 const packText = (...people) => JSON.stringify(pack({ content: { cast: people } }));
 const text = value => new TextEncoder().encode(value);
 const good = () => zip([
@@ -191,4 +191,51 @@ test('the Packs panel: large portraits in a zip, and picked beside pack.json, ar
     assert.deepEqual(texts(files.root, '.ss-packs-message'), ['Installed mini. 1 portrait not picked; that person shows without a picture until you add it. 1 image not used.']);
     assert.deepEqual(texts(files.root, '.ss-packs-errors li'), ['fenna.png cannot be made small enough: a portrait may be at most 150 KB.']);
     assert.equal(files.files.files.size, 0);
+});
+
+// ---- game.json (pack format 4, job P6) ----
+
+const world4 = { id: 'w4', format: 4, kind: 'world', version: '1.0.0', name: 'World four', requires: { suite: '^0.1' }, content: { lore: [{ id: 'a', title: 'A', keys: ['a'], text: 'Text.' }] } };
+const game4 = { id: 'g4', format: 4, kind: 'game', version: '1.0.0', name: 'Game four', requires: { suite: '^0.1' }, content: { currency: { name: 'mark', coins: [{ name: 'mark', value: 1 }] } } };
+const withGame = (game = game4) => zip([{ name: 'pack.json', bytes: text(JSON.stringify(world4)) }, { name: 'game.json', bytes: text(typeof game === 'string' ? game : JSON.stringify(game)) }]);
+
+test('a zip may carry game.json: its text comes back beside the pack; a zip without one has no `game` key at all', async () => {
+    const result = await readPackZip(withGame());
+    assert.equal(result.ok, true);
+    assert.equal(JSON.parse(result.game).id, 'g4');
+    assert.deepEqual(result.files, []);
+    assert.equal('game' in (await readPackZip(good())), false);
+});
+
+test('game.json is not a portrait and is not guessed at: a game.json alone has no pack.json; one over 1 MB refuses the zip', async () => {
+    await refusedWith(zip([{ name: 'game.json', bytes: text(JSON.stringify(game4)) }]), /no pack.json/);
+    await refusedWith(zip([{ name: 'pack.json', bytes: text(JSON.stringify(world4)) }, { name: 'game.json', bytes: text(' '.repeat(1024 * 1024 + 1)), method: 'store' }]), /game\.json in the zip is larger than 1024 KB/);
+    await refusedWith(zip([{ name: 'pack.json', bytes: text(JSON.stringify(world4)) }, { name: 'portraits/game.json', bytes: text('x') }]), /portraits\/game\.json/);
+});
+
+test('the Packs panel installs both packs of a zip with a game.json, and says so', async () => {
+    const { made, root, pick } = mount();
+    await pick([fileOf('w4.zip', withGame(), 'application/zip')]);
+    assert.deepEqual(texts(root, '.ss-packs-message'), ['Installed World four. Installed Game four (its game pack).']);
+    assert.deepEqual(made.packs.list().map(item => [item.id, item.kind]).sort(), [['g4', 'game'], ['w4', 'world']]);
+});
+
+test('a game.json the checker refuses leaves the world installed and says which file was not imported; a pack.json alone installs one pack as before', async () => {
+    const { made, root, pick } = mount();
+    await pick([fileOf('w4.zip', withGame({ ...game4, kind: 'world' }), 'application/zip')]);
+    assert.match(texts(root, '.ss-packs-message')[0], /^Installed World four\. w4\.zip's game\.json was not imported\.$/);
+    assert.ok(texts(root, '.ss-packs-errors li').length > 0);
+    assert.deepEqual(made.packs.list().map(item => item.id), ['w4']);
+});
+
+test('a zip\'s game.json that is a world pack, or a game with the world\'s own id, is not installed: the world stays as it was (REVPF4 10)', async () => {
+    const asWorld = mount();
+    await asWorld.pick([fileOf('w4.zip', withGame({ ...world4, id: 'other', name: 'Other world' }), 'application/zip')]);
+    assert.match(texts(asWorld.root, '.ss-packs-message')[0], /^Installed World four\. w4\.zip's game\.json was not imported\.$/);
+    assert.deepEqual(texts(asWorld.root, '.ss-packs-errors li'), ['game.json must be a game pack (it says kind "world").']);
+    assert.deepEqual(asWorld.made.packs.list().map(item => item.id), ['w4']);
+    const sameId = mount();
+    await sameId.pick([fileOf('w4.zip', withGame({ ...game4, id: 'w4' }), 'application/zip')]);
+    assert.deepEqual(texts(sameId.root, '.ss-packs-errors li'), ['game.json has the world\'s own id "w4"; a game pack needs an id of its own.']);
+    assert.deepEqual(sameId.made.packs.list().map(item => [item.id, item.kind]), [['w4', 'world']], 'the world was not replaced');
 });

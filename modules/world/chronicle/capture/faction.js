@@ -1,7 +1,7 @@
 // Story Director v2, chronicle part: the factions (moved out of capture.js unchanged; capture.js re-exports the
 // public names): `faction` lines and their summaries. A safety-net line protects the stance of a faction known before its answer.
 
-import { MAX_FACTIONS, cleanName, cleanSummary, findIn, isRecord, keyOf, newId, revOf } from '../domain.js';
+import { MAX_FACTIONS, MAX_NAME, cleanName, cleanSummary, findIn, isRecord, keyOf, newId, revOf } from '../domain.js';
 import { CLEAR, asText, labelOf, lineText, sentence } from './text.js';
 
 export function changeFaction(faction, fields, rev) {
@@ -40,9 +40,14 @@ export function applyFactionLine(ctx, line) {
         return { summary: `Faction: ${found.name} is gone${why ? ` — ${why}` : ''}.`, narrate: false, data: { faction: found.id, removed: true } };
     }
 
+    // The grammar is `Name — about | area | stance:`: with exactly one unlabelled part after the first (read from the line as written), that part is the area (a reply with the `consumableRecovery` mark, the newest one every new reply carries; replies recorded before it keep their old reading).
+    const label = labelOf(labels, ['area', 'region', 'where', 'territory', 'holds']);
+    const unlabelled = asText(line?.raw).split('|').slice(1).map(part => part.trim()).filter(part => part && !/^\p{L}[\p{L} ]{0,20}:/u.test(part));
+    const about = asText(line?.text);
+    const positional = label === undefined && ctx.carrier?.rules?.includes('consumableRecovery') && unlabelled.length === 1 && unlabelled[0].length <= MAX_NAME && about.endsWith(`; ${unlabelled[0]}`);
     const fields = {
-        summary: asText(line?.text).trim() ? cleanSummary(line.text) : undefined,
-        area: optionalText(labelOf(labels, ['area', 'region', 'where', 'territory', 'holds'])),
+        summary: about.trim() ? cleanSummary(positional ? about.slice(0, -(unlabelled[0].length + 2)) : about) : undefined,
+        area: optionalText(positional ? unlabelled[0] : label),
         stance: optionalText(labelOf(labels, ['stance', 'toward', 'towards', 'attitude'])),
     };
     if (!found) {

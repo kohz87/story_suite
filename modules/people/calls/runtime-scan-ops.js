@@ -5,9 +5,9 @@
    runtime state. Bodies are moved from index.js without change. */
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
-import { isEmptyScannerAnswer, selectedScannerProfileId } from './scanner-routing.js';
+import { isEmptyScannerAnswer, isScannerRoutingError, selectedScannerProfileId } from './scanner-routing.js';
 import { refreshMessageGate, messageGateSettled } from '../transcript/transcript.js';
-import { chatLineage, fingerprintMessage, lineageCheckpointKey } from '../legacy/branch.js';
+import { chatLineage, fingerprintMessage, lineageCheckpointKey } from '../lineage/index.js';
 import { currentWriterId } from '../storage/storage.js';
 import { replayScope, setNpcDossierScanIndicator, setNpcChatRefreshIndicator, lineageMoved, setScanIndicator, latestMessageId } from './runtime-scan-helpers.js';
 
@@ -133,14 +133,16 @@ export function createScanOpsPart(rt, deps) {
         return ended;
     }
     function cancelScanOperation(key, reason = 'cancelled') {
-        const operation = scanOperations.cancel(key, reason);
-        if (!operation) return false;
-        operation.requestController?.abort();
+        const operations = scanOperations.cancel(key, reason);
+        if (!operations.length) return false;
+        for (const operation of operations) operation.requestController?.abort();
         if (getChatKey() === key) {
             setScanIndicator(false);
-            const npcId = String(operation.metadata?.npcId || '');
-            if (npcId && operation.metadata?.indicator === 'dossier') setNpcDossierScanIndicator(npcId, false);
-            if (npcId && operation.metadata?.indicator === 'refresh') setNpcChatRefreshIndicator(npcId, false);
+            for (const operation of operations) {
+                const npcId = String(operation.metadata?.npcId || '');
+                if (npcId && operation.metadata?.indicator === 'dossier') setNpcDossierScanIndicator(npcId, false);
+                if (npcId && operation.metadata?.indicator === 'refresh') setNpcChatRefreshIndicator(npcId, false);
+            }
         }
         return true;
     }
@@ -187,7 +189,7 @@ export function createScanOpsPart(rt, deps) {
                     if (await messageGateSettled()) break;
                     if (!entry.told && Date.now() - entry.since >= HEAD_SETTLE_PROBLEM_MS) {
                         entry.told = true;
-                        const text = `NPC State Delta: Story Block has not finished bringing the story to the selected point for ${Math.round(HEAD_SETTLE_PROBLEM_MS / 60000)} minutes, so ${defer.what || 'a scan'} is still pending. It runs as soon as Story Block is ready.`;
+                        const text = `NPC State: Story Block has not finished bringing the story to the selected point for ${Math.round(HEAD_SETTLE_PROBLEM_MS / 60000)} minutes, so ${defer.what || 'a scan'} is still pending. It runs as soon as Story Block is ready.`;
                         console.warn(`[NPC State Delta] ${text}`);
                         globalThis.toastr?.warning?.(text);
                     }
@@ -313,6 +315,11 @@ export function createScanOpsPart(rt, deps) {
     }
 
     function noteScanFailure(label, error, chatKey = '') {
+        // A scan the reader (or a chat change, or the page closing) cancelled is expected, so it is no console error.
+        if (isScannerRoutingError(error) && error.code === 'NPC_SCANNER_ROUTE_CANCELLED') {
+            console.debug(`[NPC State Delta] ${label} cancelled`);
+            return;
+        }
         if (!isEmptyScannerAnswer(error)) {
             console.error(`[NPC State Delta] ${label} failed`, error);
             return;

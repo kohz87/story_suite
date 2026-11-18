@@ -1,6 +1,8 @@
 // Opens the Party tab's bottom sheet and fills it for one gear slot: the worn item and the Bag's matching items with Equip.
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
+import { ownerOf } from '../../runtime/owner-id.js';
+import { tabTrap } from '../../kit/trap.js';
 
 /** Slot key → [glyph name, long label, short label]. */
 export const SLOT_META = Object.freeze({
@@ -20,7 +22,7 @@ const RARITY_LABEL = { uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic' };
 
 /**
  * Opens the sheet frame (dim backdrop, grab bar, title, close button) and returns `{ body, subtitle, close }`.
- * Escape and the backdrop close it; the back-stack gets one `sheet` entry; focus returns to the opener.
+ * Escape and the backdrop close it; Tab stays inside it (it is aria-modal); the back-stack gets one `sheet` entry; focus returns to the opener.
  */
 export function openSheet(ctx = {}, { title = '', subtitle = '', tone = null } = {}) {
   const doc = ctx.doc ?? globalThis.document;
@@ -50,6 +52,7 @@ export function openSheet(ctx = {}, { title = '', subtitle = '', tone = null } =
   }
   overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
   closeBtn.addEventListener('click', close);
+  overlay.addEventListener('keydown', tabTrap(sheet, { doc, isOn: () => open }));
   host.appendChild(overlay);
   release = ctx.backStack?.push({ id: 'party-sheet', layer: 'sheet', close: () => { open = false; overlay.remove(); opener?.focus?.(); } }) ?? null;
   closeBtn.focus();
@@ -60,7 +63,9 @@ const tile = (item, glyphName) => h('span', {
   class: ['ti', item?.rarity && item.rarity !== 'common' ? `r-${item.rarity}` : null],
 }, glyph(glyphName));
 
-const soakText = soak => (soak ? `Soak +${soak}` : 'No soak points');
+// Soak is armour wording: a weapon or offhand piece says what it adds (its stat bonus) or just what it is.
+const NO_SOAK = new Set(['weapon', 'offhand']);
+const soakText = (item, slotKey) => (item.soak ? `Soak +${item.soak}` : NO_SOAK.has(slotKey) ? (item.bonus || SLOT_META[slotKey][1]) : 'No soak points');
 
 function wearBar(torn) {
   return h('span', { class: ['ps-w', torn ? 't' : null] }, [1, 2, 3, 4].map(n => h('i', { class: n <= (torn ? 2 : 4) ? 'on' : null })));
@@ -74,14 +79,14 @@ function wornBlock(member, slot, meta, sheet, ctx) {
     type: 'button',
     class: 'ps-b',
     dataset: { unequip: slot.key },
-    onClick: async () => { await ctx.port?.command('inventory.unequip', { owner: member.id, slot: slot.key }); sheet.close(); },
+    onClick: async () => { await ctx.port?.command('inventory.unequip', { stack: item.stack }); sheet.close(); },
   }, 'Unequip');
   return [
     h('div', { class: 'ps-i' }, tile(item, meta[0]),
       h('div', null, h('div', { class: 'ps-n ps-n2' }, item.name),
         h('div', { class: 'ps-s' }, [RARITY_LABEL[item.rarity], owner].filter(Boolean).join(' · ')))),
     h('dl', { class: 'ps-kv' },
-      h('dt', null, 'Soak'), h('dd', null, soakText(item.soak)),
+      h('dt', null, NO_SOAK.has(slot.key) && !item.soak ? 'Gives' : 'Soak'), h('dd', null, soakText(item, slot.key)),
       h('dt', null, 'Condition'), h('dd', null, wearBar(item.torn), item.torn ? 'Torn' : 'Fine')),
     h('div', { class: 'ps-row' }, unequip),
   ];
@@ -92,12 +97,12 @@ function fitRow(member, slotKey, meta, item, sheet, ctx) {
     'div',
     { class: 'ps-r', dataset: { stack: item.stack } },
     tile(item, meta[0]),
-    h('span', null, h('b', null, item.name), h('small', null, `${soakText(item.soak)} · ${item.wear === 'torn' ? 'Torn' : 'Fine'}`)),
+    h('span', null, h('b', null, item.name), h('small', null, `${soakText(item, slotKey)} · ${item.wear === 'torn' ? 'Torn' : 'Fine'}`)),
     h('button', {
       type: 'button',
       class: 'ps-b pri',
       dataset: { equip: item.stack, at: slotKey },
-      onClick: async () => { await ctx.port?.command('item.equip', { owner: member.id, slot: slotKey, stack: item.stack }); sheet.close(); },
+      onClick: async () => { await ctx.port?.command('item.equip', { owner: ownerOf(member.id, ctx.port?.view?.('party')?.pcId), slot: slotKey, stack: item.stack, transfer: true }); sheet.close(); },
     }, 'Equip'),
   );
 }

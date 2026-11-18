@@ -50,7 +50,7 @@ const rowsOf = obj => Object.entries(obj).map(([k, v]) => [`\`${k}\``, typeof v 
 async function packTables(root) {
   const lim = await load(root, 'packs/limits.js');
   const fmt = await load(root, 'packs/limits-parts/format.js');
-  const kinds = `Format read: ${fmt.PACK_FORMAT} (a pack without \`format\` is read as ${fmt.PACK_FORMAT_DEFAULT}).\n\nTop-level fields of \`pack.json\`: ${list(lim.PACK_FIELDS)}.\n\nContent kinds: ${list(lim.CONTENT_KINDS)}.\n\nRead and ignored with a warning: ${list(fmt.IGNORED_KINDS)}.`;
+  const kinds = `Format read: ${fmt.PACK_FORMAT} (an older format, or none, is refused and named for the converter; a newer one is refused too).\n\nKinds: ${list(lim.PACK_KINDS)}.\n\nTop-level fields of \`pack.json\`: ${list(lim.PACK_FIELDS_V4)}.\n\nContent keys of a world pack: ${list(lim.CONTENT_KEYS.world)}.\n\nContent keys of a game pack: ${list(lim.CONTENT_KEYS.game)}.`;
   return { 'pack-kinds': kinds, limits: table(['Limit', 'Value'], rowsOf(lim.LIMITS)), 'zip-limits': table(['Zip limit', 'Value'], rowsOf(lim.ZIP_LIMITS)) };
 }
 

@@ -1,0 +1,16 @@
+{
+  "id": "studio-game4-mini",
+  "format": 4,
+  "kind": "game",
+  "version": "0.1.0",
+  "name": "Studio game 4 (test)",
+  "author": "Story Suite tests",
+  "description": "A tiny made-up format 4 game pack, for the Studio's tests.",
+  "requires": { "suite": "^0.1" },
+  "content": {
+    "calendar": { "era": "FY", "months": [ { "name": "Thaw", "days": 30 }, { "name": "Bloom", "days": 30 }, { "name": "Harvest", "days": 30 }, { "name": "Frost", "days": 30 } ] },
+    "currency": { "name": "penny", "plural": "pennies", "short": "p", "coins": [ { "name": "penny", "plural": "pennies", "value": 1 }, { "name": "crown", "plural": "crowns", "value": 100 } ] },
+    "names": { "banned": ["Elara", "Lyra"] },
+    "start": { "money": 25 }
+  }
+}

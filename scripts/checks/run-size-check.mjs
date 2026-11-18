@@ -5,7 +5,6 @@ import { listCodeFiles } from './code-files.mjs';
 import { countLines } from './count-lines.mjs';
 import { checkExportsRatchet, parseExportsList } from './legacy-exports.mjs';
 import { checkLegacyRatchet, decideBase } from './legacy-ratchet.mjs';
-import { loadLayout } from '../layout.mjs';
 import { loadLayoutRules } from '../codemod/load-layout-rules.mjs';
 import { layoutMapper } from '../codemod/layout-map.mjs';
 import { nulProblem } from './nul-check.mjs';
@@ -77,7 +76,7 @@ if (writeLegacy) {
   const header = [
     '# Legacy files over 450 lines imported from the three old repos at B1.',
     '# Format: <repo-relative path> <line count>.',
-    `# This list may only shrink — split a file when it moves out of ${loadLayout().packageRoots[0]}/.`,
+    `# This list may only shrink — split a file when you next touch it.`,
   ];
   const body = oversize.map(f => `${f.path} ${f.lines}`);
   fs.mkdirSync(path.dirname(legacyAbsPath), { recursive: true });

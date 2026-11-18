@@ -1,6 +1,9 @@
 /* The New character wizard and the first-send hold (ui/wizard): the kit sheet with the Party sheet's parts (.ps-st rows, .ps-b, .ps-p, .ps-sec,
    .ps-kv), the Journal editor's .ef fields and the kit buttons. Only the layout the wizard adds is here, in the mock's own tokens and sizes. */
 .su-root .wz .sh-panel{gap:12px}
+/* the sheet's translucent panel colour over an opaque base: the page behind (Purse, 0 gold) no longer shows through the summary card and the steps */
+.su-root .wz .sh-panel{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#191a2b)}
+.su-root[data-scheme="light"] .wz .sh-panel{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#e8e9f1)}
 /* the × is the mock's .x (44 px, radius 10, no border, 16 px glyph), as the Inspector and Scene sheets draw it */
 .su-root [data-sheet="new-character"] .sh-x,.su-root [data-sheet="rpg-hold"] .sh-x{width:44px;height:44px;flex:none;padding:1px 6px;background:var(--su-line2);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}
 .su-root .wz-steps{align-self:stretch}
@@ -39,7 +42,10 @@
 .su-root .wz-add{display:flex;flex-direction:column;gap:6px}.su-root .wz-add .btn2{align-self:flex-start}
 .su-root .wz-list{margin:0;padding-left:18px}
 .su-root .wz-status:empty{display:none}
-.su-root .wz-foot{padding-top:2px;justify-content:flex-start}.su-root .wz-foot [data-wiz="next"]{margin-left:auto}
+.su-root .wz-foot{padding-top:2px;justify-content:flex-start}.su-root .wz-foot :is([data-wiz="next"],[data-wiz="create"]){margin-left:auto}
+/* Back / Next stay in view, inset from the sheet's rounded bottom edge (at 1280x800 the panel scrolls, and Next sat under the corner) */
+.su-root [data-sheet="new-character"] .wz-foot{position:sticky;bottom:0;z-index:1;padding:8px 0 14px;background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#191a2b)}
+.su-root[data-scheme="light"] [data-sheet="new-character"] .wz-foot{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#e8e9f1)}
 /* the hold: the message, quoted as it stays in the box */
 .su-root .wz-quote{margin:0;padding:8px 12px;border-left:3px solid var(--su-accent);border-radius:0 12px 12px 0;background:var(--su-line2);font:600 14px/1.45 var(--su-font);color:var(--su-text);white-space:pre-wrap;overflow-wrap:anywhere}
 .su-root .wz-hold-acts .btn2{white-space:normal;text-align:center}

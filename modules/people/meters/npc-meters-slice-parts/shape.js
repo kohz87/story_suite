@@ -4,13 +4,13 @@
 const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 import { FORBIDDEN_KEYS, isInt, isObject, isReplyId, MAX_METERS_PER_NPC, MAX_MILESTONES, MAX_NPCS, MAX_PROBLEMS, MAX_UNLOCKED, METER_ID_MAX, MILESTONE_MAX, NAME_MAX, npcKey, RECORD_FIELDS, replyKey, CUSTOM_RANGE, DISPOSITION_MAX, STAGE_NAME_MAX, WORDS } from '../npc-meters-config.js';
 import { RELATIONSHIP_KEYS } from '../../core/core-mechanics.js';
-import { flatDayProblems } from '../../legacy/relationship-pacing.js';
+import { flatDayProblems } from '../../relationship/relationship-pacing.js';
 import { readEvent } from '../npc-meters-pacing.js';
 import { readApproachRing } from '../npc-meters-gate.js';
 import { validateNotes } from '../../notes/npc-notes-kinds.js';
 import { validateCast } from './cast-memory.js';
-import { validateKeyAway } from './key-away.js';
 import { moodPullProblems } from './mood-problems.js';
+import { validateAwayMemory } from '../../away/away-memory.js';
 
 /** The slice of a chat with no NPC meters yet. */
 export function initialNpcSlice() {
@@ -91,8 +91,9 @@ export function validateNpcSlice(slice) {
         if (slice.problems.length > MAX_PROBLEMS) errors.push(`The NPC meters keep at most ${MAX_PROBLEMS} problems.`);
         if (slice.problems.some(item => !isObject(item) || !isInt(item.rev) || typeof item.text !== 'string')) errors.push('An NPC meters problem is not { rev, text }.');
     }
-    if (slice.keyAway !== undefined) errors.push(...validateKeyAway(slice.keyAway));
     if (slice.cast !== undefined) errors.push(...validateCast(slice.cast));
+    // `keyAway`: the memory of the last absences of people away (people/away/away-memory.js, written by npc.tick).
+    if (slice.keyAway !== undefined) errors.push(...validateAwayMemory(slice.keyAway));
     for (const field of Object.keys(slice)) if (!['npcs', 'problems', 'keyAway', 'cast'].includes(field)) errors.push(`The NPC meters have an unknown field "${field}".`);
     return errors;
 }

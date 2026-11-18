@@ -1,10 +1,11 @@
 // Opens the shared bottom sheet (dim backdrop, grab bar, optional title row) that closes by backdrop, Escape or its close button.
 import { h } from './dom.js';
+import { tabTrap } from './trap.js';
 
 /**
  * Opens a sheet and returns `{ el, body, close }`; ctx = { doc, backStack, sheetHost }.
  * Options: `title` (header row with a × button; leave empty when the content has its own header), `label` (aria-label), `id` (back-stack id).
- * Closing is safe to repeat; the back-stack gets one `sheet` entry and focus returns to the opener.
+ * It takes the focus (its × button, or the panel when it has none); closing is safe to repeat; the back-stack gets one `sheet` entry and focus returns to the opener.
  */
 export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', onClose = null } = {}) {
   const doc = ctx.doc ?? globalThis.document;
@@ -15,7 +16,8 @@ export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', on
     : null;
   const panel = h(
     'div',
-    { class: 'sh-panel', role: 'dialog', 'aria-modal': 'true', 'aria-label': label ?? (title || 'Sheet') },
+    // (with no close button the panel itself takes the focus, so Tab starts, and stays, inside it)
+    { class: 'sh-panel', role: 'dialog', 'aria-modal': 'true', 'aria-label': label ?? (title || 'Sheet'), tabindex: title ? null : '-1' },
     h('span', { class: 'grab' }),
     title ? h('div', { class: 'sh-h' }, h('h3', null, title), closeBtn) : null,
     body,
@@ -35,15 +37,7 @@ export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', on
     onClose?.();
   }
   // Tab stays inside the sheet (it is aria-modal): from the last control it goes to the first, from the first with Shift to the last.
-  function keep(event) {
-    if (event.key !== 'Tab' || !open) return;
-    const items = [...panel.querySelectorAll('button, input, select, textarea, a[href], [tabindex]')].filter(n => n.disabled !== true && !n.hasAttribute?.('disabled') && !n.hasAttribute?.('hidden') && n.getAttribute?.('tabindex') !== '-1');
-    const active = doc.activeElement ?? null;
-    const inside = active && panel.contains?.(active);
-    const end = event.shiftKey ? items[0] : items.at(-1);
-    if (!items.length) { event.preventDefault?.(); return; }
-    if (!inside || active === end) { event.preventDefault?.(); (event.shiftKey ? items.at(-1) : items[0]).focus(); }
-  }
+  const keep = tabTrap(panel, { doc, isOn: () => open });
   function close() {
     if (!open) return false;
     release?.();
@@ -56,6 +50,6 @@ export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', on
   el.addEventListener('keydown', keep);
   host.appendChild(el);
   release = ctx.backStack?.push({ id, layer: 'sheet', close: () => { finish(); } }) ?? null;
-  closeBtn?.focus?.();
+  (closeBtn ?? panel).focus?.();
   return { el, body, close };
 }

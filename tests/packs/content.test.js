@@ -3,7 +3,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyStart, contentOf, itemDef, mergeStart, resolveItemIn } from '../../packs/content.js';
 import { validatePack } from '../../packs/validate.js';
-import { itemsPack, pack, sample } from './helpers/fixtures.js';
+import { readFileSync } from 'node:fs';
+import { itemsPack, pack } from './helpers/fixtures.js';
+
+const fixture = name => JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8'));
+const riverside = () => fixture('riverside-starter.json');
+const riversideGame = () => fixture('riverside-starter.game.json');
+// A world pack with a place to start in, and a game pack with its start: the two halves of a format 4 start.
+const world = (id, items, place, extra = {}) => pack({ id, content: { items, places: [{ id: place.toLowerCase(), name: place, kind: 'settlement', x: 0, y: 0 }], placeKinds: { settlement: 'town' }, start: { place: place.toLowerCase() }, ...extra } });
+const game = (id, content) => ({ id, format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1' }, content });
 
 const normalized = (...packs) => packs.map(input => {
     const result = validatePack(input);
@@ -12,15 +20,15 @@ const normalized = (...packs) => packs.map(input => {
 });
 
 test('a resolved item is an inventory def (SPEC §7) and a fresh copy', () => {
-    const [riverside] = normalized(sample());
-    const def = resolveItemIn([riverside], 'Minor Healing Draught');
+    const [side] = normalized(riverside());
+    const def = resolveItemIn([side], 'Minor Healing Draught');
     assert.deepEqual(def, {
         id: 'pack.riverside-starter/minor-healing-draught', name: 'Minor Healing Draught', kind: 'consumable', rarity: 'common',
         value: 60, stack: true, slot: null, stats: {}, effect: { heal: 20 }, tags: [], note: '',
     });
     def.effect.heal = 999;
-    assert.equal(resolveItemIn([riverside], 'Minor Healing Draught').effect.heal, 20);
-    assert.deepEqual(Object.keys(itemDef(riverside.content.items[0])), ['id', 'name', 'kind', 'rarity', 'value', 'stack', 'slot', 'stats', 'effect', 'tags', 'note']);
+    assert.equal(resolveItemIn([side], 'Minor Healing Draught').effect.heal, 20);
+    assert.deepEqual(Object.keys(itemDef(side.content.items[0])), ['id', 'name', 'kind', 'rarity', 'value', 'stack', 'slot', 'stats', 'effect', 'tags', 'note']);
 });
 
 test('item resolution precedence', () => {
@@ -46,54 +54,52 @@ test('item resolution precedence', () => {
 });
 
 test('content by kind, in pack order, with full IDs', () => {
-    const packs = normalized(sample(), pack({ id: 'extra', content: { foes: [{ name: 'Mire Toad', tier: 'minion' }], quests: [{ name: 'Granary Rats', giver: 'Hollis' }] }, layouts: [{ id: 'board' }], theme: { '--ss-accent': '#000' }, screens: [{ id: 'rpg-battle/party', template: '<div>{{ q.pc.name }}</div>' }] }));
+    const packs = normalized(riverside(), pack({ id: 'extra', content: { foes: [{ name: 'Mire Toad', tier: 'minion' }] } }));
     assert.deepEqual(contentOf(packs, 'foes').map(record => [record.id, record.pack, record.tier]), [['pack.riverside-starter/weir-rat', 'riverside-starter', 'mob'], ['pack.extra/mire-toad', 'extra', 'minion']]);
     assert.deepEqual(contentOf(packs, 'foes', { pack: 'extra' }).map(record => record.name), ['Mire Toad']);
-    // (the kinds nothing reads any more, and a pack's layouts and screens, are left out of the normalized pack)
-    for (const kind of ['quests', 'creatures', 'shops', 'recipes', 'races', 'talents', 'layouts', 'screens']) assert.deepEqual(contentOf(packs, kind), [], kind);
-    assert.deepEqual(contentOf(packs, 'events').map(event => event.id), ['pack.riverside-starter/market-day', 'pack.riverside-starter/rat-trouble']);
-    assert.deepEqual(contentOf(packs, 'theme'), [{ pack: 'riverside-starter', tokens: { '--ss-accent': '#3f7f8f' } }, { pack: 'extra', tokens: { '--ss-accent': '#000' } }]);
-    assert.deepEqual(contentOf(packs, 'spells'), []);
+    // (the kinds nothing reads any more, and the format 3 events, theme, layouts and screens, answer nothing)
+    for (const kind of ['quests', 'creatures', 'shops', 'recipes', 'races', 'talents', 'layouts', 'screens', 'events', 'theme', 'spells']) assert.deepEqual(contentOf(packs, kind), [], kind);
     assert.throws(() => { contentOf(packs, 'foes')[0].name = 'Changed'; }, TypeError);
     assert.equal(contentOf(packs, 'foes')[0].name, 'Weir Rat', 'callers get the pack\'s frozen records');
 });
 
-test('start states merge in pack order', () => {
-    const items = [{ name: 'Rope' }, { name: 'Torch' }];
+test('start states merge in pack order: the world gives the place, the games give money and items', () => {
     const packs = normalized(
-        pack({ id: 'a', content: { items }, start: { scene: { place: { name: 'Bluewatch', kind: 'settlement' }, present: ['Hollis', 'Fenna'] }, inventory: { items: ['rope', { item: 'torch', qty: 2, note: 'oiled' }], money: 50 } } }),
-        pack({ id: 'b', content: { items: [{ name: 'Rope' }] }, start: { scene: { place: { name: 'Elsewhere' }, present: ['fenna', 'Bram'] }, inventory: { items: [{ item: 'rope', qty: 2 }, { item: 'pack.a/rope', qty: 3 }, { item: 'pack.a/torch' }, { item: 'pack.gone/lamp' }], money: 27 } } }),
-        pack({ id: 'quiet', content: { items } }),
+        world('a', [{ name: 'Rope' }, { name: 'Torch' }], 'Bluewatch'),
+        world('b', [{ name: 'Rope' }], 'Elsewhere'),
+        game('g1', { currency: { name: 'Gil' }, start: { money: 50, items: [{ name: 'rope' }, { name: 'Torch', qty: 2, note: 'oiled' }] } }),
+        game('g2', { start: { money: 27, items: [{ name: 'Rope', qty: 2 }, { name: 'Lamp' }] } }),
+        pack({ id: 'quiet', content: { items: [{ name: 'Rope' }] } }),
     );
     const start = mergeStart(packs);
-    assert.deepEqual(start.scene, { place: { name: 'Bluewatch', kind: 'settlement', region: '' }, present: ['Hollis', 'Fenna', 'Bram'] });
+    assert.deepEqual(start.scene, { place: { name: 'Bluewatch', kind: 'settlement', region: '' }, present: [] }, 'the first pack that names a place');
     assert.deepEqual(start.inventory.items.map(line => [line.def.id, line.qty, line.note]), [
-        ['pack.a/rope', 4, ''], ['pack.a/torch', 2, 'oiled'], ['pack.b/rope', 2, ''], ['pack.a/torch', 1, ''],
-    ], 'same def and note add up; other notes stay separate lines');
+        ['pack.a/rope', 3, ''], ['pack.a/torch', 2, 'oiled'], ['story/lamp', 1, ''],
+    ], 'a name is matched to the first world\'s item; an unknown name is a story item; the same def and note add up');
     assert.equal(start.inventory.money, 77);
-    assert.deepEqual(start.packs, ['a', 'b']);
-    assert.equal(start.problems.length, 1);
-    assert.match(start.problems[0], /pack\.gone\/lamp/);
+    assert.deepEqual(start.currency, { name: 'Gil', short: '' });
+    assert.deepEqual(start.packs, ['a', 'g1', 'g2']);
+    assert.deepEqual(start.problems, []);
     assert.deepEqual(mergeStart([]), { scene: { place: null, present: [] }, inventory: { items: [], money: 0 }, currency: null, packs: [], problems: [] });
-    // Without pack a, its items are not there to give.
+    // Without world a, its items are not there to match: the same names are the other world's item and plain story items.
     const later = mergeStart(packs.slice(1));
-    assert.deepEqual(later.inventory.items.map(line => line.def.id), ['pack.b/rope']);
-    assert.equal(later.problems.length, 3);
+    assert.deepEqual(later.inventory.items.map(line => line.def.id), ['pack.b/rope', 'story/torch', 'story/lamp']);
     assert.equal(later.scene.place.name, 'Elsewhere');
 });
 
-test('the sample pack\'s start', () => {
-    const start = mergeStart(normalized(sample()));
-    assert.deepEqual(start.scene, { place: { name: 'Bluewatch Village', kind: 'settlement', region: 'the Lowmere' }, present: ['Hollis'] });
-    assert.deepEqual(start.inventory.items.map(line => [line.def.name, line.qty]), [['Willow Rod', 1], ['Hemp Line', 3], ['Minor Healing Draught', 1]]);
+test('the sample pair\'s start', () => {
+    const start = mergeStart(normalized(riverside(), riversideGame()));
+    assert.deepEqual(start.scene, { place: { name: 'Bluewatch Village', kind: 'settlement', region: 'the Lowmere' }, present: [] });
+    // the game pack names the rod by its slug, which is not a name or alias of the world's item: a plain story item
+    assert.deepEqual(start.inventory.items.map(line => [line.def.id, line.qty]), [['story/willow-rod', 1], ['pack.riverside-starter/hemp-line', 3], ['pack.riverside-starter/minor-healing-draught', 1]]);
     assert.deepEqual(start.inventory.items[2].aliases, ['healing draught']);
     assert.equal(start.inventory.money, 50);
     assert.deepEqual(start.currency, { name: 'pennies', short: 'p' });
-    assert.equal(start.inventory.items[0].def.stack, false, 'equipment does not stack');
+    assert.equal(start.inventory.items[1].def.stack, true, 'a material stacks');
 });
 
 test('applyStart writes the merged start into an initial state', () => {
-    const packs = normalized(pack({ id: 'a', content: { items: [{ name: 'Rope', aliases: ['cord'] }, { name: 'Torch', stack: false }] }, start: { scene: { place: { name: 'Bluewatch' }, present: ['Hollis'] }, inventory: { items: [{ item: 'rope', qty: 3 }, { item: 'torch', qty: 2 }], money: 5 } } }));
+    const packs = normalized(world('a', [{ name: 'Rope', aliases: ['cord'] }, { name: 'Torch', stack: false }], 'Bluewatch'), game('g', { start: { money: 5, items: [{ name: 'Rope', qty: 3 }, { name: 'Torch', qty: 2 }] } }));
     const initial = {
         v: 2, meta: { rev: 0, claims: {} },
         domains: {
@@ -107,7 +113,7 @@ test('applyStart writes the merged start into an initial state', () => {
     const next = applyStart(initial, mergeStart(packs), { id, coin: 'copper' });
     assert.notEqual(next, initial);
     assert.equal(initial.domains.inventory.defs['pack.a/rope'], undefined, 'the input is not changed');
-    assert.deepEqual(next.domains.scene, { place: { name: 'Bluewatch', kind: '', region: '' }, present: ['hollis'] });
+    assert.deepEqual(next.domains.scene, { place: { name: 'Bluewatch', kind: 'settlement', region: '' }, present: ['hollis'] });
     assert.deepEqual(Object.keys(next.domains.inventory.defs), ['pack.a/rope', 'pack.a/torch']);
     assert.deepEqual(next.domains.inventory.aliases, { cord: 'story/cord', rope: 'pack.a/rope', torch: 'pack.a/torch' }, 'a taken alias is kept');
     assert.deepEqual(Object.values(next.domains.inventory.stacks), [
@@ -122,7 +128,7 @@ test('applyStart writes the merged start into an initial state', () => {
 });
 
 test('applyStart keeps a place already set and skips missing slices', () => {
-    const packs = normalized(pack({ id: 'a', content: { items: [{ name: 'Rope' }] }, start: { scene: { place: { name: 'Bluewatch' } }, inventory: { items: ['rope'] } } }));
+    const packs = normalized(world('a', [{ name: 'Rope' }], 'Bluewatch'), game('g', { start: { items: [{ name: 'Rope' }] } }));
     const placed = { v: 2, meta: { rev: 0, claims: {} }, domains: { scene: { place: { name: 'Harbor', kind: '', region: '' }, present: [] } } };
     const next = applyStart(placed, mergeStart(packs), { id: () => 'it_x' });
     assert.deepEqual(next, placed);
@@ -130,22 +136,16 @@ test('applyStart keeps a place already set and skips missing slices', () => {
     assert.deepEqual(empty.domains.inventory, { defs: {}, stacks: {}, wallets: {}, aliases: {} }, 'no wallet for no coins');
 });
 
-test('events come as one flat list of defs for the events part', () => {
-    const packs = normalized(sample(), pack({ id: 'extra', content: { events: [{ id: 'dawn', when: 'true', cue: 'Dawn.', once: false, then: [{ command: 'wallet.receive', payload: { owner: 'party', amount: 5 } }] }] } }));
-    const events = contentOf(packs, 'events');
-    assert.ok(Array.isArray(events));
-    assert.deepEqual(events.map(event => [event.id, event.pack, event.after]), [
-        ['pack.riverside-starter/market-day', 'riverside-starter', null],
-        ['pack.riverside-starter/rat-trouble', 'riverside-starter', 'pack.riverside-starter/market-day'],
-        ['pack.extra/dawn', 'extra', null],
-    ]);
-    assert.deepEqual(events[2], { when: 'true', cue: 'Dawn.', once: false, after: null, then: [{ command: 'wallet.receive', payload: { owner: 'party', amount: 5 } }], id: 'pack.extra/dawn', slug: 'dawn', pack: 'extra' });
-    for (const event of events) assert.match(event.id, /^[A-Za-z0-9][A-Za-z0-9._/:-]*$/, 'ids fit the events part\'s id rule');
-});
-
 test('currency suggestions by pack', () => {
-    const packs = normalized(sample(), pack({ id: 'gil', currency: { name: 'Gil' } }));
-    assert.deepEqual(contentOf(packs, 'currency'), [{ pack: 'riverside-starter', name: 'pennies', short: 'p' }, { pack: 'gil', name: 'Gil', short: '' }]);
+    const packs = normalized(riversideGame(), game('gil', { currency: { name: 'Gil' } }));
+    assert.deepEqual(contentOf(packs, 'currency'), [{ pack: 'riverside-starter-game', name: 'pennies', short: 'p' }, { pack: 'gil', name: 'Gil', short: '' }]);
     assert.deepEqual(contentOf(packs, 'currency', { pack: 'gil' }), [{ pack: 'gil', name: 'Gil', short: '' }]);
     assert.deepEqual(mergeStart(packs.slice(1)).currency, { name: 'Gil', short: '' }, 'a pack without a start can still name the currency');
+});
+
+test('content kinds are read from the packs given, so a format 4 world and the trackers of a game both answer', () => {
+    const world = { id: 'w', kind: 'world', content: { items: [{ id: 'pack.w/rope', name: 'Rope' }], events: [] } };
+    const trackers = { id: 'g', kind: 'game', content: { items: [], events: [], meterPresets: [{ id: 'pack.g/p' }] } };
+    assert.deepEqual(contentOf([world, trackers], 'items').map(record => record.name), ['Rope']);
+    assert.deepEqual(contentOf([world, trackers], 'meterPresets').map(record => record.id), ['pack.g/p']);
 });

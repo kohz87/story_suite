@@ -6,7 +6,7 @@ import { runtimeSource } from './helpers/runtime-source.js';
 
 const source = runtimeSource();
 // (cleanup step 10) The focused relationship pass moved to src/relationship-pass.js.
-const passSource = partsSource(new URL('../../modules/people/legacy/relationship-pass.js', import.meta.url));
+const passSource = partsSource(new URL('../../modules/people/relationship/relationship-pass.js', import.meta.url));
 
 test('v0.2.23 relationship repair targets current-exchange NPCs even when broad scan omits them', () => {
     assert.match(passSource, /currentExchangeRelationshipRelevant/);
@@ -33,7 +33,7 @@ test('new NPC admission enriches only the newly admitted dossiers while omitted 
     assert.match(source, /reason: 'new-admission'/);
     assert.match(source, /queueVersion: AUTOMATIC_BACKFILL_QUEUE_VERSION/);
     assert.match(source, /\.map\(normalizeAutomaticBackfillRequest\)/);
-    assert.match(source, /automaticBackfillStillRelevant\(request, target, state\.npcs, owningExchange\)/);
+    assert.match(source, /automaticBackfillStillRelevant\(request, target, npcs, /);
     assert.match(source, /AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT/);
     assert.match(source, /const missedParticipants = \[\]/);
     assert.match(source, /missedParticipants\.length <= AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT/);

@@ -38,11 +38,11 @@ test('Install sends the ticked state; unticking survives a redraw; Not now and D
   const ctx = ctxFor(c);
   const draw = () => rightNow({ needsYou: [], offers: offerRows(c) }, ctx)[0];
   let node = draw();
-  const box = node.querySelector('input');
-  box.checked = false;
-  box.dispatchEvent({ type: 'change' });
+  assert.equal(node.querySelector('input'), null, 'the tick is the suite switch, not a native checkbox (SOAK2UI 18)');
+  assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), 'true');
+  node.querySelector('.rnr-tick .sw').click();
   node = draw();
-  assert.equal(node.querySelector('input').hasAttribute('checked'), false, 'a redraw does not tick it again');
+  assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), 'false', 'a redraw does not tick it again');
   const [install, later] = node.querySelectorAll('.offer .btn2');
   install.click();
   later.click();
@@ -52,6 +52,22 @@ test('Install sends the ticked state; unticking survives a redraw; Not now and D
   assert.equal(done.querySelector('.cnt'), null);
   done.querySelector('.btn2').click();
   await new Promise(r => setTimeout(r, 0));
+});
+
+test('clicking the "Also apply" words flips the switch, as a label would (SOAK2UI 18); a disabled switch stays', () => {
+  installFakeDom();
+  const c = fakeController([item()]);
+  const draw = () => rightNow({ needsYou: [], offers: offerRows(c) }, ctxFor(c))[0];
+  let node = draw();
+  const was = node.querySelector('.rnr-tick .sw').getAttribute('aria-checked');
+  node.querySelector('.rnr-tick .rnr-tick-t').click();
+  assert.notEqual(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), was);
+  node.querySelector('.rnr-tick .rnr-tick-t').click();
+  assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), was, 'and back');
+  node = rightNow({ needsYou: [], offers: offerRows(fakeController([item({ state: 'working' })])) }, ctxFor(c))[0];
+  const before = node.querySelector('.rnr-tick .sw').getAttribute('aria-checked');
+  node.querySelector('.rnr-tick .rnr-tick-t').click();
+  assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), before);
 });
 
 test('the chat chip counts waiting offers; with none it is unchanged; the selector never refreshes the card', () => {
@@ -74,4 +90,13 @@ test('the port forwards the offer event and answers a missing controller', async
   assert.equal(c.listeners.size, 0);
   assert.equal((await createSbPort({ sdk: {} }).command('packs.offer', { op: 'notNow', id: 'x' })).ok, false);
   assert.equal((await port.command('packs.offer', { op: 'bogus', id: 'x' })).ok, false);
+});
+
+test('a format 4 pair is one offer row: the world and the game by name, both versions, what they bring (REVPF4: the pair notice in the new view)', () => {
+  installFakeDom();
+  const rows = offerRows(fakeController([item({ id: 'ersveil@1.0.0+ersveil-game@1.0.0', packId: 'ersveil+ersveil-game', name: 'Ersveil and Ersveil rules', version: '1.0.0 + 1.0.0', brings: 'lore; money' })]));
+  const [needs] = rightNow({ needsYou: [], offers: rows }, {});
+  assert.match(needs.textContent, /This card brings Ersveil and Ersveil rules 1\.0\.0 \+ 1\.0\.0/);
+  assert.match(needs.textContent, /lore; money/);
+  assert.deepEqual(checkShape({ ...baseNow(), offers: rows }, NOW_SHAPE), []);
 });

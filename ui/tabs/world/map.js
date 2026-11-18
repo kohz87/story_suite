@@ -76,6 +76,14 @@ function placeNode(p, u, newsIds, state, act, vb, dy = 0) {
   badge);
 }
 
+// The land and its grid: the old 0-1000 sheet, grown to hold every place (north up makes y negative).
+function landBox(places) {
+  const xs = [-500, 1500, ...places.map(p => p.x - 500), ...places.map(p => p.x + 500)];
+  const ys = [-500, 1200, ...places.map(p => p.y - 500), ...places.map(p => p.y + 500)];
+  const [x, y] = [Math.min(...xs), Math.min(...ys)];
+  return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };
+}
+
 function drawSvg(world, vb, scale, state, act) {
   const u = 1 / scale;
   const byId = new Map(world.places.map(p => [p.id, p]));
@@ -84,9 +92,14 @@ function drawSvg(world, vb, scale, state, act) {
   const terrain = world.terrain ?? {};
   const shifts = nudgeLabels(world.places, u, vb);
   const grid = [];
-  for (let i = 0; i <= 1000; i += 100) grid.push(svgEl('path', { class: 'grid', d: `M${i} -500V1200M-500 ${i}H1500` }));
+  const land = landBox(world.places);
+  const span = k => [Math.min(0, Math.floor(Math.min(...world.places.map(p => p[k])) / 100) * 100), Math.max(1000, Math.ceil(Math.max(...world.places.map(p => p[k])) / 100) * 100)];
+  const [x0, x1] = span('x');
+  const [y0, y1] = span('y');
+  for (let i = x0; i <= x1; i += 100) grid.push(svgEl('path', { class: 'grid', d: `M${i} ${land.y}V${land.y + land.h}` }));
+  for (let i = y0; i <= y1; i += 100) grid.push(svgEl('path', { class: 'grid', d: `M${land.x} ${i}H${land.x + land.w}` }));
   return svgEl('svg', { class: 'mp', viewBox: viewText(vb), preserveAspectRatio: 'xMidYMid slice', 'aria-label': 'Map' },
-    svgEl('rect', { class: 'land', x: -500, y: -500, width: 2000, height: 1700 }),
+    svgEl('rect', { class: 'land', x: land.x, y: land.y, width: land.w, height: land.h }),
     grid,
     terrain.sea ? svgEl('path', { class: 'sea', d: terrain.sea }) : null,
     (terrain.rivers ?? []).map(d => svgEl('path', { class: 'river', d })),
@@ -107,7 +120,7 @@ function tools(world, regions, on) {
     h('option', { value: '' }, 'All regions'), regions.map(r => h('option', { value: r }, r)));
   const icon = (name, label, fn, extra) => button({ tone: 'icon', label, icon: name, onClick: fn, ...extra });
   return h('div', { class: 'mtools' },
-    h('input', { class: 'psrch', placeholder: 'Find a place', 'aria-label': 'Find a place', onInput: e => on.find(e.target.value) }),
+    h('input', { class: 'psrch', placeholder: 'Find a place', 'aria-label': 'Find a place', onInput: e => on.find(e.target.value), onKeydown: e => { if (e.key === 'Enter') on.found(e.target.value); } }),
     select,
     icon('plus', 'Zoom in', () => on.zoom(0.75), { dataset: { z: 1 } }),
     icon('minus', 'Zoom out', () => on.zoom(1.33), { dataset: { z: -1 } }),
@@ -165,6 +178,7 @@ export function mapCard(world, state, act, ctx = {}) {
       const q = String(text).trim().toLowerCase();
       const hit = q && places.find(p => p.name.toLowerCase().includes(q));
       if (hit) { state.selected = hit.id; centreOn(hit); redraw(); }
+      return hit ?? null;
     },
   };
   const pointers = new Map();
@@ -216,9 +230,17 @@ export function mapCard(world, state, act, ctx = {}) {
       redraw();
     }).observe(box);
   }
+  // Enter in Find: says what it found (and opens the place) or that nothing matched.
+  const note = h('p', { class: 'fine find-note', role: 'status' });
+  on.found = (text) => {
+    const hit = on.find(text);
+    note.textContent = !String(text).trim() ? '' : hit ? `Found ${hit.name}.` : `No place matches "${String(text).trim()}".`;
+    if (hit) act.openPlace?.(hit.id);
+  };
   return h('section', { class: 'card glass map-card', dataset: { card: 'map' } },
     tripSummary(data.trip),
     tools(data, regions, on),
+    note,
     h('div', { class: 'mapwrap' }, box, tripCard(data.trip, { side: true, rpg: ctx.rpg !== false })),
     h('div', { class: 'legend2' },
       legendItem('', 'road'), legendItem('t', 'track'),

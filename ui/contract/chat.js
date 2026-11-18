@@ -1,6 +1,7 @@
 // Defines the view-model shape for the chat inline row, people drawer, and reply menu.
 
 import { SHAPE_TYPES as T } from './shapes.js';
+import { LOOT_OFFER_SHAPE } from './loot.js';
 
 export const CHAT_SHAPE = {
   inlineRow: {
@@ -25,6 +26,8 @@ export const CHAT_SHAPE = {
     fightOpen: T.BOOLEAN,
     // The latest reply came with no change block and holds nothing stored for it: the row says so, with a Re-read button.
     unrecorded: { $optional: T.BOOLEAN },
+    // The loot the reply laid out (`? loot`), its chips to pick from; left out when it laid none out.
+    loot: { $optional: [LOOT_OFFER_SHAPE] },
   },
   drawer: [
     {
@@ -42,6 +45,24 @@ export const CHAT_SHAPE = {
       thought: { $nullable: T.STRING },
     },
   ],
+  // The modules' cards under the head reply (ui/select/reply-card.js); absent when none answers.
+  replyCards: {
+    $optional: {
+      index: T.NUMBER,
+      list: [
+        {
+          key: T.STRING,
+          card: {
+            tone: T.STRING,
+            title: T.STRING,
+            text: T.STRING,
+            rows: [{ text: T.STRING, tag: T.STRING }],
+            actions: [{ id: T.STRING, label: T.STRING, primary: T.BOOLEAN, command: T.STRING, open: T.STRING, payload: T.ANY }],
+          },
+        },
+      ],
+    },
+  },
   replyMenu: {
     at: T.STRING,
     lines: [

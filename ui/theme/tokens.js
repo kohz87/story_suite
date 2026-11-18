@@ -84,7 +84,7 @@ export const GLASS_LIGHT = Object.freeze({
   '--su-line2': 'rgba(30,34,52,.12)',
   '--su-text': '#1d2030',
   '--su-soft': '#3a3e55',
-  '--su-muted': '#6a6e86',
+  '--su-muted': '#565a72',
   '--su-pill': '#3b3f4c',
   '--su-pilltext': '#f4f4f8',
   '--su-tile': '#ffffff',

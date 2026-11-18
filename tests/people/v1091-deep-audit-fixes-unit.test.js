@@ -10,42 +10,11 @@ import {
     relationshipSummaryConsistent,
     setActiveCalendarConfig,
 } from '../../modules/people/core/core.js';
-import {
-    BRANCH_LINEAGE_VERSION,
-    applyRollbackUndo,
-    buildRollbackUndo,
-    ensureBranchParentAnchor,
-    ensureRollbackJournalBaseline,
-    recordBranchCheckpoint,
-    reconcileBranchState,
-} from '../../modules/people/legacy/branch.js';
-import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 import { applyManualKeyRelationshipEdit, inverseSocialRelation, reconcileSocialState, socialRelationFamily } from '../../modules/people/social/social.js';
 import { retireNpcStateDataFile } from '../../modules/people/storage/storage.js';
 
 const CALENDAR = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }], currentYear: 821, currentMonth: 'Redleaf', currentDay: 16 };
-
-function branchState(npcs) {
-    const state = {
-        npcs, candidates: [], pendingBackfills: [], socialGraph: { edges: [], unresolved: [] }, dismissed: [],
-        turn: 0, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null, scanCount: 0, checkpoints: [], inlineCards: [],
-        lineage: [], branchLineageVersion: BRANCH_LINEAGE_VERSION, portraitAssets: {}, userDismissedGroups: [],
-    };
-    ensureRollbackJournalBaseline(state, []);
-    return state;
-}
-
-function play(state, chat, count, change = () => {}) {
-    for (let i = 1; i <= count; i += 1) {
-        chat.push({ is_user: true, is_system: false, name: 'User', mes: `user-${i}` }, { is_user: false, is_system: false, name: 'Narrator', mes: `assistant-${i}` });
-        const messageId = chat.length - 1;
-        ensureBranchParentAnchor(state, chat, messageId, 'assistant-parent');
-        state.turn += 1;
-        change(state, i, messageId);
-        recordBranchCheckpoint(state, chat, messageId, 'scan');
-    }
-}
 
 test('RB87-01 (storage): a lost or unreadable retirement acknowledgement is uncertain; a 4xx rejection is not', async () => {
     const pointer = { name: 'x.json', path: '/user/files/x.json', revision: 0 };
@@ -173,7 +142,7 @@ test('RB87-09: another person\'s absence and a resolved absence do not keep a pa
     assert.equal(npcCurrentlyAbsentInText(mira, 'Mira Deep remains at her distant home and is not here.'), true);
 });
 
-test('RB87-10: manual sibling suppression survives an unrelated import and an unrelated rollback', () => {
+test('RB87-10: manual sibling suppression survives an unrelated import', () => {
     const npc = (name, gender, bonds) => normalizeNpcRecord({ id: `npc_${name.toLowerCase()}`, name, gender, species: 'human', keyRelationships: bonds });
     let state = reconcileSocialState({ npcs: [npc('Mira', 'female', ['Orson — father']), npc('Noela', 'female', ['Orson — father']), npc('Orson', 'male', [])], socialGraph: { edges: [], unresolved: [] } }, {}).state;
     const before = [...state.npcs[0].keyRelationships];
@@ -187,12 +156,6 @@ test('RB87-10: manual sibling suppression survives an unrelated import and an un
     const afterImport = reconcileSocialState(imported, {}).state;
     assert.ok(!afterImport.npcs.find(item => item.name === 'Mira').keyRelationships.some(entry => /^Noela/.test(entry)));
 
-    const later = structuredClone(state);
-    later.socialGraph.edges.push({ id: 'edge_keeper_orson', aId: 'npc_orson', bId: 'npc_keeper', aToB: 'friend', bToA: 'friend', provenance: 'explicit' });
-    const undo = buildRollbackUndo(structuredClone(state), later);
-    const rolledBack = applyRollbackUndo(structuredClone(later), undo).state;
-    assert.ok(!rolledBack.socialGraph.edges.some(edge => edge.id === 'edge_keeper_orson'), 'the later edge is undone');
-    assert.ok(rolledBack.socialGraph.suppressed?.length, 'an unrelated graph undo keeps the suppression');
 });
 
 test('RB87-11: in-law ties are not parenthood and do not infer siblings', () => {
@@ -209,13 +172,6 @@ test('RB87-11: in-law ties are not parenthood and do not infer siblings', () => 
     assert.ok(control.npcs[0].keyRelationships.some(entry => /^Noela — sibling/.test(entry)), 'a shared father still infers siblings');
 });
 
-test('RB87-12: rollback keeps a manually saved portrait seed, including zero', () => {
-    for (const seed of [999, 0]) {
-        const restored = preserveUserNpcMetadata([{ id: 'npc_mira', name: 'Mira', portraitSeed: 417 }], [{ id: 'npc_mira', name: 'Mira', portraitSeed: seed }]);
-        assert.equal(restored[0].portraitSeed, seed);
-    }
-});
-
 test('RB87-13: a long alias does not hide a separately named short-name NPC', () => {
     const mira = Object.assign(createNpcRecord('Mira'), { id: 'npc_mira' });
     const valen = Object.assign(createNpcRecord('Mira Valen'), { id: 'npc_valen', aliases: ['Lady Mira Valen'] });
@@ -224,25 +180,6 @@ test('RB87-13: a long alias does not hide a separately named short-name NPC', ()
     assert.deepEqual(named('I ask Lady Mira Valen and Mira to join me.'), ['Mira', 'Mira Valen']);
     assert.deepEqual(named('I ask Lady Mira Valen to join me.'), ['Mira Valen']);
     assert.deepEqual(named('I ask Mira to join me.'), ['Mira']);
-});
-
-test('RB87-14: another NPC\'s full name does not keep a deleted NPC that shares its alias', () => {
-    const run = laterMemory => {
-        const mira = createNpcRecord('Mira');
-        const hale = Object.assign(createNpcRecord('Tomas Hale'), { aliases: ['Tomas'] });
-        const state = branchState([mira, hale]);
-        const history = [];
-        play(state, history, 6, (s, n) => {
-            if (n === 3) {
-                const reed = Object.assign(createNpcRecord('Tomas Reed'), { aliases: ['Tomas'], lifeState: 'deceased', lifeStateCertainty: 'explicit' });
-                s.npcs.push(reed);
-            }
-            if (n === 5 && laterMemory) s.npcs[0].memories = [laterMemory];
-        });
-        return reconcileBranchState(state, history.filter((_, i) => i !== 5), { explicitDivergence: 5, operation: 'delete' }).state.npcs.map(npc => npc.name);
-    };
-    assert.ok(!run('Mira comforted Tomas Hale by the hearth.').includes('Tomas Reed'));
-    assert.ok(run('Mira mourned Tomas Reed by the hearth.').includes('Tomas Reed'), 'naming Reed directly keeps him');
 });
 
 test('RB87-15: a refused obligation is a boundary, an affirmative one still needs standing', () => {

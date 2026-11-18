@@ -86,10 +86,24 @@ function controlFor(row, emit, labelId) {
       return b;
     }));
   }
+  if (type === 'lines') {
+    const box = h('textarea', { class: 'lines-ed', hidden: true, rows: 4, 'aria-label': label, placeholder: 'One item a line: Rope, or Rope x3' }, value ?? '');
+    box.addEventListener('change', () => emit(box.value));
+    const open = h('button', { type: 'button', class: 'btn2', 'aria-expanded': 'false', onClick: () => { box.hidden = !box.hidden; open.setAttribute('aria-expanded', String(!box.hidden)); if (!box.hidden) box.focus(); } }, list[0] ?? 'Edit list');
+    return [open, box];
+  }
   if (type === 'btn') {
     return list.map(o => h('button', { type: 'button', class: 'btn2', onClick: () => emit(o) }, o));
   }
   return h('span', { class: 'sinfo' }, value === null || value === undefined ? '' : String(value));
+}
+
+// The note under a number the engine held: its range when the answer gives one ({ min, max, step? }: "Level cap is 1-99; kept 99."), else that it was
+// held (an emptied box that came back with a number says it cannot be empty).
+function heldText(label, held, range) {
+  const ok = Number.isFinite(range?.min) && Number.isFinite(range?.max);
+  const steps = ok && Number.isFinite(range.step) && range.step > 1 ? ` in steps of ${range.step}` : '';
+  return ok ? `${label} is ${range.min}-${range.max}${steps}; kept ${held}.` : `${label} was held to the range it allows; kept ${held}.`;
 }
 
 function isWide(row) {
@@ -97,19 +111,53 @@ function isWide(row) {
   return row.type === 'seg' && Array.isArray(row.options) && row.options.join('').length > 26;
 }
 
-/** Builds one `.srow` for a schema row; ctx = { onChange(key, value, row), onAction(key, label, row) }. */
+/**
+ * Builds one `.srow` for a schema row; ctx = { onChange(key, value, row), onAction(key, label, row) }. What onChange answers is read: a refusal
+ * ({ ok: false, message }) is shown under the row (a switch, choice or chip row goes back to the last value kept), and a number the store held to
+ * its range ({ ok: true, value, range? }) is redrawn in the box with a note under the row saying so (with the range when the answer gives it).
+ * Only the newest change's answer is applied.
+ */
 export function renderRow(row, ctx = {}) {
   const labelId = `sf-${row.key}`;
   const isSwitch = row.type === 'sw';
-  const emit = row.type === 'btn'
-    ? label => ctx.onAction?.(row.key, label, row)
-    : value => ctx.onChange?.(row.key, value, row);
+  let kept = row.value;
+  let latest = 0;
+  const note = h('small', { class: 'snote', role: 'alert' });
+  note.hidden = true;
+  const ctl = h('span', { class: 'ctl' });
+  const draw = () => ctl.replaceChildren(...[controlFor({ ...row, value: kept }, emitted, labelId)].flat());
+  const answered = (value, answer, mine) => {
+    if (mine !== latest) return;
+    const refused = answer?.ok === false;
+    note.textContent = refused ? String(answer.message ?? 'That was not saved.') : '';
+    note.hidden = !refused;
+    if (refused) { if (row.type !== 'num' && row.type !== 'txt' && row.type !== 'multi' && row.type !== 'area') draw(); return; }
+    kept = value;
+    const held = Number(answer?.value);
+    if (row.type === 'num' && answer?.value !== undefined && answer.value !== null && Number.isFinite(held) && held !== value) {
+      kept = held;
+      const box = ctl.querySelector('input');
+      if (box) box.value = String(held);
+      note.textContent = value === null ? `${row.label} cannot be empty; kept ${held}.` : heldText(row.label, held, answer.range);
+      note.hidden = false;
+    }
+  };
+  async function emit(value) {
+    const mine = ++latest;
+    let answer;
+    try { answer = await ctx.onChange?.(row.key, value, row); } catch (error) { answer = { ok: false, message: String(error?.message ?? error) }; }
+    answered(value, answer, mine);
+  }
+  const act = label => ctx.onAction?.(row.key, label, row);
+  const emitted = row.type === 'btn' ? act : emit;
+  ctl.replaceChildren(...[controlFor(row, emitted, labelId)].flat());
   const tags = tagNodes(row.tags);
   const el = h(
     'div',
     { class: ['srow', isWide(row) && 'wide', isSwitch && 'swrow'], dataset: { key: row.key, type: row.type } },
     h('span', { class: 'lb' }, h('b', { id: labelId, class: tags.length ? 'tagd' : null }, tags.length ? h('span', { class: 'ln' }, row.label) : row.label, tags), row.hint ? h('small', row.hint) : null),
-    h('span', { class: 'ctl' }, controlFor(row, emit, labelId)),
+    ctl,
+    note,
   );
   if (isSwitch) {
     el.addEventListener('click', (event) => {

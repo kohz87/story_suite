@@ -123,6 +123,7 @@ test('the scan paths: a correction after death does not change a stated gender, 
 
 test('an unstated gender reads "not stated" in the dossier, never "unknown"', () => {
     const view = selectDossier({ dossier: { id: 'np_9', name: 'Tom', species: 'Human', gender: '' } });
-    assert.equal(view.idLine, 'Human · gender not stated');
+    assert.equal(view.idLine, 'Human', 'the hero flags the missing gender once, beside the line');
+    assert.equal(view.genderUnknown, true);
     assert.doesNotMatch(JSON.stringify(view), /gender unknown|Unknown · set it/i);
 });

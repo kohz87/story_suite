@@ -11,7 +11,7 @@ const block = (story, lines) => `${story}\n\n<Changes>\n${lines.join('\n')}\n</C
 const staticText = host => host.st.requests.at(-1)?.chat?.[0]?.content ?? '';
 const tailText = host => host.st.requests.at(-1).chat.filter(message => message.role === 'system').slice(1).map(message => message.content).join('\n');
 const NOTE = /^Your look is not set yet: on this reply write ~ you (.*) for You, from the persona and what they carry\.$/m;
-const rankPack = { id: 'guild', version: '1.0.0', requires: { storyBlock: '^2' }, content: { you: { rank: { label: 'Guild rank' } } } };
+const rankPack = { id: 'guild', version: '1.0.0', format: 4, kind: 'game', requires: { suite: '^0.1' }, content: { you: { rank: { label: 'Guild rank' } } } };
 const stateWith = you => ({ domains: { scene: { ...initialScene(), ...(you ? { you } : {}) } } });
 
 test('the note: the exact line, only the empty parts, the Rank only with a rank word and empty; none once wearing and condition are set', () => {

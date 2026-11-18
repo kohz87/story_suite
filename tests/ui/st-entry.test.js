@@ -53,9 +53,9 @@ function fakeCtx(next) {
 
 test('buildSelectors has one selector per tab and never throws on empty answers', () => {
   const selectors = buildSelectors(() => null, null);
-  assert.deepEqual(Object.keys(selectors).sort(), [...TABS, 'inspector', 'problems', 'savepoints', 'sent'].sort());   // the Tools page's own live reads follow the tabs
+  assert.deepEqual(Object.keys(selectors).sort(), [...TABS, 'inspector', 'problems', 'roster', 'savepoints', 'sent', 'prompts'].sort());   // the Tools page's own live reads follow the tabs
   const read = () => null;
-  for (const tab of [...TABS, 'inspector', 'problems', 'savepoints', 'sent']) assert.doesNotThrow(() => selectors[tab](read), tab);
+  for (const tab of [...TABS, 'inspector', 'problems', 'roster', 'savepoints', 'sent', 'prompts']) assert.doesNotThrow(() => selectors[tab](read), tab);
   assert.equal(selectors.fight(read), null);
 });
 
@@ -77,7 +77,7 @@ test('the view mounts: styles, the "Story Suite" menu entry, no body class, no o
   assert.equal(api.isOn(), true);
   assert.ok(doc.querySelector('.su-root'));
   assert.equal(doc.querySelector('#story-suite-ui-menu').textContent, 'Story Suite');
-  assert.equal(doc.head.querySelectorAll('link').length, 17);
+  assert.equal(doc.head.querySelectorAll('link').length, 19, 'one stylesheet per area, loot.css included');
   assert.equal(doc.body.classList.contains('ss-ui-next'), false, 'no class: there is no old furniture to hide');
   assert.equal(doc.querySelector('#story-suite-old-view'), null);
   assert.equal(/preview|old view/i.test(doc.body.textContent), false);

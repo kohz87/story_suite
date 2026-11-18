@@ -4,6 +4,17 @@ import { cutPoints } from '../extras.js';
 import { WEATHER_TAIL_CHARS } from '../constants.js';
 import { youNote, wornWords } from '../you.js';
 
+/** `text` cut to at most `max` code points at the last whole word (never mid-word), an ellipsis after it when it was longer. */
+function wholeWords(text, max) {
+    const cut = cutPoints(text, max);
+    if (cut === text) return cut;
+    const room = Array.from(cut).slice(0, -1).join('');
+    const next = Array.from(text)[Array.from(room).length];
+    const at = /\s/u.test(next ?? '') ? room.length : room.search(/\s\S*$/u);
+    const kept = (at > 0 ? room.slice(0, at) : room).replace(/[\s,;:.\-–—]+$/u, '');
+    return `${kept}…`;
+}
+
 /**
  * The scene's tail lines: the place and who is present (nothing when both are empty). With `weather`
  * (the feature is on), the weather ends the Place line, cut to WEATHER_TAIL_CHARS code points. With `you` (the feature is
@@ -17,7 +28,7 @@ export function sceneTail(state, { weather = false, you = false, rankLabel = '',
     const place = scene?.place;
     if (place?.name) {
         const about = [place.kind, place.region].filter(Boolean);
-        const sky = weather && typeof scene.weather?.text === 'string' && scene.weather.text ? `; ${cutPoints(scene.weather.text, WEATHER_TAIL_CHARS)}` : '';
+        const sky = weather && typeof scene.weather?.text === 'string' && scene.weather.text ? `; ${wholeWords(scene.weather.text, WEATHER_TAIL_CHARS)}` : '';
         lines.push(`Place: ${place.name}${about.length ? ` (${about.join(', ')})` : ''}${sky}`);
     }
     if (scene?.present?.length) lines.push(`Present: ${scene.present.join(', ')}`);

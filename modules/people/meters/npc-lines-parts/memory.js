@@ -6,6 +6,7 @@ import { clean, isInt, slug, REASON_LABELS } from '../npc-meters-config.js';
 import { normalizeName } from '../../core/core-text.js';
 import { normalizeStoredMemories } from '../../core/core-record-shared.js';
 import { knownPerson } from './stub.js';
+import { knownOrCast } from './cast-first.js';
 
 export const MEMORY_PER_REPLY = 2;
 const MEMORY_MAX = 300;
@@ -36,11 +37,15 @@ function saveMemory(ctx, { key, text, date = '', tag = false }) {
     return '';
 }
 
-/** The `~ memory Name | sentence` line: refused for an unknown person, a missing sentence, a repeat or a third in a reply. `deps.date(at)` → the story day text. */
+/**
+ * The `~ memory Name | sentence` line: refused for an unknown person, a missing sentence, a repeat or a third in a reply. `deps.date(at)` → the story day text;
+ * `deps.castFirst` (./cast-first.js): a pack person met or present here gets their dossier from the pack first (S2PA B1).
+ */
 export function memoryLine(ctx, line, deps) {
     const raw = typeof line?.raw === 'string' ? line.raw.split('|').slice(1).join('|') : String(line?.text ?? '');
-    const found = knownPerson(ctx, line?.name);
+    const found = knownOrCast(ctx, line?.name, deps.castFirst);
     if (!found) ctx.fail('REFUSED', `${clean(line?.name, 40)} has no record yet; write + npc ${clean(line?.name, 40)} | role | look first.`);
+    if (found.record?.lifeState === 'deceased') ctx.fail('REFUSED', `${clean(found.record.name, 40)} has died; lines about them change nothing now.`);   // (F44)
     const at = isInt(ctx.carrier?.index) ? ctx.carrier.index : null;
     const why = saveMemory(ctx, { key: found.key, text: raw, date: deps.date(at), tag: true });
     if (why) ctx.fail('REFUSED', `~ memory ${clean(line?.name, 40)}: ${why}.`);

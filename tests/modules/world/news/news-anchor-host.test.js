@@ -8,7 +8,7 @@ import { FEATURE, agrees, newHost, reply } from '../daily/daily-host.helpers.js'
 
 // A small pack in the recorded shape (the real one is 600 KB): its regions, the places of the run and two routes.
 const PACK = {
-    id: 'lab2-anchor', version: '1.0.0', name: 'LAB2 anchor', requires: { storyBlock: '^2' },
+    id: 'lab2-anchor', version: '1.0.0', name: 'LAB2 anchor', format: 4, kind: 'world', requires: { suite: '^0.1' },
     content: {
         placeKinds: { 'guild office': 'site', district: 'site' },
         regions: [{ id: 'bluewatch-reach', name: 'Bluewatch Reach' }, { id: 'auvoth-compact', name: 'Auvoth Compact' }, { id: 'shornmarch', name: 'Shornmarch' }, { id: 'shackles', name: 'Shackles' }],
@@ -44,6 +44,8 @@ async function host(on = true) {
     const made = await newHost(on, SPEC);
     const installed = await made.packs.packs.install(JSON.stringify(PACK), { origin: 'pack.json' });
     assert.equal(installed.ok, true, JSON.stringify(installed.errors));
+    // Format 4 reads one world: the pack of the run is chosen over the helper's small one.
+    assert.equal(await made.packs.packs.select('world', PACK.id), true);
     return made;
 }
 

@@ -158,7 +158,8 @@ test('custom meters: the rule line goes in the static part only while presets an
     const off = make(false).context.static();
     assert.match(on, / Meter rules: loyalty rises when you keep promises\.$/);
     assert.ok(off.startsWith('Relationships: when the scene changes how someone feels about {{user}}') && !off.includes('Meter rules'), 'rules off: the paragraph alone (custom meters add no text, G2)');
-    assert.equal(on.startsWith(off.slice(0, -1)), true, 'the rule line is added at the end');
+    // (SOAKPEOPLE F20) a meter the rule line names is also in the paragraph's list of meters to name; otherwise the paragraph is the same.
+    assert.equal(on.startsWith(off.slice(0, -1).replace('(trust, affection, desire, tension)', '(trust, affection, desire, tension, loyalty)')), true, 'the rule line is added at the end');
     const state = { domains: { people: { v: 1, order: [], npcs: {}, bonds: { problems: [], npcs: { npc_mira: { name: 'Mira', meters: { trust: 5, affection: 0, desire: 0, tension: 0, loyalty: 61 }, stages: {}, unlocked: [], turn: { reply: 2, from: {} } } } } } } };
     assert.deepEqual(make(true).context.tail({ state, chat: { length: 3 } }).lines.filter(line => typeof line === 'string'), ['NPC meters now: Mira trust 5, affection 0, desire 0, tension 0, loyalty devoted.']);
     assert.deepEqual(parseBands('doubtful 25, steady <= 60, devoted, 2bad, steady 99').map(band => [band.upTo, band.word]), [[25, 'doubtful'], [60, 'steady'], [99, 'steady'], [null, 'devoted']]);

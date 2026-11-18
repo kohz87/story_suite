@@ -10,9 +10,11 @@ import { validatePack, checkScreens } from '../../../packs/validate.js';
 import { checkPlain } from '../../../packs/safety.js';
 import { LIMITS } from '../../../packs/limits.js';
 
-const base = (extra = {}) => ({ id: 'evil', version: '1.0.0', requires: { storyBlock: '^2' }, content: {}, ...extra });
+const base = (extra = {}) => ({ id: 'evil', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' }, content: {}, ...extra });
+// A world cast entry: the format 4 place for a picture (`image`) and a link; a hostile field in an item or a cast entry is the same value to the whole-value walls.
+const withCast = extra => base({ content: { cast: [{ id: 'rat', name: 'Rat', role: 'companion', ...extra }] } });
 const withNote = note => base({ content: { items: [{ name: 'Lure', note }] } });
-// A pack's own top-level `screens` are no longer read (pack format 3), so a screen is held to the checks that still take screens (a data module's):
+// A pack's own top-level `screens` are not read at all (format 3 and 4), so a screen is held to the checks that still take screens (a data module's):
 // the whole-value walls (checkPlain) and checkScreens. `run` checks a pack or a screen the same way.
 const withScreen = screen => ({ __screens: [{ id: 'evil-board', mounts: ['tab'], template: '<div>ok</div>', ...screen }] });
 function run(input) {
@@ -22,10 +24,12 @@ function run(input) {
     return errors.length ? { ok: false, errors } : { ok: true };
 }
 
-function refused(input, why) {
+// `code`, when given, is a pattern one of the errors must match: a format 4 pack that is refused for the wrong reason (a missing field) must not pass.
+function refused(input, why, code) {
     const result = run(input);
     assert.equal(result.ok, false, `${why}: the pack must be refused, it was accepted`);
     assert.ok(result.errors.length >= 1);
+    if (code) assert.ok(result.errors.some(error => code.test(error.code)), `${why}: expected an error matching ${code}, got ${result.errors.map(error => error.code).join(', ')}`);
     for (const error of result.errors) {
         assert.equal(typeof error.code, 'string');
         assert.equal(typeof error.message, 'string');
@@ -38,6 +42,8 @@ test('sanity: the base pack and a plain item note are accepted', () => {
     assert.equal(validatePack(withNote('A violet lure, slightly <worn> & bent.')).ok, true);
     assert.equal(run(withScreen({ css: '.board { color: red; background: url(https://example.com/a.png); }' })).ok, true);
 });
+
+const UNSAFE = /^UNSAFE_/;
 
 const SCRIPT_TAGS = [
     '<script>alert(1)</script>',
@@ -109,26 +115,26 @@ const SCRIPT_URLS = [
 for (const [group, list] of [['code-running tag', SCRIPT_TAGS], ['event attribute', EVENT_ATTRS], ['script URL', SCRIPT_URLS]]) {
     test(`a ${group} anywhere in a pack's text is refused (${list.length} variants, 4 places each)`, () => {
         for (const payload of list) {
-            refused(withNote(payload), `item note ${JSON.stringify(payload)}`);
-            refused(base({ description: payload }), `description ${JSON.stringify(payload)}`);
+            refused(withNote(payload), `item note ${JSON.stringify(payload)}`, UNSAFE);
+            refused(base({ description: payload }), `description ${JSON.stringify(payload)}`, UNSAFE);
             refused(withScreen({ template: `<div>${payload}</div>` }), `screen template ${JSON.stringify(payload)}`);
-            refused(base({ content: { creatures: [{ name: 'Rat', [`lore`]: { text: [payload] } }] } }), `nested creature text ${JSON.stringify(payload)}`);
+            refused(base({ content: { items: [{ name: 'Rat', lore: { text: [payload] } }] } }), `nested item text ${JSON.stringify(payload)}`, UNSAFE);
         }
     });
 }
 
 test('a field name can carry markup too: refused', () => {
-    refused(base({ content: { creatures: [{ name: 'Rat', '<img src=x onerror=alert(1)>': 1 }] } }), 'markup in a key');
+    refused(base({ content: { items: [{ name: 'Rat', '<img src=x onerror=alert(1)>': 1 }] } }), 'markup in a key', UNSAFE);
 });
 
 test('image and link fields take only https or a raster data: image', () => {
     for (const bad of ['http://example.com/a.png', '//evil.example/a.png', 'javascript:alert(1)', 'data:image/svg+xml;base64,PHN2Zz4=',
         'data:text/html;base64,PGI+', 'https://exa mple.com/a.png', 'file:///etc/passwd', 'blob:https://x/1', '/relative.png', ' javascript:1']) {
-        refused(base({ content: { creatures: [{ name: 'Rat', image: bad }] } }), `image ${bad}`);
-        refused(base({ content: { creatures: [{ name: 'Rat', href: bad }] } }), `href ${bad}`);
+        refused(withCast({ image: bad }), `image ${bad}`, UNSAFE);
+        refused(base({ content: { items: [{ name: 'Rat', href: bad }] } }), `href ${bad}`, UNSAFE);
     }
-    assert.equal(validatePack(base({ content: { creatures: [{ name: 'Rat', image: 'https://example.com/rat.png' }] } })).ok, true);
-    assert.equal(validatePack(base({ content: { creatures: [{ name: 'Rat', image: 'data:image/png;base64,iVBORw0KGgo=' }] } })).ok, true);
+    assert.equal(validatePack(withCast({ image: 'https://example.com/rat.png' })).ok, true);
+    assert.equal(validatePack(withCast({ image: 'data:image/png;base64,iVBORw0KGgo=' })).ok, true);
 });
 
 const BAD_CSS = [
@@ -157,48 +163,48 @@ test('screen CSS that loads, runs or escapes anything is refused', () => {
 
 test('theme values are plain CSS values: no url(), expression(), braces, semicolons or backslashes', () => {
     for (const value of ['url(https://evil.example/a.png)', 'expression(alert(1))', 'red; } body { display: none', 'red}', '\\75rl(x)', '<b>', '@import x']) {
-        refused(base({ theme: { '--ss-accent': value } }), `theme ${JSON.stringify(value)}`);
         refused(withScreen({ theme: { '--ss-accent': value } }), `screen theme ${JSON.stringify(value)}`);
     }
-    for (const name of ['color', '--', '-x', '--X', '--a;b', 'background']) refused(base({ theme: { [name]: 'red' } }), `theme name ${name}`);
+    for (const name of ['color', '--', '-x', '--X', '--a;b', 'background']) refused(withScreen({ theme: { [name]: 'red' } }), `screen theme name ${name}`);
+    // A pack's own top-level theme is not read in format 4: it is refused as an unknown field, not applied.
+    assert.ok(refused(base({ theme: { '--ss-accent': 'red' } }), 'a top-level theme').some(error => error.code === 'UNKNOWN_FIELD'));
 });
 
 test('prototype-pollution keys are refused wherever they are, and nothing is polluted', () => {
     const texts = [
-        '{"id":"evil","version":"1.0.0","requires":{"storyBlock":"^2"},"__proto__":{"polluted":1}}',
-        '{"id":"evil","version":"1.0.0","requires":{"storyBlock":"^2"},"content":{"items":[{"name":"x","__proto__":{"polluted":1}}]}}',
-        '{"id":"evil","version":"1.0.0","requires":{"storyBlock":"^2"},"content":{"items":[{"name":"x","stats":{"constructor":{"prototype":{"polluted":1}}}}]}}',
-        '{"id":"evil","version":"1.0.0","requires":{"storyBlock":"^2"},"start":{"inventory":{"prototype":1}}}',
-        '{"id":"evil","version":"1.0.0","requires":{"storyBlock":"^2"},"theme":{"__proto__":{"--x":"red"}}}',
+        '{"id":"evil","format":4,"kind":"world","version":"1.0.0","requires":{"suite":"^0.1"},"__proto__":{"polluted":1}}',
+        '{"id":"evil","format":4,"kind":"world","version":"1.0.0","requires":{"suite":"^0.1"},"content":{"items":[{"name":"x","__proto__":{"polluted":1}}]}}',
+        '{"id":"evil","format":4,"kind":"world","version":"1.0.0","requires":{"suite":"^0.1"},"content":{"items":[{"name":"x","stats":{"constructor":{"prototype":{"polluted":1}}}}]}}',
+        '{"id":"evil","format":4,"kind":"world","version":"1.0.0","requires":{"suite":"^0.1"},"content":{"start":{"inventory":{"prototype":1}}}}',
     ];
     for (const text of texts) {
-        refused(text, `text ${text}`);
-        refused(JSON.parse(text), `parsed ${text}`);
+        refused(text, `text ${text}`, /^UNSAFE_KEY$/);
+        refused(JSON.parse(text), `parsed ${text}`, /^UNSAFE_KEY$/);
     }
     assert.equal(({}).polluted, undefined);
     assert.equal(Object.prototype.polluted, undefined);
 });
 
 test('JSON that is huge, deep, wide or long is refused without a crash', () => {
-    const deepText = `{"id":"evil","version":"1.0.0","requires":{"storyBlock":"^2"},"content":{"creatures":[{"name":"x","lore":${'['.repeat(20000)}${']'.repeat(20000)}}]}}`;
-    refused(deepText, 'nesting 20000 deep (text)');
+    const deepText = `{"id":"evil","format":4,"kind":"world","version":"1.0.0","requires":{"suite":"^0.1"},"content":{"items":[{"name":"x","lore":${'['.repeat(20000)}${']'.repeat(20000)}}]}}`;
+    refused(deepText, 'nesting 20000 deep (text)', /^TOO_DEEP$/);
     let deep = {};
     const root = deep;
     for (let i = 0; i < 5000; i++) deep = (deep.x = {});
-    refused(base({ content: { creatures: [{ name: 'x', lore: root }] } }), 'nesting 5000 deep (object)');
-    refused('{"id":"evil","pad":"' + 'a'.repeat(LIMITS.packBytes) + '"}', 'larger than packBytes');
-    refused(base({ description: 'a'.repeat(LIMITS.string + 1) }), 'a string longer than the limit');
-    refused(base({ content: { creatures: [{ name: 'x', lore: Array.from({ length: LIMITS.array + 1 }, () => 1) }] } }), 'an array past the limit');
-    refused(base({ content: { creatures: [{ name: 'x', lore: Object.fromEntries(Array.from({ length: LIMITS.keys + 1 }, (_, i) => [`k${i}`, 1])) }] } }), 'an object with too many keys');
-    refused(base({ content: { creatures: [{ name: 'x', [`k${'y'.repeat(LIMITS.name + 1)}`]: 1 }] } }), 'a field name longer than the limit');
+    refused(base({ content: { items: [{ name: 'x', lore: root }] } }), 'nesting 5000 deep (object)', /^TOO_DEEP$/);
+    refused('{"id":"evil","pad":"' + 'a'.repeat(LIMITS.packBytes) + '"}', 'larger than packBytes', /^TOO_LARGE$/);
+    refused(base({ description: 'a'.repeat(LIMITS.string + 1) }), 'a string longer than the limit', /^TOO_LONG$/);
+    refused(base({ content: { items: [{ name: 'x', lore: Array.from({ length: LIMITS.array + 1 }, () => 1) }] } }), 'an array past the limit', /^TOO_MANY$/);
+    refused(base({ content: { items: [{ name: 'x', lore: Object.fromEntries(Array.from({ length: LIMITS.keys + 1 }, (_, i) => [`k${i}`, 1])) }] } }), 'an object with too many keys', /^TOO_MANY$/);
+    refused(base({ content: { items: [{ name: 'x', [`k${'y'.repeat(LIMITS.name + 1)}`]: 1 }] } }), 'a field name longer than the limit', /^TOO_LONG$/);
     // Multi-byte text counts in bytes, not characters.
-    refused('{"id":"evil","pad":"' + '\u{1F600}'.repeat(Math.ceil(LIMITS.packBytes / 4) + 10) + '"}', 'larger than packBytes in UTF-8');
+    refused('{"id":"evil","pad":"' + '\u{1F600}'.repeat(Math.ceil(LIMITS.packBytes / 4) + 10) + '"}', 'larger than packBytes in UTF-8', /^TOO_LARGE$/);
 });
 
 test('values JSON cannot hold are refused when the pack is given as an object', () => {
     const cyclic = base();
-    cyclic.content = { creatures: [{ name: 'x' }] };
-    cyclic.content.creatures[0].self = cyclic.content.creatures[0];
+    cyclic.content = { items: [{ name: 'x' }] };
+    cyclic.content.items[0].self = cyclic.content.items[0];
     const getter = base();
     Object.defineProperty(getter, 'description', { enumerable: true, get() { throw new Error('a getter ran'); } });
     class Fancy { constructor() { this.name = 'x'; } }
@@ -225,13 +231,6 @@ test('not a pack at all: refused with a plain reason', () => {
     }
 });
 
-test('a pack event runs only command names, never code', () => {
-    const event = then => base({ content: { events: [{ id: 'boom', when: 'true', cue: 'Boom.', then }] } });
-    for (const command of ['alert(1)', 'inventory.grant;alert(1)', '__proto__.x', 'x.__proto__', 'a', 'Inventory.Grant', '../x.y']) {
-        refused(event([{ command, payload: {} }]), `then command ${command}`);
-    }
-});
-
 // ---- problems found (each a failing check, kept as a todo so CI stays green) -----------------
 
 const accepted = input => run(input).ok === true;
@@ -250,18 +249,9 @@ test('packs/validate.js unsafeCss: image-set() and -webkit-image-set() may load 
     // CSS_URL only looks inside url(); image-set("http://…" 1x) loads a URL without url().
     assert.equal(accepted(withScreen({ css: '.a { background-image: image-set("http://evil.example/a.png" 1x); }' })), false);
     assert.equal(accepted(withScreen({ css: '.a { background-image: -webkit-image-set("//evil.example/a.png" 1x); }' })), false);
-    assert.equal(accepted(base({ theme: { '--ss-bg': 'image-set("http://evil.example/a.png" 1x)' } })), false);
 });
 
 test('packs/safety.js CODE_SCHEME: a link to a data: document (data:application/xhtml+xml, data:text/xml) is refused', () => {
     assert.equal(accepted(withNote('<a href="data:application/xhtml+xml;base64,PHNjcmlwdD4=">x</a>')), false);
     assert.equal(accepted(withScreen({ template: '<a href="data:text/xml,<x/>">x</a>' })), false);
-});
-
-test('packs/validate.js checkEvent: a pack event cannot run host-internal commands (module.init.*, capture.*)', () => {
-    // COMMAND accepts "module.init.story-block" (wipes the inventory and scene when run) and
-    // "capture.coin" (a change line the story never wrote).
-    const event = command => base({ content: { events: [{ id: 'boom', when: 'true', cue: 'Boom.', then: [{ command, payload: {} }] }] } });
-    assert.equal(accepted(event('module.init.story-block')), false);
-    assert.equal(accepted(event('capture.coin')), false);
 });

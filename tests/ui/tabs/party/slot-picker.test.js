@@ -63,7 +63,8 @@ test('slot sheet for a worn slot shows the item, soak, condition, Unequip and ma
   assert.match(text, /Nothing in the Bag fits this slot\./);
   sheetEl().querySelector('[data-unequip]').click();
   await flush();
-  assert.deepEqual(commands(ctx.port), [['inventory.unequip', { owner: 'astra', slot: 'offhand' }]]);
+  // (the command reads the stack; the main character's things belong to `party`)
+  assert.deepEqual(commands(ctx.port), [['inventory.unequip', { stack: 'oak-round-shield' }]]);
   assert.equal(sheetEl(), null);
 });
 
@@ -78,7 +79,7 @@ test('slot sheet for an empty slot lists Bag items that fit and Equip sends item
   assert.match(rows[0].textContent, /Soak \+1 · Fine/);
   rows[0].querySelector('[data-equip]').click();
   await flush();
-  assert.deepEqual(commands(ctx.port), [['item.equip', { owner: 'astra', slot: 'head', stack: 'steel-helm' }]]);
+  assert.deepEqual(commands(ctx.port), [['item.equip', { owner: 'party', slot: 'head', stack: 'steel-helm', transfer: true }]]);
   assert.equal(sheetEl(), null);
 });
 
@@ -96,10 +97,65 @@ test('slot sheet filters by slot glyph, hides worn Bag items and offers Open Bag
   assert.equal(slotSheet(astra, 'nonsense', ctx), null);
 });
 
+test('a weapon row says what it gives or that it is a weapon, never "No soak points" (SOAK2UI 16)', () => {
+  const ctx = makeCtx();
+  const astra = ctx.party.members[0];
+  slotSheet(astra, 'weapon', ctx);
+  assert.doesNotMatch(sheetEl().textContent, /soak/iu);
+  assert.match(sheetEl().querySelector('.ps-r small').textContent, /^(Weapon|\+)/u);
+});
+
+test('a worn weapon or offhand says what it gives ("Gives +2 STR"), or what it is when it gives nothing (REVFIXBATCH2 3)', () => {
+  const ctx = makeCtx();
+  const astra = ctx.party.members[0];
+  const withBonus = { ...astra, slots: astra.slots.map(s => (s.key === 'weapon' ? { key: 'weapon', item: { stack: 'w1', name: 'Steel longsword', rarity: 'rare', soak: null, torn: false, bonus: '+2 STR' } } : s)) };
+  slotSheet(withBonus, 'weapon', ctx);
+  const kv = [...sheetEl().querySelectorAll('.ps-kv dt, .ps-kv dd')].map(el => el.textContent);
+  assert.deepEqual(kv.slice(0, 2), ['Gives', '+2 STR']);
+  sheetEl().querySelector('.ps-x').click();
+  const plain = { ...astra, slots: astra.slots.map(s => (s.key === 'offhand' ? { key: 'offhand', item: { stack: 'o1', name: 'Oak round shield', rarity: 'common', soak: null, torn: false, bonus: '' } } : s)) };
+  slotSheet(plain, 'offhand', ctx);
+  assert.deepEqual([...sheetEl().querySelectorAll('.ps-kv dt, .ps-kv dd')].map(el => el.textContent).slice(0, 2), ['Gives', SLOT_META.offhand[1]]);
+});
+
 test('slot sheet tolerates a missing bag view and a member without that slot', () => {
   const ctx = makeCtx();
   const sheet = slotSheet({ id: 'x', name: 'Xan', slots: [] }, 'cloak', { ...ctx, port: { view: () => null, command: async () => ({}) } });
   assert.match(sheetEl().textContent, /Nothing worn here/);
   assert.match(sheetEl().textContent, /Nothing in the Bag fits this slot/);
   sheet.close();
+});
+
+test('Equip for a companion names their own id, and hands the piece over to them', async () => {
+  const ctx = makeCtx();
+  slotSheet(ctx.party.members[1], 'head', ctx);
+  sheetEl().querySelector('[data-equip]').click();
+  await flush();
+  assert.deepEqual(commands(ctx.port), [['item.equip', { owner: ctx.party.members[1].id, slot: 'head', stack: 'steel-helm', transfer: true }]]);
+});
+
+test('Tab stays inside the Party and Bag sheet: from the last control to the first, Shift+Tab back, and in from the page behind (soak #2)', () => {
+  const ctx = makeCtx();
+  const outside = globalThis.document.createElement('button');
+  globalThis.document.body.appendChild(outside);
+  const sheet = openSheet(ctx, { title: 'STR' });
+  const panel = sheetEl().querySelector('[role="dialog"]');
+  const first = sheetEl().querySelector('.ps-x');
+  const plus = Array.from({ length: 7 }, () => globalThis.document.createElement('button'));
+  sheet.body.append(...plus);
+  const last = plus.at(-1);
+  last.focus();
+  const tab = (target, shiftKey = false) => target.dispatch('keydown', { key: 'Tab', shiftKey });
+  assert.equal(tab(last).defaultPrevented, true);
+  assert.equal(globalThis.document.activeElement, first, 'after the last "+" the focus goes back to the close button, not the page');
+  assert.equal(tab(first, true).defaultPrevented, true);
+  assert.equal(globalThis.document.activeElement, last);
+  plus[2].focus();
+  assert.equal(tab(plus[2]).defaultPrevented, false, 'in the middle the browser moves it');
+  outside.focus();
+  tab(panel);
+  assert.equal(globalThis.document.activeElement, first);
+  sheet.close();
+  outside.focus();
+  assert.equal(tab(outside).defaultPrevented, false, 'a closed sheet holds nothing');
 });

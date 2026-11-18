@@ -21,5 +21,13 @@ export function knownPlace(ctx, name) {
     const atlas = detail && typeof detail === 'object' ? detail : rowsOf(ctx, 'atlas.places', {}).find(place => named(place, key)) ?? null;
     const keys = [key, foldKey(atlas?.name ?? '')].filter(Boolean);
     const pack = rowsOf(ctx, 'packs.content', { kind: 'places' }).find(place => keys.some(each => named(place, each))) ?? null;
-    return atlas ?? pack;
+    return withRegionName(ctx, atlas ?? pack);
+}
+
+// A format 4 place names its region by id (`bluewatch-reach`); the scene keeps the region's name ("Bluewatch Reach"), as a pack's start does
+// (packs/content-parts/start-v4.js), so the narrator, the receipts and the weather's key read one region the same way (SFF4 #3).
+function withRegionName(ctx, place) {
+    if (!place || typeof place.region !== 'string' || !place.region) return place;
+    const region = rowsOf(ctx, 'packs.content', { kind: 'regions' }).find(row => row?.id === place.region && typeof row.name === 'string' && row.name.trim());
+    return region ? { ...place, region: region.name } : place;
 }

@@ -82,3 +82,26 @@ test('the hurt rule reads the last exchange: two fifths of the maximum HP', () =
     assert.deepEqual(hurtHeroes({ ...record, rounds: [record.rounds[0]] }), ['Astra'], 'exactly 8 of 20 counts');
     assert.deepEqual(hurtHeroes({ ...record, rounds: [record.rounds[0].slice(1)] }), []);
 });
+
+test('the heal tile says nobody is hurt when it is off for that reason, and nothing of the kind when it is on', async () => {
+    const restore = seedCrypto(5);
+    try {
+        const host = await host0();
+        assert.equal(openFight(host).ok, true);
+        const heal = view(host).actors[0].groups.Magic.find(tile => tile.id === 'heal');
+        assert.equal(heal.enabled, false);
+        assert.equal(heal.reason, 'nobody is hurt');
+        assert.equal(view(host).actors[0].groups.Attack.every(tile => tile.reason === undefined), true);
+    } finally { restore(); }
+});
+
+test('the Flee tile says it is for the whole party', async () => {
+    const restore = seedCrypto(5);
+    try {
+        const host = await host0();
+        assert.equal(openFight(host).ok, true);
+        const flee = view(host).actors[0].groups.Flee[0];
+        assert.match(flee.cost, /Whole party/);
+        assert.equal(flee.pick.alone, true);
+    } finally { restore(); }
+});

@@ -39,7 +39,7 @@
     "assistant:Fight.",
     "user:I attack the rats.",
     "user:I look around.",
-    "system:Dice for this reply, in order: 9, 14, 14. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 10; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nFoes: Rats ×3 (Lv 10).\nUp to six foe groups in the fight, one slot each: name, count (0 = empty slot, 1 to 6), level 1 to 99 and tier (mob, minion, standard, elite, boss or apex). The narrator sets a slot when a group arrives and clears it when the group is down, fled, gone or captured. It never writes how hurt a foe is: the fight settles that.\n- dm foes — reason | kind: clear-N | why: down|fled|gone|captured\nN = 1..6 for clear-N.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Dice for this reply, in order: 9, 14, 14. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 10; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nFoes: Rats ×3 (Lv 10).\nUp to six foe groups in the fight, one slot each: name, count (0 = empty slot, 1 to 6), level 1 to 99 and tier (mob, minion, standard, elite, boss or apex). The narrator sets a slot when a group arrives and clears it when the group is down, fled, gone or captured. It never writes how hurt a foe is: the fight settles that.\n- dm foes — reason | kind: clear-N | why: down|fled|gone|captured\nN = 1..6 for clear-N.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.\nThe foes set stand, but this reply plays no fight: a message that is not played on the board moves the story on. The foes may press, block or follow; resolve no exchange, roll no check for a blow, and tell no wound, HP or other change of state.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   },
   {
@@ -56,7 +56,7 @@
     "user:I look around.",
     "assistant:Another telling of the quiet.",
     "user:I rest.",
-    "system:Dice for this reply, in order: 17, 15, 4. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 10; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nFoes: Rats ×3 (Lv 10).\nUp to six foe groups in the fight, one slot each: name, count (0 = empty slot, 1 to 6), level 1 to 99 and tier (mob, minion, standard, elite, boss or apex). The narrator sets a slot when a group arrives and clears it when the group is down, fled, gone or captured. It never writes how hurt a foe is: the fight settles that.\n- dm foes — reason | kind: clear-N | why: down|fled|gone|captured\nN = 1..6 for clear-N.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Dice for this reply, in order: 17, 15, 4. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\n[Happened]\nThe fight with Rats ×3 was left unplayed on the board, so it lapsed: they withdrew or were left behind.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 10; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   }
  ],
@@ -9352,7 +9352,7 @@
   null,
   {
    "v": 2,
-   "sid": "sw_f03b8602eb92",
+   "sid": "sw_9ee525a602a3",
    "ops": [
     {
      "op": "replace",
@@ -9360,13 +9360,28 @@
      "value": 10
     },
     {
+     "op": "replace",
+     "path": "/domains/dataModules/instances/pack.chat~1foes/chat/fields/count1",
+     "value": 0
+    },
+    {
+     "op": "replace",
+     "path": "/domains/dataModules/instances/pack.chat~1foes/chat/fields/foe1",
+     "value": ""
+    },
+    {
+     "op": "replace",
+     "path": "/meta/rev",
+     "value": 11
+    },
+    {
      "op": "add",
-     "path": "/domains/dataModules/perReply/sr_0inmlrpl~1sw_cb2sdutq",
+     "path": "/domains/dataModules/perReply/sr_6t9u1o7l~1sw_22qu0wzf",
      "value": {
       "roots": 1,
       "visits": 113,
       "actions": {
-       "bl_0u2a3fjp": {
+       "bl_6f226qzy": {
         "visits": 113,
         "click": false
        }
@@ -9380,12 +9395,12 @@
     {
      "op": "replace",
      "path": "/meta/rev",
-     "value": 11
+     "value": 12
     }
    ],
    "receipts": [
     {
-     "id": "rc_r1k0kg53",
+     "id": "rc_4p11v8ic",
      "type": "rpg.dice",
      "module": "story-block",
      "cause": "system",
@@ -9465,11 +9480,44 @@
      "beforeGenerate": true
     },
     {
-     "id": "rc_4p11v8ic",
+     "id": "rc_vmlujbma",
+     "type": "rpg.board.lapse",
+     "module": "story-block",
+     "cause": "system",
+     "seed": 3140617469,
+     "summary": "The fight with Rats ×3 was left unplayed on the board, so it lapsed: they withdrew or were left behind.",
+     "narrate": true,
+     "data": {
+      "lapsed": [
+       "Rats ×3"
+      ],
+      "keep": true,
+      "chain": true
+     },
+     "rev": 11,
+     "afterCapture": true,
+     "beforeGenerate": true,
+     "replan": {
+      "payload": {
+       "groups": [
+        {
+         "module": "pack.chat/foes",
+         "local": 1,
+         "slot": 1,
+         "name": "Rats",
+         "label": "Rats",
+         "count": 3
+        }
+       ]
+      }
+     }
+    },
+    {
+     "id": "rc_yx80mhde",
      "type": "dm.settle",
      "module": "story-block",
      "cause": "system",
-     "seed": 2129443707,
+     "seed": 1718221612,
      "summary": "Character: settled at the end of the reply.",
      "narrate": false,
      "data": {
@@ -9482,9 +9530,9 @@
        "epoch": "ep_00000000",
        "rulesHash": null,
        "source": {
-        "sid": "sr_0inmlrpl",
-        "swipeKey": "sw_cb2sdutq",
-        "evidence": "ev_bmgn2z5t",
+        "sid": "sr_6t9u1o7l",
+        "swipeKey": "sw_22qu0wzf",
+        "evidence": "ev_9wtgjikb",
         "ordinal": 0
        },
        "guard": {
@@ -9499,11 +9547,11 @@
          "generation": 1,
          "subject": "chat"
         },
-        "inputHash": "e80b33272729b71e2c1374d8d827066f980702a7ef1e6e07ef32b4f08c52f9f4"
+        "inputHash": "959e8f9b715661d45a6b629d1b2ba3c23fe3233b6e1c2d31ed09274a0994e393"
        }
       }
      },
-     "rev": 11,
+     "rev": 12,
      "replan": {
       "payload": {
        "module": "pack.chat/character",
@@ -9515,7 +9563,8 @@
     }
    ],
    "narrated": [
-    "rc_r1k0kg53"
+    "rc_4p11v8ic",
+    "rc_vmlujbma"
    ],
    "spans": [
     {
@@ -9524,13 +9573,17 @@
     },
     {
      "n": 3,
+     "story": false
+    },
+    {
+     "n": 3,
      "story": false,
-     "id": "bl_0u2a3fjp",
+     "id": "bl_6f226qzy",
      "module": "story-block",
      "source": {
-      "sid": "sr_0inmlrpl",
-      "swipeKey": "sw_cb2sdutq",
-      "evidence": "ev_bmgn2z5t",
+      "sid": "sr_6t9u1o7l",
+      "swipeKey": "sw_22qu0wzf",
+      "evidence": "ev_9wtgjikb",
       "ordinal": 0
      },
      "guard": {
@@ -9545,7 +9598,7 @@
        "generation": 1,
        "subject": "chat"
       },
-      "inputHash": "e80b33272729b71e2c1374d8d827066f980702a7ef1e6e07ef32b4f08c52f9f4"
+      "inputHash": "959e8f9b715661d45a6b629d1b2ba3c23fe3233b6e1c2d31ed09274a0994e393"
      },
      "claims": [],
      "evidence": [],
@@ -9553,13 +9606,13 @@
      "boundaries": [
       {
        "cursor": {
-        "sid": "sr_0inmlrpl",
-        "swipeKey": "sw_cb2sdutq",
-        "block": "bl_0u2a3fjp",
-        "op": 1,
-        "rev": 10
+        "sid": "sr_6t9u1o7l",
+        "swipeKey": "sw_22qu0wzf",
+        "block": "bl_6f226qzy",
+        "op": 4,
+        "rev": 11
        },
-       "prefixHash": "29dd67170875600c8d379cf72d9fa0d7010540936d6f35f8e13d2c6a68b82be6",
+       "prefixHash": "e8b4a82736088fae4bda46ed60bc9eef808c435594945b82fc25cb2822c7b42d",
        "payloadHash": "5156d3ecdcd4f878eb48815ac292cf90ace0114e279608cc4957e8e31c5748df"
       }
      ],
@@ -9572,9 +9625,9 @@
      },
      "recorded": {
       "source": {
-       "sid": "sr_0inmlrpl",
-       "swipeKey": "sw_cb2sdutq",
-       "evidence": "ev_bmgn2z5t",
+       "sid": "sr_6t9u1o7l",
+       "swipeKey": "sw_22qu0wzf",
+       "evidence": "ev_9wtgjikb",
        "ordinal": 0
       },
       "selector": {
@@ -9690,21 +9743,21 @@
        "module": "pack.chat/character",
        "subject": "chat"
       },
-      "seed": 2129443707
+      "seed": 1718221612
      }
     }
    ],
    "source": {
-    "logical": "sr_0inmlrpl",
-    "swipeKey": "sw_cb2sdutq",
-    "evidence": "ev_bmgn2z5t",
+    "logical": "sr_6t9u1o7l",
+    "swipeKey": "sw_22qu0wzf",
+    "evidence": "ev_9wtgjikb",
     "next": 1,
     "taken": {
      "4dddd998a08914a6": 1
     }
    },
    "mv": 1,
-   "rev": 11,
+   "rev": 12,
    "swipe": 0,
    "mark": {
     "t": "40f093b4:9",

@@ -8,11 +8,12 @@
 // receipts, so a swipe, a delete or a Re-read takes it away with the reply and nothing is kept in the story's state for it.
 // Public face: re-exports its parts.
 
-export { joinMode, checkJoin } from './join-parts/check.js';
+export { joinMode, checkJoin, partyTop } from './join-parts/check.js';
 export { joinGrammar, joinGrammarOwn, soulOf, readJoin } from './join-parts/line.js';
 export { JOIN_NO, JOIN_BENCH, JOIN_ADD } from './join-parts/commands.js';
 export { soulNaming, partyOf, partyCap, benchable } from './join-parts/party.js';
 export { joinDraft, joinDefinitions } from './join-parts/draft.js';
-export { joinOffers } from './join-parts/offers.js';
+export { joinOffers, openJoinOffers } from './join-parts/offers.js';
 export { joinCard } from './join-parts/card.js';
-export { partyAdd } from './join-parts/add.js';
+export { partyAdd, partyAddQuery } from './join-parts/add.js';
+export { personOf, pullOf } from './join-parts/from-person.js';

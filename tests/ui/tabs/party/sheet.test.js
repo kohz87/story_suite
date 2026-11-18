@@ -57,6 +57,8 @@ test('⋯ opens the menu and each entry sends one party command for that member'
   moreSheet(member(ctx, 'torka'), ctx);
   sheetEl().querySelector('[data-act="party.export"]').click();
   await flush();
+  assert.equal(sheetEl().querySelector('.ps-n').textContent, 'Export Torka', 'Export opens its own sheet');
+  sheetEl().querySelector('[data-cancel]').click();
   moreSheet(member(ctx, 'torka'), ctx);
   sheetEl().querySelector('[data-act="party.leave"]').click();
   await flush();
@@ -109,4 +111,26 @@ test('stat sheet with no points says so and keeps every button off', () => {
   statSheet(member(ctx, 'brann'), ctx);
   assert.equal(sheetEl().querySelector('.ps-s').textContent, 'No points to spend');
   assert.equal(sheetEl().querySelectorAll('.ps-st .ps-b').filter(b => !b.hasAttribute('disabled')).length, 0);
+});
+
+test('a stat tile marks what worn gear adds, and says so for a screen reader; a tile with no bonus has no mark', () => {
+  const ctx = makeCtx();
+  const base = member(ctx, 'astra');
+  const el = memberSheet({ ...base, bonus: { STR: 1, VIT: 2 } }, ctx, { pc: true });
+  const tile = key => el.querySelector(`.sv[data-stat="${key}"]`);
+  assert.equal(tile('STR').querySelector('.gb').textContent, '+1');
+  assert.equal(tile('VIT').querySelector('.gb').textContent, '+2');
+  assert.match(tile('VIT').getAttribute('aria-label'), /gear adds 2$/);
+  assert.equal(tile('DEX').querySelector('.gb'), null);
+  assert.equal(memberSheet(base, ctx, { pc: true }).querySelector('.gb'), null);
+});
+
+test('the player sheet has an Export button, and it opens the Export sheet for them (no ⋯ menu on their own sheet)', async () => {
+  const ctx = makeCtx();
+  const el = memberSheet(member(ctx, 'astra'), ctx, { pc: true });
+  assert.equal(el.querySelector('[data-more]'), null);
+  el.querySelector('[data-export-own]').click();
+  await flush();
+  assert.equal(sheetEl().querySelector('.ps-n').textContent, 'Export Astra');
+  assert.deepEqual(commands(ctx.port), [['party.export', { member: 'astra' }]]);
 });

@@ -12,8 +12,8 @@ function part(answer, flagOn) {
     const session = { hosted: true, lastTick: null, sdkRef: flagOn === null ? {} : { flag: name => name === FLAG && flagOn } };
     const sent = [];
     const turn = createTurnPart(session, {
-        castMade: () => ({}), castPeople: () => [], castPortraitDue: () => false, castSync: null, enabled: () => true, keyAwayMemory: () => ({}),
-        keyPeopleAnswer: () => [], part: { tickWanted: () => true }, send: async (type, payload, options) => { sent.push([type, options]); return answer; },
+        castMade: () => ({}), castPeople: () => [], castPortraitDue: () => false, castSync: null, enabled: () => true,
+        part: { tickWanted: () => true }, send: async (type, payload, options) => { sent.push([type, options]); return answer; },
         TICK_TURNS: ['reply'], warn() {},
     });
     return { turn, session, sent };

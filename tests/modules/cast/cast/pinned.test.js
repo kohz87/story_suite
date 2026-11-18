@@ -9,7 +9,7 @@ const quiet = t => t.mock.method(console, 'warn', () => {});
 const castLinesOf = host => (sent(host, TAIL_KEY).at(-1) ?? '').split('\n').filter(line => line.startsWith('[Cast]'));
 const BROM = entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' } });
 const TEMIWA = entry('temiwa', {
-    name: 'Sister Temiwa', aliases: ['Temiwa'], about: 'A fox-eared saintess candidate cast out to the frontier: its sarcastic healer.', fields: { Calling: 'Saintess candidate, healer' },
+    name: 'Sister Temiwa', aliases: ['Temiwa'], about: 'A fox-eared saintess candidate cast out to the frontier: its sarcastic healer.', role: 'Saintess candidate, healer',
     start: { place: 'Kesh', goal: 'Serve.', routine: 'Watchhouse infirmary by day' },
 });
 
@@ -22,7 +22,7 @@ test('a tail far over its budget still carries the meeting cue (once), for a sen
         assert.equal(people(host)['ersveil:brom'].met.why, 'place');
         const lines = castLinesOf(host);
         assert.equal(lines.length, 1, 'once');
-        assert.match(lines[0], /^\[Cast\] a stranger comes into the scene in this reply\./);
+        assert.match(lines[0], /^\[Cast\] a stranger comes into the scene in this reply; their name is [^.]+\./);
         assert.equal((sent(host, TAIL_KEY).at(-1) ?? '').split('[Cast] a stranger comes').length - 1, 1, 'never twice in the prompt');
         assert.deepEqual(validatorErrors(host), []);
     } finally {

@@ -27,7 +27,7 @@ export function createPersistPart(rt, deps) {
             stateWriteTimers.delete(key);
             flushStateFile(key).catch(error => {
                 console.error('[NPC State Delta] data-file persistence failed', error);
-                globalThis.toastr?.error?.('NPC State Delta could not save its chat data file. Check the browser/server console.');
+                globalThis.toastr?.error?.('NPC State could not save its chat data file. Check the browser/server console.');
             });
         }, Math.max(0, Number(delay) || 0)));
     }
@@ -133,7 +133,7 @@ export function createPersistPart(rt, deps) {
         markStateDirty(key);
         void flushStateFile(key).catch(error => {
             console.error('[NPC State Delta] critical data-file persistence failed', error);
-            globalThis.toastr?.error?.('NPC State Delta could not immediately save a critical dossier change.');
+            globalThis.toastr?.error?.('NPC State could not immediately save a critical dossier change.');
         });
         return true;
     }

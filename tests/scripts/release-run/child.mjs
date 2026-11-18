@@ -4,14 +4,14 @@
 // as a module, NPC State Delta connected through its adapter, the Ersveil pack installed. The host is wired as
 // testkit/host.js wires it (that file picks the store and the command bus by a computed path, which a bundle cannot
 // follow, so the pieces come from the kit file the test writes: the same file runs on the source and, bundled, on the bundle).
-// argv: <kit.js> <story director module.js> <npc state delta storysuite-v2.js> <pack.json> <seeded.js>
+// argv: <kit.js> <story director module.js> <npc state delta storysuite-v2.js> <world pack.json,game pack.json> <seeded.js>
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 const [kitFile, sdFile, nsdFile, packFile, seededFile] = process.argv.slice(2);
 const at = file => import(pathToFileURL(file).href);
 const [kit, SD, NSD, seeded] = await Promise.all([at(kitFile), at(sdFile), at(nsdFile), at(seededFile)]);
-const packText = fs.readFileSync(packFile, 'utf8');
+const packTexts = packFile.split(',').map(file => fs.readFileSync(file, 'utf8'));
 const restoreCrypto = seeded.seedCrypto(1);
 const result = { errors: [] };
 const note = (name, fn) => Promise.resolve().then(fn).then(value => { result[name] = value; }, error => { result.errors.push(`${name}: ${error?.message ?? error}`); });
@@ -31,8 +31,9 @@ async function createHost({ settings = {}, modules = [], lazyRpg = false } = {})
   return { st, ctx: st.ctx, sdk: runtime.sdk, packs: runtime.packs, features: runtime.features, rpgLoader: runtime.rpgLoader, send: (text, reply) => st.send(text, { reply, stopped: false }), close: () => runtime.turn.uninstall({ globalName: null }) };
 }
 const probe = await createHost();
-const installed = await probe.packs.packs.install(packText, { origin: 'pack.json' });
-result.packInstalled = installed.ok;
+const installed = [];
+for (const text of packTexts) installed.push(await probe.packs.packs.install(text, { origin: 'pack.json' }));
+result.packInstalled = installed.every(done => done.ok);
 const storySuite = structuredClone(probe.ctx.extensionSettings.storySuite);
 probe.close();
 const host = await createHost({ settings: storySuite, modules: [sd] });

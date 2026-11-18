@@ -130,7 +130,7 @@ test('a prelude [Happened] cue joins the untold receipts in one block', () => {
     const out = assemble({
         registry, view: {},
         untold: [{ id: 'rc_1', narrate: true, summary: 'A bonus is paid.' }],
-        cues: { a: [{ text: '[Happened]\nThe fight is still open.', keep: true, board: true }] },
+        cues: { a: [{ text: '[Happened]\nThe fight is still open.', keep: true, interaction: true }] },
         settings: { tailBudget: 5 },
     });
     assert.equal(out.tailText, [HAPPENED, 'A bonus is paid.', 'The fight is still open.'].join('\n'));

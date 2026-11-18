@@ -3,10 +3,13 @@
 import { cut, flat } from './shared-text.js';
 import { isInt } from './shared-values.js';
 import { MAX_LINE } from './text-caps.js';
+import { formatAmount } from '../../../inventory/money.js';
 
 // ---- the one line -----------------------------------------------------------------------------
 
+// A currency with coins is written in them as the Journal's money row and the bag are ("1 silver 5 copper"), not as the smallest unit.
 const unitOf = (amount, currency) => {
+    if (Array.isArray(currency?.coins) && currency.coins.length) return formatAmount(amount, currency);
     const name = flat(currency?.name) || 'coin';
     const plural = flat(currency?.plural) || `${name}s`;
     return `${amount} ${amount === 1 ? name : plural}`;

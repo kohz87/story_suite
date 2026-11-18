@@ -111,7 +111,7 @@ test('stance wording: unfriendly, warm, and unknown text', () => {
 test('no answers at all gives an empty world that matches the shape', () => {
   for (const input of [undefined, {}, { atlasView: null, worldView: null }]) {
     const w = selectWorld(input);
-    assert.deepEqual(w, { places: [], routes: [], trip: null, news: [], factions: [] });
+    assert.deepEqual(w, { places: [], unmapped: [], routes: [], trip: null, news: [], factions: [] });
     assert.deepEqual(checkShape(w, WORLD_SHAPE), []);
   }
 });

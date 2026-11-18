@@ -3,7 +3,7 @@
 //
 // * Table: 'std' (Standard) when at least STANDARD_MIN_NAMED named people are in play and at least STANDARD_MIN_OFFSCREEN
 //   of them are off-screen, else 'duo' (Duo). The caller counts: named = scene present + known NPCs + cast; offscreen =
-//   open agendas + key people away + unmet cast.
+//   open agendas + unmet cast.
 // * Draw order (fixed, always three draws from ctx.rng() in this order, unused ones spent anyway, so a result never
 //   shifts the draws after it): 'd20' (1 + floor(u × 20)), 'actor' (which named person, when the entry names one), 'line'
 //   (which flavour line, when the entry has lines here). The same seed and state give the same result; a swipe draws anew.

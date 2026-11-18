@@ -63,10 +63,3 @@ test('the story stating the same date as the pack makes it the story\'s own, and
     const again = scan(told, { birthDate: { month: 'Redleaf', day: 5 }, birthDateState: 'establish' }, 13);
     assert.equal(again.birthDate.month, 'Sunwane');
 });
-
-test('with Delta on its own calendar the pack date (in the pack\'s calendar) is skipped; Delta\'s date stands', () => {
-    setActiveCalendarConfig(CALENDAR);
-    const own = make({ birthday: 'Sunwane 27' }, { calendarOwn: true });
-    assert.deepEqual(own.birthDate, make({}).birthDate);
-    assert.notEqual(own.birthDateSource, 'established');
-});

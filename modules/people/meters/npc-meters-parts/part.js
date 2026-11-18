@@ -1,5 +1,5 @@
 // Assembles the `npc` part: commands (on the people domain's bonds), queries, change-line kinds, prompt context and settings.
-import { NPC_KIND, MILESTONE_KIND, CONTEXT_BUDGET, FEATURE_STAGES, FEATURE_DRIFT, FEATURE_MOOD_PULL, FEATURES, isObject } from '../npc-meters-config.js';
+import { NPC_KIND, MILESTONE_KIND, CONTEXT_BUDGET, FEATURE_STAGES, FEATURE_DRIFT, FEATURE_MOOD_PULL, FEATURE_NOTES, FEATURES, isObject } from '../npc-meters-config.js';
 import { SETTINGS_DEFAULTS, SETTINGS_SCHEMA } from '../npc-meters-schema.js';
 import { createNpcCommands } from '../npc-meters-commands.js';
 import { createNpcQueries } from '../npc-meters-queries.js';
@@ -10,6 +10,8 @@ import { createNpcRecords } from './records.js';
 import { createNpcRun } from './run.js';
 import { folded, foldedCommands } from './fold.js';
 import { withStubs } from '../npc-lines-parts/stub.js';
+import { createCastFirst } from '../npc-lines-parts/cast-first.js';
+import { seedCastBond } from './cast-bond.js';
 import { withMemories, memoryLine } from '../npc-lines-parts/memory.js';
 import { secretLine } from '../npc-lines-parts/secret.js';
 import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
@@ -23,7 +25,6 @@ import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
  *   baseline()        → Delta's base relationship values (new NPCs start there)
  *   caps()            → Delta's impact-tier caps { ordinary, meaningful, major, extreme } (a story line's step is held to its tier's)
  *   allowance()       → the reader's events per story day { ordinary, meaningful, major, extreme } (null: no limit; relationship-pacing.js)
- *   calendarOwn()     → true while the reader keeps the calendar in Delta (then there is no story day to count on)
  *   startTime(index)  → story-clock minutes before that reply (null when unavailable)
  *   startDate(index)  → that story day as the dossier writes it ("Goldwane 13"; '' when unavailable)
  *   secretRules(name) → that dossier's notes as [{ id, meter?, at?, when?, title? }] (never their text)
@@ -63,11 +64,20 @@ export function createNpcPart(hooks = {}) {
     // `+ npc` stubs and the unknown-person rule: only while lines mode is on (hooks.linesMode; off, nothing differs).
     const linesMode = () => call(hooks.linesMode, false) === true;
     const date = at => (clockDay(at) === null ? '' : call(hooks.startDate, '', at));
-    const captureLine = folded(withMemories(withStubs(built.captureLine, { hooks, linesMode, baseline, note }), { linesMode, date }));
+    // A line about a pack person met or present here, before their dossier was made: made from the pack in the reply's step (SFF4 #1).
+    const bond = (ctx, slice, who, person) => {
+        if (!isObject(slice.npcs)) slice.npcs = {};
+        const moodPull = featureOn(FEATURE_MOOD_PULL, ctx);
+        let minutes = null;
+        if (moodPull && typeof ctx.time === 'function') { try { minutes = ctx.time(); } catch { minutes = null; } }
+        return seedCastBond(ctx, slice, who, person, { defs: defsFrom(normalized(ctx.settings(), ctx)), ensure, note, moodPull, minutes, notesOn: featureOn(FEATURE_NOTES, ctx) });
+    };
+    const castFirst = createCastFirst({ baseline, bond });
+    const captureLine = folded(withMemories(withStubs(built.captureLine, { hooks, linesMode, baseline, note, castFirst }), { linesMode, date }));
     // `~ memory` and `~ reveal` (NSD8, NSD12): only in lines mode; untaught until N7 (grammar '', heads only). Off, a line of either is refused and changes nothing.
     const onlyLines = (name, apply) => folded((ctx, line = {}) => (linesMode(ctx) ? apply(ctx, line) : ctx.fail('REFUSED', `${name} lines are not on.`)));
-    const memoryApply = onlyLines('~ memory', (ctx, line) => memoryLine(ctx, line, { date }));
-    const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identify, rulesFor, run, call, hooks, defs: () => defsFrom(storedSettings()) }));
+    const memoryApply = onlyLines('~ memory', (ctx, line) => memoryLine(ctx, line, { date, castFirst }));
+    const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identify, rulesFor, run, call, hooks, defs: () => defsFrom(storedSettings()), castFirst }));
     // The host sends every line of the module to the one apply of the `npc` kind: `~ memory` and `~ reveal` go to their own, the rest to the change line.
     // A death line (NSD13, `~ npc Name | died | how: …`) is its own op, in lines mode only; off, it is an ordinary `~ npc` line, byte for byte.
     const diedApply = folded((ctx, line = {}) => diedLine(ctx, line));

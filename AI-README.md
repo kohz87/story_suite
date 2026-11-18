@@ -160,8 +160,9 @@ Detail: `docs/v2/MODULES.md` (layouts and decisions), `docs/v2/LIFECYCLE.md` (pe
 
 ## How a pack is written
 
-A pack is one JSON file (called pack.json inside a zip) of plain data: nothing in it runs. It can carry a world (places, routes, lore, a cast,
-events, factions), game settings (currency, calendar, weather, rules) and a starting state. The pack checker
+A pack is one JSON file (called pack.json inside a zip) of plain data: nothing in it runs. Format 4 has two kinds: a world pack
+(places, routes, lore, a cast, events, factions, where and when the story starts) and a game pack (currency, calendar, weather, names,
+rules, the player's start). A world zip may carry its game pack beside it, as game.json. The pack checker
 (`packs/validate.js`) reads it, refuses anything unsafe (script tags, unsafe URLs or CSS, oversize values) and fills in
 defaults. Code still sets the numbers: a pack value passes through the rules and caps.
 
@@ -173,7 +174,7 @@ defaults. Code still sets the numbers: a pack value passes through the rules and
 - Check a pack before you share it: the authoring kit (`authoring-kit/reference/PACK-FORMAT.md` and
   `authoring-kit/reference/LIMITS.md`) holds the field reference, and `authoring-kit/check.mjs` is the checker you run on your own file. The Pack
   Studio (below) runs the same checker in the browser.
-- A worked example is `examples/packs/ersveil/pack.json`. Field by field: `docs/v2/PACKS.md`.
+- A worked example is `examples/packs/ersveil/pack.json` (a world; its game pack is in the ersveil-game folder beside it). Field by field: `docs/v2/PACKS.md` "Pack format 4".
 
 When you add a field or kind to the format: the validator, the safety check, the limit, the docs and a test that a hostile
 value is refused all change together.
@@ -181,13 +182,15 @@ value is refused all change together.
 ## Pack format and kinds
 
 <!-- generated:pack-kinds -->
-Format read: 3 (a pack without `format` is read as 2).
+Format read: 4 (an older format, or none, is refused and named for the converter; a newer one is refused too).
 
-Top-level fields of `pack.json`: `id`, `format`, `version`, `name`, `author`, `description`, `requires`, `currency`, `economy`, `calendar`, `weather`, `ripples`, `content`, `start`, `layouts`, `screens`, `theme`.
+Kinds: `world`, `game`.
 
-Content kinds: `items`, `creatures`, `shops`, `recipes`, `events`, `quests`, `races`, `talents`, `skills`, `presets`, `places`, `routes`, `terms`, `ranks`, `crafts`, `meterPresets`, `markets`, `dataModules`, `rpg`, `cast`, `names`, `foes`, `conditions`, `lore`, `placeKinds`, `routeKinds`, `regions`, `realms`, `powers`, `scores`, `worldEvents`, `templates`.
+Top-level fields of `pack.json`: `id`, `format`, `kind`, `version`, `name`, `author`, `description`, `requires`, `recommends`, `content`.
 
-Read and ignored with a warning: `creatures`, `shops`, `recipes`, `quests`, `races`, `talents`, `presets`, `terms`, `ranks`, `crafts`.
+Content keys of a world pack: `lore`, `placeKinds`, `routeKinds`, `places`, `routes`, `regions`, `realms`, `markets`, `cast`, `powers`, `scores`, `conditions`, `worldEvents`, `templates`, `start`, `foes`, `items`.
+
+Content keys of a game pack: `calendar`, `currency`, `economy`, `weather`, `names`, `you`, `rpg`, `dataModules`, `meterPresets`, `start`, `pacing`.
 <!-- /generated:pack-kinds -->
 
 ## Pack limits
@@ -227,6 +230,7 @@ extension, shows each part read only and exports it again as a zip or JSON; edit
 <!-- generated:studio -->
 | Part | Group | Shows |
 |---|---|---|
+| Home | Pack | The Studio edits pack format 4. A world pack holds the places, people and events you play in; a game pack holds the calendar, money, weather, names and rules. One of each can be open at once |
 | Overview | Pack | Name, version and what it needs |
 | Lore | World | Entries, keys, hidden and protected |
 | Cast | World | People NPC State starts from |
@@ -236,6 +240,15 @@ extension, shows each part read only and exports it again as a zip or JSON; edit
 | Templates | World | Kinds of small happening |
 | Powers & scores | World | Factions, rulers and world meters |
 | Items & foes | World | Named items and the bestiary |
-| Other | Pack | Settings-side fields, as written |
+| Calendar | Game | Months, weeks, seasons and holidays |
+| Money | Game | Coins and the price scale |
+| Weather | Game | How the weather is drawn |
+| Names | Game | Name cultures |
+| Rules | Game | Rank, levels and the pace |
+| Trackers | Game | Meter presets and data modules |
+| Start | Game | What the player starts with |
+| Other | Pack | Anything else the pack holds, as written |
+| Dry run | Check | Run the world for some days, as a chat would, and see what fires. Nothing is saved and the pack does not change |
+| Pairing | Check | The world against a game |
 | Problems | Check | What the pack checker says |
 <!-- /generated:studio -->

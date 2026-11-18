@@ -3,7 +3,7 @@
 // "C or D"), that is the foe's level: it passes the party + 20 cap that guessed levels keep, and it wins over any level or rank the pre-check or the narrator gave.
 // Anything else (empty, "high", a rank the pack does not name, no ranks at all) is ignored and the normal rules apply.
 // REPLAY: the dossier is NSD's sidecar, not chat state. This file is only READ by the host's pre-check step (precheck-run.js), BEFORE the opening is recorded:
-// the result goes into the recorded `plan.open` (a `level`, or a rank band `rank`/`from`/`to` that resolve.js draws from the reply's seed and records), so replay,
+// the result goes into the recorded opening (a `level`, or a rank band `rank`/`from`/`to` drawn from the reply's seed and recorded), so replay,
 // Re-read, swipe and rebuild read the recorded opening and no command or reducer asks NSD. Pure functions; `query` is the host's query function.
 import { FOE_LEVEL, bandOfRank } from '../foes.js';
 

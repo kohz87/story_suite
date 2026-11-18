@@ -120,7 +120,7 @@ export function fakeDom() {
 }
 
 export const DATING_PACK = {
-    id: 'sweet-days', version: '1.0.0', requires: { storyBlock: '^2' }, name: 'Sweet Days',
+    id: 'sweet-days', version: '1.0.0', format: 4, kind: 'game', requires: { suite: '^0.1' }, name: 'Sweet Days',
     content: {
         meterPresets: [{
             id: 'sweetheart', title: 'Sweetheart',

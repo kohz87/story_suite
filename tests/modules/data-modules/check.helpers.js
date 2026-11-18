@@ -7,7 +7,7 @@ export const integer = (min = 0, max = 100, value = 0) => ({ type: 'int', min, m
 export const change = () => ({ op: 'add', path: ['points'], value: 1, bounds: 'clamp' });
 export const definition = () => ({ slug: 'counter', name: 'Counter', schema: 1, stateVersion: 1, scope: 'chat',
     state: { points: integer() }, kinds: { gain: { op: '+', labels: {}, effects: [change()] } } });
-export const pack = (definitions = [definition()]) => ({ id: 'dm-test', version: '1.0.0', requires: { storyBlock: '^2', capabilities: ['data-modules-v1'] }, content: { dataModules: definitions } });
+export const pack = (definitions = [definition()]) => ({ id: 'dm-test', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1', capabilities: ['data-modules-v1'] }, content: { dataModules: definitions } });
 export const ok = value => {
     const checked = validatePack(value);
     assert.equal(checked.ok, true, JSON.stringify(checked.errors));

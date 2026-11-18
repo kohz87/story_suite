@@ -44,7 +44,6 @@ refuses([
     ['an event without ends_when', w => { delete event(w, 'famine').ends_when; }, /every event needs ends_when/],
     ['ends_when as a sentence', w => { event(w, 'famine').ends_when = 'after thirty days'; }, /not a sentence/],
     ['an unknown event field', w => { event(w, 'famine').deadline = true; }, /"deadline" is not an event field/],
-    ['an anchor naming a legacy event id', w => { w.content.events = [{ id: 'old-cue', when: 'true', cue: 'x' }]; event(w, 'succession-crisis').pre_empted_by = ['fired:old-cue']; }, /legacy dated event/],
     ['an anchor naming no event', w => { event(w, 'succession-crisis').pre_empted_by = ['fired:nothing']; }, /not an event in content\.worldEvents/],
     ['a chain stage that requires no stage', w => { event(w, 'diet-of-ledgerford').requires = ['crown-contested@Highmark Empire']; }, /requires "stage:<previous event id>"/],
     ['a recurring event with no cooldown', w => { delete event(w, 'famine').cooldown; }, /needs a cooldown/],
@@ -61,7 +60,6 @@ refuses([
     ['"where conditions fit" on a one-off', w => { event(w, 'succession-crisis').where = 'where conditions fit'; }, /is for a recurring event/],
     ['a "per season" chance on a one-off', w => { event(w, 'succession-crisis').chance = '30% per season'; }, /for a recurring event/],
     ['a duplicate event id', w => { w.content.worldEvents.push(clone(event(w, 'famine'))); }, /share the id "famine"/],
-    ['an event id that is also a legacy id', w => { w.content.events = [{ id: 'famine', when: 'true', cue: 'x' }]; }, /unique across both lists/],
     ['a template with cast effects', w => { w.content.templates[0].effects = { cast: [] }; }, /no effects: it sets and clears conditions only|no effects/],
     ['a template setting a place status where a protected person lives', w => { w.content.templates[0].sets = ['fallen@Highmark Capital: 10 days']; }, /protected person "adalmar" lives/],
     ['a price multiplier of zero', w => { w.content.conditions[0].effects.prices.grain = '×0'; }, /N above 0/],
@@ -141,16 +139,9 @@ test('a figure needs only id, name and kind, and may carry every companion field
     assert.deepEqual(result.pack.content.cast.slice(-2).map(each => each.id), ['bare', 'rich']);
 });
 
-test('warnings, not refusals: a fact nothing writes, a place status with no way to clear it, a power also in ripples.powers', () => {
+test('warnings, not refusals: a fact nothing writes, a place status with no way to clear it', () => {
     assert.ok(warningsOf(w => { event(w, 'succession-crisis').requires.push('fact:never-written'); }).some(message => /"never-written".*no event, outcome or template/.test(message)));
     const noClear = warningsOf(w => { w.content.templates = w.content.templates.slice(0, 1); event(w, 'war-of-faiths').effects.set = ['unrest@Veil Cellar: 5 days']; });
     assert.ok(noClear.some(message => /"fallen" is a place status that lasts until cleared/.test(message)));
     assert.equal(warningsOf(() => {}).some(message => /"fallen" is a place status/.test(message)), false, 'the reconstruction template is its clearing path');
-    const ripples = warningsOf(w => { w.ripples = { powers: [{ id: 'veil', name: 'Ashen Veil', base: 20 }] }; });
-    assert.ok(ripples.some(message => /also in ripples\.powers/.test(message)));
-});
-
-test('a season anchor the calendar cannot resolve is a warning; the built-in quarters are known', () => {
-    assert.ok(warningsOf(w => { event(w, 'war-of-faiths').window.after = 'harvestmoon'; }).some(message => /"harvestmoon" is not a season/.test(message)));
-    assert.equal(warningsOf(w => { event(w, 'war-of-faiths').window.after = 'spring'; }).some(message => /not a season/.test(message)), false);
 });

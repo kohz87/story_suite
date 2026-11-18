@@ -43,6 +43,13 @@ export function createToolsHandle({ runtime, toolsParts = () => null, savePoints
     makeSavePoint: name => savePoints()?.save({ name }) ?? Promise.resolve(NONE),
     returnToSavePoint: id => savePoints()?.returnTo(id) ?? Promise.resolve(NONE),
     forgetSavePoint: id => savePoints()?.forget(id) ?? Promise.resolve(NONE),
+    /** The settings now in force as a game pack: `{ ok, pack, text, sections }` or `{ ok: false, message }`. */
+    exportGamePack: async name => {
+      if (!runtime.cardSettings) return { ok: false, message: 'Settings are not available.' };
+      // (rare: the builder, the pack checker and the sections' code are fetched now, not at the page start)
+      const [{ buildGamePack }] = await Promise.all([import('../../packs/game-export.js'), runtime.cardSettings.loadSections?.()]);
+      return buildGamePack(runtime.cardSettings, { name });
+    },
     report: () => (typeof toolsParts()?.report === 'function' ? toolsParts().report() : Promise.resolve('')),
   });
 }

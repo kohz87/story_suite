@@ -7,14 +7,14 @@ import { getContext } from '../../../../../../extensions.js';
 import { extension_prompt_types, extension_prompt_roles } from '../../../../../../../script.js';
 import { replyScanned } from '../calls/scan-context.js';
 import { cleanMessage, recentTranscript, tieDayAt } from '../transcript/transcript.js';
-import { buildInjection, npcNamedInText, isTerminalNpcDeath, buildNarrationCaptureParts } from '../core/core.js';
+import { buildInjection, npcNamedInText, isTerminalNpcDeath } from '../core/core.js';
 import { buildLinesParts } from '../core/core-prompts-lines.js';
 import { withCastLinks } from '../dossier/cast-dossier-parts/cast-links.js';
 import { injectDepthOf, getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
 
 export function createInjectionPart(rt, deps) {
-    const { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, keyReturnNotes, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, storySuiteV2Meters } = deps;
+    const { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, awayReturnNotes, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, storySuiteV2Meters } = deps;
 
     // The player message the next generation will answer: the chat tail when it is a user turn, or
     // the user turn before an assistant reply that is not yet reflected by a scan (swipe/regenerate).
@@ -62,8 +62,8 @@ export function createInjectionPart(rt, deps) {
     // The live dossier injection under the current settings and scene defer (sent by updateInjection;
     // tokens() measures the same text).
     function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4) } = {}) {
-        const awayNotes = keyReturnNotes(state);
         const gearLines = castGearLines(state);
+        const awayNotes = awayReturnNotes(state);
         return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), levelOn: rpgIsOn() });
     }
 
@@ -99,9 +99,9 @@ export function createInjectionPart(rt, deps) {
         const noteOptions = armed || rulesSent ? hostedNotePromptOptions(state, settings) : {};
         const builtParts = armed || rulesSent
             ? (storySuiteV2Meters()
-                // Hosted (N7): the lines builder; the JSON block is no longer asked for. Without a host the JSON one-pass prompt is unchanged.
+                // The lines builder; the JSON block is no longer asked for. Without Story Block nothing is asked for.
                 ? buildLinesParts({ ...noteOptions, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
-                : buildNarrationCaptureParts(scannerPromptOptions(state, settings, transcript, { dossierAbove: prompt, ...noteOptions })))
+                : { rules: '', context: '' })
             : { rules: '', context: '' };
         const captureParts = { rules: armed || rulesSent ? builtParts.rules : '', context: armed ? builtParts.context : '' };
         const capture = captureParts.context;
@@ -194,7 +194,6 @@ export function createInjectionPart(rt, deps) {
             impactCriteria: settings.relationshipImpactCriteria,
             memoryCriteria: settings.memoryCriteria,
             admissionMode: settings.admissionMode,
-            compactCapture: settings.narrationCaptureCompact === true,
             ...extra,
         };
     }

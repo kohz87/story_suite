@@ -7,7 +7,7 @@ import {
     normalizeCalendarConfig,
     parseMonthDefinitions,
     setActiveCalendarConfig,
-} from '../legacy/calendar.js';
+} from '../calendar/calendar.js';
 import { escapeHtml } from '../util/html.js';
 
 const ROOT_ID = 'npc_state_delta_calendar_settings';

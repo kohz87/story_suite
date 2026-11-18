@@ -8,6 +8,7 @@
 @container (min-width:620px){
   .now-tab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
   .now-tab .ncol{display:flex;flex-direction:column;gap:12px;min-width:0}
+  .now-tab .now-empty{grid-column:1/-1}
 }
 .now-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .now-tab .ch{display:flex;align-items:center;gap:10px}
@@ -103,8 +104,8 @@ button.rnr{cursor:pointer}
 .you .kv2{row-gap:8px}
 .kv2 dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted);padding-top:2px}
 .kv2 dd{margin:0}
-.fld{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(90px,38%);gap:10px;align-items:center;font-size:13.5px;padding:4px 0}
-.fld>span:first-child{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
+.fld{display:grid;grid-template-columns:minmax(76px,max-content) minmax(0,1fr) minmax(90px,38%);gap:10px;align-items:center;font-size:13.5px;padding:4px 0}
+.fld>span:first-child{white-space:nowrap;font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
 .fld .v{font:800 13px var(--su-font);text-align:right}
 .fbar{display:block;height:7px;border-radius:4px;background:var(--su-line2);overflow:hidden}
 .fbar b{display:block;height:100%;border-radius:4px;background:var(--su-accent)}
@@ -123,4 +124,6 @@ button.rnr{cursor:pointer}
 .rnr.need-pack .offer{display:flex;flex-direction:column;gap:10px;margin-top:8px}
 .rnr.need-pack .offer .btn2{padding:11px 14px;font-size:14px;text-align:center}
 .rnr.need-pack .rnr-tick{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--su-muted);margin-top:6px}
+.rnr.need-pack .rnr-tick .sw{flex:none}
+.rnr.need-pack .rnr-tick-t{cursor:pointer}
 .rnr.need-pack .rnr-note{display:block;margin-top:4px}

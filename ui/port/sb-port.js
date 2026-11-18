@@ -1,10 +1,13 @@
 // Wraps Story Block's sdk as the UI port: views come from injected selectors fed by sdk queries, actions pass through, and nothing throws.
 
 import { peopleCommand } from './people-settings.js';
+import { packPresets } from '../select/people-settings/catalog.js';
 import { modelsCommand } from './models.js';
 import { rpgCommand } from './rpg.js';
 import { moneyCommand } from './money.js';
 import { toolsCommand } from './tools.js';
+import { promptsCommand } from './prompts.js';
+import { peopleExportCommand } from './people-export.js';
 import { trackerCommand } from './trackers.js';
 import { worldCommand } from './world-settings.js';
 import { directorCommand } from './settings-director.js';
@@ -15,9 +18,14 @@ import { resetCommand } from './resets.js';
 import { moduleCardCommand } from './module-cards.js';
 import { ALIAS_NAMES, aliasCommand } from './aliases.js';
 import { OWN_NAMES } from './own-names.js';
+import { exportCommand } from './party-export.js';
 import { focusCommand } from './focus.js';
 import { refreshCommand } from './people-refresh.js';
 import { portraitCommand } from './people-portrait.js';
+import { manageCommand } from './people-manage.js';
+import { dataCommand, isDataKey } from './people-data.js';
+import { autoCapped } from './auto-fight.js';
+import { arcController } from '../../modules/arc/controller.js';
 
 /** The page event `port.open` sends when the view's own opener does not open the window (nothing in Story Suite answers it since the old view went; a window no one answers is "not available"). */
 export const OPEN_EVENT = 'story-suite:open';
@@ -70,7 +78,7 @@ async function offerCommand(controller, payload) {
 }
 
 /** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `rpgValues()` reads Story Block’s settings bucket (the RPG page’s Custom start); `packs` is the Packs page's handle ({ packs, readLorebook, lore }); `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach; `hold` is the waiting fight's handle (port/hold.js) that `interaction.choose` answers; `screens.open(id, payload, { onEnd })` is the view's own opener (ui/wizard/attach.js): true when it opened the window or a refusal for a window it owns, and then no page event is sent; false sends it. */
-export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, rpgValues = () => null, packs = null, hold = null, screens = null } = {}) {
+export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, rpgValues = () => null, packs = null, hold = null, screens = null, arc = arcController } = {}) {
   const read = makeReader(sdk);
   const heard = new Set();
   // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
@@ -80,10 +88,12 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
     if (typeof call !== 'function') return { ...FAILED, message: 'The engine has no interactions.' };
     let answer;
     try {
-      answer = await call.apply(sdk.interaction, INTERACTION[verb](payload));
+      answer = verb === 'auto' && payload?.cap === true ? autoCapped(sdk.interaction, payload, rpgValues()) : await call.apply(sdk.interaction, INTERACTION[verb](payload)); // (cap: the board's Auto plays up to the setting)
     } catch (error) {
       answer = failure(error);
     }
+    // A fight that was started from the standing-foes offer and is discarded gives that offer back (the reply it was opened on is the first part of the session id).
+    if (verb === 'discard' && answer?.discarded === true && typeof answer.id === 'string') { try { hold?.choose?.('restore', { origin: answer.id.split(':').slice(0, -2).join(':') }); } catch { /* the offer comes back with the next chat change */ } }
     announce(answer);
     return answer;
   };
@@ -117,9 +127,13 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) return answer;
         answer = moneyCommand(type, payload, writes);
         if (answer) return answer;
+        try { answer = promptsCommand(type, payload, writes) ?? await peopleExportCommand(type, payload); } catch (error) { answer = failure(error); }
+        if (answer) return answer;
         try { answer = await toolsCommand(tools, type, payload); } catch (error) { answer = failure(error); }
         if (answer) return answer;
-        try { answer = peopleCommand(type, payload, writes, () => sdk?.settings?.('npc-state-delta') ?? {}); } catch (error) { answer = failure(error); }
+        // Settings › Tools › NPC State data: the three data dialogs (backup, restore, diagnostics).
+        if (type === 'settings.action' && isDataKey(payload?.key)) return dataCommand(payload.key);
+        try { answer = peopleCommand(type, payload, writes, () => sdk?.settings?.('npc-state-delta') ?? {}, () => packPresets(sdk)); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         try { answer = await worldCommand(type, payload, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;
@@ -139,12 +153,16 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) { announce(answer); return answer; }
       }
       if (ALIAS_NAMES.includes(type)) { const answer = await aliasCommand(sdk, type, payload).catch(failure); announce(answer); return answer; }
+      // Export asks the RPG for the member's saved file and gives it back; the sheet saves it.
+      if (type === 'party.export') return exportCommand(sdk, payload);
       if (type === 'packs.offer') return offerCommand(offer?.(), payload);
       if (type === 'quest.focus') { const answer = focusCommand(prefs?.chat, payload); announce(answer); return answer; }
       // The dossier's Refresh re-reads the story with NPC State's Refresh (the engine's `npc.refresh` only works the stages out again).
       if (type === 'npc.refresh' && payload?.name !== undefined) return refreshCommand(payload);
       // The dossier's Portrait opens NPC State's portrait manager (a page dialog, nothing recorded).
       if (type === 'npc.portrait') return portraitCommand(payload);
+      // Edit, Delete and Mark alive go to NPC State's own editor and dossier tools the same way.
+      if (type === 'npc.edit' || type === 'npc.delete' || type === 'npc.markAlive' || type === 'npc.add') return manageCommand(type, payload);
       // The waiting fight's answers (board, auto, plain, send, discard): the pause's own, so the old view and this one write the same; the view redraws after.
       if (type === 'interaction.choose') {
         let answer = hold ? null : { ...FAILED, message: 'No fight is waiting.' };
@@ -179,6 +197,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       if (event === 'offer') { const off = offer?.()?.subscribe?.(fn); return typeof off === 'function' ? off : () => {}; }
       // (the waiting fight changes outside the engine too: the hold's own word redraws the view as an interaction call does)
       if (event === 'interaction') { heard.add(fn); const off = hold?.subscribe?.(() => fn(null)); return () => { heard.delete(fn); off?.(); }; }
+      // The arc planner works on its own too (automatic planning, "Planning…"): its word redraws the story view as a call does.
+      if (event === 'arc') { let off = null; try { off = arc().subscribe(() => fn(null)); } catch { off = null; } return typeof off === 'function' ? off : () => {}; }
       let off = null;
       try {
         off = sdk?.on?.(event, fn);

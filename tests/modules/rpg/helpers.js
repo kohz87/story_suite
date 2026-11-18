@@ -75,9 +75,9 @@ export const PLAN_ANSWER = [
 /**
  * A host with the RPG part on a module of its own (core module off): the sheet domain, the feature declared, the
  * part's command, hooks and replay guard, and `test.set` (sets one field of a block) for changing the sheet.
- * `options`: { blocks, answers, feature (default on), settings, timer, hold, earlier (rolls asked for with no dice version) }
+ * `options`: { domains and commands (another module's, e.g. the people slice), blocks, answers, feature (default on), settings, timer, hold, earlier (rolls asked for with no dice version) }
  */
-export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature = true, board = false, settings = {}, timer, timeoutMs, planner = false, queries = {}, precheck = false } = {}) {
+export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature = true, board = false, settings = {}, timer, timeoutMs, planner = false, queries = {}, precheck = false, domains = {}, commands = {} } = {}) {
     const callModel = fakeModel(...answers);
     const problems = [];
     let host = null;
@@ -87,11 +87,12 @@ export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature
     const module = {
         id: OWNER, name: 'Story Block (RPG test)', version: '0.0.1',
         features: [{ id: LEAN_RPG_FEATURE, label: 'RPG', describe: 'Test.', default: false }],
-        domains: { dataModules: { initial: () => sheetDomain(blocks) } },
+        domains: { dataModules: { initial: () => sheetDomain(blocks) }, ...domains },
         // The fight board is an interaction kind (I6): the module registers it, and the core's `interaction.settle` and its guard stand in for the core module this host does not have.
         interactions: { fight: fightKind },
         commands: {
             ...part.commands,
+            ...commands,
             ...createInteractionCommands({ kindOf: id => host.registry.interaction(id) }),
             'test.set'(ctx, { slug, field, value }) {
                 ctx.draft('dataModules').instances[`pack.chat/${slug}`].chat.fields[field] = value;
@@ -109,7 +110,7 @@ export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature
 
 export const tailOf = request => request.chat.filter(message => message.role === 'system').map(message => message.content).join('\n');
 export const recordOf = (host, index) => host.ctx.chat[index].extra.storySuite;
-// (a fight is an `interaction.settle` of the fight kind since I6; its opening settle is not the roll the tests look for, and a fight from before the port is a board `rpg.resolve`)
-export const rollReceipt = (host, index) => recordOf(host, index).receipts.find(receipt => receipt.type === 'interaction.settle' && receipt.replan?.payload?.kindId === 'story-block/fight' && receipt.replan.payload.opening !== true) ?? recordOf(host, index).receipts.find(receipt => receipt.type === 'rpg.resolve');
+// (a fight is an `interaction.settle` of the fight kind since I6; its opening settle is not the roll the tests look for)
+export const rollReceipt = (host, index) => recordOf(host, index).receipts.find(receipt => receipt.type === 'interaction.settle' && receipt.replan?.payload?.kindId === 'story-block/fight' && receipt.replan.payload.opening !== true);
 /** The cue a roll's receipt tells: stage 51 stores no copy of it on the receipt, so it is built from the record (old receipts carry the text). */
 export const cueOf = receipt => receiptCue(receipt);

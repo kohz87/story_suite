@@ -1,8 +1,9 @@
 // Story Suite v2: the incremental prefix memo. A reply only appends a carrier, so the state after every older
 // carrier stays valid. This keeps those states by the exact prefix each was replayed over, in a bounded LRU, and
-// steps one new unguarded record from the previous state instead of replaying a checkpoint window again.
+// steps one new unguarded record from the previous state instead of replaying a checkpoint window again. A head replay's own
+// states are kept too (`seed`), so a Re-read or a reconcile right after a rebuild starts from the state before its reply.
 
-import { isCarrier, lastCarrier, readRecord } from '../persist.js';
+import { KEY, isCarrier, lastCarrier, readRecord } from '../persist.js';
 import { hashJson } from '../replay.js';
 import { deepFreeze } from './constants.js';
 import { hasMeta } from './digest.js';
@@ -122,6 +123,7 @@ export function createPrefixMemo(s, deps) {
             throw new RangeError(`There is no message ${index} in this chat.`);
         }
         const run = spines ?? spineRun(arr);
+        takeSeeds(arr, run);
         const record = isCarrier(arr[index]) ? readRecord(arr[index]) : null;
         if (!record) {
             const before = lastCarrier(arr, index);
@@ -170,5 +172,41 @@ export function createPrefixMemo(s, deps) {
         return state;
     }
 
-    return { spineRun, stateAfterPrefix };
+    // The head replay's own states (memo.js current), kept until the next prefix read takes them in (seed, below): { arr, epoch, from, env,
+    // entries: [{ index, state, replan, refs }] }. Taking them in needs the spine of the whole chat, which only a prefix read works out.
+    let pending = null;
+    const envKey = () => JSON.stringify([textOf(replayEnv), s.guardSeen ? textOf(markNow) : '', textOf(marked), textOf(chatId)]);
+    const refsOf = message => [message, message?.extra, message?.extra?.[KEY], message?.swipe_id, message?.mes];
+
+    /**
+     * The head replay's own states: the state after each carrier it passed (from the checkpoint it replayed from), with the replan point
+     * found so far. A carrier at or after that checkpoint starts from it too (chain's checkpoint only moves on along the chat), so each is
+     * exactly what replayKept would give for its prefix. Kept, so a Re-read or a reconcile right after a rebuild starts from the state
+     * before its reply instead of replaying from the checkpoint again (LIVEPERF findings 3 and 4). Only the replayed window is looked at here.
+     */
+    function seed(arr, entries, from) {
+        pending = null;
+        if (!entries.length || s.applying || s.staged || !Number.isInteger(from) || from < 0) return;
+        pending = { arr, epoch: s.epoch, from, env: envKey(), entries: entries.map(entry => ({ ...entry, refs: refsOf(arr[entry.index]) })) };
+    }
+
+    // Takes the kept head-replay states in, under the spines of the chat as it is now, while nothing changed since: the same array, no
+    // write or rebuild since (epoch), the same replay environment, the same checkpoint to start from, and each carrier the same message,
+    // record, swipe and text (the first that is not stops it: the ones after it were replayed over it).
+    function takeSeeds(arr, run) {
+        const seeds = pending;
+        if (!seeds || s.applying || s.staged) return;
+        pending = null;
+        if (seeds.arr !== arr || seeds.epoch !== s.epoch || seeds.env !== envKey()) return;
+        if (chain(arr, seeds.entries.at(-1).index).from !== seeds.from) return;
+        for (const { index, state, replan, refs } of seeds.entries) {
+            const now = refsOf(arr[index]);
+            if (run[index] === undefined || state === null || typeof state !== 'object' || refs.some((ref, at) => ref !== now[at])) return;
+            deepFreeze(state);
+            replans.set(state, replan);
+            remember(keyOf(run[index]), state);
+        }
+    }
+
+    return { spineRun, stateAfterPrefix, seed };
 }

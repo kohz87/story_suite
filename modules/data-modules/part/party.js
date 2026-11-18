@@ -5,10 +5,10 @@ import { validateDataModules } from '../check.js';
 import { copy, refuse, atPath } from '../interpreter.js';
 import { activeDefinition, inputsOf, instanceOf } from '../adapters.js';
 import { fill } from '../../../core/strings.js';
+import { oneLine } from '../../../core/text.js';
 import { fold } from '../../rpg/read.js';
 import { SKILL_SLOTS_MAX, UTILITY_SLOTS, skillFieldSlots, isTypedSkills, skillTypeOf, signatureAt, typeKey } from '../../../core/runtime/skill-slots.js';
-import { castGearOf, gearLine } from '../../../packs/cast-gear.js';
-import { castSkillsOf } from '../../../packs/cast-skills.js';
+import { gearLine, keepsakeGearOf } from '../../../packs/cast-gear.js';
 import { gearOn } from '../../inventory/index.js';
 import { actorIdOf } from '../../rpg/roster.js';
 import { placeOf } from '../../inventory/gear.js';
@@ -41,20 +41,28 @@ export function createParty(deps) {
         }
         return rows;
     }
-    // The skills the pack gives `name` now, the ones the person does not hold by name already (what a first read of a join, a return or an offer plans).
-    function packSeeds(ctx, name) {
+    // The people slice as the reply's own prefix holds it (a swipe, a Re-read and a rebuild read the same one).
+    const peopleState = ctx => { let people = null; try { people = ctx.read('people'); } catch { people = null; } return { domains: { people } }; };
+    // What `name`'s NPC State record gives the sheet (the pull, rpg join-parts/from-person.js), read from the reply's own prefix: { level?, best, skills, keepsakes }. With no abilities of
+    // theirs it has no signature skills. `soul` and `best` are the join line's (or the card's).
+    // (`top`: the party's highest level in the prefix, which a companion's level from the class never passes: rpg levelOfJoinClass)
+    function pullFor(ctx, name, soul = 1, best = '') {
+        const state = peopleState(ctx), top = rpg().partyTop(stateOf(ctx));
+        const list = packs?.packs?.() ?? [], records = list.flatMap(entry => entry?.content?.rpg ?? []);
+        return rpg().pullOf(state, { name, soul, best, pull: records.find(record => record?.slug === 'pull'), cap: rpg().levelCapFor(settings(), packLevelsOf(records)?.levelCap), top, fallback: [] });
+    }
+    // The skills the pull gives `name` now, the ones the person does not hold by name already (what a first read of a join, a return or an offer plans).
+    function packSeeds(ctx, name, pulled = null) {
         const held = skillsBlockOf(stateOf(ctx), name);
         const have = new Set(Array.from({ length: skillFieldSlots(held?.fields) }, (_, i) => fold(held?.fields?.[`skill${i + 1}`] ?? '')).filter(Boolean));
-        let found = null;
-        try { found = castSkillsOf(packs?.packs?.() ?? [], name); } catch { found = null; }
-        return (found?.skills ?? []).filter(skill => !have.has(fold(skill.name)));
+        return (pulled ?? pullFor(ctx, name)).skills.filter(skill => !have.has(fold(skill.name)));
     }
     // The skills to seed for `name` on this join (`mode` 'join') or return ('back'): [{ name, about, stat, uses, rank }], the ones the person does not hold by name already.
     // A Re-read plans what its reply seeded, never what the pack says now: a join reads it from the definition defaults of the Skills block the reply pinned (the bits
     // of `sig.default`, which the reader's pencil never touches); a return, which wrote the skills into the fields, reads the marked slots of the reply as it stood. A block
     // without the mark was made before the signature skills (2.22) and seeded nothing.
-    function castSeeds(ctx, name, mode = 'join') {
-        if (!ctx.standing) return packSeeds(ctx, name);
+    function castSeeds(ctx, name, mode = 'join', pulled = null) {
+        if (!ctx.standing) return packSeeds(ctx, name, pulled);
         const held = skillsBlockOf(stateOf(ctx), name);
         const have = new Set(Array.from({ length: skillFieldSlots(held?.fields) }, (_, i) => fold(held?.fields?.[`skill${i + 1}`] ?? '')).filter(Boolean));
         const after = standingBlock(ctx, name);
@@ -142,8 +150,9 @@ export function createParty(deps) {
     }
     function giveGear(ctx, answer, name, module = null, back = null) {
         if (!gearOn(ctx)) return answer;
-        let found = null;
-        try { found = castGearOf(packs?.packs?.() ?? [], name); } catch { found = null; }
+        // (the keepsakes of their NPC State record that name pack equipment)
+        const kept = rpg().personOf(peopleState(ctx), name), mine = keepsakeGearOf(packs?.packs?.() ?? [], (kept?.keepsakes ?? []).map(entry => entry?.name));
+        const found = mine.length ? { name: oneLine(kept?.name || name), items: mine } : null;
         if (!found?.items.length) return answer;
         const owner = back?.owner ?? gearOwnerOf(ctx, name, module);
         // No actor of their own (nothing answers `party.actors`): the shared bag's worn gear is the reader's Character's, so nothing is given at all; it stays with them.
@@ -197,10 +206,16 @@ export function createParty(deps) {
         const rpgRecords = (packs?.packs?.() ?? []).flatMap(entry => entry?.content?.rpg ?? []);
         try { pack = rpg().packRulesOf(rpgRecords); } catch { pack = null; }
         const rules = rpg().rulesFromSettings(settings(), pack);
-        // (a companion starts under the story's level cap: the pack's ranks record names one, else the reader's setting, else 99)
-        const seeds = castSeeds(ctx, request.name, 'join');
+        // (a companion starts under the story's level cap: the reader's setting, else the game's ranks record, else 99; at the level and with the best stat their NPC State record gives, else the line's class and best)
+        // (the level comes from the line's own class held to the party's highest level, as the card says: a class II line joins a level 7 party at level 7; the cut to the
+        // party's Soul Class, checkJoin's `soul`, is only the fallback for a request with no class of its own)
+        const ownSoul = Number.isSafeInteger(request.soul) && request.soul >= 1 ? request.soul : soul;
+        const pulled = pullFor(ctx, request.name, ownSoul, request.best);
+        const seeds = castSeeds(ctx, request.name, 'join', pulled);
+        const cap = rpg().levelCapFor(settings(), packLevelsOf(rpgRecords)?.levelCap);
         // Re-reading an existing join uses its own pinned character, even if the prefix had no characters at all.
-                const made = rpg().joinDefinitions({ ...request, skills: seeds }, { used: Object.keys(domain?.active ?? {}), soul, rules, cap: rpg().levelCapFor(settings(), packLevelsOf(rpgRecords)?.levelCap) });
+        // (a level from the class never passes the party's highest level: a class II companion joins a party of level 1 at level 1)
+        const made = rpg().joinDefinitions({ ...request, best: pulled.best, ...(pulled.level ? { level: pulled.level } : {}), skills: seeds }, { used: Object.keys(domain?.active ?? {}), soul: ownSoul, rules, cap, top: rpg().partyTop(prefix) });
         // The story's first character also brings the Combat rules and Foes blocks it lacks, as far as they fit (nothing is refused for them).
         const first = rpg().partyOf(prefix).length === 0, plan = first ? rpg().extrasPlan(prefix) : { add: [], skipped: [] };
         const extras = rpg().extraDefinitions(plan.add, { used: [...Object.keys(domain?.active ?? {}), made.character.slug, made.skills.slug] });
@@ -225,6 +240,8 @@ export function createParty(deps) {
         const answer = finish(ctx, prefix, draft, recorded, { pin: true, result: { module: head.definition.id, skills: rest[0].definition.id },
             summary: `${fill(J.joined, { name: request.name })}${left}` });
         answer.data.join = { op: 'added', name: request.name };
+        // (an ability of their NPC State record that found no free slot of its kind is said, as a return says a skill it could not place)
+        for (const item of pulled.left ?? []) answer.problem = [answer.problem, `${request.name}'s ${item.name} has no free ${item.kind === 'utility' ? 'utility ' : ''}skill slot.`].filter(Boolean).join(' ');
         const placed = defaultSeeds(made.skills.state);
         if (placed.length) {
             answer.data.sigSkills = seededData(placed);
@@ -257,8 +274,8 @@ export function createParty(deps) {
         if (rpg().joinMode(settings()) === 'ask') {
             // Ask: nothing is made. The line is kept in this reply's own receipt, and the card under the reply (rpg.joins) is read from it.
             // (the pack as it is when the line is read, also on a Re-read: an offer changes nothing in the story's state, so there is no block to read it from)
-            const seeds = packSeeds(ctx, read.name);
-            const offer = { op: 'offer', name: read.name, ...(read.about !== undefined ? { about: read.about } : {}), soul: read.soul, best: read.best, ...(limit === PARTY_ACTIVE ? { four: true } : {}), ...(seeds.length ? { skills: seeds } : {}) };
+            const pulled = pullFor(ctx, read.name, read.soul, read.best), seeds = packSeeds(ctx, read.name, pulled);
+            const offer = { op: 'offer', name: read.name, ...(read.about !== undefined ? { about: read.about } : {}), soul: read.soul, best: pulled.best, ...(pulled.level ? { level: pulled.level } : {}), ...(limit === PARTY_ACTIVE ? { four: true } : {}), ...(seeds.length ? { skills: seeds } : {}) };
             return { summary: fill(J.offerNote, { name: read.name }), narrate: false, data: { join: offer } };
         }
         return makeParty(ctx, read, check.soul, call);

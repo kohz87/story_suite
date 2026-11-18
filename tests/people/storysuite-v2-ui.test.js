@@ -200,8 +200,7 @@ test('scanEveryReply follows the feature switch (on by default); calendarLink sa
         }
         return undefined;
     };
-    let own = false;
-    const { adapter } = await hosted({ sdk, calendarOwn: () => own });
+    const { adapter } = await hosted({ sdk });
     assert.equal(adapter.scanEveryReply(), true, 'no answer from the host: the default (on)');
     switches['npc-state-delta.scan-every-reply'] = false;
     assert.equal(adapter.scanEveryReply(), false);
@@ -212,6 +211,4 @@ test('scanEveryReply follows the feature switch (on by default); calendarLink sa
     assert.equal(adapter.calendarLink(), 'none', 'no Story Director: its query is unknown');
     calendar = { months: [{ name: 'Redleaf', days: 30 }] };
     assert.equal(adapter.calendarLink(), 'story-director');
-    own = true;
-    assert.equal(adapter.calendarLink(), 'own', 'the reader keeps the calendar in Delta');
 });

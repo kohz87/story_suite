@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { READ_AHEAD_MAX, readAheadOf, replyScanned, settleScan } from '../../modules/people/calls/scan-context.js';
 import { activeReplyIds, recentReplyIds, skippedExchangesWindow, useTranscriptSource } from '../../modules/people/transcript/transcript.js';
-import { restoreSnapshotIntoState, snapshotBranchState } from '../../modules/people/legacy/branch-core.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 
 // The chat: reply k is message 2k (message 0 is the opening); user messages sit between.
@@ -68,16 +67,6 @@ test('the replies a recent window holds, and every active reply', () => {
     assert.deepEqual(activeReplyIds(), ids);
     chat[4].is_system = true;
     assert.deepEqual(activeReplyIds(), [0, 2, 6, 8, 10, 12]);
-});
-
-test('rollback snapshots keep what was read ahead, and an old snapshot restores to none', () => {
-    const state = { npcs: [], lastScannedMessageId: 4, readAhead: [8, 10], scanCount: 2 };
-    const snap = snapshotBranchState(state);
-    assert.deepEqual(snap.readAhead, [8, 10]);
-    assert.deepEqual(restoreSnapshotIntoState({ readAhead: [99] }, snap).readAhead, [8, 10]);
-    const { readAhead, ...old } = snap;
-    assert.deepEqual(restoreSnapshotIntoState({ readAhead: [99] }, old).readAhead, []);
-    assert.deepEqual(snapshotBranchState({}).readAhead, []);
 });
 
 test('a bundle import starts with nothing read ahead', () => {

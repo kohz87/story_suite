@@ -56,12 +56,6 @@ test('Megumin dossier import searches newest-first and stops at the latest base'
     assert.match(body, /chronological\.slice\(-5\)/);
 });
 
-test('inline watchdog queries are scoped to the chat root', () => {
-    assert.match(index, /cleanupStaleMeguminIntegrations\(desiredIds, root/);
-    assert.match(index, /const root = chatElementForInlineObserver\(\) \|\| document/);
-    assert.match(index, /root\.querySelectorAll\?\.\('\.npc-state-delta-inline-anchor'\)/);
-});
-
 test('retired helper and legacy dossier CSS are absent', () => {
     assert.doesNotMatch(core, /function scannerNpcMentioned/);
     for (const selector of [

@@ -16,6 +16,8 @@ starter pack), SPEC §9 and §13, MODULES §E and §F.
   `packs.content({ kind, pack? })`, `packs.markets`, `packs.crafts` (the default crafts), `packs.calendar`, `packs.economy`,
   `packs.item({ name })` (and hook `item.resolve`), `packs.start` (and hook `start()`), `packs.portrait({ pack, file })` (a cast
   portrait's URL or null).
+- `packs.content` answers with the packs' own records, frozen all the way down: the same objects on every ask, not copies (every other
+  query's answer is a fresh copy). A reader that wants to change a record copies it first.
 - Lorebook packs: entries tagged as a pack (`PACK_TAG`) and `market:` lines are read from the lorebook
   (`packs/lorebook.js`); a lorebook line only tags a place, it never adds goods.
 - Currency, coins, calendar and ranks come from the first enabled pack that has them, under the reader's own
@@ -32,9 +34,13 @@ starter pack), SPEC §9 and §13, MODULES §E and §F.
   `mergeStart`, `applyStart`.
 - `src/v2/packs/cast.js` (`content.cast`), `portraits.js` (portrait files on ST user files + index in settings), `zip.js` and `bundle.js` (a pack as one zip).
 - `src/v2/packs/installed.js` (where packs are kept), `panel.js` (the Packs fold), `st-adapter.js`, `lorebook.js`.
-- `examples/packs/ersveil/pack.json` (Ersveil 2.2.0, the open world, with its lorebook `ersveil-lore.json`),
-  `examples/packs/ersveil-factions` and `ersveil-survival` (add-ons: data modules only). A pack is format 3 (`format`, `requires.suite`; PACKS.md "Pack format 3"); `PACK_FORMAT` and the ignored kinds are in `packs/limits-parts/format.js`, `SUITE_VERSION` in `packs/validate/core-parts/host-version.js`.
-- `tests/packs/fixtures/riverside-starter.json`: the small format 3 pack the pack tests share (not a shipped example).
+- `examples/packs/ersveil/pack.json` (Ersveil 4.0.0, a format 4 world pack, with `CONVERSION-NOTES.md` and the portraits) and
+  `examples/packs/ersveil-game/pack.json` (its game pack, "Ersveil rules" 1.0.0), first made by `scripts/packs/convert-3to4.mjs` from the
+  format 3 sample world, which is gone (format 3 is obsolete): the pair is the source now; `examples/packs/ersveil.zip` holds both (`game.json`). The old format 3 Ersveil (2.x, with its
+  lorebook `ersveil-lore.json` and zip) is a frozen test fixture, `tests/fixtures/packs/ersveil-3`, read by tests only (the converter test converts it);
+  `examples/packs/ersveil-factions` and `ersveil-survival` (format 4 game packs, 3.0.0: data modules only, so add-ons that are never selected, D5; their module ids `pack.<id>/<slug>` are unchanged). Only format 4 is read (anything older is `FORMAT_OLD`; PACKS.md "Pack format 3" is history); `PACK_FORMAT` (4) is in `packs/limits-parts/format.js`; a format 4 pack's fields and per-kind content keys are in `packs/limits-parts/kinds.js` and checked in `packs/validate-parts/envelope.js` (PACKS.md "Pack format 4"), the format 4 world fields (`climate`, `start.date`/`start.place`, cast `birthday`) in `packs/limits-parts/world-climate.js`, `packs/validate/world-pack-parts/start-v4.js` and `cast-birthday.js`, the format 4 game sections (calendar and seasons, weather, start, pacing, `rpg.pull`) in `packs/validate/game-parts/` with their limits in `packs/limits-parts/game-*.js`, `SUITE_VERSION` in `packs/validate/core-parts/host-version.js`.
+- `tests/fixtures/packs/riverside-starter-3.json`: the small format 3 pack the pack tests share (not a shipped example; `sample` and `sampleText` in `tests/packs/helpers/fixtures.js`), frozen until X1. Its format 4 conversion, `tests/packs/fixtures/riverside-starter.json` and `riverside-starter.game.json`, is made by `scripts/packs/convert-3to4.mjs` and read only by `riverside-format4.test.js`.
+- `tests/fixtures/director/ersveil-bluewatch.pack.json` (world) and `ersveil-bluewatch.game.json` (game), loaded through `installBluewatch` in `tests/fixtures/director/bluewatch.js`: the Bluewatch starter in format 4, for the director, time and atlas tests. The old unversioned fixture is kept as `tests/fixtures/packs/ersveil-bluewatch-1/pack.json`.
 
 ## Tests that guard it
 
@@ -46,5 +52,8 @@ starter pack), SPEC §9 and §13, MODULES §E and §F.
 ## When you change it
 
 - A new field or kind: validator + safety + limit + PACKS.md section + a test that a hostile value is refused.
-- Changing Ersveil values: keep ERSVEIL.md and `ersveil-pack.test.js` in step; bump the pack's version. The Bluewatch fixture
-  (`ersveil-values.test.js` and the other tests that load it) must never change: its bytes are pinned by the unused-chat baseline.
+- Changing Ersveil values: edit `examples/packs/ersveil/pack.json` or `examples/packs/ersveil-game/pack.json` directly, then run
+  `node scripts/core/build-example-zip.mjs`; `ersveil-zip.test.js` fails while `examples/packs/ersveil.zip` differs from what the build gives. Never edit `tests/fixtures/packs/ersveil-3`. The Bluewatch fixture
+  pair and the Riverside pair are the converter's output for the frozen old files (`bluewatch-format4.test.js` and `riverside-format4.test.js` fail on drift); they were re-pinned once, in job C2
+  (owner question 6), and their bytes are pinned again: change the converter or the old file, never the pair by hand (the one edit by hand is the Riverside world's description). Format 4 has no home for legacy events, quests, creatures, shops, recipes,
+  races, talents, skills, presets, a pack theme or a scene's `present`, so the pair holds the old places, routes, items, calendar, money and start only.

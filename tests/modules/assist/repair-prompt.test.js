@@ -44,7 +44,7 @@ test('the Models row is ON when nothing is stored (the default), off only when s
     assert.equal(row({}).value, true, 'nothing stored: on');
     assert.equal(row({ repair: true }).value, true);
     assert.equal(row({ repair: false }).value, false);
-    assert.match(row({}).hint, /Repaired lines can be discarded per reply/);
+    assert.match(row({}).hint, /can be discarded per reply/);
     assert.equal(/undo/i.test(row({}).hint), false);
     assert.equal(SETTING.repair, 'assistRepair');
 });

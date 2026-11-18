@@ -7,7 +7,6 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../testkit/index.js';
 import { MODULE_ID, createModule } from '../../../../modules/director/module.js';
@@ -17,10 +16,10 @@ import { BACKLOG_STATIC } from '../../../../modules/world/chronicle/digest.js';
 // The static part without the one sentence that explains [Earlier days] (taught once a past day is told, module/create.js `backlog`).
 const bare = text => String(text).split('\n').filter(line => line !== BACKLOG_STATIC).join('\n');
 import { leaderQuery, problemsQuery, swayQuery, validateRipples } from '../../../../modules/world/ripples/index.js';
+import { installBluewatch } from '../../../fixtures/director/bluewatch.js';
 
 const STATIC_KEY = 'story_suite_static';
 const TAIL_KEY = 'story_suite_tail_1';
-const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const sent = (host, key) => host.st.promptLog.filter(entry => entry.key === key && entry.value).map(entry => entry.value);
@@ -47,7 +46,7 @@ test('registered whole: the screens and the Map, no hand-built tabs, the status 
     assert.deepEqual(mine.tabs, []);
     const screens = host.registry.screens().filter(screen => screen.moduleId === MODULE_ID);
     assert.deepEqual(screens.map(screen => screen.id).sort(), [
-        'story-director/chronicle', 'story-director/days', 'story-director/director', 'story-director/map', 'story-director/quests', 'story-director/status-card', 'story-director/world',
+        'story-director/chronicle', 'story-director/director', 'story-director/map', 'story-director/quests', 'story-director/status-card', 'story-director/world',
     ]);
     assert.equal(screens.find(screen => screen.id === 'story-director/status-card').defaultOn, true);
     // Every binding of every screen names a query the host answers.
@@ -59,7 +58,7 @@ test('registered whole: the screens and the Map, no hand-built tabs, the status 
 
 test('the Ersveil pack: its calendar, the clock seeded from its start at the first reply, its places on the map', async () => {
     const host = await newHost();
-    const installed = await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' });
+    const installed = await installBluewatch(host.packs.packs);
     assert.equal(installed.ok, true, JSON.stringify(installed.errors));
     assert.equal(host.sdk.query('director.calendar').era, 'CY');
     assert.deepEqual(host.sdk.query('director.time'), { minutes: null, text: '', parts: null, weekday: '', firstWeekdays: [] });
@@ -101,7 +100,7 @@ test('the Ersveil pack: its calendar, the clock seeded from its start at the fir
 
 test('the reader\'s own calendar wins over the pack\'s: no seed when the start is not on it', async () => {
     const host = await newHost({ settings: { modules: { [MODULE_ID]: { 'tracker.calendar.preset': 'gregorian' } } } });
-    await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' });
+    await installBluewatch(host.packs.packs);
     await host.send('I wake.', reply('Morning.'));
     assert.equal(host.sdk.query('director.calendar').preset, 'gregorian');
     assert.equal(host.sdk.query('director.time').minutes, null);
@@ -241,29 +240,29 @@ test('ripples: null cases (no table, no Director, no clock, a bad pick, nothing 
     assert.equal(leaderQuery(DIRECTOR, { pick: 'top' }, {}), null, 'no tools');
 });
 
-test('ripples on the real host: registered, sway follows the replies and is the same after a rebuild and a delete', async t => {
+test('ripples on the real host: registered, and with no pack table (format 4 has none) there is no sway and the authored choice stands, also after a rebuild and a delete', async t => {
     t.mock.method(console, 'warn', () => {});
     let host = null;
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
     host = await createHost({ modules: [fakeFightRunner(), module] });
-    // Story Block's own packs part answers `packs.ripples` now; hand it an enabled pack that carries the table.
-    t.mock.method(host.packs.packs, 'packs', () => [{ id: 'fake-pack', ripples: TABLE }]);
     t.after(() => host.close());
-    const rows = () => host.sdk.query('ripples.sway', {}).map(row => [row.id, row.sway]);
+    const rows = () => host.sdk.query('ripples.sway', {});
+    const choice = () => host.sdk.query('packs.rippleChoice', { pack: 'fake-pack', ids: 'wendhild,corvin,hasse', pick: 'bottom', fallback: 'corvin' });
     assert.ok(host.registry.query('ripples.leader'), 'the leader query is registered');
     assert.equal(host.sdk.query('ripples.leader', { pick: 'top' }), null, 'no clock yet: no leader');
     await host.send('Hello.', reply('The road.', ['~ time 3 March 1200, 08:00', '+ quest Grain Levy — bring grain | giver: Sir Lothar | goal: grain | difficulty: hard']));
-    assert.deepEqual(rows(), [['wendhild', 40], ['corvin', 35], ['hasse', 35]], 'an open quest counts nothing');
+    assert.deepEqual(rows(), [], 'no table: no sway for an open quest');
     await host.send('Done.', reply('Delivered.', ['- quest Grain Levy — done']));
-    const after = rows();
-    assert.equal(after[0][1], 48, 'finished: +8');
-    assert.equal(host.sdk.query('ripples.leader', { among: ['wendhild', 'corvin', 'hasse'], pick: 'bottom' }), 'corvin');
+    assert.deepEqual(rows(), [], 'no table: a finished quest moves no power');
+    assert.equal(host.sdk.query('ripples.leader', { among: ['wendhild', 'corvin', 'hasse'], pick: 'bottom' }), null, 'no table: no leader');
+    assert.equal(choice(), 'corvin', 'the pack holds no table, so the authored fallback is the choice');
     host.store.rebuild();
-    assert.deepEqual(rows(), after, 'a rebuild gives the same sway');
+    assert.deepEqual(rows(), [], 'a rebuild gives the same');
     const a = host.ctx.chat.length - 1;
     await host.st.deleteMessage(a);
     await host.st.deleteMessage(a - 1);
-    assert.deepEqual(rows(), [['wendhild', 40], ['corvin', 35], ['hasse', 35]], 'deleting the reply that finished it takes the sway back');
+    assert.deepEqual(rows(), [], 'deleting the reply that finished it changes nothing');
+    assert.equal(choice(), 'corvin');
     assert.deepEqual(host.store.problems(), []);
 });
 

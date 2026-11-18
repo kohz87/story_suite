@@ -5,7 +5,6 @@ import fs from 'node:fs';
 import * as core from '../../modules/people/core/core.js';
 import { buildInjection as baselineInjection } from '../../modules/people/core/core-mechanics.js';
 import { scoringCases, canonicalResult } from './fixtures/scoring-cases.mjs';
-import { BRANCH_LINEAGE_VERSION, recordBranchCheckpoint, reconcileBranchState } from '../../modules/people/legacy/branch.js';
 import { decodeStateFilePayload, encodeStateFilePayload, readNpcStateDataFile, writeNpcStateDataFile } from '../../modules/people/storage/storage.js';
 
 const zero = { trust: 0, affection: 0, desire: 0, tension: 0 };
@@ -43,16 +42,14 @@ test('Stage 5 directional gates, fractions and tied-axis rejection retain observ
     assert.equal(tied.evidenceAccepted, false);
 });
 
-test('Stage 5 parsed proposal persists one award, preserves fractional state on repeat and rolls back by owned source', () => {
+test('Stage 5 parsed proposal persists one award, preserves fractional state on repeat and survives a save', () => {
     const npc = core.normalizeNpcRecord({ ...core.createNpcRecord('Astra'), relationship: { ...zero, trust: 50 } });
     const chat = [user('Wait here.', 'u1'), bot('Astra waits.', 'a1'), user('I keep the promise.', 'u2'), bot('Lucien kept his promise to protect Astra.', 'a2')];
-    let state = { npcs: [npc], turn: 1, checkpoints: [], lineage: [], dismissed: [], branchLineageVersion: BRANCH_LINEAGE_VERSION };
-    recordBranchCheckpoint(state, chat, 1, 'scan');
+    let state = { npcs: [npc], turn: 1, lineage: [], dismissed: [] };
     const raw = JSON.stringify({ npcs: [{ id: npc.id, name: npc.name, present: true, relationshipImpact: 'major', relationshipDelta: { ...zero, trust: 3 }, relationshipEvidence: { trust: 'Lucien kept his promise to protect Astra.', affection: '', desire: '', tension: '' }, relationshipChangeReason: 'Lucien kept his promise to protect Astra.' }] });
     const parsed = core.parseScanJson(raw);
     const options = { turn: 2, sourceMessageId: 3, developmentContext: chat[3].mes };
     state = core.mergeScanResult(state, parsed, options).state;
-    recordBranchCheckpoint(state, chat, 3, 'scan');
     const first = structuredClone(state.npcs[0]);
     assert.equal(first.relationship.trust, 51);
     assert.equal(first.relationshipProgress.trust, 0.5);
@@ -64,11 +61,6 @@ test('Stage 5 parsed proposal persists one award, preserves fractional state on 
     const saved = decodeStateFilePayload(encodeStateFilePayload('chat:card.png:scoring', state, '0.1.0')).state;
     assert.deepEqual(saved.npcs[0].relationship, first.relationship);
     assert.deepEqual(saved.npcs[0].relationshipMilestones, first.relationshipMilestones);
-    const rolled = reconcileBranchState(saved, chat.slice(0, 3), { explicitDivergence: 3 }).state.npcs[0];
-    assert.equal(rolled.relationship.trust, 50);
-    assert.deepEqual(rolled.relationshipProgress, npc.relationshipProgress);
-    assert.equal(rolled.relationshipEventHistory.length, 0);
-    assert.equal(rolled.relationshipMilestones.some(item => item.threshold === 50), false);
 });
 
 function character(overrides = {}) {

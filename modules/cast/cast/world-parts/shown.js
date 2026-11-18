@@ -17,13 +17,26 @@ export function namedIn(person, text) {
 }
 
 /**
+ * The chat index of the reply a meeting is for (S2PA B6): `meeting.at` as recorded, or, for a meeting stamped with the record ID of the reply it was stored on
+ * (`after`, `gap`), that reply's index in `chat` now plus `gap`: a middle delete moves the indexes, and a stored step replays its recorded `at`. null without a meeting.
+ */
+export function meetingAt(slot, chat) {
+    const meeting = slotOf(slot);
+    if (!meeting || !isInt(meeting.at)) return null;
+    if (typeof meeting.after !== 'string' || !isInt(meeting.gap) || !Array.isArray(chat)) return meeting.at;
+    const from = chat.findIndex(message => message?.extra?.storySuite?.sid === meeting.after);
+    return from >= 0 ? from + meeting.gap : meeting.at;
+}
+
+/**
  * The people the meeting recorded for reply `index` brought in who the reply did not show, as keys: `slice.meeting` is for that reply, the
  * person was met by it (their `rev` is the meeting's) for place or goal (someone met in the story is never withdrawn), and neither the
  * shown `text` names them nor `present` (keys of the scene's present list at the end) does, nor, for a meeting marked `seen`, `seen` (everyone the reply's scene lines had present at any point).
  */
-export function unshown(slice, { index = null, text = '', present = new Set(), seen = new Set() } = {}) {
+export function unshown(slice, { index = null, text = '', present = new Set(), seen = new Set(), at = null } = {}) {
     const meeting = slotOf(slice?.meeting);
-    if (!meeting || !isInt(index) || meeting.at !== index) return [];
+    // `at`: the meeting's reply as found now (meetingAt), else its recorded index.
+    if (!meeting || !isInt(index) || (isInt(at) ? at : meeting.at) !== index) return [];
     const { people } = tables(slice);
     const out = [];
     // A meeting made with `seen` also counts who the reply had in the scene at any point, by a name only that person has (a label two

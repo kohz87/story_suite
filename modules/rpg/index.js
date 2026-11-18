@@ -19,7 +19,7 @@ export { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, bandsOf, clampLe
 export { FIGHT_XP_HELD, fightOf, memberXp, standingSlots } from './fight.js';
 export { PRACTICE_HELD, practiceStep, usesOf } from './practice.js';
 export { NO_ROLLS_LINE, OPEN_FIGHT_LINE, OUTCOME_WORD, cueOfResult, cueText, fitCue, lineText, receiptCue } from './cue.js';
-export { JOIN_ADD, JOIN_BENCH, JOIN_NO, benchable, checkJoin, joinCard, joinDefinitions, joinDraft, joinGrammar, joinGrammarOwn, joinMode, joinOffers, partyAdd, partyCap, partyOf, readJoin, soulNaming, soulOf } from './join.js';
+export { JOIN_ADD, JOIN_BENCH, JOIN_NO, benchable, checkJoin, joinCard, joinDefinitions, joinDraft, joinGrammar, joinGrammarOwn, joinMode, joinOffers, openJoinOffers, partyAdd, partyAddQuery, partyCap, partyOf, partyTop, personOf, pullOf, readJoin, soulNaming, soulOf } from './join.js';
 // What the data modules' companion steps (data-modules/part.js) reach through the loaded library (rpg-lazy.js).
 export { RPG_EXTRAS, extraDefinitions, extraName, extrasPlan } from './view/wizard-data.js';
 export { RPG_STRINGS } from './strings.js';
@@ -29,7 +29,6 @@ export { createPrecall } from './precall.js';
 export { fightKind } from './board/interaction.js';
 export { rosterOf } from './roster.js';
 export { foesOf, rpgBlocks } from './view/party-data.js';   // (the prompt's fight cue reads them through rpgLib: the page start must not load them)
-export { narratedFoeGrammar } from './board/narrated-grammar.js';
 export { boardGrammar, boardReplyGrammar, boardXpGuide } from './board/prompt.js';
 export { leanRpgGuard } from './guard.js';
 export { RESULT_VERSION, rollsOf } from './rolls-read.js';

@@ -6,6 +6,7 @@ import { DIFFICULTY_SETTING, STANDARD, STANDARD_PRESETS, STANDARD_SETTING } from
 import { CHOOSER_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, withPrompt } from '../../../../modules/rpg/view/settings-data.js';
 import { reload } from '../../data-modules/helpers.js';
+import { boardReplyGrammar } from '../../../../modules/rpg/board/prompt.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 import { combat, open, promptOf, saveCombat } from './settings.helpers.js';
 
@@ -29,9 +30,12 @@ test('Combat: the chat\'s Combat rules text is saved as an edit of that block; i
     assert.ok(!quiet.chat.some(message => message.content?.includes('Fights are short and cruel.')), 'a quiet reply does not carry it');
     assert.equal((await host.sdk.command('dm.define', { definition: structuredClone(CHOOSER_TEMPLATES.find(entry => entry.name === 'Foes').definition) })).ok, true);
     await host.send('A hound leaps.', `The hound leaps.\n<Changes>\n+ dm foes — it attacks | kind: set-slot-1 | name: Silt Hound | count: 1 | level: 5\n</Changes>`);
+    // (NB-1: the Combat rules text is told only in a reply that tells the board's play; a fight standing unplayed gets none of it)
     const { request } = await host.send('I strike.', 'Steel rings.');
-    assert.ok(request.chat.some(message => message.content?.includes('Fights are short and cruel.')), 'in the prompt');
-    assert.ok(!request.chat.some(message => message.content?.includes('No Plot Armor')), 'and the old text is gone');
+    assert.ok(!request.chat.some(message => message.content?.includes('Fights are short and cruel.')), 'not while the fight stands unplayed');
+    const played = boardReplyGrammar(host.head(), { fight: true, played: true }).join('\n');
+    assert.ok(played.includes('Fights are short and cruel.'), 'the edited text is what a reply telling the board\'s play reads');
+    assert.ok(!played.includes('No Plot Armor'), 'and the old text is gone');
     host.store.rebuild();
     assert.equal(promptOf(host), text, 'rebuild = live');
     await reload(host);

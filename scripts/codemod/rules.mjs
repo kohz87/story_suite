@@ -51,7 +51,7 @@ function restAfter(rule, filePath) {
 
 /**
  * Matches a repo path against rules (an array of normalised rule objects). The longest `from` wins. Two rules with
- * the same name (`ruleKey`) tie: `parseRules` refuses that inside one file and `buildPlan` across files, and here
+ * the same name (`ruleKey`) tie: `parseRules` refuses that inside one file, and here
  * it throws, so the order of the rules never decides. Returns { rule, to } (`to` is null for a delete) or null.
  */
 export function matchPath(rules, filePath) {

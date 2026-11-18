@@ -13,8 +13,7 @@ const npc = normalizeNpcRecord({ id: 'npc_myla', name: 'Myla Venn' });
 const transcript = '[m1] Myla set the cup down. "Sit, I\'ll pour."';
 const prompts = {
     scanner: buildScannerPrompt({ transcript }),
-    capture: buildNarrationCaptureParts({ transcript, compactCapture: true }).rules,
-    captureFull: buildNarrationCaptureParts({ transcript }).rules,
+    capture: buildNarrationCaptureParts({ transcript }).rules,
     backfill: buildBackfillPrompt({ transcript, targetName: 'Myla Venn', existingNpc: npc }),
     import: buildDossierImportPrompt({ dossierText: 'Name: Myla', targetName: 'Myla Venn', existingNpc: npc }),
     refresh: buildProfileRefreshPrompt({ transcript, targetNpc: npc }),
@@ -33,7 +32,7 @@ test('every prompt that describes the profile fields carries the style instructi
 });
 
 test('the identity firewall stays beside the style line', () => {
-    assert.match(prompts.capture, /Mood, stress, intimacy, injury or relationship-specific behaviour never becomes global/);
+    assert.match(prompts.capture, /IDENTITY FIREWALL/);
     assert.match(prompts.scanner, /IDENTITY FIREWALL/);
 });
 

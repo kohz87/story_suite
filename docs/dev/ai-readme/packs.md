@@ -1,7 +1,8 @@
 ## How a pack is written
 
-A pack is one JSON file (called pack.json inside a zip) of plain data: nothing in it runs. It can carry a world (places, routes, lore, a cast,
-events, factions), game settings (currency, calendar, weather, rules) and a starting state. The pack checker
+A pack is one JSON file (called pack.json inside a zip) of plain data: nothing in it runs. Format 4 has two kinds: a world pack
+(places, routes, lore, a cast, events, factions, where and when the story starts) and a game pack (currency, calendar, weather, names,
+rules, the player's start). A world zip may carry its game pack beside it, as game.json. The pack checker
 (`packs/validate.js`) reads it, refuses anything unsafe (script tags, unsafe URLs or CSS, oversize values) and fills in
 defaults. Code still sets the numbers: a pack value passes through the rules and caps.
 
@@ -13,7 +14,7 @@ defaults. Code still sets the numbers: a pack value passes through the rules and
 - Check a pack before you share it: the authoring kit (`authoring-kit/reference/PACK-FORMAT.md` and
   `authoring-kit/reference/LIMITS.md`) holds the field reference, and `authoring-kit/check.mjs` is the checker you run on your own file. The Pack
   Studio (below) runs the same checker in the browser.
-- A worked example is `examples/packs/ersveil/pack.json`. Field by field: `docs/v2/PACKS.md`.
+- A worked example is `examples/packs/ersveil/pack.json` (a world; its game pack is in the ersveil-game folder beside it). Field by field: `docs/v2/PACKS.md` "Pack format 4".
 
 When you add a field or kind to the format: the validator, the safety check, the limit, the docs and a test that a hostile
 value is refused all change together.

@@ -10,8 +10,6 @@ export function createRuntimeState() {
     return {
         eventsRegistered: false,
         initialized: false,
-        inlineObserver: null,
-        inlineObserverChat: null,
         activeEditorPopup: null,
         activeEditorChatKey: '',
         activeEditorBaseRevision: null,
@@ -30,13 +28,12 @@ export function createRuntimeState() {
         deferredSwipeMessageId: null,
         swipeSettlementSequence: 0,
         // The size of the last accepted one-pass capture block this session (0 until one arrives).
-        lastCaptureBlockChars: 0,
         captureRulesWithheld: false,
         narrationCaptureArmed: '',
         // (v2 hidden notes) The story events the armed reply's instruction asked about, kept until its block arrives.
         narrationCaptureWatch: [],
         storySuiteV2: null,
-        // (key people) A swipe or a regenerate replaces the latest reply, and SillyTavern's chat still holds that reply while the new
+        // A swipe or a regenerate replaces the latest reply, and SillyTavern's chat still holds that reply while the new
         // one is being written; the story it continues from is the reply before it. `replacingReply` is set when such a generation
         // starts (with that reply's message) and cleared when the reply arrives, the generation stops, the next message is sent or
         // the chat changes.
@@ -52,7 +49,6 @@ export function createRuntimeState() {
         // reply arrives or is stopped (sentCaptureRules, '' otherwise), never on a dry run, never in a
         // prompt without the chat's replies (another extension's call), never in Delta's own requests.
         sentCaptureRules: '',
-        branchReconciliationEvents: [],
         chatStateCache: new Map(),
         hydratedChatKeys: new Set(),
         hydratedStateMeta: new Map(),
@@ -64,7 +60,7 @@ export function createRuntimeState() {
         // (sidecarMissTrusted). The reader's own actions, page resume and the first save still look, and
         // that save never overwrites a file another session created. Without a v2 host nothing changes.
         missingSidecarChats: new Set(),
-        // Chats whose branch inheritance (maybeInheritKnownBranch) has decided in this session (inherited, or nothing to inherit).
+        // Chats decided in this session (runtime-chat-branch.js decideBranch): no longer waiting for their state file.
         branchInheritanceChecked: new Set(),
         freshnessEvents: [],
         loadingChatStates: new Map(),

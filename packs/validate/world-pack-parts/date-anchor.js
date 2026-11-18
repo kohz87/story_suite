@@ -3,13 +3,19 @@
 
 import { foldKey } from '../../../core/text.js';
 
-const GREGORIAN = Object.freeze(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+export const GREGORIAN = Object.freeze(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     .map((name, n) => ({ name, days: [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][n] })));
 
 /** `612-07-30`, `612-Goldwane-12` → true when it reads (a year, a month by number or name, a day); says the Problem or warns otherwise. */
 export function checkDate(id, text, ctx, field) {
     const match = /^(\d+)-([^-]+)-(\d+)$/.exec(id);
     if (!match) return ctx.say(field, `"${text}": a fixed date is date:<year>-<month>-<day>, like date:612-07-30 or date:612-Goldwane-12.`), false;
+    // Format 4: the world has no calendar; only the shape is checked here and the paired game pack's calendar decides the rest.
+    if (ctx.index.deferCalendar) {
+        const [, , month, day] = match;
+        if (!(/^\d{1,2}$/.test(month) ? Number(month) >= 1 : /^\p{L}[\p{L}' ]{0,39}$/u.test(month)) || Number(day) < 1 || Number(day) > 999) return ctx.say(field, `"${text}": the month is a number from 1 (or a month name) and the day a number from 1.`), false;
+        return true;
+    }
     const own = ctx.index.calendar?.months?.length ? ctx.index.calendar.months : null;
     const months = own ?? GREGORIAN;
     const [, , month, day] = match;

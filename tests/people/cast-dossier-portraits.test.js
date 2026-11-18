@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { createNpcRecord } from '../../modules/people/core/core.js';
 import { normalizeNpcRecord } from '../../modules/people/core/core-mechanics.js';
 import { applyCastEntry, applyCastPortrait, castPortraitWanted, markCastPortraitRemoved, normalizeCast } from '../../modules/people/dossier/cast-dossier.js';
-import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
 import { runHostScenario } from './helpers/host-scenario.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { adapterSource } from './helpers/adapter-source.js';
@@ -40,21 +39,6 @@ test('a cast dossier may be given the pack\'s picture only while it has none of 
     assert.equal(markCastPortraitRemoved(plain), plain, 'and a removal there records nothing');
     assert.equal(applyCastPortrait(made, { dataUrl: '' }), made, 'a record without a picture gives nothing');
     assert.equal(castPortraitWanted(null), false);
-});
-
-test('a restore from a checkpoint keeps the mark that the reader removed a cast dossier\'s picture, and adds none to anyone else', () => {
-    const [p] = normalizeCast([person()], dateText);
-    const made = normalizeNpcRecord(applyCastEntry(createNpcRecord('Fenna', []), p, { packName: 'Ersveil' }));
-    const removed = markCastPortraitRemoved(made);
-    const [restored] = preserveUserNpcMetadata([made], [removed]);
-    assert.equal(restored.castFrom.portraitRemoved, true, 'the checkpoint was taken before the removal; the reader\'s removal stands');
-    assert.equal(restored.portrait, null);
-    const [other] = preserveUserNpcMetadata([made], [made]);
-    assert.equal(other.castFrom.portraitRemoved, undefined, 'no mark where there was none');
-    const stranger = { ...removed, castFrom: { ...removed.castFrom, key: 'ersveil:someone-else' } };
-    assert.equal(preserveUserNpcMetadata([made], [stranger])[0].castFrom.portraitRemoved, undefined, 'only for the same person');
-    const withPicture = { ...made, portrait: FILE_PORTRAIT() };
-    assert.deepEqual(preserveUserNpcMetadata([made], [withPicture])[0].portrait, FILE_PORTRAIT(), 'a picture the dossier has now is kept, as before');
 });
 
 test('the adapter asks for the picture sync when the step has nothing to do, only when there is a picture to give', async () => {
@@ -151,7 +135,7 @@ test('runtime: a cast dossier made without its picture gets it when Story Block 
         await sleep(300);
         out.afterPictures = Object.fromEntries(['Yunyun', 'Fenna', 'Tansy', 'Orrin', 'Maro'].map(name => [name, shape(name)]));
         out.fillUploads = uploads.slice();
-        out.checkpointReasons = (api.getState().checkpoints || []).map(item => item.reason);
+        out.noCheckpoints = !('checkpoints' in api.getState());
         out.sidecarHoldsImage = [...mockState.files.entries()].some(([path, text]) => /\/npc-state-delta-[a-z0-9]+\.json$/.test(path) && text.includes('ChwGA60e6kg') || text.includes('EhQGAhKmMIQ'));
         out.fennaFilled = byName('Fenna').portrait;
         out.countAfterFill = api.getState().npcs.length;
@@ -235,7 +219,7 @@ test('runtime: a cast dossier made without its picture gets it when Story Block 
     assert.equal(hosted.fillUploads.length, 2, 'the first picture was written at the meeting; Fenna\'s is the second file');
     assert.equal(hosted.sidecarHoldsImage, false, 'the chat\'s saved state holds none of the pack\'s pictures (the reader\'s own stays as it always was)');
     assert.equal(hosted.countAfterFill, 5, 'no dossier was made or lost');
-    assert.ok(hosted.checkpointReasons.includes('cast-portrait'), 'the change is checkpointed at its reply like any dossier change');
+    assert.equal(hosted.noCheckpoints, true, 'the change keeps no checkpoint (B4-10a): the store holds the reply\'s people');
     // Once only; a swipe is exact.
     assert.equal(hosted.afterSwipe.Fenna.path, fenna.path, 'a swipe of its reply keeps the picture');
     assert.equal(hosted.afterSwipe.same, true, 'the very same record');
@@ -255,7 +239,7 @@ test('runtime: a cast dossier made without its picture gets it when Story Block 
 test('index.js wiring: the picture sync is asked for by the adapter, runs when a chat opens, and a removal is recorded (source)', () => {
     const index = runtimeSource();
     assert.match(index, /v2\.startStorySuiteV2\(\{[^}]*castSync, castPortraitDue/, 'the adapter can ask whether there is a picture to give');
-    assert.match(index, /commitBranchCheckpoint\(working, messageId, 'cast-portrait'\)/, 'the picture is checkpointed at its reply');
+    assert.match(index, /if \(messageId >= 0\) noteChatLineage\(working\);/, 'the picture stands on the chat as it is');
     assert.match(index, /castPortraitDue\(\)\) castSync\(\)/, 'a chat opened gives the picture too');
     assert.match(index, /markCastPortraitRemoved\(npc\)/, 'the reader\'s removal is recorded');
     const adapter = adapterSource();

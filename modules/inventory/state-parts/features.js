@@ -18,5 +18,5 @@ export const INVENTORY_FEATURES = Object.freeze([
     }),
 ]);
 
-/** The module whose `rpg.resolve` rolls the dice: the only caller `gear.wear { recorded: true }` accepts. */
+/** The module whose fight rolls the dice: the only caller `gear.wear { recorded: true }` accepts. */
 export const RPG_MODULE = 'story-block';

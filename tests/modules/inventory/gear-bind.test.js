@@ -1,4 +1,4 @@
-// Bound signature gear (`story-block.gear`, docs/v2/GEAR.md "Signature gear"): a cast member's pieces are marked `bound`, every path that would move
+// Bound signature gear (`story-block.gear`, docs/v2/GEAR.md "Signature gear"): the pieces an NPC State record's Keepsakes name are marked `bound`, every path that would move
 // or unequip one is refused ("Bound to Mara: Cane Sword stays with them."), wear and repair go on, the pieces leave with the member and come back once,
 // replay is equal, and gear off knows nothing of it.
 import test from 'node:test';
@@ -7,6 +7,7 @@ import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { validatePack } from '../../../packs/validate.js';
 import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { pack } from '../../packs/helpers/fixtures.js';
+import { writeKeepsakes } from './gear-keepsakes.helpers.js';
 import { createHarness } from './helpers/fake-ctx.js';
 import { core, stocked } from './fixtures.js';
 
@@ -19,23 +20,24 @@ const ITEMS = [
     { name: 'Tin Ring', kind: 'equipment', slot: 'accessory', rarity: 'common' },
     { name: 'Rusty Spear', kind: 'equipment', slot: 'weapon', rarity: 'common' },
 ];
-const MARA = { id: 'mara', name: 'Mara', aliases: [], about: 'Runs the night ferry.', look: 'Wiry.', start: { place: 'Docks', goal: 'Keep the ferry running.' }, gear: ['Cane Sword', 'Oak Buckler', 'Tin Ring'] };
+const MARA = { id: 'npc_mara', name: 'Mara', aliases: [], gear: ['Cane Sword', 'Oak Buckler', 'Tin Ring'] };
 const ACTORS = { id: 'zz-party', version: '0.0.0', queries: { 'party.actors': () => [{ id: 'ac_mara0001', name: 'Mara' }, { id: 'ac_wessel01', name: 'Wessel' }] } };
 const BOUND = /^Bound to Mara: .+ stays with them\.$/;
 
 async function world(t, { gear = true } = {}) {
     t.mock.method(console, 'warn', () => {});
-    const raw = pack({ content: { items: ITEMS, cast: [MARA] } });
+    const raw = pack({ content: { items: ITEMS } });
     const built = validatePack(raw);
     assert.equal(built.ok, true, JSON.stringify(built.errors));
     const host = await createHost({
         modules: [ACTORS],
         settings: { features: gear ? { 'story-block.gear': true, 'story-block.rpg': true } : { 'story-block.rpg': true }, modules: { 'story-block': { rpgJoin: 'auto', rpgFormula: 'classic' } },
-            packs: [{ id: built.pack.id, version: built.pack.version, enabled: true, source: 'file', origin: 'test', pack: raw }] },
+            packs: [{ id: built.pack.id, version: built.pack.version, enabled: true, kind: raw.kind, source: 'file', origin: 'test', pack: raw }], selected: { [raw.kind]: raw.id } },
     });
     t.after(() => host.close());
     host.packId = built.pack.id;
     await host.send('Begin.', 'Opening.');
+    await writeKeepsakes(host, [MARA]);
     const defs = Object.fromEntries(STANDARD_TEMPLATES.filter(entry => ['character', 'skills'].includes(entry.definition.role)).map(entry => [entry.definition.role, structuredClone(entry.definition)]));
     defs.character.slug = 'wessel'; defs.character.name = 'Wessel'; defs.character.state.who.default = 'Wessel';
     defs.skills.slug = 'wessel-skills'; defs.skills.name = 'Wessel skills'; defs.skills.state.who.default = 'Wessel';

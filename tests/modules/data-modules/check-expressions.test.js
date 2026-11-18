@@ -144,8 +144,6 @@ test('module presentation uses the existing renderer validator and checks own vi
     d.screens[0].layout.root = { type: 'button', label: 'Gain', command: 'dm.act', payload: { module: 'pack.dm-test/counter', kind: 'gain' } }; ok(pack([d]));
     d.kinds.gain.ui = false; refuse(pack([d]));
     d.kinds.gain.ui = true; d.screens[0].layout.root.command = 'inventory.add'; refuse(pack([d]));
-    // Ordinary layout acceptance still allows renderer warnings.
-    const old = { id: 'old', version: '1.0.0', requires: { storyBlock: '^2' }, layouts: [{ arbitrary: true }] }; ok(old);
 });
 
 test('additive migration checks old semantics, consecutive versions, exact schemas and defaults', () => {

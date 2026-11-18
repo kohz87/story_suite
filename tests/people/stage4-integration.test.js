@@ -13,7 +13,6 @@ import {
     resolveNpcAppearance,
     setNpcArchived,
 } from '../../modules/people/core/core.js';
-import { BRANCH_LINEAGE_VERSION, recordBranchCheckpoint, reconcileBranchState } from '../../modules/people/legacy/branch.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 
 function formNpc(name = 'Sora') {
@@ -177,23 +176,4 @@ test('Stage 4 native bundle merge cannot implicitly revive an existing terminal 
     assert.equal(npc.mood, dead.mood);
     assert.equal(npc.location, dead.location);
     assert.deepEqual(npc.relationship, dead.relationship);
-});
-
-test('Stage 4 branch rollback restores the owned pre-switch appearance form snapshot', () => {
-    const user = text => ({ is_user: true, is_system: false, name: 'Lucien', mes: text });
-    const assistant = text => ({ is_user: false, is_system: false, name: 'Eos', mes: text });
-    const chat = [user('Stay human.'), assistant('Sora remains human.'), user('Transform.'), assistant('Sora becomes Stormcrown.')];
-    const state = {
-        npcs: [formNpc()], dismissed: [], inlineCards: [], checkpoints: [], lineage: [],
-        branchLineageVersion: BRANCH_LINEAGE_VERSION,
-        turn: 0, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null,
-        scanCount: 0,
-    };
-    recordBranchCheckpoint(state, chat, 1, 'scan');
-    state.npcs[0].currentForm = 'Stormcrown';
-    recordBranchCheckpoint(state, chat, 3, 'scan');
-    const rollback = reconcileBranchState(state, chat.slice(0, 3), { explicitDivergence: 3 });
-    assert.equal(rollback.state.npcs[0].currentForm, 'Human');
-    assert.equal(rollback.state.npcs[0].appearanceForms.length, 2);
-    assert.match(rollback.state.npcs[0].appearanceForms.find(form => form.name === 'Stormcrown').appearance, /plumage/i);
 });

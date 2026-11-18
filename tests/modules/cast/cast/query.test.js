@@ -1,16 +1,16 @@
 // What other modules and the World screen read: `director.cast` gives only people who have been met (with their pack entry, for NPC State
 // Delta's dossier); an unmet person is never named, not even to a module; the numbers and the "Around here" data come as counts.
 import test from 'node:test';
-import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 
-import { OPENING, castHost, castSource, createFakeModel, entry, receipts, said, settle, validatorErrors } from './helpers.js';
+import { OPENING, castHost, castSource, createFakeModel, entry, followPeople, receipts, said, settle, validatorErrors } from './helpers.js';
+import { forWorldPack, realEntries } from './real-entries.js';
 
 const quiet = t => t.mock.method(console, 'warn', () => {});
 
 test('director.cast: the met people only, each with where they are, the last news and the whole pack entry; copies; counts without names', async t => {
     quiet(t);
-    const brom = entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' }, aliases: ['the smith'], portrait: 'brom.webp', stages: [{ id: 'regular', name: 'Regular', needs: [{ meter: 'trust', at: 20 }] }], meters: { trust: 10 } });
+    const brom = entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' }, aliases: ['the smith'], portrait: 'brom.webp', stages: [{ name: 'Regular', needs: [{ meter: 'trust', at: 20 }], text: 'Comes by the forge most days.' }], meters: { trust: 10 } });
     const fenna = entry('fenna', { start: { place: 'Bluewatch docks', goal: 'ferry', routine: 'works the night ferry' } });
     const host = await castHost({ source: castSource([brom, fenna]), model: createFakeModel(['~ cast brom | Kesh | selling blades at the Kesh fair']) });
     try {
@@ -77,7 +77,7 @@ test('director.cast.view: Around here\'s numbers: met n of N always, how many un
     }
 });
 
-test('a person met from the cast can be pinned as a key person: the Pin chooser lists them (not the unmet), and once pinned the planner leaves them to the key people track', async t => {
+test('a followed person met from the cast is left alone by the planner (the Follow star)', async t => {
     quiet(t);
     const host = await castHost({
         source: castSource([entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' }, aliases: ['the smith'] }), entry('fenna', { start: { place: 'Bluewatch docks', goal: 'f', routine: 'works the night ferry' } })]),
@@ -86,13 +86,10 @@ test('a person met from the cast can be pinned as a key person: the Pin chooser 
     try {
         await host.send('Hello.', said('Dawn.', OPENING));
         await host.send('Look.', said(`Smoke. ${host.everyone()}`));
-        const choices = host.sdk.query('director.keyPeople.view').choices;
-        assert.deepEqual(choices.map(choice => [choice.name, choice.source, choice.aliases]), [['Brom', 'cast', ['the smith']]]);
-        assert.ok((await host.sdk.command('keypeople.pin', { name: 'Brom', aliases: ['the smith'] })).ok);
-        assert.deepEqual(host.sdk.query('director.keyPeople.view').choices, []);
+        await followPeople(host, [{ name: 'Brom', aliases: ['the smith'] }]);
         await host.send('Sleep.', said('Morning.', ['~ time June 4, 1200, 08:00 am']));
         await settle();
-        assert.doesNotMatch(host.model.calls.at(-1).prompt, /- brom \|/, 'a key person is not moved by the cast planner');
+        assert.doesNotMatch(host.model.calls.at(-1).prompt, /- brom \|/, 'a followed person is not moved by the cast planner');
         assert.match(host.model.calls.at(-1).prompt, /- fenna \|/);
     } finally {
         host.close();
@@ -101,7 +98,7 @@ test('a person met from the cast can be pinned as a key person: the Pin chooser 
 
 // ---- the order other modules rely on, and the real-size cast ------------------------------------------------------------------------
 
-const ERSVEIL = JSON.parse(readFileSync(new URL('../../../fixtures/director/ersveil-cast.json', import.meta.url), 'utf8')).map(item => ({ pack: 'ersveil', packVersion: '2.2.1', ...item }));
+const ERSVEIL = realEntries().map(forWorldPack);
 
 test('a meeting is in director.cast before the reply is written and while it is read, so a module that ticks on that reply (NPC State Delta) sees them at once, not a reply late', async t => {
     quiet(t);

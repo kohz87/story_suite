@@ -1,7 +1,8 @@
-// Supplies the default card and tab renderers for mountSuite: the character card, the Now tab, and a "not built yet" card.
+// Supplies the default card and tab renderers for mountSuite: the character card, Here now (desktop), the Now tab, and a "not built yet" card.
 import { h } from '../kit/dom.js';
 import { characterCard } from '../card/character-card.js';
 import { nowTab } from '../tabs/now/now.js';
+import { hereNowCard } from '../tabs/now/here-now.js';
 import { openSceneSheet } from '../sheets/scene-sheet.js';
 import { createTabViews } from './tab-views.js';
 import { dossierPage } from '../tabs/people/dossier/dossier.js';
@@ -17,9 +18,10 @@ export function pendingCard(tab) {
     h('p', { class: 'su-pending-note' }, 'This tab is not built yet.'));
 }
 
-/** Returns the default `{ card, tab, closePage }` renderers wired to a port, back-stack and prefs. */
-export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null }) {
+/** Returns the default `{ card, here, tab, closePage }` renderers wired to a port, back-stack and prefs; `desk()` says whether the desktop layout is drawn. */
+export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null, desk = null }) {
   let dossier = null;
+  let openId = null;
   let peopleStart = null;
   const openDossier = (personId) => {
     const vm = port.view('dossier')?.[personId];
@@ -27,6 +29,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     if (!vm || !host) return;
     dossier?.close();
     const from = tabHost().current();
+    const opener = doc?.activeElement ?? null;
     let stay = false;
     const el = dossierPage(vm, {
       port, prefs, backStack, go, youName: port.view('card')?.you?.name, origin: `‹ ${TITLES[from] ?? 'Now'}`,
@@ -38,10 +41,24 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
         tabHost().select('people');
         if (already) refresh?.();
       },
-      onClose: () => { el.remove(); if (dossier === el) dossier = null; if (!stay && from !== 'people') tabHost()?.select(from); },
+      onClose: () => {
+        const had = !doc?.activeElement || doc.activeElement === doc.body || el.contains(doc.activeElement);
+        el.remove();
+        if (dossier === el) dossier = null;
+        if (!stay && from !== 'people') tabHost()?.select(from);
+        if (had && !stay) giveBack(host, opener, personId);
+      },
     });
     dossier = el;
+    openId = personId;
     host.appendChild(el);
+    el.querySelector('[data-act="close"]')?.focus();
+  };
+  // The dossier closed with the focus in it: back to the card that opened it, or (redrawn meanwhile) that person's card, or the suite.
+  const giveBack = (host, opener, personId) => {
+    const card = [...host.querySelectorAll('[data-person-id]')].find(node => node.dataset.personId === personId && !node.closest('.dossier'));
+    const target = opener && opener !== doc.body && doc.body?.contains?.(opener) ? opener : card ?? host.closest?.('.su-root');
+    target?.focus?.({ preventScroll: true });
   };
   const go = (tab, args) => {
     const opening = tab === 'people' && args?.personId;
@@ -52,11 +69,15 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     if (args) port.command('suite.go', { tab, ...args });
   };
   const takeStart = () => { const s = peopleStart; peopleStart = null; return s; };
-  const ctx = { port, prefs, go };
+  const ctx = { port, prefs, go, desk: () => desk?.() === true };
   const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh, peopleStart: takeStart });
   return {
     // A person's page left open: closed when the suite is opened on a tab (it would cover the tab asked for).
     closePage: () => dossier?.close(),
+    // The open dossier's record as it is now (null when none is open), and a redraw of it from a fresh read.
+    hasDossier: () => dossier !== null,
+    openDossier: () => (dossier ? port.view('dossier')?.[openId] ?? null : null),
+    updateDossier: vm => dossier?.update?.(vm),
     // The first of `keys` (a store id or a lower-case name) that has a dossier, or null.
     personKey: (keys) => {
       const known = port.view('dossier') ?? {};
@@ -75,6 +96,8 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
       onSettings: () => (onSettings ? onSettings() : port.command('suite.settings', {})),
       onPace: () => go('bag'),
     }) : null),
+    // Here now, the desktop left column's people present (from the Now view-model's rows).
+    here: vm => hereNowCard(vm?.here, ctx, vm?.unrecorded),
     tab: (tab, vm) => (tab === 'now' && vm ? nowTab(vm, ctx) : built(tab, vm) ?? pendingCard(tab)),
   };
 }
