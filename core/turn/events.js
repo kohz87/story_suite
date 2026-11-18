@@ -3,7 +3,7 @@
 // swipes, a deleted swipe), the generation stopped or ended, and install / uninstall of the interceptor and the listeners. `createEvents(s, deps)`
 // is given the turn's state holder `s` and the turn parts it uses; it never imports turn.js.
 import {
-    adoptLegacy, continuation, cutLine, defangMarker, dropDoubledDraft, extractBlock, hideBlock, markOff,
+    adoptLegacy, blankOpen, continuation, cutLine, defangMarker, dropDoubledDraft, extractBlock, hideBlock, markOff,
 } from '../capture.js';
 import { cutAt } from '../text.js';
 import { readRecord, swipeLoading } from '../persist.js';
@@ -63,7 +63,7 @@ export function createEvents(s, deps) {
             // Change lines written in the story near the block are read with it (capture.js strayLines).
             const heads = changeHeads();
             const block = extractBlock(text, 'Changes', at, { stopped, heads });
-            const parsed = block === null ? { lines: [], problems: [] } : readBlock(id, block, { fresh: current.type !== 'continue' });
+            const parsed = block === null ? { lines: [], problems: [] } : readBlock(id, block, { fresh: current.type !== 'continue', own: true });
             const problems = [...parsed.problems, ...strayProblems(id, text, heads, { from: at?.from ?? 0, tail: at?.tail === true, stopped }, parsed.lines.map(line => line.raw))];
             if (adopted.legacy === 'read') problems.push(legacyProblem(id));
             if (text !== adopted.text) problems.push(problem({ index: id, code: 'DRAFT_DROPPED', message: 'The model wrote a draft of the reply in front of the reply itself; the draft was cut and the reply kept.' }));
@@ -107,7 +107,7 @@ export function createEvents(s, deps) {
             if (edited) redraw(id, message);
             const turn = { index: id, type: current.type, receipts: result.receipts, steps: result.steps, problems, told: current.untold };
             events?.emit('turn', turn);
-            afterReply(id, current.type, message, [...parsed.lines, ...late].map(line => line.raw), block === null && current.type !== 'continue');
+            afterReply(id, current.type, message, [...parsed.lines, ...late].map(line => line.raw), (block === null || blankOpen(text)) && current.type !== 'continue');
             return turn;
         } catch (error) {
             const failure = problem({ index: id, code: 'FAILED', message: `The reply's changes could not be kept: ${error?.message ?? error}` });

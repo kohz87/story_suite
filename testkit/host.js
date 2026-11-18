@@ -43,7 +43,7 @@ export async function hostAvailable() {
  * timeline calls it at every phase; a test makes it throw to stop there), lazyRpg?: true (the RPG's code is NOT handed to the host: it is
  * imported by `rpgLoad?()` (default: lean-rpg/index.js) only when the feature is on or the chat holds the RPG's records, as in the real page; by
  * default the host has it at once, so a test may switch the feature on and use the RPG without waiting) }.
- * `realDefaults: true` keeps the real default of the repair on a miss (on); the host otherwise starts with it off.
+ * `realDefaults: true` keeps the real defaults of the repair on a miss and of keeping the last two replies' change blocks in the prompt (both on); the host otherwise starts with both off.
  * Returns { st, ctx, registry, settings, features, store, bus, events, sdk, api (the public API), turn, packs, timeline (the host's side of the
  * timeline: { host, capability, … }, docs/v2/TIMELINE.md), send(text, reply, { stopped }),
  * swipe(reply), regenerate(reply), cont(reply), quiet(), head(), close() }; `st` is the fake
@@ -70,6 +70,9 @@ export async function createHost(options = {}) {
         const bucket = ((extensionSettings.storySuite ??= { schema: SETTINGS_SCHEMA }).modules ??= {});
         const block = (bucket['story-block'] ??= {});
         block.assistRepair ??= false;
+        // Keeping the last two replies' change blocks in the prompt is ON by default (host setting keepRecentBlocks); the tests that pin prompts or repeat lines across replies
+        // are written for the history without them, so the test host starts with it off too, unless a test sets it or asks for `realDefaults`.
+        (extensionSettings.storySuite.core ??= {}).keepRecentBlocks ??= false;
     }
     const st = createFakeContext({ ...stOptions, extensionSettings });
     // What the reader was told when a generation was held back (a toastr warning live).

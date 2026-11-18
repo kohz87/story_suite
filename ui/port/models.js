@@ -11,7 +11,7 @@ const roleOf = key => String(key ?? '').split('.')[1];
 /**
  * `settings.set` with key `models.<role>` stores the role's profile name (Story has none); `settings.action` with key `models.test` and
  * `value` = the role makes one tiny call on that role's connection → { ok: true, seconds } or { ok: false, message }.
- * `settings.set` with key `calls.queue`, `calls.kinds` (the chip labels), `calls.repair` or `calls.fallback` stores that Calls row. Any other command is not the Models page's: returns null. Stores go through `writes` (the host's settings and features stores; the public sdk has no setter).
+ * `settings.set` with key `calls.queue`, `calls.keepBlocks`, `calls.kinds` (the chip labels), `calls.repair` or `calls.fallback` stores that Calls row. Any other command is not the Models page's: returns null. Stores go through `writes` (the host's settings and features stores; the public sdk has no setter).
  */
 export async function modelsCommand(sdk, type, payload, now = Date.now, writes = null) {
   const key = String(payload?.key ?? '');
@@ -25,6 +25,7 @@ export async function modelsCommand(sdk, type, payload, now = Date.now, writes =
     const value = payload.value;
     const stored = key === 'calls.queue' ? writes?.settings?.set?.(null, 'callQueue', value === true)
       : key === 'calls.kinds' && Array.isArray(value) ? writes?.settings?.set?.('story-block', 'assistExtractorKinds', KIND_CHOICES.filter(k => value.includes(k.label)).map(k => k.value).join(', '))
+      : key === 'calls.keepBlocks' ? writes?.settings?.set?.(null, 'keepRecentBlocks', value === true)
       : key === 'calls.repair' ? writes?.settings?.set?.('story-block', 'assistRepair', value === true)
       : key === 'calls.fallback' ? writes?.features?.set?.(FALLBACK, value === true)
       : undefined;

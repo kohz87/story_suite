@@ -3,7 +3,7 @@
 // state holder `s` and the turn parts it calls (the capture flow's functions, the session's problem / trySave / planAgain); it never
 // imports turn.js.
 
-import { adoptLegacy, extractBlock, hideBlock, legacyRead, markOff } from '../capture.js';
+import { adoptLegacy, blankOpen, extractBlock, hideBlock, legacyRead, markOff } from '../capture.js';
 import { replacedProofs, reusePlan } from '../evidence.js';
 import { readRecord } from '../persist.js';
 import { heldForMessage as heldInteraction } from '../interaction/held.js';
@@ -30,7 +30,7 @@ export function createReread(s, deps) {
         const mes = adopted.text;
         const heads = changeHeads();
         const block = extractBlock(mes, 'Changes', null, { heads });
-        const parsed = block === null ? { lines: [], problems: [] } : readBlock(index, block);
+        const parsed = block === null ? { lines: [], problems: [] } : readBlock(index, block, { own: true });
         const problems = [...parsed.problems, ...strayProblems(index, mes, heads, {}, parsed.lines.map(line => line.raw))];
         if (adopted.legacy === 'read' || legacyRead(mes)) problems.push(legacyProblem(index));
         const receipts = [];
@@ -135,7 +135,7 @@ export function createReread(s, deps) {
         events?.emit('head', { index: store.headIndex(), reason: 'reread' });
         events?.emit('turn', { index, type: 'reread', receipts, steps: steps.map(step => step.receipt), problems, told: [] });
         // The head reply, when it still has no block, asks for its repair (once: the hook skips a reply that already holds a stored repair), or is told as a Problem. An older reply never calls: its answer could not be used.
-        if (block === null && index === store.headIndex()) { try { s.afterReply?.(index, 'reread', message, [], true); } catch { /* each hook is already guarded */ } }
+        if ((block === null || blankOpen(mes)) && index === store.headIndex()) { try { s.afterReply?.(index, 'reread', message, [], true); } catch { /* each hook is already guarded */ } }
         return { ok: true, receipts, steps: steps.map(step => step.receipt), problems };
     }
 
