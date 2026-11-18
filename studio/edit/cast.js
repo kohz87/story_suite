@@ -1,8 +1,8 @@
 // The cast editor (views/route.js EDITORS: cast): the list of people with a search and filters, and one person's record page (mock MK-1 "cast"):
 // name, kind and role, the rest behind "more fields" (a companion has every field, a figure only the light ones plus any it already carries), where
 // they start, their birthday, ties (a picker over the cast's ids, then the kind of tie), "Used by" and the JSON row. A record is opened with
-// Go to (focus on "cast.<n>"), so the Studio's redraw and back button keep working. NPC State fields (meters, stages, secrets, Level, Abilities,
-// Keepsakes) and the portrait are ST-CAST2's: until then they are edited in the JSON row.
+// Go to (focus on "cast.<n>"), so the Studio's redraw and back button keep working. The portrait is cast-portrait.js's group; the NPC State fields
+// (Level, meters, stages, secrets, Abilities, Keepsakes) and the "what NPC State seeds" panel are cast-npc.js's.
 
 import { h } from '../../ui/kit/dom.js';
 import { TIE_TAGS, WORLD_CAST_LIMITS } from '../../packs/limits.js';
@@ -15,6 +15,8 @@ import { jsonRow } from '../views/json-row.js';
 import { definedIds, usedBy } from '../model/refs.js';
 import { renameId } from '../model/rename.js';
 import { partOfPath } from '../parts.js';
+import { npcGroups } from './cast-npc.js';
+import { portraitGroup } from './cast-portrait.js';
 
 const PART = 'cast';
 const BASE = ['content', 'cast'];
@@ -38,7 +40,7 @@ const MORE = [
     ['canDieUnmet', 'toggle', 'Can die unmet', 'The story may kill them before the party has met them'],
 ];
 // Fields with a place on this page (the rest are only in the JSON row).
-const FORMED = ['name', 'kind', 'role', 'ties', ...MORE.map(([key]) => key)];
+const FORMED = ['name', 'kind', 'role', 'ties', 'portrait', 'level', 'meters', 'stages', 'secrets', 'abilities', 'keepsakes', ...MORE.map(([key]) => key)];
 const START = [['place', 'Starts at', 'The place they are on day one'], ['goal', 'Starting goal', 'What they are after at the start'], ['routine', 'Routine', 'What they do each day at the start']];
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -66,6 +68,7 @@ function listPage(list, bad, ctx, redraw) {
         const shown = state.all || needle ? found : found.slice(0, SHOWN);
         rows.replaceChildren(...shown.map(({ person, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-crow', dataset: { rec: `cast.${index}` }, onClick: () => ctx.go(PART, `cast.${index}`) },
             h('div', { class: 'st-rh' },
+                typeof person.portrait === 'string' ? ctx.portrait?.(person.portrait) ?? null : null,
                 h('div', { class: 'st-rt' }, h('b', person.name ?? person.id ?? `#${index + 1}`), subOf(person) ? h('small', subOf(person)) : null),
                 h('span', { class: 'st-flags' }, person.protected === true ? h('span', { class: 'tg2' }, 'protected') : null,
                     bad[index].length ? h('span', { class: 'st-bad' }, `✕ ${bad[index].length}`) : null)))),
@@ -178,7 +181,9 @@ function recordPage(list, index, bad, ctx, redraw) {
 
     const page = h('section', { class: 'st-rec', dataset: { rec }, tabindex: '-1', 'aria-label': String(person.name ?? person.id ?? `Person ${index + 1}`) });
     const names = new Map(list.map(other => [other?.id, other?.name ?? other?.id]));
-    const groups = [person1, tiesGroup(person, where, list, names, bad[index].filter(problem => String(problem.path).startsWith(`${at(index)}.ties`)), commit, mark), usedGroup(person, names, ctx)];
+    const kit = { ctx, where, at: at(index), problems: bad[index], state, focusPath, commit, put, redraw };
+    const groups = [person1, portraitGroup(person, where, list, { ctx, commit, tell }), tiesGroup(person, where, list, names, bad[index].filter(problem => String(problem.path).startsWith(`${at(index)}.ties`)), commit, mark),
+        ...npcGroups(person, list, kit), usedGroup(person, names, ctx)];
     const extra = Object.keys(person).filter(key => !FORMED.includes(key));
     const copy = () => {
         const value = { ...structuredClone(person), id: free(list, `${person.id ?? 'person'}-copy`, 'id'), name: free(list, `${person.name ?? person.id ?? 'Person'} (copy)`, 'name') };
