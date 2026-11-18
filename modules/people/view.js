@@ -27,8 +27,9 @@ export function stripVolatile(value, keepAt = false) {
 const list = value => (Array.isArray(value) ? value : []);
 
 // A `+ npc` stub's `createdAt` is no clock: it is the reply's place (index + 1, npc-lines-parts/derived.js), and the fill-in finds the reply's new people by it
-// (adapter/stub-fills.js newStubs). Stripped like a clock, the cache never had it and no fill-in was ever queued (SOAKPEOPLE F46). A clock stamp is milliseconds
-// (far above this bound) and is still dropped.
+// (adapter/stub-fills.js newStubs, right after the reply's hydrate). Stripped like a clock, the cache never had it and no fill-in was ever queued (SOAKPEOPLE F46).
+// It is kept one way only, store → cache (peopleState): the cache's own write (peopleView) still leaves it out, so the store holds what it held before.
+// A clock stamp is milliseconds (far above this bound) and is still dropped.
 const REPLY_STAMP_MAX = 1000000;
 const isReplyStamp = value => Number.isInteger(value) && value >= 1 && value <= REPLY_STAMP_MAX;
 const person = record => {
@@ -86,7 +87,7 @@ export function peopleView(state, { warn = () => {} } = {}) {
         if (!id) { warn('people view: a record has no id'); return null; }
         if (Object.prototype.hasOwnProperty.call(npcs, id)) { warn(`people view: duplicate id ${id}`); return null; }
         order.push(id);
-        npcs[id] = noBytes(person(record));
+        npcs[id] = noBytes(stripVolatile(record));
     }
     return {
         v: 1,

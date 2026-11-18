@@ -1,7 +1,7 @@
 // The reader's questions about the people domain, answered from the stored slice alone (pure over the state, so a swipe, a delete, a rewind or a reload
 // answers what the head holds): `people.list` (one row per stored person), `people.dossier` (one person's stored fields plus their meters),
 // `people.ties` (the social graph's edges between stored people, with the story's tie lines) and `people.secretOwners` (whose dossier holds a secret of that title).
-// Definitions: here = the record's `present` flag (NPC State sets it from the reply); dormant = the reader's "Dormant after" (default 30) or more replies (the slice's `turn` minus the record's
+// Definitions: here = the record's `present` flag (NPC State sets it from the reply) or the same state's scene listing them (then no old place is shown); dormant = the reader's "Dormant after" (default 30) or more replies (the slice's `turn` minus the record's
 // `lastSeenTurn`) unseen, never for someone present, followed, deceased or without a `lastSeenTurn` (decision 36.12; the party is excluded by the caller).
 // A portrait is the file path of its file reference, when that is a safe URL (a path on the page's own server, or https); never image bytes.
 
@@ -13,7 +13,7 @@ const text = value => (typeof value === 'string' && value.trim() ? value.trim() 
 const clone = value => JSON.parse(JSON.stringify(value));
 export const DORMANT_AFTER = 30;
 const AXES = ['trust', 'affection', 'desire', 'tension'];
-// What a dossier answer never carries (NPC State's own rule: hidden notes and never-prompt settings do not leave the dossier): the `secrets` list (titles, text and event wording of hidden notes: a locked note must stay hidden, and the stored rules lose their `at`, see people/view.js VOLATILE), and these fields.
+// What a dossier answer never carries (NPC State's own rule: hidden notes and never-prompt settings do not leave the dossier): the `secrets` list (titles, text and event wording of hidden notes: a locked note must stay hidden; a stored rule keeps its `at` since SOAKPEOPLE F47, see people/view.js stripVolatile), and these fields.
 const HIDDEN_FIELDS = ['portraitPromptPositive', 'portraitPromptNegative', 'portraitPromptReplace', 'portraitSeed', 'meterSetup', 'castFrom'];
 
 // A file path that is safe as an image URL, as NPC State's safeImageUrl judges one: a path on the page's own server (relative or from the root; never `//host`,
@@ -39,8 +39,8 @@ function metersOf(bond, record) {
 const active = (slice, id) => isObject(slice.npcs?.[id]);
 const ids = slice => (Array.isArray(slice?.order) ? slice.order.filter(id => active(slice, id)) : []);
 
-function dormantOf(slice, record, after = DORMANT_AFTER) {
-    if (record.present === true || record.followed === true || record.lifeState === 'deceased') return false;
+function dormantOf(slice, record, after = DORMANT_AFTER, here = record.present === true) {
+    if (here || record.followed === true || record.lifeState === 'deceased') return false;
     return Number.isInteger(record.lastSeenTurn) && Number.isInteger(slice.turn) && slice.turn - record.lastSeenTurn >= after;
 }
 
@@ -52,15 +52,27 @@ function dormantLimit(args, tools) {
     return Number.isFinite(value) && asked !== null && asked !== undefined ? Math.max(10, Math.min(999, value)) : DORMANT_AFTER;
 }
 
-function rowOf(slice, id, after) {
+// The names the same state's scene lists (`scene.present`), lowercased, or null when there is no scene to ask.
+function sceneNames(tools) {
+    try {
+        const list = tools?.hasQuery?.('scene.present') ? tools.query('scene.present', {}) : null;
+        return Array.isArray(list) ? new Set(list.filter(name => typeof name === 'string').map(name => name.trim().toLowerCase())) : null;
+    } catch { return null; }
+}
+// SOAKPEOPLE F7: someone the scene lists is here (the dead never), whatever NPC State's stored flag says yet; their old "away" place is not shown while they are.
+const inScene = (record, names) => Boolean(names) && record.lifeState !== 'deceased'
+    && [record.name, ...(Array.isArray(record.aliases) ? record.aliases : [])].some(label => typeof label === 'string' && names.has(label.trim().toLowerCase()));
+
+function rowOf(slice, id, after, names = null) {
     const record = slice.npcs[id];
     const bond = slice.bonds?.npcs?.[id];
+    const here = record.present === true || inScene(record, names);
     return {
         id, name: String(record.name ?? ''), aliases: Array.isArray(record.aliases) ? record.aliases.filter(item => typeof item === 'string') : [],
-        role: text(record.role), mood: text(record.mood), location: text(record.location), status: text(record.status),
-        present: record.present === true, followed: record.followed === true,
+        role: text(record.role), mood: text(record.mood), location: inScene(record, names) ? null : text(record.location), status: text(record.status),
+        present: here, followed: record.followed === true,
         lifeState: text(record.lifeState), lifeStateCertainty: text(record.lifeStateCertainty), lifeStateReason: text(record.lifeStateReason),
-        lastSeenTurn: Number.isInteger(record.lastSeenTurn) ? record.lastSeenTurn : null, dormant: dormantOf(slice, record, after),
+        lastSeenTurn: Number.isInteger(record.lastSeenTurn) ? record.lastSeenTurn : null, dormant: dormantOf(slice, record, after, here),
         meters: metersOf(bond, record), portrait: portraitOf(slice, id, record),
     };
 }
@@ -84,14 +96,16 @@ export function peopleQueries(domain) {
             const people = slice(state);
             if (!people) return null;
             const after = dormantLimit(args, tools);
-            return ids(people).map(id => rowOf(people, id, after));
+            const names = sceneNames(tools);
+            return ids(people).map(id => rowOf(people, id, after, names));
         },
         // { id, ...the stored dossier fields (the portrait file is `portrait` below; `secrets` are left out as in npc.dossier; never-prompt settings too), meters?, stages?, unlocked?, recent?, portrait } of the person { id | name } names, or null.
-        'people.dossier': (state, args) => {
+        'people.dossier': (state, args, tools) => {
             const people = slice(state);
             const id = people ? find(people, args) : null;
             if (!id) return null;
             const { portrait: _file, ...record } = clone(people.npcs[id]);
+            if (inScene(record, sceneNames(tools))) delete record.location;   // (F7: here now, so no old "away" place)
             for (const field of HIDDEN_FIELDS) delete record[field];
             const bond = people.bonds?.npcs?.[id];
             delete record.secrets;

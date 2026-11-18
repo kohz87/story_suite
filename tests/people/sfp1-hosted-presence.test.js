@@ -44,3 +44,26 @@ test('F45: people.list follows the reader\'s "Dormant after" (NPC State\'s setti
     assert.deepEqual(dormant(list(state, {}, tools(1))), [true, false], 'held to the setting\'s 10');
     assert.deepEqual(dormant(list(state, { dormantAfter: 999 }, tools(12))), [false, false], 'an asked value comes first');
 });
+
+// F7 on the store's own read (whatever NPC State's cache has stamped yet): someone the reply's scene lists is here and shows no old "away" place;
+// pure over the state, so a swipe, a Re-read, a delete and a reload answer the same.
+test('F7: people.list and people.dossier read who is here from the same state\'s scene; the old away place is not shown while they are', async () => {
+    const { suite } = await import('./helpers/pacing-suite.js');
+    const blank = { trust: 0, affection: 0, desire: 0, tension: 0 };
+    const records = { npc_marrit: { id: 'npc_marrit', name: 'Marrit', aliases: [], present: false, memories: [], memoryStamps: {}, relationship: { ...blank } } };
+    const s = await suite({ lines: true, records });
+    const quiet = async run => { const original = console.warn; console.warn = () => {}; try { return await run(); } finally { console.warn = original; } };
+    const say = lines => quiet(async () => { await s.host.send('And then?', `The tide turned.\n\n<Changes>\n${lines.join('\n')}\n</Changes>`); await s.adapter.ticked(); });
+    const row = () => s.host.sdk.query('people.list', {}).find(item => item.id === 'npc_marrit');
+    await say(['+ present Marrit']);
+    await say(['- present Marrit', '~ npc Marrit | where: the inspection quay']);
+    assert.deepEqual([row().present, row().location], [false, 'the inspection quay'], 'away, with her place');
+    await say(['+ present Marrit']);
+    assert.deepEqual([row().present, row().location], [true, null], 'back: here, no old place');
+    assert.equal(s.host.sdk.query('people.dossier', { id: 'npc_marrit' }).location, undefined);
+    const live = JSON.stringify(s.host.sdk.query('people.list', {}));
+    s.host.store.rebuild();
+    assert.equal(JSON.stringify(s.host.sdk.query('people.list', {})), live, 'replay equals live');
+    await quiet(async () => { await s.host.swipe('She is still out on the quay.'); await s.adapter.ticked(); });
+    assert.deepEqual([row().present, row().location], [false, 'the inspection quay'], 'a swipe without her arrival');
+});

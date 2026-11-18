@@ -38,6 +38,6 @@ test('F46: a stub\'s reply stamp reaches the cache, so its fill-in is queued; a 
     assert.equal(cache.npcs[1].createdAt, undefined, 'a clock is not kept');
     assert.deepEqual(newStubs(cache.npcs, 4), [{ id: 'npc_tamsa', name: 'Tamsa Vell' }], 'the reply at index 4 queues her fill-in');
     const back = peopleView({ npcs: cache.npcs, turn: 3 });
-    assert.equal(back.npcs.npc_tamsa.createdAt, 5, 'the cache\'s write keeps the stamp in the store');
+    assert.equal(back.npcs.npc_tamsa.createdAt, undefined, 'the cache\'s own write leaves the store as before (one way only)');
     assert.deepEqual(validatePeople(back), []);
 });
