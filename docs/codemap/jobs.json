@@ -454,7 +454,7 @@
   "studio/css/timeline.css": "Pack Studio stylesheet slot for the dry-run page; empty until the dry run is drawn.",
   "studio/edit/cast.js": "Pack Studio editor slot for the cast section; a stub that draws the read-only cards until its form exists.",
   "studio/edit/conditions.js": "Pack Studio conditions form: one card per condition with its fields, effects, the used-by lines and a rename that follows every use.",
-  "studio/edit/events.js": "Pack Studio editor slot for the world events section (and a format 3 pack's dated events); a stub that draws the read-only cards until its form exists.",
+  "studio/edit/events.js": "Pack Studio world events form: the event list with kind filters and search, one event's page with the strict grammar lines checked as typed, outcomes, rename and used-by.",
   "studio/edit/game-calendar.js": "Pack Studio editor slot for a game pack's calendar; a stub that draws the read-only cards until its form exists.",
   "studio/edit/game-money.js": "Pack Studio editor slot for a game pack's currency and economy; a stub that draws the read-only cards until its form exists.",
   "studio/edit/game-names.js": "Pack Studio editor slot for a game pack's name cultures; a stub that draws the read-only cards until its form exists.",
@@ -523,5 +523,6 @@
   "studio/views/json-row.js": "Draws a record's JSON row in the Pack Studio: the record as JSON read as you type, Apply as one undo step, Undo changes, the checker's word on it, and the caret at a Go to field.",
   "tests/packs/studio/wire.test.js": "Tests the Studio's edit loop without a page: commit, debounce, draft save, undo and redo, no-op edits, format 3 refusals, restore, export bytes before and after an edit, the export block, field paths and the undo keys.",
   "tests/ui/studio/edit-places.test.js": "Tests the places editor: the list and find box, a record page, edits as patches, the id rename, the pickers, the climate list and the read-only fallback.",
-  "tests/ui/studio/edit-loop.test.js": "Tests the Studio's edit loop in Chromium: a JSON row edit, Undo and Redo, the draft offered after a reload, Export off on errors with F8 and Go to at the field, warnings, and each pack's own history and export."
+  "tests/ui/studio/edit-loop.test.js": "Tests the Studio's edit loop in Chromium: a JSON row edit, Undo and Redo, the draft offered after a reload, Export off on errors with F8 and Go to at the field, warnings, and each pack's own history and export.",
+  "tests/ui/studio/edit-events.test.js": "Tests the world events form: the grammar line checks, the list and its filters, an event's fields, the pickers, effects, outcomes, ends when, rename, used-by, new, duplicate and delete."
 }
