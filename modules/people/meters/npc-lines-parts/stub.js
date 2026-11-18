@@ -50,10 +50,11 @@ function refusalOf(ctx, name, hooks) {
 }
 
 /**
- * `handler` (the npc line handler) with the stub and the unknown-person rule in front, while lines mode is on. `deps`: { hooks, linesMode(ctx) → boolean, baseline() → meters, note(slice, rev, problems) }.
+ * `handler` (the npc line handler) with the stub and the unknown-person rule in front, while lines mode is on. `deps`: { hooks, linesMode(ctx) → boolean, baseline() → meters, note(slice, rev, problems),
+ * castFirst(ctx, name) → the id of a pack person's dossier it made, or null }.
  * Runs inside the reply's transaction: a refusal makes no person and no meter entry.
  */
-export function withStubs(handler, { hooks, linesMode, baseline, note }) {
+export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst = null }) {
     return function stubbedLine(ctx, line = {}) {
         if (!linesMode(ctx)) return handler(ctx, line);
         const on = { ...line, linesOn: true };   // (the label readers of npc-lines-parts/facts.js run only on a marked line)
@@ -77,8 +78,10 @@ export function withStubs(handler, { hooks, linesMode, baseline, note }) {
             return stub.problems.length ? { ...out, data: { ...out.data, problems: [...(out.data?.problems ?? []), ...stub.problems] } } : out;
         }
         if (!knownPerson(ctx, line.name)) {
-            const text = `${clean(line.name, 40)} has no record yet; write + npc ${clean(line.name, 40)} | role | look first.`;
-            ctx.fail('REFUSED', text);
+            // A pack person met or present in this reply's scene has their dossier made from the pack here (./cast-first.js); anyone else is refused.
+            const made = typeof castFirst === 'function' ? castFirst(ctx, line.name) : null;
+            if (!made) ctx.fail('REFUSED', `${clean(line.name, 40)} has no record yet; write + npc ${clean(line.name, 40)} | role | look first.`);
+            return handler(ctx, { ...on, stubKey: made });
         }
         return handler(ctx, on);
     };
