@@ -53,8 +53,13 @@ async function openZip(page) {
   await page.waitForSelector('.st-foot:not([hidden])');
 }
 const row = rec => `.st-rec[data-rec="${rec}"]`;
-// Shows a record's JSON row, puts `edit(value)` in it and applies it.
+// A part that lists its records (the lore editor) opens one as its own page from its row; one that shows them all needs no click.
+async function openRec(page, rec) {
+  if (await page.locator(`button${row(rec)}`).count()) await page.click(`button${row(rec)}`);
+}
+// Opens a record, shows its JSON row, puts `edit(value)` in it and applies it.
 async function applyJson(page, rec, edit) {
+  await openRec(page, rec);
   if (await page.locator(`${row(rec)} .st-jsonshow`).count()) await page.click(`${row(rec)} .st-jsonshow`);
   const box = page.locator(`${row(rec)} .st-jsonin`);
   await box.fill(JSON.stringify(edit(JSON.parse(await box.inputValue())), null, 2));
@@ -80,6 +85,7 @@ test('edit through a JSON row; Undo and Redo; the edited world exports as 2-spac
   const { page, errors } = await studio();
   try {
     await page.click('.snav .si3[data-part="lore"]');
+    await openRec(page, 'lore.0');
     assert.equal(await page.locator('.st-jsonin').count(), 0, 'the rows start closed');
     await page.click(`${row('lore.0')} .st-jsonshow`);
     const box = page.locator(`${row('lore.0')} .st-jsonin`);
@@ -224,6 +230,7 @@ test('an error applied and Ctrl+S in the same moment: Export runs the waiting ch
     let downloaded = false;
     page.on('download', () => { downloaded = true; });
     await page.click('.snav .si3[data-part="lore"]');
+    await openRec(page, 'lore.0');
     await page.click(`${row('lore.0')} .st-jsonshow`);
     const blockHidden = await page.evaluate(() => {
       const box = document.querySelector('[data-rec="lore.0"] .st-jsonin');

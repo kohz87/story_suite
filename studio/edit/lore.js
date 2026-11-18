@@ -157,8 +157,9 @@ function entryView(list, index, bad, ctx, state, draw) {
                     h('button', { type: 'button', class: 'btn2 st-keep', onClick: () => { state.confirm = false; draw(); } }, 'Keep it')]
                 : h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; draw(); } }, 'Delete')));
     const extra = Object.keys(entry).filter(key => !FIELDS.includes(key));
-    return [head,
-        h('div', { class: 'st-rt st-entryhead', dataset: { rec: 'lore.' + index }, tabindex: '-1' }, h('b', entry.title ?? '(no title)'),
+    // One record element holds the whole entry, so Go to and F8 find the marked field (or the JSON row) in it and a redraw keeps the box being typed in.
+    return [h('section', { class: 'st-rec', dataset: { rec: 'lore.' + index }, tabindex: '-1', 'aria-label': String(entry.title ?? 'Lore entry ' + (index + 1)) }, head,
+        h('div', { class: 'st-rt st-entryhead' }, h('b', entry.title ?? '(no title)'),
             h('small', 'Lore entry ' + (index + 1) + ' of ' + list.length), ...flagsOf(entry).map(name => h('span', { class: 'tg2' }, name))),
         note,
         group('Entry', field({ type: 'text', key: 'title', label: 'Title', hint: 'Shown in lists and to the Director', value: entry.title ?? '' }), idRow, text),
@@ -177,7 +178,7 @@ function entryView(list, index, bad, ctx, state, draw) {
                 ? field({ type: 'text', key: 'writes_fact', label: 'Fact it records', hint: 'Set when this entry is learned; events and gates test it as fact:<id>', value: entry.writes_fact ?? '' }, value => !String(value).trim()) : null),
         group('Used by', ...(uses.length ? uses.map(use => usedRow(use, ctx)) : [h('p', { class: 'fine' }, typeof entry.id === 'string' ? 'No other record names this entry (as learned:lore/' + entry.id + ').' : 'Give the entry an id for other records to name it.')])),
         extra.length ? h('p', { class: 'fine' }, 'Also in this entry, only in the JSON below: ' + extra.join(', ') + '.') : null,
-        jsonRow({ value: entry, steps: [...BASE, index], noun: 'entry', problems: bad[index], focus: focusKey && !FIELDS.includes(focusKey) ? ctx.focus : null, state: ctx.keep?.('json:lore.' + index) ?? {} }, patches => ctx.commit(patches))].filter(Boolean);
+        jsonRow({ value: entry, steps: [...BASE, index], noun: 'entry', problems: bad[index], focus: focusKey && !FIELDS.includes(focusKey) ? ctx.focus : null, state: ctx.keep?.('json:lore.' + index) ?? {} }, patches => ctx.commit(patches)))];
 }
 
 function usedRow(use, ctx) {

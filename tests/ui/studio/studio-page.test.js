@@ -79,7 +79,7 @@ test('Ersveil opens, the checker takes it, every part has a page and Export give
       title: document.querySelector('.spage h2').textContent,
       check: document.querySelector('.st-check').dataset.ok,
     }));
-    assert.deepEqual(head, { sub: 'Format 3 · Ersveil (open world) · 3.0.0', foot: 'No problems', nav: ['overview', 'other', 'cast', 'map', 'events', 'items', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
+    assert.deepEqual(head, { sub: 'Format 3 · Ersveil (open world) · 3.0.0', foot: 'No problems', nav: ['overview', 'other', 'cast', 'map', 'events', 'items', 'pairing', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
     for (const part of head.nav) {
       await page.click(`.snav .si3[data-part="${part}"]`);
       const seen = await page.evaluate(() => ({ title: document.querySelector('.spage h2').textContent, cards: document.querySelectorAll('.spage .sgrp').length }));
@@ -185,7 +185,7 @@ test('format 4: a world zip with game.json opens both packs; a Game part makes t
   const { page, errors } = await studio(1280);
   try {
     await openFile(page, pick('world4.zip', ZIP4, 'application/zip'));
-    assert.deepEqual(await nav(page), { sub: 'World · Studio world 4 (test) · 0.1.0', groups: ['Pack', 'World', 'Game', 'Check'], parts: ['overview', 'lore', 'cast', 'map', 'conditions', 'powers', 'calendar', 'money', 'names', 'game-start', 'problems'], zip: false });
+    assert.deepEqual(await nav(page), { sub: 'World · Studio world 4 (test) · 0.1.0', groups: ['Pack', 'World', 'Game', 'Check'], parts: ['overview', 'lore', 'cast', 'map', 'conditions', 'powers', 'calendar', 'money', 'names', 'game-start', 'timeline', 'pairing', 'problems'], zip: false });
     assert.equal(await page.locator('.st-convert').count(), 0);
     assert.equal(await page.locator('.st-seg').count(), 0);
     assert.equal(await page.textContent('.st-other .lb b'), 'Game pack · Studio game 4 (test) · 0.1.0');
