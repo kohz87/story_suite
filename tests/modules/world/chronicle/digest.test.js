@@ -231,7 +231,7 @@ test('the feature: declared on by default; off, the hook writes nothing and the 
     for (const key of ['digestDays', 'digestKeep', 'digestTail']) assert.equal(part.settings.schema[key].feature, DIGEST_FEATURE, key);
     const schema = createModule().settings.schema;
     for (const key of ['chronicle.digestDays', 'chronicle.digestKeep', 'chronicle.digestTail']) assert.equal(schema[key].feature, DIGEST_FEATURE, key);
-    assert.equal(createModule().screens.find(screen => screen.id === 'story-director/days').feature, DIGEST_FEATURE);
+    assert.ok(!createModule().screens.some(screen => screen.id === 'story-director/days'), 'the old Days id is gone');
     const due = { minutes: 12 * 1440 + 60, written: { through: 11, days: [10], at: 6, skip: true } };
     assert.deepEqual(digestCommands(viewOn({ ...due, feature: undefined })), [{ type: DIGEST, payload: { at: 6 } }], 'an older host has no features: on');
     assert.deepEqual(digestCommands(viewOn({ ...due, feature: true })), [{ type: DIGEST, payload: { at: 6 } }]);

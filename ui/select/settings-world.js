@@ -9,7 +9,6 @@ const ROWS = [
   ['world.months', 'Calendar', 'Months', { hint: `Name: days, separated by commas. ${CUSTOM}`, wide: true }],
   ['world.weekdays', 'Calendar', 'Weekdays', { hint: `Separated by commas; empty for none. ${CUSTOM}`, wide: true }],
   ['world.leapYears', 'Calendar', 'Leap years', { hint: CUSTOM }],
-  ['world.weather', 'Weather', 'Weather comes from', { tags: ['merged:D7'] }],
   ['world.northIs', 'Map', 'North is', {}],
   ['world.eastIs', 'Map', 'East is', {}],
   ['world.kmPerMapUnit', 'Map', 'Km per map unit', { unit: 'km' }],
@@ -29,9 +28,9 @@ const ROWS = [
   ['world.tempo', 'Time', 'Tempo', { hint: 'How fast the world moves: 2 = seasons last twice as long', feature: WORLD_IDS.events }],
   ['world.directorCalls', 'Time', 'Director calls this game year', { type: 'info', hint: 'Read only. How many times the Director was asked to write something for the world', feature: WORLD_IDS.events }],
 ];
-const TYPES = { choice: 'seg', weather: 'seg', text: 'txt', months: 'txt', bool: 'sw', feature: 'sw', int: 'num', scale: 'num' };
+const TYPES = { choice: 'seg', text: 'txt', months: 'txt', bool: 'sw', feature: 'sw', int: 'num', scale: 'num' };
 
-/** Returns the World and time rows: `values` is `sdk.settings('story-director')`, `features` the feature list (the weather and digest switches). */
+/** Returns the World and time rows: `values` is `sdk.settings('story-director')`, `features` the feature list (the digest and world events switches). */
 export function worldRows(values, features = [], calls = 0) {
   const on = id => features.find(f => f.id === id)?.on === true;
   const v = values && typeof values === 'object' ? values : {};
@@ -41,7 +40,7 @@ export function worldRows(values, features = [], calls = 0) {
     const def = WORLD_KEYS[key] ?? {};
     const info = extra.type === 'info';
     const type = info ? 'info' : TYPES[def.kind];
-    const value = key === 'world.directorCalls' ? String(Number.isInteger(calls) && calls > 0 ? calls : 0) : info ? 'always on' : fromStored(key, def.kind === 'weather' ? on(WORLD_IDS.weather) : def.kind === 'feature' ? on(def.feature) : v[def.key]);
+    const value = key === 'world.directorCalls' ? String(Number.isInteger(calls) && calls > 0 ? calls : 0) : info ? 'always on' : fromStored(key, def.kind === 'feature' ? on(def.feature) : v[def.key]);
     const base = { key, group, type, label, hint: extra.hint ?? null, value, default: null, options: null, unit: extra.unit ?? null, tags: extra.tags ?? [], wide: extra.wide === true };
     rows.push(def?.labels ? { ...base, options: def.labels } : base);
   }

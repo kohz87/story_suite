@@ -17,7 +17,7 @@
   { "name": "Cast", "entry": "modules/cast/cast/apply.js", "about": "Applies cast sync, advance, meet, withdraw and rumor steps." },
   { "name": "Key people", "entry": "modules/cast/keypeople/index.js", "about": "Key-person tracking and its link to NPC State Delta." },
   { "name": "Chronicle", "entry": "modules/world/chronicle/index.js", "about": "The running record of story days and what happened." },
-  { "name": "Time and weather", "entry": "modules/time/index.js", "about": "Story clock, days advancing, recaps and weather." },
+  { "name": "Time", "entry": "modules/time/index.js", "about": "Story clock, days advancing and recaps." },
   { "name": "Layouts and screens", "entry": "packs/layout/validate.js", "about": "Screen layout definitions and their validation (the layout renderer went with the old view)." },
   { "name": "Packs", "entry": "packs/index.js", "about": "Loads story packs and their events, items and rules." },
   { "name": "Lean RPG (rolls, fights, gear)", "entry": "modules/rpg/index.js", "about": "The optional RPG module: checks, the fight board, gear and levels." },

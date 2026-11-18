@@ -11,7 +11,7 @@ import { RECAP_BUDGET } from '../../../../modules/time/recap.js';
 import { screens as SCREENS } from '../../../../modules/director/screens/index.js';
 import { mapScreen } from '../../../../modules/atlas/atlas/screen.js';
 import { chronicleScreen } from '../../../../modules/world/chronicle/screen.js';
-import { daysScreen, worldScreen } from '../../../../modules/world/world/index.js';
+import { worldScreen } from '../../../../modules/world/world/index.js';
 import { STATIC_TEXT as CHRONICLE_STATIC, TAIL_BUDGET as CHRONICLE_BUDGET } from '../../../../modules/world/chronicle/note.js';
 import { BACKLOG_BUDGET, DIGEST_TAIL_BUDGET } from '../../../../modules/world/chronicle/digest.js';
 import { part as checksPart } from '../../../../modules/rpg/checks/index.js';
@@ -121,7 +121,7 @@ test('two parts claiming one name is refused', () => {
 });
 
 test('screens and widgets: every part\'s, in part order; one id in two parts is refused', () => {
-    assert.deepEqual(storyDirectorModule.screens.map(screen => screen.id), [mapScreen, chronicleScreen, worldScreen, daysScreen, ...SCREENS].map(screen => screen.id));
+    assert.deepEqual(storyDirectorModule.screens.map(screen => screen.id), [mapScreen, chronicleScreen, worldScreen, ...SCREENS].map(screen => screen.id));
     assert.deepEqual(storyDirectorModule.tabs, []);
     assert.deepEqual(Object.keys(storyDirectorModule.widgets), ['story-director.map', 'story-director.people', 'story-director.journal-events', 'story-director.fold', 'story-director.key-people', 'story-director.arc', 'story-director.behind', 'story-director.plan', 'story-director.ripples', 'story-director.quests', 'story-director.spoiler-switch'], 'the atlas\'s Map, the World screen\'s people, journal events and key people, the arc panel, behind the scenes, the Quests cards and the spoiler switch');
     const status = storyDirectorModule.screens.find(screen => screen.id === 'story-director/status-card');

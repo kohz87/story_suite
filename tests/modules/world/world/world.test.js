@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DAYS_ID, FEATURE, FOLD_WIDGET, PEOPLE_WIDGET, WORLD_ID, createFoldWidget, createPeopleWidget, daysScreen, foldMemory, holidays, knownFactions, knownNews, part, worldScreen } from '../../../../modules/world/world/index.js';
+import { FEATURE, FOLD_WIDGET, PEOPLE_WIDGET, WORLD_ID, createFoldWidget, createPeopleWidget, foldMemory, holidays, knownFactions, knownNews, part, worldScreen } from '../../../../modules/world/world/index.js';
 import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
 import { createModule, storyDirectorModule } from '../../../../modules/director/module.js';
 import { makeCalendar } from '../../../../modules/time/calendar.js';
@@ -50,15 +50,13 @@ async function story(options = {}) {
 
 const leaks = data => HIDDEN.filter(word => JSON.stringify(data).includes(word));
 
-test('the part: feature on by default; the World screen and the old Days id; queries, setting and widget registered', () => {
+test('the part: feature on by default; the World screen (and no old Days id); queries, setting and widget registered', () => {
     assert.deepEqual(part.features.map(feature => [feature.id, feature.default]), [[FEATURE, true]]);
     assert.equal(WORLD_ID, 'story-director/world');
-    assert.equal(DAYS_ID, 'story-director/days');
     assert.deepEqual([...worldScreen.mounts], ['tab', 'screen']);
     assert.equal(worldScreen.feature, FEATURE);
-    assert.deepEqual([...daysScreen.mounts], ['dialog'], 'the old Days id is no tab and no game-view screen any more');
-    assert.equal(daysScreen.feature, DIGEST_FEATURE);
-    for (const screen of [worldScreen, daysScreen]) {
+    assert.ok(!storyDirectorModule.screens.some(screen => screen.id === 'story-director/days'), 'the old Days id is gone');
+    for (const screen of [worldScreen]) {
         assert.deepEqual(validateScreen(screen), [], screen.id);
         assert.deepEqual(scopeCss(screen.css, screen.id).warnings, [], screen.id);
         for (const binding of Object.values(screen.data)) assert.ok(Object.hasOwn(storyDirectorModule.queries, binding.query), binding.query);
@@ -254,28 +252,24 @@ test('Story Director alone with no scene, no clock and no chronicle: plain sente
 });
 
 // FL-live3 (final live check, "weather"): with World in the panel, Story Block's Scene tab (which shows the
-// weather) is hidden, so the weather had no place in the panel; only the reply's Status card showed it. Here
-// shows it now, by rule with no `~ weather` line and the story's own over it.
-test('Here shows the weather: the rule\'s with no ~ weather line, the story\'s over it for the day, the rule\'s again on a new day', async () => {
+// weather) is hidden, so Here shows it. Weather is descriptive (B4-11h): nothing picks one by rule, so Here has
+// none until the story writes `~ weather`, then shows the story's words until it writes another.
+test('Here shows the story\'s weather: none before a ~ weather line, its words after, kept on a new day', async () => {
     const host = await worldHost();
     const here = () => host.sdk.query('director.world.here');
     try {
         assert.equal(here().weather, '', 'no reply yet, no weather');
         await host.send('Hello.', said('The harbour at dawn.', ['~ time June 3, 1200, 08:00 am', '~ place Harbour']));
-        const ruled = here().weather;
-        assert.ok(ruled.length > 0, `the rule's weather with no ~ weather line: "${ruled}"`);
-        assert.equal(ruled, host.sdk.query('scene.weather').text, 'the same words the Status card shows');
+        assert.equal(here().weather, '', 'no ~ weather line: no weather, none made up');
+        assert.equal(drawWorld(worldData(host)).el.querySelector('.wv-weather'), null);
+        await host.send('The rain sets in.', said('Rain falls hard.', ['~ weather heavy rain']));
+        assert.equal(here().weather, 'heavy rain');
+        assert.equal(here().weather, host.sdk.query('scene.weather').text, 'the same words the Status card shows');
         const drawn = drawWorld(worldData(host));
         assert.deepEqual(drawn.warnings, []);
-        assert.equal(squash(drawn.el.querySelector('.wv-weather').textContent), ruled, 'a cloud icon and the words, no label');
-        await host.send('The rain sets in.', said('Rain falls hard.', ['~ weather heavy rain']));
-        assert.equal(here().weather, 'heavy rain', 'the story\'s own word wins');
-        assert.equal(squash(drawWorld(worldData(host)).el.querySelector('.wv-weather').textContent), 'heavy rain');
-        await host.send('Later that day.', said('The rain goes on.', []));
-        assert.equal(here().weather, 'heavy rain', 'it stands for the rest of that day and place');
+        assert.equal(squash(drawn.el.querySelector('.wv-weather').textContent), 'heavy rain', 'a cloud icon and the words, no label');
         await host.send('Days later.', said('Another morning.', ['~ time June 9, 1200, 08:00 am']));
-        assert.notEqual(here().weather, 'heavy rain', 'a new day brings the rule\'s weather back');
-        assert.ok(here().weather.length > 0);
+        assert.equal(here().weather, 'heavy rain', 'a new day keeps the story\'s weather until it writes another');
     } finally {
         host.close();
     }

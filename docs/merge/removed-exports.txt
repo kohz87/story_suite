@@ -168,3 +168,13 @@ uiRoot
 selectedNpcId
 stage1Refresh
 openLauncherDossier
+# B4-11h: the day's weather by rule (modules/time/weather.js and its parts; the scene's weather key) and the Days screen id (story-director/days).
+weatherHook
+weatherFor
+weatherKey
+WEATHER_KEY_CHARS
+HOST_WEATHER_FEATURE
+WEATHER_COMMAND
+TEMPERATE
+daysScreen
+DAYS_ID
