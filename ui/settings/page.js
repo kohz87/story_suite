@@ -4,6 +4,7 @@ import { renderGroups } from './fields.js';
 import { renderStart, renderModuleCard } from './modules.js';
 import { renderConnections } from './connections.js';
 import { renderPacks } from './packs.js';
+import { greyOut } from './off-grey.js';
 import { createToolsPage } from './tools-page.js';
 
 /**
@@ -101,7 +102,9 @@ export function createPages(settings, ctx) {
     const isStart = section.id === 'start';
     const applies = isStart ? null : h('p', { class: 'applies' }, def ? (Object.keys(modules.newChats ?? {}).length ? 'The switches below are for this chat (set new-chat defaults in Start). ' : 'The switches below apply to every chat. ') : '',
       'Settings apply to all chats, except those marked ', h('span', { class: 'tg2 chat' }, 'this chat'), '.');
-    const content = custom == null ? body(section) : [custom].flat();
+    const drawn = (custom == null ? body(section) : [custom].flat()).filter(Boolean);
+    const off = def && !isStart && modules[modules.scope]?.[def.id]?.on === false;
+    const content = off ? greyOut(drawn, def.name) : drawn;
     const tail = [];
     if (!isStart && section.rows.some(r => r.type !== 'info' && r.type !== 'btn')) tail.push(reset(`Reset ${section.name} to defaults`, 'settings.reset'));
     if (isStart) {

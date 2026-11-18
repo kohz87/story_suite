@@ -9,6 +9,7 @@ Main has nothing beyond 0.1.2 yet except documentation.
 ### Added
 
 - Settings › People: **Custom meters** (Add a meter; each meter's name, lowest, highest, start, its rule for the story and the words shown instead of its number; Remove), **Meter presets** (pick Companion, Rival, Mentor or a pack's sets), **Per-meter stages** (meter, threshold, stage name) and the **Stage ladder** (stage, what it needs, milestone, track) can now be set in the new view. They store the same NPC State settings the engine reads, apply to the open chat at the next reply, and mark a row NPC State does not use. Renaming a custom meter also renames it in the stages that name it.
+- Settings pages for a module (People, Director) now grey out and stop taking input while that module's card is off, with one line saying why; switching the card on makes them live again. (World and time and the other pages have no module card of their own, so they are not greyed.)
 - Every Settings page's cards fold: the card title is a button with a chevron; a folded card is remembered on this device.
 
 ### Changed
