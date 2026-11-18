@@ -11,7 +11,8 @@ import { normalizeFactMemories } from '../../memory/memory-fact-store.js';
 import { CAST_APPEARANCE_WIDE, castAppearanceKept, normalizeAppearanceCanon, normalizeLifeStateCertainty, normalizeMemoryStamps, normalizePortraitSeed, normalizeStoredMemories, stripRecordCitations } from '../core-record-shared.js';
 import { impactDayProblems } from '../../legacy/relationship-pacing.js';
 import { normalizeCustomFields } from '../core-record-custom-fields.js';
-import { BUILT_IN_LIMITS, normalizeLevel, normalizeStoryList } from './built-in-fields.js';
+import { BUILT_IN_LIMITS, normalizeStoryList } from './built-in-fields.js';
+import { storedLevel } from './stored-level.js';
 
 const ALIAS_KEYS = ['sex', 'race', 'ancestry', 'speciesRace', 'species_race', 'home_base', 'usualLocation', 'usual_location', 'whereToFind', 'where_to_find', 'identity_kind',
     'portrait_prompt_positive', 'portrait_prompt_negative', 'portrait_prompt_replace', 'portrait_seed', 'behavior_profile', 'key_relationships', 'innerCircle', 'inner_circle',
@@ -36,8 +37,9 @@ export function normalizeNpcRecord(rawInput = {}) {
     const customFields = normalizeCustomFields(raw.customFields);
     if (Object.keys(customFields).length) npc.customFields = customFields;
     else delete npc.customFields;
-    // The built-in story fields: absent while empty (built-in-fields.js).
-    const level = normalizeLevel(raw.level);
+    // The built-in story fields: absent while empty (built-in-fields.js). A chat from before the built-in Level kept it as the custom field
+    // "Level" (any case): while `level` is absent, a whole number there is the Level, so "only up" carries over (the custom field stays as it is).
+    const level = storedLevel({ level: raw.level, customFields });
     if (level) npc.level = level;
     else delete npc.level;
     for (const [field, max] of [['abilities', BUILT_IN_LIMITS.abilities], ['keepsakes', BUILT_IN_LIMITS.keepsakes]]) {
@@ -47,7 +49,9 @@ export function normalizeNpcRecord(rawInput = {}) {
     }
     const ageFields = normalizeStoredAgeFields(raw);
     npc.age = ageFields.age;
-    npc.apparentAge = ageFields.apparentAge;
+    // A pack's apparent age in words the normalizer cannot read as a number ("looks older") is kept while the field still is those words.
+    const packApparent = !ageFields.apparentAge && typeof raw.castFrom?.first?.apparentAge === 'string' ? cleanText(raw.castFrom.first.apparentAge, 80) : '';
+    npc.apparentAge = packApparent && cleanText(raw.apparentAge ?? raw.apparent_age, 80) === packApparent ? packApparent : ageFields.apparentAge;
     // (the living cast) A dossier made from the pack's cast keeps the pack's words exactly as written (`castFrom.first`) for as long as
     // the stored field still is those words; once a scan or the reader changes the field it is compacted like any other.
     const packFirst = raw.castFrom && typeof raw.castFrom.first === 'object' && raw.castFrom.first ? raw.castFrom.first : {};

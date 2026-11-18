@@ -3,6 +3,7 @@
 // Reads the dossier the reply sees (reply-pinned), so a swipe, a Re-read and a replay agree.
 import { clean } from '../npc-meters-config.js';
 import { normalizeLevel } from '../../core/core-record-parts/built-in-fields.js';
+import { storedLevel } from '../../core/core-record-parts/stored-level.js';
 
 const WHOLE = /^\d{1,3}$/;
 
@@ -12,7 +13,7 @@ export function levelField(fields, held) {
     const text = clean(fields.level, 40);
     const value = WHOLE.test(text) ? normalizeLevel(text) : null;
     if (value === null) return { set: {}, problems: [`level: "${text}" is not a whole number from 1 to 99; not used.`] };
-    const now = normalizeLevel(held?.level);
+    const now = storedLevel(held);
     if (now === null || value > now) return { set: { level: String(value) }, problems: [] };
     return { set: {}, problems: value < now ? [`level is already ${now}; a line never lowers it.`] : [] };
 }
