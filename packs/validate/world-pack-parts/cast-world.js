@@ -14,7 +14,7 @@ const TEXTS = { name: 80, role: 120, species: 60, gender: 40, age: 40, apparentA
 // Format 4 adds `birthday` and says where a retired format 3 field went; format 3 keeps its own list and wording.
 function oneEntry(record, say, v4) {
     const fields = v4 ? [...WORLD_CAST_FIELDS, 'birthday'] : WORLD_CAST_FIELDS;
-    for (const key of Object.keys(record)) if (!fields.includes(key)) say(key, `"${key}" is not a cast field${v4 && RETIRED_CAST_FIELDS[key] ? ` (${RETIRED_CAST_FIELDS[key]})` : ` (expected ${fields.join(', ')})`}.`, 'UNKNOWN_FIELD');
+    for (const key of Object.keys(record)) if (!fields.includes(key)) say(key, `"${key}" is not a cast field${v4 && Object.hasOwn(RETIRED_CAST_FIELDS, key) ? ` (${RETIRED_CAST_FIELDS[key]})` : ` (expected ${fields.join(', ')})`}.`, 'UNKNOWN_FIELD');
     if (!CAST_KINDS.includes(record.kind)) say('kind', `kind must be "companion" or "figure".`);
     if (typeof record.id !== 'string' || !SLUG.test(record.id)) say('id', 'id must be a lower-case slug like "sir-lothar".');
     const out = { kind: record.kind, id: record.id };

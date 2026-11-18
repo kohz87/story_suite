@@ -1,15 +1,18 @@
 // The job: the reader's own rank label and starting money and items, kept beside the installed packs (`storySuite.you`, `storySuite.start`).
 // They come before the selected game pack's (pack-format-4 D6); blank means the game pack's.
 
-const MAX_ITEMS = 20;
-const NAME_CHARS = 60;
+import { GAME_START_LIMITS } from './limits-parts/game-start.js';
+
+// The game pack's own start limits (packs/limits-parts/game-start.js), so what the reader may set is what a game pack may say.
+const MAX_ITEMS = GAME_START_LIMITS.items;
+const NAME_CHARS = GAME_START_LIMITS.name;
 const LABEL_CHARS = 40;
-const MAX_QTY = 999;
-const MAX_MONEY = 1_000_000_000;
+const MAX_QTY = GAME_START_LIMITS.qty;
+const MAX_MONEY = GAME_START_LIMITS.money;
 
 const record = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
 
-/** Text lines → start items: "Rope", "Rope x3", one per line; a line with no name is skipped, a quantity is kept to 1-999. */
+/** Text lines → start items: "Rope", "Rope x3", one per line; a line with no name is skipped, a quantity is kept to 1-9999. */
 export function parseItems(text) {
     const out = [];
     for (const raw of String(text ?? '').split('\n')) {

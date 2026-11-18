@@ -21,11 +21,12 @@ async function part(...packs) {
     return { settings, made, query: (name, args) => made.part.queries[name](null, args, {}) };
 }
 
-test('the editor text and the stored list round-trip; a bad line is skipped and a quantity is kept to 1-999', () => {
-    assert.deepEqual(parseItems('Rope x3\n\n  Lantern \nrope X0\nTorch x5000'), [{ name: 'Rope', qty: 3 }, { name: 'Lantern', qty: 1 }, { name: 'rope', qty: 1 }, { name: 'Torch', qty: 999 }]);
+test('the editor text and the stored list round-trip; a bad line is skipped and a quantity is kept to 1-9999 (the game pack\'s limits, REVPF4 18)', () => {
+    assert.deepEqual(parseItems('Rope x3\n\n  Lantern \nrope X0\nTorch x50000'), [{ name: 'Rope', qty: 3 }, { name: 'Lantern', qty: 1 }, { name: 'rope', qty: 1 }, { name: 'Torch', qty: 9999 }]);
+    assert.equal(parseItems(Array.from({ length: 30 }, (_, n) => `Item ${n}`).join('\n')).length, 24, 'up to 24 items, as a game pack');
     assert.equal(itemsText([{ name: 'Rope', qty: 3 }, { name: 'Lantern', qty: 1 }]), 'Rope x3\nLantern');
-    assert.equal(parseItems('x'.repeat(200).concat('\n'.repeat(3)))[0].name.length, 60);
-    assert.equal(parseItems(Array.from({ length: 40 }, (_, n) => `item${n}`).join('\n')).length, 20);
+    assert.equal(parseItems('x'.repeat(200).concat('\n'.repeat(3)))[0].name.length, 80);
+    assert.equal(parseItems(Array.from({ length: 40 }, (_, n) => `item${n}`).join('\n')).length, 24);
 });
 
 test('own values are read back clean: a whole money from 0, a trimmed label, blank clears', () => {

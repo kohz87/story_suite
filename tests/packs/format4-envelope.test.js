@@ -28,7 +28,7 @@ test('kind is required and is "world" or "game": anything else is refused, whate
 });
 
 test('format: a missing, 1, 2 or 3 format is FORMAT_OLD alone; a non-integer is BAD_FIELD; a newer number is FORMAT_NEWER', () => {
-    for (const old of [undefined, 1, 2, 3]) {
+    for (const old of [undefined, 0, -1, 1, 2, 3]) {   // (0 and -1: REVPF4 18, an old format too, not BAD_FIELD)
         const input = world({ format: old });
         if (old === undefined) delete input.format;
         const result = refused(input, 'FORMAT_OLD');
@@ -54,6 +54,10 @@ test('top-level fields: format 3 fields that moved say where they went; unknown 
     for (const field of ['ripples', 'layouts', 'screens', 'theme']) assert.match(messageAt(refused(world({ [field]: {} }), 'UNKNOWN_FIELD'), field), /not a pack field any more/);
     refused(world({ extra: 1 }), 'UNKNOWN_FIELD');
     refused(world({ constructor: 1 }), 'UNSAFE_KEY');
+    // REVPF4 18: a key that is an inherited name ("toString") reads as unknown, not as a moved field
+    assert.match(messageAt(refused(world({ toString: 1 }), 'UNKNOWN_FIELD'), 'toString'), /"toString" is not a pack field \(expected /);
+    assert.match(messageAt(refused(world({ content: { toString: [] } }), 'UNKNOWN_KIND'), 'content.toString'), /is not a content key of a world pack/);
+    assert.match(messageAt(refused(world({ content: { start: { toString: 1 } } }), 'UNKNOWN_FIELD'), 'content.start.toString'), /is not a world start field \([^)]*\)\.$/);
 });
 
 test('content keys: a key of the other kind says "belongs in a … pack"; legacy and unknown keys are refused', () => {

@@ -47,3 +47,9 @@ test('the limits reference is generated from the host exports', () => {
     const output = execFileSync(process.execPath, ['authoring-kit/scripts/limits.mjs'], { cwd: root, encoding: 'utf8' });
     assert.equal(output, readFileSync(new URL('../../authoring-kit/reference/LIMITS.md', import.meta.url), 'utf8'));
 });
+
+test('the kit\'s capability list names no retired module (story-director and npc-state-delta are parts of the one suite now; REVPF4 18)', async () => {
+    const { SUITE_CAPABILITIES } = await import('../../authoring-kit/check.mjs');
+    for (const retired of ['story-director', 'npc-state-delta']) assert.equal(SUITE_CAPABILITIES.includes(retired), false, retired);
+    assert.ok(SUITE_CAPABILITIES.includes('data-modules-v1'));
+});

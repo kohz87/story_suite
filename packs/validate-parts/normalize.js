@@ -133,7 +133,8 @@ export function normalize(raw, { add, warn, suiteVersion, capabilities, limits, 
 // Returns true when it is the format read here.
 function checkFormat(value, add) {
     if (value === PACK_FORMAT) return true;
-    if (value !== undefined && (!Number.isInteger(value) || value < 1)) add('BAD_FIELD', 'format', `format must be a whole number such as ${PACK_FORMAT}.`);
+    // (a whole number below 1 is an old format too: FORMAT_OLD names the converter)
+    if (value !== undefined && !Number.isInteger(value)) add('BAD_FIELD', 'format', `format must be a whole number such as ${PACK_FORMAT}.`);
     else if (value > PACK_FORMAT) add('FORMAT_NEWER', 'format', `This pack is written in format ${value}; this suite reads format ${PACK_FORMAT}. Update the suite.`);
     else add('FORMAT_OLD', 'format', `This pack ${value === undefined ? 'has no format number' : `is written in format ${value}`}; this suite reads format ${PACK_FORMAT} only. Write "format": ${PACK_FORMAT} and "kind": "world" or "game", or convert it with the Studio or scripts/packs/convert-3to4.mjs.`);
     return false;
