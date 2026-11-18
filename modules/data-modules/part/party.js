@@ -235,6 +235,8 @@ export function createParty(deps) {
         const answer = finish(ctx, prefix, draft, recorded, { pin: true, result: { module: head.definition.id, skills: rest[0].definition.id },
             summary: `${fill(J.joined, { name: request.name })}${left}` });
         answer.data.join = { op: 'added', name: request.name };
+        // (an ability of their NPC State record that found no free slot of its kind is said, as a return says a skill it could not place)
+        for (const item of pulled.left ?? []) answer.problem = [answer.problem, `${request.name}'s ${item.name} has no free ${item.kind === 'utility' ? 'utility ' : ''}skill slot.`].filter(Boolean).join(' ');
         const placed = defaultSeeds(made.skills.state);
         if (placed.length) {
             answer.data.sigSkills = seededData(placed);
