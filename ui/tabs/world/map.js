@@ -120,7 +120,7 @@ function tools(world, regions, on) {
     h('option', { value: '' }, 'All regions'), regions.map(r => h('option', { value: r }, r)));
   const icon = (name, label, fn, extra) => button({ tone: 'icon', label, icon: name, onClick: fn, ...extra });
   return h('div', { class: 'mtools' },
-    h('input', { class: 'psrch', placeholder: 'Find a place', 'aria-label': 'Find a place', onInput: e => on.find(e.target.value) }),
+    h('input', { class: 'psrch', placeholder: 'Find a place', 'aria-label': 'Find a place', onInput: e => on.find(e.target.value), onKeydown: e => { if (e.key === 'Enter') on.found(e.target.value); } }),
     select,
     icon('plus', 'Zoom in', () => on.zoom(0.75), { dataset: { z: 1 } }),
     icon('minus', 'Zoom out', () => on.zoom(1.33), { dataset: { z: -1 } }),
@@ -178,6 +178,7 @@ export function mapCard(world, state, act, ctx = {}) {
       const q = String(text).trim().toLowerCase();
       const hit = q && places.find(p => p.name.toLowerCase().includes(q));
       if (hit) { state.selected = hit.id; centreOn(hit); redraw(); }
+      return hit ?? null;
     },
   };
   const pointers = new Map();
@@ -229,9 +230,17 @@ export function mapCard(world, state, act, ctx = {}) {
       redraw();
     }).observe(box);
   }
+  // Enter in Find: says what it found (and opens the place) or that nothing matched.
+  const note = h('p', { class: 'fine find-note', role: 'status' });
+  on.found = (text) => {
+    const hit = on.find(text);
+    note.textContent = !String(text).trim() ? '' : hit ? `Found ${hit.name}.` : `No place matches "${String(text).trim()}".`;
+    if (hit) act.openPlace?.(hit.id);
+  };
   return h('section', { class: 'card glass map-card', dataset: { card: 'map' } },
     tripSummary(data.trip),
     tools(data, regions, on),
+    note,
     h('div', { class: 'mapwrap' }, box, tripCard(data.trip, { side: true, rpg: ctx.rpg !== false })),
     h('div', { class: 'legend2' },
       legendItem('', 'road'), legendItem('t', 'track'),

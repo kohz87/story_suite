@@ -10,8 +10,14 @@ export function heardLine(heard = []) {
   const last = heard[heard.length - 1];
   // A world rumour says "rumour" first; its source word would say it twice.
   const source = last.how === 'rumour' && last.from === 'rumour' ? '' : ` · ${last.from ? `from ${last.from}` : 'you were there'}`;
-  return `${last.how ? `${last.how} · ` : ''}${heard.length > 1 ? 'last news: ' : ''}heard ${last.where}, ${last.when}${source}`;
+  // A stamp with no place or no date leaves that part out (no "heard , CY 611").
+  const where = [last.where, last.when].filter(Boolean).join(', ');
+  return `${last.how ? `${last.how} · ` : ''}${heard.length > 1 ? 'last news: ' : ''}heard${where ? ` ${where}` : ''}${source}`;
 }
+
+// The Rumours filter follows the label an item shows: its last heard stamp says "rumour".
+const isRumour = n => n.heard?.[n.heard.length - 1]?.how === 'rumour';
+const matches = (n, key) => key === 'all' || (key === 'rumour' ? n.state === 'rumour' || isRumour(n) : n.state === key);
 
 function link(text, onClick, extra) {
   return h('a', { href: '#', class: 'xlink', ...extra, onClick: (e) => { e.preventDefault?.(); onClick(); } }, text);
@@ -40,10 +46,10 @@ export function newsCard(news, state, act) {
   const list = h('div', { class: 'evlist' });
   const bar = h('div', { class: 'fil' });
   const draw = () => {
-    const shown = items.filter(n => !state.filter || state.filter === 'all' || n.state === state.filter);
+    const shown = items.filter(n => matches(n, state.filter ?? 'all'));
     list.replaceChildren(...shown.map(n => eventRow(n, act)));
     bar.replaceChildren(...FILTERS.map(([key, label]) => chip({
-      label: [label, h('small', null, key === 'all' ? items.length : items.filter(n => n.state === key).length)],
+      label: [label, h('small', null, items.filter(n => matches(n, key)).length)],
       pressed: (state.filter ?? 'all') === key,
       dataset: { nf: key },
       onClick: () => { state.filter = key; draw(); },

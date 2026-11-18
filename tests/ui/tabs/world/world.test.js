@@ -108,7 +108,7 @@ test('People links and Edit buttons go through ctx', () => {
   tab.querySelector('.plink').click();
   assert.deepEqual(went, [['people', { personId: 'temiwa' }]]);
   tab.querySelector('.wsheet .ed').click();
-  assert.deepEqual(edits, [{ kind: 'place', id: 'bluewatch' }]);
+  assert.deepEqual(edits.map(e => [e.kind, e.id]), [['place', 'bluewatch']]);
   tab.querySelector('.wseg [data-value="factions"]').click();
   tab.querySelector('[data-person-id="brann"]').click();
   assert.deepEqual(went[1], ['people', { personId: 'brann' }]);
