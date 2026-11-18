@@ -445,5 +445,7 @@
   "packs/validate/game-parts/start.js": "Checks a game pack's start (money and items) and pacing (tempo).",
   "packs/validate/game-parts/rpg.js": "Checks a game pack's rpg section: the format 3 checks, the pull tuning and the player rank's module inside the pack.",
   "packs/validate/game-parts/run.js": "Runs the game pack's own section checks in order and collects what they keep.",
-  "tests/packs/format4-game.test.js": "Tests the format 4 game validator: calendar and seasons, weather by climate, start, pacing, rpg.pull and the player rank module."
+  "tests/packs/format4-game.test.js": "Tests the format 4 game validator: calendar and seasons, weather by climate, start, pacing, rpg.pull and the player rank module.",
+  "packs/validate-parts/pairing.js": "Checks a world pack against a game pack's calendar, seasons and names (the pairing check) and names each part to switch off.",
+  "tests/packs/pairing.test.js": "Tests the pairing check: start date, date and season anchors, birthdays, culture regions and the recommended-game info line."
 }
