@@ -15,6 +15,6 @@ test('Look shows its five rows in one Skin card, the Follow note and one Reset; 
 
 test('a skin choice goes through onChange with its key', () => {
   const { page, calls } = mountSettings();
-  page('look').querySelector('.sseg2 button[data-value="Glass light"]').click();
-  assert.deepEqual(calls.at(-1), ['c', 'look.skin', 'Glass light']);
+  page('look').querySelector('.sseg2 button[data-value="Follow SillyTavern"]').click();
+  assert.deepEqual(calls.at(-1), ['c', 'host.panelStyle', 'Follow SillyTavern']);
 });
