@@ -26,6 +26,9 @@ export const DOSSIER_SHAPE = {
   },
   meters: { trust: T.NUMBER, affection: T.NUMBER, desire: T.NUMBER, tension: T.NUMBER },
   stage: { $nullable: { now: T.STRING, next: NULL_STR, needs: NULL_STR } },
+  // The reader's own feelings beyond the four (each with its own range and, once reached, its stage word), and the stage word of each built-in feeling that has one; both left out when there are none.
+  extraMeters: { $optional: [{ key: T.STRING, label: T.STRING, value: T.NUMBER, min: T.NUMBER, max: T.NUMBER, stage: { $optional: T.STRING } }] },
+  axisStages: { $optional: { trust: { $optional: T.STRING }, affection: { $optional: T.STRING }, desire: { $optional: T.STRING }, tension: { $optional: T.STRING } } },
   changes: [{ date: T.STRING, meter: T.STRING, delta: T.NUMBER, why: T.STRING, heldBack: T.BOOLEAN }],
   mood: NULL_STR,
   // Mood meters on NPC State's -3..+3 scale (whole numbers); absent when it has no mood numbers.
@@ -36,7 +39,7 @@ export const DOSSIER_SHAPE = {
       { lastPlace: NULL_STR, lastSeen: NULL_STR, said: NULL_STR },
     ],
   },
-  scene: { $nullable: { wants: T.STRING, hiding: T.STRING } },
+  scene: { $nullable: { wants: T.STRING, hiding: NULL_STR } },
   // portrait: optional tie portrait URL; the selector leaves it out until there is a data source (owner question), so ties draw letters.
   ties: [{ personId: { $nullable: T.STRING }, name: T.STRING, line: T.STRING, portrait: { $optional: { $nullable: T.STRING } } }],
   past: [{ date: T.STRING, text: T.STRING, dayRef: NULL_STR }],

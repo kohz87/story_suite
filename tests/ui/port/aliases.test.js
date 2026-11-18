@@ -61,5 +61,5 @@ test('Quiet scene and End this arc reach the Director under their registered nam
 test('can: the port answers its own names and every registered command, and nothing else', async t => {
   const { port } = await world(t);
   for (const name of ['rpg.stats.spend', 'pulse.quiet', 'arc.end', 'settings.set', 'tracker.pin', 'interaction.stage', 'dm.set']) assert.equal(port.can(name), true, name);
-  for (const name of ['npc.edit', 'party.invite', 'scene.correct', '', undefined]) assert.equal(port.can(name), false, String(name));
+  for (const name of ['npc.merge', 'party.invite', 'scene.correct', '', undefined]) assert.equal(port.can(name), false, String(name));
 });

@@ -20,10 +20,14 @@ export function feelingsHero(d, { onProfile } = {}) {
       h('b', null, signed(Number(d.meters?.[key]) || 0)), key.toUpperCase())));
 }
 
-function meterRow(key, value, i) {
+function meterRow(key, value, i, { label = cap(key), stage = null, min = -100, max = 100 } = {}) {
   const v = Number(value) || 0;
-  const bar = h('b', { class: `fill f${i}`, style: { left: `${v < 0 ? 50 + v / 2 : 50}%`, width: `${Math.min(Math.abs(v), 100) / 2}%` } });
-  return h('div', { class: 'mrow', dataset: { meter: key } }, h('span', { class: `f${i}` }, cap(key)), h('i', null, bar), h('b', null, signed(v)));
+  // The built-in four run -100..+100 from the middle; a reader's own feeling fills from its lowest to its highest.
+  const own = min !== -100 || max !== 100;
+  const bar = own
+    ? h('b', { class: `fill f${i % 4}`, style: { left: '0%', width: `${max > min ? Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100)) : 0}%` } })
+    : h('b', { class: `fill f${i}`, style: { left: `${v < 0 ? 50 + v / 2 : 50}%`, width: `${Math.min(Math.abs(v), 100) / 2}%` } });
+  return h('div', { class: ['mrow', own ? 'own' : null], dataset: { meter: key } }, h('span', { class: `f${i % 4}` }, label, stage ? h('small', { class: 'stg' }, stage) : null), h('i', null, bar), h('b', null, own ? String(v) : signed(v)));
 }
 
 function changeRow(c) {
@@ -32,11 +36,14 @@ function changeRow(c) {
     h('span', null, h('b', { class: `f${i}` }, `${cap(c.meter)} ${signed(c.delta)}`), ` · ${c.why}`, c.heldBack ? h('small', { class: 'held' }, ' · held back') : null));
 }
 
-/** Builds the page body: four meter bars, the stage with what it needs, and every change; `youName` words the title only. */
+/** Builds the page body: the four meter bars (each with its stage word once reached) and the reader's own feelings, the stage with what it needs, and every change; `youName` words the title only. */
 export function withPage(d) {
   const stage = d.stage;
   return [
-    h('div', { class: 'mrows' }, FEELING_KEYS.map((key, i) => meterRow(key, d.meters?.[key], i))),
+    h('div', { class: 'mrows' }, [
+      ...FEELING_KEYS.map((key, i) => meterRow(key, d.meters?.[key], i, { stage: d.axisStages?.[key] })),
+      ...(d.extraMeters ?? []).map((m, i) => meterRow(m.key, m.value, FEELING_KEYS.length + i, m)),
+    ]),
     stage ? pageSection(`Stage · ${stage.now}${stage.next ? ` → ${stage.next}` : ''}`, stage.needs ? h('p', { class: 'fine' }, `needs ${stage.needs}`) : null) : null,
     pageSection('Changes with you', d.changes?.length ? h('div', { class: 'tl2' }, d.changes.map(changeRow)) : h('p', { class: 'fine' }, 'Nothing has changed yet.')),
   ].filter(Boolean);

@@ -90,8 +90,11 @@ export function selectNow(answers = {}, opts = {}) {
     // The card's pack offers (select/offers.js rows), told next to the actions; [] when the card offers none.
     offers: list(opts.offers),
     today: { where: whereOf(answers, opts), focus: opts.focusPick ?? focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
-    // The scene line (doing, wearing) and the situational secrets are gaps (UI-PLAN §2.2).
-    here: selectDrawer(answers, opts).map(row => ({ ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: null, wearing: null, scene: null })),
+    // Doing is the stored status and Wants the stored goal (the dossier's Right now reads the same fields); wearing and the hiding secret are gaps (UI-PLAN §2.2).
+    here: selectDrawer(answers, opts).map((row) => {
+      const stored = list(answers['npc.present']).find(item => item?.name === row.name);
+      return { ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: text(stored?.status) || null, wearing: null, scene: text(stored?.goal) ? { wants: text(stored.goal), hiding: null } : null };
+    }),
     thisTurn: thisTurn(answers),
     // `scene.you` (SB/domains/scene.js:102) answers wearing, condition and position (null when unset); the answer is null while the feature is off.
     you: { look: you ? text(you.wearing) || null : null, position: you ? text(you.position) || null : null, condition: you ? text(you.condition) || null : null },

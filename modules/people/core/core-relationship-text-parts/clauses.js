@@ -3,13 +3,17 @@ import { cleanText } from '../core-text.js';
 import { durableRefinementTokens } from './tokens.js';
 import { semanticDedupeItems } from './similarity.js';
 
+// A quoted line stays whole: the sentence break inside "Back room. Pay me tomorrow." is not a clause break (the break char is swapped for a private one and back).
+const HOLD = '\u0001';
+const holdQuoted = text => text.replace(/"[^"\n]*"|“[^”\n]*”/g, quoted => quoted.replace(/([.!?])\s+(?=[A-Z0-9])/g, `$1${HOLD}`));
+
 function splitDurableClauses(value) {
-    const source = String(value ?? '')
+    const source = holdQuoted(String(value ?? '')
         .replace(/\r/g, '\n')
         .replace(/[•●▪◦]+/g, ';')
-        .replace(/\s+[·]\s+/g, '; ');
+        .replace(/\s+[·]\s+/g, '; '));
     return source.split(/\n+|\s*;\s*|(?<=[.!?])\s+(?=[A-Z0-9])/)
-        .map(part => cleanText(part, 520))
+        .map(part => cleanText(part.replaceAll(HOLD, ' '), 520))
         .filter(Boolean);
 }
 
