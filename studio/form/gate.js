@@ -205,7 +205,7 @@ function wayNode(group, way, env) {
  * The builder shows the gate as ways of chips; "Edit as text" shows the checked text box, which re-checks each keystroke (the first error, else the
  * first warning, shows under it) and keeps the text as typed. Either way a change is committed at once, as one gate string. */
 export function gateField(spec, onChange) {
-    const field = `${spec.key}|${spec.ownerId ?? ''}`;
+    const field = `${spec.key}|${spec.ownerId ?? ''}|${spec.rec ?? ''}`; // per record: one entry's text mode is not every entry's
     let text = String(spec.value ?? '').trim();
     const hint = h('small');
     const area = h('textarea', { class: 'txt2 st-long', rows: spec.rows ?? 2, placeholder: '—', 'aria-label': spec.label }, text);

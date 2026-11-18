@@ -5,7 +5,7 @@
 // (Level, meters, stages, secrets, Abilities, Keepsakes) and the "what NPC State seeds" panel are cast-npc.js's.
 
 import { h } from '../../ui/kit/dom.js';
-import { TIE_TAGS, WORLD_CAST_LIMITS } from '../../packs/limits.js';
+import { CAST_KINDS, TIE_TAGS, WORLD_CAST_LIMITS } from '../../packs/limits.js';
 import { fieldRow } from '../form/fields.js';
 import { chipList } from '../form/list.js';
 import { openPicker } from '../form/pick.js';
@@ -23,8 +23,8 @@ import { deleteCard } from '../form/confirm.js';
 const PART = 'cast';
 const BASE = ['content', 'cast'];
 const SHOWN = 40;
-const KIND = { companion: 'Companion', figure: 'Figure' };
-const FILTERS = [['all', 'All'], ['companion', 'Companions'], ['figure', 'Figures'], ['problems', 'Problems']];
+const KIND = Object.fromEntries(CAST_KINDS.map(kind => [kind, kind[0].toUpperCase() + kind.slice(1)])); // the checker's kinds (packs/limits.js)
+const FILTERS = [['all', 'All'], ...CAST_KINDS.map(kind => [kind, `${KIND[kind]}s`]), ['problems', 'Problems']];
 // The fields behind "more fields": [key, type, label, hint]. `light` ones show for a figure too; `start` is three rows, `place` a place picker.
 const MORE = [
     ['id', 'id', 'Id', 'Other records name this person by it. Renaming changes them too', true],

@@ -148,7 +148,7 @@ function entryView(list, index, bad, ctx, state, draw) {
     const ruleValue = Object.fromEntries(RULES.map(([value, label]) => [label, value]));
     const keys = (key, label, hint, placeholder) => mark(chipList({ key, label, hint, values: Array.isArray(entry[key]) ? entry[key] : [], placeholder }, (_, values) => put(key, values, key === 'secondaryKeys' && !values.length)));
     const gate = entry.hidden === true || entry.gate !== undefined
-        ? mark(gateField({ key: 'gate', label: 'Gate', hint: 'Terms joined by or / and; and binds first. Checked as you type', value: entry.gate ?? '', content: ctx.doc?.doc?.content ?? ctx.doc?.content ?? {}, ownerId: null }, (_, value) => put('gate', value, value === '')))
+        ? mark(gateField({ key: 'gate', label: 'Gate', hint: 'Terms joined by or / and; and binds first. Checked as you type', value: entry.gate ?? '', content: ctx.doc?.doc?.content ?? ctx.doc?.content ?? {}, ownerId: null, rec: entry.id ?? entry.title ?? 'lore.' + index }, (_, value) => put('gate', value, value === '')))
         : null;
     const uses = typeof entry.id === 'string' ? usedBy(ctx.refs, 'lore', entry.id) : [];
     const head = h('div', { class: 'st-bar' },
