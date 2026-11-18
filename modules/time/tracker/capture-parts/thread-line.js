@@ -123,5 +123,7 @@ function threadLine(ctx, given) {
     if (named?.acceptance && named.status === 'active' && current?.status === 'resolved') {
         ctx.call('chronicle.threadOutcome', { thread, text: `${current.key}: ${current.ended.outcome}.` });
     }
+    // A beat the story fires with `!` goes into the quest log in this reply, not at the next reply's note, so the arc and the Director read it as played at once (quiet.js firedByLog reads this line).
+    if (line.op === '!' && current?.kind === 'beat' && current.status === 'active') ctx.call('chronicle.threadOutcome', { thread, text: raw });
     return { summary: `Director: ${raw}`, narrate: false, data: { thread, problems: findings.map(finding => finding.kind) } };
 }
