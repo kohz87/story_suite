@@ -639,5 +639,5 @@
   "modules/rpg/board/lapse.js": "A standing fight the reader does not play lapses: offers the prelude that clears story-set foes left unplayed for two of the reader's messages (counted from the stored replies' receipts), and the prelude itself (clear with a receipt, a no-op when the slot changed).",
   "modules/rpg/names-parts/lapse.js": "Names: the lapse prelude's command name and how many unplayed messages a standing fight lasts.",
   "tests/modules/rpg/board/lapse.test.js": "Tests NB-1 through a host with the Ersveil pair: foes standing unplayed keep the board lines and get no Combat rules text, and the second unplayed message lapses them; swipe, Re-read, delete, rewind and reload agree.",
-  "tests/modules/rpg/board/prompt-sections.test.js": "Tests the board reply grammar's three cases, that the board-owned Combat rules sections are left out by label (one-line pinned text too), and a played board reply through the host."
+  "tests/modules/rpg/board/prompt-sections.test.js": "Tests the board reply grammar's three cases, that the board-owned Combat rules sections are left out by label (one-line pinned text too), and played and mid-fight board replies through the host (no lapse while the board is open)."
 }

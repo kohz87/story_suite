@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { characterV1 } from '../../../../modules/rpg/templates-parts/v1-character.js';
 import { foesV1 } from '../../../../modules/rpg/templates-parts/v1-foes.js';
 import { rulesV1 } from '../../../../modules/rpg/templates-parts/v1-rules.js';
-import { BOARD_LAPSE, LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
+import { BOARD_LAPSE, CHECKS_SETTING, LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
 import { reload, success } from '../../data-modules/helpers.js';
 import { lapseOffer } from '../../../../modules/rpg/board/lapse.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
@@ -23,16 +23,16 @@ const T6 = 'I walk the frontier road toward Auvoth for the next three days, camp
 const T7 = 'In Auvoth I find the Pale Market and look for the mage Rika.';
 const START = 'the reader plays it on the board, so tell no blows yourself';
 const STANDING = 'a message that is not played on the board moves the story on';
-const LAPSED = 'was never played on the board, so it lapsed: they withdrew or were left behind.';
+const LAPSED = 'was left unplayed on the board, so it lapsed: they withdrew or were left behind.';
 
 const textOf = request => request.chat.map(message => message.content).join('\n');
 const foes = host => host.head().domains.dataModules.instances['pack.chat/foes'].chat.fields;
 const standing = host => foes(host).count1 > 0 && foes(host).foe1 === 'Fen-hound';
 const lapses = host => host.ctx.chat.flatMap((message, index) => (message.extra?.storySuite?.receipts ?? []).filter(receipt => receipt.type === BOARD_LAPSE && receipt.narrate !== false).map(() => index));
 
-async function road(t) {
+async function road(t, settings = {}) {
     t.mock.method(console, 'warn', () => {});
-    const host = await createHost({ callModel: createFakeModel(['none']) });
+    const host = await createHost({ callModel: createFakeModel(['none']), settings: { modules: { 'story-block': settings } } });
     t.after(() => host.close());
     host.features.set(LEAN_RPG_FEATURE, true);
     assert.equal((await host.packs.packs.install(pack('ersveil'))).ok, true);
@@ -131,4 +131,14 @@ test('NB-1: foes the reader set by hand are never lapsed, even after a group the
     await host.send(T7, said('The market.'));
     assert.deepEqual(lapses(host), []);
     assert.equal(foes(host).foe1, 'Rats');
+});
+
+test('NB-1: with Story checks off (no dice prelude) the second message that does not play the fight still lapses it', async t => {
+    const host = await road(t, { [CHECKS_SETTING]: false });
+    await host.send(T6, said('Astra walks on.'));
+    const { request, index } = await host.send(T7, said('The market.'));
+    assert.ok(!textOf(request).includes('Dice for this reply'), 'no dice offered');
+    assert.ok(textOf(request).includes(LAPSED));
+    assert.deepEqual(lapses(host), [index]);
+    assert.equal(standing(host), false);
 });

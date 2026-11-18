@@ -128,7 +128,7 @@ export const FIGHT_STRINGS = Object.freeze({
         roundCapHelp: '1 to 8',
         replayNote: 'Changes count from the next reply; rolls already made keep the numbers they were rolled with, and a Re-read keeps them too.',
         combat: 'What the narrator is told about combat',
-        combatHelp: 'The Combat rules block of this chat. Each chat can have its own; new chats start from the default.',
+        combatHelp: 'The Combat rules block of this chat. The narrator reads it when it tells a fight played on the board; its Exchanges, Rolls and XP guide parts are left out, because the board plays those. Each chat can have its own; new chats start from the default.',
         combatLabel: 'Combat rules',
         combatReset: 'Reset to the default',
         combatCount: '{n} / {max}',

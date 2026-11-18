@@ -61,3 +61,19 @@ test('through the host: a reply that carries a played board segment reads the pi
     for (const owned of OWNED) assert.ok(!text.includes(owned), owned);
     assert.doesNotMatch(text, /moves the story on/u, 'the board played: no standing line');
 });
+
+test('through the host: a mid-fight segment (stop open) reads the flavour, not the standing line; while the board stays open, plain messages after it never lapse the fight', async t => {
+    const host = await holdHost(t, { count: 3, level: 5 });
+    success(await host.sdk.command('dm.define', { definition: structuredClone(rulesV1) }));
+    stageFight(host, 1);
+    const { request } = await host.send('I fight.', 'Steel.');
+    const stops = host.ctx.chat.at(-1).extra.storySuite.receipts.filter(receipt => receipt.type === 'interaction.settle').map(receipt => receipt.data?.interaction?.stop);
+    assert.deepEqual(stops, ['open'], 'the fight goes on after this segment');
+    const text = request.chat.map(message => message.content).join('\n');
+    assert.ok(text.includes('No Plot Armor'), 'the flavour is told with the board\'s note');
+    assert.doesNotMatch(text, /moves the story on/u);
+    for (const said of ['I look around.', 'I walk on.']) await host.send(said, 'Quiet.');
+    assert.equal(host.ctx.chatMetadata.storySuiteInteraction?.open?.kindId, 'story-block/fight', 'the board is still open');
+    assert.equal(host.ctx.chat.flatMap(message => message.extra?.storySuite?.receipts ?? []).some(receipt => receipt.type === 'rpg.board.lapse'), false, 'no lapse while the fight is open on the board');
+    assert.equal(host.head().domains.dataModules.instances['pack.chat/foes'].chat.fields.count1, 3);
+});

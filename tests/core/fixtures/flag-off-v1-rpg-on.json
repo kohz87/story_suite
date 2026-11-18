@@ -56,7 +56,7 @@
     "user:I look around.",
     "assistant:Another telling of the quiet.",
     "user:I rest.",
-    "system:Dice for this reply, in order: 17, 15, 4. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\n[Happened]\nThe fight with Rats ×3 was never played on the board, so it lapsed: they withdrew or were left behind.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 10; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Dice for this reply, in order: 17, 15, 4. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\n[Happened]\nThe fight with Rats ×3 was left unplayed on the board, so it lapsed: they withdrew or were left behind.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 10; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   }
  ],
@@ -9485,7 +9485,7 @@
      "module": "story-block",
      "cause": "system",
      "seed": 3140617469,
-     "summary": "The fight with Rats ×3 was never played on the board, so it lapsed: they withdrew or were left behind.",
+     "summary": "The fight with Rats ×3 was left unplayed on the board, so it lapsed: they withdrew or were left behind.",
      "narrate": true,
      "data": {
       "lapsed": [

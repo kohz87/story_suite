@@ -66,7 +66,7 @@ export function lapseCommand(ctx, payload) {
     }
     if (!lapsed.length) return { summary: '', narrate: false, data: { lapsed: [] } };
     return {
-        summary: `The fight with ${lapsed.join(', ')} was never played on the board, so it lapsed: they withdrew or were left behind.`,
+        summary: `The fight with ${lapsed.join(', ')} was left unplayed on the board, so it lapsed: they withdrew or were left behind.`,
         narrate: true, data: { lapsed, keep: true, chain: true },
     };
 }
