@@ -113,7 +113,8 @@ for (const set of BUNDLE_SETS) {
   });
 }
 
-test('the extension holds the two known references, so the check above is not empty', () => {
+// The three: the RPG live view's stylesheet, the view's entry and the Packs page's Open Studio link (studio/index.html, which the release and play builds copy beside the bundle).
+test('the extension holds the three known references, so the check above is not empty', () => {
   const all = metaUsers(setFiles()).map(file => path.relative(repoRoot, file));
-  assert.deepEqual(all.sort(), ['modules/rpg/live/index.js', 'ui/entry/start.js']);
+  assert.deepEqual(all.sort(), ['modules/rpg/live/index.js', 'ui/entry/start.js', 'ui/settings/packs.js']);
 });

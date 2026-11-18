@@ -7,6 +7,7 @@ import path from 'node:path';
 import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
 import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { buildDist } from '../../scripts/play/dist.mjs';
+import { studioFiles } from '../../scripts/release/studio.mjs';
 import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // Every import specifier that leaves a bundle (a host file: starts with `/` or `../`) is what the host SillyTavern resolves, so it must be the text
@@ -15,13 +16,14 @@ import { tempDir } from '../../scripts/temp-dir.mjs';
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const recorded = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'fixtures/host-specifiers.json'), 'utf8'));
 
-function hostSpecifiers(dir) {
+// `skip`: files (paths from dir, posix) left out of the scan.
+function hostSpecifiers(dir, skip = new Set()) {
   const found = new Set();
   const visit = folder => {
     for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
       const file = path.join(folder, entry.name);
       if (entry.isDirectory()) { visit(file); continue; }
-      if (!/\.m?js$/.test(entry.name)) continue;
+      if (!/\.m?js$/.test(entry.name) || skip.has(path.relative(dir, file).split(path.sep).join('/'))) continue;
       walk.full(acorn.parse(fs.readFileSync(file, 'utf8'), { ecmaVersion: 'latest', sourceType: 'module' }), node => {
         const spec = node.source?.value;
         if (typeof spec === 'string' && (spec.startsWith('/') || spec.startsWith('../'))) found.add(spec);
@@ -42,11 +44,24 @@ test('the release bundle imports exactly the recorded host specifiers', async ()
   } finally { fs.rmSync(out, { recursive: true, force: true }); }
 });
 
-test('the play build imports the same host specifiers as the release bundle', async () => {
+// The play build also carries the Pack Studio: studio/index.html and the source files it reaches, copied unbundled at their own paths. Their `../`
+// imports are files of the build, not of the host: each must resolve to a file inside the build. The bundle's own files are what the host resolves.
+test('the play build imports the same host specifiers as the release bundle; the Studio it carries imports only its own files', async () => {
   const out = tmp();
   try {
     await buildDist({ repo: repoRoot, source: repoRoot, commit: 'HEAD', out, write: false });
-    assert.deepEqual(hostSpecifiers(out), recorded.bundle);
+    const studio = studioFiles(repoRoot).files.filter(file => /\.m?js$/.test(file));
+    assert.ok(studio.length > 0 && fs.existsSync(path.join(out, 'studio/index.html')), 'the play build carries the Studio');
+    assert.deepEqual(hostSpecifiers(out, new Set(studio)), recorded.bundle);
+    for (const file of studio) {
+      assert.equal(fs.readFileSync(path.join(out, file), 'utf8'), fs.readFileSync(path.join(repoRoot, file), 'utf8'), `${file} is the source file`);
+      walk.full(acorn.parse(fs.readFileSync(path.join(out, file), 'utf8'), { ecmaVersion: 'latest', sourceType: 'module' }), node => {
+        const spec = node.source?.value;
+        if (typeof spec !== 'string' || !(spec.startsWith('.') || spec.startsWith('/'))) return;
+        const target = path.resolve(out, path.dirname(file), spec);
+        assert.ok(!spec.startsWith('/') && !path.relative(out, target).startsWith('..') && fs.existsSync(target), `${file}: ${spec} is not a file of the play build`);
+      });
+    }
   } finally { fs.rmSync(out, { recursive: true, force: true }); }
 });
 

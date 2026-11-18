@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildErsveilZip, buildErsveilWorldZip } from '../../scripts/core/build-example-zip.mjs';
+import { buildErsveilZip } from '../../scripts/core/build-example-zip.mjs';
 import { writeStoredZip } from '../../studio/zip-write.js';
 
 const at = rel => new URL(`../../${rel}`, import.meta.url);
@@ -16,13 +16,6 @@ test("the script's Ersveil zip equals the Studio writer's bytes and the zip on d
         { name: 'game.json', bytes: bytes('examples/packs/ersveil-game/pack.json') }, { name: 'CONVERSION-NOTES.md', bytes: bytes('examples/packs/ersveil/CONVERSION-NOTES.md') }]);
     assert.deepEqual(buildErsveilZip(), studio);
     assert.deepEqual(studio, bytes('examples/packs/ersveil.zip'));
-});
-
-test("the script's world zip equals the Studio writer's bytes (README last) and the zip on disk", () => {
-    const pack = bytes('examples/packs/ersveil-world/pack.json');
-    const studio = writeStoredZip([{ name: 'pack.json', bytes: pack }, ...portraits('ersveil-world', pack), { name: 'README.md', bytes: bytes('examples/packs/ersveil-world/README.md') }]);
-    assert.deepEqual(buildErsveilWorldZip(), studio);
-    assert.deepEqual(studio, bytes('examples/packs/ersveil-world.zip'));
 });
 
 test('the script has no zip writer of its own: it imports the Studio one', () => {

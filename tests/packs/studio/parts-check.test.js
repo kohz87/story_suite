@@ -17,7 +17,6 @@ const ERSVEIL = read('tests/fixtures/packs/ersveil-3/pack.json');
 const OLD = read('tests/fixtures/packs/riverside-starter-3.json');
 const TINY = read('authoring-kit/examples/tiny-world/pack.json');
 const WORLD = read('tests/packs/studio/fixtures/world-mini.json');
-const ERSVEIL_WORLD = read('examples/packs/ersveil-world/pack.json');
 const ERSVEIL_FORMAT4 = read('examples/packs/ersveil/pack.json');
 const WORLD4 = read('tests/packs/studio/fixtures/world4-mini.json');
 const GAME4 = read('tests/packs/studio/fixtures/game4-mini.json');
@@ -137,7 +136,7 @@ test('a checker path goes to its part and record', () => {
     assert.deepEqual(partOfPath(''), { part: 'overview', rec: null });
 });
 
-for (const [name, text] of [['the Ersveil world pack', ERSVEIL_FORMAT4], ['the Ersveil game pack', ERSVEIL_GAME], ['tiny-world', TINY], ['the world-pack fixture', WORLD], ['the sample world pack', ERSVEIL_WORLD], ['a format 3 pack', OLD], ['the format 4 world', WORLD4], ['the format 4 game', GAME4], ['text that is not JSON', '{ nope']]) {
+for (const [name, text] of [['the Ersveil world pack', ERSVEIL_FORMAT4], ['the Ersveil game pack', ERSVEIL_GAME], ['tiny-world', TINY], ['the world-pack fixture', WORLD], ['the format 3 Ersveil', ERSVEIL], ['a format 3 pack', OLD], ['the format 4 world', WORLD4], ['the format 4 game', GAME4], ['text that is not JSON', '{ nope']]) {
     test(`the Studio's verdict on ${name} is the pack checker's own`, () => {
         const game = validatePack(text);
         const studio = checkText(text);

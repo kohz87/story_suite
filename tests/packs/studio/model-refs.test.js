@@ -9,7 +9,7 @@ import { SMALL } from './refs-pack.js';
 import { buildIndex } from '../../../packs/validate/world-pack-parts/index.js';
 
 const read = rel => JSON.parse(readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8'));
-const ERSVEIL = read('examples/packs/ersveil-world/pack.json');
+const ERSVEIL = read('examples/packs/ersveil/pack.json');
 
 const of = (refs, kind, id) => usedBy(refs, kind, id);
 const roles = list => list.map(use => use.role).sort();
