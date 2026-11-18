@@ -50,6 +50,7 @@ test('readCard keeps a clean card; a card without a title, or a button with neit
   const card = readCard({ tone: 'end', title: 'T', actions: [{ label: 'x' }, { label: 'Open', open: 'story-block/new-character', payload: { name: 'Pell' } }, { label: 'Bad', command: 'not a command' }] });
   assert.equal(card.tone, 'info', 'an unknown tone reads as info');
   assert.deepEqual(card.actions, [{ id: 'action-1', label: 'Open', primary: false, command: '', open: 'story-block/new-character', payload: { name: 'Pell' } }]);
+  assert.deepEqual(readCard({ title: 'T', actions: [{ label: 'Both', open: 'story-block/new-character', command: 'rpg.joinNo' }] }).actions.map(a => [a.open, a.command]), [['story-block/new-character', '']], 'a button with both opens the window');
   assert.equal(replyCardsOf({ index: 3, cards: [{ key: 'k', card: { text: 'untitled' } }] }), null, 'nothing reads: no cards');
   assert.equal(replyCardsOf(null), null);
 });

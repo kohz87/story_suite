@@ -40,7 +40,7 @@ export const PAGE_STRINGS = {
         hud: 'Status strip',
         hudDescribe: 'The strip above the message box with the story at a glance (health, place…).',
         cards: 'Cards under replies',
-        cardsDescribe: 'A small card under each reply with what it changed (each card can still be turned off on its own).',
+        cardsDescribe: 'The modules\' cards under the newest reply: a companion who may join, the death notice and a block\'s own cards.',
         inspector: 'State inspector',
         inspectorDescribe: 'A read-only Inspector screen: any reply\'s story state as a tree you can search, what changed since the reply before, its receipts and its problems.',
         savepoints: 'Save points',

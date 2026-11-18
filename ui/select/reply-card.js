@@ -30,8 +30,9 @@ function actionOf(raw, at) {
   if (!isRecord(raw)) return null;
   // (32 code points, so an emoji in a name never loses half of itself)
   const label = [...oneLine(raw.label ?? '', 128)].slice(0, 32).join('');
-  const command = typeof raw.command === 'string' && COMMAND.test(raw.command) ? raw.command : '';
-  const open = !command && typeof raw.open === 'string' && OPEN.test(raw.open) ? raw.open : '';
+  // (a button with both opens the window, as the earlier cards did)
+  const open = typeof raw.open === 'string' && OPEN.test(raw.open) ? raw.open : '';
+  const command = !open && typeof raw.command === 'string' && COMMAND.test(raw.command) ? raw.command : '';
   if (!label || (!command && !open)) return null;
   return { id: oneLine(raw.id ?? '', 40) || `action-${at}`, label, primary: raw.primary === true, command, open, payload: payloadOf(raw.payload) };
 }

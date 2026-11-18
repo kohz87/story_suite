@@ -5,6 +5,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { livePage, settle } from './helpers/live-page.js';
 import { makeMessage } from '../helpers/ui-fake-dom.js';
+import { readRecord } from '../../core/persist.js';
+import { CORE_FEATURE } from '../../core/features.js';
 
 const reply = (...lines) => `The road bends.\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const PELL = '+ party Pell | class: I | best: dex';
@@ -50,21 +52,22 @@ test('a companion who joins in Ask mode: the card is under the head reply with A
   assert.equal(pellCard(doc), null, 'the card is answered');
 });
 
-test('No answers the card, and it stays answered through swipe and swipe back, edited Re-reads, a middle delete, a reload and a chat change', async t => {
+test('No answers the card, and it stays answered through swipe and swipe back, edited Re-reads, a middle delete, a reload, a chat change and a rewind', async t => {
   const page = await joined(t, 5102, { before: true });
   const { doc, host } = page;
   pellCard(doc).querySelector('button[data-act="no"]').click();
   for (let n = 0; n < 5; n += 1) await settle();
-  await redraw(page);
-  assert.equal(pellCard(doc), null, 'No answered it');
-  const at = host.ctx.chat.length - 1;
+  assert.equal(pellCard(doc), null, 'No answered it (the view redrew on its own)');
+  let at = host.ctx.chat.length - 1;
   const answered = async why => { await redraw(page); assert.equal(pellCard(doc), null, `still answered: ${why}`); assert.ok(!party(host).includes('Pell'), `nobody added: ${why}`); };
 
   await host.swipe('Nobody comes.');
-  await redraw(page);
+  await settle();
   assert.equal(pellCard(doc), null, 'the other swipe has no offer');
   await host.st.swipeTo(at, 0);
-  await answered('swipe back');
+  await settle();
+  assert.equal(pellCard(doc), null, 'swipe back: still answered, with no redraw by the page');
+  assert.equal(titles(doc).length, 0);
 
   await host.st.editMessage(at, reply(PELL, '+ item Rope'));
   assert.equal((await host.turn.reread(at)).ok, true);
@@ -73,31 +76,64 @@ test('No answers the card, and it stays answered through swipe and swipe back, e
   assert.equal((await host.turn.reread(at)).ok, true);
   await answered('an edited Re-read, shrunk');
 
-  // a middle delete: the plain exchange before the join reply goes (its user message, then its reply)
+  // a middle delete: the plain exchange before the join reply goes (its reply, then its user message)
   assert.equal(host.ctx.chat[at - 2].mes, 'Quiet road.');
   await host.st.deleteMessage(at - 2);
   await host.st.deleteMessage(at - 3);
+  at -= 2;
   await answered('a middle delete');
 
   await host.st.loadChat(JSON.parse(JSON.stringify(host.ctx.chat)));
   await answered('a reload');
-  await host.st.loadChat(JSON.parse(JSON.stringify(host.ctx.chat)), 'another-chat');
-  await answered('a chat change');
+
+  // a chat change: another chat without the join reply has no card; back in this one, still answered
+  const home = host.ctx.chatId, saved = JSON.parse(JSON.stringify(host.ctx.chat));
+  await host.st.loadChat(saved.slice(0, at - 1), 'another-chat');
+  await redraw(page);
+  assert.deepEqual(titles(doc).filter(title => /joins the party/.test(title)), [], 'another chat: no join card');
+  await host.st.loadChat(saved, home);
+  await answered('back in this chat');
+
+  // a rewind to before the No: the branch has the card unanswered again; the chat it came from keeps it answered
+  const no = readRecord(host.ctx.chat[at]).receipts.find(receipt => receipt?.data?.join?.op === 'no');
+  assert.ok(no, 'the No is in the join reply\'s own receipts');
+  assert.equal((await host.sdk.rewind({ index: at, beforeRev: no.rev })).ok, true);
+  assert.notEqual(host.ctx.chatId, home, 'the rewind opened a branch');
+  await redraw(page);
+  assert.ok(pellCard(doc), 'rewind: the card is back, unanswered');
+  await host.st.loadChat(saved, home);
+  await answered('the chat the rewind came from');
 });
 
-test('an unanswered card comes back the same after a swipe back and a reload (it is the reply\'s own, never the view\'s)', async t => {
+test('an unanswered card follows its swipe and comes back after a swipe back and a reload (it is the reply\'s own, never the view\'s)', async t => {
   const page = await joined(t, 5103);
   const { doc, host } = page;
   const at = host.ctx.chat.length - 1;
   await host.swipe('Nobody comes.');
-  await redraw(page);
-  assert.equal(pellCard(doc), null);
+  await settle();
+  assert.equal(pellCard(doc), null, 'gone with the swipe, with no redraw by the page');
   await host.st.swipeTo(at, 0);
-  await redraw(page);
-  assert.ok(pellCard(doc), 'back with the swipe');
+  await settle();
+  assert.ok(pellCard(doc), 'back with the swipe back, with no redraw by the page');
   await host.st.loadChat(JSON.parse(JSON.stringify(host.ctx.chat)));
   await redraw(page);
   assert.ok(pellCard(doc), 'and after a reload');
+  await host.st.deleteMessage(at);
+  await settle();
+  assert.equal(pellCard(doc), null, 'a delete of the join reply takes it away');
+});
+
+test('the Cards under replies switch: off takes the cards away, on draws them again', async t => {
+  const page = await joined(t, 5105);
+  const { doc, host } = page;
+  assert.ok(pellCard(doc));
+  host.features.set(CORE_FEATURE.cards, false);
+  await settle();
+  assert.equal(doc.querySelector('.sscards'), null, 'off: no strip');
+  assert.equal(doc.querySelector('.ssrow') !== null, true, 'the inline row stays');
+  host.features.set(CORE_FEATURE.cards, true);
+  await settle();
+  assert.ok(pellCard(doc), 'on: the card again');
 });
 
 test('the death card: a Character left Down at the end of a reply dies, and "The story ends here" is drawn under the head reply', async t => {

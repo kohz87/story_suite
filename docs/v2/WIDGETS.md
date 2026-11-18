@@ -551,7 +551,7 @@ card shows before the first reply. The card is one object:
 | `title` | Required (at most 60 characters); a card with no title is no card. |
 | `text` | Optional, muted, at most 240 characters. |
 | `rows` | At most four: `{ text, tag? }` (`icon` and `tagTone` are accepted and not drawn). |
-| `actions` | At most four: `{ id, label, primary?, command?, payload?, open? }` (`icon` is accepted and not drawn). `primary` is the filled button. An action needs `command` or `open`. |
+| `actions` | At most four: `{ id, label, primary?, command?, payload?, open? }` (`icon` is accepted and not drawn). `primary` is the filled button. An action needs `command` or `open`; one with both opens the window. |
 | `later` | Accepted and ignored: the view has no Later fold, so what a card shows is only the story's (its reply's state and receipts). |
 
 - **`command`** is sent through the view's port (`port.command`, which is `sdk.command`, cause `ui`) with its `payload`, so it is
