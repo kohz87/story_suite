@@ -1,6 +1,6 @@
 // NPC record entry points that normalize with birthday, field-change and profile-development state on top of continuity.
 import * as continuity from '../continuity-core.js';
-import { withStoryDateMemo } from '../../legacy/calendar.js';
+import { withStoryDateMemo } from '../../calendar/calendar.js';
 import { normalizeNpcBirthday, normalizeScanBirthday } from '../../birthday/birthday.js';
 import { withAppearanceDerivedApparentAge, normalizeFieldChanges, normalizeFieldChangeDays, normalizeFieldChangeMessages } from '../core-birthday.js';
 import { PROFILE_DEVELOPMENT_FIELDS, profileDevelopmentForNpc } from '../core-profile-development.js';

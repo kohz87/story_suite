@@ -1,6 +1,6 @@
 // Story Director and pack lookups for the Story Suite v2 adapter. A pure part of src/adapter/queries.js
 // (same owner, moved without change); queries.js re-exports every public name it exported before.
-import { storyMinuteText } from '../legacy/calendar.js';
+import { storyMinuteText } from '../calendar/calendar.js';
 import { CAST_QUERY, KEY_PEOPLE_QUERY } from '../meters/npc-meters.js';
 import { normalizeKeyPeople } from '../cast/key-people.js';
 import { normalizeCast } from '../dossier/cast-dossier.js';

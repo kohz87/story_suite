@@ -6,7 +6,7 @@ import { createHost } from '../../testkit/index.js';
 import { buildInjection, createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
 
 import { dossierRowNodes } from '../../modules/people/dossier-rows.js';
-import { storyMinuteText } from '../../modules/people/legacy/calendar.js';
+import { storyMinuteText } from '../../modules/people/calendar/calendar.js';
 import { FEATURE_DRIFT, FEATURE_STAGES, KEY_PEOPLE_QUERY, observeKeyAway, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import {

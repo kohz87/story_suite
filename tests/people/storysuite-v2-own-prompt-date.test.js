@@ -144,7 +144,7 @@ const director = clock => ({
     },
 });
 
-async function suite(t, { modules = [], preview = null, enabled = true, calendarOwn = () => false, contextSize = 8192 } = {}) {
+async function suite(t, { modules = [], preview = null, enabled = true, contextSize = 8192 } = {}) {
     t.mock.method(console, 'warn', () => {});
     const host = await createHost({ modules, st: { contextSize } });
     t.after(() => host.close());
@@ -156,7 +156,7 @@ async function suite(t, { modules = [], preview = null, enabled = true, calendar
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
         timers: { setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {} },
-        logger: { warn() {} }, loadEmptyCast: async () => null, calendarOwn,
+        logger: { warn() {} }, loadEmptyCast: async () => null,
     });
     adapter.start();
     assert.equal(await adapter.settled(), true, 'the adapter registers');
@@ -199,9 +199,6 @@ test('storyClock: Story Director\'s minutes and calendar while hosted; null alon
     // Story Block alone (no Story Director): its queries are unknown, so no clock and no error.
     const alone = await suite(t, {});
     assert.equal(alone.adapter.storyClock(), null);
-    // The reader keeps the calendar in Delta (Source of truth: calendar "mine").
-    const mine = await suite(t, { modules: [director({ minutes: 0, calendar: SD_GREGORIAN })], calendarOwn: () => true });
-    assert.equal(mine.adapter.storyClock(), null);
     // Not hosted (stopped): none.
     const gone = await suite(t, { modules: [director({ minutes: 0, calendar: SD_GREGORIAN })] });
     gone.adapter.stop();
@@ -249,9 +246,4 @@ test('storyDateText: the story date after a given reply, the same asked live and
     assert.equal(adapter.storyDateText(null), '');
     adapter.stop();
     assert.equal(adapter.storyDateText(first), '');
-});
-test('storyDateText: no date while the reader keeps the calendar in Delta', async t => {
-    const mine = await suite(t, { modules: [director({ minutes: gregorianMinutes(611, 3, 15), calendar: SD_GREGORIAN })], calendarOwn: () => true });
-    await mine.host.send('Hello.', 'Mira looks up.');
-    assert.equal(mine.adapter.storyDateText(mine.host.store.headIndex()), '');
 });

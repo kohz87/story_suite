@@ -32,3 +32,11 @@ Diagnostics buttons), the NPC editor's refinements (`editor-refine.js`, `editor-
 `continuity-ui.js`), the calendar and scanner-output controls to `modules/people/settings/` (they draw into the section's own groups), and the two
 setting normalizers to `settings/runtime-settings-parts/{map-settings,dossier-look}.js`. The portrait manager opens from the view's dossier
 (⋯ › Portrait, `ui/port/people-portrait.js`). Backup: `scratch/backups/b4-5/`.
+
+Moved at B4-7 (calendar and relationship): `legacy/calendar.js`, `calendar-{clock,config,date,derived}.js` and their part folders to `modules/people/calendar/`;
+`legacy/relationship-pass*` and `relationship-pacing*` to `modules/people/relationship/` (`git mv`, unchanged; every importer re-pointed; tests that name
+files the old way find them through `tests/people/helpers/old-path.js`). Removed: the `calendarOwn` plumbing (the adapter option, the queries' and
+timeline's checks, `applyCastEntry`'s option, the meters' `calendarOwn` hook, the 'own' Expert note) and `setExternalCalendarSource` with its cache
+(added to `removed-exports.txt`). Kept, because something still reaches them: the focused relationship pass (a manual Scan, and a scan without a
+one-pass block, run it while hosted) and NPC State's own calendar settings (`settings/calendar-settings.js`: the months and manual date used when no
+Story Director calendar is linked). Removing either changes what a reader gets, so each waits for a decision. Backup: `scratch/backups/b4-7/`.

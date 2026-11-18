@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { appearanceDraftRecord, resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
 import { applyNpcStateCommand, buildInjection, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig, stripUiNoise } from '../../modules/people/core/core.js';
-import { deriveAgeFromBirthDate, extractStructuredWorldDate } from '../../modules/people/legacy/calendar.js';
+import { deriveAgeFromBirthDate, extractStructuredWorldDate } from '../../modules/people/calendar/calendar.js';
 import { decodeNpcStateBundle, encodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
 import { buildHistoryArchive, prepareNativeImport } from '../../modules/people/transfer/native-transfer.js';
 import { nativeImportResultSummary } from '../../modules/people/tools/data-tools.js';

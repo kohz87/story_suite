@@ -1,6 +1,6 @@
 // The card's words for a reply's events and the amounts they asked and moved on the four built-in axes.
 import { RELATIONSHIP_KEYS } from '../../core/core-relationship-model.js';
-import { PACING_TIERS } from '../../legacy/relationship-pacing.js';
+import { PACING_TIERS } from '../../relationship/relationship-pacing.js';
 import { describeGate } from '../npc-meters-gate.js';
 import { AXES } from './shared-limits.js';
 

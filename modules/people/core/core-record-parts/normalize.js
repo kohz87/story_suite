@@ -9,7 +9,7 @@ import { PORTRAIT_NPC_PROMPT_LIMIT } from '../../portrait/core-portrait.js';
 import { normalizeProfileEvidence } from '../core-evidence.js';
 import { normalizeFactMemories } from '../../memory/memory-fact-store.js';
 import { CAST_APPEARANCE_WIDE, castAppearanceKept, normalizeAppearanceCanon, normalizeLifeStateCertainty, normalizeMemoryStamps, normalizePortraitSeed, normalizeStoredMemories, stripRecordCitations } from '../core-record-shared.js';
-import { impactDayProblems } from '../../legacy/relationship-pacing.js';
+import { impactDayProblems } from '../../relationship/relationship-pacing.js';
 import { normalizeCustomFields } from '../core-record-custom-fields.js';
 import { BUILT_IN_LIMITS, normalizeStoryList } from './built-in-fields.js';
 import { storedLevel } from './stored-level.js';

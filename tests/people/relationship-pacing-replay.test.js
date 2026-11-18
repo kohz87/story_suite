@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
-import { impactDayProblems } from '../../modules/people/legacy/relationship-pacing.js';
+import { impactDayProblems } from '../../modules/people/relationship/relationship-pacing.js';
 import { suite, major } from './helpers/pacing-suite.js';
 
 const shape = s => JSON.stringify(s.host.head());

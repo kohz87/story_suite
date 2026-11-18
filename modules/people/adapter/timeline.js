@@ -20,7 +20,7 @@ const EVENTS = Object.freeze({
 
 export function createTimelinePart(session, deps) {
     const {
-        calendarOwn, CAST_TAB_ID, CAST_WIDGET, castPanels, castScreen, castStillShown, castWidget, doc, DOSSIERS_ICON, DOSSIERS_TITLE,
+        CAST_TAB_ID, CAST_WIDGET, castPanels, castScreen, castStillShown, castWidget, doc, DOSSIERS_ICON, DOSSIERS_TITLE,
         enabled, MODULE_ID, MODULE_NAME, mountSection, notifyChange, npcList, part, peopleSync, presetsBlock, queries, redrawCastViews, renderDossiers, runtime, settleMs, settlePollMs,
         storedSettings, suiteApi, syncDrawer, V2_HOST_EVENT, version, warn,
     } = deps;
@@ -60,8 +60,7 @@ export function createTimelinePart(session, deps) {
     // ---- the story's date (Story Director's clock, read only) ----
 
     // Story Director's `director.time` minutes and `director.calendar` config while hosted, or null: no
-    // host, no Story Director (the queries are unknown), its clock not set yet, or the reader keeps the
-    // calendar in Delta (`calendarOwn`). calendar.js turns it
+    // host, no Story Director (the queries are unknown), or its clock not set yet. calendar.js turns it
     // into a date on Delta's own calendar (storyClockDate) when the two calendars agree.
     // One read of the clock answers every ask until something can have moved it: a host event (a commit, a head move, a turn, a feature or module
     // change) or the end of the current task (a settings edit sends no event; the next task asks again). Nothing moves the clock inside a synchronous
@@ -93,7 +92,6 @@ export function createTimelinePart(session, deps) {
     }
     function storyClock() {
         if (!session.hosted || typeof session.sdkRef?.query !== 'function') return null;
-        try { if (calendarOwn?.() === true) return null; } catch { return null; }
         const keep = watchClock(session.sdkRef);
         if (keep && clockMemo) return clockMemo.clock === null ? null : structuredClone(clockMemo.clock);
         const clock = readClock();
@@ -119,11 +117,10 @@ export function createTimelinePart(session, deps) {
         return { minutes: time.minutes, calendar: { era: String(calendar.era ?? ''), months, leapYears: calendar.leapYears === true } };
     }
 
-    // Whether Delta's calendar settings matter: Story Director's calendar answers (`director.calendar`) and the reader has
-    // not kept the calendar in Delta, or neither. Read only; the settings panel's Expert note follows it.
+    // Whether Delta's calendar settings matter: Story Director's calendar answers (`director.calendar`) or not. Read only; the
+    // settings panel's Expert note follows it.
     function calendarLink() {
         if (!session.hosted || typeof session.sdkRef?.query !== 'function') return 'none';
-        try { if (calendarOwn?.() === true) return 'own'; } catch { return 'none'; }
         try {
             const calendar = session.sdkRef.query('director.calendar', {});
             return calendar && typeof calendar === 'object' && Array.isArray(calendar.months) ? 'story-director' : 'none';

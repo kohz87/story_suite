@@ -8,7 +8,7 @@ import {
     normalizeNpcRecord,
     setActiveCalendarConfig,
 } from '../../modules/people/core/core.js';
-import * as calendar from '../../modules/people/legacy/calendar.js';
+import * as calendar from '../../modules/people/calendar/calendar.js';
 import {
     BRANCH_LINEAGE_VERSION,
     ensureBranchParentAnchor,

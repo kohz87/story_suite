@@ -1,7 +1,7 @@
 // The People page's first groups from mock v7: Feelings, Pacing, Stages, Pull and drift and Who gets a dossier, each row tied to its NPC State setting.
 import { normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeCustomFieldNames } from '../../../modules/people/core/core.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS } from '../../../modules/people/core/core.js';
-import { normalizeAllowance, DEFAULT_ALLOWANCE } from '../../../modules/people/legacy/relationship-pacing.js';
+import { normalizeAllowance, DEFAULT_ALLOWANCE } from '../../../modules/people/relationship/relationship-pacing.js';
 import { intRow, schemaRow, segRow } from './kit.js';
 import { multiRow, shownRow, clamp } from './kit-more.js';
 

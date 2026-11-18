@@ -168,3 +168,5 @@ uiRoot
 selectedNpcId
 stage1Refresh
 openLauncherDossier
+# B4-7: the uncalled external calendar source (the v1 handshake fed it; B4-2 removed the handshake).
+setExternalCalendarSource

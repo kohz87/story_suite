@@ -17,10 +17,19 @@ const MOVED_LATER = Object.freeze({
     'scanner-output-ui.js': 'modules/people/settings/scanner-output.js',
 });
 
+// Whole families that left modules/people/legacy/ later (B4-7), with their part folders: old name prefix → new folder.
+const MOVED_FAMILIES = Object.freeze([
+    ['calendar', 'modules/people/calendar/'],
+    ['src/relationship-pa', 'modules/people/relationship/'],
+]);
+
 /** `rel` (from the old package folder) → the absolute path of that file or folder in this repo. */
 export const oldPath = rel => {
     const name = String(rel).replace(/\/$/, '');
     if (Object.hasOwn(MOVED_LATER, name)) return path.join(REPO, MOVED_LATER[name]);
+    for (const [prefix, folder] of MOVED_FAMILIES) {
+        if (name.startsWith(prefix)) return path.join(REPO, folder, name.replace(/^src\//, ''));
+    }
     return path.join(REPO, atEitherLayout(REPO, path.posix.join('packages/npc-state-delta', name)));
 };
 

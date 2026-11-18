@@ -5,7 +5,7 @@ import { npcBucket } from '../bucket.js';
 import { normalizeScannerMaxOutputTokens } from '../../calls/scanner-routing.js';
 import { normalizeRelationshipMapSettings } from './map-settings.js';
 import { normalizeDossierSkin } from './dossier-look.js';
-import { normalizeAllowance, pacingDefaults } from '../../legacy/relationship-pacing.js';
+import { normalizeAllowance, pacingDefaults } from '../../relationship/relationship-pacing.js';
 import { DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitPromptFormat, normalizeCustomFieldNames } from '../../core/core.js';
 import { PORTRAIT_THEME_PRESETS } from './portrait-preset-constants.js';
 import { portraitCustomPresetLibrary } from './portrait-preset-library.js';

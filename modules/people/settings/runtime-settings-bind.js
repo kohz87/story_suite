@@ -4,7 +4,7 @@
    index.js without change. */
 
 import { getContext } from '../../../../../../extensions.js';
-import { DEFAULT_ALLOWANCE, normalizeAllowance } from '../legacy/relationship-pacing.js';
+import { DEFAULT_ALLOWANCE, normalizeAllowance } from '../relationship/relationship-pacing.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, normalizeCustomFieldNames } from '../core/core.js';
 import { cutSettingNumber } from './number-cut.js';
 import { chatLineage } from '../legacy/branch.js';

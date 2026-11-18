@@ -194,7 +194,7 @@ export function fakeDelta() {
     return delta;
 }
 
-export function setup({ hostValue, delta = fakeDelta(), loadEmptyCast, calendarOwn } = {}) {
+export function setup({ hostValue, delta = fakeDelta(), loadEmptyCast } = {}) {
     const doc = fakeDocument();
     const dom = drawerWithPanel(doc);
     const timers = fakeTimers();
@@ -209,7 +209,6 @@ export function setup({ hostValue, delta = fakeDelta(), loadEmptyCast, calendarO
         timers,
         logger: { warn: (...args) => warnings.push(args) },
         ...(loadEmptyCast ? { loadEmptyCast } : {}),
-        ...(calendarOwn ? { calendarOwn } : {}),
     });
     return { doc, dom, timers, warnings, box, adapter, delta };
 }

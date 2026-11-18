@@ -6,7 +6,7 @@ import { isScannerRoutingError } from './scanner-routing.js';
 import { readAheadOf, replyScanned, settleScan, storyTextsForAdmission } from './scan-context.js';
 import { recentTranscript, recentUserDevelopmentContext, currentExchangeUserDevelopmentContext, currentExchangeTranscript, skippedExchangesWindow, recentReplyIds, activeReplyIds, activeChat, currentExchangeProse, storyDayAt, tieDayAt, currentExclusions, refreshMessageGate } from '../transcript/transcript.js';
 import { FULL_SCAN_RESPONSE_LENGTH, SCAN_RESPONSE_LENGTH, generateParsedNpcJson } from './scanner-request.js';
-import { applyFocusedRelationshipDecisions, runFocusedRelationshipPass, suppressPrimaryRelationshipForFocusedDecisions } from '../legacy/relationship-pass.js';
+import { applyFocusedRelationshipDecisions, runFocusedRelationshipPass, suppressPrimaryRelationshipForFocusedDecisions } from '../relationship/relationship-pass.js';
 import { prepareFullWindowRelationshipPayload, buildScannerPrompt, mergeScanResult, tagScanEvidence, resolveInterimIdentityPromotions, hasCompactMeguminWorldState, extractExplicitKeyRelationshipEdges } from '../core/core.js';
 import { secretEventsShown } from '../core/core-prompts-capture.js';
 import { chatLineage, fingerprintMessage, lineageCheckpointKey } from '../legacy/branch.js';
@@ -17,7 +17,7 @@ import { capCaptureAdmissions, queueScanFollowUps } from './runtime-scan-backfil
 import { applyStaleLifecycleAfterScan } from './runtime-scan-stale.js';
 import { createScanReplyPart } from './runtime-scan-reply.js';
 import { createAssistantHandlerPart } from './runtime-scan-handler.js';
-import { normalizeAllowance } from '../legacy/relationship-pacing.js';
+import { normalizeAllowance } from '../relationship/relationship-pacing.js';
 import { seedNewAdmissions, notifyStaleCleanup, notifyGenderConflicts } from './runtime-scan-parts/capture-result.js';
 import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordReadMark } from '../runtime/runtime-narration.js';
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from '../memory/memory-fact-scan.js';

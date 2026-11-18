@@ -90,7 +90,7 @@ test('the Expert note says the Story Director sentence only while it is true', (
     const index = runtimeSource();
     const notes = index.slice(index.indexOf('const EXPERT_NOTES = '), index.indexOf('function syncExpertNote'));
     assert.match(notes, /'story-director': 'Rarely needed\. With Story Director installed its calendar is used, so the calendar here only matters on its own\.'/);
-    assert.match(notes, /own: "Rarely needed\. You keep the calendar here \(Source of truth\), so Story Director's calendar is not used\."/);
+    assert.doesNotMatch(notes, /own:|Source of truth/, 'the own-calendar note went with calendarOwn (B4-7)');
     assert.match(notes, /none: 'Rarely needed\. No Story Director calendar is linked, so the calendar here is the one in use\.'/);
     assert.match(index, /storySuiteV2\?\.calendarLink\?\.\(\) \?\? 'none'/);
     assert.match(index, /function syncSettingsControls\(\) \{\s*syncExpertNote\(\);/);
