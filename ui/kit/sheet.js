@@ -1,5 +1,6 @@
 // Opens the shared bottom sheet (dim backdrop, grab bar, optional title row) that closes by backdrop, Escape or its close button.
 import { h } from './dom.js';
+import { tabTrap } from './trap.js';
 
 /**
  * Opens a sheet and returns `{ el, body, close }`; ctx = { doc, backStack, sheetHost }.
@@ -35,15 +36,7 @@ export function openSheet(ctx = {}, { title = '', label = null, id = 'sheet', on
     onClose?.();
   }
   // Tab stays inside the sheet (it is aria-modal): from the last control it goes to the first, from the first with Shift to the last.
-  function keep(event) {
-    if (event.key !== 'Tab' || !open) return;
-    const items = [...panel.querySelectorAll('button, input, select, textarea, a[href], [tabindex]')].filter(n => n.disabled !== true && !n.hasAttribute?.('disabled') && !n.hasAttribute?.('hidden') && n.getAttribute?.('tabindex') !== '-1');
-    const active = doc.activeElement ?? null;
-    const inside = active && panel.contains?.(active);
-    const end = event.shiftKey ? items[0] : items.at(-1);
-    if (!items.length) { event.preventDefault?.(); return; }
-    if (!inside || active === end) { event.preventDefault?.(); (event.shiftKey ? items.at(-1) : items[0]).focus(); }
-  }
+  const keep = tabTrap(panel, { doc, isOn: () => open });
   function close() {
     if (!open) return false;
     release?.();

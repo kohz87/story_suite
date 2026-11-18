@@ -2,6 +2,7 @@
 
 import { checkPort } from './port/contract.js';
 import { createBackStack } from './runtime/back-stack.js';
+import { bindBackHistory } from './runtime/back-history.js';
 import { createRedraw } from './runtime/redraw.js';
 import { createSuiteView } from './shell/suite-view.js';
 import { createTabHost } from './shell/tab-host.js';
@@ -60,6 +61,7 @@ export function mountSuite(options = {}) {
 
   const backStack = createBackStack();
   const unbindKeys = backStack.bindDocument(doc);
+  const unbindBack = bindBackHistory(backStack, doc?.defaultView);
   const offs = [];
   let flags = readFlags(port, override);
   let scheme = 'dark';
@@ -219,6 +221,7 @@ export function mountSuite(options = {}) {
       for (const off of offs) off();
       desk.stop();
       unbindKeys();
+      unbindBack();
       redraw.destroy();
       settingsOverlay?.destroy();
       view.destroy();

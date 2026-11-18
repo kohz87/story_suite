@@ -44,6 +44,11 @@
   box-shadow: var(--su-shadow);
 }
 
+/* The root takes the focus when the suite opens (shell/suite-view.js): no ring around the whole view. */
+.su-root:focus {
+  outline: none;
+}
+
 /* Settings › Look › Text size (ui/theme/look.js): the whole suite, its settings too, drawn larger. The root still fills the window (a percentage is not zoomed) and the content column stays 820 px on screen: --su-col is divided by the zoom (a length is). */
 .su-root[data-text="110"] {
   zoom: 1.1;

@@ -131,3 +131,33 @@ test('a chat change closes the hold and the wizard (the old dialog\'s rule: the 
   assert.equal(p.sheet(), null);
   assert.deepEqual(p.sent, [], 'nothing sent into either chat');
 });
+
+// soak #17: after Create the suite closes and the focus is in the message box (a touch screen gets it back on the Send it pressed, no keyboard popping up)
+async function createdFrom(t, touch) {
+  const p = await wizardPage(t);
+  if (touch) p.win.matchMedia = query => ({ matches: query === '(pointer: coarse)' });
+  const send = p.doc.getElementById('send_but');
+  send.focus();
+  p.field.value = 'I step onto the barge.';
+  p.press();
+  await settleLong();
+  assert.notEqual(p.doc.activeElement, send, 'the suite took the focus');
+  click(p.hold(), '[data-hold="create"]');
+  await settleLong();
+  click(p.sheet(), '.wz-steps button[data-value="review"]');
+  click(p.sheet(), '[data-wiz="create"]');
+  await settleLong();
+  assert.equal(layer(p.doc), 'closed');
+  assert.deepEqual(p.sent, ['I step onto the barge.']);
+  return { p, send };
+}
+
+test('after Create the focus is in the message box, not on the page body', { skip }, async t => {
+  const { p } = await createdFrom(t, false);
+  assert.equal(p.doc.activeElement, p.field);
+});
+
+test('after Create on a touch screen the focus is back on the Send button', { skip }, async t => {
+  const { p, send } = await createdFrom(t, true);
+  assert.equal(p.doc.activeElement, send);
+});

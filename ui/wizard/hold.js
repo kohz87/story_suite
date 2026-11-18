@@ -33,8 +33,10 @@ export function createSendHold({ doc, ctx = () => null, world, wizard, suite, sh
   };
   const restore = text => { const field = box(); if (field && !String(field.value ?? '').trim()) { field.value = text; field.dispatchEvent?.(new (doc.defaultView?.Event ?? globalThis.Event)('input', { bubbles: true })); } };
   const sendAgain = () => { const send = doc.getElementById?.('send_but'); if (!send) return; bypass = true; try { send.click(); } finally { bypass = false; } };
-  // The suite opened for the sheet is closed again when the choice is made, so the reader is back at the chat.
-  const leave = own => { if (own.openedSuite) { own.openedSuite = false; suite?.close?.(); } };
+  // A touch screen keeps its focus where the suite gave it back (focusing the box there would bring up the keyboard).
+  const touch = () => { try { return doc.defaultView?.matchMedia?.('(pointer: coarse)')?.matches === true; } catch { return false; } };
+  // The suite opened for the sheet is closed again when the choice is made, so the reader is back at the chat, typing in the box.
+  const leave = own => { if (own.openedSuite) { own.openedSuite = false; suite?.close?.(); if (!touch()) box()?.focus?.({ preventScroll: true }); } };
 
   function openHold(text) {
     if (hold) return;

@@ -2,6 +2,7 @@
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { ownerOf } from '../../runtime/owner-id.js';
+import { tabTrap } from '../../kit/trap.js';
 
 /** Slot key → [glyph name, long label, short label]. */
 export const SLOT_META = Object.freeze({
@@ -21,7 +22,7 @@ const RARITY_LABEL = { uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic' };
 
 /**
  * Opens the sheet frame (dim backdrop, grab bar, title, close button) and returns `{ body, subtitle, close }`.
- * Escape and the backdrop close it; the back-stack gets one `sheet` entry; focus returns to the opener.
+ * Escape and the backdrop close it; Tab stays inside it (it is aria-modal); the back-stack gets one `sheet` entry; focus returns to the opener.
  */
 export function openSheet(ctx = {}, { title = '', subtitle = '', tone = null } = {}) {
   const doc = ctx.doc ?? globalThis.document;
@@ -51,6 +52,7 @@ export function openSheet(ctx = {}, { title = '', subtitle = '', tone = null } =
   }
   overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
   closeBtn.addEventListener('click', close);
+  overlay.addEventListener('keydown', tabTrap(sheet, { doc, isOn: () => open }));
   host.appendChild(overlay);
   release = ctx.backStack?.push({ id: 'party-sheet', layer: 'sheet', close: () => { open = false; overlay.remove(); opener?.focus?.(); } }) ?? null;
   closeBtn.focus();

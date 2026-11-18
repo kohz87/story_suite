@@ -57,7 +57,8 @@ export function createSettingsOverlay(options = {}) {
   });
   let nav = makeNav();
   const main = h('div', { class: 'spage' });
-  const body = h('div', { class: 'sbody', dataset: { page: 'list' } }, nav.side, h('div', { class: 'smain' }, nav.list, main));
+  const scroller = h('div', { class: 'smain' }, nav.list, main);
+  const body = h('div', { class: 'sbody', dataset: { page: 'list' } }, nav.side, scroller);
   const closeBtn = h('button', { type: 'button', class: 'ibtn x', 'aria-label': 'Close settings', onClick: () => close() }, '×');
   const parts = [
     h('div', { class: 'shd' }, h('span', { class: 'ttl' }, h('b', 'Story Suite · Settings'), subtitle ? h('small', subtitle) : null), closeBtn),
@@ -69,7 +70,7 @@ export function createSettingsOverlay(options = {}) {
   host.appendChild(el);
 
   function backButton() {
-    return h('button', { type: 'button', class: 'btn2 sback', onClick: () => { page = 'list'; query = ''; nav.setQuery(''); paint(); } }, '‹ Settings');
+    return h('button', { type: 'button', class: 'btn2 sback', onClick: () => { page = 'list'; query = ''; nav.setQuery(''); paint(); scroller.scrollTop = 0; } }, '‹ Settings');
   }
 
   const pages = createPages(settings, { ...ctx, repaint: () => paint() });
@@ -110,12 +111,14 @@ export function createSettingsOverlay(options = {}) {
     paint();
   }
 
+  // Another page (a side or list pick, a link on a page, the footer) opens at its top: the page scroller kept the last page's place.
   function show(id) {
     if (!sections.some(s => s.id === id)) return false;
     current = id;
     query = '';
     nav.setQuery('');
     paint();
+    scroller.scrollTop = 0;
     return true;
   }
 
@@ -125,6 +128,7 @@ export function createSettingsOverlay(options = {}) {
       query = '';
       nav.setQuery('');
       paint();
+      scroller.scrollTop = 0;
       return false;
     }
     return true;
