@@ -1,7 +1,8 @@
 // The job: the kind maps and markets of a world pack (views/route.js EDITORS: placeKinds, routeKinds, markets). A kind map is a table of
 // the pack's own words for places or routes, each with the engine class it counts as (PLACE_CLASSES, ROUTE_CLASSES) and how many records
-// use it; a rename carries those records along, and a kind in use cannot be removed unless it is a class itself. Markets are one card per
-// settlement type (buy, sell, stock) or environment tag (prices per goods category), with the places that name it and the JSON row.
+// use it; a rename carries those records along (and, for a place kind, the `where.kinds` of templates and world events), and a kind in use
+// cannot be removed unless it is a class itself. Markets are one card per settlement type (buy, sell, stock) or environment tag (prices per
+// goods category), with the places that name it and the JSON row.
 
 import { h } from '../../ui/kit/dom.js';
 import { MARKET_LIMITS, MARKET_WORD, PLACE_CLASSES, ROUTE_CLASSES, WORLD_LIMITS } from '../../packs/limits.js';
@@ -31,6 +32,11 @@ const said = result => (result?.ok ? '' : result?.refusal ?? 'The change was not
 // The records of `key` whose `field` names `word` (a string field, or a word in a list field).
 const usersOf = (content, key, field, word) => recordsOf(content, key).filter(({ record }) => (Array.isArray(record[field]) ? record[field].includes(word) : record[field] === word));
 
+// The templates and world events whose `where.kinds` names a place kind `word`: [{ path, kinds }].
+const wheresOf = (content, word) => ['templates', 'worldEvents'].flatMap(key => recordsOf(content, key)
+    .filter(({ record }) => isObject(record.where) && Array.isArray(record.where.kinds) && record.where.kinds.includes(word))
+    .map(({ record, at }) => ({ path: ['content', key, at, 'where', 'kinds'], kinds: record.where.kinds })));
+
 // Chips that open each user's record (places only: routes have no record page of their own yet).
 function userChips(users, key) {
     const shown = users.slice(0, 12).map(user => (key === 'places'
@@ -44,6 +50,7 @@ function kindRow(key, word, map, ctx, content) {
     const spec = MAPS[key];
     const steps = ['content', key];
     const users = usersOf(content, spec.users, 'kind', word).map(user => ({ ...user, go: ctx.go }));
+    const wheres = key === 'placeKinds' ? wheresOf(content, word) : [];
     const cls = map[word];
     const options = spec.classes.includes(cls) ? spec.classes : [String(cls), ...spec.classes];
     const name = h('input', { type: 'text', class: 'txt2 st-kword', 'aria-label': `Kind "${word}"` });
@@ -60,10 +67,12 @@ function kindRow(key, word, map, ctx, content) {
         if (!to || to.length > 40) return tell('A kind is a word of 1 to 40 characters.');
         if (Object.hasOwn(map, to)) return tell(`"${to}" is already in this list.`);
         const next = Object.fromEntries(Object.entries(map).map(([k, v]) => [k === word ? to : k, v]));
-        tell(said(ctx.commit([{ op: 'set', path: steps, value: next }, ...users.map(user => ({ op: 'set', path: ['content', spec.users, user.at, 'kind'], value: to }))])));
+        const named = wheres.map(({ path, kinds }) => ({ op: 'set', path, value: [...new Set(kinds.map(kind => (kind === word ? to : kind)))] }));
+        tell(said(ctx.commit([{ op: 'set', path: steps, value: next }, ...users.map(user => ({ op: 'set', path: ['content', spec.users, user.at, 'kind'], value: to })), ...named])));
     };
     const drop = () => {
         if (users.length && !spec.classes.includes(word)) return tell(`${plural(users.length, spec.noun)} use it: give ${users.length === 1 ? 'it' : 'them'} another kind first.`);
+        if (wheres.length && !spec.classes.includes(word)) return tell(`${wheres.length === 1 ? 'An event or template names' : `${wheres.length} events and templates name`} it in where.kinds: take it out of ${wheres.length === 1 ? 'that' : 'those'} first.`);
         tell(said(ctx.commit([{ op: 'remove', path: [...steps, word] }])));
     };
     name.addEventListener('change', rename);

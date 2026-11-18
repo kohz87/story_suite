@@ -5,7 +5,7 @@
 import { h } from '../../ui/kit/dom.js';
 import { foldKey } from '../../core/text.js';
 import { CLIMATES } from '../../packs/limits.js';
-import { fieldRow } from '../form/fields.js';
+import { fieldRow, markFocus } from '../form/fields.js';
 import { chipList } from '../form/list.js';
 import { subRecords } from '../form/records.js';
 import { openPicker } from '../form/pick.js';
@@ -109,7 +109,7 @@ function recordKit(section, ctx, at) {
         if (id === record.id) return;
         const done = record.id === undefined ? { ok: true, patches: [{ op: 'set', path: [...where, 'id'], value: id }] } : renameId(ctx.refs, ctx.doc, noun.kind, record.id, id);
         if (!done.ok) return tell(done.refusal);
-        if (commit(done.patches)?.ok && done.elsewhere?.length) tell(`The other open pack names this ${noun.one} ${plural(done.elsewhere.length, 'time')}; change those by hand.`);
+        if (commit(done.patches)?.ok && done.elsewhere?.length) (ctx.say ?? tell)(`The other open pack names this ${noun.one} ${plural(done.elsewhere.length, 'time')}; change those by hand.`);
     };
     const row = (spec, change) => fieldRow({ ...spec, problem: problemOf(spec.key) }, change);
     const copy = () => {
@@ -121,12 +121,15 @@ function recordKit(section, ctx, at) {
     const page = (...groups) => {
         const state = ctx.keep?.(`${key}:${rec}`) ?? {};
         state.json ??= {};
-        const json = jsonRow({ value: record, steps: where, noun: noun.one, problems: mine, focus: ctx.focus?.rec === rec ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches));
+        // Go to: the field the path names; a path no field here shows opens the JSON row at it instead.
+        const form = h('div', { class: 'st-edit', dataset: { rec: key } }, ...groups);
+        const marked = ctx.focus?.rec === rec && markFocus(form, ctx.focus.path);
+        const json = jsonRow({ value: record, steps: where, noun: noun.one, problems: mine, focus: ctx.focus?.rec === rec && !marked ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches));
         return h('section', { class: 'st-rec', dataset: { rec }, tabindex: '-1', 'aria-label': titleOf(record, at) },
             h('div', { class: 'st-rh' }, h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Places & routes'),
                 h('span', { class: 'st-rt' }, h('b', titleOf(record, at))), h('small', `${noun.title} ${at + 1} of ${section.value.length}`),
                 h('span', { class: 'st-flags' }, h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'), h('button', { type: 'button', class: 'btn2 dng st-del', onClick: drop }, 'Delete'))),
-            said, h('div', { class: 'st-edit', dataset: { rec: key } }, ...groups), json);
+            said, form, json);
     };
     const usedLine = () => {
         const users = usedBy(ctx.refs, noun.kind, record.id);

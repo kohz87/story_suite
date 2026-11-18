@@ -203,7 +203,8 @@ function wayNode(group, way, env) {
 
 /** Builds a gate row. `spec`: `{ key, label, hint, value, content, ownerId }`; `onChange(key, text)` runs on a committed edit (a blank gate is `''`).
  * The builder shows the gate as ways of chips; "Edit as text" shows the checked text box, which re-checks each keystroke (the first error, else the
- * first warning, shows under it) and keeps the text as typed. Either way a change is committed at once, as one gate string. */
+ * first warning, shows under it) and keeps the text as typed. Either way a change is committed at once, as one gate string. While the builder shows,
+ * the text box is hidden, so Go to lands on "Edit as text" (`data-goto`) instead. */
 export function gateField(spec, onChange) {
     const field = `${spec.key}|${spec.ownerId ?? ''}`;
     let text = String(spec.value ?? '').trim();
@@ -259,9 +260,9 @@ export function gateField(spec, onChange) {
         box.replaceChildren(...[...(env.groups.length
             ? [...ways.flatMap((way, at) => (at ? [h('div', { class: 'st-or' }, h('span', 'or')), way.node] : [way.node])),
                 h('button', { type: 'button', class: 'btn2 st-or-add', onClick: () => openTerm(env, env.groups.length) }, '+ or: another way in'),
-                h('div', { class: 'st-astext' }, h('small', 'As text'), h('code', { class: 'st-gtext' }, text), h('button', { type: 'button', class: 'lnk st-totext', onClick: env.toText }, 'Edit as text'))]
+                h('div', { class: 'st-astext' }, h('small', 'As text'), h('code', { class: 'st-gtext' }, text), h('button', { type: 'button', class: 'lnk st-totext', dataset: { goto: '' }, onClick: env.toText }, 'Edit as text'))]
             : [h('div', { class: 'st-way st-empty' }, h('span', { class: 'none' }, 'No terms yet'),
-                h('button', { type: 'button', class: 'lnk st-totext', onClick: env.toText }, 'Write it as text'),
+                h('button', { type: 'button', class: 'lnk st-totext', dataset: { goto: '' }, onClick: env.toText }, 'Write it as text'),
                 h('button', { type: 'button', class: 'btn2 pri st-first', onClick: () => openTerm(env, 0) }, '+ Add the first term'))]),
             note && note.after === text ? h('p', { class: 'fine st-gnote' }, `Way ${note.way} removed. `, h('button', { type: 'button', class: 'lnk st-undo-way', onClick: () => commit(note.before) }, 'Undo')) : null].filter(Boolean));
         const message = bad ? `✕ ${plural(bad, 'problem')}, on the chip${bad === 1 ? '' : 's'} above.` : (worst?.level === 'error' ? worst.message : warned || worst ? `! ${plural(Math.max(warned, all.length), 'warning')}. Warnings don't stop Export.` : '');

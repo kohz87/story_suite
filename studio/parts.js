@@ -54,9 +54,20 @@ export function kindOf(doc) {
 
 const count = value => (Array.isArray(value) ? value.length : (isObject(value) ? Object.keys(value).length : 1));
 
+// What a format 4 pack's part shows when the pack holds none of its keys (a new pack): each key's empty value, which the first edit there
+// writes (app.js puts it before that edit's patches); `undefined` is the editor's own "not set" card. A key left out here is not shown:
+// the game's currency, rpg, pacing and dataModules have no empty value the checker takes, and the editors of regions, powers and items
+// offer realms, scores and foes themselves; the editor of the part's other key offers each of them.
+const EMPTY = {
+    world: { lore: [], cast: [], places: [], routes: [], regions: [], placeKinds: {}, routeKinds: {}, markets: [], conditions: [], start: {},
+        worldEvents: [], templates: [], powers: [], items: [] },
+    game: { calendar: { months: [] }, economy: {}, weather: undefined, names: {}, you: {}, meterPresets: [], start: {} },
+};
+
 /**
- * The parts of a parsed pack (`doc`, or null): `[{ ...part, sections: [{ key, where, value, count }], count }]`, its kind's parts
- * and the shared ones; a part with nothing in the pack is left out unless it is `always` shown. Page parts are not included.
+ * The parts of a parsed pack (`doc`, or null): `[{ ...part, sections: [{ key, where, value, count, absent? }], count }]`, its kind's
+ * parts and the shared ones. A format 4 pack's part it holds nothing of is still listed (count 0), its sections `absent` with each key's
+ * empty value (EMPTY); a format 3 pack's, and Other with nothing in it, are left out unless `always` shown. Page parts are not included.
  */
 export function partsOf(doc) {
     const { kind, legacy } = kindOf(doc);
@@ -74,6 +85,9 @@ export function partsOf(doc) {
             for (const key of Object.keys(top)) if (key !== 'content' && !OVERVIEW_TOP.includes(key)) sections.push({ key, where: 'top', value: top[key] });
         }
         const counted = sections.map(section => ({ ...section, count: count(section.value) }));
+        if (!counted.length && !part.always && !legacy && part.kind === kind) {
+            for (const key of part.keys) if (Object.hasOwn(EMPTY[kind], key) && grouping.get(key) === part.id) counted.push({ key, where: 'content', value: structuredClone(EMPTY[kind][key]), count: 0, absent: true });
+        }
         if (!counted.length && !part.always) continue;
         out.push({ ...part, sections: counted, count: part.id === 'overview' ? 0 : counted.reduce((sum, section) => sum + section.count, 0) });
     }

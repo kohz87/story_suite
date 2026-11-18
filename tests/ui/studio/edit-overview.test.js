@@ -137,10 +137,14 @@ test('each field\'s problems land on its row, a parent path on its first row, an
 });
 
 test('a format 3 pack, or a context with no commit, draws each field read-only', () => {
-    const legacy = setup(WORLD, { legacy: true });
+    // a format 3 pack: its fields in words, in the mock's order, drawn once (MK-9 "old"): no format row, what it needs as words
+    const legacy = setup({ ...WORLD, requires: { suite: '^2.0' } }, { legacy: true });
     const nodes = legacy.draw();
-    assert.equal(nodes.length, TOP.filter(key => WORLD[key] !== undefined).length);
+    const shown = ['name', 'id', 'version', 'author', 'description', 'requires', 'recommends'].filter(key => WORLD[key] !== undefined || key === 'requires');
+    assert.equal(nodes.length, shown.length);
     assert.equal(page(nodes).querySelectorAll('input').length, 0);
+    assert.deepEqual(nodes.map(node => node.querySelector('b').textContent), shown.map(key => ({ name: 'Name', id: 'Id', version: 'Version', author: 'Author', description: 'Description', requires: 'Needs', recommends: 'Recommends' })[key]));
+    assert.match(nodes.at(shown.indexOf('requires')).textContent, /suite \^2\.0/);
     const plain = editSection({ key: 'id', where: 'top', value: 'x', count: 1 }, { doc: WORLD, kind: 'world', problems: [] });
-    assert.match(plain[0].textContent, /id/);
+    assert.ok(plain.some(node => /^Id/.test(node.textContent)));
 });

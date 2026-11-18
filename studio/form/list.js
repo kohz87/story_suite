@@ -17,7 +17,11 @@ export function chipList(spec, onChange) {
             const text = add.value.trim();
             if (!text) return;
             if (spec.unique !== false && values.includes(text)) { add.value = ''; return; }
-            values = [...values, text]; draw(); onChange?.(spec.key, [...values]);
+            // the box is drawn anew, so the new add box takes the focus before the change (the Studio's redraw keeps it from there)
+            const typing = add.ownerDocument?.activeElement === add;
+            values = [...values, text]; draw();
+            if (typing) box.querySelector('input.kadd')?.focus?.();
+            onChange?.(spec.key, [...values]);
         };
         add.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault?.(); take(); } });
         add.addEventListener('change', take);

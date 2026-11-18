@@ -4,7 +4,7 @@
 
 import { h } from '../../ui/kit/dom.js';
 import { CLIMATES } from '../../packs/limits.js';
-import { fieldRow } from '../form/fields.js';
+import { fieldRow, markFocus } from '../form/fields.js';
 import { chipList } from '../form/list.js';
 import { openPicker } from '../form/pick.js';
 import { renderSection } from '../views/records.js';
@@ -95,7 +95,7 @@ function recordPage(section, ctx, at) {
         if (!done.ok) return tell(done.refusal);
         const result = ctx.commit(done.patches);
         if (!result?.ok) tell(result?.refusal ?? 'The change was not made.');
-        else if (done.elsewhere?.length) tell(`The other open pack names this place ${done.elsewhere.length} time${done.elsewhere.length === 1 ? '' : 's'}; change those by hand.`);
+        else if (done.elsewhere?.length) (ctx.say ?? tell)(`The other open pack names this place ${done.elsewhere.length} time${done.elsewhere.length === 1 ? '' : 's'}; change those by hand.`);
     };
     const regions = definedIds(ctx.refs, 'region');
     const kinds = Object.keys(content.placeKinds ?? {});
@@ -124,7 +124,9 @@ function recordPage(section, ctx, at) {
         h('section', { class: 'sgrp st-usedby' }, h('div', { class: 'gt' }, 'Used by'),
             h('div', { class: 'srow wide' }, h('span', { class: 'lb' }, h('small', users.length ? `${users.length} place${users.length === 1 ? '' : 's'} in the pack name it, such as ${users.slice(0, 3).map(use => use.path.join('.')).join(', ')}.` : `No other record names this place (as ${place.id ?? 'its id'}).`)))));
     if (state.json === undefined) state.json = {};
-    const json = jsonRow({ value: place, steps: where, noun: 'place', problems: mine, focus: ctx.focus?.rec === rec ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches));
+    // Go to: the field the path names; a path no field here shows opens the JSON row at it instead.
+    const marked = ctx.focus?.rec === rec && markFocus(form, ctx.focus.path);
+    const json = jsonRow({ value: place, steps: where, noun: 'place', problems: mine, focus: ctx.focus?.rec === rec && !marked ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches));
     const back = h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Places');
     const copy = () => {
         const id = freeId(section, ctx, `${place.id ?? 'place'}-copy`);

@@ -146,9 +146,21 @@ function form(doc, ctx) {
  * `section`: `{ key, where: 'top', value, count }`; `ctx`: the editor context (views/route.js). The first of the pack's top-level fields
  * returns the whole form; the others return nothing and mark their problems on it. A format 3 pack (or one that cannot be edited) is read-only.
  */
+// A read-only pack (format 3): its fields in words, in the mock's order (MK-9 "old"), drawn once by the first field's call; the format is
+// in the subtitle, and what it needs reads as "suite ^2.0" rather than JSON.
+const READ = [['name', 'Name'], ['id', 'Id'], ['version', 'Version'], ['author', 'Author'], ['description', 'Description'], ['requires', 'Needs'], ['recommends', 'Recommends']];
+const words = value => (isObject(value) && Object.values(value).every(item => typeof item === 'string' || typeof item === 'number')
+    ? Object.entries(value).map(([key, item]) => `${key} ${item}`).join(', ') : value);
+
+function readOnly(section, doc) {
+    if (!isObject(doc)) return [readRow(section.key, section.value)];
+    if (section.key !== TOP.find(key => doc[key] !== undefined)) return [];
+    return READ.filter(([key]) => doc[key] !== undefined).map(([key, label]) => readRow(label, words(doc[key])));
+}
+
 export function editSection(section, ctx) {
     const doc = ctx.doc?.doc ?? ctx.doc;
-    if (ctx.legacy || typeof ctx.commit !== 'function' || !isObject(doc)) return [readRow(section.key, section.value)];
+    if (ctx.legacy || typeof ctx.commit !== 'function' || !isObject(doc)) return readOnly(section, doc);
     const first = TOP.find(key => doc[key] !== undefined);
     if (section.key !== first && drawn.has(doc)) {
         showProblems(drawn.get(doc), ctx.problems);

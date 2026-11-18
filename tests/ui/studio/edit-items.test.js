@@ -268,3 +268,11 @@ test('a pack that cannot be edited, or a list that is not all records, falls bac
     const nodes = editSection({ key: 'items', where: 'content', value: ['loose'], count: 1 }, { doc: {}, kind: 'world', legacy: false, problems: [], focus: null, commit: () => ({ ok: true }), keep: () => ({}), go: () => {} });
     assert.equal(nodes[0].querySelector('.st-itemrow'), null);
 });
+
+test('the open item\'s data-rec holds its fields: Go to finds the field marked inside the record, as the Studio looks for it', () => {
+    const me = host();
+    me.focus = { rec: 'items.0', path: ['name'] };
+    const record = me.draw().querySelector('[data-rec="items.0"]');
+    assert.ok(record.querySelector('.st-at'));
+    assert.equal(record.querySelector('.st-at').closest('[data-key]').dataset.key, 'name');
+});

@@ -105,6 +105,9 @@ function page(weather, ctx, state, commit, draw) {
         if (row === ANY || col === ANY || col.startsWith('?')) return { text: '—', state: 'none' };
         const any = at(row, ANY)[0];
         if (any) return { text: `Any season · ${any.table.weather?.length ?? 0}`, state: 'built' };
+        // Own tables: a cell with neither reads the "Any climate" row, its season's table first (the game's order, climateWeather).
+        const plain = style === 'tables' ? at(ANY, col)[0] ?? at(ANY, ANY)[0] : null;
+        if (plain) return { text: `Any climate · ${plain.table.weather?.length ?? 0}`, state: 'built' };
         return { text: row === 'underground' ? 'Built-in · all year' : 'Built-in', state: 'built' };
     };
     const ownCells = new Set(placed.filter(item => item.row !== null).map(item => `${item.row}|${item.col}`)).size;
@@ -148,8 +151,17 @@ function warnRow(title, text, fixes) {
         h('span', { class: 'ctl' }, ...fixes.map(([name, run]) => h('button', { type: 'button', class: 'lnk st-wfix', onClick: run }, name))));
 }
 
+// The open cell and the fresh line are set before the commit (which draws the page again) and put back if the edit is refused.
+function changeWith(state, next, commit, patches) {
+    const was = { open: state.open, fresh: state.fresh };
+    Object.assign(state, next);
+    const result = commit(patches);
+    if (!result?.ok) Object.assign(state, was);
+    return result;
+}
+
 function removeTable(index, count, commit, state) {
-    if (commit([count === 1 ? { op: 'remove', path: [...BASE, 'tables'] } : { op: 'remove', path: [...BASE, 'tables', index] }])?.ok && state.open?.at === index) state.open = { ...state.open, at: undefined };
+    return changeWith(state, state.open?.at === index ? { open: { ...state.open, at: undefined } } : {}, commit, [count === 1 ? { op: 'remove', path: [...BASE, 'tables'] } : { op: 'remove', path: [...BASE, 'tables', index] }]);
 }
 
 // The open cell: its own lines as a row table, or the built-in lines it reads now with a way to write own ones.
@@ -166,7 +178,7 @@ function openCell(open, placed, tables, world, state, commit) {
         h('div', { class: 'srow' }, h('span', { class: 'lb' }, h('b', title), h('small', about)))];
     const write = lines => {
         const value = { ...(climate ? { climate } : {}), ...(season ? { season } : {}), weather: lines };
-        if (commit([tables.length ? { op: 'insert', path: [...BASE, 'tables', tables.length], value } : { op: 'set', path: [...BASE, 'tables'], value: [value] }])?.ok) state.open = { ...open, at: tables.length };
+        changeWith(state, { open: { ...open, at: tables.length } }, commit, [tables.length ? { op: 'insert', path: [...BASE, 'tables', tables.length], value } : { op: 'set', path: [...BASE, 'tables'], value: [value] }]);
     };
     if (!mine) {
         const reads = !climate || !season ? 'Nothing is written for this cell.' : season && !FOUR.includes(fold(season)) && climate !== 'underground' ? `It reads the built-in ${climate} lines for the time of year.` : `It reads the built-in ${climate} lines:`;
@@ -186,7 +198,7 @@ function openCell(open, placed, tables, world, state, commit) {
             if (!text) return lines.length === 1 ? removeTable(mine.at, tables.length, commit, state) : commit([{ op: 'remove', path: [...path, index] }]);
             return commit([{ op: 'set', path: [...path, index], value: text }]);
         },
-        add: () => { if (commit([{ op: 'insert', path: [...path, lines.length], value: '' }])?.ok) state.fresh = lines.length; },
+        add: () => changeWith(state, { fresh: lines.length }, commit, [{ op: 'insert', path: [...path, lines.length], value: '' }]),
         move: (index, step) => commit([{ op: 'move', path: [...path, index], to: index + step }]),
         remove: index => (lines.length === 1 ? removeTable(mine.at, tables.length, commit, state) : commit([{ op: 'remove', path: [...path, index] }])),
     });

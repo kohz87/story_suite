@@ -74,12 +74,13 @@ function listView(spec, list, bad, ctx) {
     const fill = () => {
         const found = list.map((record, index) => ({ record, index })).filter(({ record, index }) => passes(record, index, state.filter ?? 'all', state.q));
         const shown = state.all ? found : found.slice(0, SHOWN);
-        rows.replaceChildren(...shown.map(({ record, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-itemrow', dataset: { rec: `${spec.key}.${index}` }, onClick: () => ctx.go(PART, `${spec.key}.${index}`) },
+        // (no null children: replaceChildren would print them as text)
+        rows.replaceChildren(...[...shown.map(({ record, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-itemrow', dataset: { rec: `${spec.key}.${index}` }, onClick: () => ctx.go(PART, `${spec.key}.${index}`) },
             h('div', { class: 'st-rh' },
                 h('div', { class: 'st-rt' }, h('b', String(record.name ?? `#${index + 1}`)), h('small', spec.sub(record))),
                 h('span', { class: 'st-flags' }, h('span', { class: 'tg2' }, spec.facet(record) || 'no tier'), bad[index].length ? h('span', { class: 'st-bad' }, `✕ ${bad[index].length}`) : null)))),
         found.length ? null : h('p', { class: 'fine' }, list.length ? `No ${spec.noun} matches.` : `No ${spec.noun}s yet.`),
-        !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null);
+        !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null].filter(Boolean));
     };
     const search = h('input', { class: 'txt2 st-search', placeholder: `Search ${spec.noun}s…`, 'aria-label': `Search ${spec.noun}s` });
     search.value = state.q ?? '';
@@ -204,12 +205,13 @@ function recordView(spec, list, index, bad, ctx) {
     if (whole) note.textContent = whole;
     const body = spec.key === 'items' ? itemGroups(record, { field, num, words, pairs, group, nameRow, idRow, edit }, ctx) : foeGroups(record, { field, num, words, group, nameRow, idRow, edit });
     const extra = Object.keys(record).filter(key => !spec.fields.includes(key));
-    return [head,
-        h('div', { class: 'st-rt st-entryhead', dataset: { rec }, tabindex: '-1' }, h('b', String(record.name ?? '(no name)')),
+    // The record's `data-rec` holds its fields, so Go to reaches the field (.st-at) and a redraw keeps the box being typed in.
+    return [head, h('section', { class: 'st-recpage', dataset: { rec }, tabindex: '-1' },
+        h('div', { class: 'st-rt st-entryhead' }, h('b', String(record.name ?? '(no name)')),
             h('small', `${spec.one} ${index + 1} of ${list.length}`), h('span', { class: 'tg2' }, spec.facet(record) || 'no tier')),
         note, ...body,
         extra.length ? h('p', { class: 'fine' }, `Also in this ${spec.noun}, only in the JSON below: ${extra.join(', ')}.`) : null,
-        jsonRow({ value: record, steps: where, noun: spec.noun, problems: bad, focus: focusKey && !spec.fields.includes(focusKey) ? ctx.focus : null, state: ctx.keep?.(`json:${rec}`) ?? {} }, patches => ctx.commit(patches))].filter(Boolean);
+        jsonRow({ value: record, steps: where, noun: spec.noun, problems: bad, focus: focusKey && !spec.fields.includes(focusKey) ? ctx.focus : null, state: ctx.keep?.(`json:${rec}`) ?? {} }, patches => ctx.commit(patches)))];
 }
 
 function itemGroups(item, { field, num, words, pairs, group, nameRow, idRow, edit }, ctx) {

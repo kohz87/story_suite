@@ -9,6 +9,7 @@
 // 'name' (a place, region, realm or route may be named by its display name or alias); role 'id' is the definition itself; `dangling` marks an id nothing defines.
 // usedBy(refs, kind, id) → the uses that are not the definition. definedIds(refs, kind) → [{ id, name }] in file order, for pickers.
 // walkText(text, mode, visit) → the text with each id `visit(hint, id)` answers for replaced (only that span; the rest of the text is kept as written).
+// A `learned:<person>/<secret>` term is offered whole as hint 'secret' first (the index holds no secrets; rename.js renames one by it).
 //
 // This is a navigation map (which fields hold ids), not an allow-list: what a field may hold is the validator's.
 
@@ -57,7 +58,8 @@ function entry(raw, visit) {
         const cut = body.indexOf('/');
         const who = cut < 0 ? body : body.slice(0, cut);
         const what = cut < 0 ? '' : body.slice(cut);
-        next = who === 'lore' ? `lore/${visit('lore', body.slice(5)) ?? body.slice(5)}` : `${visit('cast', who) ?? who}${what}`;
+        const secret = cut < 0 || who === 'lore' ? undefined : visit('secret', body);
+        next = secret ?? (who === 'lore' ? `lore/${visit('lore', body.slice(5)) ?? body.slice(5)}` : `${visit('cast', who) ?? who}${what}`);
     } else if (HEADS[found.kind]) next = visit(HEADS[found.kind], body) ?? body;
     else return raw;
     return next === body ? raw : `${found.kind}:${next}${tail}`;

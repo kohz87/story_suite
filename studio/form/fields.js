@@ -1,5 +1,6 @@
 // The Studio's single-value form rows: text, long text, number, select, toggle and segmented, drawn as the mock's settings rows
-// (`.srow` with `.txt2`, `.sel2`, `.num`, `.sw`, `.sseg2`), each able to show one inline problem line under its control.
+// (`.srow` with `.txt2`, `.sel2`, `.num`, `.sw`, `.sseg2`), each able to show one inline problem line under its control, and the mark
+// Go to (F8) puts on the control of the row a problem's path names.
 
 import { h } from '../../ui/kit/dom.js';
 import { renderRow } from '../../ui/settings/fields.js';
@@ -38,4 +39,15 @@ export function fieldRow(spec, onChange) {
         row = renderRow({ ...spec, type: SETTINGS_TYPE[spec.type] ?? spec.type }, ctx);
     }
     return setProblem(row, spec.problem);
+}
+
+/** Go to, F8: marks the control of the row in `form` whose `data-key` is `path[0]` with `st-at` (caret 0); → whether there was one. */
+export function markFocus(form, path) {
+    if (!Array.isArray(path) || !path.length) return false;
+    const at = `[data-key=${JSON.stringify(String(path[0]))}]`;
+    const control = form.querySelector(`${at} input, ${at} textarea, ${at} select, ${at} button`);
+    if (!control) return false;
+    control.classList.add('st-at');
+    control.dataset.at = '0';
+    return true;
 }

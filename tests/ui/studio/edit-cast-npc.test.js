@@ -19,8 +19,9 @@ function open(n, opts = {}) {
     opts.edit?.(pack);
     const commits = [];
     const keeps = {};
+    // `opts.commit(patches, keeps)`: the host's answer (as the Studio's, whose commit draws the page again before it returns)
     const ctx = { doc: { doc: pack }, kind: 'world', legacy: false, refs: buildRefs(pack), problems: opts.problems ?? [], focus: { rec: `cast.${n}`, path: opts.path ?? null },
-        commit: patches => { commits.push(patches); return { ok: true }; }, go: () => {}, keep: id => (keeps[id] ??= {}), setPortrait: () => ({ ok: true }) };
+        commit: patches => { commits.push(patches); return opts.commit?.(patches, keeps) ?? { ok: true }; }, go: () => {}, keep: id => (keeps[id] ??= {}), setPortrait: () => ({ ok: true }) };
     const draw = () => editSection({ key: 'cast', where: 'content', value: pack.content.cast, count: pack.content.cast.length }, ctx)[0];
     return { pack, commits, draw, keeps };
 }
@@ -164,7 +165,8 @@ function portraitSetup(person, others = []) {
     const commits = [];
     const said = [];
     const list = [person, ...others];
-    const kit = { ctx: { setPortrait: (name, bytes) => { steps.push([name, bytes ? bytes.length : null]); return { ok: true }; }, portrait: () => null },
+    // ctx.setPortrait is one undo step: the picture, and the field patches and the dropped old picture with it
+    const kit = { ctx: { setPortrait: (name, bytes, more = {}) => { steps.push([name, bytes ? bytes.length : null, more.patches ?? [], more.drop ?? null]); return { ok: true }; }, portrait: () => null },
         commit: patches => { commits.push(patches); return { ok: true }; }, tell: text => said.push(text), imageIo: fakeImageIo() };
     const group = portraitGroup(person, [...ROOT, 0], list, kit);
     const pick = async bytes => {
@@ -180,11 +182,14 @@ test('a portrait of the same type replaces the picture under its name; another t
     const same = portraitSetup({ id: 'wren', name: 'Wren', portrait: 'wren.webp' });
     assert.equal(same.group.querySelector('.st-picadd').textContent, 'Replace');
     assert.equal(await same.pick(webp(900)), 'wren.webp');
-    assert.deepEqual([same.steps, same.commits], [[['wren.webp', 900]], []]);
+    assert.deepEqual([same.steps, same.commits], [[['wren.webp', 900, [], null]], []]);
     const other = portraitSetup({ id: 'wren', name: 'Wren', portrait: 'wren.webp' });
     await other.pick(png(800));
-    assert.deepEqual(other.steps, [['wren.png', 800], ['wren.webp', null]]);
-    assert.deepEqual(other.commits, [[{ op: 'set', path: [...ROOT, 0, 'portrait'], value: 'wren.png' }]]);
+    assert.deepEqual(other.steps, [['wren.png', 800, [{ op: 'set', path: [...ROOT, 0, 'portrait'], value: 'wren.png' }], 'wren.webp']]);
+    assert.deepEqual(other.commits, []);
+    const twin = portraitSetup({ id: 'wren', name: 'Wren', portrait: 'wren.webp' }, [{ id: 'twin', name: 'Twin', portrait: 'wren.webp' }]);
+    await twin.pick(png(800));
+    assert.equal(twin.steps[0][3], null);
     const big = portraitSetup({ id: 'tam', name: 'Tam' });
     await big.pick(pngOf(2400, 1800, PORTRAIT_LIMITS.bytes + 10));
     assert.equal(big.steps[0][0], 'tam.webp');
@@ -198,11 +203,43 @@ test('a portrait of the same type replaces the picture under its name; another t
 test('Remove takes the field away, and the picture only when no one else names it; the record page has the portrait group', () => {
     const alone = portraitSetup({ id: 'wren', name: 'Wren', portrait: 'wren.webp' });
     alone.group.querySelector('.st-picdel').click();
-    assert.deepEqual([alone.commits, alone.steps], [[[{ op: 'remove', path: [...ROOT, 0, 'portrait'] }]], [['wren.webp', null]]]);
+    assert.deepEqual([alone.commits, alone.steps], [[], [[null, null, [{ op: 'remove', path: [...ROOT, 0, 'portrait'] }], 'wren.webp']]]);
     const shared = portraitSetup({ id: 'wren', name: 'Wren', portrait: 'wren.webp' }, [{ id: 'twin', name: 'Twin', portrait: 'wren.webp' }]);
     shared.group.querySelector('.st-picdel').click();
-    assert.deepEqual(shared.steps, []);
+    assert.deepEqual(shared.steps, [[null, null, [{ op: 'remove', path: [...ROOT, 0, 'portrait'] }], null]]);
     const page = open(0).draw();
     assert.ok(page.querySelector('.st-portrait'));
     assert.match(page.querySelector('.st-portrait').textContent, /wren\.webp/);
+});
+
+test('a stage or secret added, moved or removed sets the open item before the commit draws the page again, and a refusal puts it back', () => {
+    const seen = [];
+    const stage = { name: 'Wary', needs: [{ meter: 'trust', at: 20 }], text: '' };
+    let refuse = false;
+    const host = open(0, { edit: pack => { pack.content.cast[0].stages = [stage, { ...stage, name: 'Warm' }]; },
+        commit: (patches, keeps) => { seen.push(keeps['cast:cast.0']?.open); return refuse ? { ok: false, refusal: 'No.' } : { ok: true }; } });
+    host.draw().querySelector('.st-stages .addrow button').click();
+    assert.equal(seen.at(-1), 'stages.2', 'the redraw inside the commit opens the new stage');
+    host.keeps['cast:cast.0'].open = 'stages.1';
+    host.draw().querySelector('.st-stages button[aria-label="Move Warm up"]').click();
+    assert.equal(seen.at(-1), 'stages.0');
+    refuse = true;
+    host.draw().querySelector('.st-stages .addrow button').click();
+    assert.equal(host.keeps['cast:cast.0'].open, 'stages.0', 'a refused add leaves the open stage as it was');
+});
+
+test('a secret\'s id is renamed with the gates that name it (learned:<person>/<secret>); a bad id is refused by the field', () => {
+    const { commits, draw, keeps } = open(0, { edit: pack => {
+        pack.content.cast[0].secrets = [{ id: 'lamp', gate: 'meter trust >= 20', text: 'x' }];
+        pack.content.lore[0].gate = `learned:${pack.content.cast[0].id}/lamp`;
+    } });
+    keeps['cast:cast.0'] = { open: 'secrets.0' };
+    const id = PACK.content.cast[0].id;
+    change(row(draw(), 'secrets.0.id').querySelector('input'), 'old-lamp');
+    assert.deepEqual(commits.at(-1), [{ op: 'set', path: [...ROOT, 0, 'secrets', 0, 'id'], value: 'old-lamp' }, { op: 'set', path: ['content', 'lore', 0, 'gate'], value: `learned:${id}/old-lamp` }]);
+    const before = commits.length;
+    const page = draw();
+    change(row(page, 'secrets.0.id').querySelector('input'), 'Not An Id');
+    assert.equal(commits.length, before);
+    assert.match(row(page, 'secrets.0.id').querySelector('.st-problem').textContent, /is not an id/);
 });

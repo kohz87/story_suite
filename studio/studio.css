@@ -18,7 +18,7 @@ body.st-page { margin: 0; background: #0d0f18; }
 .st-list { display: flex; flex-direction: column; gap: 8px; }
 .st-more { align-self: flex-start; }
 .st-rec { padding: 10px 14px 4px; }
-.st-rec:focus { outline: none; }
+.st-rec:focus, .st-recpage:focus { outline: none; }
 .st-rec.st-hit { box-shadow: inset 0 0 0 2px var(--su-accent); }
 .st-rh { display: flex; align-items: center; gap: 10px; padding-bottom: 6px; }
 .st-rt { flex: 1; min-width: 0; }

@@ -191,13 +191,14 @@ export function editSection(section, ctx) {
         change: (at, col, value) => {
             const season = seasons[at] ?? {};
             if (col === 'name') { const name = String(value ?? '').trim(); return !name ? tell('A season needs a name.') : name === season.name ? null : commit([{ op: 'set', path: [...BASE, 'seasons', at, 'name'], value: name }]); }
+            // The chips are text: a month written as its number (which the checker takes) stays a number, and a typed number names a month.
             const wanted = list(value);
             const old = list(season.months);
-            const added = wanted.filter(given => !old.includes(given));
             const out = [];
             for (const given of wanted) {
-                if (!added.includes(given)) { out.push(given); continue; }
-                const index = monthAt(months, given);
+                const kept = old.find(item => String(item) === String(given));
+                if (kept !== undefined) { out.push(kept); continue; }
+                const index = monthAt(months, /^\d+$/.test(String(given)) ? Number(given) : given);
                 if (index < 0) { const near = nearMonth(months, given); return tell(`"${given}" is not one of the calendar's months.${near ? ` Did you mean ${near}?` : ''}`); }
                 const other = seasons.findIndex((item, n) => n !== at && list(item?.months).some(each => monthAt(months, each) === index));
                 if (other >= 0) return tell(`${months[index].name} is in ${seasons[other].name ?? 'another season'}: take it out there first.`);

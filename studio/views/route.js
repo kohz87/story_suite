@@ -4,10 +4,12 @@
 // The contract (scratch/design/studio-jobs.md §1.3):
 //   studio/edit/<x>.js  export function editSection(section, ctx) → Node[]    section: { key, where: 'content'|'top', value, count }
 //   studio/views/<x>.js export function renderPage(ctx) → Node[]             (no nodes: the page is not mounted)
-//   ctx: { doc, kind, legacy, other, refs, problems, focus, commit(patches), setPortrait(name, bytes), openDoc(opened), go(partId, rec, path?),
-//          portrait(name), keep(id) } — app.js builds it per draw from the pack's present document. commit and setPortrait are one undo
-//          step each → { ok, same?, refusal? } (a format 3 pack refuses); the page is drawn again after a change and again when the check
-//          lands, so an editor keeps what must outlive a draw (an open row, typed text) in keep(id), a plain object per pack. refs is the
+//   ctx: { doc, kind, legacy, other, refs, problems, focus, commit(patches), setPortrait(name, bytes, { patches, drop }?), openDoc(opened),
+//          go(partId, rec, path?), portrait(name), keep(id), say(text) } — app.js builds it per draw from the pack's present document.
+//          commit and setPortrait are one undo step each → { ok, same?, refusal? } (a format 3 pack refuses; a refusal the editor does
+//          not show by its field is said in the note line); the page is drawn again inside a change and again when the check lands, so
+//          an editor sets what must outlive a draw (an open row, typed text) in keep(id), a plain object per pack, before it commits,
+//          and says a note that follows a change with say(text). refs is the
 //          reference index (studio/model/refs.js), built once per snapshot. focus is { rec, path } (Go to, F8: path is the field below
 //          the record, or null): the editor marks the control for it with the class `st-at` and the caret offset in `data-at`.
 
@@ -56,7 +58,8 @@ export const EDITORS = Object.freeze({
 });
 
 /**
- * Page id → `studio/views/<id>.js` and where it mounts (`when` says whether the mount applies; the page must also draw something):
+ * Page id → `studio/views/<id>.js` and where it mounts (`when` says whether the mount applies; the page must also draw something, and a
+ * `part` page must draw something whenever `when` holds, as the nav lists it without drawing it):
  * `segment` a "List · <label>" switch at the top of that part, `part` a part of its own (parts.js), `card` at the top of Overview.
  */
 export const PAGES = Object.freeze({

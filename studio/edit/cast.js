@@ -123,8 +123,10 @@ function recordPage(list, index, bad, ctx, redraw) {
         if (empty(value)) return Object.hasOwn(person, key) ? commit([{ op: 'remove', path: [...where, key] }]) : null;
         return commit([{ op: 'set', path: [...where, key], value }]);
     };
+    // A list's item rows are keyed "<list>.<n>" (ties.2), so a path into an item marks that row.
+    const focusItem = Number.isInteger(focusPath[1]) ? `${focusPath[0]}.${focusPath[1]}` : null;
     const mark = row => {
-        if (focusKey && row.dataset?.key === focusKey) {
+        if (focusKey && (row.dataset?.key === focusKey || (focusItem && row.dataset?.key === focusItem))) {
             const control = row.querySelector('input,textarea,select,button');
             if (control) { control.classList.add('st-at'); control.dataset.at = '0'; }
         }
@@ -140,7 +142,7 @@ function recordPage(list, index, bad, ctx, redraw) {
         const plan = typeof person.id === 'string' && (ctx.refs?.defs?.cast ?? []).some(item => item.id === person.id)
             ? renameId(ctx.refs, ctx.doc, 'cast', person.id, id) : { ok: true, patches: [{ op: 'set', path: [...where, 'id'], value: id }] };
         if (!plan.ok) return tell(plan.refusal);
-        if (commit(plan.patches)?.ok && plan.elsewhere?.length) tell(`The other open pack names this person ${plural(plan.elsewhere.length, 'time', 'times')}; change those by hand.`);
+        if (commit(plan.patches)?.ok && plan.elsewhere?.length) (ctx.say ?? tell)(`The other open pack names this person ${plural(plan.elsewhere.length, 'time', 'times')}; change those by hand.`);
     };
     const putStart = (key, value) => {
         const start = person.start && typeof person.start === 'object' && !Array.isArray(person.start) ? person.start : null;
@@ -182,7 +184,7 @@ function recordPage(list, index, bad, ctx, redraw) {
     const page = h('section', { class: 'st-rec', dataset: { rec }, tabindex: '-1', 'aria-label': String(person.name ?? person.id ?? `Person ${index + 1}`) });
     const names = new Map(list.map(other => [other?.id, other?.name ?? other?.id]));
     const kit = { ctx, where, at: at(index), problems: bad[index], state, focusPath, commit, put, redraw };
-    const groups = [person1, portraitGroup(person, where, list, { ctx, commit, tell }), tiesGroup(person, where, list, names, bad[index].filter(problem => String(problem.path).startsWith(`${at(index)}.ties`)), commit, mark),
+    const groups = [person1, portraitGroup(person, where, list, { ctx, tell, say: ctx.say }), tiesGroup(person, where, list, names, bad[index].filter(problem => String(problem.path).startsWith(`${at(index)}.ties`)), commit, mark),
         ...npcGroups(person, list, kit), usedGroup(person, names, ctx)];
     const extra = Object.keys(person).filter(key => !FORMED.includes(key));
     const copy = () => {

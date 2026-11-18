@@ -28,7 +28,7 @@ function setup(opts = {}) {
     const calls = [];
     const keeps = {};
     const ctx = { doc: pack, kind: 'world', legacy: opts.legacy ?? false, refs: buildRefs(pack), focus: opts.focus ?? null, problems: [],
-        commit: patches => { calls.push(patches); return { ok: true }; }, keep: id => (keeps[id] ??= {}), go: () => {} };
+        commit: patches => { calls.push(patches); return opts.commit?.(keeps) ?? { ok: true }; }, keep: id => (keeps[id] ??= {}), go: () => {} };
     if (opts.legacy) delete ctx.commit;
     const root = document.createElement('div');
     const draw = () => { root.replaceChildren(...renderPage(ctx)); return root; };
@@ -87,6 +87,25 @@ test('dragging a place commits its x and y as one edit, rounded to map units, an
     assert.deepEqual(calls, [[{ op: 'set', path: ['content', 'places', 1, 'x'], value: 5 }, { op: 'set', path: ['content', 'places', 1, 'y'], value: 5 }]]);
     assert.deepEqual(keeps['map:view'].sel, { place: 'reedmoor' });
     assert.match(keeps['map:view'].note, /Moved from 3, 2/);
+});
+
+test('a move\'s note is set before the commit draws the page again; a refused one says why', () => {
+    let refuse = false;
+    const notes = [];
+    const { keeps, draw } = setup({ commit: kept => { notes.push(kept['map:view'].note); return refuse ? { ok: false, refusal: 'Not now.' } : { ok: true }; } });
+    const drag = () => {
+        const root = draw();
+        const box = root.querySelector('.st-mapbox');
+        const u = keeps['map:view'].vb.w / 640;
+        placeNode(root, 'reedmoor').querySelector('circle.b').dispatch('pointerdown', { clientX: 100, clientY: 100 });
+        box.dispatch('pointermove', { clientX: 100 + 20 / u, clientY: 100 - 30 / u });
+        box.dispatch('pointerup', { clientX: 100 + 20 / u, clientY: 100 - 30 / u });
+    };
+    drag();
+    assert.match(notes.at(-1), /Moved from 3, 2/, 'the redraw inside the commit shows the note');
+    refuse = true;
+    drag();
+    assert.equal(keeps['map:view'].note, 'Not now.');
 });
 
 test('a tap selects a place; the arrow keys and the X and Y steps move it; Escape lets go', () => {

@@ -115,6 +115,16 @@ test('a season takes a month as the calendar spells it, once; an unknown or take
     assert.equal(calls.length, count);
 });
 
+test('a season whose months are written as numbers (which the checker takes) can be edited: the numbers stay numbers', () => {
+    const { calls, draw } = setup({ edit: cal => { cal.seasons = [{ name: 'spring', months: [1, 2] }, { name: 'autumn', months: ['Harvest'] }]; } });
+    const months = () => cell(draw(), 'seasons', 0, 'months');
+    const add = months().querySelector('input.kadd');
+    add.value = '4'; add.dispatch('change');
+    assert.deepEqual(calls.at(-1), [{ op: 'set', path: [...C, 'seasons', 0, 'months'], value: [1, 2, 'Frost'] }]);
+    months().querySelector('button[aria-label="Remove 2"]').click();
+    assert.deepEqual(calls.at(-1), [{ op: 'set', path: [...C, 'seasons', 0, 'months'], value: [1] }]);
+});
+
 test('a season month from the file that is not a month says so on its row, with the near month to use', () => {
     const { calls, draw } = setup({ edit: cal => { cal.seasons[1].months = ['Harvst', 4]; } });
     const row = table(draw(), 'seasons').querySelector('.st-trow[data-row="1"]');

@@ -58,7 +58,8 @@ export function editSection(section, ctx) {
     const problemOf = path => (ctx.problems ?? []).find(problem => problem.path === `content.${path}`)?.message ?? '';
     const draw = { you: youGroups, rpg: rpgGroups, pacing: paceGroups };
     // keys of the other two that are not proper objects keep their own read-only cards; they draw nothing here
-    const keys = keysFor(section.key, content).filter(key => key === section.key || content[key] === undefined);
+    // (a new pack's Rules part is drawn from an empty `you` the pack does not hold yet: it counts as held, so it draws all three)
+    const keys = keysFor(section.key, content[section.key] === undefined ? { ...content, [section.key]: section.value } : content).filter(key => key === section.key || content[key] === undefined);
     const extra = Object.keys(section.value).filter(key => !DRAWN[section.key].includes(key));
     return [h('div', { class: 'st-sec st-rules', dataset: { key: section.key } }, note,
         ...keys.flatMap(key => draw[key](content[key] ?? {}, { io, problemOf, ctx, content })),

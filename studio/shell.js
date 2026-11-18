@@ -119,10 +119,15 @@ export function createShell({ host, onOpen, onExportZip, onExportJson, onUndo, o
         body.querySelector('.smain').scrollTop = keep ? scroll : 0;
     }
 
-    function setFooter(check) {
+    // `old`: a read-only old-format pack, which the Studio does not check (MK-9 "old").
+    function setFooter(check, { old = false } = {}) {
         footer.hidden = !check;
         if (!check) return;
-        footer.dataset.ok = String(check.total === 0);
+        footer.dataset.ok = old ? 'old' : String(check.total === 0);
+        if (old) {
+            footer.replaceChildren(h('span', '◇ ', ...label('Pack check', 'Check')), h('b', { class: 'v' }, 'Old format: not checked'), h('span', { class: 'fl3' }, 'The Studio checks and edits format 4'), h('span', { style: { 'margin-left': 'auto' } }, '›'));
+            return;
+        }
         const works = check.errors.length ? h('span', { class: 'fl3' }, 'Export is off until the problems are fixed')
             : (check.warnings.length ? h('span', { class: 'fl3' }, 'Export works; warnings are listed in Problems') : null);
         footer.replaceChildren(...[h('span', check.total ? '⚠ ' : '✓ ', ...label('Pack check', 'Check')), h('b', { class: 'v' }, footerText(check)), works, h('span', { style: { 'margin-left': 'auto' } }, '›')].filter(Boolean));

@@ -137,7 +137,10 @@ function entryView(list, index, bad, ctx, state, draw) {
     const known = typeof entry.id === 'string' && (ctx.refs?.defs?.lore ?? []).some(item => item.id === entry.id);
     const changeId = value => {
         const next = String(value).trim();
-        if (!next) return put('id', null, true);
+        if (!next) {
+            const named = known ? usedBy(ctx.refs, 'lore', entry.id).length : 0;
+            return named ? say({ ok: false, refusal: `${named === 1 ? 'A record names' : `${named} records name`} this entry by its id, so it keeps one; give it a new id instead.` }) : put('id', null, true);
+        }
         if (next === entry.id) return null;
         if (!known) return put('id', next);
         const plan = renameId(ctx.refs, ctx.doc, 'lore', entry.id, next);
