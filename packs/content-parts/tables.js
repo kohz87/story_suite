@@ -18,7 +18,18 @@ export function youRankOf(packs) {
  */
 export function calendarOf(packs) {
     const pack = packs.find(entry => entry.calendar);
-    return pack ? copy({ pack: pack.id, ...pack.calendar }) : null;
+    if (!pack) return null;
+    const out = { pack: pack.id, ...pack.calendar };
+    // Format 4: the game's calendar has no start; the selected world's `start.date` (a month number) gives it. A month the calendar lacks, or a day past the month,
+    // falls back to day 1 of month 1 of that year (the pairing check's PAIR_START_DATE says so).
+    const date = pack.kind === 'game' ? packs.find(entry => entry.kind === 'world' && entry.start?.date)?.start.date : null;
+    if (date) {
+        const month = pack.calendar.months[date.month - 1];
+        const fits = month && date.day <= month.days;
+        const at = fits ? { month: month.name, day: date.day } : { month: pack.calendar.months[0].name, day: 1 };
+        out.start = { year: date.year, ...at, hour: date.hour ?? 0, minute: date.minute ?? 0 };
+    }
+    return copy(out);
 }
 
 /**
@@ -28,7 +39,14 @@ export function calendarOf(packs) {
  */
 export function weatherOf(packs) {
     const pack = packs.find(entry => entry.weather);
-    return pack ? copy({ pack: pack.id, seasons: pack.weather.seasons ?? [], tables: pack.weather.tables }) : null;
+    if (!pack) return null;
+    // Format 4: the game's seasons are its calendar's and `style` says where the weather comes from. The region-keyed reader (time/weather-parts/pick.js) takes a table with
+    // no region for every region, so it is given only the season-only tables of style "tables"; the climate tables wait in `climateTables` for the climate reader (a later job).
+    if (pack.kind === 'game') {
+        const { style, tables } = pack.weather;
+        return copy({ pack: pack.id, style, seasons: pack.calendar?.seasons ?? [], tables: style === 'tables' ? tables.filter(table => !table.climate) : [], climateTables: style === 'story' ? [] : tables.filter(table => table.climate) });
+    }
+    return copy({ pack: pack.id, seasons: pack.weather.seasons ?? [], tables: pack.weather.tables });
 }
 
 /**

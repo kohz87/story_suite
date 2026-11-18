@@ -67,6 +67,8 @@ export function createPacksPart({ settings, readLorebook = async () => ({ charac
         commands: {},
         queries: {
             'packs.list': () => packs.list(),
+            // `{ world, game }`: the ids of the selected world pack and game pack (null: no world, the built-in game).
+            'packs.selected': () => packs.selected(),
             'packs.content': (_state, { kind, pack = null } = {}) => contentOf(packs.packs(), kind, { pack }),
             'packs.item': (_state, { name } = {}) => resolveItem(name),
             // The enabled packs' items as inventory defs by definition ID, ID-sorted (content.js itemDefsIn): what a
