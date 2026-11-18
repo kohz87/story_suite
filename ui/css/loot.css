@@ -14,7 +14,6 @@
 .ssbtn.lpchip[aria-pressed="true"]{background:var(--SmartThemeBotMesBlurTintColor);border-color:var(--SmartThemeBodyColor)}
 .ssbtn.lptake[disabled]{opacity:.5;cursor:default}
 .ssrow .ssbtn[data-loot] .n{color:var(--SmartThemeBodyColor)}
-@container (max-width:599px){.ssl2 .ssbtn[data-loot] .lb{display:none}}
 .bag-tab .lootpk.bag{padding-top:10px;border-top:1px solid var(--su-line2)}
 .bag-tab .loot .ch+.lootpk.bag{padding-top:0;border-top:0}
 .bag-tab .lootpk.bag .lphead{font:700 14px var(--su-font);color:var(--su-text)}
