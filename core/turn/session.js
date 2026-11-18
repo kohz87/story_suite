@@ -42,6 +42,8 @@ export function createSession(s, deps) {
             const same = s.problemLog.find(old => old.code === item.code && old.module === item.module && old.message === item.message);
             if (same) return same;
         }
+        // The "planned again" note is one note: the newest replaces the ones before, so deletes do not pile up identical rows.
+        if (item.code === 'REPLANNED') for (let at = s.problemLog.length - 1; at >= 0; at -= 1) if (s.problemLog[at].code === 'REPLANNED') s.problemLog.splice(at, 1);
         s.problemLog.push(item);
         if (s.problemLog.length > MAX_PROBLEMS) s.problemLog.splice(0, s.problemLog.length - MAX_PROBLEMS);
         keepLog();

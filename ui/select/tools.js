@@ -44,7 +44,8 @@ export function selectSent(read, problems, limits = []) {
     { name: 'Fixed part', used: size.static, cap: null, color: BAR.fixed },
     ...(own > 0 ? [{ name: 'Modules on their own', used: own, cap: null, color: BAR.own }] : []),
   ];
-  const count = problems.items.length + (problems.rebuild ? 1 : 0);
+  // The "planned again" note is information, not something to look at: it stays in the list but is not counted.
+  const count = problems.items.filter(item => item.code !== 'REPLANNED').length + (problems.rebuild ? 1 : 0);
   return {
     used: size.tail, cap: budget, total: size.total, budget: bars, text: read.text, limits,
     tools: [

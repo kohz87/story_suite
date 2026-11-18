@@ -65,8 +65,10 @@ export function peopleTab(vm = {}, ctx = {}) {
       s.title ? h('div', { class: 'secl2' }, `${s.title}${s.kind === 'here' || s.kind === 'elsewhere' || found ? ` · ${s.people.length}` : ''}`) : null,
       h('div', { class: 'pgrid' }, s.people.map(({ p, kind }) => personCard(p, { kind, onOpen: open })))));
     const unrecorded = Array.isArray(vm.unrecorded) ? vm.unrecorded : [];
-    if (unrecorded.length && !state.query && state.filter === 'all') nodes.push(h('p', { class: 'fine', dataset: { note: 'unrecorded' } }, `Here with no record yet: ${unrecorded.join(', ')}.`));
-    if (!total) {
+    const told = unrecorded.length > 0 && !state.query && state.filter === 'all';
+    if (told) nodes.push(h('p', { class: 'fine', dataset: { note: 'unrecorded' } }, `Here with no record yet: ${unrecorded.join(', ')}.`));
+    // (the note above already says who is here: "No one here." beside it would contradict it)
+    if (!total && !told) {
       const dormantN = counts.notSeenLately ?? vm.notSeenLately ?? 0;
       const text = state.filter === 'dormant' && !state.query && dormantN
         ? `${dormantN} not seen lately. They come back here when seen again.`

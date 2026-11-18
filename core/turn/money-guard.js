@@ -6,3 +6,4 @@
 export { GUARD_REPLIES, earlierReceipts } from './money-guard-parts/receipts.js';
 export { sourceOf, paidBy, gainedBy } from './money-guard-parts/payments.js';
 export { FAR_TIMES, FAR_MIN, moneyWarning } from './money-guard-parts/warning.js';
+export { openRewards } from './money-guard-parts/rewards.js';

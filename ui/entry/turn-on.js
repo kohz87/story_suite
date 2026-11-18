@@ -88,6 +88,8 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
         const close = () => { sheet?.remove(); sheet = null; };
         sheet = replySheet(port.view('chat')?.replyMenu, {
           onOpenSuite: tab => suite.open(tab),
+          // The sheet is the head reply's: Re-read reads its (possibly edited) text again.
+          onReread: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); close(); if (at >= 0) port.reread(at); },
           // The sheet is the head reply's: its repaired lines are taken out and the reply is read again (the repair is not asked again).
           onDiscard: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); close(); if (at >= 0) port.reread(at, { discardRepair: true }); },
           onClose: close,

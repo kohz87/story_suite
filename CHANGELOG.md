@@ -6,6 +6,12 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 
 ### Fixed
 
+- Chat ✦ "this reply" sheet: it now has **Re-read this reply** (after you edit a reply's changes block, this is how you read it again); each line shows its icon, not the icon's name; a reply whose lines are only quest, time or weather says "No item, money, place or people changes" instead of "0 changes".
+- A payment that is exactly an open quest's stated reward (from its giver, when it names one) no longer raises the "more than 5 times the purse" Problem. Other far-above-purse payments still do.
+- The "The story before some steps changed… planned again" note after a delete is one row (the newest), and the Tools card no longer counts it as a problem to look at.
+- World: places the story made up that have no map position now show under **Places** (the present one first) instead of "Nothing is known about the world yet."
+- People: a scene with people here but no NPC State record says "Here with no record yet: …" and no longer also says "No one here."
+- Docs: MODULES.md now says what Story Director's weather does (the story's own weather stays while you are in that day and place; leaving brings the day's rule weather back).
 - Bag › Wear on… and Give to… now act on the member you pick (before, Wear on… put the piece on the main character whoever you chose). The Party slot sheet lists the matching unworn gear from the Bag with an Equip button, Equip hands the piece to that member, and its Unequip takes the piece off (it sent nothing before).
 - Bag: **+ Add** opens a form (name, kind, count, your note) and adds the item. "In bag" and the kind chips count only the items the grid shows, not the worn ones. An item sheet shows the stats a piece adds, and the Party stat tiles mark what worn gear adds (a small +n).
 - Party sheet: a skill the Skills block types as defence, area, evasion or heal shows as a Stance, Area attack or Heal with its own cost; before, they all read as attacks. The wizard's Review names Mana for INT and WIS skills and heals, as the sheet does; it says "Adept (works from Lv 10)" while the level is lower; and it will not let Create go with two stance skills.

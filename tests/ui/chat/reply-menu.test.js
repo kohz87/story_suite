@@ -74,3 +74,16 @@ test('a repaired line is marked Assist; Discard repair shows only with the handl
   assert.equal(replySheet({ ...vm, repaired: false }, { onDiscard: () => {} }).querySelectorAll('button').length, 0, 'no repair stored: no button');
   assert.equal(replySheet(vm, {}).querySelectorAll('button').length, 0, 'no handler: no button');
 });
+
+test('a line shows its glyph as an icon, not its name, and an unknown glyph shows nothing; no shown lines says what is listed', () => {
+  installFakeDom();
+  const lines = [{ glyph: 'item', line: '+1 Herb Pouch', detail: null, applied: true }, { glyph: 'nope', line: 'x', detail: null, applied: true }];
+  const sheet = replySheet({ at: 'x', lines, counts: { changes: 2, heldBack: 0, notApplied: 0 } });
+  const rows = sheet.querySelectorAll('li');
+  assert.equal(rows[0].querySelectorAll('svg').length, 1, 'an icon');
+  assert.doesNotMatch(rows[0].textContent, /^item/u, 'no glyph word');
+  assert.equal(rows[1].querySelectorAll('svg').length + rows[1].querySelectorAll('i').length, 0);
+  const none = replySheet({ at: 'x', lines: [], counts: { changes: 0, heldBack: 0, notApplied: 0 } });
+  assert.match(none.textContent, /No item, money, place or people changes/u);
+  assert.doesNotMatch(none.textContent, /0 changes/u);
+});

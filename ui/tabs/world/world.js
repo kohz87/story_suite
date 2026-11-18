@@ -6,8 +6,9 @@ import { placeSheet } from './place-sheet.js';
 import { newsCard } from './news.js';
 import { factionsCard } from './factions.js';
 import { conditionsCard } from './conditions.js';
+import { placesCard } from './places-list.js';
 
-const VIEW_LABELS = Object.freeze({ map: 'Map', news: 'News', factions: 'Factions' });
+const VIEW_LABELS = Object.freeze({ map: 'Map', places: 'Places', news: 'News', factions: 'Factions' });
 const DIRECTOR_NOTE = 'News that has not reached you yet lives in Story › Director, behind the plan switch.';
 const list = value => (Array.isArray(value) ? value : []);
 
@@ -16,9 +17,10 @@ export function worldTab(world = {}, ctx = {}) {
   const data = {
     places: list(world.places), routes: list(world.routes), trip: world.trip ?? null,
     terrain: world.terrain ?? null,
+    unmapped: list(world.unmapped),
     news: list(world.news).map(n => ({ ...n, heard: list(n.heard) })), factions: list(world.factions),
   };
-  const available = [data.places.length && 'map', data.news.length && 'news', data.factions.length && 'factions'].filter(Boolean);
+  const available = [data.places.length && 'map', data.unmapped.length && 'places', data.news.length && 'news', data.factions.length && 'factions'].filter(Boolean);
   const state = { view: available.includes(ctx.view) ? ctx.view : available[0], selected: null, center: null, filter: 'all' };
   const body = h('div', { class: 'wbody' });
   const root = h('div', { class: 'world-tab', dataset: { tab: 'world' } });
@@ -64,6 +66,7 @@ export function worldTab(world = {}, ctx = {}) {
   function render() {
     const cards = {
       map: () => mapCard(data, state, act, ctx),
+      places: () => placesCard(data.unmapped),
       news: () => newsCard(data.news, state, act),
       factions: () => factionsCard(data.factions, data.news, act),
     };
