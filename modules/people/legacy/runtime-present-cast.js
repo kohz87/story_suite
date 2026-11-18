@@ -8,7 +8,7 @@ import { nowSlotHtml, presentSceneModel, rememberPresentScene, sceneAttr } from 
 import { escapeHtml } from '../util/html.js';
 
 export function createPresentCastPart(deps) {
-    const { chatHydrationStatus, getChatKey, getChatState, isKeyNpc, latestMessageId, scenePresenceView } = deps;
+    const { chatHydrationStatus, getChatKey, getChatState, latestMessageId, scenePresenceView } = deps;
 
     // Like the dossier, the present cast shows the current form's own portrait when that form has one,
     // and the main portrait otherwise.
@@ -32,7 +32,7 @@ export function createPresentCastPart(deps) {
       <button type="button" class="npc-state-delta-present-card" data-npc-id="${escapeHtml(npc.id)}" data-message-id="${messageId}" aria-label="Open ${escapeHtml(displayName)} dossier">
         <span class="npc-state-delta-present-card-portrait">${portrait}</span>
         <span class="npc-state-delta-present-card-text">
-          <span class="npc-state-delta-present-card-head"><b class="npc-state-delta-present-card-name" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</b>${isKeyNpc(npc) ? '<span class="npc-state-delta-key-tag" title="Key person (Story Director)">★ Key</span>' : ''}<span class="npc-state-delta-present-card-stage"></span></span>
+          <span class="npc-state-delta-present-card-head"><b class="npc-state-delta-present-card-name" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</b>${npc.followed === true ? '<span class="npc-state-delta-key-tag" title="Followed">★ Key</span>' : ''}<span class="npc-state-delta-present-card-stage"></span></span>
           <small class="npc-state-delta-present-card-role" title="${escapeHtml(identityLine)}">${escapeHtml(identityLine)}</small>${now}
         </span>
       </button>`;

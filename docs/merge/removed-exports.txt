@@ -168,6 +168,22 @@ uiRoot
 selectedNpcId
 stage1Refresh
 openLauncherDossier
+# B4-9: the Key people module (modules/cast/keypeople) and NPC State's reading of it, deleted with their tests.
+KEY_PEOPLE_WIDGET
+KEY_PEOPLE_QUERY
+normalizeKeyPeople
+observeKeyAway
+validateKeyAway
+keyAwayMemory
+keyPeopleAnswer
+keyPeopleReadable
+keyAwayScanOptions
+keyReturnNotes
+isKeyNpc
+lockAwayNpcs
+awayNpcIds
+dossierKeyViews
+keyPeopleList
 # B4-6: the in-chat present cards, the Megumin pane and the Story Block scene/chatter readers (NPC State). The chat gets no cards; the Cast and World panes keep the present-card markup.
 createInlineCardsPart
 createInlineCardsStatePart

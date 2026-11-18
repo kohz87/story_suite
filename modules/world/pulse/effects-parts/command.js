@@ -21,7 +21,7 @@ export function pulseCommand(ctx, payload = {}) {
     if (mode === 'off') return { summary: '', narrate: false, data: { skipped: 'off' } };
     const director = ctx.draft('director');
     const read = name => { try { return typeof ctx.read === 'function' ? ctx.read(name) : null; } catch { return null; } };
-    const state = { domains: { director, scene: read('scene'), arc: read('arc'), cast: read('cast'), keypeople: read('keypeople'), dataModules: read('dataModules') } };
+    const state = { domains: { director, scene: read('scene'), arc: read('arc'), cast: read('cast'), dataModules: read('dataModules') } };
     const query = typeof ctx.query === 'function' ? (name, args) => ctx.query(name, args) : null;
     // The draws come first and always: a skip or a step-down never shifts them.
     const draw = drawsFrom(ctx.rng);

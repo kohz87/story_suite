@@ -6,6 +6,7 @@ import { rareKindsUsed } from '../../rpg/rare.js';
 import { MODULE_ID, MODULE_NAME, PARTS, STORY_BLOCK_RANGE, VERSION } from './parts.js';
 import { LIVE_HOST, isObject, liveSdk, tryLive } from './shared.js';
 import { fightRunner } from './host.js';
+import { awayTaught } from '../../people/away/away-prompt.js';
 import { namespaced, readsOf, settingsFor } from './settings.js';
 import { memoQueries, partCtx, partTools, partView, withSettingArgs } from './contexts.js';
 import { startDirector } from './start.js';
@@ -33,17 +34,16 @@ export function createModule({ parts = PARTS, host = LIVE_HOST } = {}) {
     // It starts from what fightRunner says now (a dormant fight runner is none), true where that cannot be known.
     // `chronicle`, `map`, `routes`: whether the story uses the rare kinds (world and faction lines; landmark and route lines; trip lines),
     // so their grammar is taught only then (the lean diet, 3 Nov). All start false and are learnt from the state before each reply.
-    const env = { fights: fightRunner() ?? true, rpg: false, keyPeople: false, chronicle: false, map: false, routes: false, calendarRule: '' };
+    const env = { fights: fightRunner() ?? true, rpg: false, away: false, chronicle: false, map: false, routes: false, calendarRule: '' };
     const learn = view => {
         const found = fightRunner(view);
         if (typeof found === 'boolean') env.fights = found;
         // Story Block's RPG feature (off by default): while it is on its planner asks for the checks.
         if (typeof view?.feature === 'function') env.rpg = tryLive(() => view.feature(RPG_FEATURE), false) === true;
         if (isObject(view?.state?.domains)) Object.assign(env, rareKindsUsed(view));
-        // Whether anyone is pinned (Key people): the feature's paragraph and grammar lines are taught only then, so a chat with no key
-        // people sends the prompt it always did. The prompt changes when the first person is pinned and when the last is unpinned.
-        const pins = view?.state?.domains?.keypeople?.pins;
-        if (isObject(view?.state?.domains)) env.keyPeople = isObject(pins) && Object.keys(pins).length > 0;
+        // Whether someone is followed or away (people/away): the away paragraph and grammar line are taught only then, so a chat with neither
+        // sends the prompt it always did. The prompt changes when the first person is followed or sent away, and when the last is neither.
+        if (isObject(view?.state?.domains)) env.away = awayTaught(view.state);
         // The custom calendar's one rule (no real-world day or month names): a setting, so the same bytes every reply of the story.
         env.calendarRule = tryLive(() => {
             const base = typeof view?.settings === 'function' ? id => view.settings(id) : id => (id === undefined || id === null || id === MODULE_ID ? view?.settings : {});
@@ -72,7 +72,7 @@ export function createModule({ parts = PARTS, host = LIVE_HOST } = {}) {
     const contextParts = [];
     const sections = [];
     let budget = 0;
-    // A part whose token budget is a setting (`context.budgetOf(settings)`, the Key people's): the module's budget follows it, so a
+    // A part whose token budget is a setting (`context.budgetOf(settings)`): the module's budget follows it, so a
     // larger one is not cut by the host at the sum of the fixed ones. Its own `context.budget` is what it is when the setting is unread.
     const dynamicBudgets = [];
 
@@ -102,9 +102,9 @@ export function createModule({ parts = PARTS, host = LIVE_HOST } = {}) {
             // A part's grammar may depend on the module set (`spec.grammar(env)`): read when the prompt is built.
             const grammar = spec.grammar;
             kinds[kind] = {
-                // A line may be '' (the Key people's, while nobody is pinned): the host then leaves the kind out, so a function answers (the registry takes one for a kind with no line yet).
+                // A line may be '': the host then leaves the kind out, so a function answers (the registry takes one for a kind with no line yet).
                 get grammar() {
-                    const line = typeof grammar === 'function' ? grammar({ fights: env.fights, rpg: env.rpg, keyPeople: env.keyPeople, chronicle: env.chronicle, map: env.map, routes: env.routes }) : grammar;
+                    const line = typeof grammar === 'function' ? grammar({ fights: env.fights, rpg: env.rpg, away: env.away, chronicle: env.chronicle, map: env.map, routes: env.routes }) : grammar;
                     return line === '' ? () => '' : line;
                 },
                 ...(spec.aliases ? { aliases: spec.aliases } : {}),
@@ -170,7 +170,7 @@ export function createModule({ parts = PARTS, host = LIVE_HOST } = {}) {
         if (last && !last.feature && !chunk.feature) last.items.push(chunk.static);
         else grouped.push({ feature: chunk.feature, items: [chunk.static] });
     }
-    const staticOf = items => () => items.map(fn => String(fn({ fights: env.fights, keyPeople: env.keyPeople, chronicle: env.chronicle, map: env.map, routes: env.routes, calendarRule: env.calendarRule }) ?? '').trim()).filter(Boolean).join('\n');
+    const staticOf = items => () => items.map(fn => String(fn({ fights: env.fights, away: env.away, chronicle: env.chronicle, map: env.map, routes: env.routes, calendarRule: env.calendarRule }) ?? '').trim()).filter(Boolean).join('\n');
     const staticParts = grouped.slice(grouped[0] && !grouped[0].feature ? 1 : 0)
         .map(group => ({ ...(group.feature ? { feature: group.feature } : {}), static: staticOf(group.items) }));
     const def = {

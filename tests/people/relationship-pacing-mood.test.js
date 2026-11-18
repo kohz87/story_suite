@@ -253,14 +253,9 @@ test('run-3 shape, tailBudget 550, 1/2/3 present people with a Pull: the cue and
     }
 });
 
-test('pull: a person away (key people) feels left behind; a failing or missing query is no signal', async () => {
-    const s = await moodSuite();
-    await s.setDay(3);
-    await world(s, { away: [{ name: 'Oren', aliases: [], here: false, away: { doing: 'abroad', since: 2 * DAY, back: null, steps: [] } }] });
-    await s.say(['~ npc Oren | trust: +1']);
-    assert.deepEqual(recordOf(s).pull, { kind: 'belonging', cause: 'left behind while the group moved on', since: 2 });
-    // A query that throws is no signal too: the tick still runs and the record is clean.
-    const broken = await suite({ allowance: null, features: MOOD_ON, modules: [{ id: 'zz-broken', name: 'Broken', queries: { 'party.actors': () => { throw new Error('down'); }, 'director.threads': () => { throw new Error('down'); }, 'director.keyPeople': () => { throw new Error('down'); } } }] });
+test('pull: a failing or missing query is no signal', async () => {
+    // A query that throws is no signal: the tick still runs and the record is clean.
+    const broken = await suite({ allowance: null, features: MOOD_ON, modules: [{ id: 'zz-broken', name: 'Broken', queries: { 'party.actors': () => { throw new Error('down'); }, 'director.threads': () => { throw new Error('down'); } } }] });
     await broken.setDay(3);
     await broken.say(['~ npc Oren | trust: -3 | impact: major']);
     await broken.setDay(6);
@@ -271,6 +266,6 @@ test('pull: a person away (key people) feels left behind; a failing or missing q
     const bare = await suite({ allowance: null, features: MOOD_ON });
     await bare.setDay(3);
     await bare.say(['~ npc Oren | trust: -3 | impact: major']);
-    assert.equal(recordOf(bare).pull, undefined, 'no party, threads or key people: no pull');
+    assert.equal(recordOf(bare).pull, undefined, 'no party or threads: no pull');
     assert.deepEqual(validateNpcSlice(bare.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });

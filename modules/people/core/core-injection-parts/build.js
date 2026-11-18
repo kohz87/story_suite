@@ -38,7 +38,7 @@ export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria
     let identityCap = Math.round(Math.min(2200, 620 * capScale));
     let agencyCap = Math.round(Math.min(900, 300 * capScale));
     let stateCap = Math.round(Math.min(400, 180 * capScale));
-    // A key person who just came back (Story Director's key people) brings a short "while away" summary, once, with
+    // Someone who just came back (Story Director's people away) brings a short "while away" summary, once, with
     // their block; it counts in the budget like the block. Without notes the text is exactly as before.
     const awayNote = npc => {
         const note = awayNotes && typeof awayNotes === 'object' ? cleanText(awayNotes[npc.id], 400) : '';

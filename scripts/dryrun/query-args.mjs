@@ -29,7 +29,7 @@ export function planTargetedQueries(queryNames, values, state) {
   const threads = threadKeys(values);
   const wants = {
     'npc.dossier': ['name', named], 'npc.portrait': ['name', named], 'npc.identity': ['name', named],
-    'npc.meters': ['name', named], 'npc.next': ['name', named], 'npc.keyAway': ['name', named],
+    'npc.meters': ['name', named], 'npc.next': ['name', named],
     'npc.socialModifier': ['name', named],
     'inventory.find': ['name', defNames], 'inventory.condition': ['stack', stacks],
     'inventory.wallet': ['owner', owners], 'inventory.items': ['owner', owners],

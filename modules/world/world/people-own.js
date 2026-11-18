@@ -1,5 +1,5 @@
 // Story Director v2, World people (flag `suite.worldPeopleOwn`): draws the present cast's cards itself from NPC State's queries
-// (npc.present, npc.meters, npc.portrait, npc.dossier; `director.keyPeople` for the Key tag) instead of NPC State Delta's global page API.
+// (npc.present, npc.meters, npc.portrait, npc.dossier; `people.list` for the Key tag) instead of NPC State Delta's global page API.
 // `createOwnCast(api, { open })` has the page API's shape ({ available, busy, render, onChange }), so the widget's chips, thoughts and
 // covered-people logic (people-parts/draw.js) stay exactly as they are. The cards use NPC State's own classes (its stylesheet draws them).
 
@@ -34,9 +34,9 @@ export function createOwnCast(api, { open = () => null, signal = () => null } = 
     };
     const keyKeys = () => {
         const out = new Set();
-        const list = ask('director.keyPeople', {});
+        const list = ask('people.list', {});
         for (const entry of Array.isArray(list) ? list : []) {
-            if (!entry || entry.removed) continue;
+            if (!entry || entry.followed !== true) continue;
             for (const label of [entry.name, ...(Array.isArray(entry.aliases) ? entry.aliases : [])]) { const key = lineKey(text(label)); if (key) out.add(key); }
         }
         return out;

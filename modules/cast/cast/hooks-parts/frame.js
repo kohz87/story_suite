@@ -1,7 +1,7 @@
 // Story Director v2, part **cast**: building the hook frame, copying the cast slice, and querying pack places.
 
-import { cutPoints, isInt, keysOfPerson } from '../domain.js';
-import { castOf, partyPlace, presentKeys, ask } from '../entries.js';
+import { cutPoints, isInt } from '../domain.js';
+import { castOf, partyPlace, pinnedKeys, presentKeys, ask } from '../entries.js';
 import { connectionFor } from '../../../../core/model-call/connection-for.js';
 import { settingsOf } from '../settings.js';
 
@@ -20,11 +20,7 @@ export function frameOf(view) {
     const cast = castOf(query);
     const slice = view?.state?.domains?.cast;
     const now = minutesOf(view);
-    const pinned = new Set();
-    const keyPeople = ask(query, 'director.keyPeople', {}, null);
-    for (const entry of Array.isArray(keyPeople) ? keyPeople : []) {
-        if (entry && typeof entry === 'object' && !entry.removed) for (const key of keysOfPerson(entry)) pinned.add(key);
-    }
+    const pinned = pinnedKeys(query);
     return {
         query, cast, slice, now, pinned,
         present: presentKeys(query, view?.state),

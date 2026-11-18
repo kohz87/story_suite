@@ -35,7 +35,7 @@ export function pulseView(state, _args, _tools, settings = null) {
     const rows = resultsOf(director).map(pulseRow).reverse();
     const last = resultsOf(director).at(-1);
     const agendas = Object.values(isRecord(director?.threads) ? director.threads : {}).filter(thread => thread?.kind === 'agenda' && thread.status === 'active').length;
-    const away = agendas + Object.keys(state?.domains?.keypeople?.away ?? {}).length
+    const away = agendas
         + Object.values(isRecord(state?.domains?.cast?.people) ? state.domains.cast.people : {}).filter(person => isRecord(person) && person.alive !== false && !person.met).length;
     const card = mode !== 'off';
     const show = card && (values['pulse.showUnderReply'] ?? values.showUnderReply) === true;

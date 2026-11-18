@@ -8,11 +8,11 @@ import { createModule } from '../../../../modules/director/module.js';
 import { castPlans } from '../../../../modules/cast/cast/index.js';
 import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 import { problemList } from '../../../../modules/time/tracker/domain.js';
-import { fakeDelta } from '../../../modules/cast/keypeople/helpers.js';
+import { fakeDelta } from '../../helpers/fake-delta.js';
 import { LASTING_NAMES, lastingEdit, lastingLines } from '../../../modules/world/chronicle/helpers/lasting-pack.js';
 import {
     BASE, BASE_OFFERS, BASE_PLACES, BASE_WORLD, CAST_IDS, FACTIONS, KEY_BASE, NEAR, SOUGHT_ASK, STATES, TIE,
-    castAnswer, castEdits, castEntry, editOf, expectedClock, keyEdits, keyLines, nameLines, nearLines, prng, replyLines,
+    castAnswer, castEdits, castEntry, editOf, expectedClock, nameLines, nearLines, prng, replyLines,
     said, seedCrypto, timeOf, tripLines, validatorErrors, word, wrenEntry, ylvaEntry,
 } from './fuzz-delete.helpers.js';
 
@@ -119,7 +119,6 @@ for (const seed of SEEDS) {
                 ...BASE_WORLD.map(key => `+ world ${key} — afoot | state: ongoing`),
                 // The entries the story's lines and the reader's edits name are made by the first exchange (never deleted).
                 ...LASTING_NAMES.map(name => `+ world ${name} — it begins | state: looming`)]));
-            for (const name of KEY_BASE) assert.ok((await host.sdk.command('keypeople.pin', { name })).ok);
             const start = host.head().domains.director.time.minutes;
             const times = new Map();
             let wrenMet = false;
@@ -131,7 +130,7 @@ for (const seed of SEEDS) {
                 if (lateTrips && n === 4) host.features.set('story-director.trip', true);
                 const near = nearLines(rn, n);
                 const day = seed >= EXTRAS_FROM ? dayLines(rd, n) : [];
-                const lines = [...replyLines(r, n), ...near.lines, ...lastingLines(rl), ...(lateTrips && n < 4 ? [] : tripLines(rt, n)), ...keyLines(rk, host, n), ...nameLines(rk, n), ...offerLines(ro, n, madeOffers), ...day];
+                const lines = [...replyLines(r, n), ...near.lines, ...lastingLines(rl), ...(lateTrips && n < 4 ? [] : tripLines(rt, n)), ...nameLines(rk, n), ...offerLines(ro, n, madeOffers), ...day];
                 const seeking = rs.chance(0.6) ? rs.pick(SOUGHT_ASK) : '';
                 // The planner's answer is used by the reply after the one it was asked about: the reply after a request for her names her too.
                 const names = seeking === 'cartographer' || sought === 'cartographer';
@@ -187,7 +186,6 @@ for (const seed of SEEDS) {
                 } else if (ra.chance(0.15) && host.sdk.query('director.arc')?.current?.active) {
                     assert.ok((await host.sdk.command('director.arc.end', {})).ok);
                 }
-                await keyEdits(rk, host, n, delta);
                 // The reader's quiet scene switch now and then, on the latest reply (a delete may take it back).
                 // On for a reply or two, then off again, so the pulse is not starved for the rest of the chat.
                 if (seed >= EXTRAS_FROM && (quietOn || rd.chance(0.2))) {
@@ -261,9 +259,6 @@ for (const seed of SEEDS) {
                 const leaked = told.find(line => new RegExp(`\\b${id}\\d*\\b`, 'i').test(line));
                 assert.equal(leaked, undefined, `seed ${seed}: ${id} is named outside a meeting's cue: ${leaked}`);
             }
-            const keyDone = summaries.filter(text => /^Key person: /.test(text));
-            assert.ok(keyDone.length >= 1, `seed ${seed}: the fuzz sent a key person away`);
-            t.diagnostic(`seed ${seed}: key people receipts ${keyDone.length} (away ${keyDone.filter(text => / is away/.test(text)).length}, back ${keyDone.filter(text => / is back/.test(text)).length}, steps ${keyDone.filter(text => /^Key person: \w+, /.test(text)).length}, died ${keyDone.filter(text => /died/.test(text)).length}, archived in Delta ${keyDone.filter(text => /archived in NPC State Delta/.test(text)).length}), lines told ${Object.values(host.head().domains.keypeople.notes).filter(note => note.key !== undefined).length}, pinned now ${Object.keys(host.head().domains.keypeople.pins).length}`);
             t.diagnostic(`seed ${seed}: faction lines ${factionLines}, quiet flips ${quietFlips}, passers-by ${passersBy}, pulse steps ${host.sdk.receipts().filter(entry => entry.receipt.type === 'director.pulse').length}, passers met ${passersMet}, swipes ${swipes}, pulse kinds ${JSON.stringify(Object.fromEntries(host.sdk.receipts().filter(entry => entry.receipt.type === 'director.pulse').map(entry => entry.receipt.data?.kind).reduce((map, kind) => map.set(kind, (map.get(kind) ?? 0) + 1), new Map())))}, rumour events ${Object.values(host.head().domains.chronicle.events).filter(event => event.rumour !== undefined).length}, new factions ${host.sdk.receipts().filter(entry => /New factions?:/.test(entry.receipt.summary ?? '')).length}, places with a parent ${Object.values(host.head().domains.atlas?.places ?? {}).filter(place => place.parent).length}`);
             t.diagnostic(`seed ${seed}: trips set out ${tripsMade}, delayed ${summaries.filter(text => /is delayed/.test(text)).length}, stopped ${summaries.filter(text => /^The trip to .* ends/.test(text)).length}`);
             undatedLapsed += host.sdk.receipts().filter(entry => entry.receipt.type === 'time.settle')

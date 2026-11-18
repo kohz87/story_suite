@@ -5,8 +5,7 @@ import { dateOf } from '../../../atlas/relevance.js';
 import { castOf, partyPlace, pinnedKeys, presentKeys, roadsOf, travelOf } from '../../../cast/cast/entries.js';
 import { chanceCandidates } from '../../../cast/cast/world.js';
 import { cueOf } from '../../../cast/cast/note.js';
-import { hiddenNames } from '../../world/known.js';
-import { calendarFrom } from '../../../cast/keypeople/time.js';
+import { calendarFrom, hiddenNames } from '../../world/known.js';
 import { isPersona } from '../../../time/tracker/initiative.js';
 import { orderedThreads } from '../../../time/tracker/convert.js';
 import { ask, cutPoints, namesPerson } from '../../../time/tracker/scene.js';
@@ -64,12 +63,11 @@ export function rollEntry({ ctx, director, state, query, scene, draw, at, clock,
         const there = ask(query, 'atlas.place', { name: plainSlot(fields.where || fields.place, NAME_MAX) }, null)?.region;
         return Boolean(lineKey(here?.region) && lineKey(there) === lineKey(here?.region));
     };
-    const away = Object.keys(state.domains.keypeople?.away ?? {}).length;
     const names = new Set(scene.people.map(person => person.key));
     for (const name of [...ask(query, 'npc.known', {}, []), ...Object.values(isRecord(people) ? people : {}).map(person => person?.name)]) if (lineKey(name)) names.add(lineKey(name));
     const lively = mode === 'lively';
-    const counts = { present: others.length, offscreen: lively ? agendas.length + away + unmet.length : 1, known: lively ? known.length : 1, cast: lively ? (near ? near.length : unmet.length) : 1 };
-    const table = tableFor({ named: names.size, offscreen: agendas.length + away + unmet.length });
+    const counts = { present: others.length, offscreen: lively ? agendas.length + unmet.length : 1, known: lively ? known.length : 1, cast: lively ? (near ? near.length : unmet.length) : 1 };
+    const table = tableFor({ named: names.size, offscreen: agendas.length + unmet.length });
     const d20 = d20Of(draw.d20);
     // Version 2: how strongly it shows; never the same kind twice running, nor two intrusive ones; the narrator may invent the event from what the note holds.
     const lastKind = v2 ? recent.at(-1)?.kind : '';

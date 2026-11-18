@@ -17,10 +17,10 @@ const LIST = [
   row('npc_old_marro', 'Old Marro', { role: 'Toll keeper', lifeState: 'deceased', lifeStateReason: 'a fall from the toll bridge' }),
   row('npc_hale', 'Hale', { location: 'the harbour', dormant: true, lastSeenTurn: 3 }),
 ];
-// director.keyPeople.view: packages/story-director/src/v2/keypeople/queries.js:180-228 (people: [{ key, name, here, away, place, newsAgo, … }]).
-const KEY_PEOPLE = { on: true, people: [{ key: 'rika', name: 'Rika', here: false, away: true, place: 'Bluewatch stables', newsAgo: '2 days ago' }] };
+// director.away.view: modules/people/away/away-queries.js (people: [{ key, name, here, away, doing, back, newsAgo, … }]).
+const AWAY = { on: true, people: [{ key: 'rika', name: 'Rika', here: false, away: true, newsAgo: '2 days ago' }] };
 const PARTY = [{ id: 'astra', name: 'Astra', pc: true }, { id: 'torka', name: 'Torka' }];
-const ARGS = { list: LIST, keyPeople: KEY_PEOPLE, party: PARTY };
+const ARGS = { list: LIST, away: AWAY, party: PARTY };
 
 describe('selectPeople', () => {
   it('splits here, elsewhere, not seen lately and deceased, and matches PEOPLE_SHAPE', () => {
@@ -54,8 +54,8 @@ describe('selectPeople', () => {
     assert.deepEqual(selectPeople({ list }).here, [], 'no place: only the present are here');
   });
 
-  it('followed comes from the row, not from the key people', () => {
-    const vm = selectPeople({ ...ARGS, keyPeople: { people: [{ name: 'Torka', place: 'x', newsAgo: 'y' }] } });
+  it('followed comes from the row, not from the people away', () => {
+    const vm = selectPeople({ ...ARGS, away: { people: [{ name: 'Torka', newsAgo: 'y' }] } });
     assert.equal(vm.here.find(c => c.name === 'Torka').followed, false);
     assert.equal(vm.elsewhere[0].followed, true);
   });
@@ -68,22 +68,22 @@ describe('selectPeople', () => {
     assert.ok(torka.where.endsWith('…'));
   });
 
-  it('gives an away person their place and how long ago, with said still a gap, and the stored location without key-people news', () => {
+  it('gives an away person their stored location and how long ago, with said still a gap; without news of them, no age', () => {
     const [rika] = selectPeople(ARGS).elsewhere;
-    assert.equal(rika.lastPlace, 'Bluewatch stables');
+    assert.equal(rika.lastPlace, 'At the Bluewatch stables', 'the away view has no place: the stored location');
     assert.equal(rika.lastSeen, '2 days ago');
     assert.equal(rika.said, null);
-    const bare = selectPeople({ ...ARGS, keyPeople: null }).elsewhere[0];
+    const bare = selectPeople({ ...ARGS, away: null }).elsewhere[0];
     assert.equal(bare.lastPlace, 'At the Bluewatch stables');
     assert.equal(bare.lastSeen, null);
   });
 
   it('an away followed person carries what they are doing and when they are back; one not away carries neither', () => {
-    const away = { people: [{ name: 'Rika', away: true, doing: 'scouting the road', back: 'Goldwane 18', place: 'Bluewatch stables', newsAgo: 'today' }] };
-    const [rika] = selectPeople({ ...ARGS, keyPeople: away }).elsewhere;
+    const away = { people: [{ name: 'Rika', away: true, doing: 'scouting the road', back: 'Goldwane 18', newsAgo: 'today' }] };
+    const [rika] = selectPeople({ ...ARGS, away }).elsewhere;
     assert.equal(rika.doing, 'scouting the road');
     assert.equal(rika.back, 'Goldwane 18');
-    const idle = selectPeople({ ...ARGS, keyPeople: { people: [{ name: 'Rika', away: false, doing: 'x', back: '' }] } }).elsewhere[0];
+    const idle = selectPeople({ ...ARGS, away: { people: [{ name: 'Rika', away: false, doing: 'x', back: '' }] } }).elsewhere[0];
     assert.equal('doing' in idle, false);
   });
 

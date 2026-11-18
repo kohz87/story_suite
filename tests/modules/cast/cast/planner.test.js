@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { castPlans } from '../../../../modules/cast/cast/index.js';
-import { OPENING, castCue, castHost, castSource, createFakeModel, withRoads, entry, people, receipts, said, sent, settle, slice, validatorErrors, TAIL_KEY } from './helpers.js';
+import { OPENING, castCue, castHost, castSource, createFakeModel, followPeople, withRoads, entry, people, receipts, said, sent, settle, slice, validatorErrors, TAIL_KEY } from './helpers.js';
 
 const FENNA = entry('fenna', { start: { place: 'Bluewatch docks', goal: 'keep the night ferry running', routine: 'works the night ferry' } });
 const SERA = entry('sera', { start: { place: 'Gwenmar', goal: 'find her brother\'s killer', routine: '' }, drawnTo: ['the man you fought at the weir', 'Harrow'] });
@@ -173,17 +173,17 @@ test('a goal the story touches between two days is judged at once: the planner i
     }
 });
 
-test('a person who is in the scene, or pinned as a key person, is not moved by the planner', async t => {
+test('a person who is in the scene, or followed (the Follow star), is not moved by the planner', async t => {
     quiet(t);
     const model = createFakeModel(['~ cast sera | Elsewhere | gone']);
     const host = await started({ source: withRoads(castSource([FENNA, SERA, BROM])), model });
     try {
-        await host.sdk.command('keypeople.pin', { name: 'Fenna' });
+        await followPeople(host, [{ name: 'Fenna' }]);
         await host.send('Sleep.', said('Morning.', [...DAY2, '+ present Sera']));
         await settle();
         const prompt = model.calls[0].prompt;
         assert.match(prompt, /- brom \|/, 'the others are asked about');
-        assert.doesNotMatch(prompt, /- fenna \|/, 'a key person has the key people track');
+        assert.doesNotMatch(prompt, /- fenna \|/, 'a followed person is not moved');
         assert.doesNotMatch(prompt, /- sera \|/, 'someone in the scene is where the scene says');
     } finally {
         host.close();
