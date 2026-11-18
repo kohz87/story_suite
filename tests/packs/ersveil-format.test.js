@@ -18,7 +18,7 @@ test('the envelopes: format 4, one world and one game, the versions, names and t
     assert.doesNotMatch(world.description, /spec/);
     assert.deepEqual(world.requires, { suite: '^0.1', capabilities: ['scene', 'chronicle-lasting'] });
     assert.deepEqual(game.requires, { suite: '^0.1', capabilities: ['scene', 'inventory', 'data-modules-v1'] });
-    assert.deepEqual(world.recommends, { game: { id: 'ersveil-game', version: '^1.0' } });
+    assert.deepEqual(world.recommends, { game: { id: 'ersveil-game', version: '^1.0', name: game.name } });
     assert.equal('recommends' in game, false);
     for (const field of ['calendar', 'weather', 'currency', 'economy', 'start', 'ripples', 'theme']) assert.equal(field in world || field in game, false, `${field} is not a top-level field`);
 });

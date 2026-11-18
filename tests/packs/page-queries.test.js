@@ -71,3 +71,11 @@ test('a stored world or game that no longer checks is still listed as that kind,
     assert.deepEqual([row.kind, row.addOn], ['world', false]);
     assert.ok(row.problem);
 });
+
+test('the suggested game not installed is named by the name the world wrote, the id only without one; the installed pack\'s own name wins (SFF4 #11)', async () => {
+    const named = world({ recommends: { game: { id: 'ersveil-game', version: '^1.0', name: 'Ersveil rules' } } });
+    const installed = await setup(named, game('tide', { calendar: { months: months(8) } }));
+    assert.deepEqual(pairingView(installed).recommends, { id: 'ersveil-game', version: '^1.0', name: 'Ersveil rules', installed: false, selected: false });
+    await installed.install(game('ersveil-game', { calendar: { months: months(12) } }));
+    assert.equal(pairingView(installed).recommends.name, 'ersveil-game rules');
+});

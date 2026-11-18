@@ -9,6 +9,7 @@ import { companions } from './present.js';
 import { clearLook } from './you-look.js';
 import { knownPlace, knownPlaces } from './place-known.js';
 import { told } from './shared.js';
+import { followPlace } from './place-follow.js';
 
 function field(ctx, value, what) {
     if (value === undefined || value === null) return null;
@@ -62,6 +63,8 @@ export function setPlace(ctx, { name, kind, region, with: along }, { keepPresent
     const present = [...staying, ...came.filter(person => !stayingKeys.has(person.toLowerCase()))];
     if (present.length > MAX_PRESENT) ctx.fail('INVALID', `At most ${MAX_PRESENT} people can be listed as present.`);
     if (present.length !== scene.present.length || present.some((person, at) => person !== scene.present[at])) scene.present = present;
+    // (SFF4 #5) Who came along is at the new place: their dossier's place follows (a reply marked `placeFromMap`, as the move's map fill-in).
+    if (moved && came.length && ctx.carrier?.rules?.includes('placeFromMap')) followPlace(ctx, came, placeName);
     const withWho = came.length ? ` with ${came.join(', ')}` : '';
     const fromTheMap = filled.length ? ` (${filled.map(what => (filled.length > 1 ? '' : `${what} `) + scene.place[what]).join(', ')}, from the map)` : '';
     return {

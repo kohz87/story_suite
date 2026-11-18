@@ -15,11 +15,23 @@ import { packPlace } from './world.js';
 
 const STEPS = 4;
 
+/** The packs' regions an anchor reads (`packs.content` kind regions: `{ id, name, aliases? }`), [] when the packs cannot say. */
+export function packRegions(query) {
+    if (typeof query !== 'function') return [];
+    try { const out = query('packs.content', { kind: 'regions' }); return Array.isArray(out) ? out : []; } catch { return []; }
+}
+
 /**
- * `anchorOf(world, atlas, pack, name, { region })` → `{ name, region, via }` or null. `world`: worldOf(atlas, pack); `atlas`: the
+ * `anchorOf(world, atlas, pack, name, { region, regions })` → `{ name, region, via }` or null. `world`: worldOf(atlas, pack); `atlas`: the
  * atlas domain (or null); `pack`: packWorld's `{ places }`; `region`: the scene's own region, used when the atlas has no place yet.
  */
-export function anchorOf(world, atlas, pack, name, { region = '' } = {}) {
+export function anchorOf(world, atlas, pack, name, { region = '', regions = [] } = {}) {
+    // A region by its id, name or alias (`regions`: the packs' `{ id, name, aliases }`): a scene keeps a pack region's name, the pack's places its id (SFF4 #3).
+    const regionKey = text => {
+        const key = keyOf(String(text ?? ''));
+        const known = (Array.isArray(regions) ? regions : []).find(row => [row?.id, row?.name, ...(Array.isArray(row?.aliases) ? row.aliases : [])].some(word => typeof word === 'string' && keyOf(word) === key));
+        return known ? keyOf(known.id) : key;
+    };
     const raw = String(name ?? '').trim();
     if (!keyOf(raw) || typeof world?.find !== 'function') return null;
     const packOf = place => (place ? packPlace(pack, place.name) && world.find(place.name) : null);
@@ -40,7 +52,7 @@ export function anchorOf(world, atlas, pack, name, { region = '' } = {}) {
     let last = null;
     for (const visit of orderedPlaces(atlas)) {
         const seen = visit.discovered ? packOf(world.find(visit.id)) : null;
-        if (!seen || keyOf(seen.region) !== keyOf(where)) continue;
+        if (!seen || regionKey(seen.region) !== regionKey(where)) continue;
         if (!last || (visit.rev ?? -1) >= last.rev) last = { rev: visit.rev ?? -1, place: seen };
     }
     return last ? out(last.place, 'last') : { name: '', region: where, via: 'region' };

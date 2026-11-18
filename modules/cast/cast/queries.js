@@ -2,7 +2,8 @@
 //
 // - `director.cast` → `[{ key, pack, id, name, aliases, met: { on, where }, where, doing, lastHeard: { on, text } | null, alive,
 //   entry? }]`: the contract other modules read (NPC State Delta makes a dossier from it at the first meeting). Only people who have
-//   been met: an unmet person never leaves Story Director, not even their name (`director.cast.counts` gives the numbers).
+//   been met: an unmet person never leaves Story Director, not even their name (`director.cast.counts` gives the numbers), except with `{ present: true }`
+//   one the reply's own scene has present (the story itself named them; NPC State makes their dossier when a line names them before the meeting).
 //   `entry` is the pack's full entry for the person, present only when their pack is enabled now. Frozen copies. `null` while the
 //   feature is off.
 // - `director.cast.counts` → `{ met, total, unmet }` (the numbers, no names).
@@ -10,7 +11,7 @@
 //
 // Nothing is stored for these: every answer is worked out from the state and the other queries.
 
-import { cutPoints, isInt, isMet, isRecord, peopleOf, slotOf, timeOfDay, counts } from './domain.js';
+import { cutPoints, isInt, isMet, isRecord, keyOf, keysOfPerson, peopleOf, slotOf, timeOfDay, counts } from './domain.js';
 import { castOf, ask, partyPlace, pinnedKeys, presentKeys } from './entries.js';
 import { FEATURE } from './settings.js';
 import { nearCount } from './world.js';
@@ -35,18 +36,26 @@ function deepFreeze(value) {
     return value;
 }
 
-/** `director.cast` (see the header). */
-export function castQuery(state, _args, tools) {
+// The names in this reply's own scene (`scene.present`, reply-pinned: never NPC State's live flags), as keys.
+function sceneKeys(query, state) {
+    const list = ask(query, 'scene.present', {}, null) ?? state?.domains?.scene?.present;
+    return new Set((Array.isArray(list) ? list : []).map(entry => keyOf(typeof entry === 'string' ? entry : entry?.name)).filter(Boolean));
+}
+
+/** `director.cast` (see the header). `{ present: true }` also lists the living people not yet met whom the reply's own scene has present (`met: null`): the story named them. */
+export function castQuery(state, args, tools) {
     if (!onFor(tools)) return null;
     const cast = castOf(queryOf(tools));
+    const here = args?.present === true ? sceneKeys(queryOf(tools), state) : null;
     const out = [];
     for (const person of peopleOf(state?.domains?.cast)) {
-        if (!isMet(person)) continue;
+        const met = isMet(person);
+        if (!met && !(here && person.alive !== false && keysOfPerson(person).some(key => here.has(key)))) continue;
         const entry = cast.byKey.get(person.key)?.raw;
         out.push({
             key: person.key, pack: person.pack, id: person.eid, name: person.name,
             aliases: Array.isArray(person.aliases) ? [...person.aliases] : [],
-            met: { on: isInt(person.met.on) ? person.met.on : null, where: person.met.where },
+            met: met ? { on: isInt(person.met.on) ? person.met.on : null, where: person.met.where } : null,
             where: person.where, doing: person.doing,
             lastHeard: slotOf(person.heard) ? { on: isInt(slotOf(person.heard).on) ? slotOf(person.heard).on : null, text: slotOf(person.heard).text } : null,
             alive: person.alive !== false,

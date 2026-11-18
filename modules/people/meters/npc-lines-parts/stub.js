@@ -71,10 +71,11 @@ function refusalOf(ctx, name, hooks) {
 }
 
 /**
- * `handler` (the npc line handler) with the stub and the unknown-person rule in front, while lines mode is on. `deps`: { hooks, linesMode(ctx) → boolean, baseline() → meters, note(slice, rev, problems) }.
+ * `handler` (the npc line handler) with the stub and the unknown-person rule in front, while lines mode is on. `deps`: { hooks, linesMode(ctx) → boolean, baseline() → meters, note(slice, rev, problems),
+ * castFirst(ctx, name) → { id, name } of a pack person's dossier it made, or null }.
  * Runs inside the reply's transaction: a refusal makes no person and no meter entry.
  */
-export function withStubs(handler, { hooks, linesMode, baseline, note }) {
+export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst = null }) {
     return function stubbedLine(ctx, line = {}) {
         if (!linesMode(ctx)) return handler(ctx, line);
         const on = { ...line, linesOn: true };   // (the label readers of npc-lines-parts/facts.js run only on a marked line)
@@ -88,7 +89,7 @@ export function withStubs(handler, { hooks, linesMode, baseline, note }) {
             if (manualOnly(ctx)) ctx.fail('REFUSED', `Who gets a dossier is Manual only; ${stub.name} gets a dossier only when you add them.`);
             // This reply's stubs are the people stamped with its index (the identity the fill-in finds them by).
             const stamp = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1;
-            const made = Object.values(ctx.read('people')?.npcs ?? {}).filter(record => record?.createdAt === stamp).length;
+            const made = Object.values(ctx.read('people')?.npcs ?? {}).filter(record => record?.createdAt === stamp && !record.castFrom).length;   // (a pack person's dossier, ./cast-first.js, is not a new person)
             if (made >= STUBS_PER_REPLY) ctx.fail('REFUSED', `Only four new people a reply; ${stub.name} waits for a later reply that names them again.`);
             // One id for the dossier and its meter entry: free among the people and the meter entries both.
             const taken = [...Object.keys(ctx.read('people')?.npcs ?? {}), ...Object.keys(ctx.read(NPC_DOMAIN)?.npcs ?? {})];
@@ -99,13 +100,18 @@ export function withStubs(handler, { hooks, linesMode, baseline, note }) {
             if (stub.problems.length) note(ctx.draft(NPC_DOMAIN), ctx.rev, stub.problems);
             return stub.problems.length ? { ...out, data: { ...out.data, problems: [...(out.data?.problems ?? []), ...stub.problems] } } : out;
         }
-        const found = knownPerson(ctx, line.name);
-        if (!found) {
-            const text = `${clean(line.name, 40)} has no record yet; write + npc ${clean(line.name, 40)} | role | look first.`;
-            ctx.fail('REFUSED', text);
+        let found = knownPerson(ctx, line.name);
+        // F50 with SFF4 #1: a first name, surname or role that found one listed person but also fits a pack person who has no dossier yet fits two: nobody.
+        if (found?.record && !labelsWrite(found.record, line.name) && typeof castFirst?.fits === 'function' && castFirst.fits(ctx, line.name)) found = null;
+        if (!found?.record) {
+            // SFF4 #1: a pack person met or present in this reply's scene has their dossier made from the pack here (./cast-first.js), also when only their
+            // meter entry is there yet (the step after the meeting made it); anyone else is refused, and a meter entry alone goes on as before.
+            const made = typeof castFirst === 'function' ? castFirst(ctx, line.name, { entry: found?.key ?? null }) : null;
+            if (made) { found = { key: made.id, record: { name: made.name } }; on.stubKey = made.id; }
+            else if (!found) ctx.fail('REFUSED', `${clean(line.name, 40)} has no record yet; write + npc ${clean(line.name, 40)} | role | look first.`);
         }
         // F44: a death is final (a `~ npc` line of theirs moves no feeling, ./guard.js keeps the frozen fields; any other line is refused); F50: the line goes on
-        // under the person's full name (the meter entry and the dossier are found by it); F34: a tie names a known person.
+        // under the person's full name (the meter entry and the dossier are found by it; also an alias of someone made in this very reply); F34: a tie names a known person.
         const dead = found.record?.lifeState === 'deceased';
         if (dead && line.kind !== 'npc') ctx.fail('REFUSED', `${clean(found.record.name, 40)} has died; lines about them change nothing now.`);
         return handler(ctx, line.kind === 'tie' ? tieWith(ctx, named(on, found)) : { ...named(on, found), ...(dead ? { dead: true } : {}) });

@@ -92,3 +92,15 @@ test('replay: swipe, swipe back, an edited Re-read (grown and shrunk), a middle 
     assert.deepEqual(abilities(s, 'npc_oren'), ['Parry']);
     same(s, 'rewind replay equals live');
 });
+
+test('SFF4 #9: a line that only stores a keepsake, an ability or a Level says so in its receipt, not "nothing moved"; a swipe and a rebuild agree', async () => {
+    const s = await suite({ lines: true });
+    const summaries = () => s.host.store.receipts().map(item => item.receipt).filter(item => /^npc\./.test(item.type ?? '') || item.type === 'capture.npc').map(item => item.summary ?? '');
+    await s.say(['~ npc Oren | keepsake: + Guild licence — granted in Auvoth']);
+    assert.deepEqual(keepsakes(s), ['Guild licence']);
+    assert.ok(summaries().some(text => text.includes('Oren: keepsake Guild licence added.')), JSON.stringify(summaries()));
+    assert.ok(!summaries().some(text => text.includes('Oren: nothing moved')), JSON.stringify(summaries()));
+    await s.swipe(['~ npc Oren | learns: Snare craft — set wire snares']);
+    assert.ok(summaries().some(text => text.includes('Oren: learns Snare craft.')), JSON.stringify(summaries()));
+    same(s, 'a rebuild gives the same people');
+});

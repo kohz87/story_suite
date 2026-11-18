@@ -5,6 +5,7 @@ import { parseRange } from '../version.js';
 import { isObject } from '../validate/core.js';
 
 const OTHER = { world: 'game', game: 'world' };
+const RECOMMENDS_NAME_MAX = 80;
 // A legacy kind the world pack replaced (format 3 `events`).
 const LEGACY_POINTERS = { events: 'legacy dated events are gone; use worldEvents in a world pack.' };
 
@@ -35,10 +36,13 @@ function checkRecommends(value, add) {
     for (const key of Object.keys(value)) if (key !== 'game') add('UNKNOWN_FIELD', `recommends.${key}`, `"${key}" is not a recommends field (expected game).`);
     const game = value.game;
     if (!isObject(game)) return bad('recommends.game must be { "id": "…", "version": "^1" }.');
-    for (const key of Object.keys(game)) if (key !== 'id' && key !== 'version') add('UNKNOWN_FIELD', `recommends.game.${key}`, `"${key}" is not a recommends.game field (expected id, version).`);
+    for (const key of Object.keys(game)) if (!['id', 'version', 'name'].includes(key)) add('UNKNOWN_FIELD', `recommends.game.${key}`, `"${key}" is not a recommends.game field (expected id, version, name).`);
     if (typeof game.id !== 'string' || !PACK_ID.test(game.id)) return bad('recommends.game.id must be a pack id (1 to 40 lowercase letters, digits or dashes).');
     if (typeof game.version !== 'string' || !parseRange(game.version)) return bad('recommends.game.version must be a version range like "^1".');
-    return { game: { id: game.id, version: game.version } };
+    // `name` (optional): the game's name, shown while it is not installed (the installed pack's own name wins); a blank one is left out.
+    if (game.name !== undefined && (typeof game.name !== 'string' || game.name.length > RECOMMENDS_NAME_MAX)) return bad(`recommends.game.name must be text of at most ${RECOMMENDS_NAME_MAX} characters.`);
+    const name = typeof game.name === 'string' ? game.name.replace(/\s+/g, ' ').trim() : '';
+    return { game: { id: game.id, version: game.version, ...(name ? { name } : {}) } };
 }
 
 /** The `content` keys of a format 4 pack: each must belong to its kind. Returns the given content cut down to the keys the kind may hold. */

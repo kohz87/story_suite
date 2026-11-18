@@ -6,9 +6,9 @@ import { GAME_PRESET, LEGACY_PACK_PRESET } from './constants.js';
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const hasMonths = value => isRecord(value) && Array.isArray(value.months) && value.months.length > 0;
 
-function ask(query, name) {
+function ask(query, name, args = {}) {
     try {
-        return query(name, {});
+        return query(name, args);
     } catch {
         return null;
     }
@@ -30,8 +30,11 @@ export function packCalendarOf(query) {
         const worldNow = isRecord(live) && live.world ? live.world : null;
         const sameWorld = worldNow !== null && isRecord(frame.world) && frame.world.pack === worldNow;
         if (!hasMonths(frame.calendar)) {
-            // The built-in game: the world the chat began with gives its start and era (a world installed later moves nothing).
-            return frame.game === 'built-in' && live?.builtIn === true && sameWorld ? structuredClone(live) : null;
+            // The built-in game: the world the chat began with gives its start and era (a world installed later moves nothing). A game selected or installed
+            // since leaves the chat on the built-in game, so its calendar is still the world's built-in one (SFF4 #2: the era stayed, not "October 2, 611").
+            if (frame.game !== 'built-in' || !sameWorld) return null;
+            const own = live?.builtIn === true ? live : ask(query, 'packs.calendar', { builtIn: true });
+            return isRecord(own) && own.builtIn === true && own.world === worldNow ? structuredClone(own) : null;
         }
         const out = { pack: isRecord(frame.game) ? frame.game.pack : null, ...structuredClone(frame.calendar), start: null };
         if (hasMonths(live) && live.pack === out.pack && live.start && sameWorld) out.start = structuredClone(live.start);
