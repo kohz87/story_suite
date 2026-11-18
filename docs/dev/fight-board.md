@@ -50,11 +50,10 @@ The text below was written for the pre-port session and is kept where it still d
 - `src/v2/lean-rpg/board/offers.js`, `offer-line.js`, `start-view-data.js`: find the opening reply and draw its offer line (the Fight tab alert is the `badge` in `view/fight.js`).
 - `src/v2/lean-rpg/board/start-controller.js`, `pause.js`, `fight-start.css`: draw the waiting choice and resume the reply.
 - `src/v2/lean-rpg/board/fight-start.js`: the fight cue and the engage-words gate (the waiting choice itself is the core's: `interaction/start-hold.js`, `start.js`).
-- `src/v2/lean-rpg/board/prompt.js`: keeps fixed grammar quiet-sized and supplies fight flavour and manual grammar in the reply tail.
+- `src/v2/lean-rpg/board/prompt.js`: keeps fixed grammar quiet-sized and supplies fight flavour and the foe kinds the story may still write (clear-N while foes stand; set-slot and clear-N after an ended fight) in the reply tail.
 - `src/v2/data-modules/board-static.js`: the board's fixed grammar and XP-guide text, shared by `board/prompt.js` and `data-modules/part.js` (outside lean-rpg/ so the page-start closure stays lean).
 - `src/v2/lean-rpg/board/action-gate.js`: holds only explicit attacks on a standing known foe.
 - `src/v2/lean-rpg/board/settings.js`: draws the shared switch inside the Rolls card.
-- `src/v2/lean-rpg/board/narrated-grammar.js`: supplies manual foe changes to the reply grammar.
 - `src/v2/lean-rpg/precall.js`: offers the story-check dice beside a carried fight, answers the pre-check's offer (`interactionStart`) and holds a typed attack on a known foe (no model call for a plan); with no fight the reply goes out with the 'no fight' tail line. The core's hooks (`interaction/hooks.js`) settle the staged fight.
 - `src/v2/lean-rpg/board/auto.js`, `auto-run.js`: Auto plays up to `rpgAutoCap` exchanges (1 to 8, 9 = until the end) and stops on a win, a loss, a badly hurt hero (2+ Health blocks in one exchange) or the cap; it never flees.
 - `modules/rpg/board/resume.js`: a fight against foes a fled or lost fight left starts from their exact bars (the kind's `open` (the view passes `resumed` from `resume.js`)). `board/resume-v1.js` `resumeFoesV1(receipts, slots)` does it for a v1 sheet: a v1 foe has no block field, so the bars are read from the fight receipts (`data.v2.result.foes`, each `<slot>.<n>` with its HP). When the story sets the same group again (same slot, exact name, level, tier and count) and the newest fight, of either engine, that covered the slot is a v1 fight that was lost or fled, the next fight opens with those HP (`setup.resumed`, `setup.carried.foes`); a won fight, an unfinished or old-engine one, a different group, a rewind or delete of the fight's reply or another chat resumes nothing; a foe that fell stays at 0 HP, counted in its group and never targeted. Tests: `v1-resume.test.js`, `v1-resume-lifecycle.test.js`.
@@ -127,7 +126,7 @@ foes a fled or lost fight left, with the note 'These foes are as you left them: 
 - The end card shows XP for the original foe groups on a win and practice for the unsent segment; the folded
   narrator note includes defence outcomes, recorded gear wear and the battle marker; the aftermath follows the real outcome. A waiting reply gets a send button.
 - The Feature keeps the static prompt at or below the quiet board-off size: it retains the opening foe line and trimmed XP guide (a marked Character's pinned prompt has no XP guide at all: `data-modules/part/views.js` strips it).
-  Combat flavour, the foe description and manual foe grammar go into the tail when a fight is relevant; Rolls off gets manual practice there.
+  Combat flavour, the foe description and the foe kinds the story may still write (clears; set-slot after an ended fight) go into the tail when a fight is relevant.
   The fixed text does not follow fight state or Rolls. With the board off, the existing prompt is unchanged.
 
 ## Test map

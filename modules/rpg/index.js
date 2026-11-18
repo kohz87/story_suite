@@ -29,7 +29,6 @@ export { createPrecall } from './precall.js';
 export { fightKind } from './board/interaction.js';
 export { rosterOf } from './roster.js';
 export { foesOf, rpgBlocks } from './view/party-data.js';   // (the prompt's fight cue reads them through rpgLib: the page start must not load them)
-export { narratedFoeGrammar } from './board/narrated-grammar.js';
 export { boardGrammar, boardReplyGrammar, boardXpGuide } from './board/prompt.js';
 export { leanRpgGuard } from './guard.js';
 export { RESULT_VERSION, rollsOf } from './rolls-read.js';
