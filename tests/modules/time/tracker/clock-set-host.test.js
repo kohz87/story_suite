@@ -5,15 +5,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { replyEdits } from '../../../../ui/legacy/reply-cards.js';
 import { castPlans } from '../../../../modules/cast/cast/index.js';
 import { OPENING, castHost, castSource, entry, people, receipts as castReceipts, said, settle, slice, validatorErrors as castValidatorErrors } from '../../cast/cast/helpers.js';
+import { installBluewatch } from '../../../fixtures/director/bluewatch.js';
 
-const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const TAIL_KEY = 'story_suite_tail_1';
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const sent = (host, key) => host.st.promptLog.filter(entry => entry.key === key && entry.value).map(entry => entry.value);
@@ -47,7 +46,7 @@ async function deleteExchange(host, text) {
 }
 
 // Replay == live == a fresh load of the same chat.
-async function sameEverywhere(host, where, { pack = null } = {}) {
+async function sameEverywhere(host, where, { bluewatch = false } = {}) {
     const live = JSON.stringify(host.head());
     host.store.rebuild();
     assert.equal(JSON.stringify(host.head()), live, `${where}: rebuild != live`);
@@ -55,7 +54,7 @@ async function sameEverywhere(host, where, { pack = null } = {}) {
     assert.deepEqual(validatorErrors(host), [], where);
     const again = await newHost();
     try {
-        if (pack) assert.equal((await again.packs.packs.install(pack, { origin: 'pack.json' })).ok, true);
+        if (bluewatch) assert.equal((await installBluewatch(again.packs.packs)).ok, true);
         await again.st.loadChat(structuredClone(host.ctx.chat));
         assert.deepEqual(again.store.problems(), [], `${where}: a fresh load skips nothing`);
         assert.equal(JSON.stringify(again.head().domains), JSON.stringify(host.head().domains), `${where}: reload != live`);
@@ -182,7 +181,7 @@ test('Ersveil: the pack\'s months and era are the ones checked and written; repl
     quiet(t);
     const host = await newHost();
     try {
-        assert.equal((await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' })).ok, true);
+        assert.equal((await installBluewatch(host.packs.packs)).ok, true);
         await host.send('I wake.', reply('Gulls over the quay.'));
         assert.equal(clock(host).text, 'CY 611, Goldwane 12, 06:40 am', 'seeded from the pack\'s start');
         assert.deepEqual(clock(host).parts, { year: 611, month: 5, day: 12, minutes: 400 });
@@ -214,15 +213,15 @@ test('Ersveil: the pack\'s months and era are the ones checked and written; repl
         await host.send('Later.', reply('Later.', ['~ time Dawnwane 20, 613, 09:00 am']));
         assert.equal(clock(host).text, 'CY 613, Dawnwane 20, 09:00 am');
         assert.deepEqual(host.store.problems(), []);
-        await sameEverywhere(host, 'Ersveil', { pack: ERSVEIL });
+        await sameEverywhere(host, 'Ersveil', { bluewatch: true });
         // Deleting the reply that holds the year change takes it back; the story's later set is exact.
         await deleteExchange(host, 'Dusk.');
         assert.equal(clock(host).text, 'CY 613, Dawnwane 20, 09:00 am');
-        await sameEverywhere(host, 'Ersveil after the year change is deleted', { pack: ERSVEIL });
+        await sameEverywhere(host, 'Ersveil after the year change is deleted', { bluewatch: true });
         await deleteExchange(host, 'Later.');
         await deleteExchange(host, 'Midnight.');
         assert.equal(clock(host).text, 'CY 611, Goldwane 14, 06:00 pm', 'the first edit is on the first reply, which is still there');
-        await sameEverywhere(host, 'Ersveil after deletes', { pack: ERSVEIL });
+        await sameEverywhere(host, 'Ersveil after deletes', { bluewatch: true });
     } finally {
         host.close();
     }
@@ -370,7 +369,7 @@ test('Ersveil: the static part carries one calendar-names rule (same bytes every
     quiet(t);
     const host = await newHost();
     try {
-        assert.equal((await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' })).ok, true);
+        assert.equal((await installBluewatch(host.packs.packs)).ok, true);
         await host.send('I wake.', reply('Gulls over the quay.'));
         await host.send('I walk.', reply('The road.'));
         const statics = sent(host, STATIC_KEY);
@@ -396,7 +395,7 @@ test('Ersveil: a reply that says Tuesday or January in its prose gets one quiet 
     quiet(t);
     const host = await newHost();
     try {
-        assert.equal((await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' })).ok, true);
+        assert.equal((await installBluewatch(host.packs.packs)).ok, true);
         const problems = () => Object.values(host.head().domains.director.problems ?? {}).filter(problem => problem.kind === 'calendar-names');
         await host.send('Hi.', reply('"May I sit?" the boy asked. It is Goldwane 14. March on, they said.', ['~ time Goldwane 15, 611, 08:00 am']));
         assert.equal(problems().length, 0);

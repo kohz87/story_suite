@@ -229,7 +229,7 @@ test('a pack with content.you.rank gives the Rank its word everywhere; the first
 });
 
 test('the Ersveil example pack gives the Rank the word "Guild rank"; its content.you checks like the rest of a pack', async t => {
-    const ersveil = JSON.parse(readFileSync(new URL('../../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+    const ersveil = JSON.parse(readFileSync(new URL('../../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
     assert.deepEqual(ersveil.content.you, { rank: { label: 'Guild rank' } });
     const host = await fresh(t, { rank: false });
     assert.equal((await host.packs.packs.install(ersveil)).ok, true);

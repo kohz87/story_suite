@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.webp': 'image/webp' };
-const ZIP = path.join(ROOT, 'examples/packs/ersveil.zip');
+const ZIP = path.join(ROOT, 'tests/fixtures/packs/ersveil-3/ersveil.zip');
 const WORLD = path.join(ROOT, 'tests/packs/studio/fixtures/world-mini.json');
 
 function serve() {

@@ -4,14 +4,13 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { createModule } from '../../../../modules/director/module.js';
+import { installBluewatch } from '../../../fixtures/director/bluewatch.js';
 
 const dir = path.resolve(import.meta.dirname, '../../../..');
-const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const reply = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
 test('the trip kind is declared to run after the place and mount kinds', () => {
@@ -24,7 +23,7 @@ async function hostWith(createHost) {
     let host = null;
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
     host = await createHost({ modules: [module] });
-    const installed = await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' });
+    const installed = await installBluewatch(host.packs.packs);
     assert.equal(installed.ok, true, JSON.stringify(installed.errors));
     return host;
 }

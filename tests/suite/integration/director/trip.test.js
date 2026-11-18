@@ -4,15 +4,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { TRIP_FEATURE } from '../../../../modules/atlas/atlas/trip.js';
+import { installBluewatch } from '../../../fixtures/director/bluewatch.js';
 
 const STATIC_KEY = 'story_suite_static';
 const TAIL_KEY = 'story_suite_tail_1';
-const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const sent = (host, key) => host.st.promptLog.filter(entry => entry.key === key && entry.value).map(entry => entry.value);
@@ -25,7 +24,7 @@ async function newHost(options = {}) {
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
     // The World pulse is left off: these tests count receipts and revs and compare exact tails.
     host = await createHost({ modules: [module], ...options, settings: { ...options.settings, features: { 'story-director.pulse': false, ...options.settings?.features } } });
-    const installed = await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' });
+    const installed = await installBluewatch(host.packs.packs);
     assert.equal(installed.ok, true, JSON.stringify(installed.errors));
     return host;
 }

@@ -1,8 +1,10 @@
 {
   "id": "ersveil-factions",
-  "format": 3,
-  "version": "2.0.0",
+  "format": 4,
+  "kind": "game",
+  "version": "3.0.0",
   "name": "Ersveil faction standing",
+  "description": "Faction standing for the Guild, the Watch and the Compact, as a tracker you can add to any chat",
   "requires": {
     "suite": "^0.1",
     "capabilities": [

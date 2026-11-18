@@ -402,7 +402,7 @@ test('cited words must contain a telling word of the person\'s kind: "the", "her
 });
 
 // The Ersveil example pack, from this repo.
-const packFile = new URL('../../../../examples/packs/ersveil/pack.json', import.meta.url);
+const packFile = new URL('../../../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url);
 
 test('the gate: calling and the lead of about, common prose words dropped; the 12 Ersveil entries', () => {
     const pack = JSON.parse(readFileSync(packFile, 'utf8'));

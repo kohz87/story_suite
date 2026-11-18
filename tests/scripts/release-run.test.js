@@ -12,7 +12,7 @@ import { tempDir } from '../../scripts/temp-dir.mjs';
 // compares what both report (register, two replies through capture, a query from each module, the RPG's lazy load).
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const child = path.join(import.meta.dirname, 'release-run/child.mjs');
-const pack = path.join(repoRoot, 'examples/packs/ersveil/pack.json');
+const pack = path.join(repoRoot, 'tests/fixtures/packs/ersveil-3/pack.json');
 const seeded = path.join(repoRoot, 'tests/suite/qa/helpers/seeded.js');
 const SB_LAZY = BUNDLE_SETS[0].lazy;
 const KIT = [

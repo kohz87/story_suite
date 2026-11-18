@@ -18,6 +18,7 @@ import { STATIC_TEXT as WORLD_PARAGRAPHS } from '../../../../modules/world/chron
 import { FEATURE as KEY_PEOPLE_FEATURE } from '../../../../modules/cast/keypeople/domain.js';
 import { THREADS_FEATURE, THREAD_KINDS_OWNED, ownedKind, threadsOn, withoutOwnedThreads } from '../../../../modules/time/tracker/threads.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
+import { formatThreeCalendar } from '../../../fixtures/director/bluewatch.js';
 
 const TAIL_KEY = 'story_suite_tail_1';
 const sent = (host, key) => host.st.promptLog.filter(entry => entry.key === key && entry.value).map(entry => entry.value);
@@ -211,7 +212,7 @@ test('the While away recap leaves out the owned kinds while off, and is made aga
 });
 
 test('off: a pack event\'s lasting world change is still written (Ersveil\'s calendar), the Chronicle line stays out of the notes, and a rebuild agrees', async () => {
-    const base = JSON.parse(readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8'));
+    const base = { calendar: formatThreeCalendar() };
     const pack = JSON.stringify({
         id: 'ersveil-lasting', version: '1.0.0', name: 'Ersveil lasting', requires: { storyBlock: '^2', capabilities: ['chronicle-lasting'] },
         calendar: base.calendar, start: { scene: { place: { name: 'Bluewatch Village', kind: 'settlement', region: 'River Confederacy' } } },

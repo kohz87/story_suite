@@ -113,7 +113,7 @@ test('content.foes: name, aliases, tier, level, about, tags; the tier is needed 
 });
 
 test('Ersveil is format 3, version 3.0.0, with an explicit v1 type and a pool word on every cast and skill-set skill, and no LUK on its gear', () => {
-    const raw = JSON.parse(readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+    const raw = JSON.parse(readFileSync(new URL('../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8'));
     assert.deepEqual([raw.format, raw.version, raw.requires.suite, raw.requires.storyBlock], [3, '3.0.0', '^0.1', undefined]);
     const skills = [...raw.content.cast.flatMap(entry => entry.skills), ...raw.content.rpg.skillSets.flatMap(set => set.skills)];
     assert.equal(skills.length, 29);
@@ -124,9 +124,4 @@ test('Ersveil is format 3, version 3.0.0, with an explicit v1 type and a pool wo
     const result = validatePack(JSON.stringify(raw), { capabilities: ['scene', 'inventory', 'data-modules-v1', 'chronicle-lasting'] });
     assert.equal(result.ok, true, JSON.stringify(result.errors));
     assert.equal(result.warnings, undefined, 'nothing ignored');
-    for (const name of ['ersveil-factions', 'ersveil-survival']) {
-        const add = JSON.parse(readFileSync(new URL(`../../examples/packs/${name}/pack.json`, import.meta.url), 'utf8'));
-        assert.deepEqual([add.format, add.requires.suite, add.requires.storyBlock], [3, '^0.1', undefined], name);
-        assert.equal(add.requires.capabilities.includes('story-director'), false, `${name}: story-director is not a capability any more`);
-    }
 });

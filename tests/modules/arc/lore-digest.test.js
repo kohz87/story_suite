@@ -97,7 +97,7 @@ test('live host: the switch is off by default, queries answer null; on, they ans
 });
 
 test('Ersveil: the whole lore file digests to a small digest', () => {
-    const file = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/ersveil-lore.json', import.meta.url), 'utf8'));
+    const file = JSON.parse(readFileSync(new URL('../../../tests/fixtures/packs/ersveil-3/ersveil-lore.json', import.meta.url), 'utf8'));
     const lorebook = Object.values(file.entries).map(entry => ({ title: entry.comment, keys: Array.isArray(entry.key) ? entry.key : [], content: entry.content }));
     const digest = buildDigest(loreEntries({ lorebook }));
     assert.ok(digest.lines.length > 100);

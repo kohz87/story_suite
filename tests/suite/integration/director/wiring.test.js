@@ -7,7 +7,6 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../testkit/index.js';
 import { MODULE_ID, createModule } from '../../../../modules/director/module.js';
@@ -17,10 +16,10 @@ import { BACKLOG_STATIC } from '../../../../modules/world/chronicle/digest.js';
 // The static part without the one sentence that explains [Earlier days] (taught once a past day is told, module/create.js `backlog`).
 const bare = text => String(text).split('\n').filter(line => line !== BACKLOG_STATIC).join('\n');
 import { leaderQuery, problemsQuery, swayQuery, validateRipples } from '../../../../modules/world/ripples/index.js';
+import { installBluewatch } from '../../../fixtures/director/bluewatch.js';
 
 const STATIC_KEY = 'story_suite_static';
 const TAIL_KEY = 'story_suite_tail_1';
-const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const sent = (host, key) => host.st.promptLog.filter(entry => entry.key === key && entry.value).map(entry => entry.value);
@@ -59,7 +58,7 @@ test('registered whole: the screens and the Map, no hand-built tabs, the status 
 
 test('the Ersveil pack: its calendar, the clock seeded from its start at the first reply, its places on the map', async () => {
     const host = await newHost();
-    const installed = await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' });
+    const installed = await installBluewatch(host.packs.packs);
     assert.equal(installed.ok, true, JSON.stringify(installed.errors));
     assert.equal(host.sdk.query('director.calendar').era, 'CY');
     assert.deepEqual(host.sdk.query('director.time'), { minutes: null, text: '', parts: null, weekday: '', firstWeekdays: [] });
@@ -101,7 +100,7 @@ test('the Ersveil pack: its calendar, the clock seeded from its start at the fir
 
 test('the reader\'s own calendar wins over the pack\'s: no seed when the start is not on it', async () => {
     const host = await newHost({ settings: { modules: { [MODULE_ID]: { 'tracker.calendar.preset': 'gregorian' } } } });
-    await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' });
+    await installBluewatch(host.packs.packs);
     await host.send('I wake.', reply('Morning.'));
     assert.equal(host.sdk.query('director.calendar').preset, 'gregorian');
     assert.equal(host.sdk.query('director.time').minutes, null);

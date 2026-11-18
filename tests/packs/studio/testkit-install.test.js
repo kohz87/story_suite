@@ -27,7 +27,7 @@ async function exportedAndInstalled(file) {
 }
 
 test('Ersveil, opened and exported by the Studio, installs in a testkit host with its twelve people', async () => {
-    const { opened, result, list } = await exportedAndInstalled(fileOf('examples/packs/ersveil.zip', 'application/zip'));
+    const { opened, result, list } = await exportedAndInstalled(fileOf('tests/fixtures/packs/ersveil-3/ersveil.zip', 'application/zip'));
     assert.equal(checkText(opened.text).ok, true);
     assert.equal(result.ok, true, JSON.stringify(result.errors));
     assert.equal(result.action, 'installed');

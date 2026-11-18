@@ -1,4 +1,4 @@
-// Ersveil 2.2.0's hidden timeline (examples/packs/ersveil/pack.json): the big-beat events from CY 611 on and the Sealwarden recruit skill set. The events are checked as data
+// Ersveil 2.2.0's hidden timeline (tests/fixtures/packs/ersveil-3/pack.json): the big-beat events from CY 611 on and the Sealwarden recruit skill set. The events are checked as data
 // (every condition reads, every "after" and every delay names something that exists, every lasting change fits Story
 // Director's limits), and the story clock is walked from the start to CY 617 with a stand-in chronicle that prunes
 // resolved entries like Story Director (30 kept), so the beats come in order, once each, Wendhild takes the throne,

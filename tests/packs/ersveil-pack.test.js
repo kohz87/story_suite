@@ -1,209 +1,115 @@
-// The example pack (examples/packs/ersveil, Ersveil 3.0.0, the open world) and its lorebook (ersveil-lore.json): the pack
-// passes the authoring-kit checker and Story Block's own validator without RPG Battle and carries the shape
-// docs/v2/ERSVEIL.md describes; the lorebook has 227 entries with unique uids.
+// The shipped Ersveil in pack format 4 (job C1): the world pack examples/packs/ersveil (4.0.0) and its game pack examples/packs/ersveil-game (1.0.0) are what
+// scripts/packs/convert-3to4.mjs makes of examples/packs/ersveil-world, byte for byte; both pass the checker and the install check with the capabilities their kind
+// needs; they pair with no problem; installed together they start a chat at the Guild Office on 1 October CY 611 with 40 copper. The old format 3 Ersveil (2.x,
+// with its lorebook) is a frozen test fixture now, tests/fixtures/packs/ersveil-3, read by the format 3 tests until X1.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkPack, report } from '../../authoring-kit/check.mjs';
-import { validatePack } from '../../packs/validate.js';
-import { findPackEntries } from '../../packs/lorebook.js';
-import { evaluateCondition } from '../../modules/world/events/condition.js';
+import { validatePack, checkPairing } from '../../packs/validate.js';
+import { createInstalled } from '../../packs/installed.js';
+import { mergeStart, calendarOf } from '../../packs/content.js';
+import { convert3to4 } from '../../scripts/packs/convert-3to4-parts/convert.js';
+import { ersveilFiles } from '../../scripts/packs/convert-3to4.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
+import { fakeSettings } from './helpers/fake-settings.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const packPath = new URL('../../examples/packs/ersveil/pack.json', import.meta.url);
-const lorePath = new URL('../../examples/packs/ersveil/ersveil-lore.json', import.meta.url);
-const packText = readFileSync(packPath, 'utf8');
-const pack = () => JSON.parse(packText);
+const at = rel => path.join(root, rel);
+const text = rel => readFileSync(at(rel), 'utf8');
+const WORLD = 'examples/packs/ersveil/pack.json';
+const GAME = 'examples/packs/ersveil-game/pack.json';
+const WORLD_CAPS = ['scene', 'chronicle-lasting'];
+const GAME_CAPS = ['scene', 'inventory', 'data-modules-v1'];
 
-const OPEN = ['scene', 'inventory', 'data-modules-v1', 'chronicle-lasting'];
-const CAST_IDS = ['temiwa', 'ysmeth', 'nysseth', 'rika', 'harrak', 'torka', 'lothar', 'gorm', 'nerissa', 'hush', 'asphodel', 'barney'];
-
-test('the example folder holds exactly the pack, its lorebook and the cast portraits, and the old example packs are fixtures', () => {
-    assert.ok(existsSync(packPath) && existsSync(lorePath));
-    assert.deepEqual(readdirSync(new URL('../../examples/packs/ersveil/', import.meta.url)).sort(), ['ersveil-lore.json', 'pack.json', 'portraits']);
-    assert.deepEqual(readdirSync(new URL('../../examples/packs/ersveil/portraits/', import.meta.url)).sort(), CAST_IDS.map(id => `${id}.webp`).sort());
-    assert.equal(existsSync(new URL('../../../examples/packs/ersveil-bluewatch/', import.meta.url)), false);
+test('the folders: the world pack, its conversion notes and the twelve portraits of the source; the game pack alone; the old Ersveil is a fixture', () => {
+    assert.deepEqual(readdirSync(at('examples/packs/ersveil')).sort(), ['CONVERSION-NOTES.md', 'pack.json', 'portraits']);
+    assert.deepEqual(readdirSync(at('examples/packs/ersveil-game')), ['pack.json']);
+    const portraits = readdirSync(at('examples/packs/ersveil/portraits')).sort();
+    assert.deepEqual(portraits, readdirSync(at('examples/packs/ersveil-world/portraits')).sort());
+    for (const name of portraits) assert.ok(readFileSync(at(`examples/packs/ersveil/portraits/${name}`)).equals(readFileSync(at(`examples/packs/ersveil-world/portraits/${name}`))), name);
+    assert.equal(JSON.parse(text('tests/fixtures/packs/ersveil-3/pack.json')).format, 3);
+    assert.ok(existsSync(at('tests/fixtures/packs/ersveil-3/ersveil-lore.json')) && existsSync(at('tests/fixtures/packs/ersveil-3/ersveil.zip')));
 });
 
-test('examples/packs/ersveil/pack.json passes the authoring-kit checker, in code and on the command line', () => {
-    const result = checkPack(packText);
-    assert.equal(result.ok, true, report('examples/packs/ersveil/pack.json', result));
-    const printed = execFileSync(process.execPath, ['authoring-kit/check.mjs', 'examples/packs/ersveil/pack.json'], { cwd: root, encoding: 'utf8' });
-    assert.match(printed, /^OK examples\/packs\/ersveil\/pack\.json\n/);
+test('the shipped files are exactly what the converter makes of the source (run `node scripts/packs/convert-3to4.mjs --ersveil` after a change)', () => {
+    const files = ersveilFiles();
+    assert.deepEqual(files.map(file => file.path).filter(rel => !rel.includes('/portraits/')), [WORLD, 'examples/packs/ersveil/CONVERSION-NOTES.md', GAME]);
+    for (const file of files) assert.ok(readFileSync(at(file.path)).equals(file.bytes), `${file.path} is not what the converter builds`);
+    const printed = execFileSync(process.execPath, ['scripts/packs/convert-3to4.mjs', '--ersveil', '--check'], { cwd: root, encoding: 'utf8' });
+    assert.match(printed, /Ersveil is up to date/);
 });
 
-test('Story Block\'s own validator accepts the pack without RPG Battle (scene, inventory, data modules, Story Director\'s lasting changes), and refuses it on a suite older than 0.1', () => {
-    const good = validatePack(pack(), { capabilities: OPEN });
-    assert.equal(good.ok, true, JSON.stringify(good.errors));
-    const old = validatePack(pack(), { capabilities: OPEN, suiteVersion: '0.0.9' });
-    assert.equal(old.ok, false);
-    assert.ok(old.errors.some(error => error.code === 'HOST_VERSION'));
-    // Without the data-modules capability it is refused for that alone.
-    const bare = validatePack(pack(), { capabilities: ['scene', 'inventory', 'chronicle-lasting'] });
-    assert.equal(bare.ok, false);
-    // Without Story Director's lasting changes (2.3.0) it is refused for that alone.
-    const noDirector = validatePack(pack(), { capabilities: ['scene', 'inventory', 'data-modules-v1'] });
-    assert.equal(noDirector.ok, false);
-});
-
-test('the pack is Ersveil 3.0.0, the open world: the map, the calendar, the weather, events and data modules, and none of RPG Battle\'s rules', () => {
-    const value = pack();
-    assert.equal(value.id, 'ersveil');
-    assert.equal(value.version, '3.0.0');
-    assert.equal(value.name, 'Ersveil (open world)');
-    assert.match(value.description, /Story Block and Story Director:/);
-    assert.equal(value.format, 3);
-    assert.equal(value.requires.suite, '^0.1', 'the pack names the suite it needs');
-    assert.equal(value.requires.storyBlock, undefined);
-    assert.deepEqual(value.requires.capabilities, OPEN);
-    const counts = Object.fromEntries(Object.entries(value.content).map(([kind, list]) => [kind, list.length]));
-    // (`you` is the Rank the pack gives Your look and `names` the name lists: one object each, not a list, so no length.)
-    assert.deepEqual(counts, { you: undefined, items: 16, places: 320, routes: 350, events: 135, dataModules: 3, rpg: undefined, cast: 12, names: undefined });
-    assert.equal(value.economy, undefined, 'no money scale: prices are the story\'s');
-    assert.ok(value.content.places.every(place => place.market === undefined), 'no market types: there are no market records to name');
-    assert.equal(value.weather.tables.length, 84);
-    assert.deepEqual(value.currency.coins.map(coin => [coin.name, coin.value]), [['copper', 1], ['bronze', 1], ['silver', 10], ['gold', 100]]);
-    assert.equal(value.start.scene.place.name, 'Bluewatch Village / Guild Office');
-    assert.deepEqual(value.start.inventory, { money: 40 }, 'four silver and no pack items');
-    assert.deepEqual(value.calendar.start, { year: 611, month: 'Goldwane', day: 12, hour: 6, minute: 40 });
-    assert.deepEqual(value.content.dataModules.map(module => module.slug), ['standing', 'fame', 'guild-membership']);
-    assert.deepEqual(value.content.rpg.skillSets.map(set => set.name), ['Sealwarden recruit']);
-
-});
-
-test('the pack, once installed without RPG Battle, reads back as 320 places, 350 routes and the rest ERSVEIL.md quotes', async () => {
-    const { createInstalled } = await import('../../packs/installed.js');
-    const { addsLine } = await import('../../packs/panel.js');
-    const store = {};
-    const installed = createInstalled({ settings: { read: () => store, save: async () => {} }, capabilities: () => OPEN });
-    const result = await installed.install(packText, { source: 'file', origin: 'pack.json' });
-    assert.equal(result.ok, true, JSON.stringify(result.errors));
-    assert.equal(result.name, 'Ersveil (open world)');
-    assert.equal(addsLine(installed.list()[0]), '16 items, 135 events, 320 places, 350 routes, 1 skill set, 12 cast members, 14 name lists, start state, 4 coins, a calendar, 84 weather tables');
-});
-
-test('ersveil-lore.json is a SillyTavern World Info book of 227 entries with unique uids', () => {
-    const book = JSON.parse(readFileSync(lorePath, 'utf8'));
-    assert.equal(book.name, 'Ersveil Lore');
-    assert.ok(book.entries && typeof book.entries === 'object' && !Array.isArray(book.entries), 'entries is an object keyed by uid, as SillyTavern exports it');
-    const entries = Object.values(book.entries);
-    assert.equal(entries.length, 227);
-    const uids = entries.map(entry => entry.uid);
-    assert.ok(uids.every(uid => Number.isInteger(uid)));
-    assert.equal(new Set(uids).size, 227, 'every uid is unique');
-    for (const [key, entry] of Object.entries(book.entries)) {
-        assert.equal(String(entry.uid), key, `entry ${key}: the key is the uid`);
-        assert.ok(Array.isArray(entry.key), `entry ${key} lists its trigger words`);
-        assert.equal(typeof entry.content, 'string', `entry ${key} has content`);
-        assert.ok(entry.content.trim().length > 0 || entry.constant === true, `entry ${key} is not empty`);
-        assert.equal(typeof entry.comment, 'string');
+test('both pass the authoring-kit checker, in code and on the command line', () => {
+    for (const rel of [WORLD, GAME]) {
+        const result = checkPack(text(rel));
+        assert.equal(result.ok, true, report(rel, result));
+        assert.match(execFileSync(process.execPath, ['authoring-kit/check.mjs', rel], { cwd: root, encoding: 'utf8' }), new RegExp(`^OK ${rel.replaceAll('/', '\\/').replaceAll('.', '\\.')}\\n`));
     }
-    // It is lore for the narrator, not a pack carried in a lorebook entry: nothing in it is tagged [storysuite:pack].
-    assert.deepEqual(findPackEntries(entries.map(entry => ({ book: book.name, uid: entry.uid, title: entry.comment, content: entry.content }))), []);
 });
 
-test('the lorebook is written for the open world: no RPG Battle wording, classes, Soul Class, Guild letters and peoples kept as lore, no item or shop lists', () => {
-    const book = JSON.parse(readFileSync(lorePath, 'utf8'));
-    const entries = Object.values(book.entries);
-    const all = entries.map(entry => entry.content).join('\n');
-    for (const word of [/RPG Battle/, /Party sheet/, /character screen/, /markets, prices/]) assert.doesNotMatch(all, word);
-    const byTitle = title => entries.find(entry => entry.comment === title)?.content ?? '';
-    assert.match(byTitle('[CORE] Authority and Generation'), /Open world: the pack lists no items, shops, prices, foes or jobs/);
-    assert.match(byTitle('[CORE] Classification'), /Level \(1-99\)/);
-    assert.match(byTitle('Adventurer Guild'), /F Registered, E Journeyman, D Proven, C Veteran, B Elite, A Paragon, S Legend/);
-    const callings = byTitle('Callings: the Twelve Lines');
-    assert.equal(callings.split('\n').filter(line => line.startsWith('- ')).length, 12, 'the twelve class lines, as lore');
-    assert.ok(callings.length < 1600, 'one lean entry');
-    assert.match(byTitle('Peoples of Ersveil'), /Ten sapient peoples/);
-});
-
-test('the signal braziers fire only on the first evening at Bluewatch, not the next morning', () => {
-    const pack = JSON.parse(packText);
-    const event = pack.content.events.find(e => e.id === 'bluewatch-signal-braziers');
-    const at = minutes => ({
-        state: { domains: { director: { time: { minutes } } } },
-        query: name => (name === 'scene.place' ? { name: 'Bluewatch Village', region: 'River Confederacy: Bluewatch' } : null),
-    });
-    const met = minutes => evaluateCondition(event.when, at(minutes)).met;
-    assert.equal(met(316932159), false, 'before 18:40 on Goldwane 12');
-    assert.equal(met(316932160), true, 'at 18:40');
-    assert.equal(met(316932239), true, 'before 20:00');
-    assert.equal(met(316932240), false, 'at 20:00');
-    assert.equal(met(316932160 + 680), false, 'Goldwane 13, 06:00');
-    assert.equal(met(316932160 + 1040), false, 'Goldwane 13, 12:00');
-});
-
-test('2.1.0 renames keep the old place names as aliases, so a chat already there still finds its place', () => {
-    const value = JSON.parse(readFileSync(packPath, 'utf8'));
-    const named = name => value.content.places.find(place => place.name === name);
-    assert.deepEqual(named('Auvoth / Sealcrown').aliases, ['Sealcrown', "Delver's Crown", 'Delver’s Crown']);
-    assert.deepEqual(named('Rimeglass Galleries').aliases, ['Rimeglass Delve']);
-    for (const old of ["Auvoth / Delver's Crown", 'Rimeglass Delve']) assert.equal(named(old), undefined);
-    for (const route of value.content.routes) for (const end of [route.from, route.to]) assert.ok(value.content.places.some(place => place.name === end), end);
-    const lore = JSON.stringify(JSON.parse(readFileSync(lorePath, 'utf8')));
-    assert.doesNotMatch(lore, /\bdelv/i, 'the lore has no separate delvers');
-    assert.match(lore, /only mega-dungeon ever sealed by human hand/);
-});
-
-test('the twelve cast members start at places the pack names', () => {
-    const value = pack();
-    const places = new Set(value.content.places.map(place => place.name));
-    assert.deepEqual(value.content.cast.map(person => person.start.place), ['Bluewatch Village', 'Shackles City / Chainmarket', 'Shackles City / Knifeglass Alley', 'Auvoth / Pale Market', 'Varnhold Watch', 'Bluewatch Village', 'Highmark Capital', 'Highmark Capital', 'Abysswatch', 'Vargate', 'Corrowen', 'Thousand Sails']);
-    for (const person of value.content.cast) assert.ok(places.has(person.start.place), `${person.id} starts at "${person.start.place}"`);
-});
-
-test('the pack ranks levels 1-99 in nine contiguous bands (F 1-9 to SSS 80-99) and caps the level at 99; no Soul Class is left in the pack or the lorebook', () => {
-    const value = pack();
-    const ranks = value.content.rpg.ranks;
-    assert.deepEqual(ranks.map(rank => [rank.name, rank.from, rank.to]), [
-        ['F', 1, 9], ['E', 10, 19], ['D', 20, 29], ['C', 30, 39], ['B', 40, 49], ['A', 50, 59], ['S', 60, 69], ['SS', 70, 79], ['SSS', 80, 99],
-    ]);
-    for (let i = 1; i < ranks.length; i++) assert.equal(ranks[i].from, ranks[i - 1].to + 1, `band ${ranks[i].name} follows ${ranks[i - 1].name} with no gap or overlap`);
-    assert.ok(ranks.every(rank => rank.name.length <= 12 && rank.from <= rank.to));
-    assert.equal(value.content.rpg.levelCap, 99);
-    assert.deepEqual(value.content.rpg.playerRank, { module: 'guild-membership', field: 'letter', label: 'Guild' });
-    assert.ok(value.content.cast.every(person => 'Level' in person.fields && !('Soul Class' in person.fields)), 'every cast sheet says Level, not Soul Class');
-    const lore = Object.values(JSON.parse(readFileSync(lorePath, 'utf8')).entries).map(entry => entry.content).join('\n');
-    assert.doesNotMatch(packText + lore, /Soul Class/);
-    assert.match(lore, /Level \(1-99\): raw supernatural capacity/);
-});
-
-test('the lorebook\'s typical-level table agrees with the rank bands (E-D 10-29, C 30-39, B-A 40-59, S 60-69)', () => {
-    const core = Object.values(JSON.parse(readFileSync(lorePath, 'utf8')).entries)
-        .find(entry => entry.comment === '[CORE] Classification').content;
-    assert.match(core, /working adventurers \(E-D\) 10-29/);
-    assert.match(core, /Guild veterans \(C\), journeyman mages 30-39/);
-    assert.match(core, /elite adventurers \(B-A\), masters of a tradition 40-59/);
-    assert.match(core, /S-rank legends 60-69; level 70 and above/);
-});
-
-test('names: Ersveil gives each culture the region names its places use, 30 to 60 given and 20 to 40 family names, none the cast already has, and a banned list', () => {
-    const { names } = pack().content;
-    const result = validatePack(packText);
-    assert.equal(result.ok, true, JSON.stringify(result.errors));
-    assert.deepEqual(result.pack.content.names, names, 'every list survives validation unchanged');
-    const regions = [...new Set(pack().content.places.map(place => place.region).filter(Boolean))];
-    const cultures = Object.entries(names).filter(([id]) => id !== 'banned');
-    assert.ok(cultures.length >= 12 && cultures.length <= 20, `${cultures.length} cultures`);
-    const castWords = new Set(pack().content.cast.flatMap(person => person.name.toLowerCase().split(/\s+/)));
-    const used = new Set();
-    for (const [id, culture] of cultures) {
-        assert.ok(culture.given.length >= 30 && culture.given.length <= 60, `${id}: ${culture.given.length} given`);
-        assert.ok(culture.family.length >= 20 && culture.family.length <= 40, `${id}: ${culture.family.length} family`);
-        for (const region of culture.regions) assert.ok(regions.some(own => own.toLowerCase().includes(region.toLowerCase())), `${id}: "${region}" matches no place's region`);
-        for (const given of culture.given) {
-            assert.equal(castWords.has(given.toLowerCase()), false, `${id}: ${given} is a cast name`);
-            assert.equal(names.banned.some(banned => banned.toLowerCase() === given.toLowerCase()), false, `${id}: ${given} is banned`);
-            assert.equal(used.has(given.toLowerCase()), false, `${given} is in two cultures`);
-            used.add(given.toLowerCase());
+test('the install check accepts each with its kind\'s capabilities and nothing more, with no warning; each is refused without one, or on a suite older than 0.1', () => {
+    for (const [rel, kind, caps] of [[WORLD, 'world', WORLD_CAPS], [GAME, 'game', GAME_CAPS]]) {
+        const good = validatePack(text(rel), { capabilities: caps });
+        assert.equal(good.ok, true, JSON.stringify(good.errors));
+        assert.equal(good.pack.kind, kind);
+        assert.deepEqual(good.warnings ?? [], []);
+        for (const missing of caps) {
+            const bare = validatePack(text(rel), { capabilities: caps.filter(name => name !== missing) });
+            assert.ok(!bare.ok && bare.errors.some(error => error.code === 'MISSING_CAPABILITY'), `${kind} without ${missing}`);
         }
+        const old = validatePack(text(rel), { capabilities: caps, suiteVersion: '0.0.9' });
+        assert.ok(!old.ok && old.errors.some(error => error.code === 'HOST_VERSION'), kind);
     }
-    assert.ok(names.banned.length >= 20 && names.banned.length <= 80 && names.banned.includes('Elara'));
-    // Each of the Highmark and River places finds its culture by the first matching region, in key order.
-    const find = region => cultures.find(([, culture]) => culture.regions.some(own => region.toLowerCase().includes(own.toLowerCase())))?.[0];
-    assert.equal(find('River Confederacy: Bluewatch'), 'river');
-    assert.equal(find('Highmark Empire'), 'highmark');
-    assert.equal(find('Ardelian Empire and Southmarch'), 'ardelia');
+});
+
+test('the pair has no pairing problem; with the built-in game only the recommendation line', () => {
+    const world = validatePack(text(WORLD)).pack;
+    const game = validatePack(text(GAME)).pack;
+    assert.deepEqual(checkPairing(world, game), { errors: [], warnings: [], info: [] });
+    const builtIn = checkPairing(world, null);
+    assert.deepEqual([builtIn.errors, builtIn.warnings, builtIn.info.map(line => line.code)], [[], [], ['PAIR_RECOMMENDS']]);
+});
+
+test('installed together: both selected; the chat starts at the Guild Office on 1 October CY 611, 07:00, with 40 copper and the game\'s calendar', async () => {
+    const settings = fakeSettings();
+    const installed = createInstalled({ settings });
+    for (const rel of [WORLD, GAME]) assert.equal((await installed.install(text(rel))).ok, true, rel);
+    assert.deepEqual(installed.selected(), { world: 'ersveil', game: 'ersveil-game' });
+    const start = mergeStart(installed.packs());
+    assert.deepEqual(start.scene.place, { name: 'Bluewatch Village / Guild Office', kind: 'guild office', region: 'Bluewatch Reach' });
+    assert.equal(start.inventory.money, 40);
+    assert.deepEqual(start.currency.coins.map(coin => [coin.name, coin.value]), [['copper', 1], ['silver', 10], ['gold', 100]]);
+    assert.deepEqual(start.problems, []);
+    const calendar = calendarOf(installed.packs());
+    assert.deepEqual([calendar.pack, calendar.era, calendar.months.length, calendar.start], ['ersveil-game', 'CY', 12, { year: 611, month: 'October', day: 1, hour: 7, minute: 0 }]);
+});
+
+test('the converter on any format 3 pack: the command line writes both packs and the notes; what has no format 4 home is listed as dropped', () => {
+    const out = tempDir('convert-3to4-');
+    try {
+        execFileSync(process.execPath, ['scripts/packs/convert-3to4.mjs', 'examples/packs/ersveil-world/pack.json', out], { cwd: root, encoding: 'utf8' });
+        const world = JSON.parse(readFileSync(path.join(out, 'world/pack.json'), 'utf8'));
+        const game = JSON.parse(readFileSync(path.join(out, 'game/pack.json'), 'utf8'));
+        assert.deepEqual([world.version, game.id, game.version, game.name], ['4.0.0', 'ersveil-game', '1.0.0', 'Ersveil (open world) rules']);
+        assert.ok(world.content.regions.every(region => !('climate' in region)), 'no preset: no climate proposed');
+        assert.equal(checkPairing(validatePack(world).pack, validatePack(game).pack).errors.length, 0);
+        assert.match(readFileSync(path.join(out, 'CONVERSION-NOTES.md'), 'utf8'), /\| `bluewatch-reach` \(Bluewatch Reach\) \| none \(temperate\) \| not in the proposals \|/);
+    } finally { rmSync(out, { recursive: true, force: true }); }
+    const legacy = convert3to4({
+        id: 'old', format: 3, version: '2.1.0', name: 'Old', requires: { suite: '^0.1', capabilities: ['inventory'] }, ripples: {}, theme: {},
+        calendar: { months: [{ name: 'Moon', days: 28 }], era: 'AE' }, start: { scene: { place: { name: 'Nowhere' }, present: ['Ann'] }, inventory: { money: 5, items: [{ name: 'Rope', qty: 2 }] } },
+        content: { places: [{ id: 'dock', name: 'Dock', x: 1, y: 1 }], events: [{ id: 'e' }], skills: [{ name: 'Jab' }], cast: [{ id: 'ann', name: 'Ann' }] },
+    });
+    assert.deepEqual(legacy.notes.dropped, ['start.scene.place "Nowhere" was not one of the pack\'s places: it is added as a place, the world\'s start place', 'content.events', 'content.skills', 'content.cast in the format 3 shape (no `kind`): a world cast is needed',
+        'start.scene.present (the cast\'s own start.place places people)', 'ripples', 'theme']);
+    assert.deepEqual(Object.keys(legacy.world.content), ['places', 'start']);
+    assert.deepEqual(legacy.world.content.places.map(place => place.id), ['dock', 'nowhere'], 'the start place is a place of the world');
+    assert.equal(legacy.world.content.start.place, 'nowhere');
+    assert.deepEqual(legacy.world.requires, { suite: '^0.1' });
+    assert.deepEqual(legacy.game.content, { calendar: { months: [{ name: 'Moon', days: 28 }], era: 'AE' }, start: { money: 5, items: [{ name: 'Rope', qty: 2 }] } });
+    assert.equal(validatePack(legacy.game).ok, true, 'the era stays in the game calendar when the world has no start date');
 });

@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const raw = readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+const raw = readFileSync(new URL('../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8');
 const pack = JSON.parse(raw);
 const cast = pack.content.cast;
 const by = id => cast.find(person => person.id === id);

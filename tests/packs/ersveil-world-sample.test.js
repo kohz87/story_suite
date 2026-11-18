@@ -1,7 +1,7 @@
 // The sample world pack (examples/packs/ersveil-world, Ersveil 3.0.0, the new world): its pack passes the authoring-kit checker and Story
 // Block's install check with no errors, the twelve portraits are web size, and examples/packs/ersveil-world.zip is exactly what
-// scripts/core/build-example-zip.mjs builds, reads back through the zip reader and installs. The old minimal pack (examples/packs/ersveil)
-// is left alone: tests and fixtures pin it.
+// scripts/core/build-example-zip.mjs builds, reads back through the zip reader and installs. It is also the source scripts/packs/convert-3to4.mjs
+// turns into the format 4 Ersveil (examples/packs/ersveil and ersveil-game); the old format 3 Ersveil that tests pin is tests/fixtures/packs/ersveil-3.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';

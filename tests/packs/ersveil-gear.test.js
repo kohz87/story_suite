@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { validatePack } from '../../packs/validate.js';
 import { GEAR, statsFor } from '../../modules/inventory/gear.js';
 
-const text = readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+const text = readFileSync(new URL('../../tests/fixtures/packs/ersveil-3/pack.json', import.meta.url), 'utf8');
 const pack = () => JSON.parse(text);
 
 const EXPECTED = [
