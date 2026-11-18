@@ -97,7 +97,7 @@
   "scripts/core/bench-long.mjs": "Story Suite v2 long-chat benchmark (docs/v2/PERFORMANCE.md, \"Long chats\").",
   "scripts/core/bench-query.mjs": "Query burst benchmark (docs/v2/PERFORMANCE.md, \"Queries on an unchanged chat\").",
   "scripts/core/bench-v2.mjs": "Story Suite v2 storage benchmark (docs/v2/PERFORMANCE.md).",
-  "scripts/core/build-example-zip.mjs": "Builds examples/packs/ersveil.zip from examples/packs/ersveil/: pack.json first, then portraits/<file> for each picture the cast names, in cast order.",
+  "scripts/core/build-example-zip.mjs": "Builds examples/packs/ersveil.zip and examples/packs/ersveil-world.zip (the sample world pack, plus its README.md): pack.json first, then portraits/<file> for each picture the cast names, in cast order.",
   "scripts/core/check.mjs": "Syntax-checks every shipped `.js` and `.mjs` file under core, ui (except the Director folder), modules, packs, testkit, examples, scripts, authoring-kit and the NPC State folder, printing \"syntax ok\".",
   "scripts/core/fuzz-data-modules.mjs": "node scripts/fuzz-data-modules.mjs <seed> <steps> one run; prints { seed, steps, fails, stats } for s in $(seq 1 200); do node scripts/fuzz-data-modules.mjs $s 60; done \\| grep -v '\"fails\":\\[\\]' The r…",
   "scripts/core/fuzz-replay-parts/messages.js": "Fake SillyTavern messages for the fuzz: a user line and a reply, each dated a minute after the last.",
