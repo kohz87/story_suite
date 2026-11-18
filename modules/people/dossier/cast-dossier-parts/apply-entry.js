@@ -9,6 +9,7 @@ import { castGatedSecrets } from './entry-gated.js';
 import { shortPackName } from './dossier-lookup.js';
 import { parsePeople } from './people-field.js';
 import { isObject, labelKey } from './shared-text.js';
+import { normalizeApparentAge } from '../../core/core-identity.js';
 
 // The writer's birthday, "Month day" or "Month day, year" (Story Block checks it against the pack's calendar), read on the active
 // calendar: the date as established, or null when it does not fit that calendar (the dossier then keeps Delta's own date).
@@ -28,9 +29,10 @@ const BUILT_IN_METERS = Object.freeze(['trust', 'affection', 'desire', 'tension'
 /**
  * The record `base` (a fresh dossier from createNpcRecord) filled from the person's entry: the profile, the starting
  * numbers, the hidden notes and `castFrom`. `packName` is the pack's name for the badge; `portrait` is the portrait record
- * ({ path, type, hash, … } or, when the file could not be written, { dataUrl, … }) or null. Returns a new record; null without an entry.
+ * ({ path, type, hash, … } or, when the file could not be written, { dataUrl, … }) or null; `placeName(id)` gives a pack place's name (the starting place's
+ * fallback). Returns a new record; null without an entry.
  */
-export function applyCastEntry(base, person, { packName = '', portrait = null, calendarOwn = false, gated = false } = {}) {
+export function applyCastEntry(base, person, { packName = '', portrait = null, calendarOwn = false, gated = false, placeName = null } = {}) {
     const entry = person?.entry;
     if (!isObject(base) || !entry) return null;
     const npc = { ...base };
@@ -56,7 +58,11 @@ export function applyCastEntry(base, person, { packName = '', portrait = null, c
     const goal = entry.goal || entry.start.goal;
     if (goal) npc.goal = goal;
     if (Object.keys(entry.fields ?? {}).length) npc.customFields = { ...entry.fields };
-    const place = person.met?.where || entry.start.place;
+    // Without the place they were met at, the starting place: a format 4 entry gives it as a place id, so only its name (`placeName`, the
+    // host's pack places) is shown, never the id; a format 3 entry wrote the place in words.
+    let startName = '';
+    try { startName = entry.kind && typeof placeName === 'function' ? String(placeName(entry.start.place) ?? '').trim() : ''; } catch { startName = ''; }
+    const place = person.met?.where || (entry.kind ? startName : entry.start.place);
     if (place) npc.location = place;
     const relationship = { ...(isObject(base.relationship) ? base.relationship : {}) };
     for (const meter of BUILT_IN_METERS) if (Number.isInteger(entry.meters.values[meter])) relationship[meter] = Math.max(-100, Math.min(100, entry.meters.values[meter]));
@@ -75,8 +81,12 @@ export function applyCastEntry(base, person, { packName = '', portrait = null, c
         met: { on: person.met?.on ?? '', where: person.met?.where ?? '' },
         goal, routine: entry.start.routine,
         // The pack's own words, kept exactly while the stored field still is them (core-mechanics normalizeNpcRecord).
-        first: Object.fromEntries([['overallAppearance', entry.look], ['appearance', entry.wears], ['speech', entry.voice], ['personality', entry.personality], ['background', entry.history], ['behaviorProfile', entry.behaviour], ['mannerisms', entry.mannerisms]].filter(([, words]) => (Array.isArray(words) ? words.length : words)).map(([field, words]) => [field, Array.isArray(words) ? [...words] : words])),
+        first: Object.fromEntries([['overallAppearance', entry.look], ['appearance', entry.wears], ['speech', entry.voice], ['personality', entry.personality], ['background', entry.history], ['behaviorProfile', entry.behaviour], ['mannerisms', entry.mannerisms],
+            // An apparent age in words the normalizer cannot read as a number ("looks older") stays as the pack wrote it.
+            ['apparentAge', entry.apparentAge && !normalizeApparentAge(entry.apparentAge, npc.name) ? entry.apparentAge : '']].filter(([, words]) => (Array.isArray(words) ? words.length : words)).map(([field, words]) => [field, Array.isArray(words) ? [...words] : words])),
         ...(entry.stages.length ? { stages: entry.stages } : {}),
+        // Ties and key relationships to cast people not met yet, by cast id only (never shown or injected): cast-links.js names them at read once that person is met.
+        ...(entry.pendingLinks ? { links: structuredClone(entry.pendingLinks) } : {}),
     };
     return npc;
 }

@@ -6,6 +6,7 @@ import { libraryTone, moodTile } from '../dossier-ui-view-model.js';
 import { sortDossierIndex } from './index-order.js';
 import { keyProjection } from './key-projection.js';
 import { castProjection } from './cast-projection.js';
+import { withCastLinks } from '../../dossier/cast-dossier-parts/cast-links.js';
 
 // (hosted) The card's change is the meters' own net change of the latest reply window; a newer-or-equal manual edit keeps its
 // card. Display only: built here from the view, never stored. Without a net change (or off a host) the stored change shows as before.
@@ -30,7 +31,8 @@ function ownRelationshipChange(stored, net) {
 
 export function projectDossierState(state = {}, status = {}) {
     const portraitAssets = state?.portraitAssets && typeof state.portraitAssets === 'object' ? state.portraitAssets : {};
-    const records = Array.isArray(state?.npcs) ? state.npcs : [];
+    // A pack tie or key relationship to someone met after this person is named once they are (cast-links.js; derived, never stored).
+    const records = withCastLinks(Array.isArray(state?.npcs) ? state.npcs : []);
     const formPortraits = state?.formPortraits && typeof state.formPortraits === 'object' ? state.formPortraits : {};
     const customFieldNames = Array.isArray(state?.customFieldNames) ? state.customFieldNames : undefined;
     const meterViews = state?.meterViews && typeof state.meterViews === 'object' ? state.meterViews : {};

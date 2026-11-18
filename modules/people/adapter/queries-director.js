@@ -97,6 +97,21 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
             return {};
         }
     }
+    // A pack place's name (`packs.content` kind places) for its id, slug, name or alias (any case); '' when no enabled pack has it or the host cannot say.
+    function placeName(ref) {
+        const placeKey = value => String(value ?? '').trim().replace(/\s+/g, ' ').toLowerCase();
+        const wanted = placeKey(ref);
+        if (!wanted || !session.hosted || typeof session.sdkRef?.query !== 'function') return '';
+        try {
+            const list = session.sdkRef.query('packs.content', { kind: 'places' });
+            for (const place of Array.isArray(list) ? list : []) {
+                if (!place || typeof place.name !== 'string' || !place.name.trim()) continue;
+                const slug = typeof place.id === 'string' ? place.id.slice(place.id.lastIndexOf('/') + 1) : place.slug;
+                if ([place.name, slug, ...(Array.isArray(place.aliases) ? place.aliases : [])].some(word => placeKey(word) === wanted)) return place.name.trim();
+            }
+        } catch { /* no name */ }
+        return '';
+    }
     // A pack portrait's image URL (`packs.portrait`) as a safe URL (safeImageUrl), or null.
     function packPortraitUrl(pack, file) {
         if (!session.hosted || typeof session.sdkRef?.query !== 'function' || !pack || !file) return null;
@@ -136,5 +151,5 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
         return answer ? normalizeKeyPeople(answer) : null;
     }
 
-    return { worldShown, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, packPortraitUrl, castGearLine, directorCalendar, keyPeople };
+    return { worldShown, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, keyPeople };
 }
