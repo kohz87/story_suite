@@ -2,6 +2,7 @@
 // wording) and the reading of its answer. The answer is JSON; code checks every pick against the menu (daily/open-check.js). Pure.
 
 import { arcLine } from './open-arc-prompt.js';
+import { wholeRows } from './open-salvage.js';
 
 export const OPEN_SYSTEM = [
     'You fill in small happenings for a story world. Each slot below is a happening the world has already decided will occur at a place: you write what it is.',
@@ -37,17 +38,22 @@ export function openPrompt({ blocks, lore = '', errors = null }) {
     return parts.filter(Boolean).join('\n\n');
 }
 
-/** The answer's text → `{ [slot key]: { name, summary, people, effects } }`, or null when it is not the JSON asked for. */
+/** The answer's text → `{ [slot key]: { name, summary, people, effects, severity?, arc? } }`, or null when it is not the JSON asked for. An answer cut off mid-way gives its whole rows. */
 export function readOpenAnswer(text) {
     const raw = String(text ?? '');
     const from = raw.indexOf('{');
     const to = raw.lastIndexOf('}');
     if (from < 0 || to <= from) return null;
-    let data = null;
-    try { data = JSON.parse(raw.slice(from, to + 1)); } catch { return null; }
-    const rows = Array.isArray(data?.results) ? data.results : null;
-    if (!rows) return null;
+    let rows = null;
+    try {
+        const data = JSON.parse(raw.slice(from, to + 1));
+        rows = Array.isArray(data?.results) ? data.results : null;
+    } catch { rows = wholeRows(raw); }
+    if (!rows?.length) return null;
     const out = {};
-    for (const row of rows) if (row && typeof row === 'object' && typeof row.slot === 'string') out[row.slot] = { name: row.name, summary: row.summary, people: row.people, effects: row.effects, ...(row.arc !== undefined ? { arc: row.arc } : {}) };
+    for (const row of rows) {
+        if (!row || typeof row !== 'object' || typeof row.slot !== 'string') continue;
+        out[row.slot] = { name: row.name, summary: row.summary, people: row.people, effects: row.effects, ...(row.severity !== undefined ? { severity: row.severity } : {}), ...(row.arc !== undefined ? { arc: row.arc } : {}) };
+    }
     return out;
 }

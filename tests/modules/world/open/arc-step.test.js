@@ -78,8 +78,7 @@ test('a plan is refused as a whole: step count, a pick outside the menu, protect
     assert.deepEqual(ok.errors, []);
     assert.equal(ok.plan.steps.length, 2);
     const bad = (arc, pattern) => { const out = checkAnswer(ws, def, bind, answer(arc), 10); assert.match(out.errors.join(' '), pattern); assert.equal(out.plan, undefined); };
-    bad({ steps: [], ending: ENDING }, /counting the opening/);
-    bad({ steps: [STEP, STEP, STEP], ending: ENDING }, /counting the opening/);
+    bad({ steps: [STEP, STEP], ending: ENDING }, /happenings in all/);
     bad({ steps: [{ ...STEP, effects: { powers: { crown: 50 } } }], ending: ENDING }, /arc step 2/);
     bad({ steps: [{ ...STEP, effects: { set: [{ condition: 'closed-gates', for: '2 days' }] } }], ending: ENDING }, /read by an authored event/);
     bad({ steps: [{ ...STEP, people: ['queen'] }], ending: ENDING }, /may name/);

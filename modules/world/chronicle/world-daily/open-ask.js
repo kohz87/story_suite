@@ -5,7 +5,7 @@
 // (open-store.js); an answer is kept as JSON text (the state's id rules read the key "id" inside it) in the next reply's beforeGenerate, and the daily step reads only what is stored there. A retry counts as a call.
 
 import { makeWs } from '../../daily/step.js';
-import { checkAnswer, clipAnswer } from '../../daily/arc-plan.js';
+import { checkAnswer, clipAnswer, shapeAnswer } from '../../daily/arc-plan.js';
 import { BATCH } from '../../daily/open-slot.js';
 import { OPEN_SYSTEM, openPrompt, readOpenAnswer, slotBlock } from './open-prompt.js';
 import { ARC_SYSTEM } from './open-arc-prompt.js';
@@ -15,8 +15,10 @@ export const OPEN_FEATURE = 'story-director.world-events';
 const MODULE = 'story-director open templates';
 const TRANSIENT = new Set(['BUSY', 'ABORTED', 'UNAVAILABLE', 'FEATURE_OFF']);
 const MAX_TOKENS = 1200;
-const ARC_TOKENS = 2400;
+/** Each slot that may start an arc asks for this many tokens (one plan is about 1000-1500), and a batch of arcs asks for the sum. */
+const ARC_TOKENS = 1200;
 const CALL_MS = 40000;
+const TIMEOUT = 'TIMEOUT';
 const KEEP = 64;
 const MAX_ANSWER = 3000;
 /** An answer with an arc plan is kept whole up to this size (its texts are cut first, so it is never cut mid-JSON). */
@@ -30,27 +32,39 @@ async function runBatch({ view, input, slots }) {
     let calls = 0;
     const ask = async (list, errors) => {
         calls += 1;
-        const arcs = list.some(slot => ws.templates.get(slot.template)?.open.arc);
-        const request = { role: 'quick', module: MODULE, feature: OPEN_FEATURE, system: arcs ? `${OPEN_SYSTEM}\n${ARC_SYSTEM}` : OPEN_SYSTEM, prompt: openPrompt({ blocks: list.map(slot => blocks.get(slot.key)), lore, errors }), maxTokens: arcs ? ARC_TOKENS : MAX_TOKENS, timeoutMs: CALL_MS };
+        const arcSlots = list.filter(slot => ws.templates.get(slot.template)?.open.arc).length;
+        const arcs = arcSlots > 0;
+        const request = { role: 'quick', module: MODULE, feature: OPEN_FEATURE, system: arcs ? `${OPEN_SYSTEM}\n${ARC_SYSTEM}` : OPEN_SYSTEM, prompt: openPrompt({ blocks: list.map(slot => blocks.get(slot.key)), lore, errors }), maxTokens: arcs ? MAX_TOKENS + ARC_TOKENS * arcSlots : MAX_TOKENS, timeoutMs: CALL_MS };
         const out = await view.model.callModel(request);
         return out?.ok ? { answers: readOpenAnswer(out.text) } : { error: out?.error ?? 'FAILED' };
     };
     const judge = (slot, answers) => {
         const def = ws.templates.get(slot.template);
-        const answer = answers?.[slot.key];
-        if (!answer) return { errors: ['No answer for this slot.'] };
+        const raw = answers?.[slot.key];
+        if (!raw) return { errors: ['No answer for this slot.'] };
+        // Only the checked fields are kept (a template with no arc keeps no arc and no severity); a plan's texts are cut BEFORE it is checked, so the
+        // stored text is exactly what passed and is whole JSON, and a plan that is still too long is refused (the one retry), never cut mid-way.
+        const planned = def?.open.arc && raw.arc !== undefined && raw.arc !== null;
+        const answer = planned ? clipAnswer(shapeAnswer(def, raw)) : shapeAnswer(def, raw);
         const checked = checkAnswer(ws, def, { place: slot.place, region: slot.region || null, realm: slot.realm }, answer, slot.day);
-        return checked.errors.length ? { errors: checked.errors } : { answer };
+        if (checked.errors.length) return { errors: checked.errors };
+        if (planned && JSON.stringify(answer).length > MAX_ARC_ANSWER) return { errors: ['The plan is too long: use fewer effects and shorter texts.'] };
+        return { answer };
     };
     const results = {};
-    const first = await ask(slots);
+    let first = await ask(slots);
     if (first.error && TRANSIENT.has(first.error)) return null;
+    // A call that ran out of time is asked once more (a plan is longer than a plain answer); then the fallback.
+    if (first.error === TIMEOUT) {
+        first = await ask(slots);
+        if (first.error && TRANSIENT.has(first.error)) return { results: {}, calls: calls - 1 };
+    }
     if (first.error) {
         for (const slot of slots) results[slot.key] = { outcome: 'fallback', why: 'the Director did not answer' };
         return { results, calls };
     }
     const refused = {};
-    const keep = answer => (answer.arc !== undefined ? JSON.stringify(clipAnswer(answer)).slice(0, MAX_ARC_ANSWER) : JSON.stringify(answer).slice(0, MAX_ANSWER));
+    const keep = answer => (answer.arc !== undefined ? JSON.stringify(answer) : JSON.stringify(answer).slice(0, MAX_ANSWER));
     for (const slot of slots) {
         const judged = judge(slot, first.answers);
         if (judged.answer) results[slot.key] = { outcome: 'ok', answer: keep(judged.answer) };

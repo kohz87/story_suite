@@ -9,7 +9,7 @@ import { agrees, dailyOf, fakeModel, ledgerOpen, open, openHost, reply, settle, 
 const said = (text, line) => reply(text, [line]);
 const filler = 'x'.repeat(280);
 const step = (name, extra = {}) => ({ name, summary: `${name}. ${filler}`, people: ['warden'], effects: { set: [{ condition: 'unrest', for: '3 days' }] }, after: 1, within: 1, ...extra });
-const ARC = { steps: [step('Rumours'), step('Riot'), step('Curfew')], ending: { ...step('Calm'), effects: { fact: 'incident-noted' } } };
+const ARC = { steps: [step('Rumours'), step('Riot')], ending: { ...step('Calm'), effects: { fact: 'incident-noted' } } };
 const world = { ...WORLD, templates: [open('border-incident'), open('night-watch', { needs: ['unrest@place'], arc: { steps: [2, 4] } })] };
 
 async function build(model) {
@@ -27,10 +27,10 @@ test('the plan is asked once with the arc wording, stored whole, and run by code
     model.extra = { arc: ARC };
     const host = await build(model);
     try {
-        assert.ok(model.prompts.some(prompt => /Arc allowed: 2 to 4 steps/.test(prompt)), 'the slot says an arc is allowed');
+        assert.ok(model.prompts.some(prompt => /Arc allowed: 2 to 4 happenings in all/.test(prompt)), 'the slot says an arc is allowed');
         assert.ok(model.requests.some(request => /Write the whole arc/.test(request.system)));
         assert.equal(model.requests.find(request => /Arc allowed/.test(request.prompt)).maxTokens, 2400);
-        const stored = Object.values(ledgerOpen(host).results).find(row => /Curfew/.test(row.answer));
+        const stored = Object.values(ledgerOpen(host).results).find(row => /Riot/.test(row.answer));
         assert.ok(stored, 'the whole plan is stored');
         assert.doesNotThrow(() => JSON.parse(stored.answer), 'an oversized plan is not cut mid-JSON');
         assert.equal(arcOf(host).state, 'running');

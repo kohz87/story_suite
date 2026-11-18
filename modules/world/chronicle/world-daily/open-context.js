@@ -35,8 +35,9 @@ export function slotView(ws, def, slot, world) {
 
 /** The lore text for a batch: the digest's titles, then the matching entries for each slot, cut to a size. `ask(name, args)` is the view's query. */
 export function loreText(ask, slots, world) {
-    const hidden = new Set((Array.isArray(world.lore) ? world.lore : []).filter(entry => entry?.hidden === true).map(entry => String(entry.title ?? entry.name ?? '').toLowerCase()));
-    const shown = title => !hidden.has(String(title).toLowerCase());
+    const norm = title => String(title ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
+    const hidden = new Set((Array.isArray(world.lore) ? world.lore : []).filter(entry => entry?.hidden === true).map(entry => norm(entry.title ?? entry.name)).filter(Boolean));
+    const shown = title => !hidden.has(norm(title));
     let digest = null;
     try { digest = ask('director.loreDigest', {}); } catch { digest = null; }
     const titles = (Array.isArray(digest?.lines) ? digest.lines : []).map(line => line.title).filter(shown).slice(0, MAX_TITLES);
