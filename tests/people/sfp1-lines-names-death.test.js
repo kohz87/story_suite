@@ -88,3 +88,13 @@ test('F44/F50 switch off: lines go the old way (no short-name match, no death re
     await say(s, ['~ npc Hesk | trust: +1']);
     assert.equal(bond(s, 'npc_hesk_dalla')?.meters?.trust ?? 0, 0, 'off: "Hesk" is not Hesk Dalla, as on main');
 });
+
+test('F41: with "Who gets a dossier: Manual only" a + npc line makes nobody; Conservative still makes them', async () => {
+    const manual = await suite({ lines: true, records: records(), settings: { admissionMode: 'manual_only' } });
+    await say(manual, ['+ npc Tamsa Vell | the clerk | ink-stained cuffs']);
+    assert.equal(Object.values(people(manual).npcs).some(record => record.name === 'Tamsa Vell'), false);
+    same(manual, 'replay equals live');
+    const usual = await suite({ lines: true, records: records(), settings: { admissionMode: 'conservative' } });
+    await say(usual, ['+ npc Tamsa Vell | the clerk | ink-stained cuffs']);
+    assert.equal(Object.values(people(usual).npcs).some(record => record.name === 'Tamsa Vell'), true);
+});

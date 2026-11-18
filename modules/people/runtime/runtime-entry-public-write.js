@@ -242,6 +242,8 @@ export function createPublicApiStatePart(deps) {
     playerNames: () => [chatContext()?.name1, chatContext()?.name2].filter(name => typeof name === 'string' && name.trim()),
     // (v2 meters) The events each person can have per story day, by impact tier (null: no limit; src/relationship-pacing.js).
     relationshipAllowance: () => normalizeAllowance(getSettings().relationshipAllowance),
+    // The "Dormant after" setting (replies unseen; 10-999, the getter's clamp): the store's people.list reads it through npc.dormantAfter (SOAKPEOPLE F45).
+    dormantAfter: () => getSettings().staleArchiveAfter,
     presentCastHtml: () => storyBlockCastHtml(),
     // (1.2.13) Why the present cast is empty ({ text, scan }), and Add NPC, for the Story Block tabs.
     castEmptyReason: () => castEmptyReason(),

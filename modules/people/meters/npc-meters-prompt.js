@@ -22,7 +22,7 @@ export function createNpcPrompt({
         const settings = storedSettings();
         // Behind the anti-lever feature only: the optional approach label (as the paragraph's `via` sentence).
         const rules = featureOn(FEATURE_PRESETS) ? settings.custom.filter(def => def.describe).map(def => `${def.id} ${def.describe}`) : [];
-        return linesMeterText({ via: featureOn(FEATURE_GATE), rules });
+        return linesMeterText({ via: featureOn(FEATURE_GATE), rules, meters: defsFrom(settings).map(def => def.id) });
     }
 
     // How far a locked note is from opening (smaller is nearer): its meter's gap, else a story event's fixed middle.

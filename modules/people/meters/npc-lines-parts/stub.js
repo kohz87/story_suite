@@ -55,6 +55,8 @@ function tieWith(ctx, line) {
     return { ...line, labels: { ...line.labels, [label]: full } };
 }
 
+const manualOnly = ctx => { try { return ctx.settings?.()?.admissionMode === 'manual_only'; } catch { return false; } };
+
 /** The sentence refusing a stub for this name, or ''. */
 function refusalOf(ctx, name, hooks) {
     if (!name) return 'The + npc line names no one: + npc Name | role | look.';
@@ -81,6 +83,8 @@ export function withStubs(handler, { hooks, linesMode, baseline, note }) {
             const stub = readStub(line);
             const refused = refusalOf(ctx, stub.name, hooks);
             if (refused) ctx.fail('REFUSED', refused);
+            // F41: "Who gets a dossier: Manual only" (admissionMode manual_only): every dossier needs the reader's + Add, so the story's line makes nobody.
+            if (manualOnly(ctx)) ctx.fail('REFUSED', `Who gets a dossier is Manual only; ${stub.name} gets a dossier only when you add them.`);
             // This reply's stubs are the people stamped with its index (the identity the fill-in finds them by).
             const stamp = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1;
             const made = Object.values(ctx.read('people')?.npcs ?? {}).filter(record => record?.createdAt === stamp).length;

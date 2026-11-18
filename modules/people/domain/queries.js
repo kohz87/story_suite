@@ -1,7 +1,7 @@
 // The reader's questions about the people domain, answered from the stored slice alone (pure over the state, so a swipe, a delete, a rewind or a reload
 // answers what the head holds): `people.list` (one row per stored person), `people.dossier` (one person's stored fields plus their meters),
 // `people.ties` (the social graph's edges between stored people, with the story's tie lines) and `people.secretOwners` (whose dossier holds a secret of that title).
-// Definitions: here = the record's `present` flag (NPC State sets it from the reply); dormant = 30 or more replies (the slice's `turn` minus the record's
+// Definitions: here = the record's `present` flag (NPC State sets it from the reply); dormant = the reader's "Dormant after" (default 30) or more replies (the slice's `turn` minus the record's
 // `lastSeenTurn`) unseen, never for someone present, followed, deceased or without a `lastSeenTurn` (decision 36.12; the party is excluded by the caller).
 // A portrait is the file path of its file reference, when that is a safe URL (a path on the page's own server, or https); never image bytes.
 
@@ -39,12 +39,20 @@ function metersOf(bond, record) {
 const active = (slice, id) => isObject(slice.npcs?.[id]);
 const ids = slice => (Array.isArray(slice?.order) ? slice.order.filter(id => active(slice, id)) : []);
 
-function dormantOf(slice, record) {
+function dormantOf(slice, record, after = DORMANT_AFTER) {
     if (record.present === true || record.followed === true || record.lifeState === 'deceased') return false;
-    return Number.isInteger(record.lastSeenTurn) && Number.isInteger(slice.turn) && slice.turn - record.lastSeenTurn >= DORMANT_AFTER;
+    return Number.isInteger(record.lastSeenTurn) && Number.isInteger(slice.turn) && slice.turn - record.lastSeenTurn >= after;
 }
 
-function rowOf(slice, id) {
+// The reader's "Dormant after" (SOAKPEOPLE F45): `args.dormantAfter`, else NPC State's setting (npc.dormantAfter), else 30; held to the setting's 10-999.
+function dormantLimit(args, tools) {
+    let asked = args?.dormantAfter;
+    if (asked === undefined) { try { asked = tools?.hasQuery?.('npc.dormantAfter') ? tools.query('npc.dormantAfter', {}) : undefined; } catch { asked = undefined; } }
+    const value = Math.round(Number(asked));
+    return Number.isFinite(value) && asked !== null && asked !== undefined ? Math.max(10, Math.min(999, value)) : DORMANT_AFTER;
+}
+
+function rowOf(slice, id, after) {
     const record = slice.npcs[id];
     const bond = slice.bonds?.npcs?.[id];
     return {
@@ -52,7 +60,7 @@ function rowOf(slice, id) {
         role: text(record.role), mood: text(record.mood), location: text(record.location), status: text(record.status),
         present: record.present === true, followed: record.followed === true,
         lifeState: text(record.lifeState), lifeStateCertainty: text(record.lifeStateCertainty), lifeStateReason: text(record.lifeStateReason),
-        lastSeenTurn: Number.isInteger(record.lastSeenTurn) ? record.lastSeenTurn : null, dormant: dormantOf(slice, record),
+        lastSeenTurn: Number.isInteger(record.lastSeenTurn) ? record.lastSeenTurn : null, dormant: dormantOf(slice, record, after),
         meters: metersOf(bond, record), portrait: portraitOf(slice, id, record),
     };
 }
@@ -72,9 +80,11 @@ export function peopleQueries(domain) {
     return {
         // [row] in dossier order: { id, name, aliases, role, mood, location, status, present, followed, lifeState, lifeStateCertainty, lifeStateReason,
         // lastSeenTurn, dormant, meters | null, portrait | null }.
-        'people.list': state => {
+        'people.list': (state, args, tools) => {
             const people = slice(state);
-            return people ? ids(people).map(id => rowOf(people, id)) : null;
+            if (!people) return null;
+            const after = dormantLimit(args, tools);
+            return ids(people).map(id => rowOf(people, id, after));
         },
         // { id, ...the stored dossier fields (the portrait file is `portrait` below; `secrets` are left out as in npc.dossier; never-prompt settings too), meters?, stages?, unlocked?, recent?, portrait } of the person { id | name } names, or null.
         'people.dossier': (state, args) => {
