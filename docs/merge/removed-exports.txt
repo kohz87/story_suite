@@ -192,3 +192,5 @@ RESOLVE
 receiptWithCue
 entriesWithCue
 withCue
+# B4-11e: narrated fights (modules/rpg/board/narrated-grammar.js); its foe-kind lines now live privately in board/prompt.js.
+narratedFoeGrammar
