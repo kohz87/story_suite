@@ -138,14 +138,14 @@ function partyAddOf(answer) {
 
 /**
  * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
- * keyPeople?: director.keyPeople.view (place and news of someone away), party?: party.actors, join?: rpg.partyAdd, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
+ * away?: director.away.view (news and return date of someone away), party?: party.actors, join?: rpg.partyAdd, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
  * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), memory dates, secret text, death when/where/reference line.
  */
-export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party, join, moodTile, people, place, present } = {}) {
+export function selectDossier({ dossier, meters, next, cast, portrait, away: awayView, party, join, moodTile, people, place, present } = {}) {
   if (!isRecord(dossier)) return null;
   const key = keyOf(dossier.name);
-  const away = (isRecord(keyPeople) && Array.isArray(keyPeople.people) ? keyPeople.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
+  const away = (isRecord(awayView) && Array.isArray(awayView.people) ? awayView.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
   const dead = dossier.lifeState === 'deceased';
   const presumed = dead && dossier.lifeStateCertainty === 'inferred';
   const gender = text(dossier.gender)?.toLocaleLowerCase();
@@ -171,7 +171,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople
     ...(moodBarsOf(moodTile, cast) ? { moodBars: moodBarsOf(moodTile, cast) } : {}),
     now: isHere
       ? { where: text(dossier.location), doing: text(dossier.status), wearing: null, thought: null }
-      : { lastPlace: text(away?.place) ?? text(dossier.location), lastSeen: text(away?.newsAgo), said: null },
+      : { lastPlace: text(dossier.location), lastSeen: text(away?.newsAgo), said: null },
     scene: isHere && text(dossier.goal) ? { wants: text(dossier.goal), hiding: null } : null,
     ties: tiesOf(dossier.keyRelationships, people),
     past: pastOf(dossier.memories),

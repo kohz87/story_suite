@@ -62,7 +62,7 @@ Tests: `tests/core/edit-prose-only.test.js` (the skip and the full path) and `te
      both the lines taken and the lines kept.
    - **No word a capture reads is added or removed** (`core/turn/edit-words.js`, names from `edit-names.js`). The words of the two
      texts are compared as a multiset; any changed word that is a real-world day or month name (read by the calendar-names
-     check), a `#N`, or a word of any cast person's name or alias (packs, NPC State, the cast store, key people) sends the
+     check), a `#N`, or a word of any cast person's name or alias (packs, NPC State, the cast store) sends the
      edit to the full path. This is conservative: a word that only shares a part of a name counts, and a name list that
      cannot be built means the full path. A plain prose edit adds none of these and still skips.
 

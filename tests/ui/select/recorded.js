@@ -23,11 +23,10 @@ export const ANSWERS = {
   'npc.present': [{ id: 'np_fenna', name: 'Fenna', followed: true, meters: { trust: 40, affection: 22, desire: 5, tension: 12 }, stages: {} }],
   'npc.cast': [{ key: 'np_fenna', name: 'Fenna', present: true, bars: [{ id: 'trust', value: 40 }], mood: { word: 'wary' } }],
   'chatter.head': [{ name: 'Fenna', text: 'He is late again.' }],
-  // SD/time/index.js:183, SD/screens/queries.js:72 and :131, SD/keypeople/queries.js:64
+  // SD/time/index.js:183, SD/screens/queries.js:72 and :131
   'time.overdue': { minutes: 570, lapsed: [], overdue: [{ id: 't1', key: 'Pay the guild', kind: 'quest', due: 'Goldwane 12' }], pay: [], due: [] },
   'director.goal': { id: 't2', key: 'caravan', goal: 'Find the caravan', step: 'Ask at the gate', giver: 'Fenna', due: '', taken: true },
   'director.next': { id: 't1', key: 'Pay the guild', kind: 'quest', summary: 'Pay the guild', field: 'due', when: 'Goldwane 14', at: 1, reached: false },
-  'director.keyPeople': [{ name: 'Fenna', here: true, away: null }],
   // SD/atlas/trip-query.js:74 (tripView, trip.js:383)
   'atlas.trip': { on: true, to: 'Auvoth', phase: 'road', leg: 2, legCount: 4, fraction: 0.5, row: 'Bluewatch → Auvoth · leg 2 of 4', legs: [], you: null, movers: [], hasMovers: false },
   // SB core reply.changes (modules/scene/domains/core/reply-changes.js)

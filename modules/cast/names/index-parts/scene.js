@@ -9,11 +9,10 @@ import { tables } from './slice-keys.js';
 import { settingsOf, packNames } from './feature.js';
 import { isRecord, ask, queryOf, namesOf } from './host-read.js';
 
-/** Names and linked aliases from the scene, cast, NPC State Delta and key people; recorded before the reply for replay. */
+/** Names and linked aliases from the scene, cast and NPC State Delta; recorded before the reply for replay. */
 export function othersOf(view) {
     const query = queryOf(view);
     const cast = view?.state?.domains?.cast?.people;
-    const keys = view?.state?.domains?.keypeople;
     const identities = [];
     const add = (source, person, fallback = '') => {
         const name = cleanName(person?.name || fallback), aliases = [...new Set((Array.isArray(person?.aliases) ? person.aliases : []).map(cleanName).filter(alias => nameKey(alias)))].slice(0, MAX_ALIASES);
@@ -26,8 +25,7 @@ export function othersOf(view) {
         add(`npc:${typeof id === 'string' ? id : nameKey(name)}`, dossier, name);
     }
     for (const [key, person] of Object.entries(isRecord(cast) ? cast : {})) add(`cast:${key}`, person);
-    for (const [key, person] of Object.entries(isRecord(keys?.pins) ? keys.pins : {})) add(`pin:${key}`, person);
-    const names = [...namesOf(ask(query, 'scene.present')), ...known, ...identities.flatMap(person => [person.name, ...person.aliases]), ...Object.values(isRecord(keys?.gone) ? keys.gone : {}).map(entry => entry?.name)].filter(name => typeof name === 'string' && nameKey(name));
+    const names = [...namesOf(ask(query, 'scene.present')), ...known, ...identities.flatMap(person => [person.name, ...person.aliases])].filter(name => typeof name === 'string' && nameKey(name));
     return { names, identities };
 }
 export const suggestionsFor = (view, slice, count, seed) => {

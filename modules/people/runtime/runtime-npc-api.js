@@ -1,5 +1,5 @@
 /* NPC State - the in-page api (role: npc-api). What `pageHandles.suiteApi` holds: the tracked NPCs, their profiles and the text
-   the next reply gets (Key people and the Story Block adapter read it), plus what the Enable checkbox does after saving.
+   the next reply gets (the Story Block adapter reads it), plus what the Enable checkbox does after saving.
    Built by index.js once per module instance with the shared runtime state and the controller functions it calls. */
 
 import { recentTranscript } from '../transcript/transcript.js';

@@ -15,7 +15,6 @@ import { createModule, storyDirectorModule } from '../../../../modules/director/
 import { GRAMMAR, TAIL_HEADER } from '../../../../modules/world/chronicle/note.js';
 import { PACING_TEXT, staticText } from '../../../../modules/time/tracker/note.js';
 import { STATIC_TEXT as WORLD_PARAGRAPHS } from '../../../../modules/world/chronicle/note.js';
-import { FEATURE as KEY_PEOPLE_FEATURE } from '../../../../modules/cast/keypeople/domain.js';
 import { THREADS_FEATURE, THREAD_KINDS_OWNED, ownedKind, threadsOn, withoutOwnedThreads } from '../../../../modules/time/tracker/threads.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 
@@ -72,16 +71,16 @@ test('the feature: declared, on by default, out of the Lean preset; initiative a
 });
 
 test('on: the static part and the kinds are what the fixtures hold, byte for byte; off: the paragraphs and the thread grammar line are gone', async () => {
-    // The Key people feature (story-director.key-people) adds its own paragraph and two kinds to the prompt: left off here, so these bytes
-    // are the ones the fixtures hold (tests/v2/keypeople says what it adds, and that off adds nothing); the same for the names part (on by default, its `person` line is not in the fixtures).
-    const on = await newHost({ features: { [KEY_PEOPLE_FEATURE]: false, 'story-director.names': false } });
-    const off = await newHost({ features: { [THREADS_FEATURE]: false, [KEY_PEOPLE_FEATURE]: false, 'story-director.names': false } });
+    // The names part (on by default, its `person` line is not in the fixtures) is left off here, so these bytes are the ones the fixtures hold.
+    const on = await newHost({ features: { 'story-director.names': false } });
+    const off = await newHost({ features: { [THREADS_FEATURE]: false, 'story-director.names': false } });
     try {
         const was = fixture('prompt-threads-on.json');
         const now = fixture('prompt-threads-off.json');
-        const got = { static: contextOf(on).static(), kinds: contextOf(on).kinds };
+        // The retired `- key` head (people/away: read and dropped quietly, never taught) is not in the fixtures.
+        const got = { static: contextOf(on).static(), kinds: contextOf(on).kinds.filter(entry => entry.kind !== 'key') };
         assert.deepEqual(got, was, 'with the feature on the prompt is unchanged');
-        const gone = { static: contextOf(off).static(), kinds: contextOf(off).kinds };
+        const gone = { static: contextOf(off).static(), kinds: contextOf(off).kinds.filter(entry => entry.kind !== 'key') };
         assert.deepEqual(gone, now);
         // A fresh story keeps no world event or faction, so the World paragraphs are not taught on either side (the lean diet).
         assert.ok(got.static.includes(PACING_TEXT));

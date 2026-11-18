@@ -33,8 +33,8 @@ const PRESENT_TYPES = new Set(['capture.present', 'scene.present', 'npc.present'
 
 // The text shapes of a stored line without its type (older digests): the first that matches wins.
 const SHAPES = [
-    [/^Key people: noted/, 'bookkeeping'],
     [/\b(?:is|is not) here\.?$/i, 'bookkeeping'],
+    [/^NPC meters: the reply was counted/, 'bookkeeping'],
     [/\b(?:left the party|is back in the party|bound gear|Gear:)/i, 'party'],
     [/^Lost\b|^Found\b|\b(?:copper|silver|gold)\b/i, 'items'],
     [/\b(?:Adventurer Guild|Fame by region|membership)\b/i, 'reputation'],
@@ -55,7 +55,7 @@ export function classify(entry) {
     const body = flat(entry?.text);
     if (type && BOOKKEEPING_TYPES.has(type)) return 'bookkeeping';
     if (PRESENT_TYPES.has(type) && PRESENCE_TEXT.test(body)) return 'bookkeeping';
-    if (type === 'npc.tick' && !/^Key people: /.test(body)) return 'bookkeeping';
+    if (type === 'npc.tick') return 'bookkeeping';
     if (type && BY_TYPE.has(type)) return BY_TYPE.get(type);
     const [base, kind] = type.split(':');
     if (kind && BY_TYPE.get(base) === 'reputation') return DM_KINDS.get(kind) ?? DEFAULT_CATEGORY;

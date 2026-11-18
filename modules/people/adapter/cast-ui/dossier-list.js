@@ -2,11 +2,10 @@
 // key-person marks, row meters, the visible meter entries and their bar/note nodes. Text is set through textContent only.
 
 import { normalizeSecrets } from '../../meters/npc-meters.js';
-import { findKeyEntry, isKey } from '../../cast/key-people.js';
 import { elementOf, meterBarNode } from './dom.js';
 
 export function createDossierListPart(session, deps) {
-    const { dossierOf, headReply, keyPeople, npcList, part, presentList, runtime, warn } = deps;
+    const { dossierOf, headReply, npcList, part, presentList, runtime, warn } = deps;
     let rowsCache = { key: null, rows: [] };
 
     // Every dossier as a row, kept until Delta's state changes (dossierRevision): plain rows from the dossiers' names, or a
@@ -71,11 +70,9 @@ export function createDossierListPart(session, deps) {
     }
     // Each row's stage and meters (npc.cast: the ranks and bars the present cards' meters show; the row draws at most DOSSIER_BAR_MAX).
     // Read when the list is drawn and never cached with the rows: a reply moves them without changing any dossier.
-    // A ★ on the rows of key people (their `key` flag), read when the list is drawn like the meters.
+    // A ★ on the rows of followed people (the `key` flag the row draws), read when the list is drawn like the meters.
     function withKeyMarks(rows) {
-        const list = keyPeople();
-        if (!list?.length) return rows;
-        return rows.map(row => (isKey(findKeyEntry(list, row)) ? { ...row, key: true } : row));
+        return rows.map(row => (row?.followed === true ? { ...row, key: true } : row));
     }
     function withMeters(rows) {
         rows = withKeyMarks(rows);

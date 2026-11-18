@@ -15,10 +15,10 @@ export function closureScore(ageDays) {
     return 1;
 }
 
-// Belonging: benched (left out of the party) beats away (a key person who is gone) beats a new member
+// Belonging: benched (left out of the party) beats away (someone away from the scene, director.away) beats a new member
 // who joined within NEW_MEMBER_DAYS. Only the NPC's own id counts. Null when nothing applies.
 export function readBelonging(input) {
-    const { id, day, benched, keyPeople, joins } = input || {};
+    const { id, day, benched, away: awayRows, joins } = input || {};
     const npc = idOf(id);
     const now = dayOf(day);
     if (!npc || now === null) return null;
@@ -26,7 +26,7 @@ export function readBelonging(input) {
     if (benchedRow && dayOf(benchedRow.since) !== null) {
         return { kind: 'belonging', score: BENCHED_SCORE, cause: 'benched from the party', since: dayOf(benchedRow.since) };
     }
-    const away = Array.isArray(keyPeople) ? keyPeople.find(row => idOf(row?.id) === npc && row.away === true) : null;
+    const away = Array.isArray(awayRows) ? awayRows.find(row => idOf(row?.id) === npc && row.away === true) : null;
     if (away && dayOf(away.since) !== null) {
         return { kind: 'belonging', score: AWAY_SCORE, cause: 'left behind while the group moved on', since: dayOf(away.since) };
     }

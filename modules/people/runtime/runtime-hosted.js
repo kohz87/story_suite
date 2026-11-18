@@ -1,5 +1,5 @@
 /* NPC State Delta hosted Story Suite views (role: hosted-suite-views). What Delta reads from a Story Block v2 host and its modules while hosted:
-   the host's clock, meters and scene, Story Director's key people and living cast as the dossier views read them, the chat-head mark, and the
+   the host's clock, meters and scene, Story Director's living cast as the dossier views read them, the chat-head mark, and the
    relationship changes, secret events and hidden-note options Delta sends back, and the words for why no one shows as present. Built by index.js once per module instance with the shared
    runtime state and the controller functions it calls. Bodies are moved from index.js without change. */
 
@@ -9,10 +9,10 @@ import { tieDayAt } from '../transcript/transcript.js';
 import { normalizeRelationshipBaseline, isTerminalNpcDeath, npcMatchesLabel, storyMinuteText } from '../core/core.js';
 import { storyBlockIsV2 } from '../npc-api/host-probe.js';
 import { resolveDossierTarget } from '../npc-api/dossier-target.js';
-import { awayNpcIds, findKeyEntry, isKey, keyView, normalizeKeyPeople, returnNote } from '../cast/key-people.js';
 import { castView, findCastPerson, normalizeCast } from '../dossier/cast-dossier.js';
 import { getSettings, setRpgProbe } from '../settings/runtime-settings.js';
 import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
+import { createAwayHosted } from './runtime-hosted-parts/away.js';
 import { pageHandles } from './handles.js';
 
 export function createHostedPart(rt, deps) {
@@ -61,49 +61,6 @@ export function createHostedPart(rt, deps) {
         if (!adapter) return npcs;
         try { return adapter.sliceView(npcs) || npcs; } catch { return npcs; }
     }
-    // (v2, key people) Story Director's key people (`director.keyPeople`, read only), or null: no host, no Story Director,
-    // or one without the query. Null means Delta alone: no badge, no section, no hold, nothing sent. src/key-people.js.
-    function keyPeopleList() {
-        const adapter = storySuiteV2Meters();
-        if (!adapter) return null;
-        try {
-            const answer = adapter.keyPeopleAnswer?.();
-            if (!Array.isArray(answer)) return null;
-            const calendar = adapter.directorCalendar?.() ?? null;
-            return normalizeKeyPeople(answer, minutes => storyMinuteText(minutes, calendar));
-        } catch {
-            return null;
-        }
-    }
-    // Whether this dossier (or snapshot of one) is a current key person.
-    function isKeyNpc(npc, list = keyPeopleList()) {
-        return Boolean(list?.length) && isKey(findKeyEntry(list, npc));
-    }
-    // The index of the reply the story stands on for the next generation: the latest reply, or the one before it while the
-    // latest is being replaced.
-    function keyHeadIndex() {
-        const latest = latestReplyIndex();
-        const chat = getContext().chat || [];
-        if (!rt.replacingReply || rt.replacingReply.key !== getChatKey() || latest < 0 || chat[latest] !== rt.replacingReply.message) return latest;
-        for (let at = latest - 1; at >= 0; at -= 1) if (chat[at] && !chat[at].is_system && !chat[at].is_user) return at;
-        return -1;
-    }
-    // What the narrator is told once about key people who just came back: { dossier id: "WHILE AWAY, NOW BACK …" }.
-    // It stands while the latest reply is the one the return was noticed at, so a swipe of the next reply repeats it and
-    // the next reply that stays drops it.
-    function keyReturnNotes(state) {
-        const list = keyPeopleList();
-        if (!list?.length) return null;
-        const head = keyHeadIndex();
-        const memory = storySuiteV2Meters()?.keyAwayMemory?.() ?? {};
-        const notes = {};
-        for (const npc of state?.npcs || []) {
-            const view = npc?.id ? keyView(list, memory, npc, head) : null;
-            if (view?.recent?.justReturned) notes[npc.id] = returnNote(view.recent.away);
-        }
-        return Object.keys(notes).length ? notes : null;
-    }
-
     // The people the step has recorded as made (the slice's `cast`), met now with their entry, with no dossier standing for them
     // and not removed by the reader.
     function castList() {
@@ -169,27 +126,12 @@ export function createHostedPart(rt, deps) {
             return null;
         }
     }
-    // The merge option that holds away key people's stable fields (as if locked) for one scan: { awayNpcIds } or nothing.
-    // The dossier view's key-person data by dossier id ({ name, here, away, recent }), or null with no key people.
-    function dossierKeyViews(state) {
-        const list = keyPeopleList();
-        if (!list?.length) return null;
-        const head = keyHeadIndex();
-        const memory = storySuiteV2Meters()?.keyAwayMemory?.() ?? {};
-        const views = {};
-        for (const npc of state?.npcs || []) {
-            const view = npc?.id ? keyView(list, memory, npc, head) : null;
-            if (view) views[npc.id] = view;
-        }
-        return Object.keys(views).length ? views : null;
-    }
-    // What the dossier view reads from the host beside the dossiers: v2 meters, key-person and living-cast views.
+    // What the dossier view reads from the host beside the dossiers: v2 meters and living-cast views.
     function dossierHostViews(state) {
         const meterViews = storySuiteV2Meters()?.dossierMeters?.(state.npcs) ?? {};
-        const keyViews = dossierKeyViews(state);
         const castViews = dossierCastViews(state);
         const storyDay = tieDayAt();   // the story day now: older ties fade by it (core-keyrel.js)
-        return { meterViews, ...(Number.isInteger(storyDay) ? { storyDay } : {}), ...(keyViews ? { keyViews } : {}), ...(castViews ? { castViews } : {}) };
+        return { meterViews, ...(Number.isInteger(storyDay) ? { storyDay } : {}), ...(castViews ? { castViews } : {}) };
     }
     // (perf) The dossiers as the views read them: a copy, except that a portrait's picture (its data URL, an immutable string of up to
     // a few hundred KB) is shared rather than copied; the portrait record itself is still a copy.
@@ -203,23 +145,18 @@ export function createHostedPart(rt, deps) {
             return copy;
         });
     }
-    // The ids of dossiers Story Director names as key people or away (exact name/alias, src/key-people.js): the stale pass archives, never deletes, them.
+    // Story Director's people away (runtime-hosted-parts/away.js): the "While away" note, the scan hold and their dossier ids.
+    const { awayReturnNotes, awayScanOptions, awayKeepIds } = createAwayHosted(rt, { getChatKey, latestReplyIndex, storySuiteV2Meters });
+    // The ids of followed dossiers (the Follow star) and of those away now: the stale pass archives, never deletes, them.
     function keyKeepIds(state) {
-        const list = keyPeopleList();
-        return list?.length ? (state?.npcs || []).filter(npc => isKey(findKeyEntry(list, npc))).map(npc => npc.id) : [];
+        return [...new Set([...(state?.npcs || []).filter(npc => npc?.followed === true).map(npc => npc.id), ...awayKeepIds(state)])];
     }
-    // True while hosted and a read really failed: the key list (a present query that errors or answers a non-list; Story Director absent or
-    // off is no key list, not a failure) or the meter read. The stale pass then only archives.
+    // True while hosted and a read really failed: the away list (a present query that errors or answers a non-list; Story Director absent is
+    // no list, not a failure) or the meter read. The stale pass then only archives.
     function hostedReadsFailed() {
         const adapter = storySuiteV2Meters();
         if (!adapter) return false;
-        try { return adapter.keyPeopleReadable?.() === false || !Array.isArray(adapter.meterEntries?.()); } catch { return true; }
-    }
-    function keyAwayScanOptions(state) {
-        const list = keyPeopleList();
-        if (!list?.length) return {};
-        const ids = awayNpcIds(list, state?.npcs);
-        return ids.size ? { awayNpcIds: [...ids] } : {};
+        try { return adapter.awayReadable?.() === false || !Array.isArray(adapter.meterEntries?.()); } catch { return true; }
     }
     // The chat state a scan works from: with the slice's relationship numbers while hosted (a copy;
     // the stored state is never changed here), the state itself otherwise.
@@ -398,5 +335,5 @@ export function createHostedPart(rt, deps) {
         return { text: 'The latest scan found no NPC in the scene.', scan: true };
     }
 
-    return { storyBlockV2Hosted, storySuiteV2Meters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, isKeyNpc, keyReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, keyAwayScanOptions, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason };
+    return { storyBlockV2Hosted, storySuiteV2Meters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, awayReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, awayScanOptions, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason };
 }

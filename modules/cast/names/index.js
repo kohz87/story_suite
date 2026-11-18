@@ -4,7 +4,7 @@
 //
 // * Kind `person`: `+ person Name | look: … | flaw: … | voice: … | temper: …`, written once when a named person first appears. The
 //   name is checked against the names in use (`people`: declared before; `seen`: the scene, the whole cast incl. unmet people,
-//   NPC State Delta's dossiers and the key people, stored by the step before each reply, so apply reads only its own domain)
+//   NPC State Delta's dossiers, stored by the step before each reply, so apply reads only its own domain)
 //   and the banned lists (the setting's, the pack's, the built-in overused names). A refusal is a Problem on the reply card and a
 //   cue pinned to the next reply to rename the person ("already used": never who by). A fine name is stored whole with its profile.
 // * Tail (optional lines): the profile of up to 4 stored people who are in the scene or named in the last reply (≤160 characters
