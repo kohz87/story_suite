@@ -452,5 +452,7 @@
   "ui/select/people-settings/portraits.js": "Lists the People page's Portraits rows: what portraits use now, written back as the old portrait panel saved it (style, custom preset library, text fields).",
   "ui/port/rpg-custom.js": "Stores the RPG page's Custom difficulty editors into the Custom set the creation of new characters reads, refusing a number that breaks the creation order.",
   "ui/select/rpg-difficulty.js": "Says what each RPG difficulty changes from the engine's own numbers and builds the Custom difficulty's creation-number rows.",
-  "tests/ui/select/rpg-difficulty.test.js": "Tests the RPG difficulty explanations against the engine's numbers and the Custom editors from row to stored key to a new character."
+  "tests/ui/select/rpg-difficulty.test.js": "Tests the RPG difficulty explanations against the engine's numbers and the Custom editors from row to stored key to a new character.",
+  "modules/arc/plan/read-parts/relative.js": "Writes a planner's relative date (\"in 2 days\", \"tomorrow at dusk\", \"next morning\") as a date on the story calendar for the arc plan reader.",
+  "tests/modules/arc/relative.test.js": "Tests the arc plan reader's relative dates: spans, day words and parts of the day on a custom calendar, and the texts left as written."
 }

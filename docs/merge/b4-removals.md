@@ -36,3 +36,8 @@ setting normalizers to `settings/runtime-settings-parts/{map-settings,dossier-lo
 Removed at B4-11b (the v1 copy watch): `core/persist/v1-copy.js` with `v1-copy-parts/` (the `V1_COPY` Problem for an old Story Block v1
 running beside the suite), its test and frozen fixture. `core/boot/boot.js` keeps its start-up guard (`OLD_COPY`: an old Story Block already on
 the page stops the start). `core/persist/compat.js`, the row's other file, had already gone at B4-4.
+Removed at B4-11f (the Story Director v1 planner): `modules/atlas/planner.js` and `modules/atlas/planner/` (the v1 `src/planner.js`: its prompt,
+tracker summary, answer parser, plan checks, change ops, auto-plan rules and the note-after-accept rule), with `tests/director/planner-auto.test.js`,
+`planner-parse.test.js` and `planner.helpers.js`. The arc part (`modules/arc/plan`) has had its own copy of each since it was built. Moved, not removed:
+`resolveRelative` (relative dates in a plan), the one piece the arc plan reader still called, to `modules/arc/plan/read-parts/relative.js`, with its
+cases in `tests/modules/arc/relative.test.js`.

@@ -194,3 +194,11 @@ entriesWithCue
 withCue
 # B4-11e: narrated fights (modules/rpg/board/narrated-grammar.js); its foe-kind lines now live privately in board/prompt.js.
 narratedFoeGrammar
+# B4-11f (18 Nov 2026): the Story Director v1 arc planner (modules/atlas/planner*), replaced by modules/arc/plan; resolveRelative moved to modules/arc/plan/read-parts/relative.js.
+summarizeTracker
+buildPlannerMessages
+parsePlan
+validatePlan
+planToOps
+noteAfterAccept
+resolveDates
