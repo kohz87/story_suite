@@ -396,6 +396,14 @@ The page shows only while the RPG is on.
   **Stat adds** (half the stat, a third of the stat, or full above 10), **"At a cost" when short by** (0 to 5; 0 turns it off), **Decisive at a margin
   of** (4 to 15, or a natural 1 or 20) and **Most exchanges per reply** (1 to 8). A number outside its range is held to
   it, and a roll already made keeps its own.
+- **Difficulty in the new view** (Settings › RPG and fights). The Difficulty row says what each choice changes (Gentle, Standard and Harsh: the foe's
+  base 2, 4 and 6; Custom: your own creation numbers) and its hint shows the chosen one's numbers. It also says what is the same at every difficulty: the
+  fight board (Combat Rules v1) rolls foes at d20 + 6 + level/3 + tier (Mob −2 to Apex +4) and does not read the foe's base, story checks are against easy 10,
+  normal 15, hard 20 and very hard 25, and XP follows the XP rate. So Gentle, Standard and Harsh play the same today. **Custom** shows four editors, the only
+  Custom numbers play reads (character creation): **Stats start at** (1 to 10), **Points to spend at creation** (0 to 30), **Lowest stat at creation**
+  (1 to 10) and **Highest stat at creation** (3 to 20). They are stored in the Custom set (`rpgStandard`); a number that breaks lowest ≤ start ≤ highest ≤
+  the highest a stat can be is refused, and the page says why. The page draws again after a Difficulty or Custom change. Characters already made keep their stats,
+  and a companion who joins keeps its own (every stat 5, its best raised), whatever **Stats start at** says.
 - **Levels and practice.** **Level cap** (1 to 99, default 99; the pack's cap wins when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
 - **What the narrator is told about combat.** The text of this chat's Combat rules block (up to 1200 characters, counted
   as you type). It is saved when you leave the box (or close the settings window with text still in it), as an edit of that

@@ -6,6 +6,8 @@ import { createHost } from '../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { buildDefinitions, newDraft, readDraft } from '../../../modules/rpg/view/wizard-data.js';
 import { available, skip, reply, blocks, fields, problems, rebuilt, world } from './join.helpers.js';
+import { joinDefinitions, joinDraft } from '../../../modules/rpg/join.js';
+import { STANDARD_PRESETS, rulesFromSettings } from '../../../modules/rpg/rules.js';
 
 async function v1World() {
     const host = await createHost({ settings: { modules: { 'story-block': { rpgJoin: 'auto' } } } });
@@ -67,4 +69,13 @@ test('a second companion in a v1 chat is v1 too (a chat that holds only v1 Chara
     const definitions = Object.values(empty.head().domains.dataModules.pins).map(pin => pin.definition);
     assert.equal(definitions.find(definition => definition.role === 'foes')?.state.tier1?.type, 'enum', 'the Foes block it brings is v1\'s (a tier on every slot)');
     assert.equal(definitions.find(definition => definition.role === 'character')?.state.wis?.type, 'int', 'and the Character is v1\'s');
+});
+
+test('a companion who joins keeps its stats under a Custom "Stats start at" above 5 (the draft starts where companionStatsV1 starts)', () => {
+    const custom = n => rulesFromSettings({ rpgDifficulty: 'custom', rpgStandard: { ...STANDARD_PRESETS.standard, ...n } });
+    const str = rules => joinDefinitions({ name: 'Torka', soul: 2, best: 'str' }, { rules }).character.state.str.default;
+    assert.equal(str(null), 16);
+    for (const n of [{ startStat: 10, createMin: 10, createMax: 20 }, { startStat: 8 }, { startStat: 3, createMin: 1 }]) assert.equal(str(custom(n)), 16, JSON.stringify(n));
+    const draft = joinDraft({ name: 'Torka', soul: 2, best: 'str' }, custom({ startStat: 10, createMin: 10, createMax: 20 }));
+    assert.deepEqual([draft.creation.start, draft.creation.min, draft.stats.dex], [5, 5, 12]);
 });

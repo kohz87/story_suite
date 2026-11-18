@@ -438,5 +438,8 @@
   "modules/world/daily/arc-day.js": "World events, generated arcs: starts an arc from its checked plan and fires its steps and ending on their windows, under the major caps.",
   "modules/world/daily/arc-plan.js": "World events, generated arcs: checks an open answer with an arc plan as a whole (step count, menu, guards, windows) and returns the one canon plan.",
   "tests/modules/world/open/arc-replay.test.js": "Tests: generated arcs on the host (plan asked once and stored whole, replay equals live through swipe, Re-read, delete, reload, rewind).",
-  "tests/modules/world/open/arc-step.test.js": "Tests: generated arcs in the daily step (plan copy, schedule, anchors, refusals, caps, template with no arc unchanged)."
+  "tests/modules/world/open/arc-step.test.js": "Tests: generated arcs in the daily step (plan copy, schedule, anchors, refusals, caps, template with no arc unchanged).",
+  "ui/port/rpg-custom.js": "Stores the RPG page's Custom difficulty editors into the Custom set the creation of new characters reads, refusing a number that breaks the creation order.",
+  "ui/select/rpg-difficulty.js": "Says what each RPG difficulty changes from the engine's own numbers and builds the Custom difficulty's creation-number rows.",
+  "tests/ui/select/rpg-difficulty.test.js": "Tests the RPG difficulty explanations against the engine's numbers and the Custom editors from row to stored key to a new character."
 }
