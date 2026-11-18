@@ -4,6 +4,8 @@
 //   people.portrait.set { id, portrait: { path, type, hash } | null }: the person's portrait as a file reference (never image bytes), or none.
 // The domain's validator checks the whole slice after each edit (plain JSON, no image bytes, file-ref portraits), so a bad value refuses the command.
 
+import { BUILT_IN_LIMITS, normalizeLevel, normalizeStoryList } from '../core/core-record-parts/built-in-fields.js';
+
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const clone = value => JSON.parse(JSON.stringify(value));
 const FIELD = /^[A-Za-z][A-Za-z0-9_]{0,63}$/;
@@ -21,16 +23,27 @@ const edited = (summary, data) => ({ summary, data: { ...data, edit: true }, nar
 
 // people.fields { id, fields }: the dossier fields a story change line states (NPC State's `~ npc` labels); only a module's own command may send it, and only
 // these fields, as short text (null removes one). It is a story change, not a reader edit: the reply card does not list it as one.
-const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday', 'level']);
+const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday', 'level', 'learns', 'keepsake']);
 const LINE_TEXT_MAX = 300;
 
-// `level` is not a record field: it is the Level custom field (the existing key in any case, else "Level"), written as a number text and never lowered.
+// `level` is the built-in whole Level (1-99), written as a number text and never lowered. `learns` adds one ability and `keepsake` adds ("+ Name — line") or removes
+// ("- Name") one keepsake, on the built-in lists (names unique without regard to case, at most 16 and 12); the narrator's line reader has already checked the lists.
 function writeLevel(record, text) {
-    const fields = isObject(record.customFields) ? record.customFields : {};
-    const key = Object.keys(fields).find(name => name.toLowerCase() === 'level') ?? 'Level';
-    const held = String(fields[key] ?? '').trim();
-    if (held && !(/^\d+$/.test(held) && Number(held) < Number(text))) return;
-    record.customFields = { ...fields, [key]: text };
+    const value = normalizeLevel(text);
+    if (value === null || value <= (normalizeLevel(record.level) ?? 0)) return;
+    record.level = value;
+}
+function writeList(record, key, max, entries) {
+    const list = normalizeStoryList(record[key], max);
+    const next = normalizeStoryList([...list, ...entries], max);
+    if (next.length) record[key] = next; else delete record[key];
+}
+function writeKeepsake(record, text) {
+    if (text.startsWith('-')) {
+        const name = text.slice(1).trim().toLowerCase();
+        const left = normalizeStoryList(record.keepsakes, BUILT_IN_LIMITS.keepsakes).filter(entry => entry.name.toLowerCase() !== name);
+        if (left.length) record.keepsakes = left; else delete record.keepsakes;
+    } else if (text.startsWith('+')) writeList(record, 'keepsakes', BUILT_IN_LIMITS.keepsakes, [text.slice(1).trim()]);
 }
 
 /** The narrow edit commands of the people domain named `domain`. */
@@ -42,10 +55,12 @@ export function peopleEdits(domain) {
                 if (typeof ctx.caller !== 'string' || !ctx.caller || ctx.caller.startsWith('event:')) return ctx.fail('REFUSED', 'Only a module\'s own command may write a person\'s story fields.');
                 const fields = payload?.fields;
                 const names = isObject(fields) ? Object.keys(fields) : [];
-                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, appearance, gender, age, birthday or level as short text (or null).');
+                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, appearance, gender, age, birthday, level, learns or keepsake as short text (or null).');
                 const record = recordOf(ctx, domain, payload.id);
                 for (const name of names) {
                     if (name === 'level') { if (/^\d+$/.test(fields.level ?? '')) writeLevel(record, fields.level); continue; }
+                    if (name === 'learns') { if (fields.learns) writeList(record, 'abilities', BUILT_IN_LIMITS.abilities, [fields.learns]); continue; }
+                    if (name === 'keepsake') { if (fields.keepsake) writeKeepsake(record, fields.keepsake); continue; }
                     if (fields[name] === null || fields[name] === '') delete record[name];
                     else record[name] = fields[name];
                 }
