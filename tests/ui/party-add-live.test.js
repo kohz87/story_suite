@@ -1,4 +1,4 @@
-// "Add to party" on the live mount (the new view on the old host, the real RPG module, RPG on, nobody in the party but You): the person page shows the button,
+// "Add to party" on the live mount (the new view, the real RPG module, RPG on, nobody in the party but You): the person page shows the button,
 // the join card opens, and its own Add to party makes them a companion (dm.join, cause ui); a person page left open does not cover the suite opened again.
 import test from 'node:test';
 import assert from 'node:assert/strict';

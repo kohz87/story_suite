@@ -12,7 +12,6 @@ import { CLOCK, clockCommand, clockProblem, heroDate, partsOf } from '../../../.
 import { calendarOf, settingsDefaults } from '../../../../modules/time/tracker/time.js';
 import { makeState, reply, runCommand } from './helpers/fake-ctx.js';
 import { statusExtras } from '../../../../modules/director/screens/queries.js';
-import { formatStoryTime } from '../../../../ui/legacy/view/clock.js';
 
 const MONTHS = ['Dawnwane', 'Rainmoot', 'Greengale', 'Highsun', 'Goldwane', 'Haywane', 'Emberwane', 'Nightfall', 'Frostfall', 'Deepwinter', 'Icewane', 'Yearsend']
     .map(name => ({ name, days: 30 }));
@@ -188,7 +187,7 @@ test('clockProblem is pure: a calendar and a date in, a sentence or nothing out'
     assert.equal(clockProblem(one, at(5, 2, 1, 0)), 'Pick a month from the list.');
 });
 
-test('the card line and its tooltip write the time the way the Game view hero does (Story Block\'s fmt.time): no leading zero, every hour of the day', () => {
+test('the card line and its tooltip write the time the way the Game view hero does: no leading zero, every hour of the day', () => {
     const calendars = [
         PRESETS.gregorian,
         { preset: 'custom', era: 'CY', months: MONTHS, leapYears: false },
@@ -199,14 +198,18 @@ test('the card line and its tooltip write the time the way the Game view hero do
         for (const year of [611, 1900, 2024]) {
             for (let hour = 0; hour < 24; hour += 1) {
                 const abs = calendar.toAbs({ year, month: 1, day: 3, minutes: hour * 60 + (hour * 7) % 60 });
-                assert.equal(heroDate(calendar, abs), formatStoryTime(abs, calendar.config), `${config.era || 'no era'} ${year} ${hour}h`);
+                const mm = String((hour * 7) % 60).padStart(2, '0');
+                const clock = `${hour % 12 || 12}:${mm} ${hour < 12 ? 'am' : 'pm'}`;
+                const date = heroDate(calendar, abs);
+                assert.ok(date.endsWith(`, ${clock}`), `${config.era || 'no era'} ${year} ${hour}h: ${date}`);
+                assert.ok(date.includes(String(year)), date);
             }
         }
     }
     // Through the command: the tooltip date is the hero's text for the clock now, the line its short form.
     const run = click(makeState(), at(611, 5, 12, 19 * 60 + 40), { queries: packs() });
     const calendar = calendarOf(settingsDefaults(), ERSVEIL);
-    assert.equal(run.result.data.date, formatStoryTime(minutes(run.state), calendar.config));
+    assert.equal(run.result.data.date, heroDate(calendar, minutes(run.state)));
     assert.equal(run.result.data.date, 'CY 611, Goldwane 12, 7:40 pm');
     assert.equal(heroDate(calendar, minutes(run.state), { year: false }), 'Goldwane 12, 7:40 pm');
     // The Status card's Time row (director.status `when`) is that text; unset: nothing. director.time's text is not touched.

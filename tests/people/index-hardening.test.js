@@ -23,7 +23,7 @@ test('filename-only chat deletion fails closed instead of borrowing an unrelated
 test('bundle import reports skipped capacity and only clears deletion state for accepted imports',()=>{
   assert.match(source,/report: importReport/);
   assert.match(source,/for \(const accepted of importReport\.accepted \|\| \[\]\)/);
-  const tools = readFileSync(new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url), 'utf8');
+  const tools = readFileSync(new URL('../../modules/people/tools/data-tools.js', import.meta.url), 'utf8');
   assert.match(tools,/existing active dossiers were preserved/);
   assert.match(tools,/nativeImportResultSummary\(result\)/);
 });
@@ -34,7 +34,6 @@ test('manual trash removes narrative name suppression while explicit host proven
   assert.match(source,/const mainChat = String\(metadata\?\.main_chat/);
   assert.match(source,/if \(!hasExplicitParent\) return false/);
 });
-
 
 test('deep hardening gates rendering and injection on hydration readiness',()=>{
   assert.match(source,/chatHydrationStatus\(chatKey\) !== 'ready'/);
@@ -52,7 +51,6 @@ test('chat change hydration is chat-affine and stale async completion is rejecte
   assert.match(source,/if \(getChatKey\(\) !== key\) return;/);
   assert.match(source,/queueBranchReconcile\(\{ chatKey: key,/);
 });
-
 
 test('manual dossier editor validates birthday corrections through the canonical birthday engine',()=>{
   assert.match(source,/npc_state_delta_edit_birthday/);

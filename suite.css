@@ -1,6 +1,7 @@
 /* Story Suite: the one stylesheet SillyTavern loads (manifest.json "css"). It only lists the sheets, in the order they cascade.
-   The new view's own sheets (ui/css/*) load when its switch is on (ui/entry/turn-on.js); the hide sheet is a no-op until then. */
-@import url('./ui/legacy/view/host.css');
+   The view's own sheets (ui/css/*) load when it mounts (ui/entry/turn-on.js); the bundled Nunito font is declared here. */
+@import url('./ui/css/fonts.css');
+@import url('./ui/css/tokens.css');
+@import url('./ui/css/drawer.css');
 @import url('./modules/people/legacy/suite.css');
 @import url('./modules/people/legacy/style.css');
-@import url('./ui/css/next-hide.css');

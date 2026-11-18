@@ -3,8 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { openFight, stage, step, v1Host } from './v1.helpers.js';
-import { exchangesOf } from '../../../../modules/rpg/view/changes-lines-parts/rolls.js';
-import { v1PaidLines } from '../../../../modules/rpg/view/changes-lines-parts/v1-paid.js';
+import { fightResults } from '../../../../modules/rpg/board/results.js';
 import { readResolveV1 } from '../../../../modules/rpg/view/battle-log/read-v1.js';
 import { resolveOf } from '../../../../modules/rpg/view/battle-log.js';
 
@@ -18,13 +17,11 @@ test('the lines and the battle log read a v1 win meaningfully', async () => {
         const entry = host.store.receipts().filter(item => item.index === 2).find(item => item.receipt.type === 'interaction.settle');
         const record = { receipts: [entry.receipt] }, result = entry.receipt.data.v2.result;
         assert.equal(result.stop, 'won');
-        const pairs = exchangesOf(record);
-        assert.equal(pairs.exchanges, result.rounds.length);
-        assert.deepEqual(pairs.pairs, ['Astra vs Rats']);
-        const lines = v1PaidLines(record).map(line => line.text);
-        assert.equal(lines[0], 'Astra +15 XP (fight won)');
-        assert.match(lines[1], /^Astra's Cut \+\d+ practice \(rolled\)$/);
-        assert.deepEqual(v1PaidLines({ receipts: [{ ...entry.receipt, id: 'x' }] }, [{ receipts: ['x'] }]), [], 'a settle the replay skipped is not told');
+        const paid = fightResults(record.receipts)[0].result.paid;
+        assert.deepEqual(paid.xp.map(item => [item.who, item.xp]), [['Astra', 15]], 'the settle receipt records the XP the fight paid');
+        assert.equal(paid.practice[0].who, 'Astra');
+        assert.equal(paid.practice[0].skill, 'Cut');
+        assert.ok(paid.practice[0].amount > 0, 'and the practice the rolled skill earned');
         const log = resolveOf(record);
         assert.equal(log.stop, 'won');
         assert.equal(log.board, true);

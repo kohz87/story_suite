@@ -5,10 +5,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { SAVEPOINT_LIMITS, STILL_WAITING_MS, createSavePoints, stCreateBranch } from '../../core/timeline/rewind.js';
-import { createSavePointsWidget, savedAt } from '../../ui/legacy/screens/savepoints.js';
 import { homeScreen } from '../../packs/screens/defaults/home.js';
 import { CORE_FEATURES } from '../../modules/scene/domains/index.js';
-import { host as widgetHost, installDom } from '../packs/widgets/fake-dom.js';
 
 const clone = value => structuredClone(value);
 const NOW = Date.UTC(2026, 9, 21, 18, 30);
@@ -174,103 +172,12 @@ test('stCreateBranch: the context\'s createBranch, else bookmarks.js createBranc
     assert.deepEqual(calls, [['ctx', 3], ['import', 4], ['branch', 5], ['reopen', 'main']]);
 });
 
-// ---- the Home widget --------------------------------------------------------------------------------
-
-function fakePoints() {
-    const list = [];
-    const calls = [];
-    let here = 'main';
-    return {
-        calls,
-        setHere: name => { here = name; },
-        list: () => list.slice(),
-        chatId: () => here,
-        async save({ name }) {
-            calls.push(['save', name]);
-            if (name === 'bad') return { ok: false, code: 'FAILED', message: 'nope' };
-            const point = { id: `sp_0000000${list.length}`, name: name || `Save point ${list.length + 1}`, index: 4, branch: `main - Branch #${list.length + 1}`, at: new Date(NOW).toISOString(), rev: 3 };
-            list.unshift(point);
-            return { ok: true, point };
-        },
-        async returnTo(id) { calls.push(['return', id]); return { ok: true }; },
-        async forget(id) { calls.push(['forget', id]); list.splice(list.findIndex(p => p.id === id), 1); return { ok: true }; },
-    };
-}
-
-const settle = () => new Promise(resolve => setImmediate(resolve));
-
-test('widget: Save point asks a name, saves on Enter, lists name, reply and date, with Return here', async () => {
-    const doc = installDom();
-    const el = widgetHost(doc);
-    const points = fakePoints();
-    const notes = [];
-    createSavePointsWidget({ points, notify: text => notes.push(text) }).render(el, {}, {});
-    const q = selector => el.querySelector(selector);
-    assert.equal(q('.sb-save-none').textContent, 'No save points in this chat yet.');
-    q('.sb-save-make').click();
-    const name = q('.sb-save-name');
-    assert.equal(name.getAttribute('placeholder'), 'Save point 1');
-    assert.equal(name.getAttribute('maxlength'), '60');
-    name.value = 'At the gate';
-    name.dispatch('keydown', { key: 'Enter' });
-    await settle();
-    assert.deepEqual(points.calls, [['save', 'At the gate']]);
-    assert.equal(q('.sb-save-form'), null, 'the name box closes');
-    assert.equal(q('.sb-save-status').textContent, 'Saved "At the gate".');
-    const row = q('.sb-save-point');
-    assert.equal(row.querySelector('.sb-save-label').textContent, 'At the gate');
-    assert.match(row.querySelector('.sb-save-when').textContent, /^Message 4 · .+/);
-    row.querySelector('.sb-save-return').click();
-    await settle();
-    assert.deepEqual(points.calls.at(-1), ['return', 'sp_00000000']);
-    // In that branch: "You are here" instead of Return here.
-    points.setHere('main - Branch #1');
-    q('.sb-save-make').click();
-    q('.sb-save-cancel').click();
-    assert.equal(q('.sb-save-here').textContent, 'You are here');
-    assert.equal(q('.sb-save-return'), null);
-    // A failure is told in the panel and as a toast.
-    q('.sb-save-make').click();
-    q('.sb-save-name').value = 'bad';
-    q('.sb-save-ok').click();
-    await settle();
-    assert.equal(q('.sb-save-status').textContent, 'The save point was not made: nope');
-    assert.deepEqual(notes, ['The save point was not made: nope']);
-    // Forget.
-    q('.sb-save-forget').click();
-    await settle();
-    assert.equal(q('.sb-save-point'), null);
-    // Nothing on the page was a story command.
-    assert.equal(el.querySelectorAll('[data-command]').length, 0);
-});
-
-test('widget: draws nothing while its feature is off, and follows the switch on redraw', () => {
-    const doc = installDom();
-    const el = widgetHost(doc);
-    let on = false;
-    const listeners = {};
-    const api = { on: (name, fn) => { (listeners[name] ??= new Set()).add(fn); return () => listeners[name].delete(fn); } };
-    const handle = createSavePointsWidget({ points: fakePoints(), enabled: () => on }).render(el, {}, api);
-    assert.equal(el.children.length, 0);
-    on = true;
-    for (const fn of listeners.feature) fn();
-    assert.ok(el.querySelector('.saves'), 'the reader switched it on');
-    on = false;
-    handle.update({});
-    assert.equal(el.children.length, 0);
-    handle.destroy();
-    assert.equal(el.children.length, 0);
-    assert.equal(listeners.head.size + listeners.feature.size, 0, 'its listeners go with it');
-});
-
 test('Home holds the save points slot; the feature is declared on by default, the inspector\'s off', () => {
     assert.match(homeScreen.template, /<ss-widget name="story-block.savepoints" class="saves-slot"><\/ss-widget>/);
     assert.match(homeScreen.css, /\.saves-slot:empty \{ display: none; \}/);
     const ours = CORE_FEATURES.filter(f => ['story-block.inspector', 'story-block.savepoints'].includes(f.id));
     assert.deepEqual(ours.map(f => [f.id, f.default]), [['story-block.inspector', false], ['story-block.savepoints', true]]);
     for (const f of ours) assert.ok(f.label && f.describe, f.id);
-    assert.equal(savedAt('not a date'), '');
-    assert.ok(savedAt(new Date(NOW).toISOString(), 'en-GB').includes('2026'));
 });
 
 test('a branch call that never settles fails after STILL_WAITING_MS and the next save point is not refused as running', async t => {

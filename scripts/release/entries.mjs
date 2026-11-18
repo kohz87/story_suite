@@ -4,5 +4,5 @@
 // `eager` lists a module that must stay a separate chunk although the entry awaits it at start; the release gate counts it, and what it pulls in,
 // among the requests of the load. It is empty today.
 export const BUNDLE_SETS = [
-  { name: 'story-suite', entries: ['index.js'], lazy: ['modules/rpg/index.js', 'modules/rpg/view/index.js', 'ui/legacy/screens/ui-sample.js', 'ui/legacy/view/settings/diagnostics-page.js'], eager: [] },
+  { name: 'story-suite', entries: ['index.js'], lazy: ['modules/rpg/index.js', 'modules/rpg/live/index.js'], eager: [] },
 ];

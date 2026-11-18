@@ -567,14 +567,15 @@ try {
     assert.match(inlineAnchors[0].innerHTML, /<small class="npc-state-delta-present-card-role" title="[^"]*">adventurer(?: · [^<]+)?<\/small>/i);
     assert.doesNotMatch(inlineAnchors[0].innerHTML, /T \+3 · A -9|npc-state-delta-present-card-relation/, 'gallery cards should keep relationship metrics in the launcher dossier');
     assert.doesNotMatch(inlineAnchors[0].innerHTML, /Desire|Mannerisms|Species \/ Race|Copy portrait prompts|Current thoughts|Thought basis/, 'portrait grid should stay compact; detailed fields belong in the launcher dossier');
-    // Present-cast cards hand off to the launcher dossier (dossier-ui listens for this request).
+    // Present-cast cards hand off to the Story Suite view's dossier (the view sets pageHandles.openPerson; B4-5).
     const presentYunyunId = state.npcs.find(n => n.name === 'Yunyun').id;
     const dossierRequests = [];
-    document.addEventListener('npc-state-delta:open-dossier', event => { dossierRequests.push(event.detail.npcId); event.detail.handled = true; });
-    assert.equal(globalThis.NPCStateDelta.openDossier('Yunyun'), true, 'present NPCs open the launcher dossier from the live dossier state');
+    globalThis.__handles.openPerson = ({ id, name }) => { dossierRequests.push(id); assert.equal(name, 'Yunyun'); return true; };
+    assert.equal(globalThis.NPCStateDelta.openDossier('Yunyun'), true, 'present NPCs open the view\'s dossier from the live dossier state');
     const presentCardTarget = { dataset: { npcId: presentYunyunId, messageId: '1' } };
     emitDocumentEvent('click', { type: 'click', target: { closest: selector => (selector.includes('npc-state-delta-present-card') ? presentCardTarget : null) }, preventDefault() {}, stopPropagation() {}, stopImmediatePropagation() {} });
-    assert.deepEqual(dossierRequests, [presentYunyunId, presentYunyunId], 'API and card clicks request the same launcher dossier page');
+    assert.deepEqual(dossierRequests, [presentYunyunId, presentYunyunId], 'API and card clicks open the same dossier');
+    globalThis.__handles.openPerson = null;
     assert.equal(globalThis.NPCStateDelta.uiStatus().presentCastDisplay, 'full', 'Full cards remain the default in-chat display');
     assert.equal(globalThis.NPCStateDelta.openPortraitGenerator('Yunyun'), true, 'portrait generator API still opens directly');
     assert.equal(globalThis.NPCStateDelta.uiStatus().portraitGeneratorOpen, true);

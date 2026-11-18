@@ -63,7 +63,7 @@ export const HOST_SETTINGS_SCHEMA = Object.freeze({
         ]),
         help: 'Makes the text in Story Suite\'s panels bigger: the Game view, cards, dialogs and these settings. Your SillyTavern chat text keeps its own size (SillyTavern\'s User Settings → Font scale).',
     }),
-    // The "Send pending" note above the message box (ui-host/send-note.js): a UI note only.
+    // The "Send pending" note above the message box: read only by the old view's note (removed at B4-4), so the row has no effect now.
     sendPending: Object.freeze({
         type: 'bool', label: 'Send pending note',
         help: 'Shows a small note above the message box when a Send could not go yet (the story is still finishing, or a fight start is holding it), and sends your text once by itself when the story is free. It never changes what you typed.',

@@ -1,36 +1,31 @@
+// Shared helpers for the wizard's data tests: the Create run (wizard-data-parts/create-run.js, the one the new view's wizard sends) on a testkit chat.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { SKILL_SETS } from '../../../../modules/rpg/templates.js';
-import { begin, makeBlocks, page, party, settle } from './page.js';
+import { newDraft } from '../../../../modules/rpg/view/wizard-data.js';
+import { runCreate } from '../../../../modules/rpg/view/wizard-data-parts/create-run.js';
+import { createWizardWorld } from '../../../../ui/wizard/world.js';
+import { begin, makeBlocks, page } from './page.js';
 
 export const PACK = JSON.parse(readFileSync(new URL('../fixtures/skill-sets-pack.json', import.meta.url), 'utf8'));
 export const CHECK = { packId: 'chat', capabilities: ['data-modules-v1', 'story-director'] };
 export const FIGHTER = SKILL_SETS[0];
 
-export const ctxDialog = ctx => ctx.ui.mounts.dialog.current();
-export const wizardOf = dialog => dialog.root.querySelector('.ss-w-rpg-wizard');
-export const click = (root, text) => root.querySelectorAll('button').find(node => node.textContent === text)?.click();
-export const type = (node, value) => { node.value = value; node.dispatch('input'); };
-let lastCtx = null;
-// The New character dialog on a fresh draft (a You): from the Party tab's button, or, where the story has a You and the tab has no such button, the wizard itself.
-export async function openFrom(ctx, { empty = false } = {}) {
-    lastCtx = ctx;
-    ctx.ui.mounts.screen.open('story-block/party');
-    await settle();
-    const button = party(ctx.doc).querySelector(empty ? '.rpg-create' : '.rpg-new');
-    if (button) button.click(); else ctx.rpg().wizard.open();
-    await settle();
-    return ctx.ui.mounts.dialog.current();
+export const names = host => Object.keys(host.head()?.domains.dataModules?.active ?? {}).sort();
+export const rolesOf = host => { const domain = host.head().domains.dataModules; return Object.keys(domain?.active ?? {}).map(id => domain.pins[domain.active[id].hash].definition.role).sort(); };
+
+/** The wizard's world (what Create and its problems read) on `host`. */
+export const worldOf = host => createWizardWorld({ sdk: host.sdk, ctx: () => host.ctx });
+
+/** Runs Create for `draft` (a `newDraft` with changes) on `host`: `command(type, payload, options)` may be a stand-in; `imported` is `{ file }`. → runCreate's answer. */
+export function create(host, draft, { command = null, imported = null } = {}) {
+    const world = worldOf(host);
+    const send = command ?? ((type, payload) => host.sdk.command(type, payload, { cause: 'ui' }));
+    return runCreate({ draft, world: world.world(), imported, command: send, query: world.query, headState: world.headState, levelCap: world.levelCap });
 }
-// The wizard makes a You only; a companion is made from a join card (the draft the card brings). These tests need a blank companion draft, so the draft is turned into one here.
-export async function asCompanion(dialog, name = '') {
-    const run = lastCtx.rpg().wizard.session();
-    run.draft = { ...run.draft, kind: 'companion', name };
-    await goTo(dialog, 'stats');
-    await goTo(dialog, 'who');
-}
-export const goTo = async (dialog, step) => { dialog.goTo(['who', 'stats', 'skills', 'review'].indexOf(step)); await settle(); return wizardOf(dialog); };
-export const names = host => Object.keys(host.head().domains.dataModules?.active ?? {}).sort();
+
+/** A draft for a You (no name given: the persona's) or a companion called `name`. */
+export const draftOf = (name = '', kind = 'you') => ({ ...newDraft({ persona: 'Wessel' }), kind, ...(name ? { name } : {}) });
 
 // A reply with `used` block actions on it: the Character and Skills blocks (two defines) and then sets of one field.
 export async function usedReply(t, used) {
@@ -44,16 +39,3 @@ export async function usedReply(t, used) {
     assert.equal(Object.values(ctx.host.head().domains.dataModules.perReply)[0].roots, used);
     return ctx;
 }
-export async function companion(ctx, name) {
-    const dialog = await openFrom(ctx);
-    await asCompanion(dialog, name);
-    await goTo(dialog, 'review');
-    return dialog;
-}
-
-export const rolesOf = host => { const domain = host.head().domains.dataModules; return Object.keys(domain?.active ?? {}).map(id => domain.pins[domain.active[id].hash].definition.role).sort(); };
-export const createFrom = async (ctx, { empty = true } = {}) => {
-    const dialog = await openFrom(ctx, { empty });
-    const review = await goTo(dialog, 'review');
-    return { dialog, review };
-};

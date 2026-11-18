@@ -182,14 +182,10 @@ character itself cannot be made, none of the file's things or money are added.
 With the RPG on and no character for you in the story (a character named like your persona), Story Block asks you to make
 one, in two places. Neither is there with the RPG off, and neither changes anything a reply is told.
 
-- **Home** (the old view only; in the new view the Party tab's **Create your character** stands in) shows a **Your character** card at the top: "The RPG is on, and this story has no character yet. Make yours to roll
-  for what you do; your persona fills in the name and who you are." **Create your character** opens the New character window.
-  **Not now** hides the card for this chat (kept in the chat's own metadata, not in the game, so a swipe or a rewind does not
-  touch it); the Party tab's own **Create your character** stays. The card is gone as soon as you have a character, and a
-  story that has only companions still shows it.
+- **The Party tab** offers **Create your character** (or **+ New character** while only companions are in the story), which opens the New character window. (The old view's "Your character" card on Home went with that view at B4-4.)
 - **The first Send** is held. When you press Send (or Enter, where SillyTavern sends on Enter) with a message in the box, the
   message stays in the box and **Make your character first** opens, with your message quoted. **Send without the RPG for now**
-  sends it as usual, with no dice for that reply, and the chat is never asked again (the Home card still reminds you).
+  sends it as usual, with no dice for that reply, and the chat is never asked again (the Party tab still offers **Create your character**).
   **Create your character, then send** opens the New character window and sends the message when you press Create; if you
   close the window instead, the text is still in the box and the next Send asks again. Closing the dialog also leaves the text
   in the box. On a phone the dialog is a bottom sheet. In the new view it is the suite's own sheet: the suite opens for it and

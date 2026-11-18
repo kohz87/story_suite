@@ -284,36 +284,3 @@ test('v1.2.2 the present cards render now/chatter slots', () => {
     assert.match(css, /\.npc-state-delta-chatter-thought \.npc-state-delta-bubble \{[^}]*font-style: italic; opacity: \.86;/);
     assert.match(css, /\.npc-state-delta-chatter-thought \.npc-state-delta-bubble::after \{ width: 5px; height: 5px;/, 'trailing thought circles');
 });
-
-test('v1.2.2 the settings panel carries the shared story-suite-* classes beside its own', () => {
-    const sources = [runtimeSource(), ...['calendar-settings.js', 'relationship-map.js', 'scanner-output-ui.js']
-        .map(name => fs.readFileSync(new URL(`../${name}`, import.meta.url), 'utf8'))];
-    const [index] = sources;
-    for (const [own, shared] of [
-        ['npc-state-delta-drawer', 'story-suite-panel'],
-        ['delta-settings-quickbar', 'story-suite-quickbar'],
-        ['npc-state-delta-actions delta-settings-quick-actions', 'story-suite-actions'],
-        ['delta-settings-experience', 'story-suite-folds'],
-        ['delta-settings-group', 'story-suite-fold'],
-        ['delta-settings-group-body', 'story-suite-fold-body'],
-        ['npc-state-delta-setting-row', 'story-suite-row'],
-        ['delta-setting-number', 'story-suite-number'],
-        ['delta-settings-subhead', 'story-suite-subhead'],
-        ['delta-settings-danger', 'story-suite-danger'],
-    ]) {
-        assert.match(index, new RegExp(`class="${own} ${shared}"`), `${own} also carries ${shared}`);
-    }
-    for (const source of sources) {
-        assert.doesNotMatch(source, /class="npc-state-delta-setting-row"|className = 'npc-state-delta-setting-row delta/, 'every settings row carries story-suite-row');
-    }
-    assert.match(index, /data-delta-settings-group="\$\{key\}"/, 'groups keep their data attribute');
-
-    // suite.css is the shared copy, imported by the root suite.css.
-    const css = fs.readFileSync(new URL('../../modules/people/legacy/suite.css', import.meta.url), 'utf8');
-    assert.match(css, /^\/\* Story Suite shared styles, v1/);
-    assert.match(css, /\.story-suite-panel \.story-suite-fold \{/);
-    // Delta's own panel rules stay and win where they differ (#npc_state_delta_settings is more specific).
-    const own = styleSource();
-    assert.match(own, /#npc_state_delta_settings \.delta-settings-group \{ margin: 0; border: 1px solid rgba\(218,193,148,\.14\)/);
-    assert.match(own, /#npc_state_delta_settings \.npc-state-delta-drawer \{ container: npc-delta-settings \/ inline-size; \}/);
-});

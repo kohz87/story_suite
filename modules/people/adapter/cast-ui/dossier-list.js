@@ -9,8 +9,8 @@ export function createDossierListPart(session, deps) {
     const { dossierOf, headReply, keyPeople, npcList, part, presentList, runtime, warn } = deps;
     let rowsCache = { key: null, rows: [] };
 
-    // Every dossier as a row of v1's list (dossier-ui.js dossierIndexProjection), kept until Delta's state
-    // changes (dossierRevision); before that list has loaded, plain rows from the dossiers' names.
+    // Every dossier as a row, kept until Delta's state changes (dossierRevision): plain rows from the dossiers' names, or a
+    // `project(npc, portraitAssets)` row when a loadDossierList gives one (the built-in one does not since the old panel went, B4-5).
     function dossierRows() {
         const api = runtime();
         let revision = '';

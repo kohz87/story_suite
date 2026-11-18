@@ -9,9 +9,8 @@ import { parseHtml } from '../../../packs/template/html.js';
 import { RESERVED_CLASSES, RESERVED_NAMES, cleanClasses, paintAllowed } from '../../../packs/template/sanitize.js';
 import { cssVarValue, scopeCss, templateIdPrefix, themeVars, valueProblem } from '../../../packs/template/css.js';
 import { validateScreen } from '../../../packs/screens/registry.js';
-import { drawScreen } from '../../../ui/legacy/view/mounts/common.js';
 import { fakeEvaluate, installFakeDom } from './helpers.js';
-import { screen, screensWith, setupDom } from '../../ui/view/mounts/helpers.js';
+import { screen, screensWith } from '../../ui/view/mounts/helpers.js';
 
 // Each render here is a page of its own: the one before is taken down, so a screen's copy is its first.
 let drawn = null;
@@ -40,28 +39,18 @@ test('finding 12: validateScreen refuses theme values css.js would not set, with
 });
 
 test('finding 12: an unsafe card theme falls back to the module default and the reason is kept; only checked values are set', () => {
-    const doc = setupDom();
     const screens = screensWith([screen('m/sheet', ['tab'], { theme: { '--ss-accent': '#123456' } })]);
     screens.setCard([screen('m/sheet', ['tab'], { theme: { '--ss-accent': '#ff0000', '--ss-bg': 'url(http://evil.example/t.png)' } })]);
     const resolved = screens.resolve('m/sheet');
     assert.equal(resolved.source, 'module');
     assert.equal(resolved.fallbacks[0].source, 'card');
     assert.match(resolved.fallbacks[0].reason, /--ss-bg/);
-    const el = doc.createElement('div');
-    const result = drawScreen(el, 'm/sheet', 'tab', { deps: { screens, render: () => {}, query: () => null }, state: {} });
-    assert.equal(result.ok, true);
-    assert.equal(el.style.getPropertyValue('--ss-accent'), '#123456');
-    assert.equal(el.style.getPropertyValue('--ss-bg'), '');
+    assert.deepEqual(themeVars(resolved.screen.theme).vars, [['--ss-accent', '#123456']], 'only the module\'s checked value is set');
 });
 
-test('finding 12: drawScreen sets only values themeVars accepts, even for a screen handed over unchecked', () => {
-    const doc = setupDom();
+test('finding 12: themeVars lets through only the values it accepts, even for a screen handed over unchecked', () => {
     const def = screen('m/raw', ['tab'], { theme: { '--ok': 'blue', '--bad': 'url(http://evil.example/t.png)' } });
-    const screens = { resolve: () => ({ screen: def, fallbacks: [] }) };
-    const el = doc.createElement('div');
-    drawScreen(el, 'm/raw', 'tab', { deps: { screens, render: () => {}, query: () => null }, state: {} });
-    assert.equal(el.style.getPropertyValue('--ok'), 'blue');
-    assert.equal(el.style.getPropertyValue('--bad'), '');
+    assert.deepEqual(themeVars(def.theme).vars, [['--ok', 'blue']]);
 });
 
 // ---- 13: malformed attributes ----------------------------------------------------------------------

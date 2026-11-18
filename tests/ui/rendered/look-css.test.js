@@ -76,31 +76,3 @@ for (const width of [390, 1280]) {
     assert.ok(Math.abs(at120.frame - normal.frame) < 1, `120% frame ${at120.frame}`);
   });
 }
-
-test('the new view shows the Send note (pending, not sent yet, sent) and hides only its fight-held state', async t => {
-  if (ctx.skip) return t.skip(ctx.skip);
-  const page = await ctx.browser.newPage({ viewport: { width: 1280, height: 600 } });
-  await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
-  await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=390&tab=now`);
-  const shown = await page.evaluate(async () => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = '/ui/css/next-hide.css';
-    const loaded = new Promise(resolve => { link.onload = resolve; });
-    document.head.appendChild(link);
-    await loaded;
-    document.body.classList.add('ss-ui-next');
-    return Object.fromEntries(['pending', 'stalled', 'sent', 'interactionHeld'].map(state => {
-      const note = document.createElement('div');
-      note.className = 'ss-send-note';
-      note.setAttribute('data-state', state);
-      note.textContent = state;
-      document.body.appendChild(note);
-      const display = getComputedStyle(note).display;
-      note.remove();
-      return [state, display];
-    }));
-  });
-  await page.close();
-  assert.deepEqual(shown, { pending: 'block', stalled: 'block', sent: 'block', interactionHeld: 'none' });
-});
