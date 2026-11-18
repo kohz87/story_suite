@@ -102,6 +102,10 @@ test('desktop: Home first, counts at the right of each row, the World / Game swi
     assert.equal(await page.textContent('.spage h2'), 'Open or start a pack');
     assert.equal(await page.getAttribute('.snav .si3[data-part="start"]', 'aria-current'), 'true');
     assert.ok((await box(page, '.spage')).w <= 760);
+    // a long nav (both packs) scrolled down to Problems keeps its search at its top
+    await page.click('.snav .si3[data-part="problems"]');
+    const long = await page.evaluate(() => { const n = document.querySelector('.snav'); n.scrollTop = n.scrollHeight; const s = document.querySelector('.snav .psrch').getBoundingClientRect(); return { scrolled: n.scrollTop, top: s.top - n.getBoundingClientRect().top, hit: document.elementFromPoint(s.left + 20, s.top + s.height / 2)?.classList.contains('psrch') }; });
+    assert.ok(long.scrolled > 0 && long.top >= 0 && long.top < 20 && long.hit, `the search stays at the nav's top (${JSON.stringify(long)})`);
     await page.click('.snav .si3[data-part="map"]');
     assert.match(await page.textContent('.spage .sdesc'), /\d+ places · \d+ routes/);
     assert.doesNotMatch(await page.textContent('.spage .sdesc'), /placeKinds|worldEvents/);

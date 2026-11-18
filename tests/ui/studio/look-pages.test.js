@@ -54,6 +54,13 @@ test('map zoomed out: places are filled dots, and no realm name covers another',
     assert.ok(seen.names > 2, 'some realm names are drawn');
     assert.equal(seen.hits, 0, 'no realm name covers another');
     assert.ok(seen.inside, 'every realm name is inside the map');
+    const side = await page.evaluate(() => {
+        const map = document.querySelector('.st-mp').getBoundingClientRect(), leg = document.querySelector('.st-mleg').getBoundingClientRect();
+        const row = document.querySelector('.st-mreg'), sw = row.querySelector('.st-swatch').getBoundingClientRect(), name = row.querySelector('b').getBoundingClientRect();
+        return { gap: leg.top - map.bottom, swatchFirst: sw.right <= name.left, more: row.textContent.trim().endsWith('›') };
+    });
+    assert.ok(side.gap >= -1 && side.gap < 40, `the legend sits right under the map (${side.gap})`);
+    assert.ok(side.swatchFirst && side.more, 'a region row: its colour first, › last');
     assert.deepEqual(errors, []);
     await page.close();
 });
@@ -114,6 +121,11 @@ test('short words get small boxes (Era, Currency, Its field, Shown as, Rank labe
     assert.ok(await width(page, '.srow[data-key="era"] input') <= 161, 'Era');
     await show(page, 'money');
     for (const key of ['name', 'plural', 'short']) assert.ok(await width(page, `.st-currency .srow[data-key="${key}"] input`) <= 161, key);
+    for (const part of ['money', 'names', 'calendar']) { // each table's heads sit over their columns (head and rows are grids of their own)
+        await show(page, part);
+        const lines = await page.evaluate(() => { const t = document.querySelector('.st-table'); const at = el => [...el.children].map(c => Math.round(c.getBoundingClientRect().left)); return [at(t.querySelector('.st-thead')), at(t.querySelector('.st-trow'))]; });
+        assert.deepEqual(lines[0].slice(0, -1), lines[1].slice(0, lines[0].length - 1), `${part}: the heads line up`);
+    }
     await show(page, 'rules');
     assert.ok(await width(page, '.srow[data-key="you.rank.label"] input') <= 221, 'Rank label');
     for (const key of ['rpg.playerRank.field', 'rpg.playerRank.label']) assert.ok(await width(page, `.srow[data-key="${key}"] input`) <= 161, key);

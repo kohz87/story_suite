@@ -96,7 +96,7 @@ function listPage(names, ids, ctx, problems) {
         columns: [
             { key: 'culture', label: 'Culture · its regions', type: 'custom', render: value => h('span', { class: 'st-cult' }, h('b', value.id), h('small', listOf(value.regions).map(regionName).join(', ') || 'no regions')) },
             { key: 'names', label: 'Names', type: 'static', width: 'minmax(0, 1fr)' },
-            { key: 'acts', label: '', type: 'custom', width: 'auto', render: value => h('span', { class: 'st-tacts' },
+            { key: 'acts', label: '', type: 'custom', width: 'minmax(0, 144px)', render: value => h('span', { class: 'st-tacts' },
                 h('button', { type: 'button', class: 'btn2 st-up', 'aria-label': `Move ${value.id} up`, disabled: value.at === 0, onClick: () => move(value.at, -1) }, '↑'),
                 h('button', { type: 'button', class: 'btn2 st-down', 'aria-label': `Move ${value.id} down`, disabled: value.at === ids.length - 1, onClick: () => move(value.at, 1) }, '↓'),
                 h('button', { type: 'button', class: 'btn2 st-open', 'aria-label': `Open ${value.id}`, onClick: () => ctx.go(PART, `names.${value.id}`) }, '›')) },

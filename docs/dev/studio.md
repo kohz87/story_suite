@@ -35,7 +35,7 @@ undo and redo and an autosaved draft.
   check; Problems shows `errors · warnings` (`0` when clean); Pairing shows `—` while either pack has errors (it is not
   drawn to list it); Home, Overview and Dry run show nothing. A page's line says what it holds in words (`320 places ·
   352 routes`). The foot bar's problem count is red. With no pack open there is no nav column and no "‹ Parts", and the
-  start page is a centred column. A part's count is its records, a calendar's months, the coins, the weather tables or the
+  start page is a centred column. The nav's search stays at its top while a long nav scrolls. A part's count is its records, a calendar's months, the coins, the weather tables or the
   name cultures; kind tables and the starting world are not counted, and Rules and a game's Start show none.
 - **The two panes** (mock MK-2; `studio/form/panes.js`, `studio/wide.js`): every world record editor (lore, cast, places, routes,
   regions and realms, events, templates, powers and scores, items and foes) draws its list

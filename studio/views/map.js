@@ -192,8 +192,10 @@ export function renderPage(ctx) {
         const shown = model.regions.map(region => ({ region, count: inView.filter(p => p.region === region.id).length })).filter(item => item.count && (st.colour !== 'climates' || !item.region.climate));
         nodes.push(h('div', { class: 'st-mhead' }, h('b', 'Nothing selected'), h('small', editable ? 'Tap a place to select it, then drag it to move it. Tap a route to select it.' : 'Tap a place or a route to see it.')),
             h('div', { class: 'gt' }, st.colour === 'climates' ? `Regions with no climate · ${shown.length}` : `Regions in view · ${shown.length}`),
-            shown.map(({ region, count }) => panelRow(String(region.name ?? region.id), `${region.climate ?? (st.colour === 'climates' ? 'reads as temperate' : 'no climate')} · ${plural(count, 'place')}`,
-                () => { fitTo(model.places.filter(p => p.region === region.id)); paint(); }, h('i', { class: 'st-swatch', style: { background: model.hue.get(region.id) } }))));
+            // a region row as in the mock: its colour, its name and line, ›; a tap zooms to it
+            shown.map(({ region, count }) => h('div', { class: 'srow st-mrow st-mreg' }, h('button', { type: 'button', class: 'st-mgo st-mregbtn', onClick: () => { fitTo(model.places.filter(p => p.region === region.id)); paint(); } },
+                h('i', { class: 'st-swatch', style: { background: model.hue.get(region.id) } }), h('span', h('b', String(region.name ?? region.id)),
+                    h('small', `${region.climate ?? (st.colour === 'climates' ? 'reads as temperate' : 'no climate')} · ${plural(count, 'place')}`)), h('span', { 'aria-hidden': 'true' }, '›')))));
         return nodes;
     }
 
@@ -354,6 +356,6 @@ export function renderPage(ctx) {
     paint();
     page.append(...[
         editable ? null : h('div', { class: 'sgrp st-mro' }, h('div', { class: 'srow wide' }, h('span', { class: 'lb' }, h('b', 'Read-only: an old-format pack'), h('small', 'Places can’t be moved and routes can’t be added here.')))),
-        h('section', { class: 'sgrp st-mcard' }, tools, h('div', { class: 'st-mwrap' }, h('div', { class: 'st-mstage' }, box, tip), side), foot)].filter(Boolean));
+        h('section', { class: 'sgrp st-mcard' }, tools, h('div', { class: 'st-mwrap' }, h('div', { class: 'st-mstage' }, box, tip, foot), side))].filter(Boolean));
     return [page];
 }

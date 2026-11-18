@@ -281,3 +281,18 @@ test('a refused New entry leaves the page as it was: the list, its search and it
     assert.equal(kept.open, undefined);
     assert.equal(me.draw().querySelectorAll('.st-lorerow').length, 1);
 });
+
+test('a filtered list says "N of M entries", and that the open entry is not in it, with a way back to it (mock MK-2 filter)', () => {
+    const me = host();
+    let root = open(me, 2); // Lamp Road, not hidden
+    assert.equal(root.querySelector('.st-of'), null, 'the whole list says nothing');
+    root.querySelector('[data-filter="hidden"]').click();
+    root = me.root;
+    assert.equal(root.querySelector('.st-of').textContent, '1 of 3 entries');
+    assert.match(root.querySelector('.st-notin').textContent, /The open entry isn’t in this list\. Show it ›/);
+    assert.equal(root.querySelector('.st-pane-rec [data-rec="lore.2"]') !== null, true, 'the entry stays open');
+    root.querySelector('.st-showit').click();
+    assert.equal(me.root.querySelectorAll('.st-lorerow').length, 3);
+    assert.equal(me.root.querySelector('.st-notin'), null);
+    assert.equal(me.root.querySelector('[data-filter="all"]').getAttribute('aria-pressed'), 'true');
+});

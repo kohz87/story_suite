@@ -72,3 +72,10 @@
 /* Light: a frozen place's white ring gets a grey edge (mock MK-3 climate), and the legend's road samples take the map's light road colour. */
 .su-root[data-scheme="light"] .st-mp .pl[data-climate="frozen"]:not(.sel):not(:focus-visible) circle.b { stroke: #9aa7b6 !important; }
 .su-root[data-scheme="light"] .st-mleg i.rk:not(.c-river):not(.c-sea):not(.realm) { border-top-color: #a39478; }
+/* A region row (mock MK-3): its colour at the left, its name and line, › at the right; the legend sits right under the map. */
+.st-root .st-mreg { grid-template-columns: minmax(0, 1fr); }
+.st-root .st-mregbtn { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; width: 100%; min-height: 44px; padding: 0; text-align: left; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
+.st-root .st-mregbtn b { display: block; font: 800 13.5px var(--su-font); }
+.st-root .st-mregbtn small { display: block; font-size: 12px; color: var(--su-muted); }
+.st-root .st-mregbtn > span[aria-hidden] { color: var(--su-muted); }
+.st-root .st-mstage > .st-mfoot { margin-top: 8px; }

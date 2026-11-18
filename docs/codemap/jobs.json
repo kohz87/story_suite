@@ -1,10 +1,10 @@
 {
-  "tests/ui/studio/frame.test.js": "Tests the Studio frame against the mocks: each nav row's count or problems and the page line in words, then in Chromium the Home row, the World / Game switch on desktop and phone, and the start page with no pack open.",
+  "tests/ui/studio/frame.test.js": "Tests the Studio frame against the mocks: each nav row's count or problems and the page line in words, then in Chromium the Home row, the World / Game switch on desktop and phone, the nav's search kept at its top, and the start page with no pack open.",
   "tests/ui/studio/look-pages.test.js": "Tests the review's page drifts in Chromium on Ersveil: filled map dots and realm names that do not cover each other, the busy graph on whole columns with no line through the centre, the picker's count line, small boxes for short words, the ranks' column heads and a culture's regions under its id.",
   "studio/wide.js": "Fits a Studio record part into its two panes (every section's list on one side, the open record on the other, the empty pane) and scrolls a record, a row or a field into view in its own box only, keeping each side's scroll across a redraw.",
   "studio/form/panes.js": "Draws a Studio record editor's two panes: its list and its open record, or nothing open.",
   "studio/nav-counts.js": "Says what the Studio nav and page heads show for each part: its count, its problems or warnings, Problems' totals, Pairing not checked, and the page line of counts in words.",
-  "studio/css/frame.css": "Pack Studio stylesheet for the frame: the World / Game switch, the nav counts, the start page column, the foot bar's red count and the two panes of a record part at 1280 px and wider.",
+  "studio/css/frame.css": "Pack Studio stylesheet for the frame: the World / Game switch, the nav counts and its search kept at its top, the start page column, the foot bar's red count and the two panes of a record part at 1280 px and wider.",
   ".github/workflows/ci.yml": "The CI workflow: rules checks and the three package test jobs plus the cross-package suite job.",
   "authoring-kit/check.mjs": "Check a pack using the same validator as Story Block.",
   "authoring-kit/scripts/limits.mjs": "Prints the host's limits for packs and data modules.",

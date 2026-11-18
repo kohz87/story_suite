@@ -6,7 +6,9 @@
 import { h } from '../../ui/kit/dom.js';
 import { segmented } from '../../ui/kit/controls.js';
 
-const TRACK = { text: 'minmax(0, 2fr)', number: 'minmax(88px, auto)', select: 'minmax(0, 1fr)', tag: 'minmax(0, 1fr)', static: 'minmax(0, 1fr)', chips: 'minmax(0, 3fr)', custom: 'minmax(0, 1fr)' };
+// The head and each row are grids of their own, so no track may size to its content (a number's unit, the row buttons): the head would
+// not line up with its rows (REVSTUDIO2: the coin table's heads sat off their columns).
+const TRACK = { text: 'minmax(0, 2fr)', number: 'minmax(88px, 130px)', select: 'minmax(0, 1fr)', tag: 'minmax(0, 1fr)', static: 'minmax(0, 1fr)', chips: 'minmax(0, 3fr)', custom: 'minmax(0, 1fr)' };
 const isBlank = value => value === null || value === undefined || value === '';
 const numberOf = text => (String(text).trim() === '' ? null : Number.isFinite(Number(text)) ? Number(text) : undefined);
 
@@ -70,7 +72,7 @@ export function rowTable(spec, on = {}) {
     const rows = spec.rows ?? [];
     const move = spec.move !== false && typeof on.move === 'function';
     const remove = spec.remove !== false && typeof on.remove === 'function';
-    const tracks = ['28px', ...cols.map(col => col.width ?? TRACK[col.type] ?? TRACK.text), (move || remove) ? 'auto' : null].filter(Boolean).join(' ');
+    const tracks = ['28px', ...cols.map(col => col.width ?? TRACK[col.type] ?? TRACK.text), (move || remove) ? `minmax(0, ${(move ? 2 : 0) * 50 + (remove ? 44 : 0)}px)` : null].filter(Boolean).join(' ');
     const head = h('div', { class: 'st-thead', 'aria-hidden': 'true' }, h('span', null, '#'), cols.map(col => h('span', { class: col.phone === false ? 'st-nophone' : null }, col.label)), (move || remove) ? h('span') : null);
     const body = rows.map((row, at) => {
         const label = row.label ?? (typeof row.values?.[cols[0]?.key] === 'string' && row.values[cols[0].key].trim() ? row.values[cols[0].key] : `${spec.noun ?? 'row'} ${at + 1}`);

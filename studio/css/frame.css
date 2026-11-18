@@ -14,6 +14,9 @@
   .st-root .shd .pswitch button { max-width: none; min-height: 44px; justify-content: center; }
 }
 
+/* The nav's search stays at its top while a long nav (both packs open) scrolls to Pairing or Problems (REVSTUDIO2 look table). */
+.st-root .snav > .psrch { position: sticky; top: 0; z-index: 2; flex: none; background: #2f3245; box-shadow: 0 -12px 0 0 #222538; }
+.su-root[data-scheme="light"] .snav > .psrch { background: #e4e5ec; box-shadow: 0 -12px 0 0 #f3f4f9; }
 /* The nav: each part's count, or its problems in the danger red, at the right of its row. */
 .st-root .snav button.si3 { grid-template-columns: 24px minmax(0, 1fr) auto; }
 .st-root .snav button.si3 em { font: 800 12px var(--su-font); font-style: normal; color: var(--su-muted); }

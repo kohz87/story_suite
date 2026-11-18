@@ -73,7 +73,12 @@ function listView(list, bad, ctx, state, draw) {
     const fill = () => {
         const found = list.map((entry, index) => ({ entry, index })).filter(({ entry, index }) => passes(entry, state.filter ?? 'all', state.q ?? '', bad[index].length > 0));
         const shown = state.all ? found : found.slice(0, SHOWN);
-        rows.replaceChildren(...[...shown.map(({ entry, index }) => recordRow({ cls: 'st-lorerow', rec: 'lore.' + index, title: entry.title ?? entry.id ?? '#' + (index + 1), tags: flagsOf(entry), sub: keysLine(entry),
+        // A filtered list says how many it shows, and that the open entry (beside it at 1280 px) is not among them (mock MK-2 "filter").
+        const narrowed = (state.filter ?? 'all') !== 'all' || Boolean((state.q ?? '').trim());
+        const away = typeof state.open === 'number' && narrowed && !found.some(({ index }) => index === state.open);
+        rows.replaceChildren(...[away ? h('p', { class: 'fine st-notin' }, 'The open entry isn’t in this list. ', h('button', { type: 'button', class: 'lnk st-showit', onClick: () => { Object.assign(state, { filter: 'all', q: '', all: false }); draw(); } }, 'Show it ›')) : null,
+        narrowed ? h('p', { class: 'fine st-of' }, found.length + ' of ' + plural(list.length, 'entry', 'entries')) : null,
+        ...shown.map(({ entry, index }) => recordRow({ cls: 'st-lorerow', rec: 'lore.' + index, title: entry.title ?? entry.id ?? '#' + (index + 1), tags: flagsOf(entry), sub: keysLine(entry),
             bad: bad[index].length, onClick: () => { state.open = index; state.confirm = false; draw(); } })),
         found.length === 0 ? h('p', { class: 'fine' }, list.length ? 'No entry matches.' : 'No lore entries yet.') : null,
         !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, 'Show all ' + found.length) : null].filter(Boolean)); // a null child would print "null"

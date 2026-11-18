@@ -213,6 +213,9 @@ test('rendered: the Map segment opens the map, and a drag moves a place in the S
             await page.click('[data-view="map"]');
             await page.waitForSelector('.st-mp [data-pl="reedmoor"]');
             assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `nothing runs sideways at ${width}`);
+            // (the map may draw again once its box has its size: wait for the place to have a box; under load it failed now and then)
+            await page.waitForFunction(() => document.querySelector('.st-mp [data-pl="reedmoor"] circle.b')?.getBoundingClientRect().width > 0);
+            await page.waitForTimeout(150);
             const at = await page.locator('.st-mp [data-pl="reedmoor"] circle.b').boundingBox();
             await page.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
             await page.mouse.down();

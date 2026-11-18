@@ -28,7 +28,7 @@ test('a row table draws a numbered row per record with its title, header, typed 
     assert.equal(rows()[1].querySelector('[data-col="season"] .tg2').textContent, 'winter');
     assert.equal(rows()[1].querySelector('[data-col="days"] .st-tlab').textContent, 'Days');
     assert.ok(rows()[1].querySelector('[data-col="season"]').classList.contains('st-nophone'));
-    assert.match(table.style.getPropertyValue('--st-cols'), /^28px minmax\(0, 2fr\) minmax\(88px, auto\) minmax\(0, 1fr\) auto$/);
+    assert.match(table.style.getPropertyValue('--st-cols'), /^28px minmax\(0, 2fr\) minmax\(88px, 130px\) minmax\(0, 1fr\) minmax\(0, 144px\)$/);
     assert.equal(table.querySelector('.st-tcount').textContent, '3 of 60 months · 90 days a year');
 });
 
