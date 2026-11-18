@@ -78,6 +78,10 @@ test('the narrator: no word of an unmet person in the injected dossier; the bond
     assert.match(alone, /- Fenna: /);
     assert.doesNotMatch(alone, /Orrin|Sera|orrin|sera/);
     assert.match(buildInjection(withCastLinks([fenna, orrin]), text, 1, 3), /bonds: Orrin — her late husband's brother/);
+    // A person whose ties' mentions are tracked (tieSeen) is told only the active ties: a named line never mentioned yet is active.
+    const tracked = { ...fenna, keyRelationships: ['Sera — an old friend'], tieSeen: { sera: 3 } };
+    const told = buildInjection(withCastLinks([tracked, orrin]), text, 1, 3, undefined, undefined, null, { storyDay: 5 });
+    assert.match(told, /bonds: Sera — an old friend \| Orrin — her late husband's brother|bonds: Orrin — her late husband's brother \| Sera — an old friend/);
 });
 
 test('people.dossier: castFrom (and so the waiting ids) never leaves; the named line does once that person is stored', () => {
