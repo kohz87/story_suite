@@ -19,6 +19,7 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 ### Fixed
 
+- Settings › Models › Calls: **Most output per People call** is now a number box (0 keeps the built-in limits; otherwise 128 to 15000, cut as the engine cuts it) that stores NPC State's `scannerMaxOutputTokens`; it was a read-only line that sent you to the old view. **Repair** and **Fallback** stay as two switches (they differ: Repair runs only when a reply has no change block, on the Quick connection, and may write coin and items; Fallback runs after each reply on the Background connection, adds time, place, comings and goings and quest progress the lines missed, never coin or items), and each hint now says when it runs; the Fallback hint wrongly said it ran only when the whole block was missing.
 - Settings › Look works in the new view: Panel style (Glass or Follow SillyTavern), Glass strength, Font and Text size now change the Story Suite panel at once and stay after a reload; Reset Look puts the Glass look back. The panel now opens in Glass by default (light or dark from your SillyTavern theme) instead of always taking SillyTavern's colours.
 - The Send pending note shows above the message box in the new view again (sends when the story is ready, not sent yet, sent); its fight-held state stays hidden there, as the Fight tab shows the fight. The Send pending note switch turns it off.
 

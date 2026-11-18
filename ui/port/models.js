@@ -1,6 +1,7 @@
 // The Models page's commands for the port: storing a role's connection, the Calls group's settings and the one tiny test call.
 
 import { ROLE_SETTING } from '../../core/model-call/connection-for.js';
+import { normalizeScannerMaxOutputTokens } from '../../modules/people/calls/scanner-routing-parts/shared-limits.js';
 import { KIND_CHOICES } from '../../modules/assist/safety.js';
 
 const FALLBACK = 'story-block.extractor';
@@ -11,7 +12,7 @@ const roleOf = key => String(key ?? '').split('.')[1];
 /**
  * `settings.set` with key `models.<role>` stores the role's profile name (Story has none); `settings.action` with key `models.test` and
  * `value` = the role makes one tiny call on that role's connection → { ok: true, seconds } or { ok: false, message }.
- * `settings.set` with key `calls.queue`, `calls.keepBlocks`, `calls.kinds` (the chip labels), `calls.repair` or `calls.fallback` stores that Calls row. Any other command is not the Models page's: returns null. Stores go through `writes` (the host's settings and features stores; the public sdk has no setter).
+ * `settings.set` with key `calls.queue`, `calls.keepBlocks`, `calls.kinds` (the chip labels), `calls.repair`, `calls.fallback` or `calls.maxOutput` (NPC State's `scannerMaxOutputTokens`: 0, or 128 to 15000, cut as the engine cuts it) stores that Calls row. Any other command is not the Models page's: returns null. Stores go through `writes` (the host's settings and features stores; the public sdk has no setter).
  */
 export async function modelsCommand(sdk, type, payload, now = Date.now, writes = null) {
   const key = String(payload?.key ?? '');
@@ -27,6 +28,7 @@ export async function modelsCommand(sdk, type, payload, now = Date.now, writes =
       : key === 'calls.kinds' && Array.isArray(value) ? writes?.settings?.set?.('story-block', 'assistExtractorKinds', KIND_CHOICES.filter(k => value.includes(k.label)).map(k => k.value).join(', '))
       : key === 'calls.keepBlocks' ? writes?.settings?.set?.(null, 'keepRecentBlocks', value === true)
       : key === 'calls.repair' ? writes?.settings?.set?.('story-block', 'assistRepair', value === true)
+      : key === 'calls.maxOutput' ? (Number.isFinite(Number(value)) && value !== '' && value !== null ? writes?.settings?.set?.('npc-state-delta', 'scannerMaxOutputTokens', normalizeScannerMaxOutputTokens(value)) : undefined)
       : key === 'calls.fallback' ? writes?.features?.set?.(FALLBACK, value === true)
       : undefined;
     return stored === undefined ? { ok: false, code: 'FAILED', message: 'That setting was not saved.' } : { ok: true, value: stored };
