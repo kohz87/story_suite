@@ -1,7 +1,7 @@
 // NPC meters, the constants and the pure parsers behind them: the meter, secret, stage and feature limits, the key and slug helpers,
 // the band, need and rung parsers, normalizeMeterSettings, meterDefs and the stage thresholds. A pure part of npc-meters.js (same
 // owner, moved without change); npc-meters.js re-exports every name it exported before. Never imports npc-meters.js. Public face: re-exports its parts.
-export { NPC_DOMAIN, NPC_KIND, MILESTONE_KIND, KEY_PEOPLE_QUERY } from './npc-meters-config-parts/identity.js';
+export { NPC_DOMAIN, NPC_KIND, MILESTONE_KIND } from './npc-meters-config-parts/identity.js';
 export { BUILT_IN_METERS, BUILT_IN_RANGE, CUSTOM_RANGE, TONES } from './npc-meters-config-parts/built-in-meters.js';
 export { MAX_CUSTOM_METERS, MAX_NPCS, MAX_METERS_PER_NPC, MAX_STAGES_PER_METER } from './npc-meters-config-parts/limits-counts.js';
 export { MAX_SECRETS, MAX_GENERATED_SECRETS, MAX_UNLOCKED, MAX_PROBLEMS } from './npc-meters-config-parts/limits-lists.js';

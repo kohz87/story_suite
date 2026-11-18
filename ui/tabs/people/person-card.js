@@ -24,7 +24,7 @@ function whereLine(person, kind) {
   if (kind === 'dormant') return 'not seen lately';
   if (kind === 'deceased') return person.death ? `Died ${person.death.when}` : (person.where ?? '');
   const place = lower(person.lastPlace ?? person.where ?? '');
-  return [place, person.lastSeen ? `last seen ${person.lastSeen}` : '', person.back ? `back ${person.back}` : ''].filter(Boolean).join(' · ');
+  return [place, person.lastSeen ? `last seen ${person.lastSeen}` : ''].filter(Boolean).join(' · ');
 }
 
 /** Builds a tile button; kind is 'here', 'elsewhere', 'deceased' or 'dormant'; onOpen(personId) opens the dossier. */
@@ -47,6 +47,6 @@ export function personCard(person, { kind = 'here', onOpen } = {}) {
     h('span', { class: 'nm2' }, person.name),
     living && person.mood ? h('span', { class: 'md2' }, person.mood) : null,
     h('span', { class: 'wh' }, whereLine(person, kind)),
-    kind === 'elsewhere' && (person.said || person.doing) ? h('span', { class: 'sd' }, person.said || person.doing) : null,
+    kind === 'elsewhere' && person.said ? h('span', { class: 'sd' }, person.said) : null,
   );
 }

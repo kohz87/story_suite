@@ -219,11 +219,6 @@ export function createNpcQueries({
                 })
                 .sort((a, b) => Number(b.present) - Number(a.present) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
         },
-        /** npc.keyAway → the memory of key people's last absences (see observeKeyAway), {} when none. Read by Delta's dossier, cards and injection. */
-        'npc.keyAway'(state) {
-            const memory = sliceOf(state).keyAway;
-            return isObject(memory) ? JSON.parse(JSON.stringify(memory)) : {};
-        },
         /** npc.castMade → the people Delta made a dossier for from the cast, { [castKey]: { name, rungs? } }, {} when none. */
         'npc.castMade'(state) {
             const cast = sliceOf(state).cast;

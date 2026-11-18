@@ -16,10 +16,9 @@
 // One scene header: the Game view's hero header shows the place, the time and the weather above every screen, so there Here
 // shows the people (and the trip) only; the Story panel's tab has no hero and keeps the place, region, time and weather lines.
 // Here is one block with a purple line: the place line "Town · Spot" (`place.line`) and its kind chip, the region, "moved here
-// this reply", ◷ time · date, ☁ weather; then People here. Every Now section folds (People here, Elsewhere, Leads, Upcoming, News
+// this reply", ◷ time · date, ☁ weather; then People here. Every Now section folds (People here, Leads, Upcoming, News
 // and events, Factions): a centred chevron and the count in its head (widget `story-director.fold`, elsewhere.js), remembered per
-// chat on this device. Elsewhere is the pinned key people who are not in the scene (the key-people widget; + Pin stays, its token
-// note is an ⓘ); Leads are the hooks the player has heard of (`director.world.leads`); the date tag of Upcoming and the state tag
+// chat on this device. Leads are the hooks the player has heard of (`director.world.leads`); the date tag of Upcoming and the state tag
 // of News sit on the title line, in its right corner; Factions show only once one is known. There is no Around here. The News
 // and events and the Factions are the feature `story-director.threads`' (src/v2/threads.js): off, they are not drawn.
 //
@@ -30,7 +29,6 @@ import { BASE_CSS } from '../../director/screens/style.js';
 import { DIGEST_FEATURE } from '../chronicle/days.js';
 import { FEATURE } from './known.js';
 import { PEOPLE_WIDGET } from './people.js';
-import { KEY_PEOPLE_WIDGET } from '../../cast/keypeople/widget.js';
 import { FOLD_WIDGET } from './elsewhere.js';
 
 export const WORLD_ID = 'story-director/world';
@@ -111,12 +109,6 @@ const NOW = `
         <ss-widget name="${PEOPLE_WIDGET}" data-props='{"bind":"q.world.here"}' data-if="q.world.here.hasPeople"></ss-widget>
         <p class="sd-empty" data-if="!q.world.here.hasPeople">No one else is in the scene.</p>
       </div>
-    </div>
-  </section>
-  <section class="sd-kind sd-fold wv-key ss-glass" data-kind="key" data-fold="elsewhere" aria-label="Elsewhere" data-if="q.keys.on == true">
-    ${fold('elsewhere', 'Elsewhere', '{{ q.keys.elsewhere }}')}
-    <div class="sd-fold-body">
-      <ss-widget name="${KEY_PEOPLE_WIDGET}" data-props='{"bind":"q.keys"}'></ss-widget>
     </div>
   </section>
   <section class="sd-kind sd-fold wv-leads ss-glass" data-kind="leads" data-fold="leads" aria-label="Leads" data-if="q.leads.has">
@@ -227,7 +219,7 @@ const CSS = `${BASE_CSS}
 /* The "Here" heading is one of them: with the place and weather lines gone, a bare heading would sit above the people. */
 .wv-label.wv-scene { display: var(--sd-line-display, flex); }
 .wv-scene[hidden] { display: none; }
-.wv-upcoming, .wv-news, .wv-factions, .wv-key, .wv-leads { min-width: 0; }
+.wv-upcoming, .wv-news, .wv-factions, .wv-leads { min-width: 0; }
 .wv-leads { display: grid; gap: 4px; padding: 12px 14px; align-content: start; }
 .wv-leadlist { gap: 8px; }
 .sd-lead { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
@@ -247,30 +239,9 @@ const CSS = `${BASE_CSS}
 .wv-rowcol { display: grid; gap: 2px; min-width: 0; }
 .wv-line1 { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; min-width: 0; }
 .wv-line1 .ss-pill { flex: none; max-width: 45%; white-space: normal; }
-.wv-key { display: grid; gap: 4px; padding: 12px 14px; align-content: start; }
-.wv-key-body { display: grid; gap: 8px; min-width: 0; }
-.wv-key-list { display: grid; margin: 0; padding: 0; list-style: none; }
-.wv-key-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 10px; align-items: start; padding: 8px 0; border-top: 1px solid var(--sd-border); }
-.wv-key-row:first-child { border-top: 0; padding-top: 2px; }
-.wv-key-star { color: var(--sd-warn); line-height: 1.3; }
-.wv-key-name { font-weight: 700; overflow-wrap: anywhere; }
-.wv-key-pill { display: inline-block; padding: 0 8px; border: 1px solid var(--sd-border); border-radius: var(--ss-radius-pill); font-size: 0.8em; white-space: nowrap; }
-.wv-key-pill.is-away { border-color: var(--sd-accent); color: var(--sd-accent-text); }
-.wv-key-pill.is-here { border-color: var(--sd-good); color: var(--sd-good); }
-.wv-key-sub { grid-column: 2; font-size: 0.85em; line-height: 1.45; overflow-wrap: anywhere; }
 /* The host keeps every button at least 44px (a touch target): pills at that height here, and on a phone Unpin is a link-like button, not a circle. */
-.wv-key-unpin { grid-column: 3; grid-row: 1 / span 3; align-self: start; margin: 0; padding: 0 16px; font: inherit; font-size: 0.8em; line-height: 1.4; cursor: pointer; color: inherit; background: none; border: 1px solid var(--sd-border); border-radius: var(--ss-radius-pill); }
-.wv-key-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 @media (pointer: coarse) { .wv-key-unpin { margin-block: -8px; padding: 0 6px; border-color: transparent; text-decoration: underline; color: var(--sd-accent-text); } }
-.wv-key-actions .wv-key-pin { flex: 0 0 auto; width: 7em; padding: 0 18px; border-radius: var(--ss-radius-pill); }
 /* The Pin list stays inside the card and scrolls there (a phone keeps the card within the room under the header). */
-.wv-key-choices { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; max-height: min(260px, 32vh); overflow-y: auto; overscroll-behavior: contain; min-width: 0; }
-.wv-key-pick { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; width: 100%; margin: 0; padding: 6px 12px; font: inherit; text-align: left; cursor: pointer; color: inherit; background: var(--sd-surface); border: 1px solid var(--sd-border); border-radius: var(--sd-radius); }
-.wv-key-pick:hover { border-color: var(--sd-accent); }
-.wv-key-from { color: var(--sd-muted); }
-.wv-key-i { cursor: pointer; min-height: 32px; display: inline-flex; align-items: center; color: var(--sd-accent-text); }
-.wv-key-info { min-width: 0; }
-.wv-key-note { margin: 0; font-size: 0.8em; line-height: 1.45; color: var(--sd-muted); }
 .wv-item .ss-listcard-title, .wv-item .ss-listcard-sub { overflow-wrap: anywhere; }
 .wv-item .ss-listcard-value { max-width: 45%; min-width: 0; }
 .wv-item .ss-pill { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
@@ -350,8 +321,6 @@ const DATA = Object.freeze({
     // `{ on: true }` while the feature `story-director.threads` is on, null while it is off: the News and the Factions read it.
     threads: Object.freeze({ query: 'director.threads.on' }),
     journal: Object.freeze({ query: 'director.journal' }),
-    // The Key people section (keypeople part, feature `story-director.key-people`): `{ on: true, … }`, null while the feature is off.
-    keys: Object.freeze({ query: 'director.keyPeople.view' }),
     // The Leads section: the hooks the player has heard of (elsewhere.js).
     leads: Object.freeze({ query: 'director.world.leads' }),
     chat: Object.freeze({ query: 'director.world.chat' }),

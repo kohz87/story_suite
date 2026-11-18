@@ -5,7 +5,7 @@ import { DEFAULT_BEHAVIOR_CRITERIA } from '../core-prompts.js';
 import { APPROX_CHARS_PER_TOKEN, INJECTION_CAP_BASE_TOKENS, DEFAULT_INJECTION_BUDGET_TOKENS, normalizeInjectionBudgetTokens, selectRelevantNpcs } from '../core-injection-selection.js';
 import { clauseBoundedInjection, compactInjectionBehaviorRubric, injectionEssentialBlock, injectionOptionalFields, lowPlayerStanding, referenceBlock, truncateInjectionText } from '../core-injection-parts.js';
 
-export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null, levelOn = false } = {}) {
+export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, gearLines = null, storyDay = null, levelOn = false } = {}) {
     const named = new Set(Array.isArray(namedNpcIds) ? namedNpcIds : []);
     const calledIn = npc => !npc?.present && named.has(npc?.id);
     const present = (npcs || []).filter(npc => (Boolean(npc?.present) || calledIn(npc)) && !npc?.archived);
@@ -38,19 +38,13 @@ export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria
     let identityCap = Math.round(Math.min(2200, 620 * capScale));
     let agencyCap = Math.round(Math.min(900, 300 * capScale));
     let stateCap = Math.round(Math.min(400, 180 * capScale));
-    // A key person who just came back (Story Director's key people) brings a short "while away" summary, once, with
-    // their block; it counts in the budget like the block. Without notes the text is exactly as before.
-    const awayNote = npc => {
-        const note = awayNotes && typeof awayNotes === 'object' ? cleanText(awayNotes[npc.id], 400) : '';
-        return note ? `; ${note}` : '';
-    };
     // A pack cast member's signature gear line (Story Block's packs.castGear), as given, at the end of their block; none, nothing.
     const gearNote = npc => {
         const line = gearLines && typeof gearLines === 'object' ? cleanText(gearLines[npc.id], 300) : '';
         return line ? `; ${line}` : '';
     };
     const renderEssentials = () => relevant.map(npc => {
-        const block = injectionEssentialBlock(npc, behaviorCap, identityCap, agencyCap, stateCap, customFieldNames, sceneDeferred, levelOn) + awayNote(npc) + gearNote(npc);
+        const block = injectionEssentialBlock(npc, behaviorCap, identityCap, agencyCap, stateCap, customFieldNames, sceneDeferred, levelOn) + gearNote(npc);
         return calledIn(npc) ? block.replace(`- ${npc.name}: `, `- ${npc.name} (named by player): `) : block;
     });
     while (relevant.length > 1 && (header.length + 1 + renderEssentials().join('\n').length) > budgetChars) {

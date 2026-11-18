@@ -7,7 +7,7 @@ const GREGORIAN_MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', '
 /**
  * A story minute as the dossier writes a date: "Goldwane 18" (month and day, no year, no clock) on `calendar`
  * (`{ months: [{ name, days }], leapYears }`, Story Director's `director.calendar`), Gregorian when it is not given
- * ('' for anything that is not a story minute). Story Director's key people carry their dates as minutes.
+ * ('' for anything that is not a story minute).
  */
 export function storyMinuteText(minutes, calendar = null) {
     const shared = calendar && Array.isArray(calendar.months) && calendar.months.length

@@ -157,40 +157,8 @@ export function tripLines(rt, n) {
     return ['~ trip stop'];
 }
 
-// Key people (own stream): the first reply's people are pinned by the reader after it (so on a reply never deleted); later the reader pins and
-// unpins now and then (on whatever reply is the latest, which a delete may take), and the replies' lines send people away, add steps, change
-// their plans, bring them back, and now and then record a death. A line may name someone no longer pinned (it is refused, quietly) or whose
-// away record a deleted reply made (a step then has nothing to join: passed over on replay, never a failing block). A stand-in for NPC State
-// Delta lists the base people and loses one now and then (archived there): the sync step takes it off the list before the next reply, and the
-// tell step after that reply's lines writes its card line on the reply (a delete may take either; a swipe of the reply says it again).
+// The people NPC State's stand-in lists for the names check (the fuzz's base people).
 export const KEY_BASE = ['Ren', 'Odda', 'Fenna'];
-export function keyLines(rk, host, n) {
-    const pinned = Object.values(host.head().domains.keypeople?.pins ?? {}).map(entry => entry.name);
-    const pool = [...KEY_BASE, ...pinned, `Gone${n}`];
-    const lines = [];
-    for (let i = rk.int(0, 3); i > 0; i -= 1) {
-        const who = rk.pick(pool);
-        const roll = rk();
-        if (roll < 0.3) lines.push(`+ away ${who} — on the road number ${n} | back: June ${rk.int(4, 28)}, 1200`);
-        else if (roll < 0.5) lines.push(`! away ${who} — reached stop ${n}.${i}`);
-        else if (roll < 0.65) lines.push(`~ away ${who} — held up | back: June ${rk.int(4, 28)}, 1200`);
-        else if (roll < 0.85) lines.push(`- away ${who}`);
-        else if (roll < 0.9) lines.push(`- key ${who} | died`);
-        else lines.push(`- key ${who}`);
-    }
-    return lines;
-}
-export async function keyEdits(rk, host, n, delta) {
-    if (rk.chance(0.3)) {
-        const known = Object.keys(delta);
-        if (known.length) delete delta[rk.pick(known)];
-    }
-    if (rk.chance(0.2)) delta[rk.pick([...KEY_BASE, `Key${n}`])] ??= {};
-    if (rk.chance(0.25)) await host.sdk.command('keypeople.pin', { name: `Key${n}` });
-    const pinned = Object.values(host.head().domains.keypeople?.pins ?? {}).map(entry => entry.name);
-    if (pinned.length && rk.chance(0.12)) await host.sdk.command('keypeople.unpin', { name: rk.pick(pinned) });
-    if (rk.chance(0.1)) await host.sdk.command('keypeople.pin', { name: rk.pick([...KEY_BASE, `Key${n}`]) });
-}
 
 // Names (feature story-director.names, own stream): replies declare people now and then, some again (the same person), some with an overused
 // name or a near spelling; the part's `names.seen` / `names.told` steps and its refusals must replay the same after a delete or a swipe.

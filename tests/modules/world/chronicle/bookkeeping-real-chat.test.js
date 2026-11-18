@@ -27,7 +27,6 @@ const CHAT = [
     make('director.initiative', 'Initiative for the next reply: Nelje.', 'system', 'story-director'),
     make('rpg.resolve', 'Tell the settled fight results in order; do not reroll them. | Write [battle] on its own line where the fight is told.', 'system'),
     make('capture.time', 'Director: ~ time <CY 611, Goldwane 12, 07:30 am> (not used)', 'story', 'story-director'),
-    make('keypeople.sync', '', 'system', 'story-director'),
     make('chronicle.note', '', 'system', 'story-director'),
     make('capture.item', 'The party gains Bone-Knit Salve.'),
     make('capture.coin', 'The party receives 3 silver 6 copper — from Marrit (now 1 gold 6 copper).'),

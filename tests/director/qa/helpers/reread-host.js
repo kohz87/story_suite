@@ -47,7 +47,7 @@ export const DIRECTOR_READERS = [...READERS.filter(name => !['inventory.loot', '
  * compared through DIRECTOR_READERS; Story Block's domains are compared in full, except the pack events' claims and
  * the weather (its key and text follow the atlas region: seed 6 step 28 and others, not triaged, reported).
  */
-export const LEFT_OUT = ['arc', 'atlas', 'cast', 'checks', 'chronicle', 'director', 'keypeople', 'names', 'claims:event:', 'path:domains/scene/weather', 'path:domains/scene/place/region'];
+export const LEFT_OUT = ['arc', 'atlas', 'cast', 'checks', 'chronicle', 'director', 'names', 'claims:event:', 'path:domains/scene/weather', 'path:domains/scene/place/region'];
 
 /** The oracle's tolerance: a later reply's trip record the edit left without its trip (the "later reply keeps its record" class, D-1). */
 export const TOLERATE = { domain: 'atlas', field: 'trips' };

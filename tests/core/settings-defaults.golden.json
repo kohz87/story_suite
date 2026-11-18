@@ -156,8 +156,6 @@
       "chronicle.digestKeep": 120,
       "chronicle.digestTail": true,
       "chronicle.tempo": "1",
-      "keypeople.cap": 10,
-      "keypeople.tokens": 300,
       "names.banned": "",
       "names.suggestions": 3,
       "pulse.invents": true,

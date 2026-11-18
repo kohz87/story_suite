@@ -34,7 +34,6 @@ const REPLIES = [
 // - npc_state_delta_off: NSD itself off (the adapter's isEnabled() false) with one-pass still set: no NSD part at all.
 // - npc_state_delta_one_pass_off: one-pass capture switched off in Settings › People: no NSD part, the rest as default.
 // - npc_caps_on: the host gives impact-tier caps, so the meter paragraph's impact clause is pinned (none of the others has it).
-// - key_people_on: one pinned key person, so the away grammar line and the Key people paragraph are pinned (the `- key` grammar line and the paragraph's death sentence left in B1.7).
 const SCENARIOS = [
     {
         id: 'default',
@@ -87,14 +86,6 @@ const SCENARIOS = [
         title: 'NPC State caps given by the host (the meter paragraph carries the impact clause)',
         caps: { ordinary: 4, meaningful: 8, major: 16, extreme: 30 },
         configure: () => {},
-    },
-    {
-        id: 'key_people_on',
-        title: 'one pinned key person (Story Director sends the away grammar line and the Key people paragraph; no key line, no death sentence)',
-        configure: async host => {
-            const done = await host.cmd('keypeople.pin', { name: 'Ren' });
-            assert.ok(done?.ok !== false, 'pinning a key person should work');
-        },
     },
 ];
 

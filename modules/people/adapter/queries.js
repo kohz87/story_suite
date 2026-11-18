@@ -1,6 +1,6 @@
 // The adapter's read-only side (src/storysuite-v2.js): Delta's npc.* queries, the npc slice the host holds (src/npc-meters.js) and
 // the lookups every other part of the adapter uses (Delta's runtime, its NPC list and dossiers, the host's features), the answers
-// Story Director gives about key people and the cast, and the commands Delta sends to the host.
+// Story Director gives about the cast, and the commands Delta sends to the host.
 //
 // A part of the adapter closure: createQueriesPart(session, deps) gets the adapter's shared state (session) and the adapter's options,
 // constants and the parts built before it (deps), and returns what the other parts and the adapter use. Pure apart from the DOM it
@@ -279,8 +279,6 @@ export function createQueriesPart(session, deps) {
         'npc.cast': (state, args) => castFor(state, args),
         /** npc.next({ name }) → the NPC's ladder from here: { rank, next, risk, text } ("what's missing"), or null. */
         'npc.next': (state, args) => part.queries['npc.next'](state, args ?? {}),
-        /** npc.keyAway() → the memory of key people's last absences (the slice's `keyAway`: { [name key]: { name, aliases, away, returnedAt, presentReplies } }), {} when none. */
-        'npc.keyAway': (state, args) => part.queries['npc.keyAway'](state, args ?? {}),
         /** npc.castMade() → the people Delta made a dossier for from the cast (the slice's `cast`: { [castKey]: { name, rungs? } }), {} when none. */
         'npc.castMade': (state, args) => part.queries['npc.castMade'](state, args ?? {}),
         /**

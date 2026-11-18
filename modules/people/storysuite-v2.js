@@ -85,10 +85,9 @@ export const WORLD_FEATURE = 'story-director.world';
  * not); the caller redraws then.
  */
 export const PAGE_SLOT_CLASS = 'npc-state-delta-v2-slot';
-// Story Director's reader-only pin for key people (its feature switch is `story-director.key-people`).
 // Story Block's lean RPG feature (its names.js LEAN_RPG_FEATURE); an extension cannot import Story Block.
 const RPG_FEATURE = 'story-block.rpg';
-export const QUERY_NAMES = Object.freeze(['npc.present', 'npc.dossier', 'npc.known', 'npc.portrait', 'npc.meters', 'npc.cast', 'npc.next', 'npc.keyAway', 'npc.castMade', 'npc.socialModifier', 'npc.identity', 'npc.catchUp']);
+export const QUERY_NAMES = Object.freeze(['npc.present', 'npc.dossier', 'npc.known', 'npc.portrait', 'npc.meters', 'npc.cast', 'npc.next', 'npc.castMade', 'npc.socialModifier', 'npc.identity', 'npc.catchUp']);
 export const COMMAND_NAMES = Object.freeze(['npc.adjust', 'npc.set', 'npc.refresh', 'npc.milestone', 'npc.open', 'npc.tick', 'npc.flag', 'npc.meet', 'npc.mood', 'npc.taste', 'npc.drives']);
 // The replies after which Delta takes its per-reply step (npc.tick): a new reply or a new swipe of
 // one, never a Continue, a Re-read or late change lines (the same reply again).
@@ -222,7 +221,7 @@ export function createStorySuiteV2Adapter({
     const editorPart = createEditorPart(session, deps);
     Object.assign(deps, editorPart);
     const { watchers, pageApi, offerPage } = castUiPart;
-    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, keyPeople, send, sliceView, worldSecretsOn } = queriesPart;
+    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, send, sliceView, worldSecretsOn } = queriesPart;
     const { ownPrompt, storyClock, calendarLink, definition, scenePresentNames } = timelinePart;
     const { poll, unhost, check } = connectPart;
     const { editorHtml, readEditor, dossierMeters, eventWatch } = editorPart;
@@ -268,15 +267,8 @@ export function createStorySuiteV2Adapter({
         },
         /** While hosted: Story Block's `party.levels` as it answers, or null (no host, no query, RPG off). */
         partyLevelsAnswer,
-        /** While hosted: Story Director's key people (`director.keyPeople`) as it answers, or null when it cannot. */
-        keyPeopleAnswer,
-        keyPeopleReadable,
         /** While hosted: the slice's entries (npc.meters) at the head, or null when the host cannot answer. */
         meterEntries: sliceEntries,
-        /** While hosted: the memory of key people's last absences (npc.keyAway), {} without one. */
-        keyAwayMemory,
-        /** The same, cleaned (normalizeKeyPeople), without dates written. */
-        keyPeople,
         /** While hosted: Story Director's calendar (`director.calendar`), or null. */
         directorCalendar,
         /** While hosted: the story's date after reply `index` ("Icewane 27"), '' without a clock; dates a memory when it is recorded. */

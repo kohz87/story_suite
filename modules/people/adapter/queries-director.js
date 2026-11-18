@@ -1,8 +1,7 @@
 // Story Director and pack lookups for the Story Suite v2 adapter. A pure part of src/adapter/queries.js
 // (same owner, moved without change); queries.js re-exports every public name it exported before.
 import { storyMinuteText } from '../legacy/calendar.js';
-import { CAST_QUERY, KEY_PEOPLE_QUERY } from '../meters/npc-meters.js';
-import { normalizeKeyPeople } from '../cast/key-people.js';
+import { CAST_QUERY } from '../meters/npc-meters.js';
 import { normalizeCast } from '../dossier/cast-dossier.js';
 import { safeImageUrl } from './queries-dossier.js';
 
@@ -23,42 +22,6 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
         try { return (session.sdkRef?.modules?.() ?? []).some(module => module?.id === 'story-director'); } catch { return false; }
     }
 
-    // Story Director's key people (`director.keyPeople`, read only) as it answers, or null: not hosted, no Story Director,
-    // or one without the query. Null means "no key people anywhere", never an error.
-    function keyPeopleAnswer() {
-        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return null;
-        try {
-            const answer = session.sdkRef.query(KEY_PEOPLE_QUERY, {});
-            return Array.isArray(answer) ? answer : null;
-        } catch {
-            return null;
-        }
-    }
-    // Whether the key list can be trusted: true when Story Director is not registered on the host (read from the host's modules, as
-    // worldShown does, never from an error code: then there is simply no key list), or when it answers a list or null (its feature off);
-    // false when a registered Story Director throws or answers a non-list, or when the host cannot say. The stale pass deletes nothing while false.
-    function keyPeopleReadable() {
-        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return true;
-        try {
-            if (!(session.sdkRef.modules?.() ?? []).some(module => module?.id === 'story-director')) return true;
-        } catch { return false; }
-        try {
-            const answer = session.sdkRef.query(KEY_PEOPLE_QUERY, {});
-            return answer === null || answer === undefined || Array.isArray(answer);
-        } catch {
-            return false;
-        }
-    }
-    // The memory of key people's last absences (npc.keyAway; the slice's `keyAway`), {} when there is none or no host.
-    function keyAwayMemory() {
-        if (!session.hosted || typeof session.sdkRef?.query !== 'function') return {};
-        try {
-            const memory = session.sdkRef.query('npc.keyAway', {});
-            return memory && typeof memory === 'object' && !Array.isArray(memory) ? memory : {};
-        } catch {
-            return {};
-        }
-    }
     // The living cast (Story Director's `director.cast`, read only): the cleaned answer with its dates written on Story Director's
     // calendar, or null (not hosted, no Story Director, or one without the query). Null means "no cast anywhere".
     function castAnswer() {
@@ -125,8 +88,7 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
             return typeof line === 'string' ? line.replace(/\s+/g, ' ').trim() : '';
         } catch { return ''; }
     }
-    // Story Director's calendar (`director.calendar`: { era, months, leapYears }), or null when it has none to give; Story Director's
-    // key people carry their dates as story minutes, which index.js writes on it (calendar.js storyMinuteText).
+    // Story Director's calendar (`director.calendar`: { era, months, leapYears }), or null when it has none to give; 
     function directorCalendar() {
         try {
             const config = session.hosted && typeof session.sdkRef?.query === 'function' ? session.sdkRef.query('director.calendar', {}) : null;
@@ -145,11 +107,5 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
             return null;
         }
     }
-    // The key people, cleaned (src/key-people.js normalizeKeyPeople); the dates are left to the caller (they are not needed for names).
-    function keyPeople() {
-        const answer = keyPeopleAnswer();
-        return answer ? normalizeKeyPeople(answer) : null;
-    }
-
-    return { worldShown, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, keyPeople };
+    return { worldShown, partyLevelsAnswer, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar };
 }

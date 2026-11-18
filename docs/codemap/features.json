@@ -15,7 +15,6 @@
   { "name": "Threads", "entry": "modules/time/tracker/threads.js", "about": "Tracked story threads and their outcomes." },
   { "name": "Map and places", "entry": "modules/atlas/atlas/map.js", "about": "Builds the map widget props: places, routes, layers and discovery." },
   { "name": "Cast", "entry": "modules/cast/cast/apply.js", "about": "Applies cast sync, advance, meet, withdraw and rumor steps." },
-  { "name": "Key people", "entry": "modules/cast/keypeople/index.js", "about": "Key-person tracking and its link to NPC State Delta." },
   { "name": "Chronicle", "entry": "modules/world/chronicle/index.js", "about": "The running record of story days and what happened." },
   { "name": "Time and weather", "entry": "modules/time/index.js", "about": "Story clock, days advancing, recaps and weather." },
   { "name": "Layouts and screens", "entry": "packs/layout/validate.js", "about": "Screen layout definitions and their validation (the layout renderer went with the old view)." },

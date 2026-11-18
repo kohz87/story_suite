@@ -14,7 +14,7 @@ import { injectDepthOf, getSettings, effectiveCustomFieldNames, rpgIsOn } from '
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
 
 export function createInjectionPart(rt, deps) {
-    const { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, keyReturnNotes, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, storySuiteV2Meters } = deps;
+    const { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, storySuiteV2Meters } = deps;
 
     // The player message the next generation will answer: the chat tail when it is a user turn, or
     // the user turn before an assistant reply that is not yet reflected by a scan (swipe/regenerate).
@@ -62,9 +62,8 @@ export function createInjectionPart(rt, deps) {
     // The live dossier injection under the current settings and scene defer (sent by updateInjection;
     // tokens() measures the same text).
     function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4) } = {}) {
-        const awayNotes = keyReturnNotes(state);
         const gearLines = castGearLines(state);
-        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), levelOn: rpgIsOn() });
+        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), levelOn: rpgIsOn() });
     }
 
     function updateInjection() {

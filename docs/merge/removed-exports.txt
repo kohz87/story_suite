@@ -168,3 +168,19 @@ uiRoot
 selectedNpcId
 stage1Refresh
 openLauncherDossier
+# B4-9: the Key people module (modules/cast/keypeople) and NPC State's reading of it, deleted with their tests.
+KEY_PEOPLE_WIDGET
+KEY_PEOPLE_QUERY
+normalizeKeyPeople
+observeKeyAway
+validateKeyAway
+keyAwayMemory
+keyPeopleAnswer
+keyPeopleReadable
+keyAwayScanOptions
+keyReturnNotes
+isKeyNpc
+lockAwayNpcs
+awayNpcIds
+dossierKeyViews
+keyPeopleList

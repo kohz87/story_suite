@@ -1,6 +1,6 @@
 // Story Suite v2: the words of a reply's prose that a capture reads (perf PB8; docs/dev/edit-prose-only.md). An edit that adds or
 // removes one of them is not prose-only and takes the full path: a real-world day or month name (the calendar-names check), any
-// cast person's name or alias (packs, NPC State, the cast store, key people), or a "#N" reference (quoted evidence).
+// cast person's name or alias (packs, NPC State, the cast store), or a "#N" reference (quoted evidence).
 // `changedWords(before, after)` is the multiset difference of the two texts' words; `touchesCaptureWords(...)` checks it against the lists.
 
 const DAYS_MONTHS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];

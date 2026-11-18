@@ -20,9 +20,9 @@ const METER_KIND = /^(set-[a-z]+(-\d+)?|clear-\d+)$/;
 /** Whether a receipt is the code's own bookkeeping: by type, by a block result's kind, a clock line "(not used)", a names check or an empty summary. */
 export function isBookkeeping(receipt) {
     if (BOOKKEEPING_TYPES.has(receipt.type)) return true;
-    // Who is or is not in the scene (state, not an event: "Met" has the arrivals) and the NPC State ticks that say nothing happened ("Key people: noted", "NPC meters: the reply was counted").
+    // Who is or is not in the scene (state, not an event: "Met" has the arrivals) and the NPC State ticks that say nothing happened ("NPC meters: the reply was counted").
     if (PRESENT_TYPES.has(receipt.type) && PRESENCE_TEXT.test(text(receipt.summary).trim())) return true;
-    if (receipt.type === 'npc.tick' && /^(Key people: noted|NPC meters: the reply was counted)/.test(text(receipt.summary).trim())) return true;
+    if (receipt.type === 'npc.tick' && /^NPC meters: the reply was counted/.test(text(receipt.summary).trim())) return true;
     // The names check of a `person` line ("Name: Torger Venn is new; look: …", "… is known already", "… is not a fresh name"): the arrival is "Met", the profile is the dossier's (LAB2-5).
     if (receipt.type === 'capture.person' && /^Name: /.test(text(receipt.summary).trim())) return true;
     if (typeof receipt.summary !== 'string' || !receipt.summary.trim()) return true;

@@ -5,7 +5,7 @@ import { metWithEntry } from '../../dossier/cast-dossier.js';
 
 export function createTurnPart(session, deps) {
     const {
-        castMade, castPeople, castPortraitDue, castSync, enabled, keyAwayMemory, keyPeopleAnswer, part, send, TICK_TURNS, warn,
+        castMade, castPeople, castPortraitDue, castSync, enabled, part, send, TICK_TURNS, warn,
     } = deps;
 
     // ---- the per-reply step (npc.tick) ----
@@ -14,8 +14,6 @@ export function createTurnPart(session, deps) {
         if (!session.hosted || !TICK_TURNS.includes(turn?.type) || !enabled()) return;
         let wanted = false;
         try { wanted = part.tickWanted(); } catch { wanted = false; }
-        // Key people (Story Director's): the step also keeps the memory of their last absence up to date.
-        if (!wanted) wanted = (keyPeopleAnswer()?.length ?? 0) > 0 || Object.keys(keyAwayMemory()).length > 0;
         // The living cast: someone met whose dossier is not yet made, or a made one with a stage ladder of their own.
         if (!wanted) wanted = castWanted();
         if (!wanted) {

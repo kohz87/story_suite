@@ -6,7 +6,6 @@ import assert from 'node:assert/strict';
 import { createModule, namespaced, partSettings, PARTS, storyDirectorModule } from '../../../../modules/director/module.js';
 import { STATIC_TEXT, staticText } from '../../../../modules/time/tracker/note.js';
 import { STATIC_TEXT as ATLAS_STATIC, TAIL_BUDGET as ATLAS_BUDGET, TRIP_TAIL_BUDGET } from '../../../../modules/atlas/atlas/note.js';
-import { STATIC_TEXT as KEY_PEOPLE_STATIC } from '../../../../modules/cast/keypeople/note.js';
 import { RECAP_BUDGET } from '../../../../modules/time/recap.js';
 import { screens as SCREENS } from '../../../../modules/director/screens/index.js';
 import { mapScreen } from '../../../../modules/atlas/atlas/screen.js';
@@ -16,8 +15,6 @@ import { STATIC_TEXT as CHRONICLE_STATIC, TAIL_BUDGET as CHRONICLE_BUDGET } from
 import { BACKLOG_BUDGET, DIGEST_TAIL_BUDGET } from '../../../../modules/world/chronicle/digest.js';
 import { part as checksPart } from '../../../../modules/rpg/checks/index.js';
 import { part as chroniclePart } from '../../../../modules/world/chronicle/index.js';
-import { part as keyPeoplePart } from '../../../../modules/cast/keypeople/index.js';
-import { DEFAULT_TOKENS as KEY_PEOPLE_TOKENS } from '../../../../modules/cast/keypeople/domain.js';
 import { ARC_TAIL_BUDGET } from '../../../../modules/arc/domain.js';
 import { TAIL_BUDGET as CAST_BUDGET } from '../../../../modules/cast/cast/settings.js';
 import { PULSE_STATIC, STALE_REPLIES, pulseCommand, pulseHook } from '../../../../modules/world/pulse/effects.js';
@@ -36,8 +33,7 @@ test('statics in part order, budgets summed, kinds dispatched to their part', ()
     // The time, atlas and screens parts add nothing to the static part.
     assert.equal(ATLAS_STATIC, '');
     // The Pacing and the two World paragraphs are the world-building threads feature's: context parts, in the place they always had.
-    // The Key people paragraph is that feature's: a context part too, between the World paragraphs and the checks line.
-    const plain = id => id !== 'story-director.initiative' && id !== 'story-director.key-people' && id !== 'story-director.pulse' && id !== 'story-director.world-events';
+    const plain = id => id !== 'story-director.initiative' && id !== 'story-director.pulse' && id !== 'story-director.world-events';
     // The lean diet: the World paragraphs are taught only while the story keeps a world event or a faction (env.chronicle); the check rule is
     // the `? check` grammar line's, not a paragraph.
     // (The module reads that from the state itself, so a module that has seen none sends the paragraph-free static; the chronicle part's own
@@ -46,13 +42,9 @@ test('statics in part order, budgets summed, kinds dispatched to their part', ()
     assert.equal(chroniclePart.context.static({ chronicle: true }), CHRONICLE_STATIC);
     assert.equal(checksPart.context.static(), '');
     assert.equal(hostStatic(def, id => plain(id) && id !== 'story-director.threads'), staticText({ threads: false }));
-    // Nobody pinned: the Key people paragraph is not taught (the prompt is what it was); with someone pinned it comes between them (B1.7: without its death sentence).
     assert.equal(hostStatic(def, () => true, {}), `${STATIC_TEXT}\n${def.context.parts.find(part => part.feature === 'story-director.initiative').static()}\n${def.context.parts.find(part => part.feature === 'story-director.world-events').static()}\n${PULSE_STATIC}`);
-    assert.equal(keyPeoplePart.context.static({ keyPeople: true }), KEY_PEOPLE_STATIC);
-    assert.equal(keyPeoplePart.context.static({ keyPeople: false }), '');
-    assert.equal(KEY_PEOPLE_STATIC.includes('died'), false, 'no death sentence (B1.7)');
-    assert.equal(def.context.budget, 500 + RECAP_BUDGET + ATLAS_BUDGET + TRIP_TAIL_BUDGET + CHRONICLE_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET + KEY_PEOPLE_TOKENS + CAST_BUDGET + ARC_TAIL_BUDGET + checksPart.context.budget);
-    assert.deepEqual(PARTS.map(([id]) => id), ['tracker', 'time', 'atlas', 'chronicle', 'world', 'keypeople', 'cast', 'names', 'pulse', 'arc', 'checks', 'ripples', 'screens']);
+    assert.equal(def.context.budget, 500 + RECAP_BUDGET + ATLAS_BUDGET + TRIP_TAIL_BUDGET + CHRONICLE_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET + CAST_BUDGET + ARC_TAIL_BUDGET + checksPart.context.budget);
+    assert.deepEqual(PARTS.map(([id]) => id), ['tracker', 'time', 'atlas', 'chronicle', 'world', 'cast', 'names', 'pulse', 'arc', 'checks', 'ripples', 'screens']);
     assert.match(def.capture.kinds.hook.grammar, /a quest is a job/);
     assert.equal(def.capture.kinds.quest.grammar(), '', 'the quest rides on the hook line');
     assert.equal(def.capture.kinds.time.apply, undefined, 'the kinds table holds only grammar');
@@ -123,7 +115,7 @@ test('two parts claiming one name is refused', () => {
 test('screens and widgets: every part\'s, in part order; one id in two parts is refused', () => {
     assert.deepEqual(storyDirectorModule.screens.map(screen => screen.id), [mapScreen, chronicleScreen, worldScreen, daysScreen, ...SCREENS].map(screen => screen.id));
     assert.deepEqual(storyDirectorModule.tabs, []);
-    assert.deepEqual(Object.keys(storyDirectorModule.widgets), ['story-director.map', 'story-director.people', 'story-director.journal-events', 'story-director.fold', 'story-director.key-people', 'story-director.arc', 'story-director.behind', 'story-director.plan', 'story-director.ripples', 'story-director.quests', 'story-director.spoiler-switch'], 'the atlas\'s Map, the World screen\'s people, journal events and key people, the arc panel, behind the scenes, the Quests cards and the spoiler switch');
+    assert.deepEqual(Object.keys(storyDirectorModule.widgets), ['story-director.map', 'story-director.people', 'story-director.journal-events', 'story-director.fold', 'story-director.arc', 'story-director.behind', 'story-director.plan', 'story-director.ripples', 'story-director.quests', 'story-director.spoiler-switch'], 'the atlas\'s Map, the World screen\'s people, journal events, the arc panel, behind the scenes, the Quests cards and the spoiler switch');
     const status = storyDirectorModule.screens.find(screen => screen.id === 'story-director/status-card');
     assert.equal(status.defaultOn, true, 'the status card is on under every reply by default (§F24)');
     const widget = { render: () => {} };

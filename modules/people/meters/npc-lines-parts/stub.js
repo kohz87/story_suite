@@ -1,7 +1,7 @@
 // The `+ npc Name | role | look` stub (NSD6): a new person from one line. Code makes the person first, from the stub alone; a line that names someone already
 // listed, the player or the character you play makes nobody. In lines mode a line about a person with no record (`~ npc`, `+ milestone`, the note kinds `~ lie|know|taste|tie`) is refused as well (it makes nobody).
 // All of it only while lines mode is on (the hook `linesMode`; off, the line goes the old way, byte for byte).
-import { labelKey } from '../../cast/key-people.js';
+import { labelKey } from '../../dossier/cast-dossier-parts/shared-text.js';
 import { NAME_MAX, NPC_DOMAIN, clean, isObject } from '../npc-meters-config.js';
 import { makeNpcId } from '../../core/core-identity.js';
 import { isNoteKind } from '../../notes/npc-notes-kinds.js';

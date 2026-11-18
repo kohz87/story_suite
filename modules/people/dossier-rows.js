@@ -64,7 +64,7 @@ function rowNode(doc, row) {
     }
     const text = make(doc, 'span', 'npc-state-delta-story-text ss-listcard-main');
     const title = make(doc, 'b', 'ss-listcard-title', row.name);
-    // A key person (Story Director's key people) is marked with a ★ after the name.
+    // A followed person is marked with a ★ after the name.
     if (row.key === true) title.append(keyStarNode(doc));
     text.append(title, make(doc, 'small', 'ss-listcard-sub', [row.role, row.statusLabel].filter(Boolean).join(' · ')));
     const bars = (Array.isArray(row.bars) ? row.bars : []).filter(bar => bar && typeof bar === 'object').slice(0, DOSSIER_BAR_MAX);

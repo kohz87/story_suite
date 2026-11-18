@@ -136,7 +136,7 @@ const stored = (extra = {}) => ({
     quests: { taken: [], done: ['Perimeter Sweep'], failed: [], dropped: [] }, fights: { count: 1, won: 1, lost: 0, fled: 0 }, money: { in: 0, out: 0 }, moneyText: '1100 copper in',
     npcs: ['Rika: trust wary → friendly'], world: ['World: Red Plague spreads.'], met: ['Sister Temiwa', 'Bregje'], facts: ['Went to: Bluewatch', 'Finished: Perimeter Sweep', 'Money: 1100 copper in'],
     happened: ['Sweep: the deadfall held.', 'Sweep: the basilisk bled out.', 'Fight won: Astra +60 XP.', 'Torka: affection 9 -> 10, desire 7 -> 8 (held at 7).', 'Torka: affection 10 -> 11.', 'Lost Ridge Boar Ears x36 (0 left).', 'Lost Hide x12 (3 left).',
-        'Torka Bloodsong left the party. Their bound gear leaves with them: a.', 'Adventurer Guild membership: contract.', 'Marrit is not here.', 'Key people: noted'],
+        'Torka Bloodsong left the party. Their bound gear leaves with them: a.', 'Adventurer Guild membership: contract.', 'Marrit is not here.', 'NPC meters: the reply was counted'],
     tags: ['quest.step th_a', 'quest.step th_a', 'rpg.fight', 'capture.npc', 'capture.npc', 'capture.item', 'capture.item', 'capture.party', 'capture.dm', 'capture.present', 'npc.tick'],
     ...extra,
 });
@@ -154,9 +154,9 @@ test('1/4: a day has its date, "3 days ago" and the event count; the summary onc
     assert.equal(knownDay(stored({ npcs: [], world: [], met: [], happened: [], tags: [], quests: { taken: [], done: [], failed: [], dropped: [] }, moneyText: '' }), HIDDEN, { now: NOW }).hasCats, false);
 });
 
-test('3: noise is out of the kinds (presence, "Key people: noted"); a day\'s "Lost X" lines are one line', () => {
+test('3: noise is out of the kinds (presence, "NPC meters: the reply was counted"); a day\'s "Lost X" lines are one line', () => {
     const day = knownDay(stored(), HIDDEN, { now: NOW, threads, format });
-    assert.doesNotMatch(JSON.stringify(day.cats), /is not here|Key people/);
+    assert.doesNotMatch(JSON.stringify(day.cats), /is not here|NPC meters/);
     assert.deepEqual(kindOf(day, 'items').items.map(row => row.detail), ['Money: 1100 copper in', 'Lost: Ridge Boar Ears x36, Hide x12']);
     // A lone loss stays as it was.
     assert.deepEqual(kindOf(knownDay(stored({ happened: ['Lost Hide x12 (3 left).'], tags: ['capture.item'], moneyText: '' }), HIDDEN), 'items').items.map(row => row.detail), ['Lost Hide x12 (3 left).']);

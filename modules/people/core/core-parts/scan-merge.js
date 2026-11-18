@@ -2,7 +2,6 @@
 import * as continuity from '../continuity-core.js';
 import * as mechanics from '../core-mechanics.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
-import { lockAwayNpcs } from '../../cast/key-people.js';
 import { getActiveCalendarConfig, normalizeCalendarDate, withStoryDateMemo } from '../../legacy/calendar.js';
 import { applyNpcBirthdayUpdate, mergeNpcBirthdayKnowledge, normalizeNpcBirthday, reanchorDerivedBirthYearFromAge } from '../../birthday/birthday.js';
 import { birthdayUpdateGrounded, withAppearanceDerivedApparentAge, birthdayUpdateRow, stampFieldChanges, calendarReference, applyDeterministicBirthdayRollover } from '../core-birthday.js';
@@ -11,22 +10,12 @@ import { finalizeProfileDevelopment } from '../core-profile-finalize.js';
 import { storyDayFromText } from './calendar-days.js';
 import { normalizeNpcRecord } from './npc-records.js';
 
-// A scan's merge. `awayNpcIds` (the dossiers of key people who are away, from Story Director): their stable
-// profile fields and custom fields are held as if locked for this merge only (src/key-people.js); nothing of
-// the hold is stored, and without it the merge is exactly as before.
+// A scan's merge.
 export function mergeScanResult(state, scanResult, rawOptions = {}) {
     return withStoryDateMemo(() => mergeScanResultInPass(state, scanResult, rawOptions));
 }
 
 function mergeScanResultInPass(state, scanResult, rawOptions = {}) {
-    const hold = lockAwayNpcs(state, rawOptions.awayNpcIds);
-    if (!hold) return mergeScanResultHeld(state, scanResult, rawOptions);
-    const result = mergeScanResultHeld(hold.state, scanResult, rawOptions);
-    result.state.npcs = hold.restore(result.state.npcs);
-    return result;
-}
-
-function mergeScanResultHeld(state, scanResult, rawOptions = {}) {
     // Story day of the scanned message (its dated World State), unless the caller already resolved
     // it (carrying the last dated message forward). Undated chats leave it null and use turns.
     const supplied = rawOptions.storyDay;

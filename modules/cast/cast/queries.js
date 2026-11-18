@@ -10,8 +10,8 @@
 //
 // Nothing is stored for these: every answer is worked out from the state and the other queries.
 
-import { cutPoints, isInt, isMet, isRecord, keysOfPerson, peopleOf, slotOf, timeOfDay, counts } from './domain.js';
-import { castOf, ask, partyPlace, presentKeys } from './entries.js';
+import { cutPoints, isInt, isMet, isRecord, peopleOf, slotOf, timeOfDay, counts } from './domain.js';
+import { castOf, ask, partyPlace, pinnedKeys, presentKeys } from './entries.js';
 import { FEATURE } from './settings.js';
 import { nearCount } from './world.js';
 
@@ -77,11 +77,7 @@ export function viewQuery(state, _args, tools) {
     const cast = castOf(query);
     const party = partyPlace(query, state);
     const present = presentKeys(query, state);
-    const pinned = new Set();
-    const keyPeople = ask(query, 'director.keyPeople', {}, null);
-    for (const entry of Array.isArray(keyPeople) ? keyPeople : []) {
-        if (isRecord(entry) && !entry.removed) for (const key of keysOfPerson(entry)) pinned.add(key);
-    }
+    const pinned = pinnedKeys(query);
     const near = nearCount(slice, cast, { party, present, pinned });
     const minutes = state?.domains?.director?.time?.minutes;
     // Journeys towards the party (no names: unmet cast stays hidden): how many, and the soonest landing as "in about n days".
