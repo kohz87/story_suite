@@ -3,7 +3,7 @@
 # is gone or reworded must leave it, and no entry may be added (CI compares it with the base's list).
 # Reasons for what is left (INTERACTION-PLAN I9):
 #   * the lazy RPG loader and its wait (rpgLib, RPG_LOAD_WAIT_MS, the RPG's names) until the RPG is a plain module;
-#   * the pre-port compatibility lines (INTERACTION-PLAN 6.4: RPG_RESOLVE blocks, payload.board, pre-port-fight.js) until C11;
+#   * the pre-port compatibility lines (INTERACTION-PLAN 6.4: pre-port-fight.js) until C11;
 #   * partyKinds / START_KINDS / the board seed line (interaction/policy.js, start.js, dice.js): owner Q1 and the board-only chooser until I8 / C6;
 #   * the board-named stop and pass-through names (boardStop, stopChangedBoard) still threaded through the turn: to be renamed when the RPG tail reads the generic stop.
 core/commands/guards.js :: .filter(def => typeof def?.hooks?.replayGuard === 'function' && def.hooks.replayGuard.hostOwned !== true && registry.held?.(def.id) !== true).map(def => `${def.id}@${def.version ?? ''}`).join(',')}${rpgLib() ? '' : ';rpg:missing'}${kindsMark()}`;
@@ -13,9 +13,7 @@ core/interaction/dice.js :: const text = kindId === BOARD_KIND ? `fight:${sid}:$
 core/interaction/policy.js :: const own = Object.freeze(['story-block/fight']);
 core/interaction/start.js :: export const START_KINDS = ['story-block/fight'];
 core/interaction/watch.js :: try { s.abortBoard?.(true); } catch { /* the reason is still shown */ }
-core/prompt-parts/assemble.js :: const body = cue?.keep === true && (cue.interaction === true || cue.board === true) ? happenedCue(text) : null;
 core/registry/registry-checks-parts/interaction-problems.js :: if (!isObject(def.interactions)) return ['interactions is not an object (like { fight: { … } })'];
-core/sdk-parts/create.js :: import { RESOLVE as RPG_RESOLVE } from '../../modules/rpg/names.js';
 core/sdk/constants-parts/host-settings.js :: help: 'Shows a small note above the message box when a Send could not go yet (the story is still finishing, or a fight start is holding it), and sends your text once by itself when the story is free. It never changes what you typed.',
 core/sdk/queries-parts/view.js :: boardStop,
 core/sdk/queries-parts/view.js :: export function makeView({ store, registry, settings, chat = [], active = null, state = store.head(), reply = headReply(store), pendingProofs = null, boardStop = null }) {
@@ -58,13 +56,7 @@ core/turn/pre-port-fight.js :: const OPEN = ['rpgFightBoard', 'rpgFightSend', 'r
 core/turn/pre-port-fight.js :: const QUIET = ['rpgFightAttempts', 'rpgFightLast', 'rpgFightLinks'];
 core/turn/pre-port-fight.js :: export const FIGHT_CLOSED = 'A fight that was open before the update was closed. Start it again from the Fight tab.';
 core/turn/pre-port-fight.js :: export function dropPrePortFight(meta) {
-core/turn/prelude-run.js :: cues[moduleId] = [...(cues[moduleId] ?? []), preludeType === RPG_RESOLVE ? { text: told, keep: true, ...(payload?.board ? { board: true } : {}) } : pin ? { text: told, keep: true } : told];
-core/turn/prelude-run.js :: if ((preludeType === RPG_RESOLVE || preludeType === SETTLE) && result.state) previewState = result.state;
-core/turn/prelude-run.js :: if (preludeType !== RPG_RESOLVE && result.receipt.data?.keep === true) {
-core/turn/prelude-run.js :: if (preludeType === RPG_DICE) { cues[moduleId] = [...(cues[moduleId] ?? []), { text: receiptCue(result.receipt), keep: true }]; continue; }
-core/turn/prelude-run.js :: if (preludeType === RPG_RESOLVE && payload?.board) boardStop = result.receipt?.data?.v2?.result?.stop ?? null;
 core/turn/prelude-run.js :: if (preludeType === SETTLE && payload?.opening !== true) boardStop = result.receipt?.data?.interaction?.stop ?? null;
-core/turn/prelude-run.js :: import { DICE as RPG_DICE, RESOLVE as RPG_RESOLVE } from '../../modules/rpg/names.js';
 core/turn/prelude-run.js :: let boardStop = null;
 core/turn/prelude-run.js :: return { previewState, boardStop, keptPrelude };
 core/turn/prompt-build.js :: ({ previewState, boardStop } = ran);

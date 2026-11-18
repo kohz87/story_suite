@@ -110,6 +110,6 @@ export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature
 export const tailOf = request => request.chat.filter(message => message.role === 'system').map(message => message.content).join('\n');
 export const recordOf = (host, index) => host.ctx.chat[index].extra.storySuite;
 // (a fight is an `interaction.settle` of the fight kind since I6; its opening settle is not the roll the tests look for, and a fight from before the port is a board `rpg.resolve`)
-export const rollReceipt = (host, index) => recordOf(host, index).receipts.find(receipt => receipt.type === 'interaction.settle' && receipt.replan?.payload?.kindId === 'story-block/fight' && receipt.replan.payload.opening !== true) ?? recordOf(host, index).receipts.find(receipt => receipt.type === 'rpg.resolve');
+export const rollReceipt = (host, index) => recordOf(host, index).receipts.find(receipt => receipt.type === 'interaction.settle' && receipt.replan?.payload?.kindId === 'story-block/fight' && receipt.replan.payload.opening !== true);
 /** The cue a roll's receipt tells: stage 51 stores no copy of it on the receipt, so it is built from the record (old receipts carry the text). */
 export const cueOf = receipt => receiptCue(receipt);

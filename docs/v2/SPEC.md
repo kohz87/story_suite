@@ -849,8 +849,8 @@ sdk.registerModule({
     `assistClassifier` and `assistExtractor` settings) are the choice until the reader sets the feature.
   * The fight board is the interaction kind `story-block/fight` (since I6): its unsent exchanges, discard counts, Send copy, waiting
     choice and last payload live in `chatMetadata.storySuiteInteraction` (`open`, `send`, `start`, `last`, `attempts`, `held`); they are
-    not game state and add no prompt text. Its committed rolls are ordinary reply-bound `interaction.settle` receipts (a fight made
-    before the port is a board `rpg.resolve` receipt, still read and re-planned; the old `rpgFight*` keys are dropped on chat load). Explicit skill flags are reserved under the
+    not game state and add no prompt text. Its committed rolls are ordinary reply-bound `interaction.settle` receipts (the old
+    `rpgFight*` keys are dropped on chat load). Explicit skill flags are reserved under the
     `dataModules.boardFlags` scratch map, keyed by reply `sid`, block, slot and skill name (DATA_MODULES.md). A fight records
     `bars: 2` in its setup and result (like `aoe` and `fix`) only when every sheet character is pinned `scale: 2`; only then
     single-target skills hit 2 (3 decisive), an area skill costs 2 and Auto stops at a fifth of the bar. An unmarked fight and

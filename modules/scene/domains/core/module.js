@@ -14,7 +14,7 @@ import { createPacksPart, packs as liveInstalled, part as livePart, resolveItem 
 import { createTimelinePart } from '../../../../core/timeline/part.js';
 import { stateHash } from '../../../../core/timeline/host-block.js';
 import { createDataModulesPart, dataModuleGuard } from '../../../data-modules/part.js';
-import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACTICE, RESOLVE as RPG_RESOLVE } from '../../../rpg/names.js';
+import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACTICE } from '../../../rpg/names.js';
 // The RPG's code is loaded only when it is needed (rpg-lazy.js): this part answers for it until it is there.
 import { createLazyRpgPart, lazyFightKind } from '../../../rpg/rpg-lazy.js';
 import { INTERACTION_VIEW, createInteractionView } from '../../../../core/interaction/view.js';
@@ -60,13 +60,13 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
     // The interaction kinds modules register (`interaction(kindId)`: the kind or null) and the settle that plays them (interaction/settle.js).
     const interactionGuard = interactionGuardFor(interaction);
     const interactionCommands = createInteractionCommands({ kindOf: interaction });
-    // One host-owned hook for the host's guarded blocks, by predicate: data modules (`dm.*`), the RPG's rolls
-    // (`rpg.resolve`), a loot offer or take (`loot.offer`, `loot.take`, inventory.js), else the timeline's.
+    // One host-owned hook for the host's guarded blocks, by predicate: data modules (`dm.*`), the RPG's fight XP, practice and
+    // story checks, a loot offer or take (`loot.offer`, `loot.take`, inventory.js), else the timeline's.
     merged.hooks.replayGuard = Object.assign((view, info) => {
         const kind = String(info?.guard?.predicate?.kind ?? '');
         if (kind === 'interaction') return interactionGuard(view, info);
         if (kind.startsWith('dm.')) return dataModuleGuard(view, info);
-        if (kind === RPG_RESOLVE || kind === RPG_FIGHT || kind === RPG_PRACTICE || kind === RPG_CHECK) return rpg.guard(view, info);
+        if (kind === RPG_FIGHT || kind === RPG_PRACTICE || kind === RPG_CHECK) return rpg.guard(view, info);
         if (kind === INVENTORY_EDIT_GUARD) return inventoryEditGuard(view, info);
         if (kind === 'events.decision') {
             const guard = info.guard;

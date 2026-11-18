@@ -184,3 +184,11 @@ hasV1Settings
 isV1Api
 V1_COPY_CODE
 V1_COPY_PROBLEM
+# B4-11c: the RPG planner's replay paths (open.js vetOpen, the rpg.noroll and rpg.resolve record names and readers, the receipt cue wrappers), deleted with their tests.
+vetOpen
+OPEN_MAX_COUNT
+NOROLL
+RESOLVE
+receiptWithCue
+entriesWithCue
+withCue

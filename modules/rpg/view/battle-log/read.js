@@ -1,4 +1,4 @@
-// Reads a reply's recorded roll (the `rpg.resolve` receipt) into the battle log's lines: old and Standard roll
+// Reads a reply's recorded roll (the fight receipt) into the battle log's lines: old and Standard roll
 // text, breakdowns, gear, costs, moves, turn order and an ambush check. A line that is not whole is left out.
 
 import { isRollReceipt } from '../../board/results.js';
@@ -191,7 +191,7 @@ export function readResolve(result, { soulOf = () => null, shape = 0, summary = 
     return { rounds, checks, refused, order, ...(memberList ? { virtualGroups: [...new Set(virtual.map(item => item.group))] } : {}), ...(ambush ? { ambush } : {}), ...(entries.length ? { orderEntries: entries } : {}), ...(quickStart.length ? { quickStart } : {}), ...(opening.length ? { opening } : {}), ...whyOf(result, shape, summary) };
 }
 
-/** The recorded rolls of a reply's record: the result of its `rpg.resolve` receipt that the replay kept, or null. */
+/** The recorded rolls of a reply's record: the result of its fight receipt that the replay kept, or null. */
 export function resolveOf(record, problems = [], options = {}) {
     const skipped = new Set(list(problems).flatMap(problem => list(problem?.receipts)));
     const receipts = list(record?.receipts);

@@ -24,5 +24,5 @@ test('a note over its allowance names the kind in a quiet Problem and is never c
     assert.match(problem.message, /Fight/);
     assert.equal(noteLong(note, { limits: { noteTokens: 100 } }, 'Fight').code, 'NOTE_LONG', 'a kind limit overrides the number');
     assert.equal(settleCue({ type: 'interaction.settle', summary: long }), long, 'the cue is the whole summary');
-    assert.equal(settleCue({ type: 'rpg.resolve', summary: long }), '', 'only a settle receipt is read directly');
+    assert.equal(settleCue({ type: 'rpg.dice', summary: long }), '', 'only a settle receipt is read directly');
 });

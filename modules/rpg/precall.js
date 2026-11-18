@@ -1,7 +1,7 @@
 // The roll hook (SPEC_RPG §2R A3). Rolls are made by the fight board; the optional pre-check reads new foes without planning dice.
 // The fight board is an interaction (board/interaction.js): the core settles a staged fight as the reply's prelude, so here beforeGenerate only offers separate dice for story
 // checks beside it; with no fight to carry it offers the fight kind (the pre-check's groups as an opening) or tells the narrator how to open one (noFight). canGenerate holds a send
-// for the reader's choice when a typed attack meets a known foe. Old chats keep their planner rolls and board records (resolve.js replays them); nothing here asks a model for a plan.
+// for the reader's choice when a typed attack meets a known foe. Nothing here asks a model for a plan.
 import { hashText, normalizeType } from '../assist/common.js';
 import { DICE, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, checksOn, practiceOf } from './names.js';
 import { readSheet } from './read.js';
@@ -25,10 +25,6 @@ const carried = (meta, messages, type, last, anchor, index) => {
     const box = meta?.storySuiteInteraction, held = pendingStart(meta, messages);
     return type === 'swipe' ? priorPayload(messages[index + 1]) : box && typeof box === 'object' ? pickPayload(box, messages, type, last, anchor, { auto: !held || held.choice === 'plain' }).payload ?? null : null;
 };
-
-// Whether a message's record holds a fight the board settled before the port (`rpg.resolve` with a board).
-const oldFightIn = message => [message?.extra?.storySuite, ...(Array.isArray(message?.swipe_info) ? message.swipe_info.map(info => info?.extra?.storySuite) : [])]
-    .some(record => (record?.receipts ?? []).some(receipt => receipt?.type === 'rpg.resolve' && receipt.replan?.payload?.board));
 
 const readSettings = (view, moduleId) => {
     try {
@@ -168,22 +164,8 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
         return dice ? { ...(first ?? {}), commands: [dice] } : skipped(reason, first);
     }
 
-    // A swipe of a reply whose fight was settled before the port (a board `rpg.resolve`) is written without the fight: its record cannot be settled again (INTERACTION-PLAN §6.4).
-    // So is a regenerate of it: every pre-port board send linked its fight on the reader's message (`extra.rpgFightLinks`), and that link is still there.
-    // Swiping back keeps it. A quiet Problem says so, beside whatever the generation is offered.
-    const fightLinked = message => Object.values(message?.extra?.rpgFightLinks ?? {}).some(value => value === true);
-    const NOT_CARRIED = {
-        swipe: 'This reply\'s fight was made before the update, so the new try is written without it. Swipe back to keep it.',
-        regenerate: 'This reply\'s fight was made before the update, so the new reply is written without it.',
-    };
-    async function beforeGenerate(view, info = {}) {
-        const answer = await offerFor(view, info);
-        const type = normalizeType(info?.type);
-        if (info?.commit === false || (type !== 'swipe' && type !== 'regenerate') || view?.feature?.(LEAN_RPG_FEATURE) !== true) return answer;
-        const last = (chat() ?? []).at(-1);
-        if (!(type === 'swipe' ? oldFightIn(last) : fightLinked(last))) return answer;
-        const note = { code: 'FIGHT_NOT_CARRIED', quiet: true, message: NOT_CARRIED[type] };
-        return { ...(Array.isArray(answer) ? { lines: answer } : answer ?? {}), problems: [...(answer?.problems ?? []), note] };
+    function beforeGenerate(view, info = {}) {
+        return offerFor(view, info);
     }
 
     // The reply is captured: the one-time "send without the RPG" flag goes.

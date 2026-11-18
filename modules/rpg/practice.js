@@ -5,7 +5,7 @@
 // untrained roll (a skill the character lacks, or one whose resource was Empty) names no skill in its line and gives nothing. Rank-ups follow the
 // block's own rules (a skill at 100 practice rises a rank and starts again).
 //
-// How. `practiceHook` (the part's afterCapture) reads the reply's own roll (the `rpg.resolve` receipt, from a payload that carries `practice`; a roll made before has none and gives none, so past replies replay as recorded) and asks for guarded `rpg.practice { uses }` steps of at most 40 distinct skills,
+// How. `practiceHook` (the part's afterCapture) reads the reply's own roll (the fight receipt, from a payload that carries `practice`; a roll made before has none and gives none, so past replies replay as recorded) and asks for guarded `rpg.practice { uses }` steps of at most 40 distinct skills,
 // `uses` = [{ who, skill, n }]: the character, the skill as the roll named it, and how many lines used it; `perUse`: the practice one use gives, the value the roll recorded. The step is a guarded block on the reply
 // (replan: a swipe or a delete takes it away, a Re-read plans it again, REPLAY.md), like the fight's XP.
 //

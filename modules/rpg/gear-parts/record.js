@@ -6,7 +6,7 @@ import { isObject } from './shared-helpers.js';
 
 /**
  * The mark a roll's payload carries while gear is on: `{ v: 1 }` or `{ v: 1, lead: '<reader name>' }`, or undefined. `lead` is a stable fact about the roll (who the
- * shared bag `party` meant: the reader's name, used when no party module names the main character), not a gear record; the roll works its gear out itself (resolve.js).
+ * shared bag `party` meant: the reader's name, used when no party module names the main character), not a gear record; the roll works its gear out itself (the fight board).
  */
 export function gearMarkOf(value) {
     if (!isObject(value) || value.v !== GEAR_VERSION) return undefined;

@@ -4,7 +4,7 @@ import { isRollReceipt } from '../board/results.js';
 import { foeLevel } from './levels.js';
 import { isObject, whole } from './shared-values.js';
 
-/** The groups every `rpg.resolve` receipt of the reply opened (their `result.opened`), by slot; in order, a later receipt's entry for the same slot wins (the foe pre-check and the board fight are two receipts). */
+/** The groups every fight receipt of the reply opened (their `result.opened`), by slot; in order, a later receipt's entry for the same slot wins (the opening and the fight are two receipts). */
 function openedEntries(receipts) {
     const out = new Map();
     for (const receipt of Array.isArray(receipts) ? receipts : []) {
@@ -25,7 +25,7 @@ export function boardGroups(sheet, earlier, was, receipts) {
     });
 }
 
-/** The foe slots this reply's roll put a group in (its `rpg.resolve` receipt's `result.opened`, open.js): a group that took a Down group's slot is a new one. */
+/** The foe slots this reply's roll put a group in (its fight receipt's `result.opened`, open.js): a group that took a Down group's slot is a new one. */
 export function openedSlots(receipts) {
     return [...openedEntries(receipts).keys()].filter(slot => Number.isSafeInteger(slot) && slot >= 1);
 }

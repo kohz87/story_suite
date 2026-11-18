@@ -17,7 +17,7 @@ export const FOE_SLOTS = 6;
 export const LIMITS = Object.freeze({
     // The cap of a roll made before the flow of stage 49 (`flow` absent in its payload): such a roll, and one recorded with no numbers at all, keeps it.
     roundCap: 5,
-    // The most exchanges one reply holds by default (every preset; Custom may pick 1 to 8): a fight now runs until something happens (resolve.js).
+    // The most exchanges one reply holds by default (every preset; Custom may pick 1 to 8): a fight now runs until something happens (the fight board).
     roundCapDefault: 8,
     decisiveMargin: 8,
     cueTokens: 600,

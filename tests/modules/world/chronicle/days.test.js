@@ -302,7 +302,7 @@ test('7: a full day keeps up to 40 lines with their tags (valid); a short day ke
 
 test('F2: the fight board\'s real receipt (a system receipt, not narrated) is counted, listed as an event and kept in the digest', () => {
     const fight = (summary, fields = {}) => r('rpg.fight', { module: 'story-block', cause: 'system', narrate: false, summary, ...fields });
-    const entry = entryOf([clock(D * DAY + 60), fight('Fight won: Astra +60 XP.'), r('rpg.resolve', { module: 'story-block', cause: 'system', narrate: false, summary: 'Tell the settled fight results in order; do not reroll them.' })], D);
+    const entry = entryOf([clock(D * DAY + 60), fight('Fight won: Astra +60 XP.')], D);
     assert.deepEqual(entry.fights, { count: 1, won: 1, lost: 0, fled: 0 });
     assert.deepEqual(entry.happened.map(item => [item.text, item.type]), [['Fight won: Astra +60 XP.', 'rpg.fight']]);
     assert.equal(classify({ type: 'rpg.fight', text: 'Fight won: Astra +60 XP.' }), 'events');

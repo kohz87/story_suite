@@ -34,7 +34,7 @@ test('links are add-only and priorPayload reads the reply\'s own interaction rec
     assert.deepEqual(message.extra.storySuiteInteractionLinks, { 'i:key': true });
     const payload = { v: 1, kindId: 'test/probe', key: 'i:key', steps: [] };
     const reply = { extra: { storySuite: { receipts: [
-        { type: 'rpg.resolve', replan: { payload: { board: {} } } },
+        { type: 'rpg.dice', replan: { payload: { seed: 1 } } },
         { type: 'interaction.settle', replan: { payload } },
     ] } } };
     assert.deepEqual(priorPayload(reply), payload);

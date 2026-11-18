@@ -2,7 +2,7 @@
 // They live in a file of their own so the pieces that index.js imports can use them without an import cycle.
 // Public face: re-exports its parts.
 
-export { LEAN_RPG_FEATURE, RESOLVE, BOARD_SKILL, BOARD_SKILL_CARRY } from './names-parts/feature.js';
+export { LEAN_RPG_FEATURE, BOARD_SKILL, BOARD_SKILL_CARRY } from './names-parts/feature.js';
 export { USE_ITEM, DICE, CHECK_STEP } from './names-parts/steps.js';
 export { BOARD_HURTS, BOARD_CLEAR_FOES, BOARD_OPEN_FOES, BOARD_AWARD } from './names-parts/board-steps.js';
 export { ROLL_KIND, CHECKS_SETTING, checksOn, CHECK_GRAMMAR } from './names-parts/checks.js';

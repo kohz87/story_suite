@@ -6,7 +6,7 @@ import { isObject, text } from './shared-values.js';
 
 /**
  * The skills a roll record used: [{ who, skill, n }] in a fixed order (character, then skill). A line counts when it names a skill (an untrained
- * roll names none); an area attack, which is one line per foe it hits, counts once for a round. `result`: `data.v2.result` of an `rpg.resolve` receipt.
+ * roll names none); an area attack, which is one line per foe it hits, counts once for a round. `result`: `data.v2.result` of a fight receipt.
  */
 export function usesOf(result) {
     const count = new Map();
@@ -26,7 +26,7 @@ export function usesOf(result) {
     return [...count.values()].sort((a, b) => fold(a.who).localeCompare(fold(b.who)) || fold(a.skill).localeCompare(fold(b.skill))).map(({ who, skill, n }) => ({ who, skill, n }));
 }
 
-/** The reply's roll that carries a practice per use: the last roll receipt (`rpg.resolve` or a fight settle) among `receipts`, its result, else null. */
+/** The reply's roll that carries a practice per use: the last roll receipt (a fight settle) among `receipts`, its result, else null. */
 export function rollOf(receipts) {
     const found = (Array.isArray(receipts) ? receipts : []).findLast(receipt => isRollReceipt(receipt) && isObject(receipt.data?.v2?.result) && receipt.data.v2.result.v === 1);
     return found && practiceOf(found.data.v2.result.practice) !== null ? found.data.v2.result : null;

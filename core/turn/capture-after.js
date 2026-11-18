@@ -2,7 +2,6 @@
 // may return commands that run as system steps on the scene the reply ended up in (stored live, or planned by a Re-read).
 // `createCaptureAfter(deps)` is given the turn parts it uses; it never imports turn.js.
 import { makeView } from '../sdk.js';
-import { receiptWithCue } from '../../modules/rpg/cue.js';
 import { HOST_MODULE } from '../registry.js';
 import { within, TIMED_OUT } from './text.js';
 import { occurrenceOf } from '../evidence.js';
@@ -32,7 +31,7 @@ export function createCaptureAfter(deps) {
         // A Re-read has stored nothing yet: the proof its lines and earlier steps planned is what the hooks and steps see.
         const planned = () => (live || !plan ? [] : [...plan.blocks.flatMap(piece => piece.block?.evidence ?? []), ...steps.flatMap(step => step.block?.evidence ?? [])]);
         // The reply's own receipts as far as this run knows them (`info.receipts`, read only when a hook asks): the store's for a live reply, a Re-read's planned ones.
-        const replyReceipts = () => (live ? (store.receipts?.() ?? []).filter(entry => entry.index === index).map(entry => entry.receipt) : [...(plan?.blocks ?? []).map(piece => piece.receipt), ...steps.map(step => step.receipt)].filter(Boolean)).map(receiptWithCue);
+        const replyReceipts = () => (live ? (store.receipts?.() ?? []).filter(entry => entry.index === index).map(entry => entry.receipt) : [...(plan?.blocks ?? []).map(piece => piece.receipt), ...steps.map(step => step.receipt)].filter(Boolean));
         const previousReceipts = () => (live ? [] : (store.receipts?.() ?? []).filter(entry => entry.index === index).map(entry => entry.receipt)); // `info.previous` (a Re-read): the reply's stored receipts, still the old ones
         const hooks = [
             ...(prechecks.length ? [{ moduleId: HOST_MODULE, precheck: true, fn: () => ({ commands: prechecks }) }] : []),
