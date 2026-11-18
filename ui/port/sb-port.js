@@ -1,6 +1,7 @@
 // Wraps Story Block's sdk as the UI port: views come from injected selectors fed by sdk queries, actions pass through, and nothing throws.
 
 import { peopleCommand } from './people-settings.js';
+import { packPresets } from '../select/people-settings/catalog.js';
 import { modelsCommand } from './models.js';
 import { rpgCommand } from './rpg.js';
 import { moneyCommand } from './money.js';
@@ -118,7 +119,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) return answer;
         try { answer = await toolsCommand(tools, type, payload); } catch (error) { answer = failure(error); }
         if (answer) return answer;
-        try { answer = peopleCommand(type, payload, writes, () => sdk?.settings?.('npc-state-delta') ?? {}); } catch (error) { answer = failure(error); }
+        try { answer = peopleCommand(type, payload, writes, () => sdk?.settings?.('npc-state-delta') ?? {}, () => packPresets(sdk)); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         try { answer = await worldCommand(type, payload, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;

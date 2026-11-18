@@ -3,6 +3,7 @@ import { h, clear } from '../kit/dom.js';
 import { createNav } from './nav.js';
 import { createPages } from './page.js';
 import { searchRows, renderSearchResults } from './search.js';
+import { foldGroups, foldStore } from './fold-groups.js';
 
 function footerBar(sent, onGo) {
   const pct = sent.cap > 0 ? Math.min(100, Math.round((sent.used / sent.cap) * 100)) : 0;
@@ -22,13 +23,14 @@ function footerBar(sent, onGo) {
  * Creates the Settings overlay over a `settings` view-model.
  * Options: `doc`, `host`, `settings`, `backStack`, `subtitle`, `sent` ({used, cap, total?}, optional footer meter),
  * `renderSection(section, ctx)` (returns the body nodes, or null for the default rows; `ctx.body(section)` gives the default body, the page adds heading, note and resets), `onChange(key, value, row)`,
- * `onAction(key, label, row)`, `onClose`. Returns `{ el, open(id?), close(), show(id), setQuery(text), isOpen, destroy }`.
+ * `onAction(key, label, row)`, `onClose`, `prefs` (folded cards kept per device: getFold/setFold). Returns `{ el, open(id?), close(), show(id), setQuery(text), isOpen, destroy }`.
  */
 export function createSettingsOverlay(options = {}) {
   const { doc = globalThis.document, host = doc.body, settings = {}, backStack = null } = options;
   const subtitle = settings.subtitle ?? options.subtitle ?? '';
   const sent = options.sent ?? settings.sent ?? null;
   const { renderSection = null, onClose, onView = null } = options;
+  const folds = foldStore(options.prefs);
   let sections = settings.sections ?? [];
   // A module switch, a preset or Reset to Standard can turn a page's module on or off (the RPG page goes with the RPG): the side list is read again after them.
   const modulesKey = key => /^modules\./.test(String(key ?? ''));
@@ -82,7 +84,7 @@ export function createSettingsOverlay(options = {}) {
     nav.setCurrent(showSearch ? null : current);
     main.appendChild(backButton());
     if (showSearch) main.appendChild(renderSearchResults(searchRows(sections, query), query, ctx));
-    else if (section) for (const node of sectionPage(section)) main.appendChild(node);
+    else if (section) { for (const node of sectionPage(section)) main.appendChild(node); foldGroups(main, section.id, folds); }
   }
 
   // The pages the host lists now: a page that came back is added, one that went is taken out of the lists and search (the open page moves to Start).

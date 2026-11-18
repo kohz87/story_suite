@@ -8,6 +8,8 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 ### Added
 
+- Settings › People: **Custom meters** (Add a meter; each meter's name, lowest, highest, start, its rule for the story and the words shown instead of its number; Remove), **Meter presets** (pick Companion, Rival, Mentor or a pack's sets), **Per-meter stages** (meter, threshold, stage name) and the **Stage ladder** (stage, what it needs, milestone, track) can now be set in the new view. They store the same NPC State settings the engine reads, apply to the open chat at the next reply, and mark a row NPC State does not use. Renaming a custom meter also renames it in the stages that name it.
+- Every Settings page's cards fold: the card title is a button with a chevron; a folded card is remembered on this device.
 - Settings › Look › **Panel background**: Off (the new default) removes the sky picture behind the Story Suite panels and leaves a plain flat colour, dark or light; On brings the picture back. It applies at once and is kept per device.
 - Settings › RPG and fights: the Difficulty row says what each choice changes and shows the chosen one's numbers; with Custom chosen, four editors set the numbers a character you make in the New character window starts with (stats start at, points to spend, lowest and highest stat at creation).
 
@@ -33,6 +35,10 @@ Main has nothing beyond 0.1.2 yet except documentation.
 - **Selected buttons are readable.** Text on the accent colour (a selected Settings choice such as "Glass", "Nunito" or "Normal", the primary button, the Journal's today, the World trip's current leg, the fight's chosen mark) no longer gets SillyTavern's glow, and its colour is picked for the accent in use, dark or white, at least 4.5:1. In Glass light it is white (the mock's dark text is 3.4:1 on the violet).
 - **Settings follow the RPG switch.** With the RPG off, the RPG and fights page (and its Bag and gear switches) is not listed; switching the RPG on in Start lists it again at once with its stored values, and off takes it away. A module card's "Settings ›" shows only when the module has a page: Story Block has none.
 - **Portrait settings can be edited.** People › Portraits: Prompt and Leave out are boxes of several lines, Composition a line, Style preset a list of the built-in styles and your saved presets, Prompt format a list, and the mood, place and gallery rows switches, all showing what portraits use now and saved as the old portrait panel saved them (editing Prompt or Leave out moves the style to your custom preset). Saved portrait presets has Save as a new preset and Delete this preset.
+
+### Removed
+
+- The fixed "The four feelings" row on Settings › People (nothing could be set there); the README's NPC State section explains the four feelings.
 
 ## 0.1.2 — 18 Nov 2026
 
