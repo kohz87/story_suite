@@ -83,7 +83,8 @@ test('trackers (data modules, meter presets) come from every game pack; nothing 
     await installed.select('game', 'g2');
     assert.equal(calendarOf(installed.packs()).pack, 'g2');
     await installed.select('game', null);
-    assert.equal(calendarOf(installed.packs()), null, 'built-in game: no pack calendar');
+    const builtIn = calendarOf(installed.packs());
+    assert.deepEqual([builtIn.pack, builtIn.builtIn, builtIn.months, builtIn.world], [null, true, [], 'w1'], 'built-in game: no pack calendar, only the world\'s start on the Gregorian one');
     assert.deepEqual(contentOf(installed.packs(), 'meterPresets').length, 2);
 });
 

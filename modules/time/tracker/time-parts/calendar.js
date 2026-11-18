@@ -16,22 +16,28 @@ function ask(query, name) {
 
 /**
  * The game's calendar through a query function (ctx.query, view.query, tools.query):
- * `{ pack, era, months: [{ name, days }], leapYears?, week?, seasons?, start }` or null (no game gives one, or no packs part).
+ * `{ pack, era, months: [{ name, days }], leapYears?, week?, seasons?, start }` or null (no game gives one, or no packs part); with the built-in game and a
+ * world that has a start date, `{ pack: null, builtIn: true, era, months: [], start }` (the date on the Gregorian calendar).
  * A chat that has a frame (`packs.frame`, pack format 4) reads the calendar the frame recorded at its start, so a game swapped in
- * Settings later does not move its dates; a frame of the built-in game has none (null: Gregorian). Without a frame it is the selected game's
- * (`packs.calendar`). The start date comes from the selected world either way, and only while that game is the chat's.
+ * Settings later does not move its dates; a frame of the built-in game has none (Gregorian). Without a frame it is the selected game's
+ * (`packs.calendar`). The start date (and a built-in game's era) comes from the selected world, and only while that world and game are the chat's.
  */
 export function packCalendarOf(query) {
     if (typeof query !== 'function') return null;
     const live = ask(query, 'packs.calendar');
     const frame = ask(query, 'packs.frame');
     if (isRecord(frame) && frame.set === true) {
-        if (!hasMonths(frame.calendar)) return null;
+        const worldNow = isRecord(live) && live.world ? live.world : null;
+        const sameWorld = worldNow !== null && isRecord(frame.world) && frame.world.pack === worldNow;
+        if (!hasMonths(frame.calendar)) {
+            // The built-in game: the world the chat began with gives its start and era (a world installed later moves nothing).
+            return frame.game === 'built-in' && live?.builtIn === true && sameWorld ? structuredClone(live) : null;
+        }
         const out = { pack: isRecord(frame.game) ? frame.game.pack : null, ...structuredClone(frame.calendar), start: null };
-        if (hasMonths(live) && live.pack === out.pack && live.start) out.start = structuredClone(live.start);
+        if (hasMonths(live) && live.pack === out.pack && live.start && sameWorld) out.start = structuredClone(live.start);
         return out;
     }
-    return hasMonths(live) ? live : null;
+    return hasMonths(live) || live?.builtIn === true ? live : null;
 }
 
 /**
@@ -49,7 +55,8 @@ export function calendarConfig(settings, gameCalendar = null) {
                 leapYears: gameCalendar.leapYears === true, week: Array.isArray(gameCalendar.week) ? gameCalendar.week : [],
             });
         }
-        return normalizeCalendar(PRESETS.gregorian);
+        // The built-in game: Gregorian, with the world's era when it names one.
+        return normalizeCalendar(gameCalendar?.builtIn === true && gameCalendar.era ? { ...PRESETS.gregorian, era: String(gameCalendar.era) } : PRESETS.gregorian);
     }
     return normalizeCalendar(own);
 }

@@ -21,22 +21,27 @@ function selectedPacks(packs) {
     const picked = packs.selected();
     const list = packs.packs();
     const find = (kind, id) => (id ? list.find(pack => pack.kind === kind && pack.id === id) ?? null : null);
-    return { world: find('world', picked.world), game: find('game', picked.game) };
+    const world = find('world', picked.world), game = find('game', picked.game);
+    // A choice whose pack is not readable yet (the checker still loading) or any more (it no longer checks): `missing`, so no frame is written from half a pair.
+    return { world, game, missing: Boolean((picked.world && !world) || (picked.game && !game)) };
 }
 
 /**
- * The frame a chat would begin with now: `{ world, game, calendar, currency }`, or null when no world and no game is selected (a chat of format 3 packs
- * or of none has no frame). `always` gives one anyway (the built-in game, no world) for "Use the current game in this chat". `packs`: the installed list
+ * The frame a chat begins with now: `{ world, game, calendar, currency }`. With nothing selected it is the built-in game's frame (no world, no calendar,
+ * no currency), so a pack installed later never moves a chat that has begun. Null while a selected pack cannot be read. `packs`: the installed list
  * (`packs/installed.js`). The calendar (with the world's era, when it names one) and currency are the game pack's own; a built-in game has none here, and the time and money modules use their own.
  */
-export function resolveFrame(packs, { always = false } = {}) {
-    const { world, game } = selectedPacks(packs);
-    if (!world && !game && !always) return null;
+export function resolveFrame(packs) {
+    const { world, game, missing } = selectedPacks(packs);
+    if (missing) return null;
     const calendar = copy(game?.calendar);
     // The era: the world's own (`start.date.era`, a year number is lore) comes before the game calendar's; the reader's Settings row comes before both (time module).
     if (calendar && typeof world?.start?.date?.era === 'string' && world.start.date.era) calendar.era = world.start.date.era;
     return { world: world ? entryOf(world) : null, game: game ? entryOf(game) : 'built-in', calendar, currency: copy(game?.currency) };
 }
+
+/** The selected world and game as the checker read them (`{ world, game }`, null for none): what the pairing lines are made of. */
+export const selectedPair = packs => { const { world, game } = selectedPacks(packs); return { world, game }; };
 
 const major = version => Number.parseInt(String(version).split('.')[0], 10);
 

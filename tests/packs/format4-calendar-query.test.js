@@ -19,7 +19,7 @@ test('packs.calendar: the first enabled pack with a calendar, a copy; null with 
     assert.equal(part.queries['packs.calendar'](), null);
     await packs.install(game(CALENDAR));
     const first = part.queries['packs.calendar']();
-    assert.deepEqual(first, { pack: 'ersveil', ...CALENDAR });
+    assert.deepEqual(first, { pack: 'ersveil', world: null, ...CALENDAR });
     first.months[0].days = 1;
     assert.equal(part.queries['packs.calendar']().months[0].days, 30, 'a fresh copy every time');
     await packs.setEnabled('ersveil', false);
