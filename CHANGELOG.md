@@ -13,6 +13,7 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 ### Changed
 
+- Settings: the answer to a change is now read. A refused value (for example a Months list that does not read, or a coin line that does not) is shown under its row; a switch, choice or chip row goes back to its old value, and a number or text box keeps what was typed beside the note. A number the store held to its range (Level cap 100 becomes 99, XP rate 101 becomes 100) is redrawn at once instead of after the next open.
 - The README and this changelog are rewritten to be readable: short sections, tables, and the long notes folded away.
 
 ### Removed
