@@ -3,6 +3,8 @@
 // earliest saved point), the rebuild after a head change and the guarded steps planned again after a delete or swipe.
 // `createSession(s, deps)` is given the turn's state holder `s` and the few turn parts it uses; it never imports turn.js.
 
+import { stampReply } from './problem-reply.js';
+
 export function createSession(s, deps) {
     const { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch = () => {}, kindOf = () => null, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM, keepLog = () => {} } = deps;
 
@@ -33,7 +35,8 @@ export function createSession(s, deps) {
     const clearPrompts = () => setPrompts('', '');
 
     function problem(entry) {
-        const item = { module: null, code: 'PROBLEM', ...entry };
+        // (stamped with its reply's record ID, so the list puts it where that reply is after a delete: problem-reply.js)
+        const item = stampReply({ module: null, code: 'PROBLEM', ...entry }, store);
         // An over-long settle note is named once however often the prompt is built (send, regenerate, dry run): the same words are not listed again.
         if (item.code === 'NOTE_LONG') {
             const same = s.problemLog.find(old => old.code === item.code && old.module === item.module && old.message === item.message);

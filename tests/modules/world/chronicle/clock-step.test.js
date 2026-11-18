@@ -98,6 +98,12 @@ test('a refused face (the clock stayed, `to` is the face it asked for) lands onc
     assert.equal(stepClock(3 * DAY + 300, refused), 3 * DAY + 480, 'at 5 am the next day it is 8 am');
     assert.equal(stepClock(3 * DAY + 1140, refused), 3 * DAY + 1140, 'at 7 pm the next day it is refused again');
 });
+test('a "day" face (an earlier face on a jump\'s landing day, soak W4) keeps its day offset, below the clock too', () => {
+    const face = anchored('day', 23 * DAY + 390, 23 * DAY + 1380);   // "~ time 6:30 am" told at 11 pm on the landing day
+    assert.equal(stepClock(23 * DAY + 1380, face), 23 * DAY + 390, 'as told');
+    assert.equal(stepClock(2 * DAY + 1380, face), 2 * DAY + 390, 'the jump three weeks earlier: 6:30 am three weeks earlier');
+    assert.equal(stepClock(23 * DAY + 1080, face), 23 * DAY + 390, 'a landing 5 hours earlier on the same day: still 6:30 am');
+});
 test('an anchored receipt with no `from` moves nothing', () => {
     assert.equal(stepClock(5 * DAY, r('capture.time', 99, { kind: 'same' })), 5 * DAY);
 });
