@@ -82,9 +82,9 @@ const toldHere = (entry, at) => {
 // {{user}} / {{char}} in a planner prompt are filled with the names, as the arc planner's are (the chat's host does it; none given: the text as it is).
 const filled = (model, text) => (typeof model?.substitute === 'function' ? model.substitute(text) : text);
 
-// The meeting cue and rumor, then the world's own people at the scene's place (LA-2: named, so the story uses them and invents no double).
-const withHere = (lines, slice, frame, at, chat) => {
-    const here = hereLine(slice, frame, { at, chat, persona: personaName() });
+// The meeting cue and rumor, then the world's own unmet people at the scene's place (LA-2: named, so the story uses them and invents no double).
+const withHere = (lines, slice, frame) => {
+    const here = hereLine(slice, frame, { persona: personaName() });
     return here ? [...lines, here] : lines;
 };
 
@@ -199,7 +199,7 @@ export function createCastHooks({ plans }) {
             const frame = frameOf(view);
             const at = isInt(view?.chat?.length) ? view.chat.length : null;
             const slice = view?.state?.domains?.cast;
-            const lines = withHere(cueLines(slice, frame.cast, at, chatOf(view)), slice, frame, at, chatOf(view));
+            const lines = withHere(cueLines(slice, frame.cast, at, chatOf(view)), slice, frame);
             return lines.length ? { lines: pinned(lines) } : undefined;
         }
         if (!REPLY_TYPES.has(normalizeType(info?.type))) return undefined;
@@ -305,7 +305,7 @@ export function createCastHooks({ plans }) {
         }
         // The cue and the rumor go as pinned lines of this reply (Story Block keeps a `keep` cue whatever the tail budget says).
         const now = isInt(view?.chat?.length) ? view.chat.length : null;
-        const lines = pinned(withHere(cueLines(world, frame.cast, now, chatOf(view)), world, frame, now, chatOf(view)));
+        const lines = pinned(withHere(cueLines(world, frame.cast, now, chatOf(view)), world, frame));
         const problems = planFailed ? [PLAN_FAILED] : [];
         return commands.length || lines.length || problems.length ? { ...(commands.length ? { commands } : {}), ...(lines.length ? { lines } : {}), ...(problems.length ? { problems } : {}) } : undefined;
     }

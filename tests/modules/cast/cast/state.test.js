@@ -52,7 +52,7 @@ test('a first meeting by place and routine: the party is at their place while th
         assert.equal(brom.met.why, 'place');
         assert.equal(brom.met.where, 'Harrow');
         const cue = castCue(host);
-        assert.match(cue, /^\[Cast\] a stranger comes into the scene in this reply\./);
+        assert.match(cue, /^\[Cast\] a stranger comes into the scene in this reply; their name is [^.]+\./);
         assert.match(cue, /Look: weathered\./);
         assert.match(cue, /Why now: At the forge in the morning, they are at Harrow/);
         assert.doesNotMatch(cue, /Fenna|Hidden thing|Never said|No roll/, 'no other person, no secret, no card words');

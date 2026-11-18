@@ -54,7 +54,7 @@ test('a day passes: one planner call after the reply that moved the clock, appli
         assert.equal(world['ersveil:brom'].where, 'Kesh');
         // Sera's goal pulls her to the party: she is met, for that reason, this reply.
         assert.deepEqual([world['ersveil:sera'].met.why, world['ersveil:sera'].met.reason], ['goal', 'her hunt for her brother\'s killer led her to the man you fought at the weir.']);
-        assert.match(castCue(host), /^\[Cast\] a stranger comes into the scene in this reply\./);
+        assert.match(castCue(host), /^\[Cast\] a stranger comes into the scene in this reply; their name is [^.]+\./);
         assert.match(castCue(host), /Why now: Her hunt for her brother's killer led her to the man you fought at the weir\. Their own goal brings them/);
         // The cards: the cast moved on (counts, no names of the unmet), and the meeting with its reason.
         const notes = Object.values(slice(host).notes);

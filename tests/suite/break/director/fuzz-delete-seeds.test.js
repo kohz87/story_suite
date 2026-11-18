@@ -6,6 +6,7 @@ import { createHost } from '../../../../testkit/index.js';
 import { createFakeModel } from '../../../../testkit/model.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { castPlans } from '../../../../modules/cast/cast/index.js';
+import { HERE_MAX } from '../../../../modules/cast/cast/note.js';
 import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 import { problemList } from '../../../../modules/time/tracker/domain.js';
 import { fakeDelta } from '../../helpers/fake-delta.js';
@@ -70,6 +71,8 @@ function dayLines(rd, n) {
 }
 
 let soughtRumors = 0;
+// Prompts that carried a [People here] line (counted over all seeds): the second channel was reached.
+let peopleHere = 0;
 let soughtMeetings = 0;
 // Near-name quest lines that settled on the quest (counted over all seeds, asserted after them).
 let nearPicks = 0;
@@ -250,8 +253,17 @@ for (const seed of SEEDS) {
             assert.ok(castDone.length >= 1, `seed ${seed}: the cast joined the world`);
             const world = Object.values(host.head().domains.cast.people);
             t.diagnostic(`seed ${seed}: cast steps ${castDone.length} (met ${castDone.filter(text => /^Paths crossed/.test(text)).length}, moved ${castDone.filter(text => /moved on/.test(text)).length}), people ${world.length}, met ${world.filter(person => person.met).length}, dead ${world.filter(person => !person.alive).length}`);
-            // Nothing but a first-meeting cue names an unmet person: not even the pulse's chance-meeting line.
-            const told = host.st.promptLog.filter(entry => entry.value).flatMap(entry => String(entry.value).split('\n').filter(line => !line.startsWith('[Cast]')));
+            // Only two channels name an unmet person to the narrator: a first-meeting cue ([Cast]) and the [People here] line (LACA2, the lead's decision:
+            // the narrator may know the world's own names so it invents no doubles; the prompt is never shown to the reader). Nothing else does, not even
+            // the pulse's chance-meeting line. [People here] stays small: at most one a prompt, naming at most HERE_MAX people.
+            const prompts = host.st.promptLog.filter(entry => entry.value).map(entry => String(entry.value).split('\n'));
+            for (const lines of prompts) {
+                const here = lines.filter(line => line.startsWith('[People here]'));
+                assert.ok(here.length <= 1, `seed ${seed}: one [People here] line a prompt at most`);
+                for (const line of here) assert.ok(CAST_IDS.filter(id => new RegExp(`\\b${id}\\d*\\b`, 'i').test(line)).length <= HERE_MAX, `seed ${seed}: [People here] names at most ${HERE_MAX}: ${line}`);
+            }
+            peopleHere += prompts.flat().filter(line => line.startsWith('[People here]')).length;
+            const told = prompts.flat().filter(line => !line.startsWith('[Cast]') && !line.startsWith('[People here]'));
             // A rumor describes; it never names (it is a [Cast] line too, so it is checked on its own).
             const rumors = host.st.promptLog.filter(entry => entry.value).flatMap(entry => String(entry.value).split('\n')).filter(line => line.startsWith('[Cast] People here know of'));
             for (const id of [...CAST_IDS, 'ylva']) assert.ok(!rumors.some(line => new RegExp(`\\b${id}\\d*\\b`, 'i').test(line)), `seed ${seed}: ${id} is named in a rumor`);
@@ -281,6 +293,11 @@ for (const seed of SEEDS) {
 test('delete fuzz: the reader sought a kind of person and the cast answered (a meeting, a rumor) in the seeds', () => {
     assert.ok(soughtMeetings > 0, 'a person the reader sought came in');
     assert.ok(soughtRumors > 0, 'a person the reader sought who was elsewhere was heard of');
+});
+
+test('delete fuzz: the [People here] line was sent (the second channel the narrator hears unmet names on)', t => {
+    t.diagnostic(`prompts with [People here] ${peopleHere}`);
+    assert.ok(peopleHere > 0, 'the line was reached');
 });
 
 test('delete fuzz: a person who passed through a scene inside one reply counted as met', t => {

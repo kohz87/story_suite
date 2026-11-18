@@ -12,7 +12,7 @@ export function meetingFresh(slot, at) {
     return Boolean(meeting) && isInt(at) && isInt(meeting.at) && at >= meeting.at && at < meeting.at + FRESH_REPLIES;
 }
 
-/** `text` with the person's name (a whole word, any case) replaced by `label`: a cue for a stranger never carries the name. */
+/** `text` with the person's name (a whole word, any case) replaced by `label`: a stranger's descriptive fields call them by the label (the name is given once, in the intro). */
 function maskName(text, name, label) {
     const said = String(name ?? '').trim();
     if (!said) return text;
@@ -50,7 +50,8 @@ export function cueOf(person, entry, room = TAIL_BUDGET * 4 - 8 - '[Cast] '.leng
     const words = wordsOf(person);
     const all = Array.isArray(person.aliases) ? person.aliases : [];
     const aliases = (person.met?.why === 'story' ? all : descriptiveAliases(person)).slice(0, 2);
-    // A stranger met for the first time has no name yet in the story: the cue gives the alias and says so. Someone the story already named (`why: 'story'`) keeps the name.
+    // A stranger met for the first time has no name yet in the story: the cue calls them by the alias and gives the name once, to be used only after it
+    // is said (LF4-2: a cue with no name made the narrator invent one, and the meeting was taken back). Someone the story already named (`why: 'story'`) keeps the name.
     const unnamed = person.met?.why !== 'story';
     const label = aliases[0] || 'a stranger';
     // Every word of the name (first or family name, 3+ letters) is masked too, whatever the aliases are.
@@ -58,8 +59,9 @@ export function cueOf(person, entry, room = TAIL_BUDGET * 4 - 8 - '[Cast] '.leng
     const said = String(person.met?.reason ?? '').toLowerCase();
     const nameWords = Array.from(words).filter(word => Array.from(word).length >= 3 && !said.includes(word));
     const hide = text => (unnamed ? [person.name, ...all, ...nameWords].reduce((out, name) => maskName(out, name, label), text) : text);
+    // LF4-2: the name is given (the narrator only; the cue is never shown to the reader), so the story says the world's own name, not one it makes up.
     const intro = unnamed
-        ? `${label}${aliases.length > 1 ? ` (also ${aliases.slice(1).join(', ')})` : ''} comes into the scene in this reply. It is their first meeting with {{user}}, and {{user}} does not know their name until it is said in the story: do not use it before someone says it.`
+        ? `${label}${aliases.length > 1 ? ` (also ${aliases.slice(1).join(', ')})` : ''} comes into the scene in this reply; their name is ${person.name}. It is their first meeting with {{user}}: the narration calls them ${label} and uses the name only after someone in the story says it.`
         : `${person.name}${aliases.length ? ` (also ${aliases.join(', ')})` : ''} comes into the scene in this reply. It is their first meeting with {{user}}.`;
     const why = sentence(`Why now: ${cutWords(hide(whyNarrator(person)), WHY_MAX)}`);
     let left = room - [intro, why, CLOSING].reduce((sum, part) => sum + Array.from(part).length + 1, 0);
