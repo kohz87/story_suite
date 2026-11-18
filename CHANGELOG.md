@@ -33,6 +33,8 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 ### Fixed
 
+- **Story › Director: Show the plan now shows the plan.** The button saved your choice but the Story tab never read it, so nothing opened. It now opens the beats, clocks, hooks, news, off-screen agendas and secrets at once. With nothing to show it says one line: "The Director has no plan yet; it plans after the opening."; with Story Director's Threads switch off it says that switch hides beats, clocks, agendas and secrets.
+
 - Settings › Look works in the new view: Panel style (Glass or Follow SillyTavern), Glass strength, Font and Text size now change the Story Suite panel at once and stay after a reload; Reset Look puts the Glass look back. The panel now opens in Glass by default (light or dark from your SillyTavern theme) instead of always taking SillyTavern's colours.
 - The Send pending note shows above the message box in the new view again (sends when the story is ready, not sent yet, sent); its fight-held state stays hidden there, as the Fight tab shows the fight. The Send pending note switch turns it off.
 - A companion who joins under a Custom "Stats start at" above 5 no longer loses stats (its best stat was held to 10).

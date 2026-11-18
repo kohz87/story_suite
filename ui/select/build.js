@@ -19,6 +19,7 @@ import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
 import { repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
+import { PREFS_KEY } from '../port/prefs-key.js';
 import { pickOf, pickedFocus } from './focus.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 import { createWizardWorld } from '../wizard/world.js';
@@ -83,7 +84,8 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       return selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null, worldEvents, conditionsHere: worldEvents ? read('chronicle.conditionsHere', {}) : null, regionNames: read('chronicle.regionNames', {}) });
     },
     journal: read => selectJournal(read, { focusId: pickOf(ctx) }),
-    story: read => selectStory(read),
+    // The plan opens from this chat's own pref (the Story tab's Show the plan writes it); the Threads switch decides whether its beats, clocks, agendas and secrets exist at all.
+    story: read => selectStory(read, { planShown: ctx()?.chatMetadata?.[PREFS_KEY]?.plan === true, threadsOn: sdk?.features?.()?.find?.(f => f?.id === 'story-director.threads')?.on !== false }),
     // The open interaction: `interaction.view`, null when none is open. A fight is shown on the Fight tab, not here.
     scene: read => openScene(read('interaction.view', {})),
     // The open fight: the same answer, drawn by the fight renderer on the activity host (the kind's own view is the FIGHT_SHAPE), or the waiting fight's offer; null when neither.
