@@ -30,8 +30,8 @@ export function stampScenePresence(state, names) {
         if (!npc.present && npc.location && !locked(npc)) npc.location = '';
         npc.present = true;
         npc.worldActive = false;
+        if (npc.lastSeenTurn !== turn) npc.seenCount = Number(npc.seenCount || 0) + 1;   // (once a turn: a second look at the same reply counts nothing)
         npc.lastSeenTurn = turn;
-        npc.seenCount = Number(npc.seenCount || 0) + 1;
         ids.push(npc.id);
     }
     return ids;
