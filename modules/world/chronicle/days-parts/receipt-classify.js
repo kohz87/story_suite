@@ -11,8 +11,10 @@ const CLOCK_TYPES = new Set(['capture.time', 'director.seed', 'director.clock', 
 // field edits, timer ticks and reply-end settles (`dm.set`, `dm.tick`, `dm.settle`), the Director's own initiative pick and world pulse, the story-time settle and the cast's
 // "nothing changed". Practice lines and add-xp are the reader's progress and stay.
 export const BOOKKEEPING_TYPES = new Set([
-    'dm.set', 'dm.tick', 'dm.settle', 'director.initiative', 'director.pulse', 'time.settle', 'cast.advance',
+    'dm.set', 'dm.tick', 'dm.settle', 'director.initiative', 'director.pulse', 'time.settle', 'cast.advance', 'people.write',
 ]);
+// NPC State's per-reply upkeep lines ("Oswin Marle: meters started", "...: nothing moved"): the meters' own bookkeeping, not an event.
+const UPKEEP_SUMMARY = /^[^:]{1,80}: (?:nothing moved|meters started|nothing changed)\b/i;
 // A block's template result (`capture.dm` / `dm.act`, `data.v2.result.kind`) that is a plain meter set (set-health, set-mana,
 // set-stamina, set-slot-N) or a foe slot clear (clear-N) is bookkeeping; every other kind (register, deed, add-xp ...) is a story event.
 const METER_KIND = /^(set-[a-z]+(-\d+)?|clear-\d+)$/;
@@ -22,6 +24,7 @@ export function isBookkeeping(receipt) {
     if (BOOKKEEPING_TYPES.has(receipt.type)) return true;
     // Who is or is not in the scene (state, not an event: "Met" has the arrivals) and the NPC State ticks that say nothing happened ("Key people: noted", "NPC meters: the reply was counted").
     if (PRESENT_TYPES.has(receipt.type) && PRESENCE_TEXT.test(text(receipt.summary).trim())) return true;
+    if (UPKEEP_SUMMARY.test(text(receipt.summary).trim())) return true;
     if (receipt.type === 'npc.tick' && /^(Key people: noted|NPC meters: the reply was counted)/.test(text(receipt.summary).trim())) return true;
     // The names check of a `person` line ("Name: Torger Venn is new; look: …", "… is known already", "… is not a fresh name"): the arrival is "Met", the profile is the dossier's (LAB2-5).
     if (receipt.type === 'capture.person' && /^Name: /.test(text(receipt.summary).trim())) return true;

@@ -64,7 +64,7 @@ function recordSections(r) {
     section('Money', money),
     section('Stage moves', (r.stageMoves ?? []).map(s => row('↗', `${s.who} · ${s.meter}: ${s.from} → ${s.to}`))),
     section('Who you met', r.met?.length ? [row('★', r.met.join(', '))] : []),
-    section('News', (r.world ?? []).map(n => row('!', ['Heard of ', name(n)]))),
+    section('News', (r.world ?? []).map(n => (/^World:\s/.test(n) ? row('!', name(n.replace(/^World:\s*/, ''))) : row('!', ['Heard of ', name(n)])))),
   ];
 }
 

@@ -14,6 +14,16 @@ const number = value => (Number.isFinite(value) ? value : 0);
 // Plan-gated lists carry their count always and their items only while the plan is shown (spoilers, decision 36.1).
 const gate = (rows, shown, make) => ({ count: rows.length, items: shown ? rows.map(make) : [] });
 
+// A pulse line begins with its own kind ("mundane interruption (noticed): the narrator invents it") that the row's title already says:
+// shown once, "the narrator invents it · noticed".
+function afterKind(kind, line) {
+  const words = text(kind).toLowerCase();
+  const said = text(line);
+  if (!words || !said.toLowerCase().startsWith(words)) return said;
+  const rest = /^\s*(?:\(([^)]*)\))?\s*:?\s*([\s\S]*)$/.exec(said.slice(words.length));
+  return rest?.[2] ? `${rest[2]}${rest[1] ? ` · ${rest[1]}` : ''}` : said;
+}
+
 function pulseOf(view, shown) {
   if (!view || typeof view !== 'object') return { mode: 'off', quiet: false, latest: null, recent: [] };
   const now = view.now && typeof view.now === 'object' ? view.now : null;
@@ -22,7 +32,7 @@ function pulseOf(view, shown) {
   return {
     mode: MODES.includes(view.mode) ? view.mode : 'lively',
     quiet,
-    latest: now && !quiet ? { roll, kind: shown ? text(now.label) || null : null, cause: shown ? text(now.effect) || text(now.text) || null : null } : null,
+    latest: now && !quiet ? { roll, kind: shown ? text(now.label) || null : null, cause: shown ? text(now.effect) || afterKind(now.label, now.text) || null : null } : null,
     recent: list(view.recent).map(row => {
       const skipped = row.skipped === true;
       const open = shown || skipped;
@@ -30,7 +40,7 @@ function pulseOf(view, shown) {
         skipped,
         roll: skipped || row.die === undefined || row.die === null ? null : String(row.die),
         kind: open ? text(row.label) : 'Rolled',
-        text: open ? text(row.text) : '',
+        text: open ? afterKind(row.label, row.text) : '',
         effect: shown ? text(row.effect) || null : null,
       };
     }),

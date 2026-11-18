@@ -17,7 +17,7 @@ export function startHostParts({ runtime, ctx, readLorebook = readCharacterLoreb
     const cardLog = [];
     const cardOffer = createCardOfferWiring({ runtime, ctx, sdk, store, liveCtx, readLorebook, flushSettings, cardLog });
     setLiveOffer(cardOffer);
-    const savePoints = createSavePoints({ ctx, store, live: liveCtx, ...(runtime.createBranch ? { createBranch: runtime.createBranch } : {}) });
+    const savePoints = createSavePoints({ ctx, store, live: liveCtx, story: () => sdk.query?.('director.time', {})?.text ?? '', ...(runtime.createBranch ? { createBranch: runtime.createBranch } : {}) });
     const refreshOffer = () => { cardOffer?.refresh().catch(error => console.warn(WARN, error)); };
     const offs = [];
     const types = ctx.eventTypes ?? ctx.event_types ?? {};
