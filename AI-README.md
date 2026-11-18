@@ -247,7 +247,7 @@ extension, shows each part read only and exports it again as a zip or JSON; edit
 | Trackers | Game | Meter presets and data modules |
 | Start | Game | What the player starts with |
 | Other | Pack | Anything else the pack holds, as written |
-| Dry run | Check | Run the world for some days |
+| Dry run | Check | Run the world for some days, as a chat would, and see what fires. Nothing is saved and the pack does not change |
 | Pairing | Check | The world against a game |
 | Problems | Check | What the pack checker says |
 <!-- /generated:studio -->
