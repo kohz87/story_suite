@@ -5,7 +5,9 @@ import { glyph } from '../../kit/glyphs.js';
 import { isSafePortraitUrl } from '../../kit/safe-url.js';
 
 const TITLES = /^(Sister|Captain|Old) /;
-const lower = text => (text ? text[0].toLowerCase() + text.slice(1) : text);
+// Only a phrase is lowered to run on in the line ("At the Gull" → "at the Gull"); a place's own name keeps its capital ("Bluewatch Village").
+const PHRASE_START = /^(?:at|on|in|inside|outside|near|by|behind|beside|under|along|across|towards?|the|a|an|somewhere|north|south|east|west)\b/i;
+const lower = text => (text && PHRASE_START.test(text) ? text[0].toLowerCase() + text.slice(1) : text);
 
 /** First letter of the name without a title (Sister, Captain, Old), shown when there is no portrait. */
 export function initialOf(person) {
