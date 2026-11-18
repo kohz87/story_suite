@@ -31,11 +31,14 @@ export function lookOf(settings) {
   };
 }
 
+// The panel's alpha for a strength: below 50% one point of alpha per point (30% → 20 points clearer); above it the rest of the way to .98 is spread
+// over 50–90%, so every step up to 90% is denser (no dead zone where the cap is reached early).
+const alphaAt = (base, strength) => (strength <= STRENGTH.base ? base - (STRENGTH.base - strength) / 100 : base + ((0.98 - base) * (strength - STRENGTH.base)) / (STRENGTH.max - STRENGTH.base));
 const alpha = a => String(Math.round(Math.min(0.98, Math.max(0.2, a)) * 100) / 100).replace(/^0\./, '.');
 
 /**
  * The look's theme: `{ tokens, scheme, zoom }`. Light or dark follows SillyTavern's theme (`readVar(name)` reads its CSS variables) either way.
- * Glass: the Glass dark or light tokens, the panels' alpha moved by the strength (one point of strength, one point of alpha; 50% is the mock's).
+ * Glass: the Glass dark or light tokens, the panels' alpha moved by the strength (50% is the mock's, 90% is .98, under 50% one point per point).
  * Follow SillyTavern: its own colours and blur (follow-st.js); the strength does not apply. The Font sets `--su-font` under both.
  */
 export function lookTheme(look, readVar = () => '') {
@@ -43,7 +46,7 @@ export function lookTheme(look, readVar = () => '') {
   const scheme = decideScheme({ body: read('--SmartThemeBodyColor'), tint: read('--SmartThemeBlurTintColor') });
   const tokens = look.panel === 'sillytavern' ? { ...followSt(read) } : { ...(scheme === 'light' ? GLASS_LIGHT : GLASS_DARK) };
   if (look.panel === 'glass' && look.strength !== STRENGTH.base) {
-    for (const [name, [rgb, base]] of Object.entries(PANELS[scheme])) tokens[name] = `rgba(${rgb},${alpha(base + (look.strength - STRENGTH.base) / 100)})`;
+    for (const [name, [rgb, base]] of Object.entries(PANELS[scheme])) tokens[name] = `rgba(${rgb},${alpha(alphaAt(base, look.strength))})`;
   }
   tokens['--su-font'] = look.font === 'theme' ? THEME_FONT : NUNITO;
   return { tokens, scheme, zoom: TEXT_ZOOM[look.textSize] };
