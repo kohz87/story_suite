@@ -444,5 +444,17 @@
   "tests/modules/world/open/arc-step.test.js": "Tests: generated arcs in the daily step (plan copy, schedule, anchors, refusals, caps, template with no arc unchanged).",
   "ui/select/module-text.js": "Gives the Start page's reader-facing words: each module card's icon, description and off line, and the three presets' names and descriptions.",
   "ui/select/module-costs.js": "Counts the Start page's token figures: what each module card's switches add to the fixed prompt and the fixed prompt under each preset, without switching anything.",
-  "tests/ui/settings/sections/start-cards-live.test.js": "Checks the Start module cards' text and engine token figures and that Lean, Standard and Full apply through the port and redraw, on a live host."
+  "tests/ui/settings/sections/start-cards-live.test.js": "Checks the Start module cards' text and engine token figures and that Lean, Standard and Full apply through the port and redraw, on a live host.",
+  "scripts/ui-walk/settings-walk.mjs": "CLI of the Settings click-through test: per size and theme it opens a running SillyTavern's suite and Settings, walks every page, reload-checks and restores, and writes the pass/fail table and failure screenshots.",
+  "scripts/ui-walk/walk-plan.mjs": "The settings walk's pure decisions: its command line, the value each control is changed to, the controls it never changes and why, and the stored paths a change touched.",
+  "scripts/ui-walk/walk-dom.mjs": "The settings walk's in-page readers: tags and lists the open Settings page's controls, reads their values, prints the suite's look, and snapshots what the suite stores.",
+  "scripts/ui-walk/walk-session.mjs": "One browser page on a running SillyTavern for the settings walk: loads it with model calls refused, opens the chat and the suite, forces dark or light, opens Settings pages, sets controls with real clicks and reloads after the saves land.",
+  "scripts/ui-walk/walk-effects.mjs": "Checks the visible effect of a settings change where a row has one: Look rows, Panel background, the RPG switch, Calendar's Custom rows, a module switch greying its page.",
+  "scripts/ui-walk/walk-section.mjs": "Walks one Settings page: changes each control, checks what shows, its effect, what was stored and that the page redraws, puts switches that change other rows back at once, and reads a fresh Settings.",
+  "scripts/ui-walk/walk-batch.mjs": "Ends one settings-walk run: reloads to check every kept change stuck and restores it, then sets the switches together, reloads, checks and restores them.",
+  "scripts/ui-walk/walk-record.mjs": "The settings walk's result records: make one, mark a failed check, attach a screenshot, compare shown values.",
+  "scripts/ui-walk/walk-report.mjs": "Writes the settings walk's results as Markdown: counts per run, the failures with screenshots, then every control.",
+  "tests/scripts/ui-walk-plan.test.js": "Tests the settings walk's command line, value picker, skip list and stored-path diff, and that the CLI exits 2 with its usage.",
+  "tests/scripts/ui-walk-report.test.js": "Tests the settings walk's result records and its Markdown pass/fail table.",
+  "tests/ui/rendered/settings-walk-dom.test.js": "Rendered check: the settings walk's in-page readers list and read the harness Settings controls (row keys, module and feature switches, actions) and follow a click."
 }
