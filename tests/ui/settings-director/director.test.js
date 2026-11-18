@@ -26,7 +26,7 @@ test('the Director section has the rows of the mock that a real setting backs, w
   const vm = port.view('settings');
   assert.deepEqual(checkShape(vm, SETTINGS_SHAPE), []);
   const rows = vm.sections.find(s => s.id === 'director').rows;
-  assert.deepEqual(rows.map(r => r.key), DIRECTOR_ROWS.filter(r => r.module === D).map(r => r.key));
+  assert.deepEqual(rows.map(r => r.key).filter(k => k !== 'director.sceneSpoilers'), DIRECTOR_ROWS.filter(r => r.module === D).map(r => r.key));
   const stored = host.sdk.settings(D);
   assert.equal(rowOf(port, 'director.defaultDc').value, stored['checks.defaultDc']);
   assert.equal(rowOf(port, 'director.pulse').value, 'Lively');

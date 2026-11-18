@@ -49,7 +49,7 @@ async function harness(width) {
 }
 
 for (const width of [390, 1280]) {
-  test(`Text size at ${width}: 110% and 120% draw the text 1.1 and 1.2 times larger; the frame keeps its width (820 at most)`, async t => {
+  test(`Text size at ${width}: 110% and 120% draw the text 1.1 and 1.2 times larger; the frame fills the window and the content column stays 820 px on screen`, async t => {
     if (ctx.skip) return t.skip(ctx.skip);
     const page = await harness(width);
     const measure = size => page.evaluate(size => {
@@ -58,7 +58,7 @@ for (const width of [390, 1280]) {
       const probe = document.createElement('span');
       probe.textContent = 'Probe';
       root.querySelector('.su-content').appendChild(probe);
-      const got = { frame: root.getBoundingClientRect().width, text: probe.getBoundingClientRect().height, zoom: getComputedStyle(root).zoom };
+      const got = { frame: root.getBoundingClientRect().width, card: root.querySelector('.su-card-slot').getBoundingClientRect().width, text: probe.getBoundingClientRect().height, zoom: getComputedStyle(root).zoom };
       probe.remove();
       return got;
     }, size);
@@ -71,8 +71,12 @@ for (const width of [390, 1280]) {
     assert.equal(at120.zoom, '1.2');
     assert.ok(Math.abs(at110.text / normal.text - 1.1) < 0.03, `110%: ${at110.text} vs ${normal.text}`);
     assert.ok(Math.abs(at120.text / normal.text - 1.2) < 0.03, `120%: ${at120.text} vs ${normal.text}`);
-    assert.equal(normal.frame, Math.min(width, 820));
+    assert.equal(normal.frame, width); // mock v7 Desktop: the root fills the window (UIFIX5)
     assert.ok(Math.abs(at110.frame - normal.frame) < 1, `110% frame ${at110.frame}`);
     assert.ok(Math.abs(at120.frame - normal.frame) < 1, `120% frame ${at120.frame}`);
+    assert.ok(Math.abs(normal.card - (Math.min(width, 820) - 24)) <= 1, `card ${normal.card}`);
+    // the 12 px edges inside the column are zoomed with the text (13.2 and 14.4 px)
+    assert.ok(Math.abs(at110.card - normal.card) <= 4, `110% card ${at110.card}`);
+    assert.ok(Math.abs(at120.card - normal.card) <= 6, `120% card ${at120.card}`);
   });
 }

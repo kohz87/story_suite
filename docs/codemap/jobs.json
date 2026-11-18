@@ -442,5 +442,12 @@
   "ui/theme/look.js": "Settings › Look in the new view: the stored Panel style, Glass strength, Font and Text size as the suite root's tokens, scheme and text zoom.",
   "ui/select/module-text.js": "Gives the Start page's reader-facing words: each module card's icon, description and off line, and the three presets' names and descriptions.",
   "ui/select/module-costs.js": "Counts the Start page's token figures: what each module card's switches add to the fixed prompt and the fixed prompt under each preset, without switching anything.",
-  "tests/ui/settings/sections/start-cards-live.test.js": "Checks the Start module cards' text and engine token figures and that Lean, Standard and Full apply through the port and redraw, on a live host."
+  "tests/ui/settings/sections/start-cards-live.test.js": "Checks the Start module cards' text and engine token figures and that Lean, Standard and Full apply through the port and redraw, on a live host.",
+  "scripts/ai-readme/build.mjs": "Builds AI-README.md from the hand-written parts and the generated tables, or checks that it is current.",
+  "scripts/ai-readme/tables.mjs": "Reads the generated tables of AI-README.md from the code: the SDK surface, change-line marks, pack kinds and limits, the folder list and the Studio's parts.",
+  "tests/scripts/ai-readme.test.js": "Tests that AI-README.md is current, that its hand-written parts name only real files and exports, and that the tables follow the code.",
+  "ui/select/people-settings/portraits.js": "Lists the People page's Portraits rows: what portraits use now, written back as the old portrait panel saved it (style, custom preset library, text fields).",
+  "ui/port/rpg-custom.js": "Stores the RPG page's Custom difficulty editors into the Custom set the creation of new characters reads, refusing a number that breaks the creation order.",
+  "ui/select/rpg-difficulty.js": "Says what each RPG difficulty changes from the engine's own numbers and builds the Custom difficulty's creation-number rows.",
+  "tests/ui/select/rpg-difficulty.test.js": "Tests the RPG difficulty explanations against the engine's numbers and the Custom editors from row to stored key to a new character."
 }

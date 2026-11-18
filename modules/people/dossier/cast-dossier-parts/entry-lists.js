@@ -63,13 +63,13 @@ export function castMannerisms(raw) {
     return out;
 }
 
-// A pack's tastes: [{ sign '+' (likes) | '-' (dislikes), item, from? }], up to 6 likes and 4 dislikes (the notes feature's limits); anything else is dropped.
+// A pack's tastes: [{ sign '+' (likes) | '-' (dislikes), item, from? }] from the world cast's { item, like, why }, up to 6 likes and 4 dislikes (the notes feature's limits); anything else is dropped.
 export function castTastes(raw) {
     const out = [];
     for (const item of Array.isArray(raw) ? raw : []) {
         const text = clip(isObject(item) ? item.item : '', 60);
-        const sign = isObject(item) ? (item.sign === '-' || item.sign === 'dislikes' ? '-' : item.sign === '+' || item.sign === 'likes' ? '+' : '') : '';
-        if (text && sign && out.filter(row => row.sign === sign).length < (sign === '+' ? 6 : 4)) out.push({ sign, item: text, from: clip(item.from, 60) });
+        const sign = isObject(item) && typeof item.like === 'boolean' ? (item.like ? '+' : '-') : '';
+        if (text && sign && out.filter(row => row.sign === sign).length < (sign === '+' ? 6 : 4)) out.push({ sign, item: text, from: clip(item.why, 60) });
     }
     return out;
 }

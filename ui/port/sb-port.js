@@ -113,7 +113,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) return answer;
         answer = rpgCommand(type, payload, writes, rpgValues);
         if (answer) return answer;
-        try { answer = directorCommand(type, payload, writes); } catch (error) { answer = failure(error); }
+        try { answer = directorCommand(type, payload, writes, prefs?.chat); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         answer = moneyCommand(type, payload, writes);
         if (answer) return answer;

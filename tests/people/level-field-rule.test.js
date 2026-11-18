@@ -91,59 +91,40 @@ fs.mkdirSync(extRoot, { recursive: true });
 fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'module' }));
 standInTree(extRoot);   // old names, stand-ins for the real files; the host modules are the shared stubs reading __npcMock
 globalThis.__npcMock = { extensionSettings: {}, context: {}, saveSettingsCalls: 0 };
-const { effectiveCustomFieldNames, setRpgProbe } = await import(pathToFileURL(path.join(extRoot, 'runtime-settings.js')).href);
+const { effectiveCustomFieldNames, setRpgProbe, rpgIsOn } = await import(pathToFileURL(path.join(extRoot, 'runtime-settings.js')).href);
 const { buildInjection } = await import('../../modules/people/core/core.js');
 const { suite } = await import('./helpers/pacing-suite.js');
 const setNames = names => ({ customFieldNames: names });
 const rpg = { on: false };
 
-test('the accessor adds Level while the RPG is on, once, and exactly the configured names otherwise', () => {
+test('the accessor no longer adds Level while the RPG is on: Level is a built-in field (pack format 4); the configured names are returned as they are', () => {
     try {
         setRpgProbe(null);
         assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], 'standalone');
         setRpgProbe(() => rpg.on);
-        rpg.on = false;
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], 'RPG off');
-        rpg.on = true;
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class', 'Level']);
-        assert.deepEqual(effectiveCustomFieldNames(setNames([])), ['Level']);
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['LEVEL', 'Class'])), ['LEVEL', 'Class'], 'a configured Level (any case) is not added twice');
-        const settings = setNames(['Class']);
-        effectiveCustomFieldNames(settings);
-        assert.deepEqual(settings.customFieldNames, ['Class'], 'nothing is written to settings');
-        rpg.on = false;
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], 'switched off mid-chat: the next read sees it');
+        for (const on of [false, true]) {
+            rpg.on = on;
+            assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], `RPG ${on ? 'on' : 'off'}: the configured names only`);
+            assert.deepEqual(effectiveCustomFieldNames(setNames([])), [], `RPG ${on ? 'on' : 'off'}: none stays none`);
+            assert.deepEqual(effectiveCustomFieldNames(setNames(['LEVEL', 'Class'])), ['LEVEL', 'Class'], 'a configured Level (any case) is kept as configured');
+        }
         setRpgProbe(() => { throw new Error('host gone'); });
-        assert.deepEqual(effectiveCustomFieldNames(setNames(['Class'])), ['Class'], 'a probe that throws means off');
+        assert.equal(rpgIsOn(), false, 'a probe that throws means off');
+        setRpgProbe(() => true);
+        assert.equal(rpgIsOn(), true);
     } finally { setRpgProbe(null); }
 });
 
-test('RPG on: prompts, injection and merge use Level; off: byte-identical; the stored value stays', () => {
+test('RPG on adds no Level custom field to the scanner prompt or the injection; a configured Level behaves as before', () => {
     const npcWithLevel = normalizeNpcRecord({ id: 'npc_maelis', name: 'Maelis Varn', present: true, personality: 'Warm.', customFields: { Level: '3', Class: 'Rogue' } });
-    const state = { turn: 1, candidates: [], npcs: [npcWithLevel] };
-    const text = 'Maelis waves.';
-    const inject = names => buildInjection([npcWithLevel], text, 1, 3, undefined, 4000, null, { customFieldNames: names });
+    const inject = names => buildInjection([npcWithLevel], 'Maelis waves.', 1, 3, undefined, 4000, null, { customFieldNames: names });
     try {
-        setRpgProbe(() => rpg.on);
-        rpg.on = false;
-        const off = effectiveCustomFieldNames(setNames(['Class']));
-        const promptOff = buildScannerPrompt({ ...options, customFieldNames: off });
-        const injectedOff = inject(off);
-        assert.equal(promptOff, buildScannerPrompt({ ...options, customFieldNames: ['Class'] }), 'off: the prompt is the configured one');
-        assert.doesNotMatch(promptOff, /Level is the one exception/);
-        assert.doesNotMatch(injectedOff, /Level: 3/, 'the stored Level is not injected while off');
-        rpg.on = true;
-        const on = effectiveCustomFieldNames(setNames(['Class']));
-        assert.match(buildScannerPrompt({ ...options, customFieldNames: on }), /CUSTOM FIELDS \(Class, Level\)[\s\S]*Level is the one exception/);
-        assert.match(inject(on), /Class: Rogue · Level: 3|Level: 3 · Class: Rogue/);
-        const merged = mergeScanResult(state, { npcs: [{ id: 'npc_maelis', name: 'Maelis Varn', customFields: { Level: '4' }, customFieldsReason: 'Level up.' }] },
-            { turn: 2, customFieldNames: on, developmentContext: 'Maelis reached level 4.' }).state.npcs[0];
-        assert.equal(merged.customFields.Level, '4', 'merge accepts Level while on');
-        rpg.on = false;
-        const kept = mergeScanResult({ ...state, npcs: [merged] }, { npcs: [{ id: 'npc_maelis', name: 'Maelis Varn', customFields: { Class: 'Mage' }, customFieldsReason: 'Retrained.' }] },
-            { turn: 3, customFieldNames: effectiveCustomFieldNames(setNames(['Class'])), developmentContext: 'Maelis retrained as a Mage.' }).state.npcs[0];
-        assert.equal(kept.customFields.Level, '4', 'the value stays in the dossier when RPG goes off');
-        assert.doesNotMatch(inject(effectiveCustomFieldNames(setNames(['Class']))), /Level: 4/);
+        setRpgProbe(() => true);
+        const names = effectiveCustomFieldNames(setNames(['Class']));
+        assert.equal(buildScannerPrompt({ ...options, customFieldNames: names }), buildScannerPrompt({ ...options, customFieldNames: ['Class'] }));
+        assert.doesNotMatch(buildScannerPrompt({ ...options, customFieldNames: names }), /Level is the one exception/);
+        assert.doesNotMatch(inject(names), /Level: 3/, 'the stored custom Level is not injected unless it is configured');
+        assert.match(inject(['Class', 'Level']), /Class: Rogue · Level: 3|Level: 3 · Class: Rogue/, 'a configured Level still is');
     } finally { setRpgProbe(null); }
 });
 
@@ -156,30 +137,33 @@ test('the adapter answers rpgOn from the host feature (hosted), false when off',
     assert.equal(s.adapter.rpgOn(), false, 'switched off mid-chat: the next read sees it');
 });
 
-// ---- (hosted) an active party member's Level follows their sheet (Story Block's `party.levels`) ----
-test('active party member: stored Level follows the sheet and the scanner\'s Level is ignored; after leaving the last sheet level stays until the scanner states another', async () => {
+// ---- (hosted, main until job R2) an active party member's built-in Level follows their sheet (Story Block's `party.levels`) ----
+test('active party member: the built-in Level follows the sheet (even past a custom-fields lock); after leaving the last sheet level stays', async () => {
+    const mira = normalizeNpcRecord({ ...createNpcRecord('Mira'), id: 'npc_mira', aliases: ['the Ranger'], level: 4, customFields: { Class: 'Rogue' } });
+    const scan = (state, party, extra = {}) => mergeScanResult(state, { npcs: [{ id: 'npc_mira', name: 'Mira' }] }, { turn: 2, ...(party ? { partyLevels: party } : {}), ...extra });
+    const active = [{ name: 'Mira', level: 5 }];
+    const a = scan({ npcs: [mira], candidates: [], turn: 1 }, active);
+    assert.equal(a.state.npcs[0].level, 5, 'the sheet level');
+    assert.deepEqual(a.state.npcs[0].customFields, { Class: 'Rogue' }, 'the custom fields are left as they are');
+    assert.deepEqual(a.report.sheetLevels, [{ id: 'npc_mira', reason: 'Level: from the party sheet' }]);
+    assert.ok(a.report.updated.includes('npc_mira'));
+    assert.equal(scan(a.state, [{ name: 'the ranger', level: 6 }]).state.npcs[0].level, 6, 'an alias matches, in any case');
+    assert.equal(scan(a.state, [{ name: 'Mira', level: 3 }]).state.npcs[0].level, 3, 'the sheet is the member\'s Level: it may lower it');
+    assert.equal(scan(a.state, active).report.sheetLevels.length, 0, 'unchanged: nothing written');
+    assert.equal(scan(a.state, []).state.npcs[0].level, 5, 'after leaving: the last sheet level stays');
+    for (const party of [undefined, null, []]) assert.equal(scan({ npcs: [mira], candidates: [], turn: 1 }, party).state.npcs[0].level, 4, `no sheet (${JSON.stringify(party)}): as stored`);
+    assert.equal(scan({ npcs: [{ ...mira, manualProfileFields: ['customFields'] }], candidates: [], turn: 1 }, active).state.npcs[0].level, 5, 'the built-in Level has no editor lock; a custom-fields lock does not cover it');
+    assert.equal(scan({ npcs: [mira], candidates: [], turn: 1 }, [{ name: 'Mira', level: 120 }]).state.npcs[0].level, 4, 'outside 1 to 99: not written');
+});
+
+test('a configured custom "Level" from the scanner is still not kept for an active member (the sheet sets the Level)', () => {
     const reason = 'Level: "far beyond anything I can sense"';
     const story = 'The captain whispers: he is far beyond anything I can sense. Mira is level 3.';
-    const mira = { ...createNpcRecord('Mira'), id: 'npc_mira', aliases: ['the Ranger'], customFields: { Level: '4' } };
-    const scan = (state, fields, party) => mergeScanResult(state, { npcs: [{ id: 'npc_mira', name: 'Mira', customFields: fields, customFieldsReason: reason }] },
-        { turn: 2, customFieldNames: ['Level'], developmentContext: story, ...(party ? { partyLevels: party } : {}) });
-    const active = [{ name: 'Mira', level: 5 }];
-    const a = scan({ npcs: [mira], candidates: [], turn: 1 }, { Level: '40' }, active);
-    assert.equal(a.state.npcs[0].customFields.Level, '5', 'the sheet level, not the scanner\'s 40');
-    assert.deepEqual(a.report.sheetLevels, [{ id: 'npc_mira', reason: 'Level: from the party sheet' }]);
-    assert.equal(scan(a.state, { Level: '40' }, [{ name: 'the ranger', level: 6 }]).state.npcs[0].customFields.Level, '6', 'an alias matches, in any case');
-    assert.equal(scan(a.state, { Level: '40' }, [{ name: 'Mira', level: 5 }]).report.sheetLevels.length, 0, 'unchanged: nothing written');
-    // Left the party: no override; the last sheet level stays, then the scanner's quoted Level wins.
-    const away = scan(a.state, {}, []);
-    assert.equal(away.state.npcs[0].customFields.Level, '5', 'after leaving: the last sheet level stays');
-    assert.equal(scan(away.state, { Level: '40' }, []).state.npcs[0].customFields.Level, '40', 'a later scanner Level wins');
-    // Not hosted / query absent or null: as today.
-    for (const party of [undefined, null, []]) {
-        assert.equal(scan({ npcs: [mira], candidates: [], turn: 1 }, { Level: '40' }, party).state.npcs[0].customFields.Level, '40', `no sheet (${JSON.stringify(party)}): the scanner's Level, as before`);
-    }
-    // Level not configured, or a hand-locked custom fields set: untouched.
-    assert.equal(mergeScanResult({ npcs: [mira], candidates: [], turn: 1 }, { npcs: [] }, { turn: 2, customFieldNames: ['Class'], partyLevels: active }).state.npcs[0].customFields.Level, '4');
-    assert.equal(scan({ npcs: [{ ...mira, manualProfileFields: ['customFields'] }], candidates: [], turn: 1 }, {}, active).state.npcs[0].customFields.Level, '4', 'a hand-set value is never overwritten');
+    const mira = { ...createNpcRecord('Mira'), id: 'npc_mira', customFields: { Level: '4' } };
+    const done = mergeScanResult({ npcs: [mira], candidates: [], turn: 1 }, { npcs: [{ id: 'npc_mira', name: 'Mira', customFields: { Level: '40' }, customFieldsReason: reason }] },
+        { turn: 2, customFieldNames: ['Level'], developmentContext: story, partyLevels: [{ name: 'Mira', level: 5 }] });
+    assert.equal(done.state.npcs[0].customFields.Level, '4', 'the scanner\'s 40 is stripped for a party member');
+    assert.equal(done.state.npcs[0].level, 5);
 });
 
 test('the adapter reads party.levels (null without the query)', async () => {
@@ -199,8 +183,8 @@ test('partyLevelList drops a member who left (rule 2), keeps whole-number levels
     try {
         const part = await hostedPart([{ name: 'Mira', level: 5, left: false }, { name: 'Bo', level: 3, left: true }, { name: 'Cy', level: 2.5 }, { name: 'Di', level: 4 }]);
         assert.deepEqual(part.partyLevelList(), [{ name: 'Mira', level: 5 }, { name: 'Di', level: 4 }], 'Bo left; Cy has no whole level');
-        const person = (id, name, level) => normalizeNpcRecord({ id, name, customFields: level === null ? {} : { Level: level } });
-        const state = { npcs: [person('m', 'Mira', '5'), person('b', 'Bo', '3'), person('d', 'Di', 'C'), person('x', 'Xu', '5')] };
+        const person = (id, name, level) => normalizeNpcRecord({ id, name, ...(level === null ? {} : { level }) });
+        const state = { npcs: [person('m', 'Mira', 5), person('b', 'Bo', 3), person('d', 'Di', 9), person('x', 'Xu', 5)] };
         assert.deepEqual(part.dossierHostViews({ ...state }).sheetLevels, { m: true }, 'Mira matches; Bo left; Di holds another value (hand-locked or not yet scanned); Xu is not a member');
         assert.equal(part.dossierHostViews({ npcs: [person('d', 'Di', null)] }).sheetLevels, undefined, 'no stored Level: no mark');
     } finally { globalThis.document = prior; }

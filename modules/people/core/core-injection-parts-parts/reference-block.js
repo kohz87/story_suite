@@ -28,7 +28,8 @@ function towardPlayer(npc) {
     return `toward the player: ${cleanText(summary, 90)}`;
 }
 
-export function referenceBlock(npcs = [], text = '', castIds = new Set(), customFieldNames = []) {
+// `levelOn` (the RPG is on): a person's built-in Level is one of their facts.
+export function referenceBlock(npcs = [], text = '', castIds = new Set(), customFieldNames = [], levelOn = false) {
     const roster = Array.isArray(npcs) ? npcs : [];
     const haystack = normalizeName(text);
     if (!haystack) return '';
@@ -40,7 +41,7 @@ export function referenceBlock(npcs = [], text = '', castIds = new Set(), custom
     const mentioned = named.filter(npc => !isTerminalNpcDeath(npc)).slice(0, REFERENCE_LINE_LIMIT).map(npc => {
         const custom = Object.entries(customFieldValues(npc, customFieldNames)).map(([name, value]) => `${name}: ${value}`).join(' · ');
         const facts = [normalizeGender(npc.gender), cleanText(npc.role, 70), npc.homeBase && `home base: ${cleanText(npc.homeBase, 60)}`,
-            custom, towardPlayer(npc)].filter(Boolean);
+            custom, levelOn && Number.isInteger(npc.level) && `level: ${npc.level}`, towardPlayer(npc)].filter(Boolean);
         return truncateInjectionText(`- ${npc.name} (${['mentioned, not present', ...facts].join('; ')})`, REFERENCE_LINE_CHARS);
     });
     const deceased = named.filter(npc => isTerminalNpcDeath(npc)).slice(0, Math.min(3, REFERENCE_LINE_LIMIT - mentioned.length)).map(npc => {

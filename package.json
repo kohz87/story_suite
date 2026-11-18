@@ -18,7 +18,7 @@
     "release": "node scripts/release.mjs",
     "release:check": "node scripts/release.mjs --check",
     "play:dist": "node scripts/play/dist.mjs",
-    "codemap": "node scripts/codemap/cli.mjs --write",
+    "codemap": "node scripts/codemap/cli.mjs --write && node scripts/ai-readme/build.mjs --write",
     "layout:plan": "node scripts/codemod/cli.mjs plan --all --known docs/merge/layout-known-problems.txt",
     "verify-import": "bash scripts/verify-import.sh"
   },

@@ -13,8 +13,10 @@ import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
 import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
+import { SCENE_SPOILERS } from './select/director-rows.js';
 import { PANELBG_KEY, applyPanelBg } from './settings/panel-bg.js';
 import { DEVELOPER_KEY } from './settings/developer.js';
+import { leaveTrackerIntent } from './tabs/story/tracker-intent.js';
 
 // SillyTavern's theme variables, read on <html> (follow-st.js reads the same).
 const stVar = doc => name => {
@@ -70,14 +72,14 @@ export function mountSuite(options = {}) {
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
-      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : relook(port.command('settings.set', { key, value }))),
-      onAction: (key, value) => (key === 'trackers.open' ? openTrackers() : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
+      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
     return port.command('suite.settings', {});
   };
-  // Settings › Packs and trackers: a tracker is made and edited on Story › Trackers, so the buttons there close Settings and go to it.
-  const openTrackers = () => { settingsOverlay?.close(); prefs.setFold('story.trackers', true); showTab('story'); return { ok: true }; };
+  // Settings › Packs and trackers: a tracker is added from a template and edited on Story › Trackers, so each button there closes Settings and opens its own sheet.
+  const openTrackers = (where) => { settingsOverlay?.close(); leaveTrackerIntent(where); prefs.setFold('story.trackers', true); showTab('story'); return { ok: true }; };
   const views = defaultViews({
     port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
     onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,

@@ -118,7 +118,7 @@ test('the prompt injection and the relationship lines the narrator sees read the
         setSidecar(s, 70);
         assert.equal(inject(viewOf(s)), inject(control), 'a different sidecar does not move it');
         assert.notEqual(inject(sidecarMira(70)), inject(control), 'the sidecar would have read differently');
-        assert.match(fs.readFileSync(new URL('../../modules/people/runtime/runtime-injection.js', import.meta.url), 'utf8'), /buildInjection\(scenePresenceView\(hostedMeterView\(state\.npcs\)\)/);
+        assert.match(fs.readFileSync(new URL('../../modules/people/runtime/runtime-injection.js', import.meta.url), 'utf8'), /buildInjection\(scenePresenceView\(hostedMeterView\(withCastLinks\(state\.npcs\)\)\)/);
         const def = s.host.registry.module(MODULE_ID);
         const tail = () => JSON.stringify(def.context.tail({ state: s.host.head(), chat: { length: s.host.ctx.chat.length } }));
         const lines = tail();

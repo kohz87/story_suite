@@ -61,7 +61,7 @@ const PACKS = {
     { name: 'Standing and fame', desc: 'by region and faction', on: true },
     { name: 'Guild membership', desc: 'ranks and dues', on: false },
   ],
-  trackers: { cap: 8, items: [{ name: 'Chapel debt', desc: '3 fields · shown on Now' }, { name: 'Ship’s stores', desc: '3 fields' }] },
+  trackers: { cap: 8, items: [{ id: 'chapel-debt', name: 'Chapel debt', desc: '3 fields · shown on Now' }, { id: 'ships-stores', name: 'Ship’s stores', desc: '3 fields' }] },
 };
 
 const SENT = {

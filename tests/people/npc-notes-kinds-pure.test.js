@@ -152,7 +152,7 @@ test('notes pure: drives scale the pull, a muted instinct gives none; tie rows d
 });
 
 test('notes pure: a pack entry\'s tastes and drives are the person\'s first', () => {
-    const entry = normalizeEntry({ name: 'Rika', about: 'a calm clerk', personality: 'Wants closure above all.', tastes: [{ sign: '+', item: 'toffee', from: 'barge crews' }, { sign: 'x', item: 'bad' }], drives: { closure: 3 } });
+    const entry = normalizeEntry({ name: 'Rika', about: 'a calm clerk', personality: 'Wants closure above all.', tastes: [{ item: 'toffee', like: true, why: 'barge crews' }, { item: 'bad' }], drives: { closure: 3 } });
     assert.deepEqual(entry.tastes, [{ sign: '+', item: 'toffee', from: 'barge crews' }]);
     const seeded = seedNotes(entry);
     assert.equal(JSON.parse(seeded.tastes)[0].item, 'toffee');

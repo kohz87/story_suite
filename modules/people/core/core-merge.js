@@ -250,7 +250,7 @@ export function mergeScanResult(state, scanResult, options = {}) {
     }
 
     // (hosted) An active party member's Level is the sheet's, whatever the scanner stated for them in this scan.
-    report.sheetLevels = applySheetLevels(next.npcs, options.partyLevels, options.customFieldNames);
+    report.sheetLevels = applySheetLevels(next.npcs, options.partyLevels);
     for (const { id } of report.sheetLevels) if (!report.updated.includes(id)) report.updated.push(id);
 
     // Final canonicalization is a hard guard against append-only drift from either
