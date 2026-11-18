@@ -1,6 +1,6 @@
 // Perf PB8 (docs/dev/edit-prose-only.md): an edit that adds or removes a word a capture reads from prose (a day or month name, a
 // cast person's name or alias, a "#N") is not prose-only and plans the steps again; a plain prose edit still skips. Also the
-// guards of the detection that the other tests do not pin: a v1 envelope, a swipe the head did not tell of, a silent length change.
+// guards of the detection that the other tests do not pin: a swipe the head did not tell of, a silent length change.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
@@ -51,14 +51,12 @@ test('a plain prose edit still skips; an added day name, cast name, alias part o
     await ran('a removed cast name', replies[2], 'Brannoc waits.', 'waits.');
 });
 
-test('the guards: a v1 envelope, a swipe the head did not tell of and a silent length change take the full path', async t => {
+test('the guards: a swipe the head did not tell of and a silent length change take the full path', async t => {
     const { host, replies, reconciles } = await chat(t);
-    await edit(host, replies[0], 'Story 0 goes on.', 'Story 0 goes on.\n\n<!-- STORY_BLOCKS_V1\n+ item Rope\n-->');
-    assert.equal(reconciles(), 1, 'a v1 envelope');
     host.ctx.chat[replies[1]].swipe_id = 1;
     await edit(host, replies[1], 'goes on.', 'goes on, again.');
-    assert.equal(reconciles(), 2, 'a swipe changed with no head');
+    assert.equal(reconciles(), 1, 'a swipe changed with no head');
     host.ctx.chat.push({ name: 'u', is_user: true, mes: 'Silent.', extra: {} });
     await edit(host, replies[2], 'goes on.', 'goes on, and on.');
-    assert.equal(reconciles(), 3, 'the chat grew with no head');
+    assert.equal(reconciles(), 2, 'the chat grew with no head');
 });

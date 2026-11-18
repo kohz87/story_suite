@@ -5,7 +5,7 @@
 // `problem`); it never imports turn.js.
 import { MAX_CHANGE_LINES } from '../sdk.js';
 import {
-    LEGACY_PROBLEM, assistSections, grammarHeads, markCaps, parseChanges, sameChangeLine, strayLines,
+    assistSections, grammarHeads, markCaps, parseChanges, sameChangeLine, strayLines,
 } from '../capture.js';
 import { cutAt } from '../text.js';
 import { refusedWhy } from '../../modules/assist/safety.js';
@@ -58,8 +58,6 @@ export function createCaptureFlow(s, deps) {
         return strayLines(text, heads, options).problems.filter(({ line }) => !used.has(sameChangeLine(line)))
             .map(({ line, reason }) => problem({ index, line, code: 'STRAY', message: `"${line}" was not used: ${reason}.` }));
     }
-    // The one Problem of a reply whose changes were read from a v1 envelope (capture.js adoptLegacy).
-    const legacyProblem = index => problem({ index, code: 'LEGACY_FORMAT', message: LEGACY_PROBLEM });
 
     function capped(index, all, found) {
         const cap = lineCap();
@@ -165,5 +163,5 @@ export function createCaptureFlow(s, deps) {
     // The held-module check of a Re-read (capture-held.js).
     const heldInReply = (message, lines, assist = []) => heldInReplyOf(registry, message, lines, assist);
 
-    return { changeHeads, readBlock, strayProblems, legacyProblem, capped, assistRoom, lateLines, nowLines, captureLines, afterCapture, stepSeeds, captureEach, storySeeds, heldInReply, withCaps, LATE, NOW };
+    return { changeHeads, readBlock, strayProblems, capped, assistRoom, lateLines, nowLines, captureLines, afterCapture, stepSeeds, captureEach, storySeeds, heldInReply, withCaps, LATE, NOW };
 }
