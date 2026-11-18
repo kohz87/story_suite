@@ -61,7 +61,8 @@ export function applyWithdraw(cast, payload, env) {
         if (typeof person.met.was === 'string' && (!keepMoved || person.where === person.met.where)) person.where = person.met.was;
         person.met = null;
         for (const [id, note] of Object.entries(cast.notes ?? {})) {
-            if (isRecord(note) && note.kind === 'met' && note.at === payload.at && note.head === `Paths crossed: ${person.name}`) {
+            // Any "Paths crossed" of theirs goes, whatever reply it names (S2PA B6: after a middle delete a replayed withdraw may meet the note of an earlier meeting); unmet, they have none.
+            if (isRecord(note) && note.kind === 'met' && note.head === `Paths crossed: ${person.name}`) {
                 touchNote(id);
                 delete cast.notes[id];
             }

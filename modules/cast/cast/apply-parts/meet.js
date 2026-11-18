@@ -32,7 +32,7 @@ export function whyNarrator(person) {
  * that moment and is not brought in again (no cue).
  */
 export function applyMeet(cast, payload, env) {
-    const { now = null, rev = 0, touch = noop, note = null, packName = pack => pack } = env;
+    const { now = null, rev = 0, touch = noop, note = null, packName = pack => pack, carrier = null } = env;
     const met = [];
     const cued = [];
     for (const item of payload.who ?? []) {
@@ -58,6 +58,9 @@ export function applyMeet(cast, payload, env) {
             });
         }
     }
-    if (cued.length && isInt(payload.at)) cast.meeting = [{ at: payload.at, keys: cued.slice(0, 4), rev, seen: 1 }];   // `seen`: judged by who the reply had in the scene at any point (older meetings: at its end)
+    // `seen`: judged by who the reply had in the scene at any point (older meetings: at its end). `after`, `gap` (S2PA B6): the record ID of the reply this meeting
+    // is stored on and how far after it the meeting's reply is, so a middle delete that moves the chat's indexes still finds its reply (world-parts/shown.js meetingAt).
+    const stamp = isRecord(carrier) && typeof carrier.sid === 'string' && isInt(carrier.index) && isInt(payload.at) && payload.at > carrier.index ? { after: carrier.sid, gap: payload.at - carrier.index } : {};
+    if (cued.length && isInt(payload.at)) cast.meeting = [{ at: payload.at, keys: cued.slice(0, 4), rev, seen: 1, ...stamp }];
     return met;
 }

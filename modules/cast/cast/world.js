@@ -33,4 +33,4 @@ export { holds, linkOf } from './world-parts/links.js';
 export { canBeHere, canReach, moveFits, moveReach } from './world-parts/reach.js';
 export { chanceCandidates, sortComes } from './world-parts/comes.js';
 export { chooseMeetings, chooseRumor, metInTheStory, seekable } from './world-parts/meetings.js';
-export { namedIn, unshown } from './world-parts/shown.js';
+export { meetingAt, namedIn, unshown } from './world-parts/shown.js';
