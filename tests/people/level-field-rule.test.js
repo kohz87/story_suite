@@ -138,7 +138,7 @@ test('the adapter answers rpgOn from the host feature (hosted), false when off',
 });
 
 // ---- (hosted, main until job R2) an active party member's built-in Level follows their sheet (Story Block's `party.levels`) ----
-test('active party member: the built-in Level follows the sheet; after leaving the last sheet level stays; a hand-locked Level is never overwritten', async () => {
+test('active party member: the built-in Level follows the sheet (even past a custom-fields lock); after leaving the last sheet level stays', async () => {
     const mira = normalizeNpcRecord({ ...createNpcRecord('Mira'), id: 'npc_mira', aliases: ['the Ranger'], level: 4, customFields: { Class: 'Rogue' } });
     const scan = (state, party, extra = {}) => mergeScanResult(state, { npcs: [{ id: 'npc_mira', name: 'Mira' }] }, { turn: 2, ...(party ? { partyLevels: party } : {}), ...extra });
     const active = [{ name: 'Mira', level: 5 }];
@@ -152,7 +152,7 @@ test('active party member: the built-in Level follows the sheet; after leaving t
     assert.equal(scan(a.state, active).report.sheetLevels.length, 0, 'unchanged: nothing written');
     assert.equal(scan(a.state, []).state.npcs[0].level, 5, 'after leaving: the last sheet level stays');
     for (const party of [undefined, null, []]) assert.equal(scan({ npcs: [mira], candidates: [], turn: 1 }, party).state.npcs[0].level, 4, `no sheet (${JSON.stringify(party)}): as stored`);
-    assert.equal(scan({ npcs: [{ ...mira, manualProfileFields: ['level'] }], candidates: [], turn: 1 }, active).state.npcs[0].level, 4, 'a hand-set Level is never overwritten');
+    assert.equal(scan({ npcs: [{ ...mira, manualProfileFields: ['customFields'] }], candidates: [], turn: 1 }, active).state.npcs[0].level, 5, 'the built-in Level has no editor lock; a custom-fields lock does not cover it');
     assert.equal(scan({ npcs: [mira], candidates: [], turn: 1 }, [{ name: 'Mira', level: 120 }]).state.npcs[0].level, 4, 'outside 1 to 99: not written');
 });
 
