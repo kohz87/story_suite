@@ -65,10 +65,10 @@ test('row changes and button actions reach the callbacks with the row key', () =
   const got = [];
   const { ov } = make({ onChange: (k, v) => got.push(['c', k, v]), onAction: (k, l) => got.push(['a', k, l]) });
   ov.open('look');
-  ov.el.querySelector('.srow[data-key="look.sendingNote"] .sw').click();
+  ov.el.querySelector('.srow[data-key="host.sendPending"] .sw').click();
   ov.show('tools');
   ov.el.querySelectorAll('.srow[data-key="tools.arcPrompt"] .btn2')[1].click();
-  assert.deepEqual(got, [['c', 'look.sendingNote', false], ['a', 'tools.arcPrompt', 'Reset to default']]);
+  assert.deepEqual(got, [['c', 'host.sendPending', false], ['a', 'tools.arcPrompt', 'Reset to default']]);
 });
 
 test('typing a query shows search results and clears the section mark; clearing returns', () => {

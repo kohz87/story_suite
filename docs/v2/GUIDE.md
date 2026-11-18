@@ -30,7 +30,7 @@ the narrator is then not told about mounts and the card is hidden. With Story Di
 every screen of the game view also gets a **Travel** line (the mode, the pace and the mount that sets it, the leg and the
 arrival) under Wearing and Condition while a trip is on.
 
-**Settings → Look** sets the panel style, glass strength, font and **Text size** (Normal, 110% or 120%): the larger sizes make the Game view, the cards under replies, the dialogs and the settings window bigger at once; SillyTavern's own chat text keeps its size (use its Font scale for that). Use **Settings → Features** to enable optional features. Assist's safety net can recover missed changes. Its pre-roll helper works with a module that supplies checks, such as Story Director.
+**Settings → Look** sets the panel style, glass strength, font and **Text size** (Normal, 110% or 120%), and each change shows at once. **Panel style** is Glass (the default; light or dark follows your SillyTavern theme) or Follow SillyTavern (its own colours); **Glass strength** makes the Glass panels more or less see-through (Follow SillyTavern ignores it); **Font** is Nunito or your theme's font; the larger **Text size** draws the whole Story Suite panel, its settings too, bigger while the panel keeps its width. SillyTavern's own chat text keeps its size (use its Font scale for that), and the Story Suite row and people drawer in the chat keep SillyTavern's look. **Send pending note** has no effect for now: the note was part of the old view, removed at B4-4. Use **Settings → Features** to enable optional features. Assist's safety net can recover missed changes. Its pre-roll helper works with a module that supplies checks, such as Story Director.
 
 ## Making a block
 
