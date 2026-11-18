@@ -4,6 +4,8 @@
 // director.world.leads (SD/world/index.js:52), director.journal (SD/world/journal.js:284), director.calendar (SD/tracker/domain.js:340),
 // director.time (SD/tracker/domain.js:322). `read(name, args)` returns the recorded answer, or null/undefined when the query is absent.
 
+import { money } from './money.js';
+
 const list = value => (Array.isArray(value) ? value.filter(item => item && typeof item === 'object') : []);
 const text = value => (typeof value === 'string' ? value.trim() : '');
 const strings = value => (Array.isArray(value) ? value.map(text).filter(Boolean) : []);
@@ -65,7 +67,7 @@ function dueOf(thread, upcoming) {
   return due ? { date: due, rel: '', state: '' } : null;
 }
 
-// The planned trip is a GAP; steps come from the thread's trail, difficulty from its label.
+// The planned trip is `planned` below; steps come from the thread's trail, difficulty from its label.
 const DIFFICULTIES = ['easy', 'normal', 'hard'];
 function questOf(thread, rpg, upcoming, trail) {
   const fields = thread.fields ?? {};
@@ -81,18 +83,28 @@ function questOf(thread, rpg, upcoming, trail) {
   };
 }
 
-function dayOf(day, months, today) {
+// The day's money in and out as words in the chat's currency (null when none moved).
+const moneyOf = (amount, currency) => (Number.isSafeInteger(amount) && amount > 0 ? money(amount, currency) : null);
+
+function dayOf(day, months, today, currency) {
   const at = parseDate(day.date, months) ?? { month: today, day: 0 };
   const short = text(day.short);
   const date = text(day.date);
   return {
     month: at.month, day: at.day, date, line: short ? `${date}: ${short}` : date,
     happened: strings(day.happened),
-    places: [], quests: { taken: [], done: [], failed: [], dropped: [] }, fights: 0, money: { in: null, out: null }, // GAP: not in the day entry
+    places: strings(day.places), fights: asNumber(day.fightCount), money: { in: moneyOf(day.money?.in, currency), out: moneyOf(day.money?.out, currency) },
+    quests: { taken: strings(day.quests?.taken), done: strings(day.quests?.done), failed: strings(day.quests?.failed), dropped: strings(day.quests?.dropped) },
     stageMoves: [], // GAP: structured stage moves
     met: strings(day.met),
     world: strings(day.world),
   };
+}
+
+// atlas.trip in phase `planned` (before the first leg starts) → the Journal's Planned row; [] otherwise.
+function plannedOf(trip) {
+  if (trip?.on !== true || trip.phase !== 'planned') return [];
+  return [{ glyph: '➜', title: `Trip to ${text(trip.to)} · planned`, detail: [text(trip.row), text(trip.departs) && `leaves ${text(trip.departs)}`].filter(Boolean).join(' · ') }];
 }
 
 export function selectJournal(read, opts = {}) {
@@ -113,10 +125,11 @@ export function selectJournal(read, opts = {}) {
   });
   const leads = list(read('director.world.leads', {})?.rows).map(r => ({ title: text(r.name), from: '', where: text(r.where), lapses: text(r.lapses) }));
   const journal = read('director.journal', {});
-  const days = journal?.on === true ? list(journal.days).map(d => dayOf(d, months, calendar?.today.month ?? 0)) : [];
+  const currency = journal?.on === true ? read('inventory.currency', {}) : null;
+  const days = journal?.on === true ? list(journal.days).map(d => dayOf(d, months, calendar?.today.month ?? 0, currency)) : [];
   // The story's start: the oldest day the Journal knows (days run newest first).
   const first = days.at(-1);
   // Only when it reads as on or before today in the shown year: a day from an earlier year has no year to place it.
   if (calendar && first && first.day > 0 && (first.month < calendar.today.month || (first.month === calendar.today.month && first.day <= calendar.today.day))) calendar.start = { month: first.month, day: first.day };
-  return { rpg, quests, focusId, leads, closed, calendar, days, planned: [], upcoming };
+  return { rpg, quests, focusId, leads, closed, calendar, days, planned: plannedOf(read('atlas.trip', {})), upcoming };
 }
