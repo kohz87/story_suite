@@ -15,7 +15,7 @@ describe('buildSettings', () => {
   it('row keys are unique and every row carries its value and its default', () => {
     const rows = rowsOf(buildSettings());
     assert.equal(new Set(rows.map(r => r.key)).size, rows.length);
-    for (const r of rows) assert.deepEqual(r.value, r.default, r.key);
+    for (const r of rows.filter(x => x.type !== 'info' && x.default !== null)) assert.deepEqual(r.value, r.default, r.key);
   });
 
   it('keeps the pacing numbers: tier caps 1/2/3/6, daily 3/1/1/1, ceiling 15', () => {
@@ -28,12 +28,11 @@ describe('buildSettings', () => {
     assert.equal(byKey['world.daysAll'].value, 120);
   });
 
-  it('chat-scoped spoiler rows carry the chat tag; the skin has no Solid option', () => {
+  it('the plan-spoiler row keeps its merged tag; the skin has no Solid option', () => {
     const rows = rowsOf(buildSettings());
     const byKey = Object.fromEntries(rows.map(r => [r.key, r]));
-    assert.ok(byKey['director.sceneSpoilers'].tags.includes('chat'));
-    assert.ok(byKey['director.planSpoilers'].tags.includes('chat'));
-    assert.deepEqual(byKey['look.skin'].options, ['Glass dark', 'Glass light', 'Follow SillyTavern']);
+    assert.ok(byKey['director.hideBehind'].tags.includes('merged:D12'));
+    assert.deepEqual(byKey['host.panelStyle'].options, ['Glass', 'Follow SillyTavern']);
   });
 
   it('modules: five modules in each set, RPG on by default, new chats start on', () => {

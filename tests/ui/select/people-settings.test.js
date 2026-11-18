@@ -16,7 +16,7 @@ const byKey = rows => Object.fromEntries(rows.map(r => [r.key, r]));
 const added = new Set(['people.npcsRefreshedPerReply', 'people.onePassCapture']);
 
 test('the live People rows keep the mock\'s groups, order, labels, hints, units and tags', () => {
-  assert.deepEqual(live.filter(r => !added.has(r.key)).map(r => [r.group, r.key, r.label]), mock.map(r => [r.group, r.key, r.label]));
+  assert.deepEqual(live.map(r => [r.group, r.key, r.label]), mock.map(r => [r.group, r.key, r.label]));
   assert.deepEqual(live.map(r => r.key).slice(live.findIndex(r => r.key === 'people.refreshEvery'), live.findIndex(r => r.key === 'people.refreshEvery') + 2), ['people.refreshEvery', 'people.npcsRefreshedPerReply']);
   const m = byKey(mock);
   const moved = new Set(['people.dossier', 'people.customFields', 'people.savedPortraitPresets', 'people.refreshEvery']);   // deviations, see the report
