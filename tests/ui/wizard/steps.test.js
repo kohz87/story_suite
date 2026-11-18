@@ -136,6 +136,9 @@ test('a block the fights need refused: the character is made, the sheet says wha
   await long();
   assert.match(w.sheet().querySelector('.wz-status').textContent, /Wessel is in the party\. Not added: Foes/);
   assert.deepEqual(w.ends, [], 'still open');
+  assert.equal(w.sheet().querySelector('[data-wiz="back"]'), null, 'only Done: the steps are not walked again');
+  w.go('stats');
+  assert.equal(w.sheet().dataset.step, 'review');
   w.sheet().querySelector('[data-wiz="done"]').click();
   assert.equal(w.sheet(), null);
   assert.deepEqual(w.ends, [true]);
@@ -163,4 +166,33 @@ test('onEnd(false) exactly once on ×, on Escape, and on the back stack; a close
   w.doc.key('Escape');
   assert.deepEqual(again, [false]);
   assert.equal(w.sheet(), null);
+});
+
+test('the sheet closed during Create (after the first define): Create still finishes, so no lone Character is left', { skip }, async t => {
+  let w = null, closed = false;
+  const closeFirst = async (type, payload, options, real) => {
+    const answer = await real(type, payload, options);
+    if (!closed && type === 'dm.define') { closed = true; w.sheet().querySelector('.sh-x').click(); }
+    return answer;
+  };
+  w = await sheetOn(t, { wrap: closeFirst });
+  w.go('review');
+  w.sheet().querySelector('[data-wiz="create"]').click();
+  await long();
+  assert.equal(w.sheet(), null);
+  assert.deepEqual(w.ends, [false], 'closed before Create ended: the caller hears false, as from the old window');
+  const active = Object.keys(w.host.head().domains.dataModules.active).sort();
+  assert.ok(active.includes('pack.chat/wessel') && active.includes('pack.chat/wessel-skills'), 'both blocks');
+});
+
+test('the reply key is the head reply\'s: the room Create checks counts the block actions this reply already used', { skip }, async t => {
+  const { makeBlocks } = await import('../../modules/rpg/view/page.js');
+  const { DM_LIMITS } = await import('../../../modules/data-modules/schema.js');
+  const got = await page(t, { formula: 'standard', persona: 'Ren' });
+  await begin(got.host);
+  const world = createWizardWorld({ sdk: got.host.sdk, ctx: () => got.host.ctx });
+  assert.equal(world.world().free, DM_LIMITS.replyRoots);
+  await makeBlocks(got.host, { who: 'Wessel' });
+  assert.match(world.replyKey(), /\S+\/\S+/);
+  assert.equal(world.world().free, DM_LIMITS.replyRoots - 2, 'two defines on this reply');
 });

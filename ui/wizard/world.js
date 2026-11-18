@@ -49,7 +49,8 @@ export function createWizardWorld({ sdk, ctx = () => null }) {
   const rpgOn = () => view()?.feature?.(LEAN_RPG_FEATURE) === true;
   const hasYou = () => safe(() => hasYouIn(headState(), readerName()), false);
   // The Party tab offers New character (and shows for it) while the RPG is on and the story has no You; `characters()` counts the party so far.
-  const needsYou = () => rpgOn() && !hasYou();
+  // (one view read: the tab strip asks on every engine event while the roster lists nobody)
+  const needsYou = () => { const now = view(); return now?.feature?.(LEAN_RPG_FEATURE) === true && !safe(() => hasYouIn(now.state, readerName()), false); };
   const characters = () => safe(() => readParty(headState(), { own: readerName() }).length, 0);
   const world = () => {
     const state = headState(), persona = readerName();

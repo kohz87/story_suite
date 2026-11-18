@@ -58,7 +58,8 @@ export function createNewWizard({ world, command, sheetCtx = () => ({}) }) {
       close: () => sheet.close(),
     };
     const steps = segmented({ items: WIZARD_STEPS.map(id => ({ value: id, label: W.steps[id] })), value: own.step, role: 'tablist', label: W.title, className: 'wz-steps', onChange: id => go(own, id) });
-    const foot = h('div', { class: 'ps-row wz-foot' },
+    // (after a Create that left something out only Done stays: the steps are not walked again)
+    const foot = own.finished ? null : h('div', { class: 'ps-row wz-foot' },
       at > 0 ? button({ label: W.back, dataset: { wiz: 'back' }, onClick: () => go(own, WIZARD_STEPS[at - 1]) }) : null,
       at < WIZARD_STEPS.length - 1 ? button({ label: NEXT, tone: 'primary', dataset: { wiz: 'next' }, onClick: () => go(own, WIZARD_STEPS[at + 1]) }) : null);
     const body = h('div', { class: `wz-body wz-${own.step}`, dataset: { step: own.step } }, DRAW[own.step](ctx));
@@ -67,7 +68,7 @@ export function createNewWizard({ world, command, sheetCtx = () => ({}) }) {
   }
 
   function go(own, step) {
-    if (!own.alive || own.busy || !WIZARD_STEPS.includes(step) || step === own.step) return;
+    if (!own.alive || own.busy || own.finished || !WIZARD_STEPS.includes(step) || step === own.step) return;
     own.step = step;
     draw(own);
   }

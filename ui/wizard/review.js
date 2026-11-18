@@ -46,8 +46,9 @@ async function create(ctx, make, status) {
   make.textContent = W.creating;
   status.textContent = '';
   const chat = run.chat;
-  // (the chat changed under the sheet: nothing more is sent, into either chat)
-  const command = (type, payload) => (run.alive && world.chatId() === chat ? ctx.command(type, payload) : { ok: false, message: W.generic });
+  // (the chat changed under the sheet: nothing more is sent. A sheet closed mid-Create still lets it finish, as the old window does, so the
+  // Skills define or the take-back of the Character is never cut off.)
+  const command = (type, payload) => (world.chatId() === chat ? ctx.command(type, payload) : { ok: false, message: W.generic });
   const result = await runCreate({ draft: readDraft(run.draft), world: world.world(), imported: run.imported, command, query: world.query, headState: world.headState, levelCap: world.levelCap });
   run.busy = false;
   if (result.ok) {

@@ -1,5 +1,6 @@
-// Dev harness only: `?wizard=who|stats|skills|review|hold|party` draws the New character sheet on that step (a You named Astra, the Fighter set
-// for the later steps), the first-send hold, or the Party tab with nobody yet and its "Create your character", on the fake port (no engine).
+// Dev harness only: `?wizard=who|stats|skills|review|problems|done|hold|party` draws the New character sheet on that step (a You named Astra, the
+// Fighter set for the later steps; `problems`: Review with no name; `done`: the "made, but not …" end), the first-send hold, or the Party tab with
+// nobody yet and its "Create your character", on the fake port (no engine).
 
 import { SKILL_SETS } from '../../modules/rpg/templates.js';
 import { newDraft, withSet } from '../../modules/rpg/view/wizard-data.js';
@@ -21,11 +22,13 @@ export function wizardDemo(value, { doc, suite, port }) {
   if (!value) return;
   const sheetCtx = () => ({ doc, backStack: suite.backStack, sheetHost: suite.root });
   const wizard = createNewWizard({ world: fakeWorld(), command: async () => ({ ok: true }), sheetCtx });
-  if (STEPS.includes(value)) {
+  if (STEPS.includes(value) || value === 'problems' || value === 'done') {
     wizard.open();
     const run = wizard.session();
     run.draft = value === 'who' ? run.draft : { ...withSet({ ...newDraft({ persona: 'Astra' }) }, SKILL_SETS[0]), stats: { str: 9, vit: 8, agi: 6, dex: 6, int: 5, wis: 5, cha: 5 } };
-    suite.root.querySelector(`.wz-steps button[data-value="${value}"]`)?.click();
+    if (value === 'problems') run.draft = { ...run.draft, name: '' };
+    if (value === 'done') run.finished = 'Astra is in the party. Not added: Foes. This reply has no block actions left for it. Settings → Blocks adds it later, and Settings → RPG adds the Combat rules block.';
+    suite.root.querySelector(`.wz-steps button[data-value="${STEPS.includes(value) ? value : 'review'}"]`)?.click();
   } else if (value === 'hold') {
     createSendHold({ doc, world: fakeWorld(), wizard, suite, sheetCtx }).show(MESSAGE);
   } else if (value === 'party') {
