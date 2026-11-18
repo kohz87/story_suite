@@ -67,8 +67,8 @@ test('row changes and button actions reach the callbacks with the row key', () =
   ov.open('look');
   ov.el.querySelector('.srow[data-key="host.sendPending"] .sw').click();
   ov.show('tools');
-  ov.el.querySelectorAll('.srow[data-key="tools.arcPrompt"] .btn2')[1].click();
-  assert.deepEqual(got, [['c', 'host.sendPending', false], ['a', 'tools.arcPrompt', 'Reset to default']]);
+  ov.el.querySelectorAll('.srow[data-key="tools.packEvents"] .btn2')[0].click();
+  assert.deepEqual(got, [['c', 'host.sendPending', false], ['a', 'tools.packEvents', 'Show']]);
 });
 
 test('typing a query shows search results and clears the section mark; clearing returns', () => {

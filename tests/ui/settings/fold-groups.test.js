@@ -57,15 +57,18 @@ test('a click folds the card (only its title shows) and a second click opens it;
 test('a folded card is still folded in a new overlay and after a reload (new prefs over the same storage); keys are per page', () => {
   const store = storage();
   const first = open(createPrefs({ storage: store }));
-  card(first.page(), 'Map').querySelector('.gt').click();
+  card(first.page(), 'Pacing').querySelector('.gt').click();
   first.ov.show('world');
-  assert.equal(card(first.page(), 'Map').className.includes('folded'), false, 'World’s Map card is its own');
+  assert.equal(card(first.page(), 'Calendar').className.includes('folded'), false, 'another page’s card is its own');
+  assert.notEqual(foldKey('people', 'Pacing'), foldKey('world', 'Pacing'));
   const again = open(createPrefs({ storage: store }));
-  const map = card(again.page(), 'Map');
-  assert.equal(map.className.includes('folded'), true);
-  assert.equal(map.querySelector('.gt').getAttribute('aria-expanded'), 'false');
+  const pacing = card(again.page(), 'Pacing');
+  assert.equal(pacing.className.includes('folded'), true);
+  assert.equal(pacing.querySelector('.gt').getAttribute('aria-expanded'), 'false');
+  again.ov.show('world');
+  assert.equal(card(again.page(), 'Calendar').className.includes('folded'), false);
   again.ov.show('people');
-  assert.equal(card(again.page(), 'Map').className.includes('folded'), true, 'a repaint keeps it folded');
+  assert.equal(card(again.page(), 'Pacing').className.includes('folded'), true, 'a repaint keeps it folded');
 });
 
 test('a card whose title carries a count keeps its fold when the count changes; the search page is not folded', () => {

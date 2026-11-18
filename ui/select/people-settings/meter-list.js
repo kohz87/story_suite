@@ -1,4 +1,4 @@
-// The People page's Custom meters and Per-meter stages rows: each reads NPC State's stored list (customMeters, stages), marks the entries
+// The People page's Custom feelings and Per-feeling stages rows: each reads NPC State's stored list (customMeters, stages), marks the entries
 // the engine leaves out (normalizeMeterSettings), and writes the edited list back under the same key.
 import { normalizeMeterSettings, meterDefs, slug, clean, intOr, isObject, TONES, LABEL_MAX, STAGE_NAME_MAX, MAX_CUSTOM_METERS, FEATURE_PRESETS } from '../../../modules/people/meters/npc-meters-config.js';
 import { row } from './kit-more.js';
@@ -36,9 +36,9 @@ function unusedOf(items, keyOf, kept) {
 
 const keptMeters = items => new Set(normalizeMeterSettings({ customMeters: items }, { presets: [] }).custom.map(m => m.id));
 
-/** The Custom meters row: the reader's own meters (a preset's come with the preset), up to six; a rename also moves the stages that name the meter. */
+/** The Custom feelings row: the reader's own meters (a preset's come with the preset), up to six; a rename also moves the stages that name the meter. */
 export function customMetersRow() {
-  return listRow('Feelings', 'customMeters', 'btn', 'Custom meters', 'customMeters', {
+  return listRow('Feelings', 'customMeters', 'btn', 'Custom feelings', 'customMeters', {
     hint: 'Add your own (Fear, Respect, Debt…), up to 6', options: ['Add a meter'],
     view: b => {
       const items = list(b.customMeters).map(meterItem);
@@ -59,9 +59,9 @@ export function customMetersRow() {
   });
 }
 
-/** The Per-meter stages row: named thresholds, each on one meter (a built-in, the reader's own or a preset's in use), at most eight a meter. */
+/** The Per-feeling stages row: named thresholds, each on one meter (a built-in, the reader's own or a preset's in use), at most eight a meter. */
 export function stagesRow() {
-  return listRow('Feelings', 'perMeterStages', 'btn', 'Per-meter stages', 'stages', {
+  return listRow('Feelings', 'perMeterStages', 'btn', 'Per-feeling stages', 'stages', {
     hint: 'Named thresholds on one meter (separate from the ladder)', options: ['Edit'],
     view: (b, env) => {
       const settings = normalizeMeterSettings(b, { presets: env.on(FEATURE_PRESETS) ? env.catalog : [] });

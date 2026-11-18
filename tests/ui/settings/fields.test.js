@@ -150,6 +150,17 @@ test('a refused number keeps what was typed beside the note; a thrown error is s
   assert.equal(el.querySelector('input').value, '9');
 });
 
+test('a refused text area keeps what was typed beside the note', async () => {
+  installFakeDom();
+  const el = renderRow(row({ type: 'area', value: 'old' }), { onChange: () => ({ ok: false, message: 'No.' }) });
+  const box = el.querySelector('textarea');
+  change(box, 'my longer prompt');
+  await flush();
+  assert.equal(el.querySelector('.snote').textContent, 'No.');
+  assert.equal(el.querySelector('textarea'), box, 'the same box, not drawn again from the stored value');
+  assert.equal(el.querySelector('textarea').value, 'my longer prompt');
+});
+
 test('a number the store held to its range is redrawn; an answer with no value or the same number leaves the box alone', async () => {
   installFakeDom();
   const answers = [{ ok: true, value: 99 }, { ok: true }, { ok: true, value: '7' }];

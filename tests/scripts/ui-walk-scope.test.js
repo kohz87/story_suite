@@ -14,7 +14,7 @@ test('the walk runs for a manual run and for a release pull request, whatever it
 });
 
 test('the walk runs for a pull request that touches the UI, the SDK, a settings file, css, a pack UI file or the walk', () => {
-  for (const file of ['ui/mount.js', 'core/sdk/ports.js', 'modules/people/settings-page.js', 'modules/story-block/rpg/settings.js', 'suite.css', 'packs/ersveil/ui/card.js', 'scripts/ui-walk/walk-plan.mjs', 'scripts/ci/ui-walk-run.sh', '.github/workflows/ui-walk.yml']) {
+  for (const file of ['ui/mount.js', 'core/sdk/ports.js', 'modules/people/settings-page.js', 'modules/story-block/rpg/settings.js', 'modules/people/settings/defaults.js', 'modules/arc/settings-parts/prompt-section.js', 'suite.css', 'packs/ersveil/ui/card.js', 'scripts/ui-walk/walk-plan.mjs', 'scripts/ci/ui-walk-run.sh', '.github/workflows/ui-walk.yml']) {
     assert.equal(pr([file]), 'run=true', file);
   }
 });

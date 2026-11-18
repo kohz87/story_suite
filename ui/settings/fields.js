@@ -116,7 +116,7 @@ export function renderRow(row, ctx = {}) {
     const refused = answer?.ok === false;
     note.textContent = refused ? String(answer.message ?? 'That was not saved.') : '';
     note.hidden = !refused;
-    if (refused) { if (row.type !== 'num' && row.type !== 'txt' && row.type !== 'multi') draw(); return; }
+    if (refused) { if (row.type !== 'num' && row.type !== 'txt' && row.type !== 'multi' && row.type !== 'area') draw(); return; }
     kept = value;
     const held = Number(answer?.value);
     if (row.type === 'num' && answer?.value !== undefined && answer.value !== null && Number.isFinite(held) && held !== value) {

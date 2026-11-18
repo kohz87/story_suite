@@ -1,4 +1,4 @@
-// The People page's list editors: Custom meters (listed under its row, Add a meter adds one), Per-meter stages and the Stage ladder (opened
+// The People page's list editors: Custom feelings (listed under its row, Add a meter adds one), Per-feeling stages and the Stage ladder (opened
 // by their Edit buttons). Each change stores the whole list through the page's onChange (people.<row>, the NPC State key the engine reads),
 // then reads the page's rows again (the engine's view of what it uses); the open editors and their lists live as long as the overlay.
 import { h } from '../../kit/dom.js';

@@ -1,4 +1,4 @@
-// Settings › People's list editors on a live settings store: Custom meters, Meter presets, Per-meter stages and the Stage ladder store
+// Settings › People's list editors on a live settings store: Custom feelings, Feeling presets, Per-feeling stages and the Stage ladder store
 // NPC State's own keys through the port, the page reads them back, and a new overlay shows what was stored.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -47,13 +47,13 @@ test('the fixed four-feelings row is gone; the four list rows draw in the mock\'
   assert.deepEqual(checkShape(s.view(), SETTINGS_SHAPE), []);
   const rows = s.view().sections.find(x => x.id === 'people').rows;
   assert.equal(rows.some(r => r.key === 'people.meters' || r.label === 'The four feelings'), false);
-  assert.deepEqual(rows.filter(r => r.group === 'Feelings').map(r => [r.label, r.type]), [['Custom meters', 'btn'], ['Meter presets (up to 12)', 'chips'], ['Starting values', 'multi'], ['Per-meter stages', 'btn']]);
+  assert.deepEqual(rows.filter(r => r.group === 'Feelings').map(r => [r.label, r.type]), [['Custom feelings', 'btn'], ['Feeling presets (up to 12)', 'chips'], ['Starting values', 'multi'], ['Per-feeling stages', 'btn']]);
   const page = s.page(s.open());
   assert.equal(page.textContent.includes('The four feelings'), false);
   assert.equal(page.querySelectorAll('.srow').find(r => r.dataset.key === 'people.presets').querySelectorAll('.chips3 button').map(b => b.textContent).join('|'), 'Companion|Rival|Mentor');
 });
 
-test('Custom meters: Add a meter stores one, a rename and new limits are stored, Remove takes it out; a new overlay reads them back', async () => {
+test('Custom feelings: Add a meter stores one, a rename and new limits are stored, Remove takes it out; a new overlay reads them back', async () => {
   const s = live({ stages: [{ meter: 'trust', at: 40, name: 'Warm' }] });
   const ov = s.open();
   const page = s.page(ov);
@@ -75,7 +75,7 @@ test('Custom meters: Add a meter stores one, a rename and new limits are stored,
   assert.deepEqual(s.stored().stages, [{ meter: 'trust', at: 40, name: 'Warm' }], 'the stages are untouched');
 });
 
-test('Custom meters: a meter the engine does not use is marked; renaming one moves the stages that name it', async () => {
+test('Custom feelings: a meter the engine does not use is marked; renaming one moves the stages that name it', async () => {
   const s = live({ customMeters: [{ name: 'Fear', min: 0, max: 100 }, { name: 'Trust', min: 0, max: 100 }], stages: [{ meter: 'fear', at: 30, name: 'Uneasy' }] });
   const page = s.page(s.open());
   const box = page.querySelector('[data-edit="people.customMeters"]');
@@ -88,7 +88,7 @@ test('Custom meters: a meter the engine does not use is marked; renaming one mov
   assert.equal(s.stored().customMeters.length, 3);
 });
 
-test('Meter presets: chips store the ids in the order they were turned on, and a turned-off chip leaves', async () => {
+test('Feeling presets: chips store the ids in the order they were turned on, and a turned-off chip leaves', async () => {
   const s = live();
   const page = () => s.page(s.open());
   const chip = (name) => page().querySelectorAll('.srow').find(r => r.dataset.key === 'people.presets').querySelectorAll('.chips3 button').find(b => b.textContent === name);
@@ -103,7 +103,7 @@ test('Meter presets: chips store the ids in the order they were turned on, and a
   assert.deepEqual(s.stored().presets, ['companion']);
 });
 
-test('Per-meter stages: Edit opens the editor (aria-expanded); a stage is added, moved and renamed on a custom meter; a repeat threshold is marked', async () => {
+test('Per-feeling stages: Edit opens the editor (aria-expanded); a stage is added, moved and renamed on a custom meter; a repeat threshold is marked', async () => {
   const s = live({ customMeters: [{ name: 'Fear', min: 0, max: 100 }] });
   const page = s.page(s.open());
   const edit = page.querySelectorAll('.srow').find(r => r.dataset.key === 'people.perMeterStages').querySelector('button');

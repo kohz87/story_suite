@@ -31,6 +31,17 @@ async function changeOne(session, control, from, to, base, out) {
   const after = await session.controls();
   const shown = (await session.values())[control.id];
   r.checks.shown = same(shown, to);
+  // A number the engine holds to its range (1 → 128): the page, the store and a fresh Settings must all agree on the held number; that number is then what it was changed to.
+  const held = Number(shown);
+  const heldNumber = control.kind === 'num' && !r.checks.shown && shown !== undefined && String(shown).trim() !== '' && Number.isFinite(held);
+  if (heldNumber) {
+    const storedNow = diffPaths(store0, await session.store());
+    if (storedNow.some(d => d.after === JSON.stringify(held) || d.after === JSON.stringify(String(held)))) {
+      r.notes.push(`asked for ${to}; the row holds ${shown} (shown, stored)`);
+      r.to = shown;
+      r.checks.shown = true;
+    }
+  }
   if (!r.checks.shown) fail(r, 'shown', `the page shows ${shown === undefined ? '(row gone)' : shown} after the change`);
   r.onPage = await session.values();
   const stored = diffPaths(store0, await session.store());

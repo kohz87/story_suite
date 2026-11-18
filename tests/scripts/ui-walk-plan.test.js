@@ -61,6 +61,8 @@ test('nextValue: switches flip, choices take the next option, numbers step, text
   assert.equal(nextValue({ kind: 'num', step: 25 }, '300', -1), '275');
   assert.equal(nextValue({ kind: 'txt' }, ''), 'Walk');
   assert.equal(nextValue({ kind: 'txt' }, 'Era'), 'Era walk');
+  assert.equal(nextValue({ kind: 'txt', id: 'money.coins' }, ''), 'copper: 1, silver: 10', 'the Coins row is given a line it reads, not "Walk"');
+  assert.equal(nextValue({ kind: 'txt', id: 'money.coins' }, 'copper: 1'), undefined);
   const chips = { kind: 'chips', options: ['feelings', 'notes', 'items'] };
   assert.equal(nextValue(chips, 'notes'), 'feelings, notes');
   assert.equal(nextValue(chips, 'feelings, items'), 'items');

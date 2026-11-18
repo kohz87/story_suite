@@ -42,7 +42,7 @@ const listOf = text => String(text ?? '').split(', ').filter(Boolean);
 
 /**
  * The value a control is changed to from `from` (what it shows now): a switch flips, a choice takes the next option,
- * a number goes up one step (its `control.step`, else 1; `step` -1 for the walk's second try), text gets " walk" added, chips toggle the first chip.
+ * a number goes up one step (its `control.step`, else 1; `step` -1 for the walk's second try), text gets " walk" added (the Coins row, which reads lines, gets "copper: 1, silver: 10"), chips toggle the first chip.
  * Returns undefined when there is no other value to pick.
  */
 export function nextValue(control, from, step = 1) {
@@ -59,6 +59,7 @@ export function nextValue(control, from, step = 1) {
     if (String(from ?? '').trim() === '' || !Number.isFinite(n)) return step > 0 ? '1' : undefined;
     return String(n + step * (Number(control.step) || 1));
   }
+  if (control.kind === 'txt' && control.id === 'money.coins') return String(from ?? '').trim() === '' ? 'copper: 1, silver: 10' : undefined;
   if (control.kind === 'txt') return String(from ?? '') === '' ? 'Walk' : `${from} walk`;
   if (control.kind === 'chips') {
     if (!options.length) return undefined;
