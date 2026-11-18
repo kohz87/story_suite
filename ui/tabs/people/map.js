@@ -30,9 +30,12 @@ const radius = v => (v >= 0 ? 31.4 - v * 0.237 : 31.4 - v * 0.147);
 /** Places people on a 0-100 square around the centre (50, 50): angle by position in the list, distance by the lens. */
 export function placePeople(people, lens) {
   const n = people.length || 1;
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  // (neighbours in the list sit apart: a step of 3 round the circle, or the next step that reaches every spot, so 3 people never share one angle)
+  const step = [3, 5, 7, 1].find(k => gcd(k, n) === 1);
   const out = {};
   people.forEach((p, i) => {
-    const angle = ((((i * 3) % n) / n) * 360 + 20) * (Math.PI / 180);
+    const angle = ((((i * step) % n) / n) * 360 + 20) * (Math.PI / 180);
     const d = Math.max(0, Math.min(46, radius(lensValue(p, lens))));
     out[p.personId] = [50 + d * Math.sin(angle), 50 - d * Math.cos(angle)];
   });

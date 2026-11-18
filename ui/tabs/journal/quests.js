@@ -120,6 +120,7 @@ export function closedCard(journal, ctx = {}) {
     h('b', null, c.title),
     h('span', { class: ['qst', c.outcome] }, OUTCOME[c.outcome] ?? c.outcome),
     h('small', null, rpg && c.paid ? `${c.detail} · ${c.paid}` : c.detail),
+    c.id && can(ctx, 'quest.delete') ? h('button', { type: 'button', class: 'qedit', 'aria-label': `Remove ${c.title}`, onClick: () => send(ctx, 'quest.delete', { id: c.id })?.then?.(() => ctx.refresh?.()) }, 'Remove') : null,
   )));
   let open = Boolean(ctx.prefs?.getFold?.('journal.closed', false));
   const fold = h('button', { type: 'button', class: 'fold', onClick: () => { open = !open; ctx.prefs?.setFold?.('journal.closed', open); paint(); } }, h('i', null, '›'), 'Closed ', h('small', null, closed.length));

@@ -96,6 +96,7 @@ export function selectNow(answers = {}, opts = {}) {
       const stored = list(answers['npc.present']).find(item => item?.name === row.name);
       return { ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: text(stored?.status) || null, wearing: null, scene: text(stored?.goal) ? { wants: text(stored.goal), hiding: null } : null };
     }),
+    ...(list(answers['scene.unrecorded']).length ? { unrecorded: list(answers['scene.unrecorded']).map(text).filter(Boolean) } : {}),
     thisTurn: thisTurn(answers),
     // `scene.you` (SB/domains/scene.js:102) answers wearing, condition and position (null when unset); the answer is null while the feature is off.
     you: { look: you ? text(you.wearing) || null : null, position: you ? text(you.position) || null : null, condition: you ? text(you.condition) || null : null },

@@ -116,7 +116,7 @@ describe('selectJournal', () => {
   it('maps closed quests newest first and leaves out an unknown outcome', () => {
     const vm = selectJournal(recorded());
     assert.deepEqual(vm.closed.map(c => c.outcome), ['lapsed', 'declined', 'gaveup', 'done']);
-    assert.deepEqual(vm.closed[3], { title: 'Wolf tracks', outcome: 'done', detail: 'Finished Goldwane 13', paid: null });
+    assert.deepEqual(vm.closed[3], { id: 'th_5', title: 'Wolf tracks', outcome: 'done', detail: 'Finished Goldwane 13', paid: null });
   });
 
   it('turns lead rows into leads with the unknown parts empty', () => {

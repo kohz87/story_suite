@@ -149,3 +149,16 @@ test('peopleStart opens the tab on the map with that person focused, once', () =
   assert.match(tab.querySelector('.fchip').textContent, /Focus: Brann/);
   assert.equal(peopleTab(vm(), { peopleStart: take }).querySelector('.castmap'), null);
 });
+
+test('B21: a person here with no record yet gets a + Add that sends npc.add with the name; the port answers npc.add', async () => {
+  installFakeDom();
+  const port = createFakePort();
+  const tab = peopleTab({ ...vm(), unrecorded: ['Joris Veen'] }, { port });
+  tab.querySelector('[data-add="Joris Veen"]').click();
+  assert.deepEqual(port.recorded.map(r => [r.type, r.payload]), [['npc.add', { name: 'Joris Veen' }]]);
+  const { manageCommand } = await import('../../../../ui/port/people-manage.js');
+  const asked = [];
+  assert.deepEqual(await manageCommand('npc.add', { name: ' Joris Veen ' }, { addNpc: name => asked.push(name) }), { ok: true });
+  assert.deepEqual(asked, ['Joris Veen']);
+  assert.equal((await manageCommand('npc.add', {}, {})).ok, false);
+});

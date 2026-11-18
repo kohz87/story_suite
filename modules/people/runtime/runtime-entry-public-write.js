@@ -246,7 +246,7 @@ export function createPublicApiStatePart(deps) {
     presentCastHtml: () => storyBlockCastHtml(),
     // (1.2.13) Why the present cast is empty ({ text, scan }), and Add NPC, for the Story Block tabs.
     castEmptyReason: () => castEmptyReason(),
-    addNpc: () => addNpcManually(),
+    addNpc: name => addNpcManually(typeof name === 'string' ? name : ''),
     /** Fill the now/chatter text of present-cast markup inserted under `root` (textContent only). */
     fillPresentCast: root => fillPresentSceneText(root),
     dossierRevision: () => `${getChatKey()}|${Number(stateVersions.get(getChatKey()) || 0)}`,

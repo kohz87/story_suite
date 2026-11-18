@@ -51,7 +51,8 @@ function pulseOf(view, shown) {
 // accepted: the date the current arc was accepted ('' when its time is unknown, null when no arc is running). The plan text is the arc's own and shows only with the plan.
 // draft: the plan that waits for Accept or Discard (its text only with the plan shown); busy: the planner is being asked; error: why the last ask failed.
 function arcOf(view, shown, calendar, status) {
-  const current = view?.current && typeof view.current === 'object' ? view.current : null;
+  // (an arc the reader ended is over: the card shows no plan, no beats and no End button for it)
+  const current = view?.current && typeof view.current === 'object' && view.current.active !== false ? view.current : null;
   const waiting = status?.draft && typeof status.draft === 'object' ? status.draft : null;
   const base = {
     accepted: current?.active ? acceptedOn(current.minutes, calendar) : null,
@@ -160,7 +161,8 @@ export function selectStory(read, opts = {}) {
   const agendas = gate(list(plan.agendas), shown, agendaOf(ownerOf(read('people.list', {}))));
   const secrets = gate(list(plan.secrets), shown, secretOf(read('people.secretOwners', {})));
   const arcView = read('director.arc', {});
-  const hasArc = Boolean(arcView?.current && typeof arcView.current === 'object');
+  // (a plan waiting for Accept is a plan: the card does not also say there is none)
+  const hasArc = Boolean(arcView?.current && typeof arcView.current === 'object') || Boolean(opts.arcStatus?.draft);
   return {
     plan: { shown, note: noteOf(shown, opts.threadsOn !== false, [beats, clocks, hooks, newsOnWay, agendas, secrets], hasArc) },
     pulse: pulseOf(read('pulse.view', {}), shown),

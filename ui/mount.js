@@ -160,9 +160,11 @@ export function mountSuite(options = {}) {
     target: tabHost.cardSlot,
     render: vm => (card ? card(vm, { port, backStack }) : views.card(vm)),
   });
+  // A person's page left open over the tabs follows the story: it is read again with every change.
+  redraw.register('dossier', { tab: 'always', isVisible: () => views.openDossier() !== null, read: () => views.openDossier(), draw: vm => views.updateDossier(vm) });
   register(tabHost.current());
   // Desktop (ui/css/desk.css): Here now under the card on every tab, read only while drawn; crossing the width draws it and redraws Now without (or with) its Here card.
-  redraw.register('here', { tab: 'always', isVisible: () => desk?.on() === true, read: () => port.view('now')?.here ?? [], target: tabHost.hereSlot, render: vm => views.here({ here: vm }) });
+  redraw.register('here', { tab: 'always', isVisible: () => desk?.on() === true, read: () => { const now = port.view('now'); return { here: now?.here ?? [], unrecorded: now?.unrecorded ?? [] }; }, target: tabHost.hereSlot, render: vm => views.here(vm) });
   desk = watchDesk({ probe: tabHost.scroll.firstChild, root: view.root, onChange: () => { if (tabHost.current() === 'now') showTab('now'); redraw.reveal(); } });
 
   function applyFlags(next) {

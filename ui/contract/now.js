@@ -56,6 +56,8 @@ export const NOW_SHAPE = {
       },
     ],
   },
+  // Names the scene has here that no record answers to (told in Here now, as People tells them).
+  unrecorded: { $optional: [T.STRING] },
   here: [
     {
       personId: T.STRING,

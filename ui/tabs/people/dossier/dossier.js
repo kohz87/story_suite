@@ -42,7 +42,8 @@ function summary(d, id) {
   const now = d.now ?? {};
   if (id === 'death') return deathCard(d);
   if (id === 'with') {
-    const c = d.changes?.[0];
+    // (a change the day's allowance held back moved nothing, so it is not "the last change")
+    const c = d.changes?.find(change => !change.heldBack);
     return c ? h('span', { class: 'lc' }, h('b', { class: `f${Math.max(0, FEELING_KEYS.indexOf(c.meter))}` }, `${c.meter[0].toUpperCase()}${c.meter.slice(1)} ${c.delta > 0 ? '+' : ''}${c.delta}`), ` · ${c.why}`) : h('span', { class: 'fine' }, 'Nothing yet');
   }
   if (id === 'mood') return [h('span', { class: 'mw' }, d.mood), moodMeters(d.moodBars)];
@@ -74,11 +75,12 @@ const BODIES = { death: deathPage, with: withPage, mood: moodPage, now: nowPage,
  * Commands: people.follow (the store's Follow flag; the star goes back if the engine refuses), npc.edit (opens NPC State's editor), npc.refresh, npc.portrait, npc.inspect, npc.merge, npc.delete (asks twice; the dossier closes once they are gone), npc.markAlive, npc.memory.add.
  * Returns the root element; `root.close()` takes the dossier down from the back-stack too.
  */
-export function dossierPage(d, ctx = {}) {
+export function dossierPage(first, ctx = {}) {
+  let d = first;
   const state = { page: null, menu: false, sure: false, following: Boolean(d.following) };
   const cmd = (type, extra = {}) => ctx.port?.command?.(type, { personId: d.id, ...extra });
-  const pages = dossierPages(d, ctx.youName);
-  const dead = d.life !== 'alive';
+  let pages = dossierPages(d, ctx.youName);
+  let dead = d.life !== 'alive';
   const releases = { dossier: null, page: null, menu: null };
   const release = (key) => { releases[key]?.(); releases[key] = null; };
   const hold = (key, layer, close) => { release(key); releases[key] = ctx.backStack?.push({ id: `dossier-${d.id}-${key}`, layer, close }) ?? null; };
@@ -102,6 +104,16 @@ export function dossierPage(d, ctx = {}) {
   function closePage() { release('page'); state.page = null; drawGrid(); }
   function close() { shut = true; release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
   root.close = close;
+  // The person changed while the page is open (a reply, an Edit save): the same page is drawn again from the fresh record.
+  root.update = (next) => {
+    if (!next || shut) return;
+    d = next;
+    pages = dossierPages(d, ctx.youName);
+    dead = d.life !== 'alive';
+    state.following = Boolean(d.following);
+    if (!pages.some(p => p.id === state.page)) state.page = null;
+    drawGrid();
+  };
 
   // Refresh runs a model call: the line under the top bar says it is going and then what came of it (the answer's own words).
   function refresh() {

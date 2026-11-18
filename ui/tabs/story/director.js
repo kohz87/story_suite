@@ -69,7 +69,7 @@ function arcCard(arc, shown, ctx) {
   const waiting = draft ? h('div', { class: 'arcbox draft' }, h('b', null, 'A plan is waiting'), shown && draft.text ? h('p', null, draft.text) : h('p', { class: 'fine' }, 'Hidden while the plan is hidden; you can accept or discard it without reading.')) : null;
   const body = !shown
     ? h('div', { class: 'hiddenrow' }, h('i', null, '🔒'), 'The arc plan is hidden')
-    : plan ? h('div', { class: 'arcbox' }, h('b', null, plan.title), h('p', null, plan.text), h('span', { class: 'm' }, plan.summary)) : h('p', { class: 'fine' }, 'No arc is planned yet.');
+    : plan ? h('div', { class: 'arcbox' }, h('b', null, plan.title), h('p', null, plan.text), h('span', { class: 'm' }, plan.summary)) : draft ? null : h('p', { class: 'fine' }, 'No arc is planned yet.');
   const send = (type, payload) => ctx.command?.(type, payload);
   const buttons = draft
     ? [can(ctx, 'arc.accept') ? button({ label: 'Accept this plan', dataset: { act: 'arc-accept' }, onClick: () => send('arc.accept', {}) }) : null,

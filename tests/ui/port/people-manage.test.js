@@ -7,16 +7,16 @@ import { createSbPort } from '../../../ui/port/sb-port.js';
 
 const sdk = { command: async () => ({ ok: true }), modules: () => [] };
 
-test('the port answers npc.edit, npc.delete and npc.markAlive itself, and still has nobody for Merge', async () => {
+test('the port answers npc.edit, npc.delete, npc.markAlive and npc.add itself, and still has nobody for Merge', async () => {
   const seen = [];
   pageHandles.deltaApi = { openEditor: id => { seen.push(['edit', id]); return true; }, deleteNpc: async id => { seen.push(['delete', id]); return true; },
-    updateLifeState: async (id, choice, options) => { seen.push(['alive', id, choice, options.chatKey]); return true; }, uiStatus: () => ({ chatKey: 'chat-1' }) };
+    updateLifeState: async (id, choice, options) => { seen.push(['alive', id, choice, options.chatKey]); return true; }, uiStatus: () => ({ chatKey: 'chat-1' }), addNpc: name => { seen.push(['add', name]); } };
   try {
     const port = createSbPort({ sdk });
     for (const name of MANAGE_NAMES) assert.equal(port.can(name), true, name);
     assert.equal(port.can('npc.merge'), false);
     for (const name of MANAGE_NAMES) assert.deepEqual(await port.command(name, { personId: 'np_1' }), { ok: true });
-    assert.deepEqual(seen, [['edit', 'np_1'], ['delete', 'np_1'], ['alive', 'np_1', 'alive', 'chat-1']]);
+    assert.deepEqual(seen, [['edit', 'np_1'], ['delete', 'np_1'], ['alive', 'np_1', 'alive', 'chat-1'], ['add', '']]);
   } finally { pageHandles.deltaApi = null; }
 });
 

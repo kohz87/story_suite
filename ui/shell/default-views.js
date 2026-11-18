@@ -21,6 +21,7 @@ export function pendingCard(tab) {
 /** Returns the default `{ card, here, tab, closePage }` renderers wired to a port, back-stack and prefs; `desk()` says whether the desktop layout is drawn. */
 export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null, desk = null }) {
   let dossier = null;
+  let openId = null;
   let peopleStart = null;
   const openDossier = (personId) => {
     const vm = port.view('dossier')?.[personId];
@@ -49,6 +50,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
       },
     });
     dossier = el;
+    openId = personId;
     host.appendChild(el);
     el.querySelector('[data-act="close"]')?.focus();
   };
@@ -72,6 +74,9 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
   return {
     // A person's page left open: closed when the suite is opened on a tab (it would cover the tab asked for).
     closePage: () => dossier?.close(),
+    // The open dossier's record as it is now (null when none is open), and a redraw of it from a fresh read.
+    openDossier: () => (dossier ? port.view('dossier')?.[openId] ?? null : null),
+    updateDossier: vm => dossier?.update?.(vm),
     // The first of `keys` (a store id or a lower-case name) that has a dossier, or null.
     personKey: (keys) => {
       const known = port.view('dossier') ?? {};
@@ -91,7 +96,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
       onPace: () => go('bag'),
     }) : null),
     // Here now, the desktop left column's people present (from the Now view-model's rows).
-    here: vm => hereNowCard(vm?.here, ctx),
+    here: vm => hereNowCard(vm?.here, ctx, vm?.unrecorded),
     tab: (tab, vm) => (tab === 'now' && vm ? nowTab(vm, ctx) : built(tab, vm) ?? pendingCard(tab)),
   };
 }

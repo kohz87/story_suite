@@ -44,3 +44,11 @@ test('a hook the narrator told is a Journal lead (the world leads) and no longer
   assert.equal(port.view('story').hooks.count, 0);
   host.close();
 });
+
+test('B16: an ended arc is no running arc, and a waiting plan is not also "no plan yet"', () => {
+  const ended = { current: { ...ARC.current, active: false, ended: { reason: 'the arc ended' } } };
+  const arc = selectStory(name => (name === 'director.arc' ? ended : name === 'director.calendar' ? CAL : null), { planShown: true }).arc;
+  assert.deepEqual([arc.plan, arc.open, arc.accepted], [null, false, null]);
+  const waiting = selectStory(() => null, { planShown: true, arcStatus: { draft: { text: 'x', reason: 'no-arc' } } });
+  assert.equal(waiting.plan.note, '');
+});

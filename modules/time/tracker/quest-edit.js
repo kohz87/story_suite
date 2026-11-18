@@ -6,10 +6,12 @@ const OPEN = thread => thread && thread.status === 'active' && !thread.offer && 
 const clip = (value, room) => String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, room);
 const DIFFICULTIES = new Set(['easy', 'normal', 'hard']);
 
-function questOf(ctx, payload) {
+// `closed`: a quest the story or the reader has closed (done, failed, given up) may be taken off the Journal too.
+function questOf(ctx, payload, { closed = false } = {}) {
     const director = ctx.draft('director');
     const thread = director.threads?.[payload?.id];
-    if (!OPEN(thread) || thread.kind !== 'quest') ctx.fail('REFUSED', 'That quest is not open.');
+    const shut = closed && thread?.status === 'resolved' && thread.kind === 'quest';
+    if (!shut && (!OPEN(thread) || thread.kind !== 'quest')) ctx.fail('REFUSED', 'That quest is not open.');
     return { director, thread };
 }
 
@@ -67,7 +69,7 @@ export function questGiveUp(ctx, payload = {}) {
 
 /** `quest.delete { id }`: the quest and its step trail are gone, as if the story never offered it. */
 export function questDelete(ctx, payload = {}) {
-    const { director, thread } = questOf(ctx, payload);
+    const { director, thread } = questOf(ctx, payload, { closed: true });
     for (const [name, id] of Object.entries(director.keys)) if (id === thread.id) delete director.keys[name];
     for (const [name, step] of Object.entries(director.steps ?? {})) if (step?.thread === thread.id) delete director.steps[name];
     delete director.threads[thread.id];
