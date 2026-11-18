@@ -58,6 +58,11 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 - **The old Days screen id (B4-11h).** The Journal's old Days screen id `story-director/days` (a dialog kept for older layouts) is gone; the World screen's Journal is the one place the days show. The weather by rule stays: Story Director still picks a day's weather from the calendar and the region, and Settings › World and time keeps its "Weather comes from" row.
 
 ### Fixed
+
+- **One "new person" line in the prompt (SFW6).** The kinds list no longer teaches `+ person Name | look: … | flaw: …`; a new person is written as NPC State's `+ npc Name | role | look` and nowhere else (the prompt had both, and a `+ person` line made no NPC State record, so a later `~ npc` about them was refused). An old `+ person` line is still read and its name still checked; it makes no record.
+- The off-screen cast helper's prompts are sent with the player's and the character's names filled in (they went out as `{{user}}` / `{{char}}`).
+- The world-events prompt shows a template's summary with its place, region and realm filled in (it showed `{region}`).
+- The narrator note's weather is cut at a whole word (it stopped mid-word: `thin and drif…`), and NPC State's own `meters started` / `nothing moved` lines no longer appear as a day's events in the digest.
 - Settings › People: a refused Portraits Prompt or Leave out text box keeps what was typed beside the note (it was drawn again from the stored value).
 - Settings › People: the rows and the off-hint say "feelings" like the module switch: Custom feelings, Feeling presets (up to 12), Per-feeling stages, "Feeling presets and rules is off".
 - Developer: the UI walk gives the Coins row a line it reads and accepts a number the engine holds to its range (Most output per People call 1 becomes 128) when the page, the store and a fresh Settings agree; it also runs for a change inside a `modules/**/settings*` folder.
