@@ -12,12 +12,21 @@ test('F22: the evidence text of a reply leaves out the STORY_SUITE_V2 comment an
     assert.equal(stripUiNoise('Plain <b>story</b> text.'), 'Plain story text.', 'other markup is stripped as before');
 });
 
-// SOAKPEOPLE F20: the Relationships rule listed only the four built-in meters while the reader's own meter (Respect) was in use.
-test('F20: the Relationships rule names the meters in use; with only the built-in four it is the approved text, byte for byte', () => {
+// SOAKPEOPLE F20: the Relationships rule listed only the four built-in meters while the Meter rules named the reader's own meter (Respect).
+test('F20: the Relationships rule names the meters the Meter rules name; with none it is the approved text, byte for byte', () => {
     const four = linesMeterText({ via: false, meters: ['trust', 'affection', 'desire', 'tension'] });
     assert.equal(four, linesMeterText({ via: false }));
     assert.match(four, /Name each meter that moved \(trust, affection, desire, tension\) and say up or down/);
-    const custom = linesMeterText({ via: false, meters: ['trust', 'affection', 'desire', 'tension', 'respect', 'loyalty'], rules: ['respect rises when she is treated as an equal'] });
+    const custom = linesMeterText({ via: false, meters: ['respect', 'loyalty'], rules: ['respect rises when she is treated as an equal', 'loyalty grows with shared danger'] });
     assert.match(custom, /Name each meter that moved \(trust, affection, desire, tension, respect, loyalty\) and say up or down/);
     assert.match(custom, /Meter rules: respect rises/);
+});
+
+test('F20 through the module: a custom meter with a rule is named in the list; one with no rule is named nowhere (G2)', async () => {
+    const { createNpcPart } = await import('../../modules/people/meters/npc-meters.js');
+    const settings = { customMeters: [{ name: 'Respect', min: 0, max: 100, start: 10, describe: 'rises when she is treated as an equal' }, { name: 'Nerves', min: 0, max: 100 }] };
+    const part = createNpcPart({ settings: () => settings, feature: () => true });
+    const text = part.context.static();
+    assert.match(text, /Name each meter that moved \(trust, affection, desire, tension, respect\)/);
+    assert.doesNotMatch(text, /nerves/);
 });

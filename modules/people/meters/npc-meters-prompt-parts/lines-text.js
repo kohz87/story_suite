@@ -6,11 +6,12 @@ const PARAGRAPH = 'Relationships: when the scene changes how someone feels about
 
 /**
  * The paragraph for one set of features. `via`: the anti-lever feature is on (its sentence is appended as it is today); `rules`: the preset meters' own rules
- * ("id describe", Meter rules while presets are on); `meters`: the ids of the meters in use (a custom one joins the list of meters to name). The caps setting
+ * ("id describe", Meter rules while presets are on); `meters`: the ids of the reader's meters that have a rule (they join the list of meters to name). The caps setting
  * and the per-day limit add no text: code enforces them (G2).
  */
 export function linesMeterText({ via = true, rules = [], meters = [] } = {}) {
-    // SOAKPEOPLE F20: the meters list names the reader's own meters too (built-ins first); with none added it is the approved text, byte for byte.
+    // SOAKPEOPLE F20: the meters list also names the reader's meters that have a rule in `rules` (built-ins first; G2: a meter with no rule adds no text);
+    // with none it is the approved text, byte for byte.
     const extra = meters.filter(id => !BUILT_IN.includes(id));
     const paragraph = extra.length ? PARAGRAPH.replace(`(${BUILT_IN.join(', ')})`, `(${[...BUILT_IN, ...extra].join(', ')})`) : PARAGRAPH;
     const approach = via ? ` Add | via: ${APPROACH_KINDS.join(', ')} when the move is one of those approaches; the same approach to the same person again soon gives less, then backfires.` : '';
