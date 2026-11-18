@@ -40,25 +40,58 @@ test('World: an invalid Months list shows the refusal under its row, and a good 
   await type('world.months', 'nonsense');
   const note = row('world.months').querySelector('.snote');
   assert.equal(note.hidden, false);
-  assert.equal(note.textContent, 'That value cannot be saved.');
+  assert.equal(note.textContent, '“nonsense” does not read as a month. Write each month as “Name: days”, split by commas, with whole days of 1 or more (for example “Frostmoon: 30, Thaw: 28”).');
+  await type('world.months', 'First: 20, Second: zero');
+  assert.match(note.textContent, /^“Second: zero” does not read as a month\./);
   await type('world.months', 'First: 20, Second: 30');
   assert.equal(note.hidden, true);
   assert.equal(note.textContent, '');
 });
 
-test('World: a number held to the engine range is redrawn in its box', async t => {
+test('World: a number held to the engine range is redrawn in its box and says it was held', async t => {
   const { host, row, type } = await open(t, 'world');
   const input = await type('world.longestTimeJump', '99999');
   const stored = host.sdk.settings('story-director')['tracker.maxJump'];
   assert.notEqual(stored, 99999);
   assert.equal(input.value, String(stored));
-  assert.equal(row('world.longestTimeJump').querySelector('.snote').hidden, true);
+  const note = row('world.longestTimeJump').querySelector('.snote');
+  assert.equal(note.hidden, false);
+  assert.equal(note.textContent, `Longest time jump was held to the range it allows; kept ${stored}.`);
+  await type('world.longestTimeJump', String(stored - 1));
+  assert.equal(note.hidden, true, 'a number kept as typed clears the note');
 });
 
-test('RPG: Level cap 100 shows 99 and XP rate 101 shows 100 at once; an in-range number is left as typed', async t => {
+test('RPG: Level cap 100 shows 99 and XP rate 101 shows 100 at once, each saying its range; an in-range number is left as typed', async t => {
   const { row, type } = await open(t, 'rpg', ({ host }) => host.features.set('story-block.rpg', true));
+  const note = key => row(key).querySelector('.snote');
   assert.equal((await type('rpg.levelCap', '100')).value, '99');
+  assert.equal(note('rpg.levelCap').hidden, false);
+  assert.equal(note('rpg.levelCap').textContent, 'Level cap is 1-99; kept 99.');
+  assert.equal((await type('rpg.levelCap', '0')).value, '1');
+  assert.equal(note('rpg.levelCap').textContent, 'Level cap is 1-99; kept 1.');
   assert.equal((await type('rpg.xpRate', '101')).value, '100');
+  assert.equal(note('rpg.xpRate').textContent, 'XP rate is 50-300 in steps of 25; kept 100.');
   assert.equal((await type('rpg.xpRate', '150')).value, '150');
-  assert.equal(row('rpg.xpRate').querySelector('.snote').hidden, true);
+  assert.equal(note('rpg.xpRate').hidden, true);
+});
+
+test('RPG: an empty Level cap is refused with the reason under the row, not a bare "cannot be saved"', async t => {
+  const { row, type } = await open(t, 'rpg', ({ host }) => host.features.set('story-block.rpg', true));
+  await type('rpg.levelCap', '');
+  const note = row('rpg.levelCap').querySelector('.snote');
+  assert.equal(note.hidden, false);
+  assert.equal(note.textContent, 'It takes a whole number, 1-99.');
+});
+
+test('the ports say why: a word a choice does not have, and a Look number held to its schema range', async t => {
+  const { port } = await open(t, 'rpg', ({ host }) => host.features.set('story-block.rpg', true));
+  const odd = await port.command('settings.set', { key: 'rpg.difficulty', value: 'Brutal' });
+  assert.equal(odd.ok, false);
+  assert.equal(odd.message, 'Choose one of: Gentle, Standard, Harsh, Custom.');
+  const tempo = await port.command('settings.set', { key: 'world.tempo', value: 9 });
+  assert.deepEqual([tempo.ok, tempo.message], [false, 'Tempo is a number from 0.25 to 4.']);
+  const when = await port.command('settings.set', { key: 'director.when', value: 'Sometimes' });
+  assert.deepEqual([when.ok, when.message], [false, 'Choose one of: When I ask, Automatically.']);
+  const lines = await port.command('settings.set', { key: 'host.maxChangeLines', value: 5 });
+  assert.deepEqual(lines, { ok: true, value: 10, range: { min: 10, max: 1000 } });
 });
