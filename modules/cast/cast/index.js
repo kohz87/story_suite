@@ -6,14 +6,13 @@
 //   hook, query or screen, nothing in the prompt; what is stored stays.
 // * State: the `cast` domain (domain.js): who is in the world, where they are and what they do, who has been met and why, and the
 //   notes that tell a reply's card what happened. The pack entries themselves are read from the packs (Story Block's query
-//   `packs.content({ kind: 'cast' })`), never copied; an unmet person is hidden from every screen. The narrator is told only who is at the
-//   scene's place (name, role, look; note-parts/here.js) so it does not invent doubles of them.
+//   `packs.content({ kind: 'cast' })`), never copied; an unmet person is hidden from every screen and from the narrator.
 // * Steps (capture.js, all cause `system`, before a reply, hooks.js): `cast.sync` (the packs' cast joined, changed or left), `cast.advance`
 //   (the planner's batch after a day change or a time skip), `cast.meet` (paths cross for the first time, also when the reader sought a kind of
 //   person) and `cast.rumor` (the reader sought a kind of person who is elsewhere: the narrator hears of them with no name). One step after the reply:
 //   `cast.withdraw` (the reply did not show the person the meeting brought in, so the meeting is taken back), and with world events on
 //   `cast.story` (the story's own moves and stays records become a person's base, world-parts/story-bases.js).
-// * Narrator: the one cue for a meeting, in the reply it happens in, and the world's own people at the scene's place (note.js). No static text.
+// * Narrator: the one cue for a meeting, in the reply it happens in (note.js). No static text.
 // * Interface for other modules: the query `director.cast` (queries.js): the met people with their pack entries, for NPC State Delta.
 // * Reader: the reply's card (the status card's notes), World -> Now -> Around here, Settings -> Modules -> Story Director -> The cast.
 // Works without NPC State Delta, and without a model (nobody moves, meetings by place still happen).
@@ -39,7 +38,7 @@ export const part = {
     features: [{
         id: FEATURE,
         label: 'The cast',
-        describe: 'A pack\'s hand-written cast lives off-screen: they move on when the day changes or time skips, and you meet them by place and routine, or when their goal leads them to you. Unmet cast is hidden from you; the narrator is told who is here.',
+        describe: 'A pack\'s hand-written cast lives off-screen: they move on when the day changes or time skips, and you meet them by place and routine, or when their goal leads them to you. Unmet cast is hidden from you and from the narrator\'s text.',
         default: true,
     }],
     domains: { cast: { initial: initialCast, validate: validateCast } },
