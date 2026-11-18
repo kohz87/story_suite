@@ -6,6 +6,7 @@ import { BUILTIN_MODULES } from '../../../core/modules-list.js';
 import { buildSelectors } from '../../../ui/select/build.js';
 import { selectDirector } from '../../../ui/select/settings-director.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';
+import { chatPrefs } from '../../../ui/port/st-chat.js';
 import { createPages } from '../../../ui/settings/page.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 
@@ -14,7 +15,7 @@ async function live(t) {
   const host = await createHost({ core: true, modules: BUILTIN_MODULES });
   t.after(() => host.close());
   const writes = { settings: host.settings, features: host.features };
-  const port = createSbPort({ sdk: host.sdk, writes, selectors: buildSelectors(() => null, host.sdk), rpgValues: () => host.sdk.settings('story-block') });
+  const port = createSbPort({ sdk: host.sdk, writes, selectors: buildSelectors(() => null, host.sdk), prefs: { device: { get: () => ({}), set() {} }, chat: chatPrefs(() => ({ chatMetadata: {} })) }, rpgValues: () => host.sdk.settings('story-block') });
   return { host, port, sections: () => port.view('settings').sections };
 }
 const settable = s => s.rows.filter(r => !['info', 'btn'].includes(r.type));

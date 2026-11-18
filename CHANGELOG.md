@@ -4,10 +4,11 @@ Newest first. Each release has the highlights, then what was added, changed, fix
 
 ## Unreleased
 
-Main has nothing beyond 0.1.2 yet except documentation.
+Main has nothing beyond 0.1.2 yet except documentation and the Settings › Director fix below.
 
 ### Changed
 
+- Settings › Director: a group whose feature is off now says "Turn on <feature> to see these" (with the names of the hidden rows) instead of vanishing, and the page has a working Scene spoilers switch for this chat (the same one as on Now and in the dossier). Cast moves have no setting (the cast reads the last 3 messages, up to 3,500 characters, and asks for 700 tokens, fixed in code), so the mock no longer lists them.
 - The README and this changelog are rewritten to be readable: short sections, tables, and the long notes folded away.
 
 ## 0.1.2 — 18 Nov 2026
