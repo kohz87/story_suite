@@ -7,7 +7,6 @@ import { purseLines } from './purse-lines.js';
 const KIND_OF = { equipment: 'gear', consumable: 'use', goods: 'goods', material: 'material', quest: 'quest' };
 const GLYPH_OF_SLOT = { weapon: 'weapon', body: 'armor', 'off-hand': 'offhand', head: 'head', cloak: 'cloak', feet: 'feet', 'accessory-1': 'accessory', 'accessory-2': 'accessory', accessory: 'accessory' };
 const RARITY = { common: 'common', uncommon: 'uncommon', rare: 'rare', epic: 'epic', legendary: 'epic' };
-// (a record id such as rc_3ek5oxik names no source in words, so the sheet shows no From line for it)
 const FILTER_KEYS = ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'];
 const LOAD_LEVEL = { normal: 'light', heavy: 'heavy', over: 'over' };
 
@@ -44,13 +43,13 @@ const assetOf = (row, carried) => ({
   condition: row.condition || null, note: '', meta: [row.kind, `${row.pace} km/day`, ...(Number.isSafeInteger(carried?.carry) && carried.carry > 0 ? [`+${carried.carry} load`] : [])].filter(Boolean), tag: '',
 });
 
+// Where a stack came from, for the item sheet: a receipt id (`rc_…`, what the stack records) means nothing to a reader, so only a worded origin shows.
+const originOf = from => (typeof from === 'string' && !/^rc_/u.test(from) ? from : '');
+
 /**
  * Bag view-model from { rpg, items: inventory.items, counts: inventory.counts (pieces per def+owner for unstacked items), gear: gear.view, wallet: inventory.wallet, currency: inventory.currency,
  * mounts: mounts.list, pace: mounts.pace, changes: reply.changes (the head reply's lines; the purse's coin lines are the turn's), carriers: gear.view's `carriers` (mounts with the party, what each adds), pcId }; null when inventory.items does not answer.
  */
-// Where a stack came from, for the item sheet: a receipt id (`rc_…`, what the stack records) means nothing to a reader, so only a worded origin shows.
-const originOf = from => (typeof from === 'string' && !/^rc_/u.test(from) ? from : '');
-
 export function selectBag({ rpg = false, items, counts, gear, wallet, currency, mounts, pace, carriers, changes, pcId = null } = {}) {
   if (!Array.isArray(items)) return null;
   const ctx = { rows: gear?.rows, currency, pcId, counts: isRecord(counts) ? counts : {} };

@@ -10,10 +10,11 @@ const SCENE = ['director.time', 'director.status', 'scene.place', 'scene.weather
 
 // Who is here, from the store: the people of `people.list` who are here (isHere: present, or at the scene's place) as [{ id, name, meters, followed, portrait, status, goal }] (the old `npc.present` answer's shape, still the
 // key the selectors read); `status` is what they are doing (the same stored text the dossier's Right now shows) and `goal` what they want (people.dossier's), each null when none; null while the chat has no people slice.
+const goalOf = dossier => (typeof dossier?.goal === 'string' && dossier.goal.trim()) || null;
 const hereOf = (list, place, present, read) => (Array.isArray(list)
   ? list.filter(row => row && isHere(row, place, present)).map(row => ({
     id: row.id, name: row.name, meters: row.meters, followed: row.followed === true, portrait: row.portrait ?? null,
-    status: row.status ?? null, goal: (typeof read('people.dossier', { id: row.id })?.goal === 'string' && read('people.dossier', { id: row.id }).goal.trim()) || null,
+    status: row.status ?? null, goal: goalOf(read('people.dossier', { id: row.id })),
   }))
   : null);
 
