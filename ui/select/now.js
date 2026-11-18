@@ -28,11 +28,11 @@ function needsYou(answers, opts) {
 }
 
 // `atlas.trip` (SD/atlas/trip-query.js:74 over tripView trip.js:363): phase planned | road | arrived, `to`, `row`, `leg`, `legCount`, `fraction` (of the leg).
-// phase `planned` (before the first leg starts) is a trip not begun: 0 percent, the detail says when it leaves.
+// phase `planned` (before the first leg starts) is a trip not begun: 0 percent, the detail says when it leaves. An `arrived` trip is a finished one (the engine keeps it while the story stays at the destination, for weeks): Now does not list it, the where row says the place.
 function tripOf(trip) {
-  if (!isRec(trip) || trip.on !== true || !['planned', 'road', 'arrived'].includes(trip.phase)) return null;
+  if (!isRec(trip) || trip.on !== true || !['planned', 'road'].includes(trip.phase)) return null;
   if (trip.phase === 'planned') return { state: 'planned', title: text(trip.to), detail: [text(trip.row), text(trip.departs) && `leaves ${text(trip.departs)}`].filter(Boolean).join(' · '), progressPct: 0 };
-  const done = trip.phase === 'arrived' ? 1 : ((trip.leg - 1) + (trip.fraction || 0)) / trip.legCount;
+  const done = ((trip.leg - 1) + (trip.fraction || 0)) / trip.legCount;
   return { state: trip.phase, title: text(trip.to), detail: text(trip.row), progressPct: Number.isFinite(done) ? Math.round(done * 100) : null };
 }
 
@@ -42,11 +42,12 @@ function focusOf(goal) {
   return isRec(goal) && text(goal.goal) ? { title: text(goal.goal), detail: text(goal.step) || null } : null;
 }
 
-function dueOf(next) {
+// A date that has come reads "due now" the day it falls, "overdue" once `time.overdue` lists the thread (the Journal's word for it).
+function dueOf(next, overdue) {
   if (!isRec(next)) return null;
   const title = text(next.summary) || text(next.key);
   if (!title) return null;
-  return { title, detail: [text(next.when), next.reached === true ? 'due now' : ''].filter(Boolean).join(' · ') || null };
+  return { title, detail: [text(next.when), next.reached !== true ? '' : list(overdue).some(row => isRec(row) && row.id === next.id) ? 'overdue' : 'due now'].filter(Boolean).join(' · ') || null };
 }
 
 // `gear.view` (SB/domains/gear/views.js:156): rows { [stack]: { word, broken } } and names from slots (worn) and bag (unworn).
@@ -89,7 +90,7 @@ export function selectNow(answers = {}, opts = {}) {
     needsYou: needsYou(answers, opts),
     // The card's pack offers (select/offers.js rows), told next to the actions; [] when the card offers none.
     offers: list(opts.offers),
-    today: { where: whereOf(answers, opts), focus: opts.focusPick ?? focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
+    today: { where: whereOf(answers, opts), focus: opts.focusPick ?? focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next'], answers['time.overdue']?.overdue), torn: tornOf(opts.torn) },
     // The scene line (doing, wearing) and the situational secrets are gaps (UI-PLAN §2.2).
     here: selectDrawer(answers, opts).map(row => ({ ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: null, wearing: null, scene: null })),
     thisTurn: thisTurn(answers),

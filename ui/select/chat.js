@@ -1,6 +1,7 @@
 // Builds the chat view-models (inline row, people drawer, reply menu lines) from recorded query answers; gaps come back as null or [].
 
 import { selectCard } from './card.js';
+import { withCoinUnit } from './coin-unit.js';
 
 // answers: { [queryName]: answer } as the port read them. opts: { rpg, persona, portraits: { [name]: npc.portrait answer }, fightOpen, at }.
 
@@ -72,7 +73,7 @@ export function selectDrawer(answers = {}, opts = {}) {
 export function replyLines(answers = {}) {
   const answer = isRec(answers['reply.changes']) ? answers['reply.changes'] : null;
   if (!answer) return null;
-  const lines = list(answer.lines).filter(isRec).map(row => ({ glyph: text(row.glyph), line: text(row.line), detail: text(row.detail) || null, applied: row.applied !== false, assist: row.assist === true }));
+  const lines = list(answer.lines).filter(isRec).map(row => ({ glyph: text(row.glyph), line: text(row.glyph) === 'coin' ? withCoinUnit(text(row.line), answers['inventory.currency']) : text(row.line), detail: text(row.detail) || null, applied: row.applied !== false, assist: row.assist === true }));
   for (const miss of list(answer.refused)) lines.push({ glyph: 'warn', line: text(miss?.line), detail: text(miss?.reason) || null, applied: false, assist: false });
   return lines;
 }

@@ -49,3 +49,10 @@ test('Now is built without innerHTML and wires navigation through ctx.go', () =>
   tab.querySelector('[data-card="today"] .rnr').click();
   assert.deepEqual(ctx.went, ['journal', 'journal']);
 });
+
+test('a fresh chat with nothing to draw says so in one line', () => {
+  installFakeDom();
+  const tab = nowTab({}, {});
+  assert.match(tab.querySelector('.now-empty').textContent, /Nothing here yet/);
+  assert.equal(nowTab(fixture().now, makeCtx()).querySelector('.now-empty'), null);
+});

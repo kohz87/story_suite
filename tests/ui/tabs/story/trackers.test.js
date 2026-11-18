@@ -44,3 +44,10 @@ test('no trackers shows a pointer to Settings; hidden-only still shows the count
   assert.match(trackersView({ trackers: [], trackersHidden: 2 }).textContent, /2 trackers are hidden by the pack/);
   assert.match(trackersView().textContent, /No trackers yet/);
 });
+
+test('the limits line names one limit: 28 blocks in all', () => {
+  installFakeDom();
+  const line = trackersView(buildStory(), makeCtx()).querySelector('p.fine').textContent;
+  assert.match(line, /up to 28 blocks in all/);
+  assert.doesNotMatch(line, /20 trackers/);
+});
