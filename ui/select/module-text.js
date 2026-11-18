@@ -12,7 +12,7 @@ export const CARD_TEXT = Object.freeze({
 
 /** The three presets in order: what each turns on, as the features' own preset switches say (core/features.js presetSwitches). */
 export const PRESET_TEXT = Object.freeze([
-  Object.freeze({ id: 'lean', name: 'Lean', desc: 'The bag, money, places, quests, time and dossiers. Off: weather, your look, transport, Pick what you take, threads, trips, arcs, NPC initiative, and people’s stages, moods, notes, meter rules and repeat limits; people are read every 3 replies.' }),
+  Object.freeze({ id: 'lean', name: 'Lean', desc: 'The bag, money, places, quests, time and dossiers. Off: weather, your look, transport, Pick what you take, threads, trips, arcs, NPC initiative, and people’s stages, moods, notes, feeling rules and repeat limits; people are read every 3 replies.' }),
   Object.freeze({ id: 'standard', name: 'Standard', desc: 'Today’s defaults: everything Lean turns off is on.' }),
   Object.freeze({ id: 'full', name: 'Full', desc: 'Standard plus choices, inner chatter and a check roll before each reply.' }),
 ]);

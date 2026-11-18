@@ -75,12 +75,12 @@ test('sectionFrame puts the hook notes around the overlay body; no body gives on
   assert.deepEqual(renderStartSection(sec, { body: () => ['b'] }), ['b']);
 });
 
-test('with no New chats set stored, Start has no scope switch and says the switches apply to every chat; a section page says the same', () => {
+test('with no New chats set stored, Start has no scope switch and says the switches are the same in every chat; a section page says the same', () => {
   const modules = { ...buildSettings().modules, newChats: {} };
   const { page } = mountSettings({ modules });
   const el = page('start');
   assert.equal(el.querySelector('.scope .seg'), null);
-  assert.match(el.querySelector('.scope').textContent, /apply to every chat/);
-  assert.match(page('people').querySelector('.applies').textContent, /apply to every chat/);
+  assert.match(el.querySelector('.scope').textContent, /are the same in every chat/);
+  assert.match(page('people').querySelector('.applies').textContent, /are the same in every chat/);
   assert.doesNotMatch(page('people').querySelector('.applies').textContent, /new-chat defaults/);
 });

@@ -58,7 +58,7 @@ export function renderStart(state) {
   // No New chats set is stored yet (per-chat sets are not built): the switches are one set for every chat, so the scope switch is not drawn.
   const perChat = Object.keys(modules.newChats ?? {}).length > 0;
   const scopeCard = !perChat
-    ? h('div', { class: 'scope' }, h('small', 'These switches apply to every chat.'))
+    ? h('div', { class: 'scope' }, h('small', 'These switches are the same in every chat.'))
     : h('div', { class: 'scope' }, h('span', 'Modules and features for'),
       segmented({ items: [['chat', chat ? `This chat · ${chat}` : 'This chat'], ['newChats', 'New chats']], value: scope, label: 'Modules and features for', className: 'sseg2', onChange: setScope }),
       h('small', chatScope
