@@ -87,6 +87,7 @@ export const REAL_ROWS = {
   ],
   director: [
     {"key":"director.defaultDc","group":"Checks","label":"Difficulty when none is written","hint":null,"unit":null,"tags":[],"wide":false,"type":"num","value":15,"default":15,"options":null},
+    {"key":"director.sceneSpoilers","group":"Spoilers","label":"Scene spoilers hidden by default","hint":"This scene’s wants and hiding on Now and in the dossier","unit":null,"tags":["chat"],"wide":false,"type":"sw","value":true,"default":true,"options":null},
     {"key":"director.hideBehind","group":"Spoilers","label":"Plan spoilers hidden by default","hint":"Agendas, planned beats, clocks and secrets stay hidden on Story › Director until you show them","unit":null,"tags":["merged:D12"],"wide":false,"type":"sw","value":true,"default":true,"options":null},
     {"key":"director.pulse","group":"World pulse","label":"Pulse","hint":null,"unit":null,"tags":[],"wide":false,"type":"seg","value":"Lively","default":"Lively","options":["Off","Quiet","Lively"]},
     {"key":"director.pulseInvents","group":"World pulse","label":"The pulse may invent events","hint":"The narrator invents them inside the reply; no extra call","unit":null,"tags":["cost:tokens"],"wide":false,"type":"sw","value":true,"default":true,"options":null},
