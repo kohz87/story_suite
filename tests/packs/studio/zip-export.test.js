@@ -1,5 +1,6 @@
 // The Studio's open and export: its zip writer gives the same bytes as the example-zip script, a pack zip opened and exported comes
-// back byte for byte, pack.json with images keeps only the portraits the cast names, and the same picks the game refuses are refused.
+// back byte for byte (with its game.json too), pack.json with images keeps only the portraits the cast names, pack.json and game.json
+// open together, and the same picks the game refuses are refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -7,13 +8,18 @@ import { readPackZip } from '../../../packs/bundle.js';
 import { exportJson, exportZip } from '../../../studio/export.js';
 import { openPicked, portraitNames } from '../../../studio/load.js';
 import { writeStoredZip } from '../../../studio/zip-write.js';
+import { checkText } from '../../../studio/check.js';
 
 const at = rel => new URL(`../../../${rel}`, import.meta.url);
 const bytes = rel => new Uint8Array(readFileSync(at(rel)));
 const fileOf = (name, data, type = '') => new File([data], name, { type });
 const ZIP = bytes('tests/fixtures/packs/ersveil-3/ersveil.zip');
 const PACK = bytes('tests/fixtures/packs/ersveil-3/pack.json');
+const ZIP4 = bytes('examples/packs/ersveil.zip');
 const WORLD = bytes('tests/packs/studio/fixtures/world-mini.json');
+const WORLD4 = bytes('tests/packs/studio/fixtures/world4-mini.json');
+const GAME4 = bytes('tests/packs/studio/fixtures/game4-mini.json');
+const text = data => new TextDecoder().decode(data);
 
 test('the Studio writer builds tests/fixtures/packs/ersveil-3/ersveil.zip byte for byte from its folder', () => {
     const names = portraitNames(JSON.parse(new TextDecoder().decode(PACK)));
@@ -34,6 +40,54 @@ test('a pack zip opened and exported again is the same zip, and the game reads i
     const back = await readPackZip(out.bytes);
     assert.equal(back.ok, true);
     assert.equal(back.text, new TextDecoder().decode(PACK));
+});
+
+test('the format 4 Ersveil zip opens as a world with its game.json; export gives the same zip without the notes file; the game reads it back', async () => {
+    const opened = await openPicked([fileOf('ersveil.zip', ZIP4, 'application/zip')]);
+    assert.equal(opened.ok, true);
+    assert.deepEqual([opened.doc.kind, opened.doc.id, opened.game.name, opened.portraits.length], ['world', 'ersveil', 'game.json', 12]);
+    const out = exportZip(opened, opened.game);
+    assert.equal(out.name, 'ersveil-4.0.0.zip');
+    assert.deepEqual(out.missing, []);
+    const pack = bytes('examples/packs/ersveil/pack.json');
+    const rebuilt = writeStoredZip([{ name: 'pack.json', bytes: pack }, { name: 'game.json', bytes: new TextEncoder().encode(opened.game.text) }, ...opened.portraits.map(f => ({ name: `portraits/${f.name}`, bytes: bytes(`examples/packs/ersveil/portraits/${f.name}`) }))]);
+    assert.deepEqual(out.bytes, rebuilt);
+    const back = await readPackZip(out.bytes);
+    assert.deepEqual([back.ok, back.text, back.game, back.files.length], [true, text(pack), opened.game.text, 12]);
+});
+
+test('the format 3 Ersveil zip still opens (read-only) and the checker refuses it as old', async () => {
+    const opened = await openPicked([fileOf('ersveil.zip', ZIP, 'application/zip')]);
+    assert.equal(opened.ok, true);
+    assert.equal(checkText(text(PACK)).errors[0].code, 'FORMAT_OLD');
+});
+
+test('a world zip with game.json opens both packs and exports the same zip byte for byte; the game reads both back', async () => {
+    const image = bytes('examples/packs/ersveil/portraits/' + portraitNames(JSON.parse(text(PACK)))[0]);
+    const zip = writeStoredZip([{ name: 'pack.json', bytes: WORLD4 }, { name: 'game.json', bytes: GAME4 }, { name: 'portraits/wren.webp', bytes: image }]);
+    const opened = await openPicked([fileOf('world4.zip', zip, 'application/zip')]);
+    assert.equal(opened.ok, true);
+    assert.equal(opened.doc.kind, 'world');
+    assert.deepEqual([opened.game.name, opened.game.text, opened.game.doc.kind, opened.game.portraits.length], ['game.json', text(GAME4), 'game', 0]);
+    const out = exportZip(opened, opened.game);
+    assert.equal(out.name, 'studio-world4-mini-0.1.0.zip');
+    assert.deepEqual(out.bytes, zip);
+    const back = await readPackZip(out.bytes);
+    assert.deepEqual([back.ok, back.text, back.game, back.files.map(file => file.name)], [true, text(WORLD4), text(GAME4), ['wren.webp']]);
+    assert.deepEqual(await back.files[0].read(), image);
+    // Without the game, the same world exports with no game.json.
+    assert.equal((await readPackZip(exportZip(opened).bytes)).game, undefined);
+});
+
+test('pack.json and game.json picked together open both; game.json alone is the pack itself; two packs without a game.json are refused', async () => {
+    const both = await openPicked([fileOf('game.json', GAME4, 'application/json'), fileOf('pack.json', WORLD4, 'application/json')]);
+    assert.deepEqual([both.ok, both.name, both.doc.kind, both.game.name, both.game.doc.kind], [true, 'pack.json', 'world', 'game.json', 'game']);
+    assert.equal((await readPackZip(exportZip(both, both.game).bytes)).game, text(GAME4));
+    assert.deepEqual(exportJson(both.game).bytes, GAME4);
+    const alone = await openPicked([fileOf('game.json', GAME4, 'application/json')]);
+    assert.deepEqual([alone.ok, alone.doc.kind, 'game' in alone], [true, 'game', false]);
+    assert.match((await openPicked([fileOf('game.json', GAME4), fileOf('game.json', GAME4)])).message, /one pack\.json/);
+    assert.match((await openPicked([fileOf('a.json', WORLD4), fileOf('b.json', GAME4), fileOf('game.json', GAME4)])).message, /one pack\.json/);
 });
 
 test('pack.json alone exports as the same text', async () => {

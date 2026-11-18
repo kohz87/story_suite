@@ -1,0 +1,167 @@
+// The Studio frame against mocks MK-2, MK-6, MK-7 and MK-9: each nav row's count or problems (navBadges), the page line in words
+// (partLine), and in Chromium on the shipped Ersveil pair: the Home row, the World / Game switch (both packs open) on desktop and phone,
+// the nav counts, the foot bar's red count, the start page with no pack (no nav column, no "‹ Parts", a centred column).
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import { ROOT, serve } from './serve.js';
+import { navBadges, partLine } from '../../../studio/nav-counts.js';
+import { renderOverview } from '../../../studio/views/overview.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
+
+const check = (errors = [], warnings = []) => {
+    const byPart = {};
+    for (const p of [...errors.map(part => ({ part, level: 'error' })), ...warnings.map(part => ({ part, level: 'warning' }))]) (byPart[p.part] ??= []).push(p);
+    return { errors: errors.map(part => ({ part })), warnings: warnings.map(part => ({ part })), byPart, total: errors.length + warnings.length };
+};
+const list = n => Array.from({ length: n }, () => ({}));
+const PARTS = [{ id: 'start' }, { id: 'overview', sections: [] }, { id: 'lore', kind: 'world', sections: [{ key: 'lore', value: list(218) }] }, { id: 'cast', kind: 'world', sections: [{ key: 'cast', value: list(31) }] },
+    { id: 'events', kind: 'world', sections: [{ key: 'worldEvents', value: list(103) }] },
+    { id: 'map', kind: 'world', sections: [{ key: 'places', value: list(320) }, { key: 'placeKinds', value: { a: 'b' } }] }, // a kind table is not counted
+    { id: 'calendar', kind: 'game', sections: [{ key: 'calendar', value: { months: list(12), seasons: list(4) } }] },
+    { id: 'names', kind: 'game', sections: [{ key: 'names', value: { banned: [], a: {}, b: {} } }] }, { id: 'rules', kind: 'game', sections: [{ key: 'rpg', value: { levelCap: 9 } }] },
+    { id: 'items', kind: 'world', sections: [{ key: 'items', value: [], absent: true }] },
+    { id: 'timeline', kind: 'world', page: 'timeline' }, { id: 'pairing', kind: 'world', page: 'pairing' }, { id: 'problems' }];
+
+test('nav badges: a count, ✕ problems in red, ! warnings, Problems as errors · warnings, Pairing "—" while a pack has problems', () => {
+    const world = { name: 'Ersveil', check: check(['lore', 'lore'], ['events']) };
+    const game = { name: 'Tidewatch', check: check() };
+    const out = navBadges(PARTS, { world, game }, 'world');
+    assert.equal(out.start, undefined);
+    assert.equal(out.overview, undefined);
+    assert.equal(out.timeline, undefined);
+    assert.deepEqual(out.lore, { text: '✕ 2', bad: true, title: '2 problems' });
+    assert.deepEqual(out.cast, { text: '31', bad: false, title: null });
+    assert.deepEqual(out.events, { text: '! 1', bad: false, title: '1 warning' });
+    assert.deepEqual(out.calendar, { text: '12', bad: false, title: null }, 'its months');
+    assert.deepEqual([out.map.text, out.names.text, out.rules, out.items.text], ['320', '2', undefined, '0'], 'records, not kind tables; cultures; Rules shows none; an empty part 0');
+    assert.deepEqual(out.pairing, { text: '—', bad: false, title: 'Not checked: Ersveil has problems' });
+    assert.deepEqual(out.problems, { text: '2 · 1', bad: true, title: '2 problems, 1 warning' });
+    const clean = navBadges(PARTS, { world: { check: check() }, game: null }, 'world');
+    assert.equal(clean.pairing, undefined);
+    assert.deepEqual(clean.problems, { text: '0', bad: false, title: 'No problems' });
+    // the game active: Problems counts the game's; an old-format pack is not checked, so it shows counts only
+    assert.equal(navBadges(PARTS, { world, game }, 'game').problems.text, '0');
+    const old = navBadges(PARTS, { world: { legacy: true, check: check(['lore']) }, game: null }, 'world');
+    assert.deepEqual([old.lore.text, old.problems, old.pairing], ['218', undefined, undefined]);
+});
+
+test('the page line says what a part holds in words, not content keys', () => {
+    const map = { desc: 'Places, routes, regions, realms', sections: [{ key: 'places', count: 320, value: [] }, { key: 'routes', count: 1, value: [] }, { key: 'placeKinds', count: 20, value: {} }, { key: 'realms', count: 0, value: [], absent: true }] };
+    assert.equal(partLine(map), 'Places, routes, regions, realms. 320 places · 1 route');
+    assert.equal(partLine({ desc: 'Months', sections: [{ key: 'calendar', count: 8, value: {} }] }), 'Months');
+    assert.equal(partLine({ desc: 'Name', always: true, sections: [] }), 'Name');
+});
+
+test('the Overview\'s Parts rows say what each part holds in words too, not content keys', () => {
+    installFakeDom();
+    const parts = [{ id: 'map', name: 'Places & routes', desc: 'Places, routes', sections: [{ key: 'places', count: 320, value: [] }, { key: 'placeKinds', count: 20, value: {} }] },
+        { id: 'calendar', name: 'Calendar', desc: 'Months, weeks', sections: [{ key: 'calendar', count: 8, value: {} }] },
+        { id: 'lore', name: 'Lore', desc: 'Entries', sections: [{ key: 'lore', count: 0, value: [], absent: true }] }];
+    const nodes = renderOverview({ doc: {}, parts, check: { ok: true, errors: [], warnings: [], total: 0 }, name: 'x.json', portraits: [], onGo: () => {}, fields: [] });
+    const page = document.createElement('div');
+    page.append(...nodes.filter(Boolean));
+    const rows = page.querySelectorAll('.srow .lb').map(lb => [lb.querySelector('b')?.textContent, lb.querySelector('small')?.textContent]).filter(([name]) => parts.some(part => part.name === name));
+    assert.deepEqual(rows, [['Places & routes', '320 places'], ['Calendar', 'Months, weeks'], ['Lore', 'Nothing yet']]);
+});
+
+let ctx = null;
+test.before(async () => {
+    try {
+        const { chromium } = await import('playwright');
+        const browser = await chromium.launch();
+        const { server, port } = await serve();
+        ctx = { browser, server, port };
+    } catch (err) {
+        if (process.env.CI === 'true') throw err;
+        ctx = { skip: `Playwright browser unavailable: ${String(err.message).split('\n')[0]}` };
+    }
+});
+test.after(async () => {
+    if (ctx?.browser) await ctx.browser.close();
+    if (ctx?.server) await new Promise(done => ctx.server.close(done));
+});
+
+async function studio(width, open = true) {
+    const page = await ctx.browser.newPage({ viewport: { width, height: 900 } });
+    const errors = [];
+    page.on('pageerror', err => errors.push(err.message));
+    await page.goto(`http://127.0.0.1:${ctx.port}/studio/index.html`);
+    await page.waitForSelector('.st-app .st-start');
+    if (open) { await page.setInputFiles('.st-file', path.join(ROOT, 'examples/packs/ersveil.zip')); await page.waitForSelector('.st-foot:not([hidden])'); }
+    return { page, errors };
+}
+const box = (page, sel) => page.locator(sel).first().evaluate(el => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, w: r.width, h: r.height, shown: getComputedStyle(el).display !== 'none' && r.width > 0 }; });
+
+test('desktop: Home first, counts at the right of each row, the World / Game switch makes the game active and back', async t => {
+    if (ctx.skip) return t.skip(ctx.skip);
+    const { page, errors } = await studio(1280);
+    const nav = await page.$$eval('.snav .si3', rows => rows.map(row => [row.dataset.part, row.querySelector('em')?.textContent ?? '']));
+    assert.deepEqual(nav[0], ['start', '']);
+    assert.deepEqual(nav.find(([id]) => id === 'cast'), ['cast', '31']);
+    assert.deepEqual(nav.find(([id]) => id === 'problems'), ['problems', '0']);
+    const row = await box(page, '.snav .si3[data-part="cast"]'), em = await box(page, '.snav .si3[data-part="cast"] em');
+    assert.ok(row.right - em.right < 16, 'the count sits at the right edge');
+    assert.equal(await page.getAttribute('.snav .psrch', 'placeholder'), 'Search both packs…');
+    const sw = await page.$$eval('.pswitch button', buttons => buttons.map(b => [b.dataset.kind, b.getAttribute('aria-pressed'), b.textContent]));
+    assert.deepEqual(sw.map(([kind, on]) => [kind, on]), [['world', 'true'], ['game', 'false']]);
+    assert.match(sw[0][2], /^WorldErsveil/);
+    await page.click('.pswitch button[data-kind="game"]');
+    assert.match(await page.textContent('.shd .ttl small'), /^Game · /);
+    assert.equal(await page.getAttribute('.pswitch button[data-kind="game"]', 'aria-pressed'), 'true');
+    assert.equal(await page.textContent('.spage h2'), 'Overview');
+    await page.click('.pswitch button[data-kind="world"]');
+    assert.match(await page.textContent('.shd .ttl small'), /^World · /);
+    await page.click('.snav .si3[data-part="start"]');
+    assert.equal(await page.textContent('.spage h2'), 'Open or start a pack');
+    assert.equal(await page.getAttribute('.snav .si3[data-part="start"]', 'aria-current'), 'true');
+    assert.ok((await box(page, '.spage')).w <= 760);
+    // a long nav (both packs) scrolled down to Problems keeps its search at its top
+    await page.click('.snav .si3[data-part="problems"]');
+    const long = await page.evaluate(() => { const n = document.querySelector('.snav'); n.scrollTop = n.scrollHeight; const s = document.querySelector('.snav .psrch').getBoundingClientRect(); return { scrolled: n.scrollTop, top: s.top - n.getBoundingClientRect().top, hit: document.elementFromPoint(s.left + 20, s.top + s.height / 2)?.classList.contains('psrch') }; });
+    assert.ok(long.scrolled > 0 && long.top >= 0 && long.top < 20 && long.hit, `the search stays at the nav's top (${JSON.stringify(long)})`);
+    await page.click('.snav .si3[data-part="conditions"]'); // (its editor has a .st-start too: only the start page is the narrow column)
+    assert.ok((await box(page, '.spage')).w > 900, 'Conditions keeps the page width');
+    await page.click('.snav .si3[data-part="map"]');
+    assert.match(await page.textContent('.spage .sdesc'), /\d+ places · \d+ routes/);
+    assert.doesNotMatch(await page.textContent('.spage .sdesc'), /placeKinds|worldEvents/);
+    assert.deepEqual(errors, []);
+    await page.close();
+});
+
+test('phone: the switch is a row of two halves under the title; no pack open shows no "‹ Parts" and no nav column', async t => {
+    if (ctx.skip) return t.skip(ctx.skip);
+    let { page, errors } = await studio(390);
+    // the phone's parts list says the nav's counts (records, not content keys) and a short line for Home
+    const lines = await page.$$eval('.phonelist .slist button[data-part]', rows => Object.fromEntries(rows.map(row => [row.dataset.part, row.querySelector('small').textContent])));
+    assert.equal(lines.start, 'Open a pack, or start a new world or game');
+    assert.match(lines.map, /^732 · /);
+    assert.match(lines.calendar, /^12 · /);
+    const sw = await box(page, '.pswitch'), title = await box(page, '.shd .ttl'), acts = await box(page, '.st-acts');
+    assert.ok(sw.top >= title.top + title.h - 1 && sw.top + sw.h <= acts.top + 1, 'between the title and the buttons');
+    const halves = await page.$$eval('.pswitch button', buttons => buttons.map(b => Math.round(b.getBoundingClientRect().height)));
+    assert.deepEqual(halves, [44, 44]);
+    // a pack's ✕ count stays on one line beside its title; in light the lit half's count is pale, not dark red on the accent
+    await page.evaluate(() => globalThis.storySuiteStudio.state.packs.world.commit([{ op: 'set', path: ['version'], value: 'x' }]));
+    await page.evaluate(() => globalThis.storySuiteStudio.state.packs.world.flush());
+    await page.waitForFunction(() => document.querySelector('.pswitch button[data-kind="world"] em')?.getBoundingClientRect().width > 0);
+    // one snapshot of both boxes (the header is drawn again when the draft is saved)
+    const [count, label] = await page.evaluate(() => ['em', 'span'].map(tag => { const r = document.querySelector(`.pswitch button[data-kind="world"] ${tag}`).getBoundingClientRect(); return { top: r.top, h: r.height }; }));
+    assert.ok(count.h > 0 && count.h < 24 && Math.abs(count.top + count.h / 2 - (label.top + label.h / 2)) < 4, `the count sits on the title's line (${JSON.stringify([count, label])})`);
+    await page.evaluate(() => document.querySelector('.st-theme, [aria-label*="theme" i]')?.click());
+    assert.equal(await page.evaluate(() => document.querySelector('.su-root').dataset.scheme), 'light');
+    assert.equal(await page.$eval('.pswitch button[data-kind="world"] em', el => getComputedStyle(el).color), 'rgb(255, 224, 227)');
+    assert.ok(Math.abs(sw.w - 358) < 30, `the switch runs the width (${sw.w})`);
+    assert.deepEqual(errors, []);
+    await page.close();
+    ({ page, errors } = await studio(390, false));
+    assert.equal((await box(page, '.sback')).shown, false, 'no "‹ Parts" with no pack open');
+    await page.close();
+    ({ page, errors } = await studio(1280, false));
+    assert.equal((await box(page, '.snav')).shown, false, 'no empty nav column');
+    const spage = await box(page, '.spage');
+    assert.ok(spage.w <= 760 && Math.abs(spage.left + spage.w / 2 - 640) < 24, 'a centred column');
+    assert.equal(await page.textContent('.spage h2'), 'Open or start a pack');
+    assert.deepEqual(errors, []);
+    await page.close();
+});

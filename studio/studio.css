@@ -13,11 +13,12 @@ body.st-page { margin: 0; background: #0d0f18; }
 .st-acts .ibtn { width: 44px; height: 44px; }
 .st-root .st-acts .btn2 { min-width: 44px; }
 .st-note { padding: 0 2px; }
+.st-seg { align-self: flex-start; }
 .st-sec { display: flex; flex-direction: column; gap: 8px; }
 .st-list { display: flex; flex-direction: column; gap: 8px; }
 .st-more { align-self: flex-start; }
 .st-rec { padding: 10px 14px 4px; }
-.st-rec:focus { outline: none; }
+.st-rec:focus, .st-recpage:focus { outline: none; }
 .st-rec.st-hit { box-shadow: inset 0 0 0 2px var(--su-accent); }
 .st-rh { display: flex; align-items: center; gap: 10px; padding-bottom: 6px; }
 .st-rt { flex: 1; min-width: 0; }
@@ -30,9 +31,25 @@ body.st-page { margin: 0; background: #0d0f18; }
 .st-kv dt { color: var(--su-muted); font-weight: 700; }
 .st-kv dd { margin: 0; color: var(--su-soft); overflow-wrap: anywhere; }
 .st-json { max-height: 260px; }
-.st-prob[data-level="warning"] .lb small { color: var(--su-warn); }
-.st-foot[data-ok="false"] > span:first-child { color: var(--su-warn); }
-/* Phone: the four header buttons stay on the title's row, so the header keeps the mock's height; the foot bar is a 44 px target as in the mock. */
-@container (max-width:600px) { .st-acts { gap: 4px; } .st-root .st-acts .btn2 { padding: 7px 9px; } .st-root .sfoot { min-height: 44px; } }
+.st-prob[data-level="warning"] .lb small { color: var(--su-warn-t, var(--su-warn)); }
+.st-foot[data-ok="false"] > span:first-child { color: var(--su-warn-t, var(--su-warn)); }
+/* The header's Undo and Redo (studio mock MK-1); a button that is off is dimmed. Phone: the buttons take their own row under the title
+   (Undo and Redo at the left, Open and Export at the right); the foot bar is a 44 px target as in the mock. */
+.st-acts .ic { min-width: 36px; padding: 7px 10px; font-size: 15px; line-height: 1; }
+.st-acts .gap { width: 6px; }
+.st-root .btn2:disabled { opacity: .45; cursor: default; }
+@container (max-width:600px) { .st-root .shd { flex-wrap: wrap; } .st-root .shd .st-acts { order: 3; flex-basis: 100%; gap: 4px; } .st-acts .gap { flex: 1; } .st-root .st-acts .btn2 { padding: 7px 9px; } .st-root .sfoot { min-height: 44px; } }
+/* The JSON row: the record as JSON in a box, the line under it (a mistake, or the checker's word), Apply and Undo changes. */
+.st-root .st-jsonrow { margin: 6px -14px 0; padding: 0 14px; background: none; border: 0; box-shadow: none; }
+.st-root .st-jsonrow .ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.st-root textarea.sent { width: 100%; box-sizing: border-box; resize: vertical; border: 1px solid var(--su-line2, rgba(128, 128, 128, .25)); max-height: none; white-space: pre; }
+.st-root .sent.bad { border-color: var(--su-bad, var(--su-hp)); }
+.st-root .ctl .fprob { flex-basis: 100%; font-size: 12px; line-height: 1.35; }
+.st-root .fprob .pairerr { color: var(--su-bad-t, var(--su-bad, var(--su-hp))); }
+.st-root .cfm.rec { border-color: rgba(168, 151, 255, .5); background: rgba(168, 151, 255, .12); }
+.st-root .cfm.rec b { color: var(--su-text); }
+.st-root .st-restore .ctl { display: flex; flex-wrap: wrap; gap: 8px; }
+.st-root .st-acts .btn2.ic { min-width: 36px; }
+.st-block .lnk { min-height: 0; padding: 0; }
 .st-root .sgrp > .srow:first-child { border-top: 0; }
 .st-root .srow .ctl .st-val { text-align: right; }

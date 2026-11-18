@@ -1,0 +1,81 @@
+/* Pack Studio styles for the map page (ST-MAPV, mock MK-3): the map card, its tools, the map beside its panel at wide widths and under it
+   on the phone, region areas, realm outlines, route kinds, the drag tip and the legend. Linked from studio/index.html; builds on ui/css/world.css. */
+.st-root .st-mcard { display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; }
+.st-root .st-mtools { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; }
+.st-root .st-mrow2 { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.st-root .st-mrow2 select { margin-left: auto; min-height: 40px; font: 700 13px var(--su-font); color: var(--su-text); background: var(--su-line2); border: 1px solid var(--su-line2); border-radius: 12px; padding: 6px 10px; }
+.st-root .st-mtools .ibtn { display: inline-grid; place-items: center; padding: 0; }
+.st-root .st-mtools .ibtn svg { width: 17px; height: 17px; fill: currentColor; }
+.st-root .st-mwrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@container (min-width: 900px) { .st-root .st-mwrap { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; } }
+.st-root .st-mstage { position: relative; min-width: 0; }
+.st-root .st-mapbox[data-mode="route"] svg.mp { cursor: crosshair; }
+.st-root .st-mside { margin: 0; padding: 12px 14px; min-width: 0; }
+.st-root .st-mside .gt { padding: 12px 0 4px; font: 800 11px var(--su-font); letter-spacing: .12em; text-transform: uppercase; color: var(--su-muted); }
+.st-root .st-mhead { display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px; }
+.st-root .st-mhead b { font: 800 15px var(--su-font); display: inline-flex; gap: 6px; align-items: center; overflow-wrap: anywhere; }
+.st-root .st-mhead small, .st-root .st-mside .fine { color: var(--su-muted); font-size: 12px; line-height: 1.4; }
+.st-root .st-mnote { margin: 0 0 6px; color: var(--su-accent); font: 700 12.5px var(--su-font); line-height: 1.4; }
+.st-root .st-mrow .lnk { padding: 0; text-align: left; background: none; border: 0; color: inherit; cursor: pointer; }
+.st-root .st-mrow .ctl .btn2 { min-width: 36px; padding: 6px 9px; }
+.st-root .st-steps { display: inline-flex; gap: 4px; align-items: center; }
+.st-root .st-steps input { width: 74px; text-align: right; }
+.st-root .st-mnew .srow .ctl b { font: 700 13px var(--su-font); }
+.st-root .st-macts { display: flex; gap: 8px; }
+.st-root i.st-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.st-root i.st-swatch.unset { background: repeating-linear-gradient(45deg, #8a90a0 0 2px, transparent 2px 5px); }
+.st-root .st-mtip { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); padding: 4px 10px; border-radius: 8px; border: 1px solid var(--su-accent); background: var(--su-panel2, #23283a); font: 700 12px var(--su-font); white-space: pre; pointer-events: none; }
+/* The drawing. */
+.st-mp .area { fill-opacity: .16; stroke-opacity: .45; stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.st-mp .area.unset { fill-opacity: .08; stroke-dasharray: 4 4; }
+.st-mp .realm path { fill: none; stroke: rgba(255, 255, 255, .45); stroke-width: 1.5px; stroke-dasharray: 7 6; vector-effect: non-scaling-stroke; }
+.st-mp .realm text { font-family: var(--su-font); font-weight: 800; letter-spacing: .1em; fill: rgba(255, 255, 255, .8); stroke: rgba(10, 12, 24, .75); stroke-width: 3px; paint-order: stroke; pointer-events: none; }
+.st-mp .rt { cursor: pointer; }
+.st-mp .rt .hit { stroke: transparent; fill: none; }
+.st-mp .rt .ln { stroke: #8f9ab8; fill: none; stroke-linecap: round; }
+.st-mp .rt.c-relay-road .ln { stroke: #b4bdd6; }
+.st-mp .rt.c-river .ln { stroke: #4f86c6; }
+.st-mp .rt.c-sea .ln { stroke: #4f86c6; stroke-dasharray: 2 6; }
+.st-mp .rt.c-pass .ln { stroke-dasharray: 10 6; }
+.st-mp .rt.c-trail .ln { stroke-dasharray: 6 6; }
+.st-mp .rt.c-none .ln { stroke-dasharray: 1 5; }
+.st-mp .rt.sel .ln { stroke: var(--su-accent); }
+.st-mp .rubber { stroke: var(--su-accent); stroke-dasharray: 8 6; fill: none; }
+.st-mp .pl .hit { fill: transparent; stroke: none; }
+.st-mp .pl circle.b { fill: var(--su-panel2, #23283a); }
+/* Zoomed far out a place is a dot in its region's colour (mock MK-3), not a ring with a hole. */
+.st-mp .pl circle.b.dot { stroke-opacity: .9; }
+.st-mp .pl.hid circle.b { stroke-dasharray: 3 2; }
+.st-mp .pl.sel circle.b { stroke: var(--su-accent) !important; }
+.st-mp .pl.drag { opacity: .85; cursor: grabbing; }
+.st-mp .pl:focus { outline: none; }
+.st-mp .pl:focus-visible circle.b { stroke: var(--su-accent) !important; }
+.st-mp .faint { fill: rgba(255, 255, 255, .25); }
+/* The legend. */
+.st-root .st-mleg i.rk { width: 18px; border-top: 3px solid #8f9ab8; }
+.st-root .st-mleg i.rk.c-relay-road { border-top-color: #b4bdd6; border-top-width: 4px; }
+.st-root .st-mleg i.rk.c-river { border-top-color: #4f86c6; }
+.st-root .st-mleg i.rk.c-sea { border-top: 3px dotted #4f86c6; }
+.st-root .st-mleg i.rk.c-pass, .st-root .st-mleg i.rk.c-trail, .st-root .st-mleg i.rk.realm { border-top-style: dashed; }
+.st-root .st-mleg i.rk.c-none { border-top-style: dotted; }
+.st-root .st-mleg i.rk.realm { border-top-color: var(--su-muted); border-top-width: 2px; }
+.st-root .st-mleg i.rk.hid { width: 12px; height: 12px; border: 2px dashed var(--su-muted); border-radius: 50%; }
+.st-root .st-mleg i.st-swatch { border: 0; }
+/* Light. */
+.su-root[data-scheme="light"] .st-mp .realm path { stroke: rgba(40, 40, 60, .45); }
+.su-root[data-scheme="light"] .st-mp .realm text { fill: rgba(30, 30, 50, .85); stroke: rgba(255, 255, 255, .85); }
+.su-root[data-scheme="light"] .st-mp .faint { fill: rgba(40, 40, 60, .25); }
+.su-root[data-scheme="light"] .st-mp .rt .ln { stroke: #a39478; }
+.su-root[data-scheme="light"] .st-mp .rt.c-river .ln, .su-root[data-scheme="light"] .st-mp .rt.c-sea .ln { stroke: #3f78bd; }
+.su-root[data-scheme="light"] .st-mp .pl circle.b { fill: #fbf8f1; }
+.su-root[data-scheme="light"] .st-mp .pl .g { color: #3c3a4c; }
+/* Light: a frozen place's white ring gets a grey edge (mock MK-3 climate), and the legend's road samples take the map's light road colour. */
+.su-root[data-scheme="light"] .st-mp .pl[data-climate="frozen"]:not(.sel):not(:focus-visible) circle.b { stroke: #9aa7b6 !important; }
+.su-root[data-scheme="light"] .st-mleg i.rk:not(.c-river):not(.c-sea):not(.realm) { border-top-color: #a39478; }
+/* A region row (mock MK-3): its colour at the left, its name and line, › at the right; the legend sits right under the map. */
+.st-root .st-mreg { grid-template-columns: minmax(0, 1fr); }
+.st-root .st-mregbtn { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; width: 100%; min-height: 44px; padding: 0; text-align: left; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
+.st-root .st-mregbtn b { display: block; font: 800 13.5px var(--su-font); }
+.st-root .st-mregbtn small { display: block; font-size: 12px; color: var(--su-muted); }
+.st-root .st-mregbtn > span[aria-hidden] { color: var(--su-muted); }
+.st-root .st-mstage > .st-mfoot { margin-top: 8px; }

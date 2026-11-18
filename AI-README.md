@@ -230,6 +230,7 @@ extension, shows each part read only and exports it again as a zip or JSON; edit
 <!-- generated:studio -->
 | Part | Group | Shows |
 |---|---|---|
+| Home | Pack | The Studio edits pack format 4. A world pack holds the places, people and events you play in; a game pack holds the calendar, money, weather, names and rules. One of each can be open at once |
 | Overview | Pack | Name, version and what it needs |
 | Lore | World | Entries, keys, hidden and protected |
 | Cast | World | People NPC State starts from |
@@ -239,6 +240,15 @@ extension, shows each part read only and exports it again as a zip or JSON; edit
 | Templates | World | Kinds of small happening |
 | Powers & scores | World | Factions, rulers and world meters |
 | Items & foes | World | Named items and the bestiary |
-| Other | Pack | Settings-side fields, as written |
+| Calendar | Game | Months, weeks, seasons and holidays |
+| Money | Game | Coins and the price scale |
+| Weather | Game | How the weather is drawn |
+| Names | Game | Name cultures |
+| Rules | Game | Rank, levels and the pace |
+| Trackers | Game | Meter presets and data modules |
+| Start | Game | What the player starts with |
+| Other | Pack | Anything else the pack holds, as written |
+| Dry run | Check | Run the world for some days, as a chat would, and see what fires. Nothing is saved and the pack does not change |
+| Pairing | Check | The world against a game |
 | Problems | Check | What the pack checker says |
 <!-- /generated:studio -->

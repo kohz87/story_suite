@@ -8,8 +8,8 @@ import { BUNDLE_SETS } from '../release/entries.mjs';
 /** The one bundle set: the same as the release build packs. */
 export const DIST_SET = BUNDLE_SETS[0];
 
-/** The source folders and root files a play build reads (and `git archive` extracts). */
-export const SOURCES = ['core', 'modules', 'ui', 'packs', 'assets', 'index.js', 'suite.css', 'manifest.json'];
+/** The source folders and root files a play build reads (and `git archive` extracts); `studio` is copied whole with what it reaches (Open Studio opens <extension>/studio/index.html). */
+export const SOURCES = ['core', 'modules', 'ui', 'packs', 'assets', 'studio', 'index.js', 'suite.css', 'manifest.json'];
 
 /** Writes the root files of the extension: the repo's manifest (named as the play build) and the build record. The stylesheet is written by the bundle step (one file, @imports joined). */
 export function writeRootFiles(outDir, { commit, builtAt, sourceDir }) {
