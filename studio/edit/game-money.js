@@ -90,7 +90,7 @@ function coinsTable(currency, ctx) {
 
 function currencyNodes(currency, ctx) {
     const text = (key, label, hint, max, required = false) => {
-        const row = fieldRow({ type: 'text', key, label, hint, value: currency[key] ?? '', problem: key === 'name' ? (problemAt(ctx, 'content.currency') || problemAt(ctx, 'content.currency.name')) : problemAt(ctx, `content.currency.${key}`) }, (_, value) => {
+        const row = fieldRow({ type: 'text', key, label, hint, value: currency[key] ?? '', size: 'short', problem: key === 'name' ? (problemAt(ctx, 'content.currency') || problemAt(ctx, 'content.currency.name')) : problemAt(ctx, `content.currency.${key}`) }, (_, value) => {
             const next = String(value ?? '').trim();
             if (!next && required) { setProblem(row, `${label} is needed: the money has a name.`); return; }
             if (next.length > max) { setProblem(row, `${label} is at most ${max} characters.`); return; }

@@ -4,7 +4,6 @@
 // order, so a move, a rename or a duplicate writes the whole object again in its new order; any other edit is a patch at its own path.
 
 import { h } from '../../ui/kit/dom.js';
-import { recordPanes } from '../form/panes.js';
 import { NAMES_LIMITS as LIMIT, SLUG } from '../../packs/limits.js';
 import { foldKey, oneLine } from '../../core/text.js';
 import { setProblem, fieldRow } from '../form/fields.js';
@@ -100,7 +99,7 @@ function listPage(names, ids, ctx, problems) {
             { key: 'acts', label: '', type: 'custom', width: 'auto', render: value => h('span', { class: 'st-tacts' },
                 h('button', { type: 'button', class: 'btn2 st-up', 'aria-label': `Move ${value.id} up`, disabled: value.at === 0, onClick: () => move(value.at, -1) }, '↑'),
                 h('button', { type: 'button', class: 'btn2 st-down', 'aria-label': `Move ${value.id} down`, disabled: value.at === ids.length - 1, onClick: () => move(value.at, 1) }, '↓'),
-                h('button', { type: 'button', class: 'btn2 st-open', dataset: { rec: `names.${value.id}` }, 'aria-label': `Open ${value.id}`, onClick: () => ctx.go(PART, `names.${value.id}`) }, '›')) },
+                h('button', { type: 'button', class: 'btn2 st-open', 'aria-label': `Open ${value.id}`, onClick: () => ctx.go(PART, `names.${value.id}`) }, '›')) },
         ],
         rows: ids.map((id, at) => {
             const culture = isObj(names[id]) ? names[id] : {};
@@ -183,7 +182,7 @@ function culturePage(names, ids, id, ctx, problems) {
         sure, said,
         h('div', { class: 'st-edit', dataset: { rec: 'names' } },
             h('section', { class: 'sgrp' }, h('div', { class: 'gt' }, 'Culture'),
-                fieldRow({ type: 'text', key: 'id', label: 'Id', hint: 'A short name for the list. Nothing else names it', value: id }, rename),
+                fieldRow({ type: 'text', key: 'id', label: 'Id', hint: 'A short name for the list. Nothing else names it', value: id, size: 'narrow' }, rename),
                 regionsRow(culture, ctx, put, problemOf('regions'))),
             h('section', { class: 'sgrp' }, h('div', { class: 'gt' }, `Given names · ${given.length} of ${LIMIT.given}`),
                 nameChips({ key: 'given', noun: 'Given names', values: given, max: LIMIT.given, longest: LIMIT.name, state: state.given, problem: problemOf('given') }, list => put('given', list))),
@@ -203,6 +202,6 @@ export function editSection(section, ctx) {
     const ids = Object.keys(names).filter(key => key !== 'banned');
     const problems = ctx.problems ?? [];
     const open = /^names\.(.+)$/.exec(ctx.focus?.rec ?? '')?.[1];
-    const rec = open && ids.includes(open) && isObj(names[open]) ? culturePage(names, ids, open, ctx, problems) : null;
-    return [h('div', { class: 'st-sec', dataset: { key: 'names' } }, recordPanes({ noun: 'culture', icon: '✐', list: listPage(names, ids, ctx, problems), rec }))];
+    const body = open && ids.includes(open) && isObj(names[open]) ? culturePage(names, ids, open, ctx, problems) : listPage(names, ids, ctx, problems);
+    return [h('div', { class: 'st-sec', dataset: { key: 'names' } }, body)];
 }

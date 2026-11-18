@@ -12,8 +12,14 @@ const check = (errors = [], warnings = []) => {
     for (const p of [...errors.map(part => ({ part, level: 'error' })), ...warnings.map(part => ({ part, level: 'warning' }))]) (byPart[p.part] ??= []).push(p);
     return { errors: errors.map(part => ({ part })), warnings: warnings.map(part => ({ part })), byPart, total: errors.length + warnings.length };
 };
-const PARTS = [{ id: 'start' }, { id: 'overview' }, { id: 'lore', kind: 'world', count: 218 }, { id: 'cast', kind: 'world', count: 31 }, { id: 'events', kind: 'world', count: 103 },
-    { id: 'calendar', kind: 'game', count: 12 }, { id: 'timeline', kind: 'world', page: 'timeline' }, { id: 'pairing', kind: 'world', page: 'pairing' }, { id: 'problems' }];
+const list = n => Array.from({ length: n }, () => ({}));
+const PARTS = [{ id: 'start' }, { id: 'overview', sections: [] }, { id: 'lore', kind: 'world', sections: [{ key: 'lore', value: list(218) }] }, { id: 'cast', kind: 'world', sections: [{ key: 'cast', value: list(31) }] },
+    { id: 'events', kind: 'world', sections: [{ key: 'worldEvents', value: list(103) }] },
+    { id: 'map', kind: 'world', sections: [{ key: 'places', value: list(320) }, { key: 'placeKinds', value: { a: 'b' } }] }, // a kind table is not counted
+    { id: 'calendar', kind: 'game', sections: [{ key: 'calendar', value: { months: list(12), seasons: list(4) } }] },
+    { id: 'names', kind: 'game', sections: [{ key: 'names', value: { banned: [], a: {}, b: {} } }] }, { id: 'rules', kind: 'game', sections: [{ key: 'rpg', value: { levelCap: 9 } }] },
+    { id: 'items', kind: 'world', sections: [{ key: 'items', value: [], absent: true }] },
+    { id: 'timeline', kind: 'world', page: 'timeline' }, { id: 'pairing', kind: 'world', page: 'pairing' }, { id: 'problems' }];
 
 test('nav badges: a count, ✕ problems in red, ! warnings, Problems as errors · warnings, Pairing "—" while a pack has problems', () => {
     const world = { name: 'Ersveil', check: check(['lore', 'lore'], ['events']) };
@@ -25,7 +31,8 @@ test('nav badges: a count, ✕ problems in red, ! warnings, Problems as errors �
     assert.deepEqual(out.lore, { text: '✕ 2', bad: true, title: '2 problems' });
     assert.deepEqual(out.cast, { text: '31', bad: false, title: null });
     assert.deepEqual(out.events, { text: '! 1', bad: false, title: '1 warning' });
-    assert.deepEqual(out.calendar, { text: '12', bad: false, title: null });
+    assert.deepEqual(out.calendar, { text: '12', bad: false, title: null }, 'its months');
+    assert.deepEqual([out.map.text, out.names.text, out.rules, out.items.text], ['320', '2', undefined, '0'], 'records, not kind tables; cultures; Rules shows none; an empty part 0');
     assert.deepEqual(out.pairing, { text: '—', bad: false, title: 'Not checked: Ersveil has problems' });
     assert.deepEqual(out.problems, { text: '2 · 1', bad: true, title: '2 problems, 1 warning' });
     const clean = navBadges(PARTS, { world: { check: check() }, game: null }, 'world');

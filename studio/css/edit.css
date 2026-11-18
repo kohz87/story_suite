@@ -114,3 +114,31 @@
 }
 /* A record row in a settings list with no icon (places, routes, regions, templates): the text takes the icon's 30 px column otherwise. */
 .st-root .slist button:not(:has(> i)) { grid-template-columns: minmax(0, 1fr) auto; }
+/* The id picker (form/pick.js; mock MK-1 "picker", MK-4 "pick"): the search stays at the top and the count line ("N of M · Esc closes.") at the
+   foot while the list scrolls between them; a row's kind is a tag. */
+.st-root .sh-ov[data-sheet="st-pick"] .sh-panel { overflow: hidden; }
+.st-root .sh-ov[data-sheet="st-pick"] .sh-body { flex: 1 1 auto; min-height: 0; }
+.st-root .sh-ov[data-sheet="st-pick"] .sh-body > .slist { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.st-root .sh-ov[data-sheet="st-pick"] .sh-body > .slist > * { flex: none; }
+.st-root .sh-ov[data-sheet="st-pick"] .sh-body > .fine { margin: 0; }
+.st-root .sh-ov[data-sheet="st-pick"] .slist b .tg2 { display: inline-block; font: 800 12px var(--su-font); letter-spacing: .04em; border-radius: 999px; padding: 1px 7px; margin-left: 6px;
+  vertical-align: 1px; background: var(--su-panel2); color: var(--su-muted); white-space: nowrap; }
+/* A short text field (form/fields.js `size`): 'short' a 160 px box at the right of its label, 'narrow' a 220 px box under it (mock MK-7). */
+.st-root .srow.st-short .ctl .txt2 { width: min(160px, 100%); }
+.st-root .srow.st-narrow .ctl .txt2 { max-width: 220px; }
+/* The Rules ranks (mock MK-7 "rules"): a table with column heads, # | rank | from | to, then ↑ ↓ ×; on a phone each rank is a row as before. */
+.st-root .st-rhead { display: none; }
+@container (min-width: 601px) {
+  .st-root .st-rhead, .st-root .srow.st-rank { display: grid; grid-template-columns: 24px minmax(120px, 220px) 70px 80px minmax(0, 1fr) auto auto auto; gap: 0 10px; align-items: center; }
+  .st-root .st-rhead { font: 800 11px var(--su-font); letter-spacing: .08em; text-transform: uppercase; color: var(--su-muted); padding: 4px 0 6px; border-bottom: 1px solid var(--su-line2); }
+  .st-root .srow.st-rank > :is(.lb, .ctl) { display: contents; }
+  .st-root .srow.st-rank .st-up { grid-column: 6; }
+  .st-root .srow.st-rank .st-down { grid-column: 7; }
+  .st-root .srow.st-rank .st-remove { grid-column: 8; }
+  .st-root .srow.st-rank > .st-problem { grid-column: 1 / -1; }
+  .st-root .srow.st-rank .num input { width: 70px; }
+}
+.st-root .srow.st-rank .st-remove.dng { color: var(--su-text); } /* the mock draws a rank's × plain, as the calendar's */
+/* A culture's cell in the Names table: its id, and its regions on the line under it (mock MK-7 "names"). */
+.st-root .st-cult b { display: block; font: 800 13.5px var(--su-font); }
+.st-root .st-cult small { display: block; font-size: 12px; color: var(--su-muted); overflow-wrap: anywhere; }

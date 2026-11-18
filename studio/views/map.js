@@ -67,13 +67,20 @@ function drawSvg(model, st, vb, u) {
         const colour = st.colour === 'climates' ? CLIMATE_HUE[region.climate] ?? NO_CLIMATE : model.hue.get(region.id);
         return svgEl('path', { class: ['area', st.colour === 'climates' && !region.climate ? 'unset' : null], d: hull(pts, 26), style: { fill: colour, stroke: colour }, dataset: { region: region.id } });
     });
+    // A realm's name is drawn above it unless it would cover a bigger realm's name (zoomed out, they pile up), kept inside the view.
+    const labels = [];
     const realms = model.realms.map(realm => {
         const ids = new Set(Array.isArray(realm.regions) ? realm.regions : []);
-        const pts = model.places.filter(place => ids.has(place.region));
-        if (!pts.length) return null;
+        return { realm, pts: model.places.filter(place => ids.has(place.region)) };
+    }).filter(item => item.pts.length).sort((a, b) => b.pts.length - a.pts.length).map(({ realm, pts }) => {
         const top = pts.reduce((a, b) => (b.y < a.y ? b : a));
+        const text = `${String(realm.name ?? realm.id).toUpperCase()} · REALM`;
+        const w = text.length * 11 * u * 0.82, hgt = 11 * u * 1.4;
+        const x = Math.min(Math.max(top.x, vb.x + w / 2 + 4 * u), vb.x + vb.w - w / 2 - 4 * u), y = Math.max(top.y - 56, vb.y + hgt);
+        const free = !labels.some(o => Math.abs(o.x - x) < (o.w + w) / 2 + 6 * u && Math.abs(o.y - y) < hgt * 1.6);
+        if (free) labels.push({ x, y, w });
         return svgEl('g', { class: 'realm', dataset: { realm: realm.id } }, svgEl('path', { d: hull(pts, 46) }),
-            svgEl('text', { x: top.x, y: top.y - 56, 'text-anchor': 'middle', style: { 'font-size': `${11 * u}px` } }, `${String(realm.name ?? realm.id).toUpperCase()} · REALM`));
+            free ? svgEl('text', { x, y, 'text-anchor': 'middle', style: { 'font-size': `${11 * u}px` } }, text) : null);
     });
     const sel = st.sel ?? {};
     const routes = model.routes.map(({ route, at, a, b, cls }) => svgEl('g', { class: ['rt', `c-${cls}`, sel.route === at ? 'sel' : null], dataset: { rt: String(at) } },
@@ -89,7 +96,7 @@ function drawSvg(model, st, vb, u) {
     const places = model.places.map(place => svgEl('g', { class: ['pl', sel.place === place.id || from === place.id || st.draft?.to === place.id ? 'sel' : null, place.hidden ? 'hid' : null],
         dataset: { pl: place.id, climate: st.colour === 'climates' ? place.climate : null }, role: 'button', tabindex: 0, 'aria-label': place.name },
     svgEl('circle', { class: 'hit', cx: place.x, cy: place.y, r: 22 * u }),
-    svgEl('circle', { class: 'b', cx: place.x, cy: place.y, r, style: { stroke: tint(place), 'stroke-width': `${3 * u}px` } }),
+    svgEl('circle', { class: ['b', dots ? 'dot' : null], cx: place.x, cy: place.y, r, style: dots ? { fill: tint(place), stroke: tint(place), 'stroke-width': `${1.5 * u}px` } : { stroke: tint(place), 'stroke-width': `${3 * u}px` } }),
     dots ? null : svgEl('svg', { class: 'g', x: place.x - r * 0.6, y: place.y - r * 0.6, width: r * 1.2, height: r * 1.2, viewBox: '0 0 24 24', fill: 'currentColor' }, ...(glyph(placeGlyph(place.kind))?.childNodes ?? [])),
     named(place) ? svgEl('text', { x: place.x + r + 5 * u, y: place.y + fs * 0.35, style: { 'font-size': `${fs}px`, 'stroke-width': `${3 * u}px` } }, place.name) : null));
     // A grid line every 10 map units, or every 100 when that is too dense to see.

@@ -110,7 +110,7 @@ export function editSection(section, ctx) {
     };
 
     const year = h('section', { class: 'sgrp st-cyear' }, h('div', { class: 'gt' }, 'The year'),
-        fieldRow({ type: 'text', key: 'era', label: 'Era', hint: 'Written after the year, like "611 CY". A world that names its own era wins; the reader\'s setting wins over both', value: cal.era ?? '', problem: said('era') },
+        fieldRow({ type: 'text', key: 'era', label: 'Era', hint: 'Written after the year, like "611 CY". A world that names its own era wins; the reader\'s setting wins over both', value: cal.era ?? '', problem: said('era'), size: 'short' },
             (key, value) => put('era', String(value ?? '').trim())),
         fieldRow({ type: 'toggle', key: 'leapYears', label: 'Leap years', hint: 'The second month gets one more day in leap years (the Gregorian rule)', value: cal.leapYears === true, problem: said('leapYears') },
             (key, value) => put('leapYears', value === true)),

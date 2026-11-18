@@ -142,13 +142,21 @@ function wide(graph, part, view, ctx, redraw) {
     const width = left + PAD + order.length * W + (order.length - 1) * GX;
     const height = PAD * 2 + tall * H + (tall - 1) * GY;
     const at = (left, top) => ({ left: `${left}px`, top: `${top}px`, width: `${W}px`, height: `${H}px` });
+    const mid0 = slots.get(view.centre);
     const lines = drawn.map(edge => {
         const a = slots.get(edge.from), b = slots.get(edge.to);
         const ay = y(a) + H / 2, by = y(b) + H / 2;
         let d;
         if (a.col === b.col) d = `M${x(a.col)} ${ay} C${x(a.col) - 44} ${ay} ${x(b.col) - 44} ${by} ${x(b.col)} ${by}`;
-        else if (a.col < b.col) { const ax = x(a.col) + W, bx = x(b.col), mid = (ax + bx) / 2; d = `M${ax} ${ay} C${mid} ${ay} ${mid} ${by} ${bx} ${by}`; }
-        else { const ax = x(a.col) + W, bx = x(b.col); d = `M${ax} ${ay} C${ax + 40} ${ay - 70} ${bx - 40} ${by - 70} ${bx} ${by}`; }
+        else if (a.col < mid0.col && b.col > mid0.col) { // past the centre: round it through the gap above (or below) its box, not across it
+            const ax = x(a.col) + W, bx = x(b.col), cl = x(mid0.col) - 12, cr = x(mid0.col) + W + 12;
+            const ry = (ay + by) / 2 <= y(mid0) + H / 2 ? y(mid0) - GY / 2 : y(mid0) + H + GY / 2;
+            d = `M${ax} ${ay} C${(ax + cl) / 2} ${ay} ${(ax + cl) / 2} ${ry} ${cl} ${ry} L${cr} ${ry} C${(cr + bx) / 2} ${ry} ${(cr + bx) / 2} ${by} ${bx} ${by}`;
+        } else if (a.col < b.col) { const ax = x(a.col) + W, bx = x(b.col), mid = (ax + bx) / 2; d = `M${ax} ${ay} C${mid} ${ay} ${mid} ${by} ${bx} ${by}`; }
+        else { // a line back to the left leaves its box's left side and comes into the other's right side (mock MK-4), arching over a column it skips
+            const ax = x(a.col), bx = x(b.col) + W, lift = a.col - b.col > 1 ? 70 : 0, mid = (ax + bx) / 2;
+            d = lift ? `M${ax} ${ay} C${ax - 40} ${ay - lift} ${bx + 40} ${by - lift} ${bx} ${by}` : `M${ax} ${ay} C${mid} ${ay} ${mid} ${by} ${bx} ${by}`;
+        }
         return svgEl('path', { d, class: `st-gl st-gl-${edge.type}`, 'marker-end': `url(#st-gm-${edge.type})`, dataset: { from: edge.from, to: edge.to, type: edge.type } }, svgEl('title', edge.words));
     });
     const defs = svgEl('defs', ...LINES.map(([type]) => svgEl('marker', { id: `st-gm-${type}`, class: `st-gm st-gl-${type}`, viewBox: '0 0 10 10', refX: '9', refY: '5', markerWidth: '7', markerHeight: '7', orient: 'auto-start-reverse' },
@@ -160,9 +168,12 @@ function wide(graph, part, view, ctx, redraw) {
     const canvas = h('div', { class: 'st-gcanvas', style: { width: `${width}px`, height: `${height}px` } }, svg, ...boxes, ...more);
     const scroller = h('div', { class: 'st-gscroll', tabindex: '0', 'aria-label': 'The event graph' }, canvas);
     dragScroll(scroller);
-    // it opens on the centre
-    const centre = slots.get(view.centre);
-    globalThis.requestAnimationFrame?.(() => { scroller.scrollLeft = Math.max(0, x(centre.col) + W / 2 - (scroller.clientWidth ?? 0) / 2); });
+    // it opens on the centre, showing whole columns: as many as fit, the centre's among them, none cut at an edge
+    globalThis.requestAnimationFrame?.(() => {
+        const fit = Math.max(1, Math.floor(((scroller.clientWidth ?? 0) - PAD + GX) / (W + GX)));
+        const first = Math.min(Math.max(0, order.indexOf(mid0.col) - Math.floor((fit - 1) / 2)), Math.max(0, order.length - fit));
+        scroller.scrollLeft = first ? x(order[first]) - PAD : 0;
+    });
     const notes = [folds.length ? h('p', { class: 'fine' }, `A column shows ${FOLD} boxes; the rest fold into "+ n more" until you open it.`) : null,
         order.length > 4 ? h('p', { class: 'fine st-gsize' }, `${plural(slots.size, 'box', 'boxes')}, ${plural(lines.length, 'line')}. Wider than the page: it opens on the centre and scrolls sideways (drag, or Shift+wheel).`) : null];
     return h('div', { class: 'st-gwide' }, scroller, ...notes);

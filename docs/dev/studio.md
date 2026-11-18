@@ -35,9 +35,10 @@ undo and redo and an autosaved draft.
   check; Problems shows `errors · warnings` (`0` when clean); Pairing shows `—` while either pack has errors (it is not
   drawn to list it); Home, Overview and Dry run show nothing. A page's line says what it holds in words (`320 places ·
   352 routes`). The foot bar's problem count is red. With no pack open there is no nav column and no "‹ Parts", and the
-  start page is a centred column.
-- **The two panes** (mock MK-2; `studio/form/panes.js`, `studio/wide.js`): every record editor (lore, cast, places, routes,
-  regions and realms, events, templates, powers and scores, items and foes, name cultures, tracker presets) draws its list
+  start page is a centred column. A part's count is its records, a calendar's months, the coins, the weather tables or the
+  name cultures; kind tables and the starting world are not counted, and Rules and a game's Start show none.
+- **The two panes** (mock MK-2; `studio/form/panes.js`, `studio/wide.js`): every world record editor (lore, cast, places, routes,
+  regions and realms, events, templates, powers and scores, items and foes) draws its list
   and its open record on every draw, in a `.st-panes` box (`recordPanes`). The shell joins a part's boxes: the page's title,
   a List · Map switch and every section's list go into one list side (`.st-wlist`) and the open record into one record side
   (`.st-wrec`), inside `.st-wide`; the open record's row is marked `aria-current`. At 1280 px and wider the two sides sit
@@ -47,6 +48,10 @@ undo and redo and an autosaved draft.
   record stays open), and opening a record from its list keeps the list where it was. The Studio finds a record for Go to
   in the record side first (its row in the list carries the same `data-rec`). Scrolling to a record, its row or a field
   moves only the box that holds it (`reveal`), never the nav or the frame (`scrollIntoView` scrolled both).
+  The game parts stay one page each (mock MK-7): Names is a table whose › opens a culture's page, and a tracker preset opens
+  as a page.
+- **Short fields**: `fieldRow` takes `size: 'short'` (a 160 px box at the right of the label) or `'narrow'` (a 220 px box
+  under it) for short words: Era, the currency's names, Its field, Shown as, the Seed, a culture's Id, the Rank label.
 - **Format 3**: a pack below format 4 (or with no `format`) opens read-only in the world slot. Its subtitle says
   `Format 3 · <name> · <version> · Read-only`, a card at the top of Overview says why it cannot be edited, its Pack card reads
   Name, Id, Version, Author (and what it needs) in words, and its rules, calendar, money and the like show under Other as

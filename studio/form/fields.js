@@ -23,8 +23,10 @@ export function setProblem(row, message) {
     return row;
 }
 
-/** Builds one field row. `spec`: `{ type: 'text' | 'long' | 'number' | 'select' | 'toggle' | 'segmented', key, label, hint, value, options, unit, problem }`;
- * `onChange(key, value, spec)` runs on a committed edit (a blank number is `null`, a bad number is ignored). */
+/** Builds one field row. `spec`: `{ type: 'text' | 'long' | 'number' | 'select' | 'toggle' | 'segmented', key, label, hint, value, options, unit, problem, size }`;
+ * `size` (text): 'short' a small box at the right of the label, 'narrow' a small box under it (the mocks' short words: an era, a
+ * currency's name, an id); left out, the box runs the row's width. `onChange(key, value, spec)` runs on a committed edit (a blank number
+ * is `null`, a bad number is ignored). */
 export function fieldRow(spec, onChange) {
     const ctx = { onChange: (key, value) => onChange?.(key, value, spec) };
     let row;
@@ -37,6 +39,8 @@ export function fieldRow(spec, onChange) {
             h('span', { class: 'ctl' }, area));
     } else {
         row = renderRow({ ...spec, type: SETTINGS_TYPE[spec.type] ?? spec.type }, ctx);
+        if (spec.type === 'text' && spec.size === 'short') { row.classList.remove('wide'); row.classList.add('st-short'); }
+        if (spec.type === 'text' && spec.size === 'narrow') row.classList.add('st-narrow');
     }
     return setProblem(row, spec.problem);
 }

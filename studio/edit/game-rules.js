@@ -69,8 +69,8 @@ export function editSection(section, ctx) {
 }
 
 // A text row with a plain-text check; blank takes the value out.
-function textRow({ key, label, hint, value, max, path, problem }, io) {
-    const row = fieldRow({ type: 'text', key, label, hint, value: value ?? '', problem }, (_, typed) => {
+function textRow({ key, label, hint, value, max, path, problem, size = 'short' }, io) {
+    const row = fieldRow({ type: 'text', key, label, hint, value: value ?? '', problem, size }, (_, typed) => {
         const next = String(typed).trim();
         const wrong = plain(next, max);
         setProblem(row, wrong);
@@ -95,7 +95,7 @@ const group = (title, ...rows) => h('section', { class: 'sgrp' }, h('div', { cla
 
 function youGroups(you, { io, problemOf }) {
     return [group('Your rank', textRow({ key: 'you.rank.label', label: 'Rank label', hint: `What Home and the Status card call your rank (1 to ${YOU_RANK_LABEL_MAX} characters). Blank: no rank`,
-        value: isRecord(you.rank) ? you.rank.label : '', max: YOU_RANK_LABEL_MAX, path: ['you', 'rank', 'label'], problem: problemOf('you.rank.label') || problemOf('you.rank') }, io))];
+        value: isRecord(you.rank) ? you.rank.label : '', max: YOU_RANK_LABEL_MAX, path: ['you', 'rank', 'label'], problem: problemOf('you.rank.label') || problemOf('you.rank'), size: 'narrow' }, io))];
 }
 
 function paceGroups(pacing, { io, problemOf }) {
@@ -199,6 +199,7 @@ function ranksRows(given, { io, problemOf }) {
         return save([...ranks, { name: `Rank ${n}`, from, to: Math.min(from + 9, R.maxLevel) }]);
     };
     const covered = ranks.length ? `levels 1 to ${ranks.at(-1).to}${ranks.every((band, at) => band.from === (at === 0 ? 1 : ranks[at - 1].to + 1)) ? ', no gap' : ', with a gap or overlap'}` : 'no ranks';
-    return [setProblem(box, problemOf('rpg.ranks')), ...rows,
+    const head = ranks.length ? h('div', { class: 'st-rhead', 'aria-hidden': 'true' }, h('span', '#'), h('span', 'Rank'), h('span', 'From'), h('span', 'To')) : null; // the mock's column heads
+    return [setProblem(box, problemOf('rpg.ranks')), head, ...rows,
         h('div', { class: 'addrow' }, h('button', { type: 'button', class: 'btn2 st-add', onClick: add }, '+ Add a rank'), h('small', { class: 'fine st-rcount' }, `${ranks.length} of ${R.entries} · ${covered}`)), said];
 }

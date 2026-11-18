@@ -11,6 +11,9 @@
   background: var(--su-panel2, rgba(128, 128, 128, .12)); font: 700 12px var(--su-font); }
 .st-root .st-gtype[aria-pressed="false"] { opacity: .6; background: none; }
 .st-root .st-gkey { display: inline-block; width: 18px; border-top: 2px solid currentColor; }
+/* The key is a line sample, not a box (a kit rule gave the <i> a frame), and a chip that is on is tinted as in the mock (MK-4). */
+.st-root .st-gtype .st-gkey { height: 0; border-left: 0; border-right: 0; border-bottom: 0; border-radius: 0; background: none; box-shadow: none; }
+.st-root .st-gtype[aria-pressed="true"] { border-color: rgba(168, 151, 255, .55); background: rgba(168, 151, 255, .12); }
 .st-root .st-gl-sets { color: var(--st-g-sets); }
 .st-root .st-gl-clears { color: var(--st-g-clears); }
 .st-root .st-gl-requires { color: var(--st-g-requires); }

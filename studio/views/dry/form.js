@@ -17,7 +17,7 @@ export function formNodes(ctx, st, on) {
     const running = Boolean(st.job);
     const errors = ctx.check?.errors ?? [];
     const first = errors[0];
-    const seed = fieldRow({ type: 'text', key: 'seed', label: 'Seed', hint: 'The same seed gives the same run. A chat draws its own seed, so a chat will not play out like this.', value: st.seed }, (_, value) => { st.seed = value; });
+    const seed = fieldRow({ type: 'text', key: 'seed', label: 'Seed', hint: 'The same seed gives the same run. A chat draws its own seed, so a chat will not play out like this.', value: st.seed, size: 'short' }, (_, value) => { st.seed = value; });
     seed.querySelector('.ctl')?.append(h('button', { type: 'button', class: 'btn2 st-dry-newseed', onClick: on.reseed }, 'New seed'));
     const tempo = fieldRow({ type: 'number', key: 'tempo', label: 'Tempo', hint: 'How fast the world moves: 2 = seasons last twice as long. 0.25 to 4; 1 is as written.', value: st.tempo }, (_, value) => {
         if (Number.isFinite(value)) st.tempo = Math.min(Math.max(value, 0.25), 4);

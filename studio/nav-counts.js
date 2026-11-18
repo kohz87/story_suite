@@ -9,6 +9,21 @@ const NOUNS = {
     meterPresets: ['meter preset', 'meter presets'], dataModules: ['data module', 'data modules'],
 };
 const QUIET = new Set(['start', 'overview', 'timeline']); // parts whose row shows no number
+const isObj = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+// What a game part's object counts (the mock's nav: Calendar 12 months, Money its coins, Weather its tables, Names its cultures).
+const ITEMS = {
+    calendar: value => (Array.isArray(value?.months) ? value.months.length : null),
+    currency: value => (Array.isArray(value?.coins) ? value.coins.length : null),
+    weather: value => (Array.isArray(value?.tables) ? value.tables.length : null),
+    names: value => Object.keys(value).filter(key => key !== 'banned').length,
+};
+
+// A part's number: its lists' records and its counted objects; null when it holds neither (Rules, a game's Start).
+function countOf(part) {
+    const counts = (part.sections ?? []).map(section => (Array.isArray(section.value) ? section.value.length : isObj(section.value) && ITEMS[section.key] ? ITEMS[section.key](section.value) : null)).filter(n => n !== null);
+    if (counts.length) return counts.reduce((sum, n) => sum + n, 0);
+    return (part.sections ?? []).length && part.sections.every(section => section.absent) ? 0 : null;
+}
 
 /** A part's page line: its description, then what it holds in words (lists only: "320 places · 352 routes"). */
 export function partLine(part) {
@@ -29,7 +44,9 @@ export function navBadges(parts, packs, active, titleOf = pack => pack.name) {
         const pack = part.kind ? packs[part.kind] : packs[active];
         const check = pack?.check;
         if (!check || QUIET.has(part.id)) continue;
-        if (pack.legacy) { if (!part.page && part.id !== 'problems') out[part.id] = { text: String(part.count ?? 0), bad: false, title: null }; continue; } // not checked
+        const n = part.sections ? countOf(part) : null;
+        const plain = n === null ? undefined : { text: String(n), bad: false, title: null };
+        if (pack.legacy) { if (!part.page && part.id !== 'problems' && plain) out[part.id] = plain; continue; } // not checked
         if (part.id === 'problems') {
             const e = check.errors.length, w = check.warnings.length;
             out[part.id] = e ? { text: w ? `${e} · ${w}` : String(e), bad: true, title: `${said(e, 'problem')}${w ? `, ${said(w, 'warning')}` : ''}` }
@@ -46,7 +63,7 @@ export function navBadges(parts, packs, active, titleOf = pack => pack.name) {
         const warnings = mine.length - errors;
         if (errors) out[part.id] = { text: `✕ ${errors}`, bad: true, title: said(errors, 'problem') };
         else if (warnings) out[part.id] = { text: `! ${warnings}`, bad: false, title: said(warnings, 'warning') };
-        else out[part.id] = { text: String(part.count ?? 0), bad: false, title: null };
+        else if (plain) out[part.id] = plain;
     }
     return out;
 }

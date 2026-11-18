@@ -11,9 +11,9 @@ import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { createShell } from '../../../studio/shell.js';
 import { fitPanes } from '../../../studio/wide.js';
 
-// part → the row to open and the noun of its empty pane (Rules has no record list; Calendar and the like are one form).
+// part → the row to open and the noun of its empty pane. The game parts are one page each (mock MK-7: Names is a table, a culture a page).
 const PARTS = [['lore', '.st-lorerow', 'entry'], ['cast', '.st-crow', 'person'], ['map', '.st-prow', 'place'], ['events', '.st-eventrow', 'event'],
-    ['templates', '.st-trow', 'template'], ['powers', '[data-rec^="powers."]', 'power'], ['items', null, 'item'], ['names', '.st-open[data-rec^="names."]', 'culture']];
+    ['templates', '.st-trow', 'template'], ['powers', '[data-rec^="powers."]', 'power'], ['items', null, 'item']];
 // (Ersveil has no items: the Items part shows its empty list and the empty pane)
 
 let ctx = null;
@@ -66,7 +66,6 @@ for (const width of [1280, 1920]) {
             if (ctx.skip) return t.skip(ctx.skip);
             const { page, errors } = await studio(width, theme);
             for (const [id, row, noun] of PARTS) {
-                if (id === 'names') { await page.click('.pswitch button[data-kind="game"]'); }
                 await part(page, id);
                 let seen = await layout(page);
                 assert.equal(seen.panes, 'true', `${id}: the page has panes`);

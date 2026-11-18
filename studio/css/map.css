@@ -43,6 +43,8 @@
 .st-mp .rubber { stroke: var(--su-accent); stroke-dasharray: 8 6; fill: none; }
 .st-mp .pl .hit { fill: transparent; stroke: none; }
 .st-mp .pl circle.b { fill: var(--su-panel2, #23283a); }
+/* Zoomed far out a place is a dot in its region's colour (mock MK-3), not a ring with a hole. */
+.st-mp .pl circle.b.dot { stroke-opacity: .9; }
 .st-mp .pl.hid circle.b { stroke-dasharray: 3 2; }
 .st-mp .pl.sel circle.b { stroke: var(--su-accent) !important; }
 .st-mp .pl.drag { opacity: .85; cursor: grabbing; }
