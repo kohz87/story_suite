@@ -106,7 +106,7 @@ export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst
         if (!found?.record) {
             // SFF4 #1: a pack person met or present in this reply's scene has their dossier made from the pack here (./cast-first.js), also when only their
             // meter entry is there yet (the step after the meeting made it); anyone else is refused, and a meter entry alone goes on as before.
-            const made = typeof castFirst === 'function' ? castFirst(ctx, line.name) : null;
+            const made = typeof castFirst === 'function' ? castFirst(ctx, line.name, { entry: found?.key ?? null }) : null;
             if (made) { found = { key: made.id, record: { name: made.name } }; on.stubKey = made.id; }
             else if (!found) ctx.fail('REFUSED', `${clean(line.name, 40)} has no record yet; write + npc ${clean(line.name, 40)} | role | look first.`);
         }

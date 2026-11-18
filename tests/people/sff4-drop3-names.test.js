@@ -34,7 +34,7 @@ const snap = s => JSON.stringify(people(s));
 const same = (s, why) => { const live = snap(s); s.host.store.rebuild(); assert.equal(snap(s), live, why); };
 const edit = (s, at, lines) => { s.host.ctx.chat[at].mes = `The story goes on.\n\n<Changes>\n${lines.join('\n')}\n</Changes>`; };
 const reread = async (s, at) => assert.equal((await s.host.sdk.reread(at)).ok, true);
-const make = (records = {}) => suite({ lines: true, levelOn: true, modules: [castModule], records: structuredClone(records) });
+const make = (records = {}, lines = true) => suite({ lines, levelOn: true, modules: [castModule], records: structuredClone(records) });
 async function warned(run) {
     const seen = [];
     const original = console.warn;
@@ -81,6 +81,47 @@ test('the reply after the meeting: the step already made her meter entry, the do
     same(s, 'swipe');
     await s.host.st.swipeTo(at, 0);
     assert.equal(snap(s), live, 'swipe back');
+    edit(s, at, ['~ npc Torka | level: 9 | trust: up | impact: meaningful | why: shared a fire', '~ npc Vell | keepsake: + Rope — coiled']);
+    await reread(s, at);
+    assert.deepEqual(torka(s).keepsakes.map(row => row.name), ['Bone token', 'Rope'], 'grown');
+    assert.deepEqual(Object.keys(people(s).npcs), entries);
+    same(s, 'grown Re-read');
+    edit(s, at, ['~ npc Torka | learns: Rope work']);
+    await reread(s, at);
+    assert.equal(String(torka(s).level), '5', 'shrunk: the pack\'s Level');
+    assert.deepEqual(Object.keys(people(s).bonds.npcs), entries);
+    same(s, 'shrunk Re-read');
+    await s.host.turn.onChatChanged();
+    same(s, 'chat change / reload');
+    assert.equal(s.host.ctx.chat[at - 2].is_user, false, 'the empty reply whose step made the meter entry');
+    await warned(async () => { await s.host.st.deleteMessage(at - 2); await s.host.st.deleteMessage(at - 3); });
+    same(s, 'middle delete (the line reply\'s stored steps named the deleted reply\'s meter entry, so live and a rebuild both leave them out)');
+    await reread(s, s.host.store.headIndex());
+    assert.deepEqual(Object.keys(people(s).npcs), entries, 'a Re-read makes her dossier again, under the same id');
+    assert.deepEqual(Object.keys(people(s).bonds.npcs), entries, 'one meter entry');
+    assert.deepEqual(torka(s).abilities.map(row => row.name), ['Blood Rage', 'Rope work']);
+    same(s, 'Re-read after the middle delete');
+    await warned(async () => { const head = s.host.store.headIndex(); await s.host.st.deleteMessage(head); await s.host.st.deleteMessage(head - 1); });
+    assert.equal(torka(s), undefined, 'rewound past the line: no dossier in the store (the runtime makes it)');
+    same(s, 'rewind');
+});
+
+test('a pack dossier the reader renamed is still hers (no second one); a meter entry of someone else that a first name finds goes on as before', async () => {
+    const tor = { npc_tor: { id: 'npc_tor', name: 'Tor', aliases: [], present: false, memories: [], memoryStamps: {}, castFrom: { key: 'ersveil:torka' }, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } } };
+    const s = await make(tor);
+    await s.host.sdk.command('zz.meet', {});
+    const said = await warned(() => s.say(['~ npc Torka | level: 9']));
+    assert.match(said, /Torka has no record yet/, said);
+    assert.deepEqual(Object.keys(people(s).npcs), ['npc_tor'], 'no second dossier for her');
+    let on = false;
+    const m = await make({}, () => on);
+    await m.say(['~ npc Torka | trust: up | impact: meaningful | why: a drink']);
+    const entry = Object.keys(people(m).bonds.npcs);
+    assert.equal(entry.length, 1, 'lines off: a meter entry for "Torka", no dossier');
+    on = true;
+    await m.host.sdk.command('zz.meet', {});
+    await m.say(['~ npc Torka | trust: up | impact: meaningful | why: another drink']);
+    assert.equal(torka(m), undefined, 'Torka Vell\'s dossier is not made from a line about the other Torka');
 });
 
 test('a first name that also fits someone with a dossier is nobody (refused, no pack dossier); the full name still makes hers', async () => {
@@ -116,6 +157,10 @@ test('receipts: a keepsake with a goal names both; meters that moved keep their 
     assert.doesNotMatch(last, /nothing moved/, last);
     await s.say(['~ npc Torka Vell | goal: rest']);
     assert.match(summaries(s).at(-1), /Torka Vell: nothing moved; goal stored/);
+    await s.say(['~ npc Torka Vell | keepsake: + Map — of the pass | look: grey cloak']);
+    assert.ok(summaries(s).some(text => text.includes('Torka Vell: keepsake Map added, look stored.')), JSON.stringify(summaries(s)));
+    await s.say(['~ npc Torka Vell | look: a scar over one eye']);
+    assert.ok(summaries(s).some(text => text.includes('Torka Vell: nothing moved; look stored')), JSON.stringify(summaries(s)));
 });
 
 test('replay == live: swipe, swipe back, an edited Re-read grown and shrunk, a middle delete, a chat change and a rewind', async () => {

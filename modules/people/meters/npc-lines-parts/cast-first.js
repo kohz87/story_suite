@@ -39,10 +39,12 @@ function packCast(ctx) {
     if (!Array.isArray(answer)) return { people: [], rows: {} };
     const here = ask(ctx, 'scene.place', {});
     const where = typeof here?.name === 'string' ? here.name : '';
-    const listed = new Set(Object.values(ctx.read('people')?.npcs ?? {}).flatMap(record => [record?.name, ...(Array.isArray(record?.aliases) ? record.aliases : [])]).map(labelKey).filter(Boolean));
+    const records = Object.values(ctx.read('people')?.npcs ?? {});
+    const listed = new Set(records.flatMap(record => [record?.name, ...(Array.isArray(record?.aliases) ? record.aliases : [])]).map(labelKey).filter(Boolean));
+    const made = new Set(records.map(record => record?.castFrom?.key).filter(Boolean));   // (a dossier from the pack the reader renamed is still hers)
     // One not met yet is met here and now (the reply's scene): the dossier's place is this one, as the meeting at the end of the reply records it.
     const people = normalizeCast(answer.map(raw => (raw && typeof raw === 'object' && !raw.met ? { ...raw, met: { on: null, where } } : raw)))
-        .filter(person => person.alive && person.entry && !listed.has(labelKey(person.entry.name || person.name)) && !dismissed(ctx, person));
+        .filter(person => person.alive && person.entry && !made.has(person.key) && !listed.has(labelKey(person.entry.name || person.name)) && !dismissed(ctx, person));
     const rows = {};
     people.forEach((person, at) => {
         rows[`cast:${at}`] = { name: person.entry.name || person.name, aliases: [person.name, ...person.aliases, ...(person.entry.aliases ?? [])], role: person.entry.role };
@@ -68,10 +70,11 @@ function dismissed(ctx, person) {
 
 /**
  * `tools`: { baseline() → the base relationship values, bond(ctx, slice, who, person) → makes the first meter entry }. → (ctx, name) → the new dossier's
- * `{ id, name }`, or null when the name is no pack person met or present here (the line is then refused as before); `.fits(ctx, name)` (below).
+ * `{ id, name }`, or null when the name is no pack person met or present here (the line is then refused as before). `{ entry }`: the key of the only meter
+ * entry the name found; the dossier is made only when that entry is the pack person's. `.fits(ctx, name)` (below).
  */
 export function createCastFirst({ baseline, bond }) {
-    function castFirst(ctx, name) {
+    function castFirst(ctx, name, { entry = null } = {}) {
         const person = castPersonNamed(ctx, name);
         if (!person || dismissed(ctx, person)) return null;
         const people = ctx.read('people');
@@ -80,6 +83,8 @@ export function createCastFirst({ baseline, bond }) {
         const shown = person.entry.name || person.name;
         // The step after the meeting reply (npc.tick) may have made her meter entry already, before the runtime made the dossier: the dossier takes its id.
         const own = Object.keys(bonds).find(key => labelKey(bonds[key]?.name) === labelKey(shown) && !Object.hasOwn(people?.npcs ?? {}, key));
+        // A line that found only a meter entry (`entry`, its key) goes on with it unless that entry is hers.
+        if (entry && own !== entry) return null;
         const id = own ?? makeNpcId(shown, taken);
         if (!PEOPLE_ID.test(id)) return null;
         const stamp = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1;
