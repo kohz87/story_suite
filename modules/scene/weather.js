@@ -1,40 +1,24 @@
-// The scene's weather: `~ weather cold drizzle, low fog` (the story's words, kept as they are) and the `scene.weather` command a module's
-// rule uses (with a key it chose the weather for). Descriptive only; no mechanics read it. Pure.
+// The scene's weather: `~ weather cold drizzle, low fog` (the story's words, kept as they are) and the `scene.weather` command a reader's
+// edit (or a module) sets it with. Descriptive only; no mechanics read it. Pure.
 
 import { cutPoints, flatten } from './extras.js';
 import { lineBody } from '../../core/capture.js';
-import { WEATHER_CHARS, WEATHER_KEY_CHARS } from './constants.js';
+import { WEATHER_CHARS } from './constants.js';
 import { HAS_WORD } from './shared.js';
 
 /**
- * `scene.weather({ text?, key? })`: the weather a module's rule sets (Story Director's weather from its
- * calendar and the region, MODULES §F122), cause `system` (or `ui`), never the story (it writes `~ weather`).
- * With `text`: the weather now, cleaned as a `~ weather` line is, marked with `key` (what the rule chose it
- * for, such as the story day and region; one line, at most WEATHER_KEY_CHARS). Without `text`: the weather
- * as it is (the story's own `~ weather`) is marked with `key`, its words kept, so the rule knows the story's
- * word stands for that key. The same text and key again change nothing. A story `~ weather` line writes
- * `{ text, rev }` without a key, so the mark goes with it.
+ * `scene.weather({ text })`: the weather now, set by a reader's edit (cause `ui`) or a module (cause `system`), never the story (it
+ * writes `~ weather`). The text is cleaned as a `~ weather` line is and kept as `{ text, rev }`; the same text again changes nothing.
  */
-export function setWeather(ctx, { text, key } = {}) {
+export function setWeather(ctx, { text } = {}) {
     if (ctx.cause === 'story') ctx.fail('REFUSED', 'The story writes the weather with a ~ weather line.');
-    if (key !== undefined && key !== null && typeof key !== 'string') ctx.fail('INVALID', 'The weather\'s key must be text.');
-    const mark = flatten(String(key ?? ''));
-    if (Array.from(mark).length > WEATHER_KEY_CHARS) ctx.fail('INVALID', `The weather's key is longer than ${WEATHER_KEY_CHARS} characters.`);
-    const scene = ctx.draft('scene');
-    const keyed = mark ? { key: mark } : {};
-    if (text === undefined || text === null || text === '') {
-        if (!scene.weather?.text) ctx.fail('NOT_FOUND', 'There is no weather to mark yet; give its text.');
-        if ((scene.weather.key ?? '') === mark) return { summary: `The weather stays: ${scene.weather.text}.`, data: { text: scene.weather.text, key: mark, same: true }, narrate: false };
-        const { key: _old, ...rest } = scene.weather;
-        scene.weather = { ...rest, ...keyed };
-        return { summary: `The weather stays: ${scene.weather.text}.`, data: { text: scene.weather.text, key: mark, kept: true }, narrate: false };
-    }
     if (typeof text !== 'string') ctx.fail('INVALID', 'The weather must be text.');
     const clean = weatherText(`~ weather ${text}`);
     if (!clean) ctx.fail('INVALID', 'The weather has no words.');
-    if (scene.weather?.text === clean && (scene.weather.key ?? '') === mark) return { summary: `The weather stays: ${clean}.`, data: { text: clean, key: mark, same: true }, narrate: false };
-    scene.weather = { text: clean, rev: Number.isSafeInteger(ctx.rev) ? ctx.rev : 0, ...keyed };
-    return { summary: `The weather: ${clean}.`, data: { text: clean, key: mark }, narrate: false };
+    const scene = ctx.draft('scene');
+    if (scene.weather?.text === clean) return { summary: `The weather stays: ${clean}.`, data: { text: clean, same: true }, narrate: false };
+    scene.weather = { text: clean, rev: Number.isSafeInteger(ctx.rev) ? ctx.rev : 0 };
+    return { summary: `The weather: ${clean}.`, data: { text: clean }, narrate: false };
 }
 
 // A weather text as stored: the line's words (markdown and decoration gone), tags and anything inside

@@ -204,3 +204,13 @@ noteAfterAccept
 resolveDates
 # B4-11g: the Story Director checks part's read of the retired 2.1 policy field rbActors (modules/rpg/checks/domain-parts/shared-legacy.js).
 LEGACY_POLICY
+# B4-11h: the day's weather by rule (modules/time/weather.js and its parts; the scene's weather key) and the Days screen id (story-director/days).
+weatherHook
+weatherFor
+weatherKey
+WEATHER_KEY_CHARS
+HOST_WEATHER_FEATURE
+WEATHER_COMMAND
+TEMPERATE
+daysScreen
+DAYS_ID

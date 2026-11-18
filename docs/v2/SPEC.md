@@ -921,9 +921,9 @@ reply's receipts moved the place; MODULES §F119). Query `reply.changes({ index?
 Capture kind `weather` (`~ weather cold drizzle, low fog`, feature `story-block.weather`, on; MODULES §F120):
 the text flattened, without markup, cut at 60 code points; `rev` the `meta.rev` of the receipt that wrote it;
 the same text again changes nothing. Descriptive only: no mechanic reads it. `weather` is a `scratch` field
-(§2.2). Command `scene.weather({ text?, key? })` (same feature; `system` or `ui`, never the story; MODULES
-§F122): a module's rule sets the weather with `text`, marked with `key` (at most 80 code points), or marks the
-weather as it stands with `key` alone; the story's `~ weather` writes no key. Query `scene.weather` → `{ text } | null` (null while the feature is off). The tail's Place line ends
+(§2.2). Command `scene.weather({ text })` (same feature; `system` or `ui`, never the story): a reader's edit or a module
+sets the weather as a `~ weather` line would. (The day's weather by rule, MODULES §F122, was removed at B4-11h:
+weather is descriptive, written by the story or the reader.) Query `scene.weather` → `{ text } | null` (null while the feature is off). The tail's Place line ends
 with it (cut to 26 code points) while the feature is on. Capture kind `you` (`~ you rank: … | wearing: … | condition: …`, feature
 `story-block.you`, on; MODULES §F126): each part is plain text on one line, cut at 120 code points (not refused), an empty
 part clears it, a part that is left out stays, the same words again change nothing; a line naming neither part is

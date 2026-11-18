@@ -7,9 +7,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DAYS_ID, WORLD_ID, daysScreen, hiddenNames, knownDay, part, worldScreen } from '../../../../modules/world/world/index.js';
+import { WORLD_ID, hiddenNames, knownDay, part, worldScreen } from '../../../../modules/world/world/index.js';
 import { backlogBlock } from '../../../../modules/world/chronicle/backlog.js';
-import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
 import { part as chronicle } from '../../../../modules/world/chronicle/index.js';
 import { validateScreen } from '../../../../packs/screens/registry.js';
 import { compileTemplate, renderTemplate } from '../../../../packs/template/index.js';
@@ -57,23 +56,12 @@ function draw(journal, { screen = worldScreen } = {}) {
     return { el, view, warnings, find: text => { draft.find = text; view.update(scopeOf()); } };
 }
 
-test('the Days screen is gone from the tabs: its id is a dialog of the Journal; the World screen draws the Journal', () => {
-    assert.ok(part.screens.includes(daysScreen) && part.screens.includes(worldScreen));
-    assert.ok(!chronicle.screens.some(screen => screen.id === DAYS_ID));
-    assert.equal(DAYS_ID, 'story-director/days');
+test('the Days screen is gone: no screen has its old id; the World screen draws the Journal', () => {
+    assert.deepEqual(part.screens, [worldScreen]);
+    assert.ok(![...part.screens, ...chronicle.screens].some(screen => screen.id === 'story-director/days'));
     assert.equal(WORLD_ID, 'story-director/world');
-    assert.equal(daysScreen.feature, DIGEST_FEATURE);
-    assert.deepEqual([...daysScreen.mounts], ['dialog']);
-    assert.deepEqual(validateScreen(daysScreen), []);
-    for (const binding of Object.values(daysScreen.data)) assert.ok(Object.hasOwn(part.queries, binding.query));
-    assert.deepEqual(scopeCss(daysScreen.css, DAYS_ID).warnings, []);
-});
-
-test('the old Days id draws the same Journal', async () => {
-    const journal = await threeDays();
-    const { el, warnings } = draw(journal, { screen: daysScreen });
-    assert.deepEqual(warnings, []);
-    assert.deepEqual(el.querySelectorAll('.wv-day').map(node => node.querySelector('.wv-date').textContent), ['June 5, 1200', 'June 4, 1200', 'June 3, 1200']);
+    assert.deepEqual(validateScreen(worldScreen), []);
+    assert.deepEqual(scopeCss(worldScreen.css, WORLD_ID).warnings, []);
 });
 
 test('drawn: newest day first, each folded to its line; an older day keeps its line only; no warnings', async () => {
@@ -118,11 +106,9 @@ test('no day yet: one plain sentence, no search box', () => {
 });
 
 test('every World section label is drawn by the one label helper (.wv-label, where the separator is set)', () => {
-    for (const screen of [worldScreen, daysScreen]) {
-        const headings = [...screen.template.matchAll(/<h[45]\b[^>]*>/g)].map(match => match[0]);
-        if (screen === worldScreen) assert.ok(headings.length > 0, `${screen.id} has section labels`);
-        for (const heading of headings) assert.match(heading, /\bwv-label\b/, `${screen.id}: ${heading}`);
-    }
+    const headings = [...worldScreen.template.matchAll(/<h[45]\b[^>]*>/g)].map(match => match[0]);
+    assert.ok(headings.length > 0, 'the World screen has section labels');
+    for (const heading of headings) assert.match(heading, /\bwv-label\b/, heading);
 });
 
 // ---- Journal by kind (spec items 1 to 7) -------------------------------------------------------------------------------------

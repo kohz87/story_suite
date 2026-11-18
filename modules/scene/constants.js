@@ -4,5 +4,5 @@
 // Public face: re-exports its parts.
 
 export { MAX_NAME, MAX_PRESENT } from './constants-parts/caps.js';
-export { WEATHER_CHARS, WEATHER_TAIL_CHARS, WEATHER_KEY_CHARS, WEATHER_FEATURE } from './constants-parts/weather.js';
+export { WEATHER_CHARS, WEATHER_TAIL_CHARS, WEATHER_FEATURE } from './constants-parts/weather.js';
 export { YOU_CHARS, YOU_FEATURE, YOU_PARTS, YOU_SHORT, YOU_SHORT_CHARS } from './constants-parts/you.js';
