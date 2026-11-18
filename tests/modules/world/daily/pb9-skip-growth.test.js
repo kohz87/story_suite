@@ -62,9 +62,14 @@ test('L7: 30 day-crossing replies on Ersveil store what each step changed; the s
             crossings.push(recordSize(host, host.ctx.chat.length - 1));
         }
         const grown = JSON.stringify(host.ctx.chat).length - start;
-        await host.send('Hour.', said('Hour.', '! time +1h'));
-        await tick();
-        const plain = recordSize(host, host.ctx.chat.length - 1);
+        // The smallest of three replies that cross no day: one of them now and then carries something else of about 27 KB (seen on next too).
+        const hours = [];
+        for (let i = 0; i < 3; i += 1) {
+            await host.send(`Hour ${i}.`, said(`Hour ${i}.`, '! time +1h'));
+            await tick();
+            hours.push(recordSize(host, host.ctx.chat.length - 1));
+        }
+        const plain = Math.min(...hours);
         const state = JSON.stringify(slotValue(host.head().domains.chronicle.daily)).length;
         const average = crossings.reduce((sum, size) => sum + size, 0) / crossings.length;
         const smallest = Math.min(...crossings);
