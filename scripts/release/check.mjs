@@ -9,7 +9,7 @@ import { assertSafeOut } from './outdir.mjs';
 import { versionProblems } from './versions.mjs';
 import { stylesheetRequests } from './css.mjs';
 
-export const RELEASE_VERSION = '0.1.1';
+export const RELEASE_VERSION = '0.1.2';
 export const MAX_REQUESTS = 10;
 
 // The bundle's chunk name for a module or chunk file: 'modules/rpg/view/index.js' and 'view-RM242NFQ.js' both give 'view' (esbuild names a chunk after its module's folder when the module is index.js).
