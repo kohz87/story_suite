@@ -42,7 +42,7 @@ export const RUNTIME_SOURCE_PARTS = [
     { file: 'runtime-cast-sync.js', before: 'const { castPortraitDue' },
     { file: 'runtime-mutations.js', before: 'const { updateNpcAppearance' },
     { file: 'runtime-portrait.js', before: 'const { handlePortraitGeneratorEscape' },
-    { file: 'runtime-suite.js', before: 'const { SUITE_API' },
+    { file: 'runtime-npc-api.js', before: 'const { SUITE_API' },
     { file: 'runtime-portrait-settings.js', before: 'const { savePortraitSettingsDraft' },
     { file: 'runtime-settings-bind.js', before: 'const { bindUi,' },
     { file: 'runtime-entry-events.js', before: 'const registerEvents =' },

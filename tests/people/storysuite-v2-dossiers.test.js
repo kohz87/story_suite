@@ -13,7 +13,7 @@ import assert from 'node:assert/strict';
 import {
     CAST_SCREEN_ID, CAST_TAB_ID, CAST_WIDGET, DOSSIERS_TITLE, PAGE_SLOT_CLASS, WORLD_FEATURE, createStorySuiteV2Adapter,
 } from '../../modules/people/storysuite-v2.js';
-import { dossierRowNodes } from '../../modules/people/legacy/story-block-tabs.js';
+import { dossierRowNodes } from '../../modules/people/dossier-rows.js';
 import { dossierIndexProjection, filterDossierIndex } from '../../modules/people/legacy/dossier-ui.js';
 import { fakeRoot } from './helpers/fake-dom.js';
 import { runtimeSource } from './helpers/runtime-source.js';

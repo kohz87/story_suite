@@ -106,12 +106,6 @@
       "sidecarTombstones": {},
       "socialCap": 5,
       "socialScale": 100,
-      "sourceOfTruth": {
-        "calendar": "auto",
-        "npc": "auto",
-        "scene": "auto",
-        "stats": "auto"
-      },
       "stages": [],
       "staleArchiveAfter": 30,
       "staleDeleteAfter": 50

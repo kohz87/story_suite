@@ -2,6 +2,7 @@
 // The core module (scene, inventory, data modules, RPG) is registered inside createRuntime. People goes last.
 
 import { storyDirectorModule } from '../ui/legacy/director/module.js';
+import { peopleModule } from '../modules/people/module.js';
 
 /** The ordered list of built-in modules boot registers with registerIsolated. */
-export const BUILTIN_MODULES = Object.freeze([storyDirectorModule]);
+export const BUILTIN_MODULES = Object.freeze([storyDirectorModule, peopleModule]);

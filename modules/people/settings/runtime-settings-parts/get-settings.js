@@ -7,7 +7,6 @@ import { normalizeRelationshipMapSettings } from '../../legacy/relationship-map-
 import { normalizeDossierSkin } from '../../legacy/dossier-skin.js';
 import { normalizeAllowance, pacingDefaults } from '../../legacy/relationship-pacing.js';
 import { DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitPromptFormat, normalizeCustomFieldNames } from '../../core/core.js';
-import { normalizeSourceOfTruth } from '../../legacy/suite-handshake.js';
 import { PORTRAIT_THEME_PRESETS } from './portrait-preset-constants.js';
 import { portraitCustomPresetLibrary } from './portrait-preset-library.js';
 import { DEFAULTS } from './defaults.js';
@@ -57,7 +56,6 @@ export function getSettings() {
     assign('relationshipAllowance', normalizeAllowance(settings.relationshipAllowance), sameJson);
     assign('relationshipPacingMigrated', true);
     assign('customFieldNames', normalizeCustomFieldNames(settings.customFieldNames), sameJson);
-    assign('sourceOfTruth', normalizeSourceOfTruth(settings.sourceOfTruth), sameJson);
     assign('relationshipCriteria', typeof settings.relationshipCriteria === 'string' ? settings.relationshipCriteria : DEFAULT_RELATIONSHIP_CRITERIA);
     assign('memoryCriteria', typeof settings.memoryCriteria === 'string' ? settings.memoryCriteria : DEFAULT_MEMORY_CRITERIA);
     assign('behaviorCriteria', typeof settings.behaviorCriteria === 'string' ? settings.behaviorCriteria : DEFAULT_BEHAVIOR_CRITERIA);
@@ -114,6 +112,11 @@ export function getSettings() {
     // object is a calendar.
     if (settings.calendarConfig !== undefined && (!settings.calendarConfig || typeof settings.calendarConfig !== 'object' || Array.isArray(settings.calendarConfig))) {
         delete settings.calendarConfig;
+        dirty = true;
+    }
+    // The v1 Story Suite handshake is gone: its per-area source-of-truth choices are dropped from a saved settings object.
+    if ('sourceOfTruth' in settings) {
+        delete settings.sourceOfTruth;
         dirty = true;
     }
     assign('schemaVersion', DEFAULTS.schemaVersion);

@@ -1,13 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {
-    NPC_PROFILE_ROLE_MAX,
-    NPC_PROFILE_SUMMARY_MAX,
-    buildNpcProfile,
-    buildNpcProfiles,
-    resolveDossierTarget,
-    trimAtWord,
-} from '../../modules/people/legacy/suite-handshake.js';
+import { NPC_PROFILE_ROLE_MAX, NPC_PROFILE_SUMMARY_MAX, buildNpcProfile } from '../../modules/people/npc-api/profile-build.js';
+import { buildNpcProfiles } from '../../modules/people/npc-api/profile-list.js';
+import { resolveDossierTarget } from '../../modules/people/npc-api/dossier-target.js';
+import { trimAtWord } from '../../modules/people/npc-api/text.js';
 import { normalizeNpcRecord, setNpcArchived } from '../../modules/people/core/core.js';
 import { runHostScenario } from './v120-story-suite.helpers.js';
 
@@ -104,8 +100,8 @@ test('v1.2.2 npc profiles never throw and read nothing but the dossiers given', 
 
 test('v1.2.2 the runtime shares npcProfiles() beside the unchanged npcs(), with no request or prompt', () => {
     runHostScenario('npc-profiles', async () => {
-        const suite = globalThis.StorySuite;
-        const api = suite.api('npc-state-delta');
+        const { pageHandles } = await import('__HANDLES__');
+        const api = pageHandles.suiteApi;
         assert.deepEqual(api.npcProfiles(), [], 'empty until the chat\'s dossiers load');
         mockState.extensionSettings.storySuite.modules['npc-state-delta'].customFieldNames = ['Abilities'];
         mockState.quietResponder = async () => JSON.stringify({ npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', species: 'human', personality: 'Shy, earnest and fiercely loyal to her rival.', customFields: { Abilities: 'advanced magic' }, mood: 'nervous, eager', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } }] });
@@ -160,42 +156,4 @@ test('v1.2.2 openDossier resolution: id first, then a unique name or alias among
     assert.equal(resolveDossierTarget(undefined, 'npc-lyra'), '');
     const hostile = [{ get id() { throw new Error('boom'); } }];
     assert.equal(resolveDossierTarget(hostile, 'x'), '', 'never throws');
-});
-
-test('v1.2.2 the runtime openDossier opens the launcher dossier path, and nothing for archived or unknown NPCs', () => {
-    runHostScenario('open-dossier', async () => {
-        const suite = globalThis.StorySuite;
-        const api = suite.api('npc-state-delta');
-        const opened = [];
-        document.addEventListener('npc-state-delta:open-dossier', event => { opened.push(event.detail.npcId); event.detail.handled = true; });
-        assert.equal(api.openDossier('Yunyun'), false, 'nothing before the dossiers exist');
-
-        mockState.quietResponder = async () => JSON.stringify({ npcs: [
-            { name: 'Yunyun', aliases: ['Yun'], present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } },
-            { name: 'Wiz', present: true, role: 'shopkeeper', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named shopkeeper', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } },
-        ] });
-        mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'Who is here?' });
-        mockState.context.chat.push({ is_user: false, is_system: false, name: 'Megumin', mes: 'Yunyun (Yun to friends) waves while Wiz minds her shop.', swipe_id: 0, swipes: ['Yunyun (Yun to friends) waves while Wiz minds her shop.'] });
-        const id = mockState.context.chat.length - 1;
-        await Promise.all((mockState.listeners.get('message_received') || []).map(fn => fn(id)));
-        await sleep(200);
-        const [yunyun, wiz] = ['Yunyun', 'Wiz'].map(name => api.npcs().find(npc => npc.name === name));
-        assert.ok(yunyun && wiz);
-
-        const requests = mockState.rawCalls.length;
-        const prompts = mockState.prompts.length;
-        const before = JSON.stringify(globalThis.NPCStateDelta.getState());
-        assert.equal(api.openDossier(yunyun.id), true);
-        assert.equal(api.openDossier('yunyun'), true, 'name fallback');
-        assert.equal(api.openDossier('YUN'), true, 'alias fallback');
-        assert.equal(api.openDossier('nobody'), false);
-        assert.equal(api.openDossier(), false);
-        assert.deepEqual(opened, [yunyun.id, yunyun.id, yunyun.id], 'the same open path as the launcher and present cast');
-        assert.equal(mockState.rawCalls.length, requests, 'no model request');
-        assert.equal(mockState.prompts.length, prompts, 'no prompt write');
-        assert.equal(JSON.stringify(globalThis.NPCStateDelta.getState()), before, 'no data change');
-
-        // P6: a dossier has no archive state, so there is nothing to open-refuse beyond unknown names.
-        assert.deepEqual(opened, [yunyun.id, yunyun.id, yunyun.id]);
-    });
 });

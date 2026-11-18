@@ -18,9 +18,8 @@
 //
 // Without a v2 host (no Story Block, or a v1 Story Block whose global has no `ready`/`sdk`) this
 // module does nothing: it looks for the host once and then stops. The v1
-// handshake (suite.js, suite-handshake.js) keeps working with v1 hosts; with a
-// v2 host (`apiVersion: 2`) it offers nothing (suite-handshake.js storyBlockIsV2), and this adapter
-// sends V2_HOST_EVENT when it registers and when the host goes away so the v1 side can follow.
+// handshake is gone (B4-2); this adapter sends V2_HOST_EVENT when it registers and when the host goes away so the
+// in-chat cast can follow.
 //
 // Finding the host: Story Suite's entry (index.js) starts the host first and this part after it, so the adapter looks at
 // `globalThis.StoryBlock` once (no waiting) and, once it has `ready` (or `sdk`), waits on that promise. Going away: every 5 s,
@@ -112,7 +111,7 @@ export const HEAD_SETTLE_POLL_MS = 50;
 // timestamps, locks) and the hidden notes stay inside Delta.
 export { DOSSIER_FIELDS };
 
-// Used only if story-block-tabs.js cannot be loaded: the same empty line, without the Scan button.
+// Used only if dossier-rows.js cannot be loaded: the same empty line, without the Scan button.
 const fallbackEmptyCast = reason => `<div class="npc-state-delta-story-empty-state"><p class="npc-state-delta-story-empty">${escapeHtml(reason?.text || 'No NPC is present in the latest scene.')}</p></div>`;
 
 /**
@@ -140,20 +139,20 @@ export function createStorySuiteV2Adapter({
     castPortraitDue = null,
     doc = globalThis.document,
     timers = globalThis,
-    loadEmptyCast = () => import('./legacy/story-block-tabs.js').then(module => module.emptyCastHtml),
+    loadEmptyCast = () => import('./dossier-rows.js').then(module => module.emptyCastHtml),
     retryMs = HOST_RETRY_MS,
     attempts = HOST_RETRY_ATTEMPTS,
     aliveMs = HOST_ALIVE_MS,
     watchMs = SECTION_WATCH_MS,
     logger = console,
-    // True while the reader keeps the calendar in Delta (Source of truth: calendar "mine"): no story clock.
+    // True while the reader keeps the calendar in Delta (no longer a choice; always false): no story clock.
     calendarOwn = () => false,
     // True while the one-pass lines switch is on (N7: the production start-up passes true): `+ npc` stubs and the unknown-person rule (src/npc-lines-parts/stub.js). Off, nothing differs.
     linesMode = () => false,
     // True while the custom Level field is on (a configured field, or the host's RPG feature): a `~ npc` line may then state `level: N` (src/npc-lines-parts/level.js). Off, a `level:` label is an unknown one.
     levelOn = () => false,
-    // Delta's dossier list markup and projection (story-block-tabs.js, dossier-ui.js), as v1's Dossiers tab.
-    loadDossierList = () => Promise.all([import('./legacy/story-block-tabs.js'), import('./legacy/dossier-ui.js')])
+    // Delta's dossier list markup and projection (dossier-rows.js, dossier-ui.js), as v1's Dossiers tab.
+    loadDossierList = () => Promise.all([import('./dossier-rows.js'), import('./legacy/dossier-ui.js')])
         .then(([tabs, ui]) => ({ rowNodes: tabs.dossierRowNodes, project: ui.dossierIndexProjection, filter: ui.filterDossierIndex })),
     // How long Delta waits for the host's head-selection barrier to come down, and how often it looks (messageGate.settled).
     settleMs = HEAD_SETTLE_MS,

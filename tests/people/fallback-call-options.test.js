@@ -41,7 +41,6 @@ try {
     eventSource.emit('app_ready');
     eventSource.emit('extension_settings_loaded');
     await sleep(30);
-    await import(pathToFileURL(path.join(extRoot, 'story-block-tabs.js')).href);
     await sleep(30);
     if (${hosted}) await waitFor(() => mockState.sdk.registered.length === 1);
     const settings = mockState.extensionSettings.storySuite.modules['npc-state-delta'];

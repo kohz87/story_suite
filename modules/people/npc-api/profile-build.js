@@ -1,5 +1,5 @@
 // Builds one NPC's suite profile (role and summary) from the dossier.
-import { plainText, trimAtWord } from './shared-text.js';
+import { plainText, trimAtWord } from './text.js';
 // npcProfiles() (Story Suite contract, NPC State Delta 1.2.2): a short role and a <= 200-char
 // summary per tracked, non-archived NPC, shaped only from fields the dossier already holds.
 export const NPC_PROFILE_ROLE_MAX = 60;

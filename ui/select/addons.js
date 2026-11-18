@@ -4,7 +4,7 @@ const STATUS = { dormant: 'waiting for a module it needs', 'restore-pending': 'h
 
 const info = (key, group, label, hint, value) => ({ key, group, type: 'info', label, hint, value, default: null, options: null, unit: null, tags: [], wide: false });
 
-const isModule = m => m !== null && typeof m === 'object' && typeof m.id === 'string';
+const isModule = m => m !== null && typeof m === 'object' && typeof m.id === 'string' && m.hidden !== true;
 
 // One module → "RPG 1.2.0" plus why it is not running when it is not; unknown parts are left out.
 function moduleValue(m) {
@@ -15,7 +15,7 @@ function moduleValue(m) {
 }
 
 /**
- * `modules`: sdk.modules() ([{ id, name, version, status, reason, … }], in id order) or null when it was not read.
+ * `modules`: sdk.modules() ([{ id, name, version, status, reason, … }], in id order) or null when it was not read; a module with `hidden: true` is not listed.
  * → the Add-ons rows. No setting is read or written: the suite has no custom-view host yet (and so no switch to keep), so the row says so.
  */
 export function selectAddons(modules) {

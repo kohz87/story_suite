@@ -6,8 +6,8 @@ import { effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 
 export function createStartup(rt, deps) {
     const {
-        getSettings, clearLegacyPromptKeys, connectStorySuite, SUITE_API, UI_ID, NPC_STATE_VERSION,
-        latestReplyIndex, castSync, castPortraitDue, normalizeSourceOfTruth, nsdCardSettings, setStoryClockSource, setStoryDateAtSource, setStoryDayAtSource, hostedStoryDateAt, hostedStoryDayAt,
+        getSettings, clearLegacyPromptKeys, watchHost, SUITE_API, UI_ID, NPC_STATE_VERSION,
+        latestReplyIndex, castSync, castPortraitDue, nsdCardSettings, setStoryClockSource, setStoryDateAtSource, setStoryDayAtSource, hostedStoryDateAt, hostedStoryDayAt,
         hostedStoryClock, bindUi, installUiCaptureBridge, registerEvents, startInlineWatchdog,
         flushCurrentChatOnPageHide, refreshCurrentChatFromServer, scheduleSettingsMountRetries, getChatKey,
         isCanonicalChatKey, ensureChatStateLoaded, maybeInheritKnownBranch, seedBranchTracking, getChatState,
@@ -22,11 +22,11 @@ export function createStartup(rt, deps) {
         rt.initialized = true;
         getSettings();
         clearLegacyPromptKeys();
-        connectStorySuite();
+        watchHost();
         // Story Suite v2 (Story Block 2): optional; without a v2 host the adapter does nothing.
-        import('../storysuite-v2.js').then(v2 => { rt.storySuiteV2 = v2.startStorySuiteV2({ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, calendarOwn: () => normalizeSourceOfTruth(getSettings().sourceOfTruth).calendar === 'mine', cardSettings: nsdCardSettings(), linesMode: () => true, levelOn: () => effectiveCustomFieldNames().some(name => name.toLowerCase() === 'level') }); }).catch(error => console.debug('[NPC State Delta] Story Suite v2 adapter is not available', error));
+        import('../storysuite-v2.js').then(v2 => { rt.storySuiteV2 = v2.startStorySuiteV2({ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, cardSettings: nsdCardSettings(), linesMode: () => true, levelOn: () => effectiveCustomFieldNames().some(name => name.toLowerCase() === 'level') }); }).catch(error => console.debug('[NPC State Delta] Story Suite v2 adapter is not available', error));
         // (v2) Hosted with Story Director, the story's date follows its clock (calendar.js hostedStoryDate)
-        // unless the reader keeps the calendar here (Source of truth: calendar "mine"). No host: none.
+        // unless the reader keeps the calendar here (the reader's own calendar is no longer a choice). No host: none.
         setStoryClockSource(hostedStoryClock);
         setStoryDateAtSource(hostedStoryDateAt);
         setStoryDayAtSource(hostedStoryDayAt);

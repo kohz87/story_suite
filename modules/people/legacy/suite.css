@@ -11,9 +11,6 @@
 }
 
 /* The "Manage all in Story Suite" line, first in the panel. */
-.story-suite-panel .story-suite-manage { display: flex; justify-content: flex-start; margin: 0 0 6px; }
-.story-suite-panel .story-suite-manage[hidden] { display: none; }
-.story-suite-panel .story-suite-manage .menu_button { display: inline-flex; align-items: center; gap: 6px; width: auto; margin: 0; white-space: nowrap; }
 
 /* The switches and main actions, boxed at the top. */
 .story-suite-panel .story-suite-quickbar { display: grid; gap: 8px; margin: 0 0 10px; padding: 8px 12px 10px; border: 1px solid var(--story-suite-line); border-radius: 10px; background: rgba(255,255,255,.03); }

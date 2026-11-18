@@ -35,8 +35,8 @@ export function createDossierListPart(session, deps) {
         return rows;
     }
     // The dossier rows and the meters are DOM nodes built with textContent: a name, a role, a stage or a note is text, never
-    // markup. Story Block's list-row classes are the same as story-block-tabs.js dossierRowNodes (its builder, once loaded).
-    // Before story-block-tabs.js has loaded: plain rows of names that still open each dossier.
+    // markup. Story Block's list-row classes are the same as dossier-rows.js dossierRowNodes (its builder, once loaded).
+    // Before dossier-rows.js has loaded: plain rows of names that still open each dossier.
     function plainRowNodes(rows, doc, total = 0) {
         if (!rows.length) return [elementOf(doc, 'p', 'npc-state-delta-story-empty', total ? 'No dossier matches.' : 'No dossiers yet. An NPC gets one when a scan finds them in the story.')];
         return rows.map(row => {
@@ -52,7 +52,7 @@ export function createDossierListPart(session, deps) {
             return item;
         });
     }
-    // The dossier rows for a search, as nodes (story-block-tabs.js when loaded; the plain rows before that).
+    // The dossier rows for a search, as nodes (dossier-rows.js when loaded; the plain rows before that).
     function dossierRowNodesFor(query, doc) {
         const rows = dossierRows();
         let visible;

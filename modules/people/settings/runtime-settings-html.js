@@ -3,12 +3,11 @@
    state and the controller functions it calls. Bodies are moved from index.js without change. */
 
 import { PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../core/core.js';
-import { SUITE_AREAS } from '../legacy/suite-handshake.js';
 import { escapeHtml } from '../util/html.js';
 import { PORTRAIT_THEME_PRESETS, getSettings } from './runtime-settings.js';
 
 export function createSettingsHtmlPart(rt, deps) {
-    const { effectivePresentCastChoice, portraitSettingsSnapshot, syncSuiteControls, UI_ID, updatePortraitSettingsSaveUi, writePortraitSettingsDraftToUi } = deps;
+    const { effectivePresentCastChoice, portraitSettingsSnapshot, UI_ID, updatePortraitSettingsSaveUi, writePortraitSettingsDraftToUi } = deps;
 
     function settingRow(id, label, control, hint = '') {
         return `<label class="npc-state-delta-setting-row story-suite-row" for="${id}"><span><b>${label}</b>${hint ? `<small>${hint}</small>` : ''}</span>${control}</label>`;
@@ -21,13 +20,6 @@ export function createSettingsHtmlPart(rt, deps) {
     function settingsGroup(key, title, hint, body, { hidden = false } = {}) {
         return `<details class="delta-settings-group story-suite-fold" data-delta-settings-group="${key}"${hidden ? ' hidden' : ''}><summary><b>${title}</b>${hint ? `<small>${hint}</small>` : ''}</summary><div class="delta-settings-group-body story-suite-fold-body">${body}</div></details>`;
     }
-
-    const SUITE_AREA_LABELS = Object.freeze({
-        npc: 'NPCs',
-        calendar: 'Calendar',
-        scene: 'Scene (live mood, outfit)',
-        stats: 'Game stats',
-    });
 
     function settingsSlot(name) {
         return `<div class="delta-settings-slot" data-delta-settings-slot="${name}"></div>`;
@@ -53,7 +45,6 @@ export function createSettingsHtmlPart(rt, deps) {
         ${settingsSlot('relationship-map')}
         <h4 class="delta-settings-subhead story-suite-subhead">Custom fields</h4>
         ${settingRow('npc_state_delta_custom_fields', 'Custom fields', '<input id="npc_state_delta_custom_fields" class="text_pole" maxlength="260" placeholder="Level, Class, Faction">', 'Up to 6 names, comma-separated, tracked on every dossier. The scanner fills a value only when the story states it, keeps it until it is explicitly changed, and it is sent with present NPCs. Leave empty to turn off.')}
-        <small id="npc_state_delta_custom_fields_stats_warning" class="npc-state-delta-suite-warning story-suite-notice" role="status" hidden></small>
         <h4 class="delta-settings-subhead story-suite-subhead">Roster lifecycle</h4>
         ${settingRow('npc_state_delta_max', 'Maximum active NPCs', numberControl('npc_state_delta_max', 1, 100), 'Archived dossiers do not use an active slot.')}
         ${settingRow('npc_state_delta_archive_deaths', 'Archive confirmed deaths', '<input id="npc_state_delta_archive_deaths" type="checkbox">', 'Explicit current-timeline deaths archive instead of deleting. Ambiguous death language is ignored.')}
@@ -74,9 +65,6 @@ export function createSettingsHtmlPart(rt, deps) {
             settingRow('npc_state_delta_mid_delete_rewind', 'Rewind dossiers on middle deletion', '<input id="npc_state_delta_mid_delete_rewind" type="checkbox">', 'Off (default): deleting a message from the middle undoes only what that message changed and keeps later changes. On: every dossier rewinds to how it was just before the deleted message, discarding what later messages changed (no model requests).'),
             settingRow('npc_state_delta_branch_rescan', 'Rescan changed branches', '<input id="npc_state_delta_branch_rescan" type="checkbox">', 'Re-evaluate the surviving branch after a swipe, edit or middle-message deletion.'),
         ].join('');
-        const suite = `
-        <p class="npc-state-delta-muted">With Story Block or Story Director installed, each area has one source of truth so the model is not told the same thing twice. Automatic lets the specialist lead (Story Block the scene and game stats, Story Director the calendar; Delta the NPCs). Alone, every choice behaves like Automatic.</p>
-        ${SUITE_AREAS.map(area => settingRow(`npc_state_delta_source_${area}`, SUITE_AREA_LABELS[area], `<select id="npc_state_delta_source_${area}" class="text_pole" data-delta-source-area="${area}"><option value="auto">Automatic</option><option value="mine">This extension</option><option value="theirs">The other one</option></select>`, `<span data-delta-source-status="${area}"></span>`)).join('')}`;
         const portrait = `
         <p class="npc-state-delta-muted">Builds positive and negative prompts from the dossier for the native SillyTavern Image Generation handoff. The configured image backend (including ComfyUI) stays host-owned.</p>
         ${settingRow('npc_state_delta_portrait_generation_enabled', 'Enable Generate Portrait', '<input id="npc_state_delta_portrait_generation_enabled" type="checkbox">', 'Enables Generate Portrait in the dossier Portrait tool. Fails safely without changing the dossier if Image Generation is unavailable.')}
@@ -170,7 +158,6 @@ export function createSettingsHtmlPart(rt, deps) {
         // One closed fold for what a reader rarely needs; each part keeps its own fold inside, so its key, its slot and its
         // open state stay as they were. The first line says whether the calendar here matters (syncExpertNote).
         const expert = `<p class="npc-state-delta-muted delta-expert-note" data-delta-expert-note></p>
-        ${settingsGroup('suite', 'Source of truth', 'Sharing with other story extensions', suite)}
         ${settingsGroup('calendar', 'Calendar & birthdays', 'Fantasy months and optional campaign clock', settingsSlot('calendar'))}
         ${settingsGroup('rules', 'Scanner rules', 'Advanced relationship, memory and behavior rubrics', rules)}
         ${settingsGroup('sent', "What's sent", 'The text your next reply gets, and its size', `<div class="delta-whats-sent" data-delta-whats-sent><small class="delta-whats-sent-empty">Open this to see it.</small></div><div class="npc-state-delta-actions"><div id="npc_state_delta_sent_refresh" class="menu_button"><i class="fa-solid fa-rotate"></i> Refresh</div></div>`)}
@@ -179,9 +166,6 @@ export function createSettingsHtmlPart(rt, deps) {
     <div id="${UI_ID}" class="extension_container npc-state-delta-extension">
       <h4 class="npc-state-delta-heading">NPC State</h4>
         <div class="npc-state-delta-drawer story-suite-panel">
-          <div id="npc_state_delta_suite_manage" class="npc-state-delta-suite-manage story-suite-manage" data-story-suite-link hidden>
-            <button type="button" class="menu_button" data-delta-open-suite><i class="fa-solid fa-layer-group"></i> Manage all in Story Suite</button>
-          </div>
           <div class="delta-settings-quickbar story-suite-quickbar">
             <div class="delta-settings-quick-toggles">
               ${settingRow('npc_state_delta_enabled', 'Enable NPC State Delta', '<input id="npc_state_delta_enabled" type="checkbox">')}
@@ -199,7 +183,7 @@ export function createSettingsHtmlPart(rt, deps) {
             ${settingsGroup('presets', 'Meter presets', 'One-click meter sets (Companion, Rival, Mentor)', settingsSlot('meter-presets'), { hidden: true })}
             ${settingsGroup('portrait', 'Portrait generation', 'Image Generation prompts and style', portrait)}
             ${settingsGroup('maintenance', 'Data & maintenance', 'Backup, diagnostics and this chat', maintenance)}
-            ${settingsGroup('expert', 'Expert', "Source of truth, calendar, scanner rules, what's sent, advanced", expert)}
+            ${settingsGroup('expert', 'Expert', "Calendar, scanner rules, what's sent, advanced", expert)}
           </div>
         </div>
     </div>`;
@@ -309,7 +293,6 @@ export function createSettingsHtmlPart(rt, deps) {
         $('#npc_state_delta_inject_budget').val(s.injectBudgetTokens);
         $('#npc_state_delta_inject_limit').val(s.injectLimit);
         $('#npc_state_delta_custom_fields').val((s.customFieldNames || []).join(', '));
-        syncSuiteControls();
         $('#npc_state_delta_archive_deaths').prop('checked', s.autoArchiveDeaths !== false);
         $('#npc_state_delta_reactivate_archived').prop('checked', s.autoReactivateArchived !== false);
         $('#npc_state_delta_layered_secrets').prop('checked', s.layeredSecrets !== false);

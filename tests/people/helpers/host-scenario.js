@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \'index.js\'))';
 const TESTS = new URL('../', import.meta.url);
 
+const HANDLES_URL = new URL('../../../modules/people/runtime/handles.js', import.meta.url).href;
+
 export function runHostScenario(name, prelude, scenario) {
     let source = fs.readFileSync(new URL('./runtime-smoke.mjs', TESTS), 'utf8');
     source = source.replace('const here = path.dirname(fileURLToPath(import.meta.url));', `const here = ${JSON.stringify(fileURLToPath(TESTS))};`);
@@ -25,9 +27,8 @@ try {
     eventSource.emit('app_ready');
     eventSource.emit('extension_settings_loaded');
     await sleep(30);
-    await import(pathToFileURL(path.join(extRoot, 'story-block-tabs.js')).href);
     await sleep(30);
-    await (${scenario.toString()})();
+    await (${scenario.toString().replaceAll('__HANDLES__', HANDLES_URL)})();
     console.log('story suite v2 scenario ${name} passed');
 } finally {
     for (const handle of pendingHostTimers) nativeClearTimeout(handle);

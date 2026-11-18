@@ -9,7 +9,6 @@ import { replyScanned } from '../calls/scan-context.js';
 import { cleanMessage, recentTranscript, tieDayAt } from '../transcript/transcript.js';
 import { buildInjection, npcNamedInText, isTerminalNpcDeath, buildNarrationCaptureParts } from '../core/core.js';
 import { buildLinesParts } from '../core/core-prompts-lines.js';
-import { defersArea, storyBlockIsV2 } from '../legacy/suite-handshake.js';
 import { injectDepthOf, getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
 
@@ -62,12 +61,9 @@ export function createInjectionPart(rt, deps) {
     // The live dossier injection under the current settings and scene defer (sent by updateInjection;
     // tokens() measures the same text).
     function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4) } = {}) {
-        // v1's World State carries the live mood and outfit the cards then leave out; v2's scene keeps
-        // only the place and who is present, so under a v2 host the cards keep them.
-        const sceneDeferred = defersArea('scene', settings.sourceOfTruth) && !storyBlockIsV2();
         const awayNotes = keyReturnNotes(state);
         const gearLines = castGearLines(state);
-        return buildInjection(scenePresenceView(hostedMeterView(state.npcs)), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), sceneDeferred, ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt() });
+        return buildInjection(scenePresenceView(hostedMeterView(state.npcs)), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt() });
     }
 
     function updateInjection() {

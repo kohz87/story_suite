@@ -67,9 +67,9 @@ function fakeCtx(next) {
 
 test('buildSelectors has one selector per tab and never throws on empty answers', () => {
   const selectors = buildSelectors(() => null, null);
-  assert.deepEqual(Object.keys(selectors).sort(), [...TABS, 'inspector', 'problems', 'sent'].sort());   // the Tools page's own live reads follow the tabs
+  assert.deepEqual(Object.keys(selectors).sort(), [...TABS, 'inspector', 'problems', 'savepoints', 'sent'].sort());   // the Tools page's own live reads follow the tabs
   const read = () => null;
-  for (const tab of [...TABS, 'inspector', 'problems', 'sent']) assert.doesNotThrow(() => selectors[tab](read), tab);
+  for (const tab of [...TABS, 'inspector', 'problems', 'savepoints', 'sent']) assert.doesNotThrow(() => selectors[tab](read), tab);
   assert.equal(selectors.fight(read), null);
 });
 
@@ -105,7 +105,7 @@ test('firstPaint hides the old furniture before boot unless this device chose th
   assert.equal(firstPaint(old, fakeStorage(true)), false);
   assert.equal(old.body.classList.contains('ss-ui-next'), false);
   const entry = fs.readFileSync(new URL('../../index.js', import.meta.url), 'utf8');
-  assert.ok(entry.indexOf('firstPaint();') > 0 && entry.indexOf('firstPaint();') < entry.indexOf('boot({ late })'), 'firstPaint runs before boot');
+  assert.ok(entry.indexOf('firstPaint();') > 0 && entry.indexOf('firstPaint();') < entry.indexOf('boot()'), 'firstPaint runs before boot');
   assert.match(entry, /if \(started\) await startView\(\);/);
 });
 

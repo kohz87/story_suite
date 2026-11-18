@@ -4,6 +4,7 @@ import { h, clear } from '../kit/dom.js';
 import { mountSuite } from '../mount.js';
 import { createFakePort } from '../port/fake-port.js';
 import { usePortraits } from './portraits.js';
+import { SAVEPOINTS } from '../fixtures/savepoints.js';
 
 const THEMES = ['dark', 'light', 'follow'];
 const VARIANTS = ['default', 'rpgOff', 'fightOpen', 'empty'];
@@ -74,6 +75,9 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     clear(frame);
     port = createFakePort({ variant: fixtureOptions() });
     honourPlanToggle(port);
+    // The Tools page's Save points card has a view of its own (the fixtures' key list stays as it was).
+    const view = port.view.bind(port);
+    port.view = (tab, args) => (tab === 'savepoints' ? structuredClone(SAVEPOINTS) : view(tab, args));
     frame.style.width = `${state.width}px`;
     suite = mountSuite({ port, doc, host: frame, theme: state.theme, initial: state.tab, schedule });
     suite.open(state.tab);

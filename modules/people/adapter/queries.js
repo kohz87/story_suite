@@ -7,7 +7,7 @@
 // is given: no SillyTavern import.
 
 import { normalizeRelationshipMilestones, normalizeRelationshipProgress } from '../core/core-relationship-model.js';
-import { resolveDossierTarget } from '../legacy/suite-handshake.js';
+import { resolveDossierTarget } from '../npc-api/dossier-target.js';
 import { FEATURE_SOCIAL, SOCIAL_QUERY, createNpcPart, normalizeSecrets } from '../meters/npc-meters.js';
 import { normalizeLimits, presetCatalog } from '../meters/npc-meters-presets.js';
 import { RELATIONSHIP_KEYS, dossierFields, portraitUrl } from './queries-dossier.js';

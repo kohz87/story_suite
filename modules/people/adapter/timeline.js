@@ -5,7 +5,7 @@
 // A part of the adapter closure: createTimelinePart(session, deps) gets the adapter's shared state (session) and the adapter's options,
 // constants and the parts built before it (deps), and returns what the other parts and the adapter use. No SillyTavern import.
 
-import { resolveDossierTarget } from '../legacy/suite-handshake.js';
+import { resolveDossierTarget } from '../npc-api/dossier-target.js';
 import { FEATURE_STAGES, MILESTONE_KIND, NPC_KIND } from '../meters/npc-meters.js';
 import { metersCardScreen } from '../meters/npc-meters-screen.js';
 import { createPublicPathsDefinition } from '../public-paths.js';

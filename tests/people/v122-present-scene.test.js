@@ -17,7 +17,6 @@ import {
     sceneAttr,
     storyBlockTags,
 } from '../../modules/people/legacy/present-scene.js';
-import { ensureSuiteStylesheet, SUITE_STYLESHEET_ID } from '../../modules/people/legacy/suite-handshake.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 
@@ -277,7 +276,7 @@ test('v1.2.2 the present cards render now/chatter slots', () => {
     assert.match(index, /npc-state-delta-present-roster" data-message-id="\$\{messageId\}"\$\{sceneAttr\(scene\)\}/);
     assert.match(index, /fillPresentSceneText\(anchor\)/);
     assert.match(index, /fillPresentCast: root => fillPresentSceneText\(root\)/);
-    assert.match(index, /areaOwner\('scene', settings\.sourceOfTruth\)\?\.id === 'story-block'/, 'World State only while Story Block keeps the scene');
+    assert.match(index, /const sceneOwned = false;/, 'the v1 registry that made Story Block the scene owner is gone');
     const css = styleSource();
     assert.doesNotMatch(css, /grid-column: span 2/, 'wide: the bubble sits under its card, not in a stretched two-column cell');
     assert.match(index, /const side = chatter \? chatter\s*: \(now \? `<div class="npc-state-delta-present-side npc-state-delta-present-side-now">\$\{now\}<\/div>`\s*: `<div class="npc-state-delta-present-side npc-state-delta-present-side-idle">[^`]*No changes this turn[^`]*`\);/, 'right half: chatter, else the now lines, else role + no changes');
@@ -292,7 +291,6 @@ test('v1.2.2 the settings panel carries the shared story-suite-* classes beside 
     const [index] = sources;
     for (const [own, shared] of [
         ['npc-state-delta-drawer', 'story-suite-panel'],
-        ['npc-state-delta-suite-manage', 'story-suite-manage'],
         ['delta-settings-quickbar', 'story-suite-quickbar'],
         ['npc-state-delta-actions delta-settings-quick-actions', 'story-suite-actions'],
         ['delta-settings-experience', 'story-suite-folds'],
@@ -301,7 +299,6 @@ test('v1.2.2 the settings panel carries the shared story-suite-* classes beside 
         ['npc-state-delta-setting-row', 'story-suite-row'],
         ['delta-setting-number', 'story-suite-number'],
         ['delta-settings-subhead', 'story-suite-subhead'],
-        ['npc-state-delta-suite-warning', 'story-suite-notice'],
         ['delta-settings-danger', 'story-suite-danger'],
     ]) {
         assert.match(index, new RegExp(`class="${own} ${shared}"`), `${own} also carries ${shared}`);
@@ -310,32 +307,13 @@ test('v1.2.2 the settings panel carries the shared story-suite-* classes beside 
         assert.doesNotMatch(source, /class="npc-state-delta-setting-row"|className = 'npc-state-delta-setting-row delta/, 'every settings row carries story-suite-row');
     }
     assert.match(index, /data-delta-settings-group="\$\{key\}"/, 'groups keep their data attribute');
-    assert.match(index, /<i class="fa-solid fa-layer-group"><\/i> Manage all in Story Suite/);
 
-    // suite.css is the shared copy, shipped beside suite.js and loaded once.
+    // suite.css is the shared copy, imported by the root suite.css.
     const css = fs.readFileSync(new URL('../../modules/people/legacy/suite.css', import.meta.url), 'utf8');
     assert.match(css, /^\/\* Story Suite shared styles, v1/);
     assert.match(css, /\.story-suite-panel \.story-suite-fold \{/);
-    assert.match(index, /suiteConnected = true;\s*ensureSuiteStylesheet\(\);/);
     // Delta's own panel rules stay and win where they differ (#npc_state_delta_settings is more specific).
     const own = styleSource();
     assert.match(own, /#npc_state_delta_settings \.delta-settings-group \{ margin: 0; border: 1px solid rgba\(218,193,148,\.14\)/);
     assert.match(own, /#npc_state_delta_settings \.npc-state-delta-drawer \{ container: npc-delta-settings \/ inline-size; \}/);
-});
-
-test('v1.2.2 suite.css is linked once per page, first extension wins', () => {
-    const appended = [];
-    const byId = new Map();
-    const doc = {
-        head: { appendChild: node => { appended.push(node); byId.set(node.id, node); } },
-        createElement: tag => ({ tagName: tag }),
-        getElementById: id => byId.get(id) || null,
-    };
-    assert.equal(ensureSuiteStylesheet('https://host/ext/npc_state_delta/suite.css', doc), true);
-    assert.deepEqual(appended.map(node => [node.tagName, node.rel, node.id, node.href]), [['link', 'stylesheet', SUITE_STYLESHEET_ID, 'https://host/ext/npc_state_delta/suite.css']]);
-    assert.equal(ensureSuiteStylesheet('https://host/ext/other/suite.css', doc), false, 'an existing #story-suite-css is kept');
-    assert.equal(appended.length, 1);
-    assert.equal(ensureSuiteStylesheet('x', null), false);
-    assert.equal(ensureSuiteStylesheet('x', { createElement() { throw new Error('boom'); }, head: { appendChild() {} } }), false, 'never throws');
-    assert.match(ensureSuiteStylesheet.toString(), /new URL\('\.\.\/suite\.css', import\.meta\.url\)/);
 });

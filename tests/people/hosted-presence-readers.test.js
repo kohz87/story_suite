@@ -10,7 +10,7 @@ import fs from 'node:fs';
 
 const scenario = async () => {
     const api = globalThis.NPCStateDelta;
-    const suiteApi = globalThis.StorySuite?.api?.('npc-state-delta');
+    const suiteApi = (await import('__HANDLES__')).pageHandles.suiteApi;
     mockState.quietResponder = async () => JSON.stringify({ npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } }] });
     mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'Who is at the gate?' });
     mockState.context.chat.push({ is_user: false, is_system: false, name: 'Megumin', mes: 'Yunyun waves from the gate.', swipe_id: 0, swipes: ['Yunyun waves from the gate.'] });
@@ -51,7 +51,8 @@ test('hosted: the panel\'s "In chat" label, the relationship map, the token and 
     assert.equal(mapStatus(shown(here.dossier)), 'scene');
     assert.notEqual(mapStatus(shown(away.dossier)), 'scene', 'the map');
     assert.notEqual(away.token, here.token, 'the panel redraws when only the scene moved');
-    assert.equal(away.profile, null, 'the v1 handshake offers nothing to a v2 host, so npcProfiles is not reachable here (its reader is pinned below)');
+    assert.equal(here.profile, true, 'npcProfiles follows the scene');
+    assert.equal(away.profile, false, 'npcProfiles follows the scene when it moves away');
 });
 
 test('hosted: the person the reader names, whom the scene leaves out, keeps her dossier in the prompt; standalone the same text', () => {
@@ -61,8 +62,8 @@ test('hosted: the person the reader names, whom the scene leaves out, keeps her 
     assert.equal(hosted.named, alone.named, 'the prompt is the same text either way here (the check itself is pinned below)');
 });
 
-test('npcProfiles and the called-in check read the scene\'s presence through scenePresenceView (the v1 handshake does not run hosted)', () => {
-    const suite = fs.readFileSync(new URL('../../modules/people/legacy/runtime-suite.js', import.meta.url), 'utf8');
+test('npcProfiles and the called-in check read the scene\'s presence through scenePresenceView ', () => {
+    const suite = fs.readFileSync(new URL('../../modules/people/runtime/runtime-npc-api.js', import.meta.url), 'utf8');
     assert.match(suite, /buildNpcProfiles\(scenePresenceView\(getChatState\(key\)\.npcs \|\| \[\]\)/);
     const injection = fs.readFileSync(new URL('../../modules/people/runtime/runtime-injection.js', import.meta.url), 'utf8');
     assert.match(injection, /return \(scenePresenceView\(state\?\.npcs \|\| \[\]\)\)\n\s*\.filter\(npc => npc && !npc\.present/);

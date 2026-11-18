@@ -1,15 +1,17 @@
-// The Tools page's read-only handle on the engine: what the next reply is sent, the problems, the Inspector's replies, the rebuild and the report.
+// The Tools page's handle on the engine: what the next reply is sent, the problems, the Inspector's replies, the report, and the rebuild and save points (the reader's own buttons; nothing else here writes).
 import { promptSize, sentText, redactSentOf } from '../legacy/host-ui.js';
 import { DEFAULT_TAIL_BUDGET } from '../../core/prompt.js';
+import { CORE_FEATURE } from '../../core/features.js';
 
+const NONE = { ok: false, code: 'FAILED', message: 'Save points are not available.' };
 const settled = (run, fallback) => { try { return run() ?? fallback; } catch { return fallback; } };
 
 /**
  * Builds the handle from the runtime and a getter for the page host (it is made after the handle). Every method reads the live engine each time it is called:
  * `sent()` → { parts: { size, text, budget } } or null (no chat), `problems()` → the turn's list, `blocked()`, `rebuild(module, read)`,
- * `replies()`, `reply(index)`, `report()` → a promise of the text. Nothing here writes except `rebuild`, the reader's own button.
+ * `replies()`, `reply(index)`, `report()` → a promise of the text, `savePoints()` → { on, here, points } (on = the feature's switch), `makeSavePoint(name)`, `returnToSavePoint(id)`, `forgetSavePoint(id)` → the save points' answer ({ ok, … } or a failure).
  */
-export function createToolsHandle({ runtime, ui }) {
+export function createToolsHandle({ runtime, ui, savePoints = () => null }) {
   const registry = runtime.registry;
   const names = id => (id === 'story-suite' ? 'Story Suite' : registry?.module?.(id)?.name ?? id);
   const inspector = () => ui()?.inspector ?? null;
@@ -31,6 +33,15 @@ export function createToolsHandle({ runtime, ui }) {
     rebuild: (module, read) => runtime.timeline.host.rebuild(module, { read }),
     replies: () => settled(() => inspector()?.replies(), []),
     reply: index => settled(() => inspector()?.reply(index), null),
+    savePoints() {
+      const points = savePoints();
+      if (!points) return { on: false, here: '', points: [] };
+      const on = registry?.feature?.(CORE_FEATURE.savepoints) ? registry.featureOn(CORE_FEATURE.savepoints) === true : true;
+      return { on, here: settled(() => points.chatId?.(), ''), points: on ? settled(() => points.list(), []) : [] };
+    },
+    makeSavePoint: name => savePoints()?.save({ name }) ?? Promise.resolve(NONE),
+    returnToSavePoint: id => savePoints()?.returnTo(id) ?? Promise.resolve(NONE),
+    forgetSavePoint: id => savePoints()?.forget(id) ?? Promise.resolve(NONE),
     report: () => (typeof ui()?.diagnostics?.report === 'function' ? ui().diagnostics.report() : Promise.resolve('')),
   });
 }

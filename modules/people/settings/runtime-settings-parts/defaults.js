@@ -4,7 +4,6 @@ import { normalizeRelationshipMapSettings } from '../../legacy/relationship-map-
 import { DOSSIER_SKIN_DEFAULT } from '../../legacy/dossier-skin.js';
 import { DEFAULT_ALLOWANCE } from '../../legacy/relationship-pacing.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION } from '../../core/core.js';
-import { normalizeSourceOfTruth } from '../../legacy/suite-handshake.js';
 import { DEFAULT_CUSTOM_PORTRAIT_PRESET_ID } from './portrait-preset-constants.js';
 import { portraitCustomPreset } from './portrait-preset-library.js';
 
@@ -49,7 +48,6 @@ export const DEFAULTS = Object.freeze({
     injectLimit: 3,
     injectBudgetTokens: 4000,
     customFieldNames: [],
-    sourceOfTruth: normalizeSourceOfTruth(),
     branchRescan: true,
     midDeleteRewind: false,
     presentCastDisplay: 'full',

@@ -52,7 +52,7 @@ export const PRESETS = [
   { id: 'full', name: 'Full', desc: 'Standard plus choices, inner chatter and a check roll before each reply.', tokens: 3650 },
 ];
 
-export const REMOVED = ["Save points and Return in time (restart from a message instead)", "Pick what you take (the story writes what you find)", "Key people (the ★ Follow star in People)", "Mounts list (riding animals in Mount slots, carts and boats in Bag › Transport)", "Tab placement (the tabs are fixed)", "Status strip above the message box (the inline row under the reply)", "People’s floating launcher buttons", "Auto scan, Full scan every turn, Scan every (Refresh every N)", "The People calendar (one calendar)", "Source of truth switches (one store)"];
+export const REMOVED = ["Return in time (restart from a message instead)", "Pick what you take (the story writes what you find)", "Key people (the ★ Follow star in People)", "Mounts list (riding animals in Mount slots, carts and boats in Bag › Transport)", "Tab placement (the tabs are fixed)", "Status strip above the message box (the inline row under the reply)", "People’s floating launcher buttons", "Auto scan, Full scan every turn, Scan every (Refresh every N)", "The People calendar (one calendar)", "Source of truth switches (one store)"];
 
 const PACKS = {
   packs: [{ name: 'Ersveil (open world) 2.9.6', desc: '320 places · 350 routes · 135 events · 12 cast · 4 coins · a calendar · 84 weather tables · 3 data modules', on: true }],
