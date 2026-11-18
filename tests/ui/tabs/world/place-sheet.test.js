@@ -63,7 +63,7 @@ test('danger shows only in RPG chats and is coloured by its level', () => {
 test('a place with nothing to list shows no list; unknown danger is left out', () => {
   installFakeDom();
   const sheet = placeSheet({ id: 'x', name: 'Nowhere', kind: 'Ruin', region: null, danger: 'odd', visited: true, here: false }, {}, {}, () => {});
-  assert.equal(sheet.querySelector('dl'), null);
+  assert.deepEqual(sheet.querySelectorAll('dt').map(d => d.textContent), ['Status'], 'only the visited line');
   assert.equal(sheet.querySelector('.dz'), null);
   assert.equal(sheet.querySelectorAll('.chips .lvl2').length, 1);
 });

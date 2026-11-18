@@ -412,3 +412,10 @@ test('W5: "Seen in: <event>" shows only while that event is in News (a rumour no
     const plain = { ...redCords, summary: 'the Red Cords hold the quay' };
     assert.equal(knownFactions(stateWith(), auditTools({ factions: [plain] }))[0].summary, 'the Red Cords hold the quay', 'another summary is untouched');
 });
+
+test('W7: with World events off, a world happening nobody has heard of is not news; one the story named is', () => {
+    const world = { ...blockade, id: 'w9', name: 'The harvest in Valegard', by: 'event:world.harvest' };
+    assert.deepEqual(knownNews(stateWith(), auditTools({ events: [world] })), [], 'unheard, so no news');
+    const told = { ...auditTools({ events: [world] }), receipts: () => [{ type: 'capture.place', data: { name: 'Harbour' } }, { type: 'capture.world', data: { event: 'w9' } }] };
+    assert.equal(knownNews(stateWith(), told).length, 1, 'the story\'s own world line makes it news');
+});

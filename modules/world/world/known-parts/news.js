@@ -9,6 +9,7 @@ import { heardStamps } from './heard.js';
 import { memberFinder, placeIdOf, placeIds } from './links.js';
 import { queryOf, tryQuery } from './query.js';
 import { worldEventsOn } from '../news-switch.js';
+import { WORLD_BY } from '../../chronicle/world-daily/news-entries.js';
 import { threadsOf, planned } from './shared-threads.js';
 import { isRecord, isInt, text, cut } from './shared-text.js';
 
@@ -42,6 +43,8 @@ export function knownNews(state, tools, { hidden = hiddenNames(state), calendar 
     const here = reached ? text(tryQuery(query, 'scene.place', {}, null)?.name) : '';
     for (const raw of Array.isArray(events) ? events : []) {
         if (reached && !reached.has(raw?.id)) continue;
+        // With the switch off nothing travels: a world happening the daily step wrote is news only once the story's own world line named it (a heard stamp).
+        if (!reached && WORLD_BY.test(text(raw?.by)) && !stampsOf(text(raw?.id)).length) continue;
         const news = reached && typeof raw?.by === 'string' ? reached.get(raw.id) : null;
         const event = news ? { ...raw, place: news.place, state: news.state ?? raw.state } : raw;
         // A pulse rumour is unknown to {{user}} until the story's own world line named it (`heard`).

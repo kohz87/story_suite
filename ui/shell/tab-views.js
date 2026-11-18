@@ -7,6 +7,7 @@ import { peopleTab } from '../tabs/people/people.js';
 import { worldTab } from '../tabs/world/world.js';
 import { journalTab } from '../tabs/journal/journal.js';
 import { openQuestEditor } from '../tabs/journal/quest-editor.js';
+import { openWorldEditor } from '../tabs/world/editor.js';
 import { storyTab } from '../tabs/story/story.js';
 
 const BUILDERS = { party: partyTab, bag: bagTab, fight: sceneTab, scene: sceneTab, people: peopleTab, world: worldTab, journal: journalTab, story: storyTab };
@@ -36,6 +37,7 @@ export function createTabViews(ctx) {
       openSheet: (el, label) => { sheet?.close(); sheet = openSheet({ ...ctx, doc, backStack }, { title: label }); sheet.body.appendChild(el); },
       close: () => { sheet?.close(); sheet = null; },
       editQuest: q => openQuestEditor({ ...ctx, doc, backStack }, q, { rpg: vm.rpg !== false }),
+      edit: target => openWorldEditor({ ...ctx, doc, backStack }, target),
       get width() { return ctx.width?.() ?? 0; },
     };
     return build(vm, own);

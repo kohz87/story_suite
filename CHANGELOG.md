@@ -4,6 +4,12 @@
 
 Since 0.1.2: documentation, and the Settings, Story › Director and settings-walk changes below.
 
+### Fixed
+
+- World › News, Factions and the place sheet: **Edit** now opens an editor (title or name, summary, state, place, area, stance, kind, region) and saves only what changed.
+- World › News: with World events off, happenings the world made that you have not heard of are no longer listed; the Rumours filter counts the items labelled rumour; a news line with no place or date no longer reads "heard , …"; world event titles end on a whole word.
+- World › Map: the place sheet says visited or here and lists its routes; Find (Enter) opens the place or says nothing matched; the region picker keeps its width. The tab strip on wide screens has a panel background so labels do not draw over the cards. (The map's label crowding at default zoom is not changed.)
+
 ### Added
 
 - Settings › People ends with **People in this chat**, NPC State's roster as a list: each person with whether they are in the scene, followed, dormant or deceased, an **Open** button (closes Settings and shows their dossier on People) and a **Re-read** button (NPC State's Refresh for that person, with its answer under the list). Removing a person stays on the dossier's ⋯ menu.

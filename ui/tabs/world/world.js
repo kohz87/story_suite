@@ -38,7 +38,14 @@ export function worldTab(world = {}, ctx = {}) {
   const act = {
     placeName: id => names(data.places, id),
     factionName: id => names(data.factions, id),
-    edit: target => ctx.edit?.(target),
+    // The sheet shows what is there now: the item's own fields (a news item's place by name).
+    edit(target) {
+      const item = { news: data.news, faction: data.factions, place: data.places }[target?.kind]?.find(x => x.id === target.id);
+      const current = target?.kind === 'news' ? { name: item?.title, summary: item?.summary, state: item?.state, place: item?.placeId ? names(data.places, item.placeId) : '' }
+        : target?.kind === 'faction' ? { name: item?.name, summary: item?.summary }
+          : { name: item?.name, kind: item?.kind, region: item?.region };
+      return ctx.edit?.({ ...target, current });
+    },
     openPerson: personId => ctx.go?.('people', { personId }),
     setView(view) { closeSheet(); state.view = view; render(); },
     openPlace(id) {
@@ -47,7 +54,7 @@ export function worldTab(world = {}, ctx = {}) {
       closeSheet();
       state.selected = id;
       markSelected(body, id);
-      sheet = placeSheet(place, data, ctx, closeSheet);
+      sheet = placeSheet(place, data, { ...ctx, edit: act.edit }, closeSheet);
       root.appendChild(sheet);
       unback = ctx.back?.push({ layer: 'sheet', close: closeSheet }) ?? null;
     },

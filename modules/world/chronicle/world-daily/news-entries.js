@@ -37,10 +37,20 @@ function originOf(geo, entry) {
 // writes the same entry, and a later reply's recorded copy of it replays onto it instead of making a second one.
 const idOf = (by, day) => `ev_${BigInt(`0x${sha256(`${by}|${day}`).slice(0, 12)}`).toString(36).padStart(8, '0').slice(-8)}`;
 
+// The text cut to at most `room` characters at a word end: never mid-word, and no dangling ":", ";", "," or dash ("…" says it was cut).
+function wholeWords(text, room) {
+    const flat = String(text).trim();
+    if (flat.length <= room) return flat;
+    const room1 = Math.max(room - 1, 1);
+    const at = flat.lastIndexOf(' ', room1);
+    const cut = (at > room1 / 2 ? flat.slice(0, at) : flat.slice(0, room1)).replace(/[\s:;,\-–—]+$/, '');
+    return `${cut}…`;
+}
+
 // A name of at most MAX_NAME characters no other entry has: the summary, then " · <date>", then a number when needed.
 function nameOf(events, text, date, id) {
     const tail = date ? ` · ${date}` : '';
-    const head = cleanName(text).replace(/[.!?…]+$/, '').slice(0, MAX_NAME - tail.length - 4).trim();
+    const head = wholeWords(cleanName(text).replace(/[.!?…]+$/, ''), MAX_NAME - tail.length - 4);
     for (let n = 1; n < 100; n += 1) {
         const name = `${head}${tail}${n > 1 ? ` (${n})` : ''}`;
         const taken = findIn(events, name);
