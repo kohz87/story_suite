@@ -41,7 +41,11 @@ export function cueOf(person, entry, room = TAIL_BUDGET * 4 - 8 - '[Cast] '.leng
     // A stranger met for the first time has no name yet in the story: the cue gives the alias and says so. Someone the story already named (`why: 'story'`) keeps the name.
     const unnamed = person.met?.why !== 'story';
     const label = aliases[0] || 'a stranger';
-    const hide = text => (unnamed ? [person.name, ...all].reduce((out, name) => maskName(out, name, label), text) : text);
+    // Every word of the name (first or family name, 3+ letters) is masked too, whatever the aliases are.
+    // A word the reader said themselves in their sought request ("a sister") is theirs to hear back, so it stays.
+    const said = String(person.met?.reason ?? '').toLowerCase();
+    const nameWords = Array.from(words).filter(word => Array.from(word).length >= 3 && !said.includes(word));
+    const hide = text => (unnamed ? [person.name, ...all, ...nameWords].reduce((out, name) => maskName(out, name, label), text) : text);
     const intro = unnamed
         ? `${label}${aliases.length > 1 ? ` (also ${aliases.slice(1).join(', ')})` : ''} comes into the scene in this reply. It is their first meeting with {{user}}, and {{user}} does not know their name until it is said in the story: do not use it before someone says it.`
         : `${person.name}${aliases.length ? ` (also ${aliases.join(', ')})` : ''} comes into the scene in this reply. It is their first meeting with {{user}}.`;
