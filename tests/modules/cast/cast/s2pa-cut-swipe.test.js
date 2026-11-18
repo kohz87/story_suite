@@ -28,7 +28,7 @@ test('a middle delete, then a new swipe of the reply that did not show her: she 
         assert.equal(met(host), null, 'the replayed reply still takes it back');
         await host.swipe(said('Only smoke, and the rain.', LINE));
         assert.equal(met(host), null, 'a new swipe that never shows her: she is not met in this branch');
-        assert.deepEqual(notes(host), [], 'no "Paths crossed" left behind ' + JSON.stringify({ notes: notes(host), meeting: slice(host).meeting, idx: host.store.headIndex() }));
+        assert.deepEqual(notes(host), [], 'no "Paths crossed" left for her');
         const live = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), live, 'rebuild == live');
@@ -39,6 +39,60 @@ test('a middle delete, then a new swipe of the reply that did not show her: she 
         assert.equal(JSON.stringify(host.head()), shown, 'rebuild == live');
         await host.st.swipeTo(host.store.headIndex(), 1);
         assert.equal(JSON.stringify(host.head()), live, 'swipe back');
+    } finally {
+        host.close();
+    }
+});
+
+// The chat of the test above, up to the middle delete: → { host, at } (at: the head reply's index after the delete).
+async function afterDelete(t) {
+    t.mock.method(console, 'warn', () => {});
+    const host = await castHost({ source: castSource([TEMIWA]), settings: { pace: 'often' } });
+    await host.send('Hello.', said('Dawn.', OPENING));
+    await host.send('We wait.', said('Rain on the roofs.', LINE));
+    await host.send('We wait more.', said('Rain, and more rain.', LINE));
+    await host.send('Look around.', said('Smoke rises over the yard.', LINE));
+    const head = host.store.headIndex();
+    await host.st.deleteMessage(head - 5);
+    await host.st.deleteMessage(head - 5);
+    return { host, at: host.store.headIndex() };
+}
+async function reread(host, index, text) {
+    const message = host.ctx.chat[index];
+    message.mes = text;
+    if (Array.isArray(message.swipes)) message.swipes[message.swipe_id] = text;
+    assert.equal((await host.sdk.reread(index)).ok, true);
+}
+
+test('after a middle delete, an edited Re-read of the reply judges the meeting under its new index (shown: met; not shown: taken back); rebuild == live', async t => {
+    const { host, at } = await afterDelete(t);
+    try {
+        await reread(host, at, said('Sister Temiwa kneels by the well.', LINE));
+        assert.equal(met(host)?.why, 'place', 'the Re-read shows her: met');
+        let live = JSON.stringify(host.head());
+        host.store.rebuild();
+        assert.equal(JSON.stringify(host.head()), live, 'rebuild == live (shown)');
+        await reread(host, at, said('Only smoke.', LINE));
+        assert.equal(met(host), null, 'the Re-read no longer shows her: taken back');
+        assert.deepEqual(notes(host), []);
+        live = JSON.stringify(host.head());
+        host.store.rebuild();
+        assert.equal(JSON.stringify(host.head()), live, 'rebuild == live (not shown)');
+    } finally {
+        host.close();
+    }
+});
+
+test('after a middle delete, a Re-read of the reply that carries the meeting, then a new swipe of the next reply that does not show her: unmet', async t => {
+    const { host, at } = await afterDelete(t);
+    try {
+        const carrier = host.ctx.chat[at - 2].mes;
+        await reread(host, at - 2, carrier);
+        await host.swipe(said('Only smoke, and the rain.', LINE));
+        assert.equal(met(host), null);
+        const live = JSON.stringify(host.head());
+        host.store.rebuild();
+        assert.equal(JSON.stringify(host.head()), live, 'rebuild == live');
     } finally {
         host.close();
     }

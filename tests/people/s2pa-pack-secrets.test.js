@@ -38,6 +38,11 @@ test('the key the narrator is taught for a pack note opens it: STORY EVENTS name
         assert.deepEqual(s.bonds()[temiwa.id].unlocked, [], 'a swipe without the line');
         await s.host.st.swipeTo(at, 0);
         assert.equal(snap(s), live, 'swipe back');
+        const edit = async lines => { s.host.ctx.chat[at].mes = `Temiwa looks away. "I asked for Bluewatch myself," she says.\n\n<Changes>\n${lines.join('\n')}\n</Changes>`; assert.equal((await s.host.sdk.reread(at)).ok, true); };
+        await edit(['~ npc Sister Temiwa | mood: wary']);
+        assert.deepEqual(s.bonds()[temiwa.id].unlocked, [], 'an edited Re-read without the reveal line');
+        await edit([`~ reveal Sister Temiwa | opened: ${key} | quote: "I asked for Bluewatch myself"`]);
+        assert.equal(snap(s), live, 'the Re-read with it again');
     } finally { s.close(); }
 });
 
