@@ -271,6 +271,13 @@ test('chance meeting: a step recorded before the reach rule (no `reach`) replays
     assert.equal(meetEntry({ cast: { people: {} }, at: 4, place: 'Bluewatch Village', here: new Set() }), null, 'nobody who can be here: the roll steps down');
 });
 
+test('chance meeting: the line never names the unmet person: a descriptive alias, else "a stranger" (a name form is not told)', () => {
+    const line = people => meetEntry({ cast: { people }, at: 4, place: 'Harrow', draw: { actor: 0.1 } }).tail;
+    assert.equal(line({ tansy: { name: 'Tansy Millrace', alive: true, met: null, aliases: ['Tansy', 'the ferrywoman'] } }), 'The ferrywoman crosses your path in Harrow, by chance.');
+    assert.equal(line({ tansy: { name: 'Tansy Millrace', alive: true, met: null, aliases: ['Tansy', 'Mistress Millrace'] } }), 'A stranger crosses your path in Harrow, by chance.');
+    assert.equal(line({ sera: { name: 'Sera', alive: true, met: null } }), 'A stranger crosses your path in Harrow, by chance.');
+});
+
 // ---- World pulse step version 2: intensity, the narrator brief, recent memory, wider fallback lines ----
 
 const V2 = { age: 1, reach: 3, pulse: 2 };

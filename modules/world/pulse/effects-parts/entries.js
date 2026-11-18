@@ -1,6 +1,7 @@
 // Builds the four effect entries (rumour, chance meeting, arrival, schedule shift) from their candidates.
 
 import { lineKey } from '../../changes.js';
+import { strangerLabel } from '../../../cast/cast/note.js';
 import { isPersona } from '../../../time/tracker/initiative.js';
 import { pickIndex, plainSlot } from '../tables.js';
 import { REPLY_MINUTES } from './limits.js';
@@ -36,9 +37,11 @@ export function rumourEntry(kind, { known = [], behind = new Set(), at = null, p
     };
 }
 
+const upFirst = text => text.charAt(0).toUpperCase() + text.slice(1);
+
 /**
  * CHANCE_MEETING: one unmet, living cast person (`cast`: the cast domain) comes across the party at `place` (required: a place
- * the reader is at). Met by the pulse, so the person is met now; the line names them (the cast's own cue rides with it, see `rollEntry`).
+ * the reader is at). Met by the pulse, so the person is met now; the line does not name them (the cast's own cue rides with it, see `rollEntry`).
  */
 export function meetEntry({ cast = null, at = null, place = '', draw = {}, here = null, persona = '' } = {}) {
     const where = plainSlot(place, NAME_MAX);
@@ -53,8 +56,8 @@ export function meetEntry({ cast = null, at = null, place = '', draw = {}, here 
         type: 'cast.meet',
         // `here` (every new reply: the keys of candidates already at the place): met by place, nobody is moved; the rest come by their way there.
         payload: { at, who: [here?.has(pick.key) ? { key: pick.key, why: 'place', reason: '' } : { key: pick.key, why: 'goal', reason: 'chance meeting', place: where }] },
-        // The person is met in this reply, so the line may name them; the cast's cue (who they are, how to bring them in) goes with it.
-        tail: `${plainSlot(pick.person.name, NAME_MAX)} crosses your path in ${where}, by chance.`,
+        // The story has not named them yet, so the line never does: it calls them what the cast's cue calls a stranger (a descriptive alias, else "a stranger").
+        tail: `${upFirst(plainSlot(strangerLabel(pick.person), NAME_MAX))} crosses your path in ${where}, by chance.`,
         receipt: { who: pick.key },
     };
 }

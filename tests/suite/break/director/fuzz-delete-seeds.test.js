@@ -252,14 +252,8 @@ for (const seed of SEEDS) {
             assert.ok(castDone.length >= 1, `seed ${seed}: the cast joined the world`);
             const world = Object.values(host.head().domains.cast.people);
             t.diagnostic(`seed ${seed}: cast steps ${castDone.length} (met ${castDone.filter(text => /^Paths crossed/.test(text)).length}, moved ${castDone.filter(text => /moved on/.test(text)).length}), people ${world.length}, met ${world.filter(person => person.met).length}, dead ${world.filter(person => !person.alive).length}`);
-            // A pulse chance meeting may name the person too, but only alongside that person's cast introduction.
-            const told = host.st.promptLog.filter(entry => entry.value).flatMap(entry => {
-                const lines = String(entry.value).split('\n');
-                return lines.filter(line => {
-                    const meeting = /^World this reply: (.+?) crosses your path in .+, by chance\.$/.exec(line);
-                    return !line.startsWith('[Cast]') && !(meeting && lines.some(other => /^\[Cast\] .+ comes into the scene in this reply/.test(other)));
-                });
-            });
+            // Nothing but a first-meeting cue names an unmet person: not even the pulse's chance-meeting line.
+            const told = host.st.promptLog.filter(entry => entry.value).flatMap(entry => String(entry.value).split('\n').filter(line => !line.startsWith('[Cast]')));
             // A rumor describes; it never names (it is a [Cast] line too, so it is checked on its own).
             const rumors = host.st.promptLog.filter(entry => entry.value).flatMap(entry => String(entry.value).split('\n')).filter(line => line.startsWith('[Cast] People here know of'));
             for (const id of [...CAST_IDS, 'ylva']) assert.ok(!rumors.some(line => new RegExp(`\\b${id}\\d*\\b`, 'i').test(line)), `seed ${seed}: ${id} is named in a rumor`);
