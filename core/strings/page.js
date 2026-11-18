@@ -54,14 +54,14 @@ export const PAGE_STRINGS = {
         weatherDescribe: 'The story notes the weather in a few words when it changes; shown on Scene, Home and the reply\'s Status card. Descriptive only: nothing in the rules reads it.',
         you: 'Your look',
         youDescribe: 'The story notes what you wear and how you are (tired, hurt, cold), and your rank where the game has one, when that changes; shown on Home and the reply\'s Status card. Descriptive only: nothing in the rules reads it.',
-        mounts: 'Mounts',
+        mounts: 'Transport',
         mountsDescribe: 'The story notes the party\'s horses, mules and carts, and how fast they travel; shown as a card on Home and read by the story\'s trip line. Off: the narrator is not told about them.',
         chatterDescribe: 'Short unspoken thoughts of the people in the scene, shown next to each person on the World screen (on the Scene screen without Story Director). Kept out of the story text and, unless you say so, out of later prompts.',
     },
 
     // The party's mounts (src/v2/domains/mounts.js): refusals and summaries, and the Home card.
     mounts: {
-        title: 'Mounts',
+        title: 'Transport',
         needName: 'A mount line needs the mount\'s name.',
         longName: 'A mount\'s name is at most {max} characters.',
         badOp: '"{op} mount" is not a change the party\'s mounts understand; use + mount, ~ mount or - mount.',

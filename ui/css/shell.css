@@ -44,6 +44,17 @@
   box-shadow: var(--su-shadow);
 }
 
+/* Settings › Look › Text size (ui/theme/look.js): the whole suite, its settings too, drawn larger; the frame keeps its 820px. */
+.su-root[data-text="110"] {
+  zoom: 1.1;
+  max-width: calc(820px / 1.1);
+}
+
+.su-root[data-text="120"] {
+  zoom: 1.2;
+  max-width: calc(820px / 1.2);
+}
+
 .su-layer[data-state="open"] .su-root {
   transform: translateX(0);
 }
@@ -73,6 +84,18 @@
 
 .su-root[data-scheme="light"] .su-back::after {
   background: linear-gradient(transparent, rgba(255, 255, 255, 0.35));
+}
+
+.su-root[data-panelbg="off"] {
+  background: var(--su-flat, #191a2b); /* Settings › Look › Panel background: Off, a flat surface in place of the backdrop */
+}
+
+.su-root[data-panelbg="off"][data-scheme="light"] {
+  --su-flat: #e8e9f1;
+}
+
+.su-root[data-panelbg="off"] .su-back {
+  display: none;
 }
 
 .su-content,

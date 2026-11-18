@@ -7,6 +7,7 @@ import { selectMoneyRows } from './money-rows.js';
 import { selectProblems, selectSent } from './tools.js';
 import { peopleRows } from './people-settings/index.js';
 import { selectRpgRows } from './rpg-rows.js';
+import { rpgFeatureRows, withoutRpgFeatures } from './rpg-features.js';
 import { worldRows } from './settings-world.js';
 import { extrasRows, withExtras } from './settings-extras.js';
 import { selectPacks } from './packs.js';
@@ -102,21 +103,21 @@ export function selectSettings(answers) {
   const budgetRows = rowsOf('Budgets', BUDGETS, host, schema, defaults);
   const t = isObj(a.tools) ? a.tools : {};
   const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
-  const { defList, set } = withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []);
+  const { defList, set } = withoutRpgFeatures(withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []));
   // The RPG and fights page only while the RPG is on (its stored values stay as they are); a host without the RPG feature keeps the page.
   const rpgOff = hasFeatures && a.features.some(f => f?.id === LEAN_RPG_FEATURE && f.on !== true);
   const sections = [
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
     section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people)),
-    ...(rpgOff ? [] : [section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', selectRpgRows(a.rpg))]),
+    ...(rpgOff ? [] : [section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression, fights, and what you take, carry and wear. The checks’ numbers are in Director.', [...selectRpgRows(a.rpg), ...rpgFeatureRows(hasFeatures ? a.features : [])])]),
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [], a.directorCalls)),
     ...[selectDirector(a.directorPage)].filter(Boolean),
     section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
     section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter, your look and trackers.', extrasRows(a.extras)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, keepBlocks: host.keepRecentBlocks, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
     section('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
-    section('addons', 'Setup', 'Add-ons', 'Modules, custom views and skins from packs.', selectAddons(a.modules)),
+    section('addons', 'Setup', 'Add-ons', 'The plug-in modules installed.', selectAddons(a.modules)),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
   return {
