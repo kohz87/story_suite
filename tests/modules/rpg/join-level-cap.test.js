@@ -42,6 +42,25 @@ test('Ask: a class II offer to a level 1 party says level 1, Edit first opens at
     await rebuilt(host, 'after Add to party');
 });
 
+test('a level 7 party (Soul Class I by level): the card, Edit first, Add to party and Automatically all give level 7 for a class II line', { skip }, async t => {
+    const ask = await world({ mode: 'ask', wessel: false });
+    t.after(() => ask.close());
+    await makeAt(ask, 'Wessel', 7);
+    await ask.send('Mara walks in.', reply(MARA));
+    const card = joinCardOf(ask);
+    assert.match(card.rows[0].text, /\bLevel 7\b/, card.rows[0].text);
+    assert.equal(joinDraft(card.actions.find(action => action.id === 'edit').payload).level, 7, 'Edit first');
+    assert.equal((await ask.sdk.command(JOIN_ADD, ask.sdk.query('rpg.joins', {})[0])).ok, true);
+    assert.equal(fields(ask, 'mara').level, 7, 'Add to party');
+    await rebuilt(ask, 'Add at 7');
+    const auto = await world({ mode: 'auto', wessel: false });
+    t.after(() => auto.close());
+    await makeAt(auto, 'Wessel', 7);
+    await auto.send('Mara walks in.', reply(MARA));
+    assert.equal(fields(auto, 'mara').level, 7, 'Automatically');
+    await rebuilt(auto, 'auto at 7');
+});
+
 test('Automatically: a class II line joins a level 12 party at level 12 (not 15); swipe, swipe back, edited Re-read and rebuild agree', { skip }, async t => {
     const host = await world({ mode: 'auto', wessel: false });
     t.after(() => host.close());

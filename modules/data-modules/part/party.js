@@ -207,12 +207,15 @@ export function createParty(deps) {
         try { pack = rpg().packRulesOf(rpgRecords); } catch { pack = null; }
         const rules = rpg().rulesFromSettings(settings(), pack);
         // (a companion starts under the story's level cap: the reader's setting, else the game's ranks record, else 99; at the level and with the best stat their NPC State record gives, else the line's class and best)
-        const pulled = pullFor(ctx, request.name, soul, request.best);
+        // (the level comes from the line's own class held to the party's highest level, as the card says: a class II line joins a level 7 party at level 7; the cut to the
+        // party's Soul Class, checkJoin's `soul`, is only the fallback for a request with no class of its own)
+        const ownSoul = Number.isSafeInteger(request.soul) && request.soul >= 1 ? request.soul : soul;
+        const pulled = pullFor(ctx, request.name, ownSoul, request.best);
         const seeds = castSeeds(ctx, request.name, 'join', pulled);
         const cap = rpg().levelCapFor(settings(), packLevelsOf(rpgRecords)?.levelCap);
         // Re-reading an existing join uses its own pinned character, even if the prefix had no characters at all.
         // (a level from the class never passes the party's highest level: a class II companion joins a party of level 1 at level 1)
-        const made = rpg().joinDefinitions({ ...request, best: pulled.best, ...(pulled.level ? { level: pulled.level } : {}), skills: seeds }, { used: Object.keys(domain?.active ?? {}), soul, rules, cap, top: rpg().partyTop(prefix) });
+        const made = rpg().joinDefinitions({ ...request, best: pulled.best, ...(pulled.level ? { level: pulled.level } : {}), skills: seeds }, { used: Object.keys(domain?.active ?? {}), soul: ownSoul, rules, cap, top: rpg().partyTop(prefix) });
         // The story's first character also brings the Combat rules and Foes blocks it lacks, as far as they fit (nothing is refused for them).
         const first = rpg().partyOf(prefix).length === 0, plan = first ? rpg().extrasPlan(prefix) : { add: [], skipped: [] };
         const extras = rpg().extraDefinitions(plan.add, { used: [...Object.keys(domain?.active ?? {}), made.character.slug, made.skills.slug] });
