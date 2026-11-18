@@ -6,8 +6,6 @@ import { CAST_LIMITS, CAST_SKILL_STATS } from '../../packs/limits.js';
 import { STATS } from '../../modules/rpg/names.js';
 import { SKILL_SLOTS_MAX, skillSlots, signatureAt } from '../../core/runtime/skill-slots.js';
 import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
-import { partyLines } from '../../modules/rpg/view/changes-lines.js';
-import { readParty } from '../../modules/rpg/view/party-data.js';
 import { buildCharacterFile, parseCharacterFile } from '../../modules/rpg/charfile.js';
 import { skip, reply, SKILLS, person, withCast, refused, world, fieldsOf, receipts, joinReceipt, told, update, mine } from './cast-skills.helpers.js';
 
@@ -78,17 +76,6 @@ test('a character file holds up to eleven skills (eight combat, three utility) a
     assert.equal(parseCharacterFile(JSON.stringify({ ...file, skills: Array.from({ length: 4 }, (_, n) => ({ ...skill(n), type: 'utility' })) })).ok, false);
 });
 
-
-test('the join receipt becomes one tile per skill (signature, rank, stat and resource) and the summary counts them', () => {
-    const record = { receipts: [{ id: 'r1', data: { join: { op: 'added', name: 'Harrak' }, sigSkills: [{ name: 'Long Watch Cleave', stat: 'str', uses: 'stamina', rank: 2 }, { name: 'Beacon Call', stat: 'cha', uses: 'mana', rank: 1 }] } }] };
-    const lines = partyLines(record);
-    assert.equal(lines.length, 3);
-    assert.equal(lines[0].summary, 'Harrak joined, +2 skills');
-    assert.deepEqual(lines.slice(1).map(line => [line.text, line.flag, line.note, line.icon, line.tone]), [
-        ['Long Watch Cleave', 'signature · Adept', 'STR · Stamina', 'fa-book-open', 'good'], ['Beacon Call', 'signature · Apprentice', 'CHA · Mana', 'fa-book-open', 'good']]);
-    assert.equal(partyLines({ receipts: [{ id: 'r2', data: { join: { op: 'added', name: 'Pip' } } }] }).length, 1, 'no skills, no tiles');
-    assert.equal(partyLines(record, [{ receipts: ['r1'] }]).length, 0, 'a block the replay skipped is not told');
-});
 
 test('RPG off: nothing is seeded and the join is as it was', { skip }, async t => {
     const host = await world(t, { rpg: false });

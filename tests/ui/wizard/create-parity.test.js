@@ -1,6 +1,6 @@
-// The new view's Create sends what the old wizard's Create sends: the same commands, payloads and order, both with `{ cause: 'ui' }`. Each case runs the old
-// window (the old host's dialog, still on the page until B4-4) and the new sheet (ui/wizard) on two fresh chats with the same draft, and compares
-// what reached the engine and which blocks the story holds after.
+// The new view's Create sends what the earlier wizard's Create sent: the same commands, payloads and order, all with `{ cause: 'ui' }`. Each case runs the
+// new sheet (ui/wizard) on a fresh chat and compares what reached the engine and which blocks the story holds after with values captured from the earlier window.
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hostAvailable } from '../../../testkit/index.js';
@@ -37,20 +37,6 @@ async function chat(t, refuse) {
   return { ...got, sent, wrap, start: () => { on = true; }, active: () => Object.keys(got.host.head().domains.dataModules?.active ?? {}).sort() };
 }
 
-async function oldCreate(t, { prefill = null, edit = null, refuse = null } = {}) {
-  const c = await chat(t, refuse);
-  c.rpg().wizard.open(prefill);
-  await settle();
-  const dialog = c.ui.mounts.dialog.current();
-  edit?.(c.rpg().wizard.session());
-  dialog.goTo(3);
-  await settle();
-  c.start();
-  dialog.root.querySelector('.rpg-wiz-create').click();
-  await long();
-  return { ...c, message: dialog.root.querySelector('.rpg-wiz-status')?.textContent ?? '' };
-}
-
 async function newCreate(t, { prefill = null, edit = null, refuse = null } = {}) {
   const c = await chat(t, refuse);
   const real = (type, payload, options) => c.host.sdk.command(type, payload, options);
@@ -67,38 +53,46 @@ async function newCreate(t, { prefill = null, edit = null, refuse = null } = {})
   return { ...c, message: sheet.querySelector('.wz-status')?.textContent ?? '', wizard, sheet };
 }
 
-async function same(t, options) {
-  const before = await oldCreate(t, options);
+// What the earlier window sent for each case (captured from it): the command types, a hash of every payload and option in order, the blocks, the message.
+const WANT = {
+  fighter: { types: ['dm.define', 'dm.define', 'dm.define', 'dm.define'], hash: '8f2bc90273501a63348935b8846e98a89803557ef4bc9bcb5d378ae9e9f136a0', active: ['pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/wessel', 'pack.chat/wessel-skills'], message: '' },
+  mara: { types: ['dm.define', 'dm.define', 'dm.define', 'dm.define'], hash: 'b305354d9a9e12ae204614cfc100ab09039f6e7a868261b41c87aa67b7436aaa', active: ['pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/mara', 'pack.chat/mara-skills'], message: '' },
+  imported: { types: ['dm.define', 'dm.define', 'dm.define', 'dm.define', 'inventory.add', 'inventory.add', 'wallet.set'], hash: '4a5dc83cbd93ac5e7b04fad091918bb92591fddc56c80f2598aeb663acf1c804', active: ['pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/wessel', 'pack.chat/wessel-skills'], message: '' },
+  refused: { types: ['dm.define', 'dm.define', 'dm.remove'], hash: 'e4dc300cd3ad60f5a5a9c5c19ebfc1200e9e291289e3b2087651f58789570a02', active: [], message: 'Could not make the skills: No room for it. Nothing was created.' },
+};
+
+async function same(t, options, want) {
   const after = await newCreate(t, options);
-  assert.ok(before.sent.length >= 2, `the old window sent its commands (${before.sent.length})`);
-  assert.deepEqual(after.sent, before.sent, 'the same commands, payloads and order');
-  assert.ok(after.sent.every(entry => entry.options?.cause === 'ui'), 'sent as the reader\'s own, as the old window');
-  assert.deepEqual(after.active(), before.active(), 'the same blocks');
-  return { before, after };
+  assert.ok(after.sent.length >= 2, `the sheet sent its commands (${after.sent.length})`);
+  assert.deepEqual(after.sent.map(entry => entry.type), want.types, 'the same commands in the same order');
+  assert.equal(createHash('sha256').update(JSON.stringify(after.sent)).digest('hex'), want.hash, 'the same payloads and options');
+  assert.ok(after.sent.every(entry => entry.options?.cause === 'ui'), 'sent as the reader\'s own');
+  assert.deepEqual(after.active(), want.active, 'the same blocks');
+  assert.equal(after.message, want.message, 'the same message');
+  return { after };
 }
 
 test('a You from a starting set and spent points: Character, Skills, then the Combat rules and Foes blocks', { skip }, async t => {
-  const { after } = await same(t, { edit: fighter });
+  const { after } = await same(t, { edit: fighter }, WANT.fighter);
   assert.deepEqual(after.sent.map(entry => entry.type), ['dm.define', 'dm.define', 'dm.define', 'dm.define']);
   assert.equal(after.sent[1].payload.after, `pack.chat/${after.sent[0].payload.definition.slug}`);
   assert.equal(after.wizard.isOpen(), false, 'a clean Create closes the sheet');
 });
 
 test('Edit first: a joining companion, prefilled from the join card', { skip }, async t => {
-  const { after } = await same(t, { prefill: { name: 'Mara', soul: 3, best: 'int' }, edit: run => { run.draft = withSet(run.draft, SKILL_SETS[1]); } });
+  const { after } = await same(t, { prefill: { name: 'Mara', soul: 3, best: 'int' }, edit: run => { run.draft = withSet(run.draft, SKILL_SETS[1]); } }, WANT.mara);
   assert.equal(after.sent[0].payload.definition.name, 'Mara');
 });
 
 test('an imported file: the blocks, then each thing and the purse as more changes of the same reply', { skip }, async t => {
-  const { after } = await same(t, { edit: imported });
+  const { after } = await same(t, { edit: imported }, WANT.imported);
   const types = after.sent.map(entry => entry.type);
   assert.deepEqual(types.filter(type => type !== 'dm.define'), ['inventory.add', 'inventory.add', 'wallet.set']);
 });
 
 test('the Skills define refused: the Character is taken back and the window says so', { skip }, async t => {
-  const { before, after } = await same(t, { edit: fighter, refuse: refuseSkills });
+  const { after } = await same(t, { edit: fighter, refuse: refuseSkills }, WANT.refused);
   assert.deepEqual(after.sent.map(entry => entry.type), ['dm.define', 'dm.define', 'dm.remove']);
-  assert.equal(after.message, before.message);
   assert.match(after.message, /Nothing was created/);
   assert.equal(after.wizard.isOpen(), true, 'the sheet stays open with the reason');
 });

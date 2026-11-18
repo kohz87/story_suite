@@ -50,8 +50,6 @@ jobs:
             node scripts/checks/globals-gate.mjs --base "$base"
             node scripts/checks/core-module-refs.mjs --base "$base"
           done <<< "$BASES"
-      - name: Redraw copy is current
-        run: node scripts/sync-redraw-copy.mjs --check
       - name: Codemap check
         run: node scripts/codemap/cli.mjs --check
       - name: Every test file is run by a root test script

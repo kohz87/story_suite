@@ -7,7 +7,7 @@ import { multiRow, shownRow, clamp } from './kit-more.js';
 
 const FEEL = ['Trust', 'Affection', 'Desire', 'Tension'];
 const TIERS = ['Ordinary', 'Meaningful', 'Major', 'Extreme'];
-const NOT_YET = 'set in the old view for now';
+const NOT_YET = 'set in Extensions › Story Suite for now';
 const caps = clamp(0, Infinity, 0);
 
 /** The custom-field names as the box shows them: the configured list only; Level joins it by itself while RPG is on. */

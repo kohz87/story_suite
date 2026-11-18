@@ -4,7 +4,7 @@
 
 One extension at `0.1.0`:
 
-- `core/` (host: store, persist, replay, commands, prompt, SDK, boot, settings), `modules/<name>/` (scene, inventory, data-modules, assist, rpg, time, atlas, world, cast, arc, people), `ui/` (new view; `ui/legacy/` is the old view, removed later), `packs/`, `testkit/`.
+- `core/` (host: store, persist, replay, commands, prompt, SDK, boot, settings), `modules/<name>/` (scene, inventory, data-modules, assist, rpg, time, atlas, world, cast, arc, people), `ui/` (the view; the old view `ui/legacy/` was removed at B4-4), `packs/`, `testkit/`.
 - `scripts/` (checks, code map, `scripts/layout.json`, release build and gate) and `tests/` (`tests/core`, `tests/ui`, `tests/modules`, `tests/people`, `tests/director`, `tests/suite`, `tests/scripts`); `docs/` (`docs/dev` for developers, `docs/v2` for the module API and features, `docs/codemap*` generated).
 - The three old repositories' `README`, `CHANGELOG` and `CLAUDE.md` files are history: `docs/history/packages/<name>/`. Their rules that still hold are in this file.
 - Call it **NPC State** (the people module, `modules/people`), not NSD, in text a person reads.

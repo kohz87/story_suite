@@ -8,7 +8,7 @@ A SillyTavern extension that keeps the state of your story (items and money, the
 
 - `core/` — host runtime, state store, persistence and replay, command bus, prompt assembly, the module SDK.
 - `modules/` — the parts that register with the core: `scene`, `inventory`, `data-modules`, `assist`, `rpg` (with the fight board), `time`, `atlas`, `world`, `cast`, `arc`, `people` (NPC State: dossiers and meters).
-- `ui/` — the new view and its settings; `ui/legacy/` is the old view, kept until it is removed.
+- `ui/` — the view and its settings (the old view, `ui/legacy/`, was removed at B4-4).
 - `packs/` — world packs: import, validation, portraits, installed packs.
 - `testkit/`, `examples/`, `authoring-kit/`, `assets/` — test fakes, the Fishing example and example packs, the pack authoring kit, images.
 - `scripts/`, `tests/` — checks, code map, release build and gate; all tests.

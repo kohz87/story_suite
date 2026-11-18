@@ -1,16 +1,12 @@
 // sdk.callModel and the `profile` settings field (docs/v2/MODULES.md §G): core call rules, profiles, and testkit model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../helpers/ui-fake-dom.js';
 import { createHost, createFakeModel } from '../../testkit/index.js';
 import { MODEL_CALL_TIMEOUT_MS, createModelCalls, listProfiles, safeReason, stModelCall } from '../../core/model-call.js';
 import { PROFILE_TEXT, profileChoices } from '../../core/model-call/profile-field.js';
 import { createRegistry, definitionProblems } from '../../core/registry.js';
 import { createSettings, settingValue } from '../../core/sdk.js';
-import { renderSettingsHost } from '../../ui/legacy/host-ui.js';
 import { planner, other, handTimer, fakeSt, withSt } from './model-call.helpers.js';
-
-const doc = installFakeDom();
 
 test('success: the module gets the text; the call carries prompt, system, maxTokens and profile; the chat is untouched', async () => {
     const model = createFakeModel(['Arc: the flooded vault']);
@@ -220,51 +216,19 @@ test('listProfiles: the usable profiles by name, id and name only; a plain reaso
     assert.equal(listProfiles(null).usable, false);
 });
 
-test('the profile field: a dropdown of the profiles plus "Same as chat", stores the name, a plain note when there are none', () => {
+test('the profile field: stores the name (trimmed, cut at 100), a plain note when there are none', () => {
     const registry = createRegistry();
     assert.deepEqual(definitionProblems(planner()), []);
     registry.register(planner());
     const es = {};
     const settings = createSettings({ root: () => es, registry });
-    const fieldRow = root => root.querySelectorAll('details.story-suite-fold')
-        .find(fold => fold.dataset.fold === 'planner').querySelector('.story-suite-row[data-field="connection"]');
-    const draw = st => withSt(st, () => {
-        const root = doc.createElement('div');
-        renderSettingsHost(root, { registry, settings, doc });
-        return fieldRow(root);
-    });
-
-    const row = draw(fakeSt());
-    assert.equal(row.dataset.type, 'profile');
-    assert.equal(row.querySelector('b').textContent, 'Planning connection');
-    const select = row.querySelector('select');
-    assert.deepEqual(select.querySelectorAll('option').map(node => [node.value, node.textContent]), [['', 'Same as chat'], ['Cheap', 'Cheap'], ['Main', 'Main']]);
-    assert.equal(select.value, '');
-    assert.equal(row.querySelector('.story-suite-profile-note'), null, 'nothing to say');
-    select.value = 'Cheap';
-    select.dispatch('change');
-    assert.equal(settings('planner').connection, 'Cheap', 'the name is stored');
-    assert.equal(draw(fakeSt()).querySelector('select').value, 'Cheap');
-
+    assert.equal(settings.set('planner', 'connection', 'Cheap'), 'Cheap', 'the name is stored');
+    assert.equal(settings('planner').connection, 'Cheap');
     // Stored values are names: trimmed, cut at 100, 'chat' is the chat's connection.
     assert.equal(settings.set('planner', 'connection', '  chat '), '');
     assert.equal(settings.set('planner', 'connection', `  ${'x'.repeat(150)} `).length, 100);
     assert.equal(settingValue({ type: 'profile' }, 42), '');
 
-    // A stored profile that is gone stays, marked, with a note.
-    settings.set('planner', 'connection', 'Retired');
-    const gone = draw(fakeSt());
-    assert.deepEqual(gone.querySelectorAll('option').map(node => node.textContent), ['Same as chat', 'Cheap', 'Main', 'Retired (not found)']);
-    assert.equal(gone.querySelector('select').value, 'Retired');
-    assert.match(gone.querySelector('.story-suite-profile-note').textContent, /"Retired" is not in the Connection Manager any more/);
-
-    // No profiles; Connection Manager off; none at all.
-    settings.set('planner', 'connection', '');
-    const none = draw(fakeSt({ profiles: [] }));
-    assert.deepEqual(none.querySelectorAll('option').map(node => node.textContent), ['Same as chat']);
-    assert.equal(none.querySelector('.story-suite-profile-note').textContent, PROFILE_TEXT.none);
-    assert.match(draw(fakeSt({ cmOff: true })).querySelector('.story-suite-profile-note').textContent, /Connection Profiles is turned off/);
-    assert.match(draw(fakeSt({ cm: false })).querySelector('.story-suite-profile-note').textContent, /no Connection Manager/);
     assert.deepEqual(profileChoices('', { usable: false, why: '', profiles: [] }).note, PROFILE_TEXT.none);
 });
 

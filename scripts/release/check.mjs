@@ -12,7 +12,7 @@ import { stylesheetRequests } from './css.mjs';
 export const RELEASE_VERSION = '0.1.1';
 export const MAX_REQUESTS = 10;
 
-// The bundle's chunk name for a module or chunk file: 'modules/rpg/view/index.js' and 'view-RM242NFQ.js' both give 'view' (esbuild names a chunk after its module's folder when the module is index.js).
+// The bundle's chunk name for a module or chunk file: 'modules/rpg/live/index.js' and 'live-RM242NFQ.js' both give 'live' (esbuild names a chunk after its module's folder when the module is index.js).
 const chunkOf = file => { const base = path.basename(file, '.js').replace(/-[A-Z0-9]{8}$/, ''); return base === 'index' ? path.basename(path.dirname(file)) : base; };
 
 // The release gate: the version is RELEASE_VERSION and every place that carries it agrees, nothing is tagged for it, and each bundle set builds, keeps its

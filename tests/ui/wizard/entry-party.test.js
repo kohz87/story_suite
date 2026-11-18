@@ -36,8 +36,6 @@ test('the Party tab shows with the RPG on and nobody yet; "Create your character
   button.click();
   await settleLong();
   assert.ok(p.sheet(), 'the new wizard');
-  assert.equal(p.oldDialog(), null, 'no old dialog');
-  assert.equal(p.rpg().wizard.session(), null, 'the old wizard did not open');
   await createFromSheet(p);
   assert.deepEqual(party(p.host), ['Wessel', 'Wessel']);
   const after = p.doc.querySelector('.su-panel .party-tab');
@@ -71,8 +69,6 @@ test('a second open while one is up opens nothing more, and never the old dialog
   tab.querySelector('[data-act="new-character"]').click();
   await settleLong();
   assert.equal(p.doc.querySelectorAll('.sh-ov[data-sheet="new-character"]').length, 1);
-  assert.equal(p.oldDialog(), null);
-  assert.equal(p.rpg().wizard.session(), null, 'the old wizard did not open');
 });
 
 // People › a person › Add to party › Edit first, on a story that has You (made with the new wizard) and two people.
@@ -104,8 +100,6 @@ test('Edit first opens the new wizard filled in for that person (a companion), n
   await settleLong();
   const sheet = p.sheet();
   assert.ok(sheet, 'the new wizard');
-  assert.equal(p.oldDialog(), null, 'the port answered it here: the old host\'s page event was never sent');
-  assert.equal(p.rpg().wizard.session(), null);
   assert.equal(sheet.querySelector('[data-wiz="name"]').value, 'Mara', 'prefilled from the join payload');
   assert.match(sheet.querySelector('.wz-sum').textContent, /Companion/);
   assert.equal(p.doc.querySelector('.pa-acts'), null, 'the join card closed when the window opened');

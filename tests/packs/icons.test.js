@@ -6,7 +6,6 @@ import { readFileSync } from 'node:fs';
 import { ICON_SET } from '../../packs/icons/set.js';
 import { TAB_ICONS, hasIcon, iconFor, svgIcon, tabIcon } from '../../packs/icons/index.js';
 import { SVG_NS, iconNode } from '../../packs/widgets/dom.js';
-import { icon } from '../../ui/legacy/view/mounts/common.js';
 import { sourceOf } from '../helpers/split-source.js';
 import { SUITE_NAV, HOME_ID } from '../../packs/screens/registry.js';
 import { installDom } from './widgets/fake-dom.js';
@@ -62,9 +61,6 @@ test('iconNode and icon: ph-* ids draw the SVG; an unknown ph-* id is the defaul
     assert.equal(fa.tagName.toLowerCase(), 'i');
     assert.ok(fa.className.includes('fa-solid') && fa.className.includes('fa-map'));
     assert.equal(iconNode(doc, '⚔').tagName.toLowerCase(), 'span');
-    assert.equal(icon(doc, 'ph-gear-six').getAttribute('data-icon'), 'ph-gear-six');
-    assert.ok(icon(doc, 'ph-nope').className.includes('fa-table-columns'));
-    assert.ok(icon(doc, 'fa-star').className.includes('fa-star'));
 });
 
 test('the suite\'s screens have their own icons; a module\'s own icon wins on a screen that is not the suite\'s', () => {
@@ -82,6 +78,6 @@ test('credits: ICONS-CREDITS.md has the MIT text and every id; README and Diagno
     assert.match(credits, /Copyright \(c\) \d{4} Phosphor Icons/);
     for (const id of Object.keys(ICON_SET)) assert.ok(credits.includes(`\`${id}\``), id);
     assert.match(readRepo('docs/history/packages/story-block/README.md'), /Phosphor Icons/);
-    assert.match(sourceOf('../../ui/legacy/host-ui.js'), /credits: 'Icons: Phosphor Icons/);
+    assert.match(sourceOf('../../core/settings-text/text-parts/page-text.js'), /credits: 'Icons: Phosphor Icons/);
     assert.equal(JSON.parse(readRepo('package.json')).dependencies?.['@phosphor-icons/core'], undefined, 'inlined, not a dependency');
 });

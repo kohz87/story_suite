@@ -11,8 +11,6 @@ import { cleanName } from '../../modules/scene/names.js';
 import { MAX_DEPTH, parseHtml, tooDeep } from '../../packs/template/html.js';
 import { MAX_AT_DEPTH, cssDepth, scopeCss } from '../../packs/template/css.js';
 import { unsafeCss } from '../../packs/validate.js';
-import { installFakeDom } from '../helpers/ui-fake-dom.js';
-import { renderSettingsHost } from '../../ui/legacy/host-ui.js';
 import { createHost } from '../../testkit/index.js';
 import { readRecord } from '../../core/persist.js';
 
@@ -235,27 +233,11 @@ test('settings.set keeps a value to its schema field: text cut at max, numbers i
     assert.equal(settings.set(null, 'maxChangeLines', 5), 10, 'the host\'s own schema too');
 });
 
-test('a text field with max gets maxlength on its input', () => {
-    const doc = installFakeDom();
-    const registry = createRegistry();
-    registry.register({ id: 'shop', name: 'Shop', settings: { defaults: { place: '' }, schema: { place: { type: 'text', max: 24 } } } });
-    const settings = createSettings({ root: () => ({}), registry });
-    const root = doc.createElement('div');
-    renderSettingsHost(root, { registry, settings, doc });
-    const input = root.querySelectorAll('.story-suite-row').find(row => row.dataset.field === 'place').querySelector('input');
-    assert.equal(input.maxLength, 24);
-});
-
-test('R2-b7-2: a settings field of a type this Story Block does not know is hidden, its value kept', () => {
-    const doc = installFakeDom();
+test('R2-b7-2: a settings field of a type this Story Block does not know keeps its value', () => {
     const registry = createRegistry({ warn: () => {} });
     registry.register({ id: 'shop', name: 'Shop', settings: { defaults: { tint: '#f00', place: '' }, schema: { tint: { type: 'colour' }, place: { type: 'text' } } } });
     const es = {};
     const settings = createSettings({ root: () => es, registry, save: () => {} });
-    const root = doc.createElement('div');
-    renderSettingsHost(root, { registry, settings, doc });
-    const row = root.querySelectorAll('.story-suite-row').find(item => item.dataset.field === 'tint');
-    assert.equal(row.hidden, true);
     assert.equal(settings.set('shop', 'tint', '#0f0'), '#0f0', 'stored as given');
     assert.equal(settings.set('shop', 'place', 'x'.repeat(500)).length, 200, 'a text field with no max of its own is held to 200');
 });

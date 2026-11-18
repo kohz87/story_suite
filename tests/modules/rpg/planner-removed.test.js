@@ -1,4 +1,4 @@
-// The roll planner and the Classic rules are gone: the settings page and the wizard show nothing of them, a pack that asks for Classic is
+// The roll planner and the Classic rules are gone: a pack that asks for Classic is
 // refused in plain words (Standard is accepted), and a message in a fight makes no model call at all, with the fight board on or off.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -7,46 +7,9 @@ import { LEAN_RPG_FEATURE, createLeanRpgPart } from '../../../modules/rpg/index.
 import { validatePack } from '../../../packs/validate.js';
 import { pack } from '../../packs/helpers/fixtures.js';
 import { OWNER, PARTY, fakeModel, sheetDomain } from './helpers.js';
-import { begin, makeBlocks, page, party, settle } from './view/page.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
-
-test('the RPG settings page has no Classic chip, no planner time limit row and no planner card', { skip }, async t => {
-    const ctx = await page(t, { feature: true, persona: 'Wessel' });
-    await begin(ctx.host);
-    await makeBlocks(ctx.host, { who: 'Wessel', character: { str: 12 } });
-    const win = ctx.ui.openSettings();
-    win.select('rpg');
-    await settle();
-    const root = ctx.doc.querySelector('[data-ss-section="rpg"]');
-    assert.ok(root.querySelector('[data-card="formula"]'), 'the page is drawn');
-    assert.equal(root.querySelector('[data-card="planner"]'), null);
-    assert.equal(root.querySelectorAll('.rpg-chip').filter(node => /classic/i.test(node.textContent)).length, 0);
-    assert.doesNotMatch(root.textContent, /classic/i);
-    assert.doesNotMatch(root.textContent, /Planner time limit|roll planner/i);
-    assert.equal(root.querySelector('[data-setting="rpgPlannerSeconds"]'), null);
-    assert.equal(root.querySelector('textarea[data-field="planner"]'), null);
-    win.close();
-});
-
-test('the New character wizard shows no Classic note on any step', { skip }, async t => {
-    const ctx = await page(t, { persona: 'Wessel' });
-    await begin(ctx.host);
-    ctx.ui.mounts.screen.open('story-block/party');
-    await settle();
-    party(ctx.doc).querySelector('.rpg-create').click();
-    await settle();
-    const dialog = ctx.ui.mounts.dialog.current();
-    for (const step of [0, 1, 2, 3]) {
-        dialog.goTo(step);
-        await settle();
-        const text = dialog.root.querySelector('.ss-w-rpg-wizard').textContent;
-        assert.doesNotMatch(text, /classic/i, `step ${step}`);
-        assert.doesNotMatch(text, /half of it/, `step ${step}`);
-    }
-    dialog.close();
-});
 
 test('a pack with content.rpg.formula "classic" is refused in plain words; "standard" is accepted', () => {
     const refused = validatePack(JSON.stringify(pack({ content: { rpg: { formula: 'classic' } } })));

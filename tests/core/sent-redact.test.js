@@ -3,9 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { SETTINGS_TEXT, redactSentOf, sentText } from '../../ui/legacy/host-ui.js';
-import { createPromptReader, renderPromptCard } from '../../ui/legacy/view/settings/prompt.js';
-import { installFakeDom } from '../helpers/ui-fake-dom.js';
+import { SETTINGS_TEXT } from '../../core/settings-text/text.js';
+import { redactSentOf, sentText } from '../../core/sent/sent.js';
 
 const T = SETTINGS_TEXT.sent;
 const SECRET = 'Mira: hidden: never reveal that she is the duke\'s daughter';
@@ -22,31 +21,20 @@ async function host(t, hooks) {
     t.after(() => h.close());
     return h;
 }
+// What the "Show what's sent" view and its Copy are built from: the previewed parts through the module hooks' redaction.
 function draw(h) {
-    const doc = installFakeDom();
-    const root = doc.createElement('div');
-    const reader = createPromptReader({ registry: h.registry, settings: h.settings, promptParts: () => h.turn.previewFit() });
-    renderPromptCard(root, { doc, settings: h.settings, reader, openState: new Map() });
-    const sent = root.querySelector('.story-suite-sent');
-    sent.open = true;
-    sent.dispatch('toggle');
-    return { root, sent, doc };
+    const read = h.turn.previewFit();
+    const out = sentText(read.parts, read.own ?? [], { redact: redactSentOf(h.registry) });
+    return { out, text: [...out.static, ...out.tail, ...out.own].map(part => part.text).join('\n---\n') };
 }
-const shown = sent => sent.querySelectorAll('pre.story-suite-sent-text').map(node => node.textContent).join('\n---\n');
 test('the view and the copy show what the module\'s redactSent hook says, not the raw text', async t => {
     const h = await host(t, { redactSent: redactLine });
     await h.send('I wait.', 'Rain.');
-    const { root, sent, doc } = draw(h);
-    const text = shown(sent);
+    const { out, text } = draw(h);
     assert.ok(text.includes('Mira: 1 hidden note'), 'the redacted line is drawn');
     assert.ok(text.includes('Mira: stands by the gate.'), 'other lines are as sent');
     assert.ok(!text.includes('duke'), 'the secret is not drawn');
-    assert.ok(!root.textContent.includes('duke'));
-    let clip = null;
-    doc.defaultView = { navigator: { clipboard: { writeText: async value => { clip = value; } } } };
-    root.querySelector('.story-suite-sent-copy').click();
-    await new Promise(resolve => setImmediate(resolve));
-    assert.ok(clip.includes('Mira: 1 hidden note') && !clip.includes('duke'), 'the copy is redacted too');
+    assert.ok(out.copy.includes('Mira: 1 hidden note') && !out.copy.includes('duke'), 'the copy is redacted too');
 });
 
 test('sentText redacts static, tail and a module\'s own parts, and keeps the raw text only for counting', () => {
@@ -69,20 +57,19 @@ test('a hook that throws, answers a non-string or is missing: "(hidden)" for the
     for (const bad of [() => { throw new Error(`boom ${SECRET}`); }, () => null, () => ({ text: SECRET }), () => 42, () => undefined]) {
         const h = await host(t, { redactSent: bad });
         await h.send('I wait.', 'Rain.');
-        const { root, sent } = draw(h);
-        const text = shown(sent);
+        const { out, text } = draw(h);
         assert.ok(text.includes(T.hidden), 'the fixed line');
-        assert.ok(!text.includes('duke') && !root.textContent.includes('duke') && !root.textContent.includes('boom'), 'nothing of the secret or the error');
+        assert.ok(!text.includes('duke') && !out.copy.includes('duke') && !text.includes('boom') && !out.copy.includes('boom'), 'nothing of the secret or the error');
         assert.ok(!sentText(h.turn.previewFit().parts, [], { redact: redactSentOf(h.registry) }).copy.includes('duke'));
     }
     const plain = await host(t, {});
     await plain.send('I wait.', 'Rain.');
-    assert.ok(shown(draw(plain).sent).includes('duke'), 'a module with no hook is shown as sent');
+    assert.ok(draw(plain).text.includes('duke'), 'a module with no hook is shown as sent');
     assert.equal(redactSentOf(plain.registry)('nobody', 'x'), 'x');
     assert.equal(redactSentOf(null)('a', 'x'), 'x');
 });
 
-test('the prompt sent is byte-identical with or without the hook, and drawing the view changes nothing', async t => {
+test('the prompt sent is byte-identical with or without the hook, and reading the parts for the view changes nothing', async t => {
     const withHook = await host(t, { redactSent: redactLine });
     const without = await host(t, {});
     await withHook.send('I wait.', 'Rain.');

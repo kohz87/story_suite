@@ -1,20 +1,16 @@
-// J11 step 5: sdk.panels, the hub modules mark dirty through (flag suite.redrawScheduler).
+// J11 step 5: sdk.panels, the hub modules mark dirty through (flag suite.redrawScheduler); bound here to a stand-in scheduler.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSdk } from '../../../core/sdk.js';
 import { createPanels } from '../../../core/sdk/panels.js';
-import { wireRedraw } from '../../../ui/legacy/ui-host/redraw-wiring.js';
+import { panelsTarget } from '../../helpers/panels-target.js';
 
-// The hub bound to a real wiring (the host's), with frames the test runs by hand.
+// The hub bound to a stand-in scheduler, with frames the test runs by hand.
 function bound({ flag = { on: true } } = {}) {
-    const frames = [];
     const hub = createPanels({ on: () => flag.on });
-    const wiring = wireRedraw({
-        on: () => flag.on, mounts: { tab: { register() {} } }, getPanel: () => ({ hidden: false }), getTabHost: () => ({ active: () => 'now', refresh() {} }),
-        getOverlay: () => null, schedule: fn => frames.push(fn),
-    });
-    hub.bind(wiring);
-    return { ...hub, wiring, flag, runFrame: () => frames.splice(0).forEach(fn => fn()) };
+    const { target, frame } = panelsTarget();
+    hub.bind(target);
+    return { ...hub, flag, runFrame: frame };
 }
 // (a section is registered already on screen, as the modules do: `drawn: true`)
 const section = (log, name = 's', extra = {}) => ({ keys: ['people'], isVisible: () => true, read: () => 'v', draw: () => log.push(name), drawn: true, ...extra });
@@ -67,14 +63,14 @@ test('a section registered before the host binds is registered when it binds, an
     const hub = createPanels({ on: () => flag.on });
     const off = hub.panels.register('people', section(log));
     hub.panels.changed(['people']);   // nobody is drawing yet: nothing to mark, and the section was drawn after it
-    const frames = [];
-    hub.bind(wireRedraw({ on: () => true, mounts: { tab: { register() {} } }, getPanel: () => ({ hidden: false }), getTabHost: () => null, getOverlay: () => null, schedule: fn => frames.push(fn) }));
+    const { target, frame } = panelsTarget();
+    hub.bind(target);
     hub.panels.changed(['people']);
-    frames.splice(0).forEach(fn => fn());
+    frame();
     assert.deepEqual(log, ['s'], 'registered at the bind, then drawn once for the change');
     off();
     hub.panels.changed(['people']);
-    frames.splice(0).forEach(fn => fn());
+    frame();
     assert.deepEqual(log, ['s']);
 });
 

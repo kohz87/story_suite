@@ -21,3 +21,12 @@ decision D); the launcher keep settings (`launcherWithStoryBlock`, `launcherWith
 flag; the `NPCStateDelta` and `NPCStateDeltaCast` page globals and the hosted DOM flag (now `runtime/handles.js`).
 
 Removed at B4-2 (the v1 handshake): `legacy/runtime-suite.js`, `suite.js` (the `globalThis.StorySuite` registry), `suite-handshake.js` with its parts, `legacy/story-block-tabs.js` (a re-export of `dossier-rows.js`), the four manifest lines in `modules/people/runtime/runtime-modules.json`, and the `sourceOfTruth` setting (its Source of truth rows, the "Manage all in Story Suite" button and the stats-overlap warning; a saved `sourceOfTruth` is dropped when settings are read). Kept, moved to `modules/people/npc-api/`: `dossier-target.js`, `text.js`, `profile-build.js`, `profile-list.js` (NPC profiles, used by Key people), `host-probe.js` (`storyBlockIsV2`) and `reply-preview.js`; `runtime/runtime-npc-api.js` holds `pageHandles.suiteApi` (`npcs`, `npcProfiles`, `manage.preview`), the "What's sent" fold and the Enable follow-up. Behaviour with a Story Block host is unchanged (scene presence follows the host, the calendar is the host's). `runtime-modules.json` itself stays: it is the test inventory of the old runtime file names, read by tests only. `setExternalCalendarSource` (`calendar-config-parts/active.js`) is no longer called and goes with B4-7, as does the `calendarOwn` plumbing.
+
+Removed at B4-4 (the old view): `ui/legacy/` (the old host `ui-host.js` and its parts, settings window, mounts, cards and notes under replies,
+theme bridge, the old CSS; `ui/legacy/view/fonts.css` moved to `ui/css/fonts.css`), the RPG's old screens in `modules/rpg/view/` (party, wizard,
+first-send hold, fight screen, export, skills, the "Changed this reply" lines) and the old board screen parts (`board/{offer-line,settings,skill-editor}.js`,
+`board.css`, `fight-start.css`), `modules/data-modules/screens/` with `setup.js`, `block-templates.js` and `block-layout*` (the Customize and blocks
+editor, dropped by D2), `packs/layout/{index,render,styles}.js`, `packs/card-offer-ui.js`, `core/persist/compat.js`, `ui/entry/{flag,switch}.js`,
+`ui/css/next-hide.css` and `scripts/sync-redraw-copy.mjs`. The NPC State panel rows above stay until B4-5: its settings section now sits in the
+drawer the view draws (`ui/entry/drawer-buttons.js`), and the old dossier panel it opens no longer gets the old view's glass tokens (it falls back
+to its own colours).
