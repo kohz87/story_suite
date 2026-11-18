@@ -5,8 +5,16 @@ import { CAST_BUILT_IN_METERS, STANDING } from '../../limits.js';
 import { checkEntry } from './entries.js';
 import { parseEntry } from './grammar.js';
 
-const JOIN = /\s+(?:and|or)\s+(?=(?:fired|ended|set|cleared|lapsed|died|departed|fact|learned|place|quote):|stage\b|meter\b)/;
-const ANCHORS = ['fired', 'ended', 'set', 'cleared', 'lapsed', 'died', 'departed', 'fact', 'learned'];
+/** Where a gate splits into terms (the Studio's gate model reads the same joins). */
+export const JOIN = /\s+(?:and|or)\s+(?=(?:fired|ended|set|cleared|lapsed|died|departed|fact|learned|place|quote):|stage\b|meter\b)/;
+export const ANCHORS = ['fired', 'ended', 'set', 'cleared', 'lapsed', 'died', 'departed', 'fact', 'learned'];
+
+/** The stage and meter tests: stage [of <id>] >= 2 | "Name"; meter <m> [of <id>] >= n; meter <m> >= n of <id>. */
+export const TESTS = Object.freeze({
+    stage: /^stage(?: of ([a-z0-9-]+))?\s*>=\s*("[^"]*"|\d+)$/,
+    meter: /^meter ([a-z0-9-]+)(?: of ([a-z0-9-]+))?\s*>=\s*(-?\d+)$/,
+    meterOf: /^meter ([a-z0-9-]+)\s*>=\s*(-?\d+) of ([a-z0-9-]+)$/,
+});
 
 function personFor(of, owner, ctx, field, text) {
     if (owner && (of === undefined || of === owner.id)) return owner;
@@ -42,9 +50,9 @@ export function checkGate(gate, ctx, field, owner = null) {
     if (/[()]/.test(gate.replace(/quote:.*$/, ''))) return ctx.say(field, `"${gate}": a gate has no parentheses ("and" binds tighter than "or").`);
     for (const term of gate.trim().split(JOIN).map(part => part.trim())) {
         let match;
-        if ((match = /^stage(?: of ([a-z0-9-]+))?\s*>=\s*("[^"]*"|\d+)$/.exec(term))) stageTest(match, owner, ctx, field, term);
-        else if ((match = /^meter ([a-z0-9-]+)(?: of ([a-z0-9-]+))?\s*>=\s*(-?\d+)$/.exec(term))) meterTest(match, owner, ctx, field, term);
-        else if ((match = /^meter ([a-z0-9-]+)\s*>=\s*(-?\d+) of ([a-z0-9-]+)$/.exec(term))) meterTest([match[0], match[1], match[3], match[2]], owner, ctx, field, term);
+        if ((match = TESTS.stage.exec(term))) stageTest(match, owner, ctx, field, term);
+        else if ((match = TESTS.meter.exec(term))) meterTest(match, owner, ctx, field, term);
+        else if ((match = TESTS.meterOf.exec(term))) meterTest([match[0], match[1], match[3], match[2]], owner, ctx, field, term);
         else if (term.startsWith('place:')) { if (!ctx.index.ref(term.slice(6).trim()).has('place')) ctx.say(field, `"${term}": "${term.slice(6).trim()}" is not a place of this pack.`, 'UNKNOWN_REF'); }
         else if (term.startsWith('quote:')) { if (!term.slice(6).trim()) ctx.say(field, `"${term}" quotes nothing.`); }
         else if (term.startsWith('stage') || term.startsWith('meter')) ctx.say(field, `"${term}" is not a stage or meter test: write stage >= "Trusted" or meter trust >= 40 (">=" only).`);

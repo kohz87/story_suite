@@ -411,6 +411,7 @@
   "scripts/b4/shrink.mjs": "Finds entries added to, or still naming a removed path in, the shrink-only lists under docs/merge.",
   "scripts/b4/unit.mjs": "Runs the per-unit removal recipe in order: backup, git rm, dead exports, git grep, shrink-only lists, code map, touched tests.",
   "studio/index.html": "The Pack Studio page: the suite's own stylesheets and the Studio's, the full-window frame and the module entry.",
+  "studio/model/gate.js": "Reads a hidden gate into or-groups of and-terms, writes it back, and checks it with the game's own gate rules against a pack's content.",
   "studio/draft.js": "Keeps the Studio's autosaved drafts in IndexedDB, one slot per kind and id, and turns every storage failure into a message.",
   "studio/dryrun/run.js": "Runs the world engine's daily step on the author's pack for a seed, tempo and number of days, in a Worker that can be cancelled.",
   "studio/dryrun/worker.js": "Is the dry run's Worker: runs the simulation off the page and reports progress, the result or the error.",
