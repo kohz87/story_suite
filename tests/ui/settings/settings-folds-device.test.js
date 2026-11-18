@@ -56,7 +56,8 @@ test('the live entry keeps a folded card through a remount of the view (the devi
   drawer.appendChild(content); doc.getElementById('extensions_settings2').appendChild(drawer);
   const sdk = { query: () => null, command: async () => ({ ok: true }), on: () => () => {}, settings: Object.assign(() => ({}), { defaults: {}, schema: {} }), features: () => [] };
   const ctx = { extensionSettings: {}, name1: 'Reader', chatMetadata: {}, saveSettingsDebounced() {} };
-  const api = await startView({ doc, getContext: () => ctx, StoryBlock: { ready: Promise.resolve(sdk), sdk }, base: 'x/', storage: store });
+  const begin = () => startView({ doc, getContext: () => ctx, StoryBlock: { ready: Promise.resolve(sdk), sdk }, base: 'x/', storage: store });
+  let api = await begin();
   const skin = () => {
     doc.querySelector('#story-suite-next-drawer').querySelectorAll('button')[0].click();
     doc.querySelector('.su-root .si3[data-sec="people"]').click();
@@ -64,8 +65,8 @@ test('the live entry keeps a folded card through a remount of the view (the devi
   };
   skin().querySelector('.gt').click();
   assert.deepEqual(JSON.parse(store.m.get('storySuite.ui.settingsFolds')), { 'settings.fold.people.feelings': true });
-  await api.useOldView(true);
-  await api.useOldView(false);
+  api.stop();
+  api = await begin();
   assert.equal(skin().querySelector('.gt').getAttribute('aria-expanded'), 'false', 'a new mount reads it back');
-  await api.useOldView(true);
+  api.stop();
 });

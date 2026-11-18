@@ -6,7 +6,8 @@ test('People opens with one module block, then every fixture row, and one note a
   const { page, sec } = mountSettings();
   const el = page('people');
   assert.equal(el.querySelectorAll('.mods .mod[data-mod="people"] .msubs').length, 1);
-  assert.equal(el.querySelectorAll('.sgrp .srow').length, sec('people').rows.length);
+  assert.equal(el.querySelectorAll('.sgrp .srow').filter(row => !row.closest('[data-card="roster"]')).length, sec('people').rows.length);
+  assert.equal(el.querySelectorAll('.sgrp').at(-1).dataset.card, 'roster', 'the roster is the last group');
   assert.equal(el.querySelectorAll('.applies').length, 1);
   assert.equal(el.querySelectorAll('.btn2').filter(b => /^Reset .* to defaults$/.test(b.textContent)).length, 1);
 });

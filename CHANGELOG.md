@@ -8,6 +8,10 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 ### Added
 
+- Settings › People ends with **People in this chat**, NPC State's roster as a list: each person with whether they are in the scene, followed, dormant or deceased, an **Open** button (closes Settings and shows their dossier on People) and a **Re-read** button (NPC State's Refresh for that person, with its answer under the list). Removing a person stays on the dossier's ⋯ menu.
+- Settings › Tools has an **NPC State data** group: **Back up** downloads this chat's people with their portraits and portrait settings, **Restore** opens the file review before anything is changed, and **Diagnostics** opens NPC State's diagnostics window. They are the same dialogs that were in NPC State's own settings section, which the view never showed.
+- NPC State's own calendar form is not drawn: the story calendar in Settings › World and time (Calendar, Era, Months, Weekdays, Leap years) is the one NPC State uses here.
+
 - Settings › Look › **Panel background**: Off (the new default) removes the sky picture behind the Story Suite panels and leaves a plain flat colour, dark or light; On brings the picture back. It applies at once and is kept per device.
 - Settings › People: **Custom meters** (Add a meter; each meter's name, lowest, highest, start, its rule for the story and the words shown instead of its number; Remove), **Meter presets** (pick Companion, Rival, Mentor or a pack's sets), **Per-meter stages** (meter, threshold, stage name) and the **Stage ladder** (stage, what it needs, milestone, track) can now be set in the new view. They store the same NPC State settings the engine reads, apply to the open chat at the next reply, and mark a row NPC State does not use. Renaming a custom meter also renames it in the stages that name it.
 - Every Settings page's cards fold: the card title is a button with a chevron; a folded card is remembered on this device.

@@ -5,13 +5,14 @@ import { renderDiagnostics } from './diagnostics.js';
 import { renderDeveloper } from './developer.js';
 import { openInspector } from './inspector.js';
 import { renderSavePoints } from './savepoints.js';
+import { renderNpcData } from './npc-data.js';
 
 /**
  * Creates the page body builder. `settings` = the view-model, `ctx` = the overlay's { onAction, view(name, args), doc, backStack, repaint },
  * `developer` = { on, own } for the Developer cards. Returns `() => nodes`. The sent card, problems and the Inspector come from `ctx.view` (live); with none, from the snapshot.
  */
 export function createToolsPage(settings, ctx, developer) {
-  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '' };
+  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '', dataNote: '' };
   const redraw = () => ctx.repaint?.();
   const ask = (key, value) => Promise.resolve(ctx.onAction?.(key, value));
 
@@ -28,6 +29,12 @@ export function createToolsPage(settings, ctx, developer) {
     redraw();
     ask(key, value).then(answer => { local.spNote = answer?.ok === false ? `${failed}: ${answer.message ?? '?'}` : (answer?.warning ?? done); if (answer?.ok !== false) local.naming = false; },
       error => { local.spNote = `${failed}: ${error?.message ?? error}`; }).finally(() => { local.busy = false; redraw(); });
+  }
+
+  // NPC State data: a dialog or download is started by the port; only a failure leaves a line.
+  function data(key) {
+    local.dataNote = '';
+    ask(key).then(answer => { local.dataNote = answer?.ok === false ? String(answer.message ?? 'It did not open.') : ''; }, error => { local.dataNote = String(error?.message ?? error); }).finally(redraw);
   }
 
   function copy() {
@@ -57,6 +64,7 @@ export function createToolsPage(settings, ctx, developer) {
       renderProblems(problems, state),
       points,
       renderDiagnostics({ note: local.note, copy }),
+      renderNpcData({ note: local.dataNote, ask: data }),
       ...renderDeveloper({ on: developer.on() }, developer.own),
     ].filter(Boolean);
   };
