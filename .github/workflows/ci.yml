@@ -53,7 +53,7 @@ jobs:
       - name: Redraw copy is current
         run: node scripts/sync-redraw-copy.mjs --check
       - name: Codemap check
-        run: node scripts/codemap/cli.mjs --check
+        run: node scripts/codemap/cli.mjs --check && node scripts/ai-readme/build.mjs --check
       - name: Every test file is run by a root test script
         run: node scripts/checks/test-globs.mjs
       - name: No tracked node_modules
