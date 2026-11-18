@@ -148,7 +148,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
     ...(moodBarsOf(moodTile, cast) ? { moodBars: moodBarsOf(moodTile, cast) } : {}),
     now: isHere
       ? { where: text(dossier.location), doing: text(dossier.status), wearing: null, thought: null }
-      : { lastPlace: text(away?.place) ?? text(dossier.location), lastSeen: text(away?.newsAgo), said: null },
+      : { lastPlace: text(dossier.location), lastSeen: text(away?.newsAgo), said: null },
     scene: null,
     ties: tiesOf(dossier.keyRelationships, people),
     past: pastOf(dossier.memories),

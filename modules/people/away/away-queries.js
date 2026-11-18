@@ -5,7 +5,8 @@
 //   newest kept), then the followed people who are neither. `removed: { reason: 'died' }` for one the store has as dead (no hold for them).
 //   `since`, `back` and a step's `date` are story minutes (null when not known; `back` is the start of the day they are due).
 // - `director.away.view` → `{ people: [{ key, name, here, away, followed, due, doing, status, step, newsAgo, back }], elsewhere, tokens }`: the
-//   World screen's Elsewhere section and People › Elsewhere's "back <date>" and "doing" lines (followed people not in the scene, and anyone away).
+//   World screen's Elsewhere section and People › Elsewhere's "back <date>" and "doing" lines (followed people not in the scene, and anyone away
+//   the store does not have as dead).
 
 import { calendarFrom } from '../../world/world/known.js';
 import { tables } from './away-domain.js';
@@ -82,7 +83,7 @@ export function awayView(state, _args, tools) {
     const calendar = calendarFrom(query);
     const rows = [];
     const seen = new Set();
-    for (const entry of awayEntries(slice, now)) {
+    for (const entry of awayEntries(slice, now, people)) {
         const person = personOf(entry.key);
         const keys = person ? keysOf(person.name, person.aliases ?? []) : [entry.key];
         keys.forEach(key => seen.add(key));
@@ -100,6 +101,6 @@ export function awayView(state, _args, tools) {
         const present = keys.some(key => here.has(key) || here.has(bare(key)));
         rows.push({ key: keys[0], name: person.name, here: present, away: false, followed: true, due: false, status: present ? 'Here' : 'Not here', doing: cutPoints(person.status ?? person.role ?? '', 160), step: '', newsAgo: '', back: '' });
     }
-    const told = awayTail(slice, { now, calendar });
+    const told = awayTail(slice, { now, calendar, people });
     return { people: rows, elsewhere: rows.filter(row => !row.here).length, hasPeople: rows.some(row => !row.here), tokens: told.tokens, left: told.left };
 }

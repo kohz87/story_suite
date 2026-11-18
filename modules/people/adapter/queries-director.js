@@ -88,7 +88,7 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
             return typeof line === 'string' ? line.replace(/\s+/g, ' ').trim() : '';
         } catch { return ''; }
     }
-    // Story Director's calendar (`director.calendar`: { era, months, leapYears }), or null when it has none to give; 
+    // Story Director's calendar (`director.calendar`: { era, months, leapYears }), or null when it has none to give;
     function directorCalendar() {
         try {
             const config = session.hosted && typeof session.sdkRef?.query === 'function' ? session.sdkRef.query('director.calendar', {}) : null;

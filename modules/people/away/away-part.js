@@ -9,11 +9,20 @@ import { TEXT, awayTail } from './away-prompt.js';
 import { awayQuery, awayView } from './away-queries.js';
 import { calendarFrom } from '../../world/world/known.js';
 
+// The people store's rows (`people.list`), so the dead are left out of the tail; [] when it cannot be asked.
+function peopleOf(query) {
+    try {
+        const list = query ? query('people.list', {}) : null;
+        return Array.isArray(list) ? list : [];
+    } catch { return []; }
+}
+
 /** `context.tail(view)` → `{ lines, optional }`. */
 function tail(view) {
     const minutes = view?.state?.domains?.director?.time?.minutes;
-    const calendar = calendarFrom(typeof view?.query === 'function' ? (name, args) => view.query(name, args) : null);
-    return { lines: awayTail(view?.state?.domains?.away, { now: Number.isSafeInteger(minutes) ? minutes : null, calendar }).lines, optional: [] };
+    const query = typeof view?.query === 'function' ? (name, args) => view.query(name, args) : null;
+    const calendar = calendarFrom(query);
+    return { lines: awayTail(view?.state?.domains?.away, { now: Number.isSafeInteger(minutes) ? minutes : null, calendar, people: peopleOf(query) }).lines, optional: [] };
 }
 
 export const part = {

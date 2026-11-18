@@ -3,10 +3,12 @@
 //   `Ren: away, scouting the north road, back Goldwane 18; latest: reached Wolfmere Outpost.`
 // Ordered by the soonest return (no date last), then the newest news; over budget, the rest are left out of that reply (still kept).
 // A back date that has passed moves nobody: the line says "due back" and the narrator brings them.
+// Someone the people store has as dead (`lifeState: 'deceased'`, matched by name or alias) is left out of the tail, the teaching and the
+// entries, read at answer time (nothing stored): their absence record stays open, and undoing the death brings the line back.
 
 import { estimateTokens } from '../../atlas/relevance.js';
 import { tables } from './away-domain.js';
-import { cutPoints } from './away-text.js';
+import { cutPoints, keyOf } from './away-text.js';
 import { dateText } from './away-time.js';
 
 const HEADER = '[Elsewhere] Away from the scene:';
@@ -18,17 +20,39 @@ export const TEXT = Object.freeze({
     grammar: '+ away Name — what they are doing | back: date (~ away Name to change it; ! away Name — where they got to; - away Name when they are back)',
 });
 
-/** Whether the lines are taught: someone in the people store is followed (alive), or someone is away. */
-export function awayTaught(state) {
-    if (Object.keys(tables(state?.domains?.away).away).length) return true;
-    const npcs = state?.domains?.people?.npcs;
-    return Object.values(npcs && typeof npcs === 'object' ? npcs : {}).some(npc => npc?.followed === true && npc.lifeState !== 'deceased');
+// Story Block's present list drops a leading article ("the scout" is listed as "scout"), so a name is matched with it too.
+const bare = key => key.replace(/^(?:the|a|an)\s+/, '');
+
+// Whether a name key is someone dead: `people` is the people store's rows (`people.list`, or the domain's npcs), each `{ name, aliases, lifeState }`.
+function deadOf(people) {
+    const dead = new Set();
+    for (const person of Array.isArray(people) ? people : []) {
+        if (!person || typeof person !== 'object' || person.lifeState !== 'deceased') continue;
+        for (const name of [person.name, ...(Array.isArray(person.aliases) ? person.aliases : [])]) {
+            const key = keyOf(name);
+            if (key) { dead.add(key); dead.add(bare(key)); }
+        }
+    }
+    return key => dead.has(key) || dead.has(bare(key));
 }
 
-/** The away people in the tail's order: `[{ key, name, doing, since, back, due, last: { date, text } | null, steps }]`. `now`: the story clock, or null. */
-export function awayEntries(slice, now) {
+/** Whether the lines are taught: someone in the people store is followed (alive), or someone not dead is away. */
+export function awayTaught(state) {
+    const npcs = state?.domains?.people?.npcs;
+    const people = Object.values(npcs && typeof npcs === 'object' ? npcs : {});
+    const dead = deadOf(people);
+    if (Object.keys(tables(state?.domains?.away).away).some(key => !dead(key))) return true;
+    return people.some(npc => npc?.followed === true && npc.lifeState !== 'deceased');
+}
+
+/**
+ * The away people in the tail's order: `[{ key, name, doing, since, back, due, last: { date, text } | null, steps }]`. `now`: the story clock,
+ * or null; `people`: the people store's rows (`people.list`), whose dead are left out.
+ */
+export function awayEntries(slice, now, people = []) {
     const isInt = Number.isSafeInteger;
-    const out = Object.entries(tables(slice).away).map(([key, away]) => {
+    const dead = deadOf(people);
+    const out = Object.entries(tables(slice).away).filter(([key]) => !dead(key)).map(([key, away]) => {
         const back = isInt(away?.back) ? away.back : null;
         const steps = Array.isArray(away?.steps) ? away.steps.filter(step => step && typeof step === 'object') : [];
         const last = steps.at(-1) ?? null;
@@ -50,9 +74,9 @@ function awayLine(entry, calendar) {
     return `${entry.name}: away${doing ? `, ${doing}` : ''}${back}${latest}.`;
 }
 
-/** The tail: `{ lines, tokens, left }`, the header and the lines that fit `budget` tokens; no lines when nobody is away or nothing fits. */
-export function awayTail(slice, { now = null, calendar, budget = BUDGET } = {}) {
-    const entries = awayEntries(slice, now);
+/** The tail: `{ lines, tokens, left }`, the header and the lines that fit `budget` tokens; no lines when nobody (alive) is away or nothing fits. */
+export function awayTail(slice, { now = null, calendar, budget = BUDGET, people = [] } = {}) {
+    const entries = awayEntries(slice, now, people);
     const lines = [HEADER];
     let left = 0;
     for (const entry of entries) {

@@ -3,4 +3,3 @@
 export const NPC_DOMAIN = 'npc';
 export const NPC_KIND = 'npc';
 export const MILESTONE_KIND = 'milestone';
-
