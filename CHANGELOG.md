@@ -1,8 +1,45 @@
 # Changelog
 
-## 0.1.2
+Newest first. Each release has the highlights, then what was added, changed, fixed and removed for players, then a folded block with the full notes and the developer notes. Nothing from the earlier changelog was dropped; the long entries moved into the folded blocks. The three old repositories' changelogs, with every version before 0.1.0, are in [docs/history/packages/](docs/history/packages/).
 
-Released 18 Nov 2026.
+## Unreleased
+
+Main has nothing beyond 0.1.2 yet except documentation.
+
+### Changed
+
+- The README and this changelog are rewritten to be readable: short sections, tables, and the long notes folded away.
+
+## 0.1.2 — 18 Nov 2026
+
+**Highlights**
+
+- Short story arcs in the world: the Director can write a small arc of 2 to 4 happenings that play out on their own days (behind **World events**, off by default).
+- Making your character now works in the new view (the New character window and the "make your character first" hold).
+- Six empty fields in the new view now have data (purse this reply, Journal days, planned trips, quest Focus, agendas, news on the road).
+- Editing a reply's story text is much faster (about 0.93 s down to 0.13 s at 201 messages).
+
+### Added
+
+- Generated arcs: an opening, up to two more steps and an ending, written and checked when the arc starts and kept with the chat (World events on).
+- The New character window and the first-send hold are drawn by the new view.
+- Bag › Purse › This turn, Journal day lines, Journal › Planned, a kept quest Focus, Story › Agendas names, Story › News on the road.
+
+### Changed
+
+- A world event that waits for an arc to end happens a day after the ending at the earliest.
+- With World events on, a failed call for small happenings is asked once more.
+
+### Fixed
+
+- Editing a reply's prose no longer plans the whole story's steps again.
+- Wizard sheets keep the keyboard focus, keep Tab inside, and show normal skill sentences.
+
+### Removed
+
+- The unused Fight tab composer (`ui/tabs/fight/fight.js`).
+
+<details><summary>Full notes</summary>
 
 **Short arcs in the world.** Behind the same switch as 0.1.1, **Settings › World and time › World events** (off by default). With it off the arcs do nothing; the changes outside the switch are listed below.
 
@@ -15,15 +52,54 @@ Released 18 Nov 2026.
 - **Editing a reply's story text no longer plans the story's steps again (perf PB8).** When an edit leaves the reply's change block (shown or hidden), its stray change lines and its swipe as they were, and every block of the reply still applies, the story is rebuilt as before but the reconcile is skipped. The reconcile planned every guarded step again from the first one in the chat, and each came out as it was stored, because an edit takes nothing back by itself: Re-read is how an edit reaches the story. Every other edit takes the full path as before: a change to the block, a new or changed change line in the story, an edit that adds or removes a day or month name, a `#N`, or a word of a cast person's name or alias, a user message, an edit with no message number, or a reply whose blocks do not all apply after the edit. The same goes for deletes, swipes and Re-reads. The state and the Problems are the same as before, unless settings, packs or module versions changed since the story's steps were last planned: then the steps meet them at the next swipe, delete or Re-read, as after a reload. The stored records differ only in bookkeeping hashes: the boundary and checkpoint hashes after the edited reply are stamped again by the next swipe, delete or Re-read, not by the edit itself. Until then a rebuild replays from the checkpoint before the edit, and the next swipe, delete or other full-path edit does the skipped walk once. Measured in the perf rig at 201 messages: an edit of message 6 went from 0.93 s to 0.13 s, and an edit of the last reply from 0.17–0.22 s to under 0.05 s; the next full-path change after them took 1.0 s instead of 0.16 s. How it is told, and why it is safe: `docs/dev/edit-prose-only.md`.
 - **Making your character works in the new view (NEWWIZARD; needed before the old view is taken away, B4-4).** The New character window and the first-send hold were the old view's screens, drawn by its hidden host. The new view now draws both itself, as bottom sheets in the mock's parts (the Party stat sheet's rows and buttons, the Journal editor's fields, the kit buttons; `ui/wizard/`, `ui/css/wizard.css`), with the old window's words, steps (Who · Stats · Skills · Review, with the summary row and Back / Next), rules and templates. Create sends the same commands in the same order as the old window (`modules/rpg/view/wizard-data-parts/create-run.js`, the old Review step's sequence without a DOM, each with `{ cause: 'ui' }`), so a swipe, a Re-read, a delete, a rewind and a reload treat them alike. Three ways in: (1) with the RPG on and no You, the first Send (button or Enter) is held by the sheet "Make your character first" (Send without the RPG for now, or Create your character, then send; closing puts the text back), which opens the suite for it and closes it after; it writes the same chat notes as the old dialog and listens before the old host's own hold, so only one window ever opens; (2) the Party tab shows, with "Create your character" (nobody yet) or "+ New character" (companions but no You), while the story has no You: the tab used to be hidden until the roster listed someone; once You exist it is as before (with Gear in fights off the roster lists nobody, so the tab goes again); (3) People › Add to party › Edit first opens it filled in for that person: the port's `open('story-block/new-character')` is answered by the new view and the old host's page event is no longer sent for it (a second open while one is up is refused, never passed on). Differences from the old window: the Stats step uses the stat sheet's − / + rows instead of the steppers and the radar (the mock has no radar); a skill is a card of stacked fields instead of a table row, so it fits the 460 px sheet; the old Home card "Your character" has no new-view counterpart (the Party tab's button stands in). A chat change closes the sheets and nothing more is sent (a Create already under way stops between commands, so the first chat can keep a Character without its Skills); a sheet closed by hand during Create lets it finish, as the old window did. After a Create that left a block or a thing out only Done stays (no Back). The old host's own wizard and hold stay on the page, unused under the new view, until B4-4 removes them. **Review fixes (WIZFIX):** the keyboard stays where it was when a step is redrawn (Next / Back, an arrow on the step tabs, a stepper, a skill's type, Add and × keep the focus on the equivalent control inside the sheet; before, every step change dropped it to the page); every sheet now keeps Tab inside itself (the sheet is aria-modal), and closing a sheet gives the focus back to its opener only when it was still in that sheet, so the join card closing after Edit first no longer takes the focus from the wizard opened over it; a skill's "What it does" is a two-row box, so a normal sentence shows; the sheet title's theme-bar reset is in the shared sheet style, not only the wizard's; the docs say the real skill limits (five combat skills to start, up to eight with level, three utility).
 
-### For developers
+</details>
+
+<details><summary>For developers</summary>
 
 - **Generated arcs (WEGENARCS).** Behind `story-director.world-events`; with it off nothing here runs, and a world with no open template that carries `arc` steps exactly as before (checked on a flag-on scenario with open templates against 0.1.1: the same bytes). An open template with `"arc": { "steps": [2, 4] }` may start an arc: the Director's answer for the slot carries `arc: { steps, ending }` (later steps with `after` and `within` days, optional `severity: "major"`), the whole plan is checked once against the menu and guards, stored with the slot's answer in the ledger and copied into `chronicle.daily.arcs`; code fires each step on its window (a seeded day, no Director call) and records `arc-ended:<template>@<ref>` when the ending fires. A major step holds one realm slot while the arc runs; a minor step counts against density but is not blocked. Steps are checked again when they fire (a step that no longer holds is skipped, never rewritten). New: `daily/arc-plan.js`, `daily/arc-day.js`, `arc-ended` in the anchor grammar, the arc wording in the Director's system text (only when a slot may start an arc), and stored answers with a plan may be up to 7000 characters (others stay 3000).
 - **Generated arcs, review fixes (ARCSFIX; ruling 52).** Behind `story-director.world-events`; with it off nothing here runs, and a template with no `arc` stores the same answer as before (name, summary, people, effects only). An arc template's range now counts every happening, the opening and the ending included (`[2, 4]`: `arc.steps` lists 0 to 2); the opening's `severity: "major"` counts for the caps. Only checked fields are stored and a plan's texts are cut before it is checked, so a stored plan is always whole JSON (before, a plan with extra fields could be cut mid-JSON and lose its arc); a plan still over 7000 characters is refused like any bad plan. The call asks for 1200 tokens plus 1200 per arc slot, keeps the whole rows of a cut answer (only the cut slots are asked again) and asks a timed-out call once more. The prompt now shows the arc shape, the counting rule and the 1-90 / 1-60 day ranges. Hidden lore titles match ignoring extra spaces. The ledger's answers stay within about 120000 characters (oldest first). Known: an authored event anchored on `arc-ended:` reacts the day after the ending (authored events run before arcs each day); a rewind past an answer that was dropped from the ledger uses the fallback.
 - **Release 0.1.2 (REL012).** `world/arcs` (two commits on `world/engine` before 0.1.1, which reached main as one squashed commit) was replayed onto main (0.1.1 and the commits after it) with its own two commits, not merged: a merge gave 45 add/add conflicts with the squashed copy. The code change is line for line the reviewed one; `docs/v2/PACKS.md` keeps both 0.1.1's LAB2ENG and sub-place text and the arcs paragraph; `docs/codemap/jobs.json` gains only the arcs' entries; the maps are regenerated. Version 0.1.2 everywhere (`node scripts/release.mjs 0.1.2`; `docs/INSTALL.md` by hand). The UIGAPSFIX, PB8 and NEWWIZARD entries, which landed inside the 0.1.0 section beside stale copies of 0.1.1 lines, move here and the copies are dropped (0.1.1 and older read as released).
 
-## 0.1.1
+</details>
 
-Released 18 Nov 2026.
+## 0.1.1 — 18 Nov 2026
+
+**Highlights**
+
+- The world moves on its own: events, conditions and a daily world step (behind **World events**, off by default).
+- News travels along the routes and arrives as rumour beyond its reach; the reply tail carries a short [World now] note.
+- The Director fills small happenings from the pack's menu and judges arc plans against the world.
+- NPC State keeps a world pack's secrets until they are earned.
+- Sample world pack Ersveil (31 people, 103 world events), and a first read-only Pack Studio.
+- Faster and smoother replies (several perf fixes) and a switch to keep the last two replies' change blocks in the prompt.
+
+### Added
+
+- World events and conditions, the daily world step, Tempo, news by courier, the [World now] note, the World tab's Conditions here card, and the Settings rows (World events, Tempo, Director calls this game year).
+- Open templates, the Director judge and the arc world note.
+- Pack secrets in NPC State; the sample pack `examples/packs/ersveil-world`.
+- Follow star puts a person on the narrator's key list; People › Elsewhere shows what followed people do.
+- Settings › Tools: Save points. Pack Studio (read only, `studio/index.html`).
+- Settings › Models › Calls: keep the last two replies' change blocks (on by default).
+
+### Changed
+
+- A pack may carry world-pack sections and installs (before, it failed).
+- The World tab shows a region's name, not its id.
+- The day digest no longer lists the names check as an event.
+- A first meeting's [Cast] note and the world pulse no longer give the narrator the stranger's name.
+
+### Fixed
+
+- A repaired travel stretch no longer overshoots; a doubled reply draft is cut; a repaired day jump keeps the time of day.
+- No 5-second wait after an edit or delete (NPC State); the World map no longer lays out every frame; chat scrolls smoothly under the new view; less work per reply in the new view.
+- A trip stop keeps the same id after a Re-read.
+
+### Removed
+
+- Nothing for players.
+
+<details><summary>Full notes</summary>
 
 **The world moves on its own, and the Director directs.** Everything in this list is behind one switch, **Settings › World and time › World events** (off by default). With it off the world features below do nothing and the story runs as in 0.1.0; the few changes that are not behind the switch are listed under "Also changed with the switch off".
 
@@ -61,7 +137,9 @@ Released 18 Nov 2026.
 - **Save points on Settings › Tools, and the card offer no longer needs the old view (B4 prerequisites).** (1) Settings › Tools has a Save points card (only while the feature `story-block.savepoints` is on, which it is by default): this chat's save points with name, message number and date, a Save point button that asks for a name, Return here (opens the branch) and Forget (takes it off the list; the branch stays in SillyTavern). The save points are built once at boot (`core/boot/host-parts.js`) and the old view is handed the same instance. The "Removed" list on Settings now says only "Return in time" is gone. (2) The card-offer controller is built at boot too (`packs/card-offer-wiring.js`, moved out of `ui/legacy/ui-host/`); boot reads the card again on a chat change and clears the "Installed …" line after a reply, so the Now card's pack offer works without the old view. The old view takes boot's controller when given one and builds its own otherwise (nothing changes for it).
 - **Chat scrolls smoothly under the new view (PB3).** The old view's reply cards (`ui/legacy/view/mounts/card`) are hidden under the new view but were still built for every message that scrolled into view, each replaying the story from a checkpoint. While the body has the class `ss-ui-next` the card mount now draws, observes and looks up nothing, and a card strip left from before is taken away. "Use the old view" removes the class, and the mount then watches the messages again and draws the cards on screen. Nothing else changes: with the old view the cards are drawn exactly as before.
 
-### For developers
+</details>
+
+<details><summary>For developers</summary>
 
 - **Release 0.1.1 (REL011).** `node scripts/release.mjs` now also writes the pack checker's suite version (`packs/validate/core-parts/host-version.js`, which `requires.suite` is checked against; before, a bump left it behind and only `tests/packs/format3.test.js` noticed), and `tests/scripts/release-versions.test.js` pins it. The release gate's version is 0.1.1 (`scripts/release/check.mjs`). A pack that names exactly `"0.1.0"` (not a range like `"^0.1"`) is now refused, as a pinned version should be; the two test fixtures that did (`tests/packs/helpers/world-pack-sample.js`, `tests/packs/world-pack-spec-examples.test.js`) now say `"^0.1"`, as every shipped pack does. The Studio's tests follow the engine's pack checker: `tests/packs/studio/parts-check.test.js`, `zip-export.test.js` and `tests/ui/studio/studio-page.test.js` expect the world-pack kinds to be known, the sample world pack to pass, the fixture's remaining problems (`content.start`, an event's `cue`, a missing `ends_when`) under their parts, and a zip's top-level `.md`/`.txt` notes to be left out while any other stray file is still refused. Not built: a narrator's `+ quest` counting as "took on" in the day line (it needs a new stored day-facts field; the `Director: + quest` receipt is not kept in the day's entry).
 - **The v1 Story Suite handshake is removed (B4-2).** NPC State no longer writes `globalThis.StorySuite`, announces itself to a v1 registry, offers the Source of truth settings or the "Manage all in Story Suite" button, or reads the `sourceOfTruth` setting (a saved one is dropped). The scene follows Story Block's `scene.present` and the calendar follows Story Director, as they did by default. `legacy/runtime-suite.js`, `suite.js`, `suite-handshake*` and `story-block-tabs.js` are gone; the live parts (`npcs()`, `npcProfiles()`, the reply preview, the dossier target) are in `modules/people/npc-api/` and `runtime/runtime-npc-api.js`. Backup: `scratch/backups/retire-b4h-handshake`.
@@ -97,9 +175,43 @@ World events engine, first pieces. Everything here is behind one new feature swi
 
 World events engine, core fixes (block review of the engine). With the switch on: a recurring or minor `where` with `kinds` now honours its optional `region` / `realm` (before they were read and dropped), and its realm slots in the caps come from the places it can match (a one-off with a kinds `where` took none); an anchor in `ends_when.any_of` ends an event only when it becomes true after the event fired; the news of a happening is timed by the roads as they stood when it set out, so a road closed later no longer takes back news that has come; a narrator clear of a condition that is not active leaves the day's tomb as the daily step's clear does; setting a condition whose time has passed (not yet settled) starts it anew; a nameless route with id ends gets its courier factor. A condition on the realm "the Wilds" still holds at wild places (kept, now written down in PACKS.md). Switch off: unchanged.
 
-## 0.1.0
+</details>
 
-Released 18 Nov 2026.
+## 0.1.0 — 18 Nov 2026
+
+**Highlights**
+
+- First release as one extension: Story Block, Story Director and NPC State Delta are now Story Suite.
+- A new view with tabs Now, Story, People, Party, Bag, World and Fight, and one Settings overlay.
+- Combat Rules v1: one set of rules and one way to fight, on the fight board.
+- Pack format 3 and the Ersveil example world.
+- Fresh start: nothing is carried over from the old three.
+
+### Added
+
+- One extension, one drawer, one Models page, Diagnostics for parts that fail to start.
+- The new view, per-reply change lists, Story › Trackers, a Foes-are-standing card, the pack offer on Now, a trip card.
+- Combat Rules v1: seven stats, typed skills, foe tiers, the New character wizard.
+- Activities get a tab while open.
+
+### Changed
+
+- The safety net now runs on the Background connection (it used to use Quick helpers).
+- Story checks are success or fail, with a decisive natural 20.
+- Packs use format 3; a pack can no longer tune combat numbers.
+- Ersveil is converted to Combat Rules v1 as far as needed to play.
+
+### Fixed
+
+- Replies that forget their change block are repaired by the safety net (see the full notes).
+
+### Removed
+
+- The older combat rules, the roll planner, narrated fights, the Rolls and Fight board switches.
+- NPC State's hidden JSON block, save points, the layout editor, the top strip.
+- The separate NPC State Delta drawer and any migration from the three old extensions; the Riverside starter pack.
+
+<details><summary>Full notes</summary>
 
 First release of Story Suite as one extension. It brings together what was Story Block, Story Director and NPC State Delta (now called NPC State). Their own changelogs, with every earlier version, are kept in `docs/history/packages/`.
 
@@ -177,7 +289,9 @@ This part is for players: what is new, what is different, what is gone. The note
 - The separate NPC State Delta drawer, and any migration from the three old extensions.
 - The Riverside starter pack as a shipped example.
 
-### For developers
+</details>
+
+<details><summary>For developers</summary>
 
 - **The old view's survivors move out of `ui/legacy` (B4-3).** Files that live code, the packs and the modules still use were moved with `git mv`, every import and path string re-pointed, no behaviour change; the old view imports them from the new places. `ui/legacy/director/` → `modules/director/`; `diagnostics-parts/` → `core/diagnostics-parts/`; `extras.js` and `extras-parts/` → `modules/scene/`; `ui/scene-tab.js` and `inventory-tab.js` → `modules/scene/domains/core/`; the screen data and its validators (D1: pack and module screens stay for the Template tab): `view/template/`, `view/css.js` and `view/css/`, `view/bind*` → `packs/template/`; `view/screens.js` → `packs/screens/registry.js`; the default screens (`screens/` except the old view's own Save points, ready hint and UI sample) and `inspect.js` → `packs/screens/defaults/` and `packs/screens/inspect*`; `layout/` → `packs/layout/`; `view/widgets/`, `view/icons/`, `scroll`, `modal-stack`, `gear-form`, `hero-edit` → `packs/widgets/` and `packs/icons/`; `ui/dom.js` → `packs/dom.js`. The prompt-size and sent-text helpers (`promptSize`, `sentText`, `redactSentOf`) → `core/sent/`, the settings text they read → `core/settings-text/`, and the list-field lines → `core/list-lines/`; `host-ui.js` still re-exports the three helpers, and the new view's Tools page and the Diagnostics report import them from `core/sent/`. One shim stays in the old view, `ui/legacy/screens/home.js`, so `ui-host/setup.js` keeps its listed line; it goes with the host in B4-4. The tests of the template, widgets, icons, layout and Director screens moved with them (`tests/packs/…`, `tests/modules/director/screens/`). Nothing was deleted; the dry-run card text finds the moved files by their new paths. The full table is in `scratch/batch/SMALL/night/B4MOVE.REPORT.md`.
 - **The v1 Story Suite handshake is removed (B4-2).** NPC State no longer writes `globalThis.StorySuite`, announces itself to a v1 registry, offers the Source of truth settings or the "Manage all in Story Suite" button, or reads the `sourceOfTruth` setting (a saved one is dropped). The scene follows Story Block's `scene.present` and the calendar follows Story Director, as they did by default. `legacy/runtime-suite.js`, `suite.js`, `suite-handshake*` and `story-block-tabs.js` are gone; the live parts (`npcs()`, `npcProfiles()`, the reply preview, the dossier target) are in `modules/people/npc-api/` and `runtime/runtime-npc-api.js`. Backup: `scratch/backups/retire-b4h-handshake`.
@@ -244,3 +358,5 @@ This part is for players: what is new, what is different, what is gone. The note
 - **Tools page (new view).** Settings › Tools now shows, read from the live engine each time it is drawn: the budget bars and the text sent with the next reply (with the three budget rows under the bars, and the footer meter), the Inspector (a sheet: pick an older or newer reply; its changed lines, what code did, its problems and the state after; read again at each move), Problems (the turn's problems, and a blocked branch's "dossiers can't be restored" entry with the same two choices, the last 40 replies or the whole chat, which replaces the old banner on this page) and Diagnostics (Copy report). The Developer card and its Template page are unchanged. `StoryBlock.tools` is a new read-only handle for these (it also carries the rebuild button's call); the old view is untouched. Not built because nothing in the engine backs them yet: the Prompts rows (read, edit and reset the People and Arc planner prompts), Chat data (export and import this chat's suite data, "Rewind when a middle message is deleted", "Re-read changed branches") and Diagnostics › Pack events. Save points have no page in the new view (restart from a message instead).
 - **RPG read model for Party, Card and Now (G5a).** Two new queries, both gated by the RPG feature (null with it off): `rpg.sheet` answers one row per member of the party (not those who left) with `id`, `name`, `level`, `line` ("Lv 14 · Guild F"), `className`, `bars` (hp, mp, sp), `xpPct`, `points`, `soakPct` (VIT plus the worn gear's soak, capped at 50; the Defence stance adds its mastery only in a fight), `stats` (STR VIT AGI DEX INT WIS CHA on a Combat Rules v1 Character, `null` on an earlier one) and `skills` (kind, stat, cost, rank and mastery from the v1 tables); `party.terms` answers `{ levelName: "Lv" }`, which the game header and the Card were already asking for and nothing answered. The new view's Party tab, Card (level, class line, bars, exp, soak chip) and Now tab (a "points to spend" row that opens Party) read them. Not built: `away` and `effects` stay empty (nothing keeps where an absent companion went or a timed condition), a member's picture and the per-item soak stay gaps, and the Fight board is not changed.
 - **Pack format 3 (pack format 3 job).** A pack says `"format": 3` (left out it is format 2; a newer number than 3 is refused) and names the suite it needs with `requires.suite` (`"^0.1"`; `requires.storyBlock` still loads, checked against the host number 2.33.0 or the suite version). Skills in a pack use Combat Rules v1's words: stats with WIS (LUK is read as WIS), the eight types (`combat` is read as `attack`), `uses` sp or mp (stamina and mana still accepted), ranks novice to legend; a cast member's skill type now reaches the Skills block when they join or return (before, only `utility` did), and a join receipt's tile names the rank with v1's seven words. `content.rpg.formula` is `"v1"` (`"standard"` accepted); `content.rpg.numbers` is accepted with a warning and ignored, so a pack cannot tune combat numbers. `creatures, shops, recipes, quests, races, talents, presets, terms, ranks, crafts` and the top-level `layouts` and `screens` are accepted with a warning and left out (their checks and tests are removed). New `content.foes`: a bestiary of name, aliases, tier (mob to apex), level, about and tags; the fight pre-check uses a listed foe's tier and level, and an unlisted foe keeps the pre-check's tier. Ersveil is 3.0.0 (a minimal conversion: every skill has an explicit v1 type, the two LUK items give DEX, no lore was rewritten); its add-ons are 2.0.0 and survival asks for `director`, not `story-director`. `riverside-starter` is now a test fixture in `tests/packs/fixtures`, not a shipped example. `docs/v2/PACKS.md` "Pack format 3".
+
+</details>
