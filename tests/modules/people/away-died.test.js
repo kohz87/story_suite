@@ -16,7 +16,7 @@ const viewRows = host => host.sdk.query('director.away.view').people.map(row => 
 const removed = (host, name = 'Ren') => host.sdk.query('director.away').find(row => row.name === name)?.removed ?? null;
 const snapshot = host => JSON.stringify([host.head().domains.away, host.head().domains.people.npcs.npc_f0.lifeState ?? null, viewRows(host), awayTaught(host.head())]);
 const noProblems = host => assert.deepEqual(host.turn.problems().filter(problem => problem.code !== 'NO_CHANGES'), [], 'no Problem (a reply with no change block is a quiet note)');
-const REN_DUE = /Ren: away, scouting the north road, due back/;
+const REN_DUE = /Ren: away, scouting the north road, overdue \(due back/;
 
 // Gives one person a dossier as npc_f0 on the head reply and the Follow star, as followPeople does, but with the aliases stored as a list
 // (the people store's shape; followPeople writes them as one comma-joined string, which no alias reader takes).
@@ -37,7 +37,7 @@ async function deadWhileAway(t, { person = { name: 'Ren' }, called = 'Ren' } = {
     await host.send('Go.', said('Ren leaves.', [`+ away ${called} — scouting the north road | back: June 4`]));
     await host.send('Wait.', said('Days pass.', ['~ time June 6, 1200, 09:00 am']));
     await host.send('Next.', said('The road is quiet.'));
-    assert.match(tailLines(host), new RegExp(`${called}: away, scouting the north road, due back`), 'alive and overdue: the tail asks for him');
+    assert.match(tailLines(host), new RegExp(`${called}: away, scouting the north road, overdue \\(due back`), 'alive and overdue: the tail asks for him');
     assert.equal(taughtSent(host), true);
     assert.deepEqual(viewRows(host), [['Ren', 'Away · due back']]);
     await host.send('Ambush.', said('Riders on the north road.'));
@@ -116,7 +116,7 @@ test('a middle delete of the death\'s reply: the later replies stand and Ren is 
         host.store.rebuild();
         assert.equal(snapshot(host), live, 'rebuild == live');
         await host.send('On.', said('Quiet.'));
-        assert.match(tailLines(host), /Ren: away, scouting the north road, due back \([^)]*\); latest: seen at the ford\./);
+        assert.match(tailLines(host), /Ren: away, scouting the north road, overdue \(due back [^)]*\); latest: seen at the ford\./);
     } finally { host.close(); }
 });
 

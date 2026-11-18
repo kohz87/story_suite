@@ -43,7 +43,7 @@ test('away lines: + sends someone away (anyone, followed or not), ~ changes it, 
     } finally { host.close(); }
 });
 
-test('the return date: a date or a stretch from now; one that cannot be read keeps the old one with a Problem; a date that passed says "due back"', async t => {
+test('the return date: a date or a stretch from now; one that cannot be read keeps the old one with a Problem; on the day it says "due back", a day later "overdue" (S2PA B24)', async t => {
     const host = await start(t);
     try {
         await host.send('Go.', said('Ren leaves.', ['+ away Ren — on an errand | back: in 2 days']));
@@ -51,9 +51,12 @@ test('the return date: a date or a stretch from now; one that cannot be read kee
         await host.send('On.', said('Hm.', ['~ away Ren | back: Someday Soon']));
         assert.match(host.turn.problems().map(item => item.message).join(' '), /is not a date on this calendar/);
         assert.equal(host.sdk.query('director.away.view').people[0].back, 'June 5', 'kept as it was');
-        await host.send('Later.', said('Days pass.', ['~ time June 6, 1200, 09:00 am']));
+        await host.send('Later.', said('Days pass.', ['~ time June 5, 1200, 11:00 pm']));
         await host.send('Wait.', said('Quiet.'));
-        assert.match(elsewhere(host), /Ren: away, on an errand, due back \(June 5\)\./);
+        assert.match(elsewhere(host), /Ren: away, on an errand, due back \(June 5\)\./, 'on the back day: due back');
+        await host.send('Later.', said('Midnight passes.', ['~ time June 6, 1200, 09:00 am']));
+        await host.send('Wait.', said('Quiet.'));
+        assert.match(elsewhere(host), /Ren: away, on an errand, overdue \(due back June 5\)\./, 'a day past the back date: overdue');
     } finally { host.close(); }
 });
 
