@@ -111,8 +111,8 @@ test('the tail gives each present person one line: the newest secret first, else
     const oren = addKnow('', 'r1', [weather]).text;
     const lines = knowsTail([{ name: 'Astra', knows: astra }, { name: 'Oren', knows: oren }]);
     assert.deepEqual(lines, [
-        'Astra (hidden): knows Mira\'s owes a debt; never reveal it unless the story shows them telling.',
-        'Oren knows: Mira\'s is afraid of rain',
+        'Astra (hidden): knows Mira owes a debt; never reveal it unless the story shows them telling.',
+        'Oren knows: Mira is afraid of rain',
     ]);
 });
 
@@ -189,4 +189,9 @@ test('same reply: an exact line then a wordy line for the same fact: the Re-read
     assert.equal(knowRuleFor(standing(marked), 'roeland', 'r1', wordy), KNOW_RULE, 'a tolerant entry replays tolerant');
     const both = addKnow(marked, 'r1', [{ about: 'Astra', fact: 'other', how: 'saw', rule: undefined }, ...readKnows(marked)], {}).text;
     assert.equal(knowRuleFor(standing(both), 'roeland', 'r1', wordy), KNOW_RULE, 'the mark survives a passed-through same-reply set');
+});
+
+test('S2PD B28: a fact that opens with a verb follows the name without a possessive; a noun phrase keeps it', () => {
+    const verb = addKnow('', 'r1', [{ about: 'Torka', fact: 'hunts the singing orc', how: 'heard' }]).text;
+    assert.deepEqual(knowsTail([{ name: 'Astra', knows: verb }]), ['Astra knows: Torka hunts the singing orc']);
 });

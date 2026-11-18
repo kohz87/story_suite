@@ -39,8 +39,8 @@ export function clockFaceAfter(line, minutes, calendar, options = {}) {
     const { maxJump = MAX_JUMP_DAYS * DAY_MINUTES, from = null, openDay = null, soft = 0 } = options;
     if (line?.op === '-' || line?.op === '?' || !words || !Number.isInteger(minutes) || durationMinutes(words) !== null) return timeAfter(line, minutes, calendar, options);
     const shown = clip(words);
-    const bad = badClock(words);
-    if (bad) return { error: `"${shown}" has ${bad}, which is not a clock time; the story time is left as it was.` };
+    const bad = badClock(words, shown);
+    if (bad) return { error: bad };
     const skip = line.op === '!' ? skipTarget(words, minutes, calendar) : null;
     const parsed = calendar.parse(words, { reference: minutes });
     if (skip === null && (!parsed || !Number.isFinite(parsed.abs))) return { error: `"${shown}" is not a date or a stretch of time on this calendar.` };
