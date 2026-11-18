@@ -17,7 +17,7 @@ const minutes = host => host.head().domains.director.time.minutes;
 
 // A small world the daily step can read whole (no thresholds): a levy that sets unrest on day 2, with realms, kind maps and named routes.
 const SMALL = {
-    id: 'world-real', version: '1.0.0', name: 'World real', format: 3, requires: { storyBlock: '^2' },
+    id: 'world-real', version: '1.0.0', name: 'World real', format: 4, kind: 'world', requires: { suite: '^0.1' },
     content: {
         placeKinds: { town: 'town' }, routeKinds: { road: 'road', river: 'river' },
         realms: [{ id: 'march-realm', name: 'March Realm', regions: ['the-march'] }],

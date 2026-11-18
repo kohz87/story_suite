@@ -58,7 +58,7 @@ export const REAL_ROWS = {
     {"key":"rpg.gearInFights","group":"Bag and gear","type":"sw","label":"Gear in fights","hint":"Worn gear adds a few points to the stats by rarity and wears down; what a member can carry follows their strength (and the party is encumbered past it).","value":false,"default":false,"options":null,"unit":null,"tags":[],"wide":false},
   ],
   world: [
-    {"key":"world.calendar","group":"Calendar","type":"seg","label":"Calendar","hint":"From the pack, or a preset","value":"From the pack","default":null,"options":["From the pack","Gregorian","Custom"],"unit":null,"tags":["merged:D4"],"wide":false},
+    {"key":"world.calendar","group":"Calendar","type":"seg","label":"Calendar","hint":"From the pack, or a preset","value":"From the game pack","default":null,"options":["From the game pack","Gregorian","Custom"],"unit":null,"tags":["merged:D4"],"wide":false},
     {"key":"world.weather","group":"Weather","type":"seg","label":"Weather comes from","hint":"Same switch as Director › Weather from the calendar. Rolled from the calendar is on; The story only is off","value":"Rolled from the calendar","default":null,"options":["Rolled from the calendar","The story only"],"unit":null,"tags":["merged:D7"],"wide":false},
     {"key":"world.northIs","group":"Map","type":"seg","label":"North is","hint":null,"value":"Up","default":null,"options":["Up","Down"],"unit":null,"tags":[],"wide":false},
     {"key":"world.eastIs","group":"Map","type":"seg","label":"East is","hint":null,"value":"Right","default":null,"options":["Right","Left"],"unit":null,"tags":[],"wide":false},

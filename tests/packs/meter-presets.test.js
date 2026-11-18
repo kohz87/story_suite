@@ -6,8 +6,9 @@ import assert from 'node:assert/strict';
 import { validatePack } from '../../packs/validate.js';
 import { contentOf } from '../../packs/content.js';
 import { CONTENT_KINDS, METER_LIMITS, METER_RESERVED, OPTIONAL_KINDS } from '../../packs/limits.js';
-import { pack } from './helpers/fixtures.js';
 
+// meterPresets belong to a game pack (format 4).
+const pack = (extra = {}) => ({ id: 'mini', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1' }, content: {}, ...extra });
 const meter = (extra = {}) => ({ id: 'regard', name: 'Regard', min: -100, max: 100, start: 0, ...extra });
 const preset = (extra = {}) => ({ id: 'frontier', title: 'Frontier Regard', meters: [meter()], ...extra });
 const withPresets = list => pack({ content: { meterPresets: list } });

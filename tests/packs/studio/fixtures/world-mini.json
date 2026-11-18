@@ -1,5 +1,7 @@
 {
   "id": "studio-world-mini",
+  "format": 4,
+  "kind": "world",
   "version": "0.1.0",
   "name": "Studio world (test)",
   "author": "Story Suite tests",

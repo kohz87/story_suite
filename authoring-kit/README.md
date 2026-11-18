@@ -9,4 +9,4 @@ Use the kit to draft Story Block data modules from your own world. The kit conta
 
 If the pack needs another installed module, add `--with-capability <name>` when checking. The pack format and size limits are in `reference/PACK-FORMAT.md` and `reference/LIMITS.md`. Code-module guidance is in `prompts/code-module/`.
 
-For a small world with notes, places and routes, see `examples/tiny-world/`.
+For a small world with notes, places and routes (a format 4 world pack), see `examples/tiny-world/`.

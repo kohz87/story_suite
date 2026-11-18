@@ -25,7 +25,7 @@ export function playerRankValue(state, playerRank, query) {
     } catch { return null; }
 }
 
-/** What a pack says of levels, from its `content.rpg` records (the one with the slug `ranks`): { ranks?, levelCap? }, or null. */
+/** What the selected game says of levels, from `content.rpg` records (the one with the slug `ranks`): { ranks?, levelCap?, playerRank? }, or null. */
 export function packLevelsOf(records) {
     const found = (Array.isArray(records) ? records : []).find(record => isObject(record) && record.slug === 'ranks');
     if (!found) return null;
@@ -34,7 +34,7 @@ export function packLevelsOf(records) {
         ...(isObject(found.playerRank) && ['module', 'field', 'label'].every(key => typeof found.playerRank[key] === 'string' && found.playerRank[key]) ? { playerRank: { module: found.playerRank.module, field: found.playerRank.field, label: found.playerRank.label } } : {}) };
 }
 
-/** The query function: `rpg.rank { level, ranks? }` → { name } | null. Without `ranks` in the arguments it reads the packs' (`packs.content` of kind rpg). */
+/** The query function: `rpg.rank { level, ranks? }` → { name } | null. Without `ranks` in the arguments it reads the game's (`packs.content`, kind rpg). */
 export function rankQuery(_state, args, tools) {
     let ranks = args?.ranks;
     if (ranks === undefined) {

@@ -37,10 +37,12 @@ export async function loadSuite() {
     if (!existsSync(path.join(r.nsd, 'src/npc-notes-kinds.js'))) return { skip: `the npc_state_delta checkout at ${r.nsd} is older than its notes batch (no src/npc-notes-kinds.js): update it, or point SUITE_NSD at a current one`, roots: r };
     const at = (dir, rel) => import(pathToFileURL(path.join(dir, rel)).href);
     const [kit, SD, NSD] = await Promise.all([at(r.sb, 'testkit/index.js'), import(pathToFileURL(sdModuleAt(r.sd)).href), at(r.nsd, 'src/storysuite-v2.js')]);
-    return { roots: r, createHost: kit.createHost, SD, NSD, at: rel => at(r.sb, rel), packText: readFileSync(path.join(r.sb, 'examples/packs/ersveil/pack.json'), 'utf8') };
+    return { roots: r, createHost: kit.createHost, SD, NSD, at: rel => at(r.sb, rel),
+        // The shipped Ersveil pair (world pack + game pack), as main's suite installed the shipped Ersveil pack.
+        pairTexts: ['examples/packs/ersveil/pack.json', 'examples/packs/ersveil-game/pack.json'].map(rel => readFileSync(path.join(r.sb, rel), 'utf8')) };
 }
 
-/** A host with the two modules and the Ersveil pack installed before the chat starts. crypto is seeded while it lives. */
+/** A host with the two modules and an Ersveil world and game installed before the chat starts. crypto is seeded while it lives. */
 export async function suiteHost(loaded, { seed = 1, settings = null, nsdNpcs = [] } = {}) {
     // Receipt ids, seeds and reply ids follow the seed (the QA helper; its ids differ from the first character, unlike a counter's).
     const restoreCrypto = (await loaded.at('tests/suite/qa/helpers/seeded.js')).seedCrypto(seed);
@@ -50,8 +52,11 @@ export async function suiteHost(loaded, { seed = 1, settings = null, nsdNpcs = [
     // reads Story Director's clock through); handing its bare definition to the host would leave its story day unknown.
     const adapter = loaded.NSD.createStorySuiteV2Adapter({ suiteApi: { npcs: () => nsdNpcs }, delta: () => ({ isEnabled: () => true, getNpc: () => null }), host: () => globalThis.StoryBlock, doc: null, timers: {}, logger: { warn() {} } });
     const probe = await loaded.createHost({ settings: settings ?? {} });
-    const done = await probe.packs.packs.install(loaded.packText, { origin: 'pack.json' });
-    if (!done.ok) throw new Error('pack install failed: ' + JSON.stringify(done.errors));
+    // The shipped Ersveil world pack and its game pack (a caller's `pair: true` asks for the same pair).
+    for (const text of loaded.pairTexts) {
+        const done = await probe.packs.packs.install(text, { origin: 'pack.json' });
+        if (!done.ok) throw new Error('pack install failed: ' + JSON.stringify(done.errors));
+    }
     const storySuite = structuredClone(probe.ctx.extensionSettings.storySuite);
     probe.close();
     const host = await loaded.createHost({ settings: storySuite, modules: [sd] });

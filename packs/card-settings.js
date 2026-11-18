@@ -6,7 +6,14 @@
 // own, exactly as its own Save does. An owner that is not registered is an extension that is not installed.
 //
 // register({ owner, label, keys: { <key>: { label, valueText(v) → string, valid(v) → bool } }, read(key) → value,
-//            apply(values) → Promise<{ applied: [key] }> }) → unregister()
+//            apply(values) → Promise<{ applied: [key] }>,
+//            sections?: { <game pack content key>: { read() → value | undefined, apply(value) → Promise<boolean> } } }) → unregister()
+//
+// `sections` is the other use of the same registration: "Export settings as a game pack" (packs/game-export.js) asks each owner for the
+// section of a game pack's `content` it holds (`read`; undefined: nothing worth exporting), and re-importing hands a section back (`apply`).
+// A card never reaches a section; an owner with `sections` only may leave `keys` out.
+// `loadSections: async () => <the same object as `sections`>` offers sections whose code is fetched only when asked (the page start does not
+// carry it): `loadSections()` on the registry awaits every such owner once; `sections()` lists what is loaded so far.
 
 const OWNER = /^[a-z][a-z0-9-]*$/;
 const KEY = /^[A-Za-z][A-Za-z0-9_]*$/;
@@ -34,15 +41,30 @@ export function createCardSettings() {
         if (typeof spec.owner !== 'string' || !OWNER.test(spec.owner)) bad('"owner" must be a module id such as "story-block".');
         if (!own && RESERVED_OWNERS.includes(spec.owner)) bad(`"${spec.owner}" is Story Block's own owner; another module registers under its own id.`);
         if (typeof spec.label !== 'string' || !spec.label) bad('"label" must be text.');
-        if (typeof spec.read !== 'function' || typeof spec.apply !== 'function') bad('"read" and "apply" must be functions.');
-        if (!spec.keys || typeof spec.keys !== 'object' || Array.isArray(spec.keys) || !Object.keys(spec.keys).length) bad('"keys" must name at least one setting.');
+        const sectionsOnly = spec.keys === undefined && (spec.sections !== undefined || spec.loadSections !== undefined);
+        if (!sectionsOnly && (typeof spec.read !== 'function' || typeof spec.apply !== 'function')) bad('"read" and "apply" must be functions.');
+        const sections = {};
+        if (spec.loadSections !== undefined && typeof spec.loadSections !== 'function') bad('"loadSections" must be a function.');
+        const add = (name, def) => {
+            if (!KEY.test(name)) bad(`"${name}" is not a section name.`);
+            if (!def || typeof def.read !== 'function' || typeof def.apply !== 'function') bad(`section "${name}" needs read() and apply(value).`);
+            for (const other of owners.values()) if (other.owner !== spec.owner && other.sections[name]) bad(`section "${name}" already belongs to ${other.label}.`);
+            sections[name] = { read: def.read, apply: def.apply };
+        };
+        if (spec.sections !== undefined) {
+            if (!spec.sections || typeof spec.sections !== 'object' || Array.isArray(spec.sections)) bad('"sections" must be an object of game pack sections.');
+            for (const [name, def] of Object.entries(spec.sections)) add(name, def);
+        }
+        const given = spec.keys ?? {};
+        if (typeof given !== 'object' || Array.isArray(given) || (!Object.keys(given).length && !Object.keys(sections).length && !spec.loadSections)) bad('"keys" must name at least one setting.');
         const keys = {};
-        for (const [key, def] of Object.entries(spec.keys)) {
+        for (const [key, def] of Object.entries(given)) {
             if (!KEY.test(key)) bad(`"${key}" is not a setting name.`);
             if (!def || typeof def.label !== 'string' || typeof def.valueText !== 'function' || typeof def.valid !== 'function') bad(`"${key}" needs label, valueText(v) and valid(v).`);
             keys[key] = { label: def.label, valueText: def.valueText, valid: def.valid };
         }
-        const entry = { owner: spec.owner, label: spec.label, keys, read: spec.read, apply: spec.apply };
+        const entry = { owner: spec.owner, label: spec.label, keys, read: spec.read ?? (() => undefined), apply: spec.apply ?? (async () => ({ applied: [] })), sections, pending: spec.loadSections ?? null };
+        entry.add = add;
         owners.set(entry.owner, entry);
         tell();
         return () => {
@@ -118,6 +140,17 @@ export function createCardSettings() {
         registerOwn: spec => register(spec, { own: true }),
         plan,
         apply,
+        /** The game pack sections the owners hold: `[{ owner, label, section, read, apply }]`, in registration order. */
+        sections: () => [...owners.values()].flatMap(entry => Object.entries(entry.sections).map(([section, def]) => ({ owner: entry.owner, label: entry.label, section, read: def.read, apply: def.apply }))),
+        /** Fetches the sections owners offered through `loadSections` (once each; a loader that fails leaves its owner's sections out). */
+        async loadSections() {
+            for (const entry of [...owners.values()]) {
+                const load = entry.pending;
+                if (!load) continue;
+                entry.pending = null;
+                try { for (const [name, def] of Object.entries(await load() ?? {})) entry.add(name, def); } catch { /* its sections are left out */ }
+            }
+        },
         has: owner => owners.has(owner),
         owners: () => [...owners.keys()],
         subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },

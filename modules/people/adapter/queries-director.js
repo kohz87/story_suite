@@ -8,7 +8,7 @@ import { safeImageUrl } from './queries-dossier.js';
 
 // Story Block's query for a pack portrait's image URL (read only): packs.portrait({ pack, file }) → a safe URL or null.
 const PORTRAIT_QUERY = 'packs.portrait';
-// Story Block 2.18.0's query for a pack cast member's signature gear line (read only): packs.castGear({ name }) → { name, line: "Gear: A, B", items } or null.
+// Story Block 2.18.0's query for a format 3 cast member's signature gear line. Pack format 4 removed it (X1): the query is refused, so castGearLine is always '' (left until NPC State's cast entry drops the line).
 const CAST_GEAR_QUERY = 'packs.castGear';
 
 export function createDirectorQueriesPart(session, deps, { hostFeature }) {
@@ -117,7 +117,7 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
         if (!session.hosted || typeof session.sdkRef?.query !== 'function' || !pack || !file) return null;
         try { return safeImageUrl(session.sdkRef.query(PORTRAIT_QUERY, { pack, file })); } catch { return null; }
     }
-    // A pack cast member's one "Gear: A, B" line (`packs.castGear`), or '' (no host, an older Story Block without the query, or it answers null).
+    // A format 3 cast member's one "Gear: A, B" line (`packs.castGear`), or '': since pack format 4 the query is gone, so always ''.
     function castGearLine(name) {
         if (!session.hosted || typeof session.sdkRef?.query !== 'function' || !name) return '';
         try {

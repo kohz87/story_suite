@@ -6,7 +6,7 @@ import { installFakeDom } from '../helpers/dom.js';
 import { selectWorld } from '../../../ui/select/world.js';
 import { mapCard, fitBox } from '../../../ui/tabs/world/map.js';
 
-const pack = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil-world/pack.json', import.meta.url), 'utf8'));
+const pack = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const placesOf = (extra = {}) => pack.content.places.filter(p => Number.isFinite(p.x) && Number.isFinite(p.y)).map(p => ({ id: p.id ?? p.name, name: p.name, kind: p.kind ?? '', region: '', x: p.x, y: p.y, ...extra }));
 
 test('the northmost place of the sample world pack is drawn above the southmost', () => {

@@ -66,7 +66,7 @@ test('the calendar is the reader\'s: settings section Calendar, v1 defaults', ()
     assert.equal(part.settings.section, 'Calendar');
     assert.deepEqual(part.settings.defaults, settingsDefaults());
     // `pack`: the enabled pack's calendar when one has it, else Gregorian (below).
-    assert.equal(part.settings.defaults.calendar.preset, 'pack');
+    assert.equal(part.settings.defaults.calendar.preset, 'game');
     assert.equal(part.settings.defaults.calendar.months[0].name, 'January');
     assert.equal(calendarOf(part.settings.defaults).config.preset, 'gregorian');
     let state = reply(makeState(), '~ time CY 611, Goldwane 12, 12:45 pm', { settings: CUSTOM }).state;

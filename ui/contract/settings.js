@@ -5,7 +5,7 @@ import { SHAPE_TYPES as T } from './shapes.js';
 const SCALAR = { $oneOf: [T.STRING, T.NUMBER, T.BOOLEAN, T.NULL] };
 const MODULE_SET = { $objectOf: { on: T.BOOLEAN, subs: { $objectOf: T.BOOLEAN } } };
 
-export const SETTINGS_ROW_TYPES = ['sw', 'seg', 'num', 'multi', 'sel', 'txt', 'area', 'chips', 'btn', 'info']; // area: several lines of text
+export const SETTINGS_ROW_TYPES = ['sw', 'seg', 'num', 'multi', 'sel', 'txt', 'area', 'chips', 'btn', 'info', 'lines']; // area: several lines of text
 
 const ROW = {
   key: T.STRING,
@@ -20,6 +20,20 @@ const ROW = {
   tags: [T.STRING],
   wide: T.BOOLEAN,
   list: { $optional: { items: [{ $objectOf: SCALAR }], unused: [T.NUMBER], note: { $nullable: T.STRING }, meters: { $optional: [T.STRING] } } },
+};
+
+// The world-and-game page (format 4): present only when a format 4 pack is installed.
+const PICKER = { value: T.STRING, options: [{ value: T.STRING, label: T.STRING }] };
+const PACK_ROW = { id: T.STRING, name: T.STRING, tag: T.STRING, desc: T.STRING, problem: { $optional: T.STRING } };
+const PACKS_V4 = {
+  world: PICKER,
+  game: PICKER,
+  worldName: T.STRING,
+  gameName: T.STRING,
+  suggest: { $nullable: { id: T.STRING, game: T.STRING, installed: T.BOOLEAN } },
+  lines: [{ level: { $enum: ['error', 'warning'] }, text: T.STRING }],
+  installed: [PACK_ROW],
+  addOns: [PACK_ROW],
 };
 
 export const SETTINGS_SHAPE = {
@@ -38,6 +52,7 @@ export const SETTINGS_SHAPE = {
   removed: [T.STRING],
   packs: {
     packs: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING, on: T.BOOLEAN, problem: { $optional: T.STRING } }],
+    v4: { $optional: PACKS_V4 },
     modules: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING, on: T.BOOLEAN, locked: { $optional: T.BOOLEAN } }],
     trackers: { cap: T.NUMBER, items: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING }] },
   },

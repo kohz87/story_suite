@@ -3,22 +3,21 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../testkit/index.js';
 import { createModule } from '../../../modules/director/module.js';
 import { tripOf } from '../../../modules/atlas/atlas/trip.js';
 import { tripQuery } from '../../../modules/atlas/atlas/trip-query.js';
 import { selectNow } from '../../../ui/select/now.js';
+import { installBluewatch } from '../../fixtures/director/bluewatch.js';
 
-const PACK = readFileSync(new URL('../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
 async function host() {
     let h = null;
     const module = createModule({ host: { settings: id => h?.sdk.settings(id) ?? null, substitute: text => h?.sdk.substitute(text) } });
     h = await createHost({ modules: [module], settings: { features: { 'story-director.pulse': false } } });
-    await h.packs.packs.install(PACK, { origin: 'pack.json' });
+    await installBluewatch(h.packs.packs);
     await h.send('On.', said('R.', ['~ place Bluewatch Village', '~ trip Wolfmere Outpost | by: foot']));
     return h;
 }

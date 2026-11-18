@@ -8,7 +8,7 @@ test('public host record bounds match the validator and derived slugs', () => {
     assert.deepEqual(RECORD_LIMITS, { slug: 64, note: 500, word: 40, element: 24 });
     assert.equal(slugify('a'.repeat(RECORD_LIMITS.slug + 1)).length, RECORD_LIMITS.slug);
     for (const [field, limit] of [['note', RECORD_LIMITS.note], ['slot', RECORD_LIMITS.word]]) {
-        const pack = { id: 'limits', version: '1.0.0', requires: { storyBlock: '^2' },
+        const pack = { id: 'limits', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' },
             content: { items: [{ name: 'Item', [field]: 'a'.repeat(limit) }] } };
         assert.equal(validatePack(pack).ok, true);
         pack.content.items[0][field] += 'a';

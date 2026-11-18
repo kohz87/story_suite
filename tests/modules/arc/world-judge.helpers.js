@@ -14,12 +14,12 @@ export const sent = (host, key) => host.st.promptLog.filter(entry => entry.key =
 export const OPENING = said('Highmark at dawn.', ['~ time June 3, 1200, 08:00 am', '~ place Highmark']);
 // "Settlement" decides the succession without naming an outcome id: the code guard cannot see it, the judge can.
 export const PLAN = '<plan>\nARC: Succession — a crown in doubt\nBEAT: Refugees — families leave Highmark\nBEAT: Settlement — the lords settle who rules\nCLOCK: Rumours — whispers grow | due: in 2 days\nHOOK: Letter — a sealed letter\n</plan>';
-const PACK = JSON.stringify({ id: 'judge', version: '1.0.0', name: 'Judge', requires: { storyBlock: '^2' }, content: {
+const PACK = JSON.stringify({ id: 'judge', version: '1.0.0', name: 'Judge', format: 4, kind: 'world', requires: { suite: '^0.1' }, content: {
     places: [{ name: 'Highmark', region: 'The March', x: 0, y: 0, kind: 'town' }],
     lore: [{ title: 'The Crown', keys: ['crown', 'Highmark'], text: 'The crown passes by the high lords\' vote.' }, { title: 'The Vault', keys: ['vault', 'Highmark'], text: 'SECRET-VAULT-TEXT lies under the keep.', hidden: true, gate: 'fact:vault-open' }],
     cast: [{ id: 'aldric', name: 'Aldric', kind: 'figure', protected: true }],
 } });
-const PACK_MIN = JSON.stringify({ id: 'judge', version: '1.0.0', name: 'Judge', requires: { storyBlock: '^2' }, content: { places: [{ name: 'Highmark', region: 'The March', x: 0, y: 0, kind: 'town' }] } });
+const PACK_MIN = JSON.stringify({ id: 'judge', version: '1.0.0', name: 'Judge', format: 4, kind: 'world', requires: { suite: '^0.1' }, content: { places: [{ name: 'Highmark', region: 'The March', x: 0, y: 0, kind: 'town' }] } });
 const SPEC = {
     realms: [{ name: 'March Realm', regions: ['The March'] }],
     events: [{

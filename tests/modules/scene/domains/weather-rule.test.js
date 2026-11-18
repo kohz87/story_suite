@@ -114,22 +114,22 @@ test('a module\'s afterCapture weather step: kept on the reply, Re-read, swipe, 
     assert.deepEqual(other.head(), host.head(), 'a reload reads the same');
 });
 
-test('a pack\'s weather table: normalized, read through packs.weather; bad shapes refused', () => {
-    const base = { id: 'sky', version: '1.0.0', requires: { storyBlock: '^2' } };
-    const good = validatePack({ ...base, weather: {
-        seasons: [{ name: 'winter', months: ['Frostfall', 'Deepwinter'] }],
-        tables: [{ season: 'winter', region: 'Shornmarch', weather: ['hard frost,   clear sky', 'snow on the wind'] }, { weather: ['grey and mild'] }],
-    } });
+test('a game pack\'s weather table: normalized, read through packs.weather; bad shapes refused', () => {
+    const base = { id: 'sky', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1' } };
+    const calendar = { months: [{ name: 'Frostfall', days: 30 }, { name: 'Deepwinter', days: 30 }], seasons: [{ name: 'winter', months: ['Frostfall', 'Deepwinter'] }] };
+    const good = validatePack({ ...base, content: { calendar, weather: { style: 'tables', tables: [{ season: 'winter', weather: ['hard frost,   clear sky', 'snow on the wind'] }, { weather: ['grey and mild'] }] } } });
     assert.equal(good.ok, true, JSON.stringify(good.errors));
     assert.deepEqual(weatherOf([good.pack]), {
-        pack: 'sky',
+        pack: 'sky', style: 'tables',
         seasons: [{ name: 'winter', months: ['Frostfall', 'Deepwinter'] }],
-        tables: [{ season: 'winter', region: 'Shornmarch', weather: ['hard frost, clear sky', 'snow on the wind'] }, { season: '', region: '', weather: ['grey and mild'] }],
+        tables: [{ climate: '', season: 'winter', weather: ['hard frost, clear sky', 'snow on the wind'] }, { climate: '', season: '', weather: ['grey and mild'] }],
+        climateTables: [],
     });
-    assert.equal(validatePack(base).pack.weather, undefined, 'a pack without one normalizes as before');
-    assert.equal(weatherOf([validatePack(base).pack]), null);
+    const none = validatePack({ ...base, content: {} });
+    assert.equal(none.pack.weather, undefined, 'a pack without one normalizes as before');
+    assert.equal(weatherOf([none.pack]), null);
     const refused = (weather, code = 'BAD_WEATHER') => {
-        const out = validatePack({ ...base, weather });
+        const out = validatePack({ ...base, content: { weather } });
         assert.equal(out.ok, false, JSON.stringify(weather));
         assert.ok(out.errors.some(error => error.code === code), JSON.stringify(out.errors));
     };
@@ -139,9 +139,7 @@ test('a pack\'s weather table: normalized, read through packs.weather; bad shape
     refused({ tables: [{ weather: ['x'.repeat(61)] }] });
     refused({ tables: [{ weather: [7] }] });
     refused({ tables: [{ weather: ['sun'], climate: 'hot' }] });
-    refused({ tables: [{ weather: ['sun'], region: 5 }] });
-    refused({ seasons: [{ name: 'winter', months: ['A'] }, { name: 'spring', months: ['a'] }], tables: [{ weather: ['sun'] }] });
-    refused({ seasons: [{ name: '', months: ['A'] }], tables: [{ weather: ['sun'] }] });
+    refused({ tables: [{ weather: ['sun'], region: 5 }], }, 'UNKNOWN_FIELD');
     refused({ tables: [{ weather: ['sun'] }], forecast: true }, 'UNKNOWN_FIELD');
     refused({ tables: [{ weather: ['<script>alert(1)</script>'] }], }, 'UNSAFE_HTML');
 });

@@ -16,14 +16,14 @@ export function presetHelp(preset, calendar, name = '') {
     const fields = packCalendarFields(calendar);
     const what = fields ? `${fields.era ? `${fields.era}, ` : ''}${fields.months.length} month${fields.months.length === 1 ? '' : 's'}` : '';
     if (preset === 'gregorian') return 'The built-in Gregorian calendar. The fields below are used only with Custom.';
-    if (preset === 'custom') return fields ? `Your own calendar, from the fields below. A field you have not changed shows the pack's (${name}).` : 'Your own calendar, from the fields below.';
+    if (preset === 'custom') return fields ? `Your own calendar, from the fields below. A field you have not changed shows the game pack's (${name}).` : 'Your own calendar, from the fields below.';
     return fields
-        ? `From the pack: ${name} (${what}), shown below. Switch to Custom to edit it.`
-        : 'No enabled pack has a calendar: the built-in Gregorian, shown below. Switch to Custom to edit it.';
+        ? `From the game pack: ${name} (${what}), shown below. Switch to Custom to edit it.`
+        : 'The game has no calendar of its own: the built-in Gregorian, shown below. Switch to Custom to edit it.';
 }
 
 /** A calendar field's help: read-only words unless the calendar is Custom. */
 export function fieldHelp(preset, calendar) {
     if (preset === 'custom') return '';
-    return packCalendarFields(calendar) && preset !== 'gregorian' ? 'The pack\'s, while Calendar is pack: switch to Custom to edit.' : 'Used only when Calendar is Custom.';
+    return packCalendarFields(calendar) && preset !== 'gregorian' ? 'The game pack\'s, while Calendar is game: switch to Custom to edit.' : 'Used only when Calendar is Custom.';
 }

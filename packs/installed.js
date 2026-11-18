@@ -6,7 +6,7 @@
 // item def when the story names the item, the start state when the chat begins), so
 // switching a pack off later never rewrites a story already told.
 //
-// Stored entry: `{ id, version, enabled, source: 'file' | 'lorebook', origin, pack }` where
+// Stored entry: `{ id, version, kind?, enabled, source: 'file' | 'lorebook', origin, pack }` (`kind`: 'world' | 'game', format 4 packs only) where
 // `pack` is the pack as given (validated). It is checked again on read, so a hand-edited
 // settings file cannot slip anything past the validator; a stored pack that no longer
 // passes stays listed with its problem and gives no content.
@@ -21,23 +21,33 @@ import { HOST_VERSION } from './validate/core.js';
 import { findPackEntries } from './lorebook.js';
 import { byteLength } from './safety.js';
 import { packTag } from './kind.js';
+import { isAddOn, readPacks } from './selection.js';
 import { deepFreeze } from '../core/ops/freeze.js';
+import { createOwn } from './own.js';
 
 const SOURCES = ['file', 'lorebook'];
 
 // The checker, once loaded (shared by every installed list), and the load on its way.
 let validator = null;
+let pairer = null;
 let loading = null;
 const loadChecker = () => {
-    loading ??= import('./validate.js').then(lib => { validator = lib.validatePack; return validator; }, error => { loading = null; throw error; });
+    loading ??= import('./validate.js').then(lib => { pairer = lib.checkPairing; validator = lib.validatePack; return validator; }, error => { loading = null; throw error; });
     return loading;
 };
 /** Whether the pack checker is loaded (tests). */
 export const checkerLoaded = () => validator !== null;
 const STILL_LOADING = { ok: false, errors: [{ code: 'LOADING', path: '', message: 'The pack checker is still loading.' }] };
 
+// The selected world and game of format 4 live beside the list: `storySuite.selected = { world, game }`, an id, null (none chosen on purpose) or absent (never chosen).
+const KINDS = ['world', 'game'];
+
 const countOf = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 /** What a normalized pack adds beside its content lists, in words: "coins", "a calendar", "3 weather tables"… */
+// Whether a calendar's months are the twelve real ones (the Settings line then says just "a calendar").
+const REAL = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+const realMonths = calendar => Array.isArray(calendar?.months) && calendar.months.length === 12 && calendar.months.every((month, at) => String(month?.name ?? '').toLowerCase() === REAL[at]);
+
 export function extrasOf(pack) {
     const out = [];
     if (pack.currency) out.push(Array.isArray(pack.currency.coins) && pack.currency.coins.length ? `${countOf(pack.currency.coins.length, 'coin')}` : 'a money word');
@@ -84,6 +94,20 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
         return value;
     };
     const entries = () => root().packs.filter(entry => entry && typeof entry === 'object');
+    const picks = () => { const value = root().selected; return value && typeof value === 'object' ? value : {}; };
+    // The installed packs that check, with their entries, in list order.
+    const valid = () => entries().map(entry => ({ entry, result: check(entry) })).filter(({ result }) => result.ok).map(({ entry, result }) => ({ entry, pack: result.pack }));
+    const selectedIn = list => Object.fromEntries(KINDS.map(kind => [kind, list.find(({ pack }) => pack.kind === kind && pack.id === picks()[kind] && !isAddOn(pack))?.pack.id ?? null]));
+    const isOn = (entry, pack) => (pack?.kind ? isAddOn(pack) || selectedIn(valid())[pack.kind] === pack.id : entry.enabled !== false);
+    // Chooses the world or the game (an id, or null for none / the built-in game); an id that is not an installed pack of that kind, or an add-on, is refused.
+    const choose = async (kind, id) => {
+        if (!KINDS.includes(kind)) return false;
+        if (id !== null && !valid().some(({ pack }) => pack.kind === kind && pack.id === id && !isAddOn(pack))) return false;
+        if (picks()[kind] === id) return true;
+        root().selected = { ...picks(), [kind]: id };
+        await changed();
+        return true;
+    };
     const check = entry => {
         if (!entry.pack || typeof entry.pack !== 'object') return { ok: false, errors: [{ code: 'NOT_OBJECT', path: '', message: 'The stored pack is missing.' }] };
         if (!validator) { ensure(); return STILL_LOADING; }
@@ -108,7 +132,22 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
         return names || picked.length || report.dropped ? { portraits: report } : {};
     };
 
+    // The reader's own rank label and start (own.js) count only while a format 4 world or game is installed: that is when the Settings rows that hold them are drawn,
+    // so values left over after the last one is removed can neither show nor be cleared. (The stored kind decides, so a pack that no longer checks still counts.)
+    const rows = createOwn(() => settings.read() ?? {});   // (not root(): reading creates nothing)
+    const hasFormat4 = () => { const list = settings.read()?.packs; return Array.isArray(list) && list.some(entry => entry?.kind === 'world' || entry?.kind === 'game'); };   // (the Packs page draws the rows on the same rule: a list row with a kind)
+    const own = { read: () => (hasFormat4() ? rows.read() : { rankLabel: '', money: null, items: [] }), set: rows.set };
     return {
+        /** The reader's own rank label and starting money and items (own.js): `own.read()`, and `own.set(key, value)` (the caller saves through `setOwn`). */
+        own,
+        /** `checkPairing(world, game)` of the selected pair (the checker is there once a pack has been read: no lines while it loads). */
+        pair: (world, game) => (pairer ? pairer(world, game) : { errors: [], warnings: [], info: [] }),
+        async setOwn(key, value) {
+            if (!own.set(key, value)) return false;
+            await changed();
+            return true;
+        },
+
         /**
          * Checks a pack (text or parsed) as install would, but for its capabilities, and installs nothing: `{ ok: true, pack, missing }`
          * (`missing`: the capability names it needs that no installed module provides, none while they are unknown) or `{ ok: false, errors }`.
@@ -140,10 +179,13 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
                     name: pack?.name ?? String(entry.id ?? ''),
                     author: pack?.author ?? '',
                     description: pack?.description ?? '',
-                    enabled: entry.enabled !== false,
+                    enabled: isOn(entry, pack),
+                    // (a format 4 pack that no longer checks keeps its stored kind, so it is listed as a world or game that cannot be used, not as a format 3 pack)
+                    ...(!pack && (entry.kind === 'world' || entry.kind === 'game') ? { kind: entry.kind, addOn: false } : {}),
+                    ...(pack?.kind ? { kind: pack.kind, addOn: isAddOn(pack), has: { rank: Boolean(pack.content?.you?.rank?.label), rpg: Array.isArray(pack.content?.rpg) && pack.content.rpg.length > 0, months: pack.calendar?.months?.length ?? 0, realMonths: realMonths(pack.calendar), modules: (pack.content?.dataModules ?? []).map(module => String(module?.name || module?.slug || '')).filter(Boolean) } } : {}),
                     source: SOURCES.includes(entry.source) ? entry.source : 'file',
                     origin: String(entry.origin ?? ''),
-                    counts: pack ? Object.fromEntries(Object.entries(pack.content).map(([kind, list]) => [kind, kind === 'names' ? Object.keys(list).filter(id => id !== 'banned').length : kind === 'rpg' ? list.filter(record => record?.slug !== 'formula' && record?.slug !== 'ranks').length : list.length])) : {},
+                    counts: pack ? Object.fromEntries(Object.entries(pack.content).map(([kind, list]) => [kind, kind === 'names' ? Object.keys(list).filter(id => id !== 'banned').length : kind === 'rpg' ? list.filter(record => !['formula', 'ranks', 'pull'].includes(record?.slug)).length : list.length])) : {},
                     hasStart: Boolean(pack?.start),
                     // What else it adds, beside its content lists: its coins, a money scale, a calendar, weather tables, screens, a theme.
                     extras: pack ? extrasOf(pack) : [],
@@ -156,10 +198,21 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
             });
         },
 
-        /** Normalized packs that are enabled and valid, in list order. */
+        /**
+         * The normalized packs a chat reads (selection.js): the selected world and game, then the trackers of the other
+         * game packs.
+         */
         packs() {
-            return entries().filter(entry => entry.enabled !== false).map(check).filter(result => result.ok).map(result => result.pack);
+            return readPacks(valid(), picks());
         },
+
+        /** `{ world, game }`: the ids of the selected world and game that are installed and valid, else null (no world, the built-in game). */
+        selected() {
+            return selectedIn(valid());
+        },
+
+        /** Selects the world or game (`kind` 'world' | 'game'; `id` null for none): true when done, false when no such installed pack of that kind (an add-on is never selected). */
+        select: choose,
 
         /**
          * Validates and installs a pack (text or parsed). A pack with an installed id replaces
@@ -177,7 +230,7 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
             const { pack, raw } = result;
             const list = root().packs;
             const index = list.findIndex(entry => entry?.id === pack.id);
-            const entry = { id: pack.id, version: pack.version, enabled: index >= 0 ? list[index].enabled !== false : true, source: SOURCES.includes(source) ? source : 'file', origin: String(origin ?? ''), pack: raw };
+            const entry = { id: pack.id, version: pack.version, ...(pack.kind ? { kind: pack.kind } : {}), enabled: index >= 0 ? list[index].enabled !== false : true, source: SOURCES.includes(source) ? source : 'file', origin: String(origin ?? ''), pack: raw };
             if (index >= 0 && JSON.stringify(list[index].pack) === JSON.stringify(raw)) return { ok: true, id: pack.id, name: pack.name, action: 'unchanged', ...(result.warnings ? { warnings: result.warnings } : {}), ...(await portraitsOf(pack, files)) };
             if (index < 0 && list.length >= limits.installed) return { ok: false, errors: [{ code: 'TOO_MANY', path: '', message: `There are already ${limits.installed} packs installed; remove one first.` }] };
             const others = list.reduce((sum, other, at) => sum + (at === index ? 0 : sizeOf(other)), 0);
@@ -185,6 +238,8 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
             checked.set(raw, result);
             if (index >= 0) list[index] = entry;
             else list.push(entry);
+            // A world or game that is the first of its kind to be installed, with nothing chosen on purpose yet, is selected (the old switch started on).
+            if (pack.kind && !isAddOn(pack) && picks()[pack.kind] === undefined) root().selected = { ...picks(), [pack.kind]: pack.id };
             await changed();
             return { ok: true, id: pack.id, name: pack.name, action: index >= 0 ? 'updated' : 'installed', ...(result.warnings ? { warnings: result.warnings } : {}), ...(await portraitsOf(pack, files)) };
         },
@@ -204,10 +259,12 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
             return { found: found.length, results };
         },
 
-        /** Switches a pack on or off. False when no pack has that id. */
+        /** Switches a pack on or off. False when no pack has that id. For a format 4 world or game "on" selects it and "off" clears the choice when it is the selected one. */
         async setEnabled(id, enabled) {
             const entry = entries().find(item => item.id === id);
             if (!entry) return false;
+            const kind = check(entry).pack?.kind;
+            if (kind) return isAddOn(check(entry).pack) ? Boolean(enabled) : enabled ? choose(kind, id) : picks()[kind] === id ? choose(kind, null) : true;
             if ((entry.enabled !== false) === Boolean(enabled)) return true;
             entry.enabled = Boolean(enabled);
             await changed();
@@ -220,6 +277,7 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
             const index = list.findIndex(entry => entry?.id === id);
             if (index < 0) return false;
             list.splice(index, 1);
+            if (root().selected) for (const kind of KINDS) if (root().selected[kind] === id) delete root().selected[kind];
             await portraits?.forget(id);
             await changed();
             return true;

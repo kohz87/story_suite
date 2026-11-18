@@ -10,7 +10,7 @@ import { fakeFightRunner } from '../../../suite/integration/director/helpers/fak
 const FEATURE = 'story-director.world-events';
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const PACK = JSON.stringify({
-    id: 'world-line', version: '1.0.0', name: 'World line', requires: { storyBlock: '^2' },
+    id: 'world-line', version: '1.0.0', name: 'World line', format: 4, kind: 'world', requires: { suite: '^0.1' },
     content: {
         places: [{ name: 'Highmark', region: 'The March', x: 0, y: 0 }, { name: 'Bluewatch', region: 'The March', x: 5, y: 5 }],
         conditions: [

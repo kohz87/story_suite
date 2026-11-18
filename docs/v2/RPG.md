@@ -400,7 +400,7 @@ The page shows only while the RPG is on.
   (1 to 10) and **Highest stat at creation** (3 to 20). They are stored in the Custom set (`rpgStandard`); a number that breaks lowest ≤ start ≤ highest ≤
   the highest a stat can be is refused, and the page says why. A Difficulty change draws the page again; a Custom number updates its field and the hint in place. Characters already made keep their stats,
   and a companion who joins keeps its own (every stat 5, its best raised), whatever **Stats start at** says.
-- **Levels and practice.** **Level cap** (1 to 99, default 99; the pack's cap wins when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
+- **Levels and practice.** **Level cap** (1 to 99, default 99; a cap you set below 99 wins over the game pack's; at 99 the game pack's cap applies when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
 - **What the narrator is told about combat.** The text of this chat's Combat rules block (up to 1200 characters, counted
   as you type). It is saved when you leave the box (or close the settings window with text still in it), as an edit of that
   block on the latest reply: swipe or delete that reply to take it back. A chat keeps a limited number of block versions;
@@ -475,7 +475,7 @@ Ersveil" while the pack decides. Foe Health was `4 + class/3` blocks (the simula
 **Levels.** A character's level runs 1 to 99 (the Character block's `level`). At 100 XP the character goes up one level and the extra XP
 carries over. The rise needs no confirm step and is said in "Changed this reply" ("Wessel reached Lv 15 (+1 point to spend)"). Every third
 level (3, 6, 9 and so on) gives **1 stat point** to spend, and the Party card offers **Spend points**; the points never go above 60.
-A character's level stops at its **cap**: the pack's `rpg.levelCap` when it names one, else the setting **Level cap** (1 to 99, default 99).
+A character's level stops at its **cap**: the setting **Level cap** when you set it below 99, else the selected game pack's `rpg.levelCap` when it names one, else 99. (99 is the setting's default, so it counts as not set.) A game pack's cap applies to new characters; a made character keeps its own.
 A character keeps the cap it was made with. At the cap, XP holds at 100 and nothing more is given. A block carries its own copy of its
 rules, so a character made before a rule existed keeps the rule it has; give such a character points with the pencil on **Points** in its
 Character block.
@@ -605,3 +605,13 @@ A set has a name (up to 40 characters, unique in the pack), an optional `about` 
 name (up to 40, unique in its set), `about` (1 to 120, what it does: the narrator reads it), `stat` (`str`, `vit`, `agi`,
 `dex`, `int`, `luk` or `cha`) and `uses` (`stamina`, the default, or `mana`). Sets never carry ranks: every skill starts at
 Novice, and the reader may start one at Adept.
+
+## The pull from NPC State (pack format 4)
+
+A joining person's sheet is built from their NPC State record (`join-parts/from-person.js`, words in `pull-words.js`): level (the record's, held to the level cap; else the join line's class), best stat (the line's, else a fixed keyword table over role, background and abilities), one signature skill per ability (up to `rpg.pull.abilities` of the selected game pack, default 4, at most 6) with its type, stat and resource from the same table and its rank one under the highest the level allows, one stance skill unless an ability is one or `rpg.pull.stance` is false, and gear from keepsakes that name pack equipment. Each skill takes a slot of its kind: the combat slots the level opens (5, then 6 at Lv 20, 7 at 40, 8 at 60) and the three utility slots; an ability that finds its kind full is left out, and the join says so in Problems ("Ann's Old lore has no free utility skill slot."); the stance comes last and only into a free combat slot. Add and Edit first make the same sheet. A person with no abilities joins with no signature skills (format 3 cast skills are gone).
+
+Not built (design §5.3 and §5.4): the sheet is made only when a person joins the party, not when an ally or a named foe first appears on the fight board; a new NPC State ability is not offered as a sheet skill on the next join card or fight-board review.
+
+### The Level kept in step (R2)
+
+When a v1 fight settles (the one `rpg.board.award` call that pays XP and practice; `board/v1-story-facts.js`), each hero that is paid XP or practice is matched by name or alias to one NPC State record. If that record's Level is higher than the sheet's, the sheet is raised to it first (held to the sheet's `cap`, one point to spend per level gained, never lowered). The fight's XP is then paid, and a level that XP gained is written to the person with `people.fields` (`level`, only up), in the same change set. A hero with no single matching record is left alone. Replay reads the reply's prefix and the sheet, so a swipe, a Re-read, a middle delete, a rewind and a reload give the same Level both places. Not built: a skill learned or a keepsake gained on the sheet is not written back as an NPC State ability or keepsake; a level is written back only at a fight's settle, so a level-up from the narrator's XP lines, the level a join made and the reader's own edit of the sheet are not written to NPC State; and a story Level only raises a sheet when that person is next paid by a fight.

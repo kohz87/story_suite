@@ -16,6 +16,7 @@
 export { WALLET_KEY, DEFAULT_CURRENCY, MAX_COINS, MAX_COIN_VALUE } from './money-parts/constants.js';
 export { pluralOf, coinPlural } from './money-parts/names.js';
 export { coinsOf, currencyOf, resolveCurrency, baseUnit } from './money-parts/coins.js';
+export { currencyOffer } from './money-parts/offer.js';
 export { coinValue, isCurrencyName, countedMoney } from './money-parts/value.js';
 export { foreignCoin } from './money-parts/foreign.js';
 export { coinLine, moneyLine } from './money-parts/lines.js';

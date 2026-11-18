@@ -13,7 +13,7 @@ const scale = key => ({ key, kind: 'scale' });
 
 /** The page's row key → how it is stored: `key` is the setting under story-director (null: the weather feature). */
 export const WORLD_KEYS = Object.freeze({
-  'world.calendar': choice('tracker.calendar.preset', ['pack', 'From the pack'], ['gregorian', 'Gregorian'], ['custom', 'Custom']),
+  'world.calendar': choice('tracker.calendar.preset', ['game', 'From the game pack'], ['gregorian', 'Gregorian'], ['custom', 'Custom']),
   'world.era': text('tracker.calendar.era'),
   'world.months': { key: 'tracker.calendar.months', kind: 'months' },
   'world.weekdays': text('tracker.calendar.week'),

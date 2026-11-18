@@ -1,4 +1,4 @@
-// Builds the Tools page: what is sent, Inspector and Problems (with the rebuild entry), save points, Prompts, Chat data, Diagnostics and the developer cards. Reads the live engine each time it draws.
+// Builds the Tools page: what is sent, Inspector and Problems (with the rebuild entry), save points, Prompts, Chat data, the Game pack export, Diagnostics and the developer cards. Reads the live engine each time it draws.
 import { renderSent } from './sent.js';
 import { renderProblems } from './problems.js';
 import { renderDiagnostics } from './diagnostics.js';
@@ -7,15 +7,16 @@ import { openInspector } from './inspector.js';
 import { renderSavePoints } from './savepoints.js';
 import { renderPrompts } from './prompts.js';
 import { renderChatData, saveFile } from './chat-data.js';
+import { renderGameExport, saveGamePack } from './game-export.js';
 
 /**
  * Creates the page body builder. `settings` = the view-model, `ctx` = the overlay's { onAction, view(name, args), doc, backStack, repaint },
  * `developer` = { on, own } for the Developer cards. Returns `() => nodes`. The sent card, problems and the Inspector come from `ctx.view` (live); with none, from the snapshot.
  */
 export function createToolsPage(settings, ctx, developer) {
-  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '' };
   const prompt = { open: null, draft: {}, busy: false, notes: {} };
   const people = { note: '', busy: false };
+  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '', packNote: '' };
   const redraw = () => ctx.repaint?.();
   const ask = (key, value) => Promise.resolve(ctx.onAction?.(key, value));
 
@@ -70,6 +71,15 @@ export function createToolsPage(settings, ctx, developer) {
     }, error => { people.note = String(error?.message ?? error); }).finally(() => { people.busy = false; redraw(); });
   }
 
+  // Export settings as a game pack: the engine builds and checks it; the file is saved here.
+  function exportPack() {
+    ask('tools.gamepack.export', { name: 'My settings' }).then(answer => {
+      if (answer?.ok === false || typeof answer?.text !== 'string') { local.packNote = String(answer?.message ?? 'The pack could not be made.'); return; }
+      saveGamePack(ctx.doc, answer.text, `${answer.pack?.id ?? 'my-settings'}.json`);
+      local.packNote = `Saved ${answer.pack?.id ?? 'my-settings'}.json: ${answer.sections.map(item => item.section).join(', ')}.`;
+    }, error => { local.packNote = String(error?.message ?? error); }).finally(redraw);
+  }
+
   return function body() {
     const fresh = ctx.view?.('sent');
     // The budget rows are the host's current values (read again each draw), not the snapshot taken when Settings opened.
@@ -92,6 +102,7 @@ export function createToolsPage(settings, ctx, developer) {
       points,
       renderPrompts(ctx.view?.('prompts') ?? null, { ...prompt, ...prompts }),
       renderChatData({ ...people, exportPeople }),
+      renderGameExport({ note: local.packNote, run: exportPack }),
       renderDiagnostics({ note: local.note, copy }),
       ...renderDeveloper({ on: developer.on() }, developer.own),
     ].filter(Boolean);

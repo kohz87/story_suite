@@ -18,7 +18,7 @@ for (const [type, payload] of edits) for (const removal of ['swipe', 'delete']) 
     test(`${type} survives replay and leaves with ${removal}`, async t => {
         const host = await createHost(); t.after(() => host.close());
         assert.equal((await host.packs.packs.install(pack([definition()]))).ok, true);
-        assert.equal((await host.packs.packs.install({ id: 'guild', version: '1.0.0', requires: { storyBlock: '^2' }, content: { you: { rank: { label: 'Guild rank' } } } })).ok, true);
+        assert.equal((await host.packs.packs.install({ id: 'guild', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1' }, content: { you: { rank: { label: 'Guild rank' } } } })).ok, true);
         await host.send('Prepare.', 'Found.\n<Changes>\n+ item Torch | qty: 2\n+ coin 10\n</Changes>');
         const offer = host.sdk.query('dataModules.offers')[0];
         const pin = await host.sdk.command('dm.pin', { module: offer.module, hash: offer.hash, packHash: offer.packHash });
@@ -78,7 +78,7 @@ test('an unrelated earlier item does not invalidate an edit that still applies',
 
 test('a count of separate pieces stays off when that group changes on Re-read', async t => {
     const host = await createHost(); t.after(() => host.close());
-    assert.equal((await host.packs.packs.install({ id: 'pieces', version: '1.0.0', requires: { storyBlock: '^2' },
+    assert.equal((await host.packs.packs.install({ id: 'pieces', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' },
         content: { items: [{ name: 'Lantern', stack: false }] } })).ok, true);
     await host.send('Find.', 'Found.\n<Changes>\n+ item Lantern | qty: 2\n</Changes>');
     const earlier = host.store.headIndex(), stack = host.sdk.query('inventory.items')[0].stack;
@@ -95,7 +95,7 @@ test('a count of separate pieces stays off when that group changes on Re-read', 
 
 test('a large existing group records a bounded guard when reduced to the cap', async t => {
     const host = await createHost(); t.after(() => host.close());
-    assert.equal((await host.packs.packs.install({ id: 'pieces', version: '1.0.0', requires: { storyBlock: '^2' },
+    assert.equal((await host.packs.packs.install({ id: 'pieces', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' },
         content: { items: [{ name: 'Lantern', stack: false }] } })).ok, true);
     await host.send('Begin.', 'A reply.');
     for (let i = 0; i < 3; i++) {

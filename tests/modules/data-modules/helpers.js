@@ -7,7 +7,7 @@ export const reply = (...lines) => `The story.\n<Changes>\n${lines.join('\n')}\n
 export const int = (value = 0, min = 0, max = 100) => ({ type: 'int', min, max, default: value });
 export const definition = () => ({ slug: 'counter', name: 'Counter', schema: 1, stateVersion: 1, scope: 'chat',
     state: { points: int() }, kinds: { gain: { op: '+', ui: true, labels: {}, effects: [{ op: 'add', path: ['points'], value: 1, bounds: 'clamp' }] } } });
-export const pack = (definitions = [definition()]) => ({ id: 'dm-test', version: '1.0.0', requires: { storyBlock: '^2', capabilities: ['data-modules-v1'] }, content: { dataModules: definitions } });
+export const pack = (definitions = [definition()]) => ({ id: 'dm-test', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1', capabilities: ['data-modules-v1'] }, content: { dataModules: definitions } });
 export const success = result => { assert.equal(result.ok, true, `${result.code}: ${result.message ?? JSON.stringify(result.errors)}`); return result; };
 export async function world(t, input = fixture('reputation'), modules = []) {
     const host = await createHost({ modules }); t.after(() => host.close());

@@ -11,14 +11,14 @@ import { writeStoredZip } from '../../../studio/zip-write.js';
 const at = rel => new URL(`../../../${rel}`, import.meta.url);
 const bytes = rel => new Uint8Array(readFileSync(at(rel)));
 const fileOf = (name, data, type = '') => new File([data], name, { type });
-const ZIP = bytes('examples/packs/ersveil.zip');
-const PACK = bytes('examples/packs/ersveil/pack.json');
+const ZIP = bytes('tests/fixtures/packs/ersveil-3/ersveil.zip');
+const PACK = bytes('tests/fixtures/packs/ersveil-3/pack.json');
 const WORLD = bytes('tests/packs/studio/fixtures/world-mini.json');
 
-test('the Studio writer builds examples/packs/ersveil.zip byte for byte from its folder', () => {
+test('the Studio writer builds tests/fixtures/packs/ersveil-3/ersveil.zip byte for byte from its folder', () => {
     const names = portraitNames(JSON.parse(new TextDecoder().decode(PACK)));
     assert.equal(names.length, 12);
-    const built = writeStoredZip([{ name: 'pack.json', bytes: PACK }, ...names.map(name => ({ name: `portraits/${name}`, bytes: bytes(`examples/packs/ersveil/portraits/${name}`) }))]);
+    const built = writeStoredZip([{ name: 'pack.json', bytes: PACK }, ...names.map(name => ({ name: `portraits/${name}`, bytes: bytes(`tests/fixtures/packs/ersveil-3/portraits/${name}`) }))]);
     assert.deepEqual(built, ZIP);
 });
 
@@ -48,7 +48,7 @@ test('pack.json alone exports as the same text', async () => {
 });
 
 test('pack.json with images keeps the portraits the cast names, in the zip under portraits/, and lists the rest as not used', async () => {
-    const image = bytes('examples/packs/ersveil/portraits/' + portraitNames(JSON.parse(new TextDecoder().decode(PACK)))[0]);
+    const image = bytes('tests/fixtures/packs/ersveil-3/portraits/' + portraitNames(JSON.parse(new TextDecoder().decode(PACK)))[0]);
     const opened = await openPicked([fileOf('pack.json', WORLD, 'application/json'), fileOf('wren.webp', image, 'image/webp'), fileOf('stray.png', image, 'image/png')]);
     assert.deepEqual(opened.portraits.map(file => file.name), ['wren.webp']);
     assert.deepEqual(opened.unused, ['stray.png']);

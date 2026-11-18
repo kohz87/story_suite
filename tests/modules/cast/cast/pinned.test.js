@@ -9,7 +9,7 @@ const quiet = t => t.mock.method(console, 'warn', () => {});
 const castLinesOf = host => (sent(host, TAIL_KEY).at(-1) ?? '').split('\n').filter(line => line.startsWith('[Cast]'));
 const BROM = entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' } });
 const TEMIWA = entry('temiwa', {
-    name: 'Sister Temiwa', aliases: ['Temiwa'], about: 'A fox-eared saintess candidate cast out to the frontier: its sarcastic healer.', fields: { Calling: 'Saintess candidate, healer' },
+    name: 'Sister Temiwa', aliases: ['Temiwa'], about: 'A fox-eared saintess candidate cast out to the frontier: its sarcastic healer.', role: 'Saintess candidate, healer',
     start: { place: 'Kesh', goal: 'Serve.', routine: 'Watchhouse infirmary by day' },
 });
 

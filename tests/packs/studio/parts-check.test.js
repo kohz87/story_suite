@@ -1,5 +1,5 @@
 // The Studio's parts table and its use of the game's pack checker: what each part shows, where a problem goes, and that the
-// Studio's verdict is packs/validate.js's own (same ok, same codes and paths), for a format 3 pack and a world pack.
+// Studio's verdict is packs/validate.js's own (same ok, same codes and paths), for a world pack, a game pack, and a pack in the old format.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -8,10 +8,11 @@ import { checkText } from '../../../studio/check.js';
 import { PARTS, partOfPath, partsOf } from '../../../studio/parts.js';
 
 const read = rel => readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8');
-const ERSVEIL = read('examples/packs/ersveil/pack.json');
+const ERSVEIL_GAME = read('examples/packs/ersveil-game/pack.json');
+const OLD = read('tests/fixtures/packs/riverside-starter-3.json');
 const TINY = read('authoring-kit/examples/tiny-world/pack.json');
 const WORLD = read('tests/packs/studio/fixtures/world-mini.json');
-const ERSVEIL_WORLD = read('examples/packs/ersveil-world/pack.json');
+const ERSVEIL_WORLD = read('examples/packs/ersveil/pack.json');
 
 test('every part has an id, a name, a group the nav knows and an icon; ids and content kinds are unique', () => {
     const ids = PARTS.map(part => part.id);
@@ -24,13 +25,12 @@ test('every part has an id, a name, a group the nav knows and an icon; ids and c
     }
 });
 
-test('a format 3 pack shows its own parts, with counts, plus Overview and Problems', () => {
-    const parts = partsOf(JSON.parse(ERSVEIL));
-    assert.deepEqual(parts.map(part => part.id), ['overview', 'cast', 'map', 'events', 'items', 'other', 'problems']);
-    const cast = parts.find(part => part.id === 'cast');
-    assert.equal(cast.count, 12);
+test('a game pack shows what it holds, with counts, plus Overview and Problems', () => {
+    const parts = partsOf(JSON.parse(ERSVEIL_GAME));
+    assert.deepEqual(parts.map(part => part.id), ['overview', 'conditions', 'other', 'problems']);
     const other = parts.find(part => part.id === 'other');
-    assert.deepEqual(other.sections.map(section => section.key), ['you', 'dataModules', 'rpg', 'names', 'currency', 'calendar', 'weather', 'ripples', 'start']);
+    assert.deepEqual(other.sections.map(section => [section.key, section.where]), ['calendar', 'currency', 'weather', 'names', 'you', 'rpg', 'dataModules'].map(key => [key, 'content']));
+    assert.equal(other.sections.find(section => section.key === 'dataModules').count, 3);
 });
 
 test('a world pack shows lore, the map parts, conditions with the starting world, events, templates and powers', () => {
@@ -57,7 +57,7 @@ test('a checker path goes to its part and record', () => {
     assert.deepEqual(partOfPath(''), { part: 'overview', rec: null });
 });
 
-for (const [name, text] of [['Ersveil', ERSVEIL], ['tiny-world', TINY], ['the world-pack fixture', WORLD], ['the sample world pack', ERSVEIL_WORLD], ['text that is not JSON', '{ nope']]) {
+for (const [name, text] of [['the Ersveil world pack', ERSVEIL_WORLD], ['the Ersveil game pack', ERSVEIL_GAME], ['tiny-world', TINY], ['the world-pack fixture', WORLD], ['a format 3 pack', OLD], ['text that is not JSON', '{ nope']]) {
     test(`the Studio's verdict on ${name} is the pack checker's own`, () => {
         const game = validatePack(text);
         const studio = checkText(text);
@@ -68,18 +68,20 @@ for (const [name, text] of [['Ersveil', ERSVEIL], ['tiny-world', TINY], ['the wo
     });
 }
 
-test('Ersveil and the sample world pack pass; the engine knows the world-pack kinds, and the fixture\'s other problems are filed under their parts', () => {
-    assert.equal(checkText(ERSVEIL).ok, true);
+test('the Ersveil world and game packs pass; a format 3 pack is refused as old; the engine knows the world-pack kinds, and the fixture\'s problems are filed under their parts', () => {
     assert.equal(checkText(ERSVEIL_WORLD).ok, true);
+    assert.equal(checkText(ERSVEIL_GAME).ok, true);
+    const old = checkText(OLD);
+    assert.equal(old.ok, false);
+    assert.deepEqual(old.byPart.overview.map(e => e.code), ['FORMAT_OLD']);
     const world = checkText(WORLD);
     const codes = world.errors.map(e => [e.code, e.path]);
-    for (const kind of ['lore', 'regions', 'realms', 'placeKinds', 'routeKinds', 'conditions', 'worldEvents', 'templates', 'powers', 'scores']) {
+    for (const kind of ['lore', 'regions', 'realms', 'placeKinds', 'routeKinds', 'conditions', 'worldEvents', 'templates', 'powers', 'scores', 'start']) {
         assert.ok(!codes.some(([code, path]) => code === 'UNKNOWN_KIND' && path === `content.${kind}`), kind);
     }
-    // The checker refuses the fixture's content.start, its event's cue and its missing ends_when; each problem is filed under its part.
+    // The checker refuses the fixture's event: its cue is not a field and its ends_when is missing; each problem is filed under its part.
     assert.equal(world.ok, false);
     const filed = world.errors.map(e => [e.code, e.path, e.part, e.rec]);
-    assert.ok(filed.some(([code, path, part]) => code === 'UNKNOWN_KIND' && path === 'content.start' && part === 'conditions'));
     assert.ok(filed.some(([code, path, part, rec]) => code === 'UNKNOWN_FIELD' && path === 'content.worldEvents[0].cue' && part === 'events' && rec === 'worldEvents.0'));
     assert.ok(world.byPart.events.some(e => e.rec === 'worldEvents.0' && e.code === 'BAD_RECORD'));
     assert.ok(world.byPart.conditions.some(e => e.rec === 'conditions.1' && e.code === 'NO_CLEARING_PATH'));

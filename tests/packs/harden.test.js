@@ -1,18 +1,16 @@
-// Security hardening of pack checks (QA report, PR #70, findings 8–11): event attributes found by reading
-// tags like a browser (a quoted ">" does not end the tag), data: documents in links, loaders such as
-// image-set() in CSS and themes, and host-internal commands in events. Each refusal has its harmless
-// neighbour that must still be accepted.
+// Security hardening of pack checks (QA report, PR #70, findings 8-10): event attributes found by reading
+// tags like a browser (a quoted ">" does not end the tag), data: documents in links, and loaders such as
+// image-set() in CSS and screen themes. Each refusal has its harmless neighbour that must still be accepted.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validatePack, unsafeCss, checkScreens } from '../../packs/validate.js';
 import { unsafeText, checkPlain } from '../../packs/safety.js';
 
-const base = (extra = {}) => ({ id: 'harden', version: '1.0.0', requires: { storyBlock: '^2' }, content: {}, ...extra });
+const base = (extra = {}) => ({ id: 'harden', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' }, content: {}, ...extra });
 const withNote = note => base({ content: { items: [{ name: 'Lure', note }] } });
-// A pack's own top-level `screens` are no longer read (pack format 3), so a screen is checked by the part that still takes them (a data module's screens).
+// A pack's own top-level `screens` are not a format 4 field, so a screen is checked by the part that still takes them (a data module's screens).
 const withScreen = screen => ({ screens: [{ id: 'harden-board', mounts: ['tab'], template: '<div>ok</div>', ...screen }] });
 const screensOk = screens => { let bad = checkPlain(screens).length > 0; checkScreens(screens, 'harden', () => { bad = true; }); return !bad; };
-const withEvent = (then, when = 'true') => base({ content: { events: [{ id: 'boom', when, cue: 'Boom.', then }] } });
 const ok = input => (input.screens && !input.id ? screensOk(input.screens) : validatePack(input).ok === true);
 
 test('finding 8: an event attribute after a quoted value holding ">" is refused, in every quoting', () => {
@@ -89,25 +87,12 @@ test('finding 9: image-set(), -webkit-image-set(), image(), cross-fade() and src
     ]) assert.equal(unsafeCss(css), '', css);
 });
 
-test('finding 9: a pack theme or screen theme cannot hide a loader either', () => {
-    assert.equal(ok(base({ theme: { '--ss-bg': 'image-set("http://evil.example/a.png" 1x)' } })), false);
-    assert.equal(ok(base({ theme: { '--ss-bg': '-webkit-image-set("//evil.example/a.png" 1x)' } })), false);
-    assert.equal(ok(base({ theme: { '--ss-img': '"http://evil.example/a.png"' } })), false);
+test('finding 9: a screen theme cannot hide a loader either', () => {
+    assert.equal(ok(withScreen({ theme: { '--ss-bg': 'image-set("http://evil.example/a.png" 1x)' } })), false);
+    assert.equal(ok(withScreen({ theme: { '--ss-bg': '-webkit-image-set("//evil.example/a.png" 1x)' } })), false);
+    assert.equal(ok(withScreen({ theme: { '--ss-img': '"http://evil.example/a.png"' } })), false);
     assert.equal(ok(withScreen({ theme: { '--ss-bg': 'image-set(var(--x) 1x)' } })), false);
-    const fine = validatePack(base({ theme: { '--ss-accent': '#7c5cff', '--ss-label': '"HP: "', '--ss-bg': 'image-set("https://ok.example/a.png" 1x)' } }));
-    assert.equal(fine.ok, true, JSON.stringify(fine.errors));
-});
-
-test('finding 11: an event runs only module commands, never the ones Story Block makes for itself', () => {
-    for (const command of ['module.init.story-block', 'module.init.rpg-battle', 'capture.coin', 'capture.item', 'events.fire', 'module.anything']) {
-        const result = validatePack(withEvent([{ command, payload: {} }]));
-        assert.equal(result.ok, false, command);
-        assert.match(result.errors[0].message, /Story Block runs itself/, command);
-    }
-    for (const command of ['wallet.receive', 'inventory.grant', 'events.status-check', 'rpg-battle.start']) {
-        const result = validatePack(withEvent([{ command, payload: {} }]));
-        assert.equal(result.ok, true, `${command}: ${JSON.stringify(result.errors)}`);
-    }
+    assert.equal(ok(withScreen({ theme: { '--ss-accent': '#7c5cff', '--ss-label': '"HP: "', '--ss-bg': 'image-set("https://ok.example/a.png" 1x)' } })), true);
 });
 
 test('a screen\'s selector may not reach past its own root: a pack with one is refused, the screen\'s own rules are not', () => {

@@ -230,7 +230,7 @@
         "sunrise": 360,
         "sunset": 1140
       },
-      "tracker.calendar.preset": "pack",
+      "tracker.calendar.preset": "game",
       "tracker.calendar.week": "",
       "tracker.dormantDays": 30,
       "tracker.dormantReplies": 15,

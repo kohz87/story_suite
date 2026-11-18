@@ -28,8 +28,8 @@ export function v1Blocks({ hero = {}, count = 3, level = 5, tier = 'standard', s
     };
 }
 
-export async function v1Host(options = {}) {
-    const made = await setup({ blocks: v1Blocks(options), board: true, planner: false });
+export async function v1Host({ domains, commands, ...options } = {}) {
+    const made = await setup({ blocks: v1Blocks(options), board: true, planner: false, domains, commands });
     return made;
 }
 

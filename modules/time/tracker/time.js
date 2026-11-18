@@ -10,7 +10,7 @@
 // date-less time line reads from the calendar's default start (time-parts/default-start.js).
 // Public face: re-exports its parts.
 
-export { PACK_PRESET, PRESET_CHOICES, SEED_CLAIM } from './time-parts/constants.js';
+export { GAME_PRESET, LEGACY_PACK_PRESET, PRESET_CHOICES, SEED_CLAIM } from './time-parts/constants.js';
 export { MAX_JUMP_DAYS, MAX_YEAR } from './time-parts/limits.js';
 export { settingsDefaults, maxJumpMinutes, settingsFrom } from './time-parts/settings.js';
 export { packCalendarOf, calendarConfig, calendarOf, startMinutes } from './time-parts/calendar.js';

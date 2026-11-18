@@ -15,4 +15,5 @@ export { soulNaming, partyOf, partyCap, benchable } from './join-parts/party.js'
 export { joinDraft, joinDefinitions } from './join-parts/draft.js';
 export { joinOffers } from './join-parts/offers.js';
 export { joinCard } from './join-parts/card.js';
-export { partyAdd } from './join-parts/add.js';
+export { partyAdd, partyAddQuery } from './join-parts/add.js';
+export { personOf, pullOf } from './join-parts/from-person.js';

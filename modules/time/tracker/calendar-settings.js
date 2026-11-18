@@ -1,9 +1,9 @@
 // What the Calendar settings show (terms2, live test 2026-10-22: "SD calendar should populate the field
 // for calendar from pack if it's using pack, otherwise it's misleading").
 //
-// The tracker's calendar setting is `tracker.calendar.preset` (pack, gregorian or custom) and the fields of
-// a custom calendar (era, months, leap years, weekdays). With `pack` the chat runs on the enabled pack's
-// calendar (time.js calendarConfig), but the fields used to show their Gregorian defaults. Now:
+// The tracker's calendar setting is `tracker.calendar.preset` (game, gregorian or custom; format 3 stored `pack`, read as `game`) and the fields of
+// a custom calendar (era, months, leap years, weekdays). With `game` the chat runs on the game's
+// calendar (the chat's frame, else the selected game's) (time.js calendarConfig), but the fields used to show their Gregorian defaults. Now:
 //
 // * the fields' defaults are the calendar in use while the reader has not written their own: the pack's
 //   (its era and months, no leap years, no weekdays) when a pack has one, else Gregorian. So with `pack`

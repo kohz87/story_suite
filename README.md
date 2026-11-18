@@ -70,9 +70,9 @@ Each page has its own help lines; the search box at the top of Settings finds a 
 
 ## Packs
 
-- A world pack is a `.zip` (or a `pack.json` with its images). Packs use **format 3**; a pack names the suite it needs with `requires.suite`.
-- Install one in **Settings → Packs and trackers → Import a pack file**, then start a new chat.
-- The sample world pack is **Ersveil**: `examples/packs/ersveil-world.zip` (source in `examples/packs/ersveil-world/`). It has 31 people, lore, realms, conditions and 103 world events. Its world events run only with World events on. A smaller `examples/packs/ersveil.zip` is also there.
+- Packs use **format 4**: a pack is a **world** (places, people, lore, events) or a **game** (calendar, money, weather, names, rules). A pack file is a `.zip` (its `pack.json`, portraits and, for a world, an optional `game.json`) or a `pack.json` with its images; it names the suite it needs with `requires.suite`. An older pack is refused; convert it with the Pack Studio or `scripts/packs/convert-3to4.mjs`.
+- Install one in **Settings → Packs and trackers → Import a pack file**, pick the world and the game there, then start a new chat (a chat that has begun keeps the world and game it began with).
+- The sample is **Ersveil**: `examples/packs/ersveil.zip` holds the world (`examples/packs/ersveil/`) and its game, "Ersveil rules" (`examples/packs/ersveil-game/`). The world has 31 people, lore, realms, conditions and 103 world events; its world events run only with World events on.
 - The author spec and the install checks are in [docs/v2/PACKS.md](docs/v2/PACKS.md) and [authoring-kit/reference/PACK-FORMAT.md](authoring-kit/reference/PACK-FORMAT.md). [docs/v2/ERSVEIL.md](docs/v2/ERSVEIL.md) walks through playing Ersveil.
 - Pack Studio (`studio/index.html`) opens and checks a pack, read only: see [docs/dev/studio.md](docs/dev/studio.md).
 

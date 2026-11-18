@@ -1,6 +1,7 @@
-// Story Director v2, tracker part: the calendar setting keys and the fields the pack's or Gregorian calendar shows.
+// Story Director v2, tracker part: the calendar setting keys and the fields the game's or Gregorian calendar shows.
 
 import { PRESETS } from '../../calendar.js';
+import { GAME_PRESET, LEGACY_PACK_PRESET } from '../time-parts/constants.js';
 
 export const CALENDAR_KEYS = Object.freeze({
     preset: 'tracker.calendar.preset',
@@ -12,14 +13,14 @@ export const CALENDAR_KEYS = Object.freeze({
 
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
-/** The pack's calendar (`packs.calendar`'s answer) as the settings fields, or null without one. */
+/** The game's calendar (`packCalendarOf`'s answer) as the settings fields, or null without one. */
 export function packCalendarFields(calendar) {
     if (!isRecord(calendar) || !Array.isArray(calendar.months) || !calendar.months.length) return null;
     return {
         era: String(calendar.era ?? ''),
         months: calendar.months.map(month => ({ name: String(month?.name ?? ''), days: Number(month?.days) })),
-        leapYears: false,
-        week: '',
+        leapYears: calendar.leapYears === true,
+        week: Array.isArray(calendar.week) ? calendar.week.join(', ') : '',
     };
 }
 
@@ -29,5 +30,5 @@ export function gregorianFields() {
     return { era: String(g.era ?? ''), months: structuredClone(g.months), leapYears: g.leapYears === true, week: Array.isArray(g.week) ? g.week.join(', ') : String(g.week ?? '') };
 }
 
-/** A calendar field's `readOnly`: true while the stored Calendar choice is pack (the default). */
-export const calendarReadOnly = values => (values?.[CALENDAR_KEYS.preset] ?? 'pack') === 'pack';
+/** A calendar field's `readOnly`: true while the stored Calendar choice is game (the default; format 3 stored `pack`). */
+export const calendarReadOnly = values => [undefined, null, GAME_PRESET, LEGACY_PACK_PRESET].includes(values?.[CALENDAR_KEYS.preset]);

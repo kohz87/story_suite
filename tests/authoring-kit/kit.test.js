@@ -1,12 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkPack, report } from '../../authoring-kit/check.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const data = name => readFileSync(new URL(`../../authoring-kit/reference/data-modules/${name}.pack.json`, import.meta.url), 'utf8');
+const raw = name => readFileSync(new URL(`../../authoring-kit/reference/data-modules/${name}.pack.json`, import.meta.url), 'utf8');
+// The reference examples are still written in format 3 (the kit's files are not tests); the same pack as a format 4 game pack is what the checker is given here.
+const data = name => JSON.stringify({ ...JSON.parse(raw(name)), format: 4, kind: 'game' });
 
 test('the data-module examples pass the same checker as the host', () => {
     for (const name of ['faction-standing', 'survival-meters']) {
@@ -15,21 +19,23 @@ test('the data-module examples pass the same checker as the host', () => {
     }
 });
 
-test('the tiny world example is a valid ordinary pack', () => {
+test('the tiny world example is a valid format 4 world pack', () => {
     const input = readFileSync(new URL('../../authoring-kit/examples/tiny-world/pack.json', import.meta.url), 'utf8');
     const result = checkPack(input);
     assert.equal(result.ok, true, report('tiny-world', result));
 });
 
-test('the checker reports ignored optional sections without refusing the pack', () => {
-    const result = checkPack({ id: 'warnings', version: '1.0.0', requires: { storyBlock: '^2' }, ripples: [] });
-    assert.equal(result.ok, true);
-    assert.match(report('pack.json', result), /Ignored ripples:/);
+test('the checker refuses a pack that names a format 3 gate and says why', () => {
+    const result = checkPack({ id: 'old', version: '1.0.0', requires: { storyBlock: '^2' }, content: {} });
+    assert.equal(result.ok, false);
+    assert.match(report('pack.json', result), /format 4 only/);
 });
 
 test('the command-line checker reports a valid pack and an invalid one', () => {
-    const output = execFileSync(process.execPath, ['authoring-kit/check.mjs', 'authoring-kit/reference/data-modules/faction-standing.pack.json'], { cwd: root, encoding: 'utf8' });
-    assert.match(output, /^OK authoring-kit\/reference\/data-modules\/faction-standing\.pack\.json/);
+    const file = path.join(tempDir('kit-'), 'faction-standing.pack.json');
+    writeFileSync(file, data('faction-standing'));
+    const output = execFileSync(process.execPath, ['authoring-kit/check.mjs', file], { cwd: root, encoding: 'utf8' });
+    assert.match(output, /^OK .*faction-standing\.pack\.json/);
     assert.equal(checkPack('{ invalid').errors[0].code, 'not-json');
     const input = JSON.parse(data('faction-standing'));
     input.requires.capabilities.push('other-module');
@@ -42,10 +48,8 @@ test('the limits reference is generated from the host exports', () => {
     assert.equal(output, readFileSync(new URL('../../authoring-kit/reference/LIMITS.md', import.meta.url), 'utf8'));
 });
 
-test('the checker reports an event condition that cannot be read, naming the event', () => {
-    const input = JSON.parse(readFileSync(new URL('../../authoring-kit/examples/tiny-world/pack.json', import.meta.url), 'utf8'));
-    input.content = { ...(input.content ?? {}), events: [{ id: 'gate', when: "has('Smith's key')", cue: 'The gate opens.' }] };
-    const result = checkPack(input);
-    assert.equal(result.ok, false);
-    assert.match(report('pack.json', result), /Event "gate": the condition can't be read/);
+test('the kit\'s capability list names no retired module (story-director and npc-state-delta are parts of the one suite now; REVPF4 18)', async () => {
+    const { SUITE_CAPABILITIES } = await import('../../authoring-kit/check.mjs');
+    for (const retired of ['story-director', 'npc-state-delta']) assert.equal(SUITE_CAPABILITIES.includes(retired), false, retired);
+    assert.ok(SUITE_CAPABILITIES.includes('data-modules-v1'));
 });

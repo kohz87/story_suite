@@ -1,8 +1,8 @@
 // The sample world pack the install-check tests use: every spec part once (spec v0.13), small, installing with no errors.
 import { validatePack } from '../../../packs/validate.js';
 export const sample = {
-  id: 'ersveil-world', version: '1.0.0', format: 3, name: 'Ersveil World',
-  requires: { storyBlock: '^0.1' },
+  id: 'ersveil-world', version: '1.0.0', format: 4, kind: 'world', name: 'Ersveil World',
+  requires: { suite: '^0.1' },
   content: {
     placeKinds: { fort: 'outpost', 'lock town': 'town', district: 'site', sea: 'none', capital: 'capital', town: 'town', dungeon: 'none' },
     routeKinds: { 'bastion road': 'relay-road', 'sea lane': 'sea', road: 'road', river: 'river', 'mountain road': 'pass' },

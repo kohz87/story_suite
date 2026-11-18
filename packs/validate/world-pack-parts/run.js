@@ -9,6 +9,7 @@ import { checkKindsUsed, classOfKind, placeKindMap, routeKindMap } from './kinds
 import { checkMapNames, checkRealms } from './realms.js';
 import { checkRegions, checkRegionUse } from './regions.js';
 import { checkStartWorld } from './start-world.js';
+import { checkStartV4 } from './start-v4.js';
 import { checkPowers, checkScores } from './standings.js';
 import { checkWorldEvent } from './world-event.js';
 import { checkTemplate } from './template.js';
@@ -53,7 +54,7 @@ function contextFactory(index, add, collect) {
  * `given`: the raw content; `content`: the kinds already normalized (places, routes, conditions, items, markets, cast, events).
  * `{ world: true }` runs the full set; otherwise only the checks a conditions-only pack needs. Returns the kept parts for `content`.
  */
-export function checkWorldPack({ given, content, packId, weather, calendar = null, rawStart = null, ripples, add, warn, world, worldCast }) {
+export function checkWorldPack({ given, content, packId, weather, calendar = null, rawStart = null, ripples, add, warn, world, worldCast, v4 = false }) {
     const kept = {};
     const placeKinds = given.placeKinds === undefined ? null : placeKindMap(given.placeKinds, add);
     const routeKinds = given.routeKinds === undefined ? null : routeKindMap(given.routeKinds, add);
@@ -63,7 +64,7 @@ export function checkWorldPack({ given, content, packId, weather, calendar = nul
     const routes = content.routes ?? [];
     const realms = given.realms === undefined ? [] : checkRealms(given.realms, add);
     if (given.realms !== undefined) kept.realms = realms;
-    const regions = given.regions === undefined ? [] : checkRegions(given.regions, add);
+    const regions = given.regions === undefined ? [] : checkRegions(given.regions, add, v4);
     if (given.regions !== undefined) kept.regions = regions;
     if (world) {
         checkKindsUsed(places, routes, { placeKinds, routeKinds }, add);
@@ -71,7 +72,7 @@ export function checkWorldPack({ given, content, packId, weather, calendar = nul
         checkRouteNames(routes, add);
         checkHours(routes, routeKinds, warn);
     }
-    const base = { places, routes, realms, regions, calendar, templates: Array.isArray(given.templates) ? given.templates.filter(record => isObject(record) && typeof record.template === 'string') : [], conditions: content.conditions ?? [], items: content.items ?? [], markets: content.markets ?? [], weather, placeKinds,
+    const base = { places, routes, realms, regions, calendar, templates: Array.isArray(given.templates) ? given.templates.filter(record => isObject(record) && typeof record.template === 'string') : [], conditions: content.conditions ?? [], items: content.items ?? [], markets: content.markets ?? [], weather, placeKinds, deferCalendar: v4,
         worldEvents: Array.isArray(given.worldEvents) ? given.worldEvents.filter(record => isObject(record) && typeof record.id === 'string') : [], legacyEvents: content.events ?? [],
         lore: Array.isArray(given.lore) ? given.lore.filter(isObject) : [] };
     const resolvePlace = text => buildIndex(base).placeByRef(text);
@@ -129,7 +130,9 @@ export function checkWorldPack({ given, content, packId, weather, calendar = nul
 
     // `start.world` (v0.14.10): the beginning world state; its facts count as written. Kept apart from `content` (it belongs to `start`).
     if (rawStart?.world !== undefined) kept.startWorld = checkStartWorld(rawStart.world, makeCtx('start', 'The start', { placeholders: false }));
-    if (world) checkRegionUse({ regions, declared: given.regions !== undefined, places, realms, startPlace: rawStart?.scene?.place, add, warn });
+    // Format 4: the start's date and place (the world's "now"); the start scene of format 3 is gone.
+    if (v4 && given.start !== undefined) { const { date, place } = checkStartV4(given.start, places, add); if (date) kept.startDate = date; if (place) kept.startPlace = place; }
+    if (world) checkRegionUse({ regions, declared: given.regions !== undefined, places, realms, startPlace: v4 ? undefined : rawStart?.scene?.place, add, warn });
     postChecks({ content, index, collect, add, warn, world });
     return kept;
 }

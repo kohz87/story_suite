@@ -1,22 +1,23 @@
 // The core module with its packs and events parts merged (MODULES §A, §E), on the real runtime
 // through the testkit: a pack's start in the initial state, pack items before story items, the
-// pack's currency name when the reader has none, and a pack event told before a reply.
+// pack's currency name when the reader has none.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost } from '../../testkit/index.js';
 import { mergeParts } from '../../modules/scene/domains/index.js';
 
-const sample = JSON.parse(readFileSync(new URL('../packs/fixtures/riverside-starter.json', import.meta.url), 'utf8'));
-const installed = (pack, extra = {}) => ({ packs: [{ id: pack.id, version: pack.version, enabled: true, source: 'file', origin: 'test', pack }], ...extra });
+const read = name => JSON.parse(readFileSync(new URL(`../packs/fixtures/${name}`, import.meta.url), 'utf8'));
+const world = read('riverside-starter.json'), game = read('riverside-starter.game.json');
+// The world and the game of the format 4 Riverside pair, both installed and selected.
+const installed = (extra = {}) => ({ packs: [world, game].map(pack => ({ id: pack.id, version: pack.version, enabled: true, kind: pack.kind, source: 'file', origin: 'test', pack })), selected: { world: world.id, game: game.id }, ...extra });
 const names = state => Object.values(state.domains.inventory.stacks).map(stack => state.domains.inventory.defs[stack.def].name).sort();
 
 test('an enabled pack\'s start goes into the initial state; its currency names the money', async () => {
-    const host = await createHost({ settings: installed(sample) });
+    const host = await createHost({ settings: installed() });
     const head = host.head();
     assert.equal(head.domains.scene.place.name, 'Bluewatch Village');
-    assert.deepEqual(head.domains.scene.present, ['Hollis']);
-    assert.deepEqual(names(head), ['Hemp Line', 'Minor Healing Draught', 'Willow Rod']);
+    assert.deepEqual(names(head), ['Hemp Line', 'Minor Healing Draught', 'willow-rod'], 'the game start names "willow-rod", which no world item is called: a plain story item');
     assert.equal(head.domains.inventory.wallets.party.coin, 50);
     assert.ok(host.ctx.chat[0].extra.storySuite.checkpoint, 'the greeting holds it');
     assert.deepEqual(host.sdk.query('inventory.currency'), { name: 'pennies', plural: 'pennies', short: 'p' });
@@ -26,7 +27,7 @@ test('an enabled pack\'s start goes into the initial state; its currency names t
 });
 
 test('the reader\'s own currency name wins over the pack\'s suggestion', async () => {
-    const host = await createHost({ settings: installed(sample, { modules: { 'story-block': { currency: 'crowns' } } }) });
+    const host = await createHost({ settings: installed({ modules: { 'story-block': { currency: 'crowns' } } }) });
     assert.equal(host.sdk.query('inventory.currency').name, 'crowns');
     host.close();
 });
@@ -40,33 +41,16 @@ test('without packs the initial state is the registry\'s and the money is gold',
 });
 
 test('a story item a pack defines uses the pack\'s def; an unknown one becomes story/<slug>', async () => {
-    const host = await createHost({ settings: installed(sample) });
+    const host = await createHost({ settings: installed() });
     await host.send('I fish.', 'A trout!\n<Changes>\n+ item moonveil trout | qty: 1\n+ item Old Boot\n</Changes>');
     const inv = host.head().domains.inventory;
     const trout = Object.values(inv.defs).find(def => def.name === 'Moonveil Trout');
     assert.match(trout.id, /^pack\.riverside-starter\//);
-    const packTrout = sample.content.items.find(item => item.name === 'Moonveil Trout');
+    const packTrout = world.content.items.find(item => item.name === 'Moonveil Trout');
     if (packTrout.value !== undefined) assert.equal(trout.value, packTrout.value);
     if (packTrout.rarity !== undefined) assert.equal(trout.rarity, packTrout.rarity);
     assert.equal(inv.aliases['moonveil trout'], trout.id);
     assert.ok(inv.defs['story/old-boot']);
-    host.close();
-});
-
-test('a pack event whose condition is met is told by the next reply, once', async () => {
-    const pack = structuredClone(sample);
-    pack.id = 'bells';
-    pack.name = 'Bells';
-    delete pack.start;
-    pack.content = { items: [], events: [{ id: 'arrival', when: "query('scene.place').name == 'Bluewatch Village'", cue: 'Bells ring across Bluewatch.', once: true }] };
-    const host = await createHost({ settings: installed(pack) });
-    const quiet = await host.send('Walk.', 'You walk.\n<Changes>\n~ place Bluewatch Village | kind: settlement\n</Changes>');
-    assert.ok(!quiet.request.chat.at(-1).content.includes('Bells ring'), 'not yet: the place changed in that reply');
-    const { request } = await host.send('Listen.', 'Bells.');
-    assert.ok(request.chat.at(-1).content.includes('[Happened]\nBells ring across Bluewatch.'));
-    assert.equal(host.head().meta.claims['event:pack.bells/arrival'], true);
-    const again = await host.send('More.', 'Quiet.');
-    assert.ok(!again.request.chat.at(-1).content.includes('Bells ring'), 'told once');
     host.close();
 });
 

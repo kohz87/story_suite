@@ -33,8 +33,9 @@ export function readEntry(raw) {
         drawnTo: (Array.isArray(raw.drawnTo) ? raw.drawnTo : []).map(phrase => cutPoints(phrase, 80)).filter(Boolean).slice(0, 6),
         canDieUnmet: raw.canDieUnmet === true,
         // What the reader can seek a person by (sought.js): their calling and who they are, never read by anyone but the planner and the rumor.
-        calling: cutPoints(isRecord(raw.fields) ? raw.fields.Calling : '', 100),
-        about: cutPoints(raw.about, 400),
+        // (a format 4 world cast entry states these as `role` and `history`)
+        calling: cutPoints((isRecord(raw.fields) ? raw.fields.Calling : '') || raw.role, 100),
+        about: cutPoints(raw.about || raw.history, 400),
         // What the entry says, not which version of the pack it came in: a bump with nothing changed is no change.
         sig: (({ pack: _pack, packVersion: _version, ...own }) => hashJson(own).slice(0, 12))(raw),
         raw,

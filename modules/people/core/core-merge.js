@@ -5,7 +5,7 @@
 import { cleanText, normalizeName } from './core-text.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, normalizeRelationshipBaseline, normalizeRelationshipCaps } from './core-relationship.js';
 import { findInterimIdentityPromotionIndex, inferNpcIdentityKind, isDescriptivePhrase, normalizeGender } from './core-identity.js';
-import { applySheetLevels, withoutSheetLevels, candidateMatches, createNpcRecord, IMPORTANT_MEMORY_LIMIT, makeNpcCandidate, mergeLists, normalizeCustomFieldNames, normalizeNpcAdmissionMode, normalizeNpcCandidate, normalizeNpcRecord, normalizeScanNpc, NPC_CANDIDATE_LIMIT, NPC_CANDIDATE_TTL_TURNS, scanLabelsMatch, shouldCreateDossierImmediately, shouldPromoteCandidate } from './core-record.js';
+import { candidateMatches, createNpcRecord, IMPORTANT_MEMORY_LIMIT, makeNpcCandidate, mergeLists, normalizeCustomFieldNames, normalizeNpcAdmissionMode, normalizeNpcCandidate, normalizeNpcRecord, normalizeScanNpc, NPC_CANDIDATE_LIMIT, NPC_CANDIDATE_TTL_TURNS, scanLabelsMatch, shouldCreateDossierImmediately, shouldPromoteCandidate } from './core-record.js';
 import { applyKeyRelationshipEdges, recordTieMentions, tieRoster } from './core-keyrel.js';
 import { canonicalizeNpcKeyRelationships, reconcileSocialState } from '../social/social.js';
 import { isTerminalNpcDeath } from './terminal-lifecycle.js';
@@ -51,7 +51,6 @@ export function applyScenePresence(npcs, scene) {
 }
 
 export function mergeScanResult(state, scanResult, options = {}) {
-    scanResult = withoutSheetLevels(scanResult, state?.npcs, options.partyLevels);   // (hosted) the sheet, not the scanner, sets an active member's Level
     const maxNpcs = Math.max(1, Math.min(100, Number(options.maxNpcs) || 40));
     const excludeNames = new Set((options.excludeNames || []).map(normalizeName).filter(Boolean));
     const turn = Number(options.turn ?? state.turn ?? 0);
@@ -248,10 +247,6 @@ export function mergeScanResult(state, scanResult, options = {}) {
     if (options.scenePresent && typeof options.scenePresent === 'object' && !preservePresence) {
         report.scenePresence = applyScenePresence(next.npcs, options.scenePresent);
     }
-
-    // (hosted) An active party member's Level is the sheet's, whatever the scanner stated for them in this scan.
-    report.sheetLevels = applySheetLevels(next.npcs, options.partyLevels);
-    for (const { id } of report.sheetLevels) if (!report.updated.includes(id)) report.updated.push(id);
 
     // Final canonicalization is a hard guard against append-only drift from either
     // normal NPC deltas or the independent profile/social channels.

@@ -10,6 +10,7 @@ import { cueOf, tail, meetingFresh } from '../../../../modules/cast/cast/note.js
 import { FEATURE } from '../../../../modules/cast/cast/domain.js';
 import { TAIL_BUDGET } from '../../../../modules/cast/cast/settings.js';
 import { OPENING, STATIC_KEY, TAIL_KEY, castCue, castHost, castSource, entry, people, receipts, said, sent, settle, syncCast, withRoads } from './helpers.js';
+import { forWorldPack, realEntries } from './real-entries.js';
 
 const quiet = t => t.mock.method(console, 'warn', () => {});
 
@@ -114,11 +115,10 @@ test('without a model the world still meets by place and nobody moves; a Continu
 
 // ---- the cue with real-length entries ------------------------------------------------------------------------------------------------
 
-import { readFileSync } from 'node:fs';
 import { castOf } from '../../../../modules/cast/cast/entries.js';
 import { whyNarrator } from '../../../../modules/cast/cast/apply.js';
 
-const REAL = JSON.parse(readFileSync(new URL('../../../fixtures/director/ersveil-cast.json', import.meta.url), 'utf8')).map(item => ({ pack: 'ersveil', packVersion: '2.2.1', ...item }));
+const REAL = realEntries();
 const CLOSING = 'Bring them in naturally; do not treat them as known to {{user}} yet.';
 
 test('the cue keeps why now and how to bring them in whole for every real-length entry, a goal meeting and a place meeting alike; the descriptive fields give way', () => {
@@ -146,7 +146,7 @@ test('the cue keeps why now and how to bring them in whole for every real-length
 test('on the host: Siebert comes by his goal with the story\'s reason, Tansy by place; the narrator\'s line holds each reason and the closing sentence', async t => {
     quiet(t);
     const { createFakeModel } = await import('./helpers.js');
-    const pick = ids => REAL.filter(item => ids.includes(item.id)).map(({ pack: _pack, packVersion: _version, ...own }) => own);
+    const pick = ids => REAL.filter(item => ids.includes(item.id)).map(({ pack: _pack, packVersion: _version, ...own }) => forWorldPack(own));
     const host = await castHost({
         source: withRoads(castSource(pick(['siebert-maas', 'tansy-millrace'])), [['Old Lantern Post', 'Bluewatch Village', 5]]),
         settings: { 'cast.faces': 'day2' },

@@ -31,7 +31,8 @@ export { WEATHER_FIELDS, WEATHER_SEASON_FIELDS, WEATHER_TABLE_FIELDS, WEATHER_LI
 export { RIPPLES_FIELDS, RIPPLES_POWER_FIELDS, RIPPLES_TIERS, RIPPLES_CAPS } from './limits-parts/ripples.js';
 export { RIPPLES_LIMITS } from './limits-parts/ripples-limits.js';
 export { SCREEN_FIELDS, TAB_ID, TAB_TITLE_MAX, MOUNTS } from './limits-parts/screens.js';
-export { PACK_FORMAT, PACK_FORMAT_DEFAULT, IGNORED_KINDS, IGNORED_TOP_FIELDS } from './limits-parts/format.js';
+export { PACK_FORMAT } from './limits-parts/format.js';
+export { PACK_KINDS, PACK_FIELDS_V4, CONTENT_KEYS, MOVED_TOP_FIELDS } from './limits-parts/kinds.js';
 export { SKILL_TYPES_V1, SKILL_RANKS_V1, SKILL_USES_V1, SKILL_TYPE_ALIASES } from './limits-parts/skill-words.js';
 export { FOE_FIELDS, FOE_TIERS, FOE_LIMITS } from './limits-parts/foes.js';
 export { PLACE_CLASSES, ROUTE_CLASSES, STANDING, WORLD_LIMITS } from './limits-parts/world-classes.js';
@@ -39,7 +40,12 @@ export { EVENT_KINDS, EVENT_CERTAINTY, EVENT_REACH, WORLD_EVENT_FIELDS } from '.
 export { EFFECT_FIELDS, CAST_EFFECT_FIELDS, TEMPLATE_FIELDS, CONDITION_EFFECT_FIELDS } from './limits-parts/world-effects.js';
 export { POWER_FIELDS, SCORE_FIELDS, REALM_FIELDS, LORE_FIELDS } from './limits-parts/world-records.js';
 export { REGION_FIELDS } from './limits-parts/world-regions.js';
+export { CLIMATES, REGION_FIELDS_V4, WORLD_START_FIELDS, RETIRED_CAST_FIELDS } from './limits-parts/world-climate.js';
 export { LORE_LOGIC } from './limits-parts/world-lore.js';
 export { WORLD_CAST_FIELDS, CAST_KINDS, TIE_TAGS, WORLD_CAST_LIMITS } from './limits-parts/world-cast.js';
 export { PACK_ID, SLUG, SEMVER, COMMAND } from './limits-parts/ids.js';
 export { DEF_ID, SCREEN_ID } from './limits-parts/refs.js';
+export { GAME_CALENDAR_FIELDS, GAME_CALENDAR_LIMITS } from './limits-parts/game-calendar.js';
+export { GAME_WEATHER_STYLES, GAME_WEATHER_TABLE_FIELDS, GAME_WEATHER_LIMITS } from './limits-parts/game-weather.js';
+export { GAME_START_FIELDS, GAME_START_LIMITS, GAME_PACING_LIMITS } from './limits-parts/game-start.js';
+export { GAME_RPG_FIELDS, RPG_PULL_FIELDS, RPG_PULL_LIMITS } from './limits-parts/game-rpg.js';

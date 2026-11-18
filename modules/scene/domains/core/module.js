@@ -20,6 +20,7 @@ import { createLazyRpgPart, lazyFightKind } from '../../../rpg/rpg-lazy.js';
 import { INTERACTION_VIEW, createInteractionView } from '../../../../core/interaction/view.js';
 import { createInteractionCommands, interactionGuardFor } from './interaction-part.js';
 import { createPeoplePart } from '../../../people/domain/part.js';
+import { createFramePart } from '../../../../core/runtime/frame.js';
 import { CORE_BUDGET, CORE_FEATURES, CORE_MODULE_ID } from './constants.js';
 import { CORE_KINDS } from './kinds.js';
 import { createCorePart } from './part.js';
@@ -45,7 +46,7 @@ const SCREEN_TABS = Object.freeze(['inventory', 'scene']);
  * `assist`: the assist part (pre-roll classifier, after-reply extractor; both off by default).
  */
 export function createCoreModule({ hooks = () => [], settings = () => ({}), version = '2.0.0-alpha.1', packs = livePacks, command, query, assist = null, hookEntries = null, problem = null, extras = null, timeline = () => null, dataModules = {}, leanRpg = {}, flagOn = () => false, interaction = () => null } = {}) {
-    const core = createCorePart({ hooks, settings, hookEntries, problem, query, rpgOn: () => { try { return extras?.rpgOn?.() === true; } catch { return false; } }, gearOn: () => { try { return extras?.gearOn?.() === true; } catch { return false; } }, persona: () => extras?.persona?.() ?? '', readers: () => extras?.readers?.() ?? null, greetingOnly: () => extras?.greetingOnly?.() ?? null, chatEmpty: () => extras?.chatEmpty?.() === true, economy: () => (typeof packs.economy === 'function' ? packs.economy() : null), youRank: () => youRankOf(typeof packs.packs?.packs === 'function' ? packs.packs.packs() : []) });
+    const core = createCorePart({ hooks, settings, hookEntries, problem, query, rpgOn: () => { try { return extras?.rpgOn?.() === true; } catch { return false; } }, gearOn: () => { try { return extras?.gearOn?.() === true; } catch { return false; } }, persona: () => extras?.persona?.() ?? '', readers: () => extras?.readers?.() ?? null, greetingOnly: () => extras?.greetingOnly?.() ?? null, chatEmpty: () => extras?.chatEmpty?.() === true, economy: () => (typeof packs.economy === 'function' ? packs.economy() : null), youRank: () => youRankOf(typeof packs.packs?.packs === 'function' ? packs.packs.packs() : [], packs.packs?.own?.read?.().rankLabel) });
     // The reader's cap on Inner chatter lines a reply (1 to 10; 3 unless set).
     const chatterCapNow = () => { try { return chatterCap(settings()?.chatterMax); } catch { return chatterCap(); } };
     const events = createEventsPart({
@@ -55,7 +56,7 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
     const dataPart = createDataModulesPart({ packs: packs.packs, settings: () => settings(), ...dataModules });
     // The RPG's pre-call and rolls (`leanRpg`: the runtime's queued model call, the chat and its metadata; src/v2/lean-rpg/).
     const rpg = createLazyRpgPart({ ...leanRpg, persona: () => extras?.persona?.() ?? '', rosterOn: () => { try { return extras?.rpgOn?.() === true && extras?.gearOn?.() === true; } catch { return false; } } });
-    const merged = mergeParts([core, packs.part, events, assist ?? createAssistPart({ settings: () => settings() }), createTimelinePart({ timeline }), dataPart, rpg, createPeoplePart()], { flagOn: name => { try { return flagOn(name) === true; } catch { return false; } } });
+    const merged = mergeParts([core, packs.part, createFramePart({ installed: packs.packs, chatId: () => { try { return extras?.chatId?.() ?? ''; } catch { return ''; } } }), events, assist ?? createAssistPart({ settings: () => settings() }), createTimelinePart({ timeline }), dataPart, rpg, createPeoplePart()], { flagOn: name => { try { return flagOn(name) === true; } catch { return false; } } });
     const timelineGuard = merged.hooks.replayGuard;
     // The interaction kinds modules register (`interaction(kindId)`: the kind or null) and the settle that plays them (interaction/settle.js).
     const interactionGuard = interactionGuardFor(interaction);

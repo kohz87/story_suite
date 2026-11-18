@@ -2,14 +2,13 @@
 // (state-fuzz-reread-director.test.js): Story Block's fuzz host (core module, probe module, gear on) with
 // Story Director and the Ersveil Bluewatch pack (trips need its clock), the RPG and the pulse off.
 // Not a test file (the test glob does not match helpers/).
-import { readFileSync } from 'node:fs';
 import { createHost } from '../../../../testkit/index.js';
 import { probeModule } from '../../../suite/qa/helpers/probe-module.js';
 import { READERS } from '../../../suite/qa/helpers/reread-fuzz-run.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { withD1 } from '../../../helpers/director/d1.js';
+import { installBluewatch } from '../../../fixtures/director/bluewatch.js';
 
-const PACK = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const QUESTS = ['Lost Road', 'Old Debt', 'Red Fox'];
 
 /** A new host with Story Director plugged in (the same maker serves the live chat and every told-again one). */
@@ -17,7 +16,7 @@ export async function makeDirectorHost() {
     let host = null;
     const director = withD1(createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } }));
     host = await createHost({ modules: [probeModule(), director], settings: { features: { 'story-block.gear': true, 'story-director.pulse': false } } });
-    await host.packs.packs.install(PACK, { origin: 'pack.json' });
+    await installBluewatch(host.packs.packs);
     return host;
 }
 

@@ -2,11 +2,14 @@
 
 import { importPicked, importFromLorebook } from '../../packs/import-run.js';
 
+// The reader's own start rows on Settings › Start (packs/own.js): row key → the stored field.
+const OWN_KEYS = Object.freeze({ 'packs.you.rankLabel': 'rankLabel', 'packs.start.money': 'money', 'packs.start.items': 'items' });
+
 const NO = message => ({ ok: false, code: 'FAILED', message });
 
 /**
  * `handle` = { packs (installed.js), readLorebook(), lore? ({ read() }) }; `sdk` sends the data-module command.
- * `settings.set` `packs.on.<id>` (bool) switches a pack; `settings.set` `packs.module.<module>` (true) uses a data module in this chat, as the old page's Enable did (`dm.pin` with the hashes read now);
+ * `settings.set` `packs.on.<id>` (bool) switches a pack (a format 4 world or game: on picks it, off clears the pick); `packs.you.rankLabel`, `packs.start.money` and `packs.start.items` set the reader's own rank label and starting money and items; `settings.set` `packs.module.<module>` (true) uses a data module in this chat, as the old page's Enable did (`dm.pin` with the hashes read now);
  * `settings.action` `packs.import` (value: the picked files) → `{ ok, text, errors }`, `packs.lorebook`, `packs.remove` (value: the pack id).
  * Any other command is not this page's: returns null.
  */
@@ -17,6 +20,9 @@ export async function packsCommand(handle, sdk, type, payload) {
   if (!packs) return NO('The engine has no packs to change.');
   if (type === 'settings.set' && key.startsWith('packs.on.')) {
     return (await packs.setEnabled(key.slice('packs.on.'.length), payload.value === true)) ? { ok: true } : NO('That pack is not installed.');
+  }
+  if (type === 'settings.set' && OWN_KEYS[key]) {
+    return (await packs.setOwn(OWN_KEYS[key], payload.value)) ? { ok: true } : NO('That value cannot be used.');
   }
   if (type === 'settings.set' && key.startsWith('packs.module.')) {
     const module = key.slice('packs.module.'.length);

@@ -19,5 +19,6 @@
 // Public face: re-exports its parts.
 
 export { validatePack } from './validate-parts/pack.js';
+export { checkPairing } from './validate-parts/pairing.js';
 export { HOST_VERSION, SUITE_VERSION, slugify } from './validate/core.js';
 export { unsafeCss, checkScreens } from './validate/theme.js';

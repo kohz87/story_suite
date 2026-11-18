@@ -2,7 +2,7 @@
 // owns (the agenda, event, clock, beat, secret, faction, world, landmark and route kinds, the Pacing, World lines and Under
 // [World] paragraphs, the notes' lines about them), that on it changes no byte of the prompt, and that off is the registry's
 // normal off: nothing taught or sent, the story's lines of those kinds left out quietly, what is stored kept, replay equal to
-// a rebuild, a pack event's lasting change still written.
+// a rebuild. (The format 3 pack events that wrote lasting changes are gone; world events are covered by tests/modules/world/daily.)
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -208,41 +208,6 @@ test('the While away recap leaves out the owned kinds while off, and is made aga
         await only.send('After.', reply('After.'));
         assert.doesNotMatch(tailOf(only), /While away|Flood/);
     } finally { only.close(); }
-});
-
-test('off: a pack event\'s lasting world change is still written (Ersveil\'s calendar), the Chronicle line stays out of the notes, and a rebuild agrees', async () => {
-    const base = JSON.parse(readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8'));
-    const pack = JSON.stringify({
-        id: 'ersveil-lasting', version: '1.0.0', name: 'Ersveil lasting', requires: { storyBlock: '^2', capabilities: ['chronicle-lasting'] },
-        calendar: base.calendar, start: { scene: { place: { name: 'Bluewatch Village', kind: 'settlement', region: 'River Confederacy' } } },
-        content: { events: [
-            { id: 'river-rising', when: 'true', once: true, cue: 'The river rises.', then: [{ command: 'chronicle.lasting', payload: { name: 'River flood', state: 'looming', place: 'Bluewatch Village', summary: 'The river is rising.', keep: true } }] },
-            { id: 'river-floods', after: 'river-rising', once: true, when: "query('chronicle.passed', { name: 'River flood', minutes: 1440 })", cue: 'The river floods.', then: [{ command: 'chronicle.lasting', payload: { name: 'River flood', state: 'ongoing' } }] },
-        ] },
-    });
-    const host = await newHost({ features: { [THREADS_FEATURE]: false }, modules: [fakeFightRunner()] });
-    try {
-        const installed = await host.packs.packs.install(pack, { origin: 'pack.json' });
-        assert.equal(installed.ok, true, JSON.stringify(installed.errors));
-        await host.send('Begin.', reply('Morning.'));
-        await host.send('Go on.', reply('Later.'));
-        await host.send('Wait.', reply('Rain.'));
-        const flood = host.sdk.query('chronicle.event', { name: 'River flood' });
-        assert.ok(flood, 'the pack event wrote the world entry with the feature off');
-        assert.deepEqual([flood.state, flood.place, flood.locked, flood.keep], ['looming', 'Bluewatch Village', true, true]);
-        assert.ok(!tailOf(host).includes(TAIL_HEADER), 'the [World] lines are the feature\'s');
-        await host.send('A day.', reply('A day passes.', ['! time +1d']));
-        await host.send('Check.', reply('Check.'));
-        assert.equal(host.sdk.query('chronicle.event', { name: 'River flood' }).state, 'ongoing', 'the delayed event wrote its step too');
-        const live = JSON.stringify(host.head());
-        host.store.rebuild();
-        assert.equal(JSON.stringify(host.head()), live, 'rebuild equals live');
-        host.features.set(THREADS_FEATURE, true);
-        await host.send('Look.', reply('Look.'));
-        assert.ok(tailOf(host).includes(TAIL_HEADER), 'on again, the entry is under way in the notes');
-    } finally {
-        host.close();
-    }
 });
 
 test('off: the Chronicle tab, the Behind widget, the Reveal setting and the screens\' threads queries are gone; on they are there', async () => {
