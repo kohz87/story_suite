@@ -1,16 +1,17 @@
 // Checking places and routes on the map.
 
-import { PLACE_FIELDS, LIMITS, RECORD_LIMITS, MARKET_WORD, MARKET_LIMITS, RARITIES, ROUTE_FIELDS } from '../../limits.js';
+import { CLIMATES, PLACE_FIELDS, LIMITS, RECORD_LIMITS, MARKET_WORD, MARKET_LIMITS, RARITIES, ROUTE_FIELDS } from '../../limits.js';
 import { oneLine, foldKey } from '../../../core/text.js';
 import { isNumber, isText, isObject, slugify } from '../core.js';
 
-// A place on the map: a name, coordinates in map units (x east, y north) and what it is.
-export function checkPlace(record, path, label, add) {
+// A place on the map: a name, coordinates in map units (x east, y north) and what it is. Format 4 (`v4`) adds `climate`, which overrides its region's.
+export function checkPlace(record, path, label, add, v4 = false) {
     let ok = true;
     const say = (field, message, code = 'BAD_RECORD') => { ok = false; add(code, `${path}.${field}`, `${label}: ${message}`); };
-    for (const key of Object.keys(record)) if (!PLACE_FIELDS.includes(key)) say(key, `"${key}" is not a place field (expected ${PLACE_FIELDS.join(', ')}).`, 'UNKNOWN_FIELD');
+    for (const key of Object.keys(record)) if (!PLACE_FIELDS.includes(key) && !(v4 && key === 'climate')) say(key, `"${key}" is not a place field (expected ${PLACE_FIELDS.join(', ')}).`, 'UNKNOWN_FIELD');
     for (const axis of ['x', 'y']) if (!isNumber(record[axis]) || Math.abs(record[axis]) > 1e6) say(axis, `${axis} must be a number (map units).`);
     for (const field of ['region', 'kind', 'layer']) if (record[field] !== undefined && !isText(record[field], LIMITS.name)) say(field, `${field} must be text of at most ${LIMITS.name} characters.`);
+    if (v4 && record.climate !== undefined && !CLIMATES.includes(record.climate)) say('climate', `climate must be one of ${CLIMATES.join(', ')}.`);
     const aliases = record.aliases ?? [];
     if (!Array.isArray(aliases) || aliases.some(alias => typeof alias !== 'string' || !alias.trim() || alias.length > LIMITS.name)) say('aliases', 'aliases must be a list of other names for the place.');
     const note = record.note ?? '';
@@ -31,6 +32,7 @@ export function checkPlace(record, path, label, add) {
         // `secret` is another word for `hidden`; the map reads either.
         ...(record.hidden === true || record.secret === true ? { hidden: true } : {}),
         ...(record.weight !== undefined ? { weight: record.weight } : {}),
+        ...(v4 && record.climate !== undefined ? { climate: record.climate } : {}),
         ...(record.market !== undefined ? { market: record.market } : {}),
         ...(record.loot !== undefined ? { loot: { maxRarity: record.loot.maxRarity } } : {}),
         ...(placeTags.length ? { tags: [...new Set(placeTags)] } : {}),

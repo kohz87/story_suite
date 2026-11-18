@@ -1,17 +1,20 @@
 // The job: checking the world pack's cast (spec §8): each entry is `companion` or `figure`, and one bad entry is refused alone, naming the
 // person and the field, while the rest of the cast still loads. A refused entry is a Problem (a warning of the pack), never a refusal of the pack.
 
-import { CAST_KINDS, CAST_START_FIELDS, PORTRAIT_NAME, SLUG, WORLD_CAST_FIELDS, WORLD_CAST_LIMITS } from '../../limits.js';
+import { CAST_KINDS, CAST_START_FIELDS, PORTRAIT_NAME, RETIRED_CAST_FIELDS, SLUG, WORLD_CAST_FIELDS, WORLD_CAST_LIMITS } from '../../limits.js';
 import { foldKey, oneLine } from '../../../core/text.js';
 import { isObject } from '../core.js';
 import { pairs, plain, relationships, ties } from './cast-fields.js';
 import { behaviour, meters, stages } from './cast-ladder.js';
 import { secrets } from './cast-secrets.js';
+import { checkBirthday } from './cast-birthday.js';
 
 const TEXTS = { name: 80, role: 120, species: 60, gender: 40, age: 40, apparentAge: 40, look: 600, wears: 300, voice: 300, personality: 600, history: 1200, homeBase: 80, withYou: 320, status: 200, goal: 200 };
 
-function oneEntry(record, say) {
-    for (const key of Object.keys(record)) if (!WORLD_CAST_FIELDS.includes(key)) say(key, `"${key}" is not a cast field (expected ${WORLD_CAST_FIELDS.join(', ')}).`, 'UNKNOWN_FIELD');
+// Format 4 adds `birthday` and says where a retired format 3 field went; format 3 keeps its own list and wording.
+function oneEntry(record, say, v4) {
+    const fields = v4 ? [...WORLD_CAST_FIELDS, 'birthday'] : WORLD_CAST_FIELDS;
+    for (const key of Object.keys(record)) if (!fields.includes(key)) say(key, `"${key}" is not a cast field${v4 && RETIRED_CAST_FIELDS[key] ? ` (${RETIRED_CAST_FIELDS[key]})` : ` (expected ${fields.join(', ')})`}.`, 'UNKNOWN_FIELD');
     if (!CAST_KINDS.includes(record.kind)) say('kind', `kind must be "companion" or "figure".`);
     if (typeof record.id !== 'string' || !SLUG.test(record.id)) say('id', 'id must be a lower-case slug like "sir-lothar".');
     const out = { kind: record.kind, id: record.id };
@@ -44,6 +47,7 @@ function oneEntry(record, say) {
             out.start = Object.fromEntries(CAST_START_FIELDS.filter(key => plain(record.start[key], 200)).map(key => [key, oneLine(record.start[key])]));
         }
     }
+    if (v4 && record.birthday !== undefined) { const birthday = checkBirthday(record.birthday, say); if (birthday) out.birthday = birthday; }
     if (record.level !== undefined) { if (Number.isInteger(record.level) && record.level >= 1 && record.level <= 99) out.level = record.level; else say('level', 'level must be a whole number from 1 to 99.'); }
     for (const flag of ['protected', 'canDieUnmet']) if (record[flag] !== undefined) { if (typeof record[flag] === 'boolean') out[flag] = record[flag]; else say(flag, `${flag} must be true or false.`); }
     if (record.portrait !== undefined) { if (typeof record.portrait === 'string' && PORTRAIT_NAME.test(record.portrait)) out.portrait = record.portrait; else say('portrait', 'portrait must be the name of an image file beside the pack, like "lothar.webp".'); }
@@ -55,7 +59,7 @@ function oneEntry(record, say) {
 }
 
 /** The kept entries of `content.cast` for a world pack (every entry has a `kind`). A bad entry is `warn`ed and left out alone. */
-export function checkWorldCast(list, packId, add, warn) {
+export function checkWorldCast(list, packId, add, warn, v4 = false) {
     if (!Array.isArray(list)) { add('BAD_CONTENT', 'content.cast', 'content.cast must be a list of people.'); return []; }
     const out = [];
     const ids = new Set();
@@ -66,7 +70,7 @@ export function checkWorldCast(list, packId, add, warn) {
         const who = typeof record.name === 'string' && record.name.trim() ? `Cast "${oneLine(record.name, 80)}"` : typeof record.id === 'string' ? `Cast "${record.id}"` : path;
         let good = true;
         const say = (field, message, code = 'BAD_RECORD') => { good = false; warn(code, `${path}.${field}`, `${who} was refused, the rest of the cast still loads: ${message}`); };
-        const entry = oneEntry(record, say);
+        const entry = oneEntry(record, say, v4);
         if (good && ids.has(entry.id)) say('id', `the id "${entry.id}" is already another person's.`, 'DUPLICATE');
         if (good) for (const each of [entry.name, ...(entry.aliases ?? [])]) if (names.has(foldKey(each)) && names.get(foldKey(each)) !== entry.id) say('name', `"${each}" is already a name or alias of another person.`, 'DUPLICATE');
         if (!good) return;

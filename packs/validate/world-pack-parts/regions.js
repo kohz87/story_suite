@@ -1,12 +1,13 @@
 // The job: checking `content.regions` (spec v0.14.10): `[{ id, name, aliases? }]`, and that every place's region (and the start scene's) is a declared region id.
 
-import { REGION_FIELDS, SLUG, WORLD_LIMITS } from '../../limits.js';
+import { CLIMATES, REGION_FIELDS, REGION_FIELDS_V4, SLUG, WORLD_LIMITS } from '../../limits.js';
 import { foldKey, oneLine } from '../../../core/text.js';
 import { isObject } from '../core.js';
 import { nameProblem, RESERVED_IDS } from './realms.js';
 
-/** → the kept list. A bad record is refused alone with its own Problem. */
-export function checkRegions(list, add) {
+/** → the kept list. A bad record is refused alone with its own Problem. Format 4 (`v4`) adds `climate`. */
+export function checkRegions(list, add, v4 = false) {
+    const fields = v4 ? REGION_FIELDS_V4 : REGION_FIELDS;
     if (!Array.isArray(list)) { add('BAD_CONTENT', 'content.regions', 'content.regions must be a list like [{ "id": "the-march", "name": "The March", "aliases": ["the northern march"] }].'); return []; }
     if (list.length > WORLD_LIMITS.regions) { add('BAD_CONTENT', 'content.regions', `content.regions holds at most ${WORLD_LIMITS.regions} regions.`); return []; }
     const out = [];
@@ -16,7 +17,7 @@ export function checkRegions(list, add) {
         if (!isObject(record)) return add('BAD_RECORD', path, `${path} must be an object.`);
         let good = true;
         const say = (field, message, code = 'BAD_RECORD') => { good = false; add(code, `${path}.${field}`, `Region ${typeof record.id === 'string' ? `"${record.id}"` : path}: ${message}`); };
-        for (const key of Object.keys(record)) if (!REGION_FIELDS.includes(key)) say(key, `"${key}" is not a region field (expected ${REGION_FIELDS.join(', ')}).`, 'UNKNOWN_FIELD');
+        for (const key of Object.keys(record)) if (!fields.includes(key)) say(key, `"${key}" is not a region field (expected ${fields.join(', ')}).`, 'UNKNOWN_FIELD');
         if (typeof record.id !== 'string' || !SLUG.test(record.id)) say('id', 'id must be lower-case-with-hyphens.');
         else if (seen.has(record.id)) say('id', `two regions share the id "${record.id}".`, 'DUPLICATE');
         else if (RESERVED_IDS.includes(record.id)) say('id', `"${record.id}" is a reserved word (a placeholder, @${record.id}); it cannot be an id.`);
@@ -24,9 +25,10 @@ export function checkRegions(list, add) {
         else if (nameProblem(record.name)) say('name', `the name ${nameProblem(record.name)}.`);
         const aliases = record.aliases;
         if (aliases !== undefined && (!Array.isArray(aliases) || aliases.length > 6 || aliases.some(alias => typeof alias !== 'string' || !alias.trim() || alias.length > WORLD_LIMITS.name || nameProblem(alias)))) say('aliases', 'aliases must be a list of at most 6 other names (no "@" or ": ").');
+        if (record.climate !== undefined && !CLIMATES.includes(record.climate)) say('climate', `climate must be one of ${CLIMATES.join(', ')}.`);
         if (!good) return;
         seen.add(record.id);
-        out.push({ id: record.id, name: oneLine(record.name, WORLD_LIMITS.name), ...(aliases?.length ? { aliases: aliases.map(alias => oneLine(alias, WORLD_LIMITS.name)) } : {}) });
+        out.push({ id: record.id, name: oneLine(record.name, WORLD_LIMITS.name), ...(aliases?.length ? { aliases: aliases.map(alias => oneLine(alias, WORLD_LIMITS.name)) } : {}), ...(record.climate !== undefined ? { climate: record.climate } : {}) });
     });
     return out;
 }

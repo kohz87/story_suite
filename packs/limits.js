@@ -40,6 +40,7 @@ export { EVENT_KINDS, EVENT_CERTAINTY, EVENT_REACH, WORLD_EVENT_FIELDS } from '.
 export { EFFECT_FIELDS, CAST_EFFECT_FIELDS, TEMPLATE_FIELDS, CONDITION_EFFECT_FIELDS } from './limits-parts/world-effects.js';
 export { POWER_FIELDS, SCORE_FIELDS, REALM_FIELDS, LORE_FIELDS } from './limits-parts/world-records.js';
 export { REGION_FIELDS } from './limits-parts/world-regions.js';
+export { CLIMATES, REGION_FIELDS_V4, WORLD_START_FIELDS, RETIRED_CAST_FIELDS } from './limits-parts/world-climate.js';
 export { LORE_LOGIC } from './limits-parts/world-lore.js';
 export { WORLD_CAST_FIELDS, CAST_KINDS, TIE_TAGS, WORLD_CAST_LIMITS } from './limits-parts/world-cast.js';
 export { PACK_ID, SLUG, SEMVER, COMMAND } from './limits-parts/ids.js';

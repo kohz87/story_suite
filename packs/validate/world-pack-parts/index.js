@@ -11,7 +11,7 @@ export const routeNameOf = route => route.name ?? `${route.from}–${route.to}`;
  * Builds the index from the normalized content kinds. `ref(text)` → the set of scopes a place, route, region or realm reference can mean
  * (by id first, then by display name or alias); an empty set means it names nothing in this pack.
  */
-export function buildIndex({ lore = [], refused = new Set(), places = [], routes = [], realms = [], conditions = [], cast = [], regions = [], templates = [], calendar = null, powers = [], scores = [], worldEvents = [], legacyEvents = [], items = [], markets = [], weather = null, placeKinds = null }) {
+export function buildIndex({ lore = [], refused = new Set(), places = [], routes = [], realms = [], conditions = [], cast = [], regions = [], templates = [], calendar = null, powers = [], scores = [], worldEvents = [], legacyEvents = [], items = [], markets = [], weather = null, placeKinds = null, deferCalendar = false }) {
     const byId = new Map();
     const byName = new Map();
     const note = (map, key, scope) => { if (!map.has(key)) map.set(key, new Set()); map.get(key).add(scope); };
@@ -61,10 +61,13 @@ export function buildIndex({ lore = [], refused = new Set(), places = [], routes
         eventIds: new Set(worldEvents.map(event => event.id)),
         legacyIds: new Set(legacyEvents.map(event => event.slug ?? event.id)),
         categories,
-        knowsSeason: name => SLUGGY.test(name) && (['spring', 'summer', 'autumn', 'winter'].includes(name) || seasons.has(foldKey(name))),
+        // Format 4: any season name reads here; the paired game pack's calendar has the final word.
+        knowsSeason: name => SLUGGY.test(name) && (deferCalendar || ['spring', 'summer', 'autumn', 'winter'].includes(name) || seasons.has(foldKey(name))),
         placeKindKnown: kind => typeof kind === 'string' && (PLACE_CLASSES.includes(kind) || Object.hasOwn(placeKinds ?? {}, kind)),
         cast,
         calendar,
+        // Format 4: a world pack has no calendar of its own; dates and seasons are checked against the paired game pack (checkPairing).
+        deferCalendar,
         templateIds: new Set(templates.map(entry => entry.template)),
         // The declared region ids (empty when the pack declares none).
         regionIds: new Set(regions.map(region => region.id)),

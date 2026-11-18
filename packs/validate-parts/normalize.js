@@ -67,7 +67,7 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     // Kinds added later are kept only when given, so older packs normalize as they always did.
     if (given.skills !== undefined) content.skills = records(given.skills, 'skills', { add, packId, check: (record, path, label) => checkSkill(record, path, label, add) });
     // A world pack names a place by `id` (spec §1); the store keeps it as the place's slug.
-    if (given.places !== undefined) content.places = records(Array.isArray(given.places) ? given.places.map(place => (isObject(place) && place.id !== undefined && place.slug === undefined ? { ...place, slug: place.id } : place)) : given.places, 'places', { add, packId, check: (record, path, label) => checkPlace(record, path, label, add) });
+    if (given.places !== undefined) content.places = records(Array.isArray(given.places) ? given.places.map(place => (isObject(place) && place.id !== undefined && place.slug === undefined ? { ...place, slug: place.id } : place)) : given.places, 'places', { add, packId, check: (record, path, label) => checkPlace(record, path, label, add, v4) });
     if (given.routes !== undefined) {
         const place = placeRefs(content.places ?? []);
         content.routes = records(given.routes, 'routes', { add, packId, check: (record, path) => checkRoute(record, path, add, place), named: false, autoSlug: routeSlug });
@@ -91,7 +91,7 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     // A cast with `kind` on its entries is the world pack's (spec §8): one bad person is refused alone, the rest load.
     // A format 4 world pack's cast is always the world cast.
     const worldCast = (v4 && kind === 'world' && given.cast !== undefined) || Array.isArray(given.cast) && given.cast.some(person => isObject(person) && person.kind !== undefined);
-    if (given.cast !== undefined) content.cast = worldCast ? checkWorldCast(given.cast, packId, add, warn) : checkCast(given.cast, packId, add, items, calendar);
+    if (given.cast !== undefined) content.cast = worldCast ? checkWorldCast(given.cast, packId, add, warn, v4) : checkCast(given.cast, packId, add, items, calendar);
     // The name lists: one object (not a list), kept only when given and when every part checks.
     if (given.names !== undefined) {
         const names = checkNames(given.names, warn);
@@ -106,14 +106,16 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     // The world pack (spec v0.13): realms, kind maps, powers, scores, events, templates, lore; and the cross checks over the places, conditions and cast.
     const world = (v4 && kind === 'world') || WORLD_KINDS.some(name => given[name] !== undefined);
     let startWorld;
+    let startNow = {};
     if (world || worldCast || given.conditions !== undefined) {
-        const { startWorld: checked, ...kept } = checkWorldPack({ given, content, packId, weather, calendar, rawStart: isObject(v4 ? given.start : raw.start) ? (v4 ? given.start : raw.start) : null, ripples, add, warn, world, worldCast });
+        const { startWorld: checked, startDate, startPlace, ...kept } = checkWorldPack({ given, content, packId, weather, calendar, rawStart: isObject(v4 ? given.start : raw.start) ? (v4 ? given.start : raw.start) : null, ripples, add, warn, world, worldCast, v4 });
         Object.assign(content, kept);
         startWorld = checked;
+        startNow = { ...(startDate ? { date: startDate } : {}), ...(startPlace ? { place: startPlace } : {}) };
     }
 
-    // Format 4: `start` is under content; the world's part is checked above, the rest of it (date, place; a game's money and items) by later jobs.
-    const start = v4 ? (startWorld ? { world: startWorld } : null) : raw.start === undefined ? null : checkStart(raw.start, add, ref);
+    // Format 4: `start` is under content; a world's part (world, date, place) is checked above, a game's money and items by a later job.
+    const start = v4 ? (startWorld || startNow.date || startNow.place ? { ...(startWorld ? { world: startWorld } : {}), ...startNow } : null) : raw.start === undefined ? null : checkStart(raw.start, add, ref);
     if (start && startWorld && !v4) start.world = startWorld;
     if (!v4) for (const field of IGNORED_TOP_FIELDS) if (raw[field] !== undefined) warn('IGNORED_FIELD', field, `${field} is not read any more (pack format 3); it was left out.`);
     const theme = v4 || raw.theme === undefined ? {} : checkTheme(raw.theme, add, 'theme');

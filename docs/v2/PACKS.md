@@ -19,15 +19,20 @@ With the Settings feature **World events** on (off by default), a legacy event's
 
 Rules packs for RPG Battle cannot be imported. Keep existing RPG Battle chats on the previous versions.
 
-## Pack format 4 (the envelope; in progress)
+## Pack format 4 (the envelope and the world checks; in progress)
 
-The validator reads format 4 beside format 3 (`FORMAT_NEWER` now starts above 4). Only the envelope is built so far; the design is `scratch/design/pack-format-4.md`.
+The validator reads format 4 beside format 3 (`FORMAT_NEWER` now starts above 4). The envelope and the world pack's checks are built so far; the design is `scratch/design/pack-format-4.md`.
 
 - A format 4 pack writes `"format": 4` and `"kind": "world"` or `"kind": "game"` (both required; `BAD_KIND` otherwise). Its top-level fields are `id`, `format`, `kind`, `version`, `name`, `author`, `description`, `requires`, `recommends`, `content`. `currency`, `economy`, `calendar`, `weather`, `start`, `ripples`, `layouts`, `screens` and `theme` are refused at the top, with a pointer to where they went.
 - `requires.storyBlock` is refused in format 4; write `requires.suite`.
 - `recommends` (world packs only): `{ "game": { "id": "…", "version": "^1" } }`.
 - A world pack's `content` may hold `lore, placeKinds, routeKinds, places, routes, regions, realms, markets, cast, powers, scores, conditions, worldEvents, templates, start, foes, items`; a game pack's `calendar, currency, economy, weather, names, you, rpg, dataModules, meterPresets, start, pacing`. A key of the other kind is refused with "belongs in a game pack" or "belongs in a world pack"; `events` says to use `worldEvents`; any other key is unknown.
-- Not built yet: a world pack's `start.date`, `start.place` and `climate`; the game pack's `calendar`, `weather`, `start` and `pacing` (a game pack's `calendar`, `weather`, `start` and `pacing` must be objects and are left out with a warning); `checkPairing`. A world pack's cast must be a world cast (each person has `kind`).
+- **World pack, format 4 only** (format 3 packs are read exactly as before):
+  - `climate` on a region and on a place (a place's overrides its region's): one of `temperate`, `cold`, `frozen`, `highland`, `arid`, `warm`, `tropical`, `coastal`, `sea`, `underground`. Anything else is refused. It is kept on the normalized region and place; nothing reads it yet.
+  - `content.start` holds `world`, `date` and `place` and nothing else. A format 3 key says where it went: `scene` → `start.place`, `inventory` → the game pack's `start`. `date` is `{ "era"?, "year", "month", "day", "hour"?, "minute"? }` with whole numbers (the month is a number; year 0 to 999999, month 1 to 99, day 1 to 999, hour 0 to 99, minute 0 to 999). `place` is the id of a place of this pack. Both are kept in the normalized `start`.
+  - A cast person may carry `birthday`: `"<month number or name> <day>"`, like `"10 27"` or `"Icewane 27"` (no year). A bad one refuses that person alone, as every other bad cast field does. A retired format 3 cast field (`about`, `skills`, `gear`, `fields`) says what replaced it.
+  - A world pack has no calendar of its own, so the world checks do not look at one: a `date:` anchor needs a year, a month (a number from 1, or a name) and a day, a season anchor is any season name, and neither is compared to months or seasons. `start.date` month and day ranges, the `date:` and season anchors and `birthday` months are for the pairing check (not built yet).
+- Not built yet: the game pack's `calendar`, `weather`, `start` and `pacing` (a game pack's `calendar`, `weather`, `start` and `pacing` must be objects and are left out with a warning); `checkPairing`. A world pack's cast must be a world cast (each person has `kind`).
 - Format 3 and older packs are still read exactly as before.
 
 ## Pack format 3
