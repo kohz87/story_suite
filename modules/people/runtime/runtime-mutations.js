@@ -422,12 +422,12 @@ export function createMutationsPart(rt, deps) {
     }
 
     // The panel's Add NPC and (1.2.13) the Dossiers tab's: ask a name, add a dossier for it.
-    async function addNpcManually() {
+    async function addNpcManually(given = '') {
         if (!await ensureFreshMutationBoundary('add an NPC')) return;
         const settings = getSettings();
         const state = getChatState();
         if (rosterCount(state.npcs, state.turn, settings.staleArchiveAfter) >= settings.maxNpcs) return globalThis.toastr?.warning?.(capMessage(settings.maxNpcs));
-        const name = window.prompt('NPC name to add to this chat dossier:')?.trim();
+        const name = String(given ?? '').trim() || window.prompt('NPC name to add to this chat dossier:')?.trim();
         if (!name) return;
         const result = applyNpcStateCommand(state, { action: 'add', name }, {
             maxNpcs: settings.maxNpcs, archiveAfter: settings.staleArchiveAfter,

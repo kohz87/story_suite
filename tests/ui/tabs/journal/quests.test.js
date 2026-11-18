@@ -137,3 +137,13 @@ test('a lead with a giver and a summary shows both; one with neither shows no em
   assert.equal(b.querySelector('.a').textContent, 'Q');
   assert.equal(b.querySelectorAll('small').length, 0);
 });
+
+test('B17: a closed quest with an id has a Remove button that sends quest.delete; its reason is not the outcome word twice', () => {
+  installFakeDom();
+  const ctx = mk();
+  ctx.prefs.setFold('journal.closed', true);
+  const card = closedCard({ rpg: true, closed: [{ id: 'q1', title: 'Ferryman', outcome: 'gaveup', detail: '', paid: null }] }, ctx);
+  assert.equal(card.querySelector('.cq small').textContent, '');
+  card.querySelector('button.qedit').click();
+  assert.deepEqual(ctx.sent, [['quest.delete', { id: 'q1' }]]);
+});

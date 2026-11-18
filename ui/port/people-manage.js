@@ -6,10 +6,14 @@ import { pageHandles } from '../../modules/people/runtime/handles.js';
 const NO = message => ({ ok: false, code: 'FAILED', message });
 
 /** The command names this file answers. */
-export const MANAGE_NAMES = Object.freeze(['npc.edit', 'npc.delete', 'npc.markAlive']);
+export const MANAGE_NAMES = Object.freeze(['npc.edit', 'npc.delete', 'npc.markAlive', 'npc.add']);
 
-/** `npc.edit | npc.delete | npc.markAlive { personId, name? }`. `api` is NPC State's public handle (default `pageHandles.deltaApi`, set once NPC State is running). */
+/** `npc.add { name? }` adds a dossier for that name (NPC State asks for one when none is given). `npc.edit | npc.delete | npc.markAlive { personId, name? }`. `api` is NPC State's public handle (default `pageHandles.deltaApi`, set once NPC State is running). */
 export async function manageCommand(type, payload, api = pageHandles.deltaApi) {
+  if (type === 'npc.add') {
+    if (typeof api?.addNpc !== 'function') return NO('NPC State is not running, so this cannot be done now.');
+    try { await api.addNpc(String(payload?.name ?? '').trim()); return { ok: true }; } catch (error) { return NO(String(error?.message || 'That did not work.')); }
+  }
   const id = String(payload?.personId ?? payload?.name ?? '').trim();
   if (!id) return NO('Say which person.');
   const method = { 'npc.edit': 'openEditor', 'npc.delete': 'deleteNpc', 'npc.markAlive': 'updateLifeState' }[type];

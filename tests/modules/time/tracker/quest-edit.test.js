@@ -66,3 +66,14 @@ test('quest.delete removes the quest and frees its title; a swipe and a fresh lo
     await fresh(host);
     host.close();
 });
+
+test('B17: a given-up quest can still be taken off the Journal, and the Journal says "given up" once', async () => {
+    const { host, id } = await setUp();
+    await host.sdk.command('quest.giveup', { id });
+    const closed = host.sdk.query('director.threads', { kind: 'quest', status: 'resolved' });
+    assert.equal(closed.length, 1);
+    assert.equal((await host.sdk.command('quest.delete', { id })).ok, true);
+    assert.equal(host.sdk.query('director.thread', { id }), null);
+    await fresh(host);
+    host.close();
+});

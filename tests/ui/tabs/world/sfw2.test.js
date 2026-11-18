@@ -57,3 +57,13 @@ test('W27: the place sheet says here / visited and lists the routes', () => {
 test('a blank (spaces only) where or when is left out of the heard line, with no stray comma', () => {
   assert.equal(heardLine([{ where: 'in Bluewatch Guild Hall', when: '  ', from: null }]), 'heard in Bluewatch Guild Hall · you were there');
 });
+
+test('B18: a faction\'s Edit gets its area and stance as stored, not empty', () => {
+  installFakeDom();
+  const seen = [];
+  const w = worldFor();
+  w.factions = [{ ...w.factions[0], areaText: 'Bluewatch Village', stanceText: 'wary' }];
+  const tab = worldTab(w, { edit: t => seen.push(t), go() {}, view: 'factions' });
+  tab.querySelector('[data-faction] .ed').click();
+  assert.deepEqual([seen[0].current.area, seen[0].current.stance], ['Bluewatch Village', 'wary']);
+});

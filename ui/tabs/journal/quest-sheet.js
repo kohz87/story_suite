@@ -15,7 +15,7 @@ export function questPatch(quest, values) {
   const summary = (values.summary ?? '').trim();
   if (title && title !== quest.title) patch.title = title;
   if (summary && summary !== quest.summary) patch.summary = summary;
-  const step = Number(values.stepIndex);
+  const step = values.stepIndex === '' || values.stepIndex == null ? NaN : Number(values.stepIndex);
   if (Number.isInteger(step) && step >= 0 && step < quest.steps.length && step !== quest.stepIndex) patch.stepIndex = step;
   if ('due' in values) {
     const due = (values.due ?? '').trim();
@@ -67,7 +67,7 @@ export function questSheet(quest, { rpg = true, onSave, onGiveUp, onDelete, onCl
     menu,
     field('Title', title),
     field('What it is', summary),
-    field('Current step', step),
+    quest.steps.length ? field('Current step', step) : null,
     field('Due (a date, no time)', due),
     reward ? field('Reward', reward) : null,
     difficulty ? field('Difficulty', difficulty) : null,

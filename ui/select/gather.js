@@ -18,10 +18,20 @@ const hereOf = (list, place, present, read) => (Array.isArray(list)
   }))
   : null);
 
+// The names the scene has here that no stored person answers to (name or alias, any case); [] without a people list or a present list.
+const unrecordedOf = (list, present) => {
+  const known = new Set((Array.isArray(list) ? list : []).filter(row => row && typeof row === 'object').flatMap(row => [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])]).map(name => String(name ?? '').trim().toLowerCase()));
+  const seen = new Set();
+  return (Array.isArray(present) && Array.isArray(list) ? present : []).map(name => String(name ?? '').trim()).filter(name => name && !known.has(name.toLowerCase()) && !seen.has(name.toLowerCase()) && seen.add(name.toLowerCase()));
+};
+
 // Asks each query once; the people come from the store (`people.list`). A query that is not there is a gap (null), never an error.
 export function gather(read, names = SCENE) {
-  const answers = { 'npc.present': hereOf(read('people.list', {}), read('scene.place', {})?.name, presentOf(read), read) };
-  for (const name of names) answers[name] = read(name, {});
+  const list = read('people.list', {});
+  const present = presentOf(read);
+  const answers = { 'npc.present': hereOf(list, read('scene.place', {})?.name, present, read), 'scene.unrecorded': unrecordedOf(list, present) };
+  // (Today names only what the reader may see: with the plan hidden, `director.next` leaves off-screen agendas, clocks and beats out)
+  for (const name of names) answers[name] = read(name, name === 'director.next' ? { shown: true } : {});
   return answers;
 }
 

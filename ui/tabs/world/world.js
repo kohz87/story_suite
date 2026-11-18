@@ -10,6 +10,9 @@ import { placesCard } from './places-list.js';
 
 const VIEW_LABELS = Object.freeze({ map: 'Map', places: 'Places', news: 'News', factions: 'Factions' });
 const DIRECTOR_NOTE = 'News that has not reached you yet lives in Story › Director, behind the plan switch.';
+// The view the reader chose stays chosen when the tab is built again (an Edit saved, a reply came in); a view that is gone falls back to the first.
+const chosen = new WeakMap();   // keyed by the port, so each suite keeps its own
+const keyOf = ctx => (ctx.port && typeof ctx.port === 'object' ? ctx.port : null);
 const list = value => (Array.isArray(value) ? value : []);
 
 /** Builds the World tab from a `world` view-model; ctx = { rpg, width, go(tab, args), edit(target), back }. Views with nothing to show are left out. */
@@ -21,7 +24,7 @@ export function worldTab(world = {}, ctx = {}) {
     news: list(world.news).map(n => ({ ...n, heard: list(n.heard) })), factions: list(world.factions),
   };
   const available = [data.places.length && 'map', data.unmapped.length && 'places', data.news.length && 'news', data.factions.length && 'factions'].filter(Boolean);
-  const state = { view: available.includes(ctx.view) ? ctx.view : available[0], selected: null, center: null, filter: 'all' };
+  const state = { view: [ctx.view, chosen.get(keyOf(ctx) ?? chosen)].find(v => available.includes(v)) ?? available[0], selected: null, center: null, filter: 'all' };
   const body = h('div', { class: 'wbody' });
   const root = h('div', { class: 'world-tab', dataset: { tab: 'world' } });
   const names = (items, id) => items.find(x => x.id === id)?.name ?? null;
@@ -44,12 +47,12 @@ export function worldTab(world = {}, ctx = {}) {
     edit(target) {
       const item = { news: data.news, faction: data.factions, place: data.places }[target?.kind]?.find(x => x.id === target.id);
       const current = target?.kind === 'news' ? { name: item?.title, summary: item?.summary, state: item?.state, place: item?.placeId ? names(data.places, item.placeId) : '' }
-        : target?.kind === 'faction' ? { name: item?.name, summary: item?.summary }
+        : target?.kind === 'faction' ? { name: item?.name, summary: item?.summary, area: item?.areaText ?? '', stance: item?.stanceText ?? '' }
           : { name: item?.name, kind: item?.kind, region: item?.region };
       return ctx.edit?.({ ...target, current });
     },
     openPerson: personId => ctx.go?.('people', { personId }),
-    setView(view) { closeSheet(); state.view = view; render(); },
+    setView(view) { closeSheet(); state.view = view; if (keyOf(ctx)) chosen.set(keyOf(ctx), view); render(); },
     openPlace(id) {
       const place = data.places.find(p => p.id === id);
       if (!place) return;

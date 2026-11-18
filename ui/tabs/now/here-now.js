@@ -35,15 +35,17 @@ function row(person, ctx) {
   );
 }
 
-/** Builds the Here now card from the Now view-model's `here` rows ({ personId, name, portrait, meters, mood, where, thought, followed }); null when nobody is present. ctx = { go(tab, args) }. */
-export function hereNowCard(here, ctx = {}) {
+/** Builds the Here now card from the Now view-model's `here` rows ({ personId, name, portrait, meters, mood, where, thought, followed }) and the `unrecorded` names (here, but no dossier yet); null when nobody is present. ctx = { go(tab, args) }. */
+export function hereNowCard(here, ctx = {}, unrecorded = []) {
   const people = Array.isArray(here) ? here.filter(p => p && p.name) : [];
-  if (!people.length) return null;
+  const told = (Array.isArray(unrecorded) ? unrecorded : []).filter(name => typeof name === 'string' && name);
+  if (!people.length && !told.length) return null;
   return h(
     'section',
     { class: 'card glass su-herenow', dataset: { card: 'here-now' } },
-    h('div', { class: 'ch' }, h('h3', null, 'Here now'), h('span', { class: 'cnt' }, `${people.length} ${people.length === 1 ? 'person' : 'people'}`)),
+    h('div', { class: 'ch' }, h('h3', null, 'Here now'), h('span', { class: 'cnt' }, `${people.length + told.length} ${people.length + told.length === 1 ? 'person' : 'people'}`)),
     h('div', { class: 'here2' }, people.map(p => row(p, ctx))),
+    told.length ? h('p', { class: 'fine', dataset: { note: 'unrecorded' } }, `No record yet: ${told.join(', ')}.`) : null,
     h('small', { class: 'foot' }, FOOT),
   );
 }

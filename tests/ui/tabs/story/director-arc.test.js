@@ -44,3 +44,10 @@ test('a past-due clock is marked overdue', () => {
   const clocks = directorCards(story, makeCtx()).find(card => card?.dataset?.card === 'clocks');
   assert.match(clocks.textContent, /overdue · due December 5/);
 });
+
+test('B16: a waiting plan with no running arc does not also say "No arc is planned yet"', () => {
+  installFakeDom();
+  const card = arcCardOf({ ...BASE, draft: { reason: 'manual', text: '+ arc Next' } }, true, makeCtx());
+  assert.doesNotMatch(card.textContent, /No arc is planned yet/);
+  assert.match(arcCardOf(BASE, true, makeCtx()).textContent, /No arc is planned yet/);
+});

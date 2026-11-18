@@ -43,6 +43,8 @@ test('Settings › People ends with a People in this chat list; Re-read sends NP
   rows(doc)[1].querySelector('[data-act="reread"]').click();
   await flush();
   assert.deepEqual(port.recorded.filter(e => e.type === 'npc.refresh').map(e => e.payload), [{ name: 'Old Hob' }]);
+  // (B23: the answer is drawn under the list, not only kept)
+  assert.ok(doc.body.querySelector('[data-card="roster"] [data-note="roster"]'), 'the Re-read answer is under the list');
   suite.destroy();
 });
 

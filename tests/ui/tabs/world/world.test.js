@@ -166,3 +166,13 @@ test('the News view shows the Director note under the card, outside it', () => {
   assert.match(tab.querySelector('.wbody .fine').textContent, /Story › Director/);
   assert.equal(tab.querySelector('[data-card="news"] .fine'), null);
 });
+
+const PORT = {};
+test('B18: the view the reader chose stays chosen when the tab is built again (after an Edit is saved)', () => {
+  installFakeDom();
+  const first = worldTab(worldFor(), { port: PORT });
+  first.querySelector('.wseg [data-value="factions"]').click();
+  assert.equal(view(worldTab(worldFor(), { port: PORT })), 'factions');
+  first.querySelector('.wseg [data-value="map"]').click();
+  assert.equal(view(worldTab(worldFor(), { port: PORT })), 'map');
+});

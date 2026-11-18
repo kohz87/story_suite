@@ -128,7 +128,9 @@ export function selectJournal(read, opts = {}) {
   const quests = open.map(t => questOf(t, rpg, upcoming, strings(board.get(t.id)?.steps), people)).sort((a, b) => (b.id === focusId) - (a.id === focusId));
   const closed = list(read('director.threads', { kind: 'quest', status: 'resolved' })).reverse().flatMap(t => {
     const outcome = OUTCOMES[t.ended?.outcome];
-    return outcome ? [{ title: text(t.key), outcome, detail: text(t.ended?.reason), paid: null }] : [];
+    // (a reason that only repeats the outcome, like "given up", says nothing more)
+    const reason = text(t.ended?.reason);
+    return outcome ? [{ id: text(t.id), title: text(t.key), outcome, detail: reason && reason.toLowerCase() !== outcome && reason.toLowerCase() !== 'given up' ? reason : '', paid: null }] : [];
   });
   const leads = list(read('director.world.leads', {})?.rows).map(r => ({ title: text(r.name), from: text(r.giver), summary: text(r.heard), where: text(r.where), lapses: text(r.lapses) }));
   const journal = read('director.journal', {});

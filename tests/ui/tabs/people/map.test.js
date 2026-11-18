@@ -94,3 +94,11 @@ test('an unknown lens falls back to warmth, an unknown focus is ignored, and an 
   assert.equal(map.querySelectorAll('.cmw').length, 0);
   assert.equal(map.querySelector('.fchip'), null);
 });
+
+test('B9: three people (and any count a step of 3 would fold onto one spot) get different places', () => {
+  for (const n of [3, 6, 9, 5]) {
+    const people = Array.from({ length: n }, (_, i) => ({ personId: `p${i}`, meters: { trust: 10, affection: 10 } }));
+    const spots = new Set(Object.values(placePeople(people, 'warmth')).map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`));
+    assert.equal(spots.size, n, `${n} people`);
+  }
+});

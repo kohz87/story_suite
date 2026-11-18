@@ -66,7 +66,11 @@ export function peopleTab(vm = {}, ctx = {}) {
       h('div', { class: 'pgrid' }, s.people.map(({ p, kind }) => personCard(p, { kind, onOpen: open })))));
     const unrecorded = Array.isArray(vm.unrecorded) ? vm.unrecorded : [];
     const told = unrecorded.length > 0 && !state.query && state.filter === 'all';
-    if (told) nodes.push(h('p', { class: 'fine', dataset: { note: 'unrecorded' } }, `Here with no record yet: ${unrecorded.join(', ')}.`));
+    if (told) {
+      // (each name can be given a record by hand: Manual only makes none by itself)
+      const add = name => (can(ctx, 'npc.add') ? h('button', { type: 'button', class: 'lnk2', dataset: { add: name }, onClick: () => ctx.port?.command?.('npc.add', { name }) }, `+ Add ${name}`) : null);
+      nodes.push(h('p', { class: 'fine', dataset: { note: 'unrecorded' } }, `Here with no record yet: ${unrecorded.join(', ')}.`), ...unrecorded.map(add).filter(Boolean));
+    }
     // (the note above already says who is here: "No one here." beside it would contradict it)
     if (!total && !told) {
       const dormantN = counts.notSeenLately ?? vm.notSeenLately ?? 0;

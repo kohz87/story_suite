@@ -210,7 +210,7 @@ export function createEditorSave(rt, deps, helpers) {
             updateInjection();
         }
         if (close) closeNpcEditor();
-        if (!silent) globalThis.toastr?.success?.(`NPC State Delta: saved manual dossier edits for ${savedName}.`);
+        if (!silent) globalThis.toastr?.success?.(`NPC State: saved your edits for ${savedName}.`);
         if (!silent && shortened.length) globalThis.toastr?.warning?.(`NPC State Delta: ${shortened.join(', ')} ${shortened.length === 1 ? 'was' : 'were'} shortened or adjusted to fit the dossier's limits for unprotected fields. Tick "Protect edited stable profile fields" to keep a longer Personality, Speech, Background or Mannerisms.`);
         return true;
     }

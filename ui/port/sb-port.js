@@ -162,7 +162,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       // The dossier's Portrait opens NPC State's portrait manager (a page dialog, nothing recorded).
       if (type === 'npc.portrait') return portraitCommand(payload);
       // Edit, Delete and Mark alive go to NPC State's own editor and dossier tools the same way.
-      if (type === 'npc.edit' || type === 'npc.delete' || type === 'npc.markAlive') return manageCommand(type, payload);
+      if (type === 'npc.edit' || type === 'npc.delete' || type === 'npc.markAlive' || type === 'npc.add') return manageCommand(type, payload);
       // The waiting fight's answers (board, auto, plain, send, discard): the pause's own, so the old view and this one write the same; the view redraws after.
       if (type === 'interaction.choose') {
         let answer = hold ? null : { ...FAILED, message: 'No fight is waiting.' };

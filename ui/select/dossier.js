@@ -117,7 +117,15 @@ const pastOf = memories => (Array.isArray(memories) ? memories : [])
   .filter(Boolean)
   .map(line => ({ date: '', text: showSourceTag(line), dayRef: null }));
 
-function profileOf(dossier) {
+// What the notes feature holds of them (cast row `notes`): tastes as "likes x" / "dislikes y" rows and what they know, as far as the story has told it (a hidden fact has no words).
+function notesOf(notes) {
+  if (!isRecord(notes)) return {};
+  const tastes = (Array.isArray(notes.tastes) ? notes.tastes : []).filter(isRecord).map(row => [(row.sign === '-' || row.sign === 'dislikes') ? 'Dislikes' : 'Likes', text(row.item)]).filter(([, item]) => item);
+  const knows = (Array.isArray(notes.knows) ? notes.knows : []).filter(row => isRecord(row) && !row.hidden).map(row => text(row.text)).filter(Boolean);
+  return { ...(tastes.length ? { tastes } : {}), ...(knows.length ? { knows } : {}) };
+}
+
+function profileOf(dossier, notes) {
   const aliases = strings(dossier.aliases).join(', ');
   return {
     gender: text(dossier.gender), species: text(dossier.species), age: text(dossier.age), home: text(dossier.homeBase), aliases: aliases || null,
@@ -126,6 +134,7 @@ function profileOf(dossier) {
     habits: [...new Set([...strings(dossier.mannerisms), ...strings(dossier.behaviorProfile)])],
     ...(likesOf(dossier).length ? { likes: likesOf(dossier) } : {}),
     // What NPC State holds beside the profile (SFF4 #7): the Level, the goal, and the abilities and keepsakes as [name, one line] rows.
+    role: text(dossier.role), ...notesOf(notes),
     level: text(String(dossier.level ?? '')), goal: text(dossier.goal), abilities: namedRows(dossier.abilities), keepsakes: namedRows(dossier.keepsakes),
   };
 }
@@ -181,7 +190,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
     ties: tiesOf(dossier.keyRelationships, people),
     past: pastOf(dossier.memories),
     secrets: secretsOf(cast),
-    profile: profileOf(dossier),
+    profile: profileOf(dossier, cast?.notes),
     death: dead ? { how: text(dossier.lifeStateReason) ?? '', when: '', where: null, certainty: presumed ? 'presumed' : 'confirmed', referenceLine: '' } : null,
   };
 }

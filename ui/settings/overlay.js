@@ -82,6 +82,7 @@ export function createSettingsOverlay(options = {}) {
 
   const pages = createPages(settings, { ...ctx, repaint: () => paint() });
   ctx.body = section => pages.body(section);
+  ctx.repaint = () => paint();   // (a section that draws its own answer, like the People roster's Re-read note, asks for another draw)
   const sectionPage = section => pages.page(section, renderSection ? renderSection(section, ctx) : null);
 
   function paint() {

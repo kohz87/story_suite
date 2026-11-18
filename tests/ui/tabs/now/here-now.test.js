@@ -84,3 +84,13 @@ test('watchDesk without a computed style or ResizeObserver stays off', () => {
   assert.equal(desk.check(), false);
   desk.stop();
 });
+
+test('B22: a person here with no record yet is named and counted in Here now', () => {
+  installFakeDom();
+  const here = fixture().now.here;
+  const card = hereNowCard(here, makeCtx(), ['Wenna Coll']);
+  assert.match(card.querySelector('.cnt').textContent, new RegExp(`^${here.length + 1} `));
+  assert.match(card.querySelector('[data-note="unrecorded"]').textContent, /Wenna Coll/);
+  assert.equal(hereNowCard([], makeCtx(), []), null);
+  assert.ok(hereNowCard([], makeCtx(), ['Wenna Coll']));
+});
