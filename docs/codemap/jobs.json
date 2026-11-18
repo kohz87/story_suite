@@ -426,6 +426,8 @@
   "studio/parts.js": "The Pack Studio's parts: order, names and groups, which content key each part shows per pack kind, a pack's kind, and which part a checker problem's path belongs to.",
   "studio/load.js": "Opens what the author picked (a pack zip through packs/bundle.js, or pack.json with its portraits and game.json) as the text, the parsed pack, the images and the game pack.",
   "studio/check.js": "Checks the pack text with the game's own packs/validate.js and groups the problems by Pack Studio part.",
+  "studio/pairing.js": "Checks the open world and game packs with the game checker, then runs checkPairing, or names the pack that has problems first.",
+  "tests/packs/studio/pairing.test.js": "Tests that pairing runs only on passing packs, uses the Built-in game by default and points each entry at the pack to open.",
   "studio/export.js": "What the Pack Studio exports: the world's zip (pack.json, the open game as game.json, the portraits the cast names) or one pack's pack.json, as the author wrote it.",
   "studio/zip-write.js": "Writes a stored zip in the browser or node with the example-zip script's exact layout, for the Pack Studio's export.",
   "studio/views/value.js": "Draws one value, one labelled field and one record card for the Pack Studio's read-only views.",
