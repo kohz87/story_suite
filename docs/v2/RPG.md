@@ -402,7 +402,7 @@ The page shows only while the RPG is on.
   normal 15, hard 20 and very hard 25, and XP follows the XP rate. So Gentle, Standard and Harsh play the same today. **Custom** shows four editors, the only
   Custom numbers play reads (character creation): **Stats start at** (1 to 10), **Points to spend at creation** (0 to 30), **Lowest stat at creation**
   (1 to 10) and **Highest stat at creation** (3 to 20). They are stored in the Custom set (`rpgStandard`); a number that breaks lowest ≤ start ≤ highest ≤
-  the highest a stat can be is refused, and the page says why. The page draws again after a Difficulty or Custom change. Characters already made keep their stats,
+  the highest a stat can be is refused, and the page says why. A Difficulty change draws the page again; a Custom number updates its field and the hint in place. Characters already made keep their stats,
   and a companion who joins keeps its own (every stat 5, its best raised), whatever **Stats start at** says.
 - **Levels and practice.** **Level cap** (1 to 99, default 99; the pack's cap wins when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
 - **What the narrator is told about combat.** The text of this chat's Combat rules block (up to 1200 characters, counted
