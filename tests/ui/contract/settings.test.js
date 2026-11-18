@@ -10,8 +10,8 @@ describe('SETTINGS_SHAPE', () => {
     assert.deepEqual(checkShape(buildSettings({ rpg: false }), SETTINGS_SHAPE), []);
   });
 
-  it('lists the nine row types the overlay can render', () => {
-    assert.deepEqual([...SETTINGS_ROW_TYPES].sort(), ['btn', 'chips', 'info', 'multi', 'num', 'seg', 'sel', 'sw', 'txt']);
+  it('lists the ten row types the overlay can render', () => {
+    assert.deepEqual([...SETTINGS_ROW_TYPES].sort(), ['btn', 'chips', 'info', 'lines', 'multi', 'num', 'seg', 'sel', 'sw', 'txt']);
   });
 
   it('rejects an unknown row type, section group and connection id', () => {

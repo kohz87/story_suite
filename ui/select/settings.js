@@ -10,6 +10,7 @@ import { selectRpgRows } from './rpg-rows.js';
 import { worldRows } from './settings-world.js';
 import { extrasRows, withExtras } from './settings-extras.js';
 import { selectPacks } from './packs.js';
+import { selectYouStartRows } from './you-start.js';
 import { selectAddons } from './addons.js';
 import { BUDGETS, LOOK } from './host-keys.js';
 
@@ -102,8 +103,9 @@ export function selectSettings(answers) {
   const t = isObj(a.tools) ? a.tools : {};
   const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
   const { defList, set } = withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []);
+  const packs = selectPacks(a.packsAnswers);
   const sections = [
-    section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
+    section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', packs.v4 ? selectYouStartRows(a.packsAnswers?.own) : [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
     section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people)),
     section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', selectRpgRows(a.rpg)),
@@ -112,7 +114,7 @@ export function selectSettings(answers) {
     section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
     section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter, your look and trackers.', extrasRows(a.extras)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, keepBlocks: host.keepRecentBlocks, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
-    section('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
+    section('packs', 'Setup', 'Packs and trackers', packs.v4 ? 'Your world and game, add-on packs, data modules and your trackers.' : 'Content packs, data modules and your trackers.', [], 'packs'),
     section('addons', 'Setup', 'Add-ons', 'Modules, custom views and skins from packs.', selectAddons(a.modules)),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
@@ -120,7 +122,7 @@ export function selectSettings(answers) {
     subtitle: typeof a.subtitle === 'string' ? a.subtitle : null,
     sent,
     removed: [],
-    packs: selectPacks(a.packsAnswers),
+    packs,
     sections,
     modules: { scope: 'chat', chat: set, newChats: {}, preset: hasFeatures ? presetOf(a.features) : null, presets: [], defs: defList },
     connections: selectConnections(host, isObj(a.profiles) ? a.profiles : null),

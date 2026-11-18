@@ -290,7 +290,7 @@
   "ui/select/money.js": "Words an amount of the chat's one currency (\"5 marks\", \"3 silver 5 pennies\") for the Bag purse and the Journal's day money.",
   "ui/select/now.js": "Builds the Now-tab view-model from recorded query answers; gaps come back as null or empty lists.",
   "ui/select/offers.js": "Turns the card-offer controller's offers into the plain rows the new view draws and counts the waiting ones.",
-  "ui/select/packs.js": "Builds Settings › Packs and trackers from the installed packs and the data-module setup.",
+  "ui/select/packs.js": "Builds Settings › Packs and trackers from the installed packs, the data-module setup and (format 4) the selected pair.",
   "ui/select/party.js": "Turns the recorded party and gear query answers into the Party view-model (PARTY_SHAPE), leaving gaps null.",
   "ui/select/people-parts.js": "Reads the People tab's parts and the per-person dossier map from the store's people queries.",
   "ui/select/people-settings/feel.js": "Lists the People page's Feelings, Pacing, Stages, Pull and drift and Who gets a dossier rows from mock v7.",
@@ -312,7 +312,7 @@
   "ui/settings/modules.js": "Renders the Start page's module area: the scope switch, the three presets and the module cards with their features.",
   "ui/settings/nav.js": "Builds the section navigation: a side list with search and group labels, and the phone section list with the same search.",
   "ui/settings/overlay.js": "Builds the Settings overlay frame: header, section nav, the section or search page, the \"what's sent\" footer, and its back-stack entry.",
-  "ui/settings/packs.js": "Renders the Packs and trackers page: installed packs with a remove confirmation, data modules and this chat's trackers.",
+  "ui/settings/packs.js": "Renders the Packs and trackers page: installed packs with a remove confirmation, data modules and this chat's trackers; a format 4 page hands its top to the world-and-game view.",
   "ui/settings/page.js": "Composes one Settings section page: heading, the \"applies to\" note, the module card, the special body, the setting cards and the reset buttons.",
   "ui/settings/search.js": "Finds settings rows by words across label, hint, unit, group and section name, and renders the hits under \"Section › Group\".",
   "ui/settings/sections/director.js": "Renders the Director section through the hook: the overlay's body for it, unchanged.",
@@ -465,5 +465,11 @@
   "core/runtime/frame-parts/commands.js": "Holds the frame's commands: write it, mark its update note given, and ask the next reply to write it again.",
   "tests/core/frame.helpers.js": "Gives the frame tests a host with a world and game selected and the games to swap in.",
   "tests/core/frame.test.js": "Tests that the frame is written once and a swapped game does not move it, through swipes, a swipe back, an edited Re-read, a middle delete, a rewind and a reload.",
-  "tests/core/frame-act.test.js": "Tests the act that writes the frame again, a chat change, the update note, hostile frames and a chat with nothing selected."
+  "tests/core/frame-act.test.js": "Tests the act that writes the frame again, a chat change, the update note, hostile frames and a chat with nothing selected.",
+  "packs/own.js": "Keeps the reader's own rank label and starting money and items beside the installed packs (they come before the game pack's).",
+  "packs/content-parts/own-start.js": "Lays the reader's own starting money and items over a merged start.",
+  "packs/index-parts/page-queries.js": "Answers the Packs page: the selected pair's problems and suggested game, and the reader's own start values beside the game's.",
+  "ui/select/packs-pair.js": "Puts the pairing check's problems into the reader's words, one counted line per kind.",
+  "ui/select/you-start.js": "Builds the You and your start rows on Settings › Start (rank label, starting money and items) with what blank means.",
+  "ui/settings/packs-v4.js": "Renders the format 4 half of the Packs page: the World and Game pickers, the suggestion card, the pair's lines, worlds and games, add-ons."
 }
