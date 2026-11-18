@@ -414,6 +414,8 @@
   "studio/model/doc.js": "Is the Pack Studio's document: the author's text until the first edit, the parsed pack in its own key order, the portraits, all frozen.",
   "studio/model/history.js": "Keeps undo and redo over the Pack Studio's frozen document snapshots, with a depth limit.",
   "studio/model/edits.js": "Applies the Pack Studio's four edits (set, insert, remove, move) and the portrait step to a document, all or nothing, or refuses with a reason.",
+  "studio/form/fields.js": "Draws a Studio form row for text, long text, number, select, toggle or segmented input, with an inline problem line under it.",
+  "tests/ui/studio/form-fields.test.js": "Tests that each field row reports its edit, keeps line breaks, ignores bad numbers and shows, replaces and clears its problem line.",
   "studio/model/gate.js": "Reads a hidden gate into or-groups of and-terms, writes it back, and checks it with the game's own gate rules against a pack's content.",
   "studio/draft.js": "Keeps the Studio's autosaved drafts in IndexedDB, one slot per kind and id, and turns every storage failure into a message.",
   "studio/dryrun/run.js": "Runs the world engine's daily step on the author's pack for a seed, tempo and number of days, in a Worker that can be cancelled.",
