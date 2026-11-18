@@ -8,12 +8,14 @@ import { readPackZip } from '../../../packs/bundle.js';
 import { exportJson, exportZip } from '../../../studio/export.js';
 import { openPicked, portraitNames } from '../../../studio/load.js';
 import { writeStoredZip } from '../../../studio/zip-write.js';
+import { checkText } from '../../../studio/check.js';
 
 const at = rel => new URL(`../../../${rel}`, import.meta.url);
 const bytes = rel => new Uint8Array(readFileSync(at(rel)));
 const fileOf = (name, data, type = '') => new File([data], name, { type });
 const ZIP = bytes('tests/fixtures/packs/ersveil-3/ersveil.zip');
 const PACK = bytes('tests/fixtures/packs/ersveil-3/pack.json');
+const ZIP4 = bytes('examples/packs/ersveil.zip');
 const WORLD = bytes('tests/packs/studio/fixtures/world-mini.json');
 const WORLD4 = bytes('tests/packs/studio/fixtures/world4-mini.json');
 const GAME4 = bytes('tests/packs/studio/fixtures/game4-mini.json');
@@ -38,6 +40,26 @@ test('a pack zip opened and exported again is the same zip, and the game reads i
     const back = await readPackZip(out.bytes);
     assert.equal(back.ok, true);
     assert.equal(back.text, new TextDecoder().decode(PACK));
+});
+
+test('the format 4 Ersveil zip opens as a world with its game.json; export gives the same zip without the notes file; the game reads it back', async () => {
+    const opened = await openPicked([fileOf('ersveil.zip', ZIP4, 'application/zip')]);
+    assert.equal(opened.ok, true);
+    assert.deepEqual([opened.doc.kind, opened.doc.id, opened.game.name, opened.portraits.length], ['world', 'ersveil', 'game.json', 12]);
+    const out = exportZip(opened, opened.game);
+    assert.equal(out.name, 'ersveil-4.0.0.zip');
+    assert.deepEqual(out.missing, []);
+    const pack = bytes('examples/packs/ersveil/pack.json');
+    const rebuilt = writeStoredZip([{ name: 'pack.json', bytes: pack }, { name: 'game.json', bytes: new TextEncoder().encode(opened.game.text) }, ...opened.portraits.map(f => ({ name: `portraits/${f.name}`, bytes: bytes(`examples/packs/ersveil/portraits/${f.name}`) }))]);
+    assert.deepEqual(out.bytes, rebuilt);
+    const back = await readPackZip(out.bytes);
+    assert.deepEqual([back.ok, back.text, back.game, back.files.length], [true, text(pack), opened.game.text, 12]);
+});
+
+test('the format 3 Ersveil zip still opens (read-only) and the checker refuses it as old', async () => {
+    const opened = await openPicked([fileOf('ersveil.zip', ZIP, 'application/zip')]);
+    assert.equal(opened.ok, true);
+    assert.equal(checkText(text(PACK)).errors[0].code, 'FORMAT_OLD');
 });
 
 test('a world zip with game.json opens both packs and exports the same zip byte for byte; the game reads both back', async () => {
