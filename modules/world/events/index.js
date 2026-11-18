@@ -13,5 +13,6 @@
 export { CALLS, LIMITS, compile, evaluate, evaluateCondition, parse, tokenize } from './condition.js';
 export { FIRE, claimKey, createEngine, createFireEvent, fireEvent, inspect, normalizeEvents, repeatKey } from './engine.js';
 export { EVENTS_NOTE, renderEventsSection, summaryLine } from './section.js';
+export { WORLD_FEATURE, WORLD_ARITY, worldCalls, worldOn } from './world-calls.js';
 export { packEvents } from './index-parts/pack-events.js';
 export { createEventsPart, part } from './index-parts/events-part.js';

@@ -56,6 +56,8 @@ export function lastLineQuery(_state, _args, tools) {
     let index = null;
     for (const entry of Array.isArray(entries) ? entries : []) {
         const type = entry?.receipt?.type;
+        // The world's clock fallback (cause `world-clock`, world-events switch) is not a time line: the story still has not moved its clock.
+        if (type === 'director.advance' && entry.receipt.data?.cause === 'world-clock') continue;
         if ((type === 'capture.time' || type === 'director.advance') && Number.isSafeInteger(entry.index) && (index === null || entry.index > index)) index = entry.index;
     }
     return { index };

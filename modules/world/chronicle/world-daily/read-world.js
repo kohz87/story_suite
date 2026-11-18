@@ -1,0 +1,35 @@
+// World events, the daily step on the host: the world the step reads, from the enabled packs (`packs.content`). Spec events are
+// `content.worldEvents` (spec v0.12); spec-shaped entries of `content.events` (they have ends_when and no `when`) are read too,
+// so a pack written to v0.10 is not lost. A kind the packs do not carry is empty; `placeKinds` / `routeKinds` merge. Pure.
+
+import { ask } from '../queries-parts/shared-ask.js';
+
+const rows = (query, kind) => { const out = ask(query, 'packs.content', { kind }); return Array.isArray(out) ? out : []; };
+const merged = list => Object.assign({}, ...list.filter(item => item && typeof item === 'object' && !Array.isArray(item)));
+const specShaped = event => event && typeof event === 'object' && event.when === undefined && event.ends_when !== undefined;
+
+// Tests only: a test that wants a world no pack carries hands it in here (the install check accepts the spec's kinds now).
+// Nothing in the suite sets it outside tests.
+let override = null;
+
+/** Tests only: the world is `fn(world read from the packs)` until the returned function is called. */
+export function overrideWorld(fn) {
+    override = typeof fn === 'function' ? fn : null;
+    return () => { override = null; };
+}
+
+/** `readWorld(query)` → `{ places, routes, realms, placeKinds, routeKinds, conditions, events, templates, powers, scores, cast, lore, regions, startWorld? }`. */
+export function readWorld(query) {
+    const events = [...rows(query, 'worldEvents'), ...rows(query, 'events').filter(specShaped)];
+    const world = {
+        places: rows(query, 'places'), routes: rows(query, 'routes'), realms: rows(query, 'realms'),
+        placeKinds: merged(rows(query, 'placeKinds')), routeKinds: merged(rows(query, 'routeKinds')),
+        conditions: rows(query, 'conditions'), events, templates: rows(query, 'templates'),
+        powers: rows(query, 'powers'), scores: rows(query, 'scores'), cast: rows(query, 'cast'), lore: rows(query, 'lore'),
+        regions: rows(query, 'regions'),
+    };
+    // The packs' `start.world` (v0.14.10), applied by the step when a chat's first step runs.
+    const begin = ask(query, 'packs.start', {});
+    if (begin?.world && typeof begin.world === 'object') world.startWorld = { set: Array.isArray(begin.world.set) ? begin.world.set : [], facts: Array.isArray(begin.world.facts) ? begin.world.facts : [] };
+    return override ? override(world) : world;
+}

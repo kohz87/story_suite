@@ -25,6 +25,9 @@ test('no module calls director.advance through ctx.call or commits it: only the 
     }
     for (const root of ['core', 'modules', 'ui']) scan(join(repo, root));
     const readers = ['core/timeline/boundary-parts/marker.js', 'modules/world/chronicle/days-parts/clock-step.js', 'modules/world/chronicle/days-parts/receipt-classify.js', 'modules/world/chronicle/days.js', 'modules/time/tracker/clock-set.js'];
+    // The world's clock fallback (world-events switch) commits director.advance as its own afterCapture step, never through ctx.call:
+    // the step leaves its own clock receipt (a 'move'), which the day walk reads like any other.
+    readers.push('modules/world/chronicle/world-daily/hook.js');
     const isOwn = file => file.startsWith('modules/time/') && !file.startsWith('modules/time/tracker/');
     assert.ok(named.filter(isOwn).length > 0, 'the time part defines it');
     assert.deepEqual(named.filter(file => !isOwn(file)).sort(), readers.sort());

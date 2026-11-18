@@ -3,6 +3,6 @@
 // Public face: re-exports its parts.
 
 export { rememberName, changeEvent, worldLineText } from './world-parts/event-state.js';
-export { applyWorldLine } from './world-parts/apply-line.js';
+export { applyWorldLine } from './world-parts/line.js';
 export { lasting } from './world-parts/lasting.js';
 export { rumor } from './world-parts/rumor.js';

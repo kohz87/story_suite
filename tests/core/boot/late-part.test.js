@@ -27,7 +27,7 @@ test('boot with a late part that throws: Story Suite is ready, the failure is lo
   const sdk = await globalThis.StoryBlock.ready;
   assert.ok(sdk, 'the host is ready');
   assert.deepEqual(started, ['after'], 'the next part still starts');
-  assert.ok(infos.mock.calls.some(call => call.arguments[0] === 'Story Suite 0.1.0 ready'), 'the banner is the suite version');
+  assert.ok(infos.mock.calls.some(call => call.arguments[0] === 'Story Suite 0.1.1 ready'), 'the banner is the suite version');
   assert.equal(globalThis.StoryBlock.version, '2.33.0', 'the host compatibility number is kept under its own name');
   assert.ok(errors.mock.calls.some(call => /NPC State could not start: hardening failed/.test(String(call.arguments[0]))), 'logged');
 });

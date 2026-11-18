@@ -6,7 +6,7 @@
 
 | What | Limit |
 |---|---|
-| One pack | 524,288 bytes of UTF-8 |
+| One pack | 1,048,576 bytes of UTF-8 |
 | Nesting | 16 |
 | Object keys | 200 |
 | List entries | 1000 |

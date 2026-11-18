@@ -5,6 +5,7 @@ import { mapCard, markSelected } from './map.js';
 import { placeSheet } from './place-sheet.js';
 import { newsCard } from './news.js';
 import { factionsCard } from './factions.js';
+import { conditionsCard } from './conditions.js';
 
 const VIEW_LABELS = Object.freeze({ map: 'Map', news: 'News', factions: 'Factions' });
 const DIRECTOR_NOTE = 'News that has not reached you yet lives in Story › Director, behind the plan switch.';
@@ -60,7 +61,7 @@ export function worldTab(world = {}, ctx = {}) {
       factions: () => factionsCard(data.factions, data.news, act),
     };
     const card = state.view ? cards[state.view]() : h('p', { class: 'fine' }, 'Nothing is known about the world yet.');
-    body.replaceChildren(...[card, state.view === 'news' ? h('p', { class: 'fine' }, DIRECTOR_NOTE) : null].filter(Boolean));
+    body.replaceChildren(...[card, conditionsCard(world.conditions), state.view === 'news' ? h('p', { class: 'fine' }, DIRECTOR_NOTE) : null].filter(Boolean));
     root.dataset.view = state.view ?? 'none';
     for (const b of root.querySelectorAll('.wseg button')) b.setAttribute('aria-pressed', String(b.dataset.value === state.view));
   }

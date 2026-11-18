@@ -15,6 +15,7 @@ export function checkPlace(record, path, label, add) {
     if (!Array.isArray(aliases) || aliases.some(alias => typeof alias !== 'string' || !alias.trim() || alias.length > LIMITS.name)) say('aliases', 'aliases must be a list of other names for the place.');
     const note = record.note ?? '';
     if (!isText(note, RECORD_LIMITS.note)) say('note', 'note must be text of at most 500 characters.');
+    if (record.weight !== undefined && (!isNumber(record.weight) || record.weight < 0 || record.weight > 1e6)) say('weight', 'weight must be a number of 0 or more (how likely the place is picked among equals).');
     for (const flag of ['hidden', 'secret']) if (record[flag] !== undefined && typeof record[flag] !== 'boolean') say(flag, `${flag} must be true or false.`);
     // Its market (PACKS.md "Markets"): a settlement type and environment tags, each a lowercase word.
     if (record.market !== undefined && !(typeof record.market === 'string' && MARKET_WORD.test(record.market))) say('market', 'market must be a settlement type, a lowercase word like "village" or "city".');
@@ -29,6 +30,7 @@ export function checkPlace(record, path, label, add) {
         x: record.x, y: record.y, note,
         // `secret` is another word for `hidden`; the map reads either.
         ...(record.hidden === true || record.secret === true ? { hidden: true } : {}),
+        ...(record.weight !== undefined ? { weight: record.weight } : {}),
         ...(record.market !== undefined ? { market: record.market } : {}),
         ...(record.loot !== undefined ? { loot: { maxRarity: record.loot.maxRarity } } : {}),
         ...(placeTags.length ? { tags: [...new Set(placeTags)] } : {}),
@@ -42,7 +44,8 @@ export function placeRefs(places) {
     return value => (typeof value === 'string' && value.trim() ? byKey.get(value) ?? byKey.get(foldKey(value)) ?? null : null);
 }
 
-export const routeSlug = record => slugify(`${record.from ?? ''} ${record.to ?? ''} ${record.kind ?? ''}`);
+// A named route is keyed by its name (two routes may join the same two places); an unnamed one by its ends and kind, as before.
+export const routeSlug = record => slugify(typeof record.name === 'string' && record.name.trim() ? record.name : `${record.from ?? ''} ${record.to ?? ''} ${record.kind ?? ''}`);
 
 export function checkRoute(record, path, add, place) {
     const label = typeof record.from === 'string' && typeof record.to === 'string' ? `Route "${record.from}" to "${record.to}"` : path;
@@ -59,6 +62,7 @@ export function checkRoute(record, path, add, place) {
     if (record.corridor !== undefined && !isText(record.corridor, LIMITS.name)) say('corridor', `corridor must be text of at most ${LIMITS.name} characters.`);
     const note = record.note ?? '';
     if (!isText(note, RECORD_LIMITS.note)) say('note', 'note must be text of at most 500 characters.');
+    if (record.name !== undefined && (!isText(record.name, LIMITS.name) || !record.name.trim())) say('name', `name must be text of 1 to ${LIMITS.name} characters.`);
     if (!ok) return null;
-    return { from, to, kind: oneLine(record.kind, RECORD_LIMITS.word), km: record.km ?? null, hours: record.hours ?? null, corridor: oneLine(record.corridor ?? '', LIMITS.name), note };
+    return { ...(record.name === undefined ? {} : { name: oneLine(record.name, LIMITS.name) }), from, to, kind: oneLine(record.kind, RECORD_LIMITS.word), km: record.km ?? null, hours: record.hours ?? null, corridor: oneLine(record.corridor ?? '', LIMITS.name), note };
 }

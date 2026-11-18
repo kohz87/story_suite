@@ -16,7 +16,7 @@ function personProblems(key, person) {
         || !textOk(person.ver, MAX_NAME) || !(person.sig === undefined || textOk(person.sig, 24)) || !timeOk(person.joined) || !textOk(person.where, MAX_PLACE) || !textOk(person.doing, MAX_DOING) || !timeOk(person.since)
         || typeof person.alive !== 'boolean' || !isInt(person.rev)) return [`${at} is not { pack, eid, name, ver, joined, where, doing, since, alive, met, heard, rev }.`];
     if (person.aliases !== undefined && (!Array.isArray(person.aliases) || person.aliases.length > MAX_ALIASES || person.aliases.some(alias => !textOk(alias, MAX_NAME)))) return [`${at}.aliases is a list of at most ${MAX_ALIASES} names.`];
-    const { met, heard, rumored, coming, known } = person;
+    const { met, heard, rumored, coming, known, base, told } = person;
     if (met !== null && !(isRecord(met) && timeOk(met.on) && textOk(met.where, MAX_PLACE) && WHYS.includes(met.why) && textOk(met.reason, MAX_REASON) && isInt(met.rev) && (met.was === undefined || textOk(met.was, MAX_PLACE)))) return [`${at}.met is null or { on, where, why, reason, rev, was? }.`];
     const news = slotOf(heard);
     if (heard !== null && !(news && Array.isArray(heard) && timeOk(news.on) && textOk(news.text, MAX_DOING))) return [`${at}.heard is null or [{ on, text }].`];
@@ -26,6 +26,11 @@ function personProblems(key, person) {
     if (coming !== undefined && coming !== null && !(trip && Array.isArray(coming) && textOk(trip.from, MAX_PLACE) && textOk(trip.to, MAX_PLACE) && timeOk(trip.start) && isInt(trip.arrive) && textOk(trip.reason, MAX_REASON) && isInt(trip.rev))) return [`${at}.coming is null or [{ from, to, start, arrive, reason, rev }].`];
     const last = slotOf(known);
     if (known !== undefined && known !== null && !(last && Array.isArray(known) && textOk(last.where, MAX_PLACE) && timeOk(last.since))) return [`${at}.known is null or [{ where, since }].`];
+    // `base` (world events switch): the latest base a story move, an event move or a stays record gave them (spec v0.14.7 §8).
+    const held = slotOf(base);
+    if (base !== undefined && base !== null && !(held && Array.isArray(base) && textOk(held.at, MAX_PLACE) && held.at && timeOk(held.since) && textOk(held.routine ?? '', MAX_DOING) && textOk(held.by, MAX_REASON) && /^(story|stays|event:.+)$/.test(held.by))) return [`${at}.base is null or [{ at, since, routine, by }].`];
+    const seen = slotOf(told);
+    if (told !== undefined && told !== null && !(seen && Array.isArray(told) && textOk(seen.where, MAX_PLACE) && [true, false, null].includes(seen.left))) return [`${at}.told is null or [{ where, left }].`];
     return [];
 }
 

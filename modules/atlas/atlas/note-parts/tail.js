@@ -6,11 +6,17 @@ import { parentOf } from '../parent.js';
 import { travelTime } from '../travel.js';
 import { TRIP_FEATURE, calendarOf, tripLines, tripView } from '../trip.js';
 import { TAIL_BUDGET } from './grammar.js';
+import { anchorOf } from '../anchor.js';
 
 // Characters the line may take: Story Block estimates tokens as characters / 4.
 const MAX_CHARS = TAIL_BUDGET * 4;
 
 const settingsOf = view => (typeof view?.settings === 'function' ? view.settings() : view?.settings) ?? {};
+const packOf = view => packWorld(typeof view?.query === 'function' ? (name, args) => view.query(name, args) : null);
+// The world-events switch, read by name (the world module's feature; off when the host cannot say).
+function worldEventsOn(view) {
+    try { return typeof view?.feature === 'function' && view.feature('story-director.world-events') === true; } catch { return false; }
+}
 
 /** The scene's place `{ name, kind, region }` through the `scene.place` query, else the state. */
 export function scenePlace(view) {
@@ -76,8 +82,14 @@ export function atlasTail(view) {
     if (!atlas) return { lines: [], optional: [] };
     const here = scenePlace(view).name;
     if (!here.trim()) return { lines: [], optional: [] };
-    const world = worldOf(atlas, packWorld(typeof view?.query === 'function' ? (name, args) => view.query(name, args) : null));
-    const line = routesLine(world, here, { map: mapSettings(settingsOf(view).map) });
+    const world = worldOf(atlas, packOf(view));
+    const map = mapSettings(settingsOf(view).map);
+    let line = routesLine(world, here, { map });
+    // World events on (LAB2-3): a place with no routes of its own the story made (a tavern) gives the routes of the pack place it stands for (anchor.js), as the news and conditions do.
+    if (!line && worldEventsOn(view)) {
+        const anchor = anchorOf(world, atlas, packOf(view), here, { region: scenePlace(view).region });
+        if (anchor?.name && anchor.via !== 'pack') line = routesLine(world, anchor.name, { map });
+    }
     return { lines: [], optional: line ? [line] : [] };
 }
 

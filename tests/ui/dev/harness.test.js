@@ -15,14 +15,25 @@ function setup(search = '') {
 
 test('reads theme, variant, width and tab from the query', () => {
   const { h, frame } = setup('?theme=light&variant=rpgOff&width=820&tab=bag');
-  assert.deepEqual(h.state, { theme: 'light', variant: 'rpgOff', width: 820, tab: 'bag', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false, kind: 'ferry' });
+  assert.deepEqual(h.state, { theme: 'light', variant: 'rpgOff', width: 820, tab: 'bag', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false, events: false, kind: 'ferry' });
   assert.equal(frame.style.width, '820px');
   assert.equal(h.suite().tabHost.current(), 'bag');
 });
 
+test('?events=1 turns World events on: the World tab draws Conditions here and the settings page has the World events rows', () => {
+  const { h, frame } = setup('?events=1&tab=world');
+  assert.equal(h.state.events, true);
+  assert.deepEqual(h.port.view('world').conditions.rows.map(c => c.name), ['unrest', 'grain-dear']);
+  assert.ok(frame.querySelector('[data-card="conditions"]'));
+  assert.deepEqual(h.port.view('settings').sections.find(s => s.id === 'world').rows.slice(-3).map(r => r.key), ['world.worldEvents', 'world.tempo', 'world.directorCalls']);
+  const off = setup('?tab=world');
+  assert.equal('conditions' in off.h.port.view('world'), false);
+  assert.equal(off.frame.querySelector('[data-card="conditions"]'), null);
+});
+
 test('falls back on unknown query values', () => {
   const { h } = setup('?theme=neon&variant=x&width=abc');
-  assert.deepEqual(h.state, { theme: 'dark', variant: 'default', width: 390, tab: 'now', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false, kind: 'ferry' });
+  assert.deepEqual(h.state, { theme: 'dark', variant: 'default', width: 390, tab: 'now', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false, events: false, kind: 'ferry' });
 });
 
 test('controls remount with the chosen switch', () => {

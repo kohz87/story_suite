@@ -2,6 +2,7 @@
 
 import { EVENT_FIELDS, EVENT_LIMITS, SLUG, COMMAND } from '../../limits.js';
 import { compile } from '../../../modules/world/events/condition.js';
+import { WORLD_ARITY } from '../../../modules/world/events/world-calls.js';
 import { isObject, fullId } from '../core.js';
 
 // Commands the host makes for itself (registry.js CAPTURE_PREFIX, INIT_PREFIX; events/engine.js FIRE):
@@ -12,11 +13,14 @@ export function checkEvent(record, path, add, readableConditions = true) {
     const label = `Event "${record.id}"`;
     let ok = true;
     const say = (field, message, code = 'BAD_RECORD') => { ok = false; add(code, `${path}.${field}`, `${label}: ${message}`); };
-    for (const key of Object.keys(record)) if (!EVENT_FIELDS.includes(key)) say(key, `"${key}" is not an event field (expected ${EVENT_FIELDS.join(', ')}).`, 'UNKNOWN_FIELD');
+    // A spec event (certainty, window, ends_when …) is not a legacy dated scene cue: it lives in content.worldEvents (spec §1).
+    const specKey = ['kind', 'certainty', 'window', 'ends_when', 'requires', 'requires_any', 'effects'].find(key => record[key] !== undefined);
+    for (const key of Object.keys(record)) if (!EVENT_FIELDS.includes(key)) say(key, key === specKey ? `"${key}" belongs to a world event: write spec events in content.worldEvents; content.events keeps the legacy shape (${EVENT_FIELDS.join(', ')}).` : `"${key}" is not an event field (expected ${EVENT_FIELDS.join(', ')}).`, 'UNKNOWN_FIELD');
     if (typeof record.when !== 'string' || !record.when.trim() || record.when.length > EVENT_LIMITS.when) say('when', `when must be a condition of 1 to ${EVENT_LIMITS.when} characters.`);
     else if (readableConditions) {
         // The parser the events use while the story plays: a condition it cannot read would only fail at play time.
-        const parsed = compile(record.when);
+        // The world calls (condition, active, fact) are read whatever the world-events switch says: the check is structural.
+        const parsed = compile(record.when, { calls: WORLD_ARITY });
         if (!parsed.ok) say('when', `the condition can't be read: ${parsed.error.message}${/never closed/.test(parsed.error.message) ? ' A name with an apostrophe in it needs double quotes around it.' : ''}`);
     }
     if (typeof record.cue !== 'string' || !record.cue.trim() || record.cue.trim().length > EVENT_LIMITS.cue) say('cue', `cue must be text of 1 to ${EVENT_LIMITS.cue} characters.`);

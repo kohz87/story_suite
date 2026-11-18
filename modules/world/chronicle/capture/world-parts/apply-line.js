@@ -43,8 +43,8 @@ const newlyNamed = (names, event) => (Array.isArray(names) ? names.filter(n => !
 // The receipt's words for the factions a line made known.
 const madeText = made => (made.length ? ` New ${made.length === 1 ? 'faction' : 'factions'}: ${made.join(', ')}.` : '');
 
-/** `apply(ctx, line)` for `world` lines. */
-export function applyWorldLine(ctx, line) {
+/** `apply(ctx, line)` for `world` lines, as before the world line gained conditions (line.js picks which one runs). */
+export function applyPlainWorldLine(ctx, line) {
     const op = line?.op;
     if (!['+', '~', '-', '!'].includes(op)) return ctx.fail('INVALID', `"${lineText(line)}": world lines use +, ~, ! or -.`);
     const name = cleanName(line?.name);
