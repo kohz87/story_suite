@@ -1,4 +1,4 @@
-# Story Suite 0.1.2
+# Story Suite 0.1.3
 
 Story Suite is a SillyTavern extension that keeps track of your story for you: your items and money, the scene, the people you meet, the clock and calendar, quests, the map and fights. It puts that state in front of the narrator and in front of you, in a view of its own.
 
@@ -108,6 +108,7 @@ Read next: [CLAUDE.md](CLAUDE.md) (rules for coding agents), [docs/dev](docs/dev
 
 ## Versions
 
+- **0.1.3** (19 Nov 2026): pack format 4 (world + game packs), the Pack Studio, desktop layout, the overnight bug-hunt fixes. [Changes](CHANGELOG.md#013--19-nov-2026)
 - **0.1.2** (18 Nov 2026): generated arcs, character wizard in the new view. [Changes](CHANGELOG.md#012--18-nov-2026)
 - **0.1.1** (18 Nov 2026): world events, the Director directs, sample pack Ersveil. [Changes](CHANGELOG.md#011--18-nov-2026)
 - **0.1.0** (18 Nov 2026): first release as one extension. [Changes](CHANGELOG.md#010--18-nov-2026)

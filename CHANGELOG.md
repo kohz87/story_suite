@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.3 — 19 Nov 2026
+
+**Pack format 4, the Pack Studio and the overnight bug hunt.** A pack is now the world only (lore, cast, places, routes, events) with a separate game pack (rules, calendar, money, climate); the example pair is `examples/packs/ersveil` + `ersveil-game`, and format 3 packs are refused. The Pack Studio opens from **Settings › Packs › Open Studio**. B4-4 to B4-12 are in (old view removed, NPC State settings, "away" on Follow, rule weather kept). Desktop layout A puts the card beside the tab page from 1100 px. Two bug-hunt passes in replica SillyTavern and four rounds with a real model led to the fixes listed below; among them: met pack cast get their pack profile and the narrator uses canon names, hidden lore gates open, trips start from narrator places, weather follows the game's climate, a fight the reader does not play lapses after two replies and is never told blow by blow, the party pill shows the active limit (x/4), and the prompt build, an edited Re-read and a middle delete no longer freeze.
 
 Since 0.1.2: documentation, and the Settings, Story › Director and settings-walk changes below.
 
