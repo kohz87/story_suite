@@ -354,6 +354,8 @@
   "ui/tabs/people/dossier/feelings.js": "Draws the dossier hero ring with its four corner numbers and builds the \"With you\" page (meters, stage, changes).",
   "ui/tabs/people/dossier/mood-meters.js": "Builds the three Mood meters (Feeling, Energy, Control on a -3..+3 scale) from the dossier moodBars.",
   "ui/tabs/people/dossier/now-page.js": "Builds the Right now page (where, doing, wearing, thinking, or last seen) with the shared scene-spoiler switch, and the Mood page.",
+  "ui/tabs/people/dossier/follow.js": "Sends the dossier's Follow star: stores the flag with people.follow, then pins or unpins the person on the narrator's key list.",
+  "tests/modules/cast/keypeople/follow-star.test.js": "Tests that the Follow star pins past the cap, unpins, and replays with its reply (swipe, Re-read, delete, rebuild, reload).",
   "ui/tabs/people/dossier/party-add.js": "Builds the Add to party button on a person's page and the join card it opens (Add to party, Edit first, Not now).",
   "ui/tabs/people/dossier/past-secrets.js": "Builds the Ties, Past and Secrets pages of a dossier (opened secrets stay readable after a death; locked ones show only their rule).",
   "ui/tabs/people/dossier/profile.js": "Builds the Profile page: who they are, looks, character (personality, speech, habits) and background; unknown gender is flagged.",
