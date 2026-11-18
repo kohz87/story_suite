@@ -13,7 +13,6 @@ import {
     resolveNpcAppearance,
     setNpcArchived,
 } from '../../modules/people/core/core.js';
-import { BRANCH_LINEAGE_VERSION, recordBranchCheckpoint, reconcileBranchState } from '../../modules/people/legacy/branch.js';
 import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 
 function formNpc(name = 'Sora') {

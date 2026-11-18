@@ -1,7 +1,10 @@
-// Lineage checkpoint keys: the chained key of every message and the key of one message.
+// Lineage keys: the chained key of one message (its place and every message before it), and the version of the lineage format.
 import { branchHash } from './hash.js';
 
-export function lineageCheckpointKeys(lineage = []) {
+// A saved state whose lineage was written under another version has its lineage dropped when it is read (runtime-hydration-state.js).
+export const BRANCH_LINEAGE_VERSION = 5;
+
+function lineageKeys(lineage = []) {
     const source = Array.isArray(lineage) ? lineage : [];
     const keys = [];
     let parent = 'root';
@@ -14,5 +17,5 @@ export function lineageCheckpointKeys(lineage = []) {
 
 export function lineageCheckpointKey(lineage = [], messageId = -1) {
     if (!Number.isInteger(messageId) || messageId < 0) return '';
-    return lineageCheckpointKeys(lineage)[messageId] || '';
+    return lineageKeys(lineage)[messageId] || '';
 }

@@ -80,7 +80,7 @@ test('the settings roster has no archive control; restore (a death correction) a
     assert.match(index, /Delete \${escapeHtml\(npc\.name\)} dossier/);
     assert.match(index, /function deleteNpcById/);
     assert.match(index, /window\.confirm\(message\)/);
-    assert.match(index, /commitBranchCheckpoint\(working, targetMessageId, 'manual-delete'\)/);
+    assert.match(index, /if \(targetMessageId >= 0\) noteChatLineage\(working\);/);
     assert.match(index, /click\.npcStateDelta', '\.npc-state-delta-delete-npc'/);
     assert.match(index, /keydown\.npcStateDelta', '\.npc-state-delta-delete-npc'/);
     assert.doesNotMatch(index, /npc-state-delta-inline-delete-npc/);

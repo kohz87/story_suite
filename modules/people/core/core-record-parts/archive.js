@@ -77,12 +77,6 @@ export function applyStaleNpcLifecycle(state = {}, options = {}) {
         if (Array.isArray(state?.pendingBackfills)) {
             next.pendingBackfills = state.pendingBackfills.filter(item => !removedIds.has(String(item?.npcId || '')));
         }
-        if (Array.isArray(state?.inlineCards)) {
-            next.inlineCards = state.inlineCards.map(entry => ({
-                ...entry,
-                cards: Array.isArray(entry?.cards) ? entry.cards.filter(card => !removedIds.has(String(card?.id || ''))) : [],
-            })).filter(entry => Array.isArray(entry.cards) && entry.cards.length > 0);
-        }
         if (state?.portraitAssets && typeof state.portraitAssets === 'object') {
             next.portraitAssets = { ...state.portraitAssets };
             for (const id of removedIds) delete next.portraitAssets[id];

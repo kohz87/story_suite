@@ -1,5 +1,7 @@
 // Which portrait assets a state still needs, and pruning the rest, in place or as a copy.
-export function retainedPortraitAssetIds(state = {}) {
+// `keepHeld`: also keep the pictures of people the state no longer holds (while the store holds the chat it can bring them back with a swipe,
+// a swipe back or a delete, and their form pictures live only here); a person the reader deleted (a user-dismissed group) still loses them.
+export function retainedPortraitAssetIds(state = {}, { keepHeld = false } = {}) {
     const retained = new Set();
     const addNpcs = value => {
         for (const npc of Array.isArray(value) ? value : []) {
@@ -8,17 +10,9 @@ export function retainedPortraitAssetIds(state = {}) {
         }
     };
     addNpcs(state.npcs);
-    for (const checkpoint of Array.isArray(state.checkpoints) ? state.checkpoints : []) addNpcs(checkpoint?.snapshot?.npcs);
-    addNpcs(state.branchRootSnapshot?.npcs);
-    // The reversible rollback journal can be the only remaining proof that an NPC
-    // existed before a deep tail deletion once byte-budgeted full checkpoints have
-    // been pruned. Keep that NPC's portrait asset reachable until the journal entry
-    // itself expires; the journal stores no portrait binary.
-    for (const entry of Array.isArray(state.rollbackJournal) ? state.rollbackJournal : []) {
-        const npcUndo = entry?.undo?.npcs;
-        addNpcs(npcUndo?.full);
-        for (const change of Array.isArray(npcUndo?.changes) ? npcUndo.changes : []) {
-            if (change?.restore && typeof change.restore === 'object') addNpcs([change.restore]);
+    if (keepHeld) {
+        for (const assets of [state.portraitAssets, state.formPortraitAssets]) {
+            for (const id of Object.keys(assets && typeof assets === 'object' ? assets : {})) retained.add(id);
         }
     }
     const blocked = new Set((Array.isArray(state.userDismissedGroups) ? state.userDismissedGroups : [])
@@ -28,17 +22,16 @@ export function retainedPortraitAssetIds(state = {}) {
     return retained;
 }
 
-export function prunePortraitAssetsForState(state = {}) {
+export function prunePortraitAssetsForState(state = {}, options = {}) {
     const assets = state?.portraitAssets && typeof state.portraitAssets === 'object' ? state.portraitAssets : {};
-    const retained = retainedPortraitAssetIds(state);
+    const retained = retainedPortraitAssetIds(state, options);
     return Object.fromEntries(Object.entries(assets).filter(([id, portrait]) => retained.has(String(id)) && portrait?.dataUrl));
 }
 
-// Form portraits share the main portrait retention rule: they stay while any live, checkpointed
-// or journal-restorable record of that NPC can still show them.
-export function pruneFormPortraitAssetsForState(state = {}) {
+// Form portraits share the main portrait retention rule.
+export function pruneFormPortraitAssetsForState(state = {}, options = {}) {
     const assets = state?.formPortraitAssets && typeof state.formPortraitAssets === 'object' ? state.formPortraitAssets : {};
-    const retained = retainedPortraitAssetIds(state);
+    const retained = retainedPortraitAssetIds(state, options);
     const out = {};
     for (const [id, forms] of Object.entries(assets)) {
         if (!retained.has(String(id)) || !forms || typeof forms !== 'object') continue;
@@ -48,9 +41,9 @@ export function pruneFormPortraitAssetsForState(state = {}) {
     return out;
 }
 
-export function prunePortraitAssetsInPlace(state = {}) {
+export function prunePortraitAssetsInPlace(state = {}, options = {}) {
     if (!state || typeof state !== 'object') return state;
-    state.portraitAssets = prunePortraitAssetsForState(state);
-    if (state.formPortraitAssets && typeof state.formPortraitAssets === 'object') state.formPortraitAssets = pruneFormPortraitAssetsForState(state);
+    state.portraitAssets = prunePortraitAssetsForState(state, options);
+    if (state.formPortraitAssets && typeof state.formPortraitAssets === 'object') state.formPortraitAssets = pruneFormPortraitAssetsForState(state, options);
     return state;
 }

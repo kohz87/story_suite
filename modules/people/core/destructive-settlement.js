@@ -13,7 +13,7 @@ function activeChatKey() {
     return String(npcStateDeltaApi()?.chatKey?.() || 'no-chat');
 }
 
-// SillyTavern's swipe state, read as runtime-branch.js hostSwipeState reads it.
+// SillyTavern's swipe state, read as runtime-chat-branch.js hostSwipeState reads it.
 function hostSwipeActive() {
     try {
         const state = getContext().swipe?.state?.();

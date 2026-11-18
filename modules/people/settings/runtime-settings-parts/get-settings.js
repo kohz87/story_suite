@@ -121,6 +121,13 @@ export function getSettings() {
         delete settings.narrationCaptureCompact;
         dirty = true;
     }
+    // The branch journal is gone (B4-10a): its two switches (rescan a changed branch, rewind on a middle delete) are dropped from a saved settings object.
+    for (const key of ['branchRescan', 'midDeleteRewind']) {
+        if (key in settings) {
+            delete settings[key];
+            dirty = true;
+        }
+    }
     assign('schemaVersion', DEFAULTS.schemaVersion);
 
     if (dirty) persistSettings();

@@ -117,13 +117,13 @@ test('a branch from a message (SillyTavern) opens with the people of that messag
     assert.ok(Object.keys(people(rig).npcs).length >= 2);
 });
 
-test('Delta\'s own ids (npc_myla) are stored: all 15 frozen write paths reach equality at the head', async t => {
+test('Delta\'s own ids (npc_myla) are stored: all 14 frozen write paths reach equality at the head', async t => {
     const golden = JSON.parse(fs.readFileSync(new URL('./fixtures/field-paths-golden.json', import.meta.url), 'utf8'));
     const asState = (key, value) => (key === 'editorNormalize' ? { npcs: [value] } : Array.isArray(value) ? { npcs: value } : value);
     const rig = await peopleRig(t);
     await rig.reply('Hello.');
     const keys = Object.keys(golden);
-    assert.equal(keys.length, 15);
+    assert.equal(keys.length, 14);
     for (const key of keys) {
         const next = asState(key, golden[key]);
         const done = await rig.publish(state => {

@@ -5,7 +5,7 @@
 import { getContext } from '../../../../../../extensions.js';
 import { saveSettings as saveHostSettings } from '../../../../../../../script.js';
 import { NPC_STATE_VERSION } from '../core/core.js';
-import { chatLineage } from '../legacy/branch.js';
+import { chatLineage } from '../lineage/index.js';
 import { deleteNpcStateDataFile, makeNpcStateDataFileName, makeNpcStateRecoveryFileName, readNpcStateDataFile, retireNpcStateDataFile, quarantineUnreadableNpcStateDataFile, writeNpcStateDataFile } from '../storage/storage.js';
 import { buildQualifiedChatKey, getCharacterOwnerId, parseQualifiedChatKey } from '../core/identity.js';
 import { lifecycleRenameStateIsEmpty } from '../core/hardening-core.js';

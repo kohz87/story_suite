@@ -55,11 +55,10 @@ test('live lifecycle candidates ignore branch index, recovery and tombstone hist
     assert.deepEqual(liveLifecycleCandidateKeys(settings, [], 'chat', 'Adventure'), [keyA]);
 });
 
-test('rename destination emptiness protects branch/social/inline/portrait state', () => {
-    assert.equal(lifecycleRenameStateIsEmpty({ npcs: [], candidates: [], checkpoints: [] }), true);
-    assert.equal(lifecycleRenameStateIsEmpty({ branchRootSnapshot: { npcs: [{ id: 'x' }] } }), false);
+test('rename destination emptiness protects social/portrait state; the removed branch journal\'s fields count for nothing (B4-10a)', () => {
+    assert.equal(lifecycleRenameStateIsEmpty({ npcs: [], candidates: [] }), true);
+    assert.equal(lifecycleRenameStateIsEmpty({ checkpoints: [{ messageId: 1 }], branchRootSnapshot: { npcs: [{ id: 'x' }] }, inlineCards: [{ messageId: 1 }] }), true);
     assert.equal(lifecycleRenameStateIsEmpty({ socialGraph: { edges: [{ aId: 'a', bId: 'b' }] } }), false);
-    assert.equal(lifecycleRenameStateIsEmpty({ inlineCards: [{ messageId: 1 }] }), false);
     assert.equal(lifecycleRenameStateIsEmpty({ portraitAssets: { x: { dataUrl: 'data:image/png;base64,AA==' } } }), false);
 });
 

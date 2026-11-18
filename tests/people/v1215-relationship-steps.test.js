@@ -9,11 +9,13 @@ const change = { impact: 'meaningful', delta: { trust: 3, affection: 0, desire: 
 test('v1.2.15 settings fold the rarely touched ones under Advanced', () => {
     const index = runtimeSource();
     const advanced = index.match(/const advanced = \[([\s\S]*?)\]\.join\(''\);/)?.[1] ?? '';
-    for (const id of ['npc_state_delta_scan_depth', 'npc_state_delta_inject_budget', 'npc_state_delta_mid_delete_rewind', 'npc_state_delta_branch_rescan']) {
+    for (const id of ['npc_state_delta_scan_depth', 'npc_state_delta_inject_budget']) {
         assert.ok(advanced.includes(`'${id}'`), `${id} is under Advanced`);
         assert.equal(index.split(`settingRow('${id}'`).length - 1, 1, `${id} appears once`);
     }
     const scannerOutput = fs.readFileSync(new URL('../../modules/people/settings/scanner-output.js', import.meta.url), 'utf8');
     assert.match(scannerOutput, /#npc_state_delta_scan_depth'\)\?\.closest\?\.\('label'\)[\s\S]*after\.after\(row\)/, 'Maximum output tokens is drawn under Advanced, right after Scan context');
     assert.match(index, /settingsGroup\('advanced', 'Advanced', /);
+    // B4-10a: the branch journal's two switches went with it.
+    assert.doesNotMatch(index, /npc_state_delta_mid_delete_rewind|npc_state_delta_branch_rescan/);
 });

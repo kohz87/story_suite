@@ -8,8 +8,6 @@ import { FIELDS } from '../../modules/people/fields/registry.js';
 import { dossierFields } from '../../modules/people/adapter/queries-dossier.js';
 import { PERSON_FIELDS } from '../../modules/people/domain/person-fields.js';
 import { EDITOR_FIELDS, editorShownValue, untouchedEditorFields } from '../../modules/people/dossier/dossier-edit.js';
-import { recordBranchCheckpoint, reconcileBranchState } from '../../modules/people/legacy/branch.js';
-import { assistant, baseState, user } from './branch.helpers.js';
 
 test('Level is a whole number from 1 to 99, else absent', () => {
     for (const [given, want] of [[5, 5], ['12', 12], [' 99 ', 99], [0, null], [100, null], ['abc', null], [4.5, null], ['5th', null], [-3, null], [null, null]]) assert.equal(normalizeLevel(given), want, String(given));
@@ -64,22 +62,4 @@ test('the editor shows the lines "Name — description" and parses them back; a 
     assert.equal(untouchedEditorFields(npc, missing, { rpgOn: false }).has('level'), true, 'with RPG off the Level control is not there, so the stored Level stays');
     const edited = { ...controls, npc_state_delta_edit_abilities: 'Mending — closes wounds' };
     assert.equal(untouchedEditorFields(npc, id => edited[id]).has('abilities'), false);
-});
-
-test('rewind, swipe and swipe back restore the three fields like any dossier field', () => {
-    const chat = [user('Go.'), assistant('Mira waits.', 0)];
-    const state = baseState();
-    const mira = createNpcRecord('Mira');
-    state.npcs = [mira];
-    recordBranchCheckpoint(state, chat, 0, 'scan');
-    Object.assign(state.npcs[0], { level: 3, abilities: [{ name: 'Mending', description: 'a' }], keepsakes: [{ name: 'Compass', description: 'b' }] });
-    recordBranchCheckpoint(state, chat, 1, 'scan');
-    const swiped = structuredClone(chat);
-    swiped[1] = assistant('Mira leaves.', 1);
-    const back = reconcileBranchState(state, swiped, { explicitDivergence: 1 });
-    for (const key of ['level', 'abilities', 'keepsakes']) assert.equal(Object.hasOwn(back.state.npcs[0], key), false, `${key} went with the swiped reply`);
-    const again = reconcileBranchState(back.state, structuredClone(chat), { explicitDivergence: 1 });
-    assert.equal(again.state.npcs[0].level, 3, 'swipe back brings it again');
-    assert.deepEqual(again.state.npcs[0].abilities, [{ name: 'Mending', description: 'a' }]);
-    assert.deepEqual(again.state.npcs[0].keepsakes, [{ name: 'Compass', description: 'b' }]);
 });

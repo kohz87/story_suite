@@ -18,7 +18,7 @@ test('the three targeted passes share one runner', () => {
         const start = index.indexOf(`async function ${name}(`);
         const body = index.slice(start, index.indexOf('\n}\n', start));
         assert.match(body, /return runTargetedDossierPass\(\{/, name);
-        assert.doesNotMatch(body, /mergeScanResult\(|generateParsedNpcJson\(|commitBranchCheckpoint\(/, `${name} keeps no copy of the shared steps`);
+        assert.doesNotMatch(body, /mergeScanResult\(|generateParsedNpcJson\(|noteChatLineage\(/, `${name} keeps no copy of the shared steps`);
     }
     const runner = index.slice(index.indexOf('async function runTargetedDossierPass'), index.indexOf('function scopeTargetedChannels'));
     assert.match(runner, /lineageMoved\(lineage, chatLineage\(getContext\(\)\.chat \|\| \[\]\), operation\.sourceMessageId\)/);

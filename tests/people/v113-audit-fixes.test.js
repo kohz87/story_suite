@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import * as branch from '../../modules/people/legacy/branch.js';
-import * as branchCore from '../../modules/people/legacy/branch-core.js';
+import * as lineage from '../../modules/people/lineage/index.js';
 import { shippedModulePaths, styleSource } from './helpers/shipped-modules.js';
 
 const read = path => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -18,7 +17,7 @@ function functionText(source, name) {
     return source.slice(start, end + 2).replace(/^export\s+/, '').replace(/\s+/g, ' ');
 }
 
-test('1: a module never keeps a copy of a function it re-exports, and the branch keys come from one place', () => {
+test('1: a module never keeps a copy of a function it re-exports, and the lineage keys come from one place', () => {
     const problems = [];
     for (const [path, source] of Object.entries(sources)) {
         for (const match of source.matchAll(/^export \* from '\.\/([^']+)';$/gm)) {
@@ -30,10 +29,9 @@ test('1: a module never keeps a copy of a function it re-exports, and the branch
         }
     }
     assert.deepEqual(problems, []);
-    assert.equal('lineageCheckpointKeys' in branchCore, false);
-    const keys = branch.lineageCheckpointKeys(['a', 'b']);
-    assert.equal(keys.length, 2);
-    assert.equal(branch.lineageCheckpointKey(['a', 'b'], 1), keys[1]);
+    // The keys come from one place: modules/people/lineage/ (B4-10a).
+    assert.notEqual(lineage.lineageCheckpointKey(['a', 'b'], 1), lineage.lineageCheckpointKey(['a', 'b'], 0));
+    assert.equal(lineage.lineageCheckpointKey(['a', 'b'], 1), lineage.lineageCheckpointKey(['a', 'b', 'c'], 1));
 });
 
 test('2: no top-level constant in a shipped module goes unused', () => {

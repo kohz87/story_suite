@@ -8,7 +8,7 @@ import { storyDayAt, tieDayAt, currentExclusions, refreshMessageGate, activeChat
 import { BACKFILL_RESPONSE_LENGTH, generateParsedNpcJson } from './scanner-request.js';
 import { buildDossierImportPrompt, mergeScanResult, protectTerminalNpc } from '../core/core.js';
 import { secretEventsShown } from '../core/core-prompts-capture.js';
-import { chatLineage } from '../legacy/branch.js';
+import { chatLineage } from '../lineage/index.js';
 import { isScannerRoutingError } from './scanner-routing.js';
 import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { replayScope, setNpcDossierScanIndicator, lineageMoved, setScanIndicator, latestMessageId } from './runtime-scan-helpers.js';
@@ -19,7 +19,7 @@ import { advanceCastAdmission } from '../runtime/runtime-cast-sync.js';
 import { captureJournalEntry, recordAcceptedFill } from '../runtime/runtime-narration.js';
 
 export function createTargetedPart(rt, deps) {
-    const { attachGeneratedSecrets, BACKFILL_MAX_ATTEMPTS, beginScanOperation, chatHydrationStatus, commitBranchCheckpoint, editorIsMounted, endScanOperation, ensureChatStateLoaded, ensureHydratedStateFresh, findMeguminDossierSources, flushStateFile, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, partyLevelList, persist, recordScanDiagnostics, renderDossier, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, scanCanonicalBaseCurrent, scanOperationCurrent, targetMoved, targetFingerprint, setChatState, settleStateFileWrite, staleHostActive, targetNoteOptions, updateInjection } = deps;
+    const { attachGeneratedSecrets, BACKFILL_MAX_ATTEMPTS, beginScanOperation, chatHydrationStatus, noteChatLineage, editorIsMounted, endScanOperation, ensureChatStateLoaded, ensureHydratedStateFresh, findMeguminDossierSources, flushStateFile, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, partyLevelList, persist, recordScanDiagnostics, renderDossier, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, scanCanonicalBaseCurrent, scanOperationCurrent, targetMoved, targetFingerprint, setChatState, settleStateFileWrite, staleHostActive, targetNoteOptions, updateInjection } = deps;
     const { stateVersions, runningTargetedPasses } = rt;
     const { backfillScanMatchesTarget, rowContradictsTarget, soleRowMayBeTarget, scopeProfileUpdatesToTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
 
@@ -189,7 +189,7 @@ export function createTargetedPart(rt, deps) {
             if (acceptedInput) recordAcceptedFill(merged.state, ctx.chat || [], job.captureMessageId, id, acceptedInput, job.captureKind || 'fills');
             if (targetMessageId >= 0) {
                 job.beforeCheckpoint?.(merged.state, result, targetMessageId);
-                commitBranchCheckpoint(merged.state, targetMessageId, job.checkpoint);
+                noteChatLineage(merged.state);
             }
             setChatState(chatKey, merged.state);
             forwardRelationshipChangesToHost(latest.npcs, merged.state.npcs, targetMessageId, operation.chatHead, parsed?.profileUpdates || [], parsed?.npcs);

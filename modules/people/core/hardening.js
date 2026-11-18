@@ -2,11 +2,8 @@ import { extension_settings, getContext } from '../../../../../../extensions.js'
 import { npcBucket } from '../settings/bucket.js';
 import { getRequestHeaders, saveSettings as saveHostSettings } from '../../../../../../../script.js';
 import { NPC_STATE_VERSION } from './core.js';
-import { setBranchProvenanceHint } from '../legacy/branch.js';
 import {
-    chatOwnerScope,
     getCharacterOwnerId,
-    getChatIdentityFromContext,
 } from './identity.js';
 import {
     deleteNpcStateDataFile,
@@ -105,17 +102,6 @@ async function writeRecovery(key, state, reason) {
     const operationKey = `recovery:${key}:${name}`;
     const pointer = await writeVerifiedState(key, state, { name }, { operationKey });
     return { ...pointer, reason: String(reason || 'recovery'), recoveredAt: Date.now() };
-}
-
-function installBranchProvenanceHint() {
-    const ctx = getContext() || {};
-    const identity = getChatIdentityFromContext(ctx);
-    const metadata = ctx.chatMetadata || ctx.chat_metadata || {};
-    setBranchProvenanceHint({
-        mainChat: metadata?.main_chat || '',
-        ownerScope: chatOwnerScope(identity.key),
-        currentKey: identity.key,
-    });
 }
 
 async function moveCharacterOwnerState(oldAvatar, newAvatar) {
@@ -429,7 +415,6 @@ export async function prepareNpcStateHardening() {
         );
     });
 
-    installBranchProvenanceHint();
     // Recovery garbage cleanup is best-effort; do not block bootstrap on a sidecar outage.
     void cleanupRecoveryGarbage(settings()).catch(error => console.debug('[NPC State Delta] startup recovery garbage cleanup deferred.', error));
 }

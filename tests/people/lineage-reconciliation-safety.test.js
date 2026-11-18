@@ -2,21 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { partsSource } from './helpers/parts-source.js';
-import {
-    BRANCH_LINEAGE_VERSION,
-    bestAncestorState,
-    chatLineage,
-    fingerprintMessage,
-    lineageCheckpointKeys,
-    setBranchProvenanceHint,
-} from '../../modules/people/legacy/branch.js';
+import { fingerprintMessage } from '../../modules/people/lineage/index.js';
 import { buildQualifiedChatKey } from '../../modules/people/core/identity.js';
 import { makeNpcStateRecoveryFileName, readNpcStateDataFile, writeNpcStateDataFile } from '../../modules/people/storage/storage.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
-const user = (mes, send_date = '') => ({ is_user: true, is_system: false, name: 'User', mes, send_date });
 const bot = (name, mes, send_date = '') => ({ is_user: false, is_system: false, name, mes, send_date });
-const emptySnapshot = npcs => ({ npcs, candidates: [], pendingBackfills: [], socialGraph: { edges: [], unresolved: [] }, dismissed: [], turn: 0, assistantSinceScan: 0, lastScanAt: 0, lastScannedMessageId: null, scanCount: 0, processedOocMessageId: null });
 
 test('v5 destructive lineage ignores mutable host instance metadata and display-name changes', () => {
     const a = bot('Astra', 'Yes.', '2026-09-02T01:02:03.100Z');
@@ -28,25 +19,6 @@ test('v5 destructive lineage ignores mutable host instance metadata and display-
 });
 
 
-
-test('explicit host parent can inherit the branch root before the old 4-message heuristic', () => {
-    const parentKey = buildQualifiedChatKey('chat', 'card.png', 'Parent');
-    const childKey = buildQualifiedChatKey('chat', 'card.png', 'Child');
-    const parentChat = [bot('NPC', 'Original greeting', '1')];
-    const parent = {
-        branchLineageVersion: 5,
-        lineage: chatLineage(parentChat),
-        checkpoints: [],
-        branchRootSnapshot: emptySnapshot([{ id: 'npc-root', name: 'Root NPC' }]),
-        inlineCards: [], portraitAssets: {}, userDismissedGroups: [], branchFamilyId: 'family',
-    };
-    setBranchProvenanceHint({ mainChat: 'Parent', currentKey: childKey });
-    const inherited = bestAncestorState({ [parentKey]: parent }, childKey, [bot('NPC', 'Different greeting', '2')]);
-    assert.ok(inherited);
-    assert.equal(inherited.npcs[0].name, 'Root NPC');
-    assert.equal(inherited.branchForkMessageId, -1);
-    setBranchProvenanceHint({});
-});
 
 
 function fileHarness() {

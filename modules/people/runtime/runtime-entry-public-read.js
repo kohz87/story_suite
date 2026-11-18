@@ -13,7 +13,7 @@ export function createPublicApiReadPart(deps) {
         nsdCardSettings, renderDossier, openNpcEditorSafely, openPersonDossier,
         injectionPreview, chatHydrationStatus, hydrationErrors, isScanBusy, scanOperations,
         narrationCaptureStats, narrationCaptures, getChatState, editorIsMounted,
-        branchHistoryDiagnostic, branchReconciliationEvents, hostSwipeState,
+        hostSwipeState,
         hydratedRevision, hydratedStateMeta, freshnessEvents, hydratedChatKeys, ensureChatStateLoaded,
         ensureHydratedStateFresh, exportBundleBytes, importBundleBytes, reconcileCurrentBranch, diagnosticStore,
     } = deps;
@@ -91,11 +91,6 @@ export function createPublicApiReadPart(deps) {
         portraitGeneratorNpcId: rt.activePortraitGeneratorNpcId || null,
         portraitGenerationBusy: rt.portraitGenerationBusy,
         lastScan: rt.lastScanMetrics ? { ...rt.lastScanMetrics } : null,
-        branchHistory: chatHydrationStatus(getChatKey()) === 'ready' ? branchHistoryDiagnostic(getChatState()) : null,
-        branchReconciliations: branchReconciliationEvents
-            .filter(event => event.chatKey === getChatKey())
-            .slice(-8)
-            .map(event => structuredClone(event)),
         swipeState: hostSwipeState(),
         swipeSettlementPending: Boolean(rt.swipeSettlementPending || rt.swipeSettlementTimer),
         hydratedRevision: hydratedRevision(getChatKey()),
@@ -133,7 +128,7 @@ export function createPublicApiReadPart(deps) {
     diagnosticBundle: () => {
         const key = getChatKey();
         const bundle = diagnosticStore.bundle(key, { applicationVersion: NPC_STATE_VERSION });
-        // Rollback diagnostics carry counts, message numbers and outcomes only: no story text and no chat key.
+        // The chat's shape carries counts and message numbers only: no story text and no chat key.
         const chatMessages = getContext().chat || [];
         bundle.branch = {
             chat: key === 'no-chat' ? null : {
@@ -142,9 +137,6 @@ export function createPublicApiReadPart(deps) {
                 storedLineageDivergence: firstLineageDivergence(getChatState(key)?.lineage || [], chatLineage(chatMessages)),
                 turn: Number(getChatState(key)?.turn || 0),
             },
-            history: key === 'no-chat' ? null : branchHistoryDiagnostic(getChatState(key)),
-            reconciliations: branchReconciliationEvents.filter(event => event.chatKey === key).slice(-20)
-                .map(({ chatKey, history, ...event }) => event),
         };
         // Session counters only; the instruction and blocks themselves are never exported.
         bundle.narrationCapture = { ...narrationCaptureStats, enabled: narrationCaptureEnabled(), pending: narrationCaptures.size };

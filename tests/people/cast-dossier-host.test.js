@@ -146,9 +146,9 @@ test('with no Story Director the per-reply step and the slice are exactly as bef
 
 // ---- the opaque panel and section bar (a follow-up from the mockup) ----
 
-test('index.js wiring: the cast reader, the checkpoint, the dismissal check, the views (source)', () => {
+test('index.js wiring: the cast reader, the lineage, the dismissal check, the views (source)', () => {
     const index = runtimeSource();
-    assert.match(index, /commitBranchCheckpoint\(working, messageId, 'cast-dossier'\)/, 'a swipe takes the dossier back with its reply');
+    assert.match(index, /if \(messageId >= 0\) noteChatLineage\(working\);/, 'the cast change stands on the chat as it is (a swipe takes it back through the store)');
     assert.match(index, /castPersonDismissed\(state, person\)/, 'a dossier the reader removed is not made again');
     assert.match(index, /v2\.startStorySuiteV2\(\{[^}]*castSync/, 'the adapter calls the sync after the step');
     assert.match(index, /const castViews = dossierCastViews\(state\);/);

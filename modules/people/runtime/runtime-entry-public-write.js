@@ -88,7 +88,7 @@ export function createPublicApiStatePart(deps) {
     const {
         normalizeChatState, getChatKey, requestHeaders, ensureFreshMutationBoundary, quietly, setChatState,
         persistCriticalDurable, renderDossier, updateInjection, getChatState, nativeChangeListeners, chatStateCache,
-        branchInheritancePending, maybeInheritKnownBranch, chatHydrationStatus, loadingReconcilePending, scanWorkPending, scanIdle,
+        branchInheritancePending, chatHydrationStatus, loadingReconcilePending, scanWorkPending, scanIdle,
         useMessageGate, normalizeRelationshipBaseline, normalizeRelationshipCaps, getSettings, storyBlockCastHtml,
         castEmptyReason, addNpcManually, fillPresentSceneText, stateVersions, latestReplyIndex, viewNpcCopies,
         hostedMeterView, scenePresenceView, dossierHostViews, hydrationErrors, portraitFilesVersion, persistedVersions,
@@ -219,9 +219,8 @@ export function createPublicApiStatePart(deps) {
     // Whether the open chat uses the timeline (its state has a story line), read without cloning the state; whether the open chat's dossier state is
     // loaded; and whether a scan or pass is in flight.
     timelineStarted: () => Boolean(chatStateCache.get(getChatKey())?.timeline?.lineage),
-    // A branch still waiting for its parent's dossiers, and the inheritance itself (run now; idempotent: an inherited state is not empty).
+    // A new chat still waiting for its state file (runtime-chat-branch.js).
     branchPending: () => branchInheritancePending(),
-    inheritBranch: () => maybeInheritKnownBranch(),
     stateReady: () => chatHydrationStatus() === 'ready',
     timelineReady: () => chatHydrationStatus() === 'ready' && !loadingReconcilePending(),
     stateFailed: () => chatHydrationStatus() === 'error',
