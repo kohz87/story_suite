@@ -174,6 +174,8 @@ export function mountSuite(options = {}) {
   const refreshFlags = () => applyFlags(readFlags(port, override));
   // An interaction call changes chat metadata only, so the engine says nothing: the port does (`interaction`), and the open tab and the tab strip redraw.
   offs.push(port.on('interaction', () => redraw.markDirty()));
+  // The arc planner changes on its own (automatic plan, Planning…): the port says so (`arc`), and the story tab redraws.
+  offs.push(port.on('arc', () => redraw.markDirty()));
 
   if (look) applyLook(picked);
   if (look || theme === 'follow') {

@@ -5,6 +5,7 @@ import { createHost } from '../../../testkit/index.js';
 import { createModule } from '../../../modules/director/module.js';
 import { withD1 } from '../../helpers/director/d1.js';
 import { moneyWarning, openRewards } from '../../../core/turn/money-guard.js';
+import { currencyOf } from '../../../modules/inventory/money-parts/coins.js';
 
 const said = lines => `Told.\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const warned = host => host.turn.problems().filter(item => /applied; undo it/u.test(item.message));
@@ -36,5 +37,20 @@ test('rewards are read from open quests only, and the guard takes them as an arg
     assert.match(moneyWarning(receipt, [], [], [{ reward: '25 copper', giver: 'hedda vane' }]) ?? '', /more than 5 times/u);
     assert.match(moneyWarning(receipt, [], [], [{ reward: '20 copper', giver: 'nelke' }]) ?? '', /more than 5 times/u);
     const state = { domains: { director: { threads: { a: { kind: 'quest', status: 'active', fields: { reward: '20 copper', giver: 'Hedda Vane' } }, b: { kind: 'quest', status: 'resolved', fields: { reward: '5' } }, c: { kind: 'hook', status: 'active', fields: { reward: '7' } } } } } };
-    assert.deepEqual(openRewards(state), [{ reward: '20 copper', giver: 'hedda vane' }]);
+    assert.deepEqual(openRewards(state), [{ reward: '20 copper', giver: 'hedda vane', amount: 20 }]);
+});
+
+test('a reward written in a larger coin and paid in the smallest is the reward, and so is one whose quest the reply closed first', async t => {
+    const currency = { currency: 'copper', coins: [{ name: 'silver', value: 10 }] };
+    const receipt = { type: 'capture.coin', summary: 'The party receives 20 copper', data: { owner: 'party', amount: 20, now: 23, note: 'from Hedda Vane' } };
+    const state = { domains: { director: { threads: { a: { kind: 'quest', status: 'active', fields: { reward: '2 silver', giver: 'Hedda Vane' } } } } } };
+    const rewards = openRewards(state, currencyOf(currency));
+    assert.equal(rewards[0].amount, 20);
+    assert.equal(moneyWarning(receipt, [], [], rewards), null);
+    assert.match(moneyWarning({ ...receipt, data: { ...receipt.data, amount: 30, now: 33 } }, [], [], rewards) ?? '', /more than 5 times/u);
+    const host = await directorHost(t);
+    await host.send('Pockets.', said(['+ coin 3 | from: a pocket']));
+    await host.send('Job.', said(['+ quest Missing ferryman | giver: Hedda Vane | reward: 20 copper']));
+    await host.send('Done.', said(['- quest Missing ferryman', '+ coin 20 | from: Hedda Vane']));
+    assert.equal(warned(host).length, 0, 'the quest was open when the reply began');
 });

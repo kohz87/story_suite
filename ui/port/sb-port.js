@@ -24,6 +24,7 @@ import { portraitCommand } from './people-portrait.js';
 import { manageCommand } from './people-manage.js';
 import { dataCommand, isDataKey } from './people-data.js';
 import { autoCapped } from './auto-fight.js';
+import { arcController } from '../../modules/arc/controller.js';
 
 /** The page event `port.open` sends when the view's own opener does not open the window (nothing in Story Suite answers it since the old view went; a window no one answers is "not available"). */
 export const OPEN_EVENT = 'story-suite:open';
@@ -76,7 +77,7 @@ async function offerCommand(controller, payload) {
 }
 
 /** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `rpgValues()` reads Story Block’s settings bucket (the RPG page’s Custom start); `packs` is the Packs page's handle ({ packs, readLorebook, lore }); `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach; `hold` is the waiting fight's handle (port/hold.js) that `interaction.choose` answers; `screens.open(id, payload, { onEnd })` is the view's own opener (ui/wizard/attach.js): true when it opened the window or a refusal for a window it owns, and then no page event is sent; false sends it. */
-export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, rpgValues = () => null, packs = null, hold = null, screens = null } = {}) {
+export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, rpgValues = () => null, packs = null, hold = null, screens = null, arc = arcController } = {}) {
   const read = makeReader(sdk);
   const heard = new Set();
   // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
@@ -193,6 +194,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       if (event === 'offer') { const off = offer?.()?.subscribe?.(fn); return typeof off === 'function' ? off : () => {}; }
       // (the waiting fight changes outside the engine too: the hold's own word redraws the view as an interaction call does)
       if (event === 'interaction') { heard.add(fn); const off = hold?.subscribe?.(() => fn(null)); return () => { heard.delete(fn); off?.(); }; }
+      // The arc planner works on its own too (automatic planning, "Planning…"): its word redraws the story view as a call does.
+      if (event === 'arc') { let off = null; try { off = arc().subscribe(() => fn(null)); } catch { off = null; } return typeof off === 'function' ? off : () => {}; }
       let off = null;
       try {
         off = sdk?.on?.(event, fn);

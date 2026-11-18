@@ -8,6 +8,7 @@
 @container (min-width:620px){
   .now-tab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
   .now-tab .ncol{display:flex;flex-direction:column;gap:12px;min-width:0}
+  .now-tab .now-empty{grid-column:1/-1}
 }
 .now-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .now-tab .ch{display:flex;align-items:center;gap:10px}
