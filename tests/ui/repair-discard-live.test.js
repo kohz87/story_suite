@@ -1,4 +1,4 @@
-// "Discard repair" on the live mount (the new view on the old host, as SillyTavern mounts it): a reply that came with no block is repaired (on by default); its
+// "Discard repair" on the live mount (the new view, as SillyTavern mounts it): a reply that came with no block is repaired (on by default); its
 // ✦ sheet marks the repaired lines as Assist's and offers one Discard repair; pressing it takes the lines out, closes the sheet, reads the reply again, and the repair
 // is not asked again for that reply, not by a Re-read nor by a reload.
 import test from 'node:test';

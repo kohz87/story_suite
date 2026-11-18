@@ -2,9 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { installFakeDom } from './helpers/dom.js';
-import { startView, firstPaint } from '../../ui/entry/start.js';
+import { startView } from '../../ui/entry/start.js';
 import { buildSelectors } from '../../ui/select/build.js';
-import { readOldView, writeOldView, OLD_VIEW_KEY } from '../../ui/entry/flag.js';
 
 const TABS = ['card', 'now', 'chat', 'party', 'bag', 'people', 'dossier', 'world', 'journal', 'story', 'scene', 'fight', 'flags', 'settings'];
 
@@ -35,28 +34,15 @@ function fakeBlock() {
     settings: Object.assign(() => ({}), { defaults: {}, schema: {} }),
     features: () => [],
   };
-  return { ready: Promise.resolve(sdk), sdk };
+  return { ready: Promise.resolve(sdk), sdk, emit: (event, payload) => (listeners[event] ?? []).forEach(fn => fn(payload)) };
 }
 
-// This device's storage, as localStorage answers.
-function fakeStorage(old = false) {
-  const map = new Map(old ? [[OLD_VIEW_KEY, '1']] : []);
-  return { map, getItem: k => (map.has(k) ? map.get(k) : null), setItem: (k, v) => { map.set(k, String(v)); }, removeItem: k => { map.delete(k); } };
-}
-
-// The old view's Extensions drawer as mountUi draws it: the status line, its two buttons, then the strip switch.
-function oldDrawer(doc) {
-  const root = doc.createElement('div');
-  root.id = 'story_suite_v2_drawer';
-  const content = doc.createElement('div');
-  content.className = 'inline-drawer-content';
-  const status = doc.createElement('p');
-  const buttons = doc.createElement('div');
-  buttons.className = 'story-suite-drawer-buttons old';
-  content.append(status, buttons);
-  root.appendChild(content);
-  doc.getElementById('extensions_settings2').appendChild(root);
-  return content;
+// NPC State's settings section, mounted in Extensions before the view made the Story Suite drawer.
+function npcSettings(doc) {
+  const node = doc.createElement('div');
+  node.id = 'npc_state_delta_settings';
+  doc.getElementById('extensions_settings2').appendChild(node);
+  return node;
 }
 
 function fakeCtx(next) {
@@ -83,131 +69,86 @@ test('buildSelectors builds the card and chat view-models from sdk queries', () 
   assert.equal(selectors.chat(() => null).inlineRow.fightOpen, false);
 });
 
-const start = (doc, ctx, storage, more = {}) => startView({ doc, getContext: () => ctx, StoryBlock: fakeBlock(), base: 'x/', storage, ...more });
+const start = (doc, ctx, more = {}) => startView({ doc, getContext: () => ctx, StoryBlock: fakeBlock(), base: 'x/', ...more });
 
-test('by default the new view mounts: body class, styles, the "Story Suite" menu entry, no preview wording and no switch', async () => {
+test('the view mounts: styles, the "Story Suite" menu entry, no body class, no old-view switch and no preview wording', async () => {
   const doc = page();
-  const api = await start(doc, fakeCtx(), fakeStorage());
+  const api = await start(doc, fakeCtx());
   assert.equal(api.isOn(), true);
-  assert.ok(doc.body.classList.contains('ss-ui-next'));
   assert.ok(doc.querySelector('.su-root'));
   assert.equal(doc.querySelector('#story-suite-ui-menu').textContent, 'Story Suite');
   assert.equal(doc.head.querySelectorAll('link').length, 17);
-  assert.equal(doc.querySelector('#story-suite-old-view'), null, 'no switch on the default path');
-  assert.equal(/preview/i.test(doc.body.textContent), false);
+  assert.equal(doc.body.classList.contains('ss-ui-next'), false, 'no class: there is no old furniture to hide');
+  assert.equal(doc.querySelector('#story-suite-old-view'), null);
+  assert.equal(/preview|old view/i.test(doc.body.textContent), false);
+  api.stop();
+  assert.equal(doc.querySelector('.su-root'), null);
+  assert.equal(doc.head.querySelectorAll('link').length, 0);
 });
 
-test('firstPaint hides the old furniture before boot unless this device chose the old view; index.js calls it before boot and startView after', () => {
-  const doc = page();
-  assert.equal(firstPaint(doc, fakeStorage()), true);
-  assert.ok(doc.body.classList.contains('ss-ui-next'));
-  const old = page();
-  assert.equal(firstPaint(old, fakeStorage(true)), false);
-  assert.equal(old.body.classList.contains('ss-ui-next'), false);
+test('a device that once chose the old view (storySuite.ui.oldView = 1) and a stored ui.next false still get the view', async () => {
+  const saved = globalThis.localStorage;
+  globalThis.localStorage = { getItem: key => (key === 'storySuite.ui.oldView' ? '1' : null), setItem() {}, removeItem() {} };
+  try {
+    const doc = page();
+    const api = await start(doc, fakeCtx(false));
+    assert.equal(api.isOn(), true);
+    assert.ok(doc.querySelector('.su-root'));
+    assert.equal(doc.querySelector('#story-suite-old-view'), null);
+  } finally {
+    if (saved === undefined) delete globalThis.localStorage; else globalThis.localStorage = saved;
+  }
+});
+
+test('index.js starts the view after boot, with nothing before it; no file outside docs names ui/legacy', () => {
   const entry = fs.readFileSync(new URL('../../index.js', import.meta.url), 'utf8');
-  assert.ok(entry.indexOf('firstPaint();') > 0 && entry.indexOf('firstPaint();') < entry.indexOf('boot()'), 'firstPaint runs before boot');
   assert.match(entry, /if \(started\) await startView\(\);/);
+  assert.equal(/firstPaint|ss-ui-next|flag\.js/.test(entry), false);
+  for (const rel of ['../../core/boot/boot.js', '../../ui/entry/turn-on.js', '../../ui/entry/start.js']) assert.equal(fs.readFileSync(new URL(rel, import.meta.url), 'utf8').includes('ui/legacy'), false, rel);
+  assert.equal(fs.existsSync(new URL('../../ui/legacy', import.meta.url)), false);
 });
 
-test('a stored ui.next false (the old preview switch) does not bring the old view back', async () => {
+test('the view makes the Story Suite drawer in Extensions: title, status line, then its Settings and Open buttons; NPC State\'s settings move in', async () => {
   const doc = page();
-  const api = await start(doc, fakeCtx(false), fakeStorage());
-  assert.equal(api.isOn(), true);
-  assert.ok(doc.querySelector('.su-root'));
-});
-
-test('the new view does not wait for the extension settings: it mounts with no settings host', async () => {
-  const doc = page();
-  doc.getElementById('extensions_settings2').remove();
-  const api = await start(doc, fakeCtx(), fakeStorage());
-  assert.equal(api.isOn(), true);
-  assert.ok(doc.querySelector('.su-root'));
-});
-
-test('this device chose the old view: nothing of the new view, the body class goes, and the ticked way back is drawn', async () => {
-  const doc = page();
-  doc.body.classList.add('ss-ui-next');   // index.js hides the old furniture from the first paint only when the old view is not chosen; a stale class goes
-  const storage = fakeStorage(true);
-  const api = await start(doc, fakeCtx(), storage);
-  assert.equal(api.isOn(), false);
-  assert.equal(doc.querySelector('.su-root'), null);
-  assert.equal(doc.querySelector('#story-suite-ui-menu'), null);
-  assert.equal(doc.body.classList.contains('ss-ui-next'), false);
-  assert.equal(doc.head.querySelectorAll('link').length, 0);
-  const row = doc.querySelector('#story-suite-old-view');
-  assert.ok(row);
-  assert.equal(row.querySelector('input').checked, true);
-  assert.match(row.textContent, /use the old view/);
-  row.querySelector('input').checked = false;
-  row.querySelector('input').dispatchEvent(new Event('change'));
-  assert.equal(api.isOn(), true, 'unticking brings the new view back');
-  assert.equal(storage.map.has(OLD_VIEW_KEY), false);
-  assert.equal(doc.querySelector('#story-suite-old-view'), null);
-  assert.ok(doc.querySelector('.su-root'));
-});
-
-test('useOldView(true) takes the new view away and keeps the choice; useOldView(false) mounts it again, once', async () => {
-  const doc = page();
-  const storage = fakeStorage();
-  const api = await start(doc, fakeCtx(), storage);
-  await api.useOldView(true);
-  assert.equal(storage.map.get(OLD_VIEW_KEY), '1');
-  assert.equal(api.isOn(), false);
-  assert.equal(doc.querySelector('.su-root'), null);
-  assert.equal(doc.body.classList.contains('ss-ui-next'), false);
-  assert.equal(doc.head.querySelectorAll('link').length, 0);
-  assert.ok(doc.querySelector('#story-suite-old-view'));
-  api.useOldView(false);
-  api.useOldView(false);
-  assert.equal(doc.querySelectorAll('.su-root').length, 1);
-  assert.equal(doc.querySelector('#story-suite-old-view'), null);
-  assert.equal(readOldView(storage), false);
-  // A reload after choosing the old view starts in the old view.
-  await api.useOldView(true);
-  const again = page();
-  assert.equal((await start(again, fakeCtx(), storage)).isOn(), false);
-});
-
-test('the choice guards a device with no storage: read says new view, write says false, the view still mounts and goes', async () => {
-  assert.equal(readOldView(null), false);
-  assert.equal(readOldView({ getItem: () => { throw new Error('denied'); } }), false);
-  assert.equal(writeOldView(true, null), false);
-  const doc = page();
-  const api = await start(doc, { name1: 'Reader', chatMetadata: {} }, null);
-  assert.equal(api.isOn(), true);
-  await api.useOldView(true);
-  assert.equal(api.isOn(), false);
-  const row = doc.querySelector('#story-suite-old-view');
-  assert.ok(row, 'the way back is drawn even with nothing stored');
-  row.querySelector('input').checked = false;
-  row.querySelector('input').dispatchEvent(new Event('change'));
-  assert.equal(api.isOn(), true);
-});
-
-test('the Story Suite drawer gets the new view\'s Settings and Open buttons after its status line; they go with the view', async () => {
-  const doc = page();
-  const content = oldDrawer(doc);
-  const storage = fakeStorage();
-  const api = await start(doc, fakeCtx(), storage);
+  const npc = npcSettings(doc);
+  const api = await start(doc, fakeCtx());
+  const drawer = doc.querySelector('#story_suite_v2_drawer');
+  assert.ok(drawer);
+  assert.match(drawer.querySelector('.inline-drawer-header b').textContent, /^Story Suite \d+\.\d+\.\d+$/);
+  const content = drawer.querySelector('.inline-drawer-content');
+  assert.match(content.children[0].textContent, /^Story Suite \d+\.\d+\.\d+ · /);
   const row = doc.querySelector('#story-suite-next-drawer');
-  assert.ok(row);
   assert.equal(content.children[1], row);
+  assert.equal(content.children[2], npc, 'NPC State\'s section sits in the drawer, after the buttons');
   assert.deepEqual([...row.querySelectorAll('button')].map(b => b.textContent), ['Settings', 'Open Story Suite']);
   row.querySelectorAll('button')[0].click();
   assert.equal(doc.querySelector('.su-layer').getAttribute('data-state'), 'open');
-  assert.ok(doc.querySelector('.su-root .shd'), 'the new view\'s settings overlay opened');
-  await api.useOldView(true);
-  assert.equal(doc.querySelector('#story-suite-next-drawer'), null);
-  assert.ok(doc.querySelector('#story-suite-old-view'));
-  assert.equal(storage.map.get(OLD_VIEW_KEY), '1');
+  assert.ok(doc.querySelector('.su-root .shd'), 'the settings overlay opened');
+  api.stop();
+  assert.equal(doc.querySelector('#story-suite-next-drawer'), null, 'the buttons go with the view');
+  assert.ok(doc.querySelector('#story_suite_v2_drawer'), 'the drawer stays for NPC State\'s settings');
 });
 
-test('startView does nothing without Story Block or the context, and takes the first-paint class away', async () => {
+test('the view does not wait for the extension settings: it mounts with no settings host and draws the drawer once the host is there', async () => {
   const doc = page();
-  doc.body.classList.add('ss-ui-next');
-  assert.equal(await startView({ doc, getContext: () => fakeCtx(), StoryBlock: null, storage: fakeStorage() }), null);
-  assert.equal(doc.body.classList.contains('ss-ui-next'), false);
-  assert.equal(await startView({ doc, getContext: () => null, StoryBlock: fakeBlock(), storage: fakeStorage() }), null);
+  const host = doc.getElementById('extensions_settings2');
+  host.remove();
+  const block = fakeBlock();
+  const api = await start(doc, fakeCtx(), { StoryBlock: block });
+  assert.equal(api.isOn(), true);
+  assert.ok(doc.querySelector('.su-root'));
+  assert.equal(doc.querySelector('#story_suite_v2_drawer'), null);
+  doc.body.appendChild(host);
+  block.emit('head', { reason: 'chat' });
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.ok(doc.querySelector('#story_suite_v2_drawer #story-suite-next-drawer'));
+});
+
+test('startView does nothing without Story Block or the context', async () => {
+  const doc = page();
+  assert.equal(await startView({ doc, getContext: () => fakeCtx(), StoryBlock: null }), null);
+  assert.equal(await startView({ doc, getContext: () => null, StoryBlock: fakeBlock() }), null);
+  assert.equal(doc.querySelector('.su-root'), null);
 });
 
 test('startView takes the Story Block global the entry started', async () => {
@@ -218,34 +159,55 @@ test('startView takes the Story Block global the entry started', async () => {
   globalThis.SillyTavern = { getContext: () => ctx };
   try {
     delete globalThis.StoryBlock;
-    assert.equal(await startView({ doc, base: 'x/', storage: fakeStorage() }), null, 'no host: nothing drawn, no waiting');
+    assert.equal(await startView({ doc, base: 'x/' }), null, 'no host: nothing drawn, no waiting');
     assert.equal(doc.querySelector('.su-root'), null);
     globalThis.StoryBlock = fakeBlock();
-    assert.ok((await startView({ doc, base: 'x/', storage: fakeStorage() })).isOn());
+    assert.ok((await startView({ doc, base: 'x/' })).isOn());
   } finally {
     if (savedTavern === undefined) delete globalThis.SillyTavern; else globalThis.SillyTavern = savedTavern;
     if (savedBlock === undefined) delete globalThis.StoryBlock; else globalThis.StoryBlock = savedBlock;
   }
 });
 
-test('the way back waits for the settings host that appears after the extension entry runs', async () => {
-  const doc = page();
-  const host = doc.getElementById('extensions_settings2');
-  host.remove();
-  const pending = start(doc, fakeCtx(), fakeStorage(true));
-  await new Promise(resolve => setTimeout(resolve, 30));
-  doc.body.appendChild(host);
-  assert.equal((await pending).isOn(), false);
-  assert.ok(doc.querySelector('#story-suite-old-view'));
-});
-
-test('the one manifest names the root entry and suite.css; suite.css lists the hide sheet, which names every old furniture class, scoped to the body class', () => {
+test('the one manifest names the root entry and suite.css; suite.css lists the font and drawer sheets and no old view sheet', () => {
   const manifest = JSON.parse(fs.readFileSync(new URL('../../manifest.json', import.meta.url), 'utf8'));
   assert.equal(manifest.js, 'index.js');
   assert.equal(manifest.css, 'suite.css');
   assert.equal(fs.existsSync(new URL('../../ui/manifest.json', import.meta.url)), false);
   assert.equal(fs.existsSync(new URL('../../ui/st-entry.js', import.meta.url)), false);
-  assert.match(fs.readFileSync(new URL('../../suite.css', import.meta.url), 'utf8'), /@import url\('\.\/ui\/css\/next-hide\.css'\)/);
-  const css = fs.readFileSync(new URL('../../ui/css/next-hide.css', import.meta.url), 'utf8');
-  for (const sel of ['.story-suite-bar', '.ss-cards', '.ss-hud', '.story-suite-extras', '.story-suite-reply-note', '#story_suite_v2_menu', '.story-suite-drawer-buttons:not(#story-suite-next-drawer)', '.story-suite-hud-toggle', '.ss-send-note', '.rpg-fight-offer']) assert.ok(css.includes(`body.ss-ui-next ${sel}`), sel);
+  const css = fs.readFileSync(new URL('../../suite.css', import.meta.url), 'utf8');
+  assert.match(css, /@import url\('\.\/ui\/css\/fonts\.css'\)/);
+  assert.match(css, /@import url\('\.\/ui\/css\/drawer\.css'\)/);
+  assert.match(css, /@import url\('\.\/ui\/css\/tokens\.css'\)/);
+  assert.match(fs.readFileSync(new URL('../../ui/css/tokens.css', import.meta.url), 'utf8'), /--ss-text: var\(--SmartThemeBodyColor, CanvasText\);/, 'the battle log\'s page-level tokens');
+  assert.equal(/ui\/legacy|next-hide/.test(css), false);
+  assert.match(fs.readFileSync(new URL('../../ui/css/fonts.css', import.meta.url), 'utf8'), /url\('\.\.\/\.\.\/assets\/fonts\/nunito\/nunito-latin-400\.woff2'\)/);
+  assert.ok(fs.existsSync(new URL('../../assets/fonts/nunito/nunito-latin-400.woff2', import.meta.url)), 'the font path resolves from ui/css');
+});
+
+test('the drawer status names each started module once and skips hidden ones (NPC State registers a hidden twin)', async () => {
+  const doc = page();
+  const block = fakeBlock();
+  block.sdk.modules = () => [{ id: 'people', name: 'NPC State', hidden: true }, { id: 'npc', name: 'NPC State' }, { id: 'sb', name: 'Story Block' }, { id: 'sb2', name: 'Story Block' }];
+  const api = await start(doc, fakeCtx(), { StoryBlock: block });
+  const status = doc.querySelector('#story_suite_v2_drawer .inline-drawer-content').children[0].textContent;
+  assert.match(status, / · NPC State, Story Block$/);
+  api.stop();
+});
+
+test('start takes the stale storySuite.ui.oldView key away, and a storage that throws does not stop the view', async () => {
+  const saved = globalThis.localStorage;
+  const removed = [];
+  globalThis.localStorage = { getItem: () => '1', setItem() {}, removeItem: key => removed.push(key) };
+  try {
+    const api = await start(page(), fakeCtx());
+    assert.deepEqual(removed, ['storySuite.ui.oldView']);
+    api.stop();
+    globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() { throw new Error('storage blocked'); } };
+    const again = await start(page(), fakeCtx());
+    assert.equal(again.isOn(), true);
+    again.stop();
+  } finally {
+    if (saved === undefined) delete globalThis.localStorage; else globalThis.localStorage = saved;
+  }
 });

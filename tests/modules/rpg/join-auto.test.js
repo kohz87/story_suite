@@ -6,7 +6,6 @@ import { DM_OLD_ROOM } from "../../../modules/data-modules/schema.js";
 import { JOIN_ADD, checkJoin, partyOf } from "../../../modules/rpg/join.js";
 import { setRpgLib } from "../../../modules/rpg/rpg-lazy.js";
 import * as leanRpg from "../../../modules/rpg/index.js";
-import { partyLines } from "../../../modules/rpg/view/changes-lines.js";
 import { MARA, active, blocks, fields, lastAt, lastReceipts, make, packed, packedAsk, problems, rebuilt, reply, settled, skip, templateCharacter, world } from "./join.helpers.js";
 
 // ---- Automatically ------------------------------------------------------------------------------------------------------------------

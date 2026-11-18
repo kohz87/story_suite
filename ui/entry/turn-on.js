@@ -1,4 +1,4 @@
-// Mounts the new view on the Story Block port (styles, body class, menu entry, drawer buttons, chat surfaces, listeners) and returns the one function that removes it all.
+// Mounts the new view on the Story Block port (styles, menu entry, the Extensions drawer, chat surfaces, listeners) and returns the one function that removes it all.
 
 import { mountSuite } from '../mount.js';
 import { createSbPort } from '../port/sb-port.js';
@@ -11,11 +11,11 @@ import { liveOffer } from '../port/live-offer.js';
 import { packs as livePacks, refreshLore } from '../../packs/index.js';
 import { readCharacterLorebook } from '../../packs/st-adapter.js';
 import { isCarrier } from '../../core/persist.js';
-import { NEW_VIEW_CLASS } from './flag.js';
 import { addDrawerButtons, DRAWER_ROW_ID } from './drawer-buttons.js';
 import { createHold, showScreens } from '../port/hold.js';
 import { frameCoalesced } from '../runtime/redraw.js';
 import { attachWizard } from '../wizard/attach.js';
+import { SUITE_VERSION } from '../../core/version.js';
 
 const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings', 'wizard'];
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses.
@@ -23,6 +23,9 @@ const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharact
 const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 // The screen the RPG opens for a fight (the waiting pause, Send while it waits, a fight begun): shown here as the Fight tab, never as the old view's screen.
 const FIGHT_SCREEN = 'story-block/fight';
+
+// The drawer's status line: the version and the modules that started.
+const drawerStatus = sdk => { let names = []; try { names = [...new Set((sdk?.modules?.() ?? []).filter(module => !module.hidden).map(module => module.name))]; } catch { names = []; } return `Story Suite ${SUITE_VERSION} · ${names.join(', ')}`; };
 
 function addStyles(doc, base) {
   return STYLES.map(name => {
@@ -35,15 +38,14 @@ function addStyles(doc, base) {
   });
 }
 
-// Draws the new view and returns the one function that takes it all away again. `onOldView(on)` is Settings › Tools › Developer tools › Use the old view.
-export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
+// Draws the new view and returns the one function that takes it all away again.
+export function turnOn({ doc, base, ctx, StoryBlock }) {
   const links = addStyles(doc, base);
-  doc.body.classList.add(NEW_VIEW_CLASS);
   const prefs = { chat: chatPrefs(ctx), device: settingsFolds() };
   const hold = createHold(doc);
   const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, hold, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools, hold), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, screens: { open: (...args) => wizard?.open(...args) ?? false }, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
-  const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow', look: () => StoryBlock.sdk?.settings?.(), onOldView });
-  // The New character wizard and the first-send hold (the port's `open` reaches it first: the old host's window never opens too).
+  const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow', look: () => StoryBlock.sdk?.settings?.() });
+  // The New character wizard and the first-send hold (the port's `open` reaches it first).
   const wizard = attachWizard({ doc, ctx, sdk: StoryBlock.sdk, suite });
   const entry = addMenuEntry(doc, { label: 'Story Suite', onClick: () => suite.open('now') });
   const offScreens = showScreens(doc, id => { if (id !== FIGHT_SCREEN) return false; suite.open(port.view('fight') ? 'fight' : 'now'); return true; });
@@ -58,7 +60,7 @@ export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
   let button = null;
   let sheet = null;
   const refresh = () => {
-    addDrawerButtons(doc, { onSettings: () => { suite.open('now'); suite.settings(); }, onOpen: () => suite.open('now') });
+    addDrawerButtons(doc, { onSettings: () => { suite.open('now'); suite.settings(); }, onOpen: () => suite.open('now'), title: `Story Suite ${SUITE_VERSION}`, status: drawerStatus(StoryBlock.sdk) });
     const vm = port.view('chat');
     surfaces.refresh(vm);
     const bar = [...doc.querySelectorAll('#chat .mes .extraMesButtons')].pop() ?? null;
@@ -105,6 +107,5 @@ export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
     sheet?.remove();
     drawerHost.remove();
     for (const link of links) link.remove();
-    doc.body.classList.remove(NEW_VIEW_CLASS);
   };
 }

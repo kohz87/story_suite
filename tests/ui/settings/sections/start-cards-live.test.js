@@ -21,7 +21,7 @@ async function live(t, { withTools = true } = {}) {
   t.mock.method(console, 'warn', () => {});
   const host = await createHost({ modules: [storyDirectorModule] });
   t.after(() => host.close());
-  const tools = withTools ? createToolsHandle({ runtime: host, ui: () => null }) : null;
+  const tools = withTools ? createToolsHandle({ runtime: host }) : null;
   const writes = { settings: { set: (id, key, value) => host.settings.set(id, key, value), keep() {}, kept: () => null }, features: { set: (id, on) => host.features.set(id, on) } };
   const port = createSbPort({ sdk: host.sdk, writes, tools, selectors: buildSelectors(() => null, host.sdk, tools) });
   const doc = installFakeDom();

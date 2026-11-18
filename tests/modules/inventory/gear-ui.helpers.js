@@ -1,12 +1,9 @@
-import assert from 'node:assert/strict';
 import { inventoryScreen } from '../../../packs/screens/defaults/index.js';
 import { createCoreModule } from '../../../modules/scene/domains/index.js';
 import { createHarness } from './helpers/fake-ctx.js';
 import { stocked } from './fixtures.js';
 import { destroyTemplate } from '../../../packs/template/render.js';
-import { show, settle } from '../../ui/screens/helpers.js';
-import { page } from '../rpg/view/page.js';
-import { reply } from '../../core/helpers/gear-ui-state.js';
+import { show } from '../../ui/screens/helpers.js';
 import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../packs/screens/defaults/inventory-add.js';
 
 export const draw = (host, options = {}) => show(inventoryScreen, { state: host.head(), query: host.sdk.query, draft: { wornOpen: '1' }, command: (type, payload, opts) => host.sdk.command(type, payload, opts), ...options });   // (Worn opened: every piece has its row)
@@ -59,31 +56,6 @@ export function twoSwords(wear = null) {
     return { h: createHarness([module], { state }), inv };
 }
 export const pieces = inv => Object.values(inv.stacks).filter(item => item.def === 'pack.fantasy/iron-sword');
-
-// The game view mounts the Inventory screen too: its body redraws from `committed` through the same hold as the panel's.
-export async function gameForm(t, wrap = null) {
-    t.mock.method(console, 'warn', () => {});
-    // These tests edit the List rows: this device's saved view is List (Grid is the default).
-    const had = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
-    Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: { getItem: key => (key === 'story-block.inventoryView' ? 'list' : null), setItem() {}, removeItem() {} } });
-    t.after(() => { if (had) Object.defineProperty(globalThis, 'localStorage', had); else delete globalThis.localStorage; });
-    const { doc, host, ui } = await page(t, { wrap });
-    host.features.set('story-block.gear', true);
-    await host.send('Hello.', 'The road.');
-    await host.send('Loot.', reply('Gear.', ['+ item Iron Sword | slot: weapon']));
-    assert.equal(ui.mounts.screen.open('story-block/inventory'), true);
-    await settle();
-    const screen = () => doc.querySelector('.ss-gameview [data-ss-screen="story-block/inventory"]');
-    const fresh = () => rowOf(screen(), 'Iron Sword');
-    const row = fresh();
-    row.querySelector('.ss-w-editable-pencil').click();
-    return { host, row, fresh, screen };
-}
-export const fill = row => {
-    row.querySelectorAll('input')[2].value = 'keen';
-    row.querySelectorAll('select')[1].value = 'party';
-    row.querySelector('.ss-w-editable-save').click();
-};
 
 export const BAG = ['+ item Skinner Billhook | rarity: uncommon | slot: weapon', '+ item Grey Hood | slot: head'];
 export const names = list => list.map(item => item.querySelector('.name').textContent);

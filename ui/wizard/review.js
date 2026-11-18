@@ -1,6 +1,6 @@
 // The wizard's Review step in the new view: everything at a glance, what else Create adds, what stops it, and Create itself, which runs
 // modules/rpg's create-run.js (the old Review step's commands, in its order). A character made with a block or a thing left out shows that
-// sentence and Done; a clean Create closes the sheet. The words are the old step's (modules/rpg/view/wizard/review.js).
+// sentence and Done; a clean Create closes the sheet. The words are the old step's.
 
 import { h } from '../kit/dom.js';
 import { button } from '../kit/controls.js';

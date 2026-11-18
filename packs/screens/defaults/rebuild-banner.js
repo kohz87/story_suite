@@ -13,7 +13,7 @@
 // or stopped). `replyOf(messageIndex)` turns the scan marker into the reply number the reader counts. The banner polls `catchUp()` through
 // `every(fn, ms)` (→ a stop function) only while something is reading.
 //
-// ui-host.js passes `blocked()` (the timeline's current block: { reason, code, blockedBy: { module, code } } or
+// the host passes `blocked()` (the timeline's current block: { reason, code, blockedBy: { module, code } } or
 // null), `rebuild(module, { read })`, `progress()` ({ reply, total } or null), `last()` (the last rebuilt result) and
 // `dismiss(result)` (optional). It redraws on the host's head, committed, turn, feature and timeline events.
 //

@@ -19,16 +19,16 @@ const at = (...parts) => path.join(out, 'x', ...parts);
 
 test('the play build copies the stylesheets and fonts to the same path they have in the source tree', () => {
   for (const file of [
-    'manifest.json', 'suite.css', 'modules/rpg/view/lean-rpg.css', 'modules/rpg/board/board.css', 'assets/fonts/nunito/nunito-latin-400.woff2', 'ui/legacy/view/host.css', 'ui/css/next-hide.css',
+    'manifest.json', 'suite.css', 'modules/rpg/view/lean-rpg.css', 'modules/rpg/view/bars.css', 'modules/rpg/view/check-card.css', 'assets/fonts/nunito/nunito-latin-400.woff2', 'ui/css/fonts.css', 'ui/css/tokens.css', 'ui/css/drawer.css',
   ]) assert.ok(fs.existsSync(at(file)), `${file} is in the build`);
 });
 
 test('the bundle names a module by its path from the extension folder, so a stylesheet beside it resolves to the copied file', () => {
-  const view = fs.readdirSync(at()).find(name => /^view-.*\.js$/.test(name));
-  const code = fs.readFileSync(at(view), 'utf8');
-  assert.match(code, /new URL\("modules\/rpg\/view\/index-parts\/mount\.js", import\.meta\.url\)/);
-  const base = at('modules/rpg/view/index-parts/');
-  for (const sheet of ['../lean-rpg.css', '../bars.css', '../check-card.css', '../../board/board.css', '../../board/fight-start.css']) {
+  const live = fs.readdirSync(at()).find(name => /^live-.*\.js$/.test(name));
+  const code = fs.readFileSync(at(live), 'utf8');
+  assert.match(code, /new URL\("modules\/rpg\/live\/index\.js", import\.meta\.url\)/);
+  const base = at('modules/rpg/live/');
+  for (const sheet of ['../view/lean-rpg.css', '../view/bars.css', '../view/check-card.css']) {
     assert.ok(fs.existsSync(path.resolve(base, sheet)), `${sheet} resolves`);
   }
 });

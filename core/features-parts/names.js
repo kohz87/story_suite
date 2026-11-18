@@ -2,7 +2,7 @@
 
 export const FEATURE_OFF = 'FEATURE_OFF';
 
-// The gear switch (inventory.js FEATURE.gear): shown with the RPG settings, not in the Features list (ui-host.js hides it there).
+// The gear switch (inventory.js FEATURE.gear): shown with the RPG settings, not in the Features list.
 export const GEAR_FEATURE = 'story-block.gear';
 
 // Story Block's own features (src/v2/domains/index.js declares them).

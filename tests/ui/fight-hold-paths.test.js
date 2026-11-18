@@ -46,8 +46,8 @@ test('a reload into a waiting fight shows its offer; a reload with the board cho
   assert.equal(box(host).start?.choice, null, 'Discard still answers the pause (the offer is back)');
 });
 
-test('Send from the chat while the suite is closed and the message waits opens the new view\'s Fight tab, not the old screen', async t => {
-  const { doc, host, ui } = await livePage(t, { seed: 4803 });
+test('Send from the chat while the suite is closed and the message waits opens the new view\'s Fight tab', async t => {
+  const { doc, host } = await livePage(t, { seed: 4803 });
   holdFight(host);
   await settled();
   doc.querySelector('.su-dim').click();
@@ -60,7 +60,6 @@ test('Send from the chat while the suite is closed and the message waits opens t
   await settled();
   assert.equal(layer(doc), 'open');
   assert.equal(doc.querySelector('.su-panel').getAttribute('data-tab'), 'fight');
-  assert.equal(ui.mounts.screen.current?.() ?? null, null, 'the old screen stayed shut');
 });
 
 test('Auto-fight on a known-foe pause plays the board in the new view, as the old pause\'s Auto does', async t => {

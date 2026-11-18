@@ -15,7 +15,7 @@ import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
 import { SCENE_SPOILERS } from './select/director-rows.js';
 import { PANELBG_KEY, applyPanelBg } from './settings/panel-bg.js';
-import { DEVELOPER_KEY, OLD_VIEW_KEY } from './settings/developer.js';
+import { DEVELOPER_KEY } from './settings/developer.js';
 import { leaveTrackerIntent } from './tabs/story/tracker-intent.js';
 
 // SillyTavern's theme variables, read on <html> (follow-st.js reads the same).
@@ -47,7 +47,7 @@ function readFlags(port, override) {
 /**
  * Mounts the suite. Options: `port` (required), `doc`, `host`, `flags` ({ rpg, fightOpen } overrides),
  * `theme` ('dark' | 'light' | 'follow'), `tabs` (id → (view, ctx) => node), `card` ((view, ctx) => node),
- * `schedule` (frame scheduler for tests), `initial` (first tab), `onOldView(on)` (Settings › Tools › Developer tools › Use the old view),
+ * `schedule` (frame scheduler for tests), `initial` (first tab),
  * `look` (() → the host settings: Settings › Look's Panel style, Glass strength, Font and Text size decide the theme in place of `theme`, read again
  * on open, after every Settings change and when SillyTavern's theme changes). Returns `{ open(tab), close(), settings(), destroy(), ... }`.
  */
@@ -72,7 +72,7 @@ export function mountSuite(options = {}) {
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
-      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === OLD_VIEW_KEY ? options.onOldView?.(Boolean(value)) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
       onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();

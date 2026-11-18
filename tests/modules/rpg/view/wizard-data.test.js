@@ -1,11 +1,10 @@
-// The New character wizard (src/v2/lean-rpg/view/wizard.js and wizard-data.js, mockup 41-wizard): the data: draft, budget, skills, sets, problems, definitions, room, screen.
+// The New character wizard (modules/rpg/view/wizard-data.js): the data: draft, budget, skills, sets, problems, definitions, room.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DM_OLD_ROOM } from '../../../../modules/data-modules/schema.js';
 import { validateDataModules } from '../../../../modules/data-modules/check.js';
 import { STATS } from '../../../../modules/rpg/index.js';
 import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES, SKILL_SETS } from '../../../../modules/rpg/templates.js';
-import { createWizardScreen, WIZARD_SCREEN_ID, WIZARD_WIDGET } from '../../../../modules/rpg/view/wizard.js';
 import { adeptCount, blockNames, buildDefinitions, hasRoom, mayStartAdept, newDraft, pointsLeft, problemsOf, readDraft, setLine, skillSetsOf, statsLine, withSet, withSkill,
     withSkillPatch, withoutSkill } from '../../../../modules/rpg/view/wizard-data.js';
 import { CHECK, FIGHTER } from './wizard.helpers.js';
@@ -119,13 +118,4 @@ test('room for two more blocks: a story holds at most twenty of its own', () => 
     assert.equal(hasRoom(state(7), DM_OLD_ROOM), false, 'a reply from before the room mark: eight');
     assert.equal(hasRoom(state(6), DM_OLD_ROOM), true);
     assert.equal(hasRoom(null), true, 'no story yet');
-});
-
-test('the screen: a wide dialog with four steps, Who, Stats, Skills, Review, each the wizard widget', () => {
-    const screen = createWizardScreen();
-    assert.equal(screen.id, WIZARD_SCREEN_ID);
-    assert.deepEqual([screen.mounts, screen.width, screen.title], [['dialog'], 'wide', 'New character']);
-    assert.deepEqual(screen.steps.map(step => [step.id, step.title]), [['who', 'Who'], ['stats', 'Stats'], ['skills', 'Skills'], ['review', 'Review']]);
-    for (const step of screen.steps) assert.match(step.template, new RegExp(`name="${WIZARD_WIDGET}" data-props='\\{"step":"${step.id}"\\}'`));
-    assert.equal(WIZARD_WIDGET, 'rpg.wizard');
 });

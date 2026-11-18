@@ -7,7 +7,6 @@ import { createHost } from '../../../testkit/index.js';
 import { createCoreModule } from '../../../modules/scene/domains/index.js';
 import { createHarness } from './helpers/fake-ctx.js';
 import { settle, text } from '../../ui/screens/helpers.js';
-import { page } from '../rpg/view/page.js';
 import { FIGHT, dump, gearHost } from '../../core/helpers/gear-ui-state.js';
 import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../packs/screens/defaults/inventory-add.js';
 import { BAG, buttonsOf, crewState, draw, foldWidgets, groupRows, headings, memory, names, rowOf } from './gear-ui.helpers.js';
@@ -113,21 +112,6 @@ test('gear.view: the persona is the main wearer, members follow; the breakdown, 
     assert.equal(own.owner, 'party', 'the reader\'s own card is the party\'s bag');
     assert.deepEqual(Object.values(h.query('gear.view', { who: 'Nobody' }).slots).filter(Boolean), [], 'an unknown name wears nothing');
     assert.equal(createHarness([createCoreModule({ hooks: () => [], settings: () => ({}) })], { state }).query('gear.view', {}), null, 'off: nothing');
-});
-
-test('Settings, RPG: the Gear in fights card sits after the Stat formula, with On and Off buttons like Rolls, and its words', async t => {
-    const ctx = await page(t, { feature: true });
-    const win = ctx.ui.openSettings();
-    win.select('rpg');
-    await settle();
-    const root = ctx.doc.querySelector('[data-ss-section="rpg"]');
-    assert.deepEqual(root.querySelectorAll('.rpg-set-title').slice(0, 4).map(node => node.textContent), ['Stat formula', 'Levels and practice', 'Gear in fights', 'Rolls']);
-    const card = root.querySelector('[data-card="gear"]');
-    assert.deepEqual(card.querySelectorAll('.rpg-chip').map(node => node.textContent), ['On', 'Off']);
-    assert.equal(card.querySelector('[aria-pressed="true"]').textContent, 'Off', 'off until the reader switches it on');
-    assert.match(card.textContent, /^Gear in fightsOnOffOn: worn gear adds stat points by rarity \(common \+0 up to legendary \+4\); .* Off: fights run as before; items, rarity and slots are kept\.$/);
-    assert.equal(root.querySelector('[data-card="rolls"]').querySelectorAll('.rpg-chip').length, 0, 'Rolls has no choices of its own now: Story checks only');
-    assert.equal(root.querySelector('[data-card="checks"] [role="switch"]').getAttribute('aria-checked'), 'true', 'Story checks has its own default-on switch');
 });
 
 test('Inventory, gear on: Equipment lists only the pieces nobody wears, each keeping its bonus, condition and rarity colour, with Equip; Carry still counts everything', async t => {

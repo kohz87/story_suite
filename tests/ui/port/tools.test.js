@@ -29,8 +29,8 @@ test('the handle reads the live engine on every call (swipe, delete, rewind, rel
   let list = [{ index: 4 }];
   let problems = [{ code: 'A' }];
   const rt = runtime({ turn: { problems: () => problems, preview: () => [{ module: 'm', place: 'tail', text: 'abcdefgh' }] } });
-  const ui = { inspector: { replies: () => list, reply: i => ({ ok: true, index: i }) } };
-  const handle = createToolsHandle({ runtime: rt, ui: () => ui });
+  const parts = { inspector: { replies: () => list, reply: i => ({ ok: true, index: i }) }, report: async () => 'the report' };
+  const handle = createToolsHandle({ runtime: rt, toolsParts: () => parts });
   assert.deepEqual(handle.replies(), [{ index: 4 }]);
   list = [{ index: 4 }, { index: 7 }];
   assert.equal(handle.replies().length, 2);
@@ -39,11 +39,22 @@ test('the handle reads the live engine on every call (swipe, delete, rewind, rel
   assert.equal(handle.problems().length, 0);
   assert.equal(handle.sent().budget, 700);
   assert.equal(handle.nameOf('x'), 'Mod x');
+  assert.deepEqual(handle.reply(7), { ok: true, index: 7 });
+});
+
+test('the report and the Inspector come from boot\'s Tools parts (core/boot/tools-parts.js), read on each call', async () => {
+  let parts = null;
+  const handle = createToolsHandle({ runtime: runtime(), toolsParts: () => parts });
+  assert.equal(await handle.report(), '');
+  assert.deepEqual(handle.replies(), []);
+  parts = { inspector: { replies: () => [{ index: 2 }], reply: () => null }, report: async () => 'Story Suite report' };
+  assert.equal(await handle.report(), 'Story Suite report');
+  assert.deepEqual(handle.replies(), [{ index: 2 }]);
 });
 
 test('a throwing engine is a gap, never an error; rebuild goes to the timeline with the read', async () => {
   const bad = runtime({ turn: { problems: () => { throw new Error('x'); }, preview: () => { throw new Error('x'); } } });
-  const handle = createToolsHandle({ runtime: bad, ui: () => null });
+  const handle = createToolsHandle({ runtime: bad, toolsParts: () => null });
   assert.deepEqual([handle.sent(), handle.problems(), handle.replies(), handle.reply(1), handle.blocked()], [null, [], [], null, null]);
   assert.equal(await handle.report(), '');
   assert.deepEqual(await handle.rebuild('npc', 'all'), { ok: true, m: 'npc', i: { read: 'all' } });

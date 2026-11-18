@@ -1,4 +1,4 @@
-// Boot builds the card offer and the save points once, for both views: the Tools handle and the live offer reach the same instances the old view is given.
+// Boot builds the card offer and the save points once: the Tools handle and the live offer reach the same instances.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createFakeContext } from '../../../testkit/index.js';
@@ -7,7 +7,7 @@ import { boot } from '../../../core/boot/boot.js';
 import { liveOffer, setLiveOffer } from '../../../ui/port/live-offer.js';
 import { selectSavePoints } from '../../../ui/select/tools.js';
 
-test('after boot the live offer and the Tools handle\'s save points exist, and the old view shares them', async t => {
+test('after boot the live offer and the Tools handle\'s save points exist', async t => {
   const doc = setupDom();
   doc.head = doc.createElement('head');
   const st = createFakeContext();
@@ -23,7 +23,7 @@ test('after boot the live offer and the Tools handle\'s save points exist, and t
   globalThis.toastr = { warning() {}, info() {}, error() {} };
   assert.equal(await boot(), true);
   await globalThis.StoryBlock.ready;
-  assert.ok(liveOffer(), 'the controller exists whatever the old view did');
+  assert.ok(liveOffer(), 'the controller exists');
   const read = globalThis.StoryBlock.tools.savePoints();
   assert.equal(read.on, true, 'the feature is on by default');
   assert.deepEqual(read.points, []);

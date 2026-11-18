@@ -1,10 +1,9 @@
-# The core-module gate's allow-list (scripts/checks/core-module-refs.mjs): lines in the core's turn, prompt, sdk, registry, commands, interaction and old-view host code
+# The core-module gate's allow-list (scripts/checks/core-module-refs.mjs): lines in the core's turn, prompt, sdk, registry, commands, interaction code
 # that still name an RPG or fight-board word. One entry per line: "<path> :: <the line's code, comment cut, trimmed>". The list may only shrink: a line that
 # is gone or reworded must leave it, and no entry may be added (CI compares it with the base's list).
 # Reasons for what is left (INTERACTION-PLAN I9):
 #   * the lazy RPG loader and its wait (rpgLib, RPG_LOAD_WAIT_MS, the RPG's names) until the RPG is a plain module;
 #   * the pre-port compatibility lines (INTERACTION-PLAN 6.4: RPG_RESOLVE blocks, payload.board, pre-port-fight.js) until C11;
-#   * the old-view wording 'Open fight board' and the host's RPG screens (ui/legacy), until the Suite view replaces that host;
 #   * partyKinds / START_KINDS / the board seed line (interaction/policy.js, start.js, dice.js): owner Q1 and the board-only chooser until I8 / C6;
 #   * the board-named stop and pass-through names (boardStop, stopChangedBoard) still threaded through the turn: to be renamed when the RPG tail reads the generic stop.
 core/commands/guards.js :: .filter(def => typeof def?.hooks?.replayGuard === 'function' && def.hooks.replayGuard.hostOwned !== true && registry.held?.(def.id) !== true).map(def => `${def.id}@${def.version ?? ''}`).join(',')}${rpgLib() ? '' : ';rpg:missing'}${kindsMark()}`;
@@ -87,8 +86,3 @@ core/turn/prompt-build.js :: return { cues, prechecks, previewState, boardStop, 
 core/turn/prompt-build.js :: s.abortBoard = abort;
 core/turn/session.js :: if (planned?.ok === false && planned.code === 'NO_LONGER_DONE' && receipt.replan?.payload?.board) {
 core/turn/session.js :: problem({ code: 'FIGHT_TAKEN_BACK', message: `A fight on the board was taken back because the story before it changed: ${planned.message ?? 'the sheet or gear is not what it was.'}` });
-ui/legacy/ui-host.js :: import { createLeanRpgSync } from './ui-host/lean-rpg-sync.js';
-ui/legacy/ui-host/send-note.js :: interactionHeld: 'Your fight hasn\'t been sent yet',
-ui/legacy/ui-host/send-note.js :: openHeld: 'Open fight board',
-ui/legacy/ui-host/setup.js :: [RPG_START_WIDGET]: Object.freeze({
-ui/legacy/ui-host/setup.js :: import { RPG_START_WIDGET } from '../screens/home.js';

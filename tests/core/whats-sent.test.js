@@ -13,9 +13,8 @@ import { createHost } from '../../testkit/index.js';
 import { DEFAULT_CONTEXT_SHARE, MIN_TAIL_BUDGET, contextFit, estimateTokens } from '../../core/prompt.js';
 import { createRegistry } from '../../core/registry.js';
 import { createSettings } from '../../core/sdk.js';
-import { SENT_FOLD, SETTINGS_TEXT, promptSize, sentText } from '../../ui/legacy/host-ui.js';
-import { createPromptReader, renderPromptCard } from '../../ui/legacy/view/settings/prompt.js';
-import { installFakeDom } from '../helpers/ui-fake-dom.js';
+import { SETTINGS_TEXT } from '../../core/settings-text/text.js';
+import { promptSize, sentText } from '../../core/sent/sent.js';
 
 const T = SETTINGS_TEXT.sent;
 
@@ -151,16 +150,6 @@ test('previewing never sends or stores anything', async t => {
     assert.equal(JSON.stringify(h.head()), head, 'the state is as it was');
 });
 
-// ---- the Prompt card of the Tabs & Packs page (it replaced the Story Suite fold) ----
-
-// The card over a fake DOM: `host.refresh()` and `host.refreshSize()` read the prompt again, as the window does.
-function drawCard(doc, { registry, settings, promptParts, countTokens = null, openState = new Map() }) {
-    const root = doc.createElement('div');
-    const reader = createPromptReader({ registry, settings, promptParts, countTokens });
-    const card = renderPromptCard(root, { doc, settings, reader, openState });
-    return { root, card, host: { refresh: card.refresh, refreshSize: card.refresh } };
-}
-
 const parts = [
     { module: 'story-suite', label: 'Story Suite: instructions', place: 'static', text: 'HEADER line\nsecond line' },
     { module: 'rpg-battle', label: 'RPG Battle: instructions', place: 'static', text: 'RB rules.' },
@@ -184,113 +173,21 @@ test('sentText: each place\'s parts, and Copy\'s text joined as prompt.js joins 
     assert.equal(sentText([], []).copy, '', 'nothing to copy');
 });
 
-// Opens the "Show what's sent" fold as a click on its summary does (its texts are drawn then).
-function openSent(root) {
-    const sent = root.querySelector('.story-suite-sent');
-    sent.open = true;
-    sent.dispatch('toggle');
-    return sent;
-}
-
-function renderFold({ withOwn = true, clipboard = undefined } = {}) {
-    const doc = installFakeDom();
-    if (clipboard !== undefined) doc.defaultView = { navigator: { clipboard } };
-    const registry = createRegistry();
-    const es = {};
-    const settings = createSettings({ root: () => es, registry, save: () => {} });
-    const openState = new Map();
-    let calls = 0;
-    const { root, host } = drawCard(doc, { registry, settings, openState, promptParts: () => { calls += 1; return withOwn ? { parts, fit: null, own } : { parts, fit: null }; } });
-    return { doc, root, host, openState, calls: () => calls };
-}
-
-test('the prompt size shows a module\'s own prompt as a row of its own, counted in the total', () => {
-    const { root } = renderFold();
-    const size = root.querySelector('.story-suite-size');
-    const row = size.querySelector('.story-suite-size-own');
-    assert.equal(row.dataset.module, 'npc-state-delta');
-    assert.equal(row.querySelector('span').textContent, fill(SETTINGS_TEXT.size.own, { name: 'npc-state-delta' }));
+test('the prompt size counts a module\'s own prompt in the total, and an older source with no `own` has none', () => {
     const n = estimateTokens(own[0].text);
-    assert.equal(row.querySelector('b').textContent, `about ${n} tokens`);
     const expected = promptSize(parts, { own });
     assert.equal(expected.total, expected.static + expected.tail + n);
-    assert.equal(size.querySelector('.story-suite-size-total b').textContent, `about ${expected.total.toLocaleString('en-US')} tokens`);
-    // An older source with no `own`: no such row.
-    const old = renderFold({ withOwn: false }).root.querySelector('.story-suite-size');
-    assert.equal(old.querySelector('.story-suite-size-own'), null);
-});
-const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, key) => values[key]);
-
-test('Show what\'s sent: closed at first, every part\'s exact text by place, stays open across redraws', () => {
-    const { root, host, openState } = renderFold();
-    const closed = root.querySelector('.story-suite-sent');
-    assert.ok(closed, 'drawn under the prompt size');
-    assert.equal(closed.dataset.fold, SENT_FOLD);
-    assert.equal(closed.open, false, 'closed until the reader opens it');
-    assert.equal(closed.querySelector('summary b').textContent, T.title);
-    assert.equal(closed.querySelectorAll('pre').length, 0, 'no text drawn while closed');
-    const sent = openSent(root);
-    const sections = sent.querySelectorAll('.story-suite-sent-section');
-    assert.deepEqual(sections.map(node => node.dataset.place), ['static', 'tail', 'own']);
-    const pres = sent.querySelectorAll('pre.story-suite-sent-text').map(node => node.textContent);
-    assert.deepEqual(pres, ['HEADER line\nsecond line', 'RB rules.', '[Happened]\nA wolf ran off.', 'HP 10/12.', 'Mira: IDENTITY quiet smith.'], 'the texts as they are, empty ones left out');
-    assert.deepEqual(sent.querySelectorAll('.story-suite-sent-dropped').map(node => node.textContent), [fill(T.dropped, { n: 2 }), T.droppedOne]);
-    assert.match(sent.querySelector('.story-suite-sent-head').textContent, /Story Suite: instructions · about \d+ tokens/);
-    // Opened, then the size is drawn again (a reply came, a setting changed): still open, texts drawn.
-    assert.equal(openState.get(SENT_FOLD), true);
-    host.refreshSize();
-    assert.equal(root.querySelector('.story-suite-sent').open, true);
-    assert.equal(root.querySelector('.story-suite-sent').querySelectorAll('pre').length, 5);
-    host.refresh();
-    assert.equal(root.querySelector('.story-suite-sent').open, true, 'and across a whole redraw');
+    assert.equal(promptSize(parts, {}).total, expected.total - n);
 });
 
-test('Show what\'s sent: no own prompt, no such section; nothing in a place says so', () => {
-    const doc = installFakeDom();
-    const registry = createRegistry();
-    const es = {};
-    const settings = createSettings({ root: () => es, registry, save: () => {} });
-    const { root } = drawCard(doc, { registry, settings, promptParts: () => ({ parts: [parts[0]], fit: null }) });
-    openSent(root);
-    const sections = root.querySelectorAll('.story-suite-sent-section');
-    assert.deepEqual(sections.map(node => node.dataset.place), ['static', 'tail']);
-    assert.equal(sections[1].querySelector('p').textContent, T.nothing);
-});
-
-test('Copy: the whole text to the clipboard; without one the text is selected and the reader told', async () => {
-    let copied = null;
-    const { root } = renderFold({ clipboard: { writeText: async text => { copied = text; } } });
-    openSent(root);
-    const copy = root.querySelector('.story-suite-sent-copy');
-    assert.equal(copy.textContent, T.copy);
-    copy.click();
-    await new Promise(resolve => setImmediate(resolve));
-    assert.equal(copied, sentText(parts, own, { names: id => id }).copy);
-    assert.equal(root.querySelector('.story-suite-sent-status').textContent, T.copied);
-
-    const none = renderFold({ clipboard: null }).root;
-    openSent(none);
-    none.querySelector('.story-suite-sent-copy').click();
-    await new Promise(resolve => setImmediate(resolve));
-    assert.equal(none.querySelector('.story-suite-sent-status').textContent, T.copyFailed);
-});
-
-test('the fold reads the prompt once per drawing and sends nothing', async t => {
+test('reading the prompt for the fold sends nothing, and holds the real static header and the module\'s own text', async t => {
     const h = await host(t, [talker, sender(200)]);
     await h.send('I wait.', 'Rain.');
     const log = h.st.promptLog.length;
-    const doc = installFakeDom();
-    let calls = 0;
-    const { root } = drawCard(doc, { registry: h.registry, settings: h.settings, promptParts: () => { calls += 1; return h.turn.previewFit(); } });
-    assert.equal(calls, 1);
-    const sent = openSent(root);
-    assert.equal(calls, 1, 'opening draws what was read');
-    const pres = sent.querySelectorAll('pre.story-suite-sent-text').map(node => node.textContent);
-    assert.ok(pres.some(text => text.startsWith('[Story Suite: how this story is kept]')), 'the real static header');
-    assert.ok(pres.some(text => text.startsWith('Dossier for ')), 'the module\'s own text');
+    const read = h.turn.previewFit();
+    const shown = sentText(read.parts, read.own ?? [], { names: id => id });
+    const texts = [...shown.static, ...shown.tail, ...shown.own].map(part => part.text);
+    assert.ok(texts.some(text => text.startsWith('[Story Suite: how this story is kept]')), 'the real static header');
+    assert.ok(texts.some(text => text.startsWith('Dossier for ')), 'the module\'s own text');
     assert.equal(h.st.promptLog.length, log);
-    // The size row and the fit's share say the same about the module's text.
-    const row = root.querySelector('.story-suite-size-own');
-    assert.equal(row.dataset.module, 'zz-own');
-    assert.equal(row.querySelector('span').textContent, fill(SETTINGS_TEXT.size.own, { name: 'Own Sender' }));
 });
