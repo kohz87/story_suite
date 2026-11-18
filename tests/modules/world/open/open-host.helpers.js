@@ -8,7 +8,6 @@ import { overrideWorld } from '../../../../modules/world/chronicle/world-daily/r
 import { openAsker } from '../../../../modules/world/chronicle/world-daily/open-ask.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
 import { FEATURE } from '../daily/daily-host.helpers.js';
-import { slotValue } from '../../../../modules/rpg/slot.js';
 
 export { FEATURE };
 export const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
@@ -80,8 +79,8 @@ export async function openHost(model = fakeModel(), world = WORLD) {
 }
 
 export const chronicle = host => host.head().domains.chronicle;
-export const dailyOf = host => slotValue(chronicle(host).daily) ?? null;
-export const ledgerOpen = host => slotValue(chronicle(host).ledger)?.open ?? null;
+export const dailyOf = host => chronicle(host).daily?.[0] ?? null;
+export const ledgerOpen = host => chronicle(host).ledger?.[0]?.open ?? null;
 export const slotRows = host => Object.values(dailyOf(host)?.slots ?? {});
 export const worldOf = host => JSON.stringify({ daily: chronicle(host).daily ?? null, conditions: chronicle(host).conditions ?? null, ledger: chronicle(host).ledger ?? null, time: host.head().domains.director?.time?.minutes ?? null });
 

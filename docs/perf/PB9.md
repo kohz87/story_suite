@@ -16,3 +16,7 @@ Files (start here; touch only what the fix needs): `modules/world/chronicle/worl
 6. `npm run codemap`; run `tests/modules/world` and the touched folders; `npm run check` (exit 0).
 7. Plain commit message (no Co-Authored-By, no model names); `git push origin perf/pb9`. No pull request.
 8. Report: numbers before/after, files changed, replay tests, anything not done.
+
+## Status (after review REVPB9)
+- **L1 is built.** The open templates' asking ahead runs after the reply (`afterReceive`, `open-store.js` `openAfterReceive`), from the state the reply's step left, one day on; `hook.js` only checks whether a waiting slot's answer is stored. A one-year skip runs 367 world days (365 plus two one-day look-aheads), not 732. A Re-read no longer starts the asking ahead; the next reply asks.
+- **L7 is not built (reverted).** Writing only what each step changed, with a whole copy every 10 story days, broke the state after an edit: deleting or shrinking the reply right after a 10-day crossing put the step back at the period's first day, and a delete or an edited Re-read between crossings left a mixed state (some of the deleted reply's changes gone, the rest kept). Each step writes its whole state again (`chronicle.daily` and `chronicle.ledger` are slots, as on next), so a delete or an edited Re-read keeps the state the later replies recorded. `tests/modules/world/daily/pb9-edits.test.js` holds those cases. The chat still grows about 12 KB per day-crossing reply on Ersveil.

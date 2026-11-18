@@ -1,6 +1,5 @@
 // World events, the daily step on the host: the validator of `chronicle.daily`, the step's own state (world-events switch). The
-// field is optional (a chat that never stepped a day has none) and is the state, written in place by each step (domain-parts/in-place.js; an older
-// state's slot `[state]` reads the same). Its shape is the step's (daily/step.js): checked here for its
+// field is optional (a chat that never stepped a day has none) and is a slot, `[state]`, so each step writes it whole. Its shape is the step's (daily/step.js): checked here for its
 // kinds and its size, so a damaged save is caught without re-deriving the step. Pure.
 
 import { isInt, isRecord } from '../domain-parts/shared-basics.js';
@@ -9,10 +8,10 @@ import { slotValue } from '../../../rpg/slot.js';
 const RECORDS = ['events', 'anchors', 'lastMajor', 'cast', 'standings', 'facts', 'masks', 'cooldowns'];
 const MAX_JSON = 256 * 1024;
 
-/** `validateDaily(stored) → string[]`: `stored` is the state, or an older state's slot `[state]` (rpg/slot.js). */
+/** `validateDaily(stored) → string[]`: `stored` is a slot, `[state]` (rpg/slot.js), written whole by each step. */
 export function validateDaily(stored) {
     if (stored === undefined) return [];
-    if (Array.isArray(stored) && stored.length !== 1) return ['chronicle.daily must be the step\'s state (or a one-entry list of it).'];
+    if (!Array.isArray(stored) || stored.length !== 1) return ['chronicle.daily must be a one-entry list (a slot).'];
     const slice = slotValue(stored);
     if (!isRecord(slice)) return ['chronicle.daily is not an object.'];
     const errors = [];

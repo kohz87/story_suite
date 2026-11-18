@@ -1,6 +1,6 @@
 // An edited Re-read (seam audit E21, spec §9 "Replay and edits"): Re-read re-captures that reply and runs its step again; when the
 // step no longer fires what it fired before and later replies exist, the reply's card and Problems say so; the later replies keep
-// what they changed (history is not rewritten), and their whole recorded state from the next checkpoint on (perf PB9, pb9-replay.test.js).
+// what they recorded (history is not rewritten).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -29,11 +29,7 @@ test('E21: a shrunk edited Re-read that drops the feast warns on that reply; the
     assert.equal((await host.sdk.reread(crossing)).ok, true);
     assert.equal(lostOn(host, crossing).length, 1, 'Problems: the feast no longer fired on this reply');
     assert.match(dailyReceipts(host).find(entry => entry.index === crossing).receipt.summary, /feast no longer fired/, 'and its card');
-    // Between checkpoints the later reply's step applies what it changed on the state the edit left: the riot keeps its record and the
-    // stepped day; the feast the edit dropped stays dropped until the next checkpoint writes the whole recorded state.
-    const now = dailyOf(host), was = JSON.parse(later);
-    assert.deepEqual([now.day, now.events.riot.state, now.events.riot.fired], [was.day, 'ended', was.events.riot.fired], 'the later reply keeps what it changed');
-    assert.equal(now.events.feast.state, 'dormant', 'the feast the edit dropped is not fired again by the later reply');
+    assert.equal(JSON.stringify(dailyOf(host)), later, 'the later reply keeps what it recorded');
     await agrees(host, 'shrunk Re-read');
     await host.st.editMessage(crossing, reply('Dawn, still.', ['! time +2h']));
     assert.equal((await host.sdk.reread(crossing)).ok, true);

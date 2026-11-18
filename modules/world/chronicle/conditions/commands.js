@@ -80,7 +80,7 @@ function condition(ctx, payload) {
     const why = cleanSummary(typeof payload.why === 'string' ? payload.why : '').slice(0, 200);
     chronicle.conditions = table;
     chronicle.conditions[key] = { name, scope: declared.scope, ref, since: old?.since ?? now, ...lifetime(old, minutes, now), why, by, rev: revOf(ctx) };
-    if (!old) markLedger(chronicle, { day: Math.floor(now / DAY), anchors: [`set:${name}`, `set:${key}`] }, ctx);
+    if (!old) markLedger(chronicle, { day: Math.floor(now / DAY), anchors: [`set:${name}`, `set:${key}`] });
     return { summary: `${old ? 'Still' : 'Now'}: ${name} on ${ref}${why ? ` (${why})` : ''}.`, narrate: false, data: { key, created: !old } };
 }
 
@@ -106,7 +106,7 @@ function clear(ctx, payload) {
     if (!found) {
         // Not active: nothing to end, but the day's tomb still holds (spec §2: a clear at a ref is not undone by a set there the same day), as the daily step's clear does.
         const at = clockOf(ctx);
-        if (at !== null) markLedger(chronicle, { day: Math.floor(at / DAY), tombKeys: [conditionKey(name, ref)] }, ctx);
+        if (at !== null) markLedger(chronicle, { day: Math.floor(at / DAY), tombKeys: [conditionKey(name, ref)] });
         return { summary: `${name} is not active on ${ref || 'that place'}.`, narrate: false, data: { key: null } };
     }
     const key = conditionKey(found.name, found.ref);
@@ -114,7 +114,7 @@ function clear(ctx, payload) {
     if (typeof ctx.ifThere === 'function') ctx.ifThere('chronicle', pointerOf(key));
     delete chronicle.conditions[key];
     const now = clockOf(ctx);
-    if (now !== null) markLedger(chronicle, { day: Math.floor(now / DAY), anchors: [`cleared:${name}`, `cleared:${key}`], tombKeys: [key] }, ctx);
+    if (now !== null) markLedger(chronicle, { day: Math.floor(now / DAY), anchors: [`cleared:${name}`, `cleared:${key}`], tombKeys: [key] });
     return { summary: `Ended: ${name} on ${found.ref}.`, narrate: false, data: { key } };
 }
 

@@ -61,7 +61,7 @@ function learned(ctx) {
     try { people = ctx.read('people'); } catch { people = null; }
     const anchors = learnedAnchors(people, readWorld((name, args) => ctx.query(name, args)).cast, knownAnchors(chronicle));
     if (!anchors.length) return { summary: '', narrate: false, data: { anchors: [] } };
-    markLedger(chronicle, { day: Math.floor(now / DAY), anchors }, ctx);
+    markLedger(chronicle, { day: Math.floor(now / DAY), anchors });
     const facts = anchors.filter(key => key.startsWith('fact:')).map(key => key.slice(5));
     return { summary: `World: a secret came out${facts.length ? ` (fact ${facts.join(', ')} written)` : ''}.`, narrate: false, data: { anchors } };
 }
