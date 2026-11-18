@@ -14,10 +14,11 @@ export function pinnedFeed(read) {
     const view = read('dataModules.view', { module: row.module });
     if (!isRec(view?.chat)) continue;
     const chat = {};
-    // (a field the block keeps for its own rules, not for the story or the reader — `prompt: false` or `edit: false`: Rise, Level cap, Down, the largest bars — is not a line on Now)
+    // (a field the block keeps for its own rules, not for the story — `prompt: false`: Rise, Level cap, Down, the largest bars — is not a line on Now; a field only the
+    // reader may not edit, such as a skill's rank, is still told to the story and stays)
     for (const [key, value] of Object.entries(view.chat)) {
       const field = definition.state?.[key];
-      if (field?.prompt === false || field?.edit === false) continue;
+      if (field?.prompt === false) continue;
       chat[text(field?.label) || key] = value;
     }
     out.push({ id: text(row.module), name: text(definition.name) || text(row.module), view: { chat } });

@@ -61,7 +61,7 @@ export function createSendHold({ doc, ctx = () => null, world, wizard, suite, sh
     sheet.el.classList.add('wz-hold');
     const decide = () => { own.decided = true; sheet.close(); };
     sheet.body.append(
-      h('p', { class: 'ps-p', dataset: clash ? { hold: 'mismatch' } : {} }, clash ? S.holdMismatch.replaceAll('{names}', clash.names).replace('{persona}', clash.persona) : S.holdText),
+      h('p', { class: 'ps-p', dataset: clash ? { hold: 'mismatch' } : {} }, clash ? S.holdMismatch.replaceAll('{names}', () => clash.names).replace('{persona}', () => clash.persona) : S.holdText),
       h('blockquote', { class: 'wz-quote', 'aria-label': S.holdLabel }, cut(text, QUOTE_MAX)),
       h('div', { class: 'ps-row wz-hold-acts' },
         button({ label: S.holdWithout, dataset: { hold: 'without' }, onClick: () => {

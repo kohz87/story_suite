@@ -340,7 +340,7 @@ export function createSettingsBindPart(rt, deps) {
         });
         $(document).on('click.npcStateDelta', '#npc_state_delta_clear_chat', async () => {
             if (!await ensureFreshMutationBoundary('clear this chat dossier')) return;
-            if (!window.confirm('Clear every NPC State Delta dossier for this chat? Portraits and inline dossier cards will also be removed.')) return;
+            if (!window.confirm('Clear every NPC State dossier for this chat? Portraits and inline dossier cards will also be removed.')) return;
             closePortraitGenerator();
             const previousScanCount = Number(getChatState()?.scanCount || 0);
             const cleared = freshChatState();

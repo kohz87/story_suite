@@ -70,7 +70,7 @@ export function selectInspector(handle, index = null) {
     replies, index: at,
     reply: {
       ok: true, name: got.name, rev: got.rev, head: got.head, lines: got.diff.entries.map(lineOf), more: got.diff.more,
-      ops: Array.isArray(got.ops) ? got.ops.length : 0, receipts: got.receipts.map(r => ({ id: r.id, type: r.type, module: r.module, summary: typeof r.data?.shown === 'string' && r.data.shown ? r.data.shown : r.summary })),
+      ops: Array.isArray(got.ops) ? got.ops.length : 0, receipts: got.receipts.map(r => ({ id: r.id, type: r.type, module: r.module, summary: typeof r.shown === 'string' && r.shown ? r.shown : r.summary })),
       problems: got.problems, state: state.length > STATE_CUT ? `${state.slice(0, STATE_CUT)}\n…` : state,
     },
   };

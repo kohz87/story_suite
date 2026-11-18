@@ -42,7 +42,7 @@ export function createLifecyclePart(rt, deps) {
         const settings = getSettings();
         const pointer = settings.dataFiles?.[key] || null;
         if (!isCanonicalChatKey(key) || !pointer?.path || chatHydrationStatus(key) !== 'error') return false;
-        if (!window.confirm('Detach the broken NPC State Delta sidecar for this chat and start a fresh empty dossier? The old pointer is retained under recovery metadata and is not deleted automatically.')) return false;
+        if (!window.confirm('Detach the broken NPC State sidecar for this chat and start a fresh empty dossier? The old pointer is retained under recovery metadata and is not deleted automatically.')) return false;
         let preserved = null;
         let registered = false;
         const registerBackup = copy => {

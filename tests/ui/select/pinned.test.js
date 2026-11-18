@@ -28,6 +28,12 @@ describe('pinnedFeed', () => {
     const feed = pinnedFeed(name => (name === 'dataModules.setup' ? setup : { chat: { hp: 9, rise: 0, cap: 99, 'hp-max': 20, down: false } }));
     assert.deepEqual(feed[0].view.chat, { HP: 9 });
   });
+  it('keeps a field the story is told but the reader may not edit (a skill rank)', () => {
+    const state = { rank1: { label: 'Rank 1', edit: false }, practice1: { label: 'Practice 1', edit: false }, rise: { label: 'Rise', prompt: false, edit: false } };
+    const setup = [{ module: 's', pinned: true, definition: { name: 'Skills', scope: 'chat', show: { card: true }, state } }];
+    const feed = pinnedFeed(name => (name === 'dataModules.setup' ? setup : { chat: { rank1: 2, practice1: 5, rise: 0 } }));
+    assert.deepEqual(feed[0].view.chat, { 'Rank 1': 2, 'Practice 1': 5 });
+  });
   it('is empty with no setup', () => {
     assert.deepEqual(pinnedFeed(() => null), []);
   });
