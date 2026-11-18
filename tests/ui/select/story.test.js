@@ -82,7 +82,7 @@ describe('selectStory', () => {
 
   it('shows the arc plan with the plan', () => {
     assert.deepEqual(selectStory(recorded(), { planShown: true }).arc, { accepted: '', draft: null, busy: false, error: '', open: true, plan: { title: 'The Grey Toll', text: 'The bandits are paid from Thousand Sails.', summary: '1 of 3 beats' } });
-    assert.deepEqual(selectStory(recorded({ 'director.arc': { current: null, previous: null, count: 0 } }), { planShown: true }).arc, { accepted: null, draft: null, busy: false, error: '', open: true, plan: null });
+    assert.deepEqual(selectStory(recorded({ 'director.arc': { current: null, previous: null, count: 0 } }), { planShown: true }).arc, { accepted: null, draft: null, busy: false, error: '', open: false, plan: null });
   });
 
   it('maps beats, clocks and hooks', () => {

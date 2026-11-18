@@ -18,7 +18,6 @@ const UPKEEP_SUMMARY = /^[^:]{1,80}: (?:nothing moved|meters started|nothing cha
 // A block's template result (`capture.dm` / `dm.act`, `data.v2.result.kind`) that is a plain meter set (set-health, set-mana,
 // set-stamina, set-slot-N) or a foe slot clear (clear-N) is bookkeeping; every other kind (register, deed, add-xp ...) is a story event.
 const METER_KIND = /^(set-[a-z]+(-\d+)?|clear-\d+)$/;
-const UPKEEP_SUMMARY = /^[^:]{1,80}: (?:nothing moved|meters started|nothing changed)\.?$/i;
 /** Whether a receipt is the code's own bookkeeping: by type, by a block result's kind, a clock line "(not used)", a names check or an empty summary. */
 export function isBookkeeping(receipt) {
     if (BOOKKEEPING_TYPES.has(receipt.type)) return true;
