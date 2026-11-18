@@ -20,20 +20,18 @@ export const TEXT = Object.freeze({
     grammar: '+ away Name — what they are doing | back: date (~ away Name to change it; ! away Name — where they got to; - away Name when they are back)',
 });
 
-// Story Block's present list drops a leading article ("the scout" is listed as "scout"), so a name is matched with it too.
-const bare = key => key.replace(/^(?:the|a|an)\s+/, '');
-
-// Whether a name key is someone dead: `people` is the people store's rows (`people.list`, or the domain's npcs), each `{ name, aliases, lifeState }`.
+// Whether a name key is someone dead: `people` is the people store's rows (`people.list`, or the domain's npcs), each `{ name, aliases, lifeState }`,
+// matched by name or alias key as `director.away` matches them (so its `removed` mark and this agree).
 function deadOf(people) {
     const dead = new Set();
     for (const person of Array.isArray(people) ? people : []) {
         if (!person || typeof person !== 'object' || person.lifeState !== 'deceased') continue;
         for (const name of [person.name, ...(Array.isArray(person.aliases) ? person.aliases : [])]) {
             const key = keyOf(name);
-            if (key) { dead.add(key); dead.add(bare(key)); }
+            if (key) dead.add(key);
         }
     }
-    return key => dead.has(key) || dead.has(bare(key));
+    return key => dead.has(key);
 }
 
 /** Whether the lines are taught: someone in the people store is followed (alive), or someone not dead is away. */
