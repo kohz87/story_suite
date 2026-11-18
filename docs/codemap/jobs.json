@@ -475,7 +475,7 @@
   "studio/views/convert.js": "Pack Studio page slot for Convert: the card at the top of a format 3 pack's Overview saying it opens read-only.",
   "studio/views/graph.js": "Pack Studio page slot for the event graph (a List · Graph segment on Events); a stub that draws nothing, so the segment stays hidden.",
   "studio/views/map.js": "Pack Studio page slot for the map (a List · Map segment on Places & routes); a stub that draws nothing, so the segment stays hidden.",
-  "studio/views/pairing.js": "Pack Studio page slot for the Pairing check (a Check part when a world is open); a stub that draws nothing, so the part stays hidden.",
+  "studio/views/pairing.js": "Pack Studio Pairing page: the world against the open game pack or the Built-in game, the pair's problems, warnings and notes with Go to into either pack, and what holds the pair back.",
   "studio/views/route.js": "The Pack Studio's slot tables: which editor file draws each content key per pack kind, which page file mounts where, and drawing a section or a page through them.",
   "studio/views/start.js": "Pack Studio page slot for the start page shown before a pack is open: the Open button.",
   "studio/views/timeline.js": "Pack Studio page slot for the dry run (a Check part for a format 4 world); a stub that draws nothing, so the part stays hidden.",
@@ -522,6 +522,7 @@
   "studio/session.js": "Is one open pack's Pack Studio editing session: commit through the pure edits into frozen snapshots and undo history, a debounced check of the present snapshot, the draft save, undo, redo and restoring a draft.",
   "studio/views/json-row.js": "Draws a record's JSON row in the Pack Studio: the record as JSON read as you type, Apply as one undo step, Undo changes, the checker's word on it, and the caret at a Go to field.",
   "tests/packs/studio/wire.test.js": "Tests the Studio's edit loop without a page: commit, debounce, draft save, undo and redo, no-op edits, format 3 refusals, restore, export bytes before and after an edit, the export block, field paths and the undo keys.",
+  "tests/ui/studio/pairing.test.js": "Tests the Pairing page: Check against, the result line, the lists with Go to into either pack, the waiting state, Open a game pack and a format 3 world.",
   "tests/ui/studio/edit-places.test.js": "Tests the places editor: the list and find box, a record page, edits as patches, the id rename, the pickers, the climate list and the read-only fallback.",
   "tests/ui/studio/edit-loop.test.js": "Tests the Studio's edit loop in Chromium: a JSON row edit, Undo and Redo, the draft offered after a reload, Export off on errors with F8 and Go to at the field, warnings, and each pack's own history and export."
 }
