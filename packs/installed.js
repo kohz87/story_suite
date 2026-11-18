@@ -44,6 +44,10 @@ const KINDS = ['world', 'game'];
 
 const countOf = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 /** What a normalized pack adds beside its content lists, in words: "coins", "a calendar", "3 weather tables"… */
+// Whether a calendar's months are the twelve real ones (the Settings line then says just "a calendar").
+const REAL = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+const realMonths = calendar => Array.isArray(calendar?.months) && calendar.months.length === 12 && calendar.months.every((month, at) => String(month?.name ?? '').toLowerCase() === REAL[at]);
+
 export function extrasOf(pack) {
     const out = [];
     if (pack.currency) out.push(Array.isArray(pack.currency.coins) && pack.currency.coins.length ? `${countOf(pack.currency.coins.length, 'coin')}` : 'a money word');
@@ -178,7 +182,7 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
                     enabled: isOn(entry, pack),
                     // (a format 4 pack that no longer checks keeps its stored kind, so it is listed as a world or game that cannot be used, not as a format 3 pack)
                     ...(!pack && (entry.kind === 'world' || entry.kind === 'game') ? { kind: entry.kind, addOn: false } : {}),
-                    ...(pack?.kind ? { kind: pack.kind, addOn: isAddOn(pack), has: { rank: Boolean(pack.content?.you?.rank?.label), rpg: Array.isArray(pack.content?.rpg) && pack.content.rpg.length > 0 } } : {}),
+                    ...(pack?.kind ? { kind: pack.kind, addOn: isAddOn(pack), has: { rank: Boolean(pack.content?.you?.rank?.label), rpg: Array.isArray(pack.content?.rpg) && pack.content.rpg.length > 0, months: pack.calendar?.months?.length ?? 0, realMonths: realMonths(pack.calendar), modules: (pack.content?.dataModules ?? []).map(module => String(module?.name || module?.slug || '')).filter(Boolean) } } : {}),
                     source: SOURCES.includes(entry.source) ? entry.source : 'file',
                     origin: String(entry.origin ?? ''),
                     counts: pack ? Object.fromEntries(Object.entries(pack.content).map(([kind, list]) => [kind, kind === 'names' ? Object.keys(list).filter(id => id !== 'banned').length : kind === 'rpg' ? list.filter(record => !['formula', 'ranks', 'pull'].includes(record?.slug)).length : list.length])) : {},

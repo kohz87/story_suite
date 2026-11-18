@@ -17,19 +17,26 @@ function packLine(pack) {
 const countWord = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const label = pack => `${pack.name} · ${pack.version}`.trim();
 
+// "an 8-month calendar" (the mock's words); "a calendar" for the twelve real months, or when the count is not known.
+const calendarWord = (months, real) => (!real && Number.isInteger(months) && months > 0 ? `${/^(8|11|18)/.test(String(months)) ? 'an' : 'a'} ${months}-month calendar` : 'a calendar');
+// An add-on pack's line: its data modules by name ("Reputation data module"), as the mock draws it.
+const addOnLine = pack => { const names = pack.has?.modules ?? []; return names.length ? `${names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0]} data module${names.length > 1 ? 's' : ''}` : summary(pack); };
+
 // What a world or game pack holds, in the page's words, joined by " · " (the mock's lines); the counts come from the list rows.
 function summary(pack) {
   const c = pack.counts ?? {};
   if (pack.kind === 'world') return [c.places && countWord(c.places, 'place', 'places'), c.routes && countWord(c.routes, 'route', 'routes'), c.worldEvents && countWord(c.worldEvents, 'world event', 'world events'), c.cast && `${c.cast} cast`, c.lore && countWord(c.lore, 'lore entry', 'lore entries')].filter(Boolean).join(' · ') || 'no content';
   const coins = (pack.extras ?? []).find(word => /coins?$/.test(word));
-  const parts = [(pack.extras ?? []).includes('a calendar') && 'a calendar', coins, (pack.extras ?? []).some(word => /weather table/.test(word)) && 'weather', pack.has?.rank && 'rank', pack.hasStart && 'your start', c.names && 'names', pack.has?.rpg && 'RPG options', c.dataModules && countWord(c.dataModules, 'data module', 'data modules'), c.meterPresets && countWord(c.meterPresets, 'meter preset', 'meter presets')];
+  const parts = [(pack.extras ?? []).includes('a calendar') && calendarWord(pack.has?.months, pack.has?.realMonths === true), coins, (pack.extras ?? []).some(word => /weather table/.test(word)) && 'weather', pack.has?.rank && 'rank', pack.hasStart && 'your start', c.names && 'names', pack.has?.rpg && 'RPG options', c.dataModules && countWord(c.dataModules, 'data module', 'data modules'), c.meterPresets && countWord(c.meterPresets, 'meter preset', 'meter presets')];
   return parts.filter(Boolean).join(' · ') || 'no content';
 }
 
-const packRow = pack => ({ id: text(pack.id), name: label(pack), tag: pack.addOn ? 'add-on' : pack.kind, desc: pack.addOn ? `${summary(pack)}; offered in every chat, beside any game` : [summary(pack), pack.author ? `by ${pack.author}` : ''].filter(Boolean).join(' · '), ...(pack.problem ? { problem: `Not usable: ${pack.problem}` } : {}) });
+const packRow = pack => ({ id: text(pack.id), name: label(pack), tag: pack.addOn ? 'add-on' : pack.kind, desc: pack.addOn ? `${addOnLine(pack)}; offered in every chat, beside any game` : summary(pack), ...(pack.problem ? { problem: `Not usable: ${pack.problem}` } : {}) });
+// The World picker lists the worlds, then None; the Game picker Built-in, then the games (the mock's order).
 const picker = (rows, kind, none) => {
   const own = rows.filter(row => row.kind === kind && !row.addOn && !row.problem);
-  return { value: own.find(row => row.enabled)?.id ?? '', options: [{ value: '', label: none }, ...own.map(row => ({ value: text(row.id), label: label(row) }))] };
+  const choices = own.map(row => ({ value: text(row.id), label: label(row) }));
+  return { value: own.find(row => row.enabled)?.id ?? '', options: kind === 'world' ? [...choices, { value: '', label: none }] : [{ value: '', label: none }, ...choices] };
 };
 
 /** The format 4 page (the World and Game pickers, the suggestion, the pair's problems, the worlds and games, add-ons), or null when no format 4 pack is installed. */
@@ -66,7 +73,9 @@ export function selectPacks(answers) {
     ...(v4 ? { v4 } : {}),
     modules: rows.filter(row => row.packId !== 'chat').map(row => ({
       id: text(row.module), name: nameOf(row), on: row.pinned === true, locked: row.pinned === true || row.available === false,
-      desc: [text(row.packId) && `from ${v4 ? names[text(row.packId)] || row.packId : row.packId}`, row.pinned ? 'in use in this chat' : row.status, row.reason].filter(Boolean).join(' · '),
+      // (format 4: the mock's `from <pack>` alone, the switch shows whether it is in use; why it cannot be used is kept)
+      desc: v4 ? [text(row.packId) && `from ${names[text(row.packId)] || row.packId}`, row.available === false ? row.reason : ''].filter(Boolean).join(' · ')
+        : [text(row.packId) && `from ${row.packId}`, row.pinned ? 'in use in this chat' : row.status, row.reason].filter(Boolean).join(' · '),
     })),
     trackers: {
       cap: DM_LIMITS.pins,

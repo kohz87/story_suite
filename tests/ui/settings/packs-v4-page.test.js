@@ -18,11 +18,11 @@ test('the page order: World and game, worlds and games, add-ons, data modules, t
     assert.deepEqual(groups(page('packs')), ['World and game', 'Worlds and games · 3 installed', 'Add-on packs · always on', 'Data modules in this chat', 'Trackers in this chat · 0 of 28']);
 });
 
-test('the Game picker offers Built-in and the game packs, never an add-on; the World picker offers None and the worlds', async () => {
+test('the Game picker offers Built-in and the game packs, never an add-on; the World picker offers the worlds, then None (the mock)', async () => {
     const { page } = mountPacks(await store(world(), ERS, ADDON));
     const el = page('packs');
     assert.deepEqual(texts(el.querySelector('#pk-game'), 'option'), ['Built-in', 'Ersveil rules · 1.0.0']);
-    assert.deepEqual(texts(el.querySelector('#pk-world'), 'option'), ['None', 'Ersveil · 4.0.0']);
+    assert.deepEqual(texts(el.querySelector('#pk-world'), 'option'), ['Ersveil · 4.0.0', 'None']);
     assert.equal(el.querySelector('.srow .always').textContent, 'always on');
     assert.equal(el.querySelectorAll('.tg2').map(t => t.textContent).filter(t => t === 'add-on').length, 1);
 });

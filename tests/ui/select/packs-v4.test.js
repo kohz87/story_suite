@@ -59,7 +59,7 @@ test('pickers: add-ons are not game choices; the one in use is the value; a pack
     assert.equal(v4.game.value, 'g2');
     assert.equal(v4.world.value, 'ersveil');
     assert.deepEqual(v4.addOns.map(a => [a.id, a.tag]), [['standing', 'add-on']]);
-    assert.match(v4.addOns[0].desc, /1 data module; offered in every chat, beside any game$/);
+    assert.equal(v4.addOns[0].desc, 'S data module; offered in every chat, beside any game', 'the module by its name (the mock)');
     await installed.select('world', null);
     assert.equal(packsView(installed).v4.world.value, '');
 });
@@ -68,13 +68,20 @@ test('what a world and a game hold, in the mock\'s words', async () => {
     const installed = await store(world({}, { date: { year: 1, month: 1, day: 1 } }), game('g1', 'Game one', { you: { rank: { label: 'Rank' } }, currency: { name: 'copper', coins: [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }] }, start: { money: 4 }, calendar: { months: months(12) } }));
     const { v4 } = packsView(installed);
     assert.match(v4.installed[0].desc, /^1 place$/);
-    assert.equal(v4.installed[1].desc, 'a calendar · 2 coins · rank · your start');
+    assert.equal(v4.installed[1].desc, 'a 12-month calendar · 2 coins · rank · your start', 'months of its own: their count (the mock)');
+    const eight = await store(world(), game('g8', 'Eight', { calendar: { months: months(8) } }));
+    assert.equal(packsView(eight).v4.installed[1].desc, 'an 8-month calendar');
+    const real = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(name => ({ name, days: 30 }));
+    const plain = await store(world(), game('gr', 'Real months', { calendar: { months: real } }));
+    assert.equal(packsView(plain).v4.installed[1].desc, 'a calendar', 'the twelve real months: just a calendar (the mock\'s Ersveil rules line)');
+    assert.ok(!packsView(plain).v4.installed.some(row => / by /.test(row.desc)), 'no "by <author>" (the mock has none)');
 });
 
 test('data modules name the pack they come from, by its name on the format 4 page and by its id otherwise', async () => {
     const installed = await store(world(), game('g1', 'Game one'));
     const setup = [{ module: 'm', packId: 'g1', definition: { name: 'Standing' }, pinned: false, available: true, status: 'Ready' }];
-    assert.equal(selectPacks({ list: installed.list(), setup }).modules[0].desc, 'from Game one · Ready');
+    assert.equal(selectPacks({ list: installed.list(), setup }).modules[0].desc, 'from Game one', 'the mock\'s line: the switch says whether it is in use');
+    assert.equal(selectPacks({ list: installed.list(), setup: [{ ...setup[0], available: false, reason: 'Needs the RPG.' }] }).modules[0].desc, 'from Game one · Needs the RPG.', 'why it cannot be used is kept');
     assert.equal(selectPacks({ list: [], setup }).modules[0].desc, 'from g1 · Ready');
 });
 

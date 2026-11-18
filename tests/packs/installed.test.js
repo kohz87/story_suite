@@ -28,7 +28,7 @@ test('installing keeps the pack as given, under its id, switched on', async () =
         id: 'riverside-starter', version: '4.0.0', name: 'Riverside Starter', author: 'Story Suite examples',
         description: sample().description, enabled: true, source: 'file', origin: 'riverside.json',
         counts: { items: 4, events: 0, places: 1, foes: 1 }, hasStart: true, extras: [], missing: [], problem: '',
-        tag: 'World pack', warnings: ['REGIONS_UNDECLARED'], kind: 'world', addOn: false, has: { rank: false, rpg: false },
+        tag: 'World pack', warnings: ['REGIONS_UNDECLARED'], kind: 'world', addOn: false, has: { rank: false, rpg: false, months: 0, realMonths: false, modules: [] },
     }]);
     assert.equal(installed.packs()[0].content.items.length, 4);
 });
