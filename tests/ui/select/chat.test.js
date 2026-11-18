@@ -10,7 +10,9 @@ describe('selectDrawer', () => {
     const name = 'Grand Exchange-and-Counting-House of the Upper Riverbank Merchants Confederacy';
     const [row] = selectDrawer({ 'npc.present': ['Marrit'], 'scene.place': { name } });
     assert.equal(row.where, 'Grand Exchange-and-Counting-House of th…');
-    assert.equal([...row.where].length, 40);
+    assert.equal(row.where.length, 40);
+    const emoji = selectDrawer({ 'npc.present': ['Marrit'], 'scene.place': { name: 'At the 🏛️ Grand Exchange-and-Counting-House of the Upper Riverbank' } })[0].where;
+    assert.ok(emoji.length <= 40 && emoji.endsWith('…') && emoji.includes('🏛'), `the contract's 40 units, whole characters: ${emoji}`);
     assert.equal(selectDrawer({ 'npc.present': ['Marrit'], 'scene.place': { name: 'Bluewatch' } })[0].where, 'Bluewatch');
   });
 

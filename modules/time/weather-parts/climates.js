@@ -94,7 +94,8 @@ export function climateOf(query, placeName, region) {
     const place = fold(placeName) ? places.find(record => sameName(record, fold(placeName))) : null;
     const anchor = !place && fold(placeName) ? tryQuery(query, 'atlas.anchor', { name: placeName }) : null;
     // (only an anchor read from the name's own words, `pack` or `town`: the `parent` and `last` rules read the atlas's saved parents and visits, which a system
-    // `atlas.visit` an edited Re-read keeps from the old text writes, so the same lines told again could read another climate; LF4B2's trip start reads the same way)
+    // `atlas.visit` an edited Re-read keeps from the old text writes, so the same lines told again could read another climate; LF4B2's trip start reads the same way.
+    // The region fallback below and the place name from atlas.here still follow the atlas; that is not closed here)
     const stands = place ?? (anchor?.name && (anchor.via === 'pack' || anchor.via === 'town') ? places.find(record => sameName(record, fold(anchor.name))) : null) ?? null;
     if (stands?.climate) return stands.climate;
     if (fold(stands?.layer) === 'underground') return 'underground';

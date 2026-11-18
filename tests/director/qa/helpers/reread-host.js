@@ -44,9 +44,10 @@ export const DIRECTOR_READERS = [...READERS.filter(name => !['inventory.loot', '
  * Story Director's own domains, left out of the state-at-every-reply compare (their stored records carry keys and
  * order a fresh telling does not reproduce; chronicle also for the reason above). What the owner reads from them is
  * compared through DIRECTOR_READERS; Story Block's domains are compared in full, except the pack events' claims and
- * the weather. Its key's climate part reads only the place's own words since FIXBATCH3 (the Bluewatch pack names no climate, so it is temperate here); its
- * region part is the scene's region, else atlas.here's, the same region left out below: tried in, seed 6 step 28 still differs there ("day 220091|river
- * confederacy - core cities" live, "day 220091|" told again), so the weather stays out until the scene region holds.
+ * the weather. Since FIXBATCH3 its climate no longer reads the atlas's saved parent or last place, but it still falls back to the scene's region and takes
+ * its place name from atlas.here (the Bluewatch pack names no climate, so it is temperate here and that part is not exercised). The key's region part is
+ * the scene's region, else atlas.here's, the same region left out below: tried in, seed 6 step 28 still differs there ("day 220091|river confederacy -
+ * core cities" live, "day 220091|" told again), so the weather stays out until the scene region holds.
  */
 export const LEFT_OUT = ['arc', 'atlas', 'cast', 'checks', 'chronicle', 'director', 'names', 'claims:event:', 'path:domains/scene/weather', 'path:domains/scene/place/region'];
 

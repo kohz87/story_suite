@@ -41,12 +41,20 @@ function metersOf(entry, cast) {
   return out;
 }
 
+// A place name over 40 (UTF-16 units, as the contract's maxLength counts) is cut with "…", so the line shows it was cut (SOAK2UI 11's "…House of the"),
+// whole characters only (an emoji is never split).
+function cutWhere(full) {
+  if (full.length <= 40) return full;
+  let out = '';
+  for (const ch of full) { if (out.length + ch.length > 39) break; out += ch; }
+  return `${out.trimEnd()}…`;
+}
+
 // The drawer's people: those `npc.present` names, with mood from `npc.cast` and the thought from `chatter.head` (SB/domains/core/module.js:84).
 // The scene line (where ≤40, doing, wearing) is a gap (UI-PLAN §2.1): `where` is the scene's place name until it lands.
 export function selectDrawer(answers = {}, opts = {}) {
   const portraits = isRec(opts.portraits) ? opts.portraits : {};
-  // (a longer name is cut to 40 with "…", so the line shows it was cut: SOAK2UI 11's "Grand Exchange-and-Counting-House of the")
-  const full = text(answers['scene.place']?.name), place = [...full].length > 40 ? `${[...full].slice(0, 39).join('').trimEnd()}…` : full;
+  const place = cutWhere(text(answers['scene.place']?.name));
   const cast = list(answers['npc.cast']);
   const chatter = list(answers['chatter.head']);
   const rows = [];
