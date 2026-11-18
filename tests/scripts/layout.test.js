@@ -13,38 +13,25 @@ const node = (script, args = [], env = {}) => {
   return { status: r.status, out: r.stdout + r.stderr };
 };
 
-test('layout.json lists packages/ now and the B3 roots as entries that may not exist yet', () => {
+test('layout.json lists the source roots and the sibling farm, and no package root', () => {
   const layout = loadLayout();
-  assert.deepEqual(layout.packageRoots, ['packages']);
+  assert.equal(layout.packageRoots, undefined);
   assert.deepEqual(layout.sourceRoots, ['core', 'ui', 'modules', 'packs', 'testkit']);
-  assert.equal(layout.packageDevMap, 'docs/dev/codemap.md');
   assert.deepEqual(layout.suiteFarm.map(f => f.dir ?? Object.keys(f.files).join()), ['.', 'modules/director', 'core.js,core-prompts-lines.js,src/storysuite-v2.js,src/npc-notes-kinds.js,src/npc-meters-presets.js']);
   assert.equal(layout.suiteFarm.find(f => f.link === 'Story_director').at, 'src/v2');
 });
 
-test('layout lookups: package roots, source roots, package name and folder', () => {
+test('layout lookup: source roots', () => {
   const layout = loadLayout();
-  assert.equal(layout.isPackageFile('packages/story-block/index.js'), true);
-  assert.equal(layout.isPackageFile('ui/a.js'), false);
   assert.equal(layout.isSourceFile('core/x.js'), true);
   assert.equal(layout.isSourceFile('scripts/x.js'), false);
-  assert.equal(layout.packageOf('packages/story-block/src/a.js'), 'story-block');
-  assert.equal(layout.packageRootOf('packages/story-block/src/a.js'), 'packages/story-block');
-  assert.equal(layout.packageRootOf('packages/pa/x.js'), 'packages/pa');
-  assert.equal(layout.packageRootOf('packages/a/x.js'), 'packages/a');
-  assert.equal(layout.packageOf('ui/a.js'), null);
-  assert.deepEqual(layout.packageDirs(repo), []);
-  assert.ok(!layout.packageDirs(repo).includes('packages/story-director'));
-  assert.deepEqual(layout.packageDirs(os.tmpdir() + '/no-such-dir-b3p3'), []);
+  assert.equal(layout.isSourceFile('packages/a/x.js'), false);
 });
 
 test('on today\'s tree the scripts give the same output as before (committed maps, same messages)', () => {
   const map = node('scripts/codemap/cli.mjs', ['--check']);
   assert.equal(map.status, 0, map.out);
-  assert.match(map.out, /code map: docs\/codemap\.md \d+ files, up to date/);
-  for (const line of map.out.trim().split('\n').slice(1)) {
-    assert.match(line, /^code map: docs\/codemap\/[\w-]+\.md [\w-]+ \d+ files \(\d+ over the export limit\), up to date$/);
-  }
+  assert.match(map.out, /^code map: docs\/codemap\.md \d+ files, up to date\n$/);
   const globs = node('scripts/checks/test-globs.mjs');
   assert.equal(globs.out, 'test globs: every test file is run by a root npm test script\n');
   const size = node('scripts/checks/run-size-check.mjs');
@@ -62,30 +49,26 @@ function demoRepo(files) {
   return dir;
 }
 
-test('header and bullet jobs are accepted under the new roots; the old docs/dev/codemap.md is still read', () => {
+test('header and jobs.json jobs are accepted under the new roots', () => {
   const dir = demoRepo({
     'package.json': '{"type":"module"}\n',
-    'docs/codemap/jobs.json': '{}\n',
     'core/a.js': '// Does a in the core.\nexport const a = 1;\n',
     'modules/m/b.js': 'export const b = 1;\n',
-    'ui/c.js': 'export const c = 1;\n',
-    'docs/codemap/features-demo.json': '[{"name":"Main","entry":"src/p.js","about":"The p part."}]\n',
-    'packages/demo/src/p.js': 'export const p = 1;\n',
-    'packages/demo/docs/dev/codemap.md': '- `modules/m/b.js`: Does b from a bullet.\n- `ui/c.js`: Does c from a bullet.\n- `src/p.js`: Does p from the old place.\n',
+    'ui/c.js': '// Does c from its header.\nexport const c = 1;\n',
+    'docs/codemap/jobs.json': '{"modules/m/b.js":"Does b from jobs.json."}\n',
   });
   try {
     const written = node('scripts/codemap/cli.mjs', ['--write'], { CODEMAP_ROOT: dir });
     assert.equal(written.status, 0, written.out);
     const root = fs.readFileSync(path.join(dir, 'docs/codemap.md'), 'utf8');
     assert.match(root, /Does a in the core\./);
-    assert.match(root, /Does b from a bullet\./);
-    assert.match(root, /Does c from a bullet\./);
-    assert.match(fs.readFileSync(path.join(dir, 'docs/codemap/demo.md'), 'utf8'), /Does p from the old place\./);
+    assert.match(root, /Does b from jobs\.json\./);
+    assert.match(root, /Does c from its header\./);
     assert.equal(node('scripts/codemap/cli.mjs', ['--check'], { CODEMAP_ROOT: dir }).status, 0);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('a file under a new root with no job anywhere is still a problem; jobs.json wins over a bullet', () => {
+test('a file under a new root with no job anywhere is still a problem; jobs.json wins over a header', () => {
   const dir = demoRepo({
     'package.json': '{"type":"module"}\n',
     'docs/codemap/jobs.json': '{"core/a.js":"From jobs.json."}\n',

@@ -6,7 +6,7 @@ import { loadLayout } from '../layout.mjs';
 // did not create: every folder it fills carries a marker file, and only a folder with the marker is ever emptied.
 export const MARKER = '.story-suite-release-output';
 // The source folders: the roots scripts/layout.json lists (core, ui, modules, packs, testkit) and the rest of the repo's own code and docs.
-const SOURCE_DIRS = [...new Set([...loadLayout().sourceRoots, 'packages', 'scripts', 'tests', 'examples', 'authoring-kit', 'docs'])];
+const SOURCE_DIRS = [...new Set([...loadLayout().sourceRoots, 'scripts', 'tests', 'examples', 'authoring-kit', 'docs'])];
 
 // The real path of a folder that may not exist yet: the nearest existing parent, resolved, plus the rest.
 function realish(target) {

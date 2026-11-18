@@ -1,7 +1,4 @@
 {
-  "packageRoots": [
-    "packages"
-  ],
   "sourceRoots": [
     "core",
     "ui",
@@ -9,7 +6,6 @@
     "packs",
     "testkit"
   ],
-  "packageDevMap": "docs/dev/codemap.md",
   "suiteFarm": [
     {
       "link": "Story_block",
