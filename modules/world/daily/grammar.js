@@ -26,6 +26,8 @@ export function conditionString(text) {
     return { name, ref, placeholder: PLACEHOLDERS.includes(bare) && (ref.startsWith('@') || ref === bare) ? bare : null, duration: duration || null };
 }
 
+const SEASON_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 /** An anchor with an optional offset ("fired:succession-crisis + 90 days") → `{ kind, id, offset }` (offset in unscaled days), or null. */
 export function anchorString(text) {
     if (typeof text !== 'string') return null;
@@ -35,7 +37,8 @@ export function anchorString(text) {
     const offset = plus < 0 ? 0 : durationDays(raw.slice(plus + 3));
     if (offset === undefined || offset === null) return null;
     if (head === 'start') return { kind: 'start', id: '', offset };
-    if (['spring', 'summer', 'autumn', 'winter'].includes(head)) return { kind: 'season', id: head, offset };
+    // A season by name: the four built-in quarters, or a season of the game's calendar (the pack checker reads a bare name the same way; cal.js says whether the calendar has it).
+    if (SEASON_NAME.test(head)) return { kind: 'season', id: head, offset };
     const cut = head.indexOf(':');
     if (cut <= 0) return null;
     const kind = head.slice(0, cut);

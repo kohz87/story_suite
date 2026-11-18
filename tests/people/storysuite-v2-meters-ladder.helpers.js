@@ -8,8 +8,6 @@ import { createHost } from '../../testkit/index.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { seedPeople } from './helpers/seed-people.js';
 import { secretId } from '../../modules/people/meters/npc-meters.js';
-import { projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
-import { lastRelationshipChangeHtml, recentChangeRowHtml } from '../../modules/people/legacy/dossier-ui-relationship.js';
 import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // TRS ideas 1-4 on the NPC meters (stage ladders with several needs and milestones, per-NPC ceilings
@@ -122,7 +120,7 @@ export function fakeDom() {
 }
 
 export const DATING_PACK = {
-    id: 'sweet-days', version: '1.0.0', requires: { storyBlock: '^2' }, name: 'Sweet Days',
+    id: 'sweet-days', version: '1.0.0', format: 4, kind: 'game', requires: { suite: '^0.1' }, name: 'Sweet Days',
     content: {
         meterPresets: [{
             id: 'sweetheart', title: 'Sweetheart',
@@ -140,13 +138,6 @@ export const DATING_PACK = {
 };
 
 export const STORED = { impact: 'ordinary', delta: { trust: 1, affection: 0, desire: 0, tension: 0 }, reason: 'Old sidecar reason.', message: 1 };
-export function cardOf(s, record = s.delta.records.npc_mira) {
-    const npc = { ...structuredClone(record), lastRelationshipChange: structuredClone(STORED) };
-    const state = { npcs: [npc], meterViews: s.adapter.dossierMeters([npc]), reply: s.host.store.headIndex() };
-    const shown = projectDossierState(state, { chatKey: 'c1' }).npcs[0].lastRelationshipChange;
-    return { shown, html: lastRelationshipChangeHtml(shown), npc };
-}
-
 export const CLOCK = {
     id: 'zz-clock', name: 'Clock',
     domains: { director: { initial: () => ({ time: { minutes: 0 } }) } },
@@ -221,8 +212,10 @@ export const ownerForward = async (s, reply, rows = OWNER_ROWS) => {
     const after = Object.values(s.delta.records);
     return forwardParts.relationshipChanges(new Map(after.map(npc => [npc.id, npc])), after, { trust: 0, affection: 0, desire: 0, tension: 0 }, reply, rows);
 };
+// The engine's own view of a person's last relationship change (adapter.dossierMeters → relChange): what the old panel's
+// Recent changes row drew from (the row itself went with the panel, B4-5).
 export const rowOf = (s, id) => {
     const npc = { ...structuredClone(s.delta.records[id]), lastRelationshipChange: structuredClone(STORED) };
-    const shown = projectDossierState({ npcs: [npc], meterViews: s.adapter.dossierMeters([npc]), reply: s.host.store.headIndex() }, { chatKey: 'c1' }).npcs[0].lastRelationshipChange;
-    return { shown, html: recentChangeRowHtml({ change: shown }) };
+    const change = s.adapter.dossierMeters([npc])[id]?.relChange ?? null;
+    return { shown: { reason: String(change?.event?.why ?? ''), delta: change?.delta ?? null, message: change?.message ?? null, tier: change?.event?.tier ?? null } };
 };

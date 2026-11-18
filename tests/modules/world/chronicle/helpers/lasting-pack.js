@@ -1,32 +1,31 @@
-// A pack whose events write lasting changes to the chronicle (`chronicle.lasting`), for the delete fuzzes
-// (tests/v2/break/fuzz-delete*.test.js): the repo notes ask for every command in their generators.
-// Two entries are made by events that fire before the second reply (the first exchanges are never deleted),
-// one of them by an "Any time" event, which is tried before the first reply has set the clock and waits
-// (NOT_YET). Later events count story minutes from them (`chronicle.passed`), change them and make entries of
-// their own; a delete that takes such a fire away makes the event happen again. Like the other generators,
-// the story's lines and the reader's edits name only the entries the first exchanges made, so a skipped block
-// can only come from bookkeeping one reply keeps for another.
+// A format 4 world pack for the delete fuzzes (tests/suite/break/director/fuzz-delete*.test.js): it carries world events (a levy set in
+// motion on day 2, an omen rolled over twenty days, a later feast) that the daily step runs with the switch on, setting and fading
+// conditions as days cross. The fuzz's world lines and the reader's edits name entries of their own (`+ world Fuzz omen`), so a skipped block
+// can only come from bookkeeping one reply keeps for another. (Dated pack events that wrote `chronicle.lasting` through `then` are gone with format 3.)
 
 import { cleanName } from '../../../../../modules/world/chronicle/domain.js';
-
-const passed = (name, minutes) => `query('chronicle.passed', { name: '${name}', minutes: ${minutes} })`;
-const lasting = payload => ({ command: 'chronicle.lasting', payload });
 
 /** The entries the story's lines and the reader's edits may name. */
 export const LASTING_NAMES = Object.freeze(['Fuzz omen', 'Fuzz any']);
 
 export const LASTING_PACK = JSON.stringify({
     id: 'fuzz-lasting',
+    format: 4,
+    kind: 'world',
     version: '1.0.0',
     name: 'Fuzz lasting',
-    requires: { storyBlock: '^2', capabilities: ['chronicle-lasting'] },
+    requires: { suite: '^0.1' },
     content: {
-        events: [
-            { id: 'fuzz-omen', once: true, when: 'time() != null', cue: 'An omen.', then: [lasting({ name: 'Fuzz omen', state: 'looming', place: 'Bluewatch', factions: ['Fuzz Guild'], summary: 'Something stirs.', keep: true })] },
-            { id: 'fuzz-fall', after: 'fuzz-omen', once: true, when: passed('Fuzz omen', 1500), cue: 'It falls.', then: [lasting({ name: 'Fuzz omen', state: 'resolved' }), lasting({ name: 'Fuzz fall', state: 'ongoing', keep: true })] },
-            { id: 'fuzz-any', once: true, when: 'true', cue: 'Any time.', then: [lasting({ name: 'Fuzz any', state: 'looming' })] },
-            { id: 'fuzz-any-late', after: 'fuzz-any', once: true, when: passed('Fuzz any', 1440), cue: 'Later.', then: [lasting({ name: 'Fuzz any', state: 'ongoing', summary: 'A day on.' })] },
-            { id: 'fuzz-end', after: 'fuzz-fall', once: true, when: passed('Fuzz omen', 4000), cue: 'It ends.', then: [lasting({ name: 'Fuzz any', state: 'resolved', summary: 'Over.' }), lasting({ name: 'Fuzz end', state: 'resolved', summary: 'The last of it.' })] },
+        placeKinds: { town: 'town' },
+        realms: [{ id: 'march-realm', name: 'March Realm', regions: ['the-march'] }],
+        places: [{ id: 'highmark', name: 'Highmark', region: 'the-march', x: 0, y: 0, kind: 'town' }, { id: 'bluewatch', name: 'Bluewatch', region: 'the-march', x: 5, y: 5, kind: 'town' }],
+        conditions: [
+            { name: 'unrest', scope: 'place', fades: '10 days', means: 'Crowds in the streets.' },
+            { name: 'grain-dear', scope: 'region', fades: '2 days', means: 'Bread costs more.' },
+        ],
+        worldEvents: [
+            { id: 'levy', kind: 'one-off', certainty: 'set-in-motion', where: ['Highmark'], window: { after: 'start', within: '2 days' }, ends_when: { for: '3 days' }, effects: { set: ['unrest@Highmark'] }, summary: 'The lord calls a levy.' },
+            { id: 'omen', kind: 'one-off', certainty: 'possible', chance: '60% over the window', where: ['Bluewatch'], window: { after: 'start', within: '20 days' }, ends_when: 'instant', effects: { set: ['grain-dear@the-march: 5 days'] }, outcomes: [{ name: 'bright', weight: 1 }, { name: 'dark', weight: 1 }], summary: 'An omen over Bluewatch: {outcome}.' },
         ],
     },
 });

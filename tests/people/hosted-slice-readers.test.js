@@ -8,8 +8,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { buildInjection, buildScannerPrompt, normalizeNpcRecord } from '../../modules/people/core/core.js';
-import { closeOverlay } from '../../modules/people/legacy/dossier-tools-core.js';
-import { openDiagnostics } from '../../modules/people/legacy/dossier-tools.js';
+import { closeOverlay } from '../../modules/people/tools/tools-core.js';
+import { openDiagnostics } from '../../modules/people/tools/data-tools.js';
 import { oldSource } from './helpers/old-source.js';
 import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
 import { applyFocusedRelationshipDecisions } from '../../modules/people/legacy/relationship-pass.js';
@@ -60,7 +60,7 @@ test('diagnostics renders the selected relationship view without changing the st
     globalThis.document = {
         documentElement: { classList: classes },
         body: { classList: classes, appendChild(node) { overlay = node; } },
-        getElementById: () => ({ __npcStateDeltaStage1Ui: { selectedNpcId: 'npc_mira', screen: { name: 'board' } } }),
+        getElementById: () => null,
         createElement: () => ({ dataset: {}, addEventListener() {}, setAttribute() {}, querySelector: () => null, remove() {} }),
     };
     globalThis.requestAnimationFrame = fn => fn();
@@ -74,7 +74,7 @@ test('diagnostics renders the selected relationship view without changing the st
         assert.equal(api.getNpc('npc_mira', { relationshipView: true }).relationship.trust, 5);
         const standalone = createPublicApiStatePart({ getChatState: () => ({ npcs: Object.values(s.delta.records) }), hostedMeterView: npcs => npcs });
         assert.equal(standalone.getNpc('npc_mira', { relationshipView: true }).relationship.trust, 8);
-        openDiagnostics();
+        openDiagnostics('npc_mira');
         assert.match(overlay.innerHTML, /&quot;score&quot;: 5/);
         assert.match(overlay.innerHTML, /&quot;fractionalProgress&quot;: 0/);
         assert.doesNotMatch(overlay.innerHTML, /&quot;score&quot;: 8/);

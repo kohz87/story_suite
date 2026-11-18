@@ -31,18 +31,24 @@ test('pullOf: the stance, the ability count, no record', () => {
     assert.equal(pullOf(slice(plain), { name: 'Ann', pull: { stance: false } }).skills.length, 1);
     const many = { ...ANN, abilities: Array.from({ length: 9 }, (_, n) => ({ name: `Trick ${n}`, description: 'a trick' })) };
     assert.equal(pullOf(slice(many), { name: 'Ann' }).skills.length, 5, 'default 4 abilities + the stance');
-    assert.equal(pullOf(slice(many), { name: 'Ann', pull: { abilities: 6 } }).skills.length, 7);
+    const six = pullOf(slice(many), { name: 'Ann', pull: { abilities: 6 } });
+    assert.deepEqual([six.skills.length, six.left], [5, [{ name: 'Trick 5', kind: 'combat' }]], 'REVPF4 16: five combat slots at level 12, so the sixth ability is left out and named; no stance');
+    const tools = { ...ANN, abilities: ['Lockpicking', 'Herb lore', 'Map reading', 'Old lore'].map(name => ({ name, description: 'knows how to' })) };
+    const util = pullOf(slice(tools), { name: 'Ann' });
+    assert.equal(util.skills.filter(skill => skill.type === 'utility').length, 3, 'three utility slots');
+    assert.deepEqual(util.left, [{ name: 'Old lore', kind: 'utility' }], 'the fourth utility ability is named');
+    assert.equal(Object.hasOwn(pullOf(slice(ANN), { name: 'Ann' }), 'left'), false, 'nothing left out: no key');
     const none = pullOf(slice(null), { name: 'Ann', soul: 2, fallback: [{ name: 'Cast skill' }] });
     assert.deepEqual(none, { best: '', skills: [{ name: 'Cast skill' }], keepsakes: [] }, 'no record: no level, the format 3 skills');
     assert.equal(personOf(slice(ANN), 'Nobody'), null);
     assert.equal(rankAtLevel(5), 0); assert.equal(rankAtLevel(30), 2);
 });
 
-async function annWorld(mode = 'auto') {
+async function annWorld(mode = 'auto', record = ANN) {
     const host = await world({ mode });
     await host.send('Ann waits.', 'Ann waits at the dock.');
     const source = host.store.sourceAt(host.store.headIndex());
-    const view = { v: 1, order: ['npc_ann'], npcs: { npc_ann: ANN }, candidates: [], dismissed: [], userDismissedGroups: [], socialGraph: {}, portraitAssets: {} };
+    const view = { v: 1, order: ['npc_ann'], npcs: { npc_ann: record }, candidates: [], dismissed: [], userDismissedGroups: [], socialGraph: {}, portraitAssets: {} };
     assert.equal((await host.sdk.command('people.write', { v: 1, source: { sid: source.sid, swipeKey: source.swipeKey }, view })).ok, true);
     return host;
 }
@@ -72,6 +78,15 @@ test('a join builds the sheet from the record, and replays as live: swipe, swipe
     await host.st.deleteMessage(at - 1);
     await rebuilt(host, 'after deleting the reply that held their record');
     assert.equal(fields(host, 'ann').level, 12, 'the join pinned its own sheet: deleting the record\'s reply leaves it as made');
+});
+
+test('a join says in Problems which of their abilities found no free slot (REVPF4 16)', { skip }, async t => {
+    const tools = { ...ANN, abilities: ['Lockpicking', 'Herb lore', 'Map reading', 'Old lore'].map(name => ({ name, description: 'knows how to' })) };
+    const host = await annWorld('auto', tools);
+    t.after(() => host.close());
+    await host.send('Ann comes.', reply('+ party Ann'));
+    assert.equal(fields(host, 'ann').level, 12);
+    assert.ok(host.turn.problems().some(entry => entry.message.includes('Ann\'s Old lore has no free utility skill slot.')), JSON.stringify(host.turn.problems()));
 });
 
 test('the Ask card: Add and Edit first make the same sheet, and the card says the record\'s level', { skip }, async t => {

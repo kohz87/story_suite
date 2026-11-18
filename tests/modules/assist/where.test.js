@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { parseChanges } from '../../../core/capture.js';
 import { EXTRACTOR_FOOT, MAX_NEAR, SETTING, WHERE_HEAD, WORLD_FOOT, footFor, createAssistPart, extractorPrompt, hasClockTime, knownPlace, mapPlaces, parseExtractorAnswer, whereLines, whereNow, whereWhy } from '../../../modules/assist/index.js';
 import { assistPlaceConflict, worldKnown } from '../../../modules/assist/where.js';
-import { refusedFrom } from '../../../ui/legacy/reply-notes.js';
+import { refusedFrom } from '../../helpers/refused-from.js';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { fakeModel, on } from './helpers/fakes.js';
 
@@ -190,7 +190,7 @@ test('a where that throws or is missing is none of it: the prompt has no block, 
 
 // ---- the real host ---------------------------------------------------------------------------------------------------------------
 
-const PACK = { id: 'blue', version: '1.0.0', requires: { storyBlock: '^2' }, content: { places: [
+const PACK = { id: 'blue', version: '1.0.0', format: 4, kind: 'world', requires: { suite: '^0.1' }, content: { placeKinds: { 'guild office': 'site', settlement: 'town' }, places: [
     { name: 'Bluewatch Village / Guild Office', aliases: ['Guild Office'], kind: 'guild office', region: 'River', x: 64, y: 110 },
     { name: 'Bluewatch Village', kind: 'settlement', region: 'River', x: 62, y: 108 },
 ] } };

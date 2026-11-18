@@ -20,9 +20,9 @@ To update later, open **Extensions → Manage extensions** and use the update bu
 
 ## First look
 
-- The Story Suite view is what you see (the wand menu's **Story Suite** entry opens it). The view before it is still there as a fallback until it is removed: **Settings → Tools**, switch on **Developer tools**, then **Use the old view** (this device only). To come back, untick **Story Suite: use the old view** under Extensions.
+- The Story Suite view is what you see (the wand menu's **Story Suite** entry opens it, and so does **Open Story Suite** in the Story Suite drawer under Extensions). The view before it has been removed.
 - Model connections: open **Settings → Models** (the gear in the Story Suite view, or **Settings** in the Story Suite drawer under Extensions): the Story connection, the connection for quick helpers and the one for background work ("Same as chat" uses your chat connection).
-- Try the example world: open **Settings → Packs and trackers → Import a pack file**, pick `examples/packs/ersveil.zip`, then start a new chat. For the full sample world pack (Ersveil 3.0.0: the map, 31 people with portraits, lore, powers, conditions and world events; the world events part needs the World events switch in Story Director) pick `examples/packs/ersveil-world.zip` instead.
+- Try the example world: open **Settings → Packs and trackers → Import a pack file**, pick `examples/packs/ersveil.zip`, then start a new chat. It holds Ersveil in pack format 4: the world pack (4.0.0: the map, 31 people with portraits, lore, powers, conditions and world events; the world events part needs the World events switch in Story Director) and its game pack "Ersveil rules" (the calendar, coins, guild ranks, names and trackers); importing it installs both and, when no world or game was chosen before, selects them. `examples/packs/ersveil-world.zip` is the same world in format 3.
 
 ## If something is wrong
 

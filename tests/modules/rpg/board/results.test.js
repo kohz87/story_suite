@@ -8,7 +8,6 @@ import { openedSlots } from '../../../../modules/rpg/fight-parts/opened.js';
 import { rollsOf } from '../../../../modules/rpg/rolls-read.js';
 import { resolveOf } from '../../../../modules/rpg/view/battle-log/read.js';
 import { legendEarned } from '../../../../modules/inventory/validate-parts/legend.js';
-import { rulesOfReply } from '../../../../modules/rpg/view/changes-lines-parts/rolls.js';
 import { lastFoeTouch } from '../../../../modules/rpg/board/offers.js';
 
 const result = { v: 1, key: 'k', practice: 3, stop: 'won', legend: 1, opened: [{ slot: 2, name: 'Rats', count: 3 }], board: { id: 's:0', seed: 7, offset: 0, groups: [1] },
@@ -37,13 +36,11 @@ test('the readers answer from a port settle', () => {
         assert.equal(boardWin([receipt]).won, true);
         assert.equal(legendEarned({ receipts: () => [{ index: 2, receipt }], reply: { index: 4 } }), true);
         assert.equal(lastFoeTouch([{ index: 5, receipt }]), 5);
-        assert.notEqual(rulesOfReply({ receipts: [receipt] }), null, 'the reply has a roll, so its rules are read');
     }
 });
 
 test('a settle of another kind is not read as a fight', () => {
     assert.equal(rollOf([other]), null);
-    assert.equal(rulesOfReply({ receipts: [other] }), null);
     assert.deepEqual(openedSlots([other]), []);
     assert.equal(boardWin([other]), null);
     assert.equal(legendEarned({ receipts: () => [{ index: 1, receipt: other }], reply: { index: 4 }, query: () => null }), false);

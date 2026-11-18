@@ -12,7 +12,7 @@ import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
 import { fakeFiles, fakeImageIo, jpg, picked, png, pngOf, webp } from './helpers/portraits.js';
 
-const person = (id, portrait) => ({ id, name: id[0].toUpperCase() + id.slice(1), about: 'About.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, ...(portrait ? { portrait } : {}) });
+const person = (id, portrait) => ({ kind: 'companion', id, name: id[0].toUpperCase() + id.slice(1), role: 'A friend.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, ...(portrait ? { portrait } : {}) });
 const cast = (version, ...people) => pack({ version, content: { cast: people } });
 const setup = (io = fakeImageIo(), options) => {
     const files = fakeFiles(options);

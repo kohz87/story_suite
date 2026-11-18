@@ -158,6 +158,12 @@ export function createCardOffer({ readLorebook, packs, cardSettings, remember, s
         try {
             const installed = [];
             for (const member of offer.members) {
+                // A member the store already holds at this version or a newer one is kept as it is (a card never downgrades a pack); it is still selected.
+                if (member.installedVersion !== null && member.newer === false) {
+                    installed.push(member);
+                    done.push(member.installedVersion === member.pack.version ? `Already installed: ${member.pack.name} ${member.pack.version}.` : `Kept ${member.pack.name} ${member.installedVersion} (the card has the older ${member.pack.version}).`);
+                    continue;
+                }
                 const result = await packs.install(member.entry.text, { source: 'lorebook', origin: member.entry.origin, files: member.files });
                 if (!result.ok) {
                     offer.state = 'failed';

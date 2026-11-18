@@ -31,7 +31,7 @@ export { WEATHER_FIELDS, WEATHER_SEASON_FIELDS, WEATHER_TABLE_FIELDS, WEATHER_LI
 export { RIPPLES_FIELDS, RIPPLES_POWER_FIELDS, RIPPLES_TIERS, RIPPLES_CAPS } from './limits-parts/ripples.js';
 export { RIPPLES_LIMITS } from './limits-parts/ripples-limits.js';
 export { SCREEN_FIELDS, TAB_ID, TAB_TITLE_MAX, MOUNTS } from './limits-parts/screens.js';
-export { PACK_FORMAT, PACK_FORMAT_DEFAULT, IGNORED_KINDS, IGNORED_TOP_FIELDS } from './limits-parts/format.js';
+export { PACK_FORMAT } from './limits-parts/format.js';
 export { PACK_KINDS, PACK_FIELDS_V4, CONTENT_KEYS, MOVED_TOP_FIELDS } from './limits-parts/kinds.js';
 export { SKILL_TYPES_V1, SKILL_RANKS_V1, SKILL_USES_V1, SKILL_TYPE_ALIASES } from './limits-parts/skill-words.js';
 export { FOE_FIELDS, FOE_TIERS, FOE_LIMITS } from './limits-parts/foes.js';

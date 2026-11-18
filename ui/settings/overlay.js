@@ -28,9 +28,19 @@ export function createSettingsOverlay(options = {}) {
   const { doc = globalThis.document, host = doc.body, settings = {}, backStack = null } = options;
   const subtitle = settings.subtitle ?? options.subtitle ?? '';
   const sent = options.sent ?? settings.sent ?? null;
-  const { renderSection = null, onChange, onAction, onClose, onView = null } = options;
-  const sections = settings.sections ?? [];
-  const ctx = { doc, settings, onChange, onAction, view: onView, backStack, go: id => show(id) };
+  const { renderSection = null, onClose, onView = null } = options;
+  let sections = settings.sections ?? [];
+  // A module switch, a preset or Reset to Standard can turn a page's module on or off (the RPG page goes with the RPG): the side list is read again after them.
+  const modulesKey = key => /^modules\./.test(String(key ?? ''));
+  // Any other change re-reads the open page, which redraws only when another row moved with it (a Portraits style brings its own text).
+  const after = (answer, key) => {
+    const read = () => (modulesKey(key) ? refreshSections() : refreshRows(key));
+    if (typeof answer?.then === 'function') answer.then(read, () => {}); else read();
+    return answer;
+  };
+  const onChange = (key, ...rest) => after(options.onChange?.(key, ...rest), key);
+  const onAction = (key, ...rest) => after(options.onAction?.(key, ...rest), key);
+  const ctx = { doc, settings, onChange, onAction, view: onView, backStack, go: id => show(id), has: id => sections.some(s => s.id === id) };
 
   let current = sections[0]?.id ?? null;
   let query = '';
@@ -39,10 +49,11 @@ export function createSettingsOverlay(options = {}) {
   let release = null;
   let destroyed = false;
 
-  const nav = createNav(sections, {
+  const makeNav = () => createNav(sections, {
     onPick: (id, via) => { query = ''; nav.setQuery(''); if (via === 'list') page = 'section'; show(id); },
     onQuery: (text) => { query = text.trim(); nav.setQuery(text); paint(); },
   });
+  let nav = makeNav();
   const main = h('div', { class: 'spage' });
   const body = h('div', { class: 'sbody', dataset: { page: 'list' } }, nav.side, h('div', { class: 'smain' }, nav.list, main));
   const closeBtn = h('button', { type: 'button', class: 'ibtn x', 'aria-label': 'Close settings', onClick: () => close() }, '×');
@@ -72,6 +83,29 @@ export function createSettingsOverlay(options = {}) {
     main.appendChild(backButton());
     if (showSearch) main.appendChild(renderSearchResults(searchRows(sections, query), query, ctx));
     else if (section) for (const node of sectionPage(section)) main.appendChild(node);
+  }
+
+  // The pages the host lists now: a page that came back is added, one that went is taken out of the lists and search (the open page moves to Start).
+  function refreshSections() {
+    const fresh = onView?.('settings')?.sections;
+    if (!Array.isArray(fresh) || fresh.map(s => s.id).join() === sections.map(s => s.id).join()) return;
+    sections = fresh.map(s => sections.find(old => old.id === s.id) ?? s);
+    const next = makeNav();
+    for (const part of ['side', 'list']) { nav[part].before(next[part]); nav[part].remove(); }
+    nav = next;
+    nav.setQuery(query);
+    if (!sections.some(s => s.id === current)) current = sections[0]?.id ?? null;
+    paint();
+  }
+
+  function refreshRows(key) {
+    const section = sections.find(s => s.id === current);
+    const fresh = section && onView?.('settings')?.sections?.find(s => s.id === section.id);
+    const others = rows => JSON.stringify((rows ?? []).filter(r => r.key !== key));
+    if (!fresh || others(fresh.rows) === others(section.rows)) return;
+    // (in place: the Packs page writes a new pick's Start rows into the same section object, so the overlay and the page keep one copy)
+    section.rows = fresh.rows;
+    paint();
   }
 
   function show(id) {

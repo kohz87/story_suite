@@ -15,7 +15,7 @@ function real() {
 const rowsOf = port => port.view('settings').sections.find(s => s.id === 'money').rows;
 const set = (port, key, value) => port.command('settings.set', { key, value });
 
-// What the old view's Money page does for a changed field: settings.set('story-block', key, value) (ui/legacy/view/form/form.js).
+// What the old view's Money page did for a changed field: settings.set('story-block', key, value).
 const OLD = { 'money.coins': ['coins', [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }]], 'money.show': ['coinDisplay', 'base'], 'money.moneyWord': ['currency', 'mark'], 'money.plural': ['currencyPlural', 'marks'], 'money.shortForm': ['currencyShort', 'mk'], 'money.priceScale': ['economyScale', '100'] };
 const NEW = { 'money.coins': 'copper: 1, silver: 10', 'money.show': 'Smallest coin only', 'money.moneyWord': 'mark', 'money.plural': 'marks', 'money.shortForm': 'mk', 'money.priceScale': 100 };
 

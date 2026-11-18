@@ -1,19 +1,17 @@
-// The waiting fight on the live mount: the old host (with the RPG's real pause controller) and the new view on one testkit page. The pause shows only as the
-// new view's Fight tab offer; its answers write what the old pause writes; the board, its end and the held send run in the new view; with no new view, the old pause works as before.
+// The waiting fight on the live mount: the RPG's real pause controller and the new view on one testkit page. The pause shows only as the
+// new view's Fight tab offer; its answers write the chat metadata below (captured from the earlier pause); the board, its end and the held send run in the new view.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { livePage, holdFight as hold, settle } from './helpers/live-page.js';
 
 const tab = doc => doc.querySelector('.su-panel .fight-tab');
-const oldScreen = ui => ui.mounts.screen.current?.() ?? null;
 const box = host => host.ctx.chatMetadata.storySuiteInteraction;
 
 test('the pause shows only as the new view\'s Fight tab offer (foes, party, its answers), never as the old view\'s screen', async t => {
-  const { doc, host, ui } = await livePage(t);
+  const { doc, host } = await livePage(t);
   hold(host);
   await settle();
-  assert.equal(oldScreen(ui), null, 'the old view did not open its Fight screen');
-  assert.equal(doc.querySelector('.rpg-fight-pause'), null, 'no old pause card on the page');
+  assert.equal(doc.querySelector('.rpg-fight-pause'), null, 'no pause card on the page');
   assert.notEqual(doc.querySelector('.su-layer')?.getAttribute('data-state'), 'closed', 'the new view opened');
   assert.equal(doc.querySelector('.su-panel')?.getAttribute('data-tab'), 'fight', 'on its Fight tab');
   assert.ok(doc.querySelector('.su-strip .su-tab[data-tab="fight"]'), 'the strip lists Fight while the fight waits');
@@ -26,7 +24,7 @@ test('the pause shows only as the new view\'s Fight tab offer (foes, party, its 
 });
 
 test('Fight on the board opens the board in the new view; it is played to the end there and Back to the story sends the waiting message', async t => {
-  const { doc, host, ui } = await livePage(t);
+  const { doc, host } = await livePage(t);
   const sent = [];
   host.ctx.generate = type => { sent.push(type); return Promise.resolve(); };
   hold(host);
@@ -35,7 +33,6 @@ test('Fight on the board opens the board in the new view; it is played to the en
   await settle();
   assert.equal(box(host).start?.choice, 'board', 'the pause recorded the board, as its own button does');
   assert.ok(box(host).open, 'the fight is open');
-  assert.equal(oldScreen(ui), null);
   let root = tab(doc);
   assert.equal(root.dataset.step, 'choose', 'the board, with a member to choose for');
   for (let turns = 0; turns < 30 && tab(doc)?.dataset.step !== 'end'; turns += 1) {
@@ -61,7 +58,7 @@ test('Fight on the board opens the board in the new view; it is played to the en
   assert.equal(doc.querySelector('.su-layer')?.getAttribute('data-state'), 'closed', 'the view closed so the reply is seen being written');
 });
 
-test('Discard fight on a board the message waits for puts the offer back, as the old board does', async t => {
+test('Discard fight on a board the message waits for puts the offer back, as before', async t => {
   const { doc, host } = await livePage(t);
   hold(host);
   await settle();
@@ -76,28 +73,21 @@ test('Discard fight on a board the message waits for puts the offer back, as the
   assert.equal(tab(doc)?.dataset.step, 'offer', 'the offer shows again');
 });
 
-test('the same answer through the new offer and the old pause writes the same chat metadata (replay == live)', async t => {
-  const viaNew = await livePage(t, { next: true, seed: 4402 });
-  hold(viaNew.host);
-  await settle();
-  tab(viaNew.doc).querySelector('[data-offer="board"]').click();
-  await settle();
-  const viaOld = await livePage(t, { next: false, seed: 4402 });
-  hold(viaOld.host);
-  await settle();
-  assert.equal(oldScreen(viaOld.ui), 'story-block/fight', 'without the new view the old view opens its Fight screen, as before');
-  const board = viaOld.doc.querySelector('.rpg-fight-pause-board');
-  assert.ok(board, 'and draws its pause card');
-  board.click();
-  await settle();
-  assert.deepEqual(box(viaNew.host), box(viaOld.host));
-});
+const EXPECTED = {"start":{"anchor":"sw_1119041761f5","message":"utsh5w","mode":"known","choice":"board","id":"sw_1119041761f5:0:story-block/fight","choices":["board","auto","plain"],"kindId":"story-block/fight","title":"Fight"},"open":{"v":1,"id":"sw_1119041761f5:0:story-block/fight","kindId":"story-block/fight","version":1,"origin":"sw_1119041761f5","anchor":"sw_1119041761f5","attempt":0,"seed":2089307234,"offset":0,"setup":{"id":"sw_1119041761f5:0","v1":1,"groups":[1],"offset":0,"rules":{"formula":"standard","foeBase":4,"foeClassWeight":3,"classWeight":2,"costMargin":2,"decisiveMargin":8,"roundCap":8,"startStat":5,"createPoints":10,"createMin":5,"createMax":10,"pointsPerSoul":4,"statMax":20,"quickStartMargin":10,"levelDivisor":5},"practice":3,"rate":100},"steps":[]}};
 
-test('with no new view on the page nobody claims the screen: the old pause and board are unchanged', async t => {
-  const { doc, host, ui } = await livePage(t, { next: false, seed: 4403 });
+test('the board answer through the new offer writes the chat metadata the earlier pause wrote (replay == live)', async t => {
+  const { doc, host } = await livePage(t, { next: true, seed: 4402 });
   hold(host);
   await settle();
-  assert.equal(oldScreen(ui), 'story-block/fight');
-  assert.ok(doc.querySelector('.rpg-fight-pause-board'));
+  tab(doc).querySelector('[data-offer="board"]').click();
+  await settle();
+  assert.deepEqual(box(host), EXPECTED);
+});
+
+test('with no new view on the page nobody claims the screen: no pause card, no layer', async t => {
+  const { doc, host } = await livePage(t, { next: false, seed: 4403 });
+  hold(host);
+  await settle();
+  assert.equal(doc.querySelector('.rpg-fight-pause'), null);
   assert.equal(doc.querySelector('.su-layer'), null);
 });

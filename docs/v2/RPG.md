@@ -182,14 +182,10 @@ character itself cannot be made, none of the file's things or money are added.
 With the RPG on and no character for you in the story (a character named like your persona), Story Block asks you to make
 one, in two places. Neither is there with the RPG off, and neither changes anything a reply is told.
 
-- **Home** (the old view only; in the new view the Party tab's **Create your character** stands in) shows a **Your character** card at the top: "The RPG is on, and this story has no character yet. Make yours to roll
-  for what you do; your persona fills in the name and who you are." **Create your character** opens the New character window.
-  **Not now** hides the card for this chat (kept in the chat's own metadata, not in the game, so a swipe or a rewind does not
-  touch it); the Party tab's own **Create your character** stays. The card is gone as soon as you have a character, and a
-  story that has only companions still shows it.
+- **The Party tab** offers **Create your character** (or **+ New character** while only companions are in the story), which opens the New character window. (The old view's "Your character" card on Home went with that view at B4-4.)
 - **The first Send** is held. When you press Send (or Enter, where SillyTavern sends on Enter) with a message in the box, the
   message stays in the box and **Make your character first** opens, with your message quoted. **Send without the RPG for now**
-  sends it as usual, with no dice for that reply, and the chat is never asked again (the Home card still reminds you).
+  sends it as usual, with no dice for that reply, and the chat is never asked again (the Party tab still offers **Create your character**).
   **Create your character, then send** opens the New character window and sends the message when you press Create; if you
   close the window instead, the text is still in the box and the next Send asks again. Closing the dialog also leaves the text
   in the box. On a phone the dialog is a bottom sheet. In the new view it is the suite's own sheet: the suite opens for it and
@@ -396,6 +392,14 @@ The page shows only while the RPG is on.
   **Stat adds** (half the stat, a third of the stat, or full above 10), **"At a cost" when short by** (0 to 5; 0 turns it off), **Decisive at a margin
   of** (4 to 15, or a natural 1 or 20) and **Most exchanges per reply** (1 to 8). A number outside its range is held to
   it, and a roll already made keeps its own.
+- **Difficulty in the new view** (Settings › RPG and fights). The Difficulty row says what each choice changes (Gentle, Standard and Harsh: the foe's
+  base 2, 4 and 6; Custom: your own creation numbers) and its hint shows the chosen one's numbers. It also says what is the same at every difficulty: the
+  fight board (Combat Rules v1) rolls foes at d20 + 6 + level/3 + tier (Mob −2 to Apex +4) and does not read the foe's base, story checks are against easy 10,
+  normal 15, hard 20 and very hard 25, and XP follows the XP rate. So Gentle, Standard and Harsh play the same today. **Custom** shows four editors, the only
+  Custom numbers play reads (character creation): **Stats start at** (1 to 10), **Points to spend at creation** (0 to 30), **Lowest stat at creation**
+  (1 to 10) and **Highest stat at creation** (3 to 20). They are stored in the Custom set (`rpgStandard`); a number that breaks lowest ≤ start ≤ highest ≤
+  the highest a stat can be is refused, and the page says why. A Difficulty change draws the page again; a Custom number updates its field and the hint in place. Characters already made keep their stats,
+  and a companion who joins keeps its own (every stat 5, its best raised), whatever **Stats start at** says.
 - **Levels and practice.** **Level cap** (1 to 99, default 99; a cap you set below 99 wins over the game pack's; at 99 the game pack's cap applies when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
 - **What the narrator is told about combat.** The text of this chat's Combat rules block (up to 1200 characters, counted
   as you type). It is saved when you leave the box (or close the settings window with text still in it), as an edit of that
@@ -604,4 +608,10 @@ Novice, and the reader may start one at Adept.
 
 ## The pull from NPC State (pack format 4)
 
-A joining person's sheet is built from their NPC State record (`join-parts/from-person.js`, words in `pull-words.js`): level (the record's, held to the level cap; else the join line's class), best stat (the line's, else a fixed keyword table over role, background and abilities), one signature skill per ability (up to `rpg.pull.abilities` of the selected game pack, default 4, at most 6) with its type, stat and resource from the same table and its rank one under the highest the level allows, one stance skill unless an ability is one or `rpg.pull.stance` is false, and gear from keepsakes that name pack equipment. Add and Edit first make the same sheet. A person with no abilities keeps format 3 cast skills and gear until the format 3 removal. The sheet writes nothing back yet (R2).
+A joining person's sheet is built from their NPC State record (`join-parts/from-person.js`, words in `pull-words.js`): level (the record's, held to the level cap; else the join line's class), best stat (the line's, else a fixed keyword table over role, background and abilities), one signature skill per ability (up to `rpg.pull.abilities` of the selected game pack, default 4, at most 6) with its type, stat and resource from the same table and its rank one under the highest the level allows, one stance skill unless an ability is one or `rpg.pull.stance` is false, and gear from keepsakes that name pack equipment. Each skill takes a slot of its kind: the combat slots the level opens (5, then 6 at Lv 20, 7 at 40, 8 at 60) and the three utility slots; an ability that finds its kind full is left out, and the join says so in Problems ("Ann's Old lore has no free utility skill slot."); the stance comes last and only into a free combat slot. Add and Edit first make the same sheet. A person with no abilities joins with no signature skills (format 3 cast skills are gone).
+
+Not built (design §5.3 and §5.4): the sheet is made only when a person joins the party, not when an ally or a named foe first appears on the fight board; a new NPC State ability is not offered as a sheet skill on the next join card or fight-board review.
+
+### The Level kept in step (R2)
+
+When a v1 fight settles (the one `rpg.board.award` call that pays XP and practice; `board/v1-story-facts.js`), each hero that is paid XP or practice is matched by name or alias to one NPC State record. If that record's Level is higher than the sheet's, the sheet is raised to it first (held to the sheet's `cap`, one point to spend per level gained, never lowered). The fight's XP is then paid, and a level that XP gained is written to the person with `people.fields` (`level`, only up), in the same change set. A hero with no single matching record is left alone. Replay reads the reply's prefix and the sheet, so a swipe, a Re-read, a middle delete, a rewind and a reload give the same Level both places. Not built: a skill learned or a keepsake gained on the sheet is not written back as an NPC State ability or keepsake; a level is written back only at a fight's settle, so a level-up from the narrator's XP lines, the level a join made and the reader's own edit of the sheet are not written to NPC State; and a story Level only raises a sheet when that person is next paid by a fight.

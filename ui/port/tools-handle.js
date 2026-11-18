@@ -1,20 +1,20 @@
 // The Tools page's handle on the engine: what the next reply is sent, the problems, the Inspector's replies, the report, and the rebuild and save points (the reader's own buttons; nothing else here writes).
 import { promptSize, sentText, redactSentOf } from '../../core/sent/sent.js';
-import { DEFAULT_TAIL_BUDGET } from '../../core/prompt.js';
+import { DEFAULT_TAIL_BUDGET, staticTextWith, estimateTokens } from '../../core/prompt.js';
 import { CORE_FEATURE } from '../../core/features.js';
 
 const NONE = { ok: false, code: 'FAILED', message: 'Save points are not available.' };
 const settled = (run, fallback) => { try { return run() ?? fallback; } catch { return fallback; } };
 
 /**
- * Builds the handle from the runtime and a getter for the page host (it is made after the handle). Every method reads the live engine each time it is called:
- * `sent()` → { parts: { size, text, budget } } or null (no chat), `problems()` → the turn's list, `blocked()`, `rebuild(module, read)`,
+ * Builds the handle from the runtime and a getter for boot's Tools parts (core/boot/tools-parts.js: `{ inspector, report() }`, made after the handle). Every method reads the live engine each time it is called:
+ * `sent()` → { parts: { size, text, budget } } or null (no chat), `staticTokens(switches)` → the fixed prompt's tokens with other feature switches (nothing switched; null when it cannot be counted), `problems()` → the turn's list, `blocked()`, `rebuild(module, read)`,
  * `replies()`, `reply(index)`, `report()` → a promise of the text, `savePoints()` → { on, here, points } (on = the feature's switch), `makeSavePoint(name)`, `returnToSavePoint(id)`, `forgetSavePoint(id)` → the save points' answer ({ ok, … } or a failure).
  */
-export function createToolsHandle({ runtime, ui, savePoints = () => null }) {
+export function createToolsHandle({ runtime, toolsParts = () => null, savePoints = () => null }) {
+  const inspector = () => toolsParts()?.inspector ?? null;
   const registry = runtime.registry;
   const names = id => (id === 'story-suite' ? 'Story Suite' : registry?.module?.(id)?.name ?? id);
-  const inspector = () => ui()?.inspector ?? null;
   return Object.freeze({
     sent() {
       const turn = runtime.turn;
@@ -27,6 +27,7 @@ export function createToolsHandle({ runtime, ui, savePoints = () => null }) {
       const size = promptSize(parts, { names, budget, own });
       return { size, budget, text: sentText(parts, own, { names, redact: redactSentOf(registry) }).copy };
     },
+    staticTokens(switches) { const text = settled(() => staticTextWith(registry, switches), null); return typeof text === 'string' ? estimateTokens(text) : null; },
     problems: () => settled(() => runtime.turn?.problems?.(), []),
     blocked: () => settled(() => runtime.timeline?.blocked?.(), null),
     nameOf: names,
@@ -49,6 +50,6 @@ export function createToolsHandle({ runtime, ui, savePoints = () => null }) {
       const [{ buildGamePack }] = await Promise.all([import('../../packs/game-export.js'), runtime.cardSettings.loadSections?.()]);
       return buildGamePack(runtime.cardSettings, { name });
     },
-    report: () => (typeof ui()?.diagnostics?.report === 'function' ? ui().diagnostics.report() : Promise.resolve('')),
+    report: () => (typeof toolsParts()?.report === 'function' ? toolsParts().report() : Promise.resolve('')),
   });
 }

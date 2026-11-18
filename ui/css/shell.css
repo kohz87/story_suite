@@ -1,4 +1,4 @@
-/* Shell styles: sliding root, dimmed chat, sky backdrop, tab strip, phone bar and mini bar. Layout follows the container, never the viewport. */
+/* Shell styles: root (edge slide on phone and tablet, fade in place on desktop), dimmed chat, sky backdrop, tab strip, phone bar and mini bar. Layout follows the container, never the viewport. */
 .su-layer {
   position: fixed;
   inset: 0;
@@ -35,18 +35,64 @@
 .su-root {
   position: relative;
   width: 100%;
-  max-width: 820px;
   height: 100%;
   overflow: hidden;
   container-type: inline-size;
-  transform: translateX(100%);
+  transform: translateX(100%) scale(1); /* every state keeps the same transform list (and a non-none value: sheets inside are fixed and need this box as their frame) */
   transition: transform 0.25s ease;
   background: var(--su-back);
   box-shadow: var(--su-shadow);
 }
 
+/* Settings › Look › Text size (ui/theme/look.js): the whole suite, its settings too, drawn larger. The root still fills the window (a percentage is not zoomed) and the content column stays 820 px on screen: --su-col is divided by the zoom (a length is). */
+.su-root[data-text="110"] {
+  zoom: 1.1;
+  --su-col: calc(820px / 1.1);
+}
+
+.su-root[data-text="120"] {
+  zoom: 1.2;
+  --su-col: calc(820px / 1.2);
+}
+
 .su-layer[data-state="open"] .su-root {
-  transform: translateX(0);
+  transform: translateX(0) scale(1); /* the same value on desktop, so a resize while open starts no transition */
+}
+
+/* Desktop (a window wider than the 820 px column): the suite opens in place with a quick fade and a slight scale over the dimmed chat, no slide from the edge. Open looks the same at every width, so resizing while open replays nothing. */
+@media (min-width: 821px) {
+  .su-layer {
+    transition-duration: 0s;
+    transition-delay: 0.18s;
+  }
+
+  .su-layer[data-state="open"] {
+    transition-delay: 0s;
+  }
+
+  .su-dim {
+    transition-duration: 0.18s;
+  }
+
+  .su-root {
+    opacity: 0;
+    transform: translateX(0) scale(0.97);
+    transition: transform 0.18s ease-out, opacity 0.18s ease-out;
+  }
+
+  .su-layer[data-state="open"] .su-root {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* No animation anywhere: the suite appears and goes at once. */
+@media (prefers-reduced-motion: reduce) {
+  .su-layer,
+  .su-dim,
+  .su-root {
+    transition: none;
+  }
 }
 
 .su-back {
@@ -76,6 +122,18 @@
   background: linear-gradient(transparent, rgba(255, 255, 255, 0.35));
 }
 
+.su-root[data-panelbg="off"] {
+  background: var(--su-flat, #191a2b); /* Settings › Look › Panel background: Off, a flat surface in place of the backdrop */
+}
+
+.su-root[data-panelbg="off"][data-scheme="light"] {
+  --su-flat: #e8e9f1;
+}
+
+.su-root[data-panelbg="off"] .su-back {
+  display: none;
+}
+
 .su-content,
 .su-host {
   position: absolute;
@@ -87,6 +145,8 @@
   inset: 0;
   overflow: auto;
   padding: 12px 12px 140px;
+  /* Mock v7 Desktop: the root fills the window (sky edge to edge) and the card, tabs and pages keep one 820 px column in the middle; at 820 px and under this is the 12 px edge. */
+  padding-inline: max(12px, calc((100% - var(--su-col, 820px)) / 2 + 12px));
   display: flex;
   flex-direction: column;
   gap: 12px;

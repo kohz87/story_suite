@@ -13,7 +13,9 @@ import { pack } from '../../packs/helpers/fixtures.js';
 import { foeBlock, sheetDomain, PARTY } from './helpers.js';
 
 const ERSVEIL = [['F', 1, 9], ['E', 10, 19], ['D', 20, 29], ['C', 30, 39], ['B', 40, 49], ['A', 50, 59], ['S', 60, 69], ['SS', 70, 79], ['SSS', 80, 99]].map(([name, from, to]) => ({ name, from, to }));
-const withRpg = rpg => pack({ content: { rpg } });
+// A game pack's player rank must name a data module of the same pack, so the pack carries one.
+const GUILD = { slug: 'guild-membership', name: 'Guild', schema: 1, stateVersion: 1, scope: 'chat', state: { letter: { type: 'text', max: 3, default: '' } }, kinds: {} };
+const withRpg = rpg => pack({ kind: 'game', ...(rpg.playerRank ? { requires: { suite: '^0.1', capabilities: ['data-modules-v1'] } } : {}), content: { rpg, ...(rpg.playerRank ? { dataModules: [GUILD] } : {}) } });
 const result = value => validatePack(JSON.stringify(value));
 function ok(value) {
     const made = result(value);

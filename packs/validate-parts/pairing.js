@@ -8,6 +8,7 @@
 import { foldKey } from '../../core/text.js';
 import { GREGORIAN } from '../validate/world-pack-parts/date-anchor.js';
 import { parseEntry } from '../validate/world-pack-parts/grammar.js';
+import { gregorianLeap } from '../content-parts/gregorian.js';
 
 const QUARTERS = Object.freeze(['spring', 'summer', 'autumn', 'winter']);
 
@@ -15,7 +16,7 @@ const QUARTERS = Object.freeze(['spring', 'summer', 'autumn', 'winter']);
 function calendarOf(game) {
     const own = game?.calendar?.months?.length ? game.calendar : null;
     const seasons = own?.seasons?.length ? own.seasons.map(season => foldKey(season.name)) : QUARTERS;
-    return { months: own ? own.months : GREGORIAN, seasons: new Set(seasons), name: own ? `${game.name || game.id}'s calendar` : 'the built-in calendar' };
+    return { builtIn: !own, months: own ? own.months : GREGORIAN, seasons: new Set(seasons), name: own ? `${game.name || game.id}'s calendar` : 'the built-in Gregorian calendar' };
 }
 
 /** A month given by number or name → its index in `months`, or -1. */
@@ -85,7 +86,9 @@ export function checkPairing(world, game) {
 
     const date = world.start?.date;
     if (date) {
-        const problem = dateProblem(calendar, date.month, date.day);
+        // (the built-in game reads the date on the Gregorian calendar, where February 29 comes only in a leap year)
+        const leapless = calendar.builtIn && Number(date.month) === 2 && Number(date.day) === 29 && !gregorianLeap(date.year);
+        const problem = leapless ? `February has 28 days in ${date.year} on ${calendar.name}, so day 29 never comes` : dateProblem(calendar, date.month, date.day);
         if (problem) errors.push({ code: 'PAIR_START_DATE', path: 'content.start.date', part: { kind: 'start', id: 'date' }, message: `The start date (month ${date.month}, day ${date.day}): ${problem}. The chat starts on day 1 of month 1 of year ${date.year}.` });
     }
     checkRecords(world.content?.worldEvents, 'content.worldEvents', 'id', calendar, errors);

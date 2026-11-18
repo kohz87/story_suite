@@ -3,7 +3,7 @@
 // A person with no usable record falls back to the format 3 cast skills the caller passes (`fallback`; X1 removes that path).
 
 import { oneLine } from '../../../core/text.js';
-import { typeKey } from '../../../core/runtime/skill-slots.js';
+import { UTILITY_SLOTS, skillSlots, typeKey } from '../../../core/runtime/skill-slots.js';
 import { levelOfClass } from '../formula.js';
 import { RANKS, V1 } from '../combat/numbers.js';
 import { abilityWord, leanStat } from './pull-words.js';
@@ -34,7 +34,8 @@ const listOf = value => (Array.isArray(value) ? value.filter(entry => entry && t
  * What a joining person's sheet is built from: `{ level?, best, skills, keepsakes }`. `level` only when the record states one, held to `cap`; the join line's class stands
  * otherwise (the caller's `soul`). `best` is the line's, else the keyword table's over role, history and abilities, else ''. `skills`: one per ability in order, up to
  * `pull.abilities` (default 4), each by the keyword table, then one stance skill unless `pull.stance` is false or an ability already is one; with no abilities the
- * `fallback` (the format 3 cast skills) is what there is. `keepsakes`: their names, for the gear.
+ * `fallback` (the format 3 cast skills) is what there is. `keepsakes`: their names, for the gear. Each skill needs a slot of its kind (the combat slots of the level, three
+ * utility ones); `left`: `[{ name, kind }]` of the abilities that found none (only when there are some), for the join's Problems line.
  */
 export function pullOf(state, { name, soul = 1, best = '', pull = null, cap = null, fallback = [] } = {}) {
     const record = personOf(state, name);
@@ -44,14 +45,19 @@ export function pullOf(state, { name, soul = 1, best = '', pull = null, cap = nu
     const lead = best || (record ? leanStat([record.role, record.background, ...abilities.map(entry => `${entry.name} ${entry.description ?? ''}`)]) : '');
     if (!abilities.length) return { ...(level ? { level } : {}), best: lead, skills: Array.isArray(fallback) ? fallback : [], keepsakes };
     const count = Math.max(1, Math.min(ABILITY_MAX, Number.isSafeInteger(pull?.abilities) ? pull.abilities : DEFAULT_ABILITIES));
-    const rank = rankAtLevel(level ?? levelOfClass(soul));
-    const skills = abilities.slice(0, count).map(entry => {
+    const at = level ?? levelOfClass(soul), rank = rankAtLevel(at);
+    // (each skill takes a slot of its kind: the combat slots the level opens, the three utility ones; one that finds its pool full is left out and named in `left`)
+    const room = { combat: skillSlots(at), utility: UTILITY_SLOTS }, skills = [], left = [];
+    const place = skill => { const kind = skill.type === 'utility' ? 'utility' : 'combat'; if (room[kind] > 0) { room[kind] -= 1; skills.push(skill); return true; } return false; };
+    for (const entry of abilities.slice(0, count)) {
         const word = abilityWord(`${entry.name} ${entry.description ?? ''}`), type = word?.type ?? 'attack', stat = word?.stat ?? (lead || 'str');
-        return { name: oneLine(entry.name), about: oneLine(entry.description ?? ''), stat, uses: type === 'heal' || stat === 'int' || stat === 'wis' ? 'mana' : 'stamina', rank, ...typeKey(type) };
-    });
-    if (pull?.stance !== false && !skills.some(skill => isStance(skill.type ?? 'attack'))) {
-        const kind = lead === 'dex' || lead === 'agi' ? 'evasion' : lead === 'int' || lead === 'wis' || lead === 'cha' ? 'support' : 'defence';
-        skills.push({ ...STANCES[kind], uses: 'stamina', rank, type: kind });
+        const skill = { name: oneLine(entry.name), about: oneLine(entry.description ?? ''), stat, uses: type === 'heal' || stat === 'int' || stat === 'wis' ? 'mana' : 'stamina', rank, ...typeKey(type) };
+        if (!place(skill)) left.push({ name: skill.name, kind: skill.type === 'utility' ? 'utility' : 'combat' });
     }
-    return { ...(level ? { level } : {}), best: lead, skills, keepsakes };
+    // (the stance comes last and only into a free combat slot)
+    if (pull?.stance !== false && !skills.some(skill => isStance(skill.type ?? 'attack')) && room.combat > 0) {
+        const kind = lead === 'dex' || lead === 'agi' ? 'evasion' : lead === 'int' || lead === 'wis' || lead === 'cha' ? 'support' : 'defence';
+        place({ ...STANCES[kind], uses: 'stamina', rank, type: kind });
+    }
+    return { ...(level ? { level } : {}), best: lead, skills, keepsakes, ...(left.length ? { left } : {}) };
 }

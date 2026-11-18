@@ -1,15 +1,11 @@
-// Your look (MODULES §F126, src/v2/domains/scene.js): reader's edit, replay, Home header and rank packs.
+// Your look (MODULES §F126, src/v2/domains/scene.js): reader's edit, replay and rank packs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { createHost } from '../../../../testkit/index.js';
 import { validatePack } from '../../../../packs/validate.js';
 import { YOU_CHARS, YOU_FEATURE, validateScene } from '../../../../modules/scene/index.js';
-import { mountUi } from '../../../../ui/legacy/ui-host.js';
-import { gameHeroProps } from '../../../../ui/legacy/view/game-header.js';
 import { checkInvariants } from '../../../suite/qa/helpers/oracle.js';
-import { setupDom } from '../../../ui/view/mounts/helpers.js';
-import { NONE, block, fresh, lastIndex, look, rankPack, settle, staticText, tailText } from './you.helpers.js';
+import { NONE, block, fresh, lastIndex, look, rankPack, staticText, tailText } from './you.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------
 // The reader's edit
@@ -99,75 +95,38 @@ test('an older chat with no look in its state reads empty, validates, and takes 
 });
 
 // ---------------------------------------------------------------------------------------------------
-// Home: the header's rows
+// The look the header shows: what scene.you answers (the new view reads the same query)
 
-test('the game view\'s header: props from the query (none while the feature is off or with no query), Wearing and Condition rows as plain lines, edited in the header\'s one editor', async t => {
-    // The props: null query answer → no `you` at all.
-    const props = answer => gameHeroProps({ state: { meta: { rev: 1 } }, query: name => (name === 'scene.you' ? answer : null) });
-    assert.equal('you' in props(null), false);
-    assert.equal(props({ rank: 'F', rankLabel: 'Guild rank', wearing: '', condition: '' }).you.rankLabel, 'Guild rank');
-    assert.equal('you' in gameHeroProps({ state: { meta: { rev: 1 } }, query: () => { throw new Error('no query'); } }), false);
-    assert.deepEqual(props({ rank: ' F ', rankLabel: 'Guild rank', wearing: ' a coat ', condition: '' }).you, { rank: 'F', rankLabel: 'Guild rank', wearing: 'a coat', condition: '', command: 'scene.you' });
-    assert.deepEqual(props({ wearing: ' a coat ', condition: '' }).you, { wearing: 'a coat', condition: '', command: 'scene.you' }, 'no pack that gives a Rank: no rank part');
-    assert.equal(props({ wearing: 'x'.repeat(300), condition: 'y' }).you.wearing.length, 120);
-
-    const doc = setupDom(), form = doc.createElement('div');
-    form.id = 'send_form';
-    doc.body.appendChild(form);
+test('scene.you answers the pack\'s Rank word and the story\'s and the reader\'s edits, and nothing while the feature is off', async t => {
     const host = await createHost();
+    t.after(() => host.close());
     assert.equal((await host.packs.packs.install(rankPack())).ok, true);
-    const ui = mountUi({ runtime: host, ctx: host.ctx, doc });
-    t.after(() => { ui.destroy(); host.close(); });
     await host.send('Look.', 'A quiet road.');
-    assert.equal(ui.mounts.screen.open('story-block/home'), true);
-    const row = () => doc.querySelector('.ss-gameview-hero .ss-hero-you');
-    const part = name => row()?.querySelector(`.ss-hero-you-part[data-part="${name}"]`);
-    // Nothing set yet: the rows are there with a dash (the header's Edit button sets them).
-    assert.ok(row(), 'the rows are drawn while both are empty');
-    assert.deepEqual(['rank', 'wearing', 'condition'].map(name => part(name).querySelector('.ss-hero-you-label').textContent), ['Guild rank', 'Wearing', 'Condition']);
-    assert.deepEqual(['rank', 'wearing', 'condition'].map(name => part(name).querySelector('.ss-hero-you-text').textContent), ['—', '—', '—']);
-    assert.deepEqual(row().querySelectorAll('.ss-hero-you-part').map(item => item.getAttribute('data-part')), ['rank', 'wearing', 'condition'], 'Rank first');
-    assert.equal(row().querySelectorAll('button').length, 0, 'the rows are plain lines: no pencil (UI cleanup, Nov 2)');
-    // The editor's Character group: Guild rank (the pack's word), Wearing, Condition.
-    const editor = () => doc.querySelector('.ss-gameview-hero .ss-hero-editor');
-    const field = label => editor().querySelectorAll('label').find(each => each.querySelector('span').textContent === label)?.querySelector('input');
-    doc.querySelector('.ss-gameview-hero .ss-hero-edit').click();
-    assert.deepEqual(editor().querySelectorAll('legend').map(node => node.textContent), ['Story', 'Character']);
-    assert.deepEqual(['Guild rank', 'Wearing', 'Condition'].map(label => field(label)?.value), ['', '', '']);
-    editor().querySelector('.ss-w-editable-cancel').click();
-    // The story sets them: the rows show the words.
+    // Nothing set yet: the pack's word for the rank, empty parts.
+    const empty = host.sdk.query('scene.you');
+    assert.deepEqual([empty.rankLabel, empty.rank, empty.wearing, empty.condition], ['Guild rank', '', '', '']);
+    // The story sets them.
     await host.send('We walk.', block('Rain.', ['~ you rank: F-rank | wearing: oilskin coat, boots | condition: tired, cold']));
-    assert.equal(part('rank').querySelector('.ss-hero-you-text').textContent, 'F-rank');
-    assert.equal(part('wearing').querySelector('.ss-hero-you-text').textContent, 'oilskin coat, boots');
-    assert.equal(part('condition').querySelector('.ss-hero-you-text').textContent, 'tired, cold');
-    // The editor: one `scene.you` edit for the part that changed, and the row follows.
-    doc.querySelector('.ss-gameview-hero .ss-hero-edit').click();
-    assert.deepEqual(['Guild rank', 'Wearing', 'Condition'].map(label => field(label).value), ['F-rank', 'oilskin coat, boots', 'tired, cold']);
-    field('Condition').value = 'rested';
-    editor().querySelector('.ss-w-editable-save').click();
-    await settle();
+    assert.deepEqual(look(host), { rank: 'F-rank', wearing: 'oilskin coat, boots', condition: 'tired, cold' });
+    // The reader's edit: one `scene.you` for the part that changed, an empty one clears its part.
+    assert.equal((await host.sdk.command('scene.you', { condition: 'rested' })).ok, true);
     assert.deepEqual(look(host), { rank: 'F-rank', wearing: 'oilskin coat, boots', condition: 'rested' });
     assert.equal(host.store.receipts().at(-1)?.receipt?.type ?? host.store.receipts().at(-1)?.type, 'scene.you');
-    assert.equal(part('condition').querySelector('.ss-hero-you-text').textContent, 'rested');
-    // An empty save clears the part.
-    doc.querySelector('.ss-gameview-hero .ss-hero-edit').click();
-    field('Wearing').value = '';
-    editor().querySelector('.ss-w-editable-save').click();
-    await settle();
+    assert.equal((await host.sdk.command('scene.you', { wearing: '' })).ok, true);
     assert.deepEqual(look(host), { rank: 'F-rank', wearing: '', condition: 'rested' });
-    assert.equal(part('wearing').querySelector('.ss-hero-you-text').textContent, '—');
-    // Off: no rows at all; on again: they return.
+    // Off: no answer; on again: the look is back, as it was kept.
     host.features.set(YOU_FEATURE, false);
-    assert.equal(row()?.hidden ?? true, true, 'hidden while the feature is off');
+    assert.equal(host.sdk.query('scene.you'), null);
     host.features.set(YOU_FEATURE, true);
-    assert.equal(row().hidden, false);
-    assert.equal(part('condition').querySelector('.ss-hero-you-text').textContent, 'rested');
+    assert.deepEqual(look(host), { rank: 'F-rank', wearing: '', condition: 'rested' });
+    host.store.rebuild();
+    assert.deepEqual(look(host), { rank: 'F-rank', wearing: '', condition: 'rested' }, 'rebuild = live');
 });
 
 // ---------------------------------------------------------------------------------------------------
 // Rank comes from a pack (`content.you.rank`): other kinds of game have none
 
-test('no pack gives a Rank: none anywhere (no grammar word, no answer, no tail word, no Home line); `~ you rank:` drops only the rank part; the rest works', async t => {
+test('no pack gives a Rank: none anywhere (no grammar word, no answer, no tail word, no word in the header answer); `~ you rank:` drops only the rank part; the rest works', async t => {
     const host = await fresh(t, { rank: false });
     assert.equal(host.sdk.query('packs.youRank'), null);
     const line = staticText(host).split('\n').find(item => item.startsWith('~ you '));
@@ -198,22 +157,22 @@ test('no pack gives a Rank: none anywhere (no grammar word, no answer, no tail w
     assert.equal(refused.ok, false, 'the reader\'s pencil does not exist either: the command refuses');
     assert.match(refused.message, /no rank/);
     assert.equal((await host.sdk.command('scene.you', { wearing: 'a hat' })).ok, true);
-    // The header has no Rank part.
-    assert.equal('rank' in gameHeroProps({ state: { meta: { rev: 1 } }, query: () => host.sdk.query('scene.you') }).you, false);
+    // The answer the header reads has no Rank word.
+    assert.equal(host.sdk.query('scene.you').rankLabel, undefined);
 });
 
-test('a pack with content.you.rank gives the Rank its word everywhere; the first enabled pack that has one wins; turned off, the Rank is hidden and its value kept', async t => {
+test('a pack with content.you.rank gives the Rank its word everywhere; the word of the selected game is the one used; turned off, the Rank is hidden and its value kept', async t => {
     const host = await fresh(t, { rank: false });
     assert.equal((await host.packs.packs.install(rankPack('first', 'Guild rank'))).ok, true);
     assert.equal((await host.packs.packs.install(rankPack('second', 'Standing'))).ok, true);
-    assert.deepEqual(host.sdk.query('packs.youRank'), { pack: 'first', label: 'Guild rank' }, 'the first enabled pack wins');
+    assert.deepEqual(host.sdk.query('packs.youRank'), { pack: 'first', label: 'Guild rank' }, 'the selected game (the first one installed) wins');
     await host.send('We walk.', block('Rain.', ['~ you rank: F-rank, Adventurer Guild | wearing: a coat']));
     assert.deepEqual(host.sdk.query('scene.you'), { rank: 'F-rank, Adventurer Guild', rankLabel: 'Guild rank', wearing: 'a coat', condition: '' });
     assert.equal(staticText(host).split('\n').find(item => item.startsWith('~ you ')), '~ you rank: Guild rank | wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)');
     await host.send('On.', 'On.');
     assert.match(tailText(host), /^You: Guild rank F-rank, Adventurer Guild; wears a coat$/m);
-    // The first pack off: the next one's word; both off: no Rank (the instructions change back), the value stays stored.
-    assert.equal(await host.packs.packs.setEnabled('first', false), true);
+    // Another game selected: its word; the selected game off: no Rank (the instructions change back), the value stays stored.
+    assert.equal(await host.packs.packs.select('game', 'second'), true);
     assert.equal(host.sdk.query('scene.you').rankLabel, 'Standing');
     assert.equal(await host.packs.packs.setEnabled('second', false), true);
     assert.deepEqual(host.sdk.query('scene.you'), { wearing: 'a coat', condition: '' });
@@ -228,9 +187,8 @@ test('a pack with content.you.rank gives the Rank its word everywhere; the first
     assert.match(tailText(host), /^You: Guild rank F-rank, Adventurer Guild; wears a coat$/m);
 });
 
-test('the Ersveil example pack gives the Rank the word "Guild rank"; its content.you checks like the rest of a pack', async t => {
-    const ersveil = JSON.parse(readFileSync(new URL('../../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
-    assert.deepEqual(ersveil.content.you, { rank: { label: 'Guild rank' } });
+test('a game pack gives the Rank the word "Guild rank"; its content.you checks like the rest of a pack', async t => {
+    const ersveil = rankPack('ersveil', 'Guild rank');
     const host = await fresh(t, { rank: false });
     assert.equal((await host.packs.packs.install(ersveil)).ok, true);
     assert.deepEqual(host.sdk.query('packs.youRank'), { pack: ersveil.id, label: 'Guild rank' });
@@ -238,7 +196,7 @@ test('the Ersveil example pack gives the Rank the word "Guild rank"; its content
     assert.equal(host.sdk.query('scene.you').rankLabel, 'Guild rank');
     assert.equal(host.sdk.query('scene.you').rank, 'F-rank, Adventurer Guild (provisional)');
     // The validator: the shape, the label and unknown keys.
-    const check = you => validatePack({ id: 'p', version: '1.0.0', requires: { storyBlock: '^2' }, content: { you } });
+    const check = you => validatePack({ id: 'p', version: '1.0.0', format: 4, kind: 'game', requires: { suite: '^0.1' }, content: { you } });
     assert.equal(check({ rank: { label: 'Guild rank' } }).ok, true);
     assert.deepEqual(check({ rank: { label: ' Guild   rank ' } }).pack.content.you, { rank: { label: 'Guild rank' } });
     assert.deepEqual(check({}).pack.content.you, {}, 'nothing to opt in to');
@@ -258,5 +216,5 @@ test('the Ersveil example pack gives the Rank the word "Guild rank"; its content
     bad({ rank: 'Guild rank' }, 'BAD_CONTENT', 'content.you.rank');
     bad(['rank'], 'BAD_CONTENT', 'content.you');
     // A pack that does not use it normalizes as it always did (no `you` key).
-    assert.equal('you' in validatePack({ id: 'p', version: '1.0.0', requires: { storyBlock: '^2' }, content: {} }).pack.content, false);
+    assert.equal('you' in validatePack({ id: 'p', version: '1.0.0', format: 4, kind: 'game', requires: { suite: '^0.1' }, content: {} }).pack.content, false);
 });

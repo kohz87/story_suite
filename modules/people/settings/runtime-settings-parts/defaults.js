@@ -1,7 +1,7 @@
 // The default settings table every stored settings object is filled from.
 
-import { normalizeRelationshipMapSettings } from '../../legacy/relationship-map-core.js';
-import { DOSSIER_SKIN_DEFAULT } from '../../legacy/dossier-skin.js';
+import { normalizeRelationshipMapSettings } from './map-settings.js';
+import { DOSSIER_SKIN_DEFAULT } from './dossier-look.js';
 import { DEFAULT_ALLOWANCE } from '../../legacy/relationship-pacing.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION } from '../../core/core.js';
 import { DEFAULT_CUSTOM_PORTRAIT_PRESET_ID } from './portrait-preset-constants.js';
@@ -70,8 +70,8 @@ export const DEFAULTS = Object.freeze({
     recoveryFiles: {},
     recoveryHistory: {},
     recoveryGarbage: {},
-    // Settings whose controls live in their own modules (scanner-output-ui.js,
-    // relationship-map.js, calendar-settings.js); declared and normalized here, the one settings owner.
+    // Settings whose controls live elsewhere (settings/scanner-output.js, the view's Settings › People › Map,
+    // settings/calendar-settings.js; dossierStyle has had none since the old dossier panel went); declared and normalized here, the one settings owner.
     scannerMaxOutputTokens: 0,
     relationshipMap: normalizeRelationshipMapSettings(),
     dossierStyle: DOSSIER_SKIN_DEFAULT,

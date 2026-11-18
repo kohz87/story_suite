@@ -11,7 +11,7 @@ const NUMBERS = { year: [0, 999999], month: [1, 99], day: [1, 999], hour: [0, 99
 function checkStartKeys(start, say) {
     for (const key of Object.keys(start)) {
         if (WORLD_START_FIELDS.keys.includes(key)) continue;
-        const moved = WORLD_START_FIELDS.moved[key];
+        const moved = Object.hasOwn(WORLD_START_FIELDS.moved, key) ? WORLD_START_FIELDS.moved[key] : '';
         say(key, `"${key}" is not a world start field (${WORLD_START_FIELDS.keys.join(', ')})${moved ? `: ${moved}` : ''}.`, 'UNKNOWN_FIELD');
     }
 }

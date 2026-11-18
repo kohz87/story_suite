@@ -154,7 +154,7 @@ test('a place\'s loot.maxRarity lowers the ceiling for the area, by name or alia
     const built = validatePack(raw);
     assert.equal(built.ok, true, JSON.stringify(built.errors));
     t.mock.method(console, 'warn', () => {});
-    const host = await createHost({ settings: { features: { 'story-block.gear': true, 'story-block.rpg': true }, packs: [{ id: built.pack.id, version: built.pack.version, enabled: true, source: 'file', origin: 'test', pack: raw }] } });
+    const host = await createHost({ settings: { features: { 'story-block.gear': true, 'story-block.rpg': true }, packs: [{ id: built.pack.id, version: built.pack.version, enabled: true, kind: raw.kind, source: 'file', origin: 'test', pack: raw }], selected: { [raw.kind]: raw.id } } });
     t.after(() => host.close());
     await host.send('Hello.', reply('The road.', ['~ place Mill Road']));
     const rarity = name => defNamed(host, name).rarity;

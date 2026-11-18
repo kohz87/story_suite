@@ -68,6 +68,12 @@ function controlFor(row, emit, labelId) {
     el.addEventListener('change', () => emit(el.value));
     return el;
   }
+  if (type === 'area') {
+    const el = h('textarea', { class: 'txt2 area2', rows: 3, placeholder: '—', 'aria-label': label });
+    el.value = value ?? '';
+    el.addEventListener('change', () => emit(el.value));
+    return el;
+  }
   if (type === 'chips') {
     const on = new Set(Array.isArray(value) ? value : []);
     return h('span', { class: 'chips3' }, list.map((o) => {
@@ -80,6 +86,12 @@ function controlFor(row, emit, labelId) {
       return b;
     }));
   }
+  if (type === 'lines') {
+    const box = h('textarea', { class: 'lines-ed', hidden: true, rows: 4, 'aria-label': label, placeholder: 'One item a line: Rope, or Rope x3' }, value ?? '');
+    box.addEventListener('change', () => emit(box.value));
+    const open = h('button', { type: 'button', class: 'btn2', 'aria-expanded': 'false', onClick: () => { box.hidden = !box.hidden; open.setAttribute('aria-expanded', String(!box.hidden)); if (!box.hidden) box.focus(); } }, list[0] ?? 'Edit list');
+    return [open, box];
+  }
   if (type === 'btn') {
     return list.map(o => h('button', { type: 'button', class: 'btn2', onClick: () => emit(o) }, o));
   }
@@ -87,7 +99,7 @@ function controlFor(row, emit, labelId) {
 }
 
 function isWide(row) {
-  if (row.wide || row.type === 'txt' || row.type === 'chips') return true;
+  if (row.wide || row.type === 'txt' || row.type === 'area' || row.type === 'chips') return true;
   return row.type === 'seg' && Array.isArray(row.options) && row.options.join('').length > 26;
 }
 

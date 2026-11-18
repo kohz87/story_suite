@@ -1,7 +1,7 @@
 // Story Block v2's runtime, wired once for SillyTavern (index.js) and for the testkit alike: the
 // registry with the core module (scene, inventory, packs, events), settings under
 // extension_settings.storySuite, the store over the chat, the command bus, the public sdk and the
-// turn. No DOM: the settings overlay, the tab host and the mounts are index.js's (src/v2/ui-host.js).
+// turn. No DOM: the view is ui/ (started by index.js after boot).
 //
 // What the runtime adds on top of the parts:
 // * the initial state of a chat with none is the registry's, with the enabled packs' start merged

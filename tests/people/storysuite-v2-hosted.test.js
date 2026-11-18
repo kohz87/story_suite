@@ -229,14 +229,3 @@ test('without a v2 host the in-chat cast is as before', () => {
         assert.ok(inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === String(id)), 'the default full cards stay in the chat');
     });
 });
-
-test('the floating launcher is always hidden; its settings, the keep flags and the hosted-only rows are gone', () => {
-    const launcher = fs.readFileSync(new URL('../../modules/people/legacy/launcher-ui.js', import.meta.url), 'utf8');
-    assert.match(launcher, /html #\$\{LAUNCHER_ID\} \{ display: none !important; \}/);
-    assert.doesNotMatch(launcher, /data-npc-state-delta-story-block|data-npc-state-delta-launcher/);
-    const index = runtimeSource();
-    assert.doesNotMatch(index, /launcherWithStoryBlock|npc_state_delta_launcher_with_story_block|applyLauncherFlag|npcStateDeltaLauncher/);
-    assert.doesNotMatch(index, /npc-state-delta-v2-hosted-only|npc-state-delta-v2-hosted-hide/);
-    assert.match(index, /settingRow\('npc_state_delta_layered_secrets', 'Hidden notes for new people'/, 'the layered-secrets row stays, unwrapped');
-    assert.doesNotMatch(styleSource(), /npc-state-delta-v2-hosted|data-npc-state-delta-story-block/);
-});

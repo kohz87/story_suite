@@ -35,8 +35,11 @@ export async function pageSuiteHost(loaded, { seed = 1, settings = null, nsdNpcs
     suiteApi: { npcs: () => nsdNpcs }, delta: () => runtime, host: () => globalThis.StoryBlock, doc: null, timers: {}, logger: { warn() {} },
   });
   const probe = await loaded.createHost({ settings: settings ?? {} });
-  const done = await probe.packs.packs.install(loaded.packText, { origin: 'pack.json' });
-  if (!done.ok) throw new Error('pack install failed: ' + JSON.stringify(done.errors));
+  // (the shipped Ersveil world and game, as the suite tests install them: tests/suite/break/helpers/suite.js)
+  for (const text of loaded.pairTexts) {
+    const done = await probe.packs.packs.install(text, { origin: 'pack.json' });
+    if (!done.ok) throw new Error('pack install failed: ' + JSON.stringify(done.errors));
+  }
   const storySuite = structuredClone(probe.ctx.extensionSettings.storySuite);
   probe.close();
   host = await loaded.createHost({ settings: storySuite, modules: [sd] });

@@ -17,7 +17,7 @@
 //
 // The cap per reply and the cuts are code's: the first lines in reply order are kept, the rest get a
 // Problem; a text is cut by code points (never inside a character), flattened to one line, and drawn
-// as text only (ui-host's extras, textContent). Pure: no DOM, no SillyTavern.
+// as text only (the old view's extras, textContent). Pure: no DOM, no SillyTavern.
 // Public face: re-exports its parts.
 
 export { CHOICES_FEATURE, CHATTER_FEATURE, chatterGrammar, EXTRA_KINDS } from './extras-parts/kinds.js';

@@ -9,7 +9,7 @@ import { REPO, SCENARIOS } from './unused/scenarios.js';
 import { fixture } from './helpers.js';
 
 // Any installed pack changes a chat a little (its start, its words); the control carries an empty one.
-const mini = () => ({ text: JSON.stringify({ id: 'mini', version: '1.0.0', requires: { storyBlock: '^2' }, content: {} }), origin: 'mini.json' });
+const mini = () => ({ text: JSON.stringify({ id: 'mini', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' }, content: {} }), origin: 'mini.json' });
 const dataPack = () => ({ text: JSON.stringify(fixture('reputation')), origin: 'reputation.json' });
 
 function firstDifference(want, got) {

@@ -10,7 +10,8 @@ import { CAST_BUILT_IN_METERS, CAST_BUILT_IN_PRESETS, METER_LIMITS, SLUG } from 
 import { validatePack } from '../../packs/validate.js';
 import { pack } from './helpers/fixtures.js';
 
-const person = preset => ({ id: 'fenna', name: 'Fenna', about: 'About.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, meters: { preset } });
+const person = preset => ({ kind: 'companion', id: 'fenna', name: 'Fenna', role: 'A ferrywoman', start: { place: 'Docks', goal: 'A goal.' }, meters: { preset } });
+const kept = preset => validatePack(pack({ content: { cast: [person(preset)] } })).pack.content.cast.length;
 
 test('the built-in preset ids are one frozen list: companion, rival, mentor', () => {
     assert.deepEqual([...CAST_BUILT_IN_PRESETS], ['companion', 'rival', 'mentor']);
@@ -20,8 +21,8 @@ test('the built-in preset ids are one frozen list: companion, rival, mentor', ()
 });
 
 test('every built-in preset id is accepted in a cast entry\'s meters.preset, and a made-up one is accepted too (this host checks the shape only)', () => {
-    for (const id of [...CAST_BUILT_IN_PRESETS, 'a-preset-of-the-pack']) assert.equal(validatePack(pack({ content: { cast: [person(id)] } })).ok, true, id);
-    assert.equal(validatePack(pack({ content: { cast: [person('Not A Slug')] } })).ok, false);
+    for (const id of [...CAST_BUILT_IN_PRESETS, 'a-preset-of-the-pack']) assert.equal(kept(id), 1, id);
+    assert.equal(kept('Not A Slug'), 0, 'a preset id that is not a slug leaves that person out');
 });
 
 const here = dirname(fileURLToPath(import.meta.url));

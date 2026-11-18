@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createHost } from '../../testkit/index.js';
 import { buildInjection, createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
-import { keyAwayHtml, keyProjection, projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
+
 import { dossierRowNodes } from '../../modules/people/dossier-rows.js';
 import { storyMinuteText } from '../../modules/people/legacy/calendar.js';
 import { FEATURE_DRIFT, FEATURE_STAGES, KEY_PEOPLE_QUERY, observeKeyAway, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
@@ -241,38 +241,6 @@ test('the hold: only the stable profile fields and custom fields, nothing stored
 });
 
 // ---- the dossier, the library, the cards ----
-
-test('the dossier shows the badge and "While away" (live and after the return); a library row carries the ★', () => {
-    const view = { name: 'Ren', here: false, away: REN_AWAY, recent: null };
-    const projected = keyProjection(view);
-    assert.equal(projected.away.range, 'Gw 12 – Gw 18');
-    const html = keyAwayHtml(projected);
-    assert.match(html, /While away · Gw 12 – Gw 18/);
-    assert.match(html, /<li><b>Gw 14<\/b>: reached Wolfmere Outpost<\/li>/);
-    assert.match(html, /held while they are away/);
-    const back = keyAwayHtml(keyProjection({ name: 'Ren', here: true, away: null, recent: { away: REN_AWAY, justReturned: false } }));
-    assert.match(back, /While away · Gw 12 – Gw 18/);
-    assert.match(back, /They are back\./);
-    assert.equal(keyAwayHtml(keyProjection({ name: 'Ren', here: true, away: null, recent: null })), '', 'a key person who is here has no section');
-    assert.equal(keyProjection(null), null);
-    // Markup in the story's words is text.
-    const hostile = keyAwayHtml(keyProjection({ here: false, away: { doing: '<img src=x>', steps: [{ date: '<b>', text: '<script>' }] } }));
-    assert.doesNotMatch(hostile, /<img|<script/);
-    assert.match(hostile, /&lt;img src=x&gt;/);
-    assert.match(hostile, /<li><b>&lt;b&gt;<\/b>: &lt;script&gt;<\/li>/);
-
-    const state = { npcs: [npc('Ren', { present: false }), npc('Odda', { present: true })], keyViews: { npc_ren: view } };
-    const projection = projectDossierState(state);
-    assert.equal(projection.npcs.find(item => item.id === 'npc_ren').key.away.doing, 'scouting the north road');
-    assert.equal(projection.npcs.find(item => item.id === 'npc_odda').key, undefined);
-    assert.deepEqual(projection.index.map(row => [row.id, row.key === true]).sort(), [['npc_odda', false], ['npc_ren', true]]);
-    assert.equal(projectDossierState({ npcs: [npc('Ren')] }).npcs[0].key, undefined, 'no key people: the projection is as before');
-
-    const rows = dossierRowNodes([{ id: 'npc_ren', name: 'Ren', role: 'Scout', statusLabel: 'Off-screen', key: true }, { id: 'npc_odda', name: 'Odda', role: '', statusLabel: '' }], fakeDocument())
-        .map(node => node.serialize());
-    assert.match(rows[0], /<b class="ss-listcard-title">Ren<span class="npc-state-delta-key-star" title="Key person" aria-label="Key person"> ★<\/span><\/b>/);
-    assert.doesNotMatch(rows[1], /key-star/);
-});
 
 test('index.js wiring: the card tag, the badge data, the one-time note, the scan hold and the memory (source)', () => {
     const index = runtimeSource();

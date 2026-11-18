@@ -1,4 +1,4 @@
-// Pack format 4, the envelope (job P1): `format` 4 with `kind` "world" or "game", `recommends`, the top-level fields, the `content` keys of each kind with their "belongs in a … pack" pointers, and format 3 still read.
+// Pack format 4, the envelope (job P1): `format` 4 with `kind` "world" or "game", `recommends`, the top-level fields, the `content` keys of each kind with their "belongs in a … pack" pointers.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validatePack } from '../../packs/validate.js';
@@ -27,10 +27,22 @@ test('kind is required and is "world" or "game": anything else is refused, whate
     assert.deepEqual(codes(validatePack(world({ kind: 'x', content: { calendar: {} } }))).filter(code => code === 'UNKNOWN_KIND').length, 1);
 });
 
-test('format 3 and older packs may not use `kind` or `recommends` (they are format 4 fields)', () => {
-    refused(pack({ format: 3, requires: { suite: '^0.1' }, kind: 'world' }), 'UNKNOWN_FIELD');
-    refused(pack({ format: 3, requires: { suite: '^0.1' }, recommends: {} }), 'UNKNOWN_FIELD');
-    refused(pack({ kind: 'game' }), 'UNKNOWN_FIELD');
+test('format: a missing, 1, 2 or 3 format is FORMAT_OLD alone; a non-integer is BAD_FIELD; a newer number is FORMAT_NEWER', () => {
+    for (const old of [undefined, 0, -1, 1, 2, 3]) {   // (0 and -1: REVPF4 18, an old format too, not BAD_FIELD)
+        const input = world({ format: old });
+        if (old === undefined) delete input.format;
+        const result = refused(input, 'FORMAT_OLD');
+        assert.equal(result.errors.length, 1, `format ${old}`);
+        assert.equal(result.errors[0].path, 'format');
+    }
+    for (const bad of [4.5, '3', null]) {
+        const result = refused(world({ format: bad }), 'BAD_FIELD');
+        assert.equal(result.errors[0].path, 'format');
+        assert.equal(codes(result).includes('FORMAT_OLD'), false, JSON.stringify(bad));
+    }
+    refused(world({ format: 5 }), 'FORMAT_NEWER');
+    // An old pack is not read at all: the old fields it carries are not reported on top.
+    assert.equal(refused(pack({ format: 3, requires: { storyBlock: '^2' }, currency: {} }), 'FORMAT_OLD').errors.length, 1);
 });
 
 test('top-level fields: format 3 fields that moved say where they went; unknown ones are refused', () => {
@@ -42,6 +54,10 @@ test('top-level fields: format 3 fields that moved say where they went; unknown 
     for (const field of ['ripples', 'layouts', 'screens', 'theme']) assert.match(messageAt(refused(world({ [field]: {} }), 'UNKNOWN_FIELD'), field), /not a pack field any more/);
     refused(world({ extra: 1 }), 'UNKNOWN_FIELD');
     refused(world({ constructor: 1 }), 'UNSAFE_KEY');
+    // REVPF4 18: a key that is an inherited name ("toString") reads as unknown, not as a moved field
+    assert.match(messageAt(refused(world({ toString: 1 }), 'UNKNOWN_FIELD'), 'toString'), /"toString" is not a pack field \(expected /);
+    assert.match(messageAt(refused(world({ content: { toString: [] } }), 'UNKNOWN_KIND'), 'content.toString'), /is not a content key of a world pack/);
+    assert.match(messageAt(refused(world({ content: { start: { toString: 1 } } }), 'UNKNOWN_FIELD'), 'content.start.toString'), /is not a world start field \([^)]*\)\.$/);
 });
 
 test('content keys: a key of the other kind says "belongs in a … pack"; legacy and unknown keys are refused', () => {
@@ -70,7 +86,6 @@ test('requires: storyBlock is refused in format 4, suite is needed, and the suit
     const none = refused(world({ requires: {} }), 'BAD_REQUIRES');
     assert.match(messageAt(none, 'requires.suite'), /requires\.suite/);
     refused(world({ requires: { suite: '^9' } }), 'HOST_VERSION');
-    assert.equal(validatePack(pack({ format: 3, requires: { storyBlock: '^2' } })).ok, true, 'format 3 still reads storyBlock');
 });
 
 test('recommends: a world pack may suggest one game { id, version }; hostile shapes are refused', () => {
@@ -105,13 +120,8 @@ test('a game pack: money, names, rank, trackers and RPG rules are checked; calen
     for (const key of ['calendar', 'weather', 'start', 'pacing']) refused(game({ content: { [key]: 'x' } }), key === 'calendar' ? 'BAD_CALENDAR' : key === 'weather' ? 'BAD_WEATHER' : key === 'start' ? 'BAD_START' : 'BAD_CONTENT');
 });
 
-test('hostile files: prototype keys and deep or huge values are refused, and format 3 packs are read as before', () => {
+test('hostile files: prototype keys and deep or huge values are refused', () => {
     assert.equal(validatePack('{"id":"w","format":4,"kind":"world","version":"1.0.0","requires":{"suite":"^0.1"},"content":{"__proto__":{"x":1}}}').ok, false);
     assert.equal(validatePack(JSON.stringify(world({ name: 'x'.repeat(81) }))).ok, false);
     assert.equal(validatePack(JSON.stringify(world({ description: 5 }))).ok, false);
-    const legacy = pack({ format: 3, requires: { suite: '^0.1' }, currency: { name: 'mark', plural: 'marks', coins: [{ name: 'mark', plural: 'marks', value: 1 }] }, content: { events: [] } });
-    const result = ok(legacy);
-    assert.equal(result.pack.format, 3);
-    assert.equal('kind' in result.pack, false);
-    assert.equal(result.pack.currency.name, 'mark');
 });

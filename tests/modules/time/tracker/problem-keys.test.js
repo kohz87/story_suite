@@ -5,14 +5,13 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { addProblem, problemList, validateDirector } from '../../../../modules/time/tracker/domain.js';
 import { withD1 } from '../../../helpers/director/d1.js';
+import { installBluewatch } from '../../../fixtures/director/bluewatch.js';
 
-const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const bad = (tag, n) => Array.from({ length: n }, (_, i) => `~ quest ${tag}${i} | step:`);
 
@@ -147,7 +146,7 @@ test('a step\'s problem kept on a reply (calendar names) is not overwritten when
         let host = null;
         const director = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text), chat: () => host?.ctx.chat ?? [] } });
         host = await createHost({ modules: [director] });
-        assert.equal((await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' })).ok, true);
+        assert.equal((await installBluewatch(host.packs.packs)).ok, true);
         await host.send('Hi.', said('It is Goldwane 14.', ['~ time Goldwane 15, 611, 08:00 am', '+ quest Q — go | giver: A']));
         await host.send('Who?', said('R1. The ditch boy from Tuesday waved.', second));
         await host.send('On.', said('R2.', bad('b', 1)));

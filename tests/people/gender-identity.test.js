@@ -1,5 +1,5 @@
 import test from 'node:test';
-import { boardHtml } from '../../modules/people/legacy/dossier-ui-board.js';
+
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -15,19 +15,14 @@ import {
     normalizeGender,
     normalizeNpcRecord,
 } from '../../modules/people/core/core.js';
-import {
-    dossierIndexProjection,
-    filterDossierIndex,
-    projectDossierState,
-} from '../../modules/people/legacy/dossier-ui.js';
+
 import { consolidateAliasLinkedNpcDuplicates } from '../../modules/people/core/core-merge-aliases.js';
 import { encodeNpcStateBundle, decodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
 import { runtimeSource } from './helpers/runtime-source.js';
-import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
-const dossierUiText = dossierUiSource();
+
 const runtimeText = runtimeSource();
 
 test('gender is canonical male/female identity metadata with blank unknown', () => {
@@ -235,20 +230,6 @@ test('scanner, refresh, backfill and dossier import all carry the explicit-only 
         // (NSD11) Refresh says it as "gender male|female only if stated".
         assert.match(prompt, prompt === prompts[1] ? /gender male\|female only if stated/ : /never infer/i);
     }
-});
-
-test('dossier UI places gender between species and role and makes it searchable', () => {
-    const npc = { id: 'mira', name: 'Mira', species: 'Human', gender: 'female', role: 'Barmaid', apparentAge: '~20' };
-    const row = dossierIndexProjection(npc);
-    assert.equal(row.gender, 'female');
-    assert.deepEqual(filterDossierIndex([row], { query: 'female' }).map(item => item.id), ['mira']);
-    const projected = projectDossierState({ npcs: [npc] }, { chatKey: 'chat-1', hydrationStatus: 'ready' });
-    assert.equal(projected.index[0].gender, 'female');
-
-    assert.match(dossierUiText, /capFirst\(npc\?\.species\),\s*\n\s*capFirst\(npc\?\.gender\),\s*\n\s*capFirst\(npc\?\.role\)/);
-    assert.match(boardHtml(projected.npcs[0]), /Human · Female · Barmaid/, 'the board names species, gender, role in that order');
-    assert.match(runtimeText, /id="npc_state_delta_edit_gender"/);
-    assert.match(runtimeText, /Gender<select/);
 });
 
 test('native bundle preserves canonical gender without a format bump', () => {

@@ -40,8 +40,8 @@ const reread = async (host, index, text) => {
 };
 
 test('packCalendarOf: the frame\'s calendar when the chat has one, the live game\'s without; the built-in game in a frame is no calendar', () => {
-    const live = { pack: 'g2', era: '', months: SUN, start: { year: 5, month: 'Sun', day: 3, hour: 0, minute: 0 } };
-    const framed = (game, calendar) => ({ set: true, game, calendar });
+    const live = { pack: 'g2', world: 'w1', era: '', months: SUN, start: { year: 5, month: 'Sun', day: 3, hour: 0, minute: 0 } };
+    const framed = (game, calendar, world = { pack: 'w1' }) => ({ set: true, world, game, calendar });
     const query = frame => (name) => {
         if (name === 'packs.calendar') return structuredClone(live);
         if (name === 'packs.frame') return frame;
@@ -52,6 +52,8 @@ test('packCalendarOf: the frame\'s calendar when the chat has one, the live game
     const out = packCalendarOf(query(framed({ pack: 'g1' }, { era: 'GE', months: FROST })));
     assert.deepEqual([out.pack, out.era, out.months, out.start], ['g1', 'GE', FROST, null], 'the frame\'s; the live start is another game\'s, so none');
     assert.deepEqual(packCalendarOf(query(framed({ pack: 'g2' }, { months: SUN }))).start, live.start, 'the start of the selected world while the game is the chat\'s');
+    assert.equal(packCalendarOf(query(framed({ pack: 'g2' }, { months: SUN }, { pack: 'w2' }))).start, null, 'another world than the chat began with gives no start');
+    assert.equal(packCalendarOf(query(framed({ pack: 'g2' }, { months: SUN }, null))).start, null, 'a chat begun without a world is not started by one installed later');
     assert.equal(packCalendarOf(query(framed('built-in', null))), null, 'a built-in game stays Gregorian whatever is selected later');
     assert.equal(packCalendarOf(() => { throw new Error('none'); }), null);
     assert.equal(packCalendarOf(null), null);

@@ -17,10 +17,10 @@ test('a condition may be open: true and the flag is kept; open: false is refused
     refused(w => { w.content.conditions[0].open = false; }, /open must be true/);
 });
 
-test('content.regions: declared regions are kept; a place in an undeclared region, a bad record and a start region are refused', () => {
+test('content.regions: declared regions are kept; a place in an undeclared region, a bad record and a start place outside the pack are refused', () => {
     assert.deepEqual(accepted(() => {}).pack.content.regions[0], { id: 'the-marches', name: 'The Marches', aliases: ['the March'] });
     refused(w => { w.content.places[1].region = 'nowhere'; }, /"nowhere" is not a declared region id/);
-    refused(w => { w.start = { scene: { place: { name: 'Ledgerford', region: 'nowhere' } } }; }, /start scene's region "nowhere"/);
+    refused(w => { w.content.start = { place: 'nowhere' }; }, /not the id of a place in this pack/);
     refused(w => { w.content.regions[0].extra = 1; }, /"extra" is not a region field/);
     refused(w => { w.content.regions.push({ id: 'the-marches', name: 'Again' }); }, /two regions share the id/);
 });
@@ -37,13 +37,13 @@ test('place, region, route and realm are reserved: refused as the id of a place,
 });
 
 test('start.world: conditions and facts are checked and kept; its facts count as written', () => {
-    const r = accepted(w => { w.start = { world: { set: ['crown-contested@Highmark Empire: 1 year'], facts: ['letter-found'] } }; });
+    const r = accepted(w => { w.content.start = { world: { set: ['crown-contested@Highmark Empire: 1 year'], facts: ['letter-found'] } }; });
     assert.deepEqual(r.pack.start.world, { set: ['crown-contested@Highmark Empire: 1 year'], facts: ['letter-found'] });
     assert.ok(!r.warnings.some(m => /letter-found/.test(m)), 'a start fact counts as written');
-    refused(w => { w.start = { world: { set: ['nothing@Highmark Empire'] } }; }, /"nothing" is not a condition/);
-    refused(w => { w.start = { world: { set: ['unrest@place'] } }; }, /@place binds to the place picked/);
-    refused(w => { w.start = { world: { facts: ['Bad Id'] } }; }, /fact ids/);
-    refused(w => { w.start = { world: { other: 1 } }; }, /"other" is not a start.world field/);
+    refused(w => { w.content.start = { world: { set: ['nothing@Highmark Empire'] } }; }, /"nothing" is not a condition/);
+    refused(w => { w.content.start = { world: { set: ['unrest@place'] } }; }, /@place binds to the place picked/);
+    refused(w => { w.content.start = { world: { facts: ['Bad Id'] } }; }, /fact ids/);
+    refused(w => { w.content.start = { world: { other: 1 } }; }, /"other" is not a start.world field/);
 });
 
 test('@@place means the picked place (a template, a recurring event); a one-off still refuses a placeholder', () => {
@@ -52,12 +52,10 @@ test('@@place means the picked place (a template, a recurring event); a one-off 
     refused(w => { event(w, 'succession-crisis').effects.set = ['unrest@@place: 3 days']; }, /binds to the place picked/);
 });
 
-test('date anchors: a number or a month name; a bad shape or an unknown month in the pack calendar is refused', () => {
-    const calendar = { era: 'CY', months: [{ name: 'Goldwane', days: 30 }, { name: 'Ember', days: 30 }], start: { year: 612, month: 'Goldwane', day: 1 } };
-    accepted(w => { w.calendar = calendar; event(w, 'war-of-faiths').requires.push('date:612-Goldwane-12'); event(w, 'war-of-faiths').ends_when.any_of.push('date:612-2-30'); });
-    refused(w => { w.calendar = calendar; event(w, 'war-of-faiths').requires.push('date:612-Frost-12'); }, /"Frost" is not a month of this pack's calendar/);
+test('date anchors: a number or a month name is read; a bad shape is refused; no calendar is read in a world pack', () => {
+    accepted(w => { event(w, 'war-of-faiths').requires.push('date:612-Goldwane-12'); event(w, 'war-of-faiths').ends_when.any_of.push('date:612-2-30'); });
     refused(w => { event(w, 'war-of-faiths').requires.push('date:612-July'); }, /fixed date is date:<year>-<month>-<day>/);
-    assert.ok(accepted(w => { w.calendar = calendar; event(w, 'war-of-faiths').requires.push('date:612-2-31'); }).warnings.some(m => /Ember has 30 days/.test(m)));
+    refused(w => { w.content.calendar = { era: 'CY', months: [{ name: 'Goldwane', days: 30 }] }; }, /belongs in a game pack/);
 });
 
 test('"on" is a one-off on one fixed date: window, chance, another certainty, a recurring kind or a bad date are refused', () => {

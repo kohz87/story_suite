@@ -72,3 +72,14 @@ test('watchSt reports style and class edits on the page root and body, and stops
   assert.equal(Fake.last.off, true);
   assert.equal(typeof watchSt({}, () => {}), 'function');
 });
+
+test('followSt picks the text colour for an accent fill: dark ink or white, whichever reads at 4.5:1 or better (UIFIX5)', () => {
+  const read = quote => followSt(name => ({ '--SmartThemeBodyColor': '#dcdcd2', '--SmartThemeBlurTintColor': 'rgba(23, 23, 23, 0.9)', '--SmartThemeQuoteColor': quote })[name] ?? '');
+  assert.equal(read('rgb(81, 160, 222)')['--su-on-accent'], '#14102a'); // the owner's blue: 6.5:1 dark, 2.8:1 white
+  assert.equal(read('rgb(96, 40, 150)')['--su-on-accent'], '#ffffff'); // a dark violet: white reads better
+  assert.equal(read('#e18a24')['--su-on-accent'], '#14102a');
+  assert.equal(read('rgba(96, 40, 150, 0.4)')['--su-on-accent'], '#ffffff'); // see-through: drawn over the dark panel
+  assert.equal(read('')['--su-on-accent'], GLASS_DARK['--su-on-accent']);
+  assert.equal(GLASS_DARK['--su-on-accent'], '#14102a');
+  assert.equal(GLASS_LIGHT['--su-on-accent'], '#ffffff'); // the mock's #14102a is 3.4:1 on #6c4df0
+});

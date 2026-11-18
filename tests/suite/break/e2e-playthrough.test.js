@@ -53,7 +53,7 @@ const STEPS = [
     ['Another Temiwa arrives.', 'A second woman gives her name as Temiwa Voss and sits.', ['+ present Temiwa Voss', '+ person Temiwa Voss | look: pale | flaw: vain | voice: soft | temper: calm']],
     ['I leave the market.', 'The market empties as the lamps are lit.', ['- present Elara', '- present Temiwa Voss', '! time +10h']],
     ['I rest at the inn.', 'The night passes and a new day begins in Auvoth.', ['~ place Auvoth Inn | kind: indoors', '! time +9h']],
-    ['I ask about the guild.', 'The examiner says the Guild owes Astra a letter.', [DM('guild-membership', 'passed the exam', 'promote', 'letter: E').replace('+', '~'), '~ time Goldwane 14, 8:00 am']],
+    ['I ask about the guild.', 'The examiner says the Guild owes Astra a letter.', [DM('guild-membership', 'passed the exam', 'promote', 'letter: E').replace('+', '~'), '~ time October 4, 611, 8:00 am']],
     ['I tell the story of the cellar.', 'Astra clears the cellar in front of the whole market.', [DM('fame', 'cleared the cellar before a crowd', 'deed', 'region: auvoth | size: notable | witnessed: true'), '- quest Granary Rats — done']],
     ['I repay the Guild.', 'The Guild is pleased with Astra.', [DM('standing', 'finished the grain levy', 'gain', 'faction: guild | size: small')]],
     ['A mob shouts.', 'Astra insults a Highmark envoy; a ripple runs through the court.', [DM('standing', 'insulted the envoy', 'loss', 'faction: highmark | size: small').replace('+', '-'), '? check charisma — talk the crowd down | dc: normal']],
@@ -109,7 +109,7 @@ test('E2E: a 30-reply Ersveil playthrough keeps live, rebuild, reload, Re-read, 
     t.mock.method(console, 'warn', () => {});
     const errors = [];
     t.mock.method(console, 'error', (...args) => { errors.push(args.map(String).join(' ')); });
-    const host = await suiteHost(loaded, { seed: 7 });
+    const host = await suiteHost(loaded, { seed: 7, pair: true });
     t.after(() => host.close());
     for (const id of ['story-block.rpg', 'story-block.gear', 'story-director.names', 'story-director.pulse']) host.features.set(id, true);
     const seen = [], known = new Set(), meters = {}, track = {};
@@ -169,13 +169,9 @@ test('E2E: a 30-reply Ersveil playthrough keeps live, rebuild, reload, Re-read, 
         assert.match(track[18].problems.join('\n'), /Temiwa Voss: its first name is already used/, 'Temiwa Voss is a collision');
         assert.deepEqual(seen.filter(([n, list]) => list.length && n !== 17 && n !== 18), [], 'no other reply has a Problem');
     });
-    // Ripples: the finished quest (giver Sir Lothar, reply 22) moved Wendhild's hidden sway up by its small tier and nothing else moved it.
+    // Ripples: a format 4 pack has no ripples table, so the deeds and the finished quest (reply 22) move no power's sway and no table is read.
     await soft('ripples', () => {
-        const sway = (n, id) => track[n].sway.find(row => row.id === id);
-        assert.equal(sway(21, 'wendhild').sway, 40, 'Wendhild starts at her base');
-        assert.ok(sway(22, 'wendhild').sway > 40 && sway(22, 'wendhild').reasons.some(r => r.kind === 'quest'), 'finishing the Granary Rats lifted Wendhild');
-        assert.equal(sway(30, 'wendhild').sway, sway(22, 'wendhild').sway, 'later replies leave the sway as it was');
-        assert.deepEqual([sway(30, 'corvin').sway, sway(30, 'hasse').sway], [35, 25], 'the other powers did not move');
+        for (const n of [21, 22, 30]) assert.deepEqual(track[n].sway ?? [], [], `no sway at reply ${n}: the pack has no ripples table`);
     });
     // Pulse: replies were rolled (a d20 and a table entry), and the skips were named: a jump of hours, the fight.
     await soft('pulse', () => {

@@ -12,7 +12,7 @@ const LEGACY_POINTERS = { events: 'legacy dated events are gone; use worldEvents
 export function checkTopFields4(raw, add) {
     for (const key of Object.keys(raw)) {
         if (PACK_FIELDS_V4.includes(key)) continue;
-        if (MOVED_TOP_FIELDS[key]) add('UNKNOWN_FIELD', key, `"${key}" ${MOVED_TOP_FIELDS[key]}`);
+        if (Object.hasOwn(MOVED_TOP_FIELDS, key)) add('UNKNOWN_FIELD', key, `"${key}" ${MOVED_TOP_FIELDS[key]}`);
         else add('UNKNOWN_FIELD', key, `"${key}" is not a pack field (expected ${PACK_FIELDS_V4.join(', ')}).`);
     }
 }
@@ -47,7 +47,7 @@ export function checkContentKeys(kind, given, add) {
     for (const key of Object.keys(given)) {
         if (kind && CONTENT_KEYS[kind].includes(key)) kept[key] = given[key];
         else if (kind && CONTENT_KEYS[OTHER[kind]].includes(key)) add('UNKNOWN_KIND', `content.${key}`, `"${key}" belongs in a ${OTHER[kind]} pack, not in a ${kind} pack.`);
-        else if (LEGACY_POINTERS[key]) add('UNKNOWN_KIND', `content.${key}`, `"${key}": ${LEGACY_POINTERS[key]}`);
+        else if (Object.hasOwn(LEGACY_POINTERS, key)) add('UNKNOWN_KIND', `content.${key}`, `"${key}": ${LEGACY_POINTERS[key]}`);
         else add('UNKNOWN_KIND', `content.${key}`, kind ? `"${key}" is not a content key of a ${kind} pack (expected ${CONTENT_KEYS[kind].join(', ')}).` : `"${key}" cannot be checked until kind says world or game.`);
     }
     return kept;

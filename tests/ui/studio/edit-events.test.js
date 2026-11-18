@@ -10,7 +10,7 @@ import { apply } from '../../../studio/model/edits.js';
 import { openDoc } from '../../../studio/model/doc.js';
 import { validatePack } from '../../../packs/validate.js';
 
-const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil-world/pack.json', import.meta.url), 'utf8'));
+const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const EVENTS = WORLD.content.worldEvents;
 const C = WORLD.content;
 

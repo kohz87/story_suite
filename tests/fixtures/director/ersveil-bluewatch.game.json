@@ -1,0 +1,93 @@
+{
+  "id": "ersveil-bluewatch-game",
+  "format": 4,
+  "kind": "game",
+  "version": "1.0.0",
+  "name": "Ersveil: Bluewatch Starter rules",
+  "author": "Story Suite examples",
+  "description": "The calendar, money and rules that go with Ersveil: Bluewatch Starter",
+  "requires": {
+    "suite": "^0.1",
+    "capabilities": [
+      "inventory",
+      "scene"
+    ]
+  },
+  "content": {
+    "calendar": {
+      "months": [
+        {
+          "name": "Dawnwane",
+          "days": 30
+        },
+        {
+          "name": "Rainmoot",
+          "days": 30
+        },
+        {
+          "name": "Greengale",
+          "days": 30
+        },
+        {
+          "name": "Highsun",
+          "days": 30
+        },
+        {
+          "name": "Goldwane",
+          "days": 30
+        },
+        {
+          "name": "Haywane",
+          "days": 30
+        },
+        {
+          "name": "Emberwane",
+          "days": 30
+        },
+        {
+          "name": "Nightfall",
+          "days": 30
+        },
+        {
+          "name": "Frostfall",
+          "days": 30
+        },
+        {
+          "name": "Deepwinter",
+          "days": 30
+        },
+        {
+          "name": "Icewane",
+          "days": 30
+        },
+        {
+          "name": "Yearsend",
+          "days": 30
+        }
+      ]
+    },
+    "currency": {
+      "name": "mark",
+      "short": "mk"
+    },
+    "start": {
+      "money": 44,
+      "items": [
+        {
+          "name": "Cane-Blade"
+        },
+        {
+          "name": "Patched Oilcloth Coat"
+        },
+        {
+          "name": "Knife",
+          "note": "For work, not fights"
+        },
+        {
+          "name": "Whetstone",
+          "note": "Worn thin"
+        }
+      ]
+    }
+  }
+}

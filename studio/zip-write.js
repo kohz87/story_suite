@@ -1,7 +1,7 @@
 // The Studio's zip writer (pure, browser and node): every file stored, UTF-8 names, no folder entries, a fixed 1980-01-01 time stamp.
 //
 // writeStoredZip([{ name, bytes }]) → the zip as a Uint8Array, the files in the order given. It gives the same bytes as the writer in
-// scripts/core/build-example-zip.mjs (a test checks it against examples/packs/ersveil.zip), so a pack the Studio exports is laid out
+// scripts/core/build-example-zip.mjs (a test checks it against tests/fixtures/packs/ersveil-3/ersveil.zip), so a pack the Studio exports is laid out
 // as packs/bundle.js readPackZip reads it.
 
 import { crc32 } from '../packs/zip.js';

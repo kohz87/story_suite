@@ -1,4 +1,4 @@
-// A pack's declared world conditions (`content.conditions`): a format-3 optional section, kept only when given.
+// A pack's declared world conditions (`content.conditions`): an optional section of a format 4 world pack, kept only when given.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validatePack } from '../../packs/validate.js';

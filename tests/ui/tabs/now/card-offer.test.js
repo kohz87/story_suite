@@ -75,3 +75,12 @@ test('the port forwards the offer event and answers a missing controller', async
   assert.equal((await createSbPort({ sdk: {} }).command('packs.offer', { op: 'notNow', id: 'x' })).ok, false);
   assert.equal((await port.command('packs.offer', { op: 'bogus', id: 'x' })).ok, false);
 });
+
+test('a format 4 pair is one offer row: the world and the game by name, both versions, what they bring (REVPF4: the pair notice in the new view)', () => {
+  installFakeDom();
+  const rows = offerRows(fakeController([item({ id: 'ersveil@1.0.0+ersveil-game@1.0.0', packId: 'ersveil+ersveil-game', name: 'Ersveil and Ersveil rules', version: '1.0.0 + 1.0.0', brings: 'lore; money' })]));
+  const [needs] = rightNow({ needsYou: [], offers: rows }, {});
+  assert.match(needs.textContent, /This card brings Ersveil and Ersveil rules 1\.0\.0 \+ 1\.0\.0/);
+  assert.match(needs.textContent, /lore; money/);
+  assert.deepEqual(checkShape({ ...baseNow(), offers: rows }, NOW_SHAPE), []);
+});

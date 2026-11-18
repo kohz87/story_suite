@@ -4,7 +4,8 @@ import { packsCommand } from '../../../ui/port/packs.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';
 import { createInstalled } from '../../../packs/installed.js';
 import { fakeSettings } from '../../packs/helpers/fake-settings.js';
-import { sampleText } from '../../packs/helpers/fixtures.js';
+
+const sampleText = JSON.stringify({ id: 'riverside-starter', format: 4, kind: 'world', version: '4.0.0', name: 'Riverside Starter', requires: { suite: '^0.1' }, content: { items: [{ name: 'Rope', kind: 'goods', note: 'A coil of rope.' }] } });
 
 const file = (name, text) => ({ name, size: text.length, text: async () => text });
 const set = (key, value) => ({ key, value });

@@ -14,6 +14,7 @@ import { readSheet } from '../../modules/rpg/index.js';
 import { hashJson } from '../../core/replay.js';
 import { reply as dmReply, success } from '../modules/data-modules/helpers.js';
 import { pack } from '../packs/helpers/fixtures.js';
+import { writeKeepsakes } from '../modules/inventory/gear-keepsakes.helpers.js';
 import { character, sheetDomain } from '../modules/rpg/helpers.js';
 
 const available = await hostAvailable();
@@ -26,7 +27,7 @@ const ITEMS = [
     { name: 'Cane Sword', kind: 'equipment', slot: 'weapon', rarity: 'uncommon' },
     { name: 'Oak Buckler', kind: 'equipment', slot: 'shield', rarity: 'common' },
 ];
-const MARA = { id: 'mara', name: 'Mara', aliases: [], about: 'Runs the night ferry.', look: 'Wiry.', start: { place: 'Docks', goal: 'Keep the ferry running.' }, gear: ['Cane Sword', 'Oak Buckler'] };
+const MARA = { id: 'npc_mara', name: 'Mara', aliases: [], gear: ['Cane Sword', 'Oak Buckler'] };
 const PLAN = 'pace: all\nact Ren | target: Mud Crawlers\nfoe Mud Crawlers | target: Ren | defend: AGI';
 const SET = '+ dm foes — why | kind: set-slot-1 | name: Mud Crawlers | count: 6 | level: 60';
 
@@ -40,7 +41,7 @@ const define = async (host, definition) => success(await host.sdk.command('dm.de
 
 async function world(t, { user, gear = true, rpg = true, modules = [], withPack = true, model = null } = {}) {
     t.mock.method(console, 'warn', () => {});
-    const raw = pack({ content: { items: ITEMS, cast: [MARA] } });
+    const raw = pack({ content: { items: ITEMS } });
     const built = validatePack(raw);
     assert.equal(built.ok, true, JSON.stringify(built.errors));
     const fake = model ? createFakeModel(Array(40).fill(model)) : null;
@@ -48,10 +49,11 @@ async function world(t, { user, gear = true, rpg = true, modules = [], withPack 
     host = await createHost({
         modules, ...(user ? { st: { user } } : {}), ...(fake ? { callModel: fake } : {}),
         settings: { features: { ...(gear ? { 'story-block.gear': true } : {}), 'story-block.rpg': rpg }, modules: { 'story-block': { rpgJoin: 'auto' } },
-            ...(withPack ? { packs: [{ id: built.pack.id, version: built.pack.version, enabled: true, source: 'file', origin: 'test', pack: raw }] } : {}) },
+            ...(withPack ? { packs: [{ id: built.pack.id, version: built.pack.version, enabled: true, kind: raw.kind, source: 'file', origin: 'test', pack: raw }], selected: { [raw.kind]: raw.id } } : {}) },
     });
     t.after(() => host.close());
     await host.send('Begin.', 'Opening.');
+    if (withPack) await writeKeepsakes(host, [MARA]);
     return host;
 }
 const rows = host => host.sdk.query('inventory.items');

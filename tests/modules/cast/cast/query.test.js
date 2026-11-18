@@ -1,16 +1,16 @@
 // What other modules and the World screen read: `director.cast` gives only people who have been met (with their pack entry, for NPC State
 // Delta's dossier); an unmet person is never named, not even to a module; the numbers and the "Around here" data come as counts.
 import test from 'node:test';
-import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 
 import { OPENING, castHost, castSource, createFakeModel, entry, receipts, said, settle, validatorErrors } from './helpers.js';
+import { forWorldPack, realEntries } from './real-entries.js';
 
 const quiet = t => t.mock.method(console, 'warn', () => {});
 
 test('director.cast: the met people only, each with where they are, the last news and the whole pack entry; copies; counts without names', async t => {
     quiet(t);
-    const brom = entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' }, aliases: ['the smith'], portrait: 'brom.webp', stages: [{ id: 'regular', name: 'Regular', needs: [{ meter: 'trust', at: 20 }] }], meters: { trust: 10 } });
+    const brom = entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' }, aliases: ['the smith'], portrait: 'brom.webp', stages: [{ name: 'Regular', needs: [{ meter: 'trust', at: 20 }], text: 'Comes by the forge most days.' }], meters: { trust: 10 } });
     const fenna = entry('fenna', { start: { place: 'Bluewatch docks', goal: 'ferry', routine: 'works the night ferry' } });
     const host = await castHost({ source: castSource([brom, fenna]), model: createFakeModel(['~ cast brom | Kesh | selling blades at the Kesh fair']) });
     try {
@@ -101,7 +101,7 @@ test('a person met from the cast can be pinned as a key person: the Pin chooser 
 
 // ---- the order other modules rely on, and the real-size cast ------------------------------------------------------------------------
 
-const ERSVEIL = JSON.parse(readFileSync(new URL('../../../fixtures/director/ersveil-cast.json', import.meta.url), 'utf8')).map(item => ({ pack: 'ersveil', packVersion: '2.2.1', ...item }));
+const ERSVEIL = realEntries().map(forWorldPack);
 
 test('a meeting is in director.cast before the reply is written and while it is read, so a module that ticks on that reply (NPC State Delta) sees them at once, not a reply late', async t => {
     quiet(t);

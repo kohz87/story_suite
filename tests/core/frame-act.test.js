@@ -104,7 +104,7 @@ test('hostile frames are refused: wrong shapes, extra keys, a bad hash, a long i
     assert.notEqual(validateFrame({ set: 'yes', refresh: false, told: '' }).length, 0);
 });
 
-test('with no format 4 world or game selected there is no frame, no step and no domain: a chat of old packs or none is as it was', async t => {
+test('with nothing selected there is no frame (a chat of no world or game is as it was); once one is selected, a chat that had begun records the built-in game (REVPF4 3)', async t => {
     const host = await frameHost(t, { selected: false });
     await host.send('hi', said('R1.'));
     await host.send('more', said('R2.'));
@@ -113,6 +113,18 @@ test('with no format 4 world or game selected there is no frame, no step and no 
     assert.equal(host.sdk.query('packs.frame'), null);
     await host.packs.packs.install(world());
     await host.packs.packs.install(game('g1', FROST, 'mark'));
+    assert.deepEqual(host.packs.packs.selected(), { world: 'w1', game: 'g1' }, 'the install selected them (for new chats)');
     await host.send('now', said('R3.'));
-    assert.equal(frameOf(host).game.pack, 'g1', 'a frame is written once something is selected');
+    assert.deepEqual([frameOf(host).set, frameOf(host).world, frameOf(host).game, frameOf(host).calendar, frameOf(host).currency], [true, null, 'built-in', null, null], 'the chat had begun: the built-in game');
+    const before = JSON.stringify(frameOf(host));
+    await host.send('again', said('R4.'));
+    await host.swipe(said('R4 again.'));
+    assert.equal(JSON.stringify(frameOf(host)), before);
+    assert.equal(receipts(host).filter(type => type === 'packs.frame').length, 1, 'written once');
+    host.store.rebuild();
+    assert.equal(JSON.stringify(frameOf(host)), before, 'a reload reads the same frame');
+    const fresh = await frameHost(t, { selected: false });
+    await fresh.packs.packs.install(world());
+    await fresh.send('hi', said('R1.'));
+    assert.equal(frameOf(fresh).world.pack, 'w1', 'a new chat takes the selection at its start');
 });

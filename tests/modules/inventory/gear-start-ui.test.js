@@ -21,7 +21,7 @@ async function world(t, { packs = false } = {}) {
     if (packs) {
         const raw = pack({ content: { items: [{ name: 'Rain-Veil Hood', kind: 'equipment', slot: 'head', rarity: 'rare' }] } });
         const built = validatePack(raw);
-        settings.packs = [{ id: built.pack.id, version: built.pack.version, enabled: true, source: 'file', origin: 'test', pack: raw }];
+        settings.packs = [{ id: built.pack.id, version: built.pack.version, enabled: true, kind: raw.kind, source: 'file', origin: 'test', pack: raw }]; settings.selected = { [raw.kind]: raw.id };
     }
     const host = await createHost({ modules: [ACTORS], settings });
     t.after(() => host.close());

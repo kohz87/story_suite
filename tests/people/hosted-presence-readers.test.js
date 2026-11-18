@@ -4,8 +4,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runHostScenario } from './helpers/host-scenario.js';
-import { projectDossierState } from '../../modules/people/legacy/dossier-ui-catalog.js';
-import { mapStatus } from '../../modules/people/legacy/relationship-map-core.js';
 import fs from 'node:fs';
 
 const scenario = async () => {
@@ -38,18 +36,13 @@ const hostedPrelude = async () => {
     globalThis.StoryBlock = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
 };
 const resultOf = output => JSON.parse(output.split('\n').find(line => line.startsWith('RESULT ')).slice(7));
-const shown = state => projectDossierState(state, { chatKey: 'k', hydrationStatus: 'ready' }).details?.[0] ?? projectDossierState(state, { chatKey: 'k', hydrationStatus: 'ready' }).npcs?.[0];
 
-test('hosted: the panel\'s "In chat" label, the relationship map, the token and npcProfiles follow the scene; the stored dossier is untouched', () => {
+test('hosted: the dossier state, the token and npcProfiles follow the scene; the stored dossier is untouched', () => {
     const { here, away, hosted } = resultOf(runHostScenario('presence-hosted', hostedPrelude, scenario));
     assert.equal(hosted, '1');
     assert.equal(here.dossier.npcs[0].present, true);
     assert.equal(away.stored, true, 'the saved dossier still says present');
     assert.equal(away.dossier.npcs[0].present, false, 'the panel\'s state follows the scene');
-    assert.equal(shown(here.dossier).statusLabel, 'In chat');
-    assert.equal(shown(away.dossier).statusLabel, 'Off-screen');
-    assert.equal(mapStatus(shown(here.dossier)), 'scene');
-    assert.notEqual(mapStatus(shown(away.dossier)), 'scene', 'the map');
     assert.notEqual(away.token, here.token, 'the panel redraws when only the scene moved');
     assert.equal(here.profile, true, 'npcProfiles follows the scene');
     assert.equal(away.profile, false, 'npcProfiles follows the scene when it moves away');
@@ -76,7 +69,6 @@ test('standalone: the stored presence stands for every reader', () => {
     assert.equal(alone.away.dossier.npcs[0].present, true, 'no scene to ask');
     assert.equal(alone.away.profile, true);
     assert.equal(alone.away.token, alone.here.token, 'the token is unchanged standalone');
-    assert.equal(shown(alone.away.dossier).statusLabel, 'In chat');
 });
 
 // World → Here: a person the scene lists gets their card even when Delta's own stored flag says away, and the other way round.

@@ -6,7 +6,6 @@ import { readFileSync } from 'node:fs';
 import { deterministicBirthday, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig, setStoryClockSource } from '../../modules/people/core/core.js';
 import { applyCastEntry, normalizeEntry } from '../../modules/people/dossier/cast-dossier.js';
 import { createNpcRecord } from '../../modules/people/core/core.js';
-import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 
 const CALENDAR = Object.freeze({
     era: 'CR',
@@ -63,14 +62,6 @@ test('the story stating the same date as the pack makes it the story\'s own, and
     assert.equal(told.birthDateReason, '');
     const again = scan(told, { birthDate: { month: 'Redleaf', day: 5 }, birthDateState: 'establish' }, 13);
     assert.equal(again.birthDate.month, 'Sunwane');
-});
-
-test('the card says "Story established" only for the story\'s birthday, not for the pack\'s', () => {
-    setActiveCalendarConfig(CALENDAR);
-    const dated = make({ birthday: 'Sunwane 27' });
-    assert.equal(dossierDetailProjection(dated, {}, {}).birthdaySource, '');
-    const told = scan(dated, { birthDate: { month: 'Frostwane', day: 2 }, birthDateState: 'correct' }, 12);
-    assert.equal(dossierDetailProjection(told, {}, {}).birthdaySource, 'established');
 });
 
 test('with Delta on its own calendar the pack date (in the pack\'s calendar) is skipped; Delta\'s date stands', () => {

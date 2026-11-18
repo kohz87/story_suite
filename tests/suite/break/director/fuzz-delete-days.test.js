@@ -4,16 +4,16 @@
 // state and every validator must pass; after the next reply every day the digests had is there again
 // and none is for today or later; the caps hold throughout; the World screen and its Journal read the same
 // after a rebuild; a fresh load gives the live state. Some
-// deletes are inside a day that already has its digest: the digest follows the facts left. A pack's lasting
-// changes (chronicle.lasting, tests/v2/chronicle/helpers/lasting-pack.js) come into the days too, as the
-// Journal's world lines of the day their event fired, and the reader's edits of them.
+// deletes are inside a day that already has its digest: the digest follows the facts left. A world pack's events
+// (worldEvents, tests/modules/world/chronicle/helpers/lasting-pack.js) run in the daily step with the switch on and come into the days
+// too, and so do the reader's edits of the world lines.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 import { fakeCraft } from '../../../modules/time/helpers/fake-craft.js';
-import { LASTING_PACK, lastingEdit, lastingLines } from '../../../modules/world/chronicle/helpers/lasting-pack.js';
+import { LASTING_NAMES, LASTING_PACK, lastingEdit, lastingLines } from '../../../modules/world/chronicle/helpers/lasting-pack.js';
 import { DIGEST, dayOf, entriesByDay, orderedDays, writtenOf } from '../../../../modules/world/chronicle/days.js';
 
 // Seeds 11–12 keep few days (older ones go short, which a later digest rewrites); 13–14 keep them
@@ -155,9 +155,12 @@ for (const seed of SEEDS) {
         let insideDeletes = 0;
         const host = await createHost({ modules: [fakeFightRunner(), createModule(), fakeCraft()], settings });
         try {
-            assert.equal((await host.packs.packs.install(LASTING_PACK, { origin: 'pack.json' })).ok, true);
+            host.features.set('story-director.world-events', true);
+            { const done = await host.packs.packs.install(LASTING_PACK, { origin: 'pack.json' }); assert.equal(done.ok, true, JSON.stringify(done.errors)); }
             await host.send('Hello.', said('The road.', ['~ time June 3, 1200, 08:00 am', '~ place Bluewatch', '+ coin 5',
-                ...BASE_OFFERS.map(key => `+ hook ${key} — a job on offer | giver: Brom | reward: 8 gold`)]));
+                ...BASE_OFFERS.map(key => `+ hook ${key} — a job on offer | giver: Brom | reward: 8 gold`),
+                // The entries the story's lines and the reader's edits name are made by the first exchange (never deleted).
+                ...LASTING_NAMES.map(name => `+ world ${name} — it begins | state: looming`)]));
             for (let n = 1; n <= REPLIES; n += 1) {
                 await host.send(`On we go (${n}).`, said(`Reply ${n}.`, [...replyLines(r, n), ...lastingLines(rl), ...offerLines(ro, n), ...dayLines(rd, n)]));
                 if (rd.chance(0.25)) assert.ok((await host.sdk.command('director.pulse.quiet', { on: rd.chance(0.5) })).ok, `seed ${seed}, reply ${n}: quiet scene switch`);
@@ -209,8 +212,7 @@ for (const seed of SEEDS) {
             await host.send('Rest.', 'Quiet.');
             assert.ok(host.sdk.receipts().some(entry => entry.receipt.type === DIGEST), `seed ${seed}: days were written`);
             assert.ok(host.sdk.query('chronicle.days').length > 0);
-            assert.ok(host.sdk.receipts().some(entry => entry.receipt.type === 'events.fire' && entry.receipt.data?.then?.includes('chronicle.lasting')), `seed ${seed}: a pack event wrote a lasting change`);
-            t.diagnostic(`seed ${seed}: pack events that fired: ${[...new Set(host.sdk.receipts().filter(entry => entry.receipt.type === 'events.fire').map(entry => entry.receipt.data?.event?.split('/')[1]))].join(', ')}`);
+            assert.ok(host.sdk.receipts().some(entry => entry.receipt.type === 'chronicle.world.daily'), `seed ${seed}: the daily step ran the pack's world events`);
             assert.deepEqual(validatorErrors(host), [], `seed ${seed}: the head state`);
             undatedLapsed += host.sdk.receipts().filter(entry => entry.receipt.type === 'time.settle')
                 .flatMap(entry => entry.receipt.data?.lapsed ?? []).filter(entry => BASE_OFFERS.includes(entry.key) || /^Haul \d+$/.test(entry.key)).length;

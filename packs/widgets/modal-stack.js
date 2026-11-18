@@ -39,7 +39,7 @@ const within = (node, root) => {
 };
 
 // SillyTavern's keyboard handler clicks a focused element of these classes on Enter (public/scripts/keyboard.js); the browser's
-// own Enter activation would click it a second time, so it is cancelled for them (the bar's buttons do the same, ui-host.js).
+// own Enter activation would click it a second time, so it is cancelled for them (the bar's buttons do the same, as the removed bar did).
 const SILLY_CLICKS = ['menu_button', 'right_menu_button', 'interactable', 'custom_interactable'];
 
 const stacks = new WeakMap();

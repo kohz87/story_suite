@@ -8,8 +8,7 @@ import { fill } from '../../../core/strings.js';
 import { oneLine } from '../../../core/text.js';
 import { fold } from '../../rpg/read.js';
 import { SKILL_SLOTS_MAX, UTILITY_SLOTS, skillFieldSlots, isTypedSkills, skillTypeOf, signatureAt, typeKey } from '../../../core/runtime/skill-slots.js';
-import { castGearOf, gearLine, keepsakeGearOf } from '../../../packs/cast-gear.js';
-import { castSkillsOf } from '../../../packs/cast-skills.js';
+import { gearLine, keepsakeGearOf } from '../../../packs/cast-gear.js';
 import { gearOn } from '../../inventory/index.js';
 import { actorIdOf } from '../../rpg/roster.js';
 import { placeOf } from '../../inventory/gear.js';
@@ -45,13 +44,11 @@ export function createParty(deps) {
     // The people slice as the reply's own prefix holds it (a swipe, a Re-read and a rebuild read the same one).
     const peopleState = ctx => { let people = null; try { people = ctx.read('people'); } catch { people = null; } return { domains: { people } }; };
     // What `name`'s NPC State record gives the sheet (the pull, rpg join-parts/from-person.js), read from the reply's own prefix: { level?, best, skills, keepsakes }. With no abilities of
-    // theirs it falls back to the format 3 cast skills the packs still give (X1 removes that). `soul` and `best` are the join line's (or the card's).
+    // theirs it has no signature skills. `soul` and `best` are the join line's (or the card's).
     function pullFor(ctx, name, soul = 1, best = '') {
         const state = peopleState(ctx);
         const list = packs?.packs?.() ?? [], records = list.flatMap(entry => entry?.content?.rpg ?? []);
-        let found = null;
-        try { found = castSkillsOf(list, name); } catch { found = null; }
-        return rpg().pullOf(state, { name, soul, best, pull: records.find(record => record?.slug === 'pull'), cap: rpg().levelCapFor(settings(), packLevelsOf(records)?.levelCap), fallback: found?.skills ?? [] });
+        return rpg().pullOf(state, { name, soul, best, pull: records.find(record => record?.slug === 'pull'), cap: rpg().levelCapFor(settings(), packLevelsOf(records)?.levelCap), fallback: [] });
     }
     // The skills the pull gives `name` now, the ones the person does not hold by name already (what a first read of a join, a return or an offer plans).
     function packSeeds(ctx, name, pulled = null) {
@@ -152,11 +149,9 @@ export function createParty(deps) {
     }
     function giveGear(ctx, answer, name, module = null, back = null) {
         if (!gearOn(ctx)) return answer;
-        // (the keepsakes of their NPC State record that name pack equipment; a person with none gets the format 3 cast gear the packs still give, which X1 removes)
-        let found = null;
+        // (the keepsakes of their NPC State record that name pack equipment)
         const kept = rpg().personOf(peopleState(ctx), name), mine = keepsakeGearOf(packs?.packs?.() ?? [], (kept?.keepsakes ?? []).map(entry => entry?.name));
-        if (mine.length) found = { name: oneLine(kept?.name || name), items: mine };
-        else { try { found = castGearOf(packs?.packs?.() ?? [], name); } catch { found = null; } }
+        const found = mine.length ? { name: oneLine(kept?.name || name), items: mine } : null;
         if (!found?.items.length) return answer;
         const owner = back?.owner ?? gearOwnerOf(ctx, name, module);
         // No actor of their own (nothing answers `party.actors`): the shared bag's worn gear is the reader's Character's, so nothing is given at all; it stays with them.
@@ -240,6 +235,8 @@ export function createParty(deps) {
         const answer = finish(ctx, prefix, draft, recorded, { pin: true, result: { module: head.definition.id, skills: rest[0].definition.id },
             summary: `${fill(J.joined, { name: request.name })}${left}` });
         answer.data.join = { op: 'added', name: request.name };
+        // (an ability of their NPC State record that found no free slot of its kind is said, as a return says a skill it could not place)
+        for (const item of pulled.left ?? []) answer.problem = [answer.problem, `${request.name}'s ${item.name} has no free ${item.kind === 'utility' ? 'utility ' : ''}skill slot.`].filter(Boolean).join(' ');
         const placed = defaultSeeds(made.skills.state);
         if (placed.length) {
             answer.data.sigSkills = seededData(placed);

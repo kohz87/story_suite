@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { validatePack } from '../../../packs/validate.js';
 import { checkGateText, composeGate, parseGate } from '../../../studio/model/gate.js';
 
-const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil-world/pack.json', import.meta.url), 'utf8'));
+const WORLD = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const CONTENT = WORLD.content;
 const gates = [
     ...CONTENT.cast.flatMap(person => (person.secrets ?? []).filter(secret => secret.gate).map(secret => ({ gate: secret.gate, owner: person.id, path: `cast ${person.id}` }))),

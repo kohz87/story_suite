@@ -1,15 +1,14 @@
 // Pack format 4, the world validator (job P2): `climate` on regions and places, `start.date` and `start.place`, the start's keys, cast `birthday`,
-// the calendar cut (dates and seasons are checked by the paired game pack, not here), and format 3 left exactly as it was.
+// the calendar cut (dates and seasons are checked by the paired game pack, not here).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { check, sample } from './helpers/world-pack-sample.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
-const v4 = change => { const world = clone(sample); world.format = 4; world.kind = 'world'; world.requires = { suite: '^0.1' }; change(world); return world; };
 const messages = list => (list ?? []).map(entry => `${entry.path}: ${entry.message}`);
-const run = (change, format = 4) => { const world = format === 4 ? v4(change) : (() => { const copy = clone(sample); change(copy); return copy; })(); const result = check(world); return { ok: result.ok, errors: messages(result.errors), warnings: messages(result.warnings), pack: result.pack }; };
-const refused = (change, pattern, format) => { const result = run(change, format); assert.equal(result.ok, false, 'should be refused'); assert.ok(result.errors.some(line => pattern.test(line)), `${pattern} not in ${JSON.stringify(result.errors)}`); return result; };
-const accepted = (change, format) => { const result = run(change, format); assert.equal(result.ok, true, JSON.stringify(result.errors)); return result; };
+const run = change => { const world = clone(sample); change(world); const result = check(world); return { ok: result.ok, errors: messages(result.errors), warnings: messages(result.warnings), pack: result.pack }; };
+const refused = (change, pattern) => { const result = run(change); assert.equal(result.ok, false, 'should be refused'); assert.ok(result.errors.some(line => pattern.test(line)), `${pattern} not in ${JSON.stringify(result.errors)}`); return result; };
+const accepted = change => { const result = run(change); assert.equal(result.ok, true, JSON.stringify(result.errors)); return result; };
 const event = (world, id) => world.content.worldEvents.find(each => each.id === id);
 
 test('climate: a region and a place keep one of the ten climates; anything else is refused', () => {
@@ -22,11 +21,6 @@ test('climate: a region and a place keep one of the ten climates; anything else 
         refused(world => { world.content.regions[0].climate = bad; }, /content\.regions\[0\]\.climate: .*climate must be one of temperate, cold/);
         refused(world => { world.content.places[0].climate = bad; }, /content\.places\[0\]\.climate: .*climate must be one of temperate, cold/);
     }
-});
-
-test('format 3 still refuses `climate`, and its normalized world pack does not change', () => {
-    refused(world => { world.content.regions[0].climate = 'cold'; }, /"climate" is not a region field/, 3);
-    refused(world => { world.content.places[0].climate = 'cold'; }, /"climate" is not a place field/, 3);
 });
 
 test('start.date: the era, year, month number, day, hour and minute are kept; a bad shape is refused with its field', () => {
@@ -51,7 +45,7 @@ test('start.place: the id of a place of this pack is kept; another id, a name or
     refused(world => { delete world.content.places; world.content.regions = []; world.content.routes = []; world.content.worldEvents = []; world.content.templates = []; world.content.cast = []; world.content.powers = []; world.content.scores = []; world.content.lore = []; world.content.start = { place: 'ledgerford' }; }, /not the id of a place in this pack/);
 });
 
-test('start keeps world, date and place together; its other keys are refused, with a pointer for the format 3 ones', () => {
+test('start keeps world, date and place together; its other keys are refused, with a pointer for the old ones', () => {
     const result = accepted(world => { world.content.start = { world: { facts: ['border-closed'] }, date: { year: 5, month: 2, day: 3 }, place: 'ledgerford' }; });
     assert.deepEqual(Object.keys(result.pack.start).sort(), ['date', 'place', 'world']);
     assert.match(refused(world => { world.content.start = { scene: { place: { name: 'Ledgerford' } } }; }, /content\.start\.scene: .*"scene" is not a world start field/).errors.join(' '), /use start\.place/);
@@ -74,12 +68,6 @@ test('cast birthday: "<month number or name> <day>" is kept; a bad one refuses t
     }
 });
 
-test('format 3 world cast: `birthday` is still not a field (the legacy cast reads it against the pack\'s own calendar)', () => {
-    const result = run(world => { world.content.cast[1].birthday = '10 27'; }, 3);
-    assert.ok(!result.pack.content.cast.some(person => person.id === 'sir-lothar'));
-    assert.ok(result.warnings.some(line => /"birthday" is not a cast field \(expected kind, id/.test(line)));
-});
-
 test('format 4 cast: a retired format 3 field says where it went', () => {
     for (const [field, value, hint] of [['about', 'x', 'role, personality and history'], ['skills', [], 'abilities'], ['gear', [], 'keepsakes'], ['fields', {}, 'Level is a built-in field']]) {
         const result = run(world => { world.content.cast[1][field] = value; });
@@ -93,12 +81,6 @@ test('date and season anchors are not read against a calendar: a world pack has 
     assert.deepEqual(result.warnings, run(() => {}).warnings, 'no warning is added by the anchors');
     // The shape is still checked.
     for (const bad of ['date:612-July', 'date:612-0-5', 'date:612-3-0', 'date:612-<x>-3']) refused(world => { event(world, 'war-of-faiths').requires.push(bad); }, /war-of-faiths|requires/);
-});
-
-test('format 3 still reads date and season anchors against its own calendar or the built-in one', () => {
-    const result = accepted(world => { event(world, 'war-of-faiths').requires.push('date:612-2-31', 'monsoon'); }, 3);
-    assert.ok(result.warnings.some(line => /February has 29 days/.test(line)));
-    assert.ok(result.warnings.some(line => /"monsoon" is not a season the built-in calendar/.test(line)));
 });
 
 test('legacy kinds are refused in a world pack: events, the format 3 ignored kinds and cast shapes', () => {

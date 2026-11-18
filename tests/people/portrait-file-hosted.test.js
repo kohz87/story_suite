@@ -41,8 +41,9 @@ test('runtime: a file-form portrait is saved with no picture in the chat state, 
         const storage = await import(pathToFileURL(path.join(extRoot, 'storage.js')).href);
         const mechanics = await import(pathToFileURL(path.join(extRoot, 'core-mechanics.js')).href);
         const bundle = await import(pathToFileURL(path.join(extRoot, 'bundle.js')).href);
-        const view = await import(pathToFileURL(path.join(extRoot, 'dossier-ui.js')).href);
-        const portraits = () => Object.fromEntries(view.projectDossierState(api.getDossierState()).npcs.map(npc => [npc.name, npc.portrait]));
+        // What a dossier shows (the old panel's rule, B4-5 removed the panel): the main portrait's source, else the chat's stored asset.
+        const view = await import(pathToFileURL(path.join(extRoot, 'src/portrait-file.js')).href);
+        const portraits = () => { const state = api.getDossierState(); return Object.fromEntries(state.npcs.map(npc => [npc.name, String(view.portraitSrc(npc.portrait) || view.portraitSrc(state.portraitAssets?.[npc.id]) || '').trim()])); };
         const sidecar = () => [...mockState.files.entries()].find(([path]) => /\/npc-state-delta-[a-z0-9]+\.json$/.test(path))?.[1] ?? '';
 
         // A chat with one person made before (the picture inside the dossier) and one made now (a file).

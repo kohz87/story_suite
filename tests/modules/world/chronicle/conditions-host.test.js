@@ -1,4 +1,4 @@
-// World conditions on the real host: a pack's event sets them, they fade with the clock, and swipe, delete, Re-read (edited, grown and shrunk), rebuild and a fresh load all agree.
+// World conditions on the real host: a world pack's events set them, they fade with the clock, and swipe, delete, Re-read (edited, grown and shrunk), rebuild and a fresh load all agree.
 // With the feature off nothing is set, nothing fades and the chronicle is byte-identical to a chat without the pack's conditions.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -9,18 +9,19 @@ import { fakeFightRunner } from '../../../suite/integration/director/helpers/fak
 
 const FEATURE = 'story-director.world-events';
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
-const by = id => `event:pack.world-conds/${id}`;
 const PACK = JSON.stringify({
-    id: 'world-conds', version: '1.0.0', name: 'World conds', requires: { storyBlock: '^2' },
+    id: 'world-conds', version: '1.0.0', name: 'World conds', format: 4, kind: 'world', requires: { suite: '^0.1' },
     content: {
-        places: [{ name: 'Highmark', region: 'The March', x: 0, y: 0 }, { name: 'Bluewatch', region: 'The March', x: 5, y: 5 }],
+        places: [{ id: 'highmark', name: 'Highmark', region: 'The March', x: 0, y: 0 }, { id: 'bluewatch', name: 'Bluewatch', region: 'The March', x: 5, y: 5 }],
+        realms: [{ id: 'march-realm', name: 'March Realm', regions: ['The March'] }],
         conditions: [
             { name: 'grain-dear', scope: 'region', fades: '2 days', means: 'Bread costs more.' },
             { name: 'unrest', scope: 'place', fades: 'until cleared', means: 'Crowds in the streets.' },
         ],
-        events: [
-            { id: 'hunger', once: true, when: 'time() != null', cue: 'Grain runs short.', then: [{ command: 'chronicle.condition.set', payload: { name: 'grain-dear', ref: 'The March', why: 'a bad harvest', by: by('hunger') } }] },
-            { id: 'riot', after: 'hunger', once: true, when: "query('chronicle.passed', { name: 'x', minutes: 0 }) == false", cue: 'Crowds gather.', then: [{ command: 'chronicle.condition.set', payload: { name: 'unrest', ref: 'Highmark', why: 'riots', by: by('riot') } }] },
+        // Two events of the world step: a failed harvest and a riot, both on the second day (the world pack's own events set the conditions).
+        worldEvents: [
+            { id: 'hunger', kind: 'one-off', certainty: 'set-in-motion', where: ['Bluewatch'], window: { after: 'start + 1 day', within: '1 day' }, ends_when: 'instant', effects: { set: ['grain-dear@The March: 2 days'] }, summary: 'Grain runs short.' },
+            { id: 'riot', kind: 'one-off', certainty: 'set-in-motion', where: ['Highmark'], window: { after: 'start + 1 day', within: '1 day' }, ends_when: 'instant', effects: { set: ['unrest@Highmark: 30 days'] }, summary: 'Crowds gather.' },
         ],
     },
 });
@@ -63,7 +64,7 @@ test('on the host: an event sets a condition, it is active, queries see it, and 
     assert.deepEqual(names(host), ['grain-dear@The March', 'unrest@Highmark']);
     assert.deepEqual(host.sdk.query('chronicle.conditions', { ref: 'highmark' }).map(c => c.name), ['unrest']);
     assert.deepEqual(host.sdk.query('chronicle.conditionNames').map(c => c.name), ['grain-dear', 'unrest']);
-    assert.equal(conditions(host)['grain-dear@The March'].by, by('hunger'));
+    assert.match(conditions(host)['grain-dear@The March'].by, /^event:.*hunger$/, 'it names the event that set it');
     await host.send('Skip.', reply('Days go.', ['! time +3d']));
     assert.equal(host.sdk.query('chronicle.conditions', { name: 'grain-dear' }).length, 0, 'lapsed: not active');
     await host.send('Then.', reply('Quiet.'));
@@ -127,8 +128,9 @@ test('on the host: deleting the reply that set a condition, after later replies 
     await host.send('Skip.', reply('Days go.', ['! time +3d']));
     await host.send('Then.', reply('Quiet.'));
     assert.deepEqual(names(host), ['unrest@Highmark']);
-    const fired = host.sdk.receipts().find(entry => entry.receipt.type === 'events.fire' && entry.receipt.data.event.endsWith('/hunger'));
-    // The settle's receipt names grain-dear; drop the fire's exchange only (a middle delete of the reply holding it).
+    const fired = host.sdk.receipts().find(entry => entry.receipt.type === 'chronicle.world.daily');
+    assert.ok(fired, 'the daily step that set it left a receipt');
+    // The settle's receipt names grain-dear; drop the step's exchange only (a middle delete of the reply holding it).
     await host.st.deleteMessage(fired.index - 1);
     assert.deepEqual(host.store.problems(), []);
     assert.equal('grain-dear@The March' in conditions(host), false);

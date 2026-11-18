@@ -1,6 +1,6 @@
 // The Studio's parts table and its use of the game's pack checker: what each part shows per pack kind, where a problem goes, that
 // every content key of each format 4 kind has a part and an editor slot, and that the Studio's verdict is packs/validate.js's own
-// (same ok, same codes and paths), for format 3 packs, a world-spec pack and format 4 world and game packs.
+// (same ok, same codes and paths), for a world pack, a game pack, format 4 fixtures and a pack in the old format.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
@@ -11,10 +11,13 @@ import { PARTS, kindOf, partOfPath, partsOf } from '../../../studio/parts.js';
 import { EDITORS, PAGES } from '../../../studio/views/route.js';
 
 const read = rel => readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8');
-const ERSVEIL = read('examples/packs/ersveil/pack.json');
+const ERSVEIL_GAME = read('examples/packs/ersveil-game/pack.json');
+const ERSVEIL = read('tests/fixtures/packs/ersveil-3/pack.json');
+const OLD = read('tests/fixtures/packs/riverside-starter-3.json');
 const TINY = read('authoring-kit/examples/tiny-world/pack.json');
 const WORLD = read('tests/packs/studio/fixtures/world-mini.json');
 const ERSVEIL_WORLD = read('examples/packs/ersveil-world/pack.json');
+const ERSVEIL_FORMAT4 = read('examples/packs/ersveil/pack.json');
 const WORLD4 = read('tests/packs/studio/fixtures/world4-mini.json');
 const GAME4 = read('tests/packs/studio/fixtures/game4-mini.json');
 
@@ -55,7 +58,7 @@ test('the kind of a pack: format 4 says it; anything older (or no format) is for
     assert.deepEqual(kindOf(JSON.parse(WORLD4)), { kind: 'world', legacy: false });
     assert.deepEqual(kindOf(JSON.parse(GAME4)), { kind: 'game', legacy: false });
     assert.deepEqual(kindOf(JSON.parse(ERSVEIL)), { kind: 'world', legacy: true });
-    assert.deepEqual(kindOf(JSON.parse(WORLD)), { kind: 'world', legacy: true });
+    assert.deepEqual(kindOf(JSON.parse(OLD)), { kind: 'world', legacy: true });
     assert.deepEqual(kindOf(null), { kind: 'world', legacy: true });
     // A format 4 pack whose kind is wrong is not a format 3 pack: it goes to the world slot, editable, and the checker says BAD_KIND.
     assert.deepEqual(kindOf({ format: 4, kind: 'both' }), { kind: 'world', legacy: false });
@@ -81,13 +84,11 @@ test('a checker path in a format 4 pack goes to its kind\'s part', () => {
     assert.deepEqual(partOfPath('calendar', 'game'), { part: 'other', rec: null });
 });
 
-test('a format 3 pack shows its own parts, with counts, plus Overview and Problems', () => {
-    const parts = partsOf(JSON.parse(ERSVEIL));
-    assert.deepEqual(parts.map(part => part.id), ['overview', 'cast', 'map', 'events', 'items', 'other', 'problems']);
-    const cast = parts.find(part => part.id === 'cast');
-    assert.equal(cast.count, 12);
-    const other = parts.find(part => part.id === 'other');
-    assert.deepEqual(other.sections.map(section => section.key), ['you', 'dataModules', 'rpg', 'names', 'currency', 'calendar', 'weather', 'ripples', 'start']);
+test('a game pack shows what it holds, with counts, plus Overview and Problems', () => {
+    const parts = partsOf(JSON.parse(ERSVEIL_GAME));
+    assert.deepEqual(parts.map(part => part.id), ['overview', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'problems']);
+    assert.deepEqual(parts.find(part => part.id === 'rules').sections.map(section => section.key), ['you', 'rpg']);
+    assert.equal(parts.find(part => part.id === 'trackers').sections.find(section => section.key === 'dataModules').count, 3);
 });
 
 test('a world pack shows lore, the map parts, conditions with the starting world, events, templates and powers', () => {
@@ -114,7 +115,7 @@ test('a checker path goes to its part and record', () => {
     assert.deepEqual(partOfPath(''), { part: 'overview', rec: null });
 });
 
-for (const [name, text] of [['Ersveil', ERSVEIL], ['tiny-world', TINY], ['the world-pack fixture', WORLD], ['the sample world pack', ERSVEIL_WORLD], ['the format 4 world', WORLD4], ['the format 4 game', GAME4], ['text that is not JSON', '{ nope']]) {
+for (const [name, text] of [['the Ersveil world pack', ERSVEIL_FORMAT4], ['the Ersveil game pack', ERSVEIL_GAME], ['tiny-world', TINY], ['the world-pack fixture', WORLD], ['the sample world pack', ERSVEIL_WORLD], ['a format 3 pack', OLD], ['the format 4 world', WORLD4], ['the format 4 game', GAME4], ['text that is not JSON', '{ nope']]) {
     test(`the Studio's verdict on ${name} is the pack checker's own`, () => {
         const game = validatePack(text);
         const studio = checkText(text);
@@ -125,18 +126,20 @@ for (const [name, text] of [['Ersveil', ERSVEIL], ['tiny-world', TINY], ['the wo
     });
 }
 
-test('Ersveil and the sample world pack pass; the engine knows the world-pack kinds, and the fixture\'s other problems are filed under their parts', () => {
-    assert.equal(checkText(ERSVEIL).ok, true);
-    assert.equal(checkText(ERSVEIL_WORLD).ok, true);
+test('the Ersveil world and game packs pass; a format 3 pack is refused as old; the engine knows the world-pack kinds, and the fixture\'s problems are filed under their parts', () => {
+    assert.equal(checkText(ERSVEIL_FORMAT4).ok, true);
+    assert.equal(checkText(ERSVEIL_GAME).ok, true);
+    const old = checkText(OLD);
+    assert.equal(old.ok, false);
+    assert.deepEqual(old.byPart.overview.map(e => e.code), ['FORMAT_OLD']);
     const world = checkText(WORLD);
     const codes = world.errors.map(e => [e.code, e.path]);
-    for (const kind of ['lore', 'regions', 'realms', 'placeKinds', 'routeKinds', 'conditions', 'worldEvents', 'templates', 'powers', 'scores']) {
+    for (const kind of ['lore', 'regions', 'realms', 'placeKinds', 'routeKinds', 'conditions', 'worldEvents', 'templates', 'powers', 'scores', 'start']) {
         assert.ok(!codes.some(([code, path]) => code === 'UNKNOWN_KIND' && path === `content.${kind}`), kind);
     }
-    // The checker refuses the fixture's content.start, its event's cue and its missing ends_when; each problem is filed under its part.
+    // The checker refuses the fixture's event: its cue is not a field and its ends_when is missing; each problem is filed under its part.
     assert.equal(world.ok, false);
     const filed = world.errors.map(e => [e.code, e.path, e.part, e.rec]);
-    assert.ok(filed.some(([code, path, part]) => code === 'UNKNOWN_KIND' && path === 'content.start' && part === 'conditions'));
     assert.ok(filed.some(([code, path, part, rec]) => code === 'UNKNOWN_FIELD' && path === 'content.worldEvents[0].cue' && part === 'events' && rec === 'worldEvents.0'));
     assert.ok(world.byPart.events.some(e => e.rec === 'worldEvents.0' && e.code === 'BAD_RECORD'));
     assert.ok(world.byPart.conditions.some(e => e.rec === 'conditions.1' && e.code === 'NO_CLEARING_PATH'));

@@ -12,7 +12,8 @@ const portraits = (folder, pack) => [...new Set(JSON.parse(new TextDecoder().dec
 
 test("the script's Ersveil zip equals the Studio writer's bytes and the zip on disk", () => {
     const pack = bytes('examples/packs/ersveil/pack.json');
-    const studio = writeStoredZip([{ name: 'pack.json', bytes: pack }, ...portraits('ersveil', pack)]);
+    const studio = writeStoredZip([{ name: 'pack.json', bytes: pack }, ...portraits('ersveil', pack),
+        { name: 'game.json', bytes: bytes('examples/packs/ersveil-game/pack.json') }, { name: 'CONVERSION-NOTES.md', bytes: bytes('examples/packs/ersveil/CONVERSION-NOTES.md') }]);
     assert.deepEqual(buildErsveilZip(), studio);
     assert.deepEqual(studio, bytes('examples/packs/ersveil.zip'));
 });

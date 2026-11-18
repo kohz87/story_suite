@@ -483,6 +483,8 @@ Complete proposed pack JSON. Guild, Watch and Auvoth Compact are Ersveil labels;
 numbers and “Guild Friend” title are example game rules, not asserted lore. No new faction kind
 is added to ordinary PACKS content. This scope tracks the chat's shared standing.
 
+The file shipped as `examples/packs/ersveil-factions/pack.json` is this same data as a format 4 game pack (`format: 4`, `kind: "game"`, version 3.0.0, with a `description`); the JSON below is the format 3 file the module checks are pinned to.
+
 ```json
 {
   "id": "ersveil-factions",
@@ -561,7 +563,7 @@ refuses. Repeating a gain for Guild in a Continue of that same reply is `CLAIMED
 
 ## 7. Worked example B: hunger/fatigue on SD story time
 
-Complete independent pack; requires SD and one attached actor. Public import adapters below pick
+Complete independent pack; requires SD and one attached actor. The shipped `examples/packs/ersveil-survival/pack.json` is this data as a format 4 game pack (`format: 4`, `kind: "game"`, version 3.0.0); the JSON below is the format 3 file. Public import adapters below pick
 only the published fields listed in `projection`; `.view` flattens instance fields for rendering.
 
 ```json

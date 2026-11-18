@@ -7,7 +7,7 @@ import { STRINGS } from '../../../../../core/strings.js';
 // Story Block's own optional pieces as features (MODULES §F100): the status strip and the cards under
 // replies (on), the two assist helpers (off; each makes an extra model call), the state inspector (off)
 // and save points (on). None of them changes the
-// static prompt part. The host reads them where the piece is drawn or run (ui-host.js, runtime.js).
+// static prompt part. The host reads them where the piece is drawn or run (the view, runtime.js).
 // `presets` (features.js, "How much to track"): { lean?, full? } says the switch in those presets (Standard is `default`);
 // `false` keeps a feature out of presets. The pieces about the screen, the helpers, the tester's tools and the RPG are
 // the reader's own choice, so no preset touches them.

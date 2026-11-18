@@ -17,8 +17,9 @@ import { ALIAS_NAMES, aliasCommand } from './aliases.js';
 import { OWN_NAMES } from './own-names.js';
 import { focusCommand } from './focus.js';
 import { refreshCommand } from './people-refresh.js';
+import { portraitCommand } from './people-portrait.js';
 
-/** The page event `port.open` sends when the view's own opener does not open the window (the old host answers it: ui/legacy/ui-host/lean-rpg-sync.js). */
+/** The page event `port.open` sends when the view's own opener does not open the window (nothing in Story Suite answers it since the old view went; a window no one answers is "not available"). */
 export const OPEN_EVENT = 'story-suite:open';
 const FAILED = Object.freeze({ ok: false, code: 'FAILED', message: 'The engine could not do that.' });
 
@@ -112,7 +113,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) return answer;
         answer = rpgCommand(type, payload, writes, rpgValues);
         if (answer) return answer;
-        try { answer = directorCommand(type, payload, writes); } catch (error) { answer = failure(error); }
+        try { answer = directorCommand(type, payload, writes, prefs?.chat); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         answer = moneyCommand(type, payload, writes);
         if (answer) return answer;
@@ -142,6 +143,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       if (type === 'quest.focus') { const answer = focusCommand(prefs?.chat, payload); announce(answer); return answer; }
       // The dossier's Refresh re-reads the story with NPC State's Refresh (the engine's `npc.refresh` only works the stages out again).
       if (type === 'npc.refresh' && payload?.name !== undefined) return refreshCommand(payload);
+      // The dossier's Portrait opens NPC State's portrait manager (a page dialog, nothing recorded).
+      if (type === 'npc.portrait') return portraitCommand(payload);
       // The waiting fight's answers (board, auto, plain, send, discard): the pause's own, so the old view and this one write the same; the view redraws after.
       if (type === 'interaction.choose') {
         let answer = hold ? null : { ...FAILED, message: 'No fight is waiting.' };
@@ -156,7 +159,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       }
       return guarded(sdk, 'command', type, payload, options);
     },
-    // Opens a screen the host owns (the New character window, filled in from `payload`): the host answers the `story-suite:open` event on the page; no engine command, nothing recorded.
+    // Opens a window (the New character window, filled in from `payload`): the view's own opener first, else the `story-suite:open` page event; no engine command, nothing recorded.
     async open(id, payload, { onEnd } = {}) {
       let own = false;
       try { own = screens?.open?.(id, payload ?? null, { onEnd: typeof onEnd === 'function' ? onEnd : null }) ?? false; } catch (error) { own = failure(error); }

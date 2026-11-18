@@ -13,7 +13,7 @@ import { fakeFiles, fakeImageIo, png, pngOf, webp } from './helpers/portraits.js
 import { pack } from './helpers/fixtures.js';
 import { zip } from './helpers/zip.js';
 
-const person = (id, portrait) => ({ id, name: id[0].toUpperCase() + id.slice(1), about: 'About.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait });
+const person = (id, portrait) => ({ kind: 'companion', id, name: id[0].toUpperCase() + id.slice(1), role: 'A friend.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait });
 const packText = (...people) => JSON.stringify(pack({ content: { cast: people } }));
 const text = value => new TextEncoder().encode(value);
 const good = () => zip([
@@ -226,4 +226,16 @@ test('a game.json the checker refuses leaves the world installed and says which 
     assert.match(texts(root, '.ss-packs-message')[0], /^Installed World four\. w4\.zip's game\.json was not imported\.$/);
     assert.ok(texts(root, '.ss-packs-errors li').length > 0);
     assert.deepEqual(made.packs.list().map(item => item.id), ['w4']);
+});
+
+test('a zip\'s game.json that is a world pack, or a game with the world\'s own id, is not installed: the world stays as it was (REVPF4 10)', async () => {
+    const asWorld = mount();
+    await asWorld.pick([fileOf('w4.zip', withGame({ ...world4, id: 'other', name: 'Other world' }), 'application/zip')]);
+    assert.match(texts(asWorld.root, '.ss-packs-message')[0], /^Installed World four\. w4\.zip's game\.json was not imported\.$/);
+    assert.deepEqual(texts(asWorld.root, '.ss-packs-errors li'), ['game.json must be a game pack (it says kind "world").']);
+    assert.deepEqual(asWorld.made.packs.list().map(item => item.id), ['w4']);
+    const sameId = mount();
+    await sameId.pick([fileOf('w4.zip', withGame({ ...game4, id: 'w4' }), 'application/zip')]);
+    assert.deepEqual(texts(sameId.root, '.ss-packs-errors li'), ['game.json has the world\'s own id "w4"; a game pack needs an id of its own.']);
+    assert.deepEqual(sameId.made.packs.list().map(item => [item.id, item.kind]), [['w4', 'world']], 'the world was not replaced');
 });

@@ -161,7 +161,7 @@ test('the offer saved by f74bab2: a take on its own reply goes with an edit and 
     t.mock.method(console, 'warn', () => {});
     const sample = riverside();
     const saved = JSON.parse(readFileSync(new URL('../modules/inventory/fixtures/loot-2.6.0-f74bab2-chat.json', import.meta.url), 'utf8'));
-    const host = await createHost({ st: { chat: saved.chat }, settings: { packs: [packEntry(sample, true)] } });
+    const host = await createHost({ st: { chat: saved.chat }, settings: { packs: [packEntry(sample, true)], selected: { world: sample.id } } });
     t.after(() => host.close());
     const sid = headSid(host);
     assert.equal((await take(host, sid, [0])).ok, true);

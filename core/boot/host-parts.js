@@ -1,5 +1,5 @@
-// The two host parts the new view needs without the old view: the card-offer controller and the save points, built once at boot.
-// The old view (when it is mounted) is handed these same two, so there is one controller and one save-points lock per chat.
+// Two host parts the view reads, built once at boot: the card-offer controller and the save points (one controller and one save-points
+// lock per chat).
 import { createSavePoints } from '../timeline/rewind.js';
 import { createCardOfferWiring } from '../../packs/card-offer-wiring.js';
 import { readCharacterLorebook, saveSettingsNow } from '../../packs/st-adapter.js';

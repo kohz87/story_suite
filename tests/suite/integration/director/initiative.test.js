@@ -207,15 +207,15 @@ test('pulse: nobody who is too far away is chanced upon (no road known, or the t
 
 test('pulse, rule 2: run5cast reply 14, Rika (Auvoth / Pale Market, 3.5 days by the frontier road) is never chanced upon in Drowned Bell taproom 1730 minutes in, though the map\'s straight line makes it half a day', async () => {
     const { castHost, castSource, entry, said } = await import('../../../modules/cast/cast/helpers.js');
-    // Ersveil 2.9.6's places and road as the pack writes them; the taproom is the story's, placed on the map by the atlas with no road.
+    // Ersveil 2.9.6's places and road as the pack writes them (kinds as the engine's classes, a format 4 pack names no other without placeKinds); the taproom is the story's, placed on the map by the atlas with no road.
     const source = castSource([entry('rika', { start: { place: 'Auvoth / Pale Market', goal: 'A Guild licence and a crew.', routine: '' } })]);
     source.places = [
-        { name: 'Bluewatch Village', region: 'River Confederacy: Bluewatch', kind: 'village', x: 64, y: 110 },
-        { name: 'Bluewatch Village / Guild Office', region: 'River Confederacy: Bluewatch', kind: 'guild office', x: 64, y: 110 },
+        { name: 'Bluewatch Village', region: 'River Confederacy, Bluewatch', kind: 'village', x: 64, y: 110 },
+        { name: 'Bluewatch Village / Guild Office', region: 'River Confederacy, Bluewatch', kind: 'site', x: 64, y: 110 },
         { name: 'Auvoth', region: 'Auvoth Compact', kind: 'city', x: 59, y: 110 },
-        { name: 'Auvoth / Pale Market', region: 'Auvoth Compact', kind: 'district', x: 59.4, y: 109.6 },
+        { name: 'Auvoth / Pale Market', region: 'Auvoth Compact', kind: 'site', x: 59.4, y: 109.6 },
     ];
-    source.routes = [{ from: 'Auvoth', to: 'Bluewatch Village', kind: 'frontier road', km: 70 }];
+    source.routes = [{ from: 'Auvoth', to: 'Bluewatch Village', kind: 'road', km: 70 }];
     const host = await castHost({ source, features: { 'story-director.pulse': true } });
     try {
         // The cast joins at the first minute (the clock is set first); the party goes into the taproom with three named people (the Standard

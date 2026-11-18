@@ -12,7 +12,7 @@ import { validatePack } from '../../../packs/validate.js';
 
 const GAME = JSON.parse(readFileSync(new URL('../../packs/studio/fixtures/game4-mini.json', import.meta.url), 'utf8'));
 // a real tracker (from the Ersveil example), so the checker passes the pack
-const TRACKER = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8')).content.dataModules.find(module => module.slug === 'guild-membership');
+const TRACKER = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil-game/pack.json', import.meta.url), 'utf8')).content.dataModules.find(module => module.slug === 'guild-membership');
 delete TRACKER.screens; // its screen names the Ersveil pack
 const RPG = {
     levelCap: 30,

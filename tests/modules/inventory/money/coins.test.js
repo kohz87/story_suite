@@ -10,7 +10,7 @@ import { withPackCurrency } from '../../../../core/runtime.js';
 import { validatePack } from '../../../../packs/validate.js';
 import { createCoreModule } from '../../../../modules/scene/domains/index.js';
 import { changesSummary } from '../../../../packs/screens/defaults/changes-card.js';
-import { linesToList } from '../../../../ui/legacy/host-ui.js';
+import { linesToList } from '../../../../core/list-lines/list-lines.js';
 import { createHost } from '../../../../testkit/index.js';
 import { pack } from '../../../packs/helpers/fixtures.js';
 
@@ -78,13 +78,13 @@ test('the reader\'s coins beat the pack\'s, which beat the one name; a currency 
     assert.deepEqual(currencyOf(make({ coins: COINS })('story-block')).coins.map(coin => coin.name), ['penny', 'silver', 'gold'], 'the reader\'s');
     assert.equal(currencyOf(make({ currency: 'penny' })('story-block')).coins, undefined, 'the reader\'s own name: no pack coins');
     // A pack's coins are checked.
-    const checked = validatePack(pack({ currency: { name: 'copper', coins: offer.coins } }));
+    const checked = validatePack(pack({ kind: 'game', content: { currency: { name: 'copper', coins: offer.coins } } }));
     assert.equal(checked.ok, true, JSON.stringify(checked.errors));
     assert.deepEqual(checked.pack.currency.coins.map(coin => coin.value), [1, 10]);
     for (const coins of [[], [{ name: 'a', value: 0 }], [{ name: 'a', value: 1, extra: 1 }], [{ name: '5p', value: 5 }], [{ name: 'a', value: 1 }, { name: 'A', value: 2 }], 'copper']) {
-        const refused = validatePack(pack({ currency: { name: 'copper', coins } }));
+        const refused = validatePack(pack({ kind: 'game', content: { currency: { name: 'copper', coins } } }));
         assert.equal(refused.ok, false, JSON.stringify(coins));
-        assert.ok(refused.errors.some(error => error.path === 'currency.coins' || error.path === 'currency'));
+        assert.ok(refused.errors.some(error => error.path === 'content.currency.coins' || error.path === 'content.currency'));
     }
 });
 

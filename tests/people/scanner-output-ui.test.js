@@ -74,14 +74,13 @@ test('zero scanner output setting preserves built-in request lengths', async () 
     assert.equal(calls.profile[0][2], 900);
 });
 
-test('scanner output UI mounts into the Scanning slot, leaves panel styling to style.css, and keeps cast cards taller', () => {
-    const source = fs.readFileSync(new URL('../../modules/people/legacy/scanner-output-ui.js', import.meta.url), 'utf8');
+test('scanner output UI is drawn after Scan context (no slot), leaves panel styling to style.css, and keeps cast cards taller', () => {
+    const source = fs.readFileSync(new URL('../../modules/people/settings/scanner-output.js', import.meta.url), 'utf8');
     const index = runtimeSource();
     const css = styleSource();
     assert.match(source, /Maximum output tokens/);
-    assert.match(source, /\[data-delta-settings-slot="scanner-output"\]/);
-    assert.match(index, /npc_state_delta_scan_depth[\s\S]*settingsSlot\('scanner-output'\)/, 'the output limit sits inside Scanning');
-    assert.doesNotMatch(index, /settingsSlot\('full-cast(-action)?'\)/, 'the full-cast slots are gone');
+    assert.match(source, /querySelector\?\.\('#npc_state_delta_scan_depth'\)\?\.closest\?\.\('label'\)[\s\S]*after\.after\(row\)/, 'the output limit sits right after Scan context');
+    assert.doesNotMatch(index, /settingsSlot\(|delta-settings-slot/, 'no settings slots are left (B4-5)');
     assert.doesNotMatch(source, /moveFullCastIntoScanning|npc_state_delta_full_cast_scan|#\$\{SETTINGS_ID\} \./, 'no relocation or settings CSS outside the settings owner');
     assert.match(source, /class="delta-setting-number story-suite-number"/);
     assert.match(css, /\.delta-settings-maintenance-actions \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);

@@ -3,11 +3,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { inventoryScreen } from '../../../packs/screens/defaults/index.js';
 import { core, foldButtons, foldOf, openFold, queries, renderSkip, settle, show, stocked, text } from './helpers.js';
-import { readFileSync } from 'node:fs';
 import { stackOf } from '../../../packs/widgets/modal-stack.js';
 import { gearHost } from '../../core/helpers/gear-ui-state.js';
 import { createInventoryGridWidget, createInventoryViewWidget, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET } from '../../../packs/screens/defaults/inventory-add.js';
-import { cssOf } from '../../core/helpers/css-parts.js';
 
 const skip = renderSkip;
 function world() {
@@ -267,14 +265,6 @@ test('Inventory Grid: a storage that throws on every call still draws the folds'
     head.click();
     assert.ok(el.querySelector('.fold-head'), 'drawn again');
     assert.equal(el.querySelector('.fold-head').getAttribute('aria-expanded'), 'false', 'the choice lasts this page');
-});
-
-test('the inventory sheet\'s style sheet is imported by size.css and its rules are not in mounts.css', () => {
-    const read = name => readFileSync(new URL(`../../../ui/legacy/view/${name}`, import.meta.url), 'utf8');
-    assert.match(read('size.css'), /^@import url\('\.\/inv-sheet\.css'\);$/m);
-    assert.match(read('inv-sheet.css'), /\.ss-dialog\.inv-sheet/);
-    assert.match(read('inv-sheet.css'), /@supports[^{]*rgb\(from[^{]*\{\s*\.ss-dialog\.inv-sheet \{ background-color: var\(--ss-sheet-floor, rgb\(from var\(--ss-surface\) r g b \/ 1\)\)/, 'an opaque floor under non-Glass styles');
-    assert.doesNotMatch(cssOf('mounts'), /inv-sheet/);
 });
 
 test('Inventory Grid: the focus survives the screen building the widget again (tab and game-view mounts); a gone item hands it to the next tile', { skip }, async t => {

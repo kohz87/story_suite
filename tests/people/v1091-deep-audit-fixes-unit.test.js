@@ -255,7 +255,7 @@ test('RB87-15: a refused obligation is a boundary, an affirmative one still need
 });
 
 test('RB87-17 (controller): native export checks the freshness result and its originating chat', () => {
-    const source = fs.readFileSync(new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url), 'utf8');
+    const source = fs.readFileSync(new URL('../../modules/people/tools/data-tools.js', import.meta.url), 'utf8');
     const exporter = source.slice(source.indexOf('export async function exportNativeTools'), source.indexOf('// What the roleplay model receives'));
     assert.match(exporter, /if \(!await api\(\)\?\.ensureFresh\?\.\(\{ reason: 'dossier-export' \}\) \|\| !sameChat\(\)\)/);
     assert.match(exporter, /exportBytes\?\.\(\{ chatKey \}\)/);

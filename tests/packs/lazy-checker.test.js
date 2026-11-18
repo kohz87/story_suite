@@ -5,8 +5,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createInstalled, checkerLoaded } from '../../packs/installed.js';
 
-const TINY = { id: 'tiny', name: 'Tiny', version: '1.0.0', requires: { storyBlock: '^2' }, content: { items: [{ name: 'Brass key', slot: 'hand' }] } };
-const root = { packs: [{ id: 'tiny', version: '1.0.0', enabled: true, source: 'file', origin: '', pack: TINY }] };
+const TINY = { id: 'tiny', name: 'Tiny', format: 4, kind: 'world', version: '1.0.0', requires: { suite: '^0.1' }, content: { items: [{ name: 'Brass key', slot: 'hand' }] } };
+const root = { selected: { world: 'tiny' }, packs: [{ id: 'tiny', version: '1.0.0', enabled: true, source: 'file', origin: '', pack: TINY }] };
 const installed = createInstalled({ settings: { read: () => root, save: () => {} } });
 
 test('a stored pack before the checker lands: listed as loading, no content, nothing kept; after ready() it is whole', async () => {

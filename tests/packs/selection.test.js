@@ -5,7 +5,6 @@ import assert from 'node:assert/strict';
 import { createInstalled } from '../../packs/installed.js';
 import { mergeStart, applyStart, calendarOf, weatherOf, contentOf } from '../../packs/content.js';
 import { fakeSettings } from './helpers/fake-settings.js';
-import { itemsPack } from './helpers/fixtures.js';
 
 const REQ = { suite: '^0.1' };
 const months = [{ name: 'Frost', days: 30 }, { name: 'Bloom', days: 20 }];
@@ -84,7 +83,8 @@ test('trackers (data modules, meter presets) come from every game pack; nothing 
     await installed.select('game', 'g2');
     assert.equal(calendarOf(installed.packs()).pack, 'g2');
     await installed.select('game', null);
-    assert.equal(calendarOf(installed.packs()), null, 'built-in game: no pack calendar');
+    const builtIn = calendarOf(installed.packs());
+    assert.deepEqual([builtIn.pack, builtIn.builtIn, builtIn.months, builtIn.world], [null, true, [], 'w1'], 'built-in game: no pack calendar, only the world\'s start on the Gregorian one');
     assert.deepEqual(contentOf(installed.packs(), 'meterPresets').length, 2);
 });
 
@@ -125,19 +125,6 @@ test('a stored selection naming a pack that is gone or of the other kind reads a
     await again.ready({ force: true });
     assert.deepEqual(again.selected(), { world: null, game: null });
     assert.deepEqual(again.packs(), []);
-});
-
-test('format 3 keeps its enabled list, and mixes with format 4 without change', async () => {
-    const { settings, installed } = await setup(itemsPack('old', [{ name: 'Axe', kind: 'equipment' }]), world('w1'));
-    assert.deepEqual(ids(installed), ['old', 'w1']);
-    assert.equal(Object.hasOwn(settings.root.packs[0], 'kind'), false, 'a format 3 entry has no kind');
-    assert.equal(Object.hasOwn(installed.list()[0], 'kind'), false);
-    await installed.setEnabled('old', false);
-    assert.deepEqual(ids(installed), ['w1']);
-    assert.equal(Object.hasOwn(settings.root, 'selected'), true);
-    const { settings: plain, installed: onlyOld } = await setup(itemsPack('old', [{ name: 'Axe', kind: 'equipment' }]));
-    assert.equal(Object.hasOwn(plain.root, 'selected'), false, 'no format 4 pack: nothing new is written');
-    assert.deepEqual(ids(onlyOld), ['old']);
 });
 
 test('weather of a selected game: only season-only tables of style "tables" go to the region-keyed reader; climate tables wait apart', async () => {

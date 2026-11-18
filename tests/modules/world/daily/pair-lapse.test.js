@@ -54,6 +54,17 @@ test('W1: a date that is not on the calendar Lapses the event at load, with one 
     assert.ok(!run.warnings.some(text => text.includes('"fine"')));
 });
 
+test('an event anchored on the game\'s own season name is read and fires in that season (REVPF4 11: it used to be refused as "neither a condition, an anchor nor a threshold")', () => {
+    const DRY = [{ name: 'dry', months: ['January', 'February', 'March', 'April', 'May', 'June'] }, { name: 'wet', months: ['July', 'August', 'September', 'October', 'November', 'December'] }];
+    const w = world({ events: [ev('dust', { requires: ['dry'], certainty: 'set-in-motion', window: { within: '40 days' } })], seasons: DRY });
+    const run = runner(w, { start: D(611, 3, 10), draw: drawWith() }).to(D(611, 3, 12));
+    assert.notEqual(run.row('dust')?.state, 'lapsed');
+    assert.ok(run.log('roll', 'dust').length > 0 || run.row('dust').state === 'active', 'March is the dry season: the event is rolled');
+    assert.ok(!run.warnings.some(text => text.includes('"dust"')), 'no refusal, no lapse');
+    const quarters = runner(world({ events: [ev('dust', { requires: ['dry'] })] }), { start: D(611, 3, 10) }).to(D(611, 3, 11));
+    assert.equal(quarters.row('dust').state, 'lapsed', 'on the built-in quarters "dry" is no season: Lapsed with its line');
+});
+
 test('W1: a season the calendar lacks Lapses the event at load', () => {
     const w = world({ events: [ev('frost', { requires: ['winter'] })], seasons: [{ name: 'dry', months: ['January', 'February', 'March', 'April', 'May', 'June'] }, { name: 'wet', months: ['July', 'August', 'September', 'October', 'November', 'December'] }] });
     const run = runner(w, { start: D(611, 3, 10) }).to(D(611, 3, 11));

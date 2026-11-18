@@ -1,21 +1,26 @@
-// A card on the page for the card-offer tests: the real runtime and UI over a fake SillyTavern, with the card's lorebook entries injected.
+// A card for the card-offer tests: the real runtime and boot's host parts (the one offer controller the new view reads) over a fake SillyTavern, with the card's lorebook entries injected.
 import { createFakeContext } from '../../../testkit/fake-st.js';
 import { createRuntime } from '../../../core/runtime.js';
 import { createPacksPart } from '../../../packs/index.js';
-import { mountUi } from '../../../ui/legacy/ui-host.js';
-import { setupDom } from '../../ui/view/mounts/helpers.js';
+import { startHostParts } from '../../../core/boot/host-parts.js';
+import { setLiveOffer } from '../../../ui/port/live-offer.js';
 import { fixture } from '../../modules/data-modules/helpers.js';
 import { fakeFiles, webp } from './portraits.js';
 
 export const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 export const settle = async () => { for (let i = 0; i < 8; i += 1) await tick(); };
 
-/** The Sealcrown-like pack: one data module (the shipped reputation fixture), a cast with portraits when `portraits` is set. */
+/**
+ * The Sealcrown-like pack (format 4): a game pack with one data module (the shipped reputation fixture); with `portraits` it is instead a
+ * world pack whose cast names those picture files (a pack is a world or a game, so the two never share one).
+ */
 export function cardPack({ version = '1.0.0', id = 'sealcrown', capabilities = ['data-modules-v1'], portraits = [] } = {}) {
     // (the fixture names its own pack id inside its screens: the new id replaces it everywhere)
     const base = JSON.parse(JSON.stringify(fixture('reputation')).replaceAll('ersveil-factions', id));
-    const person = file => ({ id: file.replace(/\W/g, ''), name: file.replace(/\..*/, ''), about: 'About.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait: file });
-    return { ...base, id, name: 'Sealcrown Blocks', version, requires: { storyBlock: '^2', capabilities }, content: { dataModules: base.content.dataModules, ...(portraits.length ? { cast: portraits.map(person) } : {}) } };
+    const person = file => ({ kind: 'companion', id: file.replace(/\W/g, ''), name: file.replace(/\..*/, ''), role: 'A friend.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, portrait: file });
+    const head = { id, format: 4, name: 'Sealcrown Blocks', version, requires: { suite: '^0.1', capabilities } };
+    if (portraits.length) return { ...head, kind: 'world', content: { cast: portraits.map(person) } };
+    return { ...head, kind: 'game', content: { dataModules: base.content.dataModules } };
 }
 
 export const packEntry = (pack, title = `${pack.name} [storysuite:pack]`) => ({ book: 'card', uid: 1, title, keys: [], content: JSON.stringify(pack) });
@@ -26,11 +31,10 @@ export const goodPortrait = (name = 'fenna.webp', seed = 1) => ({ [name]: dataUr
 
 /**
  * `entries`: the card's lorebook entries (a function is read at each read); `installed`: packs to install first;
- * `group`: a group chat. → { doc, st, ui, runtime, offer, files, reads, box() }.
+ * `group`: a group chat. → { st, parts, runtime, offer, files, reads, notices(), waiting() }; `notices()` are the offers the controller gives the view now.
  */
 export async function cardWorld(t, { entries = [], installed = [], group = false, rpg = undefined, settings = {}, errors = null, flushSettings = undefined } = {}) {
     t.mock.method(console, 'warn', () => {});
-    const doc = setupDom();
     const st = createFakeContext({ extensionSettings: { storySuite: structuredClone(settings) } });
     if (group) st.ctx.groupId = 'group-1';
     const files = fakeFiles();
@@ -46,8 +50,7 @@ export async function cardWorld(t, { entries = [], installed = [], group = false
         portraitFiles: files,
         capabilities,
     });
-    let ui = null;
-    runtime = createRuntime({ ctx: st.ctx, packs: part, onRegister: () => ui?.syncScreens() });
+    runtime = createRuntime({ ctx: st.ctx, packs: part });
     // `reads.queue`: reads a test holds back: `{ gate: Promise, entries }` is taken by the next read, which answers `entries` after `gate`.
     const reads = { count: 0, queue: [] };
     const readLorebook = async () => {
@@ -57,7 +60,9 @@ export async function cardWorld(t, { entries = [], installed = [], group = false
         if (held) { await held.gate; return { character: 'Ilsa', card: 'ilsa.png', entries: held.entries, problem: '' }; }
         return { character: 'Ilsa', card: 'ilsa.png', entries: typeof entries === 'function' ? entries() : entries, problem: '' };
     };
-    ui = mountUi({ runtime, ctx: st.ctx, doc, readLorebook, ...(flushSettings ? { flushSettings } : {}) });
+    setLiveOffer(null);
+    const parts = startHostParts({ runtime, ctx: st.ctx, readLorebook, ...(flushSettings ? { flushSettings } : {}) });
+    t.after(() => { parts.stop(); setLiveOffer(null); });
     runtime.turn.install({ globalName: null });
     st.interceptor = runtime.turn.interceptor;
     t.after(() => runtime.turn.uninstall({ globalName: null }));
@@ -66,13 +71,11 @@ export async function cardWorld(t, { entries = [], installed = [], group = false
     for (const pack of installed) { const result = await runtime.packs.packs.install(pack); if (!result.ok) throw new Error(JSON.stringify(result.errors)); }
     await settle();
     if (rpg !== undefined) runtime.features.set('story-block.rpg', rpg);
-    await ui.cardOffer.refresh();
+    await parts.cardOffer.refresh();
     await settle();
     return {
-        doc, st, ui, runtime, files, reads, offer: ui.cardOffer,
-        box: () => doc.querySelector('.ss-card-offers'),
-        notices: () => doc.querySelectorAll('.ss-card-offer'),
-        dot: () => doc.querySelector('.ss-card-offer-dot'),
-        button: (node, text) => node.querySelectorAll('button').find(item => item.textContent === text),
+        st, parts, runtime, files, reads, offer: parts.cardOffer,
+        notices: () => parts.cardOffer.offers(),
+        waiting: () => parts.cardOffer.waiting(),
     };
 }

@@ -10,11 +10,11 @@ import { fakeFightRunner } from '../../../suite/integration/director/helpers/fak
 const FEATURE = 'story-director.world-events';
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const PACK = JSON.stringify({
-    id: 'world-note', version: '1.0.0', name: 'World note', requires: { storyBlock: '^2' },
+    id: 'world-note', version: '1.0.0', name: 'World note', format: 4, kind: 'world', requires: { suite: '^0.1' },
     content: {
         places: [
-            { name: 'Highmark', region: 'The March', x: 0, y: 0 }, { name: 'Bluewatch', region: 'The March', x: 5, y: 5 },
-            { name: 'Far Keep', region: 'The Wilds', x: 90, y: 90 },
+            { id: 'highmark', name: 'Highmark', region: 'The March', x: 0, y: 0 }, { id: 'bluewatch', name: 'Bluewatch', region: 'The March', x: 5, y: 5 },
+            { id: 'far-keep', name: 'Far Keep', region: 'The Wilds', x: 90, y: 90 },
         ],
         routes: [{ from: 'Highmark', to: 'Bluewatch', kind: 'road', km: 600 }],
         items: [{ name: 'Rye Bread', tags: ['grain'] }],
@@ -23,8 +23,9 @@ const PACK = JSON.stringify({
             { name: 'unrest', scope: 'place', fades: 'until cleared', means: 'Crowds in the streets.' },
             { name: 'roads-closed', scope: 'route', fades: 'until cleared', means: 'Nobody passes.' },
         ],
-        // A world line names a place or region, not a route: a route condition comes from a pack event (job A's command).
-        events: [{ id: 'closure', once: true, when: 'time() != null', cue: 'The road closes.', then: [{ command: 'chronicle.condition.set', payload: { name: 'roads-closed', ref: 'Highmark-Bluewatch', why: 'a landslide', by: 'event:pack.world-note/closure' } }] }],
+        realms: [{ id: 'march-realm', name: 'March Realm', regions: ['The March', 'The Wilds'] }],
+        // A world line names a place or region, not a route: a route condition comes from a world event.
+        worldEvents: [{ id: 'closure', kind: 'one-off', certainty: 'set-in-motion', reach: 'local', where: ['Bluewatch'], window: { after: 'start + 1 day', within: '1 day' }, ends_when: 'instant', effects: { set: ['roads-closed@Highmark-Bluewatch: 30 days'] }, summary: 'The road closes.' }],
     },
 });
 
@@ -44,7 +45,9 @@ async function play(host) {
     await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm', '~ place Highmark']));
     await host.send('Look.', reply('The square fills.', ['+ world Bread Riots — crowds fill the square | state: ongoing | place: Highmark | conditions: +unrest, +grain-dear']));
     await host.send('Far.', reply('A rider speaks of the north.', ['+ world Keep Siege — the far keep is besieged | state: ongoing | place: Far Keep']));
-    await host.send('Wait.', reply('Evening.'));
+    await host.send('Wait.', reply('Evening.', ['! time +1d']));
+    // The note a reply is given is written from what the replies before it set: one more reply shows the closure the day change made.
+    await host.send('Next.', reply('Morning.'));
 }
 
 test('on the host: the note takes the [World] lines\' place and shows the place, route and region conditions with what they mean and their told prices, and the news heard here', async () => {

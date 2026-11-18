@@ -109,8 +109,9 @@ through the slots described below.
 - `tests/packs/studio/`:
   - the parts table: each format 4 kind's keys in a part of that kind with an editor slot, and every slot file present;
   - the checker wiring (the Studio's verdict equals `validatePack`'s);
-  - open and export (the writer rebuilds `examples/packs/ersveil.zip` byte for byte; a world zip with `game.json` comes back
-    byte for byte; `pack.json` and `game.json` open together), with the format 4 fixtures
+  - open and export (the writer rebuilds `examples/packs/ersveil.zip` and the format 3 Ersveil zip
+    `tests/fixtures/packs/ersveil-3/ersveil.zip` byte for byte; a world zip with `game.json` comes back byte for byte;
+    `pack.json` and `game.json` open together), with the format 4 fixtures
     `tests/packs/studio/fixtures/world4-mini.json` and `game4-mini.json`;
   - an exported pack installed in a testkit host (`testkit/host.js`) gives the same verdict;
   - the edit loop without a page (`wire.test.js`): commit, the debounce and draft save, undo and redo, no-op edits, format 3

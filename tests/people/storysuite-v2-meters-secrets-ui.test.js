@@ -4,40 +4,10 @@ import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
 import { MAX_SECRETS, normalizeGeneratedSecrets, normalizeSecrets, secretId, secretsFromLines, secretsToLines } from '../../modules/people/meters/npc-meters.js';
 import { assemble } from '../../core/prompt.js';
 import { escapeHtml } from '../../modules/people/util/html.js';
-import { projectDossierState, v2SecretsHtml, v2MetersProjection } from '../../modules/people/legacy/dossier-ui.js';
-import { dossierUiSource } from './helpers/dossier-ui-source.js';
+
 import { hiddenNotePromptRules } from '../../modules/people/core/core-mechanics.js';
 import { buildScannerPrompt } from '../../modules/people/core/core.js';
 import { ERSVEIL, EVENT, EVENT_SECRET, SECRET, SECRET_TWO, eventNote, fakeDelta, handedOver, host } from './storysuite-v2-meters.helpers.js';
-
-test('secrets: the Secrets view is the notes in order, opened with title, text and what opened them, hidden as a rule only', async () => {
-    const delta = fakeDelta();
-    delta.records.npc_mira.secrets = [{ title: 'Her past', meter: 'trust', at: 20, text: SECRET }, eventNote(), { title: 'The ledger', meter: 'trust', at: 60, text: SECRET_TWO }];
-    const h = await host({ delta });
-    // No meters yet: every note is hidden, and the view still exists.
-    const bare = h.adapter.dossierMeters(Object.values(delta.records));
-    assert.deepEqual(bare.npc_mira.secrets.map(note => [note.state, note.opens]), [['hidden', 'Opens at Trust 20'], ['hidden', 'Opens with the story'], ['hidden', 'Opens at Trust 60']]);
-    // (people store P4) every stored person is in npc.cast, so a person with no notes and no meter change yet has a view at their starting meters, and no secrets.
-    assert.deepEqual(bare.npc_oren?.secrets ?? [], [], 'no notes: no Secrets rows');
-    assert.ok(Array.isArray(bare.npc_oren?.bars), 'a view at the starting meters');
-    h.reply('Nice.', '~ npc Mira | trust: +12');
-    const mira = () => h.adapter.dossierMeters(Object.values(delta.records)).npc_mira;
-    assert.deepEqual(mira().secrets.map(note => note.state), ['open', 'hidden', 'hidden']);
-    assert.deepEqual(mira().secrets[0], { state: 'open', title: 'Her past', text: SECRET, pill: 'Opened · Trust 20' });
-    const json = JSON.stringify(mira());
-    assert.equal(json.includes(EVENT) || json.includes(EVENT_SECRET) || json.includes('The duke') || json.includes('The ledger') || json.includes(SECRET_TWO), false, 'a hidden note shows neither title, text nor event');
-    const html = v2SecretsHtml(v2MetersProjection(mira()));
-    assert.match(html, /Secrets <small class="delta-secrets-count">· 1 opened · 2 still hidden<\/small>/);
-    assert.match(html, /Opened · Trust 20/);
-    assert.match(html, /Opens at Trust 60/);
-    assert.match(html, /Opens with the story/);
-    assert.equal((html.match(/delta-secret-bar/g) || []).length, 2);
-    assert.doesNotMatch(html, /🔒|🔓|The duke|ledger/);
-    // An event note opens "with the story" too, whatever the meter.
-    const eventId = normalizeSecrets(delta.records.npc_mira.secrets)[1].id;
-    await h.adapter.openByEvent({ name: 'Mira', ids: [eventId] });
-    assert.deepEqual(mira().secrets[1], { state: 'open', title: 'The duke', text: EVENT_SECRET, pill: 'Opened · with the story' });
-});
 
 test('secrets: the editor lists the notes with a Hidden/Opened choice; saving applies a changed choice (npc.open) and an edited line', async () => {
     const h = await host();
@@ -79,22 +49,6 @@ test('secrets: the scanner prompt asks for layered notes and watches story event
     assert.match(watched, /CURRENT exchange/);
     assert.match(buildScannerPrompt({ ...base, layeredSecrets: true, eventWatch: [{ key: 's1', name: 'Mira', event: EVENT }] }), /\n16\. HIDDEN NOTES[^\n]*\n17\. STORY EVENTS/);
     assert.equal(hiddenNotePromptRules({ eventWatch: [{ name: 'x' }, null] }), '', 'an item with no key or event is no watch');
-});
-
-test('secrets: the dossier\'s Secrets section follows Background / History, with a Secrets chip, and only for a dossier with notes', () => {
-    const ui = dossierUiSource();
-    assert.match(ui, /SECTION_KEYS = Object\.freeze\(\['mood', 'now', 'with', 'ties', 'past', 'secrets'\]\)/, 'Secrets is the sixth and last section');
-    assert.match(ui, /\['secrets', secretsSectionHtml\]/);
-    assert.match(ui, /ring: \{ value: secrets\.total/, 'the board\'s Secrets tile shows opened / total');
-    const notes = [{ state: 'open', title: 'Her past', text: SECRET, pill: 'Opened · Trust 20' }, { state: 'hidden', opens: 'Opens with the story', width: 61 }, { state: 'bogus' }, null];
-    const state = { npcs: [{ id: 'npc_a', name: 'Ada' }, { id: 'npc_b', name: 'Bo' }], meterViews: { npc_a: { bars: [], secrets: notes }, npc_b: { bars: [] } } };
-    const [ada, bo] = projectDossierState(state).npcs;
-    assert.deepEqual(ada.v2Meters.secrets.map(note => note.state), ['open', 'hidden'], 'unreadable notes are dropped');
-    assert.deepEqual(bo.v2Meters.secrets, []);
-    assert.equal(v2SecretsHtml(bo.v2Meters), '', 'no notes, no section');
-    assert.match(v2SecretsHtml(ada.v2Meters), /data-delta-section="secrets"/);
-    const hostile = v2SecretsHtml(v2MetersProjection({ bars: [], secrets: [{ state: 'open', title: '<img src=x>', text: '<script>1</script>', pill: '<b>' }, { state: 'hidden', opens: '<i>', width: '50"><x' }] }));
-    assert.doesNotMatch(hostile, /<img|<script|<i>|<x/);
 });
 
 test('secrets: redactSent takes a part\'s whole multi-line text and redacts every locked line, leaving the rest as it is', async () => {

@@ -10,8 +10,8 @@ describe('SETTINGS_SHAPE', () => {
     assert.deepEqual(checkShape(buildSettings({ rpg: false }), SETTINGS_SHAPE), []);
   });
 
-  it('lists the nine row types the overlay can render', () => {
-    assert.deepEqual([...SETTINGS_ROW_TYPES].sort(), ['btn', 'chips', 'info', 'multi', 'num', 'seg', 'sel', 'sw', 'txt']);
+  it('lists the eleven row types the overlay can render (area: several lines of text, UIFIX5; lines: the pack pair\'s problem lines, S1)', () => {
+    assert.deepEqual([...SETTINGS_ROW_TYPES].sort(), ['area', 'btn', 'chips', 'info', 'lines', 'multi', 'num', 'seg', 'sel', 'sw', 'txt']);
   });
 
   it('rejects an unknown row type, section group and connection id', () => {

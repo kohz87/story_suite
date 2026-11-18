@@ -57,6 +57,18 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
   return {
     // A person's page left open: closed when the suite is opened on a tab (it would cover the tab asked for).
     closePage: () => dossier?.close(),
+    // The first of `keys` (a store id or a lower-case name) that has a dossier, or null.
+    personKey: (keys) => {
+      const known = port.view('dossier') ?? {};
+      return (Array.isArray(keys) ? keys : [keys]).find(item => typeof item === 'string' && item && Object.hasOwn(known, item)) ?? null;
+    },
+    // Opens the first of `keys` that has a dossier, over the People tab; false when none has one.
+    openPerson(keys) {
+      const key = this.personKey(keys);
+      if (!key) return false;
+      go('people', { personId: key });
+      return true;
+    },
     card: vm => (vm ? characterCard(vm, {
       onBack: () => onChat?.(),
       onScene: () => openSceneSheet({ port, doc, backStack, refresh }, vm.scene, (port.view('now')?.here ?? []).map(p => p.name)),

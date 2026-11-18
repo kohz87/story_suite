@@ -83,8 +83,8 @@ export async function runFuzz({ seed = 1, steps = 40, verbose = false } = {}) {
         const beta = gen('beta', { scope: 'character', clock: true, source: 'pack.fz-a/alpha' });
         const gamma = gen('gamma', { offers: true });
         const witness = witnessDefinition(r);
-        packs.push({ id: 'fz-a', version: '1.0.0', requires: { storyBlock: '^2', capabilities: ['data-modules-v1', 'story-director'] }, content: { dataModules: [alpha, beta, gamma, witness] } });
-        if (r.chance(0.5)) packs.push({ id: 'fz-b', version: '1.0.0', requires: { storyBlock: '^2', capabilities: ['data-modules-v1'] }, content: { dataModules: [gen('alpha', {})] } });
+        packs.push({ id: 'fz-a', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1', capabilities: ['data-modules-v1', 'story-director'] }, content: { dataModules: [alpha, beta, gamma, witness] } });
+        if (r.chance(0.5)) packs.push({ id: 'fz-b', format: 4, kind: 'game', version: '1.0.0', requires: { suite: '^0.1', capabilities: ['data-modules-v1'] }, content: { dataModules: [gen('alpha', {})] } });
         if (r.chance(0.6)) packs.push(fixture('reputation'));
         if (r.chance(0.6)) packs.push(fixture('survival'));
         const catalog = () => {

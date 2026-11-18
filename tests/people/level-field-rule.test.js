@@ -151,11 +151,10 @@ test('a scan keeps the scanner\'s Level for an active party member: no party-she
     assert.equal(quiet.state.npcs[0].customFields.Level, '4', 'nothing is written for a member either');
 });
 
-test('the adapter still reads party.levels (null without the query); the dossier no longer marks Level "from the party sheet"', async () => {
+test('the adapter still reads party.levels (null without the query); the hosted views no longer mark Level "from the party sheet"', async () => {
     assert.equal((await suite({})).adapter.partyLevelsAnswer(), null, 'a host without the query: as today (the answer with the query: cast-dossier.test.js)');
-    const { projectDossierState } = await import('../../modules/people/legacy/dossier-ui-catalog.js');
-    const people = [normalizeNpcRecord({ id: 'npc_mira', name: 'Mira', customFields: { Level: '5' } })];
-    assert.equal(projectDossierState({ npcs: people, customFieldNames: ['Level'], sheetLevels: { npc_mira: true } }, { chatKey: 'c1' }).npcs[0].levelFromSheet, undefined);
+    const source = oldSource('runtime-hosted.js');
+    assert.equal(/sheetLevels|partyLevelList/.test(source), false, 'no sheet-level mark and no party level list in the hosted part');
 });
 
 test('no scan call site passes the party levels any more', () => {

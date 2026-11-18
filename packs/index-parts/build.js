@@ -3,10 +3,11 @@
 import { createInstalled } from '../installed.js';
 import { createPortraits } from '../portraits.js';
 import { calendarOf, contentOf, craftsOf, economyOf, itemDefsIn, mergeStart, resolveItemIn, weatherOf, ripplesOf, rippleChoice, youRankOf } from '../content.js';
+import { withOwnStart } from '../content-parts/own-start.js';
+import { pairingView, ownView } from './page-queries.js';
 import { renderPacksPanel } from '../panel.js';
 import { HOST_VERSION } from '../validate/core.js';
 import { marketEntries } from '../lorebook.js';
-import { castGearOf, gearLine } from '../cast-gear.js';
 import { readSheet, sameWho } from '../../modules/rpg/read.js';
 import { marketsOf } from './markets.js';
 
@@ -26,7 +27,7 @@ export function createPacksPart({ settings, readLorebook = async () => ({ charac
     /** The pack item def a story name means, or null (see content.js resolveItemIn). */
     const resolveItem = name => resolveItemIn(packs.packs(), name);
     /** The enabled packs' start, merged (see content.js mergeStart). */
-    const startState = () => mergeStart(packs.packs());
+    const startState = () => { const list = packs.packs(); return withOwnStart(mergeStart(list), packs.own.read(), list.filter(pack => pack.kind === 'world').flatMap(pack => pack.content.items)); };
     /** The enabled packs' money scale, or null (see content.js economyOf). */
     const economy = () => economyOf(packs.packs());
 
@@ -81,25 +82,15 @@ export function createPacksPart({ settings, readLorebook = async () => ({ charac
             'packs.ripples': (_state, args) => ripplesOf(packs.packs(), args),
             'packs.rippleChoice': (_state, args, tools) => rippleChoice(packs.packs(), args, tools),
             // The Rank the first enabled pack that declares one gives {{user}}'s look, `{ pack, label }`, or null (no Rank in this story).
-            'packs.youRank': () => youRankOf(packs.packs()),
+            'packs.youRank': () => youRankOf(packs.packs(), packs.own.read().rankLabel),
+            // The Packs page's two answers (page-queries.js): the selected pair's problems and suggestion, and the reader's own start values beside the game's.
+            'packs.pairing': () => pairingView(packs),
+            'packs.own': () => ownView(packs),
             'packs.crafts': () => craftsOf(),
             'packs.economy': () => economy(),
             'packs.markets': () => markets(),
             // The URL of a cast portrait (see above): a file name the installed pack names and has a stored picture for, else null.
             'packs.portrait': (_state, { pack, file } = {}) => portraits.url(pack, file),
-            // `{ name }` → `{ name, line: 'Gear: Cane Sword, Oak Buckler', items: [{ id, name, slot }] }`: a cast member's signature gear (cast.js `gear`) for the
-            // narrator's cast entry, or null: no such person, no gear, they are in the party now (by their name, first name or an alias: sameWho), or gear is off (`story-block.gear` and the RPG).
-            'packs.castGear': (state, { name } = {}, tools) => {
-                let on = false;
-                try { on = tools?.query?.('inventory.gear', { owner: 'party' })?.on === true; } catch { on = false; }
-                if (!on) return null;
-                const found = castGearOf(packs.packs(), name);
-                if (!found?.items.length) return null;
-                // (the sheet holds the Characters in the party now: one who left is not on it; read.js is the RPG's small shared reader, the rest stays lazy)
-                const party = readSheet(state).characters;
-                if (party.some(person => sameWho(person, found.name, found.aliases, party))) return null;
-                return { name: found.name, line: gearLine(found.items), items: found.items };
-            },
         },
         kinds: {},
         context: { static: () => '', tail: () => ({ lines: [], optional: [] }), budget: 0 },
