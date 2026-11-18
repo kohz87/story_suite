@@ -15,6 +15,7 @@ export const TOKENS = Object.freeze([
   '--su-tileline',
   '--su-glyph',
   '--su-accent',
+  '--su-on-accent',
   '--su-hp',
   '--su-mp',
   '--su-sp',
@@ -52,6 +53,7 @@ export const GLASS_DARK = Object.freeze({
   '--su-tileline': '#5aa0ff',
   '--su-glyph': '#eef0f8',
   '--su-accent': '#a897ff',
+  '--su-on-accent': '#14102a', // text on an accent fill: 7.6:1 on the lilac
   '--su-hp': '#ff6b6b',
   '--su-mp': '#5b8cff',
   '--su-sp': '#3fb27f',
@@ -89,6 +91,7 @@ export const GLASS_LIGHT = Object.freeze({
   '--su-tileline': '#2f7de1',
   '--su-glyph': '#15171f',
   '--su-accent': '#6c4df0',
+  '--su-on-accent': '#ffffff', // the mock's #14102a is 3.4:1 on this violet (under WCAG AA); white is 5.3:1
   '--su-hp': '#e5484d',
   '--su-mp': '#4a7dff',
   '--su-sp': '#18a36c',

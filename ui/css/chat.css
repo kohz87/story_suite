@@ -3,7 +3,8 @@
 /* SillyTavern has no query container of its own: the reply column that holds the row and the drawer host become the containers the @container rules below read. The drawer class is ssdrawer because SillyTavern styles .drawer (a flex row) for its own panels. */
 .mes_block:has(.ssrow),.ss-drawer-host{container-type:inline-size}
 .ssrow{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;margin:8px 0 2px;padding-top:7px;border-top:1px solid var(--SmartThemeBorderColor);font-size:.84em;color:var(--SmartThemeEmColor)}
-.mes.last_mes .ssrow{padding-inline-end:56px} /* keeps the Suite button clear of SillyTavern's swipe arrow and counter on the last reply */
+/* The last reply carries SillyTavern's swipe arrows and counter (‹ 2/3 ›) in a band at its bottom, 45-55 px tall in SillyTavern's own layout and in themes such as Moonlit Echoes, beside or under the row's right end: the row ends above that band, so the Suite button never covers them at any width. */
+.mes.last_mes .ssrow{margin-bottom:calc(var(--swipeCounterHeight,15px) + var(--swipeCounterMargin,5px) + 30px)}
 .ssl1,.ssl2{display:contents}
 .ssl3{margin-top:4px}
 .ssrow .it3{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}

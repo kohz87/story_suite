@@ -4,6 +4,7 @@ import { AUTO_CAP, LEVEL, PRACTICE, autoCapFrom, checksOn, levelCapOf, practiceO
 import { JOIN_SETTING, JOINS } from '../../modules/rpg/names.js';
 import { DIFFICULTIES, difficultyOf } from '../../modules/rpg/rules.js';
 import { XP_RATE, xpRateOf } from '../../modules/rpg/levels.js';
+import { difficultyDetail, selectCustomRows } from './rpg-difficulty.js';
 
 /** The words a choice row shows, by the stored value (the old page's chips say the same). */
 export const DIFFICULTY_WORDS = Object.freeze({ gentle: 'Gentle', standard: 'Standard', harsh: 'Harsh', custom: 'Custom' });
@@ -19,7 +20,8 @@ const joinOf = values => (JOINS.includes(values?.[JOIN_SETTING]) ? values[JOIN_S
 export function selectRpgRows(values) {
   const v = values && typeof values === 'object' ? values : {};
   return [
-    row('Rules', 'rpg.difficulty', 'seg', 'Difficulty', DIFFICULTY_WORDS[difficultyOf(v)], 'Standard', { hint: 'Custom opens the numbers', options: DIFFICULTIES.map(d => DIFFICULTY_WORDS[d]) }),
+    row('Rules', 'rpg.difficulty', 'seg', 'Difficulty', DIFFICULTY_WORDS[difficultyOf(v)], 'Standard', { hint: difficultyDetail(v), options: DIFFICULTIES.map(d => DIFFICULTY_WORDS[d]) }),
+    ...selectCustomRows(v),
     row('Progression', 'rpg.levelCap', 'num', 'Level cap', levelCapOf(v.rpgLevelCap) ?? LEVEL.max, LEVEL.max, { hint: 'A story or pack can set its own' }),
     row('Progression', 'rpg.xpRate', 'num', 'XP rate', xpRateOf(v.rpgXpRate) ?? XP_RATE.default, XP_RATE.default, { unit: '%', hint: '50 to 300, in steps of 25' }),
     row('Progression', 'rpg.practicePerSkillUse', 'num', 'Practice per skill use', practiceOf(v.rpgPracticePerUse) ?? PRACTICE.perUse, PRACTICE.perUse, { hint: '1 to 5' }),

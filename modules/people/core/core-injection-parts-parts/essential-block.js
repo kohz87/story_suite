@@ -58,7 +58,28 @@ function injectionIdentityCore(npc, identityCap = 540) {
     return fairInjectionParts(parts, identityCap) || 'not yet established; do not invent an archetype to fill the gap';
 }
 
-function injectionAgencyCore(npc, agencyCap = 260, customFieldNames = []) {
+// The built-in story fields as the narrator writes them back (level:, learns:, keepsake:): Level only with the RPG on, and the ability and keepsake
+// names whole (a cut name could not be named in a keepsake line), as many as fit in 160 characters each. '' when the person has none.
+const STORY_NAMES_ROOM = 160;
+function wholeNames(list) {
+    const names = [];
+    for (const row of Array.isArray(list) ? list : []) {
+        const name = typeof row?.name === 'string' ? row.name.trim() : '';
+        if (name && [...names, name].join(', ').length <= STORY_NAMES_ROOM) names.push(name);
+    }
+    return names.join(', ');
+}
+function storyFactsText(npc, levelOn = false) {
+    const abilities = wholeNames(npc.abilities);
+    const keepsakes = wholeNames(npc.keepsakes);
+    return [
+        levelOn && Number.isInteger(npc.level) && `level: ${npc.level}`,
+        abilities && `abilities: ${abilities}`,
+        keepsakes && `keepsakes: ${keepsakes}`,
+    ].filter(Boolean).join(' · ');
+}
+
+function injectionAgencyCore(npc, agencyCap = 260, customFieldNames = [], levelOn = false) {
     const bonds = cleanList(npc.keyRelationships, agencyCap >= 450 ? KEY_RELATIONSHIP_LIMIT : Math.min(3, KEY_RELATIONSHIP_LIMIT), 150);
     const custom = Object.entries(customFieldValues(npc, customFieldNames)).map(([name, value]) => `${name}: ${value}`).join(' · ');
     const parts = [
@@ -67,7 +88,11 @@ function injectionAgencyCore(npc, agencyCap = 260, customFieldNames = []) {
         npc.goal && `goal: ${npc.goal}`,
         bonds.length && `bonds: ${bonds.join(' | ')}`,
     ].filter(Boolean);
-    return fairInjectionParts(parts, agencyCap) || 'no additional agency facts established';
+    // The story fields stand outside the fair cut, whole or not at all.
+    const facts = storyFactsText(npc, levelOn);
+    const agency = fairInjectionParts(parts, agencyCap);
+    if (facts) return agency ? `${facts}; ${agency}` : facts;
+    return agency || 'no additional agency facts established';
 }
 
 // A mood that names a stance toward the player ("devoted", "adoring") is a relationship claim, not
@@ -106,9 +131,9 @@ function compactRelationshipModifier(npc, behaviorCap = 160) {
     return truncateInjectionText(buildBehaviorGuidance(npc), behaviorCap);
 }
 
-export function injectionEssentialBlock(npc, behaviorCap = 160, identityCap = 620, agencyCap = 300, stateCap = 180, customFieldNames = [], sceneDeferred = false) {
+export function injectionEssentialBlock(npc, behaviorCap = 160, identityCap = 620, agencyCap = 300, stateCap = 180, customFieldNames = [], sceneDeferred = false, levelOn = false) {
     const identity = injectionIdentityCore(npc, identityCap);
-    const agency = injectionAgencyCore(npc, agencyCap, customFieldNames);
+    const agency = injectionAgencyCore(npc, agencyCap, customFieldNames, levelOn);
     const currentState = injectionCurrentStateCore(npc, stateCap, sceneDeferred);
     const relationship = compactRelationshipModifier(npc, behaviorCap);
     return `- ${npc.name}: IDENTITY: ${identity}; AGENCY/BONDS: ${agency}; STATE: ${currentState}; TOWARD PLAYER (secondary): ${relationship}`;

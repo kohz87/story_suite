@@ -4,6 +4,7 @@ import { button, toggle } from '../../kit/controls.js';
 import { openSheet } from '../../kit/sheet.js';
 import { trackerSheet } from './tracker-edit.js';
 import { templatesSheet } from './tracker-templates.js';
+import { takeTrackerIntent } from './tracker-intent.js';
 
 function field(f) {
   const bar = f.kind === 'bar' && Number.isFinite(f.pct)
@@ -42,6 +43,10 @@ export function trackersView(story = {}, ctx = {}) {
   const hidden = Number(story.trackersHidden) || 0;
   const onNow = list.filter(t => t.showOnNow).length;
   const templates = Array.isArray(story.trackerTemplates) ? story.trackerTemplates : [];
+  const note = takeTrackerIntent();
+  // Settings › Packs and trackers sent the reader to one sheet: it opens once the view is on screen.
+  if (note?.template && templates.length) queueMicrotask(() => addTracker(templates, ctx));
+  if (note?.edit) { const target = list.find(t => t.id === note.edit); if (target) queueMicrotask(() => editTracker(target, ctx)); }
   const addRow = templates.length ? h('div', { class: 'brow' }, button({ label: 'Add from a template', className: 'add-tracker', dataset: { act: 'add' }, onClick: () => addTracker(templates, ctx) })) : null;
   if (!list.length && !hidden) return h('div', { class: 'story-trackers', dataset: { view: 'trackers' } }, h('p', { class: 'fine' }, templates.length ? 'No trackers yet.' : 'No trackers yet. New trackers are made in Settings › Trackers.'), addRow);
   return h('div', { class: 'story-trackers', dataset: { view: 'trackers' } },

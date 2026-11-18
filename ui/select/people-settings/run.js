@@ -1,10 +1,8 @@
 // The People page's last groups from mock v7: Refresh and the narrator, Portraits and Map, each row tied to its NPC State setting
 // (Refresh every and NPCs refreshed per reply are N8's rolling Refresh: narrationCaptureCatchUp and narrationCaptureCatchUpPeople).
 import { intRow, swRow, segRow } from './kit.js';
-import { shownRow } from './kit-more.js';
+import { portraitRows } from './portraits.js';
 
-const text = (b, key, dflt = '') => (typeof b[key] === 'string' ? b[key] : dflt);
-const yes = (b, key, dflt) => (b[key] === undefined ? dflt : b[key] === true);
 const LENSES = [['Warmth', 'warmth'], ['Trust', 'trust'], ['Affection', 'affection'], ['Desire', 'desire'], ['Tension', 'tension']];
 
 /** N8's rolling Refresh: each person waits this many replies between Refreshes, and 0 (as stored, not a blank) turns it off. */
@@ -25,16 +23,7 @@ export function runRows() {
     intRow('Refresh and the narrator', 'peopleTheNarratorIsToldA', 'People the narrator is told about', 'injectLimit', 3, { min: 1, max: 12, tags: ['cost:tokens'], hint: 'Most present people in the prompt each reply' }),
     intRow('Refresh and the narrator', 'peopleBlockBudget', 'People block budget', 'injectBudgetTokens', 4000, { min: 512, max: 6000, unit: 'tokens', tags: ['cost:tokens'], hint: 'Kept separate from the notes budget, as today' }),
     intRow('Refresh and the narrator', 'mostPeopleKeptActive', 'Most people kept active', 'maxNpcs', 40, { min: 1, max: 100 }),
-    swRow('Portraits', 'portraits', 'Generate portraits', 'portraitGenerationEnabled', true),
-    shownRow('Portraits', 'stylePreset', 'Style preset', b => (b.portraitThemePreset === 'custom' ? 'Custom' : 'Fantasy Anime'), { hint: 'Fantasy Anime is the built-in one' }),
-    shownRow('Portraits', 'prompt', 'Prompt', b => text(b, 'portraitStylePositive'), { hint: 'The style text added to every portrait' }),
-    shownRow('Portraits', 'leaveOut', 'Leave out', b => text(b, 'portraitStyleNegative')),
-    shownRow('Portraits', 'composition', 'Composition', b => text(b, 'portraitComposition')),
-    shownRow('Portraits', 'promptFormat', 'Prompt format', b => ({ tags: 'Comma tags', natural: 'Natural language' })[b.portraitPromptFormat] ?? 'Structured hybrid', { hint: 'A character card can recommend one' }),
-    shownRow('Portraits', 'savedPortraitPresets', 'Saved portrait presets', b => `${(b.portraitCustomPresets ?? []).length} of 24 saved`),
-    shownRow('Portraits', 'useTheCurrentMood', 'Use the current mood', b => (yes(b, 'portraitUseMood', true) ? 'on' : 'off')),
-    shownRow('Portraits', 'useTheCurrentPlace', 'Use the current place', b => (yes(b, 'portraitUseLocation', false) ? 'on' : 'off')),
-    shownRow('Portraits', 'alsoSaveToSillytavernSGa', 'Also save to SillyTavern’s gallery', b => (yes(b, 'portraitSaveToGallery', false) ? 'on' : 'off')),
+    ...portraitRows(),
     mapRow(swRow('Map', 'relationshipMap', 'Relationship map', 'relationshipMap', true, { hint: 'Adds a Map view to the dossier panel; read-only' }), 'enabled', Boolean, v => v !== false),
     mapRow(segRow('Map', 'defaultDistance', 'Default distance', 'relationshipMap', 'warmth', LENSES, { hint: 'What the map’s distance shows when it opens; the buttons on the map change it for this session only' }), 'defaultLens', v => (LENSES.find(p => p[0] === v) ?? LENSES[0])[1], v => (LENSES.find(p => p[1] === v) ?? LENSES[0])[0]),
   ];

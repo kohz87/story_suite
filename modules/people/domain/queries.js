@@ -5,6 +5,8 @@
 // `lastSeenTurn`) unseen, never for someone present, followed, deceased or without a `lastSeenTurn` (decision 36.12; the party is excluded by the caller).
 // A portrait is the file path of its file reference, when that is a safe URL (a path on the page's own server, or https); never image bytes.
 
+import { castLinksNamed, metCastNames } from '../dossier/cast-dossier-parts/cast-links.js';
+
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -83,6 +85,9 @@ export function peopleQueries(domain) {
             const bond = people.bonds?.npcs?.[id];
             delete record.secrets;
             const meters = metersOf(bond, record);
+            // A pack tie or key relationship to someone met after this person is named once they are (cast-links.js; derived, never stored).
+            const linked = castLinksNamed(people.npcs[id], metCastNames(ids(people).map(other => people.npcs[other]))).keyRelationships;
+            if (linked.length) record.keyRelationships = [...(Array.isArray(record.keyRelationships) ? record.keyRelationships : []), ...linked];
             return {
                 ...record, id, ...(meters ? { relationship: meters } : {}),
                 ...(isObject(bond?.meters) ? { meters: bond.meters } : {}), ...(isObject(bond?.stages) ? { stages: clone(bond.stages) } : {}),

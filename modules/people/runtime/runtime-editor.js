@@ -4,10 +4,10 @@
    own activation memory. Bodies are moved from index.js without change. */
 import { replayScope } from '../calls/runtime-scan-helpers.js';
 import { getContext } from '../../../../../../extensions.js';
-import { EDITOR_FIELDS } from '../dossier/dossier-edit.js';
+import { EDITOR_FIELDS, editorShownValue } from '../dossier/dossier-edit.js';
 import { DEFAULT_RELATIONSHIP, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, isTerminalNpcDeath, PORTRAIT_NPC_PROMPT_LIMIT, normalizeCustomFields } from '../core/core.js';
 import { escapeHtml } from '../util/html.js';
-import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
+import { getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/runtime-settings.js';
 import { createEditorSave } from './runtime-editor-save.js';
 
 export function createEditorPart(rt, deps) {
@@ -206,6 +206,9 @@ export function createEditorPart(rt, deps) {
         <label>Speech<textarea id="npc_state_delta_edit_speech" class="text_pole" rows="3" maxlength="${EDITOR_FIELDS.speech.max}">${editorValue(npc.speech)}</textarea></label>
         <label>Background<textarea id="npc_state_delta_edit_background" class="text_pole" rows="3" maxlength="${EDITOR_FIELDS.background.max}">${editorValue(npc.background)}</textarea></label>
         <label class="npc-state-delta-editor-wide">Established mannerisms <small>One per line</small><textarea id="npc_state_delta_edit_mannerisms" class="text_pole" rows="4">${editorValue((npc.mannerisms || []).join('\n'))}</textarea></label>
+        ${rpgIsOn() ? `<label>Level <small>1 to 99</small><input id="npc_state_delta_edit_level" class="text_pole" inputmode="numeric" maxlength="2" value="${editorValue(editorShownValue(npc, 'level'))}"></label>` : ''}
+        <label class="npc-state-delta-editor-wide">Abilities <small>Max 16 · one per line · Name — what it does</small><textarea id="npc_state_delta_edit_abilities" class="text_pole" rows="3" placeholder="Mending — closes small wounds with a touch">${editorValue(editorShownValue(npc, 'abilities'))}</textarea></label>
+        <label class="npc-state-delta-editor-wide">Keepsakes <small>Max 12 · one per line · Name — what it is</small><textarea id="npc_state_delta_edit_keepsakes" class="text_pole" rows="3" placeholder="Brass compass — her father's">${editorValue(editorShownValue(npc, 'keepsakes'))}</textarea></label>
         <label class="npc-state-delta-editor-wide">Key relationships <small>Max ${KEY_RELATIONSHIP_LIMIT} · family, friends, rivals, mentors, partners · one per line</small><textarea id="npc_state_delta_edit_key_relationships" class="text_pole" rows="5" placeholder="Yunyun — friend / rival | competitive but loyal">${editorValue((npc.keyRelationships || []).join('\n'))}</textarea></label>
       </div>
       <details class="npc-state-delta-editor-portrait-overrides">
