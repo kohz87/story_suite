@@ -114,6 +114,10 @@ function threadLine(ctx, given) {
         });
     }
     const current = thread ? director.threads[thread] : null;
+    // A `!` that names a thread of another kind ("! clock Grey Ledger Sweep" for a hook) was still matched by its key: it says so, never silently (LA-4).
+    if (line.op === '!' && named && current && line.kind && named.kind !== line.kind) {
+        addProblem(director, ctx, { kind: 'wrong-kind', severity: 'warn', key: op.key, op: '!', text: `"! ${line.kind} ${op.key}" names ${withArticle(named.kind)}, not ${withArticle(line.kind)}; the line was applied to the ${named.kind}.` });
+    }
     if (current && current.status === 'active') recordStep(director, ctx, current);
     // An agenda's step progress and place (feature `story-director.pulse`): optional fields the pulse reads, written by code, never the story's.
     if (current?.kind === 'agenda' && current.status === 'active' && pulseActive(ctx)) {
