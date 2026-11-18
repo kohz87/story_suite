@@ -62,11 +62,7 @@ export const REAL_ROWS = {
   ],
   world: [
     {"key":"world.calendar","group":"Calendar","type":"seg","label":"Calendar","hint":"From the pack, or a preset","value":"From the pack","default":null,"options":["From the pack","Gregorian","Custom"],"unit":null,"tags":["merged:D4"],"wide":false},
-    {"key":"world.era","group":"Calendar","type":"txt","label":"Era","hint":"Written before the year. Used only with Custom","value":"","default":null,"options":null,"unit":null,"tags":[],"wide":false},
-    {"key":"world.months","group":"Calendar","type":"txt","label":"Months","hint":"Name: days, separated by commas. Used only with Custom","value":"January: 31, February: 28, March: 31, April: 30, May: 31, June: 30, July: 31, August: 31, September: 30, October: 31, November: 30, December: 31","default":null,"options":null,"unit":null,"tags":[],"wide":true},
-    {"key":"world.weekdays","group":"Calendar","type":"txt","label":"Weekdays","hint":"Separated by commas; empty for none. Used only with Custom","value":"","default":null,"options":null,"unit":null,"tags":[],"wide":true},
-    {"key":"world.leapYears","group":"Calendar","type":"sw","label":"Leap years","hint":"Used only with Custom","value":true,"default":null,"options":null,"unit":null,"tags":[],"wide":false},
-    {"key":"world.weather","group":"Weather","type":"seg","label":"Weather comes from","hint":null,"value":"Rolled from the calendar","default":null,"options":["Rolled from the calendar","The story only"],"unit":null,"tags":["merged:D7"],"wide":false},
+    {"key":"world.weather","group":"Weather","type":"seg","label":"Weather comes from","hint":"Same switch as Director › Weather from the calendar. Rolled from the calendar is on; The story only is off","value":"Rolled from the calendar","default":null,"options":["Rolled from the calendar","The story only"],"unit":null,"tags":["merged:D7"],"wide":false},
     {"key":"world.northIs","group":"Map","type":"seg","label":"North is","hint":null,"value":"Up","default":null,"options":["Up","Down"],"unit":null,"tags":[],"wide":false},
     {"key":"world.eastIs","group":"Map","type":"seg","label":"East is","hint":null,"value":"Right","default":null,"options":["Right","Left"],"unit":null,"tags":[],"wide":false},
     {"key":"world.kmPerMapUnit","group":"Map","type":"num","label":"Km per map unit","hint":null,"value":1,"default":null,"options":null,"unit":"km","tags":[],"wide":false},
@@ -82,7 +78,8 @@ export const REAL_ROWS = {
     {"key":"world.daysWhole","group":"Time","type":"num","label":"Days kept whole","hint":"Older days keep a short record","value":14,"default":null,"options":null,"unit":"days","tags":[],"wide":false},
     {"key":"world.daysAll","group":"Time","type":"num","label":"Days kept in all","hint":"Older ones are dropped","value":120,"default":null,"options":null,"unit":"days","tags":[],"wide":false},
     {"key":"world.remindTheStoryOfTheLastD","group":"Time","type":"sw","label":"Remind the story of the last day after a time skip","hint":null,"value":true,"default":null,"options":null,"unit":null,"tags":[],"wide":false},
-    {"key":"world.worldEvents","group":"Time","type":"sw","label":"World events","hint":"The world keeps its own news, conditions and events while the story goes on. Off: the story runs as before","value":false,"default":null,"options":null,"unit":null,"tags":[],"wide":false},
+    {"key":"world.worldEvents","group":"Time","type":"sw","label":"World events","hint":"Same switch as Director › World events. The world keeps its own news, conditions and events while the story goes on. Off: the story runs as before","value":false,"default":null,"options":null,"unit":null,"tags":[],"wide":false},
+    {"key":"world.eventsOff","group":"Time","type":"info","label":"Hidden rows","hint":"Tempo and Director calls show when World events is on","value":"","default":null,"options":null,"unit":null,"tags":[],"wide":false},
   ],
   director: [
     {"key":"director.defaultDc","group":"Checks","label":"Difficulty when none is written","hint":null,"unit":null,"tags":[],"wide":false,"type":"num","value":15,"default":15,"options":null},
