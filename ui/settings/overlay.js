@@ -32,7 +32,12 @@ export function createSettingsOverlay(options = {}) {
   let sections = settings.sections ?? [];
   // A module switch, a preset or Reset to Standard can turn a page's module on or off (the RPG page goes with the RPG): the side list is read again after them.
   const modulesKey = key => /^modules\./.test(String(key ?? ''));
-  const after = (answer, key) => { if (modulesKey(key)) { if (typeof answer?.then === 'function') answer.then(() => refreshSections(), () => {}); else refreshSections(); } return answer; };
+  // Any other change re-reads the open page, which redraws only when another row moved with it (a Portraits style brings its own text).
+  const after = (answer, key) => {
+    const read = () => (modulesKey(key) ? refreshSections() : refreshRows(key));
+    if (typeof answer?.then === 'function') answer.then(read, () => {}); else read();
+    return answer;
+  };
   const onChange = (key, ...rest) => after(options.onChange?.(key, ...rest), key);
   const onAction = (key, ...rest) => after(options.onAction?.(key, ...rest), key);
   const ctx = { doc, settings, onChange, onAction, view: onView, backStack, go: id => show(id), has: id => sections.some(s => s.id === id) };
@@ -90,6 +95,15 @@ export function createSettingsOverlay(options = {}) {
     nav = next;
     nav.setQuery(query);
     if (!sections.some(s => s.id === current)) current = sections[0]?.id ?? null;
+    paint();
+  }
+
+  function refreshRows(key) {
+    const section = sections.find(s => s.id === current);
+    const fresh = section && onView?.('settings')?.sections?.find(s => s.id === section.id);
+    const others = rows => JSON.stringify((rows ?? []).filter(r => r.key !== key));
+    if (!fresh || others(fresh.rows) === others(section.rows)) return;
+    sections = sections.map(s => (s === section ? { ...section, rows: fresh.rows } : s));
     paint();
   }
 

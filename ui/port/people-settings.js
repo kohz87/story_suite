@@ -18,7 +18,7 @@ function coupled(pairs, bucket) {
 
 /**
  * `settings.set` with a `people.<row>` key stores that row's NPC State setting (`writes.settings.set`); `settings.action` with key `settings.reset`
- * and a label starting "Reset People" stores every writable row's default. `bucket()` reads the stored NPC State settings.
+ * and a label starting "Reset People" stores every writable row's default; `settings.action` with a `people.<row>` key runs that button row's action (its label is the value). `bucket()` reads the stored NPC State settings.
  * Any other command is not the People page's: returns null.
  */
 export function peopleCommand(type, payload, writes, bucket = () => ({})) {
@@ -29,5 +29,10 @@ export function peopleCommand(type, payload, writes, bucket = () => ({})) {
     return pairs ? store(writes, coupled(pairs, bucket())) : { ...FAILED, message: 'That setting cannot be changed here.' };
   }
   if (type === 'settings.action' && key === 'settings.reset' && /^Reset People\b/.test(String(payload?.value ?? ''))) return store(writes, coupled(peopleResets(), {}));
+  // A button row (Portraits › Saved portrait presets): its action by the button's label.
+  if (type === 'settings.action' && key.startsWith('people.')) {
+    const pairs = peopleSpec(key)?.act?.(payload?.value, bucket()) ?? null;
+    return pairs ? store(writes, pairs) : { ...FAILED, message: 'That cannot be done here now.' };
+  }
   return null;
 }

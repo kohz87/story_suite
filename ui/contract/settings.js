@@ -5,7 +5,7 @@ import { SHAPE_TYPES as T } from './shapes.js';
 const SCALAR = { $oneOf: [T.STRING, T.NUMBER, T.BOOLEAN, T.NULL] };
 const MODULE_SET = { $objectOf: { on: T.BOOLEAN, subs: { $objectOf: T.BOOLEAN } } };
 
-export const SETTINGS_ROW_TYPES = ['sw', 'seg', 'num', 'multi', 'sel', 'txt', 'chips', 'btn', 'info'];
+export const SETTINGS_ROW_TYPES = ['sw', 'seg', 'num', 'multi', 'sel', 'txt', 'area', 'chips', 'btn', 'info']; // area: several lines of text
 
 const ROW = {
   key: T.STRING,
