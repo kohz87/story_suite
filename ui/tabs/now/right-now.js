@@ -3,8 +3,8 @@ import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { offerBlocks } from './card-offer.js';
 
-const GO_LABEL = Object.freeze({ fight: 'Fight ›', party: 'Party ›', world: 'Map ›', bag: 'Bag ›' });
-const NEED_GLYPH = Object.freeze({ fight: 'fight', overdue: '!', points: '+' });
+const GO_LABEL = Object.freeze({ fight: 'Fight ›', party: 'Party ›', world: 'Map ›', bag: 'Bag ›', people: 'People ›' });
+const NEED_GLYPH = Object.freeze({ fight: 'fight', overdue: '!', points: '+', join: '+' });
 
 function asRow(value) {
   if (value === null || value === undefined || value === '') return null;

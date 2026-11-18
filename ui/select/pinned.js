@@ -14,7 +14,12 @@ export function pinnedFeed(read) {
     const view = read('dataModules.view', { module: row.module });
     if (!isRec(view?.chat)) continue;
     const chat = {};
-    for (const [key, value] of Object.entries(view.chat)) chat[text(definition.state?.[key]?.label) || key] = value;
+    // (a field the block keeps for its own rules, not for the story or the reader — `prompt: false` or `edit: false`: Rise, Level cap, Down, the largest bars — is not a line on Now)
+    for (const [key, value] of Object.entries(view.chat)) {
+      const field = definition.state?.[key];
+      if (field?.prompt === false || field?.edit === false) continue;
+      chat[text(field?.label) || key] = value;
+    }
     out.push({ id: text(row.module), name: text(definition.name) || text(row.module), view: { chat } });
   }
   return out;

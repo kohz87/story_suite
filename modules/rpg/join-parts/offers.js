@@ -52,3 +52,22 @@ export function joinOffers(entries, index, party = []) {
     }
     return [...shown, ...done];
 }
+
+/**
+ * Every companion offer still waiting, from the whole chat's receipts (not one reply's): a `+ party` line that asked stays open until a later
+ * `No`, an Add (or a return, or a bench choice) answers it, or the name is in the party. → [{ name, soul, best }] in the order they were first asked.
+ * Read from receipts, so a swipe, a delete, a rewind or a reload takes an offer away or brings it back with its reply. An offer that met a full party is the card's own business and is left out.
+ */
+export function openJoinOffers(entries, party = []) {
+    const list = (Array.isArray(entries) ? entries : []).filter(entry => Number.isInteger(entry?.index) && isRecord(entry.receipt?.data?.join))
+        .map((entry, at) => ({ entry, at })).sort((a, b) => a.entry.index - b.entry.index || a.at - b.at).map(item => item.entry);
+    const open = new Map();
+    for (const { receipt } of list) {
+        const join = receipt.data.join, key = fold(join.name);
+        if (!key) continue;
+        if (join.op === 'offer') {
+            if (!open.has(key) && join.full !== true) open.set(key, { name: oneLine(join.name), soul: Number.isSafeInteger(join.soul) ? join.soul : 1, best: STATS.includes(join.best) ? join.best : '' });
+        } else if (join.op === 'no' || join.op === 'added' || join.op === 'back' || (typeof join.benched === 'string' && join.benched)) open.delete(key);
+    }
+    return [...open.entries()].filter(([key]) => !party.some(person => fold(person.name) === key && !person.left)).map(([, offer]) => offer);
+}

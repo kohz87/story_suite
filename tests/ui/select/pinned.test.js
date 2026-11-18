@@ -22,6 +22,12 @@ describe('pinnedFeed', () => {
     const now = buildSelectors(() => null, null).now(read);
     assert.deepEqual(now.pinned.map(card => card.name), ['Reputation']);
   });
+  it('leaves out the fields a block keeps for its own rules (SOAK2UI 17)', () => {
+    const state = { hp: { label: 'HP' }, rise: { label: 'Rise', prompt: false, edit: false }, cap: { label: 'Level cap', prompt: false }, 'hp-max': { label: 'HP largest', prompt: false, edit: false }, down: { label: 'Down', prompt: false } };
+    const setup = [{ module: 'c', pinned: true, definition: { name: 'Astra', scope: 'chat', show: { card: true }, state } }];
+    const feed = pinnedFeed(name => (name === 'dataModules.setup' ? setup : { chat: { hp: 9, rise: 0, cap: 99, 'hp-max': 20, down: false } }));
+    assert.deepEqual(feed[0].view.chat, { HP: 9 });
+  });
   it('is empty with no setup', () => {
     assert.deepEqual(pinnedFeed(() => null), []);
   });

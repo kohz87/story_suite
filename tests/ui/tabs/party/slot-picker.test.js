@@ -97,6 +97,14 @@ test('slot sheet filters by slot glyph, hides worn Bag items and offers Open Bag
   assert.equal(slotSheet(astra, 'nonsense', ctx), null);
 });
 
+test('a weapon row says what it gives or that it is a weapon, never "No soak points" (SOAK2UI 16)', () => {
+  const ctx = makeCtx();
+  const astra = ctx.party.members[0];
+  slotSheet(astra, 'weapon', ctx);
+  assert.doesNotMatch(sheetEl().textContent, /soak/iu);
+  assert.match(sheetEl().querySelector('.ps-r small').textContent, /^(Weapon|\+)/u);
+});
+
 test('slot sheet tolerates a missing bag view and a member without that slot', () => {
   const ctx = makeCtx();
   const sheet = slotSheet({ id: 'x', name: 'Xan', slots: [] }, 'cloak', { ...ctx, port: { view: () => null, command: async () => ({}) } });

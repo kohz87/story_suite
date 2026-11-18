@@ -60,3 +60,11 @@ test('cardRow treats scene text as text, not markup', () => {
   assert.equal(row.querySelectorAll('img').length, 0);
   assert.match(row.textContent, /<img src=x>/);
 });
+
+test('a scene with nothing to say draws no chevron; one with a part keeps it (SOAK2UI 14)', async () => {
+  installFakeDom();
+  const { readFileSync } = await import('node:fs');
+  assert.match(cardRow({}).querySelector('.meta').className, /\bempty\b/u);
+  assert.doesNotMatch(cardRow({ time: '1 pm' }).querySelector('.meta').className, /\bempty\b/u);
+  assert.match(readFileSync(new URL('../../../ui/css/card.css', import.meta.url), 'utf8'), /\.ctop \.meta\.empty::after\{content:none\}/u);
+});

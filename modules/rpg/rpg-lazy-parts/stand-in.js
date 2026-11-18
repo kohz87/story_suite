@@ -8,6 +8,7 @@ import { rpgLib } from './library.js';
 // The names join.js and index.js give these (a test holds them equal to the real part's keys).
 const JOIN_NO = 'rpg.joinNo';
 const JOINS_QUERY = 'rpg.joins';
+const JOINS_OPEN_QUERY = 'rpg.joinsOpen';
 const ROLLS_QUERY = 'rpg.rolls';
 const PARTY_ADD_QUERY = 'rpg.partyAdd';
 
@@ -49,6 +50,7 @@ export function createLazyRpgPart(deps = {}) {
             // (whom the inventory's Use on… offers for each consumable; none while the library is not loaded)
             'items.useOn': Object.assign((...args) => part()?.queries['items.useOn'](...args) ?? {}, { feature: LEAN_RPG_FEATURE, fallback: true }),
             [JOINS_QUERY]: Object.assign((...args) => part()?.queries[JOINS_QUERY](...args) ?? [], { feature: LEAN_RPG_FEATURE }),
+            [JOINS_OPEN_QUERY]: Object.assign((...args) => part()?.queries[JOINS_OPEN_QUERY](...args) ?? [], { feature: LEAN_RPG_FEATURE }),
             [PARTY_ADD_QUERY]: Object.assign((...args) => part()?.queries[PARTY_ADD_QUERY](...args) ?? null, { feature: LEAN_RPG_FEATURE }),
             [ROLLS_QUERY]: Object.assign((...args) => part()?.queries[ROLLS_QUERY](...args) ?? null, { feature: LEAN_RPG_FEATURE }),
             // (the latest reply that touched the Foes block; -1 while the library is not loaded: no foe was ever set by a reply)

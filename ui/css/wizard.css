@@ -44,7 +44,8 @@
 .su-root .wz-status:empty{display:none}
 .su-root .wz-foot{padding-top:2px;justify-content:flex-start}.su-root .wz-foot [data-wiz="next"]{margin-left:auto}
 /* Back / Next stay in view, inset from the sheet's rounded bottom edge (at 1280x800 the panel scrolls, and Next sat under the corner) */
-.su-root [data-sheet="new-character"] .wz-foot{position:sticky;bottom:14px;z-index:1;padding:8px 0 2px;background:var(--su-panel2)}
+.su-root [data-sheet="new-character"] .wz-foot{position:sticky;bottom:0;z-index:1;padding:8px 0 14px;background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#191a2b)}
+.su-root[data-scheme="light"] [data-sheet="new-character"] .wz-foot{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#e8e9f1)}
 /* the hold: the message, quoted as it stays in the box */
 .su-root .wz-quote{margin:0;padding:8px 12px;border-left:3px solid var(--su-accent);border-radius:0 12px 12px 0;background:var(--su-line2);font:600 14px/1.45 var(--su-font);color:var(--su-text);white-space:pre-wrap;overflow-wrap:anywhere}
 .su-root .wz-hold-acts .btn2{white-space:normal;text-align:center}
