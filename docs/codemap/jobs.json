@@ -144,7 +144,6 @@
   "scripts/release/rewrite.mjs": "Rewrites a module's source by syntax tree for the bundle: packs eager import() calls and keeps import.meta.url on the module's original location.",
   "scripts/release/versions.mjs": "Lists the places that carry the suite's version, reports the ones that disagree and rewrites them all to one number.",
   "scripts/ui/gen-fixture-rows.mjs": "Writes ui/fixtures/settings-real.js from the real Settings selectors on a real host at code defaults.",
-  "scripts/sync-redraw-copy.mjs": "Writes the generated Story Block copy of the redraw scheduler and, with --check, fails when it drifts from ui/runtime/redraw.js.",
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",
   "suite.css": "The one stylesheet SillyTavern loads: lists the font, token, drawer and people sheets in cascade order.",
   "tests/people/perf-clock-stamp.test.js": "Tests that NPC State reads the story clock once per task and again after a host event, counting host queries.",
