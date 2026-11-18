@@ -28,7 +28,7 @@ export function selectRpgRows(values) {
     row('Fights', 'rpg.companions', 'seg', 'Companions who join', JOIN_WORDS[joinOf(v)], 'Ask', { options: JOINS.map(j => JOIN_WORDS[j]) }),
     row('Fights', 'rpg.setUpAFightFromMyAttack', 'sw', 'Set up a fight from my attack', precheckOn(v), true),
     row('Fights', 'rpg.autoExchanges', 'num', 'Most exchanges Auto plays', autoCapFrom(v), AUTO_CAP.default, { hint: 'On the fight board; 9 plays until the end' }),
-    row('Fights', 'rpg.overLoad', 'info', 'Over the load limit', 'rule', 'rule', { hint: '−2 to AGI and DEX checks and −25% travel pace; items have their own weights' }),
+    row('Fights', 'rpg.overLoad', 'info', 'Over the load limit', 'Built in', 'Built in', { hint: '−2 to AGI and DEX checks and −25% travel pace; items have their own weights' }),
     row('Fights', 'rpg.storyChecksUseYourStats', 'sw', 'Story checks use your stats', checksOn(v), true, { hint: 'Out-of-fight checks use your stats; their numbers are in Director › Checks' }),
   ];
 }

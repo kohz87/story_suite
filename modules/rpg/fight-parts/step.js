@@ -10,6 +10,7 @@ import { memberLevel } from './levels.js';
 import { fightOf, groupsOf } from './won.js';
 import { memberXp, outnumberedMultiplier } from './xp-amount.js';
 import { fightWitness, fromOf, paidOf } from './witness.js';
+import { raisedLevel } from './level-up.js';
 import { holdStepV1 } from './hold-v1.js';
 
 /** Said once in a reply where the narrator wrote XP for a won fight (a Problems line). */
@@ -67,6 +68,8 @@ export function fightXp(ctx, payload = {}) {
         const instance = draft.instances[character.module].chat;
         // The fight pays at the level the member had before this reply's own (held back) XP line raised it.
         const before = held ? (whole(kept.level) ? clampLevel(kept.level) : whole(kept.soul) ? levelOfClass(kept.soul) : null) : null;
+        // The level and the points before this award (the held-back narrator raise is not the member's own), to say a level-up in the reply's changes.
+        const was0 = { level: held && whole(kept.level) ? kept.level : fields.level, points: held && whole(kept.points) ? kept.points : fields.points };
         const xp = scaleXp(memberXp(fight.groups, before ?? memberLevel(character), bars, flat, multiplier), rate);
         if (isObject(definition?.state) && Array.isArray(definition.rules)) {
             const evaluation = createEvaluation(definition, instance, { inputs: {}, source: {}, cursor: null, subject: 'chat' });
@@ -79,7 +82,8 @@ export function fightXp(ctx, payload = {}) {
             if (held) Object.assign(fields, Object.fromEntries(keys.map(key => [key, kept[key]])));
             fields.xp = Math.max(0, Math.min(100, fields.xp + xp));
         }
-        if (xp > 0 || held) awards.push({ who: character.who, module: character.module, xp, ...(held ? { held: true } : {}) });
+        const up = raisedLevel(was0, draft.instances[character.module].chat.fields);
+        if (xp > 0 || held) awards.push({ who: character.who, module: character.module, xp, ...(held ? { held: true } : {}), ...(up ? { up } : {}) });
     }
     const held = awards.some(award => award.held);
     return {

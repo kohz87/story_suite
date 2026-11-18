@@ -21,6 +21,8 @@ const STYLES = ['base', 'shell', 'desk', 'kit', 'card', 'now', 'chat', 'party', 
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses.
 const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharacterLorebook, lore: { read: refreshLore } });
 const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
+// SillyTavern events that move or redraw a reply's action bar (a swipe, a delete and an edit send none of the three before).
+const ST_EVENTS = ['CHAT_CHANGED', 'MESSAGE_RECEIVED', 'MESSAGE_SENT', 'MESSAGE_SWIPED', 'MESSAGE_DELETED', 'MESSAGE_EDITED'];
 // The screen the RPG opens for a fight (the waiting pause, Send while it waits, a fight begun): shown here as the Fight tab, never as the old view's screen.
 const FIGHT_SCREEN = 'story-block/fight';
 
@@ -71,7 +73,9 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
     addDrawerButtons(doc, { onSettings: () => { suite.open('now'); suite.settings(); }, onOpen: () => suite.open('now'), title: `Story Suite ${SUITE_VERSION}`, status: drawerStatus(StoryBlock.sdk) });
     const vm = port.view('chat');
     surfaces.refresh(vm);
-    const bar = [...doc.querySelectorAll('#chat .mes .extraMesButtons')].pop() ?? null;
+    // The head reply's own action bar (the reply the sheet is about), not the last message's: that may be the reader's.
+    const at = (ctx()?.chat ?? []).findLastIndex(isCarrier);
+    const bar = (at >= 0 ? doc.querySelector(`#chat .mes[mesid="${at}"] .extraMesButtons`) : null) ?? [...doc.querySelectorAll('#chat .mes .extraMesButtons')].pop() ?? null;
     if (!bar || !vm?.replyMenu) return;
     if (button && button.parentNode === bar) return;
     button?.remove();
@@ -96,7 +100,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   const frame = frameCoalesced(refresh);
   const offs = EVENTS.map(event => port.on(event, frame.request));
   const types = ctx()?.eventTypes ?? ctx()?.event_types ?? {};
-  for (const type of [types.CHAT_CHANGED, types.MESSAGE_RECEIVED, types.MESSAGE_SENT]) if (type) ctx()?.eventSource?.on?.(type, frame.request);
+  for (const name of ST_EVENTS) if (types[name]) ctx()?.eventSource?.on?.(types[name], frame.request);
   const box = doc.querySelector('#send_textarea');
   const typing = () => surfaces.setTyping(String(box?.value ?? '').length > 0);
   box?.addEventListener('input', typing);
@@ -104,7 +108,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   return () => {
     frame.cancel();
     for (const off of offs) off();
-    for (const type of [types.CHAT_CHANGED, types.MESSAGE_RECEIVED, types.MESSAGE_SENT]) if (type) ctx()?.eventSource?.removeListener?.(type, frame.request);
+    for (const name of ST_EVENTS) if (types[name]) ctx()?.eventSource?.removeListener?.(types[name], frame.request);
     box?.removeEventListener?.('input', typing);
     offScreens();
     if (pageHandles.openPerson === openPerson) pageHandles.openPerson = null;

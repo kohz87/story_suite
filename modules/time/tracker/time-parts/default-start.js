@@ -41,3 +41,10 @@ function dateless(calendar, words, start) {
     const read = calendar.parse(words, { reference: start });
     return read !== null && !/\d/.test(words.replace(read.text, ''));
 }
+
+/** A story minute as a receipt words it: the calendar's text, or the time alone while the clock began at the default start (`fromDefault`: no date is known yet, so none is told). */
+export function clockWords(calendar, minutes, fromDefault) {
+    const text = calendar.format(minutes);
+    const at = text.lastIndexOf(', ');
+    return fromDefault && at >= 0 ? text.slice(at + 2) : text;
+}

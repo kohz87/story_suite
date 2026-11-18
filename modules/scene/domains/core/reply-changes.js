@@ -1,6 +1,8 @@
 // `reply.changes`: what one reply changed, for the ✦ reply menu and the inline row under it. Built only from the reply's own receipts
 // (tools.receipts) and the state the query is asked on, so a swipe, a middle delete, a rewind, a reload and an edited Re-read answer as a rebuild does.
 
+import { isPartyReceipt, partyLines } from './reply-party-lines.js';
+
 const ITEM = 'capture.item';
 const COIN = 'capture.coin';
 const PLACE = 'capture.place';
@@ -19,7 +21,7 @@ function receiptsAt(tools, index) {
     let list = [];
     try { list = typeof tools?.receipts === 'function' ? tools.receipts() ?? [] : []; } catch { list = []; }
     // The reader's own edits are not the reply's changes (a `ui` receipt); every other cause is.
-    return list.filter(entry => entry?.index === index && isRec(entry.receipt) && SHOWN.has(entry.receipt.type) && entry.receipt.cause !== 'ui').map(entry => entry.receipt);
+    return list.filter(entry => entry?.index === index && isRec(entry.receipt) && (SHOWN.has(entry.receipt.type) || isPartyReceipt(entry.receipt)) && entry.receipt.cause !== 'ui').map(entry => entry.receipt);
 }
 
 // A line Assist wrote (the repair's or the safety net's lines; capture marks their receipts `assist`), not the reply's own.
@@ -77,7 +79,7 @@ export function replyChanges(state, args, tools, headIndex) {
   let weather = null;
   try { weather = tools?.hasQuery?.('scene.weather') ? text(tools.query('scene.weather')?.text) || null : null; } catch { weather = null; }
   // Own lines and Assist's are worked out apart, so a total never mixes them, and each Assist line is marked.
-  const linesOf = list => [...itemLines(list, state), ...coinLines(list), ...sceneLines(list)];
+  const linesOf = list => [...itemLines(list, state), ...coinLines(list), ...sceneLines(list), ...partyLines(list)];
   const own = linesOf(receipts.filter(item => !fromAssist(item))).map(line => ({ ...line, assist: false }));
   const assist = linesOf(receipts.filter(fromAssist)).map(line => ({ ...line, assist: true }));
   return {

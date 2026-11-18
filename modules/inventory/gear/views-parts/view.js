@@ -80,10 +80,10 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
     const shared = picture.shared;
     const place = state?.domains?.scene?.place?.name ?? '';
     const memberCount = Math.max(1, readSheet(state).characters.length);
-    // "Strength 25 · Sling Bag +10 · Horse +40 (with the party)": each member's strength, then what each item and mount adds.
+    // "Carries 25 · Sling Bag +10 · Horse +40 (with the party)": what each member can carry (their strength gives it), then what each item and mount adds.
     const rideNames = new Set((Array.isArray(mounts) ? mounts : []).filter(row => row && travelsWith(row.where, place)).map(row => row.name));
     const shown = (picture.sources.party ?? []).map((entry, at) => ({ label: entry.name, value: entry.carry, dim: false,
-        text: at < memberCount ? (memberCount === 1 ? `${S.strength} ${entry.carry}` : `${entry.name} ${S.strength.toLowerCase()} ${entry.carry}`)
+        text: at < memberCount ? (memberCount === 1 ? `Carries ${entry.carry}` : `${entry.name} ${S.carries} ${entry.carry}`)
             : `${entry.name} +${entry.carry}${rideNames.has(entry.name) ? ` ${S.withParty}` : ''}` }));
     const breakdown = shown.map(part => part.text).join(' · ');
     const heldBags = stacks.filter(stack => carryOf(defs[stack.def]) && stack.owner === 'party' && (defs[stack.def].kind !== 'equipment' || stack.equipped !== null));

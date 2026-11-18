@@ -6,6 +6,11 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 
 ### Fixed
 
+- Chat ✦ "this reply" button: it sits on the head reply's own action bar (not on a reader message after it) and moves on a swipe, a delete or an edit. "This reply" now lists a companion joining ("Pell joined the party") and a level-up from a won fight ("Astra reached Lv 3 (+1 point)"); a fight paid before this change has no level-up line.
+- Settings › Start: "Roll checks before the reply" is drawn locked, with the reason, while the RPG has a Character (the fight board rolls the checks).
+- A story clock that began at the calendar's default start (no date known) shows the time alone, not "January 1, 1, Monday", on the card, in Now and in the "Story time" receipt.
+- Level points: the wizard says "each level you gain later gives 1 more point"; RPG.md now names the Combat Rules v1 rule (1 per level) apart from the earlier Character (every third level), and states the Combat Rules v1 fight XP (tier factors; the earlier 15-per-foe rule is the marked Character's).
+- Settings › RPG "Over the load limit" reads "Built in"; the item sheet no longer shows a receipt id as "From"; the Bag's load line says "Astra carries 34" (not "strength"); the New character sheet is opaque on a phone.
 - World › News, Factions and the place sheet: **Edit** now opens an editor (title or name, summary, state, place, area, stance, kind, region) and saves only what changed.
 - World › News: with World events off, happenings the world made that you have not heard of are no longer listed; the Rumours filter counts the items labelled rumour; a news line with no place or date no longer reads "heard , …"; world event titles end on a whole word.
 - World › Map: the place sheet says visited or here and lists its routes; Find (Enter) opens the place or says nothing matched; the region picker keeps its width. The tab strip on wide screens has a panel background so labels do not draw over the cards. (The map's label crowding at default zoom is not changed.)

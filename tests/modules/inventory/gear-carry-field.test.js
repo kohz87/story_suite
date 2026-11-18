@@ -91,10 +91,10 @@ test('the carry line lists the strength, what each item adds and the mounts with
     const host = await fresh(t);
     await setCarry(host, 10);
     const text = () => host.sdk.query('gear.view', { owner: 'party' }).carry.breakdown;
-    assert.equal(text(), 'Strength 30 · Sling Bag +10', 'the reader alone: strength N then the item');
+    assert.equal(text(), 'Carries 30 · Sling Bag +10', 'the reader alone: Carries N then the item');
     assert.equal(host.sdk.query('gear.view', { owner: 'party' }).rows[bag(host).stack].carry, 10);
     await host.send('Saddle.', reply('Yard.', ['+ mount Grey | kind: horse']));
-    assert.equal(text(), 'Strength 30 \u00b7 Sling Bag +10 \u00b7 Grey +40 (with the party)');
+    assert.equal(text(), 'Carries 30 \u00b7 Sling Bag +10 \u00b7 Grey +40 (with the party)');
 });
 
 test('the Edit form of the reader\'s own piece has the field; a change plans inventory.carry', () => {

@@ -59,7 +59,7 @@ export const SCREEN_STRINGS = {
         lootTakeTitle: 'Put the things you ticked in the party\'s bag',
         // Gear in fights is on (Settings -> RPG): the Carry card, the sections' order, the rows' chips and the item Edit's two choices.
         gear: {
-            carry: 'Carry', strength: 'Strength', withParty: '(with the party)', heavy: 'Heavy load', over: 'Encumbered: AGI and DEX \u2212{n}', carryLabel: 'Carried',
+            carry: 'Carry', carries: 'carries', withParty: '(with the party)', heavy: 'Heavy load', over: 'Encumbered: AGI and DEX \u2212{n}', carryLabel: 'Carried',
             equippedBy: 'Equipped \u00b7 {name}', equippedByTitle: 'Worn by {name}', slotTitle: 'The slot it is worn in',
             words: { good: 'Good', worn: 'Worn', torn: 'Torn', broken: 'Broken' }, noBonus: 'no bonus', brokenNoBonus: '\u2014 no bonus',
             condTitle: 'Condition: Good, Worn, Torn or Broken. A broken piece gives no bonus.',
