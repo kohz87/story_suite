@@ -19,7 +19,7 @@ import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
 import { pinnedFeed } from './pinned.js';
-import { PARTY_MAX } from './party-max.js';
+import { PARTY_ACTIVE } from './party-max.js';
 import { recordedAt, repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
 import { PREFS_KEY } from '../port/prefs-key.js';
@@ -83,7 +83,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const actors = read('party.actors', {});
       const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}) });
       // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
-      return wizard.needsYou() ? { pcId: null, max: PARTY_MAX, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
+      return wizard.needsYou() ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
     },
     bag: read => {
       const actors = read('party.actors', {});

@@ -34,7 +34,7 @@ function newButton(first, ctx) {
 export function partyTab(party, ctx = {}) {
   const members = party?.members ?? [];
   const rootAttrs = { class: 'party-tab', dataset: { tab: 'party' } };
-  const showInvite = Boolean(party?.canInvite) && members.length < (party?.max ?? 8) && can(ctx, 'party.invite');
+  const showInvite = Boolean(party?.canInvite) && members.length < (party?.max ?? 4) && can(ctx, 'party.invite');
   // (`characters`: the story's characters when the roster does not list them, Gear in fights off)
   const first = !members.length && !(party?.characters > 0);
   const create = party?.newCharacter === true ? newButton(first, ctx) : null;

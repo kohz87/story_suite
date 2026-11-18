@@ -105,6 +105,19 @@ test('a weapon row says what it gives or that it is a weapon, never "No soak poi
   assert.match(sheetEl().querySelector('.ps-r small').textContent, /^(Weapon|\+)/u);
 });
 
+test('a worn weapon or offhand says what it gives ("Gives +2 STR"), or what it is when it gives nothing (REVFIXBATCH2 3)', () => {
+  const ctx = makeCtx();
+  const astra = ctx.party.members[0];
+  const withBonus = { ...astra, slots: astra.slots.map(s => (s.key === 'weapon' ? { key: 'weapon', item: { stack: 'w1', name: 'Steel longsword', rarity: 'rare', soak: null, torn: false, bonus: '+2 STR' } } : s)) };
+  slotSheet(withBonus, 'weapon', ctx);
+  const kv = [...sheetEl().querySelectorAll('.ps-kv dt, .ps-kv dd')].map(el => el.textContent);
+  assert.deepEqual(kv.slice(0, 2), ['Gives', '+2 STR']);
+  sheetEl().querySelector('.ps-x').click();
+  const plain = { ...astra, slots: astra.slots.map(s => (s.key === 'offhand' ? { key: 'offhand', item: { stack: 'o1', name: 'Oak round shield', rarity: 'common', soak: null, torn: false, bonus: '' } } : s)) };
+  slotSheet(plain, 'offhand', ctx);
+  assert.deepEqual([...sheetEl().querySelectorAll('.ps-kv dt, .ps-kv dd')].map(el => el.textContent).slice(0, 2), ['Gives', SLOT_META.offhand[1]]);
+});
+
 test('slot sheet tolerates a missing bag view and a member without that slot', () => {
   const ctx = makeCtx();
   const sheet = slotSheet({ id: 'x', name: 'Xan', slots: [] }, 'cloak', { ...ctx, port: { view: () => null, command: async () => ({}) } });

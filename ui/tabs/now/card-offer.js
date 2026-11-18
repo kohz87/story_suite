@@ -17,10 +17,10 @@ function actionsOf(item, send) {
   if (item.state === 'done' || item.state === 'failed') {
     return h('div', { class: 'offer' }, h('button', { type: 'button', class: 'btn2', onClick: () => send('dismiss', item.id) }, 'Dismiss'));
   }
-  const tick = item.settings.length
-    ? h('div', { class: 'rnr-tick' },
-      toggle({ checked: ticked.get(item.id) !== false, disabled: working, label: `Also apply: ${item.settings.join(' · ')}`, onChange: on => ticked.set(item.id, on) }),
-      h('span', null, `Also apply: ${item.settings.join(' · ')}`))
+  // (the words beside the switch flip it too, as a checkbox's label would: the switch is a button, so its words are a plain span that clicks it; SOAK2UI 18)
+  const sw = item.settings.length ? toggle({ checked: ticked.get(item.id) !== false, disabled: working, label: `Also apply: ${item.settings.join(' · ')}`, onChange: on => ticked.set(item.id, on) }) : null;
+  const tick = sw
+    ? h('div', { class: 'rnr-tick' }, sw, h('span', { class: 'rnr-tick-t', 'aria-hidden': 'true', onClick: () => sw.click() }, `Also apply: ${item.settings.join(' · ')}`))
     : null;
   const install = h('button', { type: 'button', class: ['btn2', 'pri'], disabled: working || item.blocked, title: item.blocked ? item.notes[0] ?? '' : null, onClick: () => send('install', item.id, { settings: ticked.get(item.id) !== false }) }, item.update ? 'Update' : 'Install');
   const later = h('button', { type: 'button', class: 'btn2', disabled: working, onClick: () => send('notNow', item.id) }, 'Not now');

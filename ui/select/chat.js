@@ -45,7 +45,8 @@ function metersOf(entry, cast) {
 // The scene line (where ≤40, doing, wearing) is a gap (UI-PLAN §2.1): `where` is the scene's place name until it lands.
 export function selectDrawer(answers = {}, opts = {}) {
   const portraits = isRec(opts.portraits) ? opts.portraits : {};
-  const place = text(answers['scene.place']?.name).slice(0, 40);
+  // (a longer name is cut to 40 with "…", so the line shows it was cut: SOAK2UI 11's "Grand Exchange-and-Counting-House of the")
+  const full = text(answers['scene.place']?.name), place = [...full].length > 40 ? `${[...full].slice(0, 39).join('').trimEnd()}…` : full;
   const cast = list(answers['npc.cast']);
   const chatter = list(answers['chatter.head']);
   const rows = [];

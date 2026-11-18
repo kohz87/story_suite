@@ -19,6 +19,8 @@ const SLOT = {
       rarity: { $enum: RARITIES },
       soak: T.NUMBER,
       torn: T.BOOLEAN,
+      // What the worn piece adds to stats, as gear.view writes it ("+2 STR", '' for none): a weapon or offhand piece's slot sheet says "Gives" it.
+      bonus: { $optional: T.STRING },
     },
   },
 };

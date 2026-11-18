@@ -3,7 +3,7 @@
 // answers: { [queryName]: answer } as the port read them (a missing key is a query that is not there).
 // opts: { rpg: bool (the RPG is on), persona: string (the reader's name), portrait: string|null (the `npc.portrait` answer for the lead) }.
 
-import { PARTY_MAX } from './party-max.js';
+import { PARTY_ACTIVE } from './party-max.js';
 
 const isRec = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.trim() : '');
@@ -100,7 +100,7 @@ export function selectCard(answers = {}, opts = {}) {
   // soak % and the exp bar come from the sheet row (null while it is not answered).
   card.chips = {
     soakPct: whole(row?.soakPct),
-    party: Array.isArray(actors) ? { n: actors.length, max: PARTY_MAX } : null,
+    party: Array.isArray(actors) ? { n: actors.length, max: PARTY_ACTIVE } : null,
     pace: paceOf(answers['mounts.pace']),
   };
   card.bars = barsOf(lead) ?? (Array.isArray(row?.bars) && row.bars.length ? row.bars : null);

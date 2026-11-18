@@ -54,6 +54,22 @@ test('Install sends the ticked state; unticking survives a redraw; Not now and D
   await new Promise(r => setTimeout(r, 0));
 });
 
+test('clicking the "Also apply" words flips the switch, as a label would (SOAK2UI 18); a disabled switch stays', () => {
+  installFakeDom();
+  const c = fakeController([item()]);
+  const draw = () => rightNow({ needsYou: [], offers: offerRows(c) }, ctxFor(c))[0];
+  let node = draw();
+  const was = node.querySelector('.rnr-tick .sw').getAttribute('aria-checked');
+  node.querySelector('.rnr-tick .rnr-tick-t').click();
+  assert.notEqual(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), was);
+  node.querySelector('.rnr-tick .rnr-tick-t').click();
+  assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), was, 'and back');
+  node = rightNow({ needsYou: [], offers: offerRows(fakeController([item({ state: 'working' })])) }, ctxFor(c))[0];
+  const before = node.querySelector('.rnr-tick .sw').getAttribute('aria-checked');
+  node.querySelector('.rnr-tick .rnr-tick-t').click();
+  assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), before);
+});
+
 test('the chat chip counts waiting offers; with none it is unchanged; the selector never refreshes the card', () => {
   const rows = offerRows(fakeController([item(), item({ id: 'o2', state: 'done' })]));
   assert.equal(waitingCount(rows), 1);
