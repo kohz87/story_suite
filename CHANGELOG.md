@@ -33,6 +33,7 @@ Main has nothing beyond 0.1.2 yet except documentation and the Settings › Dire
 
 ### Fixed
 
+- **The World tab's map has north at the top.** A pack's y grows north, but the tab drew y straight down the screen, so a pack with a frozen north (such as the Ersveil sample) showed it at the bottom. The map now flips y (and honours a map that says north is down or east is left, as the old atlas widget did); places, roads, region names, the trip line, pan and zoom follow. The land and its grid grow to hold every place.
 - Settings › Look works in the new view: Panel style (Glass or Follow SillyTavern), Glass strength, Font and Text size now change the Story Suite panel at once and stay after a reload; Reset Look puts the Glass look back. The panel now opens in Glass by default (light or dark from your SillyTavern theme) instead of always taking SillyTavern's colours.
 - The Send pending note shows above the message box in the new view again (sends when the story is ready, not sent yet, sent); its fight-held state stays hidden there, as the Fight tab shows the fight. The Send pending note switch turns it off.
 - A companion who joins under a Custom "Stats start at" above 5 no longer loses stats (its best stat was held to 10).

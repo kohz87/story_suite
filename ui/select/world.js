@@ -15,12 +15,15 @@ const regionName = (region, names) => (names && typeof names === 'object' && typ
 
 // atlas.view places (SD/atlas/map.js:113-122); a place without coordinates cannot be drawn and is left out.
 // `names`: chronicle.regionNames (the pack's `content.regions`, with or without World events): the region's name by its id, name or alias; the id itself when the pack names none.
+// Pack y grows north and east grows right; the SVG's y grows down, so the map is drawn with y flipped (north up) unless the map settings say north is down (orient, as the old atlas widget's mapPoint does).
 function placesOf(view, tiers, names) {
+  const flipY = view?.orient?.north !== 'down';
+  const flipX = view?.orient?.east === 'left';
   return list(view?.places)
     .filter(p => Number.isFinite(p?.x) && Number.isFinite(p?.y) && text(p.id))
     .map(p => ({
       id: p.id, name: text(p.name), kind: text(p.kind), region: regionName(p.region, names) || null,
-      x: p.x, y: p.y, visited: p.visited === true, here: p.here === true, danger: dangerOf(tiers?.[p.id]),
+      x: flipX ? -p.x || 0 : p.x, y: flipY ? -p.y || 0 : p.y, visited: p.visited === true, here: p.here === true, danger: dangerOf(tiers?.[p.id]),
     }));
 }
 
