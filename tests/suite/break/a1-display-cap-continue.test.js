@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { displayLines } from '../../../ui/legacy/extras.js';
+import { displayLines } from '../../../modules/scene/extras.js';
 
 const B = lines => `\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

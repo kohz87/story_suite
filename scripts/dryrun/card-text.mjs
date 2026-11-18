@@ -2,7 +2,7 @@
 // text only. The scope is what the page host builds for that card: the reply's state and changes, the modules' card lines, and (once
 // the code has it) the reply's module failures. Code without the card screen or the renderer answers null: no card field is recorded.
 
-import { suiteAt } from './suite-at.mjs';
+import { suiteAt, suiteAtAny } from './suite-at.mjs';
 
 const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();
 
@@ -13,8 +13,11 @@ async function optional(load) {
 /** → `(host, index) => text`, or null when the checkout has no card to render (or `suite.at` is missing). */
 export async function makeCardText(suite) {
   if (typeof suite?.at !== 'function') return null;
-  const mods = await optional(() => Promise.all(['src/v2/screens/index.js', 'src/v2/view/screens.js', 'src/v2/view/template/index.js', 'src/v2/view/bind.js',
-    'src/v2/events/index.js', 'src/v2/view/widgets/index.js', 'tests/ui-fake-dom.js'].map(rel => suiteAt(suite, rel))));
+  // [name in the old layout, repo path today]: the screens, the template and the widgets left ui/legacy for packs/ and modules/
+  const wanted = [['src/v2/screens/index.js', 'packs/screens/defaults/index.js'], ['src/v2/view/screens.js', 'packs/screens/registry.js'],
+    ['src/v2/view/template/index.js', 'packs/template/index.js'], ['src/v2/view/bind.js', 'packs/template/bind.js'],
+    ['src/v2/events/index.js'], ['src/v2/view/widgets/index.js', 'packs/widgets/index.js'], ['tests/ui-fake-dom.js']];
+  const mods = await optional(() => Promise.all(wanted.map(([rel, now]) => (now ? suiteAtAny(suite, rel, now) : suiteAt(suite, rel)))));
   if (!mods) return null;
   const [screens, data, template, bind, events, widgets, fakeDom] = mods;
   const screen = screens.changesCardScreen;

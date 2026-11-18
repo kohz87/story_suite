@@ -5,11 +5,11 @@
 // kept with the order and the hidden ones; those older choices work as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { HOME_ID, inDefaultBar, validateScreen } from '../../../ui/legacy/view/screens.js';
-import { homeScreen, inventoryScreen } from '../../../ui/legacy/screens/index.js';
+import { HOME_ID, inDefaultBar, validateScreen } from '../../../packs/screens/registry.js';
+import { homeScreen, inventoryScreen } from '../../../packs/screens/defaults/index.js';
 import { isDefaultChoice, isInBar, moveNav, readTabChoice, setNavHidden, setNavInBar, createTabOrderStore } from '../../../ui/legacy/view/tab-order.js';
 import { createScreenMount } from '../../../ui/legacy/view/mounts/screen.js';
-import { createScreens } from '../../../ui/legacy/view/screens.js';
+import { createScreens } from '../../../packs/screens/registry.js';
 import { createTabHost } from '../../../ui/legacy/host-ui.js';
 import { fakeRenderer, setupDom, stateWith } from './mounts/helpers.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';

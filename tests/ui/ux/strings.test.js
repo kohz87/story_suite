@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STRINGS, escapeHtml, fill, html, jsonText } from '../../../core/strings.js';
-import { changesSummary, homeScreen, inventoryScreen, sceneScreen, changesCardScreen, screens } from '../../../ui/legacy/screens/index.js';
-import { parseHtml } from '../../../ui/legacy/view/template/html.js';
+import { changesSummary, homeScreen, inventoryScreen, sceneScreen, changesCardScreen, screens } from '../../../packs/screens/defaults/index.js';
+import { parseHtml } from '../../../packs/template/html.js';
 import { core, queries, renderSkip, show, stocked, text } from '../screens/helpers.js';
 
 const leaves = (value, out = []) => {

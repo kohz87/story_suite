@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { changesCardScreen } from '../../../ui/legacy/screens/changes-card.js';
+import { changesCardScreen } from '../../../packs/screens/defaults/changes-card.js';
 import { luminance, parseColor, themeTokens } from '../../../ui/legacy/view/theme.js';
 import { core, queries, show, stocked } from '../screens/helpers.js';
 import { cssOf } from '../../core/helpers/css-parts.js';

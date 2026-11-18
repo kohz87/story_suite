@@ -69,7 +69,10 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     people: read => selectPeople(peopleParts(read)),
     dossier: read => dossierMap(read),
-    world: read => selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null }),
+    world: read => {
+      const worldEvents = sdk?.features?.()?.find?.(f => f?.id === 'story-director.world-events')?.on === true;
+      return selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null, worldEvents, conditionsHere: worldEvents ? read('chronicle.conditionsHere', {}) : null, regionNames: read('chronicle.regionNames', {}) });
+    },
     journal: read => selectJournal(read),
     story: read => selectStory(read),
     // The open interaction: `interaction.view`, null when none is open. A fight is shown on the Fight tab, not here.
@@ -84,7 +87,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       return { rpg: Array.isArray(actors) && actors.length > 0, fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
     },
     settings: () => selectSettings({
-      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },
+      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null,
     }),
     // Read again each time the Tools page draws or the Inspector moves (never the overlay's open-time snapshot).

@@ -17,7 +17,7 @@ import { newId, sectionBlock } from '../form/fields.js';
 import { matchesSearch } from '../form/schema.js';
 import { PROMPT_FOLD, createPromptReader, renderPromptCard } from './prompt.js';
 import { renderTabsCard } from './tabs-list.js';
-import { showAndFocus } from '../scroll.js';
+import { showAndFocus } from '../../../../packs/widgets/scroll.js';
 import { renderDataModules } from '../../../../modules/data-modules/setup.js';
 import { STRINGS } from '../../../../core/strings.js';
 

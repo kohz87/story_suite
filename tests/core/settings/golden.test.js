@@ -6,7 +6,7 @@ import { registerHooks } from 'node:module';
 import { assembleDefaults } from '../../../core/settings/defaults.js';
 import { HOST_SETTINGS_DEFAULTS } from '../../../core/sdk/constants.js';
 import { createCoreModule } from '../../../modules/scene/domains/core/module.js';
-import { storyDirectorModule } from '../../../ui/legacy/director/module.js';
+import { storyDirectorModule } from '../../../modules/director/module.js';
 import { SETTINGS_DEFAULTS as NPC_DEFAULTS } from '../../../modules/people/meters/npc-meters-schema.js';
 
 registerHooks({

@@ -8,6 +8,7 @@ import { DAY_MINUTES } from '../time-parts/limits.js';
 import { KEY_CHARS } from './limits.js';
 import { beginTurn } from './reply.js';
 import { lineText } from './text.js';
+import { slotValue } from '../../../rpg/slot.js';
 
 /** `apply(ctx, line)` for `time` lines: `~ time <date, clock time>`, `! time +2h`. */
 export function applyTimeLine(ctx, line) {
@@ -36,7 +37,10 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     const faced = Array.isArray(ctx.carrier?.rules) && ctx.carrier.rules.includes('clockFace');
     const read = faced ? clockFaceAfter : timeAfter;
     // `openDay`: the day a jump landed on (stored, so a replay reads the same); the next time line on it may set any clock time there.
-    const options = { maxJump: maxJumpMinutes(settings), from, ...(faced ? { openDay: director.time.openDay ?? null } : {}) };
+    // `soft`: the fallback minutes the clock still stands on (world events); a clock face may go back over them.
+    const fallback = slotValue(director.time.soft);
+    const soft = fallback?.at === director.time.minutes && Number.isSafeInteger(fallback.minutes) ? fallback.minutes : 0;
+    const options = { maxJump: maxJumpMinutes(settings), from, ...(faced ? { openDay: director.time.openDay ?? null, ...(soft > 0 ? { soft } : {}) } : {}) };
     const stretch = lineStretch(line);
     // The same stretch of time counts once: a date and a "+X" within 15 minutes of the gap from where
     // the reply began, in either order, are one stretch, and the date is the one that is used.
@@ -51,7 +55,10 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     }
     // No clock yet (no pack start): a line with no date reads from the calendar's default start and sets the clock there (clockToRead).
     const base = clockToRead(calendar, director.time, line);
-    const fromNow = next === null ? read(line, base.from, calendar, options) : null;
+    // A stretch ("! time +5m") of the same reply after the world's fallback hour counts from before it: the fallback minutes were untold, and the story's own stretch replaces them (a clock face already goes back over them).
+    const own = soft > 0 && typeof fallback.sid === 'string' && fallback.sid === (ctx.carrier?.sid ?? ctx.reply?.sid) && Number.isSafeInteger(fallback.own) ? Math.min(fallback.own, soft) : 0;
+    const origin = stretch !== null && own > 0 && Number.isSafeInteger(base.from) ? base.from - own : base.from;
+    const fromNow = next === null ? read(line, origin, calendar, options) : null;
     next ??= fromNow;
     if (base.set && fromNow !== null && !fromNow.error) next = { ...fromNow, set: true, held: undefined, problem: undefined };
     if (!next.error && Number.isSafeInteger(next.minutes)) {
@@ -74,6 +81,8 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     }
     const before = director.time.minutes;
     if (next.minutes !== before) director.time.minutes = next.minutes;
+    // A time line the story told ends the fallback's soft minutes (written only by the world's clock fallback).
+    if (director.time.soft !== undefined) delete director.time.soft;
     // The marker that the clock came from the calendar's default start: set by the first date-less line, cleared by the first date.
     if (base.set && director.time.fromDefault !== true) director.time.fromDefault = true;
     else if (base.floating && next.set && director.time.fromDefault === true) director.time.fromDefault = false;

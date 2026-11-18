@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { createHost } from '../../../../testkit/index.js';
 import { fakeDelta } from '../../../modules/cast/keypeople/helpers.js';
 import {

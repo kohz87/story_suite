@@ -1,5 +1,5 @@
-import { hero } from '../../../ui/legacy/view/widgets/hero.js';
-import { fakeApi, host as widgetHost, installDom } from './widgets/fake-dom.js';
+import { hero } from '../../../packs/widgets/hero.js';
+import { fakeApi, host as widgetHost, installDom } from '../../packs/widgets/fake-dom.js';
 
 export const settle = async () => { for (let n = 0; n < 6; n += 1) await new Promise(resolve => setImmediate(resolve)); };
 export const WHERE = { present: ['Fenna', 'Hooded courier'], places: [{ name: 'Bluewatch Village' }, { name: 'The Weir' }], weatherOn: true, place: 'Bluewatch Village', weatherText: 'heavy rain, rising river' };

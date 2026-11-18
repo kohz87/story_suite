@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { CHATTER_FEATURE, CHATTER_MAX, chatterCap, chatterGrammar, displayLines } from '../../ui/legacy/extras.js';
+import { CHATTER_FEATURE, CHATTER_MAX, chatterCap, chatterGrammar, displayLines } from '../../modules/scene/extras.js';
 
 const ON = { features: { [CHATTER_FEATURE]: true } };
 const lines = n => Array.from({ length: n }, (_, i) => `~ chatter Npc${i + 1}: thought ${i + 1}`);

@@ -2,7 +2,7 @@
 
 import { normalizeField, FIELD_TYPES } from '../../../../core/registry.js';
 import { profileNote } from '../../../../core/model-call/profile-field.js';
-import { el, humanize } from './dom.js';
+import { el, humanize } from '../../../../core/list-lines/dom.js';
 import { control } from './field-control.js';
 
 // `label.story-suite-row`: the label and its help on the left, the control on the right (stacked on a

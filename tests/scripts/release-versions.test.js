@@ -9,12 +9,13 @@ import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const files = {
-  'package.json': '{\n  "name": "x",\n  "version": "0.1.0"\n}\n',
-  'package-lock.json': '{\n  "version": "0.1.0",\n  "packages": { "": { "version": "0.1.0" } }\n}\n',
-  'manifest.json': '{\n    "version": "0.1.0",\n    "js": "index.js"\n}\n',
-  'core/version.js': "// banner\nexport const SUITE_VERSION = '0.1.0';\n",
-  'README.md': '# Story Suite 0.1.0\n\ntext 9.9.9 stays\n',
-  'CHANGELOG.md': '# Changelog\n\n## 0.1.0\n\n- first\n\n## 0.0.9\n',
+  'package.json': '{\n  "name": "x",\n  "version": "0.1.1"\n}\n',
+  'package-lock.json': '{\n  "version": "0.1.1",\n  "packages": { "": { "version": "0.1.1" } }\n}\n',
+  'manifest.json': '{\n    "version": "0.1.1",\n    "js": "index.js"\n}\n',
+  'core/version.js': "// banner\nexport const SUITE_VERSION = '0.1.1';\n",
+  'packs/validate/core-parts/host-version.js': "export const SUITE_VERSION = '0.1.1';\nexport const HOST_VERSION = '2.33.0';\n",
+  'README.md': '# Story Suite 0.1.1\n\ntext 9.9.9 stays\n',
+  'CHANGELOG.md': '# Changelog\n\n## 0.1.1\n\n- first\n\n## 0.0.9\n',
 };
 function fake(overrides = {}) {
   const dir = tempDir('release-versions-');
@@ -29,17 +30,18 @@ const read = (dir, name) => fs.readFileSync(path.join(dir, name), 'utf8');
 
 test('every place agrees on the real tree', () => {
   const rows = readVersions(root);
-  assert.ok(rows.some(row => row.file === 'README.md') && rows.some(row => row.file === 'CHANGELOG.md') && rows.some(row => row.file === 'core/version.js'));
-  assert.deepEqual(versionProblems(root, '0.1.0'), []);
+  assert.ok(rows.some(row => row.file === 'README.md') && rows.some(row => row.file === 'CHANGELOG.md') && rows.some(row => row.file === 'core/version.js')
+    && rows.some(row => row.file === 'packs/validate/core-parts/host-version.js'), 'the pack checker\'s suite version is a version place');
+  assert.deepEqual(versionProblems(root, '0.1.1'), []);
 });
 
 test('one disagreeing place is named, whichever it is', () => {
   const dir = fake({ 'README.md': '# Story Suite 0.2.0\n', 'core/version.js': "export const SUITE_VERSION = '0.0.1';\n", 'CHANGELOG.md': '# Changelog\n\nnothing\n' });
   try {
-    assert.deepEqual(versionProblems(dir, '0.1.0'), [
-      'core/version.js version is 0.0.1, package.json says 0.1.0',
-      'README.md version is 0.2.0, package.json says 0.1.0',
-      'CHANGELOG.md version is missing, package.json says 0.1.0',
+    assert.deepEqual(versionProblems(dir, '0.1.1'), [
+      'core/version.js version is 0.0.1, package.json says 0.1.1',
+      'README.md version is 0.2.0, package.json says 0.1.1',
+      'CHANGELOG.md version is missing, package.json says 0.1.1',
     ]);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
@@ -49,7 +51,7 @@ test('the release gate fails on a disagreeing place (and is the one that reports
   execFileSync('git', ['init', '-q'], { cwd: dir });
   try {
     const { problems } = await checkRelease({ repoRoot: dir, outRoot: path.join(dir, 'out'), sets: [] });
-    assert.deepEqual(problems, ['manifest.json version is 0.3.0, package.json says 0.1.0']);
+    assert.deepEqual(problems, ['manifest.json version is 0.3.0, package.json says 0.1.1']);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -61,6 +63,7 @@ test('writing a version changes the version line of every place and nothing else
     assert.equal(read(dir, 'README.md'), '# Story Suite 0.2.0\n\ntext 9.9.9 stays\n');
     assert.equal(read(dir, 'CHANGELOG.md'), '# Changelog\n\n## 0.2.0\n\n- first\n\n## 0.0.9\n');
     assert.equal(read(dir, 'core/version.js'), "// banner\nexport const SUITE_VERSION = '0.2.0';\n");
+    assert.equal(read(dir, 'packs/validate/core-parts/host-version.js'), "export const SUITE_VERSION = '0.2.0';\nexport const HOST_VERSION = '2.33.0';\n", 'the older host number stays');
     assert.equal(JSON.parse(read(dir, 'package-lock.json')).packages[''].version, '0.2.0');
     assert.equal(read(dir, 'manifest.json'), '{\n    "version": "0.2.0",\n    "js": "index.js"\n}\n');
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
@@ -71,6 +74,6 @@ test('a malformed version and a place with no version line are refused before an
   try {
     assert.throws(() => writeVersions(dir, 'v1'), /not a version/);
     assert.throws(() => writeVersions(dir, '0.2.0'), /README\.md has no version line/);
-    assert.equal(JSON.parse(read(dir, 'package.json')).version, '0.1.0');
+    assert.equal(JSON.parse(read(dir, 'package.json')).version, '0.1.1');
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });

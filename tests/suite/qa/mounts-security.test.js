@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FakeElement } from '../../helpers/ui-fake-dom.js';
 import { createMounts, drawScreen } from '../../../ui/legacy/view/mounts/index.js';
-import { renderLayout } from '../../../ui/legacy/layout/index.js';
+import { renderLayout } from '../../../packs/layout/index.js';
 import { fakeChat, screensWith, setupDom } from '../../ui/view/mounts/helpers.js';
 
 const forbid = name => function () { throw new Error(`markup was parsed: ${name}`); };

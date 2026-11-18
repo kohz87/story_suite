@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { editable } from '../../../ui/legacy/view/widgets/editable.js';
-import { fakeApi, host, installDom } from '../view/widgets/fake-dom.js';
+import { editable } from '../../../packs/widgets/editable.js';
+import { fakeApi, host, installDom } from '../../packs/widgets/fake-dom.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 function mount(props, command) {

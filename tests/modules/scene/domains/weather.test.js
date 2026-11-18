@@ -9,7 +9,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { WEATHER_CHARS, WEATHER_FEATURE, WEATHER_TAIL_CHARS, initialScene, sceneTail, validateScene, weatherText } from '../../../../modules/scene/index.js';
-import { homeScreen, sceneScreen } from '../../../../ui/legacy/screens/index.js';
+import { homeScreen, sceneScreen } from '../../../../packs/screens/defaults/index.js';
 import { checkInvariants } from '../../../suite/qa/helpers/oracle.js';
 import { recordingWidgets, renderSkip, show, text } from '../../../ui/screens/helpers.js';
 

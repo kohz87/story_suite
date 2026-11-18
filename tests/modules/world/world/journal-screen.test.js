@@ -11,13 +11,13 @@ import { DAYS_ID, WORLD_ID, daysScreen, hiddenNames, knownDay, part, worldScreen
 import { backlogBlock } from '../../../../modules/world/chronicle/backlog.js';
 import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
 import { part as chronicle } from '../../../../modules/world/chronicle/index.js';
-import { validateScreen } from '../../../../ui/legacy/view/screens.js';
-import { compileTemplate, renderTemplate } from '../../../../ui/legacy/view/template/index.js';
-import { conditionEvaluator } from '../../../../ui/legacy/view/bind.js';
+import { validateScreen } from '../../../../packs/screens/registry.js';
+import { compileTemplate, renderTemplate } from '../../../../packs/template/index.js';
+import { conditionEvaluator } from '../../../../packs/template/bind.js';
 import { compile, evaluate } from '../../../../modules/world/events/index.js';
-import { scopeCss } from '../../../../ui/legacy/view/css.js';
+import { scopeCss } from '../../../../packs/template/css.js';
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
 import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 

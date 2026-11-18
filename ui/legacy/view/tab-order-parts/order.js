@@ -1,6 +1,6 @@
 // The reader's order of the tabs: each entry's key, the list put in that order, and moving one entry up or down.
 
-import { HOME_ID, byNavOrder } from '../screens.js';
+import { HOME_ID, byNavOrder } from '../../../../packs/screens/registry.js';
 import { TAB_LIST_MAX } from './constants.js';
 import { cleanIds, readTabChoice } from './choice.js';
 

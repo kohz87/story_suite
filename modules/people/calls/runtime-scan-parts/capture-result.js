@@ -14,7 +14,7 @@ export function seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId
         const matches = people.filter(person => dossierFor([npc], person));
         if (matches.length !== 1 || nextState.npcs.filter(other => dossierFor([other], matches[0])).length !== 1) continue;
         const person = matches[0];
-        const seeded = seedCastAdmission(nextState, npc, person, { packName: names[person.pack] ?? '' });
+        const seeded = seedCastAdmission(nextState, npc, person, { packName: names[person.pack] ?? '', gated: storySuiteV2Meters?.()?.worldSecretsOn?.() === true });
         if (seeded) nextState.npcs = nextState.npcs.map(item => item.id === npc.id ? seeded : item);
     }
 }

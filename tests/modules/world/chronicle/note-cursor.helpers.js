@@ -2,7 +2,7 @@
 // chronicle's note kept (the quest history and the day facts), so a chat and a fresh telling of it can be compared.
 
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { questLogOrder } from '../../../../modules/world/chronicle/days-parts/quest-log-order.js';
 
 export const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;

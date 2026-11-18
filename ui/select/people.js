@@ -56,7 +56,7 @@ export function selectPeople({ list, keyPeople, party, ties, place, present, fil
     }
     if (isHere(row, place, present)) { here.push(card); continue; }
     const kp = away.get(keyOf(row.name));
-    const gone = { ...card, lastPlace: cut(kp?.place ?? row.location ?? null, 80), lastSeen: kp?.newsAgo ?? null, said: null };
+    const gone = { ...card, lastPlace: cut(kp?.place ?? row.location ?? null, 80), lastSeen: kp?.newsAgo || null, said: null, ...(kp?.away ? { doing: cut(kp.doing || null, 160), back: kp.back || null } : {}) };
     (row.dormant === true && !card.inParty ? dormant : elsewhere).push(gone);
   }
   const active = [...here, ...elsewhere];

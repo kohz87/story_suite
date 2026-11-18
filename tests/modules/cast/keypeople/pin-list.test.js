@@ -8,8 +8,8 @@ import { join } from 'node:path';
 
 import { worldScreen } from '../../../../modules/world/world/screen.js';
 import { keyPeopleWidget } from '../../../../modules/cast/keypeople/widget.js';
-import { revealIn, scrollerOf, zoomOf } from '../../../../ui/legacy/director/screens/scroll.js';
-import { revealIn as hostRevealIn } from '../../../../ui/legacy/view/scroll.js';
+import { revealIn, scrollerOf, zoomOf } from '../../../../modules/director/screens/scroll.js';
+import { revealIn as hostRevealIn } from '../../../../packs/widgets/scroll.js';
 import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 
 const VIEW = {
@@ -113,7 +113,7 @@ test('Story Director never scrolls with scrollIntoView and never calls a bare fo
     const files = [];
     const walk = dir => { for (const name of readdirSync(dir)) { const path = join(dir, name); if (statSync(path).isDirectory()) walk(path); else if (name.endsWith('.js')) files.push(path); } };
     // Story Director's code now sits in these folders of the repo (the director area of the layout).
-    for (const dir of ['modules/arc', 'modules/atlas', 'modules/cast', 'modules/time', 'modules/world', 'ui/legacy/director']) walk(new URL(`../../../../${dir}`, import.meta.url).pathname);
+    for (const dir of ['modules/arc', 'modules/atlas', 'modules/cast', 'modules/time', 'modules/world', 'modules/director']) walk(new URL(`../../../../${dir}`, import.meta.url).pathname);
     assert.ok(files.length > 50);
     for (const file of files) {
         const code = readFileSync(file, 'utf8').split('\n').filter(line => !line.trim().startsWith('//') && !line.trim().startsWith('*')).join('\n');

@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createHost } from '../../../testkit/index.js';
-import { PARTS, createModule } from '../../../ui/legacy/director/module.js';
+import { PARTS, createModule } from '../../../modules/director/module.js';
 import { part as time } from '../../../modules/time/index.js';
 import { fakeFightRunner } from '../../suite/integration/director/helpers/fake-fight-runner.js';
 import { BACKLOG_STATIC } from '../../../modules/world/chronicle/digest.js';

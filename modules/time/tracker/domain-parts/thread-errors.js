@@ -4,6 +4,7 @@ import { closed, cursor, hash, map, minute, recordId, source } from '../thread-s
 import { lineKey } from '../../../world/changes.js';
 import { OUTCOMES, THREAD_KINDS } from '../convert.js';
 import { isInt, isRecord } from './shared-guards.js';
+import { WORLD_EVENT_KIND } from '../threads-parts/kinds.js';
 
 const THREAD_ID = /^th_[0-9a-z]{8}$/;
 const TARGET_KINDS = ['foes', 'items'];
@@ -33,7 +34,8 @@ function threadErrorsOf(id, thread) {
     const at = `director.threads.${id}`;
     if (!isRecord(thread)) return [`${at} is not a thread.`];
     if (!THREAD_ID.test(id) || thread.id !== id) errors.push(`${at} has a bad id.`);
-    if (!THREAD_KINDS.includes(thread.kind)) errors.push(`${at} has an unknown kind "${thread.kind}".`);
+    // A world-event mirror (seam audit E32) is a kind of its own, outside the capture kinds.
+    if (!THREAD_KINDS.includes(thread.kind) && thread.kind !== WORLD_EVENT_KIND) errors.push(`${at} has an unknown kind "${thread.kind}".`);
     if (typeof thread.key !== 'string' || !lineKey(thread.key)) errors.push(`${at} has no key.`);
     if (typeof thread.summary !== 'string') errors.push(`${at}.summary is not text.`);
     if (!isRecord(thread.fields) || Object.values(thread.fields).some(value => typeof value !== 'string')) errors.push(`${at}.fields must hold text.`);

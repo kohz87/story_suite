@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
-import { compileTemplate, renderTemplate } from '../../../ui/legacy/view/template/index.js';
+import { compileTemplate, renderTemplate } from '../../../packs/template/index.js';
 import { createHost } from '../../../testkit/index.js';
 
 const nested = depth => {

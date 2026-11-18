@@ -10,7 +10,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
-import { compileTemplate, renderTemplate } from '../../../ui/legacy/view/template/index.js';
+import { compileTemplate, renderTemplate } from '../../../packs/template/index.js';
 
 const TEMPLATE = '<form data-submit="shop.buy"><input type="checkbox" id="gift" data-draft="gift"><label for="gift">Gift wrap</label><button>Buy</button></form>'
     + '<div><input type="radio" name="tip" value="1" data-draft="tip"><input type="radio" name="tip" value="2" data-draft="tip"></div>';

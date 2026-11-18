@@ -8,7 +8,7 @@ import { findBlocks } from '../../../core/capture/blocks-parts/find.js';
 import { fitState } from '../../../modules/assist/repair-parts/state-fit.js';
 import { openThreadLines } from '../../../core/runtime-parts/open-threads.js';
 import { REPAIR_FOOT, repairPrompt, whereWhy, refusedWhy } from '../../../modules/assist/index.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { createHost } from '../../../testkit/index.js';
 import { skip, wait } from './safety-net.helpers.js';
 

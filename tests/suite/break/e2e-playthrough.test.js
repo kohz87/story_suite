@@ -183,12 +183,15 @@ test('E2E: a 30-reply Ersveil playthrough keeps live, rebuild, reload, Re-read, 
         assert.ok(results.some(entry => Number.isInteger(entry.d20) && entry.kind), `a rolled pulse result is kept (${track[30].pulse?.slice(0, 200)})`);
         assert.ok(results.some(entry => entry.kind === 'SKIP' && entry.skipped === 'fight'), 'the fight reply skipped its pulse');
     });
-    // Earlier days: the day passed in Auvoth keeps its witnesses (who stood in the scene at each line) and the names check's lines.
+    // Earlier days: the day passed in Auvoth keeps its witnesses (who stood in the scene at each line). A names check ("Name: Elara is
+    // new; …") is bookkeeping, not a line of the day (LAB2-5): Elara, in the scene only for her own names check, witnesses no line.
     await soft('earlier days', () => {
         const day = track[22].day;
         assert.ok(day && day.line, 'a past day is in the Journal');
         const who = [].concat(...(day.who ?? []));
-        for (const name of ['Rika', 'Elara', 'Temiwa Voss']) assert.ok(who.includes(name), `${name} is a witness of the day`);
+        for (const name of ['Rika', 'Temiwa Voss']) assert.ok(who.includes(name), `${name} is a witness of the day`);
+        assert.ok(!who.includes('Elara'), 'no witness of a names check');
+        assert.ok(!day.happened.some(line => /^Name: /.test(line)), 'no names check among the day\'s lines');
         assert.ok(day.who.length === day.happened.length, 'one witness list per line');
         assert.deepEqual(track[30].day.who, day.who, 'the past day does not change later');
     });

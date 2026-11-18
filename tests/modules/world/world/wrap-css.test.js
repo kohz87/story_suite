@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { worldScreen } from '../../../../modules/world/world/index.js';
-import { directorScreen } from '../../../../ui/legacy/director/screens/director.js';
+import { directorScreen } from '../../../../modules/director/screens/director.js';
 
 const rule = (css, selector) => css.split('\n').find(line => line.startsWith(selector)) ?? '';
 
@@ -27,7 +27,7 @@ test('the Director cards wrap their text and grow with their rows: no inner scro
 
 test('layouts come from the screen\'s own width: no window-width media query in the Story Director screens', async () => {
     const { chronicleScreen } = await import('../../../../modules/world/chronicle/screen.js');
-    const { questsScreen } = await import('../../../../ui/legacy/director/screens/quests.js');
+    const { questsScreen } = await import('../../../../modules/director/screens/quests.js');
     const { MAP_CSS } = await import('../../../../modules/atlas/atlas/widget-css.js');
     const all = [worldScreen.css, directorScreen.css, chronicleScreen.css, questsScreen.css, MAP_CSS].join('\n');
     assert.doesNotMatch(all, /@media[^{]*\((min|max)-width/, 'switch on the pointer or on the container, not on the window');
@@ -37,6 +37,6 @@ test('layouts come from the screen\'s own width: no window-width media query in 
 
 test('the shows-spoilers pill reads the warn text colour, and the pulse heads are the mockup\'s ruled capitals', async () => {
     assert.match(rule(directorScreen.css, '.sd-spoil'), /color: var\(--ss-warn-text, var\(--sd-warn\)\)/);
-    const { SHARED_CSS } = await import('../../../../ui/legacy/director/screens/style.js').then(m => ({ SHARED_CSS: Object.values(m).find(v => typeof v === 'string' && v.includes('.sd-pulse .sd-h')) }));
+    const { SHARED_CSS } = await import('../../../../modules/director/screens/style.js').then(m => ({ SHARED_CSS: Object.values(m).find(v => typeof v === 'string' && v.includes('.sd-pulse .sd-h')) }));
     assert.match(rule(SHARED_CSS, '.sd-pulse .sd-h {'), /text-transform: uppercase/);
 });

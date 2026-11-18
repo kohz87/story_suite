@@ -31,6 +31,7 @@ export function chronicleTail(view) {
     const near = nearness(query, scenePlaceOf(query, view.state));
     const at = Number.isSafeInteger(view?.chat?.length) ? view.chat.length : null;
     const rev = Number.isSafeInteger(view?.state?.meta?.rev) ? view.state.meta.rev : 0;
+    // With the world-events switch on these lines are not sent: the world note takes their place (index-parts/hooks.js, seam audit E23).
     const ids = tailPick(chronicle, { at, rev, near });
     const now = nowFrom(query, view.state);
     const lines = [TAIL_HEADER];

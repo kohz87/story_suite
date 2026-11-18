@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { addProblem, problemList, validateDirector } from '../../../../modules/time/tracker/domain.js';
 import { withD1 } from '../../../helpers/director/d1.js';
 

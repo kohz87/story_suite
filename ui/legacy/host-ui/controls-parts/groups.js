@@ -1,7 +1,7 @@
 // A module's schema fields sorted into settings groups, by a field's group or its label's prefix.
 
 import { normalizeField } from '../../../../core/registry.js';
-import { SETTINGS_TEXT } from '../text.js';
+import { SETTINGS_TEXT } from '../../../../core/settings-text/text.js';
 
 // "Calendar: Era (written before the year)" → group "Calendar", label "Era (…)". The part before the
 // first ": " is a group only when it is short and has no brackets ("Money scale (0: the pack's)" has none).

@@ -167,7 +167,7 @@ A screen shares the page with SillyTavern and with other screens, so a few thing
   removed, written or bound; use your own names.
 * **Reserved classes**: the classes SillyTavern's own handlers and lookups act on (`mes`, `mes_text`,
   `swipe_left`, `swipe_right`, `mes_edit`, `select_chat_block` and the rest of `RESERVED_CLASSES` in
-  `src/v2/view/template/sanitize.js`) are refused in `class`, bound class lists and `data-class`, so a
+  `packs/template/sanitize.js`) are refused in `class`, bound class lists and `data-class`, so a
   template button can't edit, swipe or delete a message. `menu_button` (SillyTavern's button look, with no
   handler of its own) is allowed for styling.
 * **CSS URLs**: write every quoted URL in screen CSS (custom properties included) as `https:` or a raster
@@ -246,7 +246,7 @@ allowed picks) and refuses with a plain sentence when one is broken.
 ## 7. For hosts (wiring)
 
 ```js
-import { compileTemplate, renderTemplate } from './src/v2/view/template/index.js';
+import { compileTemplate, renderTemplate } from './packs/template/index.js';
 import { conditionEvaluator, makeScope } from './src/v2/view/bind.js';
 import { compile, evaluate } from './src/v2/events/index.js';
 

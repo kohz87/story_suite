@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
-import { RPG_START_WIDGET } from '../../../../ui/legacy/screens/home.js';
+import { RPG_START_WIDGET } from '../../../../packs/screens/defaults/home.js';
 import { setStartNotes, skipOf, startNotes } from '../../../../modules/rpg/start.js';
 import { HOLD_SCREEN_ID, HOLD_WIDGET, START_WIDGET, createHoldScreen } from '../../../../modules/rpg/view/start.js';
 import { WIZARD_SCREEN_ID } from '../../../../modules/rpg/view/wizard.js';

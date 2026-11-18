@@ -1,5 +1,5 @@
 // The Tools page's handle on the engine: what the next reply is sent, the problems, the Inspector's replies, the report, and the rebuild and save points (the reader's own buttons; nothing else here writes).
-import { promptSize, sentText, redactSentOf } from '../legacy/host-ui.js';
+import { promptSize, sentText, redactSentOf } from '../../core/sent/sent.js';
 import { DEFAULT_TAIL_BUDGET } from '../../core/prompt.js';
 import { CORE_FEATURE } from '../../core/features.js';
 

@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
+import { inventoryScreen } from '../../../packs/screens/defaults/index.js';
 import { cssOf, hostImports } from '../../core/helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../ui/legacy/${path}`, import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');

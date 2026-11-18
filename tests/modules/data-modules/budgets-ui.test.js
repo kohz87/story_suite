@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setupDom } from '../../ui/view/mounts/helpers.js';
 import { renderDataModules } from '../../../modules/data-modules/setup.js';
-import { renderLayout } from '../../../ui/legacy/layout/render.js';
+import { renderLayout } from '../../../packs/layout/render.js';
 import { DM_LIMITS as L } from '../../../modules/data-modules/schema.js';
 import { world, pack, definition, pin, success, view, reply, rebuilt, fixture, directorStub } from './helpers.js';
 

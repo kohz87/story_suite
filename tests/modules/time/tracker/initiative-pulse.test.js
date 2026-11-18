@@ -350,7 +350,7 @@ test('pulse v2: the invents switch is a setting, default on; the hook marks new 
 });
 
 test('pulse v2: an invent entry shows a display text (no narrator brief) on the Director card and the under-reply row; the note carries the brief', async () => {
-    const { createScreensPart } = await import('../../../../ui/legacy/director/screens/index.js');
+    const { createScreensPart } = await import('../../../../modules/director/screens/index.js');
     const state = clocked();
     const stepped = pulseAt(state, 11, { settings: { mode: 'lively' }, payload: V2 });
     const entry = resultsOf(stepped.state.domains.director).find(item => item.invent) ?? pulseChain(state, 12).find(item => item.invent);
@@ -370,4 +370,15 @@ test('pulse v2: quiet mode when the spread kind is the last kind steps down (blo
         assert.ok(b && typeof b.kind === 'string');
         if (b.kind !== 'CALM') assert.notEqual(b.kind, a.kind, `repeat at seed ${seed}`);
     }
+});
+
+test('pulse (seam audit E35): a world happening the daily step wrote (by event:world.<id>) is news that travels the routes, never a pulse rumour', () => {
+    const state = withScene(story([{ lines: [WORLD[0].lines, '+ agenda Courier — rides in | now: far north'].join('\n') }], makeState()), { present: ['Elula', 'Bram', 'Orsa'] });
+    const event = (id, name, extra = {}) => ({ id, name, summary: `${name} news`, state: 'ongoing', place: 'Harrow', factions: [], ...extra });
+    const used = new Set();
+    for (let seed = 1; seed <= 200; seed += 1) {
+        const events = [event('ev_3', 'Wolf Plague'), event('ev_4', 'The Levy · June 4, 1200', { by: 'event:world.levy', reach: 'regional' })];
+        pulseAt(state, seed, { queries: { 'chronicle.events': () => events, 'atlas.here': () => ({ name: 'Harrow', placeKind: 'town' }) }, call: (type, payload) => { if (type === 'chronicle.rumor' && payload.event) used.add(payload.event.name); return {}; } });
+    }
+    assert.deepEqual([...used], ['Rumour of Wolf Plague']);
 });

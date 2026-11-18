@@ -16,9 +16,9 @@
 import { TABS_FOLD, TABS_TEXT } from '../../host-ui.js';
 import { fill } from '../../../../core/strings.js';
 import { newId, sectionBlock, selectField, switchField } from '../form/fields.js';
-import { revealIn, showAndFocus } from '../scroll.js';
-import { iconNode } from '../widgets/dom.js';
-import { iconFor } from '../icons/index.js';
+import { revealIn, showAndFocus } from '../../../../packs/widgets/scroll.js';
+import { iconNode } from '../../../../packs/widgets/dom.js';
+import { iconFor } from '../../../../packs/icons/index.js';
 
 const h = (doc, tag, className = '', text = '') => {
     const node = doc.createElement(tag);

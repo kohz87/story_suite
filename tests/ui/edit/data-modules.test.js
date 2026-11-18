@@ -163,8 +163,8 @@ test('data-module template editables may address only their own editable fields'
 
 test('a pinned layout puts pencils beside displayed editable fields', async t => {
     const { fixture } = await import('../../modules/data-modules/helpers.js');
-    const { renderLayout } = await import('../../../ui/legacy/layout/index.js');
-    const { standardWidgets } = await import('../../../ui/legacy/view/widgets/index.js');
+    const { renderLayout } = await import('../../../packs/layout/index.js');
+    const { standardWidgets } = await import('../../../packs/widgets/index.js');
     const { setupDom } = await import('../view/mounts/helpers.js');
     const host = await world(t, fixture('reputation'));
     const offer = await pin(host);
@@ -191,7 +191,7 @@ test('a pinned layout puts pencils beside displayed editable fields', async t =>
 
 test('character meters edit the field for the character shown in that row', async t => {
     const { fixture, directorStub } = await import('../../modules/data-modules/helpers.js');
-    const { renderLayout } = await import('../../../ui/legacy/layout/index.js');
+    const { renderLayout } = await import('../../../packs/layout/index.js');
     const { setupDom } = await import('../view/mounts/helpers.js');
     const host = await world(t, fixture('survival'), [directorStub()]);
     const offer = await pin(host, ['ca_wessel01']);

@@ -5,9 +5,9 @@ import { makeMessage } from '../helpers/ui-fake-dom.js';
 import { setupDom } from '../ui/view/mounts/helpers.js';
 import { mountUi } from '../../ui/legacy/ui-host.js';
 import { fillInput } from '../../ui/legacy/extras-ui.js';
-import { sceneScreen } from '../../ui/legacy/screens/scene.js';
+import { sceneScreen } from '../../packs/screens/defaults/scene.js';
 import { renderSkip, show } from '../ui/screens/helpers.js';
-import { CHATTER_FEATURE, CHOICES_FEATURE, displayLines } from '../../ui/legacy/extras.js';
+import { CHATTER_FEATURE, CHOICES_FEATURE, displayLines } from '../../modules/scene/extras.js';
 import { BOTH, block, REPLY, lastIndex, extrasOf, fresh } from './extras.helpers.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
 

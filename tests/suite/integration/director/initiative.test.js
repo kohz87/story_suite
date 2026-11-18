@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { FEATURE, INITIATIVE_STATIC } from '../../../../modules/time/tracker/initiative.js';
 
 const STATIC_KEY = 'story_suite_static';

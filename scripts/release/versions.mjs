@@ -22,6 +22,7 @@ export const VERSION_SITES = [
   { file: 'manifest.json', ...manifest },
   { file: 'ui/manifest.json', ...manifest },
   { file: 'core/version.js', read: text => text.match(BANNER)?.[2] ?? null, write: (text, version) => swap(BANNER, text, version) },
+  { file: 'packs/validate/core-parts/host-version.js', read: text => text.match(BANNER)?.[2] ?? null, write: (text, version) => swap(BANNER, text, version) },
   { file: 'README.md', read: text => text.match(TITLE)?.[2] ?? null, write: (text, version) => swap(TITLE, text, version) },
   { file: 'CHANGELOG.md', read: text => text.match(HEAD)?.[2] ?? null, write: (text, version) => swap(HEAD, text, version) },
 ];

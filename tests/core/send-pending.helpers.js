@@ -1,5 +1,5 @@
 import { createSendPending } from '../../ui/legacy/ui-host/send-pending.js';
-import { installDom } from '../ui/view/widgets/fake-dom.js';
+import { installDom } from '../packs/widgets/fake-dom.js';
 import { createSendNote } from '../../ui/legacy/ui-host/send-note.js';
 
 // A tiny fake clock: timers fire in due order when advance() moves time forward.

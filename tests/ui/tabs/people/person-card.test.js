@@ -64,3 +64,10 @@ test('initialOf drops titles; portraitDisc uses safe URLs only and falls back to
   assert.equal(word.textContent, 'C');
   assert.equal(word.dataset.portrait, 'cy');
 });
+
+test('an away followed person\'s Elsewhere tile adds back and what they are doing when nothing was said', () => {
+  installFakeDom();
+  const tile = personCard({ personId: 'ren', name: 'Ren', followed: true, meters: {}, lastPlace: 'North road', lastSeen: 'today', said: null, doing: 'scouting', back: 'Goldwane 18' }, { kind: 'elsewhere' });
+  assert.equal(tile.querySelector('.wh').textContent, 'north road · last seen today · back Goldwane 18');
+  assert.equal(tile.querySelector('.sd').textContent, 'scouting');
+});

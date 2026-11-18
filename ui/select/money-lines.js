@@ -1,7 +1,7 @@
 // The coins as one text line ("copper: 1, silver: 10") and back: the old Money page's text form (`listToLines` / `linesToList`) on one comma-joined line.
 
 import { CORE_SETTINGS } from '../../modules/scene/domains/core/constants-parts/settings.js';
-import { listToLines, linesToList } from '../legacy/host-ui/controls-parts/list-lines.js';
+import { listToLines, linesToList } from '../../core/list-lines/list-lines.js';
 
 const FIELD = CORE_SETTINGS.schema.coins;
 

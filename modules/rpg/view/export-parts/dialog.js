@@ -1,6 +1,6 @@
 // The export dialog: the options window drawn by the export widget, reading the story afresh each time, and saving the character file.
 
-import { h, shell } from '../../../../ui/legacy/view/widgets/dom.js';
+import { h, shell } from '../../../../packs/widgets/dom.js';
 import { saveTextFile } from '../../../../ui/legacy/view/download.js';
 import { DEFAULT_CURRENCY } from '../../../inventory/money.js';
 import { FILE_LIMITS, buildCharacterFile, fileNameOf, fileText, itemLine, itemsForFile, moneyText, skillLine, thingsWord } from '../../charfile.js';

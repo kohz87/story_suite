@@ -4,6 +4,7 @@ import { applyMeet, applyRumor, applyWithdraw } from '../apply.js';
 import { MAX_RUMOR } from '../sought.js';
 import { MAX_NAME, MAX_PLACE, MAX_REASON, WHYS, isInt, isRecord } from '../domain.js';
 import { envOf, keyOk, only, textOk } from './shared-helpers.js';
+import { worldEventsOn } from '../../../world/chronicle/conditions/feature.js';
 
 // ---- cast.meet ---------------------------------------------------------------------------------------------------------------
 
@@ -57,6 +58,7 @@ export function withdraw(ctx, payload = {}) {
         return ctx.fail('INVALID', 'cast.withdraw takes { at, keys: [key] }.');
     }
     const cast = ctx.draft('cast');
-    const out = applyWithdraw(cast, payload, envOf(ctx, cast, {}, payload.at));
+    // With world events on, someone an event moved after the meeting is not put back (seam audit E1).
+    const out = applyWithdraw(cast, payload, { ...envOf(ctx, cast, {}, payload.at), keepMoved: worldEventsOn(ctx) });
     return { summary: out.length ? 'The reply did not show the people it was to bring in; their meeting is taken back.' : 'No meeting to take back.', narrate: false, data: { withdrawn: out.length } };
 }

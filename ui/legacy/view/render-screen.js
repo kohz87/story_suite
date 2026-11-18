@@ -13,11 +13,11 @@
 // * the mount's api (`command`, `preview`, `commit`, `query`, `on`, and in dialogs `onDraft`).
 
 import { compile, evaluate as evaluateAst } from '../../../modules/world/events/condition.js';
-import { renderLayout } from '../layout/index.js';
-import { ensureLayoutStyles } from '../layout/styles.js';
-import { conditionEvaluator } from './bind.js';
-import { scopeCss } from './css.js';
-import { compileTemplate, renderTemplate } from './template/index.js';
+import { renderLayout } from '../../../packs/layout/index.js';
+import { ensureLayoutStyles } from '../../../packs/layout/styles.js';
+import { conditionEvaluator } from '../../../packs/template/bind.js';
+import { scopeCss } from '../../../packs/template/css.js';
+import { compileTemplate, renderTemplate } from '../../../packs/template/index.js';
 
 /** The template renderer (SPEC §13.2) as this file uses it; setTemplates() can swap it (tests). */
 export const TEMPLATES = Object.freeze({ compileTemplate, renderTemplate, scopeCss });

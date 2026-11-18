@@ -8,7 +8,7 @@
 // drawReplyCard(doc, { key, card }, { head, folded, onFold(on), onAct(action) }) → element.
 
 import { STRINGS } from '../../../core/strings.js';
-import { h, iconNode } from './widgets/dom.js';
+import { h, iconNode } from '../../../packs/widgets/dom.js';
 
 const S = STRINGS.replyCards;
 

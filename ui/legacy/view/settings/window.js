@@ -28,9 +28,9 @@ import { createFooter } from './footer.js';
 import { PROMPT_FOLD, createPromptReader } from './prompt.js';
 import { FORM_TEXT } from '../form/schema.js';
 import { searchField } from '../form/fields.js';
-import { followViewport, holdPage, revealIn } from '../scroll.js';
-import { stackOf } from '../modal-stack.js';
-import { tabs as tabsBlock } from '../widgets/nav.js';
+import { followViewport, holdPage, revealIn } from '../../../../packs/widgets/scroll.js';
+import { stackOf } from '../../../../packs/widgets/modal-stack.js';
+import { tabs as tabsBlock } from '../../../../packs/widgets/nav.js';
 import { SECTION_BODIES, createLegacySettings } from './bodies.js';
 import { DEFAULT_SECTION, SETTINGS_SECTIONS, WINDOW_TEXT } from './sections.js';
 

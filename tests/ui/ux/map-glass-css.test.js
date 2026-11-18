@@ -3,7 +3,7 @@
 // over the glass and no accent text. Its rules are under :where() with no specificity, as the other widgets' are.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { widgetCss } from '../../../ui/legacy/view/widgets/styles.js';
+import { widgetCss } from '../../../packs/widgets/styles.js';
 
 // The declarations of every rule whose selector list is `selector` (as a whole) or has it as one of its entries; a
 // `:where(...)` wrapper is read through.

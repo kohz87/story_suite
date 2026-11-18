@@ -2,6 +2,7 @@
 
 import { calendarOf, timeSettings } from '../records.js';
 import { advanceClaim, spanText } from './helpers.js';
+import { slotValue, toSlot } from '../../rpg/slot.js';
 
 export const ADVANCE = 'director.advance';
 export const MAX_ADVANCE = 1440;
@@ -26,7 +27,7 @@ function words(value) {
 }
 
 
-/** `director.advance { minutes, cause?, reason? }` (see above). */
+/** `director.advance { minutes, cause?, reason?, soft? }` (see above). */
 export function advanceCommand(ctx, payload = {}) {
     if (ctx?.cause === 'ui') fail(ctx, 'REFUSED', 'Story time moves with the story: write it in the reply, or let the rules that take time move it.');
     const asked = payload?.minutes;
@@ -53,6 +54,18 @@ export function advanceCommand(ctx, payload = {}) {
     const next = before + minutes;
     if (!isInt(next)) fail(ctx, 'INVALID', 'That is further on than the story clock can count.');
     director.time.minutes = next;
+    // `soft: true` (the world's clock fallback): minutes the story did not tell. A clock face read while the clock still stands here may set it back
+    // over them (clock-face.js `soft`); they add up over fallbacks in a row and lapse once anything else moves the clock.
+    if (payload?.soft === true) {
+        const prior = slotValue(director.time.soft);
+        const kept = prior?.at === before && isInt(prior.minutes) ? prior.minutes : 0;
+        // A slot, written whole: a middle delete of an earlier fallback never leaves a later one changing a field that is gone.
+        // `sid` and `own`: the reply that wrote them and how many of the minutes are its own (a stretch line of the same reply, e.g. the repair's, counts from before
+        // its own minutes; the untold minutes of earlier replies stay).
+        const sid = [ctx.carrier?.sid, ctx.reply?.sid].find(value => typeof value === 'string' && value) ?? null;
+        const own = sid && prior?.at === before && prior.sid === sid && isInt(prior.own) ? prior.own + minutes : minutes;
+        director.time.soft = toSlot({ at: next, minutes: kept + minutes, ...(sid ? { sid, own } : {}) });
+    }
     const held = minutes < asked;
     return {
         summary: `Story time: ${calendar.format(next)} (${spanText(minutes)} on: ${why}).`,

@@ -5,10 +5,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createFakeModel, createHost } from '../../../testkit/index.js';
-import { createModule, fightRunner } from '../../../ui/legacy/director/module.js';
+import { createModule, fightRunner } from '../../../modules/director/module.js';
 import { createArcController } from '../../../modules/arc/index.js';
 import { FIGHT_RULE, NO_FIGHT_RULE } from '../../../modules/arc/plan.js';
-import { browserStore, createReveal } from '../../../ui/legacy/director/screens/reveal.js';
+import { browserStore, createReveal } from '../../../modules/director/screens/reveal.js';
 import { fakeFightRunner } from '../../suite/integration/director/helpers/fake-fight-runner.js';
 
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);

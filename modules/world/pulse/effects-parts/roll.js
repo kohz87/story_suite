@@ -16,6 +16,7 @@ import { TAIL_CHARS, BRIEF_CHARS, cutWord } from './lines.js';
 import { isInt, isRecord } from './shared-guards.js';
 import { NAME_MAX } from './shared-names.js';
 import { effectFor } from './dispatch.js';
+import { WORLD_BY } from '../../chronicle/world-daily/news-entries.js';
 
 const EFFECTS = new Set(['GOSSIP_SURGE', 'OVERHEARD_DETAIL', 'CHANCE_MEETING', 'ENTER_CHECK', 'TASK_SHIFT']);
 const WEATHER_WORDS = [['rain', /rain|drizzle|shower|storm/i], ['snow', /snow|blizzard|sleet/i], ['fog', /fog|mist|haze/i], ['wind', /wind|gale|gust/i], ['heat', /heat|hot|scorch|swelter/i]];
@@ -54,7 +55,8 @@ export function rollEntry({ ctx, director, state, query, scene, draw, at, clock,
     const room = open.length < RUMOUR_ROOM;
     // A fact already told as a rumour (open or over) is not told again: the roll steps down rather than write nothing.
     const told = new Set(ask(query, 'chronicle.events', {}, []).filter(event => event?.rumour).map(event => lineKey(event.rumour)));
-    const known = room ? open.filter(event => !event?.rumour && !told.has(lineKey(event?.name))) : [];
+    // A world happening (the daily step's, world-events switch) is news that travels the routes, never the pulse's rumour (seam audit E35).
+    const known = room ? open.filter(event => !event?.rumour && !told.has(lineKey(event?.name)) && !WORLD_BY.test(String(event?.by ?? ''))) : [];
     const behind = hiddenNames(state).behind;
     const converge = thread => {
         const fields = thread.fields ?? {};

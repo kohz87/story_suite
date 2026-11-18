@@ -3,8 +3,8 @@
 // readPackZip(bytes) → `{ ok: true, text, files }` (`text` the pack.json, `files` the portraits as `[{ name, size, read() }]`, what
 // installed.js `install` takes) or `{ ok: false, message }` in plain words. The zip is refused whole for anything the reader
 // should not trust: what zip.js refuses (encrypted, zip64, several disks, a path with `..`, too much unpacked, a file over its size
-// cap, a squeezed one), a zip with no pack.json or one over the pack size limit, and any file other than pack.json and a portrait the
-// pack's cast names (at `portraits/<file>`). Whether the pack itself is good, and whether each image is a real image that fits
+// cap, a squeezed one), a zip with no pack.json or one over the pack size limit, and any file other than pack.json and a portrait
+// the pack's cast names (at `portraits/<file>`); notes at the top level (.md, .txt) are left out, not refused. Whether the pack itself is good, and whether each image is a real image that fits
 // (portraits.js makes a large one smaller), is checked as for a pack picked as files.
 
 import { LIMITS, ZIP_LIMITS } from './limits.js';
@@ -28,6 +28,8 @@ export async function readPackZip(bytes, { limits = ZIP_LIMITS } = {}) {
         const files = [];
         for (const entry of entries) {
             if (entry === packEntry) continue;
+            // Notes the author ships beside the pack (README.md, a changelog, a validation log) at the zip's top level are left out, not refused.
+            if (!entry.name.includes('/') && /\.(md|txt)$/i.test(entry.name)) continue;
             const file = entry.name.startsWith('portraits/') ? entry.name.slice('portraits/'.length) : null;
             if (!file || file.includes('/') || !named.has(file)) throw new ZipProblem(`The zip holds "${entry.name}", which is not pack.json or a portrait the pack's cast names (portraits/<file>); nothing was imported.`);
             files.push({ name: file, size: entry.size, read: () => entry.read() });

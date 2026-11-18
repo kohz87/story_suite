@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createDialogMount } from '../../../../ui/legacy/view/mounts/dialog.js';
 import { createTabHost } from '../../../../ui/legacy/host-ui.js';
-import { shell } from '../../../../ui/legacy/view/widgets/dom.js';
+import { shell } from '../../../../packs/widgets/dom.js';
 import { fakeApi, fakeChat, fakeQuery, screensWith, setupDom } from './helpers.js';
 
 // Observers still connected (a ResizeObserver stands in: it is taken down by disconnect()).

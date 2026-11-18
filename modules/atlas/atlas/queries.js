@@ -8,6 +8,8 @@
 import { mapSettings, parseLocation } from '../places.js';
 import { findPlace, keyOf } from './domain.js';
 import { ensurePlace } from './capture.js';
+import { courierDays } from './courier.js';
+import { anchorOf } from './anchor.js';
 import { atlasView, mapProps } from './map.js';
 import { scenePlace } from './note.js';
 import { placeLine, tidyPlaces } from './parent.js';
@@ -132,6 +134,19 @@ export const queries = {
         if (!focus) return null;
         const world = worldFrom(state, tools);
         return placeDetail(world, world.find(focus) ? focus : focus.replace(/^pack:/, ''), mapSettings({}));
+    },
+    /** The courier's time between two places over the routes (courier.js): `{ days, km, hops }`, or null when no chain of routes joins them. `kmPerDay` is the courier's pace. */
+    'atlas.courier': (state, { from = null, to = null, kmPerDay = undefined } = {}, tools) => courierDays(worldFrom(state, tools), from, to, { kmPerDay }),
+    /**
+     * The pack place a place name stands for (anchor.js): `{ name, region, via }` ('pack' | 'town' | 'parent' | 'last' | 'region'; `name` ''
+     * for the region alone), or null. `name` defaults to the scene's place, whose own region is used when the atlas has no place for it yet.
+     */
+    'atlas.anchor': (state, { name = null } = {}, tools) => {
+        const scene = scenePlace({ state, query: toolsQuery(tools) });
+        const asked = name ?? scene.name;
+        const bare = text => keyOf(String(text ?? '').replace(/^\s*the\s+/i, ''));
+        const region = bare(asked) === bare(scene.name) ? scene.region : '';
+        return anchorOf(worldFrom(state, tools), state?.domains?.atlas ?? null, packWorld(toolsQuery(tools)), asked, { region });
     },
     /** The trip between two places (travel.js `travelTime`), or null. */
     'atlas.travel': (state, { from = null, to = null, mode = null, map = null } = {}, tools) => travelTime(worldFrom(state, tools), from, to, { map: mapSettings(map ?? {}), mode }),

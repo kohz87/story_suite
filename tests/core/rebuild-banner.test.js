@@ -5,13 +5,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setupDom } from '../ui/view/mounts/helpers.js';
 import { STRINGS } from '../../core/strings.js';
-import { homeScreen } from '../../ui/legacy/screens/home.js';
-import { createInspectorWidget } from '../../ui/legacy/screens/inspector.js';
+import { homeScreen } from '../../packs/screens/defaults/home.js';
+import { createInspectorWidget } from '../../packs/screens/defaults/inspector.js';
 import { createTimeline } from '../../core/timeline/index.js';
-import { host as widgetHost, installDom, fakeApi } from '../ui/view/widgets/fake-dom.js';
+import { host as widgetHost, installDom, fakeApi } from '../packs/widgets/fake-dom.js';
 import {
     createRebuildBannerWidget, rebuildTarget, REBUILD_BANNER_WIDGET, REBUILD_READ_ALL, REBUILD_READ_LAST, REBUILD_TEXT,
-} from '../../ui/legacy/screens/rebuild-banner.js';
+} from '../../packs/screens/defaults/rebuild-banner.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 const text = node => node.textContent.replace(/\s+/g, ' ').trim();

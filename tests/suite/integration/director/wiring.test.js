@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../testkit/index.js';
-import { MODULE_ID, createModule } from '../../../../ui/legacy/director/module.js';
+import { MODULE_ID, createModule } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 import { problemList } from '../../../../modules/time/tracker/domain.js';
 import { BACKLOG_STATIC } from '../../../../modules/world/chronicle/digest.js';
