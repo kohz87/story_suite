@@ -16,11 +16,19 @@ const START_AFTER = 'If a new group arrives after this fight, set a foe slot; a 
 
 export { boardGrammar, boardXpGuide } from '../../data-modules/board-static.js';
 
-// The sections of a Combat rules text the board owns (a line starting "Label:"): the board plays every exchange and rolls every blow, so a
-// story told under the board never gets them (narrated combat is gone: Standard + fight board only). The XP guide is in the fixed grammar.
+// The sections of a Combat rules text the board owns: the board plays every exchange and rolls every blow, so a story told under the board never
+// gets them (narrated combat is gone: Standard + fight board only). The XP guide is in the fixed grammar. A section is a labelled part of the text
+// ("Exchanges: …" up to the next label): a label of one to three words starting with a capital, at the start, on a new line or after a sentence's
+// end (a pinned text is one line). The text's own words are never matched; a text without these labels is kept whole.
 const BOARD_OWNED = new Set(['exchanges', 'rolls', 'xp guide']);
-const sectionOf = line => /^\s*([A-Za-z][A-Za-z &]{0,30}):/u.exec(line)?.[1].trim().toLowerCase() ?? '';
-const flavourOf = prompt => String(prompt ?? '').split('\n').filter(line => !BOARD_OWNED.has(sectionOf(line))).join('\n').trim();
+const LABEL = /(?<=^|\n|[.!?\]]\s+)([A-Z][A-Za-z]*(?: (?:&|[A-Za-z]+)){0,2}):\s/gu;
+function flavourOf(prompt) {
+    const text = String(prompt ?? ''), heads = [...text.matchAll(LABEL)];
+    if (!heads.length) return text.trim();
+    const parts = [text.slice(0, heads[0].index)];
+    heads.forEach((head, n) => { if (!BOARD_OWNED.has(head[1].toLowerCase())) parts.push(text.slice(head.index, heads[n + 1]?.index ?? text.length)); });
+    return parts.join('').trim();
+}
 
 // The foe kinds the story may still write beside a carried fight: only the clears (a group fled, yielded or went away); after an ended
 // fight also the set-slot kinds, so a new group that arrives later in the reply opens as foes. The narrator never hurts a foe.

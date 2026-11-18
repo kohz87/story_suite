@@ -10,6 +10,8 @@ import { foesV1 } from '../../../../modules/rpg/templates-parts/v1-foes.js';
 import { rulesV1 } from '../../../../modules/rpg/templates-parts/v1-rules.js';
 import { BOARD_LAPSE, LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
 import { reload, success } from '../../data-modules/helpers.js';
+import { lapseOffer } from '../../../../modules/rpg/board/lapse.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
 
 const { createHost } = await import('../../../../testkit/index.js');
 const { createFakeModel } = await import('../../../../testkit/model.js');
@@ -21,7 +23,7 @@ const T6 = 'I walk the frontier road toward Auvoth for the next three days, camp
 const T7 = 'In Auvoth I find the Pale Market and look for the mage Rika.';
 const START = 'the reader plays it on the board, so tell no blows yourself';
 const STANDING = 'a message that is not played on the board moves the story on';
-const LAPSED = 'was never played on the board, so it lapsed';
+const LAPSED = 'was never played on the board, so it lapsed: they withdrew or were left behind.';
 
 const textOf = request => request.chat.map(message => message.content).join('\n');
 const foes = host => host.head().domains.dataModules.instances['pack.chat/foes'].chat.fields;
@@ -90,21 +92,43 @@ test('NB-1: the second message that does not play the fight lapses it with a rec
     assert.ok(standing(host), 'rewind');
 });
 
-test('NB-1: a middle delete of the reply that set the foes leaves the stored lapse with nothing to clear, and nothing throws', async t => {
+test('NB-1: a middle delete of the reply that set the foes: the stored lapse is planned again on what is there now, clears nothing and fails nothing', async t => {
     const host = await road(t);
     await host.send(T6, said('Astra walks on.'));
     await host.send(T7, said('The Pale Market is loud.'));
+    const lapsedAt = host.ctx.chat.length - 1;
+    assert.deepEqual(lapses(host), [lapsedAt]);
     const setAt = host.ctx.chat.findIndex(message => String(message.mes).includes(SET));
     await host.st.deleteMessage(setAt);
-    assert.equal(foes(host).count1, 0, 'no foe was ever set');
     host.store.rebuild();
     await reload(host);
-    assert.equal(foes(host).count1, 0);
+    assert.equal(foes(host).count1, 0, 'no foe was ever set');
+    const stored = host.ctx.chat.flatMap(message => message.extra?.storySuite?.receipts ?? []).filter(receipt => receipt.type === BOARD_LAPSE);
+    assert.equal(stored.length, 1, 'the lapse prelude is still stored with its reply');
+    // (the replay plans the stored step again on the state there now, the quiet REPLANNED note; it clears nothing and fails nothing)
+    const codes = (host.turn?.problems?.() ?? []).map(problem => problem.code);
+    assert.ok(codes.includes('REPLANNED'), codes.join(','));
+    assert.deepEqual(codes.filter(code => !['REPLANNED', 'DICE_SKIPPED'].includes(code)), [], 'no step failed');
 });
 
-test('NB-1: a typed attack on the standing foes never lapses them (the fight pause asks about it)', async t => {
+test('NB-1: a typed attack on the standing foes is held by the fight pause, and the lapse never takes it; nor a fight open on the board', async t => {
     const host = await road(t);
     await host.send(T6, said('Astra walks on.'));
-    await host.send('I attack the Fen-hound.', said('Steel.'));
+    const held = await host.send('I attack the Fen-hound.', said('Steel.'));
+    assert.equal(held.aborted, true, 'the pause holds the attack');
+    const messages = host.ctx.chat, index = messages.length - 1;
+    const ask = (text, meta = null) => lapseOffer({ state: host.head() }, { sheet: readSheet(host.head()), messages, index, text, meta });
+    assert.equal(ask('I look around.')?.type, BOARD_LAPSE, 'a plain message at this point lapses the fight');
+    assert.equal(ask('I attack the Fen-hound.'), null, 'a typed attack does not');
+    assert.equal(ask('I look around.', { storySuiteInteraction: { open: { kindId: 'story-block/fight' } } }), null, 'nor while the board is open');
+});
+
+test('NB-1: foes the reader set by hand are never lapsed, even after a group the story set earlier', async t => {
+    const host = await road(t);
+    await host.send('The hounds flee.', said('They run.', ['- dm foes — they flee | kind: clear-1 | why: fled']));
+    success(await host.sdk.command('dm.set', { module: 'pack.chat/foes', fields: { foe1: 'Rats', count1: 3 } }));
+    await host.send(T6, said('Astra walks on.'));
+    await host.send(T7, said('The market.'));
     assert.deepEqual(lapses(host), []);
+    assert.equal(foes(host).foe1, 'Rats');
 });
