@@ -12,6 +12,7 @@ import { profilePage } from './profile.js';
 import { deathPage, deathCard } from './death.js';
 import { partyAddButton } from './party-add.js';
 import { can } from '../../../runtime/can.js';
+import { sendFollow } from './follow.js';
 
 const MENU = Object.freeze([
   ['refresh', 'Refresh', 're-read the recent story for them'], ['portrait', 'Portrait', 'view, upload or generate'],
@@ -128,7 +129,7 @@ export function dossierPage(d, ctx = {}) {
       onClick: () => {
         const on = !state.following;
         state.following = on;
-        Promise.resolve(ctx.port?.command?.('people.follow', { id: d.id, on })).then(result => { if (result?.ok === false && state.following === on) { state.following = !on; drawGrid(); } });
+        Promise.resolve(sendFollow(ctx, d, on)).then(result => { if (result?.ok === false && state.following === on) { state.following = !on; drawGrid(); } });
         drawGrid();
       } });
     const where = dead ? (d.death?.where ?? '') : (d.now?.where ?? d.now?.lastPlace ?? '');
