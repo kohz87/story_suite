@@ -38,6 +38,15 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 - With SillyTavern's No Blur, glass panels keep a solid colour under their fill so Settings and the dossier stay readable; the People map is taller on a phone so names spread out.
 - Not changed: a removed feeling keeps its stages on purpose (Settings marks them "Not used"); an edit of a reply's change block in SillyTavern does not re-read it (an edit never captures; Re-read is the way, docs/dev/edit-prose-only.md); lines refused by a reply are still not kept for the card; a story hook (`+ hook`) stays on Story with the plan shown, as the plan is hidden by design; a secret's `who:` is not stored, so it does not link.
 
+### Fixed (soak, keyboard, focus and Back)
+
+- Opening the suite puts the focus in it, and SillyTavern behind it is inert (Tab and a screen reader no longer reach the hidden drawers, the chat-name list or the message buttons); a native dialog and the toasts stay usable. Closing the suite gives the page back and returns the focus to what had it before.
+- The Party and Bag sheets (stats, gear slot, member, skill, item, asset) keep Tab inside them, as the other sheets do. A sheet with no × button (scene, tracker editor and templates, quest and World editors) now takes the focus on its panel when it opens, so its Tab trap holds from the first press.
+- A person's dossier is modal: it takes the focus when it opens, keeps Tab inside it, and on close gives the focus back to the person card that opened it (or that person's card after a redraw, else the suite).
+- Settings: a page picked from the side list, the phone list, a link or the footer opens at its top (it kept the last page's scroll); going back to the phone list opens it at its top too.
+- The browser's Back (a phone's Back button or gesture too) walks the same stack as Escape: one Back closes the top window (a menu, a sheet, the dossier, Settings), the next one the suite; only then does Back leave the page. The suite keeps one history entry while it is open and takes it off when it is closed another way.
+- After **Create** in the New character wizard opened by the first Send, the suite closes with the focus in the message box (on a touch screen it goes back to the Send button, so no keyboard pops up).
+
 ### Added
 
 - **Story › Director: the Arc card can plan, accept and discard.** **Plan the next arc** (with the note box beside it, which now goes to the planner with that plan) asks the planner; a plan that waits shows **Accept this plan** and **Discard** (its text only while the plan is shown); **Planning…** shows while it is asked and a failure is written under the card. The card says **accepted** with the story date the arc began, instead of always "none accepted". A clock past its due day is marked **overdue**. A hook the story itself told (a `+ hook` line) is a Journal lead and no longer counted as a hidden planned hook on the Director tab.

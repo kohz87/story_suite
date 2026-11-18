@@ -111,3 +111,24 @@ test('closing a sheet does not take the focus from a window opened over it', () 
   over.close();
   assert.ok(globalThis.document.activeElement !== overX);
 });
+
+test('a sheet with no close button takes the focus on its panel, and Tab and Shift+Tab from there stay inside', () => {
+  installFakeDom();
+  const opener = globalThis.document.createElement('button');
+  globalThis.document.body.appendChild(opener);
+  opener.focus();
+  const sheet = openSheet({}, { label: 'Edit Hunger', id: 'tracker-editor' });
+  const panel = ov().querySelector('.sh-panel');
+  assert.equal(globalThis.document.activeElement, panel, 'the sheet has the focus, not the opener behind it');
+  assert.equal(panel.getAttribute('tabindex'), '-1');
+  const a = globalThis.document.createElement('button');
+  const b = globalThis.document.createElement('button');
+  sheet.body.append(a, b);
+  assert.equal(tabbing(panel, true).defaultPrevented, true);
+  assert.equal(globalThis.document.activeElement, b, 'Shift+Tab from the panel goes to its last control, not out');
+  panel.focus();
+  assert.equal(tabbing(panel).defaultPrevented, true);
+  assert.equal(globalThis.document.activeElement, a);
+  sheet.close();
+  assert.equal(globalThis.document.activeElement, opener);
+});

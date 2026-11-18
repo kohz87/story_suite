@@ -28,6 +28,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     if (!vm || !host) return;
     dossier?.close();
     const from = tabHost().current();
+    const opener = doc?.activeElement ?? null;
     let stay = false;
     const el = dossierPage(vm, {
       port, prefs, backStack, go, youName: port.view('card')?.you?.name, origin: `‹ ${TITLES[from] ?? 'Now'}`,
@@ -39,10 +40,23 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
         tabHost().select('people');
         if (already) refresh?.();
       },
-      onClose: () => { el.remove(); if (dossier === el) dossier = null; if (!stay && from !== 'people') tabHost()?.select(from); },
+      onClose: () => {
+        const had = !doc?.activeElement || doc.activeElement === doc.body || el.contains(doc.activeElement);
+        el.remove();
+        if (dossier === el) dossier = null;
+        if (!stay && from !== 'people') tabHost()?.select(from);
+        if (had && !stay) giveBack(host, opener, personId);
+      },
     });
     dossier = el;
     host.appendChild(el);
+    el.querySelector('[data-act="close"]')?.focus();
+  };
+  // The dossier closed with the focus in it: back to the card that opened it, or (redrawn meanwhile) that person's card, or the suite.
+  const giveBack = (host, opener, personId) => {
+    const card = [...host.querySelectorAll('[data-person-id]')].find(node => node.dataset.personId === personId && !node.closest('.dossier'));
+    const target = opener && opener !== doc.body && doc.body?.contains?.(opener) ? opener : card ?? host.closest?.('.su-root');
+    target?.focus?.({ preventScroll: true });
   };
   const go = (tab, args) => {
     const opening = tab === 'people' && args?.personId;

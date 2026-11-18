@@ -112,3 +112,29 @@ test('Equip for a companion names their own id, and hands the piece over to them
   await flush();
   assert.deepEqual(commands(ctx.port), [['item.equip', { owner: ctx.party.members[1].id, slot: 'head', stack: 'steel-helm', transfer: true }]]);
 });
+
+test('Tab stays inside the Party and Bag sheet: from the last control to the first, Shift+Tab back, and in from the page behind (soak #2)', () => {
+  const ctx = makeCtx();
+  const outside = globalThis.document.createElement('button');
+  globalThis.document.body.appendChild(outside);
+  const sheet = openSheet(ctx, { title: 'STR' });
+  const panel = sheetEl().querySelector('[role="dialog"]');
+  const first = sheetEl().querySelector('.ps-x');
+  const plus = Array.from({ length: 7 }, () => globalThis.document.createElement('button'));
+  sheet.body.append(...plus);
+  const last = plus.at(-1);
+  last.focus();
+  const tab = (target, shiftKey = false) => target.dispatch('keydown', { key: 'Tab', shiftKey });
+  assert.equal(tab(last).defaultPrevented, true);
+  assert.equal(globalThis.document.activeElement, first, 'after the last "+" the focus goes back to the close button, not the page');
+  assert.equal(tab(first, true).defaultPrevented, true);
+  assert.equal(globalThis.document.activeElement, last);
+  plus[2].focus();
+  assert.equal(tab(plus[2]).defaultPrevented, false, 'in the middle the browser moves it');
+  outside.focus();
+  tab(panel);
+  assert.equal(globalThis.document.activeElement, first);
+  sheet.close();
+  outside.focus();
+  assert.equal(tab(outside).defaultPrevented, false, 'a closed sheet holds nothing');
+});

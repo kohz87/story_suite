@@ -13,6 +13,7 @@ import { deathPage, deathCard } from './death.js';
 import { partyAddButton } from './party-add.js';
 import { can } from '../../../runtime/can.js';
 import { sendFollow } from './follow.js';
+import { tabTrap } from '../../../kit/trap.js';
 
 const MENU = Object.freeze([
   ['refresh', 'Refresh', 're-read the recent story for them'], ['portrait', 'Portrait', 'view, upload or generate'],
@@ -86,8 +87,11 @@ export function dossierPage(d, ctx = {}) {
   const menuSlot = h('div', { class: 'menu-slot' });
   const noteSlot = h('div', { class: 'fine dnote', role: 'status', 'aria-live': 'polite' });
   const grid = h('div', { class: 'dgrid' });
-  const root = h('div', { class: 'dossier dov', role: 'dialog', 'aria-label': `${d.name}’s dossier`, dataset: { personId: d.id } },
+  // (it covers the tabs, so it is modal: Tab stays inside it until it closes)
+  const root = h('div', { class: 'dossier dov', role: 'dialog', 'aria-modal': 'true', 'aria-label': `${d.name}’s dossier`, dataset: { personId: d.id } },
     h('div', { class: 'dscroll' }, top, menuSlot, noteSlot, grid));
+  let shut = false;
+  root.addEventListener('keydown', tabTrap(root, { isOn: () => !shut }));
 
   function closeMenu() { release('menu'); state.menu = false; state.sure = false; drawMenu(); }
   function openPage(id) {
@@ -96,7 +100,7 @@ export function dossierPage(d, ctx = {}) {
     drawGrid();
   }
   function closePage() { release('page'); state.page = null; drawGrid(); }
-  function close() { release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
+  function close() { shut = true; release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
   root.close = close;
 
   // Refresh runs a model call: the line under the top bar says it is going and then what came of it (the answer's own words).
@@ -194,6 +198,6 @@ export function dossierPage(d, ctx = {}) {
 
   drawTop();
   drawGrid();
-  hold('dossier', 'page', () => { release('menu'); release('page'); ctx.onClose?.(); });
+  hold('dossier', 'page', () => { shut = true; release('menu'); release('page'); ctx.onClose?.(); });
   return root;
 }
