@@ -19,9 +19,20 @@ With the Settings feature **World events** on (off by default), a legacy event's
 
 Rules packs for RPG Battle cannot be imported. Keep existing RPG Battle chats on the previous versions.
 
+## Pack format 4 (the envelope; in progress)
+
+The validator reads format 4 beside format 3 (`FORMAT_NEWER` now starts above 4). Only the envelope is built so far; the design is `scratch/design/pack-format-4.md`.
+
+- A format 4 pack writes `"format": 4` and `"kind": "world"` or `"kind": "game"` (both required; `BAD_KIND` otherwise). Its top-level fields are `id`, `format`, `kind`, `version`, `name`, `author`, `description`, `requires`, `recommends`, `content`. `currency`, `economy`, `calendar`, `weather`, `start`, `ripples`, `layouts`, `screens` and `theme` are refused at the top, with a pointer to where they went.
+- `requires.storyBlock` is refused in format 4; write `requires.suite`.
+- `recommends` (world packs only): `{ "game": { "id": "…", "version": "^1" } }`.
+- A world pack's `content` may hold `lore, placeKinds, routeKinds, places, routes, regions, realms, markets, cast, powers, scores, conditions, worldEvents, templates, start, foes, items`; a game pack's `calendar, currency, economy, weather, names, you, rpg, dataModules, meterPresets, start, pacing`. A key of the other kind is refused with "belongs in a game pack" or "belongs in a world pack"; `events` says to use `worldEvents`; any other key is unknown.
+- Not built yet: a world pack's `start.date`, `start.place` and `climate`; the game pack's `calendar`, `weather`, `start` and `pacing` (a game pack's `calendar`, `weather`, `start` and `pacing` must be objects and are left out with a warning); `checkPairing`. A world pack's cast must be a world cast (each person has `kind`).
+- Format 3 and older packs are still read exactly as before.
+
 ## Pack format 3
 
-Pack format 3 is what the suite writes and reads today. A pack says so with `"format": 3`; a pack without `format` is read as format 2 and loads the same way, and a pack whose `format` is newer than 3 is refused (`FORMAT_NEWER`, "update the suite").
+Pack format 3 is read as before. A pack says so with `"format": 3`; a pack without `format` is read as format 2 and loads the same way, and a pack whose `format` is newer than 4 is refused (`FORMAT_NEWER`, "update the suite").
 
 - **Version check.** `"requires": { "suite": "^0.1" }` is a range checked against the suite's own version (0.1.0). `requires.storyBlock` is the older name: it still loads, and holds when its range fits either the host compatibility number older packs name (2.33.0) or the suite version. A pack gives one of the two, not both. Capabilities (`requires.capabilities`) are checked against what the running suite provides, as before; `chronicle-lasting` and `data-modules-v1` are provided, and the retired `story-director` is no longer a capability (the Director's clock is the `director` domain).
 - **Skills use the Combat Rules v1 words.** A cast skill (`content.cast[].skills`) and a skill set skill (`content.rpg.skillSets[].skills`) take `stat` one of `str vit agi dex int wis cha` (`luk`, which earlier packs wrote, is read as `wis`), `type` one of `attack area defence evasion movement heal support utility` (left out it is `attack`; `combat` is read as `attack`; a utility skill is for the story only), and `uses` `sp` or `mp` (`stamina` and `mana` are still accepted and mean the same). A cast skill's `rank` is one of `novice apprentice adept expert master grandmaster legend`; the skill that joins a party starts at that rank. A skill set's skills have no rank (the New character window starts every one at Novice).

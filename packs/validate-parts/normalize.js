@@ -12,9 +12,13 @@ import { checkItem, itemRefs, checkFoe, checkMeterPreset, checkRpg, checkYou } f
 import { checkTheme } from '../validate/theme.js';
 import { checkWorldCast, checkWorldPack, WORLD_KINDS } from '../validate/world-pack.js';
 import { checkRequires } from './requires.js';
+import { checkTopFields4, checkKindFields, checkContentKeys } from './envelope.js';
 
 export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilities, limits, dataModuleDefinitions, readableConditions }) {
-    for (const key of Object.keys(raw)) if (!PACK_FIELDS.includes(key)) add('UNKNOWN_FIELD', key, `"${key}" is not a pack field (expected ${PACK_FIELDS.join(', ')}).`);
+    // Format 4 (two kinds, envelope.js) is told apart first; a pack without a usable format is read as before (format 3 and older stay readable).
+    const v4 = typeof raw.format === 'number' && raw.format >= 4 && raw.format <= PACK_FORMAT;
+    if (v4) checkTopFields4(raw, add);
+    else for (const key of Object.keys(raw)) if (!PACK_FIELDS.includes(key)) add('UNKNOWN_FIELD', key, `"${key}" is not a pack field (expected ${PACK_FIELDS.join(', ')}).`);
 
     const id = raw.id;
     if (typeof id !== 'string' || !PACK_ID.test(id)) add('BAD_ID', 'id', 'id must be 1 to 40 lowercase letters, digits or dashes, starting with a letter or digit (like "fantasy-basics").');
@@ -27,19 +31,33 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     if (raw.description !== undefined && typeof raw.description !== 'string') add('BAD_FIELD', 'description', 'description must be text.');
 
     const format = checkFormat(raw.format, add);
-    const requires = checkRequires(raw.requires, { add, hostVersion, suiteVersion, capabilities });
-    const currency = raw.currency === undefined ? null : checkCurrency(raw.currency, add);
-    const calendar = raw.calendar === undefined ? null : checkCalendar(raw.calendar, add);
-    const economy = raw.economy === undefined ? null : checkEconomy(raw.economy, add);
-    const weather = raw.weather === undefined ? null : checkWeather(raw.weather, add);
-    const ripples = raw.ripples === undefined ? null : checkRipples(raw.ripples, warn);
+    const requires = checkRequires(raw.requires, { add, hostVersion, suiteVersion, capabilities, format });
+    const { kind, recommends } = v4 ? checkKindFields(raw, add) : { kind: null, recommends: null };
+    // Format 4: currency, economy, calendar, weather and start are `content` keys of a game pack; the world's own checks need the pack's calendar only in format 3.
+    const money = v4 ? (kind === 'game' && isObject(raw.content) ? raw.content : {}) : raw;
+    const addMoney = v4 ? (code, path, message) => add(code, `content.${path}`, message) : add;
+    const currency = money.currency === undefined ? null : checkCurrency(money.currency, addMoney);
+    const economy = money.economy === undefined ? null : checkEconomy(money.economy, addMoney);
+    const calendar = v4 || raw.calendar === undefined ? null : checkCalendar(raw.calendar, add);
+    const weather = v4 || raw.weather === undefined ? null : checkWeather(raw.weather, add);
+    const ripples = v4 || raw.ripples === undefined ? null : checkRipples(raw.ripples, warn);
 
     const content = {};
     if (raw.content !== undefined && !isObject(raw.content)) add('BAD_CONTENT', 'content', 'content must be an object of lists: { "items": [ … ], "events": [ … ] }.');
-    const given = isObject(raw.content) ? raw.content : {};
-    for (const kind of Object.keys(given)) if (!CONTENT_KINDS.includes(kind) && kind !== 'you') add('UNKNOWN_KIND', `content.${kind}`, `"${kind}" is not a content kind (expected ${[...CONTENT_KINDS, 'you'].join(', ')}).`);
+    const rawContent = isObject(raw.content) ? raw.content : {};
+    let given = rawContent;
+    if (v4) {
+        given = checkContentKeys(kind, rawContent, add);
+        // Shapes the game validator (a later job) checks: here they only have to be objects, and they are left out of the normalized pack.
+        for (const key of ['calendar', 'weather', 'start', 'pacing']) {
+            if (kind === 'game' && given[key] !== undefined && !isObject(given[key])) add('BAD_CONTENT', `content.${key}`, `content.${key} must be an object.`);
+            else if (kind === 'game' && given[key] !== undefined) warn('NOT_READ_YET', `content.${key}`, `content.${key} is not read yet; it was left out.`);
+        }
+    } else {
+        for (const key of Object.keys(given)) if (!CONTENT_KINDS.includes(key) && key !== 'you') add('UNKNOWN_KIND', `content.${key}`, `"${key}" is not a content kind (expected ${[...CONTENT_KINDS, 'you'].join(', ')}).`);
+    }
     // Kinds nothing reads any more are said once and left out.
-    for (const kind of IGNORED_KINDS) if (given[kind] !== undefined) warn('IGNORED_KIND', `content.${kind}`, `content.${kind} is not read any more (pack format ${PACK_FORMAT}); it was left out.`);
+    if (!v4) for (const name of IGNORED_KINDS) if (given[name] !== undefined) warn('IGNORED_KIND', `content.${name}`, `content.${name} is not read any more (pack format 3); it was left out.`);
     // Items first: the start state refers to them.
     const items = records(given.items, 'items', { add, packId, check: (record, path, label) => checkItem(record, path, label, add) });
     content.items = items;
@@ -71,7 +89,8 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     if (given.rpg !== undefined) content.rpg = checkRpg(given.rpg, packId, add, warn);
     // The cast (cast.js): kept only when given, so older packs normalize as they always did.
     // A cast with `kind` on its entries is the world pack's (spec §8): one bad person is refused alone, the rest load.
-    const worldCast = Array.isArray(given.cast) && given.cast.some(person => isObject(person) && person.kind !== undefined);
+    // A format 4 world pack's cast is always the world cast.
+    const worldCast = (v4 && kind === 'world' && given.cast !== undefined) || Array.isArray(given.cast) && given.cast.some(person => isObject(person) && person.kind !== undefined);
     if (given.cast !== undefined) content.cast = worldCast ? checkWorldCast(given.cast, packId, add, warn) : checkCast(given.cast, packId, add, items, calendar);
     // The name lists: one object (not a list), kept only when given and when every part checks.
     if (given.names !== undefined) {
@@ -85,23 +104,25 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     }
 
     // The world pack (spec v0.13): realms, kind maps, powers, scores, events, templates, lore; and the cross checks over the places, conditions and cast.
-    const world = WORLD_KINDS.some(kind => given[kind] !== undefined);
+    const world = (v4 && kind === 'world') || WORLD_KINDS.some(name => given[name] !== undefined);
     let startWorld;
     if (world || worldCast || given.conditions !== undefined) {
-        const { startWorld: checked, ...kept } = checkWorldPack({ given, content, packId, weather, calendar, rawStart: isObject(raw.start) ? raw.start : null, ripples, add, warn, world, worldCast });
+        const { startWorld: checked, ...kept } = checkWorldPack({ given, content, packId, weather, calendar, rawStart: isObject(v4 ? given.start : raw.start) ? (v4 ? given.start : raw.start) : null, ripples, add, warn, world, worldCast });
         Object.assign(content, kept);
         startWorld = checked;
     }
 
-    const start = raw.start === undefined ? null : checkStart(raw.start, add, ref);
-    if (start && startWorld) start.world = startWorld;
-    for (const field of IGNORED_TOP_FIELDS) if (raw[field] !== undefined) warn('IGNORED_FIELD', field, `${field} is not read any more (pack format ${PACK_FORMAT}); it was left out.`);
-    const theme = raw.theme === undefined ? {} : checkTheme(raw.theme, add, 'theme');
+    // Format 4: `start` is under content; the world's part is checked above, the rest of it (date, place; a game's money and items) by later jobs.
+    const start = v4 ? (startWorld ? { world: startWorld } : null) : raw.start === undefined ? null : checkStart(raw.start, add, ref);
+    if (start && startWorld && !v4) start.world = startWorld;
+    if (!v4) for (const field of IGNORED_TOP_FIELDS) if (raw[field] !== undefined) warn('IGNORED_FIELD', field, `${field} is not read any more (pack format 3); it was left out.`);
+    const theme = v4 || raw.theme === undefined ? {} : checkTheme(raw.theme, add, 'theme');
 
     return {
         id: packId,
         // Kept only when the file gives it, so an older pack's normalized bytes and hashes stay what they were; a pack without it is format 2.
         ...(raw.format !== undefined ? { format } : {}),
+        ...(v4 && kind ? { kind } : {}),
         version: raw.version,
         name: [...oneLine(raw.name || packId)].slice(0, limits.name).join(''),
         author: [...oneLine(raw.author ?? '')].slice(0, limits.name).join(''),
@@ -111,6 +132,7 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
         economy,
         calendar,
         // Kept only when given, so older packs normalize as they always did.
+        ...(recommends ? { recommends } : {}),
         ...(weather ? { weather } : {}),
         ...(ripples ? { ripples } : {}),
         content,

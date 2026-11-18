@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Pack format 4, the envelope (developer).** The pack checker also reads format 4: `kind` ("world" or "game"), `recommends`, the format 4 top-level fields and the `content` keys each kind may hold, with a "belongs in a … pack" pointer for a key of the other kind. `requires.storyBlock` is refused in format 4. Format 3 and older packs are read as before. The world and game checks beyond the envelope come in later steps (see PACKS.md "Pack format 4").
+
 ## 0.1.1
 
 Released 18 Nov 2026.

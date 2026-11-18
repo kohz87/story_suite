@@ -21,7 +21,7 @@ test('the words packs write are pinned to the ones Combat Rules v1 has', () => {
     assert.deepEqual([...SKILL_TYPES_V1], Object.keys(V1.skill.types));
     assert.deepEqual([...SKILL_RANKS_V1], RANKS.map(rank => rank.name.toLowerCase()));
     assert.deepEqual(CAST_SKILL_STATS.filter(stat => stat !== 'luk'), [...STATS_V1].sort((a, b) => CAST_SKILL_STATS.indexOf(a) - CAST_SKILL_STATS.indexOf(b)));
-    assert.equal(PACK_FORMAT, 3);
+    assert.equal(PACK_FORMAT, 4);
 });
 
 test('SUITE_VERSION is the package version, and the older host number stays as it was', () => {
@@ -32,8 +32,8 @@ test('SUITE_VERSION is the package version, and the older host number stays as i
 test('format: left out it is format 2 and the normalized pack has no key (older packs keep their bytes and hashes), 3 is read, a newer one is refused, a bad one is a plain error', () => {
     assert.equal('format' in ok(pack()).pack, false);
     assert.equal(ok(suitePack()).pack.format, 3);
-    const newer = refused(suitePack({ format: 4 }), 'FORMAT_NEWER');
-    assert.match(newer.errors[0].message, /format 4.*up to 3/);
+    const newer = refused(suitePack({ format: 5 }), 'FORMAT_NEWER');
+    assert.match(newer.errors[0].message, /format 5.*up to 4/);
     for (const bad of [0, 2.5, '3', null, -1]) refused(suitePack({ format: bad }), 'BAD_FIELD');
     assert.equal(ok(suitePack({ format: 1 })).pack.format, 1);
 });
