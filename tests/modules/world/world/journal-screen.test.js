@@ -410,3 +410,8 @@ test('W9: a faction whose only summary was "Seen in:" draws no summary line (no 
     assert.ok(card, 'the faction card is drawn');
     assert.equal(card.querySelectorAll('.ss-listcard-sub').length, 0);
 });
+
+test('B20: a quest taken and given up on the same day is still recorded as taken (the row says it began today)', () => {
+    const both = knownDay(stored({ quests: { taken: ['Perimeter Sweep'], done: [], failed: [], dropped: ['Perimeter Sweep'] }, happened: ['Sweep: set out.'], tags: ['quest.step th_a'] }), HIDDEN, { threads: new Map([...threads].map(([id, t]) => [id, { ...t, taken: null }])), format });
+    assert.deepEqual(kindOf(both, 'events').items.map(row => [row.title, row.chip, row.note]), [['Perimeter Sweep', 'gave up', 'began today']]);
+});

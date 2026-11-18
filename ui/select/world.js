@@ -84,7 +84,7 @@ function factionsOf(world, places, ids) {
     const area = key(f.area);
     const named = area ? places.filter(p => key(p.name) === area || key(p.region) === area || key(ids.get(p.id)) === area).map(p => p.id) : [];
     const given = list(f.areaPlaceIds).filter(id => places.some(p => p.id === id));
-    return { id: f.id, name: text(f.name), stance: stanceOf(f.stance), summary: text(f.summary), areaPlaceIds: given.length ? given : named, members: membersOf(f.members) };
+    return { id: f.id, name: text(f.name), stance: stanceOf(f.stance), areaText: text(f.area), stanceText: text(f.stance), summary: text(f.summary), areaPlaceIds: given.length ? given : named, members: membersOf(f.members) };
   });
 }
 

@@ -111,7 +111,7 @@ export function dossierPage(first, ctx = {}) {
     pages = dossierPages(d, ctx.youName);
     dead = d.life !== 'alive';
     state.following = Boolean(d.following);
-    if (!pages.some(p => p.id === state.page)) state.page = null;
+    if (!pages.some(p => p.id === state.page)) { release('page'); state.page = null; }
     drawGrid();
   };
 

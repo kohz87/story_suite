@@ -75,6 +75,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     // A person's page left open: closed when the suite is opened on a tab (it would cover the tab asked for).
     closePage: () => dossier?.close(),
     // The open dossier's record as it is now (null when none is open), and a redraw of it from a fresh read.
+    hasDossier: () => dossier !== null,
     openDossier: () => (dossier ? port.view('dossier')?.[openId] ?? null : null),
     updateDossier: vm => dossier?.update?.(vm),
     // The first of `keys` (a store id or a lower-case name) that has a dossier, or null.

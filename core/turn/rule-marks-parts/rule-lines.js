@@ -23,8 +23,6 @@ export const RULE_LINES = Object.freeze({
     diedAny: line => line?.kind === 'key' && line.op === '-' && [line.text, ...Object.keys(line.labels ?? {}), ...Object.values(line.labels ?? {})].some(part => DEATH.test(String(part ?? ''))),
     // `+/~/- world Event | factions: A, B`: Story Director names unknown factions from an event's tags (feat/faction-from-events). Any world line counts, so an old reply with one never gains the new creation on Re-read.
     factionTags: line => line?.kind === 'world',
-    // `+ faction Name — about | area | stance: wary`: the second unlabelled part is the area, as the grammar teaches (Story Director chronicle/capture/faction.js). Any faction line counts, so an older reply keeps its area-less faction on Re-read.
-    factionArea: line => line?.kind === 'faction',
     // A Re-read pays a story XP line at the rate its first run recorded (`xpRate` in its receipt's result), not today's setting (data-modules/part/act.js). Any block line counts.
     xpKept: line => line?.kind === 'dm',
     // The coin line of a one-coin currency worth 1 says what a currency without coins says, "no other coins exist" (domains/money.js moneyLine). Static text: it follows the chat's first reply (persist chatMarked).

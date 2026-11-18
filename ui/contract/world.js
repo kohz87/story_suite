@@ -53,6 +53,9 @@ export const WORLD_SHAPE = {
       id: T.STRING,
       name: T.STRING,
       stance: { $enum: ['friendly', 'warm', 'neutral', 'unfriendly', 'hostile'] },
+      // The words as stored (what Edit shows); empty when none.
+      areaText: { $optional: { $nullable: T.STRING } },
+      stanceText: { $optional: { $nullable: T.STRING } },
       summary: T.STRING,
       areaPlaceIds: [T.STRING],
       members: [{ personId: NULL_STR, name: T.STRING }],

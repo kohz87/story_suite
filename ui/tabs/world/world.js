@@ -47,7 +47,7 @@ export function worldTab(world = {}, ctx = {}) {
     edit(target) {
       const item = { news: data.news, faction: data.factions, place: data.places }[target?.kind]?.find(x => x.id === target.id);
       const current = target?.kind === 'news' ? { name: item?.title, summary: item?.summary, state: item?.state, place: item?.placeId ? names(data.places, item.placeId) : '' }
-        : target?.kind === 'faction' ? { name: item?.name, summary: item?.summary }
+        : target?.kind === 'faction' ? { name: item?.name, summary: item?.summary, area: item?.areaText ?? '', stance: item?.stanceText ?? '' }
           : { name: item?.name, kind: item?.kind, region: item?.region };
       return ctx.edit?.({ ...target, current });
     },
