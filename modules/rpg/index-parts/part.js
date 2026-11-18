@@ -5,7 +5,7 @@ import { fightHook, fightXp } from '../fight.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../levels.js';
 import { checkStep, checksHook, practiceHook, practiceStep } from '../practice.js';
 import { diceRecord } from '../checks/dice.js';
-import { JOIN_NO, joinCard, joinOffers, partyAdd, partyOf } from '../join.js';
+import { JOIN_NO, joinCard, joinOffers, partyAddQuery, partyOf } from '../join.js';
 import { fold } from '../read.js';
 import { createPrecall } from '../precall.js';
 import { FOES_TOUCH_QUERY } from '../names.js';
@@ -66,7 +66,7 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
             ...board.queries,
             [JOINS_QUERY]: Object.assign((state, args, tools) => joinOffers(tools?.receipts?.() ?? [], Number.isInteger(args?.index) ? args.index : tools?.reply?.index, partyOf(state)), { feature: LEAN_RPG_FEATURE }),
             // "Add to party" on a person's People page: { name } → the join card for them, or null when they may not join (join-parts/add.js).
-            [PARTY_ADD_QUERY]: Object.assign((state, args, tools) => partyAdd(state, args?.name, isMe, (() => { try { return tools?.query?.('packs.content', { kind: 'cast' }); } catch { return []; } })()), { feature: LEAN_RPG_FEATURE }),
+            [PARTY_ADD_QUERY]: Object.assign(partyAddQuery(isMe), { feature: LEAN_RPG_FEATURE }),
             // The rank a level falls in, by the story's pack (levels.js): { level } → { name } | null.
             [RANK_QUERY]: Object.assign(rankQuery, { feature: LEAN_RPG_FEATURE }),
             // The chat index of the latest reply that touched the Foes block, -1 when none (board/offers.js lastFoeTouch): the stale-foes rule reads it.

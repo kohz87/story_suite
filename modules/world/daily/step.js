@@ -17,6 +17,7 @@ import { arcsDay } from './arc-day.js';
 import { authoredReads } from './open-reads.js';
 import { settleOpen } from './open-day.js';
 import { makeStepCalendar } from './cal.js';
+import { lapseUnpaired } from './pair-lapse.js';
 import { applyStartWorld } from './start-world.js';
 
 const DAY = 1440;
@@ -66,6 +67,7 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
     const campaign = typeof state?.seed === 'string' ? state.seed : String(seed ?? '');
     const paced = Number.isFinite(tempo) && tempo >= 0.25 && tempo <= 4;
     const defs = readDefs(world);
+    const cal = makeStepCalendar(calendar, world.seasons);
     const ws = {
         geo: buildGeo(world), people: people(world), met: new Set(met), tempo: paced ? tempo : 1, rev,
         declared: new Map(list(world.conditions).filter(row => typeof row?.name === 'string').map(row => [row.name, { name: row.name, scope: row.scope, fades: row.fades ?? null, placeStatus: row.placeStatus === true, open: row.open === true }])),
@@ -74,8 +76,10 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
         standingNames: new Map(), facts: { ...record(state?.facts) }, minors: list(state?.minors).map(entry => ({ ...entry })),
         cooldowns: { ...record(state?.cooldowns) }, startDay: Number.isInteger(state?.start) ? state.start : today,
         draw: draw ?? ((day, key) => seededDraw(campaign, day, key)), warnings: [...defs.warnings, ...(paced ? [] : [`Tempo ${tempo} is outside 0.25-4; tempo 1 is used.`])], log: [], journal: [], tomb: new Set(), day: today,
-        cal: makeStepCalendar(calendar), withYou: new Set(list(withYou)), pos: structuredClone(record(positions)), moves: [], released: [], deaths: [],
+        cal, withYou: new Set(list(withYou)), pos: structuredClone(record(positions)), moves: [], released: [], deaths: [],
     };
+    // Pack format 4 (§4.2): events whose date or season this calendar lacks are Lapsed at load, and templates with one are left out.
+    defs.templates = lapseUnpaired(ws, defs, today, !state);
     // Open templates (spec §5, §9): the stored answers (read only), the slots rolled and the ones still waiting.
     ws.campaign = campaign;
     ws.opens = { results: record(opens?.results) };
