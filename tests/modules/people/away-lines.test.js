@@ -3,9 +3,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { OPENING, STATIC_KEY, TAIL_KEY, castHost, castSource, entry, followPeople, said, sent, validatorErrors } from '../cast/cast/helpers.js';
+import { tables } from '../../../modules/people/away/away-domain.js';
 
 const quiet = t => { t.mock.method(console, 'log', () => {}); t.mock.method(console, 'warn', () => {}); };
-const away = host => structuredClone(host.head().domains.away);
+const away = host => structuredClone(tables(host.head().domains.away));
 const elsewhere = host => (sent(host, TAIL_KEY).at(-1) ?? '').split('\n').filter(line => line.startsWith('[Elsewhere]') || /^\w[^:]*: away/.test(line)).join('\n');
 const taught = host => (sent(host, STATIC_KEY).at(-1) ?? '').includes('+ away Name — what they are doing | back: date');
 
@@ -61,17 +62,17 @@ test('lines that name nobody away are Problems; `! away` needs news', async t =>
     try {
         await host.send('Go.', said('Hm.', ['- away Ren', '! away Ren — got far']));
         assert.deepEqual(host.turn.problems().map(item => item.code), ['NOT_FOUND', 'NOT_FOUND']);
-        assert.deepEqual(away(host), { away: {}, home: {} });
+        assert.deepEqual(host.head().domains.away, { away: {} });
     } finally { host.close(); }
 });
 
 test('the retired `- key Name | died` line is read and dropped quietly: no Problem live or after a rebuild, nothing changes', async t => {
     const host = await start(t);
     try {
-        const before = structuredClone(host.head().domains);
+        const before = structuredClone(host.head().domains.away);
         await host.send('He falls.', said('Ren falls.', ['- key Ren | died', '- key Ann | murdered']));
         assert.deepEqual(host.turn.problems(), [], 'no UNKNOWN_KIND');
-        assert.deepEqual(away(host), before.away);
+        assert.deepEqual(host.head().domains.away, before);
         host.store.rebuild();
         assert.deepEqual(host.turn.problems(), [], 'and none on a rebuild');
         for (const text of sent(host, STATIC_KEY)) assert.equal(text.includes('- key'), false, 'never taught');

@@ -3,7 +3,8 @@
 // Anyone may be away, followed or not. A line reads only this domain, the story clock and the calendar, so a Re-read gives the same answer.
 
 import { calendarFrom } from '../../world/world/known.js';
-import { LIMITS } from './away-domain.js';
+import { idFrom } from '../../world/writes.js';
+import { LIMITS, tables } from './away-domain.js';
 import { cutPoints, keyOf, lineText, recordPath } from './away-text.js';
 import { dateText, nowOf, readBack } from './away-time.js';
 
@@ -16,13 +17,13 @@ const summaryOf = (name, away, calendar) => {
     return `Away: ${name}${away.doing ? `, ${away.doing}` : ''}${back ? `, back ${back}` : ''}.`;
 };
 
-// They are back: the away record goes whole, its last state is kept under `home` (the newest LIMITS.home), for NPC State's "While away".
+// They are back: the absence is marked ended inside its own record (`home`), kept for NPC State's "While away"; the oldest ended ones beyond
+// LIMITS.home go whole.
 function cameBack(ctx, draft, key, existing, now) {
-    ctx.ifThere('away', recordPath('away', key));
-    delete draft.away[key];
-    draft.home[key] = { ...JSON.parse(JSON.stringify(existing)), on: now, rev: revOf(ctx) };
-    const older = Object.entries(draft.home).sort(([, a], [, b]) => a.rev - b.rev).map(([other]) => other);
-    for (const other of older.slice(0, Math.max(0, older.length - LIMITS.home))) delete draft.home[other];
+    existing.home = now;
+    existing.rev = revOf(ctx);
+    const ended = Object.entries(draft.away).filter(([, record]) => Object.hasOwn(record, 'home')).sort(([a, x], [b, y]) => x.rev - y.rev || (a < b ? -1 : 1)).map(([id]) => id);
+    for (const id of ended.slice(0, Math.max(0, ended.length - LIMITS.home))) delete draft.away[id];
     return { summary: `Back: ${existing.name}${existing.doing ? ` from ${existing.doing}` : ''}.`, narrate: false, data: { person: key, back: true } };
 }
 
@@ -34,7 +35,10 @@ export function applyAwayLine(ctx, line) {
     const key = keyOf(name);
     if (!key) return ctx.fail('INVALID', `"${lineText(line)}" names nobody.`);
     const draft = ctx.draft('away');
-    const existing = Object.hasOwn(draft.away, key) ? draft.away[key] : null;
+    const open = tables(draft).away[key]?.id ?? null;
+    // Every change inside an open absence is marked: passed over on replay when the reply that began it was deleted.
+    if (open) ctx.ifThere('away', recordPath('away', open));
+    const existing = open ? draft.away[open] : null;
     const now = nowOf(ctx);
     if (op === '-') return existing ? cameBack(ctx, draft, key, existing, now) : ctx.fail('NOT_FOUND', `${name} is not away.`);
 
@@ -54,7 +58,6 @@ export function applyAwayLine(ctx, line) {
     if (op === '!') {
         if (!existing) return ctx.fail('NOT_FOUND', `${name} is not away, so there is no news to add.`);
         if (!text) return ctx.fail('INVALID', `"${lineText(line)}" says nothing happened; write ! away ${existing.name} — where they got to.`);
-        ctx.ifThere('away', recordPath('away', key));
         const moved = back !== undefined && back !== existing.back;
         if (back !== undefined) existing.back = back;
         if (existing.steps.at(-1)?.text === text) {
@@ -70,10 +73,9 @@ export function applyAwayLine(ctx, line) {
     // + and ~: they go away, or what they do and when they are due back changes.
     if (!existing) {
         const away = { name, doing: text, since: now, back: back ?? null, steps: [], rev: revOf(ctx) };
-        draft.away[key] = away;
+        draft.away[idFrom(ctx, 'aw', draft.away)] = away;
         return withProblem({ summary: summaryOf(name, away, calendar), narrate: false, data: { person: key, away: true } });
     }
-    ctx.ifThere('away', recordPath('away', key));
     const changed = (text && text !== existing.doing) || (back !== undefined && back !== existing.back);
     if (text) existing.doing = text;
     if (back !== undefined) existing.back = back;

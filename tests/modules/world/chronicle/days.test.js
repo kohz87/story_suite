@@ -269,6 +269,11 @@ test('3b: the NPC State "the reply was counted" tick is bookkeeping: a day of on
     assert.deepEqual(entryOf([r('npc.tick', { module: 'npc-state-delta', summary: 'NPC meters: the reply was counted' })], D).happened, []);
 });
 
+test('3c: NPC State\'s "Away: noted" tick (people away, only the memory of an absence moved) is bookkeeping too', () => {
+    assert.deepEqual(entryOf([r('npc.tick', { module: 'npc-state-delta', summary: 'Away: noted' })], D).happened, []);
+    assert.deepEqual(entryOf([r('npc.tick', { module: 'npc-state-delta', summary: 'Away: noted' }), r('capture.item', { module: 'story-block', summary: 'The party gains Rope.' })], D).happened.map(item => item.text), ['The party gains Rope.']);
+});
+
 test('5: the fight board\'s "Fight won: …" counts as a fight of the day', () => {
     const facts = factsOf([clock(D * DAY + 60), r('rpg.fight', { module: 'story-block', summary: 'Fight won: Astra +60 XP.' }), r('rpg.fight', { module: 'story-block', summary: 'Fight lost: the party flees.' })]);
     assert.deepEqual(facts.fights, { count: 2, won: 1, lost: 1, fled: 0 });

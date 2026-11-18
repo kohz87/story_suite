@@ -3,12 +3,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { OPENING, castHost, castSource, entry, said } from '../cast/cast/helpers.js';
+import { tables } from '../../../modules/people/away/away-domain.js';
 
 const quiet = t => { t.mock.method(console, 'log', () => {}); t.mock.method(console, 'warn', () => {}); };
 const last = host => host.ctx.chat.length - 1;
 const state = host => JSON.stringify(host.head().domains.away);
-const awayNow = host => Object.keys(host.head().domains.away.away).sort();
-const home = host => Object.keys(host.head().domains.away.home).sort();
+const awayNow = host => Object.keys(tables(host.head().domains.away).away).sort();
+const home = host => Object.keys(tables(host.head().domains.away).home).sort();
 const view = host => JSON.stringify(host.sdk.query('director.away'));
 
 async function start(t) {
@@ -39,7 +40,7 @@ test('away and return: a swipe takes the return back, swiping back restores it; 
         await host.st.loadChat(chat);
         assert.equal(state(host), live, 'a reload');
         await host.st.loadChat([structuredClone(chat[0])], 'other-chat');
-        assert.equal(host.head().domains.away?.away?.ren, undefined, 'another chat has nobody away');
+        assert.deepEqual(awayNow(host), [], 'another chat has nobody away');
         await host.st.loadChat(chat, 'first-chat');
         assert.equal(state(host), live, 'back to the first chat');
     } finally { host.close(); }
@@ -64,28 +65,28 @@ test('an edited Re-read: the away lines grown (a second person, a step) and shru
     } finally { host.close(); }
 });
 
-test('a middle delete of the reply that sent someone away passes over the later news and return; a rewind takes them away', async t => {
+test('a middle delete of the reply that sent someone away passes over the later news and the return; a rewind takes them away', async t => {
     const host = await start(t);
     try {
         await host.send('Go.', said('Ren leaves.', ['+ away Ren — scouting']));
         const sentAway = last(host);
         await host.send('Go too.', said('Ann leaves.', ['+ away Ann — to the coast']));
         await host.send('On.', said('News.', ['! away Ren — reached the weir', '! away Ann — at the harbour']));
-        assert.deepEqual(awayNow(host), ['ann', 'ren']);
+        await host.send('Back.', said('Ren rides in.', ['- away Ren']));
+        assert.deepEqual([awayNow(host), home(host)], [['ann'], ['ren']]);
         await host.st.deleteMessage(sentAway);
         await host.st.deleteMessage(sentAway - 1);
         assert.deepEqual(awayNow(host), ['ann'], 'Ren goes with the reply that sent him; his news is passed over');
-        assert.deepEqual(host.head().domains.away.away.ann.steps.map(step => step.text), ['at the harbour'], 'Ann\'s news stays');
+        assert.deepEqual(home(host), [], 'and so is his return: no "back" for an absence that is gone');
+        assert.equal(JSON.stringify(host.sdk.query('director.away')).includes('Ren'), false, 'NPC State is told nothing of Ren');
+        assert.deepEqual(tables(host.head().domains.away).away.ann.steps.map(step => step.text), ['at the harbour'], 'Ann\'s news stays');
         assert.deepEqual(host.turn.problems(), []);
         const live = state(host);
         host.store.rebuild();
         assert.equal(state(host), live, 'rebuild == live');
         await host.st.loadChat(structuredClone(host.ctx.chat));
         assert.equal(state(host), live, 'reload == live');
-        await host.st.deleteMessage(last(host));
-        await host.st.deleteMessage(last(host));
-        await host.st.deleteMessage(last(host));
-        await host.st.deleteMessage(last(host));
+        for (let n = 0; n < 6; n += 1) await host.st.deleteMessage(last(host));
         assert.deepEqual(awayNow(host), [], 'a rewind past both');
     } finally { host.close(); }
 });

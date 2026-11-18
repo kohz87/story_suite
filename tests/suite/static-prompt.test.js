@@ -89,7 +89,7 @@ const SCENARIOS = [
         configure: async host => {
             const res = await host.send('Ren rides out.', host.reply('Ren rides north.', ['+ away Ren — scouting the north road | back: in 6 days']));
             assert.ok(res.index >= 0, 'the away reply should be written');
-            assert.ok(host.head().domains.away.away.ren, 'Ren should be away');
+            assert.ok(Object.values(host.head().domains.away.away).some(record => record.name === 'Ren'), 'Ren should be away');
         },
     },
     {

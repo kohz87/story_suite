@@ -18,5 +18,5 @@ export function lineText(line) {
     return `${line?.op ?? ''} ${line?.kind ?? ''} ${line?.name ?? ''}${line?.text ? ` — ${line.text}` : ''}${labels}`.trim();
 }
 
-/** The JSON pointer of a record in one of the domain's tables (`away` or `home`). */
-export const recordPath = (table, key) => `/${table}/${String(key).replace(/~/g, '~0').replace(/\//g, '~1')}`;
+/** The JSON pointer of one absence record (`/away/aw_x`) inside the domain. */
+export const recordPath = (table, id) => `/${table}/${String(id).replace(/~/g, '~0').replace(/\//g, '~1')}`;
