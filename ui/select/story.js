@@ -2,7 +2,7 @@
 
 // Reads: pulse.view (SD/screens/director.js:128), director.arc (SD/arc/domain.js:88), director.plan (SD/screens/queries.js:314),
 // director.cast.counts (SD/cast/queries.js:60), ripples.sway (SD/ripples/index.js:362), dataModules.setup (SB/data-modules/part/factory.js:60),
-// dataModules.view (SB/data-modules/part/views.js:51). `read(name, args)` returns the recorded answer, or null/undefined when the query is absent.
+// dataModules.view (SB/data-modules/part/views.js:51), chronicle.events (news on the road), people.list (an agenda's owner). `read(name, args)` returns the recorded answer, or null/undefined when the query is absent.
 
 import { BLOCK_STARTERS } from '../../modules/data-modules/block-starters.js';
 
@@ -55,9 +55,13 @@ const clockOf = row => ({
   shown: ['sign', 'warning'].includes(row.fields?.shown) ? row.fields.shown : 'none',
 });
 const hookOf = row => ({ title: text(row.key), text: text(row.summary), when: text(row.fields?.on) });
-// who and whoId are GAPs (the plan row names no owner); toldThisReply is the plan row's `told`; the step line reads "step 2 of 3 · since Goldwane 12".
-const agendaOf = row => ({
-  title: text(row.key), who: '', whoId: null, text: text(row.summary), step: number(row.steps?.at), of: number(row.steps?.of),
+// An agenda is kept under its owner's name (the key), so `who` is the stored person of that name or alias (people.list), else '' and no id; toldThisReply is the plan row's `told`; the step line reads "step 2 of 3 · since Goldwane 12".
+const ownerOf = people => row => {
+  const key = text(row.key).toLowerCase();
+  return list(people).find(p => [p.name, ...(Array.isArray(p.aliases) ? p.aliases : [])].some(n => text(n).toLowerCase() === key)) ?? null;
+};
+const agendaOf = owner => row => ({
+  title: text(row.key), who: text(owner(row)?.name), whoId: text(owner(row)?.id) || null, text: text(row.summary), step: number(row.steps?.at), of: number(row.steps?.of),
   since: text(String(row.steps?.line ?? '').split('· since ')[1]), place: text(row.steps?.place) || text(row.fields?.where),
   next: text(row.fields?.then), why: '', toldThisReply: row.told === true,
 });
@@ -66,6 +70,11 @@ const secretOf = owners => row => {
   const owner = owners?.[text(row.key).toLowerCase()];
   return { title: text(row.key), text: '', state: 'held', personId: owner?.id ?? null, ...(owner?.name ? { person: owner.name } : {}) };
 };
+
+// News still on the road: the open world-pulse rumours the story has not told yet (chronicle.events rows with `rumour` and no `heard`); it reaches the event's place, "rumour since <date>".
+const onTheRoad = rows => list(rows).filter(row => typeof row.rumour === 'string' && row.heard !== true).map(row => ({
+  title: text(row.name), text: text(row.summary), reaches: text(row.place), how: ['rumour', text(row.sinceText) && `since ${text(row.sinceText)}`].filter(Boolean).join(' '),
+}));
 
 function castOf(counts) {
   if (!counts || typeof counts !== 'object') return { total: 0, met: 0, unmet: 0, lastMoved: null };
@@ -124,8 +133,8 @@ export function selectStory(read, opts = {}) {
     beats: gate(list(plan.beats), shown, beatOf),
     clocks: gate(list(plan.clocks), shown, clockOf),
     hooks: gate(list(plan.hooks), shown, hookOf),
-    newsOnWay: gate([], shown, x => x), // GAP: no query lists news still on the road
-    agendas: gate(list(plan.agendas), shown, agendaOf),
+    newsOnWay: gate(onTheRoad(read('chronicle.events', { open: true })), shown, x => x),
+    agendas: gate(list(plan.agendas), shown, agendaOf(ownerOf(read('people.list', {})))),
     cast: castOf(read('director.cast.counts', {})),
     secrets: gate(list(plan.secrets), shown, secretOf(read('people.secretOwners', {}))),
     ripples: gate(sway, shown, row => ({ name: text(row.name), sway: number(row.sway) })),

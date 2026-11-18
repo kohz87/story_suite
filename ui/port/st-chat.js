@@ -1,6 +1,7 @@
 // Touches SillyTavern's page: finds message elements, adds the Extensions-menu entry, fills the input, and keeps prefs in chat metadata.
 
-const PREFS_KEY = 'storySuiteUiPrefs';
+import { PREFS_KEY } from './prefs-key.js';
+
 const MENU_ID = 'story-suite-ui-menu';
 
 /** Returns the `.mes` element of reply `index` (ST's mesid), or null. */
