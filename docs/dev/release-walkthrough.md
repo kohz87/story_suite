@@ -32,6 +32,16 @@ Options: `--sizes 1280x800`, `--themes light`, `--only look,rpg` (page ids), `--
 
 It writes `results.md` (counts per run, the failures with a screenshot each, then every control), `results.json`, and the screenshots into `--out`, and exits 1 when anything failed. A full run takes a while: one load and up to four reloads per size and theme (kept rows, switches, module switches, the final check).
 
+### The same walk in CI: the "UI walk" check
+
+The workflow `.github/workflows/ui-walk.yml` (check name **UI walk**, one job per size and theme: `walk (1920x1080, dark)` … `walk (390x844, light)`) runs section 1 on the pull request, so it is not left to memory. It runs for a manual run (Actions › UI walk › Run workflow), for every release pull request (head branch `release/...`), and for a pull request that touches `ui/`, `core/sdk/`, a `modules/**/settings*` file, any `.css` file, a UI file in `packs/`, `scripts/ui-walk/` or the CI files of the walk (`scripts/ci/ui-walk-scope.sh` decides; `tests/scripts/ui-walk-scope.test.js` holds the list). Any other pull request skips it; it is not one of the `verify` job's needs.
+
+Each job checks out SillyTavern at the pinned release (`SILLYTAVERN_TAG` in the workflow, the version the replica uses; change both together), installs it with `npm ci`, starts it on a new data root with this checkout as `extensions/Story_suite` (`scripts/ci/ui-walk-run.sh`: no secrets, no model calls, the walk refuses them itself), installs the Playwright Chromium, runs `settings-walk.mjs` for its one size and theme, and stops the server. SillyTavern's packages and the browser are cached. One size and theme takes about 8 minutes; the six run side by side.
+
+A failed row fails the job. Open the run's summary for the table, or download the artifact `ui-walk-<size>-<theme>-<attempt>` (`results.md`, `results.json`, a screenshot per failure, `server.log`). The CI walk starts from SillyTavern's default settings (Role play and World events off), so it does not walk Settings › RPG or World's Tempo; run section 1 on a replica with them on (`--only start,rpg,world`) when a change touches them.
+
+The "no placeholder wording" check (`tests/ui/settings/no-unavailable.test.js`) needs nothing here: it runs in the normal `ui` job.
+
 ## 2. By hand, at 1280 (desktop) and 390 (phone), dark and light
 
 | Page or action | Check |
