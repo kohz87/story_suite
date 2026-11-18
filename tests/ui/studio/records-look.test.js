@@ -93,7 +93,7 @@ test('an open record: one back button, the title as the page heading, Delete ope
   }
 });
 
-test('below 900 px the filter chips and the table row buttons are 44 px targets', async t => {
+test('below 900 px the filter chips, the table row buttons and the graph ◎ are 44 px targets', async t => {
   if (ctx.skip) return t.skip(ctx.skip);
   const page = await studio(390);
   await part(page, 'lore');
@@ -101,6 +101,11 @@ test('below 900 px the filter chips and the table row buttons are 44 px targets'
   await part(page, 'calendar');
   const button = await style(page, '.spage .st-table .st-tacts .btn2');
   assert.ok(button.w >= 44 && button.h >= 44, `row button ${button.w}×${button.h}`);
+  await part(page, 'events');
+  await page.click('.st-seg button[data-view="graph"]');
+  await page.locator('.spage .st-gtopbtn').first().click();
+  const centre = await style(page, '.spage .st-glist .st-gcentre');
+  assert.ok(centre.w >= 44 && centre.h >= 44, `graph ◎ ${centre.w}×${centre.h}`);
   await page.close();
 });
 
@@ -125,5 +130,23 @@ test('light: a graph box keeps a visible frame, a frozen place keeps a grey ring
   });
   assert.equal(probe.frame, 'rgba(30, 34, 52, 0.2)');
   assert.equal(probe.warn, 'rgb(122, 74, 0)');
+  await page.close();
+});
+
+test('a record page with no delete card open prints no stray "null": a person and an event (Ersveil has no tracker presets or items)', async t => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await studio(1280);
+  const strays = () => page.evaluate(() => {
+    const walk = document.createTreeWalker(document.querySelector('.spage'), NodeFilter.SHOW_TEXT);
+    const out = [];
+    while (walk.nextNode()) if (/^\s*(null|undefined)+\s*$/.test(walk.currentNode.nodeValue)) out.push(walk.currentNode.parentElement.className);
+    return out;
+  });
+  for (const [id, row] of [['cast', '.st-crow'], ['events', '.st-eventrow']]) {
+    await part(page, id);
+    await page.locator(`.spage ${row}`).first().click();
+    assert.equal(await page.locator('.spage .st-delcard').count(), 0);
+    assert.deepEqual(await strays(), [], id);
+  }
   await page.close();
 });

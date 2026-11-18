@@ -220,11 +220,11 @@ function presetPage(list, index, ctx, into = null) {
         group('Preset', textRow('id', 'Id', 'A person\'s meter setup names the preset by this'), textRow('title', 'Title', `At most ${METER_LIMITS.title} characters`)),
         itemsGroup('meters', preset, io, state), itemsGroup('stages', preset, io, state));
     if (state.json === undefined) state.json = {};
-    root.replaceChildren(h('div', { class: 'st-rh' }, h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Trackers'),
+    root.replaceChildren(...[h('div', { class: 'st-rh' }, h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Trackers'),
         h('span', { class: 'st-rt' }, h('b', String(preset.title ?? preset.id ?? ''))), h('small', `Preset ${index + 1} of ${list.length}`),
         h('span', { class: 'st-flags' }, h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'),
             h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; io.draw(); } }, 'Delete'))),
-    sure, said, form, jsonRow({ value: preset, steps: where, noun: 'preset', problems: mine, focus: focused ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches)));
+    sure, said, form, jsonRow({ value: preset, steps: where, noun: 'preset', problems: mine, focus: focused ? ctx.focus : null, state: state.json }, patches => ctx.commit(patches))].filter(Boolean)); // a null child would print "null"
     if (focused && !into) markFocus(root, focused);
     return root;
 }

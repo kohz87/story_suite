@@ -579,6 +579,6 @@
   "tests/ui/studio/pairing.test.js": "Tests the Pairing page: Check against, the result line, the lists with Go to into either pack, the waiting state, Open a game pack and a format 3 world.",
   "tests/ui/studio/start-page.test.js": "Tests the Studio start page: the blank packs pass the check, the id made from the name, the New sheet and openDoc, and New in the rendered Studio.",
   "tests/ui/studio/lists-render.test.js": "Tests the record lists in Chromium on the shipped Ersveil pair: no stray \"null\" text, rows without an icon use the row\u2019s width, and the lore bar is not squashed.",
-  "tests/ui/studio/records-look.test.js": "Tests the record lists and record heads in Chromium against the mock: filled left-aligned rows with pill tags, pill filter chips, one back button over a page-heading title, the red delete card, 44 px phone targets and the light-theme frames.",
+  "tests/ui/studio/records-look.test.js": "Tests the record lists and record heads in Chromium against the mock: filled left-aligned rows with pill tags, pill filter chips, one back button over a page-heading title, the red delete card, no stray \"null\" on a record page, 44 px phone targets (chips, row buttons, the graph \u25ce) and the light-theme frames.",
   "tests/ui/studio/wide.test.js": "Tests the wide layout in Chromium: nav | list | record at 1280 and 1920 with the empty pane and its New, panes scrolling on their own, one pane at a time at 1143 and 390, and the shell's marking alone."
 }

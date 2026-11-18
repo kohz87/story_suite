@@ -76,10 +76,10 @@ function listView(spec, list, bad, ctx) {
     const fill = () => {
         const found = list.map((record, index) => ({ record, index })).filter(({ record, index }) => passes(record, index, state.filter ?? 'all', state.q));
         const shown = state.all ? found : found.slice(0, SHOWN);
-        rows.replaceChildren(...shown.map(({ record, index }) => recordRow({ cls: 'st-itemrow', rec: `${spec.key}.${index}`, title: record.name ?? `#${index + 1}`, tags: [spec.facet(record) || 'no tier'],
+        rows.replaceChildren(...[...shown.map(({ record, index }) => recordRow({ cls: 'st-itemrow', rec: `${spec.key}.${index}`, title: record.name ?? `#${index + 1}`, tags: [spec.facet(record) || 'no tier'],
             sub: spec.sub(record), bad: bad[index].length, onClick: () => ctx.go(PART, `${spec.key}.${index}`) })),
         found.length ? null : h('p', { class: 'fine' }, list.length ? `No ${spec.noun} matches.` : `No ${spec.noun}s yet.`),
-        !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null);
+        !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null].filter(Boolean)); // a null child would print "null"
     };
     const search = h('input', { class: 'psrch st-search', placeholder: `Search ${spec.noun}s…`, 'aria-label': `Search ${spec.noun}s` });
     search.value = state.q ?? '';

@@ -189,7 +189,7 @@ function recordPage(list, index, bad, ctx, redraw) {
     const title = String(person.name ?? person.id ?? `Person ${index + 1}`);
     const sure = state.confirm ? deleteCard({ title, uses: typeof person.id === 'string' ? usedBy(ctx.refs, 'cast', person.id).length : null,
         onDelete: () => { state.confirm = false; if (commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); }, onKeep: () => { state.confirm = false; redraw(); } }) : null;
-    page.append(
+    page.append(...[ // a null child would print "null"
         h('div', { class: 'st-bar' }, h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Cast'),
             h('span', { class: 'st-acts' }, h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'),
                 h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; redraw(); } }, 'Delete'))),
@@ -197,7 +197,7 @@ function recordPage(list, index, bad, ctx, redraw) {
             person.protected === true ? h('span', { class: 'tg2' }, 'protected') : null, h('small', { class: 'fine' }, `Person ${index + 1} of ${list.length}`)),
         sure, said, ...groups,
         extra.length ? h('p', { class: 'fine st-extra' }, `Also in this person, only in the JSON below: ${extra.join(', ')}.`) : null,
-        jsonRow({ value: person, steps: where, noun: 'person', problems: bad[index], focus: focusKey && !FORMED.includes(focusKey.split('.')[0]) ? ctx.focus : null, state: ctx.keep?.(`json:${rec}`) ?? {} }, patches => ctx.commit(patches)));
+        jsonRow({ value: person, steps: where, noun: 'person', problems: bad[index], focus: focusKey && !FORMED.includes(focusKey.split('.')[0]) ? ctx.focus : null, state: ctx.keep?.(`json:${rec}`) ?? {} }, patches => ctx.commit(patches))].filter(Boolean));
     return page;
 }
 
