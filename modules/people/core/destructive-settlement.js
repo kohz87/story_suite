@@ -8,12 +8,19 @@ function npcStateDeltaApi() {
     return pageHandles.deltaApi;
 }
 
+// (perf) Both read directly, never through uiStatus(): that builds the branch-history diagnostics (a serialised copy of the state) on each call.
 function activeChatKey() {
-    return String(npcStateDeltaApi()?.uiStatus?.()?.chatKey || 'no-chat');
+    return String(npcStateDeltaApi()?.chatKey?.() || 'no-chat');
 }
 
+// SillyTavern's swipe state, read as runtime-branch.js hostSwipeState reads it.
 function hostSwipeActive() {
-    return String(npcStateDeltaApi()?.uiStatus?.()?.swipeState || 'none') !== 'none';
+    try {
+        const state = getContext().swipe?.state?.();
+        return typeof state === 'string' && state !== '' && state !== 'none';
+    } catch {
+        return false;
+    }
 }
 
 function buildController() {
@@ -28,9 +35,11 @@ function buildController() {
         isSwipeActive: hostSwipeActive,
         reconcile,
         probe: reconcile,
-        onTimeout: pending => {
-            console.warn(`[NPC State Delta] ${pending.operation} event did not settle into a changed SillyTavern chat lineage within 5000ms; canonical dossier state was preserved rather than rolling back against stale host data.`);
-        },
+        // (perf) One look, on the next tick, then the wait ends. SillyTavern sends MESSAGE_EDITED and MESSAGE_DELETED after it has changed
+        // the chat, so the baseline already holds the change and a longer wait never settled: it polled for 5 s and timed out on every
+        // edit and delete. Each event is still read again by the probe reconcile here and by the queued branch reconcile
+        // (runtime-entry-events.js). A second edit or delete before that tick still settles against the first one's baseline.
+        timeoutMs: 0,
         onError: error => {
             console.warn('[NPC State Delta] settled destructive branch reconciliation failed', error);
         },
