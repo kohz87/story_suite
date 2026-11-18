@@ -40,7 +40,9 @@ export function createToolsPage(settings, ctx, developer) {
 
   return function body() {
     const fresh = ctx.view?.('sent');
-    const sent = fresh ? { ...fresh, limits: settings.sent?.limits ?? [] } : settings.sent;
+    // The budget rows are the host's current values (read again each draw), not the snapshot taken when Settings opened.
+    const limits = ctx.view?.('settings')?.sent?.limits ?? settings.sent?.limits ?? [];
+    const sent = fresh ? { ...fresh, limits } : settings.sent;
     const problems = ctx.view?.('problems') ?? { items: [], rebuild: null };
     const open = { Inspector: () => openInspector(ctx), Problems: () => { local.force = true; redraw(); } };
     const rb = problems.rebuild;

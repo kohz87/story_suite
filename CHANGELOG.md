@@ -33,6 +33,8 @@ Main has nothing beyond 0.1.2 yet except documentation and the Settings › Dire
 
 ### Fixed
 
+- **Device preferences now survive a reload.** Panel background, Developer tools and the folds were only held in memory in SillyTavern, so a reload reset them; they are now kept in this browser's local storage (one key, `storySuite.ui.fold`). With no usable storage they are kept for the page only, as before.
+- **Settings › Tools shows current values.** Flipping Developer tools redrew the page with the budget numbers (Notes per reply, Share of the context, Change lines) from when Settings opened; it now reads them again on every draw.
 - Settings › Look works in the new view: Panel style (Glass or Follow SillyTavern), Glass strength, Font and Text size now change the Story Suite panel at once and stay after a reload; Reset Look puts the Glass look back. The panel now opens in Glass by default (light or dark from your SillyTavern theme) instead of always taking SillyTavern's colours.
 - The Send pending note shows above the message box in the new view again (sends when the story is ready, not sent yet, sent); its fight-held state stays hidden there, as the Fight tab shows the fight. The Send pending note switch turns it off.
 - A companion who joins under a Custom "Stats start at" above 5 no longer loses stats (its best stat was held to 10).
