@@ -17,6 +17,8 @@ import { renameId } from '../model/rename.js';
 import { partOfPath } from '../parts.js';
 import { npcGroups } from './cast-npc.js';
 import { portraitGroup } from './cast-portrait.js';
+import { recordRow, filterChips } from '../form/reclist.js';
+import { deleteCard } from '../form/confirm.js';
 
 const PART = 'cast';
 const BASE = ['content', 'cast'];
@@ -59,29 +61,23 @@ function free(list, base, key) {
 function listPage(list, bad, ctx, redraw) {
     const state = ctx.keep?.('cast:list') ?? {};
     const filter = state.filter ?? 'all';
-    const rows = h('div', { class: 'st-list' });
+    const rows = h('div', { class: 'slist reclist st-list' });
     const passes = (person, index, key, needle) => (key === 'all' || (key === 'problems' ? bad[index].length > 0 : person.kind === key))
         && (!needle || [person.name, person.id, person.role, ...(person.aliases ?? [])].join(' ').toLowerCase().includes(needle));
     const fill = () => {
         const needle = (state.q ?? '').trim().toLowerCase();
         const found = list.map((person, index) => ({ person, index })).filter(({ person, index }) => passes(person, index, state.filter ?? 'all', needle));
         const shown = state.all || needle ? found : found.slice(0, SHOWN);
-        rows.replaceChildren(...[...shown.map(({ person, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-crow', dataset: { rec: `cast.${index}` }, onClick: () => ctx.go(PART, `cast.${index}`) },
-            h('div', { class: 'st-rh' },
-                typeof person.portrait === 'string' ? ctx.portrait?.(person.portrait) ?? null : null,
-                h('div', { class: 'st-rt' }, h('b', person.name ?? person.id ?? `#${index + 1}`), subOf(person) ? h('small', subOf(person)) : null),
-                h('span', { class: 'st-flags' }, person.protected === true ? h('span', { class: 'tg2' }, 'protected') : null,
-                    bad[index].length ? h('span', { class: 'st-bad' }, `✕ ${bad[index].length}`) : null)))),
+        rows.replaceChildren(...[...shown.map(({ person, index }) => recordRow({ cls: 'st-crow', rec: `cast.${index}`, title: person.name ?? person.id ?? `#${index + 1}`, tags: [person.protected === true ? 'protected' : null],
+            sub: subOf(person), bad: bad[index].length, thumb: typeof person.portrait === 'string' ? ctx.portrait?.(person.portrait) ?? null : null, onClick: () => ctx.go(PART, `cast.${index}`) })),
         found.length === 0 ? h('p', { class: 'fine' }, list.length ? 'No one matches.' : 'No people yet.') : null,
         found.length > shown.length ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, `Show all ${found.length}`) : null].filter(Boolean));
     };
-    const search = h('input', { class: 'txt2 st-search', placeholder: 'Search the cast…', 'aria-label': 'Search the cast' });
+    const search = h('input', { class: 'psrch st-search', placeholder: 'Search the cast…', 'aria-label': 'Search the cast' });
     search.value = state.q ?? '';
     search.addEventListener('input', () => { state.q = search.value; state.all = false; fill(); });
     const root = h('div', { class: 'st-clist' });
-    const chips = h('div', { class: 'st-filters' }, ...FILTERS.map(([key, label]) => h('button', { type: 'button', class: 'tg2 st-filter', dataset: { filter: key }, 'aria-pressed': String(filter === key),
-        onClick: () => { state.filter = key; state.all = false; redraw(); } },
-        key === 'problems' ? `${label} · ${bad.filter(found => found.length).length}` : label)));
+    const chips = filterChips(FILTERS.map(([key, label]) => [key, key === 'problems' ? `${label} · ${bad.filter(found => found.length).length}` : label]), filter, key => { state.filter = key; state.all = false; redraw(); });
     const full = list.length >= WORLD_CAST_LIMITS.entries;
     const add = h('button', { type: 'button', class: 'btn2 pri st-new', disabled: full, title: full ? `A pack holds at most ${WORLD_CAST_LIMITS.entries} people.` : null, onClick: () => {
         const made = ctx.commit([{ op: 'insert', path: [...BASE, list.length], value: { kind: 'figure', id: free(list, 'new-person', 'id'), name: free(list, 'New person', 'name') } }]);
@@ -190,16 +186,16 @@ function recordPage(list, index, bad, ctx, redraw) {
         delete value.aliases; // a name or alias names one person
         if (commit([{ op: 'insert', path: [...BASE, index + 1], value }])?.ok) ctx.go(PART, `cast.${index + 1}`);
     };
-    const drop = state.confirm
-        ? [h('button', { type: 'button', class: 'btn2 dng st-sure', onClick: () => { state.confirm = false; if (commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); } }, 'Delete this person'),
-            h('button', { type: 'button', class: 'btn2 st-keep', onClick: () => { state.confirm = false; redraw(); } }, 'Keep them')]
-        : [h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; redraw(); } }, 'Delete')];
+    const title = String(person.name ?? person.id ?? `Person ${index + 1}`);
+    const sure = state.confirm ? deleteCard({ title, uses: typeof person.id === 'string' ? usedBy(ctx.refs, 'cast', person.id).length : null,
+        onDelete: () => { state.confirm = false; if (commit([{ op: 'remove', path: where }])?.ok) ctx.go(PART); }, onKeep: () => { state.confirm = false; redraw(); } }) : null;
     page.append(
         h('div', { class: 'st-bar' }, h('button', { type: 'button', class: 'btn2 st-back', onClick: () => ctx.go(PART) }, '‹ Cast'),
-            h('span', { class: 'st-acts' }, h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'), ...drop)),
+            h('span', { class: 'st-acts' }, h('button', { type: 'button', class: 'btn2 st-dup', onClick: copy }, 'Duplicate'),
+                h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; redraw(); } }, 'Delete'))),
         h('div', { class: 'st-rt st-entryhead' }, h('b', String(person.name ?? person.id ?? '')), h('small', subOf(person) || `Person ${index + 1}`),
             person.protected === true ? h('span', { class: 'tg2' }, 'protected') : null, h('small', { class: 'fine' }, `Person ${index + 1} of ${list.length}`)),
-        said, ...groups,
+        sure, said, ...groups,
         extra.length ? h('p', { class: 'fine st-extra' }, `Also in this person, only in the JSON below: ${extra.join(', ')}.`) : null,
         jsonRow({ value: person, steps: where, noun: 'person', problems: bad[index], focus: focusKey && !FORMED.includes(focusKey.split('.')[0]) ? ctx.focus : null, state: ctx.keep?.(`json:${rec}`) ?? {} }, patches => ctx.commit(patches)));
     return page;

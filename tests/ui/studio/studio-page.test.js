@@ -84,7 +84,7 @@ test('Ersveil opens, the checker takes it, every part has a page and Export give
     assert.deepEqual(head, { sub: 'World · Ersveil (open world) · 4.0.0', foot: 'No problems', nav: ['overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
     for (const part of head.nav) {
       await page.click(`.snav .si3[data-part="${part}"]`);
-      const seen = await page.evaluate(() => ({ title: document.querySelector('.spage h2').textContent, cards: document.querySelectorAll('.spage .sgrp').length }));
+      const seen = await page.evaluate(() => ({ title: document.querySelector('.spage h2').textContent, cards: document.querySelectorAll('.spage :is(.sgrp, .reclist > .st-rec)').length }));
       assert.ok(seen.cards > 0, `${part} draws something`);
     }
     await page.click('.snav .si3[data-part="cast"]');

@@ -47,8 +47,8 @@ undo and redo and an autosaved draft.
   reference index, `studio/model/refs.js`, built once per snapshot), `problems`, `focus` (`{ rec, path }`), `go`, `portrait`,
   `keep(id)` (a plain object per pack that outlives a redraw), and the edits: `commit(patches)` and `setPortrait(name,
   bytes | null)` are one undo step each and answer `{ ok, same?, refusal? }`, and `openDoc({ text?, doc?, portraits? })`
-  opens a document as if it had been picked. The four stylesheet slots `studio/css/{edit,map,graph,timeline}.css` are linked and
-  empty, and the World tab's `ui/css/world.css` is linked for the map.
+  opens a document as if it had been picked. The stylesheets `studio/css/{edit,records,map,graph,timeline}.css` are linked
+  (the forms, the record lists and heads, the map, the graph and the dry run), and the World tab's `ui/css/world.css` is linked for the map.
 - **Editing** (`studio/session.js`, one session per open pack): `commit` runs the pure edits (`studio/model/edits.js`) on
   the present document, which gives a new frozen snapshot and one step in that pack's own history; the page is drawn again
   at once, keeping its scroll and the box being typed in. About 300 ms after the last change the snapshot is checked with
@@ -99,6 +99,13 @@ undo and redo and an autosaved draft.
 
 - **Look**: the Settings overlay's frame and classes (`ui/css/settings.css`) and the Glass dark and light tokens
   (`ui/theme/`). The theme switch is remembered in `localStorage` (`storySuite.studio.theme`).
+- **Record lists and heads** (mock MK-1 / MK-2): the lore, cast, event, item, foe and template lists draw their rows with
+  `recordRow` and their filters with `filterChips` (`studio/form/reclist.js`): settings `.slist` rows with no icon column (the title
+  and its tags, a line under it, the problem count and ›), pill chips (`.chips3`) and the filled search box (`.psrch`). An open
+  record's head is its back button with Duplicate and Delete at the right, then the title as the page heading; the page's own
+  title and the phone's "‹ Parts" give way to it. Delete opens a red card under the head (`deleteCard`, `studio/form/confirm.js`:
+  "Delete “…”?", whether anything else names it, Delete and Keep it) on lore, cast, events, items, foes, templates, cultures and
+  tracker presets. Styles: `studio/css/records.css`.
 
 ## Limits today
 

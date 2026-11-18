@@ -73,3 +73,6 @@
   .st-root .st-gbar .st-glabel { min-width: 100%; }
   .st-root .st-grow .ctl .btn2, .st-root .st-gtype { min-height: 44px; }
 }
+/* Light: the white boxes on the white canvas get the mock's frame (a line and a soft shadow); the centre, a condition and a missing box keep theirs. */
+.su-root[data-scheme="light"] .st-gnode:not(.st-gcur):not(.st-gcondition):not(.st-gmiss) { border-color: rgba(30, 34, 52, .2); }
+.su-root[data-scheme="light"] .st-gnode:not(.st-gmiss) { box-shadow: 0 2px 8px rgba(40, 30, 80, .1); }

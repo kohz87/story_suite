@@ -3,8 +3,8 @@
 .st-root .st-dry-intro { margin: 0 0 12px; }
 .st-root .st-dry-act[data-state="running"] .st-dry-status { color: var(--su-accent); }
 .st-root .st-dry-error .lb small { color: var(--su-bad-t, var(--su-bad)); }
-.st-root .st-dry-warn .lb b, .st-root .st-dry-warn .st-mark { color: var(--su-warn); }
-.st-root .st-dry-result[data-stale="true"] .lb small { color: var(--su-warn); }
+.st-root .st-dry-warn .lb b, .st-root .st-dry-warn .st-mark { color: var(--su-warn-t, var(--su-warn)); }
+.st-root .st-dry-result[data-stale="true"] .lb small { color: var(--su-warn-t, var(--su-warn)); }
 
 .st-root .st-day .lb { gap: 3px; }
 .st-root .st-day .st-line { display: block; line-height: 1.45; }
@@ -12,7 +12,7 @@
 .st-root .st-tag { display: inline-block; min-width: 46px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--su-muted); }
 .st-root .st-line[data-kind="fired"] .st-tag, .st-root .st-line[data-kind="happens"] .st-tag { color: var(--su-accent); }
 .st-root .st-line[data-kind="death"] .st-tag { color: var(--su-bad-t, var(--su-bad)); }
-.st-root .st-line[data-kind="holds"] .st-tag { color: var(--su-warn); }
+.st-root .st-line[data-kind="holds"] .st-tag { color: var(--su-warn-t, var(--su-warn)); }
 
 .st-root .st-hold, .st-root .st-stand { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; }
 .st-root .st-holdbar { position: relative; height: 10px; border-radius: 5px; background: var(--su-line, rgba(127, 127, 127, .2)); overflow: hidden; }

@@ -9,6 +9,8 @@ import { jsonRow } from '../views/json-row.js';
 import { usedBy } from '../model/refs.js';
 import { renameId } from '../model/rename.js';
 import { partOfPath } from '../parts.js';
+import { recordRow, filterChips } from '../form/reclist.js';
+import { deleteCard } from '../form/confirm.js';
 
 const SHOWN = 40;
 const TEXT_MAX = 4000;
@@ -64,22 +66,19 @@ export function editSection(section, ctx) {
 function listView(list, bad, ctx, state, draw) {
     const filter = state.filter ?? 'all';
     const count = key => list.filter((entry, index) => passes(entry, key, '', bad[index].length > 0)).length;
-    const rows = h('div', { class: 'st-list' });
+    const rows = h('div', { class: 'slist reclist st-list' });
     const fill = () => {
         const found = list.map((entry, index) => ({ entry, index })).filter(({ entry, index }) => passes(entry, state.filter ?? 'all', state.q ?? '', bad[index].length > 0));
         const shown = state.all ? found : found.slice(0, SHOWN);
-        rows.replaceChildren(...[...shown.map(({ entry, index }) => h('button', { type: 'button', class: 'sgrp st-rec st-lorerow', dataset: { rec: 'lore.' + index }, onClick: () => { state.open = index; state.confirm = false; draw(); } },
-            h('div', { class: 'st-rh' },
-                h('div', { class: 'st-rt' }, h('b', entry.title ?? entry.id ?? '#' + (index + 1)), h('small', keysLine(entry))),
-                h('span', { class: 'st-flags' }, ...flagsOf(entry).map(flag => h('span', { class: 'tg2' }, flag)), bad[index].length ? h('span', { class: 'st-bad' }, '✕ ' + bad[index].length) : null)))),
+        rows.replaceChildren(...[...shown.map(({ entry, index }) => recordRow({ cls: 'st-lorerow', rec: 'lore.' + index, title: entry.title ?? entry.id ?? '#' + (index + 1), tags: flagsOf(entry), sub: keysLine(entry),
+            bad: bad[index].length, onClick: () => { state.open = index; state.confirm = false; draw(); } })),
         found.length === 0 ? h('p', { class: 'fine' }, list.length ? 'No entry matches.' : 'No lore entries yet.') : null,
         !state.all && found.length > SHOWN ? h('button', { type: 'button', class: 'btn2 st-more', onClick: () => { state.all = true; fill(); } }, 'Show all ' + found.length) : null].filter(Boolean)); // a null child would print "null"
     };
-    const search = h('input', { class: 'txt2 st-search', placeholder: 'Search lore…', 'aria-label': 'Search lore' });
+    const search = h('input', { class: 'psrch st-search', placeholder: 'Search lore…', 'aria-label': 'Search lore' });
     search.value = state.q ?? '';
     search.addEventListener('input', () => { state.q = search.value; state.all = false; fill(); });
-    const chips = h('div', { class: 'st-filters' }, ...FILTERS.map(([key, label]) => h('button', { type: 'button', class: 'tg2 st-filter', dataset: { filter: key }, 'aria-pressed': String(filter === key),
-        onClick: () => { state.filter = key; state.all = false; draw(); } }, key === 'problems' ? label + ' · ' + count('problems') : label)));
+    const chips = filterChips(FILTERS.map(([key, label]) => [key, key === 'problems' ? label + ' · ' + count('problems') : label]), filter, key => { state.filter = key; state.all = false; draw(); });
     const add = h('button', { type: 'button', class: 'btn2 pri st-new', onClick: () => create(list, ctx, state) }, 'New entry');
     const n = key => list.filter(entry => entry[key] === true).length;
     fill();
@@ -156,16 +155,16 @@ function entryView(list, index, bad, ctx, state, draw) {
         h('button', { type: 'button', class: 'btn2 st-back', onClick: () => { state.open = null; state.confirm = false; draw(); } }, '‹ Lore'),
         h('span', { class: 'st-acts' },
             h('button', { type: 'button', class: 'btn2 st-dup', onClick: () => duplicate(list, index, ctx, state) }, 'Duplicate'),
-            state.confirm
-                ? [h('button', { type: 'button', class: 'btn2 dng st-sure', onClick: () => { Object.assign(state, { open: null, confirm: false }); const result = say(ctx.commit([{ op: 'remove', path: [...BASE, index] }])); if (!result?.ok) Object.assign(state, { open: index, confirm: true }); } }, 'Delete this entry'),
-                    h('button', { type: 'button', class: 'btn2 st-keep', onClick: () => { state.confirm = false; draw(); } }, 'Keep it')]
-                : h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; draw(); } }, 'Delete')));
+            h('button', { type: 'button', class: 'btn2 dng st-del', onClick: () => { state.confirm = true; draw(); } }, 'Delete')));
+    const sure = state.confirm ? deleteCard({ title: String(entry.title ?? entry.id ?? 'Lore entry ' + (index + 1)), uses: uses.length,
+        onDelete: () => { Object.assign(state, { open: null, confirm: false }); const result = say(ctx.commit([{ op: 'remove', path: [...BASE, index] }])); if (!result?.ok) Object.assign(state, { open: index, confirm: true }); },
+        onKeep: () => { state.confirm = false; draw(); } }) : null;
     const extra = Object.keys(entry).filter(key => !FIELDS.includes(key));
     // One record element holds the whole entry, so Go to and F8 find the marked field (or the JSON row) in it and a redraw keeps the box being typed in.
     return [h('section', { class: 'st-rec', dataset: { rec: 'lore.' + index }, tabindex: '-1', 'aria-label': String(entry.title ?? 'Lore entry ' + (index + 1)) }, head,
         h('div', { class: 'st-rt st-entryhead' }, h('b', entry.title ?? '(no title)'),
             h('small', 'Lore entry ' + (index + 1) + ' of ' + list.length), ...flagsOf(entry).map(name => h('span', { class: 'tg2' }, name))),
-        note,
+        sure, note,
         group('Entry', field({ type: 'text', key: 'title', label: 'Title', hint: 'Shown in lists and to the Director', value: entry.title ?? '' }), idRow, text),
         group('When it comes in',
             keys('keys', 'Keys', 'Words in the chat that bring it in', 'Add a key…'),

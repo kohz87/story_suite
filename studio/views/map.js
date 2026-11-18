@@ -87,7 +87,7 @@ function drawSvg(model, st, vb, u) {
     const r = (dots ? 4 : 11) * u, fs = 12 * u;
     const named = place => !dots || classOf(model.content.placeKinds, place.kind, PLACE_CLASSES) === 'capital';
     const places = model.places.map(place => svgEl('g', { class: ['pl', sel.place === place.id || from === place.id || st.draft?.to === place.id ? 'sel' : null, place.hidden ? 'hid' : null],
-        dataset: { pl: place.id }, role: 'button', tabindex: 0, 'aria-label': place.name },
+        dataset: { pl: place.id, climate: st.colour === 'climates' ? place.climate : null }, role: 'button', tabindex: 0, 'aria-label': place.name },
     svgEl('circle', { class: 'hit', cx: place.x, cy: place.y, r: 22 * u }),
     svgEl('circle', { class: 'b', cx: place.x, cy: place.y, r, style: { stroke: tint(place), 'stroke-width': `${3 * u}px` } }),
     dots ? null : svgEl('svg', { class: 'g', x: place.x - r * 0.6, y: place.y - r * 0.6, width: r * 1.2, height: r * 1.2, viewBox: '0 0 24 24', fill: 'currentColor' }, ...(glyph(placeGlyph(place.kind))?.childNodes ?? [])),
