@@ -28,7 +28,7 @@ function worldRowsOf(rows, on) {
   return rows.map(r => (r.key === 'world.worldEvents' ? { ...r, value: true } : r)).concat(sample.filter(r => !rows.some(w => w.key === r.key)));
 }
 
-function buildSections(worldEvents = false) {
+function buildSections(worldEvents = false, rpg = true) {
   const R = (...args) => row(...args);
   // The real selectors' rows (settings-real.js), then the mock-only ones (settings-rows.js).
   const rows = id => [...(REAL_ROWS[id] ?? []).filter(r => id !== 'tools').map(r => structuredClone(r)), ...(MOCK_ONLY[id] ? MOCK_ONLY[id](R) : [])];
@@ -36,7 +36,7 @@ function buildSections(worldEvents = false) {
     sec('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     sec('look', 'Play', 'Look', 'Skin and text.', rows('look')),
     sec('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', rows('people')),
-    sec('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', rows('rpg')),
+    ...(rpg ? [sec('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', rows('rpg'))] : []), // the page only while the RPG is on
     sec('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRowsOf(rows('world'), worldEvents)),
     sec('director', 'Rules', 'Director', 'Checks, spoilers, the pulse, one planner for arcs and the cast, names.', rows('director')),
     sec('money', 'Rules', 'Money', 'Coins and prices.', rows('money')),
@@ -66,7 +66,7 @@ export function buildSettings(opts = {}) {
   const rpg = opts.rpg !== false;
   return {
     subtitle: 'this chat: Ersveil · Astra',
-    sections: buildSections(opts.worldEvents === true),
+    sections: buildSections(opts.worldEvents === true, rpg),
     modules: {
       scope: 'chat',
       chat: buildModuleSet(rpg),

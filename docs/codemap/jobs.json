@@ -295,6 +295,7 @@
   "ui/select/people-settings/index.js": "Reads the People rows from the stored NPC State settings and looks a row up by key for a write or a reset.",
   "ui/select/people-settings/kit-more.js": "Builds a People row of named numbers or a shown-only row, and holds the whole-number clamp the old panel's boxes use.",
   "ui/select/people-settings/kit.js": "Builds a People settings row for a number, a switch or a choice: its NPC State setting, how it reads and how a change is cut and stored.",
+  "ui/select/people-settings/portraits.js": "Lists the People page's Portraits rows: what portraits use now, written back as the old portrait panel saved it (style, custom preset library, text fields).",
   "ui/select/people-settings/run.js": "Lists the People page's Refresh and the narrator, Portraits and Map rows from mock v7.",
   "ui/select/people.js": "Turns the store's people rows, the key-people and party answers and the social graph into the People view-model (PEOPLE_SHAPE), leaving gaps null or empty.",
   "ui/select/purse-lines.js": "Turns the head reply's coin lines (reply.changes) into the Bag purse's this-turn list.",
@@ -441,6 +442,9 @@
   "modules/world/daily/arc-plan.js": "World events, generated arcs: checks an open answer with an arc plan as a whole (step count, menu, guards, windows) and returns the one canon plan.",
   "tests/modules/world/open/arc-replay.test.js": "Tests: generated arcs on the host (plan asked once and stored whole, replay equals live through swipe, Re-read, delete, reload, rewind).",
   "tests/modules/world/open/arc-step.test.js": "Tests: generated arcs in the daily step (plan copy, schedule, anchors, refusals, caps, template with no arc unchanged).",
+  "ui/port/rpg-custom.js": "Stores the RPG page's Custom difficulty editors into the Custom set the creation of new characters reads, refusing a number that breaks the creation order.",
+  "ui/select/rpg-difficulty.js": "Says what each RPG difficulty changes from the engine's own numbers and builds the Custom difficulty's creation-number rows.",
+  "tests/ui/select/rpg-difficulty.test.js": "Tests the RPG difficulty explanations against the engine's numbers and the Custom editors from row to stored key to a new character.",
   "ui/select/module-text.js": "Gives the Start page's reader-facing words: each module card's icon, description and off line, and the three presets' names and descriptions.",
   "ui/select/module-costs.js": "Counts the Start page's token figures: what each module card's switches add to the fixed prompt and the fixed prompt under each preset, without switching anything.",
   "tests/ui/settings/sections/start-cards-live.test.js": "Checks the Start module cards' text and engine token figures and that Lean, Standard and Full apply through the port and redraw, on a live host."

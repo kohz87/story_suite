@@ -5,6 +5,7 @@ import { typeKey } from '../../../core/runtime/skill-slots.js';
 import { buildDefinitions, creationOf, readDraft } from '../view/wizard-data.js';
 import { levelOfClass } from '../formula.js';
 import { companionStatsV1 } from '../formula-parts/companion-v1.js';
+import { V1 } from '../combat/numbers.js';
 import { STANDARD_FORMULA, isStandard } from '../rules.js';
 
 /** The wizard's draft for a joining companion (the card's Edit first opens it): name, class, the best stat raised (formula-parts/companion-v1.js). */
@@ -14,7 +15,10 @@ export function joinDraft({ name = '', soul = 1, best = '', skills = [] } = {}, 
     // Every stat 5 and the best 9, then a point for every third level the class stands for (companionStatsV1); the draft's budget is
     // exactly what they cost, so "Edit first" can move points around but is not handed more. (Without rules: the Standard preset's creation numbers.)
     const standard = isStandard(rules) ? rules : STANDARD_FORMULA;
-    const stats = companionStatsV1(best, levelOfClass(soul)), creation = creationOf(standard);
+    // (the draft's numbers start where companionStatsV1 starts, V1's 5, whatever Custom's "Stats start at" says: else a higher start leaves the cost below 0,
+    // the draft's numbers are refused and its stats are held to the preset's 5 to 10)
+    const stats = companionStatsV1(best, levelOfClass(soul)), preset = creationOf(standard);
+    const creation = { ...preset, start: V1.stat.start, min: Math.min(preset.min, V1.stat.start) };
     const spent = STATS_V1.reduce((sum, stat) => sum + stats[stat] - creation.start, 0);
     return readDraft({ name, soul, stats, kind: 'companion', skills: signed, set: '', creation: { ...creation, budget: spent, max: creation.statMax } });
 }

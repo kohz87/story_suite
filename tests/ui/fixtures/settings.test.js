@@ -45,11 +45,13 @@ describe('buildSettings', () => {
     assert.equal(modules.chat.people.subs.feelingsDriftEachStoryDay, false);
   });
 
-  it('rpgOff: the RPG module is off for this chat only; sections stay', () => {
+  it('rpgOff: the RPG module is off for this chat only; the RPG and fights page is not listed (UIFIX5)', () => {
     const vm = buildSettings({ rpg: false });
     assert.equal(vm.modules.chat.rpg.on, false);
     assert.equal(vm.modules.newChats.rpg.on, true);
-    assert.equal(vm.sections.length, 12);
+    assert.equal(vm.sections.length, 11);
+    assert.equal(vm.sections.some(s => s.id === 'rpg'), false);
+    assert.equal(buildSettings().sections.some(s => s.id === 'rpg'), true);
   });
 
   it('three connections: Story read-only, Quick helpers and Background pick one', () => {
