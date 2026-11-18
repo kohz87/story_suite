@@ -9,13 +9,13 @@ import { assertSafeOut } from './outdir.mjs';
 import { versionProblems } from './versions.mjs';
 import { stylesheetRequests } from './css.mjs';
 
-export const RELEASE_VERSION = '0.1.0';
+export const RELEASE_VERSION = '0.1.1';
 export const MAX_REQUESTS = 10;
 
 // The bundle's chunk name for a module or chunk file: 'modules/rpg/view/index.js' and 'view-RM242NFQ.js' both give 'view' (esbuild names a chunk after its module's folder when the module is index.js).
 const chunkOf = file => { const base = path.basename(file, '.js').replace(/-[A-Z0-9]{8}$/, ''); return base === 'index' ? path.basename(path.dirname(file)) : base; };
 
-// The release gate: the version is 0.1.0 and every place that carries it agrees, nothing is tagged for it, and each bundle set builds, keeps its
+// The release gate: the version is RELEASE_VERSION and every place that carries it agrees, nothing is tagged for it, and each bundle set builds, keeps its
 // source maps, resolves every import() it contains, keeps import.meta.url pointing at the source location and loads in at most MAX_REQUESTS files (JS and CSS together; the stylesheet is joined into one). Returns
 // { problems, rows }, one row per bundle set (name, bytes, requests, lazy chunks). afterBuild(outDir, set), when given, runs on each built set before it is measured (tests use it to plant a bad build).
 export async function checkRelease({ repoRoot, outRoot, sets = BUNDLE_SETS, afterBuild = null }) {

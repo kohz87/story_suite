@@ -18,8 +18,9 @@ export {
 } from './plan/shared.js';
 export {
     DEFAULT_PLANNER_PROMPT, FIGHT_RULE, NO_FIGHT_RULE, PLANNER_ASK, plannerRequest,
-    trackerSummary,
+    trackerSummary, worldBriefText, WORLD_EVENT_RULE,
 } from './plan/prompt.js';
+export { refuseResolving, refusalNote } from './plan/world-guard.js';
 export { readPlan, itemLine, planText, planCounts, noteMark } from './plan/read.js';
 export {
     DEFAULT_STALL_DAYS, DEFAULT_LOW_THREADS, LOW_THREADS_REPLIES, arcBeats, openThreads,

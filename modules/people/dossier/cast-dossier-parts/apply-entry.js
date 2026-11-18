@@ -5,6 +5,7 @@ import { PACK_BIRTHDAY_REASON, normalizeBirthDate } from '../../birthday/birthda
 import { getActiveCalendarConfig, normalizeCalendarConfig } from '../../legacy/calendar.js';
 import { ALIASES_MAX } from './limits-text.js';
 import { castSecrets } from './entry-lists.js';
+import { castGatedSecrets } from './entry-gated.js';
 import { shortPackName } from './dossier-lookup.js';
 import { parsePeople } from './people-field.js';
 import { isObject, labelKey } from './shared-text.js';
@@ -29,7 +30,7 @@ const BUILT_IN_METERS = Object.freeze(['trust', 'affection', 'desire', 'tension'
  * numbers, the hidden notes and `castFrom`. `packName` is the pack's name for the badge; `portrait` is the portrait record
  * ({ path, type, hash, … } or, when the file could not be written, { dataUrl, … }) or null. Returns a new record; null without an entry.
  */
-export function applyCastEntry(base, person, { packName = '', portrait = null, calendarOwn = false } = {}) {
+export function applyCastEntry(base, person, { packName = '', portrait = null, calendarOwn = false, gated = false } = {}) {
     const entry = person?.entry;
     if (!isObject(base) || !entry) return null;
     const npc = { ...base };
@@ -58,7 +59,7 @@ export function applyCastEntry(base, person, { packName = '', portrait = null, c
     const people = parsePeople(entry.fields[Object.keys(entry.fields).find(name => name.toLowerCase() === 'people')]);
     for (const field of ['species', 'gender', 'age', 'apparentAge']) if (people[field] && !String(npc[field] ?? '').trim()) npc[field] = people[field];
     if (entry.meters.preset) npc.meterSetup = { track: entry.meters.preset, limits: {} };
-    const secrets = castSecrets(entry.secrets);
+    const secrets = [...castSecrets(entry.secrets), ...(gated ? entry.gated ?? castGatedSecrets(entry.secrets) : [])];
     if (secrets.length) npc.secrets = secrets;
     if (portraitHasImage(portrait)) npc.portrait = portrait;
     npc.castFrom = {

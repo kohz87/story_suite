@@ -78,14 +78,22 @@ test('a deflated file that claims to unpack to over 100 times its packed size is
     assert.equal((await readPackZip(squeezed(200 * 1024, 100))).ok, true, 'a small file is never held to the ratio');
 });
 
-test('a pack.json over 512 KB inside a zip refuses the zip before it is unpacked', async () => {
-    const big = zip([{ name: 'pack.json', bytes: text('x'), size: 512 * 1024 + 1, method: 'store', packed: 512 * 1024 + 1 }]);
-    await refusedWith(big, /The pack.json in the zip is larger than 512 KB/);
+test('a pack.json over 1 MB inside a zip refuses the zip before it is unpacked', async () => {
+    const big = zip([{ name: 'pack.json', bytes: text('x'), size: 1024 * 1024 + 1, method: 'store', packed: 1024 * 1024 + 1 }]);
+    await refusedWith(big, /The pack.json in the zip is larger than 1024 KB/);
+});
+
+test('notes at the top level (README.md, notes .txt) are left out, not refused', async () => {
+    const withNotes = zip([{ name: 'pack.json', bytes: text(packText(person('a', 'a.png'))) }, { name: 'portraits/a.png', bytes: png() }, { name: 'README.md', bytes: text('# notes') }, { name: 'validation.txt', bytes: text('ok') }]);
+    const read = await readPackZip(withNotes);
+    assert.equal(read.ok, true);
+    assert.deepEqual(read.files.map(f => f.name), ['a.png']);
 });
 
 test('a file that is not pack.json or a portrait the pack names refuses the whole zip', async () => {
     const withExtra = name => zip([{ name: 'pack.json', bytes: text(packText(person('a', 'a.png'))) }, { name: 'portraits/a.png', bytes: png() }, { name, bytes: text('x') }]);
-    await refusedWith(withExtra('notes.txt'), /"notes.txt", which is not pack.json or a portrait the pack's cast names/);
+    await refusedWith(withExtra('docs/notes.txt'), /"docs\/notes.txt", which is not pack.json or a portrait the pack's cast names/);
+    await refusedWith(withExtra('script.js'), /"script.js"/);
     await refusedWith(withExtra('portraits/stray.png'), /"portraits\/stray.png"/);
     await refusedWith(withExtra('portraits/sub/a.png'), /"portraits\/sub\/a.png"/);
     await refusedWith(withExtra('__MACOSX/a'), /__MACOSX/);

@@ -85,7 +85,7 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
         }
         for (const id of ids(notes.open)) {
             if (record.unlocked.includes(id) || record.unlocked.length >= MAX_UNLOCKED) continue;
-            if (notes.story && (!known.get(id).when || held.has(id))) continue;
+            if (notes.story && (!(known.get(id).when || (notes.gated && known.get(id).gate)) || held.has(id))) continue;
             record.unlocked.push(id);
             held.delete(id);
             opened.push({ id, text: `${record.name}: a hidden note opened (${notes.story ? 'the story' : 'by hand'})` });

@@ -9,17 +9,20 @@ import {
 } from '../meters/npc-meters.js';
 import { eventSummary } from '../meters/npc-meters-pacing.js';
 import { escapeHtml } from '../util/html.js';
+import { gateOpen } from '../meters/npc-meters-secrets-parts/revealable.js';
 import { tieRows, owedBy, foldTies, aliasCanon } from '../notes/npc-notes-kinds.js';
 
 // The scan's short list of story events to watch for: this many people, this many events each.
 const EVENT_WATCH_NPCS = 6;
 const EVENT_WATCH_EACH = 3;
+// The pack secrets offered to the narrator at once (world-events switch), as the prompt tail offers them: two in all, people by id.
+const READY_IN_ALL = 2;
 // The widths (percent) the Secrets section draws its blank bars at, in turn.
 const BAR_WIDTHS = Object.freeze([62, 48, 56, 70]);
 
 export function createEditorPart(session, deps) {
     const {
-        catalog, entryFor, headReply, part, setupOf, sliceEntries,
+        catalog, entryFor, headReply, part, setupOf, sliceEntries, gateInputs, worldSecretsOn,
     } = deps;
 
     // ---- the dossier editor and the dossier view (hosted only) ----
@@ -35,7 +38,7 @@ export function createEditorPart(session, deps) {
     const milestoneLines = entry => Object.values(entry?.milestones ?? {}).join('\n');
 
     // Whether the dossier editor may show a note's title, text and event: it is the reader's (no `from`: a pack or a scan wrote the others), or it is opened (the player knows it).
-    const editorShows = (note, opened) => !note.from || opened.has(note.id);
+    const editorShows = (note, opened) => !note.from || (opened.has(note.id) && !note.gate);   // a pack's gated secret is never in the text box
 
     /**
      * The editor's v2 controls for one dossier, as markup ('' without a host): the hidden notes (with
@@ -65,7 +68,7 @@ export function createEditorPart(session, deps) {
                 if (editorShows(note, opened)) return `<label>${escapeHtml(note.title || note.text.slice(0, 40))}${control(note.title || 'Note')}</label>`;
                 hiddenCount += 1;
                 const name = `Hidden note ${hiddenCount}`;
-                const opens = rules.get(note.id) ?? 'Opens with the story';
+                const opens = rules.get(note.id) ?? (note.gate ? 'Opens when the story earns it' : 'Opens with the story');
                 return `<div class="npc-state-delta-v2-editor-hidden"><span>${escapeHtml(`${name} · ${opens[0].toLocaleLowerCase()}${opens.slice(1)}`)}</span>${control(name)}</div>`;
             });
             html += `
@@ -277,15 +280,39 @@ export function createEditorPart(session, deps) {
         const entries = sliceEntries() ?? [];
         const out = [];
         let people = 0;
+        const open = worldSecretsOn?.() ? offeredSecrets(npcs, entries) : null;
         for (const npc of npcs) {
             if (people >= EVENT_WATCH_NPCS) break;
             if (!npc?.id || !npc.present || npc.archived) continue;
             const slice = entryFor(entries, npc);
             const done = new Set([...(slice?.unlocked ?? []), ...(slice?.held ?? [])]);
-            const events = normalizeSecrets(npc.secrets).filter(note => note.when && !done.has(note.id)).slice(0, EVENT_WATCH_EACH);
+            const notes = normalizeSecrets(npc.secrets).filter(note => !done.has(note.id));
+            const events = notes.filter(note => note.when).slice(0, EVENT_WATCH_EACH).map(note => ({ note, event: note.when }));
+            // A pack secret whose gate is open (world-events switch) may come out: the same watch, so the model can write its `~ reveal` line.
+            // Only the one the tail offers ("(may come out)": the first open one a person, two in all), so the watch never lists the others (final review M2).
+            const offered = open?.get(npc.id);
+            if (offered && events.length < EVENT_WATCH_EACH) events.push({ note: offered, event: `the secret "${offered.text.slice(0, 60)}" comes out` });
             if (!events.length) continue;
             people += 1;
-            for (const note of events) out.push({ key: `s${out.length + 1}`, id: npc.id, name: npc.name, note: note.id, event: note.when });
+            for (const { note, event } of events) out.push({ key: `s${out.length + 1}`, id: npc.id, name: npc.name, note: note.id, event });
+        }
+        return out;
+    }
+
+    // The open pack secret of each present person the narrator is offered: the first open one in the pack's order, people by id, two in all → Map(id → note).
+    function offeredSecrets(npcs, entries) {
+        const byId = new Map(part.defs().map(def => [def.id, def]));
+        const out = new Map();
+        const here = npcs.filter(npc => npc?.id && npc.present && !npc.archived).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+        for (const npc of here) {
+            if (out.size >= READY_IN_ALL) break;
+            const slice = entryFor(entries, npc);
+            const done = new Set([...(slice?.unlocked ?? []), ...(slice?.held ?? [])]);
+            const gated = normalizeSecrets(npc.secrets).filter(note => note.gate && !done.has(note.id));
+            if (!gated.length) continue;
+            const inputs = gateInputs(npc.name);
+            const first = gated.find(note => gateOpen(note, slice ?? {}, byId, inputs));
+            if (first) out.set(npc.id, first);
         }
         return out;
     }

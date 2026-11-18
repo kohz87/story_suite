@@ -2,6 +2,10 @@
 
 import { slotValue } from '../../../rpg/slot.js';
 import { validateDays } from '../days.js';
+import { validateConditions } from '../conditions/validate.js';
+import { validateLedger } from '../conditions/ledger.js';
+import { validateDaily } from '../world-daily/validate.js';
+import { isWorldSeed } from '../world-daily/seed.js';
 import { MAX_EVENTS, MAX_FACTIONS, MAX_RESOLVED } from './limits-caps.js';
 import { EVENT_ID, FACTION_ID, STATES } from './limits-ids.js';
 import { LASTING_BY } from './limits-lasting.js';
@@ -31,12 +35,14 @@ function eventErrors(id, event) {
     if (event.rumour !== undefined && !textOk(event.rumour, MAX_NAME)) errors.push(`${at}.rumour must be the name of the event it is about.`);
     if (event.heard !== undefined && event.heard !== true) errors.push(`${at}.heard must be true when it is there.`);
     if (event.keep !== undefined && event.keep !== true) errors.push(`${at}.keep must be true when it is there.`);
+    // `reach` (switch story-director.world-events): how far a world happening's news travels (world-daily/news-entries.js).
+    if (event.reach !== undefined && !['local', 'regional', 'realm', 'world'].includes(event.reach)) errors.push(`${at}.reach must be local, regional, realm or world.`);
     if (event.fire !== undefined && !(isRecord(event.fire) && Object.keys(event.fire).length === 2 && isInt(event.fire.rev) && event.fire.rev >= 0
         && typeof event.fire.by === 'string' && LASTING_BY.test(event.fire.by))) {
         errors.push(`${at}.fire must be { rev, by }: the pack event that last changed it.`);
     }
     for (const key of Object.keys(event)) {
-        if (!['id', 'name', 'summary', 'state', 'since', 'updated', 'place', 'factions', 'aka', 'rev', 'by', 'keep', 'fire', 'rumour', 'heard'].includes(key)) errors.push(`${at} has an unknown field "${key}".`);
+        if (!['id', 'name', 'summary', 'state', 'since', 'updated', 'place', 'factions', 'aka', 'rev', 'by', 'keep', 'fire', 'rumour', 'heard', 'reach'].includes(key)) errors.push(`${at} has an unknown field "${key}".`);
     }
     return errors;
 }
@@ -120,8 +126,20 @@ export function validateChronicle(slice) {
     }
     // A chronicle from before the day digest has no `days` or `written`.
     errors.push(...validateDays(slice));
+    // The world conditions (conditions/): optional, so a chat that never set one has no field.
+    errors.push(...validateConditions(slice.conditions));
+    // `daily` (switch story-director.world-events): the daily step's state; optional, absent until the first step.
+    errors.push(...validateDaily(slice.daily));
+    // `worldSeed` (same switch): the campaign seed, minted once before the first reply (world-daily/seed.js).
+    if (slice.worldSeed !== undefined && !isWorldSeed(slice.worldSeed)) errors.push('chronicle.worldSeed must be 16 hex digits.');
+    // `worldLine` (switch story-director.world-events): the replies that wrote their one world line, by record ID.
+    if (slice.worldLine !== undefined && (!isRecord(slice.worldLine) || Object.keys(slice.worldLine).length > 64 || Object.values(slice.worldLine).some(v => v !== true))) {
+        errors.push('chronicle.worldLine must be { [reply]: true }, at most 64.');
+    }
+    // `ledger` (same switch): same-day clears and the anchors world lines made, until the daily step takes them (conditions/ledger.js).
+    errors.push(...validateLedger(slice.ledger));
     for (const key of Object.keys(slice)) {
-        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
+        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog', 'conditions', 'worldLine', 'daily', 'worldSeed', 'ledger'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
     }
     return errors;
 }

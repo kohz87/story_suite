@@ -24,3 +24,4 @@ export { ACCEPT, END, UPDATE } from './commands.js';
 export { ARC_NEEDS_STORY_BLOCK, NEEDS_TEXT, arcController, createArcController } from './controller.js';
 export { ARC_WIDGET, arcWidget, createArcWidget } from './widget.js';
 export { part } from './index-parts/part.js';
+export { WORLD_EVENTS_FEATURE } from './lore-digest/part.js';

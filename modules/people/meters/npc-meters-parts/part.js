@@ -67,7 +67,7 @@ export function createNpcPart(hooks = {}) {
     // `~ memory` and `~ reveal` (NSD8, NSD12): only in lines mode; untaught until N7 (grammar '', heads only). Off, a line of either is refused and changes nothing.
     const onlyLines = (name, apply) => folded((ctx, line = {}) => (linesMode(ctx) ? apply(ctx, line) : ctx.fail('REFUSED', `${name} lines are not on.`)));
     const memoryApply = onlyLines('~ memory', (ctx, line) => memoryLine(ctx, line, { date }));
-    const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identify, rulesFor, run }));
+    const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identify, rulesFor, run, call, hooks, defs: () => defsFrom(storedSettings()) }));
     // The host sends every line of the module to the one apply of the `npc` kind: `~ memory` and `~ reveal` go to their own, the rest to the change line.
     // A death line (NSD13, `~ npc Name | died | how: …`) is its own op, in lines mode only; off, it is an ordinary `~ npc` line, byte for byte.
     const diedApply = folded((ctx, line = {}) => diedLine(ctx, line));
