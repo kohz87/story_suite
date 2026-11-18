@@ -10,12 +10,12 @@ export function nowTab(now = {}, ctx = {}) {
   const desk = ctx.desk?.() === true;
   const left = desk ? [rightNow(now, ctx)] : [rightNow(now, ctx), thisTurnCard(now.thisTurn, ctx), youCard(now.you, ctx)];
   const right = desk ? [thisTurnCard(now.thisTurn, ctx), youCard(now.you, ctx), pinnedCards(now.pinned)] : [hereCard(now.here, ctx), pinnedCards(now.pinned)];
-  const empty = ![...left, ...right].flat().some(Boolean);
-  if (empty) left.push(h('p', { class: 'fine now-empty' }, 'Nothing here yet. The place, the time and what changed show up here after the first reply.'));
+  const drawn = [...left.flat(), ...right.flat()].filter(Boolean);
   return h(
     'div',
     { class: 'now-tab', dataset: { tab: 'now' } },
     h('div', { class: 'ncol' }, left),
     h('div', { class: 'ncol' }, right),
+    drawn.length ? null : h('p', { class: 'fine', dataset: { note: 'now-empty' } }, 'Nothing to show yet. Where you are, who is here and what a reply changed appear here as the story goes on.'),
   );
 }

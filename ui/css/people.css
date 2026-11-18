@@ -74,3 +74,5 @@
 .cmap .rw{position:absolute;transform:translate(-50%,-50%);font:700 12px var(--su-font);color:var(--su-muted);background:var(--su-panel);border-radius:999px;padding:0 6px;white-space:nowrap}
 .mcard .mhint{font:400 13px/1.5 var(--su-font);color:var(--su-text)}
 .fchip{display:inline-flex;align-items:center;gap:6px;color:var(--su-text);background:var(--su-panel2)}
+/* a phone: the map is a little taller than wide, so faces and their names spread out, with room under it for the tab bar */
+@media (max-width:480px){.cmap{aspect-ratio:1/1.15;margin-bottom:24px}.cmw{width:56px}.cmw b,.cmw small{font-size:11px}}

@@ -63,10 +63,19 @@ export function createPrefs({
     }
   }
 
+  // With a port the saved choice is read on every look: a reload or a chat switch must not keep an older chat's answer
+  // (the chat's metadata may not even be loaded when the view mounts). A choice the port could not save stays on this page.
+  const pageOnly = new Set();
   function loadChatSpoilers(id) {
-    if (chatSpoilers.has(id)) return chatSpoilers.get(id);
-    const fromPort = port?.prefs?.getChat?.(id);
-    const state = normalizeSpoilers(fromPort);
+    const cached = chatSpoilers.get(id);
+    if (typeof port?.prefs?.getChat !== 'function') {
+      if (cached) return cached;
+      const state = normalizeSpoilers(null);
+      chatSpoilers.set(id, state);
+      return state;
+    }
+    const state = normalizeSpoilers(port.prefs.getChat(id));
+    for (const level of SPOILER_LEVELS) if (pageOnly.has(`${id}\n${level}`) && cached) state[level] = cached[level];
     chatSpoilers.set(id, state);
     return state;
   }
@@ -123,7 +132,9 @@ export function createPrefs({
     const next = Boolean(shown);
     state[level] = next;
     if (port?.prefs?.setChat) {
-      port.prefs.setChat(targetId, level, next);
+      const saved = port.prefs.setChat(targetId, level, next);
+      if (saved === false) pageOnly.add(`${targetId}\n${level}`);
+      else pageOnly.delete(`${targetId}\n${level}`);
     } else if (typeof port?.command === 'function') {
       Promise.resolve(port.command('prefs.spoiler.set', {
         chatId: targetId,

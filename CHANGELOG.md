@@ -14,6 +14,17 @@ Since 0.1.2: documentation, and the Settings, Story › Director and settings-wa
 - World › News: with World events off, happenings the world made that you have not heard of are no longer listed; the Rumours filter counts the items labelled rumour; a news line with no place or date no longer reads "heard , …"; world event titles end on a whole word.
 - World › Map: the place sheet says visited or here and lists its routes; Find (Enter) opens the place or says nothing matched; the region picker keeps its width. The tab strip on wide screens has a panel background so labels do not draw over the cards. (The map's label crowding at default zoom is not changed.)
 - Fight board (bug-hunt batch): **Discard fight** asks first (Discard / Keep it); a fight started from the standing-foes offer and discarded gives the offer back, so the Fight tab stays while the foes stand and a typed attack is held again. The board's **Auto** plays up to Most exchanges Auto plays (3 unset; 9 = until the end), stopping on a win, a loss or a badly hurt hero, like Auto-fight. **Send with this** is shown only while your message waits. The end card says the loot line only on a win and no longer states a Practice number; a disabled heal says "nobody is hurt"; the Flee tile says it is for the whole party and a failed flee says the others acted on Auto (Flee stays one pick for the party, by design); the header reads "Fight · place" and the pill follows the exchange being chosen; the battle log tells Down and Stamina words and puts the side that won initiative first in the turn order.
+### Fixed (soak, People and Now)
+
+- Scene spoilers on Now stay on after a reload or a chat switch: the choice is read from the chat each time, not kept from the first look.
+- A receipt for a tie, taste, know or lie line, or a `~ npc` place, goal, status or gender label, says what was stored (`nothing moved; tie stored`) instead of only `nothing moved`.
+- Now › This reply (and the ✦ menu) also lists the feeling moves of `~ npc` lines.
+- People search finds a person by an alias; People names a person the scene has here but NPC State has no record of (`Here with no record yet`).
+- Journal › a quest's giver opens their dossier when the name or an alias matches a stored person.
+- Now says `Nothing to show yet…` in a new chat instead of a blank panel.
+- `hidden` is a known module field: the console no longer logs `"hidden" is not a module field` on every load.
+- With SillyTavern's No Blur, glass panels keep a solid colour under their fill so Settings and the dossier stay readable; the People map is taller on a phone so names spread out.
+- Not changed: a removed feeling keeps its stages on purpose (Settings marks them "Not used"); an edit of a reply's change block in SillyTavern does not re-read it (an edit never captures; Re-read is the way, docs/dev/edit-prose-only.md); lines refused by a reply are still not kept for the card; a story hook (`+ hook`) stays on Story with the plan shown, as the plan is hidden by design; a secret's `who:` is not stored, so it does not link.
 
 ### Added
 
