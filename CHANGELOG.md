@@ -10,6 +10,11 @@ Main has nothing beyond 0.1.2 yet except documentation.
 
 - The README and this changelog are rewritten to be readable: short sections, tables, and the long notes folded away.
 
+### Fixed
+
+- Settings › Look works in the new view: Panel style (Glass or Follow SillyTavern), Glass strength, Font and Text size now change the Story Suite panel at once and stay after a reload; Reset Look puts the Glass look back. The panel now opens in Glass by default (light or dark from your SillyTavern theme) instead of always taking SillyTavern's colours.
+- The Send pending note shows above the message box in the new view again (sends when the story is ready, not sent yet, sent); its fight-held state stays hidden there, as the Fight tab shows the fight. The Send pending note switch turns it off.
+
 ## 0.1.2 — 18 Nov 2026
 
 **Highlights**
