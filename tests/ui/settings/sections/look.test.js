@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mountSettings } from './mount.js';
 
-test('Look shows its five rows in one Skin card, the Follow note and one Reset; no module block', () => {
+test('Look shows its five rows in one Skin card, the Panel background card, the Follow note and one Reset; no module block', () => {
   const { page } = mountSettings();
   const el = page('look');
-  assert.equal(el.querySelectorAll('.sgrp').length, 1);
-  assert.equal(el.querySelectorAll('.srow').length, 5);
+  assert.equal(el.querySelectorAll('.sgrp').length, 2);
+  assert.equal(el.querySelectorAll('.srow').length, 6);
   assert.equal(el.querySelector('.mod'), null);
   assert.match(el.querySelector('.fine').textContent, /Follow SillyTavern/);
   assert.equal(el.querySelectorAll('.applies').length, 1);
