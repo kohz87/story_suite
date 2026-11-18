@@ -79,10 +79,12 @@ async function tell(t, seed, steps, { index }) {
             const replies = carriers(ctx.chat);
             const roll = r.int(0, 19);
             let action = 'send';
+            // (a swipe needs a reply as the last message: after a delete the chat may end on the reader's own)
+            const lastIsReply = ctx.chat.length > 0 && !ctx.chat.at(-1).is_user && !ctx.chat.at(-1).is_system;
             if (replies.length && roll <= 5) action = 'prose';
             else if (replies.length && roll === 6) action = 'block';
-            else if (replies.length && roll === 7) action = 'swipe';
-            else if (replies.length && roll === 8) action = 'swipeBack';
+            else if (replies.length && lastIsReply && roll === 7) action = 'swipe';
+            else if (replies.length && lastIsReply && roll === 8) action = 'swipeBack';
             else if (replies.length > 2 && roll === 9) action = 'deleteMiddle';
             else if (ctx.chat.length > 3 && roll === 10) action = 'deleteLast';
             else if (replies.length && roll === 11) action = 'reread';

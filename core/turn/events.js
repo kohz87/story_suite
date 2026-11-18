@@ -17,6 +17,7 @@ import { createLateEvents } from './events-late.js';
 import { createReplyHooks } from './events-hooks.js';
 import { keptProblems } from './problem-keep.js';
 import { createProseEdits } from './edit-prose.js';
+import { castNames } from './edit-names.js';
 export function createEvents(s, deps) {
     const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
     const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
@@ -24,7 +25,7 @@ export function createEvents(s, deps) {
     const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate, keepLog: () => s.keepLog?.() });
     s.afterReply = afterReply;   // (Re-read asks it for a repair of a reply that still has no block: reread.js)
     // The text each message had, for telling a prose-only edit (docs/dev/edit-prose-only.md).
-    const proseEdits = createProseEdits({ ctx, isCarrier, changeHeads });
+    const proseEdits = createProseEdits({ ctx, isCarrier, changeHeads, names: () => castNames(view()) });
 
     /** MESSAGE_RECEIVED: (messageId, type). */
     async function onMessageReceived(messageId) {

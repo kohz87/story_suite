@@ -4,10 +4,11 @@
 // It is prose-only, so the turn may skip the reconcile, only when all of these hold, by exact equality: the index is a whole
 // message of the chat, the message and its swipe and the chat's length are the ones remembered, the message is a carrier
 // holding a record, and its capture-relevant text is the same (the block region from the first `<Changes` or hidden-comment
-// marker to the end, the stray change lines in the story, and no v1 envelope either side). Anything else: null (the full path).
+// marker to the end, the stray change lines in the story, and no v1 envelope either side) and the edit adds or removes no word a capture reads (edit-words.js: a day or month name, a cast name or alias, a "#N"). Anything else: null (the full path).
 
 import { readRecord } from '../persist.js';
 import { adoptLegacy, strayLines } from '../capture.js';
+import { touchesCaptureWords } from './edit-words.js';
 
 // (the cut payloadText makes: the reply up to its <Changes> block, or the hidden comment that holds it once read)
 const MARKER = /<Changes\b|<!--\s*STORY_SUITE_V2\b/i;
@@ -20,8 +21,8 @@ const strayKey = (text, heads) => {
     return JSON.stringify([taken.map(each => each.line), problems.map(each => each.line)]);
 };
 
-/** `createProseEdits({ ctx, isCarrier, changeHeads })` → { remember(), proseOnly(index) → the message index when prose-only, else null }. */
-export function createProseEdits({ ctx, isCarrier, changeHeads }) {
+/** `createProseEdits({ ctx, isCarrier, changeHeads, names = () => null })` → { remember(), proseOnly(index) → the message index when prose-only, else null }. */
+export function createProseEdits({ ctx, isCarrier, changeHeads, names = () => null }) {
     let seen = { arr: null, length: -1, texts: new WeakMap() };
 
     function remember() {
@@ -44,6 +45,7 @@ export function createProseEdits({ ctx, isCarrier, changeHeads }) {
         const before = was.mes, after = message.mes;
         if (blockRegion(before) !== blockRegion(after)) return null;
         if (adoptLegacy(before).legacy !== null || adoptLegacy(after).legacy !== null) return null;
+        if (touchesCaptureWords(before, after, names)) return null;
         const heads = changeHeads();
         return strayKey(before, heads) === strayKey(after, heads) ? at : null;
     }
