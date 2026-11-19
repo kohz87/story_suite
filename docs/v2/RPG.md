@@ -587,9 +587,19 @@ and text of up to 240 characters. The narrator is told up to 100 tokens of each 
 with a `role` is told compactly: a value at its default is left out, a Skills block is one line per skill with the empty
 slots left out, and a Foes block lists only the groups in the fight.
 
+### Stances (Combat Rules v1)
+
+A character owns at most one stance skill, and while the stance is on its cost (1 Stamina, or 1 Mana for a magic stat) is paid at the start of each exchange (`combat/numbers.js`, `combat/exchange.js`). There are three:
+
+- **Defence** (any stat; VIT is usual): soak + 5% per mastery step on top of VIT and gear, held to 50%.
+- **Speed** (the earlier Evasion and Movement stances in one): half the mastery, rounded up, is added to the evasion roll and to the tempo roll. It does not raise the extra-action cap (that is AGI's alone: 1, 2 at AGI 15, 3 at AGI 25).
+- **Focus** (the earlier Support): its stat must be INT or WIS, and it is always paid from Mana. While it is on, the damage and the healing of skills whose stat is INT or WIS are multiplied by (100 + 5 × mastery) ÷ 100, rounded down (×1.05 at mastery 1 up to ×1.35 at 7): skill amount, then Focus, then the area 60%, then decisive and soak; a hit still does at least one damage. The normal attack and skills on other stats are not changed.
+
+The older words still read: `evasion`, `movement`, `agility` and `swift` are Speed, `support`, `channel` and `auxiliary` are Focus, in a story learn line, a character file, a pack's cast skills and skill sets (`core/runtime/skill-slots-parts/stances.js`, `packs/limits-parts/skill-words.js`). A Focus skill on another stat is refused where it is learned (the story's learn line, a pack skill set) and held at the wizard's Review; the wizard's Stat list offers only INT and WIS for a Focus skill, and turning a skill into Focus moves any other stat to WIS. A joining person's Focus skill rolls with WIS (or INT/WIS when that is their best stat). The fight board's stance switch names what Speed or Focus adds while on, and the Party sheet says "Speed stance", "Focus stance" or "Defence stance".
+
 ### Built-in skill sets
 
-The five built-in sets (`modules/rpg/templates-parts/skill-sets.js`) give each skill a Combat Rules v1 `type`, and the wizard writes it into the draft (attack is the unwritten default). A set holds at most one stance skill (defence, evasion, movement or support); a test checks every built-in set. The wizard's Review names the pool a skill draws on as the board prices it (INT, WIS and a heal: Mana) and holds Create while two skills are stances. "One may start at Adept" stores Adept; the Party sheet shows the rank the level allows (Adept works from Lv 10), so the wizard and Review say "Adept (works from Lv 10)" while the level is lower. A set's utility skills fill the utility slots and its other skills the combat slots. Pack sets have no `type` field, so their skills are attacks until the reader changes them.
+The five built-in sets (`modules/rpg/templates-parts/skill-sets.js`) give each skill a Combat Rules v1 `type`, and the wizard writes it into the draft (attack is the unwritten default). A set holds at most one stance skill (defence, speed or focus; River scout's Swimming is Speed, Field medic's Calm is Focus on WIS); a test checks every built-in set. The wizard's Review names the pool a skill draws on as the board prices it (INT, WIS and a heal: Mana) and holds Create while two skills are stances. "One may start at Adept" stores Adept; the Party sheet shows the rank the level allows (Adept works from Lv 10), so the wizard and Review say "Adept (works from Lv 10)" while the level is lower. A set's utility skills fill the utility slots and its other skills the combat slots. Pack sets have no `type` field, so their skills are attacks until the reader changes them.
 
 ### Skill sets in a pack
 

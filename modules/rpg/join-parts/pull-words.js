@@ -1,13 +1,14 @@
 // The pull's keyword table (pack format 4, §5.3): the words of an ability's description or a person's role and history, and what each says of a sheet.
 // Fixed and ordered, folded to lower case, no locale and no randomness: the same record gives the same sheet on a swipe, a Re-read and a rebuild.
 
-/** [pattern, skill type, stat]: the first row an ability's name and description match gives its type and stat; no match is a plain attack on the lead stat. */
+/** [pattern, skill type, stat]: the first row an ability's name and description match gives its type and stat; no match is a plain attack on the lead stat. (The stat also leans
+ * the person's best stat; a focus row's CHA is rolled as WIS on the sheet, from-person.js, since a Focus skill rolls with INT or WIS.) */
 const ABILITY_WORDS = Object.freeze([
     [/\b(heal|mend|cure|restor|bandage|salve|balm|bless|revive|remed)/u, 'heal', 'wis'],
     [/\b(ward|shield|guard|protect|barrier|armou?r|bulwark|brace|deflect|parry|endur)/u, 'defence', 'vit'],
-    [/\b(dodge|evade|evasi|sneak|stealth|hide|nimble|slip|vanish|shadow)/u, 'evasion', 'agi'],
-    [/\b(rally|inspire|command|lead|aura|encourag|oath|banner|support)/u, 'support', 'cha'],
-    [/\b(sprint|dash|leap|climb|swift|charge|stride|vault)/u, 'movement', 'agi'],
+    [/\b(dodge|evade|evasi|sneak|stealth|hide|nimble|slip|vanish|shadow)/u, 'speed', 'agi'],
+    [/\b(rally|inspire|command|lead|aura|encourag|oath|banner|support)/u, 'focus', 'cha'],
+    [/\b(sprint|dash|leap|climb|swift|charge|stride|vault)/u, 'speed', 'agi'],
     [/\b(sweep|cleave|blast|storm|volley|burst|explo|wave|nova|whirl|barrage)/u, 'area', 'str'],
     [/\b(arrow|bow|shot|shoot|throw|knife|dagger|sling|dart|aim|snipe|trap)/u, 'attack', 'dex'],
     [/\b(spell|arcane|magic|fire|flame|frost|ice|lightning|curse|hex|conjur|sorcer|rune)/u, 'attack', 'int'],

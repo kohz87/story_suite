@@ -2,11 +2,13 @@
 
 import { CREATION, STATS_V1 as STATS, USES } from '../../names.js';
 import { SKILL_TYPE_NAMES } from '../../templates-combat.js';
-import { UTILITY_SLOTS } from '../../../../core/runtime/skill-slots.js';
+import { FOCUS_STATS, UTILITY_SLOTS, stanceTypeOf, typeKey } from '../../../../core/runtime/skill-slots.js';
 import { mayStartAdept } from './adept.js';
 import { combatSlots, draftSlots, utilityCount } from './slots.js';
 import { oneLine } from './shared-helpers.js';
 
+// A Focus skill's stat: INT or WIS as given, any other stat WIS (a Focus stance rolls with INT or WIS).
+const focusStat = (type, stat) => (type === 'focus' && !FOCUS_STATS.includes(stat) ? 'wis' : stat);
 const blankSkill = type => ({ name: '', about: '', stat: STATS[0], uses: USES[0], start: 0, ...(type === 'utility' ? { type } : {}) });
 
 /** A skill set put into the draft: its skills (up to the draft's slots), every one at Novice. */
@@ -22,9 +24,9 @@ export function withSet(draft, set) {
         return true;
     }).map(skill => ({
         name: oneLine(skill.name, CREATION.skillName), about: oneLine(skill.about, CREATION.skillAbout),
-        stat: STATS.includes(skill.stat) ? skill.stat : skill.stat === 'luk' ? 'wis' : STATS[0], uses: USES.includes(skill.uses) ? skill.uses : USES[0], start: 0, fromSet: true,
+        stat: focusStat(stanceTypeOf(skill.type), STATS.includes(skill.stat) ? skill.stat : skill.stat === 'luk' ? 'wis' : STATS[0]), uses: USES.includes(skill.uses) ? skill.uses : USES[0], start: 0, fromSet: true,
         // (the set's own type, as a skill the reader adds by hand keeps one: attack is the default and is not written)
-        ...(SKILL_TYPE_NAMES.includes(skill.type) && skill.type !== 'attack' ? { type: skill.type } : {}),
+        ...typeKey(skill.type),
     }));
     return { ...draft, skills: [...signed, ...kept, ...skills], set: String(set?.id ?? '') };
 }
@@ -41,12 +43,13 @@ export function withSkillPatch(draft, index, patch) {
     if (!draft.skills[index]) return draft;
     const only = draft.skills[index].sig === true ? { ...(patch.name !== undefined ? { name: patch.name } : {}), ...(patch.about !== undefined ? { about: patch.about } : {}) } : patch;
     const next = { ...draft.skills[index], ...only };
-    // (`type`: one of the eight skill types, utility being the story-only one; a pool that is full refuses it)
+    // (`type`: one of the seven skill types, utility being the story-only one; a pool that is full refuses it)
     if (patch.type !== undefined && draft.skills[index].sig !== true) {
         const { type: _type, fromSet: _from, ...rest } = next, others = utilityCount(draft, index);
         const fits = patch.type === 'utility' ? others < UTILITY_SLOTS : draft.skills.length - others - 1 < combatSlots(draft);
         if (!fits) return draft;
-        return { ...draft, skills: draft.skills.map((skill, at) => (at === index ? { ...rest, ...(SKILL_TYPE_NAMES.includes(patch.type) && patch.type !== 'attack' ? { type: patch.type } : {}) } : skill)) };
+        // (a skill turned Focus rolls with INT or WIS: any other stat becomes WIS, and the stat list says why)
+        return { ...draft, skills: draft.skills.map((skill, at) => (at === index ? { ...rest, stat: focusStat(patch.type, rest.stat), ...(SKILL_TYPE_NAMES.includes(patch.type) && patch.type !== 'attack' ? { type: patch.type } : {}) } : skill)) };
     }
     if (next.start === 1 && !mayStartAdept(draft, index)) next.start = 0;
     return { ...draft, skills: draft.skills.map((skill, at) => (at === index ? next : skill)) };

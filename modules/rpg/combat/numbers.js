@@ -22,7 +22,8 @@ export const V1 = deep({
     },
     damage: { statDiv: 2, healDiv: 3, min: 1 },
     soak: { stanceStep: 5 },
-    tempoStanceBonus: 1,
+    // A Focus stance: the damage and healing of INT and WIS skills × (100 + 5 per mastery step) ÷ 100, rounded down (×1.05 at mastery 1 … ×1.35 at 7).
+    focus: { step: 5, stats: ['int', 'wis'] },
     foe: {
         rollBase: 6, rollLevelDiv: 3, hpBase: 8, hpLevelDiv: 2, damageBase: 3, damageLevelDiv: 6,
         damageRound: 0.5, defaultTier: 'standard', groupMax: 6, attackCapTimes: 2,
@@ -38,10 +39,11 @@ export const V1 = deep({
             attack: { label: 'Attack', kind: 'action', cost: 'attack', pool: 'stat', adds: 'damage', aliases: ['attack'] },
             area: { label: 'Area attack', kind: 'action', cost: 'area', pool: 'stat', adds: 'damage', aliases: ['area', 'area attack', 'areaattack'] },
             defence: { label: 'Defence', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'soak', aliases: ['defence', 'defense'] },
-            evasion: { label: 'Evasion', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['evasion'] },
-            movement: { label: 'Movement', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['movement'] },
+            // (Speed is the earlier Evasion and Movement stances in one: half mastery to the evasion and the tempo roll, no extra action)
+            speed: { label: 'Speed', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['speed', 'evasion', 'movement', 'agility', 'swift'] },
+            // (Focus replaced Support: an INT or WIS stance, paid from Mana, that strengthens the INT and WIS skills)
+            focus: { label: 'Focus', kind: 'stance', cost: 'stance', pool: 'mp', adds: 'power', aliases: ['focus', 'support', 'channel', 'auxiliary'] },
             heal: { label: 'Heal', kind: 'action', cost: 'heal', pool: 'mp', adds: 'healing', aliases: ['heal', 'healing'] },
-            support: { label: 'Support', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'value', aliases: ['support'] },
             utility: { label: 'Utility', kind: 'story', cost: 'utility', pool: null, adds: 'check', aliases: ['utility'] },
         },
     },
@@ -68,7 +70,7 @@ export const RANKS = deep([
     { name: 'Legend', mastery: 7, practice: 600, minLevel: 85 },
 ]);
 
-/** Extra-action cap by AGI, highest threshold first; a Movement stance adds one more. */
+/** Extra-action cap by AGI, highest threshold first (no stance raises it). */
 export const TEMPO_CAPS = deep([
     { minAgi: 25, cap: 3 },
     { minAgi: 15, cap: 2 },

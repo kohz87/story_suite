@@ -52,13 +52,17 @@ function setButton(ctx, set) {
     h('small', { class: 'wz-src' }, set.source));
 }
 
+// The Stat list: a Focus skill rolls with INT or WIS, so the other stats are switched off and say why (its own stat stays, for a file that brought one: Review names it).
+const statOptions = skill => STATS.map(key => (skill.type === 'focus' && !V1.focus.stats.includes(key) && key !== skill.stat
+  ? { value: key, label: fill(W.focusStatOff, { stat: key.toUpperCase() }), disabled: true } : { value: key, label: key.toUpperCase() }));
+
 function skillCard(ctx, skill, at) {
   const { run } = ctx;
   const label = skill.name || W.newSkill;
   const patch = (value, again = false) => { ctx.put(withSkillPatch(run.draft, at, value)); if (again) ctx.redraw(); else ctx.summary(); };
   const name = h('input', { type: 'text', maxlength: String(CREATION.skillName), 'aria-label': W.skillName, value: skill.name ?? '', dataset: { field: 'name' }, onInput: () => patch({ name: name.value }) });
   const about = h('textarea', { rows: '2', maxlength: String(CREATION.skillAbout), 'aria-label': fill(W.skillAbout, { name: label }), value: skill.about ?? '', dataset: { field: 'about' }, onInput: () => patch({ about: about.value }), onKeydown: event => { if (event.key === 'Enter') event.preventDefault(); } });
-  const stat = select([...(skill.stat ? [] : [{ value: '', label: '—' }]), ...STATS.map(key => ({ value: key, label: key.toUpperCase() }))], skill.stat ?? '', fill(W.skillStat, { name: label }), 'stat');
+  const stat = select([...(skill.stat ? [] : [{ value: '', label: '—' }]), ...statOptions(skill)], skill.stat ?? '', fill(W.skillStat, { name: label }), 'stat');
   const type = select(typeOptions(SKILL_TYPES, run.draft.skills, at), skill.type ?? 'attack', fill(W.skillType, { name: label }), 'type');
   const ranked = Number.isSafeInteger(skill.rank);
   const start = ranked ? select(RANK_WORDS.map((word, rank) => ({ value: rank, label: word, disabled: true })), skill.rank, fill(W.skillStart, { name: label }), 'start')

@@ -36,11 +36,11 @@ test('the Skills step offers Adept with the level it works from while the level 
   assert.deepEqual(options(10), ['Novice', 'Adept']);
 });
 
-test('Create waits while two skills are stances (defence, evasion, movement, support), and names them', () => {
+test('Create waits while two skills are stances (defence, speed, focus), and names them', () => {
   const where = { persona: 'Wessel', names: [], room: true, hasYou: false };
   const one = problemsOf(draftOf([skill('Shield work', 'vit', 'defence'), skill('Cleave', 'str', 'area')]), where);
   assert.deepEqual(one, []);
-  const two = problemsOf(draftOf([skill('Shield work', 'vit', 'defence'), skill('Dodge', 'agi', 'evasion')]), where);
-  assert.deepEqual(two, ['Only one stance skill (defence, evasion, movement or support) may be kept, and Shield work, Dodge are all stances.']);
+  const two = problemsOf(draftOf([skill('Shield work', 'vit', 'defence'), skill('Dodge', 'agi', 'speed')]), where);
+  assert.deepEqual(two, ['Only one stance skill (defence, speed or focus) may be kept, and Shield work, Dodge are all stances.']);
   assert.equal(problemsOf(draftOf([skill('Shield work', 'vit', 'defence'), skill('Guard', 'vit', 'defence')]), where).length, 1);
 });

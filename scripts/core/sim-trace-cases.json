@@ -1,5 +1,5 @@
 {
- "rules": "v8.1",
+ "rules": "v8.2",
  "cases": [
   {"name": "normal-hit", "note": "Hit by 6 (not decisive), skill dmg 6, tempo fails, foe hits through 10% soak (VIT 5 + Defence stance 5)", "party": [{"build": "Warrior", "lv": 1}], "foes": [{"tier": "standard", "lv": 1}], "dice": [15, 5, 12, 5, 3, 10, 8, 10], "exchanges": 1},
   {"name": "decisive-by-8", "note": "Win by exactly 8 is decisive: 6 x 1.5 = 9", "party": [{"build": "Warrior", "lv": 1}], "foes": [{"tier": "elite", "lv": 1}], "dice": [15, 5, 15, 5, 2, 10, 2, 15], "exchanges": 1},
@@ -13,8 +13,8 @@
   {"name": "defence-stance-soak", "note": "Warrior L15 Defence stance: soak VIT 8 + 3 x 5 = 23%; boss hit 10 -> 7", "party": [{"build": "Warrior", "lv": 15}], "foes": [{"tier": "boss", "lv": 15}], "dice": [15, 5, 1, 12, 17], "exchanges": 1},
   {"name": "soak-cap-50", "note": "VIT 30 plus Defence stance 25 = 55%, capped at 50%: boss dmg 22 -> 11", "party": [{"build": "Warrior", "lv": 50, "stats": {"VIT": 30}}], "foes": [{"tier": "boss", "lv": 50}], "dice": [15, 5, 1, 12, 18], "exchanges": 1},
   {"name": "soak-min-1", "note": "A mob hit of 1 against 10% soak still deals 1 (minimum 1)", "party": [{"build": "Warrior", "lv": 1}], "foes": [{"tier": "mob", "lv": 1}], "dice": [15, 5, 1, 12, 12], "exchanges": 1},
-  {"name": "evasion-stance", "note": "Skirmisher L15 Evasion stance: d20 + 4 + 3 + 2; the 21 ties the foe's 21 and evades (19 would hit)", "party": [{"build": "Skirmisher", "lv": 15}], "foes": [{"tier": "standard", "lv": 15}], "dice": [15, 5, 1, 10, 12], "exchanges": 1},
-  {"name": "movement-stance-cap-plus-1", "note": "Skirmisher-Move L15: tempo cap 1 + 1 = 2, tempo roll gets +ceil(3/2); two extra actions", "party": [{"build": "Skirmisher-Move", "lv": 15}], "foes": [{"tier": "boss", "lv": 15, "hp": 90}], "dice": [15, 5, 15, 5, 15, 10, 15, 5, 15, 10, 15, 5, 8, 15], "exchanges": 1},
+  {"name": "speed-stance-evasion", "note": "Skirmisher L15 Speed stance: evasion d20 + 4 + 3 + 2; the 21 ties the foe's 21 and evades (19 would hit)", "party": [{"build": "Skirmisher", "lv": 15}], "foes": [{"tier": "standard", "lv": 15}], "dice": [15, 5, 1, 10, 12], "exchanges": 1},
+  {"name": "speed-stance-tempo-no-extra-cap", "note": "Skirmisher-Move L15 Speed stance: the tempo roll gets +ceil(3/2) but the cap stays 1 (no +1 any more); one extra action", "party": [{"build": "Skirmisher-Move", "lv": 15}], "foes": [{"tier": "boss", "lv": 15, "hp": 90}], "dice": [15, 5, 15, 5, 15, 10, 15, 5, 8, 15], "exchanges": 1},
   {"name": "area-60", "note": "Skirmisher-area L15 vs two foes: area costs 2 SP, rolled per target, 60% of 10 = 6; one hit, one miss, tempo rolled once", "party": [{"build": "Skirmisher-area", "lv": 15}], "foes": [{"tier": "standard", "lv": 15, "label": "a"}, {"tier": "standard", "lv": 15, "label": "b"}], "dice": [15, 5, 5, 15, 10, 8, 14, 2, 12, 8, 10, 8, 10], "exchanges": 1},
   {"name": "heal", "note": "Healer L15 heals the ally below half HP: WIS 14 / 3 + mastery 3 = 7, 2 MP", "party": [{"build": "Healer", "lv": 15}, {"build": "Warrior", "lv": 15, "hp": 4, "label": "Ally"}], "foes": [{"tier": "standard", "lv": 15}], "dice": [15, 12, 5, 1, 2, 9], "exchanges": 1},
   {"name": "heal-clamps-at-max", "note": "Heal never passes max HP: ally 2/7 healed by 7 ends at 7", "party": [{"build": "Healer", "lv": 15}, {"build": "Warrior", "lv": 1, "hp": 2, "label": "Ally"}], "foes": [{"tier": "standard", "lv": 15}], "dice": [15, 12, 5, 1, 2, 9], "exchanges": 1},

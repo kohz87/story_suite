@@ -17,7 +17,7 @@ function costText(s) {
   const pool = text(RESOURCE[s.resource] ?? s.resource);
   return `${s.cost}${pool ? ` ${pool}` : ''}${s.kind === 'stance' ? ' each exchange' : ''}`;
 }
-const kindText = s => text(KIND_LABEL[s.kind] ?? s.kind);
+const kindText = s => (s.kind === 'stance' && text(s.stance) ? `${text(s.stance)} stance` : text(KIND_LABEL[s.kind] ?? s.kind));
 const factsText = s => [text(s.stat), costText(s)].filter(Boolean).join(' · ');
 const rowText = s => text(s.line) || [kindText(s), text(s.stat), costText(s)].filter(Boolean).join(' · ');
 

@@ -26,6 +26,6 @@ export function profileOf(actor) {
     const stance = list.find(skill => skillCost(skill).kind === 'stance') ?? null, heal = first('heal');
     return {
         attack: asAttack(first('attack')), area: asAttack(first('area')), heal: heal ? { stat: heal.stat || 'wis' } : null,
-        stance: stance ? { type: stance.type, stat: stance.stat || 'agi' } : null,
+        stance: stance ? { type: stance.type, stat: stance.stat || (stance.type === 'focus' ? 'wis' : 'agi') } : null,
     };
 }

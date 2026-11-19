@@ -1,4 +1,4 @@
-// Test-only simulator parity kit: the v8.1 derived builds, a Python-compatible seeded d20 stream and one cell runner.
+// Test-only simulator parity kit: the v8.2 derived builds, a Python-compatible seeded d20 stream and one cell runner.
 // The seed and draw order are exactly sim.py's, so a matching engine reproduces its 3000-run row rather than merely nearing it.
 
 import { crc32 } from 'node:zlib';
@@ -111,7 +111,7 @@ function sheetFor(cell) {
     };
 }
 
-/** Every A/B/D/E/F cell from the v8.1 fixture: [scenario, row, level, win %, unfinished %, mean exchanges]. */
+/** Every A/B/D/E/F cell from the v8.2 fixture: [scenario, row, level, win %, unfinished %, mean exchanges]. */
 export const PARITY_CELLS = CELLS.filter(cell => 'ABDEF'.includes(cell[0]));
 
 /** Run one fixture cell through the real engine with the simulator's seed and draw order. */
@@ -127,7 +127,7 @@ export function runCell(cell, runs = 3000) {
     return { win: 100 * wins / runs, unfinished: 100 * unfinished / runs, exchanges: exchanges / runs, runs };
 }
 
-/** Check every cell of the given scenarios against the v8.1 fixture: win ±3.0 points, mean exchanges ±0.2, nothing unfinished, band counts equal. */
+/** Check every cell of the given scenarios against the v8.2 fixture: win ±3.0 points, mean exchanges ±0.2, nothing unfinished, band counts equal. */
 export function checkScenarios(assert, scenarios) {
     const mine = PARITY_CELLS.filter(cell => scenarios.includes(cell[0])), found = new Map();
     for (const cell of mine) {

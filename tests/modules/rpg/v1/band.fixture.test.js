@@ -1,4 +1,4 @@
-// The band fixture (band.fixture.js, built from sim-results-v8.1.md) is whole and agrees with itself and with the oracle:
+// The band fixture (band.fixture.js, built from sim-results-v8.2.md) is whole and agrees with itself and with the oracle:
 // 120 cells (A-G) plus 108 for 4-6 foes (H-J), the role bands (A-G and the locked H-J bands) recount to the results file's own in-band numbers, every derived character and foe row
 // equals the oracle's formulas.
 
@@ -39,7 +39,7 @@ test('4-6 foes: more foes never help; a trivial group is won, an elite group is 
     }
 });
 
-test('locked 4-6-foe bands (owner decision 48): 18 rows recount to the printed numbers; 89 of 108 cells in band, 19 standard cells out', () => {
+test('locked 4-6-foe bands (owner decision 48): 18 rows recount to the printed numbers; 84 of 108 cells in band, 24 standard cells out (v8.2; v8.1 had 89 and 19)', () => {
     assert.equal(BANDS_MANY.length, 18);
     const band = (sc, row) => BANDS_MANY.find(b => b[0] === sc && b[1] === row).slice(2, 4);
     assert.deepEqual(['H', 'I', 'J'].map(sc => band(sc, 'W+S+M vs standard')), [[70, 85], [35, 55], [15, 30]]);
@@ -57,11 +57,11 @@ test('locked 4-6-foe bands (owner decision 48): 18 rows recount to the printed n
         if (row.endsWith('standard')) outStandard += 6 - n;
         assert.equal(printed, `${n}/6`, `${sc} ${row}`);
     }
-    assert.equal(inBand, 89);
-    assert.equal(outStandard, 19);
+    assert.equal(inBand, 84);
+    assert.equal(outStandard, 24);
 });
 
-test('v8.1 has no Evasion+Movement rows: Skirmisher is Evasion, Skirmisher-Move is Movement', () => {
+test('v8.2 keeps the v8.1 rows: Skirmisher, Skirmisher-area and Skirmisher-Move (now the same Speed stance as Skirmisher), no -noMove row', () => {
     const rows = new Set(CELLS.map(c => c[1]));
     assert.ok(rows.has('Skirmisher') && rows.has('Skirmisher-Move') && rows.has('Skirmisher-area'));
     assert.ok(!rows.has('Skirmisher-noMove'));
@@ -78,7 +78,7 @@ test('the 17 role bands recount to the in-band numbers the results file prints',
         // the file prints win % to one decimal for the band test and whole numbers in the table; the count is the band test's
         assert.equal(printed, `${n}/6`, `${sc} ${row}`);
     }
-    assert.equal(inBand, 47);
+    assert.equal(inBand, 50);   // (v8.2; v8.1 had 47)
 });
 
 test('every derived character equals the oracle: bars, mastery, hit bonus', () => {

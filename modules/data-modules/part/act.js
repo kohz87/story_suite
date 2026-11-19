@@ -9,7 +9,7 @@ import { fold, readSheet } from '../../rpg/read.js';
 import { LEAN_RPG_FEATURE } from '../../rpg/names.js';
 import { XP_RATE, scaleXp, xpRateFrom, xpRateOf } from '../../rpg/levels.js';
 import { FOE_LEVEL, averageLevel, bandOfRank, foeRandom, foeLevelCap, levelOf, partyLevels, pickLevel } from '../../rpg/foes.js';
-import { SKILL_SLOTS_MAX, SLOT_NUMBER, isTypedSkills } from '../../../core/runtime/skill-slots.js';
+import { SKILL_SLOTS_MAX, SLOT_NUMBER, isTypedSkills, stanceTypeOf } from '../../../core/runtime/skill-slots.js';
 import { RESTED_FIELD, RESTED_KNOWN, SET_KINDS, fullRestTooSoon, isMarkedCharacter, recoveryNote } from '../recovery.js';
 import { B, rpg, draftOf, stateOf, pairKey, subjectsOf, instancePath, prefixImports } from './shared.js';
 import { skillCapacity } from './skills.js';
@@ -129,7 +129,9 @@ export function createAct(deps) {
             return values.includes('combat') || !values.length ? 'combat' : values.includes('attack') ? 'attack' : values[0];
         };
         const required = learnsTyped && kind.labels.type.optional !== true && !dmOwn(labels, 'type');
-        const args = parseLabels(definition, kind, required ? { ...labels, type: defaultType() } : labels, { text: Boolean(line) });
+        // (an earlier stance word on a learn line, `type: evasion` or `type: support`, is the stance type it became when the block knows that type: Speed or Focus)
+        const aliased = learnsTyped && !required && (kind.labels.type.values ?? []).includes(stanceTypeOf(labels.type)) ? { ...labels, type: stanceTypeOf(labels.type) } : labels;
+        const args = parseLabels(definition, kind, required ? { ...labels, type: defaultType() } : aliased, { text: Boolean(line) });
         if (learnsTyped && args.type === undefined) args.type = defaultType();
         // The XP rate (lean-rpg/levels.js): the narrator's XP line for a character is multiplied by the rate in force (the RPG on), which the line's record keeps
         // (`xpRate`, only when it is not 100) so a later change of the setting never moves it; a line recorded without it is 100.

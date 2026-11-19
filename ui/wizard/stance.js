@@ -1,5 +1,5 @@
 // The Skills step's one-stance rule, said as the reader chooses: a character keeps one stance skill (Combat Rules v1), so while one skill holds the
-// stance the other skills' Type lists show the stance types switched off, with the holder named. Review's twoStances check is unchanged.
+// stance the other skills' Type lists show the stance types (defence, speed, focus) switched off, with the holder named. Review's twoStances check is unchanged.
 
 import { skillCost } from '../../modules/rpg/combat/skills.js';
 import { RPG_STRINGS, fill } from '../../modules/rpg/strings.js';

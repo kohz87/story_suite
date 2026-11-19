@@ -67,7 +67,7 @@ Write [battle] on its own line where the fight is told.
 Code has already moved the bars for these results; never set those yourself.
 Tell the fight in about 100 words: how it opened, the deciding moment, how it ended; the battle log keeps the blow-by-blow.
 Order: the party Rin, Kira, Bo; then the foes Rat 2, Rat 3, Rat 1.
-Exchange 1: Rin takes the Evasion stance
+Exchange 1: Rin takes the Speed stance
 Kira takes the Defence stance
 Rin attacks Rat 2 (area): hit; Rat 2 HP 30 → 23
 Rin attacks Rat 3 (area): miss

@@ -53,3 +53,13 @@ test('skillSheet falls back to the kind glyph and shows the raw kind for unknown
   assert.equal(sheetEl().querySelector('.ti svg') !== null, true);
   sheet.close();
 });
+
+test('a stance skill says which stance it is: Speed stance, Focus stance, Defence stance (the plain Stance when the view names none)', () => {
+  const ctx = makeCtx();
+  const base = { glyph: 'stance', kind: 'stance', resource: 'stamina', cost: 1, rank: 'Novice', mastery: 1 };
+  const member = { id: 'q', name: 'Q', skills: [{ ...base, name: 'Swift', stat: 'AGI', stance: 'Speed' }, { ...base, name: 'Calm', stat: 'WIS', resource: 'mana', stance: 'Focus' }, { ...base, name: 'Old', stat: 'VIT' }] };
+  const rows = skillsCard(member, ctx).querySelectorAll('.sk');
+  assert.deepEqual(rows.map(r => r.querySelector('small').textContent), ['Speed stance · AGI · 1 Stamina each exchange', 'Focus stance · WIS · 1 Mana each exchange', 'Stance · VIT · 1 Stamina each exchange']);
+  rows[1].click();
+  assert.match(sheetEl().querySelector('.ps-i').textContent, /Focus stance/);
+});
