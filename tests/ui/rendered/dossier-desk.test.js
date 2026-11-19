@@ -76,7 +76,7 @@ for (const width of [1143, 1280, 1920]) {
         assert.equal(m.cards.x, m.hero.x + 290);
         assert.equal(m.pane, null, 'no part open yet: two columns');
         assert.equal(m.ties, true, 'Ties | Past side by side');
-        assert.equal(m.lib.h, 60, 'the folded library strip');
+        assert.equal(m.lib.h, 68, 'the folded library strip (tall enough for the open person\'s ring)');
         await page.evaluate(() => document.querySelector('#hx-frame .dov .dcard[data-page="mood"]').click());
         await settle(page);
         const o = await page.evaluate(measure);
