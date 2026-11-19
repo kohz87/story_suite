@@ -10,9 +10,10 @@ test('fixture("default") returns plain-JSON card, now, chat, and people', () => 
   assert.equal(vm.now.needsYou.length, 2);
   assert.equal(vm.now.here.length, 4);
   assert.equal(vm.now.thisTurn.count, 10);
-  assert.equal(vm.chat.inlineRow.changes, 10);
-  assert.equal(vm.chat.inlineRow.needsYou.n, 2);
-  assert.equal(vm.chat.drawer.length, 4);
+  assert.equal(vm.chat.replies.at(-1).changes.length, 10);
+  assert.equal(vm.chat.head.actions.overdue.n, 1);
+  assert.equal(vm.chat.head.actions.points.n, 1);
+  assert.equal(vm.chat.replies.at(-1).here.length, 4);
   assert.equal(vm.people.counts.deceased, 2);
   assert.equal(vm.people.notSeenLately, 1);
 });
@@ -28,7 +29,8 @@ test('fixture("rpgOff") hides RPG-only card fields, points-to-spend, and torn ge
   assert.equal(vm.card.exp, null);
   assert.equal(vm.now.needsYou.length, 1);
   assert.deepEqual(vm.now.today.torn, []);
-  assert.equal(vm.chat.inlineRow.needsYou.n, 1);
+  assert.equal(vm.chat.head.actions.points, null);
+  assert.deepEqual(vm.chat.replies.at(-1).top.pools, []);
 });
 
 test('fixture("fightOpen") switches to 2:10 pm Auvoth bridge with party only', () => {
@@ -37,25 +39,23 @@ test('fixture("fightOpen") switches to 2:10 pm Auvoth bridge with party only', (
   assert.equal(vm.now.today.trip.state, 'road');
   assert.equal(vm.now.needsYou.length, 3);
   assert.equal(vm.now.needsYou[0].kind, 'fight');
-  assert.equal(vm.chat.inlineRow.fightOpen, true);
-  assert.equal(vm.chat.inlineRow.needsYou.n, 3);
-  assert.deepEqual(vm.chat.drawer.map(p => p.personId), ['torka', 'brann', 'rika']);
+  assert.equal(vm.chat.head.actions.fight, true);
+  assert.deepEqual(vm.chat.replies.at(-1).here.map(p => p.personId), ['torka', 'brann', 'rika']);
 });
 
-test('fixture("empty") empties drawer, needsYou, here, thisTurn, and pinned', () => {
+test('fixture("empty") empties the reply cards, needsYou, here, thisTurn, and pinned', () => {
   const vm = fixture('empty');
   assert.deepEqual(vm.now.needsYou, []);
   assert.deepEqual(vm.now.here, []);
   assert.equal(vm.now.thisTurn.count, 0);
   assert.deepEqual(vm.now.pinned, []);
-  assert.deepEqual(vm.chat.drawer, []);
-  assert.equal(vm.chat.inlineRow.changes, 0);
-  assert.equal(vm.chat.inlineRow.needsYou.n, 0);
+  assert.deepEqual(vm.chat.replies, []);
+  assert.equal(vm.chat.head.actions.overdue, null);
 });
 
-test('fixture({ notApplied: true }) flags unapplied change on inlineRow and replyMenu', () => {
+test('fixture({ notApplied: true }) flags the unapplied change on the newest card and its replyMenu', () => {
   const vm = fixture({ notApplied: true });
-  assert.equal(vm.chat.inlineRow.notApplied, 1);
+  assert.equal(vm.chat.replies.at(-1).changes.filter(line => !line.applied).length, 1);
   assert.equal(vm.chat.replyMenus[2].counts.notApplied, 1);
 });
 

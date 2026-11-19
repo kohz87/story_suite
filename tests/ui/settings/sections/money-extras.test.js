@@ -15,7 +15,9 @@ test('Chat extras leads with its module block, then lists its rows', () => {
   const el = page('extras');
   assert.equal(el.querySelectorAll('.mod[data-mod="extras"] .msubs .srow').length, 4);
   // Inner chatter's group shows only while its switch is on (Director hide, owner 18 Nov); with it off the page has the module block alone.
-  assert.equal(el.querySelectorAll('.sgrp .srow').length, sec('extras').rows.length);
+  // (then the Tabs panel: four rows of its own)
+  assert.equal(el.querySelectorAll('.sgrp .srow').length, sec('extras').rows.length + 4);
+  assert.equal(el.querySelectorAll('[data-reply-tabs] .srow.stab').length, 4);
   if (sec('extras').rows.length) assert.ok(el.querySelector('.sgrp .gt'));
 });
 

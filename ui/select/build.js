@@ -2,7 +2,7 @@
 
 import { selectCard } from './card.js';
 import { selectNow } from './now.js';
-import { selectInlineRow, selectDrawer, selectReplyMenu } from './chat.js';
+import { selectReplyMenu } from './chat.js';
 import { selectParty } from './party.js';
 import { selectBag } from './bag.js';
 import { selectLoot } from './loot.js';
@@ -31,7 +31,10 @@ import { selectRoster } from './roster.js';
 import { liveLorebookRows } from './packs-lorebook.js';
 import { arcController } from '../../modules/arc/controller.js';
 import { replyCardsOf } from './reply-card.js';
-import { selectChatter } from './chatter.js';
+import { selectReplyLog } from './reply-log.js';
+import { selectReplyActions } from './reply-actions.js';
+import { readTabOrder } from './reply-tabs.js';
+import { isCarrier } from '../../core/persist.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 // Story Director is on while any of its switches is on (the Settings Director card reads it the same way); a host with no feature list counts as on.
@@ -70,18 +73,22 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
   return {
     card: read => { const s = scene(read); return selectCard(s.answers, s.opts); },
     now: read => { const s = scene(read); return selectNow(s.answers, { ...s.opts, pinned: pinnedFeed(read) }); },
-    // `args.index` asks for that reply's own changes (its state, not the head's); without it the head reply.
+    // The chat surfaces: one card per story reply (`args.replies`: the indexes drawn, default every reply), the newest reply's action line, the tab order,
+    // the modules' cards and the ✦ sheet. `args.index` asks for that reply's own sheet (its state, not the head's) and nothing else.
     chat: (read, args) => {
       const at = Number.isInteger(args?.index) && args.index >= 0 ? args.index : null;
+      const chat = ctx()?.chat ?? [];
       const s = scene(at === null ? read : (name, a) => read(name, name === 'reply.changes' ? { asOf: at, index: at } : a));
-      // the loot that reply laid out (its own, taken or not), as chips on its row
-      const loot = selectLoot(read('inventory.loot', at === null ? { reply: true } : { reply: true, asOf: at }));
-      const vm = { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at), ...(loot.length ? { loot } : {}) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(ctx()?.chat, at), recorded: recordedAt(ctx()?.chat, at) }) };
-      // (the modules' cards are the head reply's: asked only for the head, and left out when no card answers)
-      const replyCards = at === null ? replyCardsOf(cards?.head?.()) : null;
-      // (each reply's own inner chatter, for the block inside it: asked once, with the head)
-      const chatter = at === null ? selectChatter(read('chatter.replies', {})) : [];
-      return { ...vm, ...(replyCards ? { replyCards } : {}), ...(chatter.length ? { chatter } : {}) };
+      const replyMenu = selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(chat, at), recorded: recordedAt(chat, at) });
+      const tabs = readTabOrder(sdk?.settings?.('story-block')?.replyTabs);
+      if (at !== null) return { replies: [], head: null, tabs, replyMenu };
+      // the loot the newest reply laid out (its own, taken or not), for its action line
+      const loot = selectLoot(read('inventory.loot', { reply: true }));
+      const index = chat.findLastIndex(isCarrier);
+      const head = index >= 0 ? { index, actions: selectReplyActions(s.answers, { fightOpen: s.opts.fightOpen, loot, offers: s.opts.offers, unrecorded: unrecordedAt(chat, null) }) } : null;
+      // (the modules' cards are the head reply's, left out when no card answers)
+      const replyCards = replyCardsOf(cards?.head?.());
+      return { replies: selectReplyLog(read, { chat, indexes: Array.isArray(args?.replies) ? args.replies : null }), head, tabs, replyMenu, ...(replyCards ? { replyCards } : {}) };
     },
     party: read => {
       const actors = read('party.actors', {});

@@ -17,55 +17,29 @@ test('button is labelled and calls onOpen', () => {
   replyMenuButton().click();
 });
 
-test('sheet lists the fixture lines, counts and state then', () => {
+test('the sheet keeps its actions only: Re-read, Discard repair (the undo) and Open Suite; its change list is the card\'s Changes tab', () => {
   installFakeDom();
   const vm = fixture('default').chat.replyMenus[0];
   assert.deepEqual(checkShape(vm, CHAT_SHAPE.replyMenu), []);
-  const sheet = replySheet(vm);
-  assert.match(sheet.querySelector('b').textContent, /^This reply · /);
-  assert.equal(sheet.querySelectorAll('li').length, vm.lines.length);
-  assert.match(sheet.textContent, /State then: /);
-  assert.match(sheet.textContent, /\d+ changes?/);
-});
-
-test('a line that was not applied stands out and counts show', () => {
-  installFakeDom();
-  const vm = fixture({ notApplied: true }).chat.replyMenus[2];
-  const sheet = replySheet(vm);
-  assert.ok(sheet.querySelectorAll('li.na').length >= 1);
-  assert.match(sheet.textContent, /1 not applied/);
-});
-
-test('buttons appear only with their handlers and fire them', () => {
-  installFakeDom();
   const seen = [];
-  const sheet = replySheet({ at: 'x', lines: [], counts: { changes: 1, heldBack: 0, notApplied: 0 } }, {
-    onReread: () => seen.push('reread'), onOpenSuite: t => seen.push(t), onClose: () => seen.push('close'),
-  });
-  sheet.querySelectorAll('button').forEach(b => b.click());
+  const sheet = replySheet(vm, { onReread: () => seen.push('reread'), onOpenSuite: t => seen.push(t), onClose: () => seen.push('close') });
+  assert.match(sheet.querySelector('b').textContent, /^This reply · /);
+  assert.equal(sheet.querySelectorAll('li').length, 0, 'no change list');
+  assert.doesNotMatch(sheet.textContent, /State then/u);
+  assert.match(sheet.textContent, /Changes tab/u);
+  const buttons = sheet.querySelectorAll('button');
+  assert.deepEqual(buttons.map(b => b.textContent), ['Re-read this reply', 'Open Suite', 'Close']);
+  buttons.forEach(b => b.click());
   assert.deepEqual(seen, ['reread', 'now', 'close']);
   assert.equal(replySheet({}, {}).querySelectorAll('button').length, 0);
+  assert.equal(replySheet(undefined).querySelectorAll('button').length, 0);
 });
 
-test('empty lines fall back to the counts line; markup stays text', () => {
+test('Discard repair shows only with the handler and a repaired reply, fires once; the title stays text', () => {
   installFakeDom();
-  const sheet = replySheet({ at: '', lines: [], counts: { changes: 10, heldBack: 1, notApplied: 0 }, stateThen: { place: '<i>P</i>', weather: null } });
-  assert.match(sheet.textContent, /10 changes, 1 held back/);
-  assert.equal(sheet.querySelectorAll('i').length, 0);
-  assert.match(sheet.textContent, /State then: <i>P<\/i>/);
-  assert.equal(replySheet(undefined).querySelectorAll('li').length, 1);
-});
-
-test('a repaired line is marked Assist; Discard repair shows only with the handler and a repaired reply, fires once, and the sheet stays a text sheet', () => {
-  installFakeDom();
-  const lines = [{ glyph: 'item', line: '+1 Rope', detail: null, applied: true, assist: true }, { glyph: 'coin', line: '−5', detail: null, applied: true, assist: false }];
-  const vm = { at: 'x', lines, repaired: true, counts: { changes: 2, heldBack: 0, notApplied: 0 } };
+  const vm = fixture('default').chat.replyMenus[1];
   const seen = [];
   const sheet = replySheet(vm, { onDiscard: () => seen.push('discard') });
-  const items = sheet.querySelectorAll('li');
-  assert.equal(items[0].querySelectorAll('small.as').length, 1, 'the repaired line is marked');
-  assert.match(items[0].textContent, /\+1 Rope\s*· Assist/);
-  assert.equal(items[1].querySelectorAll('small.as').length, 0, 'the reply\'s own line is not');
   const buttons = sheet.querySelectorAll('button');
   assert.deepEqual(buttons.map(b => b.textContent), ['Discard repair']);
   assert.equal(buttons[0].className, 'ssbtn', 'the mock\'s sheet button');
@@ -73,17 +47,5 @@ test('a repaired line is marked Assist; Discard repair shows only with the handl
   assert.deepEqual(seen, ['discard']);
   assert.equal(replySheet({ ...vm, repaired: false }, { onDiscard: () => {} }).querySelectorAll('button').length, 0, 'no repair stored: no button');
   assert.equal(replySheet(vm, {}).querySelectorAll('button').length, 0, 'no handler: no button');
-});
-
-test('a line shows its glyph as an icon, not its name, and an unknown glyph shows nothing; no shown lines says what is listed', () => {
-  installFakeDom();
-  const lines = [{ glyph: 'item', line: '+1 Herb Pouch', detail: null, applied: true }, { glyph: 'nope', line: 'x', detail: null, applied: true }];
-  const sheet = replySheet({ at: 'x', lines, counts: { changes: 2, heldBack: 0, notApplied: 0 } });
-  const rows = sheet.querySelectorAll('li');
-  assert.equal(rows[0].querySelectorAll('svg').length, 1, 'an icon');
-  assert.doesNotMatch(rows[0].textContent, /^item/u, 'no glyph word');
-  assert.equal(rows[1].querySelectorAll('svg').length + rows[1].querySelectorAll('i').length, 0);
-  const none = replySheet({ at: 'x', lines: [], counts: { changes: 0, heldBack: 0, notApplied: 0 } });
-  assert.match(none.textContent, /No item, money, place or people changes/u);
-  assert.doesNotMatch(none.textContent, /0 changes/u);
+  assert.equal(replySheet({ at: '<i>x</i>' }).querySelectorAll('i').length, 0);
 });

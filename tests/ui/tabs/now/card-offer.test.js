@@ -4,7 +4,7 @@ import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
 import { rightNow } from '../../../../ui/tabs/now/right-now.js';
 import { offerRows, waitingCount } from '../../../../ui/select/offers.js';
 import { selectNow } from '../../../../ui/select/now.js';
-import { selectInlineRow } from '../../../../ui/select/chat.js';
+import { selectReplyActions } from '../../../../ui/select/reply-actions.js';
 import { createSbPort } from '../../../../ui/port/sb-port.js';
 import { checkShape } from '../../../../ui/contract/shapes.js';
 import { NOW_SHAPE } from '../../../../ui/contract/now.js';
@@ -70,11 +70,11 @@ test('clicking the "Also apply" words flips the switch, as a label would (SOAK2U
   assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), before);
 });
 
-test('the chat chip counts waiting offers; with none it is unchanged; the selector never refreshes the card', () => {
+test('the newest reply\'s action line counts waiting offers; with none it is unchanged; the selector never refreshes the card', () => {
   const rows = offerRows(fakeController([item(), item({ id: 'o2', state: 'done' })]));
   assert.equal(waitingCount(rows), 1);
-  assert.deepEqual(selectInlineRow({}, { offers: rows }).needsYou, { n: 1, title: '1 pack offer' });
-  assert.equal(selectInlineRow({}, {}).needsYou, null);
+  assert.equal(selectReplyActions({}, { offers: rows }).offers, 1);
+  assert.equal(selectReplyActions({}, {}).offers, 0);
   let refreshed = 0;
   offerRows({ offers: () => [], refresh: () => { refreshed += 1; } });
   assert.equal(refreshed, 0);

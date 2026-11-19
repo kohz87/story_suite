@@ -376,3 +376,10 @@ rememberPresentScene
 NOW_PART_MAX
 NOW_TITLE_MAX
 DOSSIER_LOOK_LABEL
+# REPLYCARD (19 Nov): the inline row, the Here drawer, the Inner chatter fold and their selectors, replaced by the card under each reply (ui/chat/reply-box.js).
+inlineRow
+peopleDrawer
+chatterBlock
+selectInlineRow
+selectChatter
+drawerLayout

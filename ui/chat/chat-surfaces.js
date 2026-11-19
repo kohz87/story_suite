@@ -1,102 +1,83 @@
-// Keeps the inline row on the latest reply, the modules' cards under the head reply, each reply's inner chatter inside it and the people drawer above the input: moves, hides and folds them as the chat changes.
-import { inlineRow } from './inline-row.js';
+// Keeps one card under every story reply (its own state, tabs and, on the newest, the corner button and action line) and the modules' cards under
+// the head reply: draws, moves and removes them as the chat changes, and keeps which tab is open per reply across redraws.
+import { replyBox } from './reply-box.js';
 import { replyCardStrip } from './reply-cards.js';
-import { peopleDrawer } from './people-drawer.js';
-import { chatterBlock } from './chatter-block.js';
 
-function isUser(el) {
-  return el.classList.contains('user') || el.getAttribute('is_user') === 'true';
-}
+const isUser = el => el.classList.contains('user') || el.getAttribute('is_user') === 'true';
+const boxOf = host => host.querySelector('.bx') || host.querySelector('.mes_block') || host;
 
-/** Returns the newest message element that is not the user's (the one that carries the row), or null. */
+/** Returns the newest message element that is not the user's, or null. */
 export function latestReplyOf(messagesEl) {
   if (!messagesEl) return null;
   const all = [...messagesEl.querySelectorAll('.mes')].filter(el => !isUser(el));
   return all.length ? all[all.length - 1] : null;
 }
 
-/** Decides the drawer: hidden when nobody is here, folded when closed or while typing on a narrow screen, and cards per page. */
-export function drawerLayout(rows, { open = true, typing = false, narrow = false } = {}) {
-  const hidden = !Array.isArray(rows) || rows.length === 0;
-  return { hidden, folded: !open || (typing && narrow), perPage: narrow ? 3 : 8 };
+/** The indexes (`mesid`) of the reply messages drawn in `messagesEl`, in page order: the ones a card can go under. */
+export function drawnReplies(messagesEl) {
+  if (!messagesEl) return [];
+  return [...messagesEl.querySelectorAll('.mes')].filter(el => !isUser(el)).map(el => Number(el.getAttribute('mesid'))).filter(Number.isInteger);
 }
 
-/** Creates the controller: refresh(chatVm) redraws, setTyping(bool) and toggleDrawer() refold; options: messagesEl, drawerHost, handlers (onCardAction(action) runs a card's button), isNarrow(). */
-export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNarrow = () => false, startOpen = false } = {}) {
+/** The tab a reply's card rests with: the newest reply's Choices when it shows them, else none (shut). */
+export function restingTab(card, { newest = false, order = [] } = {}) {
+  const shown = (Array.isArray(order) ? order : []).some(row => row?.id === 'choices' && row.on !== false);
+  return newest && shown && card?.choices?.length ? 'choices' : null;
+}
+
+/** Creates the controller: refresh(chatVm) redraws. Options: messagesEl (SillyTavern's #chat), handlers (the cards' and the modules' cards' buttons: onCardAction(action) and the reply card's). */
+export function createChatSurfaces({ messagesEl, handlers = {} } = {}) {
   const on = handlers || {};
-  let vm = null;
-  let open = startOpen; // (the drawer floats over the chat: it starts folded, the ▴ opens it; the harness and tests may start it open)
-  let typing = false;
-  let page = 0;
-  let rowEl = null;
+  const drawn = new Map(); // index → { el, sig } (a card whose view did not change is left as it is: its strip keeps its scroll)
+  const picked = new Map(); // index → the tab the reader opened or shut (null), until a new reply comes
+  let head = null;
   let cardsEl = null;
-  let chatterOpen = false; // (the fold when no handler keeps it: handlers.chatterOpen() reads this chat's stored choice, handlers.onChatterFold(open) stores it)
+  let vm = null;
 
-  const boxOf = host => host.querySelector('.bx') || host.querySelector('.mes_block') || host;
+  const hostOf = index => messagesEl?.querySelector?.(`.mes[mesid="${index}"]`) ?? null;
 
-  function drawRow() {
-    if (rowEl) rowEl.remove();
-    rowEl = null;
-    const host = latestReplyOf(messagesEl);
-    if (!host || !vm?.inlineRow) return;
-    rowEl = inlineRow(vm.inlineRow, on);
-    boxOf(host).appendChild(rowEl);
+  function drawCard(card) {
+    const host = hostOf(card.index);
+    if (!host || isUser(host)) return;
+    const newest = vm?.head?.index === card.index;
+    const order = vm?.tabs ?? [];
+    const open = picked.has(card.index) ? picked.get(card.index) : restingTab(card, { newest, order });
+    const actions = newest ? vm.head.actions : null;
+    const sig = JSON.stringify([card, newest, actions, order, open]);
+    const old = drawn.get(card.index);
+    const box = boxOf(host);
+    if (old && old.sig === sig && old.el.parentNode === box) return;
+    const el = replyBox(card, { newest, actions, order, open, on, onTab: id => { picked.set(card.index, id); drawCard(card); } });
+    if (!el.children.length) { old?.el.remove(); drawn.delete(card.index); return; }
+    if (old?.el.parentNode === box) { box.insertBefore(el, old.el); old.el.remove(); }
+    else { old?.el.remove(); box.appendChild(el); }
+    drawn.set(card.index, { el, sig });
   }
 
-  // The cards go under the reply they were asked about (the head, by its index), above the inline row when that reply carries it.
+  // The modules' cards go under the head reply (by its index), below its card.
   function drawCards() {
-    if (cardsEl) cardsEl.remove();
+    cardsEl?.remove();
     cardsEl = null;
     const cards = vm?.replyCards;
-    const host = cards ? messagesEl?.querySelector?.(`.mes[mesid="${cards.index}"]`) : null;
+    const host = cards ? hostOf(cards.index) : null;
     if (!host) return;
     cardsEl = replyCardStrip(cards.list, action => on.onCardAction?.(action));
-    if (!cardsEl) return;
-    const box = boxOf(host);
-    if (rowEl && rowEl.parentNode === box) box.insertBefore(cardsEl, rowEl);
-    else box.appendChild(cardsEl);
-  }
-
-  // Each reply's inner chatter goes inside that reply (by its index), above its cards and row; every block shares the one fold.
-  function drawChatter() {
-    for (const old of messagesEl?.querySelectorAll?.('[data-ss-chatter]') ?? []) old.remove();
-    const open = on.chatterOpen ? on.chatterOpen() === true : chatterOpen;
-    for (const item of vm?.chatter ?? []) {
-      const host = messagesEl?.querySelector?.(`.mes[mesid="${item.index}"]`);
-      const node = host ? chatterBlock(item.lines, { open, onToggle: next => { chatterOpen = next; on.onChatterFold?.(next); drawChatter(); } }) : null;
-      if (!node) continue;
-      const box = boxOf(host);
-      const before = [...box.children].find(el => el.classList?.contains('sscards') || el.classList?.contains('ssrow'));
-      if (before) box.insertBefore(node, before);
-      else box.appendChild(node);
-    }
-  }
-
-  function drawDrawer() {
-    if (!drawerHost) return;
-    const narrow = Boolean(isNarrow());
-    const layout = drawerLayout(vm?.drawer, { open, typing, narrow });
-    if (layout.hidden) {
-      drawerHost.setAttribute('hidden', '');
-      drawerHost.replaceChildren();
-      return;
-    }
-    drawerHost.removeAttribute('hidden');
-    const pages = Math.ceil(vm.drawer.length / layout.perPage);
-    page = Math.max(0, Math.min(pages - 1, page));
-    drawerHost.replaceChildren(peopleDrawer(vm.drawer, {
-      folded: layout.folded,
-      page,
-      perPage: layout.perPage,
-      onToggle: () => { open = layout.folded ? true : !open; drawDrawer(); },
-      onPage: p => { page = p; drawDrawer(); },
-      onOpenPerson: (id, name) => on.onOpenPerson?.(id, name),
-    }));
+    if (cardsEl) boxOf(host).appendChild(cardsEl);
   }
 
   return {
-    refresh(next) { vm = next || null; drawRow(); drawCards(); drawChatter(); drawDrawer(); },
-    setTyping(value) { const t = Boolean(value); if (t !== typing) { typing = t; drawDrawer(); } },
-    toggleDrawer() { open = !open; drawDrawer(); },
+    refresh(next) {
+      vm = next || null;
+      // a new reply: every older one rests again (shut; the newest with its choices open)
+      const index = vm?.head?.index ?? null;
+      if (index !== head) { picked.clear(); head = index; }
+      const cards = Array.isArray(vm?.replies) ? vm.replies : [];
+      const keep = new Set(cards.map(card => card.index));
+      for (const [at, item] of [...drawn]) if (!keep.has(at)) { item.el.remove(); drawn.delete(at); }
+      for (const card of cards) drawCard(card);
+      drawCards();
+    },
+    /** Takes every card away (the view turned off). */
+    clear() { for (const item of drawn.values()) item.el.remove(); drawn.clear(); cardsEl?.remove(); cardsEl = null; },
   };
 }

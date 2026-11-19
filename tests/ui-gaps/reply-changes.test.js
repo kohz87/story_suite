@@ -25,15 +25,17 @@ async function story(t) {
   return host;
 }
 
-test('the reply menu and the inline row read one reply\'s applied lines, and fit CHAT_SHAPE', async t => {
+test('the reply menu and the newest card\'s Changes tab read one reply\'s applied lines, and fit CHAT_SHAPE', async t => {
   const host = await story(t);
   const view = portOf(host).view('chat');
   assert.deepEqual(checkShape(view.replyMenu, CHAT_SHAPE.replyMenu), []);
   assert.deepEqual(view.replyMenu.lines.map(row => row.line), VIEW_LINES);
   assert.deepEqual(view.replyMenu.counts, { changes: 4, heldBack: 0, notApplied: 0 });
   assert.equal(view.replyMenu.stateThen.place, 'Auvoth');
-  assert.equal(view.inlineRow.changes, 4);
-  assert.equal(view.inlineRow.notApplied, 0);
+  const newest = view.replies.find(card => card.index === view.head.index);
+  assert.deepEqual(newest.changes.map(row => row.line), VIEW_LINES, 'the Changes tab lists what the sheet listed');
+  assert.equal(newest.changes.filter(row => !row.applied).length, 0);
+  assert.deepEqual(checkShape(view.replies, CHAT_SHAPE.replies), []);
   assert.deepEqual(view.replyMenu.lines.map(row => row.glyph), ['item', 'coin', 'road', 'people']);
 });
 
@@ -51,7 +53,8 @@ test('a reply with no receipts answers null, so the card hides', async t => {
   assert.equal(host.sdk.query('reply.changes', {}), null);
   // (the ✦ sheet stays on a recorded reply with no lines, so Re-read is still reachable)
   assert.deepEqual(menuOf(host).lines, []);
-  assert.equal(portOf(host).view('chat').inlineRow.changes, 0);
+  const view = portOf(host).view('chat');
+  assert.deepEqual(view.replies.find(card => card.index === view.head.index).changes, [], 'no Changes tab');
 });
 
 test('swipe, swipe back, a middle delete, a rewind and a reload give the same lines as live', async t => {
@@ -107,7 +110,7 @@ test('with the query gone the selectors give no lines (the fix is what fills the
   const sdk = { ...host.sdk, query: (name, args) => (name === 'reply.changes' ? undefined : host.sdk.query(name, args)) };
   const view = createSbPort({ sdk, selectors: buildSelectors(() => host.ctx, sdk) }).view('chat');
   assert.deepEqual(view.replyMenu.lines, []);
-  assert.equal(view.inlineRow.changes, 0);
+  assert.ok(view.replies.every(card => card.changes.length === 0));
 });
 
 test('a delete that leaves a reply with no change lines last keeps its ✦ sheet (the button stays reachable)', async t => {
