@@ -82,7 +82,7 @@ test('the view mounts: styles, the "Story Suite" menu entry, no body class, no o
   assert.equal(api.isOn(), true);
   assert.ok(doc.querySelector('.su-root'));
   assert.equal(doc.querySelector('#story-suite-ui-menu').textContent, 'Story Suite');
-  assert.equal(doc.head.querySelectorAll('link').length, 21, 'one stylesheet per area, loot.css, the desktop sheet frame (sheet-desk.css) and gear-stats.css included');
+  assert.equal(doc.head.querySelectorAll('link').length, 20, 'one stylesheet per area, loot.css, the desktop sheet frame (sheet-desk.css) and gear-stats.css included');
   assert.equal(doc.body.classList.contains('ss-ui-next'), false, 'no class: there is no old furniture to hide');
   assert.equal(doc.querySelector('#story-suite-old-view'), null);
   assert.equal(/preview|old view/i.test(doc.body.textContent), false);

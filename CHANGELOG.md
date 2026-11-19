@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A pack offer under a reply opens Settings, where pack offers now live.
 - Ersveil 4.1.0: every cast member now has a portrait (19 new). Update the pack in Settings › Packs to get them.
 - With Panel background off, a person's page is flat too (it kept its own sky).
 - On a reply's card, the time, place and weather icons stay beside their words.
