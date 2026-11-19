@@ -10,7 +10,7 @@ import { RANKS, TIERS } from '../../../../modules/rpg/combat/numbers.js';
 import { bonusesOf, foeOf, playerHit, foeHit, rollMastery } from '../v1/oracle.js';
 
 const KINDS = ['physical', 'magic', 'evasion', 'tempo', 'order', 'flee'];
-const STANCES = [null, 'evasion', 'movement', 'defence', 'support'];
+const STANCES = [null, 'speed', 'defence', 'focus'];
 const LEVELS = [1, 2, 7, 15, 30, 50, 75, 99];
 const STATS = ['str', 'vit', 'agi', 'dex', 'int', 'wis'];
 const random = seeded(0xC2_0001);
@@ -49,12 +49,14 @@ test('stats clamp to 1..30, level to 1..99, and missing stats read as the start 
     assert.throws(() => playerRoll('luck', base, 1), /Unknown player roll/);
 });
 
-test('evasion and tempo add half mastery only while their stance is on', () => {
+test('a Speed stance adds half mastery to both evasion and tempo; no other stance moves a roll', () => {
     const stats = { agi: 15 }, level = 15, mastery = 5, half = masteryTerm(mastery);
-    assert.equal(playerRoll('evasion', stats, level, { mastery, stance: 'evasion' }), playerRoll('evasion', stats, level) + half);
-    assert.equal(playerRoll('tempo', stats, level, { mastery, stance: 'movement' }), playerRoll('tempo', stats, level) + half);
-    assert.equal(playerRoll('tempo', stats, level, { mastery, stance: 'evasion' }), playerRoll('tempo', stats, level));
-    assert.equal(playerRoll('evasion', stats, level, { mastery, stance: 'movement' }), playerRoll('evasion', stats, level));
+    assert.equal(playerRoll('evasion', stats, level, { mastery, stance: 'speed' }), playerRoll('evasion', stats, level) + half);
+    assert.equal(playerRoll('tempo', stats, level, { mastery, stance: 'speed' }), playerRoll('tempo', stats, level) + half);
+    for (const stance of ['defence', 'focus']) {
+        for (const kind of ['physical', 'magic', 'evasion', 'tempo', 'order', 'flee']) assert.equal(playerRoll(kind, stats, level, { mastery, stance }), playerRoll(kind, stats, level), `${stance} ${kind}`);
+    }
+    for (const kind of ['physical', 'magic', 'order', 'flee']) assert.equal(playerRoll(kind, stats, level, { mastery, stance: 'speed' }), playerRoll(kind, stats, level), kind);
 });
 
 test('a foe has one roll bonus at every tier and level', () => {

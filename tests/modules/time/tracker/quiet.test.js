@@ -97,7 +97,7 @@ test('an alias counts; "Ann" does not match "Annual Fair"', () => {
     assert.deepEqual(annKeys, ['Ann']);
 });
 
-test('without NPC State Delta, or with nobody dead named, the note is byte for byte the same', () => {
+test('without NPC State, or with nobody dead named, the note is byte for byte the same', () => {
     const state = baseState();
     const plain = lines(state);
     assert.equal(lines(state, (name) => { throw new Error(`no module answers ${name}`); }), plain);

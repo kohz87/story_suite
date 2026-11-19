@@ -1,4 +1,4 @@
-/* NPC State Delta relationship grounding: whether evidence and reasons are grounded in the source text, and filtering deltas by evidence. */
+/* NPC State relationship grounding: whether evidence and reasons are grounded in the source text, and filtering deltas by evidence. */
 import { cleanText } from '../core-text.js';
 import { normalizeRelationshipDelta, RELATIONSHIP_KEYS } from '../core-relationship-model.js';
 import { durableSeedGrounded } from '../core-relationship-text.js';

@@ -1,4 +1,4 @@
-/* NPC State Delta calendar-derived values: deterministic birthdays, structured World State dates,
+/* NPC State calendar-derived values: deterministic birthdays, structured World State dates,
    age/birth-date derivation and the prompt date context. Split from calendar.js as a line-for-line
    part; the original keeps the public exports. Public face: re-exports its parts. */
 

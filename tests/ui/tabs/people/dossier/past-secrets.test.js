@@ -15,15 +15,24 @@ test('Ties: a tie with a person opens their dossier, one without is plain text',
   assert.equal(ties[1].tagName, 'DIV');
   ties[0].click();
   assert.deepEqual(ctx.calls.go, [['people', { personId: 'torka' }]]);
-  assert.match(ties[0].textContent, /Torka.*friend · childhood/);
+  assert.match(ties[0].textContent, /Torka.*friend.*childhood · Tem to her/);
+  assert.equal(ties[0].querySelector('em').textContent, 'friend', 'the first word is the tag; the rest is the line');
+  assert.equal(ties[0].querySelector('small').textContent, 'childhood · Tem to her');
   assert.match(tiesPage({ ties: [] }, ctx).textContent, /No ties known/);
+  const swapped = [];
+  tiesPage(dossier('temiwa'), { ...ctx, openPerson: id => swapped.push(id) }).querySelector('.tie').click();
+  assert.deepEqual(swapped, ['torka'], 'inside a dossier the tie shows that person in place');
 });
 
-test('Past: Day › shows only when the memory has a day, opens the journal, and + Add a memory sends a command', async () => {
+test('Past: each memory with its story date and reply when stamped (none when not); Day › opens the journal; + Add a memory sends a command', async () => {
   installFakeDom();
   const ctx = makeCtx();
   const [list, add] = pastPage(dossier('temiwa'), ctx);
-  assert.equal(list.querySelectorAll('.e').length, 3);
+  const rows = list.querySelectorAll('.ev');
+  assert.equal(rows.length, 3);
+  assert.equal(rows[0].querySelector('.w').textContent, 'Goldwane 13reply #14');
+  assert.equal(rows[0].querySelector('.w b').textContent, 'Goldwane 13');
+  assert.equal(rows[2].querySelector('.w').textContent, '', 'an unstamped memory shows no date and no reply');
   assert.equal(list.querySelectorAll('.day').length, 2);
   list.querySelector('.day').click();
   assert.deepEqual(ctx.calls.go, [['journal', { day: 'Goldwane 13' }]]);
@@ -40,24 +49,25 @@ test('Past with no memories says so and still offers to add one', () => {
   add.click();
 });
 
-test('Secrets: counts, opened text readable, locked ones show only the rule', () => {
+test('Secrets: each in its own box, opened text readable under its rule, locked ones show only the rule; the counts close the part', () => {
   installFakeDom();
-  const [intro, list] = secretsPage(dossier('temiwa'));
-  assert.match(intro.textContent, /^1 opened · 2 still hidden\./);
-  const rows = list.querySelectorAll('.sec');
+  const parts = secretsPage(dossier('temiwa'));
+  assert.match(parts.at(-1).textContent, /^1 opened · 2 still hidden\./);
+  const rows = parts.filter(p => p.classList.contains('sec'));
   assert.equal(rows.length, 3);
+  assert.equal(rows[0].querySelector('.h').textContent, '✓ Opened · Trust 15');
   assert.match(rows[0].textContent, /Grew up in the same orphanage/);
   assert.match(rows[0].textContent, /shared the Bluewatch orphanage/);
   assert.equal(rows[1].dataset.open, 'false');
-  assert.match(rows[1].textContent, /A secret.*Opens at Trust 40/);
+  assert.match(rows[1].textContent, /Locked.*Opens at Trust 40/);
   assert.doesNotMatch(rows[1].textContent, /orphanage/);
 });
 
 test('a dead person keeps their opened secret readable', () => {
   installFakeDom();
-  const [, list] = secretsPage(dossier('marro'));
-  assert.match(list.textContent, /Waved the bandits through for a share of the toll/);
-  assert.match(list.textContent, /strongbox lists what the bandits paid him/);
+  const [box] = secretsPage(dossier('marro'));
+  assert.match(box.textContent, /Waved the bandits through for a share of the toll/);
+  assert.match(box.textContent, /strongbox lists what the bandits paid him/);
   assert.equal(secretsPage({}).length, 1);
 });
 

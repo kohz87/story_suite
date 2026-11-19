@@ -2,7 +2,7 @@
    Backup / Export, Restore / Import and Diagnostics open the tools dialogs. One delegated click listener on the page. */
 import { exportNativeTools, openDiagnostics, openImportTools } from './data-tools.js';
 
-const GUARD = '__npcStateDeltaSettingsActions';
+const GUARD = '__pplSettingsActions';
 
 function onClick(event) {
     if (event.target.closest?.('[data-delta-settings-backup]')) {

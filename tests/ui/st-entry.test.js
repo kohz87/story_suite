@@ -40,7 +40,7 @@ function fakeBlock() {
 // NPC State's settings section, mounted in Extensions before the view made the Story Suite drawer.
 function npcSettings(doc) {
   const node = doc.createElement('div');
-  node.id = 'npc_state_delta_settings';
+  node.id = 'people_settings';
   doc.getElementById('extensions_settings2').appendChild(node);
   return node;
 }
@@ -65,8 +65,13 @@ test('buildSelectors builds the card and chat view-models from sdk queries', () 
   const card = selectors.card(read);
   assert.equal(card.rpg, true);
   assert.equal(card.scene.place, 'Inn');
-  assert.equal(selectors.chat(read).inlineRow.place, 'Inn');
-  assert.equal(selectors.chat(() => null).inlineRow.fightOpen, false);
+  // (one card per reply of the chat: the reply's own state, asked with { asOf })
+  const chat = [{ is_user: true, mes: 'Hi.' }, { mes: 'The inn.' }];
+  const ctxSelectors = buildSelectors(() => ({ name1: 'Reader', chat }), null);
+  const vm = ctxSelectors.chat((name, args) => (args?.asOf === 1 ? read(name) : null));
+  assert.equal(vm.replies[0].top.place, 'Inn');
+  assert.equal(vm.head.index, 1);
+  assert.equal(ctxSelectors.chat(() => null).head.actions.fight, false);
 });
 
 const start = (doc, ctx, more = {}) => startView({ doc, getContext: () => ctx, StoryBlock: fakeBlock(), base: 'x/', ...more });
@@ -77,7 +82,7 @@ test('the view mounts: styles, the "Story Suite" menu entry, no body class, no o
   assert.equal(api.isOn(), true);
   assert.ok(doc.querySelector('.su-root'));
   assert.equal(doc.querySelector('#story-suite-ui-menu').textContent, 'Story Suite');
-  assert.equal(doc.head.querySelectorAll('link').length, 19, 'one stylesheet per area, loot.css included');
+  assert.equal(doc.head.querySelectorAll('link').length, 21, 'one stylesheet per area, loot.css, the desktop sheet frame (sheet-desk.css), gear-stats.css and the dossier map and library (dossier-map.css) included');
   assert.equal(doc.body.classList.contains('ss-ui-next'), false, 'no class: there is no old furniture to hide');
   assert.equal(doc.querySelector('#story-suite-old-view'), null);
   assert.equal(/preview|old view/i.test(doc.body.textContent), false);

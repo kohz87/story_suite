@@ -1,4 +1,4 @@
-/* NPC State Delta sidecar payload format: format markers, base64 encoding, retained portrait-asset
+/* NPC State sidecar payload format: format markers, base64 encoding, retained portrait-asset
    pruning, compact state preparation and JSON encode/decode. Moved unchanged out of storage.js;
    storage.js re-exports every public name it exported before. Never imports storage.js.
    Public face: re-exports its parts. */

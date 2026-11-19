@@ -77,12 +77,12 @@ test('relationship reset and allowance controls persist their intended values', 
         settings.relationshipCaps = { ordinary: 1, meaningful: 2, major: 4, extreme: 10 };
         settings.relationshipAllowance = { ordinary: 0, meaningful: null, major: 0, extreme: null };
         createSettingsBindPart({}, { syncSettingsControls() {} }).bindUi();
-        handlers.find(item => item.selector === '#npc_state_delta_reset_relationship_rules').fn();
+        handlers.find(item => item.selector === '#people_reset_relationship_rules').fn();
         assert.deepEqual(settings.relationshipCaps, { ordinary: 1, meaningful: 2, major: 3, extreme: 6 });
         assert.deepEqual(settings.relationshipAllowance, { ordinary: 3, meaningful: 1, major: 1, extreme: 1 });
-        const change = handlers.find(item => item.selector?.includes('#npc_state_delta_allow_ordinary')).fn;
-        change.call({ id: 'npc_state_delta_allow_ordinary', value: '' });
-        change.call({ id: 'npc_state_delta_allow_major', value: '0' });
+        const change = handlers.find(item => item.selector?.includes('#people_allow_ordinary')).fn;
+        change.call({ id: 'people_allow_ordinary', value: '' });
+        change.call({ id: 'people_allow_major', value: '0' });
         putSettings(JSON.parse(JSON.stringify(settings)));
         assert.deepEqual(getSettings().relationshipAllowance, { ordinary: null, meaningful: 1, major: 0, extreme: 1 });
     } finally {

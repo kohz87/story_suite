@@ -6,7 +6,7 @@
 //   out on read from the state and the other parts' and modules' queries (known.js, journal.js), so a swipe,
 //   a middle delete or a reload shows what a rebuild shows.
 // * Queries: `director.world` (the Now view), `director.world.here` (the place and who is present, with
-//   NPC State Delta's stance and dossier when it is there; NPC State Delta asks it to know who is here) and
+//   NPC State's stance and dossier when it is there; NPC State asks it to know who is here) and
 //   `director.journal` (the Journal: each story day from the day digest, and today so far) and `director.journal.events`
 //   (one day's whole list of events, loaded when the reader taps "Show all N events").
 // * `director.world.leads` (the hooks the player has heard of) and the widget `story-director.fold` (every Now section folds,
@@ -15,7 +15,7 @@
 // * Feature `story-director.world-events` (off): `world.newsAt` and `world.heardHere` (news.js, news-delay.js) say when the news of a
 //   chronicle entry reaches a place; the News list and the narrator's [World] lines keep only what has arrived. Setting `world.courierKmPerDay` (60).
 // * The Days screen is folded into the Journal (its old id `story-director/days` is gone).
-// Works with any set of modules (WAVE rule 11): without NPC State Delta the people are plain names, without
+// Works with any set of modules (WAVE rule 11): without NPC State the people are plain names, without
 // a pack there are no holidays, without the story clock nothing has a date, without the day digest the
 // Journal says it is off.
 // Public face: re-exports its parts.

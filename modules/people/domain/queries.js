@@ -13,7 +13,7 @@ const text = value => (typeof value === 'string' && value.trim() ? value.trim() 
 const clone = value => JSON.parse(JSON.stringify(value));
 export const DORMANT_AFTER = 30;
 const AXES = ['trust', 'affection', 'desire', 'tension'];
-// What a dossier answer never carries (NPC State's own rule: hidden notes and never-prompt settings do not leave the dossier): the `secrets` list (titles, text and event wording of hidden notes: a locked note must stay hidden; a stored rule keeps its `at` since SOAKPEOPLE F47, see people/view.js stripVolatile), and these fields.
+// What a dossier answer never carries (NPC State's own rule: hidden notes and never-prompt settings do not leave the dossier): the `secrets` list (titles, text and event wording of hidden notes: a locked note must stay hidden; a stored rule keeps its `at` since SOAKPEOPLE F47, see people/view-parts/volatile.js stripVolatile), and these fields.
 const HIDDEN_FIELDS = ['portraitPromptPositive', 'portraitPromptNegative', 'portraitPromptReplace', 'portraitSeed', 'meterSetup', 'castFrom'];
 
 // A file path that is safe as an image URL, as NPC State's safeImageUrl judges one: a path on the page's own server (relative or from the root; never `//host`,

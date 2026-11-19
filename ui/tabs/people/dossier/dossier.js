@@ -1,119 +1,83 @@
-// Composes one person's dossier: top bar with ⋯ menu, hero, the summary cards, and the paged detail views, with Escape through the back-stack.
+// Composes one person's dossier: the top bar, the portrait column, the cards with the opened part (beside them on a desktop window, a page of its own below),
+// the Map tab, and the library strip; Escape closes through the back-stack (menu, then the part, then the dossier).
 import { h } from '../../../kit/dom.js';
-import { FEELING_KEYS } from '../../../kit/ring.js';
-import { button } from '../../../kit/controls.js';
-import { pager, pageSection } from '../../../kit/page.js';
-import { feelingsHero, withPage } from './feelings.js';
-import { nowPage, moodPage } from './now-page.js';
-import { tiesPage, pastPage, secretsPage } from './past-secrets.js';
-import { moodMeters } from './mood-meters.js';
-import { tieDisc } from './tie-disc.js';
-import { profilePage } from './profile.js';
-import { deathPage, deathCard } from './death.js';
-import { partyAddButton } from './party-add.js';
-import { can } from '../../../runtime/can.js';
-import { sendFollow } from './follow.js';
 import { tabTrap } from '../../../kit/trap.js';
+import { dossierPages, dossierCards } from './cards.js';
+import { dossierHero } from './hero.js';
+import { dossierBar } from './top-bar.js';
+import { dossierPart } from './part.js';
+import { dossierLibrary, libraryPeople } from './library.js';
+import { dossierMapTab } from './map-tab.js';
+import { sendFollow } from './follow.js';
 
-const MENU = Object.freeze([
-  ['refresh', 'Refresh', 're-read the recent story for them'], ['portrait', 'Portrait', 'view, upload or generate'],
-  ['inspect', 'Inspector', 'this person’s records'], ['merge', 'Merge', 'fold a duplicate into this person'], ['delete', 'Delete', 'remove this person and their records'],
-]);
-const lower = text => (text ? text[0].toLowerCase() + text.slice(1) : '');
-
-// Right now has nothing to say: no place, doing, wearing, thought or scene for someone here; no last place, last seen or word for someone away (F14).
-const nowEmpty = (d) => {
-  const now = d.now ?? {};
-  const facts = Object.hasOwn(now, 'where') ? [now.where, now.doing, now.wearing, now.thought] : [now.lastPlace, now.lastSeen, now.said];
-  return !facts.some(Boolean) && !d.scene;
-};
-
-/** Lists the pages a dossier has: the living get With, Mood, Right now, Ties, Past, Secrets, Profile; the dead get Death, Ties, Past, Secrets, Profile. Empty Ties, Secrets, Mood and Right now are left out. */
-export function dossierPages(d, youName = 'you') {
-  const dead = d.life !== 'alive';
-  const all = dead
-    ? [['death', 'Death'], ['ties', 'Ties'], ['past', 'Past'], ['secrets', 'Secrets'], ['profile', 'Profile']]
-    : [['with', `With ${youName}`], ['mood', 'Mood'], ['now', 'Right now'], ['ties', 'Ties'], ['past', 'Past'], ['secrets', 'Secrets'], ['profile', 'Profile']];
-  const skip = { ties: !d.ties?.length, secrets: !d.secrets?.total, mood: !d.mood, now: nowEmpty(d) };
-  return all.filter(([id]) => !skip[id]).map(([id, title]) => ({ id, title }));
-}
-
-function summary(d, id) {
-  const now = d.now ?? {};
-  if (id === 'death') return deathCard(d);
-  if (id === 'with') {
-    // (a change the day's allowance held back moved nothing, so it is not "the last change")
-    const c = d.changes?.find(change => !change.heldBack);
-    return c ? h('span', { class: 'lc' }, h('b', { class: `f${Math.max(0, FEELING_KEYS.indexOf(c.meter))}` }, `${c.meter[0].toUpperCase()}${c.meter.slice(1)} ${c.delta > 0 ? '+' : ''}${c.delta}`), ` · ${c.why}`) : h('span', { class: 'fine' }, 'Nothing yet');
-  }
-  if (id === 'mood') return [h('span', { class: 'mw' }, d.mood), moodMeters(d.moodBars)];
-  if (id === 'now') {
-    const here = Object.hasOwn(now, 'where');
-    // (a person with only a wearing or a thought still gets a line, and one with only a said word too)
-    const line = here ? [now.where, lower(now.doing), now.wearing && `wearing ${lower(now.wearing)}`, now.thought && `“${now.thought}”`].filter(Boolean).join(' · ') : [now.lastPlace, now.lastSeen && `last seen ${now.lastSeen}`, now.said].filter(Boolean).join(' · ');
-    return [h('span', { class: 'lc' }, line), d.scene ? h('span', { class: 'hint' }, 'This scene: wants and hiding · spoiler') : null];
-  }
-  if (id === 'ties') return [h('span', { class: 'avs' }, d.ties.map(t => tieDisc(t, 'a'))), h('span', { class: 'lc sm' }, `${d.ties.length} · ${d.ties.map(t => t.name).join(', ')}`)];
-  if (id === 'past') {
-    const dots = (d.past ?? []).flatMap((_, i) => (i ? [h('b'), h('i')] : [h('i')]));
-    return [h('span', { class: 'dots' }, dots), h('span', { class: 'lc sm' }, d.past?.[0]?.text ?? 'No memories yet')];
-  }
-  if (id === 'secrets') {
-    const { opened, total, items } = d.secrets;
-    const next = items.find(s => !s.open);
-    return h('span', { class: 'secrow' }, h('span', { class: 'sring', style: { '--p': total ? (opened / total) * 100 : 0 } }, `${opened}/${total}`),
-      h('span', { class: 'lc' }, next ? `next: ${lower(next.rule)}` : 'all opened'));
-  }
-  const likes = d.profile?.likes?.length ? `Likes ${d.profile.likes.join(', ')}` : null;
-  return h('span', { class: 'lc sm' }, [d.profile?.personality, likes].filter(Boolean).join(' · '));
-}
-
-const BODIES = { death: deathPage, with: withPage, mood: moodPage, now: nowPage, ties: tiesPage, past: pastPage, secrets: secretsPage, profile: profilePage };
+export { dossierPages };
 
 /**
- * Builds the dossier for a `dossier` view-model. ctx = { port, prefs, backStack, go(tab, args), onClose(), seeOnMap(id), origin, youName }.
- * Commands: people.follow (the store's Follow flag; the star goes back if the engine refuses), npc.edit (opens NPC State's editor), npc.refresh, npc.portrait, npc.inspect, npc.merge, npc.delete (asks twice; the dossier closes once they are gone), npc.markAlive, npc.memory.add.
- * Returns the root element; `root.close()` takes the dossier down from the back-stack too.
+ * Builds the dossier for a `dossier` view-model. ctx = { port, prefs, backStack, go(tab, args), onClose(), onPerson(id) (another person is shown in place), origin, youName, you }.
+ * Commands: people.follow (the store's Follow flag; the star goes back if the engine refuses), npc.edit (opens NPC State's editor), npc.refresh, npc.portrait, npc.inspect, npc.merge,
+ * npc.delete (asks twice; the dossier closes once they are gone), npc.markAlive, npc.memory.add. The library and the Map tab read the port's `dossier` and `people` views.
+ * Returns the root element; `root.close()` takes the dossier down from the back-stack too; `root.update(vm)` redraws it from a fresh record.
  */
 export function dossierPage(first, ctx = {}) {
   let d = first;
-  const state = { page: null, menu: false, sure: false, following: Boolean(d.following) };
+  const state = { page: null, tab: 'dossier', menu: false, sure: false, following: Boolean(d.following), lib: false, libFilter: 'all', map: {} };
   const cmd = (type, extra = {}) => ctx.port?.command?.(type, { personId: d.id, ...extra });
   let pages = dossierPages(d, ctx.youName);
-  let dead = d.life !== 'alive';
   const releases = { dossier: null, page: null, menu: null };
   const release = (key) => { releases[key]?.(); releases[key] = null; };
   const hold = (key, layer, close) => { release(key); releases[key] = ctx.backStack?.push({ id: `dossier-${d.id}-${key}`, layer, close }) ?? null; };
 
-  const top = h('section', { class: 'glass dtop' });
-  const menuSlot = h('div', { class: 'menu-slot' });
+  const barSlot = h('div', { class: 'dbar-slot' });
   const noteSlot = h('div', { class: 'fine dnote', role: 'status', 'aria-live': 'polite' });
-  const grid = h('div', { class: 'dgrid' });
+  const body = h('div', { class: 'dbody' });
+  const libSlot = h('div', { class: 'dlib-slot' });
   // (it covers the tabs, so it is modal: Tab stays inside it until it closes)
-  const root = h('div', { class: 'dossier dov', role: 'dialog', 'aria-modal': 'true', 'aria-label': `${d.name}’s dossier`, dataset: { personId: d.id } },
-    h('div', { class: 'dscroll' }, top, menuSlot, noteSlot, grid));
+  const root = h('div', { class: 'dossier dov', role: 'dialog', 'aria-modal': 'true', 'aria-label': `${d.name}’s dossier`, dataset: { personId: d.id } }, barSlot, noteSlot, body, libSlot);
   let shut = false;
+  // The port's views are worked out afresh on every read (every person's queries): the strip's people and the map's are read once, and again only after an update.
+  const views = { lib: null, people: null };
+  const libPeople = () => (views.lib ??= libraryPeople(ctx.port?.view?.('dossier')));
+  const peopleView = () => (views.people ??= ctx.port?.view?.('people') ?? {});
   root.addEventListener('keydown', tabTrap(root, { isOn: () => !shut }));
 
-  function closeMenu() { release('menu'); state.menu = false; state.sure = false; drawMenu(); }
+  function closeMenu() { release('menu'); state.menu = false; state.sure = false; keeping(drawBar); }
   function openPage(id) {
     state.page = id;
-    hold('page', 'page', () => { state.page = null; drawGrid(); });
-    drawGrid();
+    state.tab = 'dossier';
+    hold('page', 'page', () => { state.page = null; draw(); });
+    draw();
+    // (beside the cards the column narrows and the cards grow taller: the outlined one is brought back into view)
+    root.querySelector?.('.dcard.sel')?.scrollIntoView?.({ block: 'nearest' });
   }
-  function closePage() { release('page'); state.page = null; drawGrid(); }
+  function closePage() { release('page'); state.page = null; draw(); }
   function close() { shut = true; release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
   root.close = close;
-  // The person changed while the page is open (a reply, an Edit save): the same page is drawn again from the fresh record.
+  // The person changed while the dossier is open (a reply, an Edit save): the same part is drawn again from the fresh record.
   root.update = (next) => {
     if (!next || shut) return;
     d = next;
+    views.lib = null; views.people = null;
     pages = dossierPages(d, ctx.youName);
-    dead = d.life !== 'alive';
     state.following = Boolean(d.following);
-    if (!pages.some(p => p.id === state.page)) { release('page'); state.page = null; }
-    drawGrid();
+    if (state.page && !pages.some(p => p.id === state.page)) { release('page'); state.page = null; }
+    draw();
   };
+  // Another person from the library, a tie or the map: shown in place (the strip, its filter and the map's lens stay), on `page` when given.
+  function show(id, page = null) {
+    const all = ctx.port?.view?.('dossier');
+    const next = all?.[id];
+    if (!next || shut) return;
+    views.lib = libraryPeople(all);
+    release('menu'); release('page');
+    Object.assign(state, { menu: false, sure: false, page: null, tab: 'dossier', following: Boolean(next.following), map: { ...state.map, sel: null, focus: null } });
+    d = next;
+    pages = dossierPages(d, ctx.youName);
+    root.dataset.personId = d.id;
+    root.setAttribute('aria-label', `${d.name}’s dossier`);
+    hold('dossier', 'page', downFromStack);
+    ctx.onPerson?.(d.id);
+    if (page && pages.some(p => p.id === page)) openPage(page); else draw();
+  }
 
   // Refresh runs a model call: the line under the top bar says it is going and then what came of it (the answer's own words).
   function refresh() {
@@ -122,94 +86,100 @@ export function dossierPage(first, ctx = {}) {
       (result) => { noteSlot.textContent = result?.ok === false ? (result.message ?? 'Refresh did not run.') : (result?.message ?? `Refresh sent for ${d.name}.`); },
       (error) => { noteSlot.textContent = String(error?.message || 'Refresh did not run.'); });
   }
-
   // Portrait opens a page dialog; a refusal (NPC State off, no NPC State dossier for this person) is shown in the same line as Refresh's.
   function portrait() {
     Promise.resolve(cmd('npc.portrait', { name: d.name })).then(
       (result) => { if (result?.ok === false) noteSlot.textContent = result.message ?? 'Portrait tools did not open.'; },
       (error) => { noteSlot.textContent = String(error?.message || 'Portrait tools did not open.'); });
   }
-
   // Edit, Delete, Merge and the like: what the engine answers is told under the top bar when it refuses; a deleted person takes the dossier down with them.
   function act(type) {
     Promise.resolve(cmd(type)).then(
       (result) => { if (result?.ok === false) noteSlot.textContent = result.message ?? 'That did not work.'; else if (type === 'npc.delete') close(); },
       (error) => { noteSlot.textContent = String(error?.message || 'That did not work.'); });
   }
-
-  function drawMenu() {
-    top.querySelector('[data-act="menu"]')?.setAttribute('aria-expanded', String(state.menu));
-    if (!state.menu) { menuSlot.replaceChildren(); return; }
-    menuSlot.replaceChildren(h('div', { class: 'menu glass', role: 'menu' }, MENU.filter(([id]) => can(ctx, `npc.${id}`)).map(([id, label, hint]) => {
-      const confirm = id === 'delete' && state.sure;
-      return h('button', {
-        type: 'button', role: 'menuitem', class: id === 'delete' ? 'dng' : null, dataset: { act: id },
-        onClick: () => {
-          if (id === 'delete' && !state.sure) { state.sure = true; drawMenu(); return; }
-          if (id === 'refresh') refresh(); else if (id === 'portrait') portrait(); else act(`npc.${id}`);
-          closeMenu();
-        },
-      }, confirm ? 'Tap again to delete' : label, h('small', null, confirm ? 'this cannot be undone' : hint));
-    })));
+  function pick(id) {
+    if (id === 'delete' && !state.sure) { state.sure = true; keeping(drawBar); return; }
+    if (id === 'refresh') refresh(); else if (id === 'portrait') portrait(); else act(`npc.${id}`);
+    closeMenu();
   }
 
-  function drawTop() {
-    // (a control nobody answers is left out, not drawn as the text "null")
-    top.replaceChildren(...[
-      button({ label: ctx.origin ?? '‹ People', className: 'bk2', dataset: { act: 'close' }, onClick: close }),
-      h('span', { class: 'sp' }),
-      can(ctx, 'npc.edit') ? button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => act('npc.edit') }) : null,
-      !MENU.some(([id]) => can(ctx, `npc.${id}`)) ? null : h('button', { type: 'button', class: 'ibtn', 'aria-label': 'More', 'aria-expanded': 'false', dataset: { act: 'menu' },
-        onClick: () => { if (state.menu) { closeMenu(); return; } state.menu = true; hold('menu', 'menu', () => { state.menu = false; state.sure = false; drawMenu(); }); drawMenu(); } }, '⋯')].filter(Boolean));
+  function drawBar() {
+    barSlot.replaceChildren(dossierBar(d, {
+      ctx, tab: state.tab, menu: state.menu, sure: state.sure, onPick: pick, onClose: close,
+      onTab: (id) => { state.tab = id; if (id === 'map') { release('page'); state.page = null; } draw(); },
+      onMenu: () => {
+        if (state.menu) { closeMenu(); return; }
+        state.menu = true;
+        hold('menu', 'menu', () => { state.menu = false; state.sure = false; keeping(drawBar); });
+        keeping(drawBar);
+      },
+    }));
   }
 
-  function hero() {
-    const follow = button({ label: state.following ? '★ Following' : '☆ Follow', className: 'fbtn', pressed: state.following, dataset: { act: 'follow' },
-      onClick: () => {
-        const on = !state.following;
-        state.following = on;
-        Promise.resolve(sendFollow(ctx, d, on)).then(result => { if (result?.ok === false && state.following === on) { state.following = !on; drawGrid(); } });
-        drawGrid();
-      } });
-    const where = dead ? (d.death?.where ?? '') : (d.now?.where ?? d.now?.lastPlace ?? '');
-    return h('section', { class: 'glass dhero' },
-      feelingsHero(d, { onProfile: () => openPage('profile') }),
-      h('div', { class: 'dname' }, d.name),
-      h('div', { class: 'chips dchips' }, dead
-        ? h('span', { class: ['deadb', d.life === 'presumed' ? 'pres' : null] }, d.life === 'presumed' ? 'Presumed dead' : 'Deceased')
-        : follow),
-      h('div', { class: 'idl' }, d.idLine, d.genderUnknown ? h('span', { class: 'gflag' }, `${d.idLine ? ' · ' : ''}gender not stated`) : null),
-      h('div', { class: 'idl' }, [dead ? where : (d.now && Object.hasOwn(d.now, 'where') ? 'Here' : where), d.inParty ? 'in your party' : null].filter(Boolean).join(' · ')),
-      dead ? null : partyAddButton(d, { ...ctx, onAdded: () => { d.partyAdd = null; d.inParty = true; drawGrid(); },
-        onEdited: () => { const fresh = ctx.port?.view?.('dossier')?.[d.id]; if (fresh) { d.partyAdd = fresh.partyAdd ?? null; d.inParty = fresh.inParty; } drawGrid(); } }),
-      dead ? null : button({ label: 'See on map', dataset: { act: 'map' }, onClick: () => { if (ctx.seeOnMap) ctx.seeOnMap(d.id); else cmd('people.focus'); } }));
+  function follow() {
+    const on = !state.following;
+    state.following = on;
+    Promise.resolve(sendFollow(ctx, d, on)).then(result => { if (result?.ok === false && state.following === on) { state.following = !on; draw(); } });
+    draw();
   }
 
-  const card = (id, title, body) => h('button', { type: 'button', class: 'dcard glass', dataset: { page: id }, onClick: () => openPage(id) },
-    h('span', { class: 'dl' }, title, h('i', null, '›')), body);
-
-  function cards() {
-    const byId = Object.fromEntries(pages.map(p => [p.id, p]));
-    const title = id => (id === 'past' ? `Past · ${(d.past ?? []).length}` : id === 'with' ? `${byId.with.title} · last change` : byId[id].title);
-    // (Ties and Past sit side by side; one alone fills the row instead of taking half of it)
-    const pair = (...two) => (two.every(Boolean) ? h('div', { class: 'dpair' }, ...two) : two.find(Boolean) ?? null);
-    const make = id => (byId[id] ? card(id, title(id), summary(d, id)) : null);
-    return [make('death'), make('with'), make('mood'), make('now'), pair(make('ties'), make('past')), make('secrets'), make('profile')].filter(Boolean);
+  function drawDossier() {
+    const open = pages.find(p => p.id === state.page) ?? null;
+    const party = { ...ctx, onAdded: () => { d.partyAdd = null; d.inParty = true; draw(); },
+      onEdited: () => { const fresh = ctx.port?.view?.('dossier')?.[d.id]; if (fresh) { d.partyAdd = fresh.partyAdd ?? null; d.inParty = fresh.inParty; } draw(); } };
+    // (a browser writes a null child as the text "null": only the parts there are)
+    body.replaceChildren(...[
+      dossierHero(d, { following: state.following, onFollow: follow, onProfile: () => openPage('profile'), party }),
+      dossierCards(d, pages, { current: open?.id ?? null, onOpen: openPage }),
+      open ? dossierPart(d, pages, open.id, { ctx: { ...ctx, openPerson: id => show(id) }, onBack: closePage, onGo: openPage }) : null].filter(Boolean));
+    body.classList.toggle('paged', Boolean(open));
   }
 
-  function drawGrid() {
-    const open = pages.find(p => p.id === state.page);
-    grid.classList.toggle('paged', Boolean(open));
-    const right = open
-      ? h('section', { class: 'glass dpane', dataset: { page: open.id } },
-        pager({ pages, current: open.id, backLabel: '‹ Dossier', onBack: closePage, onGo: openPage }),
-        pageSection(null, [BODIES[open.id](d, ctx)].flat().filter(Boolean)))
-      : h('div', { class: 'dright' }, cards());
-    grid.replaceChildren(hero(), right);
+  function drawMap() {
+    const vm = peopleView();
+    const people = [...(vm.here ?? []).map(p => ({ ...p, here: true })), ...(vm.elsewhere ?? []).map(p => ({ ...p, here: false }))];
+    const you = ctx.you ?? ctx.port?.view?.('card')?.you ?? { name: ctx.youName ?? 'You' };
+    body.replaceChildren(dossierMapTab(d, {
+      people, ties: vm.ties ?? [], you: { ...you, name: you?.name ?? ctx.youName ?? 'You' }, map: state.map,
+      onMap: (next) => { state.map = next; drawMap(); },
+      onOpen: (id, page) => (id === d.id ? (page ? openPage(page) : (state.tab = 'dossier', draw())) : show(id, page)),
+    }));
+    body.classList.remove('paged');
   }
 
-  drawTop();
-  drawGrid();
-  hold('dossier', 'page', () => { shut = true; release('menu'); release('page'); ctx.onClose?.(); });
+  function drawLibrary() {
+    libSlot.replaceChildren(dossierLibrary(libPeople(), {
+      currentId: d.id, open: state.lib, filter: state.libFilter,
+      onToggle: () => { state.lib = !state.lib; drawLibrary(); },
+      onFilter: (id) => { state.libFilter = id; drawLibrary(); },
+      onPick: (id) => { if (id !== d.id) show(id); },
+    }));
+  }
+
+  // A redraw keeps where the reader was: the columns' scroll (an outlined card low in the list stays in view) and the focus on the control it was on.
+  const KEEP = ['.dhero', '.dcards', '.dmapv .rmain', '.dlib .lrow'];
+  const keyOf = el => (el?.dataset?.page && el.classList?.contains('dcard') ? `.dcard[data-page="${el.dataset.page}"]` : el?.dataset?.act ? `[data-act="${el.dataset.act}"]` : el?.dataset?.tab ? `[data-tab="${el.dataset.tab}"]` : null);
+  function keeping(redraw) {
+    const scrolls = KEEP.map(sel => root.querySelector?.(sel)?.scrollTop ?? 0);
+    const active = root.ownerDocument?.activeElement;
+    const focus = active && root.contains(active) ? keyOf(active) : null;
+    redraw();
+    KEEP.forEach((sel, i) => { const el = root.querySelector?.(sel); if (el && scrolls[i]) el.scrollTop = scrolls[i]; });
+    if (focus) root.querySelector?.(focus)?.focus?.({ preventScroll: true });
+  }
+
+  function draw() {
+    keeping(() => {
+      drawBar();
+      root.classList.toggle('maptab', state.tab === 'map');
+      if (state.tab === 'map') drawMap(); else drawDossier();
+      drawLibrary();
+    });
+  }
+
+  function downFromStack() { shut = true; release('menu'); release('page'); ctx.onClose?.(); }
+  draw();
+  hold('dossier', 'page', downFromStack);
   return root;
 }

@@ -1,4 +1,4 @@
-// The suite host the way the page has it: the testkit's host with Story Director and NPC State Delta, but NPC State Delta
+// The suite host the way the page has it: the testkit's host with Story Director and NPC State, but NPC State
 // gets a runtime (chat key, loaded state, install, save), as the page's Delta has. The package's own
 // suiteHost hands Delta an empty stub, so its timeline part sees "no open chat" and holds every Re-read and prompt back.
 import { suiteAt } from './suite-at.mjs';
@@ -31,7 +31,7 @@ export async function pageSuiteHost(loaded, { seed = 1, settings = null, nsdNpcs
   let host = null;
   const runtime = deltaRuntime(() => String(host?.ctx?.chatId ?? ''));
   const sd = loaded.SD.createModule({ host: { settings: id => sdk?.settings(id) ?? null, substitute: text => sdk?.substitute(text) } });
-  const adapter = loaded.NSD.createStorySuiteV2Adapter({
+  const adapter = loaded.NSD.createPeopleAdapter({
     suiteApi: { npcs: () => nsdNpcs }, delta: () => runtime, host: () => globalThis.StoryBlock, doc: null, timers: {}, logger: { warn() {} },
   });
   const probe = await loaded.createHost({ settings: settings ?? {} });
@@ -48,7 +48,7 @@ export async function pageSuiteHost(loaded, { seed = 1, settings = null, nsdNpcs
   const savedSB = globalThis.StoryBlock;
   globalThis.StoryBlock = { apiVersion: 2, ready: Promise.resolve(standIn), sdk: standIn };
   adapter.start();
-  if (!(await adapter.settled())) throw new Error('NPC State Delta did not register with the host');
+  if (!(await adapter.settled())) throw new Error('NPC State did not register with the host');
   const close = host.close;
   host.close = () => {
     adapter.stop?.();

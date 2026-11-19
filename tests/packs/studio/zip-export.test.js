@@ -45,15 +45,15 @@ test('a pack zip opened and exported again is the same zip, and the game reads i
 test('the format 4 Ersveil zip opens as a world with its game.json; export gives the same zip without the notes file; the game reads it back', async () => {
     const opened = await openPicked([fileOf('ersveil.zip', ZIP4, 'application/zip')]);
     assert.equal(opened.ok, true);
-    assert.deepEqual([opened.doc.kind, opened.doc.id, opened.game.name, opened.portraits.length], ['world', 'ersveil', 'game.json', 12]);
+    assert.deepEqual([opened.doc.kind, opened.doc.id, opened.game.name, opened.portraits.length], ['world', 'ersveil', 'game.json', 31]);
     const out = exportZip(opened, opened.game);
-    assert.equal(out.name, 'ersveil-4.0.0.zip');
+    assert.equal(out.name, 'ersveil-4.1.0.zip');
     assert.deepEqual(out.missing, []);
     const pack = bytes('examples/packs/ersveil/pack.json');
     const rebuilt = writeStoredZip([{ name: 'pack.json', bytes: pack }, { name: 'game.json', bytes: new TextEncoder().encode(opened.game.text) }, ...opened.portraits.map(f => ({ name: `portraits/${f.name}`, bytes: bytes(`examples/packs/ersveil/portraits/${f.name}`) }))]);
     assert.deepEqual(out.bytes, rebuilt);
     const back = await readPackZip(out.bytes);
-    assert.deepEqual([back.ok, back.text, back.game, back.files.length], [true, text(pack), opened.game.text, 12]);
+    assert.deepEqual([back.ok, back.text, back.game, back.files.length], [true, text(pack), opened.game.text, 31]);
 });
 
 test('the format 3 Ersveil zip still opens (read-only) and the checker refuses it as old', async () => {

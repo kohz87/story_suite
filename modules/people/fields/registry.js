@@ -21,7 +21,7 @@
 //   aliasMerge    the text fields an alias merge takes from the longer copy
 //   userMeta      the user metadata every branch restore keeps from the current dossier
 //   refreshChanged  the fields a targeted Refresh reports as changed
-//   snapshot      [position, how]: the inline-card snapshot (index.js snapshotNpc)
+//   snapshot      [position, how]: the inline-card snapshot (runtime-entry.js snapshotNpc)
 //   v2            DOSSIER_FIELDS: what the v2 npc.dossier query returns
 //   prompt        'never' when the field must never reach a model-facing text; 'tail' when it reaches one only through
 //                 the v2 module's tail (the hidden notes: opened ones as known, locked ones as hidden)
@@ -31,7 +31,7 @@ export { FIELDS } from './registry-parts/table.js';
 export { RETURN_KEYS } from './registry-parts/return-keys.js';
 export { RETURN_SHAPES, REFRESH_KEYS } from './registry-parts/return-shapes.js';
 export { ALIAS_MERGE_TEXT_FIELDS, PROFILE_EVIDENCE_FIELDS, REFRESH_CHANGED_FIELDS, TEXT_FIELDS } from './registry-parts/lists-scan.js';
-export { CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS, DOSSIER_FIELDS } from './registry-parts/lists-tracking.js';
+export { CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS, DOSSIER_FIELDS } from './registry-parts/lists-followed.js';
 export { BRANCH_USER_METADATA_FIELDS, EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS } from './registry-parts/lists-locks.js';
 export { NPC_REVERT_GROUPS, NPC_REVERT_LIST_FIELDS, TERMINAL_FROZEN_FIELDS } from './registry-parts/lists-revert.js';
 export { SNAPSHOT_FIELDS, snapshotNpc } from './registry-parts/snapshot.js';

@@ -1,4 +1,4 @@
-/* NPC State Delta sidecar inspection: read-concurrency slots, the bounded ETag/Last-Modified inspection
+/* NPC State sidecar inspection: read-concurrency slots, the bounded ETag/Last-Modified inspection
    cache, revision checks, decoded-payload getters and pointer adoption. Moved out of storage.js as a
    factory so each separately imported storage instance keeps its own read slots and cache. Never
    imports storage.js. */
@@ -77,7 +77,7 @@ export function createStorageInspection({ dataFileExists, decodeStateFilePayload
     // their fields are the ones written (`writtenMeta`) and the file is not parsed again to learn them.
     async function inspectSidecar(pointer, { fetchFn = globalThis.fetch, expectedChatKey = '', probeHeaders = null, writtenText = null, writtenMeta = null } = {}) {
         if (!pointer?.path) return { inspected: { ...MISSING_FILE }, updatedAtText: '' };
-        if (typeof fetchFn !== 'function') throw new Error('fetch() is unavailable for NPC State Delta data-file inspection.');
+        if (typeof fetchFn !== 'function') throw new Error('fetch() is unavailable for NPC State data-file inspection.');
         const path = pointer.path;
         if (probeHeaders && await dataFileExists(path, { fetchFn, headers: probeHeaders }) === false) {
             inspectedFiles.delete(path);
@@ -106,7 +106,7 @@ export function createStorageInspection({ dataFileExists, decodeStateFilePayload
             rememberInspectedFile(path, known);
         } else {
             if (!response?.ok) {
-                const error = new Error(`NPC State Delta data file revision check failed with HTTP ${response?.status || 'error'}.`);
+                const error = new Error(`NPC State data file revision check failed with HTTP ${response?.status || 'error'}.`);
                 error.status = Number(response?.status || 0);
                 throw error;
             }
@@ -121,7 +121,7 @@ export function createStorageInspection({ dataFileExists, decodeStateFilePayload
             if (etag) rememberInspectedFile(path, { etag, lastModified, text, meta });
             else inspectedFiles.delete(path);
         }
-        if (expectedChatKey && meta.chatKey !== String(expectedChatKey)) throw new Error('NPC State Delta data file belongs to a different chat.');
+        if (expectedChatKey && meta.chatKey !== String(expectedChatKey)) throw new Error('NPC State data file belongs to a different chat.');
         return { inspected: inspectionResult(meta, text, payload), updatedAtText: meta.updatedAtText };
     }
 

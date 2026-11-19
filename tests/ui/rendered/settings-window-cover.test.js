@@ -42,7 +42,7 @@ test.after(async () => {
 // Owner Q3: the mock wins. The overlay's box is measured against the window, with the open suite behind it.
 for (const [width, height] of [[390, 800], [1143, 800], [1280, 900], [1920, 1080]]) {
   for (const theme of ['dark', 'light']) {
-    test(`${width} in ${theme}: the Settings overlay ${width > 600 ? 'covers the window, 18px in' : 'fills the phone panel'}`, async (t) => {
+    test(`${width} in ${theme}: the Settings overlay ${width > 600 ? 'covers the floating window, 18px in' : 'fills the phone panel'}`, async (t) => {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await ctx.browser.newPage({ viewport: { width, height } });
       await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
@@ -56,8 +56,10 @@ for (const [width, height] of [[390, 800], [1143, 800], [1280, 900], [1920, 1080
           const w = document.querySelector('.su-layer').getBoundingClientRect();
           return { left: Math.round(r.left - w.left), top: Math.round(r.top - w.top), width: Math.round(r.width), height: Math.round(r.height) };
         });
+        // On a desktop window the suite is the floating window (min(1280, window - 48) by min(940, window - 48), centred) and the overlay covers it, 18 px in.
         const inset = width > 600 ? 18 : 0;
-        assert.deepEqual(box, { left: inset, top: inset, width: width - 2 * inset, height: height - 2 * inset }, JSON.stringify(box));
+        const win = width > 820 ? { x: (width - Math.min(1280, width - 48)) / 2, y: (height - Math.min(940, height - 48)) / 2, w: Math.min(1280, width - 48), h: Math.min(940, height - 48) } : { x: 0, y: 0, w: width, h: height };
+        assert.deepEqual(box, { left: win.x + inset, top: win.y + inset, width: win.w - 2 * inset, height: win.h - 2 * inset }, JSON.stringify(box));
       } finally { await page.close(); }
     });
   }

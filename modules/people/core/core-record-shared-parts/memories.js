@@ -1,4 +1,4 @@
-/* NPC State Delta stored memories: the important-memory limit, the memory normalizer, the date stamps and their upkeep. */
+/* NPC State stored memories: the important-memory limit, the memory normalizer, the date stamps and their upkeep. */
 import { durableSemanticSimilarity, DURABLE_PROFILE_LIMITS, semanticDedupeItems } from '../core-relationship.js';
 import { cleanList, normalizeName } from '../core-text.js';
 

@@ -39,7 +39,7 @@ test('a stance is priced by its own skill\'s stat, and a hero with no attack ski
 test('an area choice needs an area skill; the derived builds carry the skills the simulator builds had', () => {
     assert.ok(!play({ ...base, skills: skillsFor('Warrior') }, { kind: 'area' }).lines.some(line => line[0] === 'attack' && line[2] === 'area'));
     const profile = profileOf({ skills: skillsFor('Skirmisher-area') });
-    assert.deepEqual([profile.attack, profile.area, profile.heal, profile.stance], [{ stat: 'agi', magic: false }, { stat: 'agi', magic: false }, null, { type: 'evasion', stat: 'agi' }]);
+    assert.deepEqual([profile.attack, profile.area, profile.heal, profile.stance], [{ stat: 'agi', magic: false }, { stat: 'agi', magic: false }, null, { type: 'speed', stat: 'agi' }]);
     assert.deepEqual(profileOf({ skills: skillsFor('Healer') }).heal, { stat: 'wis' });
     assert.equal(profileOf({ skills: skillsFor('Mage') }).attack.magic, true);
 });

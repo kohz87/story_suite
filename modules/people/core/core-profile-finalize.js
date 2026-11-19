@@ -1,4 +1,4 @@
-/* NPC State Delta profile development finalizing: applies the planned Personality/Speech development to an NPC record at the
+/* NPC State profile development finalizing: applies the planned Personality/Speech development to an NPC record at the
    end of a merge (finalizeProfileDevelopmentField, finalizeProfileDevelopment). A pure part of core.js (same owner, moved without
    change); core.js imports it. Never imports core.js. */
 import { clearProfileEvidence, emptyProfileDevelopment, markProfileApplied, PROFILE_DEVELOPMENT_FIELDS, PROFILE_DEVELOPMENT_READY_COUNT, profileDevelopmentEvidence, profileDevelopmentProvenanceReady, profileDevelopmentText, rebaseProfileDevelopment, recordProfileDevelopmentDiagnostic, resetProfileDevelopment } from './core-profile-development.js';

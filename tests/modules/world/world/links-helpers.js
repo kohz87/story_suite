@@ -1,4 +1,4 @@
-// Test stand-ins for the world links tests: NPC State Delta with faction dossiers, and the reply lines that write the data.
+// Test stand-ins for the world links tests: NPC State with faction dossiers, and the reply lines that write the data.
 
 // The real npc.dossier shape: DOSSIER_FIELDS only (id, name, …, customFields as the owner typed the names); no faction field.
 export const DOSSIERS = {
@@ -6,7 +6,7 @@ export const DOSSIERS = {
     Wynn: { id: 'np_3', customFields: { GROUP: 'Chapel' } }, Olo: { id: 'np_4', faction: 'Guild' },
 };
 export const delta = () => ({
-    id: 'npc-state-delta', name: 'NPC State Delta (test stand-in)', version: '0.0.0-test', domains: {}, commands: {},
+    id: 'npc-state-delta', name: 'NPC State (test stand-in)', version: '0.0.0-test', domains: {}, commands: {},
     queries: {
         'npc.known': () => Object.keys(DOSSIERS),
         'npc.dossier': (_state, { name } = {}) => (DOSSIERS[name] ? { name, ...DOSSIERS[name] } : null),

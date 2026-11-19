@@ -1,4 +1,4 @@
-/* NPC State Delta targeted-pass scope (role: targeted-pass-scope). The rules that decide which returned rows,
+/* NPC State targeted-pass scope (role: targeted-pass-scope). The rules that decide which returned rows,
    profile updates and relationship edges belong to a single-target request. Split from runtime-targeted.js;
    bodies are moved without change. */
 

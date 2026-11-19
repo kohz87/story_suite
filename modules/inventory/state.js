@@ -11,5 +11,5 @@ export { gearOn, featureOn } from './state-parts/feature-checks.js';
 export { COND_MAX, COND_LOG_MAX } from './state-parts/shared-cond.js';
 export { condEvents, condOf } from './state-parts/cond-read.js';
 export { condWrite, condLogErrors } from './state-parts/cond-write.js';
-export { CARRY_MAX, READER_CARRY_MAX, packCarry } from './state-parts/carry.js';
+export { CARRY_MAX, READER_CARRY_MAX, packCarry, BAG_PLACE } from './state-parts/carry.js';
 export { defErrors, keptErrors } from './state-parts/checks.js';

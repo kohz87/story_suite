@@ -14,12 +14,12 @@ const build = (id, extra = {}) => {
   return { el: dossierPage(dossier(id), ctx), ctx, backStack };
 };
 
-test('dossierPages: the living get seven pages, the dead five, and empty Ties, Secrets and Mood are left out', () => {
+test('dossierPages: the living get seven pages (Mood and Ties even when empty), the dead five, and empty Secrets are left out', () => {
   assert.deepEqual(dossierPages(dossier('temiwa'), 'Astra').map(p => p.id), ['with', 'mood', 'now', 'ties', 'past', 'secrets', 'profile']);
   assert.equal(dossierPages(dossier('temiwa'), 'Astra')[0].title, 'With Astra');
   assert.deepEqual(dossierPages(dossier('marro')).map(p => p.id), ['death', 'past', 'secrets', 'profile']);
   assert.deepEqual(dossierPages(dossier('dren')).map(p => p.id), ['death', 'past', 'profile']);
-  assert.deepEqual(dossierPages(dossier('rika')).map(p => p.id), ['with', 'mood', 'now', 'past', 'profile']);
+  assert.deepEqual(dossierPages(dossier('rika')).map(p => p.id), ['with', 'mood', 'now', 'ties', 'past', 'profile']);
   assert.equal(dossierPages(dossier('temiwa'))[0].title, 'With you');
 });
 
@@ -32,15 +32,17 @@ test('a living dossier shows the hero and the cards in mock order, Past with its
   assert.equal(el.querySelectorAll('[data-page="past"] .dots i').length, 3);
   assert.equal(el.querySelectorAll('[data-page="past"] .dots b').length, 2);
   assert.deepEqual(el.querySelectorAll('[data-page="ties"] .a').map(a => a.textContent), ['T', 'O', '']);
-  assert.match(el.querySelector('[data-page="secrets"]').textContent, /1\/3.*next: opens at Trust 40/);
+  assert.match(el.querySelector('[data-page="secrets"]').textContent, /1\/3.*the next opens at Trust 40/);
   assert.equal(el.querySelectorAll('.ml').length, 4);
-  assert.ok(el.querySelector('[data-act="map"]'));
+  assert.deepEqual(el.querySelectorAll('.dseg button').map(b => b.dataset.tab), ['dossier', 'map'], 'the bar\'s Dossier / Map switch (no See on map button)');
+  assert.equal(el.querySelector('[data-act="map"]'), null);
   assert.match(el.textContent, /Human · female · 26/);
 });
 
-test('empty cards are hidden: Rika has no ties and no secrets, so neither card shows', () => {
+test('Rika has no ties and no secrets: the Ties card says so (the mock\'s two columns stay), Secrets is left out', () => {
   const { el } = build('rika');
-  assert.deepEqual(ids(el), ['with', 'mood', 'now', 'past', 'profile']);
+  assert.deepEqual(ids(el), ['with', 'mood', 'now', 'ties', 'past', 'profile']);
+  assert.match(el.querySelector('[data-page="ties"]').textContent, /No ties yet/);
   assert.match(el.querySelector('[data-page="with"]').textContent, /Nothing yet/);
 });
 
@@ -62,21 +64,23 @@ test('a presumed death is badged, and unknown gender is flagged under the name',
   assert.match(el.querySelector('.idl .gflag').textContent, /gender not stated/);
 });
 
-test('opening a card shows its page with the pager and hides the hero on a phone through the paged class', () => {
+test('opening a card shows its part with ‹ › and "name · i of n", outlines that card, and marks the body paged (the CSS shows it as a page below 1,080 px)', () => {
   const { el } = build('temiwa');
   el.querySelector('[data-page="ties"]').click();
-  assert.ok(el.querySelector('.dgrid').classList.contains('paged'));
+  assert.ok(el.querySelector('.dbody').classList.contains('paged'));
   assert.equal(el.querySelector('.dpane .ptl b').textContent, 'Ties');
-  assert.equal(el.querySelector('.dpane .ptl small').textContent, '4 of 7');
+  assert.equal(el.querySelector('.dpane .ptl small').textContent, 'Sister Temiwa · 4 of 7');
   assert.ok(el.querySelector('.dhero'));
+  assert.deepEqual(el.querySelectorAll('.dcard.sel').map(c => c.dataset.page), ['ties']);
   el.querySelector('[data-act="next"]').click();
   assert.equal(el.querySelector('.dpane .ptl b').textContent, 'Past');
   el.querySelector('[data-act="previous"]').click();
   el.querySelector('[data-act="previous"]').click();
   assert.equal(el.querySelector('.dpane .ptl b').textContent, 'Right now');
-  el.querySelector('.pager .bk2').click();
+  el.querySelector('.dpane [data-act="back"]').click();
   assert.equal(el.querySelector('.dpane'), null);
-  assert.equal(el.querySelector('.dgrid').classList.contains('paged'), false);
+  assert.equal(el.querySelector('.dbody').classList.contains('paged'), false);
+  assert.equal(el.querySelector('.dcard.sel'), null);
 });
 
 test('the pager wraps from the last page to the first, and the portrait opens Profile', () => {
@@ -116,9 +120,8 @@ test('the back button closes through the back-stack and calls onClose with its o
   assert.equal(second.ctx.closed, 1);
 });
 
-test('Follow toggles with the star and sends people.follow with the person id; Edit sends npc.edit; See on map uses the hook', async () => {
-  const seen = [];
-  const { el, ctx } = build('rika', { seeOnMap: id => seen.push(id) });
+test('Follow toggles with the star and sends people.follow with the person id; ⋯ › Edit sends npc.edit', async () => {
+  const { el, ctx } = build('rika');
   const follow = () => el.querySelector('[data-act="follow"]');
   assert.equal(follow().textContent, '☆ Follow');
   follow().click();
@@ -126,17 +129,12 @@ test('Follow toggles with the star and sends people.follow with the person id; E
   assert.equal(follow().getAttribute('aria-pressed'), 'true');
   follow().click();
   assert.equal(follow().textContent, '☆ Follow');
-  el.querySelector('[data-act="edit"]').click();
-  el.querySelector('[data-act="map"]').click();
+  el.querySelector('[data-act="menu"]').click();
+  el.querySelector('.menu [data-act="edit"]').click();
   await new Promise(done => setTimeout(done, 5));
   const sent = ctx.sent();
   assert.deepEqual(sent, [['people.follow', { id: 'rika', on: true }], ['people.follow', { id: 'rika', on: false }], ['npc.edit', { personId: 'rika' }]]);
-  assert.deepEqual(seen, ['rika']);
-  const noHook = build('temiwa');
-  assert.equal(noHook.el.querySelector('[data-act="follow"]').textContent, '★ Following');
-  noHook.el.querySelector('[data-act="map"]').click();
-  await Promise.resolve();
-  assert.deepEqual(noHook.ctx.sent(), [['people.focus', { personId: 'temiwa' }]]);
+  assert.equal(build('temiwa').el.querySelector('[data-act="follow"]').textContent, '★ Following');
 });
 
 test('a Follow the engine refuses puts the star back', async () => {
@@ -151,19 +149,22 @@ test('a Follow the engine refuses puts the star back', async () => {
   assert.equal(follow().getAttribute('aria-pressed'), 'false');
 });
 
-test('a living person with no mood has no Mood card or page', () => {
+test('a living person with no mood keeps the Mood card, saying it is not read yet', () => {
   installFakeDom();
   const d = dossier('rika');
   d.mood = null;
-  assert.deepEqual(dossierPages(d).map(p => p.id), ['with', 'now', 'past', 'profile']);
-  assert.deepEqual(ids(dossierPage(d, {})), ['with', 'now', 'past', 'profile']);
+  assert.deepEqual(dossierPages(d).map(p => p.id), ['with', 'mood', 'now', 'ties', 'past', 'profile']);
+  const el = dossierPage(d, {});
+  assert.deepEqual(ids(el), ['with', 'mood', 'now', 'ties', 'past', 'profile']);
+  assert.match(el.querySelector('[data-page="mood"]').textContent, /Not read yet/);
 });
 
-test('the ⋯ menu lists five actions, sends the chosen command and closes; Delete asks twice', async () => {
+test('the ⋯ menu lists Edit and the five actions, sends the chosen command and closes; Delete asks twice', async () => {
   const { el, ctx, backStack } = build('temiwa');
   const menu = () => el.querySelector('[data-act="menu"]');
   menu().click();
-  assert.deepEqual(el.querySelectorAll('.menu button').map(b => b.dataset.act), ['refresh', 'portrait', 'inspect', 'merge', 'delete']);
+  assert.deepEqual(el.querySelectorAll('.menu button').map(b => b.dataset.act), ['edit', 'refresh', 'portrait', 'inspect', 'merge', 'delete']);
+  assert.ok(menu().parentNode.contains(el.querySelector('.menu')), 'the menu drops from the ⋯ button\'s own anchor');
   assert.equal(menu().getAttribute('aria-expanded'), 'true');
   el.querySelector('.menu [data-act="merge"]').click();
   assert.equal(el.querySelector('.menu'), null);
@@ -196,7 +197,8 @@ test('a top-bar control nobody answers is left out, never drawn as the text "nul
   let el;
   try { ({ el } = build('temiwa', { port: { ...makeCtx().port, can: type => type !== 'npc.edit' } })); } finally { proto.replaceChildren = real; }
   assert.equal(drawn.includes(null), false, 'no null handed to the page');
-  assert.equal(el.querySelector('[data-act="close"]').parentNode.querySelector('[data-act="edit"]'), null, 'no Edit');
+  el.querySelector('[data-act="menu"]').click();
+  assert.equal(el.querySelector('.menu [data-act="edit"]'), null, 'no Edit');
 });
 
 test('⋯ › Portrait shows a refused answer in the note line (as Refresh does), and says nothing when the dialog opens', async () => {

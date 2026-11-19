@@ -1,4 +1,4 @@
-/* NPC State Delta injection assembly: buildInjection, the budgeted dossier text for the selected cast and reference blocks. */
+/* NPC State injection assembly: buildInjection, the budgeted dossier text for the selected cast and reference blocks. */
 import { cleanText } from '../core-text.js';
 import { narratorTies, tieRoster, tiesTracked } from '../core-keyrel.js';
 import { DEFAULT_BEHAVIOR_CRITERIA } from '../core-prompts.js';

@@ -319,7 +319,7 @@ export async function runFuzz({ seed = 1, steps = 40, verbose = false } = {}) {
             const name = r.pick(deck);
             before = JSON.parse(J(host.ctx.chat));
             try { await operations[name](); } catch (error) {
-                if (!/read-only|newer|restore|^fake:/i.test(String(error?.message)) && !/testkit\/fake-st\.js/.test(String(error?.stack).split('\n').slice(0, 3).join(' '))) fail(`${name}#${step}`, `the operation threw: ${error?.message}`, String(error?.stack).split('\n').slice(0, 4).join(' | '));
+                if (!/read-only|newer|restore|^fake:/i.test(String(error?.message)) && !/testkit\/fake-st(-parts\/[\w-]+)?\.js/.test(String(error?.stack).split('\n').slice(0, 3).join(' '))) fail(`${name}#${step}`, `the operation threw: ${error?.message}`, String(error?.stack).split('\n').slice(0, 4).join(' | '));
             }
             trace.push(name);
             verify(`${name}#${step}`);

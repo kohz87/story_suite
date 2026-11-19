@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { standInTree } from './helpers/temp-tree.js';
 import { oldSource } from './helpers/old-source.js';
 import {
-    LEVEL_FIELD_RULE, buildBackfillPrompt, buildDossierImportPrompt, buildNarrationCaptureParts, buildProfileRefreshPrompt,
+    LEVEL_FIELD_RULE, buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt,
     buildScannerPrompt, createNpcRecord, mergeScanResult, normalizeNpcRecord,
 } from '../../modules/people/core/core.js';
 import { tempDir } from '../../scripts/temp-dir.mjs';
@@ -18,7 +18,6 @@ const npc = normalizeNpcRecord({ id: 'npc_maelis', name: 'Maelis Varn', present:
 const options = { transcript: 'Maelis waves.', existingNpcs: [npc], existingNpc: npc, targetNpc: npc, targetName: 'Maelis Varn' };
 const builders = {
     scanner: o => buildScannerPrompt(o),
-    capture: o => buildNarrationCaptureParts(o).context,
     backfill: o => buildBackfillPrompt(o),
     refresh: o => buildProfileRefreshPrompt(o),
     dossierImport: o => buildDossierImportPrompt(o),
@@ -50,12 +49,6 @@ test('the Level sentence is stated, generic, and leaves "Never guess" for every 
     const prompt = buildScannerPrompt({ ...options, customFieldNames: ['Level', 'Class'] });
     assert.match(prompt, /Never guess\. Level is the one exception/, 'Never guess stays; Level alone is excepted');
     assert.doesNotMatch(buildScannerPrompt({ ...options, customFieldNames: ['Class'] }), /exception/);
-});
-
-test('in a one-pass capture the Level sentence sits in the context part, not the cached rules part', () => {
-    const parts = buildNarrationCaptureParts({ ...options, customFieldNames: ['Level'] });
-    assert.ok(!parts.rules.includes('Level is the one exception'));
-    assert.ok(parts.context.includes(LEVEL_FIELD_RULE));
 });
 
 test('merge: a Level estimate needs a quote that is really in the story; hand-set values and other fields keep their rules', () => {

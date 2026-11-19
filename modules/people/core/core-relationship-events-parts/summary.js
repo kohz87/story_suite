@@ -1,4 +1,4 @@
-/* NPC State Delta relationship summary: checks a relationship summary for unsupported claims and calibrates its wording to the meters. */
+/* NPC State relationship summary: checks a relationship summary for unsupported claims and calibrates its wording to the meters. */
 import { DEFAULT_RELATIONSHIP, DURABLE_PROFILE_LIMITS, normalizeRelationshipBaseline, normalizeRelationshipMilestones, relationshipMilestoneUnlocked } from '../core-relationship-model.js';
 import { compactDurableText, durableSeedGrounded, durableSemanticSimilarity } from '../core-relationship-text.js';
 

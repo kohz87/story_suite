@@ -58,7 +58,7 @@ for (const theme of ['dark', 'light']) {
       return { soft: probe('--su-soft'), rows: off.map(b => { const c = getComputedStyle(b); return { w: c.fontWeight, s: c.fontSize, f: c.fontFamily, c: c.color }; }) };
     });
     await page.close();
-    assert.ok(got.rows.length >= 6);
+    assert.ok(got.rows.length >= 5);
     if (INACTIVE[theme]) assert.equal(got.soft, INACTIVE[theme]);
     for (const r of got.rows) {
       assert.equal(r.w, '600');

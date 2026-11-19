@@ -1,9 +1,8 @@
 /* NPC State - the in-page api (role: npc-api). What `pageHandles.suiteApi` holds: the tracked NPCs, their profiles and the text
    the next reply gets (the Story Block adapter reads it), plus what the Enable checkbox does after saving.
-   Built by index.js once per module instance with the shared runtime state and the controller functions it calls. */
+   Built by runtime-entry.js once per module instance with the shared runtime state and the controller functions it calls. */
 
 import { recentTranscript } from '../transcript/transcript.js';
-import { buildNarrationCapturePrompt } from '../core/core.js';
 import { pageHandles } from './handles.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { buildNpcProfiles } from '../npc-api/profile-list.js';
@@ -11,20 +10,17 @@ import { replyPreview } from '../npc-api/reply-preview.js';
 import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 
 export function createNpcApiPart(rt, deps) {
-    const { chatHydrationStatus, getChatKey, getChatState, hostedNotePromptOptions, liveInjectionText, narrationCaptureEnabled, queueCastRefresh, renderDossier, scannerPromptOptions, scenePresenceView, updateInjection } = deps;
+    const { chatHydrationStatus, getChatKey, getChatState, liveInjectionText, nextCaptureParts, queueCastRefresh, renderDossier, scenePresenceView, updateInjection } = deps;
 
-    // The texts the next ordinary reply gets: { injection, capture }.
+    // The texts the next ordinary reply gets: { injection, rules, capture } (the one-pass lines' rules and context, as updateInjection sends them).
     function nextReplyTexts() {
         const settings = getSettings();
         const key = getChatKey();
-        if (settings.enabled === false || key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return { injection: '', capture: '' };
+        if (settings.enabled === false || key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return { injection: '', rules: '', capture: '' };
         const state = getChatState(key);
-        const transcript = recentTranscript(4);
-        const injection = settings.inject ? liveInjectionText(state, settings, { transcript }) : '';
-        const capture = narrationCaptureEnabled(settings)
-            ? buildNarrationCapturePrompt(scannerPromptOptions(state, settings, transcript, { dossierAbove: injection, ...hostedNotePromptOptions(state, settings) }))
-            : '';
-        return { injection, capture };
+        const injection = settings.inject ? liveInjectionText(state, settings, { transcript: recentTranscript(4) }) : '';
+        const { rules, context } = nextCaptureParts(state, settings);
+        return { injection, rules, capture: context };
     }
 
     const SUITE_API = Object.freeze({
@@ -47,7 +43,7 @@ export function createNpcApiPart(rt, deps) {
                 if (key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return Object.freeze([]);
                 return buildNpcProfiles(scenePresenceView(getChatState(key).npcs || []), { customFieldNames: effectiveCustomFieldNames() });
             } catch (error) {
-                console.warn('[NPC State Delta] NPC profiles failed', error);
+                console.warn('[NPC State] NPC profiles failed', error);
                 return Object.freeze([]);
             }
         },
@@ -56,9 +52,9 @@ export function createNpcApiPart(rt, deps) {
             preview: () => {
                 try {
                     const result = nextReplyTexts();
-                    return replyPreview({ injection: result?.injection, capture: result?.capture });
+                    return replyPreview({ injection: result?.injection, rules: result?.rules, capture: result?.capture });
                 } catch (error) {
-                    console.warn('[NPC State Delta] reply preview failed', error);
+                    console.warn('[NPC State] reply preview failed', error);
                     return replyPreview();
                 }
             },
@@ -95,12 +91,12 @@ export function createNpcApiPart(rt, deps) {
         renderDossier();
         // The cast panes follow NPC State on and off.
         queueCastRefresh(0);
-        if (typeof CustomEvent === 'function') globalThis.document?.dispatchEvent?.(new CustomEvent('npc-state-delta:enabled-changed', { detail: { enabled: getSettings().enabled !== false } }));
+        if (typeof CustomEvent === 'function') globalThis.document?.dispatchEvent?.(new CustomEvent('people:enabled-changed', { detail: { enabled: getSettings().enabled !== false } }));
     }
 
     // When NPC State registers with a Story Block host, or that host goes away: the cast panes redraw.
     function watchHost() {
-        globalThis.document?.addEventListener?.('npc-state-delta:v2-host', () => {
+        globalThis.document?.addEventListener?.('people:v2-host', () => {
             queueCastRefresh(0);
         });
     }

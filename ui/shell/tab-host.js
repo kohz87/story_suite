@@ -1,11 +1,11 @@
-// Builds the 8-tab host: tablet strip, phone bottom bar, scrolling panel and the mini bar shown after the card scrolls away; on desktop (ui/css/desk.css) the card and Here now form a left column beside the strip and page.
+// Builds the tab host: tab strip, phone bottom bar, scrolling panel and the mini bar shown after the card scrolls away; the card, the strip and the page are one column at every width.
 
 import { h } from '../kit/dom.js';
 import { glyph } from '../kit/glyphs.js';
 
-const TAB_ORDER = ['now', 'party', 'bag', 'people', 'world', 'journal', 'story', 'scene', 'fight'];
+const TAB_ORDER = ['party', 'bag', 'people', 'world', 'journal', 'story', 'scene', 'fight'];
 const LABELS = {
-  now: 'Now', party: 'Party', bag: 'Bag', people: 'People',
+  party: 'Party', bag: 'Bag', people: 'People',
   world: 'World', journal: 'Journal', story: 'Story', scene: 'Activity', fight: 'Fight',
 };
 const TITLE_MAX = 16;
@@ -17,29 +17,31 @@ export function tabLabel(id, flags = {}) {
   return title.length > TITLE_MAX ? `${title.slice(0, TITLE_MAX - 1).trimEnd()}…` : title || LABELS.scene;
 }
 
+// The red count on a tab (only the Journal's, from `flags.needsCount`: the rows of Needs you); null at 0.
+function badge(id, flags) {
+  const n = id === 'journal' ? Number(flags.needsCount) || 0 : 0;
+  return n > 0 ? h('span', { class: 'su-badge', role: 'img', 'aria-label': `${n} ${n === 1 ? 'thing needs' : 'things need'} you` }, String(n)) : null;
+}
+
 /** Returns the tab ids to show: Party only when the RPG is on, Fight only during a fight, the activity tab (an open interaction, named after it) only while one is open. */
 export function visibleTabs({ rpg = true, fightOpen = false, sceneOpen = false } = {}) {
   return TAB_ORDER.filter((id) => (id !== 'party' || rpg) && (id !== 'fight' || fightOpen) && (id !== 'scene' || sceneOpen));
 }
 
 /**
- * Creates the tab host. Options: `doc`, `flags` ({ rpg, fightOpen }), `initial`, `onSelect(id)`,
- * `onChat()`, `onSettings()`. Returns `el` plus the `scroll`, `cardSlot`, `hereSlot` (Here now, drawn on desktop only) and `panel` elements to fill.
+ * Creates the tab host. Options: `doc`, `flags` ({ rpg, fightOpen, needsCount }), `initial`, `onSelect(id)`,
+ * `onChat()`, `onSettings()`. Returns `el` plus the `scroll`, `cardSlot`, and `panel` elements to fill. A first tab that is not listed (Party with the RPG off, or the retired 'now') becomes the first one listed.
  */
 export function createTabHost(options = {}) {
-  const { flags: startFlags = {}, initial = 'now', onSelect = null, onChat = null, onSettings = null } = options;
+  const { flags: startFlags = {}, initial = 'party', onSelect = null, onChat = null, onSettings = null } = options;
   let flags = { rpg: true, fightOpen: false, sceneOpen: false, sceneTitle: '', ...startFlags };
-  let current = initial;
+  let current = visibleTabs(flags).includes(initial) ? initial : visibleTabs(flags)[0];
 
   const strip = h('nav', { class: 'su-strip', role: 'tablist', 'aria-label': 'Story Suite tabs' });
   const bar = h('nav', { class: 'su-bar su-glass', 'aria-label': 'Story Suite tabs' });
   const cardSlot = h('div', { class: 'su-card-slot' });
   const panel = h('div', { class: 'su-panel', role: 'tabpanel', 'data-tab': current });
-  const hereSlot = h('div', { class: 'su-here-slot' });
-  // Two wrappers that only draw on desktop (ui/css/desk.css); under it they are `display: contents`, so the card, strip and page stack as before.
-  const scroll = h('div', { class: 'su-scroll' }, h('div', { class: 'su-desk' },
-    h('aside', { class: 'su-side' }, cardSlot, hereSlot),
-    h('div', { class: 'su-page' }, strip, panel)));
+  const scroll = h('div', { class: 'su-scroll' }, cardSlot, strip, panel);
   const mini = h(
     'div',
     { class: 'su-mini', role: 'toolbar', 'aria-label': 'Shortcuts' },
@@ -77,7 +79,7 @@ export function createTabHost(options = {}) {
 
   function render() {
     if (!visibleTabs(flags).includes(current)) {
-      current = 'now';
+      current = visibleTabs(flags)[0];
       panel.setAttribute('data-tab', current);
     }
     const ids = visibleTabs(flags);
@@ -96,14 +98,14 @@ export function createTabHost(options = {}) {
         pick(next);
         strip.querySelector(`[data-tab="${next}"]`)?.focus();
       },
-    }, glyph(id), tabLabel(id, flags))));
+    }, glyph(id), tabLabel(id, flags), badge(id, flags))));
     bar.replaceChildren(...ids.map((id) => h('button', {
       type: 'button',
       class: 'su-bar-btn',
       'aria-current': String(id === current),
       'data-tab': id,
       onClick: () => pick(id),
-    }, glyph(id), h('span', { class: 'su-bar-label' }, tabLabel(id, flags)), h('span', { class: 'su-bar-dot' }))));
+    }, glyph(id), h('span', { class: 'su-bar-label' }, tabLabel(id, flags)), h('span', { class: 'su-bar-dot' }), badge(id, flags))));
     updateMini();
   }
 
@@ -114,7 +116,6 @@ export function createTabHost(options = {}) {
     el,
     scroll,
     cardSlot,
-    hereSlot,
     panel,
     select: pick,
     current: () => current,

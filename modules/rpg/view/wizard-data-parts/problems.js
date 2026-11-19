@@ -1,6 +1,7 @@
 // What holds Create up, and the block actions a reply has left for it.
 
 import { DM_LIMITS } from '../../../data-modules/schema.js';
+import { FOCUS_STATS } from '../../../../core/runtime/skill-slots.js';
 import { PARTY_ACTIVE } from '../../names.js';
 import { fold } from '../../read.js';
 import { skillCost } from '../../combat/skills.js';
@@ -42,6 +43,8 @@ export function problemsOf(draft, { persona = '', names = [], room = true, hasYo
     // (Combat Rules v1: one stance skill; a second would sit at practice 0, so Create waits for the reader to change a type)
     const stances = draft.skills.filter(skill => skill.name && skillCost({ type: skill.type ?? 'attack', stat: skill.stat }).kind === 'stance').map(skill => skill.name);
     if (stances.length > 1) out.push(fill(W.twoStances, { names: stances.join(', ') }));
+    // (a Focus skill rolls with INT or WIS: one an imported file or a companion brought with another stat waits for the reader to pick one)
+    for (const skill of draft.skills) if (skill.name && skill.stat && skillCost({ type: skill.type ?? 'attack' }).type === 'focus' && !FOCUS_STATS.includes(skill.stat)) out.push(fill(W.focusStat, { name: skill.name }));
     if (full) out.push(fill(RPG_STRINGS.join.fullActive, { max: PARTY_ACTIVE }));   // (the same sentence a `+ party` line is refused with)
     if (!room) out.push(fill(W.noRoom, { max: DM_LIMITS.definitions }));
     else if (free < CREATE_ACTIONS) out.push(fill(W.noActions, { used: DM_LIMITS.replyRoots - free, max: DM_LIMITS.replyRoots, need: CREATE_ACTIONS }));

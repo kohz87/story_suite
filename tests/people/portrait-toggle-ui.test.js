@@ -35,8 +35,8 @@ test('settings booleans use CSS-only row status pills with grey and green dots',
     assert.doesNotMatch(script, /insertAdjacentElement\('afterend'/, 'startup must not inject toggle siblings from the global observer');
     assert.doesNotMatch(script + source, /delta-toggle-native|delta-toggle-pill|delta-toggle-label/, 'runtime toggle enhancer classes must remain absent');
     assert.match(source, /@supports selector\(label:has\(> input\[type="checkbox"\]:checked\)\)/);
-    assert.match(source, /\.npc-state-delta-setting-row>input\[type="checkbox"\][^{]*\{[\s\S]*clip-path:inset\(50%\)!important/);
-    assert.match(source, /\.npc-state-delta-setting-row:has\(> input\[type="checkbox"\]\)::after\{[\s\S]*content:"Disabled"!important/s);
+    assert.match(source, /\.ppl-setting-row>input\[type="checkbox"\][^{]*\{[\s\S]*clip-path:inset\(50%\)!important/);
+    assert.match(source, /\.ppl-setting-row:has\(> input\[type="checkbox"\]\)::after\{[\s\S]*content:"Disabled"!important/s);
     assert.match(source, /content:"Disabled"!important[\s\S]*radial-gradient\(circle at 10px 50%,rgba\(190,195,202,\.62\)/s);
     assert.match(source, /:has\(> input\[type="checkbox"\]:checked\)::after\{[\s\S]*content:"Enabled"!important/s);
     assert.match(source, /content:"Enabled"!important[\s\S]*radial-gradient\(circle at 10px 50%,#57d17b/s);
@@ -48,7 +48,7 @@ test('settings booleans use CSS-only row status pills with grey and green dots',
 test('settings owner events replace document observation without rewriting toggle DOM', () => {
     const source = fs.readFileSync(new URL('../../modules/people/settings/scanner-output.js', import.meta.url), 'utf8');
     assert.doesNotMatch(source, /new MutationObserver/);
-    assert.match(source, /addEventListener\('npc-state-delta:settings-mounted', mountControl\)/);
+    assert.match(source, /addEventListener\('people:settings-mounted', mountControl\)/);
     assert.match(source, /attempt < 40/);
     assert.doesNotMatch(source, /syncTogglePill|enhanceSettingsToggles|pill\.innerHTML|label\.textContent/);
 });

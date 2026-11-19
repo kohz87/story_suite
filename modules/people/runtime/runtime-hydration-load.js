@@ -1,4 +1,4 @@
-/* NPC State Delta chat-state loading and write gates: sidecar discovery and retry, loaded-state
+/* NPC State chat-state loading and write gates: sidecar discovery and retry, loaded-state
    installation, freshness-gated mutations, hydration status, retirement holding and the readiness
    checks a write must pass. Split from runtime-hydration.js without change; the factory keeps the
    public exports. */
@@ -45,10 +45,10 @@ export function installHydrationLoad(api, rt, deps) {
     function assertChatHydratedForWrite(key = getChatKey()) {
         if (!key || key === 'no-chat') return;
         const pointer = getSettings().dataFiles?.[key];
-        if (pointer?.path && !hydratedChatKeys.has(key)) throw new Error('Refusing to overwrite unhydrated NPC State Delta sidecar for ' + key + '.');
+        if (pointer?.path && !hydratedChatKeys.has(key)) throw new Error('Refusing to overwrite unhydrated NPC State sidecar for ' + key + '.');
     }
 
-    function requireReadyChatMutation(action = 'modify NPC State Delta', key = getChatKey(), { notify = true } = {}) {
+    function requireReadyChatMutation(action = 'modify NPC State', key = getChatKey(), { notify = true } = {}) {
         if (!key || key === 'no-chat' || !isCanonicalChatKey(key)) {
             if (notify) globalThis.toastr?.warning?.(`NPC State: open a chat before attempting to ${action}.`);
             return false;
@@ -104,7 +104,7 @@ export function installHydrationLoad(api, rt, deps) {
                 delete settings.dataFiles[key];
                 pointer = null;
                 persistSettings();
-                console.warn(`[NPC State Delta] ignored live sidecar pointer for tombstoned ${key}; destructive tombstone remains authoritative.`);
+                console.warn(`[NPC State] ignored live sidecar pointer for tombstoned ${key}; destructive tombstone remains authoritative.`);
             }
             if (!pointer?.path && !tombstoned) {
                 const recoveryName = makeNpcStateDataFileName(key);
@@ -128,7 +128,7 @@ export function installHydrationLoad(api, rt, deps) {
                             pointer = recoveryPointer;
                             settings.dataFiles[key] = recoveryPointer;
                             persistSettings();
-                            console.info(`[NPC State Delta] recovered deterministic sidecar pointer for ${key}.`);
+                            console.info(`[NPC State] recovered deterministic sidecar pointer for ${key}.`);
                         }
                         break;
                     } catch (error) {
@@ -142,7 +142,7 @@ export function installHydrationLoad(api, rt, deps) {
                 }
                 if (discoveryError) {
                     hydrationErrors.set(key, discoveryError);
-                    console.error(`[NPC State Delta] Could not read the existing data file for ${key}; blocking writes instead of starting an empty dossier.`, discoveryError);
+                    console.error(`[NPC State] Could not read the existing data file for ${key}; blocking writes instead of starting an empty dossier.`, discoveryError);
                     throw discoveryError;
                 }
                 if (!recoveredState && !settings.sidecarTombstones?.[key]) missingSidecarChats.add(key);
@@ -165,7 +165,7 @@ export function installHydrationLoad(api, rt, deps) {
                         if (payload?.state) {
                             loaded = payload.state;
                             loadedUndurable = payload.undurable === true;
-                        } else throw new Error('NPC State Delta sidecar returned no state payload.');
+                        } else throw new Error('NPC State sidecar returned no state payload.');
                     } catch (error) {
                         if (error?.code === 'NPC_STATE_STALE_OWNERSHIP') throw error;
                         lastError = error;
@@ -176,9 +176,9 @@ export function installHydrationLoad(api, rt, deps) {
                     }
                 }
                 if (pointer?.path && !loaded) {
-                    hydrationErrors.set(key, lastError || new Error('NPC State Delta sidecar could not be loaded.'));
-                    console.error(`[NPC State Delta] Could not hydrate data file for ${key}; preserving the sidecar and blocking writes.`, lastError);
-                    throw lastError || new Error('NPC State Delta could not hydrate ' + key + '.');
+                    hydrationErrors.set(key, lastError || new Error('NPC State sidecar could not be loaded.'));
+                    console.error(`[NPC State] Could not hydrate data file for ${key}; preserving the sidecar and blocking writes.`, lastError);
+                    throw lastError || new Error('NPC State could not hydrate ' + key + '.');
                 }
             }
             assertOwnershipEpoch(key, epoch);

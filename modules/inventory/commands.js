@@ -1,5 +1,4 @@
-// The inventory domain's commands (moved out of domains/inventory.js unchanged; inventory.js re-exports every public name): the command
-// table and the guard of the commands that make something out of nothing. commands/wallet.js holds the purse commands and TOLD.
+// The inventory domain's commands (inventory.js re-exports every public name): the command table and the guard of the commands that make something out of nothing; commands/wallet.js holds the purse commands and TOLD, commands/bag.js the Party Bag slot.
 
 import { isPlainObject, capitalize, ownerNameIn, clone } from '../scene/domains/common.js';
 import { cleanName, resolveDef, slugify, aliasKey } from '../scene/names.js';
@@ -21,6 +20,7 @@ import {
 import { readerCarry } from './lines.js';
 import { TOLD, createWalletCommands } from './commands/wallet.js';
 export { TOLD } from './commands/wallet.js';
+import { createBagCommands } from './commands/bag.js';
 
 // Commands that make something out of nothing (items, money) run for the story, the host, or another
 // module's command (ctx.caller); a 'ui' command at the top is refused with `why`.
@@ -428,8 +428,8 @@ export function createInventoryCommands(env) {
                 narrate: false,
             };
         },
-
         ...createWalletCommands(env, byModule),
+        ...createBagCommands(),
 
         // { stack, amount }: gear condition down / up, for another module's rules only (ctx.caller).
         'inventory.wear': (ctx, payload = {}) => wear(ctx, payload),

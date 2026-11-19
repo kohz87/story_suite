@@ -1,4 +1,4 @@
-/* NPC State Delta durable-profile identity and evolution checks: morality polarity and
+/* NPC State durable-profile identity and evolution checks: morality polarity and
    evolution-language detection split unchanged from core-durable.js. Public names are re-exported
    by core-durable.js. */
 import { normalizeName } from './core-text.js';

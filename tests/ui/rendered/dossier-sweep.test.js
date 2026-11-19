@@ -95,11 +95,19 @@ for (const theme of ['dark', 'light']) {
           assert.deepEqual(await page.evaluate(audit), [], `${id} cards @${width} ${theme}`);
           const pages = await page.evaluate(() => [...document.querySelectorAll('#hx-frame .dossier .dcard')].map(c => c.dataset.page));
           for (const p of pages) {
-            await page.evaluate(x => document.querySelector(`#hx-frame .dossier [data-page="${x}"]`).click(), p);
+            await page.evaluate(x => document.querySelector(`#hx-frame .dossier .dcard[data-page="${x}"]`).click(), p);
             await settle(page);
             assert.deepEqual(await page.evaluate(audit), [], `${id}/${p} @${width} ${theme}`);
-            await page.evaluate(() => document.querySelector('#hx-frame .dossier .pager .bk2').click());
+            await page.evaluate(() => document.querySelector('#hx-frame .dossier .dpane [data-act="back"]').click());
           }
+          // (the Map tab and the open library strip)
+          await page.evaluate(() => document.querySelector('#hx-frame .dossier [data-tab="map"]').click());
+          await settle(page);
+          assert.deepEqual(await page.evaluate(audit), [], `${id} map @${width} ${theme}`);
+          await page.evaluate(() => { document.querySelector('#hx-frame .dossier [data-tab="dossier"]').click(); document.querySelector('#hx-frame .dossier [data-act="library"]').click(); });
+          await settle(page);
+          assert.deepEqual(await page.evaluate(audit), [], `${id} library @${width} ${theme}`);
+          await page.evaluate(() => document.querySelector('#hx-frame .dossier [data-act="library"]').click());
           await page.evaluate(() => document.querySelector('#hx-frame .dossier [data-act="menu"]').click());
           await settle(page);
           assert.deepEqual(await page.evaluate(audit), [], `${id} menu @${width} ${theme}`);

@@ -3,7 +3,7 @@
 // the evidence rule stays, examples are generic and valid, and old and new behaviorProfile entries both parse.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildBackfillPrompt, buildDossierImportPrompt, buildNarrationCaptureParts, buildProfileRefreshPrompt, buildScannerPrompt, DURABLE_PROFILE_LIMITS, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt, buildScannerPrompt, DURABLE_PROFILE_LIMITS, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import { PROFILE_STYLE_LINE } from '../../modules/people/core/core-prompts-targeted.js';
 import { normalizeBehaviorProfile, isBehaviorLever } from '../../modules/people/core/core-behavior.js';
 import { applyAppearanceUpdate } from '../../modules/people/appearance/appearance.js';
@@ -13,7 +13,6 @@ const npc = normalizeNpcRecord({ id: 'npc_myla', name: 'Myla Venn' });
 const transcript = '[m1] Myla set the cup down. "Sit, I\'ll pour."';
 const prompts = {
     scanner: buildScannerPrompt({ transcript }),
-    capture: buildNarrationCaptureParts({ transcript }).rules,
     backfill: buildBackfillPrompt({ transcript, targetName: 'Myla Venn', existingNpc: npc }),
     import: buildDossierImportPrompt({ dossierText: 'Name: Myla', targetName: 'Myla Venn', existingNpc: npc }),
     refresh: buildProfileRefreshPrompt({ transcript, targetNpc: npc }),
@@ -32,7 +31,6 @@ test('every prompt that describes the profile fields carries the style instructi
 });
 
 test('the identity firewall stays beside the style line', () => {
-    assert.match(prompts.capture, /IDENTITY FIREWALL/);
     assert.match(prompts.scanner, /IDENTITY FIREWALL/);
 });
 
@@ -48,7 +46,7 @@ test('the prompt examples are valid JSON, within the limits, generic and sexual-
         }
         return '';
     };
-    for (const text of [prompts.capture, prompts.scanner]) {
+    for (const text of [prompts.scanner]) {
         const example = JSON.parse(balanced(text, text.indexOf('{"id":"npc_myla"')));
         assert.ok(example.speech.length <= DURABLE_PROFILE_LIMITS.speech);
         assert.ok(example.speech.includes("Sit, I'll pour."));
@@ -77,7 +75,7 @@ test('the appearance style asks for a readable body with marks and clothes with 
         assert.ok(PROFILE_STYLE_LINE.includes(part), part);
     }
     for (const prompt of Object.values(prompts)) assert.doesNotMatch(prompt, /enduring body \(height/);
-    for (const text of [prompts.capture, prompts.scanner]) {
+    for (const text of [prompts.scanner]) {
         const example = text.slice(text.indexOf('{"id":"npc_myla"'));
         assert.ok(example.includes(`"appearance":"${READABLE}"`));
         assert.ok(example.includes('"appearance":["bronze braid","patched smock"]'));

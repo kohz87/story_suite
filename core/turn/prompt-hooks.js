@@ -41,9 +41,9 @@ export function createPromptHooks(s, deps) {
     // Story Block's text as it is in the slots (and the pending reply's), each as a pattern: what a quiet prompt loses.
     const ownPatterns = () => [...new Set([s.slots.staticText, s.slots.tailText, s.session?.staticText, s.session?.tailText].filter(Boolean))].map(textPattern).filter(Boolean);
 
-    // NPC State Delta's one-pass capture is on while its capture rules sit in the extension prompts it sets.
+    // NPC State's one-pass capture is on while its capture rules sit in the extension prompts it sets.
     const onePassOn = () => {
-        try { return String(ctx?.extensionPrompts?.story_suite_static_npc_state_delta?.value ?? '').trim() !== ''; } catch { return false; }
+        try { return String(ctx?.extensionPrompts?.story_suite_static_people?.value ?? '').trim() !== ''; } catch { return false; }
     };
     // The closing cue: only for a reply whose change lines are on (the static header names <Changes>), never a quiet or background prompt.
     const cueOf = () => (s.session?.changesOn === true ? closingCue(onePassOn()) : '');

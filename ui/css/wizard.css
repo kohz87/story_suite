@@ -5,11 +5,11 @@
 .su-root .wz .sh-panel{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#191a2b)}
 .su-root[data-scheme="light"] .wz .sh-panel{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#e8e9f1)}
 /* the × is the mock's .x (44 px, radius 10, no border, 16 px glyph), as the Inspector and Scene sheets draw it */
-.su-root [data-sheet="new-character"] .sh-x,.su-root [data-sheet="rpg-hold"] .sh-x{width:44px;height:44px;flex:none;padding:1px 6px;background:var(--su-line2);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}
+.su-root [data-sheet="new-character"] .sh-x,.su-root [data-sheet="rpg-hold"] .sh-x{width:44px;height:44px;flex:none;padding:1px 6px;background:var(--su-tint);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}
 .su-root .wz-steps{align-self:stretch}
 .su-root .wz-steps button{flex:1 1 0}
 /* the summary row: the Party sheet's 44 px tile and name, the points or skills pill, then the stats and skills lines */
-.su-root .wz-sum{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--su-line2)}
+.su-root .wz-sum{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--su-tint)}
 .su-root .wz-ava{width:44px;height:44px;border-radius:12px;background:var(--su-tile);border:2px solid var(--su-tileline);display:grid;place-items:center;font:800 18px var(--su-font);color:var(--su-glyph);box-sizing:border-box}
 .su-root .wz-k{display:flex;flex-direction:column;min-width:0}
 .su-root .wz-k b{font:800 15px/1.2 var(--su-font);color:var(--su-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -20,11 +20,16 @@
 .su-root .wz-body{display:flex;flex-direction:column;gap:12px}
 .su-root .wz-form,.su-root .wz-stats,.su-root .wz-skills,.su-root .wz-review{display:flex;flex-direction:column;gap:10px}
 .su-root .wz-help{margin-top:-4px;font-size:12px;color:var(--su-muted)}
-.su-root .wz-import,.su-root .wz-ask{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:14px;background:var(--su-line2)}
+.su-root .wz-import,.su-root .wz-ask{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:14px;background:var(--su-tint)}
 .su-root .wz-import .btn2{align-self:flex-start}
 .su-root .wz-err,.su-root .wz-problems{margin:0;font:700 13px/1.4 var(--su-font);color:var(--su-bad-t)}
 .su-root .wz-problems{padding-left:18px}.su-root .wz-problems-head{list-style:none;margin-left:-18px}
-.su-root .wz-left{justify-content:flex-start}
+/* Stats on a phone: Reset above the rows (under them the sticky Back / Next covered it), then the rows, the notes and the HP line; the row of
+   Points left · HP · Reset is a desktop row only */
+.su-root .wz-left{display:contents}.su-root .wz-rows{order:-1}.su-root .wz-left [data-wiz="reset"]{order:-2;align-self:flex-start}
+/* drawn for the desktop card and rows only (below) */
+.su-root .wz-tiles,.su-root .wz-sum .wz-sk,.su-root .wz-imp-tag,.su-root .wz-left-pill,.su-root .wz-hint{display:none}
+.su-root .wz-cards{display:flex;flex-direction:column;gap:10px}
 .su-root .wz-growth{font-weight:700;color:var(--su-text)}
 /* the starting sets: one button row each, as the Party sheet's rows */
 .su-root .wz-sets{display:flex;flex-direction:column;gap:8px}
@@ -47,7 +52,93 @@
 .su-root [data-sheet="new-character"] .wz-foot{position:sticky;bottom:0;z-index:1;padding:8px 0 14px;background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#191a2b)}
 .su-root[data-scheme="light"] [data-sheet="new-character"] .wz-foot{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#e8e9f1)}
 /* the hold: the message, quoted as it stays in the box */
-.su-root .wz-quote{margin:0;padding:8px 12px;border-left:3px solid var(--su-accent);border-radius:0 12px 12px 0;background:var(--su-line2);font:600 14px/1.45 var(--su-font);color:var(--su-text);white-space:pre-wrap;overflow-wrap:anywhere}
+.su-root .wz-quote{margin:0;padding:8px 12px;border-left:3px solid var(--su-accent);border-radius:0 12px 12px 0;background:var(--su-tint);font:600 14px/1.45 var(--su-font);color:var(--su-text);white-space:pre-wrap;overflow-wrap:anywhere}
 .su-root .wz-hold-acts .btn2{white-space:normal;text-align:center}
 /* the Party tab with nobody yet */
 .su-root .mem-empty{align-self:center;font:600 13px var(--su-font);color:var(--su-muted)}
+/* ---------- From 1100 px (desktop layout A; mock scratch/design/redo/sheets-desktop.html, wizard frames): a 920 x 720 dialog with the step tabs on
+   top, the summary card in a 248 px left column that stays put, the step on the right scrolling on its own, and Back / Next / Create in a footer row
+   of their own. The wizard's own frame: every property it relies on is set here, whatever the shared sheet frame (kit.css) draws. ---------- */
+@container su-root (min-width: 1100px) {
+.su-root .sh-ov.wz .sh-panel{position:absolute;left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);box-sizing:border-box;width:920px;height:min(720px,calc(100% - 48px));max-height:none;display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;border:1px solid var(--su-line);border-radius:24px;box-shadow:var(--su-shadow),0 30px 80px rgba(0,0,0,.35)}
+.su-root .sh-ov.wz .sh-panel .grab{display:none}
+.su-root .sh-ov.wz .sh-h{flex:none;gap:10px;margin:0;padding:18px 22px 12px}
+.su-root .sh-ov.wz .sh-h h3{font:800 20px/1.2 var(--su-font)}
+.su-root .sh-ov.wz .sh-body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:248px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;gap:0 24px;padding:0 22px;margin:0}
+/* the step tabs, numbered; a done step's number is a ✓ (the numbers are not read out: the tab's name is) */
+.su-root .sh-ov.wz .wz-steps{grid-column:1 / -1;display:flex;gap:4px;margin:0 0 14px;padding:4px;overflow:visible;background:var(--su-panel);backdrop-filter:blur(var(--su-blur)) saturate(1.3);-webkit-backdrop-filter:blur(var(--su-blur)) saturate(1.3);border:1px solid var(--su-line);border-radius:16px;box-shadow:var(--su-shadow);counter-reset:wz-step}
+.su-root .sh-ov.wz .wz-steps button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 10px;border:0;border-radius:12px;background:transparent;font:800 13.5px var(--su-font);color:var(--su-soft);box-shadow:none}
+.su-root .sh-ov.wz .wz-steps button[aria-selected="true"]{background:var(--su-panel2);color:var(--su-text);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.su-root .sh-ov.wz .wz-steps button::before{counter-increment:wz-step;content:counter(wz-step);content:counter(wz-step) / "";display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font:800 11px var(--su-font);background:var(--su-tint);color:var(--su-soft)}
+.su-root .sh-ov.wz .wz-steps button[aria-selected="true"]::before{background:var(--su-accent);color:var(--su-on-accent)}
+.su-root .sh-ov.wz .wz-steps button.done::before{content:"\2713";content:"\2713" / "";background:rgba(79,211,154,.18);color:var(--su-ok)}
+/* the summary card */
+.su-root .sh-ov.wz .wz-sum{grid-column:1;grid-row:2;align-self:start;box-sizing:border-box;max-height:100%;overflow-y:auto;scrollbar-width:thin;display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:16px;border-radius:18px;background:var(--su-tint);border:1px solid var(--su-line)}
+.su-root .sh-ov.wz .wz-ava{width:64px;height:64px;border-radius:16px;font:800 26px var(--su-font);background-position:center;background-size:cover;background-repeat:no-repeat}
+.su-root .sh-ov.wz .wz-ava.wz-pic{background-image:var(--wz-pic);color:transparent}
+.su-root .sh-ov.wz .wz-who b{font:800 18px/1.2 var(--su-font)}
+.su-root .sh-ov.wz .wz-who small{font:700 12px/1.4 var(--su-font);color:var(--su-muted)}
+.su-root .sh-ov.wz .wz-imp-tag{display:inline;font:inherit;color:inherit}
+.su-root .sh-ov.wz .wz-pill{grid-column:1 / -1;justify-self:start}
+.su-root .sh-ov.wz .wz-sum>.wz-k:not(.wz-who)>small{margin-bottom:5px;font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
+.su-root .sh-ov.wz .wz-sum>.wz-k:not(.wz-who)>span{display:none}
+.su-root .sh-ov.wz .wz-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.su-root .sh-ov.wz .wz-tiles span{display:flex;flex-direction:column;align-items:center;padding:4px 0;border-radius:9px;background:var(--su-tint);font:800 10.5px var(--su-font);letter-spacing:.04em;color:var(--su-muted)}
+.su-root .sh-ov.wz .wz-tiles b{font:800 15px/1.2 var(--su-font);color:var(--su-text)}
+.su-root .sh-ov.wz .wz-tiles .hi b{color:var(--su-ok)}
+.su-root .sh-ov.wz .wz-sum .wz-sk{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none;font:700 13px/1.35 var(--su-font);font-style:normal;color:var(--su-soft)}
+/* the step: scrolls on its own beside the card */
+.su-root .sh-ov.wz .wz-body{grid-column:2;grid-row:2;min-height:0;overflow-y:auto;gap:12px;padding:2px 4px 18px 0;scrollbar-width:thin;scrollbar-color:var(--su-line2) transparent}
+.su-root .sh-ov.wz .wz-body>*{flex-shrink:0}
+.su-root .sh-ov.wz :is(.wz-form,.wz-stats,.wz-skills,.wz-review){gap:12px}
+.su-root .sh-ov.wz .wz-body .ps-p{margin:0;font:600 13px/1.5 var(--su-font);color:var(--su-soft)}
+.su-root .sh-ov.wz .wz-help{margin-top:0}
+/* Back / Next / Create: a row of their own under both columns, never over the step */
+.su-root .sh-ov.wz .wz-foot{grid-column:1 / -1;grid-row:3;position:static;display:flex;align-items:center;gap:8px;margin:0 -22px;padding:12px 22px 18px;border-top:1px solid var(--su-line2);background:none}
+.su-root .sh-ov.wz .wz-foot .btn2{min-width:96px}
+.su-root .sh-ov.wz .wz-hint{display:block;margin-left:auto;font:700 12.5px var(--su-font);color:var(--su-muted)}
+.su-root .sh-ov.wz .wz-hint+[data-wiz="create"]{margin-left:0}
+.su-root .sh-ov.wz .wz-foot [data-wiz="create"]:disabled{opacity:.45}
+/* Who: the import box in one row, the level field beside an empty 160 px column */
+.su-root .sh-ov.wz .wz-import{flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 14px}
+.su-root .sh-ov.wz .wz-import[data-wiz="import-done"]{border:1px solid rgba(79,211,154,.35)}
+.su-root .sh-ov.wz .wz-import .wz-err{flex-basis:100%}
+.su-root .sh-ov.wz .wz-import>.ps-p{flex:1}
+.su-root .sh-ov.wz .wz-import .btn2{align-self:center;min-width:96px}
+.su-root .sh-ov.wz .wz-form>.ef:has([data-wiz="level"]){width:calc(100% - 172px)}
+/* Stats: the rows in two columns, then Points left · HP · MP · SP · Reset */
+.su-root .sh-ov.wz .wz-rows{order:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+.su-root .sh-ov.wz .wz-rows .ps-st{border-top:1px solid var(--su-line2);padding:3px 0}
+.su-root .sh-ov.wz .wz-rows .ps-st:nth-child(-n+2){border-top:0}
+.su-root .sh-ov.wz .wz-left{display:flex;align-items:center;gap:12px}
+.su-root .sh-ov.wz .wz-left-pill{display:flex}
+.su-root .sh-ov.wz .wz-left .wz-growth{font-weight:700;color:var(--su-text)}
+.su-root .sh-ov.wz .wz-left [data-wiz="reset"]{order:0;margin-left:auto}
+/* Skills: the sets two to a row, folded to name chips once one is used; the skill cards two to a row; + Add a skill beside its line */
+.su-root .sh-ov.wz .wz-sets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.su-root .sh-ov.wz .wz-set{padding:9px 12px;font:600 12.5px/1.4 var(--su-font)}
+.su-root .sh-ov.wz .wz-sets:has([aria-pressed="true"]){display:flex;flex-direction:row;flex-wrap:wrap}
+.su-root .sh-ov.wz .wz-sets:has([aria-pressed="true"]) .wz-set{flex-direction:row;align-items:center;min-height:40px;padding:6px 14px;border-radius:999px;font:800 13px var(--su-font)}
+.su-root .sh-ov.wz .wz-sets:has([aria-pressed="true"]) .wz-set small{display:none}
+.su-root .sh-ov.wz .wz-sets:has([aria-pressed="true"]) .wz-set-top{gap:6px}
+.su-root .sh-ov.wz .wz-sets:has([aria-pressed="true"]) .wz-set-top b{font:800 13px var(--su-font)}
+.su-root .sh-ov.wz .wz-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.su-root .sh-ov.wz .wz-skill{background:color-mix(in srgb,var(--su-tint) 20%,transparent)}
+.su-root[data-scheme="light"] .sh-ov.wz .wz-skill{background:none}
+.su-root .sh-ov.wz .wz-skill-top{align-items:end}
+.su-root .sh-ov.wz .wz-skill-top .ef input{width:100%;box-sizing:border-box}
+.su-root .sh-ov.wz .wz-skill .wz-x{display:block;height:44px;min-height:0;padding:1px 6px;border:0;border-radius:10px;background:var(--su-tint);font:800 16px var(--su-font)}
+/* (the description shows four lines; it can be dragged taller) */
+.su-root .sh-ov.wz .wz-skill textarea{height:auto;min-height:112px;resize:vertical}
+.su-root .sh-ov.wz .wz-trio{gap:6px}
+.su-root .sh-ov.wz .wz-trio{grid-template-columns:72px minmax(0,1fr) minmax(0,1.15fr)}
+.su-root .sh-ov.wz .wz-trio select{padding-left:8px;padding-right:2px;-webkit-appearance:auto;appearance:auto}
+.su-root .sh-ov.wz .wz-add{flex-direction:row;align-items:center;gap:12px}
+.su-root .sh-ov.wz .wz-add .btn2{align-self:center;min-width:96px}
+.su-root .sh-ov.wz .wz-add .ps-p{flex:1}
+/* Review: the check list as two columns, the problems as a red box */
+.su-root .sh-ov.wz .wz-review .ps-kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;margin:0;font:600 14px/1.45 var(--su-font)}
+.su-root .sh-ov.wz .wz-review .ps-kv dt{color:var(--su-muted);font-weight:700}
+.su-root .sh-ov.wz .wz-review .ps-kv dd{margin:0;color:var(--su-text)}
+.su-root .sh-ov.wz .wz-problems:not([hidden]){padding:10px 14px 10px 32px;border-radius:14px;background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);font:700 13px/1.45 var(--su-font);color:var(--su-bad)}
+}

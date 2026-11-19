@@ -1,4 +1,4 @@
-/* NPC State Delta identity: slugifying a name and making a unique NPC id. */
+/* NPC State identity: slugifying a name and making a unique NPC id. */
 import { normalizeName } from '../core-text.js';
 
 export function slugify(value) {

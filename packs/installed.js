@@ -167,6 +167,9 @@ export function createInstalled({ settings, hostVersion = HOST_VERSION, capabili
         /** → 'loading' | 'failed' while stored packs wait for the checker, else null: nothing that depends on the packs' start is written meanwhile. */
         unchecked: () => (validator || !stored() ? null : failed ? 'failed' : 'loading'),
 
+        /** The checked pack (as a chat reads it) of an installed id that checks, or null: a world's lorebook is made from it (lorebook-make/run.js). */
+        get: id => valid().find(({ pack }) => pack.id === id)?.pack ?? null,
+
         /** The installed packs for the settings list, in order. */
         list() {
             const names = have();

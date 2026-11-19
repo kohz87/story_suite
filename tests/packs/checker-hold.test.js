@@ -38,7 +38,7 @@ test('a read without the checker (the wait gave up): a Problem says so, nothing 
     const part = host.packs.packs;
     part.unchecked = () => state.now;
     part.ready = () => (state.now ? new Promise(resolve => { land = () => { state.now = null; resolve(true); }; }) : undefined);
-    await host.turn.onTimelineChanged('edit');   // the 4 s wait times out (RPG_LOAD_WAIT_MS), then the chat is read without the checker
+    await host.turn.onTimelineChanged('edit');   // the 4 s wait times out (PREPARE_WAIT_MS), then the chat is read without the checker
     assert.equal(host.head(), null);
     assert.equal(host.ctx.chat[0].extra.storySuite, undefined, 'nothing persisted');
     assert.ok(host.turn.problems().some(p => p.code === 'LOADING'), 'said');

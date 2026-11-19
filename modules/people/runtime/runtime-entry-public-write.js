@@ -1,13 +1,13 @@
-/* NPC State Delta - public state, host-integration and manual-mutation API (role: runtime-entry-public-write). The
-   second half of the public runtime API surface (pageHandles.deltaApi) split from index.js. Built by index.js with the controller closure;
-   index.js still assigns and freezes the combined object in its original property order. */
+/* NPC State - public state, host-integration and manual-mutation API (role: runtime-entry-public-write). The
+   second half of the public runtime API surface (pageHandles.deltaApi) split from runtime-entry.js. Built by runtime-entry.js with the controller closure;
+   runtime-entry.js still assigns and freezes the combined object in its original property order. */
 
 import { readAheadOf } from '../calls/scan-context.js';
 import { activeReplyIds } from '../transcript/transcript.js';
 import { chatContext, inReplay } from '../calls/runtime-scan-helpers.js';
 import { normalizeAllowance } from '../relationship/relationship-pacing.js';
 import { effectiveCustomFieldNames } from '../settings/runtime-settings.js';
-import { convertJournal, recordReadMark } from './runtime-narration.js';
+import { recordReadMark } from './runtime-narration.js';
 
 const quietKeys = new Set(['timeline', 'catchUp']);
 
@@ -89,12 +89,12 @@ export function createPublicApiStatePart(deps) {
         normalizeChatState, getChatKey, requestHeaders, ensureFreshMutationBoundary, quietly, setChatState,
         persistCriticalDurable, renderDossier, updateInjection, getChatState, nativeChangeListeners, chatStateCache,
         branchInheritancePending, chatHydrationStatus, loadingReconcilePending, scanWorkPending, scanIdle,
-        useMessageGate, normalizeRelationshipBaseline, normalizeRelationshipCaps, getSettings, storyBlockCastHtml,
-        castEmptyReason, addNpcManually, fillPresentSceneText, stateVersions, latestReplyIndex, viewNpcCopies,
+        useMessageGate, normalizeRelationshipBaseline, normalizeRelationshipCaps, getSettings,
+        castEmptyReason, addNpcManually, stateVersions, latestReplyIndex, viewNpcCopies,
         hostedMeterView, scenePresenceView, dossierHostViews, hydrationErrors, portraitFilesVersion, persistedVersions,
         stateWritePromises, stateWriteTimers, hydratedRevision, hydratedStateMeta, undurableNpcStateSnapshot,
         runFreshMutation, updateNpcAppearance, updateNpcLifeState, setNpcPortrait, setNpcPortraitSeed,
-        removeNpcPortrait, flushStateFile, setNpcArchiveStateById, deleteNpcById, storySuiteV2Meters, queueFillsInState,
+        removeNpcPortrait, flushStateFile, setNpcArchiveStateById, deleteNpcById, queueFillsInState,
     } = deps;
 
     return {
@@ -108,7 +108,7 @@ export function createPublicApiStatePart(deps) {
         const key = getChatKey();
         if (!key || key === 'no-chat') throw new Error('There is no open chat to put a native state into.');
         if (!state || typeof state !== 'object' || Array.isArray(state)) throw new Error('A native state is an object.');
-        if (!await ensureFreshMutationBoundary('restore a native checkpoint', key, { notify: false })) throw new Error('NPC State Delta canonical server dossier is unavailable.');
+        if (!await ensureFreshMutationBoundary('restore a native checkpoint', key, { notify: false })) throw new Error('NPC State canonical server dossier is unavailable.');
         if (getChatKey() !== key) throw new Error('The active chat changed before the native state was installed; nothing was installed.');
         return quietly(key, async () => {
             setChatState(key, state, { markLoaded: true });
@@ -124,7 +124,7 @@ export function createPublicApiStatePart(deps) {
         const key = getChatKey();
         if (!key || key === 'no-chat') throw new Error('There is no open chat.');
         if (!block || typeof block !== 'object' || Array.isArray(block)) throw new Error('A timeline block is an object.');
-        if (!await ensureFreshMutationBoundary('record the story line', key, { notify: false })) throw new Error('NPC State Delta canonical server dossier is unavailable.');
+        if (!await ensureFreshMutationBoundary('record the story line', key, { notify: false })) throw new Error('NPC State canonical server dossier is unavailable.');
         if (getChatKey() !== key) throw new Error('The active chat changed before the block was written.');
         return quietly(key, async () => {
             getChatState(key).timeline = structuredClone(block);
@@ -174,15 +174,6 @@ export function createPublicApiStatePart(deps) {
         if (entry) entry.asked = [...asked, ...fresh.map(stub => stub.id)];
         queueFillsInState(state, fresh, reply);
         return true;
-    },
-    // (N7) The one-time move of the capture journal to the replies' sids, after a hydrate (journal-convert.js); saved only when it changed something.
-    convertCaptureJournal: () => {
-        const key = getChatKey();
-        const state = key && key !== 'no-chat' && chatHydrationStatus(key) === 'ready' ? getChatState(key) : null;
-        if (!state) return null;
-        const report = convertJournal(state, chatContext().chat || [], index => storySuiteV2Meters()?.replySid?.(index) ?? null);
-        if (report.converted || report.dropped) void persistCriticalDurable(key);
-        return report;
     },
     // (the one timeline) The scan marker the store holds for the head (people.scan, src/adapter/people-sync.js): `index` is the last reply read (null: none), `since`
     // the replies since that scan. In place on the state a running scan holds (pending backfills and read-ahead dropped); nothing is persisted.
@@ -243,12 +234,9 @@ export function createPublicApiStatePart(deps) {
     relationshipAllowance: () => normalizeAllowance(getSettings().relationshipAllowance),
     // The "Dormant after" setting (replies unseen; 10-999, the getter's clamp): the store's people.list reads it through npc.dormantAfter (SOAKPEOPLE F45).
     dormantAfter: () => getSettings().staleArchiveAfter,
-    presentCastHtml: () => storyBlockCastHtml(),
     // (1.2.13) Why the present cast is empty ({ text, scan }), and Add NPC, for the Story Block tabs.
     castEmptyReason: () => castEmptyReason(),
     addNpc: name => addNpcManually(typeof name === 'string' ? name : ''),
-    /** Fill the now/chatter text of present-cast markup inserted under `root` (textContent only). */
-    fillPresentCast: root => fillPresentSceneText(root),
     dossierRevision: () => `${getChatKey()}|${Number(stateVersions.get(getChatKey()) || 0)}`,
     /** The current chat's dossiers are loaded (before that the list is empty and a render is not news). */
     dossiersReady: () => { const key = getChatKey(); return key !== 'no-chat' && chatHydrationStatus(key) === 'ready'; },

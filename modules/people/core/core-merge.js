@@ -1,4 +1,4 @@
-/* NPC State Delta scan merge: applyScenePresence and mergeScanResult, with the alias-duplicate and
+/* NPC State scan merge: applyScenePresence and mergeScanResult, with the alias-duplicate and
    NPC name-in-text parts split into core-merge-aliases.js and core-merge-names.js. A pure part of
    core-mechanics.js (same owner, moved without change); core-mechanics.js re-exports every name it
    exported before. Never imports core-mechanics.js or core.js. */

@@ -1,4 +1,4 @@
-/* NPC State Delta record creation: builds a new empty dossier for a name. */
+/* NPC State record creation: builds a new empty dossier for a name. */
 import { inferNpcIdentityKind, makeNpcId } from '../core-identity.js';
 import { DEFAULT_RELATIONSHIP, normalizeRelationshipBaseline, normalizeRelationshipEvidence, normalizeRelationshipProgress } from '../core-relationship.js';
 import { cleanText } from '../core-text.js';

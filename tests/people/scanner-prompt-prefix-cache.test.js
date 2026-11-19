@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildNarrationCaptureParts, buildProfileRefreshPrompt, buildRelationshipPassPrompt, buildScannerPrompt } from '../../modules/people/core/core.js';
+import { buildProfileRefreshPrompt, buildRelationshipPassPrompt, buildScannerPrompt } from '../../modules/people/core/core.js';
 
-test('scanner and capture maxima follow configured caps, including custom values and zero', () => {
+test('scanner maxima follow configured caps, including custom values and zero', () => {
     for (const caps of [
         { ordinary: 1, meaningful: 2, major: 3, extreme: 6 },
         { ordinary: 0, meaningful: 4, major: 7, extreme: 12 },
@@ -22,10 +22,6 @@ test('scanner and capture maxima follow configured caps, including custom values
             if (!amount) assert.equal(example.relationshipEvidence[axis], '');
         }
         if (!caps.major) assert.equal(example.relationshipImpact, 'none');
-        const first = buildNarrationCaptureParts(options);
-        const second = buildNarrationCaptureParts({ ...options, transcript: 'A different exchange.' });
-        assert.equal(first.rules, second.rules, 'the static capture rules remain identical between replies');
-        assert.ok(first.rules.includes(`Raw max ${maxima}`));
     }
 });
 

@@ -7,7 +7,7 @@ import {
 } from './tools-core.js';
 import { augmentNativeBundle, buildHistoryArchive, prepareNativeImport } from '../transfer/native-transfer.js';
 
-const STYLE_ID = 'npc_state_delta_tools_style';
+const STYLE_ID = 'people_tools_style';
 const IMPORT_ACCEPT = '.npcstatedelta,application/octet-stream';
 let importSelectionSequence = 0;
 
@@ -36,7 +36,7 @@ function downloadJson(data, name) {
     setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 function importDialogHtml(summary, prepared) {
-    return `<section class="delta-tools-dialog" role="dialog" aria-modal="true" aria-label="Import NPC State Delta data">
+    return `<section class="delta-tools-dialog" role="dialog" aria-modal="true" aria-label="Import NPC State data">
       <header><div><span class="delta-tools-kicker">NATIVE DELTA IMPORT</span><h2>Review before applying</h2></div><button type="button" class="delta-tools-close" data-delta-tools-close aria-label="Close">×</button></header>
       <div class="delta-tools-body">
         <div class="delta-tools-summary"><b>${summary.dossiers} dossiers</b><b>${summary.portraits} portraits</b><b>${summary.checkpoints} source checkpoints</b><span>Source: ${escapeHtml(summary.sourceChatKey || 'not declared')}</span><span>${escapeHtml(prepared.ownershipPolicy)}</span><span>${escapeHtml(prepared.historyPolicy)}</span></div>
@@ -76,16 +76,16 @@ export async function openImportTools() {
     const selectionCurrent = () => selection === importSelectionSequence && activeSession === openingSession;
     const file = await chooseImportFile();
     if (!file || !selectionCurrent()) return;
-    if (file.size > 32 * 1024 * 1024) return toast('error', 'NPC State Delta import exceeds the 32 MB safety limit.');
+    if (file.size > 32 * 1024 * 1024) return toast('error', 'NPC State import exceeds the 32 MB safety limit.');
     if (activeChatKey() !== chatKey) return toast('warning', 'NPC State: the target chat changed while the import picker was open. Reopen Data and choose the file again.');
     let raw;
     try { raw = new Uint8Array(await file.arrayBuffer()); }
-    catch (error) { return toast('error', `NPC State Delta import: could not read file. ${error?.message || error}`); }
+    catch (error) { return toast('error', `NPC State import: could not read file. ${error?.message || error}`); }
     if (!selectionCurrent()) return;
     if (activeChatKey() !== chatKey) return toast('warning', 'NPC State: the target chat changed while the import file was being read. No import was applied.');
     let prepared;
     try { prepared = prepareNativeImport(raw, chatKey); }
-    catch (error) { return toast('error', `NPC State Delta import rejected before mutation: ${error?.message || error}`); }
+    catch (error) { return toast('error', `NPC State import rejected before mutation: ${error?.message || error}`); }
     if (activeChatKey() !== chatKey) return toast('warning', 'NPC State: the target chat changed during import validation. No import was applied.');
     const summary = summarizeDecodedBundle(prepared.decoded);
     const session = makeSession('import');
@@ -142,7 +142,7 @@ async function applyImport(session) {
         }
         if (currentSessionIs(session)) setBusy(session, false, `Import failed before canonical mutation: ${error?.message || error}`);
         recordToolEvent('native-import', { chatKey: session.chatKey, action: 'apply', outcome: 'failed-before-mutation', detail: error?.message || error });
-        toast('error', `NPC State Delta import rejected before canonical mutation: ${error?.message || error}`);
+        toast('error', `NPC State import rejected before canonical mutation: ${error?.message || error}`);
     }
 }
 
@@ -165,7 +165,7 @@ export async function exportNativeTools() {
         recordToolEvent('native-export', { chatKey, action: 'export', outcome: 'downloaded' });
         toast('success', 'NPC State: native bundle exported with portraits, portable portrait settings, and source-history audit data.');
     } catch (error) {
-        toast('error', `NPC State Delta export failed: ${error?.message || error}`);
+        toast('error', `NPC State export failed: ${error?.message || error}`);
     }
 }
 
@@ -224,7 +224,7 @@ function diagnosticsHtml(npc) {
         estimateNote: 'Character-based local estimates only; not provider usage.',
     } : null;
     const recentPersistenceFailures = toolEvents.filter(event => event.type === 'persistence' && event.persisted === false).slice(-8);
-    return `<section class="delta-tools-dialog delta-tools-diagnostics" role="dialog" aria-modal="true" aria-label="NPC State Delta diagnostics">
+    return `<section class="delta-tools-dialog delta-tools-diagnostics" role="dialog" aria-modal="true" aria-label="NPC State diagnostics">
       <header><div><span class="delta-tools-kicker">COMPACT DIAGNOSTICS</span><h2>Current chat</h2><small>Opening diagnostics never starts a scan or database-wide process.</small></div><button type="button" class="delta-tools-close" data-delta-tools-close aria-label="Close">×</button></header>
       <div class="delta-tools-body">
         <div class="delta-tools-metrics"><div><b>${actual.totalProviderRequests}</b><span>Actual provider requests</span></div><div><b>${actual.failed}</b><span>Provider failures</span></div><div><b>${actual.rejectedBeforeDispatch}</b><span>Rejected preflights</span></div><div><b>${actual.timedOut + actual.cancelled}</b><span>Timed out / cancelled</span></div></div>
@@ -246,7 +246,7 @@ export function openDiagnostics(npcId = '') {
         if (event.target.closest?.('[data-export-diagnostics]')) {
             const bundle = api()?.diagnosticBundle?.();
             if (!bundle) return toast('warning', 'NPC State: diagnostic bundle is unavailable for this chat.');
-            downloadJson(bundle, `npc-state-delta-diagnostics-${Date.now()}.json`);
+            downloadJson(bundle, `ppl-diagnostics-${Date.now()}.json`);
             recordToolEvent('diagnostic-export', { chatKey: activeChatKey(), action: 'export', outcome: 'downloaded' });
             toast('success', 'NPC State: compact diagnostic bundle exported.');
         }
@@ -266,15 +266,15 @@ function installStyles() {
     style.textContent = `
 /* Native modal dialogs enter the browser top layer, which is above every ordinary z-index
    stacking context used by SillyTavern and the Story Suite view. */
-dialog.npc-state-delta-tools-overlay { width:100vw; max-width:none; height:100dvh; max-height:none; margin:0; border:0; box-sizing:border-box; }
-dialog.npc-state-delta-tools-overlay:not([open]) { display:none !important; }
-dialog.npc-state-delta-tools-overlay[open] { display:grid !important; }
-dialog.npc-state-delta-tools-overlay::backdrop { background:transparent; }
+dialog.ppl-tools-overlay { width:100vw; max-width:none; height:100dvh; max-height:none; margin:0; border:0; box-sizing:border-box; }
+dialog.ppl-tools-overlay:not([open]) { display:none !important; }
+dialog.ppl-tools-overlay[open] { display:grid !important; }
+dialog.ppl-tools-overlay::backdrop { background:transparent; }
 /* Delta's maintained portrait surface is prompt generation + explicit image management only. */
-.npc-state-delta-portrait-run, .npc-state-delta-portrait-use { display:none !important; }
+.ppl-portrait-run, .ppl-portrait-use { display:none !important; }
 
-.npc-state-delta-tools-overlay{position:fixed;inset:0;z-index:2147483640;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));background:rgba(8,9,16,.55);overflow:auto}.delta-tools-dialog{width:min(920px,100%);max-height:min(900px,calc(100dvh - 24px));display:flex;flex-direction:column;background:var(--su-panel2,rgba(36,38,56,.9));backdrop-filter:blur(var(--su-blur,16px)) saturate(1.3);-webkit-backdrop-filter:blur(var(--su-blur,16px)) saturate(1.3);color:var(--su-text,#eeeef6);border:1px solid var(--su-line,rgba(255,255,255,.08));border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.45);overflow:hidden}.delta-tools-dialog>header,.delta-tools-dialog>footer{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:12px 14px;background:transparent}.delta-tools-dialog>header{justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1)}.delta-tools-dialog>footer{flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.1)}.delta-tools-dialog h2,.delta-tools-dialog h3{margin:.1em 0}.delta-tools-dialog small{opacity:.72}.delta-tools-kicker{display:block;font-size:10px;letter-spacing:.14em;opacity:.65}.delta-tools-close{min-width:44px;min-height:44px;font-size:25px}.delta-tools-body{overflow:auto;padding:14px;overscroll-behavior:contain}.delta-tools-dialog button,.delta-tools-file-button{min-height:44px;padding:9px 12px;border:1px solid var(--su-line2,rgba(255,255,255,.1));border-radius:12px;background:var(--su-panel,rgba(28,30,44,.72));color:inherit;cursor:pointer}.delta-tools-dialog button:disabled{opacity:.45;cursor:not-allowed}.delta-tools-file-button{display:inline-flex;align-items:center}.delta-tools-file-button input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.delta-tools-portrait-grid{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(280px,1.2fr);gap:16px}.delta-tools-preview{display:grid;gap:12px}.delta-tools-current,.delta-tools-generated{min-height:240px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);border-radius:11px;overflow:hidden;background:rgba(0,0,0,.18)}.delta-tools-current img,.delta-tools-generated img{width:100%;max-height:360px;object-fit:contain}.delta-tools-placeholder,.delta-tools-generated-placeholder{padding:22px;text-align:center;opacity:.7}.delta-tools-prompts label{display:grid;gap:5px;margin-bottom:10px}.delta-tools-prompts textarea{width:100%;min-height:110px;resize:vertical;background:rgba(0,0,0,.2);color:inherit;border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:9px}.delta-tools-copy-row{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 12px}.delta-tools-seed-card{display:grid;gap:9px;margin:2px 0 14px;padding:12px;border:1px solid rgba(255,255,255,.11);border-radius:11px;background:rgba(0,0,0,.14)}.delta-tools-seed-card>label{display:grid;gap:3px;margin:0}.delta-tools-seed-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}.delta-tools-seed-input{width:100%;min-width:0;box-sizing:border-box;padding:9px 10px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.28);color:inherit;font:inherit;color-scheme:dark}.delta-tools-seed-input::placeholder{color:inherit;opacity:.42}.delta-tools-seed-input:focus{outline:2px solid rgba(218,193,148,.45);outline-offset:1px;border-color:rgba(218,193,148,.65)}.delta-tools-generation-seed{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08)}.delta-tools-generation-seed>span{display:grid;gap:2px;min-width:0}.delta-tools-generation-seed code{font-size:.86rem;overflow-wrap:anywhere;color:var(--npc-gold,#d8bc78)}.delta-tools-generation-seed button{flex:0 0 auto}.delta-tools-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}.delta-tools-summary>*{padding:9px;border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow-wrap:anywhere}.delta-tools-warning{border-left:3px solid #e5b66f;padding-left:10px}.delta-tools-danger{border-color:#d88!important}.delta-tools-check{display:flex;gap:9px;align-items:center;padding:10px 0}.delta-tools-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.delta-tools-metrics div{padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:9px}.delta-tools-metrics b,.delta-tools-metrics span{display:block}.delta-tools-dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;background:rgba(0,0,0,.2);padding:10px;border-radius:8px;max-height:260px;overflow:auto}.delta-tools-portrait-target{display:flex;align-items:center;gap:8px;margin-top:9px;font-weight:600}.delta-tools-portrait-target select{min-height:36px;padding:5px 9px;border:1px solid rgba(218,193,148,.45);border-radius:8px;background:rgba(0,0,0,.28);color:inherit;font:inherit;color-scheme:dark}.delta-tools-small{width:min(620px,100%)}
-@media(max-width:760px){.npc-state-delta-tools-overlay{place-items:start center;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom))}.delta-tools-dialog{max-height:calc(100dvh - 16px);border-radius:10px}.delta-tools-portrait-grid{grid-template-columns:1fr}.delta-tools-current,.delta-tools-generated{min-height:170px}.delta-tools-summary,.delta-tools-metrics{grid-template-columns:1fr 1fr}.delta-tools-dialog>footer{position:sticky;bottom:0}.delta-tools-dialog button,.delta-tools-file-button{min-height:46px}}
+.ppl-tools-overlay{position:fixed;inset:0;z-index:2147483640;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));background:rgba(8,9,16,.55);overflow:auto}.delta-tools-dialog{width:min(920px,100%);max-height:min(900px,calc(100dvh - 24px));display:flex;flex-direction:column;background:var(--su-panel2,rgba(36,38,56,.9));backdrop-filter:blur(var(--su-blur,16px)) saturate(1.3);-webkit-backdrop-filter:blur(var(--su-blur,16px)) saturate(1.3);color:var(--su-text,#eeeef6);border:1px solid var(--su-line,rgba(255,255,255,.08));border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.45);overflow:hidden}.delta-tools-dialog>header,.delta-tools-dialog>footer{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:12px 14px;background:transparent}.delta-tools-dialog>header{justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1)}.delta-tools-dialog>footer{flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.1)}.delta-tools-dialog h2,.delta-tools-dialog h3{margin:.1em 0}.delta-tools-dialog small{opacity:.72}.delta-tools-kicker{display:block;font-size:10px;letter-spacing:.14em;opacity:.65}.delta-tools-close{min-width:44px;min-height:44px;font-size:25px}.delta-tools-body{overflow:auto;padding:14px;overscroll-behavior:contain}.delta-tools-dialog button,.delta-tools-file-button{min-height:44px;padding:9px 12px;border:1px solid var(--su-line2,rgba(255,255,255,.1));border-radius:12px;background:var(--su-panel,rgba(28,30,44,.72));color:inherit;cursor:pointer}.delta-tools-dialog button:disabled{opacity:.45;cursor:not-allowed}.delta-tools-file-button{display:inline-flex;align-items:center}.delta-tools-file-button input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.delta-tools-portrait-grid{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(280px,1.2fr);gap:16px}.delta-tools-preview{display:grid;gap:12px}.delta-tools-current,.delta-tools-generated{min-height:240px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);border-radius:11px;overflow:hidden;background:rgba(0,0,0,.18)}.delta-tools-current img,.delta-tools-generated img{width:100%;max-height:360px;object-fit:contain}.delta-tools-placeholder,.delta-tools-generated-placeholder{padding:22px;text-align:center;opacity:.7}.delta-tools-prompts label{display:grid;gap:5px;margin-bottom:10px}.delta-tools-prompts textarea{width:100%;min-height:110px;resize:vertical;background:rgba(0,0,0,.2);color:inherit;border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:9px}.delta-tools-copy-row{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 12px}.delta-tools-seed-card{display:grid;gap:9px;margin:2px 0 14px;padding:12px;border:1px solid rgba(255,255,255,.11);border-radius:11px;background:rgba(0,0,0,.14)}.delta-tools-seed-card>label{display:grid;gap:3px;margin:0}.delta-tools-seed-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}.delta-tools-seed-input{width:100%;min-width:0;box-sizing:border-box;padding:9px 10px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.28);color:inherit;font:inherit;color-scheme:dark}.delta-tools-seed-input::placeholder{color:inherit;opacity:.42}.delta-tools-seed-input:focus{outline:2px solid rgba(218,193,148,.45);outline-offset:1px;border-color:rgba(218,193,148,.65)}.delta-tools-generation-seed{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08)}.delta-tools-generation-seed>span{display:grid;gap:2px;min-width:0}.delta-tools-generation-seed code{font-size:.86rem;overflow-wrap:anywhere;color:var(--npc-gold,#d8bc78)}.delta-tools-generation-seed button{flex:0 0 auto}.delta-tools-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}.delta-tools-summary>*{padding:9px;border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow-wrap:anywhere}.delta-tools-warning{border-left:3px solid #e5b66f;padding-left:10px}.delta-tools-danger{border-color:#d88!important}.delta-tools-check{display:flex;gap:9px;align-items:center;padding:10px 0}.delta-tools-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.delta-tools-metrics div{padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:9px}.delta-tools-metrics b,.delta-tools-metrics span{display:block}.delta-tools-dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;background:rgba(0,0,0,.2);padding:10px;border-radius:8px;max-height:260px;overflow:auto}.delta-tools-portrait-target{display:flex;align-items:center;gap:8px;margin-top:9px;font-weight:600}.delta-tools-portrait-target select{min-height:36px;padding:5px 9px;border:1px solid rgba(218,193,148,.45);border-radius:8px;background:rgba(0,0,0,.28);color:inherit;font:inherit;color-scheme:dark}.delta-tools-small{width:min(620px,100%)}
+@media(max-width:760px){.ppl-tools-overlay{place-items:start center;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom))}.delta-tools-dialog{max-height:calc(100dvh - 16px);border-radius:10px}.delta-tools-portrait-grid{grid-template-columns:1fr}.delta-tools-current,.delta-tools-generated{min-height:170px}.delta-tools-summary,.delta-tools-metrics{grid-template-columns:1fr 1fr}.delta-tools-dialog>footer{position:sticky;bottom:0}.delta-tools-dialog button,.delta-tools-file-button{min-height:46px}}
 @media(max-width:430px){.delta-tools-summary,.delta-tools-metrics{grid-template-columns:1fr}.delta-tools-seed-row{grid-template-columns:1fr}.delta-tools-generation-seed{align-items:stretch;flex-direction:column}.delta-tools-generation-seed button{width:100%}.delta-tools-dialog>footer>*{flex:1 1 auto}}
 `;
     document.head.appendChild(style);

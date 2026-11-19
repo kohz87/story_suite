@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { scannerDiagnosticLines } from '../../modules/people/calls/scanner-routing.js';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 
@@ -66,7 +66,7 @@ function fakeDoc() {
 
 test('the module definition offers hooks.diagnostics: the scanner report, the dossier counts, hosted or not', () => {
     const report = ['Scanner route: the current roleplay connection.'];
-    const a = createStorySuiteV2Adapter({
+    const a = createPeopleAdapter({
         suiteApi: { npcs: () => [{ id: '1', name: 'Fenna', present: true }, { id: '2', name: 'Bram', present: false, archived: true }] },
         delta: () => ({ isEnabled: () => true, scannerReport: () => report }),
         host: () => null, doc: fakeDoc(), logger: { warn() {} },
@@ -79,13 +79,13 @@ test('the module definition offers hooks.diagnostics: the scanner report, the do
     assert.ok(lines.includes('Hosted in Story Block: no. Settings panel in the overlay: no.'));
     for (const name of ['Fenna', 'Bram']) assert.ok(!lines.join('\n').includes(name), 'no NPC names');
     // Delta not loaded yet: one plain line.
-    const early = createStorySuiteV2Adapter({ delta: () => null, host: () => null, doc: fakeDoc(), logger: { warn() {} } });
-    assert.deepEqual(early.definition.hooks.diagnostics(), ['NPC State Delta is still loading (no scanner report yet).']);
+    const early = createPeopleAdapter({ delta: () => null, host: () => null, doc: fakeDoc(), logger: { warn() {} } });
+    assert.deepEqual(early.definition.hooks.diagnostics(), ['NPC State is still loading (no scanner report yet).']);
 });
 
 test('the scanner has no profile row of its own any more (the Models page\'s Background connection routes it); the drawer is held open in Story Block\'s fold', () => {
     const index = runtimeSource();
-    assert.doesNotMatch(index, /npc_state_delta_scanner_connection_profile|npc_state_delta_scanner_profile_none|scannerConnectionProfile/);
+    assert.doesNotMatch(index, /people_scanner_connection_profile|people_scanner_profile_none|scannerConnectionProfile/);
     assert.match(index, /scannerReport: \(\) => scannerDiagnosticLines\(/);
     const css = styleSource();
     assert.match(css, /\.story-suite-section \.story-suite-drawer > \.inline-drawer-content \{ display: block !important; \}/);

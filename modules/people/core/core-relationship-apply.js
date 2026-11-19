@@ -1,4 +1,4 @@
-/* NPC State Delta relationship scoring: inertia, axis selection and applyRelationshipDelta, including
+/* NPC State relationship scoring: inertia, axis selection and applyRelationshipDelta, including
    the milestone gate helpers that scoring reads. Moved unchanged out of core-relationship.js; that file
    re-exports every public name it exported before. Never imports core-relationship.js, core-mechanics.js
    or core.js. */

@@ -6,9 +6,9 @@ import { createTabHost, visibleTabs, tabLabel } from '../../../ui/shell/tab-host
 const ids = (host) => host.el.querySelectorAll('.su-tab').map((n) => n.getAttribute('data-tab'));
 
 test('visibleTabs applies the Party and Fight show rules', () => {
-  assert.deepEqual(visibleTabs(), ['now', 'party', 'bag', 'people', 'world', 'journal', 'story']);
-  assert.deepEqual(visibleTabs({ rpg: false }), ['now', 'bag', 'people', 'world', 'journal', 'story']);
-  assert.equal(visibleTabs({ rpg: true, fightOpen: true }).length, 8);
+  assert.deepEqual(visibleTabs(), ['party', 'bag', 'people', 'world', 'journal', 'story']);
+  assert.deepEqual(visibleTabs({ rpg: false }), ['bag', 'people', 'world', 'journal', 'story']);
+  assert.equal(visibleTabs({ rpg: true, fightOpen: true }).length, 7);
   assert.deepEqual(visibleTabs({ rpg: false, fightOpen: true }).slice(-1), ['fight']);
 });
 
@@ -27,8 +27,8 @@ test('renders strip and phone bar with labels, one current tab', () => {
   assert.equal(tabs[0].getAttribute('role'), 'tab');
   assert.equal(host.el.querySelector('.su-strip').getAttribute('role'), 'tablist');
   const bar = host.el.querySelectorAll('.su-bar-btn');
-  assert.equal(bar.length, 7);
-  assert.equal(bar[0].querySelector('.su-bar-label').textContent, 'Now');
+  assert.equal(bar.length, 6);
+  assert.equal(bar[0].querySelector('.su-bar-label').textContent, 'Party');
   assert.equal(bar[0].getAttribute('aria-current'), 'true');
   assert.ok(tabs[0].querySelector('svg'));
 });
@@ -52,20 +52,19 @@ test('select refuses a hidden tab', () => {
   const host = createTabHost({ flags: { rpg: false } });
   assert.equal(host.select('party'), false);
   assert.equal(host.select('fight'), false);
-  assert.equal(host.current(), 'now');
+  assert.equal(host.current(), 'bag', 'the first tab listed when Party is off');
 });
 
-test('setFlags adds Fight, and falls back to Now when the current tab disappears', () => {
+test('setFlags adds Fight, and falls back to the first tab (Party) when the current tab disappears', () => {
   installFakeDom();
   const host = createTabHost();
-  assert.equal(host.setFlags({ fightOpen: true }).length, 8);
+  assert.equal(host.setFlags({ fightOpen: true }).length, 7);
   host.select('fight');
   assert.equal(host.current(), 'fight');
   host.setFlags({ fightOpen: false });
-  assert.equal(host.current(), 'now');
-  host.select('party');
+  assert.equal(host.current(), 'party');
   host.setFlags({ rpg: false });
-  assert.equal(host.current(), 'now');
+  assert.equal(host.current(), 'bag');
   assert.equal(ids(host).includes('party'), false);
   assert.deepEqual(host.tabs(), visibleTabs({ rpg: false }));
 });
@@ -75,12 +74,12 @@ test('arrow keys, Home and End move the selection with wrap', () => {
   const host = createTabHost();
   const key = (k) => host.el.querySelector(`.su-tab[data-tab="${host.current()}"]`).dispatch('keydown', { key: k });
   key('ArrowRight');
-  assert.equal(host.current(), 'party');
+  assert.equal(host.current(), 'bag');
   key('ArrowLeft');
   key('ArrowLeft');
   assert.equal(host.current(), 'story');
   key('Home');
-  assert.equal(host.current(), 'now');
+  assert.equal(host.current(), 'party');
   key('End');
   assert.equal(host.current(), 'story');
   key('x');

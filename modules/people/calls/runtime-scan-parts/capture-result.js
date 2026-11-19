@@ -1,4 +1,4 @@
-/* NPC State Delta reply-scan result follow-ups (role: reply-scan-result). What a committed scan does with its merged result: seeding
+/* NPC State reply-scan result follow-ups (role: reply-scan-result). What a committed scan does with its merged result: seeding
    the cast's first-meeting details into the dossiers it admitted, and telling the reader about stale dossiers it archived or deleted.
    Moved from runtime-scan.js without change. */
 import { rememberCastAdmissions, seedCastAdmission } from '../../runtime/runtime-cast-sync.js';
@@ -6,15 +6,15 @@ import { dossierFor, metWithEntry } from '../../dossier/cast-dossier.js';
 import { notify } from '../runtime-scan-helpers.js';
 
 /** Remembers the new dossiers' cast admissions and seeds each one that matches exactly one met cast person (hosted scans only). */
-export function seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId, currentLineage, settings, castList, storySuiteV2Meters }) {
+export function seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId, currentLineage, settings, castList, adapterMeters }) {
     rememberCastAdmissions(nextState, newlyAdmittedIds, targetMessageId, currentLineage);
     const people = metWithEntry(castList?.());
-    const names = storySuiteV2Meters?.()?.packNames?.() ?? {};
+    const names = adapterMeters?.()?.packNames?.() ?? {};
     for (const npc of nextState.npcs.filter(item => newlyAdmittedIds.includes(item.id))) {
         const matches = people.filter(person => dossierFor([npc], person));
         if (matches.length !== 1 || nextState.npcs.filter(other => dossierFor([other], matches[0])).length !== 1) continue;
         const person = matches[0];
-        const seeded = seedCastAdmission(nextState, npc, person, { packName: names[person.pack] ?? '', gated: storySuiteV2Meters?.()?.worldSecretsOn?.() === true });
+        const seeded = seedCastAdmission(nextState, npc, person, { packName: names[person.pack] ?? '', gated: adapterMeters?.()?.worldSecretsOn?.() === true });
         if (seeded) nextState.npcs = nextState.npcs.map(item => item.id === npc.id ? seeded : item);
     }
 }

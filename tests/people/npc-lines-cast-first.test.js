@@ -80,7 +80,9 @@ test('replay == live: swipe, swipe back, an edited Re-read grown and shrunk, a m
     s.host.store.rebuild();
     assert.equal(snap(s), live, 'a rebuild');
     await s.swipe(['+ present Torka']);
-    assert.equal(torka(s), undefined, 'a swipe without the line makes no dossier in the step (the runtime makes it from the pack after the reply)');
+    // NPCPRESENT: `+ present` alone now makes her dossier from the pack in the reply's step (it was left to the runtime after the reply); the other swipe's level does not come.
+    assert.equal(torka(s)?.castFrom?.key, 'ersveil:torka', 'a swipe with only + present makes her dossier from the pack in the step');
+    assert.equal(String(torka(s).level), '5', 'the pack\'s Level, not the other swipe\'s');
     await s.host.st.swipeTo(at, 0);
     assert.equal(snap(s), live, 'swipe back');
     await reread(s, at, ['+ present Torka', '~ npc Torka | level: 9', '~ npc Torka | keepsake: + Rope — coiled']);

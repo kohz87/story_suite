@@ -21,6 +21,10 @@ const SLOT = {
       torn: T.BOOLEAN,
       // What the worn piece adds to stats, as gear.view writes it ("+2 STR", '' for none): a weapon or offhand piece's slot sheet says "Gives" it.
       bonus: { $optional: T.STRING },
+      // The Mount slot's mount (kind, km a day, what it carries) and the Bag slot's bag (the load it adds); a mount's stack is its Bag Transport asset id.
+      kind: { $optional: T.STRING },
+      pace: { $optional: T.NUMBER },
+      carry: { $optional: T.NUMBER },
     },
   },
 };
@@ -36,6 +40,8 @@ const SKILL = {
   mastery: T.NUMBER,
   // Optional ready-made sheet line; the selector leaves it out until there is a data source (owner question), so the line is built from kind, stat and cost.
   line: { $optional: { $nullable: T.STRING } },
+  // A stance skill's stance (Defence, Speed or Focus): the kind line reads "Speed stance".
+  stance: { $optional: T.STRING },
 };
 
 const MEMBER = {
@@ -57,9 +63,16 @@ const MEMBER = {
   skills: [SKILL],
 };
 
+// What the Mount and Bag pickers list: every mount (riders from its `where`; one rider per counted mount) and every bag-like item (whose it is, whether it is their bag).
+const CARRIERS = {
+  mounts: [{ name: T.STRING, kind: T.STRING, pace: T.NUMBER, count: T.NUMBER, carry: T.NUMBER, riders: [T.STRING], withParty: T.BOOLEAN, where: T.STRING }],
+  packs: [{ stack: T.STRING, name: T.STRING, carry: T.NUMBER, owner: T.STRING, by: T.STRING, bag: T.BOOLEAN, bound: T.STRING }],
+};
+
 export const PARTY_SHAPE = {
   pcId: T.STRING,
   max: T.NUMBER,
   canInvite: T.BOOLEAN,
   members: [MEMBER],
+  carriers: { $optional: CARRIERS },
 };

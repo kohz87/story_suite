@@ -116,7 +116,7 @@ test('places: the pack\'s places match by name, slug or alias in any case; with 
     assert.equal(cast.entries[0].place, 'Anywhere', 'nothing to check against: as written');
 });
 
-test('the pack label drops a trailing parenthetical, as NPC State Delta writes it', () => {
+test('the pack label drops a trailing parenthetical, as NPC State writes it', () => {
     assert.deepEqual(['Ersveil (open world)', 'Ersveil', 'Ersveil (a) (open world)', '(Only)', ' Pack  (x) '].map(shortName), ['Ersveil', 'Ersveil', 'Ersveil (a)', '(Only)', 'Pack']);
     const cast = castOf((name, args) => (name === 'packs.content' ? (args?.kind === 'cast' ? [entry('a')] : []) : name === 'packs.list' ? [{ id: 'ersveil', name: 'Ersveil (open world)', version: '2.2.1', enabled: true }] : null));
     assert.equal(cast.packs.ersveil.name, 'Ersveil');

@@ -8,7 +8,7 @@ test('sidecar reads always revalidate with the server and may be answered 304 No
     const calls = [];
     const fetchFn = async (url, options) => {
         calls.push(options);
-        return { ok: true, status: 200, text: async () => JSON.stringify({ format: 'npc-state-delta-data-file', chatKey: 'chat:a.png:x', revision: 3, state: { npcs: [] } }) };
+        return { ok: true, status: 200, text: async () => JSON.stringify({ format: 'ppl-data-file', chatKey: 'chat:a.png:x', revision: 3, state: { npcs: [] } }) };
     };
     await inspectNpcStateDataFile({ path: '/user/files/x.json' }, { fetchFn, expectedChatKey: 'chat:a.png:x' }).catch(() => null);
     assert.equal(calls.length, 1);

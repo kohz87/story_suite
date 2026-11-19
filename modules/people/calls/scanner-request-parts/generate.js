@@ -37,13 +37,13 @@ export async function generateParsedNpcJson(ctx, {
         } catch (error) {
             const salvaged = salvageScannerJson(raw);
             if (salvaged) {
-                console.warn(`[NPC State Delta] Problems: ${label} returned JSON with broken keys; repaired without a retry: ${salvaged.repairs.join(', ')}.`);
+                console.warn(`[NPC State] Problems: ${label} returned JSON with broken keys; repaired without a retry: ${salvaged.repairs.join(', ')}.`);
                 return { parsed: salvaged.parsed, raw, retried: retry, repairs: salvaged.repairs };
             }
             const truncated = isTruncatedScannerJsonError(error);
             const reply = nonJsonReplyExcerpt(raw);
             if (!retry) {
-                console.warn(`[NPC State Delta] ${label} returned invalid JSON; retrying once with a compact correction prompt.`, {
+                console.warn(`[NPC State] ${label} returned invalid JSON; retrying once with a compact correction prompt.`, {
                     responseChars: String(raw ?? '').length,
                     truncated,
                     error: error?.message || String(error),

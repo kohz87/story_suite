@@ -3,6 +3,7 @@ import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { ownerOf } from '../../runtime/owner-id.js';
 import { tabTrap } from '../../kit/trap.js';
+import { statsRow, changeView } from '../bag/stats-change.js';
 
 /** Slot key → [glyph name, long label, short label]. */
 export const SLOT_META = Object.freeze({
@@ -71,9 +72,15 @@ function wearBar(torn) {
   return h('span', { class: ['ps-w', torn ? 't' : null] }, [1, 2, 3, 4].map(n => h('i', { class: n <= (torn ? 2 : 4) ? 'on' : null })));
 }
 
-function wornBlock(member, slot, meta, sheet, ctx) {
+function wornBlock(member, slot, meta, sheet, ctx, redraw) {
   const item = slot?.item;
   if (!item) return null;
+  // The piece's Stats row (the Bag's own item: its points and whether they can move); Change swaps the sheet's body for the picker.
+  const held = (ctx.port?.view?.('bag')?.items ?? []).find(it => it.stack === item.stack) ?? { ...item, kind: 'gear' };
+  const stats = statsRow({ ...held, name: item.name }, {
+    port: ctx.port,
+    open: () => sheet.body.replaceChildren(changeView({ ...held, name: item.name }, { port: ctx.port, onDone: () => sheet.close(), onCancel: redraw })),
+  });
   const owner = `worn by ${member.name}`;
   const unequip = h('button', {
     type: 'button',
@@ -87,7 +94,9 @@ function wornBlock(member, slot, meta, sheet, ctx) {
         h('div', { class: 'ps-s' }, [RARITY_LABEL[item.rarity], owner].filter(Boolean).join(' · ')))),
     h('dl', { class: 'ps-kv' },
       h('dt', null, NO_SOAK.has(slot.key) && !item.soak ? 'Gives' : 'Soak'), h('dd', null, soakText(item, slot.key)),
-      h('dt', null, 'Condition'), h('dd', null, wearBar(item.torn), item.torn ? 'Torn' : 'Fine')),
+      h('dt', null, 'Condition'), h('dd', null, wearBar(item.torn), item.torn ? 'Torn' : 'Fine'),
+      stats.cells),
+    stats.line,
     h('div', { class: 'ps-row' }, unequip),
   ];
 }
@@ -116,13 +125,14 @@ export function slotSheet(member, slotKey, ctx = {}) {
   const sheet = openSheet(ctx, { title: `${member.name} · ${meta[1]}`, subtitle: worn ? '' : 'Nothing worn here', tone: 'ps-slot' });
   const items = ctx.port?.view('bag')?.items ?? [];
   const fits = items.filter(it => it.kind === 'gear' && it.glyph === meta[0] && !it.wornBy);
-  sheet.body.replaceChildren(...[
-    wornBlock(member, slot, meta, sheet, ctx),
+  const draw = () => sheet.body.replaceChildren(...[
+    wornBlock(member, slot, meta, sheet, ctx, draw),
     h('div', { class: 'ps-sec' }, `In the Bag · fits ${meta[1].toLowerCase()}`),
     fits.length ? fits.map(it => fitRow(member, slotKey, meta, it, sheet, ctx)) : h('p', { class: 'ps-p' }, 'Nothing in the Bag fits this slot.'),
     typeof ctx.go === 'function'
       ? h('div', { class: 'ps-row' }, h('button', { type: 'button', class: 'ps-b', dataset: { tabgo: 'bag' }, onClick: () => { sheet.close(); ctx.go('bag'); } }, 'Open Bag'))
       : null,
   ].flat().filter(Boolean));
+  draw();
   return sheet;
 }

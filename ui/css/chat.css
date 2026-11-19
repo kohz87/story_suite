@@ -1,51 +1,77 @@
-/* Inline row and people drawer: SillyTavern theme variables only, never the suite tokens (decision 34). */
-/* Cards per page come from the script (--per), so the card width never disagrees with the page size. */
-/* SillyTavern has no query container of its own: the reply column that holds the row and the drawer host become the containers the @container rules below read. The drawer class is ssdrawer because SillyTavern styles .drawer (a flex row) for its own panels. */
-.mes_block:has(.ssrow),.ss-drawer-host{container-type:inline-size}
-.ssrow{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;margin:8px 0 2px;padding-top:7px;border-top:1px solid var(--SmartThemeBorderColor);font-size:.84em;color:var(--SmartThemeEmColor)}
-/* The last reply carries SillyTavern's swipe arrows and counter (‹ 2/3 ›) in a band at its bottom, 45-55 px tall in SillyTavern's own layout and in themes such as Moonlit Echoes, beside or under the row's right end: the row ends above that band, so the Suite button never covers them at any width. */
-.mes.last_mes .ssrow{margin-bottom:calc(var(--swipeCounterHeight,15px) + var(--swipeCounterMargin,5px) + 30px)}
-.ssl1,.ssl2{display:contents}
-.ssl3{margin-top:4px}
-.ssrow .it3{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.ssrow .it3 i{font-style:normal;opacity:.85}
-.ssrow .gap{flex:1}
-.ssrow .ms{display:none}
+/* The card under each story reply (ui/chat/reply-box.js, mock "This reply" Version C): SillyTavern theme variables only, never the suite tokens (decision 34). Every class is ssrc-prefixed or scoped under .ssrc: SillyTavern and the suite's own card.css use .card, .tabs, .bar and .row. */
+/* SillyTavern has no query container of its own: the reply column that holds a card becomes the container the @container rules below read. */
+.mes_block:has(.ssrc){container-type:inline-size}
+.ssrc{position:relative;margin:10px 0 4px;border:1px solid var(--SmartThemeBorderColor);border-radius:10px;background:color-mix(in srgb,var(--SmartThemeBlurTintColor) 70%,transparent);overflow:hidden;font-size:.88em;line-height:1.4;color:var(--SmartThemeEmColor)}
+.ssrc [hidden]{display:none}
+/* The last reply carries SillyTavern's swipe arrows and counter (‹ 2/3 ›) in a band at its bottom: the card ends above that band, so nothing covers them at any width. */
+.mes.last_mes .ssrc:last-child{margin-bottom:calc(var(--swipeCounterHeight,15px) + var(--swipeCounterMargin,5px) + 30px)}
+body.swipeAllMessages .mes:not(.last_mes) .ssrc:last-child{margin-bottom:34px}
+.ssrc .cnr{position:absolute;top:6px;right:8px;width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--SmartThemeBorderColor);border-radius:8px;background:var(--SmartThemeBlurTintColor);color:var(--SmartThemeBodyColor);font:inherit;font-size:14px;cursor:pointer;padding:0;margin:0}
+.ssrc .cnr:hover{border-color:var(--SmartThemeBodyColor)}
+.ssrc-l1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;padding:6px 12px}
+.ssrc.newest .ssrc-l1{padding-right:48px;min-height:44px;box-sizing:border-box}
+.ssrc-l1 .it{display:inline-flex;align-items:baseline;gap:5px;min-width:0}
+.ssrc-l1 .it i{font-style:normal;opacity:.85;flex:none}
+.ssrc-l2{display:flex;flex-wrap:nowrap;align-items:center;gap:4px 16px;padding:0 12px 7px;min-width:0}
+.ssrc-l2 .vb{display:inline-flex;flex:0 1 auto;align-items:center;gap:6px;min-width:0;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ssrc-l2 .vb b{font-weight:600;min-width:22px}
+.ssrc-l2 .v{color:var(--SmartThemeBodyColor)}
+.ssrc-l2 .ssrc-bar{position:relative;flex:none;width:64px;height:5px;border-radius:3px;background:var(--SmartThemeBorderColor);overflow:hidden}
+.ssrc-l2 .ssrc-bar i,.ssrc-l2 .ssrc-bar u{position:absolute;inset:0 auto 0 0;border-radius:3px}
+.ssrc-l2 .ssrc-bar u{opacity:.28}
+.ssrc-l2 .hp i,.ssrc-l2 .hp u{background:#ff6b6b}.ssrc-l2 .mp i,.ssrc-l2 .mp u{background:#5b8cff}.ssrc-l2 .sp i,.ssrc-l2 .sp u{background:#3fb27f}
+.ssrc-l2 .d{font-size:11.5px;color:#ff7b72;margin-left:-2px}.ssrc-l2 .d.up{color:#4fd39a}
+.ssrc-l3{padding:0 12px 8px;overflow-wrap:anywhere}
+.ssrc-l3 b{color:var(--SmartThemeBodyColor);font-weight:600}
+/* The tabs: equal width (96 px least on a desktop, 84 on a phone), 42 / 44 px high, words centred both ways; the strip swipes sideways with no scrollbar and snaps to a tab; a soft fade at the right edge while more lie past it. */
+.ssrc-tabs{position:relative;border-top:1px solid var(--SmartThemeBorderColor)}
+.ssrc-tabs .ts{display:block;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-snap-type:x proximity;border-bottom:1px solid var(--SmartThemeBorderColor)}
+.ssrc-tabs .ts::-webkit-scrollbar{display:none}
+/* (equal columns: in a max-content row each 1fr column is as wide as the widest tab; at least the strip's width, so they share it when they fit) */
+.ssrc-tabs .tr{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;width:max-content;min-width:100%}
+.ssrc-tabs.shut .ts{border-bottom:0}
+.ssrc-tabs.more::after{content:'';position:absolute;top:0;right:0;width:28px;height:44px;pointer-events:none;background:linear-gradient(90deg,transparent,var(--SmartThemeBlurTintColor))}
+.ssrc .tb{display:flex;align-items:center;justify-content:center;gap:7px;min-width:96px;min-height:42px;box-sizing:border-box;margin:0;padding:0 12px;line-height:1;border:0;border-right:1px solid var(--SmartThemeBorderColor);border-bottom:2px solid transparent;border-radius:0;background:none;color:var(--SmartThemeEmColor);font:inherit;font-weight:600;white-space:nowrap;cursor:pointer;scroll-snap-align:start}
+.ssrc .tb:last-child{border-right:0}
+.ssrc .tb .c{font-weight:500;opacity:.8}
+.ssrc .tb.on{color:var(--SmartThemeBodyColor);background:color-mix(in srgb,var(--SmartThemeQuoteColor) 12%,transparent);border-bottom-color:var(--SmartThemeQuoteColor)}
+.ssrc .tb:focus-visible{outline:2px solid var(--SmartThemeQuoteColor);outline-offset:-2px}
+.ssrc .tp{padding:8px 12px 10px;color:var(--SmartThemeBodyColor)}
+.ssrc .chg{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;padding:3px 0}
+.ssrc .chg .k{font-weight:700;min-width:0;overflow-wrap:anywhere}
+.ssrc .chg .k.g{color:#4fd39a}.ssrc .chg .k.p{color:#5aa0ff}.ssrc .chg .k.a{color:var(--SmartThemeQuoteColor)}.ssrc .chg .k.r{color:#ff7b72}
+.ssrc .chg .w{color:var(--SmartThemeEmColor);font-size:.95em}
+.ssrc .chg.na .k{opacity:.75}
+.ssrc .chg .why{margin:0 0 0 auto;font:inherit;font-size:11px;border:1px solid var(--SmartThemeBorderColor);border-radius:6px;padding:1px 7px;min-height:24px;background:none;color:var(--SmartThemeBodyColor);cursor:pointer}
+.ssrc .chg .why-x{flex-basis:100%;color:var(--SmartThemeEmColor);font-size:.95em}
+.ssrc .ch{margin:3px 0;line-height:1.35}
+.ssrc .ch q{quotes:none;font-style:italic;color:var(--SmartThemeEmColor)}
+.ssrc .ch .qm{font-size:.75em;opacity:.6;margin:0 4px;vertical-align:.15em;color:var(--SmartThemeEmColor)}
+.ssrc .here{display:flex;flex-wrap:wrap;gap:6px}
+.ssrc .chs{display:flex;flex-direction:column}
+.ssrc .cho{display:flex;align-items:center;gap:8px;width:100%;min-height:36px;box-sizing:border-box;margin:0;padding:3px 0;text-align:left;border:0;border-radius:6px;background:none;color:var(--SmartThemeBodyColor);font:inherit;cursor:pointer}
+.ssrc .cho .k{font-weight:700;min-width:12px}
+.ssrc .cho:hover,.ssrc .cho:focus-visible{background:color-mix(in srgb,var(--SmartThemeBodyColor) 8%,transparent)}
+/* The newest reply's action line: things to do, only when there is one (a fight open stands out). */
+.ssrc-acts{border-top:1px solid var(--SmartThemeBorderColor);background:color-mix(in srgb,var(--SmartThemeBlurTintColor) 85%,transparent)}
+.ssrc-acts .row{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;margin:0}
+.ssrc .ab{display:inline-flex;align-items:center;gap:6px;min-height:36px;margin:0;padding:0 12px;border:1px solid var(--SmartThemeBorderColor);border-radius:8px;background:none;color:var(--SmartThemeBodyColor);font:inherit;font-weight:600;font-size:.95em;cursor:pointer;text-align:left}
+.ssrc .ab .lb{min-width:0;overflow-wrap:anywhere}
+.ssrc .ab .ar{color:var(--SmartThemeQuoteColor)}
+.ssrc .ab.hot{border-color:#ff7b72;background:rgba(255,123,114,.12)}
+.ssrc .ab.need{background:color-mix(in srgb,var(--SmartThemeBodyColor) 14%,transparent);border-color:var(--SmartThemeBodyColor);font-weight:700}
+.ssrc .ab .bang{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:var(--SmartThemeBodyColor);color:var(--SmartThemeChatTintColor);font-size:12px;font-weight:800;line-height:1}
+.ssrc-acts .sslootp{padding:0 12px 10px;margin:0;box-sizing:border-box}
+/* The suite's buttons in the chat (the ✦ sheet, the modules' cards, the loot picker): SillyTavern's look. */
 .ssbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;font:inherit;font-weight:600;color:var(--SmartThemeBodyColor);background:transparent;border:1px solid var(--SmartThemeBorderColor);border-radius:8px;padding:2px 9px;cursor:pointer;white-space:nowrap}
 .ssbtn:hover{border-color:var(--SmartThemeBodyColor)}
-.ssbtn .n{color:var(--SmartThemeEmColor);font-weight:600}
-.ssbtn .wd{width:8px;height:8px;border-radius:50%;background:var(--SmartThemeUnderlineColor);box-shadow:0 0 0 2px var(--SmartThemeBotMesBlurTintColor)}
-.ssbtn.need,.ssbtn.fight{background:color-mix(in srgb,var(--SmartThemeBodyColor) 14%,transparent);border-color:var(--SmartThemeBodyColor);font-weight:700}
-.ssbtn.need .bang{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:var(--SmartThemeBodyColor);color:var(--SmartThemeChatTintColor);font-size:12px;font-weight:800;line-height:1}
-.ssbtn.need .n{color:var(--SmartThemeBodyColor);font-weight:800}
-.chlist{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:.92em;flex-basis:100%}
-.chlist li{padding:11px 9px;min-height:44px;border:1px solid var(--SmartThemeBorderColor);border-radius:8px;cursor:pointer}
-.chlist li:hover{border-color:var(--SmartThemeBodyColor)}
-.ssdrawer{width:min(100%,700px);margin:0 auto;background:var(--SmartThemeBlurTintColor);border:1px solid var(--SmartThemeBorderColor);border-bottom:0;border-radius:12px 12px 0 0;box-shadow:0 -2px 10px var(--SmartThemeShadowColor)}
-.dhd{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;background:none;border:0;color:var(--SmartThemeBodyColor);font:inherit;font-size:.86em;padding:6px 12px;cursor:pointer}
-.dhd b{font-weight:700}
-.dhd .mini{display:flex}
-.dhd .mface{width:22px;height:22px;border-radius:50%;background:#555 center 18%/cover;border:1.5px solid var(--SmartThemeBlurTintColor);margin-left:-6px;display:grid;place-items:center;font-size:12px;font-weight:700}
-.dhd .mface:first-child{margin-left:0}
-.dhd .chev{margin-left:auto;color:var(--SmartThemeEmColor)}
-.dots2{display:flex;gap:5px;margin-left:auto}
-.dhd .dots2+.chev{margin-left:8px}
-.dots2 i{width:6px;height:6px;border-radius:50%;background:var(--SmartThemeBorderColor)}
-.dots2 i.on{background:var(--SmartThemeBodyColor)}
-.dbody2{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:4px;padding:2px 6px 6px}
-.arr{width:44px;height:44px;border-radius:50%;border:1px solid var(--SmartThemeBorderColor);background:transparent;color:var(--SmartThemeBodyColor);cursor:pointer;font:inherit}
-.arr:disabled{opacity:.3;cursor:default}
-.pcrow{display:flex;gap:6px;min-width:0}
-.pc2{flex:0 0 calc((100% - (var(--per,2) - 1) * 6px) / var(--per,2));display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 2px 4px;cursor:pointer;min-width:0;text-align:center;border-radius:10px}
+/* A person of the Here tab: the portrait in the feelings ring, and the name. */
+.pc2{flex:0 0 88px;width:88px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px 2px 4px;cursor:pointer;min-width:0;text-align:center;border-radius:10px}
 .pc2:hover .ph,.pc2:focus-visible .ph{outline:2px solid var(--SmartThemeBodyColor);outline-offset:1px}
-.rg2{position:relative;width:84px;height:84px}
+.rg2{position:relative;width:64px;height:64px}
 .rg2 svg{position:absolute;inset:0;width:100%;height:100%}
-.rg2 .ph{position:absolute;inset:8px;border-radius:50%;background:#555 center 18%/cover;display:grid;place-items:center;font-weight:700;font-size:1.3em}
-.md3{font-size:12px;font-weight:600;line-height:16px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;background:var(--SmartThemeBlurTintColor);color:var(--SmartThemeBodyColor);border:1px solid var(--SmartThemeBorderColor);border-radius:999px;padding:0 8px}
-.pc2 b{font-weight:700;font-size:.9em;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pc2 .wh3{font-size:12px;color:var(--SmartThemeEmColor);line-height:1.25;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pc2 .th4{align-self:stretch;margin-top:3px;border:1px dashed var(--SmartThemeBorderColor);border-radius:9px;padding:3px 7px;text-align:left}
-.pc2 .th4 span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;font-style:italic;color:var(--SmartThemeEmColor);line-height:1.25}
+.rg2 .ph{position:absolute;inset:6px;border-radius:50%;background:#555 center 18%/cover;display:grid;place-items:center;font-weight:700;font-size:1.05em;color:var(--SmartThemeBodyColor)}
+.pc2 b{font-weight:700;font-size:.95em;line-height:1.2;max-width:100%;overflow:hidden;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--SmartThemeBodyColor)} /* (a long name takes two lines: "Watch-Captain / Edda Rorke") */
 /* The ✦ button in a reply's action row and the "This reply" sheet (mock v7: .xbt, .trsheet, .tra). */
 .xbt{display:grid;place-items:center;min-width:32px;min-height:32px;padding:0 6px;border:0;border-radius:7px;background:transparent;color:var(--SmartThemeEmColor);font:inherit;font-size:15px;cursor:pointer}
 .xbt:hover,.xbt.ss{color:var(--SmartThemeBodyColor);background:var(--SmartThemeBotMesBlurTintColor)}
@@ -73,17 +99,23 @@
 .sscd .ssbtn:disabled{opacity:.6;cursor:default}
 .sscd-why{font-size:.92em}
 @media (max-width:900px){.xbt{min-width:44px;min-height:44px}}
+/* A narrow reply column (a phone, or SillyTavern's chat column at half of a laptop screen): line 1 flows under the corner button, the bars shorten so HP · MP · SP keep one row, the tabs are 44 px high and 84 px least. */
 @container (max-width:599px){
- .ssrow{display:block}
- .ssl1{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
- .ssl1 .it3{display:inline}.ssl1 .it3+.it3::before{content:" · "}.ssl1 .it3 i{margin-right:4px}.ssl1 .dt{display:none}
- .ssl2{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin-top:4px}
- .ssl2 .gap{flex:1 1 0;min-width:0}
- .ssl2 .it3{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px}
- .ssl2 .mw{display:none}.ssl2 .ms{display:inline}
- .ssl2 .ssbtn{padding:0 6px;gap:4px;flex:none;font-size:12px}
- .ssl2 .ssbtn.need .lb,.ssl2 .ssbtn[data-ch] .lb{display:none}
- .ssrow.fo .ssl2 .it3{display:none}
- .rg2{width:60px;height:60px}.rg2 .ph{inset:6px;font-size:1.05em}
- .dbody2{padding:0 4px 2px}
+ .ssrc-l1{padding:6px 10px}
+ .ssrc.newest .ssrc-l1{padding-right:46px}
+ .ssrc-l2{padding:0 10px 7px;gap:0 8px}
+ .ssrc-l2 .vb{gap:3px;font-size:.9em}
+ .ssrc-l2 .ssrc-bar{width:24px;flex:0 1 24px;min-width:4px} /* (a phone: 24 px, giving way to 10 px only when big numbers need the room) */
+ .ssrc-l2 .d{font-size:10.5px;margin-left:0}
+ .ssrc-l3{padding:0 10px 8px}
+ .ssrc .tb{padding:0 8px;min-width:84px;min-height:44px}
+ .ssrc-l1{display:block}
+ .ssrc-l1 .it{display:inline}
+ .ssrc-l1 .it+.it::before{content:" · "}
+ .ssrc-acts .row{padding:8px 10px}
+ .ssrc .ab{min-height:44px}
+}
+/* A phone's reply column (SillyTavern's chat column on a desktop is wider at its 50-60 % widths): each action is a full-width button. */
+@container (max-width:479px){
+ .ssrc .ab{flex:1 1 100%;justify-content:space-between}
 }

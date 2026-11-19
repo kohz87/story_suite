@@ -1,7 +1,7 @@
 // node scripts/sim-traces.mjs <sim.py> [out.json]   (or SIM_PY=<sim.py>)
 //
 // Regenerates the combat golden traces: runs the design simulator's scripted-dice mode (`sim.py --trace`,
-// rule set v8.1) over the cases in scripts/sim-trace-cases.json and writes
+// its DEFAULT_RULES, v8.2 since the Speed / Focus stances) over the cases in scripts/sim-trace-cases.json and writes
 // tests/v2/lean-rpg/v1/fixtures/sim-traces.json, stamped with the simulator's SHA-256 so a stale fixture
 // shows. Test fixture tooling only; the product never reads it. Plain Node and python3, no dependencies.
 

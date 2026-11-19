@@ -1,4 +1,4 @@
-// Test-only reference for Combat Rules v1 (rule set v8.1): the formulas of the owner-checked "Try a build"
+// Test-only reference for Combat Rules v1 (rule set v8.2: v8.1 with the one Speed stance): the formulas of the owner-checked "Try a build"
 // calculator in combat-v1.html, as pure functions, plus the roll resolution the simulator uses. Nothing in
 // the product imports this; the C1-C4 engine tests compare the real engine against it. Stat keys are
 // lower case (str vit agi dex int wis); every division floors.
@@ -32,18 +32,18 @@ export const barsOf = (s, lv) => ({
     sp: 8 + f(lv / 4) + f((s.str + s.agi) / 4),
 });
 
-/** The player's roll bonuses; `stance` is the one stance that is on ('evasion', 'movement', ...), if any. */
+/** The player's roll bonuses; `stance` is the one stance that is on ('defence', 'speed' or 'focus'), if any. Speed adds half mastery to evasion and tempo and no extra action. */
 export function bonusesOf(s, lv, mastery, stance = null) {
     const l = f(lv / 4);
     const half = rollMastery(mastery);
     return {
         physical: f(s.dex / 2) + l,
         magic: f(s.wis / 2) + l,
-        evasion: f(s.agi / 3) + l + (stance === 'evasion' ? half : 0),
-        tempo: f(s.agi / 2) + l + (stance === 'movement' ? half : 0),
+        evasion: f(s.agi / 3) + l + (stance === 'speed' ? half : 0),
+        tempo: f(s.agi / 2) + l + (stance === 'speed' ? half : 0),
         order: f(s.agi / 2) + l,
         flee: f(s.agi / 2) + l,
-        tempoCap: (s.agi < 15 ? 1 : s.agi < 25 ? 2 : 3) + (stance === 'movement' ? 1 : 0),
+        tempoCap: s.agi < 15 ? 1 : s.agi < 25 ? 2 : 3,
     };
 }
 

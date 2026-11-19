@@ -4,9 +4,9 @@
 // * a beat the story has fired: the quest log the Chronicle keeps (`chronicle.questLog`, each line as the story wrote it) says
 //   its last line that mattered was a `!`; a line that writes its date again (`+`, `on:`, `due:`) makes it live (v1's lapses.js rule);
 // * a dead person's own agenda (the key is their name or an alias). A beat whose key names them ("Vorn's Return") stays: it is a
-//   valid beat that can still be played (an avenging, a burial). Dead = NPC State Delta's `npc.dossier` says `lifeState: 'deceased'` (by name or alias, and by the np_ id
+//   valid beat that can still be played (an avenging, a burial). Dead = NPC State's `npc.dossier` says `lifeState: 'deceased'` (by name or alias, and by the np_ id
 //   a pinned person carries, which also answers for an archived dossier), or a gone record with reason died (NPC State's release of a pinned person, or an old reply's "- key Name | died" on replay).
-//   A dead person is found by name, or by id through `npc.identity` when Delta hides a dead dossier by name. Without NPC State Delta, and with nobody dead, nothing is quiet. Secrets, hooks, quests, clocks, events
+//   A dead person is found by name, or by id through `npc.identity` when Delta hides a dead dossier by name. Without NPC State, and with nobody dead, nothing is quiet. Secrets, hooks, quests, clocks, events
 //   and any thread that merely mentions someone are never touched. If Delta stops saying deceased the threads are back.
 //
 // `quietThreads` → Set of thread ids; `dropThreads(director, ids)` → the same director without them (the same object when none).

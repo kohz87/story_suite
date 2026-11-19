@@ -1,6 +1,6 @@
 {
- "rules": "v8.1",
- "simSha256": "f6b4f667bbfa91720911c58185bc201efac2d3f5bf1e00e57a3ba4328fe12ad1",
+ "rules": "v8.2",
+ "simSha256": "e895d368c1538084f3974d429e1cfe939bdd4e2cf8daa66163285e44534bc667",
  "cases": [
   {
    "name": "normal-hit",
@@ -1798,8 +1798,8 @@
    }
   },
   {
-   "name": "evasion-stance",
-   "note": "Skirmisher L15 Evasion stance: d20 + 4 + 3 + 2; the 21 ties the foe's 21 and evades (19 would hit)",
+   "name": "speed-stance-evasion",
+   "note": "Skirmisher L15 Speed stance: evasion d20 + 4 + 3 + 2; the 21 ties the foe's 21 and evades (19 would hit)",
    "sheet": {
     "party": [
      {
@@ -1821,7 +1821,7 @@
       "sp": 16,
       "mastery": 3,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -1877,7 +1877,7 @@
      "stance",
      "Skirmisher",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [
@@ -1933,8 +1933,8 @@
    }
   },
   {
-   "name": "movement-stance-cap-plus-1",
-   "note": "Skirmisher-Move L15: tempo cap 1 + 1 = 2, tempo roll gets +ceil(3/2); two extra actions",
+   "name": "speed-stance-tempo-no-extra-cap",
+   "note": "Skirmisher-Move L15 Speed stance: the tempo roll gets +ceil(3/2) but the cap stays 1 (no +1 any more); one extra action",
    "sheet": {
     "party": [
      {
@@ -1956,7 +1956,7 @@
       "sp": 16,
       "mastery": 3,
       "stances": [
-       "movement"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -1977,10 +1977,6 @@
    "dice": [
     15,
     5,
-    15,
-    5,
-    15,
-    10,
     15,
     5,
     15,
@@ -2021,7 +2017,7 @@
      "stance",
      "Skirmisher-Move",
      [
-      "movement"
+      "speed"
      ]
     ],
     [
@@ -2061,29 +2057,6 @@
      70
     ],
     [
-     "tempo",
-     "Skirmisher-Move",
-     "boss",
-     15,
-     27,
-     10,
-     23,
-     true
-    ],
-    [
-     "attack",
-     "Skirmisher-Move",
-     "skill",
-     "boss",
-     15,
-     25,
-     5,
-     18,
-     "hit",
-     10,
-     60
-    ],
-    [
      "foe-phase",
      [
       "boss"
@@ -2096,7 +2069,7 @@
      8,
      21,
      15,
-     22,
+     24,
      "evaded",
      0,
      0,
@@ -2111,13 +2084,13 @@
       "label": "Skirmisher-Move",
       "hp": 14,
       "mp": 13,
-      "sp": 12
+      "sp": 13
      }
     ],
     "foes": [
      {
       "label": "boss",
-      "hp": 60
+      "hp": 70
      }
     ]
    }
@@ -2146,7 +2119,7 @@
       "sp": 16,
       "mastery": 3,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": true,
       "heal": false
@@ -2226,7 +2199,7 @@
      "stance",
      "Skirmisher-area",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [
@@ -2260,7 +2233,7 @@
      "Skirmisher-area",
      "a",
      2,
-     12,
+     14,
      12,
      23,
      false
@@ -3101,7 +3074,7 @@
       "sp": 10,
       "mastery": 1,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -3175,7 +3148,7 @@
      "stance",
      "Mage",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [
@@ -3311,7 +3284,7 @@
       "sp": 16,
       "mastery": 3,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -3335,7 +3308,7 @@
       "sp": 14,
       "mastery": 3,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -3413,7 +3386,7 @@
      "stance",
      "Skirmisher",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [
@@ -3427,7 +3400,7 @@
      "stance",
      "Mage",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [
@@ -4363,7 +4336,7 @@
       "sp": 11,
       "mastery": 1,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -4428,7 +4401,7 @@
      "stance",
      "Skirmisher",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [
@@ -5077,7 +5050,7 @@
       "sp": 30,
       "mastery": 5,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -5193,7 +5166,7 @@
      "stance",
      "Skirmisher",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [
@@ -5214,7 +5187,7 @@
      "Skirmisher",
      "a",
      20,
-     43,
+     46,
      1,
      7,
      true
@@ -5237,7 +5210,7 @@
      "Skirmisher",
      "b",
      20,
-     43,
+     46,
      1,
      7,
      true
@@ -5354,7 +5327,7 @@
       "sp": 11,
       "mastery": 1,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -5378,7 +5351,7 @@
       "sp": 10,
       "mastery": 1,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -5547,7 +5520,7 @@
      "stance",
      "s",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [
@@ -5561,7 +5534,7 @@
      "stance",
      "m",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [
@@ -5792,7 +5765,7 @@
       "sp": 10,
       "mastery": 1,
       "stances": [
-       "evasion"
+       "speed"
       ],
       "area": false,
       "heal": false
@@ -5955,7 +5928,7 @@
      "stance",
      "m",
      [
-      "evasion"
+      "speed"
      ]
     ],
     [

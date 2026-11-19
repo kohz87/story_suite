@@ -17,8 +17,8 @@ const OUTCOMES = { done: 'done', failed: 'failed', abandoned: 'gaveup', declined
 const KIND_WORDS = { quest: 'quest due', event: 'event you heard of', hook: 'event you heard of', holiday: 'holiday' };
 const GLYPHS = { quest: '⚑', event: '✦', hook: '✦', holiday: '✧' };
 
-// The month and day a date text names on this calendar ("Goldwane 12", "CY 611, Goldwane 12"), else null.
-function parseDate(when, months) {
+/** The month (index) and day a date text names on this calendar ("Goldwane 12", "CY 611, Goldwane 12"), else null; the dossier's Day › uses it too. */
+export function parseDate(when, months) {
   const line = text(when).toLowerCase();
   for (let i = 0; i < months.length; i += 1) {
     const name = months[i].name.toLowerCase();

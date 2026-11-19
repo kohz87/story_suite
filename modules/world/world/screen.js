@@ -9,7 +9,7 @@
 // Here covers what Story Block's Scene tab shows, so Story Block hides Scene by default while World is there
 // (MODULES §F119): the place with its kind and region and "moved here this reply" (Story Block's
 // `scene.moved`), the weather (`scene.weather`: the Scene tab's, which would otherwise be lost with it), the
-// story time and date while the clock is set, and the people: NPC State Delta's own
+// story time and date while the clock is set, and the people: NPC State's own
 // present-cast cards (portraits, now lines, meters) when it is there, else names; each with their thought
 // from the newest reply's Inner chatter.
 //

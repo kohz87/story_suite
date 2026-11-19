@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: telling whether two evidence items describe the same concept. */
+/* NPC State profile evidence: telling whether two evidence items describe the same concept. */
 import { DURABLE_PROFILE_LIMITS, durableSemanticSimilarity } from '../core-relationship.js';
 import { cleanText, normalizeName } from '../core-text.js';
 

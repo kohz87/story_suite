@@ -12,16 +12,18 @@ export const V1 = deep({
     decisiveMargin: 8, decisiveTimes: 1.5, tempoMargin: 3, soakCap: 50, areaPercent: 60, percent: 100,
     stat: { min: 1, max: 30, start: 5, creationPoints: 10, creationCap: 10, perLevel: 1 },
     level: { min: 1, max: 99 },
-    hp: { base: 5, levelDiv: 3, vitDiv: 2 },
-    mp: { base: 8, levelDiv: 4, pairDiv: 4 },
-    sp: { base: 8, levelDiv: 4, pairDiv: 4 },
+    // Each bar: base + level÷levelDiv + (the pair's two stats)÷pairDiv. At every stat 5 the bars are the earlier VIT÷2 and STR+AGI ones.
+    hp: { base: 5, levelDiv: 3, pair: ['str', 'vit'], pairDiv: 4 },
+    mp: { base: 8, levelDiv: 4, pair: ['int', 'wis'], pairDiv: 4 },
+    sp: { base: 8, levelDiv: 4, pair: ['agi', 'dex'], pairDiv: 4 },
     roll: {
         physicalDiv: 2, magicDiv: 2, evasionDiv: 3, tempoDiv: 2, orderDiv: 2, fleeDiv: 2, levelDiv: 4,
         naturalMiss: 1, masteryDiv: 2,
     },
     damage: { statDiv: 2, healDiv: 3, min: 1 },
     soak: { stanceStep: 5 },
-    tempoStanceBonus: 1,
+    // A Focus stance: the damage and healing of INT and WIS skills × (100 + 5 per mastery step) ÷ 100, rounded down (×1.05 at mastery 1 … ×1.35 at 7).
+    focus: { step: 5, stats: ['int', 'wis'] },
     foe: {
         rollBase: 6, rollLevelDiv: 3, hpBase: 8, hpLevelDiv: 2, damageBase: 3, damageLevelDiv: 6,
         damageRound: 0.5, defaultTier: 'standard', groupMax: 6, attackCapTimes: 2,
@@ -37,10 +39,11 @@ export const V1 = deep({
             attack: { label: 'Attack', kind: 'action', cost: 'attack', pool: 'stat', adds: 'damage', aliases: ['attack'] },
             area: { label: 'Area attack', kind: 'action', cost: 'area', pool: 'stat', adds: 'damage', aliases: ['area', 'area attack', 'areaattack'] },
             defence: { label: 'Defence', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'soak', aliases: ['defence', 'defense'] },
-            evasion: { label: 'Evasion', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['evasion'] },
-            movement: { label: 'Movement', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['movement'] },
+            // (Speed is the earlier Evasion and Movement stances in one: half mastery to the evasion and the tempo roll, no extra action)
+            speed: { label: 'Speed', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['speed', 'evasion', 'movement', 'agility', 'swift'] },
+            // (Focus replaced Support: an INT or WIS stance, paid from Mana, that strengthens the INT and WIS skills)
+            focus: { label: 'Focus', kind: 'stance', cost: 'stance', pool: 'mp', adds: 'power', aliases: ['focus', 'support', 'channel', 'auxiliary'] },
             heal: { label: 'Heal', kind: 'action', cost: 'heal', pool: 'mp', adds: 'healing', aliases: ['heal', 'healing'] },
-            support: { label: 'Support', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'value', aliases: ['support'] },
             utility: { label: 'Utility', kind: 'story', cost: 'utility', pool: null, adds: 'check', aliases: ['utility'] },
         },
     },
@@ -67,7 +70,7 @@ export const RANKS = deep([
     { name: 'Legend', mastery: 7, practice: 600, minLevel: 85 },
 ]);
 
-/** Extra-action cap by AGI, highest threshold first; a Movement stance adds one more. */
+/** Extra-action cap by AGI, highest threshold first (no stance raises it). */
 export const TEMPO_CAPS = deep([
     { minAgi: 25, cap: 3 },
     { minAgi: 15, cap: 2 },

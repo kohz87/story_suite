@@ -1,4 +1,4 @@
-/* NPC State Delta: whether an NPC is explicitly part of the current exchange. */
+/* NPC State: whether an NPC is explicitly part of the current exchange. */
 import { text, norm } from './shared-text.js';
 
 function hasPhrase(source, phrase) {

@@ -39,3 +39,5 @@ npm run test:people   # tests/people (its own job: 4 GB heap and the synthetic h
 npm run test:suite    # the test:modules folders (without tests/director) + tests/suite + tests/people with the sibling farm (scripts/ci/farm.mjs); fails on unlisted skips
 git diff --check      # CI fails on trailing whitespace
 ```
+
+CHANGELOG.md bullets are one line for players (what they see or can do, about 200 characters, no job ids, file paths or test names); the detail goes to `docs/history/CHANGELOG-detail.md`. `npm run check` runs `scripts/checks/changelog-lines.mjs` on it.

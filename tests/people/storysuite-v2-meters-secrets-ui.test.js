@@ -14,13 +14,13 @@ test('secrets: the editor lists the notes with a Hidden/Opened choice; saving ap
     h.reply('Nice.', '~ npc Mira | trust: +25');
     const html = h.adapter.editorHtml(h.delta.records.npc_mira);
     const id = secretId('trust', 30, SECRET);
-    assert.match(html, new RegExp(`id="npc_state_delta_edit_secret_state_${id}"`));
+    assert.match(html, new RegExp(`id="people_edit_secret_state_${id}"`));
     assert.match(html, /when the duke falls => \[title\] note/);
     const dossier = h.delta.records.npc_mira;
     const values = new Map([
-        ['npc_state_delta_edit_secrets', secretsToLines(dossier.secrets)],
-        [`npc_state_delta_edit_secret_state_${id}`, 'open'],
-        [`npc_state_delta_edit_secret_state_${secretId('tension', -20, SECRET_TWO)}`, 'hidden'],
+        ['people_edit_secrets', secretsToLines(dossier.secrets)],
+        [`people_edit_secret_state_${id}`, 'open'],
+        [`people_edit_secret_state_${secretId('tension', -20, SECRET_TWO)}`, 'hidden'],
     ]);
     const edits = h.adapter.readEditor(key => values.get(key), dossier);
     assert.deepEqual(edits.noteStates, { open: [id], close: [] }, 'only a choice that changed counts');
@@ -28,7 +28,7 @@ test('secrets: the editor lists the notes with a Hidden/Opened choice; saving ap
     assert.deepEqual(h.npc('Mira').unlocked, [id]);
     assert.deepEqual(h.sent.map(item => item.type).slice(-2), ['npc.open', 'npc.refresh']);
     // A new line typed by the reader, with an event, is read back.
-    values.set('npc_state_delta_edit_secrets', `${secretsToLines(dossier.secrets)}\nwhen the duke falls => A new note.`);
+    values.set('people_edit_secrets', `${secretsToLines(dossier.secrets)}\nwhen the duke falls => A new note.`);
     const more = h.adapter.readEditor(key => values.get(key), dossier);
     assert.equal(more.secrets.length, 3);
     assert.equal(more.secrets[2].when, 'the duke falls');
@@ -120,7 +120,7 @@ test('editor: every locked note of the 12 real entries is only "Hidden note n ·
             assert.match(row[1], new RegExp(`^Hidden note ${i + 1} · opens (?:at \\w+ -?\\d+|with the story)$`));
             assert.equal(row[2], `Hidden note ${i + 1}`);
         });
-        assert.match(html, /<textarea id="npc_state_delta_edit_secrets"[^>]*><\/textarea>/, 'the box is empty: nothing of the reader\'s own and nothing opened');
+        assert.match(html, /<textarea id="people_edit_secrets"[^>]*><\/textarea>/, 'the box is empty: nothing of the reader\'s own and nothing opened');
         assert.equal((html.match(/data-delta-secret=/g) || []).length, entry.secrets.length, 'every note keeps its open/shut control');
     }
 });
@@ -150,7 +150,7 @@ test('editor: pack and scan notes stay hidden while locked; an older note with n
     assert.match(html, /<span>Hidden note 3 · opens at Trust 60<\/span>/);
     assert.equal((html.match(/Hidden note \d/g) || []).length, 6, 'three rows, each named twice (row and control)');
     // The older note is editable: its line is in the box; changing it saves the change, and the hidden ones are untouched.
-    const values = new Map([['npc_state_delta_edit_secrets', secretsToLines([old, opened]).replace('older version', 'newer version')]]);
+    const values = new Map([['people_edit_secrets', secretsToLines([old, opened]).replace('older version', 'newer version')]]);
     const saved = h.adapter.readEditor(key => values.get(key), delta.records.npc_mira);
     const mine = saved.secrets.find(note => note.text.includes('newer version'));
     assert.ok(mine, 'the edited line is saved');
@@ -171,7 +171,7 @@ test('editor: saving keeps every hidden note exactly as it was (ids and raw word
     const html = h.adapter.editorHtml(dossier);
     const box = escapeHtml('trust 5: [Known] Already open to the player.');
     assert.ok(html.includes(`>${box}</textarea>`), 'only the opened note is in the box');
-    const values = new Map([['npc_state_delta_edit_secrets', 'trust 5: [Known] Already open to the player.\nwhen the barge is found => [Mine] A note I wrote.']]);
+    const values = new Map([['people_edit_secrets', 'trust 5: [Known] Already open to the player.\nwhen the barge is found => [Mine] A note I wrote.']]);
     const edits = h.adapter.readEditor(key => values.get(key), dossier);
     assert.deepEqual(edits.problems, []);
     const ids = edits.secrets.map(note => note.id);
@@ -182,11 +182,11 @@ test('editor: saving keeps every hidden note exactly as it was (ids and raw word
     assert.deepEqual([mine.when, mine.title, 'from' in mine], ['the barge is found', 'Mine', false], 'a line written here is the reader\'s: no marker');
     assert.equal(edits.secrets.length, packed.length + 2);
     // The reader deletes the opened line: it goes; the hidden ones stay.
-    values.set('npc_state_delta_edit_secrets', '');
+    values.set('people_edit_secrets', '');
     const cleared = h.adapter.readEditor(key => values.get(key), dossier);
     assert.deepEqual(cleared.secrets.map(note => note.id), packed.map(note => note.id));
     // The hidden control: open the first hidden note by hand.
-    values.set(`npc_state_delta_edit_secret_state_${packed[0].id}`, 'open');
+    values.set(`people_edit_secret_state_${packed[0].id}`, 'open');
     const moved = h.adapter.readEditor(key => values.get(key), dossier);
     assert.deepEqual(moved.noteStates, { open: [packed[0].id], close: [] });
     await h.adapter.applyEditor('Mira', moved);
@@ -195,7 +195,7 @@ test('editor: saving keeps every hidden note exactly as it was (ids and raw word
     dossier.secrets = moved.secrets;
     assert.equal(shownIn(h.adapter.editorHtml(dossier), packed[0].title), true);
     // At most eight in all: the hidden ones are never pushed out by the reader's lines.
-    values.set('npc_state_delta_edit_secrets', Array.from({ length: 6 }, (_, i) => `when event ${i} => note ${i}`).join('\n'));
+    values.set('people_edit_secrets', Array.from({ length: 6 }, (_, i) => `when event ${i} => note ${i}`).join('\n'));
     const crowded = h.adapter.readEditor(key => values.get(key), dossier);
     assert.equal(crowded.secrets.length, MAX_SECRETS, 'eight in all: five hidden, three of the six new lines');
     // (the opened one was in the box, and the reader's box no longer lists it, so it is gone; every hidden one stays)

@@ -6,8 +6,25 @@ const SLOT_KEYS = ['head', 'armor', 'cloak', 'feet', 'mount', 'weapon', 'offhand
 const STAT_KEYS = ['STR', 'DEX', 'AGI', 'VIT', 'INT', 'WIS', 'CHA'];
 const KIND_STAT = { attack: 'STR', area: 'STR', magic: 'INT', heal: 'WIS', stance: 'AGI' };
 const MOUNTS = {
-  'Dappled mare': { stack: 'dappled-mare', name: 'Dappled mare', rarity: 'uncommon', soak: 0, torn: false },
-  'Grey pony': { stack: 'grey-pony', name: 'Grey pony', rarity: 'common', soak: 0, torn: false },
+  'Dappled mare': { stack: 'dappled-mare', name: 'Dappled mare', rarity: 'common', soak: 0, torn: false, kind: 'horse', pace: 35, carry: 40 },
+  'Grey pony': { stack: 'grey-pony', name: 'Grey pony', rarity: 'common', soak: 0, torn: false, kind: 'pony', pace: 25, carry: 30 },
+};
+// What each carried bag adds (the Bag slot shows it).
+const BAG_CARRY = { 'Leather satchel': 10, 'Quiver bag': 4 };
+// The Mount and Bag pickers' lists: the party's mounts (one left at the stables) and every bag the party holds.
+const CARRIERS = {
+  mounts: [
+    { name: 'Dappled mare', kind: 'horse', pace: 35, count: 1, carry: 40, riders: ['Astra'], withParty: true, where: 'ridden by Astra' },
+    { name: 'Grey pony', kind: 'pony', pace: 25, count: 1, carry: 30, riders: ['Rika'], withParty: true, where: 'ridden by Rika' },
+    { name: 'Hired mules', kind: 'mule', pace: 25, count: 2, carry: 100, riders: [], withParty: true, where: '' },
+    { name: 'Old Burr', kind: 'mule', pace: 20, count: 1, carry: 50, riders: [], withParty: false, where: 'stabled at the Stray Oar' },
+  ],
+  packs: [
+    { stack: 'leather-satchel', name: 'Leather satchel', carry: 10, owner: 'party', by: 'Astra', bag: true, bound: '' },
+    { stack: 'quiver-bag', name: 'Quiver bag', carry: 4, owner: 'rika', by: 'Rika', bag: true, bound: '' },
+    { stack: 'canvas-pack', name: 'Canvas pack', carry: 15, owner: 'party', by: 'Astra', bag: false, bound: '' },
+    { stack: 'oath-pouch', name: 'Red Cord pouch', carry: 0, owner: 'torka', by: 'Torka', bag: false, bound: 'Torka' },
+  ],
 };
 // id, name, level, line, current [hp, mp, sp] (null = full), xp, stats, points, away, worn items by slot, effects, skills
 const CAST = [
@@ -32,6 +49,12 @@ const CAST = [
 ];
 
 // The kind line under each skill name, copied from the mock (stances say what they do and what they cost each exchange).
+const SKILL_ABOUT = {
+  Iaijutsu: 'A single draw-cut, fast enough that the target is down before the blade is seen.', Flash: 'A burst of light and steel that catches everyone in front of her.',
+  'Shadow Bolt': 'A bolt of dark force thrown from the hand.', Mend: 'Closes wounds with a quiet word and a steady hand.', 'Shadow Step': 'Slips between shadows, so blows land where she was.',
+  Cleave: 'A wide axe swing that hits every foe in reach.', 'Heavy blow': 'One slow, crushing strike.', 'Shield wall': 'Plants the shield and holds the line, soaking more of each hit.',
+  'Aimed shot': 'A patient, careful arrow.', Fade: 'Melts into cover and is hard to hit.', Whirlwind: 'Spins with the greatsword, cutting all around.', 'Brute strike': 'Straight, heavy and hard to turn aside.',
+};
 const SKILL_LINES = {
   Iaijutsu: 'Attack · DEX · 1 Stamina', Flash: 'Area attack · STR · 2 Stamina', 'Shadow Bolt': 'Magic attack · INT · 1 Mana',
   Mend: 'Heal · WIS · 2 Mana', 'Shadow Step': 'Stance · evasion · 1 Stamina each exchange', Cleave: 'Area attack · STR · 2 Stamina',
@@ -43,16 +66,17 @@ const SKILL_LINES = {
 const itemFor = (name, owner) => {
   if (!name) return null;
   if (MOUNTS[name]) return { ...MOUNTS[name] };
+  if (BAG_CARRY[name]) return { stack: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'), name, rarity: 'common', soak: 0, torn: false, carry: BAG_CARRY[name] };
   const stack = name === 'Hob boots' ? `hob-boots-${owner}` : name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const it = BAG.items.find(x => x.stack === stack);
   return { stack, name, rarity: it.rarity, soak: it.soak, torn: it.wear === 'torn' };
 };
 
-// Combat Rules v1 pools, every term rounded down: stats are STR DEX AGI VIT INT WIS CHA.
+// Combat Rules v1 pools, every term rounded down (HP from STR+VIT, MP from INT+WIS, SP from AGI+DEX): stats are STR DEX AGI VIT INT WIS CHA.
 const pools = (lv, s) => [
-  5 + Math.floor(lv / 3) + Math.floor(s[3] / 2),
+  5 + Math.floor(lv / 3) + Math.floor((s[0] + s[3]) / 4),
   8 + Math.floor(lv / 4) + Math.floor((s[4] + s[5]) / 4),
-  8 + Math.floor(lv / 4) + Math.floor((s[0] + s[2]) / 4),
+  8 + Math.floor(lv / 4) + Math.floor((s[2] + s[1]) / 4),
 ];
 
 function makeMember([id, name, level, line, cur, xp, st, points, away, worn, effects, skills]) {
@@ -67,14 +91,14 @@ function makeMember([id, name, level, line, cur, xp, st, points, away, worn, eff
     stats: Object.fromEntries(STAT_KEYS.map((k, i) => [k, st[i]])),
     slots,
     skills: skills.map(([glyph, sn, kind, stat, resource, cost, rank, mastery]) => ({
-      glyph, name: sn, kind, stat: stat || KIND_STAT[kind], resource, cost, rank, mastery, line: SKILL_LINES[sn] ?? null,
+      glyph, name: sn, kind, stat: stat || KIND_STAT[kind], resource, cost, rank, mastery, about: SKILL_ABOUT[sn] ?? '', line: SKILL_LINES[sn] ?? null,
     })),
   };
 }
 
 export function partyFixture({ members = 4 } = {}) {
   const list = CAST.slice(0, Math.max(1, Math.min(4, members))).map(makeMember);
-  return { pcId: 'astra', max: 4, canInvite: list.length < 4, members: list };
+  return { pcId: 'astra', max: 4, canInvite: list.length < 4, members: list, carriers: structuredClone(CARRIERS) };
 }
 
 export const PARTY = Object.freeze(partyFixture());

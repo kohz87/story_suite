@@ -1,5 +1,5 @@
 // Checks the shape of the people domain's slice and of the view a mirror sends: version, order equals the keys, plain JSON, no positional records,
-// record keys that follow NPC State Delta's own id rule (`npc_` + a name slug, as makeNpcId makes them), safe as JSON-pointer segments,
+// record keys that follow NPC State's own id rule (`npc_` + a name slug, as makeNpcId makes them), safe as JSON-pointer segments,
 // portraits that are file references only ({ path, type, hash }, never image bytes) and a socialGraph whose keys are pointer-safe and whose edge ids are people ids.
 // Also the two keys the dossier writer does not own: `bonds` (the meters, keyed by the same npc_ ids; their inner shape is NPC State's to check) and the
 // scan marker `scan` ([lastSid, swipeKey, since]: the last reply NPC State read and the replies since).

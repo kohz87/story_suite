@@ -7,7 +7,6 @@ import { mergeImportantMemories, normalizeStoredMemories } from '../../modules/p
 import { stampMemories } from '../../modules/people/core/core-record-shared.js';
 import { chatLineage, lineageCheckpointKey } from '../../modules/people/lineage/index.js';
 import { withoutSourceReplyNumbers } from '../../modules/people/bundle/bundle-import-helpers.js';
-import { buildNarrationCaptureParts } from '../../modules/people/core/core.js';
 import { base64url, canonicalTuple, factKey, hashText, sha256Bytes } from '../../modules/people/memory/memory-fact-key.js';
 import { cleanPayload, fallbackText, productions, validPhrasing } from '../../modules/people/memory/memory-fact-text.js';
 import { LEDGER_CAP, cleanLedger, factSeen, normalizeFacts, pruneLedger, withDisposition } from '../../modules/people/memory/memory-fact-ledger.js';
@@ -394,10 +393,6 @@ test('memory facts §9: a failed, stale, edited, pinned, locked or re-fingerprin
     assert.equal(applyPhrasing(changed, handles, answer, { fingerprintAt: fp })[0].memories[0], 'My lie to Person1 was caught.');
     assert.equal(applyPhrasing(npcs, handles, { h9: 'x' }, { fingerprintAt: fp })[0].memories[0], 'My lie to Person1 was caught.', 'an unknown handle is ignored');
     assert.equal(applyPhrasing(npcs, handles, ['bad'], { fingerprintAt: fp })[0].memories[0], 'My lie to Person1 was caught.');
-});
-test('memory facts §8: the one-pass capture instruction carries no memory facts text', () => {
-    const parts = JSON.stringify(buildNarrationCaptureParts({ npcs: [], settings: {}, transcript: '' }) ?? '');
-    assert.ok(!/MEMORY FACTS|"mem"/.test(parts));
 });
 test('memory facts §3: cleanLedger drops malformed rows and the sidecar normaliser keeps at most five aligned entries', () => {
     assert.deepEqual(cleanLedger({ floor: -1, keys: [['bad', 1, 'k'], 'x', [factKey({ ns: 'a', source: 'b', eventId: 'c' }), 'z', 'k']] }), { floor: 0, keys: [] });

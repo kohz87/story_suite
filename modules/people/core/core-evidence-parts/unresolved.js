@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: the evidence of a field that the accepted profile does not yet represent. */
+/* NPC State profile evidence: the evidence of a field that the accepted profile does not yet represent. */
 import { mergeRecentProfileEvidence } from './merge.js';
 import { durableProfileEvidenceAlreadyRepresented } from './represented.js';
 

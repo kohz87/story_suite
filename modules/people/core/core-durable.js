@@ -1,4 +1,4 @@
-/* NPC State Delta durable profile refinement: grounding/safety gates, morality and evolution checks,
+/* NPC State durable profile refinement: grounding/safety gates, morality and evolution checks,
    appearance correction, mannerism normalization and development-episode helpers. The implementation
    is split across core-durable-identity.js, core-durable-grounding.js and core-durable-episodes.js;
    this owner re-exports every name it exported before. */

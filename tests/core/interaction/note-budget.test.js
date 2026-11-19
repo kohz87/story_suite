@@ -5,8 +5,9 @@ import { INTERACTION_NOTE_TOKENS, noteLong, settleCue } from '../../../core/inte
 import { estimateTokens } from '../../../core/prompt-parts/shared-helpers.js';
 import { fightNote } from './helpers/fight-note.js';
 
-// The longest v1 fight note (4 v 6, 4 exchanges: seed 56 of 300 tried, the longest) is 1071 tokens; the allowance is that plus 20 %, rounded up to ten.
-const MEASURED = 1071;
+// The longest v1 fight note (4 v 6, 4 exchanges: seed 212 of 300 tried, the longest since the Speed stance) is 1048 tokens (before it seed 56 at 1026; 1071 before the bars
+// came from stat pairs); the allowance is that plus 20 %, rounded up to ten.
+const MEASURED = 1048;
 
 test('the allowance is the measured longest fight note plus 20 %', () => {
     assert.equal(estimateTokens(fightNote()), MEASURED, 'the fixture note changed: measure again');

@@ -1,4 +1,4 @@
-/* NPC State Delta injection: the compact form of the behavior criteria rubric. */
+/* NPC State injection: the compact form of the behavior criteria rubric. */
 import { DEFAULT_BEHAVIOR_CRITERIA } from '../core-prompts.js';
 import { truncateInjectionText } from './truncate.js';
 

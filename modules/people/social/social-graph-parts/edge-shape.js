@@ -1,4 +1,4 @@
-/* NPC State Delta: the shape and normalization of one social edge or unresolved slot. */
+/* NPC State: the shape and normalization of one social edge or unresolved slot. */
 import { clean, norm, slug, confidenceRank } from '../social-primitives.js';
 import { socialRelationFamily, splitRelationDynamic, withFoldedDynamic, sanitizeRelationshipRelation, inverseSocialRelation } from '../social-relations.js';
 

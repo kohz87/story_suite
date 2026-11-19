@@ -66,7 +66,7 @@ async function cleanupRecoveryGarbage(config = settings()) {
             delete config.recoveryGarbage[key];
             changed = true;
         } catch (error) {
-            console.debug(`[NPC State Delta] recovery garbage cleanup deferred for ${pointer.path}.`, error);
+            console.debug(`[NPC State] recovery garbage cleanup deferred for ${pointer.path}.`, error);
         }
     }
     if (changed) await saveHostSettings();
@@ -93,7 +93,7 @@ async function writeVerifiedState(key, state, pointer = null, { operationKey = '
         headers: headers(),
     });
     const verified = await readNpcStateDataFile(written, { expectedChatKey: key });
-    if (!verified || verified.retired || !verified.state) throw new Error(`NPC State Delta verification failed after writing ${key}.`);
+    if (!verified || verified.retired || !verified.state) throw new Error(`NPC State verification failed after writing ${key}.`);
     return written;
 }
 
@@ -138,7 +138,7 @@ async function moveCharacterOwnerState(oldAvatar, newAvatar) {
                 continue;
             }
             if (config.dataFiles?.[newKey]) {
-                console.warn(`[NPC State Delta] character rename preserved ${oldKey}; destination ${newKey} already has live state.`);
+                console.warn(`[NPC State] character rename preserved ${oldKey}; destination ${newKey} already has live state.`);
                 continue;
             }
 
@@ -157,20 +157,20 @@ async function moveCharacterOwnerState(oldAvatar, newAvatar) {
                     const source = await readNpcStateDataFile(oldPointer, { expectedChatKey: oldKey });
                     if (source?.retired) {
                         const destination = await readNpcStateDataFile(newPointer, { expectedChatKey: newKey });
-                        if (!destination || destination.retired || !destination.state) throw new Error(`NPC State Delta character rename could not confirm its retained destination ${newKey}.`);
+                        if (!destination || destination.retired || !destination.state) throw new Error(`NPC State character rename could not confirm its retained destination ${newKey}.`);
                         state = destination.state;
                         sourceRetired = true;
                     }
                 }
                 for (let attempt = 0; !sourceRetired && attempt < 4; attempt += 1) {
                     state = await stateFromPointer(oldKey, oldPointer);
-                    if (!state) throw new Error(`NPC State Delta character rename could not read live source ${oldKey}.`);
+                    if (!state) throw new Error(`NPC State character rename could not read live source ${oldKey}.`);
                     newPointer = await writeVerifiedState(newKey, state, newPointer?.path ? newPointer : null);
                     if (recoveryPointer?.path) {
                         try { await deleteNpcStateDataFile(recoveryPointer, { headers: headers() }); }
                         catch (error) {
                             config.recoveryGarbage[`rename-temp:${oldKey}:${Date.now()}:${attempt}`] = { ...recoveryPointer, queuedAt: Date.now(), reason: 'rename-temp-cleanup' };
-                            console.debug('[NPC State Delta] queued failed rename recovery cleanup.', error);
+                            console.debug('[NPC State] queued failed rename recovery cleanup.', error);
                         }
                     }
                     recoveryPointer = await writeRecovery(oldKey, state, `character-renamed:${newKey}`);
@@ -181,10 +181,10 @@ async function moveCharacterOwnerState(oldAvatar, newAvatar) {
                         break;
                     } catch (error) {
                         if (error?.retirementUncertain || error?.code !== 'NPC_STATE_WRITE_CONFLICT' || attempt >= 3) throw error;
-                        console.info(`[NPC State Delta] character rename retirement raced another writer for ${oldKey}; re-reading before retry.`);
+                        console.info(`[NPC State] character rename retirement raced another writer for ${oldKey}; re-reading before retry.`);
                     }
                 }
-                if (!sourceRetired || !state || !newPointer) throw new Error(`NPC State Delta character rename could not retire ${oldKey} safely.`);
+                if (!sourceRetired || !state || !newPointer) throw new Error(`NPC State character rename could not retire ${oldKey} safely.`);
 
                 archiveRecoveryRecord(config, newKey, 'canonical-ownership-reestablished');
                 applyCanonicalOwnershipMove(config, { oldKey, newKey, newPointer, recoveryPointer, reason: 'character-renamed' });
@@ -203,7 +203,7 @@ async function moveCharacterOwnerState(oldAvatar, newAvatar) {
                     if (newPointer?.path) config.pendingRenames[oldKey] = { newKey, newPointer: { ...newPointer }, recoveryPointer: recoveryPointer ? { ...recoveryPointer } : null, at: Date.now() };
                     recoveryRegistered = true;
                     failedKeys.push({ key: oldKey, error });
-                    console.warn(`[NPC State Delta] character rename could not confirm retirement of ${oldKey}; kept the new and recovery copies.`, error);
+                    console.warn(`[NPC State] character rename could not confirm retirement of ${oldKey}; kept the new and recovery copies.`, error);
                     continue;
                 }
                 if (newPointer?.path) {
@@ -216,7 +216,7 @@ async function moveCharacterOwnerState(oldAvatar, newAvatar) {
                     }
                 }
                 failedKeys.push({ key: oldKey, error });
-                console.warn(`[NPC State Delta] character rename preserved ${oldKey} and continued with other chats.`, error);
+                console.warn(`[NPC State] character rename preserved ${oldKey} and continued with other chats.`, error);
             }
         }
 
@@ -225,12 +225,12 @@ async function moveCharacterOwnerState(oldAvatar, newAvatar) {
             await saveSettingsNow();
             for (const predecessor of retiredPredecessors) {
                 try { await deleteNpcStateDataFile(predecessor.pointer, { headers: headers() }); }
-                catch (error) { console.warn(`[NPC State Delta] retired character-rename predecessor ${predecessor.key} could not be physically deleted.`, error); }
+                catch (error) { console.warn(`[NPC State] retired character-rename predecessor ${predecessor.key} could not be physically deleted.`, error); }
             }
             await cleanupRecoveryGarbage(config);
         }
         if (failedKeys.length) {
-            const error = new AggregateError(failedKeys.map(item => item.error), `NPC State Delta character rename left ${failedKeys.length} chat(s) under the old owner for retry.`);
+            const error = new AggregateError(failedKeys.map(item => item.error), `NPC State character rename left ${failedKeys.length} chat(s) under the old owner for retry.`);
             error.code = 'NPC_STATE_OWNER_RENAME_PARTIAL';
             error.failures = failedKeys.map(item => item.key);
             throw error;
@@ -277,7 +277,7 @@ async function retireCharacterOwner(avatar, reason = 'character-deleted') {
                     if (recoveryPointer?.path) config.recoveryFiles[key] = { ...recoveryPointer, reason: `delete-retirement-uncertain:${reason}` };
                     recoveryRegistered = true;
                     failedKeys.push({ key, error });
-                    console.warn(`[NPC State Delta] character deletion could not confirm retirement of ${key}; kept the recovery copy.`, error);
+                    console.warn(`[NPC State] character deletion could not confirm retirement of ${key}; kept the recovery copy.`, error);
                     continue;
                 }
                 if (recoveryPointer?.path) {
@@ -287,7 +287,7 @@ async function retireCharacterOwner(avatar, reason = 'character-deleted') {
                     }
                 }
                 failedKeys.push({ key, error });
-                console.warn(`[NPC State Delta] character deletion preserved ${key} and continued with other chats.`, error);
+                console.warn(`[NPC State] character deletion preserved ${key} and continued with other chats.`, error);
             }
         }
         if (recoveryRegistered && !changed) await saveSettingsNow();
@@ -295,12 +295,12 @@ async function retireCharacterOwner(avatar, reason = 'character-deleted') {
             await saveSettingsNow();
             for (const predecessor of retiredPredecessors) {
                 try { await deleteNpcStateDataFile(predecessor.pointer, { headers: headers() }); }
-                catch (error) { console.warn(`[NPC State Delta] retired character-delete predecessor ${predecessor.key} could not be physically deleted.`, error); }
+                catch (error) { console.warn(`[NPC State] retired character-delete predecessor ${predecessor.key} could not be physically deleted.`, error); }
             }
             await cleanupRecoveryGarbage(config);
         }
         if (failedKeys.length) {
-            const error = new AggregateError(failedKeys.map(item => item.error), `NPC State Delta character deletion left ${failedKeys.length} live chat(s) for retry.`);
+            const error = new AggregateError(failedKeys.map(item => item.error), `NPC State character deletion left ${failedKeys.length} live chat(s) for retry.`);
             error.code = 'NPC_STATE_OWNER_DELETE_PARTIAL';
             error.failures = failedKeys.map(item => item.key);
             throw error;
@@ -312,7 +312,7 @@ async function retireCharacterOwner(avatar, reason = 'character-deleted') {
 }
 
 function reportLifecycleError(label, error) {
-    console.error(`[NPC State Delta] ${label} failed`, error);
+    console.error(`[NPC State] ${label} failed`, error);
     try { globalThis.toastr?.error?.(`NPC State ${label} failed safely. Existing state was preserved or recovery-staged.`, 'NPC State'); } catch { /* noop */ }
 }
 
@@ -354,7 +354,7 @@ async function runBoundedHardeningEvent(operationKey, label, task, { retryOnFail
         operation = Promise.resolve().then(task);
         lifecycleEventOperations.set(key, operation);
         void operation.catch(error => {
-            console.warn(`[NPC State Delta] ${label} background transaction failed; scheduling retry.`, error);
+            console.warn(`[NPC State] ${label} background transaction failed; scheduling retry.`, error);
             if (retryOnFailure) scheduleHardeningRetry(key, label, task);
         });
         operation.then(
@@ -373,7 +373,7 @@ async function runBoundedHardeningEvent(operationKey, label, task, { retryOnFail
     const outcome = await Promise.race([observed, timeout]);
     if (timer) globalThis.clearTimeout?.(timer);
     if (outcome.timedOut) {
-        console.warn(`[NPC State Delta] ${label} exceeded ${LIFECYCLE_EVENT_WAIT_MS / 1000}s; SillyTavern may continue while the fail-closed transaction remains in the background.`);
+        console.warn(`[NPC State] ${label} exceeded ${LIFECYCLE_EVENT_WAIT_MS / 1000}s; SillyTavern may continue while the fail-closed transaction remains in the background.`);
         return false;
     }
     if (outcome.error) {
@@ -416,5 +416,5 @@ export async function prepareNpcStateHardening() {
     });
 
     // Recovery garbage cleanup is best-effort; do not block bootstrap on a sidecar outage.
-    void cleanupRecoveryGarbage(settings()).catch(error => console.debug('[NPC State Delta] startup recovery garbage cleanup deferred.', error));
+    void cleanupRecoveryGarbage(settings()).catch(error => console.debug('[NPC State] startup recovery garbage cleanup deferred.', error));
 }

@@ -4,11 +4,11 @@
 // most one NPC who takes the initiative in it (approaches, interrupts, asks), and the Director note says
 // so in one line: "Initiative: Elula may approach {{user}} about Wolf Contract."
 //
-// * Who can: someone present (Story Block's `scene.present`, NPC State Delta's `npc.present`) or nearby
+// * Who can: someone present (Story Block's `scene.present`, NPC State's `npc.present`) or nearby
 //   (an NPC NSD knows, `npc.known`, whose dossier `location` is the scene's place or region), with an
 //   open thread that names them (its key, `giver:` or `people:`; a secret never counts).
 // * Weight: the urgency of their most urgent thread (due now 4, ready to turn in or due within the
-//   "Due soon" days 3, else 2), times their trust with {{user}} when NPC State Delta answers
+//   "Due soon" days 3, else 2), times their trust with {{user}} when NPC State answers
 //   (`npc.meters` trust, else the dossier's relationship trust: -100 → ×0.25 … 0 → ×1 … +100 → ×2), else
 //   even (×1). Whole numbers, so the pick never depends on rounding.
 // * Cooldown (setting `tracker.initiativeCooldown`, default 2, at least 2): someone picked at round r is

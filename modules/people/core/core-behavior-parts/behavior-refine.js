@@ -1,4 +1,4 @@
-/* NPC State Delta refining and recovering behavior profile lists safely. */
+/* NPC State refining and recovering behavior profile lists safely. */
 import { cleanList, cleanText, normalizeName } from '../core-text.js';
 import { DURABLE_PROFILE_LIMITS, durableEvidenceGroundsValue, durableSeedGrounded, durableSemanticSimilarity } from '../core-relationship.js';
 import { containsBehaviorEvolutionLanguage, durableRefinementCandidateGrounded, durableRefinementSupportText, isSafeUnmarkedDurableRefinement } from '../core-durable.js';

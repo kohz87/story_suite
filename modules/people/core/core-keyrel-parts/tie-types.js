@@ -1,4 +1,4 @@
-/* NPC State Delta tie types: the five tie kinds, their priority ranks, fade days and the keyword reading of a relation text. */
+/* NPC State tie types: the five tie kinds, their priority ranks, fade days and the keyword reading of a relation text. */
 import { pickTieTag } from './tie-pick.js';
 // ---- Tie types, fading and priority (owner decisions 12 Nov). All pure; no model call. ----
 // A tie's type is one of five broad kinds, read from the stored relation text with the fixed keyword table below (first matching row

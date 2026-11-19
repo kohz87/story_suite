@@ -130,7 +130,7 @@ test('the Cards under replies switch: off takes the cards away, on draws them ag
   host.features.set(CORE_FEATURE.cards, false);
   await settle();
   assert.equal(doc.querySelector('.sscards'), null, 'off: no strip');
-  assert.equal(doc.querySelector('.ssrow') !== null, true, 'the inline row stays');
+  assert.equal(doc.querySelector('.ssrc') !== null, true, 'the reply card stays');
   host.features.set(CORE_FEATURE.cards, true);
   await settle();
   assert.ok(pellCard(doc), 'on: the card again');

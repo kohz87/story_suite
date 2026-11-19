@@ -1,4 +1,4 @@
-// Combat Rules v1 tempo: the AGI cap (Movement adds one), the win-by-3 rule, and a chain that stops at the cap.
+// Combat Rules v1 tempo: the AGI cap (no stance raises it), the win-by-3 rule, and a chain that stops at the cap.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,9 +8,9 @@ import { RANKS } from '../../../../modules/rpg/combat/numbers.js';
 import { bonusesOf, tempoWins } from '../v1/oracle.js';
 
 const random = seeded(0xC2_0002);
-const STANCES = [null, 'defence', 'evasion', 'movement', 'support'];
+const STANCES = [null, 'defence', 'speed', 'focus'];
 
-test('the cap follows AGI and a Movement stance raises it by one, over the whole stat range', () => {
+test('the cap follows AGI alone over the whole stat range: a Speed stance gives no extra action', () => {
     for (let agi = 1; agi <= 30; agi++) {
         for (const stance of STANCES) {
             const mastery = RANKS[Math.floor(random() * RANKS.length)].mastery;
@@ -19,7 +19,7 @@ test('the cap follows AGI and a Movement stance raises it by one, over the whole
         }
     }
     assert.deepEqual([14, 15, 24, 25].map(agi => tempoChain({ agility: agi }).cap), [1, 2, 2, 3]);
-    assert.deepEqual([14, 15, 24, 25].map(agi => tempoChain({ agility: agi, stance: 'movement' }).cap), [2, 3, 3, 4]);
+    assert.deepEqual([14, 15, 24, 25].map(agi => tempoChain({ agility: agi, stance: 'speed' }).cap), [1, 2, 2, 3]);
 });
 
 test('only a margin of 3 or more wins a tempo roll', () => {
@@ -44,7 +44,7 @@ test('a won chain earns one action at a time and stops at the cap', () => {
     assert.deepEqual(chain(5).map(step => step.extra), [true, false, false, false, false, false]);
     assert.deepEqual(chain(20).map(step => step.extra), [true, true, false, false, false, false]);
     assert.deepEqual(chain(28).map(step => step.extra), [true, true, true, false, false, false]);
-    assert.deepEqual(chain(5, 'movement').map(step => step.extra), [true, true, false, false, false, false]);
+    assert.deepEqual(chain(5, 'speed').map(step => step.extra), [true, false, false, false, false, false]);
     assert.deepEqual(chain(5).map(step => step.chain), [1, 1, 1, 1, 1, 1]);
     assert.deepEqual(chain(20).map(step => step.chain), [1, 2, 2, 2, 2, 2]);
     assert.equal(tempoChain({ agility: 20, margin: 3, used: 2 }).extra, false);

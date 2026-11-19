@@ -19,7 +19,7 @@
 // prompt has (the context size less the reply's length; `contextShare` percent, default 40). Only the
 // tail is cut for it, never below MIN_TAIL_BUDGET: the static part stays byte-identical reply to reply.
 // When the static part alone is over the share, `fit.tooSmall` says so (turn.js tells the reader).
-// What a module sends on its own (NPC State Delta's dossiers, under its own prompt keys; its
+// What a module sends on its own (NPC State's dossiers, under its own prompt keys; its
 // `ownPrompt` hook says what, turn.js ownPrompt) counts toward the share too: the tail gets what the
 // static part and that leave, still never below MIN_TAIL_BUDGET. It never cuts the static part.
 

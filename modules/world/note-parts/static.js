@@ -9,7 +9,7 @@ export const STATIC_LABELS = Object.freeze(['Change instruction', 'NPC plans onl
 
 /**
  * The note's fixed part: the change instruction (when the model writes change lines), the NPC
- * plans line (while NPC State Delta keeps the NPCs), and Pacing, always (it used to come only
+ * plans line (while NPC State keeps the NPCs), and Pacing, always (it used to come only
  * when something was scheduled; a part that comes and goes would break the cached prefix).
  */
 export function staticNote({ instruction = CHANGE_INSTRUCTION, npcPlansOnly = false } = {}) {

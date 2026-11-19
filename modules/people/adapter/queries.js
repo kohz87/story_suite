@@ -31,7 +31,7 @@ export function createQueriesPart(session, deps) {
     };
 
     const warn = (message, error) => {
-        try { logger?.warn?.(`[NPC State Delta] ${message}`, error); } catch { /* logging only */ }
+        try { logger?.warn?.(`[NPC State] ${message}`, error); } catch { /* logging only */ }
     };
     const runtime = () => {
         try { return delta?.() || null; } catch { return null; }
@@ -303,7 +303,7 @@ export function createQueriesPart(session, deps) {
 
     const director = createDirectorQueriesPart(session, deps, { hostFeature });
 
-    // ---- what index.js asks while hosted (each a no-op answer without a host) ----
+    // ---- what runtime-entry.js asks while hosted (each a no-op answer without a host) ----
 
     // A command to the host as Delta's own action (cause ui; the host keeps other causes for itself).
     // `own`: the command is one npc.adjust takes only from Delta itself (ownSends, while it runs).

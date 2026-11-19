@@ -1,4 +1,4 @@
-/* NPC State Delta small record scalars: the portrait seed bound and normalizer and the life-state certainty normalizer. */
+/* NPC State small record scalars: the portrait seed bound and normalizer and the life-state certainty normalizer. */
 export const PORTRAIT_SEED_MAX = Number.MAX_SAFE_INTEGER;
 
 export function normalizePortraitSeed(value) {

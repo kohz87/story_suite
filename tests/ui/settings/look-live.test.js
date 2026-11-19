@@ -77,9 +77,10 @@ test('Glass strength: the panels\' alpha follows the number at once and after a 
   input.dispatchEvent(new globalThis.Event('change'));
   await tick();
   assert.equal(host.sdk.settings().glassStrength, 80);
-  assert.equal(panel(suite), 'rgba(28,30,44,.92)');
-  assert.equal(suite.root.style.getPropertyValue('--su-panel2'), 'rgba(36,38,56,.96)');
-  assert.equal(panel(mount().suite), 'rgba(28,30,44,.92)', 'after a reload');
+  // Panel background is Off (the device default), so above 50% the panels are also lifted off the flat colour (glass-flat.test.js).
+  assert.equal(panel(suite), 'rgba(42,44,62,.92)');
+  assert.equal(suite.root.style.getPropertyValue('--su-panel2'), 'rgba(46,49,68,.96)');
+  assert.equal(panel(mount().suite), 'rgba(42,44,62,.92)', 'after a reload');
 });
 
 test('Font: the theme\'s font, then Nunito again, at once; after a reload', async t => {

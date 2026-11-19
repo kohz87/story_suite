@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createTurnPart } from '../../modules/people/adapter/cast-ui/turn.js';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 const FLAG = 'suite.isolatedApply';
 
@@ -48,7 +48,7 @@ test('connect: Delta listens to turn and head under its own module id', async ()
     const dataset = {};
     const doc = { documentElement: { dataset }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; }, createElement: () => ({ dataset: {}, style: {}, classList: { add() {}, remove() {} } }) };
     const host = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => [] }, delta: () => null, host: () => host, doc,
         timers: { setTimeout: fn => { queueMicrotask(fn); return 1; }, clearTimeout() {}, setInterval: () => 2, clearInterval() {} },
         loadEmptyCast: async () => null, logger: { warn() {} },

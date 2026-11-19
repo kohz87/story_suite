@@ -1,4 +1,4 @@
-// The shipped Ersveil in pack format 4 (job C1): the world pack examples/packs/ersveil (4.0.0) and its game pack examples/packs/ersveil-game (1.0.0), the
+// The shipped Ersveil in pack format 4 (job C1): the world pack examples/packs/ersveil (4.1.0) and its game pack examples/packs/ersveil-game (1.0.0), the
 // repo's only Ersveil sample (format 3 is obsolete; the format 3 sample is gone): both pass the checker and the install check with the capabilities their kind
 // needs; they pair with no problem; installed together they start a chat at the Guild Office on 1 October CY 611 with 40 copper. The old format 3 Ersveil (with
 // its lorebook) is a frozen test fixture, tests/fixtures/packs/ersveil-3, and the input of the converter test here.
@@ -24,11 +24,11 @@ const GAME = 'examples/packs/ersveil-game/pack.json';
 const WORLD_CAPS = ['scene', 'chronicle-lasting'];
 const GAME_CAPS = ['scene', 'inventory', 'data-modules-v1'];
 
-test('the folders: the world pack, its conversion notes and the twelve portraits; the game pack alone; the old Ersveil is a fixture', () => {
+test('the folders: the world pack, its conversion notes and the 31 portraits; the game pack alone; the old Ersveil is a fixture', () => {
     assert.deepEqual(readdirSync(at('examples/packs/ersveil')).sort(), ['CONVERSION-NOTES.md', 'pack.json', 'portraits']);
     assert.deepEqual(readdirSync(at('examples/packs/ersveil-game')), ['pack.json']);
     const portraits = readdirSync(at('examples/packs/ersveil/portraits')).sort();
-    assert.equal(portraits.length, 12);
+    assert.equal(portraits.length, 31);
     assert.ok(portraits.every(name => name.endsWith('.webp')), portraits.join(', '));
     assert.equal(existsSync(at('examples/packs/ersveil-world')) || existsSync(at('examples/packs/ersveil-world.zip')), false, 'the format 3 sample is gone');
     assert.equal(JSON.parse(text('tests/fixtures/packs/ersveil-3/pack.json')).format, 3);

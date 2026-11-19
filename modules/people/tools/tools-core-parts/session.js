@@ -1,4 +1,4 @@
-/* NPC State Delta supporting tools: workflow sessions (make one, tell if it is still current, busy state, target guard). */
+/* NPC State supporting tools: workflow sessions (make one, tell if it is still current, busy state, target guard). */
 import { plain } from './values.js';
 import { activeChatKey, npcById } from './host-chat.js';
 import { activeOverlay, activeSession } from './overlay.js';

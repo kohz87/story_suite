@@ -1,10 +1,9 @@
 // The draft itself: a fresh one, one read whole from the dialog, and the stats a Reset returns to.
 
 import { LEVEL, CREATION, STATS_V1, USES } from '../../names.js';
-import { UTILITY_SLOTS, skillSlots } from '../../../../core/runtime/skill-slots.js';
+import { UTILITY_SLOTS, skillSlots, typeKey } from '../../../../core/runtime/skill-slots.js';
 import { levelOfClass } from '../../formula.js';
 import { FILE_LIMITS } from '../../charfile.js';
-import { SKILL_TYPE_NAMES } from '../../templates-combat.js';
 import { creationOf, draftCreation, readCreation } from './creation.js';
 import { keptSkills } from './slots.js';
 import { statBounds } from './stats.js';
@@ -58,7 +57,7 @@ export function readDraft(raw) {
             stat: STATS.includes(skill.stat) ? skill.stat : (skill.stat === 'luk' ? 'wis' : ranked ? '' : STATS[0]), uses: USES.includes(skill.uses) ? skill.uses : USES[0], start: wantsAdept ? 1 : 0,
             ...(ranked ? { rank: clamp(skill.rank, 0, FILE_LIMITS.rank) } : {}), ...(skill.sig === true ? { sig: true } : {}), ...(skill.fromSet === true ? { fromSet: true } : {}),
             // (a utility skill is for the story only: three of them, a signature one too; a fourth is left out, as a ninth combat skill is)
-            ...(SKILL_TYPE_NAMES.includes(skill.type) && skill.type !== 'attack' ? { type: skill.type } : {}),
+            ...typeKey(skill.type),
         };
     });
     return { name: oneLine(given.name, CREATION.name), kind: given.kind === 'companion' ? 'companion' : 'you',

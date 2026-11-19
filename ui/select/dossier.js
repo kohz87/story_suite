@@ -1,6 +1,7 @@
 // Turns the recorded dossier, meters, ladder and notes query answers into one person's Dossier view-model (DOSSIER_SHAPE), leaving gaps null or empty.
 import { showSourceTag } from '../kit/source-tag.js';
 import { isHere as isHereIn } from './people.js';
+import { normalizeName } from '../../modules/people/core/core-text-parts/clean.js';
 
 const AXES = ['trust', 'affection', 'desire', 'tension'];
 
@@ -65,15 +66,41 @@ function stageOf(next, castRank) {
   return { now: text(next.rank) ?? text(castRank) ?? '', next: text(upcoming?.name), needs: lacking.length ? lacking.join(' and ') : null };
 }
 
-// npc.meters `recent` rows (eventLog, packages/npc-state-delta/src/npc-meters-pacing.js:126-128): { at, date, mv?: {axis:n} | ask?: {axis:n}, held, note?, why? }, newest first → one change per meter moved.
+// npc.meters `recent` rows (eventLog, modules/people/meters/npc-meters-pacing-parts/event-log.js): { at, n?, date, mv?: {axis:n} | ask?: {axis:n}, held, note?, why? }, newest first → one change per meter moved.
+// `reply` is the row's message index `n` (left out when the row has none); `note` is why a held-back move moved less (the day's allowance).
 function changesOf(meters) {
   const rows = Array.isArray(meters?.recent) ? meters.recent.filter(isRecord) : [];
   return rows.flatMap(row => {
     const moved = isRecord(row.mv) ? row.mv : isRecord(row.ask) ? row.ask : {};
+    const heldBack = row.held === true && !isRecord(row.mv);
     return AXES.filter(axis => Number.isFinite(moved[axis]) && moved[axis] !== 0).map(axis => ({
-      date: String(row.date ?? ''), meter: axis, delta: moved[axis], why: showSourceTag(text(row.why) ?? text(row.note) ?? ''), heldBack: row.held === true && !isRecord(row.mv),
+      date: String(row.date ?? ''), meter: axis, delta: moved[axis], why: showSourceTag(text(row.why) ?? text(row.note) ?? ''), heldBack,
+      ...(Number.isInteger(row.n) && row.n >= 0 ? { reply: row.n } : {}),
+      ...(heldBack && text(row.note) && text(row.why) ? { note: showSourceTag(text(row.note)) } : {}),
     }));
   });
+}
+
+// NPC State's mood history (npc.cast row `mood.log`, modules/people/meters/npc-mood-parts/log.js): { n, date, v?, a?, d?, why }, newest first → the reply, date, moves and reason.
+const MOOD_AXES = [['v', 'feeling'], ['a', 'energy'], ['d', 'control']];
+function moodChangesOf(cast) {
+  const log = Array.isArray(cast?.mood?.log) ? cast.mood.log.filter(isRecord) : [];
+  const rows = log.map(row => ({
+    reply: Number.isInteger(row.n) && row.n >= 0 ? row.n : null, date: String(row.date ?? ''),
+    moves: MOOD_AXES.filter(([key]) => Number.isInteger(row[key]) && row[key] !== 0).map(([key, axis]) => ({ axis, delta: row[key] })), why: showSourceTag(text(row.why) ?? ''),
+  })).filter(row => row.moves.length);
+  return rows.length ? rows : undefined;
+}
+
+// The reply of their last recorded change: the highest message index among the memory stamps, the field changes, the meter rows and the mood history.
+// (people.list's lastSeenTurn counts scans, not replies, so it is never shown as a reply.) Undefined when nothing recorded one.
+function lastReplyOf(dossier, meters, cast) {
+  const stamps = isRecord(dossier.memoryStamps) ? Object.values(dossier.memoryStamps).filter(isRecord).map(stamp => stamp.m) : [];
+  const fields = isRecord(dossier.fieldChangeMessages) ? Object.values(dossier.fieldChangeMessages) : [];
+  const recent = (Array.isArray(meters?.recent) ? meters.recent : []).filter(isRecord).map(row => row.n);
+  const moods = (Array.isArray(cast?.mood?.log) ? cast.mood.log : []).filter(isRecord).map(row => row.n);
+  const all = [...stamps, ...fields, ...recent, ...moods].filter(n => Number.isInteger(n) && n >= 0);
+  return all.length ? Math.max(...all) : undefined;
 }
 
 // npc.cast `opened` / `locked` (notesView, packages/npc-state-delta/src/npc-meters-queries.js:81-104). Opened secret text is a gap (§2.4), so text stays null.
@@ -111,11 +138,22 @@ function likesOf(dossier) {
   return label && typeof fields[label] === 'string' ? fields[label].split(/[,;\n]/).map(part => part.trim()).filter(Boolean) : [];
 }
 
-// Memory dates and day links are a gap (§2.4): date stays empty.
-const pastOf = memories => (Array.isArray(memories) ? memories : [])
-  .map(item => (isRecord(item) ? text(item.text) : text(item)))
-  .filter(Boolean)
-  .map(line => ({ date: '', text: showSourceTag(line), dayRef: null }));
+// The memories newest first (the stored list runs oldest to newest), each with its story date and reply from NPC State's memory stamps
+// ({ normalized text: { m: message index, d?: story date text } }, modules/people/core/core-record-shared-parts/memories.js). A memory without a stamp has no date (never guessed).
+// The day link is the stamp's date text (the Journal finds that day).
+function pastOf(memories, stamps) {
+  const byKey = isRecord(stamps) ? stamps : {};
+  return (Array.isArray(memories) ? memories : [])
+    .map(item => (isRecord(item) ? text(item.text) : text(item)))
+    .filter(Boolean)
+    .map((line) => {
+      const stamp = isRecord(byKey[normalizeName(line)]) ? byKey[normalizeName(line)] : null;
+      const reply = Number.isInteger(stamp?.m) && stamp.m >= 0 ? stamp.m : null;
+      const date = reply !== null ? text(stamp.d) : null;
+      return { date: date ?? '', text: showSourceTag(line), dayRef: date, ...(reply !== null ? { reply } : {}) };
+    })
+    .reverse();
+}
 
 // What the notes feature holds of them (cast row `notes`): tastes as "likes x" / "dislikes y" rows and what they know, as far as the story has told it (a hidden fact has no words).
 function notesOf(notes) {
@@ -154,7 +192,7 @@ function partyAddOf(answer) {
  * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
  * away?: director.away.view (news and return date of someone away), party?: party.actors, join?: rpg.partyAdd, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
  * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
- * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), memory dates, secret text, death when/where/reference line.
+ * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), dates of memories without a stamp, secret text, death when/where/reference line.
  */
 export function selectDossier({ dossier, meters, next, cast, portrait, away: awayView, party, join, moodTile, people, place, present } = {}) {
   if (!isRecord(dossier)) return null;
@@ -183,12 +221,14 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
     changes: changesOf(meters),
     mood: text(dossier.mood) ?? text(cast?.mood?.word),
     ...(moodBarsOf(moodTile, cast) ? { moodBars: moodBarsOf(moodTile, cast) } : {}),
+    ...(moodChangesOf(cast) ? { moodChanges: moodChangesOf(cast) } : {}),
+    ...(lastReplyOf(dossier, meters, cast) !== undefined ? { lastReply: lastReplyOf(dossier, meters, cast) } : {}),
     now: isHere
       ? { where: text(dossier.location), doing: text(dossier.status), wearing: null, thought: null }
       : { lastPlace: text(dossier.location), lastSeen: text(away?.newsAgo), said: null },
     scene: isHere && text(dossier.goal) ? { wants: text(dossier.goal), hiding: null } : null,
     ties: tiesOf(dossier.keyRelationships, people),
-    past: pastOf(dossier.memories),
+    past: pastOf(dossier.memories, dossier.memoryStamps),
     secrets: secretsOf(cast),
     profile: profileOf(dossier, cast?.notes),
     death: dead ? { how: text(dossier.lifeStateReason) ?? '', when: '', where: null, certainty: presumed ? 'presumed' : 'confirmed', referenceLine: '' } : null,

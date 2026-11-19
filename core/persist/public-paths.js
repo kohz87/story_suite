@@ -1,4 +1,4 @@
-// Public paths from modules (docs/v2/PUBLIC-API.md "Paths from modules"): a module that keeps values of its own (NPC State Delta's meters) offers
+// Public paths from modules (docs/v2/PUBLIC-API.md "Paths from modules"): a module that keeps values of its own (NPC State's meters) offers
 // them under ONE prefix through `sdk.registerPublicPaths({ owner, prefix, paths(), get(path), hidden(path) })`. The public API (`api.get`,
 // `api.paths`, `{{sb::…}}`, the `story:changed` lists) then includes them. This file only keeps the registrations and guards what comes back:
 // a value is a frozen plain copy of JSON data, a hidden path reads as `undefined` and is not listed, a module that throws is read as having nothing.

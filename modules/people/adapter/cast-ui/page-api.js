@@ -10,7 +10,7 @@ export function createPageApi(session, deps, renderCast, watchers, fire) {
     // Each `slot(name, aliases)` node inside its present person's card (the card's text, under the now lines).
     function fillSlots(el, slot) {
         for (const old of [...(el.querySelectorAll?.(`.${PAGE_SLOT_CLASS}`) ?? [])]) old.remove?.();
-        const cells = [...(el.querySelectorAll?.('.npc-state-delta-present-cell[data-npc-id]') ?? [])];
+        const cells = [...(el.querySelectorAll?.('.ppl-present-cell[data-npc-id]') ?? [])];
         if (typeof slot !== 'function' || !cells.length) return cells.length;
         const list = npcList();
         for (const cell of cells) {
@@ -20,7 +20,7 @@ export function createPageApi(session, deps, renderCast, watchers, fire) {
             try { node = slot(String(npc.name ?? '').trim(), Array.isArray(npc.aliases) ? [...npc.aliases] : []); } catch { node = null; }
             if (!node || typeof node !== 'object' || typeof node.nodeType !== 'number') continue;
             node.classList?.add?.(PAGE_SLOT_CLASS);
-            (cell.querySelector?.('.npc-state-delta-present-card-text') ?? cell).append?.(node);
+            (cell.querySelector?.('.ppl-present-card-text') ?? cell).append?.(node);
         }
         return cells.length;
     }

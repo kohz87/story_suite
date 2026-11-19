@@ -108,11 +108,11 @@ test('data-file API writes JSON bytes, reads them back, and deletes the sidecar'
     assert.equal(await readNpcStateDataFile(pointer, { fetchFn }), null);
 });
 
-test('sidecar read rejects a valid NPC State Delta payload belonging to another chat', async () => {
+test('sidecar read rejects a valid NPC State payload belonging to another chat', async () => {
     const text = encodeStateFilePayload('chat:other', { npcs: [createNpcRecord('Wiz')] }, '0.2.7');
     const fetchFn = async () => ({ ok: true, status: 200, text: async () => text });
     await assert.rejects(
-        () => readNpcStateDataFile({ path: '/user/files/npc-state-delta-collision.json' }, { fetchFn, expectedChatKey: 'chat:expected' }),
+        () => readNpcStateDataFile({ path: '/user/files/ppl-collision.json' }, { fetchFn, expectedChatKey: 'chat:expected' }),
         /different chat/i,
     );
 });
@@ -196,7 +196,7 @@ test('v1.0.8 permanent write rejection keeps the newest undurable snapshot recov
 
 test('server freshness inspection observes a newer revision without granting it to the stale local pointer', async () => {
     const chatKey = 'chat:freshness:inspect';
-    const pointer = { path: '/user/files/npc-state-delta-freshness.json', revision: 10, writerId: 'desktop' };
+    const pointer = { path: '/user/files/ppl-freshness.json', revision: 10, writerId: 'desktop' };
     const text = encodeStateFilePayload(chatKey, { turn: 12, npcs: [createNpcRecord('Remote')] }, '1.0.47', {
         revision: 12,
         writerId: 'mobile',

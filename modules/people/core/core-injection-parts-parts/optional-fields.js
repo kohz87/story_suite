@@ -1,4 +1,4 @@
-/* NPC State Delta injection: the optional continuity fields (appearance, memories, species, age, location) of a card. */
+/* NPC State injection: the optional continuity fields (appearance, memories, species, age, location) of a card. */
 import { DURABLE_PROFILE_LIMITS } from '../core-relationship.js';
 import { cleanList, cleanText, normalizeName } from '../core-text.js';
 import { IMPORTANT_MEMORY_LIMIT } from '../core-record.js';

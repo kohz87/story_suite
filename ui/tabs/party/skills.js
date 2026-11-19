@@ -9,7 +9,17 @@ const KIND_GLYPH = { attack: 'atk', area: 'area', magic: 'bolt', heal: 'heal', s
 const RESOURCE = { stamina: 'Stamina', mana: 'Mana' };
 
 const glyphOf = skill => (glyph(skill.glyph) ? skill.glyph : KIND_GLYPH[skill.kind] ?? 'atk');
-const costText = s => `${s.cost} ${RESOURCE[s.resource] ?? s.resource}${s.kind === 'stance' ? ' each exchange' : ''}`;
+const text = v => (typeof v === 'string' ? v.trim() : '');
+// The cost, or nothing when the view has none: 0 means a story-only skill; a cost or resource the view left out is never printed.
+function costText(s) {
+  if (!Number.isFinite(s.cost)) return '';
+  if (s.cost === 0) return 'Story only';
+  const pool = text(RESOURCE[s.resource] ?? s.resource);
+  return `${s.cost}${pool ? ` ${pool}` : ''}${s.kind === 'stance' ? ' each exchange' : ''}`;
+}
+const kindText = s => (s.kind === 'stance' && text(s.stance) ? `${text(s.stance)} stance` : text(KIND_LABEL[s.kind] ?? s.kind));
+const factsText = s => [text(s.stat), costText(s)].filter(Boolean).join(' · ');
+const rowText = s => text(s.line) || [kindText(s), text(s.stat), costText(s)].filter(Boolean).join(' · ');
 
 function masteryBar(mastery, extra) {
   return h(
@@ -21,19 +31,22 @@ function masteryBar(mastery, extra) {
 
 /** Opens the sheet for one skill: kind, stat, cost, rank with mastery, and Edit skill. */
 export function skillSheet(member, skill, ctx = {}) {
-  const sheet = openSheet(ctx, { title: skill.name, subtitle: `${member.name} · ${skill.rank}` });
+  const sheet = openSheet(ctx, { title: skill.name, subtitle: [member.name, text(skill.rank)].filter(Boolean).join(' · ') });
   const edit = h('button', {
     type: 'button',
     class: 'ps-b',
     onClick: async () => { await ctx.port?.command('rpg.skill.edit', { member: member.id, skill: skill.name }); sheet.close(); },
   }, 'Edit skill');
-  sheet.body.replaceChildren(
+  sheet.body.replaceChildren(...[
     h('div', { class: 'ps-i' },
       h('span', { class: 'ti' }, glyph(glyphOf(skill))),
-      h('div', null, h('div', { class: 'ps-n ps-n2' }, KIND_LABEL[skill.kind] ?? skill.kind), h('div', { class: 'ps-s' }, `${skill.stat} · ${costText(skill)}`))),
-    h('dl', { class: 'ps-kv' }, h('dt', null, 'Rank'), h('dd', null, `${skill.rank}, mastery ${skill.mastery} of 7 `, masteryBar(skill.mastery, 'inline'))),
+      h('div', null, h('div', { class: 'ps-n ps-n2' }, kindText(skill)), h('div', { class: 'ps-s' }, factsText(skill)))),
+    text(skill.about) ? h('p', { class: 'ps-p' }, text(skill.about)) : null,
+    text(skill.rank) && Number.isFinite(skill.mastery)
+      ? h('dl', { class: 'ps-kv' }, h('dt', null, 'Rank'), h('dd', null, `${skill.rank}, mastery ${skill.mastery} of 7 `, masteryBar(skill.mastery, 'inline')))
+      : null,
     can(ctx, 'rpg.skill.edit') ? h('div', { class: 'ps-row' }, edit) : null,
-  );
+  ].filter(Boolean));
   return sheet;
 }
 
@@ -42,8 +55,8 @@ function skillRow(member, skill, ctx) {
     'button',
     { type: 'button', class: ['sk', skill.kind === 'stance' ? 'stance' : null], dataset: { skill: skill.name }, onClick: () => skillSheet(member, skill, ctx) },
     h('span', { class: 'ti' }, glyph(glyphOf(skill))),
-    h('span', null, h('b', null, skill.name), h('small', null, skill.line ?? `${KIND_LABEL[skill.kind] ?? skill.kind} · ${skill.stat} · ${costText(skill)}`)),
-    h('span', { class: 'skr' }, h('span', { class: 'rk' }, skill.rank), masteryBar(skill.mastery)),
+    h('span', null, h('b', null, skill.name), h('small', null, rowText(skill))),
+    h('span', { class: 'skr' }, h('span', { class: 'rk' }, text(skill.rank)), masteryBar(skill.mastery)),
   );
 }
 

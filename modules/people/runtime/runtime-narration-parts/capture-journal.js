@@ -1,18 +1,19 @@
 // The capture journal: finding a reply's accepted capture entry and recording accepted captures, read marks and fills.
 // Hosted (N7) an entry is the reply's own: found by its sid and the fingerprint of its text (journal-keys.js), so a swipe back, a middle delete, a rewind and a
-// reload find it and an edit does not. Not hosted it is found by the lineage key and message index, as before.
+// reload find it and an edit does not. Without a host (no sid) nothing is found or recorded. An entry of another key (a pre-switch lineage key) never matches.
 
 import { journalKeyOf } from './journal-keys.js';
 
 // (ONEPASSCAPR2-1) Accepted captures and admission fills are canonical reply-owned inputs, not diagnostic model responses.
-const same = (item, at, messageId) => item?.key === at.key && (at.sid ? item.fp === at.fp : item.messageId === messageId);
+const same = (item, at) => item?.key === at.key && item.fp === at.fp;
 export function captureJournalEntry(state, chat, messageId) {
     const at = journalKeyOf(chat, messageId);
-    return at ? (state?.captureJournal || []).find(item => same(item, at, messageId)) || null : null;
+    return at ? (state?.captureJournal || []).find(item => same(item, at)) || null : null;
 }
-const stamp = (at, messageId) => ({ messageId, key: at.key, ...(at.sid ? { fp: at.fp } : {}) });
+const stamp = (at, messageId) => ({ messageId, key: at.key, fp: at.fp });
 export function recordAcceptedCapture(state, chat, messageId, capture) {
     const at = journalKeyOf(chat, messageId);
+    if (!at) return;
     const old = (state.captureJournal || []).find(item => item?.key === at.key);
     const entries = Array.isArray(state.captureJournal) ? state.captureJournal.filter(item => item?.key !== at.key) : [];
     // (EDITKEEP3) A capture re-applied after an edit brings the fills and refreshes its reply had accepted (no model call).
@@ -27,7 +28,7 @@ export function recordAcceptedCapture(state, chat, messageId, capture) {
 export function recordReadMark(state, chat, messageId) {
     const at = journalKeyOf(chat, messageId);
     if (!at) return null;
-    const found = (state.captureJournal || []).find(item => same(item, at, messageId));
+    const found = (state.captureJournal || []).find(item => same(item, at));
     if (found) return found;
     const entry = { ...stamp(at, messageId), backgroundRule: 1, fills: {} };
     const old = (state.captureJournal || []).find(item => item?.key === at.key);

@@ -20,7 +20,7 @@ export function ask(query, name, args = {}, fallback = null) {
 /**
  * The scene as the tail reads it: `{ place, region, people: [{ name, names }], known, nsd }`.
  * `place`/`region`: the atlas's place (`atlas.here`) else Story Block's `scene.place`. `people`: Story
- * Block's present list (`scene.present`, else the scene domain) and NPC State Delta's (`npc.present`), one
+ * Block's present list (`scene.present`, else the scene domain) and NPC State's (`npc.present`), one
  * entry per person (folded name), with every name they go by (NSD's dossier name and aliases when NSD
  * answers `npc.dossier`). `known`: whether there is a scene to filter by at all.
  */

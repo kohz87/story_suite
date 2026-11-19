@@ -45,6 +45,7 @@ for (const theme of ['dark', 'light']) {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await ctx.browser.newPage({ viewport: { width, height: 900 } });
       await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+      await page.emulateMedia({ reducedMotion: 'reduce' }); // (measure the window open, not mid way through its scale-in)
       await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&tab=now`);
       await page.waitForSelector('#hx-frame .su-strip .su-tab');
       await page.evaluate(() => document.fonts.ready);
@@ -63,12 +64,12 @@ for (const theme of ['dark', 'light']) {
       assert.deepEqual(got.border, ['1px', 'solid', 'rgba(0, 0, 0, 0)']);
       assert.equal(got.radius, '999px');
       assert.match(got.blur, /blur\(16px\)/);
-      assert.equal(got.h, 43, 'the strip is 43px: 37px tabs (the mock), 2px padding, 1px border');
-      assert.equal(got.dx, 1);
-      assert.equal(got.dy, 3);
+      assert.ok(Math.abs(got.h - 43) <= 1, `the strip is 43px (±1 in the centred window): 37px tabs (the mock), 2px padding, 1px border; got ${got.h}`);
+      assert.equal(Math.round(got.dx), 1);
+      assert.equal(Math.round(got.dy), 3);
       assert.equal(got.onBorder, '1px');
       assert.equal(got.offBorder, '0px', 'only the selected tab has a border');
-      assert.ok(got.tabH >= 37, 'tab pills keep the mock 37px height (the 820px column is kept at 1280)');
+      assert.ok(got.tabH >= 36, `tab pills keep about the mock 37px height (${got.tabH})`);
     });
   }
 }

@@ -162,7 +162,7 @@ export function createBattleLog({ ctx, doc = globalThis.document, store, events 
 
     const offs = [];
     // Another extension may draw a reply's text again after the panel was drawn (SillyTavern's updateMessageBlock, which no
-    // event follows: NPC State Delta does it on CHARACTER_MESSAGE_RENDERED after taking its own block out), so the panel is
+    // event follows: NPC State does it on CHARACTER_MESSAGE_RENDERED after taking its own block out), so the panel is
     // gone and the raw marker is back until something redraws the reply. A watch on the chat's message texts draws that
     // reply again whenever a marker shows in it (a consumed or hidden one does not count, so drawing never feeds itself).
     const shownMarkers = text => markerNodes(text).filter(node => !isHiddenMarker(node.parentNode));

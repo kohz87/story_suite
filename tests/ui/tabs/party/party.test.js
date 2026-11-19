@@ -4,6 +4,7 @@ import { partyTab } from '../../../../ui/tabs/party/party.js';
 import { checkShape } from '../../../../ui/contract/shapes.js';
 import { PARTY_SHAPE } from '../../../../ui/contract/party.js';
 import { partyFixture } from '../../../../ui/fixtures/party.js';
+import { createFakePort } from '../../../../ui/port/fake-port.js';
 import { makeCtx, flush, commands } from './helpers.js';
 
 const names = tab => tab.querySelectorAll('.mb').map(b => b.dataset.member);
@@ -28,7 +29,7 @@ test('tiny health lines follow each member and the away member is marked', () =>
   const ctx = makeCtx();
   const tab = partyTab(ctx.party, ctx);
   const widths = tab.querySelectorAll('.mb .hpl b').map(b => b.style.getPropertyValue('width'));
-  assert.deepEqual(widths, ['86%', '100%', '100%', '100%']);
+  assert.deepEqual(widths, ['92%', '100%', '100%', '100%']);
   const rika = tab.querySelector('[data-member="rika"]');
   assert.equal(rika.classList.contains('away'), true);
   assert.equal(rika.querySelector('.aw').getAttribute('title'), 'At the Bluewatch stables with the horses');
@@ -83,4 +84,12 @@ test('a member with no health bar shows an empty line instead of failing', () =>
   const party = partyFixture({ members: 2 });
   party.members[1].bars = [];
   assert.equal(partyTab(party, ctx).querySelectorAll('.mb .hpl b')[1].style.getPropertyValue('width'), '0%');
+});
+
+test('under the party strip one small line says how You look, where you stand and how you are (what Now\'s You card held)', () => {
+  const ctx = makeCtx();
+  const port = createFakePort({ views: { party: ctx.party, now: { you: { look: 'Tall and weathered. Grey cloak', position: 'At the bar', condition: 'Tired' } } } });
+  const line = partyTab(ctx.party, { ...ctx, port }).querySelector('[data-note="you"]');
+  assert.equal(line.textContent, 'You · Tall and weathered · At the bar · Tired');
+  assert.equal(partyTab(ctx.party, { ...ctx, port: createFakePort({ views: { party: ctx.party, now: { you: null } } }) }).querySelector('[data-note="you"]'), null);
 });

@@ -1,6 +1,6 @@
 // What the narrator is sent, and the cast on its own: with no cast in any pack the prompt is byte for byte what it was; the cast adds
 // no fixed text and no change-line kind; the one cue is a meeting's, in its reply; Lean keeps the feature; the cast works without a model
-// (people meet by place) and without NPC State Delta.
+// (people meet by place) and without NPC State.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -89,7 +89,7 @@ test('the cue: who they are and why now, from the pack entry; cut to the budget;
     assert.doesNotMatch(lines.join('\n'), /Sera/);
 });
 
-test('without a model the world still meets by place and nobody moves; a Continue commits nothing; without NPC State Delta nothing is missed', async t => {
+test('without a model the world still meets by place and nobody moves; a Continue commits nothing; without NPC State nothing is missed', async t => {
     quiet(t);
     // A host whose Story Block has no model call: the module is built without one.
     let host = null;

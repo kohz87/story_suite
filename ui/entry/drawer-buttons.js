@@ -3,7 +3,7 @@
 
 export const DRAWER_ROW_ID = 'story-suite-next-drawer';
 export const DRAWER_ID = 'story_suite_v2_drawer';
-const NPC_SETTINGS_ID = 'npc_state_delta_settings';
+const NPC_SETTINGS_ID = 'people_settings';
 
 function el(doc, tag, className, text) {
   const node = doc.createElement(tag);

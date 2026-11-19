@@ -1,6 +1,7 @@
 // Builds plain-JSON story-state view-model fixtures and variants (default, rpgOff, fightOpen, empty).
 
 import { MOMENT } from './moment.js';
+import { buildChat } from './chat.js';
 import { PEOPLE } from './people.js';
 import { partyFixture } from './party.js';
 import { bagFixture } from './bag.js';
@@ -11,7 +12,7 @@ import { withWorldEvents } from './world-events.js';
 import { buildJournal } from './journal.js';
 import { buildStory } from './story.js';
 import { buildSettings } from './settings.js';
-import { DOSSIERS, dossierFor } from './dossier.js';
+import { DOSSIERS, dossierFor, TIES } from './dossier.js';
 import { sceneFixture } from './interaction.js';
 
 function resolveOptions(variant) {
@@ -167,57 +168,6 @@ function buildNow(opts, hereList, changes, needsYou) {
   };
 }
 
-function buildChat(opts, hereList, changes, needsYou) {
-  const scene = opts.fightOpen ? MOMENT.fightScene : MOMENT.scene;
-  const notAppliedCount = changes.filter(c => !c.applied).length;
-  const needParts = ['Brann’s overdue smith bill'];
-  if (opts.rpg) needParts.push('1 point to spend');
-  if (opts.fightOpen) needParts.push('the open fight');
-
-  return {
-    inlineRow: {
-      date: scene.date,
-      time: scene.time,
-      place: opts.fightOpen ? scene.shortPlace : scene.place,
-      weather: opts.fightOpen ? scene.weather : 'cold drizzle',
-      money: { short: MOMENT.money.short, words: MOMENT.money.words },
-      changes: changes.length,
-      notApplied: notAppliedCount,
-      needsYou: {
-        n: needsYou.length,
-        title: needsYou.length ? `Needs your action: ${needParts.join(' · ')}` : '',
-      },
-      fightOpen: opts.fightOpen,
-      choices: opts.empty ? [] : [...(opts.fightOpen ? MOMENT.fightChoices : MOMENT.choices)],
-    },
-    drawer: hereList.map(p => ({
-      personId: p.personId,
-      name: p.name,
-      portrait: p.portrait,
-      meters: { ...p.meters },
-      mood: p.mood,
-      where: p.where.slice(0, 40),
-      thought: p.thought,
-    })),
-    replyMenus: {
-      0: structuredClone(MOMENT.priorReplyMenu),
-      // 1: a reply whose repair the reader can discard (the Assist mark and the Discard repair button)
-      1: { at: 'Goldwane 13, 9:20 am', lines: [{ glyph: 'item', line: '+1 Rope', detail: null, applied: true, assist: true }, { glyph: 'coin', line: '−5', detail: null, applied: true, assist: true }], repaired: true, counts: { changes: 2, heldBack: 0, notApplied: 0 }, stateThen: { place: 'Guild Office, Bluewatch', weather: 'cold drizzle' } },
-      2: {
-        at: `${scene.date}, ${scene.time}`,
-        lines: changes.map(c => ({ glyph: c.glyph, line: c.line, detail: c.detail, applied: c.applied, assist: false })),
-        repaired: false,
-        counts: {
-          changes: changes.length,
-          heldBack: changes.filter(c => c.heldBack).length,
-          notApplied: notAppliedCount,
-        },
-        stateThen: { place: opts.fightOpen ? scene.shortPlace : scene.place, weather: opts.fightOpen ? scene.weather : 'cold drizzle' },
-      },
-    },
-  };
-}
-
 function buildPeople(opts, hereList) {
   if (opts.empty) {
     return {
@@ -251,6 +201,8 @@ function buildPeople(opts, hereList) {
     elsewhere,
     notSeenLately: dormant.length,
     deceased,
+    // (the map's tie lines, as people.ties gives them)
+    ties: TIES.map(t => ({ ...t })),
   };
 }
 
@@ -265,7 +217,7 @@ export function fixture(variant = 'default') {
     ...(opts.scene && !opts.sceneFight ? { scene: sceneFixture(opts.scene, { long: opts.sceneLong }) } : {}),
     card: buildCard(opts),
     now: buildNow(opts, hereList, changes, needsYou),
-    chat: buildChat(opts, hereList, changes, needsYou),
+    chat: buildChat(opts, hereList, changes),
     people: buildPeople(opts, hereList),
     party: opts.rpg ? partyFixture() : null,
     bag: bagFixture({ rpg: opts.rpg, load: opts.bagLoad }),

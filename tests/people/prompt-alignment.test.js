@@ -5,19 +5,17 @@ import {
     PROMPT_CAPS,
     buildBackfillPrompt,
     buildDossierImportPrompt,
-    buildNarrationCaptureParts,
     buildProfileRefreshPrompt,
     buildRelationshipPassPrompt,
     buildScannerPrompt,
     normalizeNpcRecord,
     normalizeScanNpc,
     returnShape,
-    setActiveCalendarConfig,
 } from '../../modules/people/core/core.js';
 import { RETURN_KEYS, RETURN_SHAPES } from '../../modules/people/fields/registry.js';
 
-// Cleanup steps 12-13 (user-approved prompt changes): context caps at the stored limits, the one-pass
-// rules' fixed Stage 4 / birthday rules and role words, *State keys in backfill and import, and the
+// Cleanup steps 12-13 (user-approved prompt changes): context caps at the stored limits, the scanner's
+// conditional Stage 4 / birthday rules, *State keys in backfill and import, and the
 // targeted return shapes written from the registry.
 
 const words = n => Array.from({ length: n }, (_, i) => `word${i}`).join(' ');
@@ -77,54 +75,15 @@ test('step 12 I-7: the relationship evaluator gets the whole stored summary it i
     assert.ok(prompt.includes(JSON.stringify(npc.relationshipSummary)), 'not cut to 220 characters');
 });
 
-test('step 12 I-10: the one-pass rules always carry the Stage 4 and birthday rules, whatever the text before the reply', () => {
-    {
-        const plain = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()] }).rules;
-        const eventful = buildNarrationCaptureParts({ transcript: `${transcript} It is her birthday; the dragon dies and she transforms.`, existingNpcs: [rich()] }).rules;
-        assert.equal(plain, eventful, 'the rules do not key on the text before the reply');
-        assert.match(plain, /\nSTAGE 4: named forms=>appearanceForms/);
-        assert.match(plain, /Explicit death \(deceased\+explicit\) is terminal: never alive\/present\/worldActive again\./);
-        assert.match(plain, /\nBIRTHDAY: grounded evidence only: birthDate:"MM-DD\|YYYY-MM-DD"\+birthDateState:"establish\|correct"\+birthDateReason/);
-        assert.doesNotMatch(plain, /S4: forms\/current/);
-    }
-    // The ordinary scanner, built after the reply, keeps its conditional rules.
+test('step 12 I-10: the ordinary scanner, built after the reply, keeps its conditional Stage 4 and birthday rules', () => {
     const scanner = buildScannerPrompt({ transcript, existingNpcs: [rich()] });
     assert.match(scanner, /S4: forms\/current; confirmed death terminal\./);
     assert.doesNotMatch(scanner, /STAGE 4 DEATH|BIRTHDAY:/);
-    // VADFIX2: the scan writes three whole numbers (-3..3) with a new mood word, in the rules of the full scan and of the one-pass capture
+    // VADFIX2: the scan writes three whole numbers (-3..3) with a new mood word
     assert.match(scanner, /With a new mood also moodV,moodA,moodD: whole -3\.\.3 \(unpleasant\.\.pleasant, slack\.\.keyed up, cornered\.\.in control\)\./);
-    assert.match(buildScannerPrompt({ transcript, existingNpcs: [rich()], narrationCapture: true }), /With a new mood also moodV,moodA,moodD: whole -3\.\.3/);
 });
 
-test('step 12 I-10: with a calendar the birthday rule keeps the era in the rules and the date in the context', () => {
-    setActiveCalendarConfig({ era: 'CR', months: [{ name: 'Redleaf', days: 30 }], currentYear: 821, currentMonth: 'Redleaf', currentDay: 3 });
-    try {
-        const parts = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()] });
-        assert.match(parts.rules, /birthDate:\{"era":"CR","year":number\|null,"month":"month name","day":number\}/);
-        assert.doesNotMatch(parts.rules, /Current grounded world date/);
-        assert.match(parts.context, /Current grounded world date=/);
-    } finally {
-        setActiveCalendarConfig(null);
-    }
-});
-
-test('b5b r2-8: the one-pass rules name roles; the people are named in the context part', () => {
-    {
-        const solo = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()], userName: 'Ari', charName: 'Elke' });
-        const next = buildNarrationCaptureParts({ transcript, existingNpcs: [rich()], userName: 'Ari', charName: 'Brecht' });
-        assert.equal(solo.rules, next.rules);
-        assert.ok(!solo.rules.includes('Ari') && !solo.rules.includes('Elke'));
-        assert.match(solo.context, /\nNot NPCs: the player is Ari; the character you play is Elke\.\n/);
-        assert.match(next.context, /the character you play is Brecht\./);
-    }
-});
-
-test('new dossier backgrounds are requested from grounded facts in both capture sizes and scanner', () => {
-    {
-        const { rules } = buildNarrationCaptureParts({ transcript });
-        assert.match(rules, /background in npcs\[\].*role, workplace, history or ongoing circumstances/);
-        assert.match(rules, /omit if (?:the story gives )?none, never invent/i);
-    }
+test('new dossier backgrounds are requested from grounded facts in the scanner', () => {
     const scan = buildScannerPrompt({ transcript });
     assert.match(scan, /background in npcs\[\].*role, workplace, history or ongoing circumstances/);
     assert.match(scan, /omit if none, never invent/i);

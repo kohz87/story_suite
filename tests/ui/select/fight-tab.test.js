@@ -7,7 +7,7 @@ import { sceneAnswer } from '../../../ui/fixtures/interaction.js';
 
 const FIGHT = sceneAnswer('open', { fight: 'choose' });
 const FERRY = sceneAnswer('open');
-const selectorsFor = answer => tab => buildSelectors(() => null, null)[tab](name => (name === 'interaction.view' ? answer : null));
+const selectorsFor = answer => tab => buildSelectors(() => ({ chat: [{ is_user: true, mes: 'Go.' }, { mes: 'A reply.' }] }), null)[tab](name => (name === 'interaction.view' ? answer : null));
 
 describe('the Fight tab selector', () => {
   it('takes the open fight only; the activity tab takes everything else', () => {
@@ -18,9 +18,9 @@ describe('the Fight tab selector', () => {
     assert.equal(ferry('scene').kindId, 'probe/ferry');
     assert.equal(selectorsFor(null)('fight'), null);
   });
-  it('tells the inline chip and the Now card about it', () => {
-    assert.equal(selectorsFor(FIGHT)('chat').inlineRow.fightOpen, true);
-    assert.equal(selectorsFor(FERRY)('chat').inlineRow.fightOpen, false);
+  it('tells the newest reply\'s action line and the Now card about it', () => {
+    assert.equal(selectorsFor(FIGHT)('chat').head.actions.fight, true);
+    assert.equal(selectorsFor(FERRY)('chat').head.actions.fight, false);
     assert.deepEqual(selectorsFor(FIGHT)('now').needsYou.map(row => [row.kind, row.go]), [['fight', 'fight']]);
     assert.deepEqual(selectorsFor(FERRY)('now').needsYou, []);
   });

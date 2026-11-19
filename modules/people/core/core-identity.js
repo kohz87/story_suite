@@ -1,4 +1,4 @@
-/* NPC State Delta identity and age helpers: clamp and value normalizers, identity kind, interim and role labels,
+/* NPC State identity and age helpers: clamp and value normalizers, identity kind, interim and role labels,
    slug/id/hash, age and apparent-age normalization. A pure part of core-mechanics.js (same owner, moved without
    change); core-mechanics.js re-exports every name it exported before. Imports only core-text.js.
    Public face: re-exports its parts. */

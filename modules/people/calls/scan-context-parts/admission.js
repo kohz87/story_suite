@@ -1,4 +1,4 @@
-/* NPC State Delta: the story prose used to admit a new person. */
+/* NPC State: the story prose used to admit a new person. */
 import { storyProse } from '../../core/core.js';
 
 /**

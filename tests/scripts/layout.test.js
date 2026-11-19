@@ -36,7 +36,7 @@ test('on today\'s tree the scripts give the same output as before (committed map
   assert.equal(globs.out, 'test globs: every test file is run by a root npm test script\n');
   const size = node('scripts/checks/run-size-check.mjs');
   assert.equal(size.status, 0, size.out);
-  assert.match(size.out, /^size check: no --base given; the legacy-list ratchet was not applied\nsize check: \d+ files, all within 450 lines or on the legacy list \(3 listed\)\n$/);
+  assert.match(size.out, /^size check: no --base given; the legacy-list ratchet was not applied\nsize check: \d+ files, all within 450 lines or on the legacy list \(0 listed\)\n$/);
 });
 
 function demoRepo(files) {

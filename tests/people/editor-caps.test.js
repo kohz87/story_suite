@@ -29,10 +29,10 @@ test('every editor cap is what the stored record keeps for that field', () => {
 
 test('the editor reads a field as untouched only when its control still shows the stored value', () => {
     const npc = normalizeNpcRecord({ name: 'Mira', role: 'Archivist', mannerisms: ['Taps quill.', 'Hums.'], memories: [] });
-    const controls = Object.fromEntries(Object.entries(EDITOR_FIELDS).map(([key, field]) => [`npc_state_delta_edit_${field.id}`, editorShownValue(npc, key)]));
+    const controls = Object.fromEntries(Object.entries(EDITOR_FIELDS).map(([key, field]) => [`people_edit_${field.id}`, editorShownValue(npc, key)]));
     assert.equal(untouchedEditorFields(npc, id => controls[id]).size, Object.keys(EDITOR_FIELDS).length);
-    controls.npc_state_delta_edit_role = 'Archivist ';
-    controls.npc_state_delta_edit_mannerisms = 'Taps quill.';
+    controls.people_edit_role = 'Archivist ';
+    controls.people_edit_mannerisms = 'Taps quill.';
     const untouched = untouchedEditorFields(npc, id => controls[id]);
     assert.equal(untouched.has('role'), false);
     assert.equal(untouched.has('mannerisms'), false);
@@ -55,9 +55,9 @@ test('the editor inputs carry maxlength from the same table the Save cuts with',
     const index = runtimeSource();
     for (const [key, field] of Object.entries(EDITOR_FIELDS)) {
         if (!field.max) continue;
-        assert.match(index, new RegExp(`id="npc_state_delta_edit_${field.id}" class="text_pole"[^>]*maxlength="\\$\\{EDITOR_FIELDS\\.${key}\\.max\\}"`), key);
+        assert.match(index, new RegExp(`id="people_edit_${field.id}" class="text_pole"[^>]*maxlength="\\$\\{EDITOR_FIELDS\\.${key}\\.max\\}"`), key);
     }
-    assert.doesNotMatch(index, /editorField\('npc_state_delta_edit_(?:role|mood|status)'\)\)\.trim\(\)\.slice\(0, \d+\)/, 'no hand-written editor caps remain');
+    assert.doesNotMatch(index, /editorField\('people_edit_(?:role|mood|status)'\)\)\.trim\(\)\.slice\(0, \d+\)/, 'no hand-written editor caps remain');
 });
 
 test('editor caps through the synthetic host: long values are kept, untouched fields are byte-identical after Save', () => {
@@ -101,7 +101,7 @@ test('editor caps through the synthetic host: long values are kept, untouched fi
         // The inputs say how much the record keeps.
         const form = await openEditorForm(id);
         for (const [key, max] of Object.entries({ name: 120, species: 160, role: 300, home_base: 300, age: 80, apparent_age: 80, personality: 900, speech: 600, background: 1200, relationship_summary: 320, mood: 300, location: 300, goal: 500, status: 500 })) {
-            assert.equal(form.controls.get(`npc_state_delta_edit_${key}`).maxLength, max, `${key} maxlength`);
+            assert.equal(form.controls.get(`people_edit_${key}`).maxLength, max, `${key} maxlength`);
         }
 
         // A Save that changes one field leaves every other field byte-identical.

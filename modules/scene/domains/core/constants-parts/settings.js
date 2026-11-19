@@ -1,4 +1,4 @@
-// The core module's settings: the currency, coins, money scale and inner-chatter options.
+// The core module's settings: the currency, coins, money scale, inner-chatter options and the tabs under each reply.
 
 import { DEFAULT_CURRENCY, MAX_COIN_VALUE } from '../../../../inventory/money.js';
 import { CORE_FEATURE } from '../../../../../core/features.js';
@@ -9,7 +9,7 @@ import { CHATTER_LIMIT } from '../../../extras.js';
 // never a second one.
 export const CORE_SETTINGS = Object.freeze({
     section: 'Story Block',
-    defaults: Object.freeze({ currency: DEFAULT_CURRENCY.name, currencyPlural: '', currencyShort: '', economyScale: '0', coins: Object.freeze([]), coinDisplay: 'mixed', chatterInPrompt: false, chatterMax: 3 }),
+    defaults: Object.freeze({ currency: DEFAULT_CURRENCY.name, currencyPlural: '', currencyShort: '', economyScale: '0', coins: Object.freeze([]), coinDisplay: 'mixed', chatterInPrompt: false, chatterMax: 3, replyTabs: 'changes chatter here choices' }),
     schema: Object.freeze({
         currency: Object.freeze({ type: 'text', label: 'Currency (one coin: mark, crown, gold)', max: 24 }),
         currencyPlural: Object.freeze({ type: 'text', label: 'Currency, plural (blank: the name with an s)', max: 24 }),
@@ -36,5 +36,7 @@ export const CORE_SETTINGS = Object.freeze({
         chatterInPrompt: Object.freeze({ type: 'bool', group: 'Inner chatter', label: STRINGS.extras.inPrompt, help: STRINGS.extras.inPromptHelp, feature: CORE_FEATURE.chatter }),
         // The most `~ chatter` lines a reply may show; the grammar line asks for up to this many (one per NPC with something on their mind).
         chatterMax: Object.freeze({ type: 'int', min: 1, max: CHATTER_LIMIT, group: 'Inner chatter', label: STRINGS.extras.chatterMax, help: STRINGS.extras.chatterMaxHelp, feature: CORE_FEATURE.chatter }),
+        // The tabs under each reply (Settings › Chat extras › Tabs): their order, a "-" before one hides it (ui/select/reply-tabs.js reads it).
+        replyTabs: Object.freeze({ type: 'text', max: 60, label: 'Tabs under each reply' }),
     }),
 });

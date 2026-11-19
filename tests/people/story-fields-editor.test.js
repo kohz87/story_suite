@@ -15,9 +15,9 @@ test('the editor draws Abilities and Keepsakes, saves them as pairs, keeps them 
         const yunyun = () => runtime.getDossierState().npcs.find(npc => npc.name === 'Yunyun');
         const id = yunyun().id;
         let form = await openEditorForm(id);
-        assert.ok(form.controls.has('npc_state_delta_edit_abilities'), 'Abilities row');
-        assert.ok(form.controls.has('npc_state_delta_edit_keepsakes'), 'Keepsakes row');
-        assert.equal(form.controls.has('npc_state_delta_edit_level'), false, 'no Level row with RPG off');
+        assert.ok(form.controls.has('people_edit_abilities'), 'Abilities row');
+        assert.ok(form.controls.has('people_edit_keepsakes'), 'Keepsakes row');
+        assert.equal(form.controls.has('people_edit_level'), false, 'no Level row with RPG off');
         await saveEditorForm(form, { abilities: 'Mending — closes small wounds\nWard\nmending — a second one', keepsakes: 'Brass compass — her father\'s' });
         assert.deepEqual(yunyun().abilities, [{ name: 'Mending', description: 'closes small wounds' }, { name: 'Ward', description: '' }]);
         assert.deepEqual(yunyun().keepsakes, [{ name: 'Brass compass', description: 'her father\'s' }]);

@@ -18,7 +18,7 @@ test('successful hydration is the only default authority transition', () => {
 test('hydration errors render an explicit read-only retry surface', () => {
     assert.match(index, /Dossier load failed/);
     assert.match(index, /Retry Load/);
-    assert.match(index, /npc-state-delta-retry-hydration/);
+    assert.match(index, /ppl-retry-hydration/);
     assert.match(index, /Existing sidecar data is preserved and all dossier writes are locked/);
 });
 
@@ -59,7 +59,8 @@ test('editor and portrait workflows are chat-affine', () => {
 });
 
 test('Delta application metadata is v1.18.0 and active core ownership is semantic', () => {
-    assert.match(core, /NPC_STATE_VERSION = '1\.18\.0'/);
+    assert.match(core, /export \{ NPC_STATE_VERSION \} from '\.\/core-parts\/version\.js'/);
+    assert.match(fs.readFileSync(new URL('../../modules/people/core/core-parts/version.js', import.meta.url), 'utf8'), /NPC_STATE_VERSION = '1\.18\.0'/);
     assert.match(core, /export \* from '\.\/core-mechanics\.js'/);
     assert.doesNotMatch(core, /NPC_STATE_SOURCE_ENGINE_VERSION|core-v0218/);
     assert.equal(manifest.version, '1.18.0');
@@ -77,11 +78,11 @@ test('portrait custom presets use the current named persistent library without l
 
 test('portrait custom preset library exposes named management and keeps visual controls per preset', () => {
     for (const id of [
-        'npc_state_delta_portrait_custom_preset',
-        'npc_state_delta_portrait_custom_add',
-        'npc_state_delta_portrait_custom_duplicate',
-        'npc_state_delta_portrait_custom_rename',
-        'npc_state_delta_portrait_custom_delete',
+        'people_portrait_custom_preset',
+        'people_portrait_custom_add',
+        'people_portrait_custom_duplicate',
+        'people_portrait_custom_rename',
+        'people_portrait_custom_delete',
     ]) assert.match(index, new RegExp(id));
     assert.match(index, /PORTRAIT_CUSTOM_PRESET_LIMIT = 24/);
     assert.match(index, /promptFormat: next\.portraitPromptFormat/);

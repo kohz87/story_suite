@@ -17,8 +17,8 @@ before(async () => {
 });
 after(() => fs.rmSync(outRoot, { recursive: true, force: true }));
 
-test('the release gate is green on this tree: version 0.1.3, no tag, every set builds', () => {
-  assert.equal(RELEASE_VERSION, '0.1.3');
+test('the release gate is green on this tree: version 0.1.4, no tag, every set builds', () => {
+  assert.equal(RELEASE_VERSION, '0.1.4');
   assert.deepEqual(result.problems, []);
   assert.deepEqual(result.rows.map(row => row.name), BUNDLE_SETS.map(set => set.name));
 });
@@ -33,13 +33,13 @@ test('the stylesheet is one file with no @import left, and the fonts it names si
   assert.equal(stylesheetRequests(dir, 'suite.css'), 1);
   assert.doesNotMatch(css, /@import/);
   for (const [, url] of css.matchAll(/url\("([^"]+\.woff2)"\)/g)) assert.ok(fs.existsSync(path.join(dir, url)), url);
-  assert.ok(css.indexOf('/* ui/css/fonts.css */') < css.indexOf('/* ui/css/tokens.css */') && css.indexOf('/* ui/css/tokens.css */') < css.indexOf('/* ui/css/drawer.css */') && css.indexOf('/* ui/css/drawer.css */') < css.indexOf('/* modules/people/legacy/suite.css */'), 'the sheets keep their @import order');
+  assert.ok(css.indexOf('/* ui/css/fonts.css */') < css.indexOf('/* ui/css/tokens.css */') && css.indexOf('/* ui/css/tokens.css */') < css.indexOf('/* ui/css/drawer.css */') && css.indexOf('/* ui/css/drawer.css */') < css.indexOf('/* modules/people/css/suite.css */'), 'the sheets keep their @import order');
   assert.doesNotMatch(css, /ui\/legacy|next-hide/);
 });
 
 test('the People part starts with the entry, so it is packed into it and is not a chunk of its own', () => {
   const files = fs.readdirSync(path.join(outRoot, 'story-suite'));
-  assert.deepEqual(files.filter(file => /^bootstrap-.*\.js$/.test(file)), [], 'no People chunk to fetch at start');
+  assert.deepEqual(files.filter(file => /^(runtime-start|bootstrap)-.*\.js$/.test(file)), [], 'no People chunk to fetch at start');
   assert.match(fs.readFileSync(path.join(outRoot, 'story-suite/index.js'), 'utf8'), /startPeople/);
 });
 
@@ -69,32 +69,32 @@ function fakeRepo(version, tags) {
   return fake;
 }
 
-test('the gate names a version other than 0.1.3', async () => {
+test('the gate names a version other than 0.1.4', async () => {
   const fake = fakeRepo('9.9.9', []);
   try {
     const { problems } = await checkRelease({ repoRoot: fake, outRoot: path.join(fake, 'out'), sets: [] });
-    assert.deepEqual(problems, ['package.json version is 9.9.9, the release is 0.1.3']);
+    assert.deepEqual(problems, ['package.json version is 9.9.9, the release is 0.1.4']);
   } finally {
     fs.rmSync(fake, { recursive: true, force: true });
   }
 });
 
-test('the gate refuses a tag for exactly 0.1.3 and ignores tags that only contain the digits', async () => {
-  const fake = fakeRepo('0.1.3', ['v10.1.3', 'sb-v2.10.1.3', 'sb-v0.1.3', 'v0.1.3', '0.1.3']);
+test('the gate refuses a tag for exactly 0.1.4 and ignores tags that only contain the digits', async () => {
+  const fake = fakeRepo('0.1.4', ['v10.1.4', 'sb-v2.10.1.4', 'sb-v0.1.4', 'v0.1.4', '0.1.4']);
   try {
     const { problems } = await checkRelease({ repoRoot: fake, outRoot: path.join(fake, 'out'), sets: [] });
-    assert.deepEqual(problems, ['releases are not tagged; found tag 0.1.3, sb-v0.1.3, v0.1.3']);
+    assert.deepEqual(problems, ['releases are not tagged; found tag 0.1.4, sb-v0.1.4, v0.1.4']);
   } finally {
     fs.rmSync(fake, { recursive: true, force: true });
   }
 });
 
 test('the gate names a lock file whose version differs from package.json', async () => {
-  const fake = fakeRepo('0.1.3', []);
+  const fake = fakeRepo('0.1.4', []);
   fs.writeFileSync(path.join(fake, 'package-lock.json'), JSON.stringify({ version: '0.0.0' }));
   try {
     const { problems } = await checkRelease({ repoRoot: fake, outRoot: path.join(fake, 'out'), sets: [] });
-    assert.deepEqual(problems, ['package-lock.json version is 0.0.0, package.json says 0.1.3']);
+    assert.deepEqual(problems, ['package-lock.json version is 0.0.0, package.json says 0.1.4']);
   } finally {
     fs.rmSync(fake, { recursive: true, force: true });
   }

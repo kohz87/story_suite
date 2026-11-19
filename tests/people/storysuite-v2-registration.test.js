@@ -7,7 +7,7 @@ import {
     MODULE_ID,
     QUERY_NAMES,
     V2_HOST_EVENT,
-    createStorySuiteV2Adapter,
+    createPeopleAdapter,
     isV2Host,
 } from '../../modules/people/storysuite-v2.js';
 import { fakeDocument, fakeSdk, fakeTimers, hosted, setup, v2Host } from './storysuite-v2.helpers.js';
@@ -25,7 +25,7 @@ test('without Story Block the adapter looks once, sets no timer, and touches not
     assert.equal(await adapter.settled(), false);
     assert.equal(dom.panel.style.display, 'block');
     assert.equal(dom.panel.parentNode, dom.drawer);
-    assert.equal(dom.panel.dataset.npcStateDeltaHosted, undefined);
+    assert.equal(dom.panel.dataset.pplHosted, undefined);
 });
 
 test('a v1 Story Block (registerTab, no ready or sdk) is not a v2 host and is left to the v1 tabs', async () => {
@@ -52,7 +52,7 @@ test('registers module npc-state-delta once, with the npc domain, its queries an
     assert.equal(def.domains, undefined, 'no domain of its own: the NPC meters live in the people domain (people store P4)');
     assert.deepEqual(Object.keys(def.queries).sort(), ['npc.awayMemory', 'npc.cast', 'npc.castMade', 'npc.catchUp', 'npc.dormantAfter', 'npc.dossier', 'npc.identity', 'npc.known', 'npc.meters', 'npc.next', 'npc.portrait', 'npc.present', 'npc.socialModifier']);
     assert.deepEqual([...QUERY_NAMES].sort(), Object.keys(def.queries).sort());
-    assert.deepEqual(Object.keys(def.commands).sort(), ['npc.adjust', 'npc.drives', 'npc.flag', 'npc.meet', 'npc.milestone', 'npc.mood', 'npc.open', 'npc.refresh', 'npc.set', 'npc.taste', 'npc.tick']);
+    assert.deepEqual(Object.keys(def.commands).sort(), ['npc.adjust', 'npc.arrive', 'npc.drives', 'npc.flag', 'npc.meet', 'npc.milestone', 'npc.mood', 'npc.open', 'npc.refresh', 'npc.set', 'npc.taste', 'npc.tick']);
     assert.deepEqual(Object.keys(def.capture.kinds), ['npc', 'milestone', 'lie', 'know', 'taste', 'tie', 'memory', 'reveal']);
     assert.ok(['lie', 'know', 'taste', 'tie'].every(kind => def.capture.kinds[kind].feature === 'npc-state-delta.notes'), 'the note kinds belong to the notes feature');
     assert.equal(def.capture.kinds.milestone.feature, 'npc-state-delta.stages', 'the milestone kind belongs to the stages feature');
@@ -104,7 +104,7 @@ test('a ready promise that rejects leaves Delta standalone', async () => {
 test('a host replaced while it gets ready is looked for again, within the same bound', async () => {
     const timers = fakeTimers();
     const fresh = () => v2Host(fakeSdk());
-    const looping = createStorySuiteV2Adapter({ host: fresh, doc: fakeDocument(), timers, logger: { warn() {} }, loadEmptyCast: async () => null });
+    const looping = createPeopleAdapter({ host: fresh, doc: fakeDocument(), timers, logger: { warn() {} }, loadEmptyCast: async () => null });
     looping.start();
     let rounds = 0;
     for (;;) {
@@ -172,6 +172,6 @@ test('index.js starts the adapter once at startup through an optional import', (
     const index = runtimeSource();
     const calls = index.match(/import\('\.\/src\/storysuite-v2\.js'\)/g) || [];
     assert.equal(calls.length, 1);
-    assert.match(index, /startStorySuiteV2\(\{ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, cardSettings: nsdCardSettings\(\), linesMode: \(\) => true, levelOn: \(\) => rpgIsOn\(\) \}\)/);
+    assert.match(index, /startPeopleAdapter\(\{ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, cardSettings: nsdCardSettings\(\), linesMode: \(\) => true, levelOn: \(\) => rpgIsOn\(\) \}\)/);
     assert.equal(/from '\.\/src\/storysuite-v2\.js'/.test(index), false, 'no static import: a copy without src/ still loads');
 });

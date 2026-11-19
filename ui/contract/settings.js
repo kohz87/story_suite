@@ -24,7 +24,9 @@ const ROW = {
 
 // The world-and-game page (format 4): present only when a format 4 pack is installed.
 const PICKER = { value: T.STRING, options: [{ value: T.STRING, label: T.STRING }] };
-const PACK_ROW = { id: T.STRING, name: T.STRING, tag: T.STRING, desc: T.STRING, problem: { $optional: T.STRING } };
+// (a world pack with lore carries its lorebook row: ui/select/packs-lorebook.js)
+const LOREBOOK_ROW = { id: T.STRING, name: T.STRING, state: { $enum: ['create', 'update', 'current'] }, button: T.STRING, desc: T.STRING, upToDate: T.BOOLEAN, attach: T.BOOLEAN, linked: T.BOOLEAN, move: T.BOOLEAN, use: { on: T.BOOLEAN, disabled: T.BOOLEAN, note: T.STRING } };
+const PACK_ROW = { id: T.STRING, name: T.STRING, tag: T.STRING, desc: T.STRING, problem: { $optional: T.STRING }, lorebook: { $optional: LOREBOOK_ROW } };
 const PACKS_V4 = {
   world: PICKER,
   game: PICKER,
@@ -54,7 +56,7 @@ export const SETTINGS_SHAPE = {
     packs: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING, on: T.BOOLEAN, problem: { $optional: T.STRING } }],
     v4: { $optional: PACKS_V4 },
     modules: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING, on: T.BOOLEAN, locked: { $optional: T.BOOLEAN } }],
-    trackers: { cap: T.NUMBER, items: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING }] },
+    trackers: { cap: T.NUMBER, items: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING }], rpgOwned: { $optional: [T.STRING] } },
   },
   sections: [
     {
@@ -81,6 +83,8 @@ export const SETTINGS_SHAPE = {
       },
     ],
   },
+  // The tabs under each reply, in order (Settings › Chat extras › Tabs).
+  replyTabs: { $optional: [{ id: { $enum: ['changes', 'chatter', 'here', 'choices'] }, on: T.BOOLEAN }] },
   connections: [
     {
       id: { $enum: ['story', 'quick', 'background'] },

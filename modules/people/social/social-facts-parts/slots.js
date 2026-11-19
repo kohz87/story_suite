@@ -1,4 +1,4 @@
-/* NPC State Delta: opens unresolved graph slots from unnamed facts and fills them from edges. */
+/* NPC State: opens unresolved graph slots from unnamed facts and fills them from edges. */
 import { clean, norm, slug, confidenceRank, SOCIAL_GRAPH_UNRESOLVED_LIMIT } from '../social-primitives.js';
 import { socialRelationFamily, inverseSocialRelation } from '../social-relations.js';
 import { relationFromPerspective, normalizeUnresolved } from '../social-graph.js';

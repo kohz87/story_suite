@@ -1,4 +1,4 @@
-/* NPC State Delta: finds a dossier by id, name or alias and lists its labels. */
+/* NPC State: finds a dossier by id, name or alias and lists its labels. */
 import { clean, norm, uniq } from '../social-primitives.js';
 
 // (ONEPASSCAP-3) A dossier id as a model may write it: the exact id, else the one dossier whose id matches with '-', '_' and case folded

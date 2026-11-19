@@ -2,8 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-    NARRATION_CAPTURE_REMINDER,
-    buildNarrationCaptureParts,
     buildScannerPrompt,
     extractNarrationCapture,
     mergeScanResult,
@@ -77,14 +75,7 @@ test('v1.2.19 a one-pass block that adds a memory for a known NPC parses and mer
     assert.deepEqual(elke(state).memories, [M1, M2]);
 });
 
-test('v1.2.19 the capture rules ask for only new memories, in the npcs[] entry, as additions (full, scanner, reminder)', () => {
+test('v1.2.19 the scanner asks for only new memories, in the npcs[] entry, as additions', () => {
     const options = { transcript: 'USER: hi', userName: 'Astra', charName: 'Narrator', existingNpcs: [{ id: 'npc_elke', name: 'Elke', present: true, memories: [M1] }] };
-    const full = buildNarrationCaptureParts(options).rules;
-    const scanner = buildScannerPrompt(options);
-    for (const text of [full, scanner]) {
-        assert.match(text, /14\. Memories: max3 NEW in npcs\[\] \(existing too\), ADDED to cap5 stored; no duplicate\/paraphrased memories\./);
-    }
-    assert.match(NARRATION_CAPTURE_REMINDER, /\(memories: only the new one, in its npcs\[\] entry\)/);
-    // Static rules stay byte-identical when the dossier changes.
-    assert.equal(buildNarrationCaptureParts({ ...options, existingNpcs: [] }).rules, full);
+    assert.match(buildScannerPrompt(options), /14\. Memories: max3 NEW in npcs\[\] \(existing too\), ADDED to cap5 stored; no duplicate\/paraphrased memories\./);
 });

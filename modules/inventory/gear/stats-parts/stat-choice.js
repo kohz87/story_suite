@@ -12,7 +12,7 @@ const STAT_BY_NAME = Object.freeze({
     staff: 'INT', wand: 'INT', tome: 'INT',
     mail: 'VIT', leather: 'VIT', plate: 'VIT', cuirass: 'VIT', robe: 'VIT', shield: 'VIT', buckler: 'VIT', helmet: 'VIT', helm: 'VIT', cap: 'VIT', hood: 'VIT',
     boot: 'AGI', shoe: 'AGI', sandal: 'AGI', cloak: 'AGI', cape: 'AGI', mantle: 'AGI',
-    ring: 'LUK', amulet: 'LUK', pendant: 'LUK',
+    ring: 'CHA', amulet: 'CHA', pendant: 'CHA',
 });
 // Quick, finesse weapons raise AGI (the `gearFinesse` rule mark: only items a reply defines after it; an older def keeps its stats). A finesse noun wins over
 // the other weapon nouns of the same name ("Cane Sword", "Sword Cane"), not over armour ("Rapier Shield" is still a shield).

@@ -15,7 +15,7 @@ export const quiet = () => ({ party: [hero('Kira', 'Warrior', { str: 20, vit: 20
 /** A hard fight: one frail hero against three wolves, who hits to zero (a hero goes down). */
 export const hard = () => ({ party: [hero('Ana', 'Warrior', { str: 14, vit: 4 }, 3)], foes: [wolf('Wolf 1', 40, 9), wolf('Wolf 2', 40, 9), wolf('Wolf 3', 40, 9)] });
 
-/** A skirmish: an area attacker (Rin, Evasion stance), a healer with a Defence stance (Kira) and a hero with no skills (Bo, a plain attack) against three rats; the shapes the other fights lack. */
+/** A skirmish: an area attacker (Rin, Speed stance), a healer with a Defence stance (Kira) and a hero with no skills (Bo, a plain attack) against three rats; the shapes the other fights lack. */
 export const skirmish = () => ({ party: [hero('Bo', undefined, { agi: 16 }), hero('Rin', 'Skirmisher-area', { agi: 18 }), hero('Kira', 'Healer', { wis: 14, vit: 20 })], foes: [rat('Rat 1'), rat('Rat 2'), rat('Rat 3')] });
 /** The skirmish's choices: Kira drops her stance in exchange 2 and heals Rin in exchange 3; stopped there, the fight is open. */
 export const skirmishChoices = [{}, { Kira: { stance: false } }, { Kira: { kind: 'heal', target: 'Rin' } }];

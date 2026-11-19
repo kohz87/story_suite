@@ -172,7 +172,7 @@ test('a redraw that fails at MESSAGE_RECEIVED (the reply is not drawn yet) does 
     host.close();
 });
 
-test('closing cue: the last text of a reply\'s prompt, fixed, one-pass wording only when NPC State Delta captures, never on quiet prompts', async () => {
+test('closing cue: the last text of a reply\'s prompt, fixed, one-pass wording only when NPC State captures, never on quiet prompts', async () => {
     const host = await fakeHost();
     const cue = 'End every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>.';
     assert.equal(closingCue(false), cue);
@@ -187,8 +187,8 @@ test('closing cue: the last text of a reply\'s prompt, fixed, one-pass wording o
     assert.deepEqual(chat.map(message => message.role), ['user', 'assistant']);
     assert.ok(chat[0].content.endsWith(`</thinking_guide>\n\n${cue}`));
     assert.equal(appendClosingCue(chat, cue), false, 'never twice');
-    // NPC State Delta's one-pass capture rules sit in its extension prompt: the cue is the same.
-    host.ctx.extensionPrompts = { story_suite_static_npc_state_delta: { value: 'capture rules' } };   // SillyTavern's own map; the fake keeps its own
+    // NPC State's one-pass capture rules sit in its extension prompt: the cue is the same.
+    host.ctx.extensionPrompts = { story_suite_static_people: { value: 'capture rules' } };   // SillyTavern's own map; the fake keeps its own
     const onePass = await host.send('Again.', 'Ok.');
     assert.ok(onePass.request.chat.at(-1).content.endsWith(`\n\n${closingCue(true)}`));
     host.ctx.extensionPrompts = {};

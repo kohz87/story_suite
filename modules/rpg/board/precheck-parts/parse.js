@@ -24,6 +24,9 @@ function balanced(text, start) {
 
 /** The groups in an answer, from JSON alone or JSON inside prose or a code fence; null when no groups can be read. */
 export function parsePrecheck(text) {
+    // (an answer already parsed: the groups object or the list itself)
+    if (Array.isArray(text)) return text;
+    if (isObject(text)) return Array.isArray(text.groups) ? text.groups : null;
     const source = String(text ?? '');
     for (let at = 0; at < source.length; at += 1) {
         if (!'[{'.includes(source[at])) continue;

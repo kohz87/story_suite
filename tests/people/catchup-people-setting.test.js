@@ -18,8 +18,8 @@ test('default 1, the getter clamps to 1-3 and rounds, junk falls back to 1', () 
 
 test('the control, its binder and its help text are wired, and the catch-up help says each person waits N replies', () => {
     const html = read('modules/people/settings/runtime-settings-html.js');
-    assert.match(html, /settingRow\('npc_state_delta_narration_capture_catch_up_people', 'NPCs refreshed per reply', numberControl\('npc_state_delta_narration_capture_catch_up_people', 1, 3,/);
-    assert.match(html, /\$\('#npc_state_delta_narration_capture_catch_up_people'\)\.val\(s\.narrationCaptureCatchUpPeople\)/);
+    assert.match(html, /settingRow\('people_narration_capture_catch_up_people', 'NPCs refreshed per reply', numberControl\('people_narration_capture_catch_up_people', 1, 3,/);
+    assert.match(html, /\$\('#people_narration_capture_catch_up_people'\)\.val\(s\.narrationCaptureCatchUpPeople\)/);
     assert.match(html, /Each person waits this many replies between Refreshes/);
-    assert.match(read('modules/people/settings/runtime-settings-bind.js'), /bindSettingsNumber\('#npc_state_delta_narration_capture_catch_up_people', 'narrationCaptureCatchUpPeople', 1, 3, 1\)/);
+    assert.match(read('modules/people/settings/runtime-settings-bind.js'), /bindSettingsNumber\('#people_narration_capture_catch_up_people', 'narrationCaptureCatchUpPeople', 1, 3, 1\)/);
 });

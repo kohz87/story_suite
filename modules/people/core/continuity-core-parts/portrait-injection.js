@@ -1,4 +1,4 @@
-/* NPC State Delta portrait prompts and the injection text with resolved appearance. */
+/* NPC State portrait prompts and the injection text with resolved appearance. */
 import * as mechanics from '../core-mechanics.js';
 import { normalizeAppearanceModel, resolveNpcAppearance } from '../../appearance/appearance.js';
 import { normalizeTerminalNpc } from '../terminal-lifecycle.js';

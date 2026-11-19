@@ -1,5 +1,6 @@
 // The Combat Rules v1 encounter-size rule for the pre-check's groups (owner answer, locked bands): an even fight is at most 4 standard foes in all, and a group of elites, bosses or apexes at most 3.
-// Mobs and minions are small foes and keep the count the reader gave (the Foes block's own maximum still applies). Code sets the numbers: a bigger crowd is cut to the rule, never refused, and a group cut to none is dropped.
+// Mobs and minions are small foes and keep the count the reader gave, up to the Foes block's own maximum a slot (V1.foe.groupMax: a count past it cannot be written, so the whole opening
+// failed and the reply went on with no fight: "a dozen rats", 19 Nov). Code sets the numbers: a bigger crowd is cut to the rule, never refused, and a group cut to none is dropped.
 import { V1, TIERS } from '../../combat/numbers.js';
 
 /** The most standard foes in one even fight, and the most of a tier above standard in one group. */
@@ -20,6 +21,7 @@ export function sizeGroups(groups) {
         let count = group.count;
         if (tier === 'standard') { count = Math.min(count, room); room -= count; }
         else if (ABOVE.has(tier)) count = Math.min(count, FIGHT_SIZE.above);
+        else count = Math.min(count, V1.foe.groupMax);
         return count > 0 ? [{ ...group, tier, count }] : [];
     });
 }

@@ -1,4 +1,4 @@
-// Contract: the World answers of a real host (Story Block + Story Director + a stand-in NPC State Delta), read through createSbPort and the
+// Contract: the World answers of a real host (Story Block + Story Director + a stand-in NPC State), read through createSbPort and the
 // world selector, fit WORLD_SHAPE with heard stamps, faction members and place quests; the fake-port fixture fits the same shape; with the
 // feature off or nothing known the card hides or is empty.
 import test from 'node:test';

@@ -1,4 +1,4 @@
-/* NPC State Delta: the automatic backfill queue request shape and its reasons. */
+/* NPC State: the automatic backfill queue request shape and its reasons. */
 import { text } from './shared-text.js';
 
 export const AUTOMATIC_BACKFILL_QUEUE_VERSION = 1;

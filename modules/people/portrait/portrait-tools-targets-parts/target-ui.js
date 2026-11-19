@@ -1,9 +1,9 @@
-/* NPC State Delta portrait target UI: the upload input, generation availability and the form selector markup. */
+/* NPC State portrait target UI: the upload input, generation availability and the form selector markup. */
 import { api, escapeHtml } from '../../tools/tools-core.js';
 import { npcForms } from './target-resolve.js';
 
 export function hiddenUploadInput(npcId) {
-    return `<input type="file" class="npc-state-delta-inline-portrait-file delta-tools-portrait-file" data-npc-id="${escapeHtml(npcId)}" accept="image/*">`;
+    return `<input type="file" class="ppl-inline-portrait-file delta-tools-portrait-file" data-npc-id="${escapeHtml(npcId)}" accept="image/*">`;
 }
 
 export function portraitGenerationAvailable() {

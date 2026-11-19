@@ -1,7 +1,7 @@
-/* NPC State Delta: the scanner's lines for the Settings diagnostics report. */
+/* NPC State: the scanner's lines for the Settings diagnostics report. */
 import { normalizeScannerMaxOutputTokens } from './shared-limits.js';
 import { connectionManagerDisabled, scannerProfileOptions, selectedScannerProfileId } from './profile-settings.js';
-import { scannerRoutingMetrics } from './request-tracking.js';
+import { scannerRoutingMetrics } from './request-state.js';
 
 // (v2 Diagnostics) The scanner's lines for Story Block's Settings → Diagnostics report: the route, the
 // profile's name and whether it is there, the call counts and the last call's outcome. Never a prompt,

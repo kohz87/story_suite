@@ -1,6 +1,7 @@
 // The Packs and trackers page's commands for the port: switch a pack on or off, import a pack file or the lorebook's packs, remove a pack, and use a data module in this chat.
 
 import { importPicked, importFromLorebook } from '../../packs/import-run.js';
+import { makeLorebook } from '../../packs/lorebook-make/run.js';
 
 // The reader's own start rows on Settings › Start (packs/own.js): row key → the stored field.
 const OWN_KEYS = Object.freeze({ 'packs.you.rankLabel': 'rankLabel', 'packs.start.money': 'money', 'packs.start.items': 'items' });
@@ -8,9 +9,10 @@ const OWN_KEYS = Object.freeze({ 'packs.you.rankLabel': 'rankLabel', 'packs.star
 const NO = message => ({ ok: false, code: 'FAILED', message });
 
 /**
- * `handle` = { packs (installed.js), readLorebook(), lore? ({ read() }) }; `sdk` sends the data-module command.
+ * `handle` = { packs (installed.js), readLorebook(), lore? ({ read() }), lorebooks? ({ books, settings }: the pack lorebook's SillyTavern side) }; `sdk` sends the data-module command.
  * `settings.set` `packs.on.<id>` (bool) switches a pack (a format 4 world or game: on picks it, off clears the pick); `packs.you.rankLabel`, `packs.start.money` and `packs.start.items` set the reader's own rank label and starting money and items; `settings.set` `packs.module.<module>` (true) uses a data module in this chat, as the old page's Enable did (`dm.pin` with the hashes read now);
- * `settings.action` `packs.import` (value: the picked files) → `{ ok, text, errors }`, `packs.lorebook`, `packs.remove` (value: the pack id).
+ * `settings.action` `packs.import` (value: the picked files) → `{ ok, text, errors }`, `packs.lorebook`, `packs.remove` (value: the pack id), `packs.lorebook.make`
+ * (value: { id, use, confirmed, move }: Create or Update a world pack's lorebook and use it with the chat's character, or move it there from the chat lorebook → `{ ok, text, errors, confirm? }`).
  * Any other command is not this page's: returns null.
  */
 export async function packsCommand(handle, sdk, type, payload) {
@@ -37,6 +39,7 @@ export async function packsCommand(handle, sdk, type, payload) {
     return done ? { ok: done.errors.length === 0, ...done } : NO('No file was picked.');
   }
   if (key === 'packs.lorebook') { const done = await importFromLorebook(packs, handle.readLorebook, handle.lore ?? null); return { ok: done.errors.length === 0, ...done }; }
+  if (key === 'packs.lorebook.make') return handle.lorebooks ? makeLorebook({ packs, ...handle.lorebooks }, payload.value ?? {}) : NO('SillyTavern lorebooks are not available here.');
   if (key === 'packs.remove') {
     const id = String(payload.value ?? '');
     const name = packs.list().find(pack => pack.id === id)?.name ?? id;

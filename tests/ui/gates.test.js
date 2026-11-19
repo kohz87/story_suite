@@ -37,19 +37,17 @@ function portOf(views, answers = []) {
 const ctxOf = (extra = {}, answers = []) => ({ port: portOf(extra.views, answers), prefs: createPrefs({ chatId: 'gates' }), backStack: createBackStack(), go() {}, ...extra });
 const has = (el, selector) => el.querySelector(selector) !== null;
 
-test('the dossier draws Edit and ⋯ only for commands that can be answered, and the menu lists only those', () => {
+test('the dossier draws ⋯ only when a command in it can be answered, and the menu (Edit first) lists only those', () => {
   installFakeDom();
   const none = dossierPage(dossierFor('temiwa'), ctxOf());
   assert.equal(has(none, '[data-act="edit"]'), false);
   assert.equal(has(none, '[data-act="menu"]'), false);
   const some = dossierPage(dossierFor('temiwa'), ctxOf({}, ['npc.refresh']));
-  assert.equal(has(some, '[data-act="edit"]'), false);
   some.querySelector('[data-act="menu"]').click();
   assert.deepEqual(some.querySelectorAll('[role="menuitem"]').map(item => item.dataset.act), ['refresh']);
   const all = dossierPage(dossierFor('temiwa'), { ...ctxOf(), port: createFakePort() });
-  assert.equal(has(all, '[data-act="edit"]'), true);
   all.querySelector('[data-act="menu"]').click();
-  assert.equal(all.querySelectorAll('[role="menuitem"]').length, 5);
+  assert.deepEqual(all.querySelectorAll('[role="menuitem"]').map(item => item.dataset.act), ['edit', 'refresh', 'portrait', 'inspect', 'merge', 'delete']);
 });
 
 test('+ Add a memory, Mark alive and People + Add are left out without their commands', () => {

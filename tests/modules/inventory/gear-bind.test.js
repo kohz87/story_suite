@@ -87,6 +87,9 @@ test('every command that would move, unequip, drop, use up, edit, split or merge
     await refusedWith(host, 'inventory.equip', { stack: ring, slot: 'accessory-2' });
     // the Edit form's own command: another owner, another slot, or nothing
     await refusedWith(host, 'inventory.edit', { stack: buckler, name: 'My Buckler' });
+    // the Bag Edit's Carries (inventory.carry): refused, and gear.view gives the same sentence as the field's read-only reason
+    await refusedWith(host, 'inventory.carry', { stack: sword, carry: 10 });
+    assert.match(host.sdk.query('gear.view', { owner: 'ac_mara0001' }).rows[sword].carryWhy, BOUND);
 });
 
 test('putting something else in a bound piece\'s slot does not put the piece away', { skip }, async t => {

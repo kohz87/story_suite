@@ -26,5 +26,5 @@ export { QUIET_MARK_MIN, QUIET_WAIT_MS, MAX_NAME, stripBattleMarker, contextRoom
 export { STATIC_KEY, TAIL_KEY, V1_KEYS, INTERCEPTOR_NAME } from './turn-parts/keys.js';
 export { FOREGROUND, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, normalizeType } from './turn-parts/prompt-limits.js';
 export { HOOK_TIMEOUT_MS, hookTimeout } from './turn-parts/hook-time.js';
-export { REPLY_BUSY_MAX_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS } from './turn-parts/waits.js';
+export { REPLY_BUSY_MAX_MS, ASSIST_WAIT_MS, PREPARE_WAIT_MS } from './turn-parts/waits.js';
 export { createTurn } from './turn-parts/create-turn.js';

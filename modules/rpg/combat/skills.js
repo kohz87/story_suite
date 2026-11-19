@@ -31,8 +31,8 @@ const normalPrice = fallback => ({
 
 /**
  * The price of one use: { type, kind, pool, cost, affordable, fallback }. A skill record or a type
- * name may be passed. Attack, area and stance skills draw SP unless their stat is INT or WIS; heal
- * always draws MP; utility is free and story-only. With `resources` ({ sp, mp }), an unaffordable
+ * name may be passed. Attack, area and stance skills draw SP unless their stat is INT or WIS; heal and a
+ * Focus stance always draw MP; utility is free and story-only. With `resources` ({ sp, mp }), an unaffordable
  * attack or area becomes the free normal attack (the 0 SP fallback).
  */
 export function skillCost(skill, resources) {
@@ -48,7 +48,7 @@ export function skillCost(skill, resources) {
 /**
  * The stance to run for an exchange, or null when it is off. `skill` may be the owned stance skill,
  * its type, or the list of skills the character owns; the list must hold exactly one stance type.
- * Support counts as a stance. With `resources`, a stance that cannot pay its per-exchange cost is off.
+ * Defence, Speed and Focus are the stances. With `resources`, a stance that cannot pay its per-exchange cost is off.
  */
 export function stanceOf(skill, on = true, resources) {
     if (!on) return null;

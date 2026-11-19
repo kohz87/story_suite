@@ -1,4 +1,4 @@
-/* NPC State Delta presentation scope: NPC-scoped narration plus the continuation sentences that follow it. */
+/* NPC State presentation scope: NPC-scoped narration plus the continuation sentences that follow it. */
 
 import { normalizeName } from '../core-text.js';
 import { developmentBindingLabels, developmentContextSegments, episodeContainsLabel, scopedEpisodeText } from '../core-durable-episodes.js';

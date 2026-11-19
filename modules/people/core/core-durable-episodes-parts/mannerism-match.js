@@ -1,4 +1,4 @@
-/* NPC State Delta mannerism matching: pattern families, similarity scoring and de-duplicating normalization. */
+/* NPC State mannerism matching: pattern families, similarity scoring and de-duplicating normalization. */
 
 import { cleanList, normalizeName } from '../core-text.js';
 import { chooseCompactEquivalent, DURABLE_PROFILE_LIMITS, durableSemanticSimilarity } from '../core-relationship.js';

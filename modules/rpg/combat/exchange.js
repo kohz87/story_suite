@@ -83,7 +83,7 @@ function stanceUpkeep(actor, choice, orderIndex, lines, moves) {
     const wanted = choice?.stance === undefined ? true : choice.stance;
     let active = null;
     if (wanted !== false && wanted !== 'off' && owned.length) {
-        const type = wanted === true ? owned[0] : String(wanted).toLowerCase();
+        const type = wanted === true ? owned[0] : skillCost(String(wanted)).type;   // (a named stance: an earlier word, evasion or support, is its new type)
         if (owned.includes(type)) {
             const price = skillCost({ type, stat }, resources(actor));
             if (price.affordable && spend(actor, price.pool, price.cost, moves)) active = type;
@@ -114,8 +114,15 @@ function playerAttack(state, actor, foe, base, how, magic, roll, slot, lines, mo
     return true;
 }
 
+// A Focus stance that is on: an INT or WIS skill's damage or healing × (100 + 5 per mastery step) ÷ 100, rounded down as damage is (numbers.js V1.focus).
+// Only a paid skill reaches here: the normal attack (and a skill that fell back to it) is never focused. The order: skill amount, Focus, area 60%, then decisive and soak.
+function focused(actor, stat, amount) {
+    if (actor.stance !== 'focus' || !V1.focus.stats.includes(String(stat ?? '').toLowerCase())) return amount;
+    return Math.floor(amount * (V1.percent + V1.focus.step * masteryOf(actor)) / V1.percent);
+}
+
 function skillDamage(actor, stat, area = false) {
-    const single = damageOf('skill', actor.stats, masteryOf(actor), stat);
+    const single = focused(actor, stat, damageOf('skill', actor.stats, masteryOf(actor), stat));
     return area ? Math.max(V1.damage.min, Math.floor(single * V1.areaPercent / V1.percent)) : single;
 }
 
@@ -133,7 +140,7 @@ function performHeal(actor, state, choice, profile, lines, moves) {
     if (!target) return { paid: false };
     const price = skillCost({ type: 'heal', stat: profile.heal.stat }, resources(actor));
     if (!price.affordable || !spend(actor, price.pool, price.cost, moves)) return { paid: false };
-    const amount = healOf(actor.stats, masteryOf(actor)), after = Math.min(number(target.maxHp), number(target.hp) + amount);
+    const amount = focused(actor, profile.heal.stat, healOf(actor.stats, masteryOf(actor))), after = Math.min(number(target.maxHp), number(target.hp) + amount);
     recordMove(target, 'hp', after, moves);
     lines.push(['heal', labelOf(actor), labelOf(target), amount, number(target.hp)]);
     return { paid: true, acted: false, target: null };

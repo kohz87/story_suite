@@ -14,7 +14,7 @@
 // * Navigation order (the game view, the Story panel's tabs), before the reader's own (view/tab-order.js):
 //   the suite's own screens in DEFAULT_ORDER (Home, Party, Inventory, Quests, World, Map, Fight,
 //   Crafting, Trade, Scene, Chronicle, then any other screen, the Director, the game master's view, and
-//   NPC State Delta's Dossiers, the dossier browser, last); another screen may say `order` (a number, lower first) or takes DEFAULT_ORDER's place for
+//   NPC State's Dossiers, the dossier browser, last); another screen may say `order` (a number, lower first) or takes DEFAULT_ORDER's place for
 //   the last part of its id, else REST_ORDER. Home is always first: no order a module gives can move it down.
 //
 // * A theme's values pass the same checks the page applies (css.js themeVars: one CSS value each, nothing

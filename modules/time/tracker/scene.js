@@ -4,7 +4,7 @@
 // scene can reach, and the rest only as a few "Elsewhere" names. A thread fits the scene when
 // * it is tied to the place or its region (its `place:`, `now:` or `leg:` names either, v1's place rule);
 // * it is tied to someone present (its key, `giver:`, `people:`, `now:` or summary names a name Story
-//   Block's scene lists as present, NPC State Delta's present list adds, or a dossier name or alias of one);
+//   Block's scene lists as present, NPC State's present list adds, or a dossier name or alias of one);
 // * it is due within the reader's "Due soon" days by the story clock (due now is always told, on Due now);
 // * it is a beat whose reach is met: a beat waiting on another (`after:`) that is still open never fits;
 //   one whose prerequisite has ended fits, as does one whose `reach:` names the place or someone present;

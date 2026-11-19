@@ -73,12 +73,18 @@ function makeItem(row, rpg) {
     weight: rpg ? weight : 0, worth, soak: rpg ? soak : 0, desc, from,
     ...(rpg && kind === 'gear' ? { soakMax: { armor: 2, offhand: 2, head: 1 }[glyph] ?? 0 } : {}),
     note: '', hand: rpg && name === 'Spare dagger', slot: kind === 'gear' && glyph === 'weapon' ? 'weapon' : null,
+    ...(rpg && (kind !== 'gear' || CARRY[name]) ? { carry: CARRY[name] ?? 0, carryWhy: name === 'Bolt of blue wool' ? PACK_WHY : '', ...(CARRY[name] ? { bagLike: true, isBag: Boolean(wornBy) } : {}) } : {}),
   };
 }
+// What the bags add (the Edit form's Carries, offered on every item but a slotted piece); the wool is a pack's item, so its Carries is read-only with the engine's reason.
+const CARRY = { 'Leather satchel': 10, 'Quiver bag': 5 };
+const PACK_WHY = 'This item comes from a pack, which sets its own carry capacity.';
 
 function makeAsset(a, rpg) {
   const [id, name, glyph, kindLabel, riders, seats, where, withParty, condition, note, meta, tag] = a;
-  return { id, name, glyph, kindLabel, riders: [...riders], seats, where, withParty, condition: rpg ? condition : null, note, meta: [...meta], tag };
+  const kind = meta[0] === 'horse' || meta[0] === 'pony' ? meta[0] : glyph;
+  return { id, name, glyph, kindLabel, riders: [...riders], seats, where, withParty, condition: rpg ? condition : null, note, meta: [...meta], tag,
+    count: 1, pace: { horse: 35, pony: 30, cart: 18 }[kind] ?? 30, carry: null };
 }
 
 function makeLoad(items, limit) {
@@ -128,6 +134,7 @@ export function bagFixture({ rpg = true, over = false, load: loadStep = 0 } = {}
     assets: {
       transport: ASSETS.transport.map(a => makeAsset(a, rpg)),
       property: ASSETS.property.map(a => makeAsset(a, rpg)),
+      canAdd: true,
     },
   };
 }

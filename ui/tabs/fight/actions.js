@@ -11,13 +11,13 @@ function resource(label, value, max, color) {
     h('i', null, h('b', { style: { width: `${pct}%`, background: `var(${color})` } })));
 }
 
-// The lines under the switch. On: the stance's name and its cost (and the soak it adds, for a defence stance). Off: the soak without it (defence only) and that nothing is paid from this exchange on.
+// The lines under the switch. On: the stance's name and its cost (and the soak it adds, for a defence stance; what it adds, for speed and focus). Off: the soak without it (defence only) and that nothing is paid from this exchange on.
 // `paid` (the mock's fixture only) adds the pool's move for the exchange just paid.
 function stanceNote(stance) {
   const soak = stance.soakOn === null || stance.soakOn === undefined ? null : { off: stance.soakOff, add: stance.soakOn - stance.soakOff };
   if (!stance.on) return soak ? `Off: soak ${soak.off}%. No ${stance.pool} from this exchange on.` : `Off: no ${stance.pool} from this exchange on.`;
   const price = `${stance.cost} ${stance.pool} each exchange, paid at its start${stance.paid ? ` (this one: ${stance.paid[0]} → ${stance.paid[1]})` : ''}; off when ${stance.pool} runs out`;
-  return `${stance.name}: ${soak ? `soak ${soak.off}% + ${soak.add}% · ` : ''}${price}`;
+  return `${stance.name}: ${soak ? `soak ${soak.off}% + ${soak.add}% · ` : ''}${stance.adds ? `${stance.adds} · ` : ''}${price}`;
 }
 
 function stanceRow(stance, actorId, onStance) {

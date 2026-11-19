@@ -81,7 +81,7 @@ test('Ersveil opens, the checker takes it, every part has a page and Export give
       title: document.querySelector('.spage h2').textContent,
       check: document.querySelector('.st-check').dataset.ok,
     }));
-    assert.deepEqual(head, { sub: 'World · Ersveil (open world) · 4.0.0', foot: 'No problems', nav: ['start', 'overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
+    assert.deepEqual(head, { sub: 'World · Ersveil (open world) · 4.1.0', foot: 'No problems', nav: ['start', 'overview', 'lore', 'cast', 'map', 'conditions', 'events', 'templates', 'powers', 'items', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'timeline', 'pairing', 'problems'], current: 'overview', title: 'Overview', check: 'true' });
     for (const part of head.nav) {
       await page.click(`.snav .si3[data-part="${part}"]`);
       const seen = await page.evaluate(() => ({ title: document.querySelector('.spage h2').textContent, cards: document.querySelectorAll('.spage :is(.sgrp, .reclist > .st-rec)').length }));
@@ -89,16 +89,16 @@ test('Ersveil opens, the checker takes it, every part has a page and Export give
     }
     await page.click('.snav .si3[data-part="cast"]');
     assert.equal(await page.locator('.spage .st-rec[data-rec^="cast."]').count(), 31);
-    assert.equal(await page.locator('.spage img.st-thumb').count(), 12);
+    assert.equal(await page.locator('.spage img.st-thumb').count(), 31);
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('.st-zip')]);
-    assert.equal(download.suggestedFilename(), 'ersveil-4.0.0.zip');
+    assert.equal(download.suggestedFilename(), 'ersveil-4.1.0.zip');
     // The example zip also holds game.json and notes, which the Studio does not keep: pack.json and every portrait come back the same.
     const got = await readPackZip(fs.readFileSync(await download.path())), want = await readPackZip(fs.readFileSync(ZIP));
     assert.equal(got.ok && want.ok, true);
     assert.equal(got.text, want.text, 'pack.json comes back as it was');
     assert.deepEqual(got.files.map(file => [file.name, file.size]), want.files.map(file => [file.name, file.size]), 'the same portraits come back');
-    assert.equal(got.files.length, 12);
-    assert.match(await page.textContent('.st-note'), /Exported ersveil-4\.0\.0\.zip\./);
+    assert.equal(got.files.length, 31);
+    assert.match(await page.textContent('.st-note'), /Exported ersveil-4\.1\.0\.zip\./);
     assert.deepEqual(errors, []);
   } finally { await page.close(); }
 });

@@ -1,4 +1,4 @@
-/* NPC State Delta record normalization: turns any raw stored or incoming dossier into the canonical record. */
+/* NPC State record normalization: turns any raw stored or incoming dossier into the canonical record. */
 import { inferNpcIdentityKind, normalizeBoolean, normalizeGender, normalizeLifeState, normalizeStoredAgeFields } from '../core-identity.js';
 import { appendRelationshipEvent, calibrateRelationshipSummary, compactDurableText, DURABLE_PROFILE_LIMITS, normalizeRelationshipAuditDelta, normalizeRelationshipBaseline, normalizeRelationshipEventHistory, normalizeRelationshipEvidence, normalizeRelationshipImpact, normalizeRelationshipMilestones, normalizeRelationshipProgress, RELATIONSHIP_KEYS, relationshipEventMessage } from '../core-relationship.js';
 import { cleanList, cleanText, normalizeName } from '../core-text.js';

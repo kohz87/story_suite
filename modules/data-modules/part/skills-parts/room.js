@@ -15,3 +15,10 @@ export function skillWant(state, fields) {
     try { level = readSheet(state).characters.find(person => fold(person.who) === fold(fields.who))?.level ?? 1; } catch { level = 1; }
     return skillSlots(level);
 }
+// The stat a Focus skill is held on when its line names another (or none): the character's INT or WIS, whichever is higher; WIS on a tie or when the stats are unknown.
+export function focusPick(state, fields) {
+    try {
+        const sheet = readSheet(state).characters.find(person => fold(person.who) === fold(fields.who));
+        return Number.isFinite(sheet?.int) && Number.isFinite(sheet?.wis) && sheet.int > sheet.wis ? 'int' : 'wis';
+    } catch { return 'wis'; }
+}

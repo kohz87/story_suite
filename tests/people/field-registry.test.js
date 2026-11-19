@@ -128,7 +128,9 @@ test('the snapshot built from the registry is today\'s snapshotNpc, key order in
 
 test('the modules use the derived lists, not copies of their own', () => {
     const read = oldSource;
-    assert.match(read('core-prompts.js'), /import \{ PROFILE_EVIDENCE_FIELDS, RETURN_KEYS, RETURN_SHAPES \} from '\.\/src\/fields\/registry\.js';/);
+    // core-prompts.js only re-exports its parts; the scanner and the targeted prompts read the lists from the registry themselves.
+    assert.match(fs.readFileSync(new URL('../../modules/people/core/core-prompts-scanner.js', import.meta.url), 'utf8'), /import \{ PROFILE_EVIDENCE_FIELDS \} from '\.\.\/fields\/registry\.js';/);
+    assert.match(fs.readFileSync(new URL('../../modules/people/core/core-prompts-targeted-parts/prompt-shared.js', import.meta.url), 'utf8'), /import \{ RETURN_KEYS, RETURN_SHAPES, REFRESH_KEYS \} from '\.\.\/\.\.\/fields\/registry\.js';/);
     assert.match(read('core-merge-incoming.js'), /import \{ TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-merge-aliases.js'), /import \{ ALIAS_MERGE_TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-birthday-parts/field-change-stamp.js'), /import \{ CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS \} from '\.\.\/src\/fields\/registry\.js';/);
@@ -139,7 +141,7 @@ test('the modules use the derived lists, not copies of their own', () => {
     }
 });
 
-test('the hidden notes (secrets) never reach any of Delta\'s own model-facing texts', () => {
+test('the hidden notes (secrets) never reach any of Delta\'s own model-facing texts', async () => {
     assert.equal(registry.FIELDS.secrets.prompt, 'tail', 'only the v2 module\'s tail carries them (opened as known, locked as hidden), none of Delta\'s own prompts');
     assert.equal(registry.DOSSIER_FIELDS.includes('secrets'), false, 'npc.dossier never returns them');
     const secret = 'She is the lost heir of House Venn';
@@ -152,8 +154,7 @@ test('the hidden notes (secrets) never reach any of Delta\'s own model-facing te
     const options = { transcript, currentTranscript: transcript, existingNpcs: [npc], existingNpc: npc, targetNpc: npc, targets: [npc], targetName: 'Mira', dossierText: 'Name: Mira', userName: 'Ari', charName: 'C' };
     const texts = [
         core.buildScannerPrompt(options), core.buildScannerPrompt({ ...options, customFieldNames: ['Level'] }),
-        core.buildNarrationCapturePrompt(options),
-        JSON.stringify(core.buildNarrationCaptureParts(options)), core.buildBackfillPrompt(options), core.buildProfileRefreshPrompt(options),
+        JSON.stringify((await import('../../modules/people/core/core-prompts-lines.js')).buildLinesParts(options)), core.buildBackfillPrompt(options), core.buildProfileRefreshPrompt(options),
         core.buildDossierImportPrompt(options), core.buildRelationshipPassPrompt(options), core.buildInjection([npc], transcript, 1),
         JSON.stringify(core.buildNpcPortraitPrompts(npc, {})), JSON.stringify(registry.snapshotNpc(npc)),
     ];

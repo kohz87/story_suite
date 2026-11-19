@@ -1,5 +1,5 @@
 // npm run matrix -- [--root <folder>] [--sd <path>] [--nsd <path>] [options]
-// Runs the Story Block, Story Director and NPC State Delta combinations.
+// Runs the Story Block, Story Director and NPC State combinations.
 
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

@@ -228,12 +228,12 @@ test('presets: the built-in three are plain; packs add theirs; the settings bloc
     const el = doc.createElement('div');
     s.def.settings.section(el, { set: (key, value) => { stored[key] = value; }, values: () => ({ ...stored }) });
     const block = el.children[0];
-    assert.equal(block.className, 'npc-state-delta-v2-presets');
-    const rows = block.children.filter(node => node.className === 'npc-state-delta-v2-preset');
+    assert.equal(block.className, 'ppl-presets');
+    const rows = block.children.filter(node => node.className === 'ppl-preset');
     assert.deepEqual(rows.map(row => row.dataset.preset), ['companion', 'rival', 'mentor']);
     rows[1].children[2].click();
     assert.deepEqual(stored, { presets: ['rival'] });
-    const again = block.children.filter(node => node.className === 'npc-state-delta-v2-preset')[1].children[2];
+    const again = block.children.filter(node => node.className === 'ppl-preset')[1].children[2];
     assert.equal(again.textContent, 'Stop using');
     again.click();
     assert.deepEqual(stored, { presets: [] });

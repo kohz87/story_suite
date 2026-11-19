@@ -133,11 +133,13 @@ function fieldsOf(definition, view) {
 }
 
 // Pinned chat blocks only. The active (pinned) definition is the one in force; `show.card` is Show on Now. A block with no field to draw is counted as hidden.
+// The RPG's own blocks (a definition with a `role`: Character, Skills, Foes, its rules) are not trackers: Party and the fight board show them.
 function trackersOf(read) {
   const trackers = [];
   let hidden = 0;
   for (const row of list(read('dataModules.setup', {})).filter(r => r.pinned === true)) {
     const definition = row.pinnedDefinition ?? row.definition;
+    if (text(definition?.role)) continue;
     const view = definition?.scope === 'chat' ? read('dataModules.view', { module: row.module }) : null;
     const fields = fieldsOf(definition, view);
     if (!fields.length) { hidden += 1; continue; }

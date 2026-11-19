@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildInjection, createNpcRecord } from '../../modules/people/core/core.js';
 import { createHost } from '../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { runHostScenario } from './helpers/host-scenario.js';
 
 // Story Block 2.18.0's `packs.castGear { name }` → { name, line: "Gear: A, B", items } or null. The narrator's entry for a pack cast member
@@ -39,7 +39,7 @@ test('adapter: castGearLine asks packs.castGear by name; a missing query, a null
     };
     const sdk = { ...host.sdk, query };
     const box = { ready: Promise.resolve(sdk), sdk };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => [] }, delta: () => ({ isEnabled: () => true }), version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
         timers: { setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {} },

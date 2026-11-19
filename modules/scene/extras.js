@@ -27,3 +27,4 @@ export { flatten, cutPoints } from './extras-parts/text.js';
 export { readChoice, readChatter } from './extras-parts/readers.js';
 export { readDisplayLine, displayLines } from './extras-parts/display.js';
 export { answeredReply, headChatter, sceneChatter, chatterTail } from './extras-parts/chatter.js';
+export { replyChatter, replyChoices } from './extras-parts/reply-chatter.js';

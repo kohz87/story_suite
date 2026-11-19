@@ -7,7 +7,7 @@ import { buildReport } from '../../core/diagnostics.js';
 import { cardPack, cardWorld, goodPortrait, packEntry, portraitsEntry, settingsEntry, settle, tick } from './helpers/card.js';
 
 const nsd = (state = { portraitPromptFormat: 'hybrid' }) => ({
-    owner: 'npc-state-delta', label: 'NPC State Delta',
+    owner: 'npc-state-delta', label: 'NPC State',
     keys: { portraitPromptFormat: { label: 'NPC State portraits', valueText: v => (v === 'natural' ? 'Natural' : 'Structured hybrid'), valid: v => ['natural', 'hybrid'].includes(v) } },
     read: key => state[key],
     apply: async values => { Object.assign(state, values); return { applied: Object.keys(values) }; },
@@ -30,13 +30,13 @@ test('a pack of data modules alone is described by the modules it adds', async t
     assert.equal(world.notices()[0].brings, '1 data module');
 });
 
-test('the settings line lists only the settings that differ; a missing NPC State Delta drops its keys with a muted note, Install still works', async t => {
+test('the settings line lists only the settings that differ; a missing NPC State drops its keys with a muted note, Install still works', async t => {
     const pack = cardPack();
     const entries = [packEntry(pack), settingsEntry({ 'story-block.rpg': true, 'story-block.gear': true, 'story-block.rpgXpRate': 100, 'npc-state-delta.portraitPromptFormat': 'natural' })];
     const world = await cardWorld(t, { entries });
     const [notice] = world.notices();
     assert.equal(also(notice), 'RPG on · Gear on', 'the XP rate is already 100');
-    assert.deepEqual(notice.notes, ['Needs NPC State Delta for portraits and dossiers']);
+    assert.deepEqual(notice.notes, ['Needs NPC State for portraits and dossiers']);
     assert.equal(notice.blocked, false);
     world.runtime.sdk.registerCardSettings(nsd());
     await settle();

@@ -12,14 +12,14 @@ test('rejects a port that breaks the contract', () => {
   assert.throws(() => mountSuite({ doc }), TypeError);
 });
 
-test('mounts closed; open draws card and Now; close and Escape work', () => {
+test('mounts closed; open draws card and Party; close and Escape work', () => {
   const doc = installFakeDom();
   const suite = mountSuite({ port: createFakePort(), doc });
   const layer = doc.body.querySelector('.su-layer');
   assert.equal(layer.getAttribute('data-state'), 'closed');
   assert.equal(suite.open(), true);
   assert.equal(layer.getAttribute('data-state'), 'open');
-  assert.ok(doc.body.querySelector('[data-tab="now"]'));
+  assert.ok(doc.body.querySelector('[data-tab="party"]'));
   assert.ok(doc.body.querySelector('[data-card="character"]'));
   assert.equal(suite.close(), true);
   assert.equal(layer.getAttribute('data-state'), 'closed');
@@ -39,9 +39,9 @@ test('open(tab) switches tab and shows the pending card for an unfed tab', () =>
   suite.open('people');
   assert.ok(doc.body.querySelector('[data-pending="people"]'));
   assert.equal(doc.body.querySelector('[data-pending="world"]'), null);
-  suite.open('now');
+  suite.open('now');   // (the retired Now tab: asks for the first tab, Party)
   assert.equal(doc.body.querySelector('[data-pending="people"]'), null);
-  assert.ok(doc.body.querySelector('[data-tab="now"]'));
+  assert.equal(suite.tabHost.current(), 'party');
   suite.destroy();
 });
 
@@ -50,7 +50,7 @@ test('tab and card renderers receive the view-models', () => {
   const seen = [];
   const suite = mountSuite({
     port: createFakePort(), doc,
-    tabs: { now: (vm) => { seen.push(Object.keys(vm)[0]); return doc.createElement('i'); } },
+    tabs: { party: (vm) => { seen.push(Object.keys(vm)[0]); return doc.createElement('i'); } },
     card: () => doc.createElement('b'),
   });
   suite.open();

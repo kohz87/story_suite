@@ -83,3 +83,21 @@ export function gearOf(read, actors) {
   }
   return gear;
 }
+
+// The Party paper-doll's portraits, from the same sources as the card and Here now: You = the people row of the party's own name, else the persona's avatar;
+// a companion = their people row (NPC State, a pack's portrait) by name or alias. { [actor id]: url }; a member with none is left out (the initial shows).
+export function partyPortraits(read, ctx, actors) {
+  const rows = (read('people.list', {}) ?? []).filter(row => row && typeof row === 'object');
+  const named = name => {
+    const key = String(name ?? '').trim().toLowerCase();
+    return key ? rows.find(row => [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])].some(n => String(n ?? '').trim().toLowerCase() === key)) : null;
+  };
+  const pcId = read('party.pc', {})?.id ?? null;
+  const out = {};
+  for (const actor of Array.isArray(actors) ? actors : []) {
+    if (!actor?.id) continue;
+    const src = (actor.id === pcId ? named(actor.name)?.portrait || personaPortrait(read, ctx) : named(actor.name)?.portrait) || null;
+    if (typeof src === 'string' && src) out[actor.id] = src;
+  }
+  return out;
+}

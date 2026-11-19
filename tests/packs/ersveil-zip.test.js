@@ -26,10 +26,10 @@ test('the shipped zip is exactly what the build script gives (run `node scripts/
     assert.ok(Buffer.from(zipBytes()).equals(Buffer.from(buildErsveilZip())), 'examples/packs/ersveil.zip is out of date');
 });
 
-test('the zip lists pack.json first, then portraits/<file> for the twelve pictures, then game.json and CONVERSION-NOTES.md, and nothing else', () => {
+test('the zip lists pack.json first, then portraits/<file> for the 31 pictures, then game.json and CONVERSION-NOTES.md, and nothing else', () => {
     const names = readZip(zipBytes()).map(entry => entry.name);
     const portraits = readdirSync(new URL('portraits/', folder)).sort();
-    assert.equal(portraits.length, 12);
+    assert.equal(portraits.length, 31);
     assert.equal(names[0], 'pack.json');
     assert.deepEqual(names.slice(-2), ['game.json', 'CONVERSION-NOTES.md']);
     assert.deepEqual(names.slice(1, -2).sort(), portraits.map(name => `portraits/${name}`));
@@ -48,13 +48,13 @@ test('its pack.json, game.json and every portrait are the files in the repo, byt
     }
 });
 
-test('importing the shipped zip into a fresh store installs the world and its game and selects both: twelve portraits saved, 31 people, the game\'s data modules', async () => {
+test('importing the shipped zip into a fresh store installs the world and its game and selects both: 31 portraits saved, 31 people, the game\'s data modules', async () => {
     const portraitFiles = fakeFiles();
     const made = createPacksPart({ settings: fakeSettings(), portraitFiles });
     const result = await importPicked(made.packs, [zipFile()]);
     assert.deepEqual(result.errors, []);
-    assert.equal(result.text, 'Installed Ersveil (open world). Installed Ersveil rules (its game pack). 12 portraits saved.');
-    assert.equal(portraitFiles.files.size, 12);
+    assert.equal(result.text, 'Installed Ersveil (open world). Installed Ersveil rules (its game pack). 31 portraits saved.');
+    assert.equal(portraitFiles.files.size, 31);
     const list = made.packs.list();
     assert.deepEqual(list.map(entry => [entry.id, entry.kind, entry.enabled]), [['ersveil', 'world', true], ['ersveil-game', 'game', true]]);
     assert.equal(list[0].counts.cast, 31);

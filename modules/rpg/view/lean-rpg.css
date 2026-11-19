@@ -200,6 +200,7 @@
 .rpg-bl-title { flex: 1 1 auto; }
 .rpg-bl-chevron { margin-left: auto; color: var(--ss-muted); }
 .rpg-bl-body { padding: 8px 12px 12px; display: grid; gap: 6px; }
+.rpg-bl-body[hidden] { display: none; } /* (the fold sets hidden; display: grid above would keep it showing) */
 .rpg-bl-order { margin: 0; color: var(--ss-muted); }
 .rpg-bl-round { display: grid; gap: 2px; }
 .rpg-bl-round-title { margin: 6px 0 2px; font-weight: 700; }

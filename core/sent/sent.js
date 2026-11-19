@@ -67,7 +67,7 @@ export function sentText(parts, own = [], { names = id => id, redact = null } = 
 
 /**
  * The `redact(moduleId, text)` for sentText over a registry: a module with `hooks.redactSent(text)` says what the reader
- * sees of its text (NPC State Delta turns each locked note into "Mira: 1 hidden note"). Only the view and its copy use it. A hook that
+ * sees of its text (NPC State turns each locked note into "Mira: 1 hidden note"). Only the view and its copy use it. A hook that
  * throws, or answers anything but a string, shows the fixed "(hidden)" line, never the raw text. A module with no such hook is shown as sent.
  */
 export function redactSentOf(registry) {

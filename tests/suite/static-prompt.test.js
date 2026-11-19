@@ -1,5 +1,5 @@
 // Whole-suite static prompt golden test (B2 merge tripwire).
-// Pins every `story_suite_static*` prompt key (Story Block's, Story Director's, and NPC State Delta's own one-pass rules) across the real three-module suite (Story Block + Story Director + NPC State Delta)
+// Pins every `story_suite_static*` prompt key (Story Block's, Story Director's, and NPC State's own one-pass rules) across the real three-module suite (Story Block + Story Director + NPC State)
 // and enforces the reply-to-reply byte-identity rule (packages/story-block/CLAUDE.md).
 import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -17,7 +17,7 @@ const loaded = await loadSuite();
 const skip = loaded.skip ?? false;
 
 // Three fixed short replies using core Story Block <Changes> grammar (from e2e-playthrough.test.js),
-// valid whether Story Director or NPC State Delta features are on or off.
+// valid whether Story Director or NPC State features are on or off.
 const REPLIES = [
     ['We look around the guild office.', 'Dust hangs in the lamplight of the Guild office.', ['~ you rank: unregistered | wearing: oilskin coat, boots | condition: rested', '+ item Bedroll | qty: 1', '+ present Sister Temiwa']],
     ['We take the key.', 'The key is cold and heavy.', ['+ item Rusty Knife | qty: 1', '~ place Bluewatch Village | kind: settlement']],
@@ -30,9 +30,9 @@ const REPLIES = [
 //   LEAN_RPG_FEATURE in src/v2/lean-rpg/names.js; gear-inventory.test.js turns it on the same way). Off is the default.
 // - story_director_off: turns off all 'story-director.*' features from host.sdk.features()
 //   (defined in packages/story-director/src/v2/*/index.js; suiteHost always registers SD with no module-off flag).
-// - (the old npc_state_delta_one_pass scenario is the default now: one-pass capture is on by default, so the default sends NSD's own key story_suite_static_npc_state_delta.)
-// - npc_state_delta_off: NSD itself off (the adapter's isEnabled() false) with one-pass still set: no NSD part at all.
-// - npc_state_delta_one_pass_off: one-pass capture switched off in Settings › People: no NSD part, the rest as default.
+// - (the old people_one_pass scenario is the default now: one-pass capture is on by default, so the default sends NSD's own key story_suite_static_people.)
+// - people_off: NSD itself off (the adapter's isEnabled() false) with one-pass still set: no NSD part at all.
+// - people_one_pass_off: one-pass capture switched off in Settings › People: no NSD part, the rest as default.
 // - npc_caps_on: the host gives impact-tier caps, so the meter paragraph's impact clause is pinned (none of the others has it).
 // - away_on: someone is away (a reply before the three sends `+ away Ren`), so the away grammar line and the away paragraph are pinned (people/away; the same
 //   lines are taught while someone is followed). Default has neither, so it is byte-identical to main's default.
@@ -43,8 +43,8 @@ const SCENARIOS = [
         configure: () => {},
     },
     {
-        id: 'npc_state_delta_one_pass_off',
-        title: 'NPC State Delta one-pass capture switched off (background scans): no NSD part',
+        id: 'people_one_pass_off',
+        title: 'NPC State one-pass capture switched off (background scans): no NSD part',
         onePass: false,
         configure: () => {},
     },
@@ -53,6 +53,14 @@ const SCENARIOS = [
         title: 'Lean RPG feature on (story-block.rpg = true)',
         configure: host => {
             host.features.set('story-block.rpg', true);
+        },
+    },
+    {
+        id: 'gear_on',
+        title: 'Gear in fights on (story-block.gear = true, with Lean RPG): the item line teaches the gear words and when to use them',
+        configure: host => {
+            host.features.set('story-block.rpg', true);
+            host.features.set('story-block.gear', true);
         },
     },
     {
@@ -77,8 +85,8 @@ const SCENARIOS = [
         },
     },
     {
-        id: 'npc_state_delta_off',
-        title: 'NPC State Delta off (adapter isEnabled false, one-pass setting still on)',
+        id: 'people_off',
+        title: 'NPC State off (adapter isEnabled false, one-pass setting still on)',
         onePass: true,
         nsdEnabled: false,
         configure: () => {},

@@ -1,29 +1,17 @@
 # Playing v2 in Ersveil
 
-> **Pack format 4 (job C1):** the shipped Ersveil is now two format 4 packs, the world pack
-> [`examples/packs/ersveil`](../../examples/packs/ersveil/pack.json) (4.0.0) and its game pack
-> [`examples/packs/ersveil-game`](../../examples/packs/ersveil-game/pack.json) ("Ersveil rules", 1.0.0); `examples/packs/ersveil.zip` holds both
-> (`pack.json`, `game.json`, the portraits and `CONVERSION-NOTES.md`). The packs are edited directly and the zip is built by `node scripts/core/build-example-zip.mjs`. The rest of
-> this page still describes the **old format 3 pack**, which is now a frozen test fixture (`tests/fixtures/packs/ersveil-3`, with its lorebook and zip);
-> it is rewritten with the format 4 docs (job D1).
+Ersveil is a world of two format 4 packs:
 
-This page sets up a v2 chat in the Ersveil world with the **Ersveil example pack 3.0.0, the open world** (pack format 3)
-([`tests/fixtures/packs/ersveil-3/pack.json`](../../tests/fixtures/packs/ersveil-3/pack.json)) and its lorebook
-([`tests/fixtures/packs/ersveil-3/ersveil-lore.json`](../../tests/fixtures/packs/ersveil-3/ersveil-lore.json)). A new
-story begins in Bluewatch Village, at the Adventurer Guild office, with four silver.
+* the **world pack** `ersveil` 4.0.0 ([`examples/packs/ersveil/pack.json`](../../examples/packs/ersveil/pack.json)): the lore, 320 places, 352 routes, 103 world events, 31 people (12 of them companions with portraits) and the start;
+* the **game pack** `ersveil-game` 1.0.0, "Ersveil rules" ([`examples/packs/ersveil-game/pack.json`](../../examples/packs/ersveil-game/pack.json)): the calendar, the coins, the weather, the Guild rank, the RPG skill set and three data modules.
 
-The pack holds the world's structure: the map (320 places, 350 routes), the calendar, 84 weather tables,
-135 world events (a hidden history from CY 611 onward), the coins, the start, three data modules, signature gear and an RPG skill set. It has **no shops, prices, foes,
-jobs, classes or rules**: the narrator makes those up in the story from the lore, and Story Block keeps
-what the story hands out (the bag, the purse, the place). The lorebook holds what only the narrator uses.
+`examples/packs/ersveil.zip` holds both (`pack.json`, `game.json`, the twelve portraits and `CONVERSION-NOTES.md`). The packs are edited directly and the zip is built by `node scripts/core/build-example-zip.mjs`. A story begins at Bluewatch Village, in the Guild Office, with 40 copper ("4 silver").
 
-The pack is pack format 3 and needs Story Suite 0.1 (`requires.suite: "^0.1"`) and the `chronicle-lasting` capability. NPC State is optional.
+The world pack needs Story Suite 0.1 (`requires.suite: "^0.1"`) and the `chronicle-lasting` capability. It has **no shops, prices, foes, jobs, classes or rules**: the narrator makes those up from the lore, and Story Block keeps what the story hands out (the bag, the purse, the place). NPC State is optional.
 
 ## 1. Extensions
 
-Install Story Block and Story Director (SillyTavern → Extensions → Install extension: paste the URL).
-NPC State Delta is optional. If you have the v1 versions installed, remove them first or use a separate
-SillyTavern profile.
+Install Story Block and Story Director (SillyTavern → Extensions → Install extension: paste the URL). NPC State Delta is optional. If you have the v1 versions installed, remove them first or use a separate SillyTavern profile.
 
 | Extension | URL |
 |---|---|
@@ -31,58 +19,26 @@ SillyTavern profile.
 | Story Director | https://github.com/kohz87/Story_director |
 | NPC State Delta (optional) | https://github.com/kohz87/npc_state_delta |
 
-## 2. Import the pack
+## 2. Set up a chat
 
-1. Story Suite settings → **Tabs & Packs** → **Packs** → **Import pack file** → `tests/fixtures/packs/ersveil-3/ersveil.zip`. This is the one-step way:
-   it holds `pack.json` and the twelve portraits ("12 portraits saved"). Picking `pack.json` alone imports no pictures.
-   The message says "Installed Ersveil (open world)." and the list shows "16 items, 135 events, 320 places, 350 routes,
-   1 skill set, 12 cast members, 14 name lists, start state, 4 coins, a calendar, 84 weather tables". The 3 data modules are not in that line; they
-   stay off until you enable them (§5). Without Story Director 2.3.0 the pack is refused: it needs the
-   `chronicle-lasting` capability.
-2. Switch off any other pack with a start state or a currency (for example another world pack).
-3. Start a **new chat**. A chat takes the pack it begins with and keeps that copy.
+1. **Install the pair.** In Settings › Packs, press **Import a pack file**. Pick `ersveil.zip` (it holds both packs and the twelve portraits). Or import `pack.json` first, then `game.json`. A file picked alone brings no portraits.
+2. **Pick World and Game.** Under **World and game**, set World to "Ersveil (open world)" and Game to "Ersveil rules". The world suggests that game, so a card may offer **Use it**.
+3. **Create the lorebook.** With a chat with your narrator card open (below), press **Create the lorebook from this pack** on the Ersveil row, keep **Use with this character** ticked and confirm. This makes the SillyTavern book "Ersveil (open world) (Story Suite)" from the pack's lore and attaches it to that character: linked as its lorebook, or added to its lorebooks when the card has its own. Every chat with the card reads it; the chat lorebook is left alone. See [PACKS.md](PACKS.md), "Lore and the lorebook".
+4. **Start a new chat.** A chat takes the world and game it begins with and keeps that choice.
 
-3.0.0 (the first release in pack format 3, a minimal conversion: no lore, cast text, place or event was rewritten) puts the pack in `format: 3` with `requires.suite: "^0.1"` and `rpg.formula: "v1"`. Every cast and skill-set skill now carries an explicit Combat Rules v1 `type`, and the cast skills' `uses` are `sp` or `mp`. The two items with LUK (Rain-Veil Hood and Three Walnut Shells) now give DEX instead, because gear still raises the earlier seven stats and has no WIS. Ranks keep their words (novice to master); `adept` now means v1's Adept (rank 2), where before it seeded rank 1. The add-ons `ersveil-factions` and `ersveil-survival` are 2.0.0: format 3, `requires.suite`, and survival's `story-director` capability is now `director`. `riverside-starter` is no longer a shipped example (it is a test fixture).
-2.9.6 (needs Story Block 2.31.1) merges the split flood news into one event with the `region(...)` condition, so the bulletin is told once however the player moves between the regions that hear it; a chat that already heard the first group's news keeps that, while one that heard it only in Aurelion, Silver Mark, Startrace Tower or Ironanvil may hear it once more.
-2.9.5 (content only, with the throne following your deeds) adds `content.names`: given names (30 to 45) and family names (20 to 27) for fourteen peoples and regions (Highmark, the River Confederacy and Shornmarch, the Flame Lands, the Border and Valegard, the Frostbound, the dwarves, the Chieftainates, Ardelia, the Emerald Coast, the Tidebound, Atlantis, the Verdantleaf elves, the Fairy Court and Ashkar), written in the sound of Names: Human Cultures and Names: Other Peoples and sharing no name with the cast or the lorebook's examples, and a short banned list of overused fantasy names. A Story Director release with its names part can offer them for new people met in a matching region. The pack requires Story Block 2.31.0 or newer, so an older host refuses the whole pack on its version check.
-2.9.5 restores the throne branches. Director's Ripples can score matching completed quests and victories against the named groups; Ersveil has no directed world events or claimant standing, and NPC trust is not scored. When Ripples is absent or cannot safely identify Ersveil's table, Hasse is broken and Wendhild is crowned over Corvin. A chat already crowned keeps its reign. A decision is kept as it was while the story before it is unchanged, even when the scoring later changes (a Director update, a swipe or delete of a later reply, a Re-read after the crown); only changing an earlier deed or reply reselects it at that point in the story. Version 2.9.3 removed Court favour; chats that enabled it keep the block and its values.
-2.9.4 shows the Adventurer Guild card as tiles (Rank, Standing, Dues); a chat that pinned the old guild screen offers Migrate.
-2.9.3 removed the Court favour data module; a chat that had enabled it keeps its block.
-2.9.2 (content only) makes every cast look physical features only (the kind word and the height first; no age, no "looks about N", no impressions that are not physical), names no real-world breed or brand (Temiwa is a "Dogfolk woman"), puts the age in `fields.People` for all twelve ("Dogfolk woman, 21", "Dwelf, 58 (looks about 25)"), and cuts each personality to its core (at most 320 characters; what a behaviour lever or a mannerism says is not repeated). Temiwa's look, personality and Presentation lever were approved by the owner.
-2.9.1 (content only) turns four "with you" lines into first-meeting stances (Temiwa, Ysmeth, Nysseth, Harrak; Nysseth's last stage milestone starts "she has chosen you") and writes each cast member's height ("about N cm") into the look right after the kind and age.
-2.8.0 gave each of the twelve exactly two signature skills, makes Sister Temiwa a dogfolk healer (Lv 4, a shy dandere with waterfall black hair, soft and weary, no cruelty or possessiveness), makes Nerissa deredere and Nysseth yandere, and sets Rika to Lv 8 and Torka to Lv 6; 2.9.0 sets each skill's `type` (utility: Gentle Word, Silver Patter, Toast and Tell, Pilot's Hand, Flower-Speech, Quiet Step, Lockwork, Chain Cell Craft, Silver Rain Veil, Mother's Hand; every other skill combat, Mending Prayer the combat heal), gives the new Binding Rune the rank of Lockwork (expert), Flower-Speech that of Quiet Step (adept) and Dirty Trick that of Silver Patter (adept), adds Temiwa's stockings with garters and buckled belt, and gives her a new portrait (800×1200). It needs Story Block 2.28.0 (`requires.storyBlock` ^2.28.0), the release that carries pack skill types.
-2.7.0 lays Standing, Fame, Guild and Court favour out as sections of one Reputation tab and needs Story Block 2.22.0 (a running chat moves by migrating the four modules: see "Moving a running chat to 2.7.0" below).
-2.6.1 trims the always-on lore and makes Classification, Currency, Naming and Knowledge keyword entries (the story sends them when the topic comes up).
-2.6.0 adds sixteen signature items (each cast member's own gear, given and bound to them when they join the party while Gear in fights is on) and needs Story Block 2.18.0.
-2.5.0 adds the guild rank bands and the guild letter as the party's rank (§6, Ranks), turns the cast's Soul Class field into Level (each of the twelve set by role, 8 to 56), and needs Story Block 2.17.0.
-2.4.0 replaced the two sample cast entries with twelve people (§6, "The twelve"), each with a portrait; import `tests/fixtures/packs/ersveil-3/ersveil.zip` (`pack.json` and `portraits/`; frozen, no longer rebuilt) or pick `pack.json` and the twelve `.webp` files together; `pack.json` alone leaves the portraits unset. 2.3.0 added the cast kind (`content.cast`, see PACKS.md "The cast"); a Story Block that knows it (after 2.14) reads the people, and Story Director's cast brings them into a story. 2.2.1 (needs Story Block 2.10) adds the Guild rank line; 2.2.0 added the world's hidden history (§6), the Court favour module (§5), the Sealwarden recruit skill set for the RPG,
-and 56 notable people to the lorebook. Re-import the lorebook too.
-2.1.0 changes only lore and names: Auvoth is the Guild's city, its Depths sealed by Veyr the Unbound in CY 384; the Guild Grand Hall ward is Sealcrown (was Delver's Crown) and Rimeglass Delve is the Rimeglass Galleries. The old names stay as aliases, so a chat already at one of those places still finds it, and the data modules are unchanged. Re-import the lorebook too.
+Add a narrator card (for example `Ersveil`: "{{char}} narrates Ersveil and plays every person in it except {{user}}.") and your own persona. The first message is your own opening in Bluewatch Village. The RPG starts you at level 1 unless you set a starting level.
 
-Importing 3.0.0 replaces an installed pack with the same id. Start a new chat to use its starting state.
+## 3. The lore
 
-## 3. Import the lorebook
+The world pack holds 218 lore entries. 213 are in the lorebook. Five are **hidden** and are left out of it. The narrator reads the book through SillyTavern; four entries are always on and the rest come when their keys appear in the story. The lore is the world as it stands when the story starts. What happens later comes from the story and its events, which win over the lore.
 
-* SillyTavern → World Info → **Import World Info** → `tests/fixtures/packs/ersveil-3/ersveil-lore.json`, a book
-  named **Ersveil Lore** with 227 entries. Make it active for the chat (attach it to the narrator card or
-  set it as a global book).
-* It is lore, not rules: levels, the Guild letters F to S (with what a contract of each pays), the ten
-  peoples, the thirteen callings, prices and wages, the bestiary, factions and places, and 56 notable people
-  (rulers, champions, saints, famous adventurers), each told to the narrator only when named. The people
-  are as they stand when the story starts; what happens to them later comes from the story and its events, which
-  win over the lorebook. Edit it freely; no code reads it.
+The five hidden entries (the Iron Archive, the shared root of Church and Veil, Startrace's northern tap, the Emperor's chamber, and after the Last Wall) open only when their gate holds, and only with World events on. Nothing on this page spoils them.
 
-## 4. Narrator card and first message
+Pick **Update the lorebook** after a new pack version: it replaces that book and only that one.
 
-* **Character card:** a narrator card, for example `Ersveil` with "{{char}} narrates Ersveil and plays
-  every person in it except {{user}}."
-* **Persona:** your own character; their people, calling and level are what you write. The RPG starts you at level 1 unless you set a starting level.
-* **First message:** your own opening at Bluewatch Village, at the Guild office.
+## 4. The three data modules
 
-## 5. The three data modules
-
-None is on by default. Story Suite settings → **Tabs & Packs** → **Data modules**, find the module and
-press **Enable for this chat**.
+None is on by default. Settings › Tabs & Packs › **Data modules**: find the module and press **Enable for this chat**.
 
 | Module | What it keeps |
 |---|---|
@@ -90,37 +46,22 @@ press **Enable for this chat**.
 | Fame by region | How well known you are, 0 to 100, in each of sixteen regions (kinds `deed` and `spread`). Section: Fame by region (Reputation tab). |
 | Adventurer Guild membership | Registration, your letter (F to S), dues and years as a member (kinds `register`, `dues`, `contract`, `promote`, `yearend`). Section: Adventurer Guild (Reputation tab). |
 
-Once a module is enabled the narrator is told its `dm …` lines; a refused line changes nothing. See
-[DATA_MODULES.md](DATA_MODULES.md).
+Once a module is enabled the narrator is told its `dm …` lines; a refused line changes nothing. See [DATA_MODULES.md](DATA_MODULES.md).
 
-## 6. Playing
+## 5. Playing
 
-* **Start.** Bluewatch Village / Guild Office, with **40 copper** (shown as "4 silver") and an empty bag:
-  the pack has no items, so the story gives your kit (`+ item Bedroll`, `+ item Knife`).
-* **Clock.** The Compact Year: era `CY`, twelve months of 30 days, starting **CY 611, Goldwane 12, 06:40**.
-  Story Director reads it (`packs.calendar`); the first reply shows the date. The time-based events wait
-  until the story clock is set.
-* **Coins.** Copper (1, also called bronze), silver (10) and gold (100). The wallet counts copper and the
-  narrator may write `+ coin 3 silver`. Prices are the story's, from the lore's wages and prices; there is
-  no money scale. The story decides what a reply pays.
-* **Items, shops and foes** are made in the story: `+ item Rope | qty: 1`, `- item Rope`, a merchant the
-  narrator names, a beast from the lore's bestiary. Code still counts the bag and the purse.
-* **Map.** Story Director's Map and Region list show the 320 places; the story moves you with
-  `~ place Bluewatch Village`. Places are kept as their names, routes give the distances.
-* **Events.** The world has a hidden history from CY 611 onward: floods out of the north, politics, war and the
-  underworld, on their own dates whether or not you are there. When something happens where you are, the narrator
-  gets the scene; elsewhere, word reaches you days or weeks later as news. Lasting changes go into Story Director's
-  chronicle (World → News and the Journal); the big ongoing ones (a new reign, Auvoth under the Tide, the Tide held at the Last Wall) are kept in mind on every reply. Highmark's throne follows the available claimant sway or the fallback,
-  and the throne changes what follows. Nothing in this page or the
-  lorebook spoils it. **Settings → Diagnostics → Events** lists every event, and does spoil it.
-* **RPG.** With the RPG on (Settings → RPG), the New character window offers the pack's **Sealwarden recruit** skill
-  set: Gate spear, Ward-reading, Lamp-keeping, Breach drill and Gate challenge.
-* **Ranks.** The pack's rank bands name a foe's level band: F for levels 1 to 9, E 10 to 19, D 20 to 29, C 30 to 39, B 40 to 49, A 50 to 59, S 60 to 69, SS 70 to 79 and SSS 80 to 99. A foe reads "Rank F · Lv 7". Your guild letter (§5, Adventurer Guild membership) shows beside your level once you are registered ("Lv 14 · Guild F"; "Lv 14" alone before that). The level cap is 99 (`rpg.levelCap`).
+* **Start.** Bluewatch Village / Guild Office, with **40 copper** and an empty bag: the pack has no items, so the story gives your kit (`+ item Bedroll`, `+ item Knife`).
+* **Clock.** The calendar is the game pack's: era `CY`, the twelve months of the Gregorian year. The story starts on **CY 611, October 1, 07:00**. The first reply shows the date.
+* **Coins.** Copper (1), silver (10) and gold (100). The wallet counts copper and the narrator may write `+ coin 3 silver`. Prices come from the lore's wages and prices; the story decides what a reply pays.
+* **Items, shops and foes** are made in the story: `+ item Rope | qty: 1`, `- item Rope`, a merchant the narrator names, a beast from the lore's bestiary.
+* **Map.** Story Director's Map and Region list show the 320 places; the story moves you with `~ place Bluewatch Village`. Routes give the distances.
+* **Events.** The world has a hidden history from CY 611 onward (103 world events): floods out of the north, politics, war and the underworld, on their own dates whether or not you are there. When something happens where you are, the narrator gets the scene; elsewhere, word reaches you days or weeks later as news. **Settings › Diagnostics › Events** lists every event, and does spoil it.
+* **RPG.** With the RPG on (Settings › RPG), the New character window offers the game pack's **Sealwarden recruit** skill set: Gate spear, Ward-reading, Lamp-keeping, Breach drill and Gate challenge. The level cap is 99.
+* **Ranks.** The rank bands name a foe's level band: F for levels 1 to 9, E 10 to 19, D 20 to 29, C 30 to 39, B 40 to 49, A 50 to 59, S 60 to 69, SS 70 to 79 and SSS 80 to 99. A foe reads "Rank F · Lv 7". Your Guild rank label is "Guild rank".
 
 ### The twelve
 
-`content.cast` holds twelve people, each met by place or because what they want pulls them to the party. What each one hides
-opens as Trust or Affection grows or when the story reaches it; none of it is told before.
+The cast has 31 people. Twelve are companions, each with a portrait. They are met by place or because what they want pulls them to the party. What each one hides opens as Trust or Affection grows or when the story reaches it; none of it is told before.
 
 | Person | Where they begin | One line |
 |---|---|---|
@@ -137,83 +78,12 @@ opens as Trust or Affection grows or when the story reaches it; none of it is to
 | Asphodel | Corrowen | A calm, watchful stranger who sells secrets in the harbor taverns. |
 | Barney Thimblewick | Thousand Sails | A halfling barge gambler and con man, the cast's grandfather figure (not a romance). |
 
-Starting levels (rank band): Temiwa 4 (F), Torka 6 (F), Rika 8 (F), Barney 14 (E), Gorm 22 and Nerissa 24 (D), Asphodel 30, Lothar 32 and Ysmeth 36 (C), Nysseth 44 and Hush 48 (B), Harrak 56 (A).
+The eleven who can be romanced use NPC State Delta's companion meters (Trust, Affection, Desire, Tension); Barney uses the mentor's, with no Desire. Everyone starts at 0 on every meter. A relationship is built in play, not given at the first meeting.
 
-The eleven who can be romanced use NPC State Delta's companion meters (Trust, Affection, Desire, Tension); Barney uses the mentor's, with no Desire. Everyone starts at 0 on every meter: a relationship is built in play, not given at the first meeting.
+## 6. Updating the pack
 
-### Signature skills
+Import the new file (same id `ersveil`: it replaces the old one and keeps its switch), press **Update the lorebook**, then start a new chat. When you change a value in the pack, keep this page, `tests/v2/packs/ersveil-pack.test.js`, `tests/v2/packs/ersveil-timeline.test.js` and the pack's version in step.
 
-Each person has two skills (`content.cast[].skills`), each with a Combat Rules v1 type and a pool (`sp` or `mp`; a skill that rolls INT or WIS draws on MP):
+## Old format 3 Ersveil (test fixture)
 
-| Person | Skill | Stat | Pool | Rank | Type |
-|---|---|---|---|---|---|
-| Sister Temiwa | Mending Prayer | INT | MP | Novice | heal |
-| Sister Temiwa | Gentle Word | CHA | SP | Novice | utility |
-| Ysmeth | Lockwork | DEX | SP | Expert | utility |
-| Ysmeth | Binding Rune | INT | MP | Expert | support |
-| Nysseth | Grinder's Knives | DEX | SP | Expert | attack |
-| Nysseth | Chain Cell Craft | INT | SP | Expert | utility |
-| Rika | Raw Bolt | INT | MP | Adept | attack |
-| Rika | Wild Surge | INT | MP | Novice | area |
-| Harrak | Long Watch Cleave | STR | SP | Expert | area |
-| Harrak | Hold the Line | VIT | SP | Master | defence |
-| Torka | Berserker Rush | STR | SP | Novice | attack |
-| Torka | Maul Swing | STR | SP | Novice | area |
-| Sir Lothar | Iron Guard Cut | DEX | SP | Expert | attack |
-| Sir Lothar | Shield of the Princess | VIT | SP | Adept | defence |
-| Gorm Kettlebright | Hammer Rune | STR | SP | Adept | attack |
-| Gorm Kettlebright | Toast and Tell | CHA | SP | Adept | utility |
-| Nerissa | Pilot's Hand | DEX | SP | Adept | utility |
-| Nerissa | Harpoon Dive | AGI | SP | Adept | attack |
-| Hush | Silver Rain Veil | INT | MP | Expert | utility |
-| Hush | Mother's Hand | VIT | SP | Adept | utility |
-| Asphodel | Flower-Speech | INT | MP | Adept | utility |
-| Asphodel | Quiet Step | AGI | SP | Adept | utility |
-| Barney Thimblewick | Silver Patter | CHA | SP | Adept | utility |
-| Barney Thimblewick | Dirty Trick | DEX | SP | Adept | attack |
-
-The "Sealwarden recruit" skill set (`rpg.skillSets`): Gate spear (attack), Ward-reading (utility, MP), Lamp-keeping (utility), Breach drill (movement), Gate challenge (utility).
-
-### Signature gear
-
-`content.items` holds sixteen pieces of equipment the cast are known for, each worn from the owner's `wears` text. Their numbers follow
-Story Block's gear rules (`story-block.gear`, GEAR.md): the stats stay inside the budget of the rarity (common 1, uncommon 2, rare 3, epic 4,
-legendary 5; the listed numbers were set at the older, lower budgets and are kept, so they use less than the whole) and a piece raises two stats at most. Fang Charm lists none: the slot's pick gives its one point.
-
-| Item | Owner | Slot | Rarity | Stats |
-|---|---|---|---|---|
-| Long Watch Great Axe | Harrak | weapon | legendary | STR +2, VIT +2 |
-| White-Fur Watch Cloak | Harrak | cloak | rare | VIT +2 |
-| Carved Beacon-Horn | Harrak | accessory | uncommon | CHA +1 |
-| Rain-Veil Hood | Hush | cloak | epic | AGI +2, DEX +1 |
-| Cell-Runner's Knives | Nysseth | weapon | epic | DEX +2, AGI +1 |
-| Rune-Collar Hammer | Ysmeth | weapon | rare | STR +1, INT +1 |
-| Iron Guard Plate | Sir Lothar | body | rare | VIT +2 |
-| Iron Guard Longsword | Sir Lothar | weapon | rare | STR +1, DEX +1 |
-| Gold-Thread Hooded Cloak | Asphodel | cloak | rare | CHA +1, AGI +1 |
-| Rune-Marked Dwarven War-Hammer | Gorm Kettlebright | weapon | rare | STR +1, VIT +1 |
-| Atlantean Breathing Sheath | Nerissa | accessory | rare | VIT +1, AGI +1 |
-| Huge Spiked Iron Maul | Torka | weapon | uncommon | STR +1 |
-| Fang Charm | Torka | accessory | common | none |
-| Startrace Travelling Coat | Rika | body | uncommon | INT +1 |
-| Three Walnut Shells | Barney Thimblewick | accessory | uncommon | DEX +1 |
-| Flame-Cross Pendant | Sister Temiwa | accessory | uncommon | CHA +1 |
-
-## 7. Updating the pack
-
-Import the new file (same id `ersveil`: it replaces the old one and keeps its switch), then start a new
-chat. Changing values in the pack: keep this page, `tests/v2/packs/ersveil-pack.test.js`,
-`tests/v2/packs/ersveil-timeline.test.js` and the pack's version in step.
-
-### Moving a running chat to 2.7.0 (Reputation tab)
-
-Ersveil 2.7.0 lays Standing, Fame, Guild and Court favour out as sections of one Reputation tab and needs Story Block 2.22.0. A chat that is
-already running keeps its old modules and keeps working: nothing changes until you choose to migrate. To take the new layout in a running chat,
-migrate each of the four modules, one at a time:
-
-1. Import the 2.7.0 file (Settings → Tabs & Packs → Packs). The four modules show "Migration available".
-2. Open Settings → Tabs & Packs → Data modules.
-3. For each of Standing, Fame, Adventurer Guild membership and Court favour: **Migrate**, read the preview, then confirm. That is four times (two clicks each).
-
-A migration changes only how the module is drawn; its values stay as they are, and it is saved with the latest reply (a swipe or a delete of that
-reply takes it back). A new chat starts on 2.7.0 with nothing to migrate.
+The older Ersveil 3.0.0 (pack format 3) is a frozen test fixture in `tests/fixtures/packs/ersveil-3`: `pack.json`, `ersveil.zip` and a hand-made lorebook `ersveil-lore.json` (227 entries). Format 3 packs are refused by the validator, so it is not for play. Its lorebook imported through SillyTavern → World Info → **Import World Info**; the new lorebook comes from the pack instead.

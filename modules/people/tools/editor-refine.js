@@ -5,8 +5,8 @@ import { lifeStateChoice } from './life-state.js';
 import { setNodeTextIfChanged, setNodeValueIfChanged } from './node-write-guards.js';
 import { installStyles } from './editor-styles.js';
 
-const EDITOR_OBSERVER_GUARD = '__npcStateDeltaDossierExperienceEditorObserver';
-const DOCUMENT_GUARD = '__npcStateDeltaDossierExperienceDocumentEvents';
+const EDITOR_OBSERVER_GUARD = '__pplDossierExperienceEditorObserver';
+const DOCUMENT_GUARD = '__pplDossierExperienceDocumentEvents';
 
 function toast(kind, message) { globalThis.toastr?.[kind]?.(message); }
 
@@ -46,7 +46,7 @@ function editorNpcId(editor) {
 function syncEditorLifecycle(editor, npc, { preserveChoice = false } = {}) {
     if (!editor || !npc) return;
     if (!preserveChoice) setNodeValueIfChanged(editor.querySelector('[data-delta-life-state]'), lifeStateChoice(npc));
-    setNodeTextIfChanged(editor.querySelector('.npc-state-delta-editor-lifecycle span'), lifecycleLabel(npc));
+    setNodeTextIfChanged(editor.querySelector('.ppl-editor-lifecycle span'), lifecycleLabel(npc));
     setNodeTextIfChanged(editor.querySelector('[data-delta-life-status]'), lifeStateChoice(npc) === 'deceased'
         ? 'Deceased is terminal for automatic writers until you explicitly correct it.'
         : 'Life state is separate from archive status and current presence.');
@@ -73,33 +73,33 @@ function moveEditorLabel(editor, id, destination, { wide = false } = {}) {
 }
 
 function ensureEditorStructure(editor) {
-    const content = editor?.querySelector?.('#npc_state_delta_editor_content');
+    const content = editor?.querySelector?.('#people_editor_content');
     if (!content || content.dataset.deltaExperienceStructured === '1') return;
 
     const identity = editorSection('Identity & profile', 'delta-editor-identity');
     for (const [id, wide] of [
-        ['npc_state_delta_edit_name', false], ['npc_state_delta_edit_species', false],
-        ['npc_state_delta_edit_gender', false], ['npc_state_delta_edit_role', false], ['npc_state_delta_edit_home_base', false],
-        ['npc_state_delta_edit_age', false], ['npc_state_delta_edit_birthday', false],
-        ['npc_state_delta_edit_apparent_age', false], ['npc_state_delta_edit_personality', false],
-        ['npc_state_delta_edit_behavior_profile', true], ['npc_state_delta_edit_speech', false],
-        ['npc_state_delta_edit_background', true],
+        ['people_edit_name', false], ['people_edit_species', false],
+        ['people_edit_gender', false], ['people_edit_role', false], ['people_edit_home_base', false],
+        ['people_edit_age', false], ['people_edit_birthday', false],
+        ['people_edit_apparent_age', false], ['people_edit_personality', false],
+        ['people_edit_behavior_profile', true], ['people_edit_speech', false],
+        ['people_edit_background', true],
     ]) moveEditorLabel(content, id, identity.body, { wide });
 
     const current = editorSection('Current state', 'delta-editor-current');
-    for (const id of ['npc_state_delta_edit_mood', 'npc_state_delta_edit_location', 'npc_state_delta_edit_goal', 'npc_state_delta_edit_status']) {
+    for (const id of ['people_edit_mood', 'people_edit_location', 'people_edit_goal', 'people_edit_status']) {
         moveEditorLabel(content, id, current.body);
     }
 
     const relationships = editorSection('Relationships', 'delta-editor-relationships');
-    moveEditorLabel(content, 'npc_state_delta_edit_relationship_summary', relationships.body, { wide: true });
-    moveEditorLabel(content, 'npc_state_delta_edit_key_relationships', relationships.body, { wide: true });
-    const stats = content.querySelector('.npc-state-delta-editor-stats');
+    moveEditorLabel(content, 'people_edit_relationship_summary', relationships.body, { wide: true });
+    moveEditorLabel(content, 'people_edit_key_relationships', relationships.body, { wide: true });
+    const stats = content.querySelector('.ppl-editor-stats');
     if (stats) relationships.body.appendChild(stats);
 
     const continuity = editorSection('Continuity', 'delta-editor-continuity');
-    moveEditorLabel(content, 'npc_state_delta_edit_mannerisms', continuity.body, { wide: true });
-    moveEditorLabel(content, 'npc_state_delta_edit_memories', continuity.body, { wide: true });
+    moveEditorLabel(content, 'people_edit_mannerisms', continuity.body, { wide: true });
+    moveEditorLabel(content, 'people_edit_memories', continuity.body, { wide: true });
 
     const advanced = document.createElement('details');
     advanced.className = 'delta-editor-advanced';
@@ -109,28 +109,28 @@ function ensureEditorStructure(editor) {
     advancedBody.className = 'delta-editor-advanced-body';
     advanced.append(summary, advancedBody);
 
-    const lifecycle = content.querySelector('.npc-state-delta-editor-lifecycle');
+    const lifecycle = content.querySelector('.ppl-editor-lifecycle');
     const lifeControl = content.querySelector('.delta-editor-life-control');
     if (lifecycle) advancedBody.appendChild(lifecycle);
     if (lifeControl) advancedBody.appendChild(lifeControl);
-    for (const lock of [...content.querySelectorAll(':scope > .npc-state-delta-editor-lock')]) advancedBody.appendChild(lock);
-    const protectedText = [...content.querySelectorAll(':scope > p.npc-state-delta-muted')]
+    for (const lock of [...content.querySelectorAll(':scope > .ppl-editor-lock')]) advancedBody.appendChild(lock);
+    const protectedText = [...content.querySelectorAll(':scope > p.ppl-muted')]
         .find(node => /^Currently protected:/i.test(plain(node.textContent)));
     if (protectedText) advancedBody.appendChild(protectedText);
 
-    for (const oldGrid of [...content.querySelectorAll(':scope > .npc-state-delta-editor-grid')]) {
+    for (const oldGrid of [...content.querySelectorAll(':scope > .ppl-editor-grid')]) {
         if (!oldGrid.children.length) oldGrid.remove();
     }
 
     // Keep the editor's own heading/intro at the top, then present a predictable form hierarchy.
     content.append(identity.section, current.section, relationships.section, continuity.section, advanced);
     content.dataset.deltaExperienceStructured = '1';
-    content.dispatchEvent?.(new CustomEvent('npc-state-delta:editor-mounted', { bubbles: true }));
+    content.dispatchEvent?.(new CustomEvent('people:editor-mounted', { bubbles: true }));
 }
 
 function ensureEditorLifeState(editor) {
     if (!editor?.isConnected) return;
-    const lifecycle = editor.querySelector('.npc-state-delta-editor-lifecycle');
+    const lifecycle = editor.querySelector('.ppl-editor-lifecycle');
     const npcId = editorNpcId(editor);
     const existing = editor.querySelector('.delta-editor-life-control');
     if (existing?.dataset.npcId === npcId && existing.dataset.chatKey === activeChatKey()) return;
@@ -163,7 +163,7 @@ function bindDocumentEvents() {
         const apply = event.target.closest?.('[data-delta-apply-life]');
         if (!apply) return;
         event.preventDefault();
-        const editor = apply.closest('.npc-state-delta-editor-popup');
+        const editor = apply.closest('.ppl-editor-popup');
         const npcId = plain(apply.dataset.npcId || editorNpcId(editor));
         const requested = plain(editor?.querySelector?.('[data-delta-life-state]')?.value || 'unknown');
         apply.disabled = true;
@@ -184,19 +184,19 @@ function installEditorObserver() {
     const observer = new MutationObserver(records => {
         const editors = new Set();
         for (const record of records) {
-            const targetEditor = record.target?.closest?.('.npc-state-delta-editor-popup');
+            const targetEditor = record.target?.closest?.('.ppl-editor-popup');
             if (targetEditor) editors.add(targetEditor);
             for (const node of record.addedNodes || []) {
                 if (node?.nodeType !== 1) continue;
-                if (node.matches?.('.npc-state-delta-editor-popup')) editors.add(node);
-                node.querySelectorAll?.('.npc-state-delta-editor-popup').forEach(editor => editors.add(editor));
+                if (node.matches?.('.ppl-editor-popup')) editors.add(node);
+                node.querySelectorAll?.('.ppl-editor-popup').forEach(editor => editors.add(editor));
             }
         }
         for (const editor of editors) ensureEditorLifeState(editor);
     });
     observer.observe(document.body, { childList: true, subtree: true });
     document[EDITOR_OBSERVER_GUARD] = observer;
-    document.querySelectorAll('.npc-state-delta-editor-popup').forEach(ensureEditorLifeState);
+    document.querySelectorAll('.ppl-editor-popup').forEach(ensureEditorLifeState);
 }
 
 function start() {

@@ -28,7 +28,7 @@ test('worn gear: Take off and Give to, Worn by, Wear, bonus and weight rows', ()
   assert.equal(el.querySelector('.wbar').classList.contains('w2'), true);
 });
 
-test('unworn gear offers Wear on; picking a member sends item.equip and closes', () => {
+test('unworn gear offers Wear on; picking a member sends item.equip and closes', async () => {
   installFakeDom();
   const [el, ctx] = sheet(find('Spare dagger'));
   assert.deepEqual(labels(el), ['Wear on…', 'Drop']);
@@ -36,6 +36,7 @@ test('unworn gear offers Wear on; picking a member sends item.equip and closes',
   assert.equal(el.querySelectorAll('.pick .mb').length, 4);
   assert.equal(el.querySelector('.secl').textContent, 'Wear on');
   el.querySelectorAll('.pick .mb')[1].click();
+  await new Promise(r => setTimeout(r, 0));
   // (the command reads `owner`; `transfer` hands the piece to them first, whoever has it now)
   assert.deepEqual(ctx.sent, [['item.equip', { stack: 'spare-dagger', owner: 'brann', transfer: true }], ['close']]);
 });
@@ -93,12 +94,12 @@ test('the main character is the inventory\'s `party`: Wear on and Give to name t
   const worn = itemSheet(find('Chain shirt'), ctx);
   worn.querySelectorAll('.brow .btn2')[1].click();
   worn.querySelector('.pick .mb').click();
-  assert.deepEqual(ctx.sent[2], ['inventory.transfer', { stack: 'chain-shirt', to: 'party' }]);
+  assert.deepEqual(ctx.sent.find(([t]) => t === 'inventory.transfer'), ['inventory.transfer', { stack: 'chain-shirt', to: 'party' }]);
 });
 
 test('a piece with a stat bonus shows it on the sheet', () => {
   installFakeDom();
   const [el] = sheet({ ...find('Spare dagger'), bonus: '+1 STR +1 DEX' });
   assert.match(el.querySelector('.kv').textContent, /Stats\+1 STR \+1 DEX/);
-  assert.doesNotMatch(sheet(find('Spare dagger'))[0].querySelector('.kv').textContent, /Stats/);
+  assert.match(sheet(find('Spare dagger'))[0].querySelector('.kv').textContent, /StatsNoneChange/, 'a gear piece with no points still has the row and its Change');
 });

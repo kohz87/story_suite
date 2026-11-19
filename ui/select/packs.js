@@ -3,6 +3,7 @@
 import { addsLine } from '../../packs/panel.js';
 import { DM_LIMITS } from '../../modules/data-modules/schema.js';
 import { pairLines } from './packs-pair.js';
+import { lorebookView } from './packs-lorebook.js';
 
 const list = value => (Array.isArray(value) ? value.filter(item => item && typeof item === 'object') : []);
 const text = value => (typeof value === 'string' ? value.trim() : '');
@@ -42,7 +43,7 @@ const picker = (rows, kind, none) => {
 };
 
 /** The format 4 page (the World and Game pickers, the suggestion, the pair's problems, the worlds and games, add-ons), or null when no format 4 pack is installed. */
-function selectV4(rows, pairing) {
+function selectV4(rows, pairing, lorebook = []) {
   if (!rows.some(row => row.kind)) return null;
   const info = pairing && typeof pairing === 'object' ? pairing : {};
   const wanted = info.recommends ?? null;
@@ -53,21 +54,25 @@ function selectV4(rows, pairing) {
     gameName: text(info.game?.name) || 'Built-in',
     suggest: wanted && !wanted.selected ? { id: text(wanted.id), game: text(wanted.name), installed: wanted.installed === true } : null,
     lines: pairLines(info),
-    installed: rows.filter(row => row.kind && !row.addOn).map(packRow),
+    // (a world pack with lore carries its lorebook row: Create, Update or Up to date, and the Use with this character tick)
+    installed: rows.filter(row => row.kind && !row.addOn).map(pack => { const book = list(lorebook).find(item => item.id === text(pack.id)); return { ...packRow(pack), ...(book ? { lorebook: lorebookView(book) } : {}) }; }),
     addOns: rows.filter(row => row.addOn).map(packRow),
   };
 }
 
 /**
- * `answers` = { list: packs.list, setup: dataModules.setup }. → the contract's `packs`: the installed packs (switch = enabled), the data modules
+ * `answers` = { list: packs.list, setup: dataModules.setup, pairing, own, lorebook (the world packs' lorebook rows, packs-lorebook.js) }. → the contract's `packs`: the installed packs (switch = enabled), the data modules
  * a pack brings (switch = used by this chat; a module already in use has no way off, so its switch is locked on) and this chat's trackers.
  */
 export function selectPacks(answers) {
   const a = answers && typeof answers === 'object' ? answers : {};
   const rows = list(a.setup);
-  const pinned = rows.filter(row => row.pinned === true);
+  // (the RPG's own blocks — Character, Skills, Foes, its rules — are data modules too, but the RPG owns them: they are not the reader's trackers)
+  const roleOf = row => text((row.pinnedDefinition ?? row.definition)?.role);
+  const pinned = rows.filter(row => row.pinned === true && !roleOf(row));
+  const rpgOwned = rows.filter(row => row.pinned === true && roleOf(row)).map(nameOf);
   const packs = list(a.list);
-  const v4 = selectV4(packs, a.pairing);
+  const v4 = selectV4(packs, a.pairing, a.lorebook);
   const names = Object.fromEntries(packs.map(pack => [text(pack.id), text(pack.name)]));
   return {
     // Format 4: the page lists the worlds and games itself (`v4`); `packs` keeps only the older packs with their on/off switch.
@@ -81,6 +86,7 @@ export function selectPacks(answers) {
     })),
     trackers: {
       cap: DM_LIMITS.pins,
+      ...(rpgOwned.length ? { rpgOwned } : {}),
       items: pinned.map(row => {
         const definition = row.pinnedDefinition ?? row.definition;
         const fields = Object.keys(definition?.state ?? {}).length;

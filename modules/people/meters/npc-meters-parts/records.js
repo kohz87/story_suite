@@ -25,7 +25,7 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
 
     function ensure(ctx, npcs, who, defs, seed) {
         if (Object.hasOwn(npcs, who.key)) return false;
-        if (Object.keys(npcs).length >= MAX_NPCS) ctx.fail('REFUSED', `NPC State Delta keeps meters for up to ${MAX_NPCS} people; ${who.name} was not added.`);
+        if (Object.keys(npcs).length >= MAX_NPCS) ctx.fail('REFUSED', `NPC State keeps meters for up to ${MAX_NPCS} people; ${who.name} was not added.`);
         const meters = {};
         for (const def of defs) {
             const given = intOr(seed?.[def.id], null);

@@ -2,7 +2,7 @@
   "id": "ersveil",
   "format": 4,
   "kind": "world",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "name": "Ersveil (open world)",
   "author": "Story Suite examples",
   "description": "The world of Ersveil as an open world pack: lore, a map of 320 places joined by routes, 31 people (12 companions and 19 world figures), 22 realms, 15 powers and 4 world scores, 31 conditions, the world events of eleven threads and the templates the Director may draw on. It lists no items, shops, prices or foes: the story makes them up from the lore. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611.",
@@ -8988,7 +8988,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "adalmar.webp"
       },
       {
         "kind": "figure",
@@ -9072,7 +9073,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "wendhild.webp"
       },
       {
         "kind": "figure",
@@ -9133,7 +9135,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "corvin.webp"
       },
       {
         "kind": "figure",
@@ -9183,7 +9186,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "hasse.webp"
       },
       {
         "kind": "figure",
@@ -9226,7 +9230,8 @@
           }
         ],
         "protected": false,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "ragna.webp"
       },
       {
         "kind": "figure",
@@ -9263,7 +9268,8 @@
           }
         ],
         "protected": false,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "edda-rorke.webp"
       },
       {
         "kind": "figure",
@@ -9306,7 +9312,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": false
+        "canDieUnmet": false,
+        "portrait": "livia.webp"
       },
       {
         "kind": "figure",
@@ -9344,7 +9351,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": false
+        "canDieUnmet": false,
+        "portrait": "severa.webp"
       },
       {
         "kind": "figure",
@@ -9381,7 +9389,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": false
+        "canDieUnmet": false,
+        "portrait": "reckoner.webp"
       },
       {
         "kind": "figure",
@@ -9422,7 +9431,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "durvald.webp"
       },
       {
         "kind": "figure",
@@ -9461,7 +9471,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": false
+        "canDieUnmet": false,
+        "portrait": "liese.webp"
       },
       {
         "kind": "figure",
@@ -9502,7 +9513,8 @@
           }
         ],
         "protected": false,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "captain-nell.webp"
       },
       {
         "kind": "figure",
@@ -9534,7 +9546,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "somner.webp"
       },
       {
         "kind": "figure",
@@ -9571,7 +9584,8 @@
           }
         ],
         "protected": false,
-        "canDieUnmet": false
+        "canDieUnmet": false,
+        "portrait": "ulgar.webp"
       },
       {
         "kind": "figure",
@@ -9609,7 +9623,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": false
+        "canDieUnmet": false,
+        "portrait": "quill.webp"
       },
       {
         "kind": "figure",
@@ -9650,7 +9665,8 @@
           }
         ],
         "protected": true,
-        "canDieUnmet": false
+        "canDieUnmet": false,
+        "portrait": "pelagia.webp"
       },
       {
         "kind": "figure",
@@ -9683,7 +9699,8 @@
           }
         ],
         "protected": false,
-        "canDieUnmet": false
+        "canDieUnmet": false,
+        "portrait": "laan.webp"
       },
       {
         "kind": "figure",
@@ -9724,7 +9741,8 @@
           }
         ],
         "protected": false,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "ottwald.webp"
       },
       {
         "kind": "figure",
@@ -9773,7 +9791,8 @@
           }
         ],
         "protected": false,
-        "canDieUnmet": true
+        "canDieUnmet": true,
+        "portrait": "ermengild.webp"
       }
     ],
     "lore": [

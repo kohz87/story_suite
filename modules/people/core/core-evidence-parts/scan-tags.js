@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: tagging a scan reply's profile evidence with its message id. */
+/* NPC State profile evidence: tagging a scan reply's profile evidence with its message id. */
 
 
 /**

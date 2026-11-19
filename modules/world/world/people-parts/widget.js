@@ -12,7 +12,7 @@ export const PEOPLE_WIDGET = 'story-director.people';
 
 /**
  * The widget; `open` (tests): () → a function opening one dossier by name, or null; `cast` (tests): () →
- * NPC State Delta's page API, or null.
+ * NPC State's page API, or null.
  */
 export function createPeopleWidget({ open = dossierOpener, cast = castApi, flag = () => LIVE_HOST.flag(OWN_FLAG) } = {}) {
     return Object.freeze({

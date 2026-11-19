@@ -14,7 +14,7 @@ export function buildNpcProfiles(npcs, options = {}) {
             .filter(npc => npc && typeof npc === 'object' && !npc.archived && !isDeceased(npc))
             .map(npc => buildNpcProfile(npc, options)));
     } catch (error) {
-        console.warn('[NPC State Delta] Story Suite NPC profiles failed', error);
+        console.warn('[NPC State] Story Suite NPC profiles failed', error);
         return Object.freeze([]);
     }
 }

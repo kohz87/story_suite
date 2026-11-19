@@ -1,4 +1,4 @@
-/* NPC State Delta: normalizes a whole social graph (edges, unresolved slots, suppressed pairs). */
+/* NPC State: normalizes a whole social graph (edges, unresolved slots, suppressed pairs). */
 import {
     clean, confidenceRank, richer,
     SOCIAL_GRAPH_VERSION, SOCIAL_GRAPH_EDGE_LIMIT,

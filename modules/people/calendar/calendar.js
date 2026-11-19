@@ -1,4 +1,4 @@
-/* NPC State Delta deterministic fantasy-calendar primitives. The implementation is split across
+/* NPC State deterministic fantasy-calendar primitives. The implementation is split across
    calendar-config.js, calendar-clock.js, calendar-date.js and calendar-derived.js; this path keeps
    the original public exports and existing importers unchanged. */
 

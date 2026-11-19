@@ -194,7 +194,7 @@ export class FakeElement extends FakeNode {
         if (text) this.appendChild(new FakeText(this.ownerDocument, text));
     }
     get textContent() { return this.childNodes.map(child => child.textContent).join(''); }
-    // innerHTML is only used by the simulated NPC State Delta bridge; markup is kept as a string.
+    // innerHTML is only used by the simulated NPC State bridge; markup is kept as a string.
     set innerHTML(value) {
         this.textContent = '';
         this.html = String(value);
@@ -230,7 +230,8 @@ export class FakeElement extends FakeNode {
         return node;
     }
     appendChild(node) { return this.insertBefore(node, null); }
-    append(...nodes) { nodes.forEach(node => this.appendChild(typeof node === 'string' ? new FakeText(this.ownerDocument, node) : node)); }
+    // (as a browser does: a non-node — a string, null, undefined, a number — becomes a text node of its String(); so a stray null shows up as "null" in tests too)
+    append(...nodes) { nodes.forEach(node => this.appendChild(node !== null && typeof node === 'object' ? node : new FakeText(this.ownerDocument, String(node)))); }
     prepend(node) { this.insertBefore(node, this.childNodes[0] ?? null); }
     replaceChildren(...nodes) {
         this.childNodes.forEach(node => { node.loseFocusIfInside?.(); node.parentNode = null; });

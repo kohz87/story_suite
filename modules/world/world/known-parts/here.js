@@ -12,7 +12,7 @@ const MAX_THOUGHTS = 10;
 // A thought on the World tab is cut to this many code points: the same as Story Block's CHATTER_CHARS (extras.js).
 const THOUGHT_CHARS = 240;
 
-/** The stance a chip shows for one NPC from NPC State Delta's meters: its ladder rank, else its disposition, else a stage. */
+/** The stance a chip shows for one NPC from NPC State's meters: its ladder rank, else its disposition, else a stage. */
 function stanceOf(entry) {
     if (!isRecord(entry)) return '';
     if (text(entry.rank)) return cut(entry.rank, 40);
@@ -24,13 +24,13 @@ function stanceOf(entry) {
 /**
  * `director.world.here` → `{ place: { name, line, region, kind } | null, moved, weather, present: [name], people: [{ name,
  * stance, dossier, key, thought }], chatter: [{ key, name, text }], nsd, hasPeople }`. `present` is Story
- * Block's scene list (NPC State Delta reads it to know who is here); `people` adds, when NPC State Delta
+ * Block's scene list (NPC State reads it to know who is here); `people` adds, when NPC State
  * answers (`npc.known`), each one's stance and whether they have a dossier. Without it the names stand
  * alone (`nsd: false`, no stance). `moved`: the newest reply moved the scene here (Story Block's
  * `scene.moved`). `weather`: the day's weather (Story Block's `scene.weather`: the story's `~ weather` or the
  * rule's own), '' while there is none or the weather is off. `chatter`: the newest reply's Inner chatter
  * (Story Block's `chatter.head`; empty while it is off), one thought per thinker (their last line), each
- * under `key`: the dossier's name when NPC State Delta knows the name or alias (`npc.dossier`, as the chatter
+ * under `key`: the dossier's name when NPC State knows the name or alias (`npc.dossier`, as the chatter
  * strip links a dossier), else the name, folded (lineKey); a person's `thought` is the one under their key
  * (MODULES §F119).
  */

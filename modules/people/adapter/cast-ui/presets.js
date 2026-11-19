@@ -14,7 +14,7 @@ export function createPresetsPart(session, deps) {
     function presetsBlock(api) {
         if (typeof doc?.createElement !== 'function') return null;
         const root = doc.createElement('div');
-        root.className = 'npc-state-delta-v2-presets';
+        root.className = 'ppl-presets';
         const read = () => {
             try { return presetIds((api?.values?.() ?? storedSettings())?.presets); } catch { return []; }
         };
@@ -28,7 +28,7 @@ export function createPresetsPart(session, deps) {
             root.replaceChildren();
             const head = doc.createElement('b');
             // Hidden by style.css inside Delta's own "Meter presets" fold, whose title says it.
-            head.className = 'npc-state-delta-v2-presets-head';
+            head.className = 'ppl-presets-head';
             head.textContent = 'Meter presets';
             root.appendChild(head);
             if (!part.featureOn(FEATURE_PRESETS)) {
@@ -43,17 +43,17 @@ export function createPresetsPart(session, deps) {
             const used = read();
             for (const preset of catalog()) {
                 const row = doc.createElement('div');
-                row.className = 'npc-state-delta-v2-preset';
+                row.className = 'ppl-preset';
                 row.dataset.preset = preset.id;
                 const name = doc.createElement('span');
-                name.className = 'npc-state-delta-v2-preset-name';
+                name.className = 'ppl-preset-name';
                 name.textContent = preset.name;
                 const about = doc.createElement('small');
                 about.textContent = preset.describe;
                 const on = used.includes(preset.id);
                 const button = doc.createElement('button');
                 button.type = 'button';
-                button.className = 'menu_button npc-state-delta-v2-preset-toggle';
+                button.className = 'menu_button ppl-preset-toggle';
                 button.textContent = on ? 'Stop using' : 'Use';
                 button.setAttribute?.('aria-pressed', on ? 'true' : 'false');
                 button.addEventListener?.('click', () => {

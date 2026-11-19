@@ -1,4 +1,4 @@
-/* NPC State Delta focused relationship-pass prompt. Split from core-prompts.js without change; core-prompts.js
+/* NPC State focused relationship-pass prompt. Split from core-prompts.js without change; core-prompts.js
    re-exports every name it exported before. */
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DURABLE_PROFILE_LIMITS, normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeRelationshipEventHistory, normalizeRelationshipEvidence } from './core-relationship.js';
 import { cleanList, cleanText, cleanWords } from './core-text.js';

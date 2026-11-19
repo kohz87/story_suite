@@ -6,7 +6,7 @@ export const CATEGORIES = Object.freeze(['met', 'relationships', 'events', 'part
 export const DEFAULT_CATEGORY = 'events';
 
 // Receipt types by category. Story Block's presence, party, item, money and place receipts; Story Director's
-// chronicle and atlas receipts; NPC State Delta's meter and presence receipts (`npc.meters`, `npc.set`, `npc.adjust`,
+// chronicle and atlas receipts; NPC State's meter and presence receipts (`npc.meters`, `npc.set`, `npc.adjust`,
 // `npc.present`); the Block's data-module results (`capture.dm`, `dm.act`) that are not a meter set: a stored type reads
 // "capture.dm:<kind>" (the result's kind, see typeOf in days/facts.js) and the kind says what it is (DM_KINDS below); a line stored
 // with no kind (older days) stays Reputation.

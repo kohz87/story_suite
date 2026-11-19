@@ -1,4 +1,4 @@
-/* NPC State Delta record facade: canonical stored-record normalization and lifecycle owners. The implementation is split
+/* NPC State record facade: canonical stored-record normalization and lifecycle owners. The implementation is split
    across core-record-shared.js, core-record-scan.js, core-record-custom-fields.js and core-record-merge.js; this module
    keeps its original path and re-exports every public name unchanged. Public face: re-exports its parts. */
 export { setNpcArchived, npcMattersForRetention, applyStaleNpcLifecycle } from './core-record-parts/archive.js';

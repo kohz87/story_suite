@@ -1,6 +1,6 @@
 // NPC State Batch 2 N0: the background prompts NPC State sends today, pinned byte for byte (tests/suite/background-prompts.golden.json).
-// The fallback scanner (full scan, relationships on), the backfill, the Refresh and today's one-pass context (the uncached tail the
-// one-pass block rides with), each over fixed fixtures: layered secrets on, a watched story event, the stage-4 form rule, the
+// The fallback scanner (full scan, relationships on), the backfill and the Refresh (the one-pass lines are pinned by
+// tests/people/prompt-lines-golden.test.js), each over fixed fixtures: layered secrets on, a watched story event, the stage-4 form rule, the
 // birthday rule and the custom-field / Level rule. Regenerate (WRITE_GOLDEN=1) only for an intended, reviewed, owner-approved change.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -46,7 +46,6 @@ if (process.env.WRITE_GOLDEN === '1') {
 test('each fixture exercises the rule it is for', () => {
     assert.match(actual.layered_watched.scanner, /HIDDEN NOTES/);
     assert.match(actual.layered_watched.scanner, /STORY EVENTS/);
-    assert.match(actual.layered_watched.onePassContext, /The bridge falls/);
     assert.match(actual.stage4_birthday.scanner, /STAGE 4 APPEARANCE/);
     assert.match(actual.stage4_birthday.scanner, /birthday/i);
     // The fixtures tell the stage-4 branch apart: the detailed text is on wherever a form or a death word is, and off for `bare`.

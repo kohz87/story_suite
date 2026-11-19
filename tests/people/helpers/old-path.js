@@ -17,16 +17,21 @@ const MOVED_LATER = Object.freeze({
     'continuity-ui.js': 'modules/people/tools/continuity-ui.js',
     'calendar-settings.js': 'modules/people/settings/calendar-settings.js',
     'scanner-output-ui.js': 'modules/people/settings/scanner-output.js',
-    // B4-6: the in-chat cards went; the roster markup, the NPC lookup and the cast refresh were rewritten in new files.
-    'runtime-present-cast.js': 'modules/people/legacy/runtime-present-cast.js',
-    'runtime-npc-lookup.js': 'modules/people/legacy/runtime-npc-lookup.js',
-    'runtime-cast-refresh.js': 'modules/people/legacy/runtime-cast-refresh.js',
+    // B4-6: the in-chat cards went; the NPC lookup and the cast refresh were rewritten in new files. B4-13: the runtime's start, entry and
+    // persistence left modules/people/legacy/ for modules/people/runtime/, its sheets for modules/people/css/ (the roster markup was removed).
+    'runtime-npc-lookup.js': 'modules/people/runtime/runtime-npc-lookup.js',
+    'runtime-cast-refresh.js': 'modules/people/runtime/runtime-cast-refresh.js',
+    'runtime-persist.js': 'modules/people/runtime/runtime-persist.js',
+    'index.js': 'modules/people/runtime/runtime-entry.js',
+    'bootstrap.js': 'modules/people/runtime/runtime-start.js',
+    'suite.css': 'modules/people/css/suite.css',
 });
 
-// Whole families that left modules/people/legacy/ later (B4-7), with their part folders: old name prefix → new folder.
+// Whole families that left modules/people/legacy/ later (B4-7; the sheets at B4-13), with their part folders: old name prefix → new folder.
 const MOVED_FAMILIES = Object.freeze([
     ['calendar', 'modules/people/calendar/'],
     ['src/relationship-pa', 'modules/people/relationship/'],
+    ['style', 'modules/people/css/'],
 ]);
 
 /** `rel` (from the old package folder) → the absolute path of that file or folder in this repo. */

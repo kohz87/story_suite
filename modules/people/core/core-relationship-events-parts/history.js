@@ -1,4 +1,4 @@
-/* NPC State Delta relationship event history: the reply index of an event, history normalization and appending an event. */
+/* NPC State relationship event history: the reply index of an event, history normalization and appending an event. */
 import { cleanText } from '../core-text.js';
 import { normalizeRelationshipImpact, RELATIONSHIP_EVENT_HISTORY_LIMIT, RELATIONSHIP_KEYS } from '../core-relationship-model.js';
 import { normalizeRelationshipEvidence } from './shared-evidence.js';

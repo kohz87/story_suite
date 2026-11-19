@@ -4,7 +4,7 @@
 import { createAssistPart } from '../../../assist/index.js';
 import { INVENTORY_FEATURES, INVENTORY_EDIT_GUARD, LOOT_KINDS, inventoryEditGuard, lootTakeGuard } from '../../../inventory/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
-import { chatterCap, chatterGrammar, headChatter, sceneChatter } from '../../extras.js';
+import { chatterCap, chatterGrammar, headChatter, replyChatter, replyChoices, sceneChatter } from '../../extras.js';
 import { createEvidenceQuery } from '../../../../core/evidence.js';
 import { createEventsPart } from '../../../world/events/index.js';
 import { standardWidgets } from '../../../../packs/widgets/index.js';
@@ -94,6 +94,10 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
         queries: {
             ...merged.queries,
             'chatter.head': Object.assign(() => headChatter(extras?.headChat?.(), extras?.display), { feature: CORE_FEATURE.chatter }),
+            // Every reply's own chatter, [{ index, lines }], for the block drawn inside each reply (null while Inner chatter is off).
+            'chatter.replies': Object.assign(() => { const read = extras?.repliesChat?.(); return replyChatter(read?.chat, read?.faded, extras?.display); }, { feature: CORE_FEATURE.chatter }),
+            // Every reply's own choices, [{ index, choices }], for the Choices tab of each reply's card (null while Choices is off).
+            'choices.replies': Object.assign(() => { const read = extras?.repliesChat?.(); return replyChoices(read?.chat, read?.faded, extras?.display); }, { feature: CORE_FEATURE.choices }),
             'scene.chatter': Object.assign(state => {
                 let world = false;
                 try { world = extras?.worldShown?.() === true; } catch { world = false; }

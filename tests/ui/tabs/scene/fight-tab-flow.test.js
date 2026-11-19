@@ -14,7 +14,7 @@ import { api, openFight, v1Host } from '../../../modules/rpg/board/v1.helpers.js
 const flush = () => new Promise(resolve => setTimeout(resolve, 0));
 const portOn = host => {
   const sdk = { interaction: new Proxy({}, { get: (_, verb) => (...args) => api(host)[verb](...args) }), query: name => (name === 'interaction.view' ? api(host).current() : null) };
-  return createSbPort({ sdk, selectors: buildSelectors(() => null, sdk) });
+  return createSbPort({ sdk, selectors: buildSelectors(() => host.ctx, sdk) });
 };
 
 test('the Fight tab plays a real fight and shows the same fight live, after a rebuild and after a reload, through swipe, Re-read, rewind, delete and chat change', async () => {
@@ -28,7 +28,7 @@ test('the Fight tab plays a real fight and shows the same fight live, after a re
     const fight = port.view('fight');
     assert.deepEqual(checkShape(fight, SCENE_SHAPE), []);
     assert.equal(port.view('scene'), null, 'a fight is on the Fight tab, not the activity tab');
-    assert.equal(port.view('chat').inlineRow.fightOpen, true);
+    assert.equal(port.view('chat').head.actions.fight, true);
     assert.deepEqual(port.view('now').needsYou.map(row => row.kind), ['fight'], 'Now asks for the open fight');
 
     const suite = mountSuite({ port, doc });

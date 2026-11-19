@@ -1,4 +1,4 @@
-/* NPC State Delta deriving apparent age from an appearance and projecting an NPC onto the calendar. */
+/* NPC State deriving apparent age from an appearance and projecting an NPC onto the calendar. */
 import { effectiveChronologicalAge, normalizeNpcBirthday } from '../../birthday/birthday.js';
 import { getActiveCalendarConfig } from '../../calendar/calendar.js';
 import * as mechanics from '../core-mechanics.js';

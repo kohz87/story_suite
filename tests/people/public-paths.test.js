@@ -6,11 +6,11 @@ import { createStore } from '../../core/store.js';
 import { createCommandBus } from '../../core/commands.js';
 import { CAPTURE_PREFIX } from '../../core/registry.js';
 import { parseChanges } from '../../core/capture.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { PUBLIC_PATHS_OWNER, PUBLIC_PATHS_PREFIX, createPublicPathsDefinition } from '../../modules/people/public-paths.js';
 import { secretId } from '../../modules/people/meters/npc-meters.js';
 
-// NPC State Delta's public paths (src/public-paths.js; Story Block 2.22.0 sdk.registerPublicPaths), against Story Block's real registry,
+// NPC State's public paths (src/public-paths.js; Story Block 2.22.0 sdk.registerPublicPaths), against Story Block's real registry,
 // store and change-line parser (the live packages/story-block code) with a small sdk that keeps the registration. The host's own side (api.get,
 // paths(), {{sb::…}}, story:changed) is tested in Story Block (tests/v2/public-paths.test.js); here is what Delta offers it.
 
@@ -45,7 +45,7 @@ function fakeDelta() {
         dossierRevision: () => JSON.stringify(delta.records),
         publicFields: id => (delta.records[id] ? { mood: typeof delta.records[id].mood === 'string' ? delta.records[id].mood : null, relationship: { ...(delta.records[id].relationship ?? {}) } } : null),
         relationshipBaseline: () => ({ ...delta.baseline }),
-        presentCastHtml: () => '<section class="npc-state-delta-present-roster">cast</section>',
+        presentCastHtml: () => '<section class="ppl-present-roster">cast</section>',
         castEmptyReason: () => ({ text: 'Nobody here.' }),
         fillPresentCast: () => {},
         formPortraits: () => ({}),
@@ -105,7 +105,7 @@ async function host({ settings = {}, delta = fakeDelta(), headReply = () => null
     };
     const box = { host: { ready: Promise.resolve(sdk), sdk } };
     const warnings = [];
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: delta.suiteApi, delta: () => delta.api, version: 'test', host: () => box.host, headReply,
         doc: fakeDoc(), timers, logger: { warn: (...args) => warnings.push(args) }, loadEmptyCast: async () => null,
     });
@@ -272,9 +272,9 @@ test('Delta off: no paths', async () => {
 test('the host is told when a scan finished late (the Cast was redrawn): changed() is called', async () => {
     const h = await host();
     const before = h.changedCalls();
-    fire('npc-state-delta:cast-rendered');
+    fire('people:cast-rendered');
     assert.equal(h.changedCalls(), before + 1);
-    fire('npc-state-delta:enabled-changed');
+    fire('people:enabled-changed');
     assert.equal(h.changedCalls(), before + 2);
 });
 
@@ -291,7 +291,7 @@ test('an older Story Block (no registerPublicPaths): Delta is hosted as before a
     assert.deepEqual(h.registered, []);
     h.reply('Mira nods.', '~ npc Mira | trust: +1');
     assert.equal(h.npc('Mira').meters.trust, 11, 'meters work as before');
-    fire('npc-state-delta:cast-rendered');
+    fire('people:cast-rendered');
     assert.equal(h.changedCalls(), 0);
 });
 
@@ -299,7 +299,7 @@ test('a refusal by the host is logged and Delta is still hosted', async () => {
     const h = await host({ publicPaths: 'refusing' });
     assert.equal(h.adapter.hosted(), true);
     assert.ok(h.warnings.some(args => /public paths were not registered/.test(String(args[0]))));
-    fire('npc-state-delta:cast-rendered');
+    fire('people:cast-rendered');
 });
 
 test('createPublicPathsDefinition on its own: duplicate names, non-finite values and a throwing source', () => {
@@ -372,22 +372,22 @@ test('1.10.0 no spurious change on chat open: the first render of a chat\'s load
     const h = await host({ delta });
     assert.equal(h.registrations(), 1);
     // The chat opens: renders before its dossiers are loaded say nothing.
-    fire('npc-state-delta:cast-rendered');
+    fire('people:cast-rendered');
     assert.equal(h.changedCalls(), 0, 'nothing loaded yet: nothing to tell');
     // The dossiers load and the hydration render comes: that is the baseline (registered again quietly), not a change.
     ready = true;
-    fire('npc-state-delta:cast-rendered');
+    fire('people:cast-rendered');
     assert.equal(h.changedCalls(), 0, 'the first values after the chat opened are the baseline');
     assert.equal(h.registrations(), 2, 'the host takes its baseline from a fresh registration');
     assert.equal(h.registered.length, 1, 'still one registration');
     // A later render of the same chat (a scan finished late) is told.
-    fire('npc-state-delta:cast-rendered');
+    fire('people:cast-rendered');
     assert.equal(h.changedCalls(), 1, 'a later change is told');
     // A chat switch starts a new baseline.
     chatKey = 'chat-two'; ready = false;
-    fire('npc-state-delta:cast-rendered');
+    fire('people:cast-rendered');
     ready = true;
-    fire('npc-state-delta:cast-rendered');
+    fire('people:cast-rendered');
     assert.equal(h.changedCalls(), 1, 'the second chat\'s first values are its baseline');
     assert.equal(h.registrations(), 3);
 });

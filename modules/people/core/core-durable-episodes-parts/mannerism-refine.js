@@ -1,4 +1,4 @@
-/* NPC State Delta mannerism refinement admission: explicit-recurrence checks and safe-refinement filtering. */
+/* NPC State mannerism refinement admission: explicit-recurrence checks and safe-refinement filtering. */
 
 import { cleanText, normalizeName } from '../core-text.js';
 import { DURABLE_PROFILE_LIMITS, durableRefinementTokens } from '../core-relationship.js';

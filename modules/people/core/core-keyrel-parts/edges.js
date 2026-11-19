@@ -1,4 +1,4 @@
-/* NPC State Delta key-relationship edges: normalizing raw edges from a scan result and finding the person an edge endpoint names. */
+/* NPC State key-relationship edges: normalizing raw edges from a scan result and finding the person an edge endpoint names. */
 import { resolveNpcId, resolveNpcReference, SOCIAL_DYNAMIC_MAX_CHARS } from '../../social/social.js';
 import { cleanText, cleanTextBoundary, normalizeName } from '../core-text.js';
 

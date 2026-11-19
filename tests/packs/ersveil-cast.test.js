@@ -73,17 +73,20 @@ test('everyone who has a start place starts at a place id of the world', () => {
     for (const person of placed) assert.ok(places.has(person.start.place), `${person.id} starts at "${person.start.place}"`);
 });
 
-test('the portraits: the 12 companions name one WebP each in the folder, 512 px at most and 150 KB at most; no figure has one', () => {
+test('the portraits: all 31 people name one WebP each in the folder, 512 px at most and 150 KB at most', () => {
     const named = cast.filter(person => person.portrait).map(person => [person.id, person.portrait]);
-    assert.deepEqual(named.map(([id]) => id), COMPANIONS);
+    assert.equal(cast.length, 31);
+    assert.deepEqual(named.map(([id]) => id), cast.map(person => person.id));
     for (const [id, name] of named) {
         assert.match(name, /^[a-z-]+\.webp$/, id);
         const bytes = readFileSync(new URL(`portraits/${name}`, folder));
         assert.ok(bytes.length <= 150 * 1024, `${name} is ${bytes.length} bytes`);
         assert.equal(bytes.toString('latin1', 0, 4), 'RIFF');
-        assert.equal(bytes.toString('latin1', 8, 16), 'WEBPVP8 ', name);
-        const width = bytes.readUInt16LE(26) & 0x3fff;
-        const height = bytes.readUInt16LE(28) & 0x3fff;
+        const kind = bytes.toString('latin1', 8, 16);
+        assert.ok(kind === 'WEBPVP8 ' || kind === 'WEBPVP8X', `${name} is ${kind}`);
+        // A plain lossy file keeps its size in the VP8 frame header; an extended one has the canvas size minus one, 24 bits each.
+        const width = kind === 'WEBPVP8 ' ? bytes.readUInt16LE(26) & 0x3fff : bytes.readUIntLE(24, 3) + 1;
+        const height = kind === 'WEBPVP8 ' ? bytes.readUInt16LE(28) & 0x3fff : bytes.readUIntLE(27, 3) + 1;
         assert.ok(Math.max(width, height) <= 512 && Math.min(width, height) > 0, `${name} is ${width}x${height}`);
     }
 });

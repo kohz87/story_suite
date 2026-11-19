@@ -86,8 +86,8 @@ test('the dossier editor identifies its NPC so appearance, life-state and sectio
     const index = runtimeSource();
     const experience = fs.readFileSync(new URL('../../modules/people/tools/editor-refine.js', import.meta.url), 'utf8');
     const continuityUi = fs.readFileSync(new URL('../../modules/people/tools/continuity-ui.js', import.meta.url), 'utf8');
-    assert.match(index, /content\.id = 'npc_state_delta_editor_content';[\s\S]{0,200}content\.dataset\.npcId = npc\.id;/);
+    assert.match(index, /content\.id = 'people_editor_content';[\s\S]{0,200}content\.dataset\.npcId = npc\.id;/);
     assert.match(experience, /function editorNpcId\(editor\) \{\s*return plain\(editor\?\.querySelector\?\.\('\[data-npc-id\]'\)/);
     assert.match(continuityUi, /data-delta-current-appearance/);
-    assert.match(experience, /\['npc_state_delta_edit_gender', false\]/, 'gender sits inside Identity & profile');
+    assert.match(experience, /\['people_edit_gender', false\]/, 'gender sits inside Identity & profile');
 });

@@ -1,4 +1,4 @@
-/* NPC State Delta relevance selection: scoring how relevant each person is to the current text and picking the top few. */
+/* NPC State relevance selection: scoring how relevant each person is to the current text and picking the top few. */
 import { DURABLE_PROFILE_LIMITS, durableSemanticSimilarity } from '../core-relationship.js';
 import { cleanList, normalizeName } from '../core-text.js';
 import { countNormalizedPhrase } from '../core-merge.js';

@@ -75,7 +75,7 @@ export async function recordChat({ suite, chat, flags = null }) {
     }
 
     // The prompt the host builds for the reply after each one. Later messages are hidden (is_system, as a restore hides them), never
-    // removed: a shorter chat no longer matches NPC State Delta's saved records and the host holds the reply back. The story state is the head's.
+    // removed: a shorter chat no longer matches NPC State's saved records and the host holds the reply back. The story state is the head's.
     for (const entry of replies) {
       try {
         await loadFull(host, header, messages.map((message, i) => (i > entry.index ? { ...message, is_system: true } : message)));

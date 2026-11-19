@@ -1,8 +1,8 @@
-/* NPC State Delta scan operations (role: scan-operations). The lifecycle of one scan operation (begin, the canonical-base check before a result is merged,
+/* NPC State scan operations (role: scan-operations). The lifecycle of one scan operation (begin, the canonical-base check before a result is merged,
    end, cancel), the dossier-work intent gate and the deferral of work that finds the host's head-selection barrier still up, the idle wait, the
    generation gate, the queue of automatic scans and its drain, the backfills started after a reply, and the scan diagnostics record. The registry
-   itself is created in index.js (the chat-key part takes isScanBusy at construction). Built by index.js once per module instance with the shared
-   runtime state. Bodies are moved from index.js without change. */
+   itself is created in runtime-entry.js (the chat-key part takes isScanBusy at construction). Built by runtime-entry.js once per module instance with the shared
+   runtime state. Bodies are moved from runtime-entry.js without change. */
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { isEmptyScannerAnswer, isScannerRoutingError, selectedScannerProfileId } from './scanner-routing.js';
@@ -122,7 +122,7 @@ export function createScanOpsPart(rt, deps) {
                 serverRevision: hydratedStateMeta.get(key)?.latestObservedServerRevision ?? currentRevision,
                 dirty: false,
             });
-            console.info(`[NPC State Delta] rejected stale ${label} result because the canonical sidecar advanced from revision ${baseRevision} to ${currentRevision}.`);
+            console.info(`[NPC State] rejected stale ${label} result because the canonical sidecar advanced from revision ${baseRevision} to ${currentRevision}.`);
         }
         return current;
     }
@@ -190,7 +190,7 @@ export function createScanOpsPart(rt, deps) {
                     if (!entry.told && Date.now() - entry.since >= HEAD_SETTLE_PROBLEM_MS) {
                         entry.told = true;
                         const text = `NPC State: Story Block has not finished bringing the story to the selected point for ${Math.round(HEAD_SETTLE_PROBLEM_MS / 60000)} minutes, so ${defer.what || 'a scan'} is still pending. It runs as soon as Story Block is ready.`;
-                        console.warn(`[NPC State Delta] ${text}`);
+                        console.warn(`[NPC State] ${text}`);
                         globalThis.toastr?.warning?.(text);
                     }
                     await new Promise(resolve => setTimeout(resolve, 250));
@@ -200,7 +200,7 @@ export function createScanOpsPart(rt, deps) {
                 if (typeof entry.check === 'function' && !entry.check()) return;   // the reply it was for is gone: its replacement has its own event
                 await entry.defer.retry(entry.defer.options);
             } catch (error) {
-                console.warn('[NPC State Delta] deferred dossier work failed', error);
+                console.warn('[NPC State] deferred dossier work failed', error);
             } finally {
                 if (deferredWork.get(id) === entry) deferredWork.delete(id);
             }
@@ -268,7 +268,7 @@ export function createScanOpsPart(rt, deps) {
         return getChatKey() === key;
     }
     function headNotSettled(answer) {
-        console.info('[NPC State Delta] the host has not settled the selected head (its barrier is still up), so no dossier work was started.');
+        console.info('[NPC State] the host has not settled the selected head (its barrier is still up), so no dossier work was started.');
         return answer;
     }
 
@@ -317,17 +317,17 @@ export function createScanOpsPart(rt, deps) {
     function noteScanFailure(label, error, chatKey = '') {
         // A scan the reader (or a chat change, or the page closing) cancelled is expected, so it is no console error.
         if (isScannerRoutingError(error) && error.code === 'NPC_SCANNER_ROUTE_CANCELLED') {
-            console.debug(`[NPC State Delta] ${label} cancelled`);
+            console.debug(`[NPC State] ${label} cancelled`);
             return;
         }
         if (!isEmptyScannerAnswer(error)) {
-            console.error(`[NPC State Delta] ${label} failed`, error);
+            console.error(`[NPC State] ${label} failed`, error);
             return;
         }
         const key = String(chatKey || '');
         if (emptyAnswerChats.has(key)) return;
         emptyAnswerChats.add(key);
-        console.warn(`[NPC State Delta] ${label}: the model answered nothing, so nothing changed; the next reply scans again. (Said once per chat.)`);
+        console.warn(`[NPC State] ${label}: the model answered nothing, so nothing changed; the next reply scans again. (Said once per chat.)`);
     }
 
     // (b6-soak-2) Queued backfills never hold a reply: SillyTavern waits for every MESSAGE_RECEIVED
@@ -343,7 +343,7 @@ export function createScanOpsPart(rt, deps) {
             if (getChatKey() !== chatKey || latestMessageId(true) !== messageId) return;
             const skipNpcIds = [...(rt.catchUpTaken?.get(chatKey) || [])];
             processPendingBackfills(messageId, { limit, skipNpcIds, admissions: hostedOnePass() })
-                .catch(error => console.warn('[NPC State Delta] queued dossier backfills stopped.', error));
+                .catch(error => console.warn('[NPC State] queued dossier backfills stopped.', error));
         });
     }
 

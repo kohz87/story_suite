@@ -1,4 +1,4 @@
-/* NPC State Delta development episodes: targeted/bounded batch windows, NPC ownership and
+/* NPC State development episodes: targeted/bounded batch windows, NPC ownership and
    developmentScaleReady. Split from core-development.js as a line-for-line part; the original keeps
    the public exports. */
 

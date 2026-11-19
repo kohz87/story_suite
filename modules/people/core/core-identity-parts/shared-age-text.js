@@ -1,4 +1,4 @@
-/* NPC State Delta identity: age wording shared by the age normalizers: cleaned text, number words, unknown placeholders. */
+/* NPC State identity: age wording shared by the age normalizers: cleaned text, number words, unknown placeholders. */
 import { cleanText } from '../core-text.js';
 
 export function normalizedAgeText(value) {

@@ -26,6 +26,7 @@ export function createTabViews(ctx) {
     if (!build || !vm) return null;
     const party = port.view('party');
     const members = Object.fromEntries((party?.members ?? []).map(m => [m.id, m.name]));
+    const portraits = Object.fromEntries((party?.members ?? []).map(m => [m.id, m.portrait ?? null]));
     let sheet = null;
     const own = {
       ...ctx,
@@ -33,6 +34,7 @@ export function createTabViews(ctx) {
       backStack,
       back: backStack,
       members,
+      portraits,
       pcId: party?.pcId ?? null,
       refresh: () => ctx.refresh?.(),
       command: (type, payload) => port.command(type, payload),

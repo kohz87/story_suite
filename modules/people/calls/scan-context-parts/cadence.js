@@ -1,4 +1,4 @@
-/* NPC State Delta: whether the automatic scan is due after a reply. */
+/* NPC State: whether the automatic scan is due after a reply. */
 
 // With Story Suite's "Scan after every reply" switched off the automatic scan runs this often at the most.
 export const AUTO_SCAN_EVERY_WITHOUT_EVERY_REPLY = 3;

@@ -1,4 +1,4 @@
-/* NPC State Delta: the small text and name-folding helpers the scan-context parts share. */
+/* NPC State: the small text and name-folding helpers the scan-context parts share. */
 
 export function text(value) {
     return typeof value === 'string' ? value.trim() : '';

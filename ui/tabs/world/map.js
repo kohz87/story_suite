@@ -1,16 +1,19 @@
-// Builds the map card: find, region, zoom, fit, centre and tidy tools over a pan-and-pinch SVG of places, roads and the trip line.
+// Builds the map card: find, region, zoom, fit, centre and tidy tools over a pan-and-pinch SVG of places, roads and the trip line; labels that would overlap wait for a closer zoom.
 import { h, svgEl } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { button } from '../../kit/controls.js';
 import { tripCard, tripSummary } from './trip.js';
-import { labelGeom, nudgeLabels } from './label-nudge.js';
+import { labelGeom, planLabels, planRegions } from './map-labels.js';
+import { fitView, openBox, zoomLimits } from './map-view.js';
 import { placePulse, pulseRing } from './pulse.js';
+import { groupPlaces, layoutGroups, panAbove } from './map-groups.js';
 
-const BASE = Object.freeze({ x: 0, y: 0, w: 1000, h: 700 });
+export { fitBox } from './map-view.js';
 const KIND_GLYPHS = [[/port|harbou?r/i, 'port'], [/ford|bridge|mill/i, 'ford'], [/city/i, 'city'], [/village|hamlet/i, 'village'],
   [/outpost|fort|camp/i, 'outpost'], [/tower|watch/i, 'tower'], [/ruin/i, 'ruin']];
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const viewText = vb => `${vb.x} ${vb.y} ${vb.w} ${vb.h}`;
+const isBig = p => Boolean(p.here) || /capital|city|market/i.test(p.kind ?? '');
 
 /** Picks the glyph name for a place kind such as "Port town" or "Ruin"; towns are the fallback. */
 export function placeGlyph(kind) {
@@ -18,41 +21,26 @@ export function placeGlyph(kind) {
   return hit ? hit[1] : 'town';
 }
 
-/** Returns the view box that fits the points with padding at the given height/width ratio. */
-export function fitBox(points, pad = 90, ratio = 0.7) {
-  if (!points.length) return { ...BASE };
-  const xs = points.map(p => p.x);
-  const ys = points.map(p => p.y);
-  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
-  const w = Math.max(x1 - x0 + 2 * pad, (y1 - y0 + 2 * pad) / ratio);
-  return { x: (x0 + x1) / 2 - w / 2, y: (y0 + y1) / 2 - (w * ratio) / 2, w, h: w * ratio };
-}
-
-/** Marks one place as selected (or none) on an already drawn map. */
+/** Marks one place as selected (or none) on an already drawn map; a folded sub-place marks its town. */
 export function markSelected(root, id) {
   for (const g of root.querySelectorAll('[data-pl]')) {
-    g.classList.toggle('sel', g.dataset.pl === id);
+    g.classList.toggle('sel', Boolean(id) && (g.dataset.pl === id || String(g.dataset.has ?? '').split(' ').includes(id)));
   }
 }
 
-function regionLabels(places) {
-  const groups = new Map();
-  for (const p of places) {
-    if (!p.region) continue;
-    if (!groups.has(p.region)) groups.set(p.region, []);
-    groups.get(p.region).push(p);
-  }
-  return [...groups].map(([name, list]) => svgEl('text', {
-    class: 'rgn',
-    x: Math.round(list.reduce((s, p) => s + p.x, 0) / list.length) - name.length * 6,
-    y: Math.round(list.reduce((s, p) => s + p.y, 0) / list.length) - 60,
-  }, name.toUpperCase()));
+// A place's name beside its dot (lab = { side, dy px } from planLabels).
+function nameText(p, u, lab, act) {
+  const { r, fs } = labelGeom(p, u);
+  const flip = lab?.side === 'l';
+  return svgEl('text', { x: flip ? p.x - r - 6 * u : p.x + r + 6 * u, y: p.y + fs * 0.35 + (lab?.dy ?? 0) * u, 'text-anchor': flip ? 'end' : 'start', style: { 'font-size': `${fs}px`, 'stroke-width': `${3 * u}px` },
+    ...(lab ? { class: ['pn', isBig(p) ? 'big' : null], 'aria-hidden': 'true', onClick: () => act.openPlace(p.id) } : { class: 'nm' }) }, p.name);
 }
 
-function placeNode(p, u, newsIds, state, act, vb, dy = 0) {
-  const big = p.here || /city|market/i.test(p.kind);
-  const { r, fs, flip } = labelGeom(p, u, vb);
-  const nr = Math.max(8, 9 * u);
+// A place: its dot, glyph, news mark and a thin selection ring a few px out; a name that waits (no lab) rides inside, shown on hover, focus or select.
+function placeNode(p, u, newsIds, sel, act, lab) {
+  const big = isBig(p);
+  const { r } = labelGeom(p, u);
+  const nr = 9 * u;
   const stroked = /port|harbou?r|ford|bridge|mill/i.test(p.kind);
   const badge = newsIds.has(p.id)
     ? svgEl('g', { class: 'news' },
@@ -60,19 +48,20 @@ function placeNode(p, u, newsIds, state, act, vb, dy = 0) {
       svgEl('text', { x: p.x + r * 0.8, y: p.y - r * 0.8 + nr * 0.45, 'text-anchor': 'middle', style: { 'font-size': `${nr * 1.5}px`, stroke: 'none' } }, '!'))
     : null;
   return svgEl('g', {
-    class: ['pl', big ? 'big' : null, state.selected === p.id ? 'sel' : null, p.visited ? null : 'far'],
-    dataset: { pl: p.id },
+    class: ['pl', big ? 'big' : null, sel === p.id ? 'sel' : null, p.visited ? null : 'far', lab ? null : 'lh', p.has ? 'grp' : null],
+    dataset: { pl: p.id, ...(p.has ? { has: p.has.join(' ') } : {}) },
     role: 'button',
     tabindex: 0,
-    'aria-label': p.name,
+    'aria-label': p.has ? `${p.name.replace(/ · \d+$/, '')}, ${p.has.length} places here` : p.name,
     onClick: () => act.openPlace(p.id),
     onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') act.openPlace(p.id); },
   },
   svgEl('circle', { class: 'hit', cx: p.x, cy: p.y, r: Math.max(r, 24 * u), fill: 'transparent' }),
+  svgEl('circle', { class: 'ring', cx: p.x, cy: p.y, r: r + 4 * u }),
   svgEl('circle', { class: 'b', cx: p.x, cy: p.y, r }),
   svgEl('svg', { class: 'g', x: p.x - r * 0.6, y: p.y - r * 0.6, width: r * 1.2, height: r * 1.2, viewBox: '0 0 24 24', fill: 'currentColor', ...(stroked ? { stroke: 'currentColor', 'stroke-width': 2 } : {}) },
     ...(glyph(placeGlyph(p.kind))?.childNodes ?? [])),
-  svgEl('text', { x: flip ? p.x - r - 6 : p.x + r + 6, y: p.y + fs * 0.35 + dy, 'text-anchor': flip ? 'end' : 'start', style: { 'font-size': `${fs}px`, 'stroke-width': `${3 * u}px` } }, p.name),
+  lab ? null : nameText(p, u, null, act),
   badge);
 }
 
@@ -84,13 +73,18 @@ function landBox(places) {
   return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };
 }
 
-function drawSvg(world, vb, scale, state, act) {
+// pick = { keep: ids whose labels must show, region: the chosen region }; lay = layoutGroups' answer (folded or fanned towns).
+function drawSvg(world, vb, scale, state, act, pick, lay) {
   const u = 1 / scale;
-  const byId = new Map(world.places.map(p => [p.id, p]));
-  const newsIds = new Set(world.news.map(n => n.placeId).filter(Boolean));
+  const byId = lay.pos;
+  const to = id => lay.alias.get(id) ?? id;
+  const newsIds = new Set(world.news.map(n => n.placeId).filter(Boolean).map(to));
   const tripPts = (world.trip?.placeIds ?? []).map(id => byId.get(id)).filter(Boolean);
   const terrain = world.terrain ?? {};
-  const shifts = nudgeLabels(world.places, u, vb);
+  // A fanned town and its sub-places must show their names (they were spread out to be read), with the trip and the selected place.
+  const keep = new Set([...[...(pick.keep ?? [])].map(to), ...lay.fans.flatMap(f => [f.hub.id, ...f.subs.map(s => s.id)])]);
+  const { labels, boxes, dots } = planLabels(lay.shown, vb, scale, { ...pick, keep });
+  const names = planRegions(world.places, terrain.labels, vb, scale, boxes, dots);
   const grid = [];
   const land = landBox(world.places);
   const span = k => [Math.min(0, Math.floor(Math.min(...world.places.map(p => p[k])) / 100) * 100), Math.max(1000, Math.ceil(Math.max(...world.places.map(p => p[k])) / 100) * 100)];
@@ -103,16 +97,18 @@ function drawSvg(world, vb, scale, state, act) {
     grid,
     terrain.sea ? svgEl('path', { class: 'sea', d: terrain.sea }) : null,
     (terrain.rivers ?? []).map(d => svgEl('path', { class: 'river', d })),
-    terrain.labels ? terrain.labels.map(l => svgEl('text', { class: 'rgn', x: l.x, y: l.y, style: l.italic ? { 'font-style': 'italic', 'letter-spacing': '.2em' } : null }, l.text)) : regionLabels(world.places),
+    names.map(l => svgEl('text', { class: 'rgn', x: l.x, y: l.y, 'text-anchor': 'middle', style: { 'font-size': `${l.fs}px`, ...(l.italic ? { 'font-style': 'italic', 'letter-spacing': '.2em' } : {}) } }, l.text)),
     world.routes.map(rt => {
       const a = byId.get(rt.a);
       const b = byId.get(rt.b);
       return a && b ? svgEl('path', { class: rt.kind === 'track' ? 'track' : 'road', d: `M${a.x} ${a.y}L${b.x} ${b.y}` }) : null;
     }),
     tripPts.length > 1
-      ? svgEl('path', { class: ['trip', world.trip.state === 'arrived' ? 'done' : null], d: `M${tripPts.map(p => `${p.x} ${p.y}`).join('L')}`, style: { 'stroke-width': Math.max(5, 4 * u) } })
+      ? svgEl('path', { class: ['trip', world.trip.state === 'arrived' ? 'done' : null], d: `M${tripPts.map(p => `${p.x} ${p.y}`).join('L')}`, style: { 'stroke-width': 4 } })
       : null,
-    world.places.map(p => placeNode(p, u, newsIds, state, act, vb, shifts.get(p.id) ?? 0)));
+    lay.fans.map(f => f.subs.map(s => svgEl('path', { class: 'spoke', d: `M${f.hub.x} ${f.hub.y}L${s.x} ${s.y}` }))),
+    lay.shown.map(p => placeNode(p, u, newsIds, to(state.selected), act, labels.get(p.id))),
+    svgEl('g', { class: 'names' }, lay.shown.filter(p => labels.has(p.id)).map(p => nameText(p, u, labels.get(p.id), act))));
 }
 
 function tools(world, regions, on) {
@@ -131,8 +127,22 @@ function tools(world, regions, on) {
 
 
 const legendItem = (cls, text) => h('span', null, h('i', { class: cls }), text);
+// With no trip card beside it, the map takes the whole width.
+const mapWrap = (box, side) => h('div', { class: ['mapwrap', side ? null : 'solo'] }, box, side);
+const ARROWS = { n: '↑', s: '↓', w: '←', e: '→' };
 
-/** Builds the map card from a world view-model; state = { selected, center }; act = { openPlace(id) }; ctx.width picks the first fit. */
+// Counts of the places a fit left out that are off the map now, one per edge; a tap fits every place.
+function offMap(far, vb, all) {
+  const sides = new Map();
+  for (const p of far) {
+    const side = p.y < vb.y ? 'n' : p.y > vb.y + vb.h ? 's' : p.x < vb.x ? 'w' : p.x > vb.x + vb.w ? 'e' : null;
+    if (side) sides.set(side, (sides.get(side) ?? 0) + 1);
+  }
+  return [...sides].map(([side, n]) => h('button', { type: 'button', class: 'offmap', dataset: { side }, onClick: all },
+    `${n} ${n === 1 ? 'place' : 'places'} off the map ${ARROWS[side]}`));
+}
+
+/** Builds the map card from a world view-model; state = { selected, center }; act = { openPlace(id) }; ctx.width is the map's width before it is measured. */
 export function mapCard(world, state, act, ctx = {}) {
   const places = world.places ?? [];
   if (!places.length) return null;
@@ -144,36 +154,64 @@ export function mapCard(world, state, act, ctx = {}) {
     const w = box.clientWidth || (typeof ctx.width === 'function' ? ctx.width() : ctx.width) || 0;
     return w ? w / vb.w : 0.7;
   };
-  const tripPts = (data.trip?.placeIds ?? []).map(id => places.find(p => p.id === id)).filter(Boolean);
-  const firstFit = () => {
-    const w = box.clientWidth || (typeof ctx.width === 'function' ? ctx.width() : ctx.width) || 0;
-    return w < 500 && tripPts.length > 1 ? fitBox(tripPts, 100, ratio()) : fitBox(places, 90, ratio());
-  };
-  let vb = firstFit();
-  const centreOn = (p) => {
-    const w = Math.min(vb.w, 600);
+  const px = () => box.clientWidth || (typeof ctx.width === 'function' ? ctx.width() : ctx.width) || 0;
+  const tripIds = data.trip?.placeIds ?? [];
+  const limits = zoomLimits(places);
+  const groups = groupPlaces(places);
+  let lay = null;
+  const view = { region: '', far: [] };   // the chosen region; places a fit left off the map (shown as counts at the edges)
+  const opening = () => openBox(places, { ratio: ratio(), px: px(), limits, tripIds });
+  let vb = opening();
+  // A sub-place is shown on its town at the closest zoom, where the town's places fan out.
+  const centreOn = (place) => {
+    const town = places.find(q => q.id === groups.parent.get(place.id));
+    const p = town ?? place;
+    const near = openBox(places, { ratio: ratio(), px: px(), limits, at: p });
+    const w = town ? limits.min : Math.min(vb.w, near.w);
     vb = { x: p.x - w / 2, y: p.y - (w * ratio()) / 2, w, h: w * ratio() };
+    view.far = [];
   };
   const focus = places.find(p => p.id === state.center);
   if (focus) centreOn(focus);
   state.center = null;
+  const fitTo = (pts, all) => {
+    const fit = fitView(pts, { ratio: ratio(), px: px(), min: limits.min, all });
+    vb = fit.box;
+    view.far = fit.far;
+  };
   const redraw = () => {
     vb.h = vb.w * ratio();
-    const here = places.find(p => p.here);
-    box.replaceChildren(drawSvg(data, vb, scale(vb), state, act), ...(here ? [pulseRing(here, vb, scale(vb))] : []));
+    lay = layoutGroups(places, groups, vb, scale(vb), limits.min);
+    const here = lay.pos.get(places.find(p => p.here)?.id);
+    const chips = offMap(view.far, vb, on.all);
+    const W = vb.w * scale(vb);
+    const H = vb.h * scale(vb);
+    const avoid = chips.map(c => ({ n: { x: W / 2 - 110, y: 0, w: 220, h: 48 }, s: { x: W / 2 - 110, y: H - 48, w: 220, h: 48 }, w: { x: 0, y: H / 2 - 24, w: 200, h: 48 }, e: { x: W - 200, y: H / 2 - 24, w: 200, h: 48 } })[c.dataset.side]);
+    const pick = { keep: new Set([...tripIds, state.selected].filter(Boolean)), region: view.region, avoid };
+    box.replaceChildren(drawSvg(data, vb, scale(vb), state, act, pick, lay), ...(here ? [pulseRing(here, vb, scale(vb))] : []), ...chips);
+  };
+  // Called when a place sheet opens over the map (sheet = its panel): the map pans so the place stays in view above it.
+  state.reveal = (id, sheet) => {
+    const p = lay?.pos.get(id);
+    const at = box.getBoundingClientRect?.();
+    const cover = sheet?.getBoundingClientRect?.();
+    if (!p || !at?.height || !cover?.height) return;
+    const next = panAbove(vb, p, scale(vb), { top: cover.top - at.top, bottom: cover.bottom - at.top, left: cover.left - at.left, right: cover.right - at.left }, at.height);
+    if (next) { vb = next; redraw(); }
   };
   const on = {
     zoom(f) {
       const cx = vb.x + vb.w / 2;
       const cy = vb.y + vb.h / 2;
-      const w = clamp(vb.w * f, 150, 1600);
+      const w = clamp(vb.w * f, limits.min, limits.max);
       vb = { x: cx - w / 2, y: cy - (w * ratio()) / 2, w, h: w * ratio() };
       redraw();
     },
-    fit() { vb = fitBox(places, 90, ratio()); redraw(); },
+    fit() { fitTo(places.filter(p => !view.region || p.region === view.region), Boolean(view.region)); redraw(); },
+    all() { fitTo(places, true); redraw(); },
     me() { const p = places.find(q => q.here); if (p) { centreOn(p); redraw(); } },
     tidy() { box.classList.toggle('tidy'); },
-    region(name) { vb = fitBox(places.filter(p => !name || p.region === name), 90, ratio()); redraw(); },
+    region(name) { view.region = name || ''; on.fit(); },
     find(text) {
       const q = String(text).trim().toLowerCase();
       const hit = q && places.find(p => p.name.toLowerCase().includes(q));
@@ -193,28 +231,31 @@ export function mapCard(world, state, act, ctx = {}) {
       pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, w: vb.w, cx: vb.x + vb.w / 2, cy: vb.y + vb.h / 2 };
       return;
     }
-    if (e.target.closest?.('[data-pl]')) return;
-    drag = { x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y, s: vb.w / (box.clientWidth || 1) };
+    if (e.target.closest?.('[data-pl], .offmap, .pn')) return;
+    drag = { x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y, s: vb.w / (box.clientWidth || 1), moved: false };
     box.setPointerCapture?.(e.pointerId);
   });
   box.addEventListener('pointermove', (e) => {
     if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinch && pointers.size >= 2) {
       const [a, b] = [...pointers.values()];
-      const w = clamp((pinch.w * pinch.d) / (Math.hypot(a.x - b.x, a.y - b.y) || 1), 150, 1600);
+      const w = clamp((pinch.w * pinch.d) / (Math.hypot(a.x - b.x, a.y - b.y) || 1), limits.min, limits.max);
       vb = { x: pinch.cx - w / 2, y: pinch.cy - (w * ratio()) / 2, w, h: w * ratio() };
     } else if (drag) {
       vb = { ...vb, x: drag.vx - (e.clientX - drag.x) * drag.s, y: drag.vy - (e.clientY - drag.y) * drag.s };
+      drag.moved = true;
     } else return;
     svgNow()?.setAttribute('viewBox', viewText(vb));
     const ring = box.querySelector('.pulse');
-    const here = places.find(p => p.here);
+    const here = lay?.pos.get(places.find(p => p.here)?.id);
     if (ring && here) placePulse(ring, here, vb, scale(vb));
   });
+  // A pan or pinch ends with a redraw, so the labels are chosen again for what is now in view.
   const up = (e) => {
     pointers.delete(e.pointerId);
+    const panned = drag?.moved;
     drag = null;
-    if (pinch && pointers.size < 2) { pinch = null; redraw(); }
+    if (pinch && pointers.size < 2) { pinch = null; redraw(); } else if (panned) redraw();
   };
   box.addEventListener('pointerup', up);
   box.addEventListener('pointercancel', up);
@@ -225,7 +266,7 @@ export function mapCard(world, state, act, ctx = {}) {
       if (!box.clientWidth) return;
       if (!fitted && !focus) {
         fitted = true;
-        vb = firstFit();
+        vb = opening();
       }
       redraw();
     }).observe(box);
@@ -241,7 +282,7 @@ export function mapCard(world, state, act, ctx = {}) {
     tripSummary(data.trip),
     tools(data, regions, on),
     note,
-    h('div', { class: 'mapwrap' }, box, tripCard(data.trip, { side: true, rpg: ctx.rpg !== false })),
+    mapWrap(box, tripCard(data.trip, { side: true, rpg: ctx.rpg !== false })),
     h('div', { class: 'legend2' },
       legendItem('', 'road'), legendItem('t', 'track'),
       data.terrain?.rivers?.length ? legendItem('r', 'river') : null,

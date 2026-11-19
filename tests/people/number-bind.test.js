@@ -31,12 +31,12 @@ test('a number box types its value through cutSettingNumber (the bound change ha
       handlers.find(h => h.selector === selector).fn.call(box);
       return [getSettings()[key], box.value];
     };
-    const catchUp = ['#npc_state_delta_narration_capture_catch_up', 'narrationCaptureCatchUp'];
+    const catchUp = ['#people_narration_capture_catch_up', 'narrationCaptureCatchUp'];
     assert.deepEqual(type(...catchUp, '0'), [0, 0], 'a typed 0 is kept where 0 is allowed');
     assert.deepEqual(type(...catchUp, ''), [4, 4], 'a blank box is the fallback');
     assert.deepEqual(type(...catchUp, 'abc'), [4, 4]);
     assert.deepEqual(type(...catchUp, '99'), [50, 50], 'a big one is cut');
-    assert.deepEqual(type('#npc_state_delta_inject_limit', 'injectLimit', '0'), [3, 3], 'where 0 is not allowed it is the fallback, as before');
+    assert.deepEqual(type('#people_inject_limit', 'injectLimit', '0'), [3, 3], 'where 0 is not allowed it is the fallback, as before');
   } finally {
     globalThis.document = previous.document;
     globalThis.$ = previous.$;

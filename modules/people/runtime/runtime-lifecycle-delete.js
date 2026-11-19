@@ -1,4 +1,4 @@
-/* NPC State Delta deleted-chat lifecycle transaction: preserve a recovery copy, settle the newest
+/* NPC State deleted-chat lifecycle transaction: preserve a recovery copy, settle the newest
    writer, retire the revision-checked sidecar, publish the tombstone and clear only after proof.
    Split unchanged from runtime-lifecycle.js with live rt/deps helper references supplied by
    createLifecyclePart. */
@@ -24,7 +24,7 @@ export function createLifecycleDelete(deps, helpers) {
             try { await settleStateFileWrite(key, { flush: true }); }
             catch (error) {
                 if (error?.code !== 'NPC_STATE_WRITE_CONFLICT') throw error;
-                console.info(`[NPC State Delta] delete observed a newer writer for ${key}; refreshing before retirement.`);
+                console.info(`[NPC State] delete observed a newer writer for ${key}; refreshing before retirement.`);
             }
             pointer = settings.dataFiles?.[key] || pointer;
 
@@ -52,7 +52,7 @@ export function createLifecycleDelete(deps, helpers) {
                     break;
                 } catch (error) {
                     if (error?.retirementUncertain || error?.code !== 'NPC_STATE_WRITE_CONFLICT' || attempt >= 3) throw error;
-                    console.info(`[NPC State Delta] delete retirement raced another writer for ${key}; retrying from the newest revision.`);
+                    console.info(`[NPC State] delete retirement raced another writer for ${key}; retrying from the newest revision.`);
                 }
             }
             if (!retired) return false;
@@ -63,15 +63,15 @@ export function createLifecycleDelete(deps, helpers) {
                 if (recoveryPointer?.path) {
                     settings.recoveryFiles[key] = { ...recoveryPointer, reason: 'chat-delete-retirement-uncertain', retiredAt: Date.now() };
                     persistSettings();
-                    try { await saveHostSettings(); } catch (saveError) { console.warn(`[NPC State Delta] recovery registration for ${key} could not be persisted immediately.`, saveError); }
+                    try { await saveHostSettings(); } catch (saveError) { console.warn(`[NPC State] recovery registration for ${key} could not be persisted immediately.`, saveError); }
                 }
-                console.warn(`[NPC State Delta] chat deletion could not confirm retirement of ${key}; kept the recovery copy.`, error);
+                console.warn(`[NPC State] chat deletion could not confirm retirement of ${key}; kept the recovery copy.`, error);
                 throw error;
             }
             if (recoveryPointer?.path) {
                 try { await deleteNpcStateDataFile(recoveryPointer, { headers: requestHeaders() }); } catch { queueRecoveryGarbagePointer(recoveryPointer, 'chat-lifecycle-temp'); }
             }
-            console.warn(`[NPC State Delta] refused destructive retirement for ${key}; live ownership remains intact.`, error);
+            console.warn(`[NPC State] refused destructive retirement for ${key}; live ownership remains intact.`, error);
             throw error;
         }
 
@@ -85,11 +85,11 @@ export function createLifecycleDelete(deps, helpers) {
             await saveHostSettings();
             tombstoneDurable = true;
         } catch (error) {
-            console.warn(`[NPC State Delta] chat deletion tombstone for ${key} could not be synchronously persisted; the retired sidecar is being retained as the crash-safe marker.`, error);
+            console.warn(`[NPC State] chat deletion tombstone for ${key} could not be synchronously persisted; the retired sidecar is being retained as the crash-safe marker.`, error);
         }
         if (tombstoneDurable && pointer?.path) {
             try { await deleteNpcStateDataFile(pointer, { headers: requestHeaders() }); }
-            catch (error) { console.warn(`[NPC State Delta] retired sidecar for ${key} could not be physically deleted; the durable tombstone still prevents recovery.`, error); }
+            catch (error) { console.warn(`[NPC State] retired sidecar for ${key} could not be physically deleted; the durable tombstone still prevents recovery.`, error); }
         }
         return true;
     }

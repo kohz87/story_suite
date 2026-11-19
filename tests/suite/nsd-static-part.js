@@ -1,16 +1,16 @@
-// Test helper: NPC State Delta's own static prompt part, written the way its runtime injection writes it
+// Test helper: NPC State's own static prompt part, written the way its runtime injection writes it
 // (packages/npc-state-delta/runtime-injection.js updateInjection): the lines builder's rules (core-prompts-lines.js) under
 // the production key through ctx.setExtensionPrompt, sent only while NSD is enabled and one-pass capture is on, and
 // emptied otherwise. The page's controller needs a full browser mock, so this mirrors its one static write.
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 
-export const NSD_STATIC_KEY = 'story_suite_static_npc_state_delta';
+export const NSD_STATIC_KEY = 'story_suite_static_people';
 
-/** A `loaded` suite whose NPC State Delta adapter reports `isEnabled()` from the returned `state.enabled`, and the impact-tier caps from `state.caps` (null: the host gives none). */
+/** A `loaded` suite whose NPC State adapter reports `isEnabled()` from the returned `state.enabled`, and the impact-tier caps from `state.caps` (null: the host gives none). */
 export function withNsdSwitch(loaded) {
     const state = { enabled: true, caps: null };
-    const NSD = { ...loaded.NSD, createStorySuiteV2Adapter: options => loaded.NSD.createStorySuiteV2Adapter({ ...options, delta: () => ({ isEnabled: () => state.enabled, getNpc: () => null, relationshipCaps: () => state.caps }) }) };
+    const NSD = { ...loaded.NSD, createPeopleAdapter: options => loaded.NSD.createPeopleAdapter({ ...options, delta: () => ({ isEnabled: () => state.enabled, getNpc: () => null, relationshipCaps: () => state.caps }) }) };
     return { suite: { ...loaded, NSD }, state };
 }
 

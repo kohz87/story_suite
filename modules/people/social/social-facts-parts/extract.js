@@ -1,4 +1,4 @@
-/* NPC State Delta: reads explicit unnamed social facts (counted siblings, children) from a transcript and the dossiers. */
+/* NPC State: reads explicit unnamed social facts (counted siblings, children) from a transcript and the dossiers. */
 import { clean, norm } from '../social-primitives.js';
 import { socialRelationFamily, numberWord, singularRelation, collectiveRelationshipShape } from '../social-relations.js';
 import { parseKeyRelationshipEntry } from '../social-bonds.js';

@@ -1,7 +1,7 @@
-/* NPC State Delta: the scanner routing error shape and the stop and empty-answer tests. */
+/* NPC State: the scanner routing error shape and the stop and empty-answer tests. */
 
 export function scannerRoutingError(message, code = 'NPC_SCANNER_PROFILE_UNAVAILABLE') {
-    const error = new Error(`NPC State Delta scanner: ${message}`);
+    const error = new Error(`NPC State scanner: ${message}`);
     error.name = 'NPCStateDeltaScannerRouteError';
     error.code = code;
     return error;
@@ -13,7 +13,7 @@ export function isScannerRoutingError(error) {
 
 /**
  * (beta) True when a scanner call failed only because the model answered nothing (SillyTavern's
- * generateRaw "No message generated", or an empty response): index.js notes it quietly, once per chat.
+ * generateRaw "No message generated", or an empty response): runtime-entry.js notes it quietly, once per chat.
  */
 export function isEmptyScannerAnswer(error) {
     return /\bno message generated\b|\bempty (?:response|reply|answer)\b/i.test(String(error?.message ?? error ?? ''));

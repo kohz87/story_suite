@@ -4,13 +4,13 @@ import { pageHandles } from '../runtime/handles.js';
 
 const REGISTRY_KEY = '__NPCStateDeltaDestructiveSettlement';
 
-function npcStateDeltaApi() {
+function pplApi() {
     return pageHandles.deltaApi;
 }
 
 // (perf) Both read directly, never through uiStatus(): that builds the branch-history diagnostics (a serialised copy of the state) on each call.
 function activeChatKey() {
-    return String(npcStateDeltaApi()?.chatKey?.() || 'no-chat');
+    return String(pplApi()?.chatKey?.() || 'no-chat');
 }
 
 // SillyTavern's swipe state, read as runtime-chat-branch.js hostSwipeState reads it.
@@ -25,8 +25,8 @@ function hostSwipeActive() {
 
 function buildController() {
     const reconcile = options => {
-        const api = npcStateDeltaApi();
-        if (!api?.reconcile) throw new Error('NPC State Delta reconcile API is unavailable.');
+        const api = pplApi();
+        if (!api?.reconcile) throw new Error('NPC State reconcile API is unavailable.');
         return api.reconcile(options);
     };
     return createDestructiveSettlementController({
@@ -41,7 +41,7 @@ function buildController() {
         // (runtime-entry-events.js). A second edit or delete before that tick still settles against the first one's baseline.
         timeoutMs: 0,
         onError: error => {
-            console.warn('[NPC State Delta] settled destructive branch reconciliation failed', error);
+            console.warn('[NPC State] settled destructive branch reconciliation failed', error);
         },
     });
 }

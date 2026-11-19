@@ -6,6 +6,7 @@ export const TOKENS = Object.freeze([
   '--su-panel2',
   '--su-line',
   '--su-line2',
+  '--su-tint',
   '--su-text',
   '--su-soft',
   '--su-muted',
@@ -34,6 +35,13 @@ export const TOKENS = Object.freeze([
   '--su-last-pos',
   '--su-shadow',
   '--su-blur',
+  '--su-blur-strong',
+  '--su-blur-soft',
+  '--su-scrim',
+  '--su-scrim-strong',
+  '--su-scrim-place',
+  '--su-scrim-desk',
+  '--su-blur-desk',
   '--su-sky',
   '--su-font',
 ]);
@@ -44,6 +52,7 @@ export const GLASS_DARK = Object.freeze({
   '--su-panel2': 'rgba(36,38,56,.9)',
   '--su-line': 'rgba(255,255,255,.08)',
   '--su-line2': 'rgba(255,255,255,.1)',
+  '--su-tint': 'rgba(255,255,255,.1)', // the fill of chips, rows and small buttons on a panel (--su-line2 is the hairline)
   '--su-text': '#eeeef6',
   '--su-soft': '#cfd0e0',
   '--su-muted': '#9a9cb4',
@@ -72,6 +81,13 @@ export const GLASS_DARK = Object.freeze({
   '--su-last-pos': '#4fd39a',
   '--su-shadow': '0 10px 30px rgba(0,0,0,.4)',
   '--su-blur': '16px',
+  '--su-blur-strong': '28px', // the bottom sheets' panel
+  '--su-blur-soft': '6px', // behind the Scene sheet's scrim
+  '--su-scrim': 'rgba(6,8,16,.45)', // the dim layer under a sheet
+  '--su-scrim-strong': 'rgba(6,8,16,.6)', // under the Scene sheet
+  '--su-scrim-place': 'rgba(8,10,18,.5)', // under World's place sheet
+  '--su-scrim-desk': 'rgba(6,8,16,.58)', // under a centred desktop sheet (ui/css/sheet-desk.css)
+  '--su-blur-desk': '3px', // behind that scrim
   '--su-sky': 'linear-gradient(180deg,#2c3f66 0%,#3d5a86 30%,#7a86a8 62%,#2a2d45 100%)',
   '--su-font': '"Nunito",system-ui,sans-serif',
 });
@@ -82,6 +98,7 @@ export const GLASS_LIGHT = Object.freeze({
   '--su-panel2': 'rgba(255,255,255,.88)',
   '--su-line': 'rgba(255,255,255,.9)',
   '--su-line2': 'rgba(30,34,52,.12)',
+  '--su-tint': 'rgba(30,34,52,.12)',
   '--su-text': '#1d2030',
   '--su-soft': '#3a3e55',
   '--su-muted': '#565a72',
@@ -110,6 +127,13 @@ export const GLASS_LIGHT = Object.freeze({
   '--su-last-pos': '#0d7a4f',
   '--su-shadow': '0 10px 30px rgba(40,30,80,.18)',
   '--su-blur': '16px',
+  '--su-blur-strong': '28px', // the bottom sheets' panel
+  '--su-blur-soft': '6px', // behind the Scene sheet's scrim
+  '--su-scrim': 'rgba(6,8,16,.45)', // the dim layer under a sheet
+  '--su-scrim-strong': 'rgba(6,8,16,.6)', // under the Scene sheet
+  '--su-scrim-place': 'rgba(8,10,18,.5)', // under World's place sheet
+  '--su-scrim-desk': 'rgba(30,26,60,.34)', // under a centred desktop sheet (ui/css/sheet-desk.css)
+  '--su-blur-desk': '3px', // behind that scrim
   '--su-sky': 'linear-gradient(180deg,#8fb2e0 0%,#b9d0ec 40%,#efe4d8 75%,#d8d3e6 100%)',
   '--su-font': '"Nunito",system-ui,sans-serif',
 });

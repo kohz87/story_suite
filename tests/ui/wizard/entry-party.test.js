@@ -79,6 +79,9 @@ async function withPeople(t) {
   await settleLong();
   await createFromSheet(p);
   const { host } = p;
+  // (the story's open companion offer for Mara: Add to party shows only for one)
+  await host.send('Mara asks to come along.', 'Mara falls in beside you.\n<Changes>\n+ party Mara | class: I | best: str\n</Changes>');
+  await settleLong();
   const s = host.store.sourceAt(host.store.headIndex());
   const npcs = { npc_mara: { id: 'npc_mara', name: 'Mara', present: true, location: 'the gate' } };
   const view = { v: 1, order: ['npc_mara'], npcs, candidates: [], dismissed: [], userDismissedGroups: [], turn: 2, socialGraph: { edges: [] }, portraitAssets: {} };

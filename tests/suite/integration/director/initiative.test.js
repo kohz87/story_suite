@@ -1,7 +1,7 @@
 // NPC initiative and the scene-filtered note on a whole Story Block host: the pick is made once before
 // a reply (a system step with its own seed) and a swipe, a Re-read or a reload gives the same one; the
 // static part is the same bytes every reply, with the initiative line only while its feature is on;
-// it works with NPC State Delta (a stand-in answering its queries) and without it.
+// it works with NPC State (a stand-in answering its queries) and without it.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -17,13 +17,13 @@ const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines
 const picks = host => host.sdk.receipts().filter(entry => entry.receipt.type === 'director.initiative');
 const initiativeIn = text => String(text ?? '').split('\n').find(line => line.startsWith('Initiative:')) ?? '';
 
-// NPC State Delta's queries only (a stand-in): who it knows, their dossiers and trust.
+// NPC State's queries only (a stand-in): who it knows, their dossiers and trust.
 function fakeNsd() {
     const dossiers = { Elula: { name: 'Elula', aliases: ['the ferrywoman', 'ferrywoman'], location: 'Harrow' }, Bram: { name: 'Bram', aliases: [], location: 'Kesh' } };
     const find = name => dossiers[Object.keys(dossiers).find(key => key.toLowerCase() === String(name ?? '').toLowerCase()) ?? ''] ?? Object.values(dossiers).find(entry => entry.aliases.includes(String(name ?? '').toLowerCase())) ?? null;
     return {
         id: 'npc-state-delta',
-        name: 'NPC State Delta (test stand-in)',
+        name: 'NPC State (test stand-in)',
         version: '0.0.0-test',
         queries: {
             'npc.known': () => Object.keys(dossiers),
@@ -47,7 +47,7 @@ const OPENING = ['~ time June 3, 1200, 08:00 am', '~ place Harrow | kind: settle
     '+ agenda Bram — moves salt | now: Kesh'];
 
 for (const withNsd of [false, true]) {
-    test(`initiative ${withNsd ? 'with' : 'without'} NPC State Delta: one pick per reply, the same after a swipe and a Re-read`, async t => {
+    test(`initiative ${withNsd ? 'with' : 'without'} NPC State: one pick per reply, the same after a swipe and a Re-read`, async t => {
         t.mock.method(console, 'warn', () => {});
         const host = await newHost(withNsd ? [fakeNsd()] : []);
         try {

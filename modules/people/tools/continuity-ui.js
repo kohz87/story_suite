@@ -8,7 +8,7 @@ import {
 } from '../appearance/appearance.js';
 import { activeChatKey, api, escapeHtml, flushDurably, plain } from './tools-core.js';
 
-const STYLE_ID = 'npc_state_delta_continuity_ui_styles';
+const STYLE_ID = 'people_continuity_ui_styles';
 const UNKNOWN_FORM = '__unknown__';
 const NO_FORM = '__none__';
 let normalizeQueued = false;
@@ -112,7 +112,7 @@ function toggleUnclassifiedAppearance(section) {
 }
 
 function ensureAppearanceEditor(editor) {
-    const content = editor?.querySelector?.('#npc_state_delta_editor_content');
+    const content = editor?.querySelector?.('#people_editor_content');
     const npcId = editorNpcId(editor);
     if (!content || !npcId) return false;
     let section = editorAppearanceSection(editor);
@@ -175,7 +175,7 @@ async function applyAppearanceEditor(editor) {
         unclassifiedAppearance: section.querySelector('[data-delta-unclassified-appearance]')?.value || '',
         currentAppearance: section.querySelector('[data-delta-current-appearance]')?.value || '',
         formsText: section.querySelector('[data-delta-appearance-forms]')?.value || '',
-    }, { chatKey, lockAppearance: Boolean(editor.querySelector('#npc_state_delta_edit_lock_profile')?.checked) });
+    }, { chatKey, lockAppearance: Boolean(editor.querySelector('#people_edit_lock_profile')?.checked) });
     if (!applied) throw new Error('The canonical appearance edit was rejected because its target changed.');
     const saved = await flushDurably(chatKey, 'appearance forms');
     if (!saved.persisted) throw new Error('Appearance forms applied locally, but durable save failed. Your edits are retained.');
@@ -193,21 +193,21 @@ function scheduleNormalize() {
     requestAnimationFrame(() => {
         normalizeQueued = false;
         try {
-            document.querySelectorAll('.npc-state-delta-editor-popup').forEach(ensureAppearanceEditor);
+            document.querySelectorAll('.ppl-editor-popup').forEach(ensureAppearanceEditor);
         } catch (error) {
-            console.debug('[NPC State Delta] continuity UI normalization skipped', error);
+            console.debug('[NPC State] continuity UI normalization skipped', error);
         }
     });
 }
 
 function bindEvents() {
-    if (globalThis.__npcStateDeltaContinuityUiBound) return;
-    globalThis.__npcStateDeltaContinuityUiBound = true;
+    if (globalThis.__pplContinuityUiBound) return;
+    globalThis.__pplContinuityUiBound = true;
     document.addEventListener('click', event => {
         const apply = event.target.closest?.('[data-delta-apply-appearance]');
         if (!apply) return;
         event.preventDefault();
-        const editor = apply.closest('.npc-state-delta-editor-popup');
+        const editor = apply.closest('.ppl-editor-popup');
         if (!editor) return;
         apply.disabled = true;
         const status = editorAppearanceSection(editor)?.querySelector('[data-delta-appearance-status]');
@@ -215,7 +215,7 @@ function bindEvents() {
         void applyAppearanceEditor(editor)
             .then(npc => { if (npc) globalThis.toastr?.success?.('NPC State: appearance updated and saved.'); })
             .catch(error => {
-                console.error('[NPC State Delta] appearance-form edit failed', error);
+                console.error('[NPC State] appearance-form edit failed', error);
                 if (status) status.textContent = error?.message || String(error);
                 globalThis.toastr?.error?.(`NPC State appearance forms were not updated: ${error?.message || error}`);
             })
@@ -228,8 +228,8 @@ function mount() {
     injectStyles();
     bindEvents();
     scheduleNormalize();
-    document.addEventListener('npc-state-delta:editor-mounted', scheduleNormalize);
-    document.addEventListener('npc-state-delta:settings-mounted', scheduleNormalize);
+    document.addEventListener('people:editor-mounted', scheduleNormalize);
+    document.addEventListener('people:settings-mounted', scheduleNormalize);
 }
 
 if (typeof document !== 'undefined') {

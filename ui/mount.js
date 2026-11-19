@@ -6,7 +6,6 @@ import { bindBackHistory } from './runtime/back-history.js';
 import { createRedraw } from './runtime/redraw.js';
 import { createSuiteView } from './shell/suite-view.js';
 import { createTabHost } from './shell/tab-host.js';
-import { watchDesk } from './shell/desk-layout.js';
 import { GLASS_DARK, GLASS_LIGHT } from './theme/tokens.js';
 import { followSt, watchSt } from './theme/follow-st.js';
 import { skyFor } from './theme/sky.js';
@@ -55,7 +54,7 @@ function readFlags(port, override) {
  */
 export function mountSuite(options = {}) {
   const { port, doc = globalThis.document, host = doc?.body, flags: override = null, theme = 'dark' } = options;
-  const { tabs = {}, card = null, schedule, initial = 'now', look = null } = options;
+  const { tabs = {}, card = null, schedule, initial = 'party', look = null } = options;
   const verdict = checkPort(port);
   if (!verdict.ok) throw new TypeError(`mountSuite needs a working port: ${verdict.errors.join('; ')}`);
 
@@ -66,7 +65,6 @@ export function mountSuite(options = {}) {
   let flags = readFlags(port, override);
   let scheme = 'dark';
   let destroyed = false;
-  let desk = null;   // the desktop layout watcher (shell/desk-layout.js), made once the tab host is in place
 
   const prefs = options.prefs ?? createPrefs({ port, storage: options.storage ?? null });
   let settingsOverlay = null;
@@ -76,8 +74,8 @@ export function mountSuite(options = {}) {
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
-      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
-      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : key === 'people.open' ? openPerson(value) : key === 'people.reread' ? port.command('npc.refresh', value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? setPanelBg(value) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
+      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : key === 'people.open' ? openPerson(value) : key === 'people.reread' ? port.command('npc.refresh', value) : key === 'packs.offer' ? port.command('packs.offer', value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
     return port.command('suite.settings', {});
@@ -88,11 +86,13 @@ export function mountSuite(options = {}) {
   const openPerson = ({ id, name } = {}) => { settingsOverlay?.close(); showTab('people'); return { ok: views.openPerson([String(id ?? ''), String(name ?? '').trim().toLocaleLowerCase()]) }; };
   const views = defaultViews({
     port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
-    onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth, desk: () => desk?.on() === true,
+    onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,
   });
   // Settings › Look (theme/look.js) when the mount reads it: its theme, and its Text size as the root's `data-text` (the zoom in shell.css).
   const readLook = () => { try { return lookOf(look()); } catch { return lookOf(null); } };
-  const pickTheme = () => (look ? lookTheme(readLook(), stVar(doc)) : { ...resolveTheme(theme, doc), zoom: null });
+  // Panel background (a device setting) goes in too: with it Off, Glass strength also lifts the cards off the flat colour (theme/look.js).
+  const pickTheme = () => (look ? lookTheme({ ...readLook(), panelBg: prefs.getFold(PANELBG_KEY, false) }, stVar(doc)) : { ...resolveTheme(theme, doc), zoom: null });
+  const setPanelBg = value => { const on = applyPanelBg(view.root, prefs.setFold(PANELBG_KEY, value)); if (look && !destroyed) applyLook(); return on; };
   const picked = pickTheme();
   scheme = picked.scheme;
   const view = createSuiteView({ doc, host, backStack, tokens: picked.tokens, scheme });
@@ -132,10 +132,13 @@ export function mountSuite(options = {}) {
     view.root.style.setProperty('--su-sky', skyFor(time, scheme));
   }
 
+  // The Journal's top lists Needs you: its rows ride on the Journal view so a change redraws the tab.
+  const withNeeds = vm => (vm ? { ...vm, needsYou: port.view('now')?.needsYou ?? [] } : vm);
+
   function register(tab) {
     redraw.register(`tab:${tab}`, {
       tab,
-      read: () => port.view(tab),
+      read: () => (tab === 'journal' ? withNeeds(port.view(tab)) : port.view(tab)),
       target: tabHost.panel,
       render: vm => (tabs[tab] ? tabs[tab](vm, { port, backStack, flags }) : views.tab(tab, vm)),
     });
@@ -163,9 +166,8 @@ export function mountSuite(options = {}) {
   // A person's page left open over the tabs follows the story: it is read again with every change.
   redraw.register('dossier', { tab: 'always', isVisible: () => views.hasDossier(), read: () => views.openDossier(), draw: vm => views.updateDossier(vm) });
   register(tabHost.current());
-  // Desktop (ui/css/desk.css): Here now under the card on every tab, read only while drawn; crossing the width draws it and redraws Now without (or with) its Here card.
-  redraw.register('here', { tab: 'always', isVisible: () => desk?.on() === true, read: () => { const now = port.view('now'); return { here: now?.here ?? [], unrecorded: now?.unrecorded ?? [] }; }, target: tabHost.hereSlot, render: vm => views.here(vm) });
-  desk = watchDesk({ probe: tabHost.scroll.firstChild, root: view.root, onChange: () => { if (tabHost.current() === 'now') showTab('now'); redraw.reveal(); } });
+  // The red count on the Journal tab: the rows of Needs you (select/now.js), read on every redraw while the suite is open.
+  redraw.register('needs', { tab: 'always', read: () => ({ needsCount: port.view('now')?.needsYou?.length ?? 0 }), draw: next => tabHost.setFlags(next) });
 
   function applyFlags(next) {
     flags = next;
@@ -199,12 +201,12 @@ export function mountSuite(options = {}) {
     // Opening on a tab the strip does not list reads the flags first (a fight that just began has its tab); opening on a tab closes a person's page left open over the tabs.
     open(tab) {
       if (destroyed) return false;
+      if (tab === 'now') { refreshFlags(); tab = tabHost.tabs()[0]; }   // (the Now tab is gone: callers that still ask for it get the first tab listed: Party, or Bag with the RPG off)
       if (tab && !tabHost.tabs().includes(tab)) refreshFlags();
       if (tab) views.closePage?.();
       if (tab && tab !== tabHost.current()) tabHost.select(tab);
       if (look) applyLook();
       const opened = view.open();
-      desk.check();   // (the stylesheets are added at mount: a size check that ran before desk.css applied is read again here)
       redraw.setVisibleTab(tabHost.current());
       redraw.reveal();
       redraw.flush();
@@ -223,7 +225,6 @@ export function mountSuite(options = {}) {
       if (destroyed) return;
       destroyed = true;
       for (const off of offs) off();
-      desk.stop();
       unbindKeys();
       unbindBack();
       redraw.destroy();

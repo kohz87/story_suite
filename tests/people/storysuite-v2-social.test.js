@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { makeView } from '../../core/sdk.js';
-import { MODULE_ID, QUERY_NAMES, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, QUERY_NAMES, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { BUILT_IN_METERS, BUILT_IN_RANGE, FEATURES, SETTINGS_DEFAULTS, SETTINGS_SCHEMA } from '../../modules/people/meters/npc-meters.js';
 import {
     DEFAULT_SOCIAL_CAP, DEFAULT_SOCIAL_SCALE, FEATURE_SOCIAL, MAX_SOCIAL_CAP, SKILL_WORDS, SOCIAL_QUERY, SOCIAL_SKILLS,
@@ -35,7 +35,7 @@ async function suite({ settings = { changeCap: 200 }, features = null, records =
         relationshipBaseline: () => ({ trust: 0, affection: 0, desire: 0, tension: 0 }),
         presentCastHtml: () => '', castEmptyReason: () => ({ text: '' }), fillPresentCast: () => {},
     };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => Object.values(delta.records).map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },

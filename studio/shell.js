@@ -30,16 +30,17 @@ const iconButton = (cls, name, title, glyph, onClick) => h('button', { type: 'bu
 const badgeOf = badge => (badge?.text ? h('em', { class: badge.bad ? 'bad' : null, title: badge.title ?? null, 'aria-label': badge.title ?? null }, badge.text) : h('em'));
 
 /**
- * Builds the frame in `host`. Handlers: `onOpen(files)`, `onExportZip()`, `onExportJson()`, `onUndo()`, `onRedo()`, `onTheme()`,
+ * Builds the frame in `host`. Handlers: `onOpen(files)`, `onExportZip()`, `onExportJson()`, `onExportLore()`, `onUndo()`, `onRedo()`, `onTheme()`,
  * `onPick(partId)`, `onQuery(text)`, `onBack()`, `onProblems()`, `onGoFirst()` (the export note's link), `onSwitch(kind)`. Returns
  * `{ el, file, setSubtitle, setPacks, setNav, setPage, setFooter, showList, setNotice, setExport, setHistory, setQuery, focusSearch }`.
  */
-export function createShell({ host, onOpen, onExportZip, onExportJson, onUndo, onRedo, onTheme, onPick, onQuery, onBack, onProblems, onGoFirst, onSwitch = () => {} }) {
+export function createShell({ host, onOpen, onExportZip, onExportJson, onExportLore = () => {}, onUndo, onRedo, onTheme, onPick, onQuery, onBack, onProblems, onGoFirst, onSwitch = () => {} }) {
     const file = h('input', { type: 'file', class: 'st-file', hidden: true, multiple: true, accept: '.zip,.json,application/json,application/zip,image/webp,image/png,image/jpeg', 'aria-label': 'Pack file' });
     file.addEventListener('change', () => { const picked = [...file.files]; file.value = ''; if (picked.length) onOpen(picked); });
     const subtitle = h('small', 'No pack open');
     const exportZip = h('button', { type: 'button', class: 'btn2 st-zip', disabled: true, onClick: () => onExportZip() }, label('Export zip', 'Zip'));
     const exportJson = h('button', { type: 'button', class: 'btn2 st-json-out', disabled: true, onClick: () => onExportJson() }, label('pack.json', 'JSON'));
+    const exportLore = h('button', { type: 'button', class: 'btn2 st-lore-out', disabled: true, onClick: () => onExportLore() }, label('Export lorebook', 'Lore'));
     const undo = iconButton('st-undo', 'Undo', 'Undo (Ctrl+Z)', '↶', onUndo);
     const redo = iconButton('st-redo', 'Redo', 'Redo (Ctrl+Shift+Z)', '↷', onRedo);
     const packSwitch = h('span', { class: 'sseg2 pswitch st-switch', role: 'group', 'aria-label': 'Pack you are editing', hidden: true });
@@ -47,7 +48,7 @@ export function createShell({ host, onOpen, onExportZip, onExportJson, onUndo, o
         h('span', { class: 'ttl' }, h('b', 'Pack Studio'), subtitle), packSwitch,
         h('span', { class: 'st-acts' }, undo, redo, h('span', { class: 'gap' }),
             h('button', { type: 'button', class: 'btn2 pri st-open', onClick: () => file.click() }, 'Open'),
-            exportZip, exportJson),
+            exportZip, exportJson, exportLore),
         h('button', { type: 'button', class: 'ibtn x st-theme', 'aria-label': 'Switch dark or light', onClick: () => onTheme() }, '◐'),
         file);
     const sideSearch = searchBox(onQuery);
@@ -56,9 +57,10 @@ export function createShell({ host, onOpen, onExportZip, onExportJson, onUndo, o
     const list = h('div', { class: 'phonelist' });
     const page = h('div', { class: 'spage' });
     const notice = h('p', { class: 'fine st-note', role: 'status', 'aria-live': 'polite', hidden: true });
+    const loreNote = h('p', { class: 'fine st-note st-lore-note', id: 'st-lore-note', hidden: true });
     const blockText = h('span');
     const block = h('p', { class: 'fine st-note st-block', id: 'st-block', role: 'status', hidden: true }, blockText, ' ', h('button', { type: 'button', class: 'lnk', onClick: () => onGoFirst() }, 'Go to the first ›'));
-    const body = h('div', { class: 'sbody', dataset: { page: 'list' } }, side, h('div', { class: 'smain' }, notice, block, list, page));
+    const body = h('div', { class: 'sbody', dataset: { page: 'list' } }, side, h('div', { class: 'smain' }, notice, block, loreNote, list, page));
     const footer = h('button', { type: 'button', class: 'sfoot st-foot', hidden: true, onClick: () => onProblems() });
     const el = h('div', { class: 'sov st-app', role: 'main', 'aria-label': 'Pack Studio' }, h('div', { class: 'glass' }, header, body, footer));
     host.appendChild(el);
@@ -133,10 +135,15 @@ export function createShell({ host, onOpen, onExportZip, onExportJson, onUndo, o
         setFooter,
         showList: () => body.setAttribute('data-page', 'list'),
         setNotice: text => { notice.textContent = text ?? ''; notice.hidden = !text; },
-        /** `zip`, `json`: whether each Export button works; `blocked`: the sentence saying why Export is off, or null. */
-        setExport: ({ zip, json, blocked = null }) => {
+        /** `zip`, `json`: whether each Export button works; `blocked`: the sentence saying why Export is off, or null; `lore`: `{ on, note }` for Export lorebook. */
+        setExport: ({ zip, json, blocked = null, lore = { on: false, note: null } }) => {
             exportZip.disabled = !zip;
             exportJson.disabled = !json;
+            exportLore.disabled = !lore.on;
+            loreNote.textContent = lore.note ?? '';
+            loreNote.hidden = !lore.note;
+            exportLore.title = lore.note ?? '';
+            if (lore.on) exportLore.removeAttribute('aria-describedby'); else if (lore.note) exportLore.setAttribute('aria-describedby', 'st-lore-note');
             blockText.textContent = blocked ?? '';
             block.hidden = !blocked;
             for (const button of [exportZip, exportJson]) {

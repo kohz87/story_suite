@@ -24,7 +24,7 @@ test('binary bundle round-trips dossiers and raw portrait bytes', () => {
         updatedAt: 12345,
     };
     const bytes = encodeNpcStateBundle({ npcs: [npc], dismissed: ['wiz'] }, {
-        appVersion: '0.1.3',
+        appVersion: '0.1.4',
         chatKey: 'chat:test',
     });
 
@@ -33,7 +33,7 @@ test('binary bundle round-trips dossiers and raw portrait bytes', () => {
     assert.doesNotMatch(exportedText, /data:image\/webp;base64/);
 
     const decoded = decodeNpcStateBundle(bytes);
-    assert.equal(decoded.metadata.appVersion, '0.1.3');
+    assert.equal(decoded.metadata.appVersion, '0.1.4');
     assert.equal(decoded.metadata.sourceChatKey, 'chat:test');
     assert.equal(decoded.state.npcs[0].name, 'Yunyun');
     assert.equal(decoded.state.npcs[0].role, 'Crimson Demon adventurer');

@@ -1,6 +1,6 @@
-/* NPC State Delta - public scan, portrait, status and diagnostics API (role: runtime-entry-public-read). The first
-   half of the public runtime API surface (pageHandles.deltaApi) split from index.js. Built by index.js with the controller closure so every
-   method keeps its live bindings; index.js still assigns and freezes the combined object in its original order. */
+/* NPC State - public scan, portrait, status and diagnostics API (role: runtime-entry-public-read). The first
+   half of the public runtime API surface (pageHandles.deltaApi) split from runtime-entry.js. Built by runtime-entry.js with the controller closure so every
+   method keeps its live bindings; runtime-entry.js still assigns and freezes the combined object in its original order. */
 import { openPortraitTools } from '../portrait/portrait-tools.js';
 
 export function createPublicApiReadPart(deps) {
@@ -92,7 +92,7 @@ export function createPublicApiReadPart(deps) {
         scannerRouting: scannerRoutingMetrics(),
         narrationCapture: { ...narrationCaptureStats, enabled: narrationCaptureEnabled(), armed: Boolean(rt.narrationCaptureArmed), pending: narrationCaptures.size },
         settingsPanelMounted: Boolean(document.querySelector?.(`#${UI_ID}`)),
-        rosterMounted: Boolean(document.querySelector?.('#npc_state_delta_roster_summary')),
+        rosterMounted: Boolean(document.querySelector?.('#people_roster_summary')),
         editorMounted: editorIsMounted(),
         editorMode: rt.activeEditorPopup ? 'sillytavern-popup' : 'closed',
         portraitGeneratorOpen: Boolean(rt.activePortraitGeneratorOverlay),
@@ -119,7 +119,7 @@ export function createPublicApiReadPart(deps) {
     exportBytes: async ({ chatKey = '' } = {}) => {
         const key = getChatKey();
         if (chatKey && chatKey !== key) throw new Error('The active chat changed before export; nothing was exported.');
-        if (!await ensureFreshMutationBoundary('export a dossier', key, { notify: false })) throw new Error('NPC State Delta canonical server dossier is unavailable.');
+        if (!await ensureFreshMutationBoundary('export a dossier', key, { notify: false })) throw new Error('NPC State canonical server dossier is unavailable.');
         if (getChatKey() !== key) throw new Error('The active chat changed before export; nothing was exported.');
         return exportBundleBytes();
     },

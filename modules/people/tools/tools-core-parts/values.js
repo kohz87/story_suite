@@ -1,4 +1,4 @@
-/* NPC State Delta supporting tools: the small value helpers (trim to text, safe number, clamp text, escape html). */
+/* NPC State supporting tools: the small value helpers (trim to text, safe number, clamp text, escape html). */
 import { escapeHtml } from '../../util/html.js';
 
 export function plain(value) { return String(value ?? '').trim(); }

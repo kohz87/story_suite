@@ -17,7 +17,7 @@
 .hiddenrow{display:flex;align-items:center;gap:8px;font:700 13px var(--su-font);color:var(--su-muted)}
 .hiddenrow i{font-style:normal}
 .pulse{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center}
-.die{width:52px;height:52px;border-radius:14px;background:var(--su-line2);display:grid;place-items:center;font:900 20px var(--su-font);border:2px solid var(--su-line2)}
+.die{width:52px;height:52px;border-radius:14px;background:var(--su-tint);display:grid;place-items:center;font:900 20px var(--su-font);border:2px solid var(--su-line2)}
 .pulse b{display:block;font:800 14.5px var(--su-font)}
 .rrow b{display:block;font:800 13.5px var(--su-font)}
 .pulse small{font-size:max(12px,.85em);color:var(--su-soft)}
@@ -25,24 +25,24 @@
 .recent{display:flex;flex-direction:column;gap:6px}
 .secl2{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
 .rrow{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:center}
-.rrow .rd{width:36px;height:36px;border-radius:10px;background:var(--su-line2);display:grid;place-items:center;font:900 14px var(--su-font)}
+.rrow .rd{width:36px;height:36px;border-radius:10px;background:var(--su-tint);display:grid;place-items:center;font:900 14px var(--su-font)}
 .rrow.skip .rd{color:var(--su-muted)}
 .prow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .tgl{display:inline-flex;align-items:center;gap:8px;font:700 13px var(--su-font);color:var(--su-text)}
-.arcbox{padding:12px 14px;border-radius:14px;background:var(--su-line2);display:flex;flex-direction:column;gap:6px}
+.arcbox{padding:12px 14px;border-radius:14px;background:var(--su-tint);display:flex;flex-direction:column;gap:6px}
 .arcbox b{font:800 16px var(--su-font)}
 .arcbox .m{font:700 12px var(--su-font);color:var(--su-muted)}
 .arcbox p{margin:0;font-size:13.5px;color:var(--su-soft);line-height:1.45}
-.note2{width:100%;box-sizing:border-box;font:500 13px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 10px;resize:vertical;min-height:44px}
+.note2{width:100%;box-sizing:border-box;font:500 13px var(--su-font);color:var(--su-text);background:var(--su-tint);border:1px solid var(--su-line2);border-radius:12px;padding:8px 10px;resize:vertical;min-height:44px}
 .castn{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center}
-.castn div{padding:10px 4px;border-radius:14px;background:var(--su-line2)}
+.castn div{padding:10px 4px;border-radius:14px;background:var(--su-tint)}
 .castn b{display:block;font:900 22px var(--su-font)}
 .castn small{font:700 12px var(--su-font);font-size:max(12px,.85em);color:var(--su-muted)}
 .it2{display:flex;flex-direction:column;gap:3px;padding:9px 0;border-top:1px solid var(--su-line2)}
 .it2 .h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .it2 .h b{font:800 14px var(--su-font);flex:1}
 .it2 p{margin:0;font-size:13px;color:var(--su-soft)}
-.tagx{font:800 12px var(--su-font);border-radius:999px;padding:1px 8px;background:var(--su-line2);color:var(--su-soft);white-space:nowrap}
+.tagx{font:800 12px var(--su-font);border-radius:999px;padding:1px 8px;background:var(--su-tint);color:var(--su-soft);white-space:nowrap}
 /* In the mock the .it2 .h .tagx rule outranks the ready/wait/told colours, so every tag shows the soft pill. */
 .tagx.fired{color:var(--su-muted);text-decoration:line-through}
 .it2 .m{display:flex;flex-wrap:wrap;gap:3px 12px;font:700 12px var(--su-font);color:var(--su-muted)}
@@ -51,10 +51,10 @@
 .it2 p a .av{vertical-align:-5px}
 .story-tab .it2 .av{width:20px;height:20px;border-radius:50%;background:var(--su-tile) center 18%/cover;box-shadow:0 0 0 1.5px var(--su-panel2);flex:none;display:inline-block}
 .it2 .m .why{color:var(--su-text);font-weight:800;min-height:32px;padding:4px 10px}
-.agbar{height:4px;border-radius:2px;background:var(--su-line2);overflow:hidden;max-width:260px}
+.agbar{height:4px;border-radius:2px;background:var(--su-tint);overflow:hidden;max-width:260px}
 .agbar b{display:block;height:100%;background:var(--su-accent)}
 .rip{display:grid;grid-template-columns:minmax(0,1fr) 40px;gap:4px 10px;align-items:center;font:700 13px var(--su-font);padding:5px 0}
-.rip i{grid-column:1/-1;height:6px;border-radius:3px;background:var(--su-line2);overflow:hidden}
+.rip i{grid-column:1/-1;height:6px;border-radius:3px;background:var(--su-tint);overflow:hidden}
 .rip i b{display:block;height:100%;background:var(--su-accent)}
 .rip span:nth-child(2){text-align:right;color:var(--su-soft)}
 .trk{display:flex;flex-direction:column;gap:8px}
@@ -63,7 +63,7 @@
 .pinnow{font:700 12px var(--su-font);color:var(--su-muted);display:inline-flex;align-items:center;gap:6px}
 .story-tab .fld{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(90px,38%);gap:10px;align-items:center;font-size:13px;padding:4px 0}
 .story-tab .fld>span:first-child{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
-.story-tab .fld i{height:7px;border-radius:4px;background:var(--su-line2);overflow:hidden}
+.story-tab .fld i{height:7px;border-radius:4px;background:var(--su-tint);overflow:hidden}
 .story-tab .fld i b{display:block;height:100%;border-radius:4px;background:var(--su-accent)}
 .story-tab .fld i b.tone-bad{background:var(--su-bad)}.story-tab .fld i b.tone-ok{background:var(--su-ok)}.story-tab .fld i b.tone-info{background:var(--su-info)}.story-tab .fld i b.tone-warn{background:var(--su-warn)}
 .story-tab .fld .v{font:800 13px var(--su-font);text-align:right}

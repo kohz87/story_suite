@@ -1,4 +1,4 @@
-/* NPC State Delta identity: clamping and normalizing numbers, booleans, gender and dossier-signal values. */
+/* NPC State identity: clamping and normalizing numbers, booleans, gender and dossier-signal values. */
 import { normalizeName } from '../core-text.js';
 
 export function clamp(value, min = 0, max = 100) {

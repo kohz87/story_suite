@@ -1,4 +1,4 @@
-// The `meterPresets` content kind: ready-made NPC meter sets for NPC State Delta (MODULES §F81, §F90),
+// The `meterPresets` content kind: ready-made NPC meter sets for NPC State (MODULES §F81, §F90),
 // `{ id, title, meters: [{ id, name, min, max, start, describe?, bands?, drift? }], stages?: [{ id, name,
 // needs: [{ meter, at }], milestone? }] }`. Validation of every field and rejection, the caps, the query.
 import test from 'node:test';
@@ -66,7 +66,7 @@ test('a preset keeps its meters, bands, drift and stages, with the pack', () => 
     assert.deepEqual(ok(withPresets(Array.from({ length: METER_LIMITS.presets }, (_, index) => preset({ id: `p-${index}` })))).content.meterPresets.length, 4);
     const six = Array.from({ length: METER_LIMITS.meters }, (_, index) => meter({ id: `m-${index}` }));
     assert.equal(ok(one({ meters: six })).content.meterPresets[0].meters.length, 6);
-    assert.equal(ok(withMeter({ min: -1000, max: 1000, start: 1000 })).content.meterPresets[0].meters[0].max, 1000, 'NPC State Delta\'s widest custom range');
+    assert.equal(ok(withMeter({ min: -1000, max: 1000, start: 1000 })).content.meterPresets[0].meters[0].max, 1000, 'NPC State\'s widest custom range');
     assert.deepEqual(contentOf([made], 'meterPresets').map(entry => entry.id), ['pack.mini/frontier']);
 });
 

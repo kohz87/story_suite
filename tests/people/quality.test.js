@@ -59,18 +59,18 @@ test('Megumin dossier import searches newest-first and stops at the latest base'
 test('retired helper and legacy dossier CSS are absent', () => {
     assert.doesNotMatch(core, /function scannerNpcMentioned/);
     for (const selector of [
-        'npc-state-delta-book',
-        'npc-state-delta-inline-card',
-        'npc-state-delta-inline-layout',
-        'npc-state-delta-viewer-columns',
-        'npc-state-delta-viewer-dialog',
-        'npc-state-delta-viewer-overlay',
-        'npc-state-delta-editor-scroll',
+        'ppl-book',
+        'ppl-inline-card',
+        'ppl-inline-layout',
+        'ppl-viewer-columns',
+        'ppl-viewer-dialog',
+        'ppl-viewer-overlay',
+        'ppl-editor-scroll',
     ]) assert.doesNotMatch(css, new RegExp(`\\.${selector}(?:\\s|\\{|:|\\.)`));
 });
 
 test('settings-only UI changes do not rewrite the per-chat sidecar', () => {
-    const body = functionBody(index, 'function bindUi()', "\n        $(document).on('click.npcStateDelta', '#npc_state_delta_scan_now'");
+    const body = functionBody(index, 'function bindUi()', "\n        $(document).on('click.ppl', '#people_scan_now'");
     assert.match(body, /bindSettingsCheckbox/);
     assert.match(body, /persistSettings\(\)/);
     assert.doesNotMatch(body, /\bpersist\(\)/);

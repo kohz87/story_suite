@@ -17,8 +17,8 @@ test('stats: the narrator\'s named stats are held to the budget; with none named
     assert.deepEqual(withinBudget({ STR: 2 }, 0), {});
     const pick = (name, slot) => defaultStat(name, slot);
     assert.deepEqual(['Steel Blade', 'Iron Sword', 'Hunting Bow', 'Dagger', 'Hand Axe', 'War Hammer', 'Heavy Club', 'Boar Spear', 'Oak Staff', 'Wand', 'Old Tome', 'Chain Mail', 'Oak Shield', 'Iron Helm', 'Walking Boots', 'Green Cloak', 'Jade Ring', 'Silver Amulet', 'Pendant'].map(name => pick(name, null)),
-        ['DEX', 'DEX', 'DEX', 'DEX', 'STR', 'STR', 'STR', 'STR', 'INT', 'INT', 'INT', 'VIT', 'VIT', 'VIT', 'AGI', 'AGI', 'LUK', 'LUK', 'LUK']);
-    assert.deepEqual(['weapon', 'body', 'off-hand', 'head', 'cloak', 'feet', 'accessory'].map(slot => pick('Thing', slot)), ['STR', 'VIT', 'VIT', 'VIT', 'AGI', 'AGI', 'LUK'], 'the slot\'s default');
+        ['DEX', 'DEX', 'DEX', 'DEX', 'STR', 'STR', 'STR', 'STR', 'INT', 'INT', 'INT', 'VIT', 'VIT', 'VIT', 'AGI', 'AGI', 'CHA', 'CHA', 'CHA']);
+    assert.deepEqual(['weapon', 'body', 'off-hand', 'head', 'cloak', 'feet', 'accessory'].map(slot => pick('Thing', slot)), ['STR', 'VIT', 'VIT', 'VIT', 'AGI', 'AGI', 'CHA'], 'the slot\'s default');
     const h = createHarness([core()]);
     const add = (name, labels) => { assert.equal(h.capture(line('+', 'item', name, labels), ON).ok, true); return Object.values(h.state.domains.inventory.defs).find(item => item.name === name); };
     assert.deepEqual(add('Cane Sword', { rarity: 'rare', dex: '+2' }).stats, { DEX: 2 });
@@ -27,8 +27,8 @@ test('stats: the narrator\'s named stats are held to the budget; with none named
     assert.deepEqual(add('Plain Dagger', { dex: '3' }).stats, { DEX: 1 }, 'a common piece is held to its budget of 1');
     assert.deepEqual(add('Iron Helm', { rarity: 'uncommon' }).stats, { VIT: 2 });
     assert.deepEqual(add('Silk Cloak', { rarity: 'fine' }).stats, { AGI: 2 });
-    assert.deepEqual(add('Jade Ring', { rarity: 'rare' }).stats, { LUK: 3 });
-    assert.deepEqual(add('Plain Belt', { rarity: 'rare' }).stats, { LUK: 3 }, 'a belt is an accessory: the slot\'s own');
+    assert.deepEqual(add('Jade Ring', { rarity: 'rare' }).stats, { CHA: 3 });
+    assert.deepEqual(add('Plain Belt', { rarity: 'rare' }).stats, { CHA: 3 }, 'a belt is an accessory: the slot\'s own');
     assert.equal(add('Rope', { rarity: 'rare', dex: '2' }).stats && Object.keys(add('Rope', {}).stats).length, 0, 'no slot, no stats');
     // A pack lists its own stats, held to the rarity's budget unless the pack sets a budget of its own.
     const rare = { id: 'pack.p/blade', name: 'Sun Blade', kind: 'equipment', slot: 'weapon', rarity: 'rare' };
@@ -44,7 +44,7 @@ test('every slot gives its stats through inventory.gear, and a broken piece take
     const host = await fresh(t);
     await host.send('Loot.', reply('Gear.', ['+ item Oak Staff | rarity: rare | equipped: weapon', '+ item Iron Helm | rarity: uncommon | equipped: head', '+ item Silk Cloak | rarity: uncommon | equipped: cloak', '+ item Walking Boots | rarity: uncommon | equipped: feet', '+ item Jade Ring | rarity: epic | equipped: accessory', '+ item Travel Pack']));
     const bonus = () => host.sdk.query('inventory.statBonus', { owner: 'party' });
-    assert.deepEqual(bonus(), { STR: 0, VIT: 2, AGI: 4, DEX: 0, INT: 3, LUK: 4, CHA: 0 });
+    assert.deepEqual(bonus(), { STR: 0, VIT: 2, AGI: 4, DEX: 0, INT: 3, LUK: 0, CHA: 4 });
     await host.send('Smash.', reply('Crash.', ['~ hit weapon 3']));
     assert.equal(bonus().INT, 0, 'broken: no stats');
     assert.equal(host.sdk.query('inventory.items').find(item => item.name === 'Travel Pack').equipped, null, 'a bag is worn nowhere');
@@ -177,8 +177,8 @@ test('gear on: the item grammar names the gear words (one short line) and stays 
     const line = first.split('\n').find(text => text.startsWith('+ item Name'));
     assert.ok(line, 'the item grammar line');
     const added = line.slice(ITEM_LINE.length);
-    assert.ok(added.length <= 300, `the gear words take ${added.length} characters`);
-    for (const word of ['kind: weapon|armour|shield|head|cloak|feet|accessory|bag', 'rarity: common|uncommon|rare|epic|legendary', 'DEX: +1', 'at most 2', 'equipped: slot', 'wear: scuff|tear|ruin', 'repair: mend|restore']) assert.ok(added.includes(word), word);
+    assert.ok(added.length <= 400, `the gear words take ${added.length} characters`);
+    for (const word of ['kind: weapon|armour|shield|head|cloak|feet|accessory|bag', 'rarity: common|uncommon|rare|epic|legendary', 'DEX: +1', 'at most 2', 'equipped: slot', 'wear: scuff|tear|ruin', 'repair: mend|restore', 'gear the story makes special (enchanted, masterwork, blessed)', 'ordinary gear needs none']) assert.ok(added.includes(word), word);
     await host.send('Loot.', reply('Gear.', ['+ item Iron Sword | rarity: rare | equipped: weapon']));
     await host.send('Again.', reply('More.', ['+ item Rope']));
     assert.equal(staticOf(host), first, 'the same bytes after two more replies');

@@ -1,6 +1,6 @@
 // The party's mounts (feature `story-block.mounts`): the animals and carts that set how fast the party
-// travels, kept in the scene domain as `scene.mounts`, with the capture kind `mount`, the reader's pencil
-// command, the queries `mounts.list` and `mounts.pace` (Story Director reads both) and the narrator's line. Pure.
+// travels, kept in the scene domain as `scene.mounts`, with the capture kind `mount`, the reader's commands (pencil, ride, add, remove)
+// the queries `mounts.list` and `mounts.pace` (Story Director reads both) and the narrator's line. Pure.
 //
 // `scene.mounts` is an object of rows, absent until a reply first writes one (older chats read as none). A row
 // is { name, kind, count, pace, condition, where } under a key made from its name when it was added (`m:grey
