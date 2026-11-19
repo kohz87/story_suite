@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A person's Profile lines up its labels in one column, and the Wants and Hiding rows sit clear of the Scene spoilers switch.
 - The Here drawer floats over the bottom of the chat instead of pushing it up.
 - Add to party shows on a person's page only when the story offered them as a companion.
 - The name on a person's page is smaller, with room below the feelings ring.
