@@ -54,7 +54,7 @@ test('the Bag sheet: the carried bag with its load, the party\'s other bags with
   assert.deepEqual(rows().map(row => row.dataset.pack), ['quiver-bag', 'canvas-pack', 'oath-pouch'], 'her own bag is the one shown above');
   assert.match(rowText(rows()[0]), /\+4 load · Rika's bag/);
   assert.match(rowText(rows()[1]), /\+15 load · held/);
-  assert.match(rowText(rows()[2]), /Adds no load yet \(Edit › Carry\) · with Torka.*Bound to Torka: it stays with them\./);
+  assert.match(rowText(rows()[2]), /Adds no load yet \(Edit › Carries\) · with Torka.*Bound to Torka: it stays with them\./);
   assert.equal(rows()[2].querySelector('[data-carry]').hasAttribute('disabled'), true);
   rows()[1].querySelector('[data-carry]').click();
   await flush();

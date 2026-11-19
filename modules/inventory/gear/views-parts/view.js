@@ -1,7 +1,7 @@
 // Builds `gear.view`, the one answer the gear screens (Inventory tab, Party slot card) draw.
 
 import { isPlainObject } from '../../../scene/domains/common.js';
-import { STRINGS } from '../../../../core/strings.js';
+import { STRINGS, fill } from '../../../../core/strings.js';
 import { readSheet } from '../../../rpg/read.js';
 import { ridersOf } from '../../../scene/mounts-parts/riders.js';
 import { GEAR } from '../stats.js';
@@ -15,6 +15,11 @@ import { slotCarriers } from './slot-carriers.js';
 
 const PLACES = GEAR.places;
 const S = STRINGS.inventory.gear;
+const E = STRINGS.editMessages;
+
+// Why the reader cannot set what an item carries (inventory.carry's refusals, in its order), '' when they can: a bound piece, a pack's item, money.
+const carryWhy = (def, stack, names) => (typeof stack.bound === 'string' && stack.bound ? fill(E.bound, { name: names(stack.bound) || stack.bound, item: def.name })
+    : def.id.startsWith('pack.') ? E.carryPack : def.kind === 'money' ? E.carryMoney : '');
 
 // ---- The gear screens' picture (Inventory tab, the slot card on the Party tab): `gear.view`.
 // How full a condition bar is drawn for each word (Good full, Broken empty).
@@ -56,6 +61,8 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
             // What the reader set for it to add to carrying (0: none), and whether the item's own Edit form offers its Carry field (not a pack's, not money, not a hand-made piece: that form has its own).
             carry: Number.isSafeInteger(def.carry) && !def.id.startsWith('pack.') ? def.carry : 0,
             carryEdit: !def.id.startsWith('pack.') && def.kind !== 'money' && !handDef(inventory, def),
+            // (the Bag's Edit shows Carries on every item: read-only with this reason when the engine would refuse it)
+            carryWhy: carryWhy(def, stack, names),
             // A piece the reader added by hand (its Edit offers Kind, Slot, Rarity and Bonus): its own slot and stat points.
             ...(handDef(inventory, def) ? { hand: true, defSlot: def.kind === 'equipment' ? placeOf(slotWordOf(def.slot) ?? '') : '', stats: statsFor(def, stack) } : {}),
             // Any unbound equipment piece with points to give: its Edit lets the reader move them between stats (edit.js repoint); `budget` is the total that stays.

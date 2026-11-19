@@ -31,6 +31,7 @@ test('the reader sets 10 on a story Sling Bag and the capacity rises by 10; 0 re
     assert.equal(out.ok, true, out.message);
     assert.equal(capacity(host), base + 10);
     assert.equal(bag(host).carry, 10, 'the item row shows +10');
+    assert.equal(host.sdk.query('gear.view', { owner: 'party' }).rows[bag(host).stack].carryWhy, '', 'a story item: the reader may set it');
     assert.deepEqual(host.store.problems(), []);
     assert.equal((await setCarry(host, 0)).ok, true);
     assert.equal(capacity(host), base);
@@ -54,6 +55,10 @@ test('501, -1, a fraction and text are refused; a pack item keeps its own value'
     const h = createHarness([module], { state });
     assert.match(h.run('inventory.carry', { stack: 'it_sat00001', carry: 5 }, { cause: 'ui', ...ON }).message, /pack/);
     assert.equal(h.state.domains.inventory.defs['pack.fantasy/satchel'].carry, 20);
+    const boundState = structuredClone(state);
+    boundState.domains.inventory.stacks.it_sat00001.bound = 'ac_mara0001';
+    const b = createHarness([module], { state: boundState });
+    assert.match(b.run('inventory.carry', { stack: 'it_sat00001', carry: 5 }, { cause: 'ui', ...ON }).message, /^Bound to .+: Deep Satchel stays with them\.$/, 'a bound piece: the bound reason first');
 });
 
 test('a story line cannot set or raise it: the item line, a later line and a module call are refused or ignored', async t => {

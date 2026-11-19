@@ -1,4 +1,4 @@
-// The reader's pencil on a mount row (`mounts.edit`) and its command table.
+// The reader's pencil on a mount row (`mounts.edit`) and the mounts' command table (the Mount slot's ride, the Bag's add and remove).
 
 import { parseCount } from '../domains/common.js';
 import { cleanName, trimText } from '../names.js';
@@ -9,6 +9,7 @@ import { MAX_COUNT, MAX_PACE, MAX_CARRY } from './caps-count.js';
 import { whole, paceNumber } from './shared-parse.js';
 import { apply } from './apply.js';
 import { ride } from './ride.js';
+import { addMount, removeMount } from './reader.js';
 
 const M = STRINGS.mounts;
 
@@ -48,4 +49,7 @@ export const mountsCommands = {
     'mounts.edit': Object.assign(editRow, { feature: MOUNTS_FEATURE }),
     // { who, mount | null }: the Party Mount slot (ride.js).
     'mounts.ride': Object.assign(ride, { feature: MOUNTS_FEATURE }),
+    // The Bag's Transport list: + Add and a mount's Remove (reader.js).
+    'mounts.add': Object.assign(addMount, { feature: MOUNTS_FEATURE }),
+    'mounts.remove': Object.assign(removeMount, { feature: MOUNTS_FEATURE }),
 };
