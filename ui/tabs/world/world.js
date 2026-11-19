@@ -7,6 +7,7 @@ import { newsCard } from './news.js';
 import { factionsCard } from './factions.js';
 import { conditionsCard } from './conditions.js';
 import { placesCard } from './places-list.js';
+import { groupPlaces } from './map-groups.js';
 
 const VIEW_LABELS = Object.freeze({ map: 'Map', places: 'Places', news: 'News', factions: 'Factions' });
 const DIRECTOR_NOTE = 'News that has not reached you yet lives in Story › Director, behind the plan switch.';
@@ -59,9 +60,13 @@ export function worldTab(world = {}, ctx = {}) {
       closeSheet();
       state.selected = id;
       markSelected(body, id);
-      sheet = placeSheet(place, data, { ...ctx, edit: act.edit }, closeSheet);
+      // A town's sheet lists its sub-places; a sub-place's sheet leads back to its town.
+      const groups = groupPlaces(data.places);
+      const town = data.places.find(p => p.id === groups.parent.get(id)) ?? null;
+      sheet = placeSheet(place, data, { ...ctx, edit: act.edit, town, subs: groups.subs.get(id) ?? [], open: act.openPlace }, closeSheet);
       root.appendChild(sheet);
       unback = ctx.back?.push({ layer: 'sheet', close: closeSheet }) ?? null;
+      state.reveal?.(id, sheet.querySelector('.wsheet'));
     },
     gotoPlace(id) { closeSheet(); state.view = 'map'; state.center = id; render(); act.openPlace(id); },
   };

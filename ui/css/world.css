@@ -43,6 +43,11 @@
 .mp .pn{cursor:pointer}
 .mp .pl .g{color:var(--su-glyph)}
 .mp .pl.sel circle.b{stroke:var(--su-accent);stroke-width:3}
+/* the selection mark: a thin accent ring a few px out from the dot; no browser focus outline (it scales with the map into a huge pill) */
+.mp :is(.pl,.pl *,.pn):focus{outline:none}
+.mp .pl .ring{display:none;fill:none;stroke:var(--su-accent);stroke-width:2.5px;vector-effect:non-scaling-stroke}
+.mp .pl:is(.sel,:focus-visible) .ring{display:inline}
+.mp .spoke{stroke:var(--su-line);stroke-width:1.5px;stroke-dasharray:3 3;fill:none;vector-effect:non-scaling-stroke}
 .mp .pl.far circle.b,.mp .pl.far .g{opacity:.5}
 .mp .pl.far circle.b{stroke-dasharray:4 3}
 .mp .pl .hit{stroke:none}
@@ -116,6 +121,8 @@
 .wsheet .kv dt{color:var(--su-muted);font-weight:800}
 .wsheet .kv dd{margin:0}
 .wsheet .plink{min-height:44px;margin-right:6px}
+.wsheet .subs{display:flex;flex-wrap:wrap;gap:6px}.wsheet .subs .plink{margin:0}
+.wsheet .up{align-self:flex-start;min-height:36px;padding:4px 10px;font:700 13px var(--su-font)}
 /* news */
 .fil{display:flex;flex-wrap:wrap;gap:6px}
 .fil .chip2{gap:0;min-height:44px;padding:5px 12px;font:700 12.5px var(--su-font);color:var(--su-soft);background:transparent;border:1px solid var(--su-line2);border-radius:12px;box-shadow:none;white-space:nowrap}

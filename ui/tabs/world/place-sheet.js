@@ -4,6 +4,7 @@ import { glyph } from '../../kit/glyphs.js';
 import { button } from '../../kit/controls.js';
 import { placeGlyph } from './map.js';
 import { timeWords } from './trip.js';
+import { subName } from './map-groups.js';
 
 const DANGER_WORDS = { safe: 'Safe', risky: 'Risky', dangerous: 'Dangerous' };
 const cap = text => (text ? text[0].toUpperCase() + text.slice(1) : text);
@@ -30,7 +31,7 @@ function personName(world, id) {
   return cap(id);
 }
 
-/** Builds the sheet for `place`; ctx = { rpg, go(tab, args), edit(target) }; onClose() closes it. */
+/** Builds the sheet for `place`; ctx = { rpg, go(tab, args), edit(target), town (its town, for a sub-place), subs (a town's sub-places), open(id) }; onClose() closes it. */
 export function placeSheet(place, world = {}, ctx = {}, onClose = () => {}) {
   const news = (world.news ?? []).filter(n => n.placeId === place.id).map(n => n.title);
   const from = fromYou(place, world);
@@ -41,6 +42,12 @@ export function placeSheet(place, world = {}, ctx = {}, onClose = () => {}) {
   const links = (world.routes ?? []).filter(r => r.a === place.id || r.b === place.id)
     .map(r => (world.places ?? []).find(p => p.id === (r.a === place.id ? r.b : r.a))?.name).filter(Boolean);
   if (links.length) add('Routes to', [...new Set(links)].join(', '));
+  const subs = ctx.subs ?? [];
+  if (subs.length) {
+    add(`Places here (${subs.length})`, h('div', { class: 'subs' }, subs.map(s => button({
+      label: subName(s, place), className: 'plink', dataset: { sub: s.id }, onClick: () => ctx.open?.(s.id),
+    }))));
+  }
   if (news.length) add('News', news.map((t, i) => [i ? h('br') : null, t]));
   if (place.quests?.length) add('Quests', place.quests.map((t, i) => [i ? h('br') : null, t]));
   if (place.people?.length) {
@@ -57,10 +64,11 @@ export function placeSheet(place, world = {}, ctx = {}, onClose = () => {}) {
     { class: 'wov', dataset: { sheet: 'place' }, onClick: e => { if (e.target === e.currentTarget) onClose(); } },
     h('div', { class: 'wsheet', role: 'dialog', 'aria-label': place.name },
       h('span', { class: 'grab' }),
+      ctx.town ? button({ label: `‹ ${ctx.town.name}`, ariaLabel: `Back to ${ctx.town.name}`, className: 'up', dataset: { up: ctx.town.id }, onClick: () => ctx.open?.(ctx.town.id) }) : null,
       h('div', { class: 'dh' },
         h('span', { class: 'tl' }, glyph(placeGlyph(place.kind))),
         h('div', null,
-          h('div', { class: 'dn' }, place.name),
+          h('div', { class: 'dn' }, ctx.town ? subName(place, ctx.town) : place.name),
           h('div', { class: 'chips' },
             h('span', { class: 'lvl2' }, place.kind),
             place.region ? h('span', { class: 'lvl2' }, place.region) : null,

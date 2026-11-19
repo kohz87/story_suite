@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- World › Map: a city's wards and the places on top of it show as one marker ("Auvoth · 7") whose sheet lists them; zoom in to fan them out. A selected place gets a thin ring, and the map moves it above the sheet.
 - Party › a skill's sheet no longer prints "null" under its rank; Bag › Wear on… shows each member's portrait.
 - Party › Mount and Bag slots: tap them to choose which party mount a member rides or which bag they carry (None frees it); a mount left behind, already full, or a bound bag says why.
 - Bag › Wear on…: when a piece cannot be worn (no slot set), the sheet stays open with the reason and an **Edit item** button that opens its Slot.

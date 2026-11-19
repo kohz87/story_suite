@@ -6,6 +6,7 @@ import { tripCard, tripSummary } from './trip.js';
 import { labelGeom, planLabels, planRegions } from './map-labels.js';
 import { fitView, openBox, zoomLimits } from './map-view.js';
 import { placePulse, pulseRing } from './pulse.js';
+import { groupPlaces, layoutGroups, panAbove } from './map-groups.js';
 
 export { fitBox } from './map-view.js';
 const KIND_GLYPHS = [[/port|harbou?r/i, 'port'], [/ford|bridge|mill/i, 'ford'], [/city/i, 'city'], [/village|hamlet/i, 'village'],
@@ -20,10 +21,10 @@ export function placeGlyph(kind) {
   return hit ? hit[1] : 'town';
 }
 
-/** Marks one place as selected (or none) on an already drawn map. */
+/** Marks one place as selected (or none) on an already drawn map; a folded sub-place marks its town. */
 export function markSelected(root, id) {
   for (const g of root.querySelectorAll('[data-pl]')) {
-    g.classList.toggle('sel', g.dataset.pl === id);
+    g.classList.toggle('sel', Boolean(id) && (g.dataset.pl === id || String(g.dataset.has ?? '').split(' ').includes(id)));
   }
 }
 
@@ -35,8 +36,8 @@ function nameText(p, u, lab, act) {
     ...(lab ? { class: ['pn', isBig(p) ? 'big' : null], 'aria-hidden': 'true', onClick: () => act.openPlace(p.id) } : { class: 'nm' }) }, p.name);
 }
 
-// A place: its dot, glyph and news mark; a name that waits (no lab) rides inside, shown on hover, focus or select.
-function placeNode(p, u, newsIds, state, act, lab) {
+// A place: its dot, glyph, news mark and a thin selection ring a few px out; a name that waits (no lab) rides inside, shown on hover, focus or select.
+function placeNode(p, u, newsIds, sel, act, lab) {
   const big = isBig(p);
   const { r } = labelGeom(p, u);
   const nr = 9 * u;
@@ -47,15 +48,16 @@ function placeNode(p, u, newsIds, state, act, lab) {
       svgEl('text', { x: p.x + r * 0.8, y: p.y - r * 0.8 + nr * 0.45, 'text-anchor': 'middle', style: { 'font-size': `${nr * 1.5}px`, stroke: 'none' } }, '!'))
     : null;
   return svgEl('g', {
-    class: ['pl', big ? 'big' : null, state.selected === p.id ? 'sel' : null, p.visited ? null : 'far', lab ? null : 'lh'],
-    dataset: { pl: p.id },
+    class: ['pl', big ? 'big' : null, sel === p.id ? 'sel' : null, p.visited ? null : 'far', lab ? null : 'lh', p.has ? 'grp' : null],
+    dataset: { pl: p.id, ...(p.has ? { has: p.has.join(' ') } : {}) },
     role: 'button',
     tabindex: 0,
-    'aria-label': p.name,
+    'aria-label': p.has ? `${p.name.replace(/ · \d+$/, '')}, ${p.has.length} places here` : p.name,
     onClick: () => act.openPlace(p.id),
     onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') act.openPlace(p.id); },
   },
   svgEl('circle', { class: 'hit', cx: p.x, cy: p.y, r: Math.max(r, 24 * u), fill: 'transparent' }),
+  svgEl('circle', { class: 'ring', cx: p.x, cy: p.y, r: r + 4 * u }),
   svgEl('circle', { class: 'b', cx: p.x, cy: p.y, r }),
   svgEl('svg', { class: 'g', x: p.x - r * 0.6, y: p.y - r * 0.6, width: r * 1.2, height: r * 1.2, viewBox: '0 0 24 24', fill: 'currentColor', ...(stroked ? { stroke: 'currentColor', 'stroke-width': 2 } : {}) },
     ...(glyph(placeGlyph(p.kind))?.childNodes ?? [])),
@@ -71,14 +73,17 @@ function landBox(places) {
   return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };
 }
 
-// pick = { keep: ids whose labels must show, region: the chosen region }.
-function drawSvg(world, vb, scale, state, act, pick) {
+// pick = { keep: ids whose labels must show, region: the chosen region }; lay = layoutGroups' answer (folded or fanned towns).
+function drawSvg(world, vb, scale, state, act, pick, lay) {
   const u = 1 / scale;
-  const byId = new Map(world.places.map(p => [p.id, p]));
-  const newsIds = new Set(world.news.map(n => n.placeId).filter(Boolean));
+  const byId = lay.pos;
+  const to = id => lay.alias.get(id) ?? id;
+  const newsIds = new Set(world.news.map(n => n.placeId).filter(Boolean).map(to));
   const tripPts = (world.trip?.placeIds ?? []).map(id => byId.get(id)).filter(Boolean);
   const terrain = world.terrain ?? {};
-  const { labels, boxes, dots } = planLabels(world.places, vb, scale, pick);
+  // A fanned town and its sub-places must show their names (they were spread out to be read), with the trip and the selected place.
+  const keep = new Set([...[...(pick.keep ?? [])].map(to), ...lay.fans.flatMap(f => [f.hub.id, ...f.subs.map(s => s.id)])]);
+  const { labels, boxes, dots } = planLabels(lay.shown, vb, scale, { ...pick, keep });
   const names = planRegions(world.places, terrain.labels, vb, scale, boxes, dots);
   const grid = [];
   const land = landBox(world.places);
@@ -101,8 +106,9 @@ function drawSvg(world, vb, scale, state, act, pick) {
     tripPts.length > 1
       ? svgEl('path', { class: ['trip', world.trip.state === 'arrived' ? 'done' : null], d: `M${tripPts.map(p => `${p.x} ${p.y}`).join('L')}`, style: { 'stroke-width': 4 } })
       : null,
-    world.places.map(p => placeNode(p, u, newsIds, state, act, labels.get(p.id))),
-    svgEl('g', { class: 'names' }, world.places.filter(p => labels.has(p.id)).map(p => nameText(p, u, labels.get(p.id), act))));
+    lay.fans.map(f => f.subs.map(s => svgEl('path', { class: 'spoke', d: `M${f.hub.x} ${f.hub.y}L${s.x} ${s.y}` }))),
+    lay.shown.map(p => placeNode(p, u, newsIds, to(state.selected), act, labels.get(p.id))),
+    svgEl('g', { class: 'names' }, lay.shown.filter(p => labels.has(p.id)).map(p => nameText(p, u, labels.get(p.id), act))));
 }
 
 function tools(world, regions, on) {
@@ -151,12 +157,17 @@ export function mapCard(world, state, act, ctx = {}) {
   const px = () => box.clientWidth || (typeof ctx.width === 'function' ? ctx.width() : ctx.width) || 0;
   const tripIds = data.trip?.placeIds ?? [];
   const limits = zoomLimits(places);
+  const groups = groupPlaces(places);
+  let lay = null;
   const view = { region: '', far: [] };   // the chosen region; places a fit left off the map (shown as counts at the edges)
   const opening = () => openBox(places, { ratio: ratio(), px: px(), limits, tripIds });
   let vb = opening();
-  const centreOn = (p) => {
+  // A sub-place is shown on its town at the closest zoom, where the town's places fan out.
+  const centreOn = (place) => {
+    const town = places.find(q => q.id === groups.parent.get(place.id));
+    const p = town ?? place;
     const near = openBox(places, { ratio: ratio(), px: px(), limits, at: p });
-    const w = Math.min(vb.w, near.w);
+    const w = town ? limits.min : Math.min(vb.w, near.w);
     vb = { x: p.x - w / 2, y: p.y - (w * ratio()) / 2, w, h: w * ratio() };
     view.far = [];
   };
@@ -170,13 +181,23 @@ export function mapCard(world, state, act, ctx = {}) {
   };
   const redraw = () => {
     vb.h = vb.w * ratio();
-    const here = places.find(p => p.here);
+    lay = layoutGroups(places, groups, vb, scale(vb), limits.min);
+    const here = lay.pos.get(places.find(p => p.here)?.id);
     const chips = offMap(view.far, vb, on.all);
     const W = vb.w * scale(vb);
     const H = vb.h * scale(vb);
     const avoid = chips.map(c => ({ n: { x: W / 2 - 110, y: 0, w: 220, h: 48 }, s: { x: W / 2 - 110, y: H - 48, w: 220, h: 48 }, w: { x: 0, y: H / 2 - 24, w: 200, h: 48 }, e: { x: W - 200, y: H / 2 - 24, w: 200, h: 48 } })[c.dataset.side]);
     const pick = { keep: new Set([...tripIds, state.selected].filter(Boolean)), region: view.region, avoid };
-    box.replaceChildren(drawSvg(data, vb, scale(vb), state, act, pick), ...(here ? [pulseRing(here, vb, scale(vb))] : []), ...chips);
+    box.replaceChildren(drawSvg(data, vb, scale(vb), state, act, pick, lay), ...(here ? [pulseRing(here, vb, scale(vb))] : []), ...chips);
+  };
+  // Called when a place sheet opens over the map (sheet = its panel): the map pans so the place stays in view above it.
+  state.reveal = (id, sheet) => {
+    const p = lay?.pos.get(id);
+    const at = box.getBoundingClientRect?.();
+    const cover = sheet?.getBoundingClientRect?.();
+    if (!p || !at?.height || !cover?.height) return;
+    const next = panAbove(vb, p, scale(vb), { top: cover.top - at.top, bottom: cover.bottom - at.top, left: cover.left - at.left, right: cover.right - at.left }, at.height);
+    if (next) { vb = next; redraw(); }
   };
   const on = {
     zoom(f) {
@@ -226,7 +247,7 @@ export function mapCard(world, state, act, ctx = {}) {
     } else return;
     svgNow()?.setAttribute('viewBox', viewText(vb));
     const ring = box.querySelector('.pulse');
-    const here = places.find(p => p.here);
+    const here = lay?.pos.get(places.find(p => p.here)?.id);
     if (ring && here) placePulse(ring, here, vb, scale(vb));
   });
   // A pan or pinch ends with a redraw, so the labels are chosen again for what is now in view.
