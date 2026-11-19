@@ -11,6 +11,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Settings › Look: **Glass strength** now reaches every glass surface (blur, tab strip, chips, sheets and their dimmed layer), not only the panel colour. The default looks as before.
 - With Panel background Off, Glass strength now also lifts the cards off the plain colour: higher makes them lighter (in dark) with a firmer edge and shadow. The default looks as before.
 - HP now comes from STR and VIT, SP from AGI and DEX, MP from INT and WIS.
+- On a wide screen every sheet (Bag, Party, quests, World, Scene, trackers, Inspector) opens as a centred window over a dimmed page, with its title and buttons always in view.
 
 ## 0.1.3 — 19 Nov 2026
 

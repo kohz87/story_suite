@@ -6,14 +6,15 @@ import { decideScheme, followSt } from './follow-st.js';
 const STRENGTH = Object.freeze({ min: 30, max: 90, base: 50 });
 // Every token Glass strength moves, with its value at the default strength (50%): the mock's own (tokens.js), so the default draws exactly the mock.
 // The panels' colour and alpha (dark and light); the tint of chips and rows on a panel (dark and light); the scrims under sheets (the same in
-// both); the blurs, in px.
+// both, but the centred desktop sheet's, which has its own light colour); the blurs, in px.
 const PANELS = Object.freeze({
   dark: Object.freeze({ '--su-panel': ['28,30,44', 0.72], '--su-panel2': ['36,38,56', 0.9] }),
   light: Object.freeze({ '--su-panel': ['255,255,255', 0.72], '--su-panel2': ['255,255,255', 0.88] }),
 });
 const TINTS = Object.freeze({ dark: ['255,255,255', 0.1], light: ['30,34,52', 0.12] });
-const SCRIMS = Object.freeze({ '--su-scrim': ['6,8,16', 0.45], '--su-scrim-strong': ['6,8,16', 0.6], '--su-scrim-place': ['8,10,18', 0.5] });
-const BLURS = Object.freeze({ '--su-blur': 16, '--su-blur-strong': 28, '--su-blur-soft': 6 });
+const SCRIMS = Object.freeze({ '--su-scrim': ['6,8,16', 0.45], '--su-scrim-strong': ['6,8,16', 0.6], '--su-scrim-place': ['8,10,18', 0.5],
+  '--su-scrim-desk': { dark: ['6,8,16', 0.58], light: ['30,26,60', 0.34] } });
+const BLURS = Object.freeze({ '--su-blur': 16, '--su-blur-strong': 28, '--su-blur-soft': 6, '--su-blur-desk': 3 });
 // Panel background Off: the suite lies on a flat colour (shell.css --su-flat) next to which the dark panel's colour hardly differs at any alpha. So
 // above 50% the strength also lifts the cards off it, all the way at 90%: the dark panels go lighter (to the colours here) and the card edge and
 // shadow firmer; light keeps its white panels (already lighter than the flat) and gets a greyer edge and a deeper shadow. 50% and under: as with it On.
@@ -81,7 +82,7 @@ export function lookTheme(look, readVar = () => '') {
     for (const [name, [rgb, base]] of Object.entries(PANELS[scheme])) tokens[name] = rgba([up.panels[name] && lift ? rgbMix(rgb, up.panels[name], lift) : rgb, base], look.strength, 0.98);
     if (lift) [tokens['--su-line'], tokens['--su-shadow']] = [rgbaMix(up.line, lift), `${SHADOW} ${rgbaMix(up.shadow, lift)}`];
     tokens['--su-tint'] = tintAt(TINTS[scheme], look.strength);
-    for (const [name, value] of Object.entries(SCRIMS)) tokens[name] = rgba(value, look.strength, 0.8);
+    for (const [name, value] of Object.entries(SCRIMS)) tokens[name] = rgba(value[scheme] ?? value, look.strength, 0.8);
     for (const [name, base] of Object.entries(BLURS)) tokens[name] = blurAt(base, look.strength);
   }
   tokens['--su-font'] = look.font === 'theme' ? THEME_FONT : NUNITO;
