@@ -1,4 +1,4 @@
-/* NPC State Delta injection: cutting injection text to a budget, fairly across fields or at a clause boundary. */
+/* NPC State injection: cutting injection text to a budget, fairly across fields or at a clause boundary. */
 
 
 export function truncateInjectionText(value, maxChars) {

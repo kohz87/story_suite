@@ -1,4 +1,4 @@
-/* NPC State Delta: the one scanner provider call, routed, guarded and timed. */
+/* NPC State: the one scanner provider call, routed, guarded and timed. */
 import { SCANNER_REQUEST_TIMEOUT_MS, normalizeScannerMaxOutputTokens } from './shared-limits.js';
 import { scannerRoutingError, isScannerRoutingError, stoppedError } from './errors.js';
 import { configuredScannerMaxOutputTokens, selectedScannerProfileId, connectionManagerDisabled } from './profile-settings.js';

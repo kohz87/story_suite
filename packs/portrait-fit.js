@@ -1,6 +1,6 @@
 // Makes a large portrait small enough to keep: a WebP, PNG or JPEG of up to PORTRAIT_LIMITS.source bytes is decoded in the browser,
 // drawn with its long side at most PORTRAIT_LIMITS.side px and saved as WebP, trying less quality and then fewer pixels until it is
-// at most PORTRAIT_LIMITS.bytes (the stored limit: NPC State Delta keeps a copy per chat). The same steps as Story Studio's portrait
+// at most PORTRAIT_LIMITS.bytes (the stored limit: NPC State keeps a copy per chat). The same steps as Story Studio's portrait
 // shrink (qualities 85, 70, 55, 40, 30 per cent; then 85 per cent of the side, down to 96 px), so a picture comes out alike from
 // either. Where WebP cannot be saved (some browsers draw it as PNG), JPEG is saved instead.
 //

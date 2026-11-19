@@ -79,12 +79,12 @@ test('scanner output UI is drawn after Scan context (no slot), leaves panel styl
     const index = runtimeSource();
     const css = styleSource();
     assert.match(source, /Maximum output tokens/);
-    assert.match(source, /querySelector\?\.\('#npc_state_delta_scan_depth'\)\?\.closest\?\.\('label'\)[\s\S]*after\.after\(row\)/, 'the output limit sits right after Scan context');
+    assert.match(source, /querySelector\?\.\('#people_scan_depth'\)\?\.closest\?\.\('label'\)[\s\S]*after\.after\(row\)/, 'the output limit sits right after Scan context');
     assert.doesNotMatch(index, /settingsSlot\(|delta-settings-slot/, 'no settings slots are left (B4-5)');
-    assert.doesNotMatch(source, /moveFullCastIntoScanning|npc_state_delta_full_cast_scan|#\$\{SETTINGS_ID\} \./, 'no relocation or settings CSS outside the settings owner');
+    assert.doesNotMatch(source, /moveFullCastIntoScanning|people_full_cast_scan|#\$\{SETTINGS_ID\} \./, 'no relocation or settings CSS outside the settings owner');
     assert.match(source, /class="delta-setting-number story-suite-number"/);
     assert.match(css, /\.delta-settings-maintenance-actions \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-    assert.match(css, /\.npc-state-delta-tuning-actions \{ display: flex; flex-wrap: wrap;/);
+    assert.match(css, /\.ppl-tuning-actions \{ display: flex; flex-wrap: wrap;/);
     assert.match(css, /@container npc-delta-settings \(max-width: 500px\)/);
     assert.doesNotMatch(source, /delta-cast-card|delta-library|injectStyles/, 'the cast rail is gone, so is its card sizing');
     assert.match(source, /roleplay or image-generation limits/);

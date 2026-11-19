@@ -11,7 +11,7 @@ export const FEATURES = Object.freeze([
     Object.freeze({ id: FEATURE_PRESETS, label: 'Feeling presets and rules', describe: 'One-click feeling sets (Companion, Rival, Mentor and packs\') and each feeling\'s rule line in the story\'s instructions.', default: true, prompt: true, presets: LEAN_OFF }),
     // Read-only (src/social-check.js): no prompt text, no state; a dice module asks npc.socialModifier.
     Object.freeze({ id: FEATURE_SOCIAL, label: 'Social checks use the dossier', describe: 'A persuade, charm, intimidate or deceive check against an NPC gets a small bonus or penalty from their feelings, stage and disposition (for Story Director\'s checks or another dice module).', default: true }),
-    // Read by index.js (scanAfterEveryReply): no prompt text, no state. Off, the automatic scan runs every 3 replies (or
+    // Read by runtime-entry.js (scanAfterEveryReply): no prompt text, no state. Off, the automatic scan runs every 3 replies (or
     // "Scan every" when larger), reading every reply since the last scan; a manual scan is never held back.
     Object.freeze({ id: FEATURE_SCAN_EVERY_REPLY, label: 'Scan after every reply', describe: 'Off: the automatic scan runs every 3 replies (or the "Scan every" setting if larger) and that scan reads every reply since the last one, so a reply in between is read, not lost. A manual scan always runs.', default: true, presets: LEAN_OFF }),
     // A story line may say `| via: praise`; the same approach to the same person again soon gives less and then backfires (npc-meters-gate.js).

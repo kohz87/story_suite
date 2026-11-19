@@ -1,7 +1,7 @@
-/* NPC State Delta chat keys (role: chat-keys). Which chat a state belongs to: the owner-qualified key of the open chat, the keys a rename or delete
+/* NPC State chat keys (role: chat-keys). Which chat a state belongs to: the owner-qualified key of the open chat, the keys a rename or delete
    event can mean (checked against what the host still lists), the loaded-chat cache's touch and eviction, and the ownership epoch that lets a late
-   completion find out its chat was deleted, renamed or detached meanwhile. Built by index.js once per module instance with the shared runtime state.
-   Bodies are moved from index.js without change. */
+   completion find out its chat was deleted, renamed or detached meanwhile. Built by runtime-entry.js once per module instance with the shared runtime state.
+   Bodies are moved from runtime-entry.js without change. */
 
 import { getContext } from '../../../../../../extensions.js';
 import { getCharacterOwnerId, getChatIdentityFromContext, isQualifiedChatKey, parseQualifiedChatKey } from '../core/identity.js';
@@ -35,7 +35,7 @@ export function createChatKeysPart(rt, deps) {
         const candidates = liveLifecycleCandidateKeys(settings, chatStateCache.keys(), kind, id);
         const resolved = resolveOwnedLifecycleKey(candidates, kind, id, resolvedOwner, ownerWasProvided);
         if (!resolved && candidates.length > 1) {
-            console.warn(`[NPC State Delta] refused ambiguous ${kind} lifecycle lookup for ${id}; ${candidates.length} live owner-qualified states share that chat id.`);
+            console.warn(`[NPC State] refused ambiguous ${kind} lifecycle lookup for ${id}; ${candidates.length} live owner-qualified states share that chat id.`);
         }
         return resolved;
     }
@@ -61,7 +61,7 @@ export function createChatKeysPart(rt, deps) {
             const chats = Array.isArray(data) ? data : Object.values(data);
             return chats.some(item => String(item?.file_name ?? item?.fileName ?? item?.name ?? '').replace(/\.jsonl$/i, '').trim() === id);
         } catch (error) {
-            console.debug(`[NPC State Delta] host ownership probe failed for ${owner}/${id}.`, error);
+            console.debug(`[NPC State] host ownership probe failed for ${owner}/${id}.`, error);
             return null;
         }
     }
@@ -98,16 +98,16 @@ export function createChatKeysPart(rt, deps) {
             presence.push({ key, value });
         }
         if (presence.some(item => item.value === null)) {
-            const error = new Error(`NPC State Delta could not prove deleted ${kind} ${id} ownership because the SillyTavern ownership probe was unavailable.`);
+            const error = new Error(`NPC State could not prove deleted ${kind} ${id} ownership because the SillyTavern ownership probe was unavailable.`);
             error.code = 'NPC_STATE_DELETE_OWNERSHIP_UNAVAILABLE';
             throw error;
         }
         const resolved = resolveDeletedLifecycleKeyFromPresence(candidates, presence);
         if (resolved) {
-            console.info(`[NPC State Delta] resolved deleted ${kind} ${id} from authoritative host ownership: ${resolved}.`);
+            console.info(`[NPC State] resolved deleted ${kind} ${id} from authoritative host ownership: ${resolved}.`);
             return resolved;
         }
-        console.warn(`[NPC State Delta] preserved deleted ${kind} ${id}; host ownership did not prove one unique removed owner.`);
+        console.warn(`[NPC State] preserved deleted ${kind} ${id}; host ownership did not prove one unique removed owner.`);
         return '';
     }
 
@@ -167,7 +167,7 @@ export function createChatKeysPart(rt, deps) {
     }
 
     function staleOwnershipError(key) {
-        const error = new Error(`NPC State Delta ownership changed while loading ${key}; stale completion was discarded.`);
+        const error = new Error(`NPC State ownership changed while loading ${key}; stale completion was discarded.`);
         error.code = 'NPC_STATE_STALE_OWNERSHIP';
         return error;
     }

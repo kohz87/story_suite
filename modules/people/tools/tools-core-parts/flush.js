@@ -1,4 +1,4 @@
-/* NPC State Delta supporting tools: flushing the canonical state durably and logging the outcome. */
+/* NPC State supporting tools: flushing the canonical state durably and logging the outcome. */
 import { recordToolEvent } from './events.js';
 import { api } from './host-api.js';
 import { activeChatKey } from './host-chat.js';

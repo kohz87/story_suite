@@ -1,4 +1,4 @@
-/* NPC State Delta appearance grounding: corrections, declared changes and trait-change events backed by story text. */
+/* NPC State appearance grounding: corrections, declared changes and trait-change events backed by story text. */
 
 import { cleanText, normalizeName } from '../core-text.js';
 import { compactDurableText, DURABLE_PROFILE_LIMITS, durableRefinementTokens, durableSeedGrounded } from '../core-relationship.js';

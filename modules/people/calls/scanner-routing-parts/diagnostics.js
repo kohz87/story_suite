@@ -1,4 +1,4 @@
-/* NPC State Delta: the scanner's lines for the Settings diagnostics report. */
+/* NPC State: the scanner's lines for the Settings diagnostics report. */
 import { normalizeScannerMaxOutputTokens } from './shared-limits.js';
 import { connectionManagerDisabled, scannerProfileOptions, selectedScannerProfileId } from './profile-settings.js';
 import { scannerRoutingMetrics } from './request-tracking.js';

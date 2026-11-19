@@ -1,4 +1,4 @@
-/* NPC State Delta incoming-NPC merge: applyIncoming, which folds one scanned NPC into the stored record (identity, text
+/* NPC State incoming-NPC merge: applyIncoming, which folds one scanned NPC into the stored record (identity, text
    refinements, relationships, memories, key relationships, life state). A pure part of core-mechanics.js (same owner, moved
    without change). Never imports core-mechanics.js or core.js. */
 import { appendRelationshipEvent, applyRelationshipDelta, applyRelationshipMilestoneCrossings, calibrateRelationshipSummary, DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DEFAULT_RELATIONSHIP_PROGRESS, DURABLE_PROFILE_LIMITS, durableSeedGrounded, filterRelationshipDeltaByEvidence, normalizeRelationshipBaseline, normalizeRelationshipEventHistory, normalizeRelationshipEvidence, normalizeRelationshipMilestones, normalizeRelationshipProgress, normalizeScannerRelationshipImpact, RELATIONSHIP_KEYS, relationshipEventMessage, relationshipHistoryLooksDuplicate, relationshipSummaryConsistent } from './core-relationship.js';

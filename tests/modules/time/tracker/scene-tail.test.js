@@ -110,7 +110,7 @@ test('known only: nothing behind the scenes or planned by the arc is named elsew
     assert.doesNotMatch(lineOf(kesh, 'Elsewhere'), /Storm|Bell Tolls|Flood|Smuggler/);
 });
 
-test('a beat whose prerequisite ended fits; people go by their NPC State Delta names and aliases', () => {
+test('a beat whose prerequisite ended fits; people go by their NPC State names and aliases', () => {
     let state = story([...WORLD, { lines: '- beat Storm — it blew over' }], makeState());
     state = withScene(state, { place: 'Nowhere Inn', region: '', present: ['the ferrywoman'] });
     const queries = {

@@ -9,7 +9,6 @@ import { cutAt } from '../text.js';
 import { readRecord, swipeLoading } from '../persist.js';
 import { within } from './text.js';
 import { ensureModules } from '../sdk.js';
-import { FIGHT_CLOSED, dropPrePortFight } from './pre-port-fight.js';
 import { createHeldEvents } from './events-held.js';
 import { rememberHeld as rememberInteractionHeld } from '../interaction/held.js';
 import { settleStep } from '../interaction/watch.js';
@@ -19,8 +18,8 @@ import { keptProblems } from './problem-keep.js';
 import { createProseEdits } from './edit-prose.js';
 import { castNames } from './edit-names.js';
 export function createEvents(s, deps) {
-    const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
-    const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
+    const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedInputs, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, PREPARE_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
+    const { resumeHeldReply, restoreHeldReply } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
     const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate, keepLog: () => s.keepLog?.() });
     s.afterReply = afterReply;   // (Re-read asks it for a repair of a reply that still has no block: reread.js)
@@ -32,7 +31,7 @@ export function createEvents(s, deps) {
         const id = Number(messageId);
         const current = s.session;
         if (!current || !Number.isInteger(id) || id !== current.index) return null;
-        s.heldBoard = null;
+        s.heldReply = null;
         s.session = null;
         markIdle();
         clearPrompts();
@@ -117,7 +116,7 @@ export function createEvents(s, deps) {
                 // The same hold for an interaction reply: kept uncaptured until what its settle read is restored, or discarded.
                 const payload = settleStep(current).payload, staged = metadata()?.storySuiteInteraction?.open?.id === payload.id;
                 s.session = current;
-                s.heldBoard = { index: id, message, current, interaction: payload, hold: error.message, staged };
+                s.heldReply = { index: id, message, current, interaction: payload, hold: error.message, staged };
                 if (!readRecord(message)) store.setNarrated(id, []);
                 if (rememberInteractionHeld(metadata(), store.carrierSid(id), current, staged)) {
                     store.touch?.();
@@ -138,7 +137,7 @@ export function createEvents(s, deps) {
     async function onChatChanged() {
         // The old chat's session and prompts go at once, before anything is awaited: a generation started while the RPG's code loads is the new chat's.
         s.session = null;
-        s.heldBoard = null;
+        s.heldReply = null;
         // The old chat's Problems rows go with it, and none is written to the new chat's metadata until its own rows are read (a late problem of the old chat meets an empty list).
         s.problemLog.length = 0;
         s.problemsLoading = true;
@@ -146,20 +145,14 @@ export function createEvents(s, deps) {
         markIdle();
         clearPrompts();
         // The RPG's code, when this chat needs it (the feature is on, or it holds the RPG's records), before anything is replayed (rpg-lazy.js); a stalled
-        // import is waited for only RPG_LOAD_WAIT_MS (the guard mark then says the code is missing, so a later load makes the chat look again).
-        if (typeof prepare === 'function') { try { await within(prepare(), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
+        // import is waited for only PREPARE_WAIT_MS (the guard mark then says the code is missing, so a later load makes the chat look again).
+        if (typeof prepare === 'function') { try { await within(prepare(), PREPARE_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         try { rebuild({ publish: false }); } catch (error) { s.problemsLoading = false; throw error; }
         const meta = metadata();
         // The chat's own Problems list comes back with it (a reload keeps it; another chat has its own).
         s.problemLog.unshift(...keptProblems(meta));
         s.problemsLoading = false;
         s.keepLog?.();
-        // A fight left open by a build from before the port is closed (turn/pre-port-fight.js); the interaction scratch follows the head by itself (reconcileScratch).
-        const closed = dropPrePortFight(meta);
-        if (closed !== null) {
-            if (closed) problem({ code: 'FIGHT_CLOSED', quiet: true, message: FIGHT_CLOSED });
-            try { (ctx.saveMetadata ?? ctx.saveMetadataDebounced)?.call(ctx); } catch { /* saved on the next chat write */ }
-        }
         timeline?.settle();
         // A1-2: read-backs of a write that timed out before a reload of the page go on.
         try { store.resume?.(); } catch { /* only a guard */ }
@@ -169,7 +162,7 @@ export function createEvents(s, deps) {
             if (store.dirty?.()) store.scheduleSave?.();
         }
         await ensureModules({ store, bus, registry, events });
-        restoreHeldBoard();
+        restoreHeldReply();
         events?.emit('head', { index: store.headIndex(), reason: 'chat' });
     }
 
@@ -184,7 +177,7 @@ export function createEvents(s, deps) {
         // The libraries a chat needs come first, as for CHAT_CHANGED; only when one is on its way is a promise returned (→ Promise<boolean>), else the answer is at once.
         let waiting;
         if (typeof prepare === 'function') { try { waiting = prepare(); } catch { waiting = undefined; } }
-        return waiting ? within(waiting, RPG_LOAD_WAIT_MS).then(seedNow, seedNow) : seedNow();
+        return waiting ? within(waiting, PREPARE_WAIT_MS).then(seedNow, seedNow) : seedNow();
     }
     function seedNow() {
         if (store.head()) return true;
@@ -225,10 +218,10 @@ export function createEvents(s, deps) {
         const told = s.proseVerdict;
         s.proseVerdict = null;
         const prose = reason !== 'edit' ? null : told && told.index === index ? told.prose : proseEdits.proseOnly(index);
-        if (typeof prepare === 'function') { try { await within(prepare({ scan: false }), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
+        if (typeof prepare === 'function') { try { await within(prepare({ scan: false }), PREPARE_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         rebuild({ publish: false });
-        resumeHeldBoard();
-        restoreHeldBoard();
+        resumeHeldReply();
+        restoreHeldReply();
         if (prose === null || store.problems().some(entry => entry?.index === prose)) {
             const carry = timeline?.carryBoundaries?.();
             reconcileNow();
@@ -282,11 +275,11 @@ export function createEvents(s, deps) {
         s.offModules = events?.on?.('modules', info => {
             if (store.lifecycleChanged?.({ barrier: barrierOnly(info?.changes) })) events?.emit('head', { index: store.headIndex(), reason: 'module' });
         }) ?? null;
-        for (const off of s.offBoard) off();
-        s.offBoard = ['committed', 'head'].flatMap(name => [events?.on?.(name, stopChangedBoard), events?.on?.(name, resumeHeldBoard)]).filter(Boolean);
+        for (const off of s.offWatch) off();
+        s.offWatch = ['committed', 'head'].flatMap(name => [events?.on?.(name, stopChangedInputs), events?.on?.(name, resumeHeldReply)]).filter(Boolean);
         // The unsent interaction scratch follows every head move (a rewind or a restore announces only this event).
         const offScratch = events?.on?.('head', reconcileScratch);
-        if (offScratch) s.offBoard.push(offScratch);
+        if (offScratch) s.offWatch.push(offScratch);
         // The text each message has after every change Story Suite or the reader makes (a prose-only edit is told against it).
         for (const off of s.offProse ?? []) off();
         s.offProse = ['head', 'turn', 'committed'].map(name => events?.on?.(name, proseEdits.remember)).filter(Boolean);
@@ -326,8 +319,8 @@ export function createEvents(s, deps) {
         s.offModules = null;
         for (const off of s.offProse ?? []) off();
         s.offProse = [];
-        for (const off of s.offBoard) off();
-        s.offBoard = [];
+        for (const off of s.offWatch) off();
+        s.offWatch = [];
         const source = ctx?.eventSource;
         for (const [event, fn] of s.listeners) (source?.removeListener ?? source?.off)?.call(source, event, fn);
         s.listeners = [];

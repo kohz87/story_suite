@@ -1,4 +1,4 @@
-/* NPC State Delta chat-state hydration state core: fresh and normalized chat state, cached-copy
+/* NPC State chat-state hydration state core: fresh and normalized chat state, cached-copy
    accessors, hydration revision metadata, freshness events, dirty marks and native-change notices.
    Split from runtime-hydration.js without change; the factory keeps the public exports. */
 
@@ -196,7 +196,7 @@ export function installHydrationState(api, rt, deps) {
     }
     function notifyNativeChange(key) {
         for (const listener of nativeChangeListeners) {
-            try { listener({ key }); } catch (error) { console.debug('[NPC State Delta] a native-change listener failed', error); }
+            try { listener({ key }); } catch (error) { console.debug('[NPC State] a native-change listener failed', error); }
         }
     }
     async function quietly(key, task) {

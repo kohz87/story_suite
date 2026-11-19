@@ -1,4 +1,4 @@
-/* NPC State Delta chat-state hydration (role: chat-state-hydration). The owner of a chat's loaded
+/* NPC State chat-state hydration (role: chat-state-hydration). The owner of a chat's loaded
    state: state normalization and cache access, server freshness and write gates, sidecar loading,
    dirty marks and native-change notices. Split into runtime-hydration-state.js,
    runtime-hydration-freshness.js and runtime-hydration-load.js; this factory keeps the public part. */

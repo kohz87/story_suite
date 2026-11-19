@@ -1,4 +1,4 @@
-/* NPC State Delta normalizing the behavior profile list and recognising a behavior lever. */
+/* NPC State normalizing the behavior profile list and recognising a behavior lever. */
 import { cleanList, cleanText, normalizeName } from '../core-text.js';
 import { compactDurableText, DURABLE_PROFILE_LIMITS } from '../core-relationship.js';
 import { behaviorProfileKey, behaviorLeverLabel, behaviorProfileFamily, behaviorProfileBody } from './behavior-keys.js';

@@ -1,4 +1,4 @@
-/* NPC State Delta birthday, absence and change-marker helpers: NPC-owned sentences, absence and birthday-claim detection,
+/* NPC State birthday, absence and change-marker helpers: NPC-owned sentences, absence and birthday-claim detection,
    birthday grounding and the deterministic rollover, the per-field change markers (with storyDayFromText) and the calendar
    reference and NPC projection the prompt builders use. A pure part of core.js (same owner, moved without change); core.js
    re-exports every name it exported before. Never imports core.js. Public face: re-exports its parts. */

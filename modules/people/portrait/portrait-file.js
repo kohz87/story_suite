@@ -1,4 +1,4 @@
-// A cast portrait is kept once, as its own SillyTavern user file, named by its content: /user/files/npc-state-delta-portrait-<hash>.<ext>.
+// A cast portrait is kept once, as its own SillyTavern user file, named by its content: /user/files/ppl-portrait-<hash>.<ext>.
 // The dossier keeps only the record { path, type, hash, width?, height?, sourceName?, updatedAt?, appearanceFingerprint? } and the chat's
 // state file never holds the image, so a met person costs a few hundred bytes of state instead of the whole picture (twice).
 // A file is only ever written when it is absent and never deleted (it outlives the pack and every checkpoint that names it).

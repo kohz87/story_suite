@@ -60,14 +60,14 @@ test('editor synchronization is idempotent so MutationObserver refresh cannot se
 });
 
 test('editor uses one scroll body and task-grouped form sections', () => {
-    assert.match(source, /\.npc-state-delta-editor-popup \.popup-content\{[^}]*overflow:hidden!important/);
-    assert.match(source, /#npc_state_delta_editor_content\{[^}]*overflow-y:auto!important/);
+    assert.match(source, /\.ppl-editor-popup \.popup-content\{[^}]*overflow:hidden!important/);
+    assert.match(source, /#people_editor_content\{[^}]*overflow-y:auto!important/);
     assert.match(source, /editorSection\('Identity & profile'/);
     assert.match(source, /editorSection\('Current state'/);
     assert.match(source, /editorSection\('Relationships'/);
     assert.match(source, /editorSection\('Continuity'/);
     assert.match(source, /Advanced NPC options/);
-    assert.match(source, /npc-state-delta-editor-portrait-overrides\{display:none!important/);
+    assert.match(source, /ppl-editor-portrait-overrides\{display:none!important/);
     assert.match(source, /data-delta-life-state/);
 });
 
@@ -77,17 +77,17 @@ test('settings are grouped by task and extension-wide backup diagnostics live in
     const groups = [...html.matchAll(/settingsGroup\('([a-z]+)', '([^']+)'/g)].map(match => match[2]);
     // The rarely needed groups sit inside one closed "Expert" fold (built first in the source, shown last); the rest are the everyday groups.
     assert.deepEqual(groups, ['Calendar & birthdays', 'Scanner rules', 'Advanced', 'Scanning', 'Roster & continuity', 'Meter presets', 'Portrait generation', 'Data & maintenance', 'Expert']);
-    assert.match(html, /delta-settings-quickbar[\s\S]*npc_state_delta_enabled[\s\S]*npc_state_delta_auto[\s\S]*npc_state_delta_scan_now[\s\S]*npc_state_delta_add_manual/);
+    assert.match(html, /delta-settings-quickbar[\s\S]*people_enabled[\s\S]*people_auto[\s\S]*people_scan_now[\s\S]*people_add_manual/);
     assert.doesNotMatch(html, /data-delta-settings-open-dossiers|Open dossiers/, 'the old dossier panel and its button are gone (B4-5)');
     assert.match(html, /delta-settings-maintenance-actions[\s\S]*data-delta-settings-backup[\s\S]*data-delta-settings-restore[\s\S]*data-delta-settings-diagnostics/);
-    assert.match(html, /npc_state_delta_roster_summary[\s\S]*delta-settings-danger[\s\S]*npc_state_delta_clear_chat/);
+    assert.match(html, /people_roster_summary[\s\S]*delta-settings-danger[\s\S]*people_clear_chat/);
     assert.match(html, /native SillyTavern Image Generation handoff/);
-    assert.match(html, /npc_state_delta_portrait_generation_enabled/);
-    assert.match(html, /npc_state_delta_portrait_save_gallery/);
-    assert.match(index, /dispatchEvent\?\.\(new CustomEvent\('npc-state-delta:settings-mounted'/);
+    assert.match(html, /people_portrait_generation_enabled/);
+    assert.match(html, /people_portrait_save_gallery/);
+    assert.match(index, /dispatchEvent\?\.\(new CustomEvent\('people:settings-mounted'/);
     assert.match(source, /data-delta-settings-backup/);
     assert.match(source, /data-delta-settings-restore/);
     assert.match(source, /data-delta-settings-diagnostics/);
-    assert.doesNotMatch(source, /data-delta-settings-open-dossiers|npc_state_delta_dossier_root/);
-    assert.doesNotMatch(source, /ensureSettingsExperience|moveSettingsRows|#npc_state_delta_settings /, 'the editor refinements never restructure or style the settings panel');
+    assert.doesNotMatch(source, /data-delta-settings-open-dossiers|people_dossier_root/);
+    assert.doesNotMatch(source, /ensureSettingsExperience|moveSettingsRows|#people_settings /, 'the editor refinements never restructure or style the settings panel');
 });

@@ -145,7 +145,7 @@ test('runtime wiring loads the settlement adapter after the canonical index and 
     const bootstrap = oldSource('bootstrap.js');
     const adapter = fs.readFileSync(new URL('../../modules/people/core/destructive-settlement.js', import.meta.url), 'utf8');
     const runtime = JSON.parse(fs.readFileSync(new URL('../../modules/people/runtime/runtime-modules.json', import.meta.url), 'utf8'));
-    assert.match(bootstrap, /await import\('\.\/index\.js'\);[\s\S]*await import\('\.\/destructive-settlement\.js'\)/);
+    assert.match(bootstrap, /await import\('[^']*\/runtime-entry\.js'\);[\s\S]*await import\('\.\/destructive-settlement\.js'\)/);
     assert.match(adapter, /MESSAGE_DELETED[\s\S]*controller\.schedule\('delete'/);
     assert.match(adapter, /MESSAGE_EDITED[\s\S]*controller\.schedule\('edit'/);
     assert.match(adapter, /CHAT_CHANGED[\s\S]*controller\.cancel\(\)/);

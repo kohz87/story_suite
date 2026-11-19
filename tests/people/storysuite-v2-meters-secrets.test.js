@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
 import { MAX_GENERATED_SECRETS, MAX_SECRETS, normalizeGeneratedSecrets, normalizeSecrets, secretId, secretsFromLines, secretsToLines, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { assemble } from '../../core/prompt.js';
-import { buildInjection, buildNarrationCapturePrompt, buildProfileRefreshPrompt, buildScannerPrompt } from '../../modules/people/core/core.js';
+import { buildInjection, buildProfileRefreshPrompt, buildScannerPrompt } from '../../modules/people/core/core.js';
+import { buildLinesParts } from '../../modules/people/core/core-prompts-lines.js';
 import { withoutDossiers } from './helpers/seed-people.js';
 import { EVENT, EVENT_SECRET, HIDDEN, KNOWN, SECRET, SECRET_TWO, eventNote, fakeDelta, host, noCue, plain } from './storysuite-v2-meters.helpers.js';
 
@@ -35,8 +36,8 @@ test('secrets: unlocked at the threshold with a receipt; locked ones are sent on
     const scan = buildScannerPrompt({ transcript: 'USER: hi\nASSISTANT: Mira laughs.', currentTranscript: 'Mira laughs.', existingNpcs: [record], userName: 'Ari', charName: 'Narrator' });
     assert.equal(scan.includes(SECRET) || scan.includes(SECRET_TWO), false);
     const refresh = buildProfileRefreshPrompt({ transcript: '[m1] Mira laughs.', userName: 'Ari', charName: 'Narrator', targetNpc: record });
-    const oneShot = buildNarrationCapturePrompt({ transcript: 'Mira laughs.', existingNpcs: [record], userName: 'Ari', charName: 'Narrator' });
-    for (const text of [refresh, JSON.stringify(oneShot)]) assert.equal(text.includes(SECRET) || text.includes(SECRET_TWO), false, 'not in Refresh or one-pass capture');
+    const oneShot = buildLinesParts({ existingNpcs: [record], layeredSecrets: true });
+    for (const text of [refresh, JSON.stringify(oneShot)]) assert.equal(text.includes(SECRET) || text.includes(SECRET_TWO), false, 'not in Refresh or the one-pass lines');
 
     const [result] = h.reply('Trusted.', '~ npc Mira | trust: +5').results;
     const id = secretId('trust', 30, SECRET);

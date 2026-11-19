@@ -25,9 +25,14 @@ if (${hosted}) {
         registered: [], sent: [],
         registerModule(def) { sdk.registered.push(def); },
         command: async (type, payload, options) => { sdk.sent.push({ type, payload, options: options ?? null }); return { ok: true, receipt: { summary: '' } }; },
-        query: () => null,
         settings: () => ({}),
     };
+    // As the real store: every reply has its own record ID (its shown swipe's), which the capture journal keys a hosted read by; a test's own
+    // query answers everything else.
+    let ownQuery = () => null;
+    let sids = 0;
+    const replySid = asOf => { const message = mockState.context.chat[asOf]; if (!message || message.is_user) return null; const swipe = Number(message.swipe_id) || 0; (message.__sids ??= {})[swipe] ??= 'sid-' + (sids += 1); return message.__sids[swipe]; };
+    Object.defineProperty(sdk, 'query', { enumerable: true, get: () => (name, args) => (name === 'npc.replySid' ? replySid(args?.asOf) : ownQuery(name, args)), set: fn => { ownQuery = fn; } });
     mockState.sdk = sdk;
     globalThis.StoryBlock = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
 }

@@ -1,4 +1,4 @@
-/* NPC State Delta prompt injection assembly: buildInjection over the selected/relevant cast and
+/* NPC State prompt injection assembly: buildInjection over the selected/relevant cast and
    optional reference blocks. Selection/budget and block-rendering helpers live in
    core-injection-selection.js and core-injection-parts.js; core-mechanics.js re-exports every name
    it exported before. Never imports core-mechanics.js or core.js. Public face: re-exports its parts. */

@@ -1,4 +1,4 @@
-/* NPC State Delta label matching: whether a dossier answers to a name or alias. */
+/* NPC State label matching: whether a dossier answers to a name or alias. */
 import { normalizeName } from '../core-text.js';
 
 export function npcMatchesLabel(npc, label) {

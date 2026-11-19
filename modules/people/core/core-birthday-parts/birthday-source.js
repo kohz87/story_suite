@@ -1,4 +1,4 @@
-/* NPC State Delta the birthday update row, the prompt source text and the story-date reference of a scan. */
+/* NPC State the birthday update row, the prompt source text and the story-date reference of a scan. */
 import { currentCalendarDate, extractStructuredWorldDate, getActiveCalendarConfig, hostedStoryDate, normalizeCalendarDate } from '../../calendar/calendar.js';
 
 const BIRTHDAY_UPDATE_KEYS = ['birthDate', 'birth_date', 'birthday', 'birthDateState', 'birth_date_state', 'birthDateReason', 'birth_date_reason'];

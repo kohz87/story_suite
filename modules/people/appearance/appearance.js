@@ -1,4 +1,4 @@
-/* NPC State Delta appearance model: the shared resolver for named forms/current form plus the
+/* NPC State appearance model: the shared resolver for named forms/current form plus the
    unnamed current presentation, scanner updates, per-form portraits and the editor draft. The
    implementation lives in appearance-*.js (same owner, moved without change); this root path keeps
    every public export. Never imports core.js. */

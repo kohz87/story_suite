@@ -32,9 +32,14 @@ if (${hosted}) {
         registered: [], sent: [],
         registerModule(def) { sdk.registered.push(def); },
         command: async (type, payload, options) => { sdk.sent.push({ type, payload, options: options ?? null }); return { ok: true, receipt: { summary: '' } }; },
-        query: () => null,
         settings: () => ({}),
     };
+    // As the real store: every reply has its own record ID (its shown swipe's), which the capture journal keys a hosted read by; a test's own
+    // query answers everything else.
+    let ownQuery = () => null;
+    let sids = 0;
+    const replySid = asOf => { const message = mockState.context.chat[asOf]; if (!message || message.is_user) return null; const swipe = Number(message.swipe_id) || 0; (message.__sids ??= {})[swipe] ??= 'sid-' + (sids += 1); return message.__sids[swipe]; };
+    Object.defineProperty(sdk, 'query', { enumerable: true, get: () => (name, args) => (name === 'npc.replySid' ? replySid(args?.asOf) : ownQuery(name, args)), set: fn => { ownQuery = fn; } });
     mockState.sdk = sdk;
     globalThis.StoryBlock = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
 }
@@ -222,6 +227,7 @@ test('catch-up: every due NPC is held from the reply backfill; a newly met NPC k
     // The real module on the synthetic host's stubs (its chat is one reply); N = 1 and K = 3 so both people are due at once.
     globalThis.__npcMock = { extensionSettings: {}, context: { chat: [{ name: 'Narrator', mes: 'Two people arrive.', is_user: false }] }, saveSettingsCalls: 0 };
     const { createCatchUpPart } = await import('../../modules/people/calls/runtime-catchup.js');
+    (await import('../../modules/people/runtime/runtime-narration-parts/journal-keys.js')).useReplySids(at => (at === 0 ? 'sid-0' : null));   // hosted: the reply's own ID
     const key = 'chat-x';
     const state = {
         npcs: [{ id: 'new1', overallAppearance: 'Young human woman' }, { id: 'old1' }],

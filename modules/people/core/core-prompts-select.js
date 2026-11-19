@@ -1,4 +1,4 @@
-/* NPC State Delta scanner context selection: scene-present focus, bounded context assembly and mention scoring.
+/* NPC State scanner context selection: scene-present focus, bounded context assembly and mention scoring.
    Split from core-prompts.js without change; core-prompts.js re-exports every name it exported before. */
 import { cleanText, normalizeName } from './core-text.js';
 

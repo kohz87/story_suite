@@ -1,9 +1,9 @@
 // Runtime state holder (role: runtime-state-holder). Everything the controller and the parts split out of
-// index.js share through the enclosing scope lives here as properties of ONE object, built by
-// createRuntimeState(). index.js calls it once per module instance, so a fresh import of index.js (the
+// runtime-entry.js share through the enclosing scope lives here as properties of ONE object, built by
+// createRuntimeState(). runtime-entry.js calls it once per module instance, so a fresh import of runtime-entry.js (the
 // `?t=` re-imports in the tests, a reloaded extension) starts from fresh state exactly as the former
 // module-level variables did; nothing in this file is a module singleton. Parts receive the object (or
-// the collections taken from it) from index.js; none of them imports it for its own copy.
+// the collections taken from it) from runtime-entry.js; none of them imports it for its own copy.
 // This file holds initial values only: no behaviour, no host imports.
 
 export function createRuntimeState() {
@@ -32,7 +32,7 @@ export function createRuntimeState() {
         narrationCaptureArmed: '',
         // (v2 hidden notes) The story events the armed reply's instruction asked about, kept until its block arrives.
         narrationCaptureWatch: [],
-        storySuiteV2: null,
+        peopleAdapter: null,
         // A swipe or a regenerate replaces the latest reply, and SillyTavern's chat still holds that reply while the new
         // one is being written; the story it continues from is the reply before it. `replacingReply` is set when such a generation
         // starts (with that reply's message) and cleared when the reply arrives, the generation stops, the next message is sent or

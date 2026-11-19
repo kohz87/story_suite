@@ -1,4 +1,4 @@
-/* NPC State Delta speech attribution: keeps only affirmative clauses owned by this NPC, and vetoes borrowed voices. */
+/* NPC State speech attribution: keeps only affirmative clauses owned by this NPC, and vetoes borrowed voices. */
 
 import { normalizeName } from '../core-text.js';
 import { durableRefinementTokens } from '../core-relationship.js';

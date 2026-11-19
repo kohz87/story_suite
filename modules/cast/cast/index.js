@@ -14,9 +14,9 @@
 //   `cast.withdraw` (the reply did not show the person the meeting brought in, so the meeting is taken back), and with world events on
 //   `cast.story` (the story's own moves and stays records become a person's base, world-parts/story-bases.js).
 // * Narrator: the one cue for a meeting, in the reply it happens in, and the world's own people at the scene's place (note.js). No static text.
-// * Interface for other modules: the query `director.cast` (queries.js): the met people with their pack entries, for NPC State Delta.
+// * Interface for other modules: the query `director.cast` (queries.js): the met people with their pack entries, for NPC State.
 // * Reader: the reply's card (the status card's notes), World -> Now -> Around here, Settings -> Modules -> Story Director -> The cast.
-// Works without NPC State Delta, and without a model (nobody moves, meetings by place still happen).
+// Works without NPC State, and without a model (nobody moves, meetings by place still happen).
 
 import { advance, journey, meet, rumor, story, sync, withdraw } from './capture.js';
 import { FEATURE, initialCast, validateCast } from './domain.js';

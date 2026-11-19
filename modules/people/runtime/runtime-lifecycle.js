@@ -1,7 +1,7 @@
-/* NPC State Delta chat lifecycle (role: chat-lifecycle). What happens to a chat's sidecar when the chat or its owner is deleted, renamed or
+/* NPC State chat lifecycle (role: chat-lifecycle). What happens to a chat's sidecar when the chat or its owner is deleted, renamed or
    reloaded: the transactional delete (runtime-lifecycle-delete.js) and rename (recovery copy, retirement, tombstone), owner flush and
    invalidation, the page-hide flush, the bounded lifecycle event with its background retry, and the manual reload or detach of a chat's
-   sidecar. Built by index.js once per module instance with the shared runtime state. Bodies are moved from index.js without change. */
+   sidecar. Built by runtime-entry.js once per module instance with the shared runtime state. Bodies are moved from runtime-entry.js without change. */
 import { getContext } from '../../../../../../extensions.js';
 import { saveSettings as saveHostSettings } from '../../../../../../../script.js';
 import { NPC_STATE_VERSION } from '../core/core.js';
@@ -53,7 +53,7 @@ export function createLifecyclePart(rt, deps) {
         try {
             preserved = await quarantineUnreadableNpcStateDataFile({ chatKey: key, pointer, appVersion: NPC_STATE_VERSION, headers: requestHeaders(), onPreserved: registerBackup });
         } catch (error) {
-            console.error('[NPC State Delta] broken sidecar detach did not complete.', error);
+            console.error('[NPC State] broken sidecar detach did not complete.', error);
             globalThis.toastr?.error?.(registered
                 ? `NPC State: the broken sidecar was preserved and its backup registered, but detaching did not complete. Retry Detach. ${error?.message || error}`
                 : `NPC State: the broken sidecar could not be preserved, so it was not detached. ${error?.message || error}`);
@@ -134,7 +134,7 @@ export function createLifecyclePart(rt, deps) {
                 if (!fallbackOnMissing) return null;
             } catch (error) {
                 if (!fallbackOnMissing) throw error;
-                console.warn(`[NPC State Delta] lifecycle recovery could not read ${pointer.path}; falling back to the settled cache/inline state.`, error);
+                console.warn(`[NPC State] lifecycle recovery could not read ${pointer.path}; falling back to the settled cache/inline state.`, error);
             }
         }
         if (hydratedChatKeys.has(key) && chatStateCache.has(key)) return structuredClone(getChatState(key));
@@ -168,13 +168,13 @@ export function createLifecyclePart(rt, deps) {
         let destinationState = null;
         if (destinationPointer?.path) {
             try { destinationState = await loadLatestLifecycleState(newKey, destinationPointer); }
-            catch (error) { console.warn(`[NPC State Delta] rename could not verify destination ${newKey}.`, error); return false; }
+            catch (error) { console.warn(`[NPC State] rename could not verify destination ${newKey}.`, error); return false; }
         }
         const destinationCache = chatStateCache.get(newKey) || null;
         const destinationRepresentations = [destinationState, destinationCache].filter(value => value && typeof value === 'object');
         const destinationEphemeral = destinationRepresentations.every(stateLooksEmptyForLifecycleRename);
         if ((destinationPointer?.path || chatStateCache.has(newKey)) && !destinationEphemeral) {
-            console.warn(`[NPC State Delta] refused to rename ${oldKey} onto existing non-empty state ${newKey}.`);
+            console.warn(`[NPC State] refused to rename ${oldKey} onto existing non-empty state ${newKey}.`);
             return false;
         }
 
@@ -182,7 +182,7 @@ export function createLifecyclePart(rt, deps) {
             try { await settleStateFileWrite(oldKey, { flush: true }); }
             catch (error) {
                 if (error?.code !== 'NPC_STATE_WRITE_CONFLICT') throw error;
-                console.info(`[NPC State Delta] rename observed a newer writer for ${oldKey}; the newest durable state will be moved.`);
+                console.info(`[NPC State] rename observed a newer writer for ${oldKey}; the newest durable state will be moved.`);
             }
 
             let oldPointer = settings.dataFiles?.[oldKey] || oldPointerInitial;
@@ -192,7 +192,7 @@ export function createLifecyclePart(rt, deps) {
             let retired = false;
             for (let attempt = 0; attempt < 4; attempt += 1) {
                 state = await loadLatestLifecycleState(oldKey, oldPointer);
-                if (!state) throw new Error(`NPC State Delta rename source ${oldKey} has no live state.`);
+                if (!state) throw new Error(`NPC State rename source ${oldKey} has no live state.`);
 
                 newPointer = await writeNpcStateDataFile({
                     chatKey: newKey,
@@ -203,7 +203,7 @@ export function createLifecyclePart(rt, deps) {
                     headers: requestHeaders(),
                 });
                 const verified = await readNpcStateDataFile(newPointer, { expectedChatKey: newKey });
-                if (!verified?.state || verified.retired) throw new Error('NPC State Delta renamed sidecar verification failed.');
+                if (!verified?.state || verified.retired) throw new Error('NPC State renamed sidecar verification failed.');
 
                 if (recoveryPointer?.path) {
                     try { await deleteNpcStateDataFile(recoveryPointer, { headers: requestHeaders() }); } catch { queueRecoveryGarbagePointer(recoveryPointer, 'chat-lifecycle-temp'); }
@@ -225,7 +225,7 @@ export function createLifecyclePart(rt, deps) {
                     break;
                 } catch (error) {
                     if (error?.code !== 'NPC_STATE_WRITE_CONFLICT' || attempt >= 3) throw error;
-                    console.info(`[NPC State Delta] rename retirement raced another writer for ${oldKey}; refreshing and retrying.`);
+                    console.info(`[NPC State] rename retirement raced another writer for ${oldKey}; refreshing and retrying.`);
                 }
             }
             if (!retired) return false;
@@ -252,17 +252,17 @@ export function createLifecyclePart(rt, deps) {
                 await saveHostSettings();
                 renameOwnershipDurable = true;
             } catch (error) {
-                console.warn(`[NPC State Delta] renamed ownership for ${newKey} could not be synchronously persisted; the retired predecessor is being retained as a crash-safe marker.`, error);
+                console.warn(`[NPC State] renamed ownership for ${newKey} could not be synchronously persisted; the retired predecessor is being retained as a crash-safe marker.`, error);
             }
             if (renameOwnershipDurable && oldPointer?.path) {
                 try { await deleteNpcStateDataFile(oldPointer, { headers: requestHeaders() }); }
-                catch (error) { console.warn(`[NPC State Delta] retired rename predecessor for ${oldKey} could not be physically deleted.`, error); }
+                catch (error) { console.warn(`[NPC State] retired rename predecessor for ${oldKey} could not be physically deleted.`, error); }
             }
             renderDossier();
             updateInjection();
             return true;
         } catch (error) {
-            console.warn(`[NPC State Delta] transactional rename failed for ${oldKey}; original durable ownership remains recoverable and no tombstone was published.`, error);
+            console.warn(`[NPC State] transactional rename failed for ${oldKey}; original durable ownership remains recoverable and no tombstone was published.`, error);
             throw error;
         }
     }
@@ -283,11 +283,11 @@ export function createLifecyclePart(rt, deps) {
             try { await settleStateFileWrite(key, { flush: true }); }
             catch (error) {
                 failures.push({ key, error });
-                console.warn(`[NPC State Delta] lifecycle flush could not settle ${key}; owner lifecycle will fail closed and retry later.`, error);
+                console.warn(`[NPC State] lifecycle flush could not settle ${key}; owner lifecycle will fail closed and retry later.`, error);
             }
         }
         if (failures.length) {
-            const error = new AggregateError(failures.map(item => item.error), `NPC State Delta could not settle ${failures.length} owner chat(s) before lifecycle mutation.`);
+            const error = new AggregateError(failures.map(item => item.error), `NPC State could not settle ${failures.length} owner chat(s) before lifecycle mutation.`);
             error.code = 'NPC_STATE_OWNER_FLUSH_INCOMPLETE';
             error.failures = failures.map(item => item.key);
             throw error;
@@ -311,7 +311,7 @@ export function createLifecyclePart(rt, deps) {
         flushPendingSettingsSave();
         const key = getChatKey();
         if (key === 'no-chat' || !hydratedChatKeys.has(key) || !chatStateCache.has(key)) return;
-        void settleStateFileWrite(key, { flush: true }).catch(error => console.debug('[NPC State Delta] page-hide flush deferred', error));
+        void settleStateFileWrite(key, { flush: true }).catch(error => console.debug('[NPC State] page-hide flush deferred', error));
     }
 
     async function refreshCurrentChatFromServer(reason = 'resume') {
@@ -324,7 +324,7 @@ export function createLifecyclePart(rt, deps) {
             updateInjection();
             return true;
         } catch (error) {
-            console.warn(`[NPC State Delta] ${reason} freshness check failed safely; cached state will not be used for mutation until the server can be verified.`, error);
+            console.warn(`[NPC State] ${reason} freshness check failed safely; cached state will not be used for mutation until the server can be verified.`, error);
             return false;
         }
     }
@@ -345,7 +345,7 @@ export function createLifecyclePart(rt, deps) {
             operation = Promise.resolve().then(task);
             lifecycleEventOperations.set(key, operation);
             void operation.catch(error => {
-                console.warn(`[NPC State Delta] ${label} background transaction failed; scheduling retry.`, error);
+                console.warn(`[NPC State] ${label} background transaction failed; scheduling retry.`, error);
                 scheduleLifecycleRetry(key, label, task);
             });
             operation.then(
@@ -364,11 +364,11 @@ export function createLifecyclePart(rt, deps) {
         const outcome = await Promise.race([observed, timeout]);
         if (timer) clearTimeout(timer);
         if (outcome.timedOut) {
-            console.warn(`[NPC State Delta] ${label} exceeded ${LIFECYCLE_EVENT_WAIT_MS / 1000}s; SillyTavern may continue while the fail-closed transaction retries in the background.`);
+            console.warn(`[NPC State] ${label} exceeded ${LIFECYCLE_EVENT_WAIT_MS / 1000}s; SillyTavern may continue while the fail-closed transaction retries in the background.`);
             return false;
         }
         if (outcome.error) {
-            console.error(`[NPC State Delta] ${label} failed safely; scheduling a background retry.`, outcome.error);
+            console.error(`[NPC State] ${label} failed safely; scheduling a background retry.`, outcome.error);
             scheduleLifecycleRetry(key, label, task);
             return false;
         }

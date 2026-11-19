@@ -1,4 +1,4 @@
-/* NPC State Delta scan text and JSON helpers: evidence extraction and stripping, scanner JSON repair and parsing,
+/* NPC State scan text and JSON helpers: evidence extraction and stripping, scanner JSON repair and parsing,
    narration-capture reading, and the clean* text helpers. A pure part of core-mechanics.js (same owner, moved
    without change); core-mechanics.js re-exports every name it exported before. Imports nothing, so it never forms a cycle. Public face: re-exports its parts. */
 export { normalizeName, cleanText, cleanTextBoundary, cleanList } from './core-text-parts/clean.js';

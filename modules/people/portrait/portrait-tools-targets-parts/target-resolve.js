@@ -1,4 +1,4 @@
-/* NPC State Delta portrait target resolution: which forms an NPC has and which portrait a form shows. */
+/* NPC State portrait target resolution: which forms an NPC has and which portrait a form shows. */
 import { api } from '../../tools/tools-core.js';
 import { portraitSrc } from '../portrait-file.js';
 

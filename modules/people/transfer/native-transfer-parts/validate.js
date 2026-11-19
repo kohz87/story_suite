@@ -20,29 +20,29 @@ const DECLARED_BOOLEAN_FIELDS = Object.freeze([
 
 export function validateDeclaredContents(value) {
     if (value === undefined) return null;
-    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('NPC State Delta native bundle has invalid declared-contents metadata.');
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('NPC State native bundle has invalid declared-contents metadata.');
     for (const field of DECLARED_BOOLEAN_FIELDS) {
-        if (field in value && typeof value[field] !== 'boolean') throw new Error(`NPC State Delta native bundle has invalid declared field ${field}.`);
+        if (field in value && typeof value[field] !== 'boolean') throw new Error(`NPC State native bundle has invalid declared field ${field}.`);
     }
     if ('historyRestorePolicy' in value && value.historyRestorePolicy !== 'target-safe-baseline') {
-        throw new Error(`NPC State Delta native bundle requests unsupported history restore policy: ${String(value.historyRestorePolicy || 'empty')}.`);
+        throw new Error(`NPC State native bundle requests unsupported history restore policy: ${String(value.historyRestorePolicy || 'empty')}.`);
     }
     return structuredClone(value);
 }
 
 export function validatePortableSettings(value) {
     if (value === undefined) return null;
-    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('NPC State Delta native bundle has invalid portable settings.');
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('NPC State native bundle has invalid portable settings.');
     const output = {};
     for (const [key, item] of Object.entries(value)) {
         const rule = Object.hasOwn(PORTABLE_SETTING_SCHEMA, key) ? PORTABLE_SETTING_SCHEMA[key] : null;
-        if (!rule) throw new Error(`NPC State Delta native bundle contains unsupported portable setting: ${key}.`);
+        if (!rule) throw new Error(`NPC State native bundle contains unsupported portable setting: ${key}.`);
         if (rule.type === 'boolean') {
-            if (typeof item !== 'boolean') throw new Error(`NPC State Delta native portable setting ${key} must be boolean.`);
+            if (typeof item !== 'boolean') throw new Error(`NPC State native portable setting ${key} must be boolean.`);
             output[key] = item;
             continue;
         }
-        if (typeof item !== 'string' || item.length > rule.max) throw new Error(`NPC State Delta native portable setting ${key} is invalid or exceeds ${rule.max} characters.`);
+        if (typeof item !== 'string' || item.length > rule.max) throw new Error(`NPC State native portable setting ${key} is invalid or exceeds ${rule.max} characters.`);
         output[key] = item;
     }
     return output;
@@ -50,14 +50,14 @@ export function validatePortableSettings(value) {
 
 export function validateHistoryArchive(value) {
     if (value === undefined) return null;
-    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('NPC State Delta native bundle has invalid source-history metadata.');
-    if (value.policy !== 'audit-only-source-history') throw new Error('NPC State Delta native bundle declares an unsupported source-history policy.');
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('NPC State native bundle has invalid source-history metadata.');
+    if (value.policy !== 'audit-only-source-history') throw new Error('NPC State native bundle declares an unsupported source-history policy.');
     for (const field of ['lineage', 'checkpoints', 'inlineCards']) {
-        if (field in value && !Array.isArray(value[field])) throw new Error(`NPC State Delta native history field ${field} must be an array.`);
+        if (field in value && !Array.isArray(value[field])) throw new Error(`NPC State native history field ${field} must be an array.`);
     }
     if ('branchRootSnapshot' in value && value.branchRootSnapshot !== null && (typeof value.branchRootSnapshot !== 'object' || Array.isArray(value.branchRootSnapshot))) {
-        throw new Error('NPC State Delta native branchRootSnapshot is invalid.');
+        throw new Error('NPC State native branchRootSnapshot is invalid.');
     }
-    if ('truncated' in value && typeof value.truncated !== 'boolean') throw new Error('NPC State Delta native history truncated flag must be boolean.');
+    if ('truncated' in value && typeof value.truncated !== 'boolean') throw new Error('NPC State native history truncated flag must be boolean.');
     return structuredClone(value);
 }

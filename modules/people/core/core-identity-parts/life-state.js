@@ -1,4 +1,4 @@
-/* NPC State Delta identity: the NPC life states and normalizing a life-state value. */
+/* NPC State identity: the NPC life states and normalizing a life-state value. */
 export const NPC_LIFE_STATES = Object.freeze(['unknown', 'alive', 'deceased']);
 
 export function normalizeLifeState(value) {

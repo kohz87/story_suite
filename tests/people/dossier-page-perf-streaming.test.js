@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createWatchers } from '../../modules/people/adapter/cast-ui/watchers.js';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 test('page-API change notifications: only the streamed-token cast render is coalesced and held; every other change goes out at once', async () => {
     let generating = false;
@@ -55,7 +55,7 @@ test('the real adapter wiring: Delta turned off during a generation tells the pa
     const sdk = { registerModule: async () => true, on: () => () => {}, query: () => [], settings: () => ({}), feature: () => false };
     const host = { apiVersion: 2, sdk, ready: Promise.resolve(sdk) };
     const timers = { setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {} };
-    const adapter = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [npc] }, delta: () => delta, host: () => host, doc, timers, logger: { warn() {} }, loadEmptyCast: async () => null });
+    const adapter = createPeopleAdapter({ suiteApi: { npcs: () => [npc] }, delta: () => delta, host: () => host, doc, timers, logger: { warn() {} }, loadEmptyCast: async () => null });
     adapter.start();
     await adapter.settled();
     assert.equal(adapter.hosted(), true);
@@ -64,15 +64,15 @@ test('the real adapter wiring: Delta turned off during a generation tells the pa
     const off = adapter.pageApi.onChange(() => { calls += 1; seen.push(adapter.pageApi.available()); });
     try {
         generating = true;
-        fire('npc-state-delta:cast-rendered', { streaming: true });   // the first runs at once
+        fire('people:cast-rendered', { streaming: true });   // the first runs at once
         const first = calls;
-        for (let i = 0; i < 20; i += 1) fire('npc-state-delta:cast-rendered', { streaming: true });   // one per streamed token
+        for (let i = 0; i < 20; i += 1) fire('people:cast-rendered', { streaming: true });   // one per streamed token
         assert.equal(calls, first, 'the streamed-token renders wait');
-        fire('npc-state-delta:cast-rendered', { streaming: false });   // a manual dossier edit's render (not the streaming message's growth)
+        fire('people:cast-rendered', { streaming: false });   // a manual dossier edit's render (not the streaming message's growth)
         assert.equal(calls, first + 1, 'a render not caused by the stream goes out at once, mid-generation');
         const base = calls;
         enabled = false;
-        fire('npc-state-delta:enabled-changed');
+        fire('people:enabled-changed');
         assert.equal(calls, base + 1, 'Delta turned off goes out at once, in the middle of the generation');
         assert.equal(seen.at(-1), false, 'and the page API already says it is off');
         await new Promise(resolve => setTimeout(resolve, 1000));

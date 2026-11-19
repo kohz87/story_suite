@@ -1,4 +1,4 @@
-/* NPC State Delta: adds an edge to a graph (merging or evicting) and reads an edge from one side. */
+/* NPC State: adds an edge to a graph (merging or evicting) and reads an edge from one side. */
 import { confidenceRank, richer, SOCIAL_GRAPH_EDGE_LIMIT } from '../social-primitives.js';
 import { socialRelationFamily, mergeRelations } from '../social-relations.js';
 import { edgeKey, normalizeEdge } from './edge-shape.js';

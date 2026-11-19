@@ -10,7 +10,7 @@ const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \
 const EDITOR_HELPERS = String.raw`
 const decodeEditorHtml = text => String(text)
     .replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&quot;', '"').replaceAll('&#039;', "'").replaceAll('&amp;', '&');
-// Opens the editor for an NPC and returns the rendered form: every npc_state_delta_edit_* control
+// Opens the editor for an NPC and returns the rendered form: every people_edit_* control
 // with the value, checked state and maxlength the reader would see.
 async function openEditorForm(id) {
     await globalThis.NPCStateDelta.openEditor(id);
@@ -19,17 +19,17 @@ async function openEditorForm(id) {
     const html = String(popup.content?.innerHTML ?? popup.content ?? '');
     const controls = new Map();
     const attr = (attrs, name) => (attrs.match(new RegExp('\\b' + name + '="([^"]*)"')) || [])[1];
-    for (const match of html.matchAll(/<input id="(npc_state_delta_edit_[a-z_]+)"([^>]*)>/g)) {
+    for (const match of html.matchAll(/<input id="(people_edit_[a-z_]+)"([^>]*)>/g)) {
         const attrs = match[2];
         const maxlength = attr(attrs, 'maxlength');
         controls.set(match[1], { tag: 'input', value: decodeEditorHtml(attr(attrs, 'value') ?? ''), checked: /\bchecked\b/.test(attrs),
             maxLength: maxlength === undefined ? null : Number(maxlength) });
     }
-    for (const match of html.matchAll(/<textarea id="(npc_state_delta_edit_[a-z_]+)"([^>]*)>([^<]*)<\/textarea>/g)) {
+    for (const match of html.matchAll(/<textarea id="(people_edit_[a-z_]+)"([^>]*)>([^<]*)<\/textarea>/g)) {
         const maxlength = attr(match[2], 'maxlength');
         controls.set(match[1], { tag: 'textarea', value: decodeEditorHtml(match[3]), checked: false, maxLength: maxlength === undefined ? null : Number(maxlength) });
     }
-    for (const match of html.matchAll(/<select id="(npc_state_delta_edit_[a-z_]+)"[^>]*>([\s\S]*?)<\/select>/g)) {
+    for (const match of html.matchAll(/<select id="(people_edit_[a-z_]+)"[^>]*>([\s\S]*?)<\/select>/g)) {
         const selected = (match[2].match(/<option value="([^"]*)" selected>/) || [])[1] ?? '';
         controls.set(match[1], { tag: 'select', value: decodeEditorHtml(selected), checked: false, maxLength: null });
     }
@@ -39,7 +39,7 @@ async function openEditorForm(id) {
 // Saves an open editor form after applying the reader's changes ({ id: value } or { id: { checked } }).
 async function saveEditorForm(form, changes = {}) {
     for (const [key, change] of Object.entries(changes)) {
-        const id = key.startsWith('npc_state_delta_edit_') ? key : 'npc_state_delta_edit_' + key;
+        const id = key.startsWith('people_edit_') ? key : 'people_edit_' + key;
         const control = form.controls.get(id);
         if (!control) throw new Error('no editor control ' + id);
         if (change && typeof change === 'object') Object.assign(control, change);

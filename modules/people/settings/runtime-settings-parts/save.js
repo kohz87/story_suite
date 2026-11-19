@@ -29,7 +29,7 @@ export function persistSettingsLazy() {
     lazySave.timer = setTimeout(() => {
         cancelLazySettingsSave();
         // A timer has no caller to take an error: a failed deferred save is logged, not thrown.
-        try { persistSettings(); } catch (error) { console.warn('[NPC State Delta] the deferred settings save could not be requested.', error); }
+        try { persistSettings(); } catch (error) { console.warn('[NPC State] the deferred settings save could not be requested.', error); }
     }, wait);
 }
 

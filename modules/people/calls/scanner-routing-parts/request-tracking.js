@@ -1,4 +1,4 @@
-/* NPC State Delta: the in-flight scanner requests, the call metrics and their cancel and read-out. */
+/* NPC State: the in-flight scanner requests, the call metrics and their cancel and read-out. */
 
 export const inflight = new Map();
 

@@ -237,7 +237,7 @@ function inspectorWith(held, problems, calls = []) {
         reply: () => ({ ok: true, index: 1, name: 'Ren', rev: 2, checkpoint: false, diff: { entries: [], more: 0 }, ops: [], receipts: [], problems, state: { meta: { rev: 2 } } }),
     };
     const banner = createRebuildBannerWidget({ blocked: () => held, rebuild: async (module, choice) => { calls.push([module, choice]); return { ok: true, read: choice.read, reply: 4 }; } });
-    const widget = createInspectorWidget(source, { rebuild: { widget: banner, blocked: () => held, nameOf: () => 'NPC State Delta' } });
+    const widget = createInspectorWidget(source, { rebuild: { widget: banner, blocked: () => held, nameOf: () => 'NPC State' } });
     const el = widgetHost(doc);
     widget.render(el, {}, fakeApi());
     return { el, calls };
@@ -248,7 +248,7 @@ test('the Inspector Problem row has the button while the block is permanent: its
     const row = el.querySelector('.sb-insp-problems li');
     assert.ok(row, 'the block has a row even with no reply problems');
     assert.equal(text(row.querySelector('.ss-listcard-title')), "Dossiers can't be restored here");
-    assert.equal(text(row.querySelector('.ss-listcard-sub')), 'SNAPSHOT_UNAVAILABLE · NPC State Delta');
+    assert.equal(text(row.querySelector('.ss-listcard-sub')), 'SNAPSHOT_UNAVAILABLE · NPC State');
     const button = row.querySelector('.sb-insp-rebuild');
     assert.equal(text(button), REBUILD_TEXT.start);
     button.click();

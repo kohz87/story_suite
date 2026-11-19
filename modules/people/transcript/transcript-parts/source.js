@@ -1,4 +1,4 @@
-// The host's chat context and Scan context readers, wired once by index.js, and the names that are never NPCs.
+// The host's chat context and Scan context readers, wired once by runtime-entry.js, and the names that are never NPCs.
 export let readContext = () => ({ chat: [] });
 export let readScanDepth = () => 6;
 export function useTranscriptSource({ context, scanDepth }) {

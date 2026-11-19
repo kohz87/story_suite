@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: whether a field's new evidence is a later sighting that makes gradual evolution ready. */
+/* NPC State profile evidence: whether a field's new evidence is a later sighting that makes gradual evolution ready. */
 import { DURABLE_PROFILE_LIMITS, durableSemanticSimilarity } from '../core-relationship.js';
 import { cleanList, normalizeName } from '../core-text.js';
 import { BEHAVIOR_EVIDENCE_LIMIT, PROFILE_EVIDENCE_LIMIT } from './shared-retention.js';

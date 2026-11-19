@@ -9,7 +9,7 @@ import { tables } from './slice-keys.js';
 import { settingsOf, packNames } from './feature.js';
 import { isRecord, ask, queryOf, namesOf } from './host-read.js';
 
-/** Names and linked aliases from the scene, cast and NPC State Delta; recorded before the reply for replay. */
+/** Names and linked aliases from the scene, cast and NPC State; recorded before the reply for replay. */
 export function othersOf(view) {
     const query = queryOf(view);
     const cast = view?.state?.domains?.cast?.people;

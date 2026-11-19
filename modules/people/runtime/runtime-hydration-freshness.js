@@ -1,4 +1,4 @@
-/* NPC State Delta chat-state freshness: revision conflicts, the server-copy check against the
+/* NPC State chat-state freshness: revision conflicts, the server-copy check against the
    loaded state, preserved local work and canonical-state installation. Split from
    runtime-hydration.js without change; the factory keeps the public exports. */
 
@@ -12,7 +12,7 @@ export function installHydrationFreshness(api, rt, deps) {
     const { getChatState, hydratedRevision, updateHydratedStateMeta, recordFreshnessEvent, localWorkingStateDirty } = api;
 
     function makeRevisionConflict(key, expectedRevision, actualRevision, message = '') {
-        const error = new Error(message || `NPC State Delta sidecar changed in another session (expected revision ${expectedRevision}, found ${actualRevision}).`);
+        const error = new Error(message || `NPC State sidecar changed in another session (expected revision ${expectedRevision}, found ${actualRevision}).`);
         error.code = 'NPC_STATE_WRITE_CONFLICT';
         error.expectedRevision = Number.isFinite(Number(expectedRevision)) ? Math.max(0, Math.trunc(Number(expectedRevision))) : null;
         error.actualRevision = Number.isFinite(Number(actualRevision)) ? Math.max(0, Math.trunc(Number(actualRevision))) : null;
@@ -101,7 +101,7 @@ export function installHydrationFreshness(api, rt, deps) {
             });
 
             if (!inspected.exists) {
-                const error = makeRevisionConflict(normalized, localRevision, null, `NPC State Delta canonical sidecar for ${normalized} disappeared from the SillyTavern server. Refusing to recreate it from a cached browser copy.`);
+                const error = makeRevisionConflict(normalized, localRevision, null, `NPC State canonical sidecar for ${normalized} disappeared from the SillyTavern server. Refusing to recreate it from a cached browser copy.`);
                 recordFreshnessEvent(normalized, 'sidecar-missing', { reason, hydratedRevision: localRevision, serverRevision: 0, dirty: localWorkingStateDirty(normalized) });
                 throw error;
             }
@@ -119,8 +119,8 @@ export function installHydrationFreshness(api, rt, deps) {
                     localRevision,
                     inspected.revision,
                     writerFork
-                        ? `NPC State Delta detected a same-revision writer conflict at revision ${localRevision}. Another session replaced that revision with a different writer; this session's working copy was preserved for recovery and was not republished.`
-                        : `NPC State Delta detected newer canonical server revision ${inspected.revision} while this session still had unsaved work based on revision ${localRevision}. The local work was preserved for recovery and was not published.`,
+                        ? `NPC State detected a same-revision writer conflict at revision ${localRevision}. Another session replaced that revision with a different writer; this session's working copy was preserved for recovery and was not republished.`
+                        : `NPC State detected newer canonical server revision ${inspected.revision} while this session still had unsaved work based on revision ${localRevision}. The local work was preserved for recovery and was not published.`,
                 )
                 : null;
 

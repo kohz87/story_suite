@@ -50,7 +50,7 @@ export function mech({ range = '>=2.0.0-beta.1', calls = {}, id = 'rpg-battle', 
 // NSD's stand-in: no peers; a canGenerate that allows and a cue of its own.
 export const social = () => ({
     id: 'npc-state-delta',
-    name: 'NPC State Delta',
+    name: 'NPC State',
     version: '1.2.20',
     domains: { npc: { initial: () => ({ meters: {} }) } },
     hooks: { canGenerate: () => true, beforeGenerate: () => ['NSD CUE'] },

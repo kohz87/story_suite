@@ -151,12 +151,12 @@ test('locked look: the scan forwards a refused durable look as a flag (Problem +
     fs.mkdirSync(ext, { recursive: true });
     standInTree(ext);   // old names, stand-ins for the real files; the host's extensions.js is the shared stub reading __npcMock
     globalThis.__npcMock = { extensionSettings: {}, context: { chat: [] }, saveSettingsCalls: 0 };
-    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } } }; globalThis.__handles.hosted = true;
+    globalThis.document = { documentElement: { dataset: {} } }; globalThis.__handles.hosted = true;
     const sent = [];
     try {
         const { createHostedPart } = await import(pathToFileURL(path.join(ext, 'runtime-hosted.js')).href);
         const adapter = { hosted: () => true, flag: async item => { sent.push(item); }, adjust: async () => {} };
-        const part = createHostedPart({ storySuiteV2: adapter }, { chatHydrationStatus: () => ({}), getChatKey: () => 'k', getChatState: () => ({}), latestMessageId: () => 0, latestReplyIndex: () => 0 });
+        const part = createHostedPart({ peopleAdapter: adapter }, { chatHydrationStatus: () => ({}), getChatKey: () => 'k', getChatState: () => ({}), latestMessageId: () => 0, latestReplyIndex: () => 0 });
         const rika = overall => ({ id: 'n1', name: 'Rika', overallAppearance: overall });
         const held = 'White hair, yellow-green eyes.';
         const tick = () => new Promise(resolve => setTimeout(resolve, 5));
@@ -287,14 +287,14 @@ test('scan-admitted people: the scan sends npc.meet for a dossier it just made, 
     fs.mkdirSync(ext, { recursive: true });
     standInTree(ext);   // old names, stand-ins for the real files; the host's extensions.js is the shared stub reading __npcMock
     globalThis.__npcMock = { extensionSettings: {}, context: { chat: [] }, saveSettingsCalls: 0 };
-    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } } }; globalThis.__handles.hosted = true;
+    globalThis.document = { documentElement: { dataset: {} } }; globalThis.__handles.hosted = true;
     const sent = [];
     try {
         const { createHostedPart } = await import(pathToFileURL(path.join(ext, 'runtime-hosted.js')).href);
         const deps = { chatHydrationStatus: () => ({}), getChatKey: () => 'k', getChatState: () => ({}), latestMessageId: () => 0, latestReplyIndex: () => 0 };
         const order = [];
         const adapter = { hosted: () => true, flag: async () => { order.push('flag'); }, adjust: async () => { order.push('adjust'); }, meet: async ({ guard, ...item }) => { order.push('meet'); assert.equal(typeof guard, 'function', 'the meeting carries its guard (held while a native change finishes, dropped if its reply is taken back)'); sent.push(item); } };
-        const part = createHostedPart({ storySuiteV2: adapter }, deps);
+        const part = createHostedPart({ peopleAdapter: adapter }, deps);
         const old = { id: 'o1', name: 'Oren' };
         const fresh = { id: 'n2', name: 'Coram', personality: 'calm and stoic', background: 'a ferryman' };
         const tick = () => new Promise(resolve => setTimeout(resolve, 5));
@@ -318,7 +318,7 @@ test('scan-admitted people: the scan sends npc.meet for a dossier it just made, 
         part.forwardRelationshipChangesToHost([old, fresh], [old, fresh], 5, null, []);
         await tick();
         assert.deepEqual(sent, [], 'a known person is not met again');
-        const older = createHostedPart({ storySuiteV2: { hosted: () => true, flag: async () => {}, adjust: async () => {} } }, deps);
+        const older = createHostedPart({ peopleAdapter: { hosted: () => true, flag: async () => {}, adjust: async () => {} } }, deps);
         older.forwardRelationshipChangesToHost([old], [old, fresh], 6, null, []);
         await tick();
         assert.deepEqual(sent, [], 'an adapter without meet: as before');

@@ -57,7 +57,7 @@ export const MODULES = {
         label: 'NSD',
         dir: 'npc_state_delta',
         entry: 'src/storysuite-v2.js',
-        make: imported => imported.createStorySuiteV2Adapter({
+        make: imported => imported.createPeopleAdapter({
             suiteApi: { npcs: () => [] },
             delta: () => ({ isEnabled: () => true, getNpc: () => null }),
             doc: null,

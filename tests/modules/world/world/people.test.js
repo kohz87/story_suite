@@ -1,10 +1,10 @@
 // World → Now → Here, the people (MODULES §F119, the user's beta live test): "World tab character part should
 // inherit what Cast is doing and include the inner chatter"; "the NSD link doesn't refresh, I need to change
-// tab". With NPC State Delta on, its own present-cast cards (through its page API, never its markup copied),
+// tab". With NPC State on, its own present-cast cards (through its page API, never its markup copied),
 // with each person's thought from the newest reply's Inner chatter inside their card; without it, plain chips
-// with the thought under the name. The cards and dossier links follow NPC State Delta's changes (its
+// with the thought under the name. The cards and dossier links follow NPC State's changes (its
 // onChange) without a tab switch, and a redraw is one query. Also "moved here this reply" and the place's kind
-// (Here covers what Story Block's Scene showed). Story Director alone, with NPC State Delta, with Inner chatter
+// (Here covers what Story Block's Scene showed). Story Director alone, with NPC State, with Inner chatter
 // off.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -22,7 +22,7 @@ async function scene({ delta = null, features = CHATTER, lines = [] } = {}) {
     return host;
 }
 
-// NPC State Delta's page API as a stand-in: one card per present dossier, in Delta's markup classes, built
+// NPC State's page API as a stand-in: one card per present dossier, in Delta's markup classes, built
 // with the page's own elements; `slot(name, aliases)` nodes go inside each card, as Delta does.
 function fakeCast(people) {
     const listeners = new Set();
@@ -35,12 +35,12 @@ function fakeCast(people) {
             const doc = el.ownerDocument;
             const cards = Object.entries(people()).filter(([, who]) => who.present !== false).map(([name, who]) => {
                 const cell = doc.createElement('div');
-                cell.className = 'npc-state-delta-present-cell';
+                cell.className = 'ppl-present-cell';
                 cell.dataset.npcId = `npc_${name}`;
                 const text = doc.createElement('span');
-                text.className = 'npc-state-delta-present-card-text';
+                text.className = 'ppl-present-card-text';
                 const label = doc.createElement('b');
-                label.className = 'npc-state-delta-present-card-name';
+                label.className = 'ppl-present-card-name';
                 label.textContent = name;
                 text.append(label);
                 const node = slot?.(name, who.aliases ?? []);
@@ -73,7 +73,7 @@ test('Here: each person\'s thought from the newest reply\'s chatter, matched by 
     assert.equal(here.place.kind, 'settlement');
 });
 
-test('Here without NPC State Delta: chatter matched by the plain name, any case; nothing while Inner chatter is off', async () => {
+test('Here without NPC State: chatter matched by the plain name, any case; nothing while Inner chatter is off', async () => {
     const host = await scene({ lines: ['~ chatter kell: not again', '~ chatter Stranger: who are they'] });
     const here = host.sdk.query('director.world.here');
     assert.equal(here.nsd, false);
@@ -87,7 +87,7 @@ test('Here without NPC State Delta: chatter matched by the plain name, any case;
     const thought = el.querySelectorAll('.wv-person')[2].querySelector('.wv-thought');
     assert.equal(squash(thought.textContent), 'not again');
     assert.equal(el.querySelectorAll('.wv-thought').length, 1);
-    assert.equal(el.querySelector('.wv-cast').hidden, true, 'no cards without NPC State Delta');
+    assert.equal(el.querySelector('.wv-cast').hidden, true, 'no cards without NPC State');
 
     const off = await scene({ features: {}, lines: ['~ chatter Kell: not again'] });
     const quiet = off.sdk.query('director.world.here');
@@ -96,7 +96,7 @@ test('Here without NPC State Delta: chatter matched by the plain name, any case;
     assert.ok(quiet.people.every(person => person.thought === ''));
 });
 
-test('with NPC State Delta on: its own cards, the thought inside each card, chips only for those without one', async () => {
+test('with NPC State on: its own cards, the thought inside each card, chips only for those without one', async () => {
     const people = { Mira: { rank: 'Friend', aliases: ['Captain'] }, 'Old Tom': { disposition: 'gruff' } };
     const host = await scene({ delta: people, lines: ['~ chatter Captain: the tide turns soon'] });
     const { world, journal } = worldData(host);
@@ -106,8 +106,8 @@ test('with NPC State Delta on: its own cards, the thought inside each card, chip
     const { el } = drawWorld({ world, journal }, { widgets: { [PEOPLE_WIDGET]: widget } });
     const box = el.querySelector('.wv-cast');
     assert.equal(box.hidden, false);
-    const cards = box.querySelectorAll('.npc-state-delta-present-cell');
-    assert.deepEqual(cards.map(card => card.querySelector('.npc-state-delta-present-card-name').textContent), ['Mira', 'Old Tom'], 'Delta\'s cards, in Delta\'s classes');
+    const cards = box.querySelectorAll('.ppl-present-cell');
+    assert.deepEqual(cards.map(card => card.querySelector('.ppl-present-card-name').textContent), ['Mira', 'Old Tom'], 'Delta\'s cards, in Delta\'s classes');
     assert.equal(squash(cards[0].querySelector('.wv-thought').textContent), 'the tide turns soon', 'inside Mira\'s card (matched by her alias)');
     assert.equal(cards[1].querySelector('.wv-thought'), null);
     assert.deepEqual(el.querySelectorAll('.wv-chip').map(chip => squash(chip.textContent)), ['Kell'], 'Kell has no dossier, so no card: a chip, not lost');
@@ -119,7 +119,7 @@ test('with NPC State Delta on: its own cards, the thought inside each card, chip
     assert.deepEqual(el.querySelectorAll('.wv-chip').map(chip => squash(chip.textContent)), ['Mira Friend', 'Old Tom gruff', 'Kell']);
 });
 
-test('the NSD link and the cards follow NPC State Delta\'s changes without a tab switch; one query, no chat walk', async () => {
+test('the NSD link and the cards follow NPC State\'s changes without a tab switch; one query, no chat walk', async () => {
     const people = { Mira: { rank: 'Friend' } };
     const host = await scene({ delta: people });
     const { world, journal } = worldData(host);
@@ -142,7 +142,7 @@ test('the NSD link and the cards follow NPC State Delta\'s changes without a tab
     cast.on = true;
     cast.change();
     await tick();
-    assert.deepEqual(el.querySelector('.wv-cast').querySelectorAll('.npc-state-delta-present-card-name').map(name => name.textContent), ['Mira', 'Kell']);
+    assert.deepEqual(el.querySelector('.wv-cast').querySelectorAll('.ppl-present-card-name').map(name => name.textContent), ['Mira', 'Kell']);
     assert.deepEqual(el.querySelectorAll('.wv-chip').map(chip => squash(chip.textContent)), ['Old Tom'], 'Old Tom still has no dossier');
     // Gone from the page: unsubscribed, nothing drawn later.
     view.destroy();
@@ -199,7 +199,7 @@ test('Here: a reply with five chatter lines (setting 8) gives all five people th
     assert.equal(here.chatter.length, 5);
 });
 
-// While NPC State Delta reads a new reply (page.busy()): the last cards stay with an "updating" label.
+// While NPC State reads a new reply (page.busy()): the last cards stay with an "updating" label.
 test('busy with no cards keeps the last cards and the label; done redraws without it; no earlier cards gives a chip; no busy() as before', async () => {
     const people = { Mira: { rank: 'Friend' }, 'Old Tom': {} };
     const host = await scene({ delta: people });
@@ -210,7 +210,7 @@ test('busy with no cards keeps the last cards and the label; done redraws withou
     cast.busy = () => cast.busyNow;
     const widget = createPeopleWidget({ open: () => () => {}, cast: () => cast });
     const { el } = drawWorld({ world, journal }, { widgets: { [PEOPLE_WIDGET]: widget } });
-    const names = () => el.querySelector('.wv-cast').querySelectorAll('.npc-state-delta-present-card-name').map(n => n.textContent);
+    const names = () => el.querySelector('.wv-cast').querySelectorAll('.ppl-present-card-name').map(n => n.textContent);
     const chips = () => el.querySelectorAll('.wv-chip').map(chip => squash(chip.textContent));
     assert.deepEqual(names(), ['Mira', 'Old Tom']);
     assert.equal(el.querySelector('.wv-updating').hidden, true);
@@ -247,7 +247,7 @@ test('busy with no cards keeps the last cards and the label; done redraws withou
     // An older Delta without busy(): the cards go, chips come, as before.
     const old = fakeCast(() => saved);
     const page = drawWorld({ world, journal }, { widgets: { [PEOPLE_WIDGET]: createPeopleWidget({ open: () => () => {}, cast: () => old }) } });
-    assert.equal(page.el.querySelectorAll('.npc-state-delta-present-cell').length, 2);
+    assert.equal(page.el.querySelectorAll('.ppl-present-cell').length, 2);
     old.on = false;
     old.change();
     await tick();

@@ -1,4 +1,4 @@
-/* NPC State Delta injection: the always-present identity, agency, state and player-stance block of a card. */
+/* NPC State injection: the always-present identity, agency, state and player-stance block of a card. */
 import { cleanList } from '../core-text.js';
 import { calibrateRelationshipSummary, DEFAULT_RELATIONSHIP, normalizeRelationshipBaseline, relationshipSummaryConsistent } from '../core-relationship.js';
 import { KEY_RELATIONSHIP_LIMIT } from '../core-keyrel.js';

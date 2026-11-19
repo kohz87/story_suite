@@ -110,7 +110,7 @@ export function stripUiNoise(text) {
         .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ');
 
     // Megumin Suite beta (2026-08-18+) emits one <Blocks> envelope. Preserve only the two
-    // sections NPC State Delta intentionally treats as story evidence; discard CYOA, Bonds, sheets,
+    // sections NPC State intentionally treats as story evidence; discard CYOA, Bonds, sheets,
     // NPC Bank dossiers/updates, Story Tracker, and unknown/custom children by removing the
     // entire envelope after extracting World State + NPC Inner Chatter.
     source = replaceMeguminMasterBlocks(source);

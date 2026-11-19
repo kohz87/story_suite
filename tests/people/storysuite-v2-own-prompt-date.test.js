@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import {
-    buildNarrationCaptureParts, calendarPromptContext, getActiveCalendarConfig, hostedStoryDate, setActiveCalendarConfig, setStoryClockSource,
+    calendarPromptContext, getActiveCalendarConfig, hostedStoryDate, setActiveCalendarConfig, setStoryClockSource,
     storyClockDate, storyCurrentDate,
 } from '../../modules/people/core/core.js';
 import { effectiveChronologicalAge } from '../../modules/people/birthday/birthday.js';
@@ -111,27 +111,6 @@ test('hosted with Story Director: ages and the prompt\'s current date follow its
     assert.equal(effectiveChronologicalAge(npc, undefined, { era: 'AR', year: 600, month: 'Thaw', day: 3 }), '9');
 });
 
-test('prompts: the capture rules stay byte-identical; only the current-date line, already dynamic, changes', () => {
-    const options = { transcript: 'USER: hi', userName: 'Astra', charName: 'Narrator', existingNpcs: [] };
-    // Delta with no calendar of its own (numeric dates): Story Director's Gregorian clock changes no prompt text.
-    const plain = buildNarrationCaptureParts(options);
-    setStoryClockSource(() => ({ minutes: gregorianMinutes(611, 3, 15), calendar: SD_GREGORIAN }));
-    const clocked = buildNarrationCaptureParts(options);
-    assert.equal(clocked.rules, plain.rules);
-    assert.equal(clocked.context, plain.context, 'no date line on a numeric calendar, as before');
-    // Delta's own calendar: the rules are unchanged; the context's date line carries the clock's date in
-    // place of the manual clock's.
-    setStoryClockSource(null);
-    setActiveCalendarConfig({ era: 'AR', months: FANTASY, currentYear: 600, currentMonth: 'Thaw', currentDay: 3 });
-    const own = buildNarrationCaptureParts(options);
-    setStoryClockSource(() => ({ minutes: fantasyMinutes(611, 2, 12), calendar: SD_FANTASY }));
-    const hosted = buildNarrationCaptureParts(options);
-    assert.equal(hosted.rules, own.rules, 'the in-prompt rules are byte-identical');
-    assert.match(own.context, /^Current grounded world date=AR600, Thaw 3\.$/m);
-    assert.match(hosted.context, /^Current grounded world date=AR611, Bloom 12\.$/m);
-    assert.equal(hosted.context.replace(/^Current grounded world date=.*$/m, ''), own.context.replace(/^Current grounded world date=.*$/m, ''), 'nothing else changed');
-});
-
 // ---- the adapter on a whole Story Block host (the live packages/story-block testkit) ----
 
 // A stand-in for Story Director: only its two time queries (`minutes` null until the story sets it).
@@ -150,8 +129,8 @@ async function suite(t, { modules = [], preview = null, enabled = true, contextS
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };
     const state = { enabled };
     const api = { isEnabled: () => state.enabled, getNpc: () => null, relationshipBaseline: () => ({ trust: 0, affection: 0, desire: 0, tension: 0 }) };
-    const adapter = createStorySuiteV2Adapter({
-        suiteApi: { npcs: () => [], manage: { preview: () => preview ?? { label: 'NPC State Delta', text: '', parts: [] } } },
+    const adapter = createPeopleAdapter({
+        suiteApi: { npcs: () => [], manage: { preview: () => preview ?? { label: 'NPC State', text: '', parts: [] } } },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
         timers: { setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {} },
@@ -165,7 +144,7 @@ async function suite(t, { modules = [], preview = null, enabled = true, contextS
 
 const DOSSIER = `NPC STATE (present):\n- Mira: IDENTITY ${'quiet smith with soot on her hands; '.repeat(60)}`;
 const CAPTURE = `One-pass capture: ${'rule '.repeat(400)}`;
-const PREVIEW = { label: 'NPC State Delta', text: '', parts: [{ label: 'Live dossier', text: DOSSIER, tokens: 1 }, { label: 'One-pass capture instruction (end of the prompt)', text: CAPTURE, tokens: 1 }] };
+const PREVIEW = { label: 'NPC State', text: '', parts: [{ label: 'Live dossier', text: DOSSIER, tokens: 1 }, { label: 'One-pass capture instruction (end of the prompt)', text: CAPTURE, tokens: 1 }] };
 
 test('Delta\'s own prompt reaches the host\'s prompt size and share; nothing while Delta is off', async t => {
     const { host, state } = await suite(t, { preview: PREVIEW, contextSize: 6000 });

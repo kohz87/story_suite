@@ -96,7 +96,7 @@ export async function runFocusedRelationshipPass(ctx, parsed, existingNpcs, tran
             }
             const missing = batch.filter(target => !decisions.has(target.id));
             if (missing.length) {
-                console.warn('[NPC State Delta] focused relationship pass omitted or malformed one or more target decisions.', {
+                console.warn('[NPC State] focused relationship pass omitted or malformed one or more target decisions.', {
                     targets: batch.map(npc => npc.id),
                     decided: batch.filter(npc => decisions.has(npc.id)).map(npc => npc.id),
                 });
@@ -104,7 +104,7 @@ export async function runFocusedRelationshipPass(ctx, parsed, existingNpcs, tran
         } catch (error) {
             if (isScannerRoutingError(error)) throw error;
             failed = true;
-            console.warn('[NPC State Delta] focused relationship batch failed; retaining safe zero/primary output for that batch.', error);
+            console.warn('[NPC State] focused relationship batch failed; retaining safe zero/primary output for that batch.', error);
         }
     }
     return { decisions, used: true, responseChars, retried, targetCount: targets.length, failed };

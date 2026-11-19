@@ -1,4 +1,4 @@
-/* NPC State Delta identity: specificity of a stored age and normalizing a chronological age. */
+/* NPC State identity: specificity of a stored age and normalizing a chronological age. */
 import { cleanText } from '../core-text.js';
 import { AGE_NUMBER_WORD_RE, isUnknownAgePlaceholder, normalizedAgeText, parseEnglishAgeNumber } from './shared-age-text.js';
 

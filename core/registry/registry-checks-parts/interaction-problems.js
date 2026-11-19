@@ -59,7 +59,7 @@ function kindProblems(kind, def) {
 /** The problems with a definition's `interactions` field: [] when it has none or all are fine. */
 export function interactionProblems(def) {
     if (def.interactions === undefined) return [];
-    if (!isObject(def.interactions)) return ['interactions is not an object (like { fight: { … } })'];
+    if (!isObject(def.interactions)) return ['interactions is not an object (a map of kind name to kind, like { trade: { … } })'];
     return Object.entries(def.interactions).flatMap(([kind, item]) => (KIND.test(kind)
         ? kindProblems(kind, item) : [`the interaction name "${kind}" must be lowercase letters, digits, "_" or "-"`]));
 }

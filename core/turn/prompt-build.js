@@ -24,7 +24,7 @@ import { stripMarkers } from '../interaction/markers.js';
 import { runPreludes } from './prelude-run.js';
 
 export function createPromptBuild(s, deps) {
-    const { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet, FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType } = deps;
+    const { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet, FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, PREPARE_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType } = deps;
     let toldRestore = null;
     let recovering = null;
 
@@ -56,7 +56,7 @@ export function createPromptBuild(s, deps) {
         const cues = {};
         let committed = false;
         const prechecks = [];
-        let previewState = null, boardStop = null;
+        let previewState = null, interactionStop = null;
         const requested = [];
         const commit = !dryRun && type !== 'continue';
         // `again`: an earlier attempt at this reply was never captured (a retried interceptor), so a hook may reuse its work.
@@ -105,7 +105,7 @@ export function createPromptBuild(s, deps) {
         // which is also the state the generated reply's prelude will start from.
         const ran = runPreludes({ s, bus, store, problem, kindOf: id => registry.interaction?.(id) }, { requested, cues, prechecks, previewState });
         if (ran.blocked) return { blocked: ran.blocked };
-        ({ previewState, boardStop } = ran);
+        ({ previewState, interactionStop } = ran);
         const { keptPrelude } = ran;
         // A fight narrated with no foes line (fight-start.js fightCue): one short tail line for this reply, only with the RPG on and no foe set.
         // (A swipe: the reply being swiped is the last message, so the reader's message and the reply before it sit one place further back.)
@@ -122,7 +122,7 @@ export function createPromptBuild(s, deps) {
             store.deferSave?.();
             s.deferred = true;
         }
-        return { cues, prechecks, previewState, boardStop, keptPrelude };
+        return { cues, prechecks, previewState, interactionStop, keptPrelude };
     }
 
     // What modules send with the reply on their own, under their own prompt keys (SPEC §5: NPC State
@@ -153,10 +153,10 @@ export function createPromptBuild(s, deps) {
         return out;
     }
 
-    function build(cues = {}, state = null, boardStop = null, keptTokens = 0) {
+    function build(cues = {}, state = null, interactionStop = null, keptTokens = 0) {
         const untold = store.untold();
         // (`state`: the state the reply's prelude rolls leave, when it has one; the tail's lines are made from it)
-        const current = state ? makeView({ store, registry, settings, chat: ctx?.chat, active: viewReader, state, boardStop }) : view();
+        const current = state ? makeView({ store, registry, settings, chat: ctx?.chat, active: viewReader, state, interactionStop }) : view();
         const own = sentByModules(current);
         const ownTokens = own.reduce((sum, part) => sum + part.tokens, 0);
         const result = assemble({ registry, view: current, untold, settings: hostSettings(), cues, substitute: text => substituteNames(text, ctx), context: contextNow(), ownTokens, rolled: state !== null, keptTokens });
@@ -292,7 +292,7 @@ export function createPromptBuild(s, deps) {
         }
         if (!ctx?.chat) return;
         // The feature switched on a moment ago: its code is waited for (no pass over the chat; onChatChanged did that).
-        if (typeof prepare === 'function') { try { const waiting = prepare({ scan: false }); if (waiting) await within(waiting, RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
+        if (typeof prepare === 'function') { try { const waiting = prepare({ scan: false }); if (waiting) await within(waiting, PREPARE_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         // The safety net still reading the last reply: waited for briefly, so its lines are in this prompt.
         if (s.assistPending) await within(s.assistPending, ASSIST_WAIT_MS);
         markBusy();
@@ -320,12 +320,12 @@ export function createPromptBuild(s, deps) {
                 if (registry.restore?.().state === 'pending') {
                     recoverOnce();
                     const waiting = await blockedBy(kind);
-                    if (waiting) { block({ ...waiting, keepSession: Boolean(s.heldBoard) }, abort); return; }
+                    if (waiting) { block({ ...waiting, keepSession: Boolean(s.heldReply) }, abort); return; }
                 }
             }
             await ensureModules({ store, bus, registry, events });
-            if (s.heldBoard) {
-                block({ moduleId: 'story-block', reason: s.heldBoard.hold ?? 'Restore what the interaction used, or discard it from its screen, and regenerate the held reply.', keepSession: true }, abort);
+            if (s.heldReply) {
+                block({ moduleId: 'story-block', reason: s.heldReply.hold ?? 'Restore what the interaction used, or discard it from its screen, and regenerate the held reply.', keepSession: true }, abort);
                 return;
             }
             const blocked = await blockedBy(kind);
@@ -333,9 +333,9 @@ export function createPromptBuild(s, deps) {
                 block(blocked, abort);
                 return;
             }
-            const { cues, prechecks, previewState, boardStop, keptPrelude, blocked: cueBlocked } = await runCues(kind);
+            const { cues, prechecks, previewState, interactionStop, keptPrelude, blocked: cueBlocked } = await runCues(kind);
             if (cueBlocked) { block(cueBlocked, abort); return; }
-            const built = build(cues, previewState, boardStop, keptPrelude);
+            const built = build(cues, previewState, interactionStop, keptPrelude);
             tellTooSmall(built.fit);
             const chat = ctx.chat;
             const last = chat.length - 1;
@@ -357,7 +357,7 @@ export function createPromptBuild(s, deps) {
                 background: 0,
                 restored: '',
             };
-            s.abortBoard = abort;
+            s.abortInteraction = abort;
             setPrompts(s.session.staticText, s.session.tailText);
         } catch (error) {
             s.session = null;

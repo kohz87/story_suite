@@ -63,7 +63,7 @@ test('hand-edited aliases are kept from scanner additions', () => {
     base.npcs[0].manualProfileFields = [];
     assert.deepEqual(mergeScanResult(base, { npcs: [{ id: 'npc_red', name: 'Redmond Shaw', aliases: ['Old Red'] }] }, { turn: 1 }).state.npcs[0].aliases, ['Red', 'Old Red']);
     const index = runtimeSource();
-    assert.match(index, /id="npc_state_delta_edit_aliases"/);
+    assert.match(index, /id="people_edit_aliases"/);
     assert.match(index, /aliases: editorList\('aliases', 8\)/);
     assert.ok(EDITOR_LOCKABLE_FIELDS.includes('aliases'), 'hand-edited aliases can be locked');
     assert.deepEqual(LOCKED_FIELD_KEYS.aliases, ['aliases'], 'the lock map bundle import and branch restore share');

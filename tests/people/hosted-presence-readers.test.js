@@ -80,7 +80,8 @@ const castScenario = async () => {
     const id = mockState.context.chat.length - 1;
     await Promise.all((mockState.listeners.get('message_received') || []).map(fn => fn(id)));
     await sleep(400);
-    const cards = () => (String(api.presentCastHtml?.() || '').match(/npc-state-delta-present-cell/g) || []).length;
+    // Who the people list shows as here (the suite api's npcs(), the view's source), read through the scene.
+    const cards = () => (globalThis.__handles?.suiteApi?.npcs?.() ?? []).filter(npc => npc.present).length;
     const storedHere = api.getState().npcs[0].present;
     mockState.scene = ['Yunyun'];
     const sceneHereStoredHere = cards();
@@ -98,11 +99,11 @@ const castScenario = async () => {
     console.log('RESULT ' + JSON.stringify({ storedHere, sceneHereStoredHere, sceneAwayStoredHere, sceneHereStoredAway, injected }));
 };
 
-test('hosted: the present cards follow the scene, not the stored flag (World → Here drew chips while the stored flag said away)', () => {
+test('hosted: who is present follows the scene, not the stored flag (World → Here drew chips while the stored flag said away)', () => {
     const out = resultOf(runHostScenario('presence-cards-hosted', hostedPrelude, castScenario));
     assert.equal(out.storedHere, true);
-    assert.ok(out.sceneHereStoredHere > 0, 'scene and flag agree: a card');
-    assert.equal(out.sceneAwayStoredHere, 0, 'the scene says away: no card');
-    assert.ok(out.sceneHereStoredAway > 0, 'the scene says here and the stored flag says away: still a card');
+    assert.ok(out.sceneHereStoredHere > 0, 'scene and flag agree: present');
+    assert.equal(out.sceneAwayStoredHere, 0, 'the scene says away: not present');
+    assert.ok(out.sceneHereStoredAway > 0, 'the scene says here and the stored flag says away: still present');
     assert.equal(out.injected, false, 'the stored dossier is not written');
 });

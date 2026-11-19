@@ -1,4 +1,4 @@
-/* NPC State Delta: where a finished scan leaves the read marker and the replies read ahead. */
+/* NPC State: where a finished scan leaves the read marker and the replies read ahead. */
 
 /** The most "read ahead" replies a chat keeps; past it the oldest are forgotten (the marker then passes the oldest unread replies instead: a reply is never read twice). */
 export const READ_AHEAD_MAX = 40;

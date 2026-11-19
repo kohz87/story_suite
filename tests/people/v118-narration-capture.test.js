@@ -2,10 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-    NARRATION_CAPTURE_REMINDER,
-    buildNarrationCapturePrompt,
-    buildNarrationCaptureParts,
-    buildScannerPrompt,
     createNpcRecord,
     extractNarrationCapture,
     mergeScanResult,
@@ -126,77 +122,6 @@ test('stripUiNoise removes comment blocks (strict) before any transcript reads t
     assert.match(stripUiNoise(`${STORY}\n\`\`\`json\n${BLOCK_JSON}\n\`\`\``), /"npcs"/);
 });
 
-const TRANSCRIPT = 'Kazuma: Who is that at the gate?\nMegumin: Yunyun waves from the gate, clutching her wand.';
-const promptOptions = (extra = {}) => ({
-    transcript: TRANSCRIPT,
-    existingNpcs: [],
-    candidates: [],
-    userName: 'Kazuma',
-    charName: 'Megumin',
-    maxNpcs: 12,
-    admissionMode: 'conservative',
-    ...extra,
-});
-
-function rulesSection(prompt) {
-    const start = prompt.indexOf('\nAdmission:');
-    const end = prompt.indexOf('Identity index (matching only):');
-    assert.ok(start > 0 && end > start, 'prompt keeps its admission/rules/identity layout');
-    return prompt.slice(start, end);
-}
-
-test('the scanner prompt is unchanged when narrationCapture is absent or false', () => {
-    for (const extra of [{}, { fullScanMode: true, currentTranscript: TRANSCRIPT }, { customFieldNames: ['Favorite food'] }]) {
-        const absent = buildScannerPrompt(promptOptions(extra));
-        const explicitFalse = buildScannerPrompt(promptOptions({ ...extra, narrationCapture: false }));
-        assert.equal(absent, explicitFalse);
-        assert.ok(absent.startsWith('Private NPC dossier scanner.\n'));
-        assert.ok(absent.includes(`Story context:\n${TRANSCRIPT}`), 'the transcript section is still supplied to the scanner');
-        assert.doesNotMatch(absent, /ONE-PASS CAPTURE|<!--npc_state_delta|the chat above/);
-    }
-});
-
-test('the capture prompt carries the scanner rules without the transcript and ends with the reminder', () => {
-    const scanner = buildScannerPrompt(promptOptions());
-    const capture = buildNarrationCapturePrompt(promptOptions());
-    assert.ok(capture.startsWith('NPC STATE DELTA ONE-PASS CAPTURE.'));
-    assert.ok(capture.includes('<!--npc_state_delta'));
-    assert.ok(capture.includes('Identity index (matching only):'));
-    // (b5b r2-8) Rule 1 names roles in the capture (the people are named in the context part);
-    // otherwise rules 1-15 and the admission policy are the scanner's own text.
-    // (cleanup step 12, I-10) and it always ends with the short Stage 4 and birthday rules, where the
-    // scanner has its one-line Stage 4 summary.
-    const rubricsOnly = text => text.slice(0, text.lastIndexOf('\n\n'));
-    assert.equal(rubricsOnly(rulesSection(capture)), rubricsOnly(rulesSection(scanner)).replace('Exclude player (Kazuma), main speaker (Megumin), extras.', 'Exclude the player, the character you play, extras.'),
-        'Rules 1-15 and the admission policy are the scanner\'s own text');
-    assert.match(rulesSection(capture), /\n\nSTAGE 4: named forms=>[^\n]+\nBIRTHDAY: grounded evidence only: [^\n]+\n$/);
-    assert.match(rulesSection(scanner), /\n\nS4: forms\/current; confirmed death terminal\.\n$/);
-    assert.match(capture, /\nNot NPCs: the player is Kazuma; the character you play is Megumin\.\n/);
-    for (let rule = 1; rule <= 15; rule += 1) assert.match(capture, new RegExp(`\\n${rule}\\. `), `rule ${rule}`);
-    assert.ok(!capture.includes(TRANSCRIPT), 'the roleplay model already sees the chat; no transcript is duplicated');
-    assert.ok(!capture.includes('Yunyun waves from the gate'));
-    assert.ok(!capture.includes('Story context:\n'));
-    assert.match(capture, /Story context: the chat above\./);
-    assert.ok(capture.endsWith(`\n\n${NARRATION_CAPTURE_REMINDER}`));
-    assert.ok(NARRATION_CAPTURE_REMINDER.startsWith('Reminder: after the story, end with the <!--npc_state_delta {valid JSON} --> block.'));
-    // (1.2.11) The slow fields are named last, where the model looks.
-    for (const field of ['mannerisms', 'evidence.mannerisms', 'behaviorProfile', 'evidence.behaviorProfile', 'memories']) assert.ok(NARRATION_CAPTURE_REMINDER.includes(field), field);
-    assert.ok(!capture.startsWith('Private NPC dossier scanner.'));
-});
-
-test('the capture prompt is never a full-window prompt and keeps the custom-field rule', () => {
-    const forcedFull = buildNarrationCapturePrompt(promptOptions({ fullScanMode: true, currentTranscript: TRANSCRIPT }));
-    assert.equal(forcedFull, buildNarrationCapturePrompt(promptOptions()), 'fullScanMode is overridden to false');
-    assert.doesNotMatch(forcedFull, /FULL-WINDOW RECONCILIATION|CURRENT exchange \(authoritative/);
-    const withFields = buildNarrationCapturePrompt(promptOptions({ customFieldNames: ['Favorite food'] }));
-    const scannerWithFields = buildScannerPrompt(promptOptions({ customFieldNames: ['Favorite food'] }));
-    const rule = scannerWithFields.slice(scannerWithFields.indexOf('CUSTOM FIELDS (Favorite food)'));
-    assert.ok(rule.length > 20 && rule.startsWith('CUSTOM FIELDS (Favorite food)'));
-    assert.ok(withFields.includes(rule), 'the custom-field rule is appended to the capture prompt too');
-    assert.ok(withFields.indexOf(rule) < withFields.indexOf('Reminder: after the story'), 'the reminder stays last');
-    assert.ok(!buildNarrationCapturePrompt(promptOptions()).includes('CUSTOM FIELDS'));
-});
-
 // A live 1.1.9 report: a Delta block placed before Story Block's comment envelope reached that
 // envelope's closing `-->` and deleted the inventory with it.
 test('v1.1.10 a capture block never swallows another extension\'s comment envelope', () => {
@@ -265,60 +190,4 @@ test('storyProse keeps the narration and dialogue, never the World State or othe
     assert.equal(storyProse('Before <details><summary>World State</summary>Brecht</details> after.'), 'Before after.');
     assert.equal(storyProse('<World_State>Brecht</World_State>'), '');
     assert.equal(storyProse(`Yunyun waves.${'\n\n<!--npc_state_delta\n{"npcs":[]}\n-->'}`), 'Yunyun waves.');
-});
-
-test('the capture reminder asks for complete relationship rows and the block\'s own word (1.2.12)', () => {
-    for (const part of ['relationshipImpact', 'relationshipDelta', '"relationshipsCovered": true', '"relationshipReview"']) assert.ok(NARRATION_CAPTURE_REMINDER.includes(part), part);
-});
-
-test('v1.2.16 the capture splits into rules (byte-identical reply to reply) and the dossier context with the reminder', () => {
-    // Two consecutive replies: the dossiers, the cast, a candidate, a form and a death all change between them.
-    const first = buildNarrationCaptureParts({
-        transcript: 'USER: Who is at the gate?', userName: 'Kazuma', charName: 'Megumin', customFieldNames: ['Rank'],
-        existingNpcs: [{ id: 'npc_yun', name: 'Yunyun', present: true, mood: 'shy', location: 'Gate', personality: 'Earnest.' }],
-    });
-    const second = buildNarrationCaptureParts({
-        transcript: 'USER: We head for the guild hall instead.', userName: 'Kazuma', charName: 'Megumin', customFieldNames: ['Rank'],
-        existingNpcs: [
-            { id: 'npc_yun', name: 'Yunyun', present: false, mood: 'lonely', location: 'Guild', lifeState: 'deceased', lifeStateCertainty: 'explicit' },
-            { id: 'npc_wiz', name: 'Wiz', present: true, appearanceForms: [{ name: 'Lich', appearance: 'pale' }], currentForm: 'Lich' },
-        ],
-        candidates: [{ name: 'Guard', seenCount: 1 }],
-    });
-    assert.equal(first.rules, second.rules, 'the rules part is the same text on both replies');
-    assert.ok(first.rules.startsWith('NPC STATE DELTA ONE-PASS CAPTURE.') && first.rules.includes('\n15. JSON only'));
-    for (const dynamic of ['Yunyun', 'Wiz', 'Guard', 'Gate', 'Identity index', 'Reminder:']) {
-        assert.ok(!first.rules.includes(dynamic) && !second.rules.includes(dynamic), `no ${dynamic} in the rules`);
-    }
-    assert.ok(second.context.includes('"Wiz"') && second.context.includes('Identity index (matching only):'));
-    assert.ok(second.context.trimEnd().endsWith('"relationshipReview": ["Name"].'), 'the reminder is still read last');
-    // Nothing added or lost: the parts are the one-piece instruction, split where the context starts.
-    const whole = buildNarrationCapturePrompt({ transcript: 'USER: Who is at the gate?', userName: 'Kazuma', charName: 'Megumin', customFieldNames: ['Rank'], existingNpcs: [{ id: 'npc_yun', name: 'Yunyun', present: true, mood: 'shy', location: 'Gate', personality: 'Earnest.' }] });
-    const rest = first.context.split('\n').slice(1).join('\n');
-    assert.ok(whole.startsWith(first.rules) && whole.endsWith(rest), 'rules first, then the rest, as one piece');
-    assert.equal(whole.slice(first.rules.length, whole.length - rest.length).trim(), '', 'only the line break between them');
-});
-
-test('v1.2.17 the capture context leaves out values the live dossier above already gives, only that NPC\'s own and only word for word', () => {
-    const vrena = { id: 'npc_vrena', name: 'Vrena Tolk', present: true, role: 'Guild clerk', personality: 'Dry, exacting, quietly kind.', speech: 'Clipped, formal sentences.', mannerisms: ['Taps the signature line twice.'], mood: 'busy', location: 'Guild counter', relationship: { trust: 3, affection: 1, desire: 0, tension: 0 }, manualProfileFields: ['speech'] };
-    const elke = { id: 'npc_elke', name: 'Elke', present: true, personality: 'Warm.', mood: 'tired', location: 'Back room' };
-    const options = { transcript: 'USER: Vrena Tolk and Elke, a moment?', userName: 'Ari', charName: 'Narrator', existingNpcs: [vrena, elke] };
-    // Vrena's line repeats her personality, speech, mannerism, mood and role; it also says "tired", Elke's mood.
-    const dossier = '- Vrena Tolk: IDENTITY: personality: Dry, exacting, quietly kind.; speech: Clipped, formal sentences.; mannerisms: Taps the signature line twice.; role: Guild clerk; mood: busy, a little tired';
-    const plain = buildNarrationCaptureParts(options).context;
-    const deduped = buildNarrationCaptureParts({ ...options, dossierAbove: dossier }).context;
-    assert.ok(deduped.length < plain.length);
-    const live = JSON.parse(deduped.split('Relevant live context (dynamic fields only):\n')[1].split('\n')[0]);
-    const vLive = live.find(entry => entry.id === 'npc_vrena');
-    assert.equal(vLive.inDossier, true);
-    assert.equal(vLive.mood, undefined, 'her mood is in her own dossier line');
-    assert.equal(vLive.location, 'Guild counter', 'a value the dossier does not give stays');
-    assert.deepEqual(vLive.currentRelationship, { trust: 3, affection: 1, desire: 0, tension: 0 }, 'the numbers are never in the dossier and always stay');
-    const eLive = live.find(entry => entry.id === 'npc_elke');
-    assert.equal(eLive.mood, 'tired', "another NPC's line never removes Elke's values");
-    assert.equal(eLive.inDossier, undefined);
-    assert.match(deduped, /\(inDossier: fields left out here are the NPC STATE DELTA DOSSIER's values above, current and unchanged\.\)/);
-    // The scanner's own prompt and a capture with no dossier are untouched.
-    assert.equal(buildScannerPrompt({ ...options, dossierAbove: dossier }), buildScannerPrompt(options));
-    assert.doesNotMatch(plain, /inDossier/);
 });

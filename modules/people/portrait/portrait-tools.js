@@ -1,4 +1,4 @@
-/* NPC State Delta portrait management: dossier prompts, native host-image preview, and explicit application. */
+/* NPC State portrait management: dossier prompts, native host-image preview, and explicit application. */
 import {
     activeChatKey, api, closeOverlay, currentSessionIs, draftKey, escapeHtml, flushDurably,
     keepPromptDraft, makeSession, mountOverlay, npcById, promptDrafts,
@@ -29,8 +29,8 @@ function currentDraft(npc, form = '') {
 }
 
 function saveDraftFromOverlay(session, overlay) {
-    const positive = String(overlay?.querySelector('#npc_state_delta_tools_positive')?.value || '');
-    const negative = String(overlay?.querySelector('#npc_state_delta_tools_negative')?.value || '');
+    const positive = String(overlay?.querySelector('#people_tools_positive')?.value || '');
+    const negative = String(overlay?.querySelector('#people_tools_negative')?.value || '');
     keepPromptDraft(targetDraftKey(session.chatKey, session.npcId, session.form), { positive, negative });
     return { positive: positive.trim(), negative: negative.trim() };
 }
@@ -122,14 +122,14 @@ function portraitDialogHtml(npc, draft, form = '') {
           </div>
         </section>
         <section class="delta-tools-prompts">
-          <label>Positive prompt<textarea id="npc_state_delta_tools_positive" rows="8" data-delta-tools-autofocus>${escapeHtml(draft.positive)}</textarea></label>
+          <label>Positive prompt<textarea id="people_tools_positive" rows="8" data-delta-tools-autofocus>${escapeHtml(draft.positive)}</textarea></label>
           <div class="delta-tools-copy-row"><button type="button" data-copy="positive">Copy positive</button><button type="button" data-generate-prompts>Generate prompts from dossier</button></div>
-          <label>Negative prompt<textarea id="npc_state_delta_tools_negative" rows="6">${escapeHtml(draft.negative)}</textarea></label>
+          <label>Negative prompt<textarea id="people_tools_negative" rows="6">${escapeHtml(draft.negative)}</textarea></label>
           <div class="delta-tools-copy-row"><button type="button" data-copy="negative">Copy negative</button></div>
           <div class="delta-tools-seed-card">
-            <label for="npc_state_delta_tools_seed"><b>Portrait seed</b><small>Blank generates a fresh seed for each preview. Save one when you want to reproduce a result with otherwise unchanged image settings.</small></label>
+            <label for="people_tools_seed"><b>Portrait seed</b><small>Blank generates a fresh seed for each preview. Save one when you want to reproduce a result with otherwise unchanged image settings.</small></label>
             <div class="delta-tools-seed-row">
-              <input id="npc_state_delta_tools_seed" class="delta-tools-seed-input" type="number" min="0" max="9007199254740991" step="1" value="${escapeHtml(portraitSeed)}" placeholder="Blank = fresh random seed">
+              <input id="people_tools_seed" class="delta-tools-seed-input" type="number" min="0" max="9007199254740991" step="1" value="${escapeHtml(portraitSeed)}" placeholder="Blank = fresh random seed">
               <button type="button" data-save-portrait-seed>Save seed</button>
             </div>
             <div class="delta-tools-generation-seed" data-generation-seed hidden>
@@ -162,8 +162,8 @@ function generatePromptsFromDossier(session, overlay) {
         toast('warning', 'NPC State: could not build portrait prompts for the selected dossier.');
         return;
     }
-    const positive = overlay.querySelector('#npc_state_delta_tools_positive');
-    const negative = overlay.querySelector('#npc_state_delta_tools_negative');
+    const positive = overlay.querySelector('#people_tools_positive');
+    const negative = overlay.querySelector('#people_tools_negative');
     if (positive) positive.value = prompts.positive || '';
     if (negative) negative.value = prompts.negative || '';
     keepPromptDraft(targetDraftKey(session.chatKey, session.npcId, session.form), { positive: prompts.positive || '', negative: prompts.negative || '' });
@@ -184,7 +184,7 @@ function randomPortraitSeed() {
 async function saveGeneratedPortraitSeed(session, overlay) {
     const seed = session.generatedPortraitSeed;
     if (!currentSessionIs(session) || session.busy || !Number.isSafeInteger(seed) || seed < 0) return false;
-    const input = overlay?.querySelector?.('#npc_state_delta_tools_seed');
+    const input = overlay?.querySelector?.('#people_tools_seed');
     if (input) input.value = String(seed);
     return savePortraitSeed(session, overlay);
 }
@@ -384,7 +384,7 @@ function wirePortraitDialog(session, overlay) {
     });
 
     overlay?.addEventListener('input', event => {
-        if (event.target.matches?.('#npc_state_delta_tools_positive, #npc_state_delta_tools_negative')) saveDraftFromOverlay(session, overlay);
+        if (event.target.matches?.('#people_tools_positive, #people_tools_negative')) saveDraftFromOverlay(session, overlay);
     });
 
     overlay?.addEventListener('click', event => {

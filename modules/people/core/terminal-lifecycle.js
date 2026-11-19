@@ -1,4 +1,4 @@
-/* NPC State Delta terminal lifecycle helpers. */
+/* NPC State terminal lifecycle helpers. */
 import { normalizeLifeState } from './core-identity.js';
 import { TERMINAL_FROZEN_FIELDS } from '../fields/registry.js';
 

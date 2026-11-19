@@ -8,7 +8,7 @@ export const PEOPLE_MODULE_ID = 'people';
 
 const startLive = async () => {
   if (!globalThis.SillyTavern) return;
-  await (await import('./legacy/bootstrap.js')).startPeople();
+  await (await import('./runtime/runtime-start.js')).startPeople();
 };
 
 /** A people module whose register hook calls `start` (tests give their own). */

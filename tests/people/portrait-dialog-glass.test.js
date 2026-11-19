@@ -18,7 +18,7 @@ test('the dialog takes the suite view theme values (dark or light) from the page
     assert.match(source, /startsWith\('--su-'\)/);
 });
 
-test('portrait toasts say NPC State, never NPC State Delta', async () => {
+test('portrait toasts say NPC State, never NPC State', async () => {
     for (const path of ['modules/people/portrait/portrait-tools.js', 'modules/people/portrait/runtime-portrait.js', 'modules/people/portrait/portrait-tools-actions-parts/upload-remove.js']) {
         const source = await read(path);
         assert.doesNotMatch(source, /toast[^\n]*NPC State Delta|`NPC State Delta/, path);

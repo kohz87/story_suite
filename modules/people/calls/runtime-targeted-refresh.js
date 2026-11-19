@@ -1,4 +1,4 @@
-/* NPC State Delta targeted Refresh (role: targeted-refresh). The editor-field sync and the Refresh-from-chat pass
+/* NPC State targeted Refresh (role: targeted-refresh). The editor-field sync and the Refresh-from-chat pass
    for one existing NPC. Split from runtime-targeted.js; bodies are moved without change. */
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
@@ -21,37 +21,37 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
         if (!stored || !editorIsMounted()) return;
         const npc = hostedMeterView([stored])[0];   // hosted: the editor shows the slice's numbers
         const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value ?? ''; };
-        set('npc_state_delta_edit_name', npc.name || '');
-        set('npc_state_delta_edit_role', npc.role || '');
-        set('npc_state_delta_edit_aliases', (npc.aliases || []).join('\n'));
-        set('npc_state_delta_edit_species', npc.species || '');
-        set('npc_state_delta_edit_gender', npc.gender || '');
-        set('npc_state_delta_edit_home_base', npc.homeBase || '');
+        set('people_edit_name', npc.name || '');
+        set('people_edit_role', npc.role || '');
+        set('people_edit_aliases', (npc.aliases || []).join('\n'));
+        set('people_edit_species', npc.species || '');
+        set('people_edit_gender', npc.gender || '');
+        set('people_edit_home_base', npc.homeBase || '');
         const customFields = normalizeCustomFields(npc.customFields);
-        for (const input of document.querySelectorAll?.('#npc_state_delta_editor_content [data-delta-custom-field]') || []) {
+        for (const input of document.querySelectorAll?.('#people_editor_content [data-delta-custom-field]') || []) {
             const key = Object.keys(customFields).find(other => other.toLowerCase() === String(input.dataset.deltaCustomField || '').toLowerCase());
             input.value = key ? customFields[key] : '';
         }
-        set('npc_state_delta_edit_age', npc.age || '');
-        set('npc_state_delta_edit_birthday', npc.birthDateDisplay || '');
-        set('npc_state_delta_edit_apparent_age', npc.apparentAge || '');
-        set('npc_state_delta_edit_personality', npc.personality || '');
-        set('npc_state_delta_edit_speech', npc.speech || '');
-        set('npc_state_delta_edit_behavior_profile', (npc.behaviorProfile || []).join('\n'));
-        set('npc_state_delta_edit_background', npc.background || '');
-        set('npc_state_delta_edit_mannerisms', (npc.mannerisms || []).join('\n'));
-        set('npc_state_delta_edit_key_relationships', (npc.keyRelationships || []).join('\n'));
-        set('npc_state_delta_edit_relationship_summary', npc.relationshipSummary || '');
-        set('npc_state_delta_edit_mood', npc.mood || '');
-        set('npc_state_delta_edit_location', npc.location || '');
-        set('npc_state_delta_edit_goal', npc.goal || '');
-        set('npc_state_delta_edit_status', npc.status || '');
-        set('npc_state_delta_edit_memories', (npc.memories || []).join('\n'));
-        set('npc_state_delta_edit_trust', relationshipNumber(npc.relationship?.trust));
-        set('npc_state_delta_edit_affection', relationshipNumber(npc.relationship?.affection));
-        set('npc_state_delta_edit_desire', relationshipNumber(npc.relationship?.desire));
-        set('npc_state_delta_edit_tension', relationshipNumber(npc.relationship?.tension));
-        const lock = document.getElementById('npc_state_delta_edit_lock_profile');
+        set('people_edit_age', npc.age || '');
+        set('people_edit_birthday', npc.birthDateDisplay || '');
+        set('people_edit_apparent_age', npc.apparentAge || '');
+        set('people_edit_personality', npc.personality || '');
+        set('people_edit_speech', npc.speech || '');
+        set('people_edit_behavior_profile', (npc.behaviorProfile || []).join('\n'));
+        set('people_edit_background', npc.background || '');
+        set('people_edit_mannerisms', (npc.mannerisms || []).join('\n'));
+        set('people_edit_key_relationships', (npc.keyRelationships || []).join('\n'));
+        set('people_edit_relationship_summary', npc.relationshipSummary || '');
+        set('people_edit_mood', npc.mood || '');
+        set('people_edit_location', npc.location || '');
+        set('people_edit_goal', npc.goal || '');
+        set('people_edit_status', npc.status || '');
+        set('people_edit_memories', (npc.memories || []).join('\n'));
+        set('people_edit_trust', relationshipNumber(npc.relationship?.trust));
+        set('people_edit_affection', relationshipNumber(npc.relationship?.affection));
+        set('people_edit_desire', relationshipNumber(npc.relationship?.desire));
+        set('people_edit_tension', relationshipNumber(npc.relationship?.tension));
+        const lock = document.getElementById('people_edit_lock_profile');
         if (lock) lock.checked = Boolean((npc.manualProfileFields || []).length);
     }
 
@@ -211,7 +211,7 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
                 return true;
             },
             onError: error => {
-                console.error('[NPC State Delta] targeted chat refresh failed', error);
+                console.error('[NPC State] targeted chat refresh failed', error);
                 // (NSD11) A failed catch-up shows the same note as a failed fill-in; nothing was written (the call failed before the merge).
                 // A cancelled or discarded call (chat change, cancel, scope no longer current) failed nothing, so it stays silent; an error or a timeout shows the note.
                 if (automatic) { if (error?.code !== 'NPC_SCANNER_ROUTE_CANCELLED') globalThis.toastr?.warning?.(fillFailureNote(existing.name)); }

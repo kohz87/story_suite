@@ -1,4 +1,4 @@
-/* NPC State Delta normalizing the per-field change markers (turn, story day, reply index). */
+/* NPC State normalizing the per-field change markers (turn, story day, reply index). */
 import { migrateLegacyStoryDay, STORY_DAY_SCHEME } from '../../calendar/calendar.js';
 import { CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS } from '../../fields/registry.js';
 

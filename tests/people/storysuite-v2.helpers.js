@@ -1,4 +1,4 @@
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 // Story Suite v2 adapter (src/storysuite-v2.js): Delta registers with a Story Block v2 host when one
 // is on the page, and does nothing otherwise. A fake sdk, a fake Delta runtime, fake timers and a
@@ -117,7 +117,7 @@ export function drawerWithPanel(doc, { display = 'block' } = {}) {
     drawer.id = 'extensions_settings2';
     const before = drawer.appendChild(doc.createElement('div'));
     const panel = drawer.appendChild(doc.createElement('div'));
-    panel.id = 'npc_state_delta_settings';
+    panel.id = 'people_settings';
     panel.style.display = display;
     const inline = panel.appendChild(doc.createElement('div'));
     inline.className = 'inline-drawer';
@@ -177,7 +177,7 @@ export const FORM_PORTRAITS = {};
 
 export function fakeDelta() {
     const delta = {
-        enabled: true, cast: '<section class="npc-state-delta-present-roster">Mira</section>', filled: [], scans: 0, adds: 0,
+        enabled: true, cast: '<section class="ppl-present-roster">Mira</section>', filled: [], scans: 0, adds: 0,
         npcs: structuredClone(NPCS),
         suiteApi: { npcs: () => structuredClone(delta.npcs) },
         api: {
@@ -200,7 +200,7 @@ export function setup({ hostValue, delta = fakeDelta(), loadEmptyCast } = {}) {
     const timers = fakeTimers();
     const warnings = [];
     const box = { host: hostValue };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: delta.suiteApi,
         delta: () => delta.api,
         version: '1.18.0',

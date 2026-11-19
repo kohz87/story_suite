@@ -2,7 +2,7 @@
    when a chat opens), the host's swipe state, the wait for a new chat's state file, and the stale-chat mark that keeps a chat shorter than a dossier
    adopted from another session from overwriting that dossier's lineage. The branch journal that used to roll the dossiers back (checkpoints, the
    rollback journal, a branch inheriting its parent's dossiers) is gone (B4-10a): the store's timeline moves the people with the head. Built by
-   index.js once per module instance with the shared runtime state. */
+   runtime-entry.js once per module instance with the shared runtime state. */
 
 import { chatContext as getContext } from '../calls/runtime-scan-helpers.js';
 import { BRANCH_LINEAGE_VERSION, chatLineage, firstLineageDivergence } from '../lineage/index.js';

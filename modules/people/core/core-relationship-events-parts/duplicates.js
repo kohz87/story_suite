@@ -1,4 +1,4 @@
-/* NPC State Delta relationship duplicates: detects a relationship change or history that repeats a recent event. */
+/* NPC State relationship duplicates: detects a relationship change or history that repeats a recent event. */
 import { cleanText, normalizeName } from '../core-text.js';
 import { RELATIONSHIP_KEYS } from '../core-relationship-model.js';
 import { durableSemanticSimilarity } from '../core-relationship-text.js';

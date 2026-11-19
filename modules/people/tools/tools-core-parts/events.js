@@ -1,4 +1,4 @@
-/* NPC State Delta supporting tools: the bounded tool-event log (what was opened, saved or failed, never private payloads). */
+/* NPC State supporting tools: the bounded tool-event log (what was opened, saved or failed, never private payloads). */
 import { clampText } from './values.js';
 
 const TOOL_EVENT_LIMIT = 60;

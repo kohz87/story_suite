@@ -1,4 +1,4 @@
-/* NPC State Delta reply-scan backfill helpers (role: reply-scan-backfill). The pending-backfill queue entry a scan
+/* NPC State reply-scan backfill helpers (role: reply-scan-backfill). The pending-backfill queue entry a scan
    records for a missed participant or a new admission, and the cap on new people admitted from one capture block.
    Split unchanged from runtime-scan.js. */
 
@@ -43,7 +43,7 @@ export function capCaptureAdmissions(parsed, npcs = []) {
         return fresh <= CAPTURE_NEW_NPCS_PER_BLOCK;
     });
     if (kept.length === rows.length) return;
-    console.info(`[NPC State Delta] a one-pass block named ${fresh} new people; ${CAPTURE_NEW_NPCS_PER_BLOCK} were admitted from it, the others wait for a later reply.`);
+    console.info(`[NPC State] a one-pass block named ${fresh} new people; ${CAPTURE_NEW_NPCS_PER_BLOCK} were admitted from it, the others wait for a later reply.`);
     parsed.npcs = kept;
 }
 
@@ -81,7 +81,7 @@ export function queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed
             });
         }
     } else {
-        console.warn('[NPC State Delta] suppressed automatic per-NPC continuity fan-out after broad scan omitted multiple apparent participants.', {
+        console.warn('[NPC State] suppressed automatic per-NPC continuity fan-out after broad scan omitted multiple apparent participants.', {
             omittedParticipants: missedParticipants.length,
             limit: AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT,
         });

@@ -1,6 +1,6 @@
-/* NPC State Delta - SillyTavern event registration (role: runtime-entry-events). The one-time event listeners for
-   generation, reply capture, branch reconciliation, chat lifecycle and deletion split from index.js. Built by
-   index.js with the shared runtime state and controller functions, preserving listener order and the one-time guard. */
+/* NPC State - SillyTavern event registration (role: runtime-entry-events). The one-time event listeners for
+   generation, reply capture, branch reconciliation, chat lifecycle and deletion split from runtime-entry.js. Built by
+   runtime-entry.js with the shared runtime state and controller functions, preserving listener order and the one-time guard. */
 
 export function createEventRegistration(rt, deps) {
     const {
@@ -42,7 +42,7 @@ export function createEventRegistration(rt, deps) {
                     && chatHydrationStatus(key) === 'ready';
                 rt.generationFreshness = { key: '', at: 0 };
                 if (!recentlyChecked) {
-                    try { await ensureChatStateLoaded(key); } catch (error) { console.error('[NPC State Delta] user-turn lineage update skipped because chat hydration failed.', error); return; }
+                    try { await ensureChatStateLoaded(key); } catch (error) { console.error('[NPC State] user-turn lineage update skipped because chat hydration failed.', error); return; }
                 }
                 if (getChatKey() !== key) return;
                 // This listener maintains branch lineage and refreshes the injection so an off-screen NPC
@@ -90,7 +90,7 @@ export function createEventRegistration(rt, deps) {
                 try {
                     await ensureChatStateLoaded(key);
                     rt.generationFreshness = { key, at: Date.now() };
-                } catch (error) { console.warn('[NPC State Delta] pre-generation freshness check failed; the injection keeps the last verified dossier.', error); }
+                } catch (error) { console.warn('[NPC State] pre-generation freshness check failed; the injection keeps the last verified dossier.', error); }
                 if (getChatKey() !== key) return;
                 // (timeline) The prompt is built from the selected head: the barrier is down and the gate has been asked.
                 if (!await generationReady(key)) return;
@@ -133,7 +133,7 @@ export function createEventRegistration(rt, deps) {
                 if (branchInheritancePending(key) || getChatState(key)?.lineage?.length) queueBranchReconcile({ chatKey: key, reason: 'chat-loaded' }, 0);
             } catch (error) {
                 if (getChatKey() === key) { renderDossier(); updateInjection(); }
-                console.error('[NPC State Delta] post-load hydration/render failed; durable data was not overwritten.', error);
+                console.error('[NPC State] post-load hydration/render failed; durable data was not overwritten.', error);
             }
         });
 
@@ -213,11 +213,11 @@ export function createEventRegistration(rt, deps) {
                     if (state?.lineage?.length || branchInheritancePending(key)) queueBranchReconcile({ chatKey: key, reason: 'chat-changed' }, 80);
                     if (key !== 'no-chat') void drainPendingAutoScan(key);
                     // A cast dossier made while its picture was missing gets it now if Story Block has it (no new chat needed).
-                    if (key !== 'no-chat' && castPortraitDue()) castSync().catch(error => console.debug('[NPC State Delta] cast portraits were not filled', error));
+                    if (key !== 'no-chat' && castPortraitDue()) castSync().catch(error => console.debug('[NPC State] cast portraits were not filled', error));
                     evictDormantChatStates(key);
                 } catch (error) {
                     if (getChatKey() === key) { renderDossier(); updateInjection(); }
-                    console.error('[NPC State Delta] chat change hydration failed; durable state was preserved.', error);
+                    console.error('[NPC State] chat change hydration failed; durable state was preserved.', error);
                 } finally {
                     if (rt.chatOpenSequence === sequence || getChatKey() !== key) openingHostChats.delete(key);
                 }

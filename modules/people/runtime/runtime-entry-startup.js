@@ -1,5 +1,5 @@
-/* NPC State Delta - runtime startup (role: runtime-entry-startup). The idempotent init/safeInit functions split from
-   index.js. Built by index.js with the controller closure; the DOM-ready and lifecycle registrations stay in index.js.
+/* NPC State - runtime startup (role: runtime-entry-startup). The idempotent init/safeInit functions split from
+   runtime-entry.js. Built by runtime-entry.js with the controller closure; the DOM-ready and lifecycle registrations stay in runtime-entry.js.
    The optional adapter import keeps its root-relative ./src/ path and its position in initialization. */
 
 import { rpgIsOn } from '../settings/runtime-settings.js';
@@ -24,7 +24,7 @@ export function createStartup(rt, deps) {
         clearLegacyPromptKeys();
         watchHost();
         // Story Suite v2 (Story Block 2): optional; without a v2 host the adapter does nothing.
-        import('../storysuite-v2.js').then(v2 => { rt.storySuiteV2 = v2.startStorySuiteV2({ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, cardSettings: nsdCardSettings(), linesMode: () => true, levelOn: () => rpgIsOn() }); }).catch(error => console.debug('[NPC State Delta] Story Suite v2 adapter is not available', error));
+        import('../storysuite-v2.js').then(v2 => { rt.peopleAdapter = v2.startPeopleAdapter({ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, cardSettings: nsdCardSettings(), linesMode: () => true, levelOn: () => rpgIsOn() }); }).catch(error => console.debug('[NPC State] Story Suite v2 adapter is not available', error));
         // (v2) Hosted with Story Director, the story's date follows its clock (calendar.js hostedStoryDate). No host: none.
         setStoryClockSource(hostedStoryClock);
         setStoryDateAtSource(hostedStoryDateAt);
@@ -49,12 +49,12 @@ export function createStartup(rt, deps) {
                 seedBranchTracking(getChatState(key));
             }
         } catch (error) {
-            console.error('[NPC State Delta] startup hydration failed; extension remains mounted in read-only recovery mode.', error);
+            console.error('[NPC State] startup hydration failed; extension remains mounted in read-only recovery mode.', error);
             if (getChatKey() === key) renderDossier();
         }
         updateInjection();
         evictDormantChatStates(getChatKey());
-        console.log(`[NPC State Delta] v${NPC_STATE_VERSION} loaded`);
+        console.log(`[NPC State] v${NPC_STATE_VERSION} loaded`);
     }
 
     async function safeInit() {
@@ -62,7 +62,7 @@ export function createStartup(rt, deps) {
             await init();
         } catch (error) {
             rt.initialized = false;
-            console.error('[NPC State Delta] initialization failed', error);
+            console.error('[NPC State] initialization failed', error);
         }
     }
 

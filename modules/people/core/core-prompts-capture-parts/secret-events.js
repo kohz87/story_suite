@@ -17,7 +17,7 @@ export function secretEventsShown(parsed, text) {
         const quote = evidence[key];
         const parts = typeof quote === 'string' ? quote.split(/\.{3}|\u2026/).map(quoteForm).filter(Boolean) : [];
         const shown = parts.length > 0 && parts.join('').length >= QUOTE_MIN && parts.every(part => haystack.includes(part));
-        if (!shown) console.debug(`[NPC State Delta] story event ${key} refused: ${typeof quote === 'string' && quote ? 'its quote is not in the exchange' : 'no evidence quote'}.`);
+        if (!shown) console.debug(`[NPC State] story event ${key} refused: ${typeof quote === 'string' && quote ? 'its quote is not in the exchange' : 'no evidence quote'}.`);
         return shown;
     });
 }

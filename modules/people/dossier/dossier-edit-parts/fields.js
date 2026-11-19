@@ -1,6 +1,6 @@
 // The editor's own controls for dossier fields, what each shows, and which the reader left untouched.
 
-// The editor's own controls for dossier fields: element id (after npc_state_delta_edit_), the label the
+// The editor's own controls for dossier fields: element id (after people_edit_), the label the
 // reader sees, and for a text the most the stored record keeps (normalizeNpcRecord; for a lockable
 // text the locked maximum, since an unlocked one is compacted further). A null maximum is a select or
 // a one-per-line list, whose line count the Save caps instead. `pairs`: each line is "Name — description" (an entry of { name, description }).
@@ -48,7 +48,7 @@ export function untouchedEditorFields(current, readControl, { rpgOn = true } = {
     const untouched = new Set();
     for (const [key, field] of Object.entries(EDITOR_FIELDS)) {
         if (field.when === 'rpg' && !rpgOn) { untouched.add(key); continue; }
-        if (String(readControl(`npc_state_delta_edit_${field.id}`) ?? '') === editorShownValue(current, key)) untouched.add(key);
+        if (String(readControl(`people_edit_${field.id}`) ?? '') === editorShownValue(current, key)) untouched.add(key);
     }
     return untouched;
 }

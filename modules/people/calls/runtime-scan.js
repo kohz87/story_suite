@@ -1,6 +1,6 @@
-/* NPC State Delta reply scan (role: reply-scan). The scan itself (one-pass capture or the scanner request, merge, stale
+/* NPC State reply scan (role: reply-scan). The scan itself (one-pass capture or the scanner request, merge, stale
    lifecycle, backfill queue, checkpoint) and the capture catch-up; its backfill, stale, reply identity and assistant-handler
-   parts are split beside this file, and this factory keeps the public scan part. Built by index.js once per module instance. */
+   parts are split beside this file, and this factory keeps the public scan part. Built by runtime-entry.js once per module instance. */
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { isScannerRoutingError } from './scanner-routing.js';
 import { readAheadOf, replyScanned, settleScan, storyTextsForAdmission } from './scan-context.js';
@@ -23,7 +23,7 @@ import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordRea
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from '../memory/memory-fact-scan.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 export function createScanPart(rt, deps) {
-    const { attachGeneratedSecrets, awayScanOptions, beginScanOperation, castList, noteChatLineage, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scannerPromptOptions, scanOperationCurrent, scanScenePresent, setChatState, storySuiteV2Meters, takeNarrationCapture, updateInjection } = deps;
+    const { attachGeneratedSecrets, awayScanOptions, beginScanOperation, castList, noteChatLineage, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scannerPromptOptions, scanOperationCurrent, scanScenePresent, setChatState, adapterMeters, takeNarrationCapture, updateInjection } = deps;
     // Events per story day while Delta works alone (the pass counts them on the dossier). The day is Story Director's clock, which
     // there is not without a host: no day, no limit (relationship-pacing.js). Hosted, the slice counts them when the change is forwarded
     // and Delta's numbers are set from the slice afterwards (runtime-hosted.js), so the pass does not count (null).
@@ -161,7 +161,7 @@ export function createScanPart(rt, deps) {
                     stale: true,
                     at: Date.now(),
                 };
-                console.info('[NPC State Delta] discarded stale dossier scan after chat or dossier state changed.');
+                console.info('[NPC State] discarded stale dossier scan after chat or dossier state changed.');
                 if (manual) globalThis.toastr?.info?.('NPC State: chat changed during scan; stale result was discarded.');
                 return false;
             }
@@ -228,7 +228,7 @@ export function createScanPart(rt, deps) {
             if (!await scanCanonicalBaseCurrent(scanChatKey, operation, 'dossier scan relationship evaluation')
                 || !scanOperationCurrent(scanChatKey, operation) || getChatKey() !== scanChatKey
                 || lineageMoved(scanLineage, currentLineage, messageId) || Number(stateVersions.get(scanChatKey) || 0) !== scanStateVersion) {
-                console.info('[NPC State Delta] discarded stale dossier scan after chat, dossier, or canonical state changed during relationship evaluation.');
+                console.info('[NPC State] discarded stale dossier scan after chat, dossier, or canonical state changed during relationship evaluation.');
                 if (manual) globalThis.toastr?.info?.('NPC State: chat changed during scan; stale result was discarded.');
                 return false;
             }
@@ -325,7 +325,7 @@ export function createScanPart(rt, deps) {
                 || getChatKey() !== scanChatKey
                 || lineageMoved(scanLineage, currentLineage, messageId)
                 || Number(stateVersions.get(scanChatKey) || 0) !== scanStateVersion) {
-                console.info('[NPC State Delta] discarded stale dossier scan after new-NPC relationship evaluation.');
+                console.info('[NPC State] discarded stale dossier scan after new-NPC relationship evaluation.');
                 if (manual) globalThis.toastr?.info?.('NPC State: chat changed during scan; stale result was discarded.');
                 return false;
             }
@@ -333,7 +333,7 @@ export function createScanPart(rt, deps) {
                 rt.lastScanMetrics.profileApplied = Number(merged.report?.profileUpdateStats?.applied || 0);
                 rt.lastScanMetrics.profileEvidenceAdded = Number(merged.report?.profileUpdateStats?.evidenceAdded || 0);
                 rt.lastScanMetrics.profileDevelopment = Array.isArray(merged.report?.profileDevelopment) ? structuredClone(merged.report.profileDevelopment) : [];
-                console.info('[NPC State Delta] dossier scan metrics', rt.lastScanMetrics);
+                console.info('[NPC State] dossier scan metrics', rt.lastScanMetrics);
             }
             applyFocusedRelationshipDecisions(merged.state, relationshipPass.decisions, settings.relationshipCaps, targetMessageId, merged.report, scanPace(settings), factOpt);
             const postCleanup = applyStaleLifecycleAfterScan(merged.state, parsedForMerge, currentTranscript || transcript, settings, { keepIds: keyKeepIds(merged.state), noDelete: hostedReadsFailed(), now: clockNow() });
@@ -381,7 +381,7 @@ export function createScanPart(rt, deps) {
             if (!manual) queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed, targetMessageId, currentTranscript });
             // (v2 hidden notes) The layered notes for the dossiers this scan built.
             if (hostedNotes && settings.layeredSecrets !== false) attachGeneratedSecrets(nextState, newlyAdmittedIds, parsedForMerge, resolvedParsed, parsed);
-            if (hostedNotes && newlyAdmittedIds.length) seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId, currentLineage, settings, castList, storySuiteV2Meters });
+            if (hostedNotes && newlyAdmittedIds.length) seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId, currentLineage, settings, castList, adapterMeters });
             // Who the merged state says is here: the one-pass catch-up refreshes the people the reply put in the scene.
             const presentIds = merged.state.npcs.filter(npc => !npc.archived && npc.present && !npc.minor).map(npc => npc.id);
             if (!await scanCanonicalBaseCurrent(scanChatKey, operation, 'dossier scan final commit')) {

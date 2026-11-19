@@ -144,7 +144,7 @@ export function createNpcCommands({
          */
         'npc.adjust'(ctx, payload = {}) {
             if (!ownOrModule(ctx, 'npc.adjust', payload)) {
-                ctx.fail('REFUSED', 'Meters move with the story and with NPC State Delta\'s scans; the dossier editor sets them by hand.');
+                ctx.fail('REFUSED', 'Meters move with the story and with NPC State\'s scans; the dossier editor sets them by hand.');
             }
             const problems = [];
             const defs = defsFrom(normalized(ctx.settings(), ctx));
@@ -187,7 +187,7 @@ export function createNpcCommands({
         'npc.open'(ctx, payload = {}) {
             const story = payload?.by === 'story';
             if (story && !ownOrModule(ctx, 'npc.open', payload)) {
-                ctx.fail('REFUSED', 'A story event opens a note only through NPC State Delta\'s own scan.');
+                ctx.fail('REFUSED', 'A story event opens a note only through NPC State\'s own scan.');
             }
             const open = Array.isArray(payload?.open) ? payload.open : [];
             const close = Array.isArray(payload?.close) ? payload.close : [];
@@ -201,7 +201,7 @@ export function createNpcCommands({
          * the one-reply words the story is told (narrate). Only Delta's own scan or another module's command may send it.
          */
         'npc.flag'(ctx, payload = {}) {
-            if (!ownOrModule(ctx, 'npc.flag', payload)) ctx.fail('REFUSED', 'A look flag comes only from NPC State Delta\'s own scan.');
+            if (!ownOrModule(ctx, 'npc.flag', payload)) ctx.fail('REFUSED', 'A look flag comes only from NPC State\'s own scan.');
             if (!featureOn(FEATURE_NOTES, ctx)) ctx.fail('FEATURE_OFF', 'Dossier notes are turned off.');
             const at = isInt(payload?.reply) && payload.reply >= 0 ? payload.reply : null;
             const slice = ctx.read(NPC_DOMAIN);
@@ -221,7 +221,7 @@ export function createNpcCommands({
          * written in this command's op on the reply that ran the Refresh, so a swipe, a delete or a rebuild equals live. Refused when nothing is new.
          */
         'npc.taste'(ctx, payload = {}) {
-            if (!ownOrModule(ctx, 'npc.taste', payload)) ctx.fail('REFUSED', 'Tastes from a Refresh come only from NPC State Delta\'s own scan.');
+            if (!ownOrModule(ctx, 'npc.taste', payload)) ctx.fail('REFUSED', 'Tastes from a Refresh come only from NPC State\'s own scan.');
             if (!featureOn(FEATURE_NOTES, ctx)) ctx.fail('FEATURE_OFF', 'Dossier notes are turned off.');
             const at = isInt(payload?.reply) && payload.reply >= 0 ? payload.reply : null;
             const slice = ctx.read(NPC_DOMAIN);
@@ -238,7 +238,7 @@ export function createNpcCommands({
          * swipe takes it back; chats that never send it replay unchanged. Refused when there is nothing to add.
          */
         'npc.meet'(ctx, payload = {}) {
-            if (!ownOrModule(ctx, 'npc.meet', payload)) ctx.fail('REFUSED', 'A meeting is noted only by NPC State Delta\'s own scan.');
+            if (!ownOrModule(ctx, 'npc.meet', payload)) ctx.fail('REFUSED', 'A meeting is noted only by NPC State\'s own scan.');
             const have = ctx.read(NPC_DOMAIN);
             const named = identify(have?.npcs ?? {}, payload?.name);
             if (!named) ctx.fail('INVALID', 'It names no one.');
@@ -270,7 +270,7 @@ export function createNpcCommands({
          * Only Delta's own scan sends it; recorded like any change, so a swipe takes it back; chats that never send it replay unchanged.
          */
         'npc.mood'(ctx, payload = {}) {
-            if (!ownOrModule(ctx, 'npc.mood', payload)) ctx.fail('REFUSED', 'A mood word is noted only by NPC State Delta\'s own scan.');
+            if (!ownOrModule(ctx, 'npc.mood', payload)) ctx.fail('REFUSED', 'A mood word is noted only by NPC State\'s own scan.');
             if (!featureOn(FEATURE_MOOD_PULL, ctx)) ctx.fail('FEATURE_OFF', 'Mood and pull are turned off.');
             const target = moodNumbers(payload?.vad) ?? moodFromWord(payload?.word);
             const had = ctx.read(NPC_DOMAIN)?.npcs?.[identify(ctx.read(NPC_DOMAIN)?.npcs ?? {}, payload?.name)?.key];
@@ -297,7 +297,7 @@ export function createNpcCommands({
          * and a rebuild give the drives live had. Only rule 1 is understood, so a reply that never carried it replays as it was.
          */
         'npc.drives'(ctx, payload = {}) {
-            if (!ownOrModule(ctx, 'npc.drives', payload)) ctx.fail('REFUSED', 'Drive growth is noted only by NPC State Delta\'s own scan.');
+            if (!ownOrModule(ctx, 'npc.drives', payload)) ctx.fail('REFUSED', 'Drive growth is noted only by NPC State\'s own scan.');
             if (!featureOn(FEATURE_NOTES, ctx)) ctx.fail('FEATURE_OFF', 'Dossier notes are turned off.');
             if (payload?.rule !== DRIVE_RULE) ctx.fail('INVALID', 'It names no drive rule this version knows.');
             const slice = ctx.read(NPC_DOMAIN);
@@ -331,7 +331,7 @@ export function createNpcCommands({
          * one more reply toward losing it (feature npc-state-delta.stages). Refused when nothing moves.
          */
         'npc.tick'(ctx, payload = {}) {
-            if (!ownOrModule(ctx, 'npc.tick', payload)) ctx.fail('REFUSED', 'The per-reply step is NPC State Delta\'s own.');
+            if (!ownOrModule(ctx, 'npc.tick', payload)) ctx.fail('REFUSED', 'The per-reply step is NPC State\'s own.');
             const settings = normalized(ctx.settings(), ctx);
             const defs = defsFrom(settings);
             const drifting = featureOn(FEATURE_DRIFT, ctx) ? defs.filter(def => def.drift) : [];

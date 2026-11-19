@@ -1,4 +1,4 @@
-/* NPC State Delta detecting from narration that an NPC is currently absent from the scene. */
+/* NPC State detecting from narration that an NPC is currently absent from the scene. */
 import { npcOwnedSentences, foreignSubjectClause, npcFirstLabels } from './owned-text.js';
 
 // Wording that places the NPC outside the current scene ("is not here", "remains at her distant home").

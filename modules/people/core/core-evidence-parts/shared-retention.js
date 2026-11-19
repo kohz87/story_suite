@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: the evidence size limits and the per-family retention of behavioral-lever evidence. */
+/* NPC State profile evidence: the evidence size limits and the per-family retention of behavioral-lever evidence. */
 import { DURABLE_PROFILE_LIMITS, semanticDedupeItems } from '../core-relationship.js';
 import { cleanList } from '../core-text.js';
 import { behaviorProfileFamily } from '../core-behavior.js';

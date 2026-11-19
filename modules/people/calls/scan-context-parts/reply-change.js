@@ -1,4 +1,4 @@
-/* NPC State Delta: the cheap local check whether a reply may change a dossier. */
+/* NPC State: the cheap local check whether a reply may change a dossier. */
 import { text, norm } from './shared-text.js';
 import { participationText, npcParticipatesInExchange } from './participation.js';
 

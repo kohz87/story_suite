@@ -59,9 +59,9 @@ test('bars carry ceiling, ticks and the latest reply\'s delta; a host whose ss.m
     assert.equal(bar.ceiling, 70);
     assert.equal(bar.delta, 12);
     const html = meterBarNode(fakeDocument(), { id: 'trust', label: 'Trust', min: -100, max: 100, tone: 'info' }, 22, '', bar).serialize();
-    assert.match(html, /npc-state-delta-v2-ceiling" style="--npc-state-delta-at: 0\.85"/);
+    assert.match(html, /ppl-ceiling" style="--ppl-at: 0\.85"/);
     assert.match(html, /▲12/);
-    assert.equal((html.match(/npc-state-delta-v2-tick/g) ?? []).length, 3);
+    assert.equal((html.match(/ppl-tick/g) ?? []).length, 3);
     // A host that lists ss.meter's props without the new ones: the ceiling and the change go in the text.
     const old = await suite({ records, settings: { ladder: LADDER }, wrap: true });
     old.sdk.widgets = () => ({ 'ss.meter': { props: { value: {}, max: {}, min: {}, label: {}, tone: {}, text: {} } } });
@@ -195,7 +195,7 @@ test('the meter setup is kept on the dossier and never reaches Delta\'s own prom
     const transcript = 'USER: Hello.\nASSISTANT: Mira smiles.';
     const options = { transcript, currentTranscript: transcript, existingNpcs: [npc], existingNpc: npc, targetNpc: npc, targets: [npc], targetName: 'Mira', dossierText: 'Name: Mira', userName: 'Ari', charName: 'C' };
     const texts = [
-        core.buildScannerPrompt(options), core.buildNarrationCapturePrompt(options), core.buildProfileRefreshPrompt(options),
+        core.buildScannerPrompt(options), JSON.stringify((await import('../../modules/people/core/core-prompts-lines.js')).buildLinesParts(options)), core.buildProfileRefreshPrompt(options),
         core.buildRelationshipPassPrompt(options), core.buildInjection([npc], transcript, 1),
     ];
     for (const text of texts) assert.doesNotMatch(String(text), /rival-track-x|ceiling|meterSetup/);

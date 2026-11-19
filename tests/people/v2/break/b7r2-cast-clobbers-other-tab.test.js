@@ -1,8 +1,8 @@
 // R2-b7-combos-3: regression from the B-b7-combos-12 fix. The Cast tab now redraws whenever its
 // last markup is no longer in the pane (src/storysuite-v2.js renderCast `stillShown`). But Story
 // Block's tab host has ONE shared pane (host-ui.js createTabHost), and Delta re-renders that pane
-// on its own page events (listen(): 'npc-state-delta:cast-rendered', sent after every in-chat cast
-// render, i.e. after each message is drawn, and 'npc-state-delta:enabled-changed'). Once the reader
+// on its own page events (listen(): 'people:cast-rendered', sent after every in-chat cast
+// render, i.e. after each message is drawn, and 'people:enabled-changed'). Once the reader
 // has moved to another tab, castEl is the pane that now shows Party/Quests/..., so the next such
 // event writes the Cast cards over that module's tab. Before the fix the unchanged-markup check
 // usually hid this; now it always happens. Drop into npc_state_delta/tests/v2/break/.
@@ -10,7 +10,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createStorySuiteV2Adapter } from '../../../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../../../modules/people/storysuite-v2.js';
 import { fakeRoot } from '../../helpers/fake-dom.js';
 
 function fakeDoc() {
@@ -37,12 +37,12 @@ test('a Delta page event does not draw the Cast cards over another module\'s tab
     const host = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
     const delta = {
         isEnabled: () => true,
-        presentCastHtml: () => '<div class="npc-state-delta-present-card">Fenna</div>',
+        presentCastHtml: () => '<div class="ppl-present-card">Fenna</div>',
         fillPresentCast() {},
         castEmptyReason: () => ({ text: 'No NPC is present.' }),
     };
     const timers = { setTimeout: fn => { queueMicrotask(fn); return 1; }, clearTimeout() {}, setInterval: () => 2, clearInterval() {} };
-    const adapter = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [] }, delta: () => delta, host: () => host, doc, timers, loadEmptyCast: async () => null, logger: { warn() {} } });
+    const adapter = createPeopleAdapter({ suiteApi: { npcs: () => [] }, delta: () => delta, host: () => host, doc, timers, loadEmptyCast: async () => null, logger: { warn() {} } });
     adapter.start();
     await new Promise(resolve => setTimeout(resolve, 20));
     await adapter.settled();
@@ -55,7 +55,7 @@ test('a Delta page event does not draw the Cast cards over another module\'s tab
     el.innerHTML = '<div class="rpg-party">Ren · HP 98/98</div>';
     el.dataset.tabId = 'party';
     // SillyTavern draws a message; Delta's in-chat cast render sends its page event.
-    doc.fire('npc-state-delta:cast-rendered');
+    doc.fire('people:cast-rendered');
     assert.match(el.innerHTML, /rpg-party/, 'the Party tab was overwritten with the Cast cards');
     adapter.stop();
 });

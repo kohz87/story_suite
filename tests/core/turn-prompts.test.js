@@ -22,7 +22,7 @@ test('a quiet prompt built while the reply is pending carries nothing; the reply
 test('another extension\'s generateRaw prompt while the reply is pending gets nothing; the reply\'s own prompt is still the one', async () => {
     const host = await fakeHost();
     const raw = { chat: [{ role: 'system', content: 'You are a scanner.' }, { role: 'user', content: 'RAW scan this.' }], dryRun: false };
-    // A scanner (NPC State Delta's dossier scan) calls generateRaw right after the reply's interceptor ran: SillyTavern runs no
+    // A scanner (NPC State's dossier scan) calls generateRaw right after the reply's interceptor ran: SillyTavern runs no
     // interceptor for it and tells its prompt-ready like the reply's own.
     const real = host.turn.interceptor;
     host.st.interceptor = async (...args) => {

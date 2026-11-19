@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost } from '../../../testkit/index.js';
 import { createModule } from '../../../modules/director/module.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../../modules/people/storysuite-v2.js';
 import { DEFAULT_RELATIONSHIP_CAPS } from '../../../modules/people/core/core.js';
 
 const PAIR = ['examples/packs/ersveil/pack.json', 'examples/packs/ersveil-game/pack.json'].map(rel => readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8'));
@@ -34,7 +34,7 @@ export async function ersveilLines({ features = {}, settings = {} } = {}) {
         relationshipBaseline: () => ({ trust: 0, affection: 0, desire: 0, tension: 0 }), relationshipCaps: () => ({ ...DEFAULT_RELATIONSHIP_CAPS }),
         presentCastHtml: () => '', castEmptyReason: () => ({ text: '' }), fillPresentCast: () => {}, playerNames: () => [],
     };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => Object.values(stored()).map(({ id, name, aliases, present }) => ({ id, name, aliases, present })) }, delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         linesMode: () => true, levelOn: () => true,
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },

@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: whether two claims state opposite polarity (negation or morality conflict). */
+/* NPC State profile evidence: whether two claims state opposite polarity (negation or morality conflict). */
 import { durableRefinementTokens, durableSemanticSimilarity, splitDurableClaimUnits } from '../core-relationship.js';
 import { normalizeName } from '../core-text.js';
 import { moralityPolarity } from '../core-behavior.js';

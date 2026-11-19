@@ -1,8 +1,8 @@
-/* NPC State Delta supporting tools: the one tools overlay and its session (open, replace, close). */
+/* NPC State supporting tools: the one tools overlay and its session (open, replace, close). */
 import { recordToolEvent } from './events.js';
 import { overlayMountHost } from './host-api.js';
 
-const OVERLAY_ID = 'npc_state_delta_tools_overlay';
+const OVERLAY_ID = 'people_tools_overlay';
 
 export let activeOverlay = null;
 export let activeSession = null;
@@ -28,8 +28,8 @@ export function closeOverlay({ reason = 'closed', restore = true, session: expec
     activeOverlay?.remove?.();
     activeOverlay = null;
     activeSession = null;
-    document.documentElement?.classList?.remove?.('npc-state-delta-tools-open');
-    document.body?.classList?.remove?.('npc-state-delta-tools-open');
+    document.documentElement?.classList?.remove?.('ppl-tools-open');
+    document.body?.classList?.remove?.('ppl-tools-open');
     if (restore) restoreFocus(session);
 }
 // The dialog sits on <body>, outside the Story Suite view that holds the theme: it takes the view's --su-* values so it is glass in the same look (dark or light).
@@ -41,7 +41,7 @@ export function mountOverlay(html, session) {
     closeOverlay({ reason: 'replaced', restore: false });
     const overlay = document.createElement('dialog');
     overlay.id = OVERLAY_ID;
-    overlay.className = 'npc-state-delta-tools-overlay';
+    overlay.className = 'ppl-tools-overlay';
     overlay.innerHTML = html;
     carryTheme(overlay);
     overlay.addEventListener('click', event => {
@@ -66,7 +66,7 @@ export function mountOverlay(html, session) {
         if (!session.busy || session.cancelableBusy) closeOverlay({ reason: 'escape' });
     });
     const host = overlayMountHost();
-    if (!host) throw new Error('NPC State Delta could not find a safe host for the supporting-tools overlay.');
+    if (!host) throw new Error('NPC State could not find a safe host for the supporting-tools overlay.');
     host.appendChild(overlay);
     activeOverlay = overlay;
     activeSession = session;
@@ -84,8 +84,8 @@ export function mountOverlay(html, session) {
         overlay.remove();
         throw error;
     }
-    document.documentElement?.classList?.add?.('npc-state-delta-tools-open');
-    document.body?.classList?.add?.('npc-state-delta-tools-open');
+    document.documentElement?.classList?.add?.('ppl-tools-open');
+    document.body?.classList?.add?.('ppl-tools-open');
     requestAnimationFrame(() => overlay.querySelector('[data-delta-tools-autofocus], [data-delta-tools-close]')?.focus?.());
     recordToolEvent('workflow-opened', { chatKey: session.chatKey, npcId: session.npcId, action: session.kind });
     return overlay;

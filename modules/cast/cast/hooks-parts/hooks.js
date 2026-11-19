@@ -313,7 +313,7 @@ export function createCastHooks({ plans }) {
     /**
      * `afterCapture(view, info)` (once the reply's change lines have run, and again on a Re-read): a person the meeting brought into this reply
      * who the reply does not show (their name or an alias in its words, or a `+ present` line) has their meeting taken back, as one
-     * `cast.withdraw` step on the reply. It runs before NPC State Delta's step after the reply, so no dossier is made for them.
+     * `cast.withdraw` step on the reply. It runs before NPC State's step after the reply, so no dossier is made for them.
      */
     function afterCapture(view, info = {}) {
         if (!castOn(view)) return undefined;

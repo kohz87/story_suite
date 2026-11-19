@@ -1,7 +1,7 @@
 // Field names and limits of a pack's cast entries, their starts and secrets.
 
 // The cast (`content.cast`): a hand-written list of people who live off-screen until the party meets them (Story Director)
-// and get a prepared dossier at the first meeting (NPC State Delta). One entry:
+// and get a prepared dossier at the first meeting (NPC State). One entry:
 // `{ id, name, aliases?, about, look (the body), wears? (clothes, armour, gear on them), voice?, personality?, behaviour? (up to 6 "Lever: level - effect"), mannerisms? (up to 4), withYou?, history?, portrait?, start: { place, goal, routine? }, drawnTo?,
 // meters?: { preset?, <meter>: n }, stages?, fields?, secrets?, canDieUnmet? }`. All text is plain: no < > { } (and no | in
 // the short lines a change line may carry), line breaks become spaces. `stages` take the shape of a meter preset's stages.

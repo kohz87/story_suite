@@ -1,7 +1,7 @@
 /* NPC State after the chat was swiped, regenerated, edited, had a message deleted or was opened (role: settle). The store's timeline moves the people
    with the head (the adapter hydrates the cache), so nothing is rolled back here: the swipe settlement waits for the host's swipe to end, the merged
    and delayed requests wait for the message gate, and a reply received while the chat was opening is handed to the ordinary receipt once they settle.
-   The branch journal that rolled the dossiers back to a checkpoint was removed at B4-10a. Built by index.js once per module instance with the shared
+   The branch journal that rolled the dossiers back to a checkpoint was removed at B4-10a. Built by runtime-entry.js once per module instance with the shared
    runtime state. */
 
 import { getContext } from '../../../../../../extensions.js';
@@ -60,7 +60,7 @@ export function createSettlePart(rt, deps) {
                     rt.swipeSettlementTimer = null;
                     rt.swipeSettlementPending = null;
                     rt.deferredSwipeMessageId = null;
-                    console.warn('[NPC State Delta] swipe stayed active too long; the settle pass was skipped to avoid hijacking the host generation pipeline.');
+                    console.warn('[NPC State] swipe stayed active too long; the settle pass was skipped to avoid hijacking the host generation pipeline.');
                     return;
                 }
                 rt.swipeSettlementTimer = setTimeout(poll, SWIPE_SETTLE_POLL_MS);
@@ -75,12 +75,12 @@ export function createSettlePart(rt, deps) {
             try {
                 await reconcileCurrentBranch({ ...pending, reason: `${pending.reason || 'message-swiped'}-settled` });
             } catch (error) {
-                console.warn('[NPC State Delta] settled swipe pass failed', error);
+                console.warn('[NPC State] settled swipe pass failed', error);
             }
         };
 
         // The host emits MESSAGE_SWIPED before Generate('swipe'). Polling the host's own
-        // swipe state keeps NPC State Delta completely out of that pre-generation gap.
+        // swipe state keeps NPC State completely out of that pre-generation gap.
         rt.swipeSettlementTimer = setTimeout(poll, 0);
     }
 
@@ -175,7 +175,7 @@ export function createSettlePart(rt, deps) {
                 }
                 await reconcileCurrentBranch(pending);
             } catch (error) {
-                console.warn('[NPC State Delta] settle pass failed', error);
+                console.warn('[NPC State] settle pass failed', error);
             } finally {
                 if (check) hostChecks.delete(check);
             }

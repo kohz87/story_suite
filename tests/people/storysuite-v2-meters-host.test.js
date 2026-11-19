@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { seedPeople } from './helpers/seed-people.js';
 import assert from 'node:assert/strict';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { DEFAULT_CHANGE_CAP, MAX_NPCS, meterDefs, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { fakeRoot } from './helpers/fake-dom.js';
 import { STAGES, fakeDelta, fakeDoc, host, timers } from './storysuite-v2-meters.helpers.js';
@@ -199,7 +199,7 @@ test('host lost mid-reply: Delta stops sending, its views pass through, the host
 test('without a host the adapter changes nothing and sends nothing', async () => {
     const delta = fakeDelta();
     const calls = [];
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: delta.suiteApi, delta: () => delta.api, host: () => undefined, doc: fakeDoc(), timers,
         logger: { warn: (...args) => calls.push(args) },
     });
@@ -222,9 +222,9 @@ test('the Dossiers tab (once Cast) shows a meter bar per shown meter for the pre
     const el = fakeRoot();
     h.def.tabs[0].render(el);
     // The present cast and its meters, before the dossier list (which names everyone, Oren too).
-    const html = el.innerHTML.split('npc-state-delta-v2-dossiers')[0];
-    assert.match(el.innerHTML, /npc-state-delta-v2-dossiers/, 'the dossier list under them');
-    assert.match(html, /<section class="npc-state-delta-present-roster">cast<\/section>/, 'Delta\'s own cards first');
+    const html = el.innerHTML.split('ppl-dossiers')[0];
+    assert.match(el.innerHTML, /ppl-dossiers/, 'the dossier list under them');
+    assert.match(html, /<section class="ppl-present-roster">cast<\/section>/, 'Delta\'s own cards first');
     const bars = html.match(/role="meter"/g) ?? [];
     assert.equal(bars.length, 10, 'five bars each for Mira and Bold; Oren is not present; the hidden meter has none');
     assert.match(html, /aria-label="Trust" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="22" aria-valuetext="22 · Friend"/);

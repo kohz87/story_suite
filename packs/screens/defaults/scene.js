@@ -1,6 +1,6 @@
 // `story-block/scene` (SPEC §13.1): where the story is and who is there, from the head state. The place
 // (name, kind, region) is marked when the last reply moved it; the story time shows when Story Director
-// keeps a clock. Each person present gets a portrait when NPC State Delta answers `npc.portrait`
+// keeps a clock. Each person present gets a portrait when NPC State answers `npc.portrait`
 // (MODULES §F11): the screen asks `npc.known` first, and without NSD that answer is null, so the
 // portraits are left out and the names stand alone.
 // The weather (`scene.weather`, MODULES §F120) sits with the place while `story-block.weather` is on. Without
@@ -79,7 +79,7 @@ export const sceneScreen = Object.freeze({
         place: Object.freeze({ query: 'scene.place' }),
         places: Object.freeze({ query: 'packs.content', args: Object.freeze({ kind: 'places' }) }),
         present: Object.freeze({ query: 'scene.present' }),
-        // NPC State Delta's list of known people: only used to tell whether portraits can be asked for.
+        // NPC State's list of known people: only used to tell whether portraits can be asked for.
         cast: Object.freeze({ query: 'npc.known' }),
         weather: Object.freeze({ query: 'scene.weather' }),
         chatter: Object.freeze({ query: 'scene.chatter' }),

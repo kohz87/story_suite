@@ -1,4 +1,4 @@
-/* NPC State Delta: whether a queued backfill still applies to its NPC and chat roster. */
+/* NPC State: whether a queued backfill still applies to its NPC and chat roster. */
 import { text } from './shared-text.js';
 import { npcParticipatesInExchange } from './participation.js';
 import { normalizeAutomaticBackfillRequest } from './backfill-queue.js';

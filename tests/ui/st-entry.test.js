@@ -40,7 +40,7 @@ function fakeBlock() {
 // NPC State's settings section, mounted in Extensions before the view made the Story Suite drawer.
 function npcSettings(doc) {
   const node = doc.createElement('div');
-  node.id = 'npc_state_delta_settings';
+  node.id = 'people_settings';
   doc.getElementById('extensions_settings2').appendChild(node);
   return node;
 }

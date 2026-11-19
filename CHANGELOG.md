@@ -11,6 +11,9 @@ What changed in each release, in short. The full record of every change is in [t
 - Settings › Look: **Glass strength** now reaches every glass surface (blur, tab strip, chips, sheets and their dimmed layer), not only the panel colour. The default looks as before.
 - With Panel background Off, Glass strength now also lifts the cards off the plain colour: higher makes them lighter (in dark) with a firmer edge and shadow. The default looks as before.
 - HP now comes from STR and VIT, SP from AGI and DEX, MP from INT and WIS.
+- Tools › What's sent shows the NPC State lines your reply really carries; old leftovers of the earlier NPC State look and its one-time chat conversion are gone.
+- Messages and notes say "NPC State", not the old "NPC State Delta"; People, dossiers, Edit and settings look and work as before.
+- Nothing changes in play: the code behind NPC State, saving and fights was tidied, and opening a chat no longer looks for fights left open by builds from before the fight board.
 
 ## 0.1.3 — 19 Nov 2026
 

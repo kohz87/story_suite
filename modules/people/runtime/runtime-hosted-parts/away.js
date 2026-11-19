@@ -7,11 +7,11 @@ import { normalizeAwayAnswer } from '../../away/away-read.js';
 import { returnNote } from '../../away/away-memory.js';
 import { awayDossierIds } from '../../away/away-hold.js';
 
-/** `{ awayReturnNotes(state), awayScanOptions(state), awayKeepIds(state) }` over the adapter `storySuiteV2Meters()`. */
-export function createAwayHosted(rt, { getChatKey, latestReplyIndex, storySuiteV2Meters }) {
+/** `{ awayReturnNotes(state), awayScanOptions(state), awayKeepIds(state) }` over the adapter `adapterMeters()`. */
+export function createAwayHosted(rt, { getChatKey, latestReplyIndex, adapterMeters }) {
     // The answer cleaned, its dates written on Story Director's calendar; null with no host or no Story Director (nothing is held then).
     function awayList() {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter) return null;
         try {
             const answer = adapter.awayAnswer?.();
@@ -35,7 +35,7 @@ export function createAwayHosted(rt, { getChatKey, latestReplyIndex, storySuiteV
         const list = awayList();
         if (!list?.length) return null;
         const head = headIndex();
-        const memory = storySuiteV2Meters()?.awayMemory?.() ?? {};
+        const memory = adapterMeters()?.awayMemory?.() ?? {};
         const notes = {};
         for (const npc of state?.npcs || []) {
             const note = npc?.id ? returnNote(list, memory, npc, head) : '';

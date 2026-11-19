@@ -42,7 +42,7 @@ test('scan after every reply: on is the old cadence, off waits for three replies
 
 test('the scan switch is read by the automatic scan only; a manual scan does not ask it', () => {
     const index = runtimeSource();
-    assert.match(index, /function scanAfterEveryReply\(\) \{\s*const adapter = storySuiteV2Meters\(\);\s*if \(!adapter\) return true;/);
+    assert.match(index, /function scanAfterEveryReply\(\) \{\s*const adapter = adapterMeters\(\);\s*if \(!adapter\) return true;/);
     assert.match(index, /everyReply: scanAfterEveryReply\(\)/);
     assert.equal(index.split('scanAfterEveryReply()').length - 1, 2, 'asked in one place only (plus its definition)');
 });
@@ -83,7 +83,7 @@ test('settings panel: Meter presets fold; Expert holds the four rarely needed gr
     assert.match(index, /const SETTINGS_OPEN_GROUPS_KEY = 'npc_state_delta_settings_open_groups'/);
     const css = styleSource();
     assert.match(css, /\.delta-settings-group\[hidden\] \{ display: none; \}/);
-    assert.match(css, /\.delta-meter-presets \.npc-state-delta-v2-presets-head \{ display: none; \}/);
+    assert.match(css, /\.delta-meter-presets \.ppl-presets-head \{ display: none; \}/);
 });
 
 test('the Expert note says the Story Director sentence only while it is true', () => {
@@ -92,6 +92,6 @@ test('the Expert note says the Story Director sentence only while it is true', (
     assert.match(notes, /'story-director': 'Rarely needed\. With Story Director installed its calendar is used, so the calendar here only matters on its own\.'/);
     assert.doesNotMatch(notes, /own:|Source of truth/, 'the own-calendar note is gone (B4-7)');
     assert.match(notes, /none: 'Rarely needed\. No Story Director calendar is linked, so the calendar here is the one in use\.'/);
-    assert.match(index, /storySuiteV2\?\.calendarLink\?\.\(\) \?\? 'none'/);
+    assert.match(index, /peopleAdapter\?\.calendarLink\?\.\(\) \?\? 'none'/);
     assert.match(index, /function syncSettingsControls\(\) \{\s*syncExpertNote\(\);/);
 });

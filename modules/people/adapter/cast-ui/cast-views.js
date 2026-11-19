@@ -12,9 +12,9 @@ export function createCastViews(session, deps, { bindCastActions, renderDossiers
     // tab and still holds what Delta drew there; otherwise it is another module's tab now.
     function castStillShown(el) {
         if (el?.dataset?.tabId !== CAST_TAB_ID) return false;
-        const drawn = el.__npcStateDeltaV2CastNode;
+        const drawn = el.__pplCastNode;
         if (drawn) return drawn.parentNode === el;
-        return typeof el.__npcStateDeltaV2CastPane === 'string' && el.innerHTML.startsWith(el.__npcStateDeltaV2CastPane);
+        return typeof el.__pplCastPane === 'string' && el.innerHTML.startsWith(el.__pplCastPane);
     }
 
     // ---- the Cast in the game view ----
@@ -41,7 +41,7 @@ export function createCastViews(session, deps, { bindCastActions, renderDossiers
             const owner = el?.ownerDocument ?? doc;
             if (typeof owner?.createElement !== 'function') return { update() {}, destroy() {} };
             const box = owner.createElement('div');
-            box.className = 'npc-state-delta-v2-cast-view';
+            box.className = 'ppl-cast-view';
             el.append(box);
             castViews.add(box);
             bindCastActions(box);
@@ -69,7 +69,7 @@ export function createCastViews(session, deps, { bindCastActions, renderDossiers
         order: CAST_SCREEN_ORDER,
         data: Object.freeze({ cast: Object.freeze({ query: 'npc.cast' }), present: Object.freeze({ query: 'npc.present' }) }),
         template: `<ss-widget name="${CAST_WIDGET}" data-props='{"cast":{{ q.cast }},"present":{{ q.present }}}'></ss-widget>`,
-        css: '.npc-state-delta-v2-cast-view { display: block; }',
+        css: '.ppl-cast-view { display: block; }',
     });
 
     return { castStillShown, redrawCastViews, castWidget, castScreen };

@@ -5,7 +5,7 @@
 // `result:` is never read (no supplied outcome), a line that cannot be rolled fails whole (no claim, no die), and the same line on the
 // same reply cannot roll twice (swipe, Continue and Re-read keep the claim of the block they stand on).
 //
-// `who` names one of Story Director's own actors by its name (exact, any case); `vs` names a person NPC State Delta knows. Neither is
+// `who` names one of Story Director's own actors by its name (exact, any case); `vs` names a person NPC State knows. Neither is
 // guessed. Story Director alone registers this kind (contract P09).
 
 import { policyOf } from './domain.js';

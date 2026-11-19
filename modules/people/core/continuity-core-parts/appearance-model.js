@@ -1,4 +1,4 @@
-/* NPC State Delta applying the appearance model to NPC records and merging appearance knowledge. */
+/* NPC State applying the appearance model to NPC records and merging appearance knowledge. */
 import { APPEARANCE_MODEL_VERSION, applyAppearanceUpdate, normalizeAppearanceForms, normalizeAppearanceModel, resolveNpcAppearance } from '../../appearance/appearance.js';
 import { normalizeTerminalNpc } from '../terminal-lifecycle.js';
 

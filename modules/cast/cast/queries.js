@@ -1,7 +1,7 @@
 // Story Director v2, part **cast**: its queries (pure apart from the queries they ask).
 //
 // - `director.cast` → `[{ key, pack, id, name, aliases, met: { on, where }, where, doing, lastHeard: { on, text } | null, alive,
-//   entry? }]`: the contract other modules read (NPC State Delta makes a dossier from it at the first meeting). Only people who have
+//   entry? }]`: the contract other modules read (NPC State makes a dossier from it at the first meeting). Only people who have
 //   been met: an unmet person never leaves Story Director, not even their name (`director.cast.counts` gives the numbers), except with `{ present: true }`
 //   one the reply's own scene has present (the story itself named them; NPC State makes their dossier when a line names them before the meeting),
 //   and with `{ named: '<a full name or alias>' }` the one living unmet person it is exactly (LF4-1: a `+ npc` line names them off-scene).
@@ -108,7 +108,7 @@ export function viewQuery(state, _args, tools) {
         place: party.place || '', day: day || '', dayText: day ? (party.place ? `· ${day}` : day) : '', packLabel,
         coming: trips.length, hasComing: trips.length > 0, comingText: trips.length ? `${trips.length === 1 ? 'Someone is' : `${trips.length} people are`} on the road towards ${party.place || 'you'}, due in about ${Math.max(1, Math.round((Math.min(...trips.map(trip => trip.arrive)) - (isInt(minutes) ? minutes : 0)) / 1440))} day(s).` : '',
         hasNear: near > 0, hasMet: metList.length > 0, metList,
-        note: 'Unmet cast stays hidden. Anyone else you meet is made up by the story as today; if they matter, NPC State Delta keeps a dossier. No meetings during a fight.',
+        note: 'Unmet cast stays hidden. Anyone else you meet is made up by the story as today; if they matter, NPC State keeps a dossier. No meetings during a fight.',
     });
 }
 

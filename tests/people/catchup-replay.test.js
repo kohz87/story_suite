@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 globalThis.__npcMock = { extensionSettings: {}, context: {}, saveSettingsCalls: 0 };   // the host stubs read it when the catch-up part's imports load
 globalThis.__npcMock.context = { chat: [{ name: 'Narrator', mes: 'A is here.', is_user: false }] };
 const { createCatchUpPart } = await import('../../modules/people/calls/runtime-catchup.js');
+const { useReplySids } = await import('../../modules/people/runtime/runtime-narration-parts/journal-keys.js');
+useReplySids(at => (globalThis.__npcMock.context.chat[at] ? `sid-${at}` : null));   // hosted: the journal keys a reply by its own ID
 
 function part(state, calls = { refresh: [], backfills: [] }, { refreshed = true } = {}) {
     const rt = { captureCatchUp: new Map() };

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { createHost } from '../../testkit/index.js';
 import { createNpcRecord, normalizeNpcRecord as normalizeProduction } from '../../modules/people/core/core.js';
 import { normalizeCast, applyCastEntry } from '../../modules/people/dossier/cast-dossier.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 export const DAY = 1440;
 export const FENNA_ENTRY = {
@@ -85,7 +85,7 @@ export async function suite({ settings = {}, features = null, modules = [directo
         presentCastHtml: () => '', castEmptyReason: () => ({ text: '' }), fillPresentCast: () => {},
     };
     const synced = [];
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => Object.values(records).map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         castSync: castSync ?? (async () => { synced.push(host.store.headIndex()); }),

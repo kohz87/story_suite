@@ -1,4 +1,4 @@
-/* NPC State Delta injection: the compact lines for mentioned-but-absent and deceased NPCs. */
+/* NPC State injection: the compact lines for mentioned-but-absent and deceased NPCs. */
 import { calibrateRelationshipSummary, DEFAULT_RELATIONSHIP, normalizeRelationshipBaseline, relationshipSummaryConsistent } from '../core-relationship.js';
 import { cleanList, cleanText, normalizeName } from '../core-text.js';
 import { npcNamedInText } from '../core-merge.js';

@@ -1,4 +1,4 @@
-/* NPC State Delta grounding a behavior profile and collection fields in personality, story text and evidence. */
+/* NPC State grounding a behavior profile and collection fields in personality, story text and evidence. */
 import { cleanText, normalizeName } from '../core-text.js';
 import { DURABLE_PROFILE_LIMITS, durableEvidenceGroundsValue, durableSeedGrounded, durableSemanticSimilarity } from '../core-relationship.js';
 import { durableRefinementSupportText, mannerismSimilarity, normalizeMannerisms } from '../core-durable.js';

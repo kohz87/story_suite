@@ -1,4 +1,4 @@
-/* NPC State Delta calendar configuration: month parsing, normalization and the active calendar. Split from calendar.js as a line-for-line part; the
+/* NPC State calendar configuration: month parsing, normalization and the active calendar. Split from calendar.js as a line-for-line part; the
    original keeps the public exports. Public face: re-exports its parts. */
 
 export { cleanText, normalizeMonthKey, parseInteger } from './calendar-config-parts/shared-text.js';

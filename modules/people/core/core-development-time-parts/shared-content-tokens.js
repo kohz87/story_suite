@@ -1,4 +1,4 @@
-/* NPC State Delta shared development content tokens: reason/source text reduced to comparable non-time tokens. */
+/* NPC State shared development content tokens: reason/source text reduced to comparable non-time tokens. */
 
 import { durableRefinementTokens } from '../core-relationship.js';
 

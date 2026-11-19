@@ -1,5 +1,5 @@
 /*
- * NPC State Delta card settings (Story Block 2.21.0 sdk.registerCardSettings, SDK-CARD-CONTRACT addendum D).
+ * NPC State card settings (Story Block 2.21.0 sdk.registerCardSettings, SDK-CARD-CONTRACT addendum D).
  *
  * A character card may recommend two of Delta's settings: the portrait prompt format and Scan every. Story Block
  * lists the ones that differ from the player's own, and applies the ticked ones with the player's click, by calling

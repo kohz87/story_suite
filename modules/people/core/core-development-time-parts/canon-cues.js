@@ -1,4 +1,4 @@
-/* NPC State Delta development cues and user-canon checks: batch cue pattern, declarative user lines and explicit context grounding. */
+/* NPC State development cues and user-canon checks: batch cue pattern, declarative user lines and explicit context grounding. */
 
 import { cleanText, normalizeName } from '../core-text.js';
 import { developmentContextSegments } from '../core-durable.js';

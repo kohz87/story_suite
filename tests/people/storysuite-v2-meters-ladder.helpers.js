@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHost } from '../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { seedPeople } from './helpers/seed-people.js';
 import { secretId } from '../../modules/people/meters/npc-meters.js';
 import { tempDir } from '../../scripts/temp-dir.mjs';
@@ -55,7 +55,7 @@ export async function suite({ settings = {}, records = dossiers(), features = nu
         ...apiExtra,
     };
     const warnings = [];
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => Object.values(delta.records).map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
         delta: () => api, version: 'test', host: () => box,
         headReply: () => host.store.headIndex(),
@@ -188,12 +188,12 @@ export async function hostedForwardParts() {
         fs.writeFileSync(path.join(temp, 'runtime-settings.js'), 'export const getSettings = () => ({}); export const setRpgProbe = () => {};');
         const { relationshipChanges, refusedLooks } = await import(pathToFileURL(path.join(temp, 'runtime-scan-helpers.js')).href);
         const { createHostedPart } = await import(pathToFileURL(path.join(temp, 'runtime-hosted.js')).href);
-        const rt = { storySuiteV2: { hosted: () => true, adjust: change => { sent.push(change); return Promise.resolve({ ok: true }); } } };
+        const rt = { peopleAdapter: { hosted: () => true, adjust: change => { sent.push(change); return Promise.resolve({ ok: true }); } } };
         const part = createHostedPart(rt, { chatHydrationStatus: () => 'ready', getChatKey: () => 'c1', getChatState: () => ({ npcs: [] }), latestMessageId: () => 1, latestReplyIndex: () => 1 });
         const forward = async (before, after, reply, rows, onePass) => {
             sent.length = 0;
             const prior = globalThis.document;
-            globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } }, getElementById: () => null }; globalThis.__handles.hosted = true;   // hosted
+            globalThis.document = { documentElement: { dataset: {} }, getElementById: () => null }; globalThis.__handles.hosted = true;   // hosted
             try {
                 part.forwardRelationshipChangesToHost(before, after, reply, null, [], rows, onePass);
                 for (let n = 0; n < 5; n += 1) await new Promise(resolve => setImmediate(resolve));

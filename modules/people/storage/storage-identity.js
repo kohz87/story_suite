@@ -1,4 +1,4 @@
-/* NPC State Delta sidecar identity and names: this module instance's writer id, the FNV-1a path token,
+/* NPC State sidecar identity and names: this module instance's writer id, the FNV-1a path token,
    the deterministic data/recovery file names and recovery-generation counter. Moved out of storage.js
    as a factory so separately imported storage instances keep separate tab identities. Never imports
    storage.js. */

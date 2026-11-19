@@ -1,4 +1,4 @@
-/* NPC State Delta durable-profile mannerism normalization and development-episode scoping helpers.
+/* NPC State durable-profile mannerism normalization and development-episode scoping helpers.
    Split unchanged from core-durable.js; public names are re-exported by core-durable.js, while the
    episode-label helper is internal to the grounding gates. Public face: re-exports its parts. */
 

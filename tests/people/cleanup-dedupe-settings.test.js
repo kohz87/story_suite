@@ -67,7 +67,7 @@ test('the settings owner declares the settings other modules keep controls for, 
         assert.equal('midDeleteRewind' in settings(), false);
     });
     const index = runtimeSource();
-    assert.match(index, /settingRow\('npc_state_delta_inject_limit', 'NPCs in the dossier', numberControl\('npc_state_delta_inject_limit', 1, 12, 'NPCs'\)/);
-    assert.match(index, /bindSettingsNumber\('#npc_state_delta_inject_limit', 'injectLimit', 1, 12, 3, updateInjection\);/);
-    assert.match(index, /\$\('#npc_state_delta_inject_limit'\)\.val\(s\.injectLimit\);/);
+    assert.match(index, /settingRow\('people_inject_limit', 'NPCs in the dossier', numberControl\('people_inject_limit', 1, 12, 'NPCs'\)/);
+    assert.match(index, /bindSettingsNumber\('#people_inject_limit', 'injectLimit', 1, 12, 3, updateInjection\);/);
+    assert.match(index, /\$\('#people_inject_limit'\)\.val\(s\.injectLimit\);/);
 });

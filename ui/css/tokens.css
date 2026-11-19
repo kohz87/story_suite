@@ -1,5 +1,5 @@
 /* Page-level colour tokens from SillyTavern's theme, for Story Suite parts drawn in the chat outside the view's own root: the RPG's battle log
-   and Check card (modules/rpg/view/lean-rpg.css, check-card.css) and NPC State's sheets (modules/people/legacy/suite.css). These were declared
+   and Check card (modules/rpg/view/lean-rpg.css, check-card.css) and NPC State's sheets (modules/people/css/suite.css). These were declared
    by the old view's mounts-game.css and host-furniture.css (B4-4 removed them); the values are unchanged. */
 :root {
     --ss-text: var(--SmartThemeBodyColor, CanvasText);

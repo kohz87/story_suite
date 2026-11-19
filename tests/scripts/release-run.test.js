@@ -7,7 +7,7 @@ import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
 import { tempDir } from '../../scripts/temp-dir.mjs';
 
-// Runs the bundles, not only reads them: Story Block's host (wired as testkit/host.js wires it) with Story Director and NPC State Delta
+// Runs the bundles, not only reads them: Story Block's host (wired as testkit/host.js wires it) with Story Director and NPC State
 // (the suite harness) on the source and on bundles of the same entries built with the release plugin, then
 // compares what both report (register, two replies through capture, a query from each module, the RPG's lazy load).
 const repoRoot = path.resolve(import.meta.dirname, '../..');

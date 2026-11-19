@@ -15,7 +15,7 @@ const EXPORTS = {
     QUIET_MARK_MIN: 'number',
     QUIET_WAIT_MS: 'number',
     REPLY_BUSY_MAX_MS: 'number',
-    RPG_LOAD_WAIT_MS: 'number',
+    PREPARE_WAIT_MS: 'number',
     STATIC_KEY: 'string',
     TAIL_KEY: 'string',
     V1_KEYS: 'object',

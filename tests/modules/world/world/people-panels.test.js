@@ -6,7 +6,7 @@ import { createPanels } from '../../../../core/sdk/panels.js';
 import { panelsTarget } from '../../../helpers/panels-target.js';
 import { drawWorld, said, squash, worldData, worldHost } from './helpers.js';
 
-// NPC State Delta's page API as a stand-in (cards in its classes; onChange kept so a subscriber would be seen).
+// NPC State's page API as a stand-in (cards in its classes; onChange kept so a subscriber would be seen).
 function fakeCast(people) {
     const listeners = new Set();
     const api = {
@@ -17,10 +17,10 @@ function fakeCast(people) {
             const doc = el.ownerDocument;
             const cards = Object.keys(people()).map(name => {
                 const cell = doc.createElement('div');
-                cell.className = 'npc-state-delta-present-cell';
+                cell.className = 'ppl-present-cell';
                 cell.dataset.npcId = `npc_${name}`;
                 const label = doc.createElement('b');
-                label.className = 'npc-state-delta-present-card-name';
+                label.className = 'ppl-present-card-name';
                 label.textContent = name;
                 cell.append(label);
                 return cell;
@@ -60,7 +60,7 @@ test('flag on: NPC State changed([people]) is one people draw in the next frame;
     assert.equal(cast.renders, 1, 'marked, not drawn');
     runFrame();
     assert.equal(cast.renders, 2, 'two notices, one draw');
-    assert.deepEqual(el.querySelectorAll('.npc-state-delta-present-card-name').map(n => squash(n.textContent)), ['Mira']);
+    assert.deepEqual(el.querySelectorAll('.ppl-present-card-name').map(n => squash(n.textContent)), ['Mira']);
     runFrame();
     assert.equal(cast.renders, 2, 'nothing more without a change');
     view.destroy();

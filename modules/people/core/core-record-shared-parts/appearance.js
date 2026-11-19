@@ -1,4 +1,4 @@
-/* NPC State Delta appearance: the cast appearance width, the pack-words-kept split and the appearance canon normalizer. */
+/* NPC State appearance: the cast appearance width, the pack-words-kept split and the appearance canon normalizer. */
 import { AGE_NUMBER_WORD_RE } from '../core-identity.js';
 import { compactDurableText, DURABLE_PROFILE_LIMITS } from '../core-relationship.js';
 import { cleanText } from '../core-text.js';

@@ -36,7 +36,7 @@ if (${makeFirst}) {
         list.unshift(fn);
         mockState.listeners.set(event, list);
     };
-    // A listener another extension registered before NPC State Delta loaded.
+    // A listener another extension registered before NPC State loaded.
     eventSource.on('message_received', id => { mockState.earlierListenerSaw.push(String(mockState.context.chat[id]?.mes ?? '')); });
 }
 try {
@@ -96,11 +96,11 @@ function captureHelpers(mockState, eventSource, sleep, manualAddNpc) {
     const callsOf = pattern => mockState.rawCalls.map(call => call?.[0] || {}).filter(args => pattern.test(String(args.systemPrompt || '')));
     const scannerCalls = () => callsOf(/isolated dossier scanner\./i);
     const relationshipCalls = () => callsOf(/isolated relationship evaluator/i);
-    const dossierPrompts = () => mockState.prompts.filter(args => args[0] === 'story_suite_tail_4_npc_state_delta').map(args => String(args[1] ?? ''));
+    const dossierPrompts = () => mockState.prompts.filter(args => args[0] === 'story_suite_tail_4_people').map(args => String(args[1] ?? ''));
     // (1.2.13) The capture reminder has its own slot at the end of the prompt (depth 0).
-    const captureCalls = () => mockState.prompts.filter(args => args[0] === 'story_suite_tail_5_npc_state_delta_capture');
+    const captureCalls = () => mockState.prompts.filter(args => args[0] === 'story_suite_tail_5_people_capture');
     // (1.2.16) The capture's rules ride early in the system prompt; its context and reminder at the end.
-    const rulesCalls = () => mockState.prompts.filter(args => args[0] === 'story_suite_static_npc_state_delta');
+    const rulesCalls = () => mockState.prompts.filter(args => args[0] === 'story_suite_static_people');
     const lastPrompt = () => [String(rulesCalls().at(-1)?.[1] ?? ''), dossierPrompts().at(-1) ?? '', String(captureCalls().at(-1)?.[1] ?? '')].filter(Boolean).join('\n\n');
     // (b6-soak-3) The request for a block is the reminder and context at the end; the rules stay in
     // the system prompt on every roleplay generation (quiet and impersonate excepted).

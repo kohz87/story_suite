@@ -1,4 +1,4 @@
-/* NPC State Delta portrait actions: finishing a device upload and removing a portrait. */
+/* NPC State portrait actions: finishing a device upload and removing a portrait. */
 import {
     api, closeOverlay, currentSessionIs, flushDurably,
     npcById, recordToolEvent, setBusy,

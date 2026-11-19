@@ -1,4 +1,4 @@
-/* NPC State Delta reply-scan reply identity (role: reply-scan-reply). The parent key and in-place-rewrite check for a
+/* NPC State reply-scan reply identity (role: reply-scan-reply). The parent key and in-place-rewrite check for a
    reply, the removal of current-scene fields from earlier-only windows, and the first-scan window rule. Split from
    runtime-scan.js with the factory holding the same getChatKey closure reference. */
 

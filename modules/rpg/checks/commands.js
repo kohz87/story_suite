@@ -121,7 +121,7 @@ function checksRoll(ctx, payload) {
     const scope = ctx.cause === 'system' ? `:r${ctx.rev}` : '';
     if (!ctx.claim(`sd:check:${payload.evidence}:${request.slice(0, 16)}${scope}`)) ctx.fail('REFUSED', 'That evidence already made this check.');
 
-    // The target person: unknown is NOT_FOUND; NPC State Delta absent or off adds nothing.
+    // The target person: unknown is NOT_FOUND; NPC State absent or off adds nothing.
     let target = null;
     if (payload.targetNpc !== undefined) {
         const identity = ask(ctx, 'npc.identity', { id: payload.targetNpc });

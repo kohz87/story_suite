@@ -7,7 +7,7 @@ import { adapterSource } from './helpers/adapter-source.js';
 import { FEATURE_STAGES, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { readLeaf } from '../../modules/people/meters/npc-meters-config.js';
 import { normalizeEntry } from '../../modules/people/dossier/cast-dossier.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { ERSVEIL, FENNA_ENTRY, OLD_DEFAULTS, castRow, director, suite } from './cast-dossier.helpers.js';
 
 test('a person\'s pack stages are reached by the numbers alone, in order, with the preset\'s meters from the first meeting', async () => {
@@ -19,7 +19,7 @@ test('a person\'s pack stages are reached by the numbers alone, in order, with t
         isEnabled: () => true, getNpc: id => (records[id] ? structuredClone(records[id]) : null),
         relationshipBaseline: () => ({ trust: 0, affection: 0, desire: 0, tension: 0 }), presentCastHtml: () => '', castEmptyReason: () => ({ text: '' }), fillPresentCast: () => {},
     };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => Object.values(records).map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
@@ -118,7 +118,7 @@ test('the person\'s own stages work like a ladder: reached by the numbers, only 
         isEnabled: () => true, getNpc: id => (records[id] ? structuredClone(records[id]) : null),
         relationshipBaseline: () => ({ trust: 0, affection: 0, desire: 0, tension: 0 }), presentCastHtml: () => '', castEmptyReason: () => ({ text: '' }), fillPresentCast: () => {},
     };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => Object.values(records).map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
@@ -150,7 +150,7 @@ test('index.js wiring: the cast reader, the lineage, the dismissal check, the vi
     const index = runtimeSource();
     assert.match(index, /if \(messageId >= 0\) noteChatLineage\(working\);/, 'the cast change stands on the chat as it is (a swipe takes it back through the store)');
     assert.match(index, /castPersonDismissed\(state, person\)/, 'a dossier the reader removed is not made again');
-    assert.match(index, /v2\.startStorySuiteV2\(\{[^}]*castSync/, 'the adapter calls the sync after the step');
+    assert.match(index, /v2\.startPeopleAdapter\(\{[^}]*castSync/, 'the adapter calls the sync after the step');
     assert.match(index, /const castViews = dossierCastViews\(state\);/);
     const adapter = adapterSource();
     assert.doesNotMatch(adapter, /sdkRef\.command\(['"]director\./, 'Delta never writes to Story Director');

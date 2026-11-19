@@ -2,7 +2,7 @@ import { seedPeople } from './helpers/seed-people.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { inspectNpcStateDataFile, dataFileExists, readNpcStateDataFile, writeNpcStateDataFile } from '../../modules/people/storage/storage.js';
 import { isEmptyScannerAnswer } from '../../modules/people/calls/scanner-routing.js';
 import { fakeRoot } from './helpers/fake-dom.js';
@@ -17,7 +17,7 @@ import { fakeRoot } from './helpers/fake-dom.js';
 //  3. The Cast tab shows the meters the story's change lines set right away, from the state, for people
 //     with no dossier yet (no scan has made one), when Story Block's scene has them here.
 
-const PATH = '/user/files/npc-state-delta-abc.json';
+const PATH = '/user/files/ppl-abc.json';
 const HEADERS = { 'Content-Type': 'application/json', 'X-CSRF-Token': 't' };
 
 // A fake server: `files` the paths that exist, `verify` how /api/files/verify answers ('ok', 'missing'
@@ -146,7 +146,7 @@ async function suite(t, records = []) {
         castEmptyReason: () => ({ text: 'No NPC has a dossier in this chat yet.' }),
         fillPresentCast: () => {},
     };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => records.map(({ id, name, aliases = [], present = false, archived = false }) => ({ id, name, aliases, present, archived })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },

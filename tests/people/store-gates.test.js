@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { peopleRig, record, idOf } from './helpers/people-rig.js';
 import { proveHead } from './helpers/proofs.js';
 
@@ -15,7 +15,7 @@ test('portrait records that hold image bytes (a failed portrait file write) are 
     // (runtime-hydration-state.js, runtime-mutations.js), next to a portrait that did reach a file.
     const ok = await rig.reply('One.', state => {
         state.npcs[0].portrait = { dataUrl: BYTES, type: 'image/png', hash: 'h1' };
-        state.npcs[1].portrait = { path: '/user/files/npc-state-delta-portrait-abc.png', type: 'image/png', hash: 'abc' };
+        state.npcs[1].portrait = { path: '/user/files/ppl-portrait-abc.png', type: 'image/png', hash: 'abc' };
         state.npcs[1].lookNote = BYTES;
         state.portraitAssets = { [state.npcs[0].id]: { ...state.npcs[0].portrait }, [state.npcs[1].id]: { ...state.npcs[1].portrait } };
     });
@@ -24,7 +24,7 @@ test('portrait records that hold image bytes (a failed portrait file write) are 
     const head = rig.host.head().domains.people;
     assert.equal(JSON.stringify(head).includes('base64'), false, 'no bytes in the store');
     assert.deepEqual(Object.keys(head.portraitAssets), [idOf('tom')], 'only the file reference is kept');
-    assert.deepEqual(head.npcs[idOf('tom')].portrait, { path: '/user/files/npc-state-delta-portrait-abc.png', type: 'image/png', hash: 'abc' });
+    assert.deepEqual(head.npcs[idOf('tom')].portrait, { path: '/user/files/ppl-portrait-abc.png', type: 'image/png', hash: 'abc' });
     // a later write on top of it is not refused either
     assert.equal(await rig.publish(state => { state.npcs[0].seenCount = 9; }), true);
     assert.equal(rig.sends.every(code => code === 'ok'), true, `${rig.sends}`);
@@ -74,7 +74,7 @@ test('before the host accepts the module the adapter holds the sidecar back; a r
         gates.push(gate);
         const sdk = { registerModule: () => gate.promise };
         const box = { ready: Promise.resolve(sdk), sdk };
-        const adapter = createStorySuiteV2Adapter({
+        const adapter = createPeopleAdapter({
             host: () => box, doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
             delta: () => ({ isEnabled: () => true, chatKey: () => 'chat:x' }), loadEmptyCast: async () => null, logger: { warn() {} },
             timers: { setTimeout: (fn, ms) => { const id = setTimeout(fn, ms); id.unref?.(); return id; }, clearTimeout, setInterval: () => ({ unref() {} }), clearInterval() {} },
@@ -83,7 +83,7 @@ test('before the host accepts the module the adapter holds the sidecar back; a r
         return { adapter, gate };
     };
     t.mock.method(console, 'warn', () => {});
-    assert.equal(createStorySuiteV2Adapter({ host: () => null, loadEmptyCast: async () => null }).storeOwns(), false, 'no host: nothing is held back');
+    assert.equal(createPeopleAdapter({ host: () => null, loadEmptyCast: async () => null }).storeOwns(), false, 'no host: nothing is held back');
     const a = make();
     a.adapter.start();
     await new Promise(resolve => setTimeout(resolve, 20));

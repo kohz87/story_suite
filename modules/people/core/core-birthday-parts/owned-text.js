@@ -1,4 +1,4 @@
-/* NPC State Delta finding the sentences of a text that are about one NPC and the NPC name labels. */
+/* NPC State finding the sentences of a text that are about one NPC and the NPC name labels. */
 
 // Sentences that are about this NPC: they name it as a whole word (name, alias or distinctive
 // first name), plus a directly following sentence that continues with a pronoun.

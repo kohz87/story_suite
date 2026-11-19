@@ -27,14 +27,14 @@ function scrubSourceMessageOwnership(value) {
 
 export function nativeStateForTarget(decoded, targetChatKey) {
     const target = String(targetChatKey || '').trim();
-    if (!target || target === 'no-chat') throw new Error('Open the target chat before importing NPC State Delta data.');
+    if (!target || target === 'no-chat') throw new Error('Open the target chat before importing NPC State data.');
     return decoded.metadata.sourceChatKey !== target ? scrubSourceMessageOwnership(decoded.state) : decoded.state;
 }
 
 export function prepareNativeImport(input, targetChatKey) {
     const decoded = decodeDeltaNativeBundle(input);
     const target = String(targetChatKey || '').trim();
-    if (!target || target === 'no-chat') throw new Error('Open the target chat before importing NPC State Delta data.');
+    if (!target || target === 'no-chat') throw new Error('Open the target chat before importing NPC State data.');
     const foreignOwnership = decoded.metadata.sourceChatKey !== target;
     const safeState = nativeStateForTarget(decoded, target);
     const base = encodeNpcStateBundle(safeState, {

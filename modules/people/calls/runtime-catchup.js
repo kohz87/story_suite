@@ -1,4 +1,4 @@
-/* NPC State Delta capture catch-up (role: capture-catchup). The quiet Refresh that a one-pass chat gives its most-seen NPCs every
+/* NPC State capture catch-up (role: capture-catchup). The quiet Refresh that a one-pass chat gives its most-seen NPCs every
    `narrationCaptureCatchUp` captured replies (rolling: at most `narrationCaptureCatchUpPeople` people after each reply). It runs on its own schedule and no longer runs the backfill queue (that is started once
    per reply by scheduleReplyBackfills). One model call per established NPC per reply: an NPC the catch-up takes is skipped by that
    reply's backfill. A newly met NPC (a new admission whose backfill has not tried) is the exception: the catch-up's targeted Refresh

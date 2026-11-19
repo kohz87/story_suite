@@ -1,4 +1,4 @@
-/* NPC State Delta injection block rendering: truncation, fair field sharing, identity/agency/state
+/* NPC State injection block rendering: truncation, fair field sharing, identity/agency/state
    blocks, optional continuity and mentioned/deceased references. Split unchanged from
    core-injection.js; these helpers are module-internal rather than public core exports.
    Public face: re-exports its parts. */

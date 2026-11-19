@@ -1,4 +1,4 @@
-/* NPC State Delta portrait prompt building: portrait style limits, prompt-format normalization and
+/* NPC State portrait prompt building: portrait style limits, prompt-format normalization and
    buildNpcPortraitPrompts. Visual-anchor extraction and appearance splitting live in
    core-portrait-visuals.js; natural-language prose lives in core-portrait-prose.js. A pure part of
    core-mechanics.js (same owner); core-mechanics.js re-exports every name it exported before.

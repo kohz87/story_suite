@@ -36,7 +36,7 @@ async function run(t, { flag, fail }) {
     }
     let injecting = false;
     const deltaApi = { isEnabled: () => true, getNpc: () => null, presentCastHtml: () => '<div></div>', fillPresentCast() {}, castEmptyReason: () => ({ text: 'No NPC is present.' }) };
-    const adapter = NSD.createStorySuiteV2Adapter({
+    const adapter = NSD.createPeopleAdapter({
         suiteApi: { npcs: () => [{ id: '1', name: 'Fenna', aliases: [], present: true }] }, delta: () => deltaApi, host: () => globalThis.StoryBlock, doc, timers: {}, logger: { warn() {} },
     });
     const host = await kit.createHost({ settings: flag ? { flags: { 'suite.isolatedApply': true } } : {}, modules: [sd], callModel: async () => 'none' });

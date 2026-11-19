@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: whether a new observation contradicts a pending development trend. */
+/* NPC State profile evidence: whether a new observation contradicts a pending development trend. */
 import { normalizeName } from '../core-text.js';
 import { strippedDevelopmentEvidence } from '../core-behavior.js';
 import { durableClaimHasNegation, durableClaimPolarityConflict } from './claim-polarity.js';

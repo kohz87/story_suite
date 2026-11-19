@@ -1,4 +1,4 @@
-// The head moves between NPC State Delta's change and its `people.write` (P3): the cache stands on the reply it was hydrated for, the host answers `STALE`, nothing
+// The head moves between NPC State's change and its `people.write` (P3): the cache stands on the reply it was hydrated for, the host answers `STALE`, nothing
 // lands on the wrong carrier, the work is discarded (it belonged to a reply that is gone) and the cache hydrates again from the store: no later publication is needed.
 // The race is made by a reply committed just before `people.write` reaches the host.
 import test from 'node:test';

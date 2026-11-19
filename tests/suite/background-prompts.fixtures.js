@@ -18,13 +18,12 @@ export function FIXTURES(core) {
     };
 }
 
-/** The prompts pinned per fixture: fallback scanner (full scan, relationships on), backfill, Refresh, and today's one-pass context.
+/** The prompts pinned per fixture: fallback scanner (full scan, relationships on), backfill and Refresh (the one-pass lines have their own golden).
  */
 export function PROMPTS(core) {
     return {
         scanner: o => core.buildScannerPrompt({ ...o, fullScanMode: true }),
         backfill: o => core.buildBackfillPrompt(o),
         refresh: o => core.buildProfileRefreshPrompt(o),
-        onePassContext: o => core.buildNarrationCaptureParts(o).context,
     };
 }

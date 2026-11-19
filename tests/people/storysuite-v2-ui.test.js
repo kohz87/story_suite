@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CAST_TAB_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { CAST_TAB_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { drawerWithPanel, fakeDelta, fakeDocument, fakeSdk, fakeTimers, hosted, v2Host } from './storysuite-v2.helpers.js';
 
 // ---- the drawer copy and the settings section ----
@@ -14,9 +14,9 @@ test('while hosted the drawer copy is hidden; the section moves the same panel i
     assert.equal(dom.panel.style.display, 'block', 'shown inside the overlay');
     assert.equal(dom.inline.classList.contains('story-suite-drawer'), true);
     const placeholder = dom.drawer.children[1];
-    assert.equal(placeholder.dataset.npcStateDeltaPlaceholder, '1');
+    assert.equal(placeholder.dataset.pplPlaceholder, '1');
     assert.equal(placeholder.hidden, true);
-    assert.equal(doc.getElementById('npc_state_delta_settings'), dom.panel);
+    assert.equal(doc.getElementById('people_settings'), dom.panel);
 
     cleanup();
     assert.deepEqual(dom.drawer.children, [dom.before, dom.panel, dom.after], 'back exactly where it was');
@@ -44,7 +44,7 @@ test('a second section element takes the panel from the first; the first one\'s 
     assert.equal(dom.panel.parentNode, second);
     cleanupFirst();
     assert.equal(dom.panel.parentNode, second);
-    assert.equal(dom.drawer.children.filter(node => node.dataset.npcStateDeltaPlaceholder).length, 1);
+    assert.equal(dom.drawer.children.filter(node => node.dataset.pplPlaceholder).length, 1);
 });
 
 test('when the host goes away the drawer copy comes back as it was, and nothing polls for another', async () => {
@@ -56,7 +56,7 @@ test('when the host goes away the drawer copy comes back as it was, and nothing 
     assert.equal(adapter.hosted(), false);
     assert.deepEqual(dom.drawer.children, [dom.before, dom.panel, dom.after]);
     assert.equal(dom.panel.style.display, 'block', 'its own display value restored');
-    assert.equal(dom.panel.dataset.npcStateDeltaHosted, undefined);
+    assert.equal(dom.panel.dataset.pplHosted, undefined);
     assert.equal(timers.timeouts.size, 0, 'no polling: the entry starts the host first, so there is nothing to wait for');
 });
 
@@ -74,7 +74,7 @@ test('a panel that mounts after hosting is hidden; a section opened before it wa
     const timers = fakeTimers();
     const delta = fakeDelta();
     const sb = v2Host(sdk);
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: delta.suiteApi, delta: () => delta.api, host: () => sb, doc, timers, logger: { warn() {} },
     });
     adapter.start();
@@ -84,7 +84,7 @@ test('a panel that mounts after hosting is hidden; a section opened before it wa
     // The meter presets block shows at once; Delta's panel is still on its way.
     assert.match(el.children.map(child => child.textContent).join(' '), /still loading/);
     const { panel } = drawerWithPanel(doc);
-    doc.dispatch('npc-state-delta:settings-mounted');
+    doc.dispatch('people:settings-mounted');
     assert.equal(panel.parentNode, el);
     assert.equal(panel.style.display, 'block');
     el.remove();
@@ -97,14 +97,14 @@ test('a panel that mounts after hosting, with no section waiting, is hidden at o
     const doc = fakeDocument();
     const delta = fakeDelta();
     const sb = v2Host(sdk);
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: delta.suiteApi, delta: () => delta.api, host: () => sb, doc, timers: fakeTimers(), logger: { warn() {} },
     });
     adapter.start();
     await adapter.settled();
     const { panel } = drawerWithPanel(doc);
     assert.equal(panel.style.display, 'block');
-    doc.dispatch('npc-state-delta:settings-mounted');
+    doc.dispatch('people:settings-mounted');
     assert.equal(panel.style.display, 'none');
 });
 
@@ -117,12 +117,12 @@ test('the Cast tab renders Delta\'s own present-cast markup and fills its text',
     def.tabs[0].render(el, { state: {} }, {});
     // Without Story Director the present cast stays at the top of Dossiers, the dossier list under it.
     // The cards in one padded pane; the dossier list (DOM, its rows as text) in a second padded pane under them.
-    assert.match(el.innerHTML, /^<div class="npc-state-delta-story-pane"><section class="npc-state-delta-present-roster">Mira<\/section><\/div><div class="npc-state-delta-story-pane"><div class="npc-state-delta-story-dossiers npc-state-delta-v2-dossiers">.*<\/div><\/div>$/);
+    assert.match(el.innerHTML, /^<div class="ppl-story-pane"><section class="ppl-present-roster">Mira<\/section><\/div><div class="ppl-story-pane"><div class="ppl-story-dossiers ppl-dossiers">.*<\/div><\/div>$/);
     assert.deepEqual(delta.filled, [el]);
     def.tabs[0].render(el, { state: {} }, {});
     assert.equal(el.writes, 1, 'unchanged cast is not rewritten');
-    delta.cast = '<section class="npc-state-delta-present-roster">Mira, Oren</section>';
-    doc.dispatch('npc-state-delta:cast-rendered');
+    delta.cast = '<section class="ppl-present-roster">Mira, Oren</section>';
+    doc.dispatch('people:cast-rendered');
     assert.match(el.innerHTML, /Mira, Oren/);
     assert.equal(el.writes, 2, 'follows Delta\'s own redraws');
 });
@@ -134,13 +134,13 @@ test('an empty Cast tab uses the v1 tab\'s empty line and Scan button; Delta off
     el.dataset.tabId = CAST_TAB_ID;
     def.tabs[0].render(el, {}, {});
     assert.match(el.innerHTML, /The latest scan found no NPC in the scene\./);
-    assert.match(el.innerHTML, /data-npc-state-delta-action="scan"/, 'emptyCastHtml from dossier-rows.js');
-    const scan = { dataset: { npcStateDeltaAction: 'scan' } };
+    assert.match(el.innerHTML, /data-ppl-action="scan"/, 'emptyCastHtml from dossier-rows.js');
+    const scan = { dataset: { pplAction: 'scan' } };
     el.listeners.click[0]({ target: { closest: () => scan } });
     assert.equal(delta.scans, 1);
     delta.enabled = false;
-    doc.dispatch('npc-state-delta:enabled-changed');
-    assert.match(el.innerHTML, /NPC State Delta is off\./);
+    doc.dispatch('people:enabled-changed');
+    assert.match(el.innerHTML, /NPC State is off\./);
 });
 
 test('if the v1 empty-state markup cannot load, the Cast tab still shows a plain, escaped line', async () => {
@@ -168,7 +168,7 @@ test('the meter presets block goes into Delta\'s "Meter presets" fold, which sho
     const el = doc.body.appendChild(doc.createElement('section'));
     const cleanup = def.settings.section(el, { values: () => ({}), set() {} });
     assert.equal(slot.held.length, 1, 'the presets block is in the fold');
-    assert.equal(slot.held[0]._cls, 'npc-state-delta-v2-presets');
+    assert.equal(slot.held[0]._cls, 'ppl-presets');
     assert.equal(group.hidden, false, 'the fold shows');
     assert.equal(el.children.length, 1, 'only the panel is in the section: no block above it');
     assert.equal(el.children[0], dom.panel);
@@ -183,8 +183,8 @@ test('the block names itself with a head the fold hides, and the drawer panel ke
     dom.panel.before = () => {};
     const el = doc.body.appendChild(doc.createElement('section'));
     def.settings.section(el, { values: () => ({}), set() {} });
-    assert.equal(el.children[0]._cls, 'npc-state-delta-v2-presets', 'a panel without the slot gets the block above it');
-    assert.equal(el.children[0].children[0]._cls, 'npc-state-delta-v2-presets-head');
+    assert.equal(el.children[0]._cls, 'ppl-presets', 'a panel without the slot gets the block above it');
+    assert.equal(el.children[0].children[0]._cls, 'ppl-presets-head');
     assert.equal(el.children[0].children[0].textContent, 'Meter presets');
 });
 

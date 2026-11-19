@@ -5,7 +5,7 @@ import { createPeoplePart } from '../../modules/people/domain/part.js';
 import { createStore } from '../../core/store.js';
 import { createCommandBus } from '../../core/commands.js';
 import { parseChanges } from '../../core/capture.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { secretId } from '../../modules/people/meters/npc-meters.js';
 import { seedPeople } from './helpers/seed-people.js';
 
@@ -37,7 +37,7 @@ export function fakeDelta() {
         isEnabled: () => delta.enabled,
         getNpc: id => (delta.records[id] ? structuredClone(delta.records[id]) : null),
         relationshipBaseline: () => ({ ...delta.baseline }),
-        presentCastHtml: () => '<section class="npc-state-delta-present-roster">cast</section>',
+        presentCastHtml: () => '<section class="ppl-present-roster">cast</section>',
         castEmptyReason: () => ({ text: 'Nobody here.' }),
         fillPresentCast: () => {},
         formPortraits: () => ({}),
@@ -89,7 +89,7 @@ export async function host({ settings = {}, delta = fakeDelta(), headReply = () 
     };
     const box = { host: { ready: Promise.resolve(sdk), sdk } };
     const warnings = [];
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: delta.suiteApi, delta: () => delta.api, version: 'test', host: () => box.host, headReply,
         doc: fakeDoc(), timers, logger: { warn: (...args) => warnings.push(args) }, loadEmptyCast: async () => null,
     });

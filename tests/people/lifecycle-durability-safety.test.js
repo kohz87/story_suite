@@ -104,8 +104,9 @@ test('recovery filenames are distinct across separate module instances at the sa
     const originalNow = Date.now;
     try {
         Date.now = () => 1700000000000;
-        const a = await import(`${oldUrl('storage.js').href}?tab-a-${Math.random()}`);
-        const b = await import(`${oldUrl('storage.js').href}?tab-b-${Math.random()}`);
+        // Each page (tab) loads storage once and makes one identity (storage-self.js); two identities stand for two tabs.
+        const { createStorageIdentity } = await import(`${oldUrl('storage.js').href.replace(/storage\.js$/, 'storage-identity.js')}?tabs-${Math.random()}`);
+        const a = createStorageIdentity(), b = createStorageIdentity();
         assert.notEqual(a.makeNpcStateRecoveryFileName(keyA), b.makeNpcStateRecoveryFileName(keyA));
     } finally {
         Date.now = originalNow;
@@ -172,7 +173,7 @@ test('final review protects all rename destination representations and event ins
 
 
 test('storage has a cross-tab lease fallback when Web Locks are unavailable', () => {
-    const storage = fs.readFileSync(new URL('../../modules/people/storage/storage.js', import.meta.url), 'utf8');
+    const storage = fs.readFileSync(new URL('../../modules/people/storage/storage-locks.js', import.meta.url), 'utf8');
     assert.match(storage, /async function withLocalStorageWriterLock/);
     assert.match(storage, /npc-state-delta-writer-lock:/);
     assert.match(storage, /CROSS_TAB_LOCK_LEASE_MS/);

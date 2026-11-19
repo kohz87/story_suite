@@ -105,7 +105,7 @@ test('with a Story Block v2 host, Delta registers through the sdk only, answers 
         // The host goes away and a v1 Story Block takes its place: still no v1 registry.
         globalThis.StoryBlock = { apiVersion: 1, registerTab: tab => mockState.storyBlockTabs.push(tab), unregisterTab() {}, refresh() {} };
         const v2 = await import(pathToFileURL(path.join(extRoot, 'src', 'storysuite-v2.js')).href);
-        const adapter = v2.startStorySuiteV2();
+        const adapter = v2.startPeopleAdapter();
         assert.equal(adapter.check(), false);
         assert.equal(globalThis.StorySuite, undefined, 'no v1 registry with a v1 host either');
         adapter.stop();

@@ -50,14 +50,14 @@ test('flag on: touch is changed([people]); a view and the pane register as peopl
     const drawn = [];
     const off = castPanels.view(box, () => drawn.push('view'));
     assert.equal(castPanels.viewCovered(box), true);
-    const view = fake.sections.get('npc-state-delta.cast-view.1');
+    const view = fake.sections.get('people.cast-view.1');
     assert.deepEqual([view.keys, view.drawn], [['people'], true]);
     const pane = { isConnected: true };
     let shown = true;
     castPanels.pane(pane, el => drawn.push(el === pane ? 'pane' : '?'), () => shown);
     assert.equal(castPanels.paneCovered(pane), true);
     assert.equal(castPanels.paneCovered({}), false);
-    const section = fake.sections.get('npc-state-delta.dossiers-pane');
+    const section = fake.sections.get('people.dossiers-pane');
     assert.equal(section.isVisible(), true);
     shown = false;
     assert.equal(section.isVisible(), false, 'another tab shows: the pane is not drawn');
@@ -70,7 +70,7 @@ test('flag on: touch is changed([people]); a view and the pane register as peopl
     assert.deepEqual(fake.log.changed, [['people']]);
     off();
     assert.equal(castPanels.viewCovered(box), false);
-    assert.equal(fake.sections.has('npc-state-delta.cast-view.1'), false);
+    assert.equal(fake.sections.has('people.cast-view.1'), false);
 });
 
 test('every change notice reaches panels.changed(["people"]), the busy end (the page API) included', () => {
@@ -119,6 +119,6 @@ test('every section names its root, so Story Block holds its redraw while a fiel
     castPanels.view(box, () => {});
     castPanels.pane(pane, () => {}, () => true);
     castPanels.touch();
-    assert.equal(fake.sections.get('npc-state-delta.cast-view.1').root(), box);
-    assert.equal(fake.sections.get('npc-state-delta.dossiers-pane').root(), pane);
+    assert.equal(fake.sections.get('people.cast-view.1').root(), box);
+    assert.equal(fake.sections.get('people.dossiers-pane').root(), pane);
 });

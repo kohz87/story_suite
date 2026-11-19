@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { buildScannerPrompt, buildProfileRefreshPrompt, buildInjection, buildNarrationCapturePrompt, buildNarrationCaptureParts } from '../../modules/people/core/core.js';
+import { buildScannerPrompt, buildProfileRefreshPrompt, buildInjection } from '../../modules/people/core/core.js';
+import { buildLinesParts } from '../../modules/people/core/core-prompts-lines.js';
 import { createNpcPart } from '../../modules/people/meters/npc-meters.js';
 
 // Same short source scenes used in the legacy/Beta comparison. No provider calls.
@@ -76,11 +77,9 @@ const injection = buildInjection([selected], 'Mara discusses the survey.', 1, 3)
 for (const required of ['Patient and observant', 'Keeps firm boundaries', 'concise formal sentences', 'Squares the ledger']) assert.ok(injection.includes(required), `accepted selected characterization missing: ${required}`);
 console.log(JSON.stringify({ name: 'accepted-characterization-injection', chars: injection.length, estimatedTokens: estimateTokens(injection), requiredFieldsPresent: true }));
 
-// Report-only: the opt-in one-pass narration capture instruction (default off), built by the
-// production builder from the generation-time context (history up to the user's message; the reply
-// does not exist yet). It rides in the roleplay extension prompt after the dossier injection, so the
-// final extension prompt is both joined, as updateInjection sends it. Compared with the quick-scan
-// request it replaces when a complete block arrives; no baseline is asserted.
+// Report-only: the one-pass lines a hosted reply carries (runtime-injection.js sends them): the rules in the system prompt and the
+// context at the end, after the dossier injection. Compared with the fallback scan a reply without lines falls back to; no baseline
+// is asserted.
 const captureFixtures = [
   ...cases.map(fixture => ({ name: fixture.name, npcs: fixture.npcs, userName: 'Ari', generationTranscript: `USER: ${fixture.user}`, scanTranscript: `USER: ${fixture.user}\nASSISTANT: ${fixture.assistant}` })),
   { name: 'ordinary-two-npc-profiles', npcs: [ryu, { ...sora, mood: 'cheerful', location: 'Hospice' }], userName: 'Lucien', generationTranscript: ordinaryAHistory, scanTranscript: ordinaryAHistory },
@@ -88,18 +87,12 @@ const captureFixtures = [
 ];
 for (const fixture of captureFixtures) {
   const charName = fixture.userName === 'Ari' ? 'Character' : 'Narrator';
-  const capture = buildNarrationCapturePrompt({ transcript: fixture.generationTranscript, existingNpcs: fixture.npcs, userName: fixture.userName, charName });
+  const parts = buildLinesParts({ existingNpcs: fixture.npcs, turn: 1 });
   const scanner = buildScannerPrompt({ transcript: fixture.scanTranscript, currentTranscript: fixture.scanTranscript, existingNpcs: fixture.npcs, userName: fixture.userName, charName });
   const dossierInjection = buildInjection(fixture.npcs, fixture.generationTranscript, 1, 3);
-  const finalExtensionPrompt = [dossierInjection, capture].filter(Boolean).join('\n\n');
-  // (1.2.17) As sent: the static rules early, the context after the dossier, leaving out what it repeats.
-  const captureOptions = { transcript: fixture.generationTranscript, existingNpcs: fixture.npcs, userName: fixture.userName, charName };
-  const parts = buildNarrationCaptureParts(captureOptions);
-  const sentContext = buildNarrationCaptureParts({ ...captureOptions, dossierAbove: dossierInjection }).context;
+  const finalExtensionPrompt = [dossierInjection, parts.context].filter(Boolean).join('\n\n');
   console.log(JSON.stringify({
-    name: `narration-capture-${fixture.name}`,
-    captureChars: capture.length,
-    captureEstimatedTokens: estimateTokens(capture),
+    name: `one-pass-lines-${fixture.name}`,
     replacedScannerCharsIncludingSystem: scanner.length + system.length,
     replacedScannerEstimatedInputTokens: estimateTokens(scanner) + estimateTokens(system),
     dossierInjectionChars: dossierInjection.length,
@@ -107,7 +100,6 @@ for (const fixture of captureFixtures) {
     finalExtensionPromptEstimatedTokens: estimateTokens(finalExtensionPrompt),
     staticRulesEstimatedTokens: estimateTokens(parts.rules),
     contextEstimatedTokens: estimateTokens(parts.context),
-    contextWithoutDossierRepeatsEstimatedTokens: estimateTokens(sentContext),
   }));
 }
 // Story Suite v2 (hosted only): the npc kind's grammar line and static line (Story Block's static

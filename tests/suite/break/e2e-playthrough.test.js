@@ -1,4 +1,4 @@
-// A scripted 30-reply Ersveil chat on the real suite (Story Block host + Story Director + NPC State Delta), with fixed reply
+// A scripted 30-reply Ersveil chat on the real suite (Story Block host + Story Director + NPC State), with fixed reply
 // texts that use each repo's own <Changes> grammar: travel and a place change, a six-group fight with a swarm on the board, a
 // deed that ripples one power, new named people (a names check and a collision), NPC meters with via: tags (one repeated to
 // backfire), a lie and a caught lie, a known secret, a taste, ties, a trust drop, a pulse roll, day changes (Earlier days),
@@ -6,7 +6,7 @@
 // of that reply all equal the live state. At the end: a Re-read of every reply, a swipe of the last and a delete of a middle
 // reply each equal a cold rebuild of the chat they leave.
 // Which checkouts: helpers/suite.js (SUITE_SB / SUITE_SD / SUITE_NSD, else STORY_SUITE_ROOT, else the folders beside this one;
-// skipped when Story Director or NPC State Delta is missing). To play against the batch branches:
+// skipped when Story Director or NPC State is missing). To play against the batch branches:
 //   SUITE_SD=<sd checkout> SUITE_NSD=<nsd checkout> node --test tests/v2/break/e2e-playthrough.test.js
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -156,7 +156,7 @@ test('E2E: a 30-reply Ersveil playthrough keeps live, rebuild, reload, Re-read, 
         assert.match(view('/fame'), /"auvoth":[1-9]/, 'fame in Auvoth rose');
         assert.match(view('/guild-membership'), /"letter":"E"/, 'the Guild letter is E');
     });
-    // The same praise to Temiwa in replies 13, 14 and 15 must give less each time (NPC State Delta's anti-lever gate).
+    // The same praise to Temiwa in replies 13, 14 and 15 must give less each time (NPC State's anti-lever gate).
     await soft('via backfire', () => {
         const gain = (a, b) => meters[b].meters.trust - meters[a].meters.trust;
         assert.ok(gain(14, 15) < gain(12, 13), `the third praise gave ${gain(14, 15)}, the first ${gain(12, 13)} (trust ${[12, 13, 14, 15, 16].map(n => meters[n].meters.trust)})`);

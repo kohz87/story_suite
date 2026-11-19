@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: whether evidence claims are already represented in the accepted profile text. */
+/* NPC State profile evidence: whether evidence claims are already represented in the accepted profile text. */
 import { DURABLE_PROFILE_LIMITS, durableRefinementTokens, splitDurableClaimUnits } from '../core-relationship.js';
 import { cleanText } from '../core-text.js';
 import { behaviorProfileBody, normalizeBehaviorProfile } from '../core-behavior.js';

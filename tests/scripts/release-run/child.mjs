@@ -1,7 +1,7 @@
 // Runs the suite smoke on one build of the three packages and prints the result as JSON (the release-run test
 // starts it once on the source and once on the bundles, and compares). The same steps as the suite harness
 // (packages/story-block/tests/v2/break/helpers/suite.js): Story Block's testkit host, Story Director registered
-// as a module, NPC State Delta connected through its adapter, the Ersveil pack installed. The host is wired as
+// as a module, NPC State connected through its adapter, the Ersveil pack installed. The host is wired as
 // testkit/host.js wires it (that file picks the store and the command bus by a computed path, which a bundle cannot
 // follow, so the pieces come from the kit file the test writes: the same file runs on the source and, bundled, on the bundle).
 // argv: <kit.js> <story director module.js> <npc state delta storysuite-v2.js> <world pack.json,game pack.json> <seeded.js>
@@ -19,7 +19,7 @@ const quiet = { warn() {} };
 
 let sdk = null;
 const sd = SD.createModule({ host: { settings: id => sdk?.settings(id) ?? null, substitute: text => sdk?.substitute(text) } });
-const adapter = NSD.createStorySuiteV2Adapter({ suiteApi: { npcs: () => [] }, delta: () => ({ isEnabled: () => true, getNpc: () => null }), host: () => globalThis.StoryBlock, doc: null, timers: {}, logger: quiet });
+const adapter = NSD.createPeopleAdapter({ suiteApi: { npcs: () => [] }, delta: () => ({ isEnabled: () => true, getNpc: () => null }), host: () => globalThis.StoryBlock, doc: null, timers: {}, logger: quiet });
 async function createHost({ settings = {}, modules = [], lazyRpg = false } = {}) {
   kit.setRpgLib(lazyRpg ? null : kit.leanRpg);
   const st = kit.createFakeContext({ extensionSettings: { storySuite: structuredClone(settings) } });

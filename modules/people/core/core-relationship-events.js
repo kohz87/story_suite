@@ -1,4 +1,4 @@
-/* NPC State Delta relationship evidence and event history: evidence normalization and grounding,
+/* NPC State relationship evidence and event history: evidence normalization and grounding,
    duplicate detection, event append, summary consistency and calibration. Moved unchanged out of
    core-relationship.js; that file re-exports every public name it exported before. Never imports
    core-relationship.js, core-mechanics.js or core.js. Public face: re-exports its parts. */

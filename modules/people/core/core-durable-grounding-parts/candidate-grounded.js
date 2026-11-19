@@ -1,4 +1,4 @@
-/* NPC State Delta refinement candidate grounding: whether a proposed durable field text is supported by the source. */
+/* NPC State refinement candidate grounding: whether a proposed durable field text is supported by the source. */
 
 import { normalizeName } from '../core-text.js';
 import { compactDurableText, DURABLE_PROFILE_LIMITS, durableRefinementTokens, durableSemanticSimilarity, splitDurableClaimUnits } from '../core-relationship.js';

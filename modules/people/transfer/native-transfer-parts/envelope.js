@@ -11,18 +11,18 @@ function bytes(value) {
     if (value instanceof Uint8Array) return value;
     if (value instanceof ArrayBuffer) return new Uint8Array(value);
     if (ArrayBuffer.isView(value)) return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
-    throw new Error('NPC State Delta native import must be binary data.');
+    throw new Error('NPC State native import must be binary data.');
 }
 
 export function parseEnvelope(input) {
     const value = bytes(input);
-    if (value.byteLength < HEADER_BYTES) throw new Error('NPC State Delta bundle is truncated.');
+    if (value.byteLength < HEADER_BYTES) throw new Error('NPC State bundle is truncated.');
     const manifestLength = new DataView(value.buffer, value.byteOffset, value.byteLength).getUint32(MAGIC_BYTES, true);
     const binaryStart = HEADER_BYTES + manifestLength;
-    if (!manifestLength || manifestLength > MAX_MANIFEST_BYTES || binaryStart > value.byteLength) throw new Error('NPC State Delta bundle manifest is truncated or exceeds the 2 MB safety limit.');
+    if (!manifestLength || manifestLength > MAX_MANIFEST_BYTES || binaryStart > value.byteLength) throw new Error('NPC State bundle manifest is truncated or exceeds the 2 MB safety limit.');
     let manifest;
     try { manifest = JSON.parse(textDecoder.decode(value.subarray(HEADER_BYTES, binaryStart))); }
-    catch { throw new Error('NPC State Delta bundle manifest is invalid JSON.'); }
+    catch { throw new Error('NPC State bundle manifest is invalid JSON.'); }
     return { value, manifest, binaryStart, binary: value.subarray(binaryStart) };
 }
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCastRefreshPart } from '../../modules/people/legacy/runtime-cast-refresh.js';
+import { createCastRefreshPart } from '../../modules/people/runtime/runtime-cast-refresh.js';
 
 // B4-6: nothing is drawn in the chat; the part only tells the Cast and World panes (cast-rendered) that the dossiers may have changed.
 
@@ -18,7 +18,7 @@ test('a refresh asked several times in a row tells the panes once, never marked 
     part.queueCastRefresh(5);
     part.queueCastRefresh(5);
     await wait(60);
-    assert.deepEqual(events, [['npc-state-delta:cast-rendered', { streaming: false }]]);
+    assert.deepEqual(events, [['people:cast-rendered', { streaming: false }]]);
 }));
 
 test('no chat, or a chat whose dossiers are not loaded, tells nobody', () => withDocument(async events => {

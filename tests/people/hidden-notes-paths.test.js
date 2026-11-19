@@ -4,18 +4,17 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
-    NARRATION_CAPTURE_CONTEXT_MARKER, buildBackfillPrompt, buildNarrationCaptureParts, buildNarrationCapturePrompt, buildProfileRefreshPrompt, buildScannerPrompt,
+    buildBackfillPrompt, buildProfileRefreshPrompt, buildScannerPrompt,
 } from '../../modules/people/core/core.js';
 import { appendHiddenNotePrompt } from '../../modules/people/core/core-mechanics.js';
 import { secretEventsShown } from '../../modules/people/core/core-prompts-capture.js';
 
 // Hidden notes (layered notes for a new dossier, the story events of present people's locked notes) in every path that
-// builds a dossier or scans a present person, not only the ordinary scan: the one-pass block (its rules),
-// the targeted backfill of a new dossier and the targeted Refresh. Off, or with nobody to watch, every prompt is as before.
+// builds a dossier or scans a present person, not only the ordinary scan: the targeted backfill of a new dossier and the targeted Refresh. Off, or with nobody to watch, every prompt is as before.
 //
 // Which path runs by default: `narrationCapture` (one-pass) is OFF and `fullScanEveryTurn` is OFF, so Standard and Full both
 // use the ordinary single-exchange dossier scan after every reply; Lean turns "Scan after every reply" off, so the same
-// scan runs every third reply. The one-pass block, the backfill and the Refresh are opt-in or follow-ups.
+// scan runs every third reply. The backfill and the Refresh are follow-ups (the one-pass lines have their own tests).
 
 const EVENT = 'The duke is exposed as a traitor';
 const WATCH = [{ key: 's1', name: 'Mira', event: EVENT }];
@@ -24,30 +23,10 @@ const base = { transcript: 'USER: hi\nASSISTANT: Mira laughs.', currentTranscrip
 
 // ---- the prompts ----
 
-test('one-pass block: the layered-notes rule rides with the rules, the events with the context; off or nobody to watch is byte-identical', () => {
-    {
-        const plain = buildNarrationCaptureParts({ ...base });
-        assert.equal(plain.rules.includes('HIDDEN NOTES'), false);
-        assert.equal(plain.context.includes('STORY EVENTS'), false);
-        assert.deepEqual(buildNarrationCaptureParts({ ...base, layeredSecrets: false, eventWatch: [] }), plain, 'asked for nothing: byte-identical');
-        assert.deepEqual(buildNarrationCaptureParts({ ...base, eventWatch: [{ name: 'x' }, null] }), plain, 'an item with no key or event is no watch');
-
-        const layered = buildNarrationCaptureParts({ ...base, layeredSecrets: true });
-        assert.match(layered.rules, /\n(?:12|16)\. HIDDEN NOTES: for each NEW dossier-worthy NPC only/, `rules carry the layered rule`);
-        assert.equal(layered.context, plain.context, 'the context part is unchanged by it');
-        assert.equal(layered.rules.replace(/\n(?:12|16)\. HIDDEN NOTES:[^\n]*/, ''), plain.rules, 'it adds that one rule and nothing else');
-
-        // The events change from reply to reply: they go in the context, so the rules stay byte-identical (cacheable).
-        const watched = buildNarrationCaptureParts({ ...base, layeredSecrets: true, eventWatch: WATCH });
-        assert.equal(watched.rules, layered.rules, 'the rules do not change with the events');
-        assert.match(watched.context, /\n\nSTORY EVENTS to look for \(present NPCs' hidden notes\): s1 = Mira: The duke is exposed as a traitor\. Return top-level "secretEvents":\["<key>",\.\.\.\] with ONLY the keys whose event the CURRENT exchange clearly shows/);
-        const other = buildNarrationCaptureParts({ ...base, layeredSecrets: true, eventWatch: [{ key: 's1', name: 'Oren', event: 'The bridge falls' }] });
-        assert.equal(other.rules, watched.rules);
-        assert.ok(watched.context.includes(NARRATION_CAPTURE_CONTEXT_MARKER.slice(0, 8)) || watched.context.startsWith('NPC STATE DELTA ONE-PASS CAPTURE'));
-    }
-    // The ordinary scanner keeps numbering them as rules (unchanged).
+test('the ordinary scanner numbers the hidden-note rules after the last rule; asked for nothing it adds none', () => {
     assert.match(buildScannerPrompt({ ...base, layeredSecrets: true, eventWatch: WATCH }), /\n16\. HIDDEN NOTES[^\n]*\n17\. STORY EVENTS/);
-    assert.equal(buildNarrationCapturePrompt({ ...base, eventWatch: WATCH }).includes('\n16. STORY EVENTS'), false, 'in a one-pass block the events are not a numbered rule');
+    assert.equal(buildScannerPrompt({ ...base, layeredSecrets: false, eventWatch: [] }), buildScannerPrompt({ ...base }), 'asked for nothing: byte-identical');
+    assert.equal(buildScannerPrompt({ ...base, eventWatch: [{ name: 'x' }, null] }), buildScannerPrompt({ ...base }), 'an item with no key or event is no watch');
 });
 
 test('targeted backfill and Refresh: the notes are asked for in paragraphs at the end; nothing asked, nothing added', () => {
@@ -98,9 +77,12 @@ if (${hosted}) {
         registered: [], sent: [], entries: [],
         registerModule(def) { sdk.registered.push(def); },
         command: async (type, payload, options) => { sdk.sent.push({ type, payload, options: options ?? null }); return { ok: true, receipt: { summary: '' } }; },
-        query: name => (name === 'npc.meters' ? structuredClone(sdk.entries) : null),
         settings: () => ({}),
     };
+    // As the real store: every reply has its own record ID (its shown swipe's), which the capture journal keys a hosted read by.
+    let sids = 0;
+    const replySid = asOf => { const message = mockState.context.chat[asOf]; if (!message || message.is_user) return null; const swipe = Number(message.swipe_id) || 0; (message.__sids ??= {})[swipe] ??= 'sid-' + (sids += 1); return message.__sids[swipe]; };
+    sdk.query = (name, args) => (name === 'npc.meters' ? structuredClone(sdk.entries) : name === 'npc.replySid' ? replySid(args?.asOf) : null);
     mockState.sdk = sdk;
     globalThis.StoryBlock = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
 }
@@ -128,8 +110,8 @@ try {
         mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'And then?' });
         await emitAll('message_sent', mockState.context.chat.length - 1);
         await emitAll('generation_after_commands', 'normal', {}, false);
-        sent.rules = lastPrompt('story_suite_static_npc_state_delta');
-        sent.context = lastPrompt('story_suite_tail_5_npc_state_delta_capture');
+        sent.rules = lastPrompt('story_suite_static_people');
+        sent.context = lastPrompt('story_suite_tail_5_people_capture');
         const block = \`\${text}\\n\\n<!--npc_state_delta\\n\${JSON.stringify(payload)}\\n-->\`;
         // Hosted (N7): the block is no longer asked for or applied; a reply that lists people is one with no <Changes> block that names them (the NSD16 fallback scan).
         const names = (payload?.npcs || []).map(n => n.name).filter(Boolean);
@@ -270,7 +252,7 @@ const LETTER = 'USER: I wait by the fire.\nASSISTANT: Sieke unfolds an Auvoth le
 const PRESSED = 'USER: "Why are you so desperate, Sieke? What did Auvoth threaten you with?"\nASSISTANT: Sieke flinches. "He swore he would burn the dock," she whispers.';
 
 test('the events rule asks for the event as written by its actor, with a quote per key; the schema text is the same in every path', () => {
-    for (const rule of [buildNarrationCaptureParts({ ...base, eventWatch: WATCH }).context, appendHiddenNotePrompt('P', { eventWatch: WATCH })]) {
+    for (const rule of [buildScannerPrompt({ ...base, eventWatch: WATCH }), appendHiddenNotePrompt('P', { eventWatch: WATCH })]) {
         assert.match(rule, /happens as written, by the actor it names \("pressed" needs someone to press that person on it\)/);
         assert.match(rule, /the person raising the topic themselves, a mention, a hint or something about to happen does not/);
         assert.match(rule, /"secretEventEvidence":\{"<key>":"short exact quote showing the event"\} for every key; no quote, no key\./);

@@ -1,4 +1,4 @@
-/* NPC State Delta injection budget tokens: the characters-per-token estimate, budget normalization and token estimation. */
+/* NPC State injection budget tokens: the characters-per-token estimate, budget normalization and token estimation. */
 import { DEFAULT_INJECTION_BUDGET_TOKENS, MAX_INJECTION_BUDGET_TOKENS, MIN_INJECTION_BUDGET_TOKENS } from './budget-limits.js';
 
 export const APPROX_CHARS_PER_TOKEN = 4;

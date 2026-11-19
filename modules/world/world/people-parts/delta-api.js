@@ -1,7 +1,7 @@
-// Story Director v2, people widget: reads NPC State Delta's in-process handles (dossier opener and present-cast cards), or null.
+// Story Director v2, people widget: reads NPC State's in-process handles (dossier opener and present-cast cards), or null.
 import { pageHandles } from '../../../people/runtime/handles.js';
 
-/** NPC State Delta's `openDossier(name)` on this page, or null. */
+/** NPC State's `openDossier(name)` on this page, or null. */
 export function dossierOpener() {
     try {
         const api = pageHandles.deltaApi;
@@ -11,7 +11,7 @@ export function dossierOpener() {
     }
 }
 
-/** NPC State Delta's cast API for its present-cards (`pageHandles.castApi`), or null. */
+/** NPC State's cast API for its present-cards (`pageHandles.castApi`), or null. */
 export function castApi() {
     try {
         const api = pageHandles.castApi;

@@ -1,4 +1,4 @@
-/* NPC State Delta relationship model: defaults, milestone thresholds and the baseline, caps, impact,
+/* NPC State relationship model: defaults, milestone thresholds and the baseline, caps, impact,
    delta, progress and milestone normalizers. Pure relationship data helpers moved unchanged out of
    core-relationship.js; that file re-exports every public name it exported before. Never imports
    core-relationship.js, core-mechanics.js or core.js. Public face: re-exports its parts. */

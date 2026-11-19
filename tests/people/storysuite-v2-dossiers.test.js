@@ -11,7 +11,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-    CAST_SCREEN_ID, CAST_TAB_ID, CAST_WIDGET, DOSSIERS_TITLE, PAGE_SLOT_CLASS, WORLD_FEATURE, createStorySuiteV2Adapter,
+    CAST_SCREEN_ID, CAST_TAB_ID, CAST_WIDGET, DOSSIERS_TITLE, PAGE_SLOT_CLASS, WORLD_FEATURE, createPeopleAdapter,
 } from '../../modules/people/storysuite-v2.js';
 import { dossierRowNodes } from '../../modules/people/dossier-rows.js';
 import { fakeRoot } from './helpers/fake-dom.js';
@@ -78,25 +78,25 @@ function element(owner) {
             el.children = [];
             el.writes += 1;
             el.firstElementChild = html ? { parentNode: el } : null;
-            cells = [...html.matchAll(/class="npc-state-delta-present-cell[^"]*" data-npc-id="([^"]+)"/g)].map(([, id]) => {
-                const cell = node(owner, 'div', 'npc-state-delta-present-cell');
+            cells = [...html.matchAll(/class="ppl-present-cell[^"]*" data-npc-id="([^"]+)"/g)].map(([, id]) => {
+                const cell = node(owner, 'div', 'ppl-present-cell');
                 cell.dataset.npcId = id;
-                const text = node(owner, 'div', 'npc-state-delta-present-card-text');
-                text.append(node(owner, 'span', 'npc-state-delta-present-card-stage'));
+                const text = node(owner, 'div', 'ppl-present-card-text');
+                text.append(node(owner, 'span', 'ppl-present-card-stage'));
                 cell.append(text);
                 return cell;
             });
         },
     });
     el.querySelectorAll = selector => {
-        if (selector.startsWith('.npc-state-delta-present-cell')) return cells;
+        if (selector.startsWith('.ppl-present-cell')) return cells;
         if (selector === `.${PAGE_SLOT_CLASS}`) return cells.flatMap(cell => cell.children[0].children.filter(child => child.classList.contains(PAGE_SLOT_CLASS)));
         return find(el, selector, false);
     };
     el.fire = (type, event) => (el.listeners[type] ?? []).forEach(fn => fn(event));
     el.cells = () => cells;
-    el.list = () => el.querySelector('.npc-state-delta-story-list');
-    el.search = () => el.querySelector('.npc-state-delta-story-search');
+    el.list = () => el.querySelector('.ppl-story-list');
+    el.search = () => el.querySelector('.ppl-story-search');
     return el;
 }
 function fakePage() {
@@ -126,7 +126,7 @@ function fakeDelta() {
     let revision = 1;
     const api = {
         isEnabled: () => true,
-        presentCastHtml: () => `<section class="npc-state-delta-present-roster">${present.map(id => `<div class="npc-state-delta-present-cell npc-state-delta-present-cell-now" data-npc-id="${id}"><button type="button" class="npc-state-delta-present-card">${id}</button></div>`).join('')}</section>`,
+        presentCastHtml: () => `<section class="ppl-present-roster">${present.map(id => `<div class="ppl-present-cell ppl-present-cell-now" data-npc-id="${id}"><button type="button" class="ppl-present-card">${id}</button></div>`).join('')}</section>`,
         fillPresentCast() {},
         castEmptyReason: () => ({ text: 'No NPC is present.' }),
         openDossier: id => { opened.push(id); return true; },
@@ -156,10 +156,10 @@ async function setup({ world = false, hostValue = 'v2', loadDossierList = v1List
     const delta = fakeDelta();
     const sdk = fakeSdk({ world });
     const host = hostValue === 'v2' ? { apiVersion: 2, sdk, ready: Promise.resolve(sdk) } : hostValue;
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => NPCS.map(npc => ({ id: npc.id, name: npc.name, aliases: npc.aliases, present: npc.present, archived: npc.archived })) },
         delta: () => delta.api, host: () => host, doc, logger: { warn() {} }, retryMs: 1, attempts: 2, aliveMs: 1e9,
-        loadEmptyCast: async () => reason => `<p class="npc-state-delta-story-empty">${reason?.text ?? ''}</p>`, loadDossierList,
+        loadEmptyCast: async () => reason => `<p class="ppl-story-empty">${reason?.text ?? ''}</p>`, loadDossierList,
     });
     adapter.start();
     await adapter.settled();
@@ -183,11 +183,11 @@ test('Dossiers lists every dossier (plain rows since B4-5: name and status); a r
     const el = element(doc);
     el.dataset.tabId = CAST_TAB_ID;
     def.tabs[0].render(el, {}, {});
-    assert.match(el.innerHTML, /npc-state-delta-v2-dossiers/);
-    for (const id of ['npc_mira', 'npc_oren']) assert.match(el.innerHTML, new RegExp(`class="ss-listcard-item npc-state-delta-story-row" data-npc-id="${id}"`));
+    assert.match(el.innerHTML, /ppl-dossiers/);
+    for (const id of ['npc_mira', 'npc_oren']) assert.match(el.innerHTML, new RegExp(`class="ss-listcard-item ppl-story-row" data-npc-id="${id}"`));
     assert.match(el.innerHTML, /<b class="ss-listcard-title">Mira<\/b><small class="ss-listcard-sub">Present<\/small>/, 'the row\'s status line');
     assert.match(el.innerHTML, /<b class="ss-listcard-title">Kael<\/b><small class="ss-listcard-sub">Archived<\/small>/);
-    el.fire('click', { target: { closest: selector => (selector === '.npc-state-delta-story-row' ? { dataset: { npcId: 'npc_oren' } } : null) } });
+    el.fire('click', { target: { closest: selector => (selector === '.ppl-story-row' ? { dataset: { npcId: 'npc_oren' } } : null) } });
     assert.deepEqual(delta.opened, ['npc_oren'], 'Delta\'s own dossier view');
     // Typing filters the list only (the box is not drawn again, so it keeps its focus).
     const writes = el.writes;
@@ -200,7 +200,7 @@ test('Dossiers lists every dossier (plain rows since B4-5: name and status); a r
     // A redraw (Delta's state moved) keeps the search text and the focus in the box.
     doc.activeElement = box;
     delta.setPresent(['npc_mira', 'npc_oren']);
-    doc.fire('npc-state-delta:cast-rendered');
+    doc.fire('people:cast-rendered');
     assert.match(el.innerHTML, /value="ore"/);
     assert.equal(doc.activeElement, el.search(), 'the new box has the focus');
     adapter.stop();
@@ -210,13 +210,13 @@ test('with Story Director\'s World on, Dossiers has no present cards (World has 
     const withWorld = await setup({ world: true });
     const a = element(withWorld.doc);
     withWorld.def.tabs[0].render(a, {}, {});
-    assert.doesNotMatch(a.innerHTML, /npc-state-delta-present-roster/, 'the cards are on the World screen');
-    assert.match(a.innerHTML, /npc-state-delta-v2-dossiers/);
+    assert.doesNotMatch(a.innerHTML, /ppl-present-roster/, 'the cards are on the World screen');
+    assert.match(a.innerHTML, /ppl-dossiers/);
     withWorld.adapter.stop();
     const alone = await setup({ world: false });
     const b = element(alone.doc);
     alone.def.tabs[0].render(b, {}, {});
-    assert.ok(b.innerHTML.indexOf('npc-state-delta-present-roster') < b.innerHTML.indexOf('npc-state-delta-v2-dossiers'), 'cards first, then the list');
+    assert.ok(b.innerHTML.indexOf('ppl-present-roster') < b.innerHTML.indexOf('ppl-dossiers'), 'cards first, then the list');
     // The game view's Dossiers screen draws the same.
     const slot = element(alone.doc);
     slot.append = child => { slot.children.push(child); child.parentNode = slot; };
@@ -230,7 +230,7 @@ test('before v1\'s list has loaded (or if it cannot), Dossiers is a plain list o
     const el = element(doc);
     def.tabs[0].render(el, {}, {});
     for (const name of ['Mira', 'Oren', 'Kael']) assert.match(el.innerHTML, new RegExp(`<b class="ss-listcard-title">${name}</b>`));
-    el.fire('click', { target: { closest: selector => (selector === '.npc-state-delta-story-row' ? { dataset: { npcId: 'npc_mira' } } : null) } });
+    el.fire('click', { target: { closest: selector => (selector === '.ppl-story-row' ? { dataset: { npcId: 'npc_mira' } } : null) } });
     assert.deepEqual(delta.opened, ['npc_mira']);
     adapter.stop();
 });
@@ -245,8 +245,8 @@ test('the page API: on the page while the adapter runs; draws the present cards 
     const asked = [];
     const count = api.render(el, { slot: (name, aliases) => { asked.push([name, aliases]); return name === 'Mira' ? node(doc, 'thought') : null; } });
     assert.equal(count, 1);
-    assert.match(el.innerHTML, /npc-state-delta-present-roster/, 'Delta\'s own markup and classes');
-    assert.doesNotMatch(el.innerHTML, /npc-state-delta-v2-dossiers/, 'no dossier list in the World screen');
+    assert.match(el.innerHTML, /ppl-present-roster/, 'Delta\'s own markup and classes');
+    assert.doesNotMatch(el.innerHTML, /ppl-dossiers/, 'no dossier list in the World screen');
     assert.deepEqual(asked, [['Mira', ['Captain']]], 'the dossier\'s name and aliases');
     const text = el.cells()[0].children[0];
     const slots = text.children.filter(child => child.classList.contains(PAGE_SLOT_CLASS));
@@ -266,16 +266,16 @@ test('onChange: called when Delta draws its cast again (a scan that ends after t
     const api = adapter.pageApi;
     let calls = 0;
     const off = api.onChange(() => { calls += 1; });
-    doc.fire('npc-state-delta:cast-rendered');
+    doc.fire('people:cast-rendered');
     assert.equal(calls, 1);
-    doc.fire('npc-state-delta:enabled-changed');
+    doc.fire('people:enabled-changed');
     assert.equal(calls, 2);
     // A listener that throws does not stop the others.
     api.onChange(() => { throw new Error('boom'); });
-    doc.fire('npc-state-delta:cast-rendered');
+    doc.fire('people:cast-rendered');
     assert.equal(calls, 3);
     off();
-    doc.fire('npc-state-delta:cast-rendered');
+    doc.fire('people:cast-rendered');
     assert.equal(calls, 3, 'unsubscribed');
     assert.equal(typeof api.onChange(null), 'function', 'a bad listener is ignored');
     adapter.stop();
@@ -301,10 +301,10 @@ test('a present card: the stage is set on its name line, the NPC\'s meters are i
     const cell = el.cells()[0];
     assert.ok(cell, 'Mira has a present card');
     const text = cell.children[0];
-    const stage = text.querySelector('.npc-state-delta-present-card-stage');
+    const stage = text.querySelector('.ppl-present-card-stage');
     assert.equal(stage.textContent, 'Close <b>now</b>', 'the stage is the NPC\'s rank, as text');
     assert.equal(stage.parentNode, text, 'on the card\'s name line, in the card');
-    const bars = text.querySelector('.npc-state-delta-present-card-bars');
+    const bars = text.querySelector('.ppl-present-card-bars');
     assert.ok(bars, 'the meters sit in the card');
     assert.match(bars.serialize(), /role="meter"[^>]*aria-valuenow="40"/);
     assert.doesNotMatch(bars.serialize(), /<b>|<i>/, 'no markup from the rank or the name');

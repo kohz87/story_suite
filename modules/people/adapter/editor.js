@@ -31,12 +31,12 @@ export function createEditorPart(session, deps) {
     // ---- the dossier editor and the dossier view (hosted only) ----
 
     const EDITOR = Object.freeze({
-        secrets: 'npc_state_delta_edit_secrets',
-        track: 'npc_state_delta_edit_meter_track',
-        limits: 'npc_state_delta_edit_meter_limits',
-        milestones: 'npc_state_delta_edit_milestones',
-        meter: id => `npc_state_delta_edit_meter_${id}`,
-        secretState: id => `npc_state_delta_edit_secret_state_${id}`,
+        secrets: 'people_edit_secrets',
+        track: 'people_edit_meter_track',
+        limits: 'people_edit_meter_limits',
+        milestones: 'people_edit_milestones',
+        meter: id => `people_edit_meter_${id}`,
+        secretState: id => `people_edit_secret_state_${id}`,
     });
     const milestoneLines = entry => Object.values(entry?.milestones ?? {}).join('\n');
 
@@ -54,7 +54,7 @@ export function createEditorPart(session, deps) {
         const entry = entryFor(sliceEntries(), npc);
         const setup = setupOf(npc);
         const box = (id, label, help, value, rows = 3) => `
-      <label class="npc-state-delta-editor-wide">${label} <small>${help}</small><textarea id="${id}" class="text_pole" rows="${rows}">${escapeHtml(value)}</textarea></label>`;
+      <label class="ppl-editor-wide">${label} <small>${help}</small><textarea id="${id}" class="text_pole" rows="${rows}">${escapeHtml(value)}</textarea></label>`;
         // A locked note the reader did not write (a pack's or a scan's: its `from`) is not shown: no title, no text, no
         // event words, only that it is hidden and when it opens, with its open/shut control. The text box holds the reader's
         // own notes and the notes that are opened. Saving keeps every hidden note exactly as it is (readEditor).
@@ -72,24 +72,24 @@ export function createEditorPart(session, deps) {
                 hiddenCount += 1;
                 const name = `Hidden note ${hiddenCount}`;
                 const opens = rules.get(note.id) ?? (note.gate ? 'Opens when the story earns it' : 'Opens with the story');
-                return `<div class="npc-state-delta-v2-editor-hidden"><span>${escapeHtml(`${name} · ${opens[0].toLocaleLowerCase()}${opens.slice(1)}`)}</span>${control(name)}</div>`;
+                return `<div class="ppl-editor-hidden"><span>${escapeHtml(`${name} · ${opens[0].toLocaleLowerCase()}${opens.slice(1)}`)}</span>${control(name)}</div>`;
             });
             html += `
-      <div class="npc-state-delta-editor-wide npc-state-delta-v2-editor-notes"><p class="npc-state-delta-muted">Open or shut a note by hand. A shut note stays shut until you open it.</p>${rows.join('')}</div>`;
+      <div class="ppl-editor-wide ppl-editor-notes"><p class="ppl-muted">Open or shut a note by hand. A shut note stays shut until you open it.</p>${rows.join('')}</div>`;
         }
         const tracks = [...new Set(Object.keys(settings.ladder).filter(Boolean))];
         const presetName = id => catalog().find(preset => preset.id === id)?.name ?? id;
         if (part.featureOn(FEATURE_STAGES) && (tracks.length || setup.track)) {
             const options = [['', 'Everyone\'s ladder'], ...[...new Set([...tracks, ...(setup.track ? [setup.track] : [])])].map(id => [id, presetName(id)])];
             html += `
-      <label class="npc-state-delta-editor-wide">Meter preset <small>Which stage ladder and limits this NPC follows.</small><select id="${EDITOR.track}" class="text_pole">${options.map(([id, label]) => `<option value="${escapeHtml(id)}"${id === setup.track ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label>`;
+      <label class="ppl-editor-wide">Meter preset <small>Which stage ladder and limits this NPC follows.</small><select id="${EDITOR.track}" class="text_pole">${options.map(([id, label]) => `<option value="${escapeHtml(id)}"${id === setup.track ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label>`;
         }
         html += box(EDITOR.limits, 'Meter limits', 'One meter per line: "affection: ceiling 40" or "trust: floor -20, ceiling 60". Story lines and scans never raise a meter past its ceiling or lower it past its floor; a change back from one always lands. Leave empty to use the preset\'s.', limitsToLines(setup.limits), 2);
         if (part.featureOn(FEATURE_STAGES)) html += box(EDITOR.milestones, 'Milestones', 'Story turning points, one per line (the story adds them with "+ milestone Name — what happened"). A stage on the ladder may need one.', milestoneLines(entry), 2);
         const custom = part.defs().filter(def => !def.builtIn);
         if (custom.length) {
             html += `
-      <div class="npc-state-delta-editor-wide npc-state-delta-v2-editor-meters">${custom.map(def => `<label>${escapeHtml(def.label)}<input id="${EDITOR.meter(def.id)}" class="text_pole" type="number" min="${def.min}" max="${def.max}" value="${entry ? meterValue({ meters: entry.meters }, def) : def.start}" data-delta-meter="${escapeHtml(def.id)}"></label>`).join('')}</div>`;
+      <div class="ppl-editor-wide ppl-editor-meters">${custom.map(def => `<label>${escapeHtml(def.label)}<input id="${EDITOR.meter(def.id)}" class="text_pole" type="number" min="${def.min}" max="${def.max}" value="${entry ? meterValue({ meters: entry.meters }, def) : def.start}" data-delta-meter="${escapeHtml(def.id)}"></label>`).join('')}</div>`;
         }
         return html;
     }

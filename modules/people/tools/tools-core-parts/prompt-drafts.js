@@ -1,4 +1,4 @@
-/* NPC State Delta supporting tools: the small keyed store of portrait prompt drafts kept while a workflow is closed. */
+/* NPC State supporting tools: the small keyed store of portrait prompt drafts kept while a workflow is closed. */
 const PROMPT_DRAFT_LIMIT = 20;
 
 export const promptDrafts = new Map();

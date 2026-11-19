@@ -1,4 +1,4 @@
-/* NPC State Delta episode labels: context segmenting, binding labels and phrase/label presence tests. */
+/* NPC State episode labels: context segmenting, binding labels and phrase/label presence tests. */
 
 import { cleanText, normalizeName } from '../core-text.js';
 

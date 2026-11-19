@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: merging the recent evidence of one field, and of a whole evidence record, with dedupe. */
+/* NPC State profile evidence: merging the recent evidence of one field, and of a whole evidence record, with dedupe. */
 import { DURABLE_PROFILE_LIMITS, semanticDedupeItems } from '../core-relationship.js';
 import { cleanList } from '../core-text.js';
 import { PROFILE_EVIDENCE_FIELDS } from '../../fields/registry.js';

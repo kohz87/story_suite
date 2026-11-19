@@ -1,4 +1,4 @@
-/* NPC State Delta identity: normalizing the visual apparent age into a stable ~N estimate. */
+/* NPC State identity: normalizing the visual apparent age into a stable ~N estimate. */
 import { cleanText } from '../core-text.js';
 import { AGE_NUMBER_WORD_RE, isUnknownAgePlaceholder, normalizedAgeText, parseEnglishAgeNumber } from './shared-age-text.js';
 
