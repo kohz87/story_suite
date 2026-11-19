@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A typed attack starts the fight board again: the foe check's answer was thrown away when the connection returned it as JSON (the same fix covers every helper call).
 - The Here drawer starts folded; its header opens it.
 - An attack that goes on to what comes after (taking the bodies back) now starts the fight on the board instead of being read as already won.
 - Fight board: after an exchange you go straight back to choosing (the exchange just done shows as one line above), and with one foe left an attack goes to it without a tap.

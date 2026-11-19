@@ -303,6 +303,7 @@
   "tests/core/sdk/shared-pack-answers.test.js": "Tests that packs.content hands out the packs' own frozen records (the same objects on every ask) while other queries still answer copies.",
   "tests/modules/arc/relative.test.js": "Tests the arc plan reader's relative dates: spans, day words and parts of the day on a custom calendar, and the texts left as written.",
   "tests/modules/arc/world-judge-scrub.test.js": "Tests: the Director judge's NOTE, refusal reasons and reshaped lines keep the unlearned secrets out (scrub, judgePlan, the host).",
+  "tests/modules/assist/answer-object.test.js": "Tests that a model answer whose content arrives as parsed JSON is read as its text, so the foe pre-check still finds its groups.",
   "tests/modules/atlas/view-scale.test.js": "Tests the map's km per unit in atlas.view: read from the pack's road lengths unless the reader set one.",
   "tests/modules/cast/cast/entry-sig.test.js": "Tests that a frozen pack cast row is hashed once for its signature and an unfrozen row on every read.",
   "tests/modules/cast/cast/s2pa-cut-swipe.test.js": "Checks that a swipe after a middle delete judges the pending cast meeting at its reply's new index, so nobody is met who was never shown.",

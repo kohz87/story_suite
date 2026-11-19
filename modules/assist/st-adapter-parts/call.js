@@ -10,13 +10,18 @@ export function findProfile(ctx, name) {
     return list.find(profile => String(profile?.name ?? '').trim().toLowerCase() === key) ?? null;
 }
 
-// What a request service or generateRaw answers: a string, { content }, or a chat completion body.
+// What a request service or generateRaw answers: a string, { content }, or a chat completion body. A proxy that parses a JSON answer
+// hands `content` back as an object (19 Nov: the foe pre-check's groups arrived so and were read as nothing): it is given back as its JSON text.
+const asJson = value => (value !== null && typeof value === 'object' ? JSON.stringify(value) : null);
+
 export function answerText(out) {
     if (typeof out === 'string') return out;
     if (typeof out?.content === 'string') return out.content;
+    if (asJson(out?.content)) return asJson(out.content);
     if (typeof out?.text === 'string') return out.text;
     const choice = out?.choices?.[0];
     if (typeof choice?.message?.content === 'string') return choice.message.content;
+    if (asJson(choice?.message?.content)) return asJson(choice.message.content);
     if (typeof choice?.text === 'string') return choice.text;
     return '';
 }
