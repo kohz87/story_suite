@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- With SillyTavern's swipes on all messages, the Suite button under a reply no longer sits on top of the swipe counter.
 - NPC State now starts when the browser has an ad or privacy blocker: three of its files had names blockers refuse, so it never started and no dossiers were made.
 - Settings › Packs and trackers: the RPG's own Character, Skills and Foes blocks are no longer listed as trackers (one line says they belong to the RPG).
 - The card's place line sits level with ‹ Chat and ⚙ (its › no longer wraps under a long name); an item's Stats row lines up with the rows below it.

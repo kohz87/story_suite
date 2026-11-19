@@ -5,6 +5,8 @@
 .ssrow{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;margin:8px 0 2px;padding-top:7px;border-top:1px solid var(--SmartThemeBorderColor);font-size:.84em;color:var(--SmartThemeEmColor)}
 /* The last reply carries SillyTavern's swipe arrows and counter (‹ 2/3 ›) in a band at its bottom, 45-55 px tall in SillyTavern's own layout and in themes such as Moonlit Echoes, beside or under the row's right end: the row ends above that band, so the Suite button never covers them at any width. */
 .mes.last_mes .ssrow{margin-bottom:calc(var(--swipeCounterHeight,15px) + var(--swipeCounterMargin,5px) + 30px)}
+/* (SillyTavern's "swipes on all messages" shows the swipe counter at the bottom right of every message: the row's chips stay left of it) */
+body.swipeAllMessages .mes:not(.last_mes) .ssrow{padding-right:64px}
 .ssl1,.ssl2{display:contents}
 .ssl3{margin-top:4px}
 .ssrow .it3{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
