@@ -54,10 +54,8 @@ function card(person, on) {
       onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault?.(); go(); } },
     },
     h('span', { class: 'rg2', role: 'img', 'aria-label': `Feelings: ${meterLabel(person.meters)}` }, ring(person.meters), face(person, 'ph')),
-    person.mood ? h('span', { class: 'md3' }, person.mood) : null,
     h('b', person.name),
-    where ? h('span', { class: 'wh3' }, where) : null,
-  ); // (no inner chatter here: the owner keeps the cards slim; chatter shows on Now and in the dossier)
+  ); // (portrait and name only: mood, place and chatter are on the person's page; the label still says them) // (no inner chatter here: the owner keeps the cards slim; chatter shows on Now and in the dossier)
 }
 
 function arrow(dir, label, disabled, on, pages, page) {

@@ -87,7 +87,7 @@ test('single page shows no dots; card opens the dossier by click and keyboard', 
   assert.match(c.getAttribute('aria-label'), /Open dossier/);
 });
 
-test('portraits: safe urls become backgrounds, others fall back to the initial; where is cut to 40', () => {
+test('portraits: safe urls become backgrounds, others fall back to the initial; the card has no place, mood or chatter line', () => {
   installFakeDom();
   const base = { personId: 'a', meters: { trust: 50, affection: 0, desire: 0, tension: 0 }, mood: 'calm', thought: null };
   const d = peopleDrawer([
@@ -98,6 +98,6 @@ test('portraits: safe urls become backgrounds, others fall back to the initial; 
   assert.match(phs[0].style.getPropertyValue('background-image'), /img\/ann\.webp/);
   assert.equal(phs[1].style.getPropertyValue('background-image'), '');
   assert.equal(phs[1].textContent, 'B');
-  assert.equal(d.querySelector('.wh3').textContent.length, 40);
-  assert.equal(d.querySelectorAll('.th4').length, 0);
+  assert.equal(d.querySelectorAll('.wh3, .md3, .th4').length, 0);
+  assert.match(d.querySelector('.pc2').getAttribute('aria-label'), /x{40}/, 'the label still says where (cut to 40)');
 });

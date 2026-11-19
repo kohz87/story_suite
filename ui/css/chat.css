@@ -41,7 +41,7 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrow{padding-right:64px}
 .arr{width:44px;height:44px;border-radius:50%;border:1px solid var(--SmartThemeBorderColor);background:transparent;color:var(--SmartThemeBodyColor);cursor:pointer;font:inherit}
 .arr:disabled{opacity:.3;cursor:default}
 .pcrow{display:flex;gap:6px;min-width:0}
-.pc2{flex:0 0 calc((100% - (var(--per,2) - 1) * 6px) / var(--per,2));display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 2px 4px;cursor:pointer;min-width:0;text-align:center;border-radius:10px}
+.pc2{flex:0 0 96px;width:96px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 2px 4px;cursor:pointer;min-width:0;text-align:center;border-radius:10px}
 .pc2:hover .ph,.pc2:focus-visible .ph{outline:2px solid var(--SmartThemeBodyColor);outline-offset:1px}
 .rg2{position:relative;width:84px;height:84px}
 .rg2 svg{position:absolute;inset:0;width:100%;height:100%}
@@ -90,5 +90,6 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrow{padding-right:64px}
  .ssl2 .ssbtn.need .lb,.ssl2 .ssbtn[data-ch] .lb{display:none}
  .ssrow.fo .ssl2 .it3{display:none}
  .rg2{width:60px;height:60px}.rg2 .ph{inset:6px;font-size:1.05em}
+ .pc2{flex-basis:72px;width:72px}
  .dbody2{padding:0 4px 2px}
 }

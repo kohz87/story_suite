@@ -17,7 +17,7 @@ export function latestReplyOf(messagesEl) {
 /** Decides the drawer: hidden when nobody is here, folded when closed or while typing on a narrow screen, and cards per page. */
 export function drawerLayout(rows, { open = true, typing = false, narrow = false } = {}) {
   const hidden = !Array.isArray(rows) || rows.length === 0;
-  return { hidden, folded: !open || (typing && narrow), perPage: narrow ? 2 : 4 };
+  return { hidden, folded: !open || (typing && narrow), perPage: narrow ? 3 : 8 };
 }
 
 /** Creates the controller: refresh(chatVm) redraws, setTyping(bool) and toggleDrawer() refold; options: messagesEl, drawerHost, handlers (onCardAction(action) runs a card's button), isNarrow(). */

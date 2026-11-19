@@ -74,27 +74,28 @@ async function measure(width) {
   return got;
 }
 
-test('phone width: the row folds to two lines, rings are 60px, two cards share one line', async (t) => {
+test('phone width: the row folds to two lines, rings are 60px, three slim cards share one line', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const g = await measure(390);
   assert.equal(g.rowDisplay, 'block');
   assert.equal(g.ring, '60px');
   assert.equal(g.drawerDisplay, 'block', 'SillyTavern styles .drawer as a flex row; the suite class must not match it');
-  assert.equal(g.cards, 2);
+  assert.equal(g.cards, 3);
   assert.ok(g.sameLine, 'the cards sit side by side');
-  assert.ok(g.cardW * 2 < g.hostW && g.cardW > 100, `card width ${g.cardW} fits two across ${g.hostW}`);
+  assert.equal(Math.round(g.cardW), 72, 'a slim card: portrait and name');
+  assert.ok(g.cardW * 3 < g.hostW, `three cards fit across ${g.hostW}`);
   assert.equal(g.pcrowWrap, 'nowrap', 'the Story tab .prow wrap rule must not leak in');
   assert.equal(g.faceW, '22px');
   assert.equal(g.faceML, '-6px', 'the Settings .mf margin must not leak in');
   assert.equal(g.ph, 'rgb(85, 85, 85)');
 });
 
-test('tablet width: the row stays on one line, rings are 84px, four cards share one line', async (t) => {
+test('tablet width: the row stays on one line, rings are 84px, all four slim cards share one line', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const g = await measure(820);
   assert.equal(g.rowDisplay, 'flex');
   assert.equal(g.ring, '84px');
   assert.equal(g.cards, 4);
   assert.ok(g.sameLine);
-  assert.ok(g.cardW * 4 < g.hostW && g.cardW > 100, `card width ${g.cardW} fits four across ${g.hostW} (the drawer is as wide as the chat)`);
+  assert.equal(Math.round(g.cardW), 96, 'a slim card: portrait and name (owner, 19 Nov)');
 });

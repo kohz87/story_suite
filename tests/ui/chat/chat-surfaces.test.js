@@ -31,9 +31,9 @@ test('latestReplyOf skips the user messages, by class or is_user', () => {
 
 test('drawerLayout hides with nobody, folds while typing on narrow only', () => {
   const rows = [{ name: 'a' }];
-  assert.deepEqual(drawerLayout([], {}), { hidden: true, folded: false, perPage: 4 });
+  assert.deepEqual(drawerLayout([], {}), { hidden: true, folded: false, perPage: 8 });
   assert.equal(drawerLayout(undefined).hidden, true);
-  assert.deepEqual(drawerLayout(rows, { typing: true, narrow: true }), { hidden: false, folded: true, perPage: 2 });
+  assert.deepEqual(drawerLayout(rows, { typing: true, narrow: true }), { hidden: false, folded: true, perPage: 3 });
   assert.equal(drawerLayout(rows, { typing: true, narrow: false }).folded, false);
   assert.equal(drawerLayout(rows, { open: false }).folded, true);
   assert.equal(drawerLayout(rows).folded, false);
