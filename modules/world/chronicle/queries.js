@@ -1,5 +1,5 @@
 // Story Director v2, chronicle part: its queries (pure), for the Chronicle screen and for other
-// modules (NPC State Delta may link its NPCs to factions by name later).
+// modules (NPC State may link its NPCs to factions by name later).
 //
 // Times are written on the chat's calendar: the tracker's `director.calendar` query through
 // `tools.query` (the reader's, else the enabled pack's, else Gregorian), Gregorian without it.

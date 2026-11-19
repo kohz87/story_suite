@@ -1,4 +1,4 @@
-/* NPC State Delta cast sync (role: cast-sync). Makes a dossier at once from a Story Director cast entry (no scan, no model call) and gives a
+/* NPC State cast sync (role: cast-sync). Makes a dossier at once from a Story Director cast entry (no scan, no model call) and gives a
    cast dossier its pack picture when Story Block answers for it. Built by runtime-entry.js once per module instance, after the dossier editor (the
    sync redraws the dossier view), so each instance keeps its own run flags. Bodies are moved from runtime-entry.js without change. */
 
@@ -61,7 +61,7 @@ export function advanceCastAdmission(state, before, after) {
 }
 
 export function createCastSyncPart(rt, deps) {
-    const { castList, chatHeadMark, chatHeadUnchanged, chatHydrationStatus, noteChatLineage, ensureFreshMutationBoundary, getChatKey, getChatState, latestMessageId, persistCritical, renderDossier, requestHeaders, setChatState, storySuiteV2Meters, updateInjection } = deps;
+    const { castList, chatHeadMark, chatHeadUnchanged, chatHydrationStatus, noteChatLineage, ensureFreshMutationBoundary, getChatKey, getChatState, latestMessageId, persistCritical, renderDossier, requestHeaders, setChatState, adapterMeters, updateInjection } = deps;
     const { castPortraitMisses } = rt;
 
     // (v2, the living cast) Delta reads Story Director's `director.cast` and Story Block's `packs.portrait` (never writes to them). At
@@ -156,7 +156,7 @@ export function createCastSyncPart(rt, deps) {
     // Whether the sync has a picture to give a cast dossier (a cheap look, no wait): the adapter asks before it runs the sync for this alone.
     function castPortraitDue() {
         try {
-            const adapter = storySuiteV2Meters();
+            const adapter = adapterMeters();
             const key = getChatKey();
             if (!adapter || getSettings().enabled === false || !key || key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return false;
             return castPortraitTargets(getChatState(key), adapter, key).length > 0;
@@ -181,7 +181,7 @@ export function createCastSyncPart(rt, deps) {
         return any;
     }
     async function castSyncOnce() {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter || getSettings().enabled === false) return false;
         const key = getChatKey();
         if (!key || key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return false;

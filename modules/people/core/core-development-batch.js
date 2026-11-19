@@ -1,4 +1,4 @@
-/* NPC State Delta batch durable-profile updates and interim identity promotion: applyDurableProfileUpdates
+/* NPC State batch durable-profile updates and interim identity promotion: applyDurableProfileUpdates
    and resolveInterimIdentityPromotions. Split from core-development.js as a line-for-line part; the
    original keeps the public exports. */
 

@@ -1,4 +1,4 @@
-/* NPC State Delta NPC lookup: the tracked person of the loaded chat by id, or by id or name. */
+/* NPC State NPC lookup: the tracked person of the loaded chat by id, or by id or name. */
 
 import { normalizeName } from '../core/core.js';
 

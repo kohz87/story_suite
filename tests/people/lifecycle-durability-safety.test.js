@@ -174,7 +174,7 @@ test('final review protects all rename destination representations and event ins
 test('storage has a cross-tab lease fallback when Web Locks are unavailable', () => {
     const storage = fs.readFileSync(new URL('../../modules/people/storage/storage.js', import.meta.url), 'utf8');
     assert.match(storage, /async function withLocalStorageWriterLock/);
-    assert.match(storage, /npc-state-delta-writer-lock:/);
+    assert.match(storage, /ppl-writer-lock:/);
     assert.match(storage, /CROSS_TAB_LOCK_LEASE_MS/);
     assert.match(storage, /NPC_STATE_LOCK_TIMEOUT/);
     assert.match(storage, /return withLocalStorageWriterLock\(chatKey, task\)/);

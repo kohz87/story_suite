@@ -70,7 +70,7 @@ export function createSectionPart(session, deps, drawerPart) {
         if (lead) sectionLead = lead;
         if (!node) {
             session.pendingSection = el;
-            const loading = "NPC State Delta's settings are still loading.";
+            const loading = "NPC State's settings are still loading.";
             if (sectionLead && typeof el.replaceChildren === 'function' && typeof doc?.createElement === 'function') {
                 const line = doc.createElement('p');
                 line.textContent = loading;

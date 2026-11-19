@@ -44,7 +44,7 @@ export function dossierFields(npc, { customFieldNames } = {}) {
 // The raster image types Delta accepts for a portrait (runtime-entry.js setNpcPortrait); compressed
 // portraits are stored as data:image/webp.
 const DATA_IMAGE = /^data:image\/(?:png|jpeg|jpg|webp|gif|avif|bmp);base64,[a-z0-9+/=]+$/i;
-const URL_BASE = 'https://npc-state-delta.invalid/';
+const URL_BASE = 'https://people.invalid/';
 
 /**
  * `value` when it is safe to hand to another module as an image URL, else null: a data: URL of a

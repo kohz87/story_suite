@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { buildScannerPrompt, createNpcRecord } from '../../modules/people/core/core.js';
 import { scenePresentFocus, withScenePresent } from '../../modules/people/core/core-mechanics.js';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { createHost } from '../../testkit/index.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
@@ -81,7 +81,7 @@ async function hostedAdapter(answers) {
     };
     const timers = { setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {} };
     const sb = { ready: Promise.resolve(sdk) };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => [] }, delta: () => ({ isEnabled: () => true }), version: 'test',
         host: () => sb, doc: fakeDoc(), timers, logger: { warn() {} },
     });
@@ -100,7 +100,7 @@ test('presentNow: Story Director\'s World view first, else Story Block\'s scene;
     assert.deepEqual(off.presentNow(), ['Wynn'], 'the World view turned off answers null');
     const none = await hostedAdapter({});
     assert.equal(none.presentNow(), null);
-    const alone = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [] }, delta: () => ({}), host: () => undefined, doc: fakeDoc(), timers: { setTimeout: () => 0, clearTimeout() {} }, logger: { warn() {} } });
+    const alone = createPeopleAdapter({ suiteApi: { npcs: () => [] }, delta: () => ({}), host: () => undefined, doc: fakeDoc(), timers: { setTimeout: () => 0, clearTimeout() {} }, logger: { warn() {} } });
     assert.equal(alone.presentNow(), null, 'Delta alone');
 });
 
@@ -109,7 +109,7 @@ test('index.js: the scan passes the scene list only for the head reply while Sto
     // (hidden notes) The same call also carries the hosted notes' options, spread in after the scene list.
     assert.match(index, /buildScannerPrompt\(scannerPromptOptions\(state, settings, transcript, \{\n            currentTranscript, earlierOnly, fullScanMode: fullWindowScan, sceneNames: scanScenePresent\(messageId\), \.\.\.noteOptions,\n        \}\)\)/);
     const fn = index.slice(index.indexOf('function scanScenePresent'), index.indexOf('// The chat state a scan works from'));
-    assert.match(fn, /storySuiteV2Meters\(\)/);
+    assert.match(fn, /adapterMeters\(\)/);
     assert.match(fn, /!storyBlockIsV2\(\)\) return null/);
     assert.match(fn, /messageId !== latestMessageId\(true\)/);
     assert.match(fn, /adapter\.presentNow/);
@@ -121,7 +121,7 @@ test('index.js: the scan passes the scene list only for the head reply while Sto
 async function onHost({ modules = [] } = {}) {
     const host = await createHost({ modules });
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => [] }, delta: () => ({ isEnabled: () => true, getNpc: () => null, relationshipBaseline: () => ({ trust: 0, affection: 0, desire: 0, tension: 0 }) }),
         version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },

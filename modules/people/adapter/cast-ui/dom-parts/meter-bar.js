@@ -28,21 +28,21 @@ export function meterBarNode(doc, def, value, stage = '', extra = {}) {
     head.append(elementOf(doc, 'span', 'ss-w-meter-label', label));
     const value_ = elementOf(doc, 'span', 'ss-w-meter-value', text);
     value_.setAttribute('aria-hidden', 'true');
-    if (delta) value_.append(elementOf(doc, 'span', `npc-state-delta-v2-delta ${delta > 0 ? 'npc-state-delta-v2-delta-up' : 'npc-state-delta-v2-delta-down'}`, `${delta > 0 ? '▲' : '▼'}${Math.abs(delta)}`));
+    if (delta) value_.append(elementOf(doc, 'span', `ppl-delta ${delta > 0 ? 'ppl-delta-up' : 'ppl-delta-down'}`, `${delta > 0 ? '▲' : '▼'}${Math.abs(delta)}`));
     head.append(value_);
     const track = elementOf(doc, 'div', 'ss-w-meter-track');
     track.setAttribute('style', `--ss-w-ratio: ${ratio}`);
     track.append(elementOf(doc, 'div', 'ss-w-meter-fill'));
     for (const tick of (Array.isArray(extra?.ticks) ? extra.ticks : []).slice(0, 8)) {
         if (!Number.isFinite(tick?.at)) continue;
-        const mark = elementOf(doc, 'span', 'npc-state-delta-v2-tick');
-        mark.setAttribute('style', `--npc-state-delta-at: ${at(tick.at)}`);
+        const mark = elementOf(doc, 'span', 'ppl-tick');
+        mark.setAttribute('style', `--ppl-at: ${at(tick.at)}`);
         mark.setAttribute('title', `${tick.label ?? ''} ${tick.at}`.trim());
         track.append(mark);
     }
     if (Number.isFinite(extra?.ceiling) && extra.ceiling < max) {
-        const mark = elementOf(doc, 'span', 'npc-state-delta-v2-ceiling');
-        mark.setAttribute('style', `--npc-state-delta-at: ${at(extra.ceiling)}`);
+        const mark = elementOf(doc, 'span', 'ppl-ceiling');
+        mark.setAttribute('style', `--ppl-at: ${at(extra.ceiling)}`);
         mark.setAttribute('title', `Ceiling ${extra.ceiling}`);
         track.append(mark);
     }

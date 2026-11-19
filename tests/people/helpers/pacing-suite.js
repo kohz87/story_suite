@@ -2,7 +2,7 @@
 // and a stand-in for Story Director's clock (`director.time`). suite() returns say / swipe / setDay and readers.
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../../modules/people/storysuite-v2.js';
 import { DEFAULT_RELATIONSHIP_CAPS } from '../../../modules/people/core/core.js';
 import { fromFlatDay, normalizeAllowance } from '../../../modules/people/relationship/relationship-pacing.js';
 import { seedPeople } from './seed-people.js';
@@ -52,7 +52,7 @@ export async function suite({ records = dossiers(), clock = true, allowance, fea
         fillPresentCast: () => {},
         playerNames: () => players,
     };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => Object.values(delta.records).map(({ id, name, aliases, present }) => ({ id, name, aliases, present })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         linesMode: () => (typeof lines === 'function' ? lines() : lines), levelOn: () => (typeof levelOn === 'function' ? levelOn() : levelOn),

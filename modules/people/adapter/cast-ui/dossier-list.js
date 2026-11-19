@@ -37,16 +37,16 @@ export function createDossierListPart(session, deps) {
     // markup. Story Block's list-row classes are the same as dossier-rows.js dossierRowNodes (its builder, once loaded).
     // Before dossier-rows.js has loaded: plain rows of names that still open each dossier.
     function plainRowNodes(rows, doc, total = 0) {
-        if (!rows.length) return [elementOf(doc, 'p', 'npc-state-delta-story-empty', total ? 'No dossier matches.' : 'No dossiers yet. An NPC gets one when a scan finds them in the story.')];
+        if (!rows.length) return [elementOf(doc, 'p', 'ppl-story-empty', total ? 'No dossier matches.' : 'No dossiers yet. An NPC gets one when a scan finds them in the story.')];
         return rows.map(row => {
             const item = elementOf(doc, 'li', 'ss-listcard-row');
-            const button = elementOf(doc, 'button', 'ss-listcard-item npc-state-delta-story-row');
+            const button = elementOf(doc, 'button', 'ss-listcard-item ppl-story-row');
             button.dataset.npcId = String(row.id ?? '');
             button.setAttribute('aria-label', `Open ${row.name} dossier`);
             button.setAttribute('type', 'button');
-            const text = elementOf(doc, 'span', 'npc-state-delta-story-text ss-listcard-main');
+            const text = elementOf(doc, 'span', 'ppl-story-text ss-listcard-main');
             text.append(elementOf(doc, 'b', 'ss-listcard-title', row.name), elementOf(doc, 'small', 'ss-listcard-sub', row.statusLabel ?? ''));
-            button.append(elementOf(doc, 'span', 'npc-state-delta-story-thumb ss-listcard-icon', Array.from(String(row.name ?? '').trim())[0]?.toUpperCase() ?? '?'), text);
+            button.append(elementOf(doc, 'span', 'ppl-story-thumb ss-listcard-icon', Array.from(String(row.name ?? '').trim())[0]?.toUpperCase() ?? '?'), text);
             item.append(button);
             return item;
         });
@@ -94,17 +94,17 @@ export function createDossierListPart(session, deps) {
     }
     // The dossier browser: a search box and every dossier, each opening its dossier view (Delta's own).
     function dossierListNode(el, doc) {
-        const query = typeof el?.__npcStateDeltaV2Find === 'string' ? el.__npcStateDeltaV2Find : '';
-        const wrap = elementOf(doc, 'div', 'npc-state-delta-story-dossiers npc-state-delta-v2-dossiers');
-        wrap.append(elementOf(doc, 'span', 'npc-state-delta-kicker', 'DOSSIERS'));
-        const box = elementOf(doc, 'input', 'text_pole npc-state-delta-story-search');
+        const query = typeof el?.__pplFind === 'string' ? el.__pplFind : '';
+        const wrap = elementOf(doc, 'div', 'ppl-story-dossiers ppl-dossiers');
+        wrap.append(elementOf(doc, 'span', 'ppl-kicker', 'DOSSIERS'));
+        const box = elementOf(doc, 'input', 'text_pole ppl-story-search');
         box.setAttribute('type', 'search');
         box.setAttribute('placeholder', 'Search dossiers');
         box.setAttribute('aria-label', 'Search dossiers');
         box.setAttribute('maxlength', '80');
         box.value = query;
         wrap.append(box);
-        const list = elementOf(doc, 'div', 'npc-state-delta-story-list ss-listcard ss-glass');
+        const list = elementOf(doc, 'div', 'ppl-story-list ss-listcard ss-glass');
         list.append(...dossierRowNodesFor(query, doc));
         wrap.append(list);
         return wrap;
@@ -146,17 +146,17 @@ export function createDossierListPart(session, deps) {
     // The notes and the next-stage line of one NPC (text only). A card shows its stage on its name line, so it leaves the rank out.
     function noteNodes(doc, entry, { card = false } = {}) {
         const nodes = [];
-        if (!card && entry.rank) { const p = elementOf(doc, 'p', 'npc-state-delta-v2-rank'); p.append(elementOf(doc, 'b', '', entry.rank)); nodes.push(p); }
-        if (entry.next) nodes.push(elementOf(doc, 'p', 'npc-state-delta-v2-next', entry.next));
+        if (!card && entry.rank) { const p = elementOf(doc, 'p', 'ppl-rank'); p.append(elementOf(doc, 'b', '', entry.rank)); nodes.push(p); }
+        if (entry.next) nodes.push(elementOf(doc, 'p', 'ppl-next', entry.next));
         const texts = entry.opened?.length ? normalizeSecrets(dossierOf(entry.name)?.secrets) : [];
         for (const note of entry.opened ?? []) {
             const text = texts.find(secret => secret.id === note.id)?.text ?? '';
-            const p = elementOf(doc, 'p', 'npc-state-delta-v2-note npc-state-delta-v2-note-open');
+            const p = elementOf(doc, 'p', 'ppl-note ppl-note-open');
             p.append(elementOf(doc, 'b', '', note.title ?? ''));
             if (text) p.append(doc.createTextNode(`: ${text}`));
             nodes.push(p);
         }
-        for (const note of entry.locked ?? []) nodes.push(elementOf(doc, 'p', 'npc-state-delta-v2-note npc-state-delta-v2-note-locked', note.text ?? ''));
+        for (const note of entry.locked ?? []) nodes.push(elementOf(doc, 'p', 'ppl-note ppl-note-locked', note.text ?? ''));
         return nodes;
     }
 

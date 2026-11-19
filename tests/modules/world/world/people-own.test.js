@@ -41,23 +41,23 @@ function draw(api, { flag = true, value = VALUE, opened = [] } = {}) {
     const view = widget.render(el, { value }, api);
     return { el, view, doc };
 }
-const rows = el => el.querySelectorAll('.npc-state-delta-present-cell');
+const rows = el => el.querySelectorAll('.ppl-present-cell');
 const PEOPLE = () => ({ Mira: { id: 'np_1', role: 'Captain', mood: 'calm', rank: 'Friend', aliases: ['Cap'], portrait: PORTRAIT }, 'Old Tom': { id: 'np_2', role: '', mood: '', rank: '' } });
 
 test('flag on: one card per present person in npc.present order, with portrait or initial, name, Key tag, stage, role · mood and the thought inside', () => {
     const { el } = draw(world(PEOPLE(), { keys: ['Cap'] }));
     const cells = rows(el);
-    assert.deepEqual(cells.map(cell => cell.querySelector('.npc-state-delta-present-card-name').textContent), ['Mira', 'Old Tom']);
+    assert.deepEqual(cells.map(cell => cell.querySelector('.ppl-present-card-name').textContent), ['Mira', 'Old Tom']);
     assert.equal(cells[0].querySelector('img').getAttribute('src'), PORTRAIT);
-    assert.equal(cells[1].querySelector('.npc-state-delta-present-card-placeholder').textContent, 'O');
-    assert.equal(cells[0].querySelector('.npc-state-delta-key-tag').textContent, '★ Key', 'a followed person by alias');
-    assert.equal(cells[1].querySelector('.npc-state-delta-key-tag'), null);
-    assert.equal(cells[0].querySelector('.npc-state-delta-present-card-stage').textContent, 'Friend');
-    assert.equal(cells[0].querySelector('.npc-state-delta-present-card-role').textContent, 'Captain · calm');
-    assert.equal(cells[1].querySelector('.npc-state-delta-present-card-role').textContent, 'Present NPC');
+    assert.equal(cells[1].querySelector('.ppl-present-card-placeholder').textContent, 'O');
+    assert.equal(cells[0].querySelector('.ppl-key-tag').textContent, '★ Key', 'a followed person by alias');
+    assert.equal(cells[1].querySelector('.ppl-key-tag'), null);
+    assert.equal(cells[0].querySelector('.ppl-present-card-stage').textContent, 'Friend');
+    assert.equal(cells[0].querySelector('.ppl-present-card-role').textContent, 'Captain · calm');
+    assert.equal(cells[1].querySelector('.ppl-present-card-role').textContent, 'Present NPC');
     assert.equal(squash(cells[0].querySelector('.wv-thought').textContent), 'the tide turns', 'the thought is inside the card (matched by name)');
     assert.deepEqual(el.querySelectorAll('.wv-chip').map(chip => squash(chip.textContent)), ['Kell'], 'no card for Kell: a chip');
-    assert.equal(el.querySelector('.npc-state-delta-present-roster-head small').textContent, '2 shown');
+    assert.equal(el.querySelector('.ppl-present-roster-head small').textContent, '2 shown');
 });
 
 test('flag on: a click on a card opens that dossier by name (the fallback; with NPC State loaded its own handler opens by id)', () => {
@@ -69,7 +69,7 @@ test('flag on: a click on a card opens that dossier by name (the fallback; with 
 
 test('flag off (the default): the queries are never asked and the page API draws the cards, as before', () => {
     const api = world(PEOPLE());
-    const page = { available: () => true, busy: () => false, onChange: () => () => {}, render: el => { const cell = el.ownerDocument.createElement('div'); cell.className = 'npc-state-delta-present-cell'; cell.textContent = 'from the page API'; el.append(cell); return 1; } };
+    const page = { available: () => true, busy: () => false, onChange: () => () => {}, render: el => { const cell = el.ownerDocument.createElement('div'); cell.className = 'ppl-present-cell'; cell.textContent = 'from the page API'; el.append(cell); return 1; } };
     for (const options of [{ cast: () => page, flag: () => false }, { cast: () => page }]) {
         const doc = installFakeDom();
         const el = doc.createElement('div');

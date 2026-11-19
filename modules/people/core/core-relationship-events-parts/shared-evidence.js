@@ -1,4 +1,4 @@
-/* NPC State Delta relationship evidence: normalizes the per-axis evidence text of a relationship change. */
+/* NPC State relationship evidence: normalizes the per-axis evidence text of a relationship change. */
 import { cleanText } from '../core-text.js';
 import { RELATIONSHIP_KEYS } from '../core-relationship-model.js';
 

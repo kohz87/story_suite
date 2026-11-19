@@ -1,4 +1,4 @@
-/* NPC State Delta durable profile update: profile-update evidence normalization and the single-NPC
+/* NPC State durable profile update: profile-update evidence normalization and the single-NPC
    applyDurableProfileUpdate rules for text fields, personality, speech, appearance, mannerisms,
    behavior profile, extra durable facts and memories. Split from core-development.js as a line-for-line
    part; the original keeps the public exports. */

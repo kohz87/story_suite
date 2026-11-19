@@ -1,4 +1,4 @@
-/* NPC State Delta injection selection and budget: behavior guidance, NPC relevance selection and
+/* NPC State injection selection and budget: behavior guidance, NPC relevance selection and
    token-budget normalization. Split unchanged from core-injection.js; core-injection.js re-exports
    these public names. Public face: re-exports its parts. */
 export { buildBehaviorGuidance } from './core-injection-selection-parts/behavior-guidance.js';

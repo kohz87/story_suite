@@ -1,4 +1,4 @@
-/* NPC State Delta scoped manual mutations (role: scoped-manual-mutations). The single-dossier changes a person makes by hand:
+/* NPC State scoped manual mutations (role: scoped-manual-mutations). The single-dossier changes a person makes by hand:
    appearance, life state, portrait set/seed/remove, delete, archive and restore, manual add, and the export/import bundle with its
    portrait files. Built by runtime-entry.js once per module instance with the shared runtime state and the controller functions it calls.
    Bodies are moved from runtime-entry.js without change. */
@@ -368,7 +368,7 @@ export function createMutationsPart(rt, deps) {
     }
 
     async function exportBundleBytes() {
-        if (!requireReadyChatMutation('export a dossier', getChatKey(), { notify: false })) throw new Error('NPC State Delta chat dossier is not loaded.');
+        if (!requireReadyChatMutation('export a dossier', getChatKey(), { notify: false })) throw new Error('NPC State chat dossier is not loaded.');
         const state = getChatState();
         const key = getChatKey();
         const npcs = await withPortraitFilesInlined(state.npcs);
@@ -380,7 +380,7 @@ export function createMutationsPart(rt, deps) {
     }
 
     async function importBundleBytes(bytes) {
-        if (!requireReadyChatMutation('import a dossier')) throw new Error('NPC State Delta chat dossier is not loaded.');
+        if (!requireReadyChatMutation('import a dossier')) throw new Error('NPC State chat dossier is not loaded.');
         const settings = getSettings();
         const decoded = decodeDeltaNativeBundle(bytes);
         const targetChatKey = getChatKey();

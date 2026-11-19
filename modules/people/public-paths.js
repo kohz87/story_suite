@@ -1,5 +1,5 @@
 /*
- * NPC State Delta public paths (Story Block 2.22.0 sdk.registerPublicPaths; docs/PUBLIC-API.md in Story Block).
+ * NPC State public paths (Story Block 2.22.0 sdk.registerPublicPaths; docs/PUBLIC-API.md in Story Block).
  *
  * Offers `npc.<name>.<meter>` for every tracked NPC's shown meters (trust, affection, desire, tension and the custom ones, by meter id), plus
  * `npc.<name>.mood` and `npc.<name>.present`, to Story Block's public API (`StoryBlock.api.get`, `paths()`, `{{sb::npc.Mira.trust}}`, `story:changed`).

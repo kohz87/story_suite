@@ -1,4 +1,4 @@
-/* NPC State Delta behavior-lever keys, labels, categories and families. */
+/* NPC State behavior-lever keys, labels, categories and families. */
 import { cleanText, normalizeName } from '../core-text.js';
 import { DURABLE_PROFILE_LIMITS } from '../core-relationship.js';
 

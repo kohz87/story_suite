@@ -1,4 +1,4 @@
-/* NPC State Delta identity: telling a proper name from a role label, an interim placeholder or a descriptive phrase. */
+/* NPC State identity: telling a proper name from a role label, an interim placeholder or a descriptive phrase. */
 import { normalizeName } from '../core-text.js';
 
 const ROLE_LABEL_WORDS = new Set([

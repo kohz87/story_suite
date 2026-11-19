@@ -1,4 +1,4 @@
-/* NPC State Delta targeted prompt builders: output caps/return shapes, backfill, dossier import and profile refresh.
+/* NPC State targeted prompt builders: output caps/return shapes, backfill, dossier import and profile refresh.
    Split from core-prompts.js without change; core-prompts.js re-exports every name it exported before.
    Public face: re-exports its parts. */
 export { BEHAVIOR_LEVER_LABELS, PROMPT_CAPS, PROFILE_STYLE_LINE, returnShape } from './core-prompts-targeted-parts/prompt-shared.js';

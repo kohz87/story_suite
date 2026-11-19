@@ -3,7 +3,7 @@
 // - Story Suite's settings fold has, under the prompt size, a "Show what's sent" sub-fold: the exact text of
 //   every part the next reply would get (the static part, this reply's part, and what a module sends on its
 //   own), per module, with Copy. It only reads: nothing is sent and nothing is stored.
-// - A module that sends text with the reply under its own prompt keys (NPC State Delta's dossiers) says what
+// - A module that sends text with the reply under its own prompt keys (NPC State's dossiers) says what
 //   through its `ownPrompt(view)` hook. turn.previewFit() lists it (`own`), the prompt size shows it as a row
 //   of its own and in the total, and it counts toward the share of the context (prompt.js contextFit): the
 //   tail gets what the static part and it leave, never below MIN_TAIL_BUDGET. The static part never changes.
@@ -29,7 +29,7 @@ const talker = {
         }),
     },
 };
-// A module that sends its own text (as NPC State Delta does), `size` characters of it.
+// A module that sends its own text (as NPC State does), `size` characters of it.
 const sender = (size = 2000, extra = {}) => ({
     id: 'zz-own', name: 'Own Sender',
     hooks: { ownPrompt: () => [{ label: 'Live dossier', text: `Dossier for {{user}}: ${'d'.repeat(size)}` }] },
@@ -160,15 +160,15 @@ const parts = [
 const own = [{ module: 'npc-state-delta', label: 'Live dossier', place: 'own', text: 'Mira: IDENTITY quiet smith.' }];
 
 test('sentText: each place\'s parts, and Copy\'s text joined as prompt.js joins them', () => {
-    const names = id => ({ 'npc-state-delta': 'NPC State Delta' })[id] ?? id;
+    const names = id => ({ 'npc-state-delta': 'NPC State' })[id] ?? id;
     const out = sentText(parts, own, { names });
     assert.deepEqual(out.static.map(part => part.title), ['Story Suite: instructions', 'RPG Battle: instructions']);
     assert.deepEqual(out.tail.map(part => [part.title, part.dropped]), [['Happened', 0], ['RPG Battle: this reply', 2], ['Loot: this reply', 1]]);
-    assert.deepEqual(out.own.map(part => part.title), ['NPC State Delta: Live dossier']);
+    assert.deepEqual(out.own.map(part => part.title), ['NPC State: Live dossier']);
     assert.equal(out.copy, [
         `[${T.static}]`, 'HEADER line\nsecond line\n\nRB rules.', '',
         `[${T.tail}]`, '[Happened]\nA wolf ran off.\nHP 10/12.', '',
-        '[NPC State Delta: Live dossier]', 'Mira: IDENTITY quiet smith.',
+        '[NPC State: Live dossier]', 'Mira: IDENTITY quiet smith.',
     ].join('\n'));
     assert.equal(sentText([], []).copy, '', 'nothing to copy');
 });

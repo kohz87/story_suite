@@ -55,11 +55,11 @@ test('the editor shows the lines "Name — description" and parses them back; a 
     const npc = normalizeNpcRecord({ name: 'Mira', level: 6, abilities: [{ name: 'Mending', description: 'closes wounds' }, { name: 'Ward', description: '' }] });
     assert.equal(editorShownValue(npc, 'abilities'), 'Mending — closes wounds\nWard');
     assert.deepEqual(parsePairLines(editorShownValue(npc, 'abilities'), 16), npc.abilities);
-    const controls = Object.fromEntries(Object.entries(EDITOR_FIELDS).map(([key, field]) => [`npc_state_delta_edit_${field.id}`, editorShownValue(npc, key)]));
+    const controls = Object.fromEntries(Object.entries(EDITOR_FIELDS).map(([key, field]) => [`people_edit_${field.id}`, editorShownValue(npc, key)]));
     assert.equal(untouchedEditorFields(npc, id => controls[id]).size, Object.keys(EDITOR_FIELDS).length, 'every control showing the stored value is untouched');
-    const missing = id => (id === 'npc_state_delta_edit_level' ? '' : controls[id]);
+    const missing = id => (id === 'people_edit_level' ? '' : controls[id]);
     assert.equal(untouchedEditorFields(npc, missing).has('level'), false, 'with RPG on an emptied Level is a change');
     assert.equal(untouchedEditorFields(npc, missing, { rpgOn: false }).has('level'), true, 'with RPG off the Level control is not there, so the stored Level stays');
-    const edited = { ...controls, npc_state_delta_edit_abilities: 'Mending — closes wounds' };
+    const edited = { ...controls, people_edit_abilities: 'Mending — closes wounds' };
     assert.equal(untouchedEditorFields(npc, id => edited[id]).has('abilities'), false);
 });

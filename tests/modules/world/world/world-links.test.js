@@ -1,5 +1,5 @@
 // World data for the map (G10): news carry place and faction ids and a heard stamp, factions list their members and area place,
-// open quests are tied to places; on a real host with a stand-in NPC State Delta. Replay == live (the shape test is tests/ui-gaps/world-data.test.js).
+// open quests are tied to places; on a real host with a stand-in NPC State. Replay == live (the shape test is tests/ui-gaps/world-data.test.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -66,7 +66,7 @@ test('a reply that leaves the event unchanged gives no stamp', async t => {
     assert.deepEqual(host.sdk.query('director.world').news.find(n => n.name === 'Red Plague').heard.map(h => h.where), ['in Harbour']);
 });
 
-test('without NPC State Delta and without the atlas places the links are empty, not missing', async t => {
+test('without NPC State and without the atlas places the links are empty, not missing', async t => {
     const host = await worldHost();
     t.after(() => host.close());
     await host.send('Begin.', said('Quiet.', ['+ world Red Plague — coughing | state: ongoing', '+ faction Guild — guild | stance: wary']));

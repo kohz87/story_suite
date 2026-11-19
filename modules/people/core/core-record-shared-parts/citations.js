@@ -1,4 +1,4 @@
-/* NPC State Delta citation stripping: removes scanner message citations from a stored record, keeping locks and pack words. */
+/* NPC State citation stripping: removes scanner message citations from a stored record, keeping locks and pack words. */
 import { stripMessageCitations } from '../core-text.js';
 import { TEXT_FIELDS } from '../../fields/registry.js';
 

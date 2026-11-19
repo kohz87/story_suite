@@ -1,4 +1,4 @@
-/* NPC State Delta narration capture (role: narration-capture). The one-pass block a reply carries beside the story: arming a generation, receiving and
+/* NPC State narration capture (role: narration-capture). The one-pass block a reply carries beside the story: arming a generation, receiving and
    holding the block per reply, stripping it from the displayed reply and from swipes, taking it for the scan, and the capture statistics. Also the
    hosted one-pass test. Built by runtime-entry.js once per module instance with the shared runtime state. Bodies are moved from runtime-entry.js without change. Public face: re-exports its parts. */
 

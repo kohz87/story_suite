@@ -1,4 +1,4 @@
-/* NPC State Delta record lifecycle: archiving a dossier, what keeps one from retention cleanup and the stale archive/delete pass. */
+/* NPC State record lifecycle: archiving a dossier, what keeps one from retention cleanup and the stale archive/delete pass. */
 import { normalizeLifeState } from '../core-identity.js';
 import { normalizeRelationshipBaseline, RELATIONSHIP_KEYS } from '../core-relationship.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';

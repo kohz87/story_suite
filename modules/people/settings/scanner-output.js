@@ -6,9 +6,9 @@ import {
     SCANNER_MAX_OUTPUT_TOKENS_MAX,
 } from '../calls/scanner-routing.js';
 
-const SETTINGS_ID = 'npc_state_delta_settings';
-const CONTROL_ID = 'npc_state_delta_scanner_max_output_tokens';
-const GUARD = '__npcStateDeltaScannerOutputUi';
+const SETTINGS_ID = 'people_settings';
+const CONTROL_ID = 'people_scanner_max_output_tokens';
+const GUARD = '__pplScannerOutputUi';
 
 function settings() {
     return npcBucket(extension_settings, { create: true });
@@ -21,9 +21,9 @@ function persistSettings() {
 
 function settingRow() {
     const row = document.createElement('label');
-    row.className = 'npc-state-delta-setting-row story-suite-row delta-scanner-output-row';
+    row.className = 'ppl-setting-row story-suite-row delta-scanner-output-row';
     row.htmlFor = CONTROL_ID;
-    row.innerHTML = `<span><b>Maximum output tokens</b><small>0 keeps Delta's built-in per-request limits. 128-${SCANNER_MAX_OUTPUT_TOKENS_MAX} sets the maximum output for every NPC scanner text call, including retries and focused passes. It does not change roleplay or image-generation limits.</small></span><span class="delta-setting-number story-suite-number"><input id="${CONTROL_ID}" type="number" min="0" max="${SCANNER_MAX_OUTPUT_TOKENS_MAX}" step="1" inputmode="numeric" class="text_pole npc-state-delta-number"><small>tokens</small></span>`;
+    row.innerHTML = `<span><b>Maximum output tokens</b><small>0 keeps Delta's built-in per-request limits. 128-${SCANNER_MAX_OUTPUT_TOKENS_MAX} sets the maximum output for every NPC scanner text call, including retries and focused passes. It does not change roleplay or image-generation limits.</small></span><span class="delta-setting-number story-suite-number"><input id="${CONTROL_ID}" type="number" min="0" max="${SCANNER_MAX_OUTPUT_TOKENS_MAX}" step="1" inputmode="numeric" class="text_pole ppl-number"><small>tokens</small></span>`;
     return row;
 }
 
@@ -35,7 +35,7 @@ function syncControl(root) {
 
 function mountControl() {
     const root = document.getElementById(SETTINGS_ID);
-    const after = root?.querySelector?.('#npc_state_delta_scan_depth')?.closest?.('label');
+    const after = root?.querySelector?.('#people_scan_depth')?.closest?.('label');
     if (!after) return false;
     let input = root.querySelector(`#${CONTROL_ID}`);
     if (!input) {
@@ -65,7 +65,7 @@ function start() {
     mountControl();
     if (document[GUARD]) return;
     document[GUARD] = true;
-    document.addEventListener('npc-state-delta:settings-mounted', mountControl);
+    document.addEventListener('people:settings-mounted', mountControl);
     const retryMount = (attempt = 0) => {
         if (!mountControl() && attempt < 40) setTimeout(() => retryMount(attempt + 1), 100);
     };

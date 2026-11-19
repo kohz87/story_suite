@@ -1,4 +1,4 @@
-/* NPC State Delta Stage 4 continuity facade. Public face: re-exports its parts. */
+/* NPC State Stage 4 continuity facade. Public face: re-exports its parts. */
 
 export { normalizeNpcRecord, normalizeScanNpc, setNpcArchived, applyNpcStateCommand } from './continuity-core-parts/records.js';
 export { mergeScanResult } from './continuity-core-parts/scan-merge.js';

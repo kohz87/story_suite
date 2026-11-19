@@ -1,4 +1,4 @@
-/* NPC State Delta recognising own-birthday claims in narration and grounding a scanned birth date. */
+/* NPC State recognising own-birthday claims in narration and grounding a scanned birth date. */
 import { normalizeBirthDate } from '../../birthday/birthday.js';
 import { normalizeCalendarDate } from '../../calendar/calendar.js';
 import { npcOwnedSentences, foreignSubjectClause, npcFirstLabels } from './owned-text.js';

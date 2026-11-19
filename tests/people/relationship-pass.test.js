@@ -17,7 +17,7 @@ import {
 import { runtimeSource } from './helpers/runtime-source.js';
 import { createHost } from '../../testkit/index.js';
 import { newestFlatDay as fromFlatDay } from './helpers/pacing-suite.js';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 // Cleanup step 10: the focused relationship pass moved from index.js to src/relationship-pass.js unchanged.
 
@@ -98,7 +98,7 @@ async function hostedPair(allowance) {
     const host = await createHost({ modules: [clock] });
     const state = { turn: 1, npcs: [mira()] };
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => state.npcs },
         delta: () => ({ isEnabled: () => true, getNpc: () => state.npcs[0],
             relationshipBaseline: () => ({ trust: 0, affection: 0, desire: 0, tension: 0 }),

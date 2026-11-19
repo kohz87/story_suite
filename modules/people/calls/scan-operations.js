@@ -51,7 +51,7 @@ export function createScanOperationRegistry({
                 drop(normalizedKey, operation);
                 operation.expired = true;
                 operation.finished = true;
-                try { onExpire?.(operation); } catch (error) { console.warn('[NPC State Delta] scan timeout cleanup callback failed', error); }
+                try { onExpire?.(operation); } catch (error) { console.warn('[NPC State] scan timeout cleanup callback failed', error); }
             }, timeout);
             operation.timer?.unref?.();
         }

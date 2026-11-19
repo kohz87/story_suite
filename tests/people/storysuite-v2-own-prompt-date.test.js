@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import {
     calendarPromptContext, getActiveCalendarConfig, hostedStoryDate, setActiveCalendarConfig, setStoryClockSource,
     storyClockDate, storyCurrentDate,
@@ -129,8 +129,8 @@ async function suite(t, { modules = [], preview = null, enabled = true, contextS
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };
     const state = { enabled };
     const api = { isEnabled: () => state.enabled, getNpc: () => null, relationshipBaseline: () => ({ trust: 0, affection: 0, desire: 0, tension: 0 }) };
-    const adapter = createStorySuiteV2Adapter({
-        suiteApi: { npcs: () => [], manage: { preview: () => preview ?? { label: 'NPC State Delta', text: '', parts: [] } } },
+    const adapter = createPeopleAdapter({
+        suiteApi: { npcs: () => [], manage: { preview: () => preview ?? { label: 'NPC State', text: '', parts: [] } } },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
         timers: { setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {} },
@@ -144,7 +144,7 @@ async function suite(t, { modules = [], preview = null, enabled = true, contextS
 
 const DOSSIER = `NPC STATE (present):\n- Mira: IDENTITY ${'quiet smith with soot on her hands; '.repeat(60)}`;
 const CAPTURE = `One-pass capture: ${'rule '.repeat(400)}`;
-const PREVIEW = { label: 'NPC State Delta', text: '', parts: [{ label: 'Live dossier', text: DOSSIER, tokens: 1 }, { label: 'One-pass capture instruction (end of the prompt)', text: CAPTURE, tokens: 1 }] };
+const PREVIEW = { label: 'NPC State', text: '', parts: [{ label: 'Live dossier', text: DOSSIER, tokens: 1 }, { label: 'One-pass capture instruction (end of the prompt)', text: CAPTURE, tokens: 1 }] };
 
 test('Delta\'s own prompt reaches the host\'s prompt size and share; nothing while Delta is off', async t => {
     const { host, state } = await suite(t, { preview: PREVIEW, contextSize: 6000 });

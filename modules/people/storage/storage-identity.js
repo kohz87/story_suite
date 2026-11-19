@@ -1,4 +1,4 @@
-/* NPC State Delta sidecar identity and names: this module instance's writer id, the FNV-1a path token,
+/* NPC State sidecar identity and names: this module instance's writer id, the FNV-1a path token,
    the deterministic data/recovery file names and recovery-generation counter. Moved out of storage.js
    as a factory so separately imported storage instances keep separate tab identities. Never imports
    storage.js. */
@@ -40,7 +40,7 @@ export function createStorageIdentity() {
         const stamp = Math.max(0, Number(generation) || Date.now()).toString(36);
         const writerText = String(writerId || 'writer');
         const writerToken = `${fnv1a(writerText)}${fnv1a([...writerText].reverse().join(''))}`;
-        return `npc-state-delta-recovery-${fnv1a(key)}${fnv1a(`npc-state-delta-recovery\0${[...key].reverse().join('')}`)}-${stamp}-${writerToken}.json`;
+        return `ppl-recovery-${fnv1a(key)}${fnv1a(`ppl-recovery\0${[...key].reverse().join('')}`)}-${stamp}-${writerToken}.json`;
     }
 
     return { currentWriterId, fnv1a, makeNpcStateDataFileName, makeNpcStateRecoveryFileName };

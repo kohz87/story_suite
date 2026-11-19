@@ -112,7 +112,7 @@ export function entryOf(receipts, day = null, { lasting = null, present = null }
         const moved = moneyOf(receipt);
         money.in += moved.in;
         money.out += moved.out;
-        // NPC State Delta: a meter crossed a stage (its receipt's data, code-made).
+        // NPC State: a meter crossed a stage (its receipt's data, code-made).
         if (typeof data.name === 'string' && Array.isArray(data.stages)) {
             for (const move of data.stages) {
                 if (!isRecord(move) || typeof move.meter !== 'string') continue;

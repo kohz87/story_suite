@@ -1,4 +1,4 @@
-/* NPC State Delta calendar date parsing and arithmetic: Gregorian/custom date normalization,
+/* NPC State calendar date parsing and arithmetic: Gregorian/custom date normalization,
    ordinals, absolute day numbers, legacy story-day migration and the current calendar date.
    Split from calendar.js as a line-for-line part; the original keeps the public exports. Public face: re-exports its parts. */
 

@@ -1,4 +1,4 @@
-/* NPC State Delta durable refinement support text: the story and evidence text a refinement may be grounded in. */
+/* NPC State durable refinement support text: the story and evidence text a refinement may be grounded in. */
 
 import { cleanText, normalizeName } from '../core-text.js';
 import { DURABLE_PROFILE_LIMITS } from '../core-relationship.js';

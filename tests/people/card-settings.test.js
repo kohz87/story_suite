@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import {
     CARD_SETTINGS_OWNER, createCardSettingsDefinition, validPortraitPromptFormat, validScanEvery,
 } from '../../modules/people/settings/card-settings.js';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 // ---- the definition (pure) ----
 
@@ -102,7 +102,7 @@ async function hostWith(sdkExtras, definition) {
         ...(sdkExtras === 'with' ? { registerCardSettings: def => { live.push(def); return () => live.splice(live.indexOf(def), 1); } } : {}),
     };
     const host = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => [] }, delta: () => null, host: () => host, doc: fakeDoc(), timers: manualTimers(),
         loadEmptyCast: async () => null, logger: { warn() {} }, cardSettings: definition,
     });
@@ -223,7 +223,7 @@ test('card settings: a dirty Portrait-panel draft survives apply; only the forma
     const result = runInHost(async ({ card, mockState }) => {
         const D = globalThis.NPCStateDelta;
         const orig = globalThis.$;
-        const fields = { '#npc_state_delta_portrait_composition': 'my unsaved composition', '#npc_state_delta_portrait_prompt_format': 'hybrid' };
+        const fields = { '#people_portrait_composition': 'my unsaved composition', '#people_portrait_prompt_format': 'hybrid' };
         const written = {};
         globalThis.$ = selector => {
             const q = orig(selector);
@@ -233,13 +233,13 @@ test('card settings: a dirty Portrait-panel draft survives apply; only the forma
             });
         };
         try {
-            uiHandlers.get('input.npcStateDelta|#npc_state_delta_portrait_style_positive, #npc_state_delta_portrait_style_negative, #npc_state_delta_portrait_composition').call({ id: 'npc_state_delta_portrait_composition' });
+            uiHandlers.get('input.ppl|#people_portrait_style_positive, #people_portrait_style_negative, #people_portrait_composition').call({ id: 'people_portrait_composition' });
             const dirtyBefore = D.portraitSettingsDirty();
             const out = await card.apply({ portraitPromptFormat: 'natural' });
             const s = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
             return {
                 dirtyBefore, out, dirtyAfter: D.portraitSettingsDirty(), savedFormat: s.portraitPromptFormat, savedComposition: s.portraitComposition,
-                panelComposition: written['#npc_state_delta_portrait_composition'], panelFormat: written['#npc_state_delta_portrait_prompt_format'],
+                panelComposition: written['#people_portrait_composition'], panelFormat: written['#people_portrait_prompt_format'],
             };
         } finally { globalThis.$ = orig; }
     });

@@ -1,4 +1,4 @@
-/* NPC State Delta dossier editor save: applies one editor draft to the canonical chat state, social
+/* NPC State dossier editor save: applies one editor draft to the canonical chat state, social
    graph, branch checkpoint and persistence path. Split unchanged from runtime-editor.js with the
    same rt/deps closure state and live helper references supplied by createEditorPart. */
 import { getContext } from '../../../../../../extensions.js';
@@ -10,7 +10,7 @@ import { rpgIsOn } from '../settings/runtime-settings.js';
 import { reconcileSocialState, applyManualKeyRelationshipEdit } from '../social/social.js';
 
 export function createEditorSave(rt, deps, helpers) {
-    const { noteChatLineage, ensureFreshMutationBoundary, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, stampManualEdit, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;
+    const { noteChatLineage, ensureFreshMutationBoundary, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, stampManualEdit, adapterMeters, updateInjection, workingCopyAdoption } = deps;
     const { clampEditorRelationshipStat, cleanEditorList, closeNpcEditor, customFieldEditorValues, editorField, renderDossier } = helpers;
 
     async function saveNpcEditor(npcId, { close = true, silent = false, popup = null } = {}) {
@@ -41,11 +41,11 @@ export function createEditorSave(rt, deps, helpers) {
         const next = structuredClone(current);
         const oldRelationship = { ...(current.relationship || DEFAULT_RELATIONSHIP) };
         // (v2 meters) While hosted the inputs showed the slice's numbers; edits to them go to the slice.
-        const hostedMeters = storySuiteV2Meters();
+        const hostedMeters = adapterMeters();
         const shownRelationship = hostedMeters ? { ...hostedMeterView([current])[0].relationship } : null;
         // A field whose control still shows the stored value is kept as stored (never re-cut or compacted).
         const untouched = untouchedEditorFields(current, editorField, { rpgOn: rpgIsOn() });
-        const editorControl = key => editorField(`npc_state_delta_edit_${EDITOR_FIELDS[key].id}`);
+        const editorControl = key => editorField(`people_edit_${EDITOR_FIELDS[key].id}`);
         const editorText = key => (untouched.has(key) ? String(current[key] ?? '') : String(editorControl(key)).trim().slice(0, EDITOR_FIELDS[key].max));
         const editorList = (key, max) => (untouched.has(key) ? structuredClone(current[key] || []) : cleanEditorList(editorControl(key), max));
         const stableInputs = {
@@ -83,7 +83,7 @@ export function createEditorSave(rt, deps, helpers) {
             if (value === undefined || value === null || (Array.isArray(value) && !value.length)) delete next[key];
             else next[key] = value;
         }
-        const birthdayInput = String(editorField('npc_state_delta_edit_birthday')).trim().slice(0, 180);
+        const birthdayInput = String(editorField('people_edit_birthday')).trim().slice(0, 180);
         const currentBirthdayDisplay = String(current.birthDateDisplay || '').trim();
         if (birthdayInput !== currentBirthdayDisplay) {
             if (!birthdayInput) {
@@ -103,9 +103,9 @@ export function createEditorSave(rt, deps, helpers) {
             correctedBirthday.birthDateSourceMessageId = null;
             Object.assign(next, correctedBirthday);
         }
-        next.portraitPromptPositive = String(editorField('npc_state_delta_edit_portrait_positive')).trim().slice(0, PORTRAIT_NPC_PROMPT_LIMIT);
-        next.portraitPromptNegative = String(editorField('npc_state_delta_edit_portrait_negative')).trim().slice(0, PORTRAIT_NPC_PROMPT_LIMIT);
-        next.portraitPromptReplace = Boolean(document.getElementById('npc_state_delta_edit_portrait_replace')?.checked);
+        next.portraitPromptPositive = String(editorField('people_edit_portrait_positive')).trim().slice(0, PORTRAIT_NPC_PROMPT_LIMIT);
+        next.portraitPromptNegative = String(editorField('people_edit_portrait_negative')).trim().slice(0, PORTRAIT_NPC_PROMPT_LIMIT);
+        next.portraitPromptReplace = Boolean(document.getElementById('people_edit_portrait_replace')?.checked);
         if (stableInputs.name !== current.name) next.identityKind = inferNpcIdentityKind(stableInputs.name);
         next.relationshipSummary = editorText('relationshipSummary');
         next.mood = editorText('mood');
@@ -114,10 +114,10 @@ export function createEditorSave(rt, deps, helpers) {
         next.status = editorText('status');
         next.memories = editorList('memories', IMPORTANT_MEMORY_LIMIT);
         next.relationship = {
-            trust: clampEditorRelationshipStat('npc_state_delta_edit_trust'),
-            affection: clampEditorRelationshipStat('npc_state_delta_edit_affection'),
-            desire: clampEditorRelationshipStat('npc_state_delta_edit_desire'),
-            tension: clampEditorRelationshipStat('npc_state_delta_edit_tension'),
+            trust: clampEditorRelationshipStat('people_edit_trust'),
+            affection: clampEditorRelationshipStat('people_edit_affection'),
+            desire: clampEditorRelationshipStat('people_edit_desire'),
+            tension: clampEditorRelationshipStat('people_edit_tension'),
         };
         let meterEdits = null;
         if (shownRelationship) {
@@ -167,8 +167,8 @@ export function createEditorSave(rt, deps, helpers) {
                 ...relationshipEventMessage({ message: latestReplyIndex() }),
             };
         }
-        Object.assign(next, editorProfileLocks(current, next, { protect: Boolean(document.getElementById('npc_state_delta_edit_lock_profile')?.checked) }));
-        next.minor = Boolean(document.getElementById('npc_state_delta_edit_minor')?.checked);
+        Object.assign(next, editorProfileLocks(current, next, { protect: Boolean(document.getElementById('people_edit_lock_profile')?.checked) }));
+        next.minor = Boolean(document.getElementById('people_edit_minor')?.checked);
         next.updatedAt = Date.now();
         state.npcs[index] = normalizeNpcRecord(next);
         // A changed relationship recalibrates the Player Dynamic even when its text was not edited.

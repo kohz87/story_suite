@@ -1,4 +1,4 @@
-// NPC State Delta core facade: the one import point for core mechanics, calendar, birthday and scan/prompt entry points. Public face: re-exports its parts.
+// NPC State core facade: the one import point for core mechanics, calendar, birthday and scan/prompt entry points. Public face: re-exports its parts.
 export * from './core-mechanics.js';
 export * from '../appearance/appearance.js';
 export * from './terminal-lifecycle.js';
@@ -23,5 +23,5 @@ export { buildNpcPortraitPrompts, buildInjection } from './core-parts/projected-
 export { LEVEL_FIELD_RULE } from './core-parts/shared-custom-field-rule.js';
 export { buildScannerPrompt, buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt } from './core-parts/scanner-prompts.js';
 
-// NPC State Delta application version. Persisted bundle, branch, and data schemas are versioned independently.
+// NPC State application version. Persisted bundle, branch, and data schemas are versioned independently.
 export const NPC_STATE_VERSION = '1.18.0';

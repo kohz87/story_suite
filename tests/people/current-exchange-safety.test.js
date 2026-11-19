@@ -54,7 +54,7 @@ test('v0.2.23 manual and full-window scans scrub rolling relationship output and
 });
 
 test('v0.2.23 portrait settings use explicit transactional Save', () => {
-    assert.match(source, /id="npc_state_delta_save_portrait_settings"/);
+    assert.match(source, /id="people_save_portrait_settings"/);
     assert.match(source, /async function savePortraitSettingsDraft/);
     assert.match(source, /await saveHostSettings\(\)/);
     assert.match(source, /Object\.assign\(settings, before\)/);

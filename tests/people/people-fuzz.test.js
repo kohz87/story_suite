@@ -1,5 +1,5 @@
 // Seeded fuzz over the whole people path (P3, was participant-fuzz): 20 seeds x 30 steps of reply, native change, new swipe, swipe back, last delete, middle delete,
-// reload and rebuild on the live Story Block host with NPC State Delta's real adapter (people sync over a fake runtime). After every step, with NO publication to
+// reload and rebuild on the live Story Block host with NPC State's real adapter (people sync over a fake runtime). After every step, with NO publication to
 // heal it, the cache equals the store's slice, the slice equals the oracle's rebuild and the Delta queries answer the store's people (helpers/proofs.js).
 // The failure message names the seed and step. Set PEOPLE_FUZZ_STATS=1 to print each seed's tally.
 import test from 'node:test';

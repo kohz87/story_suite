@@ -9,7 +9,7 @@
 //             stamps, by the receipt that made them);
 //   fights    how many ended, won, lost or fled;
 //   money     what came in and went out, in the currency's smallest unit (the receipts' own amounts);
-//   npcs      stage moves of NPC State Delta's meters (its receipts' `stages`);
+//   npcs      stage moves of NPC State's meters (its receipts' `stages`);
 //   world     the chronicle's own world lines of that day (their receipt summaries);
 //   met       who came into the scene that day (Story Block's `present` receipts' `added` names), kept
 //             only when there is someone (older digests have none), for the World screen's Journal.

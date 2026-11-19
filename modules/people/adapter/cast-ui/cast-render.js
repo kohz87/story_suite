@@ -11,25 +11,25 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
     // ---- the Dossiers tab (once Cast) ----
 
     function bindCastActions(el) {
-        if (el.__npcStateDeltaV2Actions) return;
-        el.__npcStateDeltaV2Actions = true;
+        if (el.__pplActions) return;
+        el.__pplActions = true;
         el.addEventListener?.('click', event => {
-            const action = event.target?.closest?.('[data-npc-state-delta-action]')?.dataset?.npcStateDeltaAction;
+            const action = event.target?.closest?.('[data-ppl-action]')?.dataset?.pplAction;
             if (action === 'scan') return void runtime()?.scan?.();
             if (action === 'add') return void runtime()?.addNpc?.();
             if (action === 'dismiss-restore-note') return void timeline?.catchUp?.dismiss?.();
             // A dossier row opens that dossier (v1's Dossiers tab did the same); so does a World → People here row, anywhere on it.
-            const row = event.target?.closest?.('.npc-state-delta-story-row')
-                ?? event.target?.closest?.('.npc-state-delta-world-people[data-npc-id]');
+            const row = event.target?.closest?.('.ppl-story-row')
+                ?? event.target?.closest?.('.ppl-world-people[data-npc-id]');
             if (row?.dataset?.npcId) runtime()?.openDossier?.(row.dataset.npcId);
         });
         // The search box filters the list in place: only the list is drawn again, so the box keeps its focus.
         el.addEventListener?.('input', event => {
             const box = event.target;
-            if (!box?.classList?.contains?.('npc-state-delta-story-search')) return;
-            el.__npcStateDeltaV2Find = String(box.value ?? '').slice(0, 80);
-            const list = el.querySelector?.('.npc-state-delta-story-list');
-            if (list) list.replaceChildren(...dossier.dossierRowNodesFor(el.__npcStateDeltaV2Find, list.ownerDocument ?? doc));
+            if (!box?.classList?.contains?.('ppl-story-search')) return;
+            el.__pplFind = String(box.value ?? '').slice(0, 80);
+            const list = el.querySelector?.('.ppl-story-list');
+            if (list) list.replaceChildren(...dossier.dossierRowNodesFor(el.__pplFind, list.ownerDocument ?? doc));
         });
     }
     // Delta's own present-cast cards (the same markup as v1's Present NPCs tab; the cards' text is set by fillPresentCast),
@@ -46,8 +46,8 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
         const owner = el.ownerDocument ?? doc;
         let body = '';
         if (cast) {
-            if (!api) body = session.emptyCast({ text: 'NPC State Delta is still loading.' });
-            else if (!enabled()) body = session.emptyCast({ text: 'NPC State Delta is off.' });
+            if (!api) body = session.emptyCast({ text: 'NPC State is still loading.' });
+            else if (!enabled()) body = session.emptyCast({ text: 'NPC State is off.' });
             else body = String(api.presentCastHtml?.() || '') || session.emptyCast(api.castEmptyReason?.());
         }
         // World → Here (track false) shows no meters: its present cards keep the stage, notes and now lines; the Dossiers screen keeps the meters.
@@ -56,51 +56,51 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
         let listPart = null;
         let listText = '';
         if (list && !(cast && (!api || !enabled()))) {
-            if (!api) listText = session.emptyCast({ text: 'NPC State Delta is still loading.' });
-            else if (!enabled()) listText = session.emptyCast({ text: 'NPC State Delta is off.' });
+            if (!api) listText = session.emptyCast({ text: 'NPC State is still loading.' });
+            else if (!enabled()) listText = session.emptyCast({ text: 'NPC State is off.' });
             else listPart = dossier.dossierListNode(el, owner);
         }
         // The restore note (a middle delete, edit or Re-read rebuilt the dossiers, or the rebuild was refused): kept until the reader dismisses it.
         const restoreNote = list ? String(timeline?.catchUp?.status?.()?.note ?? '') : '';
         const pane = `<div class="${PANE_CLASS}">${body}${listText}</div>`;
-        const rowsKey = list ? JSON.stringify([el.__npcStateDeltaV2Find ?? '', dossier.withKeyMarks(dossier.dossierRows()).map(row => [row.id, row.name, row.statusLabel, row.role, row.key === true]), meters?.cast ?? null]) : '';
+        const rowsKey = list ? JSON.stringify([el.__pplFind ?? '', dossier.withKeyMarks(dossier.dossierRows()).map(row => [row.id, row.name, row.statusLabel, row.role, row.key === true]), meters?.cast ?? null]) : '';
         const key = `${pane}\u0001${meters ? JSON.stringify(meters.cast) : ''}\u0001${rowsKey}\u0001${restoreNote}`;
         // A full redraw replaces the search box: the reader typing in it keeps the focus and the caret.
-        const typing = list && owner?.activeElement?.classList?.contains?.('npc-state-delta-story-search') && el.contains?.(owner.activeElement);
+        const typing = list && owner?.activeElement?.classList?.contains?.('ppl-story-search') && el.contains?.(owner.activeElement);
         // Skip an unchanged redraw only while the element still holds what was drawn: Story Block's tab host empties the
         // shared pane (replaceChildren) before every render.
-        const drawn = el.__npcStateDeltaV2CastNode;
+        const drawn = el.__pplCastNode;
         const stillShown = drawn ? drawn.parentNode === el : Boolean(el.innerHTML);
-        if (el.__npcStateDeltaV2Cast === key && stillShown) return;
+        if (el.__pplCast === key && stillShown) return;
         el.innerHTML = pane;
-        el.__npcStateDeltaV2Cast = key;
-        el.__npcStateDeltaV2CastPane = pane;
-        el.__npcStateDeltaV2CastNode = el.firstElementChild ?? null;
+        el.__pplCast = key;
+        el.__pplCastPane = pane;
+        el.__pplCastNode = el.firstElementChild ?? null;
         const extras = [];
         if (world && cast) {
             // The side copy of the now lines and the idle line go.
-            for (const cell of el.querySelectorAll?.('.npc-state-delta-present-cell') ?? []) {
-                cell.classList?.add?.('npc-state-delta-world-cell');
-                for (const node of [...(cell.children ?? [])]) if (node.classList?.contains?.('npc-state-delta-present-side')) node.remove?.();
+            for (const cell of el.querySelectorAll?.('.ppl-present-cell') ?? []) {
+                cell.classList?.add?.('ppl-world-cell');
+                for (const node of [...(cell.children ?? [])]) if (node.classList?.contains?.('ppl-present-side')) node.remove?.();
                 if (!people) continue;
-                cell.classList?.add?.('npc-state-delta-world-people');
-                for (const now of [...(cell.querySelectorAll?.('.npc-state-delta-present-now') ?? [])]) now.remove?.();
+                cell.classList?.add?.('ppl-world-people');
+                for (const now of [...(cell.querySelectorAll?.('.ppl-present-now') ?? [])]) now.remove?.();
             }
         }
         if (meters && cast) {
             const defs = part.defs();
             const used = new Set();
-            for (const cell of el.querySelectorAll?.('.npc-state-delta-present-cell[data-npc-id]') ?? []) {
+            for (const cell of el.querySelectorAll?.('.ppl-present-cell[data-npc-id]') ?? []) {
                 const npc = npcList().find(item => String(item.id ?? '') === String(cell.dataset?.npcId ?? ''));
                 const who = npc ? part.identify(meters.byKey, npc.name) : null;
                 const entry = who && Object.hasOwn(meters.byKey, who.key) ? meters.byKey[who.key] : null;
                 if (!entry || used.has(entry)) continue;
                 used.add(entry);
-                const text = cell.querySelector?.('.npc-state-delta-present-card-text');
-                const stage = cell.querySelector?.('.npc-state-delta-present-card-stage');
+                const text = cell.querySelector?.('.ppl-present-card-text');
+                const stage = cell.querySelector?.('.ppl-present-card-stage');
                 if (stage) stage.textContent = entry.rank ?? '';
                 if (text && !world) {
-                    const bars = elementOf(owner, 'div', 'npc-state-delta-present-card-bars');
+                    const bars = elementOf(owner, 'div', 'ppl-present-card-bars');
                     bars.append(...dossier.barNodesOf(owner, entry, defs));
                     text.append(bars);
                 }
@@ -109,13 +109,13 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
             }
             const apart = world ? [] : meters.shown.filter(entry => !used.has(entry));
             if (apart.length) {
-                const block = elementOf(owner, 'div', 'npc-state-delta-v2-meters');
-                block.append(elementOf(owner, 'span', 'npc-state-delta-kicker', 'METERS'));
+                const block = elementOf(owner, 'div', 'ppl-meters');
+                block.append(elementOf(owner, 'span', 'ppl-kicker', 'METERS'));
                 for (const entry of apart) {
-                    const section = elementOf(owner, 'section', 'npc-state-delta-v2-meter-npc');
+                    const section = elementOf(owner, 'section', 'ppl-meter-npc');
                     section.dataset.npcKey = String(entry.key ?? '');
                     section.append(elementOf(owner, 'h4', '', entry.name ?? ''));
-                    const bars = elementOf(owner, 'div', 'npc-state-delta-v2-meter-bars');
+                    const bars = elementOf(owner, 'div', 'ppl-meter-bars');
                     bars.append(...dossier.barNodesOf(owner, entry, defs));
                     section.append(bars, ...dossier.noteNodes(owner, entry));
                     block.append(section);
@@ -124,13 +124,13 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
             }
         }
         if (restoreNote) {
-            const note = elementOf(owner, 'div', 'npc-state-delta-restore-note');
+            const note = elementOf(owner, 'div', 'ppl-restore-note');
             note.setAttribute('role', 'status');
-            const close = elementOf(owner, 'button', 'npc-state-delta-restore-dismiss', '×');
+            const close = elementOf(owner, 'button', 'ppl-restore-dismiss', '×');
             close.type = 'button';
-            close.dataset.npcStateDeltaAction = 'dismiss-restore-note';
+            close.dataset.pplAction = 'dismiss-restore-note';
             close.setAttribute('aria-label', 'Dismiss');
-            note.append(elementOf(owner, 'span', 'npc-state-delta-restore-text', restoreNote), close);
+            note.append(elementOf(owner, 'span', 'ppl-restore-text', restoreNote), close);
             extras.unshift(note);
         }
         if (listPart) extras.push(listPart);
@@ -142,7 +142,7 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
         // The now lines get their text through textContent, never markup.
         if (cast) api?.fillPresentCast?.(el);
         if (typing) {
-            const box = el.querySelector?.('.npc-state-delta-story-search');
+            const box = el.querySelector?.('.ppl-story-search');
             try {
                 box?.focus?.({ preventScroll: true });
                 const end = String(box?.value ?? '').length;

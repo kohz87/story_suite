@@ -1,4 +1,4 @@
-/* NPC State Delta targeted backfill (role: targeted-backfill). The history backfill for one NPC and the queue
+/* NPC State targeted backfill (role: targeted-backfill). The history backfill for one NPC and the queue
    of pending backfills. Split from runtime-targeted.js; bodies are moved without change. */
 
 import { chatContext as getContext, awayFromReplay, replayScope, latestMessageId } from './runtime-scan-helpers.js';
@@ -90,7 +90,7 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
             staleLabel: 'dossier backfill',
             checkpoint: 'dossier-backfill',
             metricsLabel: 'dossier-backfill',
-            onStale: () => console.info('[NPC State Delta] discarded stale dossier backfill after chat or dossier state changed.'),
+            onStale: () => console.info('[NPC State] discarded stale dossier backfill after chat or dossier state changed.'),
             scope: (parsed, { latest, liveBefore }) => {
                 const roster = latest.npcs;
                 const target = liveBefore || { id: request.npcId, name: request.label, aliases: [], identityKind: inferNpcIdentityKind(request.label) };
@@ -121,7 +121,7 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
                 }));
                 if (!parsed.npcs.length) {
                     const literalMention = transcriptMentionsBackfillTarget(transcript, request.label);
-                    console.warn('[NPC State Delta] targeted backfill returned no accepted NPC', { target: request.label, literalMention, returnedCount: returned.length });
+                    console.warn('[NPC State] targeted backfill returned no accepted NPC', { target: request.label, literalMention, returnedCount: returned.length });
                     if (!request.silent) globalThis.toastr?.warning?.(`NPC State: ${request.label} was added, but the backfill model returned no matching dossier details from the last ${settings.scanDepth} messages.`);
                     return { ok: false, result: false };
                 }

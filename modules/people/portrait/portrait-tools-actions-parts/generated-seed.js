@@ -1,8 +1,8 @@
-/* NPC State Delta portrait actions: reading, showing and resetting the generated portrait seed. */
+/* NPC State portrait actions: reading, showing and resetting the generated portrait seed. */
 import { currentSessionIs } from '../../tools/tools-core.js';
 
 export function portraitSeedFromOverlay(overlay) {
-    const raw = String(overlay?.querySelector?.('#npc_state_delta_tools_seed')?.value ?? '').trim();
+    const raw = String(overlay?.querySelector?.('#people_tools_seed')?.value ?? '').trim();
     if (!raw) return null;
     const seed = Number(raw);
     if (!Number.isSafeInteger(seed) || seed < 0) {

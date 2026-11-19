@@ -1,4 +1,4 @@
-// "Show what's sent" and a module's `hooks.redactSent(text)`: the view and its Copy show what the hook says (NPC State Delta turns each
+// "Show what's sent" and a module's `hooks.redactSent(text)`: the view and its Copy show what the hook says (NPC State turns each
 // locked note into "Mira: 1 hidden note"); a hook that fails shows "(hidden)", never the raw text; the prompt itself is never touched.
 import test from 'node:test';
 import assert from 'node:assert/strict';

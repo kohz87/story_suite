@@ -1,4 +1,4 @@
-/* NPC State Delta supporting tools: the relationship diagnostic rows (scores against recorded gate milestones). */
+/* NPC State supporting tools: the relationship diagnostic rows (scores against recorded gate milestones). */
 import { plain, safeNumber } from './values.js';
 
 const RELATIONSHIP_AXES = Object.freeze(['trust', 'affection', 'desire', 'tension']);

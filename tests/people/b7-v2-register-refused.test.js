@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 function fakeDoc() {
     const dataset = {};
@@ -31,7 +31,7 @@ test('a refused v2 registration is handled and leaves Delta unhosted', async () 
         const sdk = { registerModule: async def => { throw new Error(`Story Suite: the module "${def.id}" cannot be registered: the query "npc.present" already belongs to "other"`); } };
         const host = { apiVersion: 2, ready: Promise.resolve(sdk), sdk };
         const doc = fakeDoc();
-        const adapter = createStorySuiteV2Adapter({
+        const adapter = createPeopleAdapter({
             suiteApi: { npcs: () => [] }, delta: () => null, host: () => host, doc, timers: manualTimers(),
             loadEmptyCast: async () => null, logger: { warn() {} },
         });

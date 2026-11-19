@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createScreens, validateScreen } from '../../packs/screens/registry.js';
 import { compileTemplate } from '../../packs/template/index.js';
-import { CAST_SCREEN_ID, CAST_SCREEN_ORDER, CAST_TAB_ID, CAST_WIDGET, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { CAST_SCREEN_ID, CAST_SCREEN_ORDER, CAST_TAB_ID, CAST_WIDGET, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 // A minimal element: what renderCast and the widget use (innerHTML is Delta's own escaped markup, as in the tab).
 function element(owner, tag = 'div') {
@@ -53,7 +53,7 @@ function fakeDelta() {
         set: name => { who = name; },
         api: {
             isEnabled: () => true,
-            presentCastHtml: () => `<div class="npc-state-delta-present-card">${who}</div>`,
+            presentCastHtml: () => `<div class="ppl-present-card">${who}</div>`,
             fillPresentCast() {},
             castEmptyReason: () => ({ text: 'No NPC is present.' }),
         },
@@ -61,7 +61,7 @@ function fakeDelta() {
 }
 
 function adapter(doc = fakePage(), delta = fakeDelta()) {
-    return { doc, delta, a: createStorySuiteV2Adapter({ suiteApi: { npcs: () => [] }, delta: () => delta.api, host: () => null, doc, logger: { warn() {} } }) };
+    return { doc, delta, a: createPeopleAdapter({ suiteApi: { npcs: () => [] }, delta: () => delta.api, host: () => null, doc, logger: { warn() {} } }) };
 }
 
 test('Cast is a game-view screen (mount screen only) beside the one Cast tab', () => {
@@ -96,7 +96,7 @@ test('the Cast screen\'s widget draws what the Cast tab draws, redraws, and lets
     const slot = element(doc);
     const handle = a.definition.widgets[CAST_WIDGET].render(slot, {}, {});
     const box = slot.children[0];
-    assert.equal(box.className, 'npc-state-delta-v2-cast-view');
+    assert.equal(box.className, 'ppl-cast-view');
     assert.equal(box.innerHTML, tabPane.innerHTML, 'the same Cast as the tab');
     assert.match(box.innerHTML, /Fenna/);
     delta.set('Oren');
@@ -111,7 +111,7 @@ test('Delta\'s page events redraw a shown Cast screen, and the tab pane is still
     // Hosted: register with a host so the page listeners are on.
     const sdk = { registerModule: async () => true, on: () => () => {}, query: () => [] };
     const host = { apiVersion: 2, sdk, ready: Promise.resolve(sdk) };
-    const hosted = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [] }, delta: () => delta.api, host: () => host, doc, logger: { warn() {} }, retryMs: 1, aliveMs: 100000 });
+    const hosted = createPeopleAdapter({ suiteApi: { npcs: () => [] }, delta: () => delta.api, host: () => host, doc, logger: { warn() {} }, retryMs: 1, aliveMs: 100000 });
     hosted.start?.();
     for (let i = 0; i < 20 && !globalThis.__handles.hosted; i++) await new Promise(resolve => setTimeout(resolve, 5));
     assert.equal(globalThis.__handles.hosted, true, 'hosted');
@@ -122,13 +122,13 @@ test('Delta\'s page events redraw a shown Cast screen, and the tab pane is still
     hosted.definition.widgets[CAST_WIDGET].render(slot, {}, {});
     const box = slot.children[0];
     delta.set('Mira');
-    doc.fire('npc-state-delta:cast-rendered');
+    doc.fire('people:cast-rendered');
     assert.match(box.innerHTML, /Mira/, 'the game view follows Delta');
     assert.match(tabPane.innerHTML, /Mira/, 'the tab, still shown, too');
     // Removed from the page: let go, never drawn into again.
     box.isConnected = false;
     delta.set('Oren');
-    doc.fire('npc-state-delta:cast-rendered');
+    doc.fire('people:cast-rendered');
     assert.match(box.innerHTML, /Mira/);
     hosted.stop?.();
     assert.ok(a.definition, 'a second adapter is unaffected');
@@ -137,5 +137,5 @@ test('Delta\'s page events redraw a shown Cast screen, and the tab pane is still
 test('the hosted Dossiers list shows no bullet marks: its <li> rows are not under a <ul class="ss-listcard-rows"> (ZC, 12 Nov)', async () => {
     const { readFileSync } = await import('node:fs');
     const css = readFileSync(new URL('../../modules/people/css/style-cast.css', import.meta.url), 'utf8');
-    assert.match(css, /\.npc-state-delta-v2-dossiers \.npc-state-delta-story-list > \.ss-listcard-row \{ list-style: none; \}/);
+    assert.match(css, /\.ppl-dossiers \.ppl-story-list > \.ss-listcard-row \{ list-style: none; \}/);
 });

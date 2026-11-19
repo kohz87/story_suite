@@ -3,7 +3,7 @@ import { ERRORS_KEPT } from './limits.js';
 import { scrubLine } from './secrets.js';
 import { caught, keep, textOf } from './shared-caught.js';
 
-const PREFIXES = ['[Story Suite', '[Story Block', '[NPC State Delta', '[Story Director'];
+const PREFIXES = ['[Story Suite', '[Story Block', '[NPC State', '[Story Director'];
 
 /** A Story Suite console error (one of its prefixes), kept for the report: one line, made safe. */
 export function noteError(parts) {

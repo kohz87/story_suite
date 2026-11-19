@@ -21,7 +21,7 @@ test('editor locks: the Save keeps existing locks, adds changed fields and is al
     assert.equal(EDITOR_LOCKABLE_FIELDS.length, 21, 'stable fields, Player Dynamic, the live fields and memories');
     const index = runtimeSource();
     assert.doesNotMatch(index, /locked\.length/, 'the editor reads the Set size');
-    assert.match(index, /editorProfileLocks\(current, next, \{ protect: Boolean\(document\.getElementById\('npc_state_delta_edit_lock_profile'\)\?\.checked\) \}\)/);
+    assert.match(index, /editorProfileLocks\(current, next, \{ protect: Boolean\(document\.getElementById\('people_edit_lock_profile'\)\?\.checked\) \}\)/);
 });
 
 test('editor locks through the synthetic host: a second Save, a later scan, a swipe and a branch restore keep them', () => {
@@ -45,7 +45,7 @@ test('editor locks through the synthetic host: a second Save, a later scan, a sw
 
         // Control: an unprotected edit is a baseline the next scan may rewrite.
         const unlocked = await openEditorForm(id);
-        assert.equal(unlocked.controls.get('npc_state_delta_edit_lock_profile').checked, false, 'nothing is protected yet');
+        assert.equal(unlocked.controls.get('people_edit_lock_profile').checked, false, 'nothing is protected yet');
         assert.doesNotMatch(unlocked.html, /Currently protected/);
         await saveEditorForm(unlocked, { role: 'apprentice' });
         assert.equal(yunyun().role, 'apprentice');
@@ -58,7 +58,7 @@ test('editor locks through the synthetic host: a second Save, a later scan, a sw
 
         // The editor shows the lock, and a second Save that leaves the checkbox as shown keeps it.
         const second = await openEditorForm(id);
-        assert.equal(second.controls.get('npc_state_delta_edit_lock_profile').checked, true, 'the protect checkbox is pre-checked');
+        assert.equal(second.controls.get('people_edit_lock_profile').checked, true, 'the protect checkbox is pre-checked');
         assert.match(second.html, /Currently protected: role/);
         await saveEditorForm(second, { mood: 'curious' });
         // (step 6) Mood is lockable too, so the edited mood joins the kept lock.

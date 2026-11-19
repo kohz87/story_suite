@@ -1,4 +1,4 @@
-/* NPC State Delta: the scanner settings read from the host and the profile choices offered. */
+/* NPC State: the scanner settings read from the host and the profile choices offered. */
 import { normalizeScannerMaxOutputTokens } from './shared-limits.js';
 import { npcBucket } from '../../settings/bucket.js';
 

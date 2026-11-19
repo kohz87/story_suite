@@ -1,4 +1,4 @@
-/* NPC State Delta settings panel bindings (role: settings-panel-bind). bindUi and the control binders, attaching the
+/* NPC State settings panel bindings (role: settings-panel-bind). bindUi and the control binders, attaching the
    panel to the extensions drawer and its mount retries. Built by runtime-entry.js once per module instance with the shared
    runtime state and the controller functions it calls, so each instance keeps its own retry timer. Bodies are moved from
    runtime-entry.js without change. */
@@ -18,7 +18,7 @@ export function createSettingsBindPart(rt, deps) {
     let portraitFileListening = false;
 
     function bindSettingsCheckbox(selector, key, after = null) {
-        $(document).on('change.npcStateDelta', selector, function () {
+        $(document).on('change.ppl', selector, function () {
             getSettings()[key] = Boolean(this.checked);
             persistSettings();
             after?.();
@@ -26,7 +26,7 @@ export function createSettingsBindPart(rt, deps) {
     }
 
     function bindCustomFieldSettings() {
-        $(document).on('change.npcStateDelta', '#npc_state_delta_custom_fields', function () {
+        $(document).on('change.ppl', '#people_custom_fields', function () {
             const names = normalizeCustomFieldNames(this.value);
             getSettings().customFieldNames = names;
             this.value = names.join(', ');
@@ -36,7 +36,7 @@ export function createSettingsBindPart(rt, deps) {
     }
 
     function bindSettingsNumber(selector, key, min, max, fallback, after = null) {
-        $(document).on('change.npcStateDelta', selector, function () {
+        $(document).on('change.ppl', selector, function () {
             const value = cutSettingNumber(this.value, min, max, fallback);
             getSettings()[key] = value;
             this.value = value;
@@ -46,7 +46,7 @@ export function createSettingsBindPart(rt, deps) {
     }
 
     function bindSettingsText(selector, key, after = null) {
-        $(document).on('change.npcStateDelta', selector, function () {
+        $(document).on('change.ppl', selector, function () {
             getSettings()[key] = String(this.value || '');
             persistSettings();
             after?.();
@@ -54,19 +54,19 @@ export function createSettingsBindPart(rt, deps) {
     }
 
     function bindUi() {
-        $(document).off('.npcStateDelta');
-        bindSettingsCheckbox('#npc_state_delta_enabled', 'enabled', afterEnabledChange);
-        bindSettingsCheckbox('#npc_state_delta_auto', 'autoScan');
-        bindSettingsCheckbox('#npc_state_delta_full_scan_every_turn', 'fullScanEveryTurn');
-        bindSettingsCheckbox('#npc_state_delta_narration_capture', 'narrationCapture');
-        bindSettingsCheckbox('#npc_state_delta_inject', 'inject', updateInjection);
-        bindSettingsNumber('#npc_state_delta_inject_budget', 'injectBudgetTokens', 512, 6000, 4000, updateInjection);
-        bindSettingsNumber('#npc_state_delta_inject_limit', 'injectLimit', 1, 12, 3, updateInjection);
-        bindSettingsCheckbox('#npc_state_delta_archive_deaths', 'autoArchiveDeaths');
+        $(document).off('.ppl');
+        bindSettingsCheckbox('#people_enabled', 'enabled', afterEnabledChange);
+        bindSettingsCheckbox('#people_auto', 'autoScan');
+        bindSettingsCheckbox('#people_full_scan_every_turn', 'fullScanEveryTurn');
+        bindSettingsCheckbox('#people_narration_capture', 'narrationCapture');
+        bindSettingsCheckbox('#people_inject', 'inject', updateInjection);
+        bindSettingsNumber('#people_inject_budget', 'injectBudgetTokens', 512, 6000, 4000, updateInjection);
+        bindSettingsNumber('#people_inject_limit', 'injectLimit', 1, 12, 3, updateInjection);
+        bindSettingsCheckbox('#people_archive_deaths', 'autoArchiveDeaths');
         bindCustomFieldSettings();
-        bindSettingsCheckbox('#npc_state_delta_reactivate_archived', 'autoReactivateArchived');
-        bindSettingsCheckbox('#npc_state_delta_layered_secrets', 'layeredSecrets');
-        $(document).on('change.npcStateDelta', '#npc_state_delta_portrait_theme_preset', function () {
+        bindSettingsCheckbox('#people_reactivate_archived', 'autoReactivateArchived');
+        bindSettingsCheckbox('#people_layered_secrets', 'layeredSecrets');
+        $(document).on('change.ppl', '#people_portrait_theme_preset', function () {
             const settings = getSettings();
             const saved = portraitSettingsSnapshot(settings);
             const key = PORTRAIT_THEME_PRESETS[this.value] ? this.value : 'custom';
@@ -99,7 +99,7 @@ export function createSettingsBindPart(rt, deps) {
             }
             markPortraitSettingsDirty();
         });
-        $(document).on('change.npcStateDelta', '#npc_state_delta_portrait_custom_preset', function () {
+        $(document).on('change.ppl', '#people_portrait_custom_preset', function () {
             const settings = getSettings();
             const saved = portraitSettingsSnapshot(settings);
             const target = saved.portraitCustomPresets.find(item => item.id === String(this.value || ''));
@@ -122,17 +122,17 @@ export function createSettingsBindPart(rt, deps) {
             });
             markPortraitSettingsDirty();
         });
-        $(document).on('input.npcStateDelta', '#npc_state_delta_portrait_style_positive, #npc_state_delta_portrait_style_negative, #npc_state_delta_portrait_composition', function () {
-            if (this.id === 'npc_state_delta_portrait_style_positive' || this.id === 'npc_state_delta_portrait_style_negative') {
-                $('#npc_state_delta_portrait_theme_preset').val('custom');
-                $('.npc-state-delta-custom-preset-library').addClass('delta-custom-active');
+        $(document).on('input.ppl', '#people_portrait_style_positive, #people_portrait_style_negative, #people_portrait_composition', function () {
+            if (this.id === 'people_portrait_style_positive' || this.id === 'people_portrait_style_negative') {
+                $('#people_portrait_theme_preset').val('custom');
+                $('.ppl-custom-preset-library').addClass('delta-custom-active');
             }
             markPortraitSettingsDirty();
         });
-        $(document).on('change.npcStateDelta', '#npc_state_delta_portrait_generation_enabled, #npc_state_delta_portrait_prompt_format, #npc_state_delta_portrait_use_mood, #npc_state_delta_portrait_use_location, #npc_state_delta_portrait_save_gallery', () => {
+        $(document).on('change.ppl', '#people_portrait_generation_enabled, #people_portrait_prompt_format, #people_portrait_use_mood, #people_portrait_use_location, #people_portrait_save_gallery', () => {
             markPortraitSettingsDirty();
         });
-        $(document).on('click.npcStateDelta', '#npc_state_delta_portrait_custom_add, #npc_state_delta_portrait_custom_duplicate', async function () {
+        $(document).on('click.ppl', '#people_portrait_custom_add, #people_portrait_custom_duplicate', async function () {
             if (rt.portraitSettingsSaveBusy) return;
             const settings = getSettings();
             const snapshot = portraitSettingsDraftFromUi();
@@ -142,7 +142,7 @@ export function createSettingsBindPart(rt, deps) {
                 return;
             }
             const duplicate = this.id.endsWith('_duplicate');
-            const selected = presets.find(item => item.id === String($('#npc_state_delta_portrait_custom_preset').val() || ''))
+            const selected = presets.find(item => item.id === String($('#people_portrait_custom_preset').val() || ''))
                 || portraitCustomPresetFor(settings);
             const base = portraitCustomPreset({
                 ...(duplicate ? selected : {}),
@@ -168,11 +168,11 @@ export function createSettingsBindPart(rt, deps) {
             });
             if (saved) globalThis.toastr?.success?.(`NPC State: saved custom portrait preset ${created.name}.`);
         });
-        $(document).on('click.npcStateDelta', '#npc_state_delta_portrait_custom_rename', async function () {
+        $(document).on('click.ppl', '#people_portrait_custom_rename', async function () {
             if (rt.portraitSettingsSaveBusy) return;
             let settings = getSettings();
             let snapshot = portraitSettingsSnapshot(settings);
-            const id = String($('#npc_state_delta_portrait_custom_preset').val() || snapshot.portraitCustomPresetId);
+            const id = String($('#people_portrait_custom_preset').val() || snapshot.portraitCustomPresetId);
             let index = snapshot.portraitCustomPresets.findIndex(item => item.id === id);
             if (index < 0) return;
             let current = snapshot.portraitCustomPresets[index];
@@ -193,7 +193,7 @@ export function createSettingsBindPart(rt, deps) {
             const saved = await persistPortraitCustomPresetLibrary(settings, presets, id, { theme: snapshot.portraitThemePreset });
             if (saved) globalThis.toastr?.success?.(`NPC State: renamed portrait preset to ${name}.`);
         });
-        $(document).on('click.npcStateDelta', '#npc_state_delta_portrait_custom_delete', async function () {
+        $(document).on('click.ppl', '#people_portrait_custom_delete', async function () {
             if (rt.portraitSettingsSaveBusy) return;
             const settings = getSettings();
             let snapshot = portraitSettingsSnapshot(settings);
@@ -201,14 +201,14 @@ export function createSettingsBindPart(rt, deps) {
                 globalThis.toastr?.warning?.('NPC State: keep at least one custom portrait preset.');
                 return;
             }
-            let id = String($('#npc_state_delta_portrait_custom_preset').val() || snapshot.portraitCustomPresetId);
+            let id = String($('#people_portrait_custom_preset').val() || snapshot.portraitCustomPresetId);
             let targetIndex = snapshot.portraitCustomPresets.findIndex(item => item.id === id);
             let target = snapshot.portraitCustomPresets[targetIndex];
             if (!target) return;
             if (globalThis.window?.confirm?.(`Delete custom portrait preset "${target.name}"?`) === false) return;
             if (rt.portraitSettingsDirty && !(await savePortraitSettingsDraft())) return;
             snapshot = portraitSettingsSnapshot(getSettings());
-            id = String($('#npc_state_delta_portrait_custom_preset').val() || id);
+            id = String($('#people_portrait_custom_preset').val() || id);
             targetIndex = snapshot.portraitCustomPresets.findIndex(item => item.id === id);
             target = snapshot.portraitCustomPresets[targetIndex];
             if (!target || snapshot.portraitCustomPresets.length <= 1) return;
@@ -220,7 +220,7 @@ export function createSettingsBindPart(rt, deps) {
             });
             if (saved) globalThis.toastr?.success?.(`NPC State: deleted custom portrait preset ${target.name}.`);
         });
-        $(document).on('click.npcStateDelta', '#npc_state_delta_reset_portrait_theme', () => {
+        $(document).on('click.ppl', '#people_reset_portrait_theme', () => {
             writePortraitSettingsDraftToUi({
                 ...portraitSettingsSnapshot(getSettings()),
                 portraitGenerationEnabled: true,
@@ -236,52 +236,52 @@ export function createSettingsBindPart(rt, deps) {
             markPortraitSettingsDirty();
             globalThis.toastr?.info?.('NPC State: Fantasy Anime defaults loaded as an unsaved portrait-settings draft.');
         });
-        $(document).on('click.npcStateDelta', '#npc_state_delta_save_portrait_settings', () => { void savePortraitSettingsDraft(); });
-        bindSettingsNumber('#npc_state_delta_scan_every', 'scanEvery', 1, 20, 2);
-        bindSettingsNumber('#npc_state_delta_scan_depth', 'scanDepth', 2, 30, 6);
-        bindSettingsNumber('#npc_state_delta_narration_capture_catch_up', 'narrationCaptureCatchUp', 0, 50, 4);
-        bindSettingsNumber('#npc_state_delta_narration_capture_catch_up_people', 'narrationCaptureCatchUpPeople', 1, 3, 1);
-        $(document).on('change.npcStateDelta', '#npc_state_delta_admission_mode', function () {
+        $(document).on('click.ppl', '#people_save_portrait_settings', () => { void savePortraitSettingsDraft(); });
+        bindSettingsNumber('#people_scan_every', 'scanEvery', 1, 20, 2);
+        bindSettingsNumber('#people_scan_depth', 'scanDepth', 2, 30, 6);
+        bindSettingsNumber('#people_narration_capture_catch_up', 'narrationCaptureCatchUp', 0, 50, 4);
+        bindSettingsNumber('#people_narration_capture_catch_up_people', 'narrationCaptureCatchUpPeople', 1, 3, 1);
+        $(document).on('change.ppl', '#people_admission_mode', function () {
             getSettings().admissionMode = normalizeNpcAdmissionMode(this.value); this.value = getSettings().admissionMode; persistSettings();
         });
-        bindSettingsNumber('#npc_state_delta_max', 'maxNpcs', 1, 100, 40);
-        bindSettingsCheckbox('#npc_state_delta_auto_prune_stale', 'autoPruneStale');
-        $(document).on('change.npcStateDelta', '#npc_state_delta_stale_archive_after', function () {
+        bindSettingsNumber('#people_max', 'maxNpcs', 1, 100, 40);
+        bindSettingsCheckbox('#people_auto_prune_stale', 'autoPruneStale');
+        $(document).on('change.ppl', '#people_stale_archive_after', function () {
             const settings = getSettings();
             settings.staleArchiveAfter = Math.max(10, Math.min(999, Math.round(Number(this.value) || 30)));
             if (settings.staleDeleteAfter <= settings.staleArchiveAfter) settings.staleDeleteAfter = Math.min(1000, settings.staleArchiveAfter + 1);
             syncSettingsControls(); persistSettings();
         });
-        $(document).on('change.npcStateDelta', '#npc_state_delta_stale_delete_after', function () {
+        $(document).on('change.ppl', '#people_stale_delete_after', function () {
             const settings = getSettings();
             settings.staleDeleteAfter = Math.max(settings.staleArchiveAfter + 1, Math.min(1000, Math.round(Number(this.value) || 50)));
             syncSettingsControls(); persistSettings();
         });
-        $(document).on('change.npcStateDelta', '#npc_state_delta_base_trust, #npc_state_delta_base_affection, #npc_state_delta_base_desire, #npc_state_delta_base_tension', function () {
+        $(document).on('change.ppl', '#people_base_trust, #people_base_affection, #people_base_desire, #people_base_tension', function () {
             const settings = getSettings();
-            const key = this.id.replace('npc_state_delta_base_', '');
+            const key = this.id.replace('people_base_', '');
             settings.relationshipBaseline[key] = Math.max(-100, Math.min(100, Math.round(Number(this.value) || 0)));
             settings.relationshipBaseline = normalizeRelationshipBaseline(settings.relationshipBaseline);
             syncSettingsControls(); persistSettings();
         });
-        $(document).on('change.npcStateDelta', '#npc_state_delta_cap_ordinary, #npc_state_delta_cap_meaningful, #npc_state_delta_cap_major, #npc_state_delta_cap_extreme', function () {
+        $(document).on('change.ppl', '#people_cap_ordinary, #people_cap_meaningful, #people_cap_major, #people_cap_extreme', function () {
             const settings = getSettings();
-            const key = this.id.replace('npc_state_delta_cap_', '');
+            const key = this.id.replace('people_cap_', '');
             settings.relationshipCaps[key] = Math.max(0, Math.round(Number(this.value) || 0));
             settings.relationshipCaps = normalizeRelationshipCaps(settings.relationshipCaps);
             syncSettingsControls(); persistSettings();
         });
         // Events per story day: a blank field is no limit (null), otherwise a whole number from 0 to 99.
-        $(document).on('change.npcStateDelta', '#npc_state_delta_allow_ordinary, #npc_state_delta_allow_meaningful, #npc_state_delta_allow_major, #npc_state_delta_allow_extreme', function () {
+        $(document).on('change.ppl', '#people_allow_ordinary, #people_allow_meaningful, #people_allow_major, #people_allow_extreme', function () {
             const settings = getSettings();
-            settings.relationshipAllowance = normalizeAllowance({ ...settings.relationshipAllowance, [this.id.replace('npc_state_delta_allow_', '')]: String(this.value).trim() === '' ? null : this.value });
+            settings.relationshipAllowance = normalizeAllowance({ ...settings.relationshipAllowance, [this.id.replace('people_allow_', '')]: String(this.value).trim() === '' ? null : this.value });
             syncSettingsControls(); persistSettings();
         });
-        bindSettingsText('#npc_state_delta_relationship_criteria', 'relationshipCriteria');
-        bindSettingsText('#npc_state_delta_impact_criteria', 'relationshipImpactCriteria');
-        bindSettingsText('#npc_state_delta_memory_criteria', 'memoryCriteria');
-        bindSettingsText('#npc_state_delta_behavior_criteria', 'behaviorCriteria', updateInjection);
-        $(document).on('click.npcStateDelta', '#npc_state_delta_reset_relationship_rules', () => {
+        bindSettingsText('#people_relationship_criteria', 'relationshipCriteria');
+        bindSettingsText('#people_impact_criteria', 'relationshipImpactCriteria');
+        bindSettingsText('#people_memory_criteria', 'memoryCriteria');
+        bindSettingsText('#people_behavior_criteria', 'behaviorCriteria', updateInjection);
+        $(document).on('click.ppl', '#people_reset_relationship_rules', () => {
             const settings = getSettings();
             settings.relationshipBaseline = { ...DEFAULT_RELATIONSHIP };
             settings.relationshipCaps = { ...DEFAULT_RELATIONSHIP_CAPS };
@@ -291,54 +291,54 @@ export function createSettingsBindPart(rt, deps) {
             syncSettingsControls(); persistSettings();
             globalThis.toastr?.success?.('NPC State: relationship tuning reset to defaults.');
         });
-        $(document).on('click.npcStateDelta', '#npc_state_delta_reset_memory_rules', () => {
+        $(document).on('click.ppl', '#people_reset_memory_rules', () => {
             getSettings().memoryCriteria = DEFAULT_MEMORY_CRITERIA;
             syncSettingsControls(); persistSettings();
             globalThis.toastr?.success?.('NPC State: important memory criteria reset to default.');
         });
-        $(document).on('click.npcStateDelta', '#npc_state_delta_reset_behavior_rules', () => {
+        $(document).on('click.ppl', '#people_reset_behavior_rules', () => {
             getSettings().behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA;
             syncSettingsControls(); persistSettings(); updateInjection();
             globalThis.toastr?.success?.('NPC State: behavior rubric reset to default.');
         });
-        $(document).on('click.npcStateDelta', '.npc-state-delta-retry-hydration', () => { void retryCurrentChatHydration(); });
-        $(document).on('click.npcStateDelta', '.npc-state-delta-detach-sidecar', () => { void detachBrokenSidecar(); });
-        $(document).on('click.npcStateDelta', '#npc_state_delta_scan_now', async () => {
+        $(document).on('click.ppl', '.ppl-retry-hydration', () => { void retryCurrentChatHydration(); });
+        $(document).on('click.ppl', '.ppl-detach-sidecar', () => { void detachBrokenSidecar(); });
+        $(document).on('click.ppl', '#people_scan_now', async () => {
             const scanned = await scanNow({ manual: true, messageId: latestMessageId(true) });
             // (user decision 5) The reader's own Scan also runs the backfill queue hosted one-pass mode holds.
             if (scanned && hostedOnePass()) await processPendingBackfills(latestMessageId(true));
         });
         // (1.2.13) What's sent: filled when opened and on Refresh, never while closed.
-        $(document).on('click.npcStateDelta', '#npc_state_delta_sent_refresh', () => renderWhatsSent());
+        $(document).on('click.ppl', '#people_sent_refresh', () => renderWhatsSent());
         globalThis.document?.addEventListener?.('toggle', event => {
             if (event.target?.matches?.('[data-delta-settings-group="sent"]') && event.target.open) renderWhatsSent();
         }, true);
-        $(document).on('click.npcStateDelta', '#npc_state_delta_add_manual', () => addNpcManually());
-        $(document).on('click.npcStateDelta', '.npc-state-delta-roster-edit', function (event) { event.preventDefault?.(); event.stopPropagation?.(); openNpcEditorSafely(this.dataset.npcId); });
-        $(document).on('click.npcStateDelta', '.npc-state-delta-scan-dossier', function (event) { event.preventDefault?.(); event.stopPropagation?.(); void scanNpcDossier(String(this.dataset.npcId || '')); });
-        $(document).on('click.npcStateDelta', '.npc-state-delta-refresh-chat', function (event) { event.preventDefault?.(); event.stopPropagation?.(); void refreshNpcFromChat(String(this.dataset.npcId || '')); });
-        $(document).on('click.npcStateDelta', '.npc-state-delta-portrait-reset', function (event) { event.preventDefault?.(); resetPortraitGeneratorFromDossier(); });
-        $(document).on('click.npcStateDelta', '.npc-state-delta-portrait-run', function (event) { event.preventDefault?.(); void generatePortraitFromDialog(); });
+        $(document).on('click.ppl', '#people_add_manual', () => addNpcManually());
+        $(document).on('click.ppl', '.ppl-roster-edit', function (event) { event.preventDefault?.(); event.stopPropagation?.(); openNpcEditorSafely(this.dataset.npcId); });
+        $(document).on('click.ppl', '.ppl-scan-dossier', function (event) { event.preventDefault?.(); event.stopPropagation?.(); void scanNpcDossier(String(this.dataset.npcId || '')); });
+        $(document).on('click.ppl', '.ppl-refresh-chat', function (event) { event.preventDefault?.(); event.stopPropagation?.(); void refreshNpcFromChat(String(this.dataset.npcId || '')); });
+        $(document).on('click.ppl', '.ppl-portrait-reset', function (event) { event.preventDefault?.(); resetPortraitGeneratorFromDossier(); });
+        $(document).on('click.ppl', '.ppl-portrait-run', function (event) { event.preventDefault?.(); void generatePortraitFromDialog(); });
         if (!portraitFileListening) { portraitFileListening = true; document.addEventListener?.('error', portraitFileFailed, true); }
-        $(document).on('click.npcStateDelta', '.npc-state-delta-portrait-use', function (event) { event.preventDefault?.(); void useGeneratedPortrait(); });
-        $(document).on('click.npcStateDelta', '.npc-state-delta-restore-npc', async function () {
+        $(document).on('click.ppl', '.ppl-portrait-use', function (event) { event.preventDefault?.(); void useGeneratedPortrait(); });
+        $(document).on('click.ppl', '.ppl-restore-npc', async function () {
             const key = getChatKey();
             if (!await ensureFreshMutationBoundary('restore a dossier', key)) return;
             setNpcArchiveStateById(this.dataset.npcId, false);
         });
-        $(document).on('click.npcStateDelta', '.npc-state-delta-delete-npc', async function () {
+        $(document).on('click.ppl', '.ppl-delete-npc', async function () {
             const key = getChatKey();
             if (!await ensureFreshMutationBoundary('delete a dossier', key)) return;
             deleteNpcById(this.dataset.npcId);
         });
-        $(document).on('keydown.npcStateDelta', '.npc-state-delta-delete-npc', async function (event) {
+        $(document).on('keydown.ppl', '.ppl-delete-npc', async function (event) {
             if (!['Enter', ' '].includes(event.key)) return;
             event.preventDefault?.();
             const key = getChatKey();
             if (!await ensureFreshMutationBoundary('delete a dossier', key)) return;
             deleteNpcById(this.dataset.npcId);
         });
-        $(document).on('click.npcStateDelta', '#npc_state_delta_clear_chat', async () => {
+        $(document).on('click.ppl', '#people_clear_chat', async () => {
             if (!await ensureFreshMutationBoundary('clear this chat dossier')) return;
             if (!window.confirm('Clear every NPC State dossier for this chat? Portraits and inline dossier cards will also be removed.')) return;
             closePortraitGenerator();
@@ -363,7 +363,7 @@ export function createSettingsBindPart(rt, deps) {
         if (!host.length) host = $('#extensions_settings');
         if (!host.length) host = $('#extensionsMenu');
         if (!host.length) {
-            console.warn('[NPC State Delta] Could not find SillyTavern extensions settings host yet.');
+            console.warn('[NPC State] Could not find SillyTavern extensions settings host yet.');
             return false;
         }
         host.append(buildSettingsHtml());
@@ -371,7 +371,7 @@ export function createSettingsBindPart(rt, deps) {
         bindSettingsGroupMemory(panel);
         syncSettingsControls();
         renderDossier();
-        panel?.dispatchEvent?.(new CustomEvent('npc-state-delta:settings-mounted', { bubbles: true }));
+        panel?.dispatchEvent?.(new CustomEvent('people:settings-mounted', { bubbles: true }));
         return true;
     }
 
@@ -385,7 +385,7 @@ export function createSettingsBindPart(rt, deps) {
                 clearInterval(mountRetryTimer);
                 mountRetryTimer = null;
                 if (attempts >= 40 && !$(`#${UI_ID}`).length) {
-                    console.error('[NPC State Delta] Settings panel host never appeared; extension logic is loaded but UI could not mount.');
+                    console.error('[NPC State] Settings panel host never appeared; extension logic is loaded but UI could not mount.');
                 }
             }
         }, 250);

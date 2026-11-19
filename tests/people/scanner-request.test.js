@@ -53,7 +53,7 @@ test('rule NSDFOLLOW-1: the owner\'s follow-up reply with slipped key quotes is 
     assert.equal(calls.length, 1, 'no JSON retry request');
     assert.equal(out.retried, false);
     assert.deepEqual(out.repairs, ['moodV (closing quote restored)', 'moodA (closing quote restored)', 'moodD (closing quote restored)']);
-    assert.ok(warned.some(line => /^\[NPC State Delta\] Problems: backfill for The inspector returned JSON with broken keys; repaired without a retry: moodV \(closing quote restored\), moodA/.test(line)), warned.join('\n'));
+    assert.ok(warned.some(line => /^\[NPC State\] Problems: backfill for The inspector returned JSON with broken keys; repaired without a retry: moodV \(closing quote restored\), moodA/.test(line)), warned.join('\n'));
     const [row] = out.parsed.npcs;
     assert.equal(out.parsed.npcs.length, 1);
     assert.deepEqual([row.moodV, row.moodA, row.moodD], [0, -1, 0], 'the model\'s own numbers, none invented');

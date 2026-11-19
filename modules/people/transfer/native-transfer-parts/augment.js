@@ -37,6 +37,6 @@ export function augmentNativeBundle(input, { portableSettings = null, historyArc
         lastTotal = encoded.total;
         if (lastManifestBytes <= MAX_MANIFEST_BYTES && lastTotal <= MAX_NATIVE_BYTES) return encoded.build();
     }
-    if (lastManifestBytes > MAX_MANIFEST_BYTES) throw new Error('NPC State Delta native bundle manifest exceeds the 2 MB safety limit even without source-history audit data.');
-    throw new Error('NPC State Delta native bundle exceeds the 32 MB safety limit even without source-history audit data.');
+    if (lastManifestBytes > MAX_MANIFEST_BYTES) throw new Error('NPC State native bundle manifest exceeds the 2 MB safety limit even without source-history audit data.');
+    throw new Error('NPC State native bundle exceeds the 32 MB safety limit even without source-history audit data.');
 }

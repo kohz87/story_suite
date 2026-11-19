@@ -18,7 +18,7 @@ test('a refresh asked several times in a row tells the panes once, never marked 
     part.queueCastRefresh(5);
     part.queueCastRefresh(5);
     await wait(60);
-    assert.deepEqual(events, [['npc-state-delta:cast-rendered', { streaming: false }]]);
+    assert.deepEqual(events, [['people:cast-rendered', { streaming: false }]]);
 }));
 
 test('no chat, or a chat whose dossiers are not loaded, tells nobody', () => withDocument(async events => {

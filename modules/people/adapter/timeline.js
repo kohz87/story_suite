@@ -13,9 +13,9 @@ import { createIdentity } from './identity.js';
 import { pageHandles } from '../runtime/handles.js';
 
 const EVENTS = Object.freeze({
-    settingsMounted: 'npc-state-delta:settings-mounted',
-    castRendered: 'npc-state-delta:cast-rendered',
-    enabledChanged: 'npc-state-delta:enabled-changed',
+    settingsMounted: 'people:settings-mounted',
+    castRendered: 'people:cast-rendered',
+    enabledChanged: 'people:enabled-changed',
 });
 
 export function createTimelinePart(session, deps) {
@@ -31,7 +31,7 @@ export function createTimelinePart(session, deps) {
 
     function diagnosticsLines() {
         const api = runtime();
-        if (typeof api?.scannerReport !== 'function') return ['NPC State Delta is still loading (no scanner report yet).'];
+        if (typeof api?.scannerReport !== 'function') return ['NPC State is still loading (no scanner report yet).'];
         const lines = [...api.scannerReport()];
         try {
             const npcs = suiteApi?.npcs?.() ?? [];

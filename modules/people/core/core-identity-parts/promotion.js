@@ -1,4 +1,4 @@
-/* NPC State Delta identity: relating identity labels and finding the interim record a revealed proper name promotes. */
+/* NPC State identity: relating identity labels and finding the interim record a revealed proper name promotes. */
 import { normalizeName, cleanText, cleanList } from '../core-text.js';
 import { inferNpcIdentityKind, isInterimNpcLabel } from './kind.js';
 

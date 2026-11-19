@@ -11,7 +11,7 @@ const source = fs.readFileSync(path.join(root, 'src/adapter/cast-ui/cast-render.
 
 test('World → Here draws the present card without meters, and no side copy under it', () => {
     assert.match(source, /const world = track === false;/);
-    assert.match(source, /if \(text && !world\) \{[\s\S]*npc-state-delta-present-card-bars/);
+    assert.match(source, /if \(text && !world\) \{[\s\S]*ppl-present-card-bars/);
     assert.match(source, /const apart = world \? \[\] : meters\.shown\.filter/);
-    assert.match(source, /node\.classList\?\.contains\?\.\('npc-state-delta-present-side'\)\) node\.remove/);
+    assert.match(source, /node\.classList\?\.contains\?\.\('ppl-present-side'\)\) node\.remove/);
 });

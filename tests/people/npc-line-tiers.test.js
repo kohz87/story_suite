@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { applyRelationshipDelta } from '../../modules/people/core/core-mechanics.js';
 
@@ -43,7 +43,7 @@ async function suite({ settings = {}, records = dossiers(), features = null, mod
         fillPresentCast: () => {},
     };
     const warnings = [];
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => Object.values(delta.records).map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
         delta: () => api, version: 'test', host: () => box,
         headReply: () => host.store.headIndex(),

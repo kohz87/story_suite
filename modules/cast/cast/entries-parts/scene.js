@@ -13,7 +13,7 @@ export function pinnedKeys(query) {
     return pinned;
 }
 
-/** The names of the people in the scene now (Story Block's present list, NPC State Delta's), as keys. */
+/** The names of the people in the scene now (Story Block's present list, NPC State's), as keys. */
 export function presentKeys(query, state) {
     const out = new Set();
     const lists = [ask(query, 'scene.present', {}, null) ?? state?.domains?.scene?.present, ask(query, 'npc.present', {}, null)];

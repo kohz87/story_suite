@@ -1,4 +1,4 @@
-/* NPC State Delta profile development diagnostics: the per-scan profile, appearance, secondary-profile
+/* NPC State profile development diagnostics: the per-scan profile, appearance, secondary-profile
    and birthday receipts the merge records, plus profile evidence/application markers. The ledger model,
    observation and readiness parts live in core-profile-development-*.js and are re-exported here unchanged;
    this root path keeps every public export. A pure part of core.js (same owner); never imports core.js.

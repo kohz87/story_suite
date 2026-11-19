@@ -1,5 +1,5 @@
 // World part tests: a real Story Block host (the testkit) with Story Director, and small stand-ins for
-// NPC State Delta (its queries `npc.known`, `npc.dossier`, `npc.meters`) and example fight runner.
+// NPC State (its queries `npc.known`, `npc.dossier`, `npc.meters`) and example fight runner.
 import { createHost } from '../../../../testkit/index.js';
 import { withD1 } from '../../../helpers/director/d1.js';
 import { createModule } from '../../../../modules/director/module.js';
@@ -14,7 +14,7 @@ export const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n$
 export const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();
 
 /**
- * NPC State Delta's queries as a test module: dossiers for `people` ({ name: { rank?, disposition?, stages?,
+ * NPC State's queries as a test module: dossiers for `people` ({ name: { rank?, disposition?, stages?,
  * aliases? } }), found by name or alias, any case (as Delta's npc.dossier). `people` may change later (a scan).
  */
 export function fakeDelta(people = {}) {
@@ -24,7 +24,7 @@ export function fakeDelta(people = {}) {
     };
     return {
         id: 'npc-state-delta',
-        name: 'NPC State Delta (test stand-in)',
+        name: 'NPC State (test stand-in)',
         version: '0.0.0-test',
         domains: {},
         commands: {},

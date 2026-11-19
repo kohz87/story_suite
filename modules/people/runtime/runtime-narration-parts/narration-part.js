@@ -8,7 +8,7 @@ import { getSettings } from '../../settings/runtime-settings.js';
 import { narrationCaptureEnabled } from '../../calls/runtime-scan-helpers.js';
 
 export function createNarrationPart(rt, deps) {
-    const { getChatKey, getChatState, storySuiteV2Meters, updateInjection } = deps;
+    const { getChatKey, getChatState, adapterMeters, updateInjection } = deps;
     const { narrationCaptures, captureRerenderPending, stateVersions } = rt;
 
     const NARRATION_CAPTURE_LIMIT = 8;
@@ -22,14 +22,14 @@ export function createNarrationPart(rt, deps) {
     // at the base meter values), and, in one-pass mode, the backfill queue runs only with the one-pass
     // catch-up or when the reader asks. Without a host none of this applies.
     function hostedMeters() {
-        return Boolean(storySuiteV2Meters());
+        return Boolean(adapterMeters());
     }
     // Story Director's places (Atlas), for the capitalised-name test; [] without them.
     function hostedPlaces() {
-        try { return storySuiteV2Meters()?.places?.() ?? []; } catch { return []; }
+        try { return adapterMeters()?.places?.() ?? []; } catch { return []; }
     }
     // The capture journal finds a hosted reply by its sid (journal-keys.js).
-    useReplySids(index => (hostedMeters() ? storySuiteV2Meters().replySid?.(index) ?? null : null));
+    useReplySids(index => (hostedMeters() ? adapterMeters().replySid?.(index) ?? null : null));
     function hostedOnePass(settings = getSettings()) {
         return hostedMeters() && narrationCaptureEnabled(settings);
     }
@@ -37,7 +37,7 @@ export function createNarrationPart(rt, deps) {
     // The reply's own ID (its sid), which survives a swipe back, a middle delete and a reload; editing, deleting or swiping a message drops every held capture.
     // Without a reply ID (no Story Block): the message's position.
     function narrationCaptureKey(chatKey, messageId) {
-        const sid = hostedMeters() ? storySuiteV2Meters().replySid?.(Number(messageId)) ?? null : null;
+        const sid = hostedMeters() ? adapterMeters().replySid?.(Number(messageId)) ?? null : null;
         if (sid) return `${chatKey}|${sid}`;
         return `${chatKey}|#${messageId}`;
     }
@@ -69,7 +69,7 @@ export function createNarrationPart(rt, deps) {
     function rerenderNarrationMessage(messageId, message) {
         if (!globalThis.document?.querySelector?.(`#chat .mes[mesid="${Number(messageId)}"]`)) return;
         try { getContext().updateMessageBlock?.(messageId, message); }
-        catch (error) { console.warn('[NPC State Delta] could not re-render a reply after removing its capture block.', error); }
+        catch (error) { console.warn('[NPC State] could not re-render a reply after removing its capture block.', error); }
     }
     // ONEPASSMISS-1: a failed hosted capture is a reply-scoped scan entitlement, not a
     // scanner result. It shares the capture's lineage binding and is consumed only once.

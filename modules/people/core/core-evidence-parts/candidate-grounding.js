@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: whether a proposed personality or speech refinement is grounded in, and supported by, the evidence. */
+/* NPC State profile evidence: whether a proposed personality or speech refinement is grounded in, and supported by, the evidence. */
 import { compactDurableText, DURABLE_PROFILE_LIMITS, durableRefinementTokens, durableSeedGrounded, durableSemanticSimilarity, splitDurableClaimUnits } from '../core-relationship.js';
 import { cleanText, normalizeName } from '../core-text.js';
 import { durableProfileCollectionCandidateGrounded, strippedDevelopmentEvidence } from '../core-behavior.js';

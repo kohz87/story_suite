@@ -238,7 +238,7 @@ test('runtime: a cast dossier made without its picture gets it when Story Block 
 
 test('index.js wiring: the picture sync is asked for by the adapter, runs when a chat opens, and a removal is recorded (source)', () => {
     const index = runtimeSource();
-    assert.match(index, /v2\.startStorySuiteV2\(\{[^}]*castSync, castPortraitDue/, 'the adapter can ask whether there is a picture to give');
+    assert.match(index, /v2\.startPeopleAdapter\(\{[^}]*castSync, castPortraitDue/, 'the adapter can ask whether there is a picture to give');
     assert.match(index, /if \(messageId >= 0\) noteChatLineage\(working\);/, 'the picture stands on the chat as it is');
     assert.match(index, /castPortraitDue\(\)\) castSync\(\)/, 'a chat opened gives the picture too');
     assert.match(index, /markCastPortraitRemoved\(npc\)/, 'the reader\'s removal is recorded');

@@ -1,4 +1,4 @@
-/* NPC State Delta: the scanner request timeout and the output-token limits. */
+/* NPC State: the scanner request timeout and the output-token limits. */
 
 export const SCANNER_REQUEST_TIMEOUT_MS = 5 * 60 * 1000;
 export const SCANNER_MAX_OUTPUT_TOKENS_MIN = 128;

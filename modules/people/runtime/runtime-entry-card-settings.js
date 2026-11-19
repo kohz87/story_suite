@@ -1,4 +1,4 @@
-/* NPC State Delta - character-card settings bridge (role: runtime-entry-card-settings). The Story Block card-setting
+/* NPC State - character-card settings bridge (role: runtime-entry-card-settings). The Story Block card-setting
    definition and its panel-equivalent saves split from runtime-entry.js. Built by runtime-entry.js with the Portrait panel bindings. */
 
 export function createCardSettingsPart(deps) {
@@ -28,7 +28,7 @@ export function createCardSettingsPart(deps) {
             saveScanEvery: value => {
                 const next = Math.max(SCAN_EVERY_RANGE.min, Math.min(SCAN_EVERY_RANGE.max, Math.round(Number(value)) || 2));
                 getSettings().scanEvery = next;
-                $('#npc_state_delta_scan_every').val(next);
+                $('#people_scan_every').val(next);
                 persistSettings();
                 return true;
             },

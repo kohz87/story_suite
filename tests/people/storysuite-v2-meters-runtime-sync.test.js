@@ -111,7 +111,7 @@ test('hosted: a meeting the host did not keep (a native change finishing) is hel
             registerModule(def) { sdk.registered.push(def); },
             command: async (type, payload) => {
                 sdk.sent.push({ type, payload });
-                if (type === 'npc.meet' && (sdk.meets += 1) === 1) return { ok: false, code: 'RESTORE_PENDING', message: 'NPC State Delta is waiting: A native change is finishing; every part must agree before the story goes on.' };
+                if (type === 'npc.meet' && (sdk.meets += 1) === 1) return { ok: false, code: 'RESTORE_PENDING', message: 'NPC State is waiting: A native change is finishing; every part must agree before the story goes on.' };
                 return { ok: true };
             },
             query: name => (name === 'npc.meters' ? [] : null),
@@ -149,7 +149,7 @@ function heldScenario(name, takeBack) {
             registerModule(def) { sdk.registered.push(def); },
             command: async (type, payload) => {
                 sdk.sent.push({ type, payload });
-                if (['npc.meet', 'npc.mood'].includes(type) && (sdk.refusals += 1) <= 1) return { ok: false, code: 'RESTORE_PENDING', message: 'NPC State Delta is waiting: A native change is finishing; every part must agree before the story goes on.' };
+                if (['npc.meet', 'npc.mood'].includes(type) && (sdk.refusals += 1) <= 1) return { ok: false, code: 'RESTORE_PENDING', message: 'NPC State is waiting: A native change is finishing; every part must agree before the story goes on.' };
                 sdk.kept.push(type + ':' + payload.name);
                 return { ok: true };
             },
@@ -252,13 +252,13 @@ test('without a v2 host the same turns send nothing, and the sidecar and the inj
 
 test('index.js: the v2 meter hooks are the identity without a host', () => {
     const index = runtimeSource();
-    // Every hook asks storySuiteV2Meters() first, which is null unless the page flag is set and the adapter is hosted.
-    assert.match(index, /function storySuiteV2Meters\(\) \{\n        const adapter = storyBlockV2Hosted\(\) && rt\.storySuiteV2\?\.hosted\?\.\(\) \? rt\.storySuiteV2 : null;\n        const scope = replayScope\(\);\n        return adapter && scope \? scopedAdapter\(adapter, scope\.at, scope\.sink\) : adapter;/);
-    assert.match(index, /function hostedMeterView\(npcs\) \{\n        const adapter = storySuiteV2Meters\(\);\n        if \(!adapter\) return npcs;/);
-    assert.match(index, /function forwardRelationshipChangesToHost\(before, after, messageId, head = null, updates = \[\], rows = \[\], onePass = false\) \{\n        if \(replayScope\(\)\) return;[^\n]*\n        const adapter = storySuiteV2Meters\(\);\n        if \(!adapter\) return;/);
-    assert.match(index, /function hostedSecretsEditorHtml\(npc\) \{\n        const adapter = storySuiteV2Meters\(\);\n        if \(!adapter\) return '';/);
+    // Every hook asks adapterMeters() first, which is null unless the page flag is set and the adapter is hosted.
+    assert.match(index, /function adapterMeters\(\) \{\n        const adapter = suiteHosted\(\) && rt\.peopleAdapter\?\.hosted\?\.\(\) \? rt\.peopleAdapter : null;\n        const scope = replayScope\(\);\n        return adapter && scope \? scopedAdapter\(adapter, scope\.at, scope\.sink\) : adapter;/);
+    assert.match(index, /function hostedMeterView\(npcs\) \{\n        const adapter = adapterMeters\(\);\n        if \(!adapter\) return npcs;/);
+    assert.match(index, /function forwardRelationshipChangesToHost\(before, after, messageId, head = null, updates = \[\], rows = \[\], onePass = false\) \{\n        if \(replayScope\(\)\) return;[^\n]*\n        const adapter = adapterMeters\(\);\n        if \(!adapter\) return;/);
+    assert.match(index, /function hostedSecretsEditorHtml\(npc\) \{\n        const adapter = adapterMeters\(\);\n        if \(!adapter\) return '';/);
     assert.match(index, /const v2Edits = hostedMeters \? hostedMeters\.readEditor\(id => document\.getElementById\(id\)\?\.value, current\) : null;/);
-    assert.match(index, /const meterViews = storySuiteV2Meters\(\)\?\.dossierMeters\?\.\(state\.npcs\) \?\? \{\};/);
+    assert.match(index, /const meterViews = adapterMeters\(\)\?\.dossierMeters\?\.\(state\.npcs\) \?\? \{\};/);
     assert.match(index, /if \(shownRelationship\) \{/);
     assert.equal((index.match(/forwardRelationshipChangesToHost\(/g) || []).length, 3, 'two hooks: the live scan\'s commit and the targeted pass\'s commit');
 });

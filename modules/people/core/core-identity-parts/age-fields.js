@@ -1,4 +1,4 @@
-/* NPC State Delta identity: normalizing the age and apparent age of a raw or stored NPC record together. */
+/* NPC State identity: normalizing the age and apparent age of a raw or stored NPC record together. */
 import { cleanText } from '../core-text.js';
 import { normalizeAge } from './age-chronological.js';
 import { normalizeApparentAge } from './age-apparent.js';

@@ -1,4 +1,4 @@
-/* NPC State Delta scanner criteria and rubric compaction: default relationship/impact/memory/behavior criteria,
+/* NPC State scanner criteria and rubric compaction: default relationship/impact/memory/behavior criteria,
    rolling-relationship stripping, full-window payload preparation, prompt-name flattening and rubric compaction.
    Split from core-prompts.js without change; core-prompts.js re-exports every name it exported before.
    Public face: re-exports its parts. */

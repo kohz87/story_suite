@@ -1,4 +1,4 @@
-/* NPC State Delta development-time grounding: time-skip detection, content-token comparison,
+/* NPC State development-time grounding: time-skip detection, content-token comparison,
    development-reason grounding and user-canon declarative checks. Split from core-development.js
    as a line-for-line part; the original keeps the public exports. Public face: re-exports its parts. */
 

@@ -4,12 +4,12 @@
 //
 // * Kind `person`: `+ person Name | look: … | flaw: … | voice: … | temper: …`, written once when a named person first appears. The
 //   name is checked against the names in use (`people`: declared before; `seen`: the scene, the whole cast incl. unmet people,
-//   NPC State Delta's dossiers, stored by the step before each reply, so apply reads only its own domain)
+//   NPC State's dossiers, stored by the step before each reply, so apply reads only its own domain)
 //   and the banned lists (the setting's, the pack's, the built-in overused names). A refusal is a Problem on the reply card and a
 //   cue pinned to the next reply to rename the person ("already used": never who by). A fine name is stored whole with its profile.
 // * Tail (optional lines): the profile of up to 4 stored people who are in the scene or named in the last reply (≤160 characters
 //   each), and 2-3 unused suggestions from the pack's names (query `packs.content { kind: 'names' }`; none without it).
-// * Query `names.profile { name }` gives a stored profile (NPC State Delta seeds a dossier from it). Settings: banned names,
+// * Query `names.profile { name }` gives a stored profile (NPC State seeds a dossier from it). Settings: banned names,
 //   how many suggestions (3). Stored people: the newest 80. Nothing from prose; replay-safe (everything added whole under its key).
 // tests/v2/integration/module.test.js and host.test.js hold the tests; tests/v2/break/fuzz-delete.test.js sends `person` lines.
 // Public face: re-exports its parts.

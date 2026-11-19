@@ -4,11 +4,11 @@
 import { escapeHtml } from './util/html.js';
 
 // (1.2.13) An empty tab says why, and offers what would fill it.
-const actionButton = (action, icon, label) => `<button type="button" class="menu_button npc-state-delta-story-action" data-npc-state-delta-action="${action}"><i class="fa-solid ${icon}"></i> ${label}</button>`;
+const actionButton = (action, icon, label) => `<button type="button" class="menu_button ppl-story-action" data-ppl-action="${action}"><i class="fa-solid ${icon}"></i> ${label}</button>`;
 export function emptyCastHtml(reason = null) {
     const text = String(reason?.text || 'No NPC is present in the latest scene.');
-    const actions = reason?.scan ? `<div class="npc-state-delta-story-actions">${actionButton('scan', 'fa-wand-magic-sparkles', 'Scan now')}</div>` : '';
-    return `<div class="npc-state-delta-story-empty-state"><p class="npc-state-delta-story-empty">${escapeHtml(text)}</p>${actions}</div>`;
+    const actions = reason?.scan ? `<div class="ppl-story-actions">${actionButton('scan', 'fa-wand-magic-sparkles', 'Scan now')}</div>` : '';
+    return `<div class="ppl-story-empty-state"><p class="ppl-story-empty">${escapeHtml(text)}</p>${actions}</div>`;
 }
 // UI 4c: each dossier is a row of Story Block's listcard (ss.listcard's classes): the portrait, the name, the role and
 // status line, the stage as a pill and the NPC's meters as thin ss.bar bars (the widget's markup). The stage and the
@@ -41,18 +41,18 @@ function barNode(doc, bar) {
     return item;
 }
 function keyStarNode(doc) {
-    const star = make(doc, 'span', 'npc-state-delta-key-star', ' ★');
+    const star = make(doc, 'span', 'ppl-key-star', ' ★');
     star.setAttribute('title', 'Key person');
     star.setAttribute('aria-label', 'Key person');
     return star;
 }
 function rowNode(doc, row) {
     const item = make(doc, 'li', 'ss-listcard-row');
-    const button = make(doc, 'button', 'ss-listcard-item npc-state-delta-story-row');
+    const button = make(doc, 'button', 'ss-listcard-item ppl-story-row');
     button.dataset.npcId = String(row.id ?? '');
     button.setAttribute('aria-label', `Open ${row.name} dossier`);
     button.setAttribute('type', 'button');
-    const thumb = make(doc, 'span', 'npc-state-delta-story-thumb ss-listcard-icon');
+    const thumb = make(doc, 'span', 'ppl-story-thumb ss-listcard-icon');
     if (row.portrait) {
         const img = make(doc, 'img');
         img.setAttribute('src', row.portrait);
@@ -62,26 +62,26 @@ function rowNode(doc, row) {
     } else {
         thumb.append(make(doc, 'span', '', Array.from(String(row.name ?? '').trim())[0]?.toUpperCase() || '?'));
     }
-    const text = make(doc, 'span', 'npc-state-delta-story-text ss-listcard-main');
+    const text = make(doc, 'span', 'ppl-story-text ss-listcard-main');
     const title = make(doc, 'b', 'ss-listcard-title', row.name);
     // A followed person is marked with a ★ after the name.
     if (row.key === true) title.append(keyStarNode(doc));
     text.append(title, make(doc, 'small', 'ss-listcard-sub', [row.role, row.statusLabel].filter(Boolean).join(' · ')));
     const bars = (Array.isArray(row.bars) ? row.bars : []).filter(bar => bar && typeof bar === 'object').slice(0, DOSSIER_BAR_MAX);
     if (bars.length) {
-        const wrap = make(doc, 'span', 'npc-state-delta-story-bars');
+        const wrap = make(doc, 'span', 'ppl-story-bars');
         wrap.setAttribute('aria-hidden', 'true');
         for (const bar of bars) wrap.append(barNode(doc, bar));
         text.append(wrap);
     }
     button.append(thumb, text);
-    if (row.stage) button.append(make(doc, 'span', 'ss-pill ss-listcard-value npc-state-delta-story-stage', row.stage));
+    if (row.stage) button.append(make(doc, 'span', 'ss-pill ss-listcard-value ppl-story-stage', row.stage));
     item.append(button);
     return item;
 }
 function actionNode(doc, action, icon, label) {
-    const button = make(doc, 'button', 'menu_button npc-state-delta-story-action');
-    button.dataset.npcStateDeltaAction = action;
+    const button = make(doc, 'button', 'menu_button ppl-story-action');
+    button.dataset.pplAction = action;
     button.setAttribute('type', 'button');
     button.append(make(doc, 'i', `fa-solid ${icon}`), textNodeOf(doc, ` ${label}`));
     return button;
@@ -90,15 +90,15 @@ const textNodeOf = (doc, text) => doc.createTextNode ? doc.createTextNode(text) 
 /** The dossier list's nodes: the rows, or the one line that says why there are none (with the actions that fill it). */
 export function dossierRowNodes(rows = [], doc = globalThis.document, { query = '', total = null } = {}) {
     const needle = String(query).trim();
-    if (!rows.length && needle) return [make(doc, 'p', 'npc-state-delta-story-empty', `No dossier matches “${needle}”.`)];
+    if (!rows.length && needle) return [make(doc, 'p', 'ppl-story-empty', `No dossier matches “${needle}”.`)];
     if (!rows.length && total === 0) {
-        const box = make(doc, 'div', 'npc-state-delta-story-empty-state');
-        box.append(make(doc, 'p', 'npc-state-delta-story-empty', 'No dossiers yet. An NPC gets one when a scan finds them in the story, or you can add one yourself.'));
-        const actions = make(doc, 'div', 'npc-state-delta-story-actions');
+        const box = make(doc, 'div', 'ppl-story-empty-state');
+        box.append(make(doc, 'p', 'ppl-story-empty', 'No dossiers yet. An NPC gets one when a scan finds them in the story, or you can add one yourself.'));
+        const actions = make(doc, 'div', 'ppl-story-actions');
         actions.append(actionNode(doc, 'add', 'fa-user-plus', 'Add NPC'), actionNode(doc, 'scan', 'fa-wand-magic-sparkles', 'Scan now'));
         box.append(actions);
         return [box];
     }
-    if (!rows.length) return [make(doc, 'p', 'npc-state-delta-story-empty', 'No dossier matches.')];
+    if (!rows.length) return [make(doc, 'p', 'ppl-story-empty', 'No dossier matches.')];
     return rows.map(row => rowNode(doc, row));
 }

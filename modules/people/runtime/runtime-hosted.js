@@ -1,4 +1,4 @@
-/* NPC State Delta hosted Story Suite views (role: hosted-suite-views). What Delta reads from a Story Block v2 host and its modules while hosted:
+/* NPC State hosted Story Suite views (role: hosted-suite-views). What Delta reads from a Story Block v2 host and its modules while hosted:
    the host's clock, meters and scene, Story Director's living cast as the dossier views read them, the chat-head mark, and the
    relationship changes, secret events and hidden-note options Delta sends back, and the words for why no one shows as present. Built by runtime-entry.js once per module instance with the shared
    runtime state and the controller functions it calls. Bodies are moved from runtime-entry.js without change. */
@@ -20,17 +20,17 @@ export function createHostedPart(rt, deps) {
     // Meetings the host did not keep, `${chatKey}|${npcId}`: sent again with that person's next scan (forwardRelationshipChangesToHost).
     // meetTried / moodTried: the entry-missing repeat and the catch-up of a mood word kept from before the numbers existed are each tried once a session.
     const meetOwed = new Set(), meetTried = new Set(), moodTried = new Set();
-    setRpgProbe(() => (storyBlockV2Hosted() && rt.storySuiteV2?.hosted?.() ? rt.storySuiteV2.rpgOn?.() === true : false));
+    setRpgProbe(() => (suiteHosted() && rt.peopleAdapter?.hosted?.() ? rt.peopleAdapter.rpgOn?.() === true : false));
 
     // Set by adapter/timeline.js (announceHosted) while Delta is registered with a Story Block v2 host.
-    function storyBlockV2Hosted() {
+    function suiteHosted() {
         return pageHandles.hosted === true;
     }
 
     // (v2 meters, F81/F90) While hosted, Story Block's per-reply `npc` slice holds the meter values. Every
     // helper here is a no-op without a host: the records pass through untouched and nothing is sent.
-    function storySuiteV2Meters() {
-        const adapter = storyBlockV2Hosted() && rt.storySuiteV2?.hosted?.() ? rt.storySuiteV2 : null;
+    function adapterMeters() {
+        const adapter = suiteHosted() && rt.peopleAdapter?.hosted?.() ? rt.peopleAdapter : null;
         const scope = replayScope();
         return adapter && scope ? scopedAdapter(adapter, scope.at, scope.sink) : adapter;   // a history replay reads Story Block as of its reply
     }
@@ -38,33 +38,33 @@ export function createHostedPart(rt, deps) {
     // Off, the automatic scan waits for three replies (or "Scan every" when larger), as in 1.7.4, and then reads every reply since the last scan. True without a host, or when
     // the host cannot answer: Delta alone scans as it always did. Manual scans never ask.
     function scanAfterEveryReply() {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter) return true;
         try { return adapter.scanEveryReply?.() !== false; } catch { return true; }
     }
     // (v2) Story Director's clock while hosted ({ minutes, calendar }), for calendar.js; null otherwise.
     // The story's date after reply `index` as the dossier writes it ("Icewane 27"), '' with no host clock (calendar.js setStoryDateAtSource).
     function hostedStoryDateAt(index) {
-        try { return String(storySuiteV2Meters()?.storyDateText?.(index) ?? ''); } catch { return ''; }
+        try { return String(adapterMeters()?.storyDateText?.(index) ?? ''); } catch { return ''; }
     }
     function hostedStoryDayAt(index) {
-        try { const day = storySuiteV2Meters()?.storyDayNumber?.(index); return Number.isInteger(day) ? day : null; } catch { return null; }
+        try { const day = adapterMeters()?.storyDayNumber?.(index); return Number.isInteger(day) ? day : null; } catch { return null; }
     }
     function hostedStoryClock() {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter) return null;
         try { return adapter.storyClock?.() ?? null; } catch { return null; }
     }
     // Delta's records with their relationship numbers, part-points and earned milestones read from the slice (views, the injection and a scan's copy).
     function hostedMeterView(npcs) {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter) return npcs;
         try { return adapter.sliceView(npcs) || npcs; } catch { return npcs; }
     }
     // The people the step has recorded as made (the slice's `cast`), met now with their entry, with no dossier standing for them
     // and not removed by the reader.
     function castList() {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter) return null;
         try {
             const answer = adapter.castAnswer?.();
@@ -95,7 +95,7 @@ export function createHostedPart(rt, deps) {
     // `scene.present`, so the prompt never carries two different casts. Delta's stored presence is not
     // changed. Without a host, or when the scene cannot answer, Delta's own presence stands.
     function scenePresenceView(npcs) {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter || !Array.isArray(npcs) || !storyBlockIsV2()) return npcs;
         let names = null;
         try { names = adapter.scenePresent?.(); } catch { names = null; }
@@ -116,7 +116,7 @@ export function createHostedPart(rt, deps) {
     // head reply (the scene is the head's). Story Director's World view first, else Story Block's scene;
     // null otherwise, and the scanner prompt is then exactly as before.
     function scanScenePresent(messageId) {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter || !storyBlockIsV2()) return null;
         if (Number.isInteger(messageId) && messageId !== latestMessageId(true)) return null;
         try {
@@ -128,7 +128,7 @@ export function createHostedPart(rt, deps) {
     }
     // What the dossier view reads from the host beside the dossiers: v2 meters and living-cast views.
     function dossierHostViews(state) {
-        const meterViews = storySuiteV2Meters()?.dossierMeters?.(state.npcs) ?? {};
+        const meterViews = adapterMeters()?.dossierMeters?.(state.npcs) ?? {};
         const castViews = dossierCastViews(state);
         const storyDay = tieDayAt();   // the story day now: older ties fade by it (core-keyrel.js)
         return { meterViews, ...(Number.isInteger(storyDay) ? { storyDay } : {}), ...(castViews ? { castViews } : {}) };
@@ -146,7 +146,7 @@ export function createHostedPart(rt, deps) {
         });
     }
     // Story Director's people away (runtime-hosted-parts/away.js): the "While away" note, the scan hold and their dossier ids.
-    const { awayReturnNotes, awayScanOptions, awayKeepIds } = createAwayHosted(rt, { getChatKey, latestReplyIndex, storySuiteV2Meters });
+    const { awayReturnNotes, awayScanOptions, awayKeepIds } = createAwayHosted(rt, { getChatKey, latestReplyIndex, adapterMeters });
     // The ids of followed dossiers (the Follow star) and of those away now: the stale pass archives, never deletes, them.
     function keyKeepIds(state) {
         return [...new Set([...(state?.npcs || []).filter(npc => npc?.followed === true).map(npc => npc.id), ...awayKeepIds(state)])];
@@ -154,7 +154,7 @@ export function createHostedPart(rt, deps) {
     // True while hosted and a read really failed: the away list (a present query that errors or answers a non-list; Story Director absent is
     // no list, not a failure) or the meter read. The stale pass then only archives.
     function hostedReadsFailed() {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter) return false;
         try { return adapter.awayReadable?.() === false || !Array.isArray(adapter.meterEntries?.()); } catch { return true; }
     }
@@ -184,9 +184,9 @@ export function createHostedPart(rt, deps) {
     // would write them on, and the reply now shown gets its own scan.
     function forwardRelationshipChangesToHost(before, after, messageId, head = null, updates = [], rows = [], onePass = false) {
         if (replayScope()) return;   // Story Block already holds these changes in its own per-reply records
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter) return;
-        const dropped = () => console.info('[NPC State Delta] the chat moved on during the scan (a swipe or a new or deleted reply); its relationship changes were not sent to Story Suite.');
+        const dropped = () => console.info('[NPC State] the chat moved on during the scan (a swipe or a new or deleted reply); its relationship changes were not sent to Story Suite.');
         if (!chatHeadUnchanged(head)) return dropped();
         const prior = new Map((before || []).map(npc => [npc?.id, npc]));
         const changes = relationshipChanges(prior, after, normalizeRelationshipBaseline(getSettings().relationshipBaseline), messageId, onePass ? rows : null);
@@ -245,7 +245,7 @@ export function createHostedPart(rt, deps) {
     // (v2 hidden notes) The story events of present people's locked notes this scan should look for ([] when none): only for
     // a scan of the head reply (an opened note is recorded on the head), and only for the people in the scene now.
     function hostedEventWatch(state, messageId) {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter || (Number.isInteger(messageId) && messageId !== latestMessageId(true))) return [];
         try { return adapter.eventWatch?.(scenePresenceView(state?.npcs || [])) || []; } catch { return []; }
     }
@@ -253,7 +253,7 @@ export function createHostedPart(rt, deps) {
     // (v2 hidden notes) What a scanner or one-pass prompt is asked about hidden notes while hosted: the layered notes for a new
     // dossier (setting) and the story events of present people's locked notes; {} when neither (the prompt is then as before).
     function hostedNotePromptOptions(state, settings, messageId = null) {
-        if (!storySuiteV2Meters()) return {};
+        if (!adapterMeters()) return {};
         const eventWatch = hostedEventWatch(state, Number.isInteger(messageId) ? messageId : undefined);
         return {
             ...(settings.layeredSecrets !== false ? { layeredSecrets: true } : {}),
@@ -261,17 +261,17 @@ export function createHostedPart(rt, deps) {
         };
     }
 
-    const { hostedTargetNotes, targetNoteOptions } = createTargetNotes({ storySuiteV2Meters, hostedEventWatch });
+    const { hostedTargetNotes, targetNoteOptions } = createTargetNotes({ adapterMeters, hostedEventWatch });
 
     // A committed scan's `secretEvents` (the keys of the watched story events the current exchange showed) open those notes
     // as npc.open (cause ui, recorded on the head reply, so a swipe takes them back). Nothing is sent when the chat moved
     // on during the scan (as forwardRelationshipChangesToHost).
     function forwardSecretEventsToHost(watched, answered, head = null) {
         if (replayScope()) return;
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter || !Array.isArray(watched) || !watched.length || !Array.isArray(answered) || !answered.length) return;
         if (!chatHeadUnchanged(head)) {
-            console.info('[NPC State Delta] the chat moved on during the scan; its story events were not sent to Story Suite.');
+            console.info('[NPC State] the chat moved on during the scan; its story events were not sent to Story Suite.');
             return;
         }
         const keys = new Set(answered.map(item => String(item ?? '')));
@@ -293,7 +293,7 @@ export function createHostedPart(rt, deps) {
     // returned: 2 to 5 per person, cleaned, set once and never rewritten by a later scan. A dossier that already has notes
     // (the pack's, the reader's) keeps them. Returns how many dossiers got notes.
     function attachGeneratedSecrets(state, ids, ...sources) {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter || !Array.isArray(state?.npcs)) return 0;
         const rows = sources.flatMap(source => (Array.isArray(source?.npcs) ? source.npcs : []));
         let count = 0;
@@ -315,13 +315,13 @@ export function createHostedPart(rt, deps) {
     function castEmptyReason() {
         const key = getChatKey();
         if (key === 'no-chat') return { text: 'No chat is open.', scan: false };
-        if (getSettings().enabled === false) return { text: 'NPC State Delta is off.', scan: false };
+        if (getSettings().enabled === false) return { text: 'NPC State is off.', scan: false };
         const hydration = chatHydrationStatus(key);
         // (R2-5) A sidecar that could not be read is not "still loading": say so, and where to fix it
         // (the settings section's roster, the same notice the drawer shows).
         if (hydration === 'error') {
             const detach = getSettings().dataFiles?.[key]?.path ? ' or Detach Broken Sidecar' : '';
-            return { text: `This chat's dossiers could not be loaded, so nothing is shown and nothing is changed. NPC State Delta's settings section has Retry Load${detach}.`, scan: false };
+            return { text: `This chat's dossiers could not be loaded, so nothing is shown and nothing is changed. NPC State's settings section has Retry Load${detach}.`, scan: false };
         }
         if (hydration !== 'ready') return { text: "This chat's dossiers are still loading.", scan: false };
         const state = getChatState(key);
@@ -335,5 +335,5 @@ export function createHostedPart(rt, deps) {
         return { text: 'The latest scan found no NPC in the scene.', scan: true };
     }
 
-    return { storyBlockV2Hosted, storySuiteV2Meters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, awayReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, awayScanOptions, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason };
+    return { suiteHosted, adapterMeters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, awayReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, awayScanOptions, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason };
 }

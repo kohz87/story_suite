@@ -1,4 +1,4 @@
-/* NPC State Delta - present-card event helpers (role: runtime-entry-ui-events). The present-card activation
+/* NPC State - present-card event helpers (role: runtime-entry-ui-events). The present-card activation
    guard, the open-a-dossier call (the view's People dossier, through pageHandles.openPerson) and closest-target lookup split
    from runtime-entry.js. Built once per module instance with the controller bindings it calls, so the activation memory stays per instance. */
 import { pageHandles } from './handles.js';
@@ -27,7 +27,7 @@ export function createUiCaptureParts(deps) {
     }
 
     function activatePresentCardFromEvent(event) {
-        const card = eventTargetClosest(event, '.npc-state-delta-present-card, .npc-state-delta-present-cell');
+        const card = eventTargetClosest(event, '.ppl-present-card, .ppl-present-cell');
         if (!card) return false;
         if (event.type === 'keydown' && !['Enter', ' '].includes(event.key)) return false;
         const npcId = String(card.dataset?.npcId || '').trim();

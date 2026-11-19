@@ -54,7 +54,7 @@ export function render(el, props, api, { open = dossierOpener, cast = castApi } 
         return item;
     };
 
-    // Subscribes to NPC State Delta's changes once its page API is there (it may come after the first draw).
+    // Subscribes to NPC State's changes once its page API is there (it may come after the first draw).
     const watch = page => {
         if (!page || watched === page) return;
         try { off?.(); } catch { /* gone */ }
@@ -114,7 +114,7 @@ export function render(el, props, api, { open = dossierOpener, cast = castApi } 
         }
         draw();
     }
-    // NPC State Delta changed: redraw, once.
+    // NPC State changed: redraw, once.
     function refresh() {
         if (pending || gone) return;
         if (offSection && api?.panels?.on === true) return;   // (the flag is on: the section draws it; this subscription only works once the flag goes off)

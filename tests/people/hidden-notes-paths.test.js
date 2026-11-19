@@ -110,8 +110,8 @@ try {
         mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'And then?' });
         await emitAll('message_sent', mockState.context.chat.length - 1);
         await emitAll('generation_after_commands', 'normal', {}, false);
-        sent.rules = lastPrompt('story_suite_static_npc_state_delta');
-        sent.context = lastPrompt('story_suite_tail_5_npc_state_delta_capture');
+        sent.rules = lastPrompt('story_suite_static_people');
+        sent.context = lastPrompt('story_suite_tail_5_people_capture');
         const block = \`\${text}\\n\\n<!--npc_state_delta\\n\${JSON.stringify(payload)}\\n-->\`;
         // Hosted (N7): the block is no longer asked for or applied; a reply that lists people is one with no <Changes> block that names them (the NSD16 fallback scan).
         const names = (payload?.npcs || []).map(n => n.name).filter(Boolean);

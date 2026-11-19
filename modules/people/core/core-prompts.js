@@ -1,4 +1,4 @@
-/* NPC State Delta scanner prompt facade: implementation split across core-prompts-criteria.js, core-prompts-relationship.js,
+/* NPC State scanner prompt facade: implementation split across core-prompts-criteria.js, core-prompts-relationship.js,
    core-prompts-select.js, core-prompts-targeted.js, core-prompts-capture.js and core-prompts-scanner.js. This module keeps
    its original path and re-exports every public name unchanged. */
 import { PROFILE_EVIDENCE_FIELDS, RETURN_KEYS, RETURN_SHAPES } from '../fields/registry.js';

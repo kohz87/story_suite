@@ -1,4 +1,4 @@
-/* NPC State Delta prompt injection (role: prompt-injection). The live dossier text and the options a scan prompt is built from: the player's pending
+/* NPC State prompt injection (role: prompt-injection). The live dossier text and the options a scan prompt is built from: the player's pending
    message and the off-screen people it names, the gear lines, the injection sent to the host (updateInjection) and its preview, the one-pass capture's
    rules kept or held, and the legacy prompt keys cleared on load. The prompt builders stay in core.js. Built by runtime-entry.js once per module instance
    with the shared runtime state. Bodies are moved from runtime-entry.js without change. */
@@ -14,7 +14,7 @@ import { injectDepthOf, getSettings, effectiveCustomFieldNames, rpgIsOn } from '
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
 
 export function createInjectionPart(rt, deps) {
-    const { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, awayReturnNotes, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, storySuiteV2Meters } = deps;
+    const { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, awayReturnNotes, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, adapterMeters } = deps;
 
     // The player message the next generation will answer: the chat tail when it is a user turn, or
     // the user turn before an assistant reply that is not yet reflected by a scan (swipe/regenerate).
@@ -47,7 +47,7 @@ export function createInjectionPart(rt, deps) {
     // (Story Block 2.18.0) The signature gear line of each pack cast dossier: { [npcId]: "Gear: A, B" }, only for those the host answers
     // for. Empty without a host, on an older Story Block without `packs.castGear`, and while gear is off or the person is in the party.
     function castGearLines(state) {
-        const adapter = storySuiteV2Meters();
+        const adapter = adapterMeters();
         if (!adapter?.castGearLine) return null;
         const lines = {};
         for (const npc of state?.npcs || []) {
@@ -74,7 +74,7 @@ export function createInjectionPart(rt, deps) {
         // (v2 hidden notes) The one-pass lines are asked for layered notes (with the rules, byte-identical each reply) and for
         // the story events of present people's locked notes (with the context); the list is kept for the reply that carries it.
         const noteOptions = hostedNotePromptOptions(state, settings);
-        const built = storySuiteV2Meters()
+        const built = adapterMeters()
             ? buildLinesParts({ ...noteOptions, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
             : { rules: '', context: '' };
         return { rules: built.rules, context: armed ? built.context : '', noteOptions };
@@ -103,7 +103,7 @@ export function createInjectionPart(rt, deps) {
             return;
         }
         if (injectionKey === 'no-chat') return clear('No chat is open.');
-        if (!settings.enabled) return clear('NPC State Delta is disabled.');
+        if (!settings.enabled) return clear('NPC State is disabled.');
         const state = getChatState();
         // The recent story and who the player's message names: worked out once for both parts.
         const transcript = recentTranscript(4);
@@ -136,7 +136,7 @@ export function createInjectionPart(rt, deps) {
         if (!parts.rules) rt.sentCaptureRules = '';
     }
 
-    const OWN_REQUEST = /NPC State Delta's (?:isolated|targeted)|isolated relationship evaluator|Private NPC dossier scanner/;
+    const OWN_REQUEST = /NPC State's (?:isolated|targeted)|isolated relationship evaluator|Private NPC dossier scanner/;
     function holdCaptureRules() {
         const ctx = getContext();
         const rules = String(rt.lastInjection.captureRules || '');

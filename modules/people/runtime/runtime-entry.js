@@ -1,4 +1,4 @@
-/* NPC State Delta - standalone SillyTavern extension */
+/* NPC State - standalone SillyTavern extension */
 import { getContext } from '../../../../../../extensions.js';
 import { extension_prompt_types, extension_prompt_roles, getRequestHeaders } from '../../../../../../../script.js';
 import {
@@ -73,13 +73,13 @@ useTranscriptSource({ context: () => chatContext(), scanDepth: () => getSettings
 // prompt's head can reuse it. The live dossier and the one-pass capture's context and reminder are
 // the tail (depth 0, after the player's message, in this key order); the capture's rules are the
 // head, in the system prompt. Keys sort so the suite's tail reads Story Block, Director, Battle, NSD.
-const PROMPT_KEY = 'story_suite_tail_4_npc_state_delta';
-const CAPTURE_PROMPT_KEY = 'story_suite_tail_5_npc_state_delta_capture';
+const PROMPT_KEY = 'story_suite_tail_4_people';
+const CAPTURE_PROMPT_KEY = 'story_suite_tail_5_people_capture';
 const CAPTURE_PROMPT_DEPTH = 0;
-const CAPTURE_RULES_KEY = 'story_suite_static_npc_state_delta';
+const CAPTURE_RULES_KEY = 'story_suite_static_people';
 // Keys of earlier versions, emptied on load so a stale copy never lingers in the prompt.
-const LEGACY_PROMPT_KEYS = ['npc_state_delta_live_dossier', 'npc_state_delta_capture'];
-const UI_ID = 'npc_state_delta_settings';
+const LEGACY_PROMPT_KEYS = ['people_live_dossier', 'people_capture'];
+const UI_ID = 'people_settings';
 // Runtime state: closure variables and session collections the controller shares, held on one object created here so each import of this module gets its own (runtime-state.js).
 const rt = createRuntimeState();
 const {
@@ -119,7 +119,7 @@ const scanOperations = createScanOperationRegistry({
     timeoutMs: SCAN_OPERATION_TIMEOUT_MS,
     onExpire: operation => {
         operation.requestController?.abort(scannerRoutingError('The owning scan expired.', 'NPC_SCANNER_ROUTE_TIMEOUT'));
-        console.warn(`[NPC State Delta] ${operation.label} exceeded the scan timeout for ${operation.key}; the lock was released and any late result will be discarded.`);
+        console.warn(`[NPC State] ${operation.label} exceeded the scan timeout for ${operation.key}; the lock was released and any late result will be discarded.`);
         try {
             if (getChatKey() !== operation.key) return;
             setScanIndicator(false);
@@ -133,7 +133,7 @@ const scanOperations = createScanOperationRegistry({
                 }, 0);
             }
         } catch (error) {
-            console.debug('[NPC State Delta] scan-timeout indicator cleanup skipped', error);
+            console.debug('[NPC State] scan-timeout indicator cleanup skipped', error);
         }
     },
 });
@@ -143,7 +143,7 @@ function isScanBusy(key = getChatKey(), options) { return scanOperations.isBusy(
 // A v2-hosted automatic boundary may skip the deterministic-path probe: this session already found
 // no sidecar for the chat, has no pointer for it and nothing has found or written one since.
 function sidecarMissTrusted(key) {
-    if (!missingSidecarChats.has(key) || !storyBlockV2Hosted()) return false;
+    if (!missingSidecarChats.has(key) || !suiteHosted()) return false;
     const settings = getSettings();
     return !settings.dataFiles?.[key]?.path && !settings.sidecarTombstones?.[key];
 }
@@ -176,9 +176,9 @@ function portraitFileFailed(event) {
 
 function installCanonicalServerState(key, pointer, inspected, { reason = 'freshness-check', dirtyConflict = false } = {}) {
     const settings = getSettings();
-    if (!inspected?.exists || !inspected?.payload) throw new Error(`NPC State Delta canonical sidecar for ${key} is unavailable.`);
+    if (!inspected?.exists || !inspected?.payload) throw new Error(`NPC State canonical sidecar for ${key} is unavailable.`);
     if (inspected.retired) {
-        const error = new Error(`NPC State Delta sidecar for ${key} was retired by another session. Reload or switch chats before making dossier changes.`);
+        const error = new Error(`NPC State sidecar for ${key} was retired by another session. Reload or switch chats before making dossier changes.`);
         error.code = 'NPC_STATE_SIDECAR_RETIRED';
         retiredInSessionChats.set(key, error);
         holdRetiredLocalWork(key);
@@ -325,23 +325,23 @@ const { freshChatState, normalizeChatState, getChatState, setChatState, workingC
 
 // Who holds the chat's state: 'hosted' (the store has the people; no sidecar), 'pending' (a v2 host is on the page and has not accepted Delta yet: nothing is written),
 // or false (no host, or it refused). Read at each call.
-const storeOwnsState = () => { const own = typeof rt.storySuiteV2?.storeOwns === 'function' ? rt.storySuiteV2.storeOwns() : false; return own === 'hosted' && storyBlockV2Hosted() ? 'hosted' : (own === 'pending' ? 'pending' : false); };
+const storeOwnsState = () => { const own = typeof rt.peopleAdapter?.storeOwns === 'function' ? rt.peopleAdapter.storeOwns() : false; return own === 'hosted' && suiteHosted() ? 'hosted' : (own === 'pending' ? 'pending' : false); };
 const { queueStateFileWrite, flushStateFile, settleStateFileWrite, persist, persistCritical, persistCriticalDurable } = createPersistPart(rt, { assertChatHydratedForWrite, chatHydrationStatus, storeOwnsState, getChatKey, getChatState, holdRetiredLocalWork, isCanonicalChatKey, markStateDirty, ownershipEpoch, ownershipEpochCurrent, reconcileCrossSessionWriteConflict, requestHeaders, requireReadyChatMutation, updateHydratedStateMeta });
 
 const { noteChatLineage, seedBranchTracking, hostSwipeState, isHostSwipeActive, branchInheritancePending, decideBranch, noteAdoptedDossier, staleHostActive } = createChatBranchPart(rt, { getChatKey, getChatState, isCanonicalChatKey, storeOwnsState });
 
-const { storyBlockV2Hosted, storySuiteV2Meters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, awayReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, awayScanOptions, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason } = createHostedPart(rt, { chatHydrationStatus, getChatKey, getChatState, latestMessageId, latestReplyIndex });
+const { suiteHosted, adapterMeters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, awayReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, awayScanOptions, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason } = createHostedPart(rt, { chatHydrationStatus, getChatKey, getChatState, latestMessageId, latestReplyIndex });
 
-const { liveInjectionText, updateInjection, nextCaptureParts, holdCaptureRules, keepCaptureRules, clearLegacyPromptKeys, injectionPreview, scannerPromptOptions } = createInjectionPart(rt, { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, awayReturnNotes, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, storySuiteV2Meters });
+const { liveInjectionText, updateInjection, nextCaptureParts, holdCaptureRules, keepCaptureRules, clearLegacyPromptKeys, injectionPreview, scannerPromptOptions } = createInjectionPart(rt, { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, awayReturnNotes, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, adapterMeters });
 
-const { narrationCaptureStats, hostedMeters, hostedOnePass, narrationCaptureKey, dropNarrationCaptures, noteNarrationCaptureVersion, renderCapturedReply, receiveNarrationBlock, stripSwipedNarrationBlock, disarmNarrationCapture, takeNarrationCapture } = createNarrationPart(rt, { getChatKey, getChatState, storySuiteV2Meters, updateInjection });
+const { narrationCaptureStats, hostedMeters, hostedOnePass, narrationCaptureKey, dropNarrationCaptures, noteNarrationCaptureVersion, renderCapturedReply, receiveNarrationBlock, stripSwipedNarrationBlock, disarmNarrationCapture, takeNarrationCapture } = createNarrationPart(rt, { getChatKey, getChatState, adapterMeters, updateInjection });
 
 const { currentNpcById, findNpcByIdOrName } = createNpcLookupPart({ chatHydrationStatus, getChatKey, getChatState });
 const { queueCastRefresh } = createCastRefreshPart({ chatHydrationStatus, getChatKey });
 
 const { eventTargetClosest, openPersonDossier, activatePresentCardFromEvent } = createUiCaptureParts({ currentNpcById });
 
-const { editorIsMounted, openNpcEditorSafely, activateNpcEditorFromEvent, renderDossier, closeNpcEditor, saveNpcEditor } = createEditorPart(rt, { chatHydrationStatus, noteChatLineage, currentNpcById, ensureFreshMutationBoundary, eventTargetClosest, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, queueCastRefresh, relationshipNumber, requireReadyChatMutation, stampManualEdit, storySuiteV2Meters, updateInjection, workingCopyAdoption });
+const { editorIsMounted, openNpcEditorSafely, activateNpcEditorFromEvent, renderDossier, closeNpcEditor, saveNpcEditor } = createEditorPart(rt, { chatHydrationStatus, noteChatLineage, currentNpcById, ensureFreshMutationBoundary, eventTargetClosest, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, queueCastRefresh, relationshipNumber, requireReadyChatMutation, stampManualEdit, adapterMeters, updateInjection, workingCopyAdoption });
 
 const { recordScanDiagnostics, beginScanOperation, scanOperationCurrent, scanCanonicalBaseCurrent, endScanOperation, cancelScanOperation, withScanIntent, deferUntilSettled, replyGuard, passGuard, targetFingerprint, targetMoved, scanWorkPending, scanIdle, generationReady, queuePendingAutoScan, drainPendingAutoScanInner, noteScanFailure, BACKFILLS_PER_REPLY, scheduleReplyBackfills } = createScanOpsPart(rt, { chatHeadMark, diagnosticStore, drainPendingAutoScan, ensureHydratedStateFresh, getChatKey, hostedOnePass, hydratedRevision, isHostSwipeActive, isScanBusy, localWorkingStateDirty, processPendingBackfills, recordFreshnessEvent, SCAN_OPERATION_TIMEOUT_MS, scanNow, scanOperations, updateInjection });
 
@@ -351,7 +351,7 @@ const { retryCurrentChatHydration, detachBrokenSidecar, clearLifecycleCacheKey, 
 
 const { prepareCanonicalScanBase, endTargetedRewriteTolerance, runTargetedDossierPassInner, scanNpcDossier, refreshNpcFromChat, processPendingBackfillsInner } = createTargetedPart(rt, { attachGeneratedSecrets, BACKFILL_MAX_ATTEMPTS, beginScanOperation, chatHydrationStatus, noteChatLineage, editorIsMounted, endScanOperation, ensureChatStateLoaded, ensureHydratedStateFresh, findMeguminDossierSources, flushStateFile, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, persist, recordScanDiagnostics, renderDossier, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, scanCanonicalBaseCurrent, scanOperationCurrent, targetMoved, targetFingerprint, setChatState, settleStateFileWrite, staleHostActive, targetNoteOptions, updateInjection });
 
-const { scanNowInner, handleAssistantMessageReceivedInner } = createScanPart(rt, { attachGeneratedSecrets, awayScanOptions, BACKFILLS_PER_REPLY, beginScanOperation, castList, noteChatLineage, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, queueSettledSwipeReconcile, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanAfterEveryReply, scanCanonicalBaseCurrent, scannerPromptOptions, scanNow, scanOperationCurrent, scanScenePresent, scheduleReplyBackfills, setChatState, staleHostActive, storySuiteV2Meters, takeNarrationCapture, updateInjection });
+const { scanNowInner, handleAssistantMessageReceivedInner } = createScanPart(rt, { attachGeneratedSecrets, awayScanOptions, BACKFILLS_PER_REPLY, beginScanOperation, castList, noteChatLineage, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, queueSettledSwipeReconcile, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanAfterEveryReply, scanCanonicalBaseCurrent, scannerPromptOptions, scanNow, scanOperationCurrent, scanScenePresent, scheduleReplyBackfills, setChatState, staleHostActive, adapterMeters, takeNarrationCapture, updateInjection });
 
 function installUiCaptureBridge() {
     if (uiCaptureBridgeInstalled || typeof document?.addEventListener !== 'function') return;
@@ -373,7 +373,7 @@ function installUiCaptureBridge() {
 }
 
 
-const { castPortraitDue, castSync } = createCastSyncPart(rt, { castList, chatHeadMark, chatHeadUnchanged, chatHydrationStatus, noteChatLineage, ensureFreshMutationBoundary, getChatKey, getChatState, latestMessageId, persistCritical, renderDossier, requestHeaders, setChatState, storySuiteV2Meters, updateInjection });
+const { castPortraitDue, castSync } = createCastSyncPart(rt, { castList, chatHeadMark, chatHeadUnchanged, chatHydrationStatus, noteChatLineage, ensureFreshMutationBoundary, getChatKey, getChatState, latestMessageId, persistCritical, renderDossier, requestHeaders, setChatState, adapterMeters, updateInjection });
 
 const { updateNpcAppearance, updateNpcLifeState, npcFormName, setNpcPortrait, setNpcPortraitSeed, removeNpcPortrait, deleteNpcById, setNpcArchiveStateById, exportBundleBytes, importBundleBytes, addNpcManually } = createMutationsPart(rt, { clearUserDismissedSuppression, closeNpcEditor, noteChatLineage, editorIsMounted, ensureFreshMutationBoundary, ensureHydratedStateFresh, getChatKey, getChatState, hydratedRevision, latestMessageId, ownershipEpoch, ownershipEpochCurrent, persistCritical, persistCriticalDurable, recordFreshnessEvent, renderDossier, requestHeaders, requireReadyChatMutation, setChatState, stampManualEdit, updateInjection, workingCopyAdoption });
 
@@ -403,7 +403,7 @@ try {
         if (bootEvents.EXTENSION_SETTINGS_LOADED) bootContext.eventSource.on(bootEvents.EXTENSION_SETTINGS_LOADED, safeInit);
     }
 } catch (error) {
-    console.debug('[NPC State Delta] lifecycle bootstrap will rely on DOM ready.', error);
+    console.debug('[NPC State] lifecycle bootstrap will rely on DOM ready.', error);
 }
 
 globalThis.__NPCStateDeltaLifecycle = Object.freeze({

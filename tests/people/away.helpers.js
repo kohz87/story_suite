@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { createNpcRecord } from '../../modules/people/core/core.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { MODULE_ID, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 export const REN_AWAY = { doing: 'scouting the north road', since: 'Gw 12', back: 'Gw 18', steps: [{ date: 'Gw 14', text: 'reached Wolfmere Outpost' }, { date: 'Gw 16', text: 'met the toll-gang at the weir' }] };
 export const key = (name, extra = {}) => ({ name, aliases: [], here: true, away: null, ...extra });
@@ -38,7 +38,7 @@ export async function suite({ settings = {}, features = null, modules = [directo
         relationshipBaseline: () => ({ trust: 0, affection: 0, desire: 0, tension: 0 }),
         presentCastHtml: () => '', castEmptyReason: () => ({ text: '' }), fillPresentCast: () => {},
     };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => Object.values(records).map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },

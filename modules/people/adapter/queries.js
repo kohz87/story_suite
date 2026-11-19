@@ -31,7 +31,7 @@ export function createQueriesPart(session, deps) {
     };
 
     const warn = (message, error) => {
-        try { logger?.warn?.(`[NPC State Delta] ${message}`, error); } catch { /* logging only */ }
+        try { logger?.warn?.(`[NPC State] ${message}`, error); } catch { /* logging only */ }
     };
     const runtime = () => {
         try { return delta?.() || null; } catch { return null; }

@@ -1,4 +1,4 @@
-/* NPC State Delta deterministic birthday continuity policy. Public face: re-exports its parts. */
+/* NPC State deterministic birthday continuity policy. Public face: re-exports its parts. */
 export { normalizeBirthDate, formatBirthDate, birthDatePrecision } from './birthday-parts/date.js';
 export { deterministicBirthday, deriveBirthDateFromAge } from './birthday-parts/derive.js';
 export { normalizeBirthDateState, normalizeScanBirthday } from './birthday-parts/scan-input.js';

@@ -1,4 +1,4 @@
-/* NPC State Delta morality and agency direction masks and the personality reconciliation of a behavior profile. */
+/* NPC State morality and agency direction masks and the personality reconciliation of a behavior profile. */
 import { normalizeName } from '../core-text.js';
 import { containsBehaviorEvolutionLanguage, identityMoralityMarkers } from '../core-durable.js';
 import { behaviorProfileKey, behaviorProfileFamily, behaviorProfileBody } from './behavior-keys.js';

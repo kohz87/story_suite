@@ -6,7 +6,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const sourceRoot = path.resolve(here, '..');
-const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-state-delta-runtime-'));
+const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ppl-runtime-'));
 // Inline, not scripts/temp-dir.mjs: onepass-backfill-cadence.test.js runs this file's source from stdin, where a relative import does not resolve.
 const removeTempRoot = () => fs.rmSync(tempRoot, { recursive: true, force: true });
 process.on('exit', removeTempRoot);
@@ -133,7 +133,7 @@ mockState.context = {
     },
     generateRaw: async (...args) => { mockState.rawCalls.push(args); return mockState.quietResponder ? mockState.quietResponder(...args) : '{"npcs":[]}'; },
     generateQuietPrompt: async (...args) => { mockState.quietCalls.push(args); return '{"npcs":[]}'; },
-    executeSlashCommandsWithOptions: async (...args) => { mockState.slashCalls.push(args); return { pipe: '/user/images/npc-state-delta-generated.png' }; },
+    executeSlashCommandsWithOptions: async (...args) => { mockState.slashCalls.push(args); return { pipe: '/user/images/ppl-generated.png' }; },
     Popup: MockPopup,
     POPUP_TYPE,
     POPUP_RESULT,
@@ -318,20 +318,20 @@ function emitDocumentEvent(name, event) {
     for (const fn of documentListeners.get(name) || []) fn(event);
 }
 globalThis.document = {
-    body: { appendChild(node) { if (node?.id === 'npc_state_delta_editor_overlay') editorOverlay = node; if (node) node.isConnected = true; }, contains(node) { return Boolean(node?.isConnected); } },
+    body: { appendChild(node) { if (node?.id === 'people_editor_overlay') editorOverlay = node; if (node) node.isConnected = true; }, contains(node) { return Boolean(node?.isConnected); } },
     addEventListener(name, fn) {
         const list = documentListeners.get(name) || [];
         list.push(fn);
         documentListeners.set(name, list);
     },
     querySelector(selector) {
-        if (selector === '#npc_state_delta_editor_overlay') return editorOverlay;
+        if (selector === '#people_editor_overlay') return editorOverlay;
         if (selector === '#chat') return chatRoot;
         const match = String(selector).match(/\.mes\[(?:data-)?mesid=\"(\d+)\"\]/);
         return match && mockState.messageDomReady ? getMessageElement(Number(match[1])) : null;
     },
     querySelectorAll(selector) {
-        if (selector === '.npc-state-delta-inline-anchor') return [...inlineAnchors];
+        if (selector === '.ppl-inline-anchor') return [...inlineAnchors];
         if (selector === '#chat .mes') return mockState.messageDomReady ? [...messageElements.values()] : [];
         return [];
     },
@@ -344,11 +344,11 @@ const uiHandlers = new Map();
 const makeQuery = (selector) => {
     const isHost = selector === '#extensions_settings2';
     const isLegacyHost = selector === '#extensions_settings' || selector === '#extensionsMenu';
-    const isPanel = selector === '#npc_state_delta_settings';
+    const isPanel = selector === '#people_settings';
     const exists = selector === document || isHost || (mounted && !isLegacyHost) || (isPanel && mounted);
     const q = {
         length: exists ? 1 : 0,
-        append(html) { if (String(html).includes('id="npc_state_delta_settings"')) mounted = true; return q; },
+        append(html) { if (String(html).includes('id="people_settings"')) mounted = true; return q; },
         off() { return q; },
         on(event, target, handler) {
             if (selector === document && typeof target === 'string' && typeof handler === 'function') uiHandlers.set(`${event}|${target}`, handler);
@@ -388,7 +388,7 @@ async function manualAddNpc(name) {
     const previous = globalThis.prompt;
     globalThis.prompt = () => name;
     try {
-        const add = uiHandlers.get('click.npcStateDelta|#npc_state_delta_add_manual');
+        const add = uiHandlers.get('click.ppl|#people_add_manual');
         assert.equal(typeof add, 'function', 'manual Add must be connected to the production settings handler');
         await add();
     } finally { globalThis.prompt = previous; }
@@ -425,7 +425,7 @@ try {
     mockState.extensionSettings.storySuite.modules['npc-state-delta'].behaviorCriteria = 'Runtime custom behavior rubric.';
 
     // Removed text commands are inert. The retained settings Add creates an off-screen dossier.
-    mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: '(OOC: NPC State Delta: add Yunyun)' });
+    mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: '(OOC: NPC State: add Yunyun)' });
     eventSource.emit('message_sent', 0);
     await sleep(20);
     assert.equal(globalThis.NPCStateDelta.processOoc, undefined, 'removed command API must not remain callable');
@@ -517,7 +517,7 @@ try {
     assert.match(portraitPrompts.positive, /crimson eyes/);
     assert.doesNotMatch(portraitPrompts.positive, /proud but earnest/i, 'nonvisual Personality prose should not be dumped into portrait prompts');
     const generatedUrl = await globalThis.NPCStateDelta.generatePortraitUrl('Yunyun');
-    assert.equal(generatedUrl, '/user/images/npc-state-delta-generated.png');
+    assert.equal(generatedUrl, '/user/images/ppl-generated.png');
     assert.equal(mockState.slashCalls.length, 1, 'one portrait request should execute exactly one native ST slash command');
     const portraitCommand = String(mockState.slashCalls[0][0] || '');
     assert.match(portraitCommand, /^\/imagine\s/);
@@ -535,7 +535,7 @@ try {
     globalThis.__handles.openPerson = ({ id, name }) => { dossierRequests.push(id); assert.equal(name, 'Yunyun'); return true; };
     assert.equal(globalThis.NPCStateDelta.openDossier('Yunyun'), true, 'present NPCs open the view\'s dossier from the live dossier state');
     const presentCardTarget = { dataset: { npcId: presentYunyunId, messageId: '1' } };
-    emitDocumentEvent('click', { type: 'click', target: { closest: selector => (selector.includes('npc-state-delta-present-card') ? presentCardTarget : null) }, preventDefault() {}, stopPropagation() {}, stopImmediatePropagation() {} });
+    emitDocumentEvent('click', { type: 'click', target: { closest: selector => (selector.includes('ppl-present-card') ? presentCardTarget : null) }, preventDefault() {}, stopPropagation() {}, stopImmediatePropagation() {} });
     assert.deepEqual(dossierRequests, [presentYunyunId, presentYunyunId], 'API and card clicks open the same dossier');
     globalThis.__handles.openPerson = null;
     assert.equal(globalThis.NPCStateDelta.openPortraitGenerator('Yunyun'), true, 'portrait generator API still opens directly');
@@ -706,7 +706,7 @@ try {
     const yunyunForEditor = state.npcs.find(n => n.name === 'Yunyun');
     const fakeRosterButton = {
         dataset: { npcId: yunyunForEditor.id },
-        matches(selector) { return String(selector).includes('.npc-state-delta-roster-edit'); },
+        matches(selector) { return String(selector).includes('.ppl-roster-edit'); },
         closest(selector) { return this.matches(selector) ? this : null; },
     };
     emitDocumentEvent('pointerup', {
@@ -785,7 +785,7 @@ try {
     await staleScan;
     assert.equal(globalThis.NPCStateDelta.getState().npcs.some(n => n.name === 'Luna'), false);
 
-    mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: '(OOC: NPC State Delta: remove Yunyun)' });
+    mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: '(OOC: NPC State: remove Yunyun)' });
     const beforeRemovedCommand = globalThis.NPCStateDelta.getState();
     const callsBeforeRemovedCommand = mockState.rawCalls.length;
     eventSource.emit('message_sent', 2);

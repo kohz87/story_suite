@@ -8,13 +8,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
-import { createStorySuiteV2Adapter } from '../../../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../../../modules/people/storysuite-v2.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
 test('after a middle delete, a new reply\'s meter change is held to the cap from where that reply began', async t => {
     t.mock.method(console, 'warn', () => {});
-    const nsd = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [{ name: 'Fenna' }] }, delta: () => ({ isEnabled: () => true, getNpc: () => null }), doc: null, timers: {}, logger: { warn() {} } }).definition;
+    const nsd = createPeopleAdapter({ suiteApi: { npcs: () => [{ name: 'Fenna' }] }, delta: () => ({ isEnabled: () => true, getNpc: () => null }), doc: null, timers: {}, logger: { warn() {} } }).definition;
     const host = await createHost({ modules: [nsd] });
     t.after(() => host.close());
     const trust = () => host.head().domains.people.bonds.npcs.npc_fenna.meters.trust;

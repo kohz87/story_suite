@@ -1,5 +1,5 @@
 // NPC initiative (tracker/initiative.js): code picks at most one person present or nearby with an open
-// thread before each reply, weighted by the thread's urgency and, when NPC State Delta answers, by trust;
+// thread before each reply, weighted by the thread's urgency and, when NPC State answers, by trust;
 // a cooldown keeps the same person from taking it two replies running; the pick is drawn with the step's
 // seed and recorded, so a swipe or a Re-read of the reply shows the same one. No model call.
 
@@ -19,7 +19,7 @@ const command = part.commands[INITIATIVE];
 const seeded = seed => (ctx, payload) => command({ ...ctx, rng: rng(seed) }, payload);
 const people = list => list.map(entry => [entry.name, entry.weight, entry.topic]);
 
-// NPC State Delta's queries, as a test stand-in: who it knows, their dossiers and their trust.
+// NPC State's queries, as a test stand-in: who it knows, their dossiers and their trust.
 function nsd({ trust = {}, location = {} } = {}) {
     const dossiers = { Elula: { name: 'Elula', aliases: [] }, Bram: { name: 'Bram', aliases: ['the salter'] }, Orsa: { name: 'Orsa', aliases: [], location: location.Orsa ?? '' } };
     return {
@@ -53,7 +53,7 @@ test('who can take the initiative: present people with an open thread, weighted 
     assert.deepEqual(initiativeCandidates({ director: empty.domains.director, state: empty }), []);
 });
 
-test('with NPC State Delta: trust weighs the pick, aliases name people, and someone nearby can step in', () => {
+test('with NPC State: trust weighs the pick, aliases name people, and someone nearby can step in', () => {
     const state = base();
     const queries = nsd({ trust: { Elula: 100, Bram: -100 }, location: { Orsa: 'Harrow, the ferry stairs' } });
     const list = initiativeCandidates({ director: state.domains.director, state, query: queryOf(queries, state) });
@@ -114,7 +114,7 @@ test('a group giver or group named on a thread matches a present member of it (r
     // Brant and Sela (role holds the group's words, plural folded) and Marl (faction tag) match; Tor has no tie to either group.
     assert.deepEqual(people(list), [['Brant', 200, 'Old Tannery Clearance'], ['Marl', 200, 'Grain Crisis'], ['Sela', 200, 'Old Tannery Clearance']]);
     assert.equal(initiativeLine(list[0]), 'Initiative: Brant may approach {{user}} about Old Tannery Clearance.');
-    // Without NPC State Delta (no role to read) nobody matches a group; with no thread at all nobody takes the initiative.
+    // Without NPC State (no role to read) nobody matches a group; with no thread at all nobody takes the initiative.
     assert.deepEqual(initiativeCandidates({ director: state.domains.director, state }), []);
     const bare = withScene(makeState(), { present: ['Brant'] });
     assert.deepEqual(initiativeCandidates({ director: bare.domains.director, state: bare, query: queryOf(queries, bare) }), []);

@@ -1,4 +1,4 @@
-/* NPC State Delta normalizing, archiving and commanding NPC records with the appearance model applied. */
+/* NPC State normalizing, archiving and commanding NPC records with the appearance model applied. */
 import * as mechanics from '../core-mechanics.js';
 import { stripRecordCitations } from '../core-record.js';
 import { normalizeAppearanceForms } from '../../appearance/appearance.js';

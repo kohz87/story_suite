@@ -1,4 +1,4 @@
-/* NPC State Delta durable-profile grounding and safety gates: source support, speech attribution,
+/* NPC State durable-profile grounding and safety gates: source support, speech attribution,
    appearance correction/change and unmarked refinement admission. Split unchanged from
    core-durable.js; public names are re-exported by core-durable.js. Public face: re-exports its parts. */
 

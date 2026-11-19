@@ -1,4 +1,4 @@
-/* NPC State Delta profile-development evidence: evidence normalizing/merging/retention, claim negation and polarity, representation
+/* NPC State profile-development evidence: evidence normalizing/merging/retention, claim negation and polarity, representation
    checks, trend opposites, evidence tagging and gradualProfileEvolutionReady, with PROFILE_EVIDENCE_LIMIT. A pure part of
    core-mechanics.js (same owner, moved without change); core-mechanics.js re-exports every name it exported before.
    Public face: re-exports its parts. */

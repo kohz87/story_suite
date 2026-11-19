@@ -4,13 +4,13 @@ import { NPC_STATE_FILE_FORMAT, NPC_STATE_FILE_READ_VERSIONS } from './format.js
 export function decodeStateFilePayload(text) {
     let payload;
     try { payload = JSON.parse(String(text ?? '')); }
-    catch { throw new Error('NPC State Delta data file contains invalid JSON.'); }
-    if (!payload || payload.format !== NPC_STATE_FILE_FORMAT) throw new Error('Not an NPC State Delta chat data file.');
+    catch { throw new Error('NPC State data file contains invalid JSON.'); }
+    if (!payload || payload.format !== NPC_STATE_FILE_FORMAT) throw new Error('Not an NPC State chat data file.');
     if (!NPC_STATE_FILE_READ_VERSIONS.includes(payload.formatVersion)) {
         // A coded, non-retryable error: storage.js must not loop on a file a newer build wrote.
-        throw Object.assign(new Error(`Unsupported NPC State Delta data file version: ${payload.formatVersion} (saved by a newer NPC State Delta; update the extension).`), { code: 'NPC_STATE_UNSUPPORTED_FORMAT' });
+        throw Object.assign(new Error(`Unsupported NPC State data file version: ${payload.formatVersion} (saved by a newer NPC State; update the extension).`), { code: 'NPC_STATE_UNSUPPORTED_FORMAT' });
     }
-    if (!payload.state || typeof payload.state !== 'object' || Array.isArray(payload.state)) throw new Error('NPC State Delta data file is missing its state object.');
+    if (!payload.state || typeof payload.state !== 'object' || Array.isArray(payload.state)) throw new Error('NPC State data file is missing its state object.');
     // A format 2 file packed the branch journal's checkpoints (removed at B4-10a): its packing header and checkpoints are dropped unread.
     if (payload.formatVersion === 2) {
         delete payload.packing;

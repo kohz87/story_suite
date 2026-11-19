@@ -1,4 +1,4 @@
-/* NPC State Delta the display priority order of behavior levers. */
+/* NPC State the display priority order of behavior levers. */
 import { behaviorProfileFamily } from './behavior-keys.js';
 import { normalizeBehaviorProfile } from './behavior-normalize.js';
 

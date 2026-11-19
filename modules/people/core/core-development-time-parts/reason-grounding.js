@@ -1,4 +1,4 @@
-/* NPC State Delta development-reason grounding: checks that a stated reason shares content with the source text. */
+/* NPC State development-reason grounding: checks that a stated reason shares content with the source text. */
 
 import { cleanText } from '../core-text.js';
 import { developmentContentTokens } from './shared-content-tokens.js';

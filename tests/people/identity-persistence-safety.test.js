@@ -33,7 +33,7 @@ test('retired sidecars are explicit durable tombstones', () => {
     assert.equal(payload.retired, true);
     assert.equal(payload.chatKey, 'chat:x');
     assert.equal(payload.retireReason, 'deleted');
-    assert.match(makeNpcStateRecoveryFileName('chat:x', 123), /^npc-state-delta-recovery-/);
+    assert.match(makeNpcStateRecoveryFileName('chat:x', 123), /^ppl-recovery-/);
     assert.match(index, /retireNpcStateDataFile\(\{ chatKey: key, pointer, reason: 'chat-deleted'/);
 });
 

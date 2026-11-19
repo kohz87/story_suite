@@ -1,4 +1,4 @@
-/* NPC State Delta reply-scan assistant handler (role: reply-scan-handler). The handler of a new assistant message:
+/* NPC State reply-scan assistant handler (role: reply-scan-handler). The handler of a new assistant message:
    the receipt, lineage and swipe checks before the scan, the automatic-scan decision, and the cheap local check that
    asks whether a reply names someone. Split unchanged from runtime-scan.js behind the same rt/deps helpers. */
 
@@ -13,7 +13,7 @@ import { captureJournalEntry, recordReadMark } from '../runtime/runtime-narratio
 import { sceneNames, stampScenePresence } from './hosted-presence.js';
 
 export function createAssistantHandlerPart(rt, deps, helpers) {
-    const { noteChatLineage, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, hostedOnePass, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, storySuiteV2Meters, updateInjection } = deps;
+    const { noteChatLineage, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, hostedOnePass, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, adapterMeters, updateInjection } = deps;
     const { assistantReceipts, narrationCaptures } = rt;
     const { replyParentKey, sameReplyRewritten, scanInner, noteCaptureCatchUp, runCaptureCatchUp, replayCatchUp } = helpers;
 
@@ -37,7 +37,7 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         };
         try { await ensureChatStateLoaded(eventChatKey); }
         catch (error) {
-            console.error('[NPC State Delta] assistant event deferred because chat hydration failed.', error);
+            console.error('[NPC State] assistant event deferred because chat hydration failed.', error);
             notify('error', 'NPC State could not load this chat dossier. Existing sidecar data was preserved; retry after the server is available.');
             return;
         }
@@ -97,7 +97,7 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
             if (replay || !hostedOnePass()) return;
             const live = getChatState(eventChatKey);
             // F7/F23/F45: the scene's own list stamps who is here, last seen and arrived (hosted-presence.js); with no scene answer, the stored flags.
-            const stamped = live ? stampScenePresence(live, sceneNames(storySuiteV2Meters?.())) : null;
+            const stamped = live ? stampScenePresence(live, sceneNames(adapterMeters?.())) : null;
             const present = stamped ?? (live?.npcs || []).filter(npc => npc?.present && !npc.archived).map(npc => npc.id);
             const entry = live ? recordReadMark(live, getContext().chat || [], messageId) : null;
             const due = noteCaptureCatchUp(eventChatKey, present, messageId);
@@ -113,7 +113,7 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
             const chainEnd = () => getChatKey() === eventChatKey && latestMessageId(true) === messageId && sourceStillHere();
             scanNow({ manual: false, messageId, allowDuringSwipe: bypassSwipeGuard })
                 .then(done => { if (done !== false && chainEnd()) { countCatchUp(); scheduleReplyBackfills(eventChatKey, messageId); } })
-                .catch(error => console.warn('[NPC State Delta] the scan of a new reply stopped.', error));
+                .catch(error => console.warn('[NPC State] the scan of a new reply stopped.', error));
             return;
         }
         if (scanExpected) {

@@ -1,4 +1,4 @@
-/* NPC State Delta alias-linked duplicate consolidation: canonical-name choice, locked-field and
+/* NPC State alias-linked duplicate consolidation: canonical-name choice, locked-field and
    relationship merging, and the alias-pair pass. Split from core-merge.js without change;
    core-merge.js keeps the public scan-merge exports. Never imports core-merge.js. */
 import { cleanText, normalizeName } from './core-text.js';

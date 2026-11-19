@@ -1,4 +1,4 @@
-/* NPC State Delta: pure scan/backfill eligibility helpers.
+/* NPC State: pure scan/backfill eligibility helpers.
    Public face: re-exports its parts. */
 
 export { AUTOMATIC_BACKFILL_QUEUE_VERSION, AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT, AUTOMATIC_BACKFILL_REASONS, normalizeAutomaticBackfillRequest } from './scan-context-parts/backfill-queue.js';

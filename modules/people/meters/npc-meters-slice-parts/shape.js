@@ -23,7 +23,7 @@ export function validateNpcSlice(slice) {
     if (!isObject(slice)) return ['The NPC meters are not a record.'];
     if (!isObject(slice.npcs)) return ['The NPC meters have no list of people.'];
     const keys = Object.keys(slice.npcs);
-    if (keys.length > MAX_NPCS) errors.push(`NPC State Delta keeps meters for up to ${MAX_NPCS} people (there are ${keys.length}).`);
+    if (keys.length > MAX_NPCS) errors.push(`NPC State keeps meters for up to ${MAX_NPCS} people (there are ${keys.length}).`);
     for (const key of keys) {
         const record = slice.npcs[key];
         const where = `The NPC entry "${key}"`;

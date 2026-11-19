@@ -7,7 +7,7 @@ import {
     MODULE_ID,
     QUERY_NAMES,
     V2_HOST_EVENT,
-    createStorySuiteV2Adapter,
+    createPeopleAdapter,
     isV2Host,
 } from '../../modules/people/storysuite-v2.js';
 import { fakeDocument, fakeSdk, fakeTimers, hosted, setup, v2Host } from './storysuite-v2.helpers.js';
@@ -25,7 +25,7 @@ test('without Story Block the adapter looks once, sets no timer, and touches not
     assert.equal(await adapter.settled(), false);
     assert.equal(dom.panel.style.display, 'block');
     assert.equal(dom.panel.parentNode, dom.drawer);
-    assert.equal(dom.panel.dataset.npcStateDeltaHosted, undefined);
+    assert.equal(dom.panel.dataset.pplHosted, undefined);
 });
 
 test('a v1 Story Block (registerTab, no ready or sdk) is not a v2 host and is left to the v1 tabs', async () => {
@@ -104,7 +104,7 @@ test('a ready promise that rejects leaves Delta standalone', async () => {
 test('a host replaced while it gets ready is looked for again, within the same bound', async () => {
     const timers = fakeTimers();
     const fresh = () => v2Host(fakeSdk());
-    const looping = createStorySuiteV2Adapter({ host: fresh, doc: fakeDocument(), timers, logger: { warn() {} }, loadEmptyCast: async () => null });
+    const looping = createPeopleAdapter({ host: fresh, doc: fakeDocument(), timers, logger: { warn() {} }, loadEmptyCast: async () => null });
     looping.start();
     let rounds = 0;
     for (;;) {
@@ -172,6 +172,6 @@ test('index.js starts the adapter once at startup through an optional import', (
     const index = runtimeSource();
     const calls = index.match(/import\('\.\/src\/storysuite-v2\.js'\)/g) || [];
     assert.equal(calls.length, 1);
-    assert.match(index, /startStorySuiteV2\(\{ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, cardSettings: nsdCardSettings\(\), linesMode: \(\) => true, levelOn: \(\) => rpgIsOn\(\) \}\)/);
+    assert.match(index, /startPeopleAdapter\(\{ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, cardSettings: nsdCardSettings\(\), linesMode: \(\) => true, levelOn: \(\) => rpgIsOn\(\) \}\)/);
     assert.equal(/from '\.\/src\/storysuite-v2\.js'/.test(index), false, 'no static import: a copy without src/ still loads');
 });

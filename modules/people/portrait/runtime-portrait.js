@@ -1,4 +1,4 @@
-/* NPC State Delta portrait generator and portrait settings draft (role: portrait-generator-and-settings). The generator dialog and the
+/* NPC State portrait generator and portrait settings draft (role: portrait-generator-and-settings). The generator dialog and the
    native image request behind it, the generated picture's file, and the portrait settings draft the panel shows (read, validate,
    write to the panel, mark dirty). Built by runtime-entry.js once per module instance with the shared runtime state and the controller
    functions it calls, so each instance keeps its own generated-picture memory. Bodies are moved from runtime-entry.js without change. */
@@ -16,7 +16,7 @@ export function createPortraitPart(rt, deps) {
 
     function handlePortraitGeneratorEscape(event) {
         if (event?.key !== 'Escape' || event.defaultPrevented
-            || document.getElementById?.('npc_state_delta_tools_overlay')) return false;
+            || document.getElementById?.('people_tools_overlay')) return false;
         if (!rt.activePortraitGeneratorOverlay) return false;
         event.preventDefault?.();
         event.stopPropagation?.();
@@ -72,7 +72,7 @@ export function createPortraitPart(rt, deps) {
             result = await execute(command, {
                 handleParserErrors: false,
                 handleExecutionErrors: false,
-                source: 'npc_state_delta_portrait',
+                source: 'people_portrait',
             });
         } catch (error) {
             const message = String(error?.message || error || 'Unknown image generation error');
@@ -89,26 +89,26 @@ export function createPortraitPart(rt, deps) {
     function portraitGeneratorHtml(npc, prompts) {
         const theme = portraitThemeLabel(getSettings());
         return `
-      <div class="npc-state-delta-portrait-generator-dialog" role="dialog" aria-modal="true" aria-labelledby="npc_state_delta_portrait_generator_title">
-        <header class="npc-state-delta-portrait-generator-header">
-          <div><span class="npc-state-delta-kicker">PORTRAIT GENERATOR</span><h2 id="npc_state_delta_portrait_generator_title">${escapeHtml(npc.name)}</h2><small>${escapeHtml(theme)} · SillyTavern Image Generation</small></div>
-          <button type="button" class="npc-state-delta-portrait-generator-close" aria-label="Close portrait generator"><i class="fa-solid fa-xmark"></i></button>
+      <div class="ppl-portrait-generator-dialog" role="dialog" aria-modal="true" aria-labelledby="people_portrait_generator_title">
+        <header class="ppl-portrait-generator-header">
+          <div><span class="ppl-kicker">PORTRAIT GENERATOR</span><h2 id="people_portrait_generator_title">${escapeHtml(npc.name)}</h2><small>${escapeHtml(theme)} · SillyTavern Image Generation</small></div>
+          <button type="button" class="ppl-portrait-generator-close" aria-label="Close portrait generator"><i class="fa-solid fa-xmark"></i></button>
         </header>
-        <div class="npc-state-delta-portrait-generator-body">
-          <section class="npc-state-delta-portrait-generator-preview" aria-live="polite">
-            <div class="npc-state-delta-portrait-generator-placeholder"><i class="fa-solid fa-image"></i><b>Generated portrait preview</b><small>The result stays out of chat. Nothing replaces the current portrait until you choose Use as Portrait.</small></div>
-            <img class="npc-state-delta-portrait-generator-image" alt="Generated portrait preview" hidden>
-            <div class="npc-state-delta-portrait-generator-status" hidden></div>
+        <div class="ppl-portrait-generator-body">
+          <section class="ppl-portrait-generator-preview" aria-live="polite">
+            <div class="ppl-portrait-generator-placeholder"><i class="fa-solid fa-image"></i><b>Generated portrait preview</b><small>The result stays out of chat. Nothing replaces the current portrait until you choose Use as Portrait.</small></div>
+            <img class="ppl-portrait-generator-image" alt="Generated portrait preview" hidden>
+            <div class="ppl-portrait-generator-status" hidden></div>
           </section>
-          <section class="npc-state-delta-portrait-generator-prompts">
-            <label><b>Positive prompt</b><small>Built from the current dossier + selected portrait theme/preset. Edit freely for this generation.</small><textarea id="npc_state_delta_portrait_positive" class="text_pole" rows="9">${escapeHtml(prompts.positive)}</textarea></label>
-            <label><b>Negative prompt</b><small>Selected preset exclusions + this NPC's optional negative override.</small><textarea id="npc_state_delta_portrait_negative" class="text_pole" rows="7">${escapeHtml(prompts.negative)}</textarea></label>
+          <section class="ppl-portrait-generator-prompts">
+            <label><b>Positive prompt</b><small>Built from the current dossier + selected portrait theme/preset. Edit freely for this generation.</small><textarea id="people_portrait_positive" class="text_pole" rows="9">${escapeHtml(prompts.positive)}</textarea></label>
+            <label><b>Negative prompt</b><small>Selected preset exclusions + this NPC's optional negative override.</small><textarea id="people_portrait_negative" class="text_pole" rows="7">${escapeHtml(prompts.negative)}</textarea></label>
           </section>
         </div>
-        <footer class="npc-state-delta-portrait-generator-actions">
-          <button type="button" class="menu_button npc-state-delta-portrait-reset"><i class="fa-solid fa-rotate-left"></i> Reset from dossier</button>
-          <button type="button" class="menu_button npc-state-delta-portrait-run"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate</button>
-          <button type="button" class="menu_button npc-state-delta-portrait-use" disabled><i class="fa-solid fa-check"></i> Use as Portrait</button>
+        <footer class="ppl-portrait-generator-actions">
+          <button type="button" class="menu_button ppl-portrait-reset"><i class="fa-solid fa-rotate-left"></i> Reset from dossier</button>
+          <button type="button" class="menu_button ppl-portrait-run"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate</button>
+          <button type="button" class="menu_button ppl-portrait-use" disabled><i class="fa-solid fa-check"></i> Use as Portrait</button>
         </footer>
       </div>`;
     }
@@ -121,8 +121,8 @@ export function createPortraitPart(rt, deps) {
         activePortraitGenerationUrl = '';
         rt.portraitGenerationBusy = false;
         overlay?.remove?.();
-        document.body?.classList?.remove?.('npc-state-delta-portrait-generator-open');
-        document.documentElement?.classList?.remove?.('npc-state-delta-portrait-generator-open');
+        document.body?.classList?.remove?.('ppl-portrait-generator-open');
+        document.documentElement?.classList?.remove?.('ppl-portrait-generator-open');
     }
 
     function openPortraitGenerator(npcId) {
@@ -142,14 +142,14 @@ export function createPortraitPart(rt, deps) {
         }
         closePortraitGenerator();
         const overlay = document.createElement('div');
-        overlay.id = 'npc_state_delta_portrait_generator_overlay';
-        overlay.className = 'npc-state-delta-portrait-generator-overlay';
+        overlay.id = 'people_portrait_generator_overlay';
+        overlay.className = 'ppl-portrait-generator-overlay';
         // Keep the generator above the already-open full-screen dossier on tablet/mobile.
         overlay.style.zIndex = '2147483600';
         overlay.dataset.npcId = id;
         overlay.innerHTML = portraitGeneratorHtml(npc, prompts);
         overlay.addEventListener?.('click', event => {
-            const closeButton = eventTargetClosest(event, '.npc-state-delta-portrait-generator-close');
+            const closeButton = eventTargetClosest(event, '.ppl-portrait-generator-close');
             if (event.target === overlay || closeButton) {
                 event.preventDefault?.();
                 event.stopPropagation?.();
@@ -157,13 +157,13 @@ export function createPortraitPart(rt, deps) {
             }
         });
         document.body?.appendChild?.(overlay);
-        document.body?.classList?.add?.('npc-state-delta-portrait-generator-open');
-        document.documentElement?.classList?.add?.('npc-state-delta-portrait-generator-open');
+        document.body?.classList?.add?.('ppl-portrait-generator-open');
+        document.documentElement?.classList?.add?.('ppl-portrait-generator-open');
         rt.activePortraitGeneratorOverlay = overlay;
         rt.activePortraitGeneratorChatKey = originChatKey;
         rt.activePortraitGeneratorNpcId = id;
         activePortraitGenerationUrl = '';
-        globalThis.requestAnimationFrame?.(() => overlay.querySelector?.('#npc_state_delta_portrait_positive')?.focus?.());
+        globalThis.requestAnimationFrame?.(() => overlay.querySelector?.('#people_portrait_positive')?.focus?.());
         return true;
     }
 
@@ -171,11 +171,11 @@ export function createPortraitPart(rt, deps) {
         rt.portraitGenerationBusy = Boolean(busy);
         const overlay = rt.activePortraitGeneratorOverlay;
         if (!overlay) return;
-        const run = overlay.querySelector?.('.npc-state-delta-portrait-run');
-        const reset = overlay.querySelector?.('.npc-state-delta-portrait-reset');
-        const use = overlay.querySelector?.('.npc-state-delta-portrait-use');
-        const close = overlay.querySelector?.('.npc-state-delta-portrait-generator-close');
-        const status = overlay.querySelector?.('.npc-state-delta-portrait-generator-status');
+        const run = overlay.querySelector?.('.ppl-portrait-run');
+        const reset = overlay.querySelector?.('.ppl-portrait-reset');
+        const use = overlay.querySelector?.('.ppl-portrait-use');
+        const close = overlay.querySelector?.('.ppl-portrait-generator-close');
+        const status = overlay.querySelector?.('.ppl-portrait-generator-status');
         if (run) { run.disabled = rt.portraitGenerationBusy; run.innerHTML = rt.portraitGenerationBusy ? '<i class="fa-solid fa-spinner fa-spin"></i> Generating...' : '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate again'; }
         if (reset) reset.disabled = rt.portraitGenerationBusy;
         // Closing invalidates this dialog; late generation/decoding cannot apply a result.
@@ -193,8 +193,8 @@ export function createPortraitPart(rt, deps) {
         const npc = currentNpcById(rt.activePortraitGeneratorNpcId);
         if (!npc) return false;
         const prompts = npcImagePromptPair(npc);
-        const positive = rt.activePortraitGeneratorOverlay.querySelector?.('#npc_state_delta_portrait_positive');
-        const negative = rt.activePortraitGeneratorOverlay.querySelector?.('#npc_state_delta_portrait_negative');
+        const positive = rt.activePortraitGeneratorOverlay.querySelector?.('#people_portrait_positive');
+        const negative = rt.activePortraitGeneratorOverlay.querySelector?.('#people_portrait_negative');
         if (positive) positive.value = prompts.positive;
         if (negative) negative.value = prompts.negative;
         return true;
@@ -206,8 +206,8 @@ export function createPortraitPart(rt, deps) {
         if (!originChatKey || getChatKey() !== originChatKey || !requireReadyChatMutation('generate a portrait', originChatKey)) return false;
         const npc = currentNpcById(rt.activePortraitGeneratorNpcId);
         if (!overlay || !npc || rt.portraitGenerationBusy) return false;
-        const positive = String(overlay.querySelector?.('#npc_state_delta_portrait_positive')?.value || '').trim();
-        const negative = String(overlay.querySelector?.('#npc_state_delta_portrait_negative')?.value || '').trim();
+        const positive = String(overlay.querySelector?.('#people_portrait_positive')?.value || '').trim();
+        const negative = String(overlay.querySelector?.('#people_portrait_negative')?.value || '').trim();
         if (!positive) {
             globalThis.toastr?.warning?.('NPC State: positive portrait prompt is empty.');
             return false;
@@ -223,8 +223,8 @@ export function createPortraitPart(rt, deps) {
                 return false;
             }
             activePortraitGenerationUrl = url;
-            const image = rt.activePortraitGeneratorOverlay.querySelector?.('.npc-state-delta-portrait-generator-image');
-            const placeholder = rt.activePortraitGeneratorOverlay.querySelector?.('.npc-state-delta-portrait-generator-placeholder');
+            const image = rt.activePortraitGeneratorOverlay.querySelector?.('.ppl-portrait-generator-image');
+            const placeholder = rt.activePortraitGeneratorOverlay.querySelector?.('.ppl-portrait-generator-placeholder');
             if (image) {
                 image.src = url;
                 image.hidden = false;
@@ -234,7 +234,7 @@ export function createPortraitPart(rt, deps) {
             return true;
         } catch (error) {
             if (rt.activePortraitGeneratorOverlay !== overlay || getChatKey() !== originChatKey) return false;
-            console.error('[NPC State Delta] portrait generation failed', error);
+            console.error('[NPC State] portrait generation failed', error);
             setPortraitGeneratorBusy(false, 'Generation failed.');
             globalThis.toastr?.error?.(`NPC State portrait generation: ${error?.message || error}`);
             return false;
@@ -382,43 +382,43 @@ export function createPortraitPart(rt, deps) {
     function portraitSettingsDraftFromUi() {
         const settings = getSettings();
         return normalizePortraitSettingsDraft({
-            portraitGenerationEnabled: $('#npc_state_delta_portrait_generation_enabled').prop('checked'),
-            portraitThemePreset: String($('#npc_state_delta_portrait_theme_preset').val() || 'custom'),
-            portraitCustomPresetId: String($('#npc_state_delta_portrait_custom_preset').val() || settings.portraitCustomPresetId || ''),
+            portraitGenerationEnabled: $('#people_portrait_generation_enabled').prop('checked'),
+            portraitThemePreset: String($('#people_portrait_theme_preset').val() || 'custom'),
+            portraitCustomPresetId: String($('#people_portrait_custom_preset').val() || settings.portraitCustomPresetId || ''),
             portraitCustomPresets: settings.portraitCustomPresets,
-            portraitStylePositive: String($('#npc_state_delta_portrait_style_positive').val() || ''),
-            portraitStyleNegative: String($('#npc_state_delta_portrait_style_negative').val() || ''),
-            portraitComposition: String($('#npc_state_delta_portrait_composition').val() || ''),
-            portraitPromptFormat: String($('#npc_state_delta_portrait_prompt_format').val() || 'hybrid'),
-            portraitUseMood: $('#npc_state_delta_portrait_use_mood').prop('checked'),
-            portraitUseLocation: $('#npc_state_delta_portrait_use_location').prop('checked'),
-            portraitSaveToGallery: $('#npc_state_delta_portrait_save_gallery').prop('checked'),
+            portraitStylePositive: String($('#people_portrait_style_positive').val() || ''),
+            portraitStyleNegative: String($('#people_portrait_style_negative').val() || ''),
+            portraitComposition: String($('#people_portrait_composition').val() || ''),
+            portraitPromptFormat: String($('#people_portrait_prompt_format').val() || 'hybrid'),
+            portraitUseMood: $('#people_portrait_use_mood').prop('checked'),
+            portraitUseLocation: $('#people_portrait_use_location').prop('checked'),
+            portraitSaveToGallery: $('#people_portrait_save_gallery').prop('checked'),
         });
     }
 
     function writePortraitCustomPresetOptions(snapshot) {
-        const control = $('#npc_state_delta_portrait_custom_preset');
+        const control = $('#people_portrait_custom_preset');
         if (!control.length) return;
         const html = snapshot.portraitCustomPresets
             .map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join('');
         if (control.html() !== html) control.html(html);
         control.val(snapshot.portraitCustomPresetId);
-        $('#npc_state_delta_portrait_custom_preset_count').text(`${snapshot.portraitCustomPresets.length}/${PORTRAIT_CUSTOM_PRESET_LIMIT} saved`);
+        $('#people_portrait_custom_preset_count').text(`${snapshot.portraitCustomPresets.length}/${PORTRAIT_CUSTOM_PRESET_LIMIT} saved`);
     }
 
     function writePortraitSettingsDraftToUi(draft) {
         const next = normalizePortraitSettingsDraft(draft);
-        $('#npc_state_delta_portrait_generation_enabled').prop('checked', next.portraitGenerationEnabled);
-        $('#npc_state_delta_portrait_theme_preset').val(next.portraitThemePreset);
+        $('#people_portrait_generation_enabled').prop('checked', next.portraitGenerationEnabled);
+        $('#people_portrait_theme_preset').val(next.portraitThemePreset);
         writePortraitCustomPresetOptions(next);
-        $('#npc_state_delta_portrait_style_positive').val(next.portraitStylePositive);
-        $('#npc_state_delta_portrait_style_negative').val(next.portraitStyleNegative);
-        $('#npc_state_delta_portrait_composition').val(next.portraitComposition);
-        $('#npc_state_delta_portrait_prompt_format').val(next.portraitPromptFormat);
-        $('#npc_state_delta_portrait_use_mood').prop('checked', next.portraitUseMood);
-        $('#npc_state_delta_portrait_use_location').prop('checked', next.portraitUseLocation);
-        $('#npc_state_delta_portrait_save_gallery').prop('checked', next.portraitSaveToGallery);
-        $('.npc-state-delta-custom-preset-library').toggleClass('delta-custom-active', next.portraitThemePreset === 'custom');
+        $('#people_portrait_style_positive').val(next.portraitStylePositive);
+        $('#people_portrait_style_negative').val(next.portraitStyleNegative);
+        $('#people_portrait_composition').val(next.portraitComposition);
+        $('#people_portrait_prompt_format').val(next.portraitPromptFormat);
+        $('#people_portrait_use_mood').prop('checked', next.portraitUseMood);
+        $('#people_portrait_use_location').prop('checked', next.portraitUseLocation);
+        $('#people_portrait_save_gallery').prop('checked', next.portraitSaveToGallery);
+        $('.ppl-custom-preset-library').toggleClass('delta-custom-active', next.portraitThemePreset === 'custom');
         return next;
     }
 
@@ -428,9 +428,9 @@ export function createPortraitPart(rt, deps) {
     }
 
     function updatePortraitSettingsSaveUi() {
-        const button = $('#npc_state_delta_save_portrait_settings');
-        const status = $('#npc_state_delta_portrait_settings_status');
-        button.toggleClass?.('npc-state-delta-busy', rt.portraitSettingsSaveBusy);
+        const button = $('#people_save_portrait_settings');
+        const status = $('#people_portrait_settings_status');
+        button.toggleClass?.('ppl-busy', rt.portraitSettingsSaveBusy);
         button.prop?.('disabled', rt.portraitSettingsSaveBusy);
         if (rt.portraitSettingsSaveBusy) status.text?.('Saving…');
         else if (rt.portraitSettingsDirty) status.text?.('Unsaved changes');

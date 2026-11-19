@@ -148,7 +148,7 @@ test('hosted, then the host goes away: chat events check for the sidecar as befo
         assert.deepEqual(await quietEvents(), []);
         globalThis.StoryBlock = undefined;
         const v2 = await import(pathToFileURL(path.join(extRoot, 'src', 'storysuite-v2.js')).href);
-        const adapter = v2.startStorySuiteV2();
+        const adapter = v2.startPeopleAdapter();
         assert.equal(adapter.check(), false);
         assert.equal(globalThis.__handles.hosted, false, 'the hosted state is gone');
         const reads = await quietEvents();
@@ -177,7 +177,7 @@ test('hosted: the Cast tab has the present people and the chat gets no cards (B4
 
         assert.equal(globalThis.__handles.hosted, true);
         assert.equal('launcherWithStoryBlockV2' in settings || 'launcherWithStoryBlock' in settings, false, 'the launcher settings are gone');
-        assert.equal(uiHandlers.get('change.npcStateDelta|#npc_state_delta_launcher_with_story_block_v2'), undefined, 'and so is their control');
+        assert.equal(uiHandlers.get('change.ppl|#people_launcher_with_story_block_v2'), undefined, 'and so is their control');
 
         // Nothing is drawn under the reply.
         mockState.quietResponder = async () => JSON.stringify({ npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } }] });
@@ -185,7 +185,7 @@ test('hosted: the Cast tab has the present people and the chat gets no cards (B4
         await sleep(200);
         assert.ok(api.getState().npcs.some(npc => npc.name === 'Yunyun' && npc.present), 'Yunyun is present');
         assert.equal(api.presentCastHtml, undefined, 'the old roster markup is gone (the view draws the present people)');
-        const inChat = () => inlineAnchors.some(anchor => anchor.dataset.npcStateDeltaMessageId === String(id));
+        const inChat = () => inlineAnchors.some(anchor => anchor.dataset.pplMessageId === String(id));
         assert.equal(inChat(), false, 'no card under the reply');
         assert.equal('presentCastDisplay' in settings || 'presentCastDisplayChosen' in settings, false, 'the in-chat display setting is gone');
         assert.equal(api.renderInline, undefined, 'and so is the in-chat render entry');

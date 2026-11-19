@@ -19,7 +19,7 @@ export function standaloneParts(actor, stat, skill) {
     return parts;
 }
 
-/** NPC State Delta's `npc.socialModifier` answer as parts (one per reason), or [] when it has none. */
+/** NPC State's `npc.socialModifier` answer as parts (one per reason), or [] when it has none. */
 export function socialParts(answer) {
     if (!isRecord(answer) || !isInt(answer.mod) || answer.mod === 0 || !Array.isArray(answer.reasons)) return [];
     const parts = answer.reasons.filter(reason => isRecord(reason) && isInt(reason.value) && reason.value !== 0)

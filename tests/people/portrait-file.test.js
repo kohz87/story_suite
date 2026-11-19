@@ -210,7 +210,7 @@ test('what is sent to the model never carries a portrait: not the path, not the 
     assert.match(injection, /Fenna/, 'she is in the dossier text');
     const prompt = buildScannerPrompt({ transcript: 'Fenna coils the rope at the ferry.', existingNpcs: [npc] });
     for (const text of [injection, prompt]) {
-        assert.doesNotMatch(text, /npc-state-delta-portrait|\/user\/files|data:image|portrait/i);
+        assert.doesNotMatch(text, /ppl-portrait|\/user\/files|data:image|portrait/i);
         assert.ok(!text.includes(record.hash));
     }
     const withPicture = { ...npc, portrait: { dataUrl: PNG, mime: 'image/png' } };

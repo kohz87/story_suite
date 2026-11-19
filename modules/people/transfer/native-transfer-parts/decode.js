@@ -9,7 +9,7 @@ export function decodeDeltaNativeBundle(input) {
     const declaredContents = validateDeclaredContents(manifest.declaredContents);
     const portableSettings = validatePortableSettings(manifest.portableSettings);
     const historyArchive = validateHistoryArchive(manifest.historyArchive);
-    if (declaredContents?.portablePortraitSettings === true && !portableSettings) throw new Error('NPC State Delta native bundle declares portable portrait settings but does not contain them.');
-    if (declaredContents?.sourceHistoryAudit === true && !historyArchive) throw new Error('NPC State Delta native bundle declares source history but does not contain it.');
+    if (declaredContents?.portablePortraitSettings === true && !portableSettings) throw new Error('NPC State native bundle declares portable portrait settings but does not contain them.');
+    if (declaredContents?.sourceHistoryAudit === true && !historyArchive) throw new Error('NPC State native bundle declares source history but does not contain it.');
     return { ...canonical, declaredContents, portableSettings, historyArchive };
 }

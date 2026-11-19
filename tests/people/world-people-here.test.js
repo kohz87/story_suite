@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CAST_TAB_ID, WORLD_FEATURE, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { CAST_TAB_ID, WORLD_FEATURE, createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 import { styleSource } from './helpers/shipped-modules.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
 
@@ -62,19 +62,19 @@ function node(owner, tag = 'div', className = '', text = '') {
 // One present cell as Delta draws it (index.js inlineCardHtml): the card button with portrait, name line (name and the
 // stage slot), the description and the Look/field now lines; then the side copy of the now lines.
 function cellNode(owner, id) {
-    const cell = node(owner, 'div', 'npc-state-delta-present-cell npc-state-delta-present-cell-now');
+    const cell = node(owner, 'div', 'ppl-present-cell ppl-present-cell-now');
     cell.dataset.npcId = id;
-    const card = node(owner, 'button', 'npc-state-delta-present-card');
+    const card = node(owner, 'button', 'ppl-present-card');
     card.dataset.npcId = id;
-    const text = node(owner, 'span', 'npc-state-delta-present-card-text');
-    const head = node(owner, 'span', 'npc-state-delta-present-card-head');
-    head.append(node(owner, 'b', 'npc-state-delta-present-card-name', 'Sister Temiwa'), node(owner, 'span', 'npc-state-delta-present-card-stage'));
-    const now = node(owner, 'span', 'npc-state-delta-present-now');
-    now.append(node(owner, 'span', 'npc-state-delta-present-now-part', 'Look: grey habit, mended sleeves'), node(owner, 'span', 'npc-state-delta-present-now-part', 'Faith: lapsed'));
-    text.append(head, node(owner, 'small', 'npc-state-delta-present-card-role', 'Bluewatch healer who patches you without the sermon'), now);
-    card.append(node(owner, 'span', 'npc-state-delta-present-card-portrait'), text);
-    const side = node(owner, 'div', 'npc-state-delta-present-side npc-state-delta-present-side-now');
-    side.append(node(owner, 'span', 'npc-state-delta-present-now', 'Look: grey habit, mended sleeves'));
+    const text = node(owner, 'span', 'ppl-present-card-text');
+    const head = node(owner, 'span', 'ppl-present-card-head');
+    head.append(node(owner, 'b', 'ppl-present-card-name', 'Sister Temiwa'), node(owner, 'span', 'ppl-present-card-stage'));
+    const now = node(owner, 'span', 'ppl-present-now');
+    now.append(node(owner, 'span', 'ppl-present-now-part', 'Look: grey habit, mended sleeves'), node(owner, 'span', 'ppl-present-now-part', 'Faith: lapsed'));
+    text.append(head, node(owner, 'small', 'ppl-present-card-role', 'Bluewatch healer who patches you without the sermon'), now);
+    card.append(node(owner, 'span', 'ppl-present-card-portrait'), text);
+    const side = node(owner, 'div', 'ppl-present-side ppl-present-side-now');
+    side.append(node(owner, 'span', 'ppl-present-now', 'Look: grey habit, mended sleeves'));
     cell.append(card, side);
     return cell;
 }
@@ -121,7 +121,7 @@ async function setup({ world }) {
     const opened = [];
     const delta = {
         isEnabled: () => true,
-        presentCastHtml: () => '<section class="npc-state-delta-present-roster"><div class="npc-state-delta-present-cell" data-npc-id="npc_temiwa"></div></section>',
+        presentCastHtml: () => '<section class="ppl-present-roster"><div class="ppl-present-cell" data-npc-id="npc_temiwa"></div></section>',
         fillPresentCast() {},
         castEmptyReason: () => ({ text: 'No NPC is present.' }),
         openDossier: id => { opened.push(id); return true; },
@@ -135,7 +135,7 @@ async function setup({ world }) {
         feature: id => (id === WORLD_FEATURE ? world : false), settings: () => ({}),
     };
     const host = { apiVersion: 2, sdk, ready: Promise.resolve(sdk) };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => NPCS.map(npc => ({ id: npc.id, name: npc.name, aliases: npc.aliases, present: npc.present, archived: npc.archived })) },
         delta: () => delta, host: () => host, doc, logger: { warn() {} }, retryMs: 1, attempts: 2, aliveMs: 1e9,
         loadEmptyCast: async () => reason => `<p>${reason?.text ?? ''}</p>`,
@@ -156,19 +156,19 @@ test('World → People here: a person with Look, a field, Next, an opened and a 
     const el = element(doc);
     assert.equal(adapter.pageApi.render(el, {}), 1);
     const cell = el.children[0];
-    assert.ok(cell.classList.contains('npc-state-delta-world-people'));
+    assert.ok(cell.classList.contains('ppl-world-people'));
     const html = el.innerHTML;
     assert.doesNotMatch(html, LOOK, 'no Look or field line');
     assert.doesNotMatch(html, NEXT, 'no Next line');
     assert.doesNotMatch(html, NOTES, 'no opened or hidden note');
-    assert.equal(el.querySelectorAll('.npc-state-delta-present-now').length, 0);
-    assert.equal(el.querySelectorAll('.npc-state-delta-v2-next, .npc-state-delta-v2-note').length, 0);
-    assert.equal(el.querySelectorAll('.npc-state-delta-present-card-bars').length, 0, 'no meters, as before');
+    assert.equal(el.querySelectorAll('.ppl-present-now').length, 0);
+    assert.equal(el.querySelectorAll('.ppl-next, .ppl-note').length, 0);
+    assert.equal(el.querySelectorAll('.ppl-present-card-bars').length, 0, 'no meters, as before');
     assert.equal(cell.children.length, 1, 'the cell is the card, nothing under it');
-    assert.equal(cell.querySelector('.npc-state-delta-present-card-name').textContent, 'Sister Temiwa');
-    assert.equal(cell.querySelector('.npc-state-delta-present-card-stage').textContent, 'Tolerates you', 'the standing chip');
-    assert.match(cell.querySelector('.npc-state-delta-present-card-role').textContent, /Bluewatch healer/);
-    assert.ok(cell.querySelector('.npc-state-delta-present-card-portrait'));
+    assert.equal(cell.querySelector('.ppl-present-card-name').textContent, 'Sister Temiwa');
+    assert.equal(cell.querySelector('.ppl-present-card-stage').textContent, 'Tolerates you', 'the standing chip');
+    assert.match(cell.querySelector('.ppl-present-card-role').textContent, /Bluewatch healer/);
+    assert.ok(cell.querySelector('.ppl-present-card-portrait'));
     adapter.stop();
 });
 
@@ -181,9 +181,9 @@ test('the Dossiers screen (World off) still draws the same person with Next, the
     assert.match(html, NEXT);
     assert.match(html, /Why Bluewatch/);
     assert.match(html, /Hidden note · opens at Trust 60/);
-    assert.ok(el.querySelector('.npc-state-delta-present-card-bars'), 'the tab keeps its meters');
-    assert.ok(!el.querySelector('.npc-state-delta-world-people'), 'only the World view draws People here');
-    assert.equal(el.querySelector('.npc-state-delta-present-card-stage').textContent, 'Tolerates you');
+    assert.ok(el.querySelector('.ppl-present-card-bars'), 'the tab keeps its meters');
+    assert.ok(!el.querySelector('.ppl-world-people'), 'only the World view draws People here');
+    assert.equal(el.querySelector('.ppl-present-card-stage').textContent, 'Tolerates you');
     adapter.stop();
 });
 
@@ -192,10 +192,10 @@ test('the whole row opens the dossier: a click on the card, on the cell, or a ke
     const el = element(doc);
     adapter.pageApi.render(el, {});
     const cell = el.children[0];
-    const card = cell.querySelector('.npc-state-delta-present-card');
+    const card = cell.querySelector('.ppl-present-card');
     // Pointer on the cell itself (outside the card), on the name inside the card.
     el.fire('click', { target: cell });
-    el.fire('click', { target: cell.querySelector('.npc-state-delta-present-card-name') });
+    el.fire('click', { target: cell.querySelector('.ppl-present-card-name') });
     // Enter or Space on the focused card button: the browser turns it into a click on the button.
     el.fire('click', { target: card });
     assert.deepEqual(opened, ['npc_temiwa', 'npc_temiwa', 'npc_temiwa']);
@@ -208,13 +208,13 @@ test('a click elsewhere on the pane opens nothing; the Dossiers rows still open 
     adapter.pageApi.render(el, {});
     el.fire('click', { target: el });
     assert.deepEqual(opened, []);
-    const row = { dataset: { npcId: 'npc_x' }, closest: selector => (selector === '.npc-state-delta-story-row' ? row : null) };
+    const row = { dataset: { npcId: 'npc_x' }, closest: selector => (selector === '.ppl-story-row' ? row : null) };
     el.fire('click', { target: row });
     assert.deepEqual(opened, ['npc_x']);
     adapter.stop();
 });
 
 test('People here: the standing is a chip and the whole row is pointer', () => {
-    assert.match(css, /\.npc-state-delta-world-people \.npc-state-delta-present-card-stage \{[^}]*border-radius: 999px;/);
-    assert.match(css, /\.npc-state-delta-world-people \{ cursor: pointer; \}/);
+    assert.match(css, /\.ppl-world-people \.ppl-present-card-stage \{[^}]*border-radius: 999px;/);
+    assert.match(css, /\.ppl-world-people \{ cursor: pointer; \}/);
 });

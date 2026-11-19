@@ -1,4 +1,4 @@
-/* NPC State Delta episode scoping: narrows a story window to the sentences about one bound NPC. */
+/* NPC State episode scoping: narrows a story window to the sentences about one bound NPC. */
 
 import { cleanText, normalizeName } from '../core-text.js';
 import { developmentBindingLabels, developmentContextSegments, episodeContainsLabel } from './episode-labels.js';

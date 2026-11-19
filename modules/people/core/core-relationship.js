@@ -1,4 +1,4 @@
-/* NPC State Delta relationship mechanics facade: re-exports the relationship model, scoring,
+/* NPC State relationship mechanics facade: re-exports the relationship model, scoring,
    evidence/event history and durable text helpers from their focused parts. The original public
    exports remain unchanged; core-mechanics.js can continue importing and re-exporting them here.
    Never imports core-mechanics.js or core.js. */

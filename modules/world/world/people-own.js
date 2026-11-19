@@ -1,13 +1,13 @@
 // Story Director v2, World people (flag `suite.worldPeopleOwn`): draws the present cast's cards itself from NPC State's queries
-// (npc.present, npc.meters, npc.portrait, npc.dossier; `people.list` for the Key tag) instead of NPC State Delta's global page API.
+// (npc.present, npc.meters, npc.portrait, npc.dossier; `people.list` for the Key tag) instead of NPC State's global page API.
 // `createOwnCast(api, { open })` has the page API's shape ({ available, busy, render, onChange }), so the widget's chips, thoughts and
 // covered-people logic (people-parts/draw.js) stay exactly as they are. The cards use NPC State's own classes (its stylesheet draws them).
 
 import { lineKey } from '../changes.js';
 
 const CLASS = {
-    pane: 'npc-state-delta-story-pane', roster: 'npc-state-delta-present-roster', head: 'npc-state-delta-present-roster-head', grid: 'npc-state-delta-present-grid',
-    cell: 'npc-state-delta-present-cell', card: 'npc-state-delta-present-card', text: 'npc-state-delta-present-card-text',
+    pane: 'ppl-story-pane', roster: 'ppl-present-roster', head: 'ppl-present-roster-head', grid: 'ppl-present-grid',
+    cell: 'ppl-present-cell', card: 'ppl-present-card', text: 'ppl-present-card-text',
 };
 
 const text = value => (typeof value === 'string' ? value.trim() : '');
@@ -55,38 +55,38 @@ export function createOwnCast(api, { open = () => null, signal = () => null } = 
             if (content !== undefined) node.textContent = content;
             return node;
         };
-        const item = make('div', `${CLASS.cell} ${CLASS.cell}-idle npc-state-delta-world-cell npc-state-delta-world-people`);
+        const item = make('div', `${CLASS.cell} ${CLASS.cell}-idle ppl-world-cell ppl-world-people`);
         item.dataset.npcId = id;
         const card = make('button', CLASS.card);
         card.setAttribute('type', 'button');
         card.dataset.npcId = id;
         card.setAttribute('aria-label', `Open ${shown} dossier`);
-        const face = make('span', 'npc-state-delta-present-card-portrait');
+        const face = make('span', 'ppl-present-card-portrait');
         if (typeof portrait === 'string' && portrait) {
             const img = make('img');
             img.setAttribute('src', portrait);
             img.setAttribute('alt', `${shown} portrait`);
             face.append(img);
         } else {
-            const holder = make('div', 'npc-state-delta-present-card-placeholder');
+            const holder = make('div', 'ppl-present-card-placeholder');
             holder.setAttribute('aria-hidden', 'true');
             holder.append(make('span', '', shown.trim().charAt(0).toUpperCase() || '?'));
             face.append(holder);
         }
         const body = make('span', CLASS.text);
-        const head = make('span', 'npc-state-delta-present-card-head');
-        const label = make('b', 'npc-state-delta-present-card-name', shown);
+        const head = make('span', 'ppl-present-card-head');
+        const label = make('b', 'ppl-present-card-name', shown);
         label.setAttribute('title', shown);
         head.append(label);
         const aliases = Array.isArray(dossier.aliases) ? dossier.aliases : [];
         if ([shown, ...aliases].some(item => keys.has(lineKey(text(item))))) {
-            const tag = make('span', 'npc-state-delta-key-tag', '★ Key');
+            const tag = make('span', 'ppl-key-tag', '★ Key');
             tag.setAttribute('title', 'Key person (Story Director)');
             head.append(tag);
         }
-        head.append(make('span', 'npc-state-delta-present-card-stage', text(meters?.rank)));
+        head.append(make('span', 'ppl-present-card-stage', text(meters?.rank)));
         const line = [text(dossier.role), text(dossier.mood)].filter(Boolean).join(' · ') || 'Present NPC';
-        const role = make('small', 'npc-state-delta-present-card-role', line);
+        const role = make('small', 'ppl-present-card-role', line);
         role.setAttribute('title', line);
         body.append(head, role);
         card.append(face, body);
@@ -99,7 +99,7 @@ export function createOwnCast(api, { open = () => null, signal = () => null } = 
         if (el.__sdWorldOwnClick) return;
         el.__sdWorldOwnClick = true;
         el.addEventListener?.('click', event => {
-            const row = event.target?.closest?.('.npc-state-delta-world-people');
+            const row = event.target?.closest?.('.ppl-world-people');
             const name = row ? who.get(row)?.name : null;
             if (!name) return;
             try { open()?.(name); } catch { /* the dossier could not open */ }
@@ -119,7 +119,7 @@ export function createOwnCast(api, { open = () => null, signal = () => null } = 
             const cells = list.map(name => cell(doc, name, keys));
             const make = (tag, className, content) => { const node = doc.createElement(tag); if (className) node.className = className; if (content !== undefined) node.textContent = content; return node; };
             const header = make('div', CLASS.head);
-            header.append(make('span', 'npc-state-delta-kicker', 'PRESENT NPCS'), make('small', '', `${cells.length} shown`));
+            header.append(make('span', 'ppl-kicker', 'PRESENT NPCS'), make('small', '', `${cells.length} shown`));
             const roster = make('section', CLASS.roster);
             const grid = make('div', CLASS.grid);
             grid.append(...cells);
@@ -133,7 +133,7 @@ export function createOwnCast(api, { open = () => null, signal = () => null } = 
                     let node = null;
                     try { node = slot(name, [...aliases]); } catch { node = null; }
                     if (node && typeof node === 'object' && typeof node.nodeType === 'number') {
-                        node.classList?.add?.('npc-state-delta-v2-slot');
+                        node.classList?.add?.('ppl-slot');
                         item.querySelector?.(`.${CLASS.text}`)?.append(node);
                     }
                 }

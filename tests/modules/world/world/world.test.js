@@ -1,7 +1,7 @@
 // The World screen's data (part world, src/v2/world/): what the player character knows, on a real Story
-// Block host. Here (the place and who is present, plain names alone or NPC State Delta's chips), the known
+// Block host. Here (the place and who is present, plain names alone or NPC State's chips), the known
 // news, events and factions, what is coming, and the Journal; nothing behind the scenes or planned by the
-// arc planner ever in them; Story Director alone, with NPC State Delta, without the day digest; replay after
+// arc planner ever in them; Story Director alone, with NPC State, without the day digest; replay after
 // swipes and middle deletes equals a rebuild.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -103,7 +103,7 @@ test('Upcoming: the reader\'s range; an overdue quest first; nothing dated witho
     assert.deepEqual(upcoming.map(item => [item.name, item.label, item.overdue]), [['Far Feast', 'in 85 days', false]]);
 });
 
-test('with NPC State Delta: each person present is a chip with their stance, and opens their dossier', async () => {
+test('with NPC State: each person present is a chip with their stance, and opens their dossier', async () => {
     const host = await story({ delta: { Mira: { rank: 'Friend' }, 'Old Tom': { disposition: 'gruff' }, Brecht: { stages: { trust: 'Wary' } } } });
     const here = host.sdk.query('director.world.here');
     const { world, journal } = worldData(host);
@@ -122,7 +122,7 @@ test('with NPC State Delta: each person present is a chip with their stance, and
     assert.equal(el.querySelectorAll('button.wv-link').length, 3, 'Kell has no dossier: a plain chip');
     el.querySelectorAll('button.wv-link')[1].click();
     assert.deepEqual(opened, ['Old Tom']);
-    // Without NPC State Delta on the page the chips are plain names, no button.
+    // Without NPC State on the page the chips are plain names, no button.
     const plain = drawWorld({ world, journal }, { widgets: { [PEOPLE_WIDGET]: createPeopleWidget({ open: () => null }) } });
     assert.equal(plain.el.querySelectorAll('button.wv-link').length, 0);
 });

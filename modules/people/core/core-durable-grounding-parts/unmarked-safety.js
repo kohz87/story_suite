@@ -1,4 +1,4 @@
-/* NPC State Delta unmarked durable refinement safety: token-overlap admission, replacement and merge of refined text. */
+/* NPC State unmarked durable refinement safety: token-overlap admission, replacement and merge of refined text. */
 
 import { normalizeName } from '../core-text.js';
 import { compactDurableText, DURABLE_PROFILE_LIMITS, durableRefinementTokens, durableSemanticSimilarity, durableTokenCoverage } from '../core-relationship.js';

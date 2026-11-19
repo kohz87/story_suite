@@ -1,4 +1,4 @@
-/* NPC State Delta settings (role: runtime-settings). The extension's settings key, the portrait theme presets and custom
+/* NPC State settings (role: runtime-settings). The extension's settings key, the portrait theme presets and custom
    preset library, the defaults, getSettings (which fills in and canonicalizes the stored settings), persistSettings,
    injectDepthOf and the present-cast display normalizer. Moved out of runtime-entry.js without change; nothing here keeps
    per-instance state, so runtime-entry.js imports the functions directly. Public face: re-exports its parts. */

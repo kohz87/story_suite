@@ -7,7 +7,7 @@ import { createCardSettings } from '../../packs/card-settings.js';
 
 const nsd = (state = { portraitPromptFormat: 'hybrid', scanEvery: 4 }) => ({
     owner: 'npc-state-delta',
-    label: 'NPC State Delta',
+    label: 'NPC State',
     keys: {
         portraitPromptFormat: { label: 'NPC State portraits', valueText: v => (v === 'natural' ? 'Natural' : 'Structured hybrid'), valid: v => ['natural', 'hybrid'].includes(v) },
         scanEvery: { label: 'Scan every', valueText: v => `${v} replies`, valid: v => Number.isInteger(v) && v >= 1 && v <= 20 },
@@ -80,8 +80,8 @@ test('the plan lists differences only, drops an unregistered owner\'s keys and s
     const bad = registry.plan({ 'npc-state-delta.scanEvery': 99, 'npc-state-delta.nope': 1 });
     assert.deepEqual(bad.items, []);
     assert.equal(bad.lines.length, 2);
-    assert.match(bad.lines[0], /scanEvery skipped: NPC State Delta does not accept that value/);
-    assert.match(bad.lines[1], /nope skipped: NPC State Delta does not list it/);
+    assert.match(bad.lines[0], /scanEvery skipped: NPC State does not accept that value/);
+    assert.match(bad.lines[1], /nope skipped: NPC State does not list it/);
 });
 
 test('apply hands each owner its own values once, counts only what the owner says it applied, and survives an owner that throws', async () => {

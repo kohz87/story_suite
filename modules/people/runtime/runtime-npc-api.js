@@ -43,7 +43,7 @@ export function createNpcApiPart(rt, deps) {
                 if (key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return Object.freeze([]);
                 return buildNpcProfiles(scenePresenceView(getChatState(key).npcs || []), { customFieldNames: effectiveCustomFieldNames() });
             } catch (error) {
-                console.warn('[NPC State Delta] NPC profiles failed', error);
+                console.warn('[NPC State] NPC profiles failed', error);
                 return Object.freeze([]);
             }
         },
@@ -54,7 +54,7 @@ export function createNpcApiPart(rt, deps) {
                     const result = nextReplyTexts();
                     return replyPreview({ injection: result?.injection, rules: result?.rules, capture: result?.capture });
                 } catch (error) {
-                    console.warn('[NPC State Delta] reply preview failed', error);
+                    console.warn('[NPC State] reply preview failed', error);
                     return replyPreview();
                 }
             },
@@ -91,12 +91,12 @@ export function createNpcApiPart(rt, deps) {
         renderDossier();
         // The cast panes follow NPC State on and off.
         queueCastRefresh(0);
-        if (typeof CustomEvent === 'function') globalThis.document?.dispatchEvent?.(new CustomEvent('npc-state-delta:enabled-changed', { detail: { enabled: getSettings().enabled !== false } }));
+        if (typeof CustomEvent === 'function') globalThis.document?.dispatchEvent?.(new CustomEvent('people:enabled-changed', { detail: { enabled: getSettings().enabled !== false } }));
     }
 
     // When NPC State registers with a Story Block host, or that host goes away: the cast panes redraw.
     function watchHost() {
-        globalThis.document?.addEventListener?.('npc-state-delta:v2-host', () => {
+        globalThis.document?.addEventListener?.('people:v2-host', () => {
             queueCastRefresh(0);
         });
     }

@@ -11,7 +11,7 @@ import { storyBlockIsV2 } from '../npc-api/host-probe.js';
 
 const locked = npc => Array.isArray(npc?.manualProfileFields) && npc.manualProfileFields.includes('location');
 
-/** The names in the host's scene now (`adapter`: storySuiteV2Meters()), or null when there is no v2 host or it cannot answer. */
+/** The names in the host's scene now (`adapter`: adapterMeters()), or null when there is no v2 host or it cannot answer. */
 export function sceneNames(adapter) {
     if (!adapter || !storyBlockIsV2()) return null;
     try { const names = adapter.scenePresent?.(); return Array.isArray(names) ? names : null; } catch { return null; }

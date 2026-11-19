@@ -1,6 +1,6 @@
 // The settings a card may recommend, and who owns them (pure): `sdk.registerCardSettings`.
 //
-// An owner (Story Block itself as `story-block`, NPC State Delta as `npc-state-delta`) registers its allow-listed keys with how to
+// An owner (Story Block itself as `story-block`, NPC State as `npc-state-delta`) registers its allow-listed keys with how to
 // name, read, check and apply them. The card offer asks this registry what differs from the player's current settings and, after the
 // player's click, hands each owner its own values to apply. Story Block never writes another extension's settings: an owner applies its
 // own, exactly as its own Save does. An owner that is not registered is an extension that is not installed.
@@ -20,7 +20,7 @@ const KEY = /^[A-Za-z][A-Za-z0-9_]*$/;
 
 /** Why an owner that is not registered matters, in plain words (named when the card recommends one of its settings). */
 export const OWNER_NEEDS = Object.freeze({
-    'npc-state-delta': 'Needs NPC State Delta for portraits and dossiers',
+    'npc-state-delta': 'Needs NPC State for portraits and dossiers',
 });
 
 const same = (a, b) => {

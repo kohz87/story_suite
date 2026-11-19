@@ -1,4 +1,4 @@
-/* NPC State Delta identity and speech refinement safety: combines unmarked-safety with grounding per field. */
+/* NPC State identity and speech refinement safety: combines unmarked-safety with grounding per field. */
 
 import { containsEvolutionLanguage, identityMoralityConflict } from '../core-durable-identity.js';
 import { durableRefinementCandidateGrounded } from './candidate-grounded.js';

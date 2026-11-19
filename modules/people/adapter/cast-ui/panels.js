@@ -30,7 +30,7 @@ export function createCastPanels(session, deps) {
         view(box, draw) {
             const found = panels();
             if (!found) return null;
-            const off = found.register(`npc-state-delta.cast-view.${views += 1}`, { keys: PEOPLE, drawn: true, root: () => box, isVisible: () => box.isConnected !== false, draw });
+            const off = found.register(`people.cast-view.${views += 1}`, { keys: PEOPLE, drawn: true, root: () => box, isVisible: () => box.isConnected !== false, draw });
             covered.add(box);
             return () => { covered.delete(box); off(); };
         },
@@ -42,7 +42,7 @@ export function createCastPanels(session, deps) {
             if (!found || !el) return;
             offPane?.();
             paneEl = el;
-            offPane = found.register('npc-state-delta.dossiers-pane', {
+            offPane = found.register('people.dossiers-pane', {
                 keys: PEOPLE, drawn: true, root: () => el, isVisible: () => el.isConnected !== false && shown(el), draw: () => { try { draw(el); } catch (error) { warn('Story Suite v2 Dossiers tab failed', error); } },
             });
         },

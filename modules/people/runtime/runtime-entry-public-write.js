@@ -1,4 +1,4 @@
-/* NPC State Delta - public state, host-integration and manual-mutation API (role: runtime-entry-public-write). The
+/* NPC State - public state, host-integration and manual-mutation API (role: runtime-entry-public-write). The
    second half of the public runtime API surface (pageHandles.deltaApi) split from runtime-entry.js. Built by runtime-entry.js with the controller closure;
    runtime-entry.js still assigns and freezes the combined object in its original property order. */
 
@@ -108,7 +108,7 @@ export function createPublicApiStatePart(deps) {
         const key = getChatKey();
         if (!key || key === 'no-chat') throw new Error('There is no open chat to put a native state into.');
         if (!state || typeof state !== 'object' || Array.isArray(state)) throw new Error('A native state is an object.');
-        if (!await ensureFreshMutationBoundary('restore a native checkpoint', key, { notify: false })) throw new Error('NPC State Delta canonical server dossier is unavailable.');
+        if (!await ensureFreshMutationBoundary('restore a native checkpoint', key, { notify: false })) throw new Error('NPC State canonical server dossier is unavailable.');
         if (getChatKey() !== key) throw new Error('The active chat changed before the native state was installed; nothing was installed.');
         return quietly(key, async () => {
             setChatState(key, state, { markLoaded: true });
@@ -124,7 +124,7 @@ export function createPublicApiStatePart(deps) {
         const key = getChatKey();
         if (!key || key === 'no-chat') throw new Error('There is no open chat.');
         if (!block || typeof block !== 'object' || Array.isArray(block)) throw new Error('A timeline block is an object.');
-        if (!await ensureFreshMutationBoundary('record the story line', key, { notify: false })) throw new Error('NPC State Delta canonical server dossier is unavailable.');
+        if (!await ensureFreshMutationBoundary('record the story line', key, { notify: false })) throw new Error('NPC State canonical server dossier is unavailable.');
         if (getChatKey() !== key) throw new Error('The active chat changed before the block was written.');
         return quietly(key, async () => {
             getChatState(key).timeline = structuredClone(block);

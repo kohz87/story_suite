@@ -1,4 +1,4 @@
-// A foe's stated level: a person the owner or the story has marked. When a foe group's name equals an NPC State Delta dossier's name or one of its aliases EXACTLY (case, surrounding spaces and a leading "the" ignored; "Ash wolf", "Vorn's bodyguard" and "Branch Master Vorn" are not "Ash"/"Vorn" unless an alias) whose
+// A foe's stated level: a person the owner or the story has marked. When a foe group's name equals an NPC State dossier's name or one of its aliases EXACTLY (case, surrounding spaces and a leading "the" ignored; "Ash wolf", "Vorn's bodyguard" and "Branch Master Vorn" are not "Ash"/"Vorn" unless an alias) whose
 // built-in Level (NPC State's `level`, pack format 4) or, without one, custom field "Level" (any case) holds a whole number 1..99 ("30", "Lv 30", "level 30") or one or two of the story's own rank names ("C", "rank C", "C-D",
 // "C or D"), that is the foe's level: it passes the party + 20 cap that guessed levels keep, and it wins over any level or rank the pre-check or the narrator gave.
 // Anything else (empty, "high", a rank the pack does not name, no ranks at all) is ignored and the normal rules apply.

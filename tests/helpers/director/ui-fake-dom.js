@@ -186,7 +186,7 @@ export class FakeElement extends FakeNode {
         if (text) this.appendChild(new FakeText(this.ownerDocument, text));
     }
     get textContent() { return this.childNodes.map(child => child.textContent).join(''); }
-    // innerHTML is only used by the simulated NPC State Delta bridge; markup is kept as a string.
+    // innerHTML is only used by the simulated NPC State bridge; markup is kept as a string.
     set innerHTML(value) {
         this.textContent = '';
         this.html = String(value);

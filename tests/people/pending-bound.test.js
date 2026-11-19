@@ -2,12 +2,12 @@
 // bound, so the sidecar is given back instead of being held for the whole session.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../modules/people/storysuite-v2.js';
 
 test('a host whose ready never settles: pending first, refused once the bound passes', async t => {
     t.mock.method(console, 'warn', () => {});
     const box = { ready: new Promise(() => {}), sdk: { registerModule: async () => {} } };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         host: () => box, doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
         delta: () => ({ isEnabled: () => true, chatKey: () => 'chat:x' }), loadEmptyCast: async () => null, logger: { warn() {} },
         retryMs: 10, attempts: 4,

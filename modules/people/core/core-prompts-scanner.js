@@ -1,4 +1,4 @@
-/* NPC State Delta buildScannerPrompt: the scanner's context assembly, rules, rubric and story-context prompt.
+/* NPC State buildScannerPrompt: the scanner's context assembly, rules, rubric and story-context prompt.
    Split from core-prompts.js without change; core-prompts.js re-exports every name it exported before. */
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DURABLE_PROFILE_LIMITS, normalizeRelationshipBaseline, normalizeRelationshipCaps } from './core-relationship.js';
 import { cleanText, cleanWords, cleanWordsList } from './core-text.js';

@@ -242,7 +242,7 @@ test('lean: Clear every dossier, then a swipe, then the next scan reads the late
         const previous = globalThis.window.confirm;
         globalThis.window.confirm = () => true;
         try {
-            const clear = uiHandlers.get('click.npcStateDelta|#npc_state_delta_clear_chat');
+            const clear = uiHandlers.get('click.ppl|#people_clear_chat');
             h.check(typeof clear === 'function', 'Clear must be connected to the production handler');
             await clear();
         } finally { globalThis.window.confirm = previous; }

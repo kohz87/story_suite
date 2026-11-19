@@ -1,7 +1,7 @@
-/* NPC State Delta: the scanner routing error shape and the stop and empty-answer tests. */
+/* NPC State: the scanner routing error shape and the stop and empty-answer tests. */
 
 export function scannerRoutingError(message, code = 'NPC_SCANNER_PROFILE_UNAVAILABLE') {
-    const error = new Error(`NPC State Delta scanner: ${message}`);
+    const error = new Error(`NPC State scanner: ${message}`);
     error.name = 'NPCStateDeltaScannerRouteError';
     error.code = code;
     return error;

@@ -100,7 +100,7 @@ test('a followed person met from the cast is left alone by the planner (the Foll
 
 const ERSVEIL = realEntries().map(forWorldPack);
 
-test('a meeting is in director.cast before the reply is written and while it is read, so a module that ticks on that reply (NPC State Delta) sees them at once, not a reply late', async t => {
+test('a meeting is in director.cast before the reply is written and while it is read, so a module that ticks on that reply (NPC State) sees them at once, not a reply late', async t => {
     quiet(t);
     const seen = { tail: [], received: [], generated: [] };
     // A stand-in for a module that reads director.cast while the reply is built (its tail) and when it has arrived (afterReceive).

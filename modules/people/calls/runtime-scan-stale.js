@@ -1,4 +1,4 @@
-/* NPC State Delta reply-scan stale lifecycle (role: reply-scan-stale). The protected references a scan result keeps
+/* NPC State reply-scan stale lifecycle (role: reply-scan-stale). The protected references a scan result keeps
    from stale cleanup and the stale archive/delete pass run around a merge. Split unchanged from runtime-scan.js. */
 
 import { applyStaleNpcLifecycle, normalizeName, npcMatchesLabel } from '../core/core.js';

@@ -1,4 +1,4 @@
-/* NPC State Delta persistence scheduling (role: chat-state-persistence). The one owner of writing a chat's state to its sidecar: the delayed write queue,
+/* NPC State persistence scheduling (role: chat-state-persistence). The one owner of writing a chat's state to its sidecar: the delayed write queue,
    the flush with its ownership and conflict handling, settling a write, and the persist calls the rest of Delta makes (normal, critical, critical and
    durable). Built by runtime-entry.js once per module instance with the shared runtime state. Bodies are moved from runtime-entry.js without change. */
 
@@ -16,7 +16,7 @@ export function createPersistPart(rt, deps) {
     function queueStateFileWrite(key = getChatKey(), delay = STATE_WRITE_DELAY) {
         if (!key || key === 'no-chat' || !isCanonicalChatKey(key) || !chatStateCache.has(key)) return;
         if (chatHydrationStatus(key) !== 'ready') {
-            console.warn(`[NPC State Delta] refused to queue an unhydrated state write for ${key}.`);
+            console.warn(`[NPC State] refused to queue an unhydrated state write for ${key}.`);
             return;
         }
         markStateDirty(key);
@@ -26,7 +26,7 @@ export function createPersistPart(rt, deps) {
         stateWriteTimers.set(key, setTimeout(() => {
             stateWriteTimers.delete(key);
             flushStateFile(key).catch(error => {
-                console.error('[NPC State Delta] data-file persistence failed', error);
+                console.error('[NPC State] data-file persistence failed', error);
                 globalThis.toastr?.error?.('NPC State could not save its chat data file. Check the browser/server console.');
             });
         }, Math.max(0, Number(delay) || 0)));
@@ -73,7 +73,7 @@ export function createPersistPart(rt, deps) {
                 } catch (error) {
                     if (error?.code === 'NPC_STATE_WRITE_CONFLICT' && ownershipEpochCurrent(key, epoch)) {
                         try { await reconcileCrossSessionWriteConflict(key, error, snapshot, settings.dataFiles?.[key] || pointer); }
-                        catch (reconcileError) { console.warn('[NPC State Delta] write conflict recovery could not hydrate the newer canonical sidecar yet.', reconcileError); }
+                        catch (reconcileError) { console.warn('[NPC State] write conflict recovery could not hydrate the newer canonical sidecar yet.', reconcileError); }
                     }
                     throw error;
                 }
@@ -118,7 +118,7 @@ export function createPersistPart(rt, deps) {
     function persist(key = getChatKey()) {
         if (replayScope()) return true;   // a history replay saves nothing: the copy is installed once, at the end
         if (!requireReadyChatMutation('save chat dossier changes', key, { notify: false })) {
-            console.warn(`[NPC State Delta] refused to persist unhydrated chat state for ${key}.`);
+            console.warn(`[NPC State] refused to persist unhydrated chat state for ${key}.`);
             return false;
         }
         // Dossier state goes to the sidecar; settings.json holds only the sidecar pointer, which flushStateFile saves (coalesced) after the upload.
@@ -132,7 +132,7 @@ export function createPersistPart(rt, deps) {
         persistSettings();
         markStateDirty(key);
         void flushStateFile(key).catch(error => {
-            console.error('[NPC State Delta] critical data-file persistence failed', error);
+            console.error('[NPC State] critical data-file persistence failed', error);
             globalThis.toastr?.error?.('NPC State could not immediately save a critical dossier change.');
         });
         return true;
@@ -148,7 +148,7 @@ export function createPersistPart(rt, deps) {
             await flushStateFile(key);
             return true;
         } catch (error) {
-            console.error('[NPC State Delta] critical data-file persistence failed', error);
+            console.error('[NPC State] critical data-file persistence failed', error);
             return false;
         }
     }

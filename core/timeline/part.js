@@ -5,7 +5,7 @@
 //   as a block the coordinator stores after a prepared restore (never a command handler: it writes every module's domain).
 // * `savepoint.list({})` → the eligible save points in target order.
 // * `timeline.referenced({})` → `referencedCheckpoints()`: the checkpoint ids every chat still names, or an incomplete
-//   answer that keeps them all. NPC State Delta's clean-up row asks it before offering to remove any file.
+//   answer that keeps them all. NPC State's clean-up row asks it before offering to remove any file.
 // * `hooks.replayGuard` answers for the host's own blocks (coordinator-native.js guard).
 
 import { referencedCheckpoints } from './referenced.js';

@@ -1,4 +1,4 @@
-/* NPC State Delta profile evidence: the empty, normalized, prompt-sized and counted forms of a profile-evidence record. */
+/* NPC State profile evidence: the empty, normalized, prompt-sized and counted forms of a profile-evidence record. */
 import { DURABLE_PROFILE_LIMITS, semanticDedupeItems } from '../core-relationship.js';
 import { cleanList } from '../core-text.js';
 import { PROFILE_EVIDENCE_FIELDS } from '../../fields/registry.js';

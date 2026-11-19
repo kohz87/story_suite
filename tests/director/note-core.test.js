@@ -242,7 +242,7 @@ test('ENCOUNTER_CUE: short, and only while a due or arriving record carries a fi
 
 test('npcPlansOnly: one short line after the instruction, and only where change lines are asked for', () => {
     assert.ok(estimateTokens(NPC_PLANS_ONLY) <= 25, `${estimateTokens(NPC_PLANS_ONLY)} tokens`);
-    assert.match(NPC_PLANS_ONLY, /NPC State Delta keeps who each NPC is/);
+    assert.match(NPC_PLANS_ONLY, /NPC State keeps who each NPC is/);
     assert.match(NPC_PLANS_ONLY, /what they plan and when/);
     const scene = selection({ due: [sale], relevant: [geva, fires] });
 

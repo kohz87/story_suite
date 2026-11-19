@@ -50,7 +50,7 @@ export async function suiteHost(loaded, { seed = 1, settings = null, nsdNpcs = [
     const sd = loaded.SD.createModule({ host: { settings: id => sdk?.settings(id) ?? null, substitute: text => sdk?.substitute(text) } });
     // NPC State Delta connects the way the page does (adapter.start(): it registers itself with the host and learns the sdk it
     // reads Story Director's clock through); handing its bare definition to the host would leave its story day unknown.
-    const adapter = loaded.NSD.createStorySuiteV2Adapter({ suiteApi: { npcs: () => nsdNpcs }, delta: () => ({ isEnabled: () => true, getNpc: () => null }), host: () => globalThis.StoryBlock, doc: null, timers: {}, logger: { warn() {} } });
+    const adapter = loaded.NSD.createPeopleAdapter({ suiteApi: { npcs: () => nsdNpcs }, delta: () => ({ isEnabled: () => true, getNpc: () => null }), host: () => globalThis.StoryBlock, doc: null, timers: {}, logger: { warn() {} } });
     const probe = await loaded.createHost({ settings: settings ?? {} });
     // The shipped Ersveil world pack and its game pack (a caller's `pair: true` asks for the same pair).
     for (const text of loaded.pairTexts) {

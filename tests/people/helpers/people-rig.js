@@ -1,8 +1,8 @@
 // A rig for the people domain across both packages (no flag; the domain is the store's own): the live Story Block testkit host (packages/story-block),
-// NPC State Delta's real adapter with its participant and its people sync, over a fake Delta runtime that holds the chat's state.
+// NPC State's real adapter with its participant and its people sync, over a fake Delta runtime that holds the chat's state.
 // `reload()` starts everything again over what was saved. Tests only; nothing here ships.
 import { createHost } from '../../../testkit/index.js';
-import { createStorySuiteV2Adapter } from '../../../modules/people/storysuite-v2.js';
+import { createPeopleAdapter } from '../../../modules/people/storysuite-v2.js';
 import { peopleView, peopleState } from '../../../modules/people/view.js';
 import { isTerminalNpcDeath } from '../../../modules/people/core/terminal-lifecycle.js';
 import { hashJson } from '../../../modules/people/adapter/hash.js';
@@ -51,7 +51,7 @@ export async function peopleRig(t, { state = freshState(), image = null, live = 
         scanActive: () => false, scanIdle: async () => true, useMessageGate: gate => { api.gate = gate; }, stateReady: () => true, requestHeaders: () => ({}),
     };
     const doc = { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } };
-    const adapter = createStorySuiteV2Adapter({
+    const adapter = createPeopleAdapter({
         suiteApi: { npcs: () => mine.state.npcs.map(npc => ({ id: npc.id, name: npc.name, aliases: npc.aliases, present: npc.present, archived: isTerminalNpcDeath(npc) })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc,

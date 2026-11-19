@@ -12,7 +12,7 @@ const { createInjectionPart } = await import('../../modules/people/runtime/runti
 const { createNpcApiPart } = await import('../../modules/people/runtime/runtime-npc-api.js');
 const { getSettings } = await import('../../modules/people/settings/runtime-settings.js');
 
-const KEYS = { PROMPT_KEY: 'npc_dossier', CAPTURE_PROMPT_KEY: 'npc_capture', CAPTURE_RULES_KEY: 'story_suite_static_npc_state_delta', CAPTURE_PROMPT_DEPTH: 0, LEGACY_PROMPT_KEYS: [] };
+const KEYS = { PROMPT_KEY: 'npc_dossier', CAPTURE_PROMPT_KEY: 'npc_capture', CAPTURE_RULES_KEY: 'story_suite_static_people', CAPTURE_PROMPT_DEPTH: 0, LEGACY_PROMPT_KEYS: [] };
 const state = { npcs: [normalizeNpcRecord({ id: 'npc_mira', name: 'Mira', present: true, role: 'Ferrywoman', personality: 'Calm.' })], turn: 3 };
 
 function rig({ hosted }) {
@@ -21,7 +21,7 @@ function rig({ hosted }) {
     const common = { chatHydrationStatus: () => 'ready', getChatKey: () => 'chat', getChatState: () => state, scenePresenceView: npcs => npcs };
     const injection = createInjectionPart(rt, {
         ...KEYS, ...common, hostedMeterView: npcs => npcs, awayReturnNotes: () => [],
-        hostedNotePromptOptions: () => (hosted ? { layeredSecrets: true } : {}), storySuiteV2Meters: () => (hosted ? {} : null),
+        hostedNotePromptOptions: () => (hosted ? { layeredSecrets: true } : {}), adapterMeters: () => (hosted ? {} : null),
     });
     const api = createNpcApiPart(rt, { ...common, liveInjectionText: injection.liveInjectionText, nextCaptureParts: injection.nextCaptureParts, queueCastRefresh() {}, renderDossier() {}, updateInjection() {} });
     return { rt, injection, preview: () => api.SUITE_API.manage.preview() };

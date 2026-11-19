@@ -32,7 +32,7 @@ export function createRuntimeState() {
         narrationCaptureArmed: '',
         // (v2 hidden notes) The story events the armed reply's instruction asked about, kept until its block arrives.
         narrationCaptureWatch: [],
-        storySuiteV2: null,
+        peopleAdapter: null,
         // A swipe or a regenerate replaces the latest reply, and SillyTavern's chat still holds that reply while the new
         // one is being written; the story it continues from is the reply before it. `replacingReply` is set when such a generation
         // starts (with that reply's message) and cleared when the reply arrives, the generation stops, the next message is sent or

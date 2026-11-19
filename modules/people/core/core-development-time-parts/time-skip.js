@@ -1,4 +1,4 @@
-/* NPC State Delta development time-skip detection: spots narrated time passage and bare "time passed" reasons. */
+/* NPC State development time-skip detection: spots narrated time passage and bare "time passed" reasons. */
 
 import { normalizeName } from '../core-text.js';
 

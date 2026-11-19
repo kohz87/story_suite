@@ -234,7 +234,7 @@ test('run-3 shape, tailBudget 550, 1/2/3 present people with a Pull: the cue and
     for (const [count, npcs] of Object.entries(shapes)) {
         const names = Object.values(npcs).map(r => r.name);
         const part = createNpcPart({ settings: () => ({}), present: () => names, feature: () => undefined });
-        const nsd = { moduleId: 'npc-state-delta', name: 'NPC State Delta', domains: ['npc'], kinds: [], static: () => '', tail: part.context.tail, budget: part.context.budget };
+        const nsd = { moduleId: 'npc-state-delta', name: 'NPC State', domains: ['npc'], kinds: [], static: () => '', tail: part.context.tail, budget: part.context.budget };
         const dir = { moduleId: 'story-director', name: 'Story Director', domains: ['director'], kinds: [], tail: () => ({ lines: [{ text: initiative, keep: true }, ...filler], optional: ['Director optional line.'] }) };
         const view = { state: { domains: { people: { v: 1, order: [], npcs: {}, bonds: { problems: [], npcs } } } }, chat: { length: 1 } };
         const built = assemble({ registry: { contexts: () => [nsd, dir] }, view, settings: { tailBudget: 550 }, keptTokens: 24 });

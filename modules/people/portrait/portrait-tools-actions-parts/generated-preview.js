@@ -1,4 +1,4 @@
-/* NPC State Delta portrait actions: showing a generated portrait preview and turning its URL into a file. */
+/* NPC State portrait actions: showing a generated portrait preview and turning its URL into a file. */
 import { currentSessionIs, validatePortraitFile } from '../../tools/tools-core.js';
 
 export function generatedPreview(session, overlay, url) {

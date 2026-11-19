@@ -1,4 +1,4 @@
-/* NPC State Delta targeted passes (role: targeted-passes). The scans aimed at one person or a few: the targeted dossier pass, Scan dossier, Refresh from
+/* NPC State targeted passes (role: targeted-passes). The scans aimed at one person or a few: the targeted dossier pass, Scan dossier, Refresh from
    chat, the history backfill and the queue of pending backfills, with the rules that scope a pass's rows and edges to its target. Built by runtime-entry.js
    once per module instance with the shared runtime state. Bodies are moved from runtime-entry.js without change. */
 
@@ -36,7 +36,7 @@ export function createTargetedPart(rt, deps) {
             }
             return getChatKey() === key && chatHydrationStatus(key) === 'ready';
         } catch (error) {
-            console.info(`[NPC State Delta] ${label} did not start because its canonical server base could not be established.`, error);
+            console.info(`[NPC State] ${label} did not start because its canonical server base could not be established.`, error);
             return false;
         }
     }
@@ -118,7 +118,7 @@ export function createTargetedPart(rt, deps) {
             const acceptedInput = !replayScope() && Number.isInteger(job.captureMessageId) ? structuredClone(parsed) : null;
             if (!scanOperationCurrent(chatKey, operation) || !await scanCanonicalBaseCurrent(chatKey, operation, job.staleLabel)) {
                 if (targetMoved(chatKey, operation)) return TARGET_CHANGED;
-                console.info(`[NPC State Delta] discarded expired, superseded, or stale-canonical ${job.staleLabel}.`);
+                console.info(`[NPC State] discarded expired, superseded, or stale-canonical ${job.staleLabel}.`);
                 return false;
             }
             if (getChatKey() !== chatKey || lineageMoved(lineage, chatLineage(getContext().chat || []), operation.sourceMessageId)) {
@@ -201,7 +201,7 @@ export function createTargetedPart(rt, deps) {
             const metrics = targetedPassMetrics(metricsLabel, { startedAt, prompt, raw, retried, parsed, merged, localEdges: scoped.localEdges });
             if (job.reportsScanMetrics) rt.lastScanMetrics = metrics;
             recordScanDiagnostics(chatKey, metrics, parsed, merged.report, { targeted: true, npcIds: [id], sourceMessageId: targetMessageId });
-            console.info(`[NPC State Delta] ${metricsLabel} metrics`, metrics);
+            console.info(`[NPC State] ${metricsLabel} metrics`, metrics);
             return job.onDone(getChatState(chatKey).npcs.find(npc => npc.id === id));
         } catch (error) {
             if (!committed && isScannerRoutingError(error) && error.code === 'NPC_SCANNER_ROUTE_CANCELLED' && targetMoved(chatKey, operation)) return TARGET_CHANGED;   // cancelled mid-call only because its target's record changed
@@ -294,7 +294,7 @@ export function createTargetedPart(rt, deps) {
                 return true;
             },
             onError: error => {
-                console.error('[NPC State Delta] structured dossier import failed', error);
+                console.error('[NPC State] structured dossier import failed', error);
                 globalThis.toastr?.warning?.(`NPC State dossier import failed for ${existing.name}: ${error?.message || error}`);
                 return false;
             },

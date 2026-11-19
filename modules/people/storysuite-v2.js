@@ -1,6 +1,6 @@
 // Story Suite v2 adapter (Story Block 2, docs/v2/SPEC.md §6 and MODULES.md §D in Story Block).
 //
-// NPC State Delta stays a standalone engine: its storage, capture, prompts and history rules are
+// NPC State stays a standalone engine: its storage, capture, prompts and history rules are
 // its own and nothing here changes them. When a Story Block v2 host is on the page, Delta also
 // registers as module `npc-state-delta` with read-only queries, a Dossiers tab (id `cast`, the tab once
 // called Cast) that is the dossier browser (and the same Dossiers as a screen in Story Block's game view),
@@ -84,7 +84,7 @@ export const WORLD_FEATURE = 'story-director.world';
  * after Delta's cast or state may have changed (a cast drawn, a scan or edit, Delta on or off, hosted or
  * not); the caller redraws then.
  */
-export const PAGE_SLOT_CLASS = 'npc-state-delta-v2-slot';
+export const PAGE_SLOT_CLASS = 'ppl-slot';
 // Story Block's lean RPG feature (its names.js LEAN_RPG_FEATURE); an extension cannot import Story Block.
 const RPG_FEATURE = 'story-block.rpg';
 export const QUERY_NAMES = Object.freeze(['npc.present', 'npc.dossier', 'npc.known', 'npc.portrait', 'npc.meters', 'npc.cast', 'npc.next', 'npc.awayMemory', 'npc.castMade', 'npc.socialModifier', 'npc.identity', 'npc.catchUp', 'npc.dormantAfter']);
@@ -96,7 +96,7 @@ export const TICK_TURNS = Object.freeze(['normal', 'swipe', 'regenerate']);
 export const PRESET_KIND = 'meterPresets';
 export { METERS_CARD_ID };
 /** Sent on the document with detail { hosted } when Delta registers with a v2 host and when it goes away. */
-export const V2_HOST_EVENT = 'npc-state-delta:v2-host';
+export const V2_HOST_EVENT = 'people:v2-host';
 export const HOST_RETRY_MS = 250;
 export const HOST_RETRY_ATTEMPTS = 40;
 export const HOST_ALIVE_MS = 5000;
@@ -111,7 +111,7 @@ export const HEAD_SETTLE_POLL_MS = 50;
 export { DOSSIER_FIELDS };
 
 // Used only if dossier-rows.js cannot be loaded: the same empty line, without the Scan button.
-const fallbackEmptyCast = reason => `<div class="npc-state-delta-story-empty-state"><p class="npc-state-delta-story-empty">${escapeHtml(reason?.text || 'No NPC is present in the latest scene.')}</p></div>`;
+const fallbackEmptyCast = reason => `<div class="ppl-story-empty-state"><p class="ppl-story-empty">${escapeHtml(reason?.text || 'No NPC is present in the latest scene.')}</p></div>`;
 
 /**
  * The adapter. Options (all optional except in tests):
@@ -127,10 +127,10 @@ const fallbackEmptyCast = reason => `<div class="npc-state-delta-story-empty-sta
  *   castPortraitDue   () => whether castSync has a picture to give (a cheap look); the adapter asks before it runs the sync for that alone.
  *   doc, timers, loadEmptyCast (() => Promise<emptyCastHtml>), logger.
  */
-export function createStorySuiteV2Adapter({
+export function createPeopleAdapter({
     suiteApi = null,
     delta = () => pageHandles.deltaApi,
-    panelId = 'npc_state_delta_settings',
+    panelId = 'people_settings',
     version = '',
     host = () => globalThis.StoryBlock,
     headReply = () => null,
@@ -382,9 +382,9 @@ export function createStorySuiteV2Adapter({
 let adapter = null;
 
 /** Start the page's one adapter (runtime-entry.js calls this once at startup); later calls return the same one. */
-export function startStorySuiteV2(options = {}) {
+export function startPeopleAdapter(options = {}) {
     if (!adapter) {
-        adapter = createStorySuiteV2Adapter(options);
+        adapter = createPeopleAdapter(options);
         adapter.start();
     }
     return adapter;
