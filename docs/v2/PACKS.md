@@ -112,7 +112,8 @@ Who reads it:
 Making the book. In Settings › Packs, an installed world pack with lore has **Create the lorebook from this pack**:
 
 1. The book is named "<pack name> (Story Suite)". Hidden entries are left out. A marker entry in the book says which pack and version it came from, so only that book is ever updated. A book of your own with the same name is not touched.
-2. **Use in this chat** is ticked by default. It makes the book the chat's lorebook. If the chat already has another lorebook, the card says which, and the tick is off.
+2. **Use with this character** is ticked by default. The book goes with the open chat's character, the way SillyTavern's character World Info does. A card with no lorebook gets it linked as its lorebook ("Linked to <name>."). A card with a lorebook of its own (linked, or carried in the card) keeps it, and the book is added to the character's Additional lorebooks ("Added to <name>'s lorebooks (<name> keeps its own)."). The chat lorebook is never set, so a book there (MemoryBooks uses it) is left alone. With no character chat open, or in a group chat, the tick is off and says why.
+   A book an earlier version made this chat's lorebook gets a **Move it from this chat to the character** line: it goes with the character, then the chat lorebook is unset. Any other chat lorebook is never touched.
 3. When the book exists the button reads **Update the lorebook**, with the version it was made from. It asks first: "This replaces the book <name>; edits you made in it are lost." When the pack version matches it says "Up to date".
 4. The result line says how many entries were made and how many hidden entries were kept out.
 

@@ -23,7 +23,7 @@ Install Story Block and Story Director (SillyTavern → Extensions → Install e
 
 1. **Install the pair.** In Settings › Packs, press **Import a pack file**. Pick `ersveil.zip` (it holds both packs and the twelve portraits). Or import `pack.json` first, then `game.json`. A file picked alone brings no portraits.
 2. **Pick World and Game.** Under **World and game**, set World to "Ersveil (open world)" and Game to "Ersveil rules". The world suggests that game, so a card may offer **Use it**.
-3. **Create the lorebook.** On the Ersveil row press **Create the lorebook from this pack**, keep **Use in this chat** ticked and confirm. This makes the SillyTavern book "Ersveil (open world) (Story Suite)" from the pack's lore and makes it this chat's lorebook. See [PACKS.md](PACKS.md), "Lore and the lorebook".
+3. **Create the lorebook.** With a chat with your narrator card open (below), press **Create the lorebook from this pack** on the Ersveil row, keep **Use with this character** ticked and confirm. This makes the SillyTavern book "Ersveil (open world) (Story Suite)" from the pack's lore and attaches it to that character: linked as its lorebook, or added to its lorebooks when the card has its own. Every chat with the card reads it; the chat lorebook is left alone. See [PACKS.md](PACKS.md), "Lore and the lorebook".
 4. **Start a new chat.** A chat takes the world and game it begins with and keeps that choice.
 
 Add a narrator card (for example `Ersveil`: "{{char}} narrates Ersveil and plays every person in it except {{user}}.") and your own persona. The first message is your own opening in Bluewatch Village. The RPG starts you at level 1 unless you set a starting level.

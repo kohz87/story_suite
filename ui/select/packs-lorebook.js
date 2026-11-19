@@ -6,15 +6,15 @@ import { lorebookRows } from '../../packs/lorebook-make/run.js';
 const books = stLorebooks();
 const BUTTON = Object.freeze({ create: 'Create the lorebook from this pack', update: 'Update the lorebook' });
 
-/** The rows as SillyTavern has things now (its book names, this chat's lorebook) for `list` = the `packs.list` answer. */
+/** The rows as SillyTavern has things now (its book names, the chat's character and its lorebooks) for `list` = the `packs.list` answer. */
 export function liveLorebookRows(list) {
   try { return lorebookRows({ list: Array.isArray(list) ? list : [], books, settings: stSettings() }); } catch { return []; }
 }
 
 /**
  * A row (packs/lorebook-make/plan.js lorebookRow with its pack id) → what the page draws:
- * `{ id, name, state, button, desc, upToDate, attach, use: { on, disabled, note } }` (`button` '' when Up to date; `attach` the "Use in this chat"
- * button of an up-to-date book that is not this chat's lorebook).
+ * `{ id, name, state, button, desc, upToDate, attach, linked, move, use: { on, disabled, note } }` (`button` '' when Up to date; `attach` the
+ * "Use with this character" button of an up-to-date book not yet with the character; `move` the line moving it from this chat's lorebook).
  */
 export function lorebookView(row) {
   const made = row.madeFrom ? `made from ${row.madeFrom}` : '';
@@ -22,8 +22,6 @@ export function lorebookView(row) {
     : row.state === 'update' ? `${row.name} · ${made || 'made from a version not known'}` : `${row.name} · ${made}`;
   return {
     id: row.id, name: row.name, state: row.state, button: BUTTON[row.state] ?? '', desc, upToDate: row.state === 'current',
-    attach: row.state === 'current' && !row.attached && !row.use.disabled, attached: row.attached === true,
-    // (an up-to-date book has no tick: its "Use in this chat" button says it, and the line names the chat's other lorebook it would take the place of)
-    use: row.state === 'current' && row.other ? { ...row.use, note: `This chat already uses the lorebook ${row.other}; Use in this chat puts this one in its place.` } : { ...row.use },
+    attach: row.state === 'current' && !row.linked && !row.use.disabled, linked: row.linked === true, move: row.move === true, use: { ...row.use },
   };
 }

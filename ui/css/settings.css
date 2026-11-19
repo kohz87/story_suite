@@ -192,3 +192,4 @@
 [data-sheet="inspector"] .x{width:44px;height:44px;flex:none;background:var(--su-line2);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}
 .srow .lb small.diff-line{margin-top:3px}.srow .lb small.diff-line .dn{font-weight:700;color:var(--su-soft)}.srow .lb small.diff-line.on,.srow .lb small.diff-line.on .dn{color:var(--su-text)}.sgrp .rpg-notes{display:flex;flex-direction:column;gap:6px;padding:2px 0 12px}
 .lbtick{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--su-soft);cursor:pointer}.lbtick input{margin:0;accent-color:var(--su-accent,#a897ff)}
+.srow .lb small.lbmove{margin-top:6px}

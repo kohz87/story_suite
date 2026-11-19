@@ -12,7 +12,7 @@ const NO = message => ({ ok: false, code: 'FAILED', message });
  * `handle` = { packs (installed.js), readLorebook(), lore? ({ read() }), lorebooks? ({ books, settings }: the pack lorebook's SillyTavern side) }; `sdk` sends the data-module command.
  * `settings.set` `packs.on.<id>` (bool) switches a pack (a format 4 world or game: on picks it, off clears the pick); `packs.you.rankLabel`, `packs.start.money` and `packs.start.items` set the reader's own rank label and starting money and items; `settings.set` `packs.module.<module>` (true) uses a data module in this chat, as the old page's Enable did (`dm.pin` with the hashes read now);
  * `settings.action` `packs.import` (value: the picked files) → `{ ok, text, errors }`, `packs.lorebook`, `packs.remove` (value: the pack id), `packs.lorebook.make`
- * (value: { id, use, confirmed }: Create or Update a world pack's lorebook and use it in this chat → `{ ok, text, errors, confirm? }`).
+ * (value: { id, use, confirmed, move }: Create or Update a world pack's lorebook and use it with the chat's character, or move it there from the chat lorebook → `{ ok, text, errors, confirm? }`).
  * Any other command is not this page's: returns null.
  */
 export async function packsCommand(handle, sdk, type, payload) {

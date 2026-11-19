@@ -5,7 +5,7 @@ What changed in each release, in short. The full record of every change is in [t
 ## Unreleased
 
 - Settings › Packs: **Create the lorebook** from a world pack makes a SillyTavern lorebook of its lore, so the narrator reads it too; **Update the lorebook** remakes it when the pack changes.
-- **Use in this chat** (on by default) attaches that lorebook to the chat. A pack's hidden lore stays out of the book.
+- **Use with this character** (on by default) attaches it to the character, beside any lorebook the card has; chat lore is left alone. Hidden lore stays out of the book.
 - Pack Studio: **Export lorebook** saves a world pack's lore as a SillyTavern lorebook file.
 
 ## 0.1.3 — 19 Nov 2026
