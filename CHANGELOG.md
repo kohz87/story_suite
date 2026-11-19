@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- The Here drawer's cards no longer carry inner chatter, so they are slimmer (chatter stays on Now and in each person's page).
 - A typed attack starts the fight board again: the foe check's answer was thrown away when the connection returned it as JSON (the same fix covers every helper call).
 - The Here drawer starts folded; its header opens it.
 - An attack that goes on to what comes after (taking the bodies back) now starts the fight on the board instead of being read as already won.

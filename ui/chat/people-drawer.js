@@ -57,8 +57,7 @@ function card(person, on) {
     person.mood ? h('span', { class: 'md3' }, person.mood) : null,
     h('b', person.name),
     where ? h('span', { class: 'wh3' }, where) : null,
-    person.thought ? h('div', { class: 'th4' }, h('span', person.thought)) : null,
-  );
+  ); // (no inner chatter here: the owner keeps the cards slim; chatter shows on Now and in the dossier)
 }
 
 function arrow(dir, label, disabled, on, pages, page) {
