@@ -28,7 +28,7 @@ const sdk = await globalThis.StoryBlock.ready;
 
 test('the global host and the manifest agree: v2, the interceptor, the CSS; the host compatibility number stays 2.33.0', () => {
     const manifest = JSON.parse(readFileSync(new URL('../../manifest.json', import.meta.url), 'utf8'));
-    assert.equal(manifest.version, '0.1.3');
+    assert.equal(manifest.version, '0.1.4');
     assert.equal(globalThis.StoryBlock.version, '2.33.0');
     assert.equal(manifest.css, 'suite.css');
     assert.equal(manifest.js, 'index.js');

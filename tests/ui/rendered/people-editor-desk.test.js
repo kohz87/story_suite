@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const SCRIPT = fs.readFileSync(path.join(ROOT, 'modules/people/tools/editor-desk.js'), 'utf8').replace(/^export /m, '');
 const CSS = fs.readFileSync(path.join(ROOT, 'modules/people/css/style-editor-desk.css'), 'utf8');
 
