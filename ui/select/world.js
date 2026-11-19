@@ -132,6 +132,7 @@ export function selectWorld({ atlasView = null, tiers = null, selected = null, w
     trip: tripOf(selected),
     news: newsOf(worldView, places, factions, worldEvents === true),
     factions,
+    ...(Number(atlasView?.kmPerUnit) > 0 ? { kmPerUnit: Number(atlasView.kmPerUnit) } : {}),
     ...(worldEvents === true ? { conditions: conditionsOf(conditionsHere) } : {}),
   };
 }

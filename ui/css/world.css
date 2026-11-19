@@ -122,7 +122,7 @@
 .wsheet .kv dd{margin:0}
 .wsheet .plink{min-height:44px;margin-right:6px}
 .wsheet .subs{display:flex;flex-wrap:wrap;gap:6px}.wsheet .subs .plink{margin:0}
-.wsheet .up{align-self:flex-start;min-height:36px;padding:4px 10px;font:700 13px var(--su-font)}
+.wsheet .up{align-self:flex-start;min-height:36px;margin:6px 0 0 2px;padding:4px 12px;font:700 13px var(--su-font)}
 /* news */
 .fil{display:flex;flex-wrap:wrap;gap:6px}
 .fil .chip2{gap:0;min-height:44px;padding:5px 12px;font:700 12.5px var(--su-font);color:var(--su-soft);background:transparent;border:1px solid var(--su-line2);border-radius:12px;box-shadow:none;white-space:nowrap}

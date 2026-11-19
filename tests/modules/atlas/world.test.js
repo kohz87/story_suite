@@ -160,7 +160,7 @@ test('atlas.view: map settings turn the map; odd and empty worlds give empty, va
     const broken = { query: tools.query, settings: () => { throw new Error('no settings'); } };
     assert.deepEqual(part.queries['atlas.view'](state, {}, broken).orient, { north: 'up', east: 'right' });
     // Nothing known, no packs.
-    assert.deepEqual(query(makeState(), 'atlas.view'), { places: [], routes: [], layers: [], layer: '', current: '', kinds: {}, tidy: 0, orient: { north: 'up', east: 'right' } });
+    assert.deepEqual(query(makeState(), 'atlas.view'), { places: [], routes: [], layers: [], layer: '', current: '', kinds: {}, tidy: 0, orient: { north: 'up', east: 'right' }, kmPerUnit: 1 });
     // An empty pack, a pack of junk.
     assert.deepEqual(query(makeState(), 'atlas.view', {}, { pack: { places: [], routes: [] } }).places, []);
     assert.deepEqual(query(makeState(), 'atlas.view', {}, { pack: { places: [1, 'x', null, { name: 7 }], routes: [{}] } }).places, []);

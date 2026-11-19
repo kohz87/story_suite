@@ -7,6 +7,19 @@ import { timeWords } from './trip.js';
 import { subName } from './map-groups.js';
 
 const DANGER_WORDS = { safe: 'Safe', risky: 'Risky', dangerous: 'Dangerous' };
+const POINTS = ['east', 'north-east', 'north', 'north-west', 'west', 'south-west', 'south', 'south-east'];
+
+/** Words where a sub-place lies from its town's centre ("about 300 m north-east of Auvoth's centre"); the map's y grows down (north is up). */
+export function whereFrom(place, town, kmPerUnit) {
+  const dx = Number(place?.x) - Number(town?.x), dy = Number(town?.y) - Number(place?.y);
+  if (!Number.isFinite(dx) || !Number.isFinite(dy)) return null;
+  const units = Math.hypot(dx, dy);
+  if (units < 1e-9) return `At the centre of ${town.name}`;
+  const point = POINTS[(Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) + 8) % 8];
+  const km = Number(kmPerUnit) > 0 ? units * Number(kmPerUnit) : null;
+  const far = km === null ? '' : km < 1 ? `about ${Math.max(50, Math.round(km * 1000 / 50) * 50)} m ` : `about ${Math.round(km * 10) / 10} km `;
+  return `${far}${point} of ${town.name}'s centre`.replace(/^./, c => c.toUpperCase());
+}
 const cap = text => (text ? text[0].toUpperCase() + text.slice(1) : text);
 
 /** Words how far a place is from you along the planned trip, or null when it is not on the trip (or is where you are). */
@@ -37,6 +50,7 @@ export function placeSheet(place, world = {}, ctx = {}, onClose = () => {}) {
   const from = fromYou(place, world);
   const rows = [];
   const add = (label, value) => rows.push(h('dt', null, label), h('dd', null, value));
+  if (ctx.town) { const where = whereFrom(place, ctx.town, world.kmPerUnit); if (where) add('Where', where); }
   add('Status', place.here ? 'You are here' : place.visited ? 'Visited' : 'Not visited yet');
   if (from) add('From you', from);
   const links = (world.routes ?? []).filter(r => r.a === place.id || r.b === place.id)
