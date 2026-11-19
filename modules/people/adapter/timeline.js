@@ -227,7 +227,8 @@ export function createTimelinePart(session, deps) {
         // "Show what's sent": the text of this module's tail with each locked note's line as "Name: 1 hidden note"
         // (a host that does not call it shows the raw text; SillyTavern's own prompt view always does).
         // canGenerate: sending waits while the dossiers catch up after a fallback (history-replay.js).
-        hooks: Object.freeze({ diagnostics: () => diagnosticsLines(), ownPrompt: () => ownPrompt(), redactSent: text => part.redact(text), canGenerate: () => true }),
+        // afterCapture: a person the reply's `+ present` brought in gets a record in the reply's own step (meters/npc-lines-parts/present.js).
+        hooks: Object.freeze({ diagnostics: () => diagnosticsLines(), ownPrompt: () => ownPrompt(), redactSent: text => part.redact(text), canGenerate: () => true, afterCapture: (view, info) => (enabled() ? part.afterCapture(view, info) : undefined) }),
         screens: [metersCardScreen, castScreen],
         widgets: { [CAST_WIDGET]: castWidget },
         tabs: [{

@@ -92,7 +92,9 @@ export function createCastFirst({ baseline, bond }) {
         if (entry && own !== entry) return null;
         const id = own ?? makeNpcId(shown, taken);
         if (!PEOPLE_ID.test(id)) return null;
-        const stamp = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1;
+        // The reply's place: a line's carrier, else the reply a step after the lines is stored on (ctx.reply, NPCPRESENT's `npc.arrive`).
+        const at = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index : ctx.reply?.index;
+        const stamp = Number.isInteger(at) ? at + 1 : 1;
         const packs = ask(ctx, 'packs.list', {});
         const packName = String((Array.isArray(packs) ? packs : []).find(pack => pack?.id === person.pack)?.name ?? '').trim();
         const filled = applyCastEntry(stubRecord({ name: shown, role: '', look: '' }, id, baseline(), stamp), person, {

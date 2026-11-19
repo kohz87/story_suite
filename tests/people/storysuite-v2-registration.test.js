@@ -52,7 +52,7 @@ test('registers module npc-state-delta once, with the npc domain, its queries an
     assert.equal(def.domains, undefined, 'no domain of its own: the NPC meters live in the people domain (people store P4)');
     assert.deepEqual(Object.keys(def.queries).sort(), ['npc.awayMemory', 'npc.cast', 'npc.castMade', 'npc.catchUp', 'npc.dormantAfter', 'npc.dossier', 'npc.identity', 'npc.known', 'npc.meters', 'npc.next', 'npc.portrait', 'npc.present', 'npc.socialModifier']);
     assert.deepEqual([...QUERY_NAMES].sort(), Object.keys(def.queries).sort());
-    assert.deepEqual(Object.keys(def.commands).sort(), ['npc.adjust', 'npc.drives', 'npc.flag', 'npc.meet', 'npc.milestone', 'npc.mood', 'npc.open', 'npc.refresh', 'npc.set', 'npc.taste', 'npc.tick']);
+    assert.deepEqual(Object.keys(def.commands).sort(), ['npc.adjust', 'npc.arrive', 'npc.drives', 'npc.flag', 'npc.meet', 'npc.milestone', 'npc.mood', 'npc.open', 'npc.refresh', 'npc.set', 'npc.taste', 'npc.tick']);
     assert.deepEqual(Object.keys(def.capture.kinds), ['npc', 'milestone', 'lie', 'know', 'taste', 'tie', 'memory', 'reveal']);
     assert.ok(['lie', 'know', 'taste', 'tie'].every(kind => def.capture.kinds[kind].feature === 'npc-state-delta.notes'), 'the note kinds belong to the notes feature');
     assert.equal(def.capture.kinds.milestone.feature, 'npc-state-delta.stages', 'the milestone kind belongs to the stages feature');

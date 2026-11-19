@@ -11,6 +11,7 @@ import { createNpcRun } from './run.js';
 import { folded, foldedCommands } from './fold.js';
 import { withStubs } from '../npc-lines-parts/stub.js';
 import { createCastFirst } from '../npc-lines-parts/cast-first.js';
+import { ARRIVE_COMMAND, createArrivals } from '../npc-lines-parts/present.js';
 import { seedCastBond } from './cast-bond.js';
 import { withMemories, memoryLine } from '../npc-lines-parts/memory.js';
 import { secretLine } from '../npc-lines-parts/secret.js';
@@ -73,6 +74,8 @@ export function createNpcPart(hooks = {}) {
         return seedCastBond(ctx, slice, who, person, { defs: defsFrom(normalized(ctx.settings(), ctx)), ensure, note, moodPull, minutes, notesOn: featureOn(FEATURE_NOTES, ctx) });
     };
     const castFirst = createCastFirst({ baseline, bond });
+    // NPCPRESENT: a person this reply's `+ present` (or a hook's giver:) brings in with no record yet gets one in the reply's step, after its lines.
+    const arrive = createArrivals({ hooks, linesMode, baseline, castFirst });
     const captureLine = folded(withMemories(withStubs(built.captureLine, { hooks, linesMode, baseline, note, castFirst }), { linesMode, date }));
     // `~ memory` and `~ reveal` (NSD8, NSD12): only in lines mode; untaught until N7 (grammar '', heads only). Off, a line of either is refused and changes nothing.
     const onlyLines = (name, apply) => folded((ctx, line = {}) => (linesMode(ctx) ? apply(ctx, line) : ctx.fail('REFUSED', `${name} lines are not on.`)));
@@ -86,7 +89,8 @@ export function createNpcPart(hooks = {}) {
     const { staticText, tail, redact } = createNpcPrompt(shared, { sliceOf, presentKeys });
 
     return {
-        commands,
+        commands: { ...commands, [ARRIVE_COMMAND]: folded(arrive.command) },
+        afterCapture: arrive.afterCapture,
         queries,
         kinds: {
             [NPC_KIND]: { grammar: '', heads: ['~ npc', '+ npc'], apply: dispatch, after: ['time', 'present', 'place'] },
