@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- The Field medic set's Mending uses WIS, so its Calm (Focus) stance strengthens it.
 - World › Map: a district's sheet says where it lies ("About 3 km north-east of Auvoth's centre"), using the map scale read from the pack's roads; the ‹ back button sits clear of the sheet's edge.
 - World › Map: a city's wards and the places on top of it show as one marker ("Auvoth · 7") whose sheet lists them; zoom in to fan them out. A selected place gets a thin ring, and the map moves it above the sheet.
 - Three stances now: Defence, Speed (dodge and act sooner: Evasion and Movement in one, without Movement's extra action) and Focus (INT or WIS, uses Mana: your INT and WIS skills hit and heal harder).
