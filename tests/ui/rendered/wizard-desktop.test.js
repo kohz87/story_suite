@@ -55,12 +55,14 @@ const box = (page, sel) => page.evaluate(sel => { const r = document.querySelect
 
 for (const theme of ['dark', 'light']) {
   for (const [width, height] of [[1280, 800], [1920, 1080]]) {
-    test(`from 1100 px (${width}x${height}, ${theme}): a 920 x 720 dialog, the card left, the step right, the footer its own row`, async (t) => {
+    test(`from 1100 px (${width}x${height}, ${theme}): a 920 x 720 dialog (720 high where the floating window allows: window less 48 px, less 48 px again), centred in the window, the card left, the step right, the footer its own row`, async (t) => {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await open(width, height, theme, 'stats');
       const panel = await box(page, `${S} .sh-panel`);
-      assert.deepEqual([panel.w, panel.h], [920, 720]);
-      assert.ok(Math.abs(panel.x + panel.w / 2 - width / 2) <= 1 && Math.abs(panel.y + panel.h / 2 - height / 2) <= 1, 'centred');
+      // the suite is a floating window (min(1280, window - 48) by min(940, window - 48)); the dialog is 920 by min(720, window height - 96) inside it
+      const winH = Math.min(940, height - 48);
+      assert.deepEqual([panel.w, panel.h], [920, Math.min(720, winH - 48)]);
+      assert.ok(Math.abs(panel.x + panel.w / 2 - width / 2) <= 1 && Math.abs(panel.y + panel.h / 2 - height / 2) <= 1, 'centred in the floating window, which is centred in the screen');
       const card = await box(page, `${S} .wz-sum`), body = await box(page, `${S} .wz-body`), foot = await box(page, `${S} .wz-foot`);
       assert.equal(card.w, 248);
       assert.equal(card.x - panel.x, 23, 'the 22 px inset inside the 1 px border');

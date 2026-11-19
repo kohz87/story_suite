@@ -68,7 +68,19 @@ for (const [width, height] of [[390, 800], [1280, 900]]) {
           await page.waitForTimeout(200);
           const withoutSuite = await shoot();
           if (process.env.SFF4_SHOTS) fs.writeFileSync(path.join(process.env.SFF4_SHOTS, `sheet-${width}-${theme}${noBlur ? '-noblur' : ''}-alone.png`), withoutSuite);
-          assert.ok(Buffer.from(withSuite).equals(Buffer.from(withoutSuite)), 'the suite behind shows through the sheet');
+          if (width < 600) assert.ok(Buffer.from(withSuite).equals(Buffer.from(withoutSuite)), 'the suite behind shows through the sheet');
+          else {
+            // The floating window is a clipped, rounded, composited layer: its text edges anti-alias by a few levels differently once the layers behind are hidden.
+            // Anything of the suite showing through is far larger than that: count the pixels that differ by more than 16 levels of 255.
+            const off = await page.evaluate(async ([a, b]) => {
+              const load = async s => { const bmp = await createImageBitmap(await (await fetch(`data:image/png;base64,${s}`)).blob()); const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height; const g = c.getContext('2d'); g.drawImage(bmp, 0, 0); return g.getImageData(0, 0, c.width, c.height).data; };
+              const [x, y] = [await load(a), await load(b)];
+              let n = 0;
+              for (let i = 0; i < x.length; i++) if (Math.abs(x[i] - y[i]) > 16) n++;
+              return n;
+            }, [Buffer.from(withSuite).toString('base64'), Buffer.from(withoutSuite).toString('base64')]);
+            assert.equal(off, 0, 'the suite behind shows through the sheet');
+          }
         } finally {
           await page.close();
         }

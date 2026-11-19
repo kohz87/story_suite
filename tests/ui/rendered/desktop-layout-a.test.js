@@ -1,6 +1,7 @@
 // Rendered check: desktop layout A (owner 18 Nov; mock scratch/design/redo/desktop.html ?layout=a). From a 1100 px suite root, a 360 px left column
-// (the character card, then Here now) beside the page column (tab strip, then the tab, up to 1100 px), centred. Numbers are the mock's own
-// measurements (night/deskmock/tools/metrics.txt): left column x 24 / 24 / 220, page column x 404 / 404 / 600 and 672 / 852 / 1100 wide.
+// (the character card, then Here now) beside the page column (tab strip, then the tab, up to 1100 px), centred. The suite is a floating window
+// (owner 19 Nov: min(1280 px, window - 48 px) wide), so the cases are windows of 1148 (root 1100), 1328 (root 1280) and 1920 (root capped at 1280).
+// Numbers are the mock's own measurements (night/deskmock/tools/metrics.txt) read from the root's left edge: left column x 24, page column x 404 and 672 / 852 wide.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -10,7 +11,8 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' };
-const MOCK = { 1100: { side: 24, page: 404, pageW: 672 }, 1280: { side: 24, page: 404, pageW: 852, now: '420px 420px' }, 1920: { side: 220, page: 600, pageW: 1100, now: '544px 544px' } };
+const MOCK = { 1100: { side: 24, page: 404, pageW: 672 }, 1280: { side: 24, page: 404, pageW: 852, now: '420px 420px' }, 1920: { side: 24, page: 404, pageW: 852, now: '420px 420px' } };
+const WINDOW = { 1100: 1148, 1280: 1328, 1920: 1920 };
 
 function serve() {
   const server = http.createServer((req, res) => {
@@ -54,7 +56,7 @@ async function open(width, query, height = 900) {
 
 /** Runs in the page: the columns' boxes (x from the frame's left edge) and what each holds. */
 function measure() {
-  const frame = document.querySelector('#hx-frame').getBoundingClientRect();
+  const frame = document.querySelector('#hx-frame .su-root').getBoundingClientRect();
   const box = sel => { const e = document.querySelector(sel); if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.round(r.left - frame.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) }; };
   const side = document.querySelector('.su-side');
   const page = document.querySelector('.su-page');
@@ -72,7 +74,7 @@ for (const width of [1100, 1280, 1920]) {
     for (const tab of theme === 'dark' ? ['now', 'party', 'bag', 'people', 'world', 'journal', 'story'] : ['now', 'people', 'bag', 'world']) {
       test(`layout A at ${width} in ${theme} on ${tab}: card and Here now on the left, strip and page on the right`, async t => {
         if (ctx.skip) return t.skip(ctx.skip);
-        const page = await open(width, `theme=${theme}&variant=default&tab=${tab}`);
+        const page = await open(WINDOW[width], `theme=${theme}&variant=default&tab=${tab}`);
         try {
           const m = await page.evaluate(measure);
           const want = MOCK[width];
@@ -104,7 +106,7 @@ test('layout A: the left column stays put while the page scrolls, and scrolls on
     assert.ok(after[0] > 0, 'the page scrolled');
     assert.equal(Math.round(after[1]), Math.round(before), 'the left column did not move');
     const side = await page.evaluate(() => { const e = document.querySelector('.su-side'); return [e.scrollHeight, e.clientHeight, getComputedStyle(e).overflowY]; });
-    assert.equal(side[1], 800 - 32, 'the left column is the window less the 16 px top and bottom');
+    assert.equal(side[1], 800 - 48 - 32, 'the left column is the floating window (window less 48 px) less the 16 px top and bottom');
     assert.ok(side[0] > side[1] && side[2] === 'auto', `the taller column scrolls on its own ${side}`);
   } finally { await page.close(); }
 });
@@ -125,27 +127,37 @@ test('layout A: Here now follows the chat on any tab, and is left out when nobod
   } finally { await page.close(); }
 });
 
-test('layout A: crossing 1100 px redraws Now with or without its Here card; text size 120 % keeps the page column 1100 px on screen', async t => {
+test('layout A: crossing 1100 px of root redraws Now with or without its Here card; the root stops at 1280 px; text size 110 % and 120 % grow it with the text', async t => {
   if (ctx.skip) return t.skip(ctx.skip);
   const page = await open(1400, 'theme=dark&variant=default&tab=now');
   try {
     const state = () => page.evaluate(() => ({ nowHere: Boolean(document.querySelector('.now-tab [data-card="here"]')), here: getComputedStyle(document.querySelector('.su-here-slot')).display }));
+    // the window is the root's width plus the 24 px margin each side (up to the 1280 px cap)
     const resize = w => page.evaluate(w => new Promise(r => { document.getElementById('hx-frame').style.width = `${w}px`; setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(r)), 50); }), w);
+    const rootW = () => page.evaluate(() => Math.round(document.querySelector('.su-root').getBoundingClientRect().width));
     assert.deepEqual(await state(), { nowHere: false, here: 'block' });
-    await resize(1099);
+    assert.equal(await rootW(), 1280, 'the root is capped at 1280 px');
+    await resize(1147);
+    assert.equal(await rootW(), 1099);
     assert.deepEqual(await state(), { nowHere: true, here: 'none' });
-    await resize(1100);
+    await resize(1148);
+    assert.equal(await rootW(), 1100);
     assert.deepEqual(await state(), { nowHere: false, here: 'block' });
+    // Settings › Look › Text size zooms the whole window: its lengths (1280 px cap, 24 px margin) grow with the text, the page column's cap stays 1100 px on screen
     await resize(1400);
-    await page.evaluate(() => document.querySelector('.su-root').setAttribute('data-text', '120'));
+    await page.evaluate(() => document.querySelector('.su-root').setAttribute('data-text', '110'));
     await page.evaluate(() => new Promise(r => setTimeout(() => requestAnimationFrame(r), 50)));
-    const big = await page.evaluate(() => [document.querySelector('.su-page').getBoundingClientRect().width, document.querySelector('.su-side').getBoundingClientRect().width]);
-    assert.equal(Math.round(big[0]), Math.round(1400 - (2 * 24 + 360 + 20) * 1.2), 'the page column takes the rest (under its 1100 px cap)');
-    assert.equal(Math.round(big[1]), 432, 'the left column grows with the text');
+    const big = await page.evaluate(() => [document.querySelector('.su-root').getBoundingClientRect().width, document.querySelector('.su-page').getBoundingClientRect().width, document.querySelector('.su-side').getBoundingClientRect().width]);
+    assert.equal(Math.round(big[0]), Math.round(1400 - 48 * 1.1), 'the window still fits the screen at 110 %');
+    assert.equal(Math.round(big[1]), Math.round(big[0] - (2 * 24 + 360 + 20) * 1.1), 'the page column takes the rest of the window');
+    assert.equal(Math.round(big[2]), 396, 'the left column grows with the text');
+    await page.evaluate(() => document.querySelector('.su-root').setAttribute('data-text', '120'));
+    await resize(1370);
+    assert.deepEqual(await state(), { nowHere: true, here: 'none' }, 'at 120 % the switch comes at a 1320 px root (1100 px zoomed): one column below');
     await resize(1920);
-    const wide = await page.evaluate(() => document.querySelector('.su-page').getBoundingClientRect().width);
-    assert.equal(Math.round(wide), 1100, 'the page column stops at 1100 px on screen');
-    await resize(1300);
-    assert.deepEqual(await state(), { nowHere: true, here: 'none' }, 'at 120 % the switch comes at 1320 px (1100 px of zoomed root)');
+    assert.deepEqual(await state(), { nowHere: false, here: 'block' });
+    const wide = await page.evaluate(() => [document.querySelector('.su-root').getBoundingClientRect().width, document.querySelector('.su-page').getBoundingClientRect().width]);
+    assert.equal(Math.round(wide[0]), Math.round(1280 * 1.2), 'the window cap grows with the text');
+    assert.equal(Math.round(wide[1]), Math.round(1280 * 1.2 - 428 * 1.2), 'the page column takes the rest, under its 1100 px cap');
   } finally { await page.close(); }
 });

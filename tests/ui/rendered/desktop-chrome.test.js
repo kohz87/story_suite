@@ -68,7 +68,8 @@ for (const width of [390, 700, 860, 1143, 1280, 1920]) {
         await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
         const m = await page.evaluate(measure);
         assert.equal(m.bk, '6px 12px | 999px | 800');
-        assert.equal(m.bkH, width <= 900 || width >= 1100 ? 44 : 32);   // the window, 44 px up to 900 wide; from 1100 the card is in the 360 px desktop column, 44 px as drawn (desktop.html A)
+        const root = width > 820 ? Math.min(1280, width - 48) : width; // the suite is a floating window on a desktop window: 24 px margin each side, 1280 px at most
+        assert.equal(m.bkH, root <= 900 || root >= 1100 ? 44 : 32);   // the root, 44 px up to 900 wide; from 1100 the card is in the 360 px desktop column, 44 px as drawn (desktop.html A); a 1143 px window gives a 1095 px root
         assert.equal(m.ibtn, '1px 6px | 400');
         assert.equal(m.sub, 18); // the mock's .rnr small is a flex item on an 18 px line
         if (MOCK_PITCH[width]) assert.ok(Math.abs(m.pitch - MOCK_PITCH[width]) <= 4, `rows drift from the mock: ${m.pitch} vs ${MOCK_PITCH[width]}`);

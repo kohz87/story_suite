@@ -86,20 +86,24 @@ const SHEETS = [
   { name: 'World place', tab: 'world', clicks: ['g[data-pl="auvoth"]'], foot: false },
 ];
 
+// The suite is a floating window (min(1280, window - 48) by min(940, window - 48), centred): the sheets frame to it, not to the screen.
+const win = (width, height) => { const w = Math.min(1280, width - 48), h = Math.min(940, height - 48); return { x: (width - w) / 2, y: (height - h) / 2, w, h }; };
+
 for (const [width, height] of [[1280, 800], [1920, 1080]]) {
   for (const theme of ['dark', 'light']) {
     for (const s of SHEETS) {
-      test(`desktop sheet at ${width} in ${theme}: ${s.name} is a centred 640 px panel over a full-window dim`, async t => {
+      test(`desktop sheet at ${width} in ${theme}: ${s.name} is a centred 640 px panel over the floating window's dim`, async t => {
         if (ctx.skip) return t.skip(ctx.skip);
         const page = await open(width, height, theme, s.tab, s.clicks);
         try {
           const m = await page.evaluate(measure);
-          assert.deepEqual([m.ov.x, m.ov.y, m.ov.w, m.ov.h], [0, 0, width, height], 'the dim covers the window, card column included');
+          const w = win(width, height);
+          assert.deepEqual([m.ov.x, m.ov.y, m.ov.w, m.ov.h], [w.x, w.y, w.w, w.h], 'the dim covers the floating window, card column included');
           assert.equal(m.scrim, theme === 'dark' ? 'rgba(6, 8, 16, 0.58)' : 'rgba(30, 26, 60, 0.34)');
           assert.equal(m.blur, 'blur(3px)');
           assert.equal(m.panel.w, 640);
-          assert.equal(m.panel.x, (width - 640) / 2);
-          assert.ok(Math.abs(m.panel.y + m.panel.h / 2 - height / 2) <= 1, `centred: ${JSON.stringify(m.panel)}`);
+          assert.equal(m.panel.x, w.x + (w.w - 640) / 2, 'centred in the window');
+          assert.ok(Math.abs(m.panel.y + m.panel.h / 2 - (w.y + w.h / 2)) <= 1, `centred: ${JSON.stringify(m.panel)}`);
           assert.equal(m.radius, '24px');
           assert.deepEqual([m.head.x, m.head.y, m.head.w], [m.panel.x + 1, m.panel.y + 1, 638], `head ${JSON.stringify(m.head)}`);
           assert.deepEqual([m.x.x - m.panel.x, m.x.w, m.x.h], [573, 44, 44], `× 22 px in from the right: ${JSON.stringify(m.x)}`);
@@ -123,7 +127,7 @@ test('desktop sheet, short window: the middle scrolls under a pinned head and ac
   try {
     const top = await page.evaluate(measure);
     assert.ok(top.scroll[0] > top.scroll[1], `the quest editor scrolls at 1280×500: ${top.scroll}`);
-    assert.equal(top.panel.h, 500 - 48, 'the panel fills the window less the dim\'s 24 px each side');
+    assert.equal(top.panel.h, win(1280, 500).h - 48, 'the panel fills the floating window (the screen less 48 px) less the dim\'s 24 px each side');
     assert.equal(top.foot.y + top.foot.h, top.panel.y + top.panel.h - 1, 'the action row is on the bottom edge before scrolling');
     await page.evaluate(() => { const p = [...document.querySelectorAll('#hx-frame .sh-panel')].pop(); p.scrollTop = p.scrollHeight; });
     await settle(page);
