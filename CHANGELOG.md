@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A long name in the Here drawer takes two lines instead of being cut short.
 - The Here drawer shows each person as a slim card (portrait with the feelings ring, and the name); a tap opens their page.
 - The Here drawer's cards no longer carry inner chatter, so they are slimmer (chatter stays on Now and in each person's page).
 - A typed attack starts the fight board again: the foe check's answer was thrown away when the connection returned it as JSON (the same fix covers every helper call).
