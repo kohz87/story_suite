@@ -5,6 +5,7 @@ import { worldFor } from '../../../../ui/fixtures/world.js';
 import { checkShape } from '../../../../ui/contract/shapes.js';
 import { WORLD_SHAPE } from '../../../../ui/contract/world.js';
 import { mapCard, placeGlyph, fitBox, markSelected } from '../../../../ui/tabs/world/map.js';
+import { fitView, zoomLimits } from '../../../../ui/tabs/world/map-view.js';
 
 const make = (variant, state = { selected: null, center: null }, ctx = {}) => {
   const opened = [];
@@ -53,10 +54,12 @@ test('map card draws every place, roads, tracks, the trip line and your marker',
   assert.equal(card.querySelectorAll('.you').length, 1);
   assert.equal(card.querySelectorAll('.pl.far').length, 5);
   assert.equal(card.querySelectorAll('.news').length, 4);
-  assert.ok(card.querySelectorAll('.rgn').length >= 3);
+  assert.ok(card.querySelectorAll('.rgn').length >= 1, 'region names that fit are drawn');
   assert.equal(card.querySelector('[data-trip="summary"]') !== null, true);
   assert.equal(card.querySelector('[data-card="trip"]') !== null, true);
   assert.equal(card.querySelector('[data-pl="bluewatch"]').getAttribute('aria-label'), 'Bluewatch');
+  card.querySelector('[data-fit]').click();
+  assert.deepEqual(card.querySelectorAll('.rgn').map(t => t.textContent), ['AUVOTH VALE', 'THE SALT COAST', 'the Grey Sound']);
 });
 
 test('tapping or pressing Enter on a place opens it; other keys do not', () => {
@@ -68,12 +71,14 @@ test('tapping or pressing Enter on a place opens it; other keys do not', () => {
   assert.deepEqual(opened, ['auvoth', 'oldweir']);
 });
 
-test('a narrow map starts on the trip, a wide map on all places', () => {
+test('the map opens centred on where you are, never wider than a fit of every place', () => {
   installFakeDom();
-  const narrow = viewBox(make('default', undefined, { width: 390 }).card);
-  const wide = viewBox(make('default', undefined, { width: 820 }).card);
-  assert.ok(narrow[2] < wide[2]);
-  assert.ok(narrow[0] < 300 && narrow[0] + narrow[2] > 600);
+  const places = worldFor('default').places;
+  for (const width of [390, 820]) {
+    const vb = viewBox(make('default', undefined, { width }).card);
+    assert.equal(Math.round(vb[0] + vb[2] / 2), 600, `centred on Bluewatch at ${width}`);
+    assert.ok(vb[2] <= fitView(places, { ratio: 0.7, px: width }).box.w + 1e-6);
+  }
 });
 
 test('empty world gives no map card; no trip hides the summary and trip card', () => {
@@ -101,7 +106,8 @@ test('zoom, fit, centre on you and region change the view box', () => {
   const me = viewBox(card);
   assert.equal(Math.round(me[0] + me[2] / 2), 600);
   card.querySelector('[data-fit]').click();
-  assert.equal(viewBox(card)[2], start[2]);
+  const fit = viewBox(card);
+  for (const p of worldFor('default').places) assert.ok(p.x > fit[0] && p.x < fit[0] + fit[2] && p.y > fit[1] && p.y < fit[1] + fit[3], `${p.id} in the fit`);
   const sel = card.querySelector('select');
   sel.value = 'Harrow Coast';
   sel.dispatch('change');
@@ -112,10 +118,11 @@ test('zoom, fit, centre on you and region change the view box', () => {
 test('zoom is clamped; centre on you is disabled when you are on no place', () => {
   installFakeDom();
   const { card } = make('default');
+  const limits = zoomLimits(worldFor('default').places);
   for (let i = 0; i < 30; i += 1) card.querySelector('[data-z="1"]').click();
-  assert.ok(viewBox(card)[2] >= 150);
+  assert.equal(viewBox(card)[2], limits.min);
   for (let i = 0; i < 60; i += 1) card.querySelector('[data-z="-1"]').click();
-  assert.ok(viewBox(card)[2] <= 1600);
+  assert.equal(viewBox(card)[2], limits.max);
   const world = worldFor();
   world.places = world.places.map(p => ({ ...p, here: false }));
   const lost = mapCard(world, {}, { openPlace() {} });
