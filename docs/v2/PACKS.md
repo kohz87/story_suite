@@ -1,6 +1,6 @@
 # Packs
 
-A pack is a JSON file containing world data. It can provide places, routes, a calendar, weather, events, currency, starting state, screens and data modules. The [Ersveil world pack](../../examples/packs/ersveil/pack.json) (format 4, 4.0.0) and its [game pack](../../examples/packs/ersveil-game/pack.json) ("Ersveil rules", 1.0.0) show a larger pair, first converted from the format 3 sample world by `scripts/packs/convert-3to4.mjs` (job C1) and edited directly since (the format 3 sample is gone; `examples/packs/ersveil.zip` holds both): the lore, realms, powers, scores, conditions, markets, world events and templates, and 31 people, 12 of them companions with web-size WebP portraits; [Ersveil](ERSVEIL.md) describes how to play the old format 3 Ersveil. The old smaller format 3 Ersveil that tests pin is a frozen test fixture now, `tests/fixtures/packs/ersveil-3`.
+A pack is a JSON file containing world data. It can provide places, routes, a calendar, weather, events, currency, starting state, screens and data modules. The [Ersveil world pack](../../examples/packs/ersveil/pack.json) (format 4, 4.0.0) and its [game pack](../../examples/packs/ersveil-game/pack.json) ("Ersveil rules", 1.0.0) show a larger pair, first converted from the format 3 sample world by `scripts/packs/convert-3to4.mjs` (job C1) and edited directly since (the format 3 sample is gone; `examples/packs/ersveil.zip` holds both): the lore, realms, powers, scores, conditions, markets, world events and templates, and 31 people, 12 of them companions with web-size WebP portraits; [Ersveil](ERSVEIL.md) describes how to set it up and play it. The old smaller format 3 Ersveil that tests pin is a frozen test fixture now, `tests/fixtures/packs/ersveil-3`.
 
 A pack can give your character a **rank** with `"content": { "you": { "rank": { "label": "Guild rank" } } }` (the label is 1 to 30 plain characters). Only a story with such a pack has a Rank in Your look: Home shows it first under the label ("Guild rank"), Story Director's Status card has a row for it, and the narrator is told to write `~ you rank: …`. The first enabled pack that declares it wins. With no such pack there is no rank anywhere and `~ you rank:` is not used; a rank already kept stays and returns when the pack is on again. The Ersveil example uses "Guild rank".
 
@@ -98,6 +98,25 @@ Not built: the daily step reads `requires` entries with thresholds only after a 
 ## Character bars and skills in a pack
 
 A pack-defined Character keeps the sizes its own block gives. The block field key `scale` (only 2, only on a Character's `health`, `stamina` and `mana` bars, all three together) marks the doubled bars of Story Block's own new Character; marked bars may hold up to 17 stages, other bars up to 10. A Skills block with a `type<n>` field (combat or utility) has up to 80 fields and 22 kinds; a pack's cast `skills` may carry an optional `type` (`combat`, the default, or `utility`; any other value is refused): a utility skill goes into one of the three utility slots, a combat one into a combat slot, and a fourth utility skill is left out (on a return, a Problems line names it). See [RPG.md](RPG.md).
+
+## Lore and the lorebook (`content.lore`)
+
+A world pack's `lore` is a list of entries: `title`, `keys`, `constant`, `order`, `text`, `protected`, and `hidden` with a `gate`. Ersveil has 218 entries, 5 of them hidden.
+
+Who reads it:
+
+- **The narrator** reads it through SillyTavern's World Info, from a lorebook made from the pack (below). Without that book the narrator gets none of the pack's lore.
+- **The Director's helpers** read it from the pack itself, by keys, through the lore digest. They find the entries whose keys the story mentions. An entry marked `protected` is treated as protected from either source.
+- **Hidden lore** stays out of both until its gate opens. A gate opens only with World events on. Then the Director tells the narrator the entry, a few at a time.
+
+Making the book. In Settings › Packs, an installed world pack with lore has **Create the lorebook from this pack**:
+
+1. The book is named "<pack name> (Story Suite)". Hidden entries are left out. A marker entry in the book says which pack and version it came from, so only that book is ever updated. A book of your own with the same name is not touched.
+2. **Use in this chat** is ticked by default. It makes the book the chat's lorebook. If the chat already has another lorebook, the card says which, and the tick is off.
+3. When the book exists the button reads **Update the lorebook**, with the version it was made from. It asks first: "This replaces the book <name>; edits you made in it are lost." When the pack version matches it says "Up to date".
+4. The result line says how many entries were made and how many hidden entries were kept out.
+
+The Studio's **Export lorebook** saves the same book as `<pack-id>-lorebook.json`, for a pack you are writing.
 
 ## The cast
 
