@@ -4,6 +4,10 @@ This is the detailed record of every change, kept as it was written; the short l
 
 ## Unreleased (detail)
 
+### Changed
+
+- **The suite is a centred floating window on desktop (FLOATWIN, owner 19 Nov).** From 821 px the layer centres the root: width `min(1280px, 100% - 48px)`, height `min(940px, 100% - 48px)`, radius 16, a 1 px inside line (an outline, so the container width is the window's), the existing shadow; the chat stays dimmed around it and the open fade stays. Sheets, Edit, the wizard, Settings and the dossier were already fixed inside the transformed root and now frame to the window. Layout A (from 1100 px of root), the 1,040 px dossier cap and the wizard's 920 x 720 keep their rules; they read the root's container width, so layout A starts from a 1148 px window and the wizard is 704 px high in an 800 px window. The text-size zoom scales the window's lengths, so it grows with the text while the screen has room. Phones and windows up to 820 px are unchanged.
+
 ### Fixed
 
 - **A person brought in with `+ present` and no `+ npc` gets an NPC State record (NPCPRESENT, owner 19 Nov, live play on drop 20).** The owner's reply at Bluewatch had `+ present Bina Kelm` and `+ present Watch-Captain Edda Rorke`, and no `+ npc` line. Neither got a dossier. A `+ present` line never made a record: a pack person's dossier came only from the runtime after the reply (`npc.tick`, then `castSync`). The owner's reply has no `npc.tick` at all. A replica with NPC State off gives exactly the owner's receipts, and its narrator prompt has no `+ npc` rule. So NPC State was most likely not active in that session, and with NPC State on a narrator is told to write `+ npc`. Even so, nothing in the reply's own step turned a `+ present` into a record. A new person needed `+ npc`. Now NPC State has an `afterCapture` hook (`modules/people/meters/npc-lines-parts/present.js`, step `npc.arrive`, stored on the reply). It takes the names the reply's story `+ present` lines added, and a `+ hook` line's `giver:`:

@@ -49,7 +49,7 @@
   outline: none;
 }
 
-/* Settings › Look › Text size (ui/theme/look.js): the whole suite, its settings too, drawn larger. The root still fills the window (a percentage is not zoomed) and the content column stays 820 px on screen: --su-col is divided by the zoom (a length is). */
+/* Settings › Look › Text size (ui/theme/look.js): the whole suite, its settings too, drawn larger. The root keeps its window size (a percentage is not zoomed) and the content column stays 820 px on screen: --su-col is divided by the zoom (a length is). */
 .su-root[data-text="110"] {
   zoom: 1.1;
   --su-col: calc(820px / 1.1);
@@ -79,7 +79,17 @@
     transition-duration: 0.18s;
   }
 
+  /* A centred floating window over the dimmed chat (the dim still covers the whole window). Sheets, Edit, the wizard, Settings and the dossier are fixed inside this root (it has a transform), so they frame to the window, not the screen. */
+  .su-layer {
+    align-items: center;
+  }
+
   .su-root {
+    width: min(1280px, calc(100% - 48px));
+    height: min(940px, calc(100% - 48px));
+    border-radius: 16px;
+    outline: 1px solid var(--su-line); /* the 1 px line, drawn inside the edge so the container width stays the window's */
+    outline-offset: -1px;
     opacity: 0;
     transform: translateX(0) scale(0.97);
     transition: transform 0.18s ease-out, opacity 0.18s ease-out;

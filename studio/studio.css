@@ -6,6 +6,9 @@
 body.st-page { margin: 0; background: #0d0f18; }
 /* The Studio is a page of its own: no slide-in, and the frame covers the window as Settings does at desktop (decision 17). */
 .st-layer .su-root.st-root { max-width: none; transition: none; }
+/* The suite floats as a centred window on desktop (ui/css/shell.css); the Studio is its own full-window page. */
+.st-layer.su-layer { align-items: stretch; }
+.st-layer .su-root.st-root { width: 100%; height: 100%; border-radius: 0; outline: none; }
 .st-root .sov { z-index: 1; }
 .st-root .shd .ttl { min-width: 0; }
 .st-root .shd .ttl b, .st-root .shd .ttl small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -39,7 +39,7 @@ test.after(async () => {
 
 /** Runs in the page: the root's box, and the card's, the strip's and the page's first block's left edge and width. */
 function measure() {
-  const box = sel => { const e = document.querySelector(sel); if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.round(r.left), w: Math.round(r.width) }; };
+  const box = sel => { const e = document.querySelector(sel); if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.round(r.left), w: Math.round(r.width), h: Math.round(r.height) }; };
   return {
     frame: box('#hx-frame'), root: box('.su-root'), card: box('.su-card-slot'), strip: box('.su-strip'), panel: box('.su-panel > *'),
     here: getComputedStyle(document.querySelector('.su-here-slot')).display, nowHere: Boolean(document.querySelector('.now-tab [data-card="here"]')),
@@ -48,7 +48,7 @@ function measure() {
 
 for (const width of [390, 820, 900, 1099]) {
   for (const theme of ['dark', 'light']) {
-    test(`desktop column at ${width} in ${theme}: the root fills the window, the content keeps the 820 px column`, async t => {
+    test(`desktop column at ${width} in ${theme}: the root is the floating window (or the whole window up to 820 px), the content keeps the 820 px column`, async t => {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await ctx.browser.newPage({ viewport: { width, height: 900 } });
       try {
@@ -58,9 +58,11 @@ for (const width of [390, 820, 900, 1099]) {
         await page.waitForFunction(() => document.getAnimations().filter(a => a.playState === 'running' && a.effect?.getTiming?.().iterations !== Infinity).length === 0);
         await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
         const m = await page.evaluate(measure);
-        assert.equal(m.root.w, m.frame.w, 'the suite root is as wide as the window');
-        const column = Math.min(width, 820) - 24;
-        const left = m.frame.x + Math.max(12, (width - 820) / 2 + 12);
+        const rootW = width > 820 ? Math.min(1280, width - 48) : width;
+        assert.equal(m.root.w, rootW, width > 820 ? 'the suite root is the floating window: 24 px margin each side' : 'the suite root fills the window up to 820 px');
+        if (width > 820) assert.ok(Math.abs(m.root.x - (m.frame.x + 24)) <= 1 && Math.abs(m.root.h - Math.min(940, 900 - 48)) <= 1, `centred ${JSON.stringify(m.root)}`);
+        const column = Math.min(rootW, 820) - 24;
+        const left = m.root.x + Math.max(12, (rootW - 820) / 2 + 12);
         assert.ok(Math.abs(m.card.w - column) <= 1, `card ${m.card.w} vs column ${column}`);
         assert.ok(Math.abs(m.card.x - left) <= 1, `card left ${m.card.x} vs ${left}`);
         assert.ok(Math.abs(m.panel.w - column) <= 1, `page ${m.panel.w} vs column ${column}`);

@@ -7,6 +7,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Inner chatter reads as **Name:** followed by the thought between quote marks.
 - Tapping someone in the Here drawer opens their own page, not the People list.
 - A long name in the Here drawer takes two lines instead of being cut short.
+- On a desktop window the suite is a centred floating window over the dimmed chat (up to 1280 by 940), not full screen; phones and narrow windows stay full screen.
 - The Here drawer shows each person as a slim card (portrait with the feelings ring, and the name); a tap opens their page.
 - Inner chatter now sits inside each reply as a fold ("Inner chatter · 3", like the battle log), so every reply keeps its own thoughts across swipes, deletes and reloads; the Here drawer shows portrait and name only.
 - The Here drawer's cards no longer carry inner chatter, so they are slimmer (chatter stays on Now and in each person's page).

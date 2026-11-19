@@ -41,7 +41,7 @@ test.after(async () => {
 });
 
 async function harness(width) {
-  const page = await ctx.browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const page = await ctx.browser.newPage({ viewport: { width, height: 900 } });
   await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
   await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=${width}&tab=now`);
   await page.waitForSelector('.su-root .su-content', { state: 'attached' });
@@ -52,7 +52,7 @@ async function harness(width) {
 }
 
 for (const width of [390, 1280]) {
-  test(`Text size at ${width}: 110% and 120% draw the text 1.1 and 1.2 times larger; the frame fills the window; the tablet column stays 820 px on screen and the desktop card column grows with the text`, async t => {
+  test(`Text size at ${width}: 110% and 120% draw the text 1.1 and 1.2 times larger; the window keeps fitting the screen; the tablet column stays 820 px on screen and the desktop card column grows with the text`, async t => {
     if (ctx.skip) return t.skip(ctx.skip);
     const page = await harness(width);
     const measure = size => page.evaluate(size => {
@@ -74,12 +74,14 @@ for (const width of [390, 1280]) {
     assert.equal(at120.zoom, '1.2');
     assert.ok(Math.abs(at110.text / normal.text - 1.1) < 0.03, `110%: ${at110.text} vs ${normal.text}`);
     assert.ok(Math.abs(at120.text / normal.text - 1.2) < 0.03, `120%: ${at120.text} vs ${normal.text}`);
-    assert.equal(normal.frame, width); // mock v7 Desktop: the root fills the window (UIFIX5)
-    assert.ok(Math.abs(at110.frame - normal.frame) < 1, `110% frame ${at110.frame}`);
-    assert.ok(Math.abs(at120.frame - normal.frame) < 1, `120% frame ${at120.frame}`);
+    // a phone fills the window; a desktop window floats (min(1280 px, window - 48 px)), and its lengths are zoomed with the text: it grows while the screen has room
+    const frameAt = z => (width > 820 ? Math.min(1280 * z, width - 48 * z) : width);
+    assert.equal(normal.frame, frameAt(1));
+    assert.ok(Math.abs(at110.frame - frameAt(1.1)) < 1, `110% frame ${at110.frame}`);
+    assert.ok(Math.abs(at120.frame - frameAt(1.2)) < 1, `120% frame ${at120.frame}`);
     if (width === 1280) {
-      // desktop layout A (ui/css/desk.css): the card's column is 360 px, zoomed with the text at 110% (the root is 1164 px of zoomed width, still desktop);
-      // at 120% the root is 1067 px of zoomed width, under 1100: the tablet column, 820 px on screen less its zoomed 14.4 px edges
+      // desktop layout A (ui/css/desk.css): the card's column is 360 px, zoomed with the text at 110% (the floating window is 1227 px on screen, 1115 px of zoomed width, still desktop);
+      // at 120% the window is 1222 px on screen, 1018 px of zoomed width, under 1100: the tablet column, 820 px on screen less its zoomed 14.4 px edges
       assert.ok(Math.abs(normal.card - 360) <= 1, `card ${normal.card}`);
       assert.ok(Math.abs(at110.card - 396) <= 1, `110% card ${at110.card}`);
       assert.ok(Math.abs(at120.card - (820 - 24 * 1.2)) <= 1, `120% card ${at120.card}`);
