@@ -66,7 +66,7 @@ export const STORY_STRINGS = Object.freeze({
         slotsFull: 'All eight skill slots hold a skill.',
         utilityFull: 'No free utility skill slot for {skill}: all {max} hold a skill.',
         stanceHeld: 'Only one stance skill (defence, speed or focus) may be owned, so {skill} is not learned.',
-        focusStat: '{skill} is a focus skill, and a focus skill rolls with INT or WIS; write stat: int or stat: wis.',
+        focusStat: '{skill}: a focus skill rolls with INT or WIS; {stat} used.',
         taken: '{name} is already in the party.',
         fullActive: 'the party is full ({max} active); someone must leave first',
         full: 'the party is full ({max} characters, counting those who left)',

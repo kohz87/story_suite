@@ -11,6 +11,7 @@ import { XP_RATE, scaleXp, xpRateFrom, xpRateOf } from '../../rpg/levels.js';
 import { FOE_LEVEL, averageLevel, bandOfRank, foeRandom, foeLevelCap, levelOf, partyLevels, pickLevel } from '../../rpg/foes.js';
 import { SKILL_SLOTS_MAX, SLOT_NUMBER, isTypedSkills, stanceTypeOf } from '../../../core/runtime/skill-slots.js';
 import { RESTED_FIELD, RESTED_KNOWN, SET_KINDS, fullRestTooSoon, isMarkedCharacter, recoveryNote } from '../recovery.js';
+import { focusPick } from './skills-parts/room.js';
 import { B, rpg, draftOf, stateOf, pairKey, subjectsOf, instancePath, prefixImports } from './shared.js';
 import { skillCapacity } from './skills.js';
 import { namedChanges } from './prompt.js';
@@ -171,12 +172,15 @@ export function createAct(deps) {
         evaluation.timers();
         // A foe group the narrator sets by a name already on a slot of the same Foes block (the foe pre-check may have opened this very fight, rpg/open.js)
         // is that group: the slot is updated (count and class), never a second slot with the same name; its health stays as it is.
-        const route = practiceRoute ?? (definition.role === 'skills' && line ? skillRoute(instance.fields, labels.kind, args, line.text, skillRoom(prefix, definition, instance.fields)) : null);
+        const route = practiceRoute ?? (definition.role === 'skills' && line ? skillRoute(instance.fields, labels.kind, args, line.text, skillRoom(prefix, definition, instance.fields), { focus: focusPick(prefix, instance.fields) }) : null);
         if (route?.refuse) refuse('DM_CONDITION', '', route.refuse);
+        // A Focus skill's line on another stat than INT or WIS is written with the stat the route chose, and the reply says so (the probe, the write and a replay all run this route).
+        const adjustNotes = route?.adjust ? [route.adjust.note] : [];
+        if (route?.adjust) args.stat = route.adjust.stat;
         const same = definition.role === 'foes' && /^set-slot-\d$/u.test(labels.kind) && typeof args.name === 'string'
             ? [1, 2, 3, 4, 5, 6].find(n => typeof instance.fields[`foe${n}`] === 'string' && instance.fields[`count${n}`] > 0 && fold(instance.fields[`foe${n}`]) === fold(args.name)) : undefined;
         if (same !== undefined) evaluation.effects([{ op: 'set', path: [`foe${same}`], value: ['arg', 'name'] }, { op: 'set', path: [`count${same}`], value: ['arg', 'count'] }, { op: 'set', path: [kind.labels.level ? `level${same}` : `class${same}`], value: ['arg', kind.labels.level ? 'level' : 'class'] }], { arg: args });
-        else if (route?.update) evaluation.effects(['about', 'stat', 'uses'].map(key => ({ op: 'set', path: [`${key}${route.slot}`], value: ['arg', key] })), { arg: args });
+        else if (route?.update) evaluation.effects(['about', 'stat', 'uses'].filter(key => dmOwn(definition.state, `${key}${route.slot}`)).map(key => ({ op: 'set', path: [`${key}${route.slot}`], value: ['arg', key] })), { arg: args });
         else {
             const run = route ? definition.kinds[route.kind] : kind;
             if (!evaluation.condition(['kind', route?.kind ?? labels.kind], run.when, { arg: args })) refuse('DM_CONDITION', '', run.refusal ?? 'Kind condition is not met.');
@@ -194,7 +198,7 @@ export function createAct(deps) {
             reads: [...result.reads.map(read => read.path), ...(strictPractice ? Object.keys(definition.state).filter(key => /^skill\d+$/u.test(key)).sort().map(key => ['fields', key]) : [])], imports: prefixImports(definition), clock: restKind,
             actor: subject !== 'chat', decision: { args, inputs, decisions: result.decisions.map(({ source: _source, cursor: _cursor, ...rest }) => rest), conds: grown ? [] : result.conds, ...(clock !== null ? { clock } : {}), ...(xpRate !== XP_RATE.default ? { xpRate } : {}), ...(grown ? { grown: dataModuleHash(grown) } : {}) } });
         // The concrete outcome kept beside the inputs (and past the receipts' display data): which line, for whom, what was frozen, what was limited.
-        const outcome = { kind: labels.kind, ...(route ? { skill: { slot: route.slot, name: route.update ? route.name : instance.fields[`skill${route.slot}`] } } : {}), subject, ...(xpKept !== null ? { xpRate: xpKept } : {}), decisions: result.decisions.map(({ source: _source, cursor: _cursor, ...rest }) => rest), notes: result.notes, ...(result.fired.length ? { rules: result.fired } : {}) };
+        const outcome = { kind: labels.kind, ...(route ? { skill: { slot: route.slot, name: route.update ? route.name : instance.fields[`skill${route.slot}`] } } : {}), subject, ...(xpKept !== null ? { xpRate: xpKept } : {}), decisions: result.decisions.map(({ source: _source, cursor: _cursor, ...rest }) => rest), notes: [...result.notes, ...adjustNotes], ...(result.fired.length ? { rules: result.fired } : {}) };
         // A story line that writes a character's XP: what the character had before it is kept for the reply (see finish), so that a won fight, whose XP is
         // given by code, can put back what the narrator added in that reply.
         const xpFrom = ctx.cause === 'story' && definition.role === 'character' && kind.effects.some(effect => Array.isArray(effect?.path) && effect.path[0] === 'xp')
@@ -203,7 +207,7 @@ export function createAct(deps) {
         // reply's rolls give by code can put back what the narrator added for the same skill.
         const practiceFrom = ctx.cause === 'story' && route && route.kind.startsWith('practice-')
             ? { [module]: { [route.slot]: Object.fromEntries(['practice', 'rank'].filter(key => Number.isSafeInteger(fieldsBefore[`${key}${route.slot}`])).map(key => [key, fieldsBefore[`${key}${route.slot}`]])) } } : null;
-        const answer = finish(ctx, prefix, draft, recorded, { pin: Boolean(grown), visits: result.visits, notes: result.notes, result: outcome, xpFrom, practiceFrom, listsFrom: Object.keys(result.lists).length ? { ...listsKept, [listKey]: result.lists } : null, summary: `${definition.name}: ${route ? `${route.kind} (${route.update ? route.name : instance.fields[`skill${route.slot}`]})` : kind.title ?? labels.kind}${changes.length ? ` (${changes.join(', ')})` : ''}.` });
+        const answer = finish(ctx, prefix, draft, recorded, { pin: Boolean(grown), visits: result.visits, notes: [...result.notes, ...adjustNotes], result: outcome, xpFrom, practiceFrom, listsFrom: Object.keys(result.lists).length ? { ...listsKept, [listKey]: result.lists } : null, summary: `${definition.name}: ${route ? `${route.kind} (${route.update ? route.name : instance.fields[`skill${route.slot}`]})` : kind.title ?? labels.kind}${changes.length ? ` (${changes.join(', ')})` : ''}.` });
         if (ctx.cause === 'ui') answer.data.edit = true;
         return answer;
     }

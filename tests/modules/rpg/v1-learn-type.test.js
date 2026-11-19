@@ -6,6 +6,7 @@ import { createHost } from '../../../testkit/index.js';
 import { COMBAT_V1_TEMPLATES } from '../../../modules/rpg/templates-combat.js';
 import { validateDataModules } from '../../../modules/data-modules/check.js';
 import { fullModuleGrammar } from '../../../modules/data-modules/grammar.js';
+import { RPG_STRINGS } from '../../../modules/rpg/strings.js';
 import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
 
 const learn = extra => `~ dm skills — why | kind: learn-1 | name: Slash | about: A hard cut. | stat: str${extra}`;
@@ -95,17 +96,35 @@ test('an earlier stance word on a learn line is its new type (evasion, movement:
     assert.equal(sheet(other).skill2, '', 'a second stance (movement is speed) is refused: one stance per character');
 });
 
-test('a focus skill rolls with INT or WIS: a learn line naming another stat is refused, and so is one that moves a focus skill to another stat', async t => {
+test('a focus skill line on another stat is taken on WIS (INT and WIS tie), a held focus skill moved to another stat is adjusted too; swipe, Re-read, edited Re-read, middle delete and reload agree', async t => {
     const host = await story(t);
     const learnOf = (name, stat, type) => `~ dm skills — why | kind: learn-1 | name: ${name} | about: A skill. | stat: ${stat} | type: ${type}`;
-    await host.send('Learn.', reply(learnOf('Calm', 'cha', 'focus')));
-    assert.equal(sheet(host).skill1, '', 'focus on CHA is refused');
-    await host.send('Learn.', reply(learnOf('Calm', 'cha', 'support')));
-    assert.equal(sheet(host).skill1, '', 'support (focus) on CHA is refused');
-    await host.send('Learn.', reply(learnOf('Calm', 'int', 'focus')));
-    assert.deepEqual([sheet(host).skill1, sheet(host).type1, sheet(host).stat1], ['Calm', 'focus', 'int']);
+    const note = RPG_STRINGS.join.focusStat.replace('{skill}', 'Calm').replace('{stat}', 'WIS');
+    await host.send('Hurt.', reply('~ dm character — why | kind: set-health | to: 2'));
     await host.send('Learn.', reply(learnOf('Calm', 'str', 'focus')));
-    assert.equal(sheet(host).stat1, 'int', 'a learn line that rewrites the focus skill\'s stat to STR is refused');
+    assert.deepEqual([sheet(host).skill1, sheet(host).type1, sheet(host).stat1], ['Calm', 'focus', 'wis'], 'STR focus is held on WIS');
+    assert.ok(JSON.stringify(host.ctx.chat).includes(note) || JSON.stringify(host.st.chats).includes(note), 'the receipt carries the note');
+    const index = host.ctx.chat.length - 1;
+    assert.equal((await host.turn.reread(index)).ok, true);
+    assert.equal(sheet(host).stat1, 'wis', 'a Re-read');
+    host.ctx.chat[index].mes = reply(learnOf('Calm', 'cha', 'support'));
+    assert.equal((await host.turn.reread(index)).ok, true);
+    assert.deepEqual([sheet(host).skill1, sheet(host).stat1], ['Calm', 'wis'], 'an edited Re-read (support is focus)');
+    host.ctx.chat[index].mes = reply(learnOf('Calm', 'int', 'focus'));
+    assert.equal((await host.turn.reread(index)).ok, true);
+    assert.equal(sheet(host).stat1, 'int', 'an edited Re-read to a valid stat: no adjustment');
+    host.ctx.chat[index].mes = reply(learnOf('Calm', 'agi', 'focus'));
+    assert.equal((await host.turn.reread(index)).ok, true);
+    assert.equal(sheet(host).stat1, 'wis', 'an edited Re-read, shrunk back to an adjusted stat');
     await same(host);
-    assert.deepEqual([sheet(host).skill1, sheet(host).type1, sheet(host).stat1], ['Calm', 'focus', 'int']);
+    await host.send('Learn.', reply(learnOf('Calm', 'int', 'focus')));
+    await host.send('Again.', reply(learnOf('Calm', 'str', 'focus')));
+    assert.deepEqual([sheet(host).skill1, sheet(host).stat1], ['Calm', 'wis'], 'the update path rewrites the stat on WIS');
+    await host.swipe(reply(learnOf('Calm', 'cha', 'focus')));
+    assert.equal(sheet(host).stat1, 'wis', 'a swipe');
+    await same(host);
+    assert.deepEqual([sheet(host).skill1, sheet(host).type1, sheet(host).stat1], ['Calm', 'focus', 'wis'], 'a rebuild and a reload');
+    await host.st.deleteMessage(host.ctx.chat.findIndex(message => /set-health/.test(String(message.mes))));
+    await same(host);
+    assert.deepEqual([sheet(host).skill1, sheet(host).stat1], ['Calm', 'wis'], 'a middle delete of an earlier reply');
 });

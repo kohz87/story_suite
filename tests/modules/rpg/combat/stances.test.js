@@ -108,15 +108,16 @@ test('a character file reads an earlier stance word as its new type', () => {
     assert.deepEqual(['evasion', 'movement', 'support', 'speed', 'focus', 'attack'].map(read), ['speed', 'speed', 'focus', 'speed', 'focus', undefined]);
 });
 
-test('the learn route refuses a focus skill on a stat other than INT or WIS, with the reason', t => {
+test('the learn route adjusts a focus skill on another stat to INT or WIS (the higher of the two, WIS when unknown), with the note', t => {
     setRpgLib({ RPG_STRINGS }); t.after(() => setRpgLib(null));
     const fields = { who: 'Astra', type1: 'attack', skill1: '', stat1: 'str', sig: 0 };
     for (let n = 2; n <= 11; n += 1) Object.assign(fields, { [`skill${n}`]: '', [`type${n}`]: 'attack', [`stat${n}`]: 'str' });
-    const refused = skillRoute(fields, 'learn-1', { name: 'Calm', stat: 'cha', type: 'focus' }, 'why', 5);
-    assert.equal(refused.refuse, RPG_STRINGS.join.focusStat.replace('{skill}', 'Calm'));
-    assert.deepEqual(skillRoute(fields, 'learn-1', { name: 'Calm', stat: 'wis', type: 'focus' }, 'why', 5), { kind: 'learn-1', slot: 1, name: 'Calm' });
+    const say = (skill, stat) => RPG_STRINGS.join.focusStat.replace('{skill}', skill).replace('{stat}', stat);
+    assert.deepEqual(skillRoute(fields, 'learn-1', { name: 'Calm', stat: 'cha', type: 'focus' }, 'why', 5), { kind: 'learn-1', slot: 1, name: 'Calm', adjust: { stat: 'wis', note: say('Calm', 'WIS') } });
+    assert.deepEqual(skillRoute(fields, 'learn-1', { name: 'Calm', stat: 'cha', type: 'focus' }, 'why', 5, { focus: 'int' }).adjust, { stat: 'int', note: say('Calm', 'INT') });
+    assert.deepEqual(skillRoute(fields, 'learn-1', { name: 'Calm', stat: 'wis', type: 'focus' }, 'why', 5, { focus: 'int' }), { kind: 'learn-1', slot: 1, name: 'Calm' });
     const held = { ...fields, skill1: 'Calm', type1: 'focus', stat1: 'wis' };
-    assert.ok(skillRoute(held, 'learn-2', { name: 'Calm', stat: 'str', type: 'focus' }, 'why', 5).refuse, 'moving a focus skill to STR is refused');
+    assert.deepEqual(skillRoute(held, 'learn-2', { name: 'Calm', stat: 'str', type: 'focus' }, 'why', 5, { focus: 'int' }), { kind: 'learn-1', slot: 1, name: 'Calm', update: true, adjust: { stat: 'int', note: say('Calm', 'INT') } });
 });
 
 test('the Party sheet rows name the stance (Defence, Speed, Focus); a Focus row draws Mana', () => {
