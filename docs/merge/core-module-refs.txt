@@ -10,7 +10,6 @@ core/interaction/dice.js :: const BOARD_KIND = 'story-block/fight';
 core/interaction/dice.js :: const text = kindId === BOARD_KIND ? `fight:${sid}:${tries}` : `interaction:${String(kindId ?? '')}:${sid}:${tries}`;
 core/interaction/policy.js :: const own = Object.freeze(['story-block/fight']);
 core/interaction/start.js :: export const START_KINDS = ['story-block/fight'];
-core/registry/registry-checks-parts/interaction-problems.js :: if (!isObject(def.interactions)) return ['interactions is not an object (like { fight: { … } })'];
 core/sdk/constants-parts/host-settings.js :: help: 'Shows a small note above the message box when a Send could not go yet (the story is still finishing, or a fight start is holding it), and sends your text once by itself when the story is free. It never changes what you typed.',
 core/turn/capture-each.js :: else if (base === null && lines.some(line => PRACTICE_LINE.test(line.raw ?? '')) && practiceFromRollsOnly(registry.featureOn?.(LEAN_RPG_FEATURE) === true, settings?.('story-block'))) {
 core/turn/capture-each.js :: import { LEAN_RPG_FEATURE, practiceFromRollsOnly } from '../../modules/rpg/names.js';
@@ -18,5 +17,3 @@ core/turn/prompt-build.js :: const cue = fightCue(prior, { foesNow });
 core/turn/prompt-build.js :: const state = store.head(), lib = rpgLib(), foesNow = (lib?.rpgBlocks(state) ?? []).some(block => block.role === 'foes' && lib.foesOf(block).length > 0);
 core/turn/prompt-build.js :: import { fightCue } from '../../modules/rpg/board/fight-start.js';
 core/turn/prompt-build.js :: import { rpgLib } from '../../modules/rpg/rpg-lazy.js';
-core/turn/session.js :: if (planned?.ok === false && planned.code === 'NO_LONGER_DONE' && receipt.replan?.payload?.board) {
-core/turn/session.js :: problem({ code: 'FIGHT_TAKEN_BACK', message: `A fight on the board was taken back because the story before it changed: ${planned.message ?? 'the sheet or gear is not what it was.'}` });

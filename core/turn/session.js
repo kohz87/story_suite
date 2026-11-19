@@ -134,11 +134,8 @@ export function createSession(s, deps) {
         // The proof of the block being planned again may be given again: the step keeps its ids.
         const replacing = Array.isArray(info?.span?.evidence) ? info.span.evidence : [];
         const planned = bus.run(plan.type, plan.payload ?? {}, { cause: 'system', state, seed: plan.seed, replacing, ...(typeof receipt?.id === 'string' ? { receiptId: receipt.id } : {}), reusing: typeof info?.span?.id === 'string' ? info.span : null, ...(Array.isArray(info?.receiptsBefore) ? { receiptsBefore: info.receiptsBefore } : {}), ...(Number.isInteger(info?.occurrence) ? { occurrence: info.occurrence } : {}), ...(reply ? { reply: { ...reply, ...(Number.isInteger(ordinal) ? { ordinal } : {}), ...(Number.isInteger(info?.opsBefore) ? { opsBefore: info.opsBefore } : {}) } } : {}) });
-        // A board fight whose sheet or gear no longer matches is taken back: say so by name, not only as a count of steps taken back.
-        if (planned?.ok === false && planned.code === 'NO_LONGER_DONE' && receipt.replan?.payload?.board) {
-            problem({ code: 'FIGHT_TAKEN_BACK', message: `A fight on the board was taken back because the story before it changed: ${planned.message ?? 'the sheet or gear is not what it was.'}` });
-        }
-        // An interaction that no longer fits what it read (or whose earlier segment changed) is taken back: say so by kind.
+        // An interaction that no longer fits what it read (or whose earlier segment changed) is taken back: say so by kind (a board fight is one:
+        // "The Fight was taken back …"; a pre-port board receipt with its own message is not carried, fresh start).
         if (planned?.ok === false && planned.code === 'NO_LONGER_DONE' && typeof receipt.replan?.payload?.kindId === 'string') {
             const id = String(receipt.replan.payload.kindId), title = kindOf(id)?.title ?? id.split('/').at(-1);
             problem({ code: 'INTERACTION_TAKEN_BACK', message: `The ${title} was taken back because the story before it changed: ${planned.message ?? 'what it read is not what it was.'}` });
