@@ -432,7 +432,7 @@
   "ui/card/card-icons.js": "Draws the card's soak, pace and status glyphs from the mock's shapes, with a shared-set fallback.",
   "ui/card/card-row.js": "Builds the card's top row: ‹ Chat, time · place · weather with the mock's glyphs (opens the Scene sheet) and ⚙.",
   "ui/card/character-card.js": "Builds the full character card shown on top of every tab, with a Story-only variant when RPG is off.",
-  "ui/chat/chat-surfaces.js": "Keeps the inline row on the latest reply and the people drawer above the input: moves, hides and folds them as the chat changes.",
+  "ui/chat/chat-surfaces.js": "Keeps the inline row on the latest reply, each reply's inner chatter inside it and the people drawer above the input: moves, hides and folds them as the chat changes.",
   "ui/chat/inline-row.js": "Builds the quiet inline row under the latest reply: time, place, weather, money, Needs you, Fight, Loot, Choices and the Suite link.",
   "ui/chat/loot-part.js": "Builds the head reply's loot under the inline row: a \"Loot\" chip that folds the reply's pick-what-you-take chips open and shut.",
   "ui/chat/people-drawer.js": "Builds the people drawer above the message box: a \"Here\" header and one page of feelings-ring cards.",
@@ -690,5 +690,10 @@
   "ui/wizard/summary.js": "Draws the wizard's summary of the character so far: the phone's row and, from 1100 px, the left card's portrait, stat tiles and skill list.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
   "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary, Back / Next and Create's footer, and the step's scroll across redraws.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You."
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You.",
+  "ui/chat/chatter-block.js": "Builds the foldable \"Inner chatter · N\" block inside a reply: a header with a chevron, then one row per person with the name in bold and the thought in italics.",
+  "ui/select/chatter.js": "Reads the chatter.replies answer into the chat view's per-reply inner chatter blocks, leaving out replies without a named thought.",
+  "tests/ui/chat/chatter-block.test.js": "Tests the Inner chatter block (fold, count, nothing without chatter), the selector and each reply drawing its own block.",
+  "tests/core/chatter-replies.test.js": "Tests the chatter.replies query: each reply's own chatter across a swipe, a delete and the feature off.",
+  "modules/scene/extras-parts/reply-chatter.js": "Reads every reply's own Inner chatter from its text, for the chatter.replies query (faded replies, the reader's and system messages and the greeting left out)."
 }

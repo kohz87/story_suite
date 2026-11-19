@@ -93,3 +93,11 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrow{padding-right:64px}
  .pc2{flex-basis:72px;width:72px}
  .dbody2{padding:0 4px 2px}
 }
+/* Inner chatter inside a reply: a fold like the battle log's, in the chat theme's colours */
+.ssch [hidden]{display:none}
+.ssch{margin:8px 0 2px;border:1px solid var(--SmartThemeBorderColor);border-radius:8px;background:var(--SmartThemeBlurTintColor);font-size:.88em}
+.ssch-head{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:5px 10px;cursor:pointer;color:var(--SmartThemeEmColor);font-weight:600}
+.ssch-head:focus-visible{outline:2px solid var(--SmartThemeQuoteColor);outline-offset:-2px}
+.ssch-body{padding:2px 10px 8px;color:var(--SmartThemeBodyColor)}
+.ssch-row{margin:3px 0;line-height:1.35}
+.ssch-row i{color:var(--SmartThemeEmColor)}

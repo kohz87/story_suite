@@ -7,6 +7,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Tapping someone in the Here drawer opens their own page, not the People list.
 - A long name in the Here drawer takes two lines instead of being cut short.
 - The Here drawer shows each person as a slim card (portrait with the feelings ring, and the name); a tap opens their page.
+- Inner chatter now sits inside each reply as a fold ("Inner chatter · 3", like the battle log), so every reply keeps its own thoughts across swipes, deletes and reloads; the Here drawer shows portrait and name only.
 - The Here drawer's cards no longer carry inner chatter, so they are slimmer (chatter stays on Now and in each person's page).
 - A typed attack starts the fight board again: the foe check's answer was thrown away when the connection returned it as JSON (the same fix covers every helper call).
 - The Here drawer starts folded; its header opens it.

@@ -63,6 +63,8 @@ export const CHAT_SHAPE = {
       ],
     },
   },
+  // Each reply's own inner chatter, for the foldable block inside it (ui/select/chatter.js); absent when no reply has any.
+  chatter: { $optional: [{ index: T.NUMBER, lines: [{ name: T.STRING, text: T.STRING }] }] },
   replyMenu: {
     at: T.STRING,
     lines: [
