@@ -4,7 +4,14 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- The HP, MP and SP bars on a reply's card show at their full length (they shrank to dots).
 - What needs you now shows as a red count on the Journal tab, with the list at the top of the Journal, and a card's pack offers (Install, Update, Not now) sit at the top of Settings › Packs and trackers; nothing sits above the tabs any more.
+- Every story reply now has its own card under it: that reply's time, place and weather, your HP, MP and SP then (with what the reply changed), and your condition.
+- The card's tabs, Changes, Chatter, Here and Choices, show what that reply changed, the inner thoughts, who was there and its choices; tap a choice to put it in the message box.
+- The newest reply's card has an Open Suite button in its corner and, when something waits, a line of things to do: a fight, loot to pick up, points, overdue items, someone asking to join.
+- Settings › Chat extras › Tabs sets the order of the tabs and hides the ones you do not want, for every chat.
+- The row under the last reply, the Here drawer above the message box, the separate Inner chatter fold and the Choices chip are gone: all of it is on the reply cards now.
+- The ✦ menu on a reply keeps Re-read and Discard repair and adds Open Suite; the reply's change list is on its card's Changes tab.
 - The Now tab is gone: the suite opens on Party, the card and what needs you sit above the tabs, and every window width uses that one layout, filling the floating window.
 - A reply that came without its change block now gets its inner chatter and choices back when the suite repairs it.
 - Inner chatter reads as **Name:** followed by the thought between quote marks.

@@ -65,8 +65,13 @@ test('buildSelectors builds the card and chat view-models from sdk queries', () 
   const card = selectors.card(read);
   assert.equal(card.rpg, true);
   assert.equal(card.scene.place, 'Inn');
-  assert.equal(selectors.chat(read).inlineRow.place, 'Inn');
-  assert.equal(selectors.chat(() => null).inlineRow.fightOpen, false);
+  // (one card per reply of the chat: the reply's own state, asked with { asOf })
+  const chat = [{ is_user: true, mes: 'Hi.' }, { mes: 'The inn.' }];
+  const ctxSelectors = buildSelectors(() => ({ name1: 'Reader', chat }), null);
+  const vm = ctxSelectors.chat((name, args) => (args?.asOf === 1 ? read(name) : null));
+  assert.equal(vm.replies[0].top.place, 'Inn');
+  assert.equal(vm.head.index, 1);
+  assert.equal(ctxSelectors.chat(() => null).head.actions.fight, false);
 });
 
 const start = (doc, ctx, more = {}) => startView({ doc, getContext: () => ctx, StoryBlock: fakeBlock(), base: 'x/', ...more });

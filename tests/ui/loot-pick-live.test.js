@@ -1,4 +1,4 @@
-// Pick what you take (SOAKRPG #2): a `? loot` reply's things show as chips on that reply's row and on the Bag's To pick up, and
+// Pick what you take (SOAKRPG #2): a `? loot` reply's things show on its card's action line (Pick up ›, then chips) and on the Bag's To pick up, and
 // Take selected sends `inventory.lootTake { sid, pick }`. Built from a live host through the real selectors (ui/select/build.js), so a
 // swipe, swipe back, an edited Re-read (grown and shrunk), a middle delete, a rewind, a reload and a chat change show what a rebuild shows.
 import test from 'node:test';
@@ -7,7 +7,7 @@ import { installFakeDom } from './helpers/dom.js';
 import { createHost } from '../../testkit/index.js';
 import { buildSelectors } from '../../ui/select/build.js';
 import { makeReader } from '../../ui/port/sb-port.js';
-import { inlineRow } from '../../ui/chat/inline-row.js';
+import { replyBoxActions } from '../../ui/chat/reply-box-actions.js';
 import { bagTab } from '../../ui/tabs/bag/bag.js';
 import { checkShape } from '../../ui/contract/shapes.js';
 import { CHAT_SHAPE } from '../../ui/contract/chat.js';
@@ -28,11 +28,11 @@ function views(host) {
   const read = makeReader(host.sdk);
   const chat = selectors.chat(read);
   const bag = selectors.bag(read);
-  assert.deepEqual(checkShape(chat.inlineRow, CHAT_SHAPE.inlineRow), [], 'the row keeps its shape');
+  assert.deepEqual(checkShape(chat.head?.actions, CHAT_SHAPE.head.$nullable.actions), [], 'the action line keeps its shape');
   // (the Bag's other gaps, such as a null pace, are not this test's: only its loot is checked, against the Bag's own entry)
   if (bag?.loot) assert.deepEqual(checkShape(bag.loot, BAG_SHAPE.loot.$optional), [], 'the Bag\'s loot keeps its shape');
   if (bag?.loot) assert.deepEqual(checkShape(bag.loot, [LOOT_OFFER_SHAPE]), []);
-  return { row: chat.inlineRow.loot ?? null, bag: bag?.loot ?? null, chat, bagVm: bag };
+  return { row: chat.head?.actions.loot.length ? chat.head.actions.loot : null, bag: bag?.loot ?? null, chat, bagVm: bag };
 }
 
 // The views live equal the views after a rebuild and after a reload of the chat as saved.
@@ -74,21 +74,24 @@ test('inventory.loot { reply: true } answers only the head reply\'s own offer, t
   assert.deepEqual(host.sdk.query('inventory.loot', { reply: true, asOf: host.store.headIndex() }), []);
 });
 
-test('the reply\'s row and the Bag show the loot as chips; Take selected sends inventory.lootTake with the ticked ones', async t => {
+test('the newest reply\'s action line and the Bag show the loot; Pick up opens its chips; Take selected sends inventory.lootTake with the ticked ones', async t => {
   const host = await fresh(t);
   const before = views(host);
   assert.equal(before.row, null, 'no loot: no loot on the row');
-  assert.equal(Object.hasOwn(before.chat.inlineRow, 'loot'), false, 'and no loot key at all');
+  assert.deepEqual(before.chat.head.actions.loot, [], 'and an empty list');
   await host.send('Search the crate.', CRATE);
   const sid = headSid(host);
   const { row, bag, chat } = views(host);
   assert.deepEqual(row, [{ sid, where: 'in the crate', taken: false, items: CRATE_ITEMS }]);
   assert.deepEqual(bag, row, 'the Bag lists the same offer');
   const sent = [];
-  const el = inlineRow(chat.inlineRow, { onLootTake: (s, pick) => { sent.push({ s, pick }); return host.sdk.command('inventory.lootTake', { sid: s, pick }); } });
+  const el = replyBoxActions(chat.head.actions, { onLootTake: (s, pick) => { sent.push({ s, pick }); return host.sdk.command('inventory.lootTake', { sid: s, pick }); } });
   const chip = el.querySelector('button[data-loot]');
-  assert.ok(chip, 'the Loot chip is on the row');
-  assert.equal(chip.getAttribute('aria-expanded'), 'true', 'an offer not taken starts open');
+  assert.ok(chip, 'Pick up is on the action line');
+  assert.equal(chip.textContent, 'Pick up: Torch ×2, Rope, 5 gold›');
+  assert.equal(chip.getAttribute('aria-expanded'), 'false', 'it rests folded');
+  chip.click();
+  assert.equal(el.querySelector('.sslootp').hasAttribute('hidden'), false, 'Pick up opens the chips');
   assert.equal(el.querySelectorAll('.lpchip').length, 3);
   const take = el.querySelector('.lptake');
   assert.equal(take.hasAttribute('disabled'), true, 'nothing ticked: Take selected waits');
@@ -102,9 +105,7 @@ test('the reply\'s row and the Bag show the loot as chips; Take selected sends i
   const after = views(host);
   assert.deepEqual(after.row, [{ sid, where: 'in the crate', taken: true, items: CRATE_ITEMS }], 'the row says it was taken');
   assert.equal(after.bag, null, 'nothing left to pick up in the Bag');
-  const redrawn = inlineRow(after.chat.inlineRow, {});
-  assert.match(redrawn.querySelector('.lootpk').textContent, /Taken\./);
-  assert.equal(redrawn.querySelectorAll('.lpchip').length, 0);
+  assert.equal(replyBoxActions(after.chat.head.actions, {})?.querySelector('[data-loot]') ?? null, null, 'taken: nothing to pick up on the line');
   await agrees(t, host, 'after the take');
 });
 
@@ -127,16 +128,16 @@ test('the Bag\'s To pick up takes through the port, and a refusal is shown, not 
   assert.equal(bagTab(views(host).bagVm, { port }).querySelector('[data-card="loot"]'), null, 'taken: the card goes');
 });
 
-test('the ticks and the fold outlive a redraw of the row', async t => {
+test('the ticks and the fold outlive a redraw of the action line', async t => {
   const host = await fresh(t);
   await host.send('Search the crate.', CRATE);
-  const first = inlineRow(views(host).chat.inlineRow, {});
+  const first = replyBoxActions(views(host).chat.head.actions, {});
   first.querySelector('.lpchip[data-at="1"]').click();
   first.querySelector('button[data-loot]').click();
-  const again = inlineRow(views(host).chat.inlineRow, {});
+  const again = replyBoxActions(views(host).chat.head.actions, {});
   assert.equal(again.querySelector('.lpchip[data-at="1"]').getAttribute('aria-pressed'), 'true');
-  assert.equal(again.querySelector('button[data-loot]').getAttribute('aria-expanded'), 'false');
-  assert.equal(again.querySelector('.sslootp').hasAttribute('hidden'), true);
+  assert.equal(again.querySelector('button[data-loot]').getAttribute('aria-expanded'), 'true', 'opened before the redraw: open after it');
+  assert.equal(again.querySelector('.sslootp').hasAttribute('hidden'), false);
   assert.equal(again.querySelector('.lptake').hasAttribute('disabled'), false);
 });
 
@@ -191,17 +192,15 @@ test('an edited Re-read that grows or shrinks the loot redraws the chips as the 
   assert.equal((await host.turn.reread(index)).ok, true);
   const none = await agrees(t, host, 'no loot left');
   assert.deepEqual([none.row, none.bag], [null, null]);
-  assert.equal(inlineRow(none.chat.inlineRow, {}).querySelector('button[data-loot]'), null);
+  assert.equal(replyBoxActions(none.chat.head.actions, {})?.querySelector('button[data-loot]') ?? null, null);
 });
 
-test('with Pick what you take off the row and the Bag carry no loot key and no loot element', async t => {
+test('with Pick what you take off the action line and the Bag carry no loot', async t => {
   const host = await fresh(t);
   host.features.set('story-block.loot', false);
   await host.send('Search the crate.', CRATE);
   const { chat, bagVm } = views(host);
-  assert.equal(Object.hasOwn(chat.inlineRow, 'loot'), false);
+  assert.deepEqual(chat.head.actions.loot, []);
   assert.equal(bagVm ? Object.hasOwn(bagVm, 'loot') : false, false);
-  const el = inlineRow(chat.inlineRow, {});
-  assert.equal(el.querySelector('[data-loot]'), null);
-  assert.equal(el.querySelector('.sslootp'), null);
+  assert.equal(replyBoxActions(chat.head.actions, {}), null, 'nothing to do: no action line');
 });

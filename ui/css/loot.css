@@ -1,4 +1,4 @@
-/* Loot to pick up: under a reply (SillyTavern theme variables, the inline row's own chips, mock v7 .ssbtn and .chlist) and on the Bag's To pick up card (suite tokens, mock v7 .chips3 and .btn2). */
+/* Loot to pick up: under the newest reply's card (SillyTavern theme variables, its action line's Pick up opens it; mock v7 .ssbtn) and on the Bag's To pick up card (suite tokens, mock v7 .chips3 and .btn2). */
 .sslootp{flex-basis:100%;margin:6px 0 0}
 .sslootp[hidden]{display:none}
 .lootpk{display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -13,7 +13,6 @@
 .ssbtn.lpchip{white-space:normal;text-align:left}
 .ssbtn.lpchip[aria-pressed="true"]{background:var(--SmartThemeBotMesBlurTintColor);border-color:var(--SmartThemeBodyColor)}
 .ssbtn.lptake[disabled]{opacity:.5;cursor:default}
-.ssrow .ssbtn[data-loot] .n{color:var(--SmartThemeBodyColor)}
 .bag-tab .lootpk.bag{padding-top:10px;border-top:1px solid var(--su-line2)}
 .bag-tab .loot .ch+.lootpk.bag{padding-top:0;border-top:0}
 .bag-tab .lootpk.bag .lphead{font:700 14px var(--su-font);color:var(--su-text)}

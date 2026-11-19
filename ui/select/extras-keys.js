@@ -6,5 +6,5 @@ import { CORE_FEATURE } from '../../core/features.js';
 export const EXTRAS_MODULE = 'story-block';
 /** The module's switches: the page's short key → the feature id the old view's Features page switches. */
 export const EXTRAS_FEATURES = Object.freeze({ choices: CORE_FEATURE.choices, chatter: CORE_FEATURE.chatter, you: CORE_FEATURE.you });
-/** The page's two rows: the row key → the Story Block setting the old view's Inner chatter group stores. */
-export const EXTRAS_SETTINGS = Object.freeze({ 'extras.sendBack': 'chatterInPrompt', 'extras.chatterLines': 'chatterMax' });
+/** The page's stored values: the row key → the Story Block setting (the two Inner chatter rows the old view's group stores, and the Tabs panel's order). */
+export const EXTRAS_SETTINGS = Object.freeze({ 'extras.sendBack': 'chatterInPrompt', 'extras.chatterLines': 'chatterMax', 'extras.tabs': 'replyTabs' });

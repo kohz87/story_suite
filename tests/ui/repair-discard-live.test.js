@@ -1,5 +1,5 @@
 // "Discard repair" on the live mount (the new view, as SillyTavern mounts it): a reply that came with no block is repaired (on by default); its
-// ✦ sheet marks the repaired lines as Assist's and offers one Discard repair; pressing it takes the lines out, closes the sheet, reads the reply again, and the repair
+// card's Changes tab marks the repaired lines as Assist's and its ✦ sheet offers one Discard repair; pressing it takes the lines out, closes the sheet, reads the reply again, and the repair
 // is not asked again for that reply, not by a Re-read nor by a reload.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,7 +8,7 @@ import { repairState } from '../../core/capture.js';
 
 const ANSWER = '<Changes>\n+ item Rope | qty: 1\n- coin 5 | to: Bob\n</Changes>';
 
-test('the reply sheet of a repaired reply marks its lines as Assist and Discard repair takes them out for good', async t => {
+test('a repaired reply\'s Changes tab marks its lines as Assist and the sheet\'s Discard repair takes them out for good', async t => {
   const calls = [];
   const { doc, host } = await livePage(t, { seed: 4701, callModel: async prompt => { calls.push(prompt); return ANSWER; } });
   host.ctx.extensionSettings.storySuite.modules['story-block'].assistRepair = true;   // (the test host starts with it off; the real default is on, see tests/modules/assist/repair-discard.test.js)
@@ -28,14 +28,16 @@ test('the reply sheet of a repaired reply marks its lines as Assist and Discard 
   assert.equal(repairs() - before, 1, 'repaired once');
   assert.equal(rope(), ropeBefore + 1);
   assert.equal(repairState(host.ctx.chat[turn.index].mes), 'repaired');
+  mes.setAttribute('mesid', String(turn.index));
   host.events.emit('head', { index: host.store.headIndex(), reason: 'test' });
   await settle();
+  mes.querySelector('.ssrc [data-tab="changes"]').click();
+  assert.ok(mes.querySelectorAll('.ssrc .chg .as').length >= 1, 'a repaired line is marked Assist on the Changes tab');
   const button = doc.querySelector('.extraMesButtons .xbt.ss');
   assert.ok(button, 'the ✦ button is drawn');
   button.click();
   const sheet = doc.querySelector('.trsheet');
   assert.ok(sheet, 'the sheet opens');
-  assert.ok(sheet.querySelectorAll('li small.as').length >= 1, 'a repaired line is marked Assist');
   const discard = sheet.querySelectorAll('button').find(b => b.textContent === 'Discard repair');
   assert.ok(discard, 'one Discard repair');
   discard.click();

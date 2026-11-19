@@ -10,6 +10,7 @@ import { selectRpgRows } from './rpg-rows.js';
 import { rpgFeatureRows, withoutRpgFeatures } from './rpg-features.js';
 import { worldRows } from './settings-world.js';
 import { extrasRows, withExtras } from './settings-extras.js';
+import { readTabOrder } from './reply-tabs.js';
 import { selectPacks } from './packs.js';
 import { selectYouStartRows } from './you-start.js';
 import { selectAddons } from './addons.js';
@@ -140,5 +141,7 @@ export function selectSettings(answers) {
     sections,
     modules: { scope: 'chat', chat: set, newChats: {}, preset: hasFeatures ? presetOf(a.features) : null, presets: hasFeatures ? PRESET_TEXT.map(p => ({ ...p, tokens: costs.presets[p.id] })) : [], defs: defList },
     connections: selectConnections(host, isObj(a.profiles) ? a.profiles : null),
+    // The tabs under each reply (Settings › Chat extras › Tabs), from Story Block's `replyTabs`.
+    replyTabs: readTabOrder(a.extras?.replyTabs),
   };
 }

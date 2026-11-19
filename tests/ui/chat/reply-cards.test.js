@@ -55,7 +55,7 @@ test('readCard keeps a clean card; a card without a title, or a button with neit
   assert.equal(replyCardsOf(null), null);
 });
 
-test('the strip sits under the reply it was asked about, above the inline row, and goes when no card answers', () => {
+test('the strip sits under the reply it was asked about, below its card, and goes when no card answers', () => {
   const doc = installFakeDom();
   const messages = doc.createElement('div');
   for (const [index, user] of [[0, false], [1, true], [2, false]]) {
@@ -71,13 +71,14 @@ test('the strip sits under the reply it was asked about, above the inline row, a
   const acted = [];
   const surfaces = createChatSurfaces({ messagesEl: messages, handlers: { onCardAction: action => { acted.push(action); return { ok: true }; } } });
   const replyCards = replyCardsOf(engine().handle.head());
-  surfaces.refresh({ inlineRow: { date: '', time: '', place: '', weather: null, money: null, changes: 0, notApplied: 0, needsYou: null, fightOpen: false }, drawer: [], replyCards });
+  const card = { index: 2, top: { date: '', time: '9:00 am', place: 'Mill', weather: null, pools: [], condition: null }, changes: [], chatter: [], here: [], choices: [] };
+  surfaces.refresh({ replies: [card], head: { index: 2, actions: { fight: false, loot: [], points: null, overdue: null, joins: [], offers: 0, unrecorded: false } }, tabs: [], replyCards });
   const block = messages.querySelector('.mes[mesid="2"] .mes_block');
-  assert.deepEqual([...block.children].map(el => el.className), ['sscards', 'ssrow'], 'cards first, then the row');
+  assert.deepEqual([...block.children].map(el => el.className), ['ssrc newest', 'sscards'], 'the reply\'s card first, then the modules\' cards');
   assert.equal(block.querySelector('.sscd-t').textContent, 'A probe card 7');
   block.querySelector('.sscd button[data-act="go"]').click();
   assert.deepEqual(acted.map(action => [action.command, action.payload]), [['probe.go', { n: 1 }]]);
-  surfaces.refresh({ inlineRow: null, drawer: [] });
+  surfaces.refresh({ replies: [], head: null, tabs: [] });
   assert.equal(messages.querySelector('.sscards'), null);
 });
 

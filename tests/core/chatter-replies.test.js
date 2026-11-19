@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { CHATTER_FEATURE, replyChatter } from '../../modules/scene/extras.js';
+import { CHATTER_FEATURE, CHOICES_FEATURE, replyChatter, replyChoices } from '../../modules/scene/extras.js';
 
 const block = (story, list) => `${story}\n\n<Changes>\n${list.join('\n')}\n</Changes>`;
 
@@ -39,4 +39,18 @@ test('Inner chatter off: the query is a gap', async t => {
     t.after(() => host.close());
     await host.send('Hello.', 'The road.');
     assert.ok(!host.sdk.query('chatter.replies')?.length);
+});
+
+test('choices.replies: each reply keeps its own choices; a swipe shows the swiped text\'s', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await createHost({ settings: { features: { [CHOICES_FEATURE]: true } } });
+    t.after(() => host.close());
+    await host.send('Hello.', block('The road.', ['? choice Walk on', '? choice Rest']));
+    await host.send('Look.', block('The gate.', ['? choice Knock']));
+    const all = host.sdk.query('choices.replies');
+    assert.deepEqual(all.map(item => item.choices), [['Walk on', 'Rest'], ['Knock']]);
+    host.ctx.chat[all[1].index].mes = block('The gate, again.', ['? choice Climb', '? choice Leave']);
+    assert.deepEqual(host.sdk.query('choices.replies').map(item => item.choices), [['Walk on', 'Rest'], ['Climb', 'Leave']]);
+    const display = mes => ({ choice: mes ? [{ text: mes }] : [] });
+    assert.deepEqual(replyChoices([{ mes: 'g' }, { is_user: true, mes: 'u' }, { mes: 'a' }, { mes: '' }], new Set(), display), [{ index: 2, choices: ['a'] }]);
 });

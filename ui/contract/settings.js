@@ -83,6 +83,8 @@ export const SETTINGS_SHAPE = {
       },
     ],
   },
+  // The tabs under each reply, in order (Settings › Chat extras › Tabs).
+  replyTabs: { $optional: [{ id: { $enum: ['changes', 'chatter', 'here', 'choices'] }, on: T.BOOLEAN }] },
   connections: [
     {
       id: { $enum: ['story', 'quick', 'background'] },

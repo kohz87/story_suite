@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { selectDrawer, selectInlineRow, selectReplyMenu, replyLines } from '../../../ui/select/chat.js';
+import { selectDrawer, selectReplyMenu, replyLines } from '../../../ui/select/chat.js';
+import { selectReplyActions } from '../../../ui/select/reply-actions.js';
 import { CHAT_SHAPE } from '../../../ui/contract/chat.js';
 import { checkShape } from '../../../ui/contract/shapes.js';
 import { ANSWERS } from './recorded.js';
@@ -18,7 +19,6 @@ describe('selectDrawer', () => {
 
   it('builds one row per present person and matches the contract', () => {
     const rows = selectDrawer(ANSWERS, { portraits: { Fenna: 'fenna.webp' } });
-    assert.deepEqual(checkShape(rows, CHAT_SHAPE.drawer), []);
     assert.equal(rows.length, 1);
     assert.equal(rows[0].personId, 'np_fenna');
     assert.equal(rows[0].mood, 'wary');
@@ -51,23 +51,21 @@ describe('replyLines', () => {
   });
 });
 
-describe('selectInlineRow', () => {
-  it('builds the row and matches the contract', () => {
-    const row = selectInlineRow(ANSWERS, { fightOpen: true });
-    assert.deepEqual(checkShape(row, CHAT_SHAPE.inlineRow), []);
-    assert.equal(row.money.short, '15g 4s 6c');
-    assert.equal(row.changes, 4);
-    assert.equal(row.notApplied, 1);
-    assert.deepEqual(row.needsYou, { n: 1, title: '1 overdue' });
-    assert.equal(row.fightOpen, true);
+describe('selectReplyActions', () => {
+  it('builds the newest reply\'s action line and matches the contract', () => {
+    const answers = { ...ANSWERS, 'rpg.sheet': [{ name: 'Astra', points: 2 }, { name: 'Ren', points: 0 }], 'rpg.joinsOpen': [{ name: 'Mara' }] };
+    const actions = selectReplyActions(answers, { fightOpen: true, offers: [{ state: 'offer' }, { state: 'done' }], unrecorded: true });
+    assert.deepEqual(checkShape(actions, CHAT_SHAPE.head.$nullable.actions), []);
+    assert.deepEqual(actions.overdue.n, 1);
+    assert.deepEqual(actions.points, { n: 2, who: ['Astra'] });
+    assert.deepEqual(actions.joins, ['Mara']);
+    assert.equal(actions.offers, 1);
+    assert.equal(actions.fight, true);
+    assert.equal(actions.unrecorded, true);
   });
 
-  it('gives null money and needs-you when those answers are missing', () => {
-    const row = selectInlineRow({});
-    assert.equal(row.money, null);
-    assert.equal(row.needsYou, null);
-    assert.equal(row.fightOpen, false);
-    assert.equal(selectInlineRow({ 'inventory.wallet': { coin: 5 } }).money.short, '5g');
+  it('has nothing to do when those answers are missing', () => {
+    assert.deepEqual(selectReplyActions({}), { fight: false, loot: [], points: null, overdue: null, joins: [], offers: 0, unrecorded: false });
   });
 });
 

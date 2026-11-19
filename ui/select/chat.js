@@ -1,6 +1,5 @@
-// Builds the chat view-models (inline row, people drawer, reply menu lines) from recorded query answers; gaps come back as null or [].
+// Builds the chat view-models (the people here for Now, a reply's change lines, the ✦ sheet) from recorded query answers; gaps come back as null or [].
 
-import { selectCard } from './card.js';
 import { withCoinUnit } from './coin-unit.js';
 
 // answers: { [queryName]: answer } as the port read them. opts: { rpg, persona, portraits: { [name]: npc.portrait answer }, fightOpen, at }.
@@ -9,25 +8,6 @@ const isRec = value => value !== null && typeof value === 'object' && !Array.isA
 const text = value => (typeof value === 'string' ? value.trim() : '');
 const list = value => (Array.isArray(value) ? value : []);
 const METERS = ['trust', 'affection', 'desire', 'tension'];
-
-// The short purse ("2g 14s 6c", decision 39.9) is a UI formatter: `inventory.wallet` (SB/domains/inventory/answers.js:63) holds
-// { coin: n } in the smallest unit; `inventory.currency` (answers.js:32) gives { name, plural, short, coins: [{ name, value, short? }] }.
-function shortMoney(wallet, currency) {
-  if (!isRec(wallet) || !Number.isFinite(wallet.coin)) return null;
-  const total = Math.max(0, Math.round(wallet.coin));
-  const coins = list(currency?.coins).filter(coin => isRec(coin) && coin.value > 0);
-  if (!coins.length) return { short: `${total}${text(currency?.short) || text(currency?.name)?.[0] || 'g'}` };
-  const sign = coin => text(coin.short) || text(coin.name)[0] || '';
-  let rest = total;
-  const parts = [];
-  for (const coin of [...coins].sort((a, b) => b.value - a.value)) {
-    const count = Math.floor(rest / coin.value);
-    if (count > 0) parts.push(`${count}${sign(coin)}`);
-    rest -= count * coin.value;
-  }
-  const base = [...coins].sort((a, b) => a.value - b.value)[0];
-  return { short: parts.length ? parts.join(' ') : `0${sign(base)}` };
-}
 
 // `npc.cast` bars (NSD/npc-meters-queries.js:176): [{ id, value }]; `npc.present` with { meters: true } (NSD/adapter/queries.js:200): [{ name, meters }].
 function metersOf(entry, cast) {
@@ -82,29 +62,9 @@ export function selectDrawer(answers = {}, opts = {}) {
 export function replyLines(answers = {}) {
   const answer = isRec(answers['reply.changes']) ? answers['reply.changes'] : null;
   if (!answer) return null;
-  const lines = list(answer.lines).filter(isRec).map(row => ({ glyph: text(row.glyph), line: text(row.glyph) === 'coin' ? withCoinUnit(text(row.line), answers['inventory.currency']) : text(row.line), detail: text(row.detail) || null, applied: row.applied !== false, assist: row.assist === true }));
-  for (const miss of list(answer.refused)) lines.push({ glyph: 'warn', line: text(miss?.line), detail: text(miss?.reason) || null, applied: false, assist: false });
+  const lines = list(answer.lines).filter(isRec).map(row => ({ glyph: text(row.glyph), line: text(row.glyph) === 'coin' ? withCoinUnit(text(row.line), answers['inventory.currency']) : text(row.line), detail: text(row.detail) || null, applied: row.applied !== false, assist: row.assist === true, held: row.held === true }));
+  for (const miss of list(answer.refused)) lines.push({ glyph: 'warn', line: text(miss?.line), detail: text(miss?.reason) || null, applied: false, assist: false, held: false });
   return lines;
-}
-
-export function selectInlineRow(answers = {}, opts = {}) {
-  const { scene } = selectCard(answers, opts);
-  const lines = replyLines(answers) ?? [];
-  const overdue = list(answers['time.overdue']?.overdue);
-  const offers = list(opts.offers).filter(row => row?.state === 'offer' || row?.state === 'working').length;
-  const parts = [overdue.length ? `${overdue.length} overdue` : '', offers ? `${offers} pack ${offers === 1 ? 'offer' : 'offers'}` : ''].filter(Boolean);
-  const needsYou = parts.length ? { n: overdue.length + offers, title: parts.join(' · ') } : null;
-  return {
-    date: scene.date,
-    time: scene.time,
-    place: scene.place,
-    weather: scene.weather,
-    money: shortMoney(answers['inventory.wallet'], answers['inventory.currency']),
-    changes: lines.filter(line => line.applied).length,
-    notApplied: lines.filter(line => !line.applied).length,
-    needsYou,
-    fightOpen: opts.fightOpen === true,
-  };
 }
 
 export function selectReplyMenu(answers = {}, opts = {}) {

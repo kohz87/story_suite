@@ -66,3 +66,36 @@ test('a burst of port and SillyTavern events builds the chat view once, in the n
   run();
   assert.equal(host.chatBuilds(), start + 2, 'turned off: a pending frame and later events build nothing');
 });
+
+test('a Settings change redraws the chat in the next frame: the Tabs order reaches the reply cards with no engine event', async t => {
+  const frames = [];
+  globalThis.requestAnimationFrame = fn => frames.push(fn);
+  t.after(() => { delete globalThis.requestAnimationFrame; });
+  const run = () => { while (frames.length) frames.shift()(); };
+  const doc = page();
+  const host = fakeHost();
+  const stored = {};
+  host.StoryBlock.writes = { settings: { set: (id, key, value) => { stored[key] = value; return value; } }, features: { set: () => true } };
+  host.StoryBlock.sdk.settings = Object.assign(id => (id === 'story-block' ? { ...stored } : {}), { defaults: {}, schema: {} });
+  // one story reply on the page: the reply cards ask `choices.replies` once per chat build (the suite's own pages never do)
+  host.ctx.chat = [{ is_user: true, mes: 'Hi.' }, { mes: 'The road.' }];
+  const mes = doc.createElement('div');
+  mes.className = 'mes';
+  mes.setAttribute('mesid', '1');
+  doc.querySelector('#chat').appendChild(mes);
+  let cardReads = 0;
+  const query = host.StoryBlock.sdk.query;
+  host.StoryBlock.sdk.query = (name, args) => { if (name === 'choices.replies') cardReads += 1; return query(name, args); };
+  const off = turnOn({ doc, base: 'x/', ctx: () => host.ctx, StoryBlock: host.StoryBlock });
+  t.after(off);
+  run();
+  const start = cardReads;
+  [...doc.querySelectorAll('#extensions_settings2 button')].find(b => /Settings/u.test(b.textContent)).click();
+  doc.body.querySelector('.si3[data-sec="extras"]').click();
+  doc.body.querySelector('[data-reply-tabs] .stab[data-tab="here"] .sw').click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(stored.replyTabs, 'changes chatter -here choices', 'stored on Story Block');
+  assert.equal(cardReads, start, 'nothing before the frame');
+  run();
+  assert.equal(cardReads, start + 1, 'the reply cards were built again after the change');
+});

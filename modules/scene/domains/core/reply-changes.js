@@ -69,22 +69,36 @@ function sceneLines(receipts) {
   return lines;
 }
 
-// What a `~ npc` line moved, from its receipt (NPC State's `data.changes`: { meter, before, after }): "Wenna Coll: trust 0 → 1".
+// The pacing words NPC State put in a receipt's summary when the day's allowance held a move back (npc-meters pacingNote: "… today's <tier> is
+// used on <date>"), after "<name>: nothing changed (" or after the moves it cut ("<name>: trust 1 → 2 (major counted as minor: today's …)").
+const escape = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function paceOf(receipt, name) {
+  const found = new RegExp(`${escape(name)}: [^()]*\\(([^()]*today's[^()]*)\\)`, 'u').exec(text(receipt.summary));
+  return found ? text(found[1]) : '';
+}
+
+// What a `~ npc` line moved, from its receipt (NPC State's `data.changes`: { meter, before, after, held, stop }): "Wenna Coll: trust 0 → 1".
+// A move held back is `held: true` with its why as the detail: a cap stopped it ("held at 22, at the <stop>"), or the day's allowance moved nothing.
 function personLines(receipts) {
   const lines = [];
   for (const receipt of receipts.filter(item => item.type === PERSON)) {
     const data = isRec(receipt.data) ? receipt.data : {};
     const name = text(data.name);
     if (!name) continue;
-    for (const move of Array.isArray(data.changes) ? data.changes : []) {
-      if (isRec(move) && text(move.meter) && Number.isFinite(move.before) && Number.isFinite(move.after)) lines.push({ glyph: 'people', line: `${name}: ${text(move.meter)} ${move.before} → ${move.after}`, detail: null, applied: true });
+    const moves = (Array.isArray(data.changes) ? data.changes : []).filter(move => isRec(move) && text(move.meter) && Number.isFinite(move.before) && Number.isFinite(move.after));
+    const pace = paceOf(receipt, name);
+    for (const move of moves) {
+      const capped = move.held === true ? `held at ${move.after}${text(move.stop) ? `, at the ${text(move.stop)}` : ''}` : '';
+      const why = [pace, capped].filter(Boolean).join('; ');
+      lines.push({ glyph: 'people', line: `${name}: ${text(move.meter)} ${move.before} → ${move.after}`, detail: why || null, applied: true, ...(why ? { held: true } : {}) });
     }
+    if (pace && !moves.length) lines.push({ glyph: 'people', line: `${name}: nothing moved`, detail: pace, applied: true, held: true });
   }
   return lines;
 }
 
 /**
- * `reply.changes({ index? })` → { lines: [{ glyph, line, detail, applied, assist }], refused: [], stateThen: { place, weather } } for reply `index`
+ * `reply.changes({ index? })` → { lines: [{ glyph, line, detail, applied, assist, held? }], refused: [], stateThen: { place, weather } } for reply `index`
  * (the head reply by default), or null when the reply has no receipts (the card hides). `refused` is [] here: the lines a reply did not use
  * are told by the turn once and kept nowhere a reload can read. `stateThen` is the place and weather of the state the query is asked on
  * (`{ asOf: index }` gives that reply's own).
