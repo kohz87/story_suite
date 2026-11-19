@@ -17,4 +17,5 @@ export { createPeopleAdapter } from './adapter/create.js';
 export { startPeopleAdapter } from './adapter/start.js';
 export { METERS_CARD_ID } from './meters/npc-meters-screen.js';
 // What npc.dossier returns: the dossier's own fields, as the dossier shows them (DOSSIER_FIELDS, from the field registry).
+// Book-keeping (evidence, change ledgers, portrait prompts and images, timestamps, locks) and the hidden notes stay inside NPC State.
 export { DOSSIER_FIELDS } from './fields/registry.js';
