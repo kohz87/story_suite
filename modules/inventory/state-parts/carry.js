@@ -7,4 +7,6 @@ import { isCount } from './shape.js';
 export const CARRY_MAX = 1000;
 // What the reader may set on an item of their own or from the story (`inventory.carry`); the story never can. 0 removes it.
 export const READER_CARRY_MAX = 500;
+// The place a carried bag is filed under (a stack's `equipped`, any kind of item: the Party paper-doll's Bag slot, commands/bag.js).
+export const BAG_PLACE = 'bag';
 export const packCarry = (id, value) => (typeof id === 'string' && id.startsWith('pack.') && isCount(value, 1) && value <= CARRY_MAX ? value : null);

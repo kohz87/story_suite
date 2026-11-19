@@ -79,6 +79,9 @@ export const PAGE_STRINGS = {
         cleared: 'no {field}',
         readerOnly: 'Only the reader changes a mount by hand.',
         which: 'Which mount?',
+        // The Party paper-doll's Mount slot (mounts.ride): who rides what.
+        rideWho: 'Say who rides.', rides: '{who} rides {name}.', rideOff: '{who} rides no mount now.', rideAlready: '{who} already rides {name}.',
+        rideAway: '{name} is not with the party ({where}).', rideFull: '{name} already carries {riders}.', rideNone: '{who} rides no mount.', rideLong: 'Too many riders are named on {name}.',
         edit: 'mount',
         editName: 'Name', editKind: 'Kind', editCount: 'How many', editPace: 'Pace (km/day)', editCondition: 'Condition', editWhere: 'Where', editCarry: 'Carry (empty: the kind\'s usual)',
         perDay: 'km/day',

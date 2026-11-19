@@ -2,11 +2,14 @@
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { SLOT_META, slotSheet } from './slot-picker.js';
+import { carrierSheet } from './carrier-picker.js';
 import { isSafePortraitUrl } from '../../kit/safe-url.js';
 
 const LEFT = ['head', 'armor', 'cloak', 'feet', 'mount'];
 const RIGHT = ['weapon', 'offhand', 'accessory1', 'accessory2', 'bag'];
 const RARITY_CLASS = { uncommon: 'r-unc', rare: 'r-rare', epic: 'r-epic' };
+// The Mount and Bag slots hold a mount (its pace) and a carried bag (the load it adds), each with its own sheet.
+const CARRIER = { mount: item => (item.pace ? `${item.pace} km/day` : ''), bag: item => (item.carry ? `+${item.carry} load` : '') };
 
 /** Builds a round portrait: a background image when the value looks like a path or data URL, else the initial. */
 export function portraitEl(member, className) {
@@ -18,18 +21,20 @@ export function portraitEl(member, className) {
 function slotButton(member, key, ctx) {
   const [glyphName, label, short] = SLOT_META[key];
   const item = member.slots.find(s => s.key === key)?.item ?? null;
+  const extra = item && CARRIER[key] ? CARRIER[key](item) : '';
+  const named = item ? [item.name, extra].filter(Boolean).join(', ') : 'empty';
   return h(
     'button',
     {
       type: 'button',
       class: ['slot', item ? RARITY_CLASS[item.rarity] : 'empty'],
       dataset: { slot: key },
-      'aria-label': `${label}: ${item ? item.name : 'empty'}${item?.torn ? ', torn' : ''}`,
-      title: item ? item.name : `${label}: empty, tap to equip`,
-      onClick: () => slotSheet(member, key, ctx),
+      'aria-label': `${label}: ${named}${item?.torn ? ', torn' : ''}`,
+      title: item ? named : `${label}: empty, tap to ${CARRIER[key] ? 'choose' : 'equip'}`,
+      onClick: () => (CARRIER[key] ? carrierSheet : slotSheet)(member, key, ctx),
     },
     h('span', { class: 'si' }, glyph(glyphName)),
-    h('span', { class: 'sx' }, h('small', null, h('span', { class: 'lf' }, label), h('span', { class: 'ls' }, short)), h('b', null, item ? item.name : 'empty')),
+    h('span', { class: 'sx' }, h('small', null, h('span', { class: 'lf' }, extra ? `${label} · ${extra}` : label), h('span', { class: 'ls' }, short)), h('b', null, item ? item.name : 'empty')),
     item?.torn ? h('span', { class: 'torn', title: 'Torn' }, glyph('crack')) : null,
   );
 }

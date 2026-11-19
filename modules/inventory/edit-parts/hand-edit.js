@@ -2,7 +2,7 @@
 
 import { slotWordOf, handDef, statsFor, statsOf, soakCap } from '../gear.js';
 import { fill } from '../../../core/strings.js';
-import { gearOn, KINDS, RARITIES, MAX_UNSTACKED } from '../state.js';
+import { gearOn, KINDS, RARITIES, MAX_UNSTACKED, BAG_PLACE } from '../state.js';
 import { baseSlot } from '../validate.js';
 import { E, refuseBound, addStack } from '../stacks.js';
 import { kitOpen, holdBudget, handSlot, handStats } from './kit.js';
@@ -40,9 +40,10 @@ export function handEdit(ctx, env, inv, stack, payload) {
             item.qty = 1;
         }
     }
-    // A piece that no longer fits where it is worn is taken off.
+    // A piece that no longer fits where it is worn is taken off (a carried bag stays the bag unless it now has a slot of its own).
     for (const item of pieces) {
-        if (item.equipped !== null && (kind !== 'equipment' || !slot || baseSlot(item.equipped) !== baseSlot(slot))) item.equipped = null;
+        const off = item.equipped === BAG_PLACE ? kind === 'equipment' && Boolean(slot) : kind !== 'equipment' || !slot || baseSlot(item.equipped) !== baseSlot(slot);
+        if (item.equipped !== null && off) item.equipped = null;
     }
     def.kind = kind;
     def.rarity = rarity;

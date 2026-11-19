@@ -11,6 +11,7 @@ import { carryPicture, travelsWith, kindCarry, loadLevel } from '../carry.js';
 import { soakRecord } from './soak.js';
 import { wornStacks } from './worn.js';
 import { bonusText } from './bonus-text.js';
+import { slotCarriers } from './slot-carriers.js';
 
 const PLACES = GEAR.places;
 const S = STRINGS.inventory.gear;
@@ -91,6 +92,8 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
         name: row.name, withParty: travelsWith(row.where, place), riders: ridersOf(row.where),
         carry: (Number.isSafeInteger(row.carry) && row.carry > 0 ? row.carry : kindCarry(row.kind)) * (Number.isSafeInteger(row.count) && row.count > 0 ? row.count : 1), where: String(row.where).trim(),
     }));
+    // The Mount and Bag slots of the Party paper-doll: what `owner` rides and carries, and every mount and bag the pickers list.
+    const doll = slotCarriers({ owner, stacks, defs, mounts, place, names, carryOf });
     const awayRows = mountRowsOf.filter(row => !row.withParty).map(row => ({ ...row, text: `${row.name} +${row.carry} · ${row.where}, not with you` }));
     const away = awayRows.map(row => row.text);
     return {
@@ -104,6 +107,10 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
             parts: [...shown, ...awayRows.map(({ name, carry, text }) => ({ label: name, value: carry, text, dim: true }))],
         },
         // What carries the load: the mounts (with the party or left behind) and the party's carrying items, (`riders`: the names its `where` says ride or lead it), so the Bag can link a mount or a bag to its slot.
-        carriers: { mounts: mountRowsOf.map(({ name, carry, withParty, riders }) => ({ name, carry, withParty, riders })), bags: heldBags.map(stack => ({ stack: stack.id, name: defs[stack.def].name, carry: carryOf(defs[stack.def]) })) },
+        carriers: { mounts: mountRowsOf.map(({ name, carry, withParty, riders }) => ({ name, carry, withParty, riders })), bags: heldBags.map(stack => ({ stack: stack.id, name: defs[stack.def].name, carry: carryOf(defs[stack.def]) })),
+            // (the Party pickers' lists: every mount with kind, pace, seats and where; every bag-like item with whose it is)
+            rides: doll.mounts, packs: doll.packs },
+        // What `owner` rides and carries as a bag (the Mount and Bag slots), or null.
+        ride: doll.ride, bagSlot: doll.bag,
     };
 }
