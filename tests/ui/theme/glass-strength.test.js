@@ -48,7 +48,7 @@ function neutralSeeThrough(value) {
 }
 
 test('the strength tokens are theme tokens, and at the default (50%) every one is the mock\'s, dark and light', () => {
-  assert.deepEqual(STRENGTH_TOKENS, ['--su-panel', '--su-panel2', '--su-tint', '--su-scrim', '--su-scrim-strong', '--su-scrim-place', '--su-blur', '--su-blur-strong', '--su-blur-soft', '--su-line', '--su-shadow']);
+  assert.deepEqual(STRENGTH_TOKENS, ['--su-panel', '--su-panel2', '--su-tint', '--su-scrim', '--su-scrim-strong', '--su-scrim-place', '--su-scrim-desk', '--su-blur', '--su-blur-strong', '--su-blur-soft', '--su-blur-desk', '--su-line', '--su-shadow']);
   for (const name of STRENGTH_TOKENS) assert.ok(TOKENS.includes(name), name);
   assert.deepEqual(at(50), { ...GLASS_DARK });
   assert.deepEqual(at(50, LIGHT_ST), { ...GLASS_LIGHT });
@@ -57,6 +57,9 @@ test('the strength tokens are theme tokens, and at the default (50%) every one i
   assert.equal(GLASS_DARK['--su-scrim'], 'rgba(6,8,16,.45)');
   assert.equal(GLASS_DARK['--su-scrim-strong'], 'rgba(6,8,16,.6)');
   assert.equal(GLASS_DARK['--su-scrim-place'], 'rgba(8,10,18,.5)');
+  // the centred desktop sheet's (ui/css/sheet-desk.css): the mock's .58 dim, and its own light colour; a 3 px blur in both
+  assert.deepEqual([GLASS_DARK['--su-scrim-desk'], GLASS_LIGHT['--su-scrim-desk']], ['rgba(6,8,16,.58)', 'rgba(30,26,60,.34)']);
+  assert.deepEqual([GLASS_DARK['--su-blur-desk'], GLASS_LIGHT['--su-blur-desk']], ['3px', '3px']);
   assert.deepEqual([GLASS_DARK['--su-blur'], GLASS_DARK['--su-blur-strong'], GLASS_DARK['--su-blur-soft']], ['16px', '28px', '6px']);
 });
 
@@ -81,6 +84,9 @@ test('Panel background On: every strength token but the card edge and shadow mov
   assert.deepEqual([30, 90].map(n => at(n)['--su-scrim']), ['rgba(6,8,16,.25)', 'rgba(6,8,16,.8)']);
   assert.deepEqual([30, 90].map(n => at(n)['--su-scrim-strong']), ['rgba(6,8,16,.4)', 'rgba(6,8,16,.8)']);
   assert.deepEqual([30, 90].map(n => at(n)['--su-scrim-place']), ['rgba(8,10,18,.3)', 'rgba(8,10,18,.8)']);
+  assert.deepEqual([30, 90].map(n => at(n)['--su-scrim-desk']), ['rgba(6,8,16,.38)', 'rgba(6,8,16,.8)']);
+  assert.deepEqual([30, 90].map(n => at(n, LIGHT_ST)['--su-scrim-desk']), ['rgba(30,26,60,.2)', 'rgba(30,26,60,.8)']);
+  assert.deepEqual([30, 90].map(n => at(n)['--su-blur-desk']), ['2px', '5px']);
   const steps = [50, 60, 70, 80, 90].map(n => STRENGTH_TOKENS.filter(name => !EDGE.includes(name)).map(name => at(n)[name]).join());
   assert.equal(new Set(steps).size, steps.length, 'every step to 90% changes them');
 });
@@ -95,8 +101,8 @@ test('ui/css: every strength token is drawn somewhere, and every backdrop blur i
   const all = rules();
   const text = all.flatMap(r => r.decls.map(([, v]) => v)).join('\n');
   for (const name of STRENGTH_TOKENS) assert.match(text, new RegExp(`var\\(${name}\\)`), `${name} is used in ui/css`);
-  const literal = all.flatMap(r => r.decls.filter(([p, v]) => /backdrop-filter$/.test(p) && v !== 'none' && /blur\(/.test(v) && !/^blur\(var\(--su-blur(-strong|-soft)?\)\)/.test(v)).map(([p, v]) => `${r.file} ${r.selector} ${p}: ${v}`));
-  assert.deepEqual(literal, [], 'a glass blur is var(--su-blur), var(--su-blur-strong) or var(--su-blur-soft)');
+  const literal = all.flatMap(r => r.decls.filter(([p, v]) => /backdrop-filter$/.test(p) && v !== 'none' && /blur\(/.test(v) && !/^blur\(var\(--su-blur(-strong|-soft|-desk)?\)\)/.test(v)).map(([p, v]) => `${r.file} ${r.selector} ${p}: ${v}`));
+  assert.deepEqual(literal, [], 'a glass blur is var(--su-blur), var(--su-blur-strong), var(--su-blur-soft) or var(--su-blur-desk)');
 });
 
 test('ui/css: no glass surface or scrim writes its fill as a literal (a see-through neutral rgba) outside the allowed list', () => {

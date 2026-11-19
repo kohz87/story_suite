@@ -16,6 +16,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Messages and notes say "NPC State", not the old "NPC State Delta"; People, dossiers, Edit and settings look and work as before.
 - Nothing changes in play: the code behind NPC State, saving and fights was tidied, and opening a chat no longer looks for fights left open by builds from before the fight board.
 - With Gear in fights on, the narrator is told to name the rarity and stats of gear the story makes special (enchanted, masterwork, blessed), and they land on the item.
+- On a wide screen every sheet (Bag, Party, quests, World, Scene, trackers, Inspector) opens as a centred window over a dimmed page, with its title and buttons always in view.
 
 ## 0.1.3 — 19 Nov 2026
 

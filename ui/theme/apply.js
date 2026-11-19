@@ -3,7 +3,7 @@
 import { TOKENS } from './tokens.js';
 
 const TOKEN_SET = new Set(TOKENS);
-const BLURS = new Set(['--su-blur', '--su-blur-strong', '--su-blur-soft']);
+const BLURS = new Set(['--su-blur', '--su-blur-strong', '--su-blur-soft', '--su-blur-desk']);
 const UNSAFE_RE = /[;{}\r\n\0]|<\/|@import\b|\burl\s*\(|\bexpression\s*\(|javascript:/i;
 
 const HEX_RE = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
