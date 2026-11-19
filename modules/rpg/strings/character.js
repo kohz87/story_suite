@@ -201,6 +201,8 @@ export const CHARACTER_STRINGS = Object.freeze({
         needSkillName: 'Every skill needs a name.',
         sameSkill: 'Two skills are called {name}.',
         twoStances: 'Only one stance skill (defence, evasion, movement or support) may be kept, and {names} are all stances.',
+        stanceTaken: '{type} — stance taken by {names}',
+        stanceNote: 'A character keeps one stance skill, and {names} are all stances. Change a type below, or Create will wait.',
         adeptFrom: '{rank} (works from Lv {level})',
         needAbout: '{name} needs a line about what it does.',
         needStat: '{name} needs a stat.',

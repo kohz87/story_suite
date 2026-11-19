@@ -93,7 +93,7 @@ test('Create\'s two definitions come from the templates with the wizard\'s value
     assert.deepEqual(blockNames('Wessel'), { character: 'Wessel', skills: 'Wessel\'s skills' });
     const state = character.state;
     assert.deepEqual([state.who.default, state.about, state.str.default, state.vit.default, state.agi.default, state.dex.default, state.int.default], ['Wessel', undefined, 9, 7, 6, 5, 3]);
-    assert.deepEqual([state.points.default, state.level.default, state.xp.default, state.hp.default, state.mp.default, state.sp.default, state.alive.default], [5, 1, 0, 8, 10, 11, true], 'full bars (HP from VIT, MP from INT and WIS, SP from STR and AGI), Level 1, 0 XP and the unspent points');
+    assert.deepEqual([state.points.default, state.level.default, state.xp.default, state.hp.default, state.mp.default, state.sp.default, state.alive.default], [5, 1, 0, 9, 10, 10, true], 'full bars (HP from STR and VIT, MP from INT and WIS, SP from AGI and DEX), Level 1, 0 XP and the unspent points');
     assert.deepEqual([state.cap.default, state.soul], [99, undefined], 'the cap is 99 unless the story says another; no Soul Class');
     const sk = skills.state;
     assert.deepEqual([sk.who.default, sk.skill1.default, sk.about1.default, sk.stat1.default, sk.type1.default, sk.rank1.default, sk.practice1.default], ['Wessel', 'Short blade', FIGHTER.skills[0].about, 'agi', 'attack', 2, 200], 'the Adept one starts at rank 2 with the practice of it');

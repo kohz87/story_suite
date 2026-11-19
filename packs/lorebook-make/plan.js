@@ -1,27 +1,41 @@
-// The job: deciding what Settings › Packs offers for a world pack's lorebook (Create, Update, Up to date; the Use in this chat tick) and what
-// a Create or Update may do to the book already there (pure: the caller reads SillyTavern).
+// The job: deciding what Settings › Packs offers for a world pack's lorebook (Create, Update, Up to date; the Use with this character tick), what
+// a Create or Update may do to the book already there, and how the book goes with the chat's character (pure: the caller reads SillyTavern).
 
 import { lorebookName, readMarker } from './marker.js';
 
 /**
- * The row for an installed world pack with lore: `pack` = { id, name, version }; `names` = SillyTavern's book names; `made` = the hint kept in the
- * suite's settings ({ [pack id]: { name, version } }, written after each Create or Update); `chatBook` = this chat's lorebook ('' for none);
- * `hasChat` = a chat is open. → `{ state: 'create' | 'update' | 'current', name, madeFrom, attached, other, use: { on, disabled, note } }` (`other`: the
- * chat's lorebook when it is another book, else '').
- * The hint only draws the row; the book's own marker decides when the button is pressed (lorebookStep).
+ * How the book `name` goes with the chat's character, the SillyTavern way. `char` = null (no character chat) | `{ group: true }` | `{ name, world,
+ * embedded, extras }`: the card's linked lorebook (`data.extensions.world`, '' for none), whether the card carries a lorebook of its own
+ * (`data.character_book`), and the character's Additional lorebooks (world_info.charLore; null when not read yet).
+ * → `{ step: 'none' | 'linked' | 'link' | 'add', who, note }`: `link` makes it the card's lorebook; `add` keeps the card's own book (linked or carried
+ * in the card, which a link would write over) and adds this one to the Additional lorebooks; the chat lorebook is never used.
  */
-export function lorebookRow({ pack, names = [], made = {}, chatBook = '', hasChat = true }) {
+export function characterStep({ name, char = null }) {
+    if (!char) return { step: 'none', who: '', note: 'Open a character chat to use the lorebook with that character.' };
+    if (char.group) return { step: 'none', who: '', note: 'This is a group chat: pick a character chat to use the lorebook with that character.' };
+    const who = String(char.name ?? '') || 'the character';
+    const world = String(char.world ?? '');
+    if (world === name || (Array.isArray(char.extras) && char.extras.includes(name))) return { step: 'linked', who, note: `Linked to ${who}.` };
+    if (!world && !char.embedded) return { step: 'link', who, note: '' };
+    return { step: 'add', who, note: `${who} has its own lorebook${world ? ` (${world})` : ''}; this one is added beside it.` };
+}
+
+/**
+ * The row for an installed world pack with lore: `pack` = { id, name, version }; `names` = SillyTavern's book names; `made` = the hint kept in the
+ * suite's settings ({ [pack id]: { name, version } }, written after each Create or Update); `char` = the chat's character (characterStep);
+ * `chatBook` = this chat's lorebook ('' for none), read only to offer moving a book an earlier version put there.
+ * → `{ state: 'create' | 'update' | 'current', name, madeFrom, linked, who, move, use: { on, disabled, note } }` (`move`: the book is this chat's
+ * lorebook and there is a character to move it to). The hint only draws the row; the book's own marker decides when the button is pressed.
+ */
+export function lorebookRow({ pack, names = [], made = {}, char = null, chatBook = '' }) {
     const name = lorebookName(pack?.name ?? pack?.id);
     const exists = Array.isArray(names) && names.includes(name);
     const hint = made && typeof made === 'object' ? made[pack?.id] : null;
     const madeFrom = exists && hint?.name === name ? String(hint.version ?? '') : '';
     const state = !exists ? 'create' : madeFrom && madeFrom === String(pack?.version ?? '') ? 'current' : 'update';
-    const attached = Boolean(chatBook) && chatBook === name;
-    let use = { on: true, disabled: false, note: '' };
-    if (!hasChat) use = { on: false, disabled: true, note: 'Open a chat to use the lorebook in it.' };
-    else if (attached) use = { on: true, disabled: false, note: 'It is this chat’s lorebook.' };
-    else if (chatBook) use = { on: false, disabled: false, note: `This chat already uses the lorebook ${chatBook}; tick to use this one instead.` };
-    return { state, name, madeFrom, attached, other: chatBook && !attached ? String(chatBook) : '', use };
+    const step = characterStep({ name, char });
+    const use = step.step === 'none' ? { on: false, disabled: true, note: step.note } : { on: true, disabled: false, note: step.note };
+    return { state, name, madeFrom, linked: step.step === 'linked', who: step.who, move: exists && step.step !== 'none' && chatBook === name, use };
 }
 
 /**

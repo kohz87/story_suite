@@ -1,30 +1,35 @@
-// A world pack's lorebook made in SillyTavern (packs/lorebook-make plan + run, packs/st-adapter-parts/lorebook-write): what the row offers, the marker
-// deciding Create / Update / refuse, the confirm, the hint, the chat lorebook, and SillyTavern's save checked by reading the book back.
+// A world pack's lorebook made in SillyTavern (packs/lorebook-make plan + run): what the row offers, the marker deciding Create / Update / refuse,
+// the confirm, the hint, and the book with the chat's character (linked when the card has no lorebook, added beside the card's own), never the chat
+// lorebook, which is only unset when it is this pack's own book moved to the character.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { lorebookRow, lorebookStep } from '../../packs/lorebook-make/plan.js';
+import { characterStep, lorebookRow, lorebookStep } from '../../packs/lorebook-make/plan.js';
 import { makeLorebook, lorebookRows } from '../../packs/lorebook-make/run.js';
 import { lorebookFromPack } from '../../packs/lorebook-make/convert.js';
-import { stLorebooks } from '../../packs/st-adapter.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 
 const NAME = 'Tiny World (Story Suite)';
 const tiny = (version = '1.0.0', extra = {}) => ({ id: 'tiny', kind: 'world', version, name: 'Tiny World', content: { lore: [{ title: 'Harbour', keys: ['harbour'], text: 'The harbour.' }, { title: 'Vault', keys: [], text: 'Sealed.', hidden: true, gate: 'fact:x' }] }, ...extra });
 const userBook = { entries: { 0: { uid: 0, comment: 'My own notes', content: 'mine' } } };
+const AVA = { name: 'Ava', world: '', embedded: false, extras: [] };
 
-// SillyTavern as the run sees it: book files by name, this chat's lorebook, and what was saved and attached.
-function fakeBooks({ files = {}, chatBook = '', hasChat = true, saveFails = false } = {}) {
-    const calls = { saves: [], attached: [] };
+// SillyTavern as the run sees it: book files by name, this chat's lorebook, the chat's character, and what was saved, linked, added and unset.
+function fakeBooks({ files = {}, chatBook = '', char = AVA, saveFails = false, linkFails = false } = {}) {
+    const calls = { saves: [], linked: [], added: [], cleared: [] };
     let chat = chatBook;
+    const who = char ? structuredClone(char) : null;
     const books = {
-        names: () => Object.keys(files), chatBook: () => chat, hasChat: () => hasChat,
+        names: () => Object.keys(files), chatBook: () => chat, character: () => who, characterNow: async () => who,
         refresh: async () => Object.keys(files), load: async name => files[name] ?? null,
         save: async (name, book) => { if (saveFails) throw new Error('the server answered 500'); calls.saves.push(name); files[name] = structuredClone(book); },
-        attach: async name => { if (!hasChat) throw new Error('no chat is open'); calls.attached.push(name); chat = name; },
+        link: async name => { if (linkFails) throw new Error('SillyTavern did not keep the link'); calls.linked.push(name); who.world = name; },
+        addExtra: async name => { calls.added.push(name); who.extras = [...who.extras, name]; },
+        clearChatBook: async name => { if (chat === name) { calls.cleared.push(name); chat = ''; } },
     };
-    return { books, calls, files };
+    return { books, calls, files, who };
 }
 const packsOf = (...packs) => ({ get: id => packs.find(pack => pack.id === id) ?? null });
+const deps = (st, ...packs) => ({ packs: packsOf(...(packs.length ? packs : [tiny()])), books: st.books, settings: fakeSettings() });
 
 test('the row: Create, Update with the version it was made from, Up to date; the hint alone never says Update without the book', () => {
     const pack = { id: 'tiny', name: 'Tiny World', version: '1.1.0' };
@@ -35,14 +40,30 @@ test('the row: Create, Update with the version it was made from, Up to date; the
     assert.deepEqual([lorebookRow({ pack, names: [NAME] })].map(row => [row.state, row.madeFrom]), [['update', '']]);
 });
 
-test('the Use in this chat tick: on by default, off with a line when the chat has another lorebook, off and locked with no chat', () => {
+test('the decision table: link when the card has no lorebook, add beside its own (linked, carried in the card, or gone), linked already, none without a character', () => {
+    const step = char => { const out = characterStep({ name: NAME, char }); return [out.step, out.note]; };
+    assert.deepEqual(step(AVA), ['link', '']);
+    assert.deepEqual(step({ ...AVA, world: 'Ava lore' }), ['add', 'Ava has its own lorebook (Ava lore); this one is added beside it.']);
+    assert.deepEqual(step({ ...AVA, embedded: true }), ['add', 'Ava has its own lorebook; this one is added beside it.']);
+    assert.equal(step({ ...AVA, world: 'A book since deleted' })[0], 'add');
+    assert.deepEqual(step({ ...AVA, world: NAME }), ['linked', 'Linked to Ava.']);
+    assert.deepEqual(step({ ...AVA, world: 'Ava lore', extras: ['Other', NAME] }), ['linked', 'Linked to Ava.']);
+    assert.deepEqual(step({ ...AVA, extras: null }), ['link', '']);
+    assert.deepEqual(step(null), ['none', 'Open a character chat to use the lorebook with that character.']);
+    assert.deepEqual(step({ group: true }), ['none', 'This is a group chat: pick a character chat to use the lorebook with that character.']);
+});
+
+test('the Use with this character tick: on by default (also beside the card’s own book), off and locked with no character chat; Move only for this pack’s book as the chat lorebook', () => {
     const pack = { id: 'tiny', name: 'Tiny World', version: '1.0.0' };
-    assert.deepEqual(lorebookRow({ pack }).use, { on: true, disabled: false, note: '' });
-    const other = lorebookRow({ pack, chatBook: 'Campaign notes' }).use;
-    assert.equal(other.on, false);
-    assert.match(other.note, /already uses the lorebook Campaign notes/);
-    assert.equal(lorebookRow({ pack, names: [NAME], chatBook: NAME }).attached, true);
-    assert.deepEqual(lorebookRow({ pack, hasChat: false }).use, { on: false, disabled: true, note: 'Open a chat to use the lorebook in it.' });
+    assert.deepEqual(lorebookRow({ pack, char: AVA }).use, { on: true, disabled: false, note: '' });
+    assert.equal(lorebookRow({ pack, char: { ...AVA, world: 'Ava lore' } }).use.on, true);
+    assert.equal(lorebookRow({ pack, names: [NAME], char: { ...AVA, world: NAME } }).linked, true);
+    assert.deepEqual(lorebookRow({ pack }).use, { on: false, disabled: true, note: 'Open a character chat to use the lorebook with that character.' });
+    assert.equal(lorebookRow({ pack, char: { group: true } }).use.disabled, true);
+    assert.equal(lorebookRow({ pack, names: [NAME], char: AVA, chatBook: NAME }).move, true);
+    assert.equal(lorebookRow({ pack, names: [NAME], char: AVA, chatBook: 'MemoryBook Ava' }).move, false);
+    assert.equal(lorebookRow({ pack, names: [NAME], chatBook: NAME }).move, false);
+    assert.equal(lorebookRow({ pack, char: AVA, chatBook: NAME }).move, false);
 });
 
 test('the step: a book of that name the suite did not make, or made from another pack, is never written over', () => {
@@ -56,115 +77,81 @@ test('the step: a book of that name the suite did not make, or made from another
     assert.equal(lorebookStep({ pack, name: NAME, existing: made('1.0.0'), confirmed: true }).step, 'write');
 });
 
-test('Create: the book is saved, attached to this chat and remembered; the line counts the hidden entries kept out', async () => {
-    const st = fakeBooks();
-    const settings = fakeSettings();
-    const answer = await makeLorebook({ packs: packsOf(tiny()), books: st.books, settings }, { id: 'tiny', use: true });
-    assert.deepEqual(answer, { ok: true, text: `Made ${NAME} (1 entry; 1 hidden entry kept out). Attached to this chat.`, errors: [] });
-    assert.deepEqual(st.calls, { saves: [NAME], attached: [NAME] });
-    assert.deepEqual(settings.root.lorebooks, { tiny: { name: NAME, version: '1.0.0' } });
+test('Create on a card with no lorebook: saved, linked to the character, remembered; the chat lorebook is left as it is', async () => {
+    const st = fakeBooks({ chatBook: 'MemoryBook Ava' });
+    const d = deps(st);
+    const answer = await makeLorebook(d, { id: 'tiny', use: true });
+    assert.deepEqual(answer, { ok: true, text: `Made ${NAME} (1 entry; 1 hidden entry kept out). Linked to Ava.`, errors: [] });
+    assert.deepEqual(st.calls, { saves: [NAME], linked: [NAME], added: [], cleared: [] });
+    assert.equal(st.books.chatBook(), 'MemoryBook Ava');
+    assert.deepEqual(d.settings.root.lorebooks, { tiny: { name: NAME, version: '1.0.0' } });
     assert.equal(JSON.stringify(st.files[NAME]).includes('Sealed'), false);
 });
 
-test('Use in this chat off: made, the chat lorebook left alone', async () => {
-    const st = fakeBooks({ chatBook: 'Campaign notes' });
-    const answer = await makeLorebook({ packs: packsOf(tiny()), books: st.books, settings: fakeSettings() }, { id: 'tiny', use: false });
+test('Create on a card with its own lorebook: the card keeps it and the book is added to the character’s lorebooks', async () => {
+    const st = fakeBooks({ char: { ...AVA, world: 'Ava lore' } });
+    const answer = await makeLorebook(deps(st), { id: 'tiny', use: true });
+    assert.equal(answer.text, `Made ${NAME} (1 entry; 1 hidden entry kept out). Added to Ava’s lorebooks (Ava keeps its own).`);
+    assert.deepEqual([st.calls.linked, st.calls.added, st.who.world], [[], [NAME], 'Ava lore']);
+    const carried = fakeBooks({ char: { ...AVA, embedded: true } });
+    await makeLorebook(deps(carried), { id: 'tiny', use: true });
+    assert.deepEqual([carried.calls.linked, carried.calls.added], [[], [NAME]]);
+});
+
+test('the tick off: made, nothing linked or added', async () => {
+    const st = fakeBooks();
+    const answer = await makeLorebook(deps(st), { id: 'tiny', use: false });
     assert.equal(answer.text, `Made ${NAME} (1 entry; 1 hidden entry kept out).`);
-    assert.deepEqual(st.calls.attached, []);
-    assert.equal(st.books.chatBook(), 'Campaign notes');
+    assert.deepEqual([st.calls.linked, st.calls.added, st.who.world], [[], [], '']);
 });
 
-test('Update: asks first, then replaces only the marker book; the same version again is Up to date and saves nothing', async () => {
+test('Update: asks first, then replaces only the marker book; the same version again is Up to date, saves nothing and says Linked', async () => {
     const st = fakeBooks({ files: { [NAME]: lorebookFromPack(tiny('1.0.0')).book } });
-    const deps = { packs: packsOf(tiny('1.1.0')), books: st.books, settings: fakeSettings() };
-    const asked = await makeLorebook(deps, { id: 'tiny', use: true });
-    assert.equal(asked.ok, false);
-    assert.equal(asked.confirm, true);
-    assert.deepEqual(st.calls.saves, []);
-    const done = await makeLorebook(deps, { id: 'tiny', use: true, confirmed: true });
-    assert.match(done.text, /^Updated Tiny World \(Story Suite\) \(1 entry; 1 hidden entry kept out\)\. Attached to this chat\.$/);
-    const again = await makeLorebook(deps, { id: 'tiny', use: true, confirmed: true });
+    const d = deps(st, tiny('1.1.0'));
+    const asked = await makeLorebook(d, { id: 'tiny', use: true });
+    assert.deepEqual([asked.ok, asked.confirm, st.calls.saves], [false, true, []]);
+    const done = await makeLorebook(d, { id: 'tiny', use: true, confirmed: true });
+    assert.match(done.text, /^Updated Tiny World \(Story Suite\) \(1 entry; 1 hidden entry kept out\)\. Linked to Ava\.$/);
+    const again = await makeLorebook(d, { id: 'tiny', use: true, confirmed: true });
     assert.equal(again.state, 'current');
-    assert.equal(again.text, `${NAME} is up to date (made from Tiny World 1.1.0). It is this chat’s lorebook.`);
-    assert.deepEqual(st.calls.saves, [NAME]);
+    assert.equal(again.text, `${NAME} is up to date (made from Tiny World 1.1.0). Linked to Ava.`);
+    assert.deepEqual([st.calls.saves, st.calls.linked], [[NAME], [NAME]]);
 });
 
-test('refusals: a user book of that name, a pack not installed or with no lore, a failed save, no chat to attach to', async () => {
+test('refusals: a user book of that name, a pack not installed or with no lore, a failed save; no character chat, a group chat or a failed link keep the book made', async () => {
     const mine = fakeBooks({ files: { [NAME]: userBook } });
-    const refused = await makeLorebook({ packs: packsOf(tiny()), books: mine.books, settings: fakeSettings() }, { id: 'tiny', confirmed: true });
+    const refused = await makeLorebook(deps(mine), { id: 'tiny', confirmed: true });
     assert.equal(refused.ok, false);
     assert.match(refused.text, /did not make it/);
     assert.deepEqual(mine.files[NAME], userBook);
     assert.equal((await makeLorebook({ packs: packsOf(), books: mine.books }, { id: 'tiny' })).text, 'That world pack is not installed.');
     assert.match((await makeLorebook({ packs: packsOf(tiny('1.0.0', { content: { lore: [] } })), books: mine.books }, { id: 'tiny' })).text, /has no lore/);
-    const failing = fakeBooks({ saveFails: true });
-    assert.match((await makeLorebook({ packs: packsOf(tiny()), books: failing.books }, { id: 'tiny' })).text, /was not saved \(the server answered 500\)/);
-    const noChat = fakeBooks({ hasChat: false });
-    const made = await makeLorebook({ packs: packsOf(tiny()), books: noChat.books }, { id: 'tiny', use: true });
-    assert.equal(made.ok, true);
-    assert.match(made.text, /It was not attached to this chat \(no chat is open\)\.$/);
+    assert.match((await makeLorebook(deps(fakeBooks({ saveFails: true })), { id: 'tiny' })).text, /was not saved \(the server answered 500\)/);
+    const none = await makeLorebook(deps(fakeBooks({ char: null })), { id: 'tiny', use: true });
+    assert.deepEqual([none.ok, none.text.endsWith('Open a character chat to use the lorebook with that character.')], [true, true]);
+    assert.match((await makeLorebook(deps(fakeBooks({ char: { group: true } })), { id: 'tiny', use: true })).text, /group chat: pick a character chat/);
+    assert.match((await makeLorebook(deps(fakeBooks({ linkFails: true })), { id: 'tiny', use: true })).text, /It was not linked to Ava \(SillyTavern did not keep the link\)\.$/);
+});
+
+test('Move: this pack’s book as the chat lorebook goes with the character, then the chat lorebook is unset; another chat lorebook or a book without the marker is left', async () => {
+    const book = () => lorebookFromPack(tiny()).book;
+    const st = fakeBooks({ files: { [NAME]: book() }, chatBook: NAME });
+    const moved = await makeLorebook(deps(st), { id: 'tiny', move: true });
+    assert.deepEqual(moved, { ok: true, text: 'Linked to Ava. It is no longer this chat’s lorebook.', errors: [] });
+    assert.deepEqual([st.calls.saves, st.calls.linked, st.calls.cleared, st.books.chatBook()], [[], [NAME], [NAME], '']);
+    const other = fakeBooks({ files: { [NAME]: book() }, chatBook: 'MemoryBook Ava' });
+    assert.equal((await makeLorebook(deps(other), { id: 'tiny', move: true })).ok, false);
+    assert.deepEqual([other.calls.linked, other.calls.cleared, other.books.chatBook()], [[], [], 'MemoryBook Ava']);
+    const notOurs = fakeBooks({ files: { [NAME]: userBook }, chatBook: NAME });
+    assert.equal((await makeLorebook(deps(notOurs), { id: 'tiny', move: true })).ok, false);
+    assert.equal(notOurs.books.chatBook(), NAME);
+    const failed = fakeBooks({ files: { [NAME]: book() }, chatBook: NAME, linkFails: true });
+    const kept = await makeLorebook(deps(failed), { id: 'tiny', move: true });
+    assert.deepEqual([kept.ok, kept.text.endsWith('It stays this chat’s lorebook for now.'), failed.books.chatBook()], [false, true, NAME]);
 });
 
 test('rows: only installed world packs that check and have lore', () => {
     const st = fakeBooks();
     const rows = lorebookRows({ list: [{ id: 'tiny', kind: 'world', name: 'Tiny World', version: '1.0.0', counts: { lore: 2 } }, { id: 'g', kind: 'game', name: 'G', counts: {} }, { id: 'bare', kind: 'world', name: 'Bare', counts: {} }, { id: 'bad', kind: 'world', problem: 'x', counts: { lore: 1 } }], books: st.books, settings: fakeSettings() });
-    assert.deepEqual(rows.map(row => [row.id, row.state, row.name]), [['tiny', 'create', NAME]]);
-});
-
-// SillyTavern's context for the writer: saveWorldInfo, its list, the server's copy, the chat's metadata.
-function fakeContext({ keep = true, chatId = 'chat-1' } = {}) {
-    const server = {};
-    const calls = [];
-    const ctx = {
-        chatMetadata: {}, getCurrentChatId: () => chatId, getRequestHeaders: () => ({ 'X-CSRF-Token': 't' }),
-        getWorldInfoNames: () => Object.keys(server),
-        saveWorldInfo: async (name, data, now) => { calls.push(['save', name, now]); if (keep) server[name] = structuredClone(data); },
-        updateWorldInfoList: async () => { calls.push(['list']); },
-        loadWorldInfo: async name => server[name] ?? null,
-        reloadWorldInfoEditor: name => calls.push(['reload', name]),
-        saveMetadata: async () => calls.push(['meta']),
-    };
-    const fetchImpl = async (url, init) => { calls.push(['fetch', url, init.headers['X-CSRF-Token']]); return { ok: true, json: async () => (url === '/api/settings/get' ? { world_names: Object.keys(server) } : server[JSON.parse(init.body).name] ?? { entries: {} }) }; };
-    globalThis.SillyTavern = { getContext: () => ctx };
-    return { ctx, calls, fetchImpl, server, done: () => { delete globalThis.SillyTavern; } };
-}
-
-test('the writer saves through SillyTavern’s own save, refreshes its list, reads the book back, then attaches it as the chat lorebook', async () => {
-    const st = fakeContext();
-    try {
-        const books = stLorebooks({ fetchImpl: st.fetchImpl });
-        const { name, book } = lorebookFromPack(tiny());
-        await books.save(name, book);
-        assert.deepEqual(st.calls, [['save', NAME, true], ['list'], ['fetch', '/api/worldinfo/get', 't'], ['reload', NAME]]);
-        assert.deepEqual(books.names(), [NAME]);
-        await books.attach(name);
-        assert.equal(st.ctx.chatMetadata.world_info, NAME);
-        assert.equal(books.chatBook(), NAME);
-        assert.deepEqual(st.calls.at(-1), ['meta']);
-    } finally { st.done(); }
-});
-
-test('the writer tells a save SillyTavern did not keep, and refuses to attach with no chat open', async () => {
-    const lost = fakeContext({ keep: false, chatId: null });
-    try {
-        const books = stLorebooks({ fetchImpl: lost.fetchImpl });
-        const { name, book } = lorebookFromPack(tiny());
-        await assert.rejects(books.save(name, book), /did not keep the book/);
-        await assert.rejects(books.attach(name), /no chat is open/);
-        assert.equal(lost.ctx.chatMetadata.world_info, undefined);
-    } finally { lost.done(); }
-});
-
-test('a SillyTavern whose context cannot list the books: the server’s list is read, so a reader’s own book of that name is still refused', async () => {
-    const st = fakeContext();
-    delete st.ctx.getWorldInfoNames;
-    st.server[NAME] = structuredClone(userBook);
-    try {
-        const books = stLorebooks({ fetchImpl: st.fetchImpl });
-        assert.deepEqual(await books.refresh(), [NAME]);
-        const answer = await makeLorebook({ packs: packsOf(tiny()), books, settings: fakeSettings() }, { id: 'tiny', use: true, confirmed: true });
-        assert.equal(answer.ok, false);
-        assert.match(answer.text, /did not make it/);
-        assert.deepEqual(st.server[NAME], userBook);
-    } finally { st.done(); }
+    assert.deepEqual(rows.map(row => [row.id, row.state, row.name, row.use.on]), [['tiny', 'create', NAME, true]]);
 });

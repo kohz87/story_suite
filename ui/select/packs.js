@@ -54,7 +54,7 @@ function selectV4(rows, pairing, lorebook = []) {
     gameName: text(info.game?.name) || 'Built-in',
     suggest: wanted && !wanted.selected ? { id: text(wanted.id), game: text(wanted.name), installed: wanted.installed === true } : null,
     lines: pairLines(info),
-    // (a world pack with lore carries its lorebook row: Create, Update or Up to date, and the Use in this chat tick)
+    // (a world pack with lore carries its lorebook row: Create, Update or Up to date, and the Use with this character tick)
     installed: rows.filter(row => row.kind && !row.addOn).map(pack => { const book = list(lorebook).find(item => item.id === text(pack.id)); return { ...packRow(pack), ...(book ? { lorebook: lorebookView(book) } : {}) }; }),
     addOns: rows.filter(row => row.addOn).map(packRow),
   };

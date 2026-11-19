@@ -76,7 +76,7 @@ export function mountSuite(options = {}) {
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
-      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? applyPanelBg(view.root, prefs.setFold(key, value)) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? setPanelBg(value) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
       onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : key === 'people.open' ? openPerson(value) : key === 'people.reread' ? port.command('npc.refresh', value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
@@ -92,7 +92,9 @@ export function mountSuite(options = {}) {
   });
   // Settings › Look (theme/look.js) when the mount reads it: its theme, and its Text size as the root's `data-text` (the zoom in shell.css).
   const readLook = () => { try { return lookOf(look()); } catch { return lookOf(null); } };
-  const pickTheme = () => (look ? lookTheme(readLook(), stVar(doc)) : { ...resolveTheme(theme, doc), zoom: null });
+  // Panel background (a device setting) goes in too: with it Off, Glass strength also lifts the cards off the flat colour (theme/look.js).
+  const pickTheme = () => (look ? lookTheme({ ...readLook(), panelBg: prefs.getFold(PANELBG_KEY, false) }, stVar(doc)) : { ...resolveTheme(theme, doc), zoom: null });
+  const setPanelBg = value => { const on = applyPanelBg(view.root, prefs.setFold(PANELBG_KEY, value)); if (look && !destroyed) applyLook(); return on; };
   const picked = pickTheme();
   scheme = picked.scheme;
   const view = createSuiteView({ doc, host, backStack, tokens: picked.tokens, scheme });

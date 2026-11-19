@@ -12,12 +12,9 @@ const BARS = [['hp', 'health'], ['mp', 'mana'], ['sp', 'stamina']];
 const add2 = (a, b) => ['add', a, b];
 const level = (div) => ['floorDiv', get('level'), div];
 const pair = (a, b, div) => ['floorDiv', add2(get(a), get(b)), div];
-// The largest value of each bar, as combat/bars.js reads it: 5 + level/3 + VIT/2, 8 + level/4 + (INT+WIS)/4, 8 + level/4 + (STR+AGI)/4.
-const SIZE = {
-    hp: add2(add2(V1.hp.base, level(V1.hp.levelDiv)), ['floorDiv', get('vit'), V1.hp.vitDiv]),
-    mp: add2(add2(V1.mp.base, level(V1.mp.levelDiv)), pair('int', 'wis', V1.mp.pairDiv)),
-    sp: add2(add2(V1.sp.base, level(V1.sp.levelDiv)), pair('str', 'agi', V1.sp.pairDiv)),
-};
+// The largest value of each bar, as combat/bars.js reads it from numbers.js: 5 + level/3 + (STR+VIT)/4, 8 + level/4 + (INT+WIS)/4, 8 + level/4 + (AGI+DEX)/4.
+const sizeOf = rule => add2(add2(rule.base, level(rule.levelDiv)), pair(rule.pair[0], rule.pair[1], rule.pairDiv));
+const SIZE = { hp: sizeOf(V1.hp), mp: sizeOf(V1.mp), sp: sizeOf(V1.sp) };
 const hidden = { prompt: false, edit: false };
 const HEAL_WORDS = ['A quarter', 'Half', 'Three quarters'];
 

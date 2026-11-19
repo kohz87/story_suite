@@ -5,7 +5,7 @@
 .people-tab .phd{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .people-tab .phd h3{margin:0;font:700 19px var(--su-font);color:var(--su-text);flex:1}
 .people-tab .cnt{font:400 14px/1.5 var(--su-font);color:var(--su-text)}
-.psrch{width:100%;min-height:44px;font:600 14px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 12px;outline:none}
+.psrch{width:100%;min-height:44px;font:600 14px var(--su-font);color:var(--su-text);background:var(--su-tint);border:1px solid var(--su-line2);border-radius:12px;padding:8px 12px;outline:none}
 .people-tab .fil{display:flex;flex-wrap:wrap;gap:6px;margin:0 -2px;padding:0 2px}
 .people-tab .fil button{min-height:44px;display:inline-flex;align-items:center;gap:0;font:700 12.5px var(--su-font);color:var(--su-soft);background:transparent;border:1px solid var(--su-line2);border-radius:12px;padding:5px 12px;cursor:pointer;white-space:nowrap}
 .people-tab .fil button small{font:800 12px var(--su-font);color:var(--su-muted);margin-left:3px}
@@ -26,7 +26,7 @@
 .people-tab .prg .star{right:-4px;color:#f0b84a}
 [data-scheme="light"] .people-tab .prg .star{color:#8a5600}
 .pc .nm2{font:800 13.5px/1.15 var(--su-font);margin-top:3px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
-.pc .md2{font:700 12px var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:999px;padding:1px 8px}
+.pc .md2{font:700 12px var(--su-font);color:var(--su-soft);background:var(--su-tint);border-radius:999px;padding:1px 8px}
 .pc .wh{font:600 12px/1.25 var(--su-font);color:var(--su-muted);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
 .pc .sd{font:italic 600 12px/1.3 var(--su-font);color:var(--su-soft);max-width:100%;overflow-wrap:anywhere}
 .pc.dead .ph{filter:grayscale(1) brightness(.75)}
@@ -61,13 +61,13 @@
 .mleg i{display:inline-block;width:14px;height:0;margin-right:5px;vertical-align:middle;border-top:2px dashed currentColor}
 .mleg .leg-ok i{color:var(--su-ok-t)}.mleg .leg-bad i{color:var(--su-bad-t)}.mleg .leg-gold i{color:#f0b84a}
 [data-scheme="light"] .mleg .leg-gold i{color:#8a5a00}[data-scheme="light"] .mleg .leg-ok i{color:#0b6e49}
-.mcard{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:16px;background:var(--su-line2)}
+.mcard{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:16px;background:var(--su-tint)}
 .mcard .who{display:flex;align-items:center;gap:10px}
 .mcard .who b{font:800 14px var(--su-font)}
 .mcard .who small{display:block;font:600 12px var(--su-font);color:var(--su-muted)}
 .mcard .acts{display:flex;flex-wrap:wrap;gap:8px}
 /* the List/Map switch: a soft pill track with a raised current half (mock .seg2) */
-.people-tab .seg2{display:inline-flex;flex-wrap:wrap;background:var(--su-line2);border:0;border-radius:12px;padding:3px;gap:2px;overflow:visible}
+.people-tab .seg2{display:inline-flex;flex-wrap:wrap;background:var(--su-tint);border:0;border-radius:12px;padding:3px;gap:2px;overflow:visible}
 .people-tab .seg2 button{min-width:44px;min-height:44px;border:0;background:transparent;color:var(--su-soft);font:700 12.5px var(--su-font);padding:5px 10px;border-radius:9px}
 .people-tab .seg2 button[aria-pressed="true"]{background:var(--su-panel2);color:var(--su-text)}
 /* map: the outer-ring word sits on the ring, the empty hint reads as body text */

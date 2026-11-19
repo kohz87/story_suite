@@ -28,7 +28,7 @@ test('tiny health lines follow each member and the away member is marked', () =>
   const ctx = makeCtx();
   const tab = partyTab(ctx.party, ctx);
   const widths = tab.querySelectorAll('.mb .hpl b').map(b => b.style.getPropertyValue('width'));
-  assert.deepEqual(widths, ['86%', '100%', '100%', '100%']);
+  assert.deepEqual(widths, ['92%', '100%', '100%', '100%']);
   const rika = tab.querySelector('[data-member="rika"]');
   assert.equal(rika.classList.contains('away'), true);
   assert.equal(rika.querySelector('.aw').getAttribute('title'), 'At the Bluewatch stables with the horses');
