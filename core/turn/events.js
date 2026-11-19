@@ -9,7 +9,6 @@ import { cutAt } from '../text.js';
 import { readRecord, swipeLoading } from '../persist.js';
 import { within } from './text.js';
 import { ensureModules } from '../sdk.js';
-import { FIGHT_CLOSED, dropPrePortFight } from './pre-port-fight.js';
 import { createHeldEvents } from './events-held.js';
 import { rememberHeld as rememberInteractionHeld } from '../interaction/held.js';
 import { settleStep } from '../interaction/watch.js';
@@ -154,12 +153,6 @@ export function createEvents(s, deps) {
         s.problemLog.unshift(...keptProblems(meta));
         s.problemsLoading = false;
         s.keepLog?.();
-        // A fight left open by a build from before the port is closed (turn/pre-port-fight.js); the interaction scratch follows the head by itself (reconcileScratch).
-        const closed = dropPrePortFight(meta);
-        if (closed !== null) {
-            if (closed) problem({ code: 'FIGHT_CLOSED', quiet: true, message: FIGHT_CLOSED });
-            try { (ctx.saveMetadata ?? ctx.saveMetadataDebounced)?.call(ctx); } catch { /* saved on the next chat write */ }
-        }
         timeline?.settle();
         // A1-2: read-backs of a write that timed out before a reload of the page go on.
         try { store.resume?.(); } catch { /* only a guard */ }
