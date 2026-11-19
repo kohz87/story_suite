@@ -12,7 +12,10 @@
 .ctop .meta .tm,.ctop .meta .pl2{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .ctop .meta span{gap:5px}
 .ctop .meta svg{width:15px;height:15px;color:var(--su-muted)}
-.ctop .meta::after{content:'›';align-self:center;font-weight:800;color:var(--su-muted);margin-left:auto;padding-left:4px}
+/* (the lines stack in the first column and the chevron keeps its own column, centred, so it never wraps under a long place name) */
+.ctop .meta{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:4px}
+.ctop .meta > span{grid-column:1}
+.ctop .meta::after{content:'›';grid-column:2;grid-row:1 / span 3;align-self:center;font-weight:800;color:var(--su-muted);padding-left:4px}
 .ctop .meta.empty::after{content:none} /* a scene with nothing to say draws no lone chevron */
 /* 13.3333px Arial is the browser's default button font, copied from the mock's unstyled settings button. */
 .ctop .ibtn{flex:none;width:44px;height:44px;padding:1px 6px;font:13.3333px Arial}
