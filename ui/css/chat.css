@@ -10,7 +10,8 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrc:last-child{margin-bottom:34px}
 .ssrc .cnr:hover{border-color:var(--SmartThemeBodyColor)}
 .ssrc-l1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;padding:6px 12px}
 .ssrc.newest .ssrc-l1{padding-right:48px;min-height:44px;box-sizing:border-box}
-.ssrc-l1 .it i{font-style:normal;opacity:.85}
+.ssrc-l1 .it{display:inline-flex;align-items:baseline;gap:5px;min-width:0}
+.ssrc-l1 .it i{font-style:normal;opacity:.85;flex:none}
 .ssrc-l2{display:flex;flex-wrap:nowrap;align-items:center;gap:4px 16px;padding:0 12px 7px;min-width:0}
 .ssrc-l2 .vb{display:inline-flex;flex:0 1 auto;align-items:center;gap:6px;min-width:0;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ssrc-l2 .vb b{font-weight:600;min-width:22px}
