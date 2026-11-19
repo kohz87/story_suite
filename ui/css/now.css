@@ -56,7 +56,7 @@ button.rnr{cursor:pointer}
 .fl2 .f0{color:var(--su-info)}.fl2 .f1{color:#ff7aa8}.fl2 .f2{color:#c08aff}.fl2 .f3{color:var(--su-warn)}
 .now-tab .fl2 .f0{color:var(--m0)}.now-tab .fl2 .f1{color:var(--m1)}.now-tab .fl2 .f2{color:var(--m2)}.now-tab .fl2 .f3{color:var(--m3)}
 .hp2 .wh2{font-size:13px;color:var(--su-soft);margin-top:4px}
-.hp2 .th3{margin-top:6px;font:italic 500 13px/1.4 var(--su-font);color:var(--su-soft);background:var(--su-panel2);border-radius:12px 12px 12px 4px;padding:5px 9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hp2 .th3{margin-top:6px;font:italic 500 13px/1.4 var(--su-font);color:var(--su-soft);background:var(--su-panel2);border-radius:12px 12px 12px 4px;padding:5px 9px}
 .hp2 dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 10px;margin:6px 0 0;font-size:13px}
 .hp2 dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted);padding-top:2px}
 .hp2 dd{margin:0}
