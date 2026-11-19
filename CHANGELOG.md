@@ -6,13 +6,15 @@ What changed in each release, in short. The full record of every change is in [t
 
 - World › Map: a district's sheet says where it lies ("About 3 km north-east of Auvoth's centre"), using the map scale read from the pack's roads; the ‹ back button sits clear of the sheet's edge.
 - World › Map: a city's wards and the places on top of it show as one marker ("Auvoth · 7") whose sheet lists them; zoom in to fan them out. A selected place gets a thin ring, and the map moves it above the sheet.
+- Three stances now: Defence, Speed (dodge and act sooner: Evasion and Movement in one, without Movement's extra action) and Focus (INT or WIS, uses Mana: your INT and WIS skills hit and heal harder).
+- Old stance names still work: Evasion and Movement read as Speed, Support as Focus. The fight board's stance switch and the Party sheet say what each stance adds.
 - Party › a skill's sheet no longer prints "null" under its rank; Bag › Wear on… shows each member's portrait.
 - Party › Mount and Bag slots: tap them to choose which party mount a member rides or which bag they carry (None frees it); a mount left behind, already full, or a bound bag says why.
 - Bag › Wear on…: when a piece cannot be worn (no slot set), the sheet stays open with the reason and an **Edit item** button that opens its Slot.
 - Party › Skills: tapping a skill now shows what it does under its kind; a skill with no cost reads "Story only", and a missing value is left out instead of showing "null".
 - New character › Skills: the "What it does" box shows four lines, the × lines up with the name, and Type / Starts at no longer cut their words on desktop.
 - New character › Skills: a hint line says which bar a skill uses (INT or WIS: Mana; any other stat: Stamina; a heal: Mana; a stance: 1 each exchange).
-- New character › Skills: once one skill is a stance (Defence, Evasion, Movement or Support), the other skills' Type lists show the stance types switched off and name the skill that holds it.
+- New character › Skills: once one skill is a stance (Defence, Speed or Focus), the other skills' Type lists show the stance types switched off and name the skill that holds it.
 - Settings › Packs: **Create the lorebook** from a world pack makes a SillyTavern lorebook of its lore, so the narrator reads it too; **Update the lorebook** remakes it when the pack changes.
 - **Use with this character** (on by default) attaches it to the character, beside any lorebook the card has; chat lore is left alone. Hidden lore stays out of the book.
 - Pack Studio: **Export lorebook** saves a world pack's lore as a SillyTavern lorebook file.

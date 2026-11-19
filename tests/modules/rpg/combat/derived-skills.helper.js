@@ -3,11 +3,11 @@
 
 const SKILLS = {
     Warrior: [['attack', 'str'], ['defence', 'agi']],
-    Skirmisher: [['attack', 'agi'], ['evasion', 'agi']],
-    'Skirmisher-Move': [['attack', 'agi'], ['movement', 'agi']],
+    Skirmisher: [['attack', 'agi'], ['speed', 'agi']],
+    'Skirmisher-Move': [['attack', 'agi'], ['speed', 'agi']],
     'Skirmisher-plain': [['attack', 'agi']],
-    'Skirmisher-area': [['attack', 'agi'], ['area', 'agi'], ['evasion', 'agi']],
-    Mage: [['attack', 'int'], ['evasion', 'wis']],
+    'Skirmisher-area': [['attack', 'agi'], ['area', 'agi'], ['speed', 'agi']],
+    Mage: [['attack', 'int'], ['speed', 'wis']],
     Healer: [['attack', 'int'], ['heal', 'wis'], ['defence', 'wis']],
 };
 

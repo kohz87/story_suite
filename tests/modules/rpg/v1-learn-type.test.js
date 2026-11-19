@@ -23,7 +23,7 @@ test('the grammar line shows the v1 learn type without brackets; the label is no
     assert.equal(definition.kinds['learn-1'].labels.type.optional, undefined);
     const checked = validateDataModules([structuredClone(definition)], { packId: 'chat', capabilities: ['data-modules-v1'] }).definitions[0];
     const text = fullModuleGrammar(checked, 'skills');
-    assert.ok(text.includes('| type: attack|area|defence|evasion|movement|heal|support|utility'), text);
+    assert.ok(text.includes('| type: attack|area|defence|speed|focus|heal|utility'), text);
     assert.ok(!text.includes('[type:'), 'no brackets');
 });
 
@@ -46,7 +46,7 @@ test('a learn line with no type stores attack, and replay agrees (swipe, Re-read
     await same(host);
     const bad = await story(t);
     await bad.send('Learn.', reply(learn(' | type: combat')));
-    assert.equal(sheet(bad).skill1, '', 'a type that is not one of the eight is refused');
+    assert.equal(sheet(bad).skill1, '', 'a type that is not one of the seven is refused');
 });
 
 test('a type-less learn replays as live: swipe back, a middle delete of an earlier reply, a rewind (branch), a reload and a chat change', async t => {
@@ -76,4 +76,36 @@ test('a type-less learn replays as live: swipe back, a middle delete of an earli
     await host.st.deleteMessage(host.ctx.chat.findIndex(message => /kind: learn-1/.test(String(message.mes))));
     assert.equal(sheet(host).skill1, '');
     await same(host);
+});
+
+test('an earlier stance word on a learn line is its new type (evasion, movement: speed; support: focus), the same on a Re-read and a reload', async t => {
+    const host = await story(t);
+    const learnOf = (n, name, stat, type) => `~ dm skills — why | kind: learn-${n} | name: ${name} | about: A skill. | stat: ${stat} | type: ${type}`;
+    await host.send('Learn.', reply(learnOf(1, 'Sidestep', 'agi', 'evasion')));
+    assert.deepEqual([sheet(host).skill1, sheet(host).type1], ['Sidestep', 'speed']);
+    const index = host.ctx.chat.length - 1;
+    assert.equal((await host.turn.reread(index)).ok, true);
+    assert.equal(sheet(host).type1, 'speed', 'a Re-read');
+    await same(host);
+    assert.equal(sheet(host).type1, 'speed', 'a rebuild and a reload');
+    const other = await story(t);
+    await other.send('Learn.', reply(learnOf(1, 'Rally', 'wis', 'support')));
+    assert.deepEqual([sheet(other).skill1, sheet(other).type1, sheet(other).stat1], ['Rally', 'focus', 'wis']);
+    await other.send('Learn.', reply(learnOf(2, 'Dash', 'agi', 'movement')));
+    assert.equal(sheet(other).skill2, '', 'a second stance (movement is speed) is refused: one stance per character');
+});
+
+test('a focus skill rolls with INT or WIS: a learn line naming another stat is refused, and so is one that moves a focus skill to another stat', async t => {
+    const host = await story(t);
+    const learnOf = (name, stat, type) => `~ dm skills — why | kind: learn-1 | name: ${name} | about: A skill. | stat: ${stat} | type: ${type}`;
+    await host.send('Learn.', reply(learnOf('Calm', 'cha', 'focus')));
+    assert.equal(sheet(host).skill1, '', 'focus on CHA is refused');
+    await host.send('Learn.', reply(learnOf('Calm', 'cha', 'support')));
+    assert.equal(sheet(host).skill1, '', 'support (focus) on CHA is refused');
+    await host.send('Learn.', reply(learnOf('Calm', 'int', 'focus')));
+    assert.deepEqual([sheet(host).skill1, sheet(host).type1, sheet(host).stat1], ['Calm', 'focus', 'int']);
+    await host.send('Learn.', reply(learnOf('Calm', 'str', 'focus')));
+    assert.equal(sheet(host).stat1, 'int', 'a learn line that rewrites the focus skill\'s stat to STR is refused');
+    await same(host);
+    assert.deepEqual([sheet(host).skill1, sheet(host).type1, sheet(host).stat1], ['Calm', 'focus', 'int']);
 });

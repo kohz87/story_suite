@@ -144,8 +144,8 @@ function replay(trace) {
     return { heroes, foes };
 }
 
-test('the fixture is the v8.1 trace set: 34 uniquely named cases', () => {
-    assert.equal(FIXTURE.rules, 'v8.1');
+test('the fixture is the v8.2 trace set: 34 uniquely named cases', () => {
+    assert.equal(FIXTURE.rules, 'v8.2');
     assert.equal(FIXTURE.cases.length, 34);
     assert.equal(new Set(FIXTURE.cases.map(c => c.name)).size, 34);
     assert.match(FIXTURE.simSha256, /^[0-9a-f]{64}$/);

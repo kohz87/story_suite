@@ -5,6 +5,8 @@ import { readSheet } from '../read.js';
 import { skillCost } from '../combat/skills.js';
 import { profileOf } from '../combat/profile.js';
 import { soakOf } from '../combat/damage.js';
+import { masteryTerm } from '../combat/rolls.js';
+import { V1 as RULES } from '../combat/numbers.js';
 import { V1 } from './v1-kind.js';
 import { logOfV1 } from './fight-view-v1-log.js';
 
@@ -46,14 +48,16 @@ function actionsOf(hero, anyFoe, wounded) {
 }
 
 // The hero's stance as the switch shows it, or null when the hero owns none. `on` is what the hero's last exchange did (before the first of this reply: what the earlier replies left; at the very first, on: the engine turns the stance on by default); `soakOn` / `soakOff`
-// are the soak with and without a Defence stance (null for the other stance types); `pool` / `cost` what it takes each exchange.
+// are the soak with and without a Defence stance (null for the other stance types); `pool` / `cost` what it takes each exchange; `adds` what a Speed or Focus stance gives while on.
+const addsOf = (type, mastery) => (type === 'speed' ? { adds: `evasion and tempo +${masteryTerm(mastery)}` }
+    : type === 'focus' ? { adds: `INT and WIS skills +${RULES.focus.step * whole(mastery)}%` } : {});
 function stanceOf(hero, record, gear, carried = {}, actor = '') {
     const owned = profileOf(hero).stance;
     if (!owned) return null;
     const line = (record.rounds.at(-1) ?? []).find(row => row[0] === 'stance' && row[1] === String(hero.label));
     const defence = owned.type === 'defence', soak = mastery => soakOf(hero.stats?.vit, mastery, Number(gear[hero.id]) || 0);
     const skill = (hero.skills ?? []).find(item => skillCost(item).type === owned.type), price = skillCost(skill ?? { type: owned.type });
-    return { name: String(skill?.name || price.type), pool: price.pool === 'mp' ? 'Mana' : 'Stamina', cost: price.cost, on: line ? line[2].length > 0 : carried[actor] !== false, soakOn: defence ? soak(hero.mastery) : null, soakOff: defence ? soak(0) : null, paid: null };
+    return { name: String(skill?.name || price.type), pool: price.pool === 'mp' ? 'Mana' : 'Stamina', cost: price.cost, on: line ? line[2].length > 0 : carried[actor] !== false, soakOn: defence ? soak(hero.mastery) : null, soakOff: defence ? soak(0) : null, paid: null, ...addsOf(owned.type, hero.mastery) };
 }
 
 // What the end card says each hero was paid: the practice (by name), each hero's own XP and, when every hero got the same, that XP once (`paid` = the settle's receipt, `{ xp: [{ who, xp }], practice: [{ who, skill, amount }] }`).

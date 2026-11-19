@@ -6,7 +6,7 @@ import { livePage as mount, holdFight, settle } from './helpers/live-page.js';
 import { createHash } from 'node:crypto';
 import { holdStart } from '../../core/interaction/start-hold.js';
 
-const HEAD_HASH = 'd5b63e904df331feba0c8978fbdaa4f406bb56033ed10caf71f4e21e242eb135';
+const HEAD_HASH = 'f8b04c9eb631727d4fa0d06ce9ea0d7aa6858fe3cb1b0c6129208d2dee9630a3';   // (taken again for the three stances: only the Skills block definition's hash and pin moved)
 const REPLY = 'Astra cuts the rat down.';
 const xp = host => host.head().domains.dataModules.instances['pack.chat/character'].chat.fields.xp;
 const tab = doc => doc.querySelector('.su-panel .fight-tab');

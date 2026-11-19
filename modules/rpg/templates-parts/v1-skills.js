@@ -1,4 +1,4 @@
-// The Skills block of Combat Rules v1: a name, what it does, the stat it rolls with, a type (the eight of combat/numbers.js) and practice 0 to 600 on every slot, and a rank
+// The Skills block of Combat Rules v1: a name, what it does, the stat it rolls with, a type (the seven of combat/numbers.js) and practice 0 to 600 on every slot, and a rank
 // 0 to 6 that a rule sets from the practice (a hundred practice a rank). There is no `uses` field: the pool (SP or MP) comes from the stat alone (combat/skills.js).
 // The rank stored here is the one practice has earned; the rank in force also needs the character's level (combat/skills.js rankOf, read by read-parts/v1-rows.js).
 // One stance skill per owner is held where learn lines are routed (canOwn), not in a rule: a learn kind cannot see the other slots. Pure data.
@@ -19,9 +19,9 @@ export const SKILL_TYPE_NAMES = TYPES;
 
 export const skillsV1 = {
     slug: 'skills', name: 'Skills', role: 'skills', schema: 1, stateVersion: 3, scope: 'chat',
-    prompt: 'Skills for one character (five to start, more with levels). Each has what it does, the stat it rolls with, a type (attack, area, defence, evasion, movement, heal, support or utility) and practice 0 to 600; '
+    prompt: 'Skills for one character (five to start, more with levels). Each has what it does, the stat it rolls with, a type (attack, area, defence, speed, focus, heal or utility) and practice 0 to 600; '
         + 'a hundred practice is a rank (Novice, Apprentice, Adept, Expert, Master, Grandmaster, Legend). A learn line names a skill: name, what it does, stat and type. '
-        + 'Only one stance skill (defence, evasion, movement or support) may be owned. Utility skills are for the story only.',
+        + 'Only one stance skill (defence, speed or focus) may be owned; a focus skill rolls with int or wis. Utility skills are for the story only.',
     show: { tab: true, card: false, tabName: 'Skills', icon: 'ph-book-open' },
     state: {
         who: text('Name'),

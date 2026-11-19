@@ -1,6 +1,7 @@
 // Checking skill sets and meter presets.
 
 import { SLUG, TERM_SEPARATORS, LEAN_RPG_LIMITS, SKILL_USES_V1, SKILL_TYPE_ALIASES, SKILL_SET_FIELDS, SKILL_SET_SKILL_FIELDS, METER_PRESET_FIELDS, METER_LIMITS, METER_FIELDS, METER_RESERVED, METER_STAGE_FIELDS } from '../../limits.js';
+import { FOCUS_STATS } from '../../../core/runtime/skill-slots.js';
 import { oneLine, foldKey } from '../../../core/text.js';
 import { isObject } from '../core.js';
 
@@ -32,7 +33,8 @@ export function checkSkillSet(record, path, label, add) {
         const typeWord = skill.type === undefined ? 'attack' : typeof skill.type === 'string' ? skill.type.trim().toLowerCase() : '';
         const type = SKILL_TYPE_ALIASES[typeWord] ?? typeWord;
         if (!L.types.includes(type)) say(`${at}.type`, `${at}.type must be one of ${L.types.join(', ')} (attack when left out).`);
-        if (name && what && L.stats.includes(written) && uses && L.types.includes(type)) skills.push({ name, about: what, stat, uses, type });
+        else if (type === 'focus' && L.stats.includes(written) && !FOCUS_STATS.includes(stat)) say(`${at}.stat`, `${at}.stat must be int or wis: a focus skill is a magic stance.`);
+        if (name && what && L.stats.includes(written) && uses && L.types.includes(type) && (type !== 'focus' || FOCUS_STATS.includes(stat))) skills.push({ name, about: what, stat, uses, type });
     });
     return ok ? { name: oneLine(record.name), about: oneLine(about), skills } : null;
 }

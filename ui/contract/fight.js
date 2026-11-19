@@ -21,8 +21,8 @@ const ACTION = {
 };
 
 // The stance the acting member owns: `on` is whether it was up in the last exchange (the switch's start), `soakOn` / `soakOff` the soak with and without it (null for a stance that does not soak),
-// `pool` / `cost` what it takes each exchange (Stamina, or Mana for a magic stance), `paid` the pool's move the mock's note adds (null from the engine).
-const STANCE = { $nullable: { name: T.STRING, on: T.BOOLEAN, soakOn: { $nullable: T.NUMBER }, soakOff: { $nullable: T.NUMBER }, pool: { $enum: ['Stamina', 'Mana'] }, cost: T.NUMBER, paid: { $nullable: [T.NUMBER] } } };
+// `pool` / `cost` what it takes each exchange (Stamina, or Mana for a magic stance), `paid` the pool's move the mock's note adds (null from the engine), `adds` what a Speed or Focus stance gives while on.
+const STANCE = { $nullable: { name: T.STRING, on: T.BOOLEAN, soakOn: { $nullable: T.NUMBER }, soakOff: { $nullable: T.NUMBER }, pool: { $enum: ['Stamina', 'Mana'] }, cost: T.NUMBER, paid: { $nullable: [T.NUMBER] }, adds: { $optional: T.STRING } } };
 
 export const FIGHT_SHAPE = {
   state: { $enum: ['offer', 'choose', 'target', 'ally', 'after', 'end'] },

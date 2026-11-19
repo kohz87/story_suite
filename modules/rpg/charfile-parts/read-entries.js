@@ -3,7 +3,7 @@
 import { KINDS, RARITIES } from '../../inventory/index.js';
 import { GEAR, slotWordOf } from '../../inventory/gear.js';
 import { CREATION, STATS_V1, USES } from '../names.js';
-import { SKILL_TYPE_NAMES } from '../templates-combat.js';
+import { typeKey } from '../../../core/runtime/skill-slots.js';
 import { FILE_LIMITS } from './limits.js';
 import { isRecord, line, whole } from './shared-reading.js';
 
@@ -15,7 +15,7 @@ export function readSkill(entry) {
     // (a skill of a file written before Combat Rules v1 has `uses` and may name LUK, which is read as WIS; a v1 skill has a `type` and no `uses`)
     const stat = entry.stat === 'luk' ? 'wis' : entry.stat;
     if (!name || (hasStat && !STATS_V1.includes(stat)) || (entry.uses !== undefined && !USES.includes(entry.uses)) || !whole(entry.rank, 0, FILE_LIMITS.rank)) return null;
-    return { name, about: line(entry.about, CREATION.skillAbout), ...(hasStat ? { stat } : {}), uses: entry.uses ?? USES[0], rank: entry.rank, ...(SKILL_TYPE_NAMES.includes(entry.type) && entry.type !== 'attack' ? { type: entry.type } : {}) };
+    return { name, about: line(entry.about, CREATION.skillAbout), ...(hasStat ? { stat } : {}), uses: entry.uses ?? USES[0], rank: entry.rank, ...typeKey(entry.type) };
 }
 
 export function readItem(entry) {

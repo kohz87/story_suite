@@ -12,11 +12,16 @@ import { openingV1 } from '../../../modules/rpg/board/v1-opening.js';
 import { preludeDice } from '../../../core/interaction/dice.js';
 import { v1Host } from './board/v1.helpers.js';
 
-test('every built-in skill set is valid under the v1 rules: known types, at most one stance skill', () => {
+test('every built-in skill set is valid under the v1 rules: known types, at most one stance skill, a focus skill on INT or WIS', () => {
     for (const set of SKILL_SETS) {
         for (const skill of set.skills) assert.ok(SKILL_TYPE_NAMES.includes(skill.type), `${set.name} / ${skill.name}: ${skill.type} is a known type`);
         assert.ok(set.skills.filter(skill => STANCE_TYPES.includes(skill.type)).length <= 1, `${set.name} holds at most one stance skill`);
+        for (const skill of set.skills.filter(each => each.type === 'focus')) assert.ok(['int', 'wis'].includes(skill.stat) && skill.uses === 'mana', `${set.name} / ${skill.name}: a focus skill rolls with INT or WIS and uses Mana`);
+        assert.ok(!set.skills.some(skill => ['evasion', 'movement', 'support'].includes(skill.type)), `${set.name}: no earlier stance word`);
     }
+    // (River scout's Swimming is Speed, Field medic's Calm is Focus on WIS)
+    assert.deepEqual(SKILL_SETS.flatMap(set => set.skills.filter(skill => STANCE_TYPES.includes(skill.type)).map(skill => [set.id, skill.name, skill.type, skill.stat])),
+        [['guild-fighter', 'Shield work', 'defence', 'str'], ['river-scout', 'Swimming', 'speed', 'vit'], ['hedge-mage', 'Ward', 'defence', 'int'], ['field-medic', 'Calm', 'focus', 'wis']]);
 });
 
 test('the Guild fighter set is not three attacks, and the wizard keeps each skill\'s type (attack stays the unwritten default)', () => {

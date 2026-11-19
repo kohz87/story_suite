@@ -11,8 +11,8 @@ import { abilityWord, leanStat } from './pull-words.js';
 const DEFAULT_ABILITIES = 4, ABILITY_MAX = 6;
 const STANCES = Object.freeze({
     defence: { name: 'Guard', about: 'Plants their feet and takes the blow on the shield or the arm.', stat: 'vit' },
-    evasion: { name: 'Evade', about: 'Stays light on their feet and out of reach.', stat: 'agi' },
-    support: { name: 'Rally', about: 'Keeps the others steady and on their feet.', stat: 'cha' },
+    speed: { name: 'Evade', about: 'Stays light on their feet and out of reach.', stat: 'agi' },
+    focus: { name: 'Rally', about: 'Keeps the others steady and on their feet.', stat: 'wis' },
 });
 const isStance = type => V1.skill.types[type]?.kind === 'stance';
 const fold = text => oneLine(text).toLowerCase();
@@ -50,14 +50,16 @@ export function pullOf(state, { name, soul = 1, best = '', pull = null, cap = nu
     const room = { combat: skillSlots(at), utility: UTILITY_SLOTS }, skills = [], left = [];
     const place = skill => { const kind = skill.type === 'utility' ? 'utility' : 'combat'; if (room[kind] > 0) { room[kind] -= 1; skills.push(skill); return true; } return false; };
     for (const entry of abilities.slice(0, count)) {
-        const word = abilityWord(`${entry.name} ${entry.description ?? ''}`), type = word?.type ?? 'attack', stat = word?.stat ?? (lead || 'str');
+        const word = abilityWord(`${entry.name} ${entry.description ?? ''}`), type = word?.type ?? 'attack', said = word?.stat ?? (lead || 'str');
+        const stat = type === 'focus' && !V1.focus.stats.includes(said) ? 'wis' : said;   // (a Focus skill rolls with INT or WIS)
         const skill = { name: oneLine(entry.name), about: oneLine(entry.description ?? ''), stat, uses: type === 'heal' || stat === 'int' || stat === 'wis' ? 'mana' : 'stamina', rank, ...typeKey(type) };
         if (!place(skill)) left.push({ name: skill.name, kind: skill.type === 'utility' ? 'utility' : 'combat' });
     }
     // (the stance comes last and only into a free combat slot)
     if (pull?.stance !== false && !skills.some(skill => isStance(skill.type ?? 'attack')) && room.combat > 0) {
-        const kind = lead === 'dex' || lead === 'agi' ? 'evasion' : lead === 'int' || lead === 'wis' || lead === 'cha' ? 'support' : 'defence';
-        place({ ...STANCES[kind], uses: 'stamina', rank, type: kind });
+        // (a Focus stance rolls with INT or WIS and is paid from Mana: a CHA lead's Rally rolls with WIS)
+        const kind = lead === 'dex' || lead === 'agi' ? 'speed' : lead === 'int' || lead === 'wis' || lead === 'cha' ? 'focus' : 'defence';
+        place({ ...STANCES[kind], ...(kind === 'focus' && (lead === 'int' || lead === 'wis') ? { stat: lead } : {}), uses: kind === 'focus' ? 'mana' : 'stamina', rank, type: kind });
     }
     return { ...(level ? { level } : {}), best: lead, skills, keepsakes, ...(left.length ? { left } : {}) };
 }

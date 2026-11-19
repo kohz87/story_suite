@@ -1,4 +1,4 @@
-// Combat Rules v1 skills: the eight types, costs and fallback, stance ownership and on/off, the rank
+// Combat Rules v1 skills: the seven types, costs and fallback, stance ownership and on/off, the rank
 // ladder against the oracle, and every MP / SP move in the C0 simulator traces.
 
 import test from 'node:test';
@@ -12,19 +12,24 @@ const CASES = JSON.parse(readFileSync(new URL('../../../../scripts/core/sim-trac
 const FIXTURE = JSON.parse(readFileSync(new URL('../v1/fixtures/sim-traces.json', import.meta.url), 'utf8'));
 const MAGIC = new Set(['Mage', 'Healer']);
 const OWNED_STANCE = {
-    Warrior: 'defence', Skirmisher: 'evasion', 'Skirmisher-Move': 'movement', 'Skirmisher-area': 'evasion',
-    Mage: 'evasion', Healer: 'defence',
+    Warrior: 'defence', Skirmisher: 'speed', 'Skirmisher-Move': 'speed', 'Skirmisher-area': 'speed',
+    Mage: 'speed', Healer: 'defence',
 };
 const skillFor = (build, type) => ({ type, stat: MAGIC.has(build) ? 'wis' : 'str' });
 const resourcesOf = hero => ({ sp: hero.sp, mp: hero.mp });
 
-test('the type table has the eight v1 types, with Support as a stance', () => {
+test('the type table has the seven v1 types, with Defence, Speed and Focus as the stances', () => {
     const kinds = Object.fromEntries(Object.entries(V1.skill.types).map(([type, entry]) => [type, entry.kind]));
     assert.deepEqual(kinds, {
-        attack: 'action', area: 'action', defence: 'stance', evasion: 'stance',
-        movement: 'stance', heal: 'action', support: 'stance', utility: 'story',
+        attack: 'action', area: 'action', defence: 'stance', speed: 'stance',
+        focus: 'stance', heal: 'action', utility: 'story',
     });
-    assert.deepEqual(Object.keys(V1.skill.types), ['attack', 'area', 'defence', 'evasion', 'movement', 'heal', 'support', 'utility']);
+    assert.deepEqual(Object.keys(V1.skill.types), ['attack', 'area', 'defence', 'speed', 'focus', 'heal', 'utility']);
+});
+
+test('the earlier stance words read as the new types: evasion, movement, agility, swift are Speed; support, channel, auxiliary are Focus', () => {
+    for (const word of ['speed', 'Speed', 'evasion', 'movement', 'agility', 'swift']) assert.equal(skillCost({ type: word, stat: 'agi' }).type, 'speed', word);
+    for (const word of ['focus', 'Focus', 'support', 'channel', 'auxiliary']) assert.equal(skillCost({ type: word, stat: 'wis' }).type, 'focus', word);
 });
 
 test('costs: attack 1, area 2, heal 2 MP, every stance 1 per exchange; utility and normal attacks are free', () => {
@@ -39,12 +44,14 @@ test('costs: attack 1, area 2, heal 2 MP, every stance 1 per exchange; utility a
     assert.deepEqual(skillCost({ type: 'heal', stat: 'str' }), {
         type: 'heal', kind: 'action', pool: 'mp', cost: 2, affordable: true, fallback: false,
     });
-    for (const type of ['defence', 'Defence', 'evasion', 'movement', 'support']) {
+    for (const type of ['defence', 'Defence', 'speed', 'evasion', 'movement']) {
         const price = skillCost({ type, stat: 'str' });
         assert.equal(price.kind, 'stance', type);
         assert.equal(price.cost, 1, type);
         assert.equal(price.pool, 'sp', type);
     }
+    // (a Focus stance is a magic stance: always Mana)
+    for (const stat of ['int', 'wis', 'str']) assert.deepEqual(skillCost({ type: 'focus', stat }), { type: 'focus', kind: 'stance', pool: 'mp', cost: 1, affordable: true, fallback: false });
     assert.deepEqual(skillCost('utility'), {
         type: 'utility', kind: 'story', pool: null, cost: 0, affordable: true, fallback: false,
     });
@@ -64,10 +71,10 @@ test('the 0 SP fallback is a free normal attack; a stance with no SP is off', ()
     assert.equal(heal.fallback, false);
 });
 
-test('one stance skill may be owned; a second stance, including Support, cannot be added', () => {
+test('one stance skill may be owned; a second stance, including Focus, cannot be added', () => {
     const defence = { name: 'Shield Wall', type: 'defence' };
-    const evasion = { name: 'Shadow Step', type: 'evasion' };
-    const support = { name: 'Rally', type: 'support' };
+    const evasion = { name: 'Shadow Step', type: 'speed' };
+    const support = { name: 'Rally', type: 'focus' };
     assert.equal(canOwn([], defence), true);
     assert.equal(canOwn([defence], evasion), false);
     assert.equal(canOwn([defence], support), false);
@@ -79,14 +86,16 @@ test('one stance skill may be owned; a second stance, including Support, cannot 
 });
 
 test('one stance runs at a time; off is null and an unaffordable stance stays off', () => {
-    const defence = { type: 'defence', stat: 'str' }, evasion = { type: 'evasion', stat: 'agi' };
+    const defence = { type: 'defence', stat: 'str' }, evasion = { type: 'speed', stat: 'agi' };
     assert.equal(stanceOf(defence), 'defence');
     assert.equal(stanceOf(defence, false), null);
     assert.equal(stanceOf(defence, null), null);
     assert.equal(stanceOf([{ type: 'attack' }, defence]), 'defence');
     assert.equal(stanceOf([defence, evasion]), null);
     assert.equal(stanceOf({ type: 'attack' }), null);
-    assert.equal(stanceOf({ type: 'support', stat: 'wis' }), 'support');
+    assert.equal(stanceOf({ type: 'focus', stat: 'wis' }), 'focus');
+    assert.equal(stanceOf({ type: 'support', stat: 'wis' }), 'focus');
+    assert.equal(stanceOf({ type: 'focus', stat: 'wis' }, true, { sp: 5, mp: 0 }), null, 'Focus is paid from Mana');
 });
 
 test('the rank table is the oracle ladder and both practice and level gates apply', () => {
