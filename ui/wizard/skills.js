@@ -76,6 +76,9 @@ function skillCard(ctx, skill, at) {
     h('div', { class: 'wz-trio' }, h('label', { class: 'ef' }, W.colStat, stat), h('label', { class: 'ef' }, W.colType, type), h('label', { class: 'ef' }, W.colStart, start)));
 }
 
+// Which bar a skill draws, from the rule's own numbers (Combat Rules v1: INT/WIS → Mana, any other stat → Stamina; heal → Mana; a stance's cost each exchange).
+const barsHint = () => fill(W.barsHint, { magic: V1.skill.magicStats.map(s => s.toUpperCase()).join(' or '), stance: V1.cost.stance });
+
 /** Draws the Skills step for the wizard session `ctx` ({ run, world, put, summary, redraw }). */
 export function drawSkills(ctx) {
   const { run, world } = ctx;
@@ -88,6 +91,7 @@ export function drawSkills(ctx) {
   return h('div', { class: 'wz-skills' },
     replaceAsk(ctx),
     h('p', { class: 'ps-p' }, fill(W.skillsIntro, { max: draftSlots(run.draft) })),
+    h('p', { class: 'ps-p', dataset: { wiz: 'bars-hint' } }, barsHint()),
     h('div', { class: 'ps-sec' }, W.templates),
     h('div', { class: 'wz-sets' }, sets.map(set => setButton(ctx, set))),
     h('div', { class: 'ps-sec' }, W.yourSkills),

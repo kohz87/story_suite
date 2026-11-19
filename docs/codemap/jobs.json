@@ -402,6 +402,7 @@
   "tests/ui/tabs/now/here-now.test.js": "Tests Here now, Now without its Here card on desktop, and the desktop watcher.",
   "tests/ui/tabs/story/tracker-edit.test.js": "Tests for the tracker Edit sheet and the template sheet.",
   "tests/ui/turn-on-frame.test.js": "Pins that the new view's chat surfaces are built once a frame for a burst of port and SillyTavern events, and not after turn-off.",
+  "tests/ui/wizard/skills-bars-hint.test.js": "Tests that the New character Skills hint says which bar a skill uses, built from Combat Rules v1's own numbers.",
   "ui/card/card-icons.js": "Draws the card's soak, pace and status glyphs from the mock's shapes, with a shared-set fallback.",
   "ui/card/card-row.js": "Builds the card's top row: ‹ Chat, time · place · weather with the mock's glyphs (opens the Scene sheet) and ⚙.",
   "ui/card/character-card.js": "Builds the full character card shown on top of every tab, with a Story-only variant when RPG is off.",
@@ -649,8 +650,8 @@
   "ui/wizard/review.js": "Draws the wizard's Review step in the new view and runs Create through modules/rpg's create-run.",
   "ui/wizard/skills.js": "Draws the wizard's Skills step in the new view: the starting sets and one card of fields per skill.",
   "ui/wizard/stats.js": "Draws the wizard's Stats step in the new view: the notes, the stat sheet's − / + rows under the creation budget, then Points left, the HP · MP · SP line and Reset.",
+  "ui/wizard/summary.js": "Draws the wizard's summary of the character so far: the phone's row and, from 1100 px, the left card's portrait, stat tiles and skill list.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
   "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary, Back / Next and Create's footer, and the step's scroll across redraws.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You.",
-  "ui/wizard/summary.js": "Draws the wizard's summary of the character so far: the phone's row and, from 1100 px, the left card's portrait, stat tiles and skill list."
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You."
 }
