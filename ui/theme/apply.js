@@ -3,6 +3,7 @@
 import { TOKENS } from './tokens.js';
 
 const TOKEN_SET = new Set(TOKENS);
+const BLURS = new Set(['--su-blur', '--su-blur-strong', '--su-blur-soft']);
 const UNSAFE_RE = /[;{}\r\n\0]|<\/|@import\b|\burl\s*\(|\bexpression\s*\(|javascript:/i;
 
 const HEX_RE = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -82,7 +83,7 @@ function checkTokenValue(name, raw) {
   if (!val) return `${name}: empty value`;
   if (UNSAFE_RE.test(val) || !balancedParens(val)) return `${name}: unsafe or malformed value`;
 
-  if (name === '--su-blur') return isLength(val) ? null : `${name}: expected CSS length`;
+  if (BLURS.has(name)) return isLength(val) ? null : `${name}: expected CSS length`;
   if (name === '--su-font') return isFont(val) ? null : `${name}: expected font-family list`;
   if (name === '--su-shadow') return isShadow(val) ? null : `${name}: expected CSS shadow`;
   if (name === '--su-back' || name === '--su-sky') {
