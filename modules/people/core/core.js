@@ -22,7 +22,6 @@ export { mergeScanResult } from './core-parts/scan-merge.js';
 export { buildNpcPortraitPrompts, buildInjection } from './core-parts/projected-reads.js';
 export { LEVEL_FIELD_RULE } from './core-parts/shared-custom-field-rule.js';
 export { buildScannerPrompt, buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt } from './core-parts/scanner-prompts.js';
-export { NARRATION_CAPTURE_CONTEXT_MARKER, NARRATION_CAPTURE_TAIL_LEAD, buildNarrationCapturePrompt, buildNarrationCaptureParts } from './core-parts/narration-capture.js';
 
 // NPC State Delta application version. Persisted bundle, branch, and data schemas are versioned independently.
 export const NPC_STATE_VERSION = '1.18.0';

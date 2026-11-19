@@ -32,7 +32,7 @@ test('the chat text helpers read the wired context', () => {
 });
 
 test('index.js wires the helpers and keeps no copy', () => {
-    const index = fs.readFileSync(new URL('../../modules/people/legacy/index.js', import.meta.url), 'utf8');
+    const index = fs.readFileSync(new URL('../../modules/people/runtime/runtime-entry.js', import.meta.url), 'utf8');
     assert.match(index, /useTranscriptSource\(\{ context: \(\) => chatContext\(\), scanDepth: \(\) => getSettings\(\)\.scanDepth \}\);/);
     assert.doesNotMatch(runtimeSource(), /^\s*function (?:cleanMessage|recentTranscript|currentExchangeTranscript|storyDayAt)\(/m);
 });

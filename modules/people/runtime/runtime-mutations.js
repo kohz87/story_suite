@@ -1,7 +1,7 @@
 /* NPC State Delta scoped manual mutations (role: scoped-manual-mutations). The single-dossier changes a person makes by hand:
    appearance, life state, portrait set/seed/remove, delete, archive and restore, manual add, and the export/import bundle with its
-   portrait files. Built by index.js once per module instance with the shared runtime state and the controller functions it calls.
-   Bodies are moved from index.js without change. */
+   portrait files. Built by runtime-entry.js once per module instance with the shared runtime state and the controller functions it calls.
+   Bodies are moved from runtime-entry.js without change. */
 
 import { currentExclusions } from '../transcript/transcript.js';
 import { NPC_STATE_VERSION, rosterCount, capMessage, applyNpcStateCommand, isTerminalNpcDeath, manualLifeStateRecord, normalizeName, normalizeNpcRecord, setNpcArchived, normalizePortraitSeed, appearanceDraftRecord, appearanceFingerprint, formPortraitKey, normalizeFormPortraitAssets } from '../core/core.js';

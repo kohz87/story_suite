@@ -1,7 +1,7 @@
 /* NPC State after the chat was swiped, regenerated, edited, had a message deleted or was opened (role: settle). The store's timeline moves the people
    with the head (the adapter hydrates the cache), so nothing is rolled back here: the swipe settlement waits for the host's swipe to end, the merged
    and delayed requests wait for the message gate, and a reply received while the chat was opening is handed to the ordinary receipt once they settle.
-   The branch journal that rolled the dossiers back to a checkpoint was removed at B4-10a. Built by index.js once per module instance with the shared
+   The branch journal that rolled the dossiers back to a checkpoint was removed at B4-10a. Built by runtime-entry.js once per module instance with the shared
    runtime state. */
 
 import { getContext } from '../../../../../../extensions.js';

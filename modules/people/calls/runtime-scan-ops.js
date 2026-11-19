@@ -1,8 +1,8 @@
 /* NPC State Delta scan operations (role: scan-operations). The lifecycle of one scan operation (begin, the canonical-base check before a result is merged,
    end, cancel), the dossier-work intent gate and the deferral of work that finds the host's head-selection barrier still up, the idle wait, the
    generation gate, the queue of automatic scans and its drain, the backfills started after a reply, and the scan diagnostics record. The registry
-   itself is created in index.js (the chat-key part takes isScanBusy at construction). Built by index.js once per module instance with the shared
-   runtime state. Bodies are moved from index.js without change. */
+   itself is created in runtime-entry.js (the chat-key part takes isScanBusy at construction). Built by runtime-entry.js once per module instance with the shared
+   runtime state. Bodies are moved from runtime-entry.js without change. */
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { isEmptyScannerAnswer, isScannerRoutingError, selectedScannerProfileId } from './scanner-routing.js';

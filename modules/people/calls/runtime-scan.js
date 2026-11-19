@@ -1,6 +1,6 @@
 /* NPC State Delta reply scan (role: reply-scan). The scan itself (one-pass capture or the scanner request, merge, stale
    lifecycle, backfill queue, checkpoint) and the capture catch-up; its backfill, stale, reply identity and assistant-handler
-   parts are split beside this file, and this factory keeps the public scan part. Built by index.js once per module instance. */
+   parts are split beside this file, and this factory keeps the public scan part. Built by runtime-entry.js once per module instance. */
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { isScannerRoutingError } from './scanner-routing.js';
 import { readAheadOf, replyScanned, settleScan, storyTextsForAdmission } from './scan-context.js';

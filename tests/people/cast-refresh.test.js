@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCastRefreshPart } from '../../modules/people/legacy/runtime-cast-refresh.js';
+import { createCastRefreshPart } from '../../modules/people/runtime/runtime-cast-refresh.js';
 
 // B4-6: nothing is drawn in the chat; the part only tells the Cast and World panes (cast-rendered) that the dossiers may have changed.
 

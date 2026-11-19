@@ -1,7 +1,7 @@
 /* NPC State Delta settings panel bindings (role: settings-panel-bind). bindUi and the control binders, attaching the
-   panel to the extensions drawer and its mount retries. Built by index.js once per module instance with the shared
+   panel to the extensions drawer and its mount retries. Built by runtime-entry.js once per module instance with the shared
    runtime state and the controller functions it calls, so each instance keeps its own retry timer. Bodies are moved from
-   index.js without change. */
+   runtime-entry.js without change. */
 
 import { getContext } from '../../../../../../extensions.js';
 import { DEFAULT_ALLOWANCE, normalizeAllowance } from '../relationship/relationship-pacing.js';

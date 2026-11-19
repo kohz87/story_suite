@@ -30,41 +30,39 @@ import {
     dataFileExists,
 } from '../storage/storage.js';
 import { isPortraitFileRecord, markPortraitFileMissing, portraitFilesVersion, PORTRAIT_FILE_DIR, PORTRAIT_FILE_PREFIX } from '../portrait/portrait-file.js';
-import { fillPresentSceneText } from './present-scene.js';
 import { createCardSettingsDefinition, SCAN_EVERY_RANGE } from '../settings/card-settings.js';
-import { createRuntimeState } from '../runtime/runtime-state.js';
+import { createRuntimeState } from './runtime-state.js';
 import { chatContext, setNpcDossierScanIndicator, setNpcChatRefreshIndicator, stampManualEdit, narrationCaptureEnabled, setScanIndicator, relationshipNumber, latestReplyIndex, latestMessageId, clearUserDismissedSuppression } from '../calls/runtime-scan-helpers.js';
-import { createInjectionPart } from '../runtime/runtime-injection.js';
-import { createNarrationPart } from '../runtime/runtime-narration.js';
+import { createInjectionPart } from './runtime-injection.js';
+import { createNarrationPart } from './runtime-narration.js';
 import { createScanOpsPart } from '../calls/runtime-scan-ops.js';
 import { createTargetedPart } from '../calls/runtime-targeted.js';
 import { createScanPart } from '../calls/runtime-scan.js';
-import { createChatBranchPart } from '../runtime/runtime-chat-branch.js';
-import { createSettlePart } from '../runtime/runtime-settle.js';
-import { createLifecyclePart } from '../runtime/runtime-lifecycle.js';
-import { createChatKeysPart } from '../runtime/runtime-chat-keys.js';
-import { createHydrationPart } from '../runtime/runtime-hydration.js';
+import { createChatBranchPart } from './runtime-chat-branch.js';
+import { createSettlePart } from './runtime-settle.js';
+import { createLifecyclePart } from './runtime-lifecycle.js';
+import { createChatKeysPart } from './runtime-chat-keys.js';
+import { createHydrationPart } from './runtime-hydration.js';
 import { createPersistPart } from './runtime-persist.js';
-import { createHostedPart } from '../runtime/runtime-hosted.js';
-import { createCastSyncPart } from '../runtime/runtime-cast-sync.js';
-import { createEditorPart } from '../runtime/runtime-editor.js';
-import { createMutationsPart } from '../runtime/runtime-mutations.js';
+import { createHostedPart } from './runtime-hosted.js';
+import { createCastSyncPart } from './runtime-cast-sync.js';
+import { createEditorPart } from './runtime-editor.js';
+import { createMutationsPart } from './runtime-mutations.js';
 import { createPortraitPart } from '../portrait/runtime-portrait.js';
 import { createPortraitSettingsPart } from '../portrait/runtime-portrait-settings.js';
-import { createPresentCastPart } from './runtime-present-cast.js';
 import { createNpcLookupPart } from './runtime-npc-lookup.js';
 import { createCastRefreshPart } from './runtime-cast-refresh.js';
 import { createSettingsHtmlPart } from '../settings/runtime-settings-html.js';
 import { createSettingsBindPart } from '../settings/runtime-settings-bind.js';
 import { persistSettings, flushPendingSettingsSave, getSettings } from '../settings/runtime-settings.js';
-import { createNpcApiPart } from '../runtime/runtime-npc-api.js';
-import { createEventRegistration } from '../runtime/runtime-entry-events.js';
-import { createUiCaptureParts } from '../runtime/runtime-entry-ui-events.js';
-import { createCardSettingsPart } from '../runtime/runtime-entry-card-settings.js';
-import { createStartup } from '../runtime/runtime-entry-startup.js';
-import { createPublicApiReadPart } from '../runtime/runtime-entry-public-read.js';
-import { createPublicApiStatePart } from '../runtime/runtime-entry-public-write.js';
-import { pageHandles } from '../runtime/handles.js';
+import { createNpcApiPart } from './runtime-npc-api.js';
+import { createEventRegistration } from './runtime-entry-events.js';
+import { createUiCaptureParts } from './runtime-entry-ui-events.js';
+import { createCardSettingsPart } from './runtime-entry-card-settings.js';
+import { createStartup } from './runtime-entry-startup.js';
+import { createPublicApiReadPart } from './runtime-entry-public-read.js';
+import { createPublicApiStatePart } from './runtime-entry-public-write.js';
+import { pageHandles } from './handles.js';
 import { queueFills } from '../meters/npc-lines-parts/fill-in.js';
 import { queueNpcBackfillInState } from '../calls/runtime-scan-backfill.js';
 
@@ -334,11 +332,10 @@ const { noteChatLineage, seedBranchTracking, hostSwipeState, isHostSwipeActive, 
 
 const { storyBlockV2Hosted, storySuiteV2Meters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, awayReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, awayScanOptions, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason } = createHostedPart(rt, { chatHydrationStatus, getChatKey, getChatState, latestMessageId, latestReplyIndex });
 
-const { liveInjectionText, updateInjection, holdCaptureRules, keepCaptureRules, clearLegacyPromptKeys, injectionPreview, scannerPromptOptions } = createInjectionPart(rt, { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, awayReturnNotes, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, storySuiteV2Meters });
+const { liveInjectionText, updateInjection, nextCaptureParts, holdCaptureRules, keepCaptureRules, clearLegacyPromptKeys, injectionPreview, scannerPromptOptions } = createInjectionPart(rt, { CAPTURE_PROMPT_DEPTH, CAPTURE_PROMPT_KEY, CAPTURE_RULES_KEY, chatHydrationStatus, getChatKey, getChatState, hostedMeterView, hostedNotePromptOptions, awayReturnNotes, LEGACY_PROMPT_KEYS, PROMPT_KEY, scenePresenceView, storySuiteV2Meters });
 
 const { narrationCaptureStats, hostedMeters, hostedOnePass, narrationCaptureKey, dropNarrationCaptures, noteNarrationCaptureVersion, renderCapturedReply, receiveNarrationBlock, stripSwipedNarrationBlock, disarmNarrationCapture, takeNarrationCapture } = createNarrationPart(rt, { getChatKey, getChatState, storySuiteV2Meters, updateInjection });
 
-const { storyBlockCastHtml } = createPresentCastPart({ chatHydrationStatus, getChatKey, getChatState, latestMessageId, scenePresenceView });
 const { currentNpcById, findNpcByIdOrName } = createNpcLookupPart({ chatHydrationStatus, getChatKey, getChatState });
 const { queueCastRefresh } = createCastRefreshPart({ chatHydrationStatus, getChatKey });
 
@@ -383,7 +380,7 @@ const { updateNpcAppearance, updateNpcLifeState, npcFormName, setNpcPortrait, se
 
 const { handlePortraitGeneratorEscape, npcImagePromptPair, executeNativePortraitGeneration, closePortraitGenerator, openPortraitGenerator, resetPortraitGeneratorFromDossier, generatePortraitFromDialog, useGeneratedPortrait, portraitSettingsSnapshot, normalizePortraitSettingsDraft, portraitSettingsDraftFromUi, writePortraitCustomPresetOptions, writePortraitSettingsDraftToUi, confirmDiscardPortraitDraft, updatePortraitSettingsSaveUi, markPortraitSettingsDirty } = createPortraitPart(rt, { currentNpcById, eventTargetClosest, flushStateFile, getChatKey, requireReadyChatMutation, setNpcPortrait });
 
-const { SUITE_API, renderWhatsSent, afterEnabledChange, watchHost } = createNpcApiPart(rt, { chatHydrationStatus, getChatKey, getChatState, hostedNotePromptOptions, liveInjectionText, narrationCaptureEnabled, queueCastRefresh, renderDossier, scannerPromptOptions, scenePresenceView, updateInjection });
+const { SUITE_API, renderWhatsSent, afterEnabledChange, watchHost } = createNpcApiPart(rt, { chatHydrationStatus, getChatKey, getChatState, liveInjectionText, nextCaptureParts, queueCastRefresh, renderDossier, scenePresenceView, updateInjection });
 const { buildSettingsHtml, bindSettingsGroupMemory, syncSettingsControls } = createSettingsHtmlPart(rt, { portraitSettingsSnapshot, UI_ID, updatePortraitSettingsSaveUi, writePortraitSettingsDraftToUi });
 const { savePortraitSettingsDraft, persistPortraitCustomPresetLibrary } = createPortraitSettingsPart(rt, { normalizePortraitSettingsDraft, portraitSettingsDraftFromUi, portraitSettingsSnapshot, syncSettingsControls, updatePortraitSettingsSaveUi });
 
@@ -418,6 +415,6 @@ globalThis.__NPCStateDeltaLifecycle = Object.freeze({
 
 // Small debug surface for deployment tests.
 const publicReadApi = createPublicApiReadPart({ getContext, NPC_STATE_VERSION, scannerRoutingMetrics, scannerDiagnosticLines, chatLineage, firstLineageDivergence, narrationCaptureEnabled, getSettings, UI_ID, rt, scanNow, getChatKey, pendingAutoScans, cancelScanOperation, processPendingBackfills, ensureFreshMutationBoundary, findNpcByIdOrName, scanNpcDossier, refreshNpcFromChat, npcFormName, npcImagePromptPair, executeNativePortraitGeneration, openPortraitGenerator, portraitSettingsSnapshot, savePortraitSettingsDraft, nsdCardSettings, renderDossier, openNpcEditorSafely, openPersonDossier, injectionPreview, chatHydrationStatus, hydrationErrors, isScanBusy, scanOperations, narrationCaptureStats, narrationCaptures, getChatState, editorIsMounted, hostSwipeState, hydratedRevision, hydratedStateMeta, freshnessEvents, hydratedChatKeys, ensureChatStateLoaded, ensureHydratedStateFresh, exportBundleBytes, importBundleBytes, reconcileCurrentBranch, diagnosticStore });
-const publicStateApi = createPublicApiStatePart({ normalizeChatState, getChatKey, requestHeaders, ensureFreshMutationBoundary, quietly, setChatState, persistCriticalDurable, renderDossier, updateInjection, getChatState, nativeChangeListeners, chatStateCache, branchInheritancePending, chatHydrationStatus, loadingReconcilePending, scanWorkPending, scanIdle, useMessageGate, normalizeRelationshipBaseline, normalizeRelationshipCaps, getSettings, storyBlockCastHtml, castEmptyReason, addNpcManually, fillPresentSceneText, stateVersions, latestReplyIndex, viewNpcCopies, hostedMeterView, scenePresenceView, dossierHostViews, hydrationErrors, portraitFilesVersion, persistedVersions, stateWritePromises, stateWriteTimers, hydratedRevision, hydratedStateMeta, undurableNpcStateSnapshot, runFreshMutation, updateNpcAppearance, updateNpcLifeState, setNpcPortrait, setNpcPortraitSeed, removeNpcPortrait, flushStateFile, setNpcArchiveStateById, deleteNpcById, storySuiteV2Meters, queueFillsInState: (state, stubs, at) => queueFills(state, stubs, at, queueNpcBackfillInState), freshChatState, installState: state => publicStateApi.installState(state), handleAssistantMessageReceivedInner, processPendingBackfills, hostedOnePass, BACKFILLS_PER_REPLY });
+const publicStateApi = createPublicApiStatePart({ normalizeChatState, getChatKey, requestHeaders, ensureFreshMutationBoundary, quietly, setChatState, persistCriticalDurable, renderDossier, updateInjection, getChatState, nativeChangeListeners, chatStateCache, branchInheritancePending, chatHydrationStatus, loadingReconcilePending, scanWorkPending, scanIdle, useMessageGate, normalizeRelationshipBaseline, normalizeRelationshipCaps, getSettings, castEmptyReason, addNpcManually, stateVersions, latestReplyIndex, viewNpcCopies, hostedMeterView, scenePresenceView, dossierHostViews, hydrationErrors, portraitFilesVersion, persistedVersions, stateWritePromises, stateWriteTimers, hydratedRevision, hydratedStateMeta, undurableNpcStateSnapshot, runFreshMutation, updateNpcAppearance, updateNpcLifeState, setNpcPortrait, setNpcPortraitSeed, removeNpcPortrait, flushStateFile, setNpcArchiveStateById, deleteNpcById, queueFillsInState: (state, stubs, at) => queueFills(state, stubs, at, queueNpcBackfillInState), freshChatState, installState: state => publicStateApi.installState(state), handleAssistantMessageReceivedInner, processPendingBackfills, hostedOnePass, BACKFILLS_PER_REPLY });
 pageHandles.deltaApi = Object.freeze({ ...publicReadApi, ...publicStateApi });
 pageHandles.suiteApi = SUITE_API;

@@ -4,4 +4,4 @@ export { deterministicBirthday, deriveBirthDateFromAge } from './birthday-parts/
 export { normalizeBirthDateState, normalizeScanBirthday } from './birthday-parts/scan-input.js';
 export { normalizeNpcBirthday, effectiveChronologicalAge, reanchorDerivedBirthYearFromAge } from './birthday-parts/normalize.js';
 export { PACK_BIRTHDAY_REASON, applyNpcBirthdayUpdate, mergeNpcBirthdayKnowledge } from './birthday-parts/update.js';
-export { birthdayEvidenceInText, birthdayPromptRule, BIRTHDAY_PROMPT_RULE, birthdayCaptureRule } from './birthday-parts/prompt.js';
+export { birthdayEvidenceInText, birthdayPromptRule, BIRTHDAY_PROMPT_RULE } from './birthday-parts/prompt.js';

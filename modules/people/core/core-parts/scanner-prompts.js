@@ -1,12 +1,11 @@
 // Scanner, backfill, dossier-import and profile-refresh prompts with the birthday and custom-field rules applied.
 import * as continuity from '../continuity-core.js';
 import * as mechanics from '../core-mechanics.js';
-import { calendarPromptOptions, appendBirthdayRule, withCaptureBirthdayRule, insertRefreshBirthdayRule } from './shared-birthday-rules.js';
+import { calendarPromptOptions, appendBirthdayRule, insertRefreshBirthdayRule } from './shared-birthday-rules.js';
 import { appendCustomFieldRule } from './shared-custom-field-rule.js';
 
 export function buildScannerPrompt(options = {}) {
     const prompt = continuity.buildScannerPrompt(calendarPromptOptions(options));
-    if (options.narrationCapture) return appendCustomFieldRule(withCaptureBirthdayRule(prompt, options), options);
     return appendCustomFieldRule(appendBirthdayRule(prompt, options), options);
 }
 

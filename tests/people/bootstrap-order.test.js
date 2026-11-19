@@ -6,19 +6,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const bootstrap = fs.readFileSync(new URL('../../modules/people/legacy/bootstrap.js', import.meta.url), 'utf8');
+const bootstrap = fs.readFileSync(new URL('../../modules/people/runtime/runtime-start.js', import.meta.url), 'utf8');
 const at = spec => bootstrap.indexOf(`await import('${spec}')`);
 
 test('the saved calendar is activated before the runtime starts', () => {
     assert.ok(at('../settings/calendar-settings.js') > 0);
-    assert.ok(at('../settings/calendar-settings.js') < at('./index.js'), 'calendar-settings.js loads before index.js');
+    assert.ok(at('../settings/calendar-settings.js') < at('./runtime-entry.js'), 'calendar-settings.js loads before runtime-entry.js');
 });
 
 test('the page tools load after the runtime, and every one exists', () => {
     const tools = ['../tools/settings-actions.js', '../tools/editor-refine.js', '../tools/continuity-ui.js', '../settings/scanner-output.js'];
     for (const spec of tools) {
-        assert.ok(at(spec) > at('./index.js'), `${spec} loads after index.js`);
-        assert.ok(fs.existsSync(new URL(`../../modules/people/legacy/${spec}`, import.meta.url)), `${spec} exists`);
+        assert.ok(at(spec) > at('./runtime-entry.js'), `${spec} loads after runtime-entry.js`);
+        assert.ok(fs.existsSync(new URL(`../../modules/people/runtime/${spec}`, import.meta.url)), `${spec} exists`);
     }
     assert.match(fs.readFileSync(new URL('../../modules/people/tools/settings-actions.js', import.meta.url), 'utf8'), /from '\.\/data-tools\.js'/, 'the tools dialogs and their styles come with it');
 });

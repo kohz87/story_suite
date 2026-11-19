@@ -1,9 +1,9 @@
 // Runtime state holder (role: runtime-state-holder). Everything the controller and the parts split out of
-// index.js share through the enclosing scope lives here as properties of ONE object, built by
-// createRuntimeState(). index.js calls it once per module instance, so a fresh import of index.js (the
+// runtime-entry.js share through the enclosing scope lives here as properties of ONE object, built by
+// createRuntimeState(). runtime-entry.js calls it once per module instance, so a fresh import of runtime-entry.js (the
 // `?t=` re-imports in the tests, a reloaded extension) starts from fresh state exactly as the former
 // module-level variables did; nothing in this file is a module singleton. Parts receive the object (or
-// the collections taken from it) from index.js; none of them imports it for its own copy.
+// the collections taken from it) from runtime-entry.js; none of them imports it for its own copy.
 // This file holds initial values only: no behaviour, no host imports.
 
 export function createRuntimeState() {

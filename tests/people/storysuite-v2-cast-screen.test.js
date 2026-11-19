@@ -136,6 +136,6 @@ test('Delta\'s page events redraw a shown Cast screen, and the tab pane is still
 
 test('the hosted Dossiers list shows no bullet marks: its <li> rows are not under a <ul class="ss-listcard-rows"> (ZC, 12 Nov)', async () => {
     const { readFileSync } = await import('node:fs');
-    const css = readFileSync(new URL('../../modules/people/legacy/style-cast.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../modules/people/css/style-cast.css', import.meta.url), 'utf8');
     assert.match(css, /\.npc-state-delta-v2-dossiers \.npc-state-delta-story-list > \.ss-listcard-row \{ list-style: none; \}/);
 });

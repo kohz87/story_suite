@@ -3,5 +3,5 @@
 @import url('./ui/css/fonts.css');
 @import url('./ui/css/tokens.css');
 @import url('./ui/css/drawer.css');
-@import url('./modules/people/legacy/suite.css');
-@import url('./modules/people/legacy/style.css');
+@import url('./modules/people/css/suite.css');
+@import url('./modules/people/css/style.css');

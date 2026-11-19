@@ -20,12 +20,11 @@ test('v1.1.11 dossier rows: names are text (never markup), and an initial stands
     assert.match(markup([], { query: 'Ly<ra', total: 3 }), /No dossier matches “Ly&lt;ra”/);
 });
 
-test('v1.1.12 the Story Block pane is padded and keeps its cards to one column (UI 4c); the in-chat display choice is gone', () => {
+test('v1.1.12 the Story Block pane is padded; the in-chat display choice is gone', () => {
     const index = runtimeSource();
     const css = styleSource();
     assert.doesNotMatch(index, /presentCastDisplay|present_cast_display/, 'B4-6: no in-chat cards, so no choice for them');
     assert.match(css, /\.npc-state-delta-story-pane \{ padding: 8px 12px 12px;/);
-    assert.match(css, /\.npc-state-delta-present-grid \{ display: grid; grid-template-columns: minmax\(0, 1fr\);/, 'the cards are one row each in the pane (UI 4c)');
 });
 
 test('1.2.13 an empty Present NPCs tab says why, and offers Scan now when a scan could help', () => {

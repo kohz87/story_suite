@@ -8,5 +8,5 @@ export { DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_
 export { buildRelationshipPassPrompt } from './core-prompts-relationship.js';
 export { scenePresentFocus, withScenePresent, selectScannerContextNpcs } from './core-prompts-select.js';
 export { PROMPT_CAPS, returnShape, buildBackfillPrompt, buildDossierImportPrompt, STALE_PROFILE_TURNS, STALE_PROFILE_DAYS, buildProfileRefreshPrompt } from './core-prompts-targeted.js';
-export { NARRATION_CAPTURE_REMINDER, hiddenNotePromptRules, hiddenNoteEventParagraph, appendHiddenNotePrompt } from './core-prompts-capture.js';
+export { hiddenNotePromptRules, appendHiddenNotePrompt } from './core-prompts-capture.js';
 export { buildScannerPrompt } from './core-prompts-scanner.js';

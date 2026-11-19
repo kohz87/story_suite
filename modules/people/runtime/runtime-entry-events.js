@@ -1,6 +1,6 @@
 /* NPC State Delta - SillyTavern event registration (role: runtime-entry-events). The one-time event listeners for
-   generation, reply capture, branch reconciliation, chat lifecycle and deletion split from index.js. Built by
-   index.js with the shared runtime state and controller functions, preserving listener order and the one-time guard. */
+   generation, reply capture, branch reconciliation, chat lifecycle and deletion split from runtime-entry.js. Built by
+   runtime-entry.js with the shared runtime state and controller functions, preserving listener order and the one-time guard. */
 
 export function createEventRegistration(rt, deps) {
     const {

@@ -1,6 +1,6 @@
 /* NPC State Delta portrait settings save (role: portrait-settings-save). Saving the portrait settings draft and the custom preset
-   library, which refresh the settings panel afterwards, so it is built after the panel's markup part. Built by index.js once
-   per module instance with the shared runtime state and the controller functions it calls. Bodies are moved from index.js
+   library, which refresh the settings panel afterwards, so it is built after the panel's markup part. Built by runtime-entry.js once
+   per module instance with the shared runtime state and the controller functions it calls. Bodies are moved from runtime-entry.js
    without change. */
 
 import { saveSettings as saveHostSettings } from '../../../../../../../script.js';

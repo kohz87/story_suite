@@ -12,7 +12,7 @@ import { profileEvidenceCount, promptProfileEvidence } from './core-evidence.js'
 import { compactImpactRubric, compactMemoryRubric, compactRelationshipRubric, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_RELATIONSHIP_CRITERIA } from './core-prompts-criteria.js';
 import { scenePresentFocus, selectScannerContextNpcs, selectScannerProfileContextNpcs, withScenePresent } from './core-prompts-select.js';
 import { BEHAVIOR_LEVER_LABELS, PROFILE_STYLE_LINE, PROMPT_CAPS } from './core-prompts-targeted.js';
-import { hiddenNoteEventParagraph, hiddenNotePromptRules, NARRATION_CAPTURE_HEADER, NARRATION_CAPTURE_STORY } from './core-prompts-capture.js';
+import { hiddenNotePromptRules } from './core-prompts-capture.js';
 export function buildScannerPrompt({
     transcript,
     existingNpcs = [],
@@ -29,8 +29,6 @@ export function buildScannerPrompt({
     admissionMode = 'conservative',
     currentTranscript = '',
     fullScanMode = false,
-    narrationCapture = false,
-    dossierAbove = '',
     sceneNames = null,
     layeredSecrets = false,
     eventWatch = null,
@@ -145,40 +143,6 @@ export function buildScannerPrompt({
             };
         });
 
-    // (1.2.17) One-pass capture with the live dossier in the same prompt: a value the dossier above
-    // already gives word for word is not sent twice. Only exact repeats go (a value the dossier
-    // shortened or left out stays); ids, presence, the numeric relationship, evidence and locks stay.
-    const dossierText = narrationCapture ? String(dossierAbove || '') : '';
-    let dedupedCount = 0;
-    // Each NPC's values are looked for in its own dossier line ("- Name: …"), never another's.
-    const dossierLineOf = name => dossierText.split('\n').filter(line => line.startsWith(`- ${name}:`) || line.startsWith(`- ${name} (`)).join('\n');
-    const withoutDossierRepeats = (entry, keep) => {
-        const line = dossierText && entry?.name ? dossierLineOf(entry.name) : '';
-        if (!line) return entry;
-        const out = {};
-        let dropped = false;
-        for (const [key, value] of Object.entries(entry)) {
-            const repeated = !keep.has(key) && (typeof value === 'string'
-                ? value.length >= 3 && line.includes(value)
-                : Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && line.includes(item.replace(/[.;]\s*$/, ''))));
-            if (repeated) dropped = true;
-            else out[key] = value;
-        }
-        if (!dropped) return entry;
-        dedupedCount += 1;
-        return { ...out, inDossier: true };
-    };
-    const ALWAYS_SENT = new Set(['id', 'name', 'aliases', 'currentRelationship', 'present', 'worldActive', 'lifeState', 'lifeStateCertainty', 'archived', 'archiveReason', 'recentProfileEvidence', 'lockedProfileFields']);
-    const liveDeduped = runtimeExisting.map(entry => withoutDossierRepeats(entry, ALWAYS_SENT));
-    const profileDeduped = profileExisting.map(entry => withoutDossierRepeats(entry, ALWAYS_SENT));
-    const dedupeNote = '\n(inDossier: fields left out here are the NPC STATE DELTA DOSSIER\'s values above, current and unchanged.)';
-    // Only when it is shorter, note included: a short repeat is cheaper to send than to explain.
-    const dedupeSaves = dedupedCount > 0 && JSON.stringify(liveDeduped).length + JSON.stringify(profileDeduped).length + dedupeNote.length
-        < JSON.stringify(runtimeExisting).length + JSON.stringify(profileExisting).length;
-    const liveSent = dedupeSaves ? liveDeduped : runtimeExisting;
-    const profileSent = dedupeSaves ? profileDeduped : profileExisting;
-    const dossierNote = dedupeSaves ? dedupeNote : '';
-
     const relationshipRubric = compactRelationshipRubric(relationshipCriteria);
     const impactRubric = compactImpactRubric(impactCriteria);
     const memoryRubric = compactMemoryRubric(memoryCriteria);
@@ -190,33 +154,24 @@ export function buildScannerPrompt({
     // A lean scan of several exchanges: the latest is CURRENT (presence, mood, location, meters come only from it); the
     // earlier ones are context for durable facts.
     const wholeStory = String(transcript || '').trim();
-    const earlierStory = !narrationCapture && !fullScanMode && currentExchange && wholeStory.length > currentExchange.length && wholeStory.endsWith(currentExchange)
+    const earlierStory = !fullScanMode && currentExchange && wholeStory.length > currentExchange.length && wholeStory.endsWith(currentExchange)
         ? wholeStory.slice(0, wholeStory.length - currentExchange.length).trim()
         : '';
     const EARLIER_LABEL = 'EARLIER exchanges (replies since the last scan, each read once; durable facts and relationship changes that happened then, with their own evidence; never current presence, mood or location)';
-    const storyContext = narrationCapture
-        ? NARRATION_CAPTURE_STORY
-        : earlierOnly
-            ? `Story context:\n${EARLIER_LABEL}:\n${wholeStory}`
-            : earlierStory
+    const storyContext = earlierOnly
+        ? `Story context:\n${EARLIER_LABEL}:\n${wholeStory}`
+        : earlierStory
             ? `Story context:\n${EARLIER_LABEL}:\n${earlierStory}\n\nCURRENT exchange (authoritative for presence, mood and location):\n${currentExchange}`
             : `Story context:\n${String(transcript || '').trim()}${fullScanMode ? `\n\nCURRENT exchange (authoritative for presence, mood and location):\n${currentExchange}` : ''}`;
 
-    // (b5b r2-8) One-pass rules go early and must not change from reply to reply; in a group chat the
-    // character about to speak does. So the capture rules name roles and this line, in the context
-    // part, names the people.
-    const captureNames = narrationCapture ? `\nNot NPCs: the player is ${userName}; the character you play is ${charName}.` : '';
     const sceneLine = scene ? `\nIn the scene now (the story's scene list): ${scene.names.join(', ')}.` : '';
     // Hidden notes (Story Suite hosted only; absent by default, so the prompt is byte-identical without them): layered
-    // secrets for a NEW dossier-worthy NPC, and the story events to look for in the CURRENT exchange. A one-pass capture
-    // keeps its rules the same from reply to reply: the layered rule goes with them, the list of events (which changes)
-    // goes in the context part.
-    const hiddenNoteRules = hiddenNotePromptRules({ layeredSecrets, eventWatch, events: !narrationCapture });
-    const hiddenNoteContext = narrationCapture ? hiddenNoteEventParagraph(eventWatch) : '';
-    return `${narrationCapture ? NARRATION_CAPTURE_HEADER : 'Private NPC dossier scanner.'}
+    // secrets for a NEW dossier-worthy NPC, and the story events to look for in the CURRENT exchange.
+    const hiddenNoteRules = hiddenNotePromptRules({ layeredSecrets, eventWatch });
+    return `Private NPC dossier scanner.
 Admission: ${admissionPolicy}${fullScanRule}
 Rules:
-1. ${narrationCapture ? 'Exclude the player, the character you play, extras.' : `Exclude player (${userName}), main speaker (${charName}), extras.`}
+1. Exclude player (${userName}), main speaker (${charName}), extras.
 2. EXISTING: match id/name/alias/role. Return compact JSON deltas: changed fields only; omitted persist. Identity promotion: role/interim dossier + grounded proper name => MUST reuse id; old label in aliases; identityKind:"proper_name"; never duplicate/downgrade.
 3. NEW/CANDIDATE: include name,identityKind,dossierSignal,dossierReason,sameIndividual,directInteraction,present,worldActive. Dossier-worthy NEW: populate every grounded field now${backgroundRule ? ', including background in npcs[] from established role, workplace, history or ongoing circumstances; omit if none, never invent.' : ';'} directInteraction affects admission/relationship only, NEVER enrichment. Incidental role candidates may stay lightweight.
 4. Candidates are not dossiers. sameIndividual=true only when proven. Use narration, World State, durable Inner Chatter; proper names there MUST be returned even when prose uses role.
@@ -238,13 +193,13 @@ Memory criteria: ${memoryRubric || '(none configured; store only clearly durable
 Delta caps: ordinary ${caps.ordinary}; meaningful ${caps.meaningful}; major ${caps.major}; extreme ${caps.extreme}. New-NPC baseline: ${JSON.stringify(baseline)}
 
 Identity index (matching only):
-${JSON.stringify(identityIndex)}${captureNames}${sceneLine}
+${JSON.stringify(identityIndex)}${sceneLine}
 
 Relevant live context (dynamic fields only):
-${JSON.stringify(liveSent)}
+${JSON.stringify(runtimeExisting)}
 
 Stable profile context (strongly relevant existing only):
-${JSON.stringify(profileSent)}${dossierNote}${hiddenNoteContext}
+${JSON.stringify(profileExisting)}
 
 ${storyContext}`;
 }

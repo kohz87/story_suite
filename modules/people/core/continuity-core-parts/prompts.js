@@ -11,9 +11,6 @@ const APPEARANCE_FORM_RULES = 'With named forms, each form appearance is that fo
 const APPEARANCE_RULES = `\nSTAGE 4 APPEARANCE: ${APPEARANCE_FORM_RULES}`;
 const APPEARANCE_RULES_WITH_FLAT = `\nSTAGE 4 APPEARANCE: appearance=current outfit/gear/visible condition. Explicit correction/reveal=>refine corrected FULL appearance; changed clothes/form/presentation=>change+reason FULL appearance. ${APPEARANCE_FORM_RULES}`;
 const DEATH_RULES = `\nSTAGE 4 DEATH: explicit death is terminal: lifeState:"deceased"+lifeStateCertainty:"explicit"; later output cannot return that NPC to alive/present/worldActive.`;
-// (cleanup step 12, I-10) The one-pass rules are written before the reply exists, and the reply can
-// bring a transformation or a death, so they always carry the form and death rules, in short.
-const CAPTURE_STAGE4_RULES = `\nSTAGE 4: named forms=>appearanceForms:[{name,appearance=its COMPLETE look,state:"refine|change",reason}]+currentForm,currentFormState:"select|unknown" (unknown=>grounded appearance, never another form's anatomy); a switch keeps other forms; overallAppearance only without forms. Explicit death (deceased+explicit) is terminal: never alive/present/worldActive again.`;
 const PROFILE_REFRESH_APPEARANCE_RULE = `\nREFRESH: visible anatomy changes are form evidence even without literal "form"/"transform" wording.`;
 function hasImplicitAnatomicalTransition(transcript = '') {
     const text = String(transcript || '');
@@ -68,7 +65,6 @@ function appendRules(prompt, options = {}) {
 export function buildScannerPrompt(options = {}) {
     const base = mechanics.buildScannerPrompt(options);
     const context = establishedAppearanceContext(options);
-    if (options.narrationCapture) return `${insertPromptBlockBefore(base, 'Identity index (matching only):', CAPTURE_STAGE4_RULES)}${context}`;
     const prefixed = insertPromptBlockBefore(base, 'Identity index (matching only):', COMPACT_STAGE4_RULE);
     return needsDetailedStage4(options) ? `${prefixed}${APPEARANCE_RULES}${DEATH_RULES}${context}` : `${prefixed}${context}`;
 }

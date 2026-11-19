@@ -43,7 +43,7 @@ export function createSectionPart(session, deps, drawerPart) {
         watchTimer?.unref?.();
     }
 
-    // The meter presets block sits in Delta's own "Meter presets" fold (index.js buildSettingsHtml), which stays hidden
+    // The meter presets block sits in Delta's own "Meter presets" fold (runtime-entry.js buildSettingsHtml), which stays hidden
     // until the block is in it. A panel without that slot gets the block above it, as before.
     const PRESETS_SLOT = '[data-delta-meter-presets]';
     const presetsSlot = node => {

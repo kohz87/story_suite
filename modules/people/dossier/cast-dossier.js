@@ -1,7 +1,7 @@
 // The living cast (1 Nov, the user's decision): a pack lists a hand-written cast, Story Director owns who has been met and
 // where everyone is, and Delta READS `director.cast` (and Story Block's `packs.portrait`) and never writes to either.
 // At the first meeting Delta makes the person's dossier at once from the pack entry: no scan, no model call. This file
-// holds every rule (pure: no DOM, no host, no clock); index.js and src/storysuite-v2.js call it, src/npc-meters.js
+// holds every rule (pure: no DOM, no host, no clock); runtime-entry.js and src/storysuite-v2.js call it, src/npc-meters.js
 // records the meeting in the saved `npc` slice.
 //
 // The query: `director.cast` → [{ key ("pack:id"), pack, id, name, aliases, met: { on, where } | null, where?, doing?,
@@ -25,7 +25,7 @@
 //   secrets → the hidden notes (castSecrets, the one place that shapes them), portrait → the dossier's portrait.
 //
 // A dossier made while the pack's picture was missing (a pack imported without its pictures) is given the picture later, once Story
-// Block answers `packs.portrait` for the entry's `portrait` (index.js castSync): only a cast dossier whose portrait is empty and was
+// Block answers `packs.portrait` for the entry's `portrait` (runtime-entry.js castSync): only a cast dossier whose portrait is empty and was
 // not removed on purpose (`castFrom.portraitRemoved`), never a picture the reader set or generated. castPortraitWanted says which.
 //
 // A dossier made here carries `castFrom` (where it came from: the key, the pack and its name and version, when and where

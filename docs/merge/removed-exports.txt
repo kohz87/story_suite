@@ -348,3 +348,31 @@ settleRollbackHead
 snapshotBranchState
 stripStorySuiteBlocks
 unpackCheckpoints
+# B4-13 close-out 1: the JSON one-pass prompt (core-parts/narration-capture.js, core-prompts-capture-parts/capture-text.js, the scanner's
+# narrationCapture branch and its capture-only birthday and event rules), the lineage-keyed journal conversion (journal-convert.js,
+# journal-lineage.js, the public convertCaptureJournal) and the old roster markup (legacy/present-scene*, legacy/runtime-present-cast.js).
+buildNarrationCapturePrompt
+buildNarrationCaptureParts
+NARRATION_CAPTURE_HEADER
+NARRATION_CAPTURE_STORY
+NARRATION_CAPTURE_REMINDER
+NARRATION_CAPTURE_CONTEXT_MARKER
+NARRATION_CAPTURE_TAIL_LEAD
+hiddenNoteEventParagraph
+withCaptureBirthdayRule
+birthdayCaptureRule
+convertJournal
+convertCaptureJournal
+frozenLineageKeys
+frozenLineageKey
+frozenFingerprint
+JOURNAL_KEYS_VERSION
+storyBlockCastHtml
+createPresentCastPart
+fillPresentSceneText
+presentSceneModel
+nowSlotHtml
+rememberPresentScene
+NOW_PART_MAX
+NOW_TITLE_MAX
+DOSSIER_LOOK_LABEL

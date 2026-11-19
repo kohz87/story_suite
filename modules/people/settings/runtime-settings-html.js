@@ -1,6 +1,6 @@
 /* NPC State Delta settings panel markup (role: settings-panel-html). buildSettingsHtml, the hints and open-group memory,
-   and the controls' sync from the stored settings. Built by index.js once per module instance with the shared runtime
-   state and the controller functions it calls. Bodies are moved from index.js without change. */
+   and the controls' sync from the stored settings. Built by runtime-entry.js once per module instance with the shared runtime
+   state and the controller functions it calls. Bodies are moved from runtime-entry.js without change. */
 
 import { PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../core/core.js';
 import { escapeHtml } from '../util/html.js';

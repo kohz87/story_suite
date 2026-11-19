@@ -1,6 +1,6 @@
 /* NPC State Delta cast sync (role: cast-sync). Makes a dossier at once from a Story Director cast entry (no scan, no model call) and gives a
-   cast dossier its pack picture when Story Block answers for it. Built by index.js once per module instance, after the dossier editor (the
-   sync redraws the dossier view), so each instance keeps its own run flags. Bodies are moved from index.js without change. */
+   cast dossier its pack picture when Story Block answers for it. Built by runtime-entry.js once per module instance, after the dossier editor (the
+   sync redraws the dossier view), so each instance keeps its own run flags. Bodies are moved from runtime-entry.js without change. */
 
 import { currentExclusions } from '../transcript/transcript.js';
 import { applyNpcStateCommand, normalizeName, normalizeNpcRecord, appearanceFingerprint } from '../core/core.js';

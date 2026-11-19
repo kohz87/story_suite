@@ -195,7 +195,7 @@ test('the meter setup is kept on the dossier and never reaches Delta\'s own prom
     const transcript = 'USER: Hello.\nASSISTANT: Mira smiles.';
     const options = { transcript, currentTranscript: transcript, existingNpcs: [npc], existingNpc: npc, targetNpc: npc, targets: [npc], targetName: 'Mira', dossierText: 'Name: Mira', userName: 'Ari', charName: 'C' };
     const texts = [
-        core.buildScannerPrompt(options), core.buildNarrationCapturePrompt(options), core.buildProfileRefreshPrompt(options),
+        core.buildScannerPrompt(options), JSON.stringify((await import('../../modules/people/core/core-prompts-lines.js')).buildLinesParts(options)), core.buildProfileRefreshPrompt(options),
         core.buildRelationshipPassPrompt(options), core.buildInjection([npc], transcript, 1),
     ];
     for (const text of texts) assert.doesNotMatch(String(text), /rival-track-x|ceiling|meterSetup/);

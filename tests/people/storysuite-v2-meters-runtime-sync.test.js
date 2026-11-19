@@ -192,7 +192,7 @@ test('hosted: a held command is not applied when its reply was taken back (swipe
 test('a scan cancelled by "server revision advanced" is queued again once; a reader\'s cancel or a chat change is not', () => {
     const scan = fs.readFileSync(new URL('../../modules/people/calls/runtime-scan.js', import.meta.url), 'utf8');
     const ops = fs.readFileSync(new URL('../../modules/people/calls/runtime-scan-ops.js', import.meta.url), 'utf8');
-    const index = fs.readFileSync(new URL('../../modules/people/legacy/index.js', import.meta.url), 'utf8');
+    const index = fs.readFileSync(new URL('../../modules/people/runtime/runtime-entry.js', import.meta.url), 'utf8');
     assert.match(index, /cancelScanOperation\(key, dirtyConflict \? 'cross-session conflict' : 'server revision advanced'\)/, 'the reason the scan is cancelled with');
     assert.match(ops, /operation\.cancelReason|scanOperations\.cancel\(key, reason\)/, 'the registry keeps the reason');
     const line = scan.split('\n').find(text => text.includes("queuePendingAutoScan(scanChatKey, messageId, 'stale-auto-scan')"));
@@ -216,7 +216,6 @@ test('without a v2 host the same turns send nothing, and the sidecar and the inj
             hosted: globalThis.__handles.hosted ? '1' : null,
             injection: api.injectionPreview().text,
             presentQuery: mockState.sdk?.registered?.[0]?.queries?.['npc.present']?.({}) ?? null,
-            castHtml: api.presentCastHtml(),
             lastChange: { ...yunyun.lastRelationshipChange, at: undefined },
             milestones: yunyun.relationshipMilestones,
         }));
@@ -240,8 +239,6 @@ test('without a v2 host the same turns send nothing, and the sidecar and the inj
     assert.match(elsewhere.injection, /- Yunyun \(mentioned, not present/);
     assert.deepEqual(hosted.presentQuery, ['Yunyun'], 'npc.present follows the scene');
     assert.deepEqual(elsewhere.presentQuery, [], 'npc.present follows the scene when it leaves her out');
-    assert.match(hosted.castHtml, /Yunyun/);
-    assert.doesNotMatch(elsewhere.castHtml, /npc-state-delta-present-card[^"]*"[^>]*data-npc-id/, 'the Cast tab shows nobody as present');
     assert.equal(alone.hosted, null);
     assert.equal(alone.sent, 0, 'nothing is sent without a host');
     assert.equal(hosted.hosted, '1');

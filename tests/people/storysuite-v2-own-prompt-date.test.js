@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import {
-    buildNarrationCaptureParts, calendarPromptContext, getActiveCalendarConfig, hostedStoryDate, setActiveCalendarConfig, setStoryClockSource,
+    calendarPromptContext, getActiveCalendarConfig, hostedStoryDate, setActiveCalendarConfig, setStoryClockSource,
     storyClockDate, storyCurrentDate,
 } from '../../modules/people/core/core.js';
 import { effectiveChronologicalAge } from '../../modules/people/birthday/birthday.js';
@@ -109,27 +109,6 @@ test('hosted with Story Director: ages and the prompt\'s current date follow its
     assert.equal(effectiveChronologicalAge(npc), '22');
     // A reference date the caller gives (a World State date in v1's text) still wins over the clock.
     assert.equal(effectiveChronologicalAge(npc, undefined, { era: 'AR', year: 600, month: 'Thaw', day: 3 }), '9');
-});
-
-test('prompts: the capture rules stay byte-identical; only the current-date line, already dynamic, changes', () => {
-    const options = { transcript: 'USER: hi', userName: 'Astra', charName: 'Narrator', existingNpcs: [] };
-    // Delta with no calendar of its own (numeric dates): Story Director's Gregorian clock changes no prompt text.
-    const plain = buildNarrationCaptureParts(options);
-    setStoryClockSource(() => ({ minutes: gregorianMinutes(611, 3, 15), calendar: SD_GREGORIAN }));
-    const clocked = buildNarrationCaptureParts(options);
-    assert.equal(clocked.rules, plain.rules);
-    assert.equal(clocked.context, plain.context, 'no date line on a numeric calendar, as before');
-    // Delta's own calendar: the rules are unchanged; the context's date line carries the clock's date in
-    // place of the manual clock's.
-    setStoryClockSource(null);
-    setActiveCalendarConfig({ era: 'AR', months: FANTASY, currentYear: 600, currentMonth: 'Thaw', currentDay: 3 });
-    const own = buildNarrationCaptureParts(options);
-    setStoryClockSource(() => ({ minutes: fantasyMinutes(611, 2, 12), calendar: SD_FANTASY }));
-    const hosted = buildNarrationCaptureParts(options);
-    assert.equal(hosted.rules, own.rules, 'the in-prompt rules are byte-identical');
-    assert.match(own.context, /^Current grounded world date=AR600, Thaw 3\.$/m);
-    assert.match(hosted.context, /^Current grounded world date=AR611, Bloom 12\.$/m);
-    assert.equal(hosted.context.replace(/^Current grounded world date=.*$/m, ''), own.context.replace(/^Current grounded world date=.*$/m, ''), 'nothing else changed');
 });
 
 // ---- the adapter on a whole Story Block host (the live packages/story-block testkit) ----

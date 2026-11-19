@@ -1,7 +1,7 @@
 /* NPC State Delta hosted Story Suite views (role: hosted-suite-views). What Delta reads from a Story Block v2 host and its modules while hosted:
    the host's clock, meters and scene, Story Director's living cast as the dossier views read them, the chat-head mark, and the
-   relationship changes, secret events and hidden-note options Delta sends back, and the words for why no one shows as present. Built by index.js once per module instance with the shared
-   runtime state and the controller functions it calls. Bodies are moved from index.js without change. */
+   relationship changes, secret events and hidden-note options Delta sends back, and the words for why no one shows as present. Built by runtime-entry.js once per module instance with the shared
+   runtime state and the controller functions it calls. Bodies are moved from runtime-entry.js without change. */
 
 import { chatContext as getContext, markStands, refusedLooks, worth, relationshipChanges, replayScope, scanMoodNumbers, scopedAdapter } from '../calls/runtime-scan-helpers.js';
 import { replyScanned } from '../calls/scan-context.js';

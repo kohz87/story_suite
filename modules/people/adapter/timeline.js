@@ -45,7 +45,7 @@ export function createTimelinePart(session, deps) {
 
     // Delta's live dossier and, with one-pass capture on, its instruction go out under Delta's own prompt
     // keys, so the host counts them toward its share of the context and shows them in its prompt size and
-    // "Show what's sent". The same texts Delta's own What's sent shows (index.js nextReplyTexts); nothing
+    // "Show what's sent". The same texts Delta's own What's sent shows (runtime-entry.js nextReplyTexts); nothing
     // is built twice for the prompt and nothing here changes what is sent.
     function ownPrompt() {
         if (!enabled()) return [];
@@ -222,7 +222,7 @@ export function createTimelinePart(session, deps) {
             section: (el, api) => mountSection(el, presetsBlock(api)),
         },
         // Story Block's Settings → Diagnostics (its optional hooks.diagnostics; an older host ignores it):
-        // the scanner's route, profile, call counts and last outcome (index.js scannerReport),
+        // the scanner's route, profile, call counts and last outcome (runtime-entry.js scannerReport),
         // and what Delta sends under its own prompt keys (`ownPrompt`, Story Block's prompt size). `redactSent` is for
         // "Show what's sent": the text of this module's tail with each locked note's line as "Name: 1 hidden note"
         // (a host that does not call it shows the raw text; SillyTavern's own prompt view always does).
@@ -243,7 +243,7 @@ export function createTimelinePart(session, deps) {
 
     // ---- host lifecycle ----
 
-    // index.js takes back (or offers again) what v1 gave Story Block, and the handle's hosted state (runtime/handles.js) follows.
+    // runtime-entry.js takes back (or offers again) what v1 gave Story Block, and the handle's hosted state (runtime/handles.js) follows.
     function announceHosted(on) {
         pageHandles.hosted = Boolean(on);
         try {

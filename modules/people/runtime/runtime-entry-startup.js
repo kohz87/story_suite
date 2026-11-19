@@ -1,5 +1,5 @@
 /* NPC State Delta - runtime startup (role: runtime-entry-startup). The idempotent init/safeInit functions split from
-   index.js. Built by index.js with the controller closure; the DOM-ready and lifecycle registrations stay in index.js.
+   runtime-entry.js. Built by runtime-entry.js with the controller closure; the DOM-ready and lifecycle registrations stay in runtime-entry.js.
    The optional adapter import keeps its root-relative ./src/ path and its position in initialization. */
 
 import { rpgIsOn } from '../settings/runtime-settings.js';

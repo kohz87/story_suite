@@ -1,6 +1,6 @@
 // The story-clock source and its one-pass memo: where the Story Director clock is set and read.
 
-// (v2) Hosted by Story Block v2, the story's date can come from Story Director's clock: index.js sets a
+// (v2) Hosted by Story Block v2, the story's date can come from Story Director's clock: runtime-entry.js sets a
 // source that answers { minutes, calendar } (its `director.time` minutes and `director.calendar` config)
 // or null (no host, no Story Director, or its clock not set yet). Without
 // a source, or when it answers null, nothing here runs and the dates are Delta's own (v1).

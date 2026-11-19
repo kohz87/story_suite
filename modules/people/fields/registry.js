@@ -21,7 +21,7 @@
 //   aliasMerge    the text fields an alias merge takes from the longer copy
 //   userMeta      the user metadata every branch restore keeps from the current dossier
 //   refreshChanged  the fields a targeted Refresh reports as changed
-//   snapshot      [position, how]: the inline-card snapshot (index.js snapshotNpc)
+//   snapshot      [position, how]: the inline-card snapshot (runtime-entry.js snapshotNpc)
 //   v2            DOSSIER_FIELDS: what the v2 npc.dossier query returns
 //   prompt        'never' when the field must never reach a model-facing text; 'tail' when it reaches one only through
 //                 the v2 module's tail (the hidden notes: opened ones as known, locked ones as hidden)

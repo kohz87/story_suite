@@ -1,7 +1,7 @@
 /* NPC State Delta portrait generator and portrait settings draft (role: portrait-generator-and-settings). The generator dialog and the
    native image request behind it, the generated picture's file, and the portrait settings draft the panel shows (read, validate,
-   write to the panel, mark dirty). Built by index.js once per module instance with the shared runtime state and the controller
-   functions it calls, so each instance keeps its own generated-picture memory. Bodies are moved from index.js without change. */
+   write to the panel, mark dirty). Built by runtime-entry.js once per module instance with the shared runtime state and the controller
+   functions it calls, so each instance keeps its own generated-picture memory. Bodies are moved from runtime-entry.js without change. */
 
 import { getContext } from '../../../../../../extensions.js';
 import { DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitSeed, normalizePortraitPromptFormat, buildNpcPortraitPrompts } from '../core/core.js';

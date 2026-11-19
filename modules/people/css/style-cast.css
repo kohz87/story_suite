@@ -95,31 +95,10 @@
 .npc-state-delta-v2-dossiers .npc-state-delta-story-bars { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 8em), 1fr)); gap: 4px 12px; margin-top: 4px; min-width: 0; }
 .npc-state-delta-v2-dossiers .npc-state-delta-story-stage { flex: 0 1 auto; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* Present NPCs in chat (full cards and compact strip). Tapping either opens the dossier in the Story Suite view. */
-.npc-state-delta-present-roster {
-  /* The present cards: one row per person in every pane (UI 4c; see the card rules below). */
-  --npc-paper: rgba(245, 238, 220, .08);
-  --npc-line: rgba(216, 190, 145, .22);
-  --npc-gold: #d8bc78;
-  --npc-ink: var(--SmartThemeBodyColor, #ddd);
-  color: var(--npc-ink);
-  width: 100%;
-  box-sizing: border-box;
-}
-.npc-state-delta-present-roster-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 0 0 8px;
-  padding: 0 2px;
-}
-.npc-state-delta-present-roster-head small { opacity: .55; font-size: .72rem; }
 /* Present cards (UI 4c): one compact row per person, full width at every size. A 44px portrait on the left; the name
    and the stage line (role · mood) on the right, one line each. The NPC's now lines and chatter sit under the row, two
    short lines at most; the meters under the cards are thin ss.meter bars. Inside a Story Suite root the colours and radii
    are Story Block's tokens; in the chat they keep the fallbacks (Delta's own warm tones). */
-.npc-state-delta-present-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: start; }
 .npc-state-delta-present-card {
   appearance: none;
   -webkit-appearance: none;
@@ -145,27 +124,15 @@
 .npc-state-delta-present-card:hover { border-color: var(--ss-accent, rgba(216,190,145,.58)); }
 .npc-state-delta-present-card:focus-visible { outline: 2px solid var(--ss-accent, #d8bc78); outline-offset: 2px; }
 .npc-state-delta-present-card:active { transform: translateY(1px); }
-.npc-state-delta-present-card-portrait { position: relative; display: block; width: 44px; height: 44px; overflow: hidden; border-radius: 10px; background: var(--ss-tile, rgba(0,0,0,.24)); }
-.npc-state-delta-present-card-portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 18%; }
-.npc-state-delta-present-card-placeholder { display: grid; place-items: center; width: 100%; height: 100%; background: var(--ss-tile, rgba(216,190,145,.12)); color: var(--ss-accent, #d8bc78); font-family: Georgia, 'Times New Roman', serif; }
-.npc-state-delta-present-card-placeholder span { font-size: 18px; opacity: .8; }
 .npc-state-delta-present-card-text { display: grid; align-content: center; min-width: 0; gap: 2px; line-height: 1.25; pointer-events: none; }
-.npc-state-delta-present-card-head { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
-.npc-state-delta-present-card-name { display: block; flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; font-weight: 800; color: var(--ss-text, #f4f1e9); }
-.npc-state-delta-key-tag { flex: 0 0 auto; padding: 0 7px; border: 1px solid rgba(245, 200, 75, .5); border-radius: 999px; background: rgba(245, 200, 75, .18); color: #f5c84b; font-size: 11px; font-weight: 600; line-height: 1.5; white-space: nowrap; }
 .npc-state-delta-key-star { color: #f5c84b; font-size: .85em; }
 .npc-state-delta-present-card-stage:empty { display: none; }
 .npc-state-delta-present-card-stage { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; font-weight: 600; color: var(--ss-accent, var(--npc-gold, #d8bc78)); }
 .npc-state-delta-present-card-bars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px 10px; margin-top: 3px; min-width: 0; }
-.npc-state-delta-present-card-role { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; font-size: 12px; color: var(--ss-muted, var(--npc-ink, inherit)); }
 .npc-state-delta-present-card .npc-state-delta-present-now { display: none; }
 .npc-state-delta-present-cell { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 4px; min-width: 0; }
 .npc-state-delta-present-side { display: grid; gap: 2px; min-width: 0; padding: 0 10px 0 64px; font-size: 12px; line-height: 1.3; color: var(--ss-muted, var(--npc-ink, inherit)); }
 .npc-state-delta-present-side .npc-state-delta-present-now { display: grid; gap: 2px; min-width: 0; margin: 0; }
-.npc-state-delta-present-side .npc-state-delta-present-now-part { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; font-size: 12px; color: var(--ss-text, #f6e7c4); }
-.npc-state-delta-present-now-label { font-weight: 600; opacity: .7; }
-.npc-state-delta-present-side-role { overflow-wrap: anywhere; }
-.npc-state-delta-present-side-muted { font-style: italic; opacity: .8; }
 
 
 .npc-state-delta-restore-note { display: flex; align-items: flex-start; gap: var(--ss-space-2, 8px); padding: var(--ss-space-2, 8px) var(--ss-space-3, 12px); border: 1px solid var(--ss-border, rgba(216,190,145,.22)); border-radius: 8px; font-size: .9em; }

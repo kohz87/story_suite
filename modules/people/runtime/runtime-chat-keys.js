@@ -1,7 +1,7 @@
 /* NPC State Delta chat keys (role: chat-keys). Which chat a state belongs to: the owner-qualified key of the open chat, the keys a rename or delete
    event can mean (checked against what the host still lists), the loaded-chat cache's touch and eviction, and the ownership epoch that lets a late
-   completion find out its chat was deleted, renamed or detached meanwhile. Built by index.js once per module instance with the shared runtime state.
-   Bodies are moved from index.js without change. */
+   completion find out its chat was deleted, renamed or detached meanwhile. Built by runtime-entry.js once per module instance with the shared runtime state.
+   Bodies are moved from runtime-entry.js without change. */
 
 import { getContext } from '../../../../../../extensions.js';
 import { getCharacterOwnerId, getChatIdentityFromContext, isQualifiedChatKey, parseQualifiedChatKey } from '../core/identity.js';

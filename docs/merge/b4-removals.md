@@ -1,11 +1,11 @@
 # B4 removals: NPC State code kept only for the old view
 
-Each row is code that stays under `modules/people/legacy/` at B3 because something still calls it, and goes in B4 (or earlier, when the
-people module draws the same thing itself). Each entry file carries a one-line `LEGACY` header that names this file.
+Each row was code that stayed under `modules/people/legacy/` at B3 because something still called it, and went in B4 (or earlier, when the
+people module drew the same thing itself). Since B4-13 the folder is gone: every row is removed (struck through) or moved, as the notes below say.
 
 | Files (under `modules/people/legacy/`) | Kept because | Goes when |
 |---|---|---|
-| The JSON one-pass prompt (`buildNarrationCapturePrompt`, `buildNarrationCaptureParts`, the `narrationCapture` option of `buildScannerPrompt`, `core-prompts-capture-parts/capture-text.js`) and the lineage-keyed journal (`runtime-narration-parts/journal-lineage.js` and the lineage branch of `journal-keys.js`) | Only "What's sent" builds the JSON prompt now (B4-8 removed the compact setting and the non-hosted branch), and about twenty tests pin it. The journal's lineage keys replay a pre-switch chat. | The prompt goes with its tests in a later step. The one-time journal conversion (`journal-convert.js`, its frozen key copy `journal-lineage.js`) goes once every saved chat has been opened once. |
+| ~~The JSON one-pass prompt (`buildNarrationCapturePrompt`, `buildNarrationCaptureParts`, the `narrationCapture` option of `buildScannerPrompt`, `core-prompts-capture-parts/capture-text.js`) and the lineage-keyed journal (`runtime-narration-parts/journal-lineage.js` and the lineage branch of `journal-keys.js`)~~ | Only "What's sent" built the JSON prompt (B4-8 removed the compact setting and the non-hosted branch); the lineage keys replayed a pre-switch chat. | **Removed at B4-13 (close-out 1)**, with the one-time conversion `journal-convert.js` and the tests that pinned them; see below. |
 
 Built at F1b (B4-1): `modules/people/module.js` (`peopleModule`, id `people`, last in `BUILTIN_MODULES`; its register hook is the start that `index.js` passed as a `late` entry, so a failure is a MODULE_START Problem and the module is switched off), `modules/people/dossier-rows.js` (the rows moved from `legacy/story-block-tabs.js`, which B4-2 removed) and the testkit test `tests/core/boot/boot-every-module.test.js`. The v1 handshake rows were removed at B4-2 (see below). `GRAMMAR_ALONE` (`modules/time/tracker/note-parts/grammar.js`, `tracker/index.js`) is not decided in code: it serves a module set without fights (`fights: false`), so it stays until the owner decides (options in the B4F1B report).
 
@@ -76,3 +76,17 @@ inline-card lists so a bundle keeps its shape), the field registry's `revertGrou
 `NPC_REVERT_LIST_FIELDS`, `BRANCH_USER_METADATA_FIELDS`, now read by tests only), and the sidecar writer with its pointers and tombstones (B4-10b).
 Without a host (a refused or never-ready Story Suite host) NPC State keeps its dossiers on a swipe or delete instead of rolling them back.
 Backup: `scratch/backups/b4-10a/`.
+Removed at B4-13 (close-out 1): `modules/people/legacy/` is gone. Moved (`git mv`), because the live start needs them: `bootstrap.js` to
+`runtime/runtime-start.js`, `index.js` (the runtime controller) to `runtime/runtime-entry.js`, `runtime-persist.js`, `runtime-npc-lookup.js` and
+`runtime-cast-refresh.js` to `runtime/`, and the six sheets (`suite.css`, `style.css` and its four `style-*.css`) to `modules/people/css/` (`suite.css`'s
+`@import` lines follow; the rules are the same apart from the present-card rules below). Removed: the old roster markup (`present-scene.js`, its
+`present-scene-parts/`, `runtime-present-cast.js`) with the public `presentCastHtml` and `fillPresentCast` (only the cast adapter's World widget asked
+for them, and nothing draws that widget: no `ss-widget` renderer is left in core or the view) and the thirteen present-card CSS classes only that markup
+used. Removed: the JSON one-pass prompt (`core-parts/narration-capture.js` with `buildNarrationCapturePrompt` / `buildNarrationCaptureParts`,
+`core-prompts-capture-parts/capture-text.js`, the `narrationCapture` and `dossierAbove` options of the scanner prompt with the capture-only Stage 4,
+birthday and story-event texts); Tools › "What's sent" (and the host's prompt size) now shows the one-pass lines the hosted reply really carries
+(their rules and context, from the same function `updateInjection` sends). Removed: the lineage-keyed journal (`journal-convert.js`, `journal-lineage.js`,
+the public `convertCaptureJournal` and the lineage branch of `journal-keys.js`): a reply's journal entry is keyed by its sid only, its text fingerprint
+is the lineage message hash (the same strings); without a host nothing is journaled, and a saved lineage-keyed entry is never matched. The `narrationCapture`
+setting, `extractNarrationCapture` and the hidden-note rules stay. Left for close-out 2 (names): the cast adapter's World widget chain
+(`adapter/cast-ui/cast-render.js`, `page-api.js`, `modules/world/world/people*`) that asks the removed calls with `?.()`. Backup: `scratch/backups/close1/`.

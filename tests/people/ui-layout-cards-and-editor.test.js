@@ -12,20 +12,6 @@ test('there is no in-chat display choice: the present cards live in the Cast and
     assert.doesNotMatch(css, /npc-state-delta-present-chips/);
 });
 
-test('present cards are one full-width row at every size: no tablet or phone grid of tall cards', () => {
-    // UI 4c: the grid is a single column from the widest pane to the narrowest, so a card never stretches to a
-    // block or shrinks to a tile on a phone; the row is what the reader asked for (beta feedback).
-    assert.match(css, /\.npc-state-delta-present-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s);
-    assert.doesNotMatch(css, /present-grid[^{]*\{[^}]*repeat\(/s, 'no repeat() columns for the cards');
-    assert.doesNotMatch(css, /@media[^{]*\{[^@]*?\.npc-state-delta-present-grid \{[^}]*repeat\(2/s, 'no two-column phone grid');
-    assert.doesNotMatch(css, /@container npc-present/, 'the old container split for the card row is gone');
-});
-
-test('present cards resolve the current canonical NPC name after identity promotion', () => {
-    assert.match(index, /const displayName = npc\.name \|\| 'NPC'/);
-    assert.match(index, /Open \$\{escapeHtml\(displayName\)\} dossier/);
-});
-
 test('relationship tuning exposes baseline, caps, editable rubrics, and delta audit UI', () => {
     for (const id of ['npc_state_delta_base_trust', 'npc_state_delta_base_affection', 'npc_state_delta_base_desire', 'npc_state_delta_base_tension']) assert.match(index, new RegExp(id));
     for (const id of ['npc_state_delta_cap_ordinary', 'npc_state_delta_cap_meaningful', 'npc_state_delta_cap_major', 'npc_state_delta_cap_extreme']) assert.match(index, new RegExp(id));

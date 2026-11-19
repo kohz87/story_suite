@@ -1,6 +1,6 @@
 /* NPC State Delta persistence scheduling (role: chat-state-persistence). The one owner of writing a chat's state to its sidecar: the delayed write queue,
    the flush with its ownership and conflict handling, settling a write, and the persist calls the rest of Delta makes (normal, critical, critical and
-   durable). Built by index.js once per module instance with the shared runtime state. Bodies are moved from index.js without change. */
+   durable). Built by runtime-entry.js once per module instance with the shared runtime state. Bodies are moved from runtime-entry.js without change. */
 
 import { replayScope } from '../calls/runtime-scan-helpers.js';
 import { NPC_STATE_VERSION } from '../core/core.js';

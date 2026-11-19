@@ -1,7 +1,7 @@
 // Shared birthday-rule helpers the prompt builders use: calendar-projected options and the birthday rule inserts.
 import * as mechanics from '../core-mechanics.js';
-import { calendarPromptContext, getActiveCalendarConfig } from '../../calendar/calendar.js';
-import { birthdayCaptureRule, birthdayEvidenceInText, birthdayPromptRule } from '../../birthday/birthday.js';
+import { getActiveCalendarConfig } from '../../calendar/calendar.js';
+import { birthdayEvidenceInText, birthdayPromptRule } from '../../birthday/birthday.js';
 import { birthdayPromptSource, calendarReference, calendarNpcProjection } from '../core-birthday.js';
 
 export function calendarPromptOptions(options = {}) {
@@ -24,20 +24,6 @@ export function appendBirthdayRule(prompt, options = {}) {
     const calendar = getActiveCalendarConfig();
     const referenceDate = calendarReference(options, calendar).date;
     return `${String(prompt)}${birthdayPromptRule(calendar, referenceDate)}`;
-}
-
-// (cleanup step 12, I-10) The one-pass rules always carry a short birthday rule (the reply can bring
-// a birthday the text before it does not show), in the rules part, which holds nothing that changes
-// from reply to reply; the current world date, which does, goes at the end with the context.
-export function withCaptureBirthdayRule(prompt, options = {}) {
-    const calendar = getActiveCalendarConfig();
-    const source = String(prompt);
-    const marker = 'Identity index (matching only):';
-    const at = source.indexOf(marker);
-    const rule = birthdayCaptureRule(calendar);
-    const ruled = at > 0 ? `${source.slice(0, at).replace(/\n$/, '')}${rule}\n${source.slice(at)}` : `${source}${rule}`;
-    const date = calendarPromptContext(calendar, calendarReference(options, calendar).date);
-    return date ? `${ruled}\n${date}` : ruled;
 }
 
 export function insertRefreshBirthdayRule(prompt, options = {}) {

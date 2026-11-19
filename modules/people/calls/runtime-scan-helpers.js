@@ -1,7 +1,7 @@
 /* NPC State Delta scan helpers (role: scan-helpers). Stateless readers of the open chat and small helpers the scan, injection, editor and mutation code share:
    the latest message and reply positions, the lineage key of a message, whether a chat moved between two lineages, the relationship number clamp,
    a manual edit's change stamp, the scan and dossier-scan indicators, the capture setting, and the user-dismissed suppression clear. Nothing here
-   holds state. Bodies are moved from index.js without change. Public face: re-exports its parts. */
+   holds state. Bodies are moved from runtime-entry.js without change. Public face: re-exports its parts. */
 
 export { replayScope, inReplay, awayFromReplay } from './runtime-scan-helpers-parts/replay-state.js';
 export { chatContext, clockNow, notify } from './runtime-scan-helpers-parts/replay-reads.js';

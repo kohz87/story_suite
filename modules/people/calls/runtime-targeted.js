@@ -1,6 +1,6 @@
 /* NPC State Delta targeted passes (role: targeted-passes). The scans aimed at one person or a few: the targeted dossier pass, Scan dossier, Refresh from
-   chat, the history backfill and the queue of pending backfills, with the rules that scope a pass's rows and edges to its target. Built by index.js
-   once per module instance with the shared runtime state. Bodies are moved from index.js without change. */
+   chat, the history backfill and the queue of pending backfills, with the rules that scope a pass's rows and edges to its target. Built by runtime-entry.js
+   once per module instance with the shared runtime state. Bodies are moved from runtime-entry.js without change. */
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { REFRESH_CHANGED_FIELDS } from '../fields/registry.js';

@@ -37,7 +37,7 @@ export const RUNTIME_SOURCE_PARTS = [
     { files: ['runtime-hosted-parts/target-notes.js', 'runtime-hosted.js'], before: 'const { storyBlockV2Hosted' },
     { file: 'runtime-injection.js', before: 'const { liveInjectionText,' },
     { files: ['runtime-narration-parts/capture-journal.js', 'runtime-narration-parts/capture-text.js', 'runtime-narration-parts/narration-part.js'], before: 'const { narrationCaptureStats,' },
-    { files: ['runtime-present-cast.js', 'runtime-npc-lookup.js', 'runtime-cast-refresh.js'], before: 'const { storyBlockCastHtml }' },
+    { files: ['runtime-npc-lookup.js', 'runtime-cast-refresh.js'], before: 'const { currentNpcById, findNpcByIdOrName }' },
     { file: 'runtime-editor.js', before: 'const { editorIsMounted' },
     { file: 'runtime-editor-save.js', before: '    const { saveNpcEditor } = createEditorSave' },
     { file: 'runtime-cast-sync.js', before: 'const { castPortraitDue' },

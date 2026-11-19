@@ -1,19 +1,20 @@
-// N7: a hosted reply's capture journal entry is found by the reply's own sid and the fingerprint of its text; not hosted by the lineage key as before.
+// N7: a hosted reply's capture journal entry is found by the reply's own sid and the fingerprint of its text; without a host there is no journal.
 // Each test names the rule it guards; reverting that rule in capture-journal.js / journal-keys.js turns it red.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { captureJournalEntry, recordAcceptedCapture, recordAcceptedFill, recordReadMark } from '../../modules/people/runtime/runtime-narration-parts/capture-journal.js';
 import { useReplySids } from '../../modules/people/runtime/runtime-narration-parts/journal-keys.js';
-import { frozenLineageKeys } from '../../modules/people/runtime/runtime-narration-parts/journal-lineage.js';
 
 const msg = (mes, extra = {}) => ({ is_user: false, mes, ...extra });
 const sids = new Map();
 const hosted = chat => useReplySids(index => sids.get(chat[index]) ?? null);
 test.afterEach(() => { useReplySids(null); sids.clear(); });
 
-test('the frozen lineage key never changes (these are the keys the branch code made for this chat; old saved keys must still convert)', () => {
-    const chat = [msg('a'), { is_user: true, mes: 'b' }, msg('c <!-- x -->')];
-    assert.deepEqual(frozenLineageKeys(chat), ['1te10c6.hvto0i', 'tgxtng.1thhrkw', '1agva4.1palao']);
+test('the fingerprint strings are the ones the journal always stored (a saved entry is still found after the lineage copy went)', () => {
+    const reply = msg('c <!-- x -->'); const chat = [reply]; sids.set(reply, 'sid-0'); hosted(chat);
+    const state = {};
+    recordReadMark(state, chat, 0);
+    assert.deepEqual(state.captureJournal.map(item => [item.key, item.fp]), [['sid:sid-0', '1l6wjnu.ifqk1q']]);
 });
 
 test('hosted: a swipe finds no entry, a swipe back finds the first one again', () => {
@@ -60,12 +61,13 @@ test('hosted: a read mark is made for a reply with no scan, and a fill is kept i
     assert.equal(recordReadMark(state, chat, 0), entry, 'asking again finds the same entry');
 });
 
-test('not hosted: the lineage key and the message index, as before', () => {
+test('not hosted: no reply ID, so nothing is recorded or found; a saved lineage-keyed entry is ignored, never matched', () => {
     const chat = [msg('a'), msg('b')];
-    const state = {};
+    const state = { captureJournal: [{ messageId: 1, key: '1te10c6.hvto0i', backgroundRule: 1, fills: {} }] };
     recordAcceptedCapture(state, chat, 1, { parsed: { npcs: [] } });
-    assert.equal(state.captureJournal[0].key, frozenLineageKeys(chat)[1]);
-    assert.equal('fp' in state.captureJournal[0], false);
-    assert.ok(captureJournalEntry(state, chat, 1));
-    assert.equal(captureJournalEntry(state, [msg('a'), msg('c')], 1), null);
+    assert.equal(recordReadMark(state, chat, 1), null);
+    assert.equal(captureJournalEntry(state, chat, 1), null);
+    assert.equal(state.captureJournal.length, 1, 'the old entry is left as it was');
+    sids.set(chat[1], 'sid-1'); hosted(chat);
+    assert.equal(captureJournalEntry(state, chat, 1), null, 'hosted, an entry under another key is never this reply\'s');
 });

@@ -1,7 +1,7 @@
 /* NPC State Delta prompt injection (role: prompt-injection). The live dossier text and the options a scan prompt is built from: the player's pending
    message and the off-screen people it names, the gear lines, the injection sent to the host (updateInjection) and its preview, the one-pass capture's
-   rules kept or held, and the legacy prompt keys cleared on load. The prompt builders stay in core.js. Built by index.js once per module instance
-   with the shared runtime state. Bodies are moved from index.js without change. */
+   rules kept or held, and the legacy prompt keys cleared on load. The prompt builders stay in core.js. Built by runtime-entry.js once per module instance
+   with the shared runtime state. Bodies are moved from runtime-entry.js without change. */
 
 import { getContext } from '../../../../../../extensions.js';
 import { extension_prompt_types, extension_prompt_roles } from '../../../../../../../script.js';
@@ -67,6 +67,25 @@ export function createInjectionPart(rt, deps) {
         return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), levelOn: rpgIsOn() });
     }
 
+    // The one-pass lines a reply carries: the rules (when armed or kept for a swipe) and the context (armed only), with the note options they
+    // were asked with. Hosted only; without Story Block nothing is asked for. Pure: updateInjection sends these, "What's sent" shows them.
+    function captureParts(state, settings, { armed, rulesSent, namedNpcIds }) {
+        if (!armed && !rulesSent) return { rules: '', context: '', noteOptions: {} };
+        // (v2 hidden notes) The one-pass lines are asked for layered notes (with the rules, byte-identical each reply) and for
+        // the story events of present people's locked notes (with the context); the list is kept for the reply that carries it.
+        const noteOptions = hostedNotePromptOptions(state, settings);
+        const built = storySuiteV2Meters()
+            ? buildLinesParts({ ...noteOptions, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
+            : { rules: '', context: '' };
+        return { rules: built.rules, context: armed ? built.context : '', noteOptions };
+    }
+    // The one-pass lines the next ordinary reply would carry (it is armed, so rules and context), as "What's sent" shows them.
+    function nextCaptureParts(state, settings) {
+        if (!narrationCaptureEnabled(settings)) return { rules: '', context: '' };
+        const { rules, context } = captureParts(state, settings, { armed: true, rulesSent: true, namedNpcIds: namedByPlayerNpcIds(state) });
+        return { rules, context };
+    }
+
     function updateInjection() {
         if (replayScope()) return;   // the injection is built once the replay is installed
         const settings = getSettings();
@@ -93,18 +112,8 @@ export function createInjectionPart(rt, deps) {
         if (!settings.inject && !armed && !rulesSent) return clear('"Inject present NPC state" is off.');
         const namedNpcIds = namedByPlayerNpcIds(state);
         const prompt = settings.inject ? liveInjectionText(state, settings, { namedNpcIds, transcript }) : '';
-        // (1.2.17) The capture's context leaves out what this dossier already gives word for word.
-        // (v2 hidden notes) The one-pass lines are asked for layered notes (with the rules, byte-identical each reply) and for
-        // the story events of present people's locked notes (with the context); the list is kept for the reply that carries it.
-        const noteOptions = armed || rulesSent ? hostedNotePromptOptions(state, settings) : {};
-        const builtParts = armed || rulesSent
-            ? (storySuiteV2Meters()
-                // The lines builder; the JSON block is no longer asked for. Without Story Block nothing is asked for.
-                ? buildLinesParts({ ...noteOptions, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
-                : { rules: '', context: '' })
-            : { rules: '', context: '' };
-        const captureParts = { rules: armed || rulesSent ? builtParts.rules : '', context: armed ? builtParts.context : '' };
-        const capture = captureParts.context;
+        const { noteOptions, ...parts } = captureParts(state, settings, { armed, rulesSent, namedNpcIds });
+        const capture = parts.context;
         const present = (state.npcs || []).filter(npc => npc?.present);
         const depth = injectDepthOf(settings);
         rt.lastInjection = {
@@ -114,8 +123,8 @@ export function createInjectionPart(rt, deps) {
             chatKey: injectionKey,
             depth,
             namedByPlayer: (state.npcs || []).filter(npc => namedNpcIds.includes(npc.id)).map(npc => npc.name),
-            captureChars: captureParts.rules.length + capture.length,
-            captureRules: captureParts.rules,
+            captureChars: parts.rules.length + capture.length,
+            captureRules: parts.rules,
             captureContext: capture,
             captureEventWatch: armed ? (noteOptions.eventWatch || []) : [],
         };
@@ -123,8 +132,8 @@ export function createInjectionPart(rt, deps) {
         // Replaced on every build and emptied when not armed, so a spent reminder is never sent again;
         // the rules go and come with it (only armed replies carry them, byte-identical each time).
         ctx.setExtensionPrompt?.(CAPTURE_PROMPT_KEY, capture, extension_prompt_types.IN_CHAT, CAPTURE_PROMPT_DEPTH, false, extension_prompt_roles.SYSTEM);
-        ctx.setExtensionPrompt?.(CAPTURE_RULES_KEY, captureParts.rules, extension_prompt_types.IN_PROMPT, 0, false, extension_prompt_roles.SYSTEM);
-        if (!captureParts.rules) rt.sentCaptureRules = '';
+        ctx.setExtensionPrompt?.(CAPTURE_RULES_KEY, parts.rules, extension_prompt_types.IN_PROMPT, 0, false, extension_prompt_roles.SYSTEM);
+        if (!parts.rules) rt.sentCaptureRules = '';
     }
 
     const OWN_REQUEST = /NPC State Delta's (?:isolated|targeted)|isolated relationship evaluator|Private NPC dossier scanner/;
@@ -198,5 +207,5 @@ export function createInjectionPart(rt, deps) {
         };
     }
 
-    return { liveInjectionText, updateInjection, holdCaptureRules, keepCaptureRules, clearLegacyPromptKeys, injectionPreview, scannerPromptOptions };
+    return { liveInjectionText, updateInjection, nextCaptureParts, holdCaptureRules, keepCaptureRules, clearLegacyPromptKeys, injectionPreview, scannerPromptOptions };
 }

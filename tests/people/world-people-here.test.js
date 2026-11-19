@@ -8,13 +8,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CAST_TAB_ID, WORLD_FEATURE, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
-import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const css = styleSource();
-const indexSource = runtimeSource();
 
 const esc = value => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const classesOf = n => n.className.split(/\s+/).filter(Boolean);
@@ -201,8 +199,6 @@ test('the whole row opens the dossier: a click on the card, on the cell, or a ke
     // Enter or Space on the focused card button: the browser turns it into a click on the button.
     el.fire('click', { target: card });
     assert.deepEqual(opened, ['npc_temiwa', 'npc_temiwa', 'npc_temiwa']);
-    // The card is a real button, so it takes the keyboard (index.js inlineCardHtml, the markup World draws).
-    assert.match(indexSource, /<button type="button" class="npc-state-delta-present-card" data-npc-id="\$\{escapeHtml\(npc\.id\)\}" data-message-id="\$\{messageId\}" aria-label="Open /);
     adapter.stop();
 });
 
@@ -218,10 +214,7 @@ test('a click elsewhere on the pane opens nothing; the Dossiers rows still open 
     adapter.stop();
 });
 
-test('the description is one line (two on a phone) in People here, the standing a chip; the in-chat card keeps its two lines', () => {
-    assert.match(css, /\.npc-state-delta-world-people \.npc-state-delta-present-card-role \{ -webkit-line-clamp: 1; line-clamp: 1; \}/);
-    assert.match(css, /@media \(max-width: 599px\) \{\s*\.npc-state-delta-world-people \.npc-state-delta-present-card-role \{ -webkit-line-clamp: 2; line-clamp: 2; \}/);
+test('People here: the standing is a chip and the whole row is pointer', () => {
     assert.match(css, /\.npc-state-delta-world-people \.npc-state-delta-present-card-stage \{[^}]*border-radius: 999px;/);
-    assert.match(css, /^\.npc-state-delta-present-card-role \{[^}]*-webkit-line-clamp: 2; line-clamp: 2;/m, 'everywhere else: two lines');
     assert.match(css, /\.npc-state-delta-world-people \{ cursor: pointer; \}/);
 });

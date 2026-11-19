@@ -7,6 +7,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Settings › Packs: **Create the lorebook** from a world pack makes a SillyTavern lorebook of its lore, so the narrator reads it too; **Update the lorebook** remakes it when the pack changes.
 - **Use in this chat** (on by default) attaches that lorebook to the chat. A pack's hidden lore stays out of the book.
 - Pack Studio: **Export lorebook** saves a world pack's lore as a SillyTavern lorebook file.
+- Tools › What's sent shows the NPC State lines your reply really carries; old leftovers of the earlier NPC State look and its one-time chat conversion are gone.
 
 ## 0.1.3 — 19 Nov 2026
 

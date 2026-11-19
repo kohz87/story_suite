@@ -1,6 +1,6 @@
 /* NPC State Delta - present-card event helpers (role: runtime-entry-ui-events). The present-card activation
    guard, the open-a-dossier call (the view's People dossier, through pageHandles.openPerson) and closest-target lookup split
-   from index.js. Built once per module instance with the controller bindings it calls, so the activation memory stays per instance. */
+   from runtime-entry.js. Built once per module instance with the controller bindings it calls, so the activation memory stays per instance. */
 import { pageHandles } from './handles.js';
 
 export function createUiCaptureParts(deps) {

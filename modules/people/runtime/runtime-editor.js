@@ -1,7 +1,7 @@
 /* NPC State Delta dossier editor and roster (role: npc-editor). The settings roster, the dossier renderer, the NPC editor
-   dialog and the click activation that opens it. The save path lives in runtime-editor-save.js. Built by index.js once
+   dialog and the click activation that opens it. The save path lives in runtime-editor-save.js. Built by runtime-entry.js once
    per module instance with the shared runtime state and the controller functions it calls, so each instance keeps its
-   own activation memory. Bodies are moved from index.js without change. */
+   own activation memory. Bodies are moved from runtime-entry.js without change. */
 import { replayScope } from '../calls/runtime-scan-helpers.js';
 import { getContext } from '../../../../../../extensions.js';
 import { EDITOR_FIELDS, editorShownValue } from '../dossier/dossier-edit.js';

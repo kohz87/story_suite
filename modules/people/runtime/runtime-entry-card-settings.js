@@ -1,5 +1,5 @@
 /* NPC State Delta - character-card settings bridge (role: runtime-entry-card-settings). The Story Block card-setting
-   definition and its panel-equivalent saves split from index.js. Built by index.js with the Portrait panel bindings. */
+   definition and its panel-equivalent saves split from runtime-entry.js. Built by runtime-entry.js with the Portrait panel bindings. */
 
 export function createCardSettingsPart(deps) {
     const {

@@ -1,7 +1,7 @@
 /* NPC State Delta chat lifecycle (role: chat-lifecycle). What happens to a chat's sidecar when the chat or its owner is deleted, renamed or
    reloaded: the transactional delete (runtime-lifecycle-delete.js) and rename (recovery copy, retirement, tombstone), owner flush and
    invalidation, the page-hide flush, the bounded lifecycle event with its background retry, and the manual reload or detach of a chat's
-   sidecar. Built by index.js once per module instance with the shared runtime state. Bodies are moved from index.js without change. */
+   sidecar. Built by runtime-entry.js once per module instance with the shared runtime state. Bodies are moved from runtime-entry.js without change. */
 import { getContext } from '../../../../../../extensions.js';
 import { saveSettings as saveHostSettings } from '../../../../../../../script.js';
 import { NPC_STATE_VERSION } from '../core/core.js';

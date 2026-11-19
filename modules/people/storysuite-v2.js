@@ -9,12 +9,12 @@
 // through the cast API handle (runtime/handles.js castApi); without Story Director they stay
 // at the top of Dossiers (Story Block MODULES §F119). It also owns one small domain, `npc` (src/npc-meters.js; F81, F90): each NPC's
 // meters, stages and unlocked hidden notes in the per-reply state, so they swipe and delete back
-// with the replies. While hosted that slice is the truth for meter values: index.js reads it back
+// with the replies. While hosted that slice is the truth for meter values: runtime-entry.js reads it back
 // through sliceView() for the dossier view and the injection, and sends its scanner's relationship
 // changes as `npc.adjust` (adjust()); the `~ npc` change line, an NPC card under each reply and the
 // meters beside the present cast's cards come from here. While hosted, the copy in SillyTavern's extensions drawer is
 // hidden; if the host goes away it comes back exactly where it was. While hosted, the handle also carries
-// pageHandles.hosted, which index.js reads (in-chat cast default, sidecar checks).
+// pageHandles.hosted, which runtime-entry.js reads (in-chat cast default, sidecar checks).
 //
 // Without a v2 host (no Story Block, or a v1 Story Block whose global has no `ready`/`sdk`) this
 // module does nothing: it looks for the host once and then stops. The v1
@@ -115,14 +115,14 @@ const fallbackEmptyCast = reason => `<div class="npc-state-delta-story-empty-sta
 
 /**
  * The adapter. Options (all optional except in tests):
- *   suiteApi   Delta's v1 suite api (index.js SUITE_API): npcs() gives { id, name, aliases, present, archived }.
- *   delta      () => Delta's runtime api (pageHandles.deltaApi): presentCastHtml, fillPresentCast,
+ *   suiteApi   Delta's v1 suite api (runtime-entry.js SUITE_API): npcs() gives { id, name, aliases, present, archived }.
+ *   delta      () => Delta's runtime api (pageHandles.deltaApi):
  *              castEmptyReason, getNpc, formPortraits, isEnabled, scan, addNpc.
  *   panelId    id of Delta's settings panel in the extensions drawer.
  *   version    Delta's version, for the module definition.
  *   host       () => the Story Block global.
  *   headReply  () => the index of the latest reply (the reader's own meter values start its window).
- *   castSync   async () => makes the dossiers of the cast people the step has just recorded (index.js castSync), and gives a cast
+ *   castSync   async () => makes the dossiers of the cast people the step has just recorded (runtime-entry.js castSync), and gives a cast
  *              dossier made without its picture the picture once Story Block has it.
  *   castPortraitDue   () => whether castSync has a picture to give (a cheap look); the adapter asks before it runs the sync for that alone.
  *   doc, timers, loadEmptyCast (() => Promise<emptyCastHtml>), logger.
@@ -195,7 +195,6 @@ export function createStorySuiteV2Adapter({
         chatKey: () => queriesPart.runtime()?.chatKey?.() ?? '',
         rescan: () => queriesPart.runtime()?.rescanLatest?.(),
         afterHydrate: at => {
-            try { queriesPart.runtime()?.convertCaptureJournal?.(); } catch (error) { logger.warn?.('[NPC State] the capture journal could not be moved to reply IDs.', error); }   // N7: once, before anything reads it
             if (linesMode()) queueNewStubFills(queriesPart.runtime(), queriesPart.runtime()?.chatKey?.() ?? '', at);
         },   // the fill-in of a `+ npc` stub (NSD6)
         carry: peopleCarry,
@@ -295,7 +294,7 @@ export function createStorySuiteV2Adapter({
         castGearLine,
         /** While hosted: whether Story Block's RPG feature is on (the custom field "Level" then appears by itself). */
         rpgOn: () => session.hosted === true && part.featureOn(RPG_FEATURE) === true,
-        /** While hosted: the "Scan after every reply" switch (index.js asks before each automatic scan). */
+        /** While hosted: the "Scan after every reply" switch (runtime-entry.js asks before each automatic scan). */
         scanEveryReply: () => part.featureOn(FEATURE_SCAN_EVERY_REPLY) !== false,
         /**
          * Where the calendar in Delta's settings stands: 'story-director' (Story Director's calendar is the one in
@@ -382,7 +381,7 @@ export function createStorySuiteV2Adapter({
 
 let adapter = null;
 
-/** Start the page's one adapter (index.js calls this once at startup); later calls return the same one. */
+/** Start the page's one adapter (runtime-entry.js calls this once at startup); later calls return the same one. */
 export function startStorySuiteV2(options = {}) {
     if (!adapter) {
         adapter = createStorySuiteV2Adapter(options);

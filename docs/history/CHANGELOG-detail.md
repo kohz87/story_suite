@@ -4,6 +4,10 @@ This is the detailed record of every change, kept as it was written; the short l
 
 ## Unreleased (detail)
 
+### Removed
+
+- NPC State close-out 1: `modules/people/legacy/` is gone. The start (`bootstrap.js` → `runtime/runtime-start.js`), the runtime controller (`index.js` → `runtime/runtime-entry.js`), `runtime-persist.js`, `runtime-npc-lookup.js` and `runtime-cast-refresh.js` moved to `modules/people/runtime/` and the six sheets to `modules/people/css/` (`git mv`, unchanged apart from paths). The old roster markup (`present-scene*`, `runtime-present-cast.js`), the public `presentCastHtml` / `fillPresentCast` and thirteen present-card CSS classes went: nothing draws the World widget that asked for them. The JSON one-pass prompt went (`buildNarrationCapturePrompt`, `buildNarrationCaptureParts`, `capture-text.js`, the scanner's `narrationCapture` / `dossierAbove` options and the capture-only Stage 4, birthday and story-event texts); the ordinary scanner, backfill and Refresh prompts are byte-identical (background-prompts golden: only its five JSON one-pass entries left). Tools › "What's sent" and the host's prompt size now show the one-pass lines a hosted reply carries (rules in the system prompt, context at the end), built by the same function `updateInjection` sends. The lineage-keyed capture journal went (`journal-convert.js`, `journal-lineage.js`, `convertCaptureJournal`, the lineage branch of `journal-keys.js`): an entry is keyed by the reply's sid with the same text fingerprint; without a host nothing is journaled and an old lineage-keyed entry is never matched. Backup: `scratch/backups/close1/`; rows in `docs/merge/b4-removals.md`.
+
 ### Added
 
 - A world pack's lore as a SillyTavern lorebook: `packs/lorebook-make/convert.js` turns `content.lore` into a World Info book named "<pack name> (Story Suite)" (hidden entries left out, protected titles tagged `[protected]`, stable uids, a disabled `[storysuite:lorebook]` marker with the pack id and version).

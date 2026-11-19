@@ -8,12 +8,12 @@ const { noteManualRefresh } = await import('../../modules/people/calls/catchup-h
 const { useReplySids } = await import('../../modules/people/runtime/runtime-narration-parts/journal-keys.js');
 const { recordReadMark } = await import('../../modules/people/runtime/runtime-narration.js');
 
-// A chat of replies with a journal. `every` = N, `people` = K. Each reply names who is in it; sid mode gives every reply its own ID (hosted).
-function rig({ every = 4, people = 1, sids = false } = {}) {
+// A chat of replies with a journal. `every` = N, `people` = K. Each reply names who is in it and has its own ID (hosted; without a host there is no journal).
+function rig({ every = 4, people = 1 } = {}) {
     const state = { npcs: [], pendingBackfills: [], captureJournal: [] };
     const chat = [];
     globalThis.__npcMock.context = { chat };
-    useReplySids(sids ? at => chat[at]?.sid ?? null : null);
+    useReplySids(at => chat[at]?.sid ?? null);
     const deps = {
         readSettings: () => ({ narrationCaptureCatchUp: every, narrationCaptureCatchUpPeople: people }), getChatKey: () => 'chat', getChatState: () => state,
         isHostSwipeActive: () => false, isScanBusy: () => false, persist: () => {}, processPendingBackfills: async () => {}, refreshNpcFromChat: async () => true,
@@ -99,7 +99,7 @@ test('manual Refresh: A refreshed at reply 1 is next eligible at reply 5 (N=4), 
 });
 
 test('replay == live: a swipe, a swipe back, an edit, a middle delete and a reload read the same marks (hosted sids)', () => {
-    const r = rig({ sids: true });
+    const r = rig();
     run(r, ['a', 'b', 'c'], 5);   // the 4th reply took a, the 5th took b
     const last = r.chat.length - 1;
     const asked = present => r.part.noteCaptureCatchUp('chat', present, r.chat.length - 1);
@@ -131,7 +131,7 @@ test('replay == live: a swipe, a swipe back, an edit, a middle delete and a relo
 });
 
 test('rewind: replies cut from the end are forgotten, so the picks after them are the picks as if they never came', () => {
-    const r = rig({ sids: true });
+    const r = rig();
     const first = run(r, ['a', 'b', 'c'], 7);
     const cut = r.chat.splice(5);   // back to 5 replies
     assert.equal(cut.length, 2);

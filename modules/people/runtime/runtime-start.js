@@ -6,7 +6,7 @@ export async function startPeople() {
     await prepareNpcStateHardening();
     await import('../calls/scanner-routing.js');
     await import('../settings/calendar-settings.js');
-    await import('./index.js');
+    await import('./runtime-entry.js');
     try {
         await import('../core/destructive-settlement.js');
     } catch (error) {

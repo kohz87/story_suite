@@ -139,7 +139,7 @@ test('the modules use the derived lists, not copies of their own', () => {
     }
 });
 
-test('the hidden notes (secrets) never reach any of Delta\'s own model-facing texts', () => {
+test('the hidden notes (secrets) never reach any of Delta\'s own model-facing texts', async () => {
     assert.equal(registry.FIELDS.secrets.prompt, 'tail', 'only the v2 module\'s tail carries them (opened as known, locked as hidden), none of Delta\'s own prompts');
     assert.equal(registry.DOSSIER_FIELDS.includes('secrets'), false, 'npc.dossier never returns them');
     const secret = 'She is the lost heir of House Venn';
@@ -152,8 +152,7 @@ test('the hidden notes (secrets) never reach any of Delta\'s own model-facing te
     const options = { transcript, currentTranscript: transcript, existingNpcs: [npc], existingNpc: npc, targetNpc: npc, targets: [npc], targetName: 'Mira', dossierText: 'Name: Mira', userName: 'Ari', charName: 'C' };
     const texts = [
         core.buildScannerPrompt(options), core.buildScannerPrompt({ ...options, customFieldNames: ['Level'] }),
-        core.buildNarrationCapturePrompt(options),
-        JSON.stringify(core.buildNarrationCaptureParts(options)), core.buildBackfillPrompt(options), core.buildProfileRefreshPrompt(options),
+        JSON.stringify((await import('../../modules/people/core/core-prompts-lines.js')).buildLinesParts(options)), core.buildBackfillPrompt(options), core.buildProfileRefreshPrompt(options),
         core.buildDossierImportPrompt(options), core.buildRelationshipPassPrompt(options), core.buildInjection([npc], transcript, 1),
         JSON.stringify(core.buildNpcPortraitPrompts(npc, {})), JSON.stringify(registry.snapshotNpc(npc)),
     ];
