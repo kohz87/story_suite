@@ -391,6 +391,7 @@
   "tests/ui/select/people-settings.test.js": "Tests that the live People rows keep mock v7's rows and read the stored NPC State settings.",
   "tests/ui/select/reply-log-live.test.js": "Tests on a live host that each reply's card reads that reply's own HP, place, time and condition through a swipe, a middle delete, a rebuild and a reload.",
   "tests/ui/select/rpg-difficulty.test.js": "Tests the RPG difficulty explanations against the engine's numbers and the Custom editors from row to stored key to a new character.",
+  "tests/ui/select/story-trackers-rpg.test.js": "Tests that the Story tab's Trackers list leaves out the RPG's own blocks.",
   "tests/ui/settings-director/director.test.js": "Settings Director page on a real host: live values, the same stored key as the old view, refused values, feature gating and the drawn page.",
   "tests/ui/settings/game-export-card.test.js": "Tests the Game pack card, the port command and the tools handle that build the pack from the live registry.",
   "tests/ui/settings/pack-offers.test.js": "Tests the card's pack offers at the top of Settings › Packs and trackers: blocks, tick, Install and Update, Not now and the offer view-model.",

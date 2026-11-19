@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Story › Trackers no longer lists the RPG's own Character, Skills and Foes blocks.
 - A person's page: the dossier library strip is taller and the open person's ring is no longer cut off.
 - A pack offer under a reply opens Settings, where pack offers now live.
 - Ersveil 4.1.0: every cast member now has a portrait (19 new). Update the pack in Settings › Packs to get them.
