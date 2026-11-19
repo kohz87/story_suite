@@ -121,3 +121,13 @@ test('an up-to-date book on a chat with another lorebook: the line names that lo
     assert.equal(JSON.stringify(books.files[NAME]), saved);
     assert.ok(page('packs').textContent.includes(`${NAME} is up to date (made from Ersveil 4.0.0). Attached to this chat.`));
 });
+
+test('the Packs view-model with a lorebook row keeps the settings contract', async () => {
+    const { checkShape } = await import('../../../ui/contract/shapes.js');
+    const { SETTINGS_SHAPE } = await import('../../../ui/contract/settings.js');
+    const { buildSettings } = await import('../../../ui/fixtures/settings.js');
+    const installed = await store(loreWorld());
+    const packs = selectPacks({ list: installed.list(), setup: [], pairing: pairingView(installed), own: ownView(installed), lorebook: lorebookRows({ list: installed.list(), books: fakeBooks({ chatBook: 'Campaign notes' }), settings: fakeSettings() }) });
+    assert.equal(packs.v4.installed[0].lorebook.state, 'create');
+    assert.deepEqual(checkShape({ ...buildSettings(), packs }, SETTINGS_SHAPE), []);
+});

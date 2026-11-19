@@ -31,7 +31,9 @@ export function stLorebooks({ fetchImpl = (...args) => globalThis.fetch(...args)
         /** Asks SillyTavern for its book list again (its own World Info list too) → the names. */
         async refresh() {
             const ctx = context();
-            if (typeof ctx?.updateWorldInfoList === 'function') { await ctx.updateWorldInfoList(); return books.names(); }
+            if (typeof ctx?.updateWorldInfoList === 'function') await ctx.updateWorldInfoList();
+            // (a SillyTavern whose context cannot list the books is asked the server's list: an empty list would hide a reader's own book of that name)
+            if (typeof ctx?.getWorldInfoNames === 'function') return books.names();
             const settings = await (await post('/api/settings/get', {})).json();
             return Array.isArray(settings?.world_names) ? settings.world_names.map(String) : [];
         },

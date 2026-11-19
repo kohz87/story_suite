@@ -24,7 +24,9 @@ const ROW = {
 
 // The world-and-game page (format 4): present only when a format 4 pack is installed.
 const PICKER = { value: T.STRING, options: [{ value: T.STRING, label: T.STRING }] };
-const PACK_ROW = { id: T.STRING, name: T.STRING, tag: T.STRING, desc: T.STRING, problem: { $optional: T.STRING } };
+// (a world pack with lore carries its lorebook row: ui/select/packs-lorebook.js)
+const LOREBOOK_ROW = { id: T.STRING, name: T.STRING, state: { $enum: ['create', 'update', 'current'] }, button: T.STRING, desc: T.STRING, upToDate: T.BOOLEAN, attach: T.BOOLEAN, attached: T.BOOLEAN, use: { on: T.BOOLEAN, disabled: T.BOOLEAN, note: T.STRING } };
+const PACK_ROW = { id: T.STRING, name: T.STRING, tag: T.STRING, desc: T.STRING, problem: { $optional: T.STRING }, lorebook: { $optional: LOREBOOK_ROW } };
 const PACKS_V4 = {
   world: PICKER,
   game: PICKER,

@@ -19,7 +19,7 @@ export function liveLorebookRows(list) {
 export function lorebookView(row) {
   const made = row.madeFrom ? `made from ${row.madeFrom}` : '';
   const desc = row.state === 'create' ? 'The pack’s lore as a SillyTavern lorebook the narrator reads (hidden lore stays out).'
-    : row.state === 'update' ? `${row.name} · ${made || 'made from another version'}` : `${row.name} · ${made}`;
+    : row.state === 'update' ? `${row.name} · ${made || 'made from a version not known'}` : `${row.name} · ${made}`;
   return {
     id: row.id, name: row.name, state: row.state, button: BUTTON[row.state] ?? '', desc, upToDate: row.state === 'current',
     attach: row.state === 'current' && !row.attached && !row.use.disabled, attached: row.attached === true,

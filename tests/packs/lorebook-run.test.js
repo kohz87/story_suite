@@ -124,7 +124,7 @@ function fakeContext({ keep = true, chatId = 'chat-1' } = {}) {
         reloadWorldInfoEditor: name => calls.push(['reload', name]),
         saveMetadata: async () => calls.push(['meta']),
     };
-    const fetchImpl = async (url, init) => { calls.push(['fetch', url, init.headers['X-CSRF-Token']]); return { ok: true, json: async () => server[JSON.parse(init.body).name] ?? { entries: {} } }; };
+    const fetchImpl = async (url, init) => { calls.push(['fetch', url, init.headers['X-CSRF-Token']]); return { ok: true, json: async () => (url === '/api/settings/get' ? { world_names: Object.keys(server) } : server[JSON.parse(init.body).name] ?? { entries: {} }) }; };
     globalThis.SillyTavern = { getContext: () => ctx };
     return { ctx, calls, fetchImpl, server, done: () => { delete globalThis.SillyTavern; } };
 }
@@ -153,4 +153,18 @@ test('the writer tells a save SillyTavern did not keep, and refuses to attach wi
         await assert.rejects(books.attach(name), /no chat is open/);
         assert.equal(lost.ctx.chatMetadata.world_info, undefined);
     } finally { lost.done(); }
+});
+
+test('a SillyTavern whose context cannot list the books: the server’s list is read, so a reader’s own book of that name is still refused', async () => {
+    const st = fakeContext();
+    delete st.ctx.getWorldInfoNames;
+    st.server[NAME] = structuredClone(userBook);
+    try {
+        const books = stLorebooks({ fetchImpl: st.fetchImpl });
+        assert.deepEqual(await books.refresh(), [NAME]);
+        const answer = await makeLorebook({ packs: packsOf(tiny()), books, settings: fakeSettings() }, { id: 'tiny', use: true, confirmed: true });
+        assert.equal(answer.ok, false);
+        assert.match(answer.text, /did not make it/);
+        assert.deepEqual(st.server[NAME], userBook);
+    } finally { st.done(); }
 });
