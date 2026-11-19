@@ -14,6 +14,7 @@ import { partyAddButton } from './party-add.js';
 import { can } from '../../../runtime/can.js';
 import { sendFollow } from './follow.js';
 import { tabTrap } from '../../../kit/trap.js';
+import { placeOnDesk } from './desk-place.js';
 
 const MENU = Object.freeze([
   ['refresh', 'Refresh', 're-read the recent story for them'], ['portrait', 'Portrait', 'view, upload or generate'],
@@ -94,6 +95,8 @@ export function dossierPage(first, ctx = {}) {
     h('div', { class: 'dscroll' }, top, menuSlot, noteSlot, grid));
   let shut = false;
   root.addEventListener('keydown', tabTrap(root, { isOn: () => !shut }));
+  // (on desktop it sits in the page column under the tab strip; a tab picked there closes it first)
+  const unplace = placeOnDesk(root, { onStrip: () => close() });
 
   function closeMenu() { release('menu'); state.menu = false; state.sure = false; drawMenu(); }
   function openPage(id) {
@@ -102,7 +105,7 @@ export function dossierPage(first, ctx = {}) {
     drawGrid();
   }
   function closePage() { release('page'); state.page = null; drawGrid(); }
-  function close() { shut = true; release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
+  function close() { shut = true; unplace(); release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
   root.close = close;
   // The person changed while the page is open (a reply, an Edit save): the same page is drawn again from the fresh record.
   root.update = (next) => {
@@ -210,6 +213,6 @@ export function dossierPage(first, ctx = {}) {
 
   drawTop();
   drawGrid();
-  hold('dossier', 'page', () => { shut = true; release('menu'); release('page'); ctx.onClose?.(); });
+  hold('dossier', 'page', () => { shut = true; unplace(); release('menu'); release('page'); ctx.onClose?.(); });
   return root;
 }

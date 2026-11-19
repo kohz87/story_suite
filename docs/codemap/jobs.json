@@ -655,5 +655,10 @@
   "ui/wizard/stats.js": "Draws the wizard's Stats step in the new view: the stat sheet's − / + rows under the creation budget, Reset and the notes.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
   "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary row and Back / Next.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona, reply key, rules, levels, and whether the story has You."
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona, reply key, rules, levels, and whether the story has You.",
+  "ui/tabs/people/dossier/desk-place.js": "Places an open dossier in desktop layout A's page column under the tab strip (at most 1,040 px), pairs Mood and Right now from a 1,000 px dossier, and closes it when a tab is picked.",
+  "modules/people/tools/editor-desk.js": "Lays NPC State's NPC editor out for a desktop window: 920 px, two columns (Who they are, With you and now), head and Save / Cancel outside the body; every field back in place under 1,100 px.",
+  "modules/people/css/style-editor-desk.css": "NPC State's NPC editor on a desktop window: the 920 px dialog, its two columns, fields, checkboxes and footer, in the suite's colours when the suite is on the page.",
+  "tests/ui/rendered/dossier-desk.test.js": "Rendered check of the dossier on desktop layout A: page column placement, 1,040 px cap, Mood and Right now pairing, the anchored menu and crossing 1,100 px.",
+  "tests/people/editor-desk.test.js": "Rendered check of NPC State's desktop editor layout: both columns' fields in order, ids kept, everything back in place under 1,100 px, the late appearance section."
 }

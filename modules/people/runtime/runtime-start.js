@@ -28,6 +28,11 @@ export async function startPeople() {
         console.error('[NPC State] continuity UI failed to load', error);
     }
     try {
+        await import('../tools/editor-desk.js');
+    } catch (error) {
+        console.error('[NPC State] desktop editor layout failed to load', error);
+    }
+    try {
         await import('../settings/scanner-output.js');
     } catch (error) {
         console.error('[NPC State] scanner output/UI refinement failed to load', error);

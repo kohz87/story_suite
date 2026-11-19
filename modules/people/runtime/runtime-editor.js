@@ -159,7 +159,8 @@ export function createEditorPart(rt, deps) {
     function hostedSecretsEditorHtml(npc) {
         const adapter = adapterMeters();
         if (!adapter) return '';
-        try { return String(adapter.editorHtml(npc) || ''); } catch { return ''; }
+        // (in one box, display: contents, so the desktop editor can place the block as one: tools/editor-desk.js)
+        try { const html = String(adapter.editorHtml(npc) || ''); return html ? `<div class="ppl-editor-hosted">${html}</div>` : ''; } catch { return ''; }
     }
 
     function openNpcEditor(npcId) {
