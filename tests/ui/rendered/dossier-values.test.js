@@ -1,4 +1,4 @@
-// Rendered check: the People dossier and tiles keep the mock's fixed values (corner numbers, name, Following gold, Mood meters, tie portraits, disc colour).
+// Rendered check: the People dossier and tiles keep the mock's fixed values (flat surface, corner numbers, name, Following gold, Mood meters, tie portraits, disc colour).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -10,8 +10,9 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' };
 const SIZES = [[390, 844], [820, 1180]];
 const GOLD = { dark: 'rgb(240, 184, 74)', light: 'rgb(138, 90, 0)' };
+const FLAT = { dark: 'rgb(25, 26, 43)', light: 'rgb(232, 233, 241)' };
+const TICK = { dark: 'rgba(255, 255, 255, 0.3)', light: 'rgba(0, 0, 0, 0.3)' };
 const DISC = { dark: 'rgb(58, 60, 82)', light: 'rgb(74, 77, 104)' };
-const MUTED = { dark: 'rgb(154, 156, 180)', light: 'rgb(86, 90, 114)' };   // light: darker than the mock's #6a6e86 (soak fix: 4.5:1 on the glass)
 const HERE = { dark: 'rgb(79, 211, 154)', light: 'rgb(11, 110, 73)' };
 const TILE = { dark: 'rgb(58, 60, 82)', light: 'rgb(220, 220, 234)' };
 
@@ -54,7 +55,7 @@ function read() {
   const rows = [...document.querySelectorAll('#hx-frame .dcard[data-page="mood"] .mood3 > *')].map(e => e.textContent.trim());
   return {
     name: css('.dossier .dname', 'fontSize'), corner: css('.dossier .ml b', 'fontSize'), spacing: css('.dossier .ml', 'letterSpacing'),
-    follow: css('.dossier .fbtn', 'color'), moodRows: rows, here: [...document.querySelectorAll('#hx-frame .dossier .idl')].map(e => e.textContent).at(-1),
+    follow: css('.dossier .fbtn .chip', 'color'), moodRows: rows, here: q('.dossier .dhero .where').textContent,
     trust: css('.dossier .ml.f0', 'color'),
     ring: ['.bigring .ring-track', '.bigring .ring-arc'].map(s => [q(s).getAttribute('stroke-width'), q(s).getAttribute('r') ?? 'arc']),
     ticks: document.querySelectorAll('#hx-frame .bigring .ring-tick').length, tickStroke: css('.bigring .ring-tick', 'stroke'),
@@ -77,49 +78,45 @@ for (const theme of ['dark', 'light']) {
         assert.equal(tile, TILE[theme], 'People tile disc colour');
         await page.evaluate(() => document.querySelector('#hx-frame [data-person-id="temiwa"]').click());
         await page.waitForSelector('#hx-frame .dossier .mood3');
-        await page.waitForFunction(() => getComputedStyle(document.querySelector('#hx-frame .dossier .dscroll')).zIndex === '1');
+        await page.waitForSelector('#hx-frame .dossier .dbody');
         const v = await page.evaluate(read);
-        // (the sky is the Panel background's: on here, whatever the harness default; off is checked below)
-        await page.evaluate(() => document.querySelector('#hx-frame .su-root')?.setAttribute('data-panelbg', 'on'));
-        const sky = await page.evaluate(() => {
-          const d = document.querySelector('#hx-frame .dov'); const dc = getComputedStyle(d);
-          const fine = document.createElement('p'); fine.className = 'fine'; d.appendChild(fine);
-          const f = getComputedStyle(fine).fontWeight; fine.remove();
-          return { bg: dc.backgroundImage, glow: getComputedStyle(d, '::before').backgroundImage, shade: getComputedStyle(d, '::after').backgroundImage, shadeH: getComputedStyle(d, '::after').height, scroll: getComputedStyle(d.querySelector('.dscroll')).position, fine: f, box: d.getBoundingClientRect().height };
-        });
-        assert.match(sky.bg, /linear-gradient/, 'dossier backdrop is the mock sky, not the old gradient');
-        assert.match(sky.bg, theme === 'dark' ? /rgb\(44, 63, 102\)/ : /rgb\(143, 178, 224\)/, 'sky first stop');
-        assert.match(sky.glow, /radial-gradient\(.*rgba\(255, 240, 200, 0\.55\)/, 'warm glow');
-        assert.match(sky.shade, theme === 'dark' ? /rgba\(10, 12, 20, 0\.55\)/ : /rgba\(255, 255, 255, 0\.35\)/, 'bottom shade');
-        assert.equal(Math.round(parseFloat(sky.shadeH)), Math.round(sky.box * 0.45), 'shade is 45 % tall');
-        assert.equal(sky.fine, '400', 'dossier .fine weight');
-        await page.evaluate(() => document.querySelector('#hx-frame .su-root')?.setAttribute('data-panelbg', 'off'));
-        const flat = await page.evaluate(() => { const d = document.querySelector('#hx-frame .dov'); return { bg: getComputedStyle(d).backgroundImage, glow: getComputedStyle(d, '::before').display }; });
-        assert.equal(flat.bg, 'none', 'Panel background off: no sky on a person\'s page');
-        assert.equal(flat.glow, 'none', 'Panel background off: no glow');
-        assert.equal(v.name, '22px', 'the owner asked for a smaller name than the mock (19 Nov)');
+        // (the dossier is the flat surface always, as the owner asked: no sky, glow or shade, whatever Settings › Look › Panel background says)
+        for (const bg of ['on', 'off']) {
+          await page.evaluate(x => document.querySelector('#hx-frame .su-root')?.setAttribute('data-panelbg', x), bg);
+          const flat = await page.evaluate(() => {
+            const d = document.querySelector('#hx-frame .dov'); const dc = getComputedStyle(d);
+            const fine = document.createElement('p'); fine.className = 'fine'; d.appendChild(fine);
+            const f = getComputedStyle(fine).fontWeight; fine.remove();
+            return { img: dc.backgroundImage, color: dc.backgroundColor, glow: getComputedStyle(d, '::before').content, shade: getComputedStyle(d, '::after').content, fine: f };
+          });
+          assert.equal(flat.img, 'none', `Panel background ${bg}: no sky on a person's page`);
+          assert.equal(flat.color, FLAT[theme], `Panel background ${bg}: the flat surface`);
+          assert.deepEqual([flat.glow, flat.shade], ['none', 'none'], `Panel background ${bg}: no glow or shade`);
+          assert.equal(flat.fine, '400', 'dossier .fine weight');
+        }
+        assert.equal(v.name, '22px', 'phone and tablet: 22 px (the approved dossier mock draws 28 px only on a desktop window)');
         assert.equal(v.corner, '17px');
         assert.equal(v.spacing, '1.2px');
         assert.equal(v.follow, GOLD[theme]);
-        assert.equal(v.here, 'Here');
-        assert.deepEqual(v.ring[0], ['2.6', '44.7'], 'hero ring track');
+        assert.equal(v.here, 'Here · by the notice board');
+        assert.deepEqual(v.ring[0], ['2.6', '46.7'], 'hero ring track (the mock\'s r 46.7)');
         assert.equal(v.ring[1][0], '2.6');
         assert.equal(v.ticks, 4, 'hero ring quarter ticks');
-        assert.equal(v.tickStroke, MUTED[theme]);
+        assert.equal(v.tickStroke, TICK[theme]);
         assert.equal(v.arcs[0], 'rgb(90, 160, 255)', 'Trust arc, both schemes');
         if (v.arcs[1]) assert.equal(v.arcs[1], 'rgb(240, 184, 74)', 'Tension arc, both schemes');
         assert.equal(v.idLh, '19.5px');
-        assert.equal(v.bk, '12px');
-        assert.equal(v.ph, 17, 'hero portrait inset');
-        assert.deepEqual(v.moodRows, ['Feeling', '', '+1', 'Energy', '', '0', 'Control', '', '-1']);
-        await page.evaluate(() => document.querySelector('#hx-frame .dossier [data-page="ties"]').click());
+        assert.equal(v.bk, '16px');
+        assert.equal(v.ph, 20, 'hero portrait inset (the mock\'s 20 %)');
+        assert.deepEqual(v.moodRows, ['Feeling', '', '+1', 'Energy', '', '0', 'Control', '', '−1']);
+        await page.evaluate(() => document.querySelector('#hx-frame .dossier .dcard[data-page="ties"]').click());
         await page.waitForSelector('#hx-frame .dossier .tie');
         const tie = await page.evaluate(() => { const a = document.querySelector('#hx-frame .dossier .tie .a'); const r = a.getBoundingClientRect(); return { w: r.width, img: a.style.backgroundImage, disc: getComputedStyle(a).backgroundColor }; });
-        assert.equal(tie.w, 38);
+        assert.equal(tie.w, 44);
         assert.match(tie.img, /torka/);
         assert.equal(tie.disc, DISC[theme]);
         const nameless = await page.evaluate(() => { const a = [...document.querySelectorAll('#hx-frame .dossier .tie .a')].at(-1); const g = a.querySelector('svg.glyph'); return { text: a.textContent, glyph: g ? Math.round(g.getBoundingClientRect().width * 10) / 10 : null }; });
-        assert.deepEqual(nameless, { text: '', glyph: 22.8 }, 'nameless tie shows the person glyph at 60 %');
+        assert.deepEqual(nameless, { text: '', glyph: 26.4 }, 'nameless tie shows the person glyph at 60 %');
       } finally { await page.close(); }
     });
   }

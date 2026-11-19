@@ -41,7 +41,7 @@ test.after(async () => {
 
 for (const theme of ['dark', 'light']) {
   for (const width of [390, 820]) {
-    test(`dossier detail pane at ${width} in ${theme}: 14px 16px padding, 12px gap, spoiler switch 26px from the right edge`, async (t) => {
+    test(`dossier Right now part at ${width} in ${theme}: 16px padding, 12px gap, the spoiler switch 24px under the facts and full width`, async (t) => {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await ctx.browser.newPage({ viewport: { width, height: 900 } });
       await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
@@ -53,16 +53,21 @@ for (const theme of ['dark', 'light']) {
       await page.click('#hx-frame .dcard[data-page="now"]');
       await page.waitForSelector('#hx-frame .dpane .spo .sw');
       const got = await page.evaluate(() => {
-        const pane = document.querySelector('#hx-frame .dpane');
-        const cs = getComputedStyle(pane);
-        const p = pane.getBoundingClientRect();
-        const sw = pane.querySelector('.spo .sw').getBoundingClientRect();
-        return { pad: cs.padding, gap: cs.rowGap, fromRight: Math.round((p.right - sw.right) * 10) / 10 };
+        const body = document.querySelector('#hx-frame .dpane .db');
+        const cs = getComputedStyle(body);
+        const b = body.getBoundingClientRect();
+        const row = body.querySelector('.spo').getBoundingClientRect();
+        const facts = [...body.querySelectorAll('.dpage-now > .dpsec')].at(-1).getBoundingClientRect();
+        const sw = body.querySelector('.spo .sw').getBoundingClientRect();
+        return { pad: cs.padding, gap: cs.rowGap, above: Math.round(row.top - facts.bottom), h: Math.round(row.height), inset: [Math.round(row.left - b.left), Math.round(b.right - row.right)], inside: sw.right <= row.right && sw.left >= row.left };
       });
       await page.close();
-      assert.equal(got.pad, '14px 16px');
+      assert.equal(got.pad, '16px');
       assert.equal(got.gap, '12px');
-      assert.equal(got.fromRight, 26, 'mock: the switch ends 26px inside the pane (782 in a 808px pane at 820)');
+      assert.equal(got.above, 24, 'mock: 24 px between Thinking and the Scene spoilers switch');
+      assert.ok(got.h >= 56, `the switch row is at least 56 px (${got.h})`);
+      assert.deepEqual(got.inset, [17, 17], 'full width inside the body (16 px padding and its 1 px border)');
+      assert.equal(got.inside, true);
     });
   }
 }
