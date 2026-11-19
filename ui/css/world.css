@@ -38,8 +38,9 @@
 .mp .trip.done{opacity:1}
 .mp .pl{cursor:pointer}
 .mp .pl circle.b{fill:var(--su-panel2);stroke:var(--su-line);stroke-width:2}
-.mp .pl text{font:700 13px var(--su-font);fill:var(--su-text);paint-order:stroke;stroke:rgba(10,14,24,.75);stroke-width:3px}
-.mp .pl.big text{font-weight:800}
+.mp :is(.pl text,.pn){font:700 13px var(--su-font);fill:var(--su-text);paint-order:stroke;stroke:rgba(10,14,24,.75);stroke-width:3px}
+.mp :is(.pl.big text,.pn.big){font-weight:800}
+.mp .pn{cursor:pointer}
 .mp .pl .g{color:var(--su-glyph)}
 .mp .pl.sel circle.b{stroke:var(--su-accent);stroke-width:3}
 .mp .pl.far circle.b,.mp .pl.far .g{opacity:.5}
@@ -48,9 +49,9 @@
 /* strokes keep their screen width at any zoom */
 .mp :is(.road,.track,.river,.trip,.grid),.mp .pl circle.b{vector-effect:non-scaling-stroke}
 /* a label that would overlap a more important one waits for a closer zoom, a hover, focus or the place being picked */
-.mp .pl.lh text{display:none}
-.mp .pl.lh:is(:hover,:focus-visible,.sel) text{display:inline}
-.mapbox.tidy .pl:not(.big) text{display:none}
+.mp .pl.lh .nm{display:none}
+.mp .pl.lh:is(:hover,:focus-visible,.sel) .nm{display:inline}
+.mapbox.tidy :is(.pl:not(.big) .nm,.pn:not(.big)){display:none}
 /* how many places a fit left off the map, at that edge; a tap fits them all */
 .mapbox .offmap{position:absolute;z-index:1;min-height:36px;padding:6px 12px;border-radius:999px;font:700 12px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);cursor:pointer}
 .mapbox .offmap[data-side="n"]{top:8px;left:50%;transform:translateX(-50%)}
@@ -69,7 +70,7 @@
 .su-root[data-scheme="light"] .mp .grid{stroke:rgba(0,0,0,.05)}
 .su-root[data-scheme="light"] .mp .road,.su-root[data-scheme="light"] .mp .track{stroke:#a39478}
 .su-root[data-scheme="light"] .mp .rgn{fill:rgba(40,40,60,.16)}
-.su-root[data-scheme="light"] .mp .pl text{stroke:rgba(255,255,255,.85)}
+.su-root[data-scheme="light"] .mp :is(.pl text,.pn){stroke:rgba(255,255,255,.85)}
 .legend2{display:flex;flex-wrap:wrap;gap:4px 14px;font:700 12px var(--su-font);color:var(--su-muted)}
 .legend2 span{display:inline-flex;align-items:center;gap:6px}
 .legend2 i{display:inline-block;width:18px;height:0;border-top:3px solid #7f8aa8}

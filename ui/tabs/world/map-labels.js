@@ -41,8 +41,9 @@ function spots(sx, sy, rpx, fpx, name, must, H) {
 
 /**
  * Plans the place labels for view box vb (map units) drawn at `scale` px per unit on a W×H px map. pick = { keep: Set of ids
- * that must show (trip, selected), region }. Returns { labels: Map id → { side 'r'|'l', dy (px) }, boxes: the shown px boxes };
- * a place not in `labels` keeps its dot and shows its name on hover, focus or when selected. Where you are always shows.
+ * that must show (trip, selected), region, avoid: px boxes kept clear }. A label covers no other label, no dot and nothing in
+ * `avoid`. Returns { labels: Map id → { side 'r'|'l', dy (px) }, boxes: the shown px boxes }; a place not in `labels` keeps its
+ * dot and shows its name on hover, focus or when selected. Where you are always shows.
  */
 export function planLabels(places, vb, scale, pick = {}) {
   const W = vb.w * scale;
@@ -55,13 +56,19 @@ export function planLabels(places, vb, scale, pick = {}) {
       return sx >= 0 && sx <= W && sy >= 0 && sy <= H;
     })
     .sort((a, b) => a.rank - b.rank || a.i - b.i);
+  const dots = order.map(({ p }) => {
+    const rpx = labelGeom(p, u).r * scale * 0.8;
+    return { x: (p.x - vb.x) * scale - rpx, y: (p.y - vb.y) * scale - rpx, w: 2 * rpx, h: 2 * rpx };
+  });
   const labels = new Map();
   const boxes = [];
+  const clear = [...(pick.avoid ?? []), ...dots];
   for (const { p, rank } of order) {
     const { r, fs } = labelGeom(p, u);
     const must = rank < 8;
     const tries = spots((p.x - vb.x) * scale, (p.y - vb.y) * scale, r * scale, fs * scale, p.name, must, H);
-    let spot = tries.find(b => inside(b, W, H) && !boxes.some(o => hits(b, o)));
+    let spot = tries.find(b => inside(b, W, H) && !boxes.some(o => hits(b, o)) && !clear.some(o => hits(b, o)));
+    if (!spot && p.here) spot = tries.find(b => inside(b, W, H) && !boxes.some(o => hits(b, o)));
     if (!spot && p.here) spot = tries.find(b => inside(b, W, H)) ?? tries[0];
     if (!spot) continue;
     boxes.push(spot);

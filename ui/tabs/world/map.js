@@ -12,6 +12,7 @@ const KIND_GLYPHS = [[/port|harbou?r/i, 'port'], [/ford|bridge|mill/i, 'ford'], 
   [/outpost|fort|camp/i, 'outpost'], [/tower|watch/i, 'tower'], [/ruin/i, 'ruin']];
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const viewText = vb => `${vb.x} ${vb.y} ${vb.w} ${vb.h}`;
+const isBig = p => Boolean(p.here) || /capital|city|market/i.test(p.kind ?? '');
 
 /** Picks the glyph name for a place kind such as "Port town" or "Ruin"; towns are the fallback. */
 export function placeGlyph(kind) {
@@ -26,11 +27,18 @@ export function markSelected(root, id) {
   }
 }
 
-// A place: its dot and glyph, its name beside it (lab = { side, dy px } from planLabels; none: shown only on hover, focus or select) and a news mark.
-function placeNode(p, u, newsIds, state, act, lab) {
-  const big = p.here || /capital|city|market/i.test(p.kind);
+// A place's name beside its dot (lab = { side, dy px } from planLabels).
+function nameText(p, u, lab, act) {
   const { r, fs } = labelGeom(p, u);
   const flip = lab?.side === 'l';
+  return svgEl('text', { x: flip ? p.x - r - 6 * u : p.x + r + 6 * u, y: p.y + fs * 0.35 + (lab?.dy ?? 0) * u, 'text-anchor': flip ? 'end' : 'start', style: { 'font-size': `${fs}px`, 'stroke-width': `${3 * u}px` },
+    ...(lab ? { class: ['pn', isBig(p) ? 'big' : null], 'aria-hidden': 'true', onClick: () => act.openPlace(p.id) } : { class: 'nm' }) }, p.name);
+}
+
+// A place: its dot, glyph and news mark; a name that waits (no lab) rides inside, shown on hover, focus or select.
+function placeNode(p, u, newsIds, state, act, lab) {
+  const big = isBig(p);
+  const { r } = labelGeom(p, u);
   const nr = 9 * u;
   const stroked = /port|harbou?r|ford|bridge|mill/i.test(p.kind);
   const badge = newsIds.has(p.id)
@@ -51,7 +59,7 @@ function placeNode(p, u, newsIds, state, act, lab) {
   svgEl('circle', { class: 'b', cx: p.x, cy: p.y, r }),
   svgEl('svg', { class: 'g', x: p.x - r * 0.6, y: p.y - r * 0.6, width: r * 1.2, height: r * 1.2, viewBox: '0 0 24 24', fill: 'currentColor', ...(stroked ? { stroke: 'currentColor', 'stroke-width': 2 } : {}) },
     ...(glyph(placeGlyph(p.kind))?.childNodes ?? [])),
-  svgEl('text', { x: flip ? p.x - r - 6 * u : p.x + r + 6 * u, y: p.y + fs * 0.35 + (lab?.dy ?? 0) * u, 'text-anchor': flip ? 'end' : 'start', style: { 'font-size': `${fs}px`, 'stroke-width': `${3 * u}px` } }, p.name),
+  lab ? null : nameText(p, u, null, act),
   badge);
 }
 
@@ -93,7 +101,8 @@ function drawSvg(world, vb, scale, state, act, pick) {
     tripPts.length > 1
       ? svgEl('path', { class: ['trip', world.trip.state === 'arrived' ? 'done' : null], d: `M${tripPts.map(p => `${p.x} ${p.y}`).join('L')}`, style: { 'stroke-width': 4 } })
       : null,
-    world.places.map(p => placeNode(p, u, newsIds, state, act, labels.get(p.id))));
+    world.places.map(p => placeNode(p, u, newsIds, state, act, labels.get(p.id))),
+    svgEl('g', { class: 'names' }, world.places.filter(p => labels.has(p.id)).map(p => nameText(p, u, labels.get(p.id), act))));
 }
 
 function tools(world, regions, on) {
@@ -162,8 +171,12 @@ export function mapCard(world, state, act, ctx = {}) {
   const redraw = () => {
     vb.h = vb.w * ratio();
     const here = places.find(p => p.here);
-    const pick = { keep: new Set([...tripIds, state.selected].filter(Boolean)), region: view.region };
-    box.replaceChildren(drawSvg(data, vb, scale(vb), state, act, pick), ...(here ? [pulseRing(here, vb, scale(vb))] : []), ...offMap(view.far, vb, on.all));
+    const chips = offMap(view.far, vb, on.all);
+    const W = vb.w * scale(vb);
+    const H = vb.h * scale(vb);
+    const avoid = chips.map(c => ({ n: { x: W / 2 - 110, y: 0, w: 220, h: 48 }, s: { x: W / 2 - 110, y: H - 48, w: 220, h: 48 }, w: { x: 0, y: H / 2 - 24, w: 200, h: 48 }, e: { x: W - 200, y: H / 2 - 24, w: 200, h: 48 } })[c.dataset.side]);
+    const pick = { keep: new Set([...tripIds, state.selected].filter(Boolean)), region: view.region, avoid };
+    box.replaceChildren(drawSvg(data, vb, scale(vb), state, act, pick), ...(here ? [pulseRing(here, vb, scale(vb))] : []), ...chips);
   };
   const on = {
     zoom(f) {
@@ -197,7 +210,7 @@ export function mapCard(world, state, act, ctx = {}) {
       pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, w: vb.w, cx: vb.x + vb.w / 2, cy: vb.y + vb.h / 2 };
       return;
     }
-    if (e.target.closest?.('[data-pl], .offmap')) return;
+    if (e.target.closest?.('[data-pl], .offmap, .pn')) return;
     drag = { x: e.clientX, y: e.clientY, vx: vb.x, vy: vb.y, s: vb.w / (box.clientWidth || 1), moved: false };
     box.setPointerCapture?.(e.pointerId);
   });

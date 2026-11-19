@@ -7,9 +7,9 @@ import { h } from '../../kit/dom.js';
 const R = 32.3;
 const BORDER = 4.6;
 
-/** Moves the ring to the place's spot for the current viewBox; px = box pixels per map unit. Zoomed in past one px a unit, the ring keeps its size. */
+/** Moves the ring to the place's spot for the current viewBox; px = box pixels per map unit. Zoomed in past the mock's .8 px a unit, the ring keeps its size. */
 export function placePulse(el, here, vb, px) {
-  const k = Math.min(px, 1);
+  const k = Math.min(px, 0.8);
   const d = 2 * R * k;
   el.style.width = `${d}px`;
   el.style.height = `${d}px`;
