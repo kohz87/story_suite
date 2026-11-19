@@ -1,5 +1,6 @@
 // Renders the format 4 half of the Packs page: the World and Game pickers, the suggestion card, the pair's lines, the worlds and games, and the add-on packs.
 import { h } from '../kit/dom.js';
+import { lorebookRows } from './packs-lorebook.js';
 
 const MARK = { error: ['pairerr', 'Problem', '✕'], warning: ['needbad', 'Warning', '!'], note: ['needok', 'Note', 'i'] };
 
@@ -39,11 +40,11 @@ function removeRows(pack, state, line) {
   const remove = h('button', { type: 'button', class: 'btn2 dng', onClick: () => setRemoving(removing === pack.id ? '' : pack.id) }, 'Remove');
   const confirm = removing === pack.id ? h('div', { class: 'cfm' }, h('b', `Remove ${name}?`), h('small', 'Its content leaves the game. Stories already told keep what they used from it.'),
     h('span', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 dng', onClick: () => { setRemoving(''); act('packs.remove', pack.id); } }, 'Remove'), h('button', { type: 'button', class: 'btn2', onClick: () => setRemoving('') }, 'Keep it'))) : null;
-  return [line(pack, remove), confirm];
+  return [line(pack, remove), confirm, pack.lorebook ? lorebookRows(pack.lorebook, state) : null];
 }
 
 /**
- * `v4` = the view-model's format 4 page; `state` = { change(settingKey, on), act(key, value), kept, setKept(bool), removing, setRemoving(id) };
+ * `v4` = the view-model's format 4 page; `state` = { change(settingKey, on), act(key, value), kept, setKept(bool), removing, setRemoving(id), and the lorebook rows' lorebook, setLorebook, makeLorebook (packs-lorebook.js) };
  * `parts` = { group(title, ...rows), importRow() } from the page. → the groups for the top of the Packs page.
  */
 export function renderV4(v4, state, parts) {

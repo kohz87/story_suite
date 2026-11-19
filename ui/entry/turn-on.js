@@ -9,7 +9,7 @@ import { replyMenuButton, replySheet } from '../chat/reply-menu.js';
 import { buildSelectors } from '../select/build.js';
 import { liveOffer } from '../port/live-offer.js';
 import { packs as livePacks, refreshLore } from '../../packs/index.js';
-import { readCharacterLorebook } from '../../packs/st-adapter.js';
+import { readCharacterLorebook, stLorebooks, stSettings } from '../../packs/st-adapter.js';
 import { isCarrier } from '../../core/persist.js';
 import { addDrawerButtons, DRAWER_ROW_ID } from './drawer-buttons.js';
 import { createHold, showScreens } from '../port/hold.js';
@@ -19,8 +19,8 @@ import { SUITE_VERSION } from '../../core/version.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
 
 const STYLES = ['base', 'shell', 'desk', 'kit', 'card', 'now', 'chat', 'loot', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings', 'wizard'];
-// The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses.
-const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharacterLorebook, lore: { read: refreshLore } });
+// The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses, and SillyTavern's World Info for a world pack's lorebook.
+const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharacterLorebook, lore: { read: refreshLore }, lorebooks: { books: stLorebooks(), settings: stSettings() } });
 const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 // SillyTavern events that move or redraw a reply's action bar (a swipe, a delete and an edit send none of the three before).
 const ST_EVENTS = ['CHAT_CHANGED', 'MESSAGE_RECEIVED', 'MESSAGE_SENT', 'MESSAGE_SWIPED', 'MESSAGE_DELETED', 'MESSAGE_EDITED'];

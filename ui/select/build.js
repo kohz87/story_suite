@@ -28,6 +28,7 @@ import { peopleParts, dossierMap } from './people-parts.js';
 import { createWizardWorld } from '../wizard/world.js';
 import { packPresets } from './people-settings/catalog.js';
 import { selectRoster } from './roster.js';
+import { liveLorebookRows } from './packs-lorebook.js';
 import { arcController } from '../../modules/arc/controller.js';
 import { replyCardsOf } from './reply-card.js';
 
@@ -119,7 +120,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou(), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
     },
     settings: () => selectSettings({
-      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk, ctx), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, rollsHeld: rpgHasCharacter(sdk), packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup'), pairing: ask(sdk, 'packs.pairing'), own: ask(sdk, 'packs.own') },
+      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk, ctx), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, rollsHeld: rpgHasCharacter(sdk), packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup'), pairing: ask(sdk, 'packs.pairing'), own: ask(sdk, 'packs.own'), lorebook: liveLorebookRows(ask(sdk, 'packs.list')) },
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null, staticTokens: tools?.staticTokens,
       peoplePresets: packPresets(sdk),
     }),

@@ -24,6 +24,7 @@ export function createPages(settings, ctx) {
   let removing = '';   // the format 4 pack whose Remove question is open
   let keptFor = '';    // the world whose suggested game the reader kept their own over (Keep mine); asked again for another world
   let status = null;
+  let lorebook = { confirming: '', use: {}, busy: '', result: null };   // a world pack's lorebook rows: the Update question, the ticks changed, the one being made, its result line
   let developer = settings.developer === true;
   const redraw = () => ctx.repaint();
   const toolsBody = createToolsPage(settings, ctx, { on: () => developer, own: { onChange: (key, value) => { developer = Boolean(value); ctx.onChange?.(key, value); }, repaint: redraw } });
@@ -80,6 +81,20 @@ export function createPages(settings, ctx) {
   const afterPacks = answer => (typeof answer?.then === 'function' ? answer.then(settle, error => settle({ ok: false, message: String(error?.message ?? error) })) : settle(answer));
   const packChange = (key, on) => afterPacks(ctx.onChange?.(key, on));
   const packAct = (key, value) => { status = null; return afterPacks(ctx.onAction?.(key, value)); };
+  // Create or Update a world pack's lorebook (`packs.lorebook.make`): its result line goes under its row; a book to be replaced opens the Update question.
+  const makeLorebook = value => {
+    lorebook = { ...lorebook, busy: value.id, result: null };
+    redraw();
+    const done = answer => {
+      const use = { ...lorebook.use };
+      if (answer?.ok) delete use[value.id];
+      lorebook = { ...lorebook, use, busy: '', confirming: answer?.confirm ? value.id : lorebook.confirming, result: answer?.confirm ? null : { id: value.id, text: String(answer?.text ?? answer?.message ?? 'That did not work.'), ok: answer?.ok === true } };
+      readPacks();
+      redraw();
+    };
+    const answer = ctx.onAction?.('packs.lorebook.make', value);
+    return typeof answer?.then === 'function' ? answer.then(done, error => done({ ok: false, message: String(error?.message ?? error) })) : done(answer);
+  };
 
   function special(section) {
     if (section.special === 'start') return renderStart(cardState());
@@ -88,7 +103,7 @@ export function createPages(settings, ctx) {
     }
     if (section.special === 'packs') {
       const kept = Boolean(packs.v4?.world.value) && keptFor === packs.v4.world.value;
-      return renderPacks({ packs, status, confirming, setConfirm(on) { confirming = on; redraw(); }, change: packChange, act: packAct, kept, setKept(on) { keptFor = on ? packs.v4.world.value : ''; redraw(); }, removing, setRemoving(id) { removing = id; redraw(); } });
+      return renderPacks({ packs, status, confirming, setConfirm(on) { confirming = on; redraw(); }, change: packChange, act: packAct, kept, setKept(on) { keptFor = on ? packs.v4.world.value : ''; redraw(); }, removing, setRemoving(id) { removing = id; redraw(); }, lorebook, setLorebook(patch) { lorebook = { ...lorebook, ...patch }; redraw(); }, makeLorebook });
     }
     if (section.special === 'tools') return toolsBody();
     return [];
