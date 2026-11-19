@@ -6,38 +6,25 @@
 import { h } from '../kit/dom.js';
 import { button, segmented } from '../kit/controls.js';
 import { openSheet } from '../kit/sheet.js';
-import { skillLine } from '../../modules/rpg/charfile.js';
 import { joinDraft } from '../../modules/rpg/join.js';
-import { RPG_STRINGS, fill } from '../../modules/rpg/strings.js';
-import { WIZARD_STEPS, draftSlots, newDraft, pointsLeft, readDraft, statsLine } from '../../modules/rpg/view/wizard-data.js';
+import { RPG_STRINGS } from '../../modules/rpg/strings.js';
+import { WIZARD_STEPS, newDraft } from '../../modules/rpg/view/wizard-data.js';
 import { drawWho } from './who.js';
 import { drawStats } from './stats.js';
 import { drawSkills } from './skills.js';
 import { drawReview } from './review.js';
 import { markFocus, restoreFocus } from './focus.js';
+import { fillSummary } from './summary.js';
 
 const W = RPG_STRINGS.wizard;
 const NEXT = 'Next';
+// (from 1100 px, beside a Create that a problem holds back; wizard.css shows it there only)
+const FIX_FIRST = 'Fix the problem above, then Create.';
 /** The screen id `port.open` names for this window (the old wizard's). */
 export const WIZARD_ID = 'story-block/new-character';
 
 const safe = (fn, fallback) => { try { return fn() ?? fallback; } catch { return fallback; } };
 const DRAW = { who: drawWho, stats: drawStats, skills: drawSkills, review: drawReview };
-
-// Fills the summary row (a <section> kept for the step's life, so typing redraws it in place and the field keeps its focus).
-function fillSummary(row, run) {
-  const now = readDraft(run.draft);
-  const skills = now.skills.filter(skill => skill.name).map(skill => (Number.isSafeInteger(skill.rank) ? skillLine({ name: skill.name, rank: skill.rank }) : skill.name)).join(', ') || W.noSkills;
-  const count = now.skills.length;
-  const pill = run.step === 'who' || run.step === 'stats' ? fill(W.pointsLeft, { n: pointsLeft(now) }) : fill(count === 1 ? W.skillCountOne : W.skillCount, { n: count, max: draftSlots(now) });
-  row.replaceChildren(
-    h('span', { class: 'wz-ava', 'aria-hidden': 'true' }, [...now.name][0]?.toUpperCase() ?? '?'),
-    h('div', { class: 'wz-k wz-who' }, h('b', null, now.name || W.title), h('small', null, `${now.kind === 'you' ? W.you : W.companion} · ${fill(W.soulFrom, { level: now.level ?? 1 })}`)),
-    h('span', { class: 'chip2 wz-pill', role: 'status' }, pill),
-    h('div', { class: 'wz-k' }, h('small', null, W.statsHead), h('span', null, statsLine(now))),
-    h('div', { class: 'wz-k' }, h('small', null, W.skillsHead), h('span', null, skills)));
-  return row;
-}
 
 /**
  * `createNewWizard({ world, command, sheetCtx })`: `world` is ui/wizard/world.js's; `command(type, payload)` the engine's (sent as the old wizard
@@ -50,15 +37,17 @@ export function createNewWizard({ world, command, sheetCtx = () => ({}) }) {
     if (!own.alive) return;
     const sheet = own.sheet;
     const at = WIZARD_STEPS.indexOf(own.step);
-    const summary = fillSummary(h('section', { class: 'wz-sum', 'aria-label': W.summaryLabel }), own);
+    const summary = fillSummary(h('section', { class: 'wz-sum', 'aria-label': W.summaryLabel }), own, world);
     const ctx = {
       run: own, world, command,
       put: next => { own.draft = next; },
-      summary: () => { if (own.alive) fillSummary(summary, own); },
+      summary: () => { if (own.alive) fillSummary(summary, own, world); },
       redraw: () => draw(own),
       close: () => sheet.close(),
     };
     const steps = segmented({ items: WIZARD_STEPS.map(id => ({ value: id, label: W.steps[id] })), value: own.step, role: 'tablist', label: W.title, className: 'wz-steps', onChange: id => go(own, id) });
+    // (the steps before this one are done: from 1100 px their number turns to a ✓, wizard.css)
+    steps.querySelectorAll('button').forEach((tab, index) => { if (index < at) tab.classList.add('done'); });
     // (after a Create that left something out only Done stays: the steps are not walked again)
     const foot = own.finished ? null : h('div', { class: 'ps-row wz-foot' },
       at > 0 ? button({ label: W.back, dataset: { wiz: 'back' }, onClick: () => go(own, WIZARD_STEPS[at - 1]) }) : null,
@@ -66,10 +55,20 @@ export function createNewWizard({ world, command, sheetCtx = () => ({}) }) {
     const body = h('div', { class: `wz-body wz-${own.step}`, dataset: { step: own.step } }, DRAW[own.step](ctx));
     // (on Review, Create takes Next's place in the sticky footer: left at the end of a long review, the footer covered half of it, SOAK2UI 10)
     const create = foot ? body.querySelector('[data-wiz="create"]') : null;
-    if (create) { const row = create.parentElement; foot.append(create); if (row && !row.children.length) row.remove(); }
+    if (create) {
+      const row = create.parentElement;
+      if (body.querySelector('.wz-problems:not([hidden])')) foot.append(h('span', { class: 'wz-hint' }, FIX_FIRST));
+      foot.append(create);
+      if (row && !row.children.length) row.remove();
+    }
     // (the keyboard stays on the equivalent control: the tab or the Next / Back button used, or the field, stepper or skill row being worked)
     const marks = markFocus(sheet.body, sheet.el.ownerDocument?.activeElement ?? null);
-    sheet.body.replaceChildren(steps, summary, body, foot);
+    // (from 1100 px the step scrolls on its own, and a new one is drawn each time: a redraw on the same step keeps where it was)
+    const was = sheet.body.querySelector?.('.wz-body');
+    const scrolled = was?.dataset?.step === own.step ? was.scrollTop ?? 0 : 0;
+    // (no footer once Create has finished: a null here would be drawn as the text "null")
+    sheet.body.replaceChildren(...[steps, summary, body, foot].filter(Boolean));
+    if (scrolled) body.scrollTop = scrolled;
     restoreFocus(sheet.body, marks);
     sheet.el.dataset.step = own.step;
   }

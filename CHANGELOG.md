@@ -7,6 +7,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Party › a skill's sheet no longer prints "null" under its rank; Bag › Wear on… shows each member's portrait.
 - Bag › Wear on…: when a piece cannot be worn (no slot set), the sheet stays open with the reason and an **Edit item** button that opens its Slot.
 - Party › Skills: tapping a skill now shows what it does under its kind; a skill with no cost reads "Story only", and a missing value is left out instead of showing "null".
+- New character › Skills: a hint line says which bar a skill uses (INT or WIS: Mana; any other stat: Stamina; a heal: Mana; a stance: 1 each exchange).
 - New character › Skills: once one skill is a stance (Defence, Evasion, Movement or Support), the other skills' Type lists show the stance types switched off and name the skill that holds it.
 - Settings › Packs: **Create the lorebook** from a world pack makes a SillyTavern lorebook of its lore, so the narrator reads it too; **Update the lorebook** remakes it when the pack changes.
 - **Use with this character** (on by default) attaches it to the character, beside any lorebook the card has; chat lore is left alone. Hidden lore stays out of the book.
@@ -23,6 +24,7 @@ What changed in each release, in short. The full record of every change is in [t
 - World › Map is readable on big worlds: names no longer pile up (the rest show as you zoom in or hover), it opens on where you are, and Fit leaves far-off places out with a count at the edge.
 - Bag › + Add (now there with an empty bag too): equipment gets Slot, Rarity (at the start of a chat) and a Stats picker; an item's sheet shows its stats with **Change** to move its points. Rings, amulets and accessories now default to CHA.
 - Party: the circle in the middle of the equipment shows the member's portrait (yours, or the companion's from NPC State), the initial only when there is none.
+- New character on a wide screen: one 920 px window with your character card on the left, the step on the right and Back / Next in their own row; on a phone, Stats' Reset now sits above the stats, never under Back / Next.
 
 ## 0.1.3 — 19 Nov 2026
 

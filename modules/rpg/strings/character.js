@@ -148,6 +148,7 @@ export const CHARACTER_STRINGS = Object.freeze({
         barsLine: 'HP {hp} · MP {mp} · SP {sp} at Lv {level}',
         skillsIntro: 'Start from a template, change anything, or write your own. Up to {max} skills, each with what it does, the stat it rolls with and a type (attack, area, defence, evasion, movement, heal, support or utility). Up to three can be utility skills, for the story only: they stay off the fight board and take no combat slot. One may start at Adept, the rest are Novice. Only one stance skill (defence, evasion, movement or support) may be kept.',
         templates: 'Start from a template',
+        barsHint: 'A skill with {magic} uses Mana (MP); any other stat uses Stamina (SP). A heal always uses Mana; a stance costs {stance} each exchange.',
         used: 'Used',
         builtIn: 'Built in',
         fromPack: 'From the {pack} pack',
