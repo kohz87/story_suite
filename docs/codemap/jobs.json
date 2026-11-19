@@ -336,6 +336,7 @@
   "tests/packs/studio/wire.test.js": "Tests the Studio's edit loop without a page: commit, debounce, draft save, undo and redo, no-op edits, format 3 refusals, restore, export bytes before and after an edit, the export block, field paths and the undo keys.",
   "tests/people/cast-remake.test.js": "Tests that a person made for a reply, swiped away and made again is held once in the store, Delta's cache, npc.cast and npc.dossier, also after a swipe back.",
   "tests/people/cast-store.test.js": "Tests that npc.cast lists exactly the store's not-archived people (a line about someone with no dossier keeps meters only) after replies, a swipe, a middle delete and a reload.",
+  "tests/people/dossier-dates-host.test.js": "Tests the dossier's dates through the real host: stored memory stamps and meter rows reach the UI dossier, and a swipe matches a fresh replay.",
   "tests/people/editor-desk.test.js": "Rendered check of NPC State's desktop editor layout: both columns' fields in order, ids kept, everything back in place under 1,100 px, the late appearance section.",
   "tests/people/head-race.test.js": "Tests that a reply landing between Delta's change and its people write is refused as stale, the change discarded and the cache hydrated from the store.",
   "tests/people/helpers/ersveil-lines.js": "Builds a testkit host with the real Story Director, NPC State in lines mode and the shipped format 4 Ersveil pair installed, for the S2PA tests.",
