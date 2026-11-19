@@ -177,8 +177,8 @@ test('gear on: the item grammar names the gear words (one short line) and stays 
     const line = first.split('\n').find(text => text.startsWith('+ item Name'));
     assert.ok(line, 'the item grammar line');
     const added = line.slice(ITEM_LINE.length);
-    assert.ok(added.length <= 300, `the gear words take ${added.length} characters`);
-    for (const word of ['kind: weapon|armour|shield|head|cloak|feet|accessory|bag', 'rarity: common|uncommon|rare|epic|legendary', 'DEX: +1', 'at most 2', 'equipped: slot', 'wear: scuff|tear|ruin', 'repair: mend|restore']) assert.ok(added.includes(word), word);
+    assert.ok(added.length <= 400, `the gear words take ${added.length} characters`);
+    for (const word of ['kind: weapon|armour|shield|head|cloak|feet|accessory|bag', 'rarity: common|uncommon|rare|epic|legendary', 'DEX: +1', 'at most 2', 'equipped: slot', 'wear: scuff|tear|ruin', 'repair: mend|restore', 'gear the story makes special (enchanted, masterwork, blessed)', 'ordinary gear needs none']) assert.ok(added.includes(word), word);
     await host.send('Loot.', reply('Gear.', ['+ item Iron Sword | rarity: rare | equipped: weapon']));
     await host.send('Again.', reply('More.', ['+ item Rope']));
     assert.equal(staticOf(host), first, 'the same bytes after two more replies');

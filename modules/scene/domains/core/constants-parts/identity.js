@@ -9,4 +9,4 @@ export const CORE_STATIC = 'Code keeps the inventory, the wallet, the place and 
     + 'lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.';
 
 /** Added to the `+ item` grammar line while `story-block.gear` is on (and only then): the gear words, short, static. */
-export const GEAR_ITEM_GRAMMAR = '; gear: kind: weapon|armour|shield|head|cloak|feet|accessory|bag | rarity: common|uncommon|rare|epic|legendary | DEX: +1 (at most 2 stats, held to rarity) | equipped: slot; ~ item Name | wear: scuff|tear|ruin | repair: mend|restore';
+export const GEAR_ITEM_GRAMMAR = '; gear: kind: weapon|armour|shield|head|cloak|feet|accessory|bag | rarity: common|uncommon|rare|epic|legendary | DEX: +1 (at most 2 stats, held to rarity) | equipped: slot; ~ item Name | wear: scuff|tear|ruin | repair: mend|restore; gear the story makes special (enchanted, masterwork, blessed) gets rarity: uncommon|rare|epic and DEX: +2 (or two stats); ordinary gear needs none';

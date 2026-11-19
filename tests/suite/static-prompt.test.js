@@ -56,6 +56,14 @@ const SCENARIOS = [
         },
     },
     {
+        id: 'gear_on',
+        title: 'Gear in fights on (story-block.gear = true, with Lean RPG): the item line teaches the gear words and when to use them',
+        configure: host => {
+            host.features.set('story-block.rpg', true);
+            host.features.set('story-block.gear', true);
+        },
+    },
+    {
         id: 'v1_blocks_on',
         title: 'Lean RPG on with the four Combat Rules v1 blocks pinned (their prompts are pinned)',
         configure: async host => {
