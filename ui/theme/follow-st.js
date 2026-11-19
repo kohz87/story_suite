@@ -122,6 +122,7 @@ export function followSt(input) {
     '--su-panel2': panel2,
     '--su-line': border || base['--su-line'],
     '--su-line2': border ? `color-mix(in srgb, ${border} 55%, transparent)` : base['--su-line2'],
+    '--su-tint': border ? `color-mix(in srgb, ${border} 55%, transparent)` : base['--su-tint'],
     '--su-text': body || base['--su-text'],
     '--su-soft': body ? `color-mix(in srgb, ${body} 80%, transparent)` : base['--su-soft'],
     '--su-muted': em || (body ? `color-mix(in srgb, ${body} 58%, transparent)` : base['--su-muted']),

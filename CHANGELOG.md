@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- Settings › Look › Glass strength now reaches every glass surface: the blur behind panels, the tab strip and mini bar, the bottom sheets and the dimmed layer under them, not only the panel colour. The default looks as before.
+- Settings › Look › Glass strength now reaches every glass surface: the blur behind panels, the tab strip and mini bar, chips and rows on the panels, the bottom sheets and the dimmed layer under them, not only the panel colour. The default looks as before.
 
 ## 0.1.3 — 19 Nov 2026
 

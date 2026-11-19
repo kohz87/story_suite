@@ -46,10 +46,12 @@ function neutralSeeThrough(value) {
 }
 
 test('the strength tokens are theme tokens, and at the default (50%) every one is the mock\'s, dark and light', () => {
-  assert.deepEqual(STRENGTH_TOKENS, ['--su-panel', '--su-panel2', '--su-scrim', '--su-scrim-strong', '--su-scrim-place', '--su-blur', '--su-blur-strong', '--su-blur-soft']);
+  assert.deepEqual(STRENGTH_TOKENS, ['--su-panel', '--su-panel2', '--su-tint', '--su-scrim', '--su-scrim-strong', '--su-scrim-place', '--su-blur', '--su-blur-strong', '--su-blur-soft']);
   for (const name of STRENGTH_TOKENS) assert.ok(TOKENS.includes(name), name);
   assert.deepEqual(at(50), { ...GLASS_DARK });
   assert.deepEqual(at(50, LIGHT_ST), { ...GLASS_LIGHT });
+  assert.equal(GLASS_DARK['--su-tint'], GLASS_DARK['--su-line2'], 'the tint is the old fill (the hairline colour) at 50');
+  assert.equal(GLASS_LIGHT['--su-tint'], GLASS_LIGHT['--su-line2']);
   assert.equal(GLASS_DARK['--su-scrim'], 'rgba(6,8,16,.45)');
   assert.equal(GLASS_DARK['--su-scrim-strong'], 'rgba(6,8,16,.6)');
   assert.equal(GLASS_DARK['--su-scrim-place'], 'rgba(8,10,18,.5)');
@@ -71,6 +73,8 @@ test('every strength token moves with the strength (30% clearer and sharper, 90%
   assert.deepEqual([30, 90].map(n => at(n)['--su-blur']), ['10px', '29px']);
   assert.deepEqual([30, 90].map(n => at(n)['--su-blur-strong']), ['17px', '50px']);
   assert.deepEqual([30, 90].map(n => at(n)['--su-blur-soft']), ['4px', '11px']);
+  assert.deepEqual([30, 90].map(n => at(n)['--su-tint']), ['rgba(255,255,255,.06)', 'rgba(255,255,255,.18)']);
+  assert.deepEqual([30, 90].map(n => at(n, LIGHT_ST)['--su-tint']), ['rgba(30,34,52,.07)', 'rgba(30,34,52,.22)']);
   assert.deepEqual([30, 90].map(n => at(n)['--su-scrim']), ['rgba(6,8,16,.25)', 'rgba(6,8,16,.8)']);
   assert.deepEqual([30, 90].map(n => at(n)['--su-scrim-strong']), ['rgba(6,8,16,.4)', 'rgba(6,8,16,.8)']);
   assert.deepEqual([30, 90].map(n => at(n)['--su-scrim-place']), ['rgba(8,10,18,.3)', 'rgba(8,10,18,.8)']);
@@ -78,7 +82,9 @@ test('every strength token moves with the strength (30% clearer and sharper, 90%
   assert.equal(new Set(steps).size, steps.length, 'every step to 90% changes them');
 });
 
-test('Follow SillyTavern: the strength moves none of them', () => {
+test('Follow SillyTavern: the strength moves none of them; the tint is SillyTavern\'s hairline mix, as the fills were', () => {
+  const follow = lookTheme(lookOf({ panelStyle: 'sillytavern' }), reader({ ...DARK_ST, '--SmartThemeBorderColor': 'rgba(0,0,0,0.5)' })).tokens;
+  assert.equal(follow['--su-tint'], follow['--su-line2']);
   for (const name of STRENGTH_TOKENS) assert.equal(at(30, DARK_ST, 'sillytavern')[name], at(90, DARK_ST, 'sillytavern')[name], name);
 });
 
@@ -98,4 +104,6 @@ test('ui/css: no glass surface or scrim writes its fill as a literal (a see-thro
   const blurred = rules().filter(r => r.decls.some(([p, v]) => p === 'backdrop-filter' && v !== 'none'));
   const literalUnderBlur = blurred.filter(r => r.decls.some(([p, v]) => /^background(-color)?$/.test(p) && !/var\(--su-/.test(v))).map(r => `${r.file} ${r.selector}`);
   assert.deepEqual(literalUnderBlur, [], 'a blurred surface draws its fill from the tokens');
+  const hairlineFills = rules().filter(r => r.decls.some(([p, v]) => /^background/.test(p) && /var\(--su-line2\)/.test(v))).map(r => `${r.file} ${r.selector}`);
+  assert.deepEqual(hairlineFills, [], 'a chip or row fill is var(--su-tint) (moved by the strength); --su-line2 is for lines');
 });

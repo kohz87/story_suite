@@ -19,7 +19,7 @@
 .rnr{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:44px;padding:8px 0;border:0;border-top:1px solid var(--su-line2);background:none;color:var(--su-text);font:inherit;text-align:left}
 .rnr:first-child{border-top:0}
 button.rnr{cursor:pointer}
-.rnr .ti{width:30px;height:30px;border-radius:9px;background:var(--su-line2);display:grid;place-items:center;color:var(--su-soft);font:400 14px/1.5 var(--su-font)}
+.rnr .ti{width:30px;height:30px;border-radius:9px;background:var(--su-tint);display:grid;place-items:center;color:var(--su-soft);font:400 14px/1.5 var(--su-font)}
 .rnr .ti svg{width:16px;height:16px}
 .rnr-text{display:flex;flex-direction:column;min-width:0}
 .rnr b{font:800 14px var(--su-font);display:block}
@@ -31,11 +31,11 @@ button.rnr{cursor:pointer}
 .rnr.need-fight{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.35);border-radius:12px;padding:8px 10px;margin-bottom:4px}
 .rnr.need-fight .ti{background:rgba(255,107,107,.18);color:var(--su-hp)}
 .rnr.need-points .ti{color:var(--su-ok)}
-.rnr .lp{display:block;height:4px;border-radius:2px;background:var(--su-line2);overflow:hidden;margin-top:4px;max-width:220px}
+.rnr .lp{display:block;height:4px;border-radius:2px;background:var(--su-tint);overflow:hidden;margin-top:4px;max-width:220px}
 .rnr .lp b{display:block;height:100%;background:var(--su-accent)}
 /* Here + ring */
 .here2{display:flex;flex-direction:column;gap:10px}
-.hp2{display:grid;grid-template-columns:62px minmax(0,1fr);gap:12px;padding:10px;border-radius:16px;background:var(--su-line2);align-items:start}
+.hp2{display:grid;grid-template-columns:62px minmax(0,1fr);gap:12px;padding:10px;border-radius:16px;background:var(--su-tint);align-items:start}
 .prg{position:relative;width:62px;height:62px}
 .prg>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .prg .ph{position:absolute;inset:7px;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 22px var(--su-font);color:#fff}
@@ -78,7 +78,7 @@ button.rnr{cursor:pointer}
 .clist .more-list{display:flex;flex-direction:column}
 .cr{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--su-line2)}
 .cr:first-child{border-top:0}
-.cr .ti{width:30px;height:30px;border-radius:9px;background:var(--su-line2);color:var(--su-soft);display:grid;place-items:center}
+.cr .ti{width:30px;height:30px;border-radius:9px;background:var(--su-tint);color:var(--su-soft);display:grid;place-items:center}
 .cr .ti svg{width:16px;height:16px}
 .cr .crm{display:flex;align-items:center;flex-wrap:wrap;gap:10px;min-width:0}
 .cr .crx{flex:1;min-width:0;display:flex;flex-direction:column}
@@ -107,7 +107,7 @@ button.rnr{cursor:pointer}
 .fld{display:grid;grid-template-columns:minmax(76px,max-content) minmax(0,1fr) minmax(90px,38%);gap:10px;align-items:center;font-size:13.5px;padding:4px 0}
 .fld>span:first-child{white-space:nowrap;font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
 .fld .v{font:800 13px var(--su-font);text-align:right}
-.fbar{display:block;height:7px;border-radius:4px;background:var(--su-line2);overflow:hidden}
+.fbar{display:block;height:7px;border-radius:4px;background:var(--su-tint);overflow:hidden}
 .fbar b{display:block;height:100%;border-radius:4px;background:var(--su-accent)}
 .fbar b.bad{background:var(--su-bad)}.fbar b.ok{background:var(--su-ok)}
 /* Pinned tracker cards: the mock's .trkmini rows sit 2px apart, and its bars are fixed red and green in both schemes. */

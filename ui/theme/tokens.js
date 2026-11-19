@@ -6,6 +6,7 @@ export const TOKENS = Object.freeze([
   '--su-panel2',
   '--su-line',
   '--su-line2',
+  '--su-tint',
   '--su-text',
   '--su-soft',
   '--su-muted',
@@ -49,6 +50,7 @@ export const GLASS_DARK = Object.freeze({
   '--su-panel2': 'rgba(36,38,56,.9)',
   '--su-line': 'rgba(255,255,255,.08)',
   '--su-line2': 'rgba(255,255,255,.1)',
+  '--su-tint': 'rgba(255,255,255,.1)', // the fill of chips, rows and small buttons on a panel (--su-line2 is the hairline)
   '--su-text': '#eeeef6',
   '--su-soft': '#cfd0e0',
   '--su-muted': '#9a9cb4',
@@ -92,6 +94,7 @@ export const GLASS_LIGHT = Object.freeze({
   '--su-panel2': 'rgba(255,255,255,.88)',
   '--su-line': 'rgba(255,255,255,.9)',
   '--su-line2': 'rgba(30,34,52,.12)',
+  '--su-tint': 'rgba(30,34,52,.12)',
   '--su-text': '#1d2030',
   '--su-soft': '#3a3e55',
   '--su-muted': '#565a72',
