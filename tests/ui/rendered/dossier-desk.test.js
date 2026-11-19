@@ -1,4 +1,4 @@
-// Rendered check: the dossier's layout by window width. On a desktop window (1,100 px and up) it covers the whole suite in three columns once a part is open
+// Rendered check: the dossier's layout by window width. On a desktop window (1,080 px and up) it covers the whole suite in three columns once a part is open
 // (portrait 290, the cards, the part 360 beside them); below, a part is a page of its own (the tablet keeps the portrait column). The ⋯ menu drops from its button.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -62,11 +62,12 @@ function measure() {
   };
 }
 
-for (const width of [1280, 1920]) {
+// (1143 x 821 is the owner's laptop: its floating window is 1,095 px, over the 1,080 px line)
+for (const width of [1143, 1280, 1920]) {
   for (const theme of ['dark', 'light']) {
     test(`dossier at ${width} ${theme}: covers the whole suite; portrait column 290 and the cards, then a part opens beside the cards (360) with its card outlined`, async (t) => {
       if (ctx.skip) return t.skip(ctx.skip);
-      const page = await openDossier(width, width === 1280 ? 800 : 1080, theme);
+      const page = await openDossier(width, { 1143: 821, 1280: 800 }[width] ?? 1080, theme);
       try {
         const m = await page.evaluate(measure);
         assert.deepEqual([m.dov.x, m.dov.y, m.dov.w], [m.root.x, m.root.y, m.root.w], 'the dossier covers the suite');
@@ -108,6 +109,28 @@ for (const [width, height] of [[820, 1000], [390, 844]]) {
     } finally { await page.close(); }
   });
 }
+
+test('dossier at 1280x800: opening a card low in a scrolled cards column keeps the column where it was, and ⋯ keeps the focus as its menu opens', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await openDossier(1280, 800);
+  try {
+    const before = await page.evaluate(() => { const c = document.querySelector('#hx-frame .dov .dcards'); c.scrollTop = c.scrollHeight; return c.scrollTop; });
+    assert.ok(before > 0, 'the cards column scrolls at this height');
+    await page.click('#hx-frame .dov .dcard[data-page="profile"]');
+    await settle(page);
+    const after = await page.evaluate(() => {
+      const c = document.querySelector('#hx-frame .dov .dcards'); const sel = c.querySelector('.dcard.sel').getBoundingClientRect(); const box = c.getBoundingClientRect();
+      return { top: c.scrollTop, seen: sel.top >= box.top - 1 && sel.bottom <= box.bottom + 1, focus: document.activeElement?.dataset?.page ?? null };
+    });
+    assert.ok(after.top > 0, `the column did not jump back to the top (${after.top})`);
+    assert.equal(after.seen, true, 'the outlined Profile card is in view');
+    assert.equal(after.focus, 'profile', 'the focus stays on the card that was tapped');
+    await page.focus('#hx-frame .dov [data-act="menu"]');
+    await page.keyboard.press('Enter');
+    await settle(page);
+    assert.equal(await page.evaluate(() => [Boolean(document.querySelector('#hx-frame .dov .menu')), document.activeElement?.dataset?.act].join()), 'true,menu');
+  } finally { await page.close(); }
+});
 
 for (const width of [1280]) {
   test(`dossier ⋯ menu at ${width}: drops from its button, just under the top bar`, async (t) => {

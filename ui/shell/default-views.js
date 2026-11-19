@@ -59,6 +59,8 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     // (a dossier's Day ›: the Journal opens its calendar on that day, once)
     if (tab === 'journal' && args?.day) journalStart = { day: String(args.day) };
     if (tab) tabHost()?.select(tab);
+    // (a dossier opened over the Journal: the tab was already drawn as the dossier closed, so it is drawn again to take the day)
+    if (journalStart && tabHost()?.current() === 'journal') refresh?.();
     if (args) port.command('suite.go', { tab, ...args });
   };
   const ctx = { port, prefs, go };

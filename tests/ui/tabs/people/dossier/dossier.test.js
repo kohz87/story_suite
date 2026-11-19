@@ -64,7 +64,7 @@ test('a presumed death is badged, and unknown gender is flagged under the name',
   assert.match(el.querySelector('.idl .gflag').textContent, /gender not stated/);
 });
 
-test('opening a card shows its part with ‹ › and "name · i of n", outlines that card, and marks the body paged (the CSS shows it as a page below 1,100 px)', () => {
+test('opening a card shows its part with ‹ › and "name · i of n", outlines that card, and marks the body paged (the CSS shows it as a page below 1,080 px)', () => {
   const { el } = build('temiwa');
   el.querySelector('[data-page="ties"]').click();
   assert.ok(el.querySelector('.dbody').classList.contains('paged'));

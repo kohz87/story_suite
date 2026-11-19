@@ -14,8 +14,8 @@ import { buildSelectors } from '../../ui/select/build.js';
 const SKIP = /^ui\/(legacy|fixtures|dev|contract|select|settings)(\/|$)|^ui\/port\/(people-settings|rpg|world-keys|world-settings|settings-director|money|extras|host-settings|resets|module-cards|packs)\.js$|^ui\/tabs\/fight\//;
 // Strings of the right shape that are not commands: fold keys, a settings row key, view-model ids, the queries ui/wizard reads, and the like.
 const NOT_COMMANDS = new Set(['rpg.characterFile', 'bag.assets', 'journal.calendar', 'journal.closed', 'story.agendas.all', 'story.trackers', 'rpg.difficulty', 'now.turn.all', 'now.you', 'fight.party', 'svg.mp', 'rpg.sheet', 'models.test', 'tools.rebuild', 'tools.report', 'tools.gamepack.export', 'tools.npcdata.backup', 'tools.npcdata.diagnostics', 'tools.npcdata.restore', 'people.open', 'people.reread', 'tools.savepoint.forget', 'tools.savepoint.make', 'tools.savepoint.return', 'tools.prompt.save', 'tools.prompt.reset', 'tools.people.export', 'calls.fallback', 'calls.repair', 'calls.maxOutput', 'calls.kinds', 'calls.queue', 'calls.keepBlocks', 'trackers.open', 'packs.import', 'packs.lorebook', 'packs.lorebook.make', 'packs.remove', 'inventory.currency', 'packs.content', 'packs.list']);
-// Sent after the work is done locally, or only as a fallback the live mount never takes (See on map has the host's hook; the spoiler pref has port.prefs): nothing waits for the answer.
-const LOCAL = new Set(['suite.go', 'suite.settings', 'prefs.spoiler.set', 'people.focus']);
+// Sent after the work is done locally, or only as a fallback the live mount never takes (the spoiler pref has port.prefs): nothing waits for the answer.
+const LOCAL = new Set(['suite.go', 'suite.settings', 'prefs.spoiler.set']);
 // Nobody registers these yet: the control is drawn only while `port.can` says yes.
 const UNWIRED = ['npc.inspect', 'npc.merge', 'npc.memory.add', 'party.invite', 'party.bench', 'party.leave', 'rpg.skill.edit', 'item.use', 'scene.correct'];
 

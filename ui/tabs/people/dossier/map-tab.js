@@ -1,4 +1,4 @@
-// Builds the dossier's Map tab: the People tab's relationship map (map.js) with an All bonds toggle, and the picked person beside it (under it below 1,100 px):
+// Builds the dossier's Map tab: the People tab's relationship map (map.js) with an All bonds toggle, and the picked person beside it (under it below 1,080 px):
 // their ring portrait, name, chips, meter line, Bonds on the map, Open dossier › and Focus.
 import { h } from '../../../kit/dom.js';
 import { button } from '../../../kit/controls.js';

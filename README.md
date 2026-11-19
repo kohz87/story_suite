@@ -9,7 +9,7 @@ Story Suite is a SillyTavern extension that keeps track of your story for you: y
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/images/people-dossier.webp" alt="Sister Temiwa's dossier: her portrait inside a ring of Trust, Affection, Desire and Tension, her mood, ties, past and profile." width="100%"><br><sub><b>People:</b> a dossier for everyone you meet.</sub></td>
+    <td width="50%"><img src="docs/images/people-dossier.webp" alt="Sister Temiwa's dossier: her portrait inside a ring of Trust, Affection, Desire and Tension, the cards for her mood, ties, past and profile, and her Mood open beside them." width="100%"><br><sub><b>People:</b> a dossier for everyone you meet.</sub></td>
     <td width="50%"><img src="docs/images/party-sheet.webp" alt="Sister Temiwa's party sheet: gear slots with a Warding staff worn, health, mana and stamina, stats and three skills." width="100%"><br><sub><b>Party:</b> gear, stats and skills for each member.</sub></td>
   </tr>
   <tr>

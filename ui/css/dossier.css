@@ -1,5 +1,5 @@
 /* Styles for the dossier (mock scratch/design/dossier-v2/full.html): always the flat surface (no sky, glow or shade, whatever Panel background says); top bar, portrait column,
-   cards, the opened part, the Map tab and the library strip. Sized from the suite window (container su-root): a phone below 600 px, a tablet to 1,099 px, a desktop from 1,100 px. */
+   cards, the opened part, the Map tab and the library strip. Sized from the suite window (container su-root): a phone below 600 px, a tablet to 1,079 px, a desktop from 1,080 px. */
 .dossier{--m0:#5aa0ff;--m1:#ff7aa8;--m2:#c08aff;--m3:#f0b84a;--pk-gold:#f0b84a;--pk-disc:#3a3c52;--d-flat:#191a2b;--d-on:#3a3326;--d-energy:#f08a5d;--d-control:#7fd1c7}
 [data-scheme="light"] .dossier{--m0:#1f5fbf;--m1:#b8265f;--m2:#7a3fc0;--m3:#8a5a00;--pk-gold:#8a5a00;--pk-disc:#4a4d68;--d-flat:#e8e9f1;--d-on:#f3e3c2;--d-energy:#b4501e;--d-control:#1f7a70}
 .dov{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;overflow:hidden;background:var(--d-flat);color:var(--su-text);font:400 14px/1.5 var(--su-font)}
@@ -46,7 +46,7 @@
   .dbody.paged>.dhero{display:flex}
   .dpane .db{overflow:auto}
 }
-@container su-root (min-width:1100px){
+@container su-root (min-width:1080px){
   .dbody{grid-template-columns:290px minmax(0,1fr)}
   .dbody.paged{grid-template-columns:290px minmax(0,1fr) 360px}
   .dbody.paged>.dcards{display:flex}
@@ -70,7 +70,7 @@
 .ml.c-tr{right:0;top:0}.ml.c-br{right:0;bottom:0}.ml.c-bl{left:0;bottom:0}.ml.c-tl{left:0;top:0}
 @container su-root (max-width:599px){.bigring{width:290px}}
 .dname{font:800 22px/1.15 var(--su-font);overflow-wrap:anywhere;margin-top:8px}
-@container su-root (min-width:1100px){.dhero .dname{font-size:28px}}
+@container su-root (min-width:1080px){.dhero .dname{font-size:28px}}
 .dov .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
 .dov .chip{font:800 12px var(--su-font);border-radius:999px;padding:4px 12px;background:var(--su-tint);color:var(--su-soft);border:1px solid transparent}
 .dov .chips{align-items:center}
@@ -118,12 +118,12 @@
 .dov .kv2 small{color:var(--su-muted);font-size:12px}
 .pl{margin:0;padding-left:18px;font-size:13.5px;line-height:1.5}
 .dov .row{display:flex;align-items:baseline;gap:12px}.dov .row .fine{width:56px}.dov .row b{font:800 20px var(--su-font)}
-.evs{display:flex;flex-direction:column}
-.ev{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--su-line);font-size:13.5px;line-height:1.4}
-.ev:first-child{border-top:0;padding-top:0}
-.ev .w{font:700 12px/1.4 var(--su-font);color:var(--su-muted)}.ev .w b{display:block;color:var(--su-soft)}
-.ev p b{font-weight:800}
-.ev .why{display:block;margin-top:4px;font:400 12.5px/1.4 var(--su-font);color:var(--su-soft)}.ev .why b{color:var(--su-warn-t)}
+.dov .evs{display:flex;flex-direction:column}
+.dov .ev{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--su-line);font-size:13.5px;line-height:1.4}
+.dov .ev:first-child{border-top:0;padding-top:0}
+.dov .ev .w{font:700 12px/1.4 var(--su-font);color:var(--su-muted)}.dov .ev .w b{display:block;color:var(--su-soft)}
+.dov .ev p{margin:0;font-size:13.5px;color:var(--su-text)}.dov .ev p b{font-weight:800}
+.dov .ev .why{display:block;margin-top:4px;font:400 12.5px/1.4 var(--su-font);color:var(--su-soft)}.dov .ev .why b{color:var(--su-warn-t)}
 .dov .held{color:var(--su-warn-t);font-weight:800}
 /* Day › runs on in the text; its 44 px tap box overlaps the line above and below (negative margins) so the lines keep their pitch */
 .lnk2.day{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin:-12px 0 -12px 0;padding:0 4px;vertical-align:middle;background:none;border:0;font:800 13.5px var(--su-font);color:var(--su-accent);cursor:pointer}

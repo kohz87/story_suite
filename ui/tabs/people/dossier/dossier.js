@@ -34,14 +34,20 @@ export function dossierPage(first, ctx = {}) {
   // (it covers the tabs, so it is modal: Tab stays inside it until it closes)
   const root = h('div', { class: 'dossier dov', role: 'dialog', 'aria-modal': 'true', 'aria-label': `${d.name}’s dossier`, dataset: { personId: d.id } }, barSlot, noteSlot, body, libSlot);
   let shut = false;
+  // The port's views are worked out afresh on every read (every person's queries): the strip's people and the map's are read once, and again only after an update.
+  const views = { lib: null, people: null };
+  const libPeople = () => (views.lib ??= libraryPeople(ctx.port?.view?.('dossier')));
+  const peopleView = () => (views.people ??= ctx.port?.view?.('people') ?? {});
   root.addEventListener('keydown', tabTrap(root, { isOn: () => !shut }));
 
-  function closeMenu() { release('menu'); state.menu = false; state.sure = false; drawBar(); }
+  function closeMenu() { release('menu'); state.menu = false; state.sure = false; keeping(drawBar); }
   function openPage(id) {
     state.page = id;
     state.tab = 'dossier';
     hold('page', 'page', () => { state.page = null; draw(); });
     draw();
+    // (beside the cards the column narrows and the cards grow taller: the outlined one is brought back into view)
+    root.querySelector?.('.dcard.sel')?.scrollIntoView?.({ block: 'nearest' });
   }
   function closePage() { release('page'); state.page = null; draw(); }
   function close() { shut = true; release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
@@ -50,6 +56,7 @@ export function dossierPage(first, ctx = {}) {
   root.update = (next) => {
     if (!next || shut) return;
     d = next;
+    views.lib = null; views.people = null;
     pages = dossierPages(d, ctx.youName);
     state.following = Boolean(d.following);
     if (state.page && !pages.some(p => p.id === state.page)) { release('page'); state.page = null; }
@@ -57,8 +64,10 @@ export function dossierPage(first, ctx = {}) {
   };
   // Another person from the library, a tie or the map: shown in place (the strip, its filter and the map's lens stay), on `page` when given.
   function show(id, page = null) {
-    const next = ctx.port?.view?.('dossier')?.[id];
+    const all = ctx.port?.view?.('dossier');
+    const next = all?.[id];
     if (!next || shut) return;
+    views.lib = libraryPeople(all);
     release('menu'); release('page');
     Object.assign(state, { menu: false, sure: false, page: null, tab: 'dossier', following: Boolean(next.following), map: { ...state.map, sel: null, focus: null } });
     d = next;
@@ -90,7 +99,7 @@ export function dossierPage(first, ctx = {}) {
       (error) => { noteSlot.textContent = String(error?.message || 'That did not work.'); });
   }
   function pick(id) {
-    if (id === 'delete' && !state.sure) { state.sure = true; drawBar(); return; }
+    if (id === 'delete' && !state.sure) { state.sure = true; keeping(drawBar); return; }
     if (id === 'refresh') refresh(); else if (id === 'portrait') portrait(); else act(`npc.${id}`);
     closeMenu();
   }
@@ -102,8 +111,8 @@ export function dossierPage(first, ctx = {}) {
       onMenu: () => {
         if (state.menu) { closeMenu(); return; }
         state.menu = true;
-        hold('menu', 'menu', () => { state.menu = false; state.sure = false; drawBar(); });
-        drawBar();
+        hold('menu', 'menu', () => { state.menu = false; state.sure = false; keeping(drawBar); });
+        keeping(drawBar);
       },
     }));
   }
@@ -128,7 +137,7 @@ export function dossierPage(first, ctx = {}) {
   }
 
   function drawMap() {
-    const vm = ctx.port?.view?.('people') ?? {};
+    const vm = peopleView();
     const people = [...(vm.here ?? []).map(p => ({ ...p, here: true })), ...(vm.elsewhere ?? []).map(p => ({ ...p, here: false }))];
     const you = ctx.you ?? ctx.port?.view?.('card')?.you ?? { name: ctx.youName ?? 'You' };
     body.replaceChildren(dossierMapTab(d, {
@@ -140,7 +149,7 @@ export function dossierPage(first, ctx = {}) {
   }
 
   function drawLibrary() {
-    libSlot.replaceChildren(dossierLibrary(libraryPeople(ctx.port?.view?.('dossier')), {
+    libSlot.replaceChildren(dossierLibrary(libPeople(), {
       currentId: d.id, open: state.lib, filter: state.libFilter,
       onToggle: () => { state.lib = !state.lib; drawLibrary(); },
       onFilter: (id) => { state.libFilter = id; drawLibrary(); },
@@ -148,11 +157,25 @@ export function dossierPage(first, ctx = {}) {
     }));
   }
 
+  // A redraw keeps where the reader was: the columns' scroll (an outlined card low in the list stays in view) and the focus on the control it was on.
+  const KEEP = ['.dhero', '.dcards', '.dmapv .rmain', '.dlib .lrow'];
+  const keyOf = el => (el?.dataset?.page && el.classList?.contains('dcard') ? `.dcard[data-page="${el.dataset.page}"]` : el?.dataset?.act ? `[data-act="${el.dataset.act}"]` : el?.dataset?.tab ? `[data-tab="${el.dataset.tab}"]` : null);
+  function keeping(redraw) {
+    const scrolls = KEEP.map(sel => root.querySelector?.(sel)?.scrollTop ?? 0);
+    const active = root.ownerDocument?.activeElement;
+    const focus = active && root.contains(active) ? keyOf(active) : null;
+    redraw();
+    KEEP.forEach((sel, i) => { const el = root.querySelector?.(sel); if (el && scrolls[i]) el.scrollTop = scrolls[i]; });
+    if (focus) root.querySelector?.(focus)?.focus?.({ preventScroll: true });
+  }
+
   function draw() {
-    drawBar();
-    root.classList.toggle('maptab', state.tab === 'map');
-    if (state.tab === 'map') drawMap(); else drawDossier();
-    drawLibrary();
+    keeping(() => {
+      drawBar();
+      root.classList.toggle('maptab', state.tab === 'map');
+      if (state.tab === 'map') drawMap(); else drawDossier();
+      drawLibrary();
+    });
   }
 
   function downFromStack() { shut = true; release('menu'); release('page'); ctx.onClose?.(); }

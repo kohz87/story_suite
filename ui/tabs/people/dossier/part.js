@@ -1,4 +1,4 @@
-// Builds an opened dossier part: its header (‹ Dossier, ‹ title "name · i of n" ›) and its body. Beside the cards on a desktop window; its own page below 1,100 px (ui/css/dossier.css).
+// Builds an opened dossier part: its header (‹ Dossier, ‹ title "name · i of n" ›) and its body. Beside the cards on a desktop window; its own page below 1,080 px (ui/css/dossier.css).
 import { h } from '../../../kit/dom.js';
 import { nowPage, moodPage } from './now-page.js';
 import { tiesPage, pastPage, secretsPage } from './past-secrets.js';

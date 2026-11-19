@@ -86,6 +86,25 @@ test('Day › leaves the dossier and shows the Journal calendar on that day; the
   suite.destroy();
 });
 
+test('Day › from a dossier opened over the Journal (a quest giver) still opens the calendar on that day', () => {
+  const doc = installFakeDom();
+  const suite = mountSuite({ port: createFakePort(), doc, initial: 'journal' });
+  suite.open('journal');
+  const giver = doc.body.querySelectorAll('.journal-body .lk').find(b => b.textContent === 'Sister Temiwa');
+  assert.ok(giver, 'Temiwa gives a quest');
+  giver.click();
+  const dossier = doc.body.querySelector('.dossier');
+  assert.equal(dossier.querySelector('[data-act="close"]').textContent, '‹ Journal');
+  dossier.querySelector('.dcard[data-page="past"]').click();
+  const day = dossier.querySelector('.day').dataset.day;
+  dossier.querySelector('.day').click();
+  assert.equal(doc.body.querySelector('.dossier'), null);
+  assert.equal(suite.tabHost.current(), 'journal');
+  assert.equal(doc.body.querySelector('.journal-body').dataset.view, 'cal');
+  assert.match(doc.body.querySelector('.journal-body .cd.sel')?.getAttribute('aria-label') ?? '', new RegExp(`^${day}\\b`));
+  suite.destroy();
+});
+
 test('the dossier\'s Map tab is the People tab\'s relationship map with this person picked; Open dossier › shows the picked person in place', () => {
   const doc = installFakeDom();
   const suite = mountSuite({ port: createFakePort(), doc, initial: 'people' });

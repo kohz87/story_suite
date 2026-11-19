@@ -1,5 +1,5 @@
 /* The dossier's phone top bar (two lines), its library strip (folded, open, a grid on a phone) and its Map tab (the relationship map with the picked person
-   beside it on a desktop window, under it below 1,100 px). Mock: scratch/design/dossier-v2/full.html, frames 1j, 2d, 3a, 3e and 4a-4e. */
+   beside it on a desktop window, under it below 1,080 px). Mock: scratch/design/dossier-v2/full.html, frames 1j, 2d, 3a, 3e and 4a-4e. */
 /* phone: line one ‹ origin, the name, ⋯, Close; line two the Dossier / Map switch at full width */
 @container su-root (max-width:599px){
   .dbar{flex-wrap:wrap;row-gap:8px;padding:8px 12px}
@@ -27,6 +27,7 @@
 .dlib .lrow{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.dlib .lrow::-webkit-scrollbar{display:none}
 .dlib .lp{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:88px;padding:9px 4px 6px;border:0;border-radius:12px;background:none;color:var(--su-text);flex:none;cursor:pointer}
 .dlib .lp .p{width:48px;height:48px;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
+[data-scheme="light"] .dlib .lp .p{box-shadow:0 0 0 2px rgba(0,0,0,.14)}
 .dlib .lp.on{background:var(--su-tint)}
 .dlib .lp.on .p{box-shadow:0 0 0 3px var(--su-accent)}
 .dlib .lp.fol .p{box-shadow:0 0 0 3px var(--pk-gold)}
@@ -59,6 +60,7 @@
 .dov .cmap .rw{font:italic 600 12px var(--su-font);background:var(--d-flat)}
 .dov .cm{width:48px;height:48px;box-shadow:0 0 0 1px rgba(255,255,255,.28)}
 .dov .cm.you{width:48px;height:48px;box-shadow:0 0 0 1.5px #fff}
+[data-scheme="light"] .dov .cm{box-shadow:0 0 0 1px rgba(0,0,0,.22)}[data-scheme="light"] .dov .cm.you{box-shadow:0 0 0 1.5px #2a2d45}
 .dov .cmw{width:auto;min-width:64px;transform:translate(-50%,-24px)}
 .dov .cmw b,.dov .cmw small{font-size:12px;background:var(--d-flat);padding:0 4px;border-radius:6px;white-space:nowrap;line-height:1.2}
 .dov .cmw b{margin-top:2px}
@@ -81,7 +83,7 @@
   .dmapv .rbox .chips,.dmapv .rbtns{justify-content:flex-start}
   .dmapv .rbonds{align-items:flex-start}
 }
-@container su-root (min-width:1100px){
+@container su-root (min-width:1080px){
   .dmapv{display:grid;grid-template-columns:minmax(0,1fr) 360px;overflow:hidden}
   .dmapv .rmain{overflow:auto}
   .dmapv .rpanel{border-left:1px solid var(--su-line);overflow:auto}
