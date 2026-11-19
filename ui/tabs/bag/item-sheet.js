@@ -45,10 +45,19 @@ export function itemSheet(item, ctx = {}) {
   const rpg = Boolean(ctx.rpg);
   const names = Object.keys(ctx.members ?? {});
   const picker = h('div', { class: 'pick-wrap' });
-  const send = (type, payload) => {
-    ctx.port?.command(type, payload);
+  // Wear waits for the engine: a refusal (no slot, not equipment…) keeps the sheet open with the reason, and Edit item when the reader can set the slot there.
+  const send = async (type, payload) => {
+    const result = ctx.port?.command(type, payload);
+    if (type !== 'item.equip') { ctx.close?.(); return; }
+    const answer = await result;
+    if (answer && answer.ok === false) { refused(answer.message); return; }
     ctx.close?.();
   };
+  const slotEditable = Boolean(ctx.rpg) && item.hand === true && item.kind === 'gear';
+  const refused = message => picker.replaceChildren(
+    h('p', { class: 'fine err', role: 'alert' }, message || 'That cannot be worn.'),
+    slotEditable ? h('div', { class: 'brow' }, button({ label: 'Edit item', tone: 'primary', onClick: () => edit(true) })) : null,
+  );
   // What each pick sends (the commands read `owner` / `to`, and the main character's things belong to `party`).
   const body = (type, id) => {
     const owner = ownerOf(id, ctx.pcId);
@@ -95,7 +104,7 @@ export function itemSheet(item, ctx = {}) {
       button({ label: 'Drop', tone: 'danger', onClick: () => send('inventory.drop', { stack: item.stack }) })),
     picker,
   ].filter(Boolean);
-  function edit() {
+  function edit(focusSlot = false) {
     root.replaceChildren(head(false), itemEditForm(item, {
       rpg,
       onCancel: () => root.replaceChildren(...view),
@@ -105,6 +114,7 @@ export function itemSheet(item, ctx = {}) {
         return result;
       },
     }));
+    if (focusSlot) root.querySelector('[data-field="slot"]')?.focus();
   }
   root.replaceChildren(...view);
   return root;

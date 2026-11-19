@@ -47,7 +47,7 @@ export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
   const rarity = gear ? h('select', null, RARITIES.map(r => h('option', { value: r, selected: r === rarityOf(item) }, cap(r)))) : null;
   if (rarity) rarity.value = rarityOf(item);
   const slotWords = item.slot && !SLOTS.includes(item.slot) ? [...SLOTS, item.slot] : SLOTS;
-  const slot = gear ? h('select', null, [h('option', { value: '' }, 'None'), ...slotWords.map(s => h('option', { value: s, selected: s === item.slot }, cap(s)))]) : null;
+  const slot = gear ? h('select', { dataset: { field: 'slot' } }, [h('option', { value: '' }, 'None'), ...slotWords.map(s => h('option', { value: s, selected: s === item.slot }, cap(s)))]) : null;
   if (slot) slot.value = item.slot ?? '';
   const weight = rpg && hasWeight(item) ? h('input', { type: 'number', min: '0', max: '99', step: '1', value: String(item.weight) }) : null;
   const soak = rpg && hasSoak(item) ? h('input', { type: 'number', min: '0', max: String(item.soakMax), step: '1', value: String(item.soak ?? 0) }) : null;
