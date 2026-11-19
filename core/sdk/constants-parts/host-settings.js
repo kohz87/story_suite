@@ -45,7 +45,7 @@ export const HOST_SETTINGS_SCHEMA = Object.freeze({
     }),
     glassStrength: Object.freeze({
         type: 'int', min: 30, max: 90, form: 'slider', label: 'Glass strength (%)',
-        help: 'How dense the Glass panels are: low shows more of your background through them, high is easier to read on a busy one. Follow SillyTavern ignores it.',
+        help: 'How dense the Glass panels are. With Panel background On, low shows more of the picture through them and high is easier to read on a busy one; with it Off, high lifts the cards further off the plain colour. Follow SillyTavern ignores it.',
     }),
     font: Object.freeze({
         type: 'choice', label: 'Font', options: Object.freeze([

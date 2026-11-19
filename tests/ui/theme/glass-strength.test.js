@@ -12,7 +12,9 @@ const CSS_DIR = fileURLToPath(new URL('../../../ui/css/', import.meta.url));
 const DARK_ST = { '--SmartThemeBodyColor': '#dcdcd2', '--SmartThemeBlurTintColor': 'rgba(23,23,23,1)' };
 const LIGHT_ST = { '--SmartThemeBodyColor': '#222222', '--SmartThemeBlurTintColor': 'rgba(245,245,245,1)' };
 const reader = vars => name => vars[name] ?? '';
-const at = (strength, vars = DARK_ST, panelStyle = 'glass') => lookTheme(lookOf({ glassStrength: strength, panelStyle }), reader(vars)).tokens;
+// Panel background On here (the strength alone); Off, where the cards are also lifted off the flat colour, is glass-flat.test.js.
+const at = (strength, vars = DARK_ST, panelStyle = 'glass') => lookTheme({ ...lookOf({ glassStrength: strength, panelStyle }), panelBg: true }, reader(vars)).tokens;
+const EDGE = ['--su-line', '--su-shadow']; // moved only with Panel background Off
 const num = value => Number.parseFloat(String(value).replace(/^rgba\([^)]*,([^,)]+)\)$/, '$1'));
 
 // The see-through neutral fills ui/css may still write as literals, and why (each is a selector in the file named).
@@ -46,7 +48,7 @@ function neutralSeeThrough(value) {
 }
 
 test('the strength tokens are theme tokens, and at the default (50%) every one is the mock\'s, dark and light', () => {
-  assert.deepEqual(STRENGTH_TOKENS, ['--su-panel', '--su-panel2', '--su-tint', '--su-scrim', '--su-scrim-strong', '--su-scrim-place', '--su-blur', '--su-blur-strong', '--su-blur-soft']);
+  assert.deepEqual(STRENGTH_TOKENS, ['--su-panel', '--su-panel2', '--su-tint', '--su-scrim', '--su-scrim-strong', '--su-scrim-place', '--su-blur', '--su-blur-strong', '--su-blur-soft', '--su-line', '--su-shadow']);
   for (const name of STRENGTH_TOKENS) assert.ok(TOKENS.includes(name), name);
   assert.deepEqual(at(50), { ...GLASS_DARK });
   assert.deepEqual(at(50, LIGHT_ST), { ...GLASS_LIGHT });
@@ -58,10 +60,11 @@ test('the strength tokens are theme tokens, and at the default (50%) every one i
   assert.deepEqual([GLASS_DARK['--su-blur'], GLASS_DARK['--su-blur-strong'], GLASS_DARK['--su-blur-soft']], ['16px', '28px', '6px']);
 });
 
-test('every strength token moves with the strength (30% clearer and sharper, 90% denser and softer), and only those move', () => {
+test('Panel background On: every strength token but the card edge and shadow moves (30% clearer and sharper, 90% denser and softer), and only those move', () => {
   for (const vars of [DARK_ST, LIGHT_ST]) {
     const [low, mid, high] = [30, 50, 90].map(n => at(n, vars));
-    for (const name of STRENGTH_TOKENS) {
+    for (const name of EDGE) assert.ok(low[name] === mid[name] && mid[name] === high[name], `${name} does not move with Panel background On`);
+    for (const name of STRENGTH_TOKENS.filter(n => !EDGE.includes(n))) {
       assert.ok(num(low[name]) < num(mid[name]) && num(mid[name]) < num(high[name]), `${name}: ${low[name]} < ${mid[name]} < ${high[name]}`);
     }
     for (const name of TOKENS.filter(n => !STRENGTH_TOKENS.includes(n))) assert.equal(low[name], mid[name], name);
@@ -78,7 +81,7 @@ test('every strength token moves with the strength (30% clearer and sharper, 90%
   assert.deepEqual([30, 90].map(n => at(n)['--su-scrim']), ['rgba(6,8,16,.25)', 'rgba(6,8,16,.8)']);
   assert.deepEqual([30, 90].map(n => at(n)['--su-scrim-strong']), ['rgba(6,8,16,.4)', 'rgba(6,8,16,.8)']);
   assert.deepEqual([30, 90].map(n => at(n)['--su-scrim-place']), ['rgba(8,10,18,.3)', 'rgba(8,10,18,.8)']);
-  const steps = [50, 60, 70, 80, 90].map(n => STRENGTH_TOKENS.map(name => at(n)[name]).join());
+  const steps = [50, 60, 70, 80, 90].map(n => STRENGTH_TOKENS.filter(name => !EDGE.includes(name)).map(name => at(n)[name]).join());
   assert.equal(new Set(steps).size, steps.length, 'every step to 90% changes them');
 });
 
