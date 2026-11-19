@@ -4,7 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
-- New character › Skills: the "What it does" box shows more lines, and the Stat / Type / Starts at fields no longer cut their words on desktop.
+- New character › Skills: the "What it does" box shows four lines, the × lines up with the name, and Type / Starts at no longer cut their words on desktop.
 - New character › Skills: a hint line says which bar a skill uses (INT or WIS: Mana; any other stat: Stamina; a heal: Mana; a stance: 1 each exchange).
 - New character › Skills: once one skill is a stance (Defence, Evasion, Movement or Support), the other skills' Type lists show the stance types switched off and name the skill that holds it.
 - Settings › Packs: **Create the lorebook** from a world pack makes a SillyTavern lorebook of its lore, so the narrator reads it too; **Update the lorebook** remakes it when the pack changes.

@@ -97,13 +97,13 @@ test('Skills: a type change, Add and × keep the focus in the sheet, on the same
   assert.ok(w.within());
 });
 
-test('the skill\'s "What it does" is a three-row textarea, and Enter in it is not a line break', { skip }, async t => {
+test('the skill\'s "What it does" is a four-row textarea, and Enter in it is not a line break', { skip }, async t => {
   const w = await sheetOn(t);
   w.tab('skills').click();
   w.sheet().querySelector('[data-wiz="add"]').click();
   const about = w.sheet().querySelector('[data-skill="0"] [data-field="about"]');
   assert.equal(about.tagName.toLowerCase(), 'textarea');
-  assert.equal(about.getAttribute('rows'), '3');
+  assert.equal(about.getAttribute('rows'), '4');
   assert.equal(about.dispatch('keydown', { key: 'Enter' }).defaultPrevented, true);
   assert.equal(about.dispatch('keydown', { key: 'a' }).defaultPrevented, false);
 });
