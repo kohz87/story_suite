@@ -48,11 +48,11 @@ const itemFor = (name, owner) => {
   return { stack, name, rarity: it.rarity, soak: it.soak, torn: it.wear === 'torn' };
 };
 
-// Combat Rules v1 pools, every term rounded down: stats are STR DEX AGI VIT INT WIS CHA.
+// Combat Rules v1 pools, every term rounded down (HP from STR+VIT, MP from INT+WIS, SP from AGI+DEX): stats are STR DEX AGI VIT INT WIS CHA.
 const pools = (lv, s) => [
-  5 + Math.floor(lv / 3) + Math.floor(s[3] / 2),
+  5 + Math.floor(lv / 3) + Math.floor((s[0] + s[3]) / 4),
   8 + Math.floor(lv / 4) + Math.floor((s[4] + s[5]) / 4),
-  8 + Math.floor(lv / 4) + Math.floor((s[0] + s[2]) / 4),
+  8 + Math.floor(lv / 4) + Math.floor((s[2] + s[1]) / 4),
 ];
 
 function makeMember([id, name, level, line, cur, xp, st, points, away, worn, effects, skills]) {

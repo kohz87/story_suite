@@ -16,9 +16,9 @@ describe('PARTY fixture', () => {
     assert.equal(partyFixture({ members: 0 }).members.length, 1);
   });
 
-  it('matches the card: Astra 12/14 health, 14/14 mana, 12/15 stamina, soak 11%', () => {
+  it('Astra: 12/13 health, 14/14 mana, 12/17 stamina (HP from STR+VIT, SP from AGI+DEX; mock v7 showed 12/14 and 12/15 under the earlier rule), soak 11%', () => {
     const astra = member('astra');
-    assert.deepEqual(astra.bars.map(b => `${b.kind} ${b.value}/${b.max}`), ['hp 12/14', 'mp 14/14', 'sp 12/15']);
+    assert.deepEqual(astra.bars.map(b => `${b.kind} ${b.value}/${b.max}`), ['hp 12/13', 'mp 14/14', 'sp 12/17']);
     assert.equal(astra.soakPct, 11);
     assert.equal(astra.points, 1);
     assert.equal(astra.level, 14);

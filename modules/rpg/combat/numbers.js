@@ -12,9 +12,10 @@ export const V1 = deep({
     decisiveMargin: 8, decisiveTimes: 1.5, tempoMargin: 3, soakCap: 50, areaPercent: 60, percent: 100,
     stat: { min: 1, max: 30, start: 5, creationPoints: 10, creationCap: 10, perLevel: 1 },
     level: { min: 1, max: 99 },
-    hp: { base: 5, levelDiv: 3, vitDiv: 2 },
-    mp: { base: 8, levelDiv: 4, pairDiv: 4 },
-    sp: { base: 8, levelDiv: 4, pairDiv: 4 },
+    // Each bar: base + level÷levelDiv + (the pair's two stats)÷pairDiv. At every stat 5 the bars are the earlier VIT÷2 and STR+AGI ones.
+    hp: { base: 5, levelDiv: 3, pair: ['str', 'vit'], pairDiv: 4 },
+    mp: { base: 8, levelDiv: 4, pair: ['int', 'wis'], pairDiv: 4 },
+    sp: { base: 8, levelDiv: 4, pair: ['agi', 'dex'], pairDiv: 4 },
     roll: {
         physicalDiv: 2, magicDiv: 2, evasionDiv: 3, tempoDiv: 2, orderDiv: 2, fleeDiv: 2, levelDiv: 4,
         naturalMiss: 1, masteryDiv: 2,

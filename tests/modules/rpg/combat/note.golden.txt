@@ -9,7 +9,7 @@ Exchange 1: Cy takes the Defence stance
 Kira takes the Defence stance
 Cy attacks Wolf: hit; Wolf HP 30 → 20
 Kira attacks Wolf: miss
-Wolf attacks Cy: hit; Cy's Defence stance absorbs 35%; Cy HP 19 → 16.
+Wolf attacks Cy: hit; Cy's Defence stance absorbs 35%; Cy HP 16 → 13.
 Exchange 2: Cy attacks Wolf: miss
 Kira attacks Wolf: hit; Wolf HP 20 → 7
 Kira acts again
@@ -31,10 +31,10 @@ Code has already moved the bars for these results; never set those yourself.
 Tell the fight in at most 250 words, in up to three short paragraphs: the opening, the turning point, the finish; the battle log keeps the blow-by-blow.
 Order: the foes Wolf 2, Wolf 3, Wolf 1; then the party Ana.
 Exchange 1: Ana takes the Defence stance
-Wolf 2 attacks Ana: hit; Ana's Defence stance absorbs 19%; Ana HP 8 → 1
+Wolf 2 attacks Ana: hit; Ana's Defence stance absorbs 19%; Ana HP 10 → 3
 Wolf 3 attacks Ana: Ana evades
 Ana attacks Wolf 2: hit; Wolf 2 HP 40 → 30.
-Exchange 2: Wolf 2 attacks Ana: hit, decisive; Ana's Defence stance absorbs 19%; Ana HP 1 → 0 (down).
+Exchange 2: Wolf 2 attacks Ana: hit, decisive; Ana's Defence stance absorbs 19%; Ana HP 3 → 0 (down).
 The fight is lost.
 Then follow the reader’s requested aftermath only as the outcome permits; do not assume the foes or their possessions are accessible or looting succeeds.
 
@@ -49,7 +49,7 @@ Exchange 1: Cy takes the Defence stance
 Kira takes the Defence stance
 Cy attacks Wolf: hit; Wolf HP 30 → 20
 Kira attacks Wolf: miss
-Wolf attacks Cy: hit; Cy's Defence stance absorbs 35%; Cy HP 19 → 16.
+Wolf attacks Cy: hit; Cy's Defence stance absorbs 35%; Cy HP 16 → 13.
 Exchange 2: Cy attacks Wolf: miss
 Kira attacks Wolf: hit; Wolf HP 20 → 7
 Kira acts again
@@ -95,8 +95,8 @@ Kira attacks Rat 2: hit; Rat 2 HP 12 → 5
 Kira acts again
 Kira attacks Rat 2: miss (natural 1)
 Bo attacks Rat 2: hit; Rat 2 HP 5 → 1
-Rat 2 attacks Rin: hit; 12% absorbed; Rin HP 15 → 10
-Rat 3 attacks Kira: hit; 20% absorbed; Kira HP 19 → 15
+Rat 2 attacks Rin: hit; 12% absorbed; Rin HP 14 → 9
+Rat 3 attacks Kira: hit; 20% absorbed; Kira HP 16 → 12
 Rat 1 attacks Bo: Bo evades.
 Exchange 3: Kira takes the Defence stance
 Rin attacks Rat 2 (area): miss
@@ -106,7 +106,7 @@ Rin acts again
 Rin attacks Rat 2 (area): miss
 Rin attacks Rat 3 (area): miss (natural 1)
 Rin attacks Rat 1 (area): miss
-Kira heals Rin: Rin HP 10 → 15
+Kira heals Rin: Rin HP 9 → 14
 Bo attacks Rat 2: miss
 Rat 2 attacks Rin: Rin evades
 Rat 3 attacks Kira: Kira evades

@@ -45,8 +45,8 @@ test('Create makes the Character and Skills blocks from the file, adds the thing
     assert.deepEqual(names(ctx.host), [...blocksBefore, 'pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/ren', 'pack.chat/ren-skills'].sort());
 
     const ren = fieldsOf(ctx.host, 'pack.chat/ren'), skills = fieldsOf(ctx.host, 'pack.chat/ren-skills');
-    assert.deepEqual([ren.who, ren.level, ren.points, ren.xp, ren.hp, ren.mp, ren.sp, ren.alive], ['Ren', 15, 3, 0, 16, 15, 17, true],
-        'the file\'s level and points; the reader\'s name and who they are; XP 0 and full bars (HP from VIT, MP from INT and WIS, SP from STR and AGI, and the level)');
+    assert.deepEqual([ren.who, ren.level, ren.points, ren.xp, ren.hp, ren.mp, ren.sp, ren.alive], ['Ren', 15, 3, 0, 16, 15, 16, true],
+        'the file\'s level and points; the reader\'s name and who they are; XP 0 and full bars (HP from STR and VIT, MP from INT and WIS, SP from AGI and DEX, and the level)');
     assert.deepEqual(STATS.map(stat => ren[stat]), [14, 12, 11, 10, 8, 9, 10]);
     assert.deepEqual([skills.who, skills.skill1, skills.about1, skills.stat1, skills.type1, skills.rank1, skills.practice1, skills.skill2, skills.rank2, skills.skill3], ['Ren', 'Iron Breath', 'Steadies the lungs in a long fight.', 'vit', 'attack', 2, 200, 'Short blade', 0, '']);
     assert.deepEqual(carried(ctx.host), ['Bedroll', 'Oilskin Coat', 'Torch ×2']);

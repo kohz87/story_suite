@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { memberSheet, statSheet, moreSheet } from '../../../../ui/tabs/party/sheet.js';
 import { makeCtx, flush, commands, sheetEl } from './helpers.js';
+import { barsOf } from '../../../../modules/rpg/combat/bars.js';
 
 const member = (ctx, id) => ctx.party.members.find(m => m.id === id);
 
@@ -75,7 +76,7 @@ test('tapping a stat tile opens the stat sheet', () => {
 
 test('stat sheet stages points, previews pools from Combat Rules v1, then Save sends the spend', async () => {
   const ctx = makeCtx();
-  const astra = { ...member(ctx, 'astra'), stats: { STR: 6, DEX: 12, AGI: 12, VIT: 11, INT: 5, WIS: 6, CHA: 5 } };
+  const astra = { ...member(ctx, 'astra'), stats: { STR: 8, DEX: 12, AGI: 12, VIT: 11, INT: 5, WIS: 6, CHA: 5 } };
   statSheet(astra, ctx);
   const q = s => sheetEl().querySelector(s);
   const off = s => q(s).hasAttribute('disabled');
@@ -84,13 +85,15 @@ test('stat sheet stages points, previews pools from Combat Rules v1, then Save s
   assert.equal(off('[data-reset]'), true);
   assert.equal(off('[data-minus="STR"]'), true);
   assert.equal(sheetEl().querySelectorAll('.ps-st').length, 7);
-  assert.equal(q('.ps-pv').textContent, 'Health14Mana13Stamina15');
+  assert.equal(q('.ps-pv').textContent, 'Health13Mana13Stamina17');
+  const engine = barsOf(Object.fromEntries(Object.entries(astra.stats).map(([k, v]) => [k.toLowerCase(), v])), astra.level);
+  assert.equal(q('.ps-pv').textContent, `Health${engine.hp}Mana${engine.mp}Stamina${engine.sp}`, 'the preview is the engine\'s bars (HP from STR+VIT, SP from AGI+DEX)');
   q('[data-plus="VIT"]').click();
   assert.equal(q('[data-stat="VIT"] .v').textContent, '12');
   assert.equal(q('[data-stat="VIT"] .v').classList.contains('up'), true);
   assert.equal(q('.ps-s').textContent, 'All points placed');
   assert.equal(off('[data-plus="STR"]'), true);
-  assert.equal(q('.ps-pv').textContent, 'Health14 → 15Mana13Stamina15');
+  assert.equal(q('.ps-pv').textContent, 'Health13 → 14Mana13Stamina17');
   assert.equal(off('[data-save]'), false);
   q('[data-minus="VIT"]').click();
   assert.equal(q('.ps-s').textContent, '1 point to spend');
@@ -98,10 +101,10 @@ test('stat sheet stages points, previews pools from Combat Rules v1, then Save s
   q('[data-reset]').click();
   assert.equal(q('[data-stat="INT"] .v').textContent, '5');
   q('[data-plus="INT"]').click();
-  assert.equal(q('.ps-pv').textContent, 'Health14Mana13 → 14Stamina15');
+  assert.equal(q('.ps-pv').textContent, 'Health13Mana13 → 14Stamina17');
   q('[data-save]').click();
   await flush();
-  assert.deepEqual(commands(ctx.port), [['rpg.stats.spend', { member: 'astra', stats: { STR: 6, DEX: 12, AGI: 12, VIT: 11, INT: 6, WIS: 6, CHA: 5 } }]]);
+  assert.deepEqual(commands(ctx.port), [['rpg.stats.spend', { member: 'astra', stats: { STR: 8, DEX: 12, AGI: 12, VIT: 11, INT: 6, WIS: 6, CHA: 5 } }]]);
   assert.equal(sheetEl(), null);
   assert.equal(astra.stats.INT, 5);
 });
