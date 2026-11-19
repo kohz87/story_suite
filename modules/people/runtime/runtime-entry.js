@@ -78,7 +78,7 @@ const CAPTURE_PROMPT_KEY = 'story_suite_tail_5_people_capture';
 const CAPTURE_PROMPT_DEPTH = 0;
 const CAPTURE_RULES_KEY = 'story_suite_static_people';
 // Keys of earlier versions, emptied on load so a stale copy never lingers in the prompt.
-const LEGACY_PROMPT_KEYS = ['people_live_dossier', 'people_capture'];
+const LEGACY_PROMPT_KEYS = ['npc_state_delta_live_dossier', 'npc_state_delta_capture'];
 const UI_ID = 'people_settings';
 // Runtime state: closure variables and session collections the controller shares, held on one object created here so each import of this module gets its own (runtime-state.js).
 const rt = createRuntimeState();

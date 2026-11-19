@@ -214,7 +214,7 @@ test('server freshness inspection observes a newer revision without granting it 
 
 test('recovery-only conflict snapshot remains recoverable but cannot replace the canonical sidecar on read', async () => {
     const chatKey = 'chat:freshness:recovery';
-    const pointer = { path: '/user/files/ppl-recovery-only.json', revision: 4, writerId: 'desktop' };
+    const pointer = { path: '/user/files/npc-state-delta-recovery-only.json', revision: 4, writerId: 'desktop' };
     const conflict = Object.assign(new Error('conflict'), { code: 'NPC_STATE_WRITE_CONFLICT', expectedRevision: 4, actualRevision: 5 });
     preserveUndurableNpcStateSnapshot({
         chatKey,

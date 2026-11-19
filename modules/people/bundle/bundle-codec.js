@@ -101,7 +101,7 @@ export function encodeNpcStateBundle(state, { appVersion = 'unknown', chatKey = 
     const formPortraits = formPortraitsForManifest(source, npcs, binaryOffsetRef, imageParts);
 
     const manifest = {
-        format: 'people_bundle',
+        format: 'npc_state_delta_bundle',
         formatVersion: FORMAT_VERSION,
         appVersion: String(appVersion || 'unknown'),
         exportedAt: new Date().toISOString(),
@@ -147,7 +147,7 @@ function validateManifest(manifest) {
             if (item && typeof item === 'object') queue.push({ value: item, depth: depth + 1 });
         }
     }
-    if (!manifest || manifest.format !== 'people_bundle') throw new Error('Not an NPC State bundle.');
+    if (!manifest || manifest.format !== 'npc_state_delta_bundle') throw new Error('Not an NPC State bundle.');
     if (manifest.formatVersion !== FORMAT_VERSION) throw new Error(`Unsupported NPC State bundle version: ${manifest.formatVersion}.`);
     if (!manifest.state || !Array.isArray(manifest.state.npcs)) throw new Error('NPC State bundle is missing its dossier registry.');
     const ids = new Set();

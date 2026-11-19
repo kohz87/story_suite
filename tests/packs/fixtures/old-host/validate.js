@@ -396,7 +396,7 @@ function checkCrafts(list, packId, add) {
     } });
 }
 
-// One ready-made set of NPC meters for NPC State (MODULES §F81, §F90). Each meter is a whole-number
+// One ready-made set of NPC meters for NPC State Delta (MODULES §F81, §F90). Each meter is a whole-number
 // range with a start; `bands` name stretches of it (a band reaches from its `at` to the next band's),
 // `drift` pulls it toward a value by `perDay` each story day. A stage is reached when every one of its
 // `needs` is: `at` 0 or more means the meter at or above it, a negative `at` at or below it (NPC State
@@ -423,7 +423,7 @@ function checkMeterPreset(record, path, add) {
         ok = true;
         for (const key of Object.keys(meter)) if (!METER_FIELDS.includes(key)) say(`${at}.${key}`, `"${key}" is not a meter field (expected ${METER_FIELDS.join(', ')}).`, 'UNKNOWN_FIELD');
         if (typeof meter.id !== 'string' || !SLUG.test(meter.id) || meter.id.length > METER_LIMITS.id) say(`${at}.id`, `${at}.id must be lowercase letters, digits and dashes, at most ${METER_LIMITS.id} (like "regard").`);
-        else if (METER_RESERVED.includes(meter.id)) say(`${at}.id`, `"${meter.id}" is a word NPC State keeps for itself; pick another meter id.`);
+        else if (METER_RESERVED.includes(meter.id)) say(`${at}.id`, `"${meter.id}" is a word NPC State Delta keeps for itself; pick another meter id.`);
         else if (byId.has(meter.id)) say(`${at}.id`, `two meters share the id "${meter.id}".`, 'DUPLICATE');
         words(`${at}.name`, meter.name, METER_LIMITS.name, `${at}.name`);
         const whole = value => Number.isInteger(value) && value >= METER_LIMITS.min && value <= METER_LIMITS.max;

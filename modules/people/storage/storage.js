@@ -65,7 +65,7 @@ async function withLocalStorageWriterLock(chatKey, task) {
     if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function' || typeof storage.removeItem !== 'function') {
         return withInProcessWriterLock(chatKey, task);
     }
-    const key = `ppl-writer-lock:${fnv1a(String(chatKey || ''))}`;
+    const key = `npc-state-delta-writer-lock:${fnv1a(String(chatKey || ''))}`;
     const token = `${writerId}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2)}`;
     const deadline = Date.now() + CROSS_TAB_LOCK_ACQUIRE_MS;
     while (Date.now() <= deadline) {
@@ -98,7 +98,7 @@ async function withLocalStorageWriterLock(chatKey, task) {
 }
 
 async function withWriterLock(chatKey, task) {
-    const name = `ppl-sidecar:${fnv1a(String(chatKey || ''))}`;
+    const name = `npc-state-delta-sidecar:${fnv1a(String(chatKey || ''))}`;
     const locks = globalThis.navigator?.locks;
     if (locks && typeof locks.request === 'function') {
         return locks.request(name, { mode: 'exclusive' }, () => withInProcessWriterLock(chatKey, task));

@@ -40,7 +40,7 @@ export function createStorageIdentity() {
         const stamp = Math.max(0, Number(generation) || Date.now()).toString(36);
         const writerText = String(writerId || 'writer');
         const writerToken = `${fnv1a(writerText)}${fnv1a([...writerText].reverse().join(''))}`;
-        return `ppl-recovery-${fnv1a(key)}${fnv1a(`ppl-recovery\0${[...key].reverse().join('')}`)}-${stamp}-${writerToken}.json`;
+        return `npc-state-delta-recovery-${fnv1a(key)}${fnv1a(`npc-state-delta-recovery\0${[...key].reverse().join('')}`)}-${stamp}-${writerToken}.json`;
     }
 
     return { currentWriterId, fnv1a, makeNpcStateDataFileName, makeNpcStateRecoveryFileName };

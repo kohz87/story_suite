@@ -22,7 +22,7 @@ export const LIMITS = Object.freeze({
 // routes are the map Story Director's atlas reads; terms are the words a world uses for levels and XP
 // (MODULES §F25), which RPG Battle reads under the reader's own; ranks are a ladder of quest ranks
 // (Story Director's `quest.ranks`, RPG Battle's foe strength); crafts change which stats a craft rolls
-// with (MODULES §F102); meterPresets are ready-made NPC meter sets for NPC State (MODULES §F81, §F90);
+// with (MODULES §F102); meterPresets are ready-made NPC meter sets for NPC State Delta (MODULES §F81, §F90);
 // markets are the price factors of settlement types and environment tags RPG Battle's trade reads (PACKS.md
 // "Markets").
 export const CONTENT_KINDS = Object.freeze(['items', 'creatures', 'shops', 'recipes', 'events', 'quests', 'races', 'talents', 'skills', 'presets', 'places', 'routes', 'terms', 'ranks', 'crafts', 'meterPresets', 'markets']);
@@ -107,14 +107,14 @@ export const DEFAULT_CRAFTS = Object.freeze([
 // A pack's craft: `{ id, title, stats: ['INT', 'DEX'], stations?: ['alchemy-table'], note? }`.
 export const CRAFT_FIELDS = Object.freeze(['id', 'title', 'stats', 'stations', 'note']);
 export const CRAFTS_LIMITS = Object.freeze({ records: 12, title: 30, stats: 3, stations: 8, note: 200 });
-// Ready-made NPC meter sets for NPC State (MODULES §F81, §F90):
+// Ready-made NPC meter sets for NPC State Delta (MODULES §F81, §F90):
 // `{ id, title, meters: [{ id, name, min, max, start, describe?, bands?, drift? }], stages?: [{ id, name, needs, milestone? }] }`.
-// The limits follow NPC State's own (six custom meters from -1000 to 1000, eight stages, names of 40).
+// The limits follow NPC State Delta's own (six custom meters from -1000 to 1000, eight stages, names of 40).
 export const METER_PRESET_FIELDS = Object.freeze(['id', 'title', 'meters', 'stages']);
 export const METER_FIELDS = Object.freeze(['id', 'name', 'min', 'max', 'start', 'describe', 'bands', 'drift']);
 export const METER_STAGE_FIELDS = Object.freeze(['id', 'name', 'needs', 'milestone']);
 export const METER_LIMITS = Object.freeze({ presets: 4, meters: 6, min: -1000, max: 1000, id: 40, name: 40, title: 40, describe: 200, bands: 8, word: 24, stages: 8, needs: 4, milestone: 200 });
-// Words NPC State keeps for itself (a stage line, a reason): never a meter id.
+// Words NPC State Delta keeps for itself (a stage line, a reason): never a meter id.
 export const METER_RESERVED = Object.freeze(['stage', 'stages', 'disposition', 'name', 'meter', 'meters', 'reason', 'why', 'because', 'note', 'cause']);
 // A calendar for the story clock: { era, months: [{ name, days }], start: { year, month, day, hour, minute },
 // holidays: [{ name, month, day }] } (holidays: named days that come back every year, at most 60).
