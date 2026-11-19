@@ -53,7 +53,7 @@
 .su-root .dov .mapctl .seg button[aria-pressed="true"]{background:var(--d-on);color:var(--su-text)}
 .dov .tgl{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:1px solid var(--su-line2);border-radius:12px;background:var(--su-panel2);color:var(--su-text);font:800 13.5px var(--su-font);white-space:nowrap;cursor:pointer}
 .dov .tgl[aria-pressed="true"]{background:var(--d-on);border-color:rgba(240,184,74,.45)}
-.dov .cmap{max-width:560px;width:100%}
+.dov .cmap{max-width:580px;width:100%}
 .dov .cmap .ring2{border-color:rgba(255,255,255,.14)}.dov .cmap .ring2.cold{border-color:rgba(255,255,255,.22)}
 [data-scheme="light"] .dov .cmap .ring2{border-color:rgba(0,0,0,.14)}[data-scheme="light"] .dov .cmap .ring2.cold{border-color:rgba(0,0,0,.25)}
 .dov .cmap .rw{font:italic 600 12px var(--su-font);background:var(--d-flat)}
@@ -93,7 +93,12 @@
 }
 @container su-root (max-width:599px){
   .dmapv .rmain{padding:12px}
-  .dov .mapctl{flex-wrap:wrap}
-  .su-root .dov .mapctl .seg{flex:1 0 100%;order:2}.su-root .dov .mapctl .seg button{flex:1;padding:0 4px;font-size:12.5px}
+  /* the note and All bonds on one row, the lens switch under them at full width, then the map */
+  .dov .castmap{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:center}
+  .dov .mapctl{display:contents}
+  .dov .castmap>.fine{grid-column:1;grid-row:1}
+  .dov .mapctl .tgl{grid-column:2;grid-row:1}
+  .su-root .dov .mapctl .seg{grid-column:1/-1;grid-row:2}.su-root .dov .mapctl .seg button{flex:1;padding:0 4px;font-size:12.5px}
+  .dov .castmap>:not(.fine):not(.mapctl),.dov .mapctl .fchip{grid-column:1/-1}
   .dmapv .rsel{margin:0 12px 12px}
 }
