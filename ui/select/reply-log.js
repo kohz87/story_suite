@@ -5,6 +5,7 @@ import { selectCard } from './card.js';
 import { replyLines } from './chat.js';
 import { isHere } from './people.js';
 import { isCarrier, readRecord } from '../../core/persist.js';
+import { prefixKeys } from './reply-keys.js';
 
 const STATE = ['director.time', 'director.status', 'scene.place', 'scene.weather', 'scene.you', 'party.pc', 'party.actors', 'party.terms', 'rpg.sheet', 'inventory.currency', 'people.list', 'scene.present'];
 const METERS = ['trust', 'affection', 'desire', 'tension'];
@@ -14,21 +15,21 @@ const list = value => (Array.isArray(value) ? value : []);
 // A reader whose every question is asked of the state after reply `index`.
 const readerAt = (read, index) => (name, args) => read(name, { ...(args ?? {}), asOf: index });
 
-const POOLS = ['party.pc', 'party.actors', 'rpg.sheet'];
-
-function answersAt(read, index, names = STATE) {
+function answersAt(read, index) {
   const ask = readerAt(read, index);
   const out = {};
-  for (const name of names) out[name] = ask(name, {});
-  if (names === STATE) out['reply.changes'] = ask('reply.changes', { index });
+  for (const name of STATE) out[name] = ask(name, {});
+  out['reply.changes'] = ask('reply.changes', { index });
   return out;
 }
 
-// HP, MP and SP of the reader's character as the card reads them (party.pc pools, else the sheet's bars); [] without the RPG.
-function poolsOf(answers) {
+// HP, MP and SP of the reader's character: party.pc's pools or sheet row while the roster answers (Gear in fights on), else the sheet row named as the
+// reader (`persona`), else the sheet's first row (the party's lead in its order); [] without the RPG.
+function poolsOf(answers, persona = '') {
   const rpg = list(answers['party.actors']).length > 0;
-  // (no party roster: the sheet's first row, the party's lead in the sheet's order)
-  const bars = rpg ? selectCard(answers, { rpg }).bars : list(answers['rpg.sheet'])[0]?.bars;
+  const rows = list(answers['rpg.sheet']);
+  const own = rows.find(row => persona && text(row?.name).toLowerCase() === persona.toLowerCase()) ?? rows[0];
+  const bars = (rpg ? selectCard(answers, { rpg }).bars : null) ?? own?.bars;
   return list(bars).filter(bar => ['hp', 'mp', 'sp'].includes(bar?.kind) && Number.isFinite(bar.value) && Number.isFinite(bar.max) && bar.max > 0);
 }
 
@@ -45,9 +46,9 @@ function hereOf(answers) {
 }
 
 /** One reply's card: `index` its place in the chat, `answers` the state at it, `before` the pools before it ([] for none), chatter and choices its own. */
-function cardOf(index, answers, before, chatter, choices) {
+function cardOf(index, answers, before, chatter, choices, persona) {
   const { scene } = selectCard(answers, {});
-  const pools = poolsOf(answers).map(bar => {
+  const pools = poolsOf(answers, persona).map(bar => {
     const was = before.find(row => row.kind === bar.kind);
     return { kind: bar.kind, value: bar.value, max: bar.max, before: was && was.value !== bar.value ? was.value : null };
   });
@@ -74,22 +75,39 @@ export function replyIndexes(chat) {
   return out;
 }
 
+const CACHE_MAX = 400;
+
+// One reply's state-read part of its card (top, changes, here) and its pools, from `cache` by its prefix key when nothing at or before it changed.
+function stateCard(read, cache, key, index, persona) {
+  const hit = cache?.get(key);
+  if (hit) { cache.delete(key); cache.set(key, hit); return hit; }
+  const answers = answersAt(read, index);
+  const made = { pools: poolsOf(answers, persona).map(bar => ({ kind: bar.kind, value: bar.value, max: bar.max })), base: cardOf(index, answers, [], [], [], persona) };
+  if (cache) { cache.set(key, made); while (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value); }
+  return made;
+}
+
 /**
  * The cards of replies `indexes` (default: every reply of `chat` that gets one) → [{ index, top, changes, chatter, here, choices }] in chat order.
- * `read(name, args)` asks the sdk (a gap is null); a greeting card is kept only when it has something (changes, chatter or choices).
+ * `read(name, args)` asks the sdk (a gap is null); `persona` is the reader's name (their own sheet row's pools); `cache` (a Map, kept by the caller)
+ * keeps each card's state part by its prefix key and `env` (the switches and settings it was read with). A greeting card is kept only when it has
+ * something (changes, chatter or choices). The value before a reply is the state at the story message before it (the reader's messages carry none).
  */
-export function selectReplyLog(read, { chat = [], indexes = null } = {}) {
-  const wanted = new Set(Array.isArray(indexes) ? indexes.filter(Number.isInteger) : replyIndexes(chat));
-  const own = replyIndexes(chat).filter(index => wanted.has(index));
+export function selectReplyLog(read, { chat = [], indexes = null, persona = '', cache = null, env = '' } = {}) {
+  const list0 = Array.isArray(chat) ? chat : [];
+  const wanted = new Set(Array.isArray(indexes) ? indexes.filter(Number.isInteger) : replyIndexes(list0));
+  const own = replyIndexes(list0).filter(index => wanted.has(index));
   if (!own.length) return [];
   const chatter = new Map(list(read('chatter.replies', {})).filter(item => Number.isInteger(item?.index)).map(item => [item.index, list(item.lines).filter(row => text(row?.name) && text(row?.text)).map(row => ({ name: text(row.name), text: text(row.text) }))]));
   const choices = new Map(list(read('choices.replies', {})).filter(item => Number.isInteger(item?.index)).map(item => [item.index, list(item.choices).map(text).filter(Boolean)]));
-  const firstUser = (Array.isArray(chat) ? chat : []).findIndex(message => message?.is_user);
+  const firstUser = list0.findIndex(message => message?.is_user);
+  const keys = prefixKeys(list0).map(key => `${env}|${persona}|${key}`);
   const out = [];
   for (const index of own) {
-    const answers = answersAt(read, index);
-    const before = index > 0 ? poolsOf(answersAt(read, index - 1, POOLS)) : [];
-    const card = cardOf(index, answers, before, chatter.get(index) ?? [], choices.get(index) ?? []);
+    const { base, pools } = stateCard(read, cache, keys[index], index, persona);
+    const prev = list0.slice(0, index).findLastIndex(message => isCarrier(message));
+    const before = prev >= 0 ? stateCard(read, cache, keys[prev], prev, persona).pools : [];
+    const card = { ...base, top: { ...base.top, pools: pools.map(bar => { const was = before.find(row => row.kind === bar.kind); return { ...bar, before: was && was.value !== bar.value ? was.value : null }; }) }, chatter: chatter.get(index) ?? [], choices: choices.get(index) ?? [] };
     const greeting = firstUser < 0 || index < firstUser;
     if (greeting && !card.changes.length && !card.chatter.length && !card.choices.length) continue;
     out.push(card);

@@ -21,9 +21,10 @@ export function replyTabsPanel(ctx) {
   let dragFrom = -1;
   const note = h('p', { class: 'fine stab-err', role: 'status', hidden: true });
   const rows = h('div', { class: 'stabs' });
-  async function save(next) {
+  // (a move redraws the rows; a switch keeps its row, so the settings walk's tag on it stays)
+  async function save(next, redraw = true) {
     list = next;
-    draw();
+    if (redraw) draw();
     let answer;
     try { answer = await ctx.onChange?.(KEY, writeTabOrder(list)); } catch (error) { answer = { ok: false, message: String(error?.message ?? error) }; }
     if (answer?.ok === false) { note.textContent = String(answer.message || 'That was not saved.'); note.removeAttribute('hidden'); } else note.setAttribute('hidden', '');
@@ -46,7 +47,7 @@ export function replyTabsPanel(ctx) {
       h('span', { class: 'ctl' },
         h('button', { type: 'button', class: 'btn2 ud', 'aria-label': `Move ${text.label} up`, disabled: at === 0, onClick: () => save(moveTab(list, at, at - 1)) }, '↑'),
         h('button', { type: 'button', class: 'btn2 ud', 'aria-label': `Move ${text.label} down`, disabled: at === list.length - 1, onClick: () => save(moveTab(list, at, at + 1)) }, '↓'),
-        toggle({ checked: tab.on, labelledBy: labelId, onChange: on => save(list.map(item => (item.id === tab.id ? { ...item, on } : item))) })),
+        toggle({ checked: tab.on, labelledBy: labelId, onChange: on => save(list.map(item => (item.id === tab.id ? { ...item, on } : item)), false) })), // (list, not the row's own: a later move redraws)
     );
   }
   function draw() { rows.replaceChildren(...list.map(row)); }

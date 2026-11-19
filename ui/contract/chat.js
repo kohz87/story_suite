@@ -3,8 +3,8 @@
 import { SHAPE_TYPES as T } from './shapes.js';
 import { LOOT_OFFER_SHAPE } from './loot.js';
 
-// One reply's change line (as the ✦ sheet listed them): its glyph, words, detail (a held-back move's why) and whether it was applied.
-const LINE = { glyph: T.STRING, line: T.STRING, detail: { $nullable: T.STRING }, applied: T.BOOLEAN, assist: T.BOOLEAN };
+// One reply's change line (as the ✦ sheet listed them): its glyph, words, detail, whether it was applied, and `held` for a feeling move held back (the detail is why).
+const LINE = { glyph: T.STRING, line: T.STRING, detail: { $nullable: T.STRING }, applied: T.BOOLEAN, assist: T.BOOLEAN, held: { $optional: T.BOOLEAN } };
 
 export const CHAT_SHAPE = {
   // One card per story reply drawn (ui/select/reply-log.js), each from the state at that reply.

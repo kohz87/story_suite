@@ -36,6 +36,7 @@ const PAGE = `<!doctype html><meta charset="utf-8"><style>${ST}</style>${STYLES.
 import { fixture } from '/ui/fixtures/index.js';
 import { createChatSurfaces } from '/ui/chat/chat-surfaces.js';
 const q = new URLSearchParams(location.search), v = q.get('v') || 'full';
+if (q.get('chat')) document.getElementById('chat').style.width = q.get('chat') + 'vw'; // (SillyTavern's chat column: Chat Width, 50 by default, 60 in the owner's replica)
 const chat = fixture(v === 'fight' ? { fightOpen: true, rpg: true } : { rpg: true }).chat;
 const newest = chat.replies[1];
 newest.top.place = 'Bluewatch Village · Guild Office, by the notice board';
@@ -101,20 +102,23 @@ function measure() {
   const under = l1.some(a => a.left < corner.right && corner.left < a.right && a.top < corner.bottom && corner.top < a.bottom);
   const acts = [...card.querySelectorAll('.ssrc-acts .ab')].map(e => Math.round(r(e).width));
   const actsRow = card.querySelector('.ssrc-acts .row');
+  const column = r(card).width;
   return {
     inside, pageOverflow: document.scrollingElement.scrollWidth - innerWidth, cardOverflow: card.scrollWidth - card.clientWidth, tabs: tabs.map(t => [Math.round(t.w), Math.round(t.h)]), centred,
-    poolRows: new Set(pools).size, under, acts, actsW: actsRow ? Math.round(r(actsRow).width - parseFloat(getComputedStyle(actsRow).paddingLeft) - parseFloat(getComputedStyle(actsRow).paddingRight)) : 0,
+    column, poolRows: new Set(pools).size, under, acts, actsW: actsRow ? Math.round(r(actsRow).width - parseFloat(getComputedStyle(actsRow).paddingLeft) - parseFloat(getComputedStyle(actsRow).paddingRight)) : 0,
     condition: card.querySelector('.ssrc-l3')?.textContent ?? '', older: document.querySelectorAll('.ssrc').length, olderCorner: document.querySelectorAll('.ssrc:not(.newest) .cnr').length,
   };
 }
 
-for (const [width, phone] of [[390, true], [1143, false], [1280, false]]) {
+for (const [width, chat] of [[390, 0], [1143, 0], [1280, 0], [1143, 50], [1280, 60], [1920, 50]]) {
   for (const v of ['full', 'fight', 'badge']) {
-    test(`${width}px (${v}): the card fits, line 2 is one row, the tabs are equal and centred, line 1 clears the corner`, async t => {
+    test(`${width}px${chat ? ` (chat column ${chat}%)` : ''} (${v}): the card fits, line 2 is one row, the tabs are equal and centred, line 1 clears the corner`, async t => {
       if (ctx.skip) return t.skip(ctx.skip);
-      const page = await open(width, `?v=${v}&open=here`);
+      const page = await open(width, `?v=${v}&open=here${chat ? `&chat=${chat}` : ''}`);
       try {
         const g = await page.evaluate(measure);
+        // (the layout follows the reply column: under 600 px the narrow rules, under 480 px the phone's full-width actions)
+        const phone = g.column < 600;
         assert.deepEqual(g.inside, [], 'nothing past the card\'s edges');
         assert.ok(g.pageOverflow <= 0, `the page does not scroll sideways (${g.pageOverflow})`);
         assert.equal(g.poolRows, 1, 'HP · MP · SP keep one row');
@@ -129,7 +133,7 @@ for (const [width, phone] of [[390, true], [1143, false], [1280, false]]) {
           assert.ok(w >= (phone ? 84 : 96) - 0.5, `tab width ${w}`);
           assert.equal(h, phone ? 44 : 42);
         }
-        if (phone) for (const w of g.acts) assert.ok(Math.abs(w - g.actsW) <= 1, `a phone's action is full width (${w} of ${g.actsW})`);
+        if (g.column < 480) for (const w of g.acts) assert.ok(Math.abs(w - g.actsW) <= 1, `a phone's action is full width (${w} of ${g.actsW})`);
       } finally { await page.close(); }
     });
   }

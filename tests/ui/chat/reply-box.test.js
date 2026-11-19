@@ -14,7 +14,7 @@ const ORDER = readTabOrder('');
 const CARD = {
   index: 4,
   top: { date: 'CY 611, October 1', time: '10:00 am', place: 'Bluewatch Village · Guild Office', weather: 'wet snow', pools: [{ kind: 'hp', value: 1, max: 8, before: 8 }, { kind: 'mp', value: 10, max: 10, before: null }, { kind: 'sp', value: 0, max: 12, before: 12 }], condition: 'bandaged hound bite on the left forearm, rat bites on both shins' },
-  changes: [{ glyph: 'coin', line: '+2 gold', detail: 'from Pella', applied: true, assist: false }, { glyph: 'people', line: 'Pella: Trust +1', detail: 'the day’s allowance', applied: false, assist: false }],
+  changes: [{ glyph: 'coin', line: '+2 gold', detail: 'from Pella', applied: true, assist: false }, { glyph: 'people', line: 'Pella: trust 20 → 21', detail: 'the day’s allowance', applied: true, assist: false, held: true }, { glyph: 'warn', line: '+ item Moon Blade', detail: 'No such item.', applied: false, assist: false }],
   chatter: [{ name: 'Pella', text: 'Two gold out of the box before noon.' }],
   here: [{ personId: 'np_p', name: 'Pella', portrait: null, meters: { trust: 22, affection: 6, desire: 0, tension: 0 } }],
   choices: ['Ask Pella where the infirmary is', 'Sell the pelts'],
@@ -42,7 +42,7 @@ test('the top: time · place · weather on line 1, HP · MP · SP with this repl
 
 test('tabs: only the ones the reply has, in the reader\'s order, a hidden one left out', () => {
   installFakeDom();
-  assert.deepEqual(tabsOf(CARD, ORDER).map(tab => [tab.id, tab.n]), [['changes', 2], ['chatter', 1], ['here', 1], ['choices', 2]]);
+  assert.deepEqual(tabsOf(CARD, ORDER).map(tab => [tab.id, tab.n]), [['changes', 3], ['chatter', 1], ['here', 1], ['choices', 2]]);
   assert.deepEqual(tabsOf({ ...CARD, chatter: [], choices: [] }, ORDER).map(tab => tab.id), ['changes', 'here']);
   assert.deepEqual(tabsOf(CARD, readTabOrder('choices here -chatter changes')).map(tab => tab.id), ['choices', 'here', 'changes']);
   assert.equal(replyBoxTabs({ changes: [], chatter: [], here: [], choices: [] }, { order: ORDER }), null, 'nothing: no strip');
@@ -50,7 +50,7 @@ test('tabs: only the ones the reply has, in the reader\'s order, a hidden one le
   assert.deepEqual(tabIds(strip), ['changes', 'chatter', 'here', 'choices']);
   assert.ok(strip.classList.contains('shut'));
   assert.equal(strip.querySelectorAll('.tp').length, 0, 'shut: no panel');
-  assert.equal(strip.querySelector('[data-tab="changes"]').textContent, 'Changes2');
+  assert.equal(strip.querySelector('[data-tab="changes"]').textContent, 'Changes3');
 });
 
 test('one tab open at a time; a tap on the open tab shuts it, a tap on another opens that one', () => {
@@ -69,7 +69,11 @@ test('the panels: changes with Why on a held-back move, chatter rows, Here cards
   installFakeDom();
   const changes = replyBoxTabs(CARD, { order: ORDER, open: 'changes' });
   const rows = changes.querySelectorAll('.chg');
-  assert.equal(rows.length, 2);
+  assert.equal(rows.length, 3);
+  assert.match(rows[1].textContent, /held back/u);
+  assert.ok(rows[1].classList.contains('held'));
+  assert.match(rows[2].textContent, /not applied/u);
+  assert.equal(rows[2].querySelectorAll('.why').length, 1, 'a line not applied has its Why too');
   assert.equal(rows[0].querySelectorAll('.why').length, 0);
   const why = rows[1].querySelector('.why');
   assert.ok(rows[1].querySelector('.why-x').hasAttribute('hidden'));
@@ -83,6 +87,7 @@ test('the panels: changes with Why on a held-back move, chatter rows, Here cards
   assert.deepEqual(opened, [['np_p', 'Pella']]);
   const typed = [];
   const choices = replyBoxTabs(CARD, { order: ORDER, open: 'choices', on: { onChoice: text => typed.push(text) } });
+  assert.equal(choices.querySelectorAll('.cho')[0].textContent, '1Ask Pella where the infirmary is', 'numbered rows, as the mock');
   choices.querySelectorAll('.cho')[1].click();
   assert.deepEqual(typed, ['Sell the pelts']);
 });

@@ -41,6 +41,9 @@ import { isCarrier } from '../../core/persist.js';
 const directorOn = sdk => { const own = sdk?.features?.()?.filter?.(f => f?.moduleId === 'story-director'); return !own?.length || own.some(f => f.on === true); };
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
 
+// What the reply cards were read with besides the chat: the switches and the stored settings (a switch or setting change reads them again).
+const envOf = sdk => { try { return JSON.stringify([(sdk?.features?.() ?? []).map(f => [f?.id, f?.on === true]), sdk?.settings?.() ?? null, sdk?.settings?.('story-block') ?? null, sdk?.settings?.('npc-state-delta') ?? null]); } catch { return ''; } };
+
 // The arc planner's waiting plan and state (the page's controller; none without a page).
 const arcStatus = () => { try { return arcController().status(); } catch { return null; } };
 
@@ -61,6 +64,8 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     return selectHold(info, { sheet: read('rpg.sheet', {}), place: read('scene.place', {})?.name ?? null });
   };
   const wizard = createWizardWorld({ sdk, ctx });
+  // The reply cards' state parts, kept by each reply's prefix key (ui/select/reply-log.js): an older card is not read again while nothing before it changed.
+  const replyCache = new Map();
   const problemsNow = () => ({ problems: tools?.problems?.() ?? [], blocked: tools?.blocked?.() ?? null, nameOf: tools?.nameOf });
   const scene = read => {
     const answers = gather(read);
@@ -88,7 +93,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const head = index >= 0 ? { index, actions: selectReplyActions(s.answers, { fightOpen: s.opts.fightOpen, loot, offers: s.opts.offers, unrecorded: unrecordedAt(chat, null) }) } : null;
       // (the modules' cards are the head reply's, left out when no card answers)
       const replyCards = replyCardsOf(cards?.head?.());
-      return { replies: selectReplyLog(read, { chat, indexes: Array.isArray(args?.replies) ? args.replies : null }), head, tabs, replyMenu, ...(replyCards ? { replyCards } : {}) };
+      return { replies: selectReplyLog(read, { chat, indexes: Array.isArray(args?.replies) ? args.replies : null, persona: String(ctx()?.name1 ?? ''), cache: replyCache, env: envOf(sdk) }), head, tabs, replyMenu, ...(replyCards ? { replyCards } : {}) };
     },
     party: read => {
       const actors = read('party.actors', {});

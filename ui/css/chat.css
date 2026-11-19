@@ -37,8 +37,8 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrc:last-child{margin-bottom:34px}
 .ssrc .tb:focus-visible{outline:2px solid var(--SmartThemeQuoteColor);outline-offset:-2px}
 .ssrc .tp{padding:8px 12px 10px;color:var(--SmartThemeBodyColor)}
 .ssrc .chg{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;padding:3px 0}
-.ssrc .chg .gl svg{width:14px;height:14px;vertical-align:-2px}
 .ssrc .chg .k{font-weight:700;min-width:0;overflow-wrap:anywhere}
+.ssrc .chg .k.g{color:#4fd39a}.ssrc .chg .k.p{color:#5aa0ff}.ssrc .chg .k.a{color:var(--SmartThemeQuoteColor)}.ssrc .chg .k.r{color:#ff7b72}
 .ssrc .chg .w{color:var(--SmartThemeEmColor);font-size:.95em}
 .ssrc .chg.na .k{opacity:.75}
 .ssrc .chg .why{margin:0 0 0 auto;font:inherit;font-size:11px;border:1px solid var(--SmartThemeBorderColor);border-radius:6px;padding:1px 7px;min-height:24px;background:none;color:var(--SmartThemeBodyColor);cursor:pointer}
@@ -47,9 +47,10 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrc:last-child{margin-bottom:34px}
 .ssrc .ch q{quotes:none;font-style:italic;color:var(--SmartThemeEmColor)}
 .ssrc .ch .qm{font-size:.75em;opacity:.6;margin:0 4px;vertical-align:.15em;color:var(--SmartThemeEmColor)}
 .ssrc .here{display:flex;flex-wrap:wrap;gap:6px}
-.ssrc .chs{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
-.ssrc .cho{display:block;width:100%;min-height:40px;box-sizing:border-box;margin:0;text-align:left;padding:8px 10px;border:1px solid var(--SmartThemeBorderColor);border-radius:8px;background:none;color:var(--SmartThemeBodyColor);font:inherit;cursor:pointer}
-.ssrc .cho:hover{border-color:var(--SmartThemeBodyColor)}
+.ssrc .chs{display:flex;flex-direction:column}
+.ssrc .cho{display:flex;align-items:center;gap:8px;width:100%;min-height:36px;box-sizing:border-box;margin:0;padding:3px 0;text-align:left;border:0;border-radius:6px;background:none;color:var(--SmartThemeBodyColor);font:inherit;cursor:pointer}
+.ssrc .cho .k{font-weight:700;min-width:12px}
+.ssrc .cho:hover,.ssrc .cho:focus-visible{background:color-mix(in srgb,var(--SmartThemeBodyColor) 8%,transparent)}
 /* The newest reply's action line: things to do, only when there is one (a fight open stands out). */
 .ssrc-acts{border-top:1px solid var(--SmartThemeBorderColor);background:color-mix(in srgb,var(--SmartThemeBlurTintColor) 85%,transparent)}
 .ssrc-acts .row{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;margin:0}
@@ -97,7 +98,7 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrc:last-child{margin-bottom:34px}
 .sscd .ssbtn:disabled{opacity:.6;cursor:default}
 .sscd-why{font-size:.92em}
 @media (max-width:900px){.xbt{min-width:44px;min-height:44px}}
-/* A phone-wide reply: line 1 wraps under the corner button, the bars shorten so HP · MP · SP keep one row, the tabs are 44 px high and 84 px least, and each action is a full-width button. */
+/* A narrow reply column (a phone, or SillyTavern's chat column at half of a laptop screen): line 1 flows under the corner button, the bars shorten so HP · MP · SP keep one row, the tabs are 44 px high and 84 px least. */
 @container (max-width:599px){
  .ssrc-l1{padding:6px 10px}
  .ssrc.newest .ssrc-l1{padding-right:46px}
@@ -111,5 +112,9 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrc:last-child{margin-bottom:34px}
  .ssrc-l1 .it{display:inline}
  .ssrc-l1 .it+.it::before{content:" · "}
  .ssrc-acts .row{padding:8px 10px}
- .ssrc .ab{flex:1 1 100%;justify-content:space-between;min-height:44px}
+ .ssrc .ab{min-height:44px}
+}
+/* A phone's reply column (SillyTavern's chat column on a desktop is wider at its 50-60 % widths): each action is a full-width button. */
+@container (max-width:479px){
+ .ssrc .ab{flex:1 1 100%;justify-content:space-between}
 }

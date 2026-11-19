@@ -1,6 +1,5 @@
 // Builds a reply card's tab strip and its open panel: Changes N · Chatter N · Here N · Choices N, only the ones the reply has, in the reader's order.
 import { h } from '../kit/dom.js';
-import { glyph } from '../kit/glyphs.js';
 import { TAB_TEXT } from '../select/reply-tabs.js';
 import { hereCard } from './here-card.js';
 
@@ -10,17 +9,20 @@ export function tabsOf(card, order) {
   return (Array.isArray(order) ? order : []).filter(row => row?.on !== false && Number(counts[row?.id]) > 0).map(row => ({ id: row.id, label: TAB_TEXT[row.id].label, n: counts[row.id] }));
 }
 
-// One change line as the ✦ sheet listed it; a held-back one says so, and its Why shows the reason.
+// The mock's colours by kind: money green, people and feelings blue, a quest the accent, a refusal red; the rest the body colour.
+const TONE = { coin: 'g', people: 'p', heart: 'p', quest: 'a', flag: 'a', warn: 'r' };
+
+// One change line as the ✦ sheet listed it. A line not applied, or a feeling move held back (a cap, the day's allowance), says so, and its Why shows the reason.
 function changeRow(row) {
-  const held = row.applied === false;
-  const why = held && row.detail ? h('span', { class: 'why-x', hidden: true }, row.detail) : null;
+  const refused = row.applied === false;
+  const held = row.held === true;
+  const why = (refused || held) && row.detail ? h('span', { class: 'why-x', hidden: true }, row.detail) : null;
   return h(
     'div',
-    { class: ['chg', held ? 'na' : null] },
-    glyph(row.glyph) ? h('i', { 'aria-hidden': 'true', class: 'gl' }, glyph(row.glyph, { size: 14 })) : null,
-    h('span', { class: 'k' }, String(row.line ?? '')),
-    !held && row.detail ? h('span', { class: 'w' }, row.detail) : null,
-    held ? h('span', { class: 'w' }, 'held back') : null,
+    { class: ['chg', refused ? 'na' : null, held ? 'held' : null] },
+    h('span', { class: ['k', TONE[row.glyph] ?? null] }, String(row.line ?? '')),
+    !refused && !held && row.detail ? h('span', { class: 'w' }, row.detail) : null,
+    refused ? h('span', { class: 'w' }, 'not applied') : held ? h('span', { class: 'w' }, 'held back') : null,
     row.assist === true ? h('span', { class: 'w as', title: 'Written by Assist, not by the reply' }, 'Assist') : null,
     why ? h('button', { type: 'button', class: 'why', 'aria-expanded': 'false', onClick: event => {
       const open = why.hasAttribute('hidden');
@@ -39,7 +41,9 @@ function panelOf(id, card, on) {
     return card.chatter.map(row => h('p', { class: 'ch' }, h('b', `${row.name}:`), ' ', mark('left'), h('q', row.text), mark('right')));
   }
   if (id === 'here') return h('div', { class: 'here' }, card.here.map(person => hereCard(person, on.onOpenPerson)));
-  return h('ol', { class: 'chs' }, card.choices.map(text => h('li', null, h('button', { type: 'button', class: 'cho', title: 'Put these words in the message box', onClick: () => on.onChoice?.(String(text)) }, String(text)))));
+  // (the mock's numbered rows: a bold number, then the words; a tap puts the words in the message box)
+  return h('div', { class: 'chs' }, card.choices.map((text, at) => h('button', { type: 'button', class: 'cho', title: 'Put these words in the message box', onClick: () => on.onChoice?.(String(text)) },
+    h('span', { class: 'k' }, String(at + 1)), h('span', { class: 'w' }, String(text)))));
 }
 
 // The soft fade at the strip's right edge while more tabs lie past it.
