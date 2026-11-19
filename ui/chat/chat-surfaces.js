@@ -21,10 +21,10 @@ export function drawerLayout(rows, { open = true, typing = false, narrow = false
 }
 
 /** Creates the controller: refresh(chatVm) redraws, setTyping(bool) and toggleDrawer() refold; options: messagesEl, drawerHost, handlers (onCardAction(action) runs a card's button), isNarrow(). */
-export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNarrow = () => false } = {}) {
+export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNarrow = () => false, startOpen = false } = {}) {
   const on = handlers || {};
   let vm = null;
-  let open = true;
+  let open = startOpen; // (the drawer floats over the chat: it starts folded, the ▴ opens it; the harness and tests may start it open)
   let typing = false;
   let page = 0;
   let rowEl = null;

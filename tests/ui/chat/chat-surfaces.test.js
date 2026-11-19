@@ -43,7 +43,7 @@ test('the row moves to the newest reply on each refresh', () => {
   const doc = installFakeDom();
   const { messages, msgs } = chat(doc);
   const drawerHost = doc.createElement('div');
-  const s = createChatSurfaces({ messagesEl: messages, drawerHost });
+  const s = createChatSurfaces({ messagesEl: messages, drawerHost, startOpen: true });
   const vm = fixture('default').chat;
   s.refresh(vm);
   assert.equal(msgs[2].querySelectorAll('.ssrow').length, 1);
@@ -65,7 +65,7 @@ test('no reply, no row; handlers reach the row and drawer', () => {
   const { messages } = chat(doc, ['user']);
   const drawerHost = doc.createElement('div');
   const seen = [];
-  const s = createChatSurfaces({ messagesEl: messages, drawerHost, handlers: { onOpenPerson: id => seen.push(id) } });
+  const s = createChatSurfaces({ messagesEl: messages, drawerHost, startOpen: true, handlers: { onOpenPerson: id => seen.push(id) } });
   s.refresh(fixture('default').chat);
   assert.equal(messages.querySelectorAll('.ssrow').length, 0);
   drawerHost.querySelector('.pc2').click();
@@ -77,7 +77,7 @@ test('drawer hides when nobody is here and returns when someone is', () => {
   const doc = installFakeDom();
   const { messages } = chat(doc);
   const drawerHost = doc.createElement('div');
-  const s = createChatSurfaces({ messagesEl: messages, drawerHost });
+  const s = createChatSurfaces({ messagesEl: messages, drawerHost, startOpen: true });
   const vm = fixture('default').chat;
   s.refresh({ ...vm, drawer: [] });
   assert.equal(drawerHost.hasAttribute('hidden'), true);
@@ -92,7 +92,7 @@ test('typing folds the drawer on a narrow screen only; toggle and paging work', 
   const { messages } = chat(doc);
   const drawerHost = doc.createElement('div');
   let narrow = true;
-  const s = createChatSurfaces({ messagesEl: messages, drawerHost, isNarrow: () => narrow });
+  const s = createChatSurfaces({ messagesEl: messages, drawerHost, startOpen: true, isNarrow: () => narrow });
   const vm = fixture('default').chat;
   s.refresh(vm);
   const expanded = () => drawerHost.querySelector('.dhd').getAttribute('aria-expanded');
@@ -121,4 +121,17 @@ test('latestReplyOf works when querySelectorAll returns a NodeList-like (no filt
   const els = [{ classList: { contains: () => false }, getAttribute: () => null }, { classList: { contains: c => c === 'user' }, getAttribute: () => null }];
   const messagesEl = { querySelectorAll: () => ({ length: els.length, 0: els[0], 1: els[1], [Symbol.iterator]: () => els[Symbol.iterator]() }) };
   assert.equal(latestReplyOf(messagesEl), els[0]);
+});
+
+test('live, the floating drawer starts folded; the header opens it', () => {
+  installFakeDom();
+  const messages = document.createElement('div');
+  const drawerHost = document.createElement('div');
+  const s = createChatSurfaces({ messagesEl: messages, drawerHost });
+  s.refresh(fixture('default').chat);
+  const drawer = drawerHost.querySelector('[data-ss-drawer]');
+  if (!drawer) return; // (the default fixture has nobody here)
+  assert.equal(drawer.querySelector('.dhd').getAttribute('aria-expanded'), 'false');
+  drawer.querySelector('.dhd').click();
+  assert.equal(drawerHost.querySelector('.dhd').getAttribute('aria-expanded'), 'true');
 });

@@ -152,7 +152,8 @@ test('the prompt carries the count rule, the not-a-fight rule and up to 4000 cha
     assert.match(prompt, /If the message gives none, use the number the reply just before it gives/u);
     assert.match(prompt, /"two massive bog-boars" = 2/u);
     assert.match(prompt, /Only if neither says, use 1/u);
-    assert.match(prompt, /already over \('after the fight'\)/u);
+    assert.match(prompt, /already over before this message \('after the fight'\)/u);
+    assert.match(prompt, /attacks and then goes on past the fight .* is still starting that fight/u);
     assert.match(prompt, /not attacking anyone .*hit the road.*punch the dough.*kill time.*\{"groups":\[\]\}/u);
     const previous = `${'a'.repeat(1000)}${'b'.repeat(4000)}`;
     const kept = /The reply just before it[^\n]*\n(\w+)\n/u.exec(precheckPrompt({ message: 'I attack.', previous, sheet }))[1];

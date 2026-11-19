@@ -19,7 +19,7 @@ import { fixture } from '/ui/fixtures/index.js';
 import { createChatSurfaces } from '/ui/chat/chat-surfaces.js';
 const host = document.createElement('div'); host.className = 'ss-drawer-host';
 document.body.insertBefore(host, document.getElementById('send_form'));
-createChatSurfaces({ messagesEl: document.getElementById('chat'), drawerHost: host, isNarrow: () => innerWidth < 600 }).refresh(fixture().chat);
+createChatSurfaces({ messagesEl: document.getElementById('chat'), drawerHost: host, isNarrow: () => innerWidth < 600, startOpen: true }).refresh(fixture().chat);
 document.body.dataset.ready = '1';
 </script>`;
 
