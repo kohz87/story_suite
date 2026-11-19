@@ -5,7 +5,15 @@ What changed in each release, in short. The full record of every change is in [t
 ## Unreleased
 
 - Ersveil 4.1.0: every cast member now has a portrait (19 new). Update the pack in Settings › Packs to get them.
-- With Panel background off, a person's page is flat too (it kept its own sky).
+- A person's page is redone: portrait and feelings on the left, the cards beside it, and on a desktop window the card you open sits next to them (its own page on a tablet or phone).
+- A person's page is always the flat surface now (no sky, glow or shade), whatever Panel background says.
+- Memories on a person's page show the story date and reply they were recorded in; older memories without a record show none.
+- The Mood card says since which reply the mood changed and why; open it for the recent mood changes, each with its date and reply.
+- Each feeling change shows the reply it came in, and a held-back move shows why it moved less.
+- The top bar of a person's page shows the reply of their last recorded change, and a Dossier / Map switch: Map is the relationship map with them picked.
+- A library strip at the foot of a person's page lists everyone; tap a portrait to see their page, or show only the people you follow.
+- Edit moved into a person's ⋯ menu, and See on map gave way to the page's own Map tab.
+- NPC State's Edit window on a desktop is the flat surface with plain field boxes.
 - On a reply's card, the time, place and weather icons stay beside their words.
 - The HP, MP and SP bars on a reply's card show at their full length (they shrank to dots).
 - What needs you now shows as a red count on the Journal tab, with the list at the top of the Journal, and a card's pack offers (Install, Update, Not now) sit at the top of Settings › Packs and trackers; nothing sits above the tabs any more.

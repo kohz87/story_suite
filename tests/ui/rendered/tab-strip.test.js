@@ -48,6 +48,8 @@ for (const theme of ['dark', 'light']) {
       await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&tab=now`);
       await page.waitForSelector('#hx-frame .su-strip .su-tab');
       await page.evaluate(() => document.fonts.ready);
+      // (the window scales in as it opens: measured mid-way the strip reads 2.5 % short, so wait for the opening to end)
+      await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished.catch(() => null))));
       const got = await page.evaluate(() => {
         const strip = document.querySelector('#hx-frame .su-strip');
         const tabs = [...strip.querySelectorAll('.su-tab')];
