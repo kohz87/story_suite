@@ -9,6 +9,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Pack Studio: **Export lorebook** saves a world pack's lore as a SillyTavern lorebook file.
 - Tools › What's sent shows the NPC State lines your reply really carries; old leftovers of the earlier NPC State look and its one-time chat conversion are gone.
 - Messages and notes say "NPC State", not the old "NPC State Delta"; People, dossiers, Edit and settings look and work as before.
+- Nothing changes in play: the code behind NPC State, saving and fights was tidied, and opening a chat no longer looks for fights left open by builds from before the fight board.
 
 ## 0.1.3 — 19 Nov 2026
 
