@@ -123,3 +123,8 @@
 .bag-sheet .iedit .fine{margin:0;font-size:12.5px;color:var(--su-muted)}
 .bag-sheet .iedit .fine.err{color:var(--su-bad-t)}
 .bag-sheet .iedit .fine[hidden]{display:none}
+/* The Bag's own mount and carry text (a mount sheet's refusal, Transport's "No mounts yet.", the mount forms, a read-only Carries' reason in + Add): the item Edit's fine lines. */
+:is(.bag-sheet>.fine,.assets .abody .brow>.fine,.iedit[data-form^="mount"] .fine,.iedit>.fine[data-why="carry"]){margin:0;font-size:12.5px;color:var(--su-muted)}
+:is(.bag-sheet>.fine,.iedit[data-form^="mount"] .fine).err{color:var(--su-bad-t)}
+:is(.bag-sheet>.fine,.iedit[data-form^="mount"] .fine)[hidden]{display:none}
+.iedit[data-form^="mount"]{display:flex;flex-direction:column;gap:12px}

@@ -9,7 +9,7 @@ const fold = text => String(text ?? '').trim().toLowerCase();
 const tile = name => h('span', { class: 'ti' }, glyph(name));
 const names = list => (list.length < 2 ? list.join('') : `${list.slice(0, -1).join(', ')} and ${list.at(-1)}`);
 const paceText = row => [row.kind, row.pace ? `${row.pace} km/day` : ''].filter(Boolean).join(' · ');
-const loadText = carry => (carry > 0 ? `+${carry} load` : 'Adds no load yet (Edit › Carry)');
+const loadText = carry => (carry > 0 ? `+${carry} load` : 'Adds no load yet (Edit › Carries)');
 
 // Sends one command; a refusal stays in the sheet with its reason, else the sheet closes.
 async function send(ctx, sheet, note, type, payload) {

@@ -133,7 +133,7 @@ test('RPG on: every item shows Weight each and armour shows Soak (up to its slot
   const [sword] = open(find('Steel longsword'), true);
   assert.equal(sword.querySelectorAll('.iedit .ef').length, 4, 'a weapon has a weight and no soak');
   const [draught] = open(find('Healing draught'), true);
-  assert.equal(draught.querySelectorAll('.iedit .ef').length, 4, 'a potion has a weight and no soak');
+  assert.equal(draught.querySelectorAll('.iedit .ef').length, 5, 'a potion has a weight, no soak, and Carries (any item but a slotted piece can carry)');
   const [off] = open(find('Tower shield', false), false);
   assert.equal(off.querySelectorAll('.iedit .ef').length, 3, 'RPG off: Name, Count, Your note only');
 });

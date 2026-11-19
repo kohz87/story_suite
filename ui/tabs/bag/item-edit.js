@@ -1,6 +1,8 @@
-// Builds the item sheet's Edit form (name, count, the reader's note; weight of any item and soak of armour when RPG is on; rarity and slot of a hand-made piece) and the patch Save sends to inventory.edit.
+// Builds the item sheet's Edit form (name, count, the reader's note; weight of any item and soak of armour when RPG is on; rarity and slot of a hand-made piece;
+// Carries, what the item adds to carrying, with gear on) and the patch Save sends to inventory.edit (Carries goes to inventory.carry).
 import { h } from '../../kit/dom.js';
 import { button } from '../../kit/controls.js';
+import { carryField } from './carry-field.js';
 
 const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
 const SLOTS = ['weapon', 'body', 'off-hand', 'head', 'cloak', 'feet', 'accessory'];
@@ -38,7 +40,11 @@ export function itemPatch(item, values, rpg = false) {
   return Object.keys(patch).length ? { stack: item.stack, ...patch } : null;
 }
 
-/** Builds the form; `onSave(payload)` returns a result (`{ ok:false, message }` shows inline), `onCancel()` changes nothing. Weight shows for any item and Soak for armour, with RPG on; Rarity and Slot only for a hand-made piece. */
+/**
+ * Builds the form; `onSave(payload, carry)` returns a result (`{ ok:false, message }` shows inline): `payload` the inventory.edit patch or null, `carry` the new Carries or null
+ * (unchanged). `onCancel()` changes nothing. Weight shows for any item and Soak for armour, with RPG on; Rarity and Slot only for a hand-made piece; Carries whenever gear.view
+ * gave the item's carry (read-only with `carryWhy`, the engine's reason).
+ */
 export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
   const name = h('input', { type: 'text', value: item.name });
   const qty = h('input', { type: 'number', min: '1', step: '1', value: String(countOf(item)) });
@@ -51,6 +57,7 @@ export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
   if (slot) slot.value = item.slot ?? '';
   const weight = rpg && hasWeight(item) ? h('input', { type: 'number', min: '0', max: '99', step: '1', value: String(item.weight) }) : null;
   const soak = rpg && hasSoak(item) ? h('input', { type: 'number', min: '0', max: String(item.soakMax), step: '1', value: String(item.soak ?? 0) }) : null;
+  const carries = Number.isSafeInteger(item.carry) ? carryField({ value: item.carry, why: item.carryWhy ?? '' }) : null;
   const refusal = h('p', { class: 'fine err', role: 'alert', hidden: true });
   const show = text => {
     refusal.textContent = text;
@@ -64,12 +71,14 @@ export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
     const payload = itemPatch(item, {
       name: name.value, qty: qty.value, note: note.value, ...(weight ? { weight: weight.value } : {}), ...(soak ? { soak: soak.value } : {}), ...(rarity ? { rarity: rarity.value, slot: slot.value } : {}),
     }, rpg);
-    if (!payload) { onCancel?.(); return; }
+    const carry = carries ? carries.read() : { carry: null };
+    if (carry.error) { show(carry.error); return; }
+    if (!payload && carry.carry === null) { onCancel?.(); return; }
     show('');
     busy = true;
     saveBtn.disabled = true;
     try {
-      const result = await onSave?.(payload);
+      const result = await onSave?.(payload, carry.carry);
       if (result && result.ok === false) show(result.message || 'The engine could not do that.');
     } finally {
       busy = false;
@@ -86,6 +95,7 @@ export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
     soak ? field(`Soak (up to ${item.soakMax})`, soak) : null,
     rarity ? field('Rarity', rarity) : null,
     slot ? field('Slot', slot) : null,
+    carries?.el ?? null,
     h('p', { class: 'fine' }, 'Changes are kept as written by you. A signature piece keeps its name and count.'),
     refusal,
     h('div', { class: 'brow' }, saveBtn, button({ label: 'Cancel', className: 'cancel', onClick: () => onCancel?.() })),

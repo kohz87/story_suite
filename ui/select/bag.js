@@ -33,7 +33,18 @@ function itemOf(row, ctx) {
     weight: whole(info?.weight), bonus: typeof info?.bonus === 'string' ? info.bonus : '', worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: originOf(row.from),
     note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
     ...(kind === 'gear' ? gearOf(info) : {}),
+    ...carryOf(info, ctx.packs?.[row.stack], kind === 'gear' && Boolean(slotWordOf(row.slot))),
   };
+}
+
+// What the item adds to carrying and whether the reader may set it (gear.view's row: `carryWhy` is the engine's reason they cannot, '' when they can; a pack's
+// own carry shows read-only), and whether it can be carried as a bag (gear.view's carriers.packs: `bag` while it is someone's bag). Nothing while gear is off,
+// nor for a piece worn in a slot of its own (`slotted`: a sword is never a bag) unless it already adds something.
+function carryOf(info, pack, slotted) {
+  if (!isRecord(info) || !Number.isSafeInteger(info.carry)) return {};
+  const carry = Number.isSafeInteger(pack?.carry) && pack.carry > info.carry ? pack.carry : info.carry;
+  if (slotted && carry === 0) return {};
+  return { carry, carryWhy: typeof info.carryWhy === 'string' ? info.carryWhy : '', ...(isRecord(pack) ? { bagLike: true, isBag: pack.bag === true } : {}) };
 }
 
 // A gear piece's points for the Stats row and its Change (gear.view's `repoint`: the total that stays and where it sits now), and whether it is a cast member's.
@@ -49,6 +60,8 @@ const assetOf = (row, carried) => ({
   kindLabel: row.kind, riders: (Array.isArray(carried?.riders) ? carried.riders : []).map(String), seats: null, where: row.where,
   withParty: typeof carried?.withParty === 'boolean' ? carried.withParty : row.where.trim() === '' ? true : null,
   condition: row.condition || null, note: '', meta: [row.kind, `${row.pace} km/day`, ...(Number.isSafeInteger(carried?.carry) && carried.carry > 0 ? [`+${carried.carry} load`] : [])].filter(Boolean), tag: '',
+  // (the Edit form's starting values: the row as mounts.list gives it; `carry` the reader's own, null for the kind's usual)
+  count: Number.isSafeInteger(row.count) ? row.count : 1, pace: Number.isSafeInteger(row.pace) ? row.pace : 0, carry: Number.isSafeInteger(row.carry) ? row.carry : null,
 });
 
 // Where a stack came from, for the item sheet: a receipt id (`rc_…`, what the stack records) means nothing to a reader, so only a worded origin shows.
@@ -56,11 +69,12 @@ const originOf = from => (typeof from === 'string' && !/^rc_/u.test(from) ? from
 
 /**
  * Bag view-model from { rpg, items: inventory.items, counts: inventory.counts (pieces per def+owner for unstacked items), gear: gear.view, wallet: inventory.wallet, currency: inventory.currency,
- * mounts: mounts.list, pace: mounts.pace, changes: reply.changes (the head reply's lines; the purse's coin lines are the turn's), carriers: gear.view's `carriers` (mounts with the party, what each adds), pcId }; null when inventory.items does not answer.
+ * mounts: mounts.list, pace: mounts.pace, changes: reply.changes (the head reply's lines; the purse's coin lines are the turn's), carriers: gear.view's `carriers` (mounts with the party, what each adds; `packs`: the items that can be carried as a bag), pcId }; null when inventory.items does not answer.
  */
 export function selectBag({ rpg = false, items, counts, gear, wallet, currency, mounts, pace, carriers, changes, pcId = null } = {}) {
   if (!Array.isArray(items)) return null;
-  const ctx = { rows: gear?.rows, currency, pcId, counts: isRecord(counts) ? counts : {} };
+  const packs = Object.fromEntries((Array.isArray(carriers?.packs) ? carriers.packs : []).filter(isRecord).map(pack => [pack.stack, pack]));
+  const ctx = { rows: gear?.rows, currency, pcId, counts: isRecord(counts) ? counts : {}, packs };
   const list = items.filter(row => isRecord(row) && KIND_OF[row.kind]).map(row => itemOf(row, ctx));
   // (the grid lists a worn piece under Worn only, so "In bag" and the kind chips count the unworn ones)
   const loose = list.filter(item => item.wornBy === null);
@@ -77,6 +91,7 @@ export function selectBag({ rpg = false, items, counts, gear, wallet, currency, 
     load: isRecord(carry) && carry.capacity > 0
       ? { value: carry.load, limit: carry.capacity, level: LOAD_LEVEL[carry.level] ?? 'light', breakdown: loadParts(carry.parts) } : null,
     pace: isRecord(pace) ? { kmDay: pace.pace, by: String(pace.slowest ?? ''), slowed: pace.short > 0, why: '', alt: '' } : null,
-    assets: { transport: (Array.isArray(mounts) ? mounts.filter(isRecord) : []).map(row => assetOf(row, carriers?.mounts?.find?.(m => m?.name === row.name))), property: [] },
+    // (`canAdd`: the mounts switch is on, so mounts.list answers and Transport offers + Add even with no mount yet)
+    assets: { transport: (Array.isArray(mounts) ? mounts.filter(isRecord) : []).map(row => assetOf(row, carriers?.mounts?.find?.(m => m?.name === row.name))), property: [], canAdd: Array.isArray(mounts) },
   };
 }

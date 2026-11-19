@@ -33,6 +33,12 @@ const ITEM = {
   // A gear piece whose points the reader may move (gear.view's repoint): the total that stays and where it sits now ({ DEX: 1, AGI: 1 }); a cast member's piece is `bound`.
   repoint: { $optional: { budget: T.NUMBER, stats: T.ANY } },
   bound: { $optional: T.BOOLEAN },
+  // What the item adds to carrying (gear on): the Edit form's Carries, read-only with the engine's reason `carryWhy` ('' when the reader may set it).
+  carry: { $optional: T.NUMBER },
+  carryWhy: { $optional: T.STRING },
+  // It can be carried as a bag (Carry as bag…), and it is someone's bag now.
+  bagLike: { $optional: T.BOOLEAN },
+  isBag: { $optional: T.BOOLEAN },
 };
 
 const ASSET = {
@@ -48,6 +54,10 @@ const ASSET = {
   note: T.STRING,
   meta: [T.STRING],
   tag: T.STRING,
+  // A transport row's Edit form: how many, km a day, and the reader's own carry (null: the kind's usual).
+  count: { $optional: T.NUMBER },
+  pace: { $optional: T.NUMBER },
+  carry: { $optional: { $nullable: T.NUMBER } },
 };
 
 export const BAG_SHAPE = {
@@ -71,7 +81,8 @@ export const BAG_SHAPE = {
     },
   },
   pace: { kmDay: T.NUMBER, by: T.STRING, slowed: T.BOOLEAN, why: T.STRING, alt: T.STRING },
-  assets: { transport: [ASSET], property: [ASSET] },
+  // `canAdd`: the mounts switch is on (Transport's + Add).
+  assets: { transport: [ASSET], property: [ASSET], canAdd: { $optional: T.BOOLEAN } },
   // Every reply's loot not taken yet (the To pick up card); left out when none is laid out.
   loot: { $optional: [LOOT_OFFER_SHAPE] },
 };
