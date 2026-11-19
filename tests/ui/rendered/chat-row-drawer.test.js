@@ -96,5 +96,5 @@ test('tablet width: the row stays on one line, rings are 84px, four cards share 
   assert.equal(g.ring, '84px');
   assert.equal(g.cards, 4);
   assert.ok(g.sameLine);
-  assert.ok(g.cardW * 4 < Math.min(g.hostW, 700) && g.cardW > 100, `card width ${g.cardW} fits four across ${g.hostW}`);
+  assert.ok(g.cardW * 4 < g.hostW && g.cardW > 100, `card width ${g.cardW} fits four across ${g.hostW} (the drawer is as wide as the chat)`);
 });

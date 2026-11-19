@@ -7,9 +7,13 @@ import { livePage, settle } from './helpers/live-page.js';
 // The party's Character blocks by who they are (a companion is made as the reader's own Add would: a Character block and its Skills).
 const party = host => Object.values(host.head().domains.dataModules?.instances ?? {}).map(item => item?.chat?.fields?.who).filter(Boolean).sort();
 
-async function withPeople(t) {
+// The story's open companion offer for Mara (rpg.joinsOpen, what a `+ party` line leaves until it is answered): Add to party shows only then.
+const offerMara = async host => { await host.send('Mara asks to come along.', 'Mara falls in beside you.\n<Changes>\n+ party Mara | class: I | best: str\n</Changes>'); await settle(); };
+
+async function withPeople(t, { offer = true } = {}) {
   const got = await livePage(t, { seed: 4601 });
   const { host } = got;
+  if (offer) await offerMara(host);
   const s = host.store.sourceAt(host.store.headIndex());
   const npcs = { npc_mara: { id: 'npc_mara', name: 'Mara', present: true, location: 'the gate' }, npc_roel: { id: 'npc_roel', name: 'Roel', lastSeenTurn: 1 } };
   const view = { v: 1, order: ['npc_mara', 'npc_roel'], npcs, candidates: [], dismissed: [], userDismissedGroups: [], turn: 2, socialGraph: { edges: [] }, portraitAssets: {} };
@@ -60,4 +64,10 @@ test('a person page left open is closed when the suite is opened again on a tab,
   assert.equal(doc.querySelector('.dossier'), null, 'the page went');
   assert.equal(doc.querySelector('.su-panel').getAttribute('data-tab'), 'now');
   assert.ok(doc.querySelector('.su-card-slot button[aria-label="Settings"]'), 'the new view\'s Settings on its card');
+});
+
+test('without an open companion offer from the story, a person page has no Add to party', async t => {
+  const { doc } = await withPeople(t, { offer: false });
+  const page = await open(doc, 'Mara');
+  assert.equal(page.querySelector('[data-act="party-add"]'), null);
 });

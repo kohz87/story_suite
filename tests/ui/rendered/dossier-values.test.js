@@ -91,7 +91,7 @@ for (const theme of ['dark', 'light']) {
         assert.match(sky.shade, theme === 'dark' ? /rgba\(10, 12, 20, 0\.55\)/ : /rgba\(255, 255, 255, 0\.35\)/, 'bottom shade');
         assert.equal(Math.round(parseFloat(sky.shadeH)), Math.round(sky.box * 0.45), 'shade is 45 % tall');
         assert.equal(sky.fine, '400', 'dossier .fine weight');
-        assert.equal(v.name, '28px');
+        assert.equal(v.name, '22px', 'the owner asked for a smaller name than the mock (19 Nov)');
         assert.equal(v.corner, '17px');
         assert.equal(v.spacing, '1.2px');
         assert.equal(v.follow, GOLD[theme]);
