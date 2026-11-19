@@ -2,6 +2,7 @@
 import { h } from '../kit/dom.js';
 import { toggle } from '../kit/controls.js';
 import { renderV4 } from './packs-v4.js';
+import { offerGroup } from './pack-offers.js';
 
 function group(title, ...rows) {
   return h('div', { class: 'sgrp' }, h('div', { class: 'gt' }, title), rows);
@@ -58,6 +59,7 @@ export function renderPacks(state) {
     ? [...renderV4(packs.v4, state, { group, importRow }), packs.packs.length ? group('Older packs (format 3)', packs.packs.map(p => packBlock(p, state))) : null]
     : [group('Packs', packs.packs.map(p => packBlock(p, state)), importRow())];
   return [
+    offerGroup(state.offers, payload => act('packs.offer', payload)),
     ...top,
     group('Data modules in this chat', packs.modules.map(m => switchLine(m, change))),
     group(`Trackers in this chat · ${trackers.items.length} of ${trackers.cap}`,

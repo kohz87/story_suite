@@ -1,7 +1,6 @@
-// Builds the Needs you card under the character card on every tab: what asks for the reader (a fight, overdue items, points to spend, a joiner) and the card's pack offers.
-import { h } from '../kit/dom.js';
-import { glyph } from '../kit/glyphs.js';
-import { offerBlocks } from './card-offer.js';
+// Builds the Needs you list at the top of the Journal tab: what asks for the reader (a fight, overdue items, points to spend, a joiner); its length is the red count on the Journal tab.
+import { h } from '../../kit/dom.js';
+import { glyph } from '../../kit/glyphs.js';
 
 const GO_LABEL = Object.freeze({ fight: 'Fight ›', party: 'Party ›', world: 'Map ›', bag: 'Bag ›', people: 'People ›' });
 const NEED_GLYPH = Object.freeze({ fight: 'fight', overdue: '!', points: '+', join: '+' });
@@ -27,30 +26,24 @@ function row({ icon, tone, title, detail, go, progressPct }, ctx) {
   );
 }
 
-function card(title, count, rows, kind) {
-  return h(
-    'section',
-    { class: 'card glass now-o1', dataset: { card: kind } },
-    h('div', { class: 'ch' }, h('h3', null, title), count ? h('span', { class: 'cnt' }, String(count)) : null),
-    h('div', { class: 'rn2' }, rows),
-  );
-}
-
 function needsRows(needsYou, ctx) {
+  // (overdue items are listed right below on this tab: that row says so and is not a button)
   return needsYou.map(n => row({
     icon: NEED_GLYPH[n.kind] ?? 'info',
     tone: `need-${n.kind}`,
     title: n.title,
     detail: n.detail,
-    go: n.go,
+    go: n.go === 'journal' ? null : n.go,
   }, ctx));
 }
 
-/** Returns the Needs you card, or null when nothing needs the reader and the card offers nothing; ctx = { go(tab), port }. */
-export function needsYou(now = {}, ctx = {}) {
-  const needs = Array.isArray(now.needsYou) ? now.needsYou : [];
-  const offers = Array.isArray(now.offers) ? now.offers : [];
-  if (!needs.length && !offers.length) return null;
-  const waiting = offers.filter(o => o.state === 'offer' || o.state === 'working').length;
-  return card('Needs you', needs.length + waiting, [needsRows(needs, ctx), offerBlocks(offers, ctx)], 'needs');
+/** Returns the Needs you list, or null when nothing asks for the reader; ctx = { go(tab) }. */
+export function needsList(needsYou = [], ctx = {}) {
+  if (!Array.isArray(needsYou) || !needsYou.length) return null;
+  return h(
+    'section',
+    { class: 'card glass su-needs', dataset: { card: 'needs' } },
+    h('div', { class: 'ch' }, h('h3', null, 'Needs you'), h('span', { class: 'cnt' }, String(needsYou.length))),
+    h('div', { class: 'rn2' }, needsRows(needsYou, ctx)),
+  );
 }

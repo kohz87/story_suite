@@ -28,12 +28,13 @@ async function ambushed(t, seed) {
 const agree = (doc, why, stands = true) => { assert.equal(strip(doc), stands, `the offer: ${why}`); assert.equal(line(doc), false, `no line under the reply: ${why}`); };
 const openOn = async (doc, name) => { doc.querySelector('#story-suite-ui-menu')?.click(); await settle(); doc.querySelector(`.su-strip .su-tab[data-tab="${name}"]`).click(); await settle(); };
 
-test('an ambush with no attack: the new view has the Needs-you card under the card and the offer on its Fight tab, with the offer\'s two choices', async t => {
+test('an ambush with no attack: the new view lists Needs you on the Journal and the offer on its Fight tab, with the offer\'s two choices', async t => {
   const { doc, host } = await ambushed(t, 4701);
   assert.equal(line(doc), false, 'nothing is drawn under the reply');
   assert.ok(strip(doc), 'the Fight tab is listed');
-  doc.querySelector('#story-suite-ui-menu')?.click(); await settle();
-  const need = [...doc.querySelectorAll('.su-needs-slot .rnr[data-go="fight"]')].find(el => /Foes are standing/.test(el.textContent));
+  await openOn(doc, 'journal');
+  assert.match(doc.querySelector('.su-strip .su-tab[data-tab="journal"] .su-badge').textContent, /^\d+$/, 'the Journal tab carries the red count');
+  const need = [...doc.querySelectorAll('.su-needs .rnr[data-go="fight"]')].find(el => /Foes are standing/.test(el.textContent));
   assert.ok(need, 'a Needs-you card for the standing foes');
   assert.match(need.textContent, /Wolves/);
   await openOn(doc, 'fight');

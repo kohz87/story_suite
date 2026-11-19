@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- What needs you now shows as a red count on the Journal tab, with the list at the top of the Journal, and a card's pack offers (Install, Update, Not now) sit at the top of Settings › Packs and trackers; nothing sits above the tabs any more.
 - The Now tab is gone: the suite opens on Party, the card and what needs you sit above the tabs, and every window width uses that one layout, filling the floating window.
 - A reply that came without its change block now gets its inner chatter and choices back when the suite repairs it.
 - Inner chatter reads as **Name:** followed by the thought between quote marks.

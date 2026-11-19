@@ -55,9 +55,9 @@ for (const width of [390, 700, 860, 1143, 1280, 1920]) {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await ctx.browser.newPage({ viewport: { width, height: 1000 } });
       try {
-        await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&variant=default&width=${width}&tab=party`);
+        await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&variant=default&width=${width}&tab=journal`);
         await page.waitForSelector('#hx-frame .ctop .bk');
-        await page.waitForSelector('#hx-frame .su-needs-slot .rnr small');
+        await page.waitForSelector('#hx-frame .su-needs .rnr small');
         await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
         const m = await page.evaluate(measure);
         assert.equal(m.bk, '6px 12px | 999px | 800');

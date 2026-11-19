@@ -1,4 +1,4 @@
-// The card's pack offers inside the Needs you card: what the card brings, the "Also apply" tick, Install or Update, and Not now.
+// The card's pack offers at the top of Settings › Packs and trackers: what the card brings, the "Also apply" tick, Install or Update, and Not now.
 import { h } from '../kit/dom.js';
 import { glyph } from '../kit/glyphs.js';
 import { toggle } from '../kit/controls.js';
@@ -36,4 +36,11 @@ export function offerBlocks(offers, ctx = {}) {
     h('span', { class: 'ti' }, glyph('info')),
     h('span', { class: 'rnr-text' }, words(item), actionsOf(item, send)),
   ));
+}
+
+/** The offers' group for the top of the Packs page; null when the card offers nothing. `send(payload)` carries `{ op, id, settings? }` to `packs.offer`. */
+export function offerGroup(offers, send) {
+  if (!offers?.length) return null;
+  const ctx = { port: { command: (_type, payload) => send(payload) } };
+  return h('div', { class: 'sgrp', dataset: { group: 'card-offers' } }, h('div', { class: 'gt' }, 'This card offers'), h('div', { class: 'rn2' }, offerBlocks(offers, ctx)));
 }

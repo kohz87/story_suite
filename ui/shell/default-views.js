@@ -1,7 +1,6 @@
-// Supplies the default card and tab renderers for mountSuite: the character card, the Needs you card, and a "not built yet" card.
+// Supplies the default card and tab renderers for mountSuite: the character card and a "not built yet" card.
 import { h } from '../kit/dom.js';
 import { characterCard } from '../card/character-card.js';
-import { needsYou } from '../card/needs-you.js';
 import { openSceneSheet } from '../sheets/scene-sheet.js';
 import { createTabViews } from './tab-views.js';
 import { dossierPage } from '../tabs/people/dossier/dossier.js';
@@ -17,7 +16,7 @@ export function pendingCard(tab) {
     h('p', { class: 'su-pending-note' }, 'This tab is not built yet.'));
 }
 
-/** Returns the default `{ card, needs, tab, closePage }` renderers wired to a port, back-stack and prefs. */
+/** Returns the default `{ card, tab, closePage }` renderers wired to a port, back-stack and prefs. */
 export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null }) {
   let dossier = null;
   let openId = null;
@@ -95,8 +94,6 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
       onSettings: () => (onSettings ? onSettings() : port.command('suite.settings', {})),
       onPace: () => go('bag'),
     }) : null),
-    // Needs you (and the card's pack offers) under the card, from the Now view-model's rows.
-    needs: vm => needsYou(vm, ctx),
     tab: (tab, vm) => built(tab, vm) ?? pendingCard(tab),
   };
 }

@@ -168,11 +168,6 @@
   flex-shrink: 0;
 }
 
-/* Needs you (ui/card/needs-you.js) sits between the card and the tab strip; nothing is drawn while nothing asks for the reader. */
-.su-needs-slot:empty {
-  display: none;
-}
-
 .su-panel {
   display: contents;
 }
@@ -225,6 +220,32 @@
 
 .su-root[data-scheme="light"] .su-tab {
   text-shadow: 0 1px 6px rgba(255, 255, 255, 0.6);
+}
+
+.su-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #e5484d;
+  color: #fff;
+  font: 700 12px/1 var(--su-font);
+  text-shadow: none;
+}
+
+.su-bar-btn {
+  position: relative;
+}
+
+.su-bar-btn .su-badge {
+  position: absolute;
+  top: 2px;
+  left: calc(50% + 6px);
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
 }
 
 .su-tab svg {

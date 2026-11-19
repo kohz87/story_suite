@@ -75,7 +75,7 @@ export function mountSuite(options = {}) {
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false), panelBg: prefs.getFold(PANELBG_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection, prefs,
       onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === PANELBG_KEY ? setPanelBg(value) : key === SCENE_SPOILERS.key ? ({ ok: true, value: !prefs.setSpoiler('scene', value !== true) }) : relook(port.command('settings.set', { key, value }))),
-      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : key === 'people.open' ? openPerson(value) : key === 'people.reread' ? port.command('npc.refresh', value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
+      onAction: (key, value) => (key === 'trackers.open' ? openTrackers(value) : key === 'people.open' ? openPerson(value) : key === 'people.reread' ? port.command('npc.refresh', value) : key === 'packs.offer' ? port.command('packs.offer', value) : relook(port.command('settings.action', { key, value }))), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
     return port.command('suite.settings', {});
@@ -132,10 +132,13 @@ export function mountSuite(options = {}) {
     view.root.style.setProperty('--su-sky', skyFor(time, scheme));
   }
 
+  // The Journal's top lists Needs you: its rows ride on the Journal view so a change redraws the tab.
+  const withNeeds = vm => (vm ? { ...vm, needsYou: port.view('now')?.needsYou ?? [] } : vm);
+
   function register(tab) {
     redraw.register(`tab:${tab}`, {
       tab,
-      read: () => port.view(tab),
+      read: () => (tab === 'journal' ? withNeeds(port.view(tab)) : port.view(tab)),
       target: tabHost.panel,
       render: vm => (tabs[tab] ? tabs[tab](vm, { port, backStack, flags }) : views.tab(tab, vm)),
     });
@@ -163,8 +166,8 @@ export function mountSuite(options = {}) {
   // A person's page left open over the tabs follows the story: it is read again with every change.
   redraw.register('dossier', { tab: 'always', isVisible: () => views.hasDossier(), read: () => views.openDossier(), draw: vm => views.updateDossier(vm) });
   register(tabHost.current());
-  // Needs you (and the card's pack offers) sits under the card on every tab, read from the Now view-model.
-  redraw.register('needs', { tab: 'always', read: () => { const now = port.view('now'); return { needsYou: now?.needsYou ?? [], offers: now?.offers ?? [] }; }, target: tabHost.needsSlot, render: vm => views.needs(vm) });
+  // The red count on the Journal tab: the rows of Needs you (select/now.js), read on every redraw while the suite is open.
+  redraw.register('needs', { tab: 'always', read: () => ({ needsCount: port.view('now')?.needsYou?.length ?? 0 }), draw: next => tabHost.setFlags(next) });
 
   function applyFlags(next) {
     flags = next;

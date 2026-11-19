@@ -1,8 +1,8 @@
-/* Styles for the Needs you card (under the character card), the Show-all list, the spoiler switch and the feelings ring; tokens, plus the mock's fixed late, fight, torn, ring and tracker-bar tones and its per-scheme feeling colours. */
-.su-needs-slot .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.su-needs-slot .ch{display:flex;align-items:center;gap:10px}
-.su-needs-slot .ch h3{margin:0;font:700 19px var(--su-font);color:var(--su-text);flex:1}
-.su-needs-slot .cnt{font:700 12px var(--su-font);color:var(--su-muted)}
+/* Styles for the Needs you list (top of the Journal tab), the Show-all list, the spoiler switch and the feelings ring; tokens, plus the mock's fixed late, fight, torn, ring and tracker-bar tones and its per-scheme feeling colours. */
+.su-needs .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.su-needs .ch{display:flex;align-items:center;gap:10px}
+.su-needs .ch h3{margin:0;font:700 19px var(--su-font);color:var(--su-text);flex:1}
+.su-needs .cnt{font:700 12px var(--su-font);color:var(--su-muted)}
 /* Right now */
 .rn2{display:flex;flex-direction:column}
 .rnr{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:44px;padding:8px 0;border:0;border-top:1px solid var(--su-line2);background:none;color:var(--su-text);font:inherit;text-align:left}
@@ -101,7 +101,7 @@ button.rnr{cursor:pointer}
 .su-root .dossier-link,.su-root .more2{background:none;border:0;font:800 13px var(--su-font);color:var(--su-accent);cursor:pointer;min-height:44px;padding:0 6px}
 .su-root .more2{padding:0 4px}
 .rnr.focus .ti{color:var(--su-accent)}
-/* Card pack offer inside Needs you: no mock row exists; built from the mock's .rnr row and its .offer button column (mock line 777). */
+/* Card pack offer at the top of Settings › Packs and trackers: no mock row exists; built from the mock's .rnr row and its .offer button column (mock line 777). */
 .rnr.need-pack{align-items:start}
 .rnr.need-pack .offer{display:flex;flex-direction:column;gap:10px;margin-top:8px}
 .rnr.need-pack .offer .btn2{padding:11px 14px;font-size:14px;text-align:center}

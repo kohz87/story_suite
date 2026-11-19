@@ -4,6 +4,7 @@ import { segmented } from '../../kit/controls.js';
 import { questsCard, leadsCard, closedCard } from './quests.js';
 import { calendarCard } from './calendar.js';
 import { comingUp } from './coming-up.js';
+import { needsList } from './needs-list.js';
 
 /** Builds the Journal tab from a `journal` view-model; ctx = { prefs, go, command, editQuest(quest) }. */
 export function journalTab(journal = {}, ctx = {}) {
@@ -39,5 +40,5 @@ export function journalTab(journal = {}, ctx = {}) {
     },
   });
   draw();
-  return h('div', { class: 'journal-tab', dataset: { tab: 'journal' } }, switcher, body);
+  return h('div', { class: 'journal-tab', dataset: { tab: 'journal' } }, needsList(journal.needsYou, ctx), switcher, body);
 }

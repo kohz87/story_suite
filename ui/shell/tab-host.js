@@ -1,4 +1,4 @@
-// Builds the tab host: tab strip, phone bottom bar, scrolling panel and the mini bar shown after the card scrolls away; the card, Needs you, the strip and the page are one column at every width.
+// Builds the tab host: tab strip, phone bottom bar, scrolling panel and the mini bar shown after the card scrolls away; the card, the strip and the page are one column at every width.
 
 import { h } from '../kit/dom.js';
 import { glyph } from '../kit/glyphs.js';
@@ -17,14 +17,20 @@ export function tabLabel(id, flags = {}) {
   return title.length > TITLE_MAX ? `${title.slice(0, TITLE_MAX - 1).trimEnd()}…` : title || LABELS.scene;
 }
 
+// The red count on a tab (only the Journal's, from `flags.needsCount`: the rows of Needs you); null at 0.
+function badge(id, flags) {
+  const n = id === 'journal' ? Number(flags.needsCount) || 0 : 0;
+  return n > 0 ? h('span', { class: 'su-badge', role: 'img', 'aria-label': `${n} ${n === 1 ? 'thing needs' : 'things need'} you` }, String(n)) : null;
+}
+
 /** Returns the tab ids to show: Party only when the RPG is on, Fight only during a fight, the activity tab (an open interaction, named after it) only while one is open. */
 export function visibleTabs({ rpg = true, fightOpen = false, sceneOpen = false } = {}) {
   return TAB_ORDER.filter((id) => (id !== 'party' || rpg) && (id !== 'fight' || fightOpen) && (id !== 'scene' || sceneOpen));
 }
 
 /**
- * Creates the tab host. Options: `doc`, `flags` ({ rpg, fightOpen }), `initial`, `onSelect(id)`,
- * `onChat()`, `onSettings()`. Returns `el` plus the `scroll`, `cardSlot`, `needsSlot` (Needs you, under the card) and `panel` elements to fill. A first tab that is not listed (Party with the RPG off, or the retired 'now') becomes the first one listed.
+ * Creates the tab host. Options: `doc`, `flags` ({ rpg, fightOpen, needsCount }), `initial`, `onSelect(id)`,
+ * `onChat()`, `onSettings()`. Returns `el` plus the `scroll`, `cardSlot`, and `panel` elements to fill. A first tab that is not listed (Party with the RPG off, or the retired 'now') becomes the first one listed.
  */
 export function createTabHost(options = {}) {
   const { flags: startFlags = {}, initial = 'party', onSelect = null, onChat = null, onSettings = null } = options;
@@ -35,8 +41,7 @@ export function createTabHost(options = {}) {
   const bar = h('nav', { class: 'su-bar su-glass', 'aria-label': 'Story Suite tabs' });
   const cardSlot = h('div', { class: 'su-card-slot' });
   const panel = h('div', { class: 'su-panel', role: 'tabpanel', 'data-tab': current });
-  const needsSlot = h('div', { class: 'su-needs-slot' });
-  const scroll = h('div', { class: 'su-scroll' }, cardSlot, needsSlot, strip, panel);
+  const scroll = h('div', { class: 'su-scroll' }, cardSlot, strip, panel);
   const mini = h(
     'div',
     { class: 'su-mini', role: 'toolbar', 'aria-label': 'Shortcuts' },
@@ -93,14 +98,14 @@ export function createTabHost(options = {}) {
         pick(next);
         strip.querySelector(`[data-tab="${next}"]`)?.focus();
       },
-    }, glyph(id), tabLabel(id, flags))));
+    }, glyph(id), tabLabel(id, flags), badge(id, flags))));
     bar.replaceChildren(...ids.map((id) => h('button', {
       type: 'button',
       class: 'su-bar-btn',
       'aria-current': String(id === current),
       'data-tab': id,
       onClick: () => pick(id),
-    }, glyph(id), h('span', { class: 'su-bar-label' }, tabLabel(id, flags)), h('span', { class: 'su-bar-dot' }))));
+    }, glyph(id), h('span', { class: 'su-bar-label' }, tabLabel(id, flags)), h('span', { class: 'su-bar-dot' }), badge(id, flags))));
     updateMini();
   }
 
@@ -111,7 +116,6 @@ export function createTabHost(options = {}) {
     el,
     scroll,
     cardSlot,
-    needsSlot,
     panel,
     select: pick,
     current: () => current,

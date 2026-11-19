@@ -103,7 +103,7 @@ export function createPages(settings, ctx) {
     }
     if (section.special === 'packs') {
       const kept = Boolean(packs.v4?.world.value) && keptFor === packs.v4.world.value;
-      return renderPacks({ packs, status, confirming, setConfirm(on) { confirming = on; redraw(); }, change: packChange, act: packAct, kept, setKept(on) { keptFor = on ? packs.v4.world.value : ''; redraw(); }, removing, setRemoving(id) { removing = id; redraw(); }, lorebook, setLorebook(patch) { lorebook = { ...lorebook, ...patch }; redraw(); }, makeLorebook });
+      return renderPacks({ packs, offers: ctx.view?.('now')?.offers ?? [], status, confirming, setConfirm(on) { confirming = on; redraw(); }, change: packChange, act: packAct, kept, setKept(on) { keptFor = on ? packs.v4.world.value : ''; redraw(); }, removing, setRemoving(id) { removing = id; redraw(); }, lorebook, setLorebook(patch) { lorebook = { ...lorebook, ...patch }; redraw(); }, makeLorebook });
     }
     if (section.special === 'tools') return toolsBody();
     return [];
