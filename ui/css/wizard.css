@@ -28,7 +28,7 @@
    Points left · HP · Reset is a desktop row only */
 .su-root .wz-left{display:contents}.su-root .wz-rows{order:-1}.su-root .wz-left [data-wiz="reset"]{order:-2;align-self:flex-start}
 /* drawn for the desktop card and rows only (below) */
-.su-root .wz-tiles,.su-root .wz-sum .wz-sk,.su-root .wz-left-pill,.su-root .wz-hint{display:none}
+.su-root .wz-tiles,.su-root .wz-sum .wz-sk,.su-root .wz-imp-tag,.su-root .wz-left-pill,.su-root .wz-hint{display:none}
 .su-root .wz-cards{display:flex;flex-direction:column;gap:10px}
 .su-root .wz-growth{font-weight:700;color:var(--su-text)}
 /* the starting sets: one button row each, as the Party sheet's rows */
@@ -69,15 +69,16 @@
 .su-root .sh-ov.wz .wz-steps{grid-column:1 / -1;display:flex;gap:4px;margin:0 0 14px;padding:4px;overflow:visible;background:var(--su-panel);backdrop-filter:blur(var(--su-blur)) saturate(1.3);-webkit-backdrop-filter:blur(var(--su-blur)) saturate(1.3);border:1px solid var(--su-line);border-radius:16px;box-shadow:var(--su-shadow);counter-reset:wz-step}
 .su-root .sh-ov.wz .wz-steps button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 10px;border:0;border-radius:12px;background:transparent;font:800 13.5px var(--su-font);color:var(--su-soft);box-shadow:none}
 .su-root .sh-ov.wz .wz-steps button[aria-selected="true"]{background:var(--su-panel2);color:var(--su-text);box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.su-root .sh-ov.wz .wz-steps button::before{counter-increment:wz-step;content:counter(wz-step) / "";display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font:800 11px var(--su-font);background:var(--su-tint);color:var(--su-soft)}
+.su-root .sh-ov.wz .wz-steps button::before{counter-increment:wz-step;content:counter(wz-step);content:counter(wz-step) / "";display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font:800 11px var(--su-font);background:var(--su-tint);color:var(--su-soft)}
 .su-root .sh-ov.wz .wz-steps button[aria-selected="true"]::before{background:var(--su-accent);color:var(--su-on-accent)}
-.su-root .sh-ov.wz .wz-steps button.done::before{content:"\2713" / "";background:rgba(79,211,154,.18);color:var(--su-ok)}
+.su-root .sh-ov.wz .wz-steps button.done::before{content:"\2713";content:"\2713" / "";background:rgba(79,211,154,.18);color:var(--su-ok)}
 /* the summary card */
-.su-root .sh-ov.wz .wz-sum{grid-column:1;grid-row:2;align-self:start;display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:16px;border-radius:18px;background:var(--su-tint);border:1px solid var(--su-line)}
+.su-root .sh-ov.wz .wz-sum{grid-column:1;grid-row:2;align-self:start;box-sizing:border-box;max-height:100%;overflow-y:auto;scrollbar-width:thin;display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:16px;border-radius:18px;background:var(--su-tint);border:1px solid var(--su-line)}
 .su-root .sh-ov.wz .wz-ava{width:64px;height:64px;border-radius:16px;font:800 26px var(--su-font);background-position:center;background-size:cover;background-repeat:no-repeat}
 .su-root .sh-ov.wz .wz-ava.wz-pic{background-image:var(--wz-pic);color:transparent}
 .su-root .sh-ov.wz .wz-who b{font:800 18px/1.2 var(--su-font)}
 .su-root .sh-ov.wz .wz-who small{font:700 12px/1.4 var(--su-font);color:var(--su-muted)}
+.su-root .sh-ov.wz .wz-imp-tag{display:inline;font:inherit;color:inherit}
 .su-root .sh-ov.wz .wz-pill{grid-column:1 / -1;justify-self:start}
 .su-root .sh-ov.wz .wz-sum>.wz-k:not(.wz-who)>small{margin-bottom:5px;font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
 .su-root .sh-ov.wz .wz-sum>.wz-k:not(.wz-who)>span{display:none}
@@ -99,7 +100,9 @@
 .su-root .sh-ov.wz .wz-hint+[data-wiz="create"]{margin-left:0}
 .su-root .sh-ov.wz .wz-foot [data-wiz="create"]:disabled{opacity:.45}
 /* Who: the import box in one row, the level field beside an empty 160 px column */
-.su-root .sh-ov.wz .wz-import{flex-direction:row;align-items:center;gap:12px;padding:12px 14px}
+.su-root .sh-ov.wz .wz-import{flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 14px}
+.su-root .sh-ov.wz .wz-import[data-wiz="import-done"]{border:1px solid rgba(79,211,154,.35)}
+.su-root .sh-ov.wz .wz-import .wz-err{flex-basis:100%}
 .su-root .sh-ov.wz .wz-import>.ps-p{flex:1}
 .su-root .sh-ov.wz .wz-import .btn2{align-self:center;min-width:96px}
 .su-root .sh-ov.wz .wz-form>.ef:has([data-wiz="level"]){width:calc(100% - 172px)}
@@ -107,6 +110,7 @@
 .su-root .sh-ov.wz .wz-rows{order:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
 .su-root .sh-ov.wz .wz-rows .ps-st{border-top:1px solid var(--su-line2);padding:3px 0}
 .su-root .sh-ov.wz .wz-rows .ps-st:nth-child(-n+2){border-top:0}
+.su-root .sh-ov.wz .wz-rows .ps-st .v.up{display:grid;grid-template-columns:36px;align-items:center} /* the mock centres a raised value in 36 px, a plain one in its 32 */
 .su-root .sh-ov.wz .wz-left{display:flex;align-items:center;gap:12px}
 .su-root .sh-ov.wz .wz-left-pill{display:flex}
 .su-root .sh-ov.wz .wz-left .wz-growth{font-weight:700;color:var(--su-text)}
@@ -121,11 +125,12 @@
 .su-root .sh-ov.wz .wz-sets:has([aria-pressed="true"]) .wz-set-top b{font:800 13px var(--su-font)}
 .su-root .sh-ov.wz .wz-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .su-root .sh-ov.wz .wz-skill{background:color-mix(in srgb,var(--su-tint) 20%,transparent)}
+.su-root[data-scheme="light"] .sh-ov.wz .wz-skill{background:none}
 .su-root .sh-ov.wz .wz-skill-top{align-items:start}
 .su-root .sh-ov.wz .wz-skill .wz-x{display:block;height:44px;min-height:0;padding:1px 6px;border:0;border-radius:10px;background:var(--su-tint);font:800 16px var(--su-font)}
 .su-root .sh-ov.wz .wz-skill textarea{height:58px;min-height:58px}
 .su-root .sh-ov.wz .wz-trio{gap:6px}
-.su-root .sh-ov.wz .wz-trio select{padding-left:8px;padding-right:2px}
+.su-root .sh-ov.wz .wz-trio select{padding-left:8px;padding-right:2px;-webkit-appearance:auto;appearance:auto}
 .su-root .sh-ov.wz .wz-add{flex-direction:row;align-items:center;gap:12px}
 .su-root .sh-ov.wz .wz-add .btn2{align-self:center;min-width:96px}
 .su-root .sh-ov.wz .wz-add .ps-p{flex:1}

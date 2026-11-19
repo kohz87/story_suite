@@ -10,6 +10,8 @@ import { RPG_STRINGS, fill } from '../../modules/rpg/strings.js';
 import { draftCreation, draftSlots, pointsLeft, readDraft, statsLine } from '../../modules/rpg/view/wizard-data.js';
 
 const W = RPG_STRINGS.wizard;
+// (after "You · Lv 4" on the desktop card once a saved character is imported: the mock's wiz-who-import frame)
+const IMPORTED = ' · imported';
 const safe = (fn, fallback) => { try { return fn() ?? fallback; } catch { return fallback; } };
 
 // The tile: the persona's picture for a You with a name (the card shows it from 1100 px), else the initial, or "?" before a name.
@@ -33,7 +35,8 @@ export function fillSummary(row, run, world = null) {
   const pill = run.step === 'who' || run.step === 'stats' ? fill(W.pointsLeft, { n: pointsLeft(now) }) : fill(count === 1 ? W.skillCountOne : W.skillCount, { n: count, max: draftSlots(now) });
   row.replaceChildren(
     avatar(now, world),
-    h('div', { class: 'wz-k wz-who' }, h('b', null, now.name || W.title), h('small', null, `${now.kind === 'you' ? W.you : W.companion} · ${fill(W.soulFrom, { level: now.level ?? 1 })}`)),
+    h('div', { class: 'wz-k wz-who' }, h('b', null, now.name || W.title), h('small', null, `${now.kind === 'you' ? W.you : W.companion} · ${fill(W.soulFrom, { level: now.level ?? 1 })}`,
+      run.imported ? h('span', { class: 'wz-imp-tag' }, IMPORTED) : null)),
     h('span', { class: 'chip2 wz-pill', role: 'status' }, pill),
     h('div', { class: 'wz-k' }, h('small', null, W.statsHead), h('span', null, statsLine(now)), tiles(now)),
     h('div', { class: 'wz-k' }, h('small', null, W.skillsHead), h('span', null, names.join(', ') || W.noSkills),

@@ -66,7 +66,8 @@ export function createNewWizard({ world, command, sheetCtx = () => ({}) }) {
     // (from 1100 px the step scrolls on its own, and a new one is drawn each time: a redraw on the same step keeps where it was)
     const was = sheet.body.querySelector?.('.wz-body');
     const scrolled = was?.dataset?.step === own.step ? was.scrollTop ?? 0 : 0;
-    sheet.body.replaceChildren(steps, summary, body, foot);
+    // (no footer once Create has finished: a null here would be drawn as the text "null")
+    sheet.body.replaceChildren(...[steps, summary, body, foot].filter(Boolean));
     if (scrolled) body.scrollTop = scrolled;
     restoreFocus(sheet.body, marks);
     sheet.el.dataset.step = own.step;

@@ -103,3 +103,25 @@ test('a resize across 1100 px keeps the step and the draft; the dialog comes bac
   assert.equal(await page.getAttribute(S, 'data-step'), 'stats');
   await page.close();
 });
+
+test('after a Create that left something out: "made, but not …" and Done, no footer and no stray "null" text', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await ctx.browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+  await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=1280`);
+  await page.waitForSelector('#hx-frame .su-root');
+  await page.evaluate(async () => {
+    const { createNewWizard } = await import('/ui/wizard/wizard.js');
+    // (a story whose Foes block has no room: Create makes the character and says what it left out)
+    const world = { headState: () => ({}), readerName: () => 'Astra', rules: () => null, packNote: () => '', levels: () => ({ ranks: [] }), levelCap: () => 99, chatId: () => 'demo', rpgOn: () => true, hasYou: () => false, query: () => null,
+      world: () => ({ started: true, persona: 'Astra', names: [], hasYou: false, full: false, room: true, free: 32, extras: { add: ['rules'], skipped: [{ role: 'foes', why: 'room' }] }, used: [] }) };
+    const host = document.querySelector('#hx-frame .su-root');
+    createNewWizard({ world, command: async () => ({ ok: true }), sheetCtx: () => ({ doc: document, backStack: null, sheetHost: host }) }).open();
+    document.querySelector('#hx-frame [data-sheet="new-character"] .wz-steps button[data-value="review"]').click();
+  });
+  await page.click(`${S} .wz-foot [data-wiz="create"]`);
+  await page.waitForSelector(`${S} [data-wiz="done"]`);
+  assert.equal(await page.locator(`${S} .wz-foot`).count(), 0);
+  assert.equal(await page.evaluate(sel => [...document.querySelector(sel).childNodes].some(node => node.nodeType === 3 && node.textContent.trim() === 'null'), `${S} .sh-body`), false);
+  await page.close();
+});

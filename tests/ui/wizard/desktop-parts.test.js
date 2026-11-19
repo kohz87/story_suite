@@ -87,3 +87,12 @@ test('a redraw on the same step keeps the step\'s scroll; another step starts at
   w.go('review');
   assert.equal(w.sheet().querySelector('.wz-body').scrollTop || 0, 0);
 });
+
+test('after a Create that left something out, the sheet holds the steps, the summary and the step only (no stray "null" where the footer was)', { skip }, async t => {
+  const w = await sheetOn(t);
+  w.go('stats');
+  w.wizard.session().finished = 'Wessel is in the party. Not added: Foes.';
+  w.sheet().querySelector('[data-plus="str"]').click();
+  assert.equal(w.sheet().querySelector('.wz-foot'), null);
+  assert.equal(w.sheet().querySelector('.sh-body').textContent.includes('null'), false);
+});
