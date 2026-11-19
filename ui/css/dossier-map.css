@@ -18,6 +18,7 @@
 .dlib .pf{position:absolute;inset:0;border-radius:50%;background:center 18%/cover;display:grid;place-items:center;font:800 13px var(--su-font);color:#fff}
 .dlib .p.on{box-shadow:0 0 0 2px var(--su-accent)}
 .dlib.open{height:auto;flex-direction:column;align-items:stretch;gap:8px;padding:8px 16px 12px;white-space:normal}
+.dlib.open>*{flex-shrink:0}
 .dlib.open .hd{display:flex;align-items:center;gap:12px;min-height:44px;white-space:nowrap}
 .dlib .fchips{display:flex;gap:8px}
 .dlib .fchip{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--su-line2);background:var(--su-tint);font:800 12px var(--su-font);letter-spacing:.04em;color:var(--su-soft);cursor:pointer}
@@ -33,9 +34,9 @@
 .dlib .lp.dead .pf{filter:grayscale(1) brightness(.75)}
 .dlib .lp b{font:800 12px/1.2 var(--su-font);text-align:center;white-space:nowrap}
 @container su-root (max-width:599px){
-  .dlib{height:48px}
+  .dlib:not(.open){height:48px}
   .dlib:not(.open) .row2,.dlib .lw{display:none}
-  .dlib.open{max-height:60%;overflow:auto}
+  .dlib.open{max-height:420px;overflow:auto}
   .dlib.open .hd{flex-wrap:wrap;row-gap:0}.dlib.open .hd .sp{display:none}.dlib.open .hd>.lhd{flex:1 0 100%}
   .dlib .lrow{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;overflow:visible}
   .dlib .lp{min-width:0}.dlib .lp b{white-space:normal}
@@ -59,7 +60,7 @@
 .dov .cm{width:48px;height:48px;box-shadow:0 0 0 1px rgba(255,255,255,.28)}
 .dov .cm.you{width:48px;height:48px;box-shadow:0 0 0 1.5px #fff}
 .dov .cmw{width:auto;min-width:64px;transform:translate(-50%,-24px)}
-.dov .cmw b,.dov .cmw small{background:var(--d-flat);padding:0 4px;border-radius:6px;white-space:nowrap;line-height:1.2}
+.dov .cmw b,.dov .cmw small{font-size:12px;background:var(--d-flat);padding:0 4px;border-radius:6px;white-space:nowrap;line-height:1.2}
 .dov .cmw b{margin-top:2px}
 .dov .cmw[aria-pressed="true"] .cm{box-shadow:0 0 0 3px var(--su-accent),0 0 0 7px rgba(168,151,255,.25)}
 .dmapv .rpanel{min-width:0}
@@ -68,7 +69,7 @@
 .dmapv .rring{position:relative;width:200px;height:200px;flex:none;padding:0;border:0;background:none;cursor:pointer}
 .dmapv .rring svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .dmapv .rring .disc{position:absolute;inset:11%;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 36px var(--su-font);color:#fff}
-.dmapv .rring .prof{bottom:17%}
+.rring .prof{position:absolute;left:50%;bottom:17%;transform:translateX(-50%);font:800 12px var(--su-font);color:#fff;background:rgba(10,12,20,.7);border-radius:999px;padding:3px 12px;white-space:nowrap}
 .dmapv .dname{margin-top:0}
 .dmapv .rbonds{width:100%;display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:4px}
 .dmapv .bl{font:400 13.5px/1.4 var(--su-font)}.dmapv .bl b{font-weight:800}

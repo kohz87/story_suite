@@ -22,9 +22,8 @@ const ALLOWED_FILLS = Object.freeze([
   ['shell.css', '.su-dim', 'outside the suite root (its sibling in .su-layer), so the look\'s tokens do not reach it; the root covers it once open'],
   ['shell.css', '.su-back::after', 'shading of the sky picture (the backdrop), not a glass surface'],
   ['shell.css', '.su-root[data-scheme="light"] .su-back::after', 'shading of the sky picture (the backdrop), not a glass surface'],
-  ['dossier.css', '.dov::after', 'shading of the dossier\'s sky picture, not a glass surface'],
-  ['dossier.css', '[data-scheme="light"] .dov::after', 'shading of the dossier\'s sky picture, not a glass surface'],
   ['dossier.css', '.bigring .prof', 'the Profile label on the portrait photo: a solid pill for legibility over a picture'],
+  ['dossier-map.css', '.rring .prof', 'the Profile label on the Map tab\'s portrait photo: a solid pill for legibility over a picture'],
 ]);
 
 function rules() {

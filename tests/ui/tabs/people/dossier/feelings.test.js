@@ -26,17 +26,21 @@ test('the dead get the portrait only: no ring and no corner numbers', () => {
   assert.ok(feelingsHero({ life: 'alive' }));
 });
 
-test('With page: four meter rows, the stage and what it needs, and every change with held-back marked', () => {
+test('With part: every change with its date and reply first (held-back ones marked, with their Why), then four meter rows and the stage', () => {
   installFakeDom();
-  const [rows, stage, changes] = withPage(dossier('temiwa'));
+  const [changes, rows, stage] = withPage(dossier('temiwa'));
+  assert.equal(changes.querySelector('.secl').textContent, 'Last changes');
+  const evs = changes.querySelectorAll('.ev');
+  assert.equal(evs.length, 5);
+  assert.equal(evs[0].textContent, 'Goldwane 13reply #14Trust +2 · you handed back the offering coin she dropped');
+  assert.equal(evs[2].querySelector('.held').textContent, 'Desire +1 held back');
+  assert.equal(evs[2].querySelector('.why').textContent, 'Why: too soon after meeting; the story has not given her a reason yet');
   assert.equal(rows.querySelectorAll('.mrow').length, 4);
   assert.match(stage.querySelector('.secl').textContent, /Stage · Acquaintance → Friend/);
   assert.match(stage.querySelector('.fine').textContent, /needs Trust 30/);
-  assert.equal(changes.querySelectorAll('.e').length, 4);
-  assert.match(changes.querySelector('.e').textContent, /Goldwane 13Trust \+2 · you handed back/);
   const torka = withPage(dossier('torka'));
-  assert.match(torka[2].textContent, /held back/);
-  assert.match(torka[2].textContent, /Affection \+1/);
+  assert.match(torka[0].textContent, /held back/);
+  assert.match(torka[0].textContent, /Affection \+1/);
 });
 
 test('With page without a stage or changes says nothing has changed, and a negative meter draws left of centre', () => {
@@ -45,9 +49,9 @@ test('With page without a stage or changes says nothing has changed, and a negat
   d.meters.tension = -20;
   const parts = withPage(d);
   assert.equal(parts.length, 3);
-  assert.match(parts[2].textContent, /Nothing has changed yet/);
-  const bar = parts[0].querySelector('[data-meter="tension"] .fill');
+  assert.match(parts[0].textContent, /Nothing has changed yet/);
+  const bar = parts[1].querySelector('[data-meter="tension"] .fill');
   assert.equal(bar.style.getPropertyValue('left'), '40%');
   assert.equal(bar.style.getPropertyValue('width'), '10%');
-  assert.equal(parts[0].querySelector('[data-meter="tension"] > b').textContent, '-20');
+  assert.equal(parts[1].querySelector('[data-meter="tension"] > b').textContent, '-20');
 });

@@ -65,7 +65,7 @@
 .bigring .bigph{position:absolute;inset:20%;padding:0;border:0;border-radius:50%;background:none;cursor:pointer;overflow:hidden;min-width:44px;min-height:44px}
 .bigring .ph{position:absolute;inset:0;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 40px var(--su-font);color:#fff}
 .bigring.dead .ph{filter:grayscale(1) brightness(.75)}
-.bigring .prof,.rring .prof{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);font:800 12px var(--su-font);color:#fff;background:rgba(10,12,20,.7);border-radius:999px;padding:3px 12px;white-space:nowrap}
+.bigring .prof{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);font:800 12px var(--su-font);color:#fff;background:rgba(10,12,20,.7);border-radius:999px;padding:3px 12px;white-space:nowrap}
 .bigring .ml{position:absolute;display:flex;flex-direction:column;align-items:center;font:800 12px var(--su-font);letter-spacing:.1em;line-height:1.1}
 .bigring .ml b{font:800 17px var(--su-font);letter-spacing:0}
 .ml.c-tr{right:0;top:0}.ml.c-br{right:0;bottom:0}.ml.c-bl{left:0;bottom:0}.ml.c-tl{left:0;top:0}
@@ -73,9 +73,10 @@
 .dname{font:800 22px/1.15 var(--su-font);overflow-wrap:anywhere;margin-top:8px}
 @container su-root (min-width:1100px){.dhero .dname{font-size:28px}}
 .dov .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-.dov .chip,.dossier .fbtn{font:800 12px var(--su-font);border-radius:999px;padding:4px 12px;background:var(--su-tint);color:var(--su-soft);border:1px solid transparent}
-.dossier .fbtn{cursor:pointer;min-height:28px}
-.dossier .fbtn[aria-pressed="true"],.dov .chip.pres{color:var(--pk-gold);border-color:var(--pk-gold);background:rgba(240,184,74,.12)}
+.dov .chip{font:800 12px var(--su-font);border-radius:999px;padding:4px 12px;background:var(--su-tint);color:var(--su-soft);border:1px solid transparent}
+.dov .chips{align-items:center}
+.dossier .fbtn{display:inline-flex;align-items:center;min-height:44px;margin:-8px 0;padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer}
+.dov .chip.pres{color:var(--pk-gold);border-color:var(--pk-gold);background:rgba(240,184,74,.12)}
 .deadb{font:800 12px var(--su-font);color:var(--su-soft);background:var(--su-tint);border-radius:999px;padding:4px 12px}
 .deadb.pres{color:var(--pk-gold);border:1px solid var(--pk-gold);background:transparent}
 .idl{font:400 13px/1.5 var(--su-font);color:var(--su-soft);overflow-wrap:anywhere}
@@ -125,8 +126,8 @@
 .ev p b{font-weight:800}
 .ev .why{display:block;margin-top:4px;font:400 12.5px/1.4 var(--su-font);color:var(--su-soft)}.ev .why b{color:var(--su-warn-t)}
 .dov .held{color:var(--su-warn-t);font-weight:800}
-.lnk2.day{display:inline-flex;align-items:center;min-height:24px;margin-left:4px;padding:0;background:none;border:0;font:800 13.5px var(--su-font);color:var(--su-accent);cursor:pointer}
-.lnk2.day::after{content:"";position:absolute;inset:-10px}.lnk2.day{position:relative}
+/* Day › runs on in the text; its 44 px tap box overlaps the line above and below (negative margins) so the lines keep their pitch */
+.lnk2.day{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin:-12px 0 -12px 0;padding:0 4px;vertical-align:middle;background:none;border:0;font:800 13.5px var(--su-font);color:var(--su-accent);cursor:pointer}
 .dov .add{align-self:flex-start}
 .mrows{display:flex;flex-direction:column;gap:8px}
 .mrow{display:grid;grid-template-columns:76px minmax(0,1fr) 40px;gap:12px;align-items:center;font:800 12px var(--su-font)}
@@ -140,7 +141,7 @@
 button.tie{cursor:pointer}
 .tie .a{width:44px;height:44px;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 14px var(--su-font);color:#fff;flex:none}
 .tie .tt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}.tie .tt b{font:800 14px var(--su-font)}
-.tie .tt em{font:800 11px var(--su-font);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:var(--m2)}.tie .tt small{font-size:12.5px;color:var(--su-soft)}
+.tie .tt em{font:800 12px var(--su-font);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:var(--m2)}.tie .tt small{font-size:12.5px;color:var(--su-soft)}
 .tie>i{font-style:normal;color:var(--su-muted)}
 .sec{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--su-line);border-radius:12px;background:var(--su-panel)}
 .sec .h{display:flex;align-items:center;gap:8px;font:800 12px var(--su-font);letter-spacing:.1em;text-transform:uppercase}

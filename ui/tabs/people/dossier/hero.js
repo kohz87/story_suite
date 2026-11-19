@@ -1,6 +1,5 @@
 // Builds the dossier's portrait column: the ring with its four labels, the name, ★ Following and the mood chip, the who-line, the meter line and where they are (the dead get their badge).
 import { h } from '../../../kit/dom.js';
-import { button } from '../../../kit/controls.js';
 import { FEELING_KEYS } from '../../../kit/ring.js';
 import { feelingsHero } from './feelings.js';
 import { partyAddButton } from './party-add.js';
@@ -24,7 +23,8 @@ export function dossierHero(d, { following = false, onFollow, onProfile, party =
   const where = [here ? 'Here' : null, place, d.inParty ? 'in your party' : null].filter(Boolean).join(' · ');
   const chips = dead
     ? [h('span', { class: ['deadb', d.life === 'presumed' ? 'pres' : null] }, d.life === 'presumed' ? 'Presumed dead' : 'Deceased')]
-    : [button({ label: following ? '★ Following' : '☆ Follow', className: 'fbtn', pressed: following, dataset: { act: 'follow' }, onClick: () => onFollow?.() }),
+    // (the chip is small, the button round it is a 44 px tap)
+    : [h('button', { type: 'button', class: 'fbtn', 'aria-pressed': String(following), dataset: { act: 'follow' }, onClick: () => onFollow?.() }, h('span', { class: ['chip', following ? 'pres' : null] }, following ? '★ Following' : '☆ Follow')),
       d.mood ? h('span', { class: 'chip' }, d.mood) : null];
   return h('section', { class: 'dhero' },
     feelingsHero(d, { onProfile }),

@@ -11,11 +11,11 @@ import { dossier, makeCtx } from './helpers.js';
 test('F21/F25: the With page lists the reader\'s own feeling on its own range, and a stage word under the feeling that has one', () => {
   installFakeDom();
   const d = { ...dossier('temiwa'), axisStages: { trust: 'Trusted ally' }, extraMeters: [{ key: 'respect', label: 'Respect', value: 25, min: 0, max: 100, stage: 'Respected' }] };
-  const rows = withPage(d)[0].querySelectorAll('.mrow');
+  const rows = withPage(d)[1].querySelectorAll('.mrow');
   assert.deepEqual(rows.map(r => r.dataset.meter), ['trust', 'affection', 'desire', 'tension', 'respect']);
   assert.match(rows[0].textContent, /Trust.*Trusted ally/);
   assert.match(rows[4].textContent, /Respect.*Respected.*25/);
-  assert.equal(withPage(dossier('temiwa'))[0].querySelectorAll('.mrow').length, 4, 'nothing extra without them');
+  assert.equal(withPage(dossier('temiwa'))[1].querySelectorAll('.mrow').length, 4, 'nothing extra without them');
 });
 
 test('F14: no Right now card or page for someone with no place, doing or scene; with any of them it stays', () => {

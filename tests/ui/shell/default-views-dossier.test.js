@@ -83,30 +83,47 @@ test('Day › leaves the dossier and shows the Journal; the chat branch closes i
   suite.destroy();
 });
 
-test('See on map from a dossier opened on People lands on the People map focused on that person', () => {
-  const doc = installFakeDom();
-  const port = createFakePort();
-  const suite = mountSuite({ port, doc });
-  suite.open('people');
-  doc.body.querySelector('[data-person-id="torka"]').click();
-  const id = doc.body.querySelector('.dossier').dataset.personId;
-  doc.body.querySelector('.dossier [data-act="map"]').click();
-  assert.equal(doc.body.querySelector('.dossier'), null);
-  assert.equal(suite.tabHost.current(), 'people');
-  assert.ok(doc.body.querySelector('.castmap'), 'the map view is showing');
-  assert.match(doc.body.querySelector('.fchip').textContent, /Focus:/);
-  assert.equal(doc.body.querySelector('.mcard').dataset.picked, id);
-  suite.destroy();
-});
-
-test('See on map from the People tab itself redraws the tab on the map', () => {
+test('the dossier\'s Map tab is the People tab\'s relationship map with this person picked; Open dossier › shows the picked person in place', () => {
   const doc = installFakeDom();
   const suite = mountSuite({ port: createFakePort(), doc, initial: 'people' });
   suite.open('people');
-  doc.body.querySelector('[data-person-id="torka"]').click();
-  doc.body.querySelector('.dossier [data-act="map"]').click();
-  assert.equal(doc.body.querySelector('.dossier'), null);
-  assert.ok(doc.body.querySelector('.castmap'));
-  assert.equal(doc.body.querySelector('.mcard').dataset.picked, 'torka');
+  doc.body.querySelector('[data-person-id="temiwa"]').click();
+  const dossier = doc.body.querySelector('.dossier');
+  dossier.querySelector('[data-tab="map"]').click();
+  assert.ok(dossier.querySelector('.castmap'), 'the relationship map');
+  assert.equal(dossier.querySelector('.mcard'), null, 'no People-tab picked card: the dossier draws its own');
+  assert.equal(dossier.querySelector('.rsel').dataset.picked, 'temiwa');
+  assert.match(dossier.querySelector('.rbonds').textContent, /Bonds on the map.*friend of.*Torka/);
+  dossier.querySelector('.cmw[data-person-id="torka"]').click();
+  assert.equal(dossier.querySelector('.rsel').dataset.picked, 'torka');
+  dossier.querySelector('.rsel [data-act="open"]').click();
+  assert.equal(doc.body.querySelector('.dossier'), dossier, 'the same dossier, shown in place');
+  assert.equal(dossier.dataset.personId, 'torka');
+  assert.equal(dossier.querySelector('.dname').textContent, 'Torka');
+  assert.equal(suite.tabHost.current(), 'people');
+  esc(suite);
+  assert.equal(doc.body.querySelector('.dossier'), null, 'one Escape still takes it down');
+  suite.destroy();
+});
+
+test('the library strip lists everyone once with the open person marked; Following filters it; a tap shows that person in place', () => {
+  const doc = installFakeDom();
+  const port = createFakePort();
+  const suite = mountSuite({ port, doc, initial: 'people' });
+  suite.open('people');
+  doc.body.querySelector('[data-person-id="temiwa"]').click();
+  const dossier = doc.body.querySelector('.dossier');
+  const strip = () => dossier.querySelector('.dlib');
+  const ids = strip().querySelectorAll('[data-person-id]').map(b => b.dataset.personId);
+  assert.equal(new Set(ids).size, ids.length, 'each person once (the view holds them by id and by name)');
+  assert.deepEqual(strip().querySelectorAll('[aria-current="true"]').map(b => b.dataset.personId), ['temiwa']);
+  strip().querySelector('[data-act="library"]').click();
+  assert.ok(strip().classList.contains('open'));
+  strip().querySelector('[data-filter="followed"]').click();
+  assert.ok(strip().querySelectorAll('.lp').every(b => b.classList.contains('fol')), 'Following shows only the followed');
+  strip().querySelector('[data-filter="all"]').click();
+  strip().querySelector('.lp[data-person-id="rika"]').click();
+  assert.equal(dossier.dataset.personId, 'rika');
+  assert.ok(strip().classList.contains('open'), 'the strip stays open');
   suite.destroy();
 });

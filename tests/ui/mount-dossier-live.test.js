@@ -29,3 +29,24 @@ test('an open dossier shows the new trust after a port change, and stays open', 
   assert.ok(open(), 'still open');
   suite.destroy();
 });
+
+test('a person shown in place from the library is the one drawn again after a port change', async () => {
+  const doc = installFakeDom();
+  const port = createFakePort({ views: fixture('default') });
+  const dossiers = structuredClone(port.view('dossier'));
+  const read = port.view.bind(port);
+  port.view = (name, args) => (name === 'dossier' ? dossiers : read(name, args));
+  const suite = mountSuite({ port, doc });
+  suite.open('people');
+  await flush();
+  doc.body.querySelector('[data-person-id="temiwa"]').click();
+  const open = () => doc.body.querySelector('.dossier');
+  open().querySelector('.dlib [data-person-id="rika"]').click();
+  assert.equal(open().dataset.personId, 'rika');
+  dossiers.rika = { ...dossiers.rika, meters: { ...dossiers.rika.meters, trust: 66 } };
+  port.emit('head', {});
+  await flush();
+  assert.equal(open().dataset.personId, 'rika', 'still Rika, not the person first opened');
+  assert.match(open().querySelector('.ml[data-meter="trust"]').textContent, /\+66/);
+  suite.destroy();
+});
