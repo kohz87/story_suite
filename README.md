@@ -1,119 +1,101 @@
 # Story Suite 0.1.3
 
-Story Suite is a SillyTavern extension that keeps track of your story for you: your items and money, the scene, the people you meet, the clock and calendar, quests, the map and fights. It puts that state in front of the narrator and in front of you, in a view of its own.
+Story Suite is a SillyTavern extension that keeps track of your story for you: your items and money, the scene, the people you meet, the clock and calendar, quests, the map and fights. It puts that state in front of the narrator, and in front of you in a view of its own.
 
-It is one extension made from what used to be Story Block, Story Director and NPC State Delta. Version 0.1.0 is its first release. The old three are not kept up to date, and nothing is carried over from them.
+<p align="center">
+  <img src="docs/images/now-desktop.webp" alt="The Now tab on a desktop: your character with health, mana and stamina, the people here now, what needs you, today's quest and the trip under way." width="75%">
+  <img src="docs/images/now-phone.webp" alt="The same Now tab on a phone, with the tab bar at the bottom." width="22%">
+</p>
 
-![The Story Suite view on the Now tab](docs/images/game-view-home.png)
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/people-dossier.webp" alt="Sister Temiwa's dossier: her portrait inside a ring of Trust, Affection, Desire and Tension, her mood, ties, past and profile." width="100%"><br><sub><b>People:</b> a dossier for everyone you meet.</sub></td>
+    <td width="50%"><img src="docs/images/party-sheet.webp" alt="Sister Temiwa's party sheet: gear slots with a Warding staff worn, health, mana and stamina, stats and three skills." width="100%"><br><sub><b>Party:</b> gear, stats and skills for each member.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/journal-quests.webp" alt="The Journal's Quests page with two quests under way, who gave them, the reward and the difficulty." width="100%"><br><sub><b>Journal:</b> quests and the calendar.</sub></td>
+    <td width="50%"><img src="docs/images/pack-studio.webp" alt="Pack Studio with the Ersveil world and its game open: the list of pack parts with their counts, and the Overview form." width="100%"><br><sub><b>Pack Studio:</b> write and check your own world.</sub></td>
+  </tr>
+</table>
 
 ## Install
 
 You need SillyTavern 1.19 or newer.
 
-1. In **Extensions → Manage extensions**, delete Story Block, Story Director and NPC State Delta. Disabling is not enough.
+1. In **Extensions → Manage extensions**, delete Story Block, Story Director and NPC State Delta if you have them. Disabling is not enough.
 2. Reload SillyTavern.
 3. Open **Extensions → Install extension**, paste `https://github.com/kohz87/story_suite`, and install it.
 4. Reload again.
 
-To update later, press the update button in **Extensions → Manage extensions**. Nothing else is needed. Full steps are in [docs/INSTALL.md](docs/INSTALL.md); questions are answered in [docs/FAQ.md](docs/FAQ.md).
+To update, press the update button in **Extensions → Manage extensions**. Full steps are in [docs/INSTALL.md](docs/INSTALL.md); questions are answered in [docs/FAQ.md](docs/FAQ.md).
+
+Story Suite is one extension. It replaces Story Block, Story Director and NPC State Delta, and nothing is carried over from them.
 
 ## What it does
 
-**The new view**
-- Tabs for Now, Story, People, Party, Bag, World and Fight, and one Settings overlay, in dark and light.
-- Each reply's menu and the line under it list what that reply changed.
-- Your character is made in the view itself, with the New character window.
+- **Its own view.** Tabs for Now, Party, Bag, People, World, Journal and Story, a Fight tab while a fight is on, and one Settings window. Dark and light. On a wide screen your character and the people here stay on the left.
+- **Every reply's changes.** The line under each reply lists what it changed. When a reply forgets its change block, a safety net reads the story and fills it in.
+- **NPC State.** A dossier for every person you meet: who they are, where they are and how they feel about you (Trust, Affection, Desire, Tension, and meters of your own). A stranger stays unnamed until the story names them.
+- **The Story Director.** Plans arcs, quests and the day's happenings, and keeps the clock and calendar. With **World events** on, the world moves on its own, and news travels by courier.
+- **Fights.** One set of rules, Combat Rules v1, played on the fight board. You choose for each party member; code rolls the dice; the story is told afterwards.
+- **Bag and money.** Items, gear and coins from the story's own change lines, in the game's currency.
+- **Replay is exact.** Edits, swipes, deletes, rewinds and reloads give the same state as live play.
 
-**NPC State**
-- Keeps a dossier for every person you meet: who they are, where they are, how they feel about you.
-- Four feelings are always kept for each person: Trust, Affection, Desire and Tension, from −100 to +100, where 0 is neutral. Settings › People adds up to six meters of your own (Fear, Respect, Debt…), meter presets, named stages on one meter and a stage ladder.
-- A person you have not met by name stays unnamed to the narrator until the story names them.
-- A pack's secrets for a person stay hidden until their condition is met.
+## Packs
 
-**The Story Director and world events**
-- The Director plans arcs, quests and the day's happenings, and keeps the clock and calendar.
-- With **World events** on (off by default), the world moves on its own: events, conditions, news that travels by courier, and short generated arcs.
+- A **world pack** brings the world: lore, people, places, routes and events. A **game pack** brings the rules: calendar, money, weather, names and RPG options. This is pack format 4.
+- The sample is **Ersveil**: [examples/packs/ersveil.zip](examples/packs/ersveil.zip) holds the world (31 people, 218 lore entries, 320 places, 103 world events) and its game, "Ersveil rules".
+- Install a pack in **Settings › Packs and trackers › Import a pack file**, pick the world and the game there, then start a new chat. A chat keeps the world and game it began with.
+- **Pack Studio** (**Settings › Packs and trackers › Open Studio**) edits world and game packs, checks them, runs them forward in a Dry run, and exports a zip. An older pack opens read only; convert it there or with `scripts/packs/convert-3to4.mjs`.
+- Guides: [docs/v2/PACKS.md](docs/v2/PACKS.md) (the pack format), [docs/v2/ERSVEIL.md](docs/v2/ERSVEIL.md) (playing Ersveil), [docs/dev/studio.md](docs/dev/studio.md) (the Studio).
 
-**Combat Rules v1 and the fight board**
-- One set of rules and one way to fight. Every fight is played by code on the fight board.
-- You choose for each party member; the dice are rolled by code; the story is told afterwards.
-
-**Inventory and money**
-- Items, gear and coins are tracked from the story's own change lines, in the chat's currency.
-- Bag shows the purse, what happened this turn, and what each person carries.
-
-**Packs**
-- A world pack brings a world: lore, cast, places, routes and events. The sample world pack is Ersveil.
-
-**The change-block repair**
-- When a reply forgets its change block, a safety net reads the story and writes the missing changes, so the state stays right.
-- Edits, swipes, deletes, rewinds and reloads all give the same state as live play.
+Coming in the next release: a SillyTavern lorebook made from a world pack's lore, and Export lorebook in the Studio. See [Unreleased](CHANGELOG.md#unreleased).
 
 ## Settings at a glance
 
 | Page | What you set there |
 | --- | --- |
-| Start | How a new chat begins |
-| Look | How the view looks (dark or light, and its details) |
-| People | NPC State options, and the list of people in this chat (Open a dossier, Re-read the story for one person) |
-| RPG | Combat Rules v1 on or off, and their options |
-| World and time | The clock, the calendar, World events and Tempo |
-| Director | How the Story Director plans |
-| Money and Chat extras | The currency, and small extras for the chat |
-| Models | The connection each model call uses: story, quick helpers, background work, the safety net |
-| Packs and trackers | Install, switch off or remove a pack; trackers |
-| Add-ons | Modules and the switch on each one's card |
-| Tools | Save points, the budget view, the inspector, NPC State data (back up, restore, diagnostics), developer tools |
-| Diagnostics | Parts that failed to start, and the problems they report |
+| Start | How much the suite tracks, and the modules with their features |
+| Look | Skin and text, dark or light |
+| People | Feelings and their pacing, stages, who gets a dossier, portraits, the people in this chat |
+| RPG and fights | Combat Rules v1, progression, fights, and what you take, carry and wear |
+| World and time | The calendar, weather, the map, time rules, World events |
+| Director | Checks, spoilers, the pulse, the planner for arcs and the cast |
+| Money | Coins and prices |
+| Chat extras | Choices, inner chatter and your look |
+| Models | The connection each kind of call uses, and the one fallback call |
+| Packs and trackers | Your world and game, data modules, trackers, the Pack Studio |
+| Add-ons | The plug-in modules installed |
+| Tools | What is sent, budgets, prompts, the inspector, problems, diagnostics and chat data |
 
-Each page has its own help lines; the search box at the top of Settings finds a setting by name.
+Each page has its own help lines, and the search box at the top finds a setting by name.
 
-## Packs
+## Versions
 
-- Packs use **format 4**: a pack is a **world** (places, people, lore, events) or a **game** (calendar, money, weather, names, rules). A pack file is a `.zip` (its `pack.json`, portraits and, for a world, an optional `game.json`) or a `pack.json` with its images; it names the suite it needs with `requires.suite`. An older pack is refused; convert it with the Pack Studio or `scripts/packs/convert-3to4.mjs`.
-- Install one in **Settings → Packs and trackers → Import a pack file**, pick the world and the game there, then start a new chat (a chat that has begun keeps the world and game it began with).
-- The sample is **Ersveil**: `examples/packs/ersveil.zip` holds the world (`examples/packs/ersveil/`) and its game, "Ersveil rules" (`examples/packs/ersveil-game/`). The world has 31 people, lore, realms, conditions and 103 world events; its world events run only with World events on.
-- The author spec and the install checks are in [docs/v2/PACKS.md](docs/v2/PACKS.md) and [authoring-kit/reference/PACK-FORMAT.md](authoring-kit/reference/PACK-FORMAT.md). [docs/v2/ERSVEIL.md](docs/v2/ERSVEIL.md) walks through playing Ersveil.
-- Pack Studio (`studio/index.html`) opens and checks a pack, read only: see [docs/dev/studio.md](docs/dev/studio.md).
+- **0.1.3** (19 Nov 2026): pack format 4 (world + game packs), the Pack Studio, the desktop layout, many fixes. [Changes](CHANGELOG.md#013--19-nov-2026)
+- **0.1.2** (18 Nov 2026): short generated arcs, making your character in the new view. [Changes](CHANGELOG.md#012--18-nov-2026)
+- **0.1.1** (18 Nov 2026): world events, the Director directs, the sample world Ersveil. [Changes](CHANGELOG.md#011--18-nov-2026)
+- **0.1.0** (18 Nov 2026): first release as one extension. [Changes](CHANGELOG.md#010--18-nov-2026)
+
+Earlier versions of the three old extensions: [docs/history/packages/](docs/history/packages/).
 
 ## For developers
 
-Node 24. Run `npm ci` first (`acorn`, `acorn-walk`, `esbuild`, `playwright`).
-
-Layout:
-- `core/`: host runtime, store, persistence and replay, command bus, prompt assembly, the module SDK.
-- `modules/`: scene, inventory, data-modules, assist, rpg, time, atlas, world, cast, arc, people (NPC State).
-- `ui/`: the new view and its settings; the old view was removed at B4-4.
-- `packs/`: pack import, validation, portraits, installed packs.
-- `testkit/`, `examples/`, `authoring-kit/`, `assets/`: test fakes, the Fishing example and example packs, the pack authoring kit, images.
-- `scripts/`, `tests/`: checks, code map, release build and gate; all tests.
-- `docs/`: guides, the generated code map, and `docs/history/` with the three old repositories' changelogs.
+Node 24. Run `npm ci` first.
 
 | Command | What it does |
 | --- | --- |
 | `npm test` | Every test folder, then the cross-module suite |
-| `npm run check` | Size, code map and syntax checks |
-| `npm run codemap` | Regenerate [docs/codemap.md](docs/codemap.md) and `docs/codemap/` |
+| `npm run check` | Size, code map, changelog and syntax checks |
+| `npm run codemap` | Regenerate [docs/codemap.md](docs/codemap.md), `docs/codemap/` and [AI-README.md](AI-README.md) |
 | `npm run release:check` | Build the release bundles in a temporary folder and run the release gate |
 | `node scripts/release.mjs <version>` | Write a version into every place that carries it |
 
-A release is a version bump merged to main; releases are not tagged.
+- `core/` is the host (store, replay, commands, prompt, the module SDK); `modules/` holds scene, inventory, assist, rpg, time, atlas, world, cast, arc and people (NPC State); `ui/` is the view; `packs/` and `studio/` handle packs.
+- Every file is at most 450 lines and does one job. The code map is generated and checked in CI.
+- A release is a version bump merged to main; releases are not tagged.
 
-Rules:
-- Every source and test file is at most 450 lines; each file does one job with at most 4 exports.
-- The code map ([docs/codemap.md](docs/codemap.md)) is generated and checked in CI.
-- Replay equals live: swipes, middle deletes, rewinds and reloads reproduce the same state.
-
-Read next: [CLAUDE.md](CLAUDE.md) (rules for coding agents), [docs/dev](docs/dev), [docs/v2](docs/v2), [the code map](docs/codemap.md).
-
-## Versions
-
-- **0.1.3** (19 Nov 2026): pack format 4 (world + game packs), the Pack Studio, desktop layout, the overnight bug-hunt fixes. [Changes](CHANGELOG.md#013--19-nov-2026)
-- **0.1.2** (18 Nov 2026): generated arcs, character wizard in the new view. [Changes](CHANGELOG.md#012--18-nov-2026)
-- **0.1.1** (18 Nov 2026): world events, the Director directs, sample pack Ersveil. [Changes](CHANGELOG.md#011--18-nov-2026)
-- **0.1.0** (18 Nov 2026): first release as one extension. [Changes](CHANGELOG.md#010--18-nov-2026)
-
-Earlier versions of the three old extensions: [docs/history/packages/](docs/history/packages/).
+Read next: [CLAUDE.md](CLAUDE.md) (rules for coding agents), [AI-README.md](AI-README.md), [docs/dev](docs/dev), [docs/v2](docs/v2).
 
 ## Credits
 

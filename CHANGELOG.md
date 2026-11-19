@@ -125,7 +125,7 @@ The world can move on its own behind the World events switch (off by default): e
 
 - A repaired travel stretch no longer overshoots a day unless the reply says so; a repaired day jump keeps the time of day; a doubled reply draft is cut.
 - NPC State no longer waits 5 seconds after an edit or delete.
-- A trip stop keeps the same name after a Re-read.
+- After an edit and a Re-read, a trip's first stop is the same place the story told.
 
 ### For developers
 
