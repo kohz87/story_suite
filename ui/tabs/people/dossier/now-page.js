@@ -24,7 +24,7 @@ export function nowPage(d, ctx = {}) {
   const draw = () => rows.replaceChildren(...[kvList([['Wants', d.scene.wants ? hiddenValue(d.scene.wants, shown) : null], ['Hiding', d.scene.hiding ? hiddenValue(d.scene.hiding, shown) : null]])].filter(Boolean));
   draw();
   out.appendChild(spoilerSwitch({
-    id: 'dossier-scene-spoiler', title: 'Scene spoilers', hint: 'what they want and hide right now · same switch as Now · per chat', checked: shown,
+    id: 'dossier-scene-spoiler', title: 'Scene spoilers', hint: 'what they want and hide right now · per chat', checked: shown,
     onChange: (next) => { shown = ctx.prefs?.setSpoiler ? ctx.prefs.setSpoiler('scene', next) : next; draw(); },
   }));
   out.appendChild(rows);

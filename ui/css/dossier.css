@@ -46,6 +46,7 @@
 .idl{font:400 13px/1.5 var(--su-font);color:var(--su-muted);overflow-wrap:anywhere}
 .idl::first-letter{text-transform:uppercase}
 .scene-rows:not(:empty){margin-top:12px}
+.dpage-now>.spo{margin-top:14px}
 .gflag{color:var(--su-warn-t);font-weight:800}
 .dcard{display:flex;flex-direction:column;gap:7px;padding:12px 14px;text-align:left;cursor:pointer;color:var(--su-text);font:inherit;width:100%;min-width:0;min-height:44px}
 .dcard .dl{display:flex;justify-content:space-between;font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted)}
