@@ -128,7 +128,9 @@ test('the snapshot built from the registry is today\'s snapshotNpc, key order in
 
 test('the modules use the derived lists, not copies of their own', () => {
     const read = oldSource;
-    assert.match(read('core-prompts.js'), /import \{ PROFILE_EVIDENCE_FIELDS, RETURN_KEYS, RETURN_SHAPES \} from '\.\/src\/fields\/registry\.js';/);
+    // core-prompts.js only re-exports its parts; the scanner and the targeted prompts read the lists from the registry themselves.
+    assert.match(fs.readFileSync(new URL('../../modules/people/core/core-prompts-scanner.js', import.meta.url), 'utf8'), /import \{ PROFILE_EVIDENCE_FIELDS \} from '\.\.\/fields\/registry\.js';/);
+    assert.match(fs.readFileSync(new URL('../../modules/people/core/core-prompts-targeted-parts/prompt-shared.js', import.meta.url), 'utf8'), /import \{ RETURN_KEYS, RETURN_SHAPES, REFRESH_KEYS \} from '\.\.\/\.\.\/fields\/registry\.js';/);
     assert.match(read('core-merge-incoming.js'), /import \{ TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-merge-aliases.js'), /import \{ ALIAS_MERGE_TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-birthday-parts/field-change-stamp.js'), /import \{ CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS \} from '\.\.\/src\/fields\/registry\.js';/);

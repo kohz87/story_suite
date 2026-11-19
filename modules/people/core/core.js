@@ -22,6 +22,4 @@ export { mergeScanResult } from './core-parts/scan-merge.js';
 export { buildNpcPortraitPrompts, buildInjection } from './core-parts/projected-reads.js';
 export { LEVEL_FIELD_RULE } from './core-parts/shared-custom-field-rule.js';
 export { buildScannerPrompt, buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt } from './core-parts/scanner-prompts.js';
-
-// NPC State application version. Persisted bundle, branch, and data schemas are versioned independently.
-export const NPC_STATE_VERSION = '1.18.0';
+export { NPC_STATE_VERSION } from './core-parts/version.js';
