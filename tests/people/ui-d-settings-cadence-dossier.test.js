@@ -80,7 +80,7 @@ test('settings panel: Meter presets fold; Expert holds the four rarely needed gr
     assert.match(expert, /data-delta-expert-note/);
     // The groups the reader had open before keep working: one memory key, the What's sent refresh still follows its group.
     assert.match(index, /data-delta-settings-group="sent"/);
-    assert.match(index, /const SETTINGS_OPEN_GROUPS_KEY = 'people_settings_open_groups'/);
+    assert.match(index, /const SETTINGS_OPEN_GROUPS_KEY = 'npc_state_delta_settings_open_groups'/);
     const css = styleSource();
     assert.match(css, /\.delta-settings-group\[hidden\] \{ display: none; \}/);
     assert.match(css, /\.delta-meter-presets \.ppl-presets-head \{ display: none; \}/);

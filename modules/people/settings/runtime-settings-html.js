@@ -177,7 +177,7 @@ export function createSettingsHtmlPart(rt, deps) {
     </div>`;
     }
 
-    const SETTINGS_OPEN_GROUPS_KEY = 'people_settings_open_groups';
+    const SETTINGS_OPEN_GROUPS_KEY = 'npc_state_delta_settings_open_groups';
     const DEFAULT_OPEN_SETTINGS_GROUPS = ['scanning'];
 
     function readOpenSettingsGroups() {

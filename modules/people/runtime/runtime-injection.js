@@ -136,7 +136,8 @@ export function createInjectionPart(rt, deps) {
         if (!parts.rules) rt.sentCaptureRules = '';
     }
 
-    const OWN_REQUEST = /NPC State's (?:isolated|targeted)|isolated relationship evaluator|Private NPC dossier scanner/;
+    // Matches the prompts' own words, which keep the old product name (saved texts are not renamed).
+    const OWN_REQUEST = /NPC State Delta's (?:isolated|targeted)|isolated relationship evaluator|Private NPC dossier scanner/;
     function holdCaptureRules() {
         const ctx = getContext();
         const rules = String(rt.lastInjection.captureRules || '');
