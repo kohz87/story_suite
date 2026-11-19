@@ -45,7 +45,7 @@ function meterLabel(m) {
 function card(person, on) {
   const where = String(person.where || '').slice(0, 40);
   const label = `${person.name}, ${person.mood || ''}${where ? `, ${where}` : ''}. Open dossier`;
-  const go = () => on.onOpenPerson?.(person.personId);
+  const go = () => on.onOpenPerson?.(person.personId, person.name);
   return h(
     'div',
     {
