@@ -13,11 +13,16 @@ export function bagTab(bag = {}, ctx = {}) {
   const full = {
     ...sheetCtx,
     onItem: item => ctx.openSheet?.(itemSheet(item, sheetCtx), item.name),
-    // + Add: the form in a sheet; the engine takes it as the reader's own item (inventory.add) and the sheet closes.
+    // + Add: the form in a sheet; the engine takes it as the reader's own item (inventory.add) and the sheet closes. After the starting kit a stat pick the add
+    // cannot carry goes to the new piece as the repoint edit (inventory.edit { stack, stats }); its refusal keeps the sheet open and says the piece was added.
     onAdd: () => ctx.openSheet?.(itemAddForm({
+      gear: bag.gear ?? null,
       onCancel: () => ctx.close?.(),
-      onSave: async payload => {
+      onSave: async (payload, repoint) => {
         const result = await ctx.port?.command('inventory.add', payload);
+        const stack = result?.receipt?.data?.stacks?.[0];
+        const moved = result && result.ok !== false && repoint && stack ? await ctx.port?.command('inventory.edit', { stack, stats: repoint }) : null;
+        if (moved && moved.ok === false) return { ...moved, message: `Added with its default stats. ${moved.message ?? ''}`.trim() };
         if (!result || result.ok !== false) ctx.close?.();
         return result;
       },

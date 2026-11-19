@@ -74,9 +74,11 @@ test('tile marks: rarity, quantity, new, torn, wearer; Story-only drops rarity a
   assert.ok(unknownGlyph.querySelector('svg'));
 });
 
-test('empty bag hides the card; Story-only grid is marked norpg', () => {
+test('an empty bag keeps the Items card with + Add; Story-only grid is marked norpg', () => {
   installFakeDom();
-  assert.equal(itemsCard({ rpg: true, items: [], filters: [] }, {}), null);
+  const empty = itemsCard({ rpg: true, items: [], filters: [] }, {});
+  assert.equal(empty.querySelector('.igrid').textContent, 'Nothing here.', 'an empty bag keeps the card, so + Add is there (the starting kit)');
+  assert.equal(empty.querySelectorAll('.ihead .btn2').some(b => b.textContent === '+ Add'), true);
   assert.equal(itemsCard(undefined, {}), null);
   assert.equal(itemsCard(bagFixture({ rpg: false }), makeCtx()).querySelector('.igrid').classList.contains('norpg'), true);
 });

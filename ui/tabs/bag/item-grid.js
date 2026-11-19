@@ -43,10 +43,10 @@ function shown(items, key, query) {
   return items.filter(it => !it.wornBy && (key === 'all' || it.kind === key));
 }
 
-/** Builds the Items card from the bag view-model; ctx = { members, onItem(item) }. Null when there are no items. */
+/** Builds the Items card from the bag view-model; ctx = { members, onItem(item), onAdd() }. An empty bag still has the card ("Nothing here." and + Add, as the mock); null with no view-model. */
 export function itemsCard(bag, ctx = {}) {
-  const items = Array.isArray(bag?.items) ? bag.items : [];
-  if (!items.length) return null;
+  if (!bag || !Array.isArray(bag.items)) return null;
+  const items = bag.items;
   const rpg = Boolean(bag.rpg);
   const filters = (bag.filters ?? []).filter(f => f.key in FILTER_LABEL);
   let key = 'all';

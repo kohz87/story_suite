@@ -30,6 +30,9 @@ const ITEM = {
   // The item's own rarity word (the tile class folds legendary into epic); the Edit form's Rarity starts from it.
   realRarity: { $optional: { $nullable: T.STRING } },
   count: { $optional: { $nullable: T.NUMBER } },
+  // A gear piece whose points the reader may move (gear.view's repoint): the total that stays and where it sits now ({ DEX: 1, AGI: 1 }); a cast member's piece is `bound`.
+  repoint: { $optional: { budget: T.NUMBER, stats: T.ANY } },
+  bound: { $optional: T.BOOLEAN },
 };
 
 const ASSET = {
@@ -49,6 +52,8 @@ const ASSET = {
 
 export const BAG_SHAPE = {
   rpg: T.BOOLEAN,
+  // Gear in fights is on, and the starting kit is open (the + Add form's Rarity and Stats).
+  gear: { $optional: { on: T.BOOLEAN, kit: T.BOOLEAN } },
   filters: [{ key: { $enum: ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'] }, count: T.NUMBER }],
   items: [ITEM],
   purse: {

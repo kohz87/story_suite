@@ -19,6 +19,8 @@ What changed in each release, in short. The full record of every change is in [t
 - HP now comes from STR and VIT, SP from AGI and DEX, MP from INT and WIS.
 - Desktop: a dossier opens beside your character and Here now (up to 1,040 px wide), and NPC State's Edit is a 920 px sheet in two columns with Save and Cancel always in view.
 - World › Map is readable on big worlds: names no longer pile up (the rest show as you zoom in or hover), it opens on where you are, and Fit leaves far-off places out with a count at the edge.
+- Bag › + Add (now there with an empty bag too): equipment gets Slot, Rarity (at the start of a chat) and a Stats picker; an item's sheet shows its stats with **Change** to move its points. Rings, amulets and accessories now default to CHA.
+- Party: the circle in the middle of the equipment shows the member's portrait (yours, or the companion's from NPC State), the initial only when there is none.
 
 ## 0.1.3 — 19 Nov 2026
 

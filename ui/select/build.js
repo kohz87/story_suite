@@ -16,7 +16,7 @@ import { selectProblems, selectSent, selectInspector, selectSavePoints } from '.
 import { selectPrompts } from './prompts.js';
 import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
 import { selectHold } from './hold.js';
-import { gather, optsOf, gearOf } from './gather.js';
+import { gather, optsOf, gearOf, partyPortraits } from './gather.js';
 import { offerRows } from './offers.js';
 import { pinnedFeed } from './pinned.js';
 import { PARTY_ACTIVE } from './party-max.js';
@@ -82,7 +82,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     party: read => {
       const actors = read('party.actors', {});
-      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}) });
+      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}), portraits: partyPortraits(read, ctx, actors) });
       // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
       return wizard.needsYou() ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
     },
