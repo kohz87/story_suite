@@ -14,12 +14,12 @@ const build = (id, extra = {}) => {
   return { el: dossierPage(dossier(id), ctx), ctx, backStack };
 };
 
-test('dossierPages: the living get seven pages, the dead five, and empty Ties, Secrets and Mood are left out', () => {
+test('dossierPages: the living get seven pages (Mood and Ties even when empty), the dead five, and empty Secrets are left out', () => {
   assert.deepEqual(dossierPages(dossier('temiwa'), 'Astra').map(p => p.id), ['with', 'mood', 'now', 'ties', 'past', 'secrets', 'profile']);
   assert.equal(dossierPages(dossier('temiwa'), 'Astra')[0].title, 'With Astra');
   assert.deepEqual(dossierPages(dossier('marro')).map(p => p.id), ['death', 'past', 'secrets', 'profile']);
   assert.deepEqual(dossierPages(dossier('dren')).map(p => p.id), ['death', 'past', 'profile']);
-  assert.deepEqual(dossierPages(dossier('rika')).map(p => p.id), ['with', 'mood', 'now', 'past', 'profile']);
+  assert.deepEqual(dossierPages(dossier('rika')).map(p => p.id), ['with', 'mood', 'now', 'ties', 'past', 'profile']);
   assert.equal(dossierPages(dossier('temiwa'))[0].title, 'With you');
 });
 
@@ -38,9 +38,10 @@ test('a living dossier shows the hero and the cards in mock order, Past with its
   assert.match(el.textContent, /Human · female · 26/);
 });
 
-test('empty cards are hidden: Rika has no ties and no secrets, so neither card shows', () => {
+test('Rika has no ties and no secrets: the Ties card says so (the mock\'s two columns stay), Secrets is left out', () => {
   const { el } = build('rika');
-  assert.deepEqual(ids(el), ['with', 'mood', 'now', 'past', 'profile']);
+  assert.deepEqual(ids(el), ['with', 'mood', 'now', 'ties', 'past', 'profile']);
+  assert.match(el.querySelector('[data-page="ties"]').textContent, /No ties yet/);
   assert.match(el.querySelector('[data-page="with"]').textContent, /Nothing yet/);
 });
 
@@ -151,12 +152,14 @@ test('a Follow the engine refuses puts the star back', async () => {
   assert.equal(follow().getAttribute('aria-pressed'), 'false');
 });
 
-test('a living person with no mood has no Mood card or page', () => {
+test('a living person with no mood keeps the Mood card, saying it is not read yet', () => {
   installFakeDom();
   const d = dossier('rika');
   d.mood = null;
-  assert.deepEqual(dossierPages(d).map(p => p.id), ['with', 'now', 'past', 'profile']);
-  assert.deepEqual(ids(dossierPage(d, {})), ['with', 'now', 'past', 'profile']);
+  assert.deepEqual(dossierPages(d).map(p => p.id), ['with', 'mood', 'now', 'ties', 'past', 'profile']);
+  const el = dossierPage(d, {});
+  assert.deepEqual(ids(el), ['with', 'mood', 'now', 'ties', 'past', 'profile']);
+  assert.match(el.querySelector('[data-page="mood"]').textContent, /Not read yet/);
 });
 
 test('the ⋯ menu lists five actions, sends the chosen command and closes; Delete asks twice', async () => {

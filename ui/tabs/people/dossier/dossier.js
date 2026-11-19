@@ -29,13 +29,13 @@ const nowEmpty = (d) => {
   return !facts.some(Boolean) && !d.scene;
 };
 
-/** Lists the pages a dossier has: the living get With, Mood, Right now, Ties, Past, Secrets, Profile; the dead get Death, Ties, Past, Secrets, Profile. Empty Ties, Secrets, Mood and Right now are left out. */
+/** Lists the pages a dossier has: the living get With, Mood, Right now, Ties, Past, Secrets, Profile; the dead get Death, Ties, Past, Secrets, Profile. Empty Secrets and Right now are left out; the living always get Mood and Ties (an empty line until there is one), so the cards keep the mock's two columns. */
 export function dossierPages(d, youName = 'you') {
   const dead = d.life !== 'alive';
   const all = dead
     ? [['death', 'Death'], ['ties', 'Ties'], ['past', 'Past'], ['secrets', 'Secrets'], ['profile', 'Profile']]
     : [['with', `With ${youName}`], ['mood', 'Mood'], ['now', 'Right now'], ['ties', 'Ties'], ['past', 'Past'], ['secrets', 'Secrets'], ['profile', 'Profile']];
-  const skip = { ties: !d.ties?.length, secrets: !d.secrets?.total, mood: !d.mood, now: nowEmpty(d) };
+  const skip = { ties: dead && !d.ties?.length, secrets: !d.secrets?.total, now: nowEmpty(d) };
   return all.filter(([id]) => !skip[id]).map(([id, title]) => ({ id, title }));
 }
 
@@ -47,13 +47,14 @@ function summary(d, id) {
     const c = d.changes?.find(change => !change.heldBack);
     return c ? h('span', { class: 'lc' }, h('b', { class: `f${Math.max(0, FEELING_KEYS.indexOf(c.meter))}` }, `${c.meter[0].toUpperCase()}${c.meter.slice(1)} ${c.delta > 0 ? '+' : ''}${c.delta}`), ` · ${c.why}`) : h('span', { class: 'fine' }, 'Nothing yet');
   }
-  if (id === 'mood') return [h('span', { class: 'mw' }, d.mood), moodMeters(d.moodBars)];
+  if (id === 'mood') return d.mood ? [h('span', { class: 'mw' }, d.mood), moodMeters(d.moodBars)] : h('span', { class: 'fine' }, 'Not read yet');
   if (id === 'now') {
     const here = Object.hasOwn(now, 'where');
     // (a person with only a wearing or a thought still gets a line, and one with only a said word too)
     const line = here ? [now.where, lower(now.doing), now.wearing && `wearing ${lower(now.wearing)}`, now.thought && `“${now.thought}”`].filter(Boolean).join(' · ') : [now.lastPlace, now.lastSeen && `last seen ${now.lastSeen}`, now.said].filter(Boolean).join(' · ');
-    return [h('span', { class: 'lc' }, line), d.scene ? h('span', { class: 'hint' }, 'This scene: wants and hiding · spoiler') : null];
+    return [h('span', { class: 'lc' }, line || (here ? 'Here, nothing noted yet' : 'Not known')), d.scene ? h('span', { class: 'hint' }, 'This scene: wants and hiding · spoiler') : null];
   }
+  if (id === 'ties' && !d.ties?.length) return h('span', { class: 'fine' }, 'No ties yet');
   if (id === 'ties') return [h('span', { class: 'avs' }, d.ties.map(t => tieDisc(t, 'a'))), h('span', { class: 'lc sm' }, `${d.ties.length} · ${d.ties.map(t => t.name).join(', ')}`)];
   if (id === 'past') {
     const dots = (d.past ?? []).flatMap((_, i) => (i ? [h('b'), h('i')] : [h('i')]));

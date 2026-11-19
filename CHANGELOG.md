@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A person's page keeps its Mood and Ties cards before NPC State has read them ("Not read yet", "No ties yet"), so it keeps the two-column layout.
 - A person's Profile lines up its labels in one column, and the Wants and Hiding rows sit clear of the Scene spoilers switch.
 - The Here drawer floats over the bottom of the chat instead of pushing it up.
 - Add to party shows on a person's page only when the story offered them as a companion.
