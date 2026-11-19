@@ -14,6 +14,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Settings › Look: **Glass strength** now reaches every glass surface (blur, tab strip, chips, sheets and their dimmed layer), not only the panel colour. The default looks as before.
 - With Panel background Off, Glass strength now also lifts the cards off the plain colour: higher makes them lighter (in dark) with a firmer edge and shadow. The default looks as before.
 - HP now comes from STR and VIT, SP from AGI and DEX, MP from INT and WIS.
+- Desktop: a dossier opens beside your character and Here now (up to 1,040 px wide), and NPC State's Edit is a 920 px sheet in two columns with Save and Cancel always in view.
 
 ## 0.1.3 — 19 Nov 2026
 
