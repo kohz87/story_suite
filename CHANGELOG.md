@@ -5,6 +5,7 @@
 ### Fixed
 
 - Settings › Look › Glass strength now reaches every glass surface: the blur behind panels, the tab strip and mini bar, chips and rows on the panels, the bottom sheets and the dimmed layer under them, not only the panel colour. The default looks as before.
+- With Panel background Off, Glass strength now also lifts the cards off the plain colour: higher makes them lighter (in dark) with a firmer edge and shadow. The default looks as before.
 
 ## 0.1.3 — 19 Nov 2026
 

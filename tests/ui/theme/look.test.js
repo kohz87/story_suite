@@ -28,8 +28,8 @@ test('the defaults are the mock: Glass dark or light (from SillyTavern\'s theme)
   assert.deepEqual(lookTheme(lookOf({}), reader(LIGHT_ST)), { tokens: { ...GLASS_LIGHT }, scheme: 'light', zoom: null });
 });
 
-test('Glass strength moves the panels\' alpha: 50% is the mock\'s .72/.9, under it one point per point, above it every step denser up to .98 at 90%', () => {
-  const at = (strength, vars = DARK_ST) => lookTheme(lookOf({ glassStrength: strength }), reader(vars)).tokens;
+test('Glass strength (Panel background On) moves the panels\' alpha: 50% is the mock\'s .72/.9, under it one point per point, above it every step denser up to .98 at 90%', () => {
+  const at = (strength, vars = DARK_ST) => lookTheme({ ...lookOf({ glassStrength: strength }), panelBg: true }, reader(vars)).tokens; // Off: glass-flat.test.js
   assert.equal(at(30)['--su-panel'], 'rgba(28,30,44,.52)');
   assert.equal(at(30)['--su-panel2'], 'rgba(36,38,56,.7)');
   assert.equal(at(70)['--su-panel'], 'rgba(28,30,44,.85)');
@@ -68,9 +68,9 @@ test('Text size: 110% and 120% zoom the root; Normal adds nothing', () => {
 
 test('every look\'s tokens pass the skin check (applyTheme writes them all)', () => {
   for (const panelStyle of ['glass', 'sillytavern']) for (const font of ['nunito', 'theme']) for (const glassStrength of [30, 50, 90]) {
-    for (const vars of [DARK_ST, LIGHT_ST, {}]) {
-      const { errors } = checkSkin(lookTheme(lookOf({ panelStyle, font, glassStrength }), reader(vars)).tokens);
-      assert.deepEqual(errors, [], `${panelStyle} ${font} ${glassStrength}`);
+    for (const [vars, panelBg] of [DARK_ST, LIGHT_ST, {}].flatMap(v => [[v, true], [v, false]])) {
+      const { errors } = checkSkin(lookTheme({ ...lookOf({ panelStyle, font, glassStrength }), panelBg }, reader(vars)).tokens);
+      assert.deepEqual(errors, [], `${panelStyle} ${font} ${glassStrength} ${panelBg}`);
     }
   }
 });
