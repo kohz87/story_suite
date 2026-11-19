@@ -66,20 +66,26 @@ const temiwa = base('temiwa', {
   moodBars: bars(1, 0, -1),
   stage: { now: 'Acquaintance', next: 'Friend', needs: 'Trust 30 and a danger faced together' },
   changes: [
-    { date: 'Goldwane 13', meter: 'trust', delta: 2, why: 'you handed back the offering coin she dropped', heldBack: false },
-    { date: 'Goldwane 11', meter: 'affection', delta: 5, why: 'she liked that you wore her ring', heldBack: false },
-    { date: 'Goldwane 9', meter: 'trust', delta: 5, why: 'you kept Torka from drawing on the guard', heldBack: false },
-    { date: 'Goldwane 9', meter: 'tension', delta: -4, why: 'you spoke to her before the clerk', heldBack: false },
+    { date: 'Goldwane 13', meter: 'trust', delta: 2, why: 'you handed back the offering coin she dropped', heldBack: false, reply: 14 },
+    { date: 'Goldwane 11', meter: 'affection', delta: 5, why: 'she liked that you wore her ring', heldBack: false, reply: 9 },
+    { date: 'Goldwane 10', meter: 'desire', delta: 1, why: 'a lingering look at the chapel door', heldBack: true, reply: 7, note: 'too soon after meeting; the story has not given her a reason yet' },
+    { date: 'Goldwane 9', meter: 'trust', delta: 5, why: 'you kept Torka from drawing on the guard', heldBack: false, reply: 4 },
+    { date: 'Goldwane 9', meter: 'tension', delta: -4, why: 'you spoke to her before the clerk', heldBack: false, reply: 4 },
   ],
+  moodChanges: [
+    { reply: 12, date: 'Goldwane 12', moves: [{ axis: 'feeling', delta: 1 }], why: 'the chapel roof was mended before the rain' },
+    { reply: 4, date: 'Goldwane 9', moves: [{ axis: 'control', delta: -1 }], why: 'Torka nearly drew on the guard in her hall' },
+  ],
+  lastReply: 14,
   ties: [
     { personId: 'torka', portrait: 'torka', name: 'Torka', line: 'friend · childhood · Tem to her' },
     { personId: null, portrait: null, name: 'Oyla', line: 'owes · works beside her, uneasy' },
     { personId: null, portrait: null, name: 'the Harbour Master', line: 'owes · the chapel owes him a debt' },
   ],
   past: [
-    { date: 'Goldwane 13', text: 'Handed back the offering coin she dropped. Trust +2.', dayRef: 'Goldwane 13' },
-    { date: 'Goldwane 11', text: 'Gave you a silver ring for the road “so the sea knows you”.', dayRef: 'Goldwane 11' },
-    { date: 'Goldwane 9', text: 'Met at the Guild Office; wary of Torka’s sword.', dayRef: null },
+    { date: 'Goldwane 13', text: 'Handed back the offering coin she dropped. Trust +2.', dayRef: 'Goldwane 13', reply: 14 },
+    { date: 'Goldwane 11', text: 'Gave you a silver ring for the road “so the sea knows you”.', dayRef: 'Goldwane 11', reply: 9 },
+    { date: '', text: 'Met at the Guild Office; wary of Torka’s sword.', dayRef: null },
   ],
   secrets: {
     opened: 1,

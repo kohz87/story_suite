@@ -57,9 +57,11 @@ function ringLabelSpot(pos) {
   return best ?? { x: 50, y: 7 };
 }
 
-function tieLines(ties, pos, sel, focus) {
+function tieLines(ties, pos, sel, focus, all = true) {
+  // (All bonds off: only the picked person's own bonds)
+  const mine = t => all || (sel && (t.a === sel || t.b === sel));
   return (ties ?? [])
-    .filter(t => pos[t.a] && pos[t.b] && (!focus || t.a === focus || t.b === focus))
+    .filter(t => pos[t.a] && pos[t.b] && (!focus || t.a === focus || t.b === focus) && mine(t))
     .map((t) => {
       const on = Boolean(focus) || (sel && (t.a === sel || t.b === sel));
       return svgEl('line', {
@@ -97,8 +99,10 @@ function pickedCard(person, ties, people, ctx, handlers, focus) {
 /**
  * Builds the map. `people` are cards with `here` set; `state` = { lens, sel, focus }; `handlers` = { lens(id), pick(id), focus(id|null) }.
  * ctx.go(tab, args) opens a dossier; `you` = { portrait, name } is drawn in the centre.
+ * The dossier's Map tab draws its own picked panel and asks for none here: `card: false` leaves out the picked card, `legend: false` the tie legend; `tools` are
+ * extra controls beside the lens switch (its All bonds toggle) and `allBonds: false` draws only the picked person's bonds.
  */
-export function castMap({ people = [], ties = [], state = {}, handlers = {}, ctx = {}, you = { name: 'You' } } = {}) {
+export function castMap({ people = [], ties = [], state = {}, handlers = {}, ctx = {}, you = { name: 'You' }, card = true, legend = true, tools = null, allBonds = true } = {}) {
   const lens = LENSES.find(l => l[0] === state.lens) ?? LENSES[0];
   const pos = placePeople(people, lens[0]);
   const sel = people.find(p => p.personId === state.sel) ?? null;
@@ -113,12 +117,12 @@ export function castMap({ people = [], ties = [], state = {}, handlers = {}, ctx
     h('div', { class: 'mapctl' },
       segmented({ items: LENSES.map(l => [l[0], l[1]]), value: lens[0], label: 'Lens', className: 'seg2', onChange: v => handlers.lens?.(v) }),
       focus ? h('button', { type: 'button', class: 'fchip', onClick: () => handlers.focus?.(null) },
-        `Focus: ${shortName(people.find(p => p.personId === focus))} ✕`) : null),
+        `Focus: ${shortName(people.find(p => p.personId === focus))} ✕`) : null, tools),
     h('p', { class: 'fine' }, `Closer to ${you.name ?? 'you'} = ${lensName} · the dashed outer ring = ${lens[2]}`),
     h('div', { class: 'cmap' },
       ring(39.2), ring(62.8), ring(92.2, true),
       h('span', { class: 'rw', style: { left: `${spot.x}%`, top: `${spot.y}%` } }, lens[2]),
-      svgEl('svg', { viewBox: '0 0 100 100', preserveAspectRatio: 'none', 'aria-hidden': 'true' }, tieLines(ties, pos, sel?.personId, focus)),
+      svgEl('svg', { viewBox: '0 0 100 100', preserveAspectRatio: 'none', 'aria-hidden': 'true' }, tieLines(ties, pos, sel?.personId, focus, allBonds)),
       h('span', { class: 'cm you', style: { left: '50%', top: '50%' } }, portraitDisc(you, 'cm-face')),
       people.map(p => h('button', {
         type: 'button',
@@ -130,6 +134,6 @@ export function castMap({ people = [], ties = [], state = {}, handlers = {}, ctx
         onClick: () => handlers.pick?.(p.personId),
       }, h('span', { class: 'cm' }, portraitDisc(p, 'cm-face'), h('i', { class: `hm ${p.here ? 'here' : 'away'}` })),
       h('b', null, shortName(p)), h('small', null, signed(lensValue(p, lens[0])))))),
-    h('div', { class: 'mleg' }, TIE_LEGEND.map(([cls, text]) => h('span', { class: `leg-${cls}` }, h('i'), text)), h('span', null, '● here\u00a0 ○ away')),
-    pickedCard(sel, ties, people, ctx, handlers, focus));
+    legend ? h('div', { class: 'mleg' }, TIE_LEGEND.map(([cls, text]) => h('span', { class: `leg-${cls}` }, h('i'), text)), h('span', null, '● here\u00a0 ○ away')) : null,
+    card ? pickedCard(sel, ties, people, ctx, handlers, focus) : null);
 }

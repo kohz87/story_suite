@@ -12,7 +12,7 @@ import { withWorldEvents } from './world-events.js';
 import { buildJournal } from './journal.js';
 import { buildStory } from './story.js';
 import { buildSettings } from './settings.js';
-import { DOSSIERS, dossierFor } from './dossier.js';
+import { DOSSIERS, dossierFor, TIES } from './dossier.js';
 import { sceneFixture } from './interaction.js';
 
 function resolveOptions(variant) {
@@ -201,6 +201,8 @@ function buildPeople(opts, hereList) {
     elsewhere,
     notSeenLately: dormant.length,
     deceased,
+    // (the map's tie lines, as people.ties gives them)
+    ties: TIES.map(t => ({ ...t })),
   };
 }
 

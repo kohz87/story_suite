@@ -20,7 +20,6 @@ export function pendingCard(tab) {
 export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null }) {
   let dossier = null;
   let openId = null;
-  let peopleStart = null;
   const openDossier = (personId) => {
     const vm = port.view('dossier')?.[personId];
     const host = tabHost()?.el?.parentNode;
@@ -28,23 +27,16 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     dossier?.close();
     const from = tabHost().current();
     const opener = doc?.activeElement ?? null;
-    let stay = false;
     const el = dossierPage(vm, {
       port, prefs, backStack, go, youName: port.view('card')?.you?.name, origin: `‹ ${TITLES[from] ?? 'Party'}`,
-      seeOnMap: (id) => {
-        stay = true;
-        el.close();
-        peopleStart = { view: 'map', focus: id };
-        const already = tabHost().current() === 'people';
-        tabHost().select('people');
-        if (already) refresh?.();
-      },
+      // (the library, a tie or the map showed another person in place: a redraw after a reply reads that one)
+      onPerson: (id) => { if (dossier === el) openId = id; },
       onClose: () => {
         const had = !doc?.activeElement || doc.activeElement === doc.body || el.contains(doc.activeElement);
         el.remove();
         if (dossier === el) dossier = null;
-        if (!stay && from !== 'people') tabHost()?.select(from);
-        if (had && !stay) giveBack(host, opener, personId);
+        if (from !== 'people') tabHost()?.select(from);
+        if (had) giveBack(host, opener, openId ?? personId);
       },
     });
     dossier = el;
@@ -66,9 +58,8 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     if (tab) tabHost()?.select(tab);
     if (args) port.command('suite.go', { tab, ...args });
   };
-  const takeStart = () => { const s = peopleStart; peopleStart = null; return s; };
   const ctx = { port, prefs, go };
-  const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh, peopleStart: takeStart });
+  const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh });
   return {
     // A person's page left open: closed when the suite is opened on a tab (it would cover the tab asked for).
     closePage: () => dossier?.close(),

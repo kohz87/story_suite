@@ -1,8 +1,9 @@
-// Draws the dossier hero ring with its four corner numbers and builds the "With you" page (meters, stage, changes).
+// Draws the dossier hero ring with its four corner numbers and builds the "With you" part (the last changes with their reply and date, then the meters and stage).
 import { h } from '../../../kit/dom.js';
 import { feelingsRing, FEELING_KEYS } from '../../../kit/ring.js';
 import { portraitDisc } from '../person-card.js';
 import { pageSection } from '../../../kit/page.js';
+import { eventRow } from './reply-words.js';
 
 const CORNERS = Object.freeze(['c-tr', 'c-br', 'c-bl', 'c-tl']);
 const cap = text => text[0].toUpperCase() + text.slice(1);
@@ -30,21 +31,25 @@ function meterRow(key, value, i, { label = cap(key), stage = null, min = -100, m
   return h('div', { class: ['mrow', own ? 'own' : null], dataset: { meter: key } }, h('span', { class: `f${i % 4}` }, label, stage ? h('small', { class: 'stg' }, stage) : null), h('i', null, bar), h('b', null, own ? String(v) : signed(v)));
 }
 
+// One change: "Trust +2 · why"; a held-back move in amber ("Desire +1 held back") with the recorded Why under it when there is one.
 function changeRow(c) {
   const i = Math.max(0, FEELING_KEYS.indexOf(c.meter));
-  return h('div', { class: 'e', dataset: { meter: c.meter } }, h('span', null, c.date),
-    h('span', null, h('b', { class: `f${i}` }, `${cap(c.meter)} ${signed(c.delta)}`), ` · ${c.why}`, c.heldBack ? h('small', { class: 'held' }, ' · held back') : null));
+  const move = `${cap(c.meter)} ${signed(c.delta)}`;
+  const row = eventRow(c.reply, c.date, c.heldBack ? h('span', { class: 'held' }, `${move} held back`) : h('b', { class: `f${i}` }, move), c.why ? ` · ${c.why}` : null,
+    c.note ? h('span', { class: 'why' }, h('b', null, 'Why:'), ` ${c.note}`) : null);
+  row.dataset.meter = c.meter;
+  return row;
 }
 
-/** Builds the page body: the four meter bars (each with its stage word once reached) and the reader's own feelings, the stage with what it needs, and every change; `youName` words the title only. */
+/** Builds the part: every change (newest first) with its date and reply, then the four meter bars (each with its stage word once reached), the reader's own feelings, and the stage with what it needs. */
 export function withPage(d) {
   const stage = d.stage;
   return [
-    h('div', { class: 'mrows' }, [
+    pageSection('Last changes', d.changes?.length ? h('div', { class: 'evs' }, d.changes.map(changeRow)) : h('p', { class: 'fine' }, 'Nothing has changed yet.')),
+    pageSection('Feelings', h('div', { class: 'mrows' }, [
       ...FEELING_KEYS.map((key, i) => meterRow(key, d.meters?.[key], i, { stage: d.axisStages?.[key] })),
       ...(d.extraMeters ?? []).map((m, i) => meterRow(m.key, m.value, FEELING_KEYS.length + i, m)),
-    ]),
+    ])),
     stage ? pageSection(`Stage · ${stage.now}${stage.next ? ` → ${stage.next}` : ''}`, stage.needs ? h('p', { class: 'fine' }, `needs ${stage.needs}`) : null) : null,
-    pageSection('Changes with you', d.changes?.length ? h('div', { class: 'tl2' }, d.changes.map(changeRow)) : h('p', { class: 'fine' }, 'Nothing has changed yet.')),
   ].filter(Boolean);
 }

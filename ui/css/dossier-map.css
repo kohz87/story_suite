@@ -1,0 +1,98 @@
+/* The dossier's phone top bar (two lines), its library strip (folded, open, a grid on a phone) and its Map tab (the relationship map with the picked person
+   beside it on a desktop window, under it below 1,100 px). Mock: scratch/design/dossier-v2/full.html, frames 1j, 2d, 3a, 3e and 4a-4e. */
+/* phone: line one ‹ origin, the name, ⋯, Close; line two the Dossier / Map switch at full width */
+@container su-root (max-width:599px){
+  .dbar{flex-wrap:wrap;row-gap:8px;padding:8px 12px}
+  .dbar .k,.dbar .pill{display:none}
+  .dbar .nm2{flex:1;text-align:center}
+  .dbar .sp{display:none}
+  .su-root .dov .dbar .dseg{flex:1 0 100%;order:5}
+  .su-root .dov .dbar .dseg button{flex:1}
+}
+/* the library strip: one folded line, or open (a row of portraits with names; a 3-wide grid on a phone) */
+.dlib-slot{flex:none}
+.dlib{display:flex;align-items:center;gap:12px;height:60px;padding:0 16px;border-top:1px solid var(--su-line);background:var(--d-flat);white-space:nowrap;overflow:hidden}
+.dlib .lhd{display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;cursor:pointer;font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted)}
+.dlib .row2{display:flex;gap:8px;margin-left:8px;min-width:0;overflow-x:auto;scrollbar-width:none}.dlib .row2::-webkit-scrollbar{display:none}
+.dlib .p{position:relative;width:44px;height:44px;flex:none;padding:0;border:0;border-radius:50%;background:var(--pk-disc);cursor:pointer;color:#fff}
+.dlib .pf{position:absolute;inset:0;border-radius:50%;background:center 18%/cover;display:grid;place-items:center;font:800 13px var(--su-font);color:#fff}
+.dlib .p.on{box-shadow:0 0 0 2px var(--su-accent)}
+.dlib.open{height:auto;flex-direction:column;align-items:stretch;gap:8px;padding:8px 16px 12px;white-space:normal}
+.dlib.open .hd{display:flex;align-items:center;gap:12px;min-height:44px;white-space:nowrap}
+.dlib .fchips{display:flex;gap:8px}
+.dlib .fchip{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--su-line2);background:var(--su-tint);font:800 12px var(--su-font);letter-spacing:.04em;color:var(--su-soft);cursor:pointer}
+.dlib .fchip[aria-pressed="true"]{color:var(--pk-gold);border-color:var(--pk-gold);background:rgba(240,184,74,.12)}
+.dlib .fchip[data-filter="all"][aria-pressed="true"]{color:var(--su-text);border-color:var(--su-line2);background:var(--su-tint)}
+.dlib .lrow{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.dlib .lrow::-webkit-scrollbar{display:none}
+.dlib .lp{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:88px;padding:9px 4px 6px;border:0;border-radius:12px;background:none;color:var(--su-text);flex:none;cursor:pointer}
+.dlib .lp .p{width:48px;height:48px;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
+.dlib .lp.on{background:var(--su-tint)}
+.dlib .lp.on .p{box-shadow:0 0 0 3px var(--su-accent)}
+.dlib .lp.fol .p{box-shadow:0 0 0 3px var(--pk-gold)}
+.dlib .lp.on.fol .p{box-shadow:0 0 0 3px var(--su-accent),0 0 0 6px var(--pk-gold)}
+.dlib .lp.dead .pf{filter:grayscale(1) brightness(.75)}
+.dlib .lp b{font:800 12px/1.2 var(--su-font);text-align:center;white-space:nowrap}
+@container su-root (max-width:599px){
+  .dlib{height:48px}
+  .dlib:not(.open) .row2,.dlib .lw{display:none}
+  .dlib.open{max-height:60%;overflow:auto}
+  .dlib.open .hd{flex-wrap:wrap;row-gap:0}.dlib.open .hd .sp{display:none}.dlib.open .hd>.lhd{flex:1 0 100%}
+  .dlib .lrow{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;overflow:visible}
+  .dlib .lp{min-width:0}.dlib .lp b{white-space:normal}
+}
+/* the Map tab: map left, picked person right (desktop); map then the person in a card (tablet, phone) */
+.dmapv{display:flex;flex-direction:column;min-width:0;overflow:auto}
+.dov .dbody:has(>.dmapv){grid-template-columns:minmax(0,1fr)}
+.dmapv .rmain{min-width:0;padding:12px 16px;display:flex;flex-direction:column}
+.dov .castmap{gap:12px}
+.dov .castmap>.fine{order:-1;font:400 13px/1.4 var(--su-font);color:var(--su-soft)}
+.dov .mapctl{flex-wrap:nowrap;gap:12px}
+.su-root .dov .mapctl .seg{height:50px;padding:2px;border-radius:12px;background:var(--su-panel);overflow:visible}
+.su-root .dov .mapctl .seg button{border-radius:9px;padding:0 16px;font:700 13.5px var(--su-font);color:var(--su-soft)}
+.su-root .dov .mapctl .seg button[aria-pressed="true"]{background:var(--d-on);color:var(--su-text)}
+.dov .tgl{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:1px solid var(--su-line2);border-radius:12px;background:var(--su-panel2);color:var(--su-text);font:800 13.5px var(--su-font);white-space:nowrap;cursor:pointer}
+.dov .tgl[aria-pressed="true"]{background:var(--d-on);border-color:rgba(240,184,74,.45)}
+.dov .cmap{max-width:560px;width:100%}
+.dov .cmap .ring2{border-color:rgba(255,255,255,.14)}.dov .cmap .ring2.cold{border-color:rgba(255,255,255,.22)}
+[data-scheme="light"] .dov .cmap .ring2{border-color:rgba(0,0,0,.14)}[data-scheme="light"] .dov .cmap .ring2.cold{border-color:rgba(0,0,0,.25)}
+.dov .cmap .rw{font:italic 600 12px var(--su-font);background:var(--d-flat)}
+.dov .cm{width:48px;height:48px;box-shadow:0 0 0 1px rgba(255,255,255,.28)}
+.dov .cm.you{width:48px;height:48px;box-shadow:0 0 0 1.5px #fff}
+.dov .cmw{width:auto;min-width:64px;transform:translate(-50%,-24px)}
+.dov .cmw b,.dov .cmw small{background:var(--d-flat);padding:0 4px;border-radius:6px;white-space:nowrap;line-height:1.2}
+.dov .cmw b{margin-top:2px}
+.dov .cmw[aria-pressed="true"] .cm{box-shadow:0 0 0 3px var(--su-accent),0 0 0 7px rgba(168,151,255,.25)}
+.dmapv .rpanel{min-width:0}
+.dmapv .rsel{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:16px;margin:0 16px 16px;border:1px solid var(--su-line);border-radius:16px;background:var(--su-panel)}
+.dmapv .rbox{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.dmapv .rring{position:relative;width:200px;height:200px;flex:none;padding:0;border:0;background:none;cursor:pointer}
+.dmapv .rring svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dmapv .rring .disc{position:absolute;inset:11%;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 36px var(--su-font);color:#fff}
+.dmapv .rring .prof{bottom:17%}
+.dmapv .dname{margin-top:0}
+.dmapv .rbonds{width:100%;display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:4px}
+.dmapv .bl{font:400 13.5px/1.4 var(--su-font)}.dmapv .bl b{font-weight:800}
+.dmapv .rbtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px}
+@container su-root (min-width:600px){
+  .dmapv .rsel{flex-direction:row;align-items:center;text-align:left;gap:16px}
+  .dmapv .rring{width:150px;height:150px}
+  .dmapv .rbox{align-items:flex-start;flex:1}
+  .dmapv .rbox .chips,.dmapv .rbtns{justify-content:flex-start}
+  .dmapv .rbonds{align-items:flex-start}
+}
+@container su-root (min-width:1100px){
+  .dmapv{display:grid;grid-template-columns:minmax(0,1fr) 360px;overflow:hidden}
+  .dmapv .rmain{overflow:auto}
+  .dmapv .rpanel{border-left:1px solid var(--su-line);overflow:auto}
+  .dmapv .rsel{flex-direction:column;align-items:center;text-align:center;margin:0;border:0;border-radius:0;background:none}
+  .dmapv .rring{width:200px;height:200px}
+  .dmapv .rbox{align-items:center}
+  .dmapv .rbox .chips,.dmapv .rbtns{justify-content:center}
+  .dmapv .rbonds{align-items:center}
+}
+@container su-root (max-width:599px){
+  .dmapv .rmain{padding:12px}
+  .dov .mapctl{flex-wrap:wrap}
+  .su-root .dov .mapctl .seg{flex:1 0 100%;order:2}.su-root .dov .mapctl .seg button{flex:1;padding:0 4px;font-size:12.5px}
+  .dmapv .rsel{margin:0 12px 12px}
+}
