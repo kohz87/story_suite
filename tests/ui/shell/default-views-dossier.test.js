@@ -66,7 +66,7 @@ test('a person with no dossier view-model, or a port with no dossier view, opens
   unknown.destroy();
 });
 
-test('Day › leaves the dossier and shows the Journal; the chat branch closes it too', () => {
+test('Day › leaves the dossier and shows the Journal calendar on that day; the chat branch closes it too', () => {
   const doc = installFakeDom();
   const suite = mountSuite({ port: createFakePort(), doc, initial: 'people' });
   suite.open('people');
@@ -75,6 +75,9 @@ test('Day › leaves the dossier and shows the Journal; the chat branch closes i
   doc.body.querySelector('.dossier .day').click();
   assert.equal(doc.body.querySelector('.dossier'), null);
   assert.equal(suite.tabHost.current(), 'journal');
+  assert.equal(doc.body.querySelector('.journal-body').dataset.view, 'cal', 'the calendar, not the quests');
+  const sel = doc.body.querySelector('.journal-body .cd.sel');
+  assert.match(sel?.getAttribute('aria-label') ?? '', /^Goldwane 13\b/, 'that memory\'s day is picked');
   assert.equal(suite.backStack.list().filter(e => e.id.startsWith('dossier-')).length, 0);
   suite.tabHost.select('people');
   doc.body.querySelector('[data-person-id="temiwa"]').click();

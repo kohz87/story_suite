@@ -7,7 +7,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Ersveil 4.1.0: every cast member now has a portrait (19 new). Update the pack in Settings › Packs to get them.
 - A person's page is redone: portrait and feelings on the left, the cards beside it, and on a desktop window the card you open sits next to them (its own page on a tablet or phone).
 - A person's page is always the flat surface now (no sky, glow or shade), whatever Panel background says.
-- Memories on a person's page show the story date and reply they were recorded in; older memories without a record show none.
+- Memories on a person's page show the story date and reply they were recorded in (older ones without a record show none); Day › opens the Journal calendar on that day.
 - The Mood card says since which reply the mood changed and why; open it for the recent mood changes, each with its date and reply.
 - Each feeling change shows the reply it came in, and a held-back move shows why it moved less.
 - The top bar of a person's page shows the reply of their last recorded change, and a Dossier / Map switch: Map is the relationship map with them picked.

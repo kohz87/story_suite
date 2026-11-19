@@ -20,6 +20,7 @@ export function pendingCard(tab) {
 export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null }) {
   let dossier = null;
   let openId = null;
+  let journalStart = null;
   const openDossier = (personId) => {
     const vm = port.view('dossier')?.[personId];
     const host = tabHost()?.el?.parentNode;
@@ -55,11 +56,13 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     if (!opening) dossier?.close();
     if (tab === 'chat') { onChat?.(); return; }
     if (opening) openDossier(args.personId);
+    // (a dossier's Day ›: the Journal opens its calendar on that day, once)
+    if (tab === 'journal' && args?.day) journalStart = { day: String(args.day) };
     if (tab) tabHost()?.select(tab);
     if (args) port.command('suite.go', { tab, ...args });
   };
   const ctx = { port, prefs, go };
-  const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh });
+  const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh, journalStart: () => { const s = journalStart; journalStart = null; return s; } });
   return {
     // A person's page left open: closed when the suite is opened on a tab (it would cover the tab asked for).
     closePage: () => dossier?.close(),
