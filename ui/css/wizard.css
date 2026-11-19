@@ -125,10 +125,13 @@
 .su-root .sh-ov.wz .wz-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .su-root .sh-ov.wz .wz-skill{background:color-mix(in srgb,var(--su-tint) 20%,transparent)}
 .su-root[data-scheme="light"] .sh-ov.wz .wz-skill{background:none}
-.su-root .sh-ov.wz .wz-skill-top{align-items:start}
+.su-root .sh-ov.wz .wz-skill-top{align-items:end}
+.su-root .sh-ov.wz .wz-skill-top .ef input{width:100%;box-sizing:border-box}
 .su-root .sh-ov.wz .wz-skill .wz-x{display:block;height:44px;min-height:0;padding:1px 6px;border:0;border-radius:10px;background:var(--su-tint);font:800 16px var(--su-font)}
-.su-root .sh-ov.wz .wz-skill textarea{height:58px;min-height:58px}
+/* (the description shows four lines; it can be dragged taller) */
+.su-root .sh-ov.wz .wz-skill textarea{height:auto;min-height:112px;resize:vertical}
 .su-root .sh-ov.wz .wz-trio{gap:6px}
+.su-root .sh-ov.wz .wz-trio{grid-template-columns:72px minmax(0,1fr) minmax(0,1.15fr)}
 .su-root .sh-ov.wz .wz-trio select{padding-left:8px;padding-right:2px;-webkit-appearance:auto;appearance:auto}
 .su-root .sh-ov.wz .wz-add{flex-direction:row;align-items:center;gap:12px}
 .su-root .sh-ov.wz .wz-add .btn2{align-self:center;min-width:96px}

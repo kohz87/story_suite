@@ -57,7 +57,7 @@ function skillCard(ctx, skill, at) {
   const label = skill.name || W.newSkill;
   const patch = (value, again = false) => { ctx.put(withSkillPatch(run.draft, at, value)); if (again) ctx.redraw(); else ctx.summary(); };
   const name = h('input', { type: 'text', maxlength: String(CREATION.skillName), 'aria-label': W.skillName, value: skill.name ?? '', dataset: { field: 'name' }, onInput: () => patch({ name: name.value }) });
-  const about = h('textarea', { rows: '2', maxlength: String(CREATION.skillAbout), 'aria-label': fill(W.skillAbout, { name: label }), value: skill.about ?? '', dataset: { field: 'about' }, onInput: () => patch({ about: about.value }), onKeydown: event => { if (event.key === 'Enter') event.preventDefault(); } });
+  const about = h('textarea', { rows: '4', maxlength: String(CREATION.skillAbout), 'aria-label': fill(W.skillAbout, { name: label }), value: skill.about ?? '', dataset: { field: 'about' }, onInput: () => patch({ about: about.value }), onKeydown: event => { if (event.key === 'Enter') event.preventDefault(); } });
   const stat = select([...(skill.stat ? [] : [{ value: '', label: '—' }]), ...STATS.map(key => ({ value: key, label: key.toUpperCase() }))], skill.stat ?? '', fill(W.skillStat, { name: label }), 'stat');
   const type = select(typeOptions(SKILL_TYPES, run.draft.skills, at), skill.type ?? 'attack', fill(W.skillType, { name: label }), 'type');
   const ranked = Number.isSafeInteger(skill.rank);
