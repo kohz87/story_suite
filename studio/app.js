@@ -11,6 +11,7 @@ import { GLASS_DARK, GLASS_LIGHT } from '../ui/theme/tokens.js';
 import { PORTRAIT_TYPES, sniffImage } from '../packs/portraits.js';
 import { clearDraft, loadDraft, saveDraft } from './draft.js';
 import { exportBlock, exportJson, exportZip } from './export.js';
+import { exportLorebook, loreState } from './lorebook-export.js';
 import { bindKeys } from './keys.js';
 import { openPicked } from './load.js';
 import { openDoc as documentOf } from './model/doc.js';
@@ -36,11 +37,9 @@ const day = at => { const d = new Date(at); return `${d.getDate()} ${MONTHS[d.ge
 function saveFile(doc, { name, bytes }, type) {
     const url = URL.createObjectURL(new Blob([bytes], { type }));
     const link = doc.createElement('a');
-    link.href = url;
-    link.download = name;
+    link.href = url; link.download = name;
     doc.body.appendChild(link);
-    link.click();
-    link.remove();
+    link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
@@ -136,7 +135,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         shell.setFooter(pack.check, { old });
         const zip = pack.doc && pack.kind === 'world' ? exportBlock(pack, state.packs.game) : null;
         const json = pack.doc ? exportBlock(pack) : null;
-        shell.setExport(old ? { zip: false, json: false, blocked: null } : { zip: Boolean(pack.doc) && pack.kind === 'world' && !zip, json: Boolean(pack.doc) && !json, blocked: (json ?? zip)?.text ?? null });
+        shell.setExport(old ? { zip: false, json: false, blocked: null } : { zip: Boolean(pack.doc) && pack.kind === 'world' && !zip, json: Boolean(pack.doc) && !json, blocked: (json ?? zip)?.text ?? null, lore: loreState(pack) });
         shell.setHistory(pack);
         shell.setPacks(['world', 'game'].filter(kind => state.packs[kind]).map(kind => ({ kind, title: titleOf(state.packs[kind]), errors: state.packs[kind].legacy ? 0 : state.packs[kind].check.errors.length, active: kind === state.active })));
     }
@@ -409,6 +408,7 @@ export function startStudio({ doc = globalThis.document, root, storage = globalT
         onOpen: files => open(files),
         onExportZip: () => exportAs('zip'),
         onExportJson: () => exportAs('json'),
+        onExportLore: () => { const file = exportLorebook(active()); if (file) { save(file, 'application/json'); shell.setNotice(`Exported ${file.name}.`); } },
         onUndo: step('undo'),
         onRedo: step('redo'),
         onTheme: () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; storage?.setItem?.(THEME_KEY, state.theme); paintTheme(); },
