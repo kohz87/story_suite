@@ -48,8 +48,8 @@ Packs move to format 4: a world pack holds the world (lore, people, places, rout
 - Cards under replies are back: Add to party, Edit first, No, and "The story ends here" when your character dies. Loot has its chip and a Bag "To pick up" card again.
 - Fights: a fight the narrator opens and you do not play is not told blow by blow; it lapses after two replies. A hero's Level and NPC State Level stay in step.
 - Speed: building the prompt, an edited Re-read and a middle delete no longer freeze. NPC State catches up three people at a time, with one notice.
-- The narrator uses pack people's canon names and profiles, and a first meeting gives the name.
-- Party and Bag: Wear on and Give to act on the member you pick, Equip and Unequip work, worn gear shows per member, and a new companion starts at Level 1.
+- The narrator uses pack people's canon names and profiles, and is told a newcomer's name to use once someone in the story says it.
+- Party and Bag: Wear on and Give to act on the member you pick, Equip and Unequip work, and worn gear shows per member.
 - People and dossiers: search by alias; your own feelings have bars; Delete, Edit and Mark alive work; a goal shows as Wants; quoted speech stays whole.
 - Look settings (panel style, glass, font, text size) work and survive a reload. Uploaded portraits stay after a reload.
 - World tab: north is at the top of the map, made-up places show under Places, News, Find and the region picker work, and Edit says why a change was refused.
@@ -61,7 +61,7 @@ Packs move to format 4: a world pack holds the world (lore, people, places, rout
 ### Removed
 
 - The old view: the bar above the message box, the story panel, game view, HUD, old settings window, old dossier window and "Use the old view".
-- Settings rows with nothing behind them, the format 3 sample world, and old data formats from before 0.1.0.
+- Settings rows with nothing behind them, the format 3 sample world, and data left by the old Story Block.
 
 ### For developers
 
