@@ -78,8 +78,8 @@ function drawSvg(world, vb, scale, state, act, pick) {
   const newsIds = new Set(world.news.map(n => n.placeId).filter(Boolean));
   const tripPts = (world.trip?.placeIds ?? []).map(id => byId.get(id)).filter(Boolean);
   const terrain = world.terrain ?? {};
-  const { labels, boxes } = planLabels(world.places, vb, scale, pick);
-  const names = planRegions(world.places, terrain.labels, vb, scale, boxes);
+  const { labels, boxes, dots } = planLabels(world.places, vb, scale, pick);
+  const names = planRegions(world.places, terrain.labels, vb, scale, [...boxes, ...dots]);
   const grid = [];
   const land = landBox(world.places);
   const span = k => [Math.min(0, Math.floor(Math.min(...world.places.map(p => p[k])) / 100) * 100), Math.max(1000, Math.ceil(Math.max(...world.places.map(p => p[k])) / 100) * 100)];

@@ -42,8 +42,8 @@ function spots(sx, sy, rpx, fpx, name, must, H) {
 /**
  * Plans the place labels for view box vb (map units) drawn at `scale` px per unit on a W×H px map. pick = { keep: Set of ids
  * that must show (trip, selected), region, avoid: px boxes kept clear }. A label covers no other label, no dot and nothing in
- * `avoid`. Returns { labels: Map id → { side 'r'|'l', dy (px) }, boxes: the shown px boxes }; a place not in `labels` keeps its
- * dot and shows its name on hover, focus or when selected. Where you are always shows.
+ * `avoid`. Returns { labels: Map id → { side 'r'|'l', dy (px) }, boxes: the shown px boxes, dots }; a place not in `labels` keeps its
+ * dot and shows its name on hover, focus or when selected. Where you are always shows. `dots`: the dots' px boxes.
  */
 export function planLabels(places, vb, scale, pick = {}) {
   const W = vb.w * scale;
@@ -74,10 +74,10 @@ export function planLabels(places, vb, scale, pick = {}) {
     boxes.push(spot);
     labels.set(p.id, { side: spot.side, dy: spot.dy });
   }
-  return { labels, boxes };
+  return { labels, boxes, dots };
 }
 
-/** The region names to draw at this view: one per region at its places' middle (or the map's own labels), kept only where it fits whole and touches no shown label. */
+/** The region names to draw at this view: one per region at its places' middle (or the map's own labels), kept only where it fits whole and touches nothing in `taken` (shown labels, dots). */
 export function planRegions(places, terrainLabels, vb, scale, taken = []) {
   const cands = Array.isArray(terrainLabels) && terrainLabels.length
     ? terrainLabels.map(l => ({ text: l.text, x: l.x, y: l.y, italic: Boolean(l.italic), size: 0 }))
