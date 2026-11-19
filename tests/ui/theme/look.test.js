@@ -1,7 +1,7 @@
 // Settings › Look → the new view's theme (ui/theme/look.js): the defaults draw the mock's Glass exactly; each control moves its own token.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { lookOf, lookTheme, TEXT_ZOOM } from '../../../ui/theme/look.js';
+import { lookOf, lookTheme, TEXT_ZOOM, STRENGTH_TOKENS } from '../../../ui/theme/look.js';
 import { GLASS_DARK, GLASS_LIGHT } from '../../../ui/theme/tokens.js';
 import { checkSkin } from '../../../ui/theme/apply.js';
 
@@ -41,8 +41,8 @@ test('Glass strength moves the panels\' alpha: 50% is the mock\'s .72/.9, under 
   assert.equal(new Set(steps).size, steps.length, 'no dead zone: every step to 90% changes the panels');
   assert.equal(at(30, LIGHT_ST)['--su-panel'], 'rgba(255,255,255,.52)');
   assert.equal(at(30, LIGHT_ST)['--su-panel2'], 'rgba(255,255,255,.68)');
-  const rest = ({ '--su-panel': a, '--su-panel2': b, ...others }) => others;
-  assert.deepEqual(rest(at(30)), rest({ ...GLASS_DARK }), 'only the two panel tokens move');
+  const rest = tokens => Object.fromEntries(Object.entries(tokens).filter(([name]) => !STRENGTH_TOKENS.includes(name)));
+  assert.deepEqual(rest(at(30)), rest({ ...GLASS_DARK }), 'only the strength tokens move (the scrims and blurs: glass-strength.test.js)');
 });
 
 test('Follow SillyTavern: its own colours; the strength does not apply there', () => {

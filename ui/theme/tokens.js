@@ -34,6 +34,11 @@ export const TOKENS = Object.freeze([
   '--su-last-pos',
   '--su-shadow',
   '--su-blur',
+  '--su-blur-strong',
+  '--su-blur-soft',
+  '--su-scrim',
+  '--su-scrim-strong',
+  '--su-scrim-place',
   '--su-sky',
   '--su-font',
 ]);
@@ -72,6 +77,11 @@ export const GLASS_DARK = Object.freeze({
   '--su-last-pos': '#4fd39a',
   '--su-shadow': '0 10px 30px rgba(0,0,0,.4)',
   '--su-blur': '16px',
+  '--su-blur-strong': '28px', // the bottom sheets' panel
+  '--su-blur-soft': '6px', // behind the Scene sheet's scrim
+  '--su-scrim': 'rgba(6,8,16,.45)', // the dim layer under a sheet
+  '--su-scrim-strong': 'rgba(6,8,16,.6)', // under the Scene sheet
+  '--su-scrim-place': 'rgba(8,10,18,.5)', // under World's place sheet
   '--su-sky': 'linear-gradient(180deg,#2c3f66 0%,#3d5a86 30%,#7a86a8 62%,#2a2d45 100%)',
   '--su-font': '"Nunito",system-ui,sans-serif',
 });
@@ -110,6 +120,11 @@ export const GLASS_LIGHT = Object.freeze({
   '--su-last-pos': '#0d7a4f',
   '--su-shadow': '0 10px 30px rgba(40,30,80,.18)',
   '--su-blur': '16px',
+  '--su-blur-strong': '28px', // the bottom sheets' panel
+  '--su-blur-soft': '6px', // behind the Scene sheet's scrim
+  '--su-scrim': 'rgba(6,8,16,.45)', // the dim layer under a sheet
+  '--su-scrim-strong': 'rgba(6,8,16,.6)', // under the Scene sheet
+  '--su-scrim-place': 'rgba(8,10,18,.5)', // under World's place sheet
   '--su-sky': 'linear-gradient(180deg,#8fb2e0 0%,#b9d0ec 40%,#efe4d8 75%,#d8d3e6 100%)',
   '--su-font': '"Nunito",system-ui,sans-serif',
 });

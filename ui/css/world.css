@@ -90,7 +90,7 @@
 .leg small{display:block;color:var(--su-muted);font-size:12px}
 .leg .eta{font:700 12px var(--su-font);color:var(--su-soft);white-space:nowrap}
 /* place sheet */
-.wov{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center;background:rgba(8,10,18,.5)}
+.wov{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center;background:var(--su-scrim-place)}
 .wsheet{width:100%;max-width:520px;max-height:85%;overflow:auto;padding:10px 16px 18px;display:flex;flex-direction:column;gap:10px;background:var(--su-panel2);border:1px solid var(--su-line);border-radius:20px 20px 0 0;box-shadow:var(--su-shadow);color:var(--su-text)}
 @container (min-width:620px){.wov{align-items:center}.wsheet{border-radius:20px}}
 .wsheet .grab{align-self:center;width:40px;height:4px;border-radius:2px;background:var(--su-line2)}

@@ -630,7 +630,7 @@
   "ui/tabs/world/world.js": "Composes the World tab: a Map / News / Factions switch over one body, the place sheet, and links between the views.",
   "ui/theme/apply.js": "Writes a token set on the suite root and refuses values that are not colour, length or font.",
   "ui/theme/follow-st.js": "Maps SillyTavern's theme variables to tokens and decides light or dark.",
-  "ui/theme/look.js": "Settings › Look in the new view: the stored Panel style, Glass strength, Font and Text size as the suite root's tokens, scheme and text zoom.",
+  "ui/theme/look.js": "Settings › Look in the new view: the stored Panel style, Glass strength, Font and Text size as the suite root's tokens, scheme and text zoom; the one source of the tokens Glass strength moves (panels, scrims, blurs).",
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
   "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
   "ui/wizard/attach.js": "Puts the New character wizard and the first-send hold on the new view: answers the port's open of story-block/new-character itself and closes both sheets on a chat change.",
