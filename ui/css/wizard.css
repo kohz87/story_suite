@@ -110,7 +110,6 @@
 .su-root .sh-ov.wz .wz-rows{order:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
 .su-root .sh-ov.wz .wz-rows .ps-st{border-top:1px solid var(--su-line2);padding:3px 0}
 .su-root .sh-ov.wz .wz-rows .ps-st:nth-child(-n+2){border-top:0}
-.su-root .sh-ov.wz .wz-rows .ps-st .v.up{display:grid;grid-template-columns:36px;align-items:center} /* the mock centres a raised value in 36 px, a plain one in its 32 */
 .su-root .sh-ov.wz .wz-left{display:flex;align-items:center;gap:12px}
 .su-root .sh-ov.wz .wz-left-pill{display:flex}
 .su-root .sh-ov.wz .wz-left .wz-growth{font-weight:700;color:var(--su-text)}

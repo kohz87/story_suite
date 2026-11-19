@@ -88,7 +88,7 @@ test('a redraw on the same step keeps the step\'s scroll; another step starts at
   assert.equal(w.sheet().querySelector('.wz-body').scrollTop || 0, 0);
 });
 
-test('after a Create that left something out, the sheet holds the steps, the summary and the step only (no stray "null" where the footer was)', { skip }, async t => {
+test('after a Create that left something out there is no footer (the stray "null" text is checked in tests/ui/rendered/wizard-desktop.test.js)', { skip }, async t => {
   const w = await sheetOn(t);
   w.go('stats');
   w.wizard.session().finished = 'Wessel is in the party. Not added: Foes.';
