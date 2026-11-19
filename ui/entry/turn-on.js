@@ -18,7 +18,7 @@ import { attachWizard } from '../wizard/attach.js';
 import { SUITE_VERSION } from '../../core/version.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
 
-const STYLES = ['base', 'shell', 'desk', 'kit', 'card', 'now', 'chat', 'loot', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'dossier-map', 'world', 'journal', 'story', 'settings', 'sheet-desk', 'wizard', 'gear-stats'];
+const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'loot', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'dossier-map', 'world', 'journal', 'story', 'settings', 'sheet-desk', 'wizard', 'gear-stats'];
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses, and SillyTavern's World Info for a world pack's lorebook.
 const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharacterLorebook, lore: { read: refreshLore }, lorebooks: { books: stLorebooks(), settings: stSettings() } });
 const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
@@ -65,7 +65,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
     messagesEl: chatEl(),
     handlers: {
       onCardAction: action => runCardAction(port, action), onReread: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); if (at >= 0) port.reread(at); },
-      onOpenSuite: tab => suite.open(tab), onFight: () => suite.open('fight'), onPoints: () => suite.open('party'), onOverdue: () => suite.open('journal'), onOffers: () => suite.open('now'),
+      onOpenSuite: tab => suite.open(tab), onFight: () => suite.open('fight'), onPoints: () => suite.open('party'), onOverdue: () => suite.open('journal'), onOffers: () => { suite.open('now'); suite.settings(); }, // (the pack offers live in Settings › Packs and trackers now)
       onJoin: name => (name ? openPersonOr('', name) : suite.open('people')), onLootTake: (sid, pick) => port.command('inventory.lootTake', { sid, pick }), onOpenPerson: openPersonOr, onChoice: putChoice,
     },
   });

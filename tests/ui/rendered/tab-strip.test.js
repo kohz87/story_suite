@@ -45,11 +45,10 @@ for (const theme of ['dark', 'light']) {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await ctx.browser.newPage({ viewport: { width, height: 900 } });
       await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+      await page.emulateMedia({ reducedMotion: 'reduce' }); // (measure the window open, not mid way through its scale-in)
       await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&tab=now`);
       await page.waitForSelector('#hx-frame .su-strip .su-tab');
       await page.evaluate(() => document.fonts.ready);
-      // (the window scales in as it opens: measured mid-way the strip reads 2.5 % short, so wait for the opening to end)
-      await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished.catch(() => null))));
       const got = await page.evaluate(() => {
         const strip = document.querySelector('#hx-frame .su-strip');
         const tabs = [...strip.querySelectorAll('.su-tab')];
