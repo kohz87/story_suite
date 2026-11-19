@@ -6,7 +6,7 @@ import { setup } from './helpers.js';
 import { actorIdOf } from '../../../modules/rpg/roster.js';
 import { sheetSkills } from '../../../modules/rpg/sheet-skills.js';
 
-const MEMBER_SKILL = { glyph: 'atk', name: 'Cut', kind: 'attack', stat: 'STR', resource: 'stamina', cost: 1, rank: 'Apprentice', mastery: 2 };
+const MEMBER_SKILL = { glyph: 'atk', name: 'Cut', about: 'A hard cut', kind: 'attack', stat: 'STR', resource: 'stamina', cost: 1, rank: 'Apprentice', mastery: 2 };
 
 async function world(options = {}, extra = {}) {
     const blocks = v1Blocks({ hero: { points: 2, xp: 30, level: 5, vit: 12, ...options } });

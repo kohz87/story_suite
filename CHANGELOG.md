@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Party › Skills: tapping a skill now shows what it does under its kind; a skill with no cost reads "Story only", and a missing value is left out instead of showing "null".
 - New character › Skills: once one skill is a stance (Defence, Evasion, Movement or Support), the other skills' Type lists show the stance types switched off and name the skill that holds it.
 - Settings › Packs: **Create the lorebook** from a world pack makes a SillyTavern lorebook of its lore, so the narrator reads it too; **Update the lorebook** remakes it when the pack changes.
 - **Use with this character** (on by default) attaches it to the character, beside any lorebook the card has; chat lore is left alone. Hidden lore stays out of the book.

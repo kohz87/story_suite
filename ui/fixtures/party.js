@@ -32,6 +32,12 @@ const CAST = [
 ];
 
 // The kind line under each skill name, copied from the mock (stances say what they do and what they cost each exchange).
+const SKILL_ABOUT = {
+  Iaijutsu: 'A single draw-cut, fast enough that the target is down before the blade is seen.', Flash: 'A burst of light and steel that catches everyone in front of her.',
+  'Shadow Bolt': 'A bolt of dark force thrown from the hand.', Mend: 'Closes wounds with a quiet word and a steady hand.', 'Shadow Step': 'Slips between shadows, so blows land where she was.',
+  Cleave: 'A wide axe swing that hits every foe in reach.', 'Heavy blow': 'One slow, crushing strike.', 'Shield wall': 'Plants the shield and holds the line, soaking more of each hit.',
+  'Aimed shot': 'A patient, careful arrow.', Fade: 'Melts into cover and is hard to hit.', Whirlwind: 'Spins with the greatsword, cutting all around.', 'Brute strike': 'Straight, heavy and hard to turn aside.',
+};
 const SKILL_LINES = {
   Iaijutsu: 'Attack · DEX · 1 Stamina', Flash: 'Area attack · STR · 2 Stamina', 'Shadow Bolt': 'Magic attack · INT · 1 Mana',
   Mend: 'Heal · WIS · 2 Mana', 'Shadow Step': 'Stance · evasion · 1 Stamina each exchange', Cleave: 'Area attack · STR · 2 Stamina',
@@ -67,7 +73,7 @@ function makeMember([id, name, level, line, cur, xp, st, points, away, worn, eff
     stats: Object.fromEntries(STAT_KEYS.map((k, i) => [k, st[i]])),
     slots,
     skills: skills.map(([glyph, sn, kind, stat, resource, cost, rank, mastery]) => ({
-      glyph, name: sn, kind, stat: stat || KIND_STAT[kind], resource, cost, rank, mastery, line: SKILL_LINES[sn] ?? null,
+      glyph, name: sn, kind, stat: stat || KIND_STAT[kind], resource, cost, rank, mastery, about: SKILL_ABOUT[sn] ?? '', line: SKILL_LINES[sn] ?? null,
     })),
   };
 }
