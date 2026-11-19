@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- With Panel background off, a person's page is flat too (it kept its own sky).
 - On a reply's card, the time, place and weather icons stay beside their words.
 - The HP, MP and SP bars on a reply's card show at their full length (they shrank to dots).
 - What needs you now shows as a red count on the Journal tab, with the list at the top of the Journal, and a card's pack offers (Install, Update, Not now) sit at the top of Settings › Packs and trackers; nothing sits above the tabs any more.

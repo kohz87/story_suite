@@ -79,6 +79,8 @@ for (const theme of ['dark', 'light']) {
         await page.waitForSelector('#hx-frame .dossier .mood3');
         await page.waitForFunction(() => getComputedStyle(document.querySelector('#hx-frame .dossier .dscroll')).zIndex === '1');
         const v = await page.evaluate(read);
+        // (the sky is the Panel background's: on here, whatever the harness default; off is checked below)
+        await page.evaluate(() => document.querySelector('#hx-frame .su-root')?.setAttribute('data-panelbg', 'on'));
         const sky = await page.evaluate(() => {
           const d = document.querySelector('#hx-frame .dov'); const dc = getComputedStyle(d);
           const fine = document.createElement('p'); fine.className = 'fine'; d.appendChild(fine);
@@ -91,6 +93,10 @@ for (const theme of ['dark', 'light']) {
         assert.match(sky.shade, theme === 'dark' ? /rgba\(10, 12, 20, 0\.55\)/ : /rgba\(255, 255, 255, 0\.35\)/, 'bottom shade');
         assert.equal(Math.round(parseFloat(sky.shadeH)), Math.round(sky.box * 0.45), 'shade is 45 % tall');
         assert.equal(sky.fine, '400', 'dossier .fine weight');
+        await page.evaluate(() => document.querySelector('#hx-frame .su-root')?.setAttribute('data-panelbg', 'off'));
+        const flat = await page.evaluate(() => { const d = document.querySelector('#hx-frame .dov'); return { bg: getComputedStyle(d).backgroundImage, glow: getComputedStyle(d, '::before').display }; });
+        assert.equal(flat.bg, 'none', 'Panel background off: no sky on a person\'s page');
+        assert.equal(flat.glow, 'none', 'Panel background off: no glow');
         assert.equal(v.name, '22px', 'the owner asked for a smaller name than the mock (19 Nov)');
         assert.equal(v.corner, '17px');
         assert.equal(v.spacing, '1.2px');
