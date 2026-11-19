@@ -9,9 +9,6 @@ What changed in each release, in short. The full record of every change is in [t
 - **Use with this character** (on by default) attaches it to the character, beside any lorebook the card has; chat lore is left alone. Hidden lore stays out of the book.
 - Pack Studio: **Export lorebook** saves a world pack's lore as a SillyTavern lorebook file.
 - Settings › Look: **Glass strength** now reaches every glass surface (blur, tab strip, chips, sheets and their dimmed layer), not only the panel colour. The default looks as before.
-### Fixed
-
-- Settings › Look › Glass strength now reaches every glass surface: the blur behind panels, the tab strip and mini bar, chips and rows on the panels, the bottom sheets and the dimmed layer under them, not only the panel colour. The default looks as before.
 - With Panel background Off, Glass strength now also lifts the cards off the plain colour: higher makes them lighter (in dark) with a firmer edge and shadow. The default looks as before.
 
 ## 0.1.3 — 19 Nov 2026
