@@ -8,6 +8,7 @@ import { MAX_NAME, MAX_KIND, MAX_CONDITION, MAX_WHERE } from './caps-text.js';
 import { MAX_COUNT, MAX_PACE, MAX_CARRY } from './caps-count.js';
 import { whole, paceNumber } from './shared-parse.js';
 import { apply } from './apply.js';
+import { ride } from './ride.js';
 
 const M = STRINGS.mounts;
 
@@ -45,4 +46,6 @@ function editRow(ctx, payload = {}) {
 
 export const mountsCommands = {
     'mounts.edit': Object.assign(editRow, { feature: MOUNTS_FEATURE }),
+    // { who, mount | null }: the Party Mount slot (ride.js).
+    'mounts.ride': Object.assign(ride, { feature: MOUNTS_FEATURE }),
 };

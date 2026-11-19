@@ -4,7 +4,7 @@
 import { isPlainObject, OWNER_RE } from '../scene/domains/common.js';
 import { WALLET_KEY } from './money.js';
 import { isId } from '../../core/registry/check.js';
-import { defErrors, isCount, nonBlank, COND_MAX, condLogErrors, keptErrors } from './state.js';
+import { defErrors, isCount, nonBlank, COND_MAX, condLogErrors, keptErrors, BAG_PLACE } from './state.js';
 import { lootErrors } from './loot.js';
 
 export function validateInventory(slice) {
@@ -31,7 +31,8 @@ export function validateInventory(slice) {
         if (stack.equipped !== null) {
             if (!nonBlank(stack.equipped)) errors.push(`${label} has an equipped slot that is neither empty nor a name.`);
             else {
-                if (def && def.kind !== 'equipment') errors.push(`${label} is worn in "${stack.equipped}" but is not equipment.`);
+                // (a carried bag, any kind of item, is filed under BAG_PLACE: the Party Bag slot)
+                if (def && def.kind !== 'equipment' && stack.equipped !== BAG_PLACE) errors.push(`${label} is worn in "${stack.equipped}" but is not equipment.`);
                 const place = `${stack.owner}\u0000${stack.equipped}`;
                 if (worn.has(place)) errors.push(`Two items are worn in the same slot "${stack.equipped}" by the same owner.`);
                 worn.add(place);

@@ -20,7 +20,11 @@ test('slots carry rarity edges, dashed empties, torn marks and full accessible n
   assert.equal(slot('head').getAttribute('aria-label'), 'Head: empty');
   assert.equal(slot('head').getAttribute('title'), 'Head: empty, tap to equip');
   assert.equal(slot('weapon').classList.contains('r-rare'), true);
-  assert.equal(slot('mount').classList.contains('r-unc'), true);
+  // (a mount has no rarity: its slot shows the mount and its pace, the Bag slot the bag and the load it adds)
+  assert.equal(slot('mount').className, 'slot');
+  assert.equal(slot('mount').getAttribute('aria-label'), 'Mount: Dappled mare, 35 km/day');
+  assert.equal(slot('mount').querySelector('.lf').textContent, 'Mount · 35 km/day');
+  assert.equal(slot('bag').getAttribute('aria-label'), 'Bag: Leather satchel, +10 load');
   assert.equal(slot('armor').classList.contains('empty'), false);
   assert.equal(slot('armor').className, 'slot');
   assert.equal(slot('offhand').getAttribute('aria-label'), 'Offhand: Oak round shield, torn');

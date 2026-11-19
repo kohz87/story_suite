@@ -103,6 +103,7 @@
 .su-root .ps-b{min-height:44px;min-width:44px;padding:8px 16px;border-radius:12px;border:1px solid var(--su-line2);background:var(--su-tint);color:var(--su-text);font:800 14px var(--su-font);cursor:pointer}
 .su-root .ps-b.pri{background:var(--su-pill);color:var(--su-pilltext);border-color:transparent}.su-root .ps-b.bad{color:var(--su-bad)}
 .su-root .ps-b:disabled{opacity:.4;cursor:default}
+.ps-r small.ps-why,.ps-p.ps-why{display:block;color:var(--su-warn)}
 .ps-row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 .ps-sec{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
 .ps-st{display:grid;grid-template-columns:minmax(0,1fr) 32px 44px 44px;gap:8px;align-items:center;padding:2px 0;border-top:1px solid var(--su-line2)}

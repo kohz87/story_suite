@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Party › Mount and Bag slots: tap them to choose which party mount a member rides or which bag they carry (None frees it); a mount left behind, already full, or a bound bag says why.
 - Bag › Wear on…: when a piece cannot be worn (no slot set), the sheet stays open with the reason and an **Edit item** button that opens its Slot.
 - Party › Skills: tapping a skill now shows what it does under its kind; a skill with no cost reads "Story only", and a missing value is left out instead of showing "null".
 - New character › Skills: once one skill is a stance (Defence, Evasion, Movement or Support), the other skills' Type lists show the stance types switched off and name the skill that holds it.
