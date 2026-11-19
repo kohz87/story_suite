@@ -648,8 +648,9 @@
   "ui/wizard/hold.js": "Holds the first Send of a chat with the RPG on and no You in the new view: the 'Make your character first' sheet and its two answers.",
   "ui/wizard/review.js": "Draws the wizard's Review step in the new view and runs Create through modules/rpg's create-run.",
   "ui/wizard/skills.js": "Draws the wizard's Skills step in the new view: the starting sets and one card of fields per skill.",
-  "ui/wizard/stats.js": "Draws the wizard's Stats step in the new view: the stat sheet's − / + rows under the creation budget, Reset and the notes.",
+  "ui/wizard/stats.js": "Draws the wizard's Stats step in the new view: the notes, the stat sheet's − / + rows under the creation budget, then Points left, the HP · MP · SP line and Reset.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
-  "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary row and Back / Next.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona, reply key, rules, levels, and whether the story has You."
+  "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary, Back / Next and Create's footer, and the step's scroll across redraws.",
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You.",
+  "ui/wizard/summary.js": "Draws the wizard's summary of the character so far: the phone's row and, from 1100 px, the left card's portrait, stat tiles and skill list."
 }

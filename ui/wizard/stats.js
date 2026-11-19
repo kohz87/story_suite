@@ -1,5 +1,5 @@
-// The wizard's Stats step in the new view: the Party stat sheet's rows (name, value, − and +; mock v7 .ps-st) under the creation budget, Reset,
-// the old step's notes, and the HP · MP · SP line that follows the stats. The bounds and the points left are wizard-data's (statBounds, pointsLeft).
+// The wizard's Stats step in the new view: the old step's notes, the Party stat sheet's rows (name, value, − and +; mock v7 .ps-st) under the
+// creation budget, then Points left, the HP · MP · SP line that follows the stats, and Reset. The bounds and the points left are wizard-data's (statBounds, pointsLeft).
 
 import { h } from '../kit/dom.js';
 import { STATS_V1 as STATS } from '../../modules/rpg/names.js';
@@ -44,10 +44,13 @@ export function drawStats(ctx) {
       h('button', { type: 'button', class: 'ps-b', dataset: { plus: stat }, 'aria-label': `Raise ${key}`, disabled: value >= max || left <= 0, onClick: step(stat, 1) }, '+'));
   });
   const standard = draftCreation(now).standard === true;
+  // (the notes, the rows, then Points left · HP · MP · SP · Reset in one row from 1100 px; on a phone, wizard.css puts Reset above the rows, where
+  // the sticky Back / Next can never cover it, and leaves the notes and the HP line under the rows)
   return h('div', { class: 'wz-stats' },
-    h('div', { class: 'wz-rows' }, rows),
-    h('div', { class: 'ps-row wz-left' },
-      h('button', { type: 'button', class: 'ps-b', dataset: { wiz: 'reset' }, onClick: () => { ctx.put({ ...run.draft, stats: startStats(readDraft(run.draft)) }); ctx.redraw(); } }, W.statsReset)),
     notes(now, world),
-    standard ? h('p', { class: 'ps-p wz-growth', dataset: { wiz: 'growth' } }, barsLine(now)) : null);
+    h('div', { class: 'wz-rows' }, rows),
+    h('div', { class: 'wz-left' },
+      h('span', { class: 'chip2 wz-left-pill' }, fill(W.pointsLeft, { n: left })),
+      standard ? h('p', { class: 'ps-p wz-growth', dataset: { wiz: 'growth' } }, barsLine(now)) : null,
+      h('button', { type: 'button', class: 'ps-b', dataset: { wiz: 'reset' }, onClick: () => { ctx.put({ ...run.draft, stats: startStats(readDraft(run.draft)) }); ctx.redraw(); } }, W.statsReset)));
 }

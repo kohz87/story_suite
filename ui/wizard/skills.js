@@ -44,7 +44,8 @@ function setButton(ctx, set) {
     ctx.put(withSet(run.draft, set));
     ctx.redraw();
   };
-  return h('button', { type: 'button', class: 'wz-set', 'aria-pressed': String(used), dataset: { set: set.id }, onClick: pick },
+  // (from 1100 px, once a set is used the sets fold to name chips, wizard.css; the title keeps their skills and words on hover)
+  return h('button', { type: 'button', class: 'wz-set', 'aria-pressed': String(used), title: [setLine(set), set.about].filter(Boolean).join('. '), dataset: { set: set.id }, onClick: pick },
     h('span', { class: 'wz-set-top' }, h('b', null, set.name), used ? h('span', { class: 'wz-tag' }, W.used) : null),
     h('small', null, setLine(set)),
     set.about ? h('small', null, set.about) : null,
@@ -93,7 +94,8 @@ export function drawSkills(ctx) {
     run.draft.skills.some(skill => Number.isSafeInteger(skill.rank)) ? h('p', { class: 'ps-p' }, W.importRanks) : null,
     run.draft.skills.some(skill => skill.sig === true) ? h('p', { class: 'ps-p' }, W.signatureNote) : null,
     stanceNote(run.draft.skills) ? h('p', { class: 'ps-p', role: 'status', dataset: { wiz: 'stance-note' } }, stanceNote(run.draft.skills)) : null,
-    run.draft.skills.map((skill, at) => skillCard(ctx, skill, at)),
+    // (one card under the other on a phone, two to a row from 1100 px)
+    run.draft.skills.length ? h('div', { class: 'wz-cards' }, run.draft.skills.map((skill, at) => skillCard(ctx, skill, at))) : null,
     h('div', { class: 'wz-add' },
       button({ label: W.add, disabled: left <= 0, dataset: { wiz: 'add' }, onClick: () => { ctx.put(withSkill(run.draft)); ctx.redraw(); } }),
       h('p', { class: 'ps-p' }, `${left <= 0 ? W.slotsFull : left === 1 ? W.slotLeft : fill(W.slotsLeft, { n: left })} ${W.skillsNoteStandard}`)));

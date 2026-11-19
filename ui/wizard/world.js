@@ -21,7 +21,7 @@ export function hasYouIn(state, persona) {
 }
 
 /**
- * `createWizardWorld({ sdk, ctx })` (`ctx()` is SillyTavern's live context) → { headState(), readerName(), replyKey(), rules(), packNote(), levels(),
+ * `createWizardWorld({ sdk, ctx })` (`ctx()` is SillyTavern's live context) → { headState(), readerName(), portrait(), replyKey(), rules(), packNote(), levels(),
  * levelCap(), rpgOn(), hasYou(), needsYou(), characters(), world(), query(name, args), chatId() }. `world()` is what Create and its problems read (the old wizard's worldOf).
  */
 export function createWizardWorld({ sdk, ctx = () => null }) {
@@ -29,6 +29,14 @@ export function createWizardWorld({ sdk, ctx = () => null }) {
   const view = () => safe(() => sdk?.view?.(), null);
   const headState = () => view()?.state ?? null;
   const readerName = () => clean(safe(() => ctx()?.name1, ''));
+  // The persona's picture for the summary card: its avatar file (the character card's fallback; a story with no You has no people row for it yet).
+  const portrait = () => {
+    const c = safe(ctx, null) ?? {};
+    const map = c.powerUserSettings?.personas ?? {};
+    const named = c.name1 ? Object.keys(map).filter(key => map[key] === c.name1) : [];
+    const file = typeof c.user_avatar === 'string' && c.user_avatar.trim() ? c.user_avatar.trim() : (named.length === 1 ? named[0] : '');
+    return file ? `/User%20Avatars/${encodeURIComponent(file)}` : null;
+  };
   const values = () => safe(() => sdk?.settings?.('story-block'), {}) ?? {};
   const pack = () => {
     const found = safe(() => packRulesOf(query('packs.content', { kind: 'rpg' })), null);
@@ -60,5 +68,5 @@ export function createWizardWorld({ sdk, ctx = () => null }) {
       room: hasRoom(state), free, extras: extrasPlan(state, { free }), used: Object.keys(state?.domains?.dataModules?.active ?? {}) };
   };
   const chatId = () => String(safe(() => ctx()?.getCurrentChatId?.() ?? ctx()?.chatId, '') ?? '');
-  return { headState, readerName, replyKey, rules, packNote, levels, levelCap, rpgOn, hasYou, needsYou, characters, world, query, chatId };
+  return { headState, readerName, portrait, replyKey, rules, packNote, levels, levelCap, rpgOn, hasYou, needsYou, characters, world, query, chatId };
 }
