@@ -77,8 +77,11 @@ export function planLabels(places, vb, scale, pick = {}) {
   return { labels, boxes, dots };
 }
 
-/** The region names to draw at this view: one per region at its places' middle (or the map's own labels), kept only where it fits whole and touches nothing in `taken` (shown labels, dots). */
-export function planRegions(places, terrainLabels, vb, scale, taken = []) {
+/**
+ * The region names to draw at this view: one per region at its places' middle (or the map's own labels), kept only where it fits
+ * whole, touches nothing in `taken` (the shown labels) and lies over at most a few of the `dots` (faint, behind them).
+ */
+export function planRegions(places, terrainLabels, vb, scale, taken = [], dots = []) {
   const cands = Array.isArray(terrainLabels) && terrainLabels.length
     ? terrainLabels.map(l => ({ text: l.text, x: l.x, y: l.y, italic: Boolean(l.italic), size: 0 }))
     : regionCentres(places);
@@ -89,7 +92,7 @@ export function planRegions(places, terrainLabels, vb, scale, taken = []) {
   for (const c of cands.sort((a, b) => b.size - a.size)) {
     const w = c.text.length * REGION_PX * (c.italic ? 0.75 : 0.95);
     const box = { x: (c.x - vb.x) * scale - w / 2, y: (c.y - vb.y) * scale - REGION_PX * 0.8, w, h: REGION_PX * 1.1 };
-    if (!inside(box, W, H) || boxes.some(o => hits(box, o))) continue;
+    if (!inside(box, W, H) || boxes.some(o => hits(box, o)) || dots.filter(o => hits(box, o)).length > 3) continue;
     boxes.push(box);
     shown.push({ ...c, fs: REGION_PX / scale });
   }

@@ -11,6 +11,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Settings › Look: **Glass strength** now reaches every glass surface (blur, tab strip, chips, sheets and their dimmed layer), not only the panel colour. The default looks as before.
 - With Panel background Off, Glass strength now also lifts the cards off the plain colour: higher makes them lighter (in dark) with a firmer edge and shadow. The default looks as before.
 - HP now comes from STR and VIT, SP from AGI and DEX, MP from INT and WIS.
+- World › Map is readable on big worlds: names no longer pile up (the rest show as you zoom in or hover), it opens on where you are, and Fit leaves far-off places out with a count at the edge.
 
 ## 0.1.3 — 19 Nov 2026
 

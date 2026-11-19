@@ -94,6 +94,8 @@ test('region names show one per region, only where they touch no shown label and
   assert.equal(blocked.length, 0);
   const edge = planRegions([place('e', 5, 5, { region: 'Edge of the world' })], null, vb, 1, []);
   assert.equal(edge.length, 0, 'a name that would be cut is left out');
+  const crowd = Array.from({ length: 6 }, (_, i) => ({ x: 280 + i * 10, y: 302, w: 8, h: 8 }));
+  assert.deepEqual(planRegions(places, null, vb, 1, [], crowd).map(n => n.text), ['SOUTH'], 'a name over a crowd of dots waits');
   const own = planRegions(places, [{ text: 'the Grey Sound', x: 500, y: 600, italic: true }], vb, 1, []);
   assert.deepEqual(own.map(n => n.text), ['the Grey Sound']);
 });
