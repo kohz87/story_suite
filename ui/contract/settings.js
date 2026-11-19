@@ -56,7 +56,7 @@ export const SETTINGS_SHAPE = {
     packs: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING, on: T.BOOLEAN, problem: { $optional: T.STRING } }],
     v4: { $optional: PACKS_V4 },
     modules: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING, on: T.BOOLEAN, locked: { $optional: T.BOOLEAN } }],
-    trackers: { cap: T.NUMBER, items: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING }] },
+    trackers: { cap: T.NUMBER, items: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING }], rpgOwned: { $optional: [T.STRING] } },
   },
   sections: [
     {

@@ -372,6 +372,7 @@
   "tests/ui/rendered/sheet-desk.test.js": "Rendered check of the desktop sheet frame: 640 px centred panel, full-window dim, pinned head and action row, unchanged under 1100 px.",
   "tests/ui/runtime/redraw-closed.test.js": "Pins the redraw scheduler's closed-suite rule (only chat and whileClosed sections are read; reveal draws the rest once), the first-section order and the frame coalescer.",
   "tests/ui/select/bag-carry.test.js": "Tests selectBag's Carries, its read-only reason, bag-like items and the Transport + Add switch from a real host.",
+  "tests/ui/select/packs-rpg-owned.test.js": "Tests that Settings › Packs and trackers lists the RPG's own blocks apart from the reader's trackers.",
   "tests/ui/select/packs.test.js": "Tests the Packs and trackers view-model and its Settings section.",
   "tests/ui/select/people-settings.test.js": "Tests that the live People rows keep mock v7's rows and read the stored NPC State settings.",
   "tests/ui/select/rpg-difficulty.test.js": "Tests the RPG difficulty explanations against the engine's numbers and the Custom editors from row to stored key to a new character.",

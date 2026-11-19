@@ -67,7 +67,10 @@ function selectV4(rows, pairing, lorebook = []) {
 export function selectPacks(answers) {
   const a = answers && typeof answers === 'object' ? answers : {};
   const rows = list(a.setup);
-  const pinned = rows.filter(row => row.pinned === true);
+  // (the RPG's own blocks — Character, Skills, Foes, its rules — are data modules too, but the RPG owns them: they are not the reader's trackers)
+  const roleOf = row => text((row.pinnedDefinition ?? row.definition)?.role);
+  const pinned = rows.filter(row => row.pinned === true && !roleOf(row));
+  const rpgOwned = rows.filter(row => row.pinned === true && roleOf(row)).map(nameOf);
   const packs = list(a.list);
   const v4 = selectV4(packs, a.pairing, a.lorebook);
   const names = Object.fromEntries(packs.map(pack => [text(pack.id), text(pack.name)]));
@@ -83,6 +86,7 @@ export function selectPacks(answers) {
     })),
     trackers: {
       cap: DM_LIMITS.pins,
+      ...(rpgOwned.length ? { rpgOwned } : {}),
       items: pinned.map(row => {
         const definition = row.pinnedDefinition ?? row.definition;
         const fields = Object.keys(definition?.state ?? {}).length;

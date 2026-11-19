@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Settings › Packs and trackers: the RPG's own Character, Skills and Foes blocks are no longer listed as trackers (one line says they belong to the RPG).
 - The card's place line sits level with ‹ Chat and ⚙ (its › no longer wraps under a long name); an item's Stats row lines up with the rows below it.
 - A Focus skill the story writes on another stat is kept on INT or WIS (your higher; WIS on a tie) instead of being refused, and the reply says so.
 - The Field medic set's Mending uses WIS, so its Calm (Focus) stance strengthens it.
