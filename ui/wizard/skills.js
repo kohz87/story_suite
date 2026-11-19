@@ -9,6 +9,7 @@ import { SKILL_TYPE_NAMES } from '../../modules/rpg/templates-combat.js';
 import { V1, RANKS } from '../../modules/rpg/combat/numbers.js';
 import { RPG_STRINGS, fill } from '../../modules/rpg/strings.js';
 import { CREATION } from '../../modules/rpg/names.js';
+import { stanceNote, typeOptions } from './stance.js';
 import { START_RANKS, draftSlots, mayStartAdept, readDraft, setLine, skillSetsOf, withSet, withSkill, withSkillPatch, withoutSkill } from '../../modules/rpg/view/wizard-data.js';
 
 const W = RPG_STRINGS.wizard;
@@ -57,7 +58,7 @@ function skillCard(ctx, skill, at) {
   const name = h('input', { type: 'text', maxlength: String(CREATION.skillName), 'aria-label': W.skillName, value: skill.name ?? '', dataset: { field: 'name' }, onInput: () => patch({ name: name.value }) });
   const about = h('textarea', { rows: '2', maxlength: String(CREATION.skillAbout), 'aria-label': fill(W.skillAbout, { name: label }), value: skill.about ?? '', dataset: { field: 'about' }, onInput: () => patch({ about: about.value }), onKeydown: event => { if (event.key === 'Enter') event.preventDefault(); } });
   const stat = select([...(skill.stat ? [] : [{ value: '', label: '—' }]), ...STATS.map(key => ({ value: key, label: key.toUpperCase() }))], skill.stat ?? '', fill(W.skillStat, { name: label }), 'stat');
-  const type = select(SKILL_TYPES, skill.type ?? 'attack', fill(W.skillType, { name: label }), 'type');
+  const type = select(typeOptions(SKILL_TYPES, run.draft.skills, at), skill.type ?? 'attack', fill(W.skillType, { name: label }), 'type');
   const ranked = Number.isSafeInteger(skill.rank);
   const start = ranked ? select(RANK_WORDS.map((word, rank) => ({ value: rank, label: word, disabled: true })), skill.rank, fill(W.skillStart, { name: label }), 'start')
     : select(START_RANKS.map(rank => ({ value: rank, label: RANK_NAMES[rank], disabled: rank === 1 && !mayStartAdept(run.draft, at), ...(rank === 1 && (run.draft.level ?? 1) < RANKS[2].minLevel ? { label: fill(W.adeptFrom, { rank: RANK_NAMES[rank], level: RANKS[2].minLevel }) } : {}) })), skill.start, fill(W.skillStart, { name: label }), 'start');
@@ -91,6 +92,7 @@ export function drawSkills(ctx) {
     h('div', { class: 'ps-sec' }, W.yourSkills),
     run.draft.skills.some(skill => Number.isSafeInteger(skill.rank)) ? h('p', { class: 'ps-p' }, W.importRanks) : null,
     run.draft.skills.some(skill => skill.sig === true) ? h('p', { class: 'ps-p' }, W.signatureNote) : null,
+    stanceNote(run.draft.skills) ? h('p', { class: 'ps-p', role: 'status', dataset: { wiz: 'stance-note' } }, stanceNote(run.draft.skills)) : null,
     run.draft.skills.map((skill, at) => skillCard(ctx, skill, at)),
     h('div', { class: 'wz-add' },
       button({ label: W.add, disabled: left <= 0, dataset: { wiz: 'add' }, onClick: () => { ctx.put(withSkill(run.draft)); ctx.redraw(); } }),
