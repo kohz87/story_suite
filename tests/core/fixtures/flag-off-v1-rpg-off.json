@@ -19,7 +19,7 @@
     "user:Begin.",
     "assistant:Opening.",
     "user:Set.",
-    "system:Wallet (before this reply): 0 gold\nCarried: nothing\nCharacter — who \"Astra\"; hp 10; mp 11; sp 11; str 3; vit 10; agi 10; dex 5; int 10; wis 5; cha 5; points 0; level 1; xp 0; alive true; left false.\nFoes — foe1 \"\"; count1 0; level1 1; tier1 \"standard\"; foe2 \"\"; count2 0; level2 1; tier2 \"standard\"; foe3 \"\"; count3 0; level3 1; tier3 \"standard\"; foe4 \"\"; count4 0; level4 1; tier4 \"standard\"; foe5 \"\"; count5 0; level5 1; tier5 \"standard\"; foe6 \"\"; count6 0; level6 1; tier6 \"standard\".\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Wallet (before this reply): 0 gold\nCarried: nothing\nCharacter — who \"Astra\"; hp 8; mp 11; sp 11; str 3; vit 10; agi 10; dex 5; int 10; wis 5; cha 5; points 0; level 1; xp 0; alive true; left false.\nFoes — foe1 \"\"; count1 0; level1 1; tier1 \"standard\"; foe2 \"\"; count2 0; level2 1; tier2 \"standard\"; foe3 \"\"; count3 0; level3 1; tier3 \"standard\"; foe4 \"\"; count4 0; level4 1; tier4 \"standard\"; foe5 \"\"; count5 0; level5 1; tier5 \"standard\"; foe6 \"\"; count6 0; level6 1; tier6 \"standard\".\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   },
   {
@@ -33,7 +33,7 @@
     "user:Set.",
     "assistant:Fight.",
     "user:I attack the rats.",
-    "system:Wallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nCharacter — who \"Astra\"; hp 10; mp 11; sp 11; str 3; vit 10; agi 10; dex 5; int 10; wis 5; cha 5; points 0; level 1; xp 0; alive true; left false.\nFoes — foe1 \"Rats\"; count1 3; level1 10; tier1 \"standard\"; foe2 \"\"; count2 0; level2 1; tier2 \"standard\"; foe3 \"\"; count3 0; level3 1; tier3 \"standard\"; foe4 \"\"; count4 0; level4 1; tier4 \"standard\"; foe5 \"\"; count5 0; level5 1; tier5 \"standard\"; foe6 \"\"; count6 0; level6 1; tier6 \"standard\".\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Wallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nCharacter — who \"Astra\"; hp 8; mp 11; sp 11; str 3; vit 10; agi 10; dex 5; int 10; wis 5; cha 5; points 0; level 1; xp 0; alive true; left false.\nFoes — foe1 \"Rats\"; count1 3; level1 10; tier1 \"standard\"; foe2 \"\"; count2 0; level2 1; tier2 \"standard\"; foe3 \"\"; count3 0; level3 1; tier3 \"standard\"; foe4 \"\"; count4 0; level4 1; tier4 \"standard\"; foe5 \"\"; count5 0; level5 1; tier5 \"standard\"; foe6 \"\"; count6 0; level6 1; tier6 \"standard\".\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   },
   {
@@ -49,7 +49,7 @@
     "user:I attack the rats.",
     "assistant:The rats fight back.",
     "user:I look around.",
-    "system:Wallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nCharacter — who \"Astra\"; hp 10; mp 11; sp 11; str 3; vit 10; agi 10; dex 5; int 10; wis 5; cha 5; points 0; level 1; xp 0; alive true; left false.\nFoes — foe1 \"Rats\"; count1 3; level1 10; tier1 \"standard\"; foe2 \"\"; count2 0; level2 1; tier2 \"standard\"; foe3 \"\"; count3 0; level3 1; tier3 \"standard\"; foe4 \"\"; count4 0; level4 1; tier4 \"standard\"; foe5 \"\"; count5 0; level5 1; tier5 \"standard\"; foe6 \"\"; count6 0; level6 1; tier6 \"standard\".\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Wallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nCharacter — who \"Astra\"; hp 8; mp 11; sp 11; str 3; vit 10; agi 10; dex 5; int 10; wis 5; cha 5; points 0; level 1; xp 0; alive true; left false.\nFoes — foe1 \"Rats\"; count1 3; level1 10; tier1 \"standard\"; foe2 \"\"; count2 0; level2 1; tier2 \"standard\"; foe3 \"\"; count3 0; level3 1; tier3 \"standard\"; foe4 \"\"; count4 0; level4 1; tier4 \"standard\"; foe5 \"\"; count5 0; level5 1; tier5 \"standard\"; foe6 \"\"; count6 0; level6 1; tier6 \"standard\".\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   },
   {
@@ -67,7 +67,7 @@
     "user:I look around.",
     "assistant:Another telling of the quiet.",
     "user:I rest.",
-    "system:Wallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nCharacter — who \"Astra\"; hp 10; mp 11; sp 11; str 3; vit 10; agi 10; dex 5; int 10; wis 5; cha 5; points 0; level 1; xp 0; alive true; left false.\nFoes — foe1 \"Rats\"; count1 3; level1 10; tier1 \"standard\"; foe2 \"\"; count2 0; level2 1; tier2 \"standard\"; foe3 \"\"; count3 0; level3 1; tier3 \"standard\"; foe4 \"\"; count4 0; level4 1; tier4 \"standard\"; foe5 \"\"; count5 0; level5 1; tier5 \"standard\"; foe6 \"\"; count6 0; level6 1; tier6 \"standard\".\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Wallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nCharacter — who \"Astra\"; hp 8; mp 11; sp 11; str 3; vit 10; agi 10; dex 5; int 10; wis 5; cha 5; points 0; level 1; xp 0; alive true; left false.\nFoes — foe1 \"Rats\"; count1 3; level1 10; tier1 \"standard\"; foe2 \"\"; count2 0; level2 1; tier2 \"standard\"; foe3 \"\"; count3 0; level3 1; tier3 \"standard\"; foe4 \"\"; count4 0; level4 1; tier4 \"standard\"; foe5 \"\"; count5 0; level5 1; tier5 \"standard\"; foe6 \"\"; count6 0; level6 1; tier6 \"standard\".\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   }
  ],
@@ -127,7 +127,7 @@
      "op": "add",
      "path": "/domains/dataModules/active/pack.chat~1character",
      "value": {
-      "hash": "f60e9ce196f62714defa875cbfe64ca114790ff6b7b719be5622f40f4511e284",
+      "hash": "6e03b3881e2358aee44afa68d042adb05324db911d4d1a37d8e125e0711ff84c",
       "generation": 1,
       "subjects": [
        "chat"
@@ -176,7 +176,7 @@
       "roots": 1,
       "visits": 0,
       "actions": {
-       "bl_4c8fzzr2": {
+       "bl_cllq5f70": {
         "visits": 0,
         "click": false
        }
@@ -185,7 +185,7 @@
     },
     {
      "op": "add",
-     "path": "/domains/dataModules/pins/f60e9ce196f62714defa875cbfe64ca114790ff6b7b719be5622f40f4511e284",
+     "path": "/domains/dataModules/pins/6e03b3881e2358aee44afa68d042adb05324db911d4d1a37d8e125e0711ff84c",
      "value": {
       "definition": {
        "imports": {},
@@ -386,12 +386,21 @@
             [
              "floorDiv",
              [
-              "get",
+              "add",
               [
-               "vit"
+               "get",
+               [
+                "str"
+               ]
+              ],
+              [
+               "get",
+               [
+                "vit"
+               ]
               ]
              ],
-             2
+             4
             ]
            ],
            [
@@ -429,12 +438,21 @@
              [
               "floorDiv",
               [
-               "get",
+               "add",
                [
-                "vit"
+                "get",
+                [
+                 "str"
+                ]
+               ],
+               [
+                "get",
+                [
+                 "vit"
+                ]
                ]
               ],
-              2
+              4
              ]
             ],
             [
@@ -477,12 +495,21 @@
            [
             "floorDiv",
             [
-             "get",
+             "add",
              [
-              "vit"
+              "get",
+              [
+               "str"
+              ]
+             ],
+             [
+              "get",
+              [
+               "vit"
+              ]
              ]
             ],
-            2
+            4
            ]
           ]
          ],
@@ -511,12 +538,21 @@
             [
              "floorDiv",
              [
-              "get",
+              "add",
               [
-               "vit"
+               "get",
+               [
+                "str"
+               ]
+              ],
+              [
+               "get",
+               [
+                "vit"
+               ]
               ]
              ],
-             2
+             4
             ]
            ]
           },
@@ -552,12 +588,21 @@
              [
               "floorDiv",
               [
-               "get",
+               "add",
                [
-                "vit"
+                "get",
+                [
+                 "str"
+                ]
+               ],
+               [
+                "get",
+                [
+                 "vit"
+                ]
                ]
               ],
-              2
+              4
              ]
             ]
            ]
@@ -861,13 +906,13 @@
               [
                "get",
                [
-                "str"
+                "agi"
                ]
               ],
               [
                "get",
                [
-                "agi"
+                "dex"
                ]
               ]
              ],
@@ -913,13 +958,13 @@
                [
                 "get",
                 [
-                 "str"
+                 "agi"
                 ]
                ],
                [
                 "get",
                 [
-                 "agi"
+                 "dex"
                 ]
                ]
               ],
@@ -970,13 +1015,13 @@
              [
               "get",
               [
-               "str"
+               "agi"
               ]
              ],
              [
               "get",
               [
-               "agi"
+               "dex"
               ]
              ]
             ],
@@ -1013,13 +1058,13 @@
               [
                "get",
                [
-                "str"
+                "agi"
                ]
               ],
               [
                "get",
                [
-                "agi"
+                "dex"
                ]
               ]
              ],
@@ -1063,13 +1108,13 @@
                [
                 "get",
                 [
-                 "str"
+                 "agi"
                 ]
                ],
                [
                 "get",
                 [
-                 "agi"
+                 "dex"
                 ]
                ]
               ],
@@ -2739,12 +2784,12 @@
     {
      "op": "replace",
      "path": "/domains/dataModules/instances/pack.chat~1character/chat/fields/hp",
-     "value": 10
+     "value": 8
     },
     {
      "op": "replace",
      "path": "/domains/dataModules/instances/pack.chat~1character/chat/fields/hp-max",
-     "value": 10
+     "value": 8
     },
     {
      "op": "replace",
@@ -2790,7 +2835,7 @@
      "op": "add",
      "path": "/domains/dataModules/perReply/sr_dnf8nf78~1sw_7qz0br5v/actions/bl_4w3pf1ep",
      "value": {
-      "visits": 226,
+      "visits": 236,
       "click": true
      }
     },
@@ -2802,7 +2847,7 @@
     {
      "op": "replace",
      "path": "/domains/dataModules/perReply/sr_dnf8nf78~1sw_7qz0br5v/visits",
-     "value": 226
+     "value": 236
     },
     {
      "op": "replace",
@@ -2842,11 +2887,11 @@
         "predicate": {
          "kind": "dm.define",
          "module": "pack.chat/character",
-         "hash": "f60e9ce196f62714defa875cbfe64ca114790ff6b7b719be5622f40f4511e284",
+         "hash": "6e03b3881e2358aee44afa68d042adb05324db911d4d1a37d8e125e0711ff84c",
          "generation": 1,
          "subject": "chat"
         },
-        "inputHash": "5867518b3bab62d1c903309266df6e9d78067654764981199cfb9cbbfc5ed9e5",
+        "inputHash": "8b6cc4527bc50286c1121773d475fa475aaac16cefdfa9e6f034e3ed7952793e",
         "replyBound": true
        }
       },
@@ -2959,11 +3004,11 @@
         "predicate": {
          "kind": "dm.set",
          "module": "pack.chat/character",
-         "hash": "f60e9ce196f62714defa875cbfe64ca114790ff6b7b719be5622f40f4511e284",
+         "hash": "6e03b3881e2358aee44afa68d042adb05324db911d4d1a37d8e125e0711ff84c",
          "generation": 1,
          "subject": "chat"
         },
-        "inputHash": "fd8fb08c107a7bf704fd48463cac8521e304fe068034ed9e925fec27ec5f21b8"
+        "inputHash": "17cf2d218d61487fb0a19bcbc90e83fb38b1df90f16809bb99ddb68b2cce133b"
        }
       },
       "edit": true
@@ -2977,7 +3022,7 @@
     {
      "n": 5,
      "story": false,
-     "id": "bl_4c8fzzr2",
+     "id": "bl_cllq5f70",
      "module": "story-block",
      "source": {
       "sid": "sr_dnf8nf78",
@@ -2993,11 +3038,11 @@
       "predicate": {
        "kind": "dm.define",
        "module": "pack.chat/character",
-       "hash": "f60e9ce196f62714defa875cbfe64ca114790ff6b7b719be5622f40f4511e284",
+       "hash": "6e03b3881e2358aee44afa68d042adb05324db911d4d1a37d8e125e0711ff84c",
        "generation": 1,
        "subject": "chat"
       },
-      "inputHash": "5867518b3bab62d1c903309266df6e9d78067654764981199cfb9cbbfc5ed9e5",
+      "inputHash": "8b6cc4527bc50286c1121773d475fa475aaac16cefdfa9e6f034e3ed7952793e",
       "replyBound": true
      },
      "claims": [],
@@ -3008,7 +3053,7 @@
        "cursor": {
         "sid": "sr_dnf8nf78",
         "swipeKey": "sw_7qz0br5v",
-        "block": "bl_4c8fzzr2",
+        "block": "bl_cllq5f70",
         "op": 0,
         "rev": 0
        },
@@ -3702,12 +3747,21 @@
              [
               "floorDiv",
               [
-               "get",
+               "add",
                [
-                "vit"
+                "get",
+                [
+                 "str"
+                ]
+               ],
+               [
+                "get",
+                [
+                 "vit"
+                ]
                ]
               ],
-              2
+              4
              ]
             ],
             [
@@ -3745,12 +3799,21 @@
               [
                "floorDiv",
                [
-                "get",
+                "add",
                 [
-                 "vit"
+                 "get",
+                 [
+                  "str"
+                 ]
+                ],
+                [
+                 "get",
+                 [
+                  "vit"
+                 ]
                 ]
                ],
-               2
+               4
               ]
              ],
              [
@@ -3793,12 +3856,21 @@
             [
              "floorDiv",
              [
-              "get",
+              "add",
               [
-               "vit"
+               "get",
+               [
+                "str"
+               ]
+              ],
+              [
+               "get",
+               [
+                "vit"
+               ]
               ]
              ],
-             2
+             4
             ]
            ]
           ],
@@ -3827,12 +3899,21 @@
              [
               "floorDiv",
               [
-               "get",
+               "add",
                [
-                "vit"
+                "get",
+                [
+                 "str"
+                ]
+               ],
+               [
+                "get",
+                [
+                 "vit"
+                ]
                ]
               ],
-              2
+              4
              ]
             ]
            },
@@ -3868,12 +3949,21 @@
               [
                "floorDiv",
                [
-                "get",
+                "add",
                 [
-                 "vit"
+                 "get",
+                 [
+                  "str"
+                 ]
+                ],
+                [
+                 "get",
+                 [
+                  "vit"
+                 ]
                 ]
                ],
-               2
+               4
               ]
              ]
             ]
@@ -4177,13 +4267,13 @@
                [
                 "get",
                 [
-                 "str"
+                 "agi"
                 ]
                ],
                [
                 "get",
                 [
-                 "agi"
+                 "dex"
                 ]
                ]
               ],
@@ -4229,13 +4319,13 @@
                 [
                  "get",
                  [
-                  "str"
+                  "agi"
                  ]
                 ],
                 [
                  "get",
                  [
-                  "agi"
+                  "dex"
                  ]
                 ]
                ],
@@ -4286,13 +4376,13 @@
               [
                "get",
                [
-                "str"
+                "agi"
                ]
               ],
               [
                "get",
                [
-                "agi"
+                "dex"
                ]
               ]
              ],
@@ -4329,13 +4419,13 @@
                [
                 "get",
                 [
-                 "str"
+                 "agi"
                 ]
                ],
                [
                 "get",
                 [
-                 "agi"
+                 "dex"
                 ]
                ]
               ],
@@ -4379,13 +4469,13 @@
                 [
                  "get",
                  [
-                  "str"
+                  "agi"
                  ]
                 ],
                 [
                  "get",
                  [
-                  "agi"
+                  "dex"
                  ]
                 ]
                ],
@@ -4698,12 +4788,21 @@
              [
               "floorDiv",
               [
-               "get",
+               "add",
                [
-                "vit"
+                "get",
+                [
+                 "str"
+                ]
+               ],
+               [
+                "get",
+                [
+                 "vit"
+                ]
                ]
               ],
-              2
+              4
              ]
             ],
             [
@@ -4741,12 +4840,21 @@
               [
                "floorDiv",
                [
-                "get",
+                "add",
                 [
-                 "vit"
+                 "get",
+                 [
+                  "str"
+                 ]
+                ],
+                [
+                 "get",
+                 [
+                  "vit"
+                 ]
                 ]
                ],
-               2
+               4
               ]
              ],
              [
@@ -4789,12 +4897,21 @@
             [
              "floorDiv",
              [
-              "get",
+              "add",
               [
-               "vit"
+               "get",
+               [
+                "str"
+               ]
+              ],
+              [
+               "get",
+               [
+                "vit"
+               ]
               ]
              ],
-             2
+             4
             ]
            ]
           ],
@@ -4823,12 +4940,21 @@
              [
               "floorDiv",
               [
-               "get",
+               "add",
                [
-                "vit"
+                "get",
+                [
+                 "str"
+                ]
+               ],
+               [
+                "get",
+                [
+                 "vit"
+                ]
                ]
               ],
-              2
+              4
              ]
             ]
            },
@@ -4864,12 +4990,21 @@
               [
                "floorDiv",
                [
-                "get",
+                "add",
                 [
-                 "vit"
+                 "get",
+                 [
+                  "str"
+                 ]
+                ],
+                [
+                 "get",
+                 [
+                  "vit"
+                 ]
                 ]
                ],
-               2
+               4
               ]
              ]
             ]
@@ -5173,13 +5308,13 @@
                [
                 "get",
                 [
-                 "str"
+                 "agi"
                 ]
                ],
                [
                 "get",
                 [
-                 "agi"
+                 "dex"
                 ]
                ]
               ],
@@ -5225,13 +5360,13 @@
                 [
                  "get",
                  [
-                  "str"
+                  "agi"
                  ]
                 ],
                 [
                  "get",
                  [
-                  "agi"
+                  "dex"
                  ]
                 ]
                ],
@@ -5282,13 +5417,13 @@
               [
                "get",
                [
-                "str"
+                "agi"
                ]
               ],
               [
                "get",
                [
-                "agi"
+                "dex"
                ]
               ]
              ],
@@ -5325,13 +5460,13 @@
                [
                 "get",
                 [
-                 "str"
+                 "agi"
                 ]
                ],
                [
                 "get",
                 [
-                 "agi"
+                 "dex"
                 ]
                ]
               ],
@@ -5375,13 +5510,13 @@
                 [
                  "get",
                  [
-                  "str"
+                  "agi"
                  ]
                 ],
                 [
                  "get",
                  [
-                  "agi"
+                  "dex"
                  ]
                 ]
                ],
@@ -6029,7 +6164,7 @@
         "op": 5,
         "rev": 1
        },
-       "prefixHash": "10e44546ab355d3ee90bb43308c640c837d496038c8a717d712c88c58753c945",
+       "prefixHash": "a8a0ede6d94562b5bbca1b7be14b7855131d90775fbe9e4e572eca05b02cb431",
        "payloadHash": "1dcb6b8860591f9b320ab464b48c7480abd40d7f368128b8d7802eaedb168933"
       }
      ],
@@ -8009,11 +8144,11 @@
       "predicate": {
        "kind": "dm.set",
        "module": "pack.chat/character",
-       "hash": "f60e9ce196f62714defa875cbfe64ca114790ff6b7b719be5622f40f4511e284",
+       "hash": "6e03b3881e2358aee44afa68d042adb05324db911d4d1a37d8e125e0711ff84c",
        "generation": 1,
        "subject": "chat"
       },
-      "inputHash": "fd8fb08c107a7bf704fd48463cac8521e304fe068034ed9e925fec27ec5f21b8"
+      "inputHash": "17cf2d218d61487fb0a19bcbc90e83fb38b1df90f16809bb99ddb68b2cce133b"
      },
      "claims": [],
      "evidence": [],
@@ -8027,7 +8162,7 @@
         "op": 11,
         "rev": 2
        },
-       "prefixHash": "e22955c9506b55375360a6945af4952d8d48c2120d685c56cf8649d5d61c5dc6",
+       "prefixHash": "38dafc8d5b149f1f61f25d5c871449ed8b305b306e71ea2177450991e67713ce",
        "payloadHash": "1dcb6b8860591f9b320ab464b48c7480abd40d7f368128b8d7802eaedb168933"
       }
      ],
@@ -8101,6 +8236,10 @@
         ],
         [
          "fields",
+         "dex"
+        ],
+        [
+         "fields",
          "sp-max"
         ],
         [
@@ -8140,6 +8279,7 @@
          "env": {},
          "outcome": true,
          "internal": {
+          "[\"str\"]": 3,
           "[\"vit\"]": 10
          }
         },
@@ -8151,6 +8291,7 @@
          "env": {},
          "outcome": true,
          "internal": {
+          "[\"str\"]": 3,
           "[\"vit\"]": 10
          }
         },
@@ -8184,7 +8325,6 @@
          "env": {},
          "outcome": true,
          "internal": {
-          "[\"str\"]": 3,
           "[\"agi\"]": 10
          }
         },
@@ -8196,7 +8336,6 @@
          "env": {},
          "outcome": true,
          "internal": {
-          "[\"str\"]": 3,
           "[\"agi\"]": 10
          }
         }
@@ -8245,7 +8384,7 @@
     "evidence": "ev_39vsypwn",
     "next": 3,
     "taken": {
-     "2b5f202c8d715cf8": 1,
+     "7a9854901469c325": 1,
      "bfb23f56a8e1abf4": 1,
      "5e90b160488a35ad": 1
     }
@@ -8380,7 +8519,7 @@
      "op": "add",
      "path": "/domains/dataModules/perReply/sr_9i72ynz9~1sw_6zgcqeol/actions/bl_95dndxa2",
      "value": {
-      "visits": 113,
+      "visits": 117,
       "click": false
      }
     },
@@ -8392,7 +8531,7 @@
     {
      "op": "replace",
      "path": "/domains/dataModules/perReply/sr_9i72ynz9~1sw_6zgcqeol/visits",
-     "value": 124
+     "value": 128
     },
     {
      "op": "replace",
@@ -8498,11 +8637,11 @@
         "predicate": {
          "kind": "dm.settle",
          "module": "pack.chat/character",
-         "hash": "f60e9ce196f62714defa875cbfe64ca114790ff6b7b719be5622f40f4511e284",
+         "hash": "6e03b3881e2358aee44afa68d042adb05324db911d4d1a37d8e125e0711ff84c",
          "generation": 1,
          "subject": "chat"
         },
-        "inputHash": "27f1bc41ca82f9d895563f1a8cb75797e9be4bc5a99fff054b74e1b8633b8caf"
+        "inputHash": "3743da00d33bbba0d39b1ef681d70c1b011f7f751418aa9ac4869184a6fe228f"
        }
       }
      },
@@ -8558,7 +8697,7 @@
         "op": 0,
         "rev": 3
        },
-       "prefixHash": "1a54fd2ec2c014d4c667bf7c35535f89834492d428a340b24e9a8a8b52cf9e4b",
+       "prefixHash": "4942d5b488626430f7576a8ab97d4aafdaebd291fb7a48f7d1156ec90e6576ba",
        "payloadHash": "6048fbf43f3fdd785a628431c0010ba4104a045e214211788329377c0abde437"
       }
      ],
@@ -8671,11 +8810,11 @@
       "predicate": {
        "kind": "dm.settle",
        "module": "pack.chat/character",
-       "hash": "f60e9ce196f62714defa875cbfe64ca114790ff6b7b719be5622f40f4511e284",
+       "hash": "6e03b3881e2358aee44afa68d042adb05324db911d4d1a37d8e125e0711ff84c",
        "generation": 1,
        "subject": "chat"
       },
-      "inputHash": "27f1bc41ca82f9d895563f1a8cb75797e9be4bc5a99fff054b74e1b8633b8caf"
+      "inputHash": "3743da00d33bbba0d39b1ef681d70c1b011f7f751418aa9ac4869184a6fe228f"
      },
      "claims": [],
      "evidence": [],
@@ -8689,7 +8828,7 @@
         "op": 11,
         "rev": 5
        },
-       "prefixHash": "e1bd71a4f62c03982a8961942d50fab7e83b673adcad3643995ce4f1bef86b1a",
+       "prefixHash": "ef82faf4daae81f71a3d9978146b541dbd6fd4990900699b1044ef6357440028",
        "payloadHash": "6048fbf43f3fdd785a628431c0010ba4104a045e214211788329377c0abde437"
       }
      ],

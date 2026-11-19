@@ -14,12 +14,13 @@ const STAT_NAME = {
 };
 const POOL_STYLE = [['Health', 'hp'], ['Mana', 'mp'], ['Stamina', 'sp']];
 
-// Combat Rules v1 pools, every term rounded down (the preview only; the engine stays the source of truth).
+// Combat Rules v1 pools, every term rounded down: HP from STR and VIT, MP from INT and WIS, SP from AGI and DEX
+// (the preview only; the engine, combat/bars.js, stays the source of truth and a test holds the two equal).
 function pools(level, s) {
   return [
-    5 + Math.floor(level / 3) + Math.floor(s.VIT / 2),
+    5 + Math.floor(level / 3) + Math.floor((s.STR + s.VIT) / 4),
     8 + Math.floor(level / 4) + Math.floor((s.INT + s.WIS) / 4),
-    8 + Math.floor(level / 4) + Math.floor((s.STR + s.AGI) / 4),
+    8 + Math.floor(level / 4) + Math.floor((s.AGI + s.DEX) / 4),
   ];
 }
 

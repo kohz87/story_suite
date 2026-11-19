@@ -15,7 +15,7 @@ import { runPreludes } from '../../../core/turn/prelude-run.js';
 
 const GOLDEN = new URL('./tail-fight.golden.json', import.meta.url);
 const TIGHT = new URL('./tail-fight-tight.golden.json', import.meta.url);
-const TIGHT_BUDGET = 1130;   // under the 1203 tokens the whole tail measures, as 850 was under 876: People's lines and the RPG's optional line drop, its [Party] and [Foes] lines stay (the shape the old golden had)
+const TIGHT_BUDGET = 1085;   // under the 1158 tokens the whole tail measures (1130 under 1203 before the bars moved to stat pairs shortened the fixture note by 45), as 850 was under 876: People's lines and the RPG's optional line drop, its [Party] and [Foes] lines stay (the shape the old golden had)
 
 function registry() {
     const reg = createRegistry();

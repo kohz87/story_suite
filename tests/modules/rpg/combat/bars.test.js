@@ -1,4 +1,4 @@
-// Combat Rules v1 bars: every row of the example-builds table (HP / MP / SP at L1, 15, 30, 50, 99).
+// Combat Rules v1 bars: every row of the example-builds table (HP / MP / SP at L1, 15, 30, 50, 99), with HP from STR+VIT, MP from INT+WIS, SP from AGI+DEX.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -7,10 +7,10 @@ import { BUILDS, statsAt } from './builds.helpers.js';
 
 const LEVELS = [1, 15, 30, 50, 99];
 const TABLE = {
-    Warrior: ['7/10/11', '14/13/16', '21/17/22', '29/22/30', '53/34/47'],
-    Skirmisher: ['7/10/11', '14/13/16', '21/17/22', '29/22/30', '53/34/47'],
-    Mage: ['7/13/10', '14/18/14', '21/23/19', '29/31/25', '53/47/40'],
-    Healer: ['10/11/10', '17/16/14', '23/22/19', '32/30/25', '53/47/40'],
+    Warrior: ['8/10/11', '15/13/16', '22/17/22', '31/22/29', '53/34/47'],
+    Skirmisher: ['7/10/13', '14/13/18', '21/17/23', '29/22/31', '53/34/47'],
+    Mage: ['7/13/10', '13/18/14', '19/23/19', '26/31/25', '46/47/40'],
+    Healer: ['8/11/10', '14/16/14', '20/22/19', '27/30/25', '46/47/40'],
 };
 
 for (const [name, row] of Object.entries(TABLE)) {
@@ -24,9 +24,22 @@ for (const [name, row] of Object.entries(TABLE)) {
 
 test('the three formulas, one by one', () => {
     const s = { str: 8, vit: 11, agi: 9, dex: 5, int: 7, wis: 6 };
-    assert.equal(hpOf(s, 10), 5 + 3 + 5);
-    assert.equal(mpOf(s, 10), 8 + 2 + 3);
-    assert.equal(spOf(s, 10), 8 + 2 + 4);
+    assert.equal(hpOf(s, 10), 5 + 3 + Math.floor((8 + 11) / 4), 'HP from STR and VIT');
+    assert.equal(mpOf(s, 10), 8 + 2 + Math.floor((7 + 6) / 4), 'MP from INT and WIS');
+    assert.equal(spOf(s, 10), 8 + 2 + Math.floor((9 + 5) / 4), 'SP from AGI and DEX');
+    assert.equal(hpOf({ ...s, agi: 30, dex: 30, int: 30, wis: 30, cha: 30 }, 10), hpOf(s, 10), 'no other stat feeds HP');
+    assert.equal(spOf({ ...s, str: 30, vit: 30, int: 30, wis: 30, cha: 30 }, 10), spOf(s, 10), 'no other stat feeds SP');
+});
+
+test('at every stat 5 each bar is what the earlier rule (HP from VIT÷2, SP from STR+AGI) gave, at every level', () => {
+    const s = { str: 5, vit: 5, agi: 5, dex: 5, int: 5, wis: 5, cha: 5 };
+    for (let lv = 1; lv <= 99; lv++) {
+        assert.deepEqual(barsOf(s, lv), {
+            hp: 5 + Math.floor(lv / 3) + Math.floor(5 / 2),
+            mp: 8 + Math.floor(lv / 4) + Math.floor((5 + 5) / 4),
+            sp: 8 + Math.floor(lv / 4) + Math.floor((5 + 5) / 4),
+        }, `L${lv}`);
+    }
 });
 
 test('a base character at level 1 has 7 / 10 / 10', () => {
@@ -37,8 +50,8 @@ test('a base character at level 1 has 7 / 10 / 10', () => {
 test('stat sweep 5..30 at three levels follows the formulas exactly', () => {
     for (const lv of [1, 37, 99]) {
         for (let v = 5; v <= 30; v++) {
-            const s = { str: v, vit: v, agi: 35 - v, dex: v, int: v, wis: 35 - v };
-            assert.equal(hpOf(s, lv), 5 + Math.floor(lv / 3) + Math.floor(v / 2));
+            const s = { str: v, vit: 30, agi: 35 - v, dex: v, int: v, wis: 35 - v };
+            assert.equal(hpOf(s, lv), 5 + Math.floor(lv / 3) + Math.floor((v + 30) / 4));
             assert.equal(mpOf(s, lv), 8 + Math.floor(lv / 4) + Math.floor(35 / 4));
             assert.equal(spOf(s, lv), 8 + Math.floor(lv / 4) + Math.floor(35 / 4));
         }
@@ -47,7 +60,7 @@ test('stat sweep 5..30 at three levels follows the formulas exactly', () => {
 
 test('stats clamp to 1..30, the level to 1..99, and junk a missing stat reads as 5', () => {
     assert.equal(hpOf({ vit: 99 }, 150), hpOf({ vit: 30 }, 99));
-    assert.equal(hpOf({ vit: -4 }, 0), 5 + 0 + 0);
+    assert.equal(hpOf({ vit: -4 }, 0), 5 + 0 + Math.floor((5 + 1) / 4), 'VIT held at 1, a missing STR reads as 5');
     assert.equal(mpOf({}, 1), 8 + 0 + Math.floor(10 / 4));
     assert.equal(spOf(undefined, 'x'), 10);
     assert.equal(mpOf({ int: 'x', wis: null }, 1), 10);

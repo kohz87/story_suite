@@ -67,7 +67,7 @@ An edited Re-read re-plans from the stored payload and witness, so growing or sh
 ## Prompt
 
 - The settled note is the receipt's `summary` (`note(...)` joined with ` | `), a kept prelude cue joining the leading `[Happened]` note (`cue.interaction`). It adds no static text.
-- **Allowance:** `INTERACTION_NOTE_TOKENS` = 1290 (`note.js`: the longest board note, 4 heroes v 6 foes over 4 exchanges, 1071 tokens over 300 seeds, plus 20 %), pinned by `tests/core/interaction/note-budget.test.js`. A longer note is never cut: it is sent whole and raises the quiet Problem `NOTE_LONG`.
+- **Allowance:** `INTERACTION_NOTE_TOKENS` = 1240 (`note.js`: the longest board note, 4 heroes v 6 foes over 4 exchanges, 1026 tokens over 300 seeds since the bars come from stat pairs, plus 20 %), pinned by `tests/core/interaction/note-budget.test.js`. A longer note is never cut: it is sent whole and raises the quiet Problem `NOTE_LONG`.
 - **Marker:** a kind declares one word (`[battle]`); `stripMarkers` drops those lines from the prompt history. The board's marker is gated on the RPG feature, as before.
 
 ## The gate
