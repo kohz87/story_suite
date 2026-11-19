@@ -4,86 +4,52 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
-- Story › Trackers no longer lists the RPG's own Character, Skills and Foes blocks.
-- A person's page: the dossier library strip is taller and the open person's ring is no longer cut off.
-- A pack offer under a reply opens Settings, where pack offers now live.
-- Ersveil 4.1.0: every cast member now has a portrait (19 new). Update the pack in Settings › Packs to get them.
-- A person's page is redone: portrait and feelings on the left, the cards beside it, and on a desktop window the card you open sits next to them (its own page on a tablet or phone).
-- A person's page is always the flat surface now (no sky, glow or shade), whatever Panel background says.
-- Memories on a person's page show the story date and reply they were recorded in (older ones without a record show none); Day › opens the Journal calendar on that day.
-- The Mood card says since which reply the mood changed and why; open it for the recent mood changes, each with its date and reply.
-- Each feeling change shows the reply it came in, and a held-back move shows why it moved less.
-- The top bar of a person's page shows the reply of their last recorded change, and a Dossier / Map switch: Map is the relationship map with them picked.
-- A library strip at the foot of a person's page lists everyone; tap a portrait to see their page, or show only the people you follow.
-- Edit moved into a person's ⋯ menu, and See on map gave way to the page's own Map tab.
-- NPC State's Edit window on a desktop is the flat surface with plain field boxes.
-- On a reply's card, the time, place and weather icons stay beside their words.
-- The HP, MP and SP bars on a reply's card show at their full length (they shrank to dots).
-- What needs you now shows as a red count on the Journal tab, with the list at the top of the Journal, and a card's pack offers (Install, Update, Not now) sit at the top of Settings › Packs and trackers; nothing sits above the tabs any more.
-- Every story reply now has its own card under it: that reply's time, place and weather, your HP, MP and SP then (with what the reply changed), and your condition.
-- The card's tabs, Changes, Chatter, Here and Choices, show what that reply changed, the inner thoughts, who was there and its choices; tap a choice to put it in the message box.
-- The newest reply's card has an Open Suite button in its corner and, when something waits, a line of things to do: a fight, loot to pick up, points, overdue items, someone asking to join.
-- Settings › Chat extras › Tabs sets the order of the tabs and hides the ones you do not want, for every chat.
-- The row under the last reply, the Here drawer above the message box, the separate Inner chatter fold and the Choices chip are gone: all of it is on the reply cards now.
-- The ✦ menu on a reply keeps Re-read and Discard repair and adds Open Suite; the reply's change list is on its card's Changes tab.
-- The Now tab is gone: the suite opens on Party, the card and what needs you sit above the tabs, and every window width uses that one layout, filling the floating window.
-- A reply that came without its change block now gets its inner chatter and choices back when the suite repairs it.
-- Inner chatter reads as **Name:** followed by the thought between quote marks.
-- Tapping someone in the Here drawer opens their own page, not the People list.
-- A long name in the Here drawer takes two lines instead of being cut short.
-- On a desktop window the suite is a centred floating window over the dimmed chat (up to 1280 by 940), not full screen; phones and narrow windows stay full screen.
-- A typed attack on a big crowd ("a dozen rats") starts the fight board again: the crowd is cut to the six a foe group holds instead of the fight being dropped.
-- The Here drawer shows each person as a slim card (portrait with the feelings ring, and the name); a tap opens their page.
-- Inner chatter now sits inside each reply as a fold ("Inner chatter · 3", like the battle log), so every reply keeps its own thoughts across swipes, deletes and reloads; the Here drawer shows portrait and name only.
-- The Here drawer's cards no longer carry inner chatter, so they are slimmer (chatter stays on Now and in each person's page).
-- A typed attack starts the fight board again: the foe check's answer was thrown away when the connection returned it as JSON (the same fix covers every helper call).
-- The Here drawer starts folded; its header opens it.
-- An attack that goes on to what comes after (taking the bodies back) now starts the fight on the board instead of being read as already won.
-- Fight board: after an exchange you go straight back to choosing (the exchange just done shows as one line above), and with one foe left an attack goes to it without a tap.
-- Fight board: the stance switch slides all the way across.
-- The combat log in a reply folds again, and its Health, Stamina and Mana bars show.
-- A person's page keeps its Mood and Ties cards before NPC State has read them ("Not read yet", "No ties yet"), so it keeps the two-column layout.
-- A person's Profile lines up its labels in one column, and the Wants and Hiding rows sit clear of the Scene spoilers switch.
-- The Here drawer floats over the bottom of the chat instead of pushing it up.
-- Add to party shows on a person's page only when the story offered them as a companion.
-- The name on a person's page is smaller, with room below the feelings ring.
-- The Here drawer above the message box is as wide as the chat, and inner chatter shows in full on Now (it was cut off).
-- With SillyTavern's swipes on all messages, the Suite button under a reply no longer sits on top of the swipe counter.
-- NPC State now starts when the browser has an ad or privacy blocker: three of its files had names blockers refuse, so it never started and no dossiers were made.
-- Settings › Packs and trackers: the RPG's own Character, Skills and Foes blocks are no longer listed as trackers (one line says they belong to the RPG).
-- People: someone the story brings into the scene by name now gets an NPC State record at once (a world pack's people from the pack; anyone new is filled in from the story).
-- The card's place line sits level with ‹ Chat and ⚙ (its › no longer wraps under a long name); an item's Stats row lines up with the rows below it.
-- A Focus skill the story writes on another stat is kept on INT or WIS (your higher; WIS on a tie) instead of being refused, and the reply says so.
-- The Field medic set's Mending uses WIS, so its Calm (Focus) stance strengthens it.
-- Bag › an item's **Edit** and **+ Add** have **Carries** (the load it adds), and a bag-like item's sheet has **Carry as bag…** with portraits; a pack's or bound item shows why it can't be changed.
-- Bag › Assets › Transport: **+ Add** a horse, mule, cart or other mount (its pace follows the kind), and a mount's sheet has **Edit** and **Remove**.
-- World › Map: a district's sheet says where it lies ("About 3 km north-east of Auvoth's centre"), using the map scale read from the pack's roads; the ‹ back button sits clear of the sheet's edge.
-- World › Map: a city's wards and the places on top of it show as one marker ("Auvoth · 7") whose sheet lists them; zoom in to fan them out. A selected place gets a thin ring, and the map moves it above the sheet.
-- Three stances now: Defence, Speed (dodge and act sooner: Evasion and Movement in one, without Movement's extra action) and Focus (INT or WIS, uses Mana: your INT and WIS skills hit and heal harder).
-- Old stance names still work: Evasion and Movement read as Speed, Support as Focus. The fight board's stance switch and the Party sheet say what each stance adds.
-- Party › a skill's sheet no longer prints "null" under its rank; Bag › Wear on… shows each member's portrait.
-- Party › Mount and Bag slots: tap them to choose which party mount a member rides or which bag they carry (None frees it); a mount left behind, already full, or a bound bag says why.
-- Bag › Wear on…: when a piece cannot be worn (no slot set), the sheet stays open with the reason and an **Edit item** button that opens its Slot.
-- Party › Skills: tapping a skill now shows what it does under its kind; a skill with no cost reads "Story only", and a missing value is left out instead of showing "null".
-- New character › Skills: the "What it does" box shows four lines, the × lines up with the name, and Type / Starts at no longer cut their words on desktop.
-- New character › Skills: a hint line says which bar a skill uses (INT or WIS: Mana; any other stat: Stamina; a heal: Mana; a stance: 1 each exchange).
-- New character › Skills: once one skill is a stance (Defence, Speed or Focus), the other skills' Type lists show the stance types switched off and name the skill that holds it.
-- Settings › Packs: **Create the lorebook** from a world pack makes a SillyTavern lorebook of its lore, so the narrator reads it too; **Update the lorebook** remakes it when the pack changes.
-- **Use with this character** (on by default) attaches it to the character, beside any lorebook the card has; chat lore is left alone. Hidden lore stays out of the book.
-- Pack Studio: **Export lorebook** saves a world pack's lore as a SillyTavern lorebook file.
-- Tools › What's sent shows the NPC State lines your reply really carries; old leftovers of the earlier NPC State look and its one-time chat conversion are gone.
-- Messages and notes say "NPC State", not the old "NPC State Delta"; People, dossiers, Edit and settings look and work as before.
-- Nothing changes in play: the code behind NPC State, saving and fights was tidied, and opening a chat no longer looks for fights left open by builds from before the fight board.
-- With Gear in fights on, the narrator is told to name the rarity and stats of gear the story makes special (enchanted, masterwork, blessed), and they land on the item.
-- On a wide screen every sheet (Bag, Party, quests, World, Scene, trackers, Inspector) opens as a centred window over a dimmed page, with its title and buttons always in view.
-- Settings › Look: **Glass strength** now reaches every glass surface (blur, tab strip, chips, sheets and their dimmed layer), not only the panel colour. The default looks as before.
-- With Panel background Off, Glass strength now also lifts the cards off the plain colour: higher makes them lighter (in dark) with a firmer edge and shadow. The default looks as before.
+## 0.1.4 — 20 Nov 2026
+
+Every reply gets its own card, the suite floats over the chat in one layout at every width, the Now tab is gone, and a person's page is redone in the shape the old NPC State dossier had. World packs make their own lorebook, Ersveil gets portraits for its whole cast, and the fight board starts from a typed attack again.
+
+### Added
+
+- Every story reply has a card under it: that reply's time, place and weather, your HP, MP and SP then (with what it changed), and your condition.
+- The card's tabs, Changes, Chatter, Here and Choices, show what the reply changed, the inner thoughts, who was there and its choices; tap a choice to put it in the message box.
+- The newest reply's card has an Open Suite button in its corner and, when something waits, a line of things to do: a fight, loot, points, overdue items, someone asking to join.
+- Settings › Chat extras › Tabs sets the order of a reply card's tabs and hides the ones you do not want, for every chat.
+- A person's page shows the reply of their last change, the story date and reply of each memory, and why their mood changed; Day › opens the Journal on that day.
+- A person's page has a Dossier / Map switch (Map is the relationship map with them picked) and a library strip listing everyone, or only the people you follow.
+- Settings › Packs: Create the lorebook makes a SillyTavern lorebook of a world pack's lore, used with the character (chat lore is left alone); Update remakes it.
+- Pack Studio: Export lorebook saves a world pack's lore as a SillyTavern lorebook file.
+- Ersveil 4.1.0: every cast member has a portrait (19 new); update the pack in Settings › Packs to get them.
+- Three stances: Defence, Speed (dodge and act sooner) and Focus (INT or WIS, uses Mana: your INT and WIS skills hit and heal harder); old names still work.
+- Bag: + Add works with an empty bag; equipment gets Slot, Rarity and a Stats picker, Carries for bags, and transport (horse, mule, cart) can be added, edited and removed.
+- Party: Mount and Bag slots choose which mount a member rides or which bag they carry; the equipment circle shows the member's portrait.
+- World › Map: districts say where they lie ("About 3 km north-east of Auvoth's centre"); a city's wards fold into one marker until you zoom in.
+- New character: a hint says which bar a skill uses, and once one skill is a stance the others cannot be one.
+
+### Changed
+
+- On a desktop window the suite is a centred floating window (up to 1280 by 940) in the same layout as on a tablet; phones and narrow windows stay full screen.
+- The Now tab is gone: the suite opens on Party, what needs you is a red count on the Journal tab with its list at the top of the Journal, and pack offers sit in Settings › Packs.
+- A person's page is redone: portrait and feelings on the left, the cards beside them, and on a desktop window the card you open sits next to them (its own page on a tablet or phone).
+- A person's page is always the flat surface (no sky, glow or shade).
+- The row under the last reply, the Here drawer, the Inner chatter fold and the Choices chip are gone: all of it is on the reply cards.
 - HP now comes from STR and VIT, SP from AGI and DEX, MP from INT and WIS.
-- Desktop: a dossier opens beside your character and Here now (up to 1,040 px wide), and NPC State's Edit is a 920 px sheet in two columns with Save and Cancel always in view.
-- World › Map is readable on big worlds: names no longer pile up (the rest show as you zoom in or hover), it opens on where you are, and Fit leaves far-off places out with a count at the edge.
-- Bag › + Add (now there with an empty bag too): equipment gets Slot, Rarity (at the start of a chat) and a Stats picker; an item's sheet shows its stats with **Change** to move its points. Rings, amulets and accessories now default to CHA.
-- Party: the circle in the middle of the equipment shows the member's portrait (yours, or the companion's from NPC State), the initial only when there is none.
-- New character on a wide screen: one 920 px window with your character card on the left, the step on the right and Back / Next in their own row; on a phone, Stats' Reset now sits above the stats, never under Back / Next.
+- Fight board: after an exchange you go straight back to choosing, and with one foe left an attack goes to it without a tap.
+- Add to party shows on a person's page only when the story offered them as a companion.
+- Story › Trackers and Settings › Packs no longer list the RPG's own Character, Skills and Foes blocks.
+- Every sheet opens as a centred window over a dimmed page on a wide screen; Glass strength reaches every glass surface.
+- Rings, amulets and accessories default to CHA; the Field medic set's Mending uses WIS; a Focus skill on another stat is kept on INT or WIS.
+- Messages and notes say "NPC State", not "NPC State Delta".
+
+### Fixed
+
+- NPC State starts when the browser has an ad or privacy blocker (three of its file names were blocked, so no dossiers were made).
+- Someone the story brings into the scene by name gets an NPC State record at once (a world pack's people from the pack; anyone new from the story).
+- A typed attack starts the fight board again, also when the connection returns JSON, when it names a crowd ("a dozen rats", cut to six) or goes on past the fight.
+- A reply that came without its change block gets its inner chatter and choices back when the suite repairs it.
+- The combat log in a reply folds again, and its Health, Stamina and Mana bars show.
+- The fight board's stance switch slides all the way across.
+- Party › a skill's sheet no longer prints "null"; Bag › Wear on… keeps the sheet open with the reason and an Edit item button when a piece has no slot.
+- Layout fixes: the reply card's bars and icons, the library strip's ring, a person's Right now spacing, Profile labels, the wizard's skill cards and the card's place line.
 
 ## 0.1.3 — 19 Nov 2026
 
