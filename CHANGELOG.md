@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Inner chatter reads as **Name:** followed by the thought between quote marks.
 - Tapping someone in the Here drawer opens their own page, not the People list.
 - A long name in the Here drawer takes two lines instead of being cut short.
 - The Here drawer shows each person as a slim card (portrait with the feelings ring, and the name); a tap opens their page.

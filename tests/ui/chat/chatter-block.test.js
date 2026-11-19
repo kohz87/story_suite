@@ -33,8 +33,8 @@ test('the block is folded with a count, one row per person, and the header toggl
   assert.ok(folded.querySelector('.ssch-body').hasAttribute('hidden'), 'folded by default');
   const rows = folded.querySelectorAll('.ssch-row');
   assert.equal(rows.length, 2);
-  assert.equal(rows[0].querySelector('b').textContent, 'Mira');
-  assert.equal(rows[0].querySelector('i').textContent, 'He is late again.');
+  assert.equal(rows[0].querySelector('b').textContent, 'Mira:');
+  assert.equal(rows[0].querySelector('q.ssch-q').textContent, 'He is late again.');
   folded.querySelector('.ssch-head').click();
   assert.deepEqual(seen, [true]);
   const open = chatterBlock(LINES, { open: true });
@@ -65,14 +65,14 @@ test('each reply draws its own block; the fold is shared and kept; a redraw with
   assert.equal(msgs[1].querySelectorAll('[data-ss-chatter]').length, 0, 'a reply with no chatter shows nothing');
   assert.match(msgs[0].querySelector('.ssch-t').textContent, /· 1$/);
   assert.match(msgs[2].querySelector('.ssch-t').textContent, /· 2$/);
-  assert.equal(msgs[2].querySelector('.ssch-row b').textContent, 'Mira');
+  assert.equal(msgs[2].querySelector('.ssch-row b').textContent, 'Mira:');
   msgs[0].querySelector('.ssch-head').click();
   assert.equal(stored, true, 'the choice is stored');
   assert.equal(messages.querySelectorAll('[data-ss-chatter]').length, 2, 'redrawn, not doubled');
   for (const el of messages.querySelectorAll('.ssch-body')) assert.equal(el.hasAttribute('hidden'), false, 'every reply follows the fold');
   s.refresh({ drawer: [], chatter: [{ index: 2, lines: [LINES[1]] }] });
   assert.equal(messages.querySelectorAll('[data-ss-chatter]').length, 1);
-  assert.equal(msgs[2].querySelector('.ssch-row b').textContent, 'Kell', 'a swipe shows its own thoughts');
+  assert.equal(msgs[2].querySelector('.ssch-row b').textContent, 'Kell:', 'a swipe shows its own thoughts');
   s.refresh({ drawer: [] });
   assert.equal(messages.querySelectorAll('[data-ss-chatter]').length, 0, 'Inner chatter off: nothing');
 });

@@ -100,4 +100,5 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrow{padding-right:64px}
 .ssch-head:focus-visible{outline:2px solid var(--SmartThemeQuoteColor);outline-offset:-2px}
 .ssch-body{padding:2px 10px 8px;color:var(--SmartThemeBodyColor)}
 .ssch-row{margin:3px 0;line-height:1.35}
-.ssch-row i{color:var(--SmartThemeEmColor)}
+.ssch-q{quotes:none;font-style:italic;color:var(--SmartThemeEmColor)}
+.ssch-qm{font-size:.75em;opacity:.6;margin:0 4px;vertical-align:.15em;color:var(--SmartThemeEmColor)}
