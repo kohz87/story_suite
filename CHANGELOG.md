@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Inner chatter now sits inside each reply as a fold ("Inner chatter · 3", like the battle log), so every reply keeps its own thoughts across swipes, deletes and reloads; the Here drawer shows portrait and name only.
 - The Here drawer's cards no longer carry inner chatter, so they are slimmer (chatter stays on Now and in each person's page).
 - A typed attack starts the fight board again: the foe check's answer was thrown away when the connection returned it as JSON (the same fix covers every helper call).
 - The Here drawer starts folded; its header opens it.

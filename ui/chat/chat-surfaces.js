@@ -1,7 +1,8 @@
-// Keeps the inline row on the latest reply, the modules' cards under the head reply and the people drawer above the input: moves, hides and folds them as the chat changes.
+// Keeps the inline row on the latest reply, the modules' cards under the head reply, each reply's inner chatter inside it and the people drawer above the input: moves, hides and folds them as the chat changes.
 import { inlineRow } from './inline-row.js';
 import { replyCardStrip } from './reply-cards.js';
 import { peopleDrawer } from './people-drawer.js';
+import { chatterBlock } from './chatter-block.js';
 
 function isUser(el) {
   return el.classList.contains('user') || el.getAttribute('is_user') === 'true';
@@ -29,6 +30,7 @@ export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNa
   let page = 0;
   let rowEl = null;
   let cardsEl = null;
+  let chatterOpen = false; // (the fold when no handler keeps it: handlers.chatterOpen() reads this chat's stored choice, handlers.onChatterFold(open) stores it)
 
   const boxOf = host => host.querySelector('.bx') || host.querySelector('.mes_block') || host;
 
@@ -55,6 +57,21 @@ export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNa
     else box.appendChild(cardsEl);
   }
 
+  // Each reply's inner chatter goes inside that reply (by its index), above its cards and row; every block shares the one fold.
+  function drawChatter() {
+    for (const old of messagesEl?.querySelectorAll?.('[data-ss-chatter]') ?? []) old.remove();
+    const open = on.chatterOpen ? on.chatterOpen() === true : chatterOpen;
+    for (const item of vm?.chatter ?? []) {
+      const host = messagesEl?.querySelector?.(`.mes[mesid="${item.index}"]`);
+      const node = host ? chatterBlock(item.lines, { open, onToggle: next => { chatterOpen = next; on.onChatterFold?.(next); drawChatter(); } }) : null;
+      if (!node) continue;
+      const box = boxOf(host);
+      const before = [...box.children].find(el => el.classList?.contains('sscards') || el.classList?.contains('ssrow'));
+      if (before) box.insertBefore(node, before);
+      else box.appendChild(node);
+    }
+  }
+
   function drawDrawer() {
     if (!drawerHost) return;
     const narrow = Boolean(isNarrow());
@@ -78,7 +95,7 @@ export function createChatSurfaces({ messagesEl, drawerHost, handlers = {}, isNa
   }
 
   return {
-    refresh(next) { vm = next || null; drawRow(); drawCards(); drawDrawer(); },
+    refresh(next) { vm = next || null; drawRow(); drawCards(); drawChatter(); drawDrawer(); },
     setTyping(value) { const t = Boolean(value); if (t !== typing) { typing = t; drawDrawer(); } },
     toggleDrawer() { open = !open; drawDrawer(); },
   };

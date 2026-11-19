@@ -31,6 +31,7 @@ import { selectRoster } from './roster.js';
 import { liveLorebookRows } from './packs-lorebook.js';
 import { arcController } from '../../modules/arc/controller.js';
 import { replyCardsOf } from './reply-card.js';
+import { selectChatter } from './chatter.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 // Story Director is on while any of its switches is on (the Settings Director card reads it the same way); a host with no feature list counts as on.
@@ -78,7 +79,9 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const vm = { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at), ...(loot.length ? { loot } : {}) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(ctx()?.chat, at), recorded: recordedAt(ctx()?.chat, at) }) };
       // (the modules' cards are the head reply's: asked only for the head, and left out when no card answers)
       const replyCards = at === null ? replyCardsOf(cards?.head?.()) : null;
-      return replyCards ? { ...vm, replyCards } : vm;
+      // (each reply's own inner chatter, for the block inside it: asked once, with the head)
+      const chatter = at === null ? selectChatter(read('chatter.replies', {})) : [];
+      return { ...vm, ...(replyCards ? { replyCards } : {}), ...(chatter.length ? { chatter } : {}) };
     },
     party: read => {
       const actors = read('party.actors', {});
