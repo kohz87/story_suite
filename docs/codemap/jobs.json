@@ -91,6 +91,7 @@
   "scripts/b4/dead-exports.mjs": "Fails when a kept file still imports, re-exports or loads a removed path or export, and lists computed specifiers to grep by hand.",
   "scripts/b4/shrink.mjs": "Finds entries added to, or still naming a removed path in, the shrink-only lists under docs/merge.",
   "scripts/b4/unit.mjs": "Runs the per-unit removal recipe in order: backup, git rm, dead exports, git grep, shrink-only lists, code map, touched tests.",
+  "scripts/checks/changelog-lines.mjs": "Fails when a CHANGELOG.md bullet is over 300 characters or a line names an internal job id, so the changelog stays one short line per change for players.",
   "scripts/checks/code-files.mjs": "Classifies code and test paths and lists repo code files via git.",
   "scripts/checks/core-module-refs.mjs": "Fails if the core's turn, prompt, sdk, registry, commands, interaction or old-view host code names an RPG or fight word on a line that docs/merge/core-module-refs.txt does not list (the list only shrinks).",
   "scripts/checks/count-lines.mjs": "Counts lines in source text without adding a line for a trailing newline.",
