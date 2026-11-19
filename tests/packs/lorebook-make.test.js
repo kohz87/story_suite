@@ -22,7 +22,7 @@ test('Ersveil: 213 lore entries and the marker, 5 hidden kept out, named after t
     assert.equal(name, 'Ersveil (open world) (Story Suite)');
     assert.deepEqual(counts, { entries: 213, hidden: 5 });
     assert.equal(entriesOf(book).length, 214);
-    assert.deepEqual(readMarker(book), { pack: 'ersveil', version: '4.0.0' });
+    assert.deepEqual(readMarker(book), { pack: 'ersveil', version: '4.1.0' });
     assert.equal(lorebookFromPack(ersveil, { packName: 'Ersveil' }).name, 'Ersveil (Story Suite)');
 });
 
