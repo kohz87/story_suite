@@ -100,5 +100,5 @@ test('a piece with a stat bonus shows it on the sheet', () => {
   installFakeDom();
   const [el] = sheet({ ...find('Spare dagger'), bonus: '+1 STR +1 DEX' });
   assert.match(el.querySelector('.kv').textContent, /Stats\+1 STR \+1 DEX/);
-  assert.doesNotMatch(sheet(find('Spare dagger'))[0].querySelector('.kv').textContent, /Stats/);
+  assert.match(sheet(find('Spare dagger'))[0].querySelector('.kv').textContent, /StatsNoneChange/, 'a gear piece with no points still has the row and its Change');
 });

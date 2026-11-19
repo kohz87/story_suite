@@ -5,6 +5,7 @@ import { itemTile, memberName, KIND_LABEL } from './item-grid.js';
 import { itemEditForm } from './item-edit.js';
 import { can } from '../../runtime/can.js';
 import { ownerOf } from '../../runtime/owner-id.js';
+import { statsRow, changeView } from './stats-change.js';
 
 const RARITY_LABEL = { uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic' };
 const RARITY_CLASS = { uncommon: 'rar-unc', rare: 'rar-rare', epic: 'rar-epic' };
@@ -18,7 +19,7 @@ function weightText(item) {
   return item.qty > 1 ? `${item.weight * item.qty} load · ${item.weight} each × ${item.qty}` : `${item.weight} load`;
 }
 
-function details(item, rpg, ctx) {
+function details(item, rpg, ctx, stats) {
   const wearer = item.wornBy
     ? row('Worn by', h('span', { class: 'av', dataset: { portrait: item.wornBy } }), memberName(item.wornBy, ctx))
     : [];
@@ -31,7 +32,7 @@ function details(item, rpg, ctx) {
     { class: 'kv' },
     wearer,
     rpg && item.soak ? row('Bonus', `+${item.soak} soak`) : [],
-    rpg && item.bonus ? row('Stats', item.bonus) : [],
+    stats ? stats.cells : [],
     wear,
     rpg ? row('Weight', weightText(item)) : [],
     row('Worth here', item.worth),
@@ -83,14 +84,17 @@ export function itemSheet(item, ctx = {}) {
       item.qty > 1 ? h('span', { class: 'lvl2' }, `×${item.qty}`) : null)),
     withEdit ? h('div', { class: 'bhact' }, button({ label: 'Edit', className: 'edit', onClick: edit }), h('span', { class: 'xgap' })) : null);
   const root = h('div', { class: 'bag-sheet', dataset: { sheet: 'item' } });
+  // A gear piece's Stats row: Change opens the picker on its points (the engine's repoint edit), or shows the engine's reason it cannot.
+  const stats = rpg && gear ? statsRow(item, { port: ctx.port, open: () => root.replaceChildren(head(false), changeView(item, { port: ctx.port, onDone: () => ctx.close?.(), onCancel: () => root.replaceChildren(...view) })) }) : null;
   const view = [
     head(true),
     h('p', { class: 'desc' }, item.desc),
-    details(item, rpg, ctx),
+    details(item, rpg, ctx, stats),
+    stats ? stats.line : null,
     h('div', { class: 'brow' }, actions, h('span', { class: 'grow' }),
       button({ label: 'Drop', tone: 'danger', onClick: () => send('inventory.drop', { stack: item.stack }) })),
     picker,
-  ];
+  ].filter(Boolean);
   function edit() {
     root.replaceChildren(head(false), itemEditForm(item, {
       rpg,

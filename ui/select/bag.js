@@ -32,8 +32,16 @@ function itemOf(row, ctx) {
     wear: kind === 'gear' && word ? (word === 'torn' || word === 'broken' ? 'torn' : 'good') : null,
     weight: whole(info?.weight), bonus: typeof info?.bonus === 'string' ? info.bonus : '', worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: originOf(row.from),
     note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
+    ...(kind === 'gear' ? gearOf(info) : {}),
   };
 }
+
+// A gear piece's points for the Stats row and its Change (gear.view's `repoint`: the total that stays and where it sits now), and whether it is a cast member's.
+const statsRecord = raw => Object.fromEntries(Object.entries(isRecord(raw) ? raw : {}).filter(([, n]) => Number.isSafeInteger(n) && n > 0));
+const gearOf = info => ({
+  ...(isRecord(info?.repoint) && Number.isSafeInteger(info.repoint.budget) ? { repoint: { budget: info.repoint.budget, stats: statsRecord(info.repoint.stats) } } : {}),
+  ...(isRecord(info?.bound) ? { bound: true } : {}),
+});
 
 // mounts.list row (domains/mounts.js:83-91) → a transport asset; `carried` is gear.view's carriers.mounts row of that name (withParty, riders from its `where`, what it adds). Seats are not recorded: null.
 const assetOf = (row, carried) => ({
@@ -60,6 +68,8 @@ export function selectBag({ rpg = false, items, counts, gear, wallet, currency, 
   const carry = gear?.carry;
   return {
     rpg: rpg === true,
+    // Gear in fights (gear.view answers only while it is on) and the starting kit (no message from the reader yet: Rarity and Stats go with + Add).
+    gear: { on: gear?.on === true, kit: gear?.kit?.open === true },
     filters: FILTER_KEYS.map(key => ({ key, count: countOf[key] ?? loose.filter(item => item.kind === key).length })),
     items: list,
     // The wallet keeps one amount under `coin` (inventory/state.js WALLET_KEY): the denominations are in `words`, so `coins` stays null; `thisTurn` is the head reply's coin line; no rates yet.

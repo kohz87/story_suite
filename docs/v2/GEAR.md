@@ -23,8 +23,8 @@ defence term. Every slot gives them: weapon, body (armour), off-hand (shield), h
 
 The pick when nothing names a stat (the name's last matching noun, else the slot's own): blade, sword, dagger, bow → DEX; axe,
 hammer, club, spear → STR; staff, wand, tome → INT; mail, leather, plate, cuirass, robe, shield, buckler, helmet, helm, cap, hood →
-VIT; boot, shoe, sandal, cloak, cape, mantle → AGI; ring, amulet, pendant → LUK. Slot defaults: weapon STR, body/off-hand/head VIT,
-cloak/feet AGI, accessory LUK. The whole budget goes on the one stat.
+VIT; boot, shoe, sandal, cloak, cape, mantle → AGI; ring, amulet, pendant → CHA. Slot defaults: weapon STR, body/off-hand/head VIT,
+cloak/feet AGI, accessory CHA. The whole budget goes on the one stat.
 
 *Quick weapons (rule mark `gearFinesse`, items a new reply defines):* cane, rapier, katana, sabre, saber, whip, estoc, scimitar → AGI, and such a word wins over the other
 weapon nouns of the same name ("Cane Sword", "Estoc Dagger" → AGI), not over armour ("Rapier Shield" → VIT). Items defined by a reply captured before the mark keep the pick above.

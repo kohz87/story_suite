@@ -1,0 +1,10 @@
+/* Gear Stats picker (Bag + Add, the item sheet's and the Party slot sheet's Change): the rows are the Party stat sheet's .ps-st and .ps-b (party.css); only the frame is here. */
+.gst{display:flex;flex-direction:column;gap:4px;font:600 14px var(--su-font);letter-spacing:0;text-transform:none;color:var(--su-text)}
+.gst .gst-n{margin:2px 0 0;font:600 12.5px var(--su-font);color:var(--su-muted)}
+.gst-add{display:flex;flex-direction:column;gap:12px}
+.gst-add[hidden],.gst-why[hidden]{display:none}
+.gst-add .gst-fixed{font:600 14px var(--su-font);letter-spacing:0;text-transform:none;color:var(--su-text);padding:10px 12px;min-height:44px;box-sizing:border-box;border:1px dashed var(--su-line2);border-radius:12px}
+.gst-add .fine,.gst-change-view .fine{margin:0;font-size:12.5px;color:var(--su-muted)}
+.gst-why{margin:0;font-size:12.5px;color:var(--su-bad-t)}
+.gst-change-view{display:flex;flex-direction:column;gap:12px}
+.gst-change{min-height:44px;margin-left:auto}
