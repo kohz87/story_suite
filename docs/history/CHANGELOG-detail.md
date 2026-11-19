@@ -2,6 +2,13 @@ This is the detailed record of every change, kept as it was written; the short l
 
 # Changelog
 
+## Unreleased (detail)
+
+### Added
+
+- A world pack's lore as a SillyTavern lorebook: `packs/lorebook-make/convert.js` turns `content.lore` into a World Info book named "<pack name> (Story Suite)" (hidden entries left out, protected titles tagged `[protected]`, stable uids, a disabled `[storysuite:lorebook]` marker with the pack id and version).
+- **Settings › Packs: Create the lorebook from this pack.** An installed world pack with lore gets a Lorebook row: **Create the lorebook from this pack**, then **Update the lorebook** (with the version it was made from, after "This replaces the book <name>; edits you made in it are lost.") or **Up to date**. The book is saved through SillyTavern's own World Info save as "<pack name> (Story Suite)"; a book of that name the suite did not make is never written over. **Use in this chat** (on) makes it the chat's lorebook, as SillyTavern's chat-lore button does; it starts off, with a line saying why, when the chat already has another lorebook. Command `packs.lorebook.make`.
+
 ## 0.1.3 — 19 Nov 2026
 
 **Pack format 4, the Pack Studio and the overnight bug hunt.** A pack is now the world only (lore, cast, places, routes, events) with a separate game pack (rules, calendar, money, climate); the example pair is `examples/packs/ersveil` + `ersveil-game`, and format 3 packs are refused. The Pack Studio opens from **Settings › Packs › Open Studio**. B4-4 to B4-12 are in (old view removed, NPC State settings, "away" on Follow, rule weather kept). Desktop layout A puts the card beside the tab page from 1100 px. Two bug-hunt passes in replica SillyTavern and four rounds with a real model led to the fixes listed below; among them: met pack cast get their pack profile and the narrator uses canon names, hidden lore gates open, trips start from narrator places, weather follows the game's climate, a fight the reader does not play lapses after two replies and is never told blow by blow, the party pill shows the active limit (x/4), and the prompt build, an edited Re-read and a middle delete no longer freeze.

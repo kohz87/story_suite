@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Added
-
-- A world pack's lore as a SillyTavern lorebook: `packs/lorebook-make/convert.js` turns `content.lore` into a World Info book named "<pack name> (Story Suite)" (hidden entries left out, protected titles tagged `[protected]`, stable uids, a disabled `[storysuite:lorebook]` marker with the pack id and version).
-- **Settings › Packs: Create the lorebook from this pack.** An installed world pack with lore gets a Lorebook row: **Create the lorebook from this pack**, then **Update the lorebook** (with the version it was made from, after "This replaces the book <name>; edits you made in it are lost.") or **Up to date**. The book is saved through SillyTavern's own World Info save as "<pack name> (Story Suite)"; a book of that name the suite did not make is never written over. **Use in this chat** (on) makes it the chat's lorebook, as SillyTavern's chat-lore button does; it starts off, with a line saying why, when the chat already has another lorebook. Command `packs.lorebook.make`.
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
 ## Unreleased
