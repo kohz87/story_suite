@@ -31,7 +31,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     theme: pick(query.get('theme'), THEMES, 'dark'),
     variant: pick(query.get('variant'), VARIANTS, query.has('fight') ? 'fightOpen' : 'default'), // ?fight= is read once, here
     width: Number(query.get('width')) || 390,
-    tab: query.get('tab') || 'now',
+    tab: query.get('tab') || 'party',
     plan: pick(query.get('plan'), PLANS, 'off'),
     fight: pick(query.get('fight'), FIGHT_STEPS, 'choose'),
     bag: pick(query.get('bag'), BAG_LOADS, 'light'),

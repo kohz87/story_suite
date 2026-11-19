@@ -100,14 +100,8 @@ for (const theme of ['dark', 'light']) {
       } finally { await page.close(); }
     });
 
-    test(`Now Here cards have no party badge, Journal lead disc is readable at ${width}x${height} in ${theme}`, async (t) => {
+    test(`Journal lead disc is readable at ${width}x${height} in ${theme}`, async (t) => {
       if (ctx.skip) return t.skip(ctx.skip);
-      const now = await open(width, height, `${BASE(ctx.port)}?theme=${theme}&width=${width}&tab=now`);
-      try {
-        await now.waitForSelector('#hx-frame .hp2');
-        assert.equal(await now.evaluate(() => document.querySelectorAll('#hx-frame .prg .pty').length), 0, 'no party badge on Here cards');
-        assert.equal(await now.evaluate(() => document.querySelectorAll('#hx-frame .prg .star').length > 0), true, 'the followed star stays');
-      } finally { await now.close(); }
       const journal = await open(width, height, `${BASE(ctx.port)}?theme=${theme}&width=${width}&tab=journal`);
       try {
         await journal.waitForSelector('#hx-frame .lead2 .a');

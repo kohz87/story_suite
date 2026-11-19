@@ -43,7 +43,7 @@ test.after(async () => {
 async function harness(width) {
   const page = await ctx.browser.newPage({ viewport: { width, height: 900 } });
   await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
-  await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=${width}&tab=now`);
+  await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=${width}&tab=party`);
   await page.waitForSelector('.su-root .su-content', { state: 'attached' });
   await page.evaluate(() => document.fonts.ready);   // (a probe measured in the fallback font is not 1.2 times anything)
   // and the open animation (slide or fade + scale) has ended, so the frame is measured at rest
@@ -52,7 +52,7 @@ async function harness(width) {
 }
 
 for (const width of [390, 1280]) {
-  test(`Text size at ${width}: 110% and 120% draw the text 1.1 and 1.2 times larger; the window keeps fitting the screen; the tablet column stays 820 px on screen and the desktop card column grows with the text`, async t => {
+  test(`Text size at ${width}: 110% and 120% draw the text 1.1 and 1.2 times larger; the window keeps fitting the screen; the card fills the window less its 12 px edges, which grow with the text`, async t => {
     if (ctx.skip) return t.skip(ctx.skip);
     const page = await harness(width);
     const measure = size => page.evaluate(size => {
@@ -79,17 +79,9 @@ for (const width of [390, 1280]) {
     assert.equal(normal.frame, frameAt(1));
     assert.ok(Math.abs(at110.frame - frameAt(1.1)) < 1, `110% frame ${at110.frame}`);
     assert.ok(Math.abs(at120.frame - frameAt(1.2)) < 1, `120% frame ${at120.frame}`);
-    if (width === 1280) {
-      // desktop layout A (ui/css/desk.css): the card's column is 360 px, zoomed with the text at 110% (the floating window is 1227 px on screen, 1115 px of zoomed width, still desktop);
-      // at 120% the window is 1222 px on screen, 1018 px of zoomed width, under 1100: the tablet column, 820 px on screen less its zoomed 14.4 px edges
-      assert.ok(Math.abs(normal.card - 360) <= 1, `card ${normal.card}`);
-      assert.ok(Math.abs(at110.card - 396) <= 1, `110% card ${at110.card}`);
-      assert.ok(Math.abs(at120.card - (820 - 24 * 1.2)) <= 1, `120% card ${at120.card}`);
-      return;
-    }
-    assert.ok(Math.abs(normal.card - (Math.min(width, 820) - 24)) <= 1, `card ${normal.card}`);
-    // the 12 px edges inside the column are zoomed with the text (13.2 and 14.4 px)
-    assert.ok(Math.abs(at110.card - normal.card) <= 4, `110% card ${at110.card}`);
-    assert.ok(Math.abs(at120.card - normal.card) <= 6, `120% card ${at120.card}`);
+    // the card fills the floating window less the 12 px edges, which are zoomed with the text (13.2 and 14.4 px)
+    assert.ok(Math.abs(normal.card - (normal.frame - 24)) <= 1, `card ${normal.card}`);
+    assert.ok(Math.abs(at110.card - (at110.frame - 24 * 1.1)) <= 2, `110% card ${at110.card}`);
+    assert.ok(Math.abs(at120.card - (at120.frame - 24 * 1.2)) <= 2, `120% card ${at120.card}`);
   });
 }

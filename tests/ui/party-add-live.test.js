@@ -62,7 +62,7 @@ test('a person page left open is closed when the suite is opened again on a tab,
   doc.querySelector('#story-suite-ui-menu').click();
   await settle();
   assert.equal(doc.querySelector('.dossier'), null, 'the page went');
-  assert.equal(doc.querySelector('.su-panel').getAttribute('data-tab'), 'now');
+  assert.equal(doc.querySelector('.su-panel').getAttribute('data-tab'), 'bag', 'the retired Now asks for the first tab listed (RPG is off here)');
   assert.ok(doc.querySelector('.su-card-slot button[aria-label="Settings"]'), 'the new view\'s Settings on its card');
 });
 

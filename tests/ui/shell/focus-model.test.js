@@ -86,15 +86,15 @@ test('the dossier is modal: it takes the focus, keeps Tab inside, and Escape giv
   suite.destroy();
 });
 
-test('a dossier opened from Now, closed back to the redrawn Now: the focus stays in the suite', () => {
+test('a dossier opened from People, closed back to the redrawn People: the focus stays in the suite', () => {
   const doc = installFakeDom();
   const suite = mountSuite({ port: createFakePort(), doc });
-  suite.open('now');
-  const link = doc.body.querySelector('.dossier-link');
+  suite.open('people');
+  const link = doc.body.querySelector('[data-person-id="torka"]');
   link.focus();
   link.click();
   doc.body.querySelector('.dossier [data-act="close"]').click();
-  assert.equal(suite.tabHost.current(), 'now');
+  assert.equal(suite.tabHost.current(), 'people');
   const now = doc.activeElement;
   assert.ok(now && doc.body.contains(now), 'not left on a removed node');
   assert.ok(now.closest('.su-root'), 'inside the suite');

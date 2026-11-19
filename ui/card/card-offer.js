@@ -1,7 +1,7 @@
 // The card's pack offers inside the Needs you card: what the card brings, the "Also apply" tick, Install or Update, and Not now.
-import { h } from '../../kit/dom.js';
-import { glyph } from '../../kit/glyphs.js';
-import { toggle } from '../../kit/controls.js';
+import { h } from '../kit/dom.js';
+import { glyph } from '../kit/glyphs.js';
+import { toggle } from '../kit/controls.js';
 
 // The "Also apply" boxes stay ticked until the reader unticks one; kept here, not in the drawn nodes, so a redraw does not tick it again.
 const ticked = new Map();

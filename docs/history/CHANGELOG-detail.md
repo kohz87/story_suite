@@ -4,6 +4,8 @@ This is the detailed record of every change, kept as it was written; the short l
 
 ## Unreleased (detail)
 
+- Now tab removed; the suite opens on Party (RPG off: Bag). `open('now')` is an alias for the first tab. Needs you and the card's pack offers moved to a slot under the character card on every tab; Today, This turn, You, Here and pinned trackers are not drawn (You is one line under the Party strip; Today's due items are in Journal; trackers are on Story › Trackers). Desktop layout A (left card column, Here now, 820 px column, `--su-col`) removed; the dossier covers the suite at every width; the Show on Now switch is off Story › Trackers.
+
 ### Changed
 
 - **One card under each story reply (REPLYCARD, owner-approved mock Version C, 19 Nov 20:16).** `ui/chat/reply-box.js` (with `reply-box-top.js`, `reply-box-tabs.js`, `reply-box-actions.js`, `here-card.js`) draws the card in the page only, never in the message text, so it is never sent. Its data is `ui/select/reply-log.js`: each reply's state asked with `sdk.query(name, { asOf: index })` (time, place, weather, `party.pc`/`rpg.sheet` pools, `scene.you` condition, `reply.changes`, `people.list` here), and the pools before it from `asOf: index - 1`, so a swipe, a middle delete, a rebuild and a reload give the same cards. A new Story Block query `choices.replies` (beside `chatter.replies`) reads each reply's `? choice` lines from its own text.

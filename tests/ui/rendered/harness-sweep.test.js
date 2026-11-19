@@ -10,7 +10,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' };
 const THEMES = ['dark', 'light', 'follow'];
 const FIXED = [[360, 740], [390, 844], [820, 1180]];
-const TABS = ['now', 'party', 'bag', 'people', 'world', 'journal', 'story'];
+const TABS = ['party', 'bag', 'people', 'world', 'journal', 'story'];
 const MIN_FONT = 12;
 
 function serve() {
@@ -123,13 +123,13 @@ for (const theme of THEMES) {
   }
 }
 
-test('the 8-tab bar fits at 360 px and the fight tab shows with 48 px taps', async (t) => {
+test('the 7-tab bar fits at 360 px and the fight tab shows with 48 px taps', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const { page } = await open(360, 740, 'variant=fightOpen&width=360&tab=fight');
   try {
     await settle(page);
     const count = await page.evaluate(() => document.querySelectorAll('#hx-frame .su-bar-btn').length);
-    assert.equal(count, 8);
+    assert.equal(count, 7);
     const problems = await page.evaluate(audit, { minTap: 44, fightTap: 48 });
     assert.deepEqual(problems, []);
     const fitsBar = await page.evaluate(() => { const b = document.querySelector('#hx-frame .su-bar'); return b.scrollWidth <= b.clientWidth + 1; });

@@ -12,15 +12,7 @@ test('10: the wizard footer is solid (opaque base) and sticks at the panel edge,
   assert.match(rules[0], /var\(--su-flat/u);
 });
 
-test('11: Here now keeps its own bottom padding and ellipsizes the where-line', () => {
-  const desk = css('desk');
-  assert.match(desk, /padding: 14px 16px 12px;/u);
-  assert.match(desk, /\.su-herenow \.hp2 \.wh2 \{[^}]*text-overflow: ellipsis;/u);
-  assert.match(desk, /\.su-herenow \.hp2-body \{\s*min-width: 0;/u);
-});
-
 test('12: the sticky tab strip sticks at the scroller edge, past its padding', () => {
-  assert.match(css('desk'), /\.su-strip \{\s*top: -16px;/u);
   assert.match(css('shell'), /\.su-strip \{\s*display: flex;\s*top: -12px;/u);
 });
 

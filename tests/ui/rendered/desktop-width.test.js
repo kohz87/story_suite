@@ -1,6 +1,5 @@
-// Rendered check: mock v7 tablet column. The suite root fills the window at every width (the sky edge to edge), and under the desktop width (1100 px,
-// tests/ui/rendered/desktop-layout-a.test.js) the card, the tab strip and the page keep one 820 px column in the middle (12 px edges inside it);
-// at 820 px and under the column is the window less the 12 px edges. Here now and the desktop columns are not drawn there.
+// Rendered check: the tablet layout on every width. The suite root is the floating window (the whole window up to 820 px, 24 px margins and 1280 x 940 at most
+// above it) and the card, the tab strip and the page fill it between 12 px edges: no 820 px column, no side column, no Now tab.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -42,17 +41,17 @@ function measure() {
   const box = sel => { const e = document.querySelector(sel); if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.round(r.left), w: Math.round(r.width), h: Math.round(r.height) }; };
   return {
     frame: box('#hx-frame'), root: box('.su-root'), card: box('.su-card-slot'), strip: box('.su-strip'), panel: box('.su-panel > *'),
-    here: getComputedStyle(document.querySelector('.su-here-slot')).display, nowHere: Boolean(document.querySelector('.now-tab [data-card="here"]')),
+    side: Boolean(document.querySelector('.su-side, .su-here-slot, .now-tab')),
   };
 }
 
-for (const width of [390, 820, 900, 1099]) {
+for (const width of [390, 820, 900, 1099, 1280, 1920]) {
   for (const theme of ['dark', 'light']) {
-    test(`desktop column at ${width} in ${theme}: the root is the floating window (or the whole window up to 820 px), the content keeps the 820 px column`, async t => {
+    test(`desktop width at ${width} in ${theme}: the root is the floating window (or the whole window up to 820 px), the card, the strip and the page fill it (no 820 px column, no side column)`, async t => {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await ctx.browser.newPage({ viewport: { width, height: 900 } });
       try {
-        await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&variant=default&width=${width}&tab=now`);
+        await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&variant=default&width=${width}&tab=party`);
         await page.waitForSelector('#hx-frame .su-card-slot .ctop');
         // (the open animation, slide or fade + scale, has ended: boxes are measured at rest)
         await page.waitForFunction(() => document.getAnimations().filter(a => a.playState === 'running' && a.effect?.getTiming?.().iterations !== Infinity).length === 0);
@@ -60,15 +59,13 @@ for (const width of [390, 820, 900, 1099]) {
         const m = await page.evaluate(measure);
         const rootW = width > 820 ? Math.min(1280, width - 48) : width;
         assert.equal(m.root.w, rootW, width > 820 ? 'the suite root is the floating window: 24 px margin each side' : 'the suite root fills the window up to 820 px');
-        if (width > 820) assert.ok(Math.abs(m.root.x - (m.frame.x + 24)) <= 1 && Math.abs(m.root.h - Math.min(940, 900 - 48)) <= 1, `centred ${JSON.stringify(m.root)}`);
-        const column = Math.min(rootW, 820) - 24;
-        const left = m.root.x + Math.max(12, (rootW - 820) / 2 + 12);
+        if (width > 820) assert.ok(Math.abs(m.root.x - (m.frame.x + (width - rootW) / 2)) <= 1 && Math.abs(m.root.h - Math.min(940, 900 - 48)) <= 1, `centred ${JSON.stringify(m.root)}`);
+        const column = rootW - 24;   // the 12 px edges
         assert.ok(Math.abs(m.card.w - column) <= 1, `card ${m.card.w} vs column ${column}`);
-        assert.ok(Math.abs(m.card.x - left) <= 1, `card left ${m.card.x} vs ${left}`);
+        assert.ok(Math.abs(m.card.x - (m.root.x + 12)) <= 1, `card left ${m.card.x}`);
         assert.ok(Math.abs(m.panel.w - column) <= 1, `page ${m.panel.w} vs column ${column}`);
-        assert.equal(m.here, 'none', 'Here now is a desktop column only');
-        assert.equal(m.nowHere, true, 'Now keeps its Here card');
-        if (width >= 600) assert.ok(Math.abs(m.strip.x - left) <= 1 && Math.abs(m.strip.w - column) <= 1, `strip ${JSON.stringify(m.strip)}`);
+        assert.equal(m.side, false, 'no side column and no Now tab');
+        if (width >= 600) assert.ok(Math.abs(m.strip.x - (m.root.x + 12)) <= 1 && Math.abs(m.strip.w - column) <= 1, `strip ${JSON.stringify(m.strip)}`);
       } finally { await page.close(); }
     });
   }

@@ -33,7 +33,7 @@ test('?events=1 turns World events on: the World tab draws Conditions here and t
 
 test('falls back on unknown query values', () => {
   const { h } = setup('?theme=neon&variant=x&width=abc');
-  assert.deepEqual(h.state, { theme: 'dark', variant: 'default', width: 390, tab: 'now', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false, events: false, kind: 'ferry' });
+  assert.deepEqual(h.state, { theme: 'dark', variant: 'default', width: 390, tab: 'party', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false, events: false, kind: 'ferry' });
 });
 
 test('controls remount with the chosen switch', () => {

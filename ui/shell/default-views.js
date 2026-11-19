@@ -1,8 +1,7 @@
-// Supplies the default card and tab renderers for mountSuite: the character card, Here now (desktop), the Now tab, and a "not built yet" card.
+// Supplies the default card and tab renderers for mountSuite: the character card, the Needs you card, and a "not built yet" card.
 import { h } from '../kit/dom.js';
 import { characterCard } from '../card/character-card.js';
-import { nowTab } from '../tabs/now/now.js';
-import { hereNowCard } from '../tabs/now/here-now.js';
+import { needsYou } from '../card/needs-you.js';
 import { openSceneSheet } from '../sheets/scene-sheet.js';
 import { createTabViews } from './tab-views.js';
 import { dossierPage } from '../tabs/people/dossier/dossier.js';
@@ -18,8 +17,8 @@ export function pendingCard(tab) {
     h('p', { class: 'su-pending-note' }, 'This tab is not built yet.'));
 }
 
-/** Returns the default `{ card, here, tab, closePage }` renderers wired to a port, back-stack and prefs; `desk()` says whether the desktop layout is drawn. */
-export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null, desk = null }) {
+/** Returns the default `{ card, needs, tab, closePage }` renderers wired to a port, back-stack and prefs. */
+export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null }) {
   let dossier = null;
   let openId = null;
   let peopleStart = null;
@@ -32,7 +31,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     const opener = doc?.activeElement ?? null;
     let stay = false;
     const el = dossierPage(vm, {
-      port, prefs, backStack, go, youName: port.view('card')?.you?.name, origin: `‹ ${TITLES[from] ?? 'Now'}`,
+      port, prefs, backStack, go, youName: port.view('card')?.you?.name, origin: `‹ ${TITLES[from] ?? 'Party'}`,
       seeOnMap: (id) => {
         stay = true;
         el.close();
@@ -69,7 +68,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
     if (args) port.command('suite.go', { tab, ...args });
   };
   const takeStart = () => { const s = peopleStart; peopleStart = null; return s; };
-  const ctx = { port, prefs, go, desk: () => desk?.() === true };
+  const ctx = { port, prefs, go };
   const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh, peopleStart: takeStart });
   return {
     // A person's page left open: closed when the suite is opened on a tab (it would cover the tab asked for).
@@ -96,8 +95,8 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
       onSettings: () => (onSettings ? onSettings() : port.command('suite.settings', {})),
       onPace: () => go('bag'),
     }) : null),
-    // Here now, the desktop left column's people present (from the Now view-model's rows).
-    here: vm => hereNowCard(vm?.here, ctx, vm?.unrecorded),
-    tab: (tab, vm) => (tab === 'now' && vm ? nowTab(vm, ctx) : built(tab, vm) ?? pendingCard(tab)),
+    // Needs you (and the card's pack offers) under the card, from the Now view-model's rows.
+    needs: vm => needsYou(vm, ctx),
+    tab: (tab, vm) => built(tab, vm) ?? pendingCard(tab),
   };
 }

@@ -14,7 +14,7 @@ import { partyAddButton } from './party-add.js';
 import { can } from '../../../runtime/can.js';
 import { sendFollow } from './follow.js';
 import { tabTrap } from '../../../kit/trap.js';
-import { placeOnDesk } from './desk-place.js';
+import { watchWide } from './wide-watch.js';
 
 const MENU = Object.freeze([
   ['refresh', 'Refresh', 're-read the recent story for them'], ['portrait', 'Portrait', 'view, upload or generate'],
@@ -96,8 +96,8 @@ export function dossierPage(first, ctx = {}) {
     h('div', { class: 'dscroll' }, top, menuSlot, noteSlot, grid));
   let shut = false;
   root.addEventListener('keydown', tabTrap(root, { isOn: () => !shut }));
-  // (on desktop it sits in the page column under the tab strip; a tab picked there closes it first)
-  const unplace = placeOnDesk(root, { onStrip: () => close() });
+  // (on a wide window Mood and Right now sit side by side)
+  const unplace = watchWide(root);
 
   function closeMenu() { release('menu'); state.menu = false; state.sure = false; drawMenu(); }
   function openPage(id) {

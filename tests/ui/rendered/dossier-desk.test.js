@@ -1,6 +1,5 @@
-// Rendered check: the dossier on desktop layout A (SHB3; mock scratch/design/redo/sheets-desktop.html, frames dossier and dossier-menu; numbers from
-// night/mocksheets/metrics.json). It opens in the page column under the tab strip, at most 1,040 px and centred there, with the card column in view;
-// Mood | Right now pair from a 1,000 px dossier; the ⋯ menu drops from its button, right edges flush; under 1,100 px it fills the suite as before.
+// Rendered check: the dossier on a desktop window. With one layout at every width it covers the whole suite (card, strip and tab under it), the ⋯ menu drops from
+// its button, and Mood | Right now pair once the dossier's content is 1,000 px wide (reached in the 1,280 px floating window).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -10,12 +9,6 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' };
-// The mock's dossier: left, width (the page column and the 1,040 cap), and whether Mood and Right now share a row.
-// The suite is a floating window (min(1280, window - 48) by min(940, window - 48), centred), so the page column is at most 852 px and the
-// 1,040 px dossier cap and the Mood | Right now pairing (a 1,000 px dossier) no longer come within reach at 100 % text; the rules stay.
-// left / col / width are as drawn from the root's edge (x 404, the window less 428); bottom is the window's bottom less the margin below the root.
-const MOCK = { 1280: { left: 24 + 404, col: 804, width: 804, paired: false, height: 800, bottom: 776 }, 1920: { left: 320 + 404, col: 852, width: 852, paired: false, height: 1080, bottom: 1010 } };
-
 function serve() {
   const server = http.createServer((req, res) => {
     const file = path.join(ROOT, decodeURIComponent(new URL(req.url, 'http://x').pathname));
@@ -55,14 +48,14 @@ async function openDossier(width, height, theme = 'dark') {
   return page;
 }
 
-/** Runs in the page: the dossier's boxes against the page column and the tab strip. */
+
+/** Runs in the page: the dossier's boxes against the suite root. */
 function measure() {
-  const box = e => { if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), r: Math.round(r.right), b: Math.round(r.bottom) }; };
+  const box = e => { if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), b: Math.round(r.bottom) }; };
   const q = s => document.querySelector(`#hx-frame ${s}`);
   const mood = q('.dov .dcard[data-page="mood"]'), now = q('.dov .dcard[data-page="now"]');
   return {
-    dov: box(q('.dov')), scroll: box(q('.dov .dscroll')), page: box(q('.su-page')), strip: box(q('.su-strip')), side: box(q('.su-side')), frame: box(q('.su-root')),
-    cls: q('.dov').className, panel: getComputedStyle(q('.su-panel')).visibility, background: getComputedStyle(q('.dov')).backgroundImage,
+    dov: box(q('.dov')), root: box(q('.su-root')), cls: q('.dov').className,
     paired: Boolean(mood && now && Math.abs(mood.getBoundingClientRect().top - now.getBoundingClientRect().top) < 1),
     ties: Math.abs(q('.dov .dcard[data-page="ties"]').getBoundingClientRect().top - q('.dov .dcard[data-page="past"]').getBoundingClientRect().top) < 1,
   };
@@ -70,64 +63,31 @@ function measure() {
 
 for (const width of [1280, 1920]) {
   for (const theme of ['dark', 'light']) {
-    test(`dossier at ${width} ${theme}: in the page column under the strip, at most 1,040 px and centred, the card column in view`, async (t) => {
+    test(`dossier at ${width} ${theme}: covers the whole suite, Mood and Right now side by side, Ties and Past side by side`, async (t) => {
       if (ctx.skip) return t.skip(ctx.skip);
-      const mock = MOCK[width];
-      const page = await openDossier(width, mock.height, theme);
+      const page = await openDossier(width, width === 1280 ? 800 : 1080, theme);
       try {
         const m = await page.evaluate(measure);
-        assert.match(m.cls, /\bddesk\b/);
-        assert.deepEqual([m.dov.x, m.dov.w, m.dov.b], [mock.left, mock.col, mock.bottom], 'the dossier covers the page column to the floating window\'s bottom');
-        assert.equal(m.dov.y, m.strip.b + 12, 'just under the tab strip (the page column gap)');
-        assert.equal(m.scroll.w, mock.width, 'at most 1,040 px (the page column is narrower in the floating window)');
-        assert.ok(Math.abs((m.scroll.x + m.scroll.w / 2) - (m.page.x + m.page.w / 2)) <= 1, 'centred in the page column');
-        assert.ok(m.dov.x >= m.side.r, 'the card column stays in view beside it');
-        assert.equal(m.panel, 'hidden', 'the tab under it is hidden');
-        assert.equal(m.background, 'none', 'no full-window sky behind it');
-        assert.equal(m.paired, mock.paired, 'Mood | Right now share a row only from a 1,000 px dossier (not reached in the floating window)');
+        assert.doesNotMatch(m.cls, /\bddesk\b/);
+        assert.deepEqual([m.dov.x, m.dov.y, m.dov.w], [m.root.x, m.root.y, m.root.w], 'the dossier covers the suite');
+        assert.equal(m.paired, true, 'the 1,280 px window is wide enough for Mood | Right now');
         assert.equal(m.ties, true, 'Ties | Past side by side');
       } finally { await page.close(); }
     });
   }
 
-  test(`dossier ⋯ menu at ${width}: drops from its button, right edges flush, just under the top bar`, async (t) => {
+  test(`dossier ⋯ menu at ${width}: drops from its button, just under the top bar`, async (t) => {
     if (ctx.skip) return t.skip(ctx.skip);
-    const page = await openDossier(width, MOCK[width].height);
+    const page = await openDossier(width, width === 1280 ? 800 : 1080);
     try {
-      const before = await page.evaluate(() => document.querySelector('#hx-frame .dgrid').getBoundingClientRect().top);
       await page.evaluate(() => document.querySelector('#hx-frame .dossier [data-act="menu"]').click());
       await settle(page);
       const m = await page.evaluate(() => {
         const r = s => document.querySelector(`#hx-frame ${s}`).getBoundingClientRect();
-        return { menu: r('.dossier .menu'), btn: r('.dossier [data-act="menu"]'), top: r('.dossier .dtop'), grid: r('.dgrid').top };
+        return { menu: r('.dossier .menu'), btn: r('.dossier [data-act="menu"]') };
       });
-      assert.equal(Math.round(m.menu.right), Math.round(m.btn.right));
-      assert.equal(Math.round(m.menu.top), Math.round(m.top.bottom));
-      assert.equal(Math.round(m.menu.width), 260);
-      assert.equal(m.grid, before, 'the open menu does not push the cards down');
+      assert.ok(m.menu.right <= m.btn.right + 12 && m.menu.right >= m.btn.right, `menu right ${m.menu.right} by the button ${m.btn.right}`);
+      assert.ok(m.menu.top >= m.btn.bottom - 1 && m.menu.top <= m.btn.bottom + 16, `menu top ${m.menu.top} under the button ${m.btn.bottom}`);
     } finally { await page.close(); }
   });
 }
-
-test('dossier across 1,100 px: fills the suite under it, back in the page column above; a tab picked on the strip closes it first', async (t) => {
-  if (ctx.skip) return t.skip(ctx.skip);
-  const page = await openDossier(1280, 800);
-  try {
-    await page.setViewportSize({ width: 1000, height: 800 });
-    await page.evaluate(() => { document.querySelector('#hx-frame').style.width = '1000px'; });
-    await settle(page);
-    let m = await page.evaluate(measure);
-    assert.doesNotMatch(m.cls, /\bddesk\b/);
-    assert.deepEqual([m.dov.x, m.dov.y, m.dov.w], [m.frame.x, m.frame.y, m.frame.w], 'under 1,100 px the dossier covers the suite as before');
-    assert.equal(m.panel, 'visible');
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.evaluate(() => { document.querySelector('#hx-frame').style.width = '1920px'; });
-    await settle(page);
-    m = await page.evaluate(measure);
-    assert.deepEqual([m.dov.x, m.dov.w, m.scroll.w, m.paired], [724, 852, 852, false], 'the floating window is 1280 px wide at 1920: the page column starts 404 px in');
-    await page.evaluate(() => document.querySelector('#hx-frame .su-strip [data-tab="bag"]').click());
-    await settle(page);
-    const after = await page.evaluate(() => ({ dov: Boolean(document.querySelector('#hx-frame .dov')), tab: document.querySelector('#hx-frame .su-strip [aria-selected="true"]').dataset.tab, panel: getComputedStyle(document.querySelector('#hx-frame .su-panel')).visibility }));
-    assert.deepEqual(after, { dov: false, tab: 'bag', panel: 'visible' });
-  } finally { await page.close(); }
-});

@@ -10,6 +10,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Settings › Chat extras › Tabs sets the order of the tabs and hides the ones you do not want, for every chat.
 - The row under the last reply, the Here drawer above the message box, the separate Inner chatter fold and the Choices chip are gone: all of it is on the reply cards now.
 - The ✦ menu on a reply keeps Re-read and Discard repair and adds Open Suite; the reply's change list is on its card's Changes tab.
+- The Now tab is gone: the suite opens on Party, the card and what needs you sit above the tabs, and every window width uses that one layout, filling the floating window.
 - A reply that came without its change block now gets its inner chatter and choices back when the suite repairs it.
 - Inner chatter reads as **Name:** followed by the thought between quote marks.
 - Tapping someone in the Here drawer opens their own page, not the People list.

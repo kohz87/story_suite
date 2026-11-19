@@ -6,6 +6,13 @@ import { can } from '../../runtime/can.js';
 
 const picked = new WeakMap();
 
+// One small line under the party strip for the reader's own character: the look, where they stand and how they are (what Now's You card held).
+function youLine(port) {
+  const you = port?.view?.('now')?.you;
+  const parts = [you?.look ? String(you.look).split(/[.;]/)[0].trim() : null, you?.position, you?.condition].filter(Boolean);
+  return parts.length ? h('p', { class: 'fine pty-you', dataset: { note: 'you' } }, h('b', null, 'You'), ` · ${parts.join(' · ')}`) : null;
+}
+
 function pick(party, ctx) {
   const id = picked.get(ctx.port ?? ctx);
   return party.members.find(m => m.id === id) ?? party.members.find(m => m.id === party.pcId) ?? party.members[0] ?? null;
@@ -43,7 +50,7 @@ export function partyTab(party, ctx = {}) {
   const invite = showInvite
     ? h('button', { type: 'button', class: 'inv', onClick: () => ctx.port?.command('party.invite', {}) }, '+ Invite')
     : null;
-  const row = h('section', { class: 'card glass slim', dataset: { card: 'members' } }, h('div', { class: 'memrow' }, strip, create, invite));
+  const row = h('section', { class: 'card glass slim', dataset: { card: 'members' } }, h('div', { class: 'memrow' }, strip, create, invite), youLine(ctx.port));
   const sheetSlot = h('div', { class: 'psheet-slot' });
 
   function draw() {

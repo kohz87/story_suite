@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
-import { rightNow } from '../../../../ui/tabs/now/right-now.js';
-import { offerRows, waitingCount } from '../../../../ui/select/offers.js';
-import { selectNow } from '../../../../ui/select/now.js';
-import { selectReplyActions } from '../../../../ui/select/reply-actions.js';
-import { createSbPort } from '../../../../ui/port/sb-port.js';
-import { checkShape } from '../../../../ui/contract/shapes.js';
-import { NOW_SHAPE } from '../../../../ui/contract/now.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
+import { needsYou } from '../../../ui/card/needs-you.js';
+import { offerRows, waitingCount } from '../../../ui/select/offers.js';
+import { selectNow } from '../../../ui/select/now.js';
+import { selectReplyActions } from '../../../ui/select/reply-actions.js';
+import { createSbPort } from '../../../ui/port/sb-port.js';
+import { checkShape } from '../../../ui/contract/shapes.js';
+import { NOW_SHAPE } from '../../../ui/contract/now.js';
 
 const item = (over = {}) => ({ id: 'o1', packId: 'p', name: 'Ersveil', version: '2.0.0', installedVersion: null, update: false, state: 'offer', result: '', brings: '12 cast', notes: [], blocked: false, settings: [{ text: 'Rules: Standard' }], ...over });
 const fakeController = (items) => {
@@ -20,10 +20,10 @@ const ctxFor = controller => ({ port: createSbPort({ sdk: {}, offer: () => contr
 test('an offer shows in Needs you with the count, and no offer leaves the card as before', () => {
   installFakeDom();
   const rows = offerRows(fakeController([item()]));
-  const [needs] = rightNow({ needsYou: [], offers: rows }, {});
+  const needs = needsYou({ needsYou: [], offers: rows }, {});
   assert.equal(needs.querySelector('.cnt').textContent, '1');
   assert.match(needs.textContent, /This card brings Ersveil 2\.0\.0/);
-  assert.deepEqual(rightNow({ needsYou: [], offers: [] }, {}), []);
+  assert.equal(needsYou({ needsYou: [], offers: [] }, {}), null);
   assert.deepEqual(checkShape({ ...baseNow(), offers: rows }, NOW_SHAPE), []);
 });
 
@@ -36,7 +36,7 @@ test('Install sends the ticked state; unticking survives a redraw; Not now and D
   installFakeDom();
   const c = fakeController([item()]);
   const ctx = ctxFor(c);
-  const draw = () => rightNow({ needsYou: [], offers: offerRows(c) }, ctx)[0];
+  const draw = () => needsYou({ needsYou: [], offers: offerRows(c) }, ctx);
   let node = draw();
   assert.equal(node.querySelector('input'), null, 'the tick is the suite switch, not a native checkbox (SOAK2UI 18)');
   assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), 'true');
@@ -48,7 +48,7 @@ test('Install sends the ticked state; unticking survives a redraw; Not now and D
   later.click();
   await new Promise(r => setTimeout(r, 0));
   assert.deepEqual(c.calls, [['install', 'o1', { settings: false }], ['notNow', 'o1']]);
-  const done = rightNow({ needsYou: [], offers: offerRows(fakeController([item({ state: 'done', result: 'Installed Ersveil.' })])) }, ctx)[0];
+  const done = needsYou({ needsYou: [], offers: offerRows(fakeController([item({ state: 'done', result: 'Installed Ersveil.' })])) }, ctx);
   assert.equal(done.querySelector('.cnt'), null);
   done.querySelector('.btn2').click();
   await new Promise(r => setTimeout(r, 0));
@@ -57,14 +57,14 @@ test('Install sends the ticked state; unticking survives a redraw; Not now and D
 test('clicking the "Also apply" words flips the switch, as a label would (SOAK2UI 18); a disabled switch stays', () => {
   installFakeDom();
   const c = fakeController([item()]);
-  const draw = () => rightNow({ needsYou: [], offers: offerRows(c) }, ctxFor(c))[0];
+  const draw = () => needsYou({ needsYou: [], offers: offerRows(c) }, ctxFor(c));
   let node = draw();
   const was = node.querySelector('.rnr-tick .sw').getAttribute('aria-checked');
   node.querySelector('.rnr-tick .rnr-tick-t').click();
   assert.notEqual(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), was);
   node.querySelector('.rnr-tick .rnr-tick-t').click();
   assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), was, 'and back');
-  node = rightNow({ needsYou: [], offers: offerRows(fakeController([item({ state: 'working' })])) }, ctxFor(c))[0];
+  node = needsYou({ needsYou: [], offers: offerRows(fakeController([item({ state: 'working' })])) }, ctxFor(c));
   const before = node.querySelector('.rnr-tick .sw').getAttribute('aria-checked');
   node.querySelector('.rnr-tick .rnr-tick-t').click();
   assert.equal(node.querySelector('.rnr-tick .sw').getAttribute('aria-checked'), before);
@@ -95,7 +95,7 @@ test('the port forwards the offer event and answers a missing controller', async
 test('a format 4 pair is one offer row: the world and the game by name, both versions, what they bring (REVPF4: the pair notice in the new view)', () => {
   installFakeDom();
   const rows = offerRows(fakeController([item({ id: 'ersveil@1.0.0+ersveil-game@1.0.0', packId: 'ersveil+ersveil-game', name: 'Ersveil and Ersveil rules', version: '1.0.0 + 1.0.0', brings: 'lore; money' })]));
-  const [needs] = rightNow({ needsYou: [], offers: rows }, {});
+  const needs = needsYou({ needsYou: [], offers: rows }, {});
   assert.match(needs.textContent, /This card brings Ersveil and Ersveil rules 1\.0\.0 \+ 1\.0\.0/);
   assert.match(needs.textContent, /lore; money/);
   assert.deepEqual(checkShape({ ...baseNow(), offers: rows }, NOW_SHAPE), []);

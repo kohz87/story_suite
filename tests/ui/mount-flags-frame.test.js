@@ -19,7 +19,7 @@ function countingPort() {
     count[tab] = (count[tab] ?? 0) + 1;
     order.push(tab);
     if (tab === 'flags') return structuredClone(state.flags);
-    if (tab === 'now') return { ...base.view('now'), n: state.now };
+    if (tab === 'now' || tab === 'party') return { ...base.view(tab), n: state.now };
     return base.view(tab, args);
   };
   const reset = () => { for (const k of Object.keys(count)) delete count[k]; order.length = 0; };
@@ -37,7 +37,7 @@ test('a burst of port events with the suite open reads flags, card and tab once 
   for (const event of EVENTS) p.emit(event);
   assert.deepEqual(p.count, {}, 'nothing is read before the frame');
   f.run();
-  assert.deepEqual(p.count, { flags: 1, card: 1, now: 1 }, 'one read each: no card, fight or scene reads for the flags, one card read for the card and its sky');
+  assert.deepEqual(p.count, { flags: 1, card: 1, now: 1, party: 1 }, 'one read each (now feeds Needs you): no card, fight or scene reads for the flags, one card read for the card and its sky');
   suite.destroy();
 });
 
@@ -54,8 +54,8 @@ test('while the suite is closed port events read only the flags; open reads the 
   assert.deepEqual(p.count, { flags: 3 }, 'three frames: the flags each time, never the card or the Now tab');
   p.state.now = 7;
   suite.open();
-  assert.deepEqual(p.count, { flags: 3, card: 1, now: 1 }, 'open: the card and the tab once; the flags were kept current');
-  assert.ok(doc.body.querySelector('[data-tab="now"]'), 'the Now tab is drawn on open');
+  assert.deepEqual(p.count, { flags: 3, card: 1, now: 2, party: 2 }, 'open: the card once, Now twice (Needs you and the You line on Party), the tab once; the flags were kept current');
+  assert.ok(doc.body.querySelector('[data-tab="party"]'), 'the Party tab is drawn on open');
   assert.ok(doc.body.querySelector('[data-card="character"]'), 'the card is drawn on open');
   suite.destroy();
 });
@@ -65,7 +65,7 @@ test('a fight that begins is in the tab strip and in the flags the tab is drawn 
   const f = manual();
   const p = countingPort();
   const seen = [];
-  const suite = mountSuite({ port: p.port, doc, schedule: f.schedule, tabs: { now: (vm, ctx) => { seen.push(ctx.flags.fightOpen); return doc.createElement('i'); } } });
+  const suite = mountSuite({ port: p.port, doc, schedule: f.schedule, tabs: { party: (vm, ctx) => { seen.push(ctx.flags.fightOpen); return doc.createElement('i'); } } });
   suite.open();
   f.run();
   seen.length = 0;
@@ -75,8 +75,8 @@ test('a fight that begins is in the tab strip and in the flags the tab is drawn 
   p.emit('head');
   f.run();
   assert.equal(suite.tabHost.tabs().includes('fight'), true);
-  assert.deepEqual(seen, [true], 'the Now tab was drawn once, after the flags');
-  assert.deepEqual(p.order, ['flags', 'card', 'now']);
+  assert.deepEqual(seen, [true], 'the Party tab was drawn once, after the flags');
+  assert.deepEqual(p.order, ['flags', 'card', 'party', 'now']);
   suite.destroy();
 });
 
