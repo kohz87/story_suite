@@ -19,7 +19,7 @@ export function lorebookRows(book, state) {
   const action = book.upToDate
     ? [h('span', { class: 'always' }, 'Up to date'), book.attach ? h('button', { type: 'button', class: 'btn2', disabled: busy, onClick: () => make(false, true) }, 'Use in this chat') : null]
     : [h('button', { type: 'button', class: ['btn2', 'pri'], disabled: busy, onClick: press }, book.button)];
-  const notes = [book.use.note && !book.upToDate ? h('small', book.use.note) : null, book.upToDate && book.attached ? h('small', 'It is this chat’s lorebook.') : null];
+  const notes = [book.use.note && (!book.upToDate || book.attach) ? h('small', book.use.note) : null, book.upToDate && book.attached ? h('small', 'It is this chat’s lorebook.') : null];
   const row = h('div', { class: ['srow', 'lbook'], dataset: { lorebook: book.id } }, h('span', { class: 'lb' }, h('b', 'Lorebook'), h('small', book.desc), notes), h('span', { class: 'ctl' }, tick, action));
   const confirm = own.confirming === book.id ? h('div', { class: 'cfm' }, h('b', `Update ${book.name}?`), h('small', `This replaces the book ${book.name}; edits you made in it are lost.`),
     h('span', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 dng', onClick: () => { set({ confirming: '' }); make(true); } }, 'Update'), h('button', { type: 'button', class: 'btn2', onClick: () => set({ confirming: '' }) }, 'Keep it'))) : null;

@@ -105,3 +105,19 @@ test('a Create that finds an older marker book (made elsewhere after the page wa
     assert.deepEqual(sent.map(([, value]) => value.confirmed), [false, true]);
     assert.notEqual(JSON.stringify(books.files[NAME]), before);
 });
+
+test('an up-to-date book on a chat with another lorebook: the line names that lorebook, and Use in this chat attaches without saving', async () => {
+    const books = fakeBooks({ files: { [NAME]: lorebookFromPack(loreWorld()).book }, chatBook: 'Campaign notes' });
+    const { page, sent } = mountLorebook(await store(loreWorld()), books, fakeSettings({ lorebooks: { ersveil: { name: NAME, version: '4.0.0' } } }));
+    const el = page('packs');
+    assert.ok(row(el).textContent.includes('Up to date'));
+    assert.ok(row(el).textContent.includes('This chat already uses the lorebook Campaign notes; Use in this chat puts this one in its place.'));
+    assert.equal(row(el).querySelector('input[type="checkbox"]'), null);
+    const saved = JSON.stringify(books.files[NAME]);
+    click(row(el), 'Use in this chat');
+    await tick(); await tick();
+    assert.deepEqual(sent, [['packs.lorebook.make', { id: 'ersveil', use: true, confirmed: false }]]);
+    assert.equal(books.chatBook(), NAME);
+    assert.equal(JSON.stringify(books.files[NAME]), saved);
+    assert.ok(page('packs').textContent.includes(`${NAME} is up to date (made from Ersveil 4.0.0). Attached to this chat.`));
+});

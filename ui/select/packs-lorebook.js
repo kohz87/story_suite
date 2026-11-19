@@ -22,6 +22,8 @@ export function lorebookView(row) {
     : row.state === 'update' ? `${row.name} · ${made || 'made from another version'}` : `${row.name} · ${made}`;
   return {
     id: row.id, name: row.name, state: row.state, button: BUTTON[row.state] ?? '', desc, upToDate: row.state === 'current',
-    attach: row.state === 'current' && !row.attached && !row.use.disabled, attached: row.attached === true, use: { ...row.use },
+    attach: row.state === 'current' && !row.attached && !row.use.disabled, attached: row.attached === true,
+    // (an up-to-date book has no tick: its "Use in this chat" button says it, and the line names the chat's other lorebook it would take the place of)
+    use: row.state === 'current' && row.other ? { ...row.use, note: `This chat already uses the lorebook ${row.other}; Use in this chat puts this one in its place.` } : { ...row.use },
   };
 }

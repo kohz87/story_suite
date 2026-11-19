@@ -6,7 +6,8 @@ import { lorebookName, readMarker } from './marker.js';
 /**
  * The row for an installed world pack with lore: `pack` = { id, name, version }; `names` = SillyTavern's book names; `made` = the hint kept in the
  * suite's settings ({ [pack id]: { name, version } }, written after each Create or Update); `chatBook` = this chat's lorebook ('' for none);
- * `hasChat` = a chat is open. → `{ state: 'create' | 'update' | 'current', name, madeFrom, attached, use: { on, disabled, note } }`.
+ * `hasChat` = a chat is open. → `{ state: 'create' | 'update' | 'current', name, madeFrom, attached, other, use: { on, disabled, note } }` (`other`: the
+ * chat's lorebook when it is another book, else '').
  * The hint only draws the row; the book's own marker decides when the button is pressed (lorebookStep).
  */
 export function lorebookRow({ pack, names = [], made = {}, chatBook = '', hasChat = true }) {
@@ -20,7 +21,7 @@ export function lorebookRow({ pack, names = [], made = {}, chatBook = '', hasCha
     if (!hasChat) use = { on: false, disabled: true, note: 'Open a chat to use the lorebook in it.' };
     else if (attached) use = { on: true, disabled: false, note: 'It is this chat’s lorebook.' };
     else if (chatBook) use = { on: false, disabled: false, note: `This chat already uses the lorebook ${chatBook}; tick to use this one instead.` };
-    return { state, name, madeFrom, attached, use };
+    return { state, name, madeFrom, attached, other: chatBook && !attached ? String(chatBook) : '', use };
 }
 
 /**
