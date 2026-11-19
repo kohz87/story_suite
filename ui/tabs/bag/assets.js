@@ -59,7 +59,8 @@ export function assetSheet(asset, section, ctx = {}) {
       transport && asset.seats ? kv('Seats', String(asset.seats)) : [],
       kv(transport ? 'With the party' : 'Where', transport ? `${asset.withParty ? 'With the party' : 'Not with you'} · ${asset.where}` : asset.where),
       rpg && transport && asset.condition ? kv('Condition', asset.condition) : []),
-    actions, actions ? note : null,
+    // (the refusal line above the buttons, so the action row stays the sheet's last: sticky on desktop)
+    actions ? note : null, actions,
   ].filter(Boolean);
   root.replaceChildren(...view);
   return root;

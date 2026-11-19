@@ -32,7 +32,7 @@ test('Edit: Carries on the reader\'s own item; a Carries-only change sends inven
   installFakeDom();
   const ctx = makeCtx();
   const el = editOf(find('Rope, 50 ft'), ctx);
-  assert.match(el.querySelector('[data-carry="own"] .ef').textContent, /^Carries/);
+  assert.match(el.querySelector('label.ef[data-carry="own"]').textContent, /^Carries/);
   carryInput(el).value = '15';
   el.querySelector('.btn2.save').click();
   await flush();

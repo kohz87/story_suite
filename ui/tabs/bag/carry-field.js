@@ -14,11 +14,12 @@ export function carryChange(raw, was = 0) {
   return { carry: n === was ? null : n };
 }
 
-/** Builds the field; `why` (the engine's reason) makes it read-only. Returns { el, read() → { carry } | { error } }. */
+/** Builds the field; `why` (the engine's reason) makes it read-only. Returns { el (the label and the reason line, for the form's own rhythm), read() → { carry } | { error } }. */
 export function carryField({ value = 0, why = '' } = {}) {
   const input = h('input', { type: 'number', min: '0', max: String(READER_CARRY_MAX), step: '1', value: String(value), dataset: { field: 'carry' }, disabled: Boolean(why) });
-  const el = h('div', { dataset: { carry: why ? 'fixed' : 'own' } },
-    h('label', { class: 'ef' }, `${CARRIES} (load it adds, 0–${READER_CARRY_MAX})`, input),
-    why ? h('p', { class: 'fine', dataset: { why: 'carry' } }, why) : null);
+  const el = [
+    h('label', { class: 'ef', dataset: { carry: why ? 'fixed' : 'own' } }, `${CARRIES} (load it adds, 0–${READER_CARRY_MAX})`, input),
+    why ? h('p', { class: 'fine', dataset: { why: 'carry' } }, why) : null,
+  ];
   return { el, read: () => (why ? { carry: null } : carryChange(input.value, value)) };
 }
