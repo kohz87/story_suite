@@ -50,7 +50,8 @@ for (const gear of [false, true]) test(`two replies keep their own HP, place, ti
   assert.ok(list[1].changes.some(line => /Grain Storehouse/u.test(line.line)), 'that reply\'s own change lines');
   const recorded = host.ctx.chat.find(message => !message.is_user);
   assert.deepEqual(replyIndexes([recorded]), [0], 'a greeting with a record gets a card');
-  assert.deepEqual(replyIndexes([{ ...recorded, extra: {} }]), [], 'one without, none');
+  assert.deepEqual(replyIndexes([{ ...recorded, extra: {} }, { is_user: true, mes: 'Hi.' }, { mes: 'The road.' }]), [2], 'one without, none');
+  assert.deepEqual(replyIndexes([{ ...recorded, extra: {} }]), [0], 'the newest story message always has one (its corner and action line)');
   host.store.rebuild();
   assert.deepEqual(brief(cards(host)), [road, store, gate], 'a rebuild gives the same cards');
   const loaded = await createHost({ modules: [createModule()], st: { chat: structuredClone(host.ctx.chat), extensionSettings: structuredClone(host.ctx.extensionSettings) } });

@@ -105,6 +105,9 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   };
   // A burst of port and SillyTavern events redraws the chat surfaces once, in the next frame (always: their DOM may change with an equal view).
   const frame = frameCoalesced(refresh);
+  // A settings change sends no engine event, but the reply cards read some (the Tabs order and switches): the chat redraws after each one.
+  const command = port.command.bind(port);
+  port.command = async (type, ...rest) => { const answer = await command(type, ...rest); if (type === 'settings.set' || type === 'settings.action') frame.request(); return answer; };
   const offs = EVENTS.map(event => port.on(event, frame.request));
   const types = ctx()?.eventTypes ?? ctx()?.event_types ?? {};
   for (const name of ST_EVENTS) if (types[name]) ctx()?.eventSource?.on?.(types[name], frame.request);

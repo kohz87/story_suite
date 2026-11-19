@@ -62,14 +62,19 @@ function cardOf(index, answers, before, chatter, choices, persona) {
   };
 }
 
-/** The indexes of `chat` that get a card: story replies (not the reader's, not system ones); the greeting (before the reader's first message) only with a record. */
+/**
+ * The indexes of `chat` that get a card: story replies (not the reader's, not system ones); the greeting (before the reader's first message) only with
+ * a record, or while it is the newest story message (its card carries the Open Suite corner and the action line).
+ */
 export function replyIndexes(chat) {
   const all = Array.isArray(chat) ? chat : [];
   const firstUser = all.findIndex(message => message?.is_user);
+  const story = (message) => isCarrier(message) && !message.is_system;
+  const newest = all.findLastIndex(story);
   const out = [];
   all.forEach((message, index) => {
-    if (!isCarrier(message) || message.is_system) return;
-    if ((firstUser < 0 || index < firstUser) && !readRecord(message)) return;
+    if (!story(message)) return;
+    if ((firstUser < 0 || index < firstUser) && !readRecord(message) && index !== newest) return;
     out.push(index);
   });
   return out;
@@ -108,7 +113,7 @@ export function selectReplyLog(read, { chat = [], indexes = null, persona = '', 
     const prev = list0.slice(0, index).findLastIndex(message => isCarrier(message));
     const before = prev >= 0 ? stateCard(read, cache, keys[prev], prev, persona).pools : [];
     const card = { ...base, top: { ...base.top, pools: pools.map(bar => { const was = before.find(row => row.kind === bar.kind); return { ...bar, before: was && was.value !== bar.value ? was.value : null }; }) }, chatter: chatter.get(index) ?? [], choices: choices.get(index) ?? [] };
-    const greeting = firstUser < 0 || index < firstUser;
+    const greeting = (firstUser < 0 || index < firstUser) && index !== own.at(-1);
     if (greeting && !card.changes.length && !card.chatter.length && !card.choices.length) continue;
     out.push(card);
   }

@@ -31,10 +31,9 @@ import { selectRoster } from './roster.js';
 import { liveLorebookRows } from './packs-lorebook.js';
 import { arcController } from '../../modules/arc/controller.js';
 import { replyCardsOf } from './reply-card.js';
-import { selectReplyLog } from './reply-log.js';
+import { selectReplyLog, replyIndexes } from './reply-log.js';
 import { selectReplyActions } from './reply-actions.js';
 import { readTabOrder } from './reply-tabs.js';
-import { isCarrier } from '../../core/persist.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 // Story Director is on while any of its switches is on (the Settings Director card reads it the same way); a host with no feature list counts as on.
@@ -42,7 +41,10 @@ const directorOn = sdk => { const own = sdk?.features?.()?.filter?.(f => f?.modu
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
 
 // What the reply cards were read with besides the chat: the switches and the stored settings (a switch or setting change reads them again).
-const envOf = sdk => { try { return JSON.stringify([(sdk?.features?.() ?? []).map(f => [f?.id, f?.on === true]), sdk?.settings?.() ?? null, sdk?.settings?.('story-block') ?? null, sdk?.settings?.('npc-state-delta') ?? null]); } catch { return ''; } };
+// (the Tabs order is not one: it changes no card's data)
+const envOf = sdk => { try { const { replyTabs, ...block } = sdk?.settings?.('story-block') ?? {}; return JSON.stringify([(sdk?.features?.() ?? []).map(f => [f?.id, f?.on === true]), sdk?.settings?.() ?? null, block, sdk?.settings?.('npc-state-delta') ?? null]); } catch { return ''; } };
+// The cache of the reply cards, emptied when what they were read with changes (so the keys stay short).
+const cacheFor = (cache, env) => { if (cache.env !== env) { cache.map.clear(); cache.env = env; } return cache.map; };
 
 // The arc planner's waiting plan and state (the page's controller; none without a page).
 const arcStatus = () => { try { return arcController().status(); } catch { return null; } };
@@ -65,7 +67,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
   };
   const wizard = createWizardWorld({ sdk, ctx });
   // The reply cards' state parts, kept by each reply's prefix key (ui/select/reply-log.js): an older card is not read again while nothing before it changed.
-  const replyCache = new Map();
+  const replyCache = { env: null, map: new Map() };
   const problemsNow = () => ({ problems: tools?.problems?.() ?? [], blocked: tools?.blocked?.() ?? null, nameOf: tools?.nameOf });
   const scene = read => {
     const answers = gather(read);
@@ -89,11 +91,12 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       if (at !== null) return { replies: [], head: null, tabs, replyMenu };
       // the loot the newest reply laid out (its own, taken or not), for its action line
       const loot = selectLoot(read('inventory.loot', { reply: true }));
-      const index = chat.findLastIndex(isCarrier);
+      // (the newest story message: the reader's and system messages after it have no card)
+      const index = replyIndexes(chat).at(-1) ?? -1;
       const head = index >= 0 ? { index, actions: selectReplyActions(s.answers, { fightOpen: s.opts.fightOpen, loot, offers: s.opts.offers, unrecorded: unrecordedAt(chat, null) }) } : null;
       // (the modules' cards are the head reply's, left out when no card answers)
       const replyCards = replyCardsOf(cards?.head?.());
-      return { replies: selectReplyLog(read, { chat, indexes: Array.isArray(args?.replies) ? args.replies : null, persona: String(ctx()?.name1 ?? ''), cache: replyCache, env: envOf(sdk) }), head, tabs, replyMenu, ...(replyCards ? { replyCards } : {}) };
+      return { replies: selectReplyLog(read, { chat, indexes: Array.isArray(args?.replies) ? args.replies : null, persona: String(ctx()?.name1 ?? ''), cache: cacheFor(replyCache, envOf(sdk)) }), head, tabs, replyMenu, ...(replyCards ? { replyCards } : {}) };
     },
     party: read => {
       const actors = read('party.actors', {});

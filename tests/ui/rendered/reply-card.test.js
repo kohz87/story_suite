@@ -43,6 +43,7 @@ newest.top.place = 'Bluewatch Village · Guild Office, by the notice board';
 newest.top.condition = 'bandaged hound bite on the left forearm, rat bites on both shins';
 if (v === 'empty') { chat.replies = [{ index: 3, top: { date: '', time: '6:00 am', place: '', weather: null, pools: [], condition: null }, changes: [], chatter: [], here: [], choices: [] }]; chat.head.actions = { fight: false, loot: [], points: null, overdue: null, joins: [], offers: 0, unrecorded: false }; }
 if (v === 'loot' || v === 'fight') chat.head.actions.loot = [{ sid: 'shot-1', where: 'in the spilled barley', taken: false, items: [{ at: 0, label: 'rat tails ×12' }, { at: 1, label: 'torn grain sack' }, { at: 2, label: 'a brass ring' }] }];
+if (v === 'big') newest.top.pools = [{ kind: 'hp', value: 104, max: 120, before: 121 }, { kind: 'mp', value: 87, max: 95, before: 95 }, { kind: 'sp', value: 120, max: 130, before: 108 }];
 if (v === 'badge') chat.head.actions = { ...chat.head.actions, unrecorded: true, joins: ['Mara'], offers: 1 };
 const surfaces = createChatSurfaces({ messagesEl: document.getElementById('chat'), handlers: { onReread: () => {} } });
 surfaces.refresh(chat);
@@ -103,15 +104,19 @@ function measure() {
   const acts = [...card.querySelectorAll('.ssrc-acts .ab')].map(e => Math.round(r(e).width));
   const actsRow = card.querySelector('.ssrc-acts .row');
   const column = r(card).width;
+  const l2 = card.querySelector('.ssrc-l2');
+  const cs = getComputedStyle(l2);
+  const l2Right = r(l2).right - parseFloat(cs.paddingRight);
+  const l2Spill = Math.max(0, ...[...l2.querySelectorAll('.vb > *')].map(e => r(e).right - l2Right));
   return {
     inside, pageOverflow: document.scrollingElement.scrollWidth - innerWidth, cardOverflow: card.scrollWidth - card.clientWidth, tabs: tabs.map(t => [Math.round(t.w), Math.round(t.h)]), centred,
-    column, poolRows: new Set(pools).size, under, acts, actsW: actsRow ? Math.round(r(actsRow).width - parseFloat(getComputedStyle(actsRow).paddingLeft) - parseFloat(getComputedStyle(actsRow).paddingRight)) : 0,
+    column, l2Spill, poolRows: new Set(pools).size, under, acts, actsW: actsRow ? Math.round(r(actsRow).width - parseFloat(getComputedStyle(actsRow).paddingLeft) - parseFloat(getComputedStyle(actsRow).paddingRight)) : 0,
     condition: card.querySelector('.ssrc-l3')?.textContent ?? '', older: document.querySelectorAll('.ssrc').length, olderCorner: document.querySelectorAll('.ssrc:not(.newest) .cnr').length,
   };
 }
 
 for (const [width, chat] of [[390, 0], [1143, 0], [1280, 0], [1143, 50], [1280, 60], [1920, 50]]) {
-  for (const v of ['full', 'fight', 'badge']) {
+  for (const v of ['full', 'fight', 'badge', 'big']) {
     test(`${width}px${chat ? ` (chat column ${chat}%)` : ''} (${v}): the card fits, line 2 is one row, the tabs are equal and centred, line 1 clears the corner`, async t => {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await open(width, `?v=${v}&open=here${chat ? `&chat=${chat}` : ''}`);
@@ -122,6 +127,7 @@ for (const [width, chat] of [[390, 0], [1143, 0], [1280, 0], [1143, 50], [1280, 
         assert.deepEqual(g.inside, [], 'nothing past the card\'s edges');
         assert.ok(g.pageOverflow <= 0, `the page does not scroll sideways (${g.pageOverflow})`);
         assert.equal(g.poolRows, 1, 'HP · MP · SP keep one row');
+        assert.ok(g.l2Spill <= 0.5, `line 2 stays inside the card's padding (${g.l2Spill} px over)`);
         assert.equal(g.under, false, 'line 1 wraps under the corner button, never under it');
         assert.equal(g.older, 2, 'a card under each reply');
         assert.equal(g.olderCorner, 0, 'the corner is the newest card\'s only');
