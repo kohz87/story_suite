@@ -437,7 +437,6 @@ packages/npc-state-delta/scanner-routing-parts/diagnostics.js
 packages/npc-state-delta/scanner-routing-parts/dispatch.js
 packages/npc-state-delta/scanner-routing-parts/errors.js
 packages/npc-state-delta/scanner-routing-parts/profile-settings.js
-packages/npc-state-delta/scanner-routing-parts/request-tracking.js
 packages/npc-state-delta/scanner-routing-parts/shared-limits.js
 packages/npc-state-delta/scanner-routing.js
 packages/npc-state-delta/scripts/measure-prompts.mjs
@@ -554,7 +553,6 @@ packages/npc-state-delta/src/fields/registry-parts/derive.js
 packages/npc-state-delta/src/fields/registry-parts/lists-locks.js
 packages/npc-state-delta/src/fields/registry-parts/lists-revert.js
 packages/npc-state-delta/src/fields/registry-parts/lists-scan.js
-packages/npc-state-delta/src/fields/registry-parts/lists-tracking.js
 packages/npc-state-delta/src/fields/registry-parts/return-keys.js
 packages/npc-state-delta/src/fields/registry-parts/return-shapes.js
 packages/npc-state-delta/src/fields/registry-parts/snapshot.js
