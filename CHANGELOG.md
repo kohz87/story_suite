@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- The Now tab is gone: the suite opens on Party, the card and what needs you sit above the tabs, and every window width uses that one layout, filling the floating window.
 - A reply that came without its change block now gets its inner chatter and choices back when the suite repairs it.
 - Inner chatter reads as **Name:** followed by the thought between quote marks.
 - Tapping someone in the Here drawer opens their own page, not the People list.

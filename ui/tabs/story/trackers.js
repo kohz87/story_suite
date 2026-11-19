@@ -1,6 +1,6 @@
 // Builds the Trackers view: one card per tracker with bars, numbers or text, Show on Now and Edit.
 import { h } from '../../kit/dom.js';
-import { button, toggle } from '../../kit/controls.js';
+import { button } from '../../kit/controls.js';
 import { openSheet } from '../../kit/sheet.js';
 import { trackerSheet } from './tracker-edit.js';
 import { templatesSheet } from './tracker-templates.js';
@@ -37,11 +37,10 @@ function addTracker(templates, ctx) {
   }));
 }
 
-/** Builds the Trackers view; ctx.command('tracker.pin' | 'tracker.set' | 'tracker.remove', …) carries the switch and the Edit sheet; ctx = { command, doc, backStack, refresh }. */
+/** Builds the Trackers view; ctx.command('tracker.set' | 'tracker.remove', …) carries the Edit sheet; ctx = { command, doc, backStack, refresh }. */
 export function trackersView(story = {}, ctx = {}) {
   const list = Array.isArray(story.trackers) ? story.trackers : [];
   const hidden = Number(story.trackersHidden) || 0;
-  const onNow = list.filter(t => t.showOnNow).length;
   const templates = Array.isArray(story.trackerTemplates) ? story.trackerTemplates : [];
   const note = takeTrackerIntent();
   // Settings › Packs and trackers sent the reader to one sheet: it opens once the view is on screen.
@@ -52,10 +51,9 @@ export function trackersView(story = {}, ctx = {}) {
   return h('div', { class: 'story-trackers', dataset: { view: 'trackers' } },
     list.map(t => h('section', { class: 'card glass trk', dataset: { card: 'tracker', trackerId: t.id } },
       h('div', { class: 'th2' }, h('b', null, t.name),
-        h('span', { class: 'pinnow' }, toggle({ checked: t.showOnNow, label: 'Show on Now', onChange: async on => { await ctx.command?.('tracker.pin', { id: t.id, on }); ctx.refresh?.(); } }), 'Show on Now'),
         button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => editTracker(t, ctx) })),
       (t.fields ?? []).map(field))),
     hidden ? h('div', { class: 'hiddenrow' }, h('i', null, '🔒'), `${hidden} ${hidden === 1 ? 'tracker is' : 'trackers are'} hidden by the pack`) : null,
-    h('p', { class: 'fine' }, `A chat holds up to 28 blocks in all, and any of them can be shown on Now. ${list.length} here, ${hidden} hidden by the pack, ${onNow} shown on Now.${templates.length ? '' : ' New trackers and field changes are in Settings › Trackers.'}`),
+    h('p', { class: 'fine' }, `A chat holds up to 28 blocks in all. ${list.length} here, ${hidden} hidden by the pack.${templates.length ? '' : ' New trackers and field changes are in Settings › Trackers.'}`),
     addRow);
 }

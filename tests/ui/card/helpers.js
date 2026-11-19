@@ -1,4 +1,4 @@
-import { createPrefs } from '../../../../ui/runtime/prefs.js';
+import { createPrefs } from '../../../ui/runtime/prefs.js';
 
 /** Builds a ctx with real prefs and a recorded go() for the Now tab tests. */
 export function makeCtx() {

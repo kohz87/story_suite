@@ -4,6 +4,8 @@ This is the detailed record of every change, kept as it was written; the short l
 
 ## Unreleased (detail)
 
+- Now tab removed; the suite opens on Party (RPG off: Bag). `open('now')` is an alias for the first tab. Needs you and the card's pack offers moved to a slot under the character card on every tab; Today, This turn, You, Here and pinned trackers are not drawn (You is one line under the Party strip; Today's due items are in Journal; trackers are on Story › Trackers). Desktop layout A (left card column, Here now, 820 px column, `--su-col`) removed; the dossier covers the suite at every width; the Show on Now switch is off Story › Trackers.
+
 ### Changed
 
 - **The suite is a centred floating window on desktop (FLOATWIN, owner 19 Nov).** From 821 px the layer centres the root: width `min(1280px, 100% - 48px)`, height `min(940px, 100% - 48px)`, radius 16, a 1 px inside line (an outline, so the container width is the window's), the existing shadow; the chat stays dimmed around it and the open fade stays. Sheets, Edit, the wizard, Settings and the dossier were already fixed inside the transformed root and now frame to the window. Layout A (from 1100 px of root), the 1,040 px dossier cap and the wizard's 920 x 720 keep their rules; they read the root's container width, so layout A starts from a 1148 px window and the wizard is 704 px high in an 800 px window. The text-size zoom scales the window's lengths, so it grows with the text while the screen has room. Phones and windows up to 820 px are unchanged.

@@ -38,6 +38,7 @@
   height: 100%;
   overflow: hidden;
   container-type: inline-size;
+  container-name: su-root; /* the sheets and the wizard ask for it by name (sheet-desk.css, wizard.css) */
   transform: translateX(100%) scale(1); /* every state keeps the same transform list (and a non-none value: sheets inside are fixed and need this box as their frame) */
   transition: transform 0.25s ease;
   background: var(--su-back);
@@ -49,15 +50,13 @@
   outline: none;
 }
 
-/* Settings › Look › Text size (ui/theme/look.js): the whole suite, its settings too, drawn larger. The root keeps its window size (a percentage is not zoomed) and the content column stays 820 px on screen: --su-col is divided by the zoom (a length is). */
+/* Settings › Look › Text size (ui/theme/look.js): the whole suite, its settings too, drawn larger. The root keeps its window size (a percentage is not zoomed). */
 .su-root[data-text="110"] {
   zoom: 1.1;
-  --su-col: calc(820px / 1.1);
 }
 
 .su-root[data-text="120"] {
   zoom: 1.2;
-  --su-col: calc(820px / 1.2);
 }
 
 .su-layer[data-state="open"] .su-root {
@@ -160,27 +159,17 @@
   inset: 0;
   overflow: auto;
   padding: 12px 12px 140px;
-  /* Mock v7 Desktop: the root fills the window (sky edge to edge) and the card, tabs and pages keep one 820 px column in the middle; at 820 px and under this is the 12 px edge. */
-  padding-inline: max(12px, calc((100% - var(--su-col, 820px)) / 2 + 12px));
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.su-scroll > *,
-.su-side > *,
-.su-page > * {
+.su-scroll > * {
   flex-shrink: 0;
 }
 
-/* The desktop wrappers (ui/css/desk.css) draw nothing below the desktop width: the card, strip and page are the scroll's own column, and Here now is off. */
-.su-desk,
-.su-side,
-.su-page {
-  display: contents;
-}
-
-.su-here-slot {
+/* Needs you (ui/card/needs-you.js) sits between the card and the tab strip; nothing is drawn while nothing asks for the reader. */
+.su-needs-slot:empty {
   display: none;
 }
 
@@ -402,4 +391,9 @@
     right: 16px;
     bottom: 16px;
   }
+}
+
+/* The page fills the window; a paragraph of long text keeps a readable line (about 72 characters) inside its own card. */
+.su-panel .card p {
+  max-width: 72ch;
 }

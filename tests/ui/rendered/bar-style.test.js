@@ -97,7 +97,7 @@ for (const theme of ['dark', 'light']) {
       await page.waitForSelector('#hx-frame .su-host');
       await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
       const widths = await page.evaluate(() => [...document.querySelectorAll('#hx-frame .su-bar-btn')].map((b) => b.getBoundingClientRect().width));
-      assert.equal(widths.length, 8);
+      assert.equal(widths.length, 7);
       for (const w of widths) assert.ok(w >= 44, `bar button ${w}px wide`);
     } finally { await page.close(); }
   });

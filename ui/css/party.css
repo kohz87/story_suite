@@ -55,6 +55,7 @@
 .xp2 i b{display:block;height:100%;background:var(--su-accent);border-radius:2px}
 .st7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
 @container (max-width:420px){.st7{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@container (min-width:620px) and (max-width:779px){.st7{grid-template-columns:repeat(4,minmax(0,1fr))}} /* the stats sit in half the page here: 7 tiles would be under 44 px wide */
 .su-root .sv{position:relative;background:var(--su-tint);border:0;border-radius:10px;padding:6px 2px;min-height:48px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 12px var(--su-font);color:var(--su-muted);cursor:pointer}
 .su-root .sv b{font:800 17px var(--su-font);color:var(--su-text)}
 .su-root .sv.can{box-shadow:inset 0 0 0 1.5px rgba(79,211,154,.55)}
@@ -122,3 +123,5 @@ label.ps-opt{cursor:pointer}
 .ps-opt small{grid-column:2;font:600 12px/1.4 var(--su-font);color:var(--su-muted)}.ps-opt small:empty{display:none}
 .su-root .ps-opt input{grid-column:1;grid-row:1 / span 2;justify-self:center;width:20px;height:20px;margin:0;accent-color:var(--su-accent)}
 .ps-opt:has(input:disabled){cursor:default}.ps-opt:has(input:disabled) b{color:var(--su-muted)}
+.party-tab .pty-you{margin:0;padding:6px 2px 0;font:600 12px/1.4 var(--su-font);color:var(--su-muted)}
+.party-tab .pty-you b{color:var(--su-soft);font-weight:800}

@@ -22,19 +22,19 @@ test('opening a person from the People tab shows their dossier over the suite, a
   suite.destroy();
 });
 
-test('opening a dossier from Now returns to Now, labelled with its origin', () => {
+test('opening a dossier from People stays on People when closed, labelled with its origin', () => {
   const doc = installFakeDom();
   const suite = mountSuite({ port: createFakePort(), doc });
-  suite.open('now');
-  const link = doc.body.querySelector('.dossier-link');
-  assert.ok(link, 'Now has a Dossier › link');
+  suite.open('people');
+  const link = doc.body.querySelector('[data-person-id="torka"]');
+  assert.ok(link, 'People has the person');
   link.click();
   const dossier = doc.body.querySelector('.dossier');
-  assert.equal(dossier.querySelector('[data-act="close"]').textContent, '‹ Now');
+  assert.equal(dossier.querySelector('[data-act="close"]').textContent, '‹ People');
   assert.equal(suite.tabHost.current(), 'people');
   dossier.querySelector('[data-act="close"]').click();
   assert.equal(doc.body.querySelector('.dossier'), null);
-  assert.equal(suite.tabHost.current(), 'now');
+  assert.equal(suite.tabHost.current(), 'people');
   suite.destroy();
 });
 
@@ -83,12 +83,12 @@ test('Day › leaves the dossier and shows the Journal; the chat branch closes i
   suite.destroy();
 });
 
-test('See on map from a dossier opened on Now lands on the People map focused on that person', () => {
+test('See on map from a dossier opened on People lands on the People map focused on that person', () => {
   const doc = installFakeDom();
   const port = createFakePort();
   const suite = mountSuite({ port, doc });
-  suite.open('now');
-  doc.body.querySelector('.dossier-link').click();
+  suite.open('people');
+  doc.body.querySelector('[data-person-id="torka"]').click();
   const id = doc.body.querySelector('.dossier').dataset.personId;
   doc.body.querySelector('.dossier [data-act="map"]').click();
   assert.equal(doc.body.querySelector('.dossier'), null);

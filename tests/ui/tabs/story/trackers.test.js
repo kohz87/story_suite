@@ -23,19 +23,14 @@ test('the pack-hidden tracker is counted, never drawn, and the footer adds up', 
   installFakeDom();
   const view = trackersView(buildStory(), makeCtx());
   assert.match(view.textContent, /1 tracker is hidden by the pack/);
-  assert.match(view.textContent, /2 here, 1 hidden by the pack, 1 shown on Now/);
+  assert.match(view.textContent, /2 here, 1 hidden by the pack/);
 });
 
-test('Show on Now sends tracker.pin with the id and redraws', async () => {
+test('a tracker card has no Show on Now switch: Now is gone and every tracker is on this page', () => {
   installFakeDom();
-  const ctx = makeCtx();
-  const view = trackersView(buildStory(), ctx);
-  const second = view.querySelectorAll('[data-card="tracker"]')[1];
-  second.querySelector('[role="switch"]').click();
-  await Promise.resolve();
-  assert.deepEqual(ctx.calls.command, [['tracker.pin', { id: 'ships-stores', on: true }]]);
-  assert.equal(ctx.calls.refresh.length, 1);
-  assert.equal(view.querySelectorAll('[role="switch"]')[0].getAttribute('aria-checked'), 'true');
+  const view = trackersView(buildStory(), makeCtx());
+  assert.equal(view.querySelectorAll('[role="switch"]').length, 0);
+  assert.doesNotMatch(view.textContent, /on Now/);
 });
 
 test('no trackers shows a pointer to Settings; hidden-only still shows the count', () => {

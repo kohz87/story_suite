@@ -6,7 +6,6 @@ import { bindBackHistory } from './runtime/back-history.js';
 import { createRedraw } from './runtime/redraw.js';
 import { createSuiteView } from './shell/suite-view.js';
 import { createTabHost } from './shell/tab-host.js';
-import { watchDesk } from './shell/desk-layout.js';
 import { GLASS_DARK, GLASS_LIGHT } from './theme/tokens.js';
 import { followSt, watchSt } from './theme/follow-st.js';
 import { skyFor } from './theme/sky.js';
@@ -55,7 +54,7 @@ function readFlags(port, override) {
  */
 export function mountSuite(options = {}) {
   const { port, doc = globalThis.document, host = doc?.body, flags: override = null, theme = 'dark' } = options;
-  const { tabs = {}, card = null, schedule, initial = 'now', look = null } = options;
+  const { tabs = {}, card = null, schedule, initial = 'party', look = null } = options;
   const verdict = checkPort(port);
   if (!verdict.ok) throw new TypeError(`mountSuite needs a working port: ${verdict.errors.join('; ')}`);
 
@@ -66,7 +65,6 @@ export function mountSuite(options = {}) {
   let flags = readFlags(port, override);
   let scheme = 'dark';
   let destroyed = false;
-  let desk = null;   // the desktop layout watcher (shell/desk-layout.js), made once the tab host is in place
 
   const prefs = options.prefs ?? createPrefs({ port, storage: options.storage ?? null });
   let settingsOverlay = null;
@@ -88,7 +86,7 @@ export function mountSuite(options = {}) {
   const openPerson = ({ id, name } = {}) => { settingsOverlay?.close(); showTab('people'); return { ok: views.openPerson([String(id ?? ''), String(name ?? '').trim().toLocaleLowerCase()]) }; };
   const views = defaultViews({
     port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
-    onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth, desk: () => desk?.on() === true,
+    onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,
   });
   // Settings › Look (theme/look.js) when the mount reads it: its theme, and its Text size as the root's `data-text` (the zoom in shell.css).
   const readLook = () => { try { return lookOf(look()); } catch { return lookOf(null); } };
@@ -165,9 +163,8 @@ export function mountSuite(options = {}) {
   // A person's page left open over the tabs follows the story: it is read again with every change.
   redraw.register('dossier', { tab: 'always', isVisible: () => views.hasDossier(), read: () => views.openDossier(), draw: vm => views.updateDossier(vm) });
   register(tabHost.current());
-  // Desktop (ui/css/desk.css): Here now under the card on every tab, read only while drawn; crossing the width draws it and redraws Now without (or with) its Here card.
-  redraw.register('here', { tab: 'always', isVisible: () => desk?.on() === true, read: () => { const now = port.view('now'); return { here: now?.here ?? [], unrecorded: now?.unrecorded ?? [] }; }, target: tabHost.hereSlot, render: vm => views.here(vm) });
-  desk = watchDesk({ probe: tabHost.scroll.firstChild, root: view.root, onChange: () => { if (tabHost.current() === 'now') showTab('now'); redraw.reveal(); } });
+  // Needs you (and the card's pack offers) sits under the card on every tab, read from the Now view-model.
+  redraw.register('needs', { tab: 'always', read: () => { const now = port.view('now'); return { needsYou: now?.needsYou ?? [], offers: now?.offers ?? [] }; }, target: tabHost.needsSlot, render: vm => views.needs(vm) });
 
   function applyFlags(next) {
     flags = next;
@@ -201,12 +198,12 @@ export function mountSuite(options = {}) {
     // Opening on a tab the strip does not list reads the flags first (a fight that just began has its tab); opening on a tab closes a person's page left open over the tabs.
     open(tab) {
       if (destroyed) return false;
+      if (tab === 'now') { refreshFlags(); tab = tabHost.tabs()[0]; }   // (the Now tab is gone: callers that still ask for it get the first tab listed: Party, or Bag with the RPG off)
       if (tab && !tabHost.tabs().includes(tab)) refreshFlags();
       if (tab) views.closePage?.();
       if (tab && tab !== tabHost.current()) tabHost.select(tab);
       if (look) applyLook();
       const opened = view.open();
-      desk.check();   // (the stylesheets are added at mount: a size check that ran before desk.css applied is read again here)
       redraw.setVisibleTab(tabHost.current());
       redraw.reveal();
       redraw.flush();
@@ -225,7 +222,6 @@ export function mountSuite(options = {}) {
       if (destroyed) return;
       destroyed = true;
       for (const off of offs) off();
-      desk.stop();
       unbindKeys();
       unbindBack();
       redraw.destroy();
