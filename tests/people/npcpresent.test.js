@@ -45,6 +45,7 @@ test('the owner\'s reply: Edda Rorke gets her dossier from the pack, Bina Kelm a
         assert.match(edda[0].overallAppearance ?? '', /^Tired human woman of about forty-eight/, 'the pack look');
         assert.equal(edda[0].role, 'Bluewatch\'s Watch-Captain');
         assert.ok(s.bonds()[edda[0].id], 'her first meter entry');
+        assert.equal(edda[0].createdAt, at + 1, 'stamped with the reply that made it');
         const bina = all(s).filter(npc => npc?.name === 'Bina Kelm');
         assert.equal(bina.length, 1, 'one record for Bina');
         assert.equal(bina[0].castFrom ?? null, null, 'Bina is nobody from the pack');
@@ -84,8 +85,8 @@ test('nobody twice and no role made a person: a same-reply + npc keeps its role 
         const ilse = all(s).filter(npc => npc?.name === 'Ilse Varn');
         assert.equal(ilse.length, 1);
         assert.equal(ilse[0].role, 'the barmaid', 'the + npc line\'s role stands');
-        await s.say('Clerks and guards.', ['+ present clerk', '+ present the guard', '+ present Red Cord thugs', '+ present Guard', '+ present Ilse', '+ present {{user}}']);
-        assert.equal(all(s).length, 1, 'no record for a title, a group, a role word, a short name of Ilse or the player');
+        await s.say('Clerks and guards.', ['+ faction Red Cords — extortionists | area: Bluewatch Village', '+ present clerk', '+ present the guard', '+ present Red Cord thugs', '+ present Red Cord Enforcers', '+ present Guard', '+ present Tired Clerk', '+ present Two Watchmen', '+ present Ilse', '+ present {{user}}']);
+        assert.equal(all(s).length, 1, 'no record for a title, a group, a faction\'s people, a role, a short name of Ilse or the player');
         await s.say('Five arrive.', ['+ present Anna Holt', '+ present Bram Holt', '+ present Cal Holt', '+ present Dena Holt', '+ present Emil Holt']);
         assert.equal(all(s).length, 5, 'four new people a reply');
         assert.deepEqual(stepProblems(s), []);

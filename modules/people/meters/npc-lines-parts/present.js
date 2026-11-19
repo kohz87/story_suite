@@ -5,11 +5,11 @@
 //   fills the rest from the story. Nothing is invented here.
 // Nobody is made twice: a same-reply `+ npc` line ran first and made the record, so its role and look stand. The rules of a `+ npc` stub hold: not the
 // player or the character you play, not "Manual only", not a name the reader removed, not a short form that also fits a pack person, four new people a reply.
-// A title, a group or a role ("clerk", "the guard", "Red Cord thugs") is not a person until the story gives a name. Lines mode only.
+// A title, a group, a faction's people or a role ("clerk", "the guard", "Tired Clerk", "Red Cord Enforcers") is not a person until the story gives a name. Lines mode only.
 // The step is stored on the reply (receipt marked afterCapture): a swipe or a delete takes it back, a Re-read runs it again on the new lines, a reload replays it.
 import { labelKey } from '../../dossier/cast-dossier-parts/shared-text.js';
 import { NPC_DOMAIN, clean } from '../npc-meters-config.js';
-import { makeNpcId } from '../../core/core-identity.js';
+import { makeNpcId, inferNpcIdentityKind, isInterimNpcLabel, isRoleDescriptionLabel } from '../../core/core-identity.js';
 import { stubRecord } from './derived.js';
 import { knownPerson } from './stub.js';
 import { personNamed } from './names.js';
@@ -22,18 +22,23 @@ const isObject = value => Boolean(value) && typeof value === 'object' && !Array.
 const names = list => (Array.isArray(list) ? list : []).filter(name => typeof name === 'string' && name.trim()).map(name => clean(name, 80));
 
 // A name, not a title, a group or a role: every word starts with a capital (a joining word such as "of" or "van" may not), it does not start with an
-// article or a number, and a single word is not one of the plain roles the story uses before a name is given ("+ present clerk", "+ present Guard").
+// article or a number, and NPC State's own identity rules (the ones a stub's identityKind uses) read it as a proper name, not a role ("Guard", "Tired Clerk").
 const JOINING = new Set(['of', 'the', 'van', 'von', 'de', 'del', 'da', 'di', 'du', 'la', 'le', 'al', 'el', 'bin', 'ibn', 'ap', 'zu', 'and']);
 const LEADING = /^(?:a|an|the|some|two|three|four|five|six|several|many|one|another|each|every|both)\s/iu;
-const ROLES = new Set(['guard', 'guards', 'clerk', 'stranger', 'watchman', 'watchmen', 'innkeeper', 'merchant', 'soldier', 'captain', 'sergeant', 'priest',
-    'healer', 'bandit', 'bandits', 'thug', 'thugs', 'child', 'boy', 'girl', 'man', 'woman', 'men', 'women', 'crowd', 'villagers', 'inspector', 'bargemaster']);
 function looksNamed(name) {
     const text = String(name ?? '').trim();
     if (!text || LEADING.test(text) || /^\d/u.test(text)) return false;
-    const words = text.split(/\s+/u);
-    if (words.length === 1 && ROLES.has(text.toLowerCase())) return false;
-    return words.every((word, at) => /^\p{Lu}/u.test(word) || (at > 0 && JOINING.has(word.toLowerCase())));
+    if (inferNpcIdentityKind(text) !== 'proper_name' || isInterimNpcLabel(text) || isRoleDescriptionLabel(text)) return false;
+    return text.split(/\s+/u).every((word, at) => /^\p{Lu}/u.test(word) || (at > 0 && JOINING.has(word.toLowerCase())));
 }
+// A faction's people are not one person: "Red Cord Enforcers" when the chronicle knows "Red Cords" (its name, or an aka, without a plural s).
+const stem = name => labelKey(name).replace(/(?:es|s)$/u, '');
+const ofFaction = (view, name) => {
+    const factions = view?.state?.domains?.chronicle?.factions;
+    const asked = labelKey(name);
+    return Object.values(isObject(factions) ? factions : {}).some(faction => [faction?.name, ...(Array.isArray(faction?.aka) ? faction.aka : [])]
+        .map(stem).some(key => key.length >= 3 && (asked === key || asked.startsWith(`${key} `) || asked.startsWith(`${key}s `))));
+};
 
 /** What the reply brings in, from its receipts and the state after its lines: { present: [names its story `+ present` lines added], givers: [hook givers] }. */
 export function arrivals(view, receipts) {
@@ -68,7 +73,7 @@ export function createArrivals({ hooks = {}, linesMode, baseline, castFirst }) {
         const npcs = view?.state?.domains?.people?.npcs;
         let players = [];
         try { players = (hooks.playerNames?.() ?? []).map(labelKey).filter(Boolean); } catch { /* no names known */ }
-        const open = name => looksNamed(name) && !isToken(name) && !players.includes(labelKey(name)) && personNamed(isObject(npcs) ? npcs : {}, name) === null;
+        const open = name => looksNamed(name) && !ofFaction(view, name) && !isToken(name) && !players.includes(labelKey(name)) && personNamed(isObject(npcs) ? npcs : {}, name) === null;
         const { present, givers } = arrivals(view, info.receipts);
         const payload = { present: present.filter(open), givers: givers.filter(open) };
         return payload.present.length || payload.givers.length ? { commands: [{ type: ARRIVE_COMMAND, payload }] } : undefined;
