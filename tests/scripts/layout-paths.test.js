@@ -10,11 +10,14 @@ import { layoutMapper } from '../../scripts/codemod/layout-map.mjs';
 const listFile = path.resolve(import.meta.dirname, '../../docs/merge/layout-old-files.txt');
 const oldFiles = fs.readFileSync(listFile, 'utf8').split('\n').filter(line => line && !line.startsWith('#'));
 
-test('oldLocation returns the real old name of every moved file (two rules reach modules/people/legacy/relationship-*, only one file did)', () => {
+test('oldLocation returns the real old name of every moved file, and the list names only files still here', () => {
   const map = layoutMapper(loadLayoutRules());
   const wrong = oldFiles.filter(file => oldLocation(map(file)) !== file);
   assert.deepEqual(wrong.slice(0, 5), []);
-  assert.equal(oldLocation('modules/people/legacy/relationship-map.js'), 'packages/npc-state-delta/relationship-map.js');
+  // A file removed since the move leaves the list (the B4-13 close-out took the gone ones off).
+  const root = path.resolve(import.meta.dirname, '../..');
+  const gone = oldFiles.filter(file => !fs.existsSync(path.join(root, map(file))) && !fs.existsSync(path.join(root, file)));
+  assert.deepEqual(gone.slice(0, 5), []);
   assert.equal(oldLocation('modules/people/core/core-mechanics.js'), 'packages/npc-state-delta/core-mechanics.js');
 });
 
