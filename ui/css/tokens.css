@@ -12,6 +12,12 @@
     --ss-radius: 10px;
     --ss-gap: 8px;
     --ss-fade: 40px;
+    /* the battle log's Health, Stamina and Mana strips (modules/rpg/view/bars.css): the suite's own bar colours (ui/theme/tokens.js), a track and the dark ink they dull toward */
+    --ss-hp: #ff6b6b;
+    --ss-sp: #3fb27f;
+    --ss-mp: #5b8cff;
+    --ss-track: color-mix(in srgb, var(--ss-text) 16%, transparent);
+    --ss-on-ring: #1a1b26;
 }
 :root {
     --story-suite-line: var(--SmartThemeBorderColor, rgba(128, 128, 128, 0.35));

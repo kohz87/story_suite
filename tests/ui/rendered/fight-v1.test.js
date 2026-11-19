@@ -83,7 +83,7 @@ for (const width of [390, 1143, 1280, 1920]) {
     test(`v1 fight screens at ${width} in ${theme}: one header, no sideways scroll, no stray text${SHOTS ? ', shots' : ''}`, async t => {
       if (ctx.skip) return t.skip(ctx.skip);
       const viewport = { width, height: 2600 };
-      for (const [name, query, step] of [['choose', V1, 'choose'], ['after', 'tab=fight&scene=staged&kind=fight&fight=realafter', 'after']]) {
+      for (const [name, query, step] of [['choose', V1, 'choose'], ['after', 'tab=fight&scene=staged&kind=fight&fight=realafter', 'choose']]) {
         const page = await open(viewport, theme, query, {}, step);
         try {
           const m = await page.evaluate(() => { const tab = document.querySelector('#hx-frame .scene-tab'); return { sideways: tab.scrollWidth > tab.clientWidth + 1, heads: document.querySelectorAll('#hx-frame [data-card="fight-head"]').length, stray: [...document.querySelector('#hx-frame .fight-tab').childNodes].some(n => n.nodeType === 3) }; });

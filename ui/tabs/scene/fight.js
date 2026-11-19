@@ -64,8 +64,18 @@ export function fightScene(vm, api = {}) {
     if (list.length + 1 >= actors.length) stageAll(); else draw();
   }
 
+  // (one foe, or one group, still standing: the tap on it is skipped, the action goes to it at once)
+  const onlyTarget = kind => {
+    const groups = (view?.foeGroups ?? []).filter(g => g.members.some(m => m.hp > 0));
+    if (kind === 'group') return groups.length === 1 ? { kind: 'group', id: groups[0].id ?? groups[0].name, arg: groups[0].arg } : null;
+    const left = groups.flatMap(g => g.members).filter(m => m.hp > 0);
+    return kind === 'member' && left.length === 1 ? { kind: 'member', id: left[0].id, arg: left[0].arg } : null;
+  };
+
   const pick = action => {
     if (action.target === 'none') return commit(action, null);
+    const only = onlyTarget(action.target);
+    if (only) return commit(action, only);
     sel = { action, label: action.label, kind: action.target };
     return draw();
   };
@@ -89,7 +99,7 @@ export function fightScene(vm, api = {}) {
     const strip = partyCard(party, { step: phase, exchange: view.exchange, actorId: member?.id, open, onToggle: toggle, onAlly: id => commit(sel.action, { kind: 'ally', id, arg: view.party.find(p => p.id === id)?.arg }) });
     let panel = null;
     if (phase === 'after') panel = afterCard({ exchange: view.exchange, note: [view.log.at(-1)?.summary ? `${view.log.at(-1).summary}.` : '', fleeFailed(view) ? 'The flee failed. The others in the party acted on Auto.' : ''].filter(Boolean).join(' '), onNext: actors.length ? () => { moved = true; draw(); } : null, onAuto: live ? autoOne : null });
-    else if (asked && member) panel = actionsCard({ id: member.id, stance: asked.stance ? { ...asked.stance, on: stanceOn(asked) } : null, groups: asked.groups }, member, { sel: sel?.action.id, party, onPick: pick, onStance: on => { stanceSwitch.set(asked.id, on); draw(); }, onBack: back, onAuto: autoOne, onDiscard: discard });
+    else if (asked && member) panel = [view.state === 'after' ? h('p', { class: 'anote resolved', dataset: { card: 'resolved' } }, [`Exchange ${view.exchange}: ${view.log.at(-1)?.summary ?? 'resolved'}.`, fleeFailed(view) ? ' The flee failed. The others in the party acted on Auto.' : ''].join('')) : null, actionsCard({ id: member.id, stance: asked.stance ? { ...asked.stance, on: stanceOn(asked) } : null, groups: asked.groups }, member, { sel: sel?.action.id, party, onPick: pick, onStance: on => { stanceSwitch.set(asked.id, on); draw(); }, onBack: back, onAuto: autoOne, onDiscard: discard })];
     else if (live && phase === 'choose' && actors.length) panel = h('section', { class: 'card glass actp', dataset: { card: 'ready' } }, h('p', { class: 'anote' }, 'Everyone has chosen.'), h('div', { class: 'fbtns' }, button({ label: 'Stage again', tone: 'primary', dataset: { stage: '1' }, onClick: stageAll }), button({ label: 'Back', dataset: { back: '1' }, onClick: back }), discard ? h('span', { style: { flex: '1' } }) : null, discard ? button({ label: 'Discard fight', tone: 'danger', dataset: { discard: '1' }, onClick: discard }) : null));
     carried = phase === 'after' ? actors.length > 0 : Boolean(panel && discard); // the live after card has "Choose exchange N+1" and no Discard (mock v7)
     const text = sel?.kind === 'ally' ? `${sel.label}: tap who gets it.` : sel?.kind === 'group' ? `${sel.label}: one roll for each member of a group. Tap a group.` : sel ? `${sel.label}: tap a foe. Each shows your chance against it.` : '';
@@ -101,7 +111,7 @@ export function fightScene(vm, api = {}) {
   function draw() {
     const list = view ? heldFor(vm, actors) : [];
     let phase = view?.state === 'end' || view?.state === 'after' ? view.state : 'choose';
-    if (phase === 'after' && moved && actors.length) phase = 'choose';
+    if (phase === 'after' && actors.length) phase = 'choose'; // (straight back to the choices for the next exchange: the one just resolved shows as a line above them)
     if (phase === 'choose' && sel) phase = sel.kind === 'ally' ? 'ally' : 'target';
     if (!actors.length && phase === 'choose') phase = view?.state === 'offer' ? 'offer' : phase;
     root.dataset.step = phase;

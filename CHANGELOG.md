@@ -4,6 +4,9 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Fight board: after an exchange you go straight back to choosing (the exchange just done shows as one line above), and with one foe left an attack goes to it without a tap.
+- Fight board: the stance switch slides all the way across.
+- The combat log in a reply folds again, and its Health, Stamina and Mana bars show.
 - A person's page keeps its Mood and Ties cards before NPC State has read them ("Not read yet", "No ties yet"), so it keeps the two-column layout.
 - A person's Profile lines up its labels in one column, and the Wants and Hiding rows sit clear of the Scene spoilers switch.
 - The Here drawer floats over the bottom of the chat instead of pushing it up.

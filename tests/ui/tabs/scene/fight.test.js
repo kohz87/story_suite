@@ -115,13 +115,14 @@ test('a resolved exchange: the after card, Send and Discard on the session id, C
   assert.deepEqual(sent(port), [['interaction.send', { id: vm.id }], ['interaction.discard', { id: vm.id }]]);
 });
 
-test('after a resolved exchange with members to ask, Choose exchange N+1 goes back to the picks', () => {
+test('after a resolved exchange with members to ask, the picks come straight back with the exchange just done as one line above them', () => {
   installFakeDom();
   const vm = open('after');
   vm.view.actors = open('choose').view.actors;
   const { tab } = build(vm);
-  tap(tab, '[data-next]');
+  assert.equal(tab.querySelector('[data-next]'), null, 'no Choose exchange step (owner, 19 Nov)');
   assert.ok(tab.querySelector('.actions-card'));
+  assert.match(tab.querySelector('[data-card="resolved"]').textContent, new RegExp(`^Exchange ${vm.view.exchange}: `));
 });
 
 test('the end: outcome card with the one danger Discard, Back to the story, a null XP shows no figure; sent and taken-back scenes ask nothing', () => {
@@ -171,7 +172,7 @@ test('Discard is drawn once in every state: the actions card, the target step, a
   assert.equal(count(open('offer')), 1);
   const after = open('after');
   after.view.actors = open('choose').view.actors;
-  assert.equal(count(after), 0); // staged and live: "Choose exchange N+1" carries no Discard (mock v7)
+  assert.equal(count(after), 1); // members to ask: straight back to the actions card, which carries the one Discard
   after.view.actors = [];
   assert.equal(count(after), 1);
   assert.equal(count({ ...open('choose'), canDiscard: false }), 0);
@@ -310,9 +311,7 @@ test('the pill names the exchange being chosen, not the one just done, and the h
   vm.view.title = 'Fight'; // (the kind's own title has no place)
   vm.place = 'Lower Gate';
   const { tab } = build(vm);
-  assert.equal(tab.querySelector('.fpill').textContent, `exchange ${vm.view.exchange} done`);
-  tap(tab, '[data-next]');
-  assert.equal(tab.querySelector('.fpill').textContent, `exchange ${vm.view.exchange + 1}`, 'choosing the next one');
+  assert.equal(tab.querySelector('.fpill').textContent, `exchange ${vm.view.exchange + 1}`, 'straight to choosing the next one');
   assert.match(tab.querySelector('[data-card="fight-head"] .t b').textContent, /^Fight · Lower Gate$/);
 });
 
@@ -320,7 +319,7 @@ test('after a failed flee the card says the others acted on Auto; after a won fl
   installFakeDom();
   const vm = open('realafter');
   vm.view.log = [{ n: 1, summary: '2 rolls', rows: [{ who: 'Astra', what: 'Flees', outcome: 'FAILS', math: '' }] }];
-  assert.match(build(vm).tab.querySelector('[data-card="after"] .anote').textContent, /The flee failed\. The others in the party acted on Auto\./);
+  assert.match(build(vm).tab.querySelector('[data-card="resolved"]').textContent, /The flee failed\. The others in the party acted on Auto\./);
   vm.view.log[0].rows[0].outcome = 'SUCCESS';
-  assert.doesNotMatch(build(vm).tab.querySelector('[data-card="after"] .anote').textContent, /flee failed/);
+  assert.doesNotMatch(build(vm).tab.querySelector('[data-card="resolved"]').textContent, /flee failed/);
 });
