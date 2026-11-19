@@ -37,7 +37,7 @@
 [data-scheme="light"] .dossier{--m0:#1f5fbf;--m1:#b8265f;--m2:#7a3fc0;--m3:#8a5a00;--pk-gold:#8a5a00;--pk-disc:#4a4d68}
 .dossier .f0{color:var(--m0)}.dossier .f1{color:var(--m1)}.dossier .f2{color:var(--m2)}.dossier .f3{color:var(--m3)}
 .dossier .bigring .ph,.dossier .tie .a,.dossier .avs .a{background-color:var(--pk-disc);color:#fff}
-.dname{font:800 28px/1.1 var(--su-font);overflow-wrap:anywhere}
+.dname{font:800 22px/1.15 var(--su-font);overflow-wrap:anywhere;margin-top:10px}
 .dchips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
 .deadb{font:800 12px var(--su-font);color:var(--su-soft);background:var(--su-tint);border-radius:999px;padding:3px 10px}
 .deadb.pres{color:var(--pk-gold);border:1px solid var(--pk-gold);background:transparent}

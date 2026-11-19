@@ -4,6 +4,9 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- The Here drawer floats over the bottom of the chat instead of pushing it up.
+- Add to party shows on a person's page only when the story offered them as a companion.
+- The name on a person's page is smaller, with room below the feelings ring.
 - The Here drawer above the message box is as wide as the chat, and inner chatter shows in full on Now (it was cut off).
 - With SillyTavern's swipes on all messages, the Suite button under a reply no longer sits on top of the swipe counter.
 - NPC State now starts when the browser has an ad or privacy blocker: three of its files had names blockers refuse, so it never started and no dossiers were made.

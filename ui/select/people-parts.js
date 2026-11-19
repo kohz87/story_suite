@@ -20,13 +20,15 @@ export function peopleParts(read) {
 export function dossierMap(read) {
   const parts = peopleParts(read);
   const casts = read('npc.cast', {});
+  // (Add to party only for someone the story offered as a companion and nobody has answered yet: rpg.joinsOpen; the reader never recruits on their own)
+  const offered = new Set((Array.isArray(read('rpg.joinsOpen', {})) ? read('rpg.joinsOpen', {}) : []).map(item => String(item?.name ?? '').trim().toLocaleLowerCase()).filter(Boolean));
   const out = {};
   const byName = {};
   for (const row of Array.isArray(parts.list) ? parts.list : []) {
     const dossier = read('people.dossier', { id: row.id });
     const vm = selectDossier({
       dossier, meters: read('npc.meters', { name: row.name }), next: read('npc.next', { name: row.name }), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
-      portrait: dossier?.portrait, away: parts.away, party: parts.party, join: read('rpg.partyAdd', { name: row.name }), people: parts.list, place: parts.place, present: parts.present,
+      portrait: dossier?.portrait, away: parts.away, party: parts.party, join: offered.has(row.name.trim().toLocaleLowerCase()) ? read('rpg.partyAdd', { name: row.name }) : null, people: parts.list, place: parts.place, present: parts.present,
     });
     if (!vm) continue;
     out[row.id] = vm;
