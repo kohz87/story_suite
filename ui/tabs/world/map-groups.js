@@ -1,4 +1,4 @@
-// Folds a town's sub-places (its wards, the dungeon under it) into one map marker, fans them out round the town at a close zoom, and pans the map so a place stays clear of the sheet.
+// Folds a town's sub-places (its wards, the dungeon under it) into one map marker, fans them out round the town at a close zoom (an open ring, the town's name in the gap), and pans the map so a place stays clear of the sheet.
 import { zoomLimits } from './map-view.js';
 
 const HUB_KINDS = [/capital/i, /city/i, /town|port|harbou?r|village|hamlet|market/i, /fort|outpost|camp|keep|hold|tower|watch|depot/i];
@@ -11,7 +11,10 @@ const hubRank = p => {
   const i = HUB_KINDS.findIndex(re => re.test(p.kind ?? ''));
   return i < 0 ? HUB_KINDS.length : i;
 };
-const ringPx = n => Math.max(RING_MIN_PX, (n * RING_GAP_PX) / (2 * Math.PI));
+const OPEN = Math.PI / 3;  // the ring leaves this arc free on the town's right, for the town's own name
+// The angle (screen radians, 0 = right, clockwise) of sub-place i of n: round the ring from below-right to above-right; a lone one sits above.
+const ringAngle = (i, n) => (n < 2 ? -Math.PI / 2 : OPEN / 2 + ((2 * Math.PI - OPEN) * i) / (n - 1));
+const ringPx = n => (n < 2 ? RING_MIN_PX : Math.max(RING_MIN_PX, RING_GAP_PX / (2 * Math.sin((2 * Math.PI - OPEN) / (n - 1) / 2))));
 const cache = new WeakMap();
 
 /** A sub-place's name under its town: "Auvoth / Sealcrown" under Auvoth is "Sealcrown"; other names stay whole. */
@@ -82,7 +85,7 @@ export function layoutGroups(places, groups, vb, scale, minW) {
     } else if (fansOut(p, subs, places, groups.parent, vb, scale, minW)) {
       const R = ringPx(subs.length) / scale;
       const ring = subs.map((s, i) => {
-        const a = -Math.PI / 2 + (2 * Math.PI * i) / subs.length;
+        const a = ringAngle(i, subs.length);
         return { ...s, x: p.x + R * Math.cos(a), y: p.y + R * Math.sin(a), name: subName(s, p) };
       });
       shown.push(p, ...ring);

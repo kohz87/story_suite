@@ -87,13 +87,16 @@ test('at the closest zoom the sub-places fan out round the town: each one tappab
   for (let i = 0; i < pts.length; i += 1) {
     for (let j = i + 1; j < pts.length; j += 1) assert.ok(Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y) >= 48, `dots ${i},${j} 48 px apart`);
   }
-  const { labels, boxes } = planLabels(lay.shown, vb, scale);
+  const keep = new Set(lay.fans.flatMap(f => [f.hub.id, ...f.subs.map(s => s.id)]));
+  const { labels, boxes } = planLabels(lay.shown, vb, scale, { keep });
   const hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
   for (let i = 0; i < boxes.length; i += 1) for (let j = i + 1; j < boxes.length; j += 1) assert.ok(!hit(boxes[i], boxes[j]), 'labels overlap');
-  assert.ok(AUVOTH_SUBS.filter(id => labels.has(id)).length >= 5, 'most sub-places get a name at once');
+  for (const id of ['auvoth', ...AUVOTH_SUBS]) assert.ok(labels.has(id), `${id} named`);
   installFakeDom();
   const c = card({ selected: null, center: 'auvoth-pale-market' });
   for (const id of ['auvoth', ...AUVOTH_SUBS]) assert.ok(nodes(c).includes(id), id);
+  const shown = c.querySelectorAll('g.names text').map(t => t.textContent);
+  for (const name of ['Auvoth', 'Seventh Seal Terrace', 'Sealcrown', 'Outer Lamps', 'Pale Market', 'Boneglass Yard', 'Ashbell Hospice', 'Auvoth Depths']) assert.ok(shown.includes(name), `${name} labelled on the map`);
   assert.equal(c.querySelectorAll('path.spoke').length, 8, 'seven round Auvoth, one to the Bluewatch guild office');
   assert.equal(c.querySelector('g.pl[data-pl="auvoth"]').dataset.has, undefined);
 });

@@ -81,7 +81,9 @@ function drawSvg(world, vb, scale, state, act, pick, lay) {
   const newsIds = new Set(world.news.map(n => n.placeId).filter(Boolean).map(to));
   const tripPts = (world.trip?.placeIds ?? []).map(id => byId.get(id)).filter(Boolean);
   const terrain = world.terrain ?? {};
-  const { labels, boxes, dots } = planLabels(lay.shown, vb, scale, { ...pick, keep: new Set([...(pick.keep ?? [])].map(to)) });
+  // A fanned town and its sub-places must show their names (they were spread out to be read), with the trip and the selected place.
+  const keep = new Set([...[...(pick.keep ?? [])].map(to), ...lay.fans.flatMap(f => [f.hub.id, ...f.subs.map(s => s.id)])]);
+  const { labels, boxes, dots } = planLabels(lay.shown, vb, scale, { ...pick, keep });
   const names = planRegions(world.places, terrain.labels, vb, scale, boxes, dots);
   const grid = [];
   const land = landBox(world.places);
