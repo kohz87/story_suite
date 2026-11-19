@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A reply that came without its change block now gets its inner chatter and choices back when the suite repairs it.
 - Inner chatter reads as **Name:** followed by the thought between quote marks.
 - Tapping someone in the Here drawer opens their own page, not the People list.
 - A long name in the Here drawer takes two lines instead of being cut short.
