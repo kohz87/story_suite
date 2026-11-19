@@ -15,7 +15,7 @@ const SETTLE = 'interaction.settle';
 export const KEPT_PRELUDE_TOKENS = KEPT_TAIL_TOKENS;
 
 export function runPreludes({ s, bus, store, problem, kindOf = null }, { requested, cues, prechecks, previewState }) {
-    let boardStop = null;
+    let interactionStop = null;
 let keptPrelude = 0;
     for (const { moduleId, type: preludeType, payload, seed } of requested) {
         const prior = s.session?.prechecks?.find(step => step.type === preludeType && JSON.stringify(step.payload) === JSON.stringify(payload));
@@ -26,7 +26,7 @@ let keptPrelude = 0;
             // A module's prelude that changes state the tail reads marks its receipt `data.chain === true`: the later preludes and the tail read the state it leaves too.
             if ((preludeType === SETTLE || result.receipt?.data?.chain === true) && result.state) previewState = result.state;
             // How the carried fight ended (won / fled / lost / open): the tail reads it to allow a new foe group only after an ended fight (an opening's own stop is not it).
-            if (preludeType === SETTLE && payload?.opening !== true) boardStop = result.receipt?.data?.interaction?.stop ?? null;
+            if (preludeType === SETTLE && payload?.opening !== true) interactionStop = result.receipt?.data?.interaction?.stop ?? null;
             prechecks.push({ type: preludeType, payload, seed: result.receipt.seed });
             // The reply's story-check dice: told as the tail note itself (kept whole, no [Happened] marker), drawn from the receipt's recorded dice.
             if (preludeType === CHECK_DICE) { cues[moduleId] = [...(cues[moduleId] ?? []), { text: receiptCue(result.receipt), keep: true }]; continue; }
@@ -58,5 +58,5 @@ let keptPrelude = 0;
             return { blocked: { moduleId, reason } };
         } else problem({ module: moduleId, code: result?.code ?? 'FAILED', message: `The cue "${preludeType}" was not prepared: ${result?.message ?? 'unknown error'}` });
     }
-    return { previewState, boardStop, keptPrelude };
+    return { previewState, interactionStop, keptPrelude };
 }

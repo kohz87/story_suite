@@ -84,7 +84,7 @@ export function createInteractionWatch(s, { store, problem, notify, kindOf, feat
         current.interactionInvalid = true;
         const reason = `${error} Restore what it used before retrying, or discard it.`;
         problem({ module: 'story-block', code: 'INTERACTION_CHANGED', message: reason });
-        try { s.abortBoard?.(true); } catch { /* the reason is still shown */ }
+        try { s.abortInteraction?.(true); } catch { /* the reason is still shown */ }
         try { notify?.(reason, 'story-block'); } catch { /* the problem remains visible */ }
     };
     return { errorOf, commitCheck, stopChanged };
