@@ -2,7 +2,7 @@
 import { SCANNER_REQUEST_TIMEOUT_MS, normalizeScannerMaxOutputTokens } from './shared-limits.js';
 import { scannerRoutingError, isScannerRoutingError, stoppedError } from './errors.js';
 import { configuredScannerMaxOutputTokens, selectedScannerProfileId, connectionManagerDisabled } from './profile-settings.js';
-import { inflight, metrics } from './request-tracking.js';
+import { inflight, metrics } from './request-state.js';
 
 // The one place the scanner waits for the model: a caller (a history replay) may step aside for that wait, so live readers see the live state.
 let aroundWait = promise => promise;

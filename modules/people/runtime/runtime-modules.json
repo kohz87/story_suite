@@ -276,7 +276,7 @@
     { "path": "src/fields/registry-parts/lists-locks.js", "role": "registry-lists-locks-part", "required": true },
     { "path": "src/fields/registry-parts/lists-revert.js", "role": "registry-lists-revert-part", "required": true },
     { "path": "src/fields/registry-parts/lists-scan.js", "role": "registry-lists-scan-part", "required": true },
-    { "path": "src/fields/registry-parts/lists-tracking.js", "role": "registry-lists-tracking-part", "required": true },
+    { "path": "src/fields/registry-parts/lists-followed.js", "role": "registry-lists-followed-part", "required": true },
     { "path": "src/fields/registry-parts/return-keys.js", "role": "registry-return-keys-part", "required": true },
     { "path": "src/fields/registry-parts/return-shapes.js", "role": "registry-return-shapes-part", "required": true },
     { "path": "src/fields/registry-parts/snapshot.js", "role": "registry-snapshot-part", "required": true },

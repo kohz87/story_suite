@@ -2,6 +2,6 @@
 // They name replies for the scan marks, memory facts and the stale-chat check; nothing here records or restores state.
 // Public face: re-exports its parts.
 
-export { fingerprintMessage, chatLineage } from './fingerprint.js';
+export { fingerprintMessage, chatLineage } from './chat-lineage.js';
 export { BRANCH_LINEAGE_VERSION, lineageCheckpointKey } from './lineage-keys.js';
 export { firstLineageDivergence } from './lineage-compare.js';
