@@ -37,7 +37,7 @@ export function skillSheet(member, skill, ctx = {}) {
     class: 'ps-b',
     onClick: async () => { await ctx.port?.command('rpg.skill.edit', { member: member.id, skill: skill.name }); sheet.close(); },
   }, 'Edit skill');
-  sheet.body.replaceChildren(
+  sheet.body.replaceChildren(...[
     h('div', { class: 'ps-i' },
       h('span', { class: 'ti' }, glyph(glyphOf(skill))),
       h('div', null, h('div', { class: 'ps-n ps-n2' }, kindText(skill)), h('div', { class: 'ps-s' }, factsText(skill)))),
@@ -46,7 +46,7 @@ export function skillSheet(member, skill, ctx = {}) {
       ? h('dl', { class: 'ps-kv' }, h('dt', null, 'Rank'), h('dd', null, `${skill.rank}, mastery ${skill.mastery} of 7 `, masteryBar(skill.mastery, 'inline')))
       : null,
     can(ctx, 'rpg.skill.edit') ? h('div', { class: 'ps-row' }, edit) : null,
-  );
+  ].filter(Boolean));
   return sheet;
 }
 

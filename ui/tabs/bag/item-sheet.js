@@ -5,6 +5,7 @@ import { itemTile, memberName, KIND_LABEL } from './item-grid.js';
 import { itemEditForm } from './item-edit.js';
 import { can } from '../../runtime/can.js';
 import { ownerOf } from '../../runtime/owner-id.js';
+import { portraitEl } from '../party/slots.js';
 import { statsRow, changeView } from './stats-change.js';
 
 const RARITY_LABEL = { uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic' };
@@ -71,7 +72,7 @@ export function itemSheet(item, ctx = {}) {
       h('div', { class: 'pick' }, names.map(id => h(
         'button',
         { type: 'button', class: 'mb', dataset: { member: id }, onClick: () => send(type, body(type, id)) },
-        h('span', { class: 'a', dataset: { portrait: id } }), memberName(id, ctx),
+        portraitEl({ name: memberName(id, ctx), portrait: ctx.portraits?.[id] ?? null }, 'a'), memberName(id, ctx),
       ))),
     );
   };

@@ -105,7 +105,8 @@ for (const [width, height] of [[1280, 800], [1920, 1080]]) {
           assert.deepEqual([m.x.x - m.panel.x, m.x.w, m.x.h], [573, 44, 44], `× 22 px in from the right: ${JSON.stringify(m.x)}`);
           if (s.foot) {
             assert.deepEqual([m.foot.x, m.foot.w, m.foot.h], [m.panel.x + 1, 638, 75], `action row ${JSON.stringify(m.foot)}`);
-            assert.equal(m.foot.y + m.foot.h, m.panel.y + m.panel.h - 1, 'the action row ends at the panel\'s bottom');
+            // (a centred panel of odd height sits on a half pixel, so the edges may round 1 px apart)
+            assert.ok(Math.abs(m.foot.y + m.foot.h - (m.panel.y + m.panel.h - 1)) <= 1, 'the action row ends at the panel\'s bottom');
             assert.equal(m.footLine, '1px');
           }
         } finally {

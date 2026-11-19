@@ -411,6 +411,7 @@
   "tests/ui/tabs/now/card-offer.test.js": "Tests the Now tab's card pack offer: the Needs you row, the tick across a redraw, the answers, the chat chip count and the port's offer command.",
   "tests/ui/tabs/now/here-now.test.js": "Tests Here now, Now without its Here card on desktop, and the desktop watcher.",
   "tests/ui/tabs/party/gear-portrait.test.js": "Tests the Party slot sheet's Stats row and Change, and the paper-doll portrait: the people row or persona avatar, the initial as the fallback.",
+  "tests/ui/tabs/party/skill-sheet-no-null.test.js": "Tests that the Party skill sheet prints no \"null\" where the Edit skill button is left out.",
   "tests/ui/tabs/story/tracker-edit.test.js": "Tests for the tracker Edit sheet and the template sheet.",
   "tests/ui/turn-on-frame.test.js": "Pins that the new view's chat surfaces are built once a frame for a burst of port and SillyTavern events, and not after turn-off.",
   "ui/card/card-icons.js": "Draws the card's soak, pace and status glyphs from the mock's shapes, with a shared-set fallback.",
