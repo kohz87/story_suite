@@ -58,7 +58,12 @@ const blurAt = (base, strength) => `${Math.round((base * strength) / STRENGTH.ba
 const liftAt = strength => Math.max(0, (strength - STRENGTH.base) / (STRENGTH.max - STRENGTH.base));
 const mix = (from, to, f) => from.map((v, i) => v + (to[i] - v) * f);
 const rgbMix = (from, to, f) => mix(from.split(',').map(Number), to.split(',').map(Number), f).map(Math.round).join(',');
-const rgbaMix = ([from, to], f) => { const c = mix(from, to, f); return `rgba(${c.slice(0, 3).map(Math.round).join(',')},${short(c[3])})`; };
+// Mixed premultiplied (colour × alpha), so over any background the drawn colour moves in a straight line (white .9 → ink .16 never peaks midway).
+const rgbaMix = ([from, to], f) => {
+  const a = from[3] + (to[3] - from[3]) * f;
+  const rgb = [0, 1, 2].map(i => Math.round((from[i] * from[3] * (1 - f) + to[i] * to[3] * f) / a));
+  return `rgba(${rgb.join(',')},${short(a)})`;
+};
 
 /**
  * The look's theme: `{ tokens, scheme, zoom }`. Light or dark follows SillyTavern's theme (`readVar(name)` reads its CSS variables) either way.

@@ -64,7 +64,16 @@ test('light, Off: the white card keeps moving off the flat colour, and its edge 
   assert.equal(at(90, LIGHT_ST)['--su-panel'], 'rgba(255,255,255,.98)', 'the light panels stay white (lighter than the flat)');
   assert.equal(at(90, LIGHT_ST)['--su-line'], 'rgba(30,34,52,.16)');
   assert.equal(at(90, LIGHT_ST)['--su-shadow'], '0 10px 30px rgba(40,30,80,.32)');
-  assert.equal(at(70, LIGHT_ST)['--su-line'], 'rgba(143,145,154,.53)');
+  assert.equal(at(70, LIGHT_ST)['--su-line'], 'rgba(221,222,224,.53)');
+});
+
+test('Off: the card edge only ever gets firmer as the strength rises (drawn over the card and over the flat colour, no peak midway)', () => {
+  for (const [vars, flat, sign] of [[LIGHT_ST, FLAT.light, -1], [DARK_ST, FLAT.dark, 1]]) {
+    for (const under of ['card', 'flat']) {
+      const drawn = [50, 60, 70, 80, 90].map(n => { const t = at(n, vars); const back = under === 'flat' ? flat : over(t['--su-panel'], flat); return over(t['--su-line'], back).reduce((a, c) => a + c, 0) / 3; });
+      for (let i = 1; i < drawn.length; i += 1) assert.ok(sign * (drawn[i] - drawn[i - 1]) > 0, `${vars === LIGHT_ST ? 'light' : 'dark'} over the ${under}: ${drawn.map(d => d.toFixed(1)).join(' → ')}`);
+    }
+  }
 });
 
 test('Off: only the strength tokens move, every step to 90% changes them, and the skin check takes every value', () => {
