@@ -29,10 +29,15 @@ export const DOSSIER_SHAPE = {
   // The reader's own feelings beyond the four (each with its own range and, once reached, its stage word), and the stage word of each built-in feeling that has one; both left out when there are none.
   extraMeters: { $optional: [{ key: T.STRING, label: T.STRING, value: T.NUMBER, min: T.NUMBER, max: T.NUMBER, stage: { $optional: T.STRING } }] },
   axisStages: { $optional: { trust: { $optional: T.STRING }, affection: { $optional: T.STRING }, desire: { $optional: T.STRING }, tension: { $optional: T.STRING } } },
-  changes: [{ date: T.STRING, meter: T.STRING, delta: T.NUMBER, why: T.STRING, heldBack: T.BOOLEAN }],
+  // reply: the message index of the reply the change came in (the meters' recent rows' `n`), left out when unknown; note: why a held-back move moved less.
+  changes: [{ date: T.STRING, meter: T.STRING, delta: T.NUMBER, why: T.STRING, heldBack: T.BOOLEAN, reply: { $optional: T.NUMBER }, note: { $optional: T.STRING } }],
   mood: NULL_STR,
   // Mood meters on NPC State's -3..+3 scale (whole numbers); absent when it has no mood numbers.
   moodBars: { $optional: { feeling: { $enum: BAR }, energy: { $enum: BAR }, control: { $enum: BAR } } },
+  // NPC State's mood history (newest first): the reply (message index, null when unknown), the story date, each axis moved and the recorded reason ('' when none); left out when there is none.
+  moodChanges: { $optional: [{ reply: { $nullable: T.NUMBER }, date: T.STRING, moves: [{ axis: { $enum: ['feeling', 'energy', 'control'] }, delta: T.NUMBER }], why: T.STRING }] },
+  // The reply (message index) of their last recorded change or memory, for the top bar's "Reply #N"; left out when nothing recorded one.
+  lastReply: { $optional: T.NUMBER },
   now: {
     $oneOf: [
       { where: NULL_STR, doing: NULL_STR, wearing: NULL_STR, thought: NULL_STR },
@@ -42,7 +47,8 @@ export const DOSSIER_SHAPE = {
   scene: { $nullable: { wants: T.STRING, hiding: NULL_STR } },
   // portrait: optional tie portrait URL; the selector leaves it out until there is a data source (owner question), so ties draw letters.
   ties: [{ personId: { $nullable: T.STRING }, name: T.STRING, line: T.STRING, portrait: { $optional: { $nullable: T.STRING } } }],
-  past: [{ date: T.STRING, text: T.STRING, dayRef: NULL_STR }],
+  // date: the memory's story date from NPC State's memory stamps ('' without one); reply: the stamp's message index, left out without one.
+  past: [{ date: T.STRING, text: T.STRING, dayRef: NULL_STR, reply: { $optional: T.NUMBER } }],
   secrets: {
     opened: T.NUMBER,
     total: T.NUMBER,

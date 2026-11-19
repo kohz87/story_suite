@@ -121,7 +121,8 @@ describe('selectDossier', () => {
   it('parses ties, past, secrets and the profile with merged habits', () => {
     const vm = selectDossier(ALL);
     assert.deepEqual(vm.ties, [{ personId: null, name: 'Torka', line: 'childhood friend · Tem to her' }, { personId: null, name: 'The Harbour Master', line: '' }]);
-    assert.deepEqual(vm.past, [{ date: '', text: 'Handed back the offering coin.', dayRef: null }, { date: '', text: 'Met at the Guild Office.', dayRef: null }]);
+    // (stored oldest first; the dossier shows the newest first; no stamps, so no dates)
+    assert.deepEqual(vm.past, [{ date: '', text: 'Met at the Guild Office.', dayRef: null }, { date: '', text: 'Handed back the offering coin.', dayRef: null }]);
     assert.deepEqual(vm.secrets, { opened: 1, total: 3, items: [
       { open: true, title: 'Same orphanage as Torka', rule: 'Opened · Trust 15', text: null },
       { open: false, title: null, rule: 'Opens at Trust 40', text: null },
