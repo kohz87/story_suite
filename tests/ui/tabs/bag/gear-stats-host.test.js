@@ -15,9 +15,8 @@ const ctxOf = host => {
 };
 const stats = (host, name) => host.sdk.query('gear.view', { owner: 'party' }).rows[rowOf(host, name).stack].bonus;
 
-// (the Items card, and its + Add, is drawn only once the bag holds something: a rope first)
+// (+ Add is there with an empty bag too: the starting kit's first piece)
 async function addVia(host, name, steps) {
-  if (!rowOf(host, 'Rope')) await host.sdk.command('inventory.add', { name: 'Rope', qty: 1 });
   installFakeDom();
   const ctx = ctxOf(host);
   bagTab(bagOf(host), ctx).querySelectorAll('.ihead .btn2').find(b => b.textContent === '+ Add').click();

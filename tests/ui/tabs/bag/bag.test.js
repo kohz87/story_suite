@@ -38,9 +38,9 @@ test('tapping an item opens its sheet through ctx.openSheet; over the limit show
   assert.equal(ctx.sheets[0][1], tab.querySelector('.itm .n').textContent);
 });
 
-test('empty parts are left out and an empty bag still renders', () => {
+test('empty parts are left out and an empty bag still renders, its Items card kept for + Add', () => {
   installFakeDom();
   const tab = bagTab({ rpg: true, items: [], filters: [], purse: null, assets: { transport: [], property: [] }, pace: null }, {});
-  assert.deepEqual(order(tab), []);
+  assert.deepEqual(order(tab), ['items']);
   assert.deepEqual(order(bagTab(undefined, {})), []);
 });

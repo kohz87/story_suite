@@ -11,7 +11,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Settings › Look: **Glass strength** now reaches every glass surface (blur, tab strip, chips, sheets and their dimmed layer), not only the panel colour. The default looks as before.
 - With Panel background Off, Glass strength now also lifts the cards off the plain colour: higher makes them lighter (in dark) with a firmer edge and shadow. The default looks as before.
 - HP now comes from STR and VIT, SP from AGI and DEX, MP from INT and WIS.
-- Bag › + Add: equipment gets Slot, Rarity (at the start of a chat) and a Stats picker; an item's sheet shows its stats with **Change** to move its points. Rings, amulets and accessories now default to CHA.
+- Bag › + Add (now there with an empty bag too): equipment gets Slot, Rarity (at the start of a chat) and a Stats picker; an item's sheet shows its stats with **Change** to move its points. Rings, amulets and accessories now default to CHA.
 - Party: the circle in the middle of the equipment shows the member's portrait (yours, or the companion's from NPC State), the initial only when there is none.
 
 ## 0.1.3 — 19 Nov 2026
