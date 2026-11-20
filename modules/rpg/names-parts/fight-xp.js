@@ -11,3 +11,6 @@ export const FIGHT_XP = Object.freeze({ markedFirst: 15, markedMore: 2, flatBase
 
 /** The line the narrator writes where the fight is told (the battle log is drawn there). */
 export const BATTLE_MARKER = '[battle]';
+
+// The XP a win pays per foe tier, apart from the health and damage multiplier (combat/numbers.js TIERS): a mob or minion is small, but a crowd of them is a real fight (owner, 20 Nov: six rats paid 6 XP).
+export const XP_TIER = Object.freeze({ mob: 0.5, minion: 0.75, standard: 1, elite: 1.5, boss: 2, apex: 3 });

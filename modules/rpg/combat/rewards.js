@@ -2,6 +2,7 @@
 // Code sets every number here; nothing reads state, settings or dice (the XP rate and the practice per use are the setup's, applied by the caller).
 import { FIGHT_XP } from '../names-parts/fight-xp.js';
 import { TIERS } from './numbers.js';
+import { XP_TIER } from '../names-parts/fight-xp.js';
 import { skillCost } from './skills.js';
 
 // How many levels above the party's highest a foe group must stand for a win to earn a legendary find (the old rule's gap).
@@ -18,11 +19,11 @@ export function foeGroupsOf(record) {
     return [...groups.values()].sort((a, b) => a.slot - b.slot);
 }
 
-/** One hero's XP for a won fight: per group (15 + 2 per foe after the first) × max(1, ceil(level / 10)) × the level gap per cent (10 a level, 0..200) × the tier's factor; summed, rounded down, held to 1..60. */
+/** One hero's XP for a won fight: per group (15 + 2 per foe after the first) × max(1, ceil(level / 10)) × the level gap per cent (10 a level, 0..200) × the tier's XP factor (XP_TIER); summed, rounded down, held to 1..60. */
 export function winXp(groups, level) {
     const total = groups.reduce((sum, group) => {
         const gap = Math.max(0, Math.min(FIGHT_XP.maxPercent, 100 + FIGHT_XP.gapPercent * (group.level - level)));
-        return sum + (FIGHT_XP.markedFirst + FIGHT_XP.markedMore * (group.count - 1)) * Math.max(1, Math.ceil(group.level / FIGHT_XP.perLevels)) * gap * TIERS[group.tier].mult;
+        return sum + (FIGHT_XP.markedFirst + FIGHT_XP.markedMore * (group.count - 1)) * Math.max(1, Math.ceil(group.level / FIGHT_XP.perLevels)) * gap * (XP_TIER[group.tier] ?? TIERS[group.tier].mult);
     }, 0), xp = Math.floor(total / 100);
     return xp > 0 ? Math.max(FIGHT_XP.min, Math.min(FIGHT_XP.max, xp)) : 0;
 }

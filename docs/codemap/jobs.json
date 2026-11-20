@@ -312,6 +312,7 @@
   "tests/modules/cast/cast/entry-sig.test.js": "Tests that a frozen pack cast row is hashed once for its signature and an unfrozen row on every read.",
   "tests/modules/cast/cast/s2pa-cut-swipe.test.js": "Checks that a swipe after a middle delete judges the pending cast meeting at its reply's new index, so nobody is met who was never shown.",
   "tests/modules/inventory/bag-carry-flow.test.js": "Tests the Bag's carry flow on a real host (+ Add then Carries, a rename then Carries, Carry as bag) with replay equal to live, and a mount added again after the story took it away.",
+  "tests/modules/rpg/board/crowd-split-xp.test.js": "Tests that a crowd of mobs splits into groups of six and that mobs and minions pay their own XP factor.",
   "tests/modules/rpg/board/lapse.test.js": "Tests NB-1 through a host with the Ersveil pair: foes standing unplayed keep the board lines and get no Combat rules text, and the second unplayed message lapses them; swipe, Re-read, delete, rewind and reload agree.",
   "tests/modules/rpg/board/prompt-sections.test.js": "Tests the board reply grammar's three cases, that the board-owned Combat rules sections are left out by label (one-line pinned text too), and played and mid-fight board replies through the host (no lapse while the board is open).",
   "tests/modules/scene/domains/mounts-reader.test.js": "Tests mounts.add and mounts.remove: fields, refusals, reader only, and replay equal to live after a swipe, an edited Re-read, middle deletes and a reload.",

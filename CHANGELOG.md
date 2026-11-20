@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A big crowd of mobs or minions ("a dozen rats") comes in as groups of six, each its own foe slot, instead of being cut to six.
+- Fights pay more XP for mobs and minions (their own XP factor: mob 0.5, minion 0.75), so six rats at your level pay 12 XP instead of 6.
 - A person's page: a tap on the portrait fills the portrait column with it (the top part on a phone); ✕ or a tap closes it, and Profile › still opens the profile.
 
 ## 0.1.4 — 20 Nov 2026
