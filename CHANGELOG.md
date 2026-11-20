@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Journal › Closed: each quest's Remove sits on the right under its outcome, no longer stretched across the row over the summary.
 - Party › Skills: each skill shows its practice toward the next rank ("34/100", or Max), and its sheet says how far to the next rank and any level it still needs.
 - A Speed stance now adds its full skill mastery to dodging (+2 at Apprentice instead of +1), so a dodge build can dodge; extra actions are unchanged (new fights).
 - Stat bonuses from worn gear now count in fight rolls (new fights) and in story checks, so AGI 11 + 5 from boots rolls as 16; the fight log shows the AGI used.
