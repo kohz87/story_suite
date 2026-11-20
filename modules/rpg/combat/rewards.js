@@ -19,13 +19,12 @@ export function foeGroupsOf(record) {
     return [...groups.values()].sort((a, b) => a.slot - b.slot);
 }
 
-/** One hero's XP for a won fight: per group (15 + 2 per foe after the first) × max(1, ceil(level / 10)) × the level gap per cent (10 a level, 0..200) × the tier's XP factor (XP_TIER); a crowd split over slots counts as one group (crowdsOf); summed, rounded down, held to 1..60. */
-export function winXp(groups, level) {
-    const total = crowdsOf(groups).reduce((sum, group) => {
-        const gap = Math.max(0, Math.min(FIGHT_XP.maxPercent, 100 + FIGHT_XP.gapPercent * (group.level - level)));
-        return sum + (FIGHT_XP.markedFirst + FIGHT_XP.markedMore * (group.count - 1)) * Math.max(1, Math.ceil(group.level / FIGHT_XP.perLevels)) * gap * (XP_TIER[group.tier] ?? TIERS[group.tier].mult);
-    }, 0), xp = Math.floor(total / 100);
-    return xp > 0 ? Math.max(FIGHT_XP.min, Math.min(FIGHT_XP.max, xp)) : 0;
+/** One hero's XP for a won fight on the old per-group rule (a fight opened before 20 Nov): per group (15 + 2 per foe after the first) × max(1, ceil(level / 10)) × the level gap per cent (10 a level, 0..200) × the tier's XP factor (XP_TIER); a crowd split over slots counts as one group (crowdsOf); summed, rounded down, held to 1..60. With `rule` 'each' (a fight opened from 20 Nov, its setup's `xpRule`): 15 for EACH foe × the same band, gap and tier factor, summed, rounded down, held to 1..100 (per-foe sums do not depend on how a crowd was split, so crowdsOf is not used). */
+export function winXp(groups, level, rule = '') {
+    const each = rule === 'each', gapOf = foe => Math.max(0, Math.min(FIGHT_XP.maxPercent, 100 + FIGHT_XP.gapPercent * (foe - level)));
+    const total = (each ? groups : crowdsOf(groups)).reduce((sum, group) => sum + (each ? FIGHT_XP.eachBase * group.count : FIGHT_XP.markedFirst + FIGHT_XP.markedMore * (group.count - 1))
+        * Math.max(1, Math.ceil(group.level / FIGHT_XP.perLevels)) * gapOf(group.level) * (XP_TIER[group.tier] ?? TIERS[group.tier].mult), 0), xp = Math.floor(total / 100);
+    return xp > 0 ? Math.max(FIGHT_XP.min, Math.min(each ? FIGHT_XP.eachMax : FIGHT_XP.max, xp)) : 0;
 }
 
 /** Whether a won fight earned a legendary find: some foe group stands 10 or more levels above the party's highest. */

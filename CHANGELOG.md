@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A won fight now pays 15 XP for each foe (scaled by level gap and tier, up to 100), so two level 2 boars pay a level 1 hero 33; fights already started pay as before.
 - The world's people who are nearby but not met yet reach the narrator with their manner and voice, so someone like Sister Temiwa speaks as herself from her first line.
 - A pack person the story brings in (Sister Temiwa and the like) now gets the pack's portrait even before the world counts the meeting.
 - A person's Past page: memories keep their date and reply but no longer link to the calendar.

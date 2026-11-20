@@ -117,14 +117,17 @@ test('a middle delete (a later reply stays) takes the pay with the fight; live =
     } finally { host.close(); restore(); }
 });
 
-test('the highest pay still passes the award\'s own check: 60 XP at the 300 % rate, and a use count clamped to 99', async () => {
+test('the highest pay still passes the award\'s own check: 60 XP (100 on the each-foe rule) at the 300 % rate, and a use count clamped to 99', async () => {
     const { paidOf, awardCommand } = await import('../../../../modules/rpg/board/v1-award.js');
     const foes = Array.from({ length: 6 }, (_, at) => ({ id: `1.${at + 1}`, level: 99, tier: 'apex' }));
     const skills = [{ name: 'Cut', type: 'attack', stat: 'str' }];
     const rounds = Array.from({ length: 120 }, () => [['attack', 'Astra', 'skill', 'x', 10, 12, 5, 8, 'hit', 3, 4]]);
     const pay = paidOf({ result: 'win', foes, party: [{ id: 'astra', label: 'Astra', level: 1, skills }], rounds }, { rate: 300, practice: 3 }, { modules: { astra: 'm' }, alive: new Set(['astra']) });
-    assert.equal(pay.xp[0].xp, 180, '60 held, x3');
+    assert.equal(pay.xp[0].xp, 180, '60 held, x3 (a fight with no xpRule mark)');
+    const each = paidOf({ result: 'win', foes, party: [{ id: 'astra', label: 'Astra', level: 1, skills }], rounds }, { rate: 300, practice: 3, xpRule: 'each' }, { modules: { astra: 'm' }, alive: new Set(['astra']) });
+    assert.equal(each.xp[0].xp, 300, '100 held, x3');
     assert.equal(pay.uses[0].n, 99);
     const ctx = { fail: (code, message) => { throw new Error(`${code}: ${message}`); }, draft: () => ({ instances: {} }), read: () => ({}), source: {} };
     assert.doesNotThrow(() => awardCommand(ctx, { xp: pay.xp, uses: pay.uses, perUse: pay.perUse }));
+    assert.doesNotThrow(() => awardCommand(ctx, { xp: each.xp, uses: each.uses, perUse: each.perUse }));
 });

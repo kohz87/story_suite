@@ -12,8 +12,8 @@ import { heroesOf, raiseToStory, writeBack } from './v1-story-facts.js';
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const whole = value => Number.isSafeInteger(value);
 const text = value => typeof value === 'string' && value.length > 0 && value.length <= 200;
-// (the most one hero can be paid: the 60 a win is held to, at the highest XP rate, 300 %)
-const XP_TOP = 180;
+// (the most one hero can be paid: the 100 a win is held to, at the highest XP rate, 300 %)
+const XP_TOP = 300;
 
 /**
  * What this record pays: `{ xp: [{ module, who, xp }], uses: [{ who, skill, n }], perUse, paid }`, or null when nothing is paid. `xp` only for a won fight (every standing or Down hero who is not dead, at that hero's own level; the XP rate is the setup's),
@@ -24,7 +24,7 @@ export function paidOf(record, setup, { modules = {}, alive = new Set() } = {}) 
     const perUse = practiceOf(setup?.practice) ?? PRACTICE.perUse, rate = xpRateOf(setup?.rate) ?? XP_RATE.default;
     const groups = foeGroupsOf(record), uses = usesOfV1(record).slice(0, 40).map(use => ({ ...use, n: Math.min(use.n, 99) }));
     const xp = record?.result === 'win' ? (record.party ?? []).filter(hero => modules[hero.id] && alive.has(hero.id))
-        .map(hero => ({ module: modules[hero.id], who: hero.label, xp: scaleXp(winXp(groups, Number(hero.level) || 1), rate) })).filter(entry => entry.xp > 0) : [];
+        .map(hero => ({ module: modules[hero.id], who: hero.label, xp: scaleXp(winXp(groups, Number(hero.level) || 1, setup?.xpRule), rate) })).filter(entry => entry.xp > 0) : [];
     if (!xp.length && !uses.length) return null;
     return { xp, uses, perUse, paid: { xp: xp.map(({ who, xp: given }) => ({ who, xp: given })), practice: uses.map(use => ({ who: use.who, skill: use.skill, amount: Math.min(PRACTICE.max, perUse * use.n) })) } };
 }
