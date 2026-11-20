@@ -1,5 +1,5 @@
 // Rendered check: the dossier's layout by window width. On a desktop window (1,080 px and up) it covers the whole suite in three columns once a part is open
-// (portrait 290 and the cards; an opened part replaces the cards, owner 20 Nov: no third column); below, a part is a page of its own (the tablet keeps the portrait column). The ⋯ menu drops from its button.
+// (portrait 380 and the cards; an opened part replaces the cards, owner 20 Nov: no third column); below, a part is a page of its own (the tablet keeps the portrait column). The ⋯ menu drops from its button.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -65,15 +65,15 @@ function measure() {
 // (1143 x 821 is the owner's laptop: its floating window is 1,095 px, over the 1,080 px line)
 for (const width of [1143, 1280, 1920]) {
   for (const theme of ['dark', 'light']) {
-    test(`dossier at ${width} ${theme}: covers the whole suite; portrait column 290 and the cards, then a part opens in place of the cards with ‹ Dossier`, async (t) => {
+    test(`dossier at ${width} ${theme}: covers the whole suite; portrait column 380 and the cards, then a part opens in place of the cards with ‹ Dossier`, async (t) => {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await openDossier(width, { 1143: 821, 1280: 800 }[width] ?? 1080, theme);
       try {
         const m = await page.evaluate(measure);
         assert.deepEqual([m.dov.x, m.dov.y, m.dov.w], [m.root.x, m.root.y, m.root.w], 'the dossier covers the suite');
         assert.equal(m.bar.h, 64, 'top bar 64 px');
-        assert.equal(m.hero.w, 290, 'portrait column');
-        assert.equal(m.cards.x, m.hero.x + 290);
+        assert.equal(m.hero.w, 380, 'portrait column');
+        assert.equal(m.cards.x, m.hero.x + 380);
         assert.equal(m.pane, null, 'no part open yet: two columns');
         assert.equal(m.ties, true, 'Ties | Past side by side');
         assert.equal(m.lib.h, 68, 'the folded library strip (tall enough for the open person\'s ring)');
@@ -81,7 +81,7 @@ for (const width of [1143, 1280, 1920]) {
         await settle(page);
         const o = await page.evaluate(measure);
         assert.deepEqual(o.shown, { hero: true, cards: false, pane: true, back: true }, 'two columns: the part replaces the cards, with ‹ Dossier');
-        assert.equal(o.pane.x, o.hero.x + 290, 'the part sits where the cards were');
+        assert.equal(o.pane.x, o.hero.x + 380, 'the part sits where the cards were');
         assert.equal(o.pane.x + o.pane.w, o.dov.x + o.dov.w);
         await page.evaluate(() => document.querySelector('#hx-frame .dov .dpane [data-act="back"]').click());
         await settle(page);
@@ -98,7 +98,7 @@ for (const [width, height] of [[820, 1000], [390, 844]]) {
     try {
       const m = await page.evaluate(measure);
       assert.deepEqual([m.shown.hero, m.shown.cards], [true, true]);
-      if (width >= 600) assert.equal(m.hero.w, 300, 'tablet portrait column');
+      if (width >= 600) assert.equal(m.hero.w, 340, 'tablet portrait column');
       await page.evaluate(() => document.querySelector('#hx-frame .dov .dcard[data-page="past"]').click());
       await settle(page);
       const o = await page.evaluate(measure);

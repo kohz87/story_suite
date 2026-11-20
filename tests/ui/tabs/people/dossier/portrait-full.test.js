@@ -6,22 +6,16 @@ import { feelingsHero } from '../../../../../ui/tabs/people/dossier/feelings.js'
 
 const person = (portrait) => ({ name: 'Pella', life: 'alive', meters: { trust: 3, affection: 1, desire: 0, tension: 0 }, portrait });
 
-test('a tap on a portrait fills the portrait column with it; a tap or Close takes it away; Profile › still opens the profile', () => {
+test('a tap on the portrait opens the Profile, as Profile › does (owner, 20 Nov: the Profile shows it full size in the portrait column)', () => {
   installFakeDom();
-  const dov = document.createElement('section'); dov.className = 'dhero'; document.body.appendChild(dov);
   let profile = 0;
   const hero = feelingsHero(person('/user/images/pella.webp'), { onProfile: () => { profile += 1; } });
-  dov.appendChild(hero);
+  document.body.appendChild(hero);
   hero.querySelector('.bigph').click();
-  const box = dov.querySelector('.dlbox');
-  assert.ok(box, 'the full-size view');
-  assert.equal(box.querySelector('img').getAttribute('src'), '/user/images/pella.webp');
-  assert.equal(profile, 0, 'the portrait tap is not the profile');
-  box.querySelector('.dlbox-x').click();
-  assert.equal(dov.querySelector('.dlbox'), null, 'Close takes it away');
+  assert.equal(profile, 1, 'the portrait opens the profile');
   hero.querySelector('.prof').click();
-  assert.equal(profile, 1, 'Profile › opens the profile');
-  assert.equal(dov.querySelector('.dlbox'), null, 'and shows no full-size view');
+  assert.equal(profile, 2, 'Profile › opens the profile');
+  assert.equal(document.querySelector('.dlbox'), null, 'no separate viewer');
 });
 
 test('with no portrait the disc opens the profile, as before', () => {

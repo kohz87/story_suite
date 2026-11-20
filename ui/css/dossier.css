@@ -40,14 +40,14 @@
 .dpane .ptl b{font:800 16px var(--su-font);color:var(--su-accent)}.dpane .ptl small{font-size:12px;color:var(--su-muted)}
 .dpane .db{flex:1;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0;background:var(--su-panel);border:1px solid var(--su-line);border-radius:16px}
 @container su-root (min-width:600px){
-  .dbody{grid-template-columns:300px minmax(0,1fr);overflow:hidden}
+  .dbody{grid-template-columns:340px minmax(0,1fr);overflow:hidden}
   .dhero{justify-content:center;padding:16px;border-right:1px solid var(--su-line);overflow:auto}
   .dcards,.dpane{overflow:auto}
   .dbody.paged>.dhero{display:flex}
   .dpane .db{overflow:auto}
 }
 @container su-root (min-width:1080px){
-  .dbody{grid-template-columns:290px minmax(0,1fr)}
+  .dbody{grid-template-columns:380px minmax(0,1fr)}
 }
 /* the portrait column: ring with its four labels clear of it, name, chips, who-line, meter line, where */
 .bigring{position:relative;width:258px;max-width:100%;aspect-ratio:1;flex:none}
@@ -57,7 +57,6 @@
 .bigring .bigph{position:absolute;inset:20%;padding:0;border:0;border-radius:50%;background:none;cursor:pointer;overflow:hidden;min-width:44px;min-height:44px}
 .bigring .ph{position:absolute;inset:0;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 40px var(--su-font);color:#fff}
 .bigring.dead .ph{filter:grayscale(1) brightness(.75)}
-.bigring .bigph.zoom{cursor:zoom-in}
 .bigring .prof{cursor:pointer;z-index:1;position:absolute;left:50%;bottom:9%;transform:translateX(-50%);font:800 12px var(--su-font);color:#fff;background:rgba(10,12,20,.7);border-radius:999px;padding:3px 12px;white-space:nowrap}
 .bigring .ml{position:absolute;display:flex;flex-direction:column;align-items:center;font:800 12px var(--su-font);letter-spacing:.1em;line-height:1.1}
 .bigring .ml b{font:800 17px var(--su-font);letter-spacing:0}
@@ -151,11 +150,8 @@ button.tie{cursor:pointer}
 .pa-note{margin:0;min-height:0;font:700 12px var(--su-font);color:var(--su-warn-t)}.pa-note:empty{display:none}
 .pa-acts{display:flex;flex-wrap:wrap;gap:8px}.pa-acts .btn2{min-height:44px}
 .su-root [data-sheet="party-add"] .sh-x{width:44px;height:44px;flex:none;padding:0;border-radius:12px;border:1px solid var(--su-line2);background:var(--su-tint);color:var(--su-text);font:800 20px var(--su-font);cursor:pointer}
-/* the portrait full size: it fills the portrait column (the top part on a phone), the cards beside it stay; ✕ in its corner */
+/* the portrait column holds the full portrait while Profile is open (.dhfull) */
 .dhero{position:relative}
-.dlbox{position:absolute;inset:0;z-index:5;background:#05060a;cursor:zoom-out;overflow:hidden}
-.dlbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 18%}
-.dlbox .dlbox-x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:var(--su-scrim-strong);color:#fff;font:700 18px var(--su-font);cursor:pointer;display:grid;place-items:center}
 /* the Profile page's portrait, full size at its top */
 .pfimg{margin:0 0 14px;border-radius:12px;overflow:hidden;background:#05060a;border:1px solid var(--su-line)}
 .pfimg img{display:block;width:100%;height:auto;max-height:72vh;object-fit:cover;object-position:center 18%}
