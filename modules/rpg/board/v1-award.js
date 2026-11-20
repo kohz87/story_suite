@@ -31,7 +31,8 @@ export function paidOf(record, setup, { modules = {}, alive = new Set() } = {}) 
 
 const checked = payload => (plain(payload) && Array.isArray(payload.xp) && payload.xp.length <= 99 && payload.xp.every(entry => text(entry?.module) && whole(entry.xp) && entry.xp > 0 && entry.xp <= XP_TOP)
     && Array.isArray(payload.uses) && payload.uses.length <= 40 && payload.uses.every(use => text(use?.who) && text(use?.skill) && whole(use.n) && use.n >= 1 && use.n <= 99)
-    && practiceOf(payload.perUse) !== null ? payload : null);
+    && practiceOf(payload.perUse) !== null
+    && (payload.wears === undefined || (Array.isArray(payload.wears) && payload.wears.length <= 24 && payload.wears.every(wear => text(wear?.owner) && ['defence', 'weapon'].includes(wear.slot)))) ? payload : null);
 
 function giveXp(ctx, awards) {
     const draft = ctx.draft('dataModules');
@@ -56,5 +57,7 @@ export function awardCommand(ctx, payload) {
     giveXp(ctx, given.xp);
     const domain = ctx.read('dataModules'), items = itemsOf(domain, given.uses), skills = items.length ? givePractice(ctx, domain, items, given.perUse) : [];
     writeBack(ctx, heroes, before);
+    // (the gear a decisive hit or miss wore, worked out by v1-wear.js: by the fight's own record, so it wears whatever the switch says now, as the soak and stats it rolled with)
+    for (const wear of given.wears ?? []) ctx.call('gear.wear', { owner: wear.owner, slot: wear.slot, steps: 1, recorded: true });
     return { summary: '', narrate: false, data: { awarded: { xp: given.xp.length, practice: skills.length } } };
 }

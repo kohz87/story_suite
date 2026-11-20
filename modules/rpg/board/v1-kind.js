@@ -9,6 +9,7 @@ import { actorIdOf } from '../roster.js';
 import { fightInputOf, witnessOf } from '../combat/input.js';
 import { playBoard } from '../combat/play.js';
 import { fightChangesV1, fightResultV1 } from './v1-settle.js';
+import { wearOfV1 } from './v1-wear.js';
 import { stanceAfter, stanceHeldOff } from './v1-stance.js';
 import { gearQuery } from './gear-query.js';
 import { gearSoakRecord, sheetWithGear } from '../gear.js';
@@ -66,14 +67,22 @@ function playedOf(state, setup, steps, dice) {
     return { sheet, input, record };
 }
 
-const mapped = (state, setup, played) => fightResultV1(setup, played.record, { sheet: played.sheet, groups: played.input.groups });
+// The wear the fight costs the worn gear (a setup with the mark `gearWear: 1` only; one opened before it wears nothing): read live from the worn pieces, as soak is.
+function wearOf(state, setup, played) {
+    if (setup.gearWear !== 1) return null;
+    const query = gearQuery(real(state)), modules = Object.fromEntries(played.sheet.characters.filter(character => character.v1 === true).map(character => [character.key, character.module]));
+    const out = wearOfV1(played.record, { modules, slotsOf: owner => query('inventory.gear', { owner })?.slots });
+    return out.events.length ? out : null;
+}
+
+const mapped = (state, setup, played) => fightResultV1(setup, played.record, { sheet: played.sheet, groups: played.input.groups, wear: wearOf(state, setup, played) });
 
 /** The first setup of a fight on a v1 sheet: every filled foe group fights, the party is every standing hero. `error` when no one can fight. */
 function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.v1 === true && foe.filled).map(foe => foe.slot);
     if (!sheet.characters.some(standingHero) || !groups.length) return { error: 'There is no fight to open.' };
-    // (`speedFull`: a Speed stance adds its full mastery to evasion, 20 Nov; `gearStats`: the stats of the worn gear count in every roll, 20 Nov; a fight opened before it rolls with the sheet's stats; `fleeIdle`: a member who picked nothing pays no stance in an exchange where the party flees and gets away, combat/exchange.js; a fight opened before the mark has none; `xpRule: 'each2'`: the XP of 15 for each foe at the tier's own factor, 20 Nov evening; 'each' (that afternoon) keeps mob 0.5 / minion 0.75; a setup without one pays per group as before)
-    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, xpRule: 'each2', gearStats: 1, speedFull: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }),
+    // (`speedFull`: a Speed stance adds its full mastery to evasion, 20 Nov; `gearStats`: the stats of the worn gear count in every roll, 20 Nov; `gearWear`: a decisive hit taken wears the body armour (else the off-hand) and a decisive miss the weapon, one step, v1-wear.js, 20 Nov; a fight opened before it rolls with the sheet's stats; `fleeIdle`: a member who picked nothing pays no stance in an exchange where the party flees and gets away, combat/exchange.js; a fight opened before the mark has none; `xpRule: 'each2'`: the XP of 15 for each foe at the tier's own factor, 20 Nov evening; 'each' (that afternoon) keeps mob 0.5 / minion 0.75; a setup without one pays per group as before)
+    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, xpRule: 'each2', gearStats: 1, gearWear: 1, speedFull: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }),
         ...(Array.isArray(args.resumed?.foes) && args.resumed.foes.length ? { resumed: true, carried: { foes: structuredClone(args.resumed.foes) } } : {}) };
     try { playedOf(state, setup, [], portDice(seed, 0)); } catch (error) { return { error: error.message }; }
     return { setup, seed };
