@@ -80,3 +80,12 @@ test('tieInitial takes the first letter of the last word, upper-cased', () => {
   assert.deepEqual(page.querySelectorAll('.tie .a').map(a => a.textContent), ['T', 'O', '']);
   assert.equal(page.querySelectorAll('.tie .a').at(-1).querySelectorAll('svg').length, 1, 'a nameless tie shows the person glyph');
 });
+
+test('a tie whose line is a sentence shows it as the plain line, not a caps tag (owner, 20 Nov)', () => {
+  const page = tiesPage({ ties: [{ name: 'Sister Temiwa', personId: 'temiwa', line: "Bluewatch's unordained sealer, whom she needs and asks no questions." }, { name: 'Torka', line: 'friend · since the fire' }] }, {});
+  const rows = page.querySelectorAll('.tie');
+  assert.equal(rows[0].querySelector('em'), null);
+  assert.match(rows[0].querySelector('small').textContent, /unordained sealer/);
+  assert.equal(rows[1].querySelector('em').textContent, 'friend');
+  assert.equal(rows[1].querySelector('small').textContent, 'since the fire');
+});

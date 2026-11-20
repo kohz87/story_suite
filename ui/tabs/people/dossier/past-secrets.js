@@ -6,12 +6,15 @@ import { tieDisc } from './tie-disc.js';
 import { can } from '../../../runtime/can.js';
 import { eventRow } from './reply-words.js';
 
-/** Builds the Ties part: one row per known tie (portrait, name, its first word as the tag, the rest as a line); a tie with a person id opens that dossier through ctx.openPerson (else ctx.go). */
+/** Builds the Ties part: one row per known tie (portrait, name, its first part as the tag when it is a short word or two, the rest as a line; a sentence is all line); a tie with a person id opens that dossier through ctx.openPerson (else ctx.go). */
 export function tiesPage(d, ctx = {}) {
   const ties = d.ties ?? [];
   if (!ties.length) return h('p', { class: 'fine' }, 'No ties known.');
   return h('div', { class: 'ties' }, ties.map((t) => {
-    const [tag, ...rest] = String(t.line ?? '').split(' · ');
+    const [first, ...more] = String(t.line ?? '').split(' · ');
+    // (a tag is a word or two, "friend", "owes · a debt"; a story sentence such as "Bluewatch's unordained sealer, whom she needs" is shown as the plain line: owner, 20 Nov)
+    const short = first.length <= 24 && first.trim().split(/\s+/).length <= 3;
+    const tag = short ? first : '', rest = short ? more : [first, ...more].filter(Boolean);
     const body = [tieDisc(t), h('span', { class: 'tt' }, h('b', null, t.name), tag ? h('em', null, tag) : null, rest.length ? h('small', null, rest.join(' · ')) : null)];
     return t.personId
       ? h('button', { type: 'button', class: 'tie', dataset: { personId: t.personId }, onClick: () => (ctx.openPerson ? ctx.openPerson(t.personId) : ctx.go?.('people', { personId: t.personId })) }, body, h('i', null, '›'))
