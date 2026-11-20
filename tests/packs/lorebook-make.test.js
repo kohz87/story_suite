@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { lorebookFromPack } from '../../packs/lorebook-make/convert.js';
+import { lorebookFromPack, LOREBOOK_FORMAT } from '../../packs/lorebook-make/convert.js';
 import { LOREBOOK_TAG, isLorebookTitle, lorebookName, readMarker } from '../../packs/lorebook-make/marker.js';
 import { loreEntries } from '../../modules/arc/lore-digest/entries.js';
 
@@ -22,7 +22,7 @@ test('Ersveil: 213 lore entries and the marker, 5 hidden kept out, named after t
     assert.equal(name, 'Ersveil (open world) (Story Suite)');
     assert.deepEqual(counts, { entries: 213, hidden: 5 });
     assert.equal(entriesOf(book).length, 214);
-    assert.deepEqual(readMarker(book), { pack: 'ersveil', version: '4.1.0' });
+    assert.deepEqual(readMarker(book), { pack: 'ersveil', version: '4.1.0', format: LOREBOOK_FORMAT });
     assert.equal(lorebookFromPack(ersveil, { packName: 'Ersveil' }).name, 'Ersveil (Story Suite)');
 });
 
@@ -43,7 +43,7 @@ test('no hidden entry reaches the book: not its title, text or keys', () => {
     assert.equal(/zz-|Sealed vault|secret/.test(JSON.stringify(tiny.book)), false);
 });
 
-test('each entry has SillyTavern’s own fields; constant before the definitions, keyed at depth 4', () => {
+test('each entry has SillyTavern’s own fields; constant before the definitions, keyed at depth 0 (beside the turn\'s note, so older messages stay the same for the prompt cache)', () => {
     const { book } = lorebookFromPack(ersveil);
     for (const entry of entriesOf(book)) {
         for (const key of ST_KEYS) assert.ok(Object.hasOwn(entry, key), `${entry.comment}: ${key}`);
@@ -56,7 +56,7 @@ test('each entry has SillyTavern’s own fields; constant before the definitions
     assert.equal(premise.order, 1000);
     const keyed = loreOnly(book).find(entry => !entry.constant);
     assert.equal(keyed.position, 4);
-    assert.equal(keyed.depth, 4);
+    assert.equal(keyed.depth, 0);
     assert.equal(keyed.order, 100);
     assert.equal(keyed.disable, false);
     assert.ok(keyed.key.length > 0);
@@ -109,7 +109,7 @@ test('the marker: disabled, tagged, read back; a plain or edited book has none',
     const marker = book.entries[0];
     assert.equal(marker.disable, true);
     assert.ok(marker.comment.startsWith(LOREBOOK_TAG));
-    assert.deepEqual(readMarker(book), { pack: 'tiny', version: '1.2.0' });
+    assert.deepEqual(readMarker(book), { pack: 'tiny', version: '1.2.0', format: LOREBOOK_FORMAT });
     assert.equal(readMarker({ entries: { 1: { comment: 'Some lore', content: '{"pack":"tiny"}' } } }), null);
     assert.equal(readMarker({ entries: { 0: { comment: LOREBOOK_TAG, content: 'edited' } } }), null);
     assert.equal(readMarker(null), null);
@@ -132,4 +132,9 @@ test('a pack with no lore gives just the marker; the converter imports nothing f
         const imports = [...source.matchAll(/from '([^']+)'/g)].map(match => match[1]);
         assert.ok(imports.every(path => path === './marker.js'), `${file}: ${imports}`);
     }
+});
+
+test('an older book (no format in its marker) reads as format 1, and a same-version book of an older format is offered an Update', () => {
+  const old = { entries: { 0: { comment: '[storysuite:lorebook] Old', content: JSON.stringify({ pack: 'tiny', version: '1.0.0' }) } } };
+  assert.deepEqual(readMarker(old), { pack: 'tiny', version: '1.0.0', format: 1 });
 });

@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A world pack's keyword lore now goes in with the newest message, so older messages stay the same from turn to turn and the model's prompt cache can reuse them; Settings › Packs offers Update for a lorebook made before.
 - Clicking a choice adds it to the message box on its own line instead of replacing what is there, so you can send several choices or your own words with one.
 - A big crowd of mobs or minions ("a dozen rats") comes in as groups of six, each its own foe slot, instead of being cut to six.
 - Fights pay more XP for mobs and minions (their own XP factor: mob 0.5, minion 0.75), so six rats at your level pay 12 XP instead of 6.

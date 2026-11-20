@@ -14,9 +14,13 @@ const TEMPLATE = Object.freeze({
 });
 // The pack's `logic` words → SillyTavern's world_info_logic numbers (AND_ANY 0, NOT_ALL 1, NOT_ANY 2, AND_ALL 3).
 const LOGIC = Object.freeze({ 'and any': 0, 'not all': 1, 'not any': 2, 'and all': 3 });
-// Where the entries go, as the format 3 Ersveil lorebook the narrator was tuned with put them: a constant entry before the character's
-// definitions (position 0), a keyed one at depth 4 as a system line (position 4); neither pulls in other entries (recursion off), keys match whole words.
-const AT_DEPTH = 4;
+// Where the entries go: a constant entry before the character's definitions (position 0); a keyed one in the chat at depth 0 as a system line
+// (position 4, depth 0), beside the turn's own note, so the older messages never change with the keywords and the model's prompt cache keeps them
+// (owner, 20 Nov; the format 3 lorebook put keyed entries at depth 4, which changed a message four back every turn). Neither pulls in other entries
+// (recursion off); keys match whole words. LOREBOOK_FORMAT says which placement a book was made with: a book of an older format is offered an Update.
+const AT_DEPTH = 4, KEYED_DEPTH = 0;
+/** The placement version a book is made with (in its marker); 2 = keyed entries at depth 0. */
+export const LOREBOOK_FORMAT = 2;
 const UIDS = 999_999;
 const PROTECTED = '[protected]';
 const words = list => (Array.isArray(list) ? list.map(word => String(word ?? '').trim()).filter(Boolean) : []);
@@ -49,6 +53,7 @@ function loreEntry(record, uid, displayIndex) {
         addMemo: true,
         order: Number.isFinite(record.order) ? record.order : TEMPLATE.order,
         position: constant ? 0 : AT_DEPTH,
+        depth: KEYED_DEPTH,
         excludeRecursion: true,
         preventRecursion: true,
         matchWholeWords: true,
@@ -60,6 +65,7 @@ function markerEntry(pack, name) {
     const content = JSON.stringify({
         pack: String(pack.id ?? ''),
         version: String(pack.version ?? ''),
+        format: LOREBOOK_FORMAT,
         note: `Made by Story Suite from the world pack ${name} ${pack.version ?? ''}. Settings › Packs › Update the lorebook replaces this whole book; edits made here are lost then. This entry is off: it is never sent.`.replace(/\s+\./, '.'),
     }, null, 2);
     return { uid: 0, ...structuredClone(TEMPLATE), comment: `${LOREBOOK_TAG} ${name}`, content, selective: false, addMemo: true, disable: true, displayIndex: 0 };
