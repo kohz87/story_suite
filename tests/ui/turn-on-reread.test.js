@@ -61,7 +61,7 @@ test('the ✦ sheet offers "Re-read this reply" and it re-reads the head reply, 
   const h = host(chat, rereads);
   const off = turnOn({ doc, base: 'x/', ctx: () => h.ctx, StoryBlock: h.StoryBlock });
   run();
-  barOf(doc, 1).querySelector('.xbt.ss').click();
+  barOf(doc, 1).querySelector('.ss-star').click();
   const reread = doc.querySelectorAll('.trsheet button').find(b => b.textContent === 'Re-read this reply');
   assert.ok(reread, 'the sheet has a Re-read button');
   assert.equal(doc.querySelector('.trsheet').parentNode.className, 'mes_block', 'the sheet sits in the message body, not in the button row (owner, 20 Nov: it was squeezed beside the icons)');

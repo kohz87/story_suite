@@ -53,19 +53,19 @@ test('the ✦ button is on the head reply\'s bar when the reader\'s message is l
   const h = host(chat);
   const off = turnOn({ doc, base: 'x/', ctx: () => h.ctx, StoryBlock: h.StoryBlock });
   run();
-  assert.equal(barOf(doc, 1).querySelectorAll('.xbt.ss').length, 1, 'on the reply, not on the reader\'s last message');
-  assert.equal(barOf(doc, 2).querySelectorAll('.xbt.ss').length, 0);
+  assert.equal(barOf(doc, 1).querySelectorAll('.ss-star').length, 1, 'on the reply, not on the reader\'s last message');
+  assert.equal(barOf(doc, 2).querySelectorAll('.ss-star').length, 0);
   // A new reply arrives after a swipe elsewhere: the head moves, and a swipe event alone moves the button.
   chat.push({ is_user: false, mes: 'Next' });
   addMessage(doc, 3);
   h.emitSt('message_swiped');
   run();
-  assert.equal(barOf(doc, 3).querySelectorAll('.xbt.ss').length, 1, 'a swipe event moves it to the head reply');
-  assert.equal(barOf(doc, 1).querySelectorAll('.xbt.ss').length, 0);
+  assert.equal(barOf(doc, 3).querySelectorAll('.ss-star').length, 1, 'a swipe event moves it to the head reply');
+  assert.equal(barOf(doc, 1).querySelectorAll('.ss-star').length, 0);
   chat.pop();
   doc.querySelector('#chat .mes[mesid="3"]').remove();
   h.emitSt('message_deleted');
   run();
-  assert.equal(doc.querySelectorAll('.xbt.ss').length, 1, 'a delete leaves exactly one button');
+  assert.equal(doc.querySelectorAll('.ss-star').length, 1, 'a delete leaves exactly one button');
   off();
 });

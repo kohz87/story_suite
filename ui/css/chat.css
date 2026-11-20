@@ -72,10 +72,8 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrc:last-child{margin-bottom:34px}
 .rg2 svg{position:absolute;inset:0;width:100%;height:100%}
 .rg2 .ph{position:absolute;inset:6px;border-radius:50%;background:#555 center 18%/cover;display:grid;place-items:center;font-weight:700;font-size:1.05em;color:var(--SmartThemeBodyColor)}
 .pc2 b{font-weight:700;font-size:.95em;line-height:1.2;max-width:100%;overflow:hidden;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--SmartThemeBodyColor)} /* (a long name takes two lines: "Watch-Captain / Edda Rorke") */
-/* The ✦ button in a reply's action row and the "This reply" sheet (mock v7: .xbt, .trsheet, .tra). */
-.xbt{display:grid;place-items:center;min-width:32px;min-height:32px;padding:0 6px;border:0;border-radius:7px;background:transparent;color:var(--SmartThemeEmColor);font:inherit;font-size:15px;cursor:pointer}
-.xbt:hover,.xbt.ss{color:var(--SmartThemeBodyColor);background:var(--SmartThemeBotMesBlurTintColor)}
-.xbt.ss{outline:1px solid var(--SmartThemeBorderColor)}
+/* The ✦ button in a reply's action row (a SillyTavern .mes_button) and the "This reply" sheet (mock v7: .trsheet, .tra). */
+.extraMesButtons>.ss-star{font-size:1em;line-height:1;font-weight:700} /* the ✦ is one of SillyTavern's own message buttons (.mes_button: its size and fade); only the glyph is set */
 .trsheet{margin:6px 0;padding:8px 10px;border:1px solid var(--SmartThemeBorderColor);border-radius:10px;font-size:.88em;display:flex;flex-direction:column;gap:4px}
 .trsheet ul{margin:0;padding-left:18px}
 .trsheet small{color:var(--SmartThemeEmColor)}
@@ -98,7 +96,6 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrc:last-child{margin-bottom:34px}
 .sscd .ssbtn.pri{background:color-mix(in srgb,var(--SmartThemeBodyColor) 14%,transparent);border-color:var(--SmartThemeBodyColor);font-weight:700}
 .sscd .ssbtn:disabled{opacity:.6;cursor:default}
 .sscd-why{font-size:.92em}
-@media (max-width:900px){.xbt{min-width:44px;min-height:44px}}
 /* A narrow reply column (a phone, or SillyTavern's chat column at half of a laptop screen): line 1 flows under the corner button, the bars shorten so HP · MP · SP keep one row, the tabs are 44 px high and 84 px least. */
 @container (max-width:599px){
  .ssrc-l1{padding:6px 10px}

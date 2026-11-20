@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- The ✦ button on a reply is now one of SillyTavern's own small message buttons (same size and fade), so it no longer pushes the row taller, and its click always opens the sheet.
 - Changing or replacing your persona's picture in SillyTavern now updates the suite (Party, reply card, drawer) at once.
 - Journal › Closed: each quest's Remove sits on the right under its outcome, no longer stretched across the row over the summary.
 - Party › Skills: each skill shows its practice toward the next rank ("34/100", or Max), and its sheet says how far to the next rank and any level it still needs.
