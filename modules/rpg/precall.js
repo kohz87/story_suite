@@ -7,6 +7,7 @@ import { DICE, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, checksOn, practiceO
 import { readSheet } from './read.js';
 import { dicePayload } from './checks/dice.js';
 import { membersOf } from './practice.js';
+import { sheetWithGear } from './gear-parts/stat-bonus.js';
 import { knownFoeAction } from './board/action-gate.js';
 import { readRecord } from '../../core/persist.js';
 import { priorPayload } from '../../core/interaction/send.js';
@@ -136,7 +137,7 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
         const values = readSettings(view, moduleId);
         const diceReason = () => type === 'normal' && noDice.peek() ? 'the reader chose to send without the RPG'
             : !sheet.characters.length ? 'there is no active character' : !checksOn(values) ? 'Story checks are off' : null;
-        const makeDice = () => ({ type: DICE, payload: dicePayload(membersOf(view, sheet), values) });
+        const makeDice = () => ({ type: DICE, payload: dicePayload(membersOf(view, sheetWithGear(sheet, (name, args) => view.query?.(name, args))), values) });
         let meta = null;
         try { meta = metadata(); } catch { /* no fight without chat metadata */ }
         // A fight the reader staged and sent, or one an earlier try of this reply carried (a regenerate, a swipe): the core settles it as the reply's preludes (interaction/hooks.js);

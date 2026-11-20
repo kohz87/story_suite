@@ -79,7 +79,7 @@ export function v1View(state, setup, steps, record, paid = null) {
     return {
         state: ended ? 'end' : steps.length ? 'after' : 'choose', title: 'Fight', subtitle: null, exchange: Math.max(1, ended || steps.length ? played || played0 : played + 1),
         foeGroups, party, actor: actors[0] ? { id: actors[0].id, stance: actors[0].stance, groups: actors[0].groups } : null, actors,
-        order: [...sides[first], ...sides[first === 'party' ? 'foes' : 'party']], bonuses: null, log: logOfV1(record), narratorTold: null,
+        order: [...sides[first], ...sides[first === 'party' ? 'foes' : 'party']], bonuses: null, log: logOfV1(record, setup.gearStats === 1), narratorTold: null,
         end: ended ? { outcome: END[record.result] ?? 'won', xpEach: sameXp(paid), exchanges: whole(steps.length || record.rounds.length), members: party.map(hero => ({ id: hero.id, hp: hero.hp, hpMax: hero.hpMax, xp: xpOfHero(paid, hero.name), practice: practiceOfHero(paid, hero.name) })) } : null,
     };
 }
