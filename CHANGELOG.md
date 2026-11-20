@@ -4,7 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
-- A person's page: a tap on the portrait shows it full size again (Profile › still opens the profile).
+- A person's page: a tap on the portrait fills the portrait column with it (the top part on a phone); ✕ or a tap closes it, and Profile › still opens the profile.
 
 ## 0.1.4 — 20 Nov 2026
 

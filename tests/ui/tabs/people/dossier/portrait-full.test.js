@@ -5,9 +5,9 @@ import { feelingsHero } from '../../../../../ui/tabs/people/dossier/feelings.js'
 
 const person = (portrait) => ({ name: 'Pella', life: 'alive', meters: { trust: 3, affection: 1, desire: 0, tension: 0 }, portrait });
 
-test('a tap on a portrait shows it full size over the dossier; a tap or Close takes it away; Profile › still opens the profile', () => {
+test('a tap on a portrait fills the portrait column with it; a tap or Close takes it away; Profile › still opens the profile', () => {
   installFakeDom();
-  const dov = document.createElement('div'); dov.className = 'dov'; document.body.appendChild(dov);
+  const dov = document.createElement('section'); dov.className = 'dhero'; document.body.appendChild(dov);
   let profile = 0;
   const hero = feelingsHero(person('/user/images/pella.webp'), { onProfile: () => { profile += 1; } });
   dov.appendChild(hero);

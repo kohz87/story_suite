@@ -10,14 +10,14 @@ const CORNERS = Object.freeze(['c-tr', 'c-br', 'c-bl', 'c-tl']);
 const cap = text => text[0].toUpperCase() + text.slice(1);
 const signed = n => (n > 0 ? `+${n}` : String(n));
 
-// The portrait full size over the dossier (the pre-merge dossier's lightbox): a tap anywhere, Close or Escape takes it away.
+// The portrait full size, filling the portrait column (the top part on a phone) while the cards beside it stay: a tap on it, ✕ or Escape takes it away.
 function openFull(from, d) {
-  const host = from.closest('.dov') ?? from.ownerDocument.body;
+  const host = from.closest('.dhero') ?? from.closest('.dov') ?? from.ownerDocument.body;
   host.querySelector(':scope > .dlbox')?.remove();
   const close = () => { box.remove(); from.focus?.(); };
   // (Escape from inside it: the focus sits on Close while it is open)
   const onKey = e => { if (e.key === 'Escape') { e.preventDefault?.(); e.stopPropagation?.(); close(); } };
-  const shut = h('button', { type: 'button', class: 'btn2 dlbox-x', onClick: close }, 'Close');
+  const shut = h('button', { type: 'button', class: 'dlbox-x', 'aria-label': 'Close the portrait', onClick: close }, '✕');
   const box = h('div', { class: 'dlbox', role: 'dialog', 'aria-label': `${d.name}, portrait`, onKeydown: onKey, onClick: e => { if (e.target !== shut) close(); } },
     h('img', { src: d.portrait, alt: `${d.name}` }), shut);
   host.appendChild(box);
