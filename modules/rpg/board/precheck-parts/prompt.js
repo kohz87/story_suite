@@ -21,7 +21,7 @@ function partyLine(sheet, roster) {
 // The lines a Combat Rules v1 sheet adds (a v1 sheet is reachable only after the chooser switch; the wording is the owner's to approve first).
 const V1_RULES = Object.freeze([
     '- tier is required, one of: mob, minion, standard, elite, boss, apex. A rat or a beggar is a mob or a minion, a trained guard or a bandit is standard, a veteran, officer or champion is elite, a named leader is a boss, a dragon or a titan is an apex. When unsure, standard.',
-    '- An even fight is at most 4 standard foes; a group of elites is at most 3. Give a bigger crowd as several groups, or leave the extra foes out.',
+    '- Give every foe the reader names, at the count the message gives: code keeps the fight even (foes past 4 standard or 3 elite come in a tier lower).',
 ]);
 
 /**

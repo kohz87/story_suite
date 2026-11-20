@@ -14,9 +14,11 @@ test('a crowd of mobs past a slot splits into groups of six, each named apart, a
   assert.equal(huge.length, 6, 'never more groups than the Foes block has slots');
 });
 
-test('the standard and elite size rules are unchanged', () => {
-  assert.deepEqual(sizeGroups([{ name: 'bandits', count: 7, level: 3, tier: 'standard' }]).map(g => g.count), [4]);
-  assert.deepEqual(sizeGroups([{ name: 'knights', count: 5, level: 9, tier: 'elite' }]).map(g => g.count), [3]);
+test('foes past the size rule come in a tier lower, never dropped (owner, 20 Nov: a sounder of 7 boars came in as 4)', () => {
+  assert.deepEqual(sizeGroups([{ name: 'boars', count: 7, level: 2, tier: 'standard' }]).map(g => [g.name, g.count, g.tier]), [['boars', 4, 'standard'], ['boars (lesser)', 3, 'minion']]);
+  assert.deepEqual(sizeGroups([{ name: 'knights', count: 5, level: 9, tier: 'elite' }]).map(g => [g.name, g.count, g.tier]), [['knights', 3, 'elite'], ['knights (lesser)', 2, 'standard']]);
+  // (a second standard group past the fight's 4 comes in whole as minions under its own name)
+  assert.deepEqual(sizeGroups([{ name: 'bandits', count: 4, tier: 'standard' }, { name: 'archers', count: 2, tier: 'standard' }]).map(g => [g.name, g.count, g.tier]), [['bandits', 4, 'standard'], ['archers', 2, 'minion']]);
 });
 
 test('XP: mobs and minions pay their own tier factor, so a crowd is worth the fight', () => {
