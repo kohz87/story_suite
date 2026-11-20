@@ -19,11 +19,11 @@ export function foeGroupsOf(record) {
     return [...groups.values()].sort((a, b) => a.slot - b.slot);
 }
 
-/** One hero's XP for a won fight on the old per-group rule (a fight opened before 20 Nov): per group (15 + 2 per foe after the first) × max(1, ceil(level / 10)) × the level gap per cent (10 a level, 0..200) × the tier's XP factor (XP_TIER); a crowd split over slots counts as one group (crowdsOf); summed, rounded down, held to 1..60. With `rule` 'each' (a fight opened from 20 Nov, its setup's `xpRule`): 15 for EACH foe × the same band, gap and tier factor, summed, rounded down, held to 1..100 (per-foe sums do not depend on how a crowd was split, so crowdsOf is not used). */
+/** One hero's XP for a won fight on the old per-group rule (a fight opened before 20 Nov): per group (15 + 2 per foe after the first) × max(1, ceil(level / 10)) × the level gap per cent (10 a level, 0..200) × the tier's XP factor (XP_TIER); a crowd split over slots counts as one group (crowdsOf); summed, rounded down, held to 1..60. With `rule` 'each' (a fight opened 20 Nov afternoon, its setup's `xpRule`): 15 for EACH foe × the same band, gap and tier factor, summed, rounded down, held to 1..100 (per-foe sums do not depend on how a crowd was split, so crowdsOf is not used). With 'each2' (from 20 Nov evening, owner: a mob pays a quarter, a minion a half): the same, with the tier factor the foe's own toughness (TIERS mult: mob 0.25, minion 0.5). */
 export function winXp(groups, level, rule = '') {
-    const each = rule === 'each', gapOf = foe => Math.max(0, Math.min(FIGHT_XP.maxPercent, 100 + FIGHT_XP.gapPercent * (foe - level)));
+    const each = rule === 'each' || rule === 'each2', tough = rule === 'each2', gapOf = foe => Math.max(0, Math.min(FIGHT_XP.maxPercent, 100 + FIGHT_XP.gapPercent * (foe - level)));
     const total = (each ? groups : crowdsOf(groups)).reduce((sum, group) => sum + (each ? FIGHT_XP.eachBase * group.count : FIGHT_XP.markedFirst + FIGHT_XP.markedMore * (group.count - 1))
-        * Math.max(1, Math.ceil(group.level / FIGHT_XP.perLevels)) * gapOf(group.level) * (XP_TIER[group.tier] ?? TIERS[group.tier].mult), 0), xp = Math.floor(total / 100);
+        * Math.max(1, Math.ceil(group.level / FIGHT_XP.perLevels)) * gapOf(group.level) * (tough ? TIERS[group.tier].mult : XP_TIER[group.tier] ?? TIERS[group.tier].mult), 0), xp = Math.floor(total / 100);
     return xp > 0 ? Math.max(FIGHT_XP.min, Math.min(each ? FIGHT_XP.eachMax : FIGHT_XP.max, xp)) : 0;
 }
 

@@ -39,3 +39,13 @@ test('paidOf follows the setup\'s mark: marked setups pay 15 each, unmarked ones
   const next = V1.next({ id: 'x', v1: 1, xpRule: 'each', offset: 0 }, { exchanges: 2, order: {}, rotation: 0, foes: [] });
   assert.equal(next.xpRule, 'each', 'the mark carries to the next reply\'s setup');
 });
+
+test("'each2' (every fight opened from 20 Nov evening): 15 per foe at the tier's own toughness, mob a quarter, minion a half; 'each' keeps that afternoon's mob 0.5 / minion 0.75", () => {
+    const g = (count, level, tier) => [{ slot: 1, count, level, tier }];
+    assert.equal(winXp(g(6, 1, 'mob'), 1, 'each2'), 22);
+    assert.equal(winXp(g(12, 1, 'mob'), 1, 'each2'), 45);
+    assert.equal(winXp(g(4, 1, 'minion'), 1, 'each2'), 30);
+    assert.equal(winXp(g(2, 2, 'standard'), 1, 'each2'), 33);
+    assert.equal(winXp(g(3, 1, 'elite'), 1, 'each2'), 67);
+    assert.equal(winXp(g(6, 1, 'mob'), 1, 'each'), 45, 'a fight marked that afternoon pays as it did');
+});

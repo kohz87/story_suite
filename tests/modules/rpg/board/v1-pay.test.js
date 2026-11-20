@@ -20,8 +20,8 @@ test('a won fight pays the tier\'s XP, once, and practice per use; a different t
     const restore = seedCrypto(5);
     const paid = {};
     try {
-        // (Astra is level 5: a level 5 standard foe pays 15, a mob half of that, an elite one and a half times)
-        for (const [tier, xp] of [['standard', 15], ['mob', 7], ['elite', 22]]) {
+        // (Astra is level 5: a level 5 standard foe pays 15, a mob a quarter of that (owner, 20 Nov evening: the tier's own toughness), an elite one and a half times)
+        for (const [tier, xp] of [['standard', 15], ['mob', 3], ['elite', 22]]) {
             const { host } = await won({ count: 1, level: 5, tier });
             const got = settled(host);
             assert.equal(got.stop, 'won', tier);

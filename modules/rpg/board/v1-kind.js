@@ -69,8 +69,8 @@ const mapped = (state, setup, played) => fightResultV1(setup, played.record, { s
 function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.v1 === true && foe.filled).map(foe => foe.slot);
     if (!sheet.characters.some(standingHero) || !groups.length) return { error: 'There is no fight to open.' };
-    // (`fleeIdle`: a member who picked nothing pays no stance in an exchange where the party flees and gets away, combat/exchange.js; a fight opened before the mark has none; `xpRule: 'each'`: the XP of 15 for each foe, 20 Nov; a setup without it pays per group as before)
-    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, xpRule: 'each', groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }),
+    // (`fleeIdle`: a member who picked nothing pays no stance in an exchange where the party flees and gets away, combat/exchange.js; a fight opened before the mark has none; `xpRule: 'each2'`: the XP of 15 for each foe at the tier's own factor, 20 Nov evening; 'each' (that afternoon) keeps mob 0.5 / minion 0.75; a setup without one pays per group as before)
+    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, xpRule: 'each2', groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }),
         ...(Array.isArray(args.resumed?.foes) && args.resumed.foes.length ? { resumed: true, carried: { foes: structuredClone(args.resumed.foes) } } : {}) };
     try { playedOf(state, setup, [], portDice(seed, 0)); } catch (error) { return { error: error.message }; }
     return { setup, seed };
