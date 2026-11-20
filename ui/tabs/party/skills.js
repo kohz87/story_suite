@@ -1,4 +1,4 @@
-// Builds the Skills list (glyph, kind line, rank pill, seven-step mastery bar) and the one-skill sheet.
+// Builds the Skills list (glyph, kind line, rank pill, seven-step mastery bar, practice to the next rank) and the one-skill sheet.
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { openSheet } from './slot-picker.js';
@@ -20,6 +20,10 @@ function costText(s) {
 const kindText = s => (s.kind === 'stance' && text(s.stance) ? `${text(s.stance)} stance` : text(KIND_LABEL[s.kind] ?? s.kind));
 const factsText = s => [text(s.stat), costText(s)].filter(Boolean).join(' · ');
 const rowText = s => text(s.line) || [kindText(s), text(s.stat), costText(s)].filter(Boolean).join(' · ');
+
+// The practice toward the next rank: "34/100" (this rank's share), "Max" at the top; the sheet's line names the rank and a level it still needs.
+const toNext = s => (s.next ? `${Math.max(0, (s.practice ?? 0) - s.next.from)}/${s.next.at - s.next.from}` : Number.isFinite(s.practice) ? 'Max' : '');
+const nextLine = s => (s.next ? `${s.practice ?? 0} of ${s.next.at} to ${s.next.name}${s.next.levelOk ? '' : ` (needs level ${s.next.minLevel})`}` : 'Highest rank');
 
 function masteryBar(mastery, extra) {
   return h(
@@ -43,7 +47,8 @@ export function skillSheet(member, skill, ctx = {}) {
       h('div', null, h('div', { class: 'ps-n ps-n2' }, kindText(skill)), h('div', { class: 'ps-s' }, factsText(skill)))),
     text(skill.about) ? h('p', { class: 'ps-p' }, text(skill.about)) : null,
     text(skill.rank) && Number.isFinite(skill.mastery)
-      ? h('dl', { class: 'ps-kv' }, h('dt', null, 'Rank'), h('dd', null, `${skill.rank}, mastery ${skill.mastery} of 7 `, masteryBar(skill.mastery, 'inline')))
+      ? h('dl', { class: 'ps-kv' }, h('dt', null, 'Rank'), h('dd', null, `${skill.rank}, mastery ${skill.mastery} of 7 `, masteryBar(skill.mastery, 'inline')),
+        Number.isFinite(skill.practice) ? [h('dt', null, 'Practice'), h('dd', null, nextLine(skill))] : null)
       : null,
     can(ctx, 'rpg.skill.edit') ? h('div', { class: 'ps-row' }, edit) : null,
   ].filter(Boolean));
@@ -56,7 +61,7 @@ function skillRow(member, skill, ctx) {
     { type: 'button', class: ['sk', skill.kind === 'stance' ? 'stance' : null], dataset: { skill: skill.name }, onClick: () => skillSheet(member, skill, ctx) },
     h('span', { class: 'ti' }, glyph(glyphOf(skill))),
     h('span', null, h('b', null, skill.name), h('small', null, rowText(skill))),
-    h('span', { class: 'skr' }, h('span', { class: 'rk' }, text(skill.rank)), masteryBar(skill.mastery)),
+    h('span', { class: 'skr' }, h('span', { class: 'rk' }, text(skill.rank)), masteryBar(skill.mastery), toNext(skill) ? h('small', { class: 'skp', title: nextLine(skill) }, toNext(skill)) : null),
   );
 }
 

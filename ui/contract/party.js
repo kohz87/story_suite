@@ -38,6 +38,9 @@ const SKILL = {
   cost: T.NUMBER,
   rank: { $enum: RANKS },
   mastery: T.NUMBER,
+  // The practice (0..600) and the next rank ({ name, at, from, minLevel, levelOk }, null at the top): the sheet's progress to the next mastery.
+  practice: { $optional: T.NUMBER },
+  next: { $optional: { $nullable: { name: T.STRING, at: T.NUMBER, from: T.NUMBER, minLevel: T.NUMBER, levelOk: T.BOOLEAN } } },
   // Optional ready-made sheet line; the selector leaves it out until there is a data source (owner question), so the line is built from kind, stat and cost.
   line: { $optional: { $nullable: T.STRING } },
   // A stance skill's stance (Defence, Speed or Focus): the kind line reads "Speed stance".

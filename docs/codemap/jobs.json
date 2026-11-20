@@ -444,6 +444,7 @@
   "tests/ui/tabs/journal/needs-list.test.js": "Tests the Needs you list on the Journal, its rows, and the red count on the Journal tab (shown, hidden at 0).",
   "tests/ui/tabs/party/gear-portrait.test.js": "Tests the Party slot sheet's Stats row and Change, and the paper-doll portrait: the people row or persona avatar, the initial as the fallback.",
   "tests/ui/tabs/party/skill-sheet-no-null.test.js": "Tests that the Party skill sheet prints no \"null\" where the Edit skill button is left out.",
+  "tests/ui/tabs/party/skills-progress.test.js": "Tests that each skill row shows its practice toward the next rank, with the level it still needs, and Max at the top.",
   "tests/ui/tabs/people/dossier/portrait-full.test.js": "Tests that a dossier portrait opens full size and closes again, while Profile › still opens the profile.",
   "tests/ui/tabs/story/tracker-edit.test.js": "Tests for the tracker Edit sheet and the template sheet.",
   "tests/ui/tabs/world/place-where.test.js": "Tests the World place sheet's Where row: how far and which way a district lies from its town's centre.",

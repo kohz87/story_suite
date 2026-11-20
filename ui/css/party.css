@@ -125,3 +125,5 @@ label.ps-opt{cursor:pointer}
 .ps-opt:has(input:disabled){cursor:default}.ps-opt:has(input:disabled) b{color:var(--su-muted)}
 .party-tab .pty-you{margin:0;padding:6px 2px 0;font:600 12px/1.4 var(--su-font);color:var(--su-muted)}
 .party-tab .pty-you b{color:var(--su-soft);font-weight:800}
+/* a skill's practice toward its next rank, under its mastery bar */
+.skr .skp{display:block;font-size:11px;line-height:1.2;color:var(--su-muted);text-align:right;font-variant-numeric:tabular-nums}
