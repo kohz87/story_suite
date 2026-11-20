@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Gear now wears in board fights: a decisive hit taken wears your body armour (else shield), a decisive miss wears your weapon, one step, and the narrator is told (new fights).
 - The ✦ button on a reply is now one of SillyTavern's own small message buttons (same size and fade), so it no longer pushes the row taller, and its click always opens the sheet.
 - Changing or replacing your persona's picture in SillyTavern now updates the suite (Party, reply card, drawer) at once.
 - Journal › Closed: each quest's Remove sits on the right under its outcome, no longer stretched across the row over the summary.
