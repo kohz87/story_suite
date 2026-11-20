@@ -16,9 +16,10 @@ const DEATH = 'Death: when the story shows that a named person died (not "almost
 const LEVEL = 'level: write it only when the story states a person\'s level outright, as a number (e.g. ~ npc Mira | level: 5); code keeps it and a line never lowers it.';
 const STORY_FACTS = 'abilities and keepsakes: when this reply shows a named person learn something new, write ~ npc Name | learns: <ability> — <one line> (e.g. ~ npc Mira | learns: Shield wall — drilled with the guard). When this reply shows them gain or lose something they keep, write ~ npc Name | keepsake: + <name> — <one line> or ~ npc Name | keepsake: - <name>. Write one only when it happens in this reply; code ignores one the person already has.';
 const AKA = 'Other names: when the story calls a listed person by another name (a nickname, a title they go by), write ~ npc Name | aka: the other name, once; after that either name finds them.';
-const MOOD_WORD = 'Write mood as one plain word (mood: wary). Never write numbers for it.';
+// (owner-approved 20 Nov, MOOD: moods were set once at creation and never updated; sent on every one-pass reply after GOAL_STATUS)
+const MOOD_WORD = 'mood is one plain word for how someone feels now (~ npc Pella Breck | mood: alarmed). Write it when it changed in this reply, for someone who appears in it. Never restate an unchanged mood and never write numbers.';
 
 // `levelOn`: the RPG feature is on (the Level sentence is sent only then). The abilities and keepsakes sentence is always sent.
 export function buildLinesRules({ moodWord = false, levelOn = false } = {}) {
-    return [HEADER, GOAL_STATUS, WHERE, NOT_WRITTEN, ...(levelOn ? [LEVEL] : []), STORY_FACTS, NEW_PEOPLE, CHANGED_ONLY, MEMORIES, DEATH, AKA, ...(moodWord ? [MOOD_WORD] : [])].join('\n');
+    return [HEADER, GOAL_STATUS, ...(moodWord ? [MOOD_WORD] : []), WHERE, NOT_WRITTEN, ...(levelOn ? [LEVEL] : []), STORY_FACTS, NEW_PEOPLE, CHANGED_ONLY, MEMORIES, DEATH, AKA].join('\n');
 }

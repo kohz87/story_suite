@@ -75,7 +75,7 @@ export function createInjectionPart(rt, deps) {
         // the story events of present people's locked notes (with the context); the list is kept for the reply that carries it.
         const noteOptions = hostedNotePromptOptions(state, settings);
         const built = adapterMeters()
-            ? buildLinesParts({ ...noteOptions, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
+            ? buildLinesParts({ ...noteOptions, moodWord: true, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
             : { rules: '', context: '' };
         return { rules: built.rules, context: armed ? built.context : '', noteOptions };
     }

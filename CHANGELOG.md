@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- NPC State keeps moods current: the narrator writes a person's new mood when it changes in a reply, and the quiet catch-up refresh re-checks each person's mood, so a mood no longer stays as it was first written.
 - A person's page: the With card and page show who you are to them again (NPC State's relationship summary), above the last change.
 - Gear now wears in board fights: a decisive hit taken wears your body armour (else shield), a decisive miss wears your weapon, one step, and the narrator is told (new fights).
 - The ✦ button on a reply is now one of SillyTavern's own small message buttons (same size and fade), so it no longer pushes the row taller, and its click always opens the sheet.
