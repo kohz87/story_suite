@@ -66,7 +66,7 @@ test('the adapter asks for the picture sync when the step has nothing to do, onl
     assert.equal(plain.synced.length, 1);
 });
 
-test('runtime: a cast dossier made without its picture gets it when Story Block has it; a reader\'s own or removed picture, a dossier a scan made and a second pass are left alone; a swipe keeps it exact', () => {
+test('runtime: a cast dossier made without its picture gets it when Story Block has it; a reader\'s own or removed picture, a dossier a scan made before she was met is linked and filled like the rest, and a second pass is left alone; a swipe keeps it exact', () => {
     const png1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
     const png2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
     const mine = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
@@ -199,7 +199,7 @@ test('runtime: a cast dossier made without its picture gets it when Story Block 
     assert.equal(hosted.afterMeeting.Tansy.has, true, 'Tansy was made with her picture');
     assert.deepEqual(hosted.afterMeeting.Fenna, none, 'Fenna was made while her picture was missing');
     assert.deepEqual(hosted.afterMeeting.Maro, none);
-    assert.deepEqual(hosted.afterMeeting.Yunyun, { ...none, cast: false }, 'a dossier a scan made is not a cast dossier');
+    assert.deepEqual(hosted.afterMeeting.Yunyun, none, 'a dossier a scan made before she was met is linked to the cast (castFrom), still without a picture');
     assert.equal(hosted.uploadsAtMeeting, 1);
     // The reader's own and removed pictures.
     assert.equal(hosted.removeTansy, true);
@@ -215,7 +215,8 @@ test('runtime: a cast dossier made without its picture gets it when Story Block 
     assert.equal(hosted.afterPictures.Orrin.sourceName, 'mine.png');
     assert.equal(hosted.afterPictures.Orrin.path, null);
     assert.deepEqual(hosted.afterPictures.Tansy, { ...none, removed: true }, 'Tansy\'s removed picture is not put back');
-    assert.deepEqual(hosted.afterPictures.Yunyun, { ...none, cast: false }, 'Yunyun\'s dossier is not a cast dossier: no picture, though the pack has one for her');
+    assert.match(hosted.afterPictures.Yunyun.path, /^\/user\/files\/npc-state-delta-portrait-[a-f0-9]{40}\.png$/, 'Yunyun\'s scan-made dossier was linked at the meeting and gets the pack picture now');
+    assert.equal(hosted.afterPictures.Yunyun.cast, true);
     assert.equal(hosted.fillUploads.length, 2, 'the first picture was written at the meeting; Fenna\'s is the second file');
     assert.equal(hosted.sidecarHoldsImage, false, 'the chat\'s saved state holds none of the pack\'s pictures (the reader\'s own stays as it always was)');
     assert.equal(hosted.countAfterFill, 5, 'no dossier was made or lost');
