@@ -14,6 +14,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Fights pay more XP for mobs and minions (their own XP factor: mob 0.5, minion 0.75), so six rats at your level pay 12 XP instead of 6.
 - A crowd that was split into several groups pays the same XP as one group of its full size, so twelve rats in two slots pay as twelve rats.
 - A person's page: a tap on the portrait fills the portrait column with it (the top part on a phone); ✕ or a tap closes it, and Profile › still opens the profile.
+- A world person whose page was made before the story met them (the narrator named them first) now gets the pack's picture and its pack link once they are met, instead of staying without a portrait.
 
 ## 0.1.4 — 20 Nov 2026
 

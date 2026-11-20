@@ -232,9 +232,9 @@ test('runtime: removing the cast dossier is final; a dossier a scan made earlier
     const hosted = scenarioOutput(runHostScenario('cast-dossier-standing', prelude, scenario));
     assert.deepEqual(hosted.first.names, ['Fenna', 'Yunyun'], 'one new dossier: the standing one is not made again');
     assert.equal(hosted.first.yunyun, 'Shy and loud at once.', 'a dossier that was already there keeps its words (the pack never overwrites a dossier)');
-    assert.equal(hosted.first.yunyunCast, false);
+    assert.equal(hosted.first.yunyunCast, true, 'the dossier a scan made is linked to her pack entry (castFrom) once she is met, its words untouched');
     assert.equal(hosted.first.fennaCast, true);
-    assert.equal(hosted.views.length, 1);
+    assert.equal(hosted.views.length, 2, 'both are cast dossiers now (Yunyun by the link), so each has its pack view');
     assert.deepEqual(hosted.afterDelete, ['Yunyun'], 'removed by the reader: not made again');
 
     const alone = scenarioOutput(runHostScenario('cast-dossier-none', async () => {
