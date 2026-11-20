@@ -2,6 +2,7 @@
 import { h } from '../../../kit/dom.js';
 import { feelingsRing, FEELING_KEYS } from '../../../kit/ring.js';
 import { portraitDisc } from '../person-card.js';
+import { isSafePortraitUrl } from '../../../kit/safe-url.js';
 import { pageSection } from '../../../kit/page.js';
 import { eventRow } from './reply-words.js';
 
@@ -9,11 +10,29 @@ const CORNERS = Object.freeze(['c-tr', 'c-br', 'c-bl', 'c-tl']);
 const cap = text => text[0].toUpperCase() + text.slice(1);
 const signed = n => (n > 0 ? `+${n}` : String(n));
 
-/** Builds the big portrait with the ring, the four corner numbers and the Profile › button; the dead get the portrait only. */
+// The portrait full size over the dossier (the pre-merge dossier's lightbox): a tap anywhere, Close or Escape takes it away.
+function openFull(from, d) {
+  const host = from.closest('.dov') ?? from.ownerDocument.body;
+  host.querySelector(':scope > .dlbox')?.remove();
+  const close = () => { box.remove(); from.focus?.(); };
+  // (Escape from inside it: the focus sits on Close while it is open)
+  const onKey = e => { if (e.key === 'Escape') { e.preventDefault?.(); e.stopPropagation?.(); close(); } };
+  const shut = h('button', { type: 'button', class: 'btn2 dlbox-x', onClick: close }, 'Close');
+  const box = h('div', { class: 'dlbox', role: 'dialog', 'aria-label': `${d.name}, portrait`, onKeydown: onKey, onClick: e => { if (e.target !== shut) close(); } },
+    h('img', { src: d.portrait, alt: `${d.name}` }), shut);
+  host.appendChild(box);
+  shut.focus?.();
+}
+
+/** Builds the big portrait with the ring, the four corner numbers and the Profile › button; a tap on a portrait shows it full size (with none it opens the Profile); the dead get the portrait only. */
 export function feelingsHero(d, { onProfile } = {}) {
   const dead = d.life !== 'alive';
-  const disc = h('button', { type: 'button', class: 'bigph', 'aria-label': 'Profile', dataset: { act: 'profile' }, onClick: () => onProfile?.() },
-    portraitDisc(d, 'ph'), h('span', { class: 'prof' }, 'Profile ›'));
+  const full = isSafePortraitUrl(d.portrait);
+  const prof = h('span', { class: 'prof', role: 'button', tabindex: '0', dataset: { act: 'profile' }, onClick: e => { e.stopPropagation?.(); onProfile?.(); },
+    onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault?.(); e.stopPropagation?.(); onProfile?.(); } } }, 'Profile ›');
+  const disc = h('button', { type: 'button', class: ['bigph', full ? 'zoom' : null], 'aria-label': full ? `${d.name}: view the portrait full size` : 'Profile', dataset: { act: full ? 'portrait' : 'profile' },
+    onClick: e => (full ? openFull(e.currentTarget ?? disc, d) : onProfile?.()) },
+    portraitDisc(d, 'ph'), prof);
   return h('div', { class: ['bigring', dead ? 'dead' : null] },
     dead ? null : feelingsRing(d.meters, { width: 2.6, pad: 2, ticks: true }),
     disc,

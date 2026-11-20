@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A person's page: a tap on the portrait shows it full size again (Profile › still opens the profile).
+
 ## 0.1.4 — 20 Nov 2026
 
 Every reply gets its own card, the suite floats over the chat in one layout at every width, the Now tab is gone, and a person's page is redone in the shape the old NPC State dossier had. World packs make their own lorebook, Ersveil gets portraits for its whole cast, and the fight board starts from a typed attack again.
