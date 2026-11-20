@@ -1,8 +1,9 @@
 // Story Director v2, part **cast**: the narrator's line of the world's own people at the scene's place (LA-2).
 //
 // A format 4 world cast entry (a `figure` or a `companion`) not yet met who is at the scene's place, or at its parent place, is named to the
-// narrator with their role and look, so a scene that needs a watch-captain uses the world's own (Edda Rorke) instead of inventing a double. Only
-// the public face is told (name, role, look): never a secret, a history or anything gated. The line is prompt-only (never a receipt, card or
+// narrator with their role, look, manner and voice, so a scene that needs a watch-captain uses the world's own (Edda Rorke) instead of inventing a
+// double, and someone the narration brings in speaks as their entry says from the first line (owner, 20 Nov: a shy healer came in brisk). Only the
+// public face is told (name, role, look, the start of their personality and voice): never a secret, a history or anything gated. The line is prompt-only (never a receipt, card or
 // toast), and the narration uses a name only after someone in the story says it. Someone this reply's meeting brings in is named by the meeting's
 // cue (cue.js), and anyone met is known to the story, so only the unmet are here. Pure: the line is read from the state and the packs each reply,
 // so a swipe, a rewind or a reload sends the same line.
@@ -11,10 +12,12 @@ import { cutWords, isMet } from '../domain.js';
 import { isPersona } from '../../../time/tracker/initiative.js';
 import { movable } from '../world-parts/movable.js';
 
-/** At most this many people on the line, and this much of each one's role and look. */
+/** At most this many people on the line, and this much of each one's role, look, manner and voice. */
 export const HERE_MAX = 4;
 const ROLE_MAX = 60;
 const LOOK_MAX = 90;
+const MANNER_MAX = 70;
+const VOICE_MAX = 90;
 const KINDS = new Set(['figure', 'companion']);
 
 // One instruction, worded for any persona name (no verb agrees with {{user}}); the list follows it.
@@ -58,7 +61,10 @@ export function hereLine(slice, frame, { persona = '' } = {}) {
         // (a "; " stays the list's own separator: one inside a role or look reads as a comma)
         const role = cutWords(String(entry.raw?.role ?? '').replace(/;/g, ','), ROLE_MAX);
         const look = cutWords(String(entry.raw?.look ?? '').replace(/;/g, ','), LOOK_MAX);
-        return `${entry.name}${role ? `, ${role}` : ''}${look ? ` (${look.replace(/[.]$/, '')})` : ''}`;
+        // (the first sentence of the personality, and the voice, so the first lines they speak are theirs)
+        const manner = cutWords(String(entry.raw?.personality ?? '').split(/(?<=[.!?])\s/)[0].replace(/;/g, ',').replace(/[.]$/, ''), MANNER_MAX);
+        const voice = cutWords(String(entry.raw?.voice ?? '').replace(/;/g, ',').replace(/[.]$/, ''), VOICE_MAX);
+        return `${entry.name}${role ? `, ${role}` : ''}${look ? ` (${look.replace(/[.]$/, '')})` : ''}${manner ? `, manner: ${manner}` : ''}${voice ? `, speaks: ${voice}` : ''}`;
     });
     return `${HEAD} ${said.join('; ')}.`;
 }

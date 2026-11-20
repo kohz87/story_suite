@@ -108,3 +108,15 @@ test('the scene\'s place first, then its parent; a sibling, a district under it 
     const written = { cast, party: { place: 'Town / Gate', old: true }, present: new Set(), pinned: new Set() };
     assert.deepEqual(list(hereLine(slice, written)), ['Person d', 'Person a', 'Person b', 'Person c']);
 });
+
+test('the People here line gives each person the start of their personality and their voice, so the first lines they speak are theirs (owner, 20 Nov: a shy healer came in brisk)', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await ersveil();
+    try {
+        await host.st.loadChat([{ name: 'Narrator', is_user: false, is_system: false, mes: 'You arrive at the guild office.' }], 'voice');
+        await host.send('I look around.', 'A clerk and a tired woman in a blue coat: Edda Rorke, the clerk says.');
+        const line = hereOf(host);
+        assert.match(line, /Sister Temiwa, [^;]*manner: Shy and withdrawn[^;]*, speaks: Soft, a few words at a time/, line);
+        assert.doesNotMatch(line.slice(line.indexOf(AFTER)), /secret/i, 'never a secret');
+    } finally { host.destroy?.(); }
+});
