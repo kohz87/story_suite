@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Ersveil: all 31 people have new, sharper portraits (675×1200, each in a pose of their own); import the pack again to get them.
 - A person's page on a desktop window: an opened part (Mood, Ties, Profile …) now takes the cards' place, as on a tablet, with ‹ Dossier to go back.
 - Story › Trackers: standing and fame show their factions and regions ("guild 2 · church -1", or "all 0") instead of [object Object].
 - A person's Profile (Profile › or a tap on the portrait): the portrait fills the portrait column on a tablet or desktop window, and sits full size at the top of the page on a phone; the portrait column is wider.
