@@ -219,6 +219,8 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
     ...(extraMetersOf(dossier, cast) ? { extraMeters: extraMetersOf(dossier, cast) } : {}),
     ...(axisStagesOf(dossier, cast) ? { axisStages: axisStagesOf(dossier, cast) } : {}),
     changes: changesOf(meters),
+    // (who the reader is to them, in NPC State's words: the narrator's "toward the player"; owner, 20 Nov: the dossier no longer showed it)
+    toward: text(dossier.relationshipSummary),
     mood: text(dossier.mood) ?? text(cast?.mood?.word),
     ...(moodBarsOf(moodTile, cast) ? { moodBars: moodBarsOf(moodTile, cast) } : {}),
     ...(moodChangesOf(cast) ? { moodChanges: moodChangesOf(cast) } : {}),

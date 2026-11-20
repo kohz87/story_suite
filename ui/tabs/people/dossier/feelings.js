@@ -43,10 +43,11 @@ function changeRow(c) {
   return row;
 }
 
-/** Builds the part: every change (newest first) with its date and reply, then the four meter bars (each with its stage word once reached), the reader's own feelings, and the stage with what it needs. */
+/** Builds the part: who the reader is to them (NPC State's summary), every change (newest first) with its date and reply, then the four meter bars (each with its stage word once reached), the reader's own feelings, and the stage with what it needs. */
 export function withPage(d) {
   const stage = d.stage;
   return [
+    d.toward ? pageSection('Who you are to them', h('p', null, d.toward)) : null,
     pageSection('Last changes', d.changes?.length ? h('div', { class: 'evs' }, d.changes.map(changeRow)) : h('p', { class: 'fine' }, 'Nothing has changed yet.')),
     pageSection('Feelings', h('div', { class: 'mrows' }, [
       ...FEELING_KEYS.map((key, i) => meterRow(key, d.meters?.[key], i, { stage: d.axisStages?.[key] })),

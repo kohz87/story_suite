@@ -447,6 +447,7 @@
   "tests/ui/tabs/party/skill-sheet-no-null.test.js": "Tests that the Party skill sheet prints no \"null\" where the Edit skill button is left out.",
   "tests/ui/tabs/party/skills-progress.test.js": "Tests that each skill row shows its practice toward the next rank, with the level it still needs, and Max at the top.",
   "tests/ui/tabs/people/dossier/portrait-full.test.js": "Tests that a dossier portrait opens full size and closes again, while Profile › still opens the profile.",
+  "tests/ui/tabs/people/dossier/with-toward.test.js": "Tests that the dossier shows NPC State's relationship summary first on the With card and page.",
   "tests/ui/tabs/story/tracker-edit.test.js": "Tests for the tracker Edit sheet and the template sheet.",
   "tests/ui/tabs/world/place-where.test.js": "Tests the World place sheet's Where row: how far and which way a district lies from its town's centre.",
   "tests/ui/turn-on-frame.test.js": "Pins that the new view's chat surfaces are built once a frame for a burst of port and SillyTavern events, and not after turn-off.",
