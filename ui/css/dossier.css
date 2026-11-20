@@ -159,3 +159,12 @@ button.tie{cursor:pointer}
 /* the Profile page's portrait, full size at its top */
 .pfimg{margin:0 0 14px;border-radius:12px;overflow:hidden;background:#05060a;border:1px solid var(--su-line)}
 .pfimg img{display:block;width:100%;height:auto;max-height:72vh;object-fit:cover;object-position:center 18%}
+/* tablet and desktop: with Profile open the portrait fills the portrait column instead, and the page leaves it out */
+.dhfull{display:none}
+@container su-root (min-width:600px){
+  .dhero.pfopen{overflow:hidden}
+  .dhero .dhfull{display:block;position:absolute;inset:0;z-index:4;background:#05060a}
+  .dhero .dhfull img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 18%}
+  .dpane .pfimg{display:none}
+  .dov .db>.pfimg+.dpsec{border-top:0;padding-top:0}
+}

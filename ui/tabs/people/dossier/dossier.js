@@ -130,7 +130,7 @@ export function dossierPage(first, ctx = {}) {
       onEdited: () => { const fresh = ctx.port?.view?.('dossier')?.[d.id]; if (fresh) { d.partyAdd = fresh.partyAdd ?? null; d.inParty = fresh.inParty; } draw(); } };
     // (a browser writes a null child as the text "null": only the parts there are)
     body.replaceChildren(...[
-      dossierHero(d, { following: state.following, onFollow: follow, onProfile: () => openPage('profile'), party }),
+      dossierHero(d, { following: state.following, onFollow: follow, onProfile: () => openPage('profile'), party, profileOpen: open?.id === 'profile' }),
       dossierCards(d, pages, { current: open?.id ?? null, onOpen: openPage }),
       open ? dossierPart(d, pages, open.id, { ctx: { ...ctx, openPerson: id => show(id) }, onBack: closePage, onGo: openPage }) : null].filter(Boolean));
     body.classList.toggle('paged', Boolean(open));

@@ -6,7 +6,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 - A person's page on a desktop window: an opened part (Mood, Ties, Profile …) now takes the cards' place, as on a tablet, with ‹ Dossier to go back.
 - Story › Trackers: standing and fame show their factions and regions ("guild 2 · church -1", or "all 0") instead of [object Object].
-- A person's Profile page opens with their portrait full size at the top.
+- A person's Profile: the portrait fills the portrait column on a tablet or desktop window, and sits full size at the top of the page on a phone.
 - A person's Ties page: a tie described in a sentence shows it as a normal line instead of a big capitals tag.
 - A world pack's keyword lore now goes in with the newest message, so older messages stay the same from turn to turn and the model's prompt cache can reuse them; Settings › Packs offers Update for a lorebook made before.
 - Clicking a choice adds it to the message box on its own line instead of replacing what is there, so you can send several choices or your own words with one.
