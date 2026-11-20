@@ -5,6 +5,7 @@ What changed in each release, in short. The full record of every change is in [t
 ## Unreleased
 
 - A fight with more foes than an even fight allows no longer drops the extras: past 4 standard foes (or 3 elites) they come in a tier lower, so "a sounder of 7 boars" is 4 boars and 3 lesser ones.
+- Someone who left a place no longer shows as present when the story returns there without them; only who the story puts in the scene is Here.
 - The ✦ "This reply" sheet (Re-read this reply, Open Suite) opens in the message, above the reply card, instead of squeezed into SillyTavern's button row.
 - Fight XP for mobs and minions follows their toughness again: a mob pays a quarter of a standard foe, a minion half (new fights; fights already won keep what they paid).
 - A won fight now pays 15 XP for each foe (scaled by level gap and tier, up to 100), so two level 2 boars pay a level 1 hero 33; fights already started pay as before.

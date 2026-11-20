@@ -33,7 +33,7 @@ function poolsOf(answers, persona = '') {
   return list(bars).filter(bar => ['hp', 'mp', 'sp'].includes(bar?.kind) && Number.isFinite(bar.value) && Number.isFinite(bar.max) && bar.max > 0);
 }
 
-// Who was here at that reply: the store's people who are here (present, or at the scene's place), as slim cards.
+// Who was here at that reply: the store's people who are here (isHere: the present flag or the scene list), as slim cards.
 function hereOf(answers) {
   const place = answers['scene.place']?.name ?? null;
   const present = Array.isArray(answers['scene.present']) ? answers['scene.present'].filter(name => typeof name === 'string') : null;

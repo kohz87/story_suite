@@ -1,4 +1,4 @@
-// One presence in the new view: here = the store's flag or place OR Story Block's scene.present (names and aliases, folded), in the chat drawer, Now, People and the dossier.
+// One presence in the new view: here = the store's flag OR Story Block's scene.present (names and aliases, folded), in the chat drawer, Now, People and the dossier.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { gather } from '../../../ui/select/gather.js';

@@ -45,13 +45,13 @@ describe('selectPeople', () => {
     assert.equal(temiwa.role, 'Guild chaplain at Bluewatch');
   });
 
-  it('a living person last placed at the scene\'s place is here too, in any case; the dead and others are not', () => {
-    const list = [row('npc_a', 'A', { location: 'The Forge' }), row('npc_b', 'B', { location: 'the quay' }), row('npc_c', 'C', { location: 'the forge', lifeState: 'deceased' })];
+  it('a person last placed at the scene\'s place is NOT here by that alone (they left it); only the present flag or the scene list says here', () => {
+    const list = [row('npc_a', 'A', { location: 'The Forge' }), row('npc_b', 'B', { location: 'the quay' }), row('npc_c', 'C', { location: 'the forge', lifeState: 'deceased' }), row('npc_d', 'D', { present: true })];
     const vm = selectPeople({ list, place: 'the forge' });
-    assert.deepEqual(vm.here.map(c => c.name), ['A']);
-    assert.deepEqual(vm.elsewhere.map(c => c.name), ['B']);
+    assert.deepEqual(vm.here.map(c => c.name), ['D']);
+    assert.deepEqual(vm.elsewhere.map(c => c.name), ['A', 'B']);
     assert.deepEqual(vm.deceased.map(c => c.name), ['C']);
-    assert.deepEqual(selectPeople({ list }).here, [], 'no place: only the present are here');
+    assert.deepEqual(selectPeople({ list, place: 'the forge', present: ['a'] }).here.map(c => c.name), ['A', 'D'], 'the scene list names A');
   });
 
   it('followed comes from the row, not from the people away', () => {

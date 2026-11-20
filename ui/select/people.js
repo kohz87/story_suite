@@ -29,11 +29,13 @@ function tiesOf(edges) {
 }
 
 /**
- * Whether a living person is here: the union of the store's own answer (named in this reply: the `present` flag; or last placed at the scene's place, the same name, any case) and Story Block's
- * `scene.present` (names; each matched against the person's name and aliases, folded). A missing or empty list removes nobody the store has here, and a reply with no change block (so a frozen list) never hides an arrival.
+ * Whether a living person is here: the union of the store's own flag (`present`: the story put them in the scene, a `+ present` line or the scene's list stamped by NPC State) and Story Block's
+ * `scene.present` (names; each matched against the person's name and aliases, folded). Where a person was last placed is NOT presence: someone who left a place is stored there ("away, at the Guild Office"),
+ * and coming back to that place without them must not bring them back. A missing or empty list removes nobody the store has here, and a reply with no change block (so a frozen list) never hides an arrival.
+ * `place` is kept in the signature for the callers that pass it.
  */
-export const isHere = (row, place, present = null) => row.lifeState !== 'deceased'
-  && (row.present === true || (Boolean(keyOf(place)) && keyOf(row.location) === keyOf(place))
+export const isHere = (row, _place, present = null) => row.lifeState !== 'deceased'
+  && (row.present === true
     || (Array.isArray(present) && labelsOf(row).some(label => present.some(name => keyOf(typeof name === 'string' ? name : name?.name) === label))));
 
 /**
