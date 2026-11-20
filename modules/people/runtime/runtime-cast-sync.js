@@ -6,7 +6,7 @@ import { currentExclusions } from '../transcript/transcript.js';
 import { applyNpcStateCommand, normalizeName, normalizeNpcRecord, appearanceFingerprint } from '../core/core.js';
 import { savePortraitFile } from '../storage/storage.js';
 import { portraitHasImage } from '../portrait/portrait-file.js';
-import { applyCastEntry, applyCastPortrait, castLinkTargets, castPortraitWanted, dossierFor, findCastPerson, linkToCast, metWithEntry } from '../dossier/cast-dossier.js';
+import { applyCastEntry, applyCastPortrait, castLinkTargets, castPortraitWanted, dossierFor, findCastPerson, linkToCast, metWithEntry, normalizeCast } from '../dossier/cast-dossier.js';
 import { getSettings } from '../settings/runtime-settings.js';
 import { chatLineage, lineageCheckpointKey } from '../lineage/index.js';
 import { chatContext } from '../calls/runtime-scan-helpers.js';
@@ -155,6 +155,18 @@ export function createCastSyncPart(rt, deps) {
         const linked = new Map(links.map(({ npc, person }) => [npc.id, linkToCast(npc, person, { packName: names[person.pack] ?? '', gated: adapter.worldSecretsOn?.() === true, placeName: adapter.placeName })]));
         return { ...state, npcs: state.npcs.map(npc => linked.get(npc.id) ?? npc) };
     }
+    // The cast person of a dossier the story made before Story Director counted the meeting (a `+ npc` line names an unmet person who is in the scene): the
+    // met list does not hold them, so their entry (and its picture) is asked by the dossier's own name or alias, exactly as that line did. Null when none fits.
+    function unmetCastPerson(adapter, npc) {
+        for (const name of [npc.name, ...(Array.isArray(npc.aliases) ? npc.aliases : [])].filter(Boolean).slice(0, 4)) {
+            const answer = adapter.castAnswer?.(name);
+            if (!Array.isArray(answer)) return null;
+            // (the entry is kept for a met person only, so the one asked for is read as met here, as src cast-first.js does for the same line)
+            const found = findCastPerson(normalizeCast(answer.map(raw => (raw && typeof raw === 'object' && !raw.met ? { ...raw, met: { on: null, where: '' } } : raw))), npc.castFrom.key);
+            if (found?.entry) return found;
+        }
+        return null;
+    }
     // The cast dossiers that may be given the pack's picture now (src/cast-dossier.js castPortraitWanted: made from the cast, no portrait of
     // their own, none removed on purpose) and for whom Story Block's `packs.portrait` now answers for their entry's `portrait`:
     // [{ npc, person, url, file }]. A picture that could not be read is not asked for again in this session (castPortraitMisses).
@@ -164,7 +176,7 @@ export function createCastSyncPart(rt, deps) {
         const people = metWithEntry(castList());
         const targets = [];
         for (const npc of wanting) {
-            const person = findCastPerson(people, npc.castFrom.key);
+            const person = findCastPerson(people, npc.castFrom.key) ?? unmetCastPerson(adapter, npc);
             const file = person?.entry?.portrait;
             const url = file ? adapter.packPortraitUrl?.(person.pack, file) : null;
             if (url && !castPortraitMisses.has(`${key}|${npc.id}|${url}`)) targets.push({ npc, person, url, file });

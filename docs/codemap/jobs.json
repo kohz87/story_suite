@@ -336,6 +336,7 @@
   "tests/packs/studio/pairing.test.js": "Tests that pairing runs only on passing packs, uses the Built-in game by default and points each entry at the pack to open.",
   "tests/packs/studio/refs-pack.js": "Is a small world pack that uses every kind of reference site, for the Studio's reference and rename tests.",
   "tests/packs/studio/wire.test.js": "Tests the Studio's edit loop without a page: commit, debounce, draft save, undo and redo, no-op edits, format 3 refusals, restore, export bytes before and after an edit, the export block, field paths and the undo keys.",
+  "tests/people/cast-portrait-unmet.test.js": "A pack person a + npc line made while Story Director had not yet counted the meeting gets the pack picture, fill-only and once; a removed picture stays removed.",
   "tests/people/cast-link-existing.test.js": "A dossier made before its cast person was met is linked to the pack entry and given the pack picture, once, by name or alias, and never when two fit, when removed, or when it has a picture of its own.",
   "tests/people/cast-remake.test.js": "Tests that a person made for a reply, swiped away and made again is held once in the store, Delta's cache, npc.cast and npc.dossier, also after a swipe back.",
   "tests/people/cast-store.test.js": "Tests that npc.cast lists exactly the store's not-archived people (a line about someone with no dossier keeps meters only) after replies, a swipe, a middle delete and a reload.",

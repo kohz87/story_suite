@@ -24,10 +24,11 @@ export function createDirectorQueriesPart(session, deps, { hostFeature }) {
 
     // The living cast (Story Director's `director.cast`, read only): the cleaned answer with its dates written on Story Director's
     // calendar, or null (not hosted, no Story Director, or one without the query). Null means "no cast anywhere".
-    function castAnswer() {
+    // `named`: also the one unmet living person whose full name or alias that is exactly (a dossier made by a `+ npc` line before the meeting: the picture lookup).
+    function castAnswer(named = '') {
         if (!session.hosted || typeof session.sdkRef?.query !== 'function') return null;
         try {
-            const answer = session.sdkRef.query(CAST_QUERY, {});
+            const answer = session.sdkRef.query(CAST_QUERY, typeof named === 'string' && named.trim() ? { named: named.trim() } : {});
             return Array.isArray(answer) ? answer : null;
         } catch {
             return null;
