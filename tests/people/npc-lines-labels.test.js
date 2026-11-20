@@ -63,6 +63,8 @@ test('a mood word becomes the fixed list\'s numbers; an unknown word is refused'
     const mood = readLeaf(bonds(s).mood);
     assert.ok(mood && [mood.v, mood.a, mood.d].every(Number.isInteger));
     assert.ok(mood.v < 0, 'furious is unpleasant');
+    // (the dossier's mood word follows the line too, not only the bars: the headline read the old word until a Refresh, owner 20 Nov)
+    assert.equal(Object.values(s.host.head().domains.people.npcs).find(npc => npc?.name === 'Oren')?.mood, 'furious');
     await s.say(['~ npc Oren | mood: zzzxq']);
     assert.match(JSON.stringify(s.host.head().domains.people.bonds.problems), /not a mood word/);
 });

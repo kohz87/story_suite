@@ -68,8 +68,6 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
     for (const key of Object.keys(set)) { if (key in guarded.set) set[key] = guarded.set[key]; else delete set[key]; }
     let wrote = false;
     const stored = [];
-    if (Object.keys(set).length && !dossier) problems.push(`${name} has no dossier yet; ${Object.keys(set).join(', ')} not stored.`);
-    else if (Object.keys(set).length) { ctx.call('people.fields', { id: key, fields: set }); wrote = true; stored.push(...Object.keys(set)); }
     if (fields.mood !== undefined) {
         const word = clean(fields.mood, 60);
         const target = world.moodOn && isInt(world.minutes) ? moodFromWord(word) : null;
@@ -80,10 +78,13 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
             const prev = readLeaf(record.mood) ?? restMood(restingMood(), world.minutes);
             const { mood } = applyWord(prev, world.minutes, target, word, '');
             writeMood(ctx, key, record, { prev, mood, day: world.minutes, n: isInt(world.at) ? world.at : null, s: isReplyId(world.reply) ? world.reply : null, date: world.date });
-            wrote = true;
-            stored.push('mood');
+            // (the dossier's mood word too, as a new person's first fill writes it: the headline read the old word until a Refresh, owner 20 Nov)
+            if (dossier) { const kept = guardFields({ mood: word }, dossier, name); if ('mood' in kept.set) set.mood = kept.set.mood; else problems.push(...kept.problems); }
+            else { wrote = true; stored.push('mood'); }
         }
     }
+    if (Object.keys(set).length && !dossier) problems.push(`${name} has no dossier yet; ${Object.keys(set).join(', ')} not stored.`);
+    else if (Object.keys(set).length) { ctx.call('people.fields', { id: key, fields: set }); wrote = true; stored.push(...Object.keys(set)); }
     return { problems, wrote, stored, set: dossier ? set : {} };
 }
 
