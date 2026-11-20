@@ -22,13 +22,12 @@ export function tiesPage(d, ctx = {}) {
   }));
 }
 
-/** Builds the Past part: memories newest first, each with its story date and reply when NPC State stamped them (a Day › link when there is a day), and + Add a memory. */
+/** Builds the Past part: memories newest first, each with its story date and reply when NPC State stamped them (no calendar link: owner, 20 Nov), and + Add a memory. */
 export function pastPage(d, ctx = {}) {
   const past = d.past ?? [];
   return [
     past.length
-      ? h('div', { class: 'evs' }, past.map(m => eventRow(m.reply, m.date, m.text,
-        m.dayRef ? h('button', { type: 'button', class: 'lnk2 day', dataset: { day: m.dayRef }, onClick: () => ctx.go?.('journal', { day: m.dayRef }) }, 'Day ›') : null)))
+      ? h('div', { class: 'evs' }, past.map(m => eventRow(m.reply, m.date, m.text)))
       : h('p', { class: 'fine' }, 'No memories yet.'),
     can(ctx, 'npc.memory.add') ? button({ label: '+ Add a memory', className: 'add', onClick: () => ctx.port?.command?.('npc.memory.add', { personId: d.id }) }) : null,
   ];

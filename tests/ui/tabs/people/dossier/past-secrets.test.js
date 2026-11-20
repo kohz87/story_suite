@@ -24,7 +24,7 @@ test('Ties: a tie with a person opens their dossier, one without is plain text',
   assert.deepEqual(swapped, ['torka'], 'inside a dossier the tie shows that person in place');
 });
 
-test('Past: each memory with its story date and reply when stamped (none when not); Day › opens the journal; + Add a memory sends a command', async () => {
+test('Past: each memory with its story date and reply when stamped (none when not); no calendar link (owner, 20 Nov); + Add a memory sends a command', async () => {
   installFakeDom();
   const ctx = makeCtx();
   const [list, add] = pastPage(dossier('temiwa'), ctx);
@@ -33,9 +33,7 @@ test('Past: each memory with its story date and reply when stamped (none when no
   assert.equal(rows[0].querySelector('.w').textContent, 'Goldwane 13reply #14');
   assert.equal(rows[0].querySelector('.w b').textContent, 'Goldwane 13');
   assert.equal(rows[2].querySelector('.w').textContent, '', 'an unstamped memory shows no date and no reply');
-  assert.equal(list.querySelectorAll('.day').length, 2);
-  list.querySelector('.day').click();
-  assert.deepEqual(ctx.calls.go, [['journal', { day: 'Goldwane 13' }]]);
+  assert.equal(list.querySelectorAll('.day').length, 0, 'no Day › link');
   add.click();
   await Promise.resolve();
   assert.deepEqual(ctx.sent(), [['npc.memory.add', { personId: 'temiwa' }]]);
