@@ -1,6 +1,6 @@
 // The owner's "a dozen of aggressive rats" (19 Nov): on a Combat Rules v1 sheet the pre-check answered 12 rats (tier mob) and the fight never started, because the
 // v1 Foes block holds at most six a slot: the opening could not be written, the core dropped the offer quietly and the reply went on with "No foes are set".
-// Whole host, a level 1 hero, no foe standing, the model's answer read as SillyTavern hands it back (a string or parsed content): the send is held for the fight with the rats cut to six.
+// Whole host, a level 1 hero, no foe standing, the model's answer read as SillyTavern hands it back (a string or parsed content): the send is held for the fight with the rats split into two groups of six.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { characterV1 } from '../../../../modules/rpg/templates-parts/v1-character.js';
@@ -35,7 +35,7 @@ async function crowdHost(t, body) {
 }
 
 for (const [shape, body] of Object.entries(BODIES)) {
-    test(`a dozen mob rats (${shape}) hold the send for the fight, cut to the six a Foes slot holds`, async t => {
+    test(`a dozen mob rats (${shape}) hold the send for the fight, split into two slots of six`, async t => {
         const { host, asked } = await crowdHost(t, body);
         host.st.addUser(RATS);
         const held = await host.st.generate('normal', { reply: 'The narrator tells the whole fight.' });
@@ -43,7 +43,7 @@ for (const [shape, body] of Object.entries(BODIES)) {
         assert.equal(held.aborted, true, 'the send waits for the fight');
         const start = pendingStart(host.ctx.chatMetadata, host.ctx.chat);
         assert.ok(start?.opening, 'the opening was previewed and recorded with the hold');
-        assert.deepEqual(start.opening.payload.setup.open.map(({ name, count, tier, level }) => [name, count, tier, level]), [['aggressive rats', 6, 'mob', 1]]);
+        assert.deepEqual(start.opening.payload.setup.open.map(({ name, count, tier, level }) => [name, count, tier, level]), [['aggressive rats', 6, 'mob', 1], ['aggressive rats (2)', 6, 'mob', 1]]);
         assert.equal(host.turn.problems().some(item => item.code === 'INTERACTION_START'), false, 'no quiet drop');
     });
 }

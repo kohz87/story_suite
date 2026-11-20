@@ -1,27 +1,27 @@
 // What a played v1 fight pays, as pure numbers from its record: the XP of a won fight (tier XP, owner Q12), the skills each hero used (practice per use) and whether the win earned a legendary find.
 // Code sets every number here; nothing reads state, settings or dice (the XP rate and the practice per use are the setup's, applied by the caller).
-import { FIGHT_XP } from '../names-parts/fight-xp.js';
+import { FIGHT_XP, XP_TIER } from '../names-parts/fight-xp.js';
 import { TIERS } from './numbers.js';
-import { XP_TIER } from '../names-parts/fight-xp.js';
+import { crowdsOf } from './crowds.js';
 import { skillCost } from './skills.js';
 
 // How many levels above the party's highest a foe group must stand for a win to earn a legendary find (the old rule's gap).
 const LEGEND_GAP = 10;
 
-/** The foe groups of a record's `foes`: `[{ slot, count, level, tier }]`, by slot (a member's id is `<slot>.<n>`). */
+/** The foe groups of a record's `foes`: `[{ slot, count, level, tier, label }]`, by slot (a member's id is `<slot>.<n>`); `label` is the first member's label ('' when the record has none). */
 export function foeGroupsOf(record) {
     const groups = new Map();
     for (const foe of record?.foes ?? []) {
         const slot = Number.parseInt(String(foe.id).split('.')[0], 10), kept = groups.get(slot);
         if (kept) kept.count += 1;
-        else groups.set(slot, { slot, count: 1, level: Number(foe.level) || 1, tier: Object.hasOwn(TIERS, foe.tier) ? foe.tier : 'standard' });
+        else groups.set(slot, { slot, count: 1, label: typeof foe.label === 'string' ? foe.label : '', level: Number(foe.level) || 1, tier: Object.hasOwn(TIERS, foe.tier) ? foe.tier : 'standard' });
     }
     return [...groups.values()].sort((a, b) => a.slot - b.slot);
 }
 
-/** One hero's XP for a won fight: per group (15 + 2 per foe after the first) × max(1, ceil(level / 10)) × the level gap per cent (10 a level, 0..200) × the tier's XP factor (XP_TIER); summed, rounded down, held to 1..60. */
+/** One hero's XP for a won fight: per group (15 + 2 per foe after the first) × max(1, ceil(level / 10)) × the level gap per cent (10 a level, 0..200) × the tier's XP factor (XP_TIER); a crowd split over slots counts as one group (crowdsOf); summed, rounded down, held to 1..60. */
 export function winXp(groups, level) {
-    const total = groups.reduce((sum, group) => {
+    const total = crowdsOf(groups).reduce((sum, group) => {
         const gap = Math.max(0, Math.min(FIGHT_XP.maxPercent, 100 + FIGHT_XP.gapPercent * (group.level - level)));
         return sum + (FIGHT_XP.markedFirst + FIGHT_XP.markedMore * (group.count - 1)) * Math.max(1, Math.ceil(group.level / FIGHT_XP.perLevels)) * gap * (XP_TIER[group.tier] ?? TIERS[group.tier].mult);
     }, 0), xp = Math.floor(total / 100);

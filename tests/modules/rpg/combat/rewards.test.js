@@ -7,7 +7,7 @@ const foe = (id, level, tier) => ({ id, level, tier });
 
 test('winXp: (15 + 2 per extra foe) x level band x gap per cent x tier factor, rounded down, held to 1..60', () => {
     const one = tier => winXp([{ slot: 1, count: 1, level: 5, tier }], 5);
-    assert.deepEqual(['mob', 'minion', 'standard', 'elite', 'boss', 'apex'].map(one), [3, 7, 15, 22, 30, 45]);
+    assert.deepEqual(['mob', 'minion', 'standard', 'elite', 'boss', 'apex'].map(one), [7, 11, 15, 22, 30, 45]);
     assert.equal(winXp([{ slot: 1, count: 4, level: 5, tier: 'standard' }], 5), 21, '15 + 2 x 3');
     assert.equal(winXp([{ slot: 1, count: 1, level: 5, tier: 'standard' }], 15), 0, 'a foe 10 levels below pays nothing');
     assert.equal(winXp([{ slot: 1, count: 6, level: 90, tier: 'apex' }], 1), 60, 'capped at 60');
@@ -16,7 +16,7 @@ test('winXp: (15 + 2 per extra foe) x level band x gap per cent x tier factor, r
 
 test('foeGroupsOf groups the foe rows by slot; an unknown tier reads as standard', () => {
     const record = { foes: [foe('1.1', 5, 'elite'), foe('1.2', 5, 'elite'), foe('3.1', 9, 'wat')] };
-    assert.deepEqual(foeGroupsOf(record), [{ slot: 1, count: 2, level: 5, tier: 'elite' }, { slot: 3, count: 1, level: 9, tier: 'standard' }]);
+    assert.deepEqual(foeGroupsOf(record), [{ slot: 1, count: 2, label: '', level: 5, tier: 'elite' }, { slot: 3, count: 1, label: '', level: 9, tier: 'standard' }]);
 });
 
 test('legendOf: a win against a group 10 levels above the party\'s highest', () => {

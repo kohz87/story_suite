@@ -19,10 +19,10 @@ test('v1: the standard room is shared by the groups in order; a group left with 
     assert.deepEqual(sizeGroups([{ name: 'a', count: 9, tier: 'boss' }, { name: 'b', count: 5, tier: 'mob' }]).map(({ count }) => count), [3, 5]);
 });
 
-test('v1: mobs and minions keep their count up to the Foes block\'s six a slot ("a dozen rats" is cut to 6, never refused)', () => {
-    assert.deepEqual(sizeGroups([{ name: 'rats', count: 12, tier: 'mob' }, { name: 'hounds', count: 9, tier: 'minion' }, { name: 'b', count: 6, tier: 'mob' }]).map(({ count }) => count), [6, 6, 6]);
+test('v1: mobs and minions keep their count up to the Foes block\'s six a slot ("a dozen rats" splits into two groups of 6, never refused)', () => {
+    assert.deepEqual(sizeGroups([{ name: 'rats', count: 12, tier: 'mob' }, { name: 'hounds', count: 9, tier: 'minion' }, { name: 'b', count: 6, tier: 'mob' }]).map(({ count }) => count), [6, 6, 6, 3, 6]);
     const got = vetGroups([{ name: 'aggressive rats', count: 12, level: 1, tier: 'mob' }], { message: 'A dozen of aggressive rats was there when I attack them.', sheet: { characters: [{ who: 'Astra', level: 1, v1: true }], foes: [] }, v1: true });
-    assert.deepEqual(got.map(({ name, count, tier, level }) => [name, count, tier, level]), [['aggressive rats', 6, 'mob', 1]]);
+    assert.deepEqual(got.map(({ name, count, tier, level }) => [name, count, tier, level]), [['aggressive rats', 6, 'mob', 1], ['aggressive rats (2)', 6, 'mob', 1]]);
 });
 
 test('without v1 the answer is vetted exactly as before (no tier, no size rule)', () => {
