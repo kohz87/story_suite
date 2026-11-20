@@ -162,4 +162,4 @@ button.tie{cursor:pointer}
 .dhero{position:relative}
 .dlbox{position:absolute;inset:0;z-index:5;background:#05060a;cursor:zoom-out;overflow:hidden}
 .dlbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 18%}
-.dlbox .dlbox-x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(10,12,20,.62);color:#fff;font:700 18px var(--su-font);cursor:pointer;display:grid;place-items:center}
+.dlbox .dlbox-x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:var(--su-scrim-strong);color:#fff;font:700 18px var(--su-font);cursor:pointer;display:grid;place-items:center}
