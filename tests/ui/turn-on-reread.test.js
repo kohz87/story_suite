@@ -20,9 +20,16 @@ const addMessage = (doc, id) => {
   const mes = doc.createElement('div');
   mes.className = 'mes';
   mes.setAttribute('mesid', String(id));
+  // (SillyTavern's shape: the button row sits in .mes_buttons, the text and the reply card in .mes_block)
+  const block = doc.createElement('div');
+  block.className = 'mes_block';
+  mes.appendChild(block);
+  const row = doc.createElement('div');
+  row.className = 'mes_buttons';
   const bar = doc.createElement('div');
   bar.className = 'extraMesButtons';
-  mes.appendChild(bar);
+  row.appendChild(bar);
+  block.appendChild(row);
   doc.querySelector('#chat').appendChild(mes);
 };
 const barOf = (doc, id) => doc.querySelector(`#chat .mes[mesid="${id}"] .extraMesButtons`);
@@ -57,6 +64,7 @@ test('the ✦ sheet offers "Re-read this reply" and it re-reads the head reply, 
   barOf(doc, 1).querySelector('.xbt.ss').click();
   const reread = doc.querySelectorAll('.trsheet button').find(b => b.textContent === 'Re-read this reply');
   assert.ok(reread, 'the sheet has a Re-read button');
+  assert.equal(doc.querySelector('.trsheet').parentNode.className, 'mes_block', 'the sheet sits in the message body, not in the button row (owner, 20 Nov: it was squeezed beside the icons)');
   reread.click();
   assert.deepEqual(rereads.map(call => call[0]), [1], 'the head reply (the last carrier) is read again');
   assert.equal(doc.querySelectorAll('.trsheet').length, 0, 'the sheet closes');

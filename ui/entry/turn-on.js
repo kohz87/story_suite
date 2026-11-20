@@ -98,7 +98,10 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
           onDiscard: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); close(); if (at >= 0) port.reread(at, { discardRepair: true }); },
           onClose: close,
         });
-        bar.parentNode?.appendChild(sheet);
+        // (in the message body, above the reply card, at full width: inside SillyTavern's button row it was squeezed beside the icons, owner 20 Nov)
+        const block = bar.closest?.('.mes')?.querySelector?.('.mes_block');
+        const card = block?.querySelector?.('.ssrc');
+        if (card) card.parentNode.insertBefore(sheet, card); else (block ?? bar.parentNode)?.appendChild(sheet);
       },
     });
     bar.appendChild(button);

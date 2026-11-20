@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- The ✦ "This reply" sheet (Re-read this reply, Open Suite) opens in the message, above the reply card, instead of squeezed into SillyTavern's button row.
 - Fight XP for mobs and minions follows their toughness again: a mob pays a quarter of a standard foe, a minion half (new fights; fights already won keep what they paid).
 - A won fight now pays 15 XP for each foe (scaled by level gap and tier, up to 100), so two level 2 boars pay a level 1 hero 33; fights already started pay as before.
 - The world's people who are nearby but not met yet reach the narrator with their manner and voice, so someone like Sister Temiwa speaks as herself from her first line.
