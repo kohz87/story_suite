@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Clicking a choice adds it to the message box on its own line instead of replacing what is there, so you can send several choices or your own words with one.
 - A big crowd of mobs or minions ("a dozen rats") comes in as groups of six, each its own foe slot, instead of being cut to six.
 - Fights pay more XP for mobs and minions (their own XP factor: mob 0.5, minion 0.75), so six rats at your level pay 12 XP instead of 6.
 - A crowd that was split into several groups pays the same XP as one group of its full size, so twelve rats in two slots pay as twelve rats.

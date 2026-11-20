@@ -17,6 +17,7 @@ import { frameCoalesced } from '../runtime/redraw.js';
 import { attachWizard } from '../wizard/attach.js';
 import { SUITE_VERSION } from '../../core/version.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
+import { putChoice as putChoiceIn } from './put-choice.js';
 
 const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'loot', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'dossier-map', 'world', 'journal', 'story', 'settings', 'sheet-desk', 'wizard', 'gear-stats'];
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses, and SillyTavern's World Info for a world pack's lorebook.
@@ -58,8 +59,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   const entry = addMenuEntry(doc, { label: 'Story Suite', onClick: () => suite.open('now') });
   const offScreens = showScreens(doc, id => { if (id !== FIGHT_SCREEN) return false; suite.open(port.view('fight') ? 'fight' : 'now'); return true; });
   const chatEl = () => doc.querySelector('#chat');
-  // A choice's words go into SillyTavern's message box, as if typed (its input event lets SillyTavern size the box).
-  const putChoice = text => { const box = doc.querySelector('#send_textarea'); if (!box) return; box.value = text; box.dispatchEvent?.(new (doc.defaultView?.Event ?? globalThis.Event)('input', { bubbles: true })); box.focus?.(); };
+  const putChoice = text => putChoiceIn(doc, text); // (adds to the message box on its own line: put-choice.js)
   const openPersonOr = (id, name) => { if (!pageHandles.openPerson?.({ id, name })) suite.open('people'); }; // (the person's own page, the same opener NPC State's "open dossier" uses)
   const surfaces = createChatSurfaces({
     messagesEl: chatEl(),
