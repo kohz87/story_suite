@@ -1,6 +1,7 @@
 // Reads the scene answers from Story Block queries: one pass over the query names, plus the portrait and gear lookups the selectors need.
 
 import { isHere } from './people.js';
+import { personaStamp } from './persona-stamp.js';
 import { ownerOf } from '../runtime/owner-id.js';
 import { presentOf } from './people-parts.js';
 
@@ -51,7 +52,8 @@ function personaPortrait(read, ctx) {
   const row = c.name1 ? (read('people.list', {}) ?? []).find(r => r?.name === c.name1) : null;
   if (row?.portrait) return row.portrait;
   const file = personaFile(c);
-  return file ? `/User%20Avatars/${encodeURIComponent(file)}` : null;
+  // (with the stamp a replaced picture under the same file name is fetched again: persona-stamp.js)
+  return file ? `/User%20Avatars/${encodeURIComponent(file)}${personaStamp() ? `?v=${personaStamp()}` : ''}` : null;
 }
 
 export function optsOf(read, answers, ctx) {
