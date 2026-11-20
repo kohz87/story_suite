@@ -1,5 +1,5 @@
 // Rendered check: the dossier's layout by window width. On a desktop window (1,080 px and up) it covers the whole suite in three columns once a part is open
-// (portrait 290, the cards, the part 360 beside them); below, a part is a page of its own (the tablet keeps the portrait column). The ⋯ menu drops from its button.
+// (portrait 290 and the cards; an opened part replaces the cards, owner 20 Nov: no third column); below, a part is a page of its own (the tablet keeps the portrait column). The ⋯ menu drops from its button.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -65,7 +65,7 @@ function measure() {
 // (1143 x 821 is the owner's laptop: its floating window is 1,095 px, over the 1,080 px line)
 for (const width of [1143, 1280, 1920]) {
   for (const theme of ['dark', 'light']) {
-    test(`dossier at ${width} ${theme}: covers the whole suite; portrait column 290 and the cards, then a part opens beside the cards (360) with its card outlined`, async (t) => {
+    test(`dossier at ${width} ${theme}: covers the whole suite; portrait column 290 and the cards, then a part opens in place of the cards with ‹ Dossier`, async (t) => {
       if (ctx.skip) return t.skip(ctx.skip);
       const page = await openDossier(width, { 1143: 821, 1280: 800 }[width] ?? 1080, theme);
       try {
@@ -80,12 +80,12 @@ for (const width of [1143, 1280, 1920]) {
         await page.evaluate(() => document.querySelector('#hx-frame .dov .dcard[data-page="mood"]').click());
         await settle(page);
         const o = await page.evaluate(measure);
-        assert.deepEqual(o.shown, { hero: true, cards: true, pane: true, back: false }, 'three columns; no ‹ Dossier beside the cards');
-        assert.equal(o.pane.w, 360, 'the part column');
+        assert.deepEqual(o.shown, { hero: true, cards: false, pane: true, back: true }, 'two columns: the part replaces the cards, with ‹ Dossier');
+        assert.equal(o.pane.x, o.hero.x + 290, 'the part sits where the cards were');
         assert.equal(o.pane.x + o.pane.w, o.dov.x + o.dov.w);
-        assert.equal(o.cards.x + o.cards.w, o.pane.x, 'the part sits right beside the cards');
-        assert.equal(o.dh.h, 64, 'the part header lines up with the top bar');
-        assert.deepEqual(o.sel, ['mood'], 'the open part\'s card is outlined');
+        await page.evaluate(() => document.querySelector('#hx-frame .dov .dpane [data-act="back"]').click());
+        await settle(page);
+        assert.deepEqual((await page.evaluate(measure)).shown, { hero: true, cards: true, pane: false, back: false }, '‹ Dossier brings the cards back');
       } finally { await page.close(); }
     });
   }
@@ -110,7 +110,7 @@ for (const [width, height] of [[820, 1000], [390, 844]]) {
   });
 }
 
-test('dossier at 1280x800: opening a card low in a scrolled cards column keeps the column where it was, and ⋯ keeps the focus as its menu opens', async (t) => {
+test('dossier at 1280x800: a card low in a scrolled cards column opens its part, and ⋯ keeps the focus as its menu opens', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const page = await openDossier(1280, 800);
   try {
@@ -118,13 +118,7 @@ test('dossier at 1280x800: opening a card low in a scrolled cards column keeps t
     assert.ok(before > 0, 'the cards column scrolls at this height');
     await page.click('#hx-frame .dov .dcard[data-page="profile"]');
     await settle(page);
-    const after = await page.evaluate(() => {
-      const c = document.querySelector('#hx-frame .dov .dcards'); const sel = c.querySelector('.dcard.sel').getBoundingClientRect(); const box = c.getBoundingClientRect();
-      return { top: c.scrollTop, seen: sel.top >= box.top - 1 && sel.bottom <= box.bottom + 1, focus: document.activeElement?.dataset?.page ?? null };
-    });
-    assert.ok(after.top > 0, `the column did not jump back to the top (${after.top})`);
-    assert.equal(after.seen, true, 'the outlined Profile card is in view');
-    assert.equal(after.focus, 'profile', 'the focus stays on the card that was tapped');
+    assert.equal((await page.evaluate(measure)).shown.pane, true, 'the Profile part is open in place of the cards');
     await page.focus('#hx-frame .dov [data-act="menu"]');
     await page.keyboard.press('Enter');
     await settle(page);
