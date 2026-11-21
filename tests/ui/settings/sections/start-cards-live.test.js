@@ -108,7 +108,7 @@ test('one card switch changes the card’s token figure at once', async t => {
   const sd = port.view('settings').modules.defs.find(d => d.id === 'story-director');
   const want = tokens(host) - tokens(host, new Map(sd.subs.map(s => [s.key, false])));
   assert.notEqual(figure(), before);
-  assert.match(figure(), new RegExp(`^${sd.subs.filter(s => s.on).length} of 12 on · ≈ ${want.toLocaleString('en-US')} tokens$`));
+  assert.match(figure(), new RegExp(`^${sd.subs.filter(s => s.on).length} of 13 on · ≈ ${want.toLocaleString('en-US')} tokens$`));
   assert.equal(page().querySelector('.pre[aria-pressed="true"]'), null, 'Custom');
 });
 
