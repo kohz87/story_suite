@@ -726,5 +726,9 @@
   "ui/wizard/summary.js": "Draws the wizard's summary of the character so far: the phone's row and, from 1100 px, the left card's portrait, stat tiles and skill list.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
   "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary, Back / Next and Create's footer, and the step's scroll across redraws.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You."
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You.",
+  "scripts/help/faq-data.mjs": "Writes or checks ui/settings/help-faq-data.js, the Help page's copy of docs/FAQ.md as one string.",
+  "ui/settings/help-faq-data.js": "The FAQ text (generated from docs/FAQ.md) the Help page shows.",
+  "ui/settings/help-parse.js": "Reads the FAQ markdown into questions and paragraphs, and a paragraph into text, bold, code and Settings-link pieces.",
+  "ui/settings/help.js": "Builds the Settings Help page: the FAQ as questions that open, a search box and buttons to the Settings pages an answer names."
 }

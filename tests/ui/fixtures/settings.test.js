@@ -5,11 +5,11 @@ import { buildSettings } from '../../../ui/fixtures/settings.js';
 const rowsOf = vm => vm.sections.flatMap(s => s.rows);
 
 describe('buildSettings', () => {
-  it('lists the 12 sections in the four groups, special pages marked', () => {
+  it('lists the 13 sections in the four groups, special pages marked', () => {
     const vm = buildSettings();
-    assert.deepEqual(vm.sections.map(s => s.id), ['start', 'look', 'people', 'rpg', 'world', 'director', 'money', 'extras', 'models', 'packs', 'addons', 'tools']);
+    assert.deepEqual(vm.sections.map(s => s.id), ['start', 'look', 'people', 'rpg', 'world', 'director', 'money', 'extras', 'models', 'packs', 'addons', 'tools', 'help']);
     assert.deepEqual([...new Set(vm.sections.map(s => s.group))], ['Play', 'Rules', 'Setup', 'Tools']);
-    assert.deepEqual(vm.sections.filter(s => s.special).map(s => [s.id, s.special]), [['start', 'start'], ['models', 'models'], ['packs', 'packs'], ['tools', 'tools']]);
+    assert.deepEqual(vm.sections.filter(s => s.special).map(s => [s.id, s.special]), [['start', 'start'], ['models', 'models'], ['packs', 'packs'], ['tools', 'tools'], ['help', 'help']]);
   });
 
   it('row keys are unique and every row carries its value and its default', () => {
@@ -49,7 +49,7 @@ describe('buildSettings', () => {
     const vm = buildSettings({ rpg: false });
     assert.equal(vm.modules.chat.rpg.on, false);
     assert.equal(vm.modules.newChats.rpg.on, true);
-    assert.equal(vm.sections.length, 11);
+    assert.equal(vm.sections.length, 12);
     assert.equal(vm.sections.some(s => s.id === 'rpg'), false);
     assert.equal(buildSettings().sections.some(s => s.id === 'rpg'), true);
   });
