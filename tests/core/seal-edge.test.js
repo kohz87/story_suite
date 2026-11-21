@@ -7,6 +7,7 @@ import { createHost } from '../../testkit/index.js';
 import { SEAL_WAIT_MS } from '../../core/turn/seal-idle.js';
 import { selectHistory } from '../../ui/select/history.js';
 import { toolsCommand } from '../../ui/port/tools.js';
+import { Q1, guarded } from './helpers/guarded.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 const line = n => `The road goes on.\n<Changes>\n+ item Stone ${n} | qty: 1\n</Changes>`;
@@ -112,4 +113,20 @@ test('a long chat from before sealing is sealed at its first quiet moment after 
     for (let k = 0; k < 4; k++) { t.mock.timers.tick(SEAL_WAIT_MS); await settle(); }
     assert.equal(sealedCount(host), 4);
     assert.equal(JSON.stringify(host.head()), head);
+});
+
+test('a chat with a guarded step long before the edge still seals (its replan point is not a pending replan)', async () => {
+    const host = await createHost({ modules: [guarded()], core: false, storeOptions: { sealing: { window: 4, step: 2 }, checkpointEvery: 3 } });
+    try {
+        await host.send('Go.', 'Dawn.\n\n<Changes>\n! tick 90\n</Changes>');
+        await host.send('On.', 'Noon.');
+        await host.bus.command('gt.attempt', { id: Q1 }, { cause: 'system' });
+        for (let n = 0; n < 10; n++) await host.send(`Step ${n}.`, `Walk ${n}.`);
+        assert.notEqual(host.store.replansFrom(), null);
+        const head = JSON.stringify(host.head());
+        const out = host.store.seal();
+        assert.equal(out.ok, true, JSON.stringify(out));
+        assert.ok(out.sealed > 0);
+        assert.equal(JSON.stringify(host.head()), head);
+    } finally { await host.close(); }
 });

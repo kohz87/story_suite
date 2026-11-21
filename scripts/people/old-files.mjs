@@ -63,8 +63,8 @@ async function main(argv, { input = process.stdin, output = process.stdout } = {
     const day = ms => new Date(ms).toISOString().slice(0, 16).replace('T', ' ');
     const late = files.filter(file => file.mtime > since);
     for (const file of files) output.write(`${sizeText(file.size).padStart(9)}  ${day(file.mtime)}${file.mtime > since ? ' !' : '  '}  ${file.name}\n`);
-    output.write(`${files.length} old NPC State files from before the merge, ${sizeText(total)} in all. Story Suite no longer reads them. Portraits are kept.\n`);
-    if (late.length) output.write(`! ${late.length} of them changed after ${day(since)} (UTC), after the merge: something wrote them since. Look at them before deleting.\n`);
+    output.write(`${files.length} old NPC State files (the kind kept before the merge), ${sizeText(total)} in all. Story Suite no longer reads them. Portraits are kept.\n`);
+    if (late.length) output.write(`! ${late.length} of them changed after ${day(since)} (UTC)${sinceAt >= 0 ? '' : ', the merge'}: something wrote them since. Look at them before deleting.\n`);
     if (!argv.includes('--delete')) return 0;
     const ask = readline.createInterface({ input, output });
     const answer = await ask.question(`Delete these ${files.length} files? This can't be undone. Type yes to delete: `);

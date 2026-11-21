@@ -26,7 +26,7 @@ test('the dry run lists the old files with their sizes and deletes nothing', asy
     assert.equal(total, files.reduce((sum, file) => sum + file.size, 0));
     const out = sink();
     assert.equal(await main([dir], { output: out.stream }), 0);
-    assert.match(out.text(), /5 old NPC State files from before the merge, \d+ KB in all\. Story Suite no longer reads them\. Portraits are kept\./);
+    assert.match(out.text(), /5 old NPC State files \(the kind kept before the merge\), \d+ KB in all\. Story Suite no longer reads them\. Portraits are kept\./);
     assert.deepEqual(fs.readdirSync(dir).sort(), [...OLD, ...KEEP].sort(), 'nothing deleted');
 });
 
@@ -41,7 +41,7 @@ test('each file is listed with its date, and a file changed after the merge (or 
     assert.equal(await main([dir], { output: out.stream }), 0);
     assert.match(out.text(), /2026-10-01 10:00 {4}npc-state-delta-1a2b3c\.json/);
     assert.match(out.text(), /2026-11-20 09:30 ! {2}npc-state-delta-recovery-1a2b-xyz-abc\.json/);
-    assert.match(out.text(), /! 1 of them changed after 2026-11-16 23:11 \(UTC\), after the merge/);
+    assert.match(out.text(), /! 1 of them changed after 2026-11-16 23:11 \(UTC\), the merge: something wrote them since\./);
     const later = sink();
     assert.equal(await main(['--since', '2026-11-21', dir], { output: later.stream }), 0);
     assert.doesNotMatch(later.text(), / ! /);

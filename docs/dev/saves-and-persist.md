@@ -75,7 +75,7 @@ and `seal-check.js` (the seal and its check), `core/turn/seal-idle.js` (when), `
   setting `sealHistory`, default on, the test host starts with it off): seal count = step × ⌊(replies − window) ÷ step⌋. The base is the store's own
   replay to the last sealed reply. The seal is staged in place and the chat read again; it is kept only when the head, Problems, replan point (it may
   move to the edge), both proof lists, receipts and untold (less what a sealed receipt drops), the window's chain hashes and boundary Problems, and each
-  checkpoint left in the window read as before. A replan still waiting before the edge puts the seal off to a later quiet moment. Else every object is put back synchronously and the chat is not tried again in this session. A window
+  checkpoint left in the window read as before. Else every object is put back synchronously and the chat is not tried again in this session. A window
   checkpoint that does not hold the state in front of it (made before a delete) is dropped by the seal.
 - **At the edge:** `at()` of a sealed reply is null (its state cards show nothing), except the last sealed one, whose state is the base; a chat cut
   back to its sealed replies (SillyTavern's delete-below) reads the base as its head and goes on from it; a delete or edit of one keeps its changes; Return in time and Re-read
