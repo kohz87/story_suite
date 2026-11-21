@@ -92,13 +92,14 @@ function questOf(thread, rpg, upcoming, trail, people) {
 // The day's money in and out as words in the chat's currency (null when none moved).
 const moneyOf = (amount, currency) => (Number.isSafeInteger(amount) && amount > 0 ? money(amount, currency) : null);
 
-function dayOf(day, months, today, currency) {
+function dayOf(day, months, today, currency, witnessed) {
   const at = parseDate(day.date, months) ?? { month: today, day: 0 };
   const short = text(day.short);
   const date = text(day.date);
   return {
     month: at.month, day: at.day, date, line: short ? `${date}: ${short}` : date,
     happened: strings(day.happened),
+    ...(witnessed ? { happenedWho: list(day.happenedWho).map(strings) } : {}),
     places: strings(day.places), fights: asNumber(day.fightCount), money: { in: moneyOf(day.money?.in, currency), out: moneyOf(day.money?.out, currency) },
     quests: { taken: strings(day.quests?.taken), done: strings(day.quests?.done), failed: strings(day.quests?.failed), dropped: strings(day.quests?.dropped) },
     stageMoves: [], // GAP: structured stage moves
@@ -134,8 +135,10 @@ export function selectJournal(read, opts = {}) {
   });
   const leads = list(read('director.world.leads', {})?.rows).map(r => ({ title: text(r.name), from: text(r.giver), summary: text(r.heard), where: text(r.where), lapses: text(r.lapses) }));
   const journal = read('director.journal', {});
+  // (who was there for each line: only with the witnesses switch on)
+  const witnessOn = journal?.on === true && read('journal.witnesses', {})?.on === true;
   const currency = journal?.on === true ? read('inventory.currency', {}) : null;
-  const days = journal?.on === true ? list(journal.days).map(d => dayOf(d, months, calendar?.today.month ?? 0, currency)) : [];
+  const days = journal?.on === true ? list(journal.days).map(d => dayOf(d, months, calendar?.today.month ?? 0, currency, witnessOn)) : [];
   // The story's start: the oldest day the Journal knows (days run newest first).
   const first = days.at(-1);
   // Only when it reads as on or before today in the shown year: a day from an earlier year has no year to place it.

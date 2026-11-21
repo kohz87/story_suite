@@ -16,6 +16,12 @@ export function peopleParts(read) {
   return { list: read('people.list', {}), away: read('director.away.view', {}), party: read('party.actors', {}), ties: read('people.ties', {}), place: read('scene.place', {})?.name ?? null, present: presentOf(read) };
 }
 
+// The story lines a person was there for (the Journal's witnesses; [] with the switch off).
+const witnessedOf = (read, name) => {
+  const answer = read('journal.witnesses', { name });
+  return answer?.on === true && Array.isArray(answer.lines) ? answer.lines : [];
+};
+
 // Dossier pages keyed by person id (what a card and a tie carry), and by lowercase name for a caller that has only the name.
 export function dossierMap(read) {
   const parts = peopleParts(read);
@@ -28,7 +34,7 @@ export function dossierMap(read) {
     const dossier = read('people.dossier', { id: row.id });
     const vm = selectDossier({
       dossier, meters: read('npc.meters', { name: row.name }), next: read('npc.next', { name: row.name }), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
-      portrait: dossier?.portrait, away: parts.away, party: parts.party, join: offered.has(row.name.trim().toLocaleLowerCase()) ? read('rpg.partyAdd', { name: row.name }) : null, people: parts.list, place: parts.place, present: parts.present,
+      portrait: dossier?.portrait, away: parts.away, party: parts.party, join: offered.has(row.name.trim().toLocaleLowerCase()) ? read('rpg.partyAdd', { name: row.name }) : null, people: parts.list, place: parts.place, present: parts.present, witnessed: witnessedOf(read, row.name),
     });
     if (!vm) continue;
     out[row.id] = vm;

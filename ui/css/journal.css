@@ -113,6 +113,7 @@
 .dl2 .nm{color:var(--su-accent);font-weight:700}
 .dl2 small{color:var(--su-muted);font-size:12px}
 .journal-tab .dl2 small.wrap{display:block}
+.dl2 small.with{max-width:12em;text-align:right;overflow-wrap:anywhere}
 /* coming up */
 .journal-tab button.up{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;min-height:44px;padding:9px 0;background:none;border:0;border-top:1px solid var(--su-line2);color:var(--su-text);text-align:left;cursor:pointer;font:inherit}
 .up .ti{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:16px;background:var(--su-tint)}

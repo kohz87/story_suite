@@ -53,6 +53,7 @@ export const JOURNAL_SHAPE = {
       date: T.STRING,
       line: T.STRING,
       happened: [T.STRING],
+      happenedWho: { $optional: [[T.STRING]] },
       places: [T.STRING],
       quests: { taken: [T.STRING], done: [T.STRING], failed: [T.STRING], dropped: [T.STRING] },
       fights: T.NUMBER,
