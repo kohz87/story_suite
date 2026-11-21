@@ -737,4 +737,8 @@
   "tests/modules/rpg/board/v1-away.test.js": "Tests the away companions waiting out a fight, their XP share, replay and the sheet's away field.",
   "tests/modules/rpg/board/v1-away.helpers.js": "A two-hero fight host with a stand-in away domain.",
   "tests/ui/select/party-away.test.js": "Tests the Party tab's away notes follow the setting."
+  "scripts/help/faq-data.mjs": "Writes or checks ui/settings/help-faq-data.js, the Help page's copy of docs/FAQ.md as one string.",
+  "ui/settings/help-faq-data.js": "The FAQ text (generated from docs/FAQ.md) the Help page shows.",
+  "ui/settings/help-parse.js": "Reads the FAQ markdown into questions and paragraphs, and a paragraph into text, bold, code and Settings-link pieces.",
+  "ui/settings/help.js": "Builds the Settings Help page: the FAQ as questions that open, a search box and buttons to the Settings pages an answer names."
 }

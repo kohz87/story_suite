@@ -199,3 +199,14 @@
 .srow.stab .ud{min-width:44px;min-height:44px;justify-content:center}
 .sgrp .stab-hint{margin:0 0 4px;color:var(--su-muted)}
 .sgrp .stab-err[hidden]{display:none}
+
+/* Settings › Help: the FAQ as questions that open (ui/settings/help.js). */
+.helplist{display:flex;flex-direction:column;gap:8px}
+.hbar{display:flex}.hbar .hsrch{flex:1;min-width:0}
+.hq{border-radius:16px;background:var(--su-tint);padding:2px 14px}
+.hq-t{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:44px;margin:0;border:0;background:none;text-align:left;font:700 14px/1.35 var(--su-font);color:var(--su-text);cursor:pointer}
+.hq-t::after{content:'›';font-size:16px;color:var(--su-muted);transform:rotate(90deg);flex:none}
+.hq-t[aria-expanded="false"]::after{transform:none}
+.hq-a{padding:0 0 8px;font-size:13.5px;line-height:1.5;color:var(--su-soft)}
+.hq-a p{margin:0 0 8px}.hq-a code{font:500 12px ui-monospace,Menlo,monospace;background:var(--su-panel2);border-radius:6px;padding:1px 5px;overflow-wrap:anywhere}
+.hlink{display:inline;margin:0;padding:0;border:0;background:none;font:inherit;font-weight:700;color:var(--su-accent);text-decoration:underline;cursor:pointer}

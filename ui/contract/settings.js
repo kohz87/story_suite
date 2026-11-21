@@ -64,7 +64,7 @@ export const SETTINGS_SHAPE = {
       group: { $enum: ['Play', 'Rules', 'Setup', 'Tools'] },
       name: T.STRING,
       desc: T.STRING,
-      special: { $nullable: { $enum: ['start', 'models', 'packs', 'tools'] } },
+      special: { $nullable: { $enum: ['start', 'models', 'packs', 'tools', 'help'] } },
       rows: [
         ROW,
       ],

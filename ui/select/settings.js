@@ -132,6 +132,7 @@ export function selectSettings(answers) {
     section('packs', 'Setup', 'Packs and trackers', packs.v4 ? 'Your world and game, add-on packs, data modules and your trackers.' : 'Content packs, data modules and your trackers.', [], 'packs'),
     section('addons', 'Setup', 'Add-ons', 'The plug-in modules installed.', selectAddons(a.modules)),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
+    section('help', 'Tools', 'Help', 'Questions and answers about how the suite plays.', [], 'help'),
   ];
   return {
     subtitle: typeof a.subtitle === 'string' ? a.subtitle : null,

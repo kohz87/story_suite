@@ -5,13 +5,13 @@ import { buildSettings } from '../../../../ui/fixtures/settings.js';
 import { renderSettingsSection } from '../../../../ui/settings/sections/index.js';
 import { createSettingsOverlay } from '../../../../ui/settings/overlay.js';
 
-test('sections with their own notes have a renderer; Models, Packs, Tools, Add-ons and unknown ids give null (the default body)', () => {
+test('sections with their own notes have a renderer; Models, Packs, Tools, Help, Add-ons and unknown ids give null (the default body)', () => {
   const doc = installFakeDom();
   const settings = buildSettings();
   const ctx = { doc, settings };
   for (const s of settings.sections) {
     const out = renderSettingsSection(s, ctx);
-    const hooked = ['models', 'packs', 'tools', 'addons'].includes(s.id);
+    const hooked = ['models', 'packs', 'tools', 'help', 'addons'].includes(s.id);
     if (hooked) assert.equal(out, null, s.id); else assert.ok(Array.isArray(out), s.id);
   }
   assert.equal(renderSettingsSection({ id: 'zzz' }, ctx), null);
