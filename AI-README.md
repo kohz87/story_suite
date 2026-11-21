@@ -18,7 +18,7 @@ Version of the extension, read from `core/version.js` (one number for the whole 
 `scripts/release.mjs`):
 
 <!-- generated:version -->
-**Version `0.1.5`**, pack format 4.
+**Version `0.1.6`**, pack format 4.
 <!-- /generated:version -->
 
 - Call the people module **NPC State** in anything a person reads. Its folder is `modules/people`.

@@ -2,7 +2,7 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
-## Unreleased
+## 0.1.6 — 21 Nov 2026
 
 - Gear the story finds gives its rarity's full stat points (uncommon 2, rare 3, epic 4), even when the narrator writes only +1.
 - Long chats stay quicker: from 75 replies, replies older than the last 50 are tidied, so the file shrinks by a third or more and deleting an old reply takes seconds, not up to half a minute; their changes can't be undone (Settings › Tools › Story history).
@@ -14,11 +14,11 @@ What changed in each release, in short. The full record of every change is in [t
 - World events: deleting a reply from the middle of a chat no longer briefly brings back a condition whose event had already ended.
 - World events: the Director's verdicts on world events no longer overwrite newer story words, survive a swipe or Continue, stop when the setting is off, and a refused event stays refused unless the story starts it again.
 - Hordes on the fight board: foes that keep coming refill the slots of the beaten, wave after wave, until the reserve is gone, their leader falls, you hold for the set exchanges, or you flee; each wave pays its own XP.
+- New switch, off by default: the Journal names who was there for each line of a day, and a person's Past lists the story lines they were present for.
+- Settings › Help: the questions and answers (fights, XP, gear, moods, portraits, the lorebook) in the app with a search box and buttons to the Settings pages they name.
 
 ## 0.1.5 — 21 Nov 2026
 
-- New switch, off by default: the Journal names who was there for each line of a day, and a person's Past lists the story lines they were present for.
-- Settings › Help: the questions and answers (fights, XP, gear, moods, portraits, the lorebook) in the app with a search box and buttons to the Settings pages they name.
 - A person's mood headline follows the narrator's mood line at once, not only after a Refresh (the bars and history already did).
 - NPC State keeps moods current: the narrator writes a person's new mood when it changes in a reply, and the quiet catch-up refresh re-checks each person's mood, so a mood no longer stays as it was first written.
 - A person's page: the With card and page show who you are to them again (NPC State's relationship summary), above the last change.
