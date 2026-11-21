@@ -38,10 +38,20 @@ export function createSeal(s, deps) {
         holder[key] = value;
     };
 
-    // The covers of a checkpoint after the edge, as the window is now: the records from the checkpoint before it (or the edge) to the one before it.
-    function recover(arr, at, changes) {
+    // A checkpoint after the edge: one that does not hold the state in front of it (made before a delete or an edit; the chain passes it over
+    // today) goes (the replay starts from the base or an earlier one instead); one that does gets its covers as the window is now: the records
+    // from the checkpoint before it (or the edge) to the one before it.
+    const CHAIN_FIELDS = ['checkpoint', 'covers', 'coverHash', 'prefix', 'guardEnv', 'carried', 'owned'];
+    function recover(arr, at, changes, stale) {
         const record = readRecord(arr[at]);
-        if (!record?.checkpoint || !Array.isArray(record.covers)) return;
+        if (!record?.checkpoint) return;
+        if (stale.has(at)) {
+            const next = { ...record };
+            for (const field of CHAIN_FIELDS) delete next[field];
+            put(arr, at, record, next, changes);
+            return;
+        }
+        if (!Array.isArray(record.covers)) return;
         const members = [];
         for (let i = at - 1; i >= 0; i--) {
             const each = readRecord(arr[i]);
@@ -53,9 +63,23 @@ export function createSeal(s, deps) {
         const hash = windowHash(arr, members);
         if (hash === undefined) delete next.coverHash;
         else next.coverHash = hash;
+        put(arr, at, record, next, changes);
+    }
+    function put(arr, at, record, next, changes) {
         set(changes, arr[at].extra, KEY, next);
         const info = Array.isArray(arr[at].swipe_info) ? arr[at].swipe_info[arr[at].swipe_id ?? 0] : null;
         if (isObject(info?.extra) && info.extra !== arr[at].extra && info.extra[KEY]?.sid === record.sid) set(changes, info.extra, KEY, structuredClone(next));
+    }
+    // The window's checkpoints that do not hold the state in front of them, as the chat reads now.
+    function staleIn(arr, window) {
+        const out = new Set();
+        window.forEach((i, n) => {
+            const record = readRecord(arr[i]);
+            if (!record?.checkpoint || n === 0) return;
+            const state = replay(arr, window[n - 1]).state;
+            if (!state || hashJson(state) !== hashJson(record.checkpoint)) out.add(i);
+        });
+        return out;
     }
 
     /**
@@ -100,6 +124,8 @@ export function createSeal(s, deps) {
             window: sealing.window, step: sealing.step, at: new Date().toISOString(),
         };
         const before = sealSnapshot(reads, edge);
+        const window = carriers.slice(k);
+        const stale = staleIn(arr, [through, ...window]);
         // Staged in place (a detached copy would not be the chat replay asks about), then read again from the base.
         const changes = [];
         try {
@@ -117,10 +143,10 @@ export function createSeal(s, deps) {
             s.cache = null;
             s.history = null;
             forgetMemos();
-            for (const i of carriers.slice(k)) recover(arr, i, changes);
+            for (const i of window) recover(arr, i, changes, stale);
             s.cache = null;
             forgetMemos();
-            const why = sealDiff(before, sealSnapshot(reads, edge), edge) || keptStates(arr, carriers.slice(k));
+            const why = sealDiff(before, sealSnapshot(reads, edge), edge) || keptStates(arr, window);
             if (why) {
                 undo(changes);
                 refused.add(chat);
