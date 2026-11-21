@@ -5,6 +5,8 @@ import { createEvaluation } from '../../data-modules/interpreter.js';
 import { PRACTICE, practiceOf } from '../names.js';
 import { XP_RATE, scaleXp, xpRateOf } from '../levels.js';
 import { foeGroupsOf, usesOfV1, winXp } from '../combat/rewards.js';
+import { hordeXp } from '../combat/horde-pay.js';
+import { V1 } from '../combat/numbers.js';
 import { givePractice } from '../practice-parts/give.js';
 import { itemsOf } from '../practice-parts/slots.js';
 import { heroesOf, raiseToStory, writeBack } from './v1-story-facts.js';
@@ -12,11 +14,11 @@ import { heroesOf, raiseToStory, writeBack } from './v1-story-facts.js';
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const whole = value => Number.isSafeInteger(value);
 const text = value => typeof value === 'string' && value.length > 0 && value.length <= 200;
-// (the most one hero can be paid: the 100 a win is held to, at the highest XP rate, 300 %)
-const XP_TOP = 300;
+// (the most one hero can be paid: the 100 a win (or a horde's wave) is held to, at the highest XP rate, 300 %, over the most waves a horde can have)
+const XP_TOP = 300 * V1.horde.xpWaves;
 
 /**
- * What this record pays: `{ xp: [{ module, who, xp }], uses: [{ who, skill, n }], perUse, paid }`, or null when nothing is paid. `xp` only for a won fight (every standing or Down hero who is not dead, at that hero's own level; the XP rate is the setup's),
+ * What this record pays: `{ xp: [{ module, who, xp }], uses: [{ who, skill, n }], perUse, paid }`, or null when nothing is paid. `xp` only for a won fight (every standing or Down hero who is not dead, at that hero's own level; the XP rate is the setup's; a horde per wave, combat/horde-pay.js),
  * `uses` for every segment (the skills used in these exchanges). `paid` is what the receipt tells: `{ xp: [{ who, xp }], practice: [{ who, skill, amount }] }` (the practice before the block's own limits).
  * `modules` maps a hero id to its Character block, `alive` the heroes that are not dead.
  */
@@ -24,7 +26,7 @@ export function paidOf(record, setup, { modules = {}, alive = new Set() } = {}) 
     const perUse = practiceOf(setup?.practice) ?? PRACTICE.perUse, rate = xpRateOf(setup?.rate) ?? XP_RATE.default;
     const groups = foeGroupsOf(record), uses = usesOfV1(record).slice(0, 40).map(use => ({ ...use, n: Math.min(use.n, 99) }));
     const xp = record?.result === 'win' ? (record.party ?? []).filter(hero => modules[hero.id] && alive.has(hero.id))
-        .map(hero => ({ module: modules[hero.id], who: hero.label, xp: scaleXp(winXp(groups, Number(hero.level) || 1, setup?.xpRule), rate) })).filter(entry => entry.xp > 0) : [];
+        .map(hero => ({ module: modules[hero.id], who: hero.label, xp: scaleXp(record.horde ? hordeXp(record, Number(hero.level) || 1, setup?.xpRule) : winXp(groups, Number(hero.level) || 1, setup?.xpRule), rate) })).filter(entry => entry.xp > 0) : [];
     if (!xp.length && !uses.length) return null;
     return { xp, uses, perUse, paid: { xp: xp.map(({ who, xp: given }) => ({ who, xp: given })), practice: uses.map(use => ({ who: use.who, skill: use.skill, amount: Math.min(PRACTICE.max, perUse * use.n) })) } };
 }
