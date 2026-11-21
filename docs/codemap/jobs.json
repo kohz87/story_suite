@@ -388,6 +388,7 @@
   "tests/ui-gaps/live-commands.test.js": "Contract test: every command the new view can send (source scan) is answered by the port or registered, or its control is gated by port.can.",
   "tests/ui/chat/reply-box.test.js": "Tests a reply card: the top lines and a pool's change, the tabs it has and their order, one open tab, the panels, and the newest-only corner and action line.",
   "tests/ui/entry/put-choice.test.js": "Tests that a choice is added to the message box on its own line and is not added twice.",
+  "tests/ui/fight-horde-live.test.js": "Tests a horde from a typed attack on the live page: the real pre-check's words recorded with the pause's opening, the reserve built when the board opens, and the Foes card's still-coming strip.",
   "tests/ui/gates.test.js": "Tests that a control whose command the live port cannot answer is not drawn, and that the card's ‹ Chat closes the suite.",
   "tests/ui/mount-flags-frame.test.js": "Pins the mount's per-frame reads: a burst of port events reads the light flags view, the card and the open tab once a frame, only the flags while the suite is closed, and applies the flags before the tab draws.",
   "tests/ui/port/aliases.test.js": "Tests for ui/port/aliases.js: Spend points as one dm.set, Quiet scene and End this arc, and the port's can.",
