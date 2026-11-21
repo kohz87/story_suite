@@ -5,10 +5,11 @@
 
 import { isObject } from './constants.js';
 import { KEY, carrierIndexes, readRecord, recordFault } from '../persist.js';
+import { isSealed } from '../persist/sealed.js';
 import { isMetaSpan } from '../replay.js';
 
 export function createTombs(s, deps) {
-    const { chatId, metadata, current, list } = deps;
+    const { chatId, metadata, current, list, sealedKept } = deps;
 
     // ---- records that are kept as they are -------------------------------------------------------------
 
@@ -17,6 +18,7 @@ export function createTombs(s, deps) {
     function rawKind(raw) {
         if (raw === undefined || raw === null) return 'absent';
         if (!isObject(raw)) return 'damaged';
+        if (isSealed(raw)) return 'ours';      // (a sealed record: this build's own v3, persist/sealed.js)
         if (Number.isFinite(raw.v) && raw.v > 2) return 'future';
         if (raw.v === 2) return recordFault({ extra: { [KEY]: raw } }) ? 'damaged' : 'ours';
         return 'legacy';
@@ -39,6 +41,9 @@ export function createTombs(s, deps) {
         const raw = arr[first].extra?.[KEY];
         const kind = rawKind(raw);
         if (KEPT_ASIDE.has(kind)) return { index: first, kind, why: WHY[kind](raw), raw };
+        // (a chat whose sealed history has no base it may use: a branch cut before the edge; store/sealed-base.js)
+        const sealed = sealedKept(arr);
+        if (sealed) return sealed;
         if (stateless) {
             const at = carrierIndexes(arr).find(i => readRecord(arr[i])?.checkpoint);
             if (at !== undefined) return { index: at, kind: 'unresolved', why: `has the earliest saved point of a story whose first replies are gone (this session had not seen them)`, raw: null };
@@ -46,7 +51,7 @@ export function createTombs(s, deps) {
         return null;
     }
 
-    const readOnlyMessage = kept => (kept.kind === 'unresolved'
+    const readOnlyMessage = kept => (kept.kind === 'sealed' ? kept.why : kept.kind === 'unresolved'
         ? `The story on message ${kept.index} ${kept.why}; Story Block keeps the saved history as it is and works read-only on an empty story until you choose what to do.`
         : `The story record on message ${kept.index} ${kept.why}; Story Block keeps it as it is and works read-only on an empty story until it can be read.${kept.kind === 'future' ? ' Update Story Block to read it.' : ''}`);
 

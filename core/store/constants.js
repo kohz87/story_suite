@@ -5,3 +5,4 @@
 export { CHECKPOINT_EVERY, CHECKPOINT_BYTES, CHECKPOINT_MIN_GAP, NO_LONGER_DONE } from './constants-parts/checkpoints.js';
 export { touchesHostDomain, hostBlock, readerSetup } from './constants-parts/host-blocks.js';
 export { isObject, jsonBytes, deepFreeze, revOf } from './constants-parts/values.js';
+export { SEAL_WINDOW, SEAL_STEP } from './constants-parts/sealing.js';

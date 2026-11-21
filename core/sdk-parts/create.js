@@ -18,6 +18,8 @@ import { createInteractionApi } from '../sdk/interaction.js';
 import { createChangedFeed } from '../sdk/changed.js';
 import { featureOn, makeView, missingModules, runQuery } from '../sdk/queries.js';
 import { announceModules, ensureModules, preflight, rememberTimeline } from '../sdk/lifecycle.js';
+import { HISTORY_STRINGS } from '../strings/history.js';
+import { fill } from '../strings-parts/text.js';
 
 // sdk.check comes from check.js (SB-commands); the sdk still loads without it.
 const checkModule = await import('../registry/check.js').catch(() => null);
@@ -159,7 +161,12 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
          * story changes stored on it (the reader's actions on it stay). → Promise<{ ok, receipts, problems }
          * | { ok: false, code, message }> (turn.js reread). `{ discardRepair: true }` takes the reply's repaired lines out first (turn/discard.js).
          */
-        reread: async (index, options) => (typeof reread === 'function' ? reread(index, options) : { ok: false, code: 'FAILED', message: 'Re-read is not available here.' }),
+        reread: async (index, options) => {
+            // (a sealed reply's story changes are in the chat's base: store/sealed-base.js)
+            const history = store.history?.();
+            if (history && history.status !== 'none' && Number.isInteger(index) && index >= 0 && index < history.from) return { ok: false, code: 'SEALED', message: fill(HISTORY_STRINGS.sealedReread, { window: history.window }) };
+            return typeof reread === 'function' ? reread(index, options) : { ok: false, code: 'FAILED', message: 'Re-read is not available here.' };
+        },
         /**
          * A module's own model call (MODULES §G): `({ profile, system, prompt, maxTokens, signal, feature?,
          * module?, timeoutMs? })` → Promise<{ ok, text, error }> (error null, or a code with `message`). Never

@@ -12,7 +12,7 @@ import { hashJson } from '../replay.js';
 import { payloadHashOf } from './digest.js';
 
 export function createMemo(s, deps) {
-    const { KEPT_ASIDE, WHY, api, appliedOf, archive, bareHash, blocksBefore, chain, chainHash, chatId, checkpointBytes, checkpointEvery, checkpointState, headKey, list, markNow, marked, metadata, packOwners, packProblems, preservedAt, proofBefore, proofsBefore, rawKind, rawSidAt, recordId, replay, replayEnv, replayRecord, sameKey, settleBehind, sourceFor, spineBefore, stateAfterPrefix, seedPrefixes, stillHolds, windowHash } = deps;
+    const { KEPT_ASIDE, WHY, api, appliedOf, archive, bareHash, blocksBefore, chain, chainHash, chatId, checkpointBytes, checkpointEvery, checkpointState, headKey, list, markNow, marked, metadata, packOwners, packProblems, preservedAt, proofBefore, proofsBefore, rawKind, rawSidAt, recordId, replay, replayEnv, replayRecord, sameKey, settleBehind, sourceFor, spineBefore, stateAfterPrefix, seedPrefixes, stillHolds, windowHash, usableBase } = deps;
 
     // Memos of what a reply reads over the whole chat (docs/v2/PERFORMANCE.md, "Long chats"): the stored
     // receipts and the untold ones, each kept until a record is written or the store rebuilds (`epoch`) or
@@ -241,6 +241,8 @@ export function createMemo(s, deps) {
     function stateBefore(arr, index, { fresh = false } = {}) {
         const prev = lastCarrier(arr, index);
         if (prev < 0) return null;
+        const based = usableBase(arr);      // (the first reply after a sealed chat's sealed ones starts from its base; a sealed one has none)
+        if (based && prev < based.start) return index >= based.start ? based.state : null;
         // A detached branch can contain copies of replies: reply-bound guards test membership in the live chat.
         if (fresh || arr !== list() || s.applying || s.staged) return replay(arr, prev).state;
         // The prefix memo (store/prefix-memo.js) keeps the state after each carrier; inside a witness scope the spine run is shared.
@@ -260,10 +262,12 @@ export function createMemo(s, deps) {
             carriers++;
             const record = readRecord(arr[i]);
             if (record?.ops.length) bytes += jsonBytes(record.ops);
-            if (record?.checkpoint) {
+            // (a sealed reply stands for the base a sealed chat replays from: the last checkpoint there is)
+            const from = record?.checkpoint ?? (record?.sealed ? usableBase(arr)?.base.state : undefined);
+            if (from) {
                 if (carriers >= checkpointEvery) return true;
                 const gap = Math.min(CHECKPOINT_MIN_GAP, checkpointEvery);
-                return carriers >= gap && bytes > Math.max(checkpointBytes, 2 * checkpointSize(record.checkpoint));
+                return carriers >= gap && bytes > Math.max(checkpointBytes, 2 * checkpointSize(from));
             }
             if (carriers >= checkpointEvery) return true;
         }

@@ -5,7 +5,7 @@ import {
     swipeOf, writeRecord,
 } from '../persist.js';
 import { isMetaSpan } from '../replay.js';
-import { CHECKPOINT_EVERY, CHECKPOINT_BYTES, isObject } from '../store/constants.js';
+import { CHECKPOINT_EVERY, CHECKPOINT_BYTES, SEAL_WINDOW, SEAL_STEP, isObject } from '../store/constants.js';
 import { createChains } from '../store/chains.js';
 import { createTombs } from '../store/tombs.js';
 import { createSources } from '../store/sources.js';
@@ -16,6 +16,11 @@ import { createMemo } from '../store/memo.js';
 import { createRead } from '../store/read.js';
 import { createPrefixMemo } from '../store/prefix-memo.js';
 import { createWrite } from '../store/write.js';
+import { createSealedBase } from '../store/sealed-base.js';
+import { createSeal } from '../store/write/seal.js';
+import { isSealed } from '../persist/sealed.js';
+import { HISTORY_STRINGS } from '../strings/history.js';
+import { fill } from '../strings-parts/text.js';
 
 /**
  * @param {object} options
@@ -42,6 +47,7 @@ import { createWrite } from '../store/write.js';
  * @param {(domain: string) => string[]} [options.scratch]  a domain's per-reply scratch fields (ops.js)
  * @param {(domain: string) => object|null} [options.seed]  a deferred domain's initial slice, null for any other: a replayed block
  *   that writes under an absent deferred domain finds it there as that slice (ops.js rebaseOps, REPLAY.md "Deferred domains")
+ * @param {{ window?: number, step?: number }} [options.sealing]  the replies kept step by step and the step the older ones are sealed in (50 / 25)
  * @param {() => object|null} [options.metadata]  the open chat's metadata, saved with the chat: the archive of deleted
  *   source-map ids lives in `storySuite.sourceArchive` (without it the archive is kept in memory only)
  *
@@ -54,7 +60,10 @@ export function createStore({
     checkpointEvery = CHECKPOINT_EVERY, checkpointBytes = CHECKPOINT_BYTES, recordId = newRecordId, validate = null,
     chatId = () => undefined, place = () => null, rescue = null, scratch = null, seed = null, receiptKeep = RECEIPT_KEEP,
     confirm = null, memo = null, metadata = () => null, marked = () => false, replayEnv = () => '', witnessPrefixMax = null,
+    sealing: sealOptions = {},
 } = {}) {
+    // How much history stays step by step (store/write/seal.js): `window` and `step` in replies; tests pass small ones.
+    const sealing = { window: SEAL_WINDOW, step: SEAL_STEP, ...sealOptions };
     if (typeof chat !== 'function') throw new TypeError('createStore needs a chat() function.');
     if (typeof apply !== 'function') throw new TypeError('createStore needs an apply(state, ops) function.');
     void now;
@@ -104,17 +113,21 @@ export function createStore({
         guardFaults: null,
         receiptCopies: new WeakMap(),
         witnessScoped: null,  // { gen, epoch }
+        history: null,  // the sealed history read last (store/sealed-base.js historyOf)
     };
     // Guarded replay (REPLAY.md): how a block's guard is asked, and the mark that says the answer may differ.
     // A first record that is a future version's or damaged is never written over (REPLAY.md "Preserved
     // records"): while the chat has no other state, the head is this empty state, read-only.
 
+    const SEALED_WRITE = fill(HISTORY_STRINGS.sealedWrite, { window: sealing.window });
     // Every record goes through here, so a save can be checked against the last one written, and a change
     // left in a chat that is no longer open can be found again (rescue).
     function write(message, record) {
         const there = message.extra?.[KEY];
         const kind = rawKind(there);
         if (KEPT_ASIDE.has(kind)) throw new Error(`The story record on this reply ${WHY[kind](there)}; it is kept as it is and not written over.`);
+        // (a sealed reply's changes are in the base: nothing is added to it, whoever asks; store/write/seal.js)
+        if (isSealed(there)) throw new Error(SEALED_WRITE);
         s.epoch++;
         s.writeSeq++;
         s.banks.clear();
@@ -223,7 +236,8 @@ export function createStore({
     };
 
     // The parts of the store that moved to src/v2/store/ (each is given the state holder `s` and the store functions it calls).
-    const { rawKind, KEPT_ASIDE, WHY, preservedAt, readOnlyMessage, keptNow, writable, archive, bury2, idsOf, noteIds } = createTombs(s, { chatId, metadata, current: (...args) => current(...args), list });
+    const { historyOf, usableBase, baseProofs, sealedKept, settleHistory } = createSealedBase(s, { list, metadata, chatId, changed: () => { saver.touch(); saver.schedule(400); } });
+    const { rawKind, KEPT_ASIDE, WHY, preservedAt, readOnlyMessage, keptNow, writable, archive, bury2, idsOf, noteIds } = createTombs(s, { chatId, metadata, current: (...args) => current(...args), list, sealedKept });
     const { sourceFor, withSource, reservedSid, occurrenceFor, carrierSid, sourceAt, allocateOccurrence } = createSources(s, { recordId, list, archive, idsOf });
     const { markNow, seeGuards, faultsNow, blocksBefore, replayLegacy, guardHolds, blockIntact, replayGuarded, attachGuard } = createGuards(s, { chatId, metadata, list, step: (...args) => step(...args), forgetMemos: (...args) => forgetMemos(...args) });
 
@@ -251,7 +265,7 @@ export function createStore({
         return record.receipts.filter(receipt => revs.has(receipt?.rev));
     };
 
-    const { chainHash, bareHash, spineBefore, spineStep, windowHash } = createChains(s, { blockParts: (...args) => blockParts(...args) });
+    const { chainHash, bareHash, spineBefore, spineStep, windowHash, anchored } = createChains(s, { blockParts: (...args) => blockParts(...args), usableBase });
 
     const arr0 = index => list()[index];
 
@@ -264,12 +278,12 @@ export function createStore({
     const { stamp, advanced, walkSuffix, keeps, settleAll, settleBehind, checkpointState, step, chain, problemText, rawSidAt, packProblems, unpackProblems } = createWalk(s, {
         apply, receiptKeep, scratch, seed, validate, list, current: (...args) => current(...args), headProblems: (...args) => headProblems(...args), blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash,
         replay: (...args) => replay(...args), replayBlocks: (...args) => replayBlocks(...args), appliedOf: (...args) => appliedOf(...args),
-        proofBefore: (...args) => proofBefore(...args), packOwners: (...args) => packOwners(...args), listProofs: (...args) => listProofs(...args),
+        proofBefore: (...args) => proofBefore(...args), packOwners: (...args) => packOwners(...args), listProofs: (...args) => listProofs(...args), usableBase,
     });
     const { replay, replayRecord, replayBlocks, rerunBlock, skipped, headKey, stillHolds, proofsBefore, proofBefore, packOwners, listProofs, appliedOf } = createReplayBlocks(s, {
         ORPHAN, quarantined, receiptsFor, isGuardedBlock, arr0, intactReason, ownedAlready, publish, asOps: (...args) => asOps(...args), blockParts: (...args) => blockParts(...args),
         receiptsOf: (...args) => receiptsOf(...args), lineOf: (...args) => lineOf(...args), current: (...args) => current(...args), list,
-        guardHolds, occurrenceFor, withSource, replayGuarded, replayLegacy, advanced, chain, checkpointState, problemText, stamp, step, unpackProblems,
+        guardHolds, occurrenceFor, withSource, replayGuarded, replayLegacy, advanced, chain, checkpointState, problemText, stamp, step, unpackProblems, baseProofs, usableBase,
     });
 
     // What a story line is, apart from where it stands in the reply: the command and the line as written.
@@ -299,11 +313,11 @@ export function createStore({
     // The memo and read parts (store/memo.js, store/read.js). The parts wired before them call the memo functions through wrappers
     // that look them up when they run (`current`, `forgetMemos`, `asOps`, `blockParts`, `receiptsOf`, `lineOf`), because createMemo needs their
     // results and is wired after them, where `sameKey` exists. `api` is only used for `api.sourceAt(...)`, which is looked up when it runs.
-    const { spineRun, stateAfterPrefix, seed: seedPrefixes } = createPrefixMemo(s, { chain, chatId, markNow, marked, replay, replayEnv, replayRecord, spineStep });
+    const { spineRun, stateAfterPrefix, seed: seedPrefixes } = createPrefixMemo(s, { anchored, chain, chatId, markNow, marked, replay, replayEnv, replayRecord, spineStep });
     const { headProblems, current, retain, markFlipped, carrierAt, memoAt, frozenReceipts, forgetMemos, witnessKeyOf, markSeen, witnessGeneration, lineOf, baseFor, stateBefore, take, sidFor, carriedTo, spansOf, spansFor, blockParts, receiptsOf, asOps, prefixWitnessUncached } = createMemo(s, {
         KEPT_ASIDE, WHY, api: { sourceAt: (...args) => api.sourceAt(...args) }, appliedOf, archive, blocksBefore, chain, chainHash, bareHash, chatId, checkpointBytes,
         checkpointEvery, checkpointState, headKey, list, markNow, marked, metadata, packOwners, packProblems, preservedAt, proofBefore, proofsBefore,
-        rawKind, rawSidAt, recordId, replay, replayEnv, replayRecord, sameKey, settleBehind, sourceFor, spineBefore, stateAfterPrefix, seedPrefixes, stillHolds, windowHash,
+        rawKind, rawSidAt, recordId, replay, replayEnv, replayRecord, sameKey, settleBehind, sourceFor, spineBefore, stateAfterPrefix, seedPrefixes, stillHolds, windowHash, usableBase,
     });
     const { head, at, headIndex, opsAt, changesAt, problems, readOnly, startOver, keepEarliest, ensureInitial, proofs, blockAt, replansFrom, boundaryProblems, payloadHashAt, boundary, timelineMarkers, prefixWitness, witnessScope, witnessMemoSize, witnessFresh } = createRead(s, {
         api: { sourceAt: (...args) => api.sourceAt(...args) }, blockParts, blocksBefore, carriedTo, chainHash, current, faultsNow, forgetMemos, idsOf, keptNow,
@@ -316,8 +330,14 @@ export function createStore({
         advanced, archive, asOps, baseFor, blockParts, blocksBefore, chainHash, bury2, carrierAt, current, forgetMemos, markFlipped, frozenReceipts, guardHolds, headKey, idsOf,
         intactReason, isGuardedBlock, keeps, lineOf, list, marked, markNow, ORPHAN, ownedAlready, place, publish, quarantined, receiptsFor,
         receiptsOf, replay, replayGuarded, replayLegacy, replayRecord, rerunBlock, rescue, retain, sameKey, saver, settleAll, skipped,
-        spansFor, spansOf, stamp, stateBefore, step, take, walkSuffix, withSource, writable, write,
+        spansFor, spansOf, stamp, stateBefore, step, take, walkSuffix, withSource, writable, write, sealing, usableBase,
     });
+
+    // Sealing old history (store/write/seal.js): it reads the chat through the store's own reads, before and after it is staged.
+    const reads = { list, chainHash, head: () => current().state, problems: () => problems(), replansFrom: () => replansFrom(), proofs: (...args) => proofs(...args),
+        receipts: () => receipts(), untold: () => untold(), boundaryProblems: () => boundaryProblems() };
+    const { seal } = createSeal(s, { list, metadata, current, replay, stateBefore, appliedOf, chainHash, bareHash, spineBefore, windowHash, packProblems, rawSidAt, proofsBefore,
+        historyOf, forgetMemos, saver, keptNow, sealing, reads, chatId });
 
     const api = {
         // head, at, headIndex, opsAt, changesAt, problems, readOnly, startOver, keepEarliest, ensureInitial: store/read.js
@@ -337,6 +357,16 @@ export function createStore({
 
         // append, before, replaceStory, reconcile, setNarrated, setPracticeRule, setFoeCap, setRuleMarks, receipts, truncate, untold, work, rebuild, archived, archiveList, batch, renamed: store/write.js
         append, before, replaceStory, reconcile, setNarrated, setPracticeRule, setFoeCap, setRuleMarks, receipts, truncate, untold, work, rebuild, archived, archiveList, batch, renamed, restampHashes,
+
+        // Sealed history (store/sealed-base.js, store/write/seal.js): seal what is due; what this chat keeps (`status`, `sealed` replies,
+        // `from` the first reply kept step by step, `window`); take a rebuilt chat's sealed replies as they are now (→ 'deleted' to tell once).
+        seal,
+        history() {
+            const found = historyOf(list());
+            return { status: found.status, sealed: found.sids.length, from: found.start, window: found.base?.window ?? sealing.window, step: found.base?.step ?? sealing.step };
+        },
+        settleHistory() { return settleHistory(list()); },
+        sealing() { return { ...sealing }; },
 
         scheduleSave(ms = 400) { saver.schedule(ms); },
         /**

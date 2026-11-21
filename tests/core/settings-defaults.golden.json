@@ -9,6 +9,7 @@
     "maxChangeLines": 150,
     "panelStyle": "glass",
     "quickConnection": "",
+    "sealHistory": true,
     "sendPending": true,
     "tailBudget": 1500,
     "textSize": "100"

@@ -114,6 +114,7 @@ export function createRead(s, deps) {
             const kept = keptNow();
             if (!kept) throw new Error('The story record is not being kept aside; there is nothing to start over.');
             if (kept.kind === 'future') throw new Error('The story record is from a newer version of Story Block, so it is not started over; update Story Block to read it.');
+            if (kept.kind === 'sealed') throw new Error(kept.why);     // (a branch cut before a sealed chat's edge: store/sealed-base.js)
             if (confirmed !== true) throw new Error('Starting the story state over needs the reader\'s confirmation.');
             const arr = list();
             for (const message of arr) {

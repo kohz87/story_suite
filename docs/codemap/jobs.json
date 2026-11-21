@@ -222,6 +222,7 @@
   "scripts/packs/convert-3to4.mjs": "Command line of the pack format 3 to 4 converter: converts any format 3 pack.json into a world pack, a game pack and conversion notes.",
   "scripts/people/measure-prompts.mjs": "Builds Delta's scanner, profile, injection and narration prompts for fixed scenes and checks their sizes, without provider calls.",
   "scripts/people/measure-stage9.mjs": "Executes production builders, retry construction and both dispatcher routes with synthetic responses.",
+  "scripts/people/old-files.mjs": "Lists the old pre-merge NPC State files in a SillyTavern user files folder with their sizes and deletes them only on a typed yes, keeping portraits.",
   "scripts/play/dist-assets.mjs": "Copies the CSS, fonts and images the play bundle reaches by URL to the same path as in the source tree.",
   "scripts/play/dist-git.mjs": "Extracts a commit's source tree and commits the built play folder as a child of the previous build.",
   "scripts/play/dist-sets.mjs": "Says what the play extension contains: the one bundle set, the source folders it reads and the root manifest and build record.",
