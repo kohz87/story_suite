@@ -323,3 +323,14 @@ test('after a failed flee the card says the others acted on Auto; after a won fl
   vm.view.log[0].rows[0].outcome = 'SUCCESS';
   assert.doesNotMatch(build(vm).tab.querySelector('[data-card="resolved"]').textContent, /flee failed/);
 });
+
+test('Auto on a fight that already holds all one reply can save shows the port\'s refusal: send to go on', async () => {
+  installFakeDom();
+  const vm = open('choose');
+  const port = { command: async () => ({ ok: false, message: 'The Fight holds all one reply can save. Send to go on.' }) };
+  const { tab } = build(vm, port);
+  tap(tab, '[data-auto]');
+  await flush();
+  assert.equal(tab.querySelector('.scene-note').hidden, false);
+  assert.equal(tab.querySelector('.scene-note').textContent, 'The Fight holds all one reply can save. Send to go on.');
+});

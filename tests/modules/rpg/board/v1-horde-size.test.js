@@ -88,4 +88,7 @@ test('a horde too long for one reply stops at the reply\'s limit, settles, and t
     assert.equal(paid.stop, 'won');
     assert.ok(paid.award.xp.length === 3 && paid.award.horde === 1, 'the won horde pays each hero once, at its end');
     assert.equal(settled.data.v2.result.award?.xp?.length ?? 0, 0, 'the first reply paid no XP');
+    const live = JSON.stringify(host.head());
+    host.store.rebuild();
+    assert.equal(JSON.stringify(host.head()), live, 'the two replies rebuild to the live story (replay == live)');
 });
