@@ -79,6 +79,7 @@
   "modules/scene/extras-parts/reply-chatter.js": "Reads every reply's own Inner chatter and Choices from its text, for the chatter.replies and choices.replies queries (faded replies, the reader's and system messages and the greeting left out).",
   "modules/scene/mounts-parts/reader.js": "The reader's own mount rows from the Bag's Transport list: mounts.add (a new row with the + mount line's fields; a name in use is refused) and mounts.remove (the - mount line).",
   "modules/world/chronicle/capture/world-parts/judge-mark.js": "Marks a story's new world entry as waiting for the Director's verdict (chronicle setting judge, world-events switch): its words' key and the conditions its line set, at most two a reply.",
+  "modules/world/chronicle/capture/world-parts/judge-pending.js": "Re-keys a pending world entry the story changed and holds a refused entry unless a + line restarts it.",
   "modules/world/chronicle/conditions/director-calls.js": "The chronicle.directorCalls query: how many Director calls this game year the world ledger holds (0 until the Director part writes it), for Settings.",
   "modules/world/chronicle/conditions/here-query.js": "The chronicle.conditionsHere query: the world conditions in force where the party is, with date, reason, meaning and told effects, for the World tab.",
   "modules/world/chronicle/conditions/live-holds.js": "The conditions table as the readers see it: an event hold counts only while the daily step says that event is Active, so a middle delete cannot bring back an ended event's condition.",

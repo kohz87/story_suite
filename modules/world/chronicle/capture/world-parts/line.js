@@ -6,7 +6,8 @@ import { CLEAR, asText, labelOf } from '../text.js';
 import { applyPlainWorldLine } from './apply-line.js';
 import { applyConditions, claimReply, readConditions } from './conditions.js';
 import { worldEventsOn } from './switch.js';
-import { markForJudge, refusedHold, rekeyPending } from './judge-mark.js';
+import { markForJudge } from './judge-mark.js';
+import { refusedHold, rekeyPending } from './judge-pending.js';
 
 const placeOf = (labels, names) => {
     const value = labelOf(labels, names);
