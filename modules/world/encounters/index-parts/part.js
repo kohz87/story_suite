@@ -10,7 +10,7 @@ export const part = {
     features: [{
         id: ENCOUNTERS_FEATURE,
         label: 'Encounters',
-        describe: 'Before a reply, code may roll one passer-by for the place (a backdrop person from the pack or a built-in one, or someone you have met) and tells the narrator one line. A backdrop person the story names gets a People entry. Off: nothing.',
+        describe: 'A first try. Before a reply, code may roll one passer-by at the place you are (an everyday local, or someone you have met) and tells the narrator one line, at most once a place and part of the day. Off: nothing.',
         default: false,
     }],
     commands: { [ENCOUNTER]: tagged((ctx, payload) => encounterCommand(ctx, payload), { prelude: true }), [PROMOTE]: tagged((ctx, payload) => promoteCommand(ctx, payload)) },

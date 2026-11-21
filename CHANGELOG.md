@@ -4,7 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
-- New switch in Settings › Features, Encounters (off by default, a first try): before a reply the world may put one passer-by in your path at the place you are, and a regular you get the name of gets a People page.
+- New switch in Settings › Features, Encounters (off by default, a first try): before a reply the world may put one passer-by in your path at the place you are, an everyday local or someone you have met.
 
 ## 0.1.5 — 21 Nov 2026
 
