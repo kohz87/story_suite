@@ -21,7 +21,7 @@ const savedBy = (ctx, sid) => Object.values(ctx.read('people')?.npcs ?? {}).redu
 const LABEL_PER_REPLY_TEXT = 'one memory: a reply';
 
 /** Saves `text` as `key`'s memory on this reply → '' when saved, else why not. `tag`: true marks it as a `~ memory` line's (counted against the cap). `label`: true marks
- *  it as a memory: label's (`l`: the reply's sid; one a person a reply). `date`: the story day text ('' when none). */
+ *  it as a memory: label's (`l`: the reply's sid; one a person a reply); any other keeps the sid as `r`, so every line memory knows its reply. `date`: the story day text ('' when none). */
 function saveMemory(ctx, { key, text, date = '', tag = false, label = false }) {
     const record = ctx.read('people')?.npcs?.[key];
     const said = clean(text, MEMORY_MAX);
@@ -36,12 +36,14 @@ function saveMemory(ctx, { key, text, date = '', tag = false, label = false }) {
     // dossier's five-memory cap and trim happen where a record is read (normalizeNpcRecord). normalizeStoredMemories is used here to tell a repeat or a rewording.
     const recent = normalizeStoredMemories([...before.slice(-8), said]);
     if (!recent.some(item => normalizeName(item) === normalizeName(said)) || before.some(item => normalizeName(item) === normalizeName(said))) return 'already stored';
-    // The same event told twice in this reply (a why: and a memory: or a `~ memory` in other words) is one memory: the first stays. Another reply's memory is
-    // never compared, so two events of different replies that share words are both kept (core-record-merge-parts/memories.js sameReplyRetelling).
-    if (at !== null && sameReplyRetelling(said, before, record.memoryStamps, at, record.manualMemories)) return 'already stored';
+    // The same event told twice in this reply (a why: and a memory: or a `~ memory` in other words) is one memory: the first stays. Only this reply's own line
+    // memories are compared, found by the reply's sid (an index is taken again after a middle delete), so two events of different replies that share words are
+    // both kept (core-record-merge-parts/memories.js sameReplyRetelling).
+    const mine = sid ? before.filter(item => [record.memoryStamps?.[normalizeName(item)]].some(own => own && (own.s === sid || own.l === sid || own.r === sid))) : [];
+    if (mine.length && sameReplyRetelling(said, mine, Object.fromEntries(mine.map(item => [normalizeName(item), { m: 0 }])), 0, record.manualMemories)) return 'already stored';
     // At most one memory: a person a reply (REV-dossa F4): six lines of memory: would otherwise push every earlier memory out of the five the dossier keeps.
     if (label && sid && Object.values(record.memoryStamps ?? {}).some(stamp => stamp?.l === sid)) return LABEL_PER_REPLY_TEXT;
-    const stamp = { m: at ?? 0, ...(date ? { d: String(date).slice(0, 40) } : {}), ...(tag && sid ? { s: sid } : {}), ...(label && sid ? { l: sid } : {}) };
+    const stamp = { m: at ?? 0, ...(date ? { d: String(date).slice(0, 40) } : {}), ...(tag && sid ? { s: sid } : {}), ...(label && sid ? { l: sid } : {}), ...(sid && !tag && !label ? { r: sid } : {}) };
     const stamps = { ...(record.memoryStamps ?? {}), [normalizeName(said)]: stamp };
     const memories = [...before, said];
     ctx.call('people.memory', { id: key, memories, stamps });

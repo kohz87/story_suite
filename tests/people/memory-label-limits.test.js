@@ -4,12 +4,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { suite } from './helpers/pacing-suite.js';
 import { normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { peopleView } from '../../modules/people/view.js';
 
 const people = s => s.host.head().domains.people;
 const memories = (s, id = 'npc_oren') => people(s).npcs[id]?.memories ?? [];
 const snap = s => JSON.stringify(s.host.head().domains);
 const same = (s, why) => { const live = snap(s); s.host.store.rebuild(); assert.equal(snap(s), live, why); };
 const quiet = async run => { const original = console.warn; console.warn = () => {}; try { return await run(); } finally { console.warn = original; } };
+// What the runtime sends after a reply: every record through its normalizer, the view, one people.write for the head's reply.
+async function runtimeWrite(s) {
+    const slice = people(s);
+    const view = peopleView({ npcs: slice.order.map(id => normalizeNpcRecord(structuredClone(slice.npcs[id]))), candidates: slice.candidates ?? [], dismissed: slice.dismissed ?? [], userDismissedGroups: slice.userDismissedGroups ?? [], socialGraph: slice.socialGraph ?? {}, portraitAssets: slice.portraitAssets ?? {}, turn: (slice.turn ?? 0) + 1 });
+    const head = await s.host.sdk.timeline.head({});
+    assert.equal((await s.host.sdk.command('people.write', { v: 1, source: { sid: head.source.sid, swipeKey: head.source.swipeKey }, view }, { background: true })).ok, true);
+}
 const problemTexts = s => (people(s).bonds?.problems ?? []).map(item => item.text);
 
 test('a second memory: for the same person in one reply is refused with a problem line; another person and a why: are not limited', async () => {
@@ -24,12 +32,21 @@ test('a second memory: for the same person in one reply is refused with a proble
     assert.equal(memories(s).at(-1), 'He slept in the chapel', 'the next reply has its own memory:');
 });
 
-test('the per-reply mark survives the runtime\'s rewrite of the record, so a Continue does not add a second; swipe, Re-read and reload equal live', async () => {
+test('the per-reply mark survives the runtime\'s write of the record, so a Continue does not add a second', async () => {
+    const s = await suite({ lines: true });
+    await s.say(['~ npc Oren | trust: +1']);
+    await s.say(['~ npc Oren | memory: He saw the tower fall']);
+    await runtimeWrite(s);
+    assert.equal(typeof Object.values(people(s).npcs.npc_oren.memoryStamps)[0].l, 'string', 'the mark survives the runtime\'s write');
+    await quiet(async () => { await s.host.cont('\n\n<Changes>\n~ npc Oren | memory: He saw the bridge burn\n</Changes>'); await s.adapter.ticked(); });
+    assert.deepEqual(memories(s), ['He saw the tower fall'], 'a Continue is the same reply');
+    same(s, 'continue replay equals live');
+});
+
+test('a Continue, swipe, swipe back, Re-read and reload decide the limit the same way', async () => {
     const s = await suite({ lines: true });
     await s.say(['~ npc Oren | trust: +1']);
     const at = await s.say(['~ npc Oren | memory: He saw the tower fall']);
-    const record = normalizeNpcRecord(structuredClone(people(s).npcs.npc_oren));
-    assert.equal(typeof Object.values(record.memoryStamps)[0].l, 'string', 'the normalizer keeps the mark');
     await quiet(async () => { await s.host.cont('\n\n<Changes>\n~ npc Oren | memory: He saw the bridge burn\n</Changes>'); await s.adapter.ticked(); });
     assert.deepEqual(memories(s), ['He saw the tower fall'], 'a Continue is the same reply');
     same(s, 'continue replay equals live');

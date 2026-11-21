@@ -59,3 +59,14 @@ test('swipe, swipe back, Re-read, middle delete and reload decide the retelling 
     await s.host.turn.onChatChanged();
     assert.equal(snap(s), head, 'reload equals live');
 });
+
+test('after a middle delete a new reply takes an old reply\'s index: it is still another reply, so its memory is kept', async () => {
+    const s = await suite({ lines: true });
+    const first = await s.say(['~ npc Oren | trust: +1']);
+    const told = await s.say([`~ npc Oren | trust: +1 | why: ${DELIVERED}`]);
+    await quiet(async () => { await s.host.st.deleteMessage(first); await s.host.st.deleteMessage(first - 1); });
+    const next = await s.say([`~ npc Oren | memory: ${LISTENED}`]);
+    assert.equal(next, told, 'the new reply sits where the told one was');
+    assert.deepEqual(memories(s), [DELIVERED, LISTENED]);
+    same(s, 'replay equals live');
+});

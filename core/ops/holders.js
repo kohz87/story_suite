@@ -35,6 +35,9 @@ function entryOf(keys, holdersOf) {
  * `holders` map, or null. Ops are not changed in place.
  */
 export function remakeHolders(state, ops, holdersOf) {
+    // A domain's holders are looked up once a block (the registry hands out a copy each time).
+    const known = new Map();
+    const lookup = name => { if (!known.has(name)) known.set(name, holdersOf(name)); return known.get(name); };
     const made = [];
     const shadows = new Map();   // remade entry root → what it holds as the block goes (a copy)
     const written = [];
@@ -42,7 +45,7 @@ export function remakeHolders(state, ops, holdersOf) {
     for (const op of ops) {
         let keys = null;
         try { keys = typeof op?.path === 'string' ? parsePath(op.path) : null; } catch { keys = null; }
-        const entry = keys && typeof op.within !== 'string' ? entryOf(keys, holdersOf) : null;
+        const entry = keys && typeof op.within !== 'string' ? entryOf(keys, lookup) : null;
         if (entry && !shadows.has(entry.root) && (op.op === 'add' || op.op === 'replace')
             && !written.some(at => entry.root === at || entry.root.startsWith(`${at}/`))
             && isPlainObject(valueAt(state, entry.map)) && valueAt(state, entry.root) === undefined) {
