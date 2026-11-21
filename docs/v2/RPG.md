@@ -82,7 +82,8 @@ message (or the reply before it) names him. The narrator can also set one with t
 lines; any clear of a slot forgets it, so the next fight is an ordinary one. Foes blocks made before this build have no horde line
 (only a new chat's block has it); the typed-attack path works in every chat. The front is every group the opening names (up to all six
 slots); the reserve is the front again, wave after wave, at most 48 foes and 12 groups, 60 foes in the whole fight; waves past that are
-cut, never refused. A named leader who is not on the front comes last, as a boss two levels above the front (or at his stated level).
+cut, never refused. A named leader who is not on the front comes last, as a boss two levels above the front (or at his stated level);
+a leader who stands on the front is not copied into the reserve (no second boss of his name arrives while he stands).
 
 It ends one of four ways: the reserve is gone and no foe stands (won); the named leader falls (won at once: the horde breaks); the
 party still stands when the hold's exchange ends (won, default 8 exchanges, 4 to 20); or the party flees. A loss is as in any fight.
@@ -92,7 +93,9 @@ with no cap over the waves; foes left standing pay nothing, and a flee or a loss
 The Foes card shows a strip ("Wave 2 · 8 still coming", "Hold 4 more exchanges · or until Ghoul Warlord falls · 11 down so far"),
 and each slot shows only its latest wave. The battle log has a Reinforcements row per arrival, and the narrator is told each arrival
 and how the horde ended, in the usual single fight summary. Auto stops as usual; set the Auto-fight cap to **Until the end** to play a
-horde through. There is no Stamina or Mana regained inside a fight: a dry pool drops the stance and leaves the free attack.
+horde through. One reply holds at most 64 KB of fight result: the exchange that would pass it is refused before it is staged ("The
+Fight holds all one reply can save. Send to go on."), Auto stops there, and the next reply goes on from that exchange (any long fight,
+not only a horde). A won horde pays its XP once, at its end. There is no Stamina or Mana regained inside a fight: a dry pool drops the stance and leaves the free attack.
 
 With the Standard formula a foe group's health bar has `4 + floor(level/30)` blocks (levels 1 to 29 give 4, 30 to 59 give 5, 60 to 89 give 6, 90 to 99 give 7; on a Foes block of the harder-foes rule `12 + floor(level/30)`, 12 to 15, see [Harder foes](#harder-foes-new-chats)) and reads
 "Scratched · 5 of 6"; the battle log shows the recorded turn order with its totals (`Turn order: Wessel 21 > Weir-drake 18`), the

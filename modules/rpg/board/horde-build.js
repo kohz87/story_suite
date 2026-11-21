@@ -1,6 +1,6 @@
 // A horde's reserve, built by code from a few words (the pre-check's `horde` answer or the narrator's `kind: horde` line) and the front the fight opens with.
 // The words are `{ waves, until, hold?, leader?, level? }`; `hordeFrom` turns them, with the front's groups, into the setup's `horde` (combat/horde.js hordeOf).
-// The reserve is the front again, `waves - 1` times over, cut (never refused) at the reserve's limits; a named leader not on the front comes last, as one boss. Pure.
+// The reserve is the front again (less a leader standing on it), `waves - 1` times over, cut (never refused) at the reserve's limits; a named leader not on the front comes last, as one boss. Pure.
 import { TIERS, V1 } from '../combat/numbers.js';
 import { hordeOf } from '../combat/horde.js';
 import { fold } from '../read.js';
@@ -30,9 +30,10 @@ export function hordeFrom(words, front) {
     const standing = groups.find(group => words.leader && fold(group.name) === fold(words.leader));
     const boss = words.leader && !standing ? { name: words.leader, count: 1, level: words.level ?? Math.min(V1.level.max, Math.max(...groups.map(group => group.level)) + H.leaderLevels), tier: 'boss', leader: true } : null;
     let foes = Math.min(H.reserveFoes, H.fightFoes - groups.reduce((sum, group) => sum + group.count, 0)) - (boss ? 1 : 0), room = H.groups - (boss ? 1 : 0);
-    const reserve = [];
+    // (the leader standing on the front is not copied: a copy would arrive as a second, ordinary boss of the same name while the real one stands)
+    const reserve = [], copied = groups.filter(group => group !== standing);
     copies: for (let wave = 1; wave < words.waves; wave += 1) {
-        for (const { name, count, level, tier } of groups) {
+        for (const { name, count, level, tier } of copied) {
             if (count > foes || room < 1) break copies;
             reserve.push({ name, count, level, tier });
             foes -= count; room -= 1;

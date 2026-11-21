@@ -14,11 +14,11 @@ import { heroesOf, raiseToStory, writeBack } from './v1-story-facts.js';
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const whole = value => Number.isSafeInteger(value);
 const text = value => typeof value === 'string' && value.length > 0 && value.length <= 200;
-// (the most one hero can be paid: the 100 a win (or a horde's wave) is held to, at the highest XP rate, 300 %, over the most waves a horde can have)
-const XP_TOP = 300 * V1.horde.xpWaves;
+// (the most one hero can be paid: the 100 a win is held to, at the highest XP rate, 300 %; a horde's award (marked `horde: 1`) 100 a wave, over the most waves a horde can have)
+const XP_TOP = 300, XP_TOP_HORDE = XP_TOP * V1.horde.xpWaves;
 
 /**
- * What this record pays: `{ xp: [{ module, who, xp }], uses: [{ who, skill, n }], perUse, paid }`, or null when nothing is paid. `xp` only for a won fight (every standing or Down hero who is not dead, at that hero's own level; the XP rate is the setup's; a horde per wave, combat/horde-pay.js),
+ * What this record pays: `{ xp: [{ module, who, xp }], uses: [{ who, skill, n }], perUse, paid, horde? }` (`horde: 1` for a horde's record), or null when nothing is paid. `xp` only for a won fight (every standing or Down hero who is not dead, at that hero's own level; the XP rate is the setup's; a horde per wave, combat/horde-pay.js),
  * `uses` for every segment (the skills used in these exchanges). `paid` is what the receipt tells: `{ xp: [{ who, xp }], practice: [{ who, skill, amount }] }` (the practice before the block's own limits).
  * `modules` maps a hero id to its Character block, `alive` the heroes that are not dead.
  */
@@ -28,10 +28,11 @@ export function paidOf(record, setup, { modules = {}, alive = new Set() } = {}) 
     const xp = record?.result === 'win' ? (record.party ?? []).filter(hero => modules[hero.id] && alive.has(hero.id))
         .map(hero => ({ module: modules[hero.id], who: hero.label, xp: scaleXp(record.horde ? hordeXp(record, Number(hero.level) || 1, setup?.xpRule) : winXp(groups, Number(hero.level) || 1, setup?.xpRule), rate) })).filter(entry => entry.xp > 0) : [];
     if (!xp.length && !uses.length) return null;
-    return { xp, uses, perUse, paid: { xp: xp.map(({ who, xp: given }) => ({ who, xp: given })), practice: uses.map(use => ({ who: use.who, skill: use.skill, amount: Math.min(PRACTICE.max, perUse * use.n) })) } };
+    return { xp, uses, perUse, ...(record.horde ? { horde: 1 } : {}), paid: { xp: xp.map(({ who, xp: given }) => ({ who, xp: given })), practice: uses.map(use => ({ who: use.who, skill: use.skill, amount: Math.min(PRACTICE.max, perUse * use.n) })) } };
 }
 
-const checked = payload => (plain(payload) && Array.isArray(payload.xp) && payload.xp.length <= 99 && payload.xp.every(entry => text(entry?.module) && whole(entry.xp) && entry.xp > 0 && entry.xp <= XP_TOP)
+const topOf = payload => (payload.horde === 1 ? XP_TOP_HORDE : payload.horde === undefined ? XP_TOP : 0);
+const checked = payload => (plain(payload) && Array.isArray(payload.xp) && payload.xp.length <= 99 && payload.xp.every(entry => text(entry?.module) && whole(entry.xp) && entry.xp > 0 && entry.xp <= topOf(payload))
     && Array.isArray(payload.uses) && payload.uses.length <= 40 && payload.uses.every(use => text(use?.who) && text(use?.skill) && whole(use.n) && use.n >= 1 && use.n <= 99)
     && practiceOf(payload.perUse) !== null
     && (payload.wears === undefined || (Array.isArray(payload.wears) && payload.wears.length <= 24 && payload.wears.every(wear => text(wear?.owner) && ['defence', 'weapon'].includes(wear.slot)))) ? payload : null);

@@ -31,7 +31,7 @@ export const DEFAULT_LIMITS = Object.freeze({
 const sentence = (code, title, detail) => {
     const named = String(title ?? 'interaction').trim() || 'interaction';
     const reason = typeof detail === 'string' && detail.trim() ? detail.trim() : null;
-    if (reason && (code === 'INVALID' || code === 'DAMAGED' || code === 'ENDED' || code === 'NOT_YOURS')) return reason;
+    if (reason && (code === 'INVALID' || code === 'DAMAGED' || code === 'ENDED' || code === 'NOT_YOURS' || code === 'TOO_BIG')) return reason;
     const messages = {
         FEATURE_OFF: reason ? `Turn on ${reason} or discard the ${named}.` : `The ${named} is turned off.`,
         NO_REPLY: `There is no reply to open the ${named} from.`,

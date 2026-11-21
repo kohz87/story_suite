@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { fallenWaves, hordeXp } from '../../../../modules/rpg/combat/horde-pay.js';
 import { winXp } from '../../../../modules/rpg/combat/rewards.js';
 import { paidOf, awardCommand } from '../../../../modules/rpg/board/v1-award.js';
+import { fightResultV1 } from '../../../../modules/rpg/board/v1-settle.js';
 import { settledNoteV1 } from '../../../../modules/rpg/combat/note.js';
 import { lineOf } from '../../../../modules/rpg/combat/record.js';
 import { logOfV1 } from '../../../../modules/rpg/board/fight-view-v1-log.js';
@@ -38,8 +39,20 @@ test('the largest horde at the top XP rate passes the award\'s check (13 waves a
     const fail = (code, message) => { throw new Error(`${code}: ${message}`); };
     const passed = new Error('checked');
     const ctx = { fail, read: () => { throw passed; }, draft: () => { throw passed; }, call: () => {} };
-    assert.throws(() => awardCommand(ctx, { xp: pay.xp, uses: [], perUse: 3 }), error => error === passed, 'the payload passes the check');
-    assert.throws(() => awardCommand(ctx, { xp: [{ ...pay.xp[0], xp: 3901 }], uses: [], perUse: 3 }), /INVALID/);
+    assert.equal(pay.horde, 1, 'a horde\'s award is marked');
+    assert.throws(() => awardCommand(ctx, { xp: pay.xp, uses: [], perUse: 3, horde: 1 }), error => error === passed, 'the payload passes the check');
+    assert.throws(() => awardCommand(ctx, { xp: [{ ...pay.xp[0], xp: 3901 }], uses: [], perUse: 3, horde: 1 }), /INVALID/);
+    // (the horde's cap is the horde's only: an ordinary fight's award is held to 300, as before, and a damaged mark is refused)
+    assert.throws(() => awardCommand(ctx, { xp: [{ ...pay.xp[0], xp: 300 }], uses: [], perUse: 3 }), error => error === passed, 'an ordinary fight\'s 300 passes');
+    assert.throws(() => awardCommand(ctx, { xp: [{ ...pay.xp[0], xp: 301 }], uses: [], perUse: 3 }), /INVALID/, 'an ordinary fight over 300 is refused');
+    assert.throws(() => awardCommand(ctx, { xp: [{ ...pay.xp[0], xp: 300 }], uses: [], perUse: 3, horde: true }), /INVALID/, 'a mark other than 1 is refused');
+});
+
+test('a won horde\'s legend check reads each fallen foe\'s own level, not only the front\'s (an arrival shares its slot\'s group)', () => {
+    const won = { result: 'win', foes: [foe('1.1'), foe('1.2'), foe('1.1.1', 0, 20, 'boss')], party: [{ ...hero, level: 5 }], rounds: [], lines: [], order: { party: [], foes: [] }, exchanges: 2, horde: { next: 1, wave: 1, leader: null } };
+    const sheet = { characters: [{ v1: true, key: 'astra', module: 'pack.chat/character', alive: true }] }, setup = { id: 'x:0', practice: 3, rules: {}, xpRule: 'each2' };
+    assert.equal(fightResultV1(setup, won, { sheet, groups: [1] }).legend, 1, 'the level-20 arrival that fell counts');
+    assert.equal(Object.hasOwn(fightResultV1(setup, { ...won, foes: [foe('1.1'), foe('1.2'), foe('1.1.1', 5, 20, 'boss')] }, { sheet, groups: [1] }), 'legend'), false, 'one left standing does not');
 });
 
 test('the note tells each arrival and how a won horde ended; the log draws one row per arrival', () => {

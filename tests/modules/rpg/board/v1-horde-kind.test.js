@@ -50,7 +50,7 @@ test('any clear forgets the horde words, so the next fight on that block is an o
 test('the pre-check\'s words open a horde (a leader on the front is that group); bad words, no words and a resumed fight open none', async t => {
     const host = await world(t, { lines: [RATS] });
     assert.equal(Object.hasOwn(open(host), 'horde'), false, 'no words: an ordinary fight');
-    assert.deepEqual(open(host, { horde: { waves: 2, until: 'leader', leader: 'rats' } }).horde, { v: 1, reserve: [{ name: 'Rats', count: 2, level: 1, tier: 'mob' }], leaderSlot: 1 });
+    assert.deepEqual(open(host, { horde: { waves: 2, until: 'leader', leader: 'rats' } }).horde, { v: 1, reserve: [], leaderSlot: 1 }, 'the leader standing on the front is not copied');
     assert.deepEqual(open(host, { horde: { waves: 40, until: 'hold', hold: 2 } }).horde.hold, 4, 'a hold under 4 is held to 4');
     assert.equal(open(host, { horde: { waves: 40 } }).horde.reserve.length, 7, 'waves past 8 are cut to 8, never refused');
     assert.equal(Object.hasOwn(open(host, { horde: { waves: 'many' } }), 'horde'), false);

@@ -170,6 +170,15 @@ export function stageInteraction({ session, step, kind, kindId = session?.kindId
     if (plain(preview?.error)) return { error: preview.error };
     if (typeof preview?.error === 'string') return { error: interactionError('INVALID', title, preview.error) };
     if (!plain(preview)) return { error: interactionError('INVALID', title, `The ${title} returned no preview.`) };
+    // (the settle refuses a result over the limit, so a step that would take the preview's result over it is refused here, before it is stored: the steps already staged
+    // always fit, and the next reply goes on from them. A refusal, not a cut, so replay and live see the same stored steps.)
+    try {
+        if (plain(preview.result) && bytes(preview.result) > limits.resultBytes) {
+            return { error: interactionError('TOO_BIG', title, `The ${title} holds all one reply can save. Send to go on.`) };
+        }
+    } catch {
+        return { error: interactionError('INVALID', title, `The ${title} returned a preview that is not plain JSON.`) };
+    }
 
     const next = clone(session);
     next.steps = stored;

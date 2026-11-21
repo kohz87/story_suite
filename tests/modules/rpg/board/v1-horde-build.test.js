@@ -33,9 +33,16 @@ test('hordeFrom copies the front wave by wave and cuts at the limits: 48 in rese
     assert.equal(small.reserve.length, 8);
     const many = hordeFrom({ waves: 8, until: 'clear' }, [slot(1, 'Rat', 1, 1, 'mob'), slot(2, 'Rat', 1, 1, 'mob')]);
     assert.equal(many.reserve.length, 12, 'and to 12 groups');
-    assert.deepEqual(hordeFrom({ waves: 2, until: 'leader', leader: 'GHOUL', level: 9 }, [slot(2, 'Ghoul', 3)]), { v: 1, reserve: [{ name: 'Ghoul', count: 3, level: 4, tier: 'minion' }], leaderSlot: 2 }, 'a front group named as the leader is the leader');
+    assert.deepEqual(hordeFrom({ waves: 2, until: 'leader', leader: 'GHOUL', level: 9 }, [slot(2, 'Ghoul', 3)]), { v: 1, reserve: [], leaderSlot: 2 }, 'a front group named as the leader is the leader, and is not copied');
     assert.deepEqual(hordeFrom({ waves: 2, until: 'clear' }, [slot(1, 'Rat', 2, 1, '')]).reserve[0].tier, 'standard', 'no tier on the block reads as standard');
     assert.equal(hordeFrom(null, [slot(1, 'Rat', 2)]), null);
+});
+
+test('a leader standing on a two-slot front is not copied into the reserve: no second boss of his name arrives while he stands', () => {
+    const led = hordeFrom({ waves: 4, until: 'leader', leader: 'Ghoul Warlord' }, [slot(1, 'Ghoul', 6, 3, 'mob'), slot(2, 'Ghoul Warlord', 1, 8, 'boss')]);
+    assert.equal(led.leaderSlot, 2);
+    assert.deepEqual(led.reserve, Array.from({ length: 3 }, () => ({ name: 'Ghoul', count: 6, level: 3, tier: 'mob' })), 'the other group only, waves - 1 times');
+    assert.ok(led.reserve.every(group => group.name !== 'Ghoul Warlord' && !group.leader));
 });
 
 test('parseHorde reads the words beside the groups, in prose or alone; none when the answer gives none', () => {
