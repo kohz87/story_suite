@@ -71,7 +71,8 @@ and `seal-check.js` (the seal and its check), `core/turn/seal-idle.js` (when), `
   move to the edge), both proof lists, receipts and untold (less what a sealed receipt drops), the window's chain hashes and boundary Problems, and each
   checkpoint left in the window read as before. Else every object is put back synchronously and the chat is not tried again in this session. A window
   checkpoint that does not hold the state in front of it (made before a delete) is dropped by the seal.
-- **At the edge:** `at()` of a sealed reply is null (its state cards show nothing); a delete or edit of one keeps its changes; Return in time and Re-read
+- **At the edge:** `at()` of a sealed reply is null (its state cards show nothing), except the last sealed one, whose state is the base; a chat cut
+  back to its sealed replies (SillyTavern's delete-below) reads the base as its head and goes on from it; a delete or edit of one keeps its changes; Return in time and Re-read
   past the edge are refused before anything is done; a save point is its own file and unaffected.
 - **Old NPC State files** (pre-merge data, recovery and checkpoint files in SillyTavern's user files folder): SillyTavern gives a page no way to list that
   folder, so the clean-up is `node scripts/people/old-files.mjs <user files folder>` (lists with sizes; `--delete` asks and deletes only on "yes";

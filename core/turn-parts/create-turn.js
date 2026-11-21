@@ -159,7 +159,7 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     const { onGenerationStarted, claimQuiet, onPromptReady, onTextPromptReady } = createPromptHooks(s, { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, holdsIn, normalizeType, hostSettings });
 
     // Old story history is sealed at a quiet moment after a reply (turn/seal-idle.js, host setting sealHistory).
-    const sealIdle = createSealIdle(s, { store, problem, hostSettings });
+    const sealIdle = createSealIdle(s, { store, problem, hostSettings, metadata });
     // The SillyTavern event handlers (turn/events.js): wired here, after every part they are given. `getApi` is read only when install runs, after the api below exists.
     const { install, uninstall, onMessageReceived, onChatChanged, seed, onChatRenamed, onTimelineChanged, onGenerationEnded } = createEvents(s, { ia, markIdle, clearPrompts, ctx, metadata, isCarrier, store, ensureInitial, problem, notify, stopChangedInputs, interactionError, reconcileScratch, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, PREPARE_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi: () => api, isolated, sealIdle });
 

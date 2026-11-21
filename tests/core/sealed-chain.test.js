@@ -112,3 +112,21 @@ test('writes onto a sealed reply are refused, a rewind past the edge is refused 
     const rev = sealed.store.at(at).meta.rev;
     assert.ok(sealed.store.truncate(at, rev, { dryRun: true, chat: sealed.ctx.chat.slice(0, at + 1) }).dropped.length >= 1);
 });
+
+test('a chat cut back to its sealed replies (SillyTavern deletes everything below) keeps the base as its story, and a new reply builds on it', () => {
+    const { sealed } = twins();
+    const atEdge = JSON.stringify(sealed.ctx.meta.storySuite.base.state);
+    sealed.ctx.chat.length = 11;      // the last sealed reply is message 10
+    sealed.store.rebuild();
+    assert.deepEqual(sealed.store.ensureInitial({ v: 2, meta: { rev: 0, claims: {} }, domains: {} }), []);
+    assert.equal(JSON.stringify(sealed.store.head()), atEdge);
+    assert.equal(sealed.store.readOnly(), null);
+    grow(sealed.ctx, sealed.store, 1, 20);
+    assert.equal(sealed.store.head().domains.inventory.stacks.item20.qty, 21);
+    assert.equal(readout(reload(sealed.ctx).store), readout(sealed.store));
+    // Cut back into the sealed replies themselves: their changes stay, as for any sealed reply deleted.
+    sealed.ctx.chat.length = 5;
+    sealed.store.rebuild();
+    assert.equal(sealed.store.history().status, 'drift');
+    assert.equal(JSON.stringify(sealed.store.head()), atEdge, 'the base stays; the reply after it went with the cut');
+});

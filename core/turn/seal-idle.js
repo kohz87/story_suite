@@ -11,12 +11,14 @@ import { HISTORY_STRINGS } from '../strings/history.js';
 export const SEAL_WAIT_MS = 2 * IDLE_MS;
 const SEAL_TRIES = 8;
 
-export function createSealIdle(s, { store, problem, hostSettings, timers = globalThis }) {
+export function createSealIdle(s, { store, problem, hostSettings, metadata = () => null, timers = globalThis }) {
     let timer = null;
     let tries = 0;
 
     const on = () => { try { return hostSettings()?.sealHistory !== false; } catch { return true; } };
-    const busy = () => s.replyBusy === true || Boolean(s.heldReply) || Boolean(s.assistPending) || store.inFlight?.() === true || store.dirty?.() === true
+    // (an interaction or fight still open in the chat's metadata is a hold too: core/interaction/)
+    const open = () => { try { return Boolean(metadata()?.storySuiteInteraction?.open); } catch { return false; } };
+    const busy = () => s.replyBusy === true || Boolean(s.heldReply) || Boolean(s.assistPending) || open() || store.inFlight?.() === true || store.dirty?.() === true
         || store.suspect?.() === true || store.readOnly?.() !== null;
 
     function cancel() {

@@ -4,7 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
-- Long chats stay quick: past 75 replies, replies older than the last 50 are tidied at a quiet moment, so the chat file is about half the size and deleting an old reply no longer freezes the page; their text and summaries stay, their changes can't be taken back (Settings › Tools › Story history).
+- Long chats stay quicker: past 75 replies, replies older than the last 50 are tidied, so the file shrinks by a third or more and deleting an old reply takes seconds, not up to half a minute; their changes can't be undone (Settings › Tools › Story history).
 - New setting Companions who are away wait (off): a companion the story has away sits out fights and shows as away on the Party sheet, with where they went; a second setting can pay them a share of a won fight's XP.
 - New switch in Settings › Features, Encounters (off by default, a first try): before a reply the world may put one passer-by in your path at the place you are, an everyday local or someone you have met.
 - World events (when switched on): a new setting lets the Director judge each world event the story writes; it is heard as rumour until judged, then kept, reshaped, or dropped as a false rumour.

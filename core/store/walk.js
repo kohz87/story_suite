@@ -331,6 +331,11 @@ export function createWalk(s, deps) {
                 }
             }
         }
+        // (no reply after the sealed ones up to `upTo`: the state after the last of them is the base itself)
+        if (based && from < 0 && upTo >= based.last) {
+            from = based.start;
+            fromBase = based;
+        }
         return { from, since, members, history, base: fromBase };
     }
 

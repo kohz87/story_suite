@@ -140,7 +140,9 @@ export function createSeal(s, deps) {
             for (const i of window) recover(arr, i, changes, stale);
             s.cache = null;
             forgetMemos();
-            const why = (full.from !== edge || hashJson(full.state) !== before.head ? 'head (from the base)' : '') || sealDiff(before, sealSnapshot(reads, edge), edge);
+            const problemsOf = list => hashJson(list.map(({ message, ...rest }) => { void message; return rest; }));
+            const why = (full.from !== edge || hashJson(full.state) !== before.head ? 'head (from the base)' : '')
+                || (problemsOf(full.problems) !== problemsOf(head.problems) ? 'problems (from the base)' : '') || sealDiff(before, sealSnapshot(reads, edge), edge);
             if (why) {
                 undo(changes);
                 refused.add(chat);

@@ -26,8 +26,8 @@ test('a seal keeps the story exactly: head, Problems, receipts and proof read th
     assert.ok(JSON.stringify(ctx.chat).length < size, 'the chat file is smaller');
     const base = ctx.meta.storySuite.base;
     assert.deepEqual([base.v, base.count, base.window, base.step, base.integrity], [1, 6, 4, 2, 'f1']);
-    assert.deepEqual(base.state, JSON.parse(JSON.stringify(store.at(10) ?? null)) ?? base.state, 'the base is the state after the last sealed reply');
-    assert.equal(store.at(10), null, 'a sealed reply has no state of its own any more');
+    assert.deepEqual(JSON.parse(JSON.stringify(store.at(10))), base.state, 'the state after the last sealed reply is the base');
+    assert.equal(store.at(8), null, 'an earlier sealed reply has no state of its own any more');
     assert.deepEqual(store.history(), { status: 'ok', sealed: 6, from: 12, window: 4, step: 2 });
     assert.equal(store.dirty(), true, 'the seal is saved with the next save');
     const again = reload(ctx);
@@ -106,4 +106,20 @@ test('a second seal moves the edge on and builds its base from the first one', (
     assert.equal(store.seal().sealed, 10);
     assert.equal(readout(store), before);
     assert.equal(readout(reload(ctx).store), before);
+});
+
+test('a Problem in the sealed replies rides with the base: the Problems read the same after the seal, from the base and after a reload', () => {
+    const { ctx, store } = sealedSetup();
+    grow(ctx, store, 9);
+    // A change on reply 2 that no longer applies (a write under a domain the state does not have): skipped and listed, block by block.
+    const record = ctx.chat[4].extra.storySuite;
+    ctx.chat[4].extra.storySuite = { ...record, ops: record.ops.map((op, n) => (n === 1 ? { op: 'replace', path: '/domains/nowhere/deep/x', value: 1 } : op)) };
+    store.rebuild();
+    const problems = JSON.stringify(store.problems().map(({ message, ...rest }) => { void message; return rest; }));
+    assert.ok(store.problems().some(problem => problem.index === 4), 'the reply\'s Problem is listed');
+    assert.equal(store.seal().ok, true);
+    assert.equal(JSON.stringify(store.problems().map(({ message, ...rest }) => { void message; return rest; })), problems);
+    assert.ok(ctx.meta.storySuite.base.carried.length >= 1, 'the base carries it');
+    const again = reload(ctx);
+    assert.equal(JSON.stringify(again.store.problems().map(({ message, ...rest }) => { void message; return rest; })), problems);
 });

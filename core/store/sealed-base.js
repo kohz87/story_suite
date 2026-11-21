@@ -71,7 +71,8 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
             const same = sealedDigest(sids) === base.sealedDigest;
             const file = (metaNow()?.integrity ?? null) === (base.integrity ?? null);
             const status = same ? 'ok' : file ? 'drift' : 'branch';
-            out = { status, base, start, last, sids, usable: status !== 'branch' };
+            // (no reply after the sealed ones, a chat cut back to them: the window starts right after the last of them, at the base)
+            out = { status, base, start: start >= 0 ? start : last + 1, last, sids, usable: status !== 'branch' };
             if (out.usable) {
                 let state = frozen.get(base);
                 if (!state) frozen.set(base, state = deepFreeze(structuredClone(base.state)));
@@ -86,7 +87,7 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
     /** The base to replay from for `arr`, or null (nothing sealed, or a base this chat may not use). */
     function usableBase(arr) {
         const history = historyOf(arr);
-        return history.usable && history.start >= 0 ? history : null;
+        return history.usable ? history : null;
     }
 
     // The proof of the blocks that applied before the base, as store.proofs lists it ({ proof, block, index }: the index of the sealed reply that
