@@ -1,4 +1,4 @@
-// The Director's verdicts on the narrator's new world entries reach the chat through one command, `chronicle.world.judged` (switch
+// The Director's verdicts on the narrator's new world entries (and on tomorrow's daily roll: `marks`) reach the chat through one command, `chronicle.world.judged` (switch
 // story-director.world-events), run in beforeGenerate (the message before the next reply, as the open templates' answers: a swipe, delete
 // or Re-read of a reply never takes a stored verdict away). The asking is the arc judge's (modules/arc/judge/world-ask.js); this writes.
 // Code has the last word: a verdict is used only on an entry still waiting with the same words (`judge.key`); a reshape is read again by the
@@ -11,7 +11,7 @@ import { parseChanges } from '../../changes.js';
 import { yearOf } from '../conditions/director-calls.js';
 import { calendarFrom } from '../queries.js';
 import { WORLD_EVENTS_FEATURE, worldEventsOn } from '../conditions/feature.js';
-import { storeJudged } from './calls.js';
+import { judgedErrors, storeJudged } from './calls.js';
 
 export const JUDGED = 'chronicle.world.judged';
 const VERDICTS = new Set(['accept', 'reshape', 'refuse', 'fell']);
@@ -56,7 +56,9 @@ function store(ctx, payload = {}) {
     const bad = Object.entries(results).some(([id, row]) => !/^ev_/.test(id) || !isRecord(row) || typeof row.key !== 'string' || !VERDICTS.has(row.verdict)
         || (row.why !== undefined && typeof row.why !== 'string') || (row.line !== undefined && typeof row.line !== 'string'));
     const calls = payload.calls ?? 0;
-    if (bad || !Number.isInteger(calls) || calls < 0 || calls > 99) return ctx.fail('INVALID', 'The stored verdicts are not in the form the world reads.');
+    // `marks`: the Director's verdicts on tomorrow's roll (`{ "<event id>|<day>": { veto? | weight? } }`), read by the daily step (daily/director-mark.js).
+    const marks = isRecord(payload.marks) ? payload.marks : {};
+    if (bad || judgedErrors(undefined, marks).length || !Number.isInteger(calls) || calls < 0 || calls > 99) return ctx.fail('INVALID', 'The stored verdicts are not in the form the world reads.');
     const chronicle = ctx.draft('chronicle');
     const now = clockOf(ctx);
     const rev = revOf(ctx);
@@ -89,8 +91,10 @@ function store(ctx, payload = {}) {
         data[state].push(id);
     }
     const query = typeof ctx.query === 'function' ? (name, args) => ctx.query(name, args) : null;
-    if (calls > 0) storeJudged(chronicle, { calls, year: yearOf(calendarFrom(query), now) });
-    return { summary: said.join(' '), narrate: false, data: { ...data, calls } };
+    if (calls > 0 || Object.keys(marks).length) storeJudged(chronicle, { calls, year: yearOf(calendarFrom(query), now), marks });
+    const vetoed = Object.entries(marks).filter(([, row]) => typeof row.veto === 'string').map(([key]) => key.split('|')[0]);
+    if (vetoed.length) said.push(`World: the Director held back ${vetoed.join(', ')} for tomorrow.`);
+    return { summary: said.join(' '), narrate: false, data: { ...data, calls, ...(Object.keys(marks).length ? { marks: Object.keys(marks).sort() } : {}) } };
 }
 
 /** The command, tagged with the feature (refused while the switch is off) and internal (never from a click or the sdk). */

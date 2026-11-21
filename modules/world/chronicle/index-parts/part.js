@@ -109,8 +109,9 @@ export const part = {
             digestKeep: { type: 'int', label: 'Day digest: days kept in all (older ones are dropped)', min: 1, max: KEEP_MAX, feature: DIGEST_FEATURE },
             // How fast the world moves (0.25-4, default 1; stored as text like the map's scales). Read by the daily step.
             tempo: { type: 'text', label: 'World tempo (0.25-4)', feature: WORLD_EVENTS },
-            // Off by default: a story's new world line is used as written. On, it is heard as rumour until one Quick call judges it (accept, reshape, refuse).
-            judge: { type: 'bool', label: 'World events: the Director judges new world lines', help: 'A world event the story writes is heard as rumour until the Director has judged it (one short call): kept, reshaped, or refused as a false rumour.', feature: WORLD_EVENTS },
+            // Off by default: a story's new world line is used as written and the daily roll is code's alone. On, a new world line is heard as rumour until one
+            // Quick call judges it (accept, reshape, refuse), and the likely or possible events tomorrow's roll will fire are judged once a day (one may be held back).
+            judge: { type: 'bool', label: 'World events: the Director judges new world lines and tomorrow\'s events', help: 'A world event the story writes is heard as rumour until the Director has judged it: kept, reshaped, or refused as a false rumour. The events the world is about to roll may be held back a day, with a reason. Short calls on the Quick connection.', feature: WORLD_EVENTS },
             digestTail: { type: 'bool', label: 'Day digest: remind the story of the last day after a time skip', feature: DIGEST_FEATURE },
         },
     },

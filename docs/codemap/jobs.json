@@ -738,5 +738,10 @@
   "tests/modules/world/judge/judge-host.test.js": "The Director judge on the story's new world lines on the real host: rumour first, one call, accept, reshape, refuse, failures, busy, switch and setting off, Re-read and middle delete.",
   "modules/arc/plan/read-parts/event-line.js": "Reads the planner's EVENT line (world-events switch): a place the map knows and causes the world records, kept as a beat whose words cite them; at most two a plan.",
   "modules/arc/plan/event-world.js": "What the plan reader checks an EVENT line against: the map's places and the records a cause may name (world events, conditions, Journal entries, tracked threads).",
-  "tests/modules/arc/event-lines.test.js": "The planner's EVENT lines: kept as a cited beat at a known place, left out without a known cause or place, capped at two, taught and read only with the world-events switch on."
+  "tests/modules/arc/event-lines.test.js": "The planner's EVENT lines: kept as a cited beat at a known place, left out without a known cause or place, capped at two, taught and read only with the world-events switch on.",
+  "modules/world/daily/director-mark.js": "Applies the Director's stored verdict to one event's roll in the daily step: a veto discards that day's roll, a weight scales its odds; never for a set-in-motion event.",
+  "modules/world/chronicle/world-judge/look-ahead.js": "A dry run of tomorrow's daily step from a hook's view: the likely or possible events the roll will fire, or every one eligible, for the Director judge.",
+  "modules/arc/judge/roll-prompt.js": "The Director judge's prompt and strict reader for tomorrow's daily roll: accept, refuse with a reason, and in the daily pass likelier or less likely.",
+  "modules/arc/judge/roll-ask.js": "Asks the Director judge once a story day about tomorrow's roll in the background and turns its answer into stored marks (veto with a reason, or a weight) per event and day.",
+  "tests/modules/world/judge/roll-judge.test.js": "The Director judge on tomorrow's daily roll on the real host: a refusal holds an event back a day, the daily pass weights the odds, settings off ask nothing, replay rolls the same."
 }

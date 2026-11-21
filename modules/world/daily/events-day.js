@@ -14,6 +14,7 @@ import { bindOf, placesFor, weightedPick } from './placement.js';
 import { modifierProduct, requiresHold } from './requires.js';
 import { cascadeState, preEmpted, windowAnchor } from './cascade.js';
 import { isThreshold, thresholdHolds } from './threshold.js';
+import { markedChance } from './director-mark.js';
 
 const FINISHED = new Set(['ended', 'lapsed', 'replaced']);
 
@@ -38,9 +39,12 @@ function endsToday(ws, def, row, day) {
 }
 
 /** Roll and, on a hit, fire when the caps allow (set-in-motion fires over them). */
-function attempt(ws, def, day, chance, bind) {
+function attempt(ws, def, day, given, bind) {
     const row = ws.events[def.id];
     row.state = 'eligible';
+    // The Director's stored verdict on today's roll (director-mark.js): a veto discards it, a weight scales its odds.
+    const { chance, veto } = markedChance(ws, def, day, given);
+    if (veto) { ws.log.push({ kind: 'roll', key: def.id, day, result: 'vetoed (Director)' }); return; }
     if (chance.blocked) { ws.log.push({ kind: 'roll', key: def.id, day, result: 'blocked (×0)' }); return; }
     const roll = rollChance(ws.draw, day, def.id, chance);
     ws.log.push({ kind: 'roll', key: def.id, day, p: Number(chance.p.toFixed(6)), result: roll.hit ? 'hit' : 'miss' });
