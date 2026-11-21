@@ -35,6 +35,9 @@ export function gearDefine(def, said = {}, { allowLegendary = false, ceiling = n
     }
     if (def.slot && (!isPlainObject(def.stats) || !Object.keys(def.stats).length)) {
         const named = withinBudget(statsOf(said.stats), gearBudget(def), said.ordered === true);
+        // (the rarity's points are given in full: the narrator often writes "DEX: +1" on an uncommon or rare piece, so the rest goes to the first stat it named; owner, 21 Nov)
+        const given = Object.values(named).reduce((sum, n) => sum + n, 0), first = Object.keys(named)[0];
+        if (first && given < gearBudget(def)) named[first] += gearBudget(def) - given;
         def.stats = Object.keys(named).length ? named : (statsFor(def, null, said.finesse === true));
     }
     // The soak a line names (`| soak: 2`): a whole number held to the slot's cap (body 2, off-hand 2, head 1, the rest none), so a line cannot mint it.
