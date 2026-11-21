@@ -15,3 +15,4 @@ export { isNarratorNote } from './journal-parts/narrator-note.js';
 export { knownDay } from './journal-parts/day.js';
 export { journalView, journalEvents } from './journal-parts/view.js';
 export { journalDay } from './journal-parts/day-lines.js';
+export { WITNESSES, witnessView } from './journal-parts/witnesses.js';

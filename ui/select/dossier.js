@@ -141,7 +141,7 @@ function likesOf(dossier) {
 // The memories newest first (the stored list runs oldest to newest), each with its story date and reply from NPC State's memory stamps
 // ({ normalized text: { m: message index, d?: story date text } }, modules/people/core/core-record-shared-parts/memories.js). A memory without a stamp has no date (never guessed).
 // The day link is the stamp's date text (the Journal finds that day).
-function pastOf(memories, stamps) {
+function pastOf(memories, stamps, witnessed) {
   const byKey = isRecord(stamps) ? stamps : {};
   return (Array.isArray(memories) ? memories : [])
     .map(item => (isRecord(item) ? text(item.text) : text(item)))
@@ -152,7 +152,16 @@ function pastOf(memories, stamps) {
       const date = reply !== null ? text(stamp.d) : null;
       return { date: date ?? '', text: showSourceTag(line), dayRef: date, ...(reply !== null ? { reply } : {}) };
     })
-    .reverse();
+    .reverse()
+    .concat(witnessLinesOf(witnessed, stamps));
+}
+
+// The lines the person was present for (Journal witnesses, a story date and the line, no reply: the digest keeps none), after NPC State's own
+// memories, and only for a day on which NPC State stamped no memory of theirs.
+function witnessLinesOf(witnessed, stamps) {
+  const stamped = new Set(Object.values(isRecord(stamps) ? stamps : {}).map(stamp => text(stamp?.d)).filter(Boolean));
+  return (Array.isArray(witnessed) ? witnessed : []).filter(item => isRecord(item) && text(item.text) && text(item.date) && ![...stamped].some(d => d.startsWith(text(item.date))))
+    .map(item => ({ date: text(item.date), text: text(item.text), dayRef: text(item.date) }));
 }
 
 // What the notes feature holds of them (cast row `notes`): tastes as "likes x" / "dislikes y" rows and what they know, as far as the story has told it (a hidden fact has no words).
@@ -194,7 +203,7 @@ function partyAddOf(answer) {
  * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), dates of memories without a stamp, secret text, death when/where/reference line.
  */
-export function selectDossier({ dossier, meters, next, cast, portrait, away: awayView, party, join, moodTile, people, place, present } = {}) {
+export function selectDossier({ dossier, meters, next, cast, portrait, away: awayView, party, join, moodTile, people, place, present, witnessed } = {}) {
   if (!isRecord(dossier)) return null;
   const key = keyOf(dossier.name);
   const away = (isRecord(awayView) && Array.isArray(awayView.people) ? awayView.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
@@ -230,7 +239,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
       : { lastPlace: text(dossier.location), lastSeen: text(away?.newsAgo), said: null },
     scene: isHere && text(dossier.goal) ? { wants: text(dossier.goal), hiding: null } : null,
     ties: tiesOf(dossier.keyRelationships, people),
-    past: pastOf(dossier.memories, dossier.memoryStamps),
+    past: pastOf(dossier.memories, dossier.memoryStamps, witnessed),
     secrets: secretsOf(cast),
     profile: profileOf(dossier, cast?.notes),
     death: dead ? { how: text(dossier.lifeStateReason) ?? '', when: '', where: null, certainty: presumed ? 'presumed' : 'confirmed', referenceLine: '' } : null,

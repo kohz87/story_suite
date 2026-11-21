@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## 0.1.5 — 21 Nov 2026
 
+- New switch, off by default: the Journal names who was there for each line of a day, and a person's Past lists the story lines they were present for.
 - A person's mood headline follows the narrator's mood line at once, not only after a Refresh (the bars and history already did).
 - NPC State keeps moods current: the narrator writes a person's new mood when it changes in a reply, and the quiet catch-up refresh re-checks each person's mood, so a mood no longer stays as it was first written.
 - A person's page: the With card and page show who you are to them again (NPC State's relationship summary), above the last change.
