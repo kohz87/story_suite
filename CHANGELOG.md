@@ -2,6 +2,10 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
+## Unreleased
+
+- Hordes on the fight board: foes that keep coming refill the slots of the beaten, wave after wave, until the reserve is gone, their leader falls, you hold for the set exchanges, or you flee; each wave pays its own XP.
+
 ## 0.1.5 — 21 Nov 2026
 
 - A person's mood headline follows the narrator's mood line at once, not only after a Refresh (the bars and history already did).
