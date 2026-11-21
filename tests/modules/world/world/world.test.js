@@ -51,7 +51,7 @@ async function story(options = {}) {
 const leaks = data => HIDDEN.filter(word => JSON.stringify(data).includes(word));
 
 test('the part: feature on by default; the World screen (and no old Days id); queries, setting and widget registered', () => {
-    assert.deepEqual(part.features.map(feature => [feature.id, feature.default]), [[FEATURE, true]]);
+    assert.deepEqual(part.features.map(feature => [feature.id, feature.default]), [[FEATURE, true], ['story-director.witnesses', false]]);
     assert.equal(WORLD_ID, 'story-director/world');
     assert.deepEqual([...worldScreen.mounts], ['tab', 'screen']);
     assert.equal(worldScreen.feature, FEATURE);

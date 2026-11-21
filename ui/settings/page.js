@@ -6,6 +6,7 @@ import { renderConnections } from './connections.js';
 import { renderPacks } from './packs.js';
 import { greyOut } from './off-grey.js';
 import { createToolsPage } from './tools-page.js';
+import { createHelpPage } from './help.js';
 
 /**
  * Creates the page builder over a settings view-model. ctx = { onChange, onAction, go(id), repaint() }.
@@ -27,6 +28,7 @@ export function createPages(settings, ctx) {
   let lorebook = { confirming: '', use: {}, busy: '', result: null };   // a world pack's lorebook rows: the Update question, the ticks changed, the one being made, its result line
   let developer = settings.developer === true;
   const redraw = () => ctx.repaint();
+  const helpBody = createHelpPage(ctx);
   const toolsBody = createToolsPage(settings, ctx, { on: () => developer, own: { onChange: (key, value) => { developer = Boolean(value); ctx.onChange?.(key, value); }, repaint: redraw } });
 
   const cardState = () => ({
@@ -106,6 +108,7 @@ export function createPages(settings, ctx) {
       return renderPacks({ packs, offers: ctx.view?.('now')?.offers ?? [], status, confirming, setConfirm(on) { confirming = on; redraw(); }, change: packChange, act: packAct, kept, setKept(on) { keptFor = on ? packs.v4.world.value : ''; redraw(); }, removing, setRemoving(id) { removing = id; redraw(); }, lorebook, setLorebook(patch) { lorebook = { ...lorebook, ...patch }; redraw(); }, makeLorebook });
     }
     if (section.special === 'tools') return toolsBody();
+    if (section.special === 'help') return helpBody();
     return [];
   }
 

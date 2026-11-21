@@ -11,8 +11,8 @@ import { DEFAULT_RELATIONSHIP_CAPS } from '../../../modules/people/core/core.js'
 const PAIR = ['examples/packs/ersveil/pack.json', 'examples/packs/ersveil-game/pack.json'].map(rel => readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8'));
 const block = lines => (lines.length ? `\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : '');
 
-/** `features`: feature switches by id (world events: 'story-director.world-events'). → { host, adapter, say(story, lines), swipe(story, lines), people(), person(name), bonds() } */
-export async function ersveilLines({ features = {}, settings = {} } = {}) {
+/** `features`: feature switches by id (world events: 'story-director.world-events'); `liveChat`: Story Director's parts read the chat's messages (as in SillyTavern). → { host, adapter, say(story, lines), swipe(story, lines), people(), person(name), bonds() } */
+export async function ersveilLines({ features = {}, settings = {}, liveChat = false } = {}) {
     const probe = await createHost({ settings: {} });
     for (const text of PAIR) {
         const done = await probe.packs.packs.install(text, { origin: 'pack.json' });
@@ -21,10 +21,11 @@ export async function ersveilLines({ features = {}, settings = {} } = {}) {
     const storySuite = structuredClone(probe.ctx.extensionSettings.storySuite);
     probe.close();
     let sdk = null;
-    const sd = createModule({ host: { settings: id => sdk?.settings(id) ?? null, substitute: text => sdk?.substitute(text) ?? text } });
+    let host = null;
+    const sd = createModule({ host: { settings: id => sdk?.settings(id) ?? null, substitute: text => sdk?.substitute(text) ?? text, ...(liveChat ? { chat: () => host?.ctx.chat ?? [] } : {}) } });
     storySuite.modules = { ...(storySuite.modules ?? {}), [MODULE_ID]: { ...settings } };
     storySuite.features = { ...(storySuite.features ?? {}), ...features };
-    const host = await createHost({ settings: storySuite, modules: [sd] });
+    host = await createHost({ settings: storySuite, modules: [sd] });
     sdk = host.sdk;
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };
     // NPC State's runtime holds the same dossiers as the store (its people sync): here it reads them from the head.

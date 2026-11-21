@@ -9,10 +9,11 @@ import { paidOf } from './v1-award.js';
 export function fightResultV1(setup, record, { sheet, groups, wear = null }) {
     const modules = Object.fromEntries(sheet.characters.filter(character => character.v1 === true).map(character => [character.key, character.module]));
     const ended = record.result !== 'unfinished';
-    const legend = legendOf(record, foeGroupsOf(record)), envelope = envelopeOf(record, { id: setup.id, groups, modules, legend, cleared: ended ? groups : [] });
+    // (a horde's arrivals share their slot's group, which reads the front's level: its legend reads every fallen foe's own level, as its pay does)
+    const legend = legendOf(record, record.horde ? (record.foes ?? []).filter(foe => !(Number(foe.hp) > 0)).map(foe => ({ level: Number(foe.level) || 1 })) : foeGroupsOf(record)), envelope = envelopeOf(record, { id: setup.id, groups, modules, legend, cleared: ended ? groups : [] });
     const alive = new Set(sheet.characters.filter(character => character.v1 === true && character.alive !== false).map(character => character.key));
     const pay = paidOf(record, setup, { modules, alive });
-    return { v: 1, key: setup.id, practice: setup.practice, rules: structuredClone(setup.rules ?? {}), ...envelope, ...(wear ? { wear: wear.events, wearCalls: wear.calls } : {}), ...(pay ? { paid: pay.paid, award: { xp: pay.xp, uses: pay.uses, perUse: pay.perUse } } : {}) };
+    return { v: 1, key: setup.id, practice: setup.practice, rules: structuredClone(setup.rules ?? {}), ...envelope, ...(wear ? { wear: wear.events, wearCalls: wear.calls } : {}), ...(pay ? { paid: pay.paid, award: { xp: pay.xp, uses: pay.uses, perUse: pay.perUse, ...(pay.horde ? { horde: 1 } : {}) } } : {}) };
 }
 
 /** The calls of a settled fight: the party's new bars (the foes keep theirs in the record only), then the ended groups cleared from the Foes block. */

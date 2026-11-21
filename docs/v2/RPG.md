@@ -68,6 +68,35 @@ replay the same result. A branch does not keep a staged fight if the reply that 
 open, lost and fled fights pay none. With the board on, the narrator's fixed combat instructions omit rules already handled by code;
 the roll notes still explain each narrated roll. With the board off, no dice are rolled before a reply.
 
+#### Hordes (new fights, 21 Nov)
+
+A horde is a fight where the foes keep coming. Behind the groups on the board stands a **reserve**: after each exchange, every slot
+whose group has fallen takes the next reserve group (all the arrivals of one exchange are one **wave**). The arrivals do not act or get
+struck in the exchange they come in; they join the end of the foe order and fight from the next exchange. A refill draws no dice, so a
+swipe, a Re-read, a rewind, a reload and a fight carried over several replies give the same arrivals.
+
+A horde starts two ways. A typed attack on foes that keep coming ("I hold the gate against the ghouls pouring in") asks the pre-check
+for a few words (waves 2 to 8, how it ends, the leader's name), and code builds the reserve from them; a leader counts only when your
+message (or the reply before it) names him. The narrator can also set one with the Foes block's horde line,
+`+ dm foes — reason | kind: horde | waves: 2..8 | hold: 0..20 (0=none) | leader: text` ("none" for no leader), beside its set-slot
+lines; any clear of a slot forgets it, so the next fight is an ordinary one. Foes blocks made before this build have no horde line
+(only a new chat's block has it); the typed-attack path works in every chat. The front is every group the opening names (up to all six
+slots); the reserve is the front again, wave after wave, at most 48 foes and 12 groups, 60 foes in the whole fight; waves past that are
+cut, never refused. A named leader who is not on the front comes last, as a boss two levels above the front (or at his stated level);
+a leader who stands on the front is not copied into the reserve (no second boss of his name arrives while he stands).
+
+It ends one of four ways: the reserve is gone and no foe stands (won); the named leader falls (won at once: the horde breaks); the
+party still stands when the hold's exchange ends (won, default 8 exchanges, 4 to 20); or the party flees. A loss is as in any fight.
+XP is paid per wave as a fight of its own (15 a foe × the tier's factor, each wave held to 100 per hero) on the foes that fell only,
+with no cap over the waves; foes left standing pay nothing, and a flee or a loss pays none. A fled or lost horde never resumes.
+
+The Foes card shows a strip ("Wave 2 · 8 still coming", "Hold 4 more exchanges · or until Ghoul Warlord falls · 11 down so far"),
+and each slot shows only its latest wave. The battle log has a Reinforcements row per arrival, and the narrator is told each arrival
+and how the horde ended, in the usual single fight summary. Auto stops as usual; set the Auto-fight cap to **Until the end** to play a
+horde through. One reply holds at most 64 KB of fight result: the exchange that would pass it is refused before it is staged ("The
+Fight holds all one reply can save. Send to go on."), Auto stops there, and the next reply goes on from that exchange (any long fight,
+not only a horde). A won horde pays its XP once, at its end. There is no Stamina or Mana regained inside a fight: a dry pool drops the stance and leaves the free attack.
+
 With the Standard formula a foe group's health bar has `4 + floor(level/30)` blocks (levels 1 to 29 give 4, 30 to 59 give 5, 60 to 89 give 6, 90 to 99 give 7; on a Foes block of the harder-foes rule `12 + floor(level/30)`, 12 to 15, see [Harder foes](#harder-foes-new-chats)) and reads
 "Scratched · 5 of 6"; the battle log shows the recorded turn order with its totals (`Turn order: Wessel 21 > Weir-drake 18`), the
 quick start and its opening action, "<who> does not act: beaten before its turn" for a group or character beaten before its turn

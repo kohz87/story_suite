@@ -60,3 +60,14 @@ test('a changed witness refuses the next stage, and the recorded policy still go
     assert.equal(companion.error.code, 'NOT_YOURS');
     assert.equal(first.session.steps.length, 1, 'a refusal changes nothing');
 });
+
+test('a step that would take the preview\'s result past the result limit is refused before it is stored (the settle would refuse it); the steps already staged stand', () => {
+    const grows = { ...kind, limits: { steps: 5, stepInputs: 2, resultBytes: 200 }, play: (state, setup, steps) => ({ view: {}, result: { lines: 'x'.repeat(80 * steps.length) }, stop: 'open' }) };
+    const session = createSession({ origin: 'r', anchor: 'r', kindId: 'test/probe', seed: 9, setup: { room: 1 } });
+    const one = stageInteraction({ session, step, kind: grows, kindId: 'test/probe', state: { room: 1 }, actors });
+    const two = stageInteraction({ session: one.session, step, kind: grows, kindId: 'test/probe', state: { room: 1 }, actors });
+    assert.equal(two.error, undefined, 'two steps fit');
+    const three = stageInteraction({ session: two.session, step, kind: grows, kindId: 'test/probe', state: { room: 1 }, actors });
+    assert.deepEqual(three.error, { code: 'TOO_BIG', message: 'The Probe holds all one reply can save. Send to go on.' });
+    assert.equal(two.session.steps.length, 2);
+});

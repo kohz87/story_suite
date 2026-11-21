@@ -21,9 +21,9 @@ test('stats: the narrator\'s named stats are held to the budget; with none named
     assert.deepEqual(['weapon', 'body', 'off-hand', 'head', 'cloak', 'feet', 'accessory'].map(slot => pick('Thing', slot)), ['STR', 'VIT', 'VIT', 'VIT', 'AGI', 'AGI', 'CHA'], 'the slot\'s default');
     const h = createHarness([core()]);
     const add = (name, labels) => { assert.equal(h.capture(line('+', 'item', name, labels), ON).ok, true); return Object.values(h.state.domains.inventory.defs).find(item => item.name === name); };
-    assert.deepEqual(add('Cane Sword', { rarity: 'rare', dex: '+2' }).stats, { DEX: 2 });
+    assert.deepEqual(add('Cane Sword', { rarity: 'rare', dex: '+2' }).stats, { DEX: 3 }, 'a rare piece gives its 3 points in full (owner, 21 Nov)');
     assert.deepEqual(add('Hexed Hammer', { rarity: 'rare', str: '2', int: '2' }).stats, { STR: 2, INT: 1 }, 'held to a budget of 3');
-    assert.deepEqual(add('Split Axe', { rarity: 'epic', str: '1', agi: '1', cha: '9' }).stats, { STR: 1, AGI: 1 }, 'at most two stats');
+    assert.deepEqual(add('Split Axe', { rarity: 'epic', str: '1', agi: '1', cha: '9' }).stats, { STR: 3, AGI: 1 }, 'at most two stats, the epic budget (4) in full');
     assert.deepEqual(add('Plain Dagger', { dex: '3' }).stats, { DEX: 1 }, 'a common piece is held to its budget of 1');
     assert.deepEqual(add('Iron Helm', { rarity: 'uncommon' }).stats, { VIT: 2 });
     assert.deepEqual(add('Silk Cloak', { rarity: 'fine' }).stats, { AGI: 2 });
@@ -106,11 +106,11 @@ test('off: the repair word does nothing (as before) and the wear word still work
 test('any stat on any item: a blade with AGI and DEX, held to the budget and two stats; a default only when none is named', () => {
     const h = createHarness([gearCore()]);
     const add = (name, labels) => { assert.equal(h.capture(line('+', 'item', name, labels, 'forged by a master in Auvoth'), ON).ok, true); return Object.values(h.state.domains.inventory.defs).find(item => item.name === name); };
-    assert.deepEqual(add('Shadowsteel Blade', { rarity: 'rare', agi: '+1', dex: '+1' }).stats, { AGI: 1, DEX: 1 }, 'a blade with AGI is fine');
+    assert.deepEqual(add('Shadowsteel Blade', { rarity: 'rare', agi: '+1', dex: '+1' }).stats, { AGI: 2, DEX: 1 }, 'a blade with AGI is fine; the rare budget (3) is given in full, the rest to the first stat named');
     assert.deepEqual(add('Heavy Blade', { rarity: 'rare', str: '+5' }).stats, { STR: 3 }, 'held to the budget of 3');
-    assert.deepEqual(add('Odd Blade', { rarity: 'legendary', str: '1', agi: '1', dex: '1', int: '1' }).stats, { STR: 1, AGI: 1 }, 'epic here (4), two stats');
+    assert.deepEqual(add('Odd Blade', { rarity: 'legendary', str: '1', agi: '1', dex: '1', int: '1' }).stats, { STR: 3, AGI: 1 }, 'epic here (4), two stats, the budget given in full');
     assert.deepEqual(add('Bare Blade', { rarity: 'rare' }).stats, { DEX: 3 }, 'none named: the default, the whole budget');
-    assert.deepEqual(add('Wool Hood', { rarity: 'uncommon', cha: '1' }).stats, { CHA: 1 }, 'any item');
+    assert.deepEqual(add('Wool Hood', { rarity: 'uncommon', cha: '1' }).stats, { CHA: 2 }, 'any item; an uncommon piece gives its 2 points (owner, 21 Nov)');
 });
 
 test('rarity limits: legendary only when the same reply earned it, else epic with one Problems line', () => {
@@ -206,7 +206,7 @@ test('a reply written with the grammar\'s words applies slot, rarity, stats, equ
     assert.deepEqual([blade.slot, blade.rarity], ['weapon', 'rare']);
     const gear = host.sdk.query('inventory.gear', { owner: 'party' });
     assert.deepEqual([gear.slots.weapon.name, gear.slots.cloak.name], ['Plain Thing', 'Fur Mantle']);
-    assert.deepEqual(gear.statBonus, { STR: 0, VIT: 0, AGI: 2, DEX: 1, INT: 0, LUK: 0, CHA: 0 });
+    assert.deepEqual(gear.statBonus, { STR: 0, VIT: 0, AGI: 3, DEX: 2, INT: 0, LUK: 0, CHA: 0 }, 'each piece gives its rarity\'s points in full: the rare blade DEX 2 + AGI 1, the uncommon mantle AGI 2');
     await host.send('Fight.', reply('Torn.', ['~ item Plain Thing — struck | wear: ruin']));
     await host.send('Fight.', reply('Torn.', ['~ item Plain Thing — struck again | wear: ruin']));
     await host.send('Fight.', reply('Torn.', ['~ item Plain Thing — struck again | wear: ruin']));
@@ -215,7 +215,7 @@ test('a reply written with the grammar\'s words applies slot, rarity, stats, equ
     await host.send('Smith.', reply('Mended.', ['~ item Plain Thing — reforged | repair: restore']));
     const after = host.sdk.query('inventory.gear', { owner: 'party' });
     assert.equal(after.slots.weapon.broken, false);
-    assert.equal(after.statBonus.DEX, 1, 'the stats are back');
+    assert.equal(after.statBonus.DEX, 2, 'the stats are back');
 });
 
 test('a name\'s length never decides whether a piece can be equipped: 12 and 13+ letters, spaced or one word, equip alike', () => {

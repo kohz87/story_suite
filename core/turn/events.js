@@ -17,8 +17,10 @@ import { createReplyHooks } from './events-hooks.js';
 import { keptProblems } from './problem-keep.js';
 import { createProseEdits } from './edit-prose.js';
 import { castNames } from './edit-names.js';
+import { HISTORY_STRINGS } from '../strings/history.js';
+import { fill } from '../strings-parts/text.js';
 export function createEvents(s, deps) {
-    const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedInputs, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, PREPARE_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
+    const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedInputs, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, PREPARE_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false, sealIdle = null } = deps;
     const { resumeHeldReply, restoreHeldReply } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
     const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate, keepLog: () => s.keepLog?.() });
@@ -109,6 +111,7 @@ export function createEvents(s, deps) {
             const turn = { index: id, type: current.type, receipts: result.receipts, steps: result.steps, problems, told: current.untold };
             events?.emit('turn', turn);
             afterReply(id, current.type, message, [...parsed.lines, ...late].map(line => line.raw), (block === null || blankOpen(text)) && current.type !== 'continue');
+            sealIdle?.afterReply();
             return turn;
         } catch (error) {
             const failure = problem({ index: id, code: 'FAILED', message: `The reply's changes could not be kept: ${error?.message ?? error}` });
@@ -142,12 +145,14 @@ export function createEvents(s, deps) {
         s.problemLog.length = 0;
         s.problemsLoading = true;
         s.quiets = [];
+        sealIdle?.cancel();
         markIdle();
         clearPrompts();
         // The RPG's code, when this chat needs it (the feature is on, or it holds the RPG's records), before anything is replayed (rpg-lazy.js); a stalled
         // import is waited for only PREPARE_WAIT_MS (the guard mark then says the code is missing, so a later load makes the chat look again).
         if (typeof prepare === 'function') { try { await within(prepare(), PREPARE_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         try { rebuild({ publish: false }); } catch (error) { s.problemsLoading = false; throw error; }
+        try { store.settleHistory?.(); } catch { /* a sealed history this chat may not use is read-only (store/sealed-base.js) */ }
         const meta = metadata();
         // The chat's own Problems list comes back with it (a reload keeps it; another chat has its own).
         s.problemLog.unshift(...keptProblems(meta));
@@ -162,6 +167,8 @@ export function createEvents(s, deps) {
             if (store.dirty?.()) store.scheduleSave?.();
         }
         await ensureModules({ store, bus, registry, events });
+        // (a long chat from before sealing seals at its first quiet moment; armed once the modules are in, so no seal runs mid-load)
+        sealIdle?.afterReply();
         restoreHeldReply();
         events?.emit('head', { index: store.headIndex(), reason: 'chat' });
     }
@@ -213,6 +220,16 @@ export function createEvents(s, deps) {
      * of the reply applied after the rebuild) skips the reconcile: an edit plans nothing again by itself, Re-read is how it
      * reaches the story (docs/dev/edit-prose-only.md). Without an index, or any other edit, the full path runs.
      */
+    // A sealed reply deleted or edited (store/sealed-base.js): its changes stay in the story, and the reader is told once.
+    function sealedNotice(reason, index) {
+        let deleted = '';
+        try { deleted = store.settleHistory?.() ?? ''; } catch { deleted = ''; }
+        const history = store.history?.();
+        if (!history || history.status === 'none') return;
+        if (deleted === 'deleted' && reason === 'delete') notify(fill(HISTORY_STRINGS.sealedDeleted, { window: history.window }));
+        else if (reason === 'edit' && Number.isInteger(index) && index < history.from && isCarrier(ctx?.chat?.[index])) notify(fill(HISTORY_STRINGS.sealedEdited, { window: history.window }));
+    }
+
     async function onTimelineChanged(reason, index = null) {
         // (told from the text first, best by the edit's first listener: a listener before this one may publish a head, which remembers the new text)
         const told = s.proseVerdict;
@@ -220,6 +237,7 @@ export function createEvents(s, deps) {
         const prose = reason !== 'edit' ? null : told && told.index === index ? told.prose : proseEdits.proseOnly(index);
         if (typeof prepare === 'function') { try { await within(prepare({ scan: false }), PREPARE_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         rebuild({ publish: false });
+        sealedNotice(reason, index);
         resumeHeldReply();
         restoreHeldReply();
         if (prose === null || store.problems().some(entry => entry?.index === prose)) {

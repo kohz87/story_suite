@@ -4,7 +4,7 @@ import { h } from '../kit/dom.js';
 const GROUPS = ['Play', 'Rules', 'Setup', 'Tools'];
 const ICONS = {
   start: '◎', look: '◐', people: '♥', rpg: '⚔', world: '◍', director: '🎬',
-  money: '◉', extras: '✦', models: '⚡', packs: '▣', addons: '✚', tools: '⚙',
+  money: '◉', extras: '✦', models: '⚡', packs: '▣', addons: '✚', tools: '⚙', help: '?',
 };
 
 function searchBox(onQuery) {

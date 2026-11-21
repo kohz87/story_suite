@@ -67,3 +67,13 @@ test('foes: all down reads "all down"', () => {
   const card = foesCard(fightFixture('end').foeGroups);
   assert.equal(card.querySelector('.cnt').textContent, '4 · all down');
 });
+
+test('foes: a horde draws its "still coming" strip under the head (wave, how it ends, how many are down); an ordinary fight draws none', () => {
+  installFakeDom();
+  const groups = fightFixture('choose').foeGroups;
+  const card = foesCard(groups, { horde: { wave: 'Wave 2 · 8 still coming', until: 'Hold 4 more exchanges · or until Ghoul Warlord falls', down: 11 } });
+  const strip = card.querySelector('.horde');
+  assert.equal(strip.querySelector('b').textContent, 'Wave 2 · 8 still coming');
+  assert.equal(strip.querySelector('.fine').textContent, 'Hold 4 more exchanges · or until Ghoul Warlord falls · 11 down so far');
+  assert.equal(foesCard(groups).querySelector('.horde'), null);
+});

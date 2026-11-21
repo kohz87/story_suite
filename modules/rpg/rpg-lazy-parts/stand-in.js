@@ -1,6 +1,6 @@
 // The RPG part's stand-in: the same commands, cards, queries, hooks, settings and guard, handed to the real part once the library is there.
 
-import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_AWARD, BOARD_CLEAR_FOES, BOARD_LAPSE, BOARD_HURTS, BOARD_OPEN_FOES, BOARD_SKILL, BOARD_SKILL_CARRY, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, FOES_TOUCH_QUERY, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, USE_ITEM } from '../names.js';
+import { AUTO_CAP, AUTO_CAP_SETTING, AWAY_WAIT_SETTING, AWAY_XP_SETTING, BOARD_AWARD, BOARD_CLEAR_FOES, BOARD_LAPSE, BOARD_HURTS, BOARD_OPEN_FOES, BOARD_SKILL, BOARD_SKILL_CARRY, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, FOES_TOUCH_QUERY, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, USE_ITEM } from '../names.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../levels.js';
 import { levelsQuery, rosterQueries } from '../roster.js';
 import { rpgLib } from './library.js';
@@ -74,7 +74,7 @@ export function createLazyRpgPart(deps = {}) {
             afterCapture: (view, info) => part()?.hooks.afterCapture(view, info),
             afterReceive: (view, info) => { part()?.hooks.afterReceive(view, info); },
         },
-        settings: { defaults: { [PRACTICE_SETTING]: PRACTICE.perUse, [XP_RATE_SETTING]: XP_RATE.default, [LEVEL_CAP_SETTING]: LEVEL.max, [AUTO_CAP_SETTING]: AUTO_CAP.default, [PRECHECK_SETTING]: true, [CHECKS_SETTING]: true }, schema: SETTINGS_SCHEMA },
+        settings: { defaults: { [PRACTICE_SETTING]: PRACTICE.perUse, [XP_RATE_SETTING]: XP_RATE.default, [LEVEL_CAP_SETTING]: LEVEL.max, [AUTO_CAP_SETTING]: AUTO_CAP.default, [PRECHECK_SETTING]: true, [CHECKS_SETTING]: true, [AWAY_WAIT_SETTING]: false, [AWAY_XP_SETTING]: 0 }, schema: SETTINGS_SCHEMA },
         guard: (view, info) => { const made = part(); return made ? made.guard(view, info) : { ok: false, reason: 'The RPG is not loaded.' }; },
     };
 }

@@ -43,9 +43,10 @@ test('an older or edited rules text loses its board-owned sections by label, and
     assert.ok(flat.includes('a believable edge exists: ambush'), 'a colon inside a sentence is no section label');
 });
 
-test('no foe stands: only the start line, as before', () => {
+test('no foe stands: only the start line, with how to write a horde (21 Nov)', () => {
     const quiet = boardReplyGrammar(state(), { fight: false });
-    assert.deepEqual(quiet, ['A fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.']);
+    assert.deepEqual(quiet, ['A fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. '
+        + 'For foes that keep coming (a horde, waves at a gate), also write the horde line after the slot lines: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.']);
 });
 
 test('through the host: a reply that carries a played board segment reads the pinned Combat rules flavour, never its board-owned sections nor the standing line', async t => {

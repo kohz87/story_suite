@@ -8,6 +8,7 @@ import { PROBLEM_KEY, PROBLEM_ROOM } from './shared-problem-keys.js';
 import { STEP_CEILING, STEP_KEY } from './shared-step-keys.js';
 import { isInt, isRecord } from './shared-guards.js';
 import { threadErrors } from './thread-errors.js';
+import { ledgerErrors } from '../../../world/encounters/index-parts/ledger.js';
 
 // The most the validator lets the list hold (a replay after a delete never adds more than were kept).
 const PROBLEM_CEILING = 2 * PROBLEM_ROOM;
@@ -59,7 +60,7 @@ export function validateDirector(slice) {
         || (now && (!Array.isArray(now.quests) || !(now.from === null || isInt(now.from)) || !(now.lone === null || isRecord(now.lone))))) {
         errors.push('director.turn is malformed.');
     }
-    errors.push(...initiativeErrors(slice), ...pulseErrors(slice));
+    errors.push(...initiativeErrors(slice), ...pulseErrors(slice), ...ledgerErrors(slice));
     return errors;
 }
 

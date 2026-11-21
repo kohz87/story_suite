@@ -30,6 +30,9 @@ export const V1 = deep({
         loneTiers: ['elite', 'boss', 'apex'],
     },
     fight: { maxExchanges: 60, cap: 99, healBelowTimes: 2, areaTargets: 2 },
+    // A horde (combat/horde.js): the reserve that refills emptied slots. waves = group-fulls in all (the front is the first); hold = exchanges to hold;
+    // the reserve at most `groups` groups and `reserveFoes` foes, the whole fight (front + reserve) at most `fightFoes`; `xpWaves` = the most waves one fight can pay.
+    horde: { waves: { min: 2, max: 8 }, hold: { min: 4, max: 20, default: 8 }, groups: 12, reserveFoes: 48, fightFoes: 60, xpWaves: 13, leaderLevels: 2 },
     cost: { normal: 0, attack: 1, area: 2, heal: 2, stance: 1, utility: 0 },
     skill: {
         defaultType: 'attack', normalType: 'normal', fallbackTypes: ['attack', 'area'],

@@ -11,6 +11,7 @@
 //   A pack's legacy event (`event:pack.…`) travels the same way, with no reach.
 // * A happening the story reported in a world line (not locked by an event) is heard at once: fact at its own place, rumour elsewhere until the courier time
 //   (spec §4: "fact follows at courier time"). The World pulse's rumours are rumours. An entry with no place or start time is heard at once.
+//   One still waiting for the Director's verdict (`judge: 'pending'`) is rumour everywhere; one the Director refused is not heard.
 
 import { nowFrom } from './known-parts/clock.js';
 import { queryOf, tryQuery } from './known-parts/query.js';
@@ -24,6 +25,7 @@ import { buildGeo } from '../daily/geo.js';
 import { readWorld } from '../chronicle/world-daily/read-world.js';
 import { WORLD_BY } from '../chronicle/world-daily/news-entries.js';
 import { slotValue } from '../../rpg/slot.js';
+import { liveTable } from '../chronicle/conditions/live-holds.js';
 
 const sceneName = (state, tools) => text(tryQuery(queryOf(tools), 'scene.place', {}, null)?.name) || text(state?.domains?.scene?.place?.name);
 
@@ -35,7 +37,7 @@ function envOf(state, tools, now) {
     const chronicle = state?.domains?.chronicle ?? {};
     const declared = tryQuery(query, 'chronicle.conditionNames', {}, []);
     const masks = slotValue(chronicle.daily)?.masks ?? {};
-    const table = chronicle.conditions ?? {};
+    const table = liveTable(chronicle.conditions ?? {}, slotValue(chronicle.daily));
     const factorOf = routeFactors({ table, declared, geo, masks, now });
     return { tools, geo, routes: world.routes, routeKinds: world.routeKinds, pace: courierSpeed(tools), factorOf, minor: minorIds(world), cache: new Map(), table, declared, masks, byTime: new Map() };
 }
@@ -62,6 +64,9 @@ function arrival(env, event, place, clock) {
     // Beyond its reach (ruling 53) news is rumour only, and names no exact place, just the region.
     const far = heard === 'rumour';
     const shown = { place: far && origin ? origin.regionName || origin.region || text(event.place) : shownPlace(origin, env.tools, text(event.place)) };
+    // A narrator's new entry the Director has not judged yet is rumour everywhere at once; one it refused is heard nowhere (world-judge/judged.js).
+    if (event.judge === 'refused') return null;
+    if (event.judge === 'pending') return { ...shown, arrivesAt: isInt(event.since) ? event.since : null, via: 'tier', tag: 'rumour', news: 'fired' };
     if (typeof event.rumour === 'string' || !isInt(event.since)) return { ...shown, arrivesAt: isInt(event.since) ? event.since : null, via: 'tier', tag: typeof event.rumour === 'string' || far ? 'rumour' : 'fact', news: 'fired' };
     const delay = newsDelay(envAt(env, event.since), text(event.place), place);
     if (!delay) return { ...shown, arrivesAt: event.since, via: 'tier', tag: 'fact', news: 'fired' };

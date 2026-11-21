@@ -17,7 +17,7 @@ const foesOf = payload => (Array.isArray(payload?.groups) && payload.groups.leng
 const entriesOf = payload => (Array.isArray(payload?.open) && payload.open.length > 0 && payload.open.length <= 64 && payload.open.every(entry => text(entry?.name) && Number.isSafeInteger(entry.count)
     && (entry.tier === undefined || text(entry.tier)) && (entry.level === undefined || Number.isSafeInteger(entry.level)) && (entry.class === undefined || Number.isSafeInteger(entry.class))) ? payload.open : null);
 
-/** `{ 'rpg.board.openFoes': { open: [{ name, count, level | class }], fix, stale }, 'rpg.board.hurts': { hurts: [{ module, field, to }] }, 'rpg.board.clearFoes': { groups, foes: [{ slot, module, local, filled }] } }`; all are internal; `rpg.board.award` is `{ xp: [{ module, xp }], uses: [{ who, skill, n }], perUse }` (v1 fights, board/v1-award.js) (no screen calls them). */
+/** `{ 'rpg.board.openFoes': { open: [{ name, count, level | class }], fix, stale }, 'rpg.board.hurts': { hurts: [{ module, field, to }] }, 'rpg.board.clearFoes': { groups, foes: [{ slot, module, local, filled }] } }`; all are internal; `rpg.board.award` is `{ xp: [{ module, xp }], uses: [{ who, skill, n }], perUse, horde? }` (`horde: 1`: a horde's XP cap) (v1 fights, board/v1-award.js) (no screen calls them). */
 export function boardChangeCommands() {
     return {
         [OPEN_FOES]: Object.assign((ctx, payload) => {

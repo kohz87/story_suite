@@ -1,7 +1,7 @@
 // The World part definition: its feature, queries, settings, screens and widgets.
 
 import { DEFAULT_UPCOMING_DAYS, FEATURE, MAX_UPCOMING_DAYS, hereView, worldView } from '../known.js';
-import { journalDay, journalEvents, journalView } from '../journal.js';
+import { WITNESSES, journalDay, journalEvents, journalView, witnessView } from '../journal.js';
 import { PEOPLE_WIDGET, peopleWidget } from '../people.js';
 import { EVENTS_WIDGET, eventsWidget } from '../events-widget.js';
 import { stChatId } from '../../../director/screens/reveal.js';
@@ -19,6 +19,11 @@ export const part = {
         label: 'World view',
         describe: 'The World screen: where you are and who is here, the news, events and factions you know, what you know is coming, and a journal of each story day. Only what your character knows.',
         default: true,
+    }, {
+        id: WITNESSES,
+        label: 'Journal witnesses',
+        describe: 'The Journal names who was there for each earlier-day line, and a person\'s Past lists the story lines they were present for. Read from the day digests; nothing is stored and the narrator sees nothing new.',
+        default: false,
     }],
     domains: {},
     commands: {},
@@ -38,6 +43,8 @@ export const part = {
         'world.cueToday': (state, args, tools) => cueToday(state, args, tools),
         'director.journal': tagged((state, args, tools) => journalView(state, args, tools)),
         'director.journal.events': tagged((state, args, tools) => journalEvents(state, args, tools)),
+        // Who was there for the earlier days' lines (or one person's lines, `{ name }`); empty with the witnesses switch off.
+        'journal.witnesses': (state, args, tools) => witnessView(state, args, tools),
         // Not feature-tagged: other modules' recap works whether or not the World screen or the digest is on (contract P: journal.day).
         'journal.day': (state, args, tools) => journalDay(state, args, tools),
     },

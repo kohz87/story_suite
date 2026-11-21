@@ -7,6 +7,7 @@ import { gearSoakRecord } from './gear.js';
 import { actorIdOf } from './roster.js';
 import { readSheet } from './read.js';
 import { sheetSkills } from './sheet-skills.js';
+import { awayNow, sheetAway } from './sheet-away.js';
 
 const BAR_KIND = Object.freeze({ health: 'hp', mana: 'mp', stamina: 'sp' });
 
@@ -21,15 +22,15 @@ const statsOf = character => (character.v1 === true
 const classOf = line => String(line ?? '').split(' · ').filter(part => !/^Lv \d+$/.test(part)).join(' · ') || null;
 
 /** The sheet row of one party member. `gear` is the soak of the worn pieces (0 when none or unknown). */
-function rowOf(character, gear) {
+function rowOf(character, gear, away) {
     const vit = character.stats.find(stat => stat.key === 'vit')?.value;
     return {
         id: actorIdOf(character.module), name: character.name, level: character.level, line: character.levelText, className: classOf(character.levelText),
         bars: bars(character), xpPct: Math.min(100, Math.round(100 * character.xp / LEVEL.xpPerLevel)), points: character.points,
         // the stance's mastery adds to it in a fight; at rest the VIT and the worn gear are all there is (combat/damage.js soakOf)
         soakPct: character.v1 === true ? soakOf(vit, 0, gear) : 0,
-        // no source: nothing keeps where a companion who is away has gone (a member who left is not on the sheet), and no condition has a timer in the sheet
-        away: null, effects: [],
+        // where the story says a companion has gone, from Story Director's away view (sheet-away.js); no condition has a timer in the sheet
+        away, effects: [],
         stats: statsOf(character), skills: sheetSkills(character.skills, character.level),
     };
 }
@@ -47,10 +48,11 @@ export function sheetQuery(state, args, tools) {
     // The party's shared bag counts for the first v1 Character of the sheet (by block id, as the fight gives it: board/v1-kind.js soakOf), not for the first of the party's own order.
     const holder = readSheet(state).characters.find(character => character.v1 === true);
     const sharedFor = holder ? actorIdOf(holder.module) : null;
+    const gone = awayNow(tools);
     return party.map(character => {
         const owners = [actorIdOf(character.module), ...(actorIdOf(character.module) === sharedFor ? ['party'] : [])];
         let gear = 0;
         try { gear = query ? gearSoakRecord(owners, owner => query('inventory.gear', { owner })).total : 0; } catch { gear = 0; }
-        return rowOf(character, gear);
+        return rowOf(character, gear, sheetAway(gone, character.name));
     });
 }

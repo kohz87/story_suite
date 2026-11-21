@@ -4,6 +4,7 @@
 import { damageOf, healOf, soakOf, takeHit } from './damage.js';
 import { foeAttacks } from './foe-turns.js';
 import { foeStats } from './foes.js';
+import { leaderDown, refill } from './horde.js';
 import { V1 } from './numbers.js';
 import { profileOf, skillsOf } from './profile.js';
 import { foeRoll, playerRoll, rollOutcome } from './rolls.js';
@@ -262,7 +263,8 @@ function choiceFor(choices, actor, index) {
  * Play one exchange on a copy of `sheet` ({ party, foes }). `choices` is an object keyed by hero id/label or an array in
  * party order; a missing hero choice is automatic (the simulator's policy). `options.roll(kind, slot)` returns each d20,
  * `options.order` is the fight's fixed per-side order, `options.rotation` keeps the foe target rotation, `options.fleeIdle` defers an idle member's stance in a flee exchange, and `options.speedFull` gives a Speed stance its full mastery on evasion.
- * Returns { sheet, lines, moves, order, rotation, result } with result null while the fight is open.
+ * `options.horde` ({ setup, state }: the checked setup.horde and its moving state) plays a horde: the ends `cleared`, `leader` and `held`, and the refill.
+ * Returns { sheet, lines, moves, order, rotation, result } with result null while the fight is open; a horde also returns `horde` (the state after) and `end` for a win.
  */
 export function playExchange(sheet, choices = null, options = {}) {
     if (!sheet || !Array.isArray(sheet.party) || !Array.isArray(sheet.foes)) throw new TypeError('An exchange needs a sheet with party and foes.');
@@ -271,7 +273,8 @@ export function playExchange(sheet, choices = null, options = {}) {
     const order = options.order ?? { party: party.map(idOf), foes: foes.map(idOf), first: 'party' };
     const byId = new Map([...party, ...foes].map(actor => [idOf(actor), actor]));
     const lines = [], moves = [];
-    let rotation = Math.max(0, Math.floor(number(options.rotation))), result = null;
+    let rotation = Math.max(0, Math.floor(number(options.rotation))), result = null, end = null;
+    const horde = options.horde ?? null;
     const turn = options.number ?? 1;
     lines.push(['exchange', turn]);
     // A Flee is the whole party's: in a fight opened under the `fleeIdle` mark (options.fleeIdle; board/v1-kind.js openV1), when the party moves first and someone
@@ -296,8 +299,10 @@ export function playExchange(sheet, choices = null, options = {}) {
             const done = heroTurn(actor, { party, foes }, choiceFor(choices, actor, index), options.roll, index, lines, moves);
             if (done.result) { result = done.result; return; }
         }
-        if (!living(foes).length) result = 'win';
+        // (a horde is won by clearing only once its reserve is spent: an emptied front is refilled at the exchange's end)
+        if (!living(foes).length && !(horde && horde.state.next < horde.setup.reserve.length)) { result = 'win'; end = horde ? 'cleared' : null; }
         else if (!living(party).length) result = 'loss';
+        else if (horde && leaderDown(foes, horde.state)) { result = 'win'; end = 'leader'; }
         // (the flee failed and the fight goes on: whoever still holds a stance unpaid takes it up before the foes strike)
         if (!result) order.party.forEach((id, index) => { const actor = byId.get(String(id)); if (actor && number(actor.hp) > 0) upkeepLater(actor, index); });
     };
@@ -315,5 +320,10 @@ export function playExchange(sheet, choices = null, options = {}) {
         if (!living(party).length) result = 'loss';
     };
     if (order.first === 'party') { partyPhase(); if (!result) foePhase(); } else { foePhase(); if (!result) partyPhase(); }
-    return { sheet: { party, foes }, lines, moves, order, rotation, result };
+    if (!horde) return { sheet: { party, foes }, lines, moves, order, rotation, result };
+    // A horde (options.horde, combat/horde.js): held for its exchanges with a hero standing, it is won; else the emptied slots take the reserve's next groups.
+    if (!result && horde.setup.hold && turn >= horde.setup.hold && living(party).length) { result = 'win'; end = 'held'; }
+    const filled = result ? { foes, order, state: horde.state, lines: [] } : refill(foes, order, horde.setup, horde.state);
+    lines.push(...filled.lines);
+    return { sheet: { party, foes: filled.foes }, lines, moves, order: filled.order, rotation, result, horde: { ...filled.state }, ...(end ? { end } : {}) };
 }

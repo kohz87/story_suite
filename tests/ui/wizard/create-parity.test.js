@@ -55,11 +55,11 @@ async function newCreate(t, { prefill = null, edit = null, refuse = null } = {})
 
 // What the earlier window sent for each case (captured from it; the hashes taken again when the bars moved to stat pairs, the only change in the payloads being the
 // Character's HP and SP size rules and SP defaults, and again for the three stances, the only change being the Skills block's type list and prompt and Mara's
-// Movement skill read as Speed): the command types, a hash of every payload and option in order, the blocks, the message.
+// Movement skill read as Speed, and again for the horde line (21 Nov), the only change being the Foes block's three horde fields, its horde kind with its slot-set condition, and the clears that forget them): the command types, a hash of every payload and option in order, the blocks, the message.
 const WANT = {
-  fighter: { types: ['dm.define', 'dm.define', 'dm.define', 'dm.define'], hash: '75870c10dbb71e912a55f839899533dd82f2d367650178fbdc69c517ba640f0b', active: ['pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/wessel', 'pack.chat/wessel-skills'], message: '' },
-  mara: { types: ['dm.define', 'dm.define', 'dm.define', 'dm.define'], hash: '0a1db51fae8d5c8789b2a2af515fd4fac8b5eb0d6953205256eee453434e1144', active: ['pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/mara', 'pack.chat/mara-skills'], message: '' },
-  imported: { types: ['dm.define', 'dm.define', 'dm.define', 'dm.define', 'inventory.add', 'inventory.add', 'wallet.set'], hash: 'd7c6afcf56f4a2564dae6ac7ddef61f7a3c74343506341aed8d20cfef349b2ad', active: ['pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/wessel', 'pack.chat/wessel-skills'], message: '' },
+  fighter: { types: ['dm.define', 'dm.define', 'dm.define', 'dm.define'], hash: '964db8f61180cdc765ffdd4dceafa442f2e8d4d954deba78d3b94252a2818976', active: ['pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/wessel', 'pack.chat/wessel-skills'], message: '' },
+  mara: { types: ['dm.define', 'dm.define', 'dm.define', 'dm.define'], hash: '1e9899dedd753b1ee676080fdb11c6ce7360f360afb991d70d3890c99d331a9b', active: ['pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/mara', 'pack.chat/mara-skills'], message: '' },
+  imported: { types: ['dm.define', 'dm.define', 'dm.define', 'dm.define', 'inventory.add', 'inventory.add', 'wallet.set'], hash: 'f0cf26de402ce2298c032ea912a47fd8fbc3c2f075465c840a3cbc528687a5f7', active: ['pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/wessel', 'pack.chat/wessel-skills'], message: '' },
   refused: { types: ['dm.define', 'dm.define', 'dm.remove'], hash: 'cbc1201c939b347bbccade2836c99b56982da33c0d865b11a71c8df813fa071c', active: [], message: 'Could not make the skills: No room for it. Nothing was created.' },
 };
 

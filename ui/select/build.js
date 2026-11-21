@@ -11,6 +11,7 @@ import { selectWorld } from './world.js';
 import { selectJournal } from './journal.js';
 import { selectStory } from './story.js';
 import { listProfiles } from '../../core/model-call.js';
+import { awayShown } from './party-away.js';
 import { selectSettings } from './settings.js';
 import { selectProblems, selectSent, selectInspector, selectSavePoints } from './tools.js';
 import { selectPrompts } from './prompts.js';
@@ -34,6 +35,7 @@ import { replyCardsOf } from './reply-card.js';
 import { selectReplyLog, replyIndexes } from './reply-log.js';
 import { selectReplyActions } from './reply-actions.js';
 import { readTabOrder } from './reply-tabs.js';
+import { selectHistory } from './history.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 // Story Director is on while any of its switches is on (the Settings Director card reads it the same way); a host with no feature list counts as on.
@@ -100,7 +102,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     party: read => {
       const actors = read('party.actors', {});
-      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}), portraits: partyPortraits(read, ctx, actors) });
+      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors) });
       // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
       return wizard.needsYou() ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
     },
@@ -147,6 +149,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     sent: () => (tools ? selectSent(tools.sent(), selectProblems(problemsNow())) : null),
     roster: read => selectRoster(read('people.list', {})),
     savepoints: () => (tools ? selectSavePoints(tools.savePoints()) : null),
+    history: () => (tools?.history ? selectHistory(tools.history()) : null),
     prompts: () => selectPrompts(Object.fromEntries(['npc-state-delta', 'story-director'].map(id => [id, sdk?.settings?.(id) ?? null]))),
     inspector: (_read, args) => (tools ? selectInspector({ replies: tools.replies(), reply: i => tools.reply(i) }, args?.index) : null),
   };

@@ -39,7 +39,7 @@ export function fakeDelta(people = {}) {
 /** A host with Story Director (and `rpg` / `delta` stand-ins); `settings`: Story Director's. */
 export async function worldHost({ rpg = false, delta = null, settings = {}, extra = [], features = {} } = {}) {
     let host = null;
-    const module = withD1(createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } }));
+    const module = withD1(createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, feature: id => host?.sdk.feature(id) === true, substitute: text => host?.sdk.substitute(text) } }));
     host = await createHost({
         modules: [...(rpg ? [fakeFightRunner()] : []), ...(delta ? [fakeDelta(delta)] : []), module, ...extra],
         settings: { modules: { 'story-director': settings }, features },

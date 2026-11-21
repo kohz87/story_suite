@@ -6,7 +6,7 @@
 import { createBattleLog } from '../view/battle-log.js';
 import { isStandard, packRulesOf, rulesFromSettings } from '../rules.js';
 import { packLevelsOf, xpRateFrom } from '../levels.js';
-import { PRACTICE_SETTING, autoCapFrom, practiceOf } from '../names.js';
+import { PRACTICE_SETTING, autoCapFrom, awayFrom, practiceOf } from '../names.js';
 import { createBoardView } from '../board/view.js';
 import { createFightOffers } from '../board/offers.js';
 import { createStartController } from '../board/start-controller.js';
@@ -64,7 +64,7 @@ export function mountRpgLive({ doc, ctx, store, events = null, headState, reader
     let board;
     const start = createStartController({ doc, chat: () => ctx?.chat ?? [], meta, state: headState, preview: previewStart, interaction,
         board: () => board, on: () => featureOn(), save, refresh: () => {}, generate: generateHeld, cap: () => autoCapFrom(values()), show, close: () => {} });
-    board = createBoardView({ doc, headState: () => start.state(), meta, save, store, interaction, practice: () => practiceOf(values()[PRACTICE_SETTING]) ?? undefined, rate: () => xpRateFrom(values()), rules, query, readerName, levels, on: featureOn, start, cap: () => autoCapFrom(values()) });
+    board = createBoardView({ doc, headState: () => start.state(), meta, save, store, interaction, practice: () => practiceOf(values()[PRACTICE_SETTING]) ?? undefined, rate: () => xpRateFrom(values()), away: () => awayFrom(values()), rules, query, readerName, levels, on: featureOn, start, cap: () => autoCapFrom(values()) });
     const offers = createFightOffers({ ctx, doc, store, meta, on: () => featureOn() && isStandard(rulesFromSettings(values(), packOnce())), view: NO_LINE,
         open: ({ auto = false } = {}) => { if (!board.open()) return false; if (auto) board.auto(); show(); return true; }, save, refresh: () => {} });
     const offHold = attachHoldBridge({ doc, start, offers, discard: () => { if (interaction?.current?.()) interaction.discard(interaction.current().id); } });

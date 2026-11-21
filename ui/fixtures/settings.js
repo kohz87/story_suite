@@ -46,6 +46,7 @@ function buildSections(worldEvents = false, rpg = true) {
     sec('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
     sec('addons', 'Setup', 'Add-ons', 'Modules, custom views and skins from packs.', rows('addons')),
     sec('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', rows('tools'), 'tools'),
+    sec('help', 'Tools', 'Help', 'Questions and answers about how the suite plays.', [], 'help'),
   ];
 }
 

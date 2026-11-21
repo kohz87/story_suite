@@ -12,6 +12,12 @@ describe('FIGHT_SHAPE', () => {
     }
   });
 
+  it('accepts a horde\'s "still coming" strip and rejects a damaged one', () => {
+    const vm = fightFixture('choose');
+    assert.deepEqual(checkShape({ ...vm, horde: { wave: 'Wave 2 · 8 still coming', until: 'Hold 4 more exchanges', down: 11 } }, FIGHT_SHAPE), []);
+    assert.notDeepEqual(checkShape({ ...vm, horde: { wave: 2, until: 'Hold 4 more exchanges', down: 11 } }, FIGHT_SHAPE), []);
+  });
+
   it('rejects a bad state, a bad tier, a bad odds word and a bad outcome', () => {
     const vm = fightFixture('end');
     vm.state = 'idle';

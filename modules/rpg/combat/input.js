@@ -29,14 +29,15 @@ function foesOf(slot, carried) {
 
 /**
  * The engine input of a v1 sheet: `{ party, foes, groups }`. The party is every v1 character still alive (a Down hero stays, at 0 HP); with a `carried` record it is exactly the record's `order.party` (a hero who died since stays, at the sheet's bars, so the carried start still matches); the foes are the
- * members of every filled v1 slot at full HP (`id` `<slot>.<n>`), or at the HP the `carried` record (an earlier segment's `{ foes }`) left them; `groups` are the slots.
+ * members of every filled v1 slot at full HP (`id` `<slot>.<n>`), or at the HP the `carried` record (an earlier segment's `{ foes }`) left them, then a horde's carried arrivals; `groups` are the slots.
  */
 export function fightInputOf(sheet, { carried = null } = {}) {
     const kept = new Map((carried?.foes ?? []).map(foe => [String(foe.id), foe])), roster = carried?.order?.party ? new Set(carried.order.party.map(String)) : null;
     const slots = (sheet?.foes ?? []).filter(slot => slot?.v1 === true && slot.filled);
     return {
         party: (sheet?.characters ?? []).filter(character => character?.v1 === true && (roster ? roster.has(String(character.key)) : character.alive !== false)).map(heroOf),
-        foes: slots.flatMap(slot => foesOf(slot, kept)), groups: slots.map(slot => slot.slot),
+        // (a horde's arrivals, `<slot>.<wave>.<n>`, stand on no slot: a carried segment takes them from the record as they were)
+        foes: [...slots.flatMap(slot => foesOf(slot, kept)), ...(carried?.foes ?? []).filter(foe => String(foe.id).split('.').length === 3).map(foe => structuredClone(foe))], groups: slots.map(slot => slot.slot),
     };
 }
 

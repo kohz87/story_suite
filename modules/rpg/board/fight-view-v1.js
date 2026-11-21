@@ -9,6 +9,7 @@ import { masteryTerm } from '../combat/rolls.js';
 import { V1 as RULES } from '../combat/numbers.js';
 import { V1 } from './v1-kind.js';
 import { logOfV1 } from './fight-view-v1-log.js';
+import { hordeStrip, shownFoes } from './fight-view-v1-horde.js';
 
 const TIER = { mob: 'Mob', minion: 'Minion', standard: 'Standard', elite: 'Elite', boss: 'Boss', apex: 'Apex' };
 const END = { win: 'won', loss: 'lost', fled: 'fled' };
@@ -16,12 +17,14 @@ const POOL = { sp: 'SP', mp: 'MP' };
 const whole = value => Math.max(0, Math.trunc(Number(value)) || 0);
 const standing = actor => whole(actor.hp) > 0;
 
-function foeGroupsOf(record, sheet) {
+// (a group is a slot's members; a horde's arrivals are a group of their own, `<slot>.<wave>`, named by their labels)
+const groupKey = foe => String(foe.id).split('.').slice(0, -1).join('.');
+function foeGroupsOf(foes, sheet) {
     const groups = new Map();
-    for (const foe of record.foes) groups.set(String(foe.id).split('.')[0], [...(groups.get(String(foe.id).split('.')[0]) ?? []), foe]);
-    return [...groups].map(([slot, list]) => {
-        const real = sheet.foes.find(entry => String(entry.slot) === slot);
-        return { id: slot, arg: { group: Number(slot) }, name: String(real?.name ?? list[0].label), tier: TIER[list[0].tier] ?? null, lv: whole(list[0].level), odds: { word: null },
+    for (const foe of foes) groups.set(groupKey(foe), [...(groups.get(groupKey(foe)) ?? []), foe]);
+    return [...groups].map(([key, list]) => {
+        const slot = key.split('.')[0], real = key === slot ? sheet.foes.find(entry => String(entry.slot) === slot) : null;
+        return { id: key, arg: { group: Number(slot) }, name: String(real?.name ?? (list.length > 1 ? String(list[0].label).replace(/ \d+$/u, '') : list[0].label)), tier: TIER[list[0].tier] ?? null, lv: whole(list[0].level), odds: { word: null },
             members: [...list].sort((a, b) => String(a.id).localeCompare(String(b.id), 'en', { numeric: true })).map(foe => ({ id: String(foe.id), arg: { target: String(foe.id) }, name: String(foe.label), hp: whole(foe.hp), max: Math.max(1, whole(foe.maxHp)) })) };
     });
 }
@@ -69,17 +72,18 @@ const sameXp = paid => (paid?.xp?.length && paid.xp.every(entry => entry.xp === 
 export function v1View(state, setup, steps, record, paid = null) {
     const sheet = readSheet({ domains: { dataModules: state.domains.dataModules, inventory: state.domains.inventory, scene: state.domains.scene } });
     const modules = new Map(sheet.characters.filter(character => character.v1 === true).map(character => [character.key, character.module]));
-    const ended = record.result !== 'unfinished', foeGroups = foeGroupsOf(record, sheet), anyFoe = record.foes.some(standing), wounded = record.party.some(hero => standing(hero) && whole(hero.hp) < whole(hero.maxHp));
+    const ended = record.result !== 'unfinished', foeGroups = foeGroupsOf(shownFoes(record, setup.horde, ended), sheet), anyFoe = record.foes.some(standing), wounded = record.party.some(hero => standing(hero) && whole(hero.hp) < whole(hero.maxHp));
     const party = record.party.map(hero => ({ id: String(hero.id), arg: { target: String(hero.id) }, actorId: actorIdOf(modules.get(hero.id)), name: String(hero.label), portrait: null,
         hp: whole(hero.hp), hpMax: whole(hero.maxHp), mp: whole(hero.mp), mpMax: whole(hero.maxMp), sp: whole(hero.sp), spMax: whole(hero.maxSp), chosen: null }));
     const gear = ended ? {} : V1.soak(state, sheet);
     const actors = ended ? [] : record.party.filter(standing).map(hero => ({ id: actorIdOf(modules.get(hero.id)), stance: stanceOf(hero, record, gear, setup.stance ?? {}, actorIdOf(modules.get(hero.id))), groups: actionsOf(hero, anyFoe, wounded) }));
+    const strip = hordeStrip(setup, record, setup.horde?.leaderSlot === undefined ? null : sheet.foes.find(entry => entry.slot === setup.horde.leaderSlot)?.name ?? null);
     const played = whole(record.exchanges), played0 = whole(setup.offset) + steps.length, label = hero => String(hero.label);
     const sides = { party: record.party.map(label), foes: foeGroups.map(group => group.name) }, first = record.order?.first === 'foes' ? 'foes' : 'party';
     return {
         state: ended ? 'end' : steps.length ? 'after' : 'choose', title: 'Fight', subtitle: null, exchange: Math.max(1, ended || steps.length ? played || played0 : played + 1),
         foeGroups, party, actor: actors[0] ? { id: actors[0].id, stance: actors[0].stance, groups: actors[0].groups } : null, actors,
-        order: [...sides[first], ...sides[first === 'party' ? 'foes' : 'party']], bonuses: null, log: logOfV1(record, setup.gearStats === 1), narratorTold: null,
+        order: [...sides[first], ...sides[first === 'party' ? 'foes' : 'party']], bonuses: null, log: logOfV1(record, setup.gearStats === 1), narratorTold: null, ...(strip ? { horde: strip } : {}),
         end: ended ? { outcome: END[record.result] ?? 'won', xpEach: sameXp(paid), exchanges: whole(steps.length || record.rounds.length), members: party.map(hero => ({ id: hero.id, hp: hero.hp, hpMax: hero.hpMax, xp: xpOfHero(paid, hero.name), practice: practiceOfHero(paid, hero.name) })) } : null,
     };
 }

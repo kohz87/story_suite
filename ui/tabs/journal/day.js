@@ -31,8 +31,9 @@ function relWord(diff) {
   return diff < 0 ? `${-diff} days ago` : `in ${diff} days`;
 }
 
-function row(mark, text, tone) {
-  return h('div', { class: 'dl2' }, h('span', { class: ['ic', tone ? `tone-${tone}` : null] }, mark), h('span', null, text), h('small', null));
+function row(mark, text, tone, who) {
+  const here = who?.length ? `with ${who.slice(0, 3).join(', ')}${who.length > 3 ? ` +${who.length - 3}` : ''}` : '';
+  return h('div', { class: 'dl2' }, h('span', { class: ['ic', tone ? `tone-${tone}` : null] }, mark), h('span', null, text), h('small', { class: here ? 'with' : null }, here));
 }
 
 function name(text) {
@@ -57,7 +58,7 @@ function recordSections(r) {
   if (r.money?.out) money.push(row('−', `${r.money.out} out`));
   const fights = r.fights ? [row('⚔', `${r.fights} ${r.fights === 1 ? 'fight' : 'fights'}`)] : [];
   return [
-    section('What happened', (r.happened ?? []).map(t => row('•', t))),
+    section('What happened', (r.happened ?? []).map((t, i) => row('•', t, undefined, r.happenedWho?.[i]))),
     section('Places', (r.places ?? []).map(p => row('→', `Went to ${p}`))),
     section('Quests', quests),
     section('Fights', fights),

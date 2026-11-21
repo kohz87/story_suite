@@ -6,6 +6,8 @@ import { CLEAR, asText, labelOf } from '../text.js';
 import { applyPlainWorldLine } from './apply-line.js';
 import { applyConditions, claimReply, readConditions } from './conditions.js';
 import { worldEventsOn } from './switch.js';
+import { markForJudge } from './judge-mark.js';
+import { refusedHold, rekeyPending } from './judge-pending.js';
 
 const placeOf = (labels, names) => {
     const value = labelOf(labels, names);
@@ -23,13 +25,24 @@ export function applyWorldLine(ctx, line) {
     if (items.length && name && !claimReply(ctx, ctx.draft('chronicle'))) {
         return ctx.fail('REFUSED', `A reply may carry one world line with conditions; "${name}" was not used.`);
     }
+    const known = name ? findIn(ctx.draft('chronicle').events, name) : null;
+    const held = known ? refusedHold(ctx.draft('chronicle'), known.id, line?.op) : null;
+    if (held) return held;
     const result = applyPlainWorldLine(ctx, line);
-    if (!items.length) return result;
+    if (known) rekeyPending(ctx.draft('chronicle'), known.id);
+    // A new entry from the story's line waits for the Director's verdict while the chronicle's `judge` setting is on (judge-mark.js).
+    const fresh = result?.data?.created === true && typeof result.data.event === 'string' ? result.data.event : null;
+    if (!items.length) return fresh && markForJudge(ctx, ctx.draft('chronicle'), fresh) ? waiting(result) : result;
     const found = findIn(ctx.draft('chronicle').events, name);
     const event = found ? ctx.draft('chronicle').events[found.id] : null;
     const place = placeOf(labels, ['place', 'where', 'at', 'near']) || event?.place || '';
     const why = asText(line?.text).trim().slice(0, 160) || name;
     const { done, notes } = applyConditions(ctx, items, { place, region: placeOf(labels, ['region']), realm: placeOf(labels, ['realm']), why });
+    const marked = fresh ? markForJudge(ctx, ctx.draft('chronicle'), fresh, done) : false;
     const text = [done.length ? `Conditions: ${done.join(', ')}.` : '', notes.length ? `Not used: ${notes.join('; ')}.` : ''].filter(Boolean).join(' ');
-    return text ? { ...result, summary: `${result.summary} ${text}`, data: { ...result.data, ...(done.length ? { conditions: done } : {}) } } : result;
+    const out = text ? { ...result, summary: `${result.summary} ${text}`, data: { ...result.data, ...(done.length ? { conditions: done } : {}) } } : result;
+    return marked ? waiting(out) : out;
 }
+
+// The receipt of a line whose entry waits for the Director: its data marks it (the summary stays the line's: the day digest reads it).
+const waiting = result => ({ ...result, data: { ...result.data, judge: 'pending' } });

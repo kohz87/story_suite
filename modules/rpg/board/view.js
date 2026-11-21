@@ -16,7 +16,7 @@ import { renderV1 } from './view-v1.js';
 // A foe that stands: a v1 slot has no hurt bar, a filled slot stands until a fight clears it.
 const isStanding = foe => foe.filled;
 
-export function createBoardView({ doc, headState, meta, save, store, interaction, rules, query, readerName, roleOf, levels, on = () => false, start = null, practice = () => undefined, rate = () => undefined, cap = () => AUTO_CAP.default } = {}) {
+export function createBoardView({ doc, headState, meta, save, store, interaction, rules, query, readerName, roleOf, levels, on = () => false, start = null, practice = () => undefined, rate = () => undefined, away = () => undefined, cap = () => AUTO_CAP.default } = {}) {
     let notice = '', autoLine = '', confirm = false, activeId = null;
     const persist = () => { try { save?.(); } catch { /* staging still works in this page */ } };
     const current = () => openFight(meta());
@@ -52,12 +52,14 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
         if (heldFight(meta(), sid, (store?.receipts?.() ?? []).filter(entry => entry.index === index).map(entry => entry.receipt))) return true;
         return Boolean(session) && (session.exchanges?.length > 0 || session.anchor === sid);
     };
-    const open = ({ state = headState() } = {}) => {
+    const open = ({ state = headState(), opening = null } = {}) => {
         if (!on() || !isStandard(rules())) return false;
         const sheet = readSheet(state);
         // A fight against the foes a fled or lost fight left starts from the foes' HP that fight's receipt holds (resume-v1.js), if the Foes block still reads what the board left.
         const resumed = resumeFoesV1(store?.receipts?.() ?? [], sheet.foes.filter(foe => foe.v1 === true && foe.filled));
-        const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), practice: practice(), rate: rate(), ...(resumed ? { resumed } : {}) });
+        // (a pre-check opening's horde words, as its recorded setup holds them (board/opening.js), go to the kind, which builds the reserve: board/v1-kind.js openV1)
+        const horde = opening?.payload?.setup?.horde;
+        const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), practice: practice(), rate: rate(), away: away(), ...(resumed ? { resumed } : {}), ...(horde ? { horde: structuredClone(horde) } : {}) });
         if (!result?.ok) return false;
         reset();
         activeId = current()?.id ?? null;   // (the first draw must not reset what Auto says)

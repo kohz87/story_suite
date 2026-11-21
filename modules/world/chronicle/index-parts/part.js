@@ -20,6 +20,7 @@ import { dailyAfterCapture } from '../world-daily/hook.js';
 import { openAfterReceive } from '../world-daily/open-store.js';
 import { WORLD_SEED, worldSeedCommand } from '../world-daily/seed.js';
 import { OPEN, openCommand } from '../world-daily/open-store.js';
+import { JUDGED, judgedCommand } from '../world-judge/judged.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
 import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET } from '../note.js';
 import { SURFACE, surface } from '../pick.js';
@@ -73,6 +74,7 @@ export const part = {
         [LORE_OPEN]: loreOpenCommand,
         [WORLD_SEED]: worldSeedCommand,
         [OPEN]: openCommand,
+        [JUDGED]: judgedCommand,
         [SURFACE]: surfaceHandler,
         [DIGEST]: digestHandler,
         [NOTE]: noteHandler,
@@ -97,7 +99,7 @@ export const part = {
     hooks: { beforeGenerate, afterCapture: dailyAfterCapture, afterReceive: openAfterReceive },
     settings: {
         section: 'Chronicle',
-        defaults: { ...DIGEST_DEFAULTS, tempo: '1' },
+        defaults: { ...DIGEST_DEFAULTS, tempo: '1', judge: false },
         // The While away threshold is the time part's: a jump that long is a time skip.
         // The longest jump is the tracker's: the world's long-skip note shows above it when it is under 14 days (world-daily/command.js).
         reads: { recapHours: 'time.recapHours', maxJump: 'tracker.maxJump' },
@@ -107,6 +109,9 @@ export const part = {
             digestKeep: { type: 'int', label: 'Day digest: days kept in all (older ones are dropped)', min: 1, max: KEEP_MAX, feature: DIGEST_FEATURE },
             // How fast the world moves (0.25-4, default 1; stored as text like the map's scales). Read by the daily step.
             tempo: { type: 'text', label: 'World tempo (0.25-4)', feature: WORLD_EVENTS },
+            // Off by default: a story's new world line is used as written and the daily roll is code's alone. On, a new world line is heard as rumour until one
+            // Quick call judges it (accept, reshape, refuse), and the likely or possible events tomorrow's roll will fire are judged once a day (one may be held back).
+            judge: { type: 'bool', label: 'World events: the Director judges new world lines and tomorrow\'s events', help: 'A world event the story writes is heard as rumour until the Director has judged it: kept, reshaped, or refused as a false rumour. The events the world is about to roll may be held back a day, with a reason. Short calls on the Quick connection.', feature: WORLD_EVENTS },
             digestTail: { type: 'bool', label: 'Day digest: remind the story of the last day after a time skip', feature: DIGEST_FEATURE },
         },
     },

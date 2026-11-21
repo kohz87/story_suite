@@ -9,6 +9,7 @@
     "maxChangeLines": 150,
     "panelStyle": "glass",
     "quickConnection": "",
+    "sealHistory": true,
     "sendPending": true,
     "tailBudget": 1500,
     "textSize": "100"
@@ -121,6 +122,8 @@
       "economyScale": "0",
       "replyTabs": "changes chatter here choices",
       "rpgAutoCap": 3,
+      "rpgAwayWait": false,
+      "rpgAwayXp": 0,
       "rpgChecks": true,
       "rpgLevelCap": 99,
       "rpgPracticePerUse": 3,
@@ -129,6 +132,7 @@
     },
     "story-director": {
       "arc.autoAccept": false,
+      "arc.dailyPass": false,
       "arc.genre": "",
       "arc.keepNote": false,
       "arc.lowThreads": 3,
@@ -151,6 +155,7 @@
       "chronicle.digestDays": 14,
       "chronicle.digestKeep": 120,
       "chronicle.digestTail": true,
+      "chronicle.judge": false,
       "chronicle.tempo": "1",
       "names.banned": "",
       "names.suggestions": 3,
