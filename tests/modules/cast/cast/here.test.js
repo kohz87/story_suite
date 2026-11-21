@@ -104,6 +104,17 @@ test('the scene\'s place first, then its parent; a sibling, a district under it 
     assert.deepEqual(list(hereLine(slice, atlas('Town / Keep'))), ['Person f', 'Person a', 'Person b', 'Person c'], 'the keep\'s own first, then the town, capped; the gate is a sibling');
     assert.deepEqual(list(hereLine(slice, atlas('Town / Gate / Cellar'))), ['Person g', 'Person d'], 'the cellar and its parent, the gate; not the town above it');
     assert.deepEqual(list(hereLine(slice, atlas('Town'))), ['Person a', 'Person b', 'Person c', 'Person e'], 'in the town: its own people, not its districts\'');
+    // A spot the story saved with only a region ("~ place South Granary | region: Town"): the region is its parent (owner, 21 Nov: the village's healer was left out and made up).
+    const granary = { cast, party: { place: 'South Granary', region: 'Town', locate: name => (name === 'South Granary' ? { key: 'id:granary', up: [] } : spots[name] ?? null) }, present: new Set(), pinned: new Set() };
+    assert.deepEqual(list(hereLine(slice, granary)), ['Person a', 'Person b', 'Person c', 'Person e'], 'the region\'s own people are nearby');
+    assert.equal(hereLine(slice, { ...granary, party: { ...granary.party, region: '' } }), '', 'no parent and no region: nobody nearby');
+    // The race leads the look when the look doesn't name it; a look that names it is told as written.
+    const kin = [readEntry({ pack: 'w', packVersion: '1', kind: 'figure', id: 'k', name: 'Kin', role: 'healer', look: 'Tall, grey-eyed.', species: 'dogfolk', start: { place: 'Town' } }), readEntry({ pack: 'w', packVersion: '1', kind: 'figure', id: 'm', name: 'Mae', role: '', look: 'Dogfolk woman, short.', species: 'dogfolk', start: { place: 'Town' } })];
+    const kinSlice = { people: Object.fromEntries(kin.map(entry => [entry.key, { name: entry.name, aliases: [], where: entry.place, doing: '' }])), meeting: null };
+    const kinLine = hereLine(kinSlice, { cast: { entries: kin, byKey: new Map(kin.map(entry => [entry.key, entry])) }, party: { place: 'Town', old: true }, present: new Set(), pinned: new Set() });
+    assert.match(kinLine, /Kin, healer \(dogfolk\. Tall, grey-eyed\)/);
+    assert.match(kinLine, /Mae \(Dogfolk woman, short\)/);
+    assert.deepEqual(list(hereLine(slice, { cast, party: { place: 'South Granary', region: 'Town', old: true }, present: new Set(), pinned: new Set() })), ['Person a', 'Person b', 'Person c', 'Person e'], 'without an atlas reader too');
     // No atlas reader: the place as written, then the town a "Town / Spot" name writes first.
     const written = { cast, party: { place: 'Town / Gate', old: true }, present: new Set(), pinned: new Set() };
     assert.deepEqual(list(hereLine(slice, written)), ['Person d', 'Person a', 'Person b', 'Person c']);

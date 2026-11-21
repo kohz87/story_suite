@@ -32,12 +32,13 @@ function rankOf(where, party) {
         const there = party.locate(where);
         if (!here?.key || !there?.key) return null;
         if (there.key === here.key) return 0;
-        const parent = here.up[0]?.key ?? (party.town ? party.locate(party.town)?.key : null);
+        // (a place the story saved with only a region, "~ place South Granary | region: Bluewatch Village", has that region as its parent: owner, 21 Nov, the village's healer was left out and made up)
+        const parent = here.up[0]?.key ?? (party.town ? party.locate(party.town)?.key : null) ?? (party.region ? party.locate(party.region)?.key : null);
         return parent && there.key === parent ? 1 : null;
     }
     const same = (a, b) => String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
     if (same(where, party.place)) return 0;
-    const town = String(party.place).includes('/') ? String(party.place).split('/')[0] : party.town;
+    const town = String(party.place).includes('/') ? String(party.place).split('/')[0] : party.town || party.region;
     return town && same(where, town) ? 1 : null;
 }
 
@@ -60,7 +61,9 @@ export function hereLine(slice, frame, { persona = '' } = {}) {
     const said = people.map(({ entry }) => {
         // (a "; " stays the list's own separator: one inside a role or look reads as a comma)
         const role = cutWords(String(entry.raw?.role ?? '').replace(/;/g, ','), ROLE_MAX);
-        const look = cutWords(String(entry.raw?.look ?? '').replace(/;/g, ','), LOOK_MAX);
+        const species = String(entry.raw?.species ?? '').trim().replace(/;/g, ',');
+        // (the race leads the look when the look doesn't name it, so the narrator never guesses it)
+        const look = cutWords(`${species && !String(entry.raw?.look ?? '').toLowerCase().includes(species.toLowerCase()) ? `${species}. ` : ''}${String(entry.raw?.look ?? '')}`.replace(/;/g, ','), LOOK_MAX);
         // (the first sentence of the personality, and the voice, so the first lines they speak are theirs)
         const manner = cutWords(String(entry.raw?.personality ?? '').split(/(?<=[.!?])\s/)[0].replace(/;/g, ',').replace(/[.]$/, ''), MANNER_MAX);
         const voice = cutWords(String(entry.raw?.voice ?? '').replace(/;/g, ',').replace(/[.]$/, ''), VOICE_MAX);

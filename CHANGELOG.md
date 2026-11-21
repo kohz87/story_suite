@@ -2,6 +2,10 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
+## Unreleased
+
+- The world's own people are told to the narrator at any spot in their town, even one the story only filed under the town's region, so they arrive as their pack describes them (race and look included).
+
 ## 0.1.6 — 21 Nov 2026
 
 - Gear the story finds gives its rarity's full stat points (uncommon 2, rare 3, epic 4), even when the narrator writes only +1.
