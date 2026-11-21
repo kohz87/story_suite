@@ -2,8 +2,9 @@
 // index of the reply the change is stored on (the capture's carrier, else the reply the command's changes go on). A scan's merge stamps these already;
 // without this a line's goal, mood or memory left the dossier's last change on an older reply until a Refresh (owner, 21 Nov). Replay applies the same ops;
 // they are marked inside the stamps (ctx.ifThere): when the reply that made the stamps container was deleted, a later reply's stamp is passed over
-// and the rest of its changes still apply (a stamp is display only). A line never makes the container (NPC State's merge does, with a scan's first change):
-// a later scan's own stamps are plain changes inside it, which a middle delete of the line's reply would otherwise leave with nowhere to go.
+// and the rest of its changes still apply (a stamp is display only). A line never makes the container (NPC State's merge does, with a scan's first change,
+// and a `+ npc` stub makes the person with an empty one, ../meters/npc-lines-parts/derived.js stubRecord, so it lives and dies with them): a later scan's own
+// stamps are plain changes inside it, which a middle delete of the line's reply would otherwise leave with nowhere to go.
 import { CHANGE_TRACKED_FIELDS } from '../fields/registry.js';
 
 const TRACKED = new Set(CHANGE_TRACKED_FIELDS);
