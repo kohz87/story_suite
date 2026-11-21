@@ -12,13 +12,15 @@ const publicActor = actor => ({
     ...(typeof actor?.tier === 'string' ? { tier: actor.tier, damage: Number(actor.damage ?? 0), roll: Number(actor.roll ?? 0) } : {}),
 });
 
-/** Normalise a finished engine run into the record shape. The result is 'win', 'loss', 'fled' or 'unfinished'. */
+/** Normalise a finished engine run into the record shape. The result is 'win', 'loss', 'fled' or 'unfinished'; a horde's record also holds `horde` and, when won, `end`. */
 export function resultOf(run = {}) {
     return {
         result: run.result ?? 'unfinished', exchanges: Number(run.exchanges ?? 0), rotation: Number(run.rotation ?? 0),
         order: { party: [...(run.order?.party ?? [])], foes: [...(run.order?.foes ?? [])], first: run.order?.first ?? 'party' },
         party: (run.party ?? []).map(publicActor), foes: (run.foes ?? []).map(publicActor),
         lines: [...(run.lines ?? [])], rounds: (run.rounds ?? []).map(lines => [...lines]), moves: [...(run.moves ?? [])],
+        // (a horde's: its moving state for the next segment, and how a won one ended: 'cleared', 'leader' or 'held')
+        ...(run.horde ? { horde: { ...run.horde }, ...(run.end ? { end: run.end } : {}) } : {}),
     };
 }
 
@@ -81,6 +83,10 @@ export function lineOf(line, before) {
     if (kind === 'flee') {
         const [who, target, , , , , succeeded] = rest;
         return succeeded ? `${who} flees from ${target}.` : `${who}'s flee from ${target} fails.`;
+    }
+    if (kind === 'arrive') {
+        const [, , name, count, level, , left] = rest;
+        return `Reinforcements: ${count} ${name} (level ${level}) take the field${left > 0 ? `; ${left} still coming` : '; the last of them'}.`;
     }
     if (kind === 'foe-phase') return `Foes attack: ${rest[0].join(', ')}.`;
     if (kind === 'foe-attack') {
