@@ -67,14 +67,16 @@ test('checkpoints left in the window keep being trusted: their covers start at t
 test('a seal whose rebuilt story would differ writes nothing: the chat and its metadata stay byte for byte, and it is not tried again', () => {
     const { ctx, store } = sealedSetup();
     grow(ctx, store, 9);
-    // A checkpoint in the window with a wrong state, passed over today because its covers do not match: a seal that took it would read it.
+    // A checkpoint in the window whose state was changed by hand: the chain still trusts it (its prefix and covers hold), so the head reads
+    // through it today. A seal drops it (it does not hold the state in front of it), so the chat rebuilt from the base would read otherwise.
     const at = ctx.chat.findIndex((m, i) => i > 12 && m.extra?.storySuite?.checkpoint);
     const record = ctx.chat[at].extra.storySuite;
-    ctx.chat[at].extra.storySuite = { ...record, covers: ['sw_nobody'], checkpoint: { ...record.checkpoint, domains: { ...record.checkpoint.domains, scene: { place: 'Nowhere' } } } };
+    ctx.chat[at].extra.storySuite = { ...record, checkpoint: { ...record.checkpoint, domains: { ...record.checkpoint.domains, scene: { place: 'Nowhere' } } } };
     store.rebuild();
     const chat = JSON.stringify(ctx.chat);
     const meta = JSON.stringify(ctx.meta);
     const head = readout(store);
+    assert.equal(store.head().domains.scene.place, 'Nowhere', 'the head reads through the changed checkpoint');
     const out = store.seal();
     assert.equal(out.ok, false);
     assert.equal(out.refused, true);
