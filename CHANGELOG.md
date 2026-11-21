@@ -2,7 +2,7 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
-## Unreleased
+## 0.1.5 — 21 Nov 2026
 
 - A person's mood headline follows the narrator's mood line at once, not only after a Refresh (the bars and history already did).
 - NPC State keeps moods current: the narrator writes a person's new mood when it changes in a reply, and the quiet catch-up refresh re-checks each person's mood, so a mood no longer stays as it was first written.
