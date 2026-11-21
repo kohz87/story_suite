@@ -18,7 +18,7 @@ const MEMORY_STORE_MAX = 400;   // what people.memory takes (Story Block's own c
 // The memories this reply's `~ memory` lines already saved, across every person (a stamp keeps its reply's sid in `s`).
 const savedBy = (ctx, sid) => Object.values(ctx.read('people')?.npcs ?? {}).reduce((count, record) => count + Object.values(record?.memoryStamps ?? {}).filter(stamp => stamp?.s === sid).length, 0);
 
-const LABEL_PER_REPLY_TEXT = 'one memory: a reply';
+const LABEL_PER_REPLY_TEXT = 'only one memory: line per person a reply';
 
 /** Saves `text` as `key`'s memory on this reply → '' when saved, else why not. `tag`: true marks it as a `~ memory` line's (counted against the cap). `label`: true marks
  *  it as a memory: label's (`l`: the reply's sid; one a person a reply); any other keeps the sid as `r`, so every line memory knows its reply. `date`: the story day text ('' when none). */

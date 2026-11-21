@@ -26,7 +26,7 @@ test('a second memory: for the same person in one reply is refused with a proble
     await s.say(['~ npc Oren | memory: He saw the tower fall', '~ npc Oren | memory: He saw the bridge burn', '~ npc Sister Temiwa | memory: She tended the sick', '~ npc Oren | trust: +1 | why: He held the line']);
     assert.deepEqual(memories(s), ['He kept the gate shut', 'He saw the tower fall', 'He held the line']);
     assert.deepEqual(memories(s, 'npc_temiwa'), ['She tended the sick']);
-    assert.ok(problemTexts(s).some(text => /^Oren: one memory: a reply; this one was not stored\.$/.test(text)), JSON.stringify(problemTexts(s)));
+    assert.ok(problemTexts(s).some(text => /^Oren: only one memory: line per person a reply; this one was not stored\.$/.test(text)), JSON.stringify(problemTexts(s)));
     same(s, 'replay equals live');
     await s.say(['~ npc Oren | memory: He slept in the chapel']);
     assert.equal(memories(s).at(-1), 'He slept in the chapel', 'the next reply has its own memory:');
