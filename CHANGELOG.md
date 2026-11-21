@@ -2,6 +2,10 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
+## Unreleased
+
+- New switch in Settings › Features, Encounters (off by default, a first try): before a reply the world may put one passer-by in your path at the place you are, and a regular you get the name of gets a People page.
+
 ## 0.1.5 — 21 Nov 2026
 
 - A person's mood headline follows the narrator's mood line at once, not only after a Refresh (the bars and history already did).
