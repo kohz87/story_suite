@@ -44,3 +44,11 @@ test('SFF4 #7: the Level, the goal, the abilities and the keepsakes NPC State ho
   assert.equal(parts[2].textContent, 'AbilitiesRaw Bolta bolt of unshaped manaWild Surge—');
   assert.equal(parts[3].textContent, 'KeepsakesStartrace Travelling Coattoo big for her');
 });
+
+test('the Profile page opens with the portrait full size when there is one, and without it otherwise (owner, 20 Nov)', () => {
+  const withPic = profilePage({ name: 'Sister Temiwa', portrait: '/examples/packs/ersveil/portraits/temiwa.webp', profile: { role: 'healer' } });
+  assert.equal(withPic[0].className, 'pfimg');
+  assert.equal(withPic[0].querySelector('img').getAttribute('src'), '/examples/packs/ersveil/portraits/temiwa.webp');
+  const none = profilePage({ name: 'Ann', portrait: 'ann', profile: { role: 'clerk' } });
+  assert.notEqual(none[0].className, 'pfimg');
+});

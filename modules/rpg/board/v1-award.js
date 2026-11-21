@@ -12,8 +12,8 @@ import { heroesOf, raiseToStory, writeBack } from './v1-story-facts.js';
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const whole = value => Number.isSafeInteger(value);
 const text = value => typeof value === 'string' && value.length > 0 && value.length <= 200;
-// (the most one hero can be paid: the 60 a win is held to, at the highest XP rate, 300 %)
-const XP_TOP = 180;
+// (the most one hero can be paid: the 100 a win is held to, at the highest XP rate, 300 %)
+const XP_TOP = 300;
 
 /**
  * What this record pays: `{ xp: [{ module, who, xp }], uses: [{ who, skill, n }], perUse, paid }`, or null when nothing is paid. `xp` only for a won fight (every standing or Down hero who is not dead, at that hero's own level; the XP rate is the setup's),
@@ -24,14 +24,15 @@ export function paidOf(record, setup, { modules = {}, alive = new Set() } = {}) 
     const perUse = practiceOf(setup?.practice) ?? PRACTICE.perUse, rate = xpRateOf(setup?.rate) ?? XP_RATE.default;
     const groups = foeGroupsOf(record), uses = usesOfV1(record).slice(0, 40).map(use => ({ ...use, n: Math.min(use.n, 99) }));
     const xp = record?.result === 'win' ? (record.party ?? []).filter(hero => modules[hero.id] && alive.has(hero.id))
-        .map(hero => ({ module: modules[hero.id], who: hero.label, xp: scaleXp(winXp(groups, Number(hero.level) || 1), rate) })).filter(entry => entry.xp > 0) : [];
+        .map(hero => ({ module: modules[hero.id], who: hero.label, xp: scaleXp(winXp(groups, Number(hero.level) || 1, setup?.xpRule), rate) })).filter(entry => entry.xp > 0) : [];
     if (!xp.length && !uses.length) return null;
     return { xp, uses, perUse, paid: { xp: xp.map(({ who, xp: given }) => ({ who, xp: given })), practice: uses.map(use => ({ who: use.who, skill: use.skill, amount: Math.min(PRACTICE.max, perUse * use.n) })) } };
 }
 
 const checked = payload => (plain(payload) && Array.isArray(payload.xp) && payload.xp.length <= 99 && payload.xp.every(entry => text(entry?.module) && whole(entry.xp) && entry.xp > 0 && entry.xp <= XP_TOP)
     && Array.isArray(payload.uses) && payload.uses.length <= 40 && payload.uses.every(use => text(use?.who) && text(use?.skill) && whole(use.n) && use.n >= 1 && use.n <= 99)
-    && practiceOf(payload.perUse) !== null ? payload : null);
+    && practiceOf(payload.perUse) !== null
+    && (payload.wears === undefined || (Array.isArray(payload.wears) && payload.wears.length <= 24 && payload.wears.every(wear => text(wear?.owner) && ['defence', 'weapon'].includes(wear.slot)))) ? payload : null);
 
 function giveXp(ctx, awards) {
     const draft = ctx.draft('dataModules');
@@ -56,5 +57,7 @@ export function awardCommand(ctx, payload) {
     giveXp(ctx, given.xp);
     const domain = ctx.read('dataModules'), items = itemsOf(domain, given.uses), skills = items.length ? givePractice(ctx, domain, items, given.perUse) : [];
     writeBack(ctx, heroes, before);
+    // (the gear a decisive hit or miss wore, worked out by v1-wear.js: by the fight's own record, so it wears whatever the switch says now, as the soak and stats it rolled with)
+    for (const wear of given.wears ?? []) ctx.call('gear.wear', { owner: wear.owner, slot: wear.slot, steps: 1, recorded: true });
     return { summary: '', narrate: false, data: { awarded: { xp: given.xp.length, practice: skills.length } } };
 }

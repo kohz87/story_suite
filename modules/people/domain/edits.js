@@ -24,7 +24,7 @@ const edited = (summary, data) => ({ summary, data: { ...data, edit: true }, nar
 
 // people.fields { id, fields }: the dossier fields a story change line states (NPC State's `~ npc` labels); only a module's own command may send it, and only
 // these fields, as short text (null removes one). It is a story change, not a reader edit: the reply card does not list it as one.
-const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday', 'level', 'learns', 'keepsake', 'aka']);
+const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday', 'level', 'learns', 'keepsake', 'aka', 'mood']);
 const ALIASES_MAX = 8;   // (npc-lines-parts/aka.js has already refused a name that is someone else's)
 const LINE_TEXT_MAX = 300;
 
@@ -63,7 +63,7 @@ export function peopleEdits(domain) {
                 if (typeof ctx.caller !== 'string' || !ctx.caller || ctx.caller.startsWith('event:')) return ctx.fail('REFUSED', 'Only a module\'s own command may write a person\'s story fields.');
                 const fields = payload?.fields;
                 const names = isObject(fields) ? Object.keys(fields) : [];
-                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, appearance, gender, age, birthday, level, learns, keepsake or aka as short text (or null).');
+                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, mood, appearance, gender, age, birthday, level, learns, keepsake or aka as short text (or null).');
                 const record = recordOf(ctx, domain, payload.id);
                 for (const name of names) {
                     if (name === 'level') { if (/^\d+$/.test(fields.level ?? '')) writeLevel(record, fields.level); continue; }

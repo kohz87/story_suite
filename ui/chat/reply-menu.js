@@ -2,10 +2,13 @@
 // The reply's change list is its card's Changes tab.
 import { h } from '../kit/dom.js';
 
-/** Builds the ✦ button for a reply's action row; onOpen() opens the sheet. */
+/** Builds the ✦ button for a reply's action row, one of SillyTavern's own message buttons (a `.mes_button` div, its size and fade: owner, 20 Nov: a bigger
+ *  button of its own pushed the row taller); onOpen() opens the sheet. The click goes no further, so the page's own message handlers do not take it. */
 export function replyMenuButton(handlers = {}) {
   const label = 'Story Suite: this reply';
-  return h('button', { type: 'button', class: 'xbt ss', title: label, 'aria-label': label, onClick: () => handlers?.onOpen?.() }, '✦');
+  const open = e => { e?.preventDefault?.(); e?.stopPropagation?.(); handlers?.onOpen?.(); };
+  return h('div', { class: 'mes_button ss-star', title: label, 'aria-label': label, role: 'button', tabindex: '0', onClick: open,
+    onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') open(e); } }, '✦');
 }
 
 function action(label, onClick) {

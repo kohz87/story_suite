@@ -68,7 +68,7 @@ test('a won fight with a level 5 and a level 9 member: the end card gives each t
         const end = api(host).current().view.end;
         assert.equal(end.outcome, 'won');
         const [astra, ren] = ['astra', 'ren'].map(id => end.members.find(member => member.id === id));
-        assert.deepEqual([astra.xp, ren.xp], [17, 10], 'each member is paid at their own level (5 and 9 against level 5 foes)');
+        assert.deepEqual([astra.xp, ren.xp], [30, 18], 'each member is paid at their own level (5 and 9 against level 5 foes), 15 for each foe');
         assert.equal(end.xpEach, null, 'no single shared figure');
     } finally { host.close(); restore(); }
 });

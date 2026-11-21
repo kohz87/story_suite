@@ -2,6 +2,7 @@
 // a Create or Update may do to the book already there, and how the book goes with the chat's character (pure: the caller reads SillyTavern).
 
 import { lorebookName, readMarker } from './marker.js';
+import { LOREBOOK_FORMAT } from './convert.js';
 
 /**
  * How the book `name` goes with the chat's character, the SillyTavern way. `char` = null (no character chat) | `{ group: true }` | `{ name, world,
@@ -32,7 +33,8 @@ export function lorebookRow({ pack, names = [], made = {}, char = null, chatBook
     const exists = Array.isArray(names) && names.includes(name);
     const hint = made && typeof made === 'object' ? made[pack?.id] : null;
     const madeFrom = exists && hint?.name === name ? String(hint.version ?? '') : '';
-    const state = !exists ? 'create' : madeFrom && madeFrom === String(pack?.version ?? '') ? 'current' : 'update';
+    // (a book made with an older placement format is offered an Update even at the same pack version)
+    const state = !exists ? 'create' : madeFrom && madeFrom === String(pack?.version ?? '') && hint?.format === LOREBOOK_FORMAT ? 'current' : 'update';
     const step = characterStep({ name, char });
     const use = step.step === 'none' ? { on: false, disabled: true, note: step.note } : { on: true, disabled: false, note: step.note };
     return { state, name, madeFrom, linked: step.step === 'linked', who: step.who, move: exists && step.step !== 'none' && chatBook === name, use };
@@ -48,7 +50,7 @@ export function lorebookStep({ pack, name, existing = null, confirmed = false })
     const marker = readMarker(existing);
     if (!marker) return { step: 'refuse', update: true, message: `A lorebook named ${name} is already there and Story Suite did not make it, so it is left as it is. Rename it in World Info, then try again.` };
     if (marker.pack !== String(pack?.id ?? '')) return { step: 'refuse', update: true, message: `The lorebook ${name} was made from another pack (${marker.pack}), so it is left as it is.` };
-    if (marker.version === String(pack?.version ?? '')) return { step: 'current', update: true, message: '' };
+    if (marker.version === String(pack?.version ?? '') && marker.format === LOREBOOK_FORMAT) return { step: 'current', update: true, message: '' };
     if (!confirmed) return { step: 'confirm', update: true, message: `This replaces the book ${name}; edits you made in it are lost.` };
     return { step: 'write', update: true, message: '' };
 }

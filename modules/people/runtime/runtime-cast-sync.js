@@ -6,7 +6,7 @@ import { currentExclusions } from '../transcript/transcript.js';
 import { applyNpcStateCommand, normalizeName, normalizeNpcRecord, appearanceFingerprint } from '../core/core.js';
 import { savePortraitFile } from '../storage/storage.js';
 import { portraitHasImage } from '../portrait/portrait-file.js';
-import { applyCastEntry, applyCastPortrait, castPortraitWanted, dossierFor, findCastPerson, metWithEntry } from '../dossier/cast-dossier.js';
+import { applyCastEntry, applyCastPortrait, castLinkTargets, castPortraitWanted, dossierFor, findCastPerson, linkToCast, metWithEntry, normalizeCast } from '../dossier/cast-dossier.js';
 import { getSettings } from '../settings/runtime-settings.js';
 import { chatLineage, lineageCheckpointKey } from '../lineage/index.js';
 import { chatContext } from '../calls/runtime-scan-helpers.js';
@@ -137,6 +137,36 @@ export function createCastSyncPart(rt, deps) {
                 && pending.lineageKey === lineageCheckpointKey(chatLineage(chatContext().chat || []), pending.messageId));
         });
     }
+    // The dossiers made before their cast person was met (a `+ npc` line, a scan) that match exactly one met person: they are linked to the cast
+    // (castFrom) so the pack's picture can follow. Worked out from the dossiers and the cast alone, so a swipe, a rewind and a reload agree.
+    function castLinksDue(state, adapter) {
+        const made = adapter.castMade?.() ?? {};
+        const people = metWithEntry(castList()).filter(person => Object.hasOwn(made, person.key));
+        if (!people.length) return [];
+        // A dossier the seeding below is about to fill (its pending mark still holds) is seeded, not linked.
+        const seeding = new Set(castDue(state, adapter).map(person => dossierFor(state.npcs || [], person)?.id).filter(Boolean));
+        return castLinkTargets(state?.npcs, people, person => castPersonDismissed(state, person)).filter(({ npc }) => !seeding.has(npc.id));
+    }
+    // `state` with those dossiers linked (a new object; `state` itself is not changed).
+    function withCastLinksMade(state, adapter) {
+        const names = adapter.packNames?.() ?? {};
+        const links = castLinksDue(state, adapter);
+        if (!links.length) return state;
+        const linked = new Map(links.map(({ npc, person }) => [npc.id, linkToCast(npc, person, { packName: names[person.pack] ?? '', gated: adapter.worldSecretsOn?.() === true, placeName: adapter.placeName })]));
+        return { ...state, npcs: state.npcs.map(npc => linked.get(npc.id) ?? npc) };
+    }
+    // The cast person of a dossier the story made before Story Director counted the meeting (a `+ npc` line names an unmet person who is in the scene): the
+    // met list does not hold them, so their entry (and its picture) is asked by the dossier's own name or alias, exactly as that line did. Null when none fits.
+    function unmetCastPerson(adapter, npc) {
+        for (const name of [npc.name, ...(Array.isArray(npc.aliases) ? npc.aliases : [])].filter(Boolean).slice(0, 4)) {
+            const answer = adapter.castAnswer?.(name);
+            if (!Array.isArray(answer)) return null;
+            // (the entry is kept for a met person only, so the one asked for is read as met here, as src cast-first.js does for the same line)
+            const found = findCastPerson(normalizeCast(answer.map(raw => (raw && typeof raw === 'object' && !raw.met ? { ...raw, met: { on: null, where: '' } } : raw))), npc.castFrom.key);
+            if (found?.entry) return found;
+        }
+        return null;
+    }
     // The cast dossiers that may be given the pack's picture now (src/cast-dossier.js castPortraitWanted: made from the cast, no portrait of
     // their own, none removed on purpose) and for whom Story Block's `packs.portrait` now answers for their entry's `portrait`:
     // [{ npc, person, url, file }]. A picture that could not be read is not asked for again in this session (castPortraitMisses).
@@ -146,7 +176,7 @@ export function createCastSyncPart(rt, deps) {
         const people = metWithEntry(castList());
         const targets = [];
         for (const npc of wanting) {
-            const person = findCastPerson(people, npc.castFrom.key);
+            const person = findCastPerson(people, npc.castFrom.key) ?? unmetCastPerson(adapter, npc);
             const file = person?.entry?.portrait;
             const url = file ? adapter.packPortraitUrl?.(person.pack, file) : null;
             if (url && !castPortraitMisses.has(`${key}|${npc.id}|${url}`)) targets.push({ npc, person, url, file });
@@ -159,7 +189,8 @@ export function createCastSyncPart(rt, deps) {
             const adapter = adapterMeters();
             const key = getChatKey();
             if (!adapter || getSettings().enabled === false || !key || key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return false;
-            return castPortraitTargets(getChatState(key), adapter, key).length > 0;
+            const state = getChatState(key);
+            return castLinksDue(state, adapter).length > 0 || castPortraitTargets(state, adapter, key).length > 0;
         } catch {
             return false;
         }
@@ -185,7 +216,7 @@ export function createCastSyncPart(rt, deps) {
         if (!adapter || getSettings().enabled === false) return false;
         const key = getChatKey();
         if (!key || key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return false;
-        if (!castDue(getChatState(key), adapter).length && !castPortraitTargets(getChatState(key), adapter, key).length) return false;
+        if (!castDue(getChatState(key), adapter).length && !castLinksDue(getChatState(key), adapter).length && !castPortraitTargets(getChatState(key), adapter, key).length) return false;
         const mark = chatHeadMark();
         const names = adapter.packNames?.() ?? {};
         const portraits = new Map();
@@ -195,7 +226,7 @@ export function createCastSyncPart(rt, deps) {
         }
         // A cast dossier made while its picture was missing (the pack imported without pictures) gets it once the pack answers for it.
         const pictures = new Map();
-        for (const target of castPortraitTargets(getChatState(key), adapter, key)) {
+        for (const target of castPortraitTargets(withCastLinksMade(getChatState(key), adapter), adapter, key)) {
             const record = await castPortraitRecord(target.url, target.file);
             if (record) pictures.set(target.npc.id, { url: target.url, record });
             else castPortraitMisses.add(`${key}|${target.npc.id}|${target.url}`);
@@ -207,6 +238,9 @@ export function createCastSyncPart(rt, deps) {
         const messageId = latestMessageId(true);
         let working = getChatState(key);
         const made = [];
+        // A dossier made before its person was met is linked to the cast first (only castFrom), so the picture step below sees it.
+        const linked = castLinksDue(working, adapter);
+        if (linked.length) working = withCastLinksMade(working, adapter);
         for (const person of castDue(working, adapter)) {
             const existing = dossierFor(working.npcs, person);
             if (existing && working.castSeedPending?.[existing.id]) {
@@ -258,7 +292,7 @@ export function createCastSyncPart(rt, deps) {
             working.npcs = working.npcs.map(npc => (npc.id === next.id ? next : npc));
             given.push(next.id);
         }
-        if (!made.length && !given.length) { if (pictures.size) renderDossier(); return false; } // a same-file repair changes no state, but the blank picture is drawn again
+        if (!made.length && !given.length && !linked.length) { if (pictures.size) renderDossier(); return false; } // a same-file repair changes no state, but the blank picture is drawn again
         if (messageId >= 0) noteChatLineage(working);
         setChatState(key, working);
         persistCritical(key);

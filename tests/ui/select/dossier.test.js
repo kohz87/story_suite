@@ -68,10 +68,10 @@ describe('selectDossier', () => {
     assert.equal(away.following, true);
   });
 
-  it('a person at the scene\'s place has the live Now block even when not flagged present', () => {
-    const vm = selectDossier({ dossier: { ...DOSSIER, present: false }, place: 'By the Notice Board' });
+  it('a person the scene list names has the live Now block even when not flagged present; being stored at the place is not enough', () => {
+    const vm = selectDossier({ dossier: { ...DOSSIER, present: false }, place: 'By the Notice Board', present: ['Sister Temiwa'] });
     assert.deepEqual(vm.now, { where: 'by the notice board', doing: 'Waiting for the clerk', wearing: null, thought: null });
-    assert.equal('lastPlace' in selectDossier({ dossier: { ...DOSSIER, present: false } }).now, true);
+    assert.equal('lastPlace' in selectDossier({ dossier: { ...DOSSIER, present: false }, place: 'By the Notice Board' }).now, true);
   });
 
   it('reads Following from the store flag alone, not from the people away', () => {

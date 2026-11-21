@@ -2,7 +2,38 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
-## Unreleased
+## 0.1.5 — 21 Nov 2026
+
+- A person's mood headline follows the narrator's mood line at once, not only after a Refresh (the bars and history already did).
+- NPC State keeps moods current: the narrator writes a person's new mood when it changes in a reply, and the quiet catch-up refresh re-checks each person's mood, so a mood no longer stays as it was first written.
+- A person's page: the With card and page show who you are to them again (NPC State's relationship summary), above the last change.
+- Gear now wears in board fights: a decisive hit taken wears your body armour (else shield), a decisive miss wears your weapon, one step, and the narrator is told (new fights).
+- The ✦ button on a reply is now one of SillyTavern's own small message buttons (same size and fade), so it no longer pushes the row taller, and its click always opens the sheet.
+- Changing or replacing your persona's picture in SillyTavern now updates the suite (Party, reply card, drawer) at once.
+- Journal › Closed: each quest's Remove sits on the right under its outcome, no longer stretched across the row over the summary.
+- Party › Skills: each skill shows its practice toward the next rank ("34/100", or Max), and its sheet says how far to the next rank and any level it still needs.
+- A Speed stance now adds its full skill mastery to dodging (+2 at Apprentice instead of +1), so a dodge build can dodge; extra actions are unchanged (new fights).
+- Stat bonuses from worn gear now count in fight rolls (new fights) and in story checks, so AGI 11 + 5 from boots rolls as 16; the fight log shows the AGI used.
+- A fight with more foes than an even fight allows no longer drops the extras: past 4 standard foes (or 3 elites) they come in a tier lower, so "a sounder of 7 boars" is 4 boars and 3 lesser ones.
+- Someone who left a place no longer shows as present when the story returns there without them; only who the story puts in the scene is Here.
+- The ✦ "This reply" sheet (Re-read this reply, Open Suite) opens in the message, above the reply card, instead of squeezed into SillyTavern's button row.
+- Fight XP for mobs and minions follows their toughness again: a mob pays a quarter of a standard foe, a minion half (new fights; fights already won keep what they paid).
+- A won fight now pays 15 XP for each foe (scaled by level gap and tier, up to 100), so two level 2 boars pay a level 1 hero 33; fights already started pay as before.
+- The world's people who are nearby but not met yet reach the narrator with their manner and voice, so someone like Sister Temiwa speaks as herself from her first line.
+- A pack person the story brings in (Sister Temiwa and the like) now gets the pack's portrait even before the world counts the meeting.
+- A person's Past page: memories keep their date and reply but no longer link to the calendar.
+- Ersveil: all 31 people have new, sharper portraits (675×1200, each in a pose of their own); import the pack again to get them.
+- A person's page on a desktop window: an opened part (Mood, Ties, Profile …) now takes the cards' place, as on a tablet, with ‹ Dossier to go back.
+- Story › Trackers: standing and fame show their factions and regions ("guild 2 · church -1", or "all 0") instead of [object Object].
+- A person's Profile (Profile › or a tap on the portrait): the portrait fills the portrait column on a tablet or desktop window, and sits full size at the top of the page on a phone; the portrait column is wider.
+- A person's Ties page: a tie described in a sentence shows it as a normal line instead of a big capitals tag.
+- A world pack's keyword lore now goes in with the newest message, so older messages stay the same from turn to turn and the model's prompt cache can reuse them; Settings › Packs offers Update for a lorebook made before.
+- Clicking a choice adds it to the message box on its own line instead of replacing what is there, so you can send several choices or your own words with one.
+- A big crowd of mobs or minions ("a dozen rats") comes in as groups of six, each its own foe slot, instead of being cut to six.
+- Fights pay more XP for mobs and minions (their own XP factor: mob 0.5, minion 0.75), so six rats at your level pay 12 XP instead of 6.
+- A crowd that was split into several groups pays the same XP as one group of its full size, so twelve rats in two slots pay as twelve rats.
+- A person's page: a tap on the portrait fills the portrait column with it (the top part on a phone); ✕ or a tap closes it, and Profile › still opens the profile.
+- A world person whose page was made before the story met them (the narrator named them first) now gets the pack's picture and its pack link once they are met, instead of staying without a portrait.
 
 ## 0.1.4 — 20 Nov 2026
 

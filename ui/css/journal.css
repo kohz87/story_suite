@@ -54,7 +54,10 @@
 .journal-tab .fold small{color:var(--su-muted);font-weight:600}
 .closed{display:flex;flex-direction:column;gap:8px}
 .cq{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 12px;border-radius:14px;background:var(--su-tint);font-size:13px}
-.cq b{font:800 14px var(--su-font)}.cq small{color:var(--su-muted);grid-column:1/-1}
+.cq b{font:800 14px var(--su-font)}.cq small{color:var(--su-muted);grid-column:1;min-width:0}
+/* a closed quest's Remove sits on the right under its outcome pill, beside the summary (owner, 20 Nov: it ran the row's width over the summary) */
+.cq .qst{justify-self:end;align-self:start}
+.journal-tab .cq .qedit{grid-column:2;grid-row:2;justify-self:end;align-self:start;margin:0;min-height:32px;padding:0 10px}
 /* calendar */
 .journal-tab .psrch{width:100%;min-height:44px;font:600 14px var(--su-font);color:var(--su-text);background:var(--su-tint);border:1px solid var(--su-line2);border-radius:12px;padding:8px 12px;outline:none}
 .cal-body,.calcol,.mpick{display:flex;flex-direction:column;gap:10px;min-width:0}

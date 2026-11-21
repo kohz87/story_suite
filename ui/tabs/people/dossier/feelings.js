@@ -9,11 +9,13 @@ const CORNERS = Object.freeze(['c-tr', 'c-br', 'c-bl', 'c-tl']);
 const cap = text => text[0].toUpperCase() + text.slice(1);
 const signed = n => (n > 0 ? `+${n}` : String(n));
 
-/** Builds the big portrait with the ring, the four corner numbers and the Profile › button; the dead get the portrait only. */
+/** Builds the big portrait with the ring, the four corner numbers and the Profile › button; a tap on the portrait opens the Profile too (where a tablet or desktop window shows the portrait full size in its column: owner, 20 Nov); the dead get the portrait only. */
 export function feelingsHero(d, { onProfile } = {}) {
   const dead = d.life !== 'alive';
-  const disc = h('button', { type: 'button', class: 'bigph', 'aria-label': 'Profile', dataset: { act: 'profile' }, onClick: () => onProfile?.() },
-    portraitDisc(d, 'ph'), h('span', { class: 'prof' }, 'Profile ›'));
+  const prof = h('span', { class: 'prof', role: 'button', tabindex: '0', dataset: { act: 'profile' }, onClick: e => { e.stopPropagation?.(); onProfile?.(); },
+    onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault?.(); e.stopPropagation?.(); onProfile?.(); } } }, 'Profile ›');
+  const disc = h('button', { type: 'button', class: 'bigph', 'aria-label': `${d.name}: Profile`, dataset: { act: 'profile' }, onClick: () => onProfile?.() },
+    portraitDisc(d, 'ph'), prof);
   return h('div', { class: ['bigring', dead ? 'dead' : null] },
     dead ? null : feelingsRing(d.meters, { width: 2.6, pad: 2, ticks: true }),
     disc,
@@ -41,10 +43,11 @@ function changeRow(c) {
   return row;
 }
 
-/** Builds the part: every change (newest first) with its date and reply, then the four meter bars (each with its stage word once reached), the reader's own feelings, and the stage with what it needs. */
+/** Builds the part: who the reader is to them (NPC State's summary), every change (newest first) with its date and reply, then the four meter bars (each with its stage word once reached), the reader's own feelings, and the stage with what it needs. */
 export function withPage(d) {
   const stage = d.stage;
   return [
+    d.toward ? pageSection('Who you are to them', h('p', null, d.toward)) : null,
     pageSection('Last changes', d.changes?.length ? h('div', { class: 'evs' }, d.changes.map(changeRow)) : h('p', { class: 'fine' }, 'Nothing has changed yet.')),
     pageSection('Feelings', h('div', { class: 'mrows' }, [
       ...FEELING_KEYS.map((key, i) => meterRow(key, d.meters?.[key], i, { stage: d.axisStages?.[key] })),

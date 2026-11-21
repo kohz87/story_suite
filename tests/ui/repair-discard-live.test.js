@@ -33,7 +33,7 @@ test('a repaired reply\'s Changes tab marks its lines as Assist and the sheet\'s
   await settle();
   mes.querySelector('.ssrc [data-tab="changes"]').click();
   assert.ok(mes.querySelectorAll('.ssrc .chg .as').length >= 1, 'a repaired line is marked Assist on the Changes tab');
-  const button = doc.querySelector('.extraMesButtons .xbt.ss');
+  const button = doc.querySelector('.extraMesButtons .ss-star');
   assert.ok(button, 'the ✦ button is drawn');
   button.click();
   const sheet = doc.querySelector('.trsheet');

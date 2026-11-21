@@ -48,7 +48,7 @@ test('the runtime sends Level exactly while the RPG probe says so: the lines rul
     const source = fs.readFileSync(new URL('../../modules/people/runtime/runtime-injection.js', import.meta.url), 'utf8');
     const switches = (source.match(/levelOn: [^,}]*/g) ?? []).map(found => found.trim());
     assert.deepEqual(switches, ['levelOn: rpgIsOn()', 'levelOn: rpgIsOn()'], 'the lines rules and the dossier block');
-    assert.match(source, /buildLinesParts\(\{ \.\.\.noteOptions, levelOn: rpgIsOn\(\),/);
+    assert.match(source, /buildLinesParts\(\{ \.\.\.noteOptions, moodWord: true, levelOn: rpgIsOn\(\),/);
     assert.match(source, /buildInjection\([^\n]*levelOn: rpgIsOn\(\) \}\);/);
     assert.match(source, /import \{[^}]*\brpgIsOn\b[^}]*\} from '\.\.\/settings\/runtime-settings\.js';/);
     try {

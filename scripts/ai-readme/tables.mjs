@@ -68,7 +68,12 @@ function foldersTable(root) {
   return table(['Folder', 'Job'], dirs.map(d => [`\`${d}/\``, FOLDER_ROLES[d]]));
 }
 
+async function versionLine(root) {
+  const { SUITE_VERSION } = await load(root, 'core/version.js');
+  return `**Version \`${SUITE_VERSION}\`**, pack format ${(await load(root, 'packs/limits-parts/format.js')).PACK_FORMAT}.`;
+}
+
 /** Every generated block by name (`<!-- generated:<name> -->`), as Markdown. */
 export async function generatedTables(root) {
-  return { sdk: await sdkTable(root), commands: await commandsTable(root), ...(await packTables(root)), studio: await studioTable(root), folders: foldersTable(root) };
+  return { version: await versionLine(root), sdk: await sdkTable(root), commands: await commandsTable(root), ...(await packTables(root)), studio: await studioTable(root), folders: foldersTable(root) };
 }

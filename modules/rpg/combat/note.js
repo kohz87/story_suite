@@ -50,7 +50,9 @@ export function settledNoteV1(envelope, { fightLen = true } = {}) {
     const { opening, out } = exchangesOf(envelope ?? {});
     if (fightLen && out.length) lines.push(lengthOf(envelope));
     if (opening) lines.push(`${opening}.`);
-    for (const round of out) lines.push(`Exchange ${round.n}: ${round.parts.join(' | ') || 'No one acted'}.`);
+    // (the gear a hit or a miss wore, told at its exchange: "Astra's Traveling Robe: worn → torn")
+    const worn = n => (Array.isArray(envelope?.wear) ? envelope.wear.filter(event => event?.n === n).map(event => `${nameOf(event.who)}'s ${nameOf(event.item)}: ${nameOf(event.from)} → ${nameOf(event.to)}`) : []);
+    for (const round of out) lines.push(`Exchange ${round.n}: ${[...round.parts, ...worn(round.n)].join(' | ') || 'No one acted'}.`);
     const stop = envelope?.stop in END ? envelope.stop : 'open';
     lines.push(END[stop], AFTER[stop === 'open' || stop === 'won' ? stop : 'other']);
     return lines.join(' | ');

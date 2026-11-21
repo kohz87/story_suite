@@ -5,12 +5,13 @@
 import { lorebookFromPack } from './convert.js';
 import { characterStep, lorebookRow, lorebookStep } from './plan.js';
 import { readMarker } from './marker.js';
+import { LOREBOOK_FORMAT } from './convert.js';
 
 const said = (ok, text, extra = {}) => ({ ok, text, errors: [], ...extra });
 const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const reason = error => String(error?.message ?? error ?? 'it did not work');
 
-/** The hints kept in the suite's settings: `{ [pack id]: { name, version } }`. */
+/** The hints kept in the suite's settings: `{ [pack id]: { name, version, format } }`. */
 export function madeHints(settings) {
     const value = settings?.read?.()?.lorebooks;
     return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
@@ -63,7 +64,7 @@ export async function makeLorebook({ packs, books, settings }, { id, use = true,
         first = `${step.update ? 'Updated' : 'Made'} ${name} (${count(counts.entries, 'entry', 'entries')}${counts.hidden ? `; ${count(counts.hidden, 'hidden entry', 'hidden entries')} kept out` : ''}).`;
     }
     const root = settings?.read?.();
-    if (root && typeof root === 'object') { root.lorebooks = { ...madeHints(settings), [pack.id]: { name, version: pack.version } }; await settings.save?.(); }
+    if (root && typeof root === 'object') { root.lorebooks = { ...madeHints(settings), [pack.id]: { name, version: pack.version, format: LOREBOOK_FORMAT } }; await settings.save?.(); }
     const extra = step.step === 'current' ? { state: 'current' } : {};
     if (!use) return said(true, first, extra);
     return said(true, `${first} ${(await withCharacter(books, name)).text}`, extra);

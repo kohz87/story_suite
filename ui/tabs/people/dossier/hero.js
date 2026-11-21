@@ -3,6 +3,7 @@ import { h } from '../../../kit/dom.js';
 import { FEELING_KEYS } from '../../../kit/ring.js';
 import { feelingsHero } from './feelings.js';
 import { partyAddButton } from './party-add.js';
+import { isSafePortraitUrl } from '../../../kit/safe-url.js';
 
 const cap = text => (text ? text[0].toUpperCase() + text.slice(1) : '');
 const signed = n => (n > 0 ? `+${n}` : String(n));
@@ -16,7 +17,7 @@ export function meterLine(meters = {}) {
  * Builds the column for dossier `d`. opts = { following, onFollow(), onProfile(), party: the Add to party context (ctx plus onAdded / onEdited) }.
  * Where: "Here · place" for someone in the scene, else their last place; the dead show where they died.
  */
-export function dossierHero(d, { following = false, onFollow, onProfile, party = null } = {}) {
+export function dossierHero(d, { following = false, onFollow, onProfile, party = null, profileOpen = false } = {}) {
   const dead = d.life !== 'alive';
   const here = !dead && d.now && Object.hasOwn(d.now, 'where');
   const place = dead ? (d.death?.where ?? '') : (here ? d.now.where : (d.now?.lastPlace ?? ''));
@@ -26,7 +27,9 @@ export function dossierHero(d, { following = false, onFollow, onProfile, party =
     // (the chip is small, the button round it is a 44 px tap)
     : [h('button', { type: 'button', class: 'fbtn', 'aria-pressed': String(following), dataset: { act: 'follow' }, onClick: () => onFollow?.() }, h('span', { class: ['chip', following ? 'pres' : null] }, following ? '★ Following' : '☆ Follow')),
       d.mood ? h('span', { class: 'chip' }, d.mood) : null];
-  return h('section', { class: 'dhero' },
+  // (with the Profile part open, the portrait fills this column on a tablet or desktop window; dossier.css hides it on a phone, where the Profile page shows it: owner, 20 Nov)
+  const full = profileOpen && isSafePortraitUrl(d.portrait) ? h('div', { class: 'dhfull' }, h('img', { src: d.portrait, alt: `${d.name ?? ''}, portrait` })) : null;
+  return h('section', { class: ['dhero', full ? 'pfopen' : null] }, full,
     feelingsHero(d, { onProfile }),
     h('div', { class: 'dname' }, d.name),
     h('div', { class: 'chips dchips' }, chips.filter(Boolean)),

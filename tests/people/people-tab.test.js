@@ -160,11 +160,11 @@ test('a chat change shows the other chat\'s people (none for a new one) and the 
   assert.deepEqual(names(proveTab(rig, 'first chat again').vm), ['ANN', 'MIRA', 'TOM']);
 });
 
-test('the scene\'s place makes a living person here even without the present flag', async t => {
+test('a person last placed at the scene\'s place is not here without the present flag (owner, 20 Nov: Rorke showed as present after she left)', async t => {
   const rig = await peopleRig(t);
   await rig.reply('One.', state => { state.npcs.push(record('ann', { present: false, location: 'The Forge' })); });
   assert.equal((await rig.host.sdk.command('scene.place', { name: 'the forge' })).ok, true);
   const vm = portOf(rig).view('people');
-  assert.deepEqual(vm.here.map(card => card.name).sort(), ['ANN', 'MIRA', 'TOM']);
-  assert.deepEqual(portOf(rig).view('now').here.map(row => row.name).sort(), ['ANN', 'MIRA', 'TOM']);
+  assert.deepEqual(vm.here.map(card => card.name).sort(), ['MIRA', 'TOM']);
+  assert.deepEqual(portOf(rig).view('now').here.map(row => row.name).sort(), ['MIRA', 'TOM']);
 });

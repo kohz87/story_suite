@@ -2,6 +2,7 @@
 // book an earlier version made this chat's lorebook, the Update question and the result line.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { LOREBOOK_FORMAT } from '../../../packs/lorebook-make/convert.js';
 import { store, world, game } from './packs-v4-helpers.js';
 import { pairingView, ownView } from '../../../packs/index-parts/page-queries.js';
 import { selectPacks } from '../../../ui/select/packs.js';
@@ -16,7 +17,7 @@ const NAME = 'Ersveil (Story Suite)';
 const LORE = [{ title: 'Bluewatch', keys: ['Bluewatch'], text: 'A village by the water.' }, { title: 'Vault', keys: [], text: 'Sealed.', hidden: true, gate: 'fact:x' }];
 const loreWorld = (version = '4.0.0') => world({ version, content: { start: { date: { year: 611, month: 10, day: 1 } }, places: [{ id: 'dock', name: 'The Dock', x: 1, y: 1 }], lore: LORE } });
 const AVA = { name: 'Ava', world: '', embedded: false, extras: [] };
-const MADE = version => fakeSettings({ lorebooks: { ersveil: { name: NAME, version } } });
+const MADE = version => fakeSettings({ lorebooks: { ersveil: { name: NAME, version, format: LOREBOOK_FORMAT } } });
 
 // SillyTavern's side as the page and the port see it: the books, this chat's lorebook, the chat's character.
 function fakeBooks({ files = {}, chatBook = '', char = AVA } = {}) {

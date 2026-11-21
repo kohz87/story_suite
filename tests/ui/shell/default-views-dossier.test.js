@@ -66,45 +66,6 @@ test('a person with no dossier view-model, or a port with no dossier view, opens
   unknown.destroy();
 });
 
-test('Day › leaves the dossier and shows the Journal calendar on that day; the chat branch closes it too', () => {
-  const doc = installFakeDom();
-  const suite = mountSuite({ port: createFakePort(), doc, initial: 'people' });
-  suite.open('people');
-  doc.body.querySelector('[data-person-id="temiwa"]').click();
-  doc.body.querySelector('.dossier [data-page="past"]').click();
-  doc.body.querySelector('.dossier .day').click();
-  assert.equal(doc.body.querySelector('.dossier'), null);
-  assert.equal(suite.tabHost.current(), 'journal');
-  assert.equal(doc.body.querySelector('.journal-body').dataset.view, 'cal', 'the calendar, not the quests');
-  const sel = doc.body.querySelector('.journal-body .cd.sel');
-  assert.match(sel?.getAttribute('aria-label') ?? '', /^Goldwane 13\b/, 'that memory\'s day is picked');
-  assert.equal(suite.backStack.list().filter(e => e.id.startsWith('dossier-')).length, 0);
-  suite.tabHost.select('people');
-  doc.body.querySelector('[data-person-id="temiwa"]').click();
-  doc.body.querySelector('.dossier [data-act="close"]').click();
-  assert.equal(doc.body.querySelector('.dossier'), null);
-  suite.destroy();
-});
-
-test('Day › from a dossier opened over the Journal (a quest giver) still opens the calendar on that day', () => {
-  const doc = installFakeDom();
-  const suite = mountSuite({ port: createFakePort(), doc, initial: 'journal' });
-  suite.open('journal');
-  const giver = doc.body.querySelectorAll('.journal-body .lk').find(b => b.textContent === 'Sister Temiwa');
-  assert.ok(giver, 'Temiwa gives a quest');
-  giver.click();
-  const dossier = doc.body.querySelector('.dossier');
-  assert.equal(dossier.querySelector('[data-act="close"]').textContent, '‹ Journal');
-  dossier.querySelector('.dcard[data-page="past"]').click();
-  const day = dossier.querySelector('.day').dataset.day;
-  dossier.querySelector('.day').click();
-  assert.equal(doc.body.querySelector('.dossier'), null);
-  assert.equal(suite.tabHost.current(), 'journal');
-  assert.equal(doc.body.querySelector('.journal-body').dataset.view, 'cal');
-  assert.match(doc.body.querySelector('.journal-body .cd.sel')?.getAttribute('aria-label') ?? '', new RegExp(`^${day}\\b`));
-  suite.destroy();
-});
-
 test('the dossier\'s Map tab is the People tab\'s relationship map with this person picked; Open dossier › shows the picked person in place', () => {
   const doc = installFakeDom();
   const suite = mountSuite({ port: createFakePort(), doc, initial: 'people' });

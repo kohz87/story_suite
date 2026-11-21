@@ -48,9 +48,9 @@
         "requests": 1,
         "captures": [
           {
-            "charsIncludingSystem": 8492,
-            "serializedMessagesChars": 8783,
-            "inputSha256": "a0c464c27b8a3c9662d53a912d2bb5fc0a108604b41ea60c674c1b4688c707a4",
+            "charsIncludingSystem": 8644,
+            "serializedMessagesChars": 8935,
+            "inputSha256": "ea94c6c170c2f247f195c7cca18f36fd1fb3fa8d351f520e76ebfe2d1c9d21b9",
             "responseLength": 3200,
             "options": {
               "quietToLoud": false,
@@ -182,9 +182,9 @@
         "requests": 1,
         "captures": [
           {
-            "charsIncludingSystem": 8492,
-            "serializedMessagesChars": 8783,
-            "inputSha256": "a0c464c27b8a3c9662d53a912d2bb5fc0a108604b41ea60c674c1b4688c707a4",
+            "charsIncludingSystem": 8644,
+            "serializedMessagesChars": 8935,
+            "inputSha256": "ea94c6c170c2f247f195c7cca18f36fd1fb3fa8d351f520e76ebfe2d1c9d21b9",
             "responseLength": 3200,
             "options": {
               "stream": false,

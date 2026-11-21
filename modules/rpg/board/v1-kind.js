@@ -9,9 +9,10 @@ import { actorIdOf } from '../roster.js';
 import { fightInputOf, witnessOf } from '../combat/input.js';
 import { playBoard } from '../combat/play.js';
 import { fightChangesV1, fightResultV1 } from './v1-settle.js';
+import { wearOfV1 } from './v1-wear.js';
 import { stanceAfter, stanceHeldOff } from './v1-stance.js';
 import { gearQuery } from './gear-query.js';
-import { gearSoakRecord } from '../gear.js';
+import { gearSoakRecord, sheetWithGear } from '../gear.js';
 import { dice as portDice } from '../../../core/interaction/dice.js';
 
 const KINDS = ['auto', 'attack', 'skill', 'area', 'normal', 'heal', 'flee'];
@@ -34,9 +35,12 @@ function soakOf(state, sheet) {
     return out;
 }
 
+// The sheet the engine rolls with: a fight made with the mark (`gearStats: 1`) has each hero's worn pieces' stats added (read live, as soak is); a fight before it rolled with the sheet's own stats.
+const rollSheet = (state, setup, sheet) => (setup.gearStats === 1 ? sheetWithGear(sheet, gearQuery(real(state))) : sheet);
+
 /** The engine's input and the heroes' module ids for `setup` on `state`'s sheet. */
 function inputOf(state, setup) {
-    const sheet = readSheet(real(state)), input = fightInputOf(sheet, { carried: setup.carried ?? null });
+    const sheet = readSheet(real(state)), input = fightInputOf(rollSheet(state, setup, sheet), { carried: setup.carried ?? null });
     const soak = soakOf(state, sheet);   // (read live: a piece worn between two replies reaches the next segment, and the witness holds the same number)
     input.party = input.party.map(hero => ({ ...hero, gearSoak: Number(soak[hero.id]) || 0 }));
     return { sheet, input };
@@ -59,18 +63,26 @@ function choicesOf(sheet, step, carried = {}) {
 function playedOf(state, setup, steps, dice) {
     const { sheet, input } = inputOf(state, setup);
     if (!input.party.length || !input.foes.length) throw new Error('There is no fight to play.');
-    const record = playBoard(input, { dice, ...(setup.start ? { start: structuredClone(setup.start) } : {}), ...(setup.fleeIdle === 1 ? { fleeIdle: true } : {}) }, steps.map((step, at) => choicesOf(sheet, step, at === 0 ? setup.stance : {})));
+    const record = playBoard(input, { dice, ...(setup.start ? { start: structuredClone(setup.start) } : {}), ...(setup.fleeIdle === 1 ? { fleeIdle: true } : {}), ...(setup.speedFull === 1 ? { speedFull: true } : {}) }, steps.map((step, at) => choicesOf(sheet, step, at === 0 ? setup.stance : {})));
     return { sheet, input, record };
 }
 
-const mapped = (state, setup, played) => fightResultV1(setup, played.record, { sheet: played.sheet, groups: played.input.groups });
+// The wear the fight costs the worn gear (a setup with the mark `gearWear: 1` only; one opened before it wears nothing): read live from the worn pieces, as soak is.
+function wearOf(state, setup, played) {
+    if (setup.gearWear !== 1) return null;
+    const query = gearQuery(real(state)), modules = Object.fromEntries(played.sheet.characters.filter(character => character.v1 === true).map(character => [character.key, character.module]));
+    const out = wearOfV1(played.record, { modules, slotsOf: owner => query('inventory.gear', { owner })?.slots });
+    return out.events.length ? out : null;
+}
+
+const mapped = (state, setup, played) => fightResultV1(setup, played.record, { sheet: played.sheet, groups: played.input.groups, wear: wearOf(state, setup, played) });
 
 /** The first setup of a fight on a v1 sheet: every filled foe group fights, the party is every standing hero. `error` when no one can fight. */
 function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.v1 === true && foe.filled).map(foe => foe.slot);
     if (!sheet.characters.some(standingHero) || !groups.length) return { error: 'There is no fight to open.' };
-    // (`fleeIdle`: a member who picked nothing pays no stance in an exchange where the party flees and gets away, combat/exchange.js; a fight opened before the mark has none)
-    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }),
+    // (`speedFull`: a Speed stance adds its full mastery to evasion, 20 Nov; `gearStats`: the stats of the worn gear count in every roll, 20 Nov; `gearWear`: a decisive hit taken wears the body armour (else the off-hand) and a decisive miss the weapon, one step, v1-wear.js, 20 Nov; a fight opened before it rolls with the sheet's stats; `fleeIdle`: a member who picked nothing pays no stance in an exchange where the party flees and gets away, combat/exchange.js; a fight opened before the mark has none; `xpRule: 'each2'`: the XP of 15 for each foe at the tier's own factor, 20 Nov evening; 'each' (that afternoon) keeps mob 0.5 / minion 0.75; a setup without one pays per group as before)
+    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, xpRule: 'each2', gearStats: 1, gearWear: 1, speedFull: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }),
         ...(Array.isArray(args.resumed?.foes) && args.resumed.foes.length ? { resumed: true, carried: { foes: structuredClone(args.resumed.foes) } } : {}) };
     try { playedOf(state, setup, [], portDice(seed, 0)); } catch (error) { return { error: error.message }; }
     return { setup, seed };
@@ -113,7 +125,7 @@ export const V1 = Object.freeze({
         for (const key of ['opening', 'opened', 'approach', 'drop']) delete out[key];
         return out;
     },
-    witness: (state, setup) => ({ ...witnessOf(readSheet(real(state))), soak: soakOf(state, readSheet(real(state))), groups: setup.groups }),
+    witness: (state, setup) => ({ ...witnessOf(rollSheet(state, setup, readSheet(real(state)))), soak: soakOf(state, readSheet(real(state))), groups: setup.groups }),
     validate: (state, setup, steps, step) => (step.inputs.every(input => plain(input.args) && typeof input.choice === 'string' && KINDS.includes(input.choice)
         && (input.args.target === undefined || typeof input.args.target === 'string')) ? null : 'Choose an action for each standing member.'),
     actors: state => readSheet(real(state)).characters.filter(standingHero).map(character => ({ id: actorIdOf(character.module), name: character.who, party: true })),

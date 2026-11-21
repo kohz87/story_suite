@@ -14,6 +14,8 @@ test('button is labelled and calls onOpen', () => {
   assert.equal(b.getAttribute('title'), 'Story Suite: this reply');
   b.click();
   assert.equal(hit, 1);
+  assert.ok(b.classList.contains('mes_button'), 'one of SillyTavern\'s own message buttons');
+  b.dispatchEvent?.(Object.assign(new (globalThis.Event ?? class { constructor(t) { this.type = t; } })('keydown'), { key: 'Enter' }));
   replyMenuButton().click();
 });
 

@@ -1,6 +1,7 @@
 // Reads the scene answers from Story Block queries: one pass over the query names, plus the portrait and gear lookups the selectors need.
 
 import { isHere } from './people.js';
+import { personaStamp } from './persona-stamp.js';
 import { ownerOf } from '../runtime/owner-id.js';
 import { presentOf } from './people-parts.js';
 
@@ -8,7 +9,7 @@ const SCENE = ['director.time', 'director.status', 'scene.place', 'scene.weather
   'party.terms', 'rpg.sheet', 'mounts.pace', 'director.goal', 'director.next', 'atlas.trip', 'inventory.wallet', 'inventory.currency',
   'inventory.encumbrance', 'npc.cast', 'chatter.head', 'time.overdue', 'reply.changes', 'rpg.joinsOpen'];
 
-// Who is here, from the store: the people of `people.list` who are here (isHere: present, or at the scene's place) as [{ id, name, meters, followed, portrait, status, goal }] (the old `npc.present` answer's shape, still the
+// Who is here, from the store: the people of `people.list` who are here (isHere: the store's present flag or Story Block's scene list) as [{ id, name, meters, followed, portrait, status, goal }] (the old `npc.present` answer's shape, still the
 // key the selectors read); `status` is what they are doing (the same stored text the dossier's Right now shows) and `goal` what they want (people.dossier's), each null when none; null while the chat has no people slice.
 const goalOf = dossier => (typeof dossier?.goal === 'string' && dossier.goal.trim()) || null;
 const hereOf = (list, place, present, read) => (Array.isArray(list)
@@ -51,7 +52,8 @@ function personaPortrait(read, ctx) {
   const row = c.name1 ? (read('people.list', {}) ?? []).find(r => r?.name === c.name1) : null;
   if (row?.portrait) return row.portrait;
   const file = personaFile(c);
-  return file ? `/User%20Avatars/${encodeURIComponent(file)}` : null;
+  // (with the stamp a replaced picture under the same file name is fetched again: persona-stamp.js)
+  return file ? `/User%20Avatars/${encodeURIComponent(file)}${personaStamp() ? `?v=${personaStamp()}` : ''}` : null;
 }
 
 export function optsOf(read, answers, ctx) {

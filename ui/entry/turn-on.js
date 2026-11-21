@@ -17,13 +17,17 @@ import { frameCoalesced } from '../runtime/redraw.js';
 import { attachWizard } from '../wizard/attach.js';
 import { SUITE_VERSION } from '../../core/version.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
+import { putChoice as putChoiceIn } from './put-choice.js';
+import { bumpPersonaStamp } from '../select/persona-stamp.js';
 
 const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'loot', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'dossier-map', 'world', 'journal', 'story', 'settings', 'sheet-desk', 'wizard', 'gear-stats'];
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses, and SillyTavern's World Info for a world pack's lorebook.
 const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharacterLorebook, lore: { read: refreshLore }, lorebooks: { books: stLorebooks(), settings: stSettings() } });
 const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 // SillyTavern events that move or redraw a reply's action bar (a swipe, a delete and an edit send none of the three before).
-const ST_EVENTS = ['CHAT_CHANGED', 'MESSAGE_RECEIVED', 'MESSAGE_SENT', 'MESSAGE_SWIPED', 'MESSAGE_DELETED', 'MESSAGE_EDITED'];
+const ST_EVENTS = ['CHAT_CHANGED', 'MESSAGE_RECEIVED', 'MESSAGE_SENT', 'MESSAGE_SWIPED', 'MESSAGE_DELETED', 'MESSAGE_EDITED', 'PERSONA_CHANGED', 'PERSONA_RENAMED'];
+// (a persona's picture replaced or a persona made over an old one: the picture is fetched again, then the surfaces redraw: owner, 20 Nov)
+const PERSONA_PICTURE_EVENTS = ['PERSONA_UPDATED', 'PERSONA_CREATED'];
 // The screen the RPG opens for a fight (the waiting pause, Send while it waits, a fight begun): shown here as the Fight tab, never as the old view's screen.
 const FIGHT_SCREEN = 'story-block/fight';
 
@@ -58,8 +62,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   const entry = addMenuEntry(doc, { label: 'Story Suite', onClick: () => suite.open('now') });
   const offScreens = showScreens(doc, id => { if (id !== FIGHT_SCREEN) return false; suite.open(port.view('fight') ? 'fight' : 'now'); return true; });
   const chatEl = () => doc.querySelector('#chat');
-  // A choice's words go into SillyTavern's message box, as if typed (its input event lets SillyTavern size the box).
-  const putChoice = text => { const box = doc.querySelector('#send_textarea'); if (!box) return; box.value = text; box.dispatchEvent?.(new (doc.defaultView?.Event ?? globalThis.Event)('input', { bubbles: true })); box.focus?.(); };
+  const putChoice = text => putChoiceIn(doc, text); // (adds to the message box on its own line: put-choice.js)
   const openPersonOr = (id, name) => { if (!pageHandles.openPerson?.({ id, name })) suite.open('people'); }; // (the person's own page, the same opener NPC State's "open dossier" uses)
   const surfaces = createChatSurfaces({
     messagesEl: chatEl(),
@@ -98,7 +101,10 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
           onDiscard: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); close(); if (at >= 0) port.reread(at, { discardRepair: true }); },
           onClose: close,
         });
-        bar.parentNode?.appendChild(sheet);
+        // (in the message body, above the reply card, at full width: inside SillyTavern's button row it was squeezed beside the icons, owner 20 Nov)
+        const block = bar.closest?.('.mes')?.querySelector?.('.mes_block');
+        const card = block?.querySelector?.('.ssrc');
+        if (card) card.parentNode.insertBefore(sheet, card); else (block ?? bar.parentNode)?.appendChild(sheet);
       },
     });
     bar.appendChild(button);
@@ -111,11 +117,14 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   const offs = EVENTS.map(event => port.on(event, frame.request));
   const types = ctx()?.eventTypes ?? ctx()?.event_types ?? {};
   for (const name of ST_EVENTS) if (types[name]) ctx()?.eventSource?.on?.(types[name], frame.request);
+  const pictureChanged = () => { bumpPersonaStamp(); frame.request(); };
+  for (const name of PERSONA_PICTURE_EVENTS) if (types[name]) ctx()?.eventSource?.on?.(types[name], pictureChanged);
   refresh();
   return () => {
     frame.cancel();
     for (const off of offs) off();
     for (const name of ST_EVENTS) if (types[name]) ctx()?.eventSource?.removeListener?.(types[name], frame.request);
+    for (const name of PERSONA_PICTURE_EVENTS) if (types[name]) ctx()?.eventSource?.removeListener?.(types[name], pictureChanged);
     offScreens();
     if (pageHandles.openPerson === openPerson) pageHandles.openPerson = null;
     wizard.destroy();

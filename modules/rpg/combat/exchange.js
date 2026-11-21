@@ -236,11 +236,11 @@ function heroTurn(actor, state, choice, roll, actorIndex, lines, moves) {
     return { result: null };
 }
 
-function foeAttack(foe, hero, roll, slot, lines, moves) {
+function foeAttack(foe, hero, roll, slot, lines, moves, speedFull = false) {
     const die = dieAt(roll, 'foe', slot, `${labelOf(foe)} attack`);
     const attack = die + opposition(foe);
     const evasionDie = dieAt(roll, 'check', slot, `${labelOf(hero)} evasion`);
-    const evasion = evasionDie + playerRoll('evasion', hero.stats, hero.level, { mastery: masteryOf(hero), stance: hero.stance });
+    const evasion = evasionDie + playerRoll('evasion', hero.stats, hero.level, { mastery: masteryOf(hero), stance: hero.stance, speedFull });
     const outcome = rollOutcome(die, opposition(foe), evasion, 'foe');
     if (outcome === 'evaded') {
         lines.push(['foe-attack', labelOf(foe), labelOf(hero), die, attack, evasionDie, evasion, 'evaded', 0, 0, number(hero.hp)]);
@@ -261,7 +261,7 @@ function choiceFor(choices, actor, index) {
 /**
  * Play one exchange on a copy of `sheet` ({ party, foes }). `choices` is an object keyed by hero id/label or an array in
  * party order; a missing hero choice is automatic (the simulator's policy). `options.roll(kind, slot)` returns each d20,
- * `options.order` is the fight's fixed per-side order, `options.rotation` keeps the foe target rotation, and `options.fleeIdle` defers an idle member's stance in a flee exchange.
+ * `options.order` is the fight's fixed per-side order, `options.rotation` keeps the foe target rotation, `options.fleeIdle` defers an idle member's stance in a flee exchange, and `options.speedFull` gives a Speed stance its full mastery on evasion.
  * Returns { sheet, lines, moves, order, rotation, result } with result null while the fight is open.
  */
 export function playExchange(sheet, choices = null, options = {}) {
@@ -310,7 +310,7 @@ export function playExchange(sheet, choices = null, options = {}) {
             if (!standing.length) return;
             const hero = standing[rotation % standing.length];
             rotation += 1;
-            foeAttack(foe, hero, options.roll, 1000000 + index * 10, lines, moves);
+            foeAttack(foe, hero, options.roll, 1000000 + index * 10, lines, moves, options.speedFull === true);
         });
         if (!living(party).length) result = 'loss';
     };

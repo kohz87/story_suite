@@ -17,7 +17,7 @@ export function lorebookName(packName) {
 }
 
 /**
- * The marker a book carries, `{ pack, version }`, or null when it has none (a book Story Suite did not make).
+ * The marker a book carries, `{ pack, version, format }` (format 1 for a book made before the format was written), or null when it has none (a book Story Suite did not make).
  * `book` is a World Info book as SillyTavern saves it (`{ entries: { "<uid>": entry } }`); the marker's content is JSON.
  */
 export function readMarker(book) {
@@ -26,7 +26,7 @@ export function readMarker(book) {
         if (!entry || !isLorebookTitle(entry.comment)) continue;
         try {
             const data = JSON.parse(String(entry.content ?? ''));
-            if (data && typeof data.pack === 'string' && data.pack) return { pack: data.pack, version: typeof data.version === 'string' ? data.version : '' };
+            if (data && typeof data.pack === 'string' && data.pack) return { pack: data.pack, version: typeof data.version === 'string' ? data.version : '', format: Number.isSafeInteger(data.format) ? data.format : 1 };
         } catch { /* a marker whose text was edited away is no marker */ }
     }
     return null;

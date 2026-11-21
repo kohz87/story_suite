@@ -41,12 +41,13 @@ function summary(d, id) {
   const now = d.now ?? {};
   if (id === 'death') return deathCard(d);
   if (id === 'with') {
-    // (a change the day's allowance held back moved nothing, so it is not "the last change")
+    // (who the reader is to them first, in NPC State's words; then the last change; a change the day's allowance held back moved nothing, so it is not "the last change")
+    const toward = d.toward ? h('span', { class: 'lc tw' }, d.toward) : null;
     const c = d.changes?.find(change => !change.heldBack);
-    if (!c) return h('span', { class: 'fine' }, 'Nothing yet');
+    if (!c) return toward ?? h('span', { class: 'fine' }, 'Nothing yet');
     const when = replyWhen(c.reply, c.date);
-    return h('span', { class: 'lc' }, h('b', { class: `f${Math.max(0, FEELING_KEYS.indexOf(c.meter))}` }, `${cap(c.meter)} ${c.delta > 0 ? '+' : ''}${c.delta}`), ` · ${c.why}`,
-      when ? h('span', { class: 'fine' }, ` · ${when}`) : null);
+    return [toward, h('span', { class: 'lc' }, h('b', { class: `f${Math.max(0, FEELING_KEYS.indexOf(c.meter))}` }, `${cap(c.meter)} ${c.delta > 0 ? '+' : ''}${c.delta}`), ` · ${c.why}`,
+      when ? h('span', { class: 'fine' }, ` · ${when}`) : null)].filter(Boolean);
   }
   if (id === 'mood') {
     if (!d.mood) return h('span', { class: 'fine' }, 'Not read yet');
@@ -83,7 +84,7 @@ function summary(d, id) {
  */
 export function dossierCards(d, pages, { current = null, onOpen } = {}) {
   const byId = Object.fromEntries(pages.map(p => [p.id, p]));
-  const title = id => (id === 'past' ? `Past · ${(d.past ?? []).length}` : id === 'ties' && d.ties?.length ? `Ties · ${d.ties.length}` : id === 'with' ? `${byId.with.title} · last change` : byId[id].title);
+  const title = id => (id === 'past' ? `Past · ${(d.past ?? []).length}` : id === 'ties' && d.ties?.length ? `Ties · ${d.ties.length}` : id === 'with' ? (d.toward ? byId.with.title : `${byId.with.title} · last change`) : byId[id].title);
   const card = id => (byId[id] ? h('button', {
     type: 'button', class: ['dcard', 'glass', current === id ? 'sel' : null], 'aria-current': current === id ? 'true' : null, dataset: { page: id }, onClick: () => onOpen?.(id),
   }, h('span', { class: ['dl', TONE[id] ?? null] }, h('span', null, title(id)), h('i', null, '›')), summary(d, id)) : null);

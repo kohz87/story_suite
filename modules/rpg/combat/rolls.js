@@ -18,14 +18,14 @@ export const masteryTerm = mastery => Math.ceil(Math.max(0, Number.isFinite(Numb
 
 /**
  * A player's bonus for one kind of roll: physical (DEX), magic (WIS), evasion (AGI), tempo (AGI), order (AGI) or
- * flee (AGI). Evasion and tempo add half mastery while a Speed stance is on; level÷4 is added to all six.
+ * flee (AGI). Evasion and tempo add half mastery while a Speed stance is on (evasion the full mastery with `speedFull`, a fight opened from 20 Nov evening: owner, to match the Defence stance's soak); level÷4 is added to all six.
  */
-export function playerRoll(kind, stats, level, { mastery = 0, stance = null } = {}) {
+export function playerRoll(kind, stats, level, { mastery = 0, stance = null, speedFull = false } = {}) {
     const lv = levelOf(level), half = masteryTerm(mastery), on = stanceOf(stance), r = V1.roll;
     const base = {
         physical: () => Math.floor(stat(stats, 'dex') / r.physicalDiv) + Math.floor(lv / r.levelDiv),
         magic: () => Math.floor(stat(stats, 'wis') / r.magicDiv) + Math.floor(lv / r.levelDiv),
-        evasion: () => Math.floor(stat(stats, 'agi') / r.evasionDiv) + Math.floor(lv / r.levelDiv) + (on === 'speed' ? half : 0),
+        evasion: () => Math.floor(stat(stats, 'agi') / r.evasionDiv) + Math.floor(lv / r.levelDiv) + (on === 'speed' ? (speedFull ? Math.max(0, Math.floor(Number(mastery) || 0)) : half) : 0),
         tempo: () => Math.floor(stat(stats, 'agi') / r.tempoDiv) + Math.floor(lv / r.levelDiv) + (on === 'speed' ? half : 0),
         order: () => Math.floor(stat(stats, 'agi') / r.orderDiv) + Math.floor(lv / r.levelDiv),
         flee: () => Math.floor(stat(stats, 'agi') / r.fleeDiv) + Math.floor(lv / r.levelDiv),

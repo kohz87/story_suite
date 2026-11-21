@@ -3,6 +3,7 @@
 // lorebook, which is only unset when it is this pack's own book moved to the character.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { LOREBOOK_FORMAT } from '../../packs/lorebook-make/convert.js';
 import { characterStep, lorebookRow, lorebookStep } from '../../packs/lorebook-make/plan.js';
 import { makeLorebook, lorebookRows } from '../../packs/lorebook-make/run.js';
 import { lorebookFromPack } from '../../packs/lorebook-make/convert.js';
@@ -36,7 +37,9 @@ test('the row: Create, Update with the version it was made from, Up to date; the
     assert.equal(lorebookRow({ pack }).state, 'create');
     assert.equal(lorebookRow({ pack, made: { tiny: { name: NAME, version: '1.0.0' } } }).state, 'create');
     assert.deepEqual([lorebookRow({ pack, names: [NAME], made: { tiny: { name: NAME, version: '1.0.0' } } })].map(row => [row.state, row.madeFrom]), [['update', '1.0.0']]);
-    assert.equal(lorebookRow({ pack, names: [NAME], made: { tiny: { name: NAME, version: '1.1.0' } } }).state, 'current');
+    assert.equal(lorebookRow({ pack, names: [NAME], made: { tiny: { name: NAME, version: '1.1.0', format: LOREBOOK_FORMAT } } }).state, 'current');
+    // (the same version made with the older placement, before keyed lore went to depth 0: Update)
+    assert.equal(lorebookRow({ pack, names: [NAME], made: { tiny: { name: NAME, version: '1.1.0' } } }).state, 'update');
     assert.deepEqual([lorebookRow({ pack, names: [NAME] })].map(row => [row.state, row.madeFrom]), [['update', '']]);
 });
 
@@ -73,6 +76,9 @@ test('the step: a book of that name the suite did not make, or made from another
     assert.match(lorebookStep({ pack, name: NAME, existing: userBook }).message, /Story Suite did not make it/);
     assert.equal(lorebookStep({ pack, name: NAME, existing: lorebookFromPack({ ...tiny(), id: 'other' }).book }).step, 'refuse');
     assert.equal(lorebookStep({ pack, name: NAME, existing: made('1.1.0') }).step, 'current');
+    // (the same version made before the format was stamped, keyed lore at depth 4: replaced after a confirm)
+    const older = made('1.1.0'); older.entries[0].content = JSON.stringify({ pack: 'tiny', version: '1.1.0' });
+    assert.equal(lorebookStep({ pack, name: NAME, existing: older }).step, 'confirm');
     assert.deepEqual(lorebookStep({ pack, name: NAME, existing: made('1.0.0') }), { step: 'confirm', update: true, message: `This replaces the book ${NAME}; edits you made in it are lost.` });
     assert.equal(lorebookStep({ pack, name: NAME, existing: made('1.0.0'), confirmed: true }).step, 'write');
 });
@@ -84,7 +90,7 @@ test('Create on a card with no lorebook: saved, linked to the character, remembe
     assert.deepEqual(answer, { ok: true, text: `Made ${NAME} (1 entry; 1 hidden entry kept out). Linked to Ava.`, errors: [] });
     assert.deepEqual(st.calls, { saves: [NAME], linked: [NAME], added: [], cleared: [] });
     assert.equal(st.books.chatBook(), 'MemoryBook Ava');
-    assert.deepEqual(d.settings.root.lorebooks, { tiny: { name: NAME, version: '1.0.0' } });
+    assert.deepEqual(d.settings.root.lorebooks, { tiny: { name: NAME, version: '1.0.0', format: LOREBOOK_FORMAT } });
     assert.equal(JSON.stringify(st.files[NAME]).includes('Sealed'), false);
 });
 

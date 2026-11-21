@@ -9,20 +9,20 @@ const sheet = { characters: [{ who: 'Astra', level: 5, v1: true }], foes: [] };
 const message = 'I attack the guards, the hounds and the captain', previous = '';
 const answer = [{ name: 'guards', count: 6, level: 4, tier: 'standard' }, { name: 'hounds', count: 5, level: 3, tier: 'minion' }, { name: 'captain', count: 4, level: 9, tier: 'ELITE' }];
 
-test('v1: tiers are kept, standard foes cap at 4 in all, elites at 3 a group, minions keep their count', () => {
+test('v1: tiers are kept; foes past 4 standard in all or 3 elite a group come in a tier lower (owner, 20 Nov: never dropped); minions keep their count', () => {
     const got = vetGroups(answer, { message, previous, sheet, v1: true });
-    assert.deepEqual(got.map(({ name, count, tier }) => [name, count, tier]), [['guards', 4, 'standard'], ['hounds', 5, 'minion'], ['captain', 3, 'elite']]);
+    assert.deepEqual(got.map(({ name, count, tier }) => [name, count, tier]), [['guards', 4, 'standard'], ['guards (lesser)', 2, 'minion'], ['hounds', 5, 'minion'], ['captain', 3, 'elite'], ['captain (lesser)', 1, 'minion']]);
 });
 
-test('v1: the standard room is shared by the groups in order; a group left with no room is dropped; an unknown tier is standard', () => {
-    assert.deepEqual(sizeGroups([{ name: 'a', count: 3 }, { name: 'b', count: 3, tier: 'nonsense' }, { name: 'c', count: 2, tier: 'standard' }]).map(({ name, count }) => [name, count]), [['a', 3], ['b', 1]]);
-    assert.deepEqual(sizeGroups([{ name: 'a', count: 9, tier: 'boss' }, { name: 'b', count: 5, tier: 'mob' }]).map(({ count }) => count), [3, 5]);
+test('v1: the standard room is shared by the groups in order; a group left with no room comes in whole as minions; an unknown tier is standard', () => {
+    assert.deepEqual(sizeGroups([{ name: 'a', count: 3 }, { name: 'b', count: 3, tier: 'nonsense' }, { name: 'c', count: 2, tier: 'standard' }]).map(({ name, count, tier }) => [name, count, tier]), [['a', 3, 'standard'], ['b', 1, 'standard'], ['b (lesser)', 2, 'minion'], ['c', 2, 'minion']]);
+    assert.deepEqual(sizeGroups([{ name: 'a', count: 9, tier: 'boss' }, { name: 'b', count: 5, tier: 'mob' }]).map(({ count, tier }) => [count, tier]), [[3, 'boss'], [4, 'standard'], [2, 'minion'], [5, 'mob']]);
 });
 
-test('v1: mobs and minions keep their count up to the Foes block\'s six a slot ("a dozen rats" is cut to 6, never refused)', () => {
-    assert.deepEqual(sizeGroups([{ name: 'rats', count: 12, tier: 'mob' }, { name: 'hounds', count: 9, tier: 'minion' }, { name: 'b', count: 6, tier: 'mob' }]).map(({ count }) => count), [6, 6, 6]);
+test('v1: mobs and minions keep their count up to the Foes block\'s six a slot ("a dozen rats" splits into two groups of 6, never refused)', () => {
+    assert.deepEqual(sizeGroups([{ name: 'rats', count: 12, tier: 'mob' }, { name: 'hounds', count: 9, tier: 'minion' }, { name: 'b', count: 6, tier: 'mob' }]).map(({ count }) => count), [6, 6, 6, 3, 6]);
     const got = vetGroups([{ name: 'aggressive rats', count: 12, level: 1, tier: 'mob' }], { message: 'A dozen of aggressive rats was there when I attack them.', sheet: { characters: [{ who: 'Astra', level: 1, v1: true }], foes: [] }, v1: true });
-    assert.deepEqual(got.map(({ name, count, tier, level }) => [name, count, tier, level]), [['aggressive rats', 6, 'mob', 1]]);
+    assert.deepEqual(got.map(({ name, count, tier, level }) => [name, count, tier, level]), [['aggressive rats', 6, 'mob', 1], ['aggressive rats (2)', 6, 'mob', 1]]);
 });
 
 test('without v1 the answer is vetted exactly as before (no tier, no size rule)', () => {
@@ -32,7 +32,7 @@ test('without v1 the answer is vetted exactly as before (no tier, no size rule)'
 });
 
 const TIER_LINE = '- tier is required, one of: mob, minion, standard, elite, boss, apex. A rat or a beggar is a mob or a minion, a trained guard or a bandit is standard, a veteran, officer or champion is elite, a named leader is a boss, a dragon or a titan is an apex. When unsure, standard.';
-const SIZE_LINE = '- An even fight is at most 4 standard foes; a group of elites is at most 3. Give a bigger crowd as several groups, or leave the extra foes out.';
+const SIZE_LINE = '- Give every foe the reader names, at the count the message gives: code keeps the fight even (foes past 4 standard or 3 elite come in a tier lower).';
 const LEVEL_LINE_START = '- level is required (a whole number)';
 
 test('the v1 pre-check prompt carries the approved tier and size lines right after the level rule, and the tiered reply shape; the old prompt has neither', () => {
@@ -58,6 +58,6 @@ test('runPrecheck on a v1 sheet asks the v1 prompt and returns sized, tiered gro
     assert.match(v1.prompt, /tier is required/u);
     assert.equal(old.prompt, precheckPrompt({ message, sheet: { characters: [{ who: 'Astra', level: 5 }], foes: [] } }), 'an old sheet gets the old prompt');
     assert.doesNotMatch(old.prompt, /tier/u);
-    assert.deepEqual(v1.groups.map(group => [group.count, group.tier]), [[4, 'standard'], [5, 'minion'], [3, 'elite']]);
+    assert.deepEqual(v1.groups.map(group => [group.count, group.tier]), [[4, 'standard'], [2, 'minion'], [5, 'minion'], [3, 'elite'], [1, 'minion']]);
     assert.equal(old.groups.some(group => 'tier' in group), false);
 });

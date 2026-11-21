@@ -115,11 +115,20 @@ function editOf(spec, value) {
   return null;
 }
 
+// A record value (standing by faction, fame by region) as one line: the entries that are not 0, "highmark +2 · guild 1", or "all 0"; a list as its items (owner, 20 Nov: it showed [object Object]).
+function recordWords(value) {
+  if (Array.isArray(value)) return value.map(item => (item && typeof item === 'object' ? recordWords(item) : String(item))).join(', ') || 'none';
+  const rows = Object.entries(value).filter(([, v]) => v !== null && v !== undefined && v !== 0 && v !== '' && v !== false);
+  if (!rows.length) return 'all 0';
+  return rows.map(([k, v]) => `${k} ${v && typeof v === 'object' ? recordWords(v) : v}`).join(' · ');
+}
+
 function fieldsOf(definition, view) {
   const state = definition?.state ?? {};
   return Object.entries(view?.chat ?? {}).map(([key, value]) => {
     const spec = state[key] && typeof state[key] === 'object' ? state[key] : {};
     const label = text(spec.label) || key;
+    if (value && typeof value === 'object') return { label, key, value: recordWords(value), kind: 'text' };
     const shown = spec.names && Object.hasOwn(spec.names, String(value)) ? spec.names[String(value)] : String(value);
     const edit = editOf(spec, value);
     const base = { label, key, value: shown, ...(edit ? { raw: String(value), ...edit } : {}) };

@@ -3,6 +3,7 @@
 // abilities and 12 keepsakes, names up to 60 and descriptions up to 200 characters), starting at places of the world, and the 12 portraits web-size WebP.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { PORTRAIT_LIMITS } from '../../packs/limits-parts/portraits.js';
 import { readFileSync } from 'node:fs';
 import { validatePack } from '../../packs/validate.js';
 import { RETIRED_CAST_FIELDS } from '../../packs/limits.js';
@@ -73,20 +74,20 @@ test('everyone who has a start place starts at a place id of the world', () => {
     for (const person of placed) assert.ok(places.has(person.start.place), `${person.id} starts at "${person.start.place}"`);
 });
 
-test('the portraits: all 31 people name one WebP each in the folder, 512 px at most and 150 KB at most', () => {
+test('the portraits: all 31 people name one WebP each in the folder, within the pack limits (long side at most PORTRAIT_LIMITS.side, at most PORTRAIT_LIMITS.bytes)', () => {
     const named = cast.filter(person => person.portrait).map(person => [person.id, person.portrait]);
     assert.equal(cast.length, 31);
     assert.deepEqual(named.map(([id]) => id), cast.map(person => person.id));
     for (const [id, name] of named) {
         assert.match(name, /^[a-z-]+\.webp$/, id);
         const bytes = readFileSync(new URL(`portraits/${name}`, folder));
-        assert.ok(bytes.length <= 150 * 1024, `${name} is ${bytes.length} bytes`);
+        assert.ok(bytes.length <= PORTRAIT_LIMITS.bytes, `${name} is ${bytes.length} bytes`);
         assert.equal(bytes.toString('latin1', 0, 4), 'RIFF');
         const kind = bytes.toString('latin1', 8, 16);
         assert.ok(kind === 'WEBPVP8 ' || kind === 'WEBPVP8X', `${name} is ${kind}`);
         // A plain lossy file keeps its size in the VP8 frame header; an extended one has the canvas size minus one, 24 bits each.
         const width = kind === 'WEBPVP8 ' ? bytes.readUInt16LE(26) & 0x3fff : bytes.readUIntLE(24, 3) + 1;
         const height = kind === 'WEBPVP8 ' ? bytes.readUInt16LE(28) & 0x3fff : bytes.readUIntLE(27, 3) + 1;
-        assert.ok(Math.max(width, height) <= 512 && Math.min(width, height) > 0, `${name} is ${width}x${height}`);
+        assert.ok(Math.max(width, height) <= PORTRAIT_LIMITS.side && Math.min(width, height) > 0, `${name} is ${width}x${height}`);
     }
 });
