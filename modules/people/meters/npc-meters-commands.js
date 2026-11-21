@@ -59,6 +59,8 @@ export function createNpcCommands({
             label: line.name, changes, problems, limit: moves, reply: moves ? reply : null, at: moves ? at : null, allowEmpty: true, story: moves,
             impact: moves && tierCaps() ? { tier: CAUGHT_TIER, caps: tierCaps() } : null, reason: moves ? `caught lying to ${clean(labels.to, 40)}` : '', leaf: { field: out.field, text: out.text },
         });
+        // A `~ know` line that changed what they know moves the dossier's last change (the stamp is on their dossier, which only the people domain writes).
+        if (line.kind === 'know' && out.text !== current && isObject(ctx.read('people')?.npcs?.[who.key]?.fieldChangeMessages)) ctx.call('people.stamp', { id: who.key, fields: ['knows'] });
         const marked = noted(markNote(line.kind, done, labels, rule), noteWord(line.kind));
         return cues.length ? { ...marked, summary: sentence(moves ? [...cues, done.summary] : cues), narrate: true } : marked;
     }

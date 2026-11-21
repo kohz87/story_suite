@@ -30,13 +30,17 @@ export function normalizeFieldChangeDays(value) {
     return out;
 }
 
+// The fields only a story line stamps (DOSSFIX2 N2: domain/change-stamp.js): a reply index in fieldChangeMessages, so the dossier's last change moves, and
+// no turn count or story day (fieldChanges and fieldChangeDays, which Refresh reads, stay as they were).
+export const LINE_STAMPED_FIELDS = Object.freeze(['gender', 'level', 'abilities', 'keepsakes', 'aliases', 'knows']);
+
 // Display-only counterpart of fieldChanges (1.2.3): the chat message index of the reply a change
 // was recorded at, the numbering Story Block shows as "reply #N". fieldChanges keeps Delta's own
 // turn counter, which recency and Refresh age rely on; a field without an entry predates 1.2.3.
 export function normalizeFieldChangeMessages(value) {
     const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
     const out = {};
-    for (const field of CHANGE_TRACKED_FIELDS) {
+    for (const field of [...CHANGE_TRACKED_FIELDS, ...LINE_STAMPED_FIELDS]) {
         const message = Number(source[field]);
         if (Number.isInteger(message) && message >= 0) out[field] = message;
     }

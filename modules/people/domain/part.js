@@ -13,6 +13,7 @@ import { peopleDied } from './died.js';
 import { peopleMemory } from './memory.js';
 import { peopleQueries } from './queries.js';
 import { remakeBond } from './bond-holder.js';
+import { peopleStamp } from './change-stamp.js';
 
 export const PEOPLE_DOMAIN = 'people';
 
@@ -83,6 +84,7 @@ export function createPeoplePart() {
             ...peopleStub(PEOPLE_DOMAIN, { initial: initialPeople, validate: validatePeople }),
             ...peopleDied(PEOPLE_DOMAIN),
             ...peopleMemory(PEOPLE_DOMAIN),
+            ...peopleStamp(PEOPLE_DOMAIN),
         },
         queries: {
             ...peopleQueries(PEOPLE_DOMAIN),
