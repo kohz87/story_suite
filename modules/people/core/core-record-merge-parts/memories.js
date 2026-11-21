@@ -1,5 +1,5 @@
 /* Important Memory merging: same-reply retelling detection, pinned-memory protection and retention-ranked selection. */
-import { durableRefinementTokens, DURABLE_PROFILE_LIMITS, durableSemanticSimilarity, memorySimilarity, semanticDedupeItems } from '../core-relationship.js';
+import { durableRefinementTokens, DURABLE_PROFILE_LIMITS, memorySimilarity, semanticDedupeItems } from '../core-relationship.js';
 import { cleanList, normalizeName } from '../core-text.js';
 import { IMPORTANT_MEMORY_LIMIT } from '../core-record-shared.js';
 
@@ -74,7 +74,8 @@ function mergeUnpinnedMemories(oldList, newList, retentionList = [], incomingLim
         let best = null;
         let bestScore = 0;
         for (const candidate of pool) {
-            const score = normalizeName(candidate) === normalizeName(request) ? 1 : durableSemanticSimilarity(candidate, request);
+            // A retention request names a memory by memorySimilarity too, so a request for one event never takes another that shares a phrase.
+            const score = normalizeName(candidate) === normalizeName(request) ? 1 : memorySimilarity(candidate, request);
             if (score > bestScore) { best = candidate; bestScore = score; }
         }
         return bestScore >= 0.56 ? best : null;
