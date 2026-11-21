@@ -1727,7 +1727,7 @@
      "op": "add",
      "path": "/domains/dataModules/active/pack.chat~1foes",
      "value": {
-      "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+      "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
       "generation": 2,
       "subjects": [
        "chat"
@@ -1776,7 +1776,7 @@
     },
     {
      "op": "add",
-     "path": "/domains/dataModules/perReply/sr_dnf8nf78~1sw_7qz0br5v/actions/bl_cmy7vann",
+     "path": "/domains/dataModules/perReply/sr_dnf8nf78~1sw_7qz0br5v/actions/bl_5jhoch8b",
      "value": {
       "visits": 0,
       "click": false
@@ -1789,7 +1789,7 @@
     },
     {
      "op": "add",
-     "path": "/domains/dataModules/pins/2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+     "path": "/domains/dataModules/pins/d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
      "value": {
       "definition": {
        "imports": {},
@@ -2915,6 +2915,70 @@
         },
         "horde": {
          "op": "+",
+         "when": [
+          "or",
+          [
+           "or",
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count1"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count2"
+              ]
+             ]
+            ],
+            0
+           ],
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count3"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count4"
+              ]
+             ]
+            ],
+            0
+           ]
+          ],
+          [
+           "gt",
+           [
+            "add",
+            [
+             "get",
+             [
+              "count5"
+             ]
+            ],
+            [
+             "get",
+             [
+              "count6"
+             ]
+            ]
+           ],
+           0
+          ]
+         ],
+         "refusal": "Set the foe slots first; the horde line comes after them.",
          "labels": {
           "waves": {
            "type": "int",
@@ -2964,7 +3028,6 @@
           }
          ],
          "oncePerReply": [],
-         "when": true,
          "ui": false
         }
        },
@@ -3137,11 +3200,11 @@
         "predicate": {
          "kind": "dm.define",
          "module": "pack.chat/foes",
-         "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+         "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
          "generation": 2,
          "subject": "chat"
         },
-        "inputHash": "a6d012fa4a0f1c8470e734327843e0f4a6645ca99b783293a9b2aa1ca0b5747a",
+        "inputHash": "48e78529babbb47af831de987d1a6908903f9f4f7e4b2509209f10893f3f785c",
         "replyBound": true
        }
       },
@@ -6335,7 +6398,7 @@
     {
      "n": 6,
      "story": false,
-     "id": "bl_cmy7vann",
+     "id": "bl_5jhoch8b",
      "module": "story-block",
      "source": {
       "sid": "sr_dnf8nf78",
@@ -6351,11 +6414,11 @@
       "predicate": {
        "kind": "dm.define",
        "module": "pack.chat/foes",
-       "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+       "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
        "generation": 2,
        "subject": "chat"
       },
-      "inputHash": "a6d012fa4a0f1c8470e734327843e0f4a6645ca99b783293a9b2aa1ca0b5747a",
+      "inputHash": "48e78529babbb47af831de987d1a6908903f9f4f7e4b2509209f10893f3f785c",
       "replyBound": true
      },
      "claims": [],
@@ -6366,7 +6429,7 @@
        "cursor": {
         "sid": "sr_dnf8nf78",
         "swipeKey": "sw_7qz0br5v",
-        "block": "bl_cmy7vann",
+        "block": "bl_5jhoch8b",
         "op": 5,
         "rev": 1
        },
@@ -7463,6 +7526,70 @@
          },
          "horde": {
           "op": "+",
+          "when": [
+           "or",
+           [
+            "or",
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count1"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count2"
+               ]
+              ]
+             ],
+             0
+            ],
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count3"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count4"
+               ]
+              ]
+             ],
+             0
+            ]
+           ],
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count5"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count6"
+              ]
+             ]
+            ],
+            0
+           ]
+          ],
+          "refusal": "Set the foe slots first; the horde line comes after them.",
           "labels": {
            "waves": {
             "type": "int",
@@ -8666,6 +8793,70 @@
          },
          "horde": {
           "op": "+",
+          "when": [
+           "or",
+           [
+            "or",
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count1"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count2"
+               ]
+              ]
+             ],
+             0
+            ],
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count3"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count4"
+               ]
+              ]
+             ],
+             0
+            ]
+           ],
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count5"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count6"
+              ]
+             ]
+            ],
+            0
+           ]
+          ],
+          "refusal": "Set the foe slots first; the horde line comes after them.",
           "labels": {
            "waves": {
             "type": "int",
@@ -8715,7 +8906,6 @@
            }
           ],
           "oncePerReply": [],
-          "when": true,
           "ui": false
          }
         },
@@ -8771,7 +8961,7 @@
         "op": 11,
         "rev": 2
        },
-       "prefixHash": "a229f4755daee6342943e2cdacb75f82b5b97eafb393e09b3c1251f34d0b10e7",
+       "prefixHash": "07004e6b4492cd5f99c913e1fa360c81194f63d5d0f188f7b00732ffd8d913d8",
        "payloadHash": "1dcb6b8860591f9b320ab464b48c7480abd40d7f368128b8d7802eaedb168933"
       }
      ],
@@ -8994,7 +9184,7 @@
     "next": 3,
     "taken": {
      "7a9854901469c325": 1,
-     "42b0daee5dc4534f": 1,
+     "44426bc607b67db4": 1,
      "5e90b160488a35ad": 1
     }
    },
@@ -9182,11 +9372,11 @@
         "predicate": {
          "kind": "dm.act",
          "module": "pack.chat/foes",
-         "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+         "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
          "generation": 2,
          "subject": "chat"
         },
-        "inputHash": "8a56c4645b9cc9ee5683c4d8522c86a3f86b41fa69dbeab9012ba6414b407bd4"
+        "inputHash": "fb3a71aac6e5407a2acc4f750cfb3854d6f8a43e2da28e4e45032cc50989b4b2"
        }
       }
      },
@@ -9286,11 +9476,11 @@
       "predicate": {
        "kind": "dm.act",
        "module": "pack.chat/foes",
-       "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+       "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
        "generation": 2,
        "subject": "chat"
       },
-      "inputHash": "8a56c4645b9cc9ee5683c4d8522c86a3f86b41fa69dbeab9012ba6414b407bd4"
+      "inputHash": "fb3a71aac6e5407a2acc4f750cfb3854d6f8a43e2da28e4e45032cc50989b4b2"
      },
      "claims": [
       "dm:sr_9i72ynz9/sw_6zgcqeol:pack.chat/foes:set-slot-1:chat:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
@@ -9306,7 +9496,7 @@
         "op": 0,
         "rev": 3
        },
-       "prefixHash": "e0b1b3c0c06f7f6c9266f70d12de2a91281a1602387edb7682ffc2bbc99c2192",
+       "prefixHash": "1f8314e0f2f7241dafd7ad685f6e733d38bfc100c4ec8b519d4fb17debba421c",
        "payloadHash": "6048fbf43f3fdd785a628431c0010ba4104a045e214211788329377c0abde437"
       }
      ],
@@ -9437,7 +9627,7 @@
         "op": 11,
         "rev": 5
        },
-       "prefixHash": "b3d2f581b4e31defd432a0bb9d8781e76e28ac6310dd776f556e7af4008cd60c",
+       "prefixHash": "d57d4cb8020746929bacf3b00dceb0e5b50a011ab432030bdee1f24dcb9d523b",
        "payloadHash": "6048fbf43f3fdd785a628431c0010ba4104a045e214211788329377c0abde437"
       }
      ],

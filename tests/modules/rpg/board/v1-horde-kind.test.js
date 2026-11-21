@@ -109,3 +109,11 @@ test('the board shows each slot\'s latest wave and the "still coming" strip; an 
     assert.equal(Object.hasOwn(ended, 'horde'), false);
     assert.equal(ended.foeGroups.flatMap(group => group.members).length, whole.result.foes.length);
 });
+
+test('the horde line needs a slot set: alone, or before the slot lines, it is refused, so no stale words reach a later fight', async t => {
+    const host = await world(t, { lines: ['+ dm foes — more may come | kind: horde | waves: 3 | hold: 0 | leader: none'] });
+    assert.equal(fields(host).waves, 0, 'a lone horde line changes nothing');
+    await host.send('Later.', reply('Wolves.', ['+ dm foes — more | kind: horde | waves: 2 | hold: 0 | leader: none', '+ dm foes — wolves | kind: set-slot-1 | name: Wolves | count: 2 | level: 2 | tier: standard']));
+    assert.equal(fields(host).waves, 0, 'written before the slot line, it is refused too');
+    assert.equal(Object.hasOwn(open(host), 'horde'), false, 'the wolves are an ordinary fight');
+});

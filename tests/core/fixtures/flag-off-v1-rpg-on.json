@@ -19,7 +19,7 @@
     "user:Begin.",
     "assistant:Opening.",
     "user:Set.",
-    "system:No foes are set. If a fight begins, set the Foes line and tell the approach only. The fight has not started: end at the moment of engagement.\nDice for this reply, in order: 12, 19, 11. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: nothing\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. For foes that keep coming (a horde, waves at a gate), also write the horde line: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:No foes are set. If a fight begins, set the Foes line and tell the approach only. The fight has not started: end at the moment of engagement.\nDice for this reply, in order: 12, 19, 11. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: nothing\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. For foes that keep coming (a horde, waves at a gate), also write the horde line after the slot lines: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   },
   {
@@ -39,7 +39,7 @@
     "assistant:Fight.",
     "user:I attack the rats.",
     "user:I look around.",
-    "system:Dice for this reply, in order: 9, 14, 14. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nFoes: Rats ×3 (Lv 10).\nUp to six foe groups in the fight, one slot each: name, count (0 = empty slot, 1 to 6), level 1 to 99 and tier (mob, minion, standard, elite, boss or apex). The narrator sets a slot when a group arrives and clears it when the group is down, fled, gone or captured. It never writes how hurt a foe is: the fight settles that.\n- dm foes — reason | kind: clear-N | why: down|fled|gone|captured\nN = 1..6 for clear-N.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. For foes that keep coming (a horde, waves at a gate), also write the horde line: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.\nThe foes set stand, but this reply plays no fight: a message that is not played on the board moves the story on. The foes may press, block or follow; resolve no exchange, roll no check for a blow, and tell no wound, HP or other change of state.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Dice for this reply, in order: 9, 14, 14. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nFoes: Rats ×3 (Lv 10).\nUp to six foe groups in the fight, one slot each: name, count (0 = empty slot, 1 to 6), level 1 to 99 and tier (mob, minion, standard, elite, boss or apex). The narrator sets a slot when a group arrives and clears it when the group is down, fled, gone or captured. It never writes how hurt a foe is: the fight settles that.\n- dm foes — reason | kind: clear-N | why: down|fled|gone|captured\nN = 1..6 for clear-N.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. For foes that keep coming (a horde, waves at a gate), also write the horde line after the slot lines: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.\nThe foes set stand, but this reply plays no fight: a message that is not played on the board moves the story on. The foes may press, block or follow; resolve no exchange, roll no check for a blow, and tell no wound, HP or other change of state.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   },
   {
@@ -56,7 +56,7 @@
     "user:I look around.",
     "assistant:Another telling of the quiet.",
     "user:I rest.",
-    "system:Dice for this reply, in order: 17, 15, 4. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\n[Happened]\nThe fight with Rats ×3 was left unplayed on the board, so it lapsed: they withdrew or were left behind.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. For foes that keep coming (a horde, waves at a gate), also write the horde line: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Dice for this reply, in order: 17, 15, 4. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\n[Happened]\nThe fight with Rats ×3 was left unplayed on the board, so it lapsed: they withdrew or were left behind.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. For foes that keep coming (a horde, waves at a gate), also write the horde line after the slot lines: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   }
  ],
@@ -1716,7 +1716,7 @@
      "op": "add",
      "path": "/domains/dataModules/active/pack.chat~1foes",
      "value": {
-      "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+      "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
       "generation": 2,
       "subjects": [
        "chat"
@@ -1765,7 +1765,7 @@
     },
     {
      "op": "add",
-     "path": "/domains/dataModules/perReply/sr_dnf8nf78~1sw_7qz0br5v/actions/bl_cmy7vann",
+     "path": "/domains/dataModules/perReply/sr_dnf8nf78~1sw_7qz0br5v/actions/bl_5jhoch8b",
      "value": {
       "visits": 0,
       "click": false
@@ -1778,7 +1778,7 @@
     },
     {
      "op": "add",
-     "path": "/domains/dataModules/pins/2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+     "path": "/domains/dataModules/pins/d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
      "value": {
       "definition": {
        "imports": {},
@@ -2904,6 +2904,70 @@
         },
         "horde": {
          "op": "+",
+         "when": [
+          "or",
+          [
+           "or",
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count1"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count2"
+              ]
+             ]
+            ],
+            0
+           ],
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count3"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count4"
+              ]
+             ]
+            ],
+            0
+           ]
+          ],
+          [
+           "gt",
+           [
+            "add",
+            [
+             "get",
+             [
+              "count5"
+             ]
+            ],
+            [
+             "get",
+             [
+              "count6"
+             ]
+            ]
+           ],
+           0
+          ]
+         ],
+         "refusal": "Set the foe slots first; the horde line comes after them.",
          "labels": {
           "waves": {
            "type": "int",
@@ -2953,7 +3017,6 @@
           }
          ],
          "oncePerReply": [],
-         "when": true,
          "ui": false
         }
        },
@@ -3126,11 +3189,11 @@
         "predicate": {
          "kind": "dm.define",
          "module": "pack.chat/foes",
-         "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+         "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
          "generation": 2,
          "subject": "chat"
         },
-        "inputHash": "a6d012fa4a0f1c8470e734327843e0f4a6645ca99b783293a9b2aa1ca0b5747a",
+        "inputHash": "48e78529babbb47af831de987d1a6908903f9f4f7e4b2509209f10893f3f785c",
         "replyBound": true
        }
       },
@@ -6324,7 +6387,7 @@
     {
      "n": 6,
      "story": false,
-     "id": "bl_cmy7vann",
+     "id": "bl_5jhoch8b",
      "module": "story-block",
      "source": {
       "sid": "sr_dnf8nf78",
@@ -6340,11 +6403,11 @@
       "predicate": {
        "kind": "dm.define",
        "module": "pack.chat/foes",
-       "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+       "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
        "generation": 2,
        "subject": "chat"
       },
-      "inputHash": "a6d012fa4a0f1c8470e734327843e0f4a6645ca99b783293a9b2aa1ca0b5747a",
+      "inputHash": "48e78529babbb47af831de987d1a6908903f9f4f7e4b2509209f10893f3f785c",
       "replyBound": true
      },
      "claims": [],
@@ -6355,7 +6418,7 @@
        "cursor": {
         "sid": "sr_dnf8nf78",
         "swipeKey": "sw_7qz0br5v",
-        "block": "bl_cmy7vann",
+        "block": "bl_5jhoch8b",
         "op": 5,
         "rev": 1
        },
@@ -7452,6 +7515,70 @@
          },
          "horde": {
           "op": "+",
+          "when": [
+           "or",
+           [
+            "or",
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count1"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count2"
+               ]
+              ]
+             ],
+             0
+            ],
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count3"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count4"
+               ]
+              ]
+             ],
+             0
+            ]
+           ],
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count5"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count6"
+              ]
+             ]
+            ],
+            0
+           ]
+          ],
+          "refusal": "Set the foe slots first; the horde line comes after them.",
           "labels": {
            "waves": {
             "type": "int",
@@ -8655,6 +8782,70 @@
          },
          "horde": {
           "op": "+",
+          "when": [
+           "or",
+           [
+            "or",
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count1"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count2"
+               ]
+              ]
+             ],
+             0
+            ],
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count3"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count4"
+               ]
+              ]
+             ],
+             0
+            ]
+           ],
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count5"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count6"
+              ]
+             ]
+            ],
+            0
+           ]
+          ],
+          "refusal": "Set the foe slots first; the horde line comes after them.",
           "labels": {
            "waves": {
             "type": "int",
@@ -8704,7 +8895,6 @@
            }
           ],
           "oncePerReply": [],
-          "when": true,
           "ui": false
          }
         },
@@ -8760,7 +8950,7 @@
         "op": 11,
         "rev": 2
        },
-       "prefixHash": "a229f4755daee6342943e2cdacb75f82b5b97eafb393e09b3c1251f34d0b10e7",
+       "prefixHash": "07004e6b4492cd5f99c913e1fa360c81194f63d5d0f188f7b00732ffd8d913d8",
        "payloadHash": "1dcb6b8860591f9b320ab464b48c7480abd40d7f368128b8d7802eaedb168933"
       }
      ],
@@ -8983,7 +9173,7 @@
     "next": 3,
     "taken": {
      "7a9854901469c325": 1,
-     "42b0daee5dc4534f": 1,
+     "44426bc607b67db4": 1,
      "5e90b160488a35ad": 1
     }
    },
@@ -9258,11 +9448,11 @@
         "predicate": {
          "kind": "dm.act",
          "module": "pack.chat/foes",
-         "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+         "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
          "generation": 2,
          "subject": "chat"
         },
-        "inputHash": "a0b1420ad31fd259862e08aaa95f7e38ea547c3a32babf5d0a46c048459a1fe7"
+        "inputHash": "559fbd186d0e6a27867f260ac2fc5b6dff986eb9f747eb4ef61f7c518c4f3492"
        }
       }
      },
@@ -9368,11 +9558,11 @@
       "predicate": {
        "kind": "dm.act",
        "module": "pack.chat/foes",
-       "hash": "2d3662551d9c473580eb23059724eadb990d55d6886aaddc1c0ae61fc2f51f66",
+       "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
        "generation": 2,
        "subject": "chat"
       },
-      "inputHash": "a0b1420ad31fd259862e08aaa95f7e38ea547c3a32babf5d0a46c048459a1fe7"
+      "inputHash": "559fbd186d0e6a27867f260ac2fc5b6dff986eb9f747eb4ef61f7c518c4f3492"
      },
      "claims": [
       "dm:sr_a4jzw8ps/sw_6ezr8n76:pack.chat/foes:set-slot-1:chat:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
@@ -9388,7 +9578,7 @@
         "op": 1,
         "rev": 4
        },
-       "prefixHash": "0136de0192ec97493eaf425ace9e51bc60e49664ba23c8c9e32d2ef4be51a9ec",
+       "prefixHash": "a625122d566c03a52bc80bd8c17494213b1404ed9b270acc1933123feff95496",
        "payloadHash": "6048fbf43f3fdd785a628431c0010ba4104a045e214211788329377c0abde437"
       }
      ],
@@ -9519,7 +9709,7 @@
         "op": 12,
         "rev": 6
        },
-       "prefixHash": "0de4a680e704a0163d95bc1330cab33b327a9dd8e38bf2e9bfeb9ef4fe53f489",
+       "prefixHash": "ef814701c3ccaea6fccaf51bb915c447b946daeb5ad21431c57482e3e3280202",
        "payloadHash": "6048fbf43f3fdd785a628431c0010ba4104a045e214211788329377c0abde437"
       }
      ],
@@ -9914,7 +10104,7 @@
         "op": 1,
         "rev": 8
        },
-       "prefixHash": "4fbe0a0c5f1c5c35360ff2c149452c6d15748f899f039a434ae75f8e878e7d9c",
+       "prefixHash": "9b3a1be89fadf71cc43ccbe59812140b07e11b6cc86333f2bc4e45f85cff54d7",
        "payloadHash": "42c15804c25a6ead2da7bb3635cf266469486ddd04671b3b9d2a5b38f92bba4d"
       }
      ],
@@ -10360,7 +10550,7 @@
         "op": 4,
         "rev": 11
        },
-       "prefixHash": "506aabcfe131e2a629e23374d6f92dccca98c9029656868a57eaeec5ef299c8c",
+       "prefixHash": "7870c1778cc7dd4b345bb7a68f5d8abbd6a475377fbeff6e139b63db629a42b8",
        "payloadHash": "5156d3ecdcd4f878eb48815ac292cf90ace0114e279608cc4957e8e31c5748df"
       }
      ],

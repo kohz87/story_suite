@@ -6,7 +6,7 @@ import { livePage as mount, holdFight, settle } from './helpers/live-page.js';
 import { createHash } from 'node:crypto';
 import { holdStart } from '../../core/interaction/start-hold.js';
 
-const HEAD_HASH = 'cef45c7cb1342562dd712d9d975aa1a6db36c7dbe320aad87a6791fcf82e5f42';   // (taken again for the horde line, 21 Nov: only the Foes block definition's hash and pin and its three horde fields moved; before, for the minion's own XP factor 0.75, 20 Nov: only the XP paid moved; before, for the three stances: only the Skills block definition's hash and pin moved)
+const HEAD_HASH = '6244a004843e2c894d63807d613286ce83424b6fbb1d2ced03f25eaab5422acd';   // (taken again for the horde line, 21 Nov: only the Foes block definition's hash and pin, its three horde fields and its horde kind (with its slot-set condition) moved; before, for the minion's own XP factor 0.75, 20 Nov: only the XP paid moved; before, for the three stances: only the Skills block definition's hash and pin moved)
 const REPLY = 'Astra cuts the rat down.';
 const xp = host => host.head().domains.dataModules.instances['pack.chat/character'].chat.fields.xp;
 const tab = doc => doc.querySelector('.su-panel .fight-tab');
