@@ -11,7 +11,8 @@ import { createRegistration } from '../registry/registration.js';
 // (Only in-memory keys read this: memos, the head cache and the prefix memo, all emptied by a reload; a chat file's checkpoint is not keyed on it. It stays as a convention for later rules.)
 // g: a deferred domain's later writes seed it when its first writer was deleted.
 // h: an anchored set (ctx.anchored) replays at its offset from the value before it; Story Director's clock faces and skips are the first to use it.
-const REPLAY_RULES = 'rules:h';
+// i: a domain's keyed holder (`holders`) is remade when a later write goes under an entry its deleted first writer made; NPC State's meter records are the first.
+const REPLAY_RULES = 'rules:i';
 
 export function createRegistry({ hostVersion = null, warn = message => console.warn(`[Story Suite] ${message}`), featureValue = () => undefined } = {}) {
     const defs = new Map();
@@ -53,7 +54,8 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
         rulesSignature: () => [...owners.domain].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([name, id]) => {
             const def = defs.get(id)?.domains?.[name] ?? {};
             const list = value => (Array.isArray(value) ? value.join('+') : '');
-            return `${name}@${id}@${defs.get(id)?.version ?? ''}:${typeof def.validate === 'function' ? 'v' : ''}:${list(def.scratch)}:${list(def.counters)}`;
+            const held = def.holders && typeof def.holders === 'object' ? Object.keys(def.holders).sort().join('+') : '';
+            return `${name}@${id}@${defs.get(id)?.version ?? ''}:${typeof def.validate === 'function' ? 'v' : ''}:${list(def.scratch)}:${list(def.counters)}:${held}`;
         }).join(';') + `;${REPLAY_RULES}`,
         commandOwner,
         /** The interaction kind a full id `<module>/<kind>` names (its KindDef), or null. */
@@ -86,6 +88,12 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
             const owner = owners.domain.get(name);
             const list = owner ? defs.get(owner).domains[name].scratch : null;
             return Array.isArray(list) ? [...list] : [];
+        },
+        /** A domain's keyed holders ({ 'map/path': make(key, slice) }, ops/holders.js rule i), null when none. */
+        holders(name) {
+            const owner = owners.domain.get(name);
+            const map = owner ? defs.get(owner).domains[name].holders : null;
+            return map && typeof map === 'object' ? { ...map } : null;
         },
         /** A deferred domain's initial() slice (a copy): what an absent one replays as (ops.js rebaseOps); null for any other domain. */
         deferredInitial,

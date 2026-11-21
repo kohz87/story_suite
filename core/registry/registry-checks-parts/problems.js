@@ -73,6 +73,9 @@ export function definitionProblems(def) {
             if (domain.scratch !== undefined && (!Array.isArray(domain.scratch) || domain.scratch.some(key => typeof key !== 'string' || !/^[A-Za-z_][A-Za-z0-9_-]*$/.test(key)))) {
                 problems.push(`domain "${name}" scratch must be a list of field names in the domain, like "perReply"`);
             }
+            if (domain.holders !== undefined && (!isObject(domain.holders) || Object.entries(domain.holders).some(([path, make]) => !/^[A-Za-z_][A-Za-z0-9_-]*(\/[A-Za-z_][A-Za-z0-9_-]*)*$/.test(path) || typeof make !== 'function'))) {
+                problems.push(`domain "${name}" holders must map paths of keyed maps in the domain, like "bonds/npcs", to a function (key, slice) that makes an entry`);
+            }
             if (typeof domain.initial === 'function') {
                 let slice;
                 try { slice = domain.initial(); } catch (error) { problems.push(`domain "${name}" initial() threw: ${error?.message ?? error}`); continue; }

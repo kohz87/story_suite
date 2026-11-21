@@ -232,7 +232,17 @@ branch from the swipe picker; see persist.js.) Readers accept either shape: repl
   keeps the later replies' writes, laid on the initial value (a later `replace` of a key the deleted reply had added is an add,
   rule c). A block of removes alone makes nothing, and a chat whose replies never write the domain holds no slice of it, live or
   replayed. A deferred domain's `initial()` must hold every container a later reply writes into (the `people` slice: `bonds`
-  with `npcs` and `problems`); a leaf under something only the deleted reply made (a person's own record) still fails its block.
+  with `npcs` and `problems`); a leaf under something only the deleted reply made fails its block, unless it is a keyed holder's entry (rule i).
+  (i) A domain may name maps of keyed holders (`holders: { 'bonds/npcs': make(key, slice) }`, a path of plain keys inside the
+  domain): every entry of such a map is made whole by the first reply that writes it, and later replies write leaves under it (the
+  people's per-person meter records). On replay (never for a live command), an `add` or `replace` strictly under an entry that is not
+  there, in a map that is, and that no earlier op of the block wrote whole, first finds the entry as `make(key, slice)` (`slice` the
+  domain before the block; a maker reads nothing but it, so a replay never depends on the settings); a maker that gives no object
+  leaves the block as written, and it fails as before. Every replayed op inside an entry that is there (or was remade) is then fitted
+  as a scratch field's is: the objects on the way are made (a list for an append `/-`), a `replace` of something not there becomes an
+  `add` (a counted one adds its change alone), and a `remove` of something not there is passed over; an op marked `within` a thing
+  is left to rule (d), and an op inside a list applies as written. Ops that fit are replayed exactly as stored. So deleting the reply
+  that first wrote a person's meters keeps the later replies' changes for them (`rules:i`).
 * **Head state** = state at the last carrier. Actions taken after reply N are appended to reply N's `ops`
   (so deleting or swiping reply N takes them back too).
 * Story Block caches the head state and the most recent checkpoint in memory and rebuilds on chat change,

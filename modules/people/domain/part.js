@@ -12,6 +12,7 @@ import { peopleStub } from './stub.js';
 import { peopleDied } from './died.js';
 import { peopleMemory } from './memory.js';
 import { peopleQueries } from './queries.js';
+import { remakeBond } from './bond-holder.js';
 
 export const PEOPLE_DOMAIN = 'people';
 
@@ -35,7 +36,8 @@ function dossierHash(slice) {
 
 export function createPeoplePart() {
     return {
-        domains: { [PEOPLE_DOMAIN]: { initial: initialPeople, deferred: true, snapshot: 'when-present', validate: validatePeople } },
+        // `holders`: a person's meter record a deleted first reply made is remade when a later reply writes under it (replay rule i, ./bond-holder.js).
+        domains: { [PEOPLE_DOMAIN]: { initial: initialPeople, deferred: true, snapshot: 'when-present', validate: validatePeople, holders: { 'bonds/npcs': remakeBond } } },
         commands: {
             // Replaces the dossier keys of the people draft with the view, for the reply the view belongs to (`source`: { sid, swipeKey }); the store diffs it
             // into leaf ops. `bonds` stays as stored. `scan` ({ lastSid, swipeKey, since }), when given, replaces the stored scan marker; absent, it stays.

@@ -18,6 +18,8 @@ checkpoints, replay rules a–d, counters), §2.4 receipts, §3.3 saving; PERFOR
   `ctx.unique(domain, path)` stores appends to a list as `unique`, passed over when the list holds the item (rule e).
 - Per-reply bookkeeping under `ctx.carrier.sid` with `add`; domains may name `scratch` fields. Never a
   positional append or a `replace` of a field another reply created.
+- A map of records many replies write leaves under (the people's `bonds/npcs`) may be named in the domain's `holders` with a
+  maker `(key, slice) => entry`: on replay an entry a deleted reply made is remade and later writes into it are fitted (rule i).
 - Receipt `data` older than `RECEIPT_KEEP` (200) carriers is dropped, except `data.v2` (a guarded block's guard,
   source and result); keep what you need in your own state.
 - **Guarded blocks** (`ctx.replayGuard`, REPLAY.md): the span carries the block's id, source, guard, claims and more;

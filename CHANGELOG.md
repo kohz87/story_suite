@@ -7,6 +7,7 @@ What changed in each release, in short. The full record of every change is in [t
 - A mood the story gives someone is shown on their dossier right away, even a word the mood list doesn't rate ("shaken"), instead of waiting for a Refresh.
 - A person's dossier keeps up with the story: a goal, mood or memory a reply gives them shows as their latest change at once, and the narrator can give anyone a memory of a reply even when no feeling moved.
 - Two different events that share a phrase ("without raising a panic") are now two memories; one no longer replaces the other.
+- Deleting the reply where someone's feelings first moved no longer wipes out what later replies gave them: their goals, meters and memories stay.
 - The world's own people are told to the narrator anywhere in their village, town or city (any spot in it, never past its edge), so they arrive as their pack describes them, race and look included.
 
 ## 0.1.6 — 21 Nov 2026

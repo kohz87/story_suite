@@ -19,7 +19,7 @@ import { rebaseOps } from '../ops.js';
 import { isSealed } from '../persist/sealed.js';
 
 export function createWalk(s, deps) {
-    const { apply, receiptKeep, scratch, seed, validate, list, current, headProblems, blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash, replay, replayBlocks, appliedOf, proofBefore, packOwners, listProofs, usableBase } = deps;
+    const { apply, receiptKeep, scratch, seed, holders, validate, list, current, headProblems, blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash, replay, replayBlocks, appliedOf, proofBefore, packOwners, listProofs, usableBase } = deps;
 
     function stamp(arr, index, record, block, ops, receipt, earlier, offset) {
         const entry = record.source;
@@ -241,13 +241,14 @@ export function createWalk(s, deps) {
     // r2-14) every domain the block touches is checked too: a block that leaves one invalid (a stack
     // whose definition a deleted reply made) throws the same way. Only problems the block brings count,
     // so a chat stored before a validator grew stricter still replays. Also with `replayed`, a write under a deferred domain that is
-    // not there finds it as its initial slice (`seed`, rule g: ops.js rebaseOps).
+    // not there finds it as its initial slice (`seed`, rule g: ops.js rebaseOps), and a write under a keyed holder's entry that is not
+    // there finds the entry remade (`holders`, rule i: ops/holders.js).
     function step(state, ops, { replayed = false, strict = false } = {}) {
         if (!ops.length) return state;
         // Every change is looked at before any is rebased or passed over: a block with a change that is not one applies nothing.
         const shape = opShapeProblem(ops);
         if (shape) throw new Error(shape);
-        const { ops: rebased, rebased: moved } = rebaseOps(state, ops, { scratch, replayed, seed });
+        const { ops: rebased, rebased: moved } = rebaseOps(state, ops, { scratch, replayed, seed, holders });
         const next = deepFreeze(apply(state, structuredClone(rebased)));
         if (typeof validate !== 'function') return next;
         const names = new Set(moved);
