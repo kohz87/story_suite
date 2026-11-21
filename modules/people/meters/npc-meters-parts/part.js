@@ -76,7 +76,7 @@ export function createNpcPart(hooks = {}) {
     const castFirst = createCastFirst({ baseline, bond });
     // NPCPRESENT: a person this reply's `+ present` (or a hook's giver:) brings in with no record yet gets one in the reply's step, after its lines.
     const arrive = createArrivals({ hooks, linesMode, baseline, castFirst });
-    const captureLine = folded(withMemories(withStubs(built.captureLine, { hooks, linesMode, baseline, note, castFirst }), { linesMode, date }));
+    const captureLine = folded(withMemories(withStubs(built.captureLine, { hooks, linesMode, baseline, note, castFirst }), { linesMode, date, note }));
     // `~ memory` and `~ reveal` (NSD8, NSD12): only in lines mode; untaught until N7 (grammar '', heads only). Off, a line of either is refused and changes nothing.
     const onlyLines = (name, apply) => folded((ctx, line = {}) => (linesMode(ctx) ? apply(ctx, line) : ctx.fail('REFUSED', `${name} lines are not on.`)));
     const memoryApply = onlyLines('~ memory', (ctx, line) => memoryLine(ctx, line, { date, castFirst }));

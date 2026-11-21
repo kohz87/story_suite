@@ -28,7 +28,8 @@ export function normalizeMemoryStamps(value, memories) {
         if (!Number.isInteger(message) || message < 0) continue;
         const date = typeof stamp.d === 'string' ? stamp.d.trim().slice(0, 40) : '';
         const sid = typeof stamp.s === 'string' && stamp.s ? stamp.s : '';   // a `~ memory` line's reply marker (the per-reply cap) survives a rewrite of the record
-        out[key] = { m: message, ...(date ? { d: date } : {}), ...(sid ? { s: sid } : {}) };
+        const label = typeof stamp.l === 'string' && stamp.l ? stamp.l : '';   // and a memory: label's (one a person a reply)
+        out[key] = { m: message, ...(date ? { d: date } : {}), ...(sid ? { s: sid } : {}), ...(label ? { l: label } : {}) };
     }
     return Object.keys(out).length ? out : undefined;
 }

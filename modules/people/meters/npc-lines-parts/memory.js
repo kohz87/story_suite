@@ -3,11 +3,12 @@
 // (the dossier's five important memories, applied where a record is read; the runtime's own per-reply write also trims to five, so storage appends only between those writes); a memory already stored, or one that only rewords it, is not stored twice. The writes are the reply's own
 // (`people.memory` in the line's transaction), so a swipe, a middle delete, a Re-read and a reload decide them again the same way. A retelling of a memory this same
 // reply already stored (a why: and a memory: about one event) is not stored either.
-import { clean, isInt, slug, REASON_LABELS } from '../npc-meters-config.js';
+import { NPC_DOMAIN, clean, isInt, slug, REASON_LABELS } from '../npc-meters-config.js';
+import { sentence } from '../npc-meters-slice-parts/receipt.js';
 import { normalizeName } from '../../core/core-text.js';
 import { normalizeStoredMemories } from '../../core/core-record-shared.js';
 import { sameReplyRetelling } from '../../core/core-record-merge.js';
-import { knownPerson } from './stub.js';
+import { knownPerson, readStub } from './stub.js';
 import { knownOrCast } from './cast-first.js';
 
 export const MEMORY_PER_REPLY = 2;
@@ -17,8 +18,11 @@ const MEMORY_STORE_MAX = 400;   // what people.memory takes (Story Block's own c
 // The memories this reply's `~ memory` lines already saved, across every person (a stamp keeps its reply's sid in `s`).
 const savedBy = (ctx, sid) => Object.values(ctx.read('people')?.npcs ?? {}).reduce((count, record) => count + Object.values(record?.memoryStamps ?? {}).filter(stamp => stamp?.s === sid).length, 0);
 
-/** Saves `text` as `key`'s memory on this reply → '' when saved, else why not. `tag`: true marks it as a `~ memory` line's (counted against the cap). `date`: the story day text ('' when none). */
-function saveMemory(ctx, { key, text, date = '', tag = false }) {
+const LABEL_PER_REPLY_TEXT = 'one memory: a reply';
+
+/** Saves `text` as `key`'s memory on this reply → '' when saved, else why not. `tag`: true marks it as a `~ memory` line's (counted against the cap). `label`: true marks
+ *  it as a memory: label's (`l`: the reply's sid; one a person a reply). `date`: the story day text ('' when none). */
+function saveMemory(ctx, { key, text, date = '', tag = false, label = false }) {
     const record = ctx.read('people')?.npcs?.[key];
     const said = clean(text, MEMORY_MAX);
     if (!record) return 'no dossier';
@@ -35,7 +39,9 @@ function saveMemory(ctx, { key, text, date = '', tag = false }) {
     // The same event told twice in this reply (a why: and a memory: or a `~ memory` in other words) is one memory: the first stays. Another reply's memory is
     // never compared, so two events of different replies that share words are both kept (core-record-merge-parts/memories.js sameReplyRetelling).
     if (at !== null && sameReplyRetelling(said, before, record.memoryStamps, at, record.manualMemories)) return 'already stored';
-    const stamp = { m: at ?? 0, ...(date ? { d: String(date).slice(0, 40) } : {}), ...(tag && sid ? { s: sid } : {}) };
+    // At most one memory: a person a reply (REV-dossa F4): six lines of memory: would otherwise push every earlier memory out of the five the dossier keeps.
+    if (label && sid && Object.values(record.memoryStamps ?? {}).some(stamp => stamp?.l === sid)) return LABEL_PER_REPLY_TEXT;
+    const stamp = { m: at ?? 0, ...(date ? { d: String(date).slice(0, 40) } : {}), ...(tag && sid ? { s: sid } : {}), ...(label && sid ? { l: sid } : {}) };
     const stamps = { ...(record.memoryStamps ?? {}), [normalizeName(said)]: stamp };
     const memories = [...before, said];
     ctx.call('people.memory', { id: key, memories, stamps });
@@ -58,8 +64,13 @@ export function memoryLine(ctx, line, deps) {
 }
 
 // The words a line leaves as memories, exactly as written: a `~ npc` line's why: and its memory: (owner-approved 21 Nov: something they will remember that moved
-// no meter), a told lie's said:, a milestone. `memory` marks the memory: label's words (never kept for someone who has died).
+// no meter), a `+ npc` stub's memory: part (REV-dossa F5; ./stub.js readStub keeps it out of the look), a told lie's said:, a milestone. `memory` marks the
+// memory: label's words (never kept for someone who has died; one a person a reply).
 function wordsOf(line) {
+    if (line.kind === 'npc' && line.op === '+') {
+        const { memory } = readStub(line);
+        return memory ? [{ text: memory, memory: true }] : [];
+    }
     if (line.kind === 'npc' && line.op === '~') {
         const labelled = test => Object.entries(line.labels ?? {}).find(([label, raw]) => test(slug(label)) && String(raw ?? '').trim());
         const why = labelled(key => REASON_LABELS.has(key));
@@ -70,8 +81,9 @@ function wordsOf(line) {
     return line.kind === 'milestone' && line.op === '+' && line.text ? [{ text: line.text }] : [];
 }
 
-/** `handler` with the memories its line's words make, saved after the line applied (lines mode only; a repeat or a missing record saves nothing and never refuses the line). */
-export function withMemories(handler, { linesMode, date }) {
+/** `handler` with the memories its line's words make, saved after the line applied (lines mode only; a repeat or a missing record saves nothing and never refuses the line;
+ *  a second memory: for the person in this reply is a problem on the line: `note(slice, rev, problems)` keeps it with NPC State's problems). */
+export function withMemories(handler, { linesMode, date, note = null }) {
     return function remembered(ctx, line = {}) {
         const out = handler(ctx, line);
         if (!linesMode(ctx)) return out;
@@ -79,10 +91,14 @@ export function withMemories(handler, { linesMode, date }) {
         const found = words.length ? knownPerson(ctx, line.name) : null;
         if (!found) return out;
         const day = date(isInt(ctx.carrier?.index) ? ctx.carrier.index : null);
+        const problems = [];
         for (const { text, memory } of words) {
             if (memory && ctx.read('people')?.npcs?.[found.key]?.lifeState === 'deceased') continue;
-            saveMemory(ctx, { key: found.key, text, date: day });
+            const why = saveMemory(ctx, { key: found.key, text, date: day, label: memory === true });
+            if (why === LABEL_PER_REPLY_TEXT) problems.push(`${clean(found.record?.name ?? line.name, 40)}: ${LABEL_PER_REPLY_TEXT}; this one was not stored.`);
         }
-        return out;
+        if (!problems.length) return out;
+        if (typeof note === 'function') note(ctx.draft(NPC_DOMAIN), ctx.rev, problems);
+        return { ...out, summary: sentence([out.summary, ...problems]), data: { ...out.data, problems: [...(out.data?.problems ?? []), ...problems] } };
     };
 }

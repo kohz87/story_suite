@@ -14,16 +14,21 @@ export const STUB_LOOK_MAX = 100;   // the approved length; a look is stored exa
 const STUBS_PER_REPLY = 4;   // b6-soak-2: the same four a reply as the capture block's new people (CAPTURE_NEW_NPCS_PER_BLOCK); it also bounds the fill-ins the stubs own
 const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 
-/** → { name, role, look, problems } from a `+ npc` line (read from the line as written: its parts are the role and the look, whatever they hold). */
+const MEMORY_SLOT = /^memory\s*:\s*/i;
+
+/** → { name, role, look, memory?, problems } from a `+ npc` line (read from the line as written: its parts are the role and the look, whatever they hold, and a
+ *  `memory:` part after the role, which is the person's first memory and never part of the look: ./memory.js saves it). */
 export function readStub(line) {
     // The first slot is the role even when empty (`+ npc Ilse || eyes: grey` has a look and no role); only empty slots after it are dropped.
     const slots = (line?.raw === undefined ? String(line?.text ?? '').split(';') : String(line.raw).split('|').slice(1)).map(part => part.trim());
-    const [role = '', ...rest] = slots;
+    const [role = '', ...parts] = slots;
+    const memory = clean(parts.find(part => MEMORY_SLOT.test(part))?.replace(MEMORY_SLOT, '') ?? '', 300);
+    const rest = parts.filter(part => !MEMORY_SLOT.test(part));
     const looks = rest.filter(Boolean);
     const written = clean(looks.join('; '), 10000);
     const look = clean(written, STUB_LOOK_MAX);
     const problems = written.length > look.length ? [`${clean(line.name, 40)}: the look was cut to ${STUB_LOOK_MAX} characters.`] : [];
-    return { name: clean(line?.name, NAME_MAX), role: clean(role, ROLE_MAX), look, problems };
+    return { name: clean(line?.name, NAME_MAX), role: clean(role, ROLE_MAX), look, ...(memory ? { memory } : {}), problems };
 }
 
 const isToken = (name, key) => new RegExp(`^\\{\\{\\s*${key}\\s*\\}\\}$`, 'i').test(String(name ?? '').trim());
