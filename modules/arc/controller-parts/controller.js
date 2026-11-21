@@ -7,6 +7,7 @@ import { FEATURE, arcQuery, currentArc, threadsWithArc } from '../domain.js';
 import { REASON_TEXT, autoPlanReason, noteMark, planText, plannerRequest, readPlan, refuseResolving, trackerSummary, worldBriefText } from '../plan.js';
 import { arcSettings } from '../settings.js';
 import { judgePlan } from '../judge/run.js';
+import { eventWorld } from '../plan/event-world.js';
 import { fightsAmong } from '../../rpg/fights.js';
 import { MODULE_ID, NEEDS_TEXT, PLANNER_TIMEOUT_MS } from './constants.js';
 import { recentStory } from './story.js';
@@ -197,7 +198,9 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
             });
             if (controller?.signal?.aborted) return fail(id, 'Planning was cancelled.');
             if (!answer?.ok) return fail(id, `Planning failed: ${String(answer?.message || answer?.error || 'no answer came back')}`);
-            const options = { calendar: seen.calendar, now: seen.now, fights: seen.fights, userName: substitute(api, '{{user}}') };
+            // With world events on, EVENT lines are read too: their place and causes checked against the world (plan/event-world.js).
+            const world = eventWorld({ brief, query: (name, args) => api.query?.(name, args), threads: seen.threads });
+            const options = { calendar: seen.calendar, now: seen.now, fights: seen.fights, userName: substitute(api, '{{user}}'), ...(world ? { world } : {}) };
             const first = readPlan(String(answer.text ?? ''), options);
             // With world events on: a beat, clock or agenda that decides an Active event is left out, with the adopted note (arc card; the accept receipt).
             const guarded = refuseResolving(first, brief?.guard);

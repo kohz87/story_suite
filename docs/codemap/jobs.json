@@ -735,5 +735,8 @@
   "modules/world/chronicle/world-judge/calls.js": "The Director judge's part of the world's ledger: the count of its calls by game year and its stored verdicts on the daily roll, written whole into the ledger slot.",
   "modules/world/chronicle/world-judge/judged.js": "The command that stores the Director's verdicts on the story's new world entries before a reply: accept, reshape (read again by code) or refuse (the entry ends, its line's conditions lifted).",
   "tests/modules/world/judge/judge-host.helpers.js": "Host helpers for the world-line judge tests: a small world pack, a fake model call that answers the world judge and counts its calls, and the replay check.",
-  "tests/modules/world/judge/judge-host.test.js": "The Director judge on the story's new world lines on the real host: rumour first, one call, accept, reshape, refuse, failures, busy, switch and setting off, Re-read and middle delete."
+  "tests/modules/world/judge/judge-host.test.js": "The Director judge on the story's new world lines on the real host: rumour first, one call, accept, reshape, refuse, failures, busy, switch and setting off, Re-read and middle delete.",
+  "modules/arc/plan/read-parts/event-line.js": "Reads the planner's EVENT line (world-events switch): a place the map knows and causes the world records, kept as a beat whose words cite them; at most two a plan.",
+  "modules/arc/plan/event-world.js": "What the plan reader checks an EVENT line against: the map's places and the records a cause may name (world events, conditions, Journal entries, tracked threads).",
+  "tests/modules/arc/event-lines.test.js": "The planner's EVENT lines: kept as a cited beat at a known place, left out without a known cause or place, capped at two, taught and read only with the world-events switch on."
 }

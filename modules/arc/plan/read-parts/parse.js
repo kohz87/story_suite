@@ -2,6 +2,7 @@
 
 import { lineKey, parseChanges } from '../../../world/changes.js';
 import { resolveRelative } from './relative.js';
+import { EVENT_CAP, readEventLine } from './event-line.js';
 import {
     DATE_PARTS, DECORATION, DESC_POINTS, FENCE, KEY_POINTS, KIND_ORDER, LABELS, LABEL_LINE,
     MAX_ANSWER_CHARS, MAX_FIGHTS, MAX_ITEMS, MAX_LINES, PARTS, PART_POINTS, PLAN_CAPS,
@@ -48,7 +49,7 @@ function dateOf(value, { calendar, now }) {
 }
 
 // One line's label and the rest, or null for a line that carries nothing (a fence, a rule, a blank).
-function labelOf(raw) {
+function labelOf(raw, world = null) {
     const trimmed = String(raw ?? '').trim();
     if (!trimmed || FENCE.test(trimmed)) return null;
     let text = trimmed.replace(/\*\*|__/g, '').replace(DECORATION, '').trim();
@@ -56,32 +57,36 @@ function labelOf(raw) {
     const match = text.match(LABEL_LINE);
     if (!match) return { error: `"${flat(trimmed, 60)}" has no label (ARC:, BEAT:, AGENDA:, HOOK:, CLOCK: or SECRET:)` };
     const label = match[1].toUpperCase();
-    if (!Object.hasOwn(LABELS, label)) return { error: `"${flat(match[1], 30)}:" is not a plan label` };
+    // EVENT: (event-line.js) is a plan label only while the reader is given the world (the world-events switch on).
+    const event = label === 'EVENT' && Boolean(world);
+    if (!event && !Object.hasOwn(LABELS, label)) return { error: `"${flat(match[1], 30)}:" is not a plan label` };
     text = match[2].trim();
-    return { label, kind: LABELS[label], rest: text };
+    return { label, kind: event ? 'beat' : LABELS[label], rest: text };
 }
 
 /**
  * Reads a plan: the planner's answer, or the plan's text as the reader edited it. `options`: { calendar
  * (calendar.js), now (story minutes or null), fights (a module runs fights), userName ({{user}}'s name,
- * for a line that plans what they do), lone (one item read alone: no ARC line is asked for) }. → `{ arc: { key, desc } | null, items: [{ kind, key, desc,
+ * for a line that plans what they do), lone (one item read alone: no ARC line is asked for), world (EVENT lines: `{ place(name), causes }`,
+ * event-line.js; null while the world-events switch is off) }. → `{ arc: { key, desc } | null, items: [{ kind, key, desc,
  * parts: { name: text } }], findings: [{ severity: 'error' | 'warn' | 'info', text }] }`. An `error`
  * finding means the plan cannot be used (no ARC line, nothing planned).
  */
-export function readPlan(text, { calendar = null, now = null, fights = true, userName = '', lone = false } = {}) {
+export function readPlan(text, { calendar = null, now = null, fights = true, userName = '', lone = false, world = null } = {}) {
     const findings = [];
     const items = [];
     const seen = new Set();
     const count = Object.fromEntries(KIND_ORDER.map(kind => [kind, 0]));
     let arc = null;
     let fightsKept = 0;
+    let events = 0;
     let read = 0;
     const user = userPattern(userName);
     const body = planBody(text);
     if (String(text ?? '').length > MAX_ANSWER_CHARS) findings.push(finding('info', `Only the first ${MAX_ANSWER_CHARS} characters were read.`));
 
     for (const raw of body.split(/\r?\n/)) {
-        const line = labelOf(raw);
+        const line = labelOf(raw, world);
         if (!line) continue;
         read += 1;
         if (read > MAX_LINES) {
@@ -129,7 +134,19 @@ export function readPlan(text, { calendar = null, now = null, fights = true, use
             continue;
         }
 
-        const given = { ...(op.fields ?? {}), ...(op.extra ?? {}) };
+        let given = { ...(op.fields ?? {}), ...(op.extra ?? {}) };
+        let said = desc;
+        // An EVENT line: its place and causes checked by code (event-line.js); kept as a beat whose words cite its causes.
+        if (line.label === 'EVENT') {
+            const checked = events >= EVENT_CAP ? { refused: `"${key}" was left out: a plan keeps at most ${EVENT_CAP} events.` } : readEventLine({ key, desc, given, world });
+            if (checked.refused) {
+                findings.push(finding('warn', checked.refused));
+                continue;
+            }
+            events += 1;
+            said = checked.desc;
+            given = { place: checked.place, ...(given.on ? { on: given.on } : {}) };
+        }
         const parts = {};
         const dropped = [];
         // ENCOUNTER: the foes are its `encounter:`, else its words, else its name (v1 fightBeat).
@@ -172,7 +189,7 @@ export function readPlan(text, { calendar = null, now = null, fights = true, use
         if (dropped.length) findings.push(finding('info', `"${key}": ${[...new Set(dropped)].map(name => `${name}:`).join(', ')} left out (not part of a ${line.kind} in a plan).`));
         seen.add(id);
         count[line.kind] += 1;
-        items.push({ kind: line.kind, key, desc, parts: ordered(line.kind, parts) });
+        items.push({ kind: line.kind, key, desc: said, parts: ordered(line.kind, parts) });
     }
 
     if (!arc && !lone) findings.unshift(finding('error', 'The plan has no ARC line.'));
