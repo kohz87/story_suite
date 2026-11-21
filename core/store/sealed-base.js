@@ -8,7 +8,7 @@
 // * 'missing' sealed replies and no base (or replies sealed after unsealed ones): read-only;
 // * 'none'    nothing is sealed.
 
-import { carrierIndexes, readRecord } from '../persist.js';
+import { KEY, carrierIndexes, readRecord } from '../persist.js';
 import { isSealed } from '../persist/sealed.js';
 import { isObject, deepFreeze } from './constants.js';
 import { hashJson } from '../replay.js';
@@ -20,6 +20,8 @@ export const sealedDigest = sids => hashJson({ sealed: sids });
 const READ_ONLY = HISTORY_STRINGS.branchTooOld;
 const MISSING = HISTORY_STRINGS.baseMissing;
 
+const refOf = message => [message, message?.extra?.[KEY], message?.swipe_id, message?.mes];
+const same = (message, ref) => refOf(message).every((value, at) => value === ref[at]);
 const NONE = Object.freeze({ status: 'none', start: -1, last: -1, sids: Object.freeze([]) });
 
 export function createSealedBase(s, { list, metadata, chatId = () => undefined }) {
@@ -47,8 +49,8 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
     }
 
     // → { status, base?, start, last, sids, state?, ... } for `arr` as it is now. A chat with no base and an unsealed first reply is read at
-    // once (a chat is sealed from its start); else it is worked out again after any write, rebuild or change of the chat, the base or the file id
-    // (`epoch` moves with each), so a reply does not read the whole chat.
+    // once (a chat is sealed from its start); else the answer is kept while the chat, the base and the file id are the same and every sealed
+    // message (and the first one after them) is the same object with the same record, swipe and text: a look at those, not a read of each.
     function historyOf(arr = list()) {
         const base = baseNow();
         if (!base) {
@@ -57,8 +59,8 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
         }
         const integrity = metaNow()?.integrity;
         const hit = s.history;
-        if (hit && hit.arr === arr && hit.length === arr.length && hit.epoch === s.epoch && hit.chat === chatId() && hit.base === base
-            && hit.digest === base?.sealedDigest && hit.integrity === integrity) return hit.out;
+        if (hit && hit.arr === arr && hit.length === arr.length && hit.chat === chatId() && hit.base === base
+            && hit.digest === base?.sealedDigest && hit.integrity === integrity && hit.refs.every(([i, ...ref]) => same(arr[i], ref))) return hit.out;
         const { sealed, start, broken } = scan(arr);
         const sids = sealed.map(each => each.sid);
         const last = sealed.length ? sealed.at(-1).index : -1;
@@ -76,7 +78,8 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
                 out.state = state;
             }
         }
-        s.history = { arr, length: arr.length, epoch: s.epoch, chat: chatId(), base, digest: base?.sealedDigest, integrity, out };
+        const refs = [...sealed.map(each => each.index), ...(start >= 0 ? [start] : [])].map(i => [i, ...refOf(arr[i])]);
+        s.history = { arr, length: arr.length, chat: chatId(), base, digest: base?.sealedDigest, integrity, refs, out };
         return out;
     }
 
