@@ -6,7 +6,7 @@ import { CLEAR, asText, labelOf } from '../text.js';
 import { applyPlainWorldLine } from './apply-line.js';
 import { applyConditions, claimReply, readConditions } from './conditions.js';
 import { worldEventsOn } from './switch.js';
-import { markForJudge } from './judge-mark.js';
+import { markForJudge, refusedHold, rekeyPending } from './judge-mark.js';
 
 const placeOf = (labels, names) => {
     const value = labelOf(labels, names);
@@ -24,7 +24,11 @@ export function applyWorldLine(ctx, line) {
     if (items.length && name && !claimReply(ctx, ctx.draft('chronicle'))) {
         return ctx.fail('REFUSED', `A reply may carry one world line with conditions; "${name}" was not used.`);
     }
+    const known = name ? findIn(ctx.draft('chronicle').events, name) : null;
+    const held = known ? refusedHold(ctx.draft('chronicle'), known.id, line?.op) : null;
+    if (held) return held;
     const result = applyPlainWorldLine(ctx, line);
+    if (known) rekeyPending(ctx.draft('chronicle'), known.id);
     // A new entry from the story's line waits for the Director's verdict while the chronicle's `judge` setting is on (judge-mark.js).
     const fresh = result?.data?.created === true && typeof result.data.event === 'string' ? result.data.event : null;
     if (!items.length) return fresh && markForJudge(ctx, ctx.draft('chronicle'), fresh) ? waiting(result) : result;

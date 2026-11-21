@@ -33,3 +33,17 @@ export function markForJudge(ctx, chronicle, id, done = []) {
     event.judge = { state: 'pending', key: judgeKey(event), ...(conditions.length ? { conditions } : {}) };
     return true;
 }
+
+/** An update by the story to an entry still waiting: its words changed, so the verdict now owed is on the new words (a verdict on the old ones is skipped, judged.js). */
+export function rekeyPending(chronicle, id) {
+    const event = chronicle.events?.[id];
+    if (event?.judge?.state === 'pending') event.judge = { ...event.judge, key: judgeKey(event) };
+}
+
+/** What a story line does to an entry the Director refused: only a `+` line restarts it (its judge field goes, it is a plain entry again); any other line leaves it refused. */
+export function refusedHold(chronicle, id, op) {
+    const event = chronicle.events?.[id];
+    if (event?.judge?.state !== 'refused') return null;
+    if (op === '+') { delete event.judge; return null; }
+    return { summary: `World: ${event.name} stays a false rumour (the Director refused it); the line is not used.`, narrate: false, data: { event: id, state: event.state, idle: true, refused: true } };
+}

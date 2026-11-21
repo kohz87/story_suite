@@ -62,10 +62,10 @@ export function createRollAsker() {
             if (!mine || !Number.isInteger(stepped)) return;
             for (const [day, entry] of mine) if (day <= stepped && entry.status !== 'stored') mine.set(day, { status: 'dead' });
         },
+        /** The marks of `day` once done; offered again until the chat shows them stored (the host drops a swipe's or a Continue's command). */
         drain(scope, day) {
             const entry = scopes.get(scope)?.get(day);
             if (entry?.status !== 'done') return null;
-            scopes.get(scope).set(day, { status: 'stored' });
             return { marks: entry.marks, calls: entry.calls };
         },
         clear() { scopes.clear(); },
