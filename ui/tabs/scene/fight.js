@@ -95,7 +95,7 @@ export function fightScene(vm, api = {}) {
     const party = view.party.map(p => ({ ...p, chosen: list.find(e => e.actor === p.actorId)?.text ?? null }));
     const open = Boolean(api.prefs?.getFold?.('fight.party', false));
     const toggle = () => { const card = root.querySelector('.party-card'), next = card?.dataset.open !== 'true'; if (card) card.dataset.open = String(next); api.prefs?.setFold?.('fight.party', next); };
-    const foes = foesCard(view.foeGroups, { pick: phase === 'target' ? sel.kind : null, onPick: target => commit(sel.action, target) });
+    const foes = foesCard(view.foeGroups, { pick: phase === 'target' ? sel.kind : null, onPick: target => commit(sel.action, target), horde: view.horde ?? null });
     const strip = partyCard(party, { step: phase, exchange: view.exchange, actorId: member?.id, open, onToggle: toggle, onAlly: id => commit(sel.action, { kind: 'ally', id, arg: view.party.find(p => p.id === id)?.arg }) });
     let panel = null;
     if (phase === 'after') panel = afterCard({ exchange: view.exchange, note: [view.log.at(-1)?.summary ? `${view.log.at(-1).summary}.` : '', fleeFailed(view) ? 'The flee failed. The others in the party acted on Auto.' : ''].filter(Boolean).join(' '), onNext: actors.length ? () => { moved = true; draw(); } : null, onAuto: live ? autoOne : null });

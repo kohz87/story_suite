@@ -23,6 +23,8 @@
 .fight-tab .anote,.fight-tab .fine{margin:0;font:500 13.5px/1.45 var(--su-font);color:var(--su-soft)}
 .fight-tab .fine{font-size:12px;color:var(--su-muted)}
 /* Foes */
+.fight-tab .horde{display:flex;flex-direction:column;gap:2px;padding:7px 10px;border-radius:12px;background:var(--su-tint);border-left:3px solid var(--su-hp)}
+.fight-tab .horde b{font:800 13.5px var(--su-font);color:var(--su-text)}
 .fight-tab .foes{display:flex;flex-direction:column;gap:8px}
 .fight-tab .fg{display:flex;flex-direction:column;gap:5px;padding:8px 10px;border-radius:14px;background:var(--su-tint);border:1.5px solid transparent}
 .fight-tab .fg.tgt{border-color:var(--su-hp);box-shadow:0 0 0 3px rgba(255,107,107,.15);cursor:pointer}
