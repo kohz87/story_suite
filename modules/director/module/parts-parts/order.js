@@ -9,6 +9,7 @@ import { part as away } from '../../../people/away/away-part.js';
 import { part as cast } from '../../../cast/cast/index.js';
 import { part as names } from '../../../cast/names/index.js';
 import { part as pulse } from '../../../world/pulse/effects.js';
+import { part as encounters } from '../../../world/encounters/index.js';
 import { part as arc } from '../../../arc/index.js';
 import { part as checks } from '../../../rpg/checks/index.js';
 import { part as ripples } from '../../../world/ripples/index.js';
@@ -16,4 +17,4 @@ import { part as screens } from '../../screens/index.js';
 
 
 /** The parts in their fixed order: [id, part]. The order is the static prompt's and the tail's order. */
-export const PARTS = Object.freeze([['tracker', tracker], ['time', time], ['atlas', atlas], ['chronicle', chronicle], ['world', world], ['away', away], ['cast', cast], ['names', names], ['pulse', pulse], ['arc', arc], ['checks', checks], ['ripples', ripples], ['screens', screens]]);
+export const PARTS = Object.freeze([['tracker', tracker], ['time', time], ['atlas', atlas], ['chronicle', chronicle], ['world', world], ['away', away], ['cast', cast], ['names', names], ['pulse', pulse], ['encounters', encounters], ['arc', arc], ['checks', checks], ['ripples', ripples], ['screens', screens]]);

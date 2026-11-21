@@ -5,6 +5,7 @@ What changed in each release, in short. The full record of every change is in [t
 ## Unreleased
 
 - New setting Companions who are away wait (off): a companion the story has away sits out fights and shows as away on the Party sheet, with where they went; a second setting can pay them a share of a won fight's XP.
+- New switch in Settings › Features, Encounters (off by default, a first try): before a reply the world may put one passer-by in your path at the place you are, an everyday local or someone you have met.
 
 ## 0.1.5 — 21 Nov 2026
 
