@@ -126,3 +126,26 @@ test('the mark on one roll: a veto discards it, a weight scales the odds, set-in
     assert.deepEqual(markedChance(ws, { id: 'levy', certainty: 'set-in-motion' }, 5, chance), { chance, veto: '' }, 'a set-in-motion event is never held back');
     assert.deepEqual(markedChance(ws, { id: 'omen', certainty: 'possible' }, 6, chance), { chance, veto: '' }, 'another day: no mark');
 });
+
+test('a verdict that comes after its day was stepped is dropped: a swipe of the crossing reply rolls that day as the first reply did', async () => {
+    let release = null;
+    const gate = new Promise(resolve => { release = resolve; });
+    const model = rollModel(['1: refuse: too late to matter']);
+    const slow = { calls: 0, prompts: [], async callModel(request) { if (request.module === 'story-director roll judge') await gate; const out = await model.callModel(request); slow.calls = model.calls; return out; } };
+    const host = await rollHost(slow, { 'chronicle.judge': true });
+    try {
+        await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+        await settle();
+        await host.send('Day 1.', reply('Day 1.', ['! time +1d']));
+        const day1 = daily(host).day;
+        assert.equal(daily(host).events.riot.fired, day1, 'no answer in time: the roll is code\'s, the riot fires');
+        release();
+        await settle();
+        assert.equal(model.calls >= 1, true, 'the call did answer, late');
+        const recorded = JSON.stringify(daily(host));
+        await host.swipe(reply('Day 1, again.', ['! time +1d']));
+        assert.equal(marks(host)[`riot|${day1}`], undefined, 'the late veto is never stored');
+        assert.equal(JSON.stringify(daily(host)), recorded, 'the swipe rolls the same');
+        await agrees(host, 'late verdict');
+    } finally { host.done(); }
+});

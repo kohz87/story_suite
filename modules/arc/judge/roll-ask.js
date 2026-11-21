@@ -28,7 +28,7 @@ export function marksOf(items, rows, day, { pass = false, secrets = [] } = {}) {
     return marks;
 }
 
-/** The asker: `kick(view, look, pass)` asks once per (chat, day) for `look` (look-ahead.js's `{ day, items }`); `drain(scope, day)` its marks when done. */
+/** The asker: `kick(view, look, pass)` asks once per (chat, day) for `look` (look-ahead.js's `{ day, items }`); `drain(scope, day)` its marks when done; `expire(scope, stepped)` drops the days already stepped. */
 export function createRollAsker() {
     const scopes = new Map();
     const mineOf = scope => {
@@ -48,10 +48,19 @@ export function createRollAsker() {
             const brief = ask('chronicle.world.brief', {}) ?? {};
             const request = { role: 'quick', module: 'story-director roll judge', feature: 'story-director.world-events', system: rollSystem(pass), maxTokens: 200, timeoutMs: CALL_MS, prompt: rollPrompt({ world: judgeContext({ brief, ask, place: String(ask('scene.place', {})?.name ?? '') }), items: look.items }) };
             Promise.resolve().then(() => view.model.callModel(request)).then(out => {
+                // A day dropped while the call was out (expire) stays dropped.
+                if (mine.get(look.day)?.status !== 'pending') return;
                 if (!out?.ok && TRANSIENT.has(out?.error)) { mine.delete(look.day); return; }
                 mine.set(look.day, { status: 'done', marks: marksOf(look.items, out?.ok ? readRoll(out.text) : null, look.day, { pass, secrets: brief.secrets }), calls: 1 });
-            }, () => mine.delete(look.day));
+            }, () => { if (mine.get(look.day)?.status === 'pending') mine.delete(look.day); });
             return true;
+        },
+        /** The days up to `stepped` (the step's last day) can no longer take a verdict: one not stored by then is dropped, never drained later
+         * (a swipe of the crossing reply must roll that day as the first reply did, not with an answer that came after it). */
+        expire(scope, stepped) {
+            const mine = scopes.get(scope);
+            if (!mine || !Number.isInteger(stepped)) return;
+            for (const [day, entry] of mine) if (day <= stepped && entry.status !== 'stored') mine.set(day, { status: 'dead' });
         },
         drain(scope, day) {
             const entry = scopes.get(scope)?.get(day);

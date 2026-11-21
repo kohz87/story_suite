@@ -9,6 +9,7 @@ import { judgeScope, worldJudgeAsker } from './world-ask.js';
 import { rollAsker } from './roll-ask.js';
 import { rollCandidates } from '../../world/chronicle/world-judge/look-ahead.js';
 import { ledgerOf } from '../../world/chronicle/conditions/ledger.js';
+import { slotValue } from '../../rpg/slot.js';
 
 /** The entries waiting for a verdict: [{ id, key, name, summary, place, conditions }], oldest first. */
 export function waitingEntries(state) {
@@ -52,6 +53,8 @@ function rollLook(view) {
 /** afterReceive / beforeGenerate for tomorrow's roll: starts the asking; `drain` (beforeGenerate) also returns the store command for marks that are ready. */
 export function rollHook(view, { drain = false, asker = rollAsker } = {}) {
     if (!worldEventsOn(view)) return [];
+    // After a reply (afterReceive) the days its step rolled can no longer take a verdict that is still on its way.
+    if (!drain) asker.expire?.(judgeScope(view), slotValue(view?.state?.domains?.chronicle?.daily)?.day);
     const found = rollLook(view);
     if (!found) return [];
     asker.kick(view, found.look, found.pass);
