@@ -1,9 +1,9 @@
 // Story Director v2, part **arc**: the world events block of the planner's brief (switch story-director.world-events; spec §9, ruling 9).
 // The engine's mirror (the query `chronicle.world.brief`) as the planner reads it, after the tracker's threads: each Active world event
 // as a thread of kind world-event (now, then "outcome decided by the world"), "Still to come" (pending backbone stages, titles only),
-// and the conditions in the party's realm. No brief (the switch off): nothing, and the tracker text is as before.
+// and the conditions in the party's realm; the EVENT line's rule follows the react-not-resolve rule. No brief (the switch off): nothing, and the tracker text is as before.
 
-import { WORLD_EVENT_RULE } from './world-rule.js';
+import { EVENT_LINE_RULE, WORLD_EVENT_RULE } from './world-rule.js';
 import { DESC_POINTS, KEY_POINTS, PART_POINTS, flat } from '../shared.js';
 
 const SECRETS_RULE = 'Secrets not yet learned (never surface or hint at them in a beat, clock or agenda; they come out only when the story earns it):';
@@ -12,7 +12,7 @@ const SECRETS_RULE = 'Secrets not yet learned (never surface or hint at them in 
 export function worldBriefText(brief) {
     if (!brief || typeof brief !== 'object') return '';
     const list = value => (Array.isArray(value) ? value : []);
-    const lines = [WORLD_EVENT_RULE];
+    const lines = [WORLD_EVENT_RULE, EVENT_LINE_RULE];
     const threads = list(brief.threads).filter(thread => thread && typeof thread.key === 'string');
     if (threads.length) {
         lines.push('World events:');

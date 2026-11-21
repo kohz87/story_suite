@@ -98,6 +98,8 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
     for (const [key, days] of Object.entries(record(marks?.anchors)).sort(([a], [b]) => (a < b ? -1 : 1))) for (const day of list(days)) if (Number.isInteger(day)) recordAnchor(ws.anchors, key, day);
     const tombOf = day => new Set(marks?.tomb?.day === day ? list(marks.tomb.keys) : []);
     ws.tomb = tombOf(today);
+    // The Director's stored verdicts on the daily roll (read only; daily/director-mark.js).
+    ws.directorMarks = record(marks?.marks);
     return { ws, defs, tombOf, campaign };
 }
 

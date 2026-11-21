@@ -12,6 +12,7 @@ import { LASTING_BY } from './limits-lasting.js';
 import { MAX_AKA, MAX_NAME, MAX_NAMED, MAX_SUMMARY } from './limits-text.js';
 import { keyOf, keptKeyOf } from './names.js';
 import { isInt, isRecord } from './shared-basics.js';
+import { validateJudgeField } from './judge-field.js';
 
 const textOk = (value, max) => typeof value === 'string' && value.length <= max;
 const namesOk = (list, max) => Array.isArray(list) && list.length <= max && list.every(name => textOk(name, MAX_NAME) && keyOf(name));
@@ -41,8 +42,10 @@ function eventErrors(id, event) {
         && typeof event.fire.by === 'string' && LASTING_BY.test(event.fire.by))) {
         errors.push(`${at}.fire must be { rev, by }: the pack event that last changed it.`);
     }
+    // `judge` (switch story-director.world-events): the Director's verdict on a narrator's new world entry (judge-field.js).
+    errors.push(...validateJudgeField(event.judge, at));
     for (const key of Object.keys(event)) {
-        if (!['id', 'name', 'summary', 'state', 'since', 'updated', 'place', 'factions', 'aka', 'rev', 'by', 'keep', 'fire', 'rumour', 'heard', 'reach'].includes(key)) errors.push(`${at} has an unknown field "${key}".`);
+        if (!['id', 'name', 'summary', 'state', 'since', 'updated', 'place', 'factions', 'aka', 'rev', 'by', 'keep', 'fire', 'rumour', 'heard', 'reach', 'judge'].includes(key)) errors.push(`${at} has an unknown field "${key}".`);
     }
     return errors;
 }

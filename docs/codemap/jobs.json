@@ -759,4 +759,23 @@
   "ui/settings/help-faq-data.js": "The FAQ text (generated from docs/FAQ.md) the Help page shows.",
   "ui/settings/help-parse.js": "Reads the FAQ markdown into questions and paragraphs, and a paragraph into text, bold, code and Settings-link pieces.",
   "ui/settings/help.js": "Builds the Settings Help page: the FAQ as questions that open, a search box and buttons to the Settings pages an answer names."
+  "modules/arc/judge/world-ask.js": "Asks the Director judge about the story's new world entries in the background (one batched Quick call, a timeout asked once more, a failure recorded) and keeps the verdicts per chat until they are stored.",
+  "modules/arc/judge/world-hooks.js": "The hooks that start the Director judge on waiting world entries after a reply and hand its ready verdicts to the chronicle's store command before the next.",
+  "modules/arc/judge/world-prompt.js": "The Director judge's prompt for world events the story wrote: the system text, one item line per entry and the prompt with the world text.",
+  "modules/world/chronicle/capture/world-parts/judge-mark.js": "Marks a story's new world entry as waiting for the Director's verdict (chronicle setting judge, world-events switch): its words' key and the conditions its line set, at most two a reply.",
+  "modules/world/chronicle/domain-parts/judge-field.js": "Checks a chronicle entry's judge field: the Director's verdict state on a story's new world entry, its key, the conditions its line set and a refusal's reason.",
+  "modules/world/chronicle/world-judge/calls.js": "The Director judge's part of the world's ledger: the count of its calls by game year and its stored verdicts on the daily roll, written whole into the ledger slot.",
+  "modules/world/chronicle/world-judge/judged.js": "The command that stores the Director's verdicts on the story's new world entries before a reply: accept, reshape (read again by code) or refuse (the entry ends, its line's conditions lifted).",
+  "tests/modules/world/judge/judge-host.helpers.js": "Host helpers for the world-line judge tests: a small world pack, a fake model call that answers the world judge and counts its calls, and the replay check.",
+  "tests/modules/world/judge/judge-host.test.js": "The Director judge on the story's new world lines on the real host: rumour first, one call, accept, reshape, refuse, failures, busy, switch and setting off, Re-read and middle delete.",
+  "modules/arc/plan/read-parts/event-line.js": "Reads the planner's EVENT line (world-events switch): a place the map knows and causes the world records, kept as a beat whose words cite them; at most two a plan.",
+  "modules/arc/plan/event-world.js": "What the plan reader checks an EVENT line against: the map's places and the records a cause may name (world events, conditions, Journal entries, tracked threads).",
+  "tests/modules/arc/event-lines.test.js": "The planner's EVENT lines: kept as a cited beat at a known place, left out without a known cause or place, capped at two, taught and read only with the world-events switch on.",
+  "modules/world/daily/director-mark.js": "Applies the Director's stored verdict to one event's roll in the daily step: a veto discards that day's roll, a weight scales its odds; never for a set-in-motion event.",
+  "modules/world/chronicle/world-judge/look-ahead.js": "A dry run of tomorrow's daily step from a hook's view: the likely or possible events the roll will fire, or every one eligible, for the Director judge.",
+  "modules/arc/judge/roll-prompt.js": "The Director judge's prompt and strict reader for tomorrow's daily roll: accept, refuse with a reason, and in the daily pass likelier or less likely.",
+  "modules/arc/judge/roll-ask.js": "Asks the Director judge once a story day about tomorrow's roll in the background and turns its answer into stored marks (veto with a reason, or a weight) per event and day.",
+  "tests/modules/world/judge/roll-judge.test.js": "The Director judge on tomorrow's daily roll on the real host: a refusal holds an event back a day, the daily pass weights the odds, settings off ask nothing, replay rolls the same.",
+  "modules/world/chronicle/conditions/live-holds.js": "The conditions table as the readers see it: an event hold counts only while the daily step says that event is Active, so a middle delete cannot bring back an ended event's condition.",
+  "tests/modules/world/chronicle/live-holds.test.js": "The readers' conditions table: dead event holds dropped, a timer or open setter kept, a live hold kept, the same table back when nothing changes."
 }

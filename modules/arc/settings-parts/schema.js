@@ -17,6 +17,7 @@ export const DEFAULTS = Object.freeze({
     maxTokens: 1500,
     stallDays: DEFAULT_STALL_DAYS,
     lowThreads: DEFAULT_LOW_THREADS,
+    dailyPass: false,
 });
 
 const field = spec => Object.freeze({ ...spec, feature: FEATURE });
@@ -32,4 +33,6 @@ export const SCHEMA = Object.freeze({
     maxTokens: field({ type: 'int', label: 'Arc planning: Longest plan (tokens)', min: 300, max: 8000 }),
     stallDays: field({ type: 'int', label: 'Arc planning: Stalled after story days without a beat', min: 1, max: 365 }),
     lowThreads: field({ type: 'int', label: 'Arc planning: Running low below open threads (0: never)', min: 0, max: 20 }),
+    // Off by default (owner 17 Nov: no daily pass at first): one Quick call a story day over the world's eligible events (judge/roll-ask.js).
+    dailyPass: Object.freeze({ type: 'bool', label: 'World events: daily Director pass', help: 'Once a story day the Director looks over the world events that may happen tomorrow: it may hold one back (with a reason) or make it likelier or less likely. One short call a day.', feature: 'story-director.world-events' }),
 });

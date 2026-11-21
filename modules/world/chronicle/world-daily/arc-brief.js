@@ -15,6 +15,7 @@ import { buildGeo, resolveRef } from '../../daily/geo.js';
 import { realmsOf } from '../../daily/geo-scope.js';
 import { entryActive } from '../../daily/holds-read.js';
 import { readWorld } from './read-world.js';
+import { liveTable } from '../conditions/live-holds.js';
 
 export const WORLD_EVENT_THEN = 'outcome decided by the world';
 const MAX = 8;
@@ -68,5 +69,5 @@ export function closedSecrets(people) {
 export const worldBriefQuery = Object.assign((state, _args, tools) => {
     const env = setup(state, tools);
     const query = toolsQuery(tools);
-    return arcBrief({ daily: slotValue(env.chronicle?.daily), table: env.chronicle?.conditions ?? {}, world: readWorld(query), place: scenePlaceOf(query, state) ?? '', minute: env.now, people: state?.domains?.people ?? null });
+    return arcBrief({ daily: slotValue(env.chronicle?.daily), table: liveTable(env.chronicle?.conditions ?? {}, slotValue(env.chronicle?.daily)), world: readWorld(query), place: scenePlaceOf(query, state) ?? '', minute: env.now, people: state?.domains?.people ?? null });
 }, { feature: WORLD_EVENTS_FEATURE });

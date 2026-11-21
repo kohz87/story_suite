@@ -5,7 +5,8 @@ import { ARC_TAIL_BUDGET, FEATURE, arcQuery, arcTail, initialArc, validateArc } 
 import { ARC_NEEDS_STORY_BLOCK, NEEDS_TEXT } from '../controller.js';
 import { DEFAULTS, SCHEMA, promptSection } from '../settings.js';
 import { ARC_WIDGET, arcWidget } from '../widget.js';
-import { createLoreDigestPart } from '../lore-digest/part.js';
+import { createLoreDigestPart, WORLD_EVENTS_FEATURE } from '../lore-digest/part.js';
+import { judgeAfterReceive, judgeBeforeGenerate, rollHook } from '../judge/world-hooks.js';
 
 const lore = createLoreDigestPart();
 
@@ -25,6 +26,14 @@ const section = Object.assign((el, api) => promptSection(el, api, {
 
 const tail = Object.assign(view => arcTail(view), { feature: FEATURE });
 
+// The lore digest's refresh, then the Director judge's verdicts on the story's new world entries and on tomorrow's roll (judge/world-hooks.js); all under the world-events switch.
+const beforeGenerate = Object.assign(async view => {
+    await lore.hooks.beforeGenerate(view);
+    const commands = [...judgeBeforeGenerate(view), ...rollHook(view, { drain: true })];
+    return commands.length ? { commands } : undefined;
+}, { feature: WORLD_EVENTS_FEATURE });
+const afterReceive = Object.assign(view => { judgeAfterReceive(view); rollHook(view); }, { feature: WORLD_EVENTS_FEATURE });
+
 export const part = {
     features: [{
         id: FEATURE,
@@ -41,8 +50,8 @@ export const part = {
     queries: { 'director.arc': Object.assign(state => arcQuery(state), { feature: FEATURE }), ...lore.queries },
     kinds: {},
     context: { static: () => '', tail, budget: ARC_TAIL_BUDGET },
-    hooks: { ...lore.hooks },
-    settings: { defaults: { ...DEFAULTS }, schema: { ...SCHEMA }, section },
+    hooks: { ...lore.hooks, beforeGenerate, afterReceive },
+    settings: { defaults: { ...DEFAULTS }, schema: { ...SCHEMA }, section, reads: { worldTempo: 'chronicle.tempo', worldJudge: 'chronicle.judge' } },
     widgets: { [ARC_WIDGET]: arcWidget },
     tabs: [],
 };

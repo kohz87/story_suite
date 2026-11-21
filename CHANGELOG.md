@@ -6,6 +6,10 @@ What changed in each release, in short. The full record of every change is in [t
 
 - New setting Companions who are away wait (off): a companion the story has away sits out fights and shows as away on the Party sheet, with where they went; a second setting can pay them a share of a won fight's XP.
 - New switch in Settings › Features, Encounters (off by default, a first try): before a reply the world may put one passer-by in your path at the place you are, an everyday local or someone you have met.
+- World events (when switched on): a new setting lets the Director judge each world event the story writes; it is heard as rumour until judged, then kept, reshaped, or dropped as a false rumour.
+- World events: the same setting lets the Director hold back an event the world is about to roll for a day, with a reason; an optional daily Director pass (off) may also make one likelier or less likely.
+- World events: an arc plan may now propose up to two new world events, each at a real place and citing what in the world causes it; one with no real cause is left out.
+- World events: deleting a reply from the middle of a chat no longer briefly brings back a condition whose event had already ended.
 
 ## 0.1.5 — 21 Nov 2026
 

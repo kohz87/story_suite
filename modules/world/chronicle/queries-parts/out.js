@@ -32,6 +32,8 @@ export function eventOut(event, { chronicle, calendar, now }) {
         ...(WORLD_BY.test(String(event.by ?? '')) ? { by: event.by, ...(event.reach ? { reach: event.reach } : {}) } : {}),
         // A rumour of the World pulse: its own marks (known.js leaves it off the World screen until the story's own line named it).
         ...(typeof event.rumour === 'string' ? { rumour: event.rumour, ...(event.heard === true ? { heard: true } : {}) } : {}),
+        // The Director's verdict on a narrator's new entry (world-events switch, chronicle setting `judge`): its state, and a refusal's reason.
+        ...(event.judge ? { judge: event.judge.state, ...(event.judge.why ? { judgeWhy: event.judge.why } : {}) } : {}),
     };
 }
 
