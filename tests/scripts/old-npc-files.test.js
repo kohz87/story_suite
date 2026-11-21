@@ -3,16 +3,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { Readable, Writable } from 'node:stream';
 import { deleteOldFiles, listOldFiles, main } from '../../scripts/people/old-files.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const OLD = ['npc-state-delta-1a2b3c.json', 'npc-state-delta-recovery-1a2b-xyz-abc.json', 'npc-state-delta-checkpoint-9f9f.json', 'npc-state-v3-77.json', 'npc-state-15fusak.json'];
 const KEEP = ['npc-state-delta-portrait-1a2b.webp', 'npc-state-portrait-index.json', 'storysuite-portrait-aa.webp', 'world-state-alpha-1.json', 'stmb-arc.json', 'notes.txt'];
 
 function folder() {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'old-npc-'));
+    const dir = tempDir('old-npc-');
     [...OLD, ...KEEP].forEach((name, n) => fs.writeFileSync(path.join(dir, name), 'x'.repeat(100 * (n + 1))));
     return dir;
 }
