@@ -39,7 +39,8 @@ export function resumeFoesV1(receipts, slots) {
             found = result.board?.v1 === 1 && ENDED.has(result.stop) && Array.isArray(result.foes) ? result : null;
             break;
         }
-        if (!found || found.stop === 'won') return null;
+        // (a horde's foes do not come back: its reserve and arrivals are gone from the story with the fight)
+        if (!found || found.stop === 'won' || found.horde) return null;
         const members = membersOf(found, slot.slot);
         if (!same(slot, members)) return null;
         kept.push(...members.map(foe => ({ id: String(foe.id), hp: Number(foe.hp) })));

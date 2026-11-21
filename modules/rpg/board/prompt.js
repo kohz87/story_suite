@@ -5,7 +5,8 @@ import { moduleGrammar, referenceOf } from '../../data-modules/grammar.js';
 import { oneLine } from '../../../core/text.js';
 
 // How a fight starts under the board: the story sets a foe slot, the offer line appears, and code plays the blows.
-const START = 'A fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.';
+const START = 'A fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. '
+    + 'For foes that keep coming (a horde, waves at a gate), also write the horde line: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.';
 
 // Foes stand but this reply carries no board play (the reader typed past the fight offer): the story goes on and no blow is told in prose.
 const STANDING = 'The foes set stand, but this reply plays no fight: a message that is not played on the board moves the story on. '
@@ -31,9 +32,9 @@ function flavourOf(prompt) {
 }
 
 // The foe kinds the story may still write beside a carried fight: only the clears (a group fled, yielded or went away); after an ended
-// fight also the set-slot kinds, so a new group that arrives later in the reply opens as foes. The narrator never hurts a foe.
+// fight also the set-slot kinds (and the horde line), so a new group that arrives later in the reply opens as foes. The narrator never hurts a foe.
 const CLEAR_ONLY = /^clear-\d+$/u;
-const NEW_GROUPS = /^(?:set-slot|clear)-\d+$/u;
+const NEW_GROUPS = /^(?:(?:set-slot|clear)-\d+|horde)$/u;
 
 function foeKindLines(state, only) {
     const ids = Object.keys(state?.domains?.dataModules?.active ?? {});
