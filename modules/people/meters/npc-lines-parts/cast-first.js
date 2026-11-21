@@ -101,7 +101,9 @@ export function createCastFirst({ baseline, bond }) {
             packName, gated: ctx.feature?.(WORLD_EVENTS) === true, placeName: ref => placeNameOf(ctx, ref),
         });
         if (!filled) return null;
-        ctx.call('people.stub', { id, record: normalizeNpcRecord(filled) });
+        // (the normalizer drops the stub's empty change-stamps container; it is put back so the person's later lines move their last change, as a stub's do)
+        const record = normalizeNpcRecord(filled);
+        ctx.call('people.stub', { id, record: record.fieldChangeMessages ? record : { ...record, fieldChangeMessages: {} } });
         bond(ctx, ctx.draft(NPC_DOMAIN), { key: id, name: shown }, person);
         return { id, name: shown };
     }

@@ -75,3 +75,28 @@ test('keepStampContainers restores an empty fieldChangeMessages the stored recor
     keepStampContainers(view, { npcs: { a: { fieldChangeMessages: {}, memoryStamps: {} }, b: { fieldChangeMessages: {} } } });
     assert.deepEqual(view.npcs, { a: { id: 'a', memoryStamps: {}, fieldChangeMessages: {} }, b: { id: 'b', fieldChangeMessages: { goal: 4 } }, c: { id: 'c' } });
 });
+
+// A pack person a line brings in (cast-first, ./npc-lines-cast-first.test.js): their dossier is made from the pack inside the line's step and gets the container too.
+const ENTRY = { id: 'torka', name: 'Torka', kind: 'person', about: 'frontier berserker', look: 'Broad, scarred.', start: { goal: 'Clear the orc camps.' } };
+const castModule = {
+    id: 'story-director', name: 'Story Director stand-in (cast)',
+    queries: {
+        'director.cast': (state, args, tools) => {
+            const scene = (() => { try { return tools.query('scene.present', {}); } catch { return []; } })();
+            const here = (Array.isArray(scene) ? scene : []).some(name => String(name?.name ?? name).toLowerCase() === 'torka');
+            if (!(args?.present === true && here)) return [];
+            return [{ key: 'ersveil:torka', pack: 'ersveil', id: 'torka', name: 'Torka', aliases: [], met: null, alive: true, entry: structuredClone(ENTRY) }];
+        },
+    },
+};
+
+test('a pack person a line brings in starts with the container, so their next line moves their last change', async () => {
+    const s = await suite({ lines: true, modules: [castModule], records: {} });
+    await s.say(['+ present Torka', '~ npc Torka | trust: +1']);
+    const torka = () => Object.values(people(s).npcs).find(npc => npc.name === 'Torka');
+    assert.ok(torka()?.castFrom, 'made from the pack');
+    assert.ok(torka().fieldChangeMessages, 'the container is there');
+    const goal = await s.say(['~ npc Torka | goal: bring the convoy dead home']);
+    assert.equal(torka().fieldChangeMessages.goal, goal);
+    same(s, 'replay equals live');
+});
