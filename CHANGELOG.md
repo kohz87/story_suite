@@ -2,6 +2,13 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
+## Unreleased
+
+- World events (when switched on): a new setting lets the Director judge each world event the story writes; it is heard as rumour until judged, then kept, reshaped, or dropped as a false rumour.
+- World events: the same setting lets the Director hold back an event the world is about to roll for a day, with a reason; an optional daily Director pass (off) may also make one likelier or less likely.
+- World events: an arc plan may now propose up to two new world events, each at a real place and citing what in the world causes it; one with no real cause is left out.
+- World events: deleting a reply from the middle of a chat no longer briefly brings back a condition whose event had already ended.
+
 ## 0.1.5 — 21 Nov 2026
 
 - A person's mood headline follows the narrator's mood line at once, not only after a Refresh (the bars and history already did).
