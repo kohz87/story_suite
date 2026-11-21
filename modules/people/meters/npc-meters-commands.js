@@ -80,10 +80,11 @@ export function createNpcCommands({
         const at = isInt(ctx.carrier?.index) ? ctx.carrier.index : null;
         const reply = replyKey(ctx.carrier?.sid, at);
         // Dossier labels alone make no bond record: only someone with a bond or a dossier already (N4's stub makes the dossier, not this line).
-        const labelled = Object.keys(fields).length > 0;
+        // (a memory: alone is a label too: the line is kept for its memory, which ./npc-lines-parts/memory.js saves after it)
+        const labelled = Object.keys(fields).length > 0 || Boolean(read.memory);
         const who = labelled && !changes.length ? identify(ctx.read(NPC_DOMAIN)?.npcs ?? {}, line.name) : null;
         const known = Boolean(who && (Object.hasOwn(ctx.read(NPC_DOMAIN)?.npcs ?? {}, who.key) || ctx.read('people')?.npcs?.[who.key]));
-        if (labelled && !changes.length && !known && line.op !== '+') problems.push(`${clean(line.name, 40)} has no record yet; ${Object.keys(fields).join(', ')} not stored.`);
+        if (labelled && !changes.length && !known && line.op !== '+') problems.push(`${clean(line.name, 40)} has no record yet; ${[...Object.keys(fields), ...(read.memory ? ['memory'] : [])].join(', ')} not stored.`);
         const out = run(ctx, { label: line.name, changes, problems, limit: true, reply, at, disposition, via, allowEmpty: line.op === '+' || (labelled && known), impact: tierCaps() ? { tier, caps: tierCaps() } : null, story: true, reason, key: line.stubKey });
         return labelled ? labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMinutes, clockDay, startDate: day => call(hooks.startDate, '', day), moodOn: featureOn(FEATURE_MOOD_PULL, ctx), note, lines: line.linesOn === true }) : out;
     }

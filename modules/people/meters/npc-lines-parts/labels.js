@@ -1,12 +1,12 @@
 // Reads the labels of one `~ npc` line: meter moves (+N, -N, =N or the words up / down), impact, why, the anti-lever approach, disposition, and the
-// dossier labels (goal, status, where, look, gender, age, birthday, mood, level while the RPG is on, learns and keepsake, and aka in lines mode). Unknown labels become problems; the rest of the line still applies.
+// dossier labels (goal, status, where, look, gender, age, birthday, mood, level while the RPG is on, learns and keepsake, and aka and memory in lines mode). Unknown labels become problems; the rest of the line still applies.
 import { normalizeApproachKind } from '../npc-meters-gate.js';
 import { DISPOSITION_MAX, REASON_LABELS, clean, isObject, parseMeterValue, slug, tierOf } from '../npc-meters-config.js';
 import { directionOf } from './direction.js';
 
 export const FIELD_LABELS = Object.freeze(['goal', 'status', 'where', 'look', 'gender', 'age', 'birthday', 'mood', 'learns', 'keepsake']);
 
-/** → { changes, words, tier, via, reason, disposition, fields, problems }; `words` are { def, dir } to price once the tier is known. */
+/** → { changes, words, tier, via, reason, disposition, fields, memory?, problems }; `words` are { def, dir } to price once the tier is known. */
 export function readLabels(labels, { byLabel, defs, gateOn, levelOn = false, linesOn = false }) {
     const out = { changes: [], words: [], tier: 'ordinary', via: null, reason: '', disposition: undefined, fields: {}, problems: [] };
     for (const [label, raw] of Object.entries(isObject(labels) ? labels : {})) {
@@ -22,6 +22,8 @@ export function readLabels(labels, { byLabel, defs, gateOn, levelOn = false, lin
         if (!def && key === 'level' && levelOn) { out.fields.level = clean(raw, 40); continue; }
         // aka (another name, ./aka.js; lines mode only): off, it is an unknown label as before.
         if (!def && key === 'aka' && linesOn) { out.fields.aka = clean(raw, 120); continue; }
+        // memory (one thing they will remember from this reply, ./memory.js saves it; lines mode only): off, it is an unknown label as before.
+        if (!def && key === 'memory' && linesOn) { out.memory = clean(raw, 400); continue; }
         if (!def && FIELD_LABELS.includes(key)) { out.fields[key] = clean(raw, key === 'learns' || key === 'keepsake' ? 400 : 300); continue; }
         if (!def) { out.problems.push(`"${clean(label, 40)}" is not a meter (meters: ${defs.map(item => item.id).join(', ')}).`); continue; }
         const dir = directionOf(raw);

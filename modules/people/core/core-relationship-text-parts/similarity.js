@@ -15,6 +15,17 @@ export function durableSemanticSimilarity(a, b) {
     return Math.max(jaccard, containment * 0.86, conceptCluster);
 }
 
+// Two memories are the same event only when their words mostly match (one holds the other, or they are near-identical): the rule above without its
+// shared-cluster floor, which merged two different events that only shared a tail ("... without raising a panic", owner's chat, 21 Nov).
+export function memorySimilarity(a, b) {
+    const left = new Set(durableRefinementTokens(a));
+    const right = new Set(durableRefinementTokens(b));
+    if (Math.min(left.size, right.size) < 2) return normalizeName(a) === normalizeName(b) ? 1 : 0;
+    let overlap = 0;
+    for (const token of left) if (right.has(token)) overlap += 1;
+    return Math.max(overlap / (left.size + right.size - overlap), (overlap / Math.min(left.size, right.size)) * 0.86);
+}
+
 export function chooseCompactEquivalent(existing, incoming) {
     const oldText = cleanText(existing, 1200);
     const newText = cleanText(incoming, 1200);
@@ -27,13 +38,14 @@ export function chooseCompactEquivalent(existing, incoming) {
     return newText.length <= oldText.length * 1.15 ? newText : oldText;
 }
 
-export function semanticDedupeItems(items, { maxItems = 8, maxChars = 320, similarity = 0.62 } = {}) {
+// `measure`: how alike two items are (memories pass memorySimilarity).
+export function semanticDedupeItems(items, { maxItems = 8, maxChars = 320, similarity = 0.62, measure = durableSemanticSimilarity } = {}) {
     const out = [];
     for (const raw of Array.isArray(items) ? items : []) {
         const item = cleanText(raw, maxChars);
         if (!item) continue;
         const exact = normalizeName(item);
-        let match = out.findIndex(existing => normalizeName(existing) === exact || durableSemanticSimilarity(existing, item) >= similarity);
+        let match = out.findIndex(existing => normalizeName(existing) === exact || measure(existing, item) >= similarity);
         if (match >= 0) out[match] = chooseCompactEquivalent(out[match], item);
         else out.push(item);
         if (out.length > maxItems * 2) out.splice(0, out.length - maxItems * 2);

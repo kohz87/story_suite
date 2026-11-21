@@ -1,4 +1,4 @@
-// Memories from the lines (NSD8), only while lines mode is on. The words of a `~ npc` line's why:, of a lie and of a milestone are saved as that person's memory by code
+// Memories from the lines (NSD8), only while lines mode is on. The words of a `~ npc` line's why: and memory:, of a lie and of a milestone are saved as that person's memory by code
 // (withMemories); `~ memory Name | what happened` is only for a moment no line covers, at most two a reply (memoryLine). Code owns who, the story day and the cap and trim
 // (the dossier's five important memories, applied where a record is read; the runtime's own per-reply write also trims to five, so storage appends only between those writes); a memory already stored, or one that only rewords it, is not stored twice. The writes are the reply's own
 // (`people.memory` in the line's transaction), so a swipe, a middle delete, a Re-read and a reload decide them again the same way.
@@ -52,24 +52,32 @@ export function memoryLine(ctx, line, deps) {
     return { summary: `${clean(line.name, 40)}: a memory.`, data: { key: found.key, memory: true }, narrate: false };
 }
 
-// The words a line leaves as a memory (or ''), exactly as written: a `~ npc` line's why:, a told lie's said:, a milestone.
+// The words a line leaves as memories, exactly as written: a `~ npc` line's why: and its memory: (owner-approved 21 Nov: something they will remember that moved
+// no meter), a told lie's said:, a milestone. `memory` marks the memory: label's words (never kept for someone who has died).
 function wordsOf(line) {
     if (line.kind === 'npc' && line.op === '~') {
-        const why = Object.entries(line.labels ?? {}).find(([label, raw]) => REASON_LABELS.has(slug(label)) && String(raw ?? '').trim());
-        return why ? why[1] : '';
+        const labelled = test => Object.entries(line.labels ?? {}).find(([label, raw]) => test(slug(label)) && String(raw ?? '').trim());
+        const why = labelled(key => REASON_LABELS.has(key));
+        const memory = labelled(key => key === 'memory');
+        return [...(why ? [{ text: why[1] }] : []), ...(memory ? [{ text: memory[1], memory: true }] : [])];
     }
-    if (line.kind === 'lie' && !/^(yes|true)$/i.test(String(line.labels?.caught ?? '').trim()) && line.labels?.said) return line.labels.said;
-    return line.kind === 'milestone' && line.op === '+' ? line.text : '';
+    if (line.kind === 'lie' && !/^(yes|true)$/i.test(String(line.labels?.caught ?? '').trim()) && line.labels?.said) return [{ text: line.labels.said }];
+    return line.kind === 'milestone' && line.op === '+' && line.text ? [{ text: line.text }] : [];
 }
 
-/** `handler` with the memory its line's words make, saved after the line applied (lines mode only; a repeat or a missing record saves nothing and never refuses the line). */
+/** `handler` with the memories its line's words make, saved after the line applied (lines mode only; a repeat or a missing record saves nothing and never refuses the line). */
 export function withMemories(handler, { linesMode, date }) {
     return function remembered(ctx, line = {}) {
         const out = handler(ctx, line);
         if (!linesMode(ctx)) return out;
-        const text = wordsOf(line);
-        const found = text ? knownPerson(ctx, line.name) : null;
-        if (found) saveMemory(ctx, { key: found.key, text, date: date(isInt(ctx.carrier?.index) ? ctx.carrier.index : null) });
+        const words = wordsOf(line);
+        const found = words.length ? knownPerson(ctx, line.name) : null;
+        if (!found) return out;
+        const day = date(isInt(ctx.carrier?.index) ? ctx.carrier.index : null);
+        for (const { text, memory } of words) {
+            if (memory && ctx.read('people')?.npcs?.[found.key]?.lifeState === 'deceased') continue;
+            saveMemory(ctx, { key: found.key, text, date: day });
+        }
         return out;
     };
 }

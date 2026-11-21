@@ -6,6 +6,7 @@
 
 import { BUILT_IN_LIMITS, normalizeLevel, normalizeStoryList } from '../core/core-record-parts/built-in-fields.js';
 import { storedLevel } from '../core/core-record-parts/stored-level.js';
+import { stampChanged } from './change-stamp.js';
 
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -65,6 +66,7 @@ export function peopleEdits(domain) {
                 const names = isObject(fields) ? Object.keys(fields) : [];
                 if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, mood, appearance, gender, age, birthday, level, learns, keepsake or aka as short text (or null).');
                 const record = recordOf(ctx, domain, payload.id);
+                const before = clone(record);
                 for (const name of names) {
                     if (name === 'level') { if (/^\d+$/.test(fields.level ?? '')) writeLevel(record, fields.level); continue; }
                     if (name === 'learns') { if (fields.learns) writeList(record, 'abilities', BUILT_IN_LIMITS.abilities, [fields.learns]); continue; }
@@ -73,6 +75,7 @@ export function peopleEdits(domain) {
                     if (fields[name] === null || fields[name] === '') delete record[name];
                     else record[name] = fields[name];
                 }
+                stampChanged(ctx, { domain, id: payload.id, record, before }, names);   // (the dossier's last change is this reply)
                 return { summary: `${nameOf(record)}: ${names.join(', ')}.`, data: { id: payload.id, fields: names }, narrate: false };
             },
         },

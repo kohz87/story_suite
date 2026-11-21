@@ -1,5 +1,5 @@
 /* Important Memory merging: same-reply retelling detection, pinned-memory protection and retention-ranked selection. */
-import { durableRefinementTokens, DURABLE_PROFILE_LIMITS, durableSemanticSimilarity, semanticDedupeItems } from '../core-relationship.js';
+import { durableRefinementTokens, DURABLE_PROFILE_LIMITS, durableSemanticSimilarity, memorySimilarity, semanticDedupeItems } from '../core-relationship.js';
 import { cleanList, normalizeName } from '../core-text.js';
 import { IMPORTANT_MEMORY_LIMIT } from '../core-record-shared.js';
 
@@ -52,21 +52,22 @@ export function mergeImportantMemories(oldList, newList, retentionList = [], inc
     return out.slice(-IMPORTANT_MEMORY_LIMIT);
 }
 
+// Memories count as one event only by memorySimilarity (not the durable texts' shared-cluster rule): two events sharing a phrase are both kept.
 function mergeUnpinnedMemories(oldList, newList, retentionList = [], incomingLimit = 3) {
     const existing = semanticDedupeItems(cleanList(oldList, 64, DURABLE_PROFILE_LIMITS.memory), {
-        maxItems: 64, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58,
+        maxItems: 64, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58, measure: memorySimilarity,
     });
     const limit = Math.max(1, Math.min(IMPORTANT_MEMORY_LIMIT, Math.round(Number(incomingLimit) || 3)));
     const incoming = semanticDedupeItems(cleanList(newList, Math.max(6, limit * 2), DURABLE_PROFILE_LIMITS.memory), {
-        maxItems: limit, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58,
+        maxItems: limit, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58, measure: memorySimilarity,
     });
     const pool = semanticDedupeItems([...existing, ...incoming], {
-        maxItems: 64, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58,
+        maxItems: 64, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58, measure: memorySimilarity,
     });
     if (pool.length <= IMPORTANT_MEMORY_LIMIT) return pool;
 
     const requested = semanticDedupeItems(cleanList(retentionList, IMPORTANT_MEMORY_LIMIT * 2, DURABLE_PROFILE_LIMITS.memory), {
-        maxItems: IMPORTANT_MEMORY_LIMIT, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58,
+        maxItems: IMPORTANT_MEMORY_LIMIT, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58, measure: memorySimilarity,
     });
     const selected = [];
     const selectCanonical = request => {
@@ -80,7 +81,7 @@ function mergeUnpinnedMemories(oldList, newList, retentionList = [], incomingLim
     };
     for (const item of requested) {
         const canonical = selectCanonical(item);
-        if (!canonical || selected.some(value => durableSemanticSimilarity(value, canonical) >= 0.58)) continue;
+        if (!canonical || selected.some(value => memorySimilarity(value, canonical) >= 0.58)) continue;
         selected.push(canonical);
     }
 
@@ -88,7 +89,7 @@ function mergeUnpinnedMemories(oldList, newList, retentionList = [], incomingLim
         // A partial/malformed model selection must not re-lock the list. Fill any
         // missing slots with newest semantically distinct memories first.
         for (const item of [...incoming, ...existing].reverse()) {
-            if (selected.some(value => durableSemanticSimilarity(value, item) >= 0.58)) continue;
+            if (selected.some(value => memorySimilarity(value, item) >= 0.58)) continue;
             selected.push(item);
             if (selected.length >= IMPORTANT_MEMORY_LIMIT) break;
         }
