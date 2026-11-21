@@ -16,7 +16,7 @@ import { renderV1 } from './view-v1.js';
 // A foe that stands: a v1 slot has no hurt bar, a filled slot stands until a fight clears it.
 const isStanding = foe => foe.filled;
 
-export function createBoardView({ doc, headState, meta, save, store, interaction, rules, query, readerName, roleOf, levels, on = () => false, start = null, practice = () => undefined, rate = () => undefined, cap = () => AUTO_CAP.default } = {}) {
+export function createBoardView({ doc, headState, meta, save, store, interaction, rules, query, readerName, roleOf, levels, on = () => false, start = null, practice = () => undefined, rate = () => undefined, away = () => undefined, cap = () => AUTO_CAP.default } = {}) {
     let notice = '', autoLine = '', confirm = false, activeId = null;
     const persist = () => { try { save?.(); } catch { /* staging still works in this page */ } };
     const current = () => openFight(meta());
@@ -57,7 +57,7 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
         const sheet = readSheet(state);
         // A fight against the foes a fled or lost fight left starts from the foes' HP that fight's receipt holds (resume-v1.js), if the Foes block still reads what the board left.
         const resumed = resumeFoesV1(store?.receipts?.() ?? [], sheet.foes.filter(foe => foe.v1 === true && foe.filled));
-        const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), practice: practice(), rate: rate(), ...(resumed ? { resumed } : {}) });
+        const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), practice: practice(), rate: rate(), away: away(), ...(resumed ? { resumed } : {}) });
         if (!result?.ok) return false;
         reset();
         activeId = current()?.id ?? null;   // (the first draw must not reset what Auto says)

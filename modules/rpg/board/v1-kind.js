@@ -10,6 +10,7 @@ import { fightInputOf, witnessOf } from '../combat/input.js';
 import { playBoard } from '../combat/play.js';
 import { fightChangesV1, fightResultV1 } from './v1-settle.js';
 import { wearOfV1 } from './v1-wear.js';
+import { waitsOf, withoutWaits } from './v1-away.js';
 import { stanceAfter, stanceHeldOff } from './v1-stance.js';
 import { gearQuery } from './gear-query.js';
 import { gearSoakRecord, sheetWithGear } from '../gear.js';
@@ -40,7 +41,7 @@ const rollSheet = (state, setup, sheet) => (setup.gearStats === 1 ? sheetWithGea
 
 /** The engine's input and the heroes' module ids for `setup` on `state`'s sheet. */
 function inputOf(state, setup) {
-    const sheet = readSheet(real(state)), input = fightInputOf(rollSheet(state, setup, sheet), { carried: setup.carried ?? null });
+    const sheet = readSheet(real(state)), input = withoutWaits(fightInputOf(rollSheet(state, setup, sheet), { carried: setup.carried ?? null }), setup);
     const soak = soakOf(state, sheet);   // (read live: a piece worn between two replies reaches the next segment, and the witness holds the same number)
     input.party = input.party.map(hero => ({ ...hero, gearSoak: Number(soak[hero.id]) || 0 }));
     return { sheet, input };
@@ -77,12 +78,18 @@ function wearOf(state, setup, played) {
 
 const mapped = (state, setup, played) => fightResultV1(setup, played.record, { sheet: played.sheet, groups: played.input.groups, wear: wearOf(state, setup, played) });
 
+// With "Companions who are away wait" on, the companions the story has away sit this fight out (`waits`, with their level) and `awayXp` is the percent they are paid of a win; recorded now, so the fight settles the same on every replay.
+const waitMark = (state, sheet, away) => {
+    const waits = away?.wait === true ? waitsOf(state.domains.away, sheet, standingHero) : [];
+    return waits.length ? { waits, ...(Number.isInteger(away.xp) && away.xp > 0 ? { awayXp: Math.min(100, away.xp) } : {}) } : {};
+};
+
 /** The first setup of a fight on a v1 sheet: every filled foe group fights, the party is every standing hero. `error` when no one can fight. */
 function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.v1 === true && foe.filled).map(foe => foe.slot);
     if (!sheet.characters.some(standingHero) || !groups.length) return { error: 'There is no fight to open.' };
     // (`speedFull`: a Speed stance adds its full mastery to evasion, 20 Nov; `gearStats`: the stats of the worn gear count in every roll, 20 Nov; `gearWear`: a decisive hit taken wears the body armour (else the off-hand) and a decisive miss the weapon, one step, v1-wear.js, 20 Nov; a fight opened before it rolls with the sheet's stats; `fleeIdle`: a member who picked nothing pays no stance in an exchange where the party flees and gets away, combat/exchange.js; a fight opened before the mark has none; `xpRule: 'each2'`: the XP of 15 for each foe at the tier's own factor, 20 Nov evening; 'each' (that afternoon) keeps mob 0.5 / minion 0.75; a setup without one pays per group as before)
-    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, xpRule: 'each2', gearStats: 1, gearWear: 1, speedFull: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }),
+    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, xpRule: 'each2', gearStats: 1, gearWear: 1, speedFull: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }), ...waitMark(state, sheet, args.away),
         ...(Array.isArray(args.resumed?.foes) && args.resumed.foes.length ? { resumed: true, carried: { foes: structuredClone(args.resumed.foes) } } : {}) };
     try { playedOf(state, setup, [], portDice(seed, 0)); } catch (error) { return { error: error.message }; }
     return { setup, seed };

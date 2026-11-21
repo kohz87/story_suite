@@ -63,7 +63,8 @@ test('the page start (index.js static imports) reaches none of the RPG\'s code, 
     // (123200: Combat Rules v1 is the only rules, so the stat lists are four names in names-parts/stats.js (WIS for LUK, the earlier seven, either), +270 bytes: names, no engine file.)
     // (110400, 17 Nov 2026: Combat Rules v1 is the only rules, so the earlier reader, the earlier templates and the no-rolls record left the page start: 110,308 bytes in 76 files, 12,769 fewer than before; 123200 above is the cap they came down from.)
     // (113000, 18 Nov 2026: live/sync.js, the page parts' starter, is a page-start file now that the old view's RPG screens are gone: +~2,500 bytes, no engine file.)
-    assert.ok(bytes(lean) < 113000, `the shared helpers stay small (${bytes(lean)} bytes)`);
+    // (115000, 21 Nov 2026: the away settings' names and reader, names-parts/away.js, are page-start names and the fight kind's setup reads them: small names, no engine file.)
+    assert.ok(bytes(lean) < 115000, `the shared helpers stay small (${bytes(lean)} bytes)`);
     // …and what a dynamic import brings in is the whole RPG (the part and its pieces), so the split is real.
     const whole = closure(RPG + 'index.js').filter(file => file.startsWith(RPG));
     assert.ok(bytes(whole) > 4 * bytes(lean), 'the part is most of the RPG\'s code');

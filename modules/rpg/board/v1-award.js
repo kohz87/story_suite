@@ -7,6 +7,7 @@ import { XP_RATE, scaleXp, xpRateOf } from '../levels.js';
 import { foeGroupsOf, usesOfV1, winXp } from '../combat/rewards.js';
 import { givePractice } from '../practice-parts/give.js';
 import { itemsOf } from '../practice-parts/slots.js';
+import { waitShare } from './v1-away.js';
 import { heroesOf, raiseToStory, writeBack } from './v1-story-facts.js';
 
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -25,6 +26,13 @@ export function paidOf(record, setup, { modules = {}, alive = new Set() } = {}) 
     const groups = foeGroupsOf(record), uses = usesOfV1(record).slice(0, 40).map(use => ({ ...use, n: Math.min(use.n, 99) }));
     const xp = record?.result === 'win' ? (record.party ?? []).filter(hero => modules[hero.id] && alive.has(hero.id))
         .map(hero => ({ module: modules[hero.id], who: hero.label, xp: scaleXp(winXp(groups, Number(hero.level) || 1, setup?.xpRule), rate) })).filter(entry => entry.xp > 0) : [];
+    // a companion who waited out a won fight (setup.waits, kept at open) is paid `awayXp` percent of what a hero of their level earns, when that setting was on
+    if (record?.result === 'win' && Number.isInteger(setup?.awayXp)) {
+        for (const wait of Array.isArray(setup.waits) ? setup.waits : []) {
+            const share = waitShare(scaleXp(winXp(groups, Number(wait?.level) || 1, setup?.xpRule), rate), setup.awayXp);
+            if (modules[wait?.id] && alive.has(wait.id) && share > 0) xp.push({ module: modules[wait.id], who: String(wait.label ?? wait.id), xp: share });
+        }
+    }
     if (!xp.length && !uses.length) return null;
     return { xp, uses, perUse, paid: { xp: xp.map(({ who, xp: given }) => ({ who, xp: given })), practice: uses.map(use => ({ who: use.who, skill: use.skill, amount: Math.min(PRACTICE.max, perUse * use.n) })) } };
 }

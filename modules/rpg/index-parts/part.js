@@ -1,6 +1,6 @@
 // The lean RPG part: its default settings, the joins query name and createLeanRpgPart, the part merged into Story Block's core module.
 import { stChat } from '../../assist/st-adapter.js';
-import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_SKILL, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, ROLLS_QUERY } from '../names.js';
+import { AUTO_CAP, AUTO_CAP_SETTING, AWAY_WAIT_SETTING, AWAY_XP_SETTING, BOARD_SKILL, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, ROLLS_QUERY } from '../names.js';
 import { fightHook, fightXp } from '../fight.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../levels.js';
 import { checkStep, checksHook, practiceHook, practiceStep } from '../practice.js';
@@ -22,7 +22,7 @@ import { characterFileQuery } from '../export-query.js';
 import { termsQuery } from '../terms.js';
 
 /** The part's settings (Story Block's own bucket). */
-export const DEFAULT_SETTINGS = Object.freeze({ [PRACTICE_SETTING]: PRACTICE.perUse, [XP_RATE_SETTING]: XP_RATE.default, [LEVEL_CAP_SETTING]: LEVEL.max, [AUTO_CAP_SETTING]: AUTO_CAP.default, [PRECHECK_SETTING]: true, [CHECKS_SETTING]: true });
+export const DEFAULT_SETTINGS = Object.freeze({ [PRACTICE_SETTING]: PRACTICE.perUse, [XP_RATE_SETTING]: XP_RATE.default, [LEVEL_CAP_SETTING]: LEVEL.max, [AUTO_CAP_SETTING]: AUTO_CAP.default, [PRECHECK_SETTING]: true, [CHECKS_SETTING]: true, [AWAY_WAIT_SETTING]: false, [AWAY_XP_SETTING]: 0 });
 
 /** The offers a reply's `+ party` lines made under Ask (the card under the reply reads them): `rpg.joins { index? }` → [{ name, soul, best }] on the head reply (or the reply `index`). */
 export const JOINS_QUERY = 'rpg.joins';

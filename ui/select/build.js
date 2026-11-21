@@ -11,6 +11,7 @@ import { selectWorld } from './world.js';
 import { selectJournal } from './journal.js';
 import { selectStory } from './story.js';
 import { listProfiles } from '../../core/model-call.js';
+import { awayShown } from './party-away.js';
 import { selectSettings } from './settings.js';
 import { selectProblems, selectSent, selectInspector, selectSavePoints } from './tools.js';
 import { selectPrompts } from './prompts.js';
@@ -100,7 +101,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     party: read => {
       const actors = read('party.actors', {});
-      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}), portraits: partyPortraits(read, ctx, actors) });
+      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors) });
       // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
       return wizard.needsYou() ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
     },

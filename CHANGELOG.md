@@ -2,6 +2,10 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
+## Unreleased
+
+- New setting Companions who are away wait (off): a companion the story has away sits out fights and shows as away on the Party sheet, with where they went; a second setting can pay them a share of a won fight's XP.
+
 ## 0.1.5 — 21 Nov 2026
 
 - A person's mood headline follows the narrator's mood line at once, not only after a Refresh (the bars and history already did).

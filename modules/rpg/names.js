@@ -15,6 +15,7 @@ export { STAGES, stageWord } from './names-parts/stages.js';
 export { FORMULA, PACE, FOE_SLOTS, LIMITS } from './names-parts/rules.js';
 export { AUTO_CAP_SETTING, AUTO_CAP, autoCapFrom, autoExchanges } from './names-parts/auto.js';
 export { PRECHECK_SETTING, PRECHECK_LIMIT_MS, precheckOn } from './names-parts/precheck.js';
+export { AWAY_WAIT_SETTING, AWAY_XP_SETTING, awayFrom } from './names-parts/away.js';
 export { FIGHT_XP, BATTLE_MARKER } from './names-parts/fight-xp.js';
 export { LEVEL, LV_VERSION, LEVEL_CAP_SETTING, levelCapOf } from './names-parts/level.js';
 export { RANK_NAMES, CLASS_NAMES, USES, CREATION } from './names-parts/character.js';

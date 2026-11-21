@@ -726,5 +726,12 @@
   "ui/wizard/summary.js": "Draws the wizard's summary of the character so far: the phone's row and, from 1100 px, the left card's portrait, stat tiles and skill list.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
   "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary, Back / Next and Create's footer, and the step's scroll across redraws.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You."
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You.",
+  "modules/rpg/names-parts/away.js": "The two settings for a companion who is away (wait out fights, XP share) and the one reader of them.",
+  "modules/rpg/board/v1-away.js": "Which standing companions have an open absence and so wait out a fight, the board input without them, and the share of XP a waiting one is paid.",
+  "modules/rpg/sheet-away.js": "Reads where the Director says a companion has gone, for the sheet row's away field.",
+  "ui/select/party-away.js": "Clears the Party sheet's away notes unless the Companions who are away wait setting is on.",
+  "tests/modules/rpg/board/v1-away.test.js": "Tests the away companions waiting out a fight, their XP share, replay and the sheet's away field.",
+  "tests/modules/rpg/board/v1-away.helpers.js": "A two-hero fight host with a stand-in away domain.",
+  "tests/ui/select/party-away.test.js": "Tests the Party tab's away notes follow the setting."
 }

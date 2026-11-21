@@ -1,6 +1,6 @@
 // Levels: the part's settings schema (level cap, Auto cap, pre-check, story checks).
 
-import { AUTO_CAP, AUTO_CAP_SETTING, CHECKS_SETTING, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRECHECK_SETTING } from '../names.js';
+import { AUTO_CAP, AWAY_WAIT_SETTING, AWAY_XP_SETTING, AUTO_CAP_SETTING, CHECKS_SETTING, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRECHECK_SETTING } from '../names.js';
 
 /** The part's settings schema: the level cap (Settings → RPG: a whole number from 1 to 99, 99 unset). */
 export const SETTINGS_SCHEMA = Object.freeze({
@@ -12,4 +12,8 @@ export const SETTINGS_SCHEMA = Object.freeze({
         help: 'When you type an attack and no foe is standing, a short call on your Assist profile finds the foes, so you fight on the board before the reply. Off: the narrator sets up the foes and the board opens after its reply.' }),
     [CHECKS_SETTING]: Object.freeze({ type: 'bool', group: 'RPG', label: 'Story checks', feature: LEAN_RPG_FEATURE,
         help: 'Rolls for attempts outside a fight, before the reply: three dice go in the note, the narrator reports each check, and code works out the result and gives practice. Works whatever Rolls says (it is for fights). Off: the narrator decides them (past results stay).' }),
+    [AWAY_WAIT_SETTING]: Object.freeze({ type: 'bool', group: 'RPG', label: 'Companions who are away wait', feature: LEAN_RPG_FEATURE,
+        help: 'A companion the story has away sits out the fights and shows as away on the Party sheet, until the story brings them back. Off: they fight as before.' }),
+    [AWAY_XP_SETTING]: Object.freeze({ type: 'int', min: 0, max: 100, group: 'RPG', label: 'XP for companions who wait', feature: LEAN_RPG_FEATURE,
+        help: 'The percent of a won fight\'s XP a waiting companion is paid, 0 to 100 (0 pays nothing). Needs "Companions who are away wait".' }),
 });

@@ -92,7 +92,7 @@ function head(member, ctx) {
       MORE.some(type => can(ctx, type)) ? h('button', { type: 'button', class: 'ibtn', dataset: { more: '1' }, 'aria-label': `More for ${member.name}`, 'aria-haspopup': 'dialog', onClick: () => moreSheet(member, ctx) }, '⋯') : null),
     h('div', { class: 'chips' }, h('span', { class: 'lvl2' }, member.line),
       h('span', { class: 'chip2', title: `VIT ${member.stats.VIT}% + gear points` }, glyph('offhand'), `${member.soakPct}%`)),
-    member.away ? h('div', { class: 'awn' }, `${member.away.where} · last seen ${member.away.lastSeen}. Still in the party: counts for load, pace and Use on…`) : null,
+    member.away ? h('div', { class: 'awn' }, `${member.away.where} · last seen ${member.away.lastSeen}. Still in the party: counts for load and pace, and sits out fights while away.`) : null,
     effects.length ? h('div', { class: 'fx2' }, effects.map(e => h('span', { class: `f ${e.tone}`, dataset: { status: e.id } },
       h('span', { class: 'ic' }, glyph(e.tone === 'buff' ? 'stance' : 'warn')),
       h('span', { class: 'tx' }, h('b', null, e.label), e.note ? h('small', null, e.note) : null)))) : null,
