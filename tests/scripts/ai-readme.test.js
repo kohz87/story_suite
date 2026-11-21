@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { tempDir } from '../../scripts/temp-dir.mjs';
-import { renderReadme, handWrittenProblems } from '../../scripts/ai-readme/build.mjs';
+import { renderReadme, handWrittenProblems, PARTS } from '../../scripts/ai-readme/build.mjs';
 import { generatedTables } from '../../scripts/ai-readme/tables.mjs';
 
 const REPO = path.resolve(import.meta.dirname, '../..');
@@ -14,7 +14,7 @@ const CLI = path.join(REPO, 'scripts/ai-readme/build.mjs');
 function copyRepo() {
   const dir = tempDir('ai-readme-');
   execFileSync('git', ['init', '-q'], { cwd: dir });
-  for (const rel of ['core', 'packs', 'studio', 'modules', 'ui', 'docs/dev', 'docs/v2', 'docs/codemap.md', 'docs/codemap/jobs.json', 'authoring-kit/reference', 'authoring-kit/check.mjs', 'examples/packs/ersveil/pack.json', 'tests/suite/static-prompt.golden.json', 'scripts/release.mjs', 'scripts/codemap', 'scripts/ai-readme', 'package.json']) {
+  for (const rel of ['core', 'packs', 'studio', 'modules', 'ui', 'docs/dev', 'docs/v2', 'docs/codemap.md', 'docs/codemap/jobs.json', 'authoring-kit', 'examples/packs/ersveil/pack.json', 'examples/packs/ersveil/CONVERSION-NOTES.md', 'examples/packs/ersveil-game/pack.json', 'examples/packs/ersveil.zip', 'examples/fishing/index.js', 'testkit', 'tests/modules/inventory/bag-slot.test.js', 'tests/scripts/ai-readme-examples.test.js', 'docs/history/CHANGELOG-detail.md', 'scripts', 'tests/suite/static-prompt.golden.json', 'README.md', 'CHANGELOG.md', 'package-lock.json', 'manifest.json', 'package.json']) {
     fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
     fs.cpSync(path.join(REPO, rel), path.join(dir, rel), { recursive: true, filter: src => !src.endsWith('node_modules') });
   }
@@ -80,7 +80,7 @@ test('a marker naming no table fails the build', withRepo(async dir => {
 }));
 
 test('each hand-written part has prose, not only headings and markers', () => {
-  for (const part of ['purpose', 'concepts', 'rules', 'modules', 'packs']) {
+  for (const part of PARTS) {
     const prose = fs.readFileSync(path.join(REPO, `docs/dev/ai-readme/${part}.md`), 'utf8')
       .split('\n').filter(line => line.trim() && !/^#/.test(line) && !/^<!--/.test(line));
     assert.ok(prose.length >= 5, `${part}.md has only ${prose.length} lines of prose`);
@@ -93,3 +93,20 @@ test('the guide says NPC State and keeps the rules from CLAUDE.md', async () => 
   assert.doesNotMatch(text, /\bNSD\b/);
   for (const rule of ['450 lines', 'Replay == live', 'static-prompt.golden.json', 'interaction port']) assert.ok(text.includes(rule), `missing: ${rule}`);
 });
+
+test('a written-out suite version in a hand-written part is a problem', withRepo(dir => {
+  fs.appendFileSync(path.join(dir, 'docs/dev/ai-readme/purpose.md'), '\nThis is Story Suite 0.0.9.\n');
+  const problems = handWrittenProblems(dir);
+  assert.equal(problems.length, 1, problems.join('\n'));
+  assert.match(problems[0], /names suite version 0\.0\.9/);
+}));
+
+test('a version bump rewrites AI-README.md with it, and the check still passes', withRepo(dir => {
+  assert.equal(run(dir, '--write').status, 0);
+  fs.symlinkSync(path.join(REPO, 'node_modules'), path.join(dir, 'node_modules'));   // the release script imports the bundler
+  const bump = spawnSync('node', [path.join(dir, 'scripts/release.mjs'), '0.9.9'], { encoding: 'utf8' });
+  assert.equal(bump.status, 0, bump.stdout + bump.stderr);
+  assert.match(fs.readFileSync(path.join(dir, 'AI-README.md'), 'utf8'), /\*\*Version `0\.9\.9`\*\*/);
+  const ok = run(dir, '--check');
+  assert.equal(ok.status, 0, ok.out);
+}));

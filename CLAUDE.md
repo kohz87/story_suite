@@ -2,7 +2,7 @@
 
 ## Layout
 
-One extension at `0.1.0`:
+One extension (its version is in `core/version.js`):
 
 - `core/` (host: store, persist, replay, commands, prompt, SDK, boot, settings), `modules/<name>/` (scene, inventory, data-modules, assist, rpg, time, atlas, world, cast, arc, people), `ui/` (the view; the old view `ui/legacy/` was removed at B4-4), `packs/`, `testkit/`.
 - `scripts/` (checks, code map, `scripts/layout.json`, release build and gate) and `tests/` (`tests/core`, `tests/ui`, `tests/modules`, `tests/people`, `tests/director`, `tests/suite`, `tests/scripts`); `docs/` (`docs/dev` for developers, `docs/v2` for the module API and features, `docs/codemap*` generated).
@@ -27,7 +27,7 @@ One extension at `0.1.0`:
 
 ```sh
 npm test              # script, core, UI, modules, people and suite tests (the test:* scripts below, run in turn)
-npm run check         # size check + codemap check + syntax checks (scripts/core/check.mjs, scripts/director/check.mjs)
+npm run check         # size check + codemap check + AI-README check + syntax checks (scripts/core/check.mjs, scripts/director/check.mjs)
 npm run codemap       # regenerate docs/codemap.md and AI-README.md
 npm run release:check # build the release bundles into a temp folder and run the release gate
 node scripts/release.mjs <version>  # write one version into every place that carries it
