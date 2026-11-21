@@ -90,6 +90,9 @@ export function createSeal(s, deps) {
         if (k <= already) return { ok: true, sealed: 0 };
         const through = carriers[k - 1];
         const edge = carriers[k];
+        // (a replan still waiting before the edge: the next reconcile plans those steps again, so the seal waits for it; tried again later)
+        const replan = reads.replansFrom();
+        if (replan !== null && replan < edge) return { ok: false, why: 'replan pending' };
         const meta = metadata();
         if (!isObject(meta)) return { ok: false, why: 'no metadata' };
         // The base: the state after the last reply sealed (the prefix memo has it when the head was replayed through it), the head's own
@@ -106,7 +109,7 @@ export function createSeal(s, deps) {
         const old = history.status === 'ok' ? history.base : null;
         const sids = carriers.slice(0, k).map(i => readRecord(arr[i]).sid);
         const base = {
-            v: 1, through: sids.at(-1), count: k, sealedDigest: sealedDigest(sids), integrity: meta.integrity ?? null,
+            v: 1, through: sids.at(-1), count: k, sealedDigest: sealedDigest(sids), integrity: meta.integrity ?? null, chat: chatId() ?? null,
             state: structuredClone(at), carried: packProblems(head.problems.filter(problem => problem.index <= through), i => rawSidAt(arr, i)),
             proofs, anchors: { chain: chainHash(arr, edge), bare: bareHash(arr, edge), spine: spineBefore(arr, edge) },
             guarded: old?.guarded === true || carriers.slice(0, k).some(i => hasMeta(readRecord(arr[i]))),

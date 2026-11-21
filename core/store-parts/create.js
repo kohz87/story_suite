@@ -236,7 +236,7 @@ export function createStore({
     };
 
     // The parts of the store that moved to src/v2/store/ (each is given the state holder `s` and the store functions it calls).
-    const { historyOf, usableBase, baseProofs, sealedKept, settleHistory } = createSealedBase(s, { list, metadata, chatId });
+    const { historyOf, usableBase, baseProofs, sealedKept, settleHistory } = createSealedBase(s, { list, metadata, chatId, changed: () => { saver.touch(); saver.schedule(400); } });
     const { rawKind, KEPT_ASIDE, WHY, preservedAt, readOnlyMessage, keptNow, writable, archive, bury2, idsOf, noteIds } = createTombs(s, { chatId, metadata, current: (...args) => current(...args), list, sealedKept });
     const { sourceFor, withSource, reservedSid, occurrenceFor, carrierSid, sourceAt, allocateOccurrence } = createSources(s, { recordId, list, archive, idsOf });
     const { markNow, seeGuards, faultsNow, blocksBefore, replayLegacy, guardHolds, blockIntact, replayGuarded, attachGuard } = createGuards(s, { chatId, metadata, list, step: (...args) => step(...args), forgetMemos: (...args) => forgetMemos(...args) });

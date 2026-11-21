@@ -57,7 +57,7 @@ test('a branch cut before the edge opens read-only with the explanation, and not
     const { sealed } = twins();
     const chat = JSON.parse(JSON.stringify(sealed.ctx.chat.slice(0, 7)));
     const meta = { ...JSON.parse(JSON.stringify(sealed.ctx.meta)), integrity: 'branch-2' };
-    const branch = sealedSetup({ chat, meta });
+    const branch = sealedSetup({ chat, meta, chatId: 'chat-1 - Branch #2' });
     branch.store.rebuild();
     const records = JSON.stringify(chat.map(m => m.extra?.storySuite ?? null));
     assert.equal(branch.store.head(), null);
@@ -70,15 +70,43 @@ test('a branch cut before the edge opens read-only with the explanation, and not
     assert.throws(() => branch.store.startOver({ confirmed: true }), /This branch starts before/);
 });
 
+test('a branch cut before the edge that keeps its parent\'s integrity (SillyTavern before 1.19) is read-only too: the chat id tells the files apart', () => {
+    const { sealed } = twins();
+    const chat = JSON.parse(JSON.stringify(sealed.ctx.chat.slice(0, 7)));
+    const meta = JSON.parse(JSON.stringify(sealed.ctx.meta));       // integrity 'file-1', as the parent's
+    const base = JSON.stringify(meta.storySuite.base);
+    assert.equal(meta.storySuite.base.chat, 'chat-1');
+    const branch = sealedSetup({ chat, meta, chatId: 'chat-1 - Branch #2' });
+    branch.store.rebuild();
+    assert.equal(branch.store.history().status, 'branch');
+    assert.equal(branch.store.head(), null);
+    assert.match(branch.store.ensureInitial({ v: 2, meta: { rev: 0, claims: {} }, domains: {} })[0], /This branch starts before the story history/);
+    assert.equal(branch.store.readOnly().kind, 'sealed');
+    assert.equal(branch.store.settleHistory(), '');
+    assert.equal(JSON.stringify(meta.storySuite.base), base, 'the base is not taken over');
+    // The same file with a sealed reply deleted is still 'drift' (both ids match), and a renamed file takes its new id while it reads 'ok'.
+    cut(sealed, 3);
+    assert.equal(sealed.store.history().status, 'drift');
+    const renamed = sealedSetup({ chat: JSON.parse(JSON.stringify(sealed.ctx.chat)), meta: JSON.parse(JSON.stringify(sealed.ctx.meta)), chatId: 'chat-1' });
+    renamed.store.rebuild();
+    assert.equal(renamed.store.settleHistory(), 'deleted');
+    const moved = sealedSetup({ chat: renamed.ctx.chat, meta: renamed.ctx.meta, chatId: 'Renamed' });
+    moved.store.rebuild();
+    assert.equal(moved.store.history().status, 'ok');
+    assert.equal(moved.store.settleHistory(), '');
+    assert.equal(moved.ctx.meta.storySuite.base.chat, 'Renamed');
+});
+
 test('a branch cut inside the window reads on from the base and takes the branch\'s file id', () => {
     const { sealed } = twins();
     const chat = JSON.parse(JSON.stringify(sealed.ctx.chat.slice(0, 15)));
     const meta = { ...JSON.parse(JSON.stringify(sealed.ctx.meta)), integrity: 'branch-3' };
-    const branch = sealedSetup({ chat, meta });
+    const branch = sealedSetup({ chat, meta, chatId: 'chat-1 - Branch #3' });
     branch.store.rebuild();
     assert.deepEqual(branch.store.head(), sealed.store.at(14));
     assert.equal(branch.store.settleHistory(), '');
     assert.equal(meta.storySuite.base.integrity, 'branch-3');
+    assert.equal(meta.storySuite.base.chat, 'chat-1 - Branch #3');
     // A sealed reply deleted on the branch now is the branch's own (same file).
     cut(branch, 3);
     assert.equal(branch.store.history().status, 'drift');
@@ -90,6 +118,22 @@ test('a chat whose replies are sealed but whose base is gone is read-only', () =
     const lost = sealedSetup({ chat, meta: {} });
     lost.store.rebuild();
     assert.match(lost.store.ensureInitial({ v: 2, meta: { rev: 0, claims: {} }, domains: {} })[0], /saved starting point is missing/);
+});
+
+test('a base gone is found when a message without a record comes first (a system note), with or without a checkpoint in the window', () => {
+    for (const checkpointEvery of [3, 100]) {
+        const one = sealedSetup({ meta: { integrity: 'file-1' }, checkpointEvery });
+        grow(one.ctx, one.store, 9);
+        assert.equal(one.store.seal().sealed, 6);
+        const chat = JSON.parse(JSON.stringify(one.ctx.chat));
+        chat.unshift({ name: 'System', is_user: false, is_system: true, mes: 'A note.', extra: {} });
+        const lost = sealedSetup({ chat, meta: {}, checkpointEvery });
+        lost.store.rebuild();
+        assert.equal(lost.store.history().status, 'missing', `checkpointEvery ${checkpointEvery}`);
+        assert.match(lost.store.ensureInitial({ v: 2, meta: { rev: 0, claims: {} }, domains: {} })[0], /saved starting point is missing/);
+        assert.equal(lost.store.readOnly().kind, 'sealed');
+        assert.equal(lost.store.readOnly().index, 1, 'the first message that holds a record');
+    }
 });
 
 test('receipts and untold read the same after a seal (the sealed replies\' too), less what a sealed receipt drops', () => {

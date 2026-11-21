@@ -11,7 +11,7 @@ export function selectHistory(answer) {
   if (!answer) return null;
   const { on, status, sealed, from, window, step } = answer;
   const text = status === 'branch' || status === 'missing' ? H.toolsReadOnly
-    : sealed > 0 ? fill(H.toolsSealed, { window, from })
+    : sealed > 0 ? fill(H.toolsSealed, { window, from }) + (on ? '' : ` ${H.toolsSealedOff}`)
       : on ? fill(H.toolsAll, { window, limit: window + step }) : H.toolsOff;
   return { title: H.toolsTitle, text, on: on === true, button: on ? 'Turn off' : 'Turn on' };
 }

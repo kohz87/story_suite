@@ -4,11 +4,14 @@ import { action, apply, createStore, greeting, initial, nextId, reply, user } fr
 
 export const SMALL = Object.freeze({ window: 4, step: 2 });
 
-/** A store over `ctx.chat` and `ctx.meta` (the chat's metadata), sealing at `sealing`; `checkpointEvery` small so checkpoints fall in the window. */
-export function sealedSetup({ chat = [greeting()], meta = {}, sealing = SMALL, checkpointEvery = 3 } = {}) {
+/**
+ * A store over `ctx.chat` and `ctx.meta` (the chat's metadata), sealing at `sealing`; `checkpointEvery` small so checkpoints fall in the window.
+ * `chatId`: the chat file's id (a branch is another file).
+ */
+export function sealedSetup({ chat = [greeting()], meta = {}, sealing = SMALL, checkpointEvery = 3, chatId = 'chat-1' } = {}) {
     const ctx = { chat, meta, saves: 0 };
     const store = createStore({ chat: () => ctx.chat, save: async () => { ctx.saves++; }, apply, recordId: nextId, metadata: () => ctx.meta,
-        sealing, checkpointEvery, chatId: () => 'chat-1' });
+        sealing, checkpointEvery, chatId: () => chatId });
     return { ctx, store };
 }
 

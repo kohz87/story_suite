@@ -3,8 +3,10 @@
 // front of the first reply after them (`anchors`), the Problems and the proof of the blocks before it. Replay starts there; every hash in the
 // window goes on from the anchors, so a seal changes none of them. This part reads the base and says whether this chat may use it:
 // * 'ok'      the sealed replies are the ones the base was made over (a branch made inside the window too: it takes the branch's id);
-// * 'drift'   the same file (SillyTavern's `integrity`) lost a sealed reply or more: the base is used, their changes stay;
-// * 'branch'  another file cut before the edge (a SillyTavern branch or checkpoint): it lacks replies the base holds, so it is read-only;
+// * 'drift'   the same file (its chat id and SillyTavern's `integrity` both as the base has them) lost a sealed reply or more: the base is
+//             used, their changes stay;
+// * 'branch'  another file cut before the edge (a SillyTavern branch or checkpoint; before SillyTavern 1.19 a branch kept its parent's
+//             `integrity`, so the chat id tells them apart): it lacks replies the base holds, so it is read-only;
 // * 'missing' sealed replies and no base (or replies sealed after unsealed ones): read-only;
 // * 'none'    nothing is sealed.
 
@@ -24,7 +26,7 @@ const refOf = message => [message, message?.extra?.[KEY], message?.swipe_id, mes
 const same = (message, ref) => refOf(message).every((value, at) => value === ref[at]);
 const NONE = Object.freeze({ status: 'none', start: -1, last: -1, sids: Object.freeze([]) });
 
-export function createSealedBase(s, { list, metadata, chatId = () => undefined }) {
+export function createSealedBase(s, { list, metadata, chatId = () => undefined, changed = () => {} }) {
     const metaNow = () => { try { const meta = metadata(); return isObject(meta) ? meta : null; } catch { return null; } };
     const baseNow = () => {
         const base = metaNow()?.storySuite?.base;
@@ -54,7 +56,8 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
     function historyOf(arr = list()) {
         const base = baseNow();
         if (!base) {
-            const first = arr.find(message => message && !message.is_user);
+            // (the first message that holds a record: a system note or an older greeting in front of it holds none)
+            const first = arr.find(message => message && !message.is_user && message.extra?.[KEY] !== undefined);
             if (!isSealed(first ? readRecord(first) : null)) return NONE;
         }
         const integrity = metaNow()?.integrity;
@@ -69,7 +72,7 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
         else if (!base || broken) out = { status: 'missing', start, last, sids };
         else {
             const same = sealedDigest(sids) === base.sealedDigest;
-            const file = (metaNow()?.integrity ?? null) === (base.integrity ?? null);
+            const file = sameFile(base);
             const status = same ? 'ok' : file ? 'drift' : 'branch';
             // (no reply after the sealed ones, a chat cut back to them: the window starts right after the last of them, at the base)
             out = { status, base, start: start >= 0 ? start : last + 1, last, sids, usable: status !== 'branch' };
@@ -82,6 +85,13 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
         const refs = [...sealed.map(each => each.index), ...(start >= 0 ? [start] : [])].map(i => [i, ...refOf(arr[i])]);
         s.history = { arr, length: arr.length, chat: chatId(), base, digest: base?.sealedDigest, integrity, refs, out };
         return out;
+    }
+
+    // The same file as the base was made in: the chat id and `integrity` both match (one of them known). Anything else is taken as another file.
+    function sameFile(base) {
+        const id = chatId() ?? null;
+        const integrity = metaNow()?.integrity ?? null;
+        return id === (base.chat ?? null) && integrity === (base.integrity ?? null) && (id !== null || integrity !== null);
     }
 
     /** The base to replay from for `arr`, or null (nothing sealed, or a base this chat may not use). */
@@ -109,15 +119,15 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
     /** Why a chat whose replies are sealed has no state here (store/tombs.js preservedAt: read-only), or null. */
     function sealedKept(arr) {
         const history = historyOf(arr);
-        if (history.status === 'branch') return { index: history.sids.length ? carrierIndexes(arr)[0] : 0, kind: 'sealed', why: READ_ONLY, raw: null };
-        if (history.status === 'missing') return { index: carrierIndexes(arr)[0] ?? 0, kind: 'sealed', why: MISSING, raw: null };
-        return null;
+        if (history.status !== 'branch' && history.status !== 'missing') return null;
+        const first = carrierIndexes(arr).find(i => readRecord(arr[i])) ?? 0;      // (the first message that holds a record)
+        return { index: first, kind: 'sealed', why: history.status === 'branch' ? READ_ONLY : MISSING, raw: null };
     }
 
     /**
      * After a rebuild: the base takes what this file is now. Sealed replies that went (the same file) are taken as gone, their changes staying
-     * in the base: → 'deleted' (the reader is told once). A branch made inside the window takes the branch's id. → '' otherwise. In memory:
-     * the next save writes it.
+     * in the base: → 'deleted' (the reader is told once; a save is asked for, as SillyTavern may have saved the delete already). A branch made
+     * inside the window (or a renamed file) takes the file's chat id and `integrity`. → '' otherwise. Those are in memory: the next save writes them.
      */
     function settleHistory(arr = list()) {
         const history = historyOf(arr);
@@ -132,7 +142,9 @@ export function createSealedBase(s, { list, metadata, chatId = () => undefined }
             told = 'deleted';
         }
         if ((meta.integrity ?? null) !== (base.integrity ?? null)) base.integrity = meta.integrity ?? null;
+        if ((chatId() ?? null) !== (base.chat ?? null)) base.chat = chatId() ?? null;
         s.history = null;
+        if (told) changed();
         return told;
     }
 

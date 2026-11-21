@@ -12,7 +12,7 @@ const settle = () => new Promise(resolve => setImmediate(resolve));
 const line = n => `The road goes on.\n<Changes>\n+ item Stone ${n} | qty: 1\n</Changes>`;
 
 async function grown(t, replies, { on = true } = {}) {
-    t.mock.timers.enable({ apis: ['setTimeout'] });
+    try { t.mock.timers.enable({ apis: ['setTimeout'] }); } catch { /* (already on: a twin grown in the same test) */ }
     const host = await createHost({ settings: { core: { sealHistory: on } }, storeOptions: { sealing: { window: 4, step: 2 }, checkpointEvery: 3 } });
     t.after(() => host.close());
     for (let n = 0; n < replies; n++) {
@@ -55,7 +55,7 @@ test('a sealed reply deleted keeps its changes and the reader is told once; an e
     assert.ok(host.st.notices.some(n => /editing it changes only its text/.test(n.reason)));
 });
 
-test('Re-read and Return in time past the edge are refused before anything is done; inside the window they work', async t => {
+test('Re-read and Return in time past the edge are refused before anything is done, and the Tools card says where the edge is', async t => {
     const host = await grown(t, 7);
     const from = host.store.history().from;
     const reread = await host.sdk.reread(from - 2);
@@ -67,6 +67,40 @@ test('Re-read and Return in time past the edge are refused before anything is do
     assert.match(rewind.message, /Return in time reaches back 4 replies/);
     const view = selectHistory({ on: true, ...host.store.history() });
     assert.equal(view.text, `The last 4 replies are kept step by step (from message ${from}). Older replies keep their text and summaries; their changes can't be taken back.`);
+});
+
+// What the reader sees of the story: the stones and their counts, the rev, the domains.
+const seen = state => ({ rev: state?.meta?.rev, keys: Object.keys(state?.domains ?? {}).sort(),
+    stacks: Object.values(state?.domains?.inventory?.stacks ?? {}).map(stack => `${stack.def}:${stack.qty}`).sort() });
+const quiet = async t => { for (let k = 0; k < 4; k++) { t.mock.timers.tick(SEAL_WAIT_MS); await settle(); } };
+
+test('inside the window an edited Re-read and Return in time give what they give the chat never sealed, and a chat switch keeps it', async t => {
+    const sealed = await grown(t, 7);
+    const plain = await grown(t, 7, { on: false });
+    assert.equal(sealedCount(sealed), 4);
+    let at = sealed.store.history().from;
+    while (sealed.ctx.chat[at]?.is_user) at++;
+    for (const host of [sealed, plain]) {
+        await host.st.editMessage(at, 'Told again.\n<Changes>\n+ item Gem | qty: 3\n</Changes>');
+        assert.equal((await host.sdk.reread(at)).ok, true);
+        await quiet(t);
+    }
+    assert.deepEqual(seen(sealed.head()), seen(plain.head()), 'after the Re-read');
+    assert.deepEqual(sealed.store.problems().map(p => p.code), plain.store.problems().map(p => p.code));
+    for (const host of [sealed, plain]) { assert.equal((await host.sdk.rewind({ index: at, beforeRev: 1 })).ok, true); await quiet(t); }
+    assert.deepEqual(seen(sealed.head()), seen(plain.head()), 'after Return in time');
+    const head = JSON.stringify(seen(sealed.head()));
+    const ctx = sealed.ctx;
+    const mine = { chat: JSON.parse(JSON.stringify(ctx.chat)), meta: JSON.parse(JSON.stringify(ctx.chatMetadata)), id: ctx.chatId };
+    ctx.chatMetadata = {};
+    await sealed.st.loadChat([{ ...JSON.parse(JSON.stringify(ctx.chat[0])), extra: {} }], 'chat-B');      // (its own greeting, no record)
+    await quiet(t);
+    assert.equal(sealed.store.history().status, 'none', 'the other chat does not take this one\'s base');
+    ctx.chatMetadata = mine.meta;
+    await sealed.st.loadChat(mine.chat, mine.id);
+    await quiet(t);
+    assert.equal(JSON.stringify(seen(sealed.head())), head, 'back on the sealed chat');
+    assert.equal(sealed.store.history().status, 'ok');
 });
 
 test('a long chat from before sealing is sealed at its first quiet moment after it is opened', async t => {

@@ -28,7 +28,7 @@ export const HOST_SETTINGS_SCHEMA = Object.freeze({
     // core/turn/seal-idle.js: older replies are sealed at a quiet moment after a reply (docs/dev/saves-and-persist.md "Sealed history").
     sealHistory: Object.freeze({
         type: 'bool', label: 'Tidy old story history',
-        help: 'Once a chat passes 75 replies, the story changes of replies older than the last 50 are folded into one saved starting point at a quiet moment, at most once every 25 replies. Their text and summaries stay; deleting or editing one no longer changes the story. Long chats get a third or more smaller, and deleting an old reply takes a few seconds instead of up to half a minute. Off: every reply is kept step by step.',
+        help: 'Once a chat reaches 75 replies, the story changes of replies older than the last 50 are folded into one saved starting point at a quiet moment, at most once every 25 replies. Their text and summaries stay; deleting or editing one no longer changes the story. Long chats get a third or more smaller, and deleting an old reply takes a few seconds instead of up to half a minute. Off: every reply is kept step by step.',
     }),
     // The Models page's two roles (core/model-call/connection-for.js): '' is the chat's connection. Story is always the chat's.
     quickConnection: Object.freeze({

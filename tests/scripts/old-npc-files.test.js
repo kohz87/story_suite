@@ -30,6 +30,27 @@ test('the dry run lists the old files with their sizes and deletes nothing', asy
     assert.deepEqual(fs.readdirSync(dir).sort(), [...OLD, ...KEEP].sort(), 'nothing deleted');
 });
 
+test('each file is listed with its date, and a file changed after the merge (or after --since) is flagged', async t => {
+    const dir = folder();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const before = new Date('2026-10-01T10:00:00Z');
+    for (const name of OLD) fs.utimesSync(path.join(dir, name), before, before);
+    const after = new Date('2026-11-20T09:30:00Z');
+    fs.utimesSync(path.join(dir, OLD[1]), after, after);
+    const out = sink();
+    assert.equal(await main([dir], { output: out.stream }), 0);
+    assert.match(out.text(), /2026-10-01 10:00 {4}npc-state-delta-1a2b3c\.json/);
+    assert.match(out.text(), /2026-11-20 09:30 ! {2}npc-state-delta-recovery-1a2b-xyz-abc\.json/);
+    assert.match(out.text(), /! 1 of them changed after 2026-11-16 23:11 \(UTC\), after the merge/);
+    const later = sink();
+    assert.equal(await main(['--since', '2026-11-21', dir], { output: later.stream }), 0);
+    assert.doesNotMatch(later.text(), / ! /);
+    assert.doesNotMatch(later.text(), /changed after/);
+    const bad = sink();
+    assert.equal(await main([dir, '--since', 'soon'], { output: bad.stream }), 2);
+    assert.deepEqual(fs.readdirSync(dir).sort(), [...OLD, ...KEEP].sort(), 'nothing deleted');
+});
+
 test('with --delete only "yes" deletes, and only the old files', async t => {
     const dir = folder();
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
