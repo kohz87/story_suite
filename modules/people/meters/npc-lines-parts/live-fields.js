@@ -13,6 +13,9 @@ import { guardFields } from './guard.js';
 import { noted, fieldWords } from './noted.js';
 import { akaField } from './aka.js';
 
+// A mood word the list doesn't rate is still kept when it is one plain word (two at most, "on edge"), letters only.
+const PLAIN_MOOD = /^[a-z][a-z'-]*(?: [a-z][a-z'-]*)?$/i;
+
 const LIVE = Object.freeze({ goal: 300, status: 300, where: 120 });
 
 // The goal / status / where text as { value } (null = cleared), or a problem.
@@ -73,7 +76,8 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
         const target = world.moodOn && isInt(world.minutes) ? moodFromWord(word) : null;
         if (!world.moodOn) problems.push('mood is off; not used.');
         else if (!isInt(world.minutes)) problems.push('mood: there is no story clock; not used.');
-        else if (!target) problems.push(`mood: "${clean(fields.mood, 40)}" is not a mood word on the list; not used.`);
+        // (a plain word off the list, "shaken", is kept as the word: the numbers stay as they were, "mood word not rated"; owner, 21 Nov: Dora stayed "mortified" until a Refresh)
+        else if (!target && !PLAIN_MOOD.test(word)) problems.push(`mood: "${clean(fields.mood, 40)}" is not one plain word; not used.`);
         else {
             const prev = readLeaf(record.mood) ?? restMood(restingMood(), world.minutes);
             const { mood } = applyWord(prev, world.minutes, target, word, '');

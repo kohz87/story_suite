@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- A mood the story gives someone is shown on their dossier right away, even a word the mood list doesn't rate ("shaken"), instead of waiting for a Refresh.
 - The world's own people are told to the narrator anywhere in their village, town or city (any spot in it, never past its edge), so they arrive as their pack describes them, race and look included.
 
 ## 0.1.6 — 21 Nov 2026

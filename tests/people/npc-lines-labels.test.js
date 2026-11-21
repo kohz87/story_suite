@@ -57,7 +57,7 @@ test('where for a person in the scene is refused; "Unknown" is never written', a
     assert.match(JSON.stringify(s.host.head().domains.people.bonds.problems), /this person is here/);
 });
 
-test('a mood word becomes the fixed list\'s numbers; an unknown word is refused', async () => {
+test('a mood word becomes the fixed list\'s numbers; a plain word off the list is kept as the word with the numbers unchanged; anything else is refused', async () => {
     const s = await suite();
     await s.say(['~ npc Oren | mood: furious']);
     const mood = readLeaf(bonds(s).mood);
@@ -65,8 +65,15 @@ test('a mood word becomes the fixed list\'s numbers; an unknown word is refused'
     assert.ok(mood.v < 0, 'furious is unpleasant');
     // (the dossier's mood word follows the line too, not only the bars: the headline read the old word until a Refresh, owner 20 Nov)
     assert.equal(Object.values(s.host.head().domains.people.npcs).find(npc => npc?.name === 'Oren')?.mood, 'furious');
-    await s.say(['~ npc Oren | mood: zzzxq']);
-    assert.match(JSON.stringify(s.host.head().domains.people.bonds.problems), /not a mood word/);
+    // (owner, 21 Nov: Dora's "shaken" was dropped and the dossier read "mortified" until a Refresh)
+    await s.say(['~ npc Oren | mood: shaken']);
+    const kept = readLeaf(bonds(s).mood);
+    assert.deepEqual([kept.v, kept.a, kept.d], [mood.v, mood.a, mood.d], 'an unrated word moves no number');
+    assert.match(kept.cause, /^now shaken — mood word not rated/);
+    assert.equal(Object.values(s.host.head().domains.people.npcs).find(npc => npc?.name === 'Oren')?.mood, 'shaken', 'the dossier reads the new word');
+    await s.say(['~ npc Oren | mood: upset because of 3 things']);
+    assert.match(JSON.stringify(s.host.head().domains.people.bonds.problems), /not one plain word/);
+    assert.equal(Object.values(s.host.head().domains.people.npcs).find(npc => npc?.name === 'Oren')?.mood, 'shaken');
 });
 
 // Apply order (a live change): NPC State's `~ npc` runs after the reply's time, present and place lines, so a person the reply brings into the scene
