@@ -35,6 +35,7 @@ import { replyCardsOf } from './reply-card.js';
 import { selectReplyLog, replyIndexes } from './reply-log.js';
 import { selectReplyActions } from './reply-actions.js';
 import { readTabOrder } from './reply-tabs.js';
+import { selectHistory } from './history.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
 // Story Director is on while any of its switches is on (the Settings Director card reads it the same way); a host with no feature list counts as on.
@@ -148,6 +149,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     sent: () => (tools ? selectSent(tools.sent(), selectProblems(problemsNow())) : null),
     roster: read => selectRoster(read('people.list', {})),
     savepoints: () => (tools ? selectSavePoints(tools.savePoints()) : null),
+    history: () => (tools?.history ? selectHistory(tools.history()) : null),
     prompts: () => selectPrompts(Object.fromEntries(['npc-state-delta', 'story-director'].map(id => [id, sdk?.settings?.(id) ?? null]))),
     inspector: (_read, args) => (tools ? selectInspector({ replies: tools.replies(), reply: i => tools.reply(i) }, args?.index) : null),
   };

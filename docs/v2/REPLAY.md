@@ -302,6 +302,13 @@ A Re-read or reconcile that rewrites a checkpoint gives it the window it has now
 up to the carrier before it), not the one it had, so a later delete cannot line the old window up again over a state that
 includes a record the window no longer names.
 
+### Sealed history
+
+A long chat's replies older than its retention window are sealed (docs/dev/saves-and-persist.md "Sealed history"): replay starts from the base in
+the chat's metadata, and every chain hash in the window goes on from the hashes the chain had there, so a seal changes no stored boundary, prefix
+or witness. A sealed reply is final: it is never replayed, planned again, Re-read or cut down by a rewind, and its guards are not asked again after a
+guard mark changes (replay goes back to the base, not the greeting).
+
 ## Re-read and reconciling
 
 **A Re-read moves a kept block's position and nothing else.** A block it keeps (a click, a step it does not plan again) keeps

@@ -129,7 +129,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) return answer;
         try { answer = promptsCommand(type, payload, writes) ?? await peopleExportCommand(type, payload); } catch (error) { answer = failure(error); }
         if (answer) return answer;
-        try { answer = await toolsCommand(tools, type, payload); } catch (error) { answer = failure(error); }
+        try { answer = await toolsCommand(tools, type, payload, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         // Settings › Tools › NPC State data: the three data dialogs (backup, restore, diagnostics).
         if (type === 'settings.action' && isDataKey(payload?.key)) return dataCommand(payload.key);

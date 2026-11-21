@@ -1,5 +1,5 @@
 // What the reader is told about sealed story history (docs/dev/saves-and-persist.md "Sealed history"): the notices at the edge of the
-// retention window, the refusals, the Tools row and the old NPC State files clean-up. `{window}` is the number of replies kept step by step.
+// retention window, the refusals, and the Tools row. `{window}` is the number of replies kept step by step.
 export const HISTORY_STRINGS = {
     sealedDeleted: 'That reply is older than the last {window} replies, so its changes stay in the story.',
     sealedEdited: 'That reply is older than the last {window} replies, so its changes stay in the story; editing it changes only its text.',
@@ -11,16 +11,7 @@ export const HISTORY_STRINGS = {
     sealSkipped: 'Tidying story history was skipped: the rebuilt story differed from the story as it stands. Nothing was changed.',
     toolsTitle: 'Story history',
     toolsAll: 'Every reply is kept step by step. Once this chat passes {limit} replies, replies older than the last {window} keep their text and summaries, and their changes can\'t be taken back.',
-    toolsSealed: 'The last {window} replies are kept step by step (from reply {from}). Older replies keep their text and summaries; their changes can\'t be taken back.',
+    toolsSealed: 'The last {window} replies are kept step by step (from message {from}). Older replies keep their text and summaries; their changes can\'t be taken back.',
     toolsOff: 'Tidying story history is off: every reply is kept step by step.',
     toolsReadOnly: 'This chat\'s story history can\'t be rebuilt here, so Story Suite reads it only.',
-    cleanTitle: 'Old NPC State files',
-    cleanFind: 'Find old files',
-    cleanNone: 'No old NPC State files were found.',
-    cleanList: '{n} old NPC State files from before the merge, {size} in all. Story Suite no longer reads them. Portraits are kept.',
-    cleanConfirm: 'Delete these {n} files? This can\'t be undone. Portraits are kept.',
-    cleanDelete: 'Delete them',
-    cleanDone: 'Deleted {n} old NPC State files.',
-    cleanFailed: 'Some files could not be deleted: {names}.',
-    cleanUnlisted: 'This SillyTavern can\'t list its files, so the old NPC State files can\'t be found from here.',
 };

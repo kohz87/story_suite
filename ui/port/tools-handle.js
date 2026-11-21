@@ -40,6 +40,12 @@ export function createToolsHandle({ runtime, toolsParts = () => null, savePoints
       const on = registry?.feature?.(CORE_FEATURE.savepoints) ? registry.featureOn(CORE_FEATURE.savepoints) === true : true;
       return { on, here: settled(() => points.chatId?.(), ''), points: on ? settled(() => points.list(), []) : [] };
     },
+    /** This chat's sealed history (core/store/sealed-base.js) and the host setting that tidies it: { on, status, sealed, from, window, step } or null. */
+    history() {
+      const store = runtime.store;
+      if (typeof store?.history !== 'function') return null;
+      return settled(() => ({ on: runtime.settings?.()?.sealHistory !== false, ...store.history() }), null);
+    },
     makeSavePoint: name => savePoints()?.save({ name }) ?? Promise.resolve(NONE),
     returnToSavePoint: id => savePoints()?.returnTo(id) ?? Promise.resolve(NONE),
     forgetSavePoint: id => savePoints()?.forget(id) ?? Promise.resolve(NONE),

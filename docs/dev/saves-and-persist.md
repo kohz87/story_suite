@@ -45,18 +45,52 @@ checkpoints, replay rules a–d, counters), §2.4 receipts, §3.3 saving; PERFOR
   bytes); bigger, `beforeunload` asks first.
 - Not covered: two tabs on one chat (last writer wins).
 
+## Sealed history
+
+Long chats keep only the newest replies step by step (owner, 21 Nov: the last 50, sealed in steps of 25; RETENTION design C). Code:
+`core/persist/sealed.js` (the sealed record), `core/store/sealed-base.js` (the base and whether a chat may use it), `core/store/write/seal.js`
+and `seal-check.js` (the seal and its check), `core/turn/seal-idle.js` (when), `core/strings/history.js` (what the reader is told).
+
+- **A sealed record** is `{ v: 3, sealed: 1, ... }`: it keeps its sid, swipe, mark, rev, source, narrated, rule marks and receipts (their display data
+  and `data.v2` too; only a guarded receipt's `seed` and `replan` go), and loses `ops`, `spans` and every checkpoint field. `readRecord` returns it
+  (its receipts stay on the line of history: `store.receipts()` and `untold()` start at the first sealed record), replay passes over it, and every
+  store write onto it is refused (`write()` is the one choke point). Older builds read v3 as a newer version's record and keep the chat read-only.
+- **The base** lives in `chat_metadata.storySuite.base` = `{ v: 1, through, count, sealedDigest, integrity, state, carried, proofs, anchors: { chain,
+  bare, spine }, guarded, window, step, at }`: the state after the last sealed reply, the Problems and the proof of the blocks before it, and the three
+  chain hashes as they were in front of the first reply after it. `chain()` starts there (a checkpoint after it is trusted by the usual rules, with
+  `history` set when the sealed replies held guarded blocks); `chainHash`, `bareHash`, `spineBefore` and the prefix memo's spine run go on from the
+  anchors, so **a seal changes no hash in the window**: guarded boundaries, checkpoint prefixes and timeline witnesses stay as they were. (This differs
+  from RETENTION §3.2–3.3, which re-derived the window's prefixes; only a kept checkpoint's `covers`/`coverHash` are re-derived.)
+- **Which chat may use it:** the digest of the sealed replies' sids and SillyTavern's `chat_metadata.integrity` (a new one for every branch and
+  checkpoint). Same digest: used (a branch made inside the window takes the branch's integrity at the next rebuild). Other digest, same integrity: the
+  same file lost a sealed reply; its changes stay, the reader is told once (`store.settleHistory()` → `'deleted'`). Other digest and integrity: a branch
+  cut before the edge; read-only (`readOnly().kind === 'sealed'`), nothing is written. Sealed replies with no base: read-only.
+- **The seal** (`store.seal()`, at most once per step, at a quiet moment after a reply: no generation, hold, pending save or read-only chat; host
+  setting `sealHistory`, default on, the test host starts with it off): seal count = step × ⌊(replies − window) ÷ step⌋. The base is the store's own
+  replay to the last sealed reply. The seal is staged in place and the chat read again; it is kept only when the head, Problems, replan point (it may
+  move to the edge), both proof lists, receipts and untold (less what a sealed receipt drops), the window's chain hashes and boundary Problems, and each
+  checkpoint left in the window read as before. Else every object is put back synchronously and the chat is not tried again in this session. A window
+  checkpoint that does not hold the state in front of it (made before a delete) is dropped by the seal.
+- **At the edge:** `at()` of a sealed reply is null (its state cards show nothing); a delete or edit of one keeps its changes; Return in time and Re-read
+  past the edge are refused before anything is done; a save point is its own file and unaffected.
+- **Old NPC State files** (pre-merge data, recovery and checkpoint files in SillyTavern's user files folder): SillyTavern gives a page no way to list that
+  folder, so the clean-up is `node scripts/people/old-files.mjs <user files folder>` (lists with sizes; `--delete` asks and deletes only on "yes";
+  portraits stay).
+- Tests: `tests/core/seal*.test.js`, `sealed-record.test.js`, `sealed-chain.test.js`, `seal-edge.test.js`, `tests/suite/qa/seal-fuzz.test.js`,
+  `tests/scripts/old-npc-files.test.js`.
+
 ## Key files and functions
 
-- `src/v2/persist.js`: `KEY`, `isCarrier`, `readRecord`, `writeRecord`, `restamp`, `swipeMark`, `markFits`,
+- `core/persist.js`: `KEY`, `isCarrier`, `readRecord`, `writeRecord`, `restamp`, `swipeMark`, `markFits`,
   `keepsCopy` / `mirrorCopy` / `restoreCopy` / `dropCopy`, `trimReceipts`, `carryRecord`, `createSaver`,
   `IDLE_MS`, `IDLE_MAX_MS`, `RECHECK_MS`.
-- `src/v2/store.js`: `createStore` (`head`, `at`, `append`, `replaceStory`, `rebuild`, `scheduleSave`,
+- `core/store.js` (`core/store-parts/create.js`): `createStore` (`head`, `at`, `append`, `replaceStory`, `rebuild`, `scheduleSave`,
   `saveSoon`, `flush`, `saveIdle`, `truncate`, `work`), re-exporting the checkpoint constants and `deepFreeze` that now live in
-  `src/v2/store/constants.js`; `src/v2/store/digest.js`: the pure hashes (`payloadHashOf`, `hasMeta`). `store/tombs.js` (kept-as-they-are records, the id archive and index), `store/sources.js` (the carrier source map, occurrences), `store/guards.js` (asking and replaying guarded blocks), `store/walk.js` (the chain of checkpoints, `step`, `stamp`, the Re-read / reconcile walk, the copies a rebuild settles), `store/replay-blocks.js` (replay block by block, the head's key, the proof of the blocks that applied), `store/memo.js` (the head cache, the state at an earlier carrier, the memos and when they are forgotten, the timeline witness memo, the record helpers a write builds on), `store/read.js` (the reads of `api`: `head`, `at`, `problems`, `proofs`, `boundary`, the reader's repairs, `prefixWitness` and `witnessScope`), `store/write.js` (the writes of `api`: `append`, `before`, `replaceStory`, `reconcile`, `setNarrated`, `truncate`, `untold`, `rebuild`, `batch`, `renamed`, `touch`, `saveIdle`): factories `createTombs/createSources/createGuards/createWalk/createReplayBlocks/createMemo/createRead/createWrite(s, deps)` that `createStore` wires with its state holder `s`.
-- `src/v2/chat-file.js`: `createChatFile`, `utf8Bytes`, `KEEPALIVE_MAX` (mirrors SillyTavern 1.19's save body).
-- `src/v2/runtime.js`: `storeSaving`, `saveOnUnload`, `markUsed`, `SAVE_SEQ_KEY`, `MEMO_PREFIX`.
-- `src/v2/ops.js`: `diff`, `apply`, `checkOps`. `src/v2/rewind.js`: rewinds and save points (ST branches).
-- `src/v2/replay.js`: `sha256`, `hashJson`, `deriveId`, `spanProblem`, `guardProblem`, `claimKeys` (guarded replay,
+  `core/store/constants.js`; `core/store/digest.js`: the pure hashes (`payloadHashOf`, `hasMeta`). `store/tombs.js` (kept-as-they-are records, the id archive and index), `store/sources.js` (the carrier source map, occurrences), `store/guards.js` (asking and replaying guarded blocks), `store/walk.js` (the chain of checkpoints, `step`, `stamp`, the Re-read / reconcile walk, the copies a rebuild settles), `store/replay-blocks.js` (replay block by block, the head's key, the proof of the blocks that applied), `store/memo.js` (the head cache, the state at an earlier carrier, the memos and when they are forgotten, the timeline witness memo, the record helpers a write builds on), `store/read.js` (the reads of `api`: `head`, `at`, `problems`, `proofs`, `boundary`, the reader's repairs, `prefixWitness` and `witnessScope`), `store/write.js` (the writes of `api`: `append`, `before`, `replaceStory`, `reconcile`, `setNarrated`, `truncate`, `untold`, `rebuild`, `batch`, `renamed`, `touch`, `saveIdle`): factories `createTombs/createSources/createGuards/createWalk/createReplayBlocks/createMemo/createRead/createWrite(s, deps)` that `createStore` wires with its state holder `s`.
+- `core/store/chat-file.js`: `createChatFile`, `utf8Bytes`, `KEEPALIVE_MAX` (mirrors SillyTavern 1.19's save body).
+- `core/runtime.js`: `storeSaving`, `saveOnUnload`, `markUsed`, `SAVE_SEQ_KEY`, `MEMO_PREFIX`.
+- `core/ops.js`: `diff`, `apply`, `checkOps`. `core/timeline/rewind.js`: rewinds and save points (ST branches).
+- `core/replay.js`: `sha256`, `hashJson`, `deriveId`, `spanProblem`, `guardProblem`, `claimKeys` (guarded replay,
   docs/v2/REPLAY.md); `store.sourceAt`, `payloadHashAt`, `attachGuard`, `reconcile`.
 
 ## Tests that guard it

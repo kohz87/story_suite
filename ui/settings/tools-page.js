@@ -5,6 +5,7 @@ import { renderDiagnostics } from './diagnostics.js';
 import { renderDeveloper } from './developer.js';
 import { openInspector } from './inspector.js';
 import { renderSavePoints } from './savepoints.js';
+import { renderHistory } from './history.js';
 import { renderPrompts } from './prompts.js';
 import { renderChatData, saveFile } from './chat-data.js';
 import { renderGameExport, saveGamePack } from './game-export.js';
@@ -17,7 +18,7 @@ import { renderNpcData } from './npc-data.js';
 export function createToolsPage(settings, ctx, developer) {
   const prompt = { open: null, draft: {}, busy: false, notes: {} };
   const people = { note: '', busy: false };
-  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '', packNote: '', dataNote: '' };
+  const local = { force: false, confirming: false, rebuilding: null, error: '', note: '', naming: false, busy: false, spNote: '', packNote: '', dataNote: '', historyNote: '', historyBusy: false };
   const redraw = () => ctx.repaint?.();
   const ask = (key, value) => Promise.resolve(ctx.onAction?.(key, value));
 
@@ -34,6 +35,14 @@ export function createToolsPage(settings, ctx, developer) {
     redraw();
     ask(key, value).then(answer => { local.spNote = answer?.ok === false ? `${failed}: ${answer.message ?? '?'}` : (answer?.warning ?? done); if (answer?.ok !== false) local.naming = false; },
       error => { local.spNote = `${failed}: ${error?.message ?? error}`; }).finally(() => { local.busy = false; redraw(); });
+  }
+
+  // The Story history switch: stored at once; the card is drawn again from the live answer (a failure says why).
+  function historyOn(on) {
+    Object.assign(local, { historyBusy: true, historyNote: '' });
+    redraw();
+    ask('tools.history.on', on).then(answer => { local.historyNote = answer?.ok === false ? `Not saved: ${answer.message ?? '?'}` : ''; },
+      error => { local.historyNote = `Not saved: ${error?.message ?? error}`; }).finally(() => { local.historyBusy = false; redraw(); });
   }
 
   // NPC State data: a dialog or download is started by the port; only a failure leaves a line.
@@ -107,6 +116,7 @@ export function createToolsPage(settings, ctx, developer) {
       ...(sent?.budget ? renderSent(sent, sent.limits ?? [], ctx, open) : []),
       renderProblems(problems, state),
       points,
+      renderHistory(ctx.view?.('history') ?? null, { busy: local.historyBusy, note: local.historyNote, toggle: historyOn }),
       renderPrompts(ctx.view?.('prompts') ?? null, { ...prompt, ...prompts }),
       renderChatData({ ...people, exportPeople }),
       renderGameExport({ note: local.packNote, run: exportPack }),
