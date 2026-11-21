@@ -5,7 +5,14 @@ import { isCarrier, readRecord } from '../persist.js';
 import { hashJson, isMetaSpan, replayInputsOf } from '../replay.js';
 import { hasMeta, payloadHashOf } from './digest.js';
 
-export function createChains(s, { blockParts }) {
+// In a sealed chat (store/sealed-base.js) each chain over the records starts after the last sealed reply from the hash it had there (the base's
+// `anchors`), so a seal leaves every hash in the window as it was. → [start index, starting hash, first] for a chain `kind` up to `upTo`.
+export function createChains(s, { blockParts, usableBase = () => null }) {
+    function anchored(arr, upTo, kind) {
+        const based = usableBase(arr);
+        return based && upTo > based.last ? [based.last + 1, based.base.anchors[kind], false] : [0, '', true];
+    }
+
     // What a record holds, as a hash: its swipe key and each block's id and ops. Records are never changed in
     // place (each write puts a new one), so it is worked out once per record.
     function bodyDigest(record) {
@@ -31,8 +38,8 @@ export function createChains(s, { blockParts }) {
         return hash;
     }
     function chainHashUncached(arr, upTo) {
-        let hash = '';
-        for (let i = 0; i < upTo && i < arr.length; i++) {
+        let [i0, hash] = anchored(arr, upTo, 'chain');
+        for (let i = i0; i < upTo && i < arr.length; i++) {
             if (!isCarrier(arr[i])) continue;
             const record = s.staged?.get(i) ?? readRecord(arr[i]);
             if (!record) continue;
@@ -53,8 +60,8 @@ export function createChains(s, { blockParts }) {
     // the text, and a reconcile that plans a step again stamps them anew): what the records hold, apart from what follows from them. It is only
     // ever compared with itself, before and after a rewrite (the timeline's carry of a native mapping); no stored hash is made of it.
     function bareHash(arr, upTo) {
-        let hash = '';
-        for (let i = 0; i < upTo && i < arr.length; i++) {
+        let [i0, hash] = anchored(arr, upTo, 'bare');
+        for (let i = i0; i < upTo && i < arr.length; i++) {
             if (!isCarrier(arr[i])) continue;
             const record = s.staged?.get(i) ?? readRecord(arr[i]);
             if (!record) continue;
@@ -93,9 +100,8 @@ export function createChains(s, { blockParts }) {
     // The prefix hash in front of carrier `upTo`; `at(i)` gives the record to use for carrier i (a Re-read passes the ones it is
     // about to write).
     function spineBefore(arr, upTo, at = i => readRecord(arr[i])) {
-        let hash = '';
-        let first = true;
-        for (let i = 0; i < upTo && i < arr.length; i++) {
+        let [i0, hash, first] = anchored(arr, upTo, 'spine');
+        for (let i = i0; i < upTo && i < arr.length; i++) {
             if (!isCarrier(arr[i])) continue;
             const record = at(i);
             if (!record) continue;
@@ -119,5 +125,5 @@ export function createChains(s, { blockParts }) {
         return guarded ? hashJson(entries) : undefined;
     }
 
-    return { chainHash, bareHash, spineBefore, spineStep, windowHash };
+    return { chainHash, bareHash, spineBefore, spineStep, windowHash, anchored };
 }

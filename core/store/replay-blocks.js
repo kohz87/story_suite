@@ -9,10 +9,11 @@ import { hashJson, isMetaSpan } from '../replay.js';
 import { revOf, deepFreeze, NO_LONGER_DONE } from './constants.js';
 import { allocator, evidenceDigest, merged, recordEntries } from '../evidence.js';
 import { hasMeta } from './digest.js';
+import { isSealed } from '../persist/sealed.js';
 import { isDeepFrozen } from '../ops/freeze.js';
 
 export function createReplayBlocks(s, deps) {
-    const { ORPHAN, quarantined, receiptsFor, isGuardedBlock, arr0, intactReason, ownedAlready, publish, asOps, blockParts, receiptsOf, lineOf, current, list, guardHolds, occurrenceFor, withSource, replayGuarded, replayLegacy, advanced, chain, checkpointState, problemText, stamp, step, unpackProblems } = deps;
+    const { ORPHAN, quarantined, receiptsFor, isGuardedBlock, arr0, intactReason, ownedAlready, publish, asOps, blockParts, receiptsOf, lineOf, current, list, guardHolds, occurrenceFor, withSource, replayGuarded, replayLegacy, advanced, chain, checkpointState, problemText, stamp, step, unpackProblems, baseProofs } = deps;
 
     // State after the last carrier at or before `upTo`, or null when no checkpoint precedes it. A block
     // of ops that no longer applies (a hand-edited chat, a middle reply deleted) is skipped and reported
@@ -21,13 +22,13 @@ export function createReplayBlocks(s, deps) {
     // `onRecord(index, state)`: told the state after each carrier it replays (the head replay keeps them in the prefix memo).
     function replay(arr, upTo, { whole = false, onRecord = null } = {}) {
         s.counts.replays++;
-        let { from } = chain(arr, upTo);
+        let { from, base } = chain(arr, upTo);
         if (whole) {
             const first = carrierIndexes(arr)[0];
-            if (first !== undefined && first <= upTo && readRecord(arr[first])?.checkpoint) from = first;
+            if (first !== undefined && first <= upTo && readRecord(arr[first])?.checkpoint) [from, base] = [first, null];
         }
-        // A damaged record (B-b2-timeline-7) is skipped, and said so.
-        const problems = from >= 0 ? unpackProblems(arr, from, readRecord(arr[from]).carried) : [];
+        // A damaged record (B-b2-timeline-7) is skipped, and said so. (A sealed chat's base carries the Problems before it, as a checkpoint does.)
+        const problems = from >= 0 ? unpackProblems(arr, from, base ? base.base.carried : readRecord(arr[from]).carried) : [];
         for (let i = Math.max(from, 0); i <= upTo && i < arr.length; i++) {
             const fault = recordFault(arr[i]);
             if (fault) {
@@ -35,7 +36,7 @@ export function createReplayBlocks(s, deps) {
             }
         }
         if (from < 0) return { state: null, problems };
-        let state = checkpointState(readRecord(arr[from]).checkpoint);
+        let state = base ? base.state : checkpointState(readRecord(arr[from]).checkpoint);
         // The proof of the blocks that applied, in the order they applied (replayGuarded adds to it).
         const outer = s.applying;
         const applied = [];
@@ -201,7 +202,7 @@ export function createReplayBlocks(s, deps) {
             for (const at of carrierIndexes(arr)) {
                 if (at >= index) break;
                 const entry = s.staged?.get(at) ?? readRecord(arr[at]);
-                if (entry?.checkpoint) started = true;
+                if (entry?.checkpoint || isSealed(entry)) started = true;
                 if (started) for (const item of entry?.receipts ?? []) receiptsBefore.push({ index: at, receipt: item });
             }
             for (const part of earlier) for (const item of part.receipts ?? []) receiptsBefore.push({ index, receipt: item });
@@ -323,12 +324,14 @@ export function createReplayBlocks(s, deps) {
             const record = readRecord(arr[i]);
             if (record && hasMeta(record)) for (const entry of recordEntries(record, blockParts(record))) if (!on || on.has(`${record.sid}\u0000${entry.block}`)) out.push(Object.freeze({ ...entry, index: i }));
         }
-        // A checkpoint that does not say (one written before it did) is worked out by replaying what is before it.
+        // A checkpoint that does not say (one written before it did) is worked out by replaying what is before it. (The proof a sealed chat's
+        // base carries comes first, whatever a checkpoint after it says: that history is final.)
         let listed = out;
         if (!on && out.length && from > 0) {
             const prior = replay(arr, from - 1);
             if (prior.state) listed = [...proofsBefore(arr, prior.from), ...(prior.applied ?? [])];
         }
+        listed = [...baseProofs(arr, from), ...listed];      // (a recursion's own copies of them go with the de-duplication below)
         const seen = new Set();
         const once = listed.filter(entry => !seen.has(entry.proof.id) && seen.add(entry.proof.id));
         (memo.proofsBefore ??= new Map()).set(from, once);
@@ -338,6 +341,7 @@ export function createReplayBlocks(s, deps) {
     // Did any record before carrier `upTo` hold proof (a block with evidence)? A checkpoint carries `owned` only when one did, so a store
     // that never gave proof is written exactly as it was.
     function proofBefore(arr, upTo, at = i => readRecord(arr[i])) {
+        if (baseProofs(arr, upTo).length) return true;
         for (let i = 0; i < upTo && i < arr.length; i++) {
             const record = isCarrier(arr[i]) ? at(i) : null;
             if (record && Array.isArray(record.spans) && record.spans.some(span => Array.isArray(span?.evidence) && span.evidence.length)) return true;
@@ -369,6 +373,7 @@ export function createReplayBlocks(s, deps) {
         if (!memo[slot]) {
             let out = [];
             if (all) {
+                out = [...baseProofs(arr, arr.length)];
                 for (const i of carrierIndexes(arr)) {
                     const record = readRecord(arr[i]);
                     if (record && hasMeta(record)) for (const entry of recordEntries(record, blockParts(record))) out.push(Object.freeze({ ...entry, index: i }));

@@ -22,6 +22,7 @@ import { STATIC_KEY, TAIL_KEY, V1_KEYS, INTERCEPTOR_NAME } from './keys.js';
 import { FOREGROUND, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, normalizeType } from './prompt-limits.js';
 import { HOOK_TIMEOUT_MS, hookTimeout } from './hook-time.js';
 import { REPLY_BUSY_MAX_MS, ASSIST_WAIT_MS, PREPARE_WAIT_MS } from './waits.js';
+import { createSealIdle } from '../turn/seal-idle.js';
 
 // A story line that practises a skill (`practice-N`, data-modules/part.js): the lines a reply is marked for (see captureEach).
 const PRACTICE_LINE = new RegExp(`\\|\\s*kind\\s*:\\s*practice-${SLOT_NUMBER}\\b`, 'iu');
@@ -157,8 +158,10 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     const { runCues, build, askCanGenerate, runOnBlocked, interceptor, markers, stripHistory, backgroundPrompt, foreignPrompt } = createPromptBuild(s, { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet: () => claimQuiet(), FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, PREPARE_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType });
     const { onGenerationStarted, claimQuiet, onPromptReady, onTextPromptReady } = createPromptHooks(s, { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, holdsIn, normalizeType, hostSettings });
 
+    // Old story history is sealed at a quiet moment after a reply (turn/seal-idle.js, host setting sealHistory).
+    const sealIdle = createSealIdle(s, { store, problem, hostSettings });
     // The SillyTavern event handlers (turn/events.js): wired here, after every part they are given. `getApi` is read only when install runs, after the api below exists.
-    const { install, uninstall, onMessageReceived, onChatChanged, seed, onChatRenamed, onTimelineChanged, onGenerationEnded } = createEvents(s, { ia, markIdle, clearPrompts, ctx, metadata, isCarrier, store, ensureInitial, problem, notify, stopChangedInputs, interactionError, reconcileScratch, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, PREPARE_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi: () => api, isolated });
+    const { install, uninstall, onMessageReceived, onChatChanged, seed, onChatRenamed, onTimelineChanged, onGenerationEnded } = createEvents(s, { ia, markIdle, clearPrompts, ctx, metadata, isCarrier, store, ensureInitial, problem, notify, stopChangedInputs, interactionError, reconcileScratch, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, PREPARE_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi: () => api, isolated, sealIdle });
 
     const api = {
         repairActions,

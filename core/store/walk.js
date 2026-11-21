@@ -16,9 +16,10 @@ import {
     KEY, carrierIndexes, dropCopy, isCarrier, keepsCopy, lastCarrier, readRecord, restamp, restoreCopy, trimReceipts,
 } from '../persist.js';
 import { rebaseOps } from '../ops.js';
+import { isSealed } from '../persist/sealed.js';
 
 export function createWalk(s, deps) {
-    const { apply, receiptKeep, scratch, seed, validate, list, current, headProblems, blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash, replay, replayBlocks, appliedOf, proofBefore, packOwners, listProofs } = deps;
+    const { apply, receiptKeep, scratch, seed, validate, list, current, headProblems, blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash, replay, replayBlocks, appliedOf, proofBefore, packOwners, listProofs, usableBase } = deps;
 
     function stamp(arr, index, record, block, ops, receipt, earlier, offset) {
         const entry = record.source;
@@ -105,9 +106,10 @@ export function createWalk(s, deps) {
             let running = revOf(state);      // the rev the replies before ended on (a Re-read's new lines, a step planned again): the revs after are numbered on from it
             let history = false;     // guarded blocks before here: a checkpoint written here depends on their owners
             for (let i = 0; i < first && !history; i++) history = hasMeta(overlay.get(i) ?? readRecord(arr[i]));
+            history ||= usableBase(arr)?.base.guarded === true;
             for (let i = first; i < arr.length; i++) {
                 const later = readRecord(arr[i]);
-                if (!later) continue;
+                if (!later || isSealed(later)) continue;     // (a sealed reply's changes are in the base: never walked again)
                 const guardedBefore = history;
                 history ||= hasMeta(later);
                 const checkpoint = later.checkpoint ? structuredClone(state) : undefined;
@@ -169,6 +171,7 @@ export function createWalk(s, deps) {
             for (let i = at - 1; i >= 0; i--) {
                 const record = isCarrier(arr[i]) ? overlay.get(i) ?? readRecord(arr[i]) : null;
                 if (!record) continue;
+                if (isSealed(record)) break;      // (the window starts at the base)
                 members.unshift(i);
                 if (record.checkpoint) break;
             }
@@ -274,20 +277,29 @@ export function createWalk(s, deps) {
     // (`guardEnv`) and, when it has them, `covers` and `coverHash` (the records it covers and, for guarded blocks, their swipe
     // keys, contents and text). When no checkpoint holds there is no state to start from (the chat starts again from the
     // state ensureInitial gives it) rather than the latest one being taken unchecked.
-    // → { from: index | -1, since: the record IDs from `from` through `upTo`, members: their indexes }.
+    // In a sealed chat (store/sealed-base.js) the sealed replies are passed over: the chain starts at the base, in front of the first reply after
+    // them, with the prefix hash the chain had there (its anchor), and a checkpoint after it is trusted by the same rules.
+    // → { from: index | -1, since: the record IDs from `from` through `upTo`, members: their indexes, base: the base `from` is, or null }.
     function chain(arr, upTo) {
+        const based = usableBase(arr);
         let from = -1;
         let since = [];
         let members = [];
+        let fromBase = null;
         let guarded = false;     // a record in the window holds guarded blocks
-        let history = false;     // a record before this point (anywhere) holds guarded blocks: a checkpoint here depends on its owners
-        let running = '';        // the prefix hash in front of this record (spineStep)
-        let seen = 0;            // records before this one
+        let history = based?.base.guarded === true;     // a record before this point (anywhere) holds guarded blocks: a checkpoint here depends on its owners
+        let running = based ? based.base.anchors.spine : '';        // the prefix hash in front of this record (spineStep)
+        let seen = based ? 1 : 0;            // records before this one
+        if (history) seeGuards();
         const last = Math.min(upTo, arr.length - 1);
         for (let i = 0; i <= last; i++) {
             if (!isCarrier(arr[i])) continue;
             const record = readRecord(arr[i]);
-            if (!record) continue;
+            if (!record || isSealed(record)) continue;
+            if (based && from < 0) {
+                from = i;
+                fromBase = based;
+            }
             if (record.checkpoint) {
                 const covers = Array.isArray(record.covers) ? record.covers : null;
                 // Over guarded blocks a checkpoint holds only under the owners it was made with (guardEnv): its state
@@ -301,6 +313,7 @@ export function createWalk(s, deps) {
                     && (record.coverHash === undefined ? !guarded : record.coverHash === windowHash(arr, members))));
                 if (holds) {
                     from = i;
+                    fromBase = null;
                     since = [];
                     members = [];
                     guarded = false;
@@ -318,7 +331,7 @@ export function createWalk(s, deps) {
                 }
             }
         }
-        return { from, since, members, history };
+        return { from, since, members, history, base: fromBase };
     }
 
     // The Problems of blocks before a checkpoint ride with it (`carried`), so a replay that starts from the checkpoint still

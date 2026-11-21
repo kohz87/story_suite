@@ -5,9 +5,12 @@ import { carrierIndexes, lastCarrier, readRecord } from '../../persist.js';
 import { deepFreeze, revOf } from '../constants.js';
 import { isMetaSpan } from '../../replay.js';
 import { ruleMarksOf } from '../../turn/rule-marks.js';
+import { isSealed } from '../../persist/sealed.js';
+import { HISTORY_STRINGS } from '../../strings/history.js';
+import { fill } from '../../strings-parts/text.js';
 
 export function createRecords(s, deps) {
-    const { baseFor, carrierAt, current, frozenReceipts, lineOf, list, marked, ORPHAN, quarantined, replayRecord, retain, saver, spansFor, stateBefore, take, writable, write } = deps;
+    const { baseFor, carrierAt, current, frozenReceipts, lineOf, list, marked, ORPHAN, quarantined, replayRecord, retain, saver, sealing, spansFor, stateBefore, take, usableBase, writable, write } = deps;
 
     // One mark on a reply's record (kept with the reply: a Re-read, an edit, a rebuild and a reload keep it).
     function markRecord(index, field, make) {
@@ -73,7 +76,7 @@ export function createRecords(s, deps) {
             let started = false;
             for (const i of carrierIndexes(arr)) {
                 const record = readRecord(arr[i]);
-                if (record?.checkpoint) started = true;
+                if (record?.checkpoint || isSealed(record)) started = true;     // (a sealed chat's line starts at its first sealed reply)
                 if (!started || !record) continue;
                 for (const receipt of frozenReceipts(record)) out.push(Object.freeze({ index: i, receipt }));
             }
@@ -94,6 +97,7 @@ export function createRecords(s, deps) {
             if (!Number.isInteger(beforeRev) || beforeRev < 1) throw new TypeError('beforeRev must be a whole number of 1 or more.');
             const message = carrierAt(arr, index);
             const record = readRecord(message);
+            if (isSealed(record)) throw new Error(fill(HISTORY_STRINGS.rewindTooFar, { window: usableBase(arr)?.base.window ?? sealing.window }));
             if (!record) return { dropped: [], rev: revOf(arr === list() ? current().state : stateBefore(arr, index + 1)) };
             if (quarantined(record)) throw new Error(`This reply's story record cannot be cut down: ${ORPHAN}.`);
             const chunks = [];
@@ -159,7 +163,7 @@ export function createRecords(s, deps) {
             const records = [];
             for (const i of carrierIndexes(arr)) {
                 const record = readRecord(arr[i]);
-                if (record?.checkpoint || (records.length && record)) records.push(record);
+                if (record?.checkpoint || isSealed(record) || (records.length && record)) records.push(record);
             }
             const told = new Set();
             const out = [];

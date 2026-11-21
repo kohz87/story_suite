@@ -73,6 +73,9 @@ export async function createHost(options = {}) {
         // Keeping the last two replies' change blocks in the prompt is ON by default (host setting keepRecentBlocks); the tests that pin prompts or repeat lines across replies
         // are written for the history without them, so the test host starts with it off too, unless a test sets it or asks for `realDefaults`.
         (extensionSettings.storySuite.core ??= {}).keepRecentBlocks ??= false;
+        // Sealing old history (core/turn/seal-idle.js) is ON by default; the long-chat tests rebuild every carrier from scratch, so the test host starts with it off
+        // unless a test sets it or asks for `realDefaults`.
+        extensionSettings.storySuite.core.sealHistory ??= false;
     }
     const st = createFakeContext({ ...stOptions, extensionSettings });
     // What the reader was told when a generation was held back (a toastr warning live).

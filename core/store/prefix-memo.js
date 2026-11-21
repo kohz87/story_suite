@@ -16,7 +16,7 @@ const textOf = (read, fallback = '?') => {
 };
 
 export function createPrefixMemo(s, deps) {
-    const { chain, chatId, markNow, marked, replay, replayEnv, replayRecord, spineStep } = deps;
+    const { anchored = () => [0, '', true], chain, chatId, markNow, marked, replay, replayEnv, replayRecord, spineStep } = deps;
     const cache = s.prefixes instanceof Map ? s.prefixes : (s.prefixes = new Map());
     const checkpoints = new WeakMap();
     // The earliest replan point (s.replanFrom's kind) the replay of each kept state found. A hit or a step skips that replay, so it lowers
@@ -45,10 +45,10 @@ export function createPrefixMemo(s, deps) {
     // Both links are cached per immutable record, so an unchanged pass costs one lookup per carrier/checkpoint.
     function spineRun(arr) {
         const out = new Array(arr.length);
-        let hash = '';
-        let checkpointHash = '';
-        let first = true;
-        for (let i = 0; i < arr.length; i++) {
+        // (a sealed chat's run starts after its sealed replies, from the base's anchor; they get no entry: no state is kept for them)
+        let [i0, hash, first] = anchored(arr, arr.length, 'spine');
+        let checkpointHash = i0 ? hash : '';
+        for (let i = i0; i < arr.length; i++) {
             if (!isCarrier(arr[i])) continue;
             const record = readRecord(arr[i]);
             if (!record) continue;

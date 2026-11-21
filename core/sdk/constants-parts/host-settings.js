@@ -2,7 +2,7 @@
 
 import { MAX_CHANGE_LINES } from './limits.js';
 
-export const HOST_SETTINGS_DEFAULTS = Object.freeze({ tailBudget: 1500, contextShare: 40, maxChangeLines: MAX_CHANGE_LINES, callQueue: true, keepRecentBlocks: true, panelStyle: 'glass', glassStrength: 50, font: 'nunito', textSize: '100', sendPending: true, quickConnection: '', backgroundConnection: '' });
+export const HOST_SETTINGS_DEFAULTS = Object.freeze({ tailBudget: 1500, contextShare: 40, maxChangeLines: MAX_CHANGE_LINES, callQueue: true, keepRecentBlocks: true, panelStyle: 'glass', glassStrength: 50, font: 'nunito', textSize: '100', sendPending: true, quickConnection: '', backgroundConnection: '', sealHistory: true });
 export const HOST_SETTINGS_SCHEMA = Object.freeze({
     tailBudget: Object.freeze({
         type: 'int', min: 100, max: 20000, label: 'Notes per reply (tokens)',
@@ -24,6 +24,11 @@ export const HOST_SETTINGS_SCHEMA = Object.freeze({
     keepRecentBlocks: Object.freeze({
         type: 'bool', label: 'Keep the last two replies\' change blocks in the prompt',
         help: 'The two newest replies reach the model with the change block the narrator wrote for them, so it sees its own recent blocks. Older replies lose theirs as before. On by default. Adds about 0.7-3k characters to each prompt (measured live); no extra call. A `+` line it copies from those blocks is not applied again unless the story shows it happening again.',
+    }),
+    // core/turn/seal-idle.js: older replies are sealed at a quiet moment after a reply (docs/dev/saves-and-persist.md "Sealed history").
+    sealHistory: Object.freeze({
+        type: 'bool', label: 'Tidy old story history',
+        help: 'Once a chat passes 75 replies, the story changes of replies older than the last 50 are folded into one saved starting point at a quiet moment, at most once every 25 replies. Their text and summaries stay; deleting or editing one no longer changes the story. Long chats get about half as big and deep deletes stay fast. Off: every reply is kept step by step.',
     }),
     // The Models page's two roles (core/model-call/connection-for.js): '' is the chat's connection. Story is always the chat's.
     quickConnection: Object.freeze({
