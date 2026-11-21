@@ -25,6 +25,7 @@ import { buildGeo } from '../daily/geo.js';
 import { readWorld } from '../chronicle/world-daily/read-world.js';
 import { WORLD_BY } from '../chronicle/world-daily/news-entries.js';
 import { slotValue } from '../../rpg/slot.js';
+import { liveTable } from '../chronicle/conditions/live-holds.js';
 
 const sceneName = (state, tools) => text(tryQuery(queryOf(tools), 'scene.place', {}, null)?.name) || text(state?.domains?.scene?.place?.name);
 
@@ -36,7 +37,7 @@ function envOf(state, tools, now) {
     const chronicle = state?.domains?.chronicle ?? {};
     const declared = tryQuery(query, 'chronicle.conditionNames', {}, []);
     const masks = slotValue(chronicle.daily)?.masks ?? {};
-    const table = chronicle.conditions ?? {};
+    const table = liveTable(chronicle.conditions ?? {}, slotValue(chronicle.daily));
     const factorOf = routeFactors({ table, declared, geo, masks, now });
     return { tools, geo, routes: world.routes, routeKinds: world.routeKinds, pace: courierSpeed(tools), factorOf, minor: minorIds(world), cache: new Map(), table, declared, masks, byTime: new Map() };
 }

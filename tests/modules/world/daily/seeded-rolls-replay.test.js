@@ -76,10 +76,10 @@ test('a minor template and a recurring possible event (fractional chances): swip
         assert.equal(same(host), recorded, 'played again after the rewind: the same seeded world');
         await check(host, 'played on after the rewind');
         // Edited Re-reads of an early crossing (grown, shrunk) and a middle delete of the reply whose step ended the levy: the later
-        // replies' recorded step state (every roll) stays, nothing is rolled again, replay == live. Known gap (pinned, as in
-        // daily-host-replay): the conditions table is written as patches, so a condition the edited or deleted step faded or released
-        // can come back: one past its end is settled before the next reply, but one held by an ended event still reads as active in the
-        // queries until the next stepped day releases the orphan hold; and one only that step set is gone.
+        // replies' recorded step state (every roll) stays, nothing is rolled again, replay == live. The conditions table is written as
+        // patches, so a condition the edited or deleted step faded or released can come back on the raw table: one past its end is settled
+        // before the next reply, one held by an ended event is not counted by the readers (live-holds.js) and is tidied by the next stepped
+        // day; and one only that step set is gone (pinned, as in daily-host-replay).
         const early = host.ctx.chat.findIndex(message => message.mes.startsWith('Day 1.') && !message.is_user);
         await host.st.editMessage(early, reply('Day 1.', ['! time +3d']));
         assert.equal((await host.sdk.reread(early)).ok, true);
@@ -165,9 +165,10 @@ test('the `! world` form with conditions counts as the reply\'s one world line: 
     } finally { host.done(); }
 });
 
-// Finding 1 of the WORLDEV report, observed: a middle delete of the reply whose step ended the levy (plain SPEC, tempo 1: only the levy touches
-// unrest@Highmark) brings back the levy's held condition, which the queries read as active until the next stepped day releases the orphan hold.
-test('known gap (pinned): after a middle delete of the reply that ended an event, its held condition reads as active until the next stepped day', async () => {
+// Finding 1 of the WORLDEV report, fixed (WORLDEV2): a middle delete of the reply whose step ended the levy (plain SPEC, tempo 1: only the levy
+// touches unrest@Highmark) brings back the levy's held condition on the raw table, but the readers count a hold only while the step says its event
+// is Active (conditions/live-holds.js), so the condition stays gone in the queries; the next stepped day tidies the raw entry.
+test('after a middle delete of the reply that ended an event, its held condition stays gone in the queries; the next stepped day tidies the table', async () => {
     const host = await newHost(true, SPEC);
     const unrest = () => (host.sdk.query('chronicle.conditions', { ref: 'Highmark' }) ?? []).some(row => row.name === 'unrest');
     try {
@@ -182,11 +183,13 @@ test('known gap (pinned): after a middle delete of the reply that ended an event
         await host.st.deleteMessage(ender.index);
         assert.deepEqual(chronicle(host).conditions['unrest@Highmark']?.holds, ['levy'], 'the raw entry is back, held by the levy');
         assert.equal(dailyOf(host).events.levy.state, 'ended', 'while the recorded step state says the levy ended');
-        assert.equal(unrest(), true, 'the gap: the query reads it as active');
+        assert.equal(unrest(), false, 'the queries count no hold of an ended event');
+        assert.equal((host.sdk.query('chronicle.conditions', { at: 'Highmark' }) ?? []).some(row => row.name === 'unrest'), false, 'nor does the scope walk');
         await check(host, 'middle delete');
         const behind = recordedDay - Math.floor(host.head().domains.director.time.minutes / 1440);
         await host.send('After.', reply('After.', [`! time +${behind + 1}d`]));
-        assert.equal(unrest(), false, 'the next stepped day releases the orphan hold');
+        assert.equal(unrest(), false, 'still gone after the next stepped day');
+        assert.equal(chronicle(host).conditions['unrest@Highmark'], undefined, 'and the raw entry is tidied');
         await check(host, 'after the next stepped day');
     } finally { host.done(); }
 });

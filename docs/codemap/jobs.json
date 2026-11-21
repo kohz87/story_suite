@@ -743,5 +743,7 @@
   "modules/world/chronicle/world-judge/look-ahead.js": "A dry run of tomorrow's daily step from a hook's view: the likely or possible events the roll will fire, or every one eligible, for the Director judge.",
   "modules/arc/judge/roll-prompt.js": "The Director judge's prompt and strict reader for tomorrow's daily roll: accept, refuse with a reason, and in the daily pass likelier or less likely.",
   "modules/arc/judge/roll-ask.js": "Asks the Director judge once a story day about tomorrow's roll in the background and turns its answer into stored marks (veto with a reason, or a weight) per event and day.",
-  "tests/modules/world/judge/roll-judge.test.js": "The Director judge on tomorrow's daily roll on the real host: a refusal holds an event back a day, the daily pass weights the odds, settings off ask nothing, replay rolls the same."
+  "tests/modules/world/judge/roll-judge.test.js": "The Director judge on tomorrow's daily roll on the real host: a refusal holds an event back a day, the daily pass weights the odds, settings off ask nothing, replay rolls the same.",
+  "modules/world/chronicle/conditions/live-holds.js": "The conditions table as the readers see it: an event hold counts only while the daily step says that event is Active, so a middle delete cannot bring back an ended event's condition.",
+  "tests/modules/world/chronicle/live-holds.test.js": "The readers' conditions table: dead event holds dropped, a timer or open setter kept, a live hold kept, the same table back when nothing changes."
 }
