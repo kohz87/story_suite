@@ -57,8 +57,8 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
         const sheet = readSheet(state);
         // A fight against the foes a fled or lost fight left starts from the foes' HP that fight's receipt holds (resume-v1.js), if the Foes block still reads what the board left.
         const resumed = resumeFoesV1(store?.receipts?.() ?? [], sheet.foes.filter(foe => foe.v1 === true && foe.filled));
-        // (a pre-check opening's horde words go to the kind, which builds the reserve: board/v1-kind.js openV1)
-        const horde = opening?.args?.opening?.horde;
+        // (a pre-check opening's horde words, as its recorded setup holds them (board/opening.js), go to the kind, which builds the reserve: board/v1-kind.js openV1)
+        const horde = opening?.payload?.setup?.horde;
         const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), practice: practice(), rate: rate(), ...(resumed ? { resumed } : {}), ...(horde ? { horde: structuredClone(horde) } : {}) });
         if (!result?.ok) return false;
         reset();
