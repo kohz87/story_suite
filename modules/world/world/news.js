@@ -11,6 +11,7 @@
 //   A pack's legacy event (`event:pack.…`) travels the same way, with no reach.
 // * A happening the story reported in a world line (not locked by an event) is heard at once: fact at its own place, rumour elsewhere until the courier time
 //   (spec §4: "fact follows at courier time"). The World pulse's rumours are rumours. An entry with no place or start time is heard at once.
+//   One still waiting for the Director's verdict (`judge: 'pending'`) is rumour everywhere; one the Director refused is not heard.
 
 import { nowFrom } from './known-parts/clock.js';
 import { queryOf, tryQuery } from './known-parts/query.js';
@@ -62,6 +63,9 @@ function arrival(env, event, place, clock) {
     // Beyond its reach (ruling 53) news is rumour only, and names no exact place, just the region.
     const far = heard === 'rumour';
     const shown = { place: far && origin ? origin.regionName || origin.region || text(event.place) : shownPlace(origin, env.tools, text(event.place)) };
+    // A narrator's new entry the Director has not judged yet is rumour everywhere at once; one it refused is heard nowhere (world-judge/judged.js).
+    if (event.judge === 'refused') return null;
+    if (event.judge === 'pending') return { ...shown, arrivesAt: isInt(event.since) ? event.since : null, via: 'tier', tag: 'rumour', news: 'fired' };
     if (typeof event.rumour === 'string' || !isInt(event.since)) return { ...shown, arrivesAt: isInt(event.since) ? event.since : null, via: 'tier', tag: typeof event.rumour === 'string' || far ? 'rumour' : 'fact', news: 'fired' };
     const delay = newsDelay(envAt(env, event.since), text(event.place), place);
     if (!delay) return { ...shown, arrivesAt: event.since, via: 'tier', tag: 'fact', news: 'fired' };

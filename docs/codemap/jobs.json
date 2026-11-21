@@ -726,5 +726,14 @@
   "ui/wizard/summary.js": "Draws the wizard's summary of the character so far: the phone's row and, from 1100 px, the left card's portrait, stat tiles and skill list.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
   "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary, Back / Next and Create's footer, and the step's scroll across redraws.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You."
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You.",
+  "modules/arc/judge/world-ask.js": "Asks the Director judge about the story's new world entries in the background (one batched Quick call, a timeout asked once more, a failure recorded) and keeps the verdicts per chat until they are stored.",
+  "modules/arc/judge/world-hooks.js": "The hooks that start the Director judge on waiting world entries after a reply and hand its ready verdicts to the chronicle's store command before the next.",
+  "modules/arc/judge/world-prompt.js": "The Director judge's prompt for world events the story wrote: the system text, one item line per entry and the prompt with the world text.",
+  "modules/world/chronicle/capture/world-parts/judge-mark.js": "Marks a story's new world entry as waiting for the Director's verdict (chronicle setting judge, world-events switch): its words' key and the conditions its line set, at most two a reply.",
+  "modules/world/chronicle/domain-parts/judge-field.js": "Checks a chronicle entry's judge field: the Director's verdict state on a story's new world entry, its key, the conditions its line set and a refusal's reason.",
+  "modules/world/chronicle/world-judge/calls.js": "The Director judge's part of the world's ledger: the count of its calls by game year and its stored verdicts on the daily roll, written whole into the ledger slot.",
+  "modules/world/chronicle/world-judge/judged.js": "The command that stores the Director's verdicts on the story's new world entries before a reply: accept, reshape (read again by code) or refuse (the entry ends, its line's conditions lifted).",
+  "tests/modules/world/judge/judge-host.helpers.js": "Host helpers for the world-line judge tests: a small world pack, a fake model call that answers the world judge and counts its calls, and the replay check.",
+  "tests/modules/world/judge/judge-host.test.js": "The Director judge on the story's new world lines on the real host: rumour first, one call, accept, reshape, refuse, failures, busy, switch and setting off, Re-read and middle delete."
 }
