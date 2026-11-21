@@ -5,5 +5,5 @@
 export { namedInMessage } from './precheck-parts/shared-words.js';
 export { looksLikeAttack } from './precheck-parts/attack-words.js';
 export { PRECHECK_LIMITS, PREVIOUS_CHARS, precheckPrompt } from './precheck-parts/prompt.js';
-export { parsePrecheck } from './precheck-parts/parse.js';
+export { parseHorde, parsePrecheck } from './precheck-parts/parse.js';
 export { vetGroups } from './precheck-parts/vet.js';

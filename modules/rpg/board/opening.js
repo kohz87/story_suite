@@ -4,15 +4,17 @@ import { practiceOf } from '../names.js';
 import { cueOfResult } from '../cue.js';
 import { readSheet } from '../read.js';
 import { normalizeRules } from '../rules.js';
+import { wordsOf } from './horde-build.js';
 
 // The slots of stale groups a pre-check put down: a non-empty list of foe slots (1–6), else undefined.
 const staleOf = value => (Array.isArray(value) && value.length > 0 && value.length <= 6 && value.every(slot => Number.isInteger(slot) && slot >= 1 && slot <= 6) ? [...new Set(value)].sort((a, b) => a - b) : undefined);
 const sheetOf = domain => readSheet({ domains: { dataModules: domain } });
 
-/** The setup of an opening from what the pre-check recorded (`{ groups, key, rules, anchor, practice, stale }`); an error string when it cannot open. */
-export function openingSetup({ groups, key, rules, anchor, practice, stale }) {
+/** The setup of an opening from what the pre-check recorded (`{ groups, key, rules, anchor, practice, stale, horde }`; `horde`: the checked horde words, kept as recorded); an error string when it cannot open. */
+export function openingSetup({ groups, key, rules, anchor, practice, stale, horde }) {
     if (!Array.isArray(groups) || !groups.length || typeof key !== 'string' || !key) return { error: 'There are no foes to open.' };
-    return { setup: { id: `${anchor}:opening`, opening: true, key, open: structuredClone(groups), rules: normalizeRules(rules), practice: practiceOf(practice), start: anchor, ...(staleOf(stale) ? { stale: staleOf(stale) } : {}) } };
+    const words = wordsOf(horde);
+    return { setup: { id: `${anchor}:opening`, opening: true, key, open: structuredClone(groups), rules: normalizeRules(rules), practice: practiceOf(practice), start: anchor, ...(staleOf(stale) ? { stale: staleOf(stale) } : {}), ...(words ? { horde: words } : {}) } };
 }
 
 /** What the opening settle reads, as the pre-check's roll did: the party's sheet and the Foes block (a plain value the guard hashes). */

@@ -91,14 +91,14 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
         checked.set(messages.at(-1), key);
         const working = holdStart(meta, messages, { kindId: FIGHT_KIND, title: 'Fight', mode: 'working' });
         try { onPlanning(true); } catch { /* the screen redraws on the next event */ }
-        let groups = [];
-        try { groups = await runPrecheck({ callModel, message: text, previous: previousReply(messages), sheet, values, limit: timeoutMs, timer, query: (name, args) => view.query?.(name, args) }); } finally {
+        let groups = [], horde = null;
+        try { ({ groups, horde } = await runPrecheck({ callModel, message: text, previous: previousReply(messages), sheet, values, limit: timeoutMs, timer, query: (name, args) => view.query?.(name, args), withHorde: true })); } finally {
             if (working) clearStart(meta, working);
             try { onPlanning(false); } catch { /* the screen redraws on the next event */ }
         }
         if (!groups.length) return null;
         const practice = practiceOf(values[PRACTICE_SETTING]) ?? PRACTICE.perUse;
-        return { interactionStart: { kindId: FIGHT_KIND, title: 'Fight', anchor: startAnchor, message: hashText(text), choices: CHOICES, opening: { args: { opening: { groups, key, rules, practice, stale } } } } };
+        return { interactionStart: { kindId: FIGHT_KIND, title: 'Fight', anchor: startAnchor, message: hashText(text), choices: CHOICES, opening: { args: { opening: { groups, key, rules, practice, stale, ...(horde ? { horde } : {}) } } } } };
     }
 
     // A known standing foe and a typed attack hold the send for the reader's choice (the pause); a waiting choice or a carried fight is the core's hold, not this one.

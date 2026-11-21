@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { precheckPrompt, vetGroups } from '../../../../modules/rpg/board/precheck.js';
 import { sizeGroups } from '../../../../modules/rpg/board/precheck-parts/v1-sizing.js';
+import { HORDE_LINE } from '../../../../modules/rpg/board/precheck-parts/prompt.js';
 
 const sheet = { characters: [{ who: 'Astra', level: 5, v1: true }], foes: [] };
 const message = 'I attack the guards, the hounds and the captain', previous = '';
@@ -35,16 +36,18 @@ const TIER_LINE = '- tier is required, one of: mob, minion, standard, elite, bos
 const SIZE_LINE = '- Give every foe the reader names, at the count the message gives: code keeps the fight even (foes past 4 standard or 3 elite come in a tier lower).';
 const LEVEL_LINE_START = '- level is required (a whole number)';
 
-test('the v1 pre-check prompt carries the approved tier and size lines right after the level rule, and the tiered reply shape; the old prompt has neither', () => {
+test('the v1 pre-check prompt carries the approved tier and size lines right after the level rule, then the horde line, and the tiered reply shape; the old prompt has none', () => {
     const lines = precheckPrompt({ message, previous, sheet, v1: true }).split('\n');
     const at = lines.findIndex(line => line.startsWith(LEVEL_LINE_START));
     assert.equal(lines[at + 1], TIER_LINE);
     assert.equal(lines[at + 2], SIZE_LINE);
+    assert.equal(lines[at + 3], HORDE_LINE);
     assert.equal(lines.at(-1), '{"groups":[{"name":"...","count":1,"level":2,"tier":"standard"}]}');
     const old = precheckPrompt({ message, previous, sheet });
     assert.equal(/tier/.test(old), false);
     assert.equal(old.split('\n').at(-1), '{"groups":[{"name":"...","count":1,"level":2}]}');
-    assert.deepEqual(lines.filter(line => line !== TIER_LINE && line !== SIZE_LINE && !line.startsWith('{"groups":[{"name":"...","count":1,"level":2,')), old.split('\n').filter(line => !line.startsWith('{"groups":[{"name":"...","count":1,"level":2}')));
+    assert.equal(/horde/.test(old), false);
+    assert.deepEqual(lines.filter(line => line !== TIER_LINE && line !== SIZE_LINE && line !== HORDE_LINE && !line.startsWith('{"groups":[{"name":"...","count":1,"level":2,')), old.split('\n').filter(line => !line.startsWith('{"groups":[{"name":"...","count":1,"level":2}')));
 });
 
 test('runPrecheck on a v1 sheet asks the v1 prompt and returns sized, tiered groups; on an old sheet the old prompt and untiered groups', async () => {

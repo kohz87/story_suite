@@ -1,4 +1,4 @@
-// Reads the enemy groups out of the Assist answer (JSON alone, in prose, or in a code fence).
+// Reads the enemy groups (and a horde's words) out of the Assist answer (JSON alone, in prose, or in a code fence).
 import { isObject } from './shared-words.js';
 
 function balanced(text, start) {
@@ -22,11 +22,10 @@ function balanced(text, start) {
     return null;
 }
 
-/** The groups in an answer, from JSON alone or JSON inside prose or a code fence; null when no groups can be read. */
-export function parsePrecheck(text) {
-    // (an answer already parsed: the groups object or the list itself)
+// The answer's JSON: the first list, or object with a `groups` list, in the text (or the value itself when already parsed); null when there is none.
+function answerOf(text) {
     if (Array.isArray(text)) return text;
-    if (isObject(text)) return Array.isArray(text.groups) ? text.groups : null;
+    if (isObject(text)) return Array.isArray(text.groups) ? text : null;
     const source = String(text ?? '');
     for (let at = 0; at < source.length; at += 1) {
         if (!'[{'.includes(source[at])) continue;
@@ -34,8 +33,19 @@ export function parsePrecheck(text) {
         if (!json) continue;
         let value;
         try { value = JSON.parse(json); } catch { continue; }
-        if (Array.isArray(value)) return value;
-        if (isObject(value) && Array.isArray(value.groups)) return value.groups;
+        if (Array.isArray(value) || (isObject(value) && Array.isArray(value.groups))) return value;
     }
     return null;
+}
+
+/** The groups in an answer, from JSON alone or JSON inside prose or a code fence; null when no groups can be read. */
+export function parsePrecheck(text) {
+    const value = answerOf(text);
+    return Array.isArray(value) ? value : value?.groups ?? null;
+}
+
+/** The answer's `horde` words (an object beside `groups`, as the prompt asks), unchecked; null when it gives none. */
+export function parseHorde(text) {
+    const value = answerOf(text);
+    return isObject(value) && isObject(value.horde) ? value.horde : null;
 }
