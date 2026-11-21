@@ -65,7 +65,7 @@ and `seal-check.js` (the seal and its check), `core/turn/seal-idle.js` (when), `
   checkpoint). Same digest: used (a branch made inside the window takes the branch's integrity at the next rebuild). Other digest, same integrity: the
   same file lost a sealed reply; its changes stay, the reader is told once (`store.settleHistory()` → `'deleted'`). Other digest and integrity: a branch
   cut before the edge; read-only (`readOnly().kind === 'sealed'`), nothing is written. Sealed replies with no base: read-only.
-- **The seal** (`store.seal()`, at most once per step, at a quiet moment after a reply: no generation, hold, pending save or read-only chat; host
+- **The seal** (`store.seal()`, at most once per step, at a quiet moment after a reply or after a chat is opened: no generation, hold, pending save or read-only chat; host
   setting `sealHistory`, default on, the test host starts with it off): seal count = step × ⌊(replies − window) ÷ step⌋. The base is the store's own
   replay to the last sealed reply. The seal is staged in place and the chat read again; it is kept only when the head, Problems, replan point (it may
   move to the edge), both proof lists, receipts and untold (less what a sealed receipt drops), the window's chain hashes and boundary Problems, and each

@@ -1,4 +1,5 @@
-// Story Suite v2: sealing old story history at a quiet moment (docs/dev/saves-and-persist.md "Sealed history"). After a reply has settled,
+// Story Suite v2: sealing old story history at a quiet moment (docs/dev/saves-and-persist.md "Sealed history"). After a reply has settled
+// or a chat was opened (a long chat from before this build seals on its first quiet moment, RETENTION §5),
 // a timer waits until the turn is idle, nothing is being generated or held, and the reply's own save has gone out; then the store seals what
 // is due (at most once per step of replies: store/write/seal.js) and the chat is saved once more. The host setting `sealHistory` (default on)
 // turns it off: nothing new is sealed, and a chat sealed before still reads.
@@ -45,7 +46,7 @@ export function createSealIdle(s, { store, problem, hostSettings, timers = globa
         timer?.unref?.();
     }
 
-    /** A reply settled: try to seal at the next quiet moment (a later reply moves the moment on). */
+    /** A reply settled or a chat was opened: try to seal at the next quiet moment (a later reply moves the moment on). */
     function afterReply() {
         if (!on()) return;
         tries = 0;

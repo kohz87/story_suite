@@ -68,3 +68,14 @@ test('Re-read and Return in time past the edge are refused before anything is do
     const view = selectHistory({ on: true, ...host.store.history() });
     assert.equal(view.text, `The last 4 replies are kept step by step (from message ${from}). Older replies keep their text and summaries; their changes can't be taken back.`);
 });
+
+test('a long chat from before sealing is sealed at its first quiet moment after it is opened', async t => {
+    const host = await grown(t, 7, { on: false });
+    assert.equal(sealedCount(host), 0);
+    const head = JSON.stringify(host.head());
+    host.ctx.extensionSettings.storySuite.core.sealHistory = true;
+    await host.st.loadChat(JSON.parse(JSON.stringify(host.ctx.chat)), host.ctx.chatId);
+    for (let k = 0; k < 4; k++) { t.mock.timers.tick(SEAL_WAIT_MS); await settle(); }
+    assert.equal(sealedCount(host), 4);
+    assert.equal(JSON.stringify(host.head()), head);
+});

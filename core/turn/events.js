@@ -153,6 +153,7 @@ export function createEvents(s, deps) {
         if (typeof prepare === 'function') { try { await within(prepare(), PREPARE_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         try { rebuild({ publish: false }); } catch (error) { s.problemsLoading = false; throw error; }
         try { store.settleHistory?.(); } catch { /* a sealed history this chat may not use is read-only (store/sealed-base.js) */ }
+        sealIdle?.afterReply();      // (a long chat from before sealing seals at its first quiet moment)
         const meta = metadata();
         // The chat's own Problems list comes back with it (a reload keeps it; another chat has its own).
         s.problemLog.unshift(...keptProblems(meta));
