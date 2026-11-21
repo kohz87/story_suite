@@ -5,6 +5,7 @@ import { barsOf } from './bars.js';
 import { fightDice } from './dice.js';
 import { playExchange } from './exchange.js';
 import { foeStats } from './foes.js';
+import { hordeOf, hordeStart } from './horde.js';
 import { V1 } from './numbers.js';
 import { initiative } from './order.js';
 import { profileOf, skillsOf } from './profile.js';
@@ -78,7 +79,7 @@ function seenOrder(order, party, foes) {
 
 // A fight carried over from an earlier reply: `setup.start` = { offset, order, rotation } (the exchanges already played, the fixed per-side order and the foe
 // target rotation, as the earlier record gave them); the bars and the surviving foes are the sheet passed in (that record's party and foes).
-function startOf(start, state) {
+function startOf(start, state, horde = null) {
     if (start === undefined || start === null) return null;
     const ids = side => Array.isArray(side) && side.every(id => typeof id === 'string');
     if (typeof start !== 'object' || !Number.isInteger(start.offset) || start.offset < 1 || start.offset >= V1.fight.cap || !Number.isInteger(start.rotation) || start.rotation < 0
@@ -87,7 +88,13 @@ function startOf(start, state) {
     if (start.order.party.length !== mine.size || !start.order.party.every(id => mine.has(id)) || start.order.foes.length !== theirs.size || !start.order.foes.every(id => theirs.has(id))) {
         throw new TypeError('The fight start does not match the carried sheet.');
     }
-    return { offset: start.offset, rotation: start.rotation, order: { party: [...start.order.party], foes: [...start.order.foes], first: start.order.first } };
+    const out = { offset: start.offset, rotation: start.rotation, order: { party: [...start.order.party], foes: [...start.order.foes], first: start.order.first } };
+    if (!horde) return out;
+    // (a horde's moving state: the next reserve group, the waves so far and the leader's group key, as the earlier record left them)
+    const moving = start.horde;
+    if (!moving || typeof moving !== 'object' || !Number.isInteger(moving.next) || moving.next < 0 || moving.next > horde.reserve.length || !Number.isInteger(moving.wave) || moving.wave < 0
+        || moving.wave > V1.horde.xpWaves || !(moving.leader === null || typeof moving.leader === 'string')) throw new TypeError('The horde\'s start is damaged.');
+    return { ...out, horde: { next: moving.next, wave: moving.wave, leader: moving.leader } };
 }
 
 function choiceAt(exchanges, number, autoRun, setup, offset = 0) {
@@ -107,6 +114,7 @@ function choiceAt(exchanges, number, autoRun, setup, offset = 0) {
  * Play a whole fight. `sheet` holds the party and foes; `setup` holds `dice` (the port's `dice(seed, offset)`; offset = `start.offset`, 0 for a first segment: see dice.js), optional `maxExchanges`, optional `flee`, optional `fleeIdle` (true: combat/exchange.js defers an idle member's stance in a flee exchange), optional `speedFull` (true: a Speed stance adds its full mastery to evasion)
  * overrides and an optional scripted `random()` for tests. Passing `exchanges` plays exactly those choices (an object
  * keyed by hero id/label or an array per exchange); omitting it uses the automatic whole-fight policy through the cap.
+ * `setup.horde` (combat/horde.js hordeOf) plays a horde: its reserve refills emptied slots, and `start.horde` carries its moving state into a later segment.
  * `setup.start` ({ offset, order, rotation }) continues a fight: no initiative is rolled, `input` is the carried sheet, `exchanges` are the new
  * exchanges only, and exchange numbers (dice, `flee` keys, `maxExchanges`, the record's `exchanges`) count on from `offset`.
  */
@@ -117,7 +125,9 @@ export function playBoard(input, setup = {}, exchanges = undefined) {
     if (!autoRun && !Array.isArray(exchanges)) throw new TypeError('The saved exchanges must be a list.');
     const cap = Math.floor(number(setup.maxExchanges, V1.fight.maxExchanges));
     if (cap < 1 || cap > V1.fight.cap) throw new TypeError(`The exchange cap must be from 1 to ${V1.fight.cap}.`);
-    const state = sheetOf(input), lines = [], moves = [], rounds = [], carried = startOf(setup.start, state), offset = carried?.offset ?? 0;
+    const horde = setup.horde === undefined || setup.horde === null ? null : hordeOf(setup.horde);
+    if (setup.horde && !horde) throw new TypeError('The horde is damaged.');
+    const state = sheetOf(input), lines = [], moves = [], rounds = [], carried = startOf(setup.start, state, horde), offset = carried?.offset ?? 0;
     let order = carried?.order;
     if (!carried) {
         const openingRoll = rollsOf(setup, 0, 0), partyTotals = [], foeTotals = [];
@@ -136,14 +146,15 @@ export function playBoard(input, setup = {}, exchanges = undefined) {
     const ordered = seenOrder(order, state.party, state.foes);
     state.party = ordered.party; state.foes = ordered.foes;
     if (!carried) lines.push(['order', state.party.map(actor => actor.label), state.foes.map(actor => actor.label), order.first]);
-    let rotation = carried?.rotation ?? 0, played = offset, result = 'unfinished';
+    let rotation = carried?.rotation ?? 0, played = offset, result = 'unfinished', moving = horde ? carried?.horde ?? hordeStart(horde) : null, end = null;
     const room = Math.max(0, cap - offset), limit = autoRun ? room : Math.min(exchanges.length, room);
     for (let at = offset + 1; at <= offset + limit; at += 1) {
         const choices = choiceAt(exchanges, at, autoRun, setup, offset);
-        const done = playExchange(state, choices, { order, roll: rollsOf(setup, at, offset), number: at, rotation, ...(setup.fleeIdle === true ? { fleeIdle: true } : {}), ...(setup.speedFull === true ? { speedFull: true } : {}) });
+        const done = playExchange(state, choices, { order, roll: rollsOf(setup, at, offset), number: at, rotation, ...(setup.fleeIdle === true ? { fleeIdle: true } : {}), ...(setup.speedFull === true ? { speedFull: true } : {}), ...(horde ? { horde: { setup: horde, state: moving } } : {}) });
         lines.push(...done.lines); moves.push(...done.moves); rounds.push(done.lines);
         state.party = done.sheet.party; state.foes = done.sheet.foes; rotation = done.rotation; played = at;
+        if (horde) { order = done.order; moving = done.horde; end = done.end ?? null; }
         if (done.result) { result = done.result; break; }
     }
-    return resultOf({ result, exchanges: played, order, rotation, party: state.party, foes: state.foes, lines, moves, rounds });
+    return resultOf({ result, exchanges: played, order, rotation, party: state.party, foes: state.foes, lines, moves, rounds, ...(horde ? { horde: moving, end } : {}) });
 }

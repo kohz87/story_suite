@@ -18,16 +18,21 @@ function partyLine(sheet, roster) {
     return (people.length ? people : fallback).map(person => `${person.name}${Number.isInteger(person.level) ? ` (level ${person.level})` : ''}`).join(', ');
 }
 
+/** The horde rule (owner, 21 Nov): a few words, never more groups; code builds the waves from them (board/horde-build.js). */
+export const HORDE_LINE = '- If the reader holds a gate, a bridge or a line against attackers who keep coming (waves, a horde, "they pour in"), also give "horde": {"waves":3,"until":"hold","hold":8,"leader":"..."}: '
+    + 'waves (2 to 8) = how many group-fulls come in all, the groups above being the first; until = clear (fight them all), hold (hold for "hold" exchanges, 4 to 20) or leader (until "leader", the leader the message names, falls). Code builds the waves. Omit "horde" for an ordinary fight.';
+
 // The lines a Combat Rules v1 sheet adds (a v1 sheet is reachable only after the chooser switch; the wording is the owner's to approve first).
 const V1_RULES = Object.freeze([
     '- tier is required, one of: mob, minion, standard, elite, boss, apex. A rat or a beggar is a mob or a minion, a trained guard or a bandit is standard, a veteran, officer or champion is elite, a named leader is a boss, a dragon or a titan is an apex. When unsure, standard.',
     '- Give every foe the reader names, at the count the message gives: code keeps the fight even (foes past 4 standard or 3 elite come in a tier lower).',
+    HORDE_LINE,
 ]);
 
 /**
  * The short Assist prompt: the reader's message, the foes already on the sheet, and the party, with the story's rank scale (`ranks`, one line or '')
  * and what is known of named people (`known`, short lines; both from precheck-known.js and only input to the one Assist call, never recorded). It asks only for JSON
- * groups: `{"groups":[{"name":"...","count":1,"level":2}]}` (`level` required); with `v1` (a Combat Rules v1 sheet) each group also names its `tier` and the prompt says the size rule (V1_RULES). Dice, actions and outcomes are not asked.
+ * groups: `{"groups":[{"name":"...","count":1,"level":2}]}` (`level` required); with `v1` (a Combat Rules v1 sheet) each group also names its `tier`, the prompt says the size rule and asks for the horde words when foes keep coming (V1_RULES). Dice, actions and outcomes are not asked.
  */
 export function precheckPrompt({ message = '', previous = '', sheet = null, roster = null, ranks = '', known = [], v1 = false } = {}) {
     const text = oneLine(message).slice(0, 1200);

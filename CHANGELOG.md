@@ -11,6 +11,7 @@ What changed in each release, in short. The full record of every change is in [t
 - World events: an arc plan may now propose up to two new world events, each at a real place and citing what in the world causes it; one with no real cause is left out.
 - World events: deleting a reply from the middle of a chat no longer briefly brings back a condition whose event had already ended.
 - World events: the Director's verdicts on world events no longer overwrite newer story words, survive a swipe or Continue, stop when the setting is off, and a refused event stays refused unless the story starts it again.
+- Hordes on the fight board: foes that keep coming refill the slots of the beaten, wave after wave, until the reserve is gone, their leader falls, you hold for the set exchanges, or you flee; each wave pays its own XP.
 
 ## 0.1.5 — 21 Nov 2026
 

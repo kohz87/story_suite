@@ -6,12 +6,12 @@ import { clean } from '../board/note-parts/shared-clean.js';
 /** A name as the note tells it: one flat line, cut to 40 code points. */
 export const nameOf = value => Array.from(clean(value)).slice(0, 40).join('');
 // (the cells of each row kind that hold a label)
-const NAMES = { attack: [0, 2], 'foe-attack': [0, 1], heal: [0, 1], tempo: [0], flee: [0, 1] };
+const NAMES = { attack: [0, 2], 'foe-attack': [0, 1], heal: [0, 1], tempo: [0], flee: [0, 1], arrive: [2] };
 const cap = text => (text ? text[0].toUpperCase() + text.slice(1) : text);
 const hpOf = (label, before, after) => `${label} HP ${before === after || before === undefined ? '' : `${before} → `}${after}${after === 0 && before > 0 ? ' (down)' : ''}`;
 const landed = outcome => (outcome === 'decisive' ? 'hit, decisive' : outcome);
 
-/** The settled-note text of one record row (no trailing full stop), or '' when the row is not told (initiative, order, exchange and foe-phase rows, a failed tempo). */
+/** The settled-note text of one record row (no trailing full stop), or '' when the row is not told (initiative, order, exchange and foe-phase rows, a failed tempo); a horde's arrival is told. */
 export function noteLine(line, before, stances = new Map()) {
     if (!Array.isArray(line)) return '';
     const [kind, ...raw] = line, row = raw.map((cell, at) => (NAMES[kind]?.includes(at) ? nameOf(cell) : cell));
@@ -30,6 +30,8 @@ export function noteLine(line, before, stances = new Map()) {
     }
     if (kind === 'heal') return `${row[0]} heals ${row[1]}: ${hpOf(row[1], before, row[3])}`;
     if (kind === 'tempo') return row[6] ? `${row[0]} acts again` : '';
+    // (a horde's arrival: the group that takes an emptied slot, and how many still come)
+    if (kind === 'arrive') return `More foes arrive: ${row[3]} ${row[2]} (level ${row[4]})${row[6] > 0 ? `; ${row[6]} still coming` : '; the last of them'}`;
     if (kind === 'flee') return row[6] ? `${row[0]} flees from ${row[1]} and gets away; the whole party escapes` : `${row[0]} tries to flee from ${row[1]} and fails`;
     return '';
 }

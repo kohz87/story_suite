@@ -14,12 +14,12 @@
    "text": "Set.",
    "aborted": false,
    "chat": [
-    "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes); gear: kind: weapon|armour|shield|head|cloak|feet|accessory|bag | rarity: common|uncommon|rare|epic|legendary | DEX: +1 (at most 2 stats, held to rarity) | equipped: slot; ~ item Name | wear: scuff|tear|ruin | repair: mend|restore; gear the story makes special (enchanted, masterwork, blessed) gets rarity: uncommon|rare|epic and DEX: +2 (or two stats); ordinary gear needs none\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n+ party Mara | class: I | best: int (when someone joins the party for good: class I to IX, best one of str, vit, agi, dex, int, wis, cha), - party Mara when they leave\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n? roll Who | skill or stat | easy, normal, hard or very hard (Who rolls: You or a party member, by name, never the action; an attempt that can fail; each check takes this reply's next die; at most 3; e.g. ? roll You | Obscure | normal)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you outfit: clothes You has on that are not gear (at most 60 characters; armour and weapons come from Equipped) | look: how You looks right now, gone at the next move (at most 60 characters) | condition: how You is (only when one changes; at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.\nData modules in this story (write these lines exactly; a refused line changes nothing):\nOne character: seven stats 1 to 30 (STR VIT AGI DEX INT WIS CHA), HP, MP and SP (numbers; the narrator never writes a number: it lowers one with a health, mana or stamina stage word and a rest, full-rest or heal raises it), points, Level 1 to 99 and XP. They die only when Down before a reply and still Down at its end. The reader sets stats and spends points; every Level gives one point.\n~ dm character — reason | kind: set-health | to: Down|Badly wounded|Wounded|Hurt|Scratched|Unhurt (0..5)\n~ dm character — reason | kind: set-mana | to: Empty|Drained|Low|Steady|Fresh (0..4)\n~ dm character — reason | kind: set-stamina | to: Empty|Spent|Tired|Winded|Fresh (0..4)\n! dm character — reason | kind: button-rest\n~ dm character — reason | kind: rest\n~ dm character — reason | kind: full-rest\n~ dm character — reason | kind: heal | amount: A quarter|Half|Three quarters (1..3)\n+ dm foes — reason | kind: set-slot-N | name: text | count: 1..6 | level: 1..99 | tier: mob|minion|standard|elite|boss|apex\nN = 1..6 for set-slot-N.",
+    "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes); gear: kind: weapon|armour|shield|head|cloak|feet|accessory|bag | rarity: common|uncommon|rare|epic|legendary | DEX: +1 (at most 2 stats, held to rarity) | equipped: slot; ~ item Name | wear: scuff|tear|ruin | repair: mend|restore; gear the story makes special (enchanted, masterwork, blessed) gets rarity: uncommon|rare|epic and DEX: +2 (or two stats); ordinary gear needs none\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n+ party Mara | class: I | best: int (when someone joins the party for good: class I to IX, best one of str, vit, agi, dex, int, wis, cha), - party Mara when they leave\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n? roll Who | skill or stat | easy, normal, hard or very hard (Who rolls: You or a party member, by name, never the action; an attempt that can fail; each check takes this reply's next die; at most 3; e.g. ? roll You | Obscure | normal)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you outfit: clothes You has on that are not gear (at most 60 characters; armour and weapons come from Equipped) | look: how You looks right now, gone at the next move (at most 60 characters) | condition: how You is (only when one changes; at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.\nData modules in this story (write these lines exactly; a refused line changes nothing):\nOne character: seven stats 1 to 30 (STR VIT AGI DEX INT WIS CHA), HP, MP and SP (numbers; the narrator never writes a number: it lowers one with a health, mana or stamina stage word and a rest, full-rest or heal raises it), points, Level 1 to 99 and XP. They die only when Down before a reply and still Down at its end. The reader sets stats and spends points; every Level gives one point.\n~ dm character — reason | kind: set-health | to: Down|Badly wounded|Wounded|Hurt|Scratched|Unhurt (0..5)\n~ dm character — reason | kind: set-mana | to: Empty|Drained|Low|Steady|Fresh (0..4)\n~ dm character — reason | kind: set-stamina | to: Empty|Spent|Tired|Winded|Fresh (0..4)\n! dm character — reason | kind: button-rest\n~ dm character — reason | kind: rest\n~ dm character — reason | kind: full-rest\n~ dm character — reason | kind: heal | amount: A quarter|Half|Three quarters (1..3)\n+ dm foes — reason | kind: set-slot-N | name: text | count: 1..6 | level: 1..99 | tier: mob|minion|standard|elite|boss|apex\n+ dm foes — reason | kind: horde | waves: 2..8 | hold: 0..20 (0=none) | leader: text\nN = 1..6 for set-slot-N.",
     "assistant:The story begins.",
     "user:Begin.",
     "assistant:Opening.",
     "user:Set.",
-    "system:No foes are set. If a fight begins, set the Foes line and tell the approach only. The fight has not started: end at the moment of engagement.\nDice for this reply, in order: 12, 19, 11. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: nothing\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:No foes are set. If a fight begins, set the Foes line and tell the approach only. The fight has not started: end at the moment of engagement.\nDice for this reply, in order: 12, 19, 11. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: nothing\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. For foes that keep coming (a horde, waves at a gate), also write the horde line after the slot lines: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   },
   {
@@ -31,7 +31,7 @@
    "text": "I look around.",
    "aborted": false,
    "chat": [
-    "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes); gear: kind: weapon|armour|shield|head|cloak|feet|accessory|bag | rarity: common|uncommon|rare|epic|legendary | DEX: +1 (at most 2 stats, held to rarity) | equipped: slot; ~ item Name | wear: scuff|tear|ruin | repair: mend|restore; gear the story makes special (enchanted, masterwork, blessed) gets rarity: uncommon|rare|epic and DEX: +2 (or two stats); ordinary gear needs none\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n+ party Mara | class: I | best: int (when someone joins the party for good: class I to IX, best one of str, vit, agi, dex, int, wis, cha), - party Mara when they leave\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n? roll Who | skill or stat | easy, normal, hard or very hard (Who rolls: You or a party member, by name, never the action; an attempt that can fail; each check takes this reply's next die; at most 3; e.g. ? roll You | Obscure | normal)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you outfit: clothes You has on that are not gear (at most 60 characters; armour and weapons come from Equipped) | look: how You looks right now, gone at the next move (at most 60 characters) | condition: how You is (only when one changes; at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.\nData modules in this story (write these lines exactly; a refused line changes nothing):\nOne character: seven stats 1 to 30 (STR VIT AGI DEX INT WIS CHA), HP, MP and SP (numbers; the narrator never writes a number: it lowers one with a health, mana or stamina stage word and a rest, full-rest or heal raises it), points, Level 1 to 99 and XP. They die only when Down before a reply and still Down at its end. The reader sets stats and spends points; every Level gives one point.\n~ dm character — reason | kind: set-health | to: Down|Badly wounded|Wounded|Hurt|Scratched|Unhurt (0..5)\n~ dm character — reason | kind: set-mana | to: Empty|Drained|Low|Steady|Fresh (0..4)\n~ dm character — reason | kind: set-stamina | to: Empty|Spent|Tired|Winded|Fresh (0..4)\n! dm character — reason | kind: button-rest\n~ dm character — reason | kind: rest\n~ dm character — reason | kind: full-rest\n~ dm character — reason | kind: heal | amount: A quarter|Half|Three quarters (1..3)\n+ dm foes — reason | kind: set-slot-N | name: text | count: 1..6 | level: 1..99 | tier: mob|minion|standard|elite|boss|apex\nN = 1..6 for set-slot-N.",
+    "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes); gear: kind: weapon|armour|shield|head|cloak|feet|accessory|bag | rarity: common|uncommon|rare|epic|legendary | DEX: +1 (at most 2 stats, held to rarity) | equipped: slot; ~ item Name | wear: scuff|tear|ruin | repair: mend|restore; gear the story makes special (enchanted, masterwork, blessed) gets rarity: uncommon|rare|epic and DEX: +2 (or two stats); ordinary gear needs none\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n+ party Mara | class: I | best: int (when someone joins the party for good: class I to IX, best one of str, vit, agi, dex, int, wis, cha), - party Mara when they leave\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n? roll Who | skill or stat | easy, normal, hard or very hard (Who rolls: You or a party member, by name, never the action; an attempt that can fail; each check takes this reply's next die; at most 3; e.g. ? roll You | Obscure | normal)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you outfit: clothes You has on that are not gear (at most 60 characters; armour and weapons come from Equipped) | look: how You looks right now, gone at the next move (at most 60 characters) | condition: how You is (only when one changes; at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.\nData modules in this story (write these lines exactly; a refused line changes nothing):\nOne character: seven stats 1 to 30 (STR VIT AGI DEX INT WIS CHA), HP, MP and SP (numbers; the narrator never writes a number: it lowers one with a health, mana or stamina stage word and a rest, full-rest or heal raises it), points, Level 1 to 99 and XP. They die only when Down before a reply and still Down at its end. The reader sets stats and spends points; every Level gives one point.\n~ dm character — reason | kind: set-health | to: Down|Badly wounded|Wounded|Hurt|Scratched|Unhurt (0..5)\n~ dm character — reason | kind: set-mana | to: Empty|Drained|Low|Steady|Fresh (0..4)\n~ dm character — reason | kind: set-stamina | to: Empty|Spent|Tired|Winded|Fresh (0..4)\n! dm character — reason | kind: button-rest\n~ dm character — reason | kind: rest\n~ dm character — reason | kind: full-rest\n~ dm character — reason | kind: heal | amount: A quarter|Half|Three quarters (1..3)\n+ dm foes — reason | kind: set-slot-N | name: text | count: 1..6 | level: 1..99 | tier: mob|minion|standard|elite|boss|apex\n+ dm foes — reason | kind: horde | waves: 2..8 | hold: 0..20 (0=none) | leader: text\nN = 1..6 for set-slot-N.",
     "assistant:The story begins.",
     "user:Begin.",
     "assistant:Opening.",
@@ -39,14 +39,14 @@
     "assistant:Fight.",
     "user:I attack the rats.",
     "user:I look around.",
-    "system:Dice for this reply, in order: 9, 14, 14. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nFoes: Rats ×3 (Lv 10).\nUp to six foe groups in the fight, one slot each: name, count (0 = empty slot, 1 to 6), level 1 to 99 and tier (mob, minion, standard, elite, boss or apex). The narrator sets a slot when a group arrives and clears it when the group is down, fled, gone or captured. It never writes how hurt a foe is: the fight settles that.\n- dm foes — reason | kind: clear-N | why: down|fled|gone|captured\nN = 1..6 for clear-N.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.\nThe foes set stand, but this reply plays no fight: a message that is not played on the board moves the story on. The foes may press, block or follow; resolve no exchange, roll no check for a blow, and tell no wound, HP or other change of state.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Dice for this reply, in order: 9, 14, 14. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nFoes: Rats ×3 (Lv 10).\nUp to six foe groups in the fight, one slot each: name, count (0 = empty slot, 1 to 6), level 1 to 99 and tier (mob, minion, standard, elite, boss or apex). The narrator sets a slot when a group arrives and clears it when the group is down, fled, gone or captured. It never writes how hurt a foe is: the fight settles that.\n- dm foes — reason | kind: clear-N | why: down|fled|gone|captured\nN = 1..6 for clear-N.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. For foes that keep coming (a horde, waves at a gate), also write the horde line after the slot lines: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.\nThe foes set stand, but this reply plays no fight: a message that is not played on the board moves the story on. The foes may press, block or follow; resolve no exchange, roll no check for a blow, and tell no wound, HP or other change of state.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   },
   {
    "text": "I rest.",
    "aborted": false,
    "chat": [
-    "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes); gear: kind: weapon|armour|shield|head|cloak|feet|accessory|bag | rarity: common|uncommon|rare|epic|legendary | DEX: +1 (at most 2 stats, held to rarity) | equipped: slot; ~ item Name | wear: scuff|tear|ruin | repair: mend|restore; gear the story makes special (enchanted, masterwork, blessed) gets rarity: uncommon|rare|epic and DEX: +2 (or two stats); ordinary gear needs none\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n+ party Mara | class: I | best: int (when someone joins the party for good: class I to IX, best one of str, vit, agi, dex, int, wis, cha), - party Mara when they leave\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n? roll Who | skill or stat | easy, normal, hard or very hard (Who rolls: You or a party member, by name, never the action; an attempt that can fail; each check takes this reply's next die; at most 3; e.g. ? roll You | Obscure | normal)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you outfit: clothes You has on that are not gear (at most 60 characters; armour and weapons come from Equipped) | look: how You looks right now, gone at the next move (at most 60 characters) | condition: how You is (only when one changes; at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.\nData modules in this story (write these lines exactly; a refused line changes nothing):\nOne character: seven stats 1 to 30 (STR VIT AGI DEX INT WIS CHA), HP, MP and SP (numbers; the narrator never writes a number: it lowers one with a health, mana or stamina stage word and a rest, full-rest or heal raises it), points, Level 1 to 99 and XP. They die only when Down before a reply and still Down at its end. The reader sets stats and spends points; every Level gives one point.\n~ dm character — reason | kind: set-health | to: Down|Badly wounded|Wounded|Hurt|Scratched|Unhurt (0..5)\n~ dm character — reason | kind: set-mana | to: Empty|Drained|Low|Steady|Fresh (0..4)\n~ dm character — reason | kind: set-stamina | to: Empty|Spent|Tired|Winded|Fresh (0..4)\n! dm character — reason | kind: button-rest\n~ dm character — reason | kind: rest\n~ dm character — reason | kind: full-rest\n~ dm character — reason | kind: heal | amount: A quarter|Half|Three quarters (1..3)\n+ dm foes — reason | kind: set-slot-N | name: text | count: 1..6 | level: 1..99 | tier: mob|minion|standard|elite|boss|apex\nN = 1..6 for set-slot-N.",
+    "system:Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes); gear: kind: weapon|armour|shield|head|cloak|feet|accessory|bag | rarity: common|uncommon|rare|epic|legendary | DEX: +1 (at most 2 stats, held to rarity) | equipped: slot; ~ item Name | wear: scuff|tear|ruin | repair: mend|restore; gear the story makes special (enchanted, masterwork, blessed) gets rarity: uncommon|rare|epic and DEX: +2 (or two stats); ordinary gear needs none\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n+ party Mara | class: I | best: int (when someone joins the party for good: class I to IX, best one of str, vit, agi, dex, int, wis, cha), - party Mara when they leave\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n? roll Who | skill or stat | easy, normal, hard or very hard (Who rolls: You or a party member, by name, never the action; an attempt that can fail; each check takes this reply's next die; at most 3; e.g. ? roll You | Obscure | normal)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you outfit: clothes You has on that are not gear (at most 60 characters; armour and weapons come from Equipped) | look: how You looks right now, gone at the next move (at most 60 characters) | condition: how You is (only when one changes; at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.\nData modules in this story (write these lines exactly; a refused line changes nothing):\nOne character: seven stats 1 to 30 (STR VIT AGI DEX INT WIS CHA), HP, MP and SP (numbers; the narrator never writes a number: it lowers one with a health, mana or stamina stage word and a rest, full-rest or heal raises it), points, Level 1 to 99 and XP. They die only when Down before a reply and still Down at its end. The reader sets stats and spends points; every Level gives one point.\n~ dm character — reason | kind: set-health | to: Down|Badly wounded|Wounded|Hurt|Scratched|Unhurt (0..5)\n~ dm character — reason | kind: set-mana | to: Empty|Drained|Low|Steady|Fresh (0..4)\n~ dm character — reason | kind: set-stamina | to: Empty|Spent|Tired|Winded|Fresh (0..4)\n! dm character — reason | kind: button-rest\n~ dm character — reason | kind: rest\n~ dm character — reason | kind: full-rest\n~ dm character — reason | kind: heal | amount: A quarter|Half|Three quarters (1..3)\n+ dm foes — reason | kind: set-slot-N | name: text | count: 1..6 | level: 1..99 | tier: mob|minion|standard|elite|boss|apex\n+ dm foes — reason | kind: horde | waves: 2..8 | hold: 0..20 (0=none) | leader: text\nN = 1..6 for set-slot-N.",
     "assistant:The story begins.",
     "user:Begin.",
     "assistant:Opening.",
@@ -56,7 +56,7 @@
     "user:I look around.",
     "assistant:Another telling of the quiet.",
     "user:I rest.",
-    "system:Dice for this reply, in order: 17, 15, 4. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\n[Happened]\nThe fight with Rats ×3 was left unplayed on the board, so it lapsed: they withdrew or were left behind.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
+    "system:Dice for this reply, in order: 17, 15, 4. Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+1 VIT+5 AGI+5 DEX+2 INT+5 WIS+2 CHA+2. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.\n[Happened]\nThe fight with Rats ×3 was left unplayed on the board, so it lapsed: they withdrew or were left behind.\nWallet (before this reply): 0 gold\nCarried: Healing Draught ×3\nAstra — hp 8; mp 11; sp 11; STR 3 VIT 10 AGI 10 DEX 5 INT 10 WIS 5 CHA 5; level 1.\nA fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself. For foes that keep coming (a horde, waves at a gate), also write the horde line after the slot lines: waves = group-fulls in all, the slots you set being the first; hold = exchanges the party must hold (0 = none); leader = the leader whose fall breaks them, or none.\n\nEnd every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>."
    ]
   }
  ],
@@ -1716,7 +1716,7 @@
      "op": "add",
      "path": "/domains/dataModules/active/pack.chat~1foes",
      "value": {
-      "hash": "7342a72cd201d75f65d3657328e5401c1af4a6ef1e21961dec6fa07c943880d7",
+      "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
       "generation": 2,
       "subjects": [
        "chat"
@@ -1752,7 +1752,10 @@
         "foe6": "",
         "count6": 0,
         "level6": 1,
-        "tier6": "standard"
+        "tier6": "standard",
+        "waves": 0,
+        "hold": 0,
+        "leader": ""
        },
        "timers": {},
        "offers": {},
@@ -1762,7 +1765,7 @@
     },
     {
      "op": "add",
-     "path": "/domains/dataModules/perReply/sr_dnf8nf78~1sw_7qz0br5v/actions/bl_dmmwq6q1",
+     "path": "/domains/dataModules/perReply/sr_dnf8nf78~1sw_7qz0br5v/actions/bl_5jhoch8b",
      "value": {
       "visits": 0,
       "click": false
@@ -1775,7 +1778,7 @@
     },
     {
      "op": "add",
-     "path": "/domains/dataModules/pins/7342a72cd201d75f65d3657328e5401c1af4a6ef1e21961dec6fa07c943880d7",
+     "path": "/domains/dataModules/pins/d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
      "value": {
       "definition": {
        "imports": {},
@@ -1997,6 +2000,29 @@
          ],
          "default": "standard",
          "label": "Tier 6"
+        },
+        "waves": {
+         "type": "int",
+         "min": 0,
+         "max": 8,
+         "default": 0,
+         "label": "Horde waves"
+        },
+        "hold": {
+         "type": "int",
+         "min": 0,
+         "max": 20,
+         "default": 0,
+         "label": "Horde hold",
+         "names": {
+          "0": "none"
+         }
+        },
+        "leader": {
+         "type": "text",
+         "max": 40,
+         "default": "",
+         "label": "Horde leader"
         }
        },
        "kinds": {
@@ -2119,6 +2145,27 @@
             "tier1"
            ],
            "value": "standard"
+          },
+          {
+           "op": "set",
+           "path": [
+            "waves"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "hold"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "leader"
+           ],
+           "value": ""
           }
          ],
          "oncePerReply": [],
@@ -2244,6 +2291,27 @@
             "tier2"
            ],
            "value": "standard"
+          },
+          {
+           "op": "set",
+           "path": [
+            "waves"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "hold"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "leader"
+           ],
+           "value": ""
           }
          ],
          "oncePerReply": [],
@@ -2369,6 +2437,27 @@
             "tier3"
            ],
            "value": "standard"
+          },
+          {
+           "op": "set",
+           "path": [
+            "waves"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "hold"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "leader"
+           ],
+           "value": ""
           }
          ],
          "oncePerReply": [],
@@ -2494,6 +2583,27 @@
             "tier4"
            ],
            "value": "standard"
+          },
+          {
+           "op": "set",
+           "path": [
+            "waves"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "hold"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "leader"
+           ],
+           "value": ""
           }
          ],
          "oncePerReply": [],
@@ -2619,6 +2729,27 @@
             "tier5"
            ],
            "value": "standard"
+          },
+          {
+           "op": "set",
+           "path": [
+            "waves"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "hold"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "leader"
+           ],
+           "value": ""
           }
          ],
          "oncePerReply": [],
@@ -2744,10 +2875,148 @@
             "tier6"
            ],
            "value": "standard"
+          },
+          {
+           "op": "set",
+           "path": [
+            "waves"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "hold"
+           ],
+           "value": 0
+          },
+          {
+           "op": "set",
+           "path": [
+            "leader"
+           ],
+           "value": ""
           }
          ],
          "oncePerReply": [],
          "when": true,
+         "ui": false
+        },
+        "horde": {
+         "op": "+",
+         "when": [
+          "or",
+          [
+           "or",
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count1"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count2"
+              ]
+             ]
+            ],
+            0
+           ],
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count3"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count4"
+              ]
+             ]
+            ],
+            0
+           ]
+          ],
+          [
+           "gt",
+           [
+            "add",
+            [
+             "get",
+             [
+              "count5"
+             ]
+            ],
+            [
+             "get",
+             [
+              "count6"
+             ]
+            ]
+           ],
+           0
+          ]
+         ],
+         "refusal": "Set the foe slots first; the horde line comes after them.",
+         "labels": {
+          "waves": {
+           "type": "int",
+           "min": 2,
+           "max": 8
+          },
+          "hold": {
+           "type": "int",
+           "min": 0,
+           "max": 20
+          },
+          "leader": {
+           "type": "text",
+           "max": 40
+          }
+         },
+         "effects": [
+          {
+           "op": "set",
+           "path": [
+            "waves"
+           ],
+           "value": [
+            "arg",
+            "waves"
+           ]
+          },
+          {
+           "op": "set",
+           "path": [
+            "hold"
+           ],
+           "value": [
+            "arg",
+            "hold"
+           ]
+          },
+          {
+           "op": "set",
+           "path": [
+            "leader"
+           ],
+           "value": [
+            "arg",
+            "leader"
+           ]
+          }
+         ],
+         "oncePerReply": [],
          "ui": false
         }
        },
@@ -2920,11 +3189,11 @@
         "predicate": {
          "kind": "dm.define",
          "module": "pack.chat/foes",
-         "hash": "7342a72cd201d75f65d3657328e5401c1af4a6ef1e21961dec6fa07c943880d7",
+         "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
          "generation": 2,
          "subject": "chat"
         },
-        "inputHash": "1c6f37cd52d32703d6a5f3fdfee1759d54835bb280673b23959ca2febecfa464",
+        "inputHash": "48e78529babbb47af831de987d1a6908903f9f4f7e4b2509209f10893f3f785c",
         "replyBound": true
        }
       },
@@ -6118,7 +6387,7 @@
     {
      "n": 6,
      "story": false,
-     "id": "bl_dmmwq6q1",
+     "id": "bl_5jhoch8b",
      "module": "story-block",
      "source": {
       "sid": "sr_dnf8nf78",
@@ -6134,11 +6403,11 @@
       "predicate": {
        "kind": "dm.define",
        "module": "pack.chat/foes",
-       "hash": "7342a72cd201d75f65d3657328e5401c1af4a6ef1e21961dec6fa07c943880d7",
+       "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
        "generation": 2,
        "subject": "chat"
       },
-      "inputHash": "1c6f37cd52d32703d6a5f3fdfee1759d54835bb280673b23959ca2febecfa464",
+      "inputHash": "48e78529babbb47af831de987d1a6908903f9f4f7e4b2509209f10893f3f785c",
       "replyBound": true
      },
      "claims": [],
@@ -6149,7 +6418,7 @@
        "cursor": {
         "sid": "sr_dnf8nf78",
         "swipeKey": "sw_7qz0br5v",
-        "block": "bl_dmmwq6q1",
+        "block": "bl_5jhoch8b",
         "op": 5,
         "rev": 1
        },
@@ -6372,6 +6641,29 @@
           ],
           "default": "standard",
           "label": "Tier 6"
+         },
+         "waves": {
+          "type": "int",
+          "min": 0,
+          "max": 8,
+          "default": 0,
+          "label": "Horde waves"
+         },
+         "hold": {
+          "type": "int",
+          "min": 0,
+          "max": 20,
+          "default": 0,
+          "label": "Horde hold",
+          "names": {
+           "0": "none"
+          }
+         },
+         "leader": {
+          "type": "text",
+          "max": 40,
+          "default": "",
+          "label": "Horde leader"
          }
         },
         "kinds": {
@@ -6492,6 +6784,27 @@
              "tier1"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ]
          },
@@ -6612,6 +6925,27 @@
              "tier2"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ]
          },
@@ -6732,6 +7066,27 @@
              "tier3"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ]
          },
@@ -6852,6 +7207,27 @@
              "tier4"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ]
          },
@@ -6972,6 +7348,27 @@
              "tier5"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ]
          },
@@ -7092,6 +7489,142 @@
              "tier6"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
+           }
+          ]
+         },
+         "horde": {
+          "op": "+",
+          "when": [
+           "or",
+           [
+            "or",
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count1"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count2"
+               ]
+              ]
+             ],
+             0
+            ],
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count3"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count4"
+               ]
+              ]
+             ],
+             0
+            ]
+           ],
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count5"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count6"
+              ]
+             ]
+            ],
+            0
+           ]
+          ],
+          "refusal": "Set the foe slots first; the horde line comes after them.",
+          "labels": {
+           "waves": {
+            "type": "int",
+            "min": 2,
+            "max": 8
+           },
+           "hold": {
+            "type": "int",
+            "min": 0,
+            "max": 20
+           },
+           "leader": {
+            "type": "text",
+            "max": 40
+           }
+          },
+          "effects": [
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": [
+             "arg",
+             "waves"
+            ]
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": [
+             "arg",
+             "hold"
+            ]
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": [
+             "arg",
+             "leader"
+            ]
            }
           ]
          }
@@ -7345,6 +7878,29 @@
           ],
           "default": "standard",
           "label": "Tier 6"
+         },
+         "waves": {
+          "type": "int",
+          "min": 0,
+          "max": 8,
+          "default": 0,
+          "label": "Horde waves"
+         },
+         "hold": {
+          "type": "int",
+          "min": 0,
+          "max": 20,
+          "default": 0,
+          "label": "Horde hold",
+          "names": {
+           "0": "none"
+          }
+         },
+         "leader": {
+          "type": "text",
+          "max": 40,
+          "default": "",
+          "label": "Horde leader"
          }
         },
         "kinds": {
@@ -7467,6 +8023,27 @@
              "tier1"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ],
           "oncePerReply": [],
@@ -7592,6 +8169,27 @@
              "tier2"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ],
           "oncePerReply": [],
@@ -7717,6 +8315,27 @@
              "tier3"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ],
           "oncePerReply": [],
@@ -7842,6 +8461,27 @@
              "tier4"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ],
           "oncePerReply": [],
@@ -7967,6 +8607,27 @@
              "tier5"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ],
           "oncePerReply": [],
@@ -8092,10 +8753,148 @@
              "tier6"
             ],
             "value": "standard"
+           },
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": 0
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": ""
            }
           ],
           "oncePerReply": [],
           "when": true,
+          "ui": false
+         },
+         "horde": {
+          "op": "+",
+          "when": [
+           "or",
+           [
+            "or",
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count1"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count2"
+               ]
+              ]
+             ],
+             0
+            ],
+            [
+             "gt",
+             [
+              "add",
+              [
+               "get",
+               [
+                "count3"
+               ]
+              ],
+              [
+               "get",
+               [
+                "count4"
+               ]
+              ]
+             ],
+             0
+            ]
+           ],
+           [
+            "gt",
+            [
+             "add",
+             [
+              "get",
+              [
+               "count5"
+              ]
+             ],
+             [
+              "get",
+              [
+               "count6"
+              ]
+             ]
+            ],
+            0
+           ]
+          ],
+          "refusal": "Set the foe slots first; the horde line comes after them.",
+          "labels": {
+           "waves": {
+            "type": "int",
+            "min": 2,
+            "max": 8
+           },
+           "hold": {
+            "type": "int",
+            "min": 0,
+            "max": 20
+           },
+           "leader": {
+            "type": "text",
+            "max": 40
+           }
+          },
+          "effects": [
+           {
+            "op": "set",
+            "path": [
+             "waves"
+            ],
+            "value": [
+             "arg",
+             "waves"
+            ]
+           },
+           {
+            "op": "set",
+            "path": [
+             "hold"
+            ],
+            "value": [
+             "arg",
+             "hold"
+            ]
+           },
+           {
+            "op": "set",
+            "path": [
+             "leader"
+            ],
+            "value": [
+             "arg",
+             "leader"
+            ]
+           }
+          ],
+          "oncePerReply": [],
           "ui": false
          }
         },
@@ -8151,7 +8950,7 @@
         "op": 11,
         "rev": 2
        },
-       "prefixHash": "38dafc8d5b149f1f61f25d5c871449ed8b305b306e71ea2177450991e67713ce",
+       "prefixHash": "07004e6b4492cd5f99c913e1fa360c81194f63d5d0f188f7b00732ffd8d913d8",
        "payloadHash": "1dcb6b8860591f9b320ab464b48c7480abd40d7f368128b8d7802eaedb168933"
       }
      ],
@@ -8374,7 +9173,7 @@
     "next": 3,
     "taken": {
      "7a9854901469c325": 1,
-     "bfb23f56a8e1abf4": 1,
+     "44426bc607b67db4": 1,
      "5e90b160488a35ad": 1
     }
    },
@@ -8649,11 +9448,11 @@
         "predicate": {
          "kind": "dm.act",
          "module": "pack.chat/foes",
-         "hash": "7342a72cd201d75f65d3657328e5401c1af4a6ef1e21961dec6fa07c943880d7",
+         "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
          "generation": 2,
          "subject": "chat"
         },
-        "inputHash": "bd232df5e97c417b97adbc04e643c009a4d75bafd4adb347d49392e3cec3d8d5"
+        "inputHash": "559fbd186d0e6a27867f260ac2fc5b6dff986eb9f747eb4ef61f7c518c4f3492"
        }
       }
      },
@@ -8759,11 +9558,11 @@
       "predicate": {
        "kind": "dm.act",
        "module": "pack.chat/foes",
-       "hash": "7342a72cd201d75f65d3657328e5401c1af4a6ef1e21961dec6fa07c943880d7",
+       "hash": "d2d1d87f96bcde4e8358723744f41d9a8d2f9d5f7d73f3bab5753cf7066ee97c",
        "generation": 2,
        "subject": "chat"
       },
-      "inputHash": "bd232df5e97c417b97adbc04e643c009a4d75bafd4adb347d49392e3cec3d8d5"
+      "inputHash": "559fbd186d0e6a27867f260ac2fc5b6dff986eb9f747eb4ef61f7c518c4f3492"
      },
      "claims": [
       "dm:sr_a4jzw8ps/sw_6ezr8n76:pack.chat/foes:set-slot-1:chat:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
@@ -8779,7 +9578,7 @@
         "op": 1,
         "rev": 4
        },
-       "prefixHash": "149fb67ecbcf0e90c3613d56d612eff7832d7ef76d3837efa911e9bc03b37994",
+       "prefixHash": "a625122d566c03a52bc80bd8c17494213b1404ed9b270acc1933123feff95496",
        "payloadHash": "6048fbf43f3fdd785a628431c0010ba4104a045e214211788329377c0abde437"
       }
      ],
@@ -8910,7 +9709,7 @@
         "op": 12,
         "rev": 6
        },
-       "prefixHash": "2d1872c96e2d53f0aa92cfbe99908b935b3920e4b00ef12b59e0098d4391aac1",
+       "prefixHash": "ef814701c3ccaea6fccaf51bb915c447b946daeb5ad21431c57482e3e3280202",
        "payloadHash": "6048fbf43f3fdd785a628431c0010ba4104a045e214211788329377c0abde437"
       }
      ],
@@ -9305,7 +10104,7 @@
         "op": 1,
         "rev": 8
        },
-       "prefixHash": "62b9a4e3a8658bb8042b19c5ffaa6c144b1db8c188fb787828ff80915de13e35",
+       "prefixHash": "9b3a1be89fadf71cc43ccbe59812140b07e11b6cc86333f2bc4e45f85cff54d7",
        "payloadHash": "42c15804c25a6ead2da7bb3635cf266469486ddd04671b3b9d2a5b38f92bba4d"
       }
      ],
@@ -9751,7 +10550,7 @@
         "op": 4,
         "rev": 11
        },
-       "prefixHash": "762f2c5557cb2ee137f4d0e0cc0332c69d470c4ab653bda260a1fb00e4ec59fc",
+       "prefixHash": "7870c1778cc7dd4b345bb7a68f5d8abbd6a475377fbeff6e139b63db629a42b8",
        "payloadHash": "5156d3ecdcd4f878eb48815ac292cf90ace0114e279608cc4957e8e31c5748df"
       }
      ],

@@ -67,6 +67,8 @@ export const FIGHT_SHAPE = {
     },
   ],
   narratorTold: { $nullable: T.STRING },
+  // An open horde's "still coming" strip (the Foes card draws it): the wave line ("Wave 2 · 8 still coming"), how it ends ("Hold 4 more exchanges · or until Ghoul Warlord falls"), the foes down so far.
+  horde: { $optional: { wave: T.STRING, until: T.STRING, down: T.NUMBER } },
   end: {
     $nullable: {
       outcome: { $enum: ['won', 'fled', 'lost'] },

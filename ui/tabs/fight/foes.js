@@ -61,13 +61,17 @@ function groupBlock(group, pick, onPick) {
     h('div', { class: 'fm2' }, group.members.map(m => memberButton(m, group, pick, onPick))));
 }
 
-/** Builds the Foes card from `foeGroups`; `pick` is null, 'member' or 'group'; `onPick({ kind, id })` fires on a target tap. */
-export function foesCard(groups = [], { pick = null, onPick } = {}) {
+// A horde's "still coming" strip under the card's head: the wave line, then how it ends and how many are down so far.
+const hordeStrip = horde => (horde ? h('div', { class: 'horde', dataset: { horde: '1' } }, h('b', null, horde.wave), h('span', { class: 'fine' }, `${horde.until} · ${horde.down} down so far`)) : null);
+
+/** Builds the Foes card from `foeGroups`; `pick` is null, 'member' or 'group'; `onPick({ kind, id })` fires on a target tap; `horde` (the view's, optional) draws the strip. */
+export function foesCard(groups = [], { pick = null, onPick, horde = null } = {}) {
   if (!Array.isArray(groups) || groups.length === 0) return null;
   return h(
     'section',
     { class: 'card glass cpt foes-card', 'aria-label': 'Foes', dataset: { card: 'foes', pick } },
     h('div', { class: 'ch' }, h('h3', null, 'Foes'), h('span', { class: 'cnt' }, countText(groups))),
+    hordeStrip(horde),
     pick ? null : h('div', { class: 'fold-view' }, groups.map(foldLine)),
     h('div', { class: 'foes full-view' }, groups.map(g => groupBlock(g, pick, onPick))),
   );

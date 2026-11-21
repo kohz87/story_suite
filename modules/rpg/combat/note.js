@@ -7,6 +7,9 @@ import { nameOf, noteLine, stanceLine } from './note-lines.js';
 import { hpBefores } from './record.js';
 
 const END = { won: 'The fight is won. Code gives the party its XP.', lost: 'The fight is lost.', fled: 'The party fled.', open: 'The fight is still open.' };
+// A won horde says how it ended (record `end`): the gate held, or the leader fell; a horde cleared to the last foe is told as any won fight.
+const HORDE_END = { held: 'The fight is won: the party held for its exchanges and the foes still standing break off. Code gives the party its XP.',
+    leader: 'The fight is won: the leader has fallen and the horde breaks. Code gives the party its XP.' };
 const AFTER = {
     open: 'The fight is still in progress; do not tell a post-fight aftermath yet.', won: 'Then follow the reader’s requested aftermath as the outcome permits.',
     other: 'Then follow the reader’s requested aftermath only as the outcome permits; do not assume the foes or their possessions are accessible or looting succeeds.',
@@ -54,6 +57,6 @@ export function settledNoteV1(envelope, { fightLen = true } = {}) {
     const worn = n => (Array.isArray(envelope?.wear) ? envelope.wear.filter(event => event?.n === n).map(event => `${nameOf(event.who)}'s ${nameOf(event.item)}: ${nameOf(event.from)} → ${nameOf(event.to)}`) : []);
     for (const round of out) lines.push(`Exchange ${round.n}: ${[...round.parts, ...worn(round.n)].join(' | ') || 'No one acted'}.`);
     const stop = envelope?.stop in END ? envelope.stop : 'open';
-    lines.push(END[stop], AFTER[stop === 'open' || stop === 'won' ? stop : 'other']);
+    lines.push(stop === 'won' && HORDE_END[envelope?.end] ? HORDE_END[envelope.end] : END[stop], AFTER[stop === 'open' || stop === 'won' ? stop : 'other']);
     return lines.join(' | ');
 }

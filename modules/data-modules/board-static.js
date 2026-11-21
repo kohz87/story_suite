@@ -1,9 +1,10 @@
 // The fight board's fixed prompt pieces that need no RPG library: lean-rpg/board/prompt.js (the library) and part.js (which may
 // preview the prompt before the library has loaded) both read these, so the two can never word them differently.
 const RULES = Object.freeze({ skip: true, keep: /XP guide:.*$/u });
-const FOES = Object.freeze({ prompt: false, only: /^set-slot-\d+$/u });
+// (foes: the set-slot kinds, and the horde line of foes that keep coming, 21 Nov)
+const FOES = Object.freeze({ prompt: false, only: /^(?:set-slot-\d+|horde)$/u });
 
-/** What the board keeps of a data module's grammar, by role (rules: only the XP guide line; foes: only the set-slot kind), or null. */
+/** What the board keeps of a data module's grammar, by role (rules: only the XP guide line; foes: only the set-slot and horde kinds), or null. */
 export const boardGrammar = role => role === 'rules' ? RULES : role === 'foes' ? FOES : null;
 
 /** The XP guide line as the board tells it (code gives the XP, so the narrator writes none). */
