@@ -8,9 +8,9 @@ import { mergeImportantMemories } from '../../modules/people/core/core-record-me
 import { memorySimilarity } from '../../modules/people/core/core-relationship.js';
 import { normalizeName } from '../../modules/people/core/core-text.js';
 
-const REGISTERED = 'Astra registered without complaining and immediately took two local culling contracts';
+const REGISTERED = 'Astra signed the ledger and paid the registry fee in copper';
 const GRANARY = "Astra kept the murdered keeper's granary sealed and brought her quietly without raising a panic";
-const STRAIGHT = 'Astra gave a straight account of everything touched in the granary and the cursing carter';
+const STRAIGHT = 'Astra described every barrel moved in the cellar to the clerk';
 const COLVIN = 'Astra recovered dead runner Colvin and his intact sealed dispatch from the northern alders without raising a panic';
 const stamps = { [normalizeName(REGISTERED)]: { m: 4, d: 'October 1' }, [normalizeName(GRANARY)]: { m: 8, d: 'October 1' }, [normalizeName(STRAIGHT)]: { m: 10, d: 'October 1' }, [normalizeName(COLVIN)]: { m: 14, d: 'October 1' } };
 const rorke = () => normalizeNpcRecord({ id: 'npc_rorke', name: 'Watch-Captain Edda Rorke', present: true, memories: [REGISTERED, GRANARY, STRAIGHT, COLVIN], memoryStamps: stamps });

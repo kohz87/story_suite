@@ -2,7 +2,7 @@
 // Refresh. `~ npc Name | memory: ...` stores one memory as a why: does; a line's goal, mood or memory stamps the dossier's "changed at" reply (fieldChangeMessages).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { suite } from './helpers/pacing-suite.js';
+import { suite, dossiers } from './helpers/pacing-suite.js';
 import { normalizeName } from '../../modules/people/core/core-text.js';
 import { selectDossier } from '../../ui/select/dossier.js';
 
@@ -13,11 +13,13 @@ const snap = s => JSON.stringify(people(s));
 const same = (s, why) => { const live = snap(s); s.host.store.rebuild(); assert.equal(snap(s), live, why); };
 const reread = async (s, at) => assert.equal((await s.host.sdk.reread(at)).ok, true);
 const quiet = async run => { const original = console.warn; console.warn = () => {}; try { return await run(); } finally { console.warn = original; } };
+// Oren as NPC State's merge leaves him once a scan changed something (it makes the stamps container; a line only adds to it).
+const scanned = () => { const records = dossiers(); records.npc_oren.fieldChangeMessages = { mood: 0 }; return records; };
 const GRANARY = "Astra kept the murdered keeper's granary sealed and brought her quietly without raising a panic";
 const COLVIN = 'Astra recovered dead runner Colvin and his intact sealed dispatch from the northern alders without raising a panic';
 
 test('memory: on a ~ npc line stores one memory with the reply and its story day, and stamps the dossier\'s last change', async () => {
-    const s = await suite({ lines: true });
+    const s = await suite({ lines: true, records: scanned() });
     await s.setDay(3);
     const at = await s.say(['~ npc Oren | memory: Astra brought back Colvin\'s body']);
     assert.deepEqual(memories(s), ['Astra brought back Colvin\'s body']);
@@ -43,7 +45,7 @@ test('a line with a why: and a memory: stores both; a memory: already stored is 
 });
 
 test('a goal or mood line stamps its reply as the dossier\'s last change (the dossier no longer waits for a Refresh)', async () => {
-    const s = await suite({ lines: true });
+    const s = await suite({ lines: true, records: scanned() });
     await s.say(['~ npc Oren | trust: +1 | why: He kept the gate shut']);
     const at = await s.say(['~ npc Oren | goal: find the missing oil cart']);
     assert.equal(record(s).goal, 'find the missing oil cart');
@@ -57,7 +59,7 @@ test('a goal or mood line stamps its reply as the dossier\'s last change (the do
 });
 
 test('swipe, Re-read, Continue, middle delete and reload: the memory and the stamps are decided the same way as live', async () => {
-    const s = await suite({ lines: true });
+    const s = await suite({ lines: true, records: scanned() });
     await s.say(['~ npc Oren | trust: +1']);   // (the bond record: a middle delete of the reply that made it is another matter, not this one)
     const first = await s.say(['~ npc Oren | goal: guard the gate | memory: He swore to guard the gate']);
     const at = await s.say(['~ npc Oren | memory: He saw the tower fall']);
@@ -93,4 +95,32 @@ test('lines off: memory: stores nothing and the rest of the line works as before
     assert.equal(record(s).lifeState, 'deceased');
     await quiet(() => s.say(['~ npc Oren | memory: He saw the tower fall']));
     assert.deepEqual(memories(s), []);
+});
+
+// (review) A line never makes the stamps container: a later runtime write (a scan) adds its own stamps into it as plain changes, and a middle delete of the
+// line's reply must not take that container from under them.
+import { normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { peopleView } from '../../modules/people/view.js';
+
+test('a scan after a line, then the line\'s reply deleted: the scan\'s changes stay and replay equals live', async () => {
+    const s = await suite({ lines: true });
+    await s.say(['~ npc Oren | trust: +1']);
+    assert.equal('fieldChangeMessages' in record(s), false, 'no stamps yet');
+    const a = await s.say(['~ npc Oren | goal: guard the gate']);
+    assert.equal('fieldChangeMessages' in record(s), false, 'a line does not make the stamps container');
+    const b = await s.say([]);
+    const slice = people(s);
+    const npcs = slice.order.map(id => normalizeNpcRecord(structuredClone(slice.npcs[id])));
+    const oren = npcs.find(item => item.id === 'npc_oren');
+    oren.location = 'the chapel';
+    oren.fieldChangeMessages = { ...(oren.fieldChangeMessages ?? {}), location: b };
+    const view = peopleView({ npcs, candidates: slice.candidates ?? [], dismissed: slice.dismissed ?? [], userDismissedGroups: slice.userDismissedGroups ?? [], socialGraph: slice.socialGraph ?? {}, portraitAssets: slice.portraitAssets ?? {}, turn: slice.turn ?? 0 });
+    const head = await s.host.sdk.timeline.head({});
+    assert.equal((await s.host.sdk.command('people.write', { v: 1, source: { sid: head.source.sid, swipeKey: head.source.swipeKey }, view }, { background: true })).ok, true);
+    assert.equal(record(s).location, 'the chapel');
+    same(s, 'replay equals live');
+    await quiet(async () => { await s.host.st.deleteMessage(a); await s.host.st.deleteMessage(a - 1); });
+    assert.equal(record(s).location, 'the chapel', 'the scan\'s change stays');
+    assert.equal(s.host.store.problems?.().length ?? 0, 0, 'no store problem');
+    same(s, 'middle delete replay equals live');
 });
