@@ -283,7 +283,7 @@ export function createStore({
     const { replay, replayRecord, replayBlocks, rerunBlock, skipped, headKey, stillHolds, proofsBefore, proofBefore, packOwners, listProofs, appliedOf } = createReplayBlocks(s, {
         ORPHAN, quarantined, receiptsFor, isGuardedBlock, arr0, intactReason, ownedAlready, publish, asOps: (...args) => asOps(...args), blockParts: (...args) => blockParts(...args),
         receiptsOf: (...args) => receiptsOf(...args), lineOf: (...args) => lineOf(...args), current: (...args) => current(...args), list,
-        guardHolds, occurrenceFor, withSource, replayGuarded, replayLegacy, advanced, chain, checkpointState, problemText, stamp, step, unpackProblems, baseProofs,
+        guardHolds, occurrenceFor, withSource, replayGuarded, replayLegacy, advanced, chain, checkpointState, problemText, stamp, step, unpackProblems, baseProofs, usableBase,
     });
 
     // What a story line is, apart from where it stands in the reply: the command and the line as written.
@@ -336,7 +336,7 @@ export function createStore({
     // Sealing old history (store/write/seal.js): it reads the chat through the store's own reads, before and after it is staged.
     const reads = { list, chainHash, head: () => current().state, problems: () => problems(), replansFrom: () => replansFrom(), proofs: (...args) => proofs(...args),
         receipts: () => receipts(), untold: () => untold(), boundaryProblems: () => boundaryProblems() };
-    const { seal } = createSeal(s, { list, metadata, current, replay, chainHash, bareHash, spineBefore, windowHash, packProblems, rawSidAt, proofsBefore,
+    const { seal } = createSeal(s, { list, metadata, current, replay, stateBefore, appliedOf, chainHash, bareHash, spineBefore, windowHash, packProblems, rawSidAt, proofsBefore,
         historyOf, forgetMemos, saver, keptNow, sealing, reads, chatId });
 
     const api = {

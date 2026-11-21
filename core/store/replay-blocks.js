@@ -13,19 +13,21 @@ import { isSealed } from '../persist/sealed.js';
 import { isDeepFrozen } from '../ops/freeze.js';
 
 export function createReplayBlocks(s, deps) {
-    const { ORPHAN, quarantined, receiptsFor, isGuardedBlock, arr0, intactReason, ownedAlready, publish, asOps, blockParts, receiptsOf, lineOf, current, list, guardHolds, occurrenceFor, withSource, replayGuarded, replayLegacy, advanced, chain, checkpointState, problemText, stamp, step, unpackProblems, baseProofs } = deps;
+    const { ORPHAN, quarantined, receiptsFor, isGuardedBlock, arr0, intactReason, ownedAlready, publish, asOps, blockParts, receiptsOf, lineOf, current, list, guardHolds, occurrenceFor, withSource, replayGuarded, replayLegacy, advanced, chain, checkpointState, problemText, stamp, step, unpackProblems, baseProofs, usableBase = () => null } = deps;
 
     // State after the last carrier at or before `upTo`, or null when no checkpoint precedes it. A block
     // of ops that no longer applies (a hand-edited chat, a middle reply deleted) is skipped and reported
     // on its own, so a bad change cannot take the rest of its carrier, or anything later, with it.
-    // `whole`: from the first carrier's own checkpoint, past every later one (carriedTo, below).
+    // `whole`: from the first carrier's own checkpoint (a sealed chat's base), past every later one (carriedTo; a seal's check).
     // `onRecord(index, state)`: told the state after each carrier it replays (the head replay keeps them in the prefix memo).
     function replay(arr, upTo, { whole = false, onRecord = null } = {}) {
         s.counts.replays++;
         let { from, base } = chain(arr, upTo);
         if (whole) {
             const first = carrierIndexes(arr)[0];
+            const based = usableBase(arr);      // (a sealed chat: from its base, past every checkpoint after it)
             if (first !== undefined && first <= upTo && readRecord(arr[first])?.checkpoint) [from, base] = [first, null];
+            else if (based && based.start <= upTo) [from, base] = [based.start, based];
         }
         // A damaged record (B-b2-timeline-7) is skipped, and said so. (A sealed chat's base carries the Problems before it, as a checkpoint does.)
         const problems = from >= 0 ? unpackProblems(arr, from, base ? base.base.carried : readRecord(arr[from]).carried) : [];

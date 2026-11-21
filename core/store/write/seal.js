@@ -18,7 +18,7 @@ export function sealCount(count, { window, step }) {
 }
 
 export function createSeal(s, deps) {
-    const { list, metadata, current, replay, chainHash, bareHash, spineBefore, windowHash, packProblems, rawSidAt, proofsBefore, historyOf,
+    const { list, metadata, current, replay, stateBefore, appliedOf, chainHash, bareHash, spineBefore, windowHash, packProblems, rawSidAt, proofsBefore, historyOf,
         forgetMemos, saver, keptNow, sealing, reads, chatId } = deps;
     const refused = new Set();      // the chats whose seal was refused (the rebuilt story differed): not tried again until the next build
 
@@ -70,18 +70,6 @@ export function createSeal(s, deps) {
         const info = Array.isArray(arr[at].swipe_info) ? arr[at].swipe_info[arr[at].swipe_id ?? 0] : null;
         if (isObject(info?.extra) && info.extra !== arr[at].extra && info.extra[KEY]?.sid === record.sid) set(changes, info.extra, KEY, structuredClone(next));
     }
-    // The window's checkpoints that do not hold the state in front of them, as the chat reads now.
-    function staleIn(arr, window) {
-        const out = new Set();
-        window.forEach((i, n) => {
-            const record = readRecord(arr[i]);
-            if (!record?.checkpoint || n === 0) return;
-            const state = replay(arr, window[n - 1]).state;
-            if (!state || hashJson(state) !== hashJson(record.checkpoint)) out.add(i);
-        });
-        return out;
-    }
-
     /**
      * Seals what is due: → { ok: true, sealed: 0 } (nothing due), { ok: true, sealed, through, from } or { ok: false, why }. Never during a
      * Re-read or a reconcile, nor on a chat that is read-only, has a damaged record at its head or a sealed history it may not use.
@@ -104,12 +92,13 @@ export function createSeal(s, deps) {
         const edge = carriers[k];
         const meta = metadata();
         if (!isObject(meta)) return { ok: false, why: 'no metadata' };
-        // The base: the state after the last reply sealed, its Problems and proof, and the chain's hashes in front of the edge.
-        const upTo = replay(arr, through);
-        if (!upTo.state) return { ok: false, why: 'no state at the edge' };
+        // The base: the state after the last reply sealed (the prefix memo has it when the head was replayed through it), the head's own
+        // Problems and proof before the edge, and the chain's hashes in front of the edge. The check below replays the window from it.
+        const at = stateBefore(arr, edge);
+        if (!at) return { ok: false, why: 'no state at the edge' };
         const seen = new Set();
         const proofs = [];
-        for (const entry of [...proofsBefore(arr, upTo.from), ...(upTo.applied ?? [])]) {
+        for (const entry of [...proofsBefore(arr, head.from ?? -1), ...appliedOf(arr, head)]) {
             if (entry.index > through || seen.has(entry.proof.id)) continue;
             seen.add(entry.proof.id);
             proofs.push({ sid: rawSidAt(arr, entry.index), block: entry.block, proof: structuredClone(entry.proof) });
@@ -118,14 +107,13 @@ export function createSeal(s, deps) {
         const sids = carriers.slice(0, k).map(i => readRecord(arr[i]).sid);
         const base = {
             v: 1, through: sids.at(-1), count: k, sealedDigest: sealedDigest(sids), integrity: meta.integrity ?? null,
-            state: structuredClone(upTo.state), carried: packProblems(upTo.problems.filter(problem => problem.index <= through), i => rawSidAt(arr, i)),
+            state: structuredClone(at), carried: packProblems(head.problems.filter(problem => problem.index <= through), i => rawSidAt(arr, i)),
             proofs, anchors: { chain: chainHash(arr, edge), bare: bareHash(arr, edge), spine: spineBefore(arr, edge) },
             guarded: old?.guarded === true || carriers.slice(0, k).some(i => hasMeta(readRecord(arr[i]))),
             window: sealing.window, step: sealing.step, at: new Date().toISOString(),
         };
         const before = sealSnapshot(reads, edge);
         const window = carriers.slice(k);
-        const stale = staleIn(arr, [through, ...window]);
         // Staged in place (a detached copy would not be the chat replay asks about), then read again from the base.
         const changes = [];
         try {
@@ -143,10 +131,16 @@ export function createSeal(s, deps) {
             s.cache = null;
             s.history = null;
             forgetMemos();
+            // One replay of the window from the base, past its checkpoints: the head it ends on must be the live head, and a checkpoint that does not
+            // hold the state in front of it goes (made before a delete; the chain passes it over), the others' covers start at the base.
+            const states = new Map();
+            const full = replay(arr, window.at(-1), { whole: true, onRecord: (i, state) => states.set(i, state) });
+            const stale = new Set(window.filter((i, n) => readRecord(arr[i])?.checkpoint
+                && hashJson(n ? states.get(window[n - 1]) ?? null : historyOf(arr).state) !== hashJson(readRecord(arr[i]).checkpoint)));
             for (const i of window) recover(arr, i, changes, stale);
             s.cache = null;
             forgetMemos();
-            const why = sealDiff(before, sealSnapshot(reads, edge), edge) || keptStates(arr, window);
+            const why = (full.from !== edge || hashJson(full.state) !== before.head ? 'head (from the base)' : '') || sealDiff(before, sealSnapshot(reads, edge), edge);
             if (why) {
                 undo(changes);
                 refused.add(chat);
@@ -159,18 +153,6 @@ export function createSeal(s, deps) {
         }
         saver.touch();
         return { ok: true, sealed: k, through: base.through, from: edge };
-    }
-
-    // Every checkpoint left in the window holds the state in front of it, as the chat rebuilt from the base gives it.
-    function keptStates(arr, window) {
-        for (const i of window) {
-            const record = readRecord(arr[i]);
-            if (!record?.checkpoint) continue;
-            const prev = window[window.indexOf(i) - 1];
-            const state = prev === undefined ? historyOf(arr).state : replay(arr, prev).state;
-            if (!state || hashJson(state) !== hashJson(record.checkpoint)) return `checkpoint ${i}`;
-        }
-        return '';
     }
 
     return { seal };
