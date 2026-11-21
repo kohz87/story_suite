@@ -34,4 +34,3 @@ export function linkToCast(npc, person, options = {}) {
     const first = Object.fromEntries(Object.entries(filled.castFrom.first ?? {}).filter(([field, words]) => sameWords(npc[field], words)));
     return { ...npc, castFrom: { ...filled.castFrom, first } };
 }
-
