@@ -46,13 +46,13 @@ export function locator(query) {
     const memo = new Map();
     const find = name => (name ? ask(query, 'atlas.place', { name }, null) ?? (ARTICLE.test(name) ? ask(query, 'atlas.place', { name: name.replace(ARTICLE, '') }, null) : null) : null);
     const spotOf = (name, found, chain) => {
-        const spot = { key: found?.id ? `id:${found.id}` : `name:${normalize(name).replace(ARTICLE, '')}`, name: cutPoints(flat(found?.name), MAX_PLACE) || name, open: isOpen(found?.kind), up: [] };
+        const spot = { key: found?.id ? `id:${found.id}` : `name:${normalize(name).replace(ARTICLE, '')}`, name: cutPoints(flat(found?.name), MAX_PLACE) || name, open: isOpen(found?.kind), kind: flat(found?.kind).toLowerCase(), up: [] };
         if (chain.has(spot.key)) return spot;
         chain.add(spot.key);
         const saved = found?.parent ? ask(query, 'atlas.place', { id: found.parent }, null) : null;
         const written = !found?.parent && name.includes('/') ? cutPoints(flat(name.split('/')[0]), MAX_PLACE) : '';
         const parent = saved ? spotOf(cutPoints(flat(saved.name), MAX_PLACE), saved, chain) : written ? locate(written, chain) : null;
-        if (parent && parent.key !== spot.key) spot.up = [{ key: parent.key, name: parent.name, open: parent.open }, ...parent.up.filter(up => up.key !== spot.key)].slice(0, UP_MAX);
+        if (parent && parent.key !== spot.key) spot.up = [{ key: parent.key, name: parent.name, open: parent.open, kind: parent.kind }, ...parent.up.filter(up => up.key !== spot.key)].slice(0, UP_MAX);
         return spot;
     };
     const locate = (raw, chain = new Set()) => {

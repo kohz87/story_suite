@@ -104,9 +104,15 @@ test('the scene\'s place first, then its parent; a sibling, a district under it 
     assert.deepEqual(list(hereLine(slice, atlas('Town / Keep'))), ['Person f', 'Person a', 'Person b', 'Person c'], 'the keep\'s own first, then the town, capped; the gate is a sibling');
     assert.deepEqual(list(hereLine(slice, atlas('Town / Gate / Cellar'))), ['Person g', 'Person d'], 'the cellar and its parent, the gate; not the town above it');
     assert.deepEqual(list(hereLine(slice, atlas('Town'))), ['Person a', 'Person b', 'Person c', 'Person e'], 'in the town: its own people, not its districts\'');
-    // A spot the story saved with only a region ("~ place South Granary | region: Town"): the region is its parent (owner, 21 Nov: the village's healer was left out and made up).
-    const granary = { cast, party: { place: 'South Granary', region: 'Town', locate: name => (name === 'South Granary' ? { key: 'id:granary', up: [] } : spots[name] ?? null) }, present: new Set(), pinned: new Set() };
-    assert.deepEqual(list(hereLine(slice, granary)), ['Person a', 'Person b', 'Person c', 'Person e'], 'the region\'s own people are nearby');
+    // The settlement is the limit (owner, 21 Nov: "village to village, town to town, city to city"): at any spot in a town, everyone based anywhere in it;
+    // a spot the story saved with only a region ("~ place South Granary | region: Town") is in that region when the region is a town.
+    const kinds = { Town: { key: 'id:town', kind: 'town', up: [] }, 'Town / Keep': { key: 'id:keep', kind: 'keep', up: [{ key: 'id:town', kind: 'town' }] }, 'Town / Gate': { key: 'id:gate', kind: 'gate', up: [{ key: 'id:town', kind: 'town' }] }, 'Town / Gate / Cellar': { key: 'id:cellar', kind: 'cellar', up: [{ key: 'id:gate', kind: 'gate' }, { key: 'id:town', kind: 'town' }] }, 'South Granary': { key: 'id:granary', kind: 'storehouse', up: [] }, Vale: { key: 'id:vale', kind: 'region', up: [] } };
+    const inTown = (place, region = '') => ({ cast, party: { place, region, locate: name => kinds[name] ?? null }, present: new Set(), pinned: new Set() });
+    assert.deepEqual(list(hereLine(slice, inTown('Town / Keep'))), ['Person f', 'Person a', 'Person b', 'Person c'], 'the keep\'s own first, then the town\'s, then its other spots, capped');
+    assert.deepEqual(list(hereLine(slice, inTown('Town / Gate / Cellar'))), ['Person g', 'Person a', 'Person b', 'Person c'], 'the cellar is in the town too');
+    assert.deepEqual(list(hereLine(slice, inTown('South Granary', 'Town'))), ['Person a', 'Person b', 'Person c', 'Person e'], 'a spot saved under the town as its region is in the town');
+    assert.equal(hereLine(slice, inTown('South Granary', 'Vale')), '', 'a region that is no town is no limit: nobody named');
+    const granary = { cast, party: { place: 'South Granary', region: 'Town', locate: name => kinds[name] ?? null }, present: new Set(), pinned: new Set() };
     assert.equal(hereLine(slice, { ...granary, party: { ...granary.party, region: '' } }), '', 'no parent and no region: nobody nearby');
     // The race leads the look when the look doesn't name it; a look that names it is told as written.
     const kin = [readEntry({ pack: 'w', packVersion: '1', kind: 'figure', id: 'k', name: 'Kin', role: 'healer', look: 'Tall, grey-eyed.', species: 'dogfolk', start: { place: 'Town' } }), readEntry({ pack: 'w', packVersion: '1', kind: 'figure', id: 'm', name: 'Mae', role: '', look: 'Dogfolk woman, short.', species: 'dogfolk', start: { place: 'Town' } })];

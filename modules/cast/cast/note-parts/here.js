@@ -23,8 +23,25 @@ const KINDS = new Set(['figure', 'companion']);
 // One instruction, worded for any persona name (no verb agrees with {{user}}); the list follows it.
 const HEAD = '[People here] The world\'s own people at this place or nearby, not necessarily in the scene. When the story needs someone of their role, use that person by this name rather than making up someone new; the narration uses a name only after someone in the story says it:';
 
-// 0: at the scene's place itself; 1: at its parent (the atlas's saved parent, else the "Town / Spot" a name writes first, else the town of the
-// party's place line); null: anywhere else, a sibling, a district under it or a grandparent included (only the place and its parent are told).
+// A settlement's kinds: the village, town or city a spot stands in is how far "nearby" reaches (owner, 21 Nov: "if it's a village, limit it to the
+// village, town to town, city to city"). A district, a ward or a guild office is a spot inside one, not one itself.
+const SETTLEMENT = new Set(['village', 'hamlet', 'town', 'city', 'capital', 'settlement', 'port', 'fort', 'fortress', 'hold']);
+const isSettlement = kind => String(kind ?? '').toLowerCase().split(/[\s/,;|-]+/).some(word => SETTLEMENT.has(word));
+
+// The settlement the party is in: the place itself or the nearest place it sits in (the atlas's parents, or the "Town / Spot" a name writes
+// first) that is a village, town or city; else, for a spot that is not one itself, the region the story saved it under when that region is one
+// ("~ place South Granary | region: Bluewatch Village"); else none (a road, the wilds, a place with no settlement above it).
+function settlementOf(here, party) {
+    const chain = [here, ...here.up];
+    const found = chain.find(spot => isSettlement(spot.kind));
+    if (found) return found.key;
+    if (!party.region) return null;
+    const region = party.locate(party.region);
+    return region?.key && region.key !== here.key && isSettlement(region.kind) ? region.key : null;
+}
+
+// 0: at the scene's place itself; 1: at the settlement it is in (or, outside any settlement, its parent: the atlas's saved parent, else the
+// "Town / Spot" a name writes first, else the town of the party's place line); 2: anywhere else inside that settlement; null: anywhere else.
 function rankOf(where, party) {
     if (!where) return null;
     if (typeof party.locate === 'function' && !party.old) {
@@ -32,14 +49,17 @@ function rankOf(where, party) {
         const there = party.locate(where);
         if (!here?.key || !there?.key) return null;
         if (there.key === here.key) return 0;
-        // (a place the story saved with only a region, "~ place South Granary | region: Bluewatch Village", has that region as its parent: owner, 21 Nov, the village's healer was left out and made up)
-        const parent = here.up[0]?.key ?? (party.town ? party.locate(party.town)?.key : null) ?? (party.region ? party.locate(party.region)?.key : null);
+        const town = settlementOf(here, party);
+        if (town) return there.key === town ? 1 : there.up.some(up => up.key === town) ? 2 : null;
+        const parent = here.up[0]?.key ?? (party.town ? party.locate(party.town)?.key : null);
         return parent && there.key === parent ? 1 : null;
     }
     const same = (a, b) => String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
     if (same(where, party.place)) return 0;
     const town = String(party.place).includes('/') ? String(party.place).split('/')[0] : party.town || party.region;
-    return town && same(where, town) ? 1 : null;
+    if (!town) return null;
+    if (same(where, town)) return 1;
+    return String(where).includes('/') && same(String(where).split('/')[0], town) ? 2 : null;
 }
 
 /**
