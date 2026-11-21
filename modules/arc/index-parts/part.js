@@ -27,9 +27,11 @@ const section = Object.assign((el, api) => promptSection(el, api, {
 const tail = Object.assign(view => arcTail(view), { feature: FEATURE });
 
 // The lore digest's refresh, then the Director judge's verdicts on the story's new world entries and on tomorrow's roll (judge/world-hooks.js); all under the world-events switch.
-const beforeGenerate = Object.assign(async view => {
+const beforeGenerate = Object.assign(async (view, info) => {
     await lore.hooks.beforeGenerate(view);
-    const commands = [...judgeBeforeGenerate(view), ...rollHook(view, { drain: true })];
+    // A Continue commits nothing (the host runs no commands): no verdict is offered then.
+    const commit = info?.commit !== false;
+    const commands = [...judgeBeforeGenerate(view, undefined, commit), ...rollHook(view, { drain: true, commit })];
     return commands.length ? { commands } : undefined;
 }, { feature: WORLD_EVENTS_FEATURE });
 const afterReceive = Object.assign(view => { judgeAfterReceive(view); rollHook(view); }, { feature: WORLD_EVENTS_FEATURE });

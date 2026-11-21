@@ -20,21 +20,28 @@ export function waitingEntries(state) {
         .map(event => ({ id: event.id, key: event.judge.key, name: event.name, summary: event.summary, place: event.place, conditions: event.judge.conditions ?? [] }));
 }
 
-/** afterReceive: asks about the entries waiting. */
+// The chronicle's setting `judge` (read as `worldJudge`): off, no entry is asked about and the ones still waiting are let go.
+function judgeSetting(view) {
+    try { return ((typeof view?.settings === 'function' ? view.settings() : view?.settings) ?? {}).worldJudge === true; } catch { return false; }
+}
+
+/** afterReceive: asks about the entries waiting (only while the setting is on). */
 export function judgeAfterReceive(view, asker = worldJudgeAsker) {
-    if (!worldEventsOn(view)) return;
+    if (!worldEventsOn(view) || !judgeSetting(view)) return;
     const items = waitingEntries(view?.state);
     if (items.length) asker.kick(view, items);
 }
 
-/** beforeGenerate: asks about the entries waiting, then `[{ type: 'chronicle.world.judged', payload }]` for the verdicts that are ready ([] when none). */
-export function judgeBeforeGenerate(view, asker = worldJudgeAsker) {
+/** beforeGenerate: asks about the entries waiting, then `[{ type: 'chronicle.world.judged', payload }]` for the verdicts that are ready ([] when none).
+ * With the setting off the entries still waiting are let go (stored as `fell`: the line's own result stands), so they are not rumour for ever. `commit` false (a Continue) stores nothing. */
+export function judgeBeforeGenerate(view, asker = worldJudgeAsker, commit = true) {
     if (!worldEventsOn(view)) return [];
     const items = waitingEntries(view?.state);
     if (!items.length) return [];
+    if (!judgeSetting(view)) return commit ? [{ type: JUDGED, payload: { results: Object.fromEntries(items.map(item => [item.id, { key: item.key, verdict: 'fell' }])), calls: 0 } }] : [];
     asker.kick(view, items);
     const ready = asker.drain(judgeScope(view), new Set(items.map(item => `${item.id}|${item.key}`)));
-    return ready ? [{ type: JUDGED, payload: ready }] : [];
+    return ready && commit ? [{ type: JUDGED, payload: ready }] : [];
 }
 
 // Tomorrow's roll (judge/roll-ask.js): the daily pass (arc setting `dailyPass`) looks at every eligible event, else the judge (chronicle setting `judge`,
@@ -51,7 +58,7 @@ function rollLook(view) {
 }
 
 /** afterReceive / beforeGenerate for tomorrow's roll: starts the asking; `drain` (beforeGenerate) also returns the store command for marks that are ready. */
-export function rollHook(view, { drain = false, asker = rollAsker } = {}) {
+export function rollHook(view, { drain = false, asker = rollAsker, commit = true } = {}) {
     if (!worldEventsOn(view)) return [];
     // After a reply (afterReceive) the days its step rolled can no longer take a verdict that is still on its way.
     if (!drain) asker.expire?.(judgeScope(view), slotValue(view?.state?.domains?.chronicle?.daily)?.day);
@@ -59,5 +66,5 @@ export function rollHook(view, { drain = false, asker = rollAsker } = {}) {
     if (!found) return [];
     asker.kick(view, found.look, found.pass);
     const ready = drain ? asker.drain(judgeScope(view), found.look.day) : null;
-    return ready ? [{ type: JUDGED, payload: { results: {}, ...ready } }] : [];
+    return ready && commit ? [{ type: JUDGED, payload: { results: {}, ...ready } }] : [];
 }
