@@ -8,6 +8,7 @@ What changed in each release, in short. The full record of every change is in [t
 - A person's dossier keeps up with the story: a goal, mood or memory a reply gives them shows as their latest change at once, and the narrator can give anyone a memory of a reply even when no feeling moved.
 - Two different events that share a phrase ("without raising a panic") are now two memories; one no longer replaces the other.
 - Someone new the story added with a + npc line now shows their latest change on the dossier too, from their next goal, mood or look.
+- When a reply tells one event twice about someone (as the reason for a feeling and again as a memory), it is kept as one memory, not two.
 - A dossier's latest change also moves when the story gives someone a gender, a Level, an ability, a keepsake, another name or something they now know.
 - Deleting the reply where someone's feelings first moved no longer wipes out what later replies gave them: their goals, meters and memories stay.
 - The world's own people are told to the narrator anywhere in their village, town or city (any spot in it, never past its edge), so they arrive as their pack describes them, race and look included.

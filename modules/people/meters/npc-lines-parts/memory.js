@@ -1,10 +1,12 @@
 // Memories from the lines (NSD8), only while lines mode is on. The words of a `~ npc` line's why: and memory:, of a lie and of a milestone are saved as that person's memory by code
 // (withMemories); `~ memory Name | what happened` is only for a moment no line covers, at most two a reply (memoryLine). Code owns who, the story day and the cap and trim
 // (the dossier's five important memories, applied where a record is read; the runtime's own per-reply write also trims to five, so storage appends only between those writes); a memory already stored, or one that only rewords it, is not stored twice. The writes are the reply's own
-// (`people.memory` in the line's transaction), so a swipe, a middle delete, a Re-read and a reload decide them again the same way.
+// (`people.memory` in the line's transaction), so a swipe, a middle delete, a Re-read and a reload decide them again the same way. A retelling of a memory this same
+// reply already stored (a why: and a memory: about one event) is not stored either.
 import { clean, isInt, slug, REASON_LABELS } from '../npc-meters-config.js';
 import { normalizeName } from '../../core/core-text.js';
 import { normalizeStoredMemories } from '../../core/core-record-shared.js';
+import { sameReplyRetelling } from '../../core/core-record-merge.js';
 import { knownPerson } from './stub.js';
 import { knownOrCast } from './cast-first.js';
 
@@ -30,6 +32,9 @@ function saveMemory(ctx, { key, text, date = '', tag = false }) {
     // dossier's five-memory cap and trim happen where a record is read (normalizeNpcRecord). normalizeStoredMemories is used here to tell a repeat or a rewording.
     const recent = normalizeStoredMemories([...before.slice(-8), said]);
     if (!recent.some(item => normalizeName(item) === normalizeName(said)) || before.some(item => normalizeName(item) === normalizeName(said))) return 'already stored';
+    // The same event told twice in this reply (a why: and a memory: or a `~ memory` in other words) is one memory: the first stays. Another reply's memory is
+    // never compared, so two events of different replies that share words are both kept (core-record-merge-parts/memories.js sameReplyRetelling).
+    if (at !== null && sameReplyRetelling(said, before, record.memoryStamps, at, record.manualMemories)) return 'already stored';
     const stamp = { m: at ?? 0, ...(date ? { d: String(date).slice(0, 40) } : {}), ...(tag && sid ? { s: sid } : {}) };
     const stamps = { ...(record.memoryStamps ?? {}), [normalizeName(said)]: stamp };
     const memories = [...before, said];
