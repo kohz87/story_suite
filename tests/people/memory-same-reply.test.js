@@ -14,6 +14,9 @@ const quiet = async run => { const original = console.warn; console.warn = () =>
 const DELIVERED = 'Delivered a steady, accurate firsthand report on Hollis Drane\'s wrecked charcoal wagon';
 const LISTENED = 'Listened to Astra\'s steady report on Hollis Drane\'s wrecked charcoal wagon and the sheared snare-wire';
 const GRANARY = "Astra kept the murdered keeper's granary sealed and brought her quietly without raising a panic";
+// REV-dfx2b F1: two different events of one reply that share only the wagon (and a name).
+const PULLED = 'Pulled Hollis Drane out from under the wrecked charcoal wagon on the north road';
+const WATCHED = 'Watched Hollis Drane sell the wrecked charcoal wagon for scrap at the market';
 const COLVIN = 'Astra recovered dead runner Colvin and his intact sealed dispatch from the northern alders without raising a panic';
 
 test('a why: and a memory: on one line telling the same event are one memory', async () => {
@@ -38,6 +41,16 @@ test('two events sharing a phrase in different replies stay two; a different eve
     await s.say([`~ npc Oren | trust: +1 | why: ${COLVIN} | memory: He saw the tower fall`]);
     assert.deepEqual(memories(s), [GRANARY, COLVIN, 'He saw the tower fall']);
     same(s, 'replay equals live');
+});
+
+test('two different events of one reply that share a few words (and a name) are both kept', async () => {
+    const s = await suite({ lines: true });
+    await s.say([`~ npc Oren | trust: +1 | why: ${PULLED} | memory: ${WATCHED}`]);
+    assert.deepEqual(memories(s), [PULLED, WATCHED]);
+    same(s, 'replay equals live');
+    const t = await suite({ lines: true });
+    await quiet(() => t.say([`~ npc Oren | trust: +1 | why: ${PULLED}`, `~ memory Oren | ${WATCHED}`]));
+    assert.deepEqual(memories(t), [PULLED, WATCHED], 'a ~ memory line too');
 });
 
 test('swipe, swipe back, Re-read, middle delete and reload decide the retelling the same way', async () => {

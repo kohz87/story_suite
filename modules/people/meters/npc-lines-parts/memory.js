@@ -19,6 +19,10 @@ const MEMORY_STORE_MAX = 400;   // what people.memory takes (Story Block's own c
 const savedBy = (ctx, sid) => Object.values(ctx.read('people')?.npcs ?? {}).reduce((count, record) => count + Object.values(record?.memoryStamps ?? {}).filter(stamp => stamp?.s === sid).length, 0);
 
 const LABEL_PER_REPLY_TEXT = 'only one memory: line per person a reply';
+// Two lines of one reply are written on purpose, so they are one event only when they share four distinctive words (names left out): Rorke's
+// "Delivered…report…wrecked charcoal wagon" / "Listened…report…" pair shares five; "Pulled Hollis out from under the wrecked charcoal wagon" and
+// "Watched Hollis sell the wrecked charcoal wagon" share three and are two events (REV-dfx2b F1). A scan's second pass keeps three.
+const LINE_RETELLING_SHARED = 4;
 
 /** Saves `text` as `key`'s memory on this reply → '' when saved, else why not. `tag`: true marks it as a `~ memory` line's (counted against the cap). `label`: true marks
  *  it as a memory: label's (`l`: the reply's sid; one a person a reply); any other keeps the sid as `r`, so every line memory knows its reply. `date`: the story day text ('' when none). */
@@ -40,7 +44,7 @@ function saveMemory(ctx, { key, text, date = '', tag = false, label = false }) {
     // memories are compared, found by the reply's sid (an index is taken again after a middle delete), so two events of different replies that share words are
     // both kept (core-record-merge-parts/memories.js sameReplyRetelling).
     const mine = sid ? before.filter(item => [record.memoryStamps?.[normalizeName(item)]].some(own => own && (own.s === sid || own.l === sid || own.r === sid))) : [];
-    if (mine.length && sameReplyRetelling(said, mine, Object.fromEntries(mine.map(item => [normalizeName(item), { m: 0 }])), 0, record.manualMemories)) return 'already stored';
+    if (mine.length && sameReplyRetelling(said, mine, Object.fromEntries(mine.map(item => [normalizeName(item), { m: 0 }])), 0, record.manualMemories, { minShared: LINE_RETELLING_SHARED })) return 'already stored';
     // At most one memory: a person a reply (REV-dossa F4): six lines of memory: would otherwise push every earlier memory out of the five the dossier keeps.
     if (label && sid && Object.values(record.memoryStamps ?? {}).some(stamp => stamp?.l === sid)) return LABEL_PER_REPLY_TEXT;
     const stamp = { m: at ?? 0, ...(date ? { d: String(date).slice(0, 40) } : {}), ...(tag && sid ? { s: sid } : {}), ...(label && sid ? { l: sid } : {}), ...(sid && !tag && !label ? { r: sid } : {}) };

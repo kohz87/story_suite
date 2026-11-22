@@ -12,11 +12,13 @@ import { IMPORTANT_MEMORY_LIMIT } from '../core-record-shared.js';
 function distinctWords(text) {
     const names = new Set();
     for (const hit of String(text || '').matchAll(/[A-Z][a-z]+/g)) {
-        if (hit.index > 0 && !/[.!?]\s*$/.test(String(text).slice(0, hit.index))) names.add(hit[0].toLowerCase());
+        // A name is left out as the tokenizer writes it ("Hollis" is the token "holli"), or a name ending in s would count as a shared word.
+        if (hit.index > 0 && !/[.!?]\s*$/.test(String(text).slice(0, hit.index))) for (const token of durableRefinementTokens(hit[0])) names.add(token);
     }
     return new Set(durableRefinementTokens(text).filter(token => token.length >= 4 && !/^\d+$/.test(token) && !names.has(token)));
 }
-export function sameReplyRetelling(item, oldList = [], stamps = {}, message = null, pinned = []) {
+// `minShared`: how many distinctive words must be shared (3 for a scan's second pass over a reply; a reply's own lines ask for more, npc-lines-parts/memory.js).
+export function sameReplyRetelling(item, oldList = [], stamps = {}, message = null, pinned = [], { minShared = 3 } = {}) {
     if (!Number.isInteger(message)) return false;
     const keep = new Set((Array.isArray(pinned) ? pinned : []).map(normalizeName));
     if (keep.has(normalizeName(item))) return false;
@@ -25,7 +27,7 @@ export function sameReplyRetelling(item, oldList = [], stamps = {}, message = nu
         if (stamps?.[normalizeName(old)]?.m !== message || keep.has(normalizeName(old))) return false;
         const oldWords = distinctWords(old);
         const shared = [...oldWords].filter(word => words.has(word)).length;
-        return shared >= 3 && shared / Math.min(oldWords.size, words.size) >= 0.25;
+        return shared >= minShared && shared / Math.min(oldWords.size, words.size) >= 0.25;
     });
 }
 
