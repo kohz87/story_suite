@@ -54,7 +54,8 @@ export function placeTold(ctx, atlas, pack, place, { from, way, km, straight = f
     const origin = world.find(from);
     const start = origin && origin.id !== self?.id ? vouched(origin) : null;
     if (!start || (self && vouched(self))) return false;
-    const units = (straight ? km : km / map.roadFactor) / kmScale(world, map);
+    // (no scale the map can vouch for: the setting's, so the story's own places still lie the km it told from one another)
+    const units = (straight ? km : km / map.roadFactor) / (kmScale(world, map) ?? map.kmPerUnit);
     const [east, north] = STEPS[way].map(step => (back ? -step : step));
     const length = Math.hypot(east, north);
     place.x = round3(start.x + (east / length) * units * (map.east === 'left' ? -1 : 1));

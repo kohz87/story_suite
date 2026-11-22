@@ -100,7 +100,7 @@ export function atlasTail(view) {
         const anchor = anchorOf(world, atlas, packOf(view), here, { region: scenePlace(view).region, regions: packRegions(typeof view?.query === 'function' ? (name, args) => view.query(name, args) : null) });
         if (anchor?.name && anchor.via !== 'pack') line = routesLine(world, anchor.name, { map, pointOf });
     }
-    // Where places lie (as the crow flies): its own room, after the routes, so it is the first optional line to go when the tail is full.
+    // Where places lie (as the crow flies): its own room in the part's budget; the last optional line, so the first to go when the tail is full.
     const said = [view?.chat?.lastUser, view?.chat?.lastReply].filter(text => typeof text === 'string').join('\n');
     const where = placesLine(world, here, { said, map, pointOf, scale: kmScale(world, map), maxChars: PLACES_TAIL_BUDGET * 4 });
     return { lines: [], optional: [line, where].filter(Boolean) };

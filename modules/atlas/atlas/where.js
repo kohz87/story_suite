@@ -1,6 +1,6 @@
 // Where a place lies, for the narrator's lines: the point the code can vouch for, the map's km per unit, and the compass words between two points.
 
-import { bearing, mapSettings } from '../places.js';
+import { DEFAULT_MAP, bearing, mapSettings } from '../places.js';
 
 const WORDS = Object.freeze({ N: 'north', NE: 'north-east', E: 'east', SE: 'south-east', S: 'south', SW: 'south-west', W: 'west', NW: 'north-west' });
 const finite = place => Number.isFinite(place?.x) && Number.isFinite(place?.y);
@@ -14,8 +14,9 @@ const finite = place => Number.isFinite(place?.x) && Number.isFinite(place?.y);
 export function trustedPoint(place, { atlas, world, packHas = () => false } = {}, depth = 0) {
     if (!finite(place)) return null;
     const own = place.atlasId ? atlas?.places?.[place.atlasId] : null;
-    if (!own?.auto || packHas(place.name)) return { x: place.x, y: place.y };
-    const up = own.parent && depth < 3 ? world?.find?.(own.parent) : null;
+    if (!own?.auto || packHas(place.name) || (place.aliases ?? []).some(packHas)) return { x: place.x, y: place.y };
+    // (as deep as world.js follows a chain of auto-placed parents)
+    const up = own.parent && depth <= 3 ? world?.find?.(own.parent) : null;
     return up && up.id !== place.id && trustedPoint(up, { atlas, world, packHas }, depth + 1) ? { x: place.x, y: place.y } : null;
 }
 
@@ -38,11 +39,12 @@ export function roadScale(world, roadFactor = 1.25) {
 
 /**
  * The km per map unit the narrator's lines use: the pack's roads' scale when they give one (the setting's default of 1 would put
- * Auvoth 5 km from Bluewatch, whose road is 70 km), else the reader's Km per map unit.
+ * Auvoth 5 km from Bluewatch, whose road is 70 km), else the reader's Km per map unit when it is not the default; null when neither
+ * says (the lines then give directions without km).
  */
 export function kmScale(world, map) {
     const settings = mapSettings(map);
-    return roadScale(world, settings.roadFactor) ?? settings.kmPerUnit;
+    return roadScale(world, settings.roadFactor) ?? (settings.kmPerUnit !== DEFAULT_MAP.kmPerUnit ? settings.kmPerUnit : null);
 }
 
 /** The compass words ("north-east") from point `a` to point `b` under the reader's north/east setting, or '' (the same spot, or no point). */

@@ -79,6 +79,20 @@ test('only a point the code can vouch for gives a compass word: the pack\'s, the
     assert.equal(placesLine(routeWorld, 'Weirford', { said: 'Fernhollow', pointOf }), '', 'nothing vouched for to tell');
 });
 
+test('a name counts only as written with its capital, an other name two places share names neither, another plane says so, and no scale gives no km', () => {
+    const places = [
+        { id: 'a', name: 'Bluewatch', x: 0, y: 0, aliases: [] },
+        { id: 'r', name: 'Rest', x: 0, y: 3, aliases: ['Twin Ford'] },
+        { id: 't', name: 'Tarn', x: 3, y: 0, aliases: ['Twin Ford'] },
+        { id: 'd', name: 'Deep Hall', x: 0, y: -4, layer: 'underground', aliases: [] },
+    ];
+    const world = { places, routes: [], find: ref => places.find(place => place.id === ref || place.name === ref) ?? null };
+    const pointOf = place => ({ x: place.x, y: place.y });
+    assert.equal(placesLine(world, 'Bluewatch', { said: 'we rest at dawn by the twin ford', pointOf, scale: 10 }), '');
+    assert.equal(placesLine(world, 'Bluewatch', { said: 'Twin Ford, then Rest.', pointOf, scale: 10 }), 'Where places lie from Bluewatch, as the crow flies: Rest about 30 km north.');
+    assert.equal(placesLine(world, 'Bluewatch', { said: 'Down to Deep Hall and Tarn', pointOf }), 'Where places lie from Bluewatch, as the crow flies: Deep Hall (underground) south · Tarn east.');
+});
+
 test('nothing without a place, a point for it, or an atlas; the tail stays within its room', () => {
     assert.deepEqual(part.context.tail(view(makeState({ place: '' }))), { lines: [], optional: [] });
     assert.deepEqual(tailAt('Nowhere Special'), []);
