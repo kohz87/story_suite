@@ -3,7 +3,6 @@
 export const TAIL_BUDGET = 80;
 /** The trip's own room (feature `story-director.trip`): "On the road: …" with a few stages to come, and the reached-a-place cue. */
 export const TRIP_TAIL_BUDGET = 90;
-
 /**
  * The atlas kinds' grammar: the route line carries the landmark's (one line for the family; the landmark has none of its own),
  * and both are taught only while the story has a route or a landmark (the lean diet, 3 Nov). The trip line only while a route is known.

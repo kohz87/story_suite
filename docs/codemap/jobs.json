@@ -791,5 +791,8 @@
   "ui/wizard/summary.js": "Draws the wizard's summary of the character so far: the phone's row and, from 1100 px, the left card's portrait, stat tiles and skill list.",
   "ui/wizard/who.js": "Draws the wizard's Who step in the new view: saved-character import and undo, the name and the starting level.",
   "ui/wizard/wizard.js": "The new view's New character sheet: the session, the Who · Stats · Skills · Review tabs, the summary, Back / Next and Create's footer, and the step's scroll across redraws.",
-  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You."
+  "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You.",
+  "modules/atlas/atlas/where.js": "Where a place lies for the narrator's lines: the point the code can vouch for (not a guessed one), the map's km per unit from the pack's roads, and the compass words between two points.",
+  "modules/atlas/atlas/note-parts/places-line.js": "Builds the narrator's \"Where places lie\" line: direction and distance as the crow flies to the places the reader's message and the last reply name, then to the nearest city or capital each way.",
+  "tests/modules/atlas/places-line.test.js": "Tests the \"Where places lie\" line, the map scale from the pack's roads and which points may give a compass word."
 }

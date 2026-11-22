@@ -181,7 +181,7 @@ test('modules() describes each module; settings(id) and view() read through the 
     const view = host.sdk.view();
     assert.ok(Object.isFrozen(view.state));
     assert.deepEqual(view.query('tally.value'), { n: 0 });
-    assert.deepEqual(view.chat, { length: 1, lastUser: '', readers: 0 });
+    assert.deepEqual(view.chat, { length: 1, lastUser: '', lastReply: 'The story begins.', readers: 0 });
     assert.equal(typeof host.sdk.id, 'function');
     host.close();
 });
@@ -209,7 +209,7 @@ test('makeView: the frozen head, a query on it, settings and the chat\'s length 
     const state = Object.freeze(registry.initialState());
     const view = makeView({ store: { head: () => state }, registry, settings: () => ({}), chat: [{ is_user: true, mes: 'one' }, { is_user: false, mes: 'x' }, { is_user: true, mes: 'two' }] });
     assert.equal(view.state, state);
-    assert.deepEqual(view.chat, { length: 3, lastUser: 'two', readers: 2 });
+    assert.deepEqual(view.chat, { length: 3, lastUser: 'two', lastReply: 'x', readers: 2 });
     assert.ok(Object.isFrozen(view));
     assert.deepEqual(view.query('tally.value'), { n: 0 });
 });

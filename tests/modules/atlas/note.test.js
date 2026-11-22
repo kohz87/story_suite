@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { part } from '../../../modules/atlas/atlas/index.js';
-import { TAIL_BUDGET, TRIP_TAIL_BUDGET } from '../../../modules/atlas/atlas/note.js';
+import { PLACES_TAIL_BUDGET, TAIL_BUDGET, TRIP_TAIL_BUDGET } from '../../../modules/atlas/atlas/note.js';
 import { at, command, lines, makeState, queryFor } from './helpers/fake-ctx.js';
 
 // What the host puts in the static prompt for this part: each kind's one line, then its static.
@@ -46,7 +46,7 @@ test('the tail is one optional line: the known routes from the scene\'s place wi
     const out = part.context.tail(view(story()));
     assert.deepEqual(out.lines, []);
     assert.deepEqual(out.optional, ['Routes from Bluewatch Village: Old Weir by road, 2 h · Thunder Ruins by trail, 1.5 days · Grey Fen.']);
-    assert.equal(part.context.budget, TAIL_BUDGET + TRIP_TAIL_BUDGET, 'the trip has its own room (a context part under its feature)');
+    assert.equal(part.context.budget, TAIL_BUDGET + PLACES_TAIL_BUDGET + TRIP_TAIL_BUDGET, 'where places lie and the trip have their own room (the trip: a context part under its feature)');
     assert.equal(TAIL_BUDGET, 80);
 });
 

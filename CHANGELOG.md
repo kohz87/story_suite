@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Each reply now tells the narrator where places lie as the crow flies: the places your message and the last reply name, and the nearest city each way ("Auvoth about 50 km west").
 - The narrator is told which way each road out of where you are leads ("Auvoth (west) by frontier road"), so it stops sending you east to a town that lies west.
 - Armour soak now takes off only the whole points it adds up to: 6% soak no longer turns a 3-damage hit into 2 (it starts taking a point off at 17 damage). Fights already open keep the old rule.
 - Someone new you meet on the way (a shopkeeper at another spot) is no longer shown as present where the reply ends, and keeps the mood the story gave them.
