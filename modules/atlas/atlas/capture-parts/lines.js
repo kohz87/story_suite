@@ -1,6 +1,6 @@
 // Parses and applies route and landmark change lines for the atlas.
 
-import { parseLocation } from '../../places.js';
+import { mapSettings, parseLocation } from '../../places.js';
 import {
     MAX_NAME, cleanName, cleanWord, findPlace, keyOf, newId, routesBetween,
 } from '../domain.js';
@@ -169,7 +169,8 @@ export function applyRouteLine(ctx, line) {
     // `way: north`: where the second place lies from the first; it puts a new place (no point the code vouches for) on the map from the
     // other (told-point.js), `km:` or the route's time giving how far.
     const way = wayOf(line?.labels?.way);
-    const km = Number(line?.labels?.km) > 0 ? Number(line.labels.km) : routeKm(route);
+    const era = mapSettings(typeof ctx.settings === 'function' ? ctx.settings()?.map : undefined).era;
+    const km = Number(line?.labels?.km) > 0 && Number.isFinite(Number(line.labels.km)) ? Number(line.labels.km) : routeKm(route, era);
     const placed = way && km ? (placeTold(ctx, atlas, pack, b, { from: a.id, way, km }) ? b : placeTold(ctx, atlas, pack, a, { from: b.id, way, km, back: true }) ? a : null) : null;
     return {
         summary: `${created ? 'A' : 'The'} ${what} joins ${a.name} and ${b.name}${when ? ` (${when})` : ''}.${placed ? ` ${placed.name} is on the map.` : ''}`,

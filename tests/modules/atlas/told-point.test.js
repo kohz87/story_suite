@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 import { part } from '../../../modules/atlas/atlas/index.js';
 import { routeKm, toldAt, wayOf } from '../../../modules/atlas/atlas/capture-parts/told-point.js';
-import { at, lines, makeState, queryFor } from './helpers/fake-ctx.js';
+import { at, lines, makeState, queryFor, replay } from './helpers/fake-ctx.js';
 
 // Bluewatch and Auvoth as in Ersveil; three roads give the map 10 km a unit (road factor 1.25: 12.5 km of road a unit).
 const PACK = {
@@ -72,4 +72,21 @@ test('the story never moves a place the code already vouches for, a pack place, 
     assert.equal(place(state, 'Weir').x, undefined, 'no way the code can read: the route stands, unplaced');
     const again = lines(makeState({ place: 'Bluewatch Village' }), '+ landmark Grey Cairn | at: 10 km north of Bluewatch Village', opts).state;
     assert.deepEqual(place(again, 'Grey Cairn'), place(lines(makeState({ place: 'Bluewatch Village' }), '+ landmark Grey Cairn | at: 10 km north of Bluewatch Village', opts).state, 'Grey Cairn'));
+});
+
+test('a distance too big or not a number leaves the place unplaced and the line standing; a modern map reads a route\'s hours by car', () => {
+    let state = makeState({ place: 'Bluewatch Village' });
+    state = lines(state, ['+ route Bluewatch Village — Far | km: 1e999 | way: north', '+ route Bluewatch Village — Farther | km: 9000 | way: north', `+ landmark Huge | at: ${'9'.repeat(400)} km north of Bluewatch Village`].join('\n'), opts).state;
+    assert.deepEqual(['Far', 'Farther', 'Huge'].map(name => place(state, name)?.x), [undefined, undefined, undefined]);
+    assert.equal(routeKm({ hours: 2, kind: 'road' }, 'modern'), 140);
+    assert.equal(routeKm({ days: 1, kind: 'rail' }, 'modern'), 720);
+    const modern = lines(makeState({ place: 'Auvoth' }), '+ route Auvoth — Airfield | hours: 1 | kind: road | way: east', { ...opts, settings: { map: { era: 'modern' } } }).state;
+    assert.deepEqual([place(modern, 'Airfield').x, place(modern, 'Airfield').y], [64.6, 110]);
+});
+
+test('the stored ops replay to the same told points (a reload, a middle delete, a rebuild replay them)', () => {
+    const initial = makeState({ place: 'Bluewatch Village' });
+    const { state, runs } = lines(initial, ['+ route Bluewatch Village — Fernhollow | days: 1 | way: north', '+ landmark Grey Cairn | at: 12 km east of Fernhollow'].join('\n'), opts);
+    assert.deepEqual(replay(initial, runs), state);
+    assert.deepEqual([place(state, 'Grey Cairn').x, place(state, 'Grey Cairn').y], [65.2, 111.6], 'told from a told place');
 });

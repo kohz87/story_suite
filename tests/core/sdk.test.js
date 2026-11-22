@@ -212,6 +212,9 @@ test('makeView: the frozen head, a query on it, settings and the chat\'s length 
     assert.deepEqual(view.chat, { length: 3, lastUser: 'two', lastReply: 'x', readers: 2 });
     assert.ok(Object.isFrozen(view));
     assert.deepEqual(view.query('tally.value'), { n: 0 });
+    // the last reply is the story as told: its change block is not part of it; a reply after the reader's last message (a swipe being written) is not it
+    const told = makeView({ store: { head: () => state }, registry, settings: () => ({}), chat: [{ is_user: false, mes: 'Rain.\n<Changes>\n~ trip Wolfmere Outpost\n</Changes>' }, { is_user: true, mes: 'On.' }, { is_user: false, mes: 'old swipe' }] });
+    assert.equal(told.chat.lastReply, 'Rain.');
 });
 
 test('a query gets (state, args, tools) and can ask other queries over the same state', async () => {

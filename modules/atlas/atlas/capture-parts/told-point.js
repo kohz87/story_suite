@@ -1,9 +1,12 @@
 // A new place the story tells the way to ("Fernhollow lies a day north"): its `way:` on the route line, or `at: 12 km north of Place` on
 // its landmark line, puts it on the map from the place it is told from, so later lines give its direction from the code (owner, 22 Nov:
-// "the direction to a new place should be post narrative: the narrative says how far and which way, then it gets saved"). Pure on the
-// reply's own line, so replay gives the same point.
+// "the direction to a new place should be post narrative: the narrative says how far and which way, then it gets saved"). The point is
+// worked out when the line is read, from the line, the map so far, the pack's roads and the reader's map settings, and stored: a reload, a
+// middle delete or a rebuild replays the stored point. A swipe or a Re-read reads the line again, so a map setting changed in between (north
+// flipped) gives the point under the new setting, as a trip's plan does (trip-capture.js). A told point whose anchor's reply is later deleted
+// keeps the point it was given.
 
-import { DEFAULT_PACES, mapSettings } from '../../places.js';
+import { DEFAULT_PACES, MODERN_PACES, mapSettings } from '../../places.js';
 import { round3 } from '../domain.js';
 import { packPlace, worldOf } from '../world.js';
 import { kmScale, trustedPoint } from '../where.js';
@@ -26,14 +29,30 @@ export function wayOf(text) {
 export function toldAt(text) {
     const match = String(text ?? '').trim().match(/^(\d+(?:\.\d+)?)\s*km\s+(.+?)\s+of\s+(.+)$/i);
     const way = match ? wayOf(match[2]) : null;
-    return way && Number(match[1]) > 0 && match[3].trim() ? { km: Number(match[1]), way, of: match[3].trim() } : null;
+    const km = match ? Number(match[1]) : 0;
+    return way && km > 0 && km <= MAX_TOLD_KM && match[3].trim() ? { km, way, of: match[3].trim() } : null;
 }
 
-// km a route's time stands for: a day's pace by its kind (river by boat, sea by ship, the rest on foot), an hour a fifth of a day's.
-export function routeKm(route) {
+/** The most km the story can tell a new place away (more is a slip: the place stays unplaced, as with a way the code cannot read). */
+const MAX_TOLD_KM = 5000;
+
+/**
+ * km a route's time stands for (`era`: the map's). Pre-modern: a day's pace by its kind (river by boat, sea by ship, the rest on foot), an
+ * hour a fifth of a day's. Modern: km an hour by its kind (road by car, rail by train, river by ferry, sea by ship, a trail on foot), a day
+ * eight hours of it.
+ */
+export function routeKm(route, era = 'pre-modern') {
     const kind = String(route?.kind ?? '');
-    const day = /sea|ocean/.test(kind) ? DEFAULT_PACES.ship : /river|canal|lake/.test(kind) ? DEFAULT_PACES.boat : DEFAULT_PACES.foot;
-    const km = (Number(route?.days) || 0) * day + (Number(route?.hours) || 0) * day / 5;
+    const days = Number(route?.days) || 0, hours = Number(route?.hours) || 0;
+    let km;
+    if (era === 'modern') {
+        const hourly = /sea|ocean/.test(kind) ? MODERN_PACES.ship : /river|canal|lake|ferry/.test(kind) ? MODERN_PACES.ferry : /rail|train/.test(kind) ? MODERN_PACES.train
+            : /trail|path|foot/.test(kind) ? MODERN_PACES.foot : MODERN_PACES.car;
+        km = (days * 8 + hours) * hourly;
+    } else {
+        const day = /sea|ocean/.test(kind) ? DEFAULT_PACES.ship : /river|canal|lake/.test(kind) ? DEFAULT_PACES.boat : DEFAULT_PACES.foot;
+        km = days * day + hours * day / 5;
+    }
     return km > 0 ? km : null;
 }
 
@@ -44,7 +63,7 @@ export function routeKm(route) {
  * (a route line's first place is the new one). Returns whether it was placed.
  */
 export function placeTold(ctx, atlas, pack, place, { from, way, km, straight = false, back = false }) {
-    if (!place || !STEPS[way] || !(km > 0) || packPlace(pack, place.name)) return false;
+    if (!place || !STEPS[way] || !(km > 0 && km <= MAX_TOLD_KM) || packPlace(pack, place.name)) return false;
     const settings = typeof ctx?.settings === 'function' ? ctx.settings() : {};
     const map = mapSettings(settings?.map);
     const world = worldOf(atlas, pack);
