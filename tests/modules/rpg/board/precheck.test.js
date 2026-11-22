@@ -60,6 +60,12 @@ test('every distinctive word of a name must appear whole in the message', () => 
     assert.deepEqual(vetGroups([{ name: 'Cave Rats', count: 2 }, { name: 'Dire Rats', count: 2 }], { message: 'I attack the cave rat.', sheet }),
         [{ name: 'Cave Rats', count: 2, level: 5 }]);
     assert.deepEqual(vetGroups([{ name: 'Gorged Grey-Tooth Tunnel Rats', count: 6 }], { message: 'I attack six rats.', sheet }), []);
+    // a word a short ending away is the same word (owner, 23 Nov: "6 hound size rats" read as "Hound-sized river-rats", the river-rats from the reply before)
+    assert.deepEqual(vetGroups([{ name: 'Hound-sized river-rats', count: 6 }], { message: 'When 6 hound size rats swarmed out, I attack them.', previous: 'clear aggressive river-rats from the cellar', sheet }),
+        [{ name: 'Hound-sized river-rats', count: 6, level: 5 }]);
+    // but not a different word that only starts the same, nor a word under four letters
+    assert.deepEqual(vetGroups([{ name: 'Ratcatchers', count: 2 }], { message: 'I attack the rats.', sheet }), []);
+    assert.deepEqual(vetGroups([{ name: 'Houndmasters', count: 2 }], { message: 'I attack the hound.', sheet }), []);
 });
 
 test('malformed JSON gives null', () => {
