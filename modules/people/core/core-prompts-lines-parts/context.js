@@ -8,9 +8,11 @@ import { countsTowardCap } from '../roster-count.js';
 
 export const PEOPLE_HEADER = 'People you know about (match by these names):';
 // (owner-approved 22 Nov: the narrator wrote mood lines for people in the background but skipped their memory: and goal:, so their dossiers waited for a
-// Refresh; the reminder names who is in the scene, last in the context, so it sits close to where the lines are written)
+// Refresh; the reminder names who is in the scene, last in the context, so it sits close to where the lines are written. Owner-approved the same day: it is
+// always sent, since the people of a reply often arrive in it (a scene empty before the reply had no names), and it names who the player's message calls too)
 const PRESENT_MAX = 12;
-export const presentReminder = names => (names.length ? `\nPeople in this scene: ${names.join(', ')}. For each one who did or saw something that mattered in this reply, write their memory:, and goal: if it changed.` : '');
+const REMINDER = 'For each person in this reply (anyone who arrives too) who did or saw something that mattered, write their memory:, and goal: if it changed.';
+export const presentReminder = names => `\n${names.length ? `People in this scene: ${names.join(', ')}. ` : ''}${REMINDER}`;
 
 /** The listed people: active ones (not archived, dead or dormant), plus any the player's message names. */
 export function listedPeople({ existingNpcs = [], turn = 0, dormantAfter, namedNpcIds = [] } = {}) {
@@ -18,7 +20,7 @@ export function listedPeople({ existingNpcs = [], turn = 0, dormantAfter, namedN
     return existingNpcs.filter(npc => npc && (named.has(npc.id) || (!npc.archived && countsTowardCap(npc, turn, dormantAfter))));
 }
 
-/** `present`: the names of the people in the scene now (the runtime's scene presence, never the dead); none sends no reminder. */
+/** `present`: the names of the people in the scene now and those the player's message calls (never the dead); with none, the reminder is sent without names. */
 export function buildLinesContext({ eventWatch = null, existingNpcs = [], turn = 0, dormantAfter, namedNpcIds = [], present = [] } = {}) {
     const events = hiddenNoteEventLinesParagraph(eventWatch);
     const people = listedPeople({ existingNpcs, turn, dormantAfter, namedNpcIds }).map(npc => ({

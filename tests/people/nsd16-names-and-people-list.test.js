@@ -29,11 +29,12 @@ test('the people list: 40 dossiers with 30 archived list only the active ones; o
     assert.ok(!text.includes('Person 25'));
 });
 
-test('the scene reminder names the people present, once each, last in the context; no one present sends none', () => {
+test('the scene reminder names the people present, once each, last in the context; with no one it is sent without names', () => {
     const npcs = [{ id: 'dora', name: 'Dora Vint', aliases: [], present: true, lastSeenTurn: 10 }];
     const text = buildLinesContext({ existingNpcs: npcs, turn: 10, present: ['Dora Vint', 'Sister Temiwa', 'Dora Vint', ' '] });
-    assert.ok(text.endsWith('\nPeople in this scene: Dora Vint, Sister Temiwa. For each one who did or saw something that mattered in this reply, write their memory:, and goal: if it changed.'), text);
-    assert.ok(!buildLinesContext({ existingNpcs: npcs, turn: 10 }).includes('People in this scene'));
+    assert.ok(text.endsWith('\nPeople in this scene: Dora Vint, Sister Temiwa. For each person in this reply (anyone who arrives too) who did or saw something that mattered, write their memory:, and goal: if it changed.'), text);
+    const empty = buildLinesContext({ existingNpcs: npcs, turn: 10 });
+    assert.ok(!empty.includes('People in this scene') && empty.endsWith(']\nFor each person in this reply (anyone who arrives too) who did or saw something that mattered, write their memory:, and goal: if it changed.'), empty);
     const crowd = buildLinesContext({ present: Array.from({ length: 20 }, (_, index) => `Person ${index}`) });
     assert.ok(crowd.includes('Person 11.') && !crowd.includes('Person 12'), 'at most twelve names');
 });

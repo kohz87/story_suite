@@ -44,9 +44,11 @@ export function createInjectionPart(rt, deps) {
             .map(npc => npc.id);
     }
 
-    // The names of the people in the scene now (hosted: the scene's presence; the dead never), for the context's reminder (core-prompts-lines-parts/context.js).
-    function presentNames(state) {
-        return scenePresenceView(state?.npcs || []).filter(npc => npc?.present && npc.name && !isTerminalNpcDeath(npc)).map(npc => npc.name);
+    // The names for the context's reminder (core-prompts-lines-parts/context.js): the people in the scene now (hosted: the scene's presence) and the
+    // dossiers the player's message calls (`namedNpcIds`, who often arrive in the reply); the dead never.
+    function presentNames(state, namedNpcIds = []) {
+        const named = new Set(namedNpcIds);
+        return scenePresenceView(state?.npcs || []).filter(npc => (npc?.present || named.has(npc?.id)) && npc.name && !isTerminalNpcDeath(npc)).map(npc => npc.name);
     }
 
     // (Story Block 2.18.0) The signature gear line of each pack cast dossier: { [npcId]: "Gear: A, B" }, only for those the host answers
@@ -80,7 +82,7 @@ export function createInjectionPart(rt, deps) {
         // the story events of present people's locked notes (with the context); the list is kept for the reply that carries it.
         const noteOptions = hostedNotePromptOptions(state, settings);
         const built = adapterMeters()
-            ? buildLinesParts({ ...noteOptions, moodWord: true, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds, present: presentNames(state) })
+            ? buildLinesParts({ ...noteOptions, moodWord: true, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds, present: presentNames(state, namedNpcIds) })
             : { rules: '', context: '' };
         return { rules: built.rules, context: armed ? built.context : '', noteOptions };
     }

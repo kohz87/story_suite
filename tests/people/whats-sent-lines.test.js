@@ -57,3 +57,21 @@ test('one-pass off: no one-pass part even when hosted', () => {
     assert.deepEqual(preview().parts.map(part => part.label), ['Live dossier']);
     settings.narrationCapture = true;
 });
+
+test('hosted: the context ends with the reminder naming who is here and who the player\'s message calls; the dead never', () => {
+    const settings = getSettings();
+    Object.assign(settings, { enabled: true, inject: true, narrationCapture: true, fullScanEveryTurn: false });
+    const extra = [normalizeNpcRecord({ id: 'npc_oren', name: 'Oren', present: false, role: 'Smith' }), normalizeNpcRecord({ id: 'npc_tam', name: 'Tam', present: false, lifeState: 'deceased', lifeStateCertainty: 'explicit' }), normalizeNpcRecord({ id: 'npc_lio', name: 'Lio', present: false })];
+    state.npcs.push(...extra);
+    globalThis.__npcMock.context.chat = [{ is_user: true, mes: 'I ask Mira to fetch Oren and Tam from the forge.' }];
+    try {
+        const { rt, injection } = rig({ hosted: true });
+        rt.narrationCaptureArmed = 'chat';
+        injection.updateInjection();
+        const context = sent.get(KEYS.CAPTURE_PROMPT_KEY);
+        assert.ok(context.endsWith('\nPeople in this scene: Mira, Oren. For each person in this reply (anyone who arrives too) who did or saw something that mattered, write their memory:, and goal: if it changed.'), context);
+    } finally {
+        state.npcs.splice(1);
+        globalThis.__npcMock.context.chat = [];
+    }
+});
