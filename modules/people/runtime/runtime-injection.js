@@ -44,6 +44,11 @@ export function createInjectionPart(rt, deps) {
             .map(npc => npc.id);
     }
 
+    // The names of the people in the scene now (hosted: the scene's presence; the dead never), for the context's reminder (core-prompts-lines-parts/context.js).
+    function presentNames(state) {
+        return scenePresenceView(state?.npcs || []).filter(npc => npc?.present && npc.name && !isTerminalNpcDeath(npc)).map(npc => npc.name);
+    }
+
     // (Story Block 2.18.0) The signature gear line of each pack cast dossier: { [npcId]: "Gear: A, B" }, only for those the host answers
     // for. Empty without a host, on an older Story Block without `packs.castGear`, and while gear is off or the person is in the party.
     function castGearLines(state) {
@@ -75,7 +80,7 @@ export function createInjectionPart(rt, deps) {
         // the story events of present people's locked notes (with the context); the list is kept for the reply that carries it.
         const noteOptions = hostedNotePromptOptions(state, settings);
         const built = adapterMeters()
-            ? buildLinesParts({ ...noteOptions, moodWord: true, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
+            ? buildLinesParts({ ...noteOptions, moodWord: true, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds, present: presentNames(state) })
             : { rules: '', context: '' };
         return { rules: built.rules, context: armed ? built.context : '', noteOptions };
     }

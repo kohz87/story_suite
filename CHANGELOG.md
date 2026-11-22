@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Each reply now reminds the narrator who is in the scene, so people in the background get their memories and new goals on the dossier at once instead of waiting for a Refresh.
 - A mood the story gives someone is shown on their dossier right away, even a word the mood list doesn't rate ("shaken"), instead of waiting for a Refresh.
 - A person's dossier keeps up with the story: a goal, mood or memory a reply gives them shows as their latest change at once, and the narrator can give anyone a memory of a reply even when no feeling moved.
 - Two different events that share a phrase ("without raising a panic") are now two memories; one no longer replaces the other.

@@ -1,12 +1,16 @@
 /* NPC State one-pass lines builder: the context part (changes every reply). Sent by runtime-injection in hosted one-pass mode (N7).
    NSD14 (approved, plain header): the people the model may name, once each, then the story events to look for (NSD12, G8).
    `existingNpcs` the dossiers; `turn`, `dormantAfter` decide who is active (roster-count.js: not dead, not dormant); `namedNpcIds` the ids the player's
-   message names, so an archived, dead or long-unseen person is listed only then; `eventWatch` [{ key (a note id), name, event }]. The list shape is the approved id, name, aliases only (a role-label person too); no lead line or reminder beyond the header. No registryState,
+   message names, so an archived, dead or long-unseen person is listed only then; `eventWatch` [{ key (a note id), name, event }]. The list shape is the approved id, name, aliases only (a role-label person too); no lead line beyond the header. No registryState,
    no candidates, no live or stable context (the dossier injection already describes each present person). */
 import { hiddenNoteEventLinesParagraph } from '../core-prompts-capture-parts/hidden-notes.js';
 import { countsTowardCap } from '../roster-count.js';
 
 export const PEOPLE_HEADER = 'People you know about (match by these names):';
+// (owner-approved 22 Nov: the narrator wrote mood lines for people in the background but skipped their memory: and goal:, so their dossiers waited for a
+// Refresh; the reminder names who is in the scene, last in the context, so it sits close to where the lines are written)
+const PRESENT_MAX = 12;
+export const presentReminder = names => (names.length ? `\nPeople in this scene: ${names.join(', ')}. For each one who did or saw something that mattered in this reply, write their memory:, and goal: if it changed.` : '');
 
 /** The listed people: active ones (not archived, dead or dormant), plus any the player's message names. */
 export function listedPeople({ existingNpcs = [], turn = 0, dormantAfter, namedNpcIds = [] } = {}) {
@@ -14,12 +18,14 @@ export function listedPeople({ existingNpcs = [], turn = 0, dormantAfter, namedN
     return existingNpcs.filter(npc => npc && (named.has(npc.id) || (!npc.archived && countsTowardCap(npc, turn, dormantAfter))));
 }
 
-export function buildLinesContext({ eventWatch = null, existingNpcs = [], turn = 0, dormantAfter, namedNpcIds = [] } = {}) {
+/** `present`: the names of the people in the scene now (the runtime's scene presence, never the dead); none sends no reminder. */
+export function buildLinesContext({ eventWatch = null, existingNpcs = [], turn = 0, dormantAfter, namedNpcIds = [], present = [] } = {}) {
     const events = hiddenNoteEventLinesParagraph(eventWatch);
     const people = listedPeople({ existingNpcs, turn, dormantAfter, namedNpcIds }).map(npc => ({
         id: npc.id,
         name: npc.name,
         aliases: (npc.aliases || []).slice(0, 8),
     }));
-    return `${PEOPLE_HEADER}\n${JSON.stringify(people)}${events}`;
+    const here = [...new Set((Array.isArray(present) ? present : []).map(name => String(name ?? '').trim()).filter(Boolean))].slice(0, PRESENT_MAX);
+    return `${PEOPLE_HEADER}\n${JSON.stringify(people)}${events}${presentReminder(here)}`;
 }

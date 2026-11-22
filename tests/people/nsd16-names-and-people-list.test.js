@@ -28,3 +28,12 @@ test('the people list: 40 dossiers with 30 archived list only the active ones; o
     assert.ok(!text.includes('registryState') && !text.includes('active people only'), 'no registryState and no extra line in the list');
     assert.ok(!text.includes('Person 25'));
 });
+
+test('the scene reminder names the people present, once each, last in the context; no one present sends none', () => {
+    const npcs = [{ id: 'dora', name: 'Dora Vint', aliases: [], present: true, lastSeenTurn: 10 }];
+    const text = buildLinesContext({ existingNpcs: npcs, turn: 10, present: ['Dora Vint', 'Sister Temiwa', 'Dora Vint', ' '] });
+    assert.ok(text.endsWith('\nPeople in this scene: Dora Vint, Sister Temiwa. For each one who did or saw something that mattered in this reply, write their memory:, and goal: if it changed.'), text);
+    assert.ok(!buildLinesContext({ existingNpcs: npcs, turn: 10 }).includes('People in this scene'));
+    const crowd = buildLinesContext({ present: Array.from({ length: 20 }, (_, index) => `Person ${index}`) });
+    assert.ok(crowd.includes('Person 11.') && !crowd.includes('Person 12'), 'at most twelve names');
+});
