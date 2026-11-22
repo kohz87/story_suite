@@ -7,6 +7,7 @@ import {
 import { packPlace, packWorld } from '../world.js';
 import { MAX_PLACES, MAX_ROUTES, NEW_PER_REPLY } from './limits.js';
 import { ensurePlace } from './places.js';
+import { placeTold, routeKm, toldAt, wayOf } from './told-point.js';
 import { asText, queryOf } from './shared-helpers.js';
 
 const ARROW = /\s*(?:→|⟶|➔|->|=>)\s*/u;
@@ -165,10 +166,15 @@ export function applyRouteLine(ctx, line) {
     }
     const when = routeTimeText(route);
     const what = route.kind || 'route';
+    // `way: north`: where the second place lies from the first; it puts a new place (no point the code vouches for) on the map from the
+    // other (told-point.js), `km:` or the route's time giving how far.
+    const way = wayOf(line?.labels?.way);
+    const km = Number(line?.labels?.km) > 0 ? Number(line.labels.km) : routeKm(route);
+    const placed = way && km ? (placeTold(ctx, atlas, pack, b, { from: a.id, way, km }) ? b : placeTold(ctx, atlas, pack, a, { from: b.id, way, km, back: true }) ? a : null) : null;
     return {
-        summary: `${created ? 'A' : 'The'} ${what} joins ${a.name} and ${b.name}${when ? ` (${when})` : ''}.`,
+        summary: `${created ? 'A' : 'The'} ${what} joins ${a.name} and ${b.name}${when ? ` (${when})` : ''}.${placed ? ` ${placed.name} is on the map.` : ''}`,
         narrate: false,
-        data: { route: route.id, created },
+        data: { route: route.id, created, ...(placed ? { placed: placed.id } : {}) },
     };
 }
 
@@ -207,6 +213,9 @@ export function applyLandmarkLine(ctx, line) {
         overwrite: true,
     });
     if (created && reply) place.made = reply;
+    // `at: 12 km north of Place`: a new place the story tells the way to, put on the map from that place (told-point.js).
+    const told = toldAt(labels.at);
+    if (told) placeTold(ctx, atlas, pack, place, { from: told.of, way: told.way, km: told.km, straight: true });
     const about = [place.kind, place.region].filter(Boolean).join(', ');
     return { summary: `${place.name}${about ? ` (${about})` : ''} is on the map.`, narrate: false, data: { place: place.id, created } };
 }

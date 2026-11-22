@@ -794,5 +794,7 @@
   "ui/wizard/world.js": "What the new view's wizard reads from the story through the sdk and SillyTavern's context: head state, persona and its portrait, reply key, rules, levels, and whether the story has You.",
   "modules/atlas/atlas/where.js": "Where a place lies for the narrator's lines: the point the code can vouch for (not a guessed one), the map's km per unit from the pack's roads, and the compass words between two points.",
   "modules/atlas/atlas/note-parts/places-line.js": "Builds the narrator's \"Where places lie\" line: direction and distance as the crow flies to the places the reader's message and the last reply name, then to the nearest city or capital each way.",
-  "tests/modules/atlas/places-line.test.js": "Tests the \"Where places lie\" line, the map scale from the pack's roads and which points may give a compass word."
+  "tests/modules/atlas/places-line.test.js": "Tests the \"Where places lie\" line, the map scale from the pack's roads and which points may give a compass word.",
+  "modules/atlas/atlas/capture-parts/told-point.js": "Puts a new place the story tells the way to (a route's way:, a landmark's at: 12 km north of Place) on the map from the place it is told from, so later lines give its direction from the code.",
+  "tests/modules/atlas/told-point.test.js": "Tests the way words, a route's way: and a landmark's at: putting a new place on the map, and that a vouched-for or pack place is never moved."
 }

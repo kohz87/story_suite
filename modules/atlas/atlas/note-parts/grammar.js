@@ -8,7 +8,7 @@ export const TRIP_TAIL_BUDGET = 90;
  * and both are taught only while the story has a route or a landmark (the lean diet, 3 Nov). The trip line only while a route is known.
  */
 export const GRAMMAR = Object.freeze({
-    route: '+ route Place — Other Place | hours: 2 (or days: 1.5) | kind: road|river|trail|sea (- route Place — Other Place when it is gone); + landmark Name | region: where | kind: town|ruin|cave|… | plane: underground (only off the surface)',
+    route: '+ route Place — Other Place | hours: 2 (or days: 1.5) | kind: road|river|trail|sea | way: north (where Other Place lies from Place, as the story told it) (- route Place — Other Place when it is gone); + landmark Name | region: where | kind: town|ruin|cave|… | at: 12 km north of Place (as the story told it) | plane: underground (only off the surface)',
     landmark: '',
     trip: '~ trip Place | by: riding|foot|wagon|boat|ship | via: Stop, Stop (the party sets out by the known routes; ~ trip stop; ~ trip delay: 1 day | because: lame horse)',
 });

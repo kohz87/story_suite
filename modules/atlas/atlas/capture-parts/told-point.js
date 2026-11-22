@@ -1,0 +1,64 @@
+// A new place the story tells the way to ("Fernhollow lies a day north"): its `way:` on the route line, or `at: 12 km north of Place` on
+// its landmark line, puts it on the map from the place it is told from, so later lines give its direction from the code (owner, 22 Nov:
+// "the direction to a new place should be post narrative: the narrative says how far and which way, then it gets saved"). Pure on the
+// reply's own line, so replay gives the same point.
+
+import { DEFAULT_PACES, mapSettings } from '../../places.js';
+import { round3 } from '../domain.js';
+import { packPlace, worldOf } from '../world.js';
+import { kmScale, trustedPoint } from '../where.js';
+
+// The eight ways as (east, north) steps; their words, hyphen and space forms and letters.
+const STEPS = { n: [0, 1], ne: [1, 1], e: [1, 0], se: [1, -1], s: [0, -1], sw: [-1, -1], w: [-1, 0], nw: [-1, 1] };
+const NAMES = { north: 'n', south: 's', east: 'e', west: 'w' };
+
+/** The compass key ('ne') a `way:` value names ("north-east", "northeast", "north east", "NE", "to the north"), or null. */
+export function wayOf(text) {
+    const words = String(text ?? '').toLowerCase().replace(/^\s*(?:to\s+the\s+|the\s+)/, '').replace(/[-\s]+/g, ' ').trim();
+    if (STEPS[words.replace(/ /g, '')]) return words.replace(/ /g, '');
+    const parts = words.replace(/^(north|south)(east|west)$/, '$1 $2').split(' ');
+    if (parts.length > 2 || !parts.every(part => NAMES[part])) return null;
+    const key = parts.map(part => NAMES[part]).join('');
+    return STEPS[key] ? key : null;
+}
+
+/** `at: 12 km north-east of Bluewatch Village` → `{ km: 12, way: 'ne', of: 'Bluewatch Village' }`, or null. */
+export function toldAt(text) {
+    const match = String(text ?? '').trim().match(/^(\d+(?:\.\d+)?)\s*km\s+(.+?)\s+of\s+(.+)$/i);
+    const way = match ? wayOf(match[2]) : null;
+    return way && Number(match[1]) > 0 && match[3].trim() ? { km: Number(match[1]), way, of: match[3].trim() } : null;
+}
+
+// km a route's time stands for: a day's pace by its kind (river by boat, sea by ship, the rest on foot), an hour a fifth of a day's.
+export function routeKm(route) {
+    const kind = String(route?.kind ?? '');
+    const day = /sea|ocean/.test(kind) ? DEFAULT_PACES.ship : /river|canal|lake/.test(kind) ? DEFAULT_PACES.boat : DEFAULT_PACES.foot;
+    const km = (Number(route?.days) || 0) * day + (Number(route?.hours) || 0) * day / 5;
+    return km > 0 ? km : null;
+}
+
+/**
+ * Puts atlas place `place` (a draft) `km` along the road (straight line: km ÷ the road factor; `straight`: km is already straight) the
+ * `way` from atlas or pack place `from` (a name), when the story may: `place` is no pack's and has no point the code vouches for (none,
+ * or the map's guess), and `from` has one. Its point is then the story's (no `auto` mark). `back`: the way is from `place` to `from`
+ * (a route line's first place is the new one). Returns whether it was placed.
+ */
+export function placeTold(ctx, atlas, pack, place, { from, way, km, straight = false, back = false }) {
+    if (!place || !STEPS[way] || !(km > 0) || packPlace(pack, place.name)) return false;
+    const settings = typeof ctx?.settings === 'function' ? ctx.settings() : {};
+    const map = mapSettings(settings?.map);
+    const world = worldOf(atlas, pack);
+    const packHas = name => Number.isFinite(packPlace(pack, name)?.x);
+    const vouched = entry => trustedPoint(entry, { atlas, world, packHas });
+    const self = world.find(place.id);
+    const origin = world.find(from);
+    const start = origin && origin.id !== self?.id ? vouched(origin) : null;
+    if (!start || (self && vouched(self))) return false;
+    const units = (straight ? km : km / map.roadFactor) / kmScale(world, map);
+    const [east, north] = STEPS[way].map(step => (back ? -step : step));
+    const length = Math.hypot(east, north);
+    place.x = round3(start.x + (east / length) * units * (map.east === 'left' ? -1 : 1));
+    place.y = round3(start.y + (north / length) * units * (map.north === 'down' ? -1 : 1));
+    delete place.auto;
+    return true;
+}
