@@ -69,6 +69,27 @@ test('the tail uses the packs\' roads (and the reader\'s map settings) when ther
     assert.deepEqual(part.context.tail(view(state)), { lines: [], optional: [] });
 });
 
+test('each pack road names the way it leads from the coordinates (y grows north), and follows the reader\'s map setting', () => {
+    // Owner, 22 Nov: Auvoth lies west of Bluewatch, but the narrator sent the road there "east".
+    const pack = {
+        places: [{ name: 'Bluewatch Village', x: 64, y: 110 }, { name: 'Auvoth', x: 59, y: 110 }, { name: "Hollin's Reach", x: 58, y: 104 }, { name: 'Glassdock', x: 62, y: 72 }],
+        routes: [
+            { from: 'Auvoth', to: 'Bluewatch Village', km: 70, kind: 'frontier road' },
+            { from: 'Bluewatch Village', to: "Hollin's Reach", km: 100, kind: 'frontier road' },
+            { from: 'Glassdock', to: 'Bluewatch Village', km: 440, kind: 'river' },
+        ],
+    };
+    const state = at(makeState({ place: 'Bluewatch Village' }), 'Bluewatch Village');
+    const line = part.context.tail(view(state, { pack })).optional[0];
+    assert.match(line, /Auvoth \(west\) by frontier road/);
+    assert.match(line, /Hollin's Reach \(south-west\) by frontier road/);
+    assert.match(line, /Glassdock \(south\) by river/);
+    assert.match(part.context.tail(view(at(state, 'Auvoth'), { pack })).optional[0], /Bluewatch Village \(east\)/, 'and back the other way');
+    const flipped = part.context.tail(view(state, { pack, settings: { map: { north: 'down', east: 'left' } } })).optional[0];
+    assert.match(flipped, /Auvoth \(east\)/);
+    assert.match(flipped, /Glassdock \(north\)/);
+});
+
 test('the tail line keeps within its budget (characters / 4)', () => {
     let state = makeState({ place: 'Crossroads' });
     const block = Array.from({ length: 40 }, (_, i) => `+ route Crossroads — Hamlet Number ${i + 1} With A Long Name | hours: ${i + 1} | kind: road`).join('\n');

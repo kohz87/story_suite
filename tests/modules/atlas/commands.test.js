@@ -290,7 +290,7 @@ test('the place line reads "Town · Spot" (the town alone at the town); atlas.he
 test('the routes line at a child place uses its parent\'s routes (and names the parent)', () => {
     const state = at(visit(makeState(), 'Auvoth (Southern Gatehouse)').state, 'Auvoth (Southern Gatehouse)');
     const tail = part.context.tail({ state, query: (name, args) => query(state, name, args, { pack: TOWNS }), settings: () => ({}) });
-    assert.match(tail.optional[0], /^Routes from Auvoth: Old Weir by road, 6 h/);
+    assert.match(tail.optional[0], /^Routes from Auvoth: Old Weir \(south-east\) by road, 6 h/);
 });
 
 test('"Tidy the map" gives saved coordinates to visited places without any, as one recorded reader action that replays the same', () => {

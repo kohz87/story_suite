@@ -1,6 +1,6 @@
 // Building the atlas and trip tail lines and reading the scene's place.
 
-import { mapSettings } from '../../places.js';
+import { bearing, mapSettings } from '../../places.js';
 import { packWorld, worldOf } from '../world.js';
 import { parentOf } from '../parent.js';
 import { travelTime } from '../travel.js';
@@ -30,7 +30,13 @@ export function scenePlace(view) {
     return { name: String(place?.name ?? ''), kind: String(place?.kind ?? ''), region: String(place?.region ?? '') };
 }
 
-/** "Routes from Bluewatch Village: Old Weir by road, 2 h · Thunder Ruins by trail, ≈ 1.5 days." or ''. */
+// The compass words a route's far end lies in, from the two places' coordinates (owner, 22 Nov: the narrator sent the Bluewatch–Auvoth road "east";
+// Auvoth lies west of Bluewatch). A place without coordinates (one the story made) gives none.
+const WORDS = { N: 'north', NE: 'north-east', E: 'east', SE: 'south-east', S: 'south', SW: 'south-west', W: 'west', NW: 'north-west' };
+const coordsOf = place => (Number.isFinite(place?.x) && Number.isFinite(place?.y) ? { coords: { x: place.x, y: place.y } } : null);
+const directionOf = (from, to, map) => WORDS[bearing(coordsOf(from), coordsOf(to), map)] ?? '';
+
+/** "Routes from Bluewatch Village: Old Weir (east) by road, 2 h · Thunder Ruins (north) by trail, ≈ 1.5 days." or ''. */
 export function routesLine(world, here, { map } = {}) {
     const at = world.find(here);
     if (!at) return '';
@@ -68,7 +74,8 @@ export function routesLine(world, here, { map } = {}) {
     for (const { other, route, trip } of items) {
         if (seen.has(other.id)) continue;
         seen.add(other.id);
-        const item = `${other.name}${route.kind ? ` by ${route.kind}` : ''}${trip ? `, ${trip.text}` : ''}`;
+        const direction = directionOf(from, other, map);
+        const item = `${other.name}${direction ? ` (${direction})` : ''}${route.kind ? ` by ${route.kind}` : ''}${trip ? `, ${trip.text}` : ''}`;
         const next = text ? `${text} · ${item}` : item;
         if ((head + next + '.').length > MAX_CHARS) break;
         text = next;
