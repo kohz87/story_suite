@@ -60,6 +60,7 @@ test('the fill-in rules: its own call, no wait, one attempt (the request layer\'
     const state = {};
     queueFills(state, [{ id: 'npc_wiz', name: 'Wiz' }, { id: 'npc_chris', name: 'Chris' }], 4, queueNpcBackfillInState);
     assert.deepEqual(state.pendingBackfills.map(item => [item.reason, item.npcId, item.requestedMessageId]), [[FILL_REASON, 'npc_wiz', 4], [FILL_REASON, 'npc_chris', 4]]);
+    assert.ok(state.pendingBackfills.every(item => item.preserveLiveState === true), 'a fill-in keeps the live state (presence, place, mood, status, goal)');
     for (const item of state.pendingBackfills) assert.ok(normalizeAutomaticBackfillRequest(item), 'the saved queue keeps it');
     assert.equal(automaticBackfillStillRelevant(state.pendingBackfills[0], { id: 'npc_wiz', name: 'Wiz' }, [{ id: 'npc_wiz', name: 'Wiz' }], ''), true);
 });
