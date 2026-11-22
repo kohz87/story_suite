@@ -46,7 +46,7 @@ test('the minimal world pack and game pack pass the pack checker', () => {
 
 test('the combat marks the guide names are the ones the fight kind sets', () => {
   const source = fs.readFileSync(path.join(REPO, 'modules/rpg/board/v1-kind.js'), 'utf8');
-  for (const mark of ['fleeIdle', 'xpRule', 'gearStats', 'gearWear', 'speedFull']) {
+  for (const mark of ['fleeIdle', 'xpRule', 'gearStats', 'gearWear', 'speedFull', 'soakWhole']) {
     assert.ok(source.includes(`${mark}:`), `v1-kind.js sets no ${mark}`);
     assert.ok(README.includes(`| \`${mark}\` |`), `the guide's mark table lacks ${mark}`);
   }

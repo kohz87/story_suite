@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Armour soak now takes off only the whole points it adds up to: 6% soak no longer turns a 3-damage hit into 2 (it starts taking a point off at 17 damage). Fights already open keep the old rule.
 - Someone new you meet on the way (a shopkeeper at another spot) is no longer shown as present where the reply ends, and keeps the mood the story gave them.
 - Each reply now reminds the narrator who is in the scene (and who your message calls in, or anyone who arrives), so people in the background get their memories, what they're doing now and new goals on the dossier at once instead of waiting for a Refresh.
 - A mood the story gives someone is shown on their dossier right away, even a word the mood list doesn't rate ("shaken"), instead of waiting for a Refresh.

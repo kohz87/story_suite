@@ -49,7 +49,7 @@ test('play and settle agree, the result is the record the readers read, and the 
 });
 
 test('a fight split into two segments equals the same fight played whole (dice, order, foe bars), through the real next()', async () => {
-    const host = (await v1Host({ count: 4, level: 8 })).host;
+    const host = (await v1Host({ count: 4, level: 8, hero: { hp: 40, 'hp-max': 40 } })).host;   // (40 HP: still open after six exchanges with soak's whole points, 22 Nov)
     try {
         const { setup } = open(host), all = Array.from({ length: 6 }, () => step());
         const whole = fightKind.play(host.head(), setup, all, dice(4242, 0));

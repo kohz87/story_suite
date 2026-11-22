@@ -361,6 +361,7 @@ equals live. The marks today:
 | `xpRule` | how a win pays: absent, per group; `'each'`, 15 for each foe; `'each2'`, the same with a mob paying a quarter and a minion half (`modules/rpg/combat/rewards.js#winXp`) |
 | `gearStats` | the stats of worn gear count in every roll and in the log (`modules/rpg/board/v1-kind.js`), read live like soak |
 | `speedFull` | a Speed stance adds its full skill mastery to evasion, not half (`modules/rpg/combat/rolls.js#playerRoll`) |
+| `soakWhole` | soak takes off only the whole points it adds up to, so a small hit through low soak is not cut by one (`modules/rpg/combat/damage.js#takeHit`) |
 | `gearWear` | a decisive hit taken wears the body armour (else the shield) and a decisive miss wears the weapon, one step, and the narrator is told (`modules/rpg/board/v1-wear.js`) |
 
 To change a combat rule: add a mark, write it where the setup is built, read it where the rule applies with the old
