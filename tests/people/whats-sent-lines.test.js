@@ -69,7 +69,7 @@ test('hosted: the context ends with the reminder naming who is here and who the 
         rt.narrationCaptureArmed = 'chat';
         injection.updateInjection();
         const context = sent.get(KEYS.CAPTURE_PROMPT_KEY);
-        assert.ok(context.endsWith('\nPeople in this scene: Mira, Oren. For each person in this reply (anyone who arrives too) who did or saw something that mattered, write their memory:, and goal: if it changed.'), context);
+        assert.ok(context.endsWith('\nPeople in this scene: Mira, Oren. For each person in this reply (anyone who arrives too) who did or saw something that mattered, write their memory:, and status: and goal: if they changed (someone who arrives is always doing something new).'), context);
     } finally {
         state.npcs.splice(1);
         globalThis.__npcMock.context.chat = [];
