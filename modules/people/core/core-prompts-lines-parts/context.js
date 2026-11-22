@@ -10,9 +10,10 @@ export const PEOPLE_HEADER = 'People you know about (match by these names):';
 // (owner-approved 22 Nov: the narrator wrote mood lines for people in the background but skipped their memory: and goal:, so their dossiers waited for a
 // Refresh; the reminder names who is in the scene, last in the context, so it sits close to where the lines are written. Owner-approved the same day: it is
 // always sent, since the people of a reply often arrive in it (a scene empty before the reply had no names), and it names who the player's message calls too;
-// owner-approved later that day: it asks for status: too, since an arrival's old status is cleared and "Right now" stayed empty)
+// owner-approved later that day: it asks for status: too, since an arrival's old status is cleared and "Right now" stayed empty; and a meter line when what
+// happened changed how they feel, so someone who arrives in the reply is not left out of a meter move)
 const PRESENT_MAX = 12;
-const REMINDER = 'For each person in this reply (anyone who arrives too) who did or saw something that mattered, write their memory:, and status: and goal: if they changed (someone who arrives is always doing something new).';
+const REMINDER = 'For each person in this reply (anyone who arrives too) who did or saw something that mattered, write their memory:, and status: and goal: if they changed (someone who arrives is always doing something new). If what happened changed how they feel about Astra, write that meter line too.';
 export const presentReminder = names => `\n${names.length ? `People in this scene: ${names.join(', ')}. ` : ''}${REMINDER}`;
 
 /** The listed people: active ones (not archived, dead or dormant), plus any the player's message names. */
