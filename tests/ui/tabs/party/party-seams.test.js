@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { partyTab } from '../../../../ui/tabs/party/party.js';
 import { skillsCard, skillSheet } from '../../../../ui/tabs/party/skills.js';
+import { exportSheet } from '../../../../ui/tabs/party/export-sheet.js';
 import { makeCtx, flush, commands } from './helpers.js';
 
 const opens = port => port.recorded.filter(r => r.kind === 'open').map(r => r.id);
@@ -37,4 +38,12 @@ test('the Edit buttons check the named command with can()', () => {
   const member = { ...ctx.party.members[1], commands: { skillEdit: 'textRpg.skillEdit' } };
   assert.equal(skillsCard(member, ctx).querySelector('.edit'), null);
   assert.ok(skillsCard(ctx.party.members[1], ctx).querySelector('.edit'));
+});
+
+test('Export asks the query the member\'s row names (via) for the file, and the RPG\'s when the row names none', async () => {
+  const ctx = makeCtx();
+  const own = { ...ctx.party.members[1], commands: { export: 'textRpg.export' } };
+  await exportSheet(own, ctx);
+  await exportSheet(ctx.party.members[1], ctx);
+  assert.deepEqual(commands(ctx.port), [['party.export', { member: own.id, via: 'textRpg.export' }], ['party.export', { member: own.id }]]);
 });

@@ -10,7 +10,9 @@ const NOT_SAVED = 'Not saved: the name, XP, Health, Mana and Stamina (a new char
 /** Opens "Export <name>" for `member`; the file is asked of the RPG again at Save, so it is what is true then. `ctx` has the `port` and the `doc`. */
 export async function exportSheet(member, ctx = {}) {
   const sheet = openSheet(ctx, { title: `Export ${member.name}`, subtitle: 'Party member' });
-  const first = await ctx.port?.command('party.export', { member: member.id });
+  // A plug-in sheet (a module that answers `rpg.sheet` itself) names its own export query on the row: the port asks it instead of `rpg.characterFile`.
+  const via = typeof member?.commands?.export === 'string' ? { via: member.commands.export } : {};
+  const first = await ctx.port?.command('party.export', { member: member.id, ...via });
   if (first?.ok !== true) { sheet.body.replaceChildren(h('p', { class: 'ps-note' }, first?.message || 'This character is no longer in the story.')); return sheet; }
   const keep = { inventory: first.items > 0, money: first.own === true && first.money > 0 };
   const status = h('p', { class: 'ps-note', role: 'status' }, '');
@@ -20,7 +22,7 @@ export async function exportSheet(member, ctx = {}) {
     return h('label', { class: 'ps-opt', dataset: { option: key } }, box, h('b', null, label), h('small', null, available ? help : ''));
   };
   const save = async () => {
-    const now = await ctx.port?.command('party.export', { member: member.id, inventory: keep.inventory, money: keep.money });
+    const now = await ctx.port?.command('party.export', { member: member.id, ...via, inventory: keep.inventory, money: keep.money });
     if (now?.ok !== true) { status.textContent = now?.message || 'The file could not be saved.'; return; }
     try { saveGamePack(ctx.doc ?? globalThis.document, now.text, now.fileName); } catch { status.textContent = 'The file could not be saved.'; return; }
     sheet.close();

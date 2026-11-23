@@ -3,11 +3,11 @@
 import { h } from '../kit/dom.js';
 import { isSafePortraitUrl } from '../kit/safe-url.js';
 import { STAT_KEYS } from '../words/stats.js';
-import { pointsLeft } from './draft.js';
-import { RULES } from './rules.js';
+import { pointsLeft } from './points.js';
+import { levelOf, skillLimit, startOf } from './limits.js';
 import { W, fill, statsLine } from './words.js';
 
-const tiles = stats => h('div', { class: 'wz-tiles' }, STAT_KEYS.map(stat => h('span', { class: stats[stat] > RULES.start[stat] ? 'hi' : null }, stat.toUpperCase(), h('b', null, String(stats[stat])))));
+const tiles = (stats, draft) => h('div', { class: 'wz-tiles' }, STAT_KEYS.map(stat => h('span', { class: stats[stat] > startOf(draft, stat) ? 'hi' : null }, stat.toUpperCase(), h('b', null, String(stats[stat])))));
 
 // The tile: the persona's picture for a named character (it shows from the sheet's width up), else the initial, or "?" before a name.
 function avatar(name, portrait) {
@@ -20,12 +20,12 @@ export function fillSummary(row, run) {
   const { draft } = run;
   const names = draft.skills.map(skill => skill.name).filter(Boolean);
   const count = draft.skills.length;
-  const pill = run.step === 'who' || run.step === 'stats' ? fill(W.pointsLeft, { n: pointsLeft(draft) }) : fill(count === 1 ? W.skillCountOne : W.skillCount, { n: count, max: RULES.skills });
+  const pill = run.step === 'who' || run.step === 'stats' ? fill(W.pointsLeft, { n: pointsLeft(draft) }) : fill(count === 1 ? W.skillCountOne : W.skillCount, { n: count, max: skillLimit(draft) });
   row.replaceChildren(
     avatar(draft.name, run.portrait),
-    h('div', { class: 'wz-k wz-who' }, h('b', null, draft.name || W.title), h('small', null, W.you)),
+    h('div', { class: 'wz-k wz-who' }, h('b', null, draft.name || W.title), h('small', null, levelOf(draft) > 1 ? `${W.you} · ${fill(W.reviewLevel, { level: levelOf(draft) })}` : W.you)),
     h('span', { class: 'chip2 wz-pill', role: 'status' }, pill),
-    h('div', { class: 'wz-k' }, h('small', null, W.statsHead), h('span', null, statsLine(draft.stats)), tiles(draft.stats)),
+    h('div', { class: 'wz-k' }, h('small', null, W.statsHead), h('span', null, statsLine(draft.stats)), tiles(draft.stats, draft)),
     h('div', { class: 'wz-k' }, h('small', null, W.skillsHead), h('span', null, names.join(', ') || W.noSkills),
       names.length ? h('ul', { class: 'wz-sk' }, names.map(name => h('li', null, name))) : h('i', { class: 'wz-sk' }, W.noSkills)));
   return row;

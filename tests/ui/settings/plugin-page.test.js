@@ -26,14 +26,14 @@ async function live(t, withPlugin) {
 }
 const ids = port => port.view('settings').sections.map(s => s.id);
 
-test('the Text RPG page is there only while Text RPG is on, under Rules, with its four settings', async t => {
+test('the Text RPG page is there only while Text RPG is on, under Rules, with its six settings', async t => {
     const { host, port } = await live(t, true);
     assert.ok(!ids(port).includes('plugin-text-rpg'));
     host.features.set('text-rpg.on', true);
     const page = port.view('settings').sections.find(s => s.id === 'plugin-text-rpg');
     assert.deepEqual([page.name, page.group], ['Text RPG', 'Rules']);
     // (and the three bag switches the RPG page would carry, and the RPG switch under "Instead of this plug-in", as Text RPG replaces the RPG)
-    assert.deepEqual(page.rows.filter(r => r.group !== 'Bag and gear' && r.group !== 'Instead of this plug-in').map(r => r.label), ['Tone', 'Survival (hunger, thirst and warmth)', 'Stat names, in order', 'Narrator rules']);
+    assert.deepEqual(page.rows.filter(r => r.group !== 'Bag and gear' && r.group !== 'Instead of this plug-in').map(r => r.label), ['Tone', 'Survival (hunger, thirst and warmth)', 'Stat names, in order', 'Level cap', 'XP rate', 'Narrator rules']);
     host.features.set('text-rpg.on', false);
     assert.ok(!ids(port).includes('plugin-text-rpg'));
 });

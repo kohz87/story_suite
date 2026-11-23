@@ -196,7 +196,10 @@ function checkFallen(fallen, where, problems) {
 
 function checkMember(member, key, problems) {
     const where = `members.${key}`;
-    if (!checkShape(member, where, MEMBER_KEYS, problems)) return;
+    // (`granted` is optional: a member made before it, or at level 1, has none)
+    const { granted, ...shape } = member ?? {};
+    if (!checkShape(shape, where, MEMBER_KEYS, problems)) return;
+    if (granted !== undefined && !isInt(granted, 1, LIMITS.levelMax - 1)) problems.push(`${where}.granted must be a whole number from 1 to ${LIMITS.levelMax - 1}.`);
     if (typeof member.id !== 'string' || !ID_PATTERN.test(member.id)) problems.push(`${where}.id is not a valid id.`);
     if (member.id !== key) problems.push(`${where}.id must equal its member key.`);
     if (typeof member.name !== 'string' || member.name.length > LIMITS.name) {
@@ -235,11 +238,13 @@ function checkDice(dice, problems) {
         }
         // used (dice taken so far), hardest (difficulty index) and threat (word index) are kept by the reply's `? try` lines.
         const base = {};
-        for (const key of Object.keys(record)) if (!['used', 'hardest', 'threat'].includes(key)) base[key] = record[key];
+        for (const key of Object.keys(record)) if (!['used', 'hardest', 'threat', 'rules'].includes(key)) base[key] = record[key];
         if (!checkShape(base, where, ['list', 'floor'], problems)) continue;
         if (has(record, 'used') && !isInt(record.used, 0, 3)) problems.push(`${where}.used must be a whole number from 0 to 3.`);
         if (has(record, 'hardest') && !isInt(record.hardest, 0, 4)) problems.push(`${where}.hardest must be a whole number from 0 to 4.`);
         if (has(record, 'threat') && !isInt(record.threat, 0, 5)) problems.push(`${where}.threat must be a whole number from 0 to 5.`);
+        // rules: the level cap and XP rate the reply was written under (only when not the defaults).
+        if (has(record, 'rules') && !(isObject(record.rules) && isInt(record.rules.cap, 1, LIMITS.levelMax) && isInt(record.rules.rate, 50, 300))) problems.push(`${where}.rules must hold a cap and a rate.`);
         if (!Array.isArray(record.list) || record.list.length !== 3) {
             problems.push(`${where}.list must hold exactly three dice.`);
         } else {

@@ -1,4 +1,5 @@
 // One party member as the Party tab's row: what `ui/select/party.js` memberOf reads (id, name, line, level, xpPct, points, bars, effects, stats, skills); health is a bar of 5 stages.
+import { LEVEL, xpOfLevel } from '../rules/levels.js';
 import { levelFor } from '../rules/growth.js';
 import { HEALTH_STAGES, stageOf } from '../words/pools.js';
 import { STAT_KEYS } from '../words/stats.js';
@@ -13,17 +14,16 @@ const BARS = [['mp', 'energy', 'Mana'], ['sp', 'energy', 'Stamina']];
 function xpPct(member) {
     const { next } = levelFor(member.xp);
     if (next === null) return 100;
-    const from = 25 * (levelOf(member) - 1) * levelOf(member);
-    return Math.max(0, Math.min(100, Math.round((100 * (member.xp - from)) / (next - from))));
+    return Math.max(0, Math.min(100, Math.round((100 * (member.xp - xpOfLevel(levelOf(member)))) / LEVEL.xpPerLevel)));
 }
 
-/** "30/50": the xp held over the xp the next level needs (the bar's percent runs from this level's first xp); null at the top level. */
+/** "30/100": the xp held in this level over the 100 a level takes (as the bar shows it); null at the top level. */
 function xpLabel(member) {
     const { next } = levelFor(member.xp);
-    return next === null ? null : `${Math.max(0, Math.round(member.xp))}/${next}`;
+    return next === null ? null : `${Math.max(0, Math.round(member.xp - xpOfLevel(levelOf(member))))}/${LEVEL.xpPerLevel}`;
 }
 
-/** The sheet row of one member; `commands` names the commands the Party tab calls for a spend and a skill edit. */
+/** The sheet row of one member; `commands` names the commands the Party tab calls for a spend and a skill edit, and the query it asks for an Export. */
 export function rowOf(member, now = null) {
     const companion = Boolean(member.companion);
     const level = levelOf(member);
@@ -38,6 +38,6 @@ export function rowOf(member, now = null) {
         effects: [...liveConditions(member, now).map(item => item.name), ...member.injuries.map(item => item.name)],
         stats: companion ? null : Object.fromEntries(STAT_KEYS.map(key => [key.toUpperCase(), stats[key]])),
         skills: skillRows(member),
-        commands: { spend: 'textRpg.spend', skillEdit: 'textRpg.skillEdit' },
+        commands: { spend: 'textRpg.spend', skillEdit: 'textRpg.skillEdit', export: 'textRpg.export' },
     };
 }

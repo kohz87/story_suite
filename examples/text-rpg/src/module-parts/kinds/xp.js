@@ -5,6 +5,8 @@ import { memberNamed, players } from '../members.js';
 import { labelOf } from '../line-read.js';
 import { requireActive } from '../active.js';
 import { levelOf } from '../standing.js';
+import { scaleXp } from '../../rules/levels.js';
+import { readRules, xpCeiling } from '../rules-now.js';
 import { DOMAIN } from '../../domain/shape.js';
 
 export function applyXp(ctx, line) {
@@ -16,13 +18,15 @@ export function applyXp(ctx, line) {
     if (!sid || !ctx.claim(`xp:${sid}`)) ctx.fail('LIMITED', 'Only one xp line counts in a reply.');
     const record = slice.dice[sid];
     const said = THREAT_WORDS.indexOf(labelOf(line, 'threat').toLowerCase());
-    const amount = xpFor(size, said >= 0 ? said : record?.threat ?? 2, record?.used > 0 ? record.hardest ?? 0 : null);
+    // The cap and rate are the reply's own, kept in its dice step's receipt: a Re-read or a replay never uses today's settings.
+    const { cap, rate } = readRules(record?.rules);
+    const amount = scaleXp(xpFor(size, said >= 0 ? said : record?.threat ?? 2, record?.used > 0 ? record.hardest ?? 0 : null), rate);
     const named = memberNamed(slice, line.name);
     const who = named && !named.companion && !named.fallen ? [named] : players(slice).map(p => slice.members[p.id]);
     const levels = [];
     for (const member of who) {
         const before = levelOf(member);
-        member.xp += amount;
+        member.xp += Math.max(0, Math.min(amount, xpCeiling(cap) - member.xp));
         if (levelOf(member) > before) levels.push(`${member.name} reaches level ${levelOf(member)}`);
     }
     const told = line.text ? ` for ${line.text}` : '';

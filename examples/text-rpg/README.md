@@ -23,10 +23,15 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
    ['story-block.rpg']`, so the same action turns the **RPG** switch (in the Story Block card's Features) off, and turning
    the RPG on turns Text RPG off: a chat uses the RPG or Text RPG, never both (Text RPG is active only while its feature is
    on **and** `story-block.rpg` is off).
-3. While it is on, **Settings › Rules › Text RPG** holds its three settings: Tone, Survival (hunger, thirst and warmth)
-   and Stat names, in order.
-4. Open the **Party** tab and choose **Create your character**: a name, seven stats bought from 60 points
-   (5 to 15 each) and up to five skills.
+3. While it is on, **Settings › Rules › Text RPG** holds its settings: Tone, Survival (hunger, thirst and warmth),
+   Stat names, in order, the Level cap (1 to 99) and the XP rate (50 to 300 %).
+4. Open the **Party** tab and choose **Create your character**, as in the RPG: a name (it starts as your persona's), a
+   starting level, or **Start from a saved character** (the file the Party tab's Export saves, the RPG's or this
+   module's); every stat starts at 5 and you spend 10 points (a stat up to 10, 45 in all, one more point for each starting
+   level above 1); and up to five skills (one more every tenth level, 8 at most).
+   The Party tab's **Export** on a character saves a file in the RPG's character file shape (so either module reads the
+   other's), with this module's own part (xp, practice, injuries, conditions, each skill's exact type and cost) under
+   `textRpg`; the inventory and the purse are not part of it.
 
 ## Playing
 
@@ -60,14 +65,20 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   makes a new one (the fallen one keeps `pc: false`); while a living one exists it refuses.
 - **Growth.** `+ xp Party — what | size: minor|real|major|great` pays by size, cut to what the reply's hardest
   roll supports and scaled by how the threat compares with the hero. A rank every 100 practice points; each
-  level gives a stat point to spend on the Party tab, and a skill slot every third level. Level and points are
-  derived: `xp` is the stored counter, level is what the xp reaches. A stat bought with a point is a keyed, ordered
+  level gives a stat point to spend on the Party tab, and a skill slot every tenth level (5 at the start, 8 at most, from
+  level 30). Levels are the RPG's: 100 xp a level, 99 at most, xp held to 9999 (the sizes and threat multipliers are this
+  module's own). Level and points are derived: `xp` is the stored counter, level is what the xp reaches (`1 + floor(xp / 100)`);
+  a character made at a higher level begins with that level's xp and its level points placed on the stats (`granted`: they
+  are not left to spend). A stat bought with a point is a keyed, ordered
   purchase (`member.bought`: `{ stat, n, seq }`), not added into `stats` (the creation base); the level pays for the
   first purchases up to the points it earned, so a deleted xp reply takes the level, and the purchases it paid for,
   away, and a later level brings them back. Every reader uses the effective stats (`module-parts/effective.js`). Skills
-  learned past the slots of the level (5, +1 every third level) stay listed but inactive, latest learned first; a `? try`
+  learned past the slots of the level (5, +1 every tenth level, 8 at most) stay listed but inactive, latest learned first; a `? try`
   with one is refused until the level returns.
-- **Settings.** Tone (gritty makes every roll a step harder, heroic a step easier).
+- **Settings.** Tone (gritty makes every roll a step harder, heroic a step easier); Level cap (xp stops adding levels above
+  it; default 99); XP rate (a percent, 50 to 300 in steps of 25, that multiplies what `+ xp` pays). Both are read when a
+  reply's dice step is made and kept in that step's receipt (`rules`, only when not the defaults), so a Re-read, a middle
+  delete or a reload pays the reply under the numbers it was written under, never today's settings.
 
 ## How it is built (the second reference module)
 
@@ -95,8 +106,10 @@ tests/                   node --test with the testkit host, plus hand-made ctx f
 4. **Queries**: `rpg.sheet` and `party.levels` as **fallbacks** (`fallback: true`); `party.actors` and
    `party.newCharacter` (the `text-rpg/new-character` screen to open while no living member is the reader's, else null)
    as plain queries; and the module's own `textRpg.view` (the members' rows, the reader's id and that screen) and
-   `textRpg.dice` (the latest dice step's `{ list, floor }`). All answer the shapes the Party tab reads while Text RPG
-   is active and `null` otherwise. A sheet row may carry `commands: { spend, skillEdit }`.
+   `textRpg.dice` (the latest dice step's `{ list, floor }`), `textRpg.rules` (the level cap and XP rate the settings say now: the
+   wizard's starting level is held to the cap) and `textRpg.export` (one member's saved character file, which the Party tab's
+   Export asks for). All answer the shapes the Party tab reads while Text RPG is active and `null` otherwise. A sheet row may
+   carry `commands: { spend, skillEdit, export }` (`export` names the query).
 
 **Replay == live.** Three choices keep swipes, Re-reads, middle deletes and reloads exact:
 
@@ -108,7 +121,7 @@ tests/                   node --test with the testkit host, plus hand-made ctx f
 - Down is its own mark (`down`), set only by `~ health … — Down` and cleared by any other `~ health` or a day's rest; the wounds counter reads 0 to 4. A capped wound replayed on a lower base can leave a member one stage healthier than a fresh telling.
 - Numbers that move (`wounds`, mana and stamina, `xp`, practice) are declared `counters`, so a replay after a
   deleted reply adds each change instead of writing the number the deleted reply left. Nothing is a counter that is
-  computed from another: level, points, effective stats and active skills come from `xp` and `bought` on every read (`module-parts/standing.js`), and
+  computed from another: level, points, effective stats and active skills come from `xp`, `granted` and `bought` on every read (`module-parts/standing.js`), and
   health is a stage count (a failed roll adds its stages, a day's rest takes one off, `~ health` is a set) that every
   read clamps to 0..5.
 - The step is not re-planned (`replan` is off): a Re-read keeps the dice; a swipe is a new send, so a new seed.

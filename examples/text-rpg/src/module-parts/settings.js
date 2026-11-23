@@ -9,7 +9,7 @@ const TONES = Object.freeze({ gritty: 1, standard: 0, heroic: -1 });
 /** The settings block for registerModule. */
 export const SETTINGS = Object.freeze({
     section: 'Text RPG',
-    defaults: { tone: 'standard', survival: false, statNames: 'STR, VIT, AGI, DEX, INT, WIS, CHA', rules: '' },
+    defaults: { tone: 'standard', survival: false, statNames: 'STR, VIT, AGI, DEX, INT, WIS, CHA', levelCap: 99, xpRate: '100', rules: '' },
     schema: {
         tone: {
             type: 'choice', label: 'Text RPG: Tone', feature: 'text-rpg.on',
@@ -21,6 +21,15 @@ export const SETTINGS = Object.freeze({
         },
         survival: { type: 'bool', label: 'Text RPG: Survival (hunger, thirst and warmth)', feature: 'text-rpg.on' },
         statNames: { type: 'text', label: 'Text RPG: Stat names, in order', max: 80, feature: 'text-rpg.on' },
+        levelCap: {
+            type: 'int', min: 1, max: 99, label: 'Text RPG: Level cap', feature: 'text-rpg.on',
+            help: 'The highest level a character can reach, 1 to 99 (default 99): XP stops adding levels above it. A reply uses the cap it was written under.',
+        },
+        xpRate: {
+            type: 'choice', label: 'Text RPG: XP rate', feature: 'text-rpg.on',
+            options: Array.from({ length: 11 }, (_, at) => ({ value: String(50 + at * 25), label: `${50 + at * 25}%` })),
+            help: 'Every xp gain is multiplied by it: 50 to 300 %, in steps of 25, default 100. A reply uses the rate it was written under.',
+        },
         // Empty: the built-in rules. The Rules page draws it with the prompt editor, prefilled with `builtin`.
         rules: {
             type: 'text', form: 'prompt', label: 'Text RPG: Narrator rules', max: RULES_MAX, builtin: STATIC_TEXT, feature: 'text-rpg.on',

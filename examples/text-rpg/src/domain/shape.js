@@ -7,7 +7,7 @@ export const DOMAIN = 'textRpg';
 /** Frozen rules for every text RPG domain slice. */
 export const LIMITS = Object.freeze({
     members: 6,
-    skills: 38,
+    skills: 8,
     injuries: 3,
     conditions: 4,
     name: 60,
@@ -66,14 +66,16 @@ export function newMember(input) {
     const mp = 10 + stats.int + stats.wis;
     const sp = 10 + stats.agi + stats.dex;
     const suppliedSkills = Array.isArray(source.skills)
-        ? source.skills.filter(skill => record(skill) === skill).slice(0, 5)
+        ? source.skills.filter(skill => record(skill) === skill).slice(0, LIMITS.skills)
         : [];
 
     return {
         id,
         name,
         pc: source.pc === true,
-        xp: 0,
+        xp: Number.isInteger(source.xp) && source.xp > 0 ? Math.min(9999, source.xp) : 0,
+        // The level points creation already paid (a character who starts at level 5 has 4: placed on the stats, not left to spend); only when above 0.
+        ...(Number.isInteger(source.granted) && source.granted > 0 ? { granted: Math.min(LIMITS.levelMax - 1, source.granted) } : {}),
         bought: {},
         wounds: 0,
         down: false,

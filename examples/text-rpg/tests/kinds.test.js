@@ -38,7 +38,7 @@ test('+ xp scales by the threat the roll named, and a bad size is refused', () =
 
 test('+ xp: levels add points, only one line counts a reply, companions and the fallen get none', () => {
     const rorke = astra({ id: 'ac_rorke001', name: 'Rorke', pc: false, companion: { level: 5, strengths: [] } });
-    const slice = sliceOf([astra({ xp: 40 }), rorke], asRolled());
+    const slice = sliceOf([astra({ xp: 90 }), rorke], asRolled());
     const ctx = fakeCtx(slice);
     const first = run(applyXp, ctx, line('xp', 'Party', 'the pass', { size: 'real' }));
     assert.equal(first.result.narrate, true);
@@ -121,7 +121,7 @@ test('~ spend takes the skill\'s cost, refuses without it, and a Down character 
     assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Lore')).code, 'REFUSED');
 });
 
-test('+ skill takes the next free slot (5 at level 1, one more every third level) and reads both grammars', () => {
+test('+ skill takes the next free slot (5 at level 1, one more every tenth level) and reads both grammars', () => {
     const slice = sliceOf();
     const ctx = fakeCtx(slice);
     const me = slice.members.ac_astra001;
@@ -131,7 +131,7 @@ test('+ skill takes the next free slot (5 at level 1, one more every third level
     assert.deepEqual(me.skills[3].cost, { pool: 'sp', n: 1 });
     run(applySkill, ctx, line('skill', 'Astra', 'Haggling; cha; social'));
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).code, 'LIMITED');
-    me.xp = 150;
+    me.xp = 900;
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).ok, true);
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).code, 'INVALID', 'twice');
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Luck; luck')).code, 'INVALID');

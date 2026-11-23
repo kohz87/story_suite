@@ -46,7 +46,7 @@ test('the public constants and initial state match the frozen contract', () => {
     assert.equal(DOMAIN, 'textRpg');
     assert.deepEqual(LIMITS, {
         members: 6,
-        skills: 38,
+        skills: 8,
         injuries: 3,
         conditions: 4,
         name: 60,
@@ -107,7 +107,7 @@ test('a wound count a replay pushed past 0..5, and an injury with no end time ye
     member.down = false;
 });
 
-test('new member is safe without input and keeps only five usable starting skills', () => {
+test('new member is safe without input and keeps at most eight starting skills (the record limit; create holds a new character to the slots of its level)', () => {
     const blank = newMember();
     assert.equal(blank.id, 'member');
     assert.equal(blank.name, '');
@@ -115,9 +115,9 @@ test('new member is safe without input and keeps only five usable starting skill
     assert.deepEqual(blank.stats, { str: 5, vit: 5, agi: 5, dex: 5, int: 5, wis: 5, cha: 5 });
     assert.deepEqual(validate(one(blank)), []);
 
-    const fromName = newMember({ name: 'Edda Rorke', skills: [null, {}, 1, {}, {}, {}, {}, {}] });
+    const fromName = newMember({ name: 'Edda Rorke', skills: [null, {}, 1, {}, {}, {}, {}, {}, {}, {}] });
     assert.equal(fromName.id, 'edda-rorke');
-    assert.equal(fromName.skills.length, 5);
+    assert.equal(fromName.skills.length, 8);
     assert.deepEqual(validate(one(fromName)), []);
 });
 

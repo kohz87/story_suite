@@ -3,6 +3,8 @@
 import { h } from '../kit/dom.js';
 import { button } from '../kit/controls.js';
 import { payloadOf, problemsOf } from './draft.js';
+import { levelOf } from './limits.js';
+import { addThings } from './things.js';
 import { SKILL_TYPES } from './rules.js';
 import { W, fill, statsLine } from './words.js';
 
@@ -21,7 +23,16 @@ async function create(ctx, make, status) {
   let result = null;
   try { result = await ctx.command('textRpg.create', payload); } catch { result = null; }
   run.busy = false;
-  if (result?.ok) { run.created = true; ctx.close(); return; }
+  if (result?.ok) {
+    run.created = true;
+    // A saved character's things and money go in after it (best effort): what could not be added is said, and the sheet stays until it is read.
+    const failed = run.imported ? await addThings(run.imported.file, ctx.command, ctx.query) : [];
+    if (!failed.length || !run.alive) { ctx.close(); return; }
+    run.message = fill(W.madeButNot, { name: payload.name, list: failed.join('; ') });
+    make.textContent = W.create;
+    status.textContent = run.message;
+    return;
+  }
   run.message = result?.message ?? W.generic;
   if (run.alive) { make.disabled = false; make.textContent = W.create; status.textContent = run.message; }
 }
@@ -33,11 +44,11 @@ export function drawReview(ctx) {
   const problems = problemsOf(draft);
   const skills = draft.skills.length ? draft.skills.map(skill => h('li', null, `${skill.name || '—'} · ${skill.stat.toUpperCase()} · ${typeWord(skill.type)}${costWord(skill)}`)) : [h('li', null, W.noSkills)];
   const status = h('p', { class: 'ps-p wz-status', role: 'status' }, run.message);
-  const make = button({ label: run.busy ? W.creating : W.create, tone: 'primary', disabled: problems.length > 0 || run.busy, dataset: { wiz: 'create' }, onClick: () => create(ctx, make, status) });
+  const make = button({ label: run.busy ? W.creating : W.create, tone: 'primary', disabled: problems.length > 0 || run.busy || run.created, dataset: { wiz: 'create' }, onClick: () => create(ctx, make, status) });
   return h('div', { class: 'wz-review' },
     h('div', { class: 'ps-sec' }, W.reviewHead),
     h('dl', { class: 'ps-kv' },
-      h('dt', null, W.name), h('dd', { dataset: { review: 'who' } }, fill(W.reviewWho, { name: draft.name.trim() || '—', kind: W.you })),
+      h('dt', null, W.name), h('dd', { dataset: { review: 'who' } }, fill(W.reviewWho, { name: draft.name.trim() || '—', kind: levelOf(draft) > 1 ? `${W.you} · ${fill(W.reviewLevel, { level: levelOf(draft) })}` : W.you })),
       h('dt', null, W.statsHead), h('dd', null, statsLine(draft.stats)),
       h('dt', null, W.skillsHead), h('dd', null, h('ul', { class: 'wz-list' }, skills))),
     h('ul', { class: 'wz-problems', role: 'alert', hidden: problems.length === 0 },

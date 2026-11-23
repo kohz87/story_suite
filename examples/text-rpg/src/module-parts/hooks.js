@@ -4,6 +4,7 @@ import { floorIndex } from '../rules/difficulty.js';
 import { active } from './active.js';
 import { liveConditions, minutesOf } from './conditions.js';
 import { players } from './members.js';
+import { recordable, rulesOf } from './rules-now.js';
 
 const OFFERED = ['normal', 'regenerate', 'swipe'];
 
@@ -19,5 +20,6 @@ export function beforeGenerate(view, info = {}) {
     if (!active(view) || info?.commit === false) return null;
     const type = String(info?.type ?? 'normal').toLowerCase();
     if (!OFFERED.includes(type)) return null;
-    return { commands: [{ type: 'textRpg.dice', payload: { floor: floorOf(view), own: type !== 'normal' } }] };
+    const rules = recordable(rulesOf(view));
+    return { commands: [{ type: 'textRpg.dice', payload: { floor: floorOf(view), own: type !== 'normal', ...(rules ? { rules } : {}) } }] };
 }

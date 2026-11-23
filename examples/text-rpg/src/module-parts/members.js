@@ -16,9 +16,9 @@ export function skillIndex(member, name) {
     return (member?.skills ?? []).findIndex(skill => keyOf(skill.name) === key);
 }
 
-/** The skills a character of this level may hold: 5, and one more every third level (38 at level 99). */
+/** The skills a character of this level may hold: 5, and one more every tenth level, 8 at the most (from level 30). */
 export function skillSlots(level) {
-    return 5 + Math.floor((Number.isInteger(level) ? level : 1) / 3);
+    return Math.min(8, 5 + Math.floor((Number.isInteger(level) ? level : 1) / 10));
 }
 
 /** The members who play (not fallen, not companions), the reader's character first. */

@@ -1,16 +1,16 @@
 // What a member has at their current level: stats (creation base plus the purchases the level pays for), pools and active skills.
 import { poolMax } from '../rules/harm.js';
-import { gainsAt } from '../rules/level-gains.js';
 import { STAT_KEYS } from '../words/stats.js';
 import { skillSlots } from './members.js';
 import { countedPurchases } from './purchases.js';
+import { earnedAt } from '../rules/level-gains.js';
 import { levelOf } from './standing.js';
 
 /** `{ str: 12, … }`: the creation stats plus each counted purchase (a stat is kept within 1..30 by `totalStats`). */
 export function effectiveStats(member) {
     const stats = {};
     for (const key of STAT_KEYS) stats[key] = member?.stats?.[key];
-    for (const item of countedPurchases(member, gainsAt(1, levelOf(member)).points)) {
+    for (const item of countedPurchases(member, earnedAt(levelOf(member), member.granted))) {
         if (Object.hasOwn(stats, item.stat)) stats[item.stat] += item.n;
     }
     return stats;
