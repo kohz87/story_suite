@@ -1,5 +1,4 @@
 // Finding members and skills by name, and how many skill slots a level has.
-import { LIMITS } from '../domain/shape.js';
 
 const keyOf = text => String(text ?? '').normalize('NFKC').replace(/\s+/g, ' ').trim().toLowerCase();
 
@@ -17,9 +16,9 @@ export function skillIndex(member, name) {
     return (member?.skills ?? []).findIndex(skill => keyOf(skill.name) === key);
 }
 
-/** The skills a character of this level may hold: 5, and one more every third level, up to the record's limit. */
+/** The skills a character of this level may hold: 5, and one more every third level (38 at level 99). */
 export function skillSlots(level) {
-    return Math.min(LIMITS.skills, 5 + Math.floor((Number.isInteger(level) ? level : 1) / 3));
+    return 5 + Math.floor((Number.isInteger(level) ? level : 1) / 3);
 }
 
 /** The members who play (not fallen, not companions), the reader's character first. */

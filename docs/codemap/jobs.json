@@ -820,6 +820,7 @@
   "examples/text-rpg/src/module-parts/gear.js": "What a member wears: the gear stat bonuses, capped by rarity, and the worn pieces' names, from the `gear.view` query.",
   "examples/text-rpg/src/module-parts/hooks.js": "`beforeGenerate`: offers the reply's dice as a system step on a normal send, a regenerate or a swipe.",
   "examples/text-rpg/src/module-parts/learned.js": "The learn order of a member's skills: which were learned after creation, and the number the next one takes.",
+  "examples/text-rpg/src/module-parts/listed.js": "Which active skills the prompt lists for a member: the 8 most practised plus any the latest messages name.",
   "examples/text-rpg/src/module-parts/kinds.js": "The capture kinds of Text RPG and the one apply that sends a line to its kind's handler.",
   "examples/text-rpg/src/module-parts/kinds/pools.js": "The pool lines: paying a skill's cost, `~ spend Who — skill` and `~ health Who — stage | why: …`.",
   "examples/text-rpg/src/module-parts/kinds/roster.js": "The roster lines: `+ skill Who — Name | stat | type | from: how` and `+ companion Name | level: N | strengths: a, b`.",

@@ -7,7 +7,7 @@ import { skillIndex } from './members.js';
 import { statKey } from './line-read.js';
 import { totalStats } from './gear.js';
 import { levelOf } from './standing.js';
-import { activeSkills } from './effective.js';
+import { listedSkills } from './listed.js';
 
 /**
  * What `target` (a skill's name or a stat) adds to a member's roll: `{ stat, skill, bonus }`, or null when the
@@ -28,12 +28,12 @@ export function bonusFor(member, target, cap = {}) {
     return { stat, skill, bonus: rollBonus({ stat: totalStats(member, cap)[stat], rankBonus, level: levelOf(member), hampered }) };
 }
 
-/** The dice note's table: one row per member, each stat's bonus then each skill's. */
-export function bonusRows(members, capOf) {
+/** The dice note's table: one row per member, each stat's bonus then each listed skill's (listed.js). */
+export function bonusRows(members, capOf, text = '') {
     return members.filter(member => !member.companion).map(member => {
         const cap = capOf(member);
         const stats = STAT_KEYS.map(key => [key.toUpperCase(), bonusFor(member, key, cap).bonus]);
-        const skills = activeSkills(member).map(skill => [skill.name, bonusFor(member, skill.name, cap).bonus]);
+        const skills = listedSkills(member, text).map(skill => [skill.name, bonusFor(member, skill.name, cap).bonus]);
         return { who: member.name, bonuses: [...stats, ...skills] };
     });
 }

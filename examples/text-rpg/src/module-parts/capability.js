@@ -6,6 +6,7 @@ import { HEALTH_STAGES, stageOf, usesLeft } from '../words/pools.js';
 import { statWord } from '../words/stats.js';
 import { STAT_KEYS } from '../words/stats.js';
 import { activeSkills, poolOf } from './effective.js';
+import { listedSkills } from './listed.js';
 import { totalStats } from './gear.js';
 import { levelOf, woundsOf } from './standing.js';
 
@@ -18,15 +19,15 @@ function poolPart(member, kind, label) {
     return `${label}: ${stageOf(pool.now, pool.max, 'energy').word}${left}`;
 }
 
-/** The line for one member; `gear` is `{ cap, names }` from gear.js. */
-export function capabilityLine(member, gear = { cap: {}, names: [] }, now = null) {
+/** The line for one member; `gear` is `{ cap, names }` from gear.js; `text` is what names a skill beyond the 8 most practised (listed.js). */
+export function capabilityLine(member, gear = { cap: {}, names: [] }, now = null, text = '') {
     if (member.companion) {
         const strengths = member.companion.strengths.join(', ');
         return `${member.name} (companion, level ${member.companion.level})${strengths ? ` — ${strengths}` : ''}`;
     }
     const total = totalStats(member, gear.cap);
     const stats = STAT_KEYS.map(key => [key.toUpperCase(), statWord(key, total[key])]).filter(([, word]) => word && word !== 'ordinary').map(([key, word]) => `${key} ${word}`);
-    const skills = activeSkills(member).map(skill => `${skill.name} (${rankOf(practiceOf(member, skill)).name})${skill.about ? `: ${skill.about}` : ''}`);
+    const skills = listedSkills(member, text).map(skill => `${skill.name} (${rankOf(practiceOf(member, skill)).name})${skill.about ? `: ${skill.about}` : ''}`);
     const conditions = liveConditions(member, now);
     const health = HEALTH_STAGES[woundsOf(member)];
     const parts = [

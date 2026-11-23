@@ -7,7 +7,7 @@ export const DOMAIN = 'textRpg';
 /** Frozen rules for every text RPG domain slice. */
 export const LIMITS = Object.freeze({
     members: 6,
-    skills: 12,
+    skills: 38,
     injuries: 3,
     conditions: 4,
     name: 60,

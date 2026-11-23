@@ -46,7 +46,7 @@ test('the public constants and initial state match the frozen contract', () => {
     assert.equal(DOMAIN, 'textRpg');
     assert.deepEqual(LIMITS, {
         members: 6,
-        skills: 12,
+        skills: 38,
         injuries: 3,
         conditions: 4,
         name: 60,
@@ -223,7 +223,7 @@ test('validation enforces collection limits and one player character', () => {
     assert.ok(hasPath(validate(manyMembers), 'members'));
 
     const manySkills = astra();
-    manySkills.skills = Array.from({ length: 13 }, (_, i) => skill({ name: `Skill ${i}` }));
+    manySkills.skills = Array.from({ length: 39 }, (_, i) => skill({ name: `Skill ${i}` }));
     assert.ok(hasPath(validate(one(manySkills)), 'members.astra.skills'));
 
     const manyDice = astra();
