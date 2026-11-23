@@ -6,6 +6,11 @@ const BUILT_IN = new Set(['story-block', ...BUILTIN_MODULES.map(m => m.id)]);
 const SEG_MAX = 3;
 const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 
+/** The page id of a plug-in's Rules page: `plugin-<module id>`, so it never clashes with a built-in section id. */
+export const pluginPageId = moduleId => `plugin-${moduleId}`;
+/** True for Story Block's own module and the built-in modules (they have no plug-in page). */
+export const isBuiltInModule = moduleId => BUILT_IN.has(moduleId);
+
 /** The row key of one plug-in setting: `plugin.<module id>.<field>` (ui/port/plugin-settings.js writes it). */
 export const pluginKey = (moduleId, field) => `plugin.${moduleId}.${field}`;
 
@@ -43,6 +48,6 @@ export function selectPluginPages(modules, features, values) {
       if (isObj(field) && field.feature && list.find(f => f?.id === field.feature)?.on !== true) return [];
       return [rowFor(page.section, m.id, name, field, stored[name], page.defaults?.[name])].filter(Boolean);
     });
-    return rows.length ? [{ id: m.id, group: 'Rules', name: page.section, desc: `The ${String(m.name ?? m.id)} plug-in.`, special: null, rows }] : [];
+    return rows.length ? [{ id: pluginPageId(m.id), group: 'Rules', name: page.section, desc: `The ${String(m.name ?? m.id)} plug-in.`, special: null, rows }] : [];
   });
 }

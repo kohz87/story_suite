@@ -14,7 +14,7 @@ import { readTabOrder } from './reply-tabs.js';
 import { selectPacks } from './packs.js';
 import { selectYouStartRows } from './you-start.js';
 import { selectAddons } from './addons.js';
-import { selectPluginPages } from './plugin-pages.js';
+import { selectPluginPages, pluginPageId, isBuiltInModule } from './plugin-pages.js';
 import { BUDGETS, LOOK } from './host-keys.js';
 import { CARD_TEXT, PRESET_TEXT } from './module-text.js';
 import { moduleCosts } from './module-costs.js';
@@ -84,7 +84,7 @@ function moduleParts(features, held = false) {
   for (const f of features) {
     if (!isObj(f) || typeof f.id !== 'string') continue;
     const id = String(f.moduleId ?? 'story-block');
-    if (!defs.has(id)) defs.set(id, { id, name: String(f.moduleName ?? id), icon: '', section: SECTION_OF[id] ?? id, desc: '', off: '', tokens: null, ...CARD_TEXT[id], subs: [] });
+    if (!defs.has(id)) defs.set(id, { id, name: String(f.moduleName ?? id), icon: '', section: SECTION_OF[id] ?? (isBuiltInModule(id) ? id : pluginPageId(id)), desc: '', off: '', tokens: null, ...CARD_TEXT[id], subs: [] });
     const sub = { key: f.id, label: String(f.label ?? f.id), hint: String(f.describe ?? ''), on: f.on === true };
     if (f.available === false && typeof f.why === 'string') sub.needs = f.why;
     if (held && f.id === CORE_FEATURE.preroll) Object.assign(sub, { locked: true, lockWhy: ROLLS_HELD });

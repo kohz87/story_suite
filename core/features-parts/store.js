@@ -58,9 +58,10 @@ export function createFeatureStore({ root, registry, save = () => {}, legacy = C
             if (Boolean(on) === (decl.default !== false) && typeof old !== 'boolean') delete choices()[id];
             else choices()[id] = Boolean(on);
             save();
+            // A feature that replaces others turns them off, before any listener hears of `id`, and only when it is really on now (not held back, needs met).
+            if (on && registry.featureOn(id)) for (const other of replacedBy(id)) if (registry.featureOn(other) || stored(other) === true) api.set(other, false);
             // Told only when it is on or off now as it was not before: a feature of a module held back stays off.
             if (before !== Boolean(on) && before !== registry.featureOn(id)) tell(id);
-            if (on) for (const other of replacedBy(id)) if (registry.featureOn(other) || stored(other) === true) api.set(other, false);
             return Boolean(on);
         },
         /** Picks a preset ("How much to track"): see applyPreset. */

@@ -3,6 +3,20 @@ import { pluginKey } from '../select/plugin-pages.js';
 
 const fail = message => ({ ok: false, code: 'FAILED', message });
 
+const TEXT_MAX = 200;
+// The message for a value that does not fit the field's type (bool, int within min/max, text up to 200 characters), else null.
+function typeProblem(spec, value) {
+  if (spec.type === 'bool') return typeof value === 'boolean' ? null : 'This setting is on or off.';
+  if (spec.type === 'int') {
+    if (typeof value !== 'number' || !Number.isInteger(value)) return 'Enter a whole number.';
+    if (Number.isFinite(spec.min) && value < spec.min) return `Enter a number of at least ${spec.min}.`;
+    if (Number.isFinite(spec.max) && value > spec.max) return `Enter a number of at most ${spec.max}.`;
+    return null;
+  }
+  if (spec.type === 'text') return typeof value !== 'string' ? 'Enter text.' : value.length > TEXT_MAX ? `Keep it to ${TEXT_MAX} characters or fewer.` : null;
+  return null;
+}
+
 /**
  * `modules`: () => sdk.modules(). `settings.set` { key: 'plugin.<module>.<field>', value } (a choice row: the label shown) → `writes.settings.set(module, field, stored)`:
  * { ok: true, value } or { ok: false, message }. Any other command is not these pages': returns null.
@@ -18,6 +32,10 @@ export function pluginCommand(type, payload, writes, modules = () => []) {
     const option = (found.spec.options ?? []).map(o => (o !== null && typeof o === 'object' ? { value: o.value, label: o.label ?? o.value } : { value: o, label: o })).find(o => o.label === value);
     if (!option) return fail('Choose one of the listed options.');
     value = option.value;
+  }
+  else {
+    const bad = typeProblem(found.spec, value);
+    if (bad) return fail(bad);
   }
   const done = writes?.settings?.set?.(found.id, found.field, value);
   return done === undefined ? fail('That setting was not saved.') : { ok: true, value: done };
