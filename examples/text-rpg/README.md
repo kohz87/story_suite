@@ -12,9 +12,12 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 
 ## Install
 
-1. Copy this folder into SillyTavern as its own third-party extension, for example
-   `public/scripts/extensions/third-party/story-suite-text-rpg/`, next to Story Suite
-   (`third-party/story_suite`). The manifest declares `"dependencies": ["third-party/story_suite"]`.
+1. In SillyTavern open **Extensions** (the blocks icon) → **Install extension** and paste
+   `https://github.com/kohz87/story-suite-text-rpg`. Story Suite must already be installed as `third-party/story_suite`
+   (the manifest declares `"dependencies": ["third-party/story_suite"]`). Reload the page. (Without the installer: copy this folder
+   into `public/scripts/extensions/third-party/story-suite-text-rpg/`.)
+   That repository is a copy of `examples/text-rpg` in the Story Suite repository (https://github.com/kohz87/story_suite), where it is
+   developed and tested; its tests live there.
 2. In Story Suite's settings, on the **Start** page (the modules and their features), the **Text RPG** card appears (a module
    card named by the module, with one switch named **Text RPG**); turn it on. The feature declares `replaces:
    ['story-block.rpg']`, so the same action turns the **RPG** switch (in the Story Block card's Features) off, and turning
