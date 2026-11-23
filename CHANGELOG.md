@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG's New character now works like the RPG's: stats start at 5 with 10 points to place, your persona's name, a starting level, and Start from a saved character (RPG or Text RPG files); Export works for Text RPG characters.
+- Text RPG levels take 100 XP each like the RPG's, skills go up to 8 (one more every 10 levels), and its Rules page has Level cap and XP rate.
 - Switching the RPG on from the Text RPG page now shows Text RPG off on the Start page.
 - Text RPG's New character shows your persona's portrait, like the RPG's wizard; plug-in modules can ask Story Suite for it.
 - Text RPG's New character is the same wizard as the RPG's, its Rules page has an RPG switch to go back, and gear you equip counts for your character.
