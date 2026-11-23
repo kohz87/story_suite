@@ -8,7 +8,7 @@ import { BUY, astraOf, drawn, newHost, reply, sent, slice, tries, withAstra } fr
 
 const STATIC = 'story_suite_static';
 const TAIL = 'story_suite_tail_1';
-const TRY = ['? try Astra | Obscure | normal | threat: a fair match', '+ xp Party — slipped past | size: real'];
+const TRY = ['? try Astra | Obscure | ordinary | threat: a fair match', '+ xp Party — slipped past | size: real'];
 
 test('the active rule: Text RPG on and the RPG off', () => {
     const view = (on, rpg) => ({ feature: id => (id === 'text-rpg.on' ? on : rpg) });
@@ -60,9 +60,11 @@ test('while active the static part holds the approved rules and the kinds\' gram
         await host.send('Two.', reply('B.', TRY));
         const statics = sent(host, STATIC);
         assert.equal(new Set(statics).size, 1);
-        assert.match(statics[0], /Text RPG: tell every fight, chase, trap and danger as it would really unfold/);
+        assert.match(statics[0], /Text RPG: tell every danger as it really unfolds, in one scene without rounds\./);
         assert.match(statics[0], /Never write numbers, dice or luck\./);
-        assert.match(statics[0], /^\? try Who \| skill or stat \| easy\|normal\|hard\|very hard/m);
+        assert.match(statics[0], /^\? try Who \| skill or stat \| trivial\|easy\|ordinary\|hard\|very hard\|near impossible/m);
+        assert.match(statics[0], /^\+ foes Name \| count: N \| threat: far beneath you/m);
+        assert.match(statics[0], /^\+ lesson Who — Skill \| what was learned/m);
         assert.match(statics[0], /^\+ xp Party — what was overcome \| size: minor\|real\|major\|great/m);
     } finally {
         host.close();
@@ -127,8 +129,8 @@ test('a party with injuries and conditions keeps the whole dice note in the real
         const tail = sent(host, TAIL).at(-1);
         const note = tail.split('\n').find(line => line.startsWith('Dice for this reply'));
         assert.ok(note, 'the note is in the tail');
-        assert.match(note, /Bonus by stat or skill: Astra: .*\. The story must follow each result strictly\./);
-        assert.match(note, /for example \? try Astra \| Obscure \| normal\.$/, 'the note ends whole');
+        assert.match(note, /Bonus: skill rank × 2 .*Astra: .*\. Follow each result; no numbers/);
+        assert.match(note, /e\.g\. \? try Astra \| Obscure \| ordinary \| threat: a fair match\.$/, 'the note ends whole');
         for (const name of ['Astra', 'Rorke', 'Edda']) assert.match(tail, new RegExp(`${name} \\(`), `${name}'s line is there`);
         for (const name of ['Astra', 'Rorke', 'Edda']) assert.ok(tail.indexOf(note) < tail.indexOf(`${name} (`), `the note comes before ${name}'s line`);
         assert.equal(textRpgModule(null).context.budget, 600);
@@ -143,8 +145,8 @@ test('the real prompt view carries the tone: gritty shows the shifted numbers in
     try {
         await host.send('We go.', reply('The road.'));
         await host.send('Onward.', reply('The gate.', ['? try Astra | Lore | easy']));
-        assert.match(sent(host, TAIL).at(-2), /against easy 12, normal 16, hard 20, very hard 24, near impossible 24\./);
-        assert.equal(tries(host)[0].data.difficulty, 1, 'easy, one step harder');
+        assert.match(sent(host, TAIL).at(-2), /against trivial 10, easy 15, ordinary 20, hard 25, very hard 30, near impossible 30\./);
+        assert.equal(tries(host)[0].data.difficulty, 2, 'easy, one step harder');
     } finally {
         host.close();
     }

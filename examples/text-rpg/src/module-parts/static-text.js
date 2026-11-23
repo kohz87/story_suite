@@ -1,11 +1,17 @@
-// The static prompt text (design §10.4, as approved) and the kinds' one-line grammar.
+// The static prompt text (design §10.4, §16 "Narrator rules v2") and the kinds' one-line grammar.
 
 /** The fixed rules the narrator is given while Text RPG is active. */
 export const STATIC_TEXT = [
-    'Text RPG: tell every fight, chase, trap and danger as it would really unfold: one flowing scene, no rounds, the key exchanges each with a clear cause, cost and result. Fights follow physical reality: size, numbers, reach, armour, terrain, preparation and surprise decide them, and nobody has plot armour. Foes are as strong as who they are, never matched to the party; the line says how they compare. Most foes want to live: they break, flee or yield when it turns against them. Foes are the ones the story set up before the fight; never add more mid-fight. Tell each roll as it fell: a failed roll means that turning point goes against them, and with most of a reply\'s rolls failed the fight is not won cleanly; retreat is always theirs to choose. Name the threat honestly: an armed adventurer facing vermin is beneath them.',
-    'The sheet line says what each character can do and how much they have left: keep them to it. Wounds, tiredness and fear weigh on what follows.',
-    'At the moments that decide the outcome (at most three a reply), write ? try Who | skill or stat | difficulty and work out each result from the dice note and tell it, with its cost. In a fight or other danger add | threat: how the foe compares, in the sheet\'s words (far beneath you … beyond you). Pay XP as foes fall: + xp in the reply they go down, not only when the fight ends (it needs a roll in that reply). A failure still moves the scene: later, poorer, seen, hurt, or a worse version of what was wanted; nothing resets and nobody rescues them in the same beat. Never write numbers, dice or luck.',
+    'Text RPG: tell every danger as it really unfolds, in one scene without rounds.',
+    'Roll only when an attempt is possible but uncertain; never roll routine things, thoughts, feelings, decisions or background. One objective, one roll, one skill; a roll never exceeds the character\'s capability or creates a place. Searching, tracking and navigating may be rolled. Use dice in order, skipping the die of a moot action. Write ? try with its threat; an edge needs a reason.',
+    'A natural 20 or 1 changes only how it is told. Costs and failures come only from risks in the scene. Failure is a scene, not a wall: no rescue or reset in the same beat; a retry is new.',
+    'The sheet says what each side can do; the matchup line, who should win. Dice tip a close fight, never rescue a lost one; an outmatched side wins only through an edge set up before. Defeat, capture and retreat are ordinary. Foes fight to their strength (flank, focus the wounded, press an advantage) and most want to live; no lucky openings or rescues not set up. When unsure, take the harsher outcome. Badly wounded cannot fight on effectively; Down cannot act.',
+    'Set the foes with + foes before a fight, as many as the story shows; add none mid-fight but declared reinforcements. + xp only for foes that fell this reply. Sizes: minor = vermin, a lone thug; real = soldier, wolf pack; major = veteran knight, troll; great = dragon, city champion.',
+    'Before the change lines, every reward must point to something that happened on screen this reply. Never write numbers, dice or luck.',
 ].join('\n');
+
+/** What the matchup line adds to its band, so the narrator reads the rule where the band is. */
+export const MATCHUP_RULE = 'Favoured: they should win. Even: the dice decide. Outmatched: they lose unless an edge was set up before. Hopeless: no roll saves them.';
 
 /** The narrator rules: the reader's own text (the `rules` setting, trimmed) when it has some, else the built-in STATIC_TEXT. The grammar lines and the dice note are not part of it. */
 export function narratorRules(values) {
@@ -15,8 +21,10 @@ export function narratorRules(values) {
 
 /** One short grammar line per kind. */
 export const GRAMMAR = Object.freeze({
-    try: '? try Who | skill or stat | easy|normal|hard|very hard [| threat: far beneath you|beneath you|a fair match|above you|far above you|beyond you]',
-    xp: '+ xp Party — what was overcome | size: minor|real|major|great [| foes: how many were overcome (each counts)] (in the reply where they fall or the danger is overcome: foes = how many fell this reply; once a reply)',
+    try: '? try Who | skill or stat | trivial|easy|ordinary|hard|very hard|near impossible [| threat: far beneath you|beneath you|a fair match|above you|far above you|beyond you] [| edge: +1 (reason) in their favour, -1 (reason) against; at most 2]',
+    xp: '+ xp Party — what was overcome | size: minor|real|major|great [| foes: how many fell this reply] [| group: Name] (pays only foes still standing in the + foes record; once a reply)',
+    foes: '+ foes Name | count: N | threat: far beneath you|beneath you|a fair match|above you|far above you|beyond you (before the fight; up to 6 groups a reply; the same Name in a later reply = reinforcements); - foes Name when they flee or scatter (no XP)',
+    lesson: '+ lesson Who — Skill | what was learned (once a skill a fight, after its foes are down; only a skill they rolled in it)',
     condition: '~ condition Who — poisoned|bleeding|stunned|frightened|exhausted|burning|prone|blinded | until: treated|N hours|cleared',
     injury: '+ injury Who — name | hampers: str, agi | grave: minor|serious|grave',
     skill: '+ skill Who — Name | stat | type | from: how it was learned',

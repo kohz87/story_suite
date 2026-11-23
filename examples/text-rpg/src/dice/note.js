@@ -2,16 +2,16 @@
 // Adapted from modules/rpg/cue-parts/offer.js (keep in step when that file changes).
 
 const DEFAULT_DIFFICULTIES = Object.freeze([
-    { word: 'easy', dc: 8 },
-    { word: 'normal', dc: 12 },
-    { word: 'hard', dc: 16 },
-    { word: 'very hard', dc: 20 },
-    { word: 'near impossible', dc: 24 },
+    { word: 'trivial', dc: 5 },
+    { word: 'easy', dc: 10 },
+    { word: 'ordinary', dc: 15 },
+    { word: 'hard', dc: 20 },
+    { word: 'very hard', dc: 25 },
+    { word: 'near impossible', dc: 30 },
 ]);
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const signed = value => (value >= 0 ? `+${value}` : `${value}`);
-const isStatLabel = label => /^[A-Z][A-Z0-9]*$/.test(label);
 
 function floorOf(value) {
     if (!Number.isInteger(value)) return 0;
@@ -40,19 +40,13 @@ function rowsOf(value) {
     if (!Array.isArray(value)) return [];
     return value.flatMap(row => {
         if (!isObject(row) || typeof row.who !== 'string' || !row.who.trim()) return [];
-        const entries = entriesOf(row.bonuses);
-        if (!entries.length) return [];
-        const stats = entries.filter(([label]) => isStatLabel(label));
-        const skills = entries.filter(([label]) => !isStatLabel(label));
-        const bonusText = [
-            stats.map(([label, bonus]) => `${label}${signed(bonus)}`).join(' '),
-            skills.length ? `${stats.length ? '; ' : ''}${skills.map(([label, bonus]) => `${label}${signed(bonus)}`).join(', ')}` : '',
-        ].join('');
-        return [{ who: row.who.trim(), text: `${row.who.trim()}: ${bonusText}`, skills }];
+        const skills = entriesOf(row.bonuses);
+        if (!skills.length) return [];
+        return [{ who: row.who.trim(), text: `${row.who.trim()}: ${skills.map(([label, bonus]) => `${label} ${signed(bonus)}`).join(', ')}`, skills }];
     });
 }
 
-/** The reply's dice note: rules, difficulty floor (with `why`, what raised it: the reader's threat and conditions), bonus table and the head the narrator reports. Empty when no dice are present. */
+/** The reply's dice note: rules, difficulty floor (with `why`, what raised it: the live conditions), bonus table and the head the narrator reports. Empty when no dice are present. */
 export function diceNote(record) {
     const { list, floor, rows, difficulties, why } = isObject(record) ? record : {};
     const dice = Array.isArray(list) ? list.filter(die => Number.isInteger(die) && die >= 1 && die <= 20) : [];
@@ -62,17 +56,17 @@ export function diceNote(record) {
     const floorAt = floorOf(floor);
     const table = rowsOf(rows);
     const first = table[0];
-    const example = `? try ${first?.who ?? 'Astra'} | ${first?.skills?.[0]?.[0] ?? 'Obscure'} | ${dc[1].word}`;
+    const example = `? try ${first?.who ?? 'Astra'} | ${first?.skills?.[0]?.[0] ?? 'Obscure'} | ${dc[2].word} | threat: a fair match`;
     const parts = [
         `Dice for this reply, in order: ${dice.join(', ')}.`,
-        `Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against ${dc.map(({ word, dc: value }) => `${word} ${value}`).join(', ')}.`,
-        'Total at the number or over: success; 1–2 short: success at a cost; more: failure; 10 or more short or a natural 1: a bad failure; a natural 20: more than asked.',
+        `One per attempt that can fail, skipping a moot one: total = die + bonus, against ${dc.map(({ word, dc: value }) => `${word} ${value}`).join(', ')}.`,
+        'At the number or over: success; 1–2 short: success at a cost; 3–9 short: failure; 10 or more short: a bad failure. A natural 20 or 1 changes only the telling (well done, clumsy).',
+        `Threat sets the difficulty: far beneath → ${dc[0].word}, beneath → ${dc[1].word}, fair → ${dc[2].word}, above → ${dc[3].word}, far above → ${dc[4].word}, beyond → ${dc[5].word}; your word counts only with no threat; a live condition adds a step under a threat. | edge: +1 (reason) eases a step, -1 hardens, at most 2; no reason, no edge.`,
     ];
-    parts.push(`A threat raises the difficulty: a foe above you → at least ${dc[2].word}, far above → ${dc[3].word}, beyond → ${dc[4].word}.`);
     const reasons = (Array.isArray(why) ? why : []).filter(item => typeof item === 'string' && item.trim()).map(item => item.trim());
     if (floorAt > 0) parts.push(`Nothing this reply is easier than ${dc[floorAt].word}${reasons.length ? ` (${reasons.join(', ')})` : ''}.`);
-    if (table.length) parts.push(`Bonus by stat or skill: ${table.map(row => row.text).join('. ')}.`);
-    parts.push('The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text.');
-    parts.push(`Report each: ? try Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ${example}.`);
+    parts.push(`Bonus: skill rank × 2 (Novice +0 … Legend +12); a stat +0; a skill not on the sheet −3; −2 for each injury on its stat.${table.length ? ` ${table.map(row => row.text).join('. ')}.` : ''}`);
+    parts.push('Follow each result; no numbers in the story text.');
+    parts.push(`Report: ? try Who | skill or stat | difficulty | threat: … (Who = the person rolling, by name); e.g. ${example}.`);
     return parts.join(' ');
 }

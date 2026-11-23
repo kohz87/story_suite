@@ -1,5 +1,6 @@
 // Practice, experience awards and the experience needed for each level.
 import { LEVEL } from './levels.js';
+import { THREAT_FACTOR } from './threat-factor.js';
 
 function finite(value, fallback) {
     return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -11,19 +12,17 @@ function rollBand(value) {
 }
 
 function difficultyValue(value) {
-    return Math.min(4, Math.max(0, Math.trunc(finite(value, 0))));
+    return Math.min(5, Math.max(0, Math.trunc(finite(value, 0))));
 }
 
-const THREAT_MULTIPLIERS = Object.freeze([0, 0.5, 1, 2, 3, 4]);
-
-/** The practice points from one check: easy checks teach nothing; a failure 3, a success or a success at a cost 5, a success at hard or harder 10. */
+/** The practice points from one check: trivial checks teach nothing; a failure 3, a success or a success at a cost 5, a success at hard or harder 10. */
 export function practiceGain(band, difficultyIndex) {
     const key = rollBand(band);
     if (!key) return 0;
     const difficulty = difficultyValue(difficultyIndex);
     if (difficulty === 0) return 0;
     if (key === 'failure' || key === 'bad') return 3;
-    return difficulty >= 2 && key !== 'cost' ? 10 : 5;
+    return difficulty >= 3 && key !== 'cost' ? 10 : 5;
 }
 
 /** The fixed experience paid for each size of an overcome danger. */
@@ -36,12 +35,12 @@ export function xpFor(size, threat, hardestIndex, foes = 1) {
     if (hardestIndex === null || hardestIndex === undefined) return 0;
     if (typeof hardestIndex !== 'number' || !Number.isFinite(hardestIndex)) return 0;
 
-    const hardest = Math.min(4, Math.max(0, Math.trunc(hardestIndex)));
+    const hardest = Math.min(5, Math.max(0, Math.trunc(hardestIndex)));
     const threatLevel = Math.min(5, Math.max(0, Math.trunc(finite(threat, 0))));
     let paidSize = key;
-    if (paidSize === 'great' && hardest < 3) paidSize = 'major';
-    if (paidSize === 'major' && hardest < 2) paidSize = 'real';
-    return Math.round(XP_SIZES[paidSize] * THREAT_MULTIPLIERS[threatLevel] * foes);
+    if (paidSize === 'great' && hardest < 4) paidSize = 'major';
+    if (paidSize === 'major' && hardest < 3) paidSize = 'real';
+    return Math.round(XP_SIZES[paidSize] * THREAT_FACTOR[threatLevel] * foes);
 }
 
 /** The level reached at a total experience (100 xp a level, as the RPG's), and the total needed for the next level (null at 99). */

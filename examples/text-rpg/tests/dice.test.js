@@ -8,30 +8,31 @@ import { diceOf, drawDice } from '../src/dice/record.js';
 import { diceNote } from '../src/dice/note.js';
 
 const DIFFICULTIES = [
-    { word: 'easy', dc: 8 },
-    { word: 'normal', dc: 12 },
-    { word: 'hard', dc: 16 },
-    { word: 'very hard', dc: 20 },
-    { word: 'near impossible', dc: 24 },
+    { word: 'trivial', dc: 5 },
+    { word: 'easy', dc: 10 },
+    { word: 'ordinary', dc: 15 },
+    { word: 'hard', dc: 20 },
+    { word: 'very hard', dc: 25 },
+    { word: 'near impossible', dc: 30 },
 ];
 
 const ROWS = [
-    { who: 'Astra', bonuses: [['STR', 0], ['AGI', 2], ['Obscure', 4]] },
-    { who: 'Bram', bonuses: [['CHA', 1], ['Persuade', 3]] },
+    { who: 'Astra', bonuses: [['Obscure', 4], ['Lore', 0]] },
+    { who: 'Bram', bonuses: [['Persuade', 3]] },
 ];
 
 const NOTE_WITHOUT_FLOOR =
     'Dice for this reply, in order: 12, 4, 17. ' +
-    "Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 8, normal 12, hard 16, very hard 20, near impossible 24. " +
-    'Total at the number or over: success; 1–2 short: success at a cost; more: failure; 10 or more short or a natural 1: a bad failure; a natural 20: more than asked. ' +
-    'A threat raises the difficulty: a foe above you → at least hard, far above → very hard, beyond → near impossible. ' +
-    'Bonus by stat or skill: Astra: STR+0 AGI+2; Obscure+4. Bram: CHA+1; Persuade+3. ' +
-    'The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. ' +
-    "Report each: ? try Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? try Astra | Obscure | normal.";
+    "One per attempt that can fail, skipping a moot one: total = die + bonus, against trivial 5, easy 10, ordinary 15, hard 20, very hard 25, near impossible 30. " +
+    'At the number or over: success; 1–2 short: success at a cost; 3–9 short: failure; 10 or more short: a bad failure. A natural 20 or 1 changes only the telling (well done, clumsy). ' +
+    'Threat sets the difficulty: far beneath → trivial, beneath → easy, fair → ordinary, above → hard, far above → very hard, beyond → near impossible; your word counts only with no threat; a live condition adds a step under a threat. | edge: +1 (reason) eases a step, -1 hardens, at most 2; no reason, no edge. ' +
+    'Bonus: skill rank × 2 (Novice +0 … Legend +12); a stat +0; a skill not on the sheet −3; −2 for each injury on its stat. Astra: Obscure +4, Lore +0. Bram: Persuade +3. ' +
+    'Follow each result; no numbers in the story text. ' +
+    'Report: ? try Who | skill or stat | difficulty | threat: … (Who = the person rolling, by name); e.g. ? try Astra | Obscure | ordinary | threat: a fair match.';
 
 const NOTE_WITH_FLOOR = NOTE_WITHOUT_FLOOR.replace(
-    'near impossible. Bonus',
-    'near impossible. Nothing this reply is easier than hard. Bonus',
+    'no reason, no edge. Bonus',
+    'no reason, no edge. Nothing this reply is easier than hard. Bonus',
 );
 
 test('isSeed: covers both uint32 bounds and rejects other values', () => {
@@ -93,7 +94,7 @@ test('replyDice: three d20 in order, deterministic and within bounds', () => {
 
 test('diceOf: accepts three d20 and defaults a missing floor to easy', () => {
     assert.deepEqual(diceOf({ list: [1, 20, 7] }), { list: [1, 20, 7], floor: 0 });
-    assert.deepEqual(diceOf({ list: [1, 20, 7], floor: 4 }), { list: [1, 20, 7], floor: 4 });
+    assert.deepEqual(diceOf({ list: [1, 20, 7], floor: 5 }), { list: [1, 20, 7], floor: 5 });
     const source = [1, 20, 7];
     const kept = diceOf({ list: source, floor: 2 });
     source[0] = 9;
@@ -110,7 +111,7 @@ test('diceOf: rejects the wrong count, a die out of range and a bad floor', () =
     assert.equal(diceOf({ list: [1, 2, 0] }), null);
     assert.equal(diceOf({ list: [1, 2, 3.5] }), null);
     assert.equal(diceOf({ list: [1, 2, 3], floor: -1 }), null);
-    assert.equal(diceOf({ list: [1, 2, 3], floor: 5 }), null);
+    assert.equal(diceOf({ list: [1, 2, 3], floor: 6 }), null);
     assert.equal(diceOf({ list: [1, 2, 3], floor: 1.5 }), null);
     assert.equal(diceOf({ list: [1, 2, 3], floor: '2' }), null);
     assert.equal(diceOf({ list: [1, 2, 3], floor: null }), null);
@@ -120,18 +121,18 @@ test('drawDice: draws the seed sequence and clamps the floor safely', () => {
     assert.deepEqual(drawDice(12345, 2), { list: [11, 7, 14], floor: 2 });
     assert.deepEqual(drawDice(12345), { list: [11, 7, 14], floor: 0 });
     assert.equal(drawDice(12345, -3).floor, 0);
-    assert.equal(drawDice(12345, 8).floor, 4);
+    assert.equal(drawDice(12345, 8).floor, 5);
     assert.equal(drawDice(12345, 2.9).floor, 2);
     assert.equal(drawDice(12345, Number.NaN).floor, 0);
     assert.equal(drawDice(12345, '3').floor, 0);
-    assert.deepEqual(drawDice('bad', 9), { list: replyDice(0), floor: 4 });
+    assert.deepEqual(drawDice('bad', 9), { list: replyDice(0), floor: 5 });
 });
 
 test('diceNote: the exact note with and without a difficulty floor', () => {
     const base = { list: [12, 4, 17], rows: ROWS, difficulties: DIFFICULTIES };
     assert.equal(diceNote(base), NOTE_WITHOUT_FLOOR);
     assert.equal(diceNote({ ...base, floor: 0 }), NOTE_WITHOUT_FLOOR);
-    assert.equal(diceNote({ ...base, floor: 2 }), NOTE_WITH_FLOOR);
+    assert.equal(diceNote({ ...base, floor: 3 }), NOTE_WITH_FLOOR);
 });
 
 test('diceNote: no dice or bad input gives the safe empty note', () => {
@@ -144,7 +145,7 @@ test('diceNote: no dice or bad input gives the safe empty note', () => {
 
 test('diceNote: defaults fill missing difficulties and omit an empty bonus table', () => {
     const note = diceNote({ list: [12, 4, 17] });
-    assert.match(note, /against easy 8, normal 12, hard 16, very hard 20, near impossible 24\./);
-    assert.doesNotMatch(note, /Bonus by stat or skill:/);
-    assert.match(note, /for example \? try Astra \| Obscure \| normal\.$/);
+    assert.match(note, /against trivial 5, easy 10, ordinary 15, hard 20, very hard 25, near impossible 30\./);
+    assert.match(note, /a skill not on the sheet −3; −2 for each injury on its stat\. Follow each result/, 'no table when nobody is listed');
+    assert.match(note, /e\.g\. \? try Astra \| Obscure \| ordinary \| threat: a fair match\.$/);
 });

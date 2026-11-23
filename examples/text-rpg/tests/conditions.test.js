@@ -32,13 +32,13 @@ test('a ? try counts only live conditions toward the floor', () => {
         const slice = sliceOf([member], { list: [15, 10, 10], floor: 0 });
         return run(applyTry, fakeCtx(slice, { time }), line('try', member.name, 'Lore; easy')).result.data;
     };
-    assert.equal(attempt(700).difficulty, 2, 'two live conditions raise easy to the floor of two');
-    assert.equal(attempt(800).difficulty, 1, 'one is left');
-    assert.equal(attempt(null).difficulty, 2, 'no clock: all of them hold');
+    assert.equal(attempt(700).difficulty, 3, 'two live conditions raise easy to hard');
+    assert.equal(attempt(800).difficulty, 2, 'one is left: ordinary');
+    assert.equal(attempt(null).difficulty, 3, 'no clock: all of them hold');
 });
 
 test('the dice step\'s floor counts only live conditions', () => {
     const floorAt = minutes => beforeGenerate(viewOf(sliceOf([timed()], null), minutes), { type: 'normal' }).commands[0].payload.floor;
-    assert.equal(floorAt(700), 2);
-    assert.equal(floorAt(800), 1);
+    assert.equal(floorAt(700), 3);
+    assert.equal(floorAt(800), 2);
 });

@@ -41,7 +41,7 @@ test('with the story clock: a ? try is applied (the dice record keeps its clock 
     const host = await clockHost();
     t.after(() => host.close());
     await host.send('Hello.', reply('The road.', ['~ time June 3, 1200, 08:00 am']));
-    await host.send('Fight.', reply('Rats.', ['? try Astra | STR | normal | threat: a fair match', '+ xp Party — two rats fall | size: minor | foes: 2']));
+    await host.send('Fight.', reply('Rats.', ['+ foes rats | count: 2 | threat: a fair match', '? try Astra | STR | ordinary | threat: a fair match', '+ xp Party — two rats fall | size: minor | foes: 2']));
     const record = Object.values(host.head().domains.textRpg.dice).at(-1);
     assert.equal(record.used, 1, 'the try was applied, not refused (it took a die)');
     assert.equal(host.head().domains.textRpg.members[Object.keys(host.head().domains.textRpg.members)[0]].xp, 10, 'two foes at minor, a fair match: 10 xp');

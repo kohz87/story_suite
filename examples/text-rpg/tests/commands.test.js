@@ -127,9 +127,9 @@ test('textRpg.dice is the system\'s: three dice from the seed, the floor kept in
 });
 
 test('the dice record keeps the optional used, hardest and threat, and refuses bad ones', () => {
-    const slice = sliceOf([astra()], { list: [1, 2, 3], floor: 0, used: 1, hardest: 3, threat: 5 });
+    const slice = sliceOf([astra()], { list: [1, 2, 3], floor: 0, used: 1, hardest: 5, threat: 5, matchup: { band: 'even', why: '3 wolves a fair match, the party unhurt' } });
     assert.deepEqual(validate(slice), []);
-    for (const bad of [{ used: 4 }, { hardest: 5 }, { threat: 6 }, { extra: 1 }]) {
+    for (const bad of [{ used: 4 }, { hardest: 6 }, { threat: 6 }, { matchup: { band: 'doomed', why: '' } }, { extra: 1 }]) {
         assert.ok(validate(sliceOf([astra()], { list: [1, 2, 3], floor: 0, ...bad })).length > 0, JSON.stringify(bad));
     }
 });

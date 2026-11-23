@@ -8,29 +8,29 @@ import { applyLine, kindsOf } from '../src/module-parts/kinds.js';
 import { levelOf, pointsOf, woundsOf } from '../src/module-parts/standing.js';
 import { astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 
-const asRolled = (hardest = 2, used = 1) => ({ list: [10, 10, 10], floor: 0, used, hardest });
+const asRolled = (hardest = 3, used = 1) => ({ list: [10, 10, 10], floor: 0, used, hardest });
 
 test('+ xp pays by size, cut to what the hardest roll supports, and none without a roll', () => {
     const paid = size => {
-        const slice = sliceOf([astra()], asRolled(2));
+        const slice = sliceOf([astra()], asRolled(3));
         return [run(applyXp, fakeCtx(slice), line('xp', 'Party', 'a duel', { size })), slice.members.ac_astra001.xp];
     };
     assert.equal(paid('real')[1], 20);
     assert.equal(paid('major')[1], 60);
     assert.equal(paid('great')[1], 60, 'great is cut to major on a hard roll');
-    const easy = sliceOf([astra()], asRolled(1));
+    const easy = sliceOf([astra()], asRolled(2));
     run(applyXp, fakeCtx(easy), line('xp', 'Party', 'a scuffle', { size: 'major' }));
-    assert.equal(easy.members.ac_astra001.xp, 20, 'major is cut to real on a normal roll');
+    assert.equal(easy.members.ac_astra001.xp, 20, 'major is cut to real on an ordinary roll');
     const none = sliceOf([astra()], { list: [10, 10, 10], floor: 0 });
     run(applyXp, fakeCtx(none), line('xp', 'Party', 'talk', { size: 'real' }));
     assert.equal(none.members.ac_astra001.xp, 0);
 });
 
 test('+ xp scales by the threat the roll named, and a bad size is refused', () => {
-    const slice = sliceOf([astra()], { ...asRolled(2), threat: 0 });
+    const slice = sliceOf([astra()], { ...asRolled(3), threat: 0 });
     run(applyXp, fakeCtx(slice), line('xp', 'Party', 'rats', { size: 'real' }));
     assert.equal(slice.members.ac_astra001.xp, 0, 'far beneath pays nothing');
-    const above = sliceOf([astra()], { ...asRolled(2), threat: 3 });
+    const above = sliceOf([astra()], { ...asRolled(3), threat: 3 });
     run(applyXp, fakeCtx(above), line('xp', 'Party', 'ogre', { size: 'real' }));
     assert.equal(above.members.ac_astra001.xp, 40);
     assert.equal(run(applyXp, fakeCtx(sliceOf()), line('xp', 'Party', 'x', { size: 'huge' })).code, 'INVALID');
@@ -157,8 +157,10 @@ test('every kind refuses quietly while off, and the dispatcher knows only its ow
 test('the kinds table: heads, the feature, and grammar only while active', () => {
     const on = kindsOf({ feature: id => id === 'text-rpg.on' });
     const off = kindsOf({ feature: () => false });
-    assert.deepEqual(Object.keys(on).sort(), ['companion', 'condition', 'fall', 'health', 'injury', 'skill', 'spend', 'train', 'try', 'xp']);
+    assert.deepEqual(Object.keys(on).sort(), ['companion', 'condition', 'fall', 'foes', 'health', 'injury', 'lesson', 'skill', 'spend', 'train', 'try', 'xp']);
     assert.deepEqual(on.try.heads, ['? try']);
+    assert.deepEqual(on.foes.heads, ['+ foes', '- foes']);
+    assert.deepEqual(on.lesson.heads, ['+ lesson']);
     assert.equal(on.xp.feature, 'text-rpg.on');
     assert.match(on.try.grammar(), /^\? try Who \|/);
     assert.equal(off.try.grammar(), '');

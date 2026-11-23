@@ -1,5 +1,6 @@
 // Validates a text RPG domain slice and reports every damaged field by path.
 import { LIMITS } from './shape.js';
+import { checkFoes } from './validate-foes.js';
 
 const STAT_KEYS = ['str', 'vit', 'agi', 'dex', 'int', 'wis', 'cha'];
 const SKILL_TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
@@ -239,10 +240,10 @@ function checkDice(dice, problems) {
         }
         // used (dice taken so far), hardest (difficulty index) and threat (word index) are kept by the reply's `? try` lines.
         const base = {};
-        for (const key of Object.keys(record)) if (!['used', 'hardest', 'threat', 'rules', 'clock'].includes(key)) base[key] = record[key];
+        for (const key of Object.keys(record)) if (!['used', 'hardest', 'threat', 'rules', 'clock', 'matchup'].includes(key)) base[key] = record[key];
         if (!checkShape(base, where, ['list', 'floor'], problems)) continue;
         if (has(record, 'used') && !isInt(record.used, 0, 3)) problems.push(`${where}.used must be a whole number from 0 to 3.`);
-        if (has(record, 'hardest') && !isInt(record.hardest, 0, 4)) problems.push(`${where}.hardest must be a whole number from 0 to 4.`);
+        if (has(record, 'hardest') && !isInt(record.hardest, 0, 5)) problems.push(`${where}.hardest must be a whole number from 0 to 5.`);
         if (has(record, 'threat') && !isInt(record.threat, 0, 5)) problems.push(`${where}.threat must be a whole number from 0 to 5.`);
         // clock: the story minute the reply's dice step was made at (training sessions are capped by the days since).
         if (has(record, 'clock') && !isInt(record.clock, 0, Number.MAX_SAFE_INTEGER)) problems.push(`${where}.clock must be a whole number of minutes.`);
@@ -255,7 +256,8 @@ function checkDice(dice, problems) {
                 if (!isInt(die, 1, 20)) problems.push(`${where}.list.${index} must be a whole number from 1 to 20.`);
             });
         }
-        if (!isInt(record.floor, 0, 4)) problems.push(`${where}.floor must be a whole number from 0 to 4.`);
+        if (!isInt(record.floor, 0, 5)) problems.push(`${where}.floor must be a whole number from 0 to 5.`);
+        if (has(record, 'matchup') && !(isObject(record.matchup) && ['favoured', 'even', 'outmatched', 'hopeless'].includes(record.matchup.band) && typeof record.matchup.why === 'string')) problems.push(`${where}.matchup must hold a band and a text.`);
     }
 }
 
@@ -270,11 +272,12 @@ function checkSpent(spent, problems) {
 function validateSlice(slice) {
     const problems = [];
     // `spent` (reply → skill → the practice a `~ spend` gave there) is kept once a reply has one: a slice saved before it has none.
-    const { spent, ...base } = isObject(slice) ? slice : {};
+    const { spent, foes, ...base } = isObject(slice) ? slice : {};
     if (!checkShape(isObject(slice) ? base : slice, 'slice', ['v', 'members', 'dice'], problems)) return problems;
     if (slice.v !== 1) problems.push('slice.v must be 1.');
     checkDice(slice.dice, problems);
     checkSpent(spent, problems);
+    checkFoes(foes, problems);
 
     if (!isObject(slice.members)) {
         problems.push('members must be an object.');

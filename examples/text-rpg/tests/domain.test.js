@@ -168,7 +168,14 @@ test('validation names the path of every kind of damaged member field', () => {
             member.companion = { level: 3, strengths: ['a', 'b', 'c', 'd'] };
         }, 'members.astra.companion.strengths'],
         ['fallen how', (slice, member) => { member.fallen = { how: 'x'.repeat(161) }; }, 'members.astra.fallen.how'],
-        ['dice floor', slice => { slice.dice.reply = { list: [1, 2, 3], floor: 5 }; }, 'dice.reply.floor'],
+        ['dice floor', slice => { slice.dice.reply = { list: [1, 2, 3], floor: 6 }; }, 'dice.reply.floor'],
+        ['dice hardest', slice => { slice.dice.reply = { list: [1, 2, 3], floor: 1, hardest: 6 }; }, 'dice.reply.hardest'],
+        ['dice matchup', slice => { slice.dice.reply = { list: [1, 2, 3], floor: 1, matchup: { band: 'doomed', why: 'x' } }; }, 'dice.reply.matchup'],
+        ['foes record', slice => { slice.foes = { groups: [], fights: {} }; }, 'foes'],
+        ['foes group threat', slice => { slice.foes = { groups: { rats: { name: 'rats', threat: 6, count: 2, left: 2, fight: 'f' } }, fights: {} }; }, 'foes.groups.rats.threat'],
+        ['foes group left', slice => { slice.foes = { groups: { rats: { name: 'rats', threat: 1, count: 2, left: -1, fight: 'f' } }, fights: {} }; }, 'foes.groups.rats.left'],
+        ['foes group fight', slice => { slice.foes = { groups: { rats: { name: 'rats', threat: 1, count: 2, left: 1 } }, fights: {} }; }, 'foes.groups.rats.fight'],
+        ['foes fight rolled', slice => { slice.foes = { groups: {}, fights: { f: { rolled: { a: 'lore' }, taught: [] } } }; }, 'foes.fights.f'],
         ['dice list', slice => { slice.dice.reply = { list: [1, 2], floor: 1 }; }, 'dice.reply.list'],
         ['dice die', slice => { slice.dice.reply = { list: [1, 2, 21], floor: 1 }; }, 'dice.reply.list.2'],
         ['dice unknown', slice => { slice.dice.reply = { list: [1, 2, 3], floor: 1, extra: true }; }, 'dice.reply.extra'],
@@ -176,6 +183,13 @@ test('validation names the path of every kind of damaged member field', () => {
     for (const [label, change, path] of cases) {
         test(label, () => expectPath(change, path));
     }
+});
+
+test('a slice with a sound foes record and a matchup in its dice is valid', () => {
+    const slice = initialState();
+    slice.dice.reply = { list: [1, 2, 3], floor: 5, hardest: 5, matchup: { band: 'outmatched', why: '24 rats beneath, Astra wounded' } };
+    slice.foes = { groups: { rats: { name: 'rats', threat: 1, count: 24, left: 24, fight: 'reply' } }, fights: { reply: { rolled: { astra: ['lore'] }, taught: ['astra:lore'] } } };
+    assert.deepEqual(validate(slice), []);
 });
 
 test('unknown keys are rejected in every fixed record shape', () => {

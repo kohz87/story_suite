@@ -10,7 +10,7 @@ import { rollCards } from '../src/module-parts/roll-cards.js';
 import { astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 import { astraOf, reply, withAstra } from './helpers/host.js';
 
-const step = clock => [{ index: 2, receipt: { type: 'textRpg.dice', data: { list: [11, 11, 11], floor: 0, own: true, ...(clock === undefined ? {} : { clock }) } } }];
+const step = clock => [{ index: 2, receipt: { type: 'textRpg.dice', data: { list: [15, 15, 15], floor: 0, own: true, ...(clock === undefined ? {} : { clock }) } } }];
 const DAY = 1440;
 const lore = slice => slice.members.ac_astra001.practice.lore ?? 0;
 const train = (slice, sessions, { start, now } = {}, skill = 'Lore') => {
@@ -21,7 +21,7 @@ const train = (slice, sessions, { start, now } = {}, skill = 'Lore') => {
 };
 
 test('sessions: N gives +N when the story had the days, with no threat scale', () => {
-    const slice = sliceOf([astra()], { list: [11, 11, 11], floor: 0, threat: 0 });
+    const slice = sliceOf([astra()], { list: [15, 15, 15], floor: 0, threat: 0 });
     const data = train(slice, '30', { start: 0, now: 30 * DAY });
     assert.deepEqual([data.practice, data.sessions, data.asked, data.days], [30, 30, 30, 30]);
     assert.equal(lore(slice), 30);
@@ -47,8 +47,8 @@ test('practice stops at 600 and the receipt says what was added', () => {
 });
 
 test('one line a skill a reply; sessions of 2 or more are not taken back by a roll of the same skill, in either order', () => {
-    const live = { list: [11, 11, 11], floor: 0 };
-    const attempt = slice => run(applyTry, fakeCtx(slice, { receipts: step(0) }), line('try', 'Astra', 'Lore; normal')).result.data;
+    const live = { list: [15, 15, 15], floor: 0 };
+    const attempt = slice => run(applyTry, fakeCtx(slice, { receipts: step(0) }), line('try', 'Astra', 'Lore; ordinary')).result.data;
     const after = sliceOf([astra()], live);
     assert.equal(train(after, '30', { start: 0, now: 30 * DAY }).practice, 30);
     assert.equal(train(after, '30', { start: 0, now: 30 * DAY }).practice, 0, 'a second line');

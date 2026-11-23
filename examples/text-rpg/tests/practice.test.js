@@ -5,7 +5,7 @@ import { applyTry } from '../src/module-parts/kinds/try.js';
 import { practiceFor, rollPractice } from '../src/rules/practice.js';
 import { astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 
-// Astra: every stat 12 (bonus +1), Obscure costs 2 sp, Lore is free. Normal is 12 (die 11 = success), hard 16.
+// Astra: Novice in her skills (bonus 0), Obscure costs 2 sp, Lore is free. Ordinary is 15 (die 15 = success), hard 20.
 const SIDS = ['sw_reply0001', 'sw_reply0002'];
 const spend = (slice, skill = 'Obscure', { sid = SIDS[0], member = 'Astra' } = {}) => {
     const done = run(applySpend, fakeCtx(slice, { sid }), line('spend', member, skill));
@@ -18,8 +18,8 @@ const attempt = (slice, what, word, { sid = SIDS[0], labels = {} } = {}) => {
     return done.result.data;
 };
 const make = (threat) => {
-    const slice = sliceOf([astra()], { list: [11, 11, 11], floor: 0 });
-    for (const sid of SIDS.slice(1)) slice.dice[sid] = { list: [11, 11, 11], floor: 0 };
+    const slice = sliceOf([astra()], { list: [15, 15, 15], floor: 0 });
+    for (const sid of SIDS.slice(1)) slice.dice[sid] = { list: [15, 15, 15], floor: 0 };
     if (threat !== undefined) slice.dice[SIDS[0]].threat = threat;
     return slice;
 };
@@ -34,9 +34,9 @@ test('the scale: far beneath nothing, beneath half, a fair match whole, above on
     assert.equal(practiceFor(1, 1), 1, 'at least 1 when more than 0 is earned');
     assert.equal(practiceFor(10, null), 10);
     assert.equal(practiceFor(0, 4), 0);
-    assert.equal(rollPractice('success', 2, 3), 15);
-    assert.equal(rollPractice('failure', 1, 3), 5, 'a failed roll: 3 ×1.5 = 4.5');
-    assert.equal(rollPractice('success', 0, 3), 0, 'an easy roll teaches nothing at any threat');
+    assert.equal(rollPractice('success', 3, 3), 15);
+    assert.equal(rollPractice('failure', 2, 3), 5, 'a failed roll: 3 ×1.5 = 4.5');
+    assert.equal(rollPractice('success', 0, 3), 0, 'a trivial roll teaches nothing at any threat');
 });
 
 test('a costed skill used with `~ spend` teaches +1, and says so in the receipt', () => {
@@ -67,29 +67,29 @@ test('the same skill gains from `~ spend` once a reply: a second line adds nothi
 test('a roll for the skill in the same reply wins over `~ spend`, in either order: the reply teaches the roll\'s points only', () => {
     const after = make();
     assert.equal(spend(after).practice, 1);
-    const rolled = attempt(after, 'Obscure', 'normal');
+    const rolled = attempt(after, 'Obscure', 'ordinary');
     assert.equal(rolled.practice, 5);
     assert.equal(obscure(after), 5, 'the spend before the roll gave its 1 back');
     assert.equal(spend(after).practice, 0, 'and a spend after the roll adds nothing');
     const before = make();
-    assert.equal(attempt(before, 'Obscure', 'normal').practice, 5);
+    assert.equal(attempt(before, 'Obscure', 'ordinary').practice, 5);
     assert.equal(spend(before).practice, 0);
     assert.equal(obscure(before), 5);
 });
 
 test('a roll teaches by the threat it was made under: +5 a success, +10 at hard or harder, scaled; nothing far beneath', () => {
-    const fair = attempt(make(), 'Lore', 'normal', { labels: { threat: 'a fair match' } });
+    const fair = attempt(make(), 'Lore', 'ordinary', { labels: { threat: 'a fair match' } });
     assert.equal(fair.practice, 5);
     const above = make();
-    above.dice[SIDS[0]].list = [18, 11, 11];
-    assert.equal(attempt(above, 'Lore', 'hard', { labels: { threat: 'above you' } }).practice, 15, 'a hard success (18 + 1 over 16): 10 ×1.5');
+    above.dice[SIDS[0]].list = [20, 15, 15];
+    assert.equal(attempt(above, 'Lore', 'hard', { labels: { threat: 'above you' } }).practice, 15, 'a hard success (20 against 20): 10 ×1.5');
     assert.equal(lore(above), 15);
     const beneath = make();
-    assert.equal(attempt(beneath, 'Lore', 'normal', { labels: { threat: 'beneath you' } }).practice, 3, '5 ×0.5 = 2.5 rounds to 3');
+    assert.equal(attempt(beneath, 'Lore', 'ordinary', { labels: { threat: 'beneath you' } }).practice, 3, '5 ×0.5 = 2.5 rounds to 3');
     const none = make();
-    assert.equal(attempt(none, 'Lore', 'normal', { labels: { threat: 'far beneath you' } }).practice, 0);
+    assert.equal(attempt(none, 'Lore', 'ordinary', { labels: { threat: 'far beneath you' } }).practice, 0);
     assert.equal(lore(none), 0, 'a far beneath roll teaches nothing');
-    assert.equal(attempt(make(), 'Lore', 'normal').practice, 5, 'no threat said: counts whole');
+    assert.equal(attempt(make(), 'Lore', 'ordinary').practice, 5, 'no threat said: counts whole');
 });
 
 test('a rank up from `~ spend` is told', () => {
@@ -104,6 +104,6 @@ test('a spend near the cap marks only what it really added, so the roll takes ba
     assert.equal(spend(slice).practice, 1, 'the receipt says the points of the line');
     assert.equal(obscure(slice), 600, 'capped');
     assert.equal(slice.spent[SIDS[0]].obscure, 0, 'the mark holds the 0 that were added');
-    attempt(slice, 'Obscure', 'normal');
+    attempt(slice, 'Obscure', 'ordinary');
     assert.equal(obscure(slice), 600, 'nothing was added, so nothing is taken back');
 });

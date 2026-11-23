@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DIFFICULTIES, difficultyIndex, floorIndex, raiseToFloor } from '../src/rules/difficulty.js';
+import { DIFFICULTIES, difficultyIndex, isDifficultyWord } from '../src/rules/difficulty.js';
+import { floorIndex, raiseToFloor } from '../src/rules/floor.js';
+import { readEdge } from '../src/rules/edge.js';
 import { statMod, rollBonus, verdict } from '../src/rules/roll.js';
 import { HARM_STAGES, poolMax, harmFor, dropStages } from '../src/rules/harm.js';
 import { practiceGain, XP_SIZES, xpFor, levelFor } from '../src/rules/growth.js';
@@ -17,83 +19,96 @@ function stageOf(hp, max) {
     return 'badly wounded';
 }
 
-test('difficulty words are fixed and found without case', () => {
+test('difficulty words are fixed, found without case, and normal is ordinary', () => {
     assert.deepEqual(DIFFICULTIES, [
-        { word: 'easy', dc: 8 },
-        { word: 'normal', dc: 12 },
-        { word: 'hard', dc: 16 },
-        { word: 'very hard', dc: 20 },
-        { word: 'near impossible', dc: 24 },
+        { word: 'trivial', dc: 5 },
+        { word: 'easy', dc: 10 },
+        { word: 'ordinary', dc: 15 },
+        { word: 'hard', dc: 20 },
+        { word: 'very hard', dc: 25 },
+        { word: 'near impossible', dc: 30 },
     ]);
     assert.equal(Object.isFrozen(DIFFICULTIES), true);
     assert.equal(DIFFICULTIES.every(item => Object.isFrozen(item)), true);
-    assert.equal(difficultyIndex('easy'), 0);
-    assert.equal(difficultyIndex('HARD'), 2);
-    assert.equal(difficultyIndex('  Very Hard '), 3);
-    assert.equal(difficultyIndex('unknown'), 1);
-    assert.equal(difficultyIndex(null), 1);
+    assert.equal(difficultyIndex('trivial'), 0);
+    assert.equal(difficultyIndex('easy'), 1);
+    assert.equal(difficultyIndex('HARD'), 3);
+    assert.equal(difficultyIndex('  Very Hard '), 4);
+    assert.equal(difficultyIndex('near impossible'), 5);
+    assert.equal(difficultyIndex('normal'), 2, 'the old word is an alias');
+    assert.equal(difficultyIndex('unknown'), 2);
+    assert.equal(difficultyIndex(null), 2);
+    assert.deepEqual(['normal', 'Ordinary', 'trivial', 'hard', 'soon'].map(isDifficultyWord), [true, true, true, true, false]);
 });
 
-test('the floor follows threat, crowds, fatigue and conditions', () => {
-    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => floorIndex({ threat })), [0, 0, 1, 2, 3, 4]);
+test('the floor follows crowds, fatigue and conditions: ordinary with the first, a step more for each further one', () => {
     assert.equal(floorIndex(), 0);
     assert.equal(floorIndex(null), 0);
-    assert.equal(floorIndex({ threat: null }), 0);
-    assert.equal(floorIndex({ threat: 3, count: 6 }), 4);
-    assert.deepEqual(
-        [2, 3, 4, 5, 8, 9, 16, 17].map(count => floorIndex({ threat: 0, count })),
-        [0, 1, 1, 2, 2, 3, 3, 4],
-    );
-    assert.equal(floorIndex({ threat: 0, drained: true, physical: true }), 1);
-    assert.equal(floorIndex({ threat: 0, drained: true, physical: false }), 0);
-    assert.equal(floorIndex({ threat: 0, conditions: 2 }), 2);
-    assert.equal(floorIndex({ threat: 5, count: 100, conditions: 4, drained: true, physical: true }), 4);
-    assert.equal(floorIndex({ threat: 'three', count: 'six', conditions: 'two' }), 0);
+    assert.equal(floorIndex({ conditions: 1 }), 2);
+    assert.equal(floorIndex({ conditions: 2 }), 3);
+    assert.equal(floorIndex({ count: 6 }), 3);
+    assert.deepEqual([2, 3, 4, 5, 8, 9, 16, 17].map(count => floorIndex({ count })), [0, 2, 2, 3, 3, 4, 4, 5]);
+    assert.equal(floorIndex({ drained: true, physical: true }), 2);
+    assert.equal(floorIndex({ drained: true, physical: false }), 0);
+    assert.equal(floorIndex({ count: 100, conditions: 4, drained: true, physical: true }), 5);
+    assert.equal(floorIndex({ count: 'six', conditions: 'two' }), 0);
+    assert.equal(floorIndex({ threat: 5 }), 0, 'a threat starts the difficulty; it is no floor');
 });
 
 test('a floor raises an index only when it is higher', () => {
     assert.deepEqual(raiseToFloor(1, 3), { index: 3, raised: true });
     assert.deepEqual(raiseToFloor(3, 3), { index: 3, raised: false });
-    assert.deepEqual(raiseToFloor(4, 1), { index: 4, raised: false });
+    assert.deepEqual(raiseToFloor(5, 1), { index: 5, raised: false });
     assert.deepEqual(raiseToFloor(0, 0), { index: 0, raised: false });
-    assert.deepEqual(raiseToFloor(null, null), { index: 1, raised: false });
-    assert.deepEqual(raiseToFloor(9, 8), { index: 4, raised: false });
+    assert.deepEqual(raiseToFloor(null, null), { index: 2, raised: false });
+    assert.deepEqual(raiseToFloor(9, 8), { index: 5, raised: false });
 });
 
-test('stat modifiers and roll bonuses use the frozen formula', () => {
+test('an edge moves the difficulty at most two steps, needs a reason, and no reason is ignored', () => {
+    assert.equal(readEdge(''), null);
+    assert.equal(readEdge(undefined), null);
+    assert.deepEqual(readEdge('+1 (the guard sleeps)'), { steps: 1, why: 'the guard sleeps', ignored: false });
+    assert.deepEqual(readEdge('-2 (rain on the stones)'), { steps: -2, why: 'rain on the stones', ignored: false });
+    assert.deepEqual(readEdge('−1 (a wounded leg)'), { steps: -1, why: 'a wounded leg', ignored: false });
+    assert.deepEqual(readEdge('+4 (a trap sprung)'), { steps: 2, why: 'a trap sprung', ignored: false }, 'at most two steps');
+    assert.deepEqual(readEdge('-9 (a trap sprung)'), { steps: -2, why: 'a trap sprung', ignored: false });
+    assert.deepEqual(readEdge('+1 high ground'), { steps: 1, why: 'high ground', ignored: false }, 'a reason without brackets counts');
+    assert.deepEqual(readEdge('2 (surprise)'), { steps: 2, why: 'surprise', ignored: false }, 'no sign is a plus');
+    for (const bad of ['+1', '+1 ()', '+1 (  )', '-2', 'lots', '(why)']) assert.deepEqual(readEdge(bad), { steps: 0, why: '', ignored: true }, bad);
+});
+
+test('a roll is the skill rank × 2: Novice 0 … Legend 12, a skill not on the sheet -3, a stat +0, -2 an injury; stats, gear and level are not in it', () => {
     assert.equal(statMod(8), -1);
     assert.equal(statMod(10), 0);
-    assert.equal(statMod(11), 0);
     assert.equal(statMod(20), 5);
-    assert.equal(statMod(30), 10);
     assert.equal(statMod(undefined), 0);
-    assert.equal(statMod(Number.NaN), 0);
-
-    // The RPG's check: floor(level / 5) + floor((stat + DEX / 2) / 2) + rank term (Novice, Apprentice 0; Adept 1; Expert 2; Master and above 3), less 2 a hampering injury.
-    assert.equal(rollBonus({ stat: 10, dex: 10, rank: 0, level: 1 }), 7);
-    assert.equal(rollBonus({ stat: 12, dex: 12, rank: 6, level: 15 }), 15);
-    assert.equal(rollBonus({ stat: 8, dex: 10, rank: 0, level: 1, hampered: true }), 4);
-    assert.equal(rollBonus({ stat: 10, dex: 10, rank: 2, level: 99 }), 27);
-    assert.equal(rollBonus({ stat: 10, dex: 10, rank: 0, level: 0 }), 7);
-    assert.equal(rollBonus({ stat: 10, dex: 10, rank: 0, level: 100 }), 26);
-    assert.equal(rollBonus({ stat: 12, dex: 12, rank: 0, level: 15, hampered: 2 }), 8);
-    assert.deepEqual([0, 1, 2, 3, 4, 5, 6].map(rank => rollBonus({ stat: 10, dex: 10, rank, level: 1 })), [7, 7, 8, 9, 10, 10, 10]);
-    assert.equal(rollBonus({ stat: 14, rank: 0, level: 1 }), 9, 'a missing DEX reads 10');
-    assert.equal(rollBonus(), 7);
-    assert.equal(rollBonus(null), 7);
+    assert.deepEqual([0, 1, 2, 3, 4, 5, 6].map(rank => rollBonus({ rank })), [0, 2, 4, 6, 8, 10, 12]);
+    assert.equal(rollBonus({ unlearned: true }), -3);
+    assert.equal(rollBonus({}), 0, 'a plain stat try');
+    assert.equal(rollBonus({ rank: 3, hampered: true }), 4);
+    assert.equal(rollBonus({ rank: 3, hampered: 2 }), 2);
+    assert.equal(rollBonus({ unlearned: true, hampered: 1 }), -5);
+    assert.equal(rollBonus({ stat: 30, dex: 30, level: 99, rank: 1 }), 2, 'stats and level add nothing');
+    assert.equal(rollBonus({ rank: 99 }), 12);
+    assert.equal(rollBonus({ rank: -4 }), 0);
+    assert.equal(rollBonus(), 0);
+    assert.equal(rollBonus(null), 0);
 });
 
-test('verdict bands use margins, with natural 1 and 20 overriding the margin', () => {
-    assert.deepEqual(verdict({ die: 12, bonus: 1, dc: 12 }), { band: 'success', total: 13, margin: 1 });
-    assert.deepEqual(verdict({ die: 10, bonus: 0, dc: 12 }), { band: 'cost', total: 10, margin: -2 });
-    assert.deepEqual(verdict({ die: 1, bonus: 30, dc: 8 }), { band: 'bad', total: 31, margin: 23 });
-    assert.deepEqual(verdict({ die: 20, bonus: -30, dc: 40 }), { band: 'great', total: -10, margin: -50 });
+test('verdict bands come from the margin alone; a natural 20 or 1 changes only the quality', () => {
+    assert.deepEqual(verdict({ die: 12, bonus: 1, dc: 12 }), { band: 'success', total: 13, margin: 1, quality: null });
+    assert.deepEqual(verdict({ die: 10, bonus: 0, dc: 12 }), { band: 'cost', total: 10, margin: -2, quality: null });
+    assert.deepEqual(verdict({ die: 1, bonus: 30, dc: 8 }), { band: 'success', total: 31, margin: 23, quality: 'clumsy' }, 'a natural 1 that succeeds still succeeds');
+    assert.deepEqual(verdict({ die: 20, bonus: -30, dc: 40 }), { band: 'bad', total: -10, margin: -50, quality: 'well done' }, 'a natural 20 that misses is still a miss');
+    assert.deepEqual(verdict({ die: 20, bonus: 0, dc: 15 }), { band: 'success', total: 20, margin: 5, quality: 'well done' });
+    assert.deepEqual(verdict({ die: 1, bonus: 0, dc: 15 }), { band: 'bad', total: 1, margin: -14, quality: 'clumsy' });
     assert.equal(verdict({ die: 12, bonus: 0, dc: 12 }).band, 'success');
     assert.equal(verdict({ die: 11, bonus: 0, dc: 12 }).band, 'cost');
+    assert.equal(verdict({ die: 10, bonus: 0, dc: 12 }).band, 'cost');
     assert.equal(verdict({ die: 9, bonus: 0, dc: 12 }).band, 'failure');
     assert.equal(verdict({ die: 3, bonus: 0, dc: 12 }).band, 'failure');
     assert.equal(verdict({ die: 2, bonus: 0, dc: 12 }).band, 'bad');
-    assert.deepEqual(verdict({ die: 12 }), { band: 'success', total: 12, margin: 0 });
+    assert.deepEqual(verdict({ die: 12 }), { band: 'failure', total: 12, margin: -3, quality: null }, 'no number is ordinary (15)');
     assert.equal(verdict({ die: 0, bonus: 5, dc: 8 }), null);
     assert.equal(verdict({ die: 21, bonus: 5, dc: 8 }), null);
     assert.equal(verdict({ die: 12.5, bonus: 5, dc: 8 }), null);
@@ -159,45 +174,49 @@ test('dropping stages lands at each reached stage top and stops at badly wounded
     }
 });
 
-test('practice follows difficulty and roll band', () => {
+test('practice follows difficulty and roll band: trivial teaches nothing, a failure 3, a success or a cost 5, a success at hard or harder 10', () => {
     assert.equal(practiceGain('success', 0), 0);
     assert.equal(practiceGain('failure', 0), 0);
     assert.equal(practiceGain('success', 1), 5);
-    assert.equal(practiceGain('success', 2), 10);
-    assert.equal(practiceGain('great', 3), 10);
+    assert.equal(practiceGain('success', 2), 5);
+    assert.equal(practiceGain('success', 3), 10);
+    assert.equal(practiceGain('success', 5), 10);
+    assert.equal(practiceGain('great', 4), 10);
     assert.equal(practiceGain('great', 1), 5);
     assert.equal(practiceGain('cost', 1), 5);
-    assert.equal(practiceGain('cost', 2), 5, 'a success at a cost is 5 at any difficulty');
-    assert.equal(practiceGain('failure', 4), 3);
-    assert.equal(practiceGain('bad', 2), 3);
+    assert.equal(practiceGain('cost', 3), 5, 'a success at a cost is 5 at any difficulty');
+    assert.equal(practiceGain('failure', 5), 3);
+    assert.equal(practiceGain('bad', 3), 3);
     assert.equal(practiceGain('bad', 1), 3);
-    assert.equal(practiceGain('unknown', 2), 0);
-    assert.equal(practiceGain(null, 2), 0);
+    assert.equal(practiceGain('unknown', 3), 0);
+    assert.equal(practiceGain(null, 3), 0);
 });
 
 test('experience sizes and the reply guard are exact', () => {
     assert.deepEqual(XP_SIZES, { trivial: 0, minor: 5, real: 20, major: 60, great: 150 });
     assert.equal(Object.isFrozen(XP_SIZES), true);
-    assert.equal(xpFor('great', 2, 1), 20);
-    assert.equal(xpFor('great', 2, 3), 150);
-    assert.equal(xpFor('great', 4, 3), 450);
-    assert.equal(xpFor('major', 2, 1), 20);
-    assert.equal(xpFor('major', 2, 2), 60);
+    // (the guard: great needs a very hard roll in the reply, major a hard one)
+    assert.equal(xpFor('great', 2, 2), 20);
+    assert.equal(xpFor('great', 2, 3), 60, 'a hard roll pays a great one as major');
+    assert.equal(xpFor('great', 2, 4), 150);
+    assert.equal(xpFor('great', 4, 4), 450);
+    assert.equal(xpFor('major', 2, 2), 20);
+    assert.equal(xpFor('major', 2, 3), 60);
     assert.equal(xpFor('minor', 1, 0), 3);
     assert.equal(xpFor('real', 4, 0), 60);
-    assert.equal(xpFor('minor', 5, 4), 20);
+    assert.equal(xpFor('minor', 5, 5), 20);
     // The threat multipliers: far beneath 0, beneath 0.5, a fair match 1, above 2, far above 3, beyond 4; every foe that fell counts.
-    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => xpFor('minor', threat, 1)), [0, 3, 5, 10, 15, 20]);
-    assert.equal(xpFor('minor', 1, 1, 21), 53, '21 rats, minor and beneath: 52.5, rounded once after the count, up');
-    assert.equal(xpFor('minor', 2, 1, 21), 105, '21 rats, minor and a fair match');
-    assert.equal(xpFor('major', 5, 4, 1), 240, 'one major foe beyond them');
-    assert.equal(xpFor('minor', 3, 1, 2), 20, 'two minor foes above them');
-    assert.equal(xpFor('trivial', 5, 4), 0);
+    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => xpFor('minor', threat, 2)), [0, 3, 5, 10, 15, 20]);
+    assert.equal(xpFor('minor', 1, 2, 21), 53, '21 rats, minor and beneath: 52.5, rounded once after the count, up');
+    assert.equal(xpFor('minor', 2, 2, 21), 105, '21 rats, minor and a fair match');
+    assert.equal(xpFor('major', 5, 5, 1), 240, 'one major foe beyond them');
+    assert.equal(xpFor('minor', 3, 2, 2), 20, 'two minor foes above them');
+    assert.equal(xpFor('trivial', 5, 5), 0);
     assert.equal(xpFor('great', 5, null), 0);
     assert.equal(xpFor('great', 5), 0);
     assert.equal(xpFor('great', 5, 'hard'), 0);
-    assert.equal(xpFor('unknown', 5, 4), 0);
-    assert.equal(xpFor('real', 0, 4), 0);
+    assert.equal(xpFor('unknown', 5, 5), 0);
+    assert.equal(xpFor('real', 0, 5), 0);
 });
 
 test('levels are 100 xp each as the RPG\'s, to 99, the xp held to 9999', () => {

@@ -13,9 +13,9 @@ import { astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 import { astraOf, reply, withAstra } from './helpers/host.js';
 
 const SIDS = ['sw_reply0001', 'sw_reply0002'];
-const make = (threat, list = [11, 11, 11]) => {
+const make = (threat, list = [15, 15, 15]) => {
     const slice = sliceOf([astra()], { list, floor: 0 });
-    slice.dice[SIDS[1]] = { list: [11, 11, 11], floor: 0 };
+    slice.dice[SIDS[1]] = { list: [15, 15, 15], floor: 0 };
     if (threat !== undefined) slice.dice[SIDS[0]].threat = threat;
     return slice;
 };
@@ -55,11 +55,11 @@ test('train and spend share one gain a skill a reply; another skill or reply gai
 test('a roll for the skill in the reply wins over a train, in either order', () => {
     const after = make();
     assert.equal(train(after).practice, 1);
-    assert.equal(attempt(after, 'Lore', 'normal').practice, 5);
+    assert.equal(attempt(after, 'Lore', 'ordinary').practice, 5);
     assert.equal(lore(after), 5, 'the train gave its 1 back');
     assert.equal(train(after).practice, 0, 'and a train after the roll adds nothing');
     const before = make();
-    attempt(before, 'Lore', 'normal');
+    attempt(before, 'Lore', 'ordinary');
     assert.equal(train(before).practice, 0);
     assert.equal(lore(before), 5);
 });
@@ -74,7 +74,7 @@ test('a failed roll teaches +3 (a bad one too), scaled by the threat: beneath ro
     const beneath = make(1, [2, 2, 2]);
     assert.equal(attempt(beneath, 'Lore', 'very hard').practice, 2);
     const above = make(3, [2, 2, 2]);
-    assert.equal(attempt(above, 'Lore', 'very hard').practice, 5, 'the threat also raises the roll, so it only fails the harder');
+    assert.equal(attempt(above, 'Lore', 'very hard').practice, 5, 'the threat also starts the difficulty of the roll, so it only fails the harder');
 });
 
 test('the sheet\'s next rank reads the thresholds: from this rank\'s start to the next one\'s', () => {

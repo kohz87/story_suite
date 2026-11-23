@@ -45,7 +45,7 @@ test('a member with 20 skills lists the 8 most practised and a skill the last me
     const { lines } = tailOf(viewOf(slice, { lastUser: '', lastReply: 'Edda hands over a craftr token.' }));
     assert.match(lines[1], /CraftR \(/);
     assert.doesNotMatch(lines[1], /CraftQ \(/);
-    assert.match(lines[0], /CraftR\+\d+/);
+    assert.match(lines[0], /CraftR [+−]\d+/);
     assert.equal(skillRows(me).length, 20);
 });
 

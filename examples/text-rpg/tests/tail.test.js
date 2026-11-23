@@ -45,14 +45,14 @@ test('Down says so, a companion has a short line, the fallen are left out', () =
 });
 
 test('the dice note follows the lines: the dice, the floor, the bonus table and the head to report', () => {
-    const { lines } = tailOf(viewOf(sliceOf([astra()], { list: [11, 3, 20], floor: 2 })));
+    const { lines } = tailOf(viewOf(sliceOf([astra()], { list: [11, 3, 20], floor: 3 })));
     assert.equal(lines.length, 2);
     assert.match(lines[0], /^Dice for this reply, in order: 11, 3, 20\./);
     assert.match(lines[0], /Nothing this reply is easier than hard\./);
-    assert.match(lines[0], /A threat raises the difficulty: a foe above you → at least hard, far above → very hard, beyond → near impossible\./);
-    assert.match(lines[0], /Bonus by stat or skill: Astra: STR\+9 VIT\+9 AGI\+9 DEX\+9 INT\+9 WIS\+9 CHA\+9; Obscure\+9, Lore\+9\./);
-    assert.match(lines[0], /Report each: \? try Who \| skill or stat \| difficulty/);
-    assert.match(lines[0], /for example \? try Astra \| Obscure \| normal\./);
+    assert.match(lines[0], /Threat sets the difficulty: far beneath → trivial, beneath → easy, fair → ordinary, above → hard, far above → very hard, beyond → near impossible;/);
+    assert.match(lines[0], /Bonus: skill rank × 2 \(Novice \+0 … Legend \+12\); a stat \+0; a skill not on the sheet −3; −2 for each injury on its stat\. Astra: Obscure \+0, Lore \+0\./);
+    assert.match(lines[0], /Report: \? try Who \| skill or stat \| difficulty/);
+    assert.match(lines[0], /e\.g\. \? try Astra \| Obscure \| ordinary \| threat: a fair match\./);
     assert.match(lines[1], /^Astra \(Level 1\)/, 'the members follow the note');
 });
 
@@ -102,10 +102,10 @@ test('through the prompt assembler a party of three, each with gear, an injury a
 
 test('the dice note lists the difficulty numbers the code uses for each tone, floor included', () => {
     for (const [tone, step] of [['standard', 0], ['gritty', 1], ['heroic', -1]]) {
-        for (const floor of [0, 2]) {
+        for (const floor of [0, 3]) {
             const slice = sliceOf([astra()], { list: [11, 3, 20], floor });
             const { lines } = tailOf(viewOf(slice, { settings: { tone } }));
-            const numbers = Object.fromEntries([...lines[0].matchAll(/(easy|normal|very hard|near impossible|hard) (\d+)(?=[,.])/g)].map(([, word, dc]) => [word, Number(dc)]));
+            const numbers = Object.fromEntries([...lines[0].matchAll(/(trivial|easy|ordinary|very hard|near impossible|hard) (\d+)(?=[,.])/g)].map(([, word, dc]) => [word, Number(dc)]));
             for (const [at, { word }] of DIFFICULTIES.entries()) {
                 // What a `? try` of this word does: the word raised to the floor, then the tone's step.
                 const made = sliceOf([astra()], { list: [11, 3, 20], floor });

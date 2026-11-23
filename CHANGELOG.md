@@ -4,10 +4,11 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG fights are fairer and plainer: rolls are d20 plus skill rank, difficulty comes from the foe, foes are set up first and XP counts them down, the narrator is told who should win, and fights teach.
 - Text RPG: rolls, practice and XP work again in chats with a story clock (the training update made every roll be refused).
 - Text RPG: the narrator pays XP as foes fall (not only at the end of a fight), and a skill both used and rolled in one reply costs its stamina or mana once.
 - Text RPG: XP counts each foe overcome (6 rats at 5 each = 30); skill practice is +1 for a use or a training session, +3 for a failed roll, +5 for a success, +10 for a hard success, with ranks at 40, 100, 180, 280, 420 and 600; training for 30 story days gives up to +30.
-- Text RPG shows the rolls of a reply in one card, a row each (the roll, why it was raised, what it cost, practice and wear); every skill use teaches, and a bad failure wears gear one step.
+- Text RPG shows the rolls of a reply in one card, a row each (the roll, why it was raised, what it cost, practice); every skill use teaches.
 - In a chat that switched from the RPG to Text RPG, the RPG's own blocks (character, skills, foes, rules) stay quiet, so the narrator is taught one system; switching back finds their values.
 - Text RPG's Mana and Stamina use the RPG's formulas and grow with level; worn gear counts in them, and the Party sheet shows the gear bonus the rolls use.
 - Text RPG's New character now works like the RPG's: stats start at 5 with 10 points to place, your persona's name, a starting level, and Start from a saved character (RPG or Text RPG files); Export works for Text RPG characters.
