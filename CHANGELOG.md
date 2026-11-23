@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG: rolls, practice and XP work again in chats with a story clock (the training update made every roll be refused).
 - Text RPG: the narrator pays XP as foes fall (not only at the end of a fight), and a skill both used and rolled in one reply costs its stamina or mana once.
 - Text RPG: XP counts each foe overcome (6 rats at 5 each = 30); skill practice is +1 for a use or a training session, +3 for a failed roll, +5 for a success, +10 for a hard success, with ranks at 40, 100, 180, 280, 420 and 600; training for 30 story days gives up to +30.
 - Text RPG shows the rolls of a reply in one card, a row each (the roll, why it was raised, what it cost, practice and wear); every skill use teaches, and a bad failure wears gear one step.
