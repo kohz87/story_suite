@@ -81,3 +81,8 @@ test('the view\'s opener answers a plug-in screen, false while its feature is of
   wiz.destroy();
   assert.equal(doc.querySelector('[data-sheet="plugin-screen"]'), null);
 });
+
+test('a built-in module\'s screen is never drawn as a plug-in sheet', () => {
+  const registry = { modules: () => [{ id: 'story-director', screens: [{ id: 'story-director/quests', template: '<ss-widget name="story-director.quests"></ss-widget>' }], widgets: { 'story-director.quests': { render: () => {} } } }], lifecycle: () => ({ status: 'ready' }), featureOn: () => true };
+  assert.equal(createScreenSource({ registry }).find('story-director/quests'), null);
+});

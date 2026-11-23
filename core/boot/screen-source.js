@@ -1,4 +1,8 @@
-// The screens modules declare, for a view that draws them: `find(id)` → { title, widget: { name, props, render } } or null.
+// The screens plug-in modules declare, for a view that draws them: `find(id)` → { title, widget: { name, props, render } } or null.
+import { BUILTIN_MODULES } from '../modules-list.js';
+
+// Built-in modules' screens are the view's own (several widgets, bindings): never drawn from here.
+const BUILT_IN = new Set(['story-block', ...BUILTIN_MODULES.map(m => m.id)]);
 const WIDGET_TAG = /<ss-widget\b[^>]*>/i;
 const attr = (tag, name) => new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, 'i').exec(tag);
 
@@ -7,11 +11,12 @@ const propsOf = tag => {
     try { const value = found ? JSON.parse((found[1] ?? found[2]).replace(/&quot;/g, '"')) : {}; return value && typeof value === 'object' ? value : {}; } catch { return {}; }
 };
 
-/** `createScreenSource({ registry })`: only a screen whose module is not dormant and whose feature is on, with a template naming a widget that module declares. */
+/** `createScreenSource({ registry })`: only a plug-in (not built-in) module's screen, its module not dormant and its feature on, with a template naming a widget that module declares. */
 export function createScreenSource({ registry }) {
     return {
         find(id) {
             for (const def of registry.modules?.() ?? []) {
+                if (BUILT_IN.has(def.id)) continue;
                 const screen = (def.screens ?? []).find(item => item?.id === id);
                 if (!screen || registry.lifecycle?.(def.id)?.status === 'dormant') continue;
                 if (screen.feature && !registry.featureOn?.(screen.feature)) return null;
