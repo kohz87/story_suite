@@ -6,7 +6,8 @@ import { copy, refuse, DataModuleError, createEvaluation, parseLabels, orList, a
 import { activeDefinition, inputsOf, instanceOf, resolveActor } from '../adapters.js';
 import { hashJson } from '../../../core/replay.js';
 import { fold, readSheet } from '../../rpg/read.js';
-import { LEAN_RPG_FEATURE, ROLES } from '../../rpg/names.js';
+import { LEAN_RPG_FEATURE } from '../../rpg/names.js';
+import { replacedLine } from './replaced.js';
 import { XP_RATE, scaleXp, xpRateFrom, xpRateOf } from '../../rpg/levels.js';
 import { FOE_LEVEL, averageLevel, bandOfRank, foeRandom, foeLevelCap, levelOf, partyLevels, pickLevel } from '../../rpg/foes.js';
 import { SKILL_SLOTS_MAX, SLOT_NUMBER, isTypedSkills, stanceTypeOf } from '../../../core/runtime/skill-slots.js';
@@ -78,7 +79,7 @@ export function createAct(deps) {
         call.label = definition?.name ?? module;
         if (!definition) refuse('DM_SCHEMA', '', 'Unsupported or damaged pin.');
         // A story line for an RPG role block while a feature that replaces the RPG is on: not used, quietly (a Re-read of a line that was kept runs `again`, which sees the RPG on).
-        if (line && ctx.cause === 'story' && ctx.feature?.(LEAN_RPG_FEATURE) === false && ctx.featureOrReplacement?.(LEAN_RPG_FEATURE) === true && ROLES.includes(definition.role)) refuse('FEATURE_OFF', '', 'the RPG is replaced by another feature, so its blocks are not used.');
+        if (line && replacedLine(ctx, definition)) refuse('FEATURE_OFF', '', 'the RPG is replaced by another feature, so its blocks are not used.');
         dependency(definition, prefix);
         // A learn line for a Skills block made before the extra slots that would be refused for lack of a slot (every slot it has is full) while the character's level has
         // opened one it lacks: the block is extended first (growSkills). Any other line leaves the block as it is. A Re-read grows it only when the reply, as it stands, holds

@@ -35,7 +35,7 @@ it saves the state on the reply, replays it, shows the settings and keeps the pr
 | A mini-game or an activity with state | A module |
 | Only some extra prompt text | A data module or a pack |
 
-Write a module only when the code has to decide something. If a field and a template do it, use a data module.
+Write a module only when the code has to decide something. If a field and a template do it, use a data module. (A data module whose role is `character`, `skills`, `foes` or `rules` goes quiet while a feature replaces the RPG: no grammar or tail line, its story lines refused quietly, its values kept.)
 
 ## 2. The 10-minute walk-through: a camp
 

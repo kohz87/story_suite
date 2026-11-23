@@ -8,13 +8,13 @@ import { textRpgModule } from '../../../examples/text-rpg/src/module.js';
 import { COMBAT_V1_TEMPLATES } from '../../../modules/rpg/templates-combat.js';
 import { definition as filler, pack, reply } from './helpers.js';
 
-async function world(t) {
+async function world(t, withFiller = true) {
     t.mock.method(console, 'warn', () => {});
     let host = null;
     host = await createHost({ core: true, modules: [...BUILTIN_MODULES, textRpgModule({ feature: id => host.sdk.feature(id) })] });
     t.after(() => host.close());
     const defs = COMBAT_V1_TEMPLATES.map(({ name, definition }, n) => { const copy = structuredClone(definition); delete copy.id; delete copy.pack; return Object.assign(copy, { slug: `t${n}-${definition.role}`, name }); });
-    assert.equal((await host.packs.packs.install(pack([...defs, filler()]))).ok, true);
+    assert.equal((await host.packs.packs.install(pack(withFiller ? [...defs, filler()] : defs))).ok, true);
     for (const offer of host.sdk.query('dataModules.offers')) { const pinned = await host.sdk.command('dm.pin', { module: offer.module, hash: offer.hash, packHash: offer.packHash, subjects: [] }); assert.equal(pinned.ok, true, pinned.message); }
     return host;
 }
@@ -63,4 +63,52 @@ test('RPG on, or neither on: the role blocks teach as they did; replay equals li
     assert.equal(JSON.stringify(host.head()), live);
     await host.st.loadChat(JSON.parse(JSON.stringify(host.ctx.chat)));
     assert.equal(JSON.stringify(host.head()), live);
+});
+
+const HURT = '~ dm t0-character — hit | kind: set-health | to: Hurt';
+const quietProblems = host => host.turn.problems().filter(problem => problem.code === 'FEATURE_OFF' && problem.quiet === true);
+const same = host => { const live = JSON.stringify(host.head()); host.store.rebuild(); assert.equal(JSON.stringify(host.head()), live); };
+
+test('only the four role blocks pinned: a reply kept under the RPG survives a Re-read once Text RPG is on, and the tail drops the seeded value', async t => {
+    const host = await world(t, false);
+    host.features.set('story-block.rpg', true);
+    const before = health(host);
+    await host.send('A blow.', reply(HURT));
+    const kept = health(host);
+    assert.notEqual(kept, before, 'the RPG keeps the change');
+    host.features.set('story-block.rpg', false);
+    host.features.set('text-rpg.on', true);
+    const at = host.ctx.chat.length - 1;
+    assert.equal((await host.turn.reread(at)).ok, true);
+    assert.equal(health(host), kept, 'a Re-read keeps what the RPG reply changed');
+    same(host);
+    await host.send('Next.', 'Quiet.');
+    assert.doesNotMatch(sentOf(host, 'story_suite_tail_1'), /Hurt/, 'the quiet block leaves the tail although its value is set');
+    assert.doesNotMatch(sentOf(host, 'story_suite_static'), /dm t[0-3]-|Data modules in this story/);
+});
+
+test('only the four role blocks pinned, Text RPG on: a fresh line is the quiet FEATURE_OFF, nothing changes, and a middle delete + rebuild equal live', async t => {
+    const host = await world(t, false);
+    host.features.set('text-rpg.on', true);
+    const before = health(host);
+    await host.send('One.', 'Quiet.');
+    await host.send('A blow.', reply(HURT));
+    assert.equal(health(host), before);
+    assert.equal(quietProblems(host).length, 1);
+    assert.equal(host.turn.problems().filter(problem => problem.code === 'UNKNOWN_KIND').length, 0);
+    await host.send('Three.', 'Quiet.');
+    await host.st.deleteMessage(host.ctx.chat.length - 3);
+    same(host);
+});
+
+test('Text RPG, then the RPG on: a Re-read of the refused reply applies it, as for any feature that was off, and agrees with a rebuild', async t => {
+    const host = await world(t, false);
+    host.features.set('text-rpg.on', true);
+    await host.send('A blow.', reply(HURT));
+    const before = health(host);
+    host.features.set('text-rpg.on', false);
+    host.features.set('story-block.rpg', true);
+    assert.equal((await host.turn.reread(host.ctx.chat.length - 1)).ok, true);
+    assert.notEqual(health(host), before, 'the RPG, now on, takes the line on a Re-read');
+    same(host);
 });

@@ -29,9 +29,10 @@ export function createDataModulesPart(opts = {}) {
     Object.assign(d, createFields(d));
     const { state, settings, boardOn, rpgReplaced, wrap, offers, guard, finish, setField, tick, settle, afterCapture, act } = d;
     const replaced = () => { try { return rpgReplaced() === true; } catch { return false; } };
-    // (the `! dm` line is taught while some pinned block is not quiet)
-    const kind = { get enabled() { return Object.keys(state()?.domains?.dataModules?.active ?? {}).some(id => !quietRole(activeDefinition(state(), id), replaced())); },
-        grammar: '! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)', apply: wrap((ctx, line, call) => act(ctx, {}, line, call)) };
+    // The `! dm` kind stays enabled while any block is pinned (a Re-read of a kept line must reach act.js); its grammar line is taught while some pinned block is not quiet.
+    const loud = () => Object.keys(state()?.domains?.dataModules?.active ?? {}).some(id => !quietRole(activeDefinition(state(), id), replaced()));
+    const kind = { get enabled() { return Object.keys(state()?.domains?.dataModules?.active ?? {}).length > 0; },
+        grammar: () => loud() ? '! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)' : '', apply: wrap((ctx, line, call) => act(ctx, {}, line, call)) };
     return {
         domains: { dataModules: { initial, deferred: true, snapshot: 'when-present', scratch: ['perReply', 'boardFlags'], validate: validateDomain } },
         commands: { 'dm.pin': wrap((ctx, payload, call) => d.target(ctx, payload, false, call)), 'dm.migrate': wrap((ctx, payload, call) => d.target(ctx, payload, true, call)),
