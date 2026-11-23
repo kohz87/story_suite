@@ -1,20 +1,20 @@
 # Story Suite Text RPG (example rules module)
 
-A stand-alone RPG for **Story Block v2** with no fight board: the narrator tells every fight, chase and
+A stand-alone RPG for **Story Suite** with no fight board: the narrator tells every fight, chase and
 danger as prose, and code keeps the character honest. It is the second reference module after
 [fishing](../fishing/README.md): fishing is a mini-game, this one is a **rules module that shapes the
-narrator's prompt**. Like fishing it is a separate SillyTavern extension that talks to Story Block
+narrator's prompt**. Like fishing it is a separate SillyTavern extension that talks to Story Suite
 **only through its public sdk** (`globalThis.StoryBlock.ready`), and it imports nothing from Story Suite.
 
 The one rule that keeps it stable: **the model judges and tells; the code rolls and keeps the books.**
 
-Version `2.0.0-alpha.1`. Needs Story Block v2.
+Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 
 ## Install
 
 1. Copy this folder into SillyTavern as its own third-party extension, for example
-   `public/scripts/extensions/third-party/story-suite-text-rpg/`, next to Story Block
-   (`third-party/Story_block`). The manifest declares `"dependencies": ["third-party/Story_block"]`.
+   `public/scripts/extensions/third-party/story-suite-text-rpg/`, next to Story Suite
+   (`third-party/story_suite`). The manifest declares `"dependencies": ["third-party/story_suite"]`.
 2. In Story Suite's settings, on the **Start** page (the modules and their features), turn the **RPG** switch off. A chat
    uses the RPG or Text RPG, never both: Text RPG is active only while its feature is on **and** `story-block.rpg` is off.
 3. On the same **Start** page the **Text RPG** card appears (a module card named by the module, with one switch named
@@ -57,7 +57,7 @@ Version `2.0.0-alpha.1`. Needs Story Block v2.
 ## How it is built (the second reference module)
 
 ```
-manifest.json            its own extension; "dependencies": ["third-party/Story_block"]
+manifest.json            its own extension; "dependencies": ["third-party/story_suite"]
 index.js                 await StoryBlock.ready → sdk.registerModule(textRpgModule(sdk))
 src/words/               the word tables: stats, ranks, pools, threat (pure)
 src/rules/               the maths: difficulty, roll, harm, growth, level gains, healing (pure)
@@ -110,5 +110,5 @@ stamina are sets (`ctx.absolute`), so they land where they say after a middle de
 
 ## Tests
 
-`node --test "examples/text-rpg/tests/*.test.js"`. They run on the testkit host (a whole Story Block host on a fake
+`node --test "examples/text-rpg/tests/*.test.js"`. They run on the testkit host (a whole Story Suite host on a fake
 SillyTavern), so nothing else is needed.

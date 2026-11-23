@@ -153,7 +153,7 @@ test('the real prompt view carries the tone: gritty shows the shifted numbers in
 test('the manifest depends on Story Block and the code imports nothing outside the folder', () => {
     const root = new URL('../', import.meta.url);
     const manifest = JSON.parse(readFileSync(new URL('manifest.json', root), 'utf8'));
-    assert.deepEqual(manifest.dependencies, ['third-party/Story_block']);
+    assert.deepEqual(manifest.dependencies, ['third-party/story_suite']);
     assert.equal(manifest.display_name, 'Story Suite Text RPG');
     assert.equal(manifest.js, 'index.js');
     const files = [];

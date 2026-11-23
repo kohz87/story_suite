@@ -3,9 +3,9 @@
   "loading_order": 31,
   "requires": [],
   "optional": [],
-  "dependencies": ["third-party/Story_block"],
+  "dependencies": ["third-party/story_suite"],
   "js": "index.js",
   "author": "kohz87",
-  "version": "2.0.0-alpha.1",
-  "homePage": "https://github.com/kohz87/Story_block/tree/v2/examples/text-rpg"
+  "version": "0.1.0",
+  "homePage": "https://github.com/kohz87/story_suite/tree/main/examples/text-rpg"
 }
