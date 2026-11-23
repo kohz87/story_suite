@@ -103,6 +103,8 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
                 try { world = extras?.worldShown?.() === true; } catch { world = false; }
                 return world ? [] : sceneChatter(state?.domains?.scene?.present, headChatter(extras?.sceneChat?.(), extras?.display));
             }, { feature: CORE_FEATURE.chatter }),
+            // The reader's persona picture as a safe URL, or null (core/persona-portrait.js); a query only, never stored.
+            'persona.portrait': () => { try { return extras?.portrait?.() ?? null; } catch { return null; } },
             'scene.moved': (_state, _args, tools) => headMoved(tools, extras?.headIndex),
             // One reply's changes from its receipts, for the reply menu and the inline row (null when it has none).
             'reply.changes': (state, args, tools) => replyChanges(state, args, tools, extras?.headIndex),

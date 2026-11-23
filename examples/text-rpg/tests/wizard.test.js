@@ -159,3 +159,23 @@ test('the widget and its screen are registered, the screen names the widget, and
         host.close();
     }
 });
+
+test('the summary draws the reader\'s portrait from persona.portrait once there is a name, and keeps the letter when the query answers null or an unsafe URL', () => {
+    const asked = [];
+    const withPortrait = value => wizardPage(async () => ({ ok: true }), { query: name => { asked.push(name); return value; } });
+    const page = withPortrait('/User%20Avatars/astra.png');
+    assert.deepEqual(asked, ['persona.portrait'], 'asked once, when the wizard opens');
+    assert.equal(page.q('.wz-ava').classList.contains('wz-pic'), false, 'no name yet: the "?" tile');
+    page.type('[data-wiz="name"]', 'Astra');
+    assert.ok(page.q('.wz-ava').classList.contains('wz-pic'));
+    assert.equal(page.q('.wz-ava').style.getPropertyValue('--wz-pic'), 'url("/User%20Avatars/astra.png")');
+    next(page);
+    assert.ok(page.q('.wz-ava').classList.contains('wz-pic'), 'the Stats step shows it too');
+    assert.equal(asked.length, 1);
+    for (const none of [null, 'javascript:alert(1)"x']) {
+        const plain = withPortrait(none);
+        plain.type('[data-wiz="name"]', 'Astra');
+        assert.equal(plain.q('.wz-ava').classList.contains('wz-pic'), false);
+        assert.equal(plain.q('.wz-ava').textContent, 'A');
+    }
+});

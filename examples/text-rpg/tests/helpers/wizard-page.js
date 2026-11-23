@@ -2,8 +2,8 @@
 import { installFakeDom } from '../../../../tests/helpers/ui-fake-dom.js';
 import { renderNewCharacter } from '../../src/widget/new-character.js';
 
-/** `{ doc, overlay, body, cleanup, closed(), q(sel), all(sel), type(sel, value), press(sel) }`; `command` is the api's. */
-export function wizardPage(command = async () => ({ ok: true })) {
+/** `{ doc, overlay, body, cleanup, closed(), q(sel), all(sel), type(sel, value), press(sel) }`; `command` is the api's, `more` the rest of it (a `query`). */
+export function wizardPage(command = async () => ({ ok: true }), more = {}) {
     const doc = installFakeDom();
     const overlay = doc.createElement('div');
     overlay.className = 'sh-ov';
@@ -13,7 +13,7 @@ export function wizardPage(command = async () => ({ ok: true })) {
     overlay.appendChild(panel);
     doc.body.appendChild(overlay);
     let closes = 0;
-    const cleanup = renderNewCharacter(body, {}, { command, close: () => { closes += 1; } });
+    const cleanup = renderNewCharacter(body, {}, { ...more, command, close: () => { closes += 1; } });
     const q = selector => body.querySelector(selector);
     return {
         doc, overlay, body, cleanup, q,

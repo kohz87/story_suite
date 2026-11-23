@@ -26,6 +26,7 @@ Story Suite's files in the extension itself; take everything from `sdk`. The def
 - `commands: { 'mod.verb': (ctx, payload) => ({ summary, data?, narrate? }) }`, or `{ handler, internal?, prelude? }`; names are words joined by dots,
   never starting `capture.` or `module.`. Gate with `Object.assign(handler, { feature: 'mod.on' })`.
 - `queries: { 'mod.name': (state, args, tools) => value }`; `null` while the module or its feature is off. Properties: `feature`, `fallback: true`.
+- Host query `persona.portrait` → a safe URL of the reader's persona picture or `null` (a read of the live context, never stored); show a letter for `null`.
 - `capture: { kinds: { kind: { grammar: 'one line', aliases?, heads?, display? } }, apply(ctx, line) }`; `line` is `{ op, kind, name, text, labels }`.
 - `context: { feature?, static(), tail(view) → { lines, optional }, budget }` (or `parts`). `view` has `state`, `query`, `feature`.
 - `hooks: { beforeGenerate(view, info) → { commands: [{ type, payload }] } | null, afterCapture, canGenerate, … }`: they ask for steps, never write.

@@ -1,5 +1,5 @@
 // Adapted from ui/wizard/wizard.js (keep in step when that file changes). Text RPG's New character wizard, drawn into the plug-in screen's sheet (the widget gets its body): the same four
-// steps, Who · Stats · Skills · Review, the summary of the character so far on top and Back / Next under each step. `mountWizard(el, api)`: `api.command` sends, `api.close` closes the sheet.
+// steps, Who · Stats · Skills · Review, the summary of the character so far on top and Back / Next under each step. `mountWizard(el, api)`: `api.command` sends, `api.query` reads the persona's portrait, `api.close` closes the sheet.
 import { h } from '../kit/dom.js';
 import { button, segmented } from '../kit/controls.js';
 import { newDraft } from './draft.js';
@@ -16,7 +16,10 @@ const DRAW = { who: drawWho, stats: drawStats, skills: drawSkills, review: drawR
 
 /** Draws the wizard into `el`; → a cleanup function (the session ends when the sheet closes). */
 export function mountWizard(el, api = {}) {
-  const own = { draft: newDraft(), step: STEPS[0], busy: false, message: '', created: false, alive: true };
+  // The reader's persona picture (the core's `persona.portrait`: a safe URL or null), asked once when the wizard opens.
+  let portrait = null;
+  try { portrait = api.query?.('persona.portrait') ?? null; } catch { portrait = null; }
+  const own = { draft: newDraft(), step: STEPS[0], busy: false, message: '', created: false, alive: true, portrait };
   // (the sheet's overlay wears the wizard's classes, so the suite's wizard styles apply to it as to the RPG's own)
   const sheet = el.closest?.('.sh-ov') ?? null;
   sheet?.classList?.add('wz');

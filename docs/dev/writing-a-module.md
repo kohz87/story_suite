@@ -263,6 +263,8 @@ a spend of points). The full list is `docs/v2/SPEC.md` §3.2.
 A function `(state, args, tools)`. Return `null` when the module or its feature is off. A query may be a function with properties:
 `Object.assign(fn, { feature: 'camp.on', fallback: true })` (see section 7 for `fallback`).
 
+The host answers some queries for any module. `persona.portrait` → a safe URL (`/User%20Avatars/<file>`) of the reader's persona picture, or `null` when there is none or its URL is not safe in a CSS `url("...")`; draw it with `--wz-pic` and keep a letter for `null` (`examples/text-rpg/src/wizard/summary.js`). It reads SillyTavern's live context and is stored nowhere, so a replay does not meet it.
+
 ### `capture`
 
 `kinds` is `{ name: { grammar, … } }`. The grammar is exactly one line. A kind may also have `aliases` (other words for it), `heads`
