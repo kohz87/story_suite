@@ -6,7 +6,7 @@ const SKILL_TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft'
 const POOL_KEYS = ['mp', 'sp'];
 const ID_PATTERN = /^(?:[a-z0-9][a-z0-9-]{0,39}|[a-z][a-z0-9]*_[0-9a-z]{8})$/;
 const MEMBER_KEYS = [
-    'id', 'name', 'pc', 'xp', 'spent', 'wounds', 'stats', 'pools', 'skills', 'practice',
+    'id', 'name', 'pc', 'xp', 'spent', 'wounds', 'down', 'stats', 'pools', 'skills', 'practice',
     'injuries', 'conditions', 'companion', 'fallen',
 ];
 const SKILL_KEYS = ['name', 'about', 'stat', 'type', 'cost'];
@@ -188,8 +188,9 @@ function checkMember(member, key, problems) {
     if (typeof member.pc !== 'boolean') problems.push(`${where}.pc must be a boolean.`);
     if (!isInt(member.xp, 0)) problems.push(`${where}.xp must be a whole number of at least 0.`);
     if (!isInt(member.spent, 0)) problems.push(`${where}.spent must be a whole number of at least 0.`);
-    // Any whole number: a replay after a deleted reply can add a change past 0 or 5; every read clamps it (standing.js woundsOf).
+    // Any whole number: a replay after a deleted reply can add a change past 0 or 5; every read clamps it (standing.js woundsOf); Down is the separate `down` mark.
     if (!Number.isInteger(member.wounds)) problems.push(`${where}.wounds must be a whole number.`);
+    if (member.down !== undefined && typeof member.down !== 'boolean') problems.push(`${where}.down must be a boolean.`);
     checkStats(member.stats, `${where}.stats`, problems);
     checkPools(member.pools, member.stats, `${where}.pools`, problems);
     checkSkills(member.skills, `${where}.skills`, problems);

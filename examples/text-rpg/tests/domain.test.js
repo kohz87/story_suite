@@ -100,6 +100,11 @@ test('a wound count a replay pushed past 0..5, and an injury with no end time ye
     assert.deepEqual(validate(one(member)), []);
     member.wounds = 7;
     assert.deepEqual(validate(one(member)), []);
+    member.down = true;
+    assert.deepEqual(validate(one(member)), [], 'the down mark is accepted');
+    member.down = 'yes';
+    assert.equal(validate(one(member)).length, 1);
+    member.down = false;
 });
 
 test('new member is safe without input and keeps only five usable starting skills', () => {

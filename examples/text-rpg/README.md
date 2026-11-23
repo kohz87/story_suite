@@ -90,6 +90,7 @@ tests/                   node --test with the testkit host, plus hand-made ctx f
   the reply, a swipe's or regenerate's on the reply's own (`own: true`); a reply's `? try` lines take the step that went
   before them, so a Re-read of an earlier reply never reads a later reply's dice. They keep what they used (`used`,
   `hardest`, `threat`) in the domain under the reply's own record id.
+- Down is its own mark (`down`), set only by `~ health … — Down` and cleared by any other `~ health` or a day's rest; the wounds counter reads 0 to 4. A capped wound replayed on a lower base can leave a member one stage healthier than a fresh telling.
 - Numbers that move (`wounds`, mana and stamina, `xp`, `spent`, practice) are declared `counters`, so a replay after a
   deleted reply adds each change instead of writing the number the deleted reply left. Nothing is a counter that is
   computed from another: level and points come from `xp` and `spent` on every read (`module-parts/standing.js`), and

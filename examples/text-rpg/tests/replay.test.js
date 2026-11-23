@@ -236,3 +236,25 @@ test('a Re-read of an earlier reply that named no threat is not put in danger by
         }
     }
 });
+
+test('a heal deleted between a wound and a failed try leaves Badly wounded, never Down, and the next try is used', async t => {
+    t.mock.method(console, 'warn', () => {});
+    for (let round = 0; round < 6; round += 1) {
+        const host = await withAstra();
+        try {
+            await host.send('A.', reply('A.', ['~ health Astra — Badly wounded']));
+            const healAt = host.ctx.chat.length;
+            await host.send('H.', reply('H.', ['~ health Astra — Hurt']));
+            await host.send('C.', reply('C.', ['? try Astra | Lore | normal | threat: beyond you']));
+            await host.st.deleteMessage(healAt + 1);
+            await host.st.deleteMessage(healAt);
+            assert.equal(woundsOf(astraOf(host)), 4, 'Badly wounded, as a fresh telling of A then C');
+            assert.equal(astraOf(host).down, false);
+            await host.send('D.', reply('D.', ['? try Astra | Lore | normal']));
+            assert.equal(tries(host).length, 2, 'the next try is used, not refused as Down');
+            assert.deepEqual(host.store.problems(), []);
+        } finally {
+            host.close();
+        }
+    }
+});

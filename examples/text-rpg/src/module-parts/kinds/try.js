@@ -13,7 +13,7 @@ import { liveConditions } from '../conditions.js';
 import { gearOf } from '../gear.js';
 import { partsOf, labelOf } from '../line-read.js';
 import { toneStep } from '../settings.js';
-import { woundsAfter } from '../standing.js';
+import { woundsAfter, woundsOf } from '../standing.js';
 import { spendCost } from './pools.js';
 import { target } from './target.js';
 
@@ -51,7 +51,8 @@ export function applyTry(ctx, line) {
     let paid = 'none';
     if (!member.companion) {
         paid = stages > 0 ? 'wound' : 'none';
-        member.wounds = woundsAfter(member, stages);
+        // The stored wounds is a counter: add the change, never write back a value computed from the clamped read.
+        member.wounds += woundsAfter(member, stages) - woundsOf(member);
         // Success at a cost always costs: in danger the wound stage above; out of danger the skill's cost again, else a step of stamina.
         if (result.band === 'cost' && !inDanger) {
             const { sp } = member.pools;

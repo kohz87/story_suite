@@ -34,7 +34,9 @@ export function applyHealth(ctx, line) {
     if (goal < 0) ctx.fail('INVALID', `Health is one of ${HEALTH_STAGES.join(', ')}.`);
     // A stage is a set: it lands where it says whatever the replies before it did.
     ctx.absolute(DOMAIN, `/members/${member.id}/wounds`);
+    ctx.absolute(DOMAIN, `/members/${member.id}/down`);
     member.wounds = goal;
+    member.down = goal === 5; // only `~ health` makes Down; any other stage clears it
     const why = labelOf(line, 'why');
     return { summary: `${member.name} is ${HEALTH_STAGES[goal]}${why ? `: ${why}` : ''}.`, narrate: false, data: { member: member.id, stage: goal, why } };
 }

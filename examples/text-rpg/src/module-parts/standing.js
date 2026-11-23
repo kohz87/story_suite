@@ -20,7 +20,7 @@ export function woundsAfter(member, stages) {
     return now + Math.min(Math.max(0, whole(stages)), Math.max(0, 4 - now));
 }
 
-/** The wound stage, 0 (Unhurt) to 5 (Down); a stored number a replay pushed out of range reads as the nearest end. */
+/** The wound stage, 0 (Unhurt) to 4 (Badly wounded) from the counter, clamped (a replay can push it out of range); 5 (Down) only when `~ health` marked the member down. */
 export function woundsOf(member) {
-    return Math.min(5, Math.max(0, whole(member?.wounds)));
+    return member?.down === true ? 5 : Math.min(4, Math.max(0, whole(member?.wounds)));
 }

@@ -117,7 +117,7 @@ test('~ spend takes the skill\'s cost, refuses without it, and a Down character 
     me.pools.sp.now = 1;
     assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Obscure')).code, 'NOT_ENOUGH');
     assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Dancing')).code, 'NOT_FOUND');
-    me.wounds = 5;
+    me.down = true;
     assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Lore')).code, 'REFUSED');
 });
 

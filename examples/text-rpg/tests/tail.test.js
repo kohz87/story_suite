@@ -36,7 +36,7 @@ test('gear lifts the word from the total (AGI 13 + rare boots +2 is fast), cappe
 
 test('Down says so, a companion has a short line, the fallen are left out', () => {
     const down = hero();
-    down.wounds = 5;
+    down.down = true;
     const rorke = astra({ id: 'ac_rorke001', name: 'Rorke', pc: false, companion: { level: 9, strengths: ['very strong', 'a veteran swordswoman'] } });
     const gone = astra({ id: 'ac_gone0001', name: 'Gone', pc: false, fallen: { how: 'x' } });
     const { lines } = tailOf(viewOf(sliceOf([down, rorke, gone], null)));

@@ -21,7 +21,10 @@ export function rest(ctx, payload = {}) {
         member.pools.mp.now = member.pools.mp.max;
         member.pools.sp.now = member.pools.sp.max;
         if (kind === 'day') {
-            member.wounds = Math.max(0, woundsOf(member) - 1);
+            // A change on the counter (not a value from the clamped read); a day's rest also clears the Down mark.
+            if (woundsOf(member) > 0) member.wounds -= 1;
+            ctx.absolute(DOMAIN, `/members/${member.id}/down`);
+            member.down = false;
             // An injury made with no clock has no end time (null); the first day's rest with a clock starts its count.
             for (const injury of member.injuries) injury.heals = injury.heals === null && !known ? null : Math.max(0, (injury.heals ?? now + INJURY_DAYS[injury.grave] * 1440) - 1440);
             member.injuries = member.injuries.filter(injury => injury.heals === null || injury.heals > now);

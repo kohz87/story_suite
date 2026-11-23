@@ -76,6 +76,7 @@ export function newMember(input) {
         xp: 0,
         spent: 0,
         wounds: 0,
+        down: false,
         stats,
         pools: {
             mp: { now: mp, max: mp },

@@ -163,7 +163,7 @@ test('a refusal changes nothing: no mana for the skill, a Down character, no suc
     assert.deepEqual([noSp.done.code, noSp.slice.dice[SID].used], ['NOT_ENOUGH', undefined]);
     assert.match(noSp.done.message, /no stamina for Obscure/);
     const down = astra();
-    down.wounds = 5;
+    down.down = true;
     assert.equal(roll(11, 'normal', { member: down }).done.code, 'REFUSED');
     assert.equal(roll(11, 'normal', { what: 'Juggling' }).done.code, 'NOT_FOUND');
     assert.equal(roll(11, 'normal', { live: null }).done.code, 'REFUSED');
