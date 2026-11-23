@@ -269,7 +269,7 @@ test('the first roll of a reply makes its record from the dice step: its own rec
     const slice = fresh();
     const again = run(applyTry, fakeCtx(slice, { receipts: [step(0, [3, 4, 5])], standingReceipts: [{ type: 'textRpg.dice', data: { list: [15, 2, 3], floor: 0, own: true } }] }), line('try', 'Astra', 'Lore; ordinary'));
     assert.equal(again.result.data.die, 15, 'a Re-read uses the swipe\'s own dice step the reply holds');
-    assert.deepEqual(slice.dice[SID], { list: [15, 2, 3], floor: 0, used: 1, hardest: 2 });
+    assert.deepEqual(slice.dice[SID], { list: [15, 2, 3], floor: 0, used: 1, hardest: 2, won: true });
     assert.equal(run(applyTry, fakeCtx(fresh(), { receipts: [{ index: 0, receipt: { type: 'textRpg.dice', data: { list: [1, 2], floor: 0 } } }] }), line('try', 'Astra', 'Lore; ordinary')).code, 'REFUSED', 'a damaged record is no dice');
 });
 

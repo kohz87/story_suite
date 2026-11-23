@@ -25,10 +25,10 @@ const NOTE_WITHOUT_FLOOR =
     'Dice for this reply, in order: 12, 4, 17. ' +
     "One per attempt that can fail, skipping a moot one: total = die + bonus, against trivial 5, easy 10, ordinary 15, hard 20, very hard 25, near impossible 30. " +
     'At the number or over: success; 1–2 short: success at a cost; 3–9 short: failure; 10 or more short: a bad failure. A natural 20 or 1 changes only the telling (well done, clumsy). ' +
-    'Threat sets the difficulty: far beneath → trivial, beneath → easy, fair → ordinary, above → hard, far above → very hard, beyond → near impossible; your word counts only with no threat; a live condition adds a step under a threat. | edge: +1 (reason) eases a step, -1 hardens, at most 2; no reason, no edge. ' +
+    'Difficulty: with no foes standing your word sets it; while foes stand the code sets it from the strongest (or the group named with against:) and your word is ignored; a live condition adds a step against foes. | edge: +1 (reason) eases a step, -1 hardens, at most 2; no reason, no edge. ' +
     'Bonus: skill rank × 2 (Novice +0 … Legend +12); a stat +0; a skill not on the sheet −3; −2 for each injury on its stat. Astra: Obscure +4, Lore +0. Bram: Persuade +3. ' +
     'Follow each result; no numbers in the story text. ' +
-    'Report: ? try Who | skill or stat | difficulty | threat: … (Who = the person rolling, by name); e.g. ? try Astra | Obscure | ordinary | threat: a fair match.';
+    'Report: ? try Who | skill or stat | difficulty [| against: Group] (Who = the person rolling, by name); e.g. ? try Astra | Obscure | ordinary.';
 
 const NOTE_WITH_FLOOR = NOTE_WITHOUT_FLOOR.replace(
     'no reason, no edge. Bonus',
@@ -147,5 +147,5 @@ test('diceNote: defaults fill missing difficulties and omit an empty bonus table
     const note = diceNote({ list: [12, 4, 17] });
     assert.match(note, /against trivial 5, easy 10, ordinary 15, hard 20, very hard 25, near impossible 30\./);
     assert.match(note, /a skill not on the sheet −3; −2 for each injury on its stat\. Follow each result/, 'no table when nobody is listed');
-    assert.match(note, /e\.g\. \? try Astra \| Obscure \| ordinary \| threat: a fair match\.$/);
+    assert.match(note, /e\.g\. \? try Astra \| Obscure \| ordinary\.$/);
 });

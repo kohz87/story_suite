@@ -49,10 +49,10 @@ test('the dice note follows the lines: the dice, the floor, the bonus table and 
     assert.equal(lines.length, 2);
     assert.match(lines[0], /^Dice for this reply, in order: 11, 3, 20\./);
     assert.match(lines[0], /Nothing this reply is easier than hard\./);
-    assert.match(lines[0], /Threat sets the difficulty: far beneath → trivial, beneath → easy, fair → ordinary, above → hard, far above → very hard, beyond → near impossible;/);
+    assert.match(lines[0], /Difficulty: with no foes standing your word sets it; while foes stand the code sets it from the strongest \(or the group named with against:\) and your word is ignored;/);
     assert.match(lines[0], /Bonus: skill rank × 2 \(Novice \+0 … Legend \+12\); a stat \+0; a skill not on the sheet −3; −2 for each injury on its stat\. Astra: Obscure \+0, Lore \+0\./);
     assert.match(lines[0], /Report: \? try Who \| skill or stat \| difficulty/);
-    assert.match(lines[0], /e\.g\. \? try Astra \| Obscure \| ordinary \| threat: a fair match\./);
+    assert.match(lines[0], /e\.g\. \? try Astra \| Obscure \| ordinary\./);
     assert.match(lines[1], /^Astra \(Level 1\)/, 'the members follow the note');
 });
 

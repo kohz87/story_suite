@@ -41,15 +41,15 @@ test('no foes record, or none standing: no matchup', () => {
 test('the matchup is read from the standing foes and each member\'s health and stamina, and says why', () => {
     const wounded = hero({ wounds: 3 });
     const slice = withFoes(sliceOf([wounded]), [['rats', 24, 1]]);
-    assert.deepEqual(matchupOf(slice), { band: 'hopeless', why: '24 rats beneath, Astra wounded' }, '6 against ½: a ratio of 12');
+    assert.deepEqual(matchupOf(slice), { band: 'hopeless', why: 'rats: minor for you (24), Astra wounded' }, '6 against ½: a ratio of 12');
     const even = withFoes(sliceOf([hero(), hero({}, 'Bram', 'ac_bram0001')]), [['wolves', 3, 2]]);
-    assert.deepEqual(matchupOf(even), { band: 'even', why: '3 wolves a fair match, the party unhurt' }, '3 against 2');
+    assert.deepEqual(matchupOf(even), { band: 'even', why: 'wolves: even for you (3), the party unhurt' }, '3 against 2');
     const fresh = withFoes(sliceOf([hero(), hero({}, 'Bram', 'ac_bram0001')]), [['thugs', 1, 1]]);
     assert.equal(matchupOf(fresh).band, 'favoured');
     const tired = hero();
     tired.pools.sp.now = 1;
     const low = withFoes(sliceOf([tired]), [['rats', 2, 2], ['bandits', 2, 3]]);
-    assert.deepEqual(matchupOf(low), { band: 'hopeless', why: '2 rats a fair match, 2 bandits above, Astra drained' }, '6 against .6');
+    assert.deepEqual(matchupOf(low), { band: 'hopeless', why: 'rats: even for you (2), bandits: above you (2), Astra drained' }, '6 against .6');
 });
 
 test('Down and fallen members count nothing; a party that cannot act is hopeless', () => {
@@ -57,7 +57,7 @@ test('Down and fallen members count nothing; a party that cannot act is hopeless
     down.down = true;
     const gone = hero({ fallen: { how: 'x' } }, 'Edda', 'ac_edda0001');
     const slice = withFoes(sliceOf([hero(), down, gone]), [['rats', 2, 2]]);
-    assert.deepEqual(matchupOf(slice), { band: 'outmatched', why: '2 rats a fair match, Bram down' }, '2 against 1');
+    assert.deepEqual(matchupOf(slice), { band: 'outmatched', why: 'rats: even for you (2), Bram down' }, '2 against 1');
     const alone = hero();
     alone.down = true;
     assert.equal(matchupOf(withFoes(sliceOf([alone]), [['rats', 1, 0]])).band, 'hopeless');
@@ -67,7 +67,7 @@ test('every band is told in the tail with its rule; with no foes the tail has no
     const slice = withFoes(sliceOf([hero({ wounds: 3 })], { list: [11, 3, 20], floor: 0 }), [['rats', 24, 1]]);
     const { lines } = tailOf(view(slice, { query: name => (name === 'textRpg.dice' ? slice.dice.sw_reply0001 : null) }));
     const told = lines.find(text => text.startsWith('Matchup:'));
-    assert.match(told, /^Matchup: hopeless \(24 rats beneath, Astra wounded\)\. Favoured: the party should win\. Even: the dice decide\. Outmatched: the party loses unless an edge was set up before\. Hopeless: no roll saves them\.$/);
+    assert.match(told, /^Matchup: hopeless \(rats: minor for you \(24\), Astra wounded\)\. Favoured: the party should win\. Even: the dice decide\. Outmatched: the party loses unless an edge was set up before\. Hopeless: no roll saves them\.$/);
     assert.ok(lines.indexOf(told) > 0 && lines.indexOf(told) < lines.findIndex(text => text.startsWith('Astra (')), 'after the note, before the members');
     assert.ok(!tailOf(view(sliceOf([hero()]))).lines.some(text => text.startsWith('Matchup:')));
 });
@@ -75,6 +75,6 @@ test('every band is told in the tail with its rule; with no foes the tail has no
 test('the dice step the reply is offered with keeps the matchup for the card', () => {
     const slice = withFoes(sliceOf([hero()], null), [['rats', 24, 1]]);
     const payload = beforeGenerate(view(slice), { type: 'normal' }).commands[0].payload;
-    assert.deepEqual(payload.matchup, { band: 'hopeless', why: '24 rats beneath, the party unhurt' });
+    assert.deepEqual(payload.matchup, { band: 'hopeless', why: 'rats: minor for you (24), the party unhurt' });
     assert.equal(beforeGenerate(view(sliceOf([hero()], null)), { type: 'normal' }).commands[0].payload.matchup, undefined, 'no foes: no matchup');
 });

@@ -42,14 +42,14 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   rounded down, from the stats with the points spent (stats 1..30, level 1..99). A level-up raises the size, a roll-back lowers it;
   what is left is a counter, read no higher than the size. Health is the five wound stages. A new level-1 character has 10 to 12.
 - **Dice.** Before each reply the code draws three d20 from the reply's seed. At the moments that decide an
-  outcome the narrator writes `? try Who | skill or stat | difficulty | threat: … | edge: +1 (reason)`; the code reads the verdict from the
+  outcome the narrator writes `? try Who | skill or stat | difficulty [| against: Group] [| edge: +1 (reason)]`; the code reads the verdict from the
   next die, the bonus and the difficulty, and the narrator tells that result. A swipe draws new dice; a Re-read keeps them.
   **The roll** is d20 + the skill's rank × 2 (Novice 0, Apprentice 2 … Legend 12). A skill the member does not have (a `? try` naming a skill
   that is not on the sheet) rolls −3; a plain stat try (`? try Astra | AGI`) is +0. Stats, gear and level are not in the roll. Each injury
   hampering the try's stat (a skill's stat) takes 2. A companion rolls +2 for a named strength, else +0.
   **Difficulty** has six words: trivial 5, easy 10, ordinary 15, hard 20, very hard 25, near impossible 30 (`normal` still reads as ordinary).
-  It starts from the threat: far beneath trivial, beneath easy, a fair match ordinary, above hard, far above very hard, beyond near impossible.
-  With no threat named (on the line, or earlier in the reply) the narrator's own word is the start. `| edge: +1 (reason)` makes it a step easier,
+  While foes stand it starts from the threat of the strongest standing group (or the group `| against: Name` names): far beneath trivial, beneath easy, fair ordinary, above hard, far above very hard, beyond near impossible; the narrator's own word is ignored then (the receipt says so).
+  With no foes standing the narrator's own word is the start. `| edge: +1 (reason)` makes it a step easier,
   `-2 (reason)` two harder; at most 2 either way, and a reason is required (without one the edge is ignored and the receipt says so).
   Live conditions and a drained body on a physical roll hold a floor under it (ordinary with the first, a step more for each further one); the tone
   then moves it: Standard (the default) none, Gritty one step harder, Heroic one easier. At the ends the shift is clamped, so under Gritty "very hard" and "near impossible" are both 30, and under Heroic "trivial" and "easy" are both 5 (the dice note lists the numbers). The receipt names the word rolled against.
@@ -61,13 +61,19 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   a step of stamina (a quarter of the pool, rounded up). The receipt's `data.paid` says which (`wound`, `skill`, `stamina`).
   A companion has no sheet, so nothing is paid from one.
 - **Gear** is not in the roll and does not wear: a failed roll in danger asks the inventory for nothing.
-- **Foes and the matchup.** Before a fight the narrator sets the foes up with `+ foes Name | count: N | threat: <word>` (up to 6 groups a reply; the same
-  Name and threat in a later reply while some stand is reinforcements, shown as such (the same Name at another threat is a new group, "Wolves 2"); `- foes Name` ends a group that fled or scattered, with no XP). Groups do not expire by themselves, but they close when the story clock has moved a day or more since a reply last touched them (with no clock they stay), or when a `+ foes` names new foes in a reply after one that hit none of them; the narrator is told to end foes that fled or were left. The record is kept in the
+- **Foes and the matchup.** Before a fight the narrator sets the foes up with `+ foes Name | count: N | kind: <kind>` (up to 6 groups a reply; the same
+  Name and kind in a later reply while some stand is reinforcements, shown as such (the same Name of another kind is a new group, "Wolves 2"); `- foes Name` ends a group that fled or scattered, with no XP). Groups do not expire by themselves, but they close when the story clock has moved a day or more since a reply last touched them (with no clock they stay), or when a `+ foes` names new foes in a reply after one that hit none of them; the narrator is told to end foes that fled or were left. The record is kept in the
   domain (`foes`: groups keyed by id, the remaining count a counter) and is part of replay. Each reply the code tells the narrator the **matchup**: the foes' weight
   (each group's remaining × its threat's weight: far beneath ⅒, beneath ¼, fair 1, above 2, far above 3, beyond 4) against the party's (each member who is not fallen or Down: 1 ×
   health factor Unhurt 1, Scratched .9, Hurt .7, Wounded .5, Badly wounded .25 × stamina factor Fresh and Steady 1, Low .8, Drained and Empty .6). The ratio
-  is favoured (up to ½), even (up to 1½), outmatched (up to 4) or hopeless (above). It is in the tail with its rule and on the Rolls card ("Matchup: hopeless (24 rats beneath, Astra wounded)": 24 × ¼ = 6 against a wounded hero's ½ is a ratio of 12);
+  is favoured (up to ½), even (up to 1½), outmatched (up to 4) or hopeless (above). It is in the tail with its rule and on the Rolls card ("Matchup: hopeless (Rats: vermin, minor for you (24), Astra wounded)": 24 × ¼ = 6 against a wounded hero's ½ is a ratio of 12);
   with no foes standing there is no matchup line.
+  **The foe ladder.** The narrator writes only a kind: vermin (rats, stray dogs), common (bandit, wolf), trained (soldier, guard), elite (veteran knight, troll), monster (ogre chief, wyvern), legend (dragon). The code sets the **threat**
+  from the kind and the party's level (the highest among members not fallen or Down): the kind's base (vermin 1, common 2, trained 3, elite 4, monster 5, legend 6) less the level band (levels 1–9: 0, 10–29: 1, 30–59: 2, 60+: 3), kept within 0..5
+  (far beneath … beyond). The threat is fixed on the group when it is declared: a later level-up does not re-rate a standing group, and reinforcements keep it. It sets the starting difficulty of tries in the fight, the matchup weight, the XP and the lessons.
+  It is shown in plain terms (far beneath "trivial for you", beneath "minor for you", fair "even for you", above "above you", far above "far above you", beyond "beyond you"): "Rats: vermin, minor for you (24)" on the Rolls card's Foes row and in the matchup line.
+  **Battles.** A battle is a fight: from the first `+ foes` until none stand. A `+ foes` within 60 story minutes after the fight closed (with no story clock: in the reply right after) joins the same battle, which shares its XP cap and its lessons.
+  **Old chats.** `threat:` on `+ foes` and `? try`, and `size:` on `+ xp`, are still read so existing chats replay, but they are not in the grammar or the rules: a `+ foes` with `threat:` and no kind keeps that threat (and has no kind), and a `size:` pays such a group, or a reply with no record, the way it did.
 - **Practice.** Every use of a skill teaches: a `? try` +3 for a failure or a bad one, +5 for a success or a success at a cost, +10 for a success at hard or
   harder, none when the roll is trivial; a skill used with `~ spend` and no roll, or a one-session training scene, +1. Each is scaled by the threat word (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above or beyond ×2; none named ×1; rounded, at least 1
   when more than 0). A skill gains from `~ spend` or a one-session `~ train` once a reply between them, and a roll for it in the same reply wins.
@@ -75,6 +81,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   only for a skill that member rolled while the fight stood, and only once all the fight's groups are down or gone (or in the reply they close). A fight is one set of foes groups.
   A skill's cost is paid once a reply when a `~ spend` and a `? try` both name it, in either order (the spend's receipt says "paid by the roll", the try's "cost already paid"); two tries each pay.
   `+ xp … | foes: N [| group: Name]` pays only up to the foes still standing in the foes record (all groups, lowest threat first, or the named group) and counts them down; with no record `foes:` is one at most. A reply with no roll pays nothing (the receipt says "no roll this reply: no XP") but still counts the foes down. Name the group when foes are mixed, or the lowest threat is paid first.
+  **XP for foes:** each foe that fell pays its kind's base (vermin 5, common 10, trained 20, elite 40, monster 80, legend 160) × the group's threat multiplier (far beneath 0, beneath ½, fair 1, above 2, far above 3, beyond 4), rounded after the count; a **battle's total is capped** by its strongest group's threat (far beneath 0, beneath 25, fair 50, above 75, far above 100, beyond 200; counted before the XP rate): a foe that would pay past the cap pays what is left, and the receipt says "battle cap reached" (else "battle 30 of 50"). Foes that fled or were ended (`- foes`) pay nothing. With no foes record a reply that had a successful roll pays 10 XP, else 0 (once a reply).
   **Training** is per session: `~ train Who — Skill | sessions: N` (one a day of training the story told; whole 1..60, missing or bad = 1) gives +1 a session (no threat scale), capped by the whole story days the clock moved since the reply began (at least 1; 1 when there is no clock; the dice step keeps the clock). Once a skill a reply; a roll of the same skill does not take sessions of 2 or more back; a single session (or one capped to 1 day) is a +1 use, and a roll of the same skill wins over it. Card: "Astra trained Swordplay: +30 (30 sessions)", or "(asked 30, story time 5 days)" when capped. Practice stops at 600. The receipts' `data.practice` says what was gained; the keyed
   counter `practice` stays a counter, and a per-reply mark (`spent`) keeps the once-a-reply rule through a swipe, a reload and a delete.
 - **Rolls you can see.** Under a reply the module's one card `text-rpg-rolls` ("Rolls", up to 8 rows; it declares `rows: 8`) lists, from the reply's own receipts
@@ -82,18 +89,17 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   difficulty ("hard (bleeding)"), a natural 20 or 1, an edge, a skill not on the sheet and a rank up are said briefly. The last row, "Earned", is the reply's xp, its lessons and the practice of its `~ spend` and `~ train`
   lines. With more rolls than the card holds the rest share one "and N more" row, so none is dropped. The card's tone is the worst band of the reply. A raised roll's receipt
   (`data.why`) and the dice note's floor line name the reasons: each live condition and a drained body.
-- **Danger.** A `? try` line may carry `threat: how the foe compares`; without it the threat is this reply's earlier
-  `? try`. The threat starts the difficulty. For danger (wounds) and practice the latest earlier reply's recorded threat counts too, else none (not in danger).
+- **Danger.** The threat is the standing foes' (see the foe ladder); with no foes it is this reply's earlier
+  `? try`'s. The threat starts the difficulty. For danger (wounds) and practice the latest earlier reply's recorded threat counts too, else none (not in danger).
 - **Limits.** Health is a stage counter `wounds` (0 Unhurt … 5 Down; the Party tab shows it as 5 − wounds of 5). Rest
   (`textRpg.rest`) refills stamina and mana; a full day heals one stage and ages injuries (3, 10 or 30 days). An injury
   made while the story has no clock has no end time (`heals: null`) and keeps until a day's rest with a clock starts its
   count; a timed condition made with no clock is held until `cleared`. A Down character cannot act; what happens to them
   is the story's call (`! fall Who — how` closes the sheet). If the reader's character has fallen, `textRpg.create`
   makes a new one (the fallen one keeps `pc: false`); while a living one exists it refuses.
-- **Growth.** `+ xp Party — what | size: minor|real|major|great [| foes: N] [| group: Name]` pays by size (times `foes`, a whole number 1 to 50, each foe counts; missing or bad is 1; only the foes standing in the foes record), cut to what the reply's hardest
-  roll supports and scaled by how the threat compares with the hero (far beneath ×0, beneath ×0.5, a fair match ×1, above ×2, far above ×3, beyond ×4; each foe that fell counts). A skill's rank follows its practice: Novice 0, Apprentice 40, Adept 100, Expert 180, Master 280, Grandmaster 420, Legend 600 (the cap), with no level gates; each
+- **Growth.** `+ xp Party — what [| foes: N] [| group: Name]` pays each foe that fell by its kind and threat, up to the battle's cap (`foes` a whole number 1 to 50; missing or bad is 1; only the foes standing in the foes record; see Foes and the matchup). A skill's rank follows its practice: Novice 0, Apprentice 40, Adept 100, Expert 180, Master 280, Grandmaster 420, Legend 600 (the cap), with no level gates; each
   level gives a stat point to spend on the Party tab, and a skill slot every tenth level (5 at the start, 8 at most, from
-  level 30). Levels are the RPG's: 100 xp a level, 99 at most, xp held to 9999 (an xp stored past that counts as 9999 and is held there on the next `+ xp`; the sizes and threat multipliers are this
+  level 30). Levels are the RPG's: 100 xp a level, 99 at most, xp held to 9999 (an xp stored past that counts as 9999 and is held there on the next `+ xp`; the kind pay and threat multipliers are this
   module's own). Level and points are derived: `xp` is the stored counter, level is what the xp reaches (`1 + floor(xp / 100)`);
   a character made at a higher level begins with that level's xp and its level points placed on the stats (`granted`: they
   are not left to spend). A stat bought with a point is a keyed, ordered
@@ -154,9 +160,8 @@ tests/                   node --test with the testkit host, plus hand-made ctx f
 - The step is not re-planned (`replan` is off): a Re-read keeps the dice; a swipe is a new send, so a new seed.
 
 **Honest limits.** One source of truth for a verdict: the dice note lists the difficulty numbers already moved by the
-tone and the floor words, the narrator works each result out from it, and the code uses exactly those numbers (the threat, else the narrator's word, starts it; the edge moves it; the floor holds it up; then the tone moves it). Two floor causes are not in the note: a drained character's physical
-roll, and a condition the rolling character has when they are not the reader's. The code also cuts an xp size the
-rolls do not support. A skill's practice is a count in the member's
+tone and the floor words, the narrator works each result out from it, and the code uses exactly those numbers (the standing foes' threat, else the narrator's word, starts it; the edge moves it; the floor holds it up; then the tone moves it). Two floor causes are not in the note: a drained character's physical
+roll, and a condition the rolling character has when they are not the reader's. A skill's practice is a count in the member's
 `practice` map (keyed by the skill's name, a declared counter), so deleting a middle reply takes its practice with it.
 A timed condition (`until: N hours`) ends at the story minute it records; the tail, the floor and a `? try` read only
 the live ones. A health stage (`~ health`) and a rest of mana and

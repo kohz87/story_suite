@@ -917,5 +917,13 @@
   "examples/text-rpg/tests/foes-replay.test.js": "Tests that the foes record, the xp that counts it down and a lesson replay exactly through a rebuild, a swipe, a Re-read and a middle delete.",
   "examples/text-rpg/tests/matchup.test.js": "Tests the matchup: foe and member weights, the four bands, the words, the tail line and the card's record of it.",
   "examples/text-rpg/tests/lesson.test.js": "Tests `+ lesson`: its amount by threat, once a skill a fight, only for skills rolled in the fight, and only when the foes are down.",
-  "examples/text-rpg/tests/no-wear.test.js": "Tests that a failed roll in danger no longer wears gear: no gear.wear call, no wear in the receipt, no wear helper."
+  "examples/text-rpg/tests/no-wear.test.js": "Tests that a failed roll in danger no longer wears gear: no gear.wear call, no wear in the receipt, no wear helper.",
+  "examples/text-rpg/src/words/foe-kinds.js": "The foe kind ladder (vermin … legend) the narrator writes, reading a kind, and the plain words a group is shown with.",
+  "examples/text-rpg/src/rules/foe-ladder.js": "What the code makes of a foe kind: its threat against the party's level, what fallen foes pay and a battle's XP cap.",
+  "examples/text-rpg/src/module-parts/foe-pick.js": "The party level foes are rated against and the group a `? try` is made against (named, else the strongest standing).",
+  "examples/text-rpg/src/module-parts/foes-pay.js": "Pays the foes that fell by kind and threat under the battle's cap, and keeps what each battle has paid.",
+  "examples/text-rpg/tests/foe-ladder.test.js": "Tests the foe kind ladder against the level bands, the threat fixed at declaration, kind words and refused or old `+ foes` lines.",
+  "examples/text-rpg/tests/foe-battle.test.js": "Tests XP per foe kind, the battle cap across waves, battles joining within 60 minutes, fled foes, the no-record 10 XP, old `size:` and lessons once a battle.",
+  "examples/text-rpg/tests/foe-try.test.js": "Tests that `? try` against foes starts from the strongest or named group's threat, ignores the narrator's word, and still reads an old `threat:`.",
+  "examples/text-rpg/tests/foe-replay.test.js": "Tests that the foe ladder, its battle cap and old lines replay exactly through a rebuild, a swipe, a Re-read and a middle delete."
 }

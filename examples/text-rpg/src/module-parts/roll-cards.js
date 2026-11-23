@@ -37,9 +37,9 @@ function earnedRow({ spends, xp, lessons }) {
     return parts.length ? { text: `Earned: ${parts.join(' · ')}`, tag: levels ? `level ${levels.levels > 1 ? `+${levels.levels}` : 'up'}` : '' } : null;
 }
 
-// The foes row: what the reply set up, added or ended ("Foes: 24 rats beneath · reinforcements: 6 wolves above · gone: bandits").
+// The foes row: what the reply set up, added or ended ("Foes: Rats: vermin, minor for you (24) · reinforcements: Wolves: common, even for you (6) · gone: bandits").
 function foesRow(foes) {
-    const parts = foes.map(item => (item.ended ? `gone: ${item.name}` : `${item.reinforcements ? 'reinforcements: ' : ''}${item.count} ${item.name} ${item.threat}`));
+    const parts = foes.map(item => (item.ended ? `gone: ${item.name}` : `${item.reinforcements ? 'reinforcements: ' : ''}${item.line}`));
     return parts.length ? { text: `Foes: ${parts.join(' · ')}`, tag: '' } : null;
 }
 

@@ -20,7 +20,7 @@ test('+ foes sets a group up: its count, its threat and the fight it belongs to,
     assert.deepEqual(slice.foes.groups['sewer-rats'], { name: 'Sewer rats', threat: 1, count: 24, left: 24, fight: SID, at: null, sid: SID });
     assert.deepEqual(slice.foes.fights[SID], { rolled: {}, taught: [] });
     assert.deepEqual(done.result.data, { group: 'sewer-rats', name: 'Sewer rats', count: 24, threat: 1, reinforcements: false, left: 24 });
-    assert.match(done.result.summary, /^Foes set: 24 Sewer rats \(beneath\)\./);
+    assert.match(done.result.summary, /^Foes set: Sewer rats: minor for you \(24\)\./);
     assert.deepEqual(validate(slice), []);
     assert.deepEqual(standing(slice).map(([id]) => id), ['sewer-rats']);
 });
@@ -54,7 +54,7 @@ test('the same name and threat in a later reply, while some stand, is reinforcem
     const other = run(applyFoes, fakeCtx(slice, { sid: NEXT }), { ...line('foes', 'wolves', '', { count: '2', threat: 'above you' }), op: '+' });
     assert.deepEqual([slice.foes.groups.wolves.left, slice.foes.groups.wolves.threat, other.result.data.reinforcements], [7, 2, false], 'the old group keeps its threat');
     assert.deepEqual(slice.foes.groups['wolves-2'], { name: 'wolves 2', threat: 3, count: 2, left: 2, fight: SID, at: null, sid: NEXT });
-    assert.match(other.result.summary, /^Foes set: 2 wolves 2 \(above\)/);
+    assert.match(other.result.summary, /^Foes set: wolves 2: above you \(2\)/);
     const again = run(applyFoes, fakeCtx(slice, { sid: 'sw_reply0004' }), { ...line('foes', 'wolves', '', { count: '5', threat: 'above you' }), op: '+' });
     assert.deepEqual([slice.foes.groups['wolves-2'].left, again.result.data.reinforcements], [7, true], 'the same threat adds to Wolves 2');
     assert.deepEqual(validate(slice), []);
@@ -63,7 +63,7 @@ test('the same name and threat in a later reply, while some stand, is reinforcem
     hurt.foes.groups.wolves.left = 1;
     const more = run(applyFoes, fakeCtx(hurt, { sid: NEXT }), { ...line('foes', 'Wolves', '', { count: '2', threat: 'a fair match' }), op: '+' });
     assert.deepEqual([hurt.foes.groups.wolves.count, hurt.foes.groups.wolves.left, more.result.data.reinforcements], [6, 3, true]);
-    assert.match(more.result.summary, /^Reinforcements: 2 more Wolves \(a fair match\); 3 stand\./);
+    assert.match(more.result.summary, /^Reinforcements: 2 more Wolves; now Wolves: even for you \(3\)\./);
     assert.equal(Object.keys(hurt.foes.fights).length, 1, 'the same fight');
 });
 

@@ -56,17 +56,17 @@ export function diceNote(record) {
     const floorAt = floorOf(floor);
     const table = rowsOf(rows);
     const first = table[0];
-    const example = `? try ${first?.who ?? 'Astra'} | ${first?.skills?.[0]?.[0] ?? 'Obscure'} | ${dc[2].word} | threat: a fair match`;
+    const example = `? try ${first?.who ?? 'Astra'} | ${first?.skills?.[0]?.[0] ?? 'Obscure'} | ${dc[2].word}`;
     const parts = [
         `Dice for this reply, in order: ${dice.join(', ')}.`,
         `One per attempt that can fail, skipping a moot one: total = die + bonus, against ${dc.map(({ word, dc: value }) => `${word} ${value}`).join(', ')}.`,
         'At the number or over: success; 1–2 short: success at a cost; 3–9 short: failure; 10 or more short: a bad failure. A natural 20 or 1 changes only the telling (well done, clumsy).',
-        `Threat sets the difficulty: far beneath → ${dc[0].word}, beneath → ${dc[1].word}, fair → ${dc[2].word}, above → ${dc[3].word}, far above → ${dc[4].word}, beyond → ${dc[5].word}; your word counts only with no threat; a live condition adds a step under a threat. | edge: +1 (reason) eases a step, -1 hardens, at most 2; no reason, no edge.`,
+        `Difficulty: with no foes standing your word sets it; while foes stand the code sets it from the strongest (or the group named with against:) and your word is ignored; a live condition adds a step against foes. | edge: +1 (reason) eases a step, -1 hardens, at most 2; no reason, no edge.`,
     ];
     const reasons = (Array.isArray(why) ? why : []).filter(item => typeof item === 'string' && item.trim()).map(item => item.trim());
     if (floorAt > 0) parts.push(`Nothing this reply is easier than ${dc[floorAt].word}${reasons.length ? ` (${reasons.join(', ')})` : ''}.`);
     parts.push(`Bonus: skill rank × 2 (Novice +0 … Legend +12); a stat +0; a skill not on the sheet −3; −2 for each injury on its stat.${table.length ? ` ${table.map(row => row.text).join('. ')}.` : ''}`);
     parts.push('Follow each result; no numbers in the story text.');
-    parts.push(`Report: ? try Who | skill or stat | difficulty | threat: … (Who = the person rolling, by name); e.g. ${example}.`);
+    parts.push(`Report: ? try Who | skill or stat | difficulty [| against: Group] (Who = the person rolling, by name); e.g. ${example}.`);
     return parts.join(' ');
 }

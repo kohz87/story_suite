@@ -1,19 +1,14 @@
 // The matchup the narrator is told each reply, read from the foes record and the members' health and stamina: `{ band, why }`, or null with no foes standing.
 import { foesWeight, matchupBand, memberWeight } from '../rules/matchup.js';
 import { ENERGY_STAGES, HEALTH_STAGES, stageOf } from '../words/pools.js';
-import { THREAT_WORDS } from '../words/threat.js';
+import { foeLine } from '../words/foe-kinds.js';
 import { standing } from './foes-record.js';
 import { poolWith } from './gear-sizes.js';
 import { woundsOf } from './standing.js';
 
-const SHORT = ['far beneath', 'beneath', 'a fair match', 'above', 'far above', 'beyond'];
-
-/** The word for a threat that reads after a foe's name: "24 rats beneath", "6 wolves a fair match". */
-export const threatShort = threat => SHORT[threat] ?? THREAT_WORDS[threat] ?? '';
-
 /**
  * The matchup of a domain slice; `capOf(member)` gives the gear cap the stamina is read under, `now` the story minute (groups left alone for a day are gone). `why` names the foes and what is wrong with the party
- * ("24 rats beneath, Astra wounded"). Fallen and Down members count nothing.
+ * ("Rats: vermin, minor for you (24), Astra wounded"). Fallen and Down members count nothing.
  */
 export function matchupOf(slice, capOf = () => ({}), now = null) {
     const groups = standing(slice, now).map(([, group]) => group);
@@ -32,6 +27,6 @@ export function matchupOf(slice, capOf = () => ({}), now = null) {
             if (energy >= 2) notes.push(`${member.name} ${ENERGY_STAGES[energy].toLowerCase()}`);
         }
     }
-    const foes = groups.map(group => `${group.left} ${group.name} ${threatShort(group.threat)}`);
+    const foes = groups.map(group => foeLine(group.name, group.kind, group.threat, group.left));
     return { band: matchupBand(foesWeight(groups), party), why: [...foes, ...(notes.length ? notes.slice(0, 4) : ['the party unhurt'])].join(', ').slice(0, 160) };
 }

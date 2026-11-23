@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG foes now come in kinds (vermin to legend): the game rates them against your level, so 24 rats no longer pay a level, and a battle's XP has a cap.
 - Text RPG fights are fairer and plainer: rolls are d20 plus skill rank, difficulty comes from the foe, foes are set up first and XP counts them down, the narrator is told who should win, and fights teach.
 - Text RPG: rolls, practice and XP work again in chats with a story clock (the training update made every roll be refused).
 - Text RPG: the narrator pays XP as foes fall (not only at the end of a fight), and a skill both used and rolled in one reply costs its stamina or mana once.

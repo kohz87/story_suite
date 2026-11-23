@@ -67,7 +67,7 @@ test('a reply\'s rolls are read from its own receipts: what was rolled, why rais
     assert.deepEqual([got.rolls[0].who, got.rolls[0].target, got.rolls[0].practice, got.rolls[0].quality, got.rolls[0].edge, got.rolls[0].unlearned], ['Astra', 'Snap Cut', 10, 'clumsy', { steps: -1, why: 'slick floor' }, true]);
     assert.deepEqual(got.spends.map(item => [item.skill, item.practice]), [['Obscure', 5]], 'a spend of a skill the reply rolled, or that taught nothing, is not listed');
     assert.deepEqual(got.xp, [{ summary: '5 xp for Cut down six rats.', amount: 5, levels: 0 }]);
-    assert.deepEqual(got.foes.map(item => [item.name, item.count, item.threat, item.reinforcements, item.ended]), [['rats', 24, 'beneath', false, false], ['bandits', 3, '', false, true]]);
+    assert.deepEqual(got.foes.map(item => [item.name, item.count, item.line, item.reinforcements, item.ended]), [['rats', 24, 'rats: minor for you (24)', false, false], ['bandits', 3, '', false, true]]);
     assert.deepEqual(got.lessons, [{ who: 'Astra', skill: 'Snap Cut', practice: 5, rankUp: null }]);
     assert.equal(got.matchup, null);
     assert.deepEqual(rollsOf(null, 4).rolls, []);
@@ -164,14 +164,14 @@ test('a natural 20 or 1, an edge and a skill not on the sheet are said in the ro
 
 test('the card tells the matchup the reply was written under and the foes it set up; the first reply of a fight has no matchup yet', async t => {
     const host = await battle(t);
-    await host.send('Strike.', reply('The rats swarm.', ['+ foes rats | count: 24 | threat: beneath you', '? try Astra | Lore | hard | threat: beneath you']));
+    await host.send('Strike.', reply('The rats swarm.', ['+ foes rats | count: 24 | kind: vermin', '? try Astra | Lore | hard']));
     const first = cardsAt(host, host.ctx.chat.length - 1)[0];
     assert.deepEqual(rowTexts(first).map(text => text.split(' ')[0]), ['Foes:', 'Lore,'], 'no record stood before this reply: no matchup line');
-    assert.equal(first.rows[0].text, 'Foes: 24 rats beneath');
-    await host.send('More.', reply('Wolves come.', ['+ foes wolves | count: 2 | threat: a fair match', '+ foes rats | count: 6 | threat: beneath you', '? try Astra | Lore | hard | threat: a fair match']));
+    assert.equal(first.rows[0].text, 'Foes: rats: vermin, minor for you (24)');
+    await host.send('More.', reply('Wolves come.', ['+ foes wolves | count: 2 | kind: common', '+ foes rats | count: 6 | kind: vermin', '? try Astra | Lore | hard']));
     const card = cardsAt(host, host.ctx.chat.length - 1)[0];
-    assert.match(card.rows[0].text, /^Matchup: hopeless \(24 rats beneath, .*\)$/, 'who is hurt depends on the first reply\'s dice');
-    assert.equal(card.rows[1].text, 'Foes: 2 wolves a fair match · reinforcements: 6 rats beneath');
+    assert.match(card.rows[0].text, /^Matchup: hopeless \(rats: vermin, minor for you \(24\), .*\)$/, 'who is hurt depends on the first reply\'s dice');
+    assert.equal(card.rows[1].text, 'Foes: wolves: common, even for you (2) · reinforcements: rats: vermin, minor for you (6)');
     assert.match(card.rows[2].text, /^Lore, /);
     const shown = JSON.stringify(cardsAt(host, host.ctx.chat.length - 1));
     host.store.rebuild();

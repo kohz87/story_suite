@@ -1,4 +1,5 @@
 // Checks the foes record of a text RPG slice (`slice.foes`, see module-parts/foes-record.js) and reports every damaged field by path.
+import { KINDS } from '../words/foe-kinds.js';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isInt = (value, min, max) => Number.isInteger(value) && value >= min && value <= max;
@@ -15,6 +16,7 @@ export function checkFoes(foes, problems) {
         const where = `foes.groups.${id.slice(0, 40)}`;
         if (!isObject(group)) { problems.push(`${where} must be an object.`); continue; }
         if (typeof group.name !== 'string' || !group.name || group.name.length > 60) problems.push(`${where}.name must be a short text.`);
+        if (group.kind !== undefined && !KINDS.includes(group.kind)) problems.push(`${where}.kind must be one of the foe kinds.`);
         if (!isInt(group.threat, 0, 5)) problems.push(`${where}.threat must be a whole number from 0 to 5.`);
         if (!isInt(group.count, 0, 200)) problems.push(`${where}.count must be a whole number from 0 to 200.`);
         if (!isInt(group.left, 0, 200)) problems.push(`${where}.left must be a whole number from 0 to 200.`);
@@ -27,6 +29,7 @@ export function checkFoes(foes, problems) {
         const where = `foes.fights.${id.slice(0, 40)}`;
         const rolled = fight?.rolled;
         const sound = isObject(rolled) && Object.values(rolled).every(list => Array.isArray(list) && list.length <= 40 && list.every(key => typeof key === 'string' && key.length <= 80));
+        if (fight?.paid !== undefined && !isInt(fight.paid, 0, 200)) problems.push(`${where}.paid must be a whole number from 0 to 200.`);
         if (!sound || !Array.isArray(fight.taught) || fight.taught.length > 80 || !fight.taught.every(key => typeof key === 'string' && key.length <= 160)) problems.push(`${where} must hold rolled skills and taught lessons.`);
     }
 }

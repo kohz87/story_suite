@@ -1,4 +1,4 @@
-// `? try Who | skill or stat | difficulty [| threat: …] [| edge: +1 (reason)]`: the code reads the verdict from the reply's recorded die, the bonus and the difficulty (the threat word starts it, the edge moves it, conditions hold a floor, the tone shifts it).
+// `? try Who | skill or stat | difficulty [| against: Name] [| edge: +1 (reason)]`: the code reads the verdict from the reply's recorded die, the bonus and the difficulty (with foes standing the group's threat starts it, else the narrator's word; the edge moves it, conditions hold a floor, the tone shifts it). An old line's `threat:` is still read when no foes of a kind stand.
 import { DIFFICULTIES, difficultyIndex, isDifficultyWord } from '../../rules/difficulty.js';
 import { readEdge } from '../../rules/edge.js';
 import { floorIndex, raiseToFloor } from '../../rules/floor.js';
@@ -8,6 +8,7 @@ import { verdict } from '../../rules/roll.js';
 import { stageOf } from '../../words/pools.js';
 import { readThreat } from '../../words/threat-read.js';
 import { priorThreat, recordOf } from '../dice-source.js';
+import { foeFor } from '../foe-pick.js';
 import { noteRolled } from '../foes-fights.js';
 import { BAND_WORD } from '../band-words.js';
 import { bonusFor } from '../bonus.js';
@@ -46,8 +47,11 @@ export function applyTry(ctx, line) {
     if (refused) ctx.fail('NOT_ENOUGH', refused);
 
     const said = readThreat(labelOf(line, 'threat'));
-    // The threat that starts the difficulty is the line's own, else this reply's earlier one; one named nowhere leaves the narrator's word. For danger and practice the latest earlier reply's counts too.
-    const named = said >= 0 ? said : record.threat ?? null;
+    // While foes stand the strongest group (or the one `against:` names) sets the threat, whatever word the narrator wrote; an old group with no kind yields to an old line's own `threat:`.
+    const { group, missed } = foeFor(slice, labelOf(line, 'against'), record.clock);
+    const ruled = group && (group.kind || said < 0) ? group.threat : null;
+    // The threat that starts the difficulty is that, else the line's own (old), else this reply's earlier one; one named nowhere leaves the narrator's word. For danger and practice the latest earlier reply's counts too.
+    const named = ruled ?? (said >= 0 ? said : record.threat ?? null);
     const carried = named ?? priorThreat(slice, ctx.reply?.sid);
     const drained = stageOf(poolWith(member, 'sp', cap).now, poolWith(member, 'sp', cap).max, 'energy').index >= 3;
     const physical = PHYSICAL.includes(found.stat);
@@ -64,7 +68,7 @@ export function applyTry(ctx, line) {
     // (what raised it: the reader's own conditions, else the floor the reply was offered with)
     const why = floorWhy(member, { now: ctx.time?.() ?? null, drained, physical });
     const reasons = raised ? (own >= record.floor && why.length ? why : ['the scene allows nothing easier']) : [];
-    const heard = said >= 0 ? said : threatHeard(slice, ctx.reply?.sid, record);
+    const heard = ruled ?? (said >= 0 ? said : threatHeard(slice, ctx.reply?.sid, record));
     const die = record.list[record.used ?? 0];
     const result = verdict({ die, bonus: found.bonus, dc: DIFFICULTIES[index].dc });
 
@@ -91,8 +95,12 @@ export function applyTry(ctx, line) {
     if (found.skill) noteRolled(slice, member, found.skill);
     record.used = (record.used ?? 0) + 1;
     record.hardest = Math.max(record.hardest ?? 0, index);
-    if (said >= 0) record.threat = Math.max(record.threat ?? 0, said);
-    const note = edge ? (edge.ignored ? '; edge ignored: no reason given' : `; edge ${edge.steps > 0 ? '+' : '−'}${Math.abs(edge.steps)} (${edge.why})`) : '';
+    const set = ruled ?? said;
+    if (set >= 0) record.threat = Math.max(record.threat ?? 0, set);
+    if (result.band === 'great' || result.band === 'success' || result.band === 'cost') record.won = true;
+    const ignored = ruled !== null && isDifficultyWord(word) && difficultyIndex(word) !== ruled ? '; difficulty word ignored: foes stand' : '';
+    const missing = missed ? `; no foes called ${labelOf(line, 'against').slice(0, 40)} stand, the strongest used` : '';
+    const note = ignored + missing + (edge ? (edge.ignored ? '; edge ignored: no reason given' : `; edge ${edge.steps > 0 ? '+' : '−'}${Math.abs(edge.steps)} (${edge.why})`) : '');
     const tail = `${DIFFICULTIES[index].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${result.quality ? ` (${result.quality})` : ''}${note}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}${costPaid ? '; cost already paid' : ''}.`;
     return {
         summary: `${member.name} tries ${found.skill?.name ?? what}, ${tail}`, narrate: true,

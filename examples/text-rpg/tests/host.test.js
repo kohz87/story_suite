@@ -63,9 +63,9 @@ test('while active the static part holds the approved rules and the kinds\' gram
         assert.match(statics[0], /Text RPG: tell every danger as it really unfolds, in one scene without rounds\./);
         assert.match(statics[0], /Never write numbers, dice or luck\./);
         assert.match(statics[0], /^\? try Who \| skill or stat \| trivial\|easy\|ordinary\|hard\|very hard\|near impossible/m);
-        assert.match(statics[0], /^\+ foes Name \| count: N \| threat: far beneath you/m);
+        assert.match(statics[0], /^\+ foes Name \| count: N \| kind: vermin\|common\|trained\|elite\|monster\|legend/m);
         assert.match(statics[0], /^\+ lesson Who — Skill \| what was learned/m);
-        assert.match(statics[0], /^\+ xp Party — what was overcome \| size: minor\|real\|major\|great/m);
+        assert.match(statics[0], /^\+ xp Party — what was overcome \[\| foes: how many fell this reply\]/m);
     } finally {
         host.close();
     }
@@ -130,7 +130,7 @@ test('a party with injuries and conditions keeps the whole dice note in the real
         const note = tail.split('\n').find(line => line.startsWith('Dice for this reply'));
         assert.ok(note, 'the note is in the tail');
         assert.match(note, /Bonus: skill rank × 2 .*Astra: .*\. Follow each result; no numbers/);
-        assert.match(note, /e\.g\. \? try Astra \| Obscure \| ordinary \| threat: a fair match\.$/, 'the note ends whole');
+        assert.match(note, /e\.g\. \? try Astra \| Obscure \| ordinary\.$/, 'the note ends whole');
         for (const name of ['Astra', 'Rorke', 'Edda']) assert.match(tail, new RegExp(`${name} \\(`), `${name}'s line is there`);
         for (const name of ['Astra', 'Rorke', 'Edda']) assert.ok(tail.indexOf(note) < tail.indexOf(`${name} (`), `the note comes before ${name}'s line`);
         assert.equal(textRpgModule(null).context.budget, 600);

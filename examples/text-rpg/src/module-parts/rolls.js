@@ -3,7 +3,7 @@
 
 import { practiceKey } from './practice.js';
 import { diceBefore } from './dice-source.js';
-import { threatShort } from './matchup.js';
+import { foeLine } from '../words/foe-kinds.js';
 
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const of = (list, type, index) => (Array.isArray(list) ? list : []).filter(entry => entry?.index === index && entry.receipt?.type === type && isRecord(entry.receipt.data)).map(entry => entry.receipt.data);
@@ -11,7 +11,7 @@ const of = (list, type, index) => (Array.isArray(list) ? list : []).filter(entry
 /**
  * `{ rolls, spends, xp, lessons, foes, matchup }` for the reply at message `index`; `entries` are `store.receipts()` as a query's tools give them, `nameOf(memberId)` the name to say.
  * A roll: { who, target, die, bonus, total, difficulty, band, quality, raised, why, edge?, edgeWhy?, unlearned, paid, practice, rankUp }. A spend: { who, skill, practice, rankUp, sessions?, asked?, days? } only where it taught
- * something and the reply did not roll that skill (a roll for the skill in the reply wins, but not over training sessions of 2 or more). xp: [{ summary, amount, levels }]. lessons: [{ who, skill, practice, rankUp }]. foes: [{ name, count, threat (a word), reinforcements, ended }]. matchup: { band, why } or null.
+ * something and the reply did not roll that skill (a roll for the skill in the reply wins, but not over training sessions of 2 or more). xp: [{ summary, amount, levels }]. lessons: [{ who, skill, practice, rankUp }]. foes: [{ name, count, line (the group as the card shows it), reinforcements, ended }]. matchup: { band, why } or null.
  */
 export function rollsOf(entries, index, nameOf = id => id) {
     const rolls = of(entries, 'capture.try', index).map(data => ({
@@ -26,6 +26,6 @@ export function rollsOf(entries, index, nameOf = id => id) {
     const xp = (Array.isArray(entries) ? entries : []).filter(entry => entry?.index === index && entry.receipt?.type === 'capture.xp' && isRecord(entry.receipt.data))
         .map(({ receipt }) => ({ summary: String(receipt.summary ?? ''), amount: receipt.data.amount ?? 0, levels: receipt.data.levels ?? 0 }));
     const lessons = of(entries, 'capture.lesson', index).map(data => ({ who: nameOf(data.member), skill: String(data.skill ?? ''), practice: Number.isInteger(data.practice) ? data.practice : 0, rankUp: data.rankUp ?? null }));
-    const foes = of(entries, 'capture.foes', index).map(data => ({ name: String(data.name ?? ''), count: data.count ?? data.ended ?? 0, threat: threatShort(data.threat), reinforcements: data.reinforcements === true, ended: Number.isInteger(data.ended) }));
+    const foes = of(entries, 'capture.foes', index).map(data => ({ name: String(data.name ?? ''), count: data.count ?? data.ended ?? 0, line: Number.isInteger(data.ended) ? '' : foeLine(String(data.name ?? ''), data.kind, data.threat, data.count ?? 0), reinforcements: data.reinforcements === true, ended: Number.isInteger(data.ended) }));
     return { rolls, spends, xp, lessons, foes, matchup: diceBefore(index, Array.isArray(entries) ? entries : [])?.matchup ?? null };
 }
