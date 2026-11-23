@@ -239,11 +239,13 @@ function checkDice(dice, problems) {
         }
         // used (dice taken so far), hardest (difficulty index) and threat (word index) are kept by the reply's `? try` lines.
         const base = {};
-        for (const key of Object.keys(record)) if (!['used', 'hardest', 'threat', 'rules'].includes(key)) base[key] = record[key];
+        for (const key of Object.keys(record)) if (!['used', 'hardest', 'threat', 'rules', 'clock'].includes(key)) base[key] = record[key];
         if (!checkShape(base, where, ['list', 'floor'], problems)) continue;
         if (has(record, 'used') && !isInt(record.used, 0, 3)) problems.push(`${where}.used must be a whole number from 0 to 3.`);
         if (has(record, 'hardest') && !isInt(record.hardest, 0, 4)) problems.push(`${where}.hardest must be a whole number from 0 to 4.`);
         if (has(record, 'threat') && !isInt(record.threat, 0, 5)) problems.push(`${where}.threat must be a whole number from 0 to 5.`);
+        // clock: the story minute the reply's dice step was made at (training sessions are capped by the days since).
+        if (has(record, 'clock') && !isInt(record.clock, 0, Number.MAX_SAFE_INTEGER)) problems.push(`${where}.clock must be a whole number of minutes.`);
         // rules: the level cap and XP rate the reply was written under (only when not the defaults).
         if (has(record, 'rules') && !(isObject(record.rules) && isInt(record.rules.cap, 1, LIMITS.levelMax) && isInt(record.rules.rate, 50, 300))) problems.push(`${where}.rules must hold a cap and a rate.`);
         if (!Array.isArray(record.list) || record.list.length !== 3) {
