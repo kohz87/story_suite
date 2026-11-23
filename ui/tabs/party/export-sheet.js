@@ -5,6 +5,7 @@ import { openSheet } from './slot-picker.js';
 
 const things = n => `${n} thing${n === 1 ? '' : 's'}`;
 const NOTE = 'Saves a file you can import when you make a character in another chat. The name stays in this chat.';
+const CLAMPED = 'More than 60 points to spend: the file keeps 60, the most a character file holds.';
 const NOT_SAVED = 'Not saved: the name, XP, Health, Mana and Stamina (a new character starts full), skill practice, and anything about the story.';
 
 /** Opens "Export <name>" for `member`; the file is asked of the RPG again at Save, so it is what is true then. `ctx` has the `port` and the `doc`. */
@@ -28,7 +29,7 @@ export async function exportSheet(member, ctx = {}) {
     sheet.close();
   };
   sheet.body.replaceChildren(
-    h('p', { class: 'ps-note' }, NOTE),
+    h('p', { class: 'ps-note' }, first.clamped === true ? `${NOTE} ${CLAMPED}` : NOTE),
     h('div', { class: 'ps-opt', dataset: { option: 'character' } }, h('b', null, 'Character'), h('small', null, `Lv ${first.level} · ${first.points ? `${first.points} to spend` : 'no points to spend'}, the seven stats and its skills`)),
     option('inventory', first.items ? `Inventory · ${things(first.items)}` : 'Inventory · nothing carried', 'Names, counts and notes, with what kind and rarity each is.', first.items > 0),
     first.own ? option('money', first.money > 0 ? `Money · ${first.money}` : 'Money · nothing in the purse', 'Kept as its value, so another game\'s coins show it in their own words.', first.money > 0) : null,

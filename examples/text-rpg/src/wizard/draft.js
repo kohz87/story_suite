@@ -25,12 +25,12 @@ export function problemsOf(draft) {
   return out;
 }
 
-/** The `textRpg.create` payload for the draft: { name, stats, skills: [{ name, about, stat, type, cost?, rank? }], level?, imported? }. */
+/** The `textRpg.create` payload for the draft: { name, stats, skills: [{ name, about, stat, type, cost?, rank? }], level?, imported?, budget?, xp? }. */
 export function payloadOf(draft) {
   return {
     name: draft.name.trim(),
     ...(levelOf(draft) > 1 ? { level: levelOf(draft) } : {}),
-    ...(draft.from ? { imported: true } : {}),
+    ...(draft.from ? { imported: true, budget: STAT_KEYS.reduce((sum, key) => sum + draft.from.stats[key], 0) + draft.from.points, ...(draft.from.xp !== undefined ? { xp: draft.from.xp } : {}) } : {}),
     stats: Object.fromEntries(STAT_KEYS.map(key => [key, int(draft.stats[key])])),
     skills: draft.skills.map(skill => ({
       name: skill.name.trim(), about: skill.about.trim(), stat: skill.stat, type: skill.type,

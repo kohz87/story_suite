@@ -43,7 +43,7 @@ function readItem(entry) {
 }
 
 /**
- * Reads a file's text. → `{ ok: true, file }`, `file` = { level, points, stats (each held to 5..15), held (the stats that were), skills: [{ name, about, stat?, type, rank, cost? }], items?, money?, extras (true when the file has Text RPG's own `textRpg` part) }, or `{ ok: false, message }`.
+ * Reads a file's text. → `{ ok: true, file }`, `file` = { level, points, stats (each held to 5..15), held (the stats that were), skills: [{ name, about, stat?, type, rank, cost? }], items?, money?, xp? (the file's own Text RPG xp), extras (true when the file has Text RPG's own `textRpg` part) }, or `{ ok: false, message }`.
  */
 export function parseCharacterFile(text) {
   try {
@@ -74,7 +74,7 @@ export function parseCharacterFile(text) {
       if (!skill) return bad(fill(W.file.skill, { n: at + 1 }));
       skills.push(skill);
     }
-    const file = { level, points: data.points, stats, held, skills, extras: record(data.textRpg) };
+    const file = { level, points: data.points, stats, held, skills, extras: record(data.textRpg), ...(record(data.textRpg) && whole(data.textRpg.xp, 0, 9999) ? { xp: data.textRpg.xp } : {}) };
     if (data.items !== undefined) {
       if (!Array.isArray(data.items) || data.items.length > FILE_LIMITS.items) return bad(fill(W.file.items, { max: FILE_LIMITS.items }));
       file.items = [];

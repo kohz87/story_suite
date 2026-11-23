@@ -47,6 +47,8 @@ test('the public constants and initial state match the frozen contract', () => {
     assert.deepEqual(LIMITS, {
         members: 6,
         skills: 8,
+        skillsStored: 38,
+        practiceStored: 152,
         injuries: 3,
         conditions: 4,
         name: 60,

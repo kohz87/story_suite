@@ -142,7 +142,7 @@ test('Create with a saved character sends its stats, level and skills with impor
     await flush(); await flush();
     assert.deepEqual(calls.map(call => call[0]), ['textRpg.create', 'inventory.add', 'inventory.add', 'wallet.set']);
     assert.deepEqual(calls[0][1], {
-        name: 'Ren', level: 5, imported: true, stats: { str: 14, vit: 12, agi: 9, dex: 15, int: 5, wis: 10, cha: 8 },
+        name: 'Ren', level: 5, imported: true, budget: 73, stats: { str: 14, vit: 12, agi: 9, dex: 15, int: 5, wis: 10, cha: 8 },
         skills: [{ name: 'Iron Breath', about: 'a blast', stat: 'str', type: 'attack', rank: 2 }, { name: 'Gale', about: 'quick', stat: 'agi', type: 'movement' },
           { name: 'Ward', about: 'a spark', stat: 'int', type: 'magic', rank: 1 }, { name: 'Lore', about: '', stat: 'str', type: 'utility' }],
     });
@@ -174,4 +174,11 @@ test('a saved character through the real host: the level, the file\'s stats and 
     } finally {
         host.close();
     }
+});
+
+test('while a saved character is in place the starting level is the file\'s and cannot be edited', async () => {
+    const page = wizardPage(async () => ({ ok: true }), { query: queries({ 'textRpg.rules': { cap: 99 } }) });
+    await pick(page, rpgFile());
+    assert.equal(page.q('[data-wiz="level"]').hasAttribute('disabled'), true);
+    assert.equal(page.q('[data-wiz="level"]').value, '5');
 });

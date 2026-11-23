@@ -5,7 +5,7 @@ import { memberNamed, players } from '../members.js';
 import { labelOf } from '../line-read.js';
 import { requireActive } from '../active.js';
 import { levelOf } from '../standing.js';
-import { scaleXp } from '../../rules/levels.js';
+import { LEVEL, scaleXp } from '../../rules/levels.js';
 import { readRules, xpCeiling } from '../rules-now.js';
 import { DOMAIN } from '../../domain/shape.js';
 
@@ -26,6 +26,7 @@ export function applyXp(ctx, line) {
     const levels = [];
     for (const member of who) {
         const before = levelOf(member);
+        member.xp = Math.min(LEVEL.xpMax, member.xp); // (an xp stored past the limit counts as the limit)
         member.xp += Math.max(0, Math.min(amount, xpCeiling(cap) - member.xp));
         if (levelOf(member) > before) levels.push(`${member.name} reaches level ${levelOf(member)}`);
     }

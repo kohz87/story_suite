@@ -7,7 +7,10 @@ export const DOMAIN = 'textRpg';
 /** Frozen rules for every text RPG domain slice. */
 export const LIMITS = Object.freeze({
     members: 6,
+    // New skills stop at 8; a member saved before that rule may hold up to `skillsStored` (and its practice up to `practiceStored` keys): it keeps them and learns no more.
     skills: 8,
+    skillsStored: 38,
+    practiceStored: 152,
     injuries: 3,
     conditions: 4,
     name: 60,

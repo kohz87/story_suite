@@ -149,7 +149,7 @@ test('textRpg.create takes a starting level (its xp, its points placed as `grant
     assert.equal(refuse({ level: 100, stats: BUY }), 'INVALID');
     // a saved character: its own stats up to 15 and any total, up to 8 skills, ranks as practice, nothing granted to spend
     const saved = slice();
-    const kept = run(create, fakeCtx(saved), { name: 'Ren', level: 5, imported: true, stats: { str: 15, vit: 12, agi: 9, dex: 5, int: 5, wis: 8, cha: 7 }, skills: [...six, { name: 'T6', stat: 'int' }, { name: 'T7', stat: 'int' }] });
+    const kept = run(create, fakeCtx(saved), { name: 'Ren', level: 5, imported: true, budget: 61, xp: 450, stats: { str: 15, vit: 12, agi: 9, dex: 5, int: 5, wis: 8, cha: 7 }, skills: [...six, { name: 'T6', stat: 'int' }, { name: 'T7', stat: 'int' }] });
     const old = saved.members[kept.result.data.member];
     assert.deepEqual([old.skills.length, old.practice.s2, old.practice.s5, old.practice.s0, pointsOf(old), old.stats.str], [8, 200, 500, undefined, 0, 15]);
     assert.deepEqual(validate(saved), []);

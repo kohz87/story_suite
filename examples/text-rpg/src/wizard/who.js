@@ -60,7 +60,7 @@ export function drawWho(ctx) {
   const cap = capOf(ctx);
   const name = h('input', { type: 'text', maxlength: String(RULES.nameMax), value: draft().name ?? '', dataset: { wiz: 'name' },
     onInput: () => { ctx.put({ ...draft(), name: name.value }); ctx.summary(); } });
-  const level = h('input', { type: 'number', min: '1', max: String(cap), step: '1', inputmode: 'numeric', value: String(levelOf(draft())), dataset: { wiz: 'level' } });
+  const level = h('input', { type: 'number', min: '1', max: String(cap), step: '1', inputmode: 'numeric', value: String(levelOf(draft())), disabled: Boolean(run.imported), dataset: { wiz: 'level' } });
   const levelHelp = h('p', { class: 'ps-p wz-help' });
   const startText = () => fill(run.imported ? W.whoNoteImported : W.whoNote, { level: levelOf(draft()) });
   const startNote = h('p', { class: 'ps-p', dataset: { wiz: 'start-note' } }, startText());
@@ -69,6 +69,7 @@ export function drawWho(ctx) {
   levelNote(levelOf(draft()));
   // 1 to the level cap; 1 is the default and is not stored.
   const setLevel = (typed, settle) => {
+    if (run.imported) return; // (a saved character keeps the file's level)
     const n = Number(String(typed).trim());
     const next = Number.isFinite(n) && String(typed).trim() !== '' ? Math.min(cap, Math.max(1, Math.round(n))) : null;
     if (next === null) { if (settle) level.value = String(levelOf(draft())); return; }

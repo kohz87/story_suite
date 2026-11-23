@@ -72,7 +72,7 @@ function checkSkills(skills, where, problems) {
         problems.push(`${where} must be a list.`);
         return;
     }
-    if (skills.length > LIMITS.skills) problems.push(`${where} may hold at most ${LIMITS.skills} skills.`);
+    if (skills.length > LIMITS.skillsStored) problems.push(`${where} may hold at most ${LIMITS.skillsStored} skills.`);
     skills.forEach((skill, index) => {
         const skillWhere = `${where}.${index}`;
         if (!checkShape(skill, skillWhere, has(skill ?? {}, 'learned') ? [...SKILL_KEYS, 'learned'] : SKILL_KEYS, problems)) return;
@@ -109,7 +109,7 @@ function checkPractice(practice, where, problems) {
         return;
     }
     const keys = Object.keys(practice);
-    if (keys.length > LIMITS.skills * 4) problems.push(`${where} holds too many skills.`);
+    if (keys.length > LIMITS.practiceStored) problems.push(`${where} holds too many skills.`);
     for (const key of keys) {
         if (key.length > LIMITS.name) problems.push(`${where}.${key.slice(0, 20)} has a key longer than ${LIMITS.name} characters.`);
         else if (!isInt(practice[key], 0, LIMITS.practiceMax)) problems.push(`${where}.${key} must be a whole number from 0 to ${LIMITS.practiceMax}.`);

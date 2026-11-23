@@ -5,6 +5,7 @@ import { requireActive } from '../active.js';
 import { statKey } from '../line-read.js';
 import { RULES } from '../../wizard/rules.js';
 import { xpOfLevel } from '../../rules/levels.js';
+import { levelFor } from '../../rules/growth.js';
 import { skillSlots } from '../members.js';
 import { practiceKey } from '../practice.js';
 import { rulesOf } from '../rules-now.js';
@@ -14,7 +15,7 @@ const STAT_TOTAL = RULES.total;
 const BUY_MIN = RULES.min;
 const BUY_MAX = RULES.max;
 
-function statsOf(ctx, given, imported, level) {
+function statsOf(ctx, given, imported, level, budget) {
     const stats = {};
     for (const [key, value] of Object.entries(given && typeof given === 'object' ? given : {})) {
         const stat = statKey(key);
@@ -29,6 +30,9 @@ function statsOf(ctx, given, imported, level) {
     }
     const total = STAT_KEYS.reduce((sum, key) => sum + stats[key], 0);
     if (!imported && total !== STAT_TOTAL + extra) ctx.fail('INVALID', `The stats add up to ${total}; they must add up to ${STAT_TOTAL + extra}.`);
+    // A saved character's stats add up to no more than its file allows: the file's own stats and unspent points (the wizard sends that as `budget`; a call with none gets what a level earns), never past 15 a stat.
+    const room = Math.min(STAT_KEYS.length * RULES.importMax, budget);
+    if (imported && total > room) ctx.fail('INVALID', `The stats add up to ${total}; this saved character allows at most ${room}.`);
     return stats;
 }
 
@@ -52,7 +56,7 @@ function levelOf(ctx, given) {
 }
 
 /**
- * Payload: { name, stats: { str…cha }, skills: [{ name, about?, stat, type?, cost?: { pool, n } }], level?, imported? }. `level` starts the character with the xp that level needs and its level points (one a level above 1) to place on the stats now: a character's points are derived from xp, so they are `granted` and not left to spend; `imported` (a saved character) lifts the stat limit to 15 and the skills to 8.
+ * Payload: { name, stats: { str…cha }, skills: [{ name, about?, stat, type?, cost?: { pool, n } }], level?, imported?, budget?, xp? }. `level` starts the character with the xp that level needs and its level points (one a level above 1) to place on the stats now: a character's points are derived from xp, so they are `granted` and not left to spend; `imported` (a saved character) lifts the stat limit to 15 and the skills to 8.
  */
 export function create(ctx, payload = {}) {
     requireActive(ctx);
@@ -64,7 +68,10 @@ export function create(ctx, payload = {}) {
     if (!name) ctx.fail('INVALID', 'Your character needs a name.');
     const level = levelOf(ctx, payload?.level);
     const imported = payload?.imported === true;
-    const member = newMember({ id: ctx.id('ac'), name, pc: true, xp: xpOfLevel(level), granted: level - 1, stats: statsOf(ctx, payload.stats, imported, level), skills: skillsOf(ctx, payload.skills, imported ? LIMITS.skills : skillSlots(level)) });
+    const budget = Number.isInteger(payload?.budget) && payload.budget >= 0 ? payload.budget : STAT_TOTAL + level - 1;
+    // The file's own xp counts when it fits the level (progress within the level); else the level's first xp.
+    const xp = imported && Number.isInteger(payload?.xp) && levelFor(payload.xp).level === level ? payload.xp : xpOfLevel(level);
+    const member = newMember({ id: ctx.id('ac'), name, pc: true, xp, granted: level - 1, stats: statsOf(ctx, payload.stats, imported, level, budget), skills: skillsOf(ctx, payload.skills, imported ? LIMITS.skills : skillSlots(level)) });
     // A saved character's skill ranks come back as practice (a hundred a rank).
     for (const skill of Array.isArray(payload.skills) ? payload.skills : []) {
         if (imported && Number.isInteger(skill?.rank) && skill.rank >= 1 && skill.rank <= 6) member.practice[practiceKey(skill.name)] = skill.rank * 100;

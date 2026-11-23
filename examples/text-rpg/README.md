@@ -28,7 +28,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 4. Open the **Party** tab and choose **Create your character**, as in the RPG: a name (it starts as your persona's), a
    starting level, or **Start from a saved character** (the file the Party tab's Export saves, the RPG's or this
    module's); every stat starts at 5 and you spend 10 points (a stat up to 10, 45 in all, one more point for each starting
-   level above 1); and up to five skills (one more every tenth level, 8 at most).
+   level above 1); and up to five skills (one more every tenth level, 8 at most). A character saved before the limit of 8 may hold more (up to 38): it keeps them and learns no more.
    The Party tab's **Export** on a character saves a file in the RPG's character file shape (so either module reads the
    other's), with this module's own part (xp, practice, injuries, conditions, each skill's exact type and cost) under
    `textRpg`; the inventory and the purse are not part of it.
@@ -66,7 +66,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 - **Growth.** `+ xp Party — what | size: minor|real|major|great` pays by size, cut to what the reply's hardest
   roll supports and scaled by how the threat compares with the hero. A rank every 100 practice points; each
   level gives a stat point to spend on the Party tab, and a skill slot every tenth level (5 at the start, 8 at most, from
-  level 30). Levels are the RPG's: 100 xp a level, 99 at most, xp held to 9999 (the sizes and threat multipliers are this
+  level 30). Levels are the RPG's: 100 xp a level, 99 at most, xp held to 9999 (an xp stored past that counts as 9999 and is held there on the next `+ xp`; the sizes and threat multipliers are this
   module's own). Level and points are derived: `xp` is the stored counter, level is what the xp reaches (`1 + floor(xp / 100)`);
   a character made at a higher level begins with that level's xp and its level points placed on the stats (`granted`: they
   are not left to spend). A stat bought with a point is a keyed, ordered
