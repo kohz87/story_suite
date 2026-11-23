@@ -58,6 +58,6 @@ test('spend, try, spend: the second spend is free too; replay == live through re
 
 test('the xp grammar and the rules say XP is paid as foes fall', () => {
     assert.match(GRAMMAR.xp, /in the reply where they fall or the danger is overcome: foes = how many fell this reply; once a reply/);
-    assert.match(STATIC_TEXT, /Pay XP as foes fall: \+ xp in the reply they go down, not only when the fight ends\./);
+    assert.match(STATIC_TEXT, /Pay XP as foes fall: \+ xp in the reply they go down, not only when the fight ends \(it needs a roll in that reply\)\./);
     assert.match(GRAMMAR.spend, /only a skill used without a \? try; a try pays its own cost/);
 });
