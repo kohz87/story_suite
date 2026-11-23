@@ -50,7 +50,7 @@ test('the dice note follows the lines: the dice, the floor, the bonus table and 
     assert.match(lines[0], /^Dice for this reply, in order: 11, 3, 20\./);
     assert.match(lines[0], /Nothing this reply is easier than hard\./);
     assert.match(lines[0], /A threat raises the difficulty: a foe above you → at least hard, far above → very hard, beyond → near impossible\./);
-    assert.match(lines[0], /Bonus by stat or skill: Astra: STR\+1 VIT\+1 AGI\+1 DEX\+1 INT\+1 WIS\+1 CHA\+1; Obscure\+1, Lore\+1\./);
+    assert.match(lines[0], /Bonus by stat or skill: Astra: STR\+9 VIT\+9 AGI\+9 DEX\+9 INT\+9 WIS\+9 CHA\+9; Obscure\+9, Lore\+9\./);
     assert.match(lines[0], /Report each: \? try Who \| skill or stat \| difficulty/);
     assert.match(lines[0], /for example \? try Astra \| Obscure \| normal\./);
     assert.match(lines[1], /^Astra \(Level 1\)/, 'the members follow the note');

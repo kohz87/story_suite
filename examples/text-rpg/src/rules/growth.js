@@ -14,7 +14,7 @@ function difficultyValue(value) {
     return Math.min(4, Math.max(0, Math.trunc(finite(value, 0))));
 }
 
-const THREAT_MULTIPLIERS = Object.freeze([0, 0.5, 1, 1.5, 2, 2]);
+const THREAT_MULTIPLIERS = Object.freeze([0, 0.5, 1, 2, 3, 4]);
 
 /** The practice points from one check: easy checks teach nothing; a failure 3, a success or a success at a cost 5, a success at hard or harder 10. */
 export function practiceGain(band, difficultyIndex) {

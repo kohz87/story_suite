@@ -43,7 +43,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   what is left is a counter, read no higher than the size. Health is the five wound stages. A new level-1 character has 10 to 12.
 - **Dice.** Before each reply the code draws three d20 from the reply's seed. At the moments that decide an
   outcome the narrator writes `? try Who | skill or stat | difficulty`; the code reads the verdict from the
-  next die, the bonus (stat, gear, rank, level) and the difficulty, and the narrator tells that result.
+  next die, the bonus (the RPG's check: floor(level÷5) + floor((stat + DEX÷2)÷2) + rank term, less 2 per hampering injury; stats with gear; rank term Novice and Apprentice 0, Adept 1, Expert 2, Master and above 3) and the difficulty, and the narrator tells that result.
   A swipe draws new dice; a Re-read keeps them.
 - **Bands.** At or over the number: success. 1–2 short: success at a cost. 3–9 short: failure. 10 or more
   short or a natural 1: a bad failure. A natural 20: more than was asked. In danger a failure adds one wound
@@ -80,7 +80,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   is the story's call (`! fall Who — how` closes the sheet). If the reader's character has fallen, `textRpg.create`
   makes a new one (the fallen one keeps `pc: false`); while a living one exists it refuses.
 - **Growth.** `+ xp Party — what | size: minor|real|major|great [| foes: N]` pays by size (times `foes`, a whole number 1 to 50, each foe counts; missing or bad is 1), cut to what the reply's hardest
-  roll supports and scaled by how the threat compares with the hero. A skill's rank follows its practice: Novice 0, Apprentice 40, Adept 100, Expert 180, Master 280, Grandmaster 420, Legend 600 (the cap), with no level gates; each
+  roll supports and scaled by how the threat compares with the hero (far beneath ×0, beneath ×0.5, a fair match ×1, above ×2, far above ×3, beyond ×4; each foe that fell counts). A skill's rank follows its practice: Novice 0, Apprentice 40, Adept 100, Expert 180, Master 280, Grandmaster 420, Legend 600 (the cap), with no level gates; each
   level gives a stat point to spend on the Party tab, and a skill slot every tenth level (5 at the start, 8 at most, from
   level 30). Levels are the RPG's: 100 xp a level, 99 at most, xp held to 9999 (an xp stored past that counts as 9999 and is held there on the next `+ xp`; the sizes and threat multipliers are this
   module's own). Level and points are derived: `xp` is the stored counter, level is what the xp reaches (`1 + floor(xp / 100)`);

@@ -262,7 +262,7 @@ test('a heal deleted between a wound and a failed try leaves Badly wounded, neve
     }
 });
 
-const MAJOR = ['? try Astra | Lore | hard | threat: above you', '+ xp Party — a deed | size: major'];
+const MAJOR = ['? try Astra | Lore | hard | threat: a fair match', '+ xp Party — a deed | size: major'];
 const dropReply = async (host, at) => { await host.st.deleteMessage(at + 1); await host.st.deleteMessage(at); };
 
 test('a stat bought with a level\'s point goes back with the level, and comes back when a later reply re-levels', async t => {

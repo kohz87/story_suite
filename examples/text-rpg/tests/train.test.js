@@ -66,15 +66,15 @@ test('a roll for the skill in the reply wins over a train, in either order', () 
 
 test('a failed roll teaches +3 (a bad one too), scaled by the threat: beneath rounds 1.5 to 2, above 4.5 to 5', () => {
     const failed = make(undefined, [2, 2, 2]);
-    assert.equal(attempt(failed, 'Lore', 'normal').practice, 3);
+    assert.equal(attempt(failed, 'Lore', 'very hard').practice, 3);
     const bad = make(undefined, [1, 1, 1]);
-    const got = attempt(bad, 'Lore', 'normal');
+    const got = attempt(bad, 'Lore', 'very hard');
     assert.equal(got.band, 'bad');
     assert.equal(got.practice, 3);
     const beneath = make(1, [2, 2, 2]);
-    assert.equal(attempt(beneath, 'Lore', 'normal').practice, 2);
+    assert.equal(attempt(beneath, 'Lore', 'very hard').practice, 2);
     const above = make(3, [2, 2, 2]);
-    assert.equal(attempt(above, 'Lore', 'normal').practice, 5, 'the threat also raises the roll, so it only fails the harder');
+    assert.equal(attempt(above, 'Lore', 'very hard').practice, 5, 'the threat also raises the roll, so it only fails the harder');
 });
 
 test('the sheet\'s next rank reads the thresholds: from this rank\'s start to the next one\'s', () => {

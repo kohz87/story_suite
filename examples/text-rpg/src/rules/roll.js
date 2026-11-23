@@ -10,16 +10,23 @@ export function statMod(value) {
     return Math.floor((stat - 10) / 2);
 }
 
-/** A check bonus from a stat, rank, level term and hampering; level is kept within 1..99. */
+/** The RPG's rank term (0..3) for each Text RPG rank, Novice through Legend: Novice and Apprentice 0, Adept 1, Expert 2, Master and above 3. */
+const RANK_TERM = Object.freeze([0, 0, 1, 2, 3, 3, 3]);
+
+/**
+ * A story check's bonus, the RPG's Check roll: floor(level / 5) + floor((stat + DEX / 2) / 2) + rank term, less 2 for each hampering injury.
+ * Adapted from modules/rpg/formula-parts/stat-part.js (pair) and levels.js (levelBonus) (keep in step when those change).
+ * `stat` is the fitting (or the skill's own) stat, `dex` the second stat, `rank` the Text RPG rank index (0..6); level is kept within 1..99.
+ */
 export function rollBonus(input = {}) {
-    const { stat, rankBonus, level, hampered } =
-        input && typeof input === 'object' ? input : {};
-    const levelValue = Math.min(99, Math.max(1, Math.trunc(finite(level, 1))));
-    const rank = finite(rankBonus, 0);
+    const { stat, dex, rank, level, hampered } = input && typeof input === 'object' ? input : {};
+    const levelTerm = Math.floor(Math.min(99, Math.max(1, Math.trunc(finite(level, 1)))) / 5);
+    const statTerm = Math.floor((2 * finite(stat, 10) + finite(dex, 10)) / 4);
+    const rankTerm = RANK_TERM[Math.min(RANK_TERM.length - 1, Math.max(0, Math.trunc(finite(rank, 0))))];
     const hindered = typeof hampered === 'boolean'
         ? Number(hampered)
         : Math.max(0, finite(hampered, 0));
-    return statMod(stat) + rank + Math.floor(levelValue / 10) - 2 * hindered;
+    return levelTerm + statTerm + rankTerm - 2 * hindered;
 }
 
 /** The band, total and margin of a d20 check; a die outside 1..20 gives null. */

@@ -40,3 +40,8 @@ test('on the host: own rules replace only the rules paragraph; the grammar lines
         host.close();
     }
 });
+
+test('the built-in rules keep foes to the set-up ones, tell each roll as it fell and name the threat honestly, with no wave rule', () => {
+    for (const part of ['Foes are the ones the story set up before the fight; never add more mid-fight.', 'a failed roll means that turning point goes against them', 'retreat is always theirs to choose', 'an armed adventurer facing vermin is beneath them']) assert.ok(STATIC_TEXT.includes(part), part);
+    assert.doesNotMatch(STATIC_TEXT, /wave/i);
+});

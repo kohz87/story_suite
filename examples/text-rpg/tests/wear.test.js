@@ -4,7 +4,7 @@ import { applyTry } from '../src/module-parts/kinds/try.js';
 import { astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 import { reply, slice, tries, newHost, BUY, SKILLS } from './helpers/host.js';
 
-// Astra: every stat 12 (bonus +1). Normal is 12: die 11 is a success at a cost (12 total), die 1 a bad failure (10 short or more).
+// Astra: every stat 12 (bonus +9). Normal is 12: die 2 is a success at a cost (11 total), die 1 a bad failure.
 const piece = (name, extra = {}) => ({ name, rarity: 'common', bonus: '+1 DEX', broken: false, ...extra });
 const GEAR = { weapon: piece('Iron Sword'), body: piece('Leather'), 'off-hand': null };
 
@@ -30,7 +30,7 @@ test('a bad failure in danger wears the weapon of a physical try and the armour 
 test('a try with a mind stat wears only the armour for the wound; a success at a cost in danger wears nothing', () => {
     const lore = roll(1);
     assert.deepEqual(lore.calls.map(([, payload]) => payload.slot), ['body']);
-    const cost = roll(10, { what: 'str' });
+    const cost = roll(2, { what: 'str' });
     assert.equal(cost.data.band, 'cost');
     assert.equal(cost.calls.length, 0, 'a cost is paid in wounds and stamina, never in gear');
     assert.equal(cost.data.worn, undefined);
@@ -39,7 +39,7 @@ test('a try with a mind stat wears only the armour for the wound; a success at a
 test('nothing wears out of danger, on a success or a plain failure, and a broken or missing piece is left alone', () => {
     assert.equal(roll(1, { what: 'str', labels: {} }).calls.length, 0, 'not in danger');
     assert.equal(roll(19, { what: 'str' }).calls.length, 0, 'a success');
-    assert.equal(roll(5, { what: 'str' }).calls.length, 0, 'a plain failure');
+    assert.equal(roll(5, { what: 'str', difficulty: 'very hard' }).calls.length, 0, 'a plain failure');
     const none = roll(1, { what: 'str', slots: { weapon: piece('Iron Sword', { broken: true }), body: null, 'off-hand': piece('Buckler') } });
     assert.deepEqual(none.calls.map(([, payload]) => payload.slot), ['off-hand'], 'a broken weapon is skipped, the off-hand takes the wound when there is no body piece');
     assert.equal(roll(1, { what: 'str', slots: {} }).data.worn, undefined, 'no pieces, no worn list');
@@ -51,7 +51,7 @@ test('an attack skill wears the weapon', () => {
 });
 
 // ---- the real host: the wear belongs to the reply, so a swipe, a Re-read, a reload and a middle delete agree --------------------------------
-const FIGHT = ['? try Astra | str | normal | danger: yes'];
+const FIGHT = ['? try Astra | str | near impossible | danger: yes'];
 const word = host => host.sdk.query('gear.view', { owner: 'party' })?.slots.weapon?.word;
 
 async function armed(t) {

@@ -32,7 +32,7 @@ test('+ xp scales by the threat the roll named, and a bad size is refused', () =
     assert.equal(slice.members.ac_astra001.xp, 0, 'far beneath pays nothing');
     const above = sliceOf([astra()], { ...asRolled(2), threat: 3 });
     run(applyXp, fakeCtx(above), line('xp', 'Party', 'ogre', { size: 'real' }));
-    assert.equal(above.members.ac_astra001.xp, 30);
+    assert.equal(above.members.ac_astra001.xp, 40);
     assert.equal(run(applyXp, fakeCtx(sliceOf()), line('xp', 'Party', 'x', { size: 'huge' })).code, 'INVALID');
 });
 

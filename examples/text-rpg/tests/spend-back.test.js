@@ -8,9 +8,9 @@ const MAJOR = ['? try Astra | Lore | hard | threat: above you', '+ xp Party — 
 const dropReply = async (host, at) => { await host.st.deleteMessage(at + 1); await host.st.deleteMessage(at); };
 
 async function levelFour(host) {
-    for (const text of ['One.', 'Two.', 'Three.']) await host.send(text, reply('Told.', MAJOR));
+    for (const text of ['One.', 'Two.']) await host.send(text, reply('Told.', MAJOR));
     const at = host.ctx.chat.length;
-    await host.send('Four.', reply('Told.', MAJOR));
+    await host.send('Three.', reply('Told.', MAJOR));
     await host.send('Rest.', reply('Quiet.'));
     return at;
 }

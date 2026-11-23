@@ -24,8 +24,9 @@ export function bonusFor(member, target, cap = {}) {
     const stat = skill ? skill.stat : statKey(target);
     if (!stat) return null;
     const hampered = member.injuries.filter(injury => injury.hampers.includes(stat)).length;
-    const rankBonus = skill ? rankOf(practiceOf(member, skill)).bonus : 0;
-    return { stat, skill, bonus: rollBonus({ stat: totalStats(member, cap)[stat], rankBonus, level: levelOf(member), hampered }) };
+    const rank = skill ? rankOf(practiceOf(member, skill)).index : 0;
+    const stats = totalStats(member, cap);
+    return { stat, skill, bonus: rollBonus({ stat: stats[stat], dex: stats.dex, rank, level: levelOf(member), hampered }) };
 }
 
 /** The dice note's table: one row per member, each stat's bonus then each listed skill's (listed.js). */

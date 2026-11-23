@@ -69,14 +69,18 @@ test('stat modifiers and roll bonuses use the frozen formula', () => {
     assert.equal(statMod(undefined), 0);
     assert.equal(statMod(Number.NaN), 0);
 
-    assert.equal(rollBonus({ stat: 12, rankBonus: 3, level: 15 }), 5);
-    assert.equal(rollBonus({ stat: 8, rankBonus: 0, level: 1, hampered: true }), -3);
-    assert.equal(rollBonus({ stat: 10, rankBonus: 2, level: 99 }), 11);
-    assert.equal(rollBonus({ stat: 10, rankBonus: 0, level: 0 }), 0);
-    assert.equal(rollBonus({ stat: 10, rankBonus: 0, level: 100 }), 9);
-    assert.equal(rollBonus({ stat: 12, rankBonus: 0, level: 15, hampered: 2 }), -2);
-    assert.equal(rollBonus(), 0);
-    assert.equal(rollBonus(null), 0);
+    // The RPG's check: floor(level / 5) + floor((stat + DEX / 2) / 2) + rank term (Novice, Apprentice 0; Adept 1; Expert 2; Master and above 3), less 2 a hampering injury.
+    assert.equal(rollBonus({ stat: 10, dex: 10, rank: 0, level: 1 }), 7);
+    assert.equal(rollBonus({ stat: 12, dex: 12, rank: 6, level: 15 }), 15);
+    assert.equal(rollBonus({ stat: 8, dex: 10, rank: 0, level: 1, hampered: true }), 4);
+    assert.equal(rollBonus({ stat: 10, dex: 10, rank: 2, level: 99 }), 27);
+    assert.equal(rollBonus({ stat: 10, dex: 10, rank: 0, level: 0 }), 7);
+    assert.equal(rollBonus({ stat: 10, dex: 10, rank: 0, level: 100 }), 26);
+    assert.equal(rollBonus({ stat: 12, dex: 12, rank: 0, level: 15, hampered: 2 }), 8);
+    assert.deepEqual([0, 1, 2, 3, 4, 5, 6].map(rank => rollBonus({ stat: 10, dex: 10, rank, level: 1 })), [7, 7, 8, 9, 10, 10, 10]);
+    assert.equal(rollBonus({ stat: 14, rank: 0, level: 1 }), 9, 'a missing DEX reads 10');
+    assert.equal(rollBonus(), 7);
+    assert.equal(rollBonus(null), 7);
 });
 
 test('verdict bands use margins, with natural 1 and 20 overriding the margin', () => {
@@ -176,12 +180,18 @@ test('experience sizes and the reply guard are exact', () => {
     assert.equal(Object.isFrozen(XP_SIZES), true);
     assert.equal(xpFor('great', 2, 1), 20);
     assert.equal(xpFor('great', 2, 3), 150);
-    assert.equal(xpFor('great', 4, 3), 300);
+    assert.equal(xpFor('great', 4, 3), 450);
     assert.equal(xpFor('major', 2, 1), 20);
     assert.equal(xpFor('major', 2, 2), 60);
     assert.equal(xpFor('minor', 1, 0), 3);
-    assert.equal(xpFor('real', 4, 0), 40);
-    assert.equal(xpFor('minor', 5, 4), 10);
+    assert.equal(xpFor('real', 4, 0), 60);
+    assert.equal(xpFor('minor', 5, 4), 20);
+    // The threat multipliers: far beneath 0, beneath 0.5, a fair match 1, above 2, far above 3, beyond 4; every foe that fell counts.
+    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => xpFor('minor', threat, 1)), [0, 3, 5, 10, 15, 20]);
+    assert.equal(xpFor('minor', 1, 1, 21), 53, '21 rats, minor and beneath: 52.5, rounded once after the count, up');
+    assert.equal(xpFor('minor', 2, 1, 21), 105, '21 rats, minor and a fair match');
+    assert.equal(xpFor('major', 5, 4, 1), 240, 'one major foe beyond them');
+    assert.equal(xpFor('minor', 3, 1, 2), 20, 'two minor foes above them');
     assert.equal(xpFor('trivial', 5, 4), 0);
     assert.equal(xpFor('great', 5, null), 0);
     assert.equal(xpFor('great', 5), 0);

@@ -4,7 +4,7 @@ import { applyTry } from '../src/module-parts/kinds/try.js';
 import { diceBefore, lastDice } from '../src/module-parts/dice-source.js';
 import { SID, astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 
-// Astra: every stat 12 (bonus +1), 14 sp and no wounds. Normal is 12, hard 16.
+// Astra: every stat 12 (bonus +9), 14 sp and no wounds. Normal is 12, hard 16.
 const roll = (die, difficulty = 'normal', { labels = {}, what = 'Lore', member = astra(), live, options } = {}) => {
     const slice = sliceOf([member], live === undefined ? { list: [die, 10, 10], floor: 0 } : live);
     const ctx = fakeCtx(slice, options);
@@ -13,7 +13,7 @@ const roll = (die, difficulty = 'normal', { labels = {}, what = 'Lore', member =
 };
 
 test('a total at the number is a success: no harm, practice +5 on a normal roll, the die is used', () => {
-    const { data, me, slice } = roll(11);
+    const { data, me, slice } = roll(3);
     assert.equal(data.band, 'success');
     assert.equal(data.total, 12);
     assert.equal(me.wounds, 0);
@@ -25,7 +25,7 @@ test('a total at the number is a success: no harm, practice +5 on a normal roll,
 test('a hard success teaches most (+10) and a rank up is told', () => {
     const member = astra();
     member.practice.lore = 35;
-    const { data, me } = roll(15, 'hard', { member });
+    const { data, me } = roll(7, 'hard', { member });
     assert.equal(data.band, 'success');
     assert.equal(me.practice.lore, 45);
     assert.equal(data.rankUp, 'Apprentice');
@@ -36,7 +36,7 @@ test('an easy roll teaches nothing', () => {
 });
 
 test('one or two short is success at a cost: a costed skill pays twice when not in danger', () => {
-    const { data, me } = roll(10, 'normal', { what: 'Obscure' });
+    const { data, me } = roll(2, 'normal', { what: 'Obscure' });
     assert.equal(data.band, 'cost');
     assert.equal(me.pools.sp.now, 14 - 2 - 2);
     assert.equal(me.wounds, 0);
@@ -44,15 +44,15 @@ test('one or two short is success at a cost: a costed skill pays twice when not 
 });
 
 test('success at a cost always costs: a wound stage in danger; out of danger the skill again, else a step of stamina', () => {
-    const danger = roll(10, 'normal', { labels: { threat: 'a fair match' } });
+    const danger = roll(2, 'normal', { labels: { threat: 'a fair match' } });
     assert.deepEqual([danger.data.band, danger.me.wounds, danger.me.pools.sp.now, danger.data.paid], ['cost', 1, 14, 'wound']);
-    const stat = roll(10, 'normal', { what: 'int' });
+    const stat = roll(2, 'normal', { what: 'int' });
     assert.deepEqual([stat.data.band, stat.me.wounds, stat.me.pools.sp.now, stat.data.paid], ['cost', 0, 14 - 4, 'stamina'], 'a stat try has no skill cost: a step is a quarter of the pool');
-    const free = roll(10, 'normal');
+    const free = roll(2, 'normal');
     assert.deepEqual([free.me.pools.sp.now, free.data.paid], [14 - 4, 'stamina'], 'a skill with no cost of its own');
     const short = astra();
     short.pools.sp.now = 3;
-    const dry = roll(10, 'normal', { member: short, what: 'Obscure' });
+    const dry = roll(2, 'normal', { member: short, what: 'Obscure' });
     assert.deepEqual([dry.data.band, dry.me.pools.sp.now, dry.data.paid], ['cost', 0, 'stamina'], 'cannot pay the skill again: the step, clamped at 0');
     const rorke = astra({ id: 'ac_rorke001', name: 'Rorke', pc: false, companion: { level: 1, strengths: [] } });
     assert.equal(roll(10, 'normal', { member: rorke, what: 'riding' }).data.paid, 'none', 'a companion has no sheet to pay from');
@@ -60,11 +60,11 @@ test('success at a cost always costs: a wound stage in danger; out of danger the
 });
 
 test('a failure in danger adds one wound stage, out of danger it costs nothing', () => {
-    const danger = roll(6, 'normal', { labels: { threat: 'a fair match' } });
+    const danger = roll(4, 'hard', { labels: { threat: 'a fair match' } });
     assert.equal(danger.data.band, 'failure');
     assert.equal(danger.me.wounds, 1);
-    assert.equal(roll(6).me.wounds, 0);
-    assert.equal(roll(6, 'normal', { labels: { danger: 'yes' } }).me.wounds, 1);
+    assert.equal(roll(4, 'hard').me.wounds, 0);
+    assert.equal(roll(4, 'hard', { labels: { danger: 'yes' } }).me.wounds, 1);
 });
 
 test('a line adds at most the stages left to Badly wounded: never past it from one line, and Down is not reached by a roll', () => {
@@ -75,30 +75,30 @@ test('a line adds at most the stages left to Badly wounded: never past it from o
 });
 
 test('the threat is the line\'s own, else this reply\'s earlier one, else the latest earlier reply\'s, else none', () => {
-    const slice = sliceOf([astra()], { list: [6, 6, 6], floor: 0 });
+    const slice = sliceOf([astra()], { list: [4, 4, 4], floor: 0 });
     const ctx = fakeCtx(slice);
     const me = slice.members.ac_astra001;
     // No label and no earlier reply: not in danger, so a plain failure costs nothing.
-    run(applyTry, ctx, line('try', 'Astra', 'Lore; normal'));
+    run(applyTry, ctx, line('try', 'Astra', 'Lore; hard'));
     assert.deepEqual([me.wounds, slice.dice[SID].threat], [0, undefined]);
     // An earlier reply recorded a fair match: this reply is in danger without saying so (and records nothing of its own).
     const later = sliceOf([astra()], null);
     later.dice.sw_before001 = { list: [1, 1, 1], floor: 0, threat: 2 };
-    later.dice[SID] = { list: [6, 6, 6], floor: 0 };
-    run(applyTry, fakeCtx(later), line('try', 'Astra', 'Lore; normal'));
+    later.dice[SID] = { list: [4, 4, 4], floor: 0 };
+    run(applyTry, fakeCtx(later), line('try', 'Astra', 'Lore; hard'));
     assert.deepEqual([later.members.ac_astra001.wounds, later.dice[SID].threat], [1, undefined]);
     // Its own earlier line in the same reply wins over the earlier reply's.
     const same = sliceOf([astra()], null);
     same.dice.sw_before001 = { list: [1, 1, 1], floor: 0, threat: 4 };
-    same.dice[SID] = { list: [6, 6, 6], floor: 0 };
+    same.dice[SID] = { list: [4, 4, 4], floor: 0 };
     const both = fakeCtx(same);
-    run(applyTry, both, line('try', 'Astra', 'Lore; normal', { threat: 'beneath you' }));
-    run(applyTry, both, line('try', 'Astra', 'Lore; normal'));
+    run(applyTry, both, line('try', 'Astra', 'Lore; hard', { threat: 'beneath you' }));
+    run(applyTry, both, line('try', 'Astra', 'Lore; hard'));
     assert.deepEqual([same.members.ac_astra001.wounds, same.dice[SID].used], [0, 2]);
     // A record after this reply's own (a Re-read of an earlier reply) is not an earlier reply's.
-    const reread = sliceOf([astra()], { list: [6, 6, 6], floor: 0 });
+    const reread = sliceOf([astra()], { list: [4, 4, 4], floor: 0 });
     reread.dice.sw_after0001 = { list: [1, 1, 1], floor: 0, threat: 4 };
-    run(applyTry, fakeCtx(reread), line('try', 'Astra', 'Lore; normal'));
+    run(applyTry, fakeCtx(reread), line('try', 'Astra', 'Lore; hard'));
     assert.equal(reread.members.ac_astra001.wounds, 0);
 });
 
@@ -113,7 +113,7 @@ test('a natural 20 is more than was asked', () => {
 });
 
 test('the recorded floor raises a difficulty the narrator named too low, and the line says so', () => {
-    const { data, done } = roll(11, 'easy', { live: { list: [11, 10, 10], floor: 2 } });
+    const { data, done } = roll(4, 'easy', { live: { list: [4, 10, 10], floor: 2 } });
     assert.equal(data.raised, true);
     assert.equal(data.difficulty, 2);
     assert.equal(data.band, 'failure');
@@ -131,16 +131,16 @@ test('a condition raises the floor one step; fatigue does the same for a physica
 
 test('an injury that hampers the stat takes 2 from the bonus', () => {
     const hurt = astra({ injuries: [{ name: 'cracked rib', hampers: ['agi'], heals: 9999, grave: 'minor' }] });
-    assert.equal(roll(12, 'normal', { member: hurt, what: 'Obscure' }).data.bonus, -1);
-    assert.equal(roll(12, 'normal', { member: hurt, what: 'Lore' }).data.bonus, 1);
+    assert.equal(roll(12, 'normal', { member: hurt, what: 'Obscure' }).data.bonus, 7);
+    assert.equal(roll(12, 'normal', { member: hurt, what: 'Lore' }).data.bonus, 9);
 });
 
 const boots = bonus => ({ query: name => (name === 'gear.view' ? { slots: { feet: { name: 'Wolfhide Boots', rarity: bonus.rarity, bonus: bonus.text, broken: false } } } : null) });
 
 test('gear adds to the stat for the roll, capped by the rarity (common +1, rare +3)', () => {
-    assert.equal(roll(12, 'normal', { what: 'agi', options: boots({ rarity: 'rare', text: '+2 AGI' }) }).data.bonus, 2);
-    assert.equal(roll(12, 'normal', { what: 'agi', options: boots({ rarity: 'common', text: '+3 AGI' }) }).data.bonus, 1);
-    assert.equal(roll(12, 'normal', { what: 'agi', options: boots({ rarity: 'rare', text: '+9 AGI' }) }).data.bonus, 2);
+    assert.equal(roll(12, 'normal', { what: 'agi', options: boots({ rarity: 'rare', text: '+2 AGI' }) }).data.bonus, 10);
+    assert.equal(roll(12, 'normal', { what: 'agi', options: boots({ rarity: 'common', text: '+3 AGI' }) }).data.bonus, 9);
+    assert.equal(roll(12, 'normal', { what: 'agi', options: boots({ rarity: 'rare', text: '+9 AGI' }) }).data.bonus, 10);
 });
 
 test('the tone moves the difficulty: gritty one step harder, heroic one easier', () => {
