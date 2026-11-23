@@ -124,3 +124,9 @@ stamina are sets (`ctx.absolute`), so they land where they say after a middle de
 
 `node --test "examples/text-rpg/tests/*.test.js"`. They run on the testkit host (a whole Story Suite host on a fake
 SillyTavern), so nothing else is needed.
+
+## Writing your own module
+
+The step-by-step guide, with a 10-minute walk-through and every definition key (features and `replaces`, settings, Party tab queries,
+plug-in screens, testing, installing), is [`docs/dev/writing-a-module.md`](../../docs/dev/writing-a-module.md). Its rule-first version for
+coding assistants is the "Writing a plug-in module" part of [`AI-README.md`](../../AI-README.md). The first reference, a mini-game, is [Fishing](../fishing/README.md).
