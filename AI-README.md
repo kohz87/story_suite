@@ -368,7 +368,7 @@ Story Suite's files in the extension itself; take everything from `sdk`. The def
 - `commands: { 'mod.verb': (ctx, payload) => ({ summary, data?, narrate? }) }`, or `{ handler, internal?, prelude? }`; names are words joined by dots,
   never starting `capture.` or `module.`. Gate with `Object.assign(handler, { feature: 'mod.on' })`.
 - `queries: { 'mod.name': (state, args, tools) => value }`; `null` while the module or its feature is off. Properties: `feature`, `fallback: true`.
-- Host query `persona.portrait` → a safe URL of the reader's persona picture or `null` (a read of the live context, never stored); show a letter for `null`.
+- Host query `persona.name` → the reader's persona name (`""` with none); `persona.portrait` → a safe URL of the reader's persona picture or `null` (a read of the live context, never stored); show a letter for `null`.
 - `capture: { kinds: { kind: { grammar: 'one line', aliases?, heads?, display? } }, apply(ctx, line) }`; `line` is `{ op, kind, name, text, labels }`.
 - `context: { feature?, static(), tail(view) → { lines, optional }, budget }` (or `parts`). `view` has `state`, `query`, `feature`.
 - `hooks: { beforeGenerate(view, info) → { commands: [{ type, payload }] } | null, afterCapture, canGenerate, … }`: they ask for steps, never write.
@@ -400,7 +400,7 @@ Story Suite's files in the extension itself; take everything from `sdk`. The def
 (Fishing 20, Text RPG 600). Render compact text, never JSON.
 
 **Party tab.** `party.actors` → `[{ id, name, pc? }]` and `party.newCharacter` → a screen id or `null` and `party.pc` → `{ id }` of the reader's character or `null` are plain queries; `rpg.sheet` (rows) and `party.levels`
-(`[{ id, name, level, left }]`) are `fallback: true` because the built-in RPG owns them. A sheet row may carry `commands: { spend, skillEdit }` (command names). All answer `null`
+(`[{ id, name, level, left }]`) are `fallback: true` because the built-in RPG owns them. A sheet row may carry `commands: { spend, skillEdit, export }` (command names; `export` is the query the Export sheet asks). All answer `null`
 while the module is off. Replacing the RPG: a feature with `replaces: ['story-block.rpg']`; active = own feature on **and** the replaced one off (`examples/text-rpg/src/module-parts/active.js#active`).
 
 **Tests.** Use the testkit (`createHost({ modules: [def], settings: { features: { 'mod.on': true } } })`). Required: `definitionProblems(def)` is `[]` (`core/registry.js#definitionProblems`);

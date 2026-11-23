@@ -18,6 +18,12 @@ describe('selectParty sheet seams', () => {
     assert.deepEqual(checkShape(vm, PARTY_SHAPE).filter(e => /commands|newCharacterScreen/.test(e)), [], 'the new keys fit the contract (the other gaps are this sparse fixture\'s)');
   });
 
+  it('passes a row\'s export query name through the same way (a plain name only)', () => {
+    const vm = pick([{ id: 'a', commands: { export: 'textRpg.export', spend: 'textRpg.spend' } }, { id: 'b', commands: { export: 'bad name' } }]);
+    assert.deepEqual(vm.members[0].commands, { spend: 'textRpg.spend', export: 'textRpg.export' });
+    assert.equal('commands' in vm.members[1], false);
+  });
+
   it('drops non-strings, empty and over-long (> 80) names; nothing named leaves the keys absent', () => {
     const vm = pick([{ id: 'a', commands: { spend: 5, skillEdit: 'x'.repeat(81) } }, { id: 'b', commands: { spend: '' } }], 'y'.repeat(81));
     assert.equal('commands' in vm.members[0], false);

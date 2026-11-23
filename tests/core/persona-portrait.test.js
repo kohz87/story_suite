@@ -47,3 +47,13 @@ test('personaPortrait refuses a URL that could break out of a CSS url() and neve
     assert.equal(personaPortrait({ get user_avatar() { throw new Error('no'); } }), null);
     assert.equal(personaPortrait(null), null);
 });
+
+test('persona.name answers the reader\'s persona name, trimmed, and \'\' with none; it stores nothing', async t => {
+    const host = await fresh(t);
+    Object.assign(host.ctx, { name1: '  Astra Vale ' });
+    const before = JSON.stringify(host.store.head());
+    assert.equal(host.sdk.query('persona.name'), 'Astra Vale');
+    host.ctx.name1 = '';
+    assert.equal(host.sdk.query('persona.name'), '');
+    assert.equal(JSON.stringify(host.store.head()), before);
+});

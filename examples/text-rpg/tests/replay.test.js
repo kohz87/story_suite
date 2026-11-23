@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { astraOf, drawn, reply, slice, tries, withAstra } from './helpers/host.js';
+import { BUY, astraOf, drawn, reply, slice, tries, withAstra } from './helpers/host.js';
 import { practiceGain } from '../src/rules/growth.js';
 import { harmFor } from '../src/rules/harm.js';
 import { levelOf, pointsOf, woundsOf } from '../src/module-parts/standing.js';
@@ -201,15 +201,15 @@ test('level and points follow the xp that survives: deleting an early xp reply t
     const host = await withAstra();
     try {
         const rolled = ['? try Astra | Lore | normal', '+ xp Party — a deed | size: real'];
-        await host.send('One.', reply('First.', rolled));
+        await host.send('One.', reply('First.', ['? try Astra | Lore | hard', '+ xp Party — a deed | size: major']));
         const firstAt = host.ctx.chat.length - 1;
         await host.send('Two.', reply('Second.', rolled));
         await host.send('Three.', reply('Third.', rolled));
-        assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [60, 2, 1]);
+        assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [100, 2, 1]);
         await host.st.deleteMessage(firstAt + 1);
         await host.st.deleteMessage(firstAt);
         assert.deepEqual(host.store.problems(), []);
-        // 40 xp is below level 2 (50): a fresh telling of the two surviving replies reads the same.
+        // 40 xp is below level 2 (100): a fresh telling of the two surviving replies reads the same.
         assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [40, 1, 0]);
         const [row] = host.sdk.query('rpg.sheet');
         assert.deepEqual([row.level, row.points, host.sdk.query('party.levels')[0].level], [1, 0, 1], 'the rows the Party tab reads');
@@ -270,19 +270,19 @@ test('a stat bought with a level\'s point goes back with the level, and comes ba
     try {
         const at = host.ctx.chat.length;
         await host.send('One.', reply('First.', MAJOR));
-        await host.send('Two.', reply('Second.'));
+        await host.send('Two.', reply('Second.', MAJOR));
         assert.equal(levelOf(astraOf(host)), 2);
         assert.equal((await host.sdk.command('textRpg.spend', { member: 'Astra', stats: { str: 1 } })).ok, true);
-        assert.deepEqual([effectiveStats(astraOf(host)).str, pointsOf(astraOf(host)), poolOf(astraOf(host), 'sp').max], [10, 0, 28]);
+        assert.deepEqual([effectiveStats(astraOf(host)).str, pointsOf(astraOf(host)), poolOf(astraOf(host), 'sp').max], [8, 0, 24]);
 
         await dropReply(host, at);
         assert.deepEqual(host.store.problems(), []);
         const me = astraOf(host);
-        assert.deepEqual([levelOf(me), effectiveStats(me).str, me.stats.str, pointsOf(me), poolOf(me, 'mp').max], [1, 9, 9, 0, 26], 'level 1: the base stat, no points');
+        assert.deepEqual([levelOf(me), effectiveStats(me).str, me.stats.str, pointsOf(me), poolOf(me, 'mp').max], [1, 7, 7, 0, 22], 'level 1: the base stat, no points');
         assert.equal(Object.keys(me.bought).length, 1, 'the purchase is kept, waiting');
 
         await host.send('Three.', reply('Third.', MAJOR));
-        assert.deepEqual([levelOf(astraOf(host)), effectiveStats(astraOf(host)).str, pointsOf(astraOf(host))], [2, 10, 0], 'the level is back and so is the purchase');
+        assert.deepEqual([levelOf(astraOf(host)), effectiveStats(astraOf(host)).str, pointsOf(astraOf(host))], [2, 8, 0], 'the level is back and so is the purchase');
         const live = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), live, 'rebuild == live');
@@ -291,24 +291,24 @@ test('a stat bought with a level\'s point goes back with the level, and comes ba
     }
 });
 
-test('a skill learned into the level-3 slot is inactive without the level, refused in a try, and back with it', async t => {
+test('a skill learned into the level-10 slot is inactive without the level, refused in a try, and back with it', async t => {
     t.mock.method(console, 'warn', () => {});
-    const host = await withAstra();
+    const host = await withAstra(undefined, undefined, { level: 9, stats: { ...BUY, str: 15 } });
     try {
         const at = host.ctx.chat.length;
         await host.send('One.', reply('First.', MAJOR));
         await host.send('Two.', reply('Second.', MAJOR));
-        assert.equal(levelOf(astraOf(host)), 3);
+        assert.equal(levelOf(astraOf(host)), 10);
         for (const name of ['Tracking', 'Knots', 'Haggling', 'Cooking']) {
             const made = await host.sdk.command('textRpg.skillEdit', { member: 'Astra', name, stat: 'wis' });
-            assert.equal(made.ok, true, `${name} fits the slots of level 3`);
+            assert.equal(made.ok, true, `${name} fits the slots of level 10`);
         }
         const cooking = () => astraOf(host).skills.find(skill => skill.name === 'Cooking');
         assert.equal(skillActive(astraOf(host), cooking()), true);
 
         await dropReply(host, at);
         assert.deepEqual(host.store.problems(), []);
-        assert.equal(levelOf(astraOf(host)), 2);
+        assert.equal(levelOf(astraOf(host)), 9);
         assert.equal(astraOf(host).skills.length, 6, 'the skill is still listed');
         assert.deepEqual(astraOf(host).skills.filter(skill => !skillActive(astraOf(host), skill)).map(skill => skill.name), ['Cooking'], 'the latest learned is the one inactive');
         assert.equal(skillRows(astraOf(host)).find(row => row.name === 'Cooking').inactive, true);
@@ -317,7 +317,7 @@ test('a skill learned into the level-3 slot is inactive without the level, refus
         assert.equal(tries(host).length, before, 'an inactive skill cannot be used in a try');
 
         await host.send('Four.', reply('Fourth.', MAJOR));
-        assert.equal(levelOf(astraOf(host)), 3);
+        assert.equal(levelOf(astraOf(host)), 10);
         assert.equal(skillActive(astraOf(host), cooking()), true, 'back with the level');
         assert.deepEqual(host.store.problems(), []);
     } finally {

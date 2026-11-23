@@ -1,6 +1,6 @@
-// Where a member stands, read from the counters: level and stat points from xp and the counted purchases, health from the wound stage, and the stage a hurt adds.
+// Where a member stands, read from the counters: level and stat points from xp, the points creation granted and the counted purchases, health from the wound stage, and the stage a hurt adds.
 import { levelFor } from '../rules/growth.js';
-import { gainsAt } from '../rules/level-gains.js';
+import { earnedAt } from '../rules/level-gains.js';
 import { countedPurchases } from './purchases.js';
 
 const whole = value => (Number.isFinite(value) ? Math.trunc(value) : 0);
@@ -12,7 +12,7 @@ export function levelOf(member) {
 
 /** The stat points left to spend: those the level has earned, less the purchases it pays for (never below 0). */
 export function pointsOf(member) {
-    const earned = gainsAt(1, levelOf(member)).points;
+    const earned = earnedAt(levelOf(member), member?.granted);
     return Math.max(0, earned - countedPurchases(member, earned).reduce((sum, item) => sum + item.n, 0));
 }
 

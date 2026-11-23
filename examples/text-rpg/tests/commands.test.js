@@ -11,13 +11,13 @@ import { effectiveStats, poolOf } from '../src/module-parts/effective.js';
 import { levelOf, pointsOf } from '../src/module-parts/standing.js';
 import { astra, fakeCtx, run, sliceOf } from './helpers/fake-ctx.js';
 
-const BUY = { STR: 9, vit: 9, agi: 9, dex: 9, int: 8, wis: 8, cha: 8 };
+const BUY = { STR: 7, vit: 6, agi: 7, dex: 7, int: 6, wis: 6, cha: 6 };
 
 test('textRpg.create: a point-buy character who is the reader, with up to five skills', () => {
     const slice = sliceOf([], null);
     const done = run(create, fakeCtx(slice), { name: ' Astra  Vale ', stats: BUY, skills: [{ name: 'Obscure', stat: 'AGI', about: 'shadow', cost: { pool: 'sp', n: 2 } }] });
     const me = slice.members[done.result.data.member];
-    assert.deepEqual([me.name, me.pc, levelOf(me), me.stats.str, me.wounds, me.skills[0].stat], ['Astra Vale', true, 1, 9, 0, 'agi']);
+    assert.deepEqual([me.name, me.pc, levelOf(me), me.stats.str, me.wounds, me.skills[0].stat], ['Astra Vale', true, 1, 7, 0, 'agi']);
     assert.deepEqual(validate(slice), []);
 });
 
@@ -44,7 +44,7 @@ test('textRpg.create when the reader\'s character has fallen: the new one is the
 });
 
 test('textRpg.spend takes stat points as the Party tab sends them and grows the pools', () => {
-    const slice = sliceOf([astra({ xp: 150 })]);
+    const slice = sliceOf([astra({ xp: 200 })]);
     const me = slice.members.ac_astra001;
     assert.equal(pointsOf(me), 2, 'level 3 has earned two');
     const done = run(spend, fakeCtx(slice), { member: 'ac_astra001', stats: { STR: 1, INT: 1 } });
@@ -53,19 +53,19 @@ test('textRpg.spend takes stat points as the Party tab sends them and grows the 
     assert.deepEqual([me.stats.str, str, int, pointsOf(me), poolOf(me, 'mp').max, poolOf(me, 'mp').now], [12, 13, 13, 0, 35, 35]);
     assert.deepEqual(Object.values(me.bought).map(({ stat, n }) => [stat, n]), [['str', 1], ['int', 1]]);
     assert.deepEqual(validate(slice), []);
-    const tired = sliceOf([astra({ xp: 50 })]);
+    const tired = sliceOf([astra({ xp: 100 })]);
     tired.members.ac_astra001.pools.sp.now = 20;
     run(spend, fakeCtx(tired), { member: 'Astra', stats: { dex: 1 } });
     assert.equal(tired.members.ac_astra001.pools.sp.now, 21, 'a bigger pool is bigger by the same points, never refilled');
 });
 
 test('textRpg.spend refuses more than the member has, a stat past 30, nothing and a stranger', () => {
-    const refuse = (payload, member = astra({ xp: 150 })) => run(spend, fakeCtx(sliceOf([member])), payload).code;
+    const refuse = (payload, member = astra({ xp: 200 })) => run(spend, fakeCtx(sliceOf([member])), payload).code;
     assert.equal(refuse({ member: 'Astra', stats: { str: 3 } }), 'NOT_ENOUGH');
     assert.equal(refuse({ member: 'Astra', stats: { str: 0 } }), 'INVALID');
     assert.equal(refuse({ member: 'Astra', stats: { luck: 1 } }), 'INVALID');
     assert.equal(refuse({ member: 'Zed', stats: { str: 1 } }), 'NOT_FOUND');
-    const top = astra({ xp: 150 });
+    const top = astra({ xp: 200 });
     top.stats.str = 30;
     assert.equal(refuse({ member: 'Astra', stats: { str: 1 } }, top), 'INVALID');
 });
@@ -131,4 +131,28 @@ test('the dice record keeps the optional used, hardest and threat, and refuses b
     for (const bad of [{ used: 4 }, { hardest: 5 }, { threat: 6 }, { extra: 1 }]) {
         assert.ok(validate(sliceOf([astra()], { list: [1, 2, 3], floor: 0, ...bad })).length > 0, JSON.stringify(bad));
     }
+});
+
+test('textRpg.create takes a starting level (its xp, its points placed as `granted`, skills to its slots) and a saved character (stats to 15, up to 8 skills, ranks as practice)', () => {
+    const slice = () => sliceOf([], null);
+    const six = Array.from({ length: 6 }, (_, at) => ({ name: `S${at}`, stat: 'str', rank: at }));
+    const refuse = (payload, ctx = fakeCtx(slice())) => run(create, ctx, { name: 'A', ...payload }).code;
+    // level 11: 45 + 10 points, a stat up to 20, six skills (5 + one at level 10)
+    const leveled = slice();
+    const done = run(create, fakeCtx(leveled), { name: 'Ren', level: 11, stats: { ...BUY, STR: 17 }, skills: six });
+    const ren = leveled.members[done.result.data.member];
+    assert.deepEqual([ren.xp, levelOf(ren), ren.granted, pointsOf(ren), ren.stats.str, ren.skills.length, ren.practice], [1000, 11, 10, 0, 17, 6, {}], 'a rank counts only for a saved character');
+    assert.deepEqual(validate(leveled), []);
+    assert.equal(refuse({ level: 11, stats: BUY }), 'INVALID', 'the level\'s 10 points are not placed');
+    assert.equal(refuse({ level: 1, stats: BUY, skills: six }), 'INVALID', 'six skills at level 1');
+    assert.equal(refuse({ level: 0, stats: BUY }), 'INVALID');
+    assert.equal(refuse({ level: 100, stats: BUY }), 'INVALID');
+    // a saved character: its own stats up to 15 and any total, up to 8 skills, ranks as practice, nothing granted to spend
+    const saved = slice();
+    const kept = run(create, fakeCtx(saved), { name: 'Ren', level: 5, imported: true, stats: { str: 15, vit: 12, agi: 9, dex: 5, int: 5, wis: 8, cha: 7 }, skills: [...six, { name: 'T6', stat: 'int' }, { name: 'T7', stat: 'int' }] });
+    const old = saved.members[kept.result.data.member];
+    assert.deepEqual([old.skills.length, old.practice.s2, old.practice.s5, old.practice.s0, pointsOf(old), old.stats.str], [8, 200, 500, undefined, 0, 15]);
+    assert.deepEqual(validate(saved), []);
+    assert.equal(refuse({ imported: true, stats: { ...BUY, STR: 16 } }), 'INVALID', 'a saved stat is held to 15');
+    assert.equal(refuse({ imported: true, stats: BUY, skills: Array.from({ length: 9 }, (_, at) => ({ name: `S${at}`, stat: 'str' })) }), 'INVALID', 'nine skills');
 });

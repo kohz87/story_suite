@@ -20,14 +20,16 @@ const many = (extra = {}, count = 18) => {
     return member;
 };
 
-test('skill slots are 5 and one every third level, to 38 at level 99, and the record holds that many', () => {
-    for (const [level, slots] of [[1, 5], [3, 6], [21, 12], [60, 25], [99, 38]]) assert.equal(skillSlots(level), slots, `level ${level}`);
+test('skill slots are 5 and one every tenth level, 8 from level 30, and the record holds that many', () => {
+    for (const [level, slots] of [[1, 5], [9, 5], [10, 6], [20, 7], [30, 8], [99, 8]]) assert.equal(skillSlots(level), slots, `level ${level}`);
     assert.equal(LIMITS.skills, skillSlots(LIMITS.levelMax));
 });
 
 test('a member with 20 skills lists the 8 most practised and a skill the last message names; the sheet row lists all', () => {
     const me = many();
     me.skills.length = 20;
+    // (a fixture past the record's limit of 8 skills: none is learned, so all 20 count and the list has more to choose from than its 8)
+    for (const skill of me.skills) delete skill.learned;
     me.xp = 100000;
     me.practice.crafte = 50;
     const listed = listedSkills(me, '').map(skill => skill.name);

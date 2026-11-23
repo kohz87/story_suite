@@ -1,8 +1,9 @@
 // Adapted from ui/wizard/skills.js (keep in step when that file changes). The wizard's Skills step for Text RPG: one stacked card of fields per skill (name, what it does, stat, type, what it
-// costs) and "+ Add a skill", up to five. There are no starting sets, ranks or stances here.
+// costs) and "+ Add a skill", up to the slots of the level (5 at the start, one more every tenth level, 8 at most). There are no starting sets or stances here.
 import { h } from '../kit/dom.js';
 import { button } from '../kit/controls.js';
 import { STAT_KEYS } from '../words/stats.js';
+import { skillLimit } from './limits.js';
 import { COST_POOLS, RULES, SKILL_TYPES } from './rules.js';
 import { W, fill } from './words.js';
 
@@ -40,9 +41,9 @@ function skillCard(ctx, skill, at) {
 /** Draws the Skills step for the wizard session `ctx` ({ run, put, summary, redraw }). */
 export function drawSkills(ctx) {
   const { run } = ctx;
-  const left = RULES.skills - run.draft.skills.length;
+  const max = skillLimit(run.draft), left = max - run.draft.skills.length;
   return h('div', { class: 'wz-skills' },
-    h('p', { class: 'ps-p' }, fill(W.skillsIntro, { max: RULES.skills })),
+    h('p', { class: 'ps-p' }, fill(W.skillsIntro, { max })),
     h('div', { class: 'ps-sec' }, W.yourSkills),
     run.draft.skills.length ? h('div', { class: 'wz-cards' }, run.draft.skills.map((skill, at) => skillCard(ctx, skill, at))) : null,
     h('div', { class: 'wz-add' },

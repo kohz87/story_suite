@@ -1,4 +1,5 @@
 // Practice, experience awards and the experience needed for each level.
+import { LEVEL } from './levels.js';
 
 function finite(value, fallback) {
     return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -43,10 +44,9 @@ export function xpFor(size, threat, hardestIndex) {
     return Math.round(XP_SIZES[paidSize] * THREAT_MULTIPLIERS[threatLevel]);
 }
 
-/** The level reached at a total experience, and the total needed for the next level (null at 99). */
+/** The level reached at a total experience (100 xp a level, as the RPG's), and the total needed for the next level (null at 99). */
 export function levelFor(xp) {
-    const total = Math.max(0, finite(xp, 0));
-    let level = 1;
-    while (level < 99 && total >= 25 * level * (level + 1)) level += 1;
-    return { level, next: level < 99 ? 25 * level * (level + 1) : null };
+    const total = Math.min(LEVEL.xpMax, Math.max(0, finite(xp, 0)));
+    const level = Math.min(LEVEL.max, 1 + Math.floor(total / LEVEL.xpPerLevel));
+    return { level, next: level < LEVEL.max ? level * LEVEL.xpPerLevel : null };
 }

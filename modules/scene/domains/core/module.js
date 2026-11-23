@@ -104,6 +104,8 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
                 return world ? [] : sceneChatter(state?.domains?.scene?.present, headChatter(extras?.sceneChat?.(), extras?.display));
             }, { feature: CORE_FEATURE.chatter }),
             // The reader's persona picture as a safe URL, or null (core/persona-portrait.js); a query only, never stored.
+            // The reader's persona name (the live context's name1, trimmed), or '': the name a New character wizard starts with.
+            'persona.name': () => { try { return String(extras?.persona?.() ?? '').trim(); } catch { return ''; } },
             'persona.portrait': () => { try { return extras?.portrait?.() ?? null; } catch { return null; } },
             'scene.moved': (_state, _args, tools) => headMoved(tools, extras?.headIndex),
             // One reply's changes from its receipts, for the reply menu and the inline row (null when it has none).

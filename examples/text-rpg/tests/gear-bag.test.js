@@ -1,7 +1,7 @@
 // The Bag with Text RPG: party.pc names the reader's character, so the shared bag is theirs and a worn piece counts on their sheet.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { astraOf, newHost, reply, sent, withAstra } from './helpers/host.js';
+import { BUY, astraOf, newHost, reply, sent, withAstra } from './helpers/host.js';
 
 test('party.pc is the reader\'s character, null with none or with Text RPG off', async t => {
     t.mock.method(console, 'warn', () => {});
@@ -16,7 +16,7 @@ test('party.pc is the reader\'s character, null with none or with Text RPG off',
 
 test('boots worn by the Text RPG character lift the sheet and the shared bag is theirs', async t => {
     t.mock.method(console, 'warn', () => {});
-    const host = await withAstra({ 'story-block.gear': true });
+    const host = await withAstra({ 'story-block.gear': true }, undefined, { stats: { ...BUY, agi: 9, dex: 5 } });
     t.after(() => host.close());
     await host.send('Hello.', 'The road.');
     const word = async text => { await host.send(text, 'The road goes on.'); return /Astra \(Level 1\) — .*?AGI (\w+)/.exec(sent(host, 'story_suite_tail_1').at(-1))?.[1]; };

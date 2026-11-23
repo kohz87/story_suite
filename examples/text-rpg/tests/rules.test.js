@@ -5,6 +5,7 @@ import { statMod, rollBonus, verdict } from '../src/rules/roll.js';
 import { HARM_STAGES, poolMax, harmFor, dropStages } from '../src/rules/harm.js';
 import { practiceGain, XP_SIZES, xpFor, levelFor } from '../src/rules/growth.js';
 import { gainsAt } from '../src/rules/level-gains.js';
+import { scaleXp, xpOfLevel } from '../src/rules/levels.js';
 import { INJURY_DAYS, healDays, gearCap, effectiveStat } from '../src/rules/healing.js';
 
 function stageOf(hp, max) {
@@ -181,29 +182,34 @@ test('experience sizes and the reply guard are exact', () => {
     assert.equal(xpFor('real', 0, 4), 0);
 });
 
-test('levels use cumulative steps of 50 times the level and cap at 99', () => {
-    assert.deepEqual(levelFor(0), { level: 1, next: 50 });
-    assert.deepEqual(levelFor(49), { level: 1, next: 50 });
-    assert.deepEqual(levelFor(50), { level: 2, next: 150 });
-    assert.deepEqual(levelFor(149), { level: 2, next: 150 });
-    assert.deepEqual(levelFor(150), { level: 3, next: 300 });
-    assert.deepEqual(levelFor(300), { level: 4, next: 500 });
-    assert.deepEqual(levelFor(242549), { level: 98, next: 242550 });
-    assert.deepEqual(levelFor(242550), { level: 99, next: null });
+test('levels are 100 xp each as the RPG\'s, to 99, the xp held to 9999', () => {
+    assert.deepEqual(levelFor(0), { level: 1, next: 100 });
+    assert.deepEqual(levelFor(99), { level: 1, next: 100 });
+    assert.deepEqual(levelFor(100), { level: 2, next: 200 });
+    assert.deepEqual(levelFor(199), { level: 2, next: 200 });
+    assert.deepEqual(levelFor(200), { level: 3, next: 300 });
+    assert.deepEqual(levelFor(9799), { level: 98, next: 9800 });
+    assert.deepEqual(levelFor(9800), { level: 99, next: null });
     assert.deepEqual(levelFor(Number.MAX_SAFE_INTEGER), { level: 99, next: null });
-    assert.deepEqual(levelFor(-100), { level: 1, next: 50 });
-    assert.deepEqual(levelFor('lots'), { level: 1, next: 50 });
+    assert.deepEqual(levelFor(-100), { level: 1, next: 100 });
+    assert.deepEqual(levelFor('lots'), { level: 1, next: 100 });
+    assert.deepEqual([xpOfLevel(1), xpOfLevel(2), xpOfLevel(99), xpOfLevel(500), xpOfLevel('x')], [0, 100, 9800, 9800, 0]);
 });
 
-test('level gains count points and every third level crossed', () => {
+test('level gains count a point a level and a skill slot every tenth level crossed', () => {
     assert.deepEqual(gainsAt(1, 1), { points: 0, slots: 0 });
     assert.deepEqual(gainsAt(1, 2), { points: 1, slots: 0 });
-    assert.deepEqual(gainsAt(1, 3), { points: 2, slots: 1 });
-    assert.deepEqual(gainsAt(2, 6), { points: 4, slots: 2 });
-    assert.deepEqual(gainsAt(3, 6), { points: 3, slots: 1 });
+    assert.deepEqual(gainsAt(1, 10), { points: 9, slots: 1 });
+    assert.deepEqual(gainsAt(2, 21), { points: 19, slots: 2 });
+    assert.deepEqual(gainsAt(10, 19), { points: 9, slots: 0 });
     assert.deepEqual(gainsAt(6, 3), { points: 0, slots: 0 });
-    assert.deepEqual(gainsAt(0, 3), { points: 2, slots: 1 });
+    assert.deepEqual(gainsAt(0, 10), { points: 9, slots: 1 });
     assert.deepEqual(gainsAt('one', 'three'), { points: 0, slots: 0 });
+});
+
+test('the XP rate scales a gain down to the step, at least 1 for a gain of 1 or more, and an odd rate is 100', () => {
+    assert.deepEqual([50, 100, 150, 300].map(rate => scaleXp(20, rate)), [10, 20, 30, 60]);
+    assert.deepEqual([scaleXp(1, 50), scaleXp(5, 50), scaleXp(0, 300), scaleXp(20, 60), scaleXp(20, undefined), scaleXp('x', 200)], [1, 2, 0, 20, 20, 0]);
 });
 
 test('rest raises health one stage for each full day', () => {

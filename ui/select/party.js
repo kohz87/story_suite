@@ -47,11 +47,11 @@ function carriersOf(views) {
 // inventory.gear statBonus ({ STR: 1, VIT: 2 }) → only the stats a worn piece raises ({} for none).
 const bonusOf = raw => Object.fromEntries(Object.entries(isRecord(raw) ? raw : {}).filter(([, n]) => Number.isSafeInteger(n) && n > 0));
 
-// A sheet row's own command names (`spend`, `skillEdit`): short strings only, else absent (the Party tab then sends the RPG's).
+// A sheet row's own command names (`spend`, `skillEdit`, `export`): short strings only, else absent (the Party tab then sends the RPG's; `export` is the query that answers the Export, `rpg.characterFile` when absent).
 const COMMAND_NAME = /^[A-Za-z][\w.-]{0,79}$/;
 function commandsOf(raw) {
   const out = {};
-  for (const key of ['spend', 'skillEdit']) if (isRecord(raw) && typeof raw[key] === 'string' && COMMAND_NAME.test(raw[key])) out[key] = raw[key];
+  for (const key of ['spend', 'skillEdit', 'export']) if (isRecord(raw) && typeof raw[key] === 'string' && COMMAND_NAME.test(raw[key])) out[key] = raw[key];
   return Object.keys(out).length ? out : null;
 }
 

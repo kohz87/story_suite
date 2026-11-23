@@ -263,7 +263,7 @@ a spend of points). The full list is `docs/v2/SPEC.md` §3.2.
 A function `(state, args, tools)`. Return `null` when the module or its feature is off. A query may be a function with properties:
 `Object.assign(fn, { feature: 'camp.on', fallback: true })` (see section 7 for `fallback`).
 
-The host answers some queries for any module. `persona.portrait` → a safe URL (`/User%20Avatars/<file>`) of the reader's persona picture, or `null` when there is none or its URL is not safe in a CSS `url("...")`; draw it with `--wz-pic` and keep a letter for `null` (`examples/text-rpg/src/wizard/summary.js`). It reads SillyTavern's live context and is stored nowhere, so a replay does not meet it.
+The host answers some queries for any module. `persona.name` → the reader's persona name (a string, `''` with none), the name a New character wizard starts with. `persona.portrait` → a safe URL (`/User%20Avatars/<file>`) of the reader's persona picture, or `null` when there is none or its URL is not safe in a CSS `url("...")`; draw it with `--wz-pic` and keep a letter for `null` (`examples/text-rpg/src/wizard/summary.js`). It reads SillyTavern's live context and is stored nowhere, so a replay does not meet it.
 
 ### `capture`
 
@@ -401,8 +401,8 @@ queries: {
 }
 ```
 
-A sheet row may carry its own **row commands**: `commands: { spend: 'my.spend', skillEdit: 'my.skillEdit' }`. The Party tab then sends your commands
-for spending points and editing skills, not the RPG's (`examples/text-rpg/src/module-parts/sheet-row.js`). Names are short strings of letters, digits, `.` and `-`.
+A sheet row may carry its own **row commands**: `commands: { spend: 'my.spend', skillEdit: 'my.skillEdit', export: 'my.export' }`. The Party tab then sends your commands
+for spending points and editing skills, not the RPG's (`examples/text-rpg/src/module-parts/sheet-row.js`); `export` names a *query* `{ id, inventory?, money? }` → `{ ok, name, fileName, text, own, level, points, items, money }` that the Export sheet asks instead of the RPG's `rpg.characterFile` (a file in the RPG's character file shape, so the New character wizards read each other's). Names are short strings of letters, digits, `.` and `-`.
 
 ## 8. Opening a screen in the view's sheet
 

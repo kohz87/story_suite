@@ -2,7 +2,7 @@
 import { createHost } from '../../../../testkit/index.js';
 import { textRpgModule } from '../../src/module.js';
 
-export const BUY = { str: 9, vit: 9, agi: 9, dex: 9, int: 8, wis: 8, cha: 8 };
+export const BUY = { str: 7, vit: 6, agi: 7, dex: 7, int: 6, wis: 6, cha: 6 };
 export const SKILLS = [
     { name: 'Obscure', about: 'melts into shadow', stat: 'agi', type: 'movement', cost: { pool: 'sp', n: 2 } },
     { name: 'Lore', about: 'old stories', stat: 'int', type: 'utility' },
@@ -20,10 +20,10 @@ export async function newHost(features = {}, settings = {}) {
     return host;
 }
 
-/** A host with Astra made through the command. */
-export async function withAstra(features, settings) {
+/** A host with Astra made through the command (`extra`: more of the create payload, a `level`). */
+export async function withAstra(features, settings, extra = {}) {
     const host = await newHost(features, settings);
-    const made = await host.sdk.command('textRpg.create', { name: 'Astra', stats: BUY, skills: SKILLS });
+    const made = await host.sdk.command('textRpg.create', { name: 'Astra', stats: BUY, skills: SKILLS, ...extra });
     if (!made.ok) throw new Error(made.message);
     return host;
 }

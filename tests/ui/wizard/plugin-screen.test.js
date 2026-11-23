@@ -47,6 +47,8 @@ test('opening the screen draws the widget in a titled sheet; Create makes the ch
   const click = selector => sheet.querySelector(selector).dispatchEvent(new globalThis.Event('click'));
   type(sheet, 'name', 'Astra');
   click('[data-wiz="next"]');
+  // (every stat starts at 5: the 10 points are placed before Create is open)
+  for (let at = 0; at < 5; at += 1) { click('[data-plus="str"]'); click('[data-plus="vit"]'); }
   click('[data-wiz="next"]');
   click('[data-wiz="next"]');
   click('[data-wiz="create"]');

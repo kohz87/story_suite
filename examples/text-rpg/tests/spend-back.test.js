@@ -28,9 +28,9 @@ test('a purchase that does not fit waits, and a later smaller one still counts: 
 
         await dropReply(host, at);
         const me = () => astraOf(host);
-        assert.deepEqual([levelOf(me()), effectiveStats(me()).str, effectiveStats(me()).int, pointsOf(me())], [3, 10, 8, 1], 'the first counts, the second waits, one point is free');
+        assert.deepEqual([levelOf(me()), effectiveStats(me()).str, effectiveStats(me()).int, pointsOf(me())], [3, 8, 6, 1], 'the first counts, the second waits, one point is free');
         assert.equal((await spend({ dex: 1 })).ok, true);
-        assert.deepEqual([effectiveStats(me()).dex, pointsOf(me())], [10, 0], 'the later, smaller purchase counts and the point is spent');
+        assert.deepEqual([effectiveStats(me()).dex, pointsOf(me())], [8, 0], 'the later, smaller purchase counts and the point is spent');
         const live = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), live, 'rebuild == live');
