@@ -43,7 +43,7 @@ test('off means off: no static text, no grammar, no tail, no answers, a quiet Pr
         await plain.send('Hello.', reply('A gate.'));
         for (const key of [STATIC, TAIL]) assert.deepEqual(sent(off, key), sent(plain, key), `${key}: byte for byte as without the module`);
         assert.doesNotMatch(sent(off, STATIC).at(-1), /Text RPG|\? try|\+ xp/);
-        for (const name of ['rpg.sheet', 'party.levels', 'party.actors', 'textRpg.view', 'textRpg.dice']) assert.equal(off.sdk.query(name), null, name);
+        for (const name of ['rpg.sheet', 'party.levels', 'party.actors', 'party.pc', 'textRpg.view', 'textRpg.dice']) assert.equal(off.sdk.query(name), null, name);
         assert.equal(drawn(off), null, 'no dice are drawn');
         assert.deepEqual(off.turn.problems().filter(problem => problem.module === 'text-rpg').map(problem => [problem.code, problem.quiet]), [['FEATURE_OFF', true], ['FEATURE_OFF', true]]);
     } finally {
