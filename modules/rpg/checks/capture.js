@@ -52,5 +52,6 @@ export function applyCheck(ctx, line) {
 }
 
 // The line is left out while Story Block's RPG is on and no fight module (rpg_battle) runs: the RPG's planner asks for the checks then.
+// It is also left out while a plug-in sheet module's `text-rpg.on` is on (env.textRpg, never with the RPG on): one dice system.
 // With rpg_battle present it is taught as it always was. The head is fixed, so a stray check line is taken either way.
-export const kind = { grammar: env => (env?.rpg === true && env?.fights !== true ? '' : GRAMMAR), heads: ['? check'], apply: applyCheck };
+export const kind = { grammar: env => ((env?.rpg === true && env?.fights !== true) || env?.textRpg === true ? '' : GRAMMAR), heads: ['? check'], apply: applyCheck };

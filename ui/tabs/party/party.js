@@ -32,8 +32,8 @@ function memberButton(member, active, onPick) {
 
 // "Create your character" (nobody yet) or "+ New character" (a party without You): shown while the story has no You (the view-model's
 // `newCharacter`); it opens the New character window through the port (ui/wizard answers it). The old Party tab's words.
-function newButton(first, ctx) {
-  return h('button', { type: 'button', class: 'inv', dataset: { act: 'new-character' }, onClick: () => ctx.port?.open?.('story-block/new-character', null) },
+function newButton(first, ctx, screen) {
+  return h('button', { type: 'button', class: 'inv', dataset: { act: 'new-character' }, onClick: () => ctx.port?.open?.(screen || 'story-block/new-character', null) },
     first ? 'Create your character' : '+ New character');
 }
 
@@ -44,7 +44,7 @@ export function partyTab(party, ctx = {}) {
   const showInvite = Boolean(party?.canInvite) && members.length < (party?.max ?? 4) && can(ctx, 'party.invite');
   // (`characters`: the story's characters when the roster does not list them, Gear in fights off)
   const first = !members.length && !(party?.characters > 0);
-  const create = party?.newCharacter === true ? newButton(first, ctx) : null;
+  const create = party?.newCharacter === true ? newButton(first, ctx, typeof party.newCharacterScreen === 'string' ? party.newCharacterScreen : '') : null;
   if (!members.length && !showInvite && !create) return h('div', rootAttrs);
   const strip = h('div', { class: 'mem' });
   const invite = showInvite
