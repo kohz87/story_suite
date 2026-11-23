@@ -273,12 +273,12 @@ test('a stat bought with a level\'s point goes back with the level, and comes ba
         await host.send('Two.', reply('Second.', MAJOR));
         assert.equal(levelOf(astraOf(host)), 2);
         assert.equal((await host.sdk.command('textRpg.spend', { member: 'Astra', stats: { str: 1 } })).ok, true);
-        assert.deepEqual([effectiveStats(astraOf(host)).str, pointsOf(astraOf(host)), poolOf(astraOf(host), 'sp').max], [8, 0, 24]);
+        assert.deepEqual([effectiveStats(astraOf(host)).str, pointsOf(astraOf(host)), poolOf(astraOf(host), 'sp').max], [8, 0, 11]);
 
         await dropReply(host, at);
         assert.deepEqual(host.store.problems(), []);
         const me = astraOf(host);
-        assert.deepEqual([levelOf(me), effectiveStats(me).str, me.stats.str, pointsOf(me), poolOf(me, 'mp').max], [1, 7, 7, 0, 22], 'level 1: the base stat, no points');
+        assert.deepEqual([levelOf(me), effectiveStats(me).str, me.stats.str, pointsOf(me), poolOf(me, 'mp').max], [1, 7, 7, 0, 11], 'level 1: the base stat, no points');
         assert.equal(Object.keys(me.bought).length, 1, 'the purchase is kept, waiting');
 
         await host.send('Three.', reply('Third.', MAJOR));

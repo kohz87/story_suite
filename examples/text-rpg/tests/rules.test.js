@@ -100,13 +100,18 @@ test('verdict bands use margins, with natural 1 and 20 overriding the margin', (
 test('harm bands and pool sizes are fixed', () => {
     assert.deepEqual(HARM_STAGES, { great: 0, success: 0, cost: 1, failure: 1, bad: 2 });
     assert.equal(Object.isFrozen(HARM_STAGES), true);
-    assert.equal(poolMax('hp', { str: 10, vit: 8 }), 28);
-    assert.equal(poolMax('mp', { int: 12, wis: 9 }), 31);
-    assert.equal(poolMax('sp', { agi: 7, dex: 6 }), 23);
-    assert.equal(poolMax('hp', { str: 10 }), 25);
-    assert.equal(poolMax('HP', { STR: 99, VIT: 0 }), 41);
+    assert.equal(poolMax('hp', { str: 10, vit: 8 }), 0, 'health is the five wound stages, not a pool');
     assert.equal(poolMax('luck', { str: 20, vit: 20 }), 0);
-    assert.equal(poolMax('hp', null), 20);
+});
+
+test('Mana and Stamina follow the RPG: 8 + level÷4 + (two stats)÷4, stats 1..30, level 1..99', () => {
+    const table = [
+        ['mp', { int: 5, wis: 5 }, 1, 10], ['mp', { int: 12, wis: 9 }, 1, 13], ['mp', { int: 6, wis: 6 }, 1, 11], ['mp', { int: 12, wis: 12 }, 4, 15],
+        ['sp', { agi: 7, dex: 6 }, 3, 11], ['sp', { agi: 7, dex: 6 }, 4, 12], ['sp', { agi: 30, dex: 30 }, 99, 47], ['SP', { AGI: 99, DEX: 0 }, 1, 15],
+        ['mp', { int: 1, wis: 1 }, 1, 8], ['mp', null, 1, 10], ['sp', { agi: 5, dex: 5 }, 0, 10], ['sp', { agi: 5, dex: 5 }, 500, 34],
+    ];
+    for (const [kind, stats, level, size] of table) assert.equal(poolMax(kind, stats, level), size, `${kind} ${JSON.stringify(stats)} Lv ${level}`);
+    assert.equal(poolMax('mp', { int: 5, wis: 5 }), 10, 'no level is level 1');
 });
 
 test('harm depends on the band and whether the roll was in danger', () => {

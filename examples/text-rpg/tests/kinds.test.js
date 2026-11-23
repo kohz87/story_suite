@@ -113,7 +113,7 @@ test('~ spend takes the skill\'s cost, refuses without it, and a Down character 
     const ctx = fakeCtx(slice);
     const me = slice.members.ac_astra001;
     run(applySpend, ctx, line('spend', 'Astra', 'Obscure'));
-    assert.equal(me.pools.sp.now, 32);
+    assert.equal(me.pools.sp.now, 12);
     me.pools.sp.now = 1;
     assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Obscure')).code, 'NOT_ENOUGH');
     assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Dancing')).code, 'NOT_FOUND');

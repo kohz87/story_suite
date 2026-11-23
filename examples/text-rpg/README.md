@@ -38,6 +38,9 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 - **The sheet.** Each reply the narrator is told, in words only, what each character can do
   ("Astra (Level 3) — STR very strong · AGI fast · Skills: Obscure (Adept): melts into shadow · Health: Hurt ·
   Mana: Steady · Stamina: Fresh (4 Obscure left)"). Numbers stay in the sheet and the Party tab.
+- **Mana and Stamina.** Sized by the RPG's formulas: MP = 8 + level÷4 + (INT+WIS)÷4 and SP = 8 + level÷4 + (AGI+DEX)÷4, each term
+  rounded down, from the stats with the points spent (stats 1..30, level 1..99). A level-up raises the size, a roll-back lowers it;
+  what is left is a counter, read no higher than the size. Health is the five wound stages. A new level-1 character has 10 to 12.
 - **Dice.** Before each reply the code draws three d20 from the reply's seed. At the moments that decide an
   outcome the narrator writes `? try Who | skill or stat | difficulty`; the code reads the verdict from the
   next die, the bonus (stat, gear, rank, level) and the difficulty, and the narrator tells that result.
@@ -46,7 +49,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   short or a natural 1: a bad failure. A natural 20: more than was asked. In danger a failure adds one wound
   stage and a bad failure two (never past Badly wounded from one line); a costed skill spends MP or SP first.
   A success at a cost always costs: in danger one wound stage, out of danger the costed skill's cost again, else
-  a step of stamina (a quarter of the pool). The receipt's `data.paid` says which (`wound`, `skill`, `stamina`).
+  a step of stamina (a quarter of the pool, rounded up). The receipt's `data.paid` says which (`wound`, `skill`, `stamina`).
   A companion has no sheet, so nothing is paid from one.
 - **Gear.** With the inventory's gear switched on, a try in danger wears what the roll used, by the inventory's own
   `gear.wear` and recorded with the reply (so a swipe, a Re-read or a deleted reply gives the same condition): a bad

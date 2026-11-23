@@ -1,4 +1,5 @@
 // Defines the text RPG domain's limits, empty state and member record builder.
+import { poolMax } from '../rules/harm.js';
 import { memberId } from './member-id.js';
 
 /** The registered domain name. */
@@ -66,8 +67,8 @@ export function newMember(input) {
     const stats = {};
     for (const key of STAT_KEYS) stats[key] = clampStat(suppliedStats[key]);
 
-    const mp = 10 + stats.int + stats.wis;
-    const sp = 10 + stats.agi + stats.dex;
+    const mp = poolMax('mp', stats);
+    const sp = poolMax('sp', stats);
     const suppliedSkills = Array.isArray(source.skills)
         ? source.skills.filter(skill => record(skill) === skill).slice(0, LIMITS.skills)
         : [];

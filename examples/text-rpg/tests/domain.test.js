@@ -81,8 +81,8 @@ test('a new member fills every field, clamps stats and derives its pools', () =>
     assert.equal(Object.hasOwn(member, 'level') || Object.hasOwn(member, 'points'), false, 'level and points are derived, never stored');
     assert.deepEqual(member.stats, { str: 1, vit: 8, agi: 30, dex: 10, int: 5, wis: 9, cha: 5 });
     assert.deepEqual(member.pools, {
-        mp: { now: 24, max: 24 },
-        sp: { now: 50, max: 50 },
+        mp: { now: 11, max: 11 },
+        sp: { now: 18, max: 18 },
     });
     assert.deepEqual(member.skills[0], skill());
     assert.deepEqual(member.skills[1], {
@@ -138,7 +138,7 @@ test('validation names the path of every kind of damaged member field', () => {
         ['wounds', (slice, member) => { member.wounds = 1.5; }, 'members.astra.wounds'],
         ['stat value', (slice, member) => { member.stats.agi = 31; }, 'members.astra.stats.agi'],
         ['unknown stat', (slice, member) => { member.stats.luck = 5; }, 'members.astra.stats.luck'],
-        ['pool max', (slice, member) => { member.pools.mp.max += 1; }, 'members.astra.pools.mp.max'],
+        ['pool max', (slice, member) => { member.pools.mp.max = 71; }, 'members.astra.pools.mp.max'],
         ['pool now', (slice, member) => { member.pools.sp.now = -1; }, 'members.astra.pools.sp.now'],
         ['skill stat', (slice, member) => { member.skills[0].stat = 'luck'; }, 'members.astra.skills.0.stat'],
         ['skill type', (slice, member) => { member.skills[0].type = 'song'; }, 'members.astra.skills.0.type'],

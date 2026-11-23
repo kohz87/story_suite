@@ -16,6 +16,8 @@ const CONDITION_KEYS = ['name', 'until'];
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const has = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+// The largest size a save can hold: the older 10 + two stats at 30.
+const POOL_STORED_MAX = 70;
 const isInt = (value, min, max = Infinity) => Number.isInteger(value) && value >= min && value <= max;
 const at = (where, key) => where ? `${where}.${key}` : key;
 
@@ -42,19 +44,18 @@ function checkStats(stats, where, problems) {
     }
 }
 
-function checkPools(pools, stats, where, problems) {
+function checkPools(pools, where, problems) {
     if (!checkShape(pools, where, POOL_KEYS, problems)) return;
-    const pairs = { mp: ['int', 'wis'], sp: ['agi', 'dex'] };
     for (const key of POOL_KEYS) {
         const poolWhere = at(where, key);
         const pool = pools[key];
         if (!checkShape(pool, poolWhere, ['now', 'max'], problems)) continue;
-        const expected = 10 + (Number(stats?.[pairs[key][0]]) || 0) + (Number(stats?.[pairs[key][1]]) || 0);
-        if (!isInt(pool.max, 0) || pool.max !== expected) {
-            problems.push(`${poolWhere}.max must equal 10 plus its two creation stats.`);
+        // `max` is the size recorded at creation (a save from before the RPG's formula holds the older, larger one): the size that counts is read in module-parts/effective.js.
+        if (!isInt(pool.max, 0, POOL_STORED_MAX)) {
+            problems.push(`${poolWhere}.max must be a whole number from 0 to ${POOL_STORED_MAX}.`);
         }
         // `now` may pass `max`: points bought later grow the pool (the effective size is read in module-parts/effective.js).
-        if (!isInt(pool.now, 0, 10 + 2 * LIMITS.statMax)) {
+        if (!isInt(pool.now, 0, POOL_STORED_MAX)) {
             problems.push(`${poolWhere}.now must be a whole number from 0 to its max.`);
         }
     }
@@ -212,7 +213,7 @@ function checkMember(member, key, problems) {
     if (!Number.isInteger(member.wounds)) problems.push(`${where}.wounds must be a whole number.`);
     if (member.down !== undefined && typeof member.down !== 'boolean') problems.push(`${where}.down must be a boolean.`);
     checkStats(member.stats, `${where}.stats`, problems);
-    checkPools(member.pools, member.stats, `${where}.pools`, problems);
+    checkPools(member.pools, `${where}.pools`, problems);
     checkSkills(member.skills, `${where}.skills`, problems);
     checkPractice(member.practice, `${where}.practice`, problems);
     checkInjuries(member.injuries, `${where}.injuries`, problems);

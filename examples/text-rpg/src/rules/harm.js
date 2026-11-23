@@ -1,8 +1,7 @@
-// Health harm: pool sizes, bands that hurt, and moving health down by whole stages.
+// Health harm and pool sizes: the Mana and Stamina sizes (the RPG's formula), the bands that hurt, and moving health down by whole stages.
 
 const STAGE_FLOOR = 4;
 const POOL_STATS = Object.freeze({
-    hp: ['str', 'vit'],
     mp: ['int', 'wis'],
     sp: ['agi', 'dex'],
 });
@@ -41,11 +40,15 @@ function topOfStage(stage, max) {
 /** How many health stages each roll band costs when the roll is made in danger. */
 export const HARM_STAGES = Object.freeze({ great: 0, success: 0, cost: 1, failure: 1, bad: 2 });
 
-/** The full size of a pool from two stats; missing stats count as 5, each stat is kept within 1..30. */
-export function poolMax(kind, stats) {
+/**
+ * The full size of Mana (`mp`) or Stamina (`sp`): 8 + level÷4 + (two stats)÷4, each term rounded down; anything else is 0.
+ * Adapted from modules/rpg/combat/bars.js (Combat Rules v1): missing stats count as 5, each stat is kept within 1..30, the level within 1..99.
+ */
+export function poolMax(kind, stats, level = 1) {
     const pair = POOL_STATS[String(kind ?? '').trim().toLowerCase()];
     if (!pair) return 0;
-    return 10 + statValue(stats, pair[0]) + statValue(stats, pair[1]);
+    const lv = Math.min(99, Math.max(1, Math.trunc(finite(level, 1))));
+    return 8 + Math.floor(lv / 4) + Math.floor((statValue(stats, pair[0]) + statValue(stats, pair[1])) / 4);
 }
 
 /** The stages a band drops: bad always, others only when in danger; an unknown band drops none. */

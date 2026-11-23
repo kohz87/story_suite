@@ -50,13 +50,14 @@ test('textRpg.spend takes stat points as the Party tab sends them and grows the 
     const done = run(spend, fakeCtx(slice), { member: 'ac_astra001', stats: { STR: 1, INT: 1 } });
     assert.equal(done.ok, true);
     const { str, int } = effectiveStats(me);
-    assert.deepEqual([me.stats.str, str, int, pointsOf(me), poolOf(me, 'mp').max, poolOf(me, 'mp').now], [12, 13, 13, 0, 35, 35]);
+    assert.deepEqual([me.stats.str, str, int, pointsOf(me), poolOf(me, 'mp').max, poolOf(me, 'mp').now], [12, 13, 13, 0, 14, 14]);
     assert.deepEqual(Object.values(me.bought).map(({ stat, n }) => [stat, n]), [['str', 1], ['int', 1]]);
     assert.deepEqual(validate(slice), []);
-    const tired = sliceOf([astra({ xp: 100 })]);
-    tired.members.ac_astra001.pools.sp.now = 20;
+    const tired = sliceOf([astra({ xp: 100, stats: { ...astra().stats, dex: 11 } })]);
+    assert.equal(poolOf(tired.members.ac_astra001, 'sp').max, 13);
+    tired.members.ac_astra001.pools.sp.now = 10;
     run(spend, fakeCtx(tired), { member: 'Astra', stats: { dex: 1 } });
-    assert.equal(tired.members.ac_astra001.pools.sp.now, 21, 'a bigger pool is bigger by the same points, never refilled');
+    assert.equal(tired.members.ac_astra001.pools.sp.now, 11, 'a bigger pool is bigger by the same points, never refilled');
 });
 
 test('textRpg.spend refuses more than the member has, a stat past 30, nothing and a stranger', () => {
@@ -92,7 +93,7 @@ test('textRpg.rest: a short rest fills mana and stamina; a day also heals one st
     hurt.pools.mp.now = 3;
     hurt.pools.sp.now = 3;
     run(rest, fakeCtx(slice, { time: 0 }), { kind: 'short' });
-    assert.deepEqual([hurt.wounds, hurt.pools.mp.now, hurt.pools.sp.now], [3, 34, 34]);
+    assert.deepEqual([hurt.wounds, hurt.pools.mp.now, hurt.pools.sp.now], [3, 14, 14]);
     run(rest, fakeCtx(slice, { time: 0 }), { kind: 'day' });
     assert.equal(hurt.wounds, 2);
     assert.deepEqual(hurt.injuries.map(item => [item.name, item.heals]), [['leg', 7560]]);

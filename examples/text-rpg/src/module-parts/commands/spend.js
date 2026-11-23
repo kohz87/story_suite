@@ -44,8 +44,8 @@ export function spend(ctx, payload = {}) {
     }
     const after = effectiveStats(member);
     for (const pool of ['mp', 'sp']) {
-        const was = poolMax(pool, before);
-        member.pools[pool].now = Math.min(member.pools[pool].now, was) + poolMax(pool, after) - was;
+        const was = poolMax(pool, before, levelOf(member));
+        member.pools[pool].now = Math.min(member.pools[pool].now, was) + poolMax(pool, after, levelOf(member)) - was;
     }
     return { summary: `${member.name} spends ${total} stat point${total === 1 ? '' : 's'}.`, narrate: false, data: { member: member.id, stats: asked } };
 }

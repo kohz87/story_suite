@@ -4,7 +4,7 @@ import { applyTry } from '../src/module-parts/kinds/try.js';
 import { diceBefore, lastDice } from '../src/module-parts/dice-source.js';
 import { SID, astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 
-// Astra: every stat 12 (bonus +1), 34 sp and no wounds. Normal is 12, hard 16.
+// Astra: every stat 12 (bonus +1), 14 sp and no wounds. Normal is 12, hard 16.
 const roll = (die, difficulty = 'normal', { labels = {}, what = 'Lore', member = astra(), live, options } = {}) => {
     const slice = sliceOf([member], live === undefined ? { list: [die, 10, 10], floor: 0 } : live);
     const ctx = fakeCtx(slice, options);
@@ -38,18 +38,18 @@ test('an easy roll teaches nothing', () => {
 test('one or two short is success at a cost: a costed skill pays twice when not in danger', () => {
     const { data, me } = roll(10, 'normal', { what: 'Obscure' });
     assert.equal(data.band, 'cost');
-    assert.equal(me.pools.sp.now, 34 - 2 - 2);
+    assert.equal(me.pools.sp.now, 14 - 2 - 2);
     assert.equal(me.wounds, 0);
     assert.equal(data.paid, 'skill');
 });
 
 test('success at a cost always costs: a wound stage in danger; out of danger the skill again, else a step of stamina', () => {
     const danger = roll(10, 'normal', { labels: { threat: 'a fair match' } });
-    assert.deepEqual([danger.data.band, danger.me.wounds, danger.me.pools.sp.now, danger.data.paid], ['cost', 1, 34, 'wound']);
+    assert.deepEqual([danger.data.band, danger.me.wounds, danger.me.pools.sp.now, danger.data.paid], ['cost', 1, 14, 'wound']);
     const stat = roll(10, 'normal', { what: 'int' });
-    assert.deepEqual([stat.data.band, stat.me.wounds, stat.me.pools.sp.now, stat.data.paid], ['cost', 0, 34 - 9, 'stamina'], 'a stat try has no skill cost: a step is a quarter of the pool');
+    assert.deepEqual([stat.data.band, stat.me.wounds, stat.me.pools.sp.now, stat.data.paid], ['cost', 0, 14 - 4, 'stamina'], 'a stat try has no skill cost: a step is a quarter of the pool');
     const free = roll(10, 'normal');
-    assert.deepEqual([free.me.pools.sp.now, free.data.paid], [34 - 9, 'stamina'], 'a skill with no cost of its own');
+    assert.deepEqual([free.me.pools.sp.now, free.data.paid], [14 - 4, 'stamina'], 'a skill with no cost of its own');
     const short = astra();
     short.pools.sp.now = 3;
     const dry = roll(10, 'normal', { member: short, what: 'Obscure' });
@@ -124,7 +124,7 @@ test('a condition raises the floor one step; fatigue does the same for a physica
     const sick = astra({ conditions: [{ name: 'poisoned', until: 'treated' }] });
     assert.equal(roll(11, 'easy', { member: sick }).data.difficulty, 1);
     const tired = astra();
-    tired.pools.sp.now = 5;
+    tired.pools.sp.now = 2;
     assert.equal(roll(11, 'easy', { member: tired, what: 'str' }).data.difficulty, 1);
     assert.equal(roll(11, 'easy', { member: tired, what: 'int' }).data.difficulty, 0);
 });

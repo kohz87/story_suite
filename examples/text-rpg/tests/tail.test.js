@@ -17,11 +17,10 @@ const hero = (extra = {}) => astra({ stats: { str: 15, vit: 9, agi: 13, dex: 6, 
 
 test('the capability line: stat words (ordinary left out), ranks, pool words, uses left and nothing numeric but the level', () => {
     const me = hero();
-    me.pools.sp.max = 28;
-    me.pools.sp.now = 28;
+    me.pools.sp.now = 28; // read down to the size the stats give (12)
     me.practice[me.skills[0].name.toLowerCase()] = 250;
     const { lines } = tailOf(viewOf(sliceOf([me], null)));
-    assert.deepEqual(lines, ['Astra (Level 1) — STR very strong · AGI quick · Skills: Obscure (Adept): melts into shadow; Lore (Novice): old stories · Health: Unhurt · Mana: Fresh · Stamina: Fresh (14 Obscure left)']);
+    assert.deepEqual(lines, ['Astra (Level 1) — STR very strong · AGI quick · Skills: Obscure (Adept): melts into shadow; Lore (Novice): old stories · Health: Unhurt · Mana: Fresh · Stamina: Fresh (6 Obscure left)']);
 });
 
 test('gear lifts the word from the total (AGI 13 + rare boots +2 is fast), capped by rarity; worn names, injuries and conditions follow', () => {

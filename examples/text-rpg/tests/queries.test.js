@@ -15,7 +15,7 @@ test('rpg.sheet rows have the shape the Party tab reads (memberOf), stats and sk
         assert.deepEqual([row.name, row.line, row.level, row.xpPct, row.points, row.portrait, row.effects], ['Astra', 'Lv 1', 1, 0, 0, null, []]);
         assert.equal(row.xpLabel, '0/100', 'the xp held in this level over the 100 it takes');
         assert.deepEqual(row.stats, { STR: 7, VIT: 6, AGI: 7, DEX: 7, INT: 6, WIS: 6, CHA: 6 });
-        assert.deepEqual(row.bars.map(bar => [bar.kind, bar.value, bar.max, bar.label]), [['hp', 5, 5, 'Health: Unhurt'], ['mp', 22, 22, 'Mana: Fresh'], ['sp', 24, 24, 'Stamina: Fresh']]);
+        assert.deepEqual(row.bars.map(bar => [bar.kind, bar.value, bar.max, bar.label]), [['hp', 5, 5, 'Health: Unhurt'], ['mp', 11, 11, 'Mana: Fresh'], ['sp', 11, 11, 'Stamina: Fresh']]);
         assert.deepEqual(row.commands, { spend: 'textRpg.spend', skillEdit: 'textRpg.skillEdit', export: 'textRpg.export' });
         assert.deepEqual(Object.keys(row.skills[0]).sort(), ['about', 'cost', 'glyph', 'kind', 'mastery', 'name', 'next', 'practice', 'rank', 'resource', 'stat']);
         assert.deepEqual([row.skills[0].stat, row.skills[0].rank, row.skills[0].resource, row.skills[0].cost, row.skills[0].next.name], ['AGI', 'Novice', 'stamina', 2, 'Apprentice']);
