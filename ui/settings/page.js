@@ -129,7 +129,12 @@ export function createPages(settings, ctx) {
     return [def && renderModuleCard(def, cardState(), false), ...special(section), ...(section.id === 'start' ? [] : renderGroups(section.rows, ctx))].filter(Boolean);
   }
 
+  // The section drawn last: moving to another page reads the switches again, so a write on another page (the plug-in's "Instead of this
+  // plug-in", a cascade by `replaces`) shows on Start and the cards; a redraw of the same page keeps what it holds (Reset reads them itself).
+  let lastSection = null;
   function page(section, custom) {
+    if (lastSection !== null && section.id !== lastSection) readModules();
+    lastSection = section.id;
     const def = modules.defs.find(m => m.section === section.id);
     const isStart = section.id === 'start';
     const applies = isStart ? null : h('p', { class: 'applies' }, def ? (Object.keys(modules.newChats ?? {}).length ? 'The switches below are for this chat (set new-chat defaults in Start). ' : 'The switches below are the same in every chat. ') : '',

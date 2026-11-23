@@ -3,7 +3,6 @@
 import { presetSwitches, PRESET_NAMES } from '../../core/features.js';
 import { EXTRAS_FEATURES, EXTRAS_MODULE } from '../select/extras-keys.js';
 import { isRpgFeature } from '../select/rpg-features.js';
-import { replacedFeatures } from '../select/replaced.js';
 
 const NO = message => ({ ok: false, code: 'FAILED', message });
 const KEY = /^modules\.([A-Za-z]+)\.([^.]+)(?:\.(.+))?$/;
@@ -35,8 +34,7 @@ export function moduleCardCommand(type, payload, writes = null, features = () =>
   const own = list().filter(f => String(f.moduleId ?? 'story-block') === module && !(module === EXTRAS_MODULE && (extras.has(f.id) || isRpgFeature(f.id))));
   const value = payload.value === true;
   if (id !== undefined) {
-    // A plug-in card also carries the switch of a feature its own feature replaces ("RPG (built-in)").
-    if (!own.some(f => f.id === id) && !replacedFeatures(list(), module).some(f => f.id === id)) return NO('That switch is not on this page.');
+    if (!own.some(f => f.id === id)) return NO('That switch is not on this page.');
     return set(id, value) ? { ok: true, value } : NO('That switch was not saved.');
   }
   if (!own.length) return NO('That module has no switches.');

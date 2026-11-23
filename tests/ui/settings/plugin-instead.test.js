@@ -1,4 +1,4 @@
-// "Instead of this plug-in": the Text RPG page switches the RPG it replaces, and its Start card lists "RPG (built-in)"; both write the normal feature, so `replaces` flips the other off.
+// "Instead of this plug-in": the Text RPG page switches the RPG it replaces and writes the normal feature, so `replaces` flips the other off; Start reads the truth at once.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
@@ -35,7 +35,7 @@ test('the Text RPG page opens with an RPG switch in its own group, and the RPG p
     assert.ok(!sections(port).some(s => s.id === 'rpg'));
 });
 
-test('switching the RPG on turns Text RPG off, shows the RPG and fights page; the card sub turns the RPG off again', async t => {
+test('switching the RPG on turns Text RPG off, shows the RPG and fights page; Text RPG on from its card turns the RPG off again', async t => {
     const { host, port } = await live(t);
     host.features.set('text-rpg.on', true);
     assert.deepEqual(await port.command('settings.set', { key: KEY, value: true }), { ok: true, value: true });
@@ -50,20 +50,19 @@ test('switching the RPG on turns Text RPG off, shows the RPG and fights page; th
     assert.ok(!sections(port).some(s => s.id === 'rpg'));
 });
 
-test('the Start card lists "RPG (built-in)" and its switch writes the RPG', async t => {
+test('the plug-in Start card has no "RPG (built-in)" sub, its card follows its own switch, and the sub key is refused', async t => {
     const { host, port } = await live(t);
     host.features.set('text-rpg.on', true);
     const start = () => port.view('settings').modules;
     const card = start().defs.find(d => d.id === 'text-rpg');
-    const sub = card.subs.find(s => s.key === 'story-block.rpg');
-    assert.equal(sub.label, 'RPG (built-in)');
-    assert.equal(start().chat['text-rpg'].subs['story-block.rpg'], false);
-    assert.equal(start().chat['text-rpg'].on, true, 'the card keeps its own state');
-    assert.equal((await port.command('settings.set', { key: 'modules.chat.text-rpg.story-block.rpg', value: true })).ok, true);
-    assert.equal(host.features.on('text-rpg.on'), false);
-    assert.equal(host.features.on('story-block.rpg'), true);
-    assert.equal((await port.command('settings.set', { key: 'modules.chat.text-rpg.nope', value: true })).ok, false);
-});
+    assert.ok(!card.subs.some(s => s.key === 'story-block.rpg' || /built-in/.test(s.label)));
+    assert.equal('story-block.rpg' in start().chat['text-rpg'].subs, false);
+    assert.equal((await port.command('settings.set', { key: 'modules.chat.text-rpg.story-block.rpg', value: true })).ok, false);
+    assert.equal(host.features.on('story-block.rpg'), false);
+    await port.command('settings.set', { key: KEY, value: true });
+    assert.equal(start().chat['text-rpg'].on, false, 'after the RPG switch the card reads off');
+}
+);
 
 test('a key that is not a replaced feature, or a non-boolean value, is refused; a module that replaces nothing gets no group', async t => {
     const { host, port } = await live(t);
@@ -87,3 +86,19 @@ test('the open overlay reads the page list again after the "Instead of this plug
     ctx.onChange(KEY, true);
     assert.deepEqual(ids().filter(i => i !== 'start'), ['rpg']);
 });
+
+test('the Settings page reads the switches again when the reader moves to another page: Start shows Text RPG off after the Instead switch', async () => {
+    const mk = on => ({ chat: { 'text-rpg': { on, subs: { a: on } } }, newChats: {}, scope: 'chat', preset: null, presets: [], defs: [{ id: 'text-rpg', name: 'Text RPG', section: 'start', subs: [{ key: 'a', label: 'A', hint: '', on }] }] });
+    const doc = installFakeDom();
+    let state = mk(true);
+    const { createPages } = await import('../../../ui/settings/page.js');
+    const pg = createPages({ sections: [], modules: state }, { doc, repaint() {}, view: () => ({ modules: state }), onChange: () => ({ ok: true }) });
+    const text = () => pg.body({ id: 'start', special: 'start', name: 'Start', rows: [] }).map(n => n?.textContent ?? '').join(' ');
+    pg.page({ id: 'plugin-text-rpg', name: 'Text RPG', desc: '', rows: [] });
+    assert.match(text(), /1 of 1 on/);
+    state = mk(false);
+    pg.page({ id: 'start', name: 'Start', desc: '', rows: [] });
+    assert.match(text(), /off/);
+    assert.doesNotMatch(text(), /1 of 1 on/);
+}
+);
