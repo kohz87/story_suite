@@ -1,4 +1,4 @@
-// Tests for the stat, rank, pool and threat word tables under src/words.
+// Tests for the stat, rank and pool word tables under src/words.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -6,7 +6,6 @@ import assert from 'node:assert/strict';
 import { STAT_KEYS, DEFAULT_STAT_WORDS, statBand, statWord } from '../src/words/stats.js';
 import { RANKS, PRACTICE_MAX, rankOf } from '../src/words/ranks.js';
 import { HEALTH_STAGES, ENERGY_STAGES, stageOf, usesLeft } from '../src/words/pools.js';
-import { TIER_SHIFT, THREAT_WORDS, threatIndex, threatWord } from '../src/words/threat.js';
 
 test('stats: the keys and the default table are exact and frozen', () => {
     assert.deepEqual(STAT_KEYS, ['str', 'vit', 'agi', 'dex', 'int', 'wis', 'cha']);
@@ -151,46 +150,4 @@ test('usesLeft: the required example, partial uses and bad input', () => {
     assert.equal(usesLeft('7', 3), 0);
     assert.equal(usesLeft(-7, 3), 0);
     assert.equal(usesLeft(Infinity, 3), 0);
-});
-
-test('threat: the exact tier shifts and words', () => {
-    assert.deepEqual(TIER_SHIFT, { mob: -6, minion: -3, standard: 0, elite: 5, boss: 10, apex: 25 });
-    assert.equal(Object.isFrozen(TIER_SHIFT), true);
-    assert.deepEqual(THREAT_WORDS, ['far beneath you', 'beneath you', 'a fair match', 'above you', 'far above you', 'beyond you']);
-    assert.equal(Object.isFrozen(THREAT_WORDS), true);
-});
-
-test('threatIndex: every gap boundary, tier shifts, clamps and bad input', () => {
-    const cases = [
-        [5, 'standard', 15, 0],
-        [6, 'standard', 15, 1],
-        [11, 'standard', 15, 1],
-        [12, 'standard', 15, 2],
-        [18, 'standard', 15, 2],
-        [19, 'standard', 15, 3],
-        [24, 'standard', 15, 3],
-        [25, 'standard', 15, 4],
-        [34, 'standard', 15, 4],
-        [35, 'standard', 15, 5],
-    ];
-    for (const [foe, tier, hero, index] of cases) assert.equal(threatIndex(foe, tier, hero), index, `gap ${foe} ${tier} ${hero}`);
-    assert.equal(threatIndex(5, 'mob', 10), 0);
-    assert.equal(threatIndex(5, 'minion', 10), 1);
-    assert.equal(threatIndex(5, 'elite', 10), 2);
-    assert.equal(threatIndex(5, 'boss', 10), 3);
-    assert.equal(threatIndex(5, 'apex', 10), 5);
-    assert.equal(threatIndex(5, 'unknown', 1), 3);
-    assert.equal(threatIndex(100, 'standard', 1), 5);
-    assert.equal(threatIndex(-5, 'standard', 1), 2);
-    assert.equal(threatIndex('30', 'standard', 1), 2);
-    assert.equal(threatIndex(undefined, undefined, undefined), 2);
-});
-
-test('threatWord: the required examples and the full list', () => {
-    assert.equal(threatWord(2, 'minion', 1), 'a fair match');
-    assert.equal(threatWord(30, 'boss', 3), 'beyond you');
-    [5, 6, 12, 19, 25, 35].forEach((foe, index) => {
-        assert.equal(threatWord(foe, 'standard', 15), THREAT_WORDS[index], `word ${index}`);
-    });
-    assert.equal(threatWord(undefined, undefined, undefined), 'a fair match');
 });

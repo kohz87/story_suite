@@ -1,5 +1,5 @@
 // The foes record the narrator sets up before a fight (`slice.foes`): groups keyed by id, each with how many were set up and how many stand, and the fights (battles) the groups make.
-// `slice.foes = { groups: { <id>: { name, kind?, threat, count, left, fight, at?, sid?, fled? } }, fights: { <fight>: { rolled: { <member>: [skill keys] }, taught: ['<member>:<skill key>'], paid?: XP the battle has paid } } }`; `threat` (0..5) is fixed when the group is declared from its `kind` and the party's level; a group from an old chat has no `kind`., made on the first `+ foes`.
+// `slice.foes = { groups: { <id>: { name, kind?, threat, count, left, fight, at?, sid?, fled?, fell? } }, fights: { <fight>: { rolled: { <member>: [skill keys] }, taught: ['<member>:<skill key>'], paid?: XP the battle has paid } } }`; `threat` (0..5) is fixed when the group is declared from its `kind` and the party's level; a group from an old chat has no `kind`; `fell` counts the foes that fell (the battle cap reads groups that had one fall or still stand).
 
 import { stale } from './foes-stale.js';
 

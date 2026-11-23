@@ -36,7 +36,6 @@ export function applyFoes(ctx, line) {
     // The kind is what a narrator writes; the code rates it against the party now and fixes that threat on the group.
     const kindText = labelOf(line, 'kind');
     const kind = readKind(kindText);
-    if (kindText && !kind) ctx.fail('INVALID', `The kind is one of: ${KINDS.join(', ')}.`);
     if (!kind) ctx.fail('INVALID', `+ foes needs a kind: ${KINDS.slice(0, -1).join(', ')} or ${KINDS[KINDS.length - 1]}`);
     if (!sid) ctx.fail('LIMITED', 'Foes are set up in a reply.');
     if (!ctx.claim(`foes:${sid}:${id}`)) ctx.fail('LIMITED', `${name.slice(0, 40)} are already set in this reply.`);

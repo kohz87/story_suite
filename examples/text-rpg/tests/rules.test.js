@@ -5,7 +5,7 @@ import { floorIndex, raiseToFloor } from '../src/rules/floor.js';
 import { readEdge } from '../src/rules/edge.js';
 import { statMod, rollBonus, verdict } from '../src/rules/roll.js';
 import { HARM_STAGES, poolMax, harmFor, dropStages } from '../src/rules/harm.js';
-import { practiceGain, XP_SIZES, xpFor, levelFor } from '../src/rules/growth.js';
+import { practiceGain, levelFor } from '../src/rules/growth.js';
 import { gainsAt } from '../src/rules/level-gains.js';
 import { scaleXp, xpOfLevel } from '../src/rules/levels.js';
 import { INJURY_DAYS, healDays, gearCap, effectiveStat } from '../src/rules/healing.js';
@@ -190,33 +190,6 @@ test('practice follows difficulty and roll band: trivial teaches nothing, a fail
     assert.equal(practiceGain('bad', 1), 3);
     assert.equal(practiceGain('unknown', 3), 0);
     assert.equal(practiceGain(null, 3), 0);
-});
-
-test('experience sizes and the reply guard are exact', () => {
-    assert.deepEqual(XP_SIZES, { trivial: 0, minor: 5, real: 20, major: 60, great: 150 });
-    assert.equal(Object.isFrozen(XP_SIZES), true);
-    // (the guard: great needs a very hard roll in the reply, major a hard one)
-    assert.equal(xpFor('great', 2, 2), 20);
-    assert.equal(xpFor('great', 2, 3), 60, 'a hard roll pays a great one as major');
-    assert.equal(xpFor('great', 2, 4), 150);
-    assert.equal(xpFor('great', 4, 4), 450);
-    assert.equal(xpFor('major', 2, 2), 20);
-    assert.equal(xpFor('major', 2, 3), 60);
-    assert.equal(xpFor('minor', 1, 0), 3);
-    assert.equal(xpFor('real', 4, 0), 60);
-    assert.equal(xpFor('minor', 5, 5), 20);
-    // The threat multipliers: far beneath 0, beneath 0.5, a fair match 1, above 2, far above 3, beyond 4; every foe that fell counts.
-    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => xpFor('minor', threat, 2)), [0, 3, 5, 10, 15, 20]);
-    assert.equal(xpFor('minor', 1, 2, 21), 53, '21 rats, minor and beneath: 52.5, rounded once after the count, up');
-    assert.equal(xpFor('minor', 2, 2, 21), 105, '21 rats, minor and a fair match');
-    assert.equal(xpFor('major', 5, 5, 1), 240, 'one major foe beyond them');
-    assert.equal(xpFor('minor', 3, 2, 2), 20, 'two minor foes above them');
-    assert.equal(xpFor('trivial', 5, 5), 0);
-    assert.equal(xpFor('great', 5, null), 0);
-    assert.equal(xpFor('great', 5), 0);
-    assert.equal(xpFor('great', 5, 'hard'), 0);
-    assert.equal(xpFor('unknown', 5, 5), 0);
-    assert.equal(xpFor('real', 0, 5), 0);
 });
 
 test('levels are 100 xp each as the RPG\'s, to 99, the xp held to 9999', () => {

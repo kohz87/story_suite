@@ -1,6 +1,5 @@
-// Practice, experience awards and the experience needed for each level.
+// Practice and the experience needed for each level.
 import { LEVEL } from './levels.js';
-import { THREAT_FACTOR } from './threat-factor.js';
 
 function finite(value, fallback) {
     return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -23,24 +22,6 @@ export function practiceGain(band, difficultyIndex) {
     if (difficulty === 0) return 0;
     if (key === 'failure' || key === 'bad') return 3;
     return difficulty >= 3 && key !== 'cost' ? 10 : 5;
-}
-
-/** The fixed experience paid for each size of an overcome danger. */
-export const XP_SIZES = Object.freeze({ trivial: 0, minor: 5, real: 20, major: 60, great: 150 });
-
-/** Experience for a stated size, cut to what the reply's hardest check supports and scaled by threat, times the foes overcome (rounded once, after the count). */
-export function xpFor(size, threat, hardestIndex, foes = 1) {
-    const key = typeof size === 'string' ? size.trim().toLowerCase() : '';
-    if (!Object.hasOwn(XP_SIZES, key)) return 0;
-    if (hardestIndex === null || hardestIndex === undefined) return 0;
-    if (typeof hardestIndex !== 'number' || !Number.isFinite(hardestIndex)) return 0;
-
-    const hardest = Math.min(5, Math.max(0, Math.trunc(hardestIndex)));
-    const threatLevel = Math.min(5, Math.max(0, Math.trunc(finite(threat, 0))));
-    let paidSize = key;
-    if (paidSize === 'great' && hardest < 4) paidSize = 'major';
-    if (paidSize === 'major' && hardest < 3) paidSize = 'real';
-    return Math.round(XP_SIZES[paidSize] * THREAT_FACTOR[threatLevel] * foes);
 }
 
 /** The level reached at a total experience (100 xp a level, as the RPG's), and the total needed for the next level (null at 99). */

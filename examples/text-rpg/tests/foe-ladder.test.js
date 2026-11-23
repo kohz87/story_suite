@@ -66,12 +66,12 @@ test('the threat is fixed when declared: a later level-up does not re-rate a sta
     assert.deepEqual([slice.foes.groups['wolves-2'].kind, slice.foes.groups['wolves-2'].threat], ['elite', 2], 'rated by the level now: 51 is in 30-59');
 });
 
-test('a bad or missing kind is refused and writes nothing; an old line with threat: and no kind is refused too, with the kinds named', () => {
+test('a bad or missing kind is refused with one receipt that names the kinds, and writes nothing; so is an old line with threat: and no kind', () => {
     for (const kind of ['dragon', 'mighty']) {
         const slice = sliceOf([at(1)]);
         const done = declare(slice, 'Rats', kind);
         assert.equal(done.code, 'INVALID', kind);
-        assert.match(done.message, /vermin, common, trained, elite, monster, legend/);
+        assert.equal(done.message, '+ foes needs a kind: vermin, common, trained, elite, monster or legend', 'an unknown kind gets the same receipt as a missing one');
         assert.equal(slice.foes, undefined);
     }
     const none = sliceOf([at(1)]);

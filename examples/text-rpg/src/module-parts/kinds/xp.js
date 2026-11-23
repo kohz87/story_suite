@@ -1,4 +1,4 @@
-// `+ xp Party — what was overcome [| foes: N] [| group: Name]`: experience. Each foe that fell pays its kind's XP times its group's threat, up to the foes still standing in the foes record, and a battle pays no more than its cap; with no roll in the reply nothing is paid but the foes are still counted down. With no foes record: 10 XP when a roll succeeded this reply, else none. An old line's `size:` and `threat:` are ignored. Level and stat points follow from xp (standing.js).
+// `+ xp Party — what was overcome [| foes: N] [| group: Name]`: experience. Each foe that fell pays its kind's XP times its group's threat, up to the foes still standing in the foes record, and a battle pays no more than its cap; with no roll in the reply nothing is paid but the foes are still counted down. With nothing standing and no battle current (none yet, or the last one closed more than 60 story minutes ago; with no clock, before the reply just after its close): 10 XP when a roll succeeded this reply, else none; while the battle still stands or has just closed, nothing (its XP was paid as the foes fell). The cap is the strongest group's, scaled by the XP rate like the XP. An old line's `size:` and `threat:` are ignored. Level and stat points follow from xp (standing.js).
 import { memberNamed, players } from '../members.js';
 import { labelOf } from '../line-read.js';
 import { requireActive } from '../active.js';
@@ -8,6 +8,7 @@ import { readRules, xpCeiling } from '../rules-now.js';
 import { groupId, standing } from '../foes-record.js';
 import { touch } from '../foes-stale.js';
 import { payParts } from '../foes-pay.js';
+import { joinable } from '../foes-fights.js';
 import { DOMAIN } from '../../domain/shape.js';
 
 const NO_RECORD = 10;
@@ -24,6 +25,7 @@ function paidFoes(ctx, slice, line, asked) {
         if (!group) ctx.fail('NOT_FOUND', `No foes called ${label.slice(0, 40)} are standing.`);
         const count = Math.min(asked, group.left);
         group.left -= count;
+        group.fell = (group.fell ?? 0) + count;
         if (count > 0) touch(ctx, slice, group);
         return [{ group, count }];
     }
@@ -33,6 +35,7 @@ function paidFoes(ctx, slice, line, asked) {
         const count = Math.min(left, group.left);
         if (count <= 0) continue;
         group.left -= count;
+        group.fell = (group.fell ?? 0) + count;
         touch(ctx, slice, group);
         left -= count;
         paid.push({ group, count });
@@ -53,11 +56,13 @@ export function applyXp(ctx, line) {
     const foes = fell ? fell.reduce((sum, part) => sum + part.count, 0) : 0;
     let battle = null;
     let capped = false;
+    let over = false;
     let raw = 0;
-    if (hardest !== null && fell) ({ raw, battle, capped } = payParts(slice, fell, hardest));
+    if (hardest !== null && fell) ({ raw, battle, capped } = payParts(slice, fell));
     else if (hardest !== null) {
-        // No foes record: 10 XP when a roll succeeded this reply.
-        raw = record?.won ? NO_RECORD : 0;
+        // Nothing stands: a battle still current (or just closed) was paid as its foes fell; else a deed away from any fight pays 10 XP for a won roll.
+        over = joinable(slice, sid, record?.clock ?? null) !== null;
+        raw = record?.won && !over ? NO_RECORD : 0;
     }
     const amount = scaleXp(raw, rate);
     const named = memberNamed(slice, line.name);
@@ -70,6 +75,7 @@ export function applyXp(ctx, line) {
         if (levelOf(member) > before) levels.push(`${member.name} reaches level ${levelOf(member)}`);
     }
     const told = `${line.text ? ` for ${line.text}` : ''}${foes > 1 ? ` (${foes} foes)` : ''}`;
-    const fight = battle ? `; ${capped ? 'battle cap reached: ' : 'battle '}${battle.paid} of ${battle.cap}` : '';
-    return { summary: hardest === null ? `no roll this reply: no XP${told}.` : `${amount} xp${told}${fight}${levels.length ? `; ${levels.join('; ')}` : ''}.`, narrate: levels.length > 0, data: { amount, foes, levels: levels.length, ...(battle ? { battle } : {}) } };
+    // The battle's numbers are shown as granted: the XP rate scales the cap and what was paid, as it scales the XP.
+    const fight = battle ? `; ${capped ? 'battle cap reached: ' : 'battle '}${scaleXp(battle.paid, rate)} of ${scaleXp(battle.cap, rate)}` : over ? '; the battle is over; its XP was paid as the foes fell' : '';
+    return { summary: hardest === null ? `no roll this reply: no XP${told}.` : `${amount} xp${told}${fight}${levels.length ? `; ${levels.join('; ')}` : ''}.`, narrate: levels.length > 0, data: { amount, foes, levels: levels.length, ...(battle ? { battle: { paid: scaleXp(battle.paid, rate), cap: scaleXp(battle.cap, rate) } } : {}) } };
 }

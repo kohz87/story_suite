@@ -50,7 +50,7 @@ test('the built-in rules are the owner\'s dice rules in short (at most 300 words
         'Failure is a scene, not a wall: no rescue or reset in the same beat; a retry is new', 'the matchup line, who should win', 'Dice tip a close fight, never rescue a lost one',
         'an outmatched side wins only through an edge set up before', 'Defeat, capture and retreat are ordinary', 'Foes fight to their strength (flank, focus the wounded, press an advantage) and most want to live',
         'no lucky openings or rescues not set up', 'When unsure, take the harsher outcome', 'Badly wounded cannot fight on effectively; Down cannot act',
-        'Set the foes with + foes before a fight', 'add none mid-fight but declared reinforcements', '+ xp only for foes that fell this reply; end foes that fled or were left with - foes',
+        'Set the foes with + foes before a fight', 'add none mid-fight except declared reinforcements', '+ xp only for foes that fell this reply; end foes that fled or were left with - foes',
         'each with its kind', 'vermin: rats, stray dogs', 'common: bandit, wolf', 'trained: soldier, guard', 'elite: veteran knight, troll', 'monster: ogre chief, wyvern', 'legend: dragon',
         'Every reward must point to something shown on screen this reply', 'Never write numbers, dice or luck.',
     ]) assert.ok(STATIC_TEXT.includes(part), part);

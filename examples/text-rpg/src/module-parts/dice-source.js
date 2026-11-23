@@ -38,7 +38,7 @@ export function recordOf(ctx, slice) {
     return slice.dice[sid];
 }
 
-/** The threat the latest reply recorded before `sid` (0 when none did): what a `? try` without its own `threat:` is made under, as the prelude's floor reads it. */
+/** The threat the latest reply recorded before `sid` (0 when none did): what a `? try` made with no foes standing is made under, as the prelude's floor reads it. */
 export function priorThreat(slice, sid) {
     const keys = Object.keys(slice.dice);
     const at = keys.indexOf(sid);
