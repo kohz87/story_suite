@@ -1,5 +1,7 @@
 // Builds a Rules page for each plug-in module (not a built-in) that has a feature on and a settings schema: the page is named by the module's settings `section`.
 import { BUILTIN_MODULES } from '../../core/modules-list.js';
+import { rpgFeatureRows } from './rpg-features.js';
+import { LEAN_RPG_FEATURE } from '../../modules/rpg/names-parts/feature.js';
 
 // Story Block's own module and the built-ins keep their pages (and the Start cards' links) as they are.
 const BUILT_IN = new Set(['story-block', ...BUILTIN_MODULES.map(m => m.id)]);
@@ -44,10 +46,12 @@ export function selectPluginPages(modules, features, values) {
     const mine = list.filter(f => f?.moduleId === m.id);
     if (!mine.some(f => f.on === true)) return [];
     const stored = isObj(values?.[m.id]) ? values[m.id] : {};
-    const rows = Object.entries(page.schema).flatMap(([name, field]) => {
+    const own = Object.entries(page.schema).flatMap(([name, field]) => {
       if (isObj(field) && field.feature && list.find(f => f?.id === field.feature)?.on !== true) return [];
       return [rowFor(page.section, m.id, name, field, stored[name], page.defaults?.[name])].filter(Boolean);
     });
+    // A module whose feature replaces the RPG keeps the RPG page's three bag switches on its own page (the RPG and fights page is hidden while the RPG is off).
+    const rows = mine.some(f => Array.isArray(f.replaces) && f.replaces.includes(LEAN_RPG_FEATURE)) ? [...own, ...rpgFeatureRows(list).map(row => (row.key === 'rpg.gearInFights' ? { ...row, label: 'Gear' } : row))] : own;
     return rows.length ? [{ id: pluginPageId(m.id), group: 'Rules', name: page.section, desc: `The ${String(m.name ?? m.id)} plug-in.`, special: null, rows }] : [];
   });
 }

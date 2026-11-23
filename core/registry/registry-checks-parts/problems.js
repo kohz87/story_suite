@@ -17,6 +17,7 @@ const DOMAIN = /^[a-z][a-zA-Z0-9_-]*$/;
 const COMMAND = /^[a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+)*$/;
 const KIND = /^[a-z][a-z0-9_-]*$/;
 const TAB_ID = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
+const ICON = /^fa-[a-z0-9-]+$/;
 const FOLD_ID = /^[a-z0-9][a-z0-9_-]*$/;
 // Screen ids are namespaced like `story-director/world` (§13.1); widget names like `story-director.world-card`.
 const SCREEN_ID = /^[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)*$/;
@@ -37,6 +38,8 @@ export function definitionProblems(def) {
     };
     if (typeof def.id !== 'string' || !MODULE_ID.test(def.id)) problems.push('its id must be lowercase letters, digits, ".", "_" or "-" (like "story-director")');
     for (const key of ['name', 'version', 'description']) if (def[key] !== undefined && typeof def[key] !== 'string') problems.push(`${key} is not text`);
+    // `icon`: a Font Awesome class for the module's Start card (like "fa-dice-d20").
+    if (def.icon !== undefined && !(typeof def.icon === 'string' && def.icon.length <= 40 && ICON.test(def.icon))) problems.push('icon is not a Font Awesome class of at most 40 characters (like "fa-dice-d20")');
     if (def.requires !== undefined) {
         if (!isObject(def.requires)) problems.push('requires is not an object (like { storyBlock: ">=2.0.0" })');
         else if (def.requires.storyBlock !== undefined && (typeof def.requires.storyBlock !== 'string' || !parseRange(def.requires.storyBlock))) {

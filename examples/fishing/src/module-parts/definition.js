@@ -13,6 +13,7 @@ export function fishingModule(sdk = null) {
     return {
         id: MODULE_ID,
         name: 'Fishing',
+        icon: 'fa-fish',
         version: VERSION,
         domains: { fishing: { initial, validate } },
         commands: { 'fishing.cast': cast, 'fishing.reel': reel, 'fishing.release': release },

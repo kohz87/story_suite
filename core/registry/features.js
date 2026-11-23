@@ -83,5 +83,7 @@ export function createFeatureLookups({ defs, declared, owners, fallbacks, canoni
     };
     const offQuery = () => null;
 
-    return { featureDecl, needsOf, featureOn, withFeatures, hypothetical, off, offShown, offQuery };
+    // On, or a feature that `replaces` it is on (a plug-in that stands in for a core feature keeps what hangs on that feature working).
+    const featureOrReplacementOn = id => featureOn(id) || [...declared.values()].some(list => list.some(feature => Array.isArray(feature.replaces) && feature.replaces.includes(id) && featureOn(feature.id)));
+    return { featureDecl, needsOf, featureOn, featureOrReplacementOn, withFeatures, hypothetical, off, offShown, offQuery };
 }

@@ -12,7 +12,7 @@ import { stateHash } from '../timeline/host-block.js';
 import { BASE36, CODE, CommandError, ID_PREFIX, MAX_DEPTH, asCommandError, fail, isRecord } from './shared.js';
 
 export function createCtxTools({
-    registry, settings, resolve, featureOn, internal, internalMessage, findQuery, guardHook,
+    registry, settings, resolve, featureOn, featureOrReplacementOn, internal, internalMessage, findQuery, guardHook,
     sourceOf, cursorOf, currentState, queryTools, readOf, draftOf, metaOf, giveProof,
 }) {
     function allocateId(tx, prefix) {
@@ -245,6 +245,10 @@ export function createCtxTools({
             // A Re-read run `again` sees every declared feature on, as it ran when the line was first read.
             feature(id) {
                 return featureOn(id) || (tx.again === true && Boolean(registry.feature?.(id)));
+            },
+            // Whether feature `id` or a feature that replaces it is on.
+            featureOrReplacement(id) {
+                return featureOrReplacementOn(id) || (tx.again === true && Boolean(registry.feature?.(id)));
             },
             // Every other module's answer to hook `name` on the state this command sees (MODULES §F126): each
             // module's `hooks[name]({ state, query }, args)`, synchronous. An answer that is null, a promise,

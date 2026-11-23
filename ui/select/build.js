@@ -140,7 +140,8 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const view = read('interaction.view', {});
       const scene = openScene(view);
       const actors = read('party.actors', {});
-      return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou(), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
+      // (a plug-in sheet's `party.newCharacter` naming its screen shows the tab too: its party is empty until the reader's character exists)
+      return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou() || Boolean(screenOf(read('party.newCharacter', {}))), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
     },
     settings: () => selectSettings({
       host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, pluginValues: pluginValuesOf(sdk), people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk, ctx), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, rollsHeld: rpgHasCharacter(sdk), packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup'), pairing: ask(sdk, 'packs.pairing'), own: ask(sdk, 'packs.own'), lorebook: liveLorebookRows(ask(sdk, 'packs.list')) },

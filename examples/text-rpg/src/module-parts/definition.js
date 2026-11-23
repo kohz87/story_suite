@@ -25,6 +25,7 @@ export function textRpgModule(sdk = null) {
     return {
         id: MODULE_ID,
         name: 'Text RPG',
+        icon: 'fa-dice-d20',
         version: VERSION,
         // Numbers that move are counters: a replay after a deleted reply adds each change instead of writing the number the deleted reply left.
         domains: { textRpg: { initial: initialState, validate, counters: COUNTERS } },

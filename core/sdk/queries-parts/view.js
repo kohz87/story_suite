@@ -26,6 +26,8 @@ export function makeView({ store, registry, settings, chat = [], active = null, 
         query: (name, args) => runQuery(registry, state, name, args, { receipts: () => store.receipts?.() ?? [], reply, pendingProofs }),
         settings,
         feature: id => featureOn(registry, id),
+        // Whether feature `id` or one that replaces it is on (the gear switch counts with the RPG or what stands in for it).
+        featureOrReplacement: id => typeof registry?.featureOrReplacementOn === 'function' ? registry.featureOrReplacementOn(id) === true : featureOn(registry, id),
         // Whether the chat is under rule mark `name` (persist/records.js chatMarked): what a static prompt text that follows a rule asks.
         rule: name => chatMarked(messages, name),
         chat: Object.freeze({ length: messages.length, lastUser: String(lastUser?.mes ?? ''), lastReply: stripBlock(String(lastReply?.mes ?? '')), readers: seen.filter(message => message?.is_user).length }),

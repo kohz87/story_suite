@@ -79,12 +79,15 @@ function presetOf(list) {
 // Shown on the "Roll checks before the reply" row while the RPG has a Character: the pre-roll steps aside then (modules/assist/classifier-parts/create.js), so the row is drawn locked, with the reason.
 const ROLLS_HELD = 'Not used while the RPG has a Character: its fight board rolls the checks.';
 
-function moduleParts(features, held = false) {
+// A plug-in module's own card icon (a Font Awesome class its definition declares; sdk.modules() carries it), used when CARD_TEXT has none.
+const iconsOf = modules => Object.fromEntries((Array.isArray(modules) ? modules : []).filter(m => isObj(m) && typeof m.icon === 'string' && /^fa-[a-z0-9-]+$/.test(m.icon)).map(m => [m.id, m.icon]));
+
+function moduleParts(features, held = false, icons = {}) {
   const defs = new Map();
   for (const f of features) {
     if (!isObj(f) || typeof f.id !== 'string') continue;
     const id = String(f.moduleId ?? 'story-block');
-    if (!defs.has(id)) defs.set(id, { id, name: String(f.moduleName ?? id), icon: '', section: SECTION_OF[id] ?? (isBuiltInModule(id) ? id : pluginPageId(id)), desc: '', off: '', tokens: null, ...CARD_TEXT[id], subs: [] });
+    if (!defs.has(id)) defs.set(id, { id, name: String(f.moduleName ?? id), icon: icons[id] ?? '', section: SECTION_OF[id] ?? (isBuiltInModule(id) ? id : pluginPageId(id)), desc: '', off: '', tokens: null, ...CARD_TEXT[id], subs: [] });
     const sub = { key: f.id, label: String(f.label ?? f.id), hint: String(f.describe ?? ''), on: f.on === true };
     if (f.available === false && typeof f.why === 'string') sub.needs = f.why;
     if (held && f.id === CORE_FEATURE.preroll) Object.assign(sub, { locked: true, lockWhy: ROLLS_HELD });
@@ -113,7 +116,7 @@ export function selectSettings(answers) {
   const budgetRows = rowsOf('Budgets', BUDGETS, host, schema, defaults);
   const t = isObj(a.tools) ? a.tools : {};
   const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
-  const parts = withoutRpgFeatures(withExtras(moduleParts(hasFeatures ? a.features : [], a.rollsHeld === true), hasFeatures ? a.features : []));
+  const parts = withoutRpgFeatures(withExtras(moduleParts(hasFeatures ? a.features : [], a.rollsHeld === true, iconsOf(a.modules)), hasFeatures ? a.features : []));
   const costs = moduleCosts(hasFeatures ? a.features : [], parts.defList.filter(d => CARD_TEXT[d.id]), a.staticTokens);
   const defList = parts.defList.map(d => (CARD_TEXT[d.id] ? { ...d, tokens: costs.cards[d.id] } : d));
   const set = parts.set;

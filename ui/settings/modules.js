@@ -34,7 +34,7 @@ function moduleCard(def, state, open, withLinks) {
   const { set, change, toggleOpen, go, has = () => true } = state;
   const on = set[def.id].on;
   const count = def.subs.filter(x => set[def.id].subs[x.key]).length;
-  const head = h('div', { class: 'mh' }, h('span', { class: 'mi', 'aria-hidden': 'true' }, def.icon),
+  const head = h('div', { class: 'mh' }, h('span', { class: 'mi', 'aria-hidden': 'true' }, /^fa-[a-z0-9-]+$/.test(def.icon) ? h('i', { class: `fa-solid ${def.icon}` }) : def.icon),
     h('span', { class: 'mt' }, h('b', def.name), h('small', on ? def.desc : def.off)),
     h('span', { class: 'mc' }, on ? `${count} of ${def.subs.length} on${def.tokens > 0 ? ` · ≈ ${def.tokens.toLocaleString('en-US')} tokens` : ''}` : 'off'),
     toggle({ checked: on, label: def.name, dataset: { mod: def.id }, onChange: v => change(def.id, null, v) }));

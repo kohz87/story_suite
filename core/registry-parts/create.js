@@ -33,7 +33,7 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
     const life = createLifecycle({ defs });
     const { lifecycle, held, setEnabled, restore, restoreEpoch, setRestore, peers } = life;
     const featureLookups = createFeatureLookups({ defs, declared, owners, fallbacks, canonical, featureValue, held, steadyHeld: life.steadyHeld, lifecycle });
-    const { featureDecl, needsOf, featureOn, withFeatures, hypothetical, off, offShown, offQuery } = featureLookups;
+    const { featureDecl, needsOf, featureOn, featureOrReplacementOn, withFeatures, hypothetical, off, offShown, offQuery } = featureLookups;
     const commandLookups = createCommandLookups({ defs, owners, canonical, held, lifecycle, nameOf: life.nameOf, off, warn });
     const { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState, deferredInitial } = commandLookups;
     const { interaction, interactionIds, markerWords } = createInteractionLookups({ defs, held, featureOn });
@@ -193,6 +193,8 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
         feature: featureDecl,
         /** Whether feature `id` is on (the reader's choice, else its default); false for an id no module declares. */
         featureOn,
+        /** Whether feature `id` is on, or any feature that lists it in `replaces` is. */
+        featureOrReplacementOn,
         withFeatures,
         hypothetical,
         /** The feature command `type` belongs to, or null; the bus refuses it with FEATURE_OFF while that is off. */
