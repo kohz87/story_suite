@@ -9,6 +9,7 @@ import { skillIndex } from '../members.js';
 import { partsOf, labelOf } from '../line-read.js';
 import { diceBefore } from '../dice-source.js';
 import { addPractice, threatHeard } from '../practice-gain.js';
+import { costPaidAlready } from '../paid-marks.js';
 import { target } from './target.js';
 
 const POOL_WORD = { mp: 'mana', sp: 'stamina' };
@@ -29,12 +30,14 @@ export function applySpend(ctx, line) {
     if (at < 0) ctx.fail('NOT_FOUND', `${member.name} has no skill called ${String(partsOf(line)[0] ?? '').slice(0, 40)}.`);
     const skill = member.skills[at];
     if (!skillActive(member, skill)) ctx.fail('REFUSED', `${skill.name} is not known at this level.`);
-    const refused = spendCost(member, skill, gearOf(ctx.query, member).cap);
+    // A try of the same skill in this reply pays its own cost (either order), so the spend then pays nothing.
+    const sid = ctx.reply?.sid;
+    const free = costPaidAlready(slice, sid, skill, 'spend');
+    const refused = free ? '' : spendCost(member, skill, gearOf(ctx.query, member).cap);
     if (refused) ctx.fail('NOT_ENOUGH', refused);
     // A skill used without a roll teaches a little: once a reply, and not when the reply rolled it (kinds/try.js), scaled by the threat so far.
-    const sid = ctx.reply?.sid;
     const { gained, rankUp } = addPractice(slice, sid, member, skill, 'spend', practiceFor(SPEND_PRACTICE, threatHeard(slice, sid, slice.dice[sid])));
-    return { summary: `${member.name} uses ${skill.name}.`, narrate: false, data: { member: member.id, skill: skill.name, practice: gained, rankUp } };
+    return { summary: `${member.name} uses ${skill.name}${free ? ' (paid by the roll)' : ''}.`, narrate: false, data: { member: member.id, skill: skill.name, practice: gained, rankUp, ...(free ? { paidByRoll: true } : {}) } };
 }
 
 const sessionsOf = text => (/^\d{1,2}$/.test(text) && Number(text) >= 1 && Number(text) <= 60 ? Number(text) : 1);

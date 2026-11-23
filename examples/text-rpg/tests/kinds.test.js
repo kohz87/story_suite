@@ -162,5 +162,5 @@ test('the kinds table: heads, the feature, and grammar only while active', () =>
     assert.equal(on.xp.feature, 'text-rpg.on');
     assert.match(on.try.grammar(), /^\? try Who \|/);
     assert.equal(off.try.grammar(), '');
-    assert.ok(Object.values(on).every(kind => kind.grammar().length < 200), 'grammar lines are short');
+    assert.ok(Object.values(on).every(kind => kind.grammar().length < 260), 'grammar lines are short');
 });

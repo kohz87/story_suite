@@ -9,6 +9,7 @@ import { priorThreat, recordOf } from '../dice-source.js';
 import { BAND_WORD } from '../band-words.js';
 import { bonusFor } from '../bonus.js';
 import { addPractice, threatHeard } from '../practice-gain.js';
+import { costPaidAlready } from '../paid-marks.js';
 import { floorWhy } from '../floor-why.js';
 import { liveConditions } from '../conditions.js';
 import { skillActive } from '../effective.js';
@@ -37,7 +38,9 @@ export function applyTry(ctx, line) {
     const found = bonusFor(member, what, cap);
     if (!found) ctx.fail('NOT_FOUND', `${member.name} has no skill or stat called ${what.slice(0, 40)}.`);
     if (found.skill && !skillActive(member, found.skill)) ctx.fail('REFUSED', `${found.skill.name} is not known at this level.`);
-    const refused = found.skill ? spendCost(member, found.skill, cap) : '';
+    // A `~ spend` of the same skill earlier in this reply already paid it (and a later one will see this try paid).
+    const costPaid = found.skill ? costPaidAlready(slice, ctx.reply?.sid, found.skill, 'try') : false;
+    const refused = found.skill && !costPaid ? spendCost(member, found.skill, cap) : '';
     if (refused) ctx.fail('NOT_ENOUGH', refused);
 
     const said = THREAT_WORDS.indexOf(labelOf(line, 'threat').toLowerCase());
@@ -81,9 +84,9 @@ export function applyTry(ctx, line) {
     record.used = (record.used ?? 0) + 1;
     record.hardest = Math.max(record.hardest ?? 0, index);
     if (said >= 0) record.threat = Math.max(record.threat ?? 0, said);
-    const tail = `${DIFFICULTIES[floored].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}.`;
+    const tail = `${DIFFICULTIES[floored].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}${costPaid ? '; cost already paid' : ''}.`;
     return {
         summary: `${member.name} tries ${found.skill?.name ?? what}, ${tail}`, narrate: true,
-        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, raised, ...(raised ? { why: reasons } : {}), paid, practice, rankUp, ...(worn.length ? { worn } : {}) },
+        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, raised, ...(raised ? { why: reasons } : {}), paid, practice, rankUp, ...(costPaid ? { costPaid } : {}), ...(worn.length ? { worn } : {}) },
     };
 }
