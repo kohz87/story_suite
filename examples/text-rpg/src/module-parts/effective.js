@@ -17,8 +17,8 @@ export function effectiveStats(member) {
 }
 
 /** The pool as it reads now: the full size from the effective stats, and what is left never above it. */
-export function poolOf(member, kind) {
-    const max = poolMax(kind, effectiveStats(member));
+export function poolOf(member, kind, stats = effectiveStats(member)) {
+    const max = poolMax(kind, stats);
     return { max, now: Math.min(member.pools[kind].now, max) };
 }
 

@@ -9,12 +9,12 @@ export function purchasesOf(member) {
         .sort((a, b) => a.seq - b.seq);
 }
 
-/** The purchases `earned` points pay for: the first ones in order whose points fit; the rest wait for the level to return. */
+/** The purchases `earned` points pay for: each one in order whose points still fit (one that does not fit is skipped, so a later, smaller one can count); the rest wait for the level to return. */
 export function countedPurchases(member, earned) {
     const counted = [];
     let left = Math.max(0, earned);
     for (const item of purchasesOf(member)) {
-        if (item.n > left) break;
+        if (item.n > left) continue;
         left -= item.n;
         counted.push(item);
     }

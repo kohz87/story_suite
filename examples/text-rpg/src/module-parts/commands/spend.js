@@ -43,7 +43,10 @@ export function spend(ctx, payload = {}) {
         if (asked[key]) member.bought[ctx.id('pt')] = { stat: key, n: asked[key], seq: seq += 1 };
     }
     const after = effectiveStats(member);
-    for (const pool of ['mp', 'sp']) member.pools[pool].now += poolMax(pool, after) - poolMax(pool, before);
+    for (const pool of ['mp', 'sp']) {
+        const was = poolMax(pool, before);
+        member.pools[pool].now = Math.min(member.pools[pool].now, was) + poolMax(pool, after) - was;
+    }
     return { summary: `${member.name} spends ${total} stat point${total === 1 ? '' : 's'}.`, narrate: false, data: { member: member.id, stats: asked } };
 }
 

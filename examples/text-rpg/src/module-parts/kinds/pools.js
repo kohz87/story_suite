@@ -14,7 +14,7 @@ export function spendCost(member, skill, times = 1) {
     const pool = poolOf(member, skill.cost.pool);
     const price = skill.cost.n * times;
     if (pool.now < price) return `${member.name} has no ${POOL_WORD[skill.cost.pool]} for ${skill.name}.`;
-    member.pools[skill.cost.pool].now -= price;
+    member.pools[skill.cost.pool].now = pool.now - price; // from the value as it reads (never above the size), not the stored one
     return '';
 }
 
