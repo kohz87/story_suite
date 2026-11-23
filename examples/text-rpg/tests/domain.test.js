@@ -73,12 +73,12 @@ test('a new member fills every field, clamps stats and derives its pools', () =>
         skills: [skill(), { ...skill(), name: 'Ash Staff', type: 'attack', stat: 'str', cost: null }],
     });
     assert.deepEqual(
-        { id: member.id, name: member.name, pc: member.pc, level: member.level, xp: member.xp, points: member.points },
-        { id: 'astra', name: 'Astra', pc: true, level: 1, xp: 0, points: 0 },
+        { id: member.id, name: member.name, pc: member.pc, xp: member.xp, spent: member.spent, wounds: member.wounds },
+        { id: 'astra', name: 'Astra', pc: true, xp: 0, spent: 0, wounds: 0 },
     );
+    assert.equal(Object.hasOwn(member, 'level') || Object.hasOwn(member, 'points'), false, 'level and points are derived, never stored');
     assert.deepEqual(member.stats, { str: 1, vit: 8, agi: 30, dex: 10, int: 5, wis: 9, cha: 5 });
     assert.deepEqual(member.pools, {
-        hp: { now: 19, max: 19 },
         mp: { now: 24, max: 24 },
         sp: { now: 50, max: 50 },
     });
@@ -90,6 +90,15 @@ test('a new member fills every field, clamps stats and derives its pools', () =>
     assert.deepEqual(member.conditions, []);
     assert.equal(member.companion, null);
     assert.equal(member.fallen, null);
+    assert.deepEqual(validate(one(member)), []);
+});
+
+test('a wound count a replay pushed past 0..5, and an injury with no end time yet, are valid: every read clamps', () => {
+    const member = newMember({ id: 'astra', name: 'Astra' });
+    member.wounds = -2;
+    member.injuries = [{ name: 'rib', hampers: [], heals: null, grave: 'minor' }];
+    assert.deepEqual(validate(one(member)), []);
+    member.wounds = 7;
     assert.deepEqual(validate(one(member)), []);
 });
 
@@ -116,13 +125,13 @@ test('validation names the path of every kind of damaged member field', () => {
         ['member id key', (slice, member) => { slice.members.edda = member; }, 'members.edda.id'],
         ['member name', (slice, member) => { member.name = 'x'.repeat(61); }, 'members.astra.name'],
         ['pc', (slice, member) => { member.pc = 'yes'; }, 'members.astra.pc'],
-        ['level', (slice, member) => { member.level = 0; }, 'members.astra.level'],
         ['xp', (slice, member) => { member.xp = -1; }, 'members.astra.xp'],
-        ['points', (slice, member) => { member.points = 1.5; }, 'members.astra.points'],
+        ['spent', (slice, member) => { member.spent = 1.5; }, 'members.astra.spent'],
+        ['wounds', (slice, member) => { member.wounds = 1.5; }, 'members.astra.wounds'],
         ['stat value', (slice, member) => { member.stats.agi = 31; }, 'members.astra.stats.agi'],
         ['unknown stat', (slice, member) => { member.stats.luck = 5; }, 'members.astra.stats.luck'],
-        ['pool max', (slice, member) => { member.pools.hp.max += 1; }, 'members.astra.pools.hp.max'],
-        ['pool now', (slice, member) => { member.pools.hp.now = -1; }, 'members.astra.pools.hp.now'],
+        ['pool max', (slice, member) => { member.pools.mp.max += 1; }, 'members.astra.pools.mp.max'],
+        ['pool now', (slice, member) => { member.pools.sp.now = -1; }, 'members.astra.pools.sp.now'],
         ['skill stat', (slice, member) => { member.skills[0].stat = 'luck'; }, 'members.astra.skills.0.stat'],
         ['skill type', (slice, member) => { member.skills[0].type = 'song'; }, 'members.astra.skills.0.type'],
         ['skill cost pool', (slice, member) => { member.skills[0].cost.pool = 'hp'; }, 'members.astra.skills.0.cost.pool'],
@@ -163,7 +172,7 @@ test('validation names the path of every kind of damaged member field', () => {
 
 test('unknown keys are rejected in every fixed record shape', () => {
     assert.ok(hasPath(damaged((slice, member) => { member.stats.extra = 1; }), 'members.astra.stats.extra'));
-    assert.ok(hasPath(damaged((slice, member) => { member.pools.hp.extra = 1; }), 'members.astra.pools.hp.extra'));
+    assert.ok(hasPath(damaged((slice, member) => { member.pools.mp.extra = 1; }), 'members.astra.pools.mp.extra'));
     assert.ok(hasPath(damaged((slice, member) => { member.skills[0].extra = 1; }), 'members.astra.skills.0.extra'));
     assert.ok(hasPath(damaged((slice, member) => { member.skills[0].cost.extra = 1; }), 'members.astra.skills.0.cost.extra'));
     assert.ok(hasPath(damaged((slice, member) => {
@@ -186,7 +195,8 @@ test('validation accepts the exact lower and upper bounds', () => {
             skill({ name: 'free', cost: null }),
         ],
     });
-    member.level = 99;
+    member.xp = 100000;
+    member.wounds = 9;
     member.injuries = Array.from({ length: 3 }, () => ({
         name: 'x'.repeat(60), hampers: ['str', 'agi'], heals: 0, grave: 'grave',
     }));

@@ -24,13 +24,14 @@ const NOTE_WITHOUT_FLOOR =
     'Dice for this reply, in order: 12, 4, 17. ' +
     "Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against easy 8, normal 12, hard 16, very hard 20, near impossible 24. " +
     'Total at the number or over: success; 1–2 short: success at a cost; more: failure; 10 or more short or a natural 1: a bad failure; a natural 20: more than asked. ' +
+    'A threat raises the difficulty: a foe above you → at least hard, far above → very hard, beyond → near impossible. ' +
     'Bonus by stat or skill: Astra: STR+0 AGI+2; Obscure+4. Bram: CHA+1; Persuade+3. ' +
     'The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. ' +
     "Report each: ? try Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ? try Astra | Obscure | normal.";
 
 const NOTE_WITH_FLOOR = NOTE_WITHOUT_FLOOR.replace(
-    'more than asked. Bonus',
-    'more than asked. Nothing this reply is easier than hard. Bonus',
+    'near impossible. Bonus',
+    'near impossible. Nothing this reply is easier than hard. Bonus',
 );
 
 test('isSeed: covers both uint32 bounds and rejects other values', () => {

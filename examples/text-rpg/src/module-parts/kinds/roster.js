@@ -3,6 +3,7 @@ import { DOMAIN, LIMITS, newMember } from '../../domain/shape.js';
 import { requireActive } from '../active.js';
 import { memberNamed, skillIndex, skillSlots } from '../members.js';
 import { partsOf, labelOf, statKey } from '../line-read.js';
+import { levelOf } from '../standing.js';
 import { target } from './target.js';
 
 const TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
@@ -16,7 +17,7 @@ export function applySkill(ctx, line) {
     if (skillIndex(member, clean) >= 0) ctx.fail('INVALID', `${member.name} already has ${clean}.`);
     const key = statKey(labelOf(line, 'stat') || stat);
     if (!key) ctx.fail('INVALID', 'A skill needs a stat: str, vit, agi, dex, int, wis or cha.');
-    if (member.skills.length >= skillSlots(member.level)) ctx.fail('LIMITED', `${member.name} has no free skill slot.`);
+    if (member.skills.length >= skillSlots(levelOf(member))) ctx.fail('LIMITED', `${member.name} has no free skill slot.`);
     const kind = (labelOf(line, 'type') || type || 'utility').toLowerCase();
     const cost = /^(\d+)\s*(mp|sp)$/i.exec(labelOf(line, 'cost'));
     member.skills.push({
@@ -38,7 +39,6 @@ export function applyCompanion(ctx, line) {
         member = newMember({ name: line.name, id: ctx.id('ac') });
         slice.members[member.id] = member;
     }
-    member.level = level;
     member.companion = { level, strengths };
     member.fallen = null;
     return { summary: `${member.name} joins the party.`, narrate: true, data: { member: member.id, level, strengths } };

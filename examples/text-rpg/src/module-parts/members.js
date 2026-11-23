@@ -3,11 +3,12 @@ import { LIMITS } from '../domain/shape.js';
 
 const keyOf = text => String(text ?? '').normalize('NFKC').replace(/\s+/g, ' ').trim().toLowerCase();
 
-/** The member a name (or id) stands for in a domain slice, or null. */
+/** The member a name (or id) stands for in a domain slice, or null; one who has not fallen is preferred, so a new character may take a fallen one's name. */
 export function memberNamed(slice, who) {
     const key = keyOf(who);
     if (!key) return null;
-    return Object.values(slice?.members ?? {}).find(m => keyOf(m.name) === key || m.id === key) ?? null;
+    const named = Object.values(slice?.members ?? {}).filter(m => keyOf(m.name) === key || m.id === key);
+    return named.find(m => !m.fallen) ?? named[0] ?? null;
 }
 
 /** The index of the skill called `name` on a member, or -1. */

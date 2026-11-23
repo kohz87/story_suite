@@ -6,6 +6,7 @@ import { practiceOf } from './practice.js';
 import { skillIndex } from './members.js';
 import { statKey } from './line-read.js';
 import { totalStats } from './gear.js';
+import { levelOf } from './standing.js';
 
 /**
  * What `target` (a skill's name or a stat) adds to a member's roll: `{ stat, skill, bonus }`, or null when the
@@ -23,7 +24,7 @@ export function bonusFor(member, target, cap = {}) {
     if (!stat) return null;
     const hampered = member.injuries.filter(injury => injury.hampers.includes(stat)).length;
     const rankBonus = skill ? rankOf(practiceOf(member, skill)).bonus : 0;
-    return { stat, skill, bonus: rollBonus({ stat: totalStats(member, cap)[stat], rankBonus, level: member.level, hampered }) };
+    return { stat, skill, bonus: rollBonus({ stat: totalStats(member, cap)[stat], rankBonus, level: levelOf(member), hampered }) };
 }
 
 /** The dice note's table: one row per member, each stat's bonus then each skill's. */

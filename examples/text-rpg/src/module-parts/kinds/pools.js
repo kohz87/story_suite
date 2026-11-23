@@ -1,8 +1,6 @@
-// The pool lines: paying a skill's cost, `~ spend Who — skill` and `~ health Who — stage | why: …`.
+// The pool lines: paying a skill's cost, `~ spend Who — skill` and `~ health Who — stage | why: …` (the wound stage).
 import { DOMAIN } from '../../domain/shape.js';
-import { dropStages } from '../../rules/harm.js';
-import { healDays } from '../../rules/healing.js';
-import { HEALTH_STAGES, stageOf } from '../../words/pools.js';
+import { HEALTH_STAGES } from '../../words/pools.js';
 import { skillIndex } from '../members.js';
 import { partsOf, labelOf } from '../line-read.js';
 import { target } from './target.js';
@@ -34,12 +32,9 @@ export function applyHealth(ctx, line) {
     const word = (partsOf(line)[0] ?? '').toLowerCase();
     const goal = HEALTH_STAGES.findIndex(stage => stage.toLowerCase() === word);
     if (goal < 0) ctx.fail('INVALID', `Health is one of ${HEALTH_STAGES.join(', ')}.`);
-    ctx.absolute(DOMAIN, `/members/${member.id}/pools/hp/now`);
-    const { hp } = member.pools;
-    const now = stageOf(hp.now, hp.max, 'health').index;
-    if (goal === 5) hp.now = 0;
-    else if (goal > now) hp.now = dropStages(hp.now, hp.max, goal - now);
-    else if (goal < now) hp.now = healDays(hp.now, hp.max, now - goal);
+    // A stage is a set: it lands where it says whatever the replies before it did.
+    ctx.absolute(DOMAIN, `/members/${member.id}/wounds`);
+    member.wounds = goal;
     const why = labelOf(line, 'why');
     return { summary: `${member.name} is ${HEALTH_STAGES[goal]}${why ? `: ${why}` : ''}.`, narrate: false, data: { member: member.id, stage: goal, why } };
 }

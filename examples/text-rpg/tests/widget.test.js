@@ -26,6 +26,22 @@ test('the form starts at 60 points placed, names what is left, and enables Creat
     assert.equal(el.find(['data-role', 'left']).textContent, '1 point left to place.');
 });
 
+test('each stat is held to 5..15: 60 points with a stat of 30 or of 4 leaves Create disabled', async () => {
+    const el = mount();
+    renderNewCharacter(el, {}, { command: async () => ({ ok: true }) });
+    const create = el.find(['data-act', 'create']);
+    await set(el, 'name', 'Astra');
+    assert.equal(el.find(['data-role', 'stat-str']).getAttribute('min'), '5');
+    assert.equal(el.find(['data-role', 'stat-str']).getAttribute('max'), '15');
+    for (const key of ['str', 'vit', 'agi', 'dex', 'int', 'wis', 'cha']) await set(el, `stat-${key}`, key === 'str' ? 30 : 5);
+    assert.equal(el.find(['data-role', 'left']).textContent, 'All 60 points placed.');
+    assert.equal(create.disabled, true, '5 × 6 + 30 adds up to 60 but 30 is past 15');
+    for (const [key, value] of [['str', 15], ['vit', 15], ['agi', 15], ['dex', 15], ['int', 0], ['wis', 0], ['cha', 0]]) await set(el, `stat-${key}`, value);
+    assert.equal(create.disabled, true, 'a stat of 0 is under 5 even when the total is 60');
+    for (const [key, value] of [['str', 15], ['vit', 15], ['agi', 10], ['dex', 5], ['int', 5], ['wis', 5], ['cha', 5]]) await set(el, `stat-${key}`, value);
+    assert.equal(create.disabled, false);
+});
+
 test('Create sends textRpg.create with the name, the stats and the named skills only', async () => {
     const calls = [];
     const el = mount();

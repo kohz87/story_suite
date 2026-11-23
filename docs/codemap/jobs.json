@@ -827,6 +827,7 @@
   "examples/text-rpg/src/module-parts/kinds/xp.js": "`+ xp Party — what was overcome | size: minor|real|major|great`: experience, level-ups, stat points.",
   "examples/text-rpg/src/module-parts/line-read.js": "Reading a change line's parts: the text pieces after the name, a label, and the stat words.",
   "examples/text-rpg/src/module-parts/members.js": "Finding members and skills by name, and how many skill slots a level has.",
+  "examples/text-rpg/src/module-parts/standing.js": "Where a member stands, read from the counters: level and stat points from xp and points spent, health from the wound stage, and the stage a hurt adds.",
   "examples/text-rpg/src/module-parts/practice.js": "A member's skill practice: the key a skill's count is kept under in the member's practice map, and the count read back.",
   "examples/text-rpg/src/module-parts/queries.js": "The queries: `rpg.sheet` and `party.levels` as fallbacks, `party.actors` as the plain owner, and `textRpg.view`.",
   "examples/text-rpg/src/module-parts/settings.js": "The module's settings: tone preset, the survival switch and the stat names, and the tone's step.",

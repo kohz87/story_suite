@@ -12,17 +12,17 @@ export const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n
 export const slice = host => host.head().domains.textRpg;
 export const sent = (host, key) => host.st.promptLog.filter(entry => entry.key === key && entry.value).map(entry => entry.value);
 
-/** `features`: the reader's feature choices; Text RPG is on unless told otherwise. */
-export async function newHost(features = {}) {
+/** `features`: the reader's feature choices (Text RPG is on unless told otherwise); `settings`: extra host settings (a tone). */
+export async function newHost(features = {}, settings = {}) {
     let host = null;
     const sdk = { feature: id => host.sdk.feature(id), command: (...args) => host.sdk.command(...args), query: (...args) => host.sdk.query(...args) };
-    host = await createHost({ modules: [textRpgModule(sdk)], settings: { features: { 'text-rpg.on': true, ...features } } });
+    host = await createHost({ modules: [textRpgModule(sdk)], settings: { ...settings, features: { 'text-rpg.on': true, ...features } } });
     return host;
 }
 
 /** A host with Astra made through the command. */
-export async function withAstra(features) {
-    const host = await newHost(features);
+export async function withAstra(features, settings) {
+    const host = await newHost(features, settings);
     const made = await host.sdk.command('textRpg.create', { name: 'Astra', stats: BUY, skills: SKILLS });
     if (!made.ok) throw new Error(made.message);
     return host;

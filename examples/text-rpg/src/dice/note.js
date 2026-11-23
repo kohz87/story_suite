@@ -68,6 +68,7 @@ export function diceNote(record) {
         `Use one for each attempt that can fail (yours or a party member's): total = die + bonus, against ${dc.map(({ word, dc: value }) => `${word} ${value}`).join(', ')}.`,
         'Total at the number or over: success; 1–2 short: success at a cost; more: failure; 10 or more short or a natural 1: a bad failure; a natural 20: more than asked.',
     ];
+    parts.push(`A threat raises the difficulty: a foe above you → at least ${dc[2].word}, far above → ${dc[3].word}, beyond → ${dc[4].word}.`);
     if (floorAt > 0) parts.push(`Nothing this reply is easier than ${dc[floorAt].word}.`);
     if (table.length) parts.push(`Bonus by stat or skill: ${table.map(row => row.text).join('. ')}.`);
     parts.push('The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text.');

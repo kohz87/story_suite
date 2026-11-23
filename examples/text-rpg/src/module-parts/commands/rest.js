@@ -1,8 +1,9 @@
-// `textRpg.rest`: a short rest restores stamina and mana; a full day also heals one health stage and ages injuries.
+// `textRpg.rest`: a short rest restores stamina and mana; a full day also heals one wound stage and ages injuries.
 import { DOMAIN } from '../../domain/shape.js';
-import { healDays } from '../../rules/healing.js';
+import { INJURY_DAYS } from '../../rules/healing.js';
 import { requireActive } from '../active.js';
 import { memberNamed, players } from '../members.js';
+import { woundsOf } from '../standing.js';
 
 /** Payload: { kind: 'short' | 'day', member?: id or name (else everyone who plays) }. */
 export function rest(ctx, payload = {}) {
@@ -13,15 +14,17 @@ export function rest(ctx, payload = {}) {
     const named = payload.member === undefined ? null : memberNamed(slice, payload.member);
     if (payload.member !== undefined && !named) ctx.fail('NOT_FOUND', 'No such character on the sheet.');
     const who = (named ? [named] : players(slice)).map(member => slice.members[member.id]).filter(member => !member.companion);
-    const now = Number.isInteger(ctx.time?.()) ? ctx.time() : 0;
+    const known = Number.isInteger(ctx.time?.());
+    const now = known ? ctx.time() : 0;
     for (const member of who) {
         for (const pool of ['mp', 'sp']) ctx.absolute(DOMAIN, `/members/${member.id}/pools/${pool}/now`);
         member.pools.mp.now = member.pools.mp.max;
         member.pools.sp.now = member.pools.sp.max;
         if (kind === 'day') {
-            member.pools.hp.now = healDays(member.pools.hp.now, member.pools.hp.max, 1);
-            for (const injury of member.injuries) injury.heals = Math.max(0, injury.heals - 1440);
-            member.injuries = member.injuries.filter(injury => injury.heals > now);
+            member.wounds = Math.max(0, woundsOf(member) - 1);
+            // An injury made with no clock has no end time (null); the first day's rest with a clock starts its count.
+            for (const injury of member.injuries) injury.heals = injury.heals === null && !known ? null : Math.max(0, (injury.heals ?? now + INJURY_DAYS[injury.grave] * 1440) - 1440);
+            member.injuries = member.injuries.filter(injury => injury.heals === null || injury.heals > now);
         }
     }
     return { summary: kind === 'day' ? 'A full day of rest.' : 'A short rest.', narrate: false, data: { kind, members: who.map(member => member.id) } };

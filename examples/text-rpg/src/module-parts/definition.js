@@ -17,7 +17,7 @@ import { SETTINGS } from './settings.js';
 
 const SCREEN = 'text-rpg/new-character';
 const WIDGET = 'text-rpg.new-character';
-const COUNTERS = ['members/*/pools/hp/now', 'members/*/pools/mp/now', 'members/*/pools/sp/now', 'members/*/practice/*', 'members/*/xp', 'members/*/points', 'members/*/level'];
+const COUNTERS = ['members/*/wounds', 'members/*/pools/mp/now', 'members/*/pools/sp/now', 'members/*/practice/*', 'members/*/xp', 'members/*/spent'];
 const owned = handler => Object.assign(handler, { feature: FEATURE });
 
 /** The module definition. `sdk` answers `feature(id)` (the active rule) and runs the screen's commands. */
@@ -38,7 +38,7 @@ export function textRpgModule(sdk = null) {
             'textRpg.rest': owned(rest), 'textRpg.dice': owned(dice),
         },
         queries: queriesOf(sdk),
-        context: { feature: FEATURE, static: () => (active(sdk) ? STATIC_TEXT : ''), tail: tailOf, budget: 300 },
+        context: { feature: FEATURE, static: () => (active(sdk) ? STATIC_TEXT : ''), tail: tailOf, budget: 600 },
         hooks: { beforeGenerate: Object.assign(beforeGenerate, { feature: FEATURE }) },
         settings: SETTINGS,
         widgets: {

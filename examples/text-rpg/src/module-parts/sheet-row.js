@@ -1,28 +1,31 @@
-// One party member as the Party tab's row: what `ui/select/party.js` memberOf reads (id, name, line, level, xpPct, points, bars, effects, stats, skills).
+// One party member as the Party tab's row: what `ui/select/party.js` memberOf reads (id, name, line, level, xpPct, points, bars, effects, stats, skills); health is a bar of 5 stages.
 import { levelFor } from '../rules/growth.js';
-import { stageOf } from '../words/pools.js';
+import { HEALTH_STAGES, stageOf } from '../words/pools.js';
 import { STAT_KEYS } from '../words/stats.js';
 import { liveConditions } from './conditions.js';
 import { skillRows } from './sheet-skills.js';
+import { levelOf, pointsOf, woundsOf } from './standing.js';
 
-const BARS = [['hp', 'health', 'Health'], ['mp', 'energy', 'Mana'], ['sp', 'energy', 'Stamina']];
+const BARS = [['mp', 'energy', 'Mana'], ['sp', 'energy', 'Stamina']];
 
 /** Percent of the way from this level's first xp to the next level's. */
 function xpPct(member) {
     const { next } = levelFor(member.xp);
     if (next === null) return 100;
-    const from = 25 * (member.level - 1) * member.level;
+    const from = 25 * (levelOf(member) - 1) * levelOf(member);
     return Math.max(0, Math.min(100, Math.round((100 * (member.xp - from)) / (next - from))));
 }
 
 /** The sheet row of one member; `commands` names the commands the Party tab calls for a spend and a skill edit. */
 export function rowOf(member, now = null) {
     const companion = Boolean(member.companion);
+    const level = levelOf(member);
+    const wounds = woundsOf(member);
     return {
-        id: member.id, name: member.name, portrait: null, level: member.level,
-        line: companion ? `Lv ${member.level} · companion` : `Lv ${member.level}`,
-        xpPct: companion ? 0 : xpPct(member), points: member.points, away: null,
-        bars: companion ? [] : BARS.map(([kind, scale, label]) => ({ kind, value: member.pools[kind].now, max: member.pools[kind].max, label: `${label}: ${stageOf(member.pools[kind].now, member.pools[kind].max, scale).word}` })),
+        id: member.id, name: member.name, portrait: null, level,
+        line: companion ? `Lv ${level} · companion` : `Lv ${level}`,
+        xpPct: companion ? 0 : xpPct(member), points: pointsOf(member), away: null,
+        bars: companion ? [] : [{ kind: 'hp', value: 5 - wounds, max: 5, label: `Health: ${HEALTH_STAGES[wounds]}` }, ...BARS.map(([kind, scale, label]) => ({ kind, value: member.pools[kind].now, max: member.pools[kind].max, label: `${label}: ${stageOf(member.pools[kind].now, member.pools[kind].max, scale).word}` }))],
         effects: [...liveConditions(member, now).map(item => item.name), ...member.injuries.map(item => item.name)],
         stats: companion ? null : Object.fromEntries(STAT_KEYS.map(key => [key.toUpperCase(), member.stats[key]])),
         skills: skillRows(member),

@@ -4,7 +4,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { createHost } from '../../../testkit/index.js';
 import { active } from '../src/module-parts/active.js';
 import { textRpgModule } from '../src/module.js';
-import { astraOf, drawn, newHost, reply, sent, slice, tries, withAstra } from './helpers/host.js';
+import { BUY, astraOf, drawn, newHost, reply, sent, slice, tries, withAstra } from './helpers/host.js';
 
 const STATIC = 'story_suite_static';
 const TAIL = 'story_suite_tail_1';
@@ -110,6 +110,28 @@ test('a reply with no dice of its own to read (a continue) draws none and the ol
         await host.cont(' More.');
         assert.equal(JSON.stringify(drawn(host)), kept, 'a continue draws nothing');
         assert.equal(host.store.receipts().length, steps);
+    } finally {
+        host.close();
+    }
+});
+
+test('a party with injuries and conditions keeps the whole dice note in the real prompt: the note leads the tail (gear is in tail.test.js)', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const skills = ['Obscure', 'Lore', 'Tracking', 'Knots', 'Haggling'].map((name, at) => ({ name, about: `a long description of what ${name} lets her do in a hard place`, stat: ['agi', 'int', 'wis', 'dex', 'cha'][at], type: 'utility' }));
+    const host = await newHost();
+    try {
+        assert.equal((await host.sdk.command('textRpg.create', { name: 'Astra', stats: BUY, skills })).ok, true);
+        const lines = ['Astra', 'Rorke', 'Edda'].flatMap(name => [...(name === 'Astra' ? [] : [`+ companion ${name} | level: 9 | strengths: very strong, a veteran swordswoman, tracker`]), `+ injury ${name} — cracked rib | hampers: str | grave: minor`, `~ condition ${name} — poisoned | until: treated`]);
+        await host.send('We go on.', reply('The road.', lines));
+        await host.send('Onward.', reply('The next day.'));
+        const tail = sent(host, TAIL).at(-1);
+        const note = tail.split('\n').find(line => line.startsWith('Dice for this reply'));
+        assert.ok(note, 'the note is in the tail');
+        assert.match(note, /Bonus by stat or skill: Astra: .*\. The story must follow each result strictly\./);
+        assert.match(note, /for example \? try Astra \| Obscure \| normal\.$/, 'the note ends whole');
+        for (const name of ['Astra', 'Rorke', 'Edda']) assert.match(tail, new RegExp(`${name} \\(`), `${name}'s line is there`);
+        for (const name of ['Astra', 'Rorke', 'Edda']) assert.ok(tail.indexOf(note) < tail.indexOf(`${name} (`), `the note comes before ${name}'s line`);
+        assert.equal(textRpgModule(null).context.budget, 600);
     } finally {
         host.close();
     }

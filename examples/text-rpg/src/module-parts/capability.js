@@ -2,10 +2,11 @@
 import { rankOf } from '../words/ranks.js';
 import { liveConditions } from './conditions.js';
 import { practiceOf } from './practice.js';
-import { stageOf, usesLeft } from '../words/pools.js';
+import { HEALTH_STAGES, stageOf, usesLeft } from '../words/pools.js';
 import { statWord } from '../words/stats.js';
 import { STAT_KEYS } from '../words/stats.js';
 import { totalStats } from './gear.js';
+import { levelOf, woundsOf } from './standing.js';
 
 const POOLS = [['mp', 'Mana'], ['sp', 'Stamina']];
 
@@ -26,7 +27,7 @@ export function capabilityLine(member, gear = { cap: {}, names: [] }, now = null
     const stats = STAT_KEYS.map(key => [key.toUpperCase(), statWord(key, total[key])]).filter(([, word]) => word && word !== 'ordinary').map(([key, word]) => `${key} ${word}`);
     const skills = member.skills.map(skill => `${skill.name} (${rankOf(practiceOf(member, skill)).name})${skill.about ? `: ${skill.about}` : ''}`);
     const conditions = liveConditions(member, now);
-    const health = stageOf(member.pools.hp.now, member.pools.hp.max, 'health').word;
+    const health = HEALTH_STAGES[woundsOf(member)];
     const parts = [
         ...stats,
         ...(skills.length ? [`Skills: ${skills.join('; ')}`] : []),
@@ -36,5 +37,5 @@ export function capabilityLine(member, gear = { cap: {}, names: [] }, now = null
         ...(member.injuries.length ? [`Injuries: ${member.injuries.map(injury => injury.name).join(', ')}`] : []),
         ...(conditions.length ? [`Conditions: ${conditions.map(condition => condition.name).join(', ')}`] : []),
     ];
-    return `${member.name} (Level ${member.level}) — ${parts.join(' · ')}`;
+    return `${member.name} (Level ${levelOf(member)}) — ${parts.join(' · ')}`;
 }

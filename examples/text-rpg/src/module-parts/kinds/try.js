@@ -1,18 +1,19 @@
 // `? try Who | skill or stat | difficulty`: the code reads the verdict from the reply's recorded die, the bonus and the difficulty.
 import { DIFFICULTIES, difficultyIndex, floorIndex, raiseToFloor } from '../../rules/difficulty.js';
-import { dropStages, harmFor } from '../../rules/harm.js';
+import { harmFor } from '../../rules/harm.js';
 import { practiceGain } from '../../rules/growth.js';
 import { verdict } from '../../rules/roll.js';
 import { PRACTICE_MAX, rankOf } from '../../words/ranks.js';
 import { stageOf } from '../../words/pools.js';
 import { THREAT_WORDS } from '../../words/threat.js';
-import { recordOf } from '../dice-source.js';
+import { priorThreat, recordOf } from '../dice-source.js';
 import { bonusFor } from '../bonus.js';
 import { practiceKey, practiceOf } from '../practice.js';
 import { liveConditions } from '../conditions.js';
 import { gearOf } from '../gear.js';
 import { partsOf, labelOf } from '../line-read.js';
 import { toneStep } from '../settings.js';
+import { woundsAfter } from '../standing.js';
 import { spendCost } from './pools.js';
 import { target } from './target.js';
 
@@ -35,18 +36,31 @@ export function applyTry(ctx, line) {
     if (refused) ctx.fail('NOT_ENOUGH', refused);
 
     const said = THREAT_WORDS.indexOf(labelOf(line, 'threat').toLowerCase());
-    const threat = said >= 0 ? said : record.threat ?? 0;
+    // The threat is the line's own, else this reply's earlier one, else the latest earlier reply's, else none (not in danger).
+    const threat = said >= 0 ? said : record.threat ?? priorThreat(slice, ctx.reply?.sid);
     const drained = stageOf(member.pools.sp.now, member.pools.sp.max, 'energy').index >= 3;
     const floor = Math.max(record.floor, floorIndex({ threat, conditions: liveConditions(member, ctx.time?.() ?? null).length, drained, physical: PHYSICAL.includes(found.stat) }));
-    const asked = clamp(difficultyIndex(word) + toneStep(ctx), 0, 4);
-    const { index, raised } = raiseToFloor(asked, floor);
+    // The word is raised to the floor first, then the tone moves it: the dice note lists exactly these numbers (dice/note.js).
+    const { index: floored, raised } = raiseToFloor(difficultyIndex(word), floor);
+    const index = clamp(floored + toneStep(ctx), 0, 4);
     const die = record.list[record.used ?? 0];
     const result = verdict({ die, bonus: found.bonus, dc: DIFFICULTIES[index].dc });
 
     const inDanger = threat >= 2 || labelOf(line, 'danger').toLowerCase() === 'yes';
-    const { hp } = member.pools;
-    if (!member.companion) hp.now = dropStages(hp.now, hp.max, harmFor(result.band, inDanger));
-    if (result.band === 'cost' && !inDanger && found.skill) spendCost(member, found.skill);
+    const stages = harmFor(result.band, inDanger);
+    let paid = stages > 0 ? 'wound' : 'none';
+    if (!member.companion) {
+        member.wounds = woundsAfter(member, stages);
+        // Success at a cost always costs: in danger the wound stage above; out of danger the skill's cost again, else a step of stamina.
+        if (result.band === 'cost' && !inDanger) {
+            const { sp } = member.pools;
+            if (found.skill?.cost && !spendCost(member, found.skill)) paid = 'skill';
+            else {
+                sp.now = Math.max(0, sp.now - Math.ceil(sp.max / 4));
+                paid = 'stamina';
+            }
+        }
+    }
     let rankUp = null;
     if (found.skill) {
         const key = practiceKey(found.skill.name);
@@ -58,9 +72,9 @@ export function applyTry(ctx, line) {
     record.used = (record.used ?? 0) + 1;
     record.hardest = Math.max(record.hardest ?? 0, index);
     if (said >= 0) record.threat = Math.max(record.threat ?? 0, said);
-    const tail = `${DIFFICULTIES[index].word}${raised ? ' (raised: the scene allows nothing easier)' : ''}: ${BAND_WORD[result.band]}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}.`;
+    const tail = `${DIFFICULTIES[floored].word}${raised ? ' (raised: the scene allows nothing easier)' : ''}: ${BAND_WORD[result.band]}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}.`;
     return {
         summary: `${member.name} tries ${found.skill?.name ?? what}, ${tail}`, narrate: true,
-        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, raised, rankUp },
+        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, raised, paid, rankUp },
     };
 }

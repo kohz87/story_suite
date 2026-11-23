@@ -7,6 +7,8 @@ import { STAT_KEYS } from '../words/stats.js';
 
 const START = { str: 9, vit: 9, agi: 9, dex: 9, int: 8, wis: 8, cha: 8 };
 const TOTAL = 60;
+const BUY_MIN = 5;
+const BUY_MAX = 15;
 const SKILL_ROWS = 5;
 
 export function renderNewCharacter(el, props = {}, api = {}) {
@@ -42,13 +44,19 @@ export function renderNewCharacter(el, props = {}, api = {}) {
     create.setAttribute('type', 'button');
     create.setAttribute('data-act', 'create');
 
-    const spent = () => STAT_KEYS.reduce((sum, key) => sum + (Number.parseInt(stats[key].input.value, 10) || 0), 0);
+    const valueOf = key => Number.parseInt(stats[key].input.value, 10) || 0;
+    const spent = () => STAT_KEYS.reduce((sum, key) => sum + valueOf(key), 0);
+    const inRange = key => valueOf(key) >= BUY_MIN && valueOf(key) <= BUY_MAX;
     const refresh = () => {
         const remaining = TOTAL - spent();
         const n = Math.abs(remaining);
         left.textContent = remaining === 0 ? `All ${TOTAL} points placed.` : `${n} point${n === 1 ? '' : 's'} ${remaining > 0 ? 'left to place' : 'too many'}.`;
-        create.disabled = remaining !== 0 || !name.input.value.trim();
+        create.disabled = remaining !== 0 || !STAT_KEYS.every(inRange) || !name.input.value.trim();
     };
+    for (const key of STAT_KEYS) {
+        stats[key].input.setAttribute('min', String(BUY_MIN));
+        stats[key].input.setAttribute('max', String(BUY_MAX));
+    }
     for (const key of STAT_KEYS) {
         stats[key].input.addEventListener('input', refresh);
         stats[key].input.addEventListener('change', refresh);

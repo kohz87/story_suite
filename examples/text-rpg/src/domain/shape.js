@@ -63,7 +63,6 @@ export function newMember(input) {
     const stats = {};
     for (const key of STAT_KEYS) stats[key] = clampStat(suppliedStats[key]);
 
-    const hp = 10 + stats.str + stats.vit;
     const mp = 10 + stats.int + stats.wis;
     const sp = 10 + stats.agi + stats.dex;
     const suppliedSkills = Array.isArray(source.skills)
@@ -74,12 +73,11 @@ export function newMember(input) {
         id,
         name,
         pc: source.pc === true,
-        level: 1,
         xp: 0,
-        points: 0,
+        spent: 0,
+        wounds: 0,
         stats,
         pools: {
-            hp: { now: hp, max: hp },
             mp: { now: mp, max: mp },
             sp: { now: sp, max: sp },
         },

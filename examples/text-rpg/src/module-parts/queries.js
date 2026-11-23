@@ -5,6 +5,7 @@ import { active } from './active.js';
 import { DOMAIN } from '../domain/shape.js';
 import { minutesOf } from './conditions.js';
 import { rowOf } from './sheet-row.js';
+import { levelOf } from './standing.js';
 
 const NEW_CHARACTER = 'text-rpg/new-character';
 
@@ -20,7 +21,7 @@ export function queriesOf(sdk) {
         }, { fallback: true }),
         // The plain answer for the Party tab's Create character: the screen to open while no member is the reader's, else null.
         'party.newCharacter': gate(state => (membersOf(state).some(member => member.pc) ? null : NEW_CHARACTER)),
-        'party.levels': gate(state => membersOf(state).map(member => ({ id: member.id, name: member.name, level: member.level, left: false })), { fallback: true }),
+        'party.levels': gate(state => membersOf(state).map(member => ({ id: member.id, name: member.name, level: levelOf(member), left: false })), { fallback: true }),
         'party.actors': gate(state => membersOf(state).map(member => ({ id: member.id, name: member.name, ...(member.pc ? { pc: true } : {}) }))),
         // The dice of the latest dice step (drawn before the reply being written), or null.
         'textRpg.dice': gate((state, args, tools) => lastDice(tools?.receipts?.())),

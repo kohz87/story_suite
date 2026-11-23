@@ -6,6 +6,7 @@ import { requireActive } from '../active.js';
 import { memberNamed, skillIndex, skillSlots } from '../members.js';
 import { statKey } from '../line-read.js';
 import { practiceKey } from '../practice.js';
+import { levelOf, pointsOf } from '../standing.js';
 
 const TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
 
@@ -17,7 +18,7 @@ function sheetOf(ctx, payload) {
     return member;
 }
 
-/** Payload: { member (id or name), stats: { STR: 1, … } }; takes the points from the member and resizes the pools. */
+/** Payload: { member (id or name), stats: { STR: 1, … } }; counts the points as spent and resizes the mana and stamina pools. */
 export function spend(ctx, payload = {}) {
     const member = sheetOf(ctx, payload);
     const asked = {};
@@ -27,17 +28,18 @@ export function spend(ctx, payload = {}) {
     }
     const total = Object.values(asked).reduce((sum, n) => sum + n, 0);
     if (total < 1) ctx.fail('INVALID', 'Choose at least one point to spend.');
-    if (total > member.points) ctx.fail('NOT_ENOUGH', `${member.name} has ${member.points} points to spend.`);
+    const points = pointsOf(member);
+    if (total > points) ctx.fail('NOT_ENOUGH', `${member.name} has ${points} points to spend.`);
     for (const key of STAT_KEYS) {
         if (member.stats[key] + (asked[key] ?? 0) > LIMITS.statMax) ctx.fail('INVALID', `A stat goes no higher than ${LIMITS.statMax}.`);
     }
     for (const key of STAT_KEYS) member.stats[key] += asked[key] ?? 0;
-    for (const pool of ['hp', 'mp', 'sp']) {
+    for (const pool of ['mp', 'sp']) {
         const max = poolMax(pool, member.stats);
         member.pools[pool].now += max - member.pools[pool].max;
         member.pools[pool].max = max;
     }
-    member.points -= total;
+    member.spent += total;
     return { summary: `${member.name} spends ${total} stat point${total === 1 ? '' : 's'}.`, narrate: false, data: { member: member.id, stats: asked } };
 }
 
@@ -68,7 +70,7 @@ export function skillEdit(ctx, payload = {}) {
     }
     let skill = member.skills[at];
     if (!skill) {
-        if (member.skills.length >= skillSlots(member.level)) ctx.fail('LIMITED', `${member.name} has no free skill slot.`);
+        if (member.skills.length >= skillSlots(levelOf(member))) ctx.fail('LIMITED', `${member.name} has no free skill slot.`);
         skill = { name, about: '', stat: 'str', type: 'utility', cost: null };
         if (!statKey(payload.stat)) ctx.fail('INVALID', 'A new skill needs a stat.');
         member.skills.push(skill);

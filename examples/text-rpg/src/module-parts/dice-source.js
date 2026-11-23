@@ -37,3 +37,8 @@ export function recordOf(ctx, slice) {
     for (const key of keys.slice(0, Math.max(0, keys.length - LIMITS.diceReplies))) delete slice.dice[key];
     return slice.dice[sid];
 }
+
+/** The threat the latest earlier reply recorded (0 when none did): what a `? try` without its own `threat:` is made under, as the prelude's floor reads it. */
+export function priorThreat(slice, sid) {
+    return Object.entries(slice.dice).filter(([key]) => key !== sid).at(-1)?.[1].threat ?? 0;
+}

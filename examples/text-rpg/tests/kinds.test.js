@@ -5,6 +5,7 @@ import { applyCondition, applyInjury, applyFall } from '../src/module-parts/kind
 import { applyHealth, applySpend } from '../src/module-parts/kinds/pools.js';
 import { applySkill, applyCompanion } from '../src/module-parts/kinds/roster.js';
 import { applyLine, kindsOf } from '../src/module-parts/kinds.js';
+import { levelOf, pointsOf, woundsOf } from '../src/module-parts/standing.js';
 import { astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 
 const asRolled = (hardest = 2, used = 1) => ({ list: [10, 10, 10], floor: 0, used, hardest });
@@ -43,7 +44,9 @@ test('+ xp: levels add points, only one line counts a reply, companions and the 
     assert.equal(first.result.narrate, true);
     assert.match(first.result.summary, /Astra reaches level 2/);
     const me = slice.members.ac_astra001;
-    assert.deepEqual([me.level, me.points, rorke.xp], [2, 1, 0]);
+    assert.deepEqual([levelOf(me), pointsOf(me), rorke.xp, levelOf(rorke)], [2, 1, 0, 5]);
+    me.spent = 1;
+    assert.equal(pointsOf(me), 0, 'a spent point is not offered again');
     assert.equal(run(applyXp, ctx, line('xp', 'Party', 'again', { size: 'real' })).code, 'LIMITED');
 });
 
@@ -72,6 +75,16 @@ test('+ injury: stats it hampers, days by grave, at most three kept', () => {
     assert.equal(me.injuries[0].grave, 'minor');
 });
 
+test('with no story clock a timed condition is held until cleared and an injury has no end time yet', () => {
+    const slice = sliceOf();
+    const ctx = fakeCtx(slice);
+    run(applyCondition, ctx, line('condition', 'Astra', 'poisoned', { until: '2 hours' }));
+    run(applyInjury, ctx, line('injury', 'Astra', 'cracked rib', { grave: 'minor' }));
+    const me = slice.members.ac_astra001;
+    assert.deepEqual(me.conditions, [{ name: 'poisoned', until: 'treated' }]);
+    assert.equal(me.injuries[0].heals, null);
+});
+
 test('! fall closes the sheet: it is kept, and later lines for the character are refused', () => {
     const slice = sliceOf();
     const ctx = fakeCtx(slice);
@@ -80,16 +93,18 @@ test('! fall closes the sheet: it is kept, and later lines for the character are
     assert.equal(run(applyHealth, ctx, line('health', 'Astra', 'Hurt')).code, 'REFUSED');
 });
 
-test('~ health moves to the stage word, down or up, and Down is zero', () => {
+test('~ health sets the wound stage to the word, down or up; Down is 5', () => {
     const slice = sliceOf();
     const ctx = fakeCtx(slice);
     const me = slice.members.ac_astra001;
     run(applyHealth, ctx, line('health', 'Astra', 'Wounded', { why: 'a spear' }));
-    assert.equal(me.pools.hp.now, 18);
+    assert.equal(me.wounds, 3);
     run(applyHealth, ctx, line('health', 'Astra', 'Hurt'));
-    assert.equal(me.pools.hp.now, 27);
+    assert.equal(me.wounds, 2);
     run(applyHealth, ctx, line('health', 'Astra', 'Down'));
-    assert.equal(me.pools.hp.now, 0);
+    assert.equal(woundsOf(me), 5);
+    run(applyHealth, ctx, line('health', 'Astra', 'Unhurt'));
+    assert.equal(me.wounds, 0);
     assert.equal(run(applyHealth, ctx, line('health', 'Astra', 'Dizzy')).code, 'INVALID');
 });
 
@@ -102,7 +117,7 @@ test('~ spend takes the skill\'s cost, refuses without it, and a Down character 
     me.pools.sp.now = 1;
     assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Obscure')).code, 'NOT_ENOUGH');
     assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Dancing')).code, 'NOT_FOUND');
-    me.pools.hp.now = 0;
+    me.wounds = 5;
     assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Lore')).code, 'REFUSED');
 });
 
@@ -116,7 +131,7 @@ test('+ skill takes the next free slot (5 at level 1, one more every third level
     assert.deepEqual(me.skills[3].cost, { pool: 'sp', n: 1 });
     run(applySkill, ctx, line('skill', 'Astra', 'Haggling; cha; social'));
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).code, 'LIMITED');
-    me.level = 3;
+    me.xp = 150;
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).ok, true);
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).code, 'INVALID', 'twice');
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Luck; luck')).code, 'INVALID');
@@ -129,7 +144,7 @@ test('+ companion makes a sheetless member with a level and up to three strength
     const rorke = slice.members[done.result.data.member];
     assert.deepEqual([rorke.name, rorke.pc, rorke.companion], ['Rorke', false, { level: 9, strengths: ['very strong', 'a veteran swordswoman', 'tracker'] }]);
     run(applyCompanion, ctx, line('companion', 'rorke', '', { level: '10' }));
-    assert.deepEqual([Object.keys(slice.members).length, rorke.level], [2, 10]);
+    assert.deepEqual([Object.keys(slice.members).length, rorke.companion.level, levelOf(rorke)], [2, 10, 10]);
     assert.equal(run(applyCompanion, ctx, line('companion', 'Astra', '', { level: '3' })).code, 'REFUSED');
 });
 

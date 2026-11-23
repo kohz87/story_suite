@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { astraOf, drawn, reply, slice, tries, withAstra } from './helpers/host.js';
 import { practiceGain } from '../src/rules/growth.js';
+import { harmFor } from '../src/rules/harm.js';
+import { levelOf, pointsOf, woundsOf } from '../src/module-parts/standing.js';
 
 const TRY = ['? try Astra | Lore | normal | threat: a fair match', '+ xp Party — the gate | size: real'];
 const summary = host => JSON.stringify({ textRpg: slice(host), meta: host.head().meta?.rev });
@@ -155,13 +157,60 @@ test('a health stage and a rest are sets: after a middle delete they land where 
         const middleAt = host.ctx.chat.length;
         await host.send('Two.', reply('B.', ['~ health Astra — Down | why: a fall']));
         await host.send('Three.', reply('C.', ['~ health Astra — Hurt']));
-        assert.equal(astraOf(host).pools.hp.now, 22);
+        assert.equal(astraOf(host).wounds, 2);
         await host.st.deleteMessage(middleAt + 1);
         await host.st.deleteMessage(middleAt);
         assert.deepEqual(host.store.problems(), []);
-        assert.equal(astraOf(host).pools.hp.now, 22, 'Hurt is Hurt whatever the deleted reply did');
+        assert.equal(astraOf(host).wounds, 2, 'Hurt is Hurt whatever the deleted reply did');
         await host.sdk.command('textRpg.rest', { kind: 'short' });
         assert.equal(astraOf(host).pools.sp.now, astraOf(host).pools.sp.max);
+    } finally {
+        host.close();
+    }
+});
+
+test('wounds are a stage counter: a heal reply deleted between two failures leaves what a fresh telling of the two failures leaves', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await withAstra();
+    try {
+        // Danger with a natural die cannot be chosen, so the wounds each surviving reply added are read from its own receipt.
+        const hurt = ['? try Astra | Lore | very hard | threat: above you'];
+        await host.send('One.', reply('First.', hurt));
+        const healAt = host.ctx.chat.length;
+        await host.send('Two.', reply('Second.', ['~ health Astra — Unhurt | why: a long rest']));
+        await host.send('Three.', reply('Third.', hurt));
+        await host.st.deleteMessage(healAt + 1);
+        await host.st.deleteMessage(healAt);
+        assert.deepEqual(host.store.problems(), []);
+        let wounds = 0;
+        for (const { data } of tries(host)) wounds += Math.min(harmFor(data.band, true), Math.max(0, 4 - wounds));
+        assert.equal(tries(host).length, 2);
+        assert.equal(woundsOf(astraOf(host)), wounds, 'the same stage as the two failures told fresh');
+        const after = JSON.stringify(host.head());
+        host.store.rebuild();
+        assert.equal(JSON.stringify(host.head()), after, 'rebuild == live');
+    } finally {
+        host.close();
+    }
+});
+
+test('level and points follow the xp that survives: deleting an early xp reply takes the later level-up with it', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await withAstra();
+    try {
+        const rolled = ['? try Astra | Lore | normal', '+ xp Party — a deed | size: real'];
+        await host.send('One.', reply('First.', rolled));
+        const firstAt = host.ctx.chat.length - 1;
+        await host.send('Two.', reply('Second.', rolled));
+        await host.send('Three.', reply('Third.', rolled));
+        assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [60, 2, 1]);
+        await host.st.deleteMessage(firstAt + 1);
+        await host.st.deleteMessage(firstAt);
+        assert.deepEqual(host.store.problems(), []);
+        // 40 xp is below level 2 (50): a fresh telling of the two surviving replies reads the same.
+        assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [40, 1, 0]);
+        assert.equal(Object.hasOwn(astraOf(host), 'level'), false, 'level is derived, not stored');
+        assert.equal(Object.hasOwn(astraOf(host), 'points'), false, 'points are derived, not stored');
     } finally {
         host.close();
     }

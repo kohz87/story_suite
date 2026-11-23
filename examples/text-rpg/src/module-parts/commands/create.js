@@ -37,11 +37,13 @@ function skillsOf(ctx, given) {
 export function create(ctx, payload = {}) {
     requireActive(ctx);
     const slice = ctx.draft(DOMAIN);
-    if (Object.values(slice.members).some(member => member.pc)) ctx.fail('INVALID', 'There is a character already.');
+    // While the reader's character lives a second is refused; once they have fallen the new one becomes the reader's and the fallen keeps `pc` false.
+    if (Object.values(slice.members).some(member => member.pc && !member.fallen)) ctx.fail('INVALID', 'There is a character already.');
     if (Object.keys(slice.members).length >= LIMITS.members) ctx.fail('LIMITED', 'The party is full.');
     const name = String(payload?.name ?? '').replace(/\s+/g, ' ').trim().slice(0, LIMITS.name);
     if (!name) ctx.fail('INVALID', 'Your character needs a name.');
     const member = newMember({ id: ctx.id('ac'), name, pc: true, stats: statsOf(ctx, payload.stats), skills: skillsOf(ctx, payload.skills) });
+    for (const old of Object.values(slice.members)) old.pc = false;
     slice.members[member.id] = member;
     return { summary: `${name} begins the story.`, narrate: false, data: { member: member.id } };
 }

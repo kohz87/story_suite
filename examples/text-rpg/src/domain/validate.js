@@ -3,10 +3,10 @@ import { LIMITS } from './shape.js';
 
 const STAT_KEYS = ['str', 'vit', 'agi', 'dex', 'int', 'wis', 'cha'];
 const SKILL_TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
-const POOL_KEYS = ['hp', 'mp', 'sp'];
+const POOL_KEYS = ['mp', 'sp'];
 const ID_PATTERN = /^(?:[a-z0-9][a-z0-9-]{0,39}|[a-z][a-z0-9]*_[0-9a-z]{8})$/;
 const MEMBER_KEYS = [
-    'id', 'name', 'pc', 'level', 'xp', 'points', 'stats', 'pools', 'skills', 'practice',
+    'id', 'name', 'pc', 'xp', 'spent', 'wounds', 'stats', 'pools', 'skills', 'practice',
     'injuries', 'conditions', 'companion', 'fallen',
 ];
 const SKILL_KEYS = ['name', 'about', 'stat', 'type', 'cost'];
@@ -43,7 +43,7 @@ function checkStats(stats, where, problems) {
 
 function checkPools(pools, stats, where, problems) {
     if (!checkShape(pools, where, POOL_KEYS, problems)) return;
-    const pairs = { hp: ['str', 'vit'], mp: ['int', 'wis'], sp: ['agi', 'dex'] };
+    const pairs = { mp: ['int', 'wis'], sp: ['agi', 'dex'] };
     for (const key of POOL_KEYS) {
         const poolWhere = at(where, key);
         const pool = pools[key];
@@ -122,7 +122,7 @@ function checkInjuries(injuries, where, problems) {
                 seen.add(stat);
             }
         }
-        if (!isInt(injury.heals, 0)) problems.push(`${injuryWhere}.heals must be a whole number of minutes.`);
+        if (injury.heals !== null && !isInt(injury.heals, 0)) problems.push(`${injuryWhere}.heals must be null (no clock yet) or a whole number of minutes.`);
         if (!['minor', 'serious', 'grave'].includes(injury.grave)) {
             problems.push(`${injuryWhere}.grave must be minor, serious or grave.`);
         }
@@ -186,11 +186,10 @@ function checkMember(member, key, problems) {
         problems.push(`${where}.name must be a string of at most ${LIMITS.name} characters.`);
     }
     if (typeof member.pc !== 'boolean') problems.push(`${where}.pc must be a boolean.`);
-    if (!isInt(member.level, 1, LIMITS.levelMax)) {
-        problems.push(`${where}.level must be a whole number from 1 to ${LIMITS.levelMax}.`);
-    }
     if (!isInt(member.xp, 0)) problems.push(`${where}.xp must be a whole number of at least 0.`);
-    if (!isInt(member.points, 0)) problems.push(`${where}.points must be a whole number of at least 0.`);
+    if (!isInt(member.spent, 0)) problems.push(`${where}.spent must be a whole number of at least 0.`);
+    // Any whole number: a replay after a deleted reply can add a change past 0 or 5; every read clamps it (standing.js woundsOf).
+    if (!Number.isInteger(member.wounds)) problems.push(`${where}.wounds must be a whole number.`);
     checkStats(member.stats, `${where}.stats`, problems);
     checkPools(member.pools, member.stats, `${where}.pools`, problems);
     checkSkills(member.skills, `${where}.skills`, problems);
