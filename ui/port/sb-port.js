@@ -142,7 +142,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         if (answer) return answer;
         try { answer = await packsCommand(packs, sdk, type, payload); } catch (error) { answer = failure(error); }
         if (answer) return answer;
-        try { answer = pluginCommand(type, payload, writes, () => sdk?.modules?.()); } catch (error) { answer = failure(error); }
+        try { answer = pluginCommand(type, payload, writes, () => sdk?.modules?.(), () => sdk?.features?.()); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         try { answer = hostCommand(type, payload, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;

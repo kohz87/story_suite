@@ -10,6 +10,7 @@ import { selectRpgRows } from './rpg-rows.js';
 import { rpgFeatureRows, withoutRpgFeatures } from './rpg-features.js';
 import { worldRows } from './settings-world.js';
 import { extrasRows, withExtras } from './settings-extras.js';
+import { withReplacedSubs } from './replaced.js';
 import { readTabOrder } from './reply-tabs.js';
 import { selectPacks } from './packs.js';
 import { selectYouStartRows } from './you-start.js';
@@ -118,8 +119,8 @@ export function selectSettings(answers) {
   const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
   const parts = withoutRpgFeatures(withExtras(moduleParts(hasFeatures ? a.features : [], a.rollsHeld === true, iconsOf(a.modules)), hasFeatures ? a.features : []));
   const costs = moduleCosts(hasFeatures ? a.features : [], parts.defList.filter(d => CARD_TEXT[d.id]), a.staticTokens);
-  const defList = parts.defList.map(d => (CARD_TEXT[d.id] ? { ...d, tokens: costs.cards[d.id] } : d));
-  const set = parts.set;
+  const shown = withReplacedSubs({ defList: parts.defList.map(d => (CARD_TEXT[d.id] ? { ...d, tokens: costs.cards[d.id] } : d)), set: parts.set }, hasFeatures ? a.features : []);
+  const { defList, set } = shown;
   // The RPG and fights page only while the RPG is on (its stored values stay as they are); a host without the RPG feature keeps the page.
   const rpgOff = hasFeatures && a.features.some(f => f?.id === LEAN_RPG_FEATURE && f.on !== true);
   const packs = selectPacks(a.packsAnswers);

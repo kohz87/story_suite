@@ -1,5 +1,6 @@
 // A plug-in's Rules page write for the port: `settings.set` with a `plugin.<module id>.<field>` key stores the value in that module's own setting.
 import { pluginKey } from '../select/plugin-pages.js';
+import { replacedFeatures, replacedKey } from '../select/replaced.js';
 
 const fail = message => ({ ok: false, code: 'FAILED', message });
 
@@ -26,12 +27,19 @@ function typeProblem(spec, value) {
 }
 
 /**
- * `modules`: () => sdk.modules(). `settings.set` { key: 'plugin.<module>.<field>', value } (a choice row: the label shown) → `writes.settings.set(module, field, stored)`:
+ * `modules`: () => sdk.modules(), `features`: () => the feature list (a key `plugin.<module>.replaces.<feature id>` writes that feature). `settings.set` { key: 'plugin.<module>.<field>', value } (a choice row: the label shown) → `writes.settings.set(module, field, stored)`:
  * { ok: true, value } or { ok: false, message }. Any other command is not these pages': returns null.
  */
-export function pluginCommand(type, payload, writes, modules = () => []) {
+export function pluginCommand(type, payload, writes, modules = () => [], features = () => []) {
   const key = String(payload?.key ?? '');
   if (type !== 'settings.set' || !key.startsWith('plugin.')) return null;
+  // "Instead of this plug-in": the switch of a feature the module's feature replaces is the normal feature write (`replaces` then turns the plug-in off).
+  const list = features() ?? [];
+  const instead = (modules() ?? []).flatMap(m => replacedFeatures(list, m?.id).map(f => ({ key: replacedKey(m.id, f.id), id: f.id }))).find(r => r.key === key);
+  if (instead) {
+    if (typeof payload.value !== 'boolean') return fail('This switch is on or off.');
+    return writes?.features?.set?.(instead.id, payload.value) === undefined ? fail('That switch was not saved.') : { ok: true, value: payload.value };
+  }
   let found = null;
   for (const m of modules() ?? []) for (const field of Object.keys(m?.settingsPage?.schema ?? {})) if (pluginKey(m.id, field) === key) found = { id: m.id, field, spec: m.settingsPage.schema[field] };
   if (!found) return fail('That setting is not on this page.');

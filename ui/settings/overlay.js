@@ -34,7 +34,8 @@ export function createSettingsOverlay(options = {}) {
   const folds = foldStore(options.prefs);
   let sections = settings.sections ?? [];
   // A module switch, a preset or Reset to Standard can turn a page's module on or off (the RPG page goes with the RPG): the side list is read again after them.
-  const modulesKey = key => /^modules\./.test(String(key ?? ''));
+  // (so does a plug-in page's "Instead of this plug-in" switch: it turns the plug-in off and the RPG page on.)
+  const modulesKey = key => /^modules\.|^plugin\.[^.]+\.replaces\./.test(String(key ?? ''));
   // Any other change re-reads the open page, which redraws only when another row moved with it (a Portraits style brings its own text).
   const after = (answer, key) => {
     const read = () => (modulesKey(key) ? refreshSections() : refreshRows(key));

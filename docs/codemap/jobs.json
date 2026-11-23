@@ -666,6 +666,7 @@
   "ui/select/persona-stamp.js": "Keeps the persona picture's cache stamp, bumped on SillyTavern's persona events so a replaced picture under the same file name is fetched again.",
   "ui/select/plugin-pages.js": "Builds a Rules page for each plug-in module that has a feature on and a settings schema, named by its settings section.",
   "ui/select/prompts.js": "Reads the Tools › Prompts rows: each People prompt and the arc planner prompt as stored, or the built-in text.",
+  "ui/select/replaced.js": "Finds the features a module's own features replace and makes their switch rows (plug-in Rules page) and extra Start card subs.",
   "ui/select/purse-lines.js": "Turns the head reply's coin lines (reply.changes) into the Bag purse's this-turn list.",
   "ui/select/reply-actions.js": "Builds the newest reply's action-line view-model from the head's answers: fight, loot, points, overdue, joins, pack offers and the no-changes badge.",
   "ui/select/reply-card.js": "Reads a module's raw card under a reply into the view's clean card.",
