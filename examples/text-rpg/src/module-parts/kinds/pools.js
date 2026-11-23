@@ -1,7 +1,9 @@
 // The pool lines: paying a skill's cost, `~ spend Who — skill` and `~ health Who — stage | why: …` (the wound stage).
 import { DOMAIN } from '../../domain/shape.js';
 import { HEALTH_STAGES } from '../../words/pools.js';
-import { skillActive, poolOf } from '../effective.js';
+import { skillActive } from '../effective.js';
+import { gearOf } from '../gear.js';
+import { poolWith } from '../gear-sizes.js';
 import { skillIndex } from '../members.js';
 import { partsOf, labelOf } from '../line-read.js';
 import { target } from './target.js';
@@ -9,9 +11,9 @@ import { target } from './target.js';
 const POOL_WORD = { mp: 'mana', sp: 'stamina' };
 
 /** Takes a skill's cost `times` over from the member's pool: '' when paid, else why it was not (nothing is taken). */
-export function spendCost(member, skill, times = 1) {
+export function spendCost(member, skill, cap = {}, times = 1) {
     if (!skill?.cost) return '';
-    const pool = poolOf(member, skill.cost.pool);
+    const pool = poolWith(member, skill.cost.pool, cap);
     const price = skill.cost.n * times;
     if (pool.now < price) return `${member.name} has no ${POOL_WORD[skill.cost.pool]} for ${skill.name}.`;
     member.pools[skill.cost.pool].now = pool.now - price; // from the value as it reads (never above the size), not the stored one
@@ -24,7 +26,7 @@ export function applySpend(ctx, line) {
     if (at < 0) ctx.fail('NOT_FOUND', `${member.name} has no skill called ${String(partsOf(line)[0] ?? '').slice(0, 40)}.`);
     const skill = member.skills[at];
     if (!skillActive(member, skill)) ctx.fail('REFUSED', `${skill.name} is not known at this level.`);
-    const refused = spendCost(member, skill);
+    const refused = spendCost(member, skill, gearOf(ctx.query, member).cap);
     if (refused) ctx.fail('NOT_ENOUGH', refused);
     return { summary: `${member.name} uses ${skill.name}.`, narrate: false, data: { member: member.id, skill: skill.name } };
 }

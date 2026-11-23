@@ -55,7 +55,7 @@ function commandsOf(raw) {
   return Object.keys(out).length ? out : null;
 }
 
-// One member: what party.actors, party.levels and gear.view give; every sheet field is a gap unless `sheet` (the member's `rpg.sheet` row) carries it.
+// One member: what party.actors, party.levels and gear.view give; every sheet field is a gap unless `sheet` (the member's `rpg.sheet` row) carries it; a row's own `bonus` ({ STR: 2 }) replaces the Bag's gear bonus.
 function memberOf(actor, level, gearView, sheet, portrait = null) {
   const known = Number.isSafeInteger(level) ? level : null;
   const own = isRecord(sheet) ? sheet : {};
@@ -65,7 +65,7 @@ function memberOf(actor, level, gearView, sheet, portrait = null) {
     line: own.line ?? (known === null ? '' : `Lv ${known}`),
     level: known ?? (Number.isSafeInteger(own.level) ? own.level : null), xpPct: own.xpPct ?? null, xpLabel: typeof own.xpLabel === 'string' ? own.xpLabel : null, points: own.points ?? null, away: own.away ?? null, soakPct: own.soakPct ?? null,
     bars: Array.isArray(own.bars) ? own.bars : [], effects: Array.isArray(own.effects) ? own.effects : [],
-    stats: isRecord(own.stats) ? own.stats : null, bonus: bonusOf(gearView?.statBonus), slots: slotsOf(gearView), skills: Array.isArray(own.skills) ? own.skills : [],
+    stats: isRecord(own.stats) ? own.stats : null, bonus: isRecord(own.bonus) ? bonusOf(own.bonus) : bonusOf(gearView?.statBonus), slots: slotsOf(gearView), skills: Array.isArray(own.skills) ? own.skills : [],
     ...(commands ? { commands } : {}),
   };
 }

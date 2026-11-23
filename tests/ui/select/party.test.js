@@ -25,6 +25,15 @@ describe('selectParty', () => {
     assert.deepEqual([astra.bonus, brann.bonus], [{ STR: 1, VIT: 2 }, {}]);
   });
 
+  it('a sheet row\'s own bonus replaces the Bag\'s uncapped one (an empty one too); a row without it keeps the Bag\'s', () => {
+    const gear = { ...GEAR, astra: { ...GEAR.astra, statBonus: { STR: 3 } }, brann: { ...GEAR.brann, statBonus: { VIT: 2 } } };
+    const sheet = [{ id: 'astra', bonus: { STR: 1, INT: 0, DEX: -2 } }, { id: 'brann', bonus: {} }];
+    const [astra, brann] = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear, sheet }).members;
+    assert.deepEqual([astra.bonus, brann.bonus], [{ STR: 1 }, {}]);
+    const plain = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear, sheet: [{ id: 'astra' }] }).members[0];
+    assert.deepEqual(plain.bonus, { STR: 3 });
+  });
+
   it('builds members in actor order with level from party.levels and the pc id', () => {
     const vm = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear: GEAR });
     assert.equal(vm.pcId, 'astra');

@@ -5,15 +5,16 @@ import { practiceOf } from './practice.js';
 import { HEALTH_STAGES, stageOf, usesLeft } from '../words/pools.js';
 import { statWord } from '../words/stats.js';
 import { STAT_KEYS } from '../words/stats.js';
-import { activeSkills, poolOf } from './effective.js';
+import { activeSkills } from './effective.js';
 import { listedSkills } from './listed.js';
 import { totalStats } from './gear.js';
+import { poolWith } from './gear-sizes.js';
 import { levelOf, woundsOf } from './standing.js';
 
 const POOLS = [['mp', 'Mana'], ['sp', 'Stamina']];
 
-function poolPart(member, kind, label) {
-    const pool = poolOf(member, kind);
+function poolPart(member, kind, label, cap) {
+    const pool = poolWith(member, kind, cap);
     const dearest = activeSkills(member).filter(skill => skill.cost?.pool === kind).sort((a, b) => b.cost.n - a.cost.n)[0];
     const left = dearest ? ` (${usesLeft(pool.now, dearest.cost.n)} ${dearest.name} left)` : '';
     return `${label}: ${stageOf(pool.now, pool.max, 'energy').word}${left}`;
@@ -34,7 +35,7 @@ export function capabilityLine(member, gear = { cap: {}, names: [] }, now = null
         ...stats,
         ...(skills.length ? [`Skills: ${skills.join('; ')}`] : []),
         `Health: ${health}${health === 'Down' ? ' (cannot act)' : ''}`,
-        ...POOLS.map(([kind, label]) => poolPart(member, kind, label)),
+        ...POOLS.map(([kind, label]) => poolPart(member, kind, label, gear.cap)),
         ...(gear.names.length ? [`Wearing: ${gear.names.join('; ')}`] : []),
         ...(member.injuries.length ? [`Injuries: ${member.injuries.map(injury => injury.name).join(', ')}`] : []),
         ...(conditions.length ? [`Conditions: ${conditions.map(condition => condition.name).join(', ')}`] : []),

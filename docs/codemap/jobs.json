@@ -837,6 +837,7 @@
   "examples/text-rpg/src/module-parts/dice-source.js": "Where a reply's dice come from: the dice step that went before it, and the per-reply record its `? try` lines keep in the domain.",
   "examples/text-rpg/src/module-parts/effective.js": "What a member has at their current level: effective stats, pools and the skills that count.",
   "examples/text-rpg/src/module-parts/gear.js": "What a member wears: the gear stat bonuses, capped by rarity, and the worn pieces' names, from the `gear.view` query.",
+  "examples/text-rpg/src/module-parts/gear-sizes.js": "What gear changes on a Text RPG sheet: the Mana and Stamina sizes read with the gear on, and the per-stat gear bonus the rolls use (read, never stored).",
   "examples/text-rpg/src/module-parts/hooks.js": "`beforeGenerate`: offers the reply's dice as a system step on a normal send, a regenerate or a swipe.",
   "examples/text-rpg/src/module-parts/learned.js": "The learn order of a member's skills: which were learned after creation, and the number the next one takes.",
   "examples/text-rpg/src/module-parts/listed.js": "Which active skills the prompt lists for a member: the 8 most practised plus any the latest messages name.",
@@ -887,5 +888,6 @@
   "examples/text-rpg/src/wizard/summary.js": "Draws the wizard's summary of the character so far: tile, name, pill, stats and skills.",
   "examples/text-rpg/src/wizard/who.js": "Draws the wizard's Who step: saved character import, the name from the persona and the starting level.",
   "examples/text-rpg/src/wizard/wizard.js": "Draws Text RPG's New character wizard (four steps, summary, footer) into the plug-in screen's sheet.",
-  "examples/text-rpg/src/wizard/words.js": "Holds the New character wizard's words, a fill helper and the stats line."
+  "examples/text-rpg/src/wizard/words.js": "Holds the New character wizard's words, a fill helper and the stats line.",
+  "examples/text-rpg/tests/pools-gear.test.js": "Tests that gear counts in Text RPG's pool sizes (rest, spend, rows, capability), the sheet row's capped bonus, and replay == live with a worn piece."
 }

@@ -2,6 +2,7 @@
 import { DOMAIN, LIMITS } from '../../domain/shape.js';
 import { poolMax } from '../../rules/harm.js';
 import { effectiveStats } from '../effective.js';
+import { gearOf, totalStats } from '../gear.js';
 import { purchasesOf } from '../purchases.js';
 import { STAT_KEYS } from '../../words/stats.js';
 import { requireActive } from '../active.js';
@@ -34,6 +35,8 @@ export function spend(ctx, payload = {}) {
     const points = pointsOf(member);
     if (total > points) ctx.fail('NOT_ENOUGH', `${member.name} has ${points} points to spend.`);
     const before = effectiveStats(member);
+    const { cap } = gearOf(ctx.query, member);
+    const sizeBefore = totalStats(member, cap);
     for (const key of STAT_KEYS) {
         if (before[key] + (asked[key] ?? 0) > LIMITS.statMax) ctx.fail('INVALID', `A stat goes no higher than ${LIMITS.statMax}.`);
     }
@@ -42,10 +45,11 @@ export function spend(ctx, payload = {}) {
     for (const key of STAT_KEYS) {
         if (asked[key]) member.bought[ctx.id('pt')] = { stat: key, n: asked[key], seq: seq += 1 };
     }
-    const after = effectiveStats(member);
+    // The sizes read with the gear on (the same stats the rolls use), so the counter moves by the change in what the sheet shows.
+    const sizeAfter = totalStats(member, cap);
     for (const pool of ['mp', 'sp']) {
-        const was = poolMax(pool, before, levelOf(member));
-        member.pools[pool].now = Math.min(member.pools[pool].now, was) + poolMax(pool, after, levelOf(member)) - was;
+        const was = poolMax(pool, sizeBefore, levelOf(member));
+        member.pools[pool].now = Math.min(member.pools[pool].now, was) + poolMax(pool, sizeAfter, levelOf(member)) - was;
     }
     return { summary: `${member.name} spends ${total} stat point${total === 1 ? '' : 's'}.`, narrate: false, data: { member: member.id, stats: asked } };
 }
