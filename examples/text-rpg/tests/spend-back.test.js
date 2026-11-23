@@ -4,7 +4,7 @@ import { astraOf, reply, withAstra } from './helpers/host.js';
 import { levelOf, pointsOf } from '../src/module-parts/standing.js';
 import { effectiveStats, poolOf } from '../src/module-parts/effective.js';
 
-const MAJOR = ['? try Astra | Lore | hard | threat: above you', '+ xp Party — a deed | size: major'];
+const MAJOR = ['+ foes Ogres | count: 1 | kind: elite', '? try Astra | Lore | hard', '+ xp Party — a deed'];
 const dropReply = async (host, at) => { await host.st.deleteMessage(at + 1); await host.st.deleteMessage(at); };
 
 async function levelFour(host) {

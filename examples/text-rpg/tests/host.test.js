@@ -8,7 +8,7 @@ import { BUY, astraOf, drawn, newHost, reply, sent, slice, tries, withAstra } fr
 
 const STATIC = 'story_suite_static';
 const TAIL = 'story_suite_tail_1';
-const TRY = ['? try Astra | Obscure | ordinary | threat: a fair match', '+ xp Party — slipped past | size: real'];
+const TRY = ['+ foes Guards | count: 1 | kind: common', '? try Astra | Obscure | ordinary', '+ xp Party — slipped past'];
 
 test('the active rule: Text RPG on and the RPG off', () => {
     const view = (on, rpg) => ({ feature: id => (id === 'text-rpg.on' ? on : rpg) });
@@ -45,7 +45,7 @@ test('off means off: no static text, no grammar, no tail, no answers, a quiet Pr
         assert.doesNotMatch(sent(off, STATIC).at(-1), /Text RPG|\? try|\+ xp/);
         for (const name of ['rpg.sheet', 'party.levels', 'party.actors', 'party.pc', 'textRpg.view', 'textRpg.dice']) assert.equal(off.sdk.query(name), null, name);
         assert.equal(drawn(off), null, 'no dice are drawn');
-        assert.deepEqual(off.turn.problems().filter(problem => problem.module === 'text-rpg').map(problem => [problem.code, problem.quiet]), [['FEATURE_OFF', true], ['FEATURE_OFF', true]]);
+        assert.deepEqual(off.turn.problems().filter(problem => problem.module === 'text-rpg').map(problem => [problem.code, problem.quiet]), [['FEATURE_OFF', true], ['FEATURE_OFF', true], ['FEATURE_OFF', true]]);
     } finally {
         off.close();
         plain.close();
@@ -92,7 +92,7 @@ test('a reply\'s lines run end to end: the roll, its cost, practice and the xp, 
         const me = astraOf(host);
         assert.equal(me.pools.sp.now, me.pools.sp.max - 2);
         assert.equal(Object.values(me.practice).some(n => n > 0), true);
-        assert.equal(me.xp, 20);
+        assert.equal(me.xp, 10);
         assert.deepEqual(host.turn.problems(), []);
         const [rolled] = tries(host);
         assert.equal(rolled.data.die, drawn(host).list[0], 'the first die of the reply');

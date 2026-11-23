@@ -78,18 +78,19 @@ test('a roll for the skill in the same reply wins over `~ spend`, in either orde
 });
 
 test('a roll teaches by the threat it was made under: +5 a success, +10 at hard or harder, scaled; nothing far beneath', () => {
-    const fair = attempt(make(), 'Lore', 'ordinary', { labels: { threat: 'a fair match' } });
+    const fair = attempt(make(2), 'Lore', 'ordinary');
     assert.equal(fair.practice, 5);
-    const above = make();
+    const above = make(3);
     above.dice[SIDS[0]].list = [20, 15, 15];
-    assert.equal(attempt(above, 'Lore', 'hard', { labels: { threat: 'above you' } }).practice, 15, 'a hard success (20 against 20): 10 ×1.5');
+    assert.equal(attempt(above, 'Lore', 'hard').practice, 15, 'a hard success (20 against 20): 10 ×1.5');
     assert.equal(lore(above), 15);
-    const beneath = make();
-    assert.equal(attempt(beneath, 'Lore', 'ordinary', { labels: { threat: 'beneath you' } }).practice, 3, '5 ×0.5 = 2.5 rounds to 3');
-    const none = make();
-    assert.equal(attempt(none, 'Lore', 'ordinary', { labels: { threat: 'far beneath you' } }).practice, 0);
+    const beneath = make(1);
+    assert.equal(attempt(beneath, 'Lore', 'ordinary').practice, 3, '5 ×0.5 = 2.5 rounds to 3');
+    const none = make(0);
+    assert.equal(attempt(none, 'Lore', 'ordinary').practice, 0);
     assert.equal(lore(none), 0, 'a far beneath roll teaches nothing');
-    assert.equal(attempt(make(), 'Lore', 'ordinary').practice, 5, 'no threat said: counts whole');
+    assert.equal(attempt(make(), 'Lore', 'ordinary').practice, 5, 'no threat known: counts whole');
+    assert.equal(attempt(make(), 'Lore', 'ordinary', { labels: { threat: 'far beneath you' } }).practice, 5, 'a threat: on the line is ignored');
 });
 
 test('a rank up from `~ spend` is told', () => {

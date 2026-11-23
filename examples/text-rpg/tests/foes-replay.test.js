@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 import { astraOf, reply, slice, withAstra } from './helpers/host.js';
 import { leftOf } from './helpers/foes.js';
 
-const SET = ['+ foes rats | count: 6 | threat: a fair match', '? try Astra | Lore | hard | threat: a fair match'];
-const FELL = (n, extra = []) => [`? try Astra | Lore | hard | threat: a fair match`, `+ xp Party — rats fall | size: minor | foes: ${n}`, ...extra];
+const SET = ['+ foes rats | count: 6 | kind: common', '? try Astra | Lore | hard'];
+const FELL = (n, extra = []) => ['? try Astra | Lore | hard', `+ xp Party — rats fall | foes: ${n}`, ...extra];
 const state = host => JSON.stringify(slice(host));
 const left = host => leftOf(slice(host));
 const quiet = t => t.mock.method(console, 'warn', () => {});
@@ -19,10 +19,10 @@ test('the foes record, the xp that counts it down and a lesson survive a rebuild
     assert.deepEqual(left(host), { rats: 6 });
     await host.send('Strike.', reply('Four fall.', FELL(4)));
     assert.deepEqual(left(host), { rats: 2 });
-    assert.equal(astraOf(host).xp, 20);
+    assert.equal(astraOf(host).xp, 40);
     await host.send('Strike.', reply('The rest fall.', FELL(2, ['+ lesson Astra — Lore | the rats fought by smell'])));
     assert.deepEqual(left(host), { rats: 0 });
-    assert.equal(astraOf(host).xp, 30);
+    assert.equal(astraOf(host).xp, 50, '60 owed, cut to the battle cap of 50');
     const learned = slice(host).foes.fights;
     assert.deepEqual(Object.values(learned).map(fight => fight.taught), [[`${astraOf(host).id}:lore`]]);
     const live = state(host);
@@ -67,11 +67,11 @@ test('a Re-read of edited lines counts the foes again from where they stood', as
     host.ctx.chat[at].mes = host.ctx.chat[at].mes.replace('foes: 4', 'foes: 1');
     assert.equal((await host.sdk.reread(at)).ok, true);
     assert.deepEqual(left(host), { rats: 5 });
-    assert.equal(astraOf(host).xp, 5);
+    assert.equal(astraOf(host).xp, 10);
     host.ctx.chat[at].mes = host.ctx.chat[at].mes.replace('foes: 1', 'foes: 9');
     assert.equal((await host.sdk.reread(at)).ok, true);
     assert.deepEqual(left(host), { rats: 0 }, 'only six stood');
-    assert.equal(astraOf(host).xp, 30);
+    assert.equal(astraOf(host).xp, 50, 'six common foes, cut to the cap');
     const live = state(host);
     host.store.rebuild();
     assert.equal(state(host), live);
@@ -92,7 +92,7 @@ test('a middle delete adds each reply\'s change to what stands: deleting a count
     await host.st.deleteMessage(middleAt);
     assert.deepEqual(host.store.problems(), [], 'the chat replays with no problem');
     assert.deepEqual(left(host), { rats: 4 }, 'the later reply adds its own two to what is there');
-    assert.equal(astraOf(host).xp, 10);
+    assert.equal(astraOf(host).xp, 10, 'the later reply\'s own change: the 10 the cap left it');
     const after = state(host);
     host.store.rebuild();
     assert.equal(state(host), after);
@@ -104,7 +104,7 @@ test('reinforcements, a closed group and an ended group replay as they were told
     t.after(() => host.close());
     await host.send('Hello.', 'The road.');
     await host.send('Rats.', reply('The rats come.', SET));
-    await host.send('More.', reply('More come.', ['+ foes rats | count: 4 | threat: above you', '+ foes wolves | count: 2 | threat: above you']));
+    await host.send('More.', reply('More come.', ['+ foes rats | count: 4 | kind: trained', '+ foes wolves | count: 2 | kind: trained']));
     assert.equal(slice(host).foes.groups.rats.count, 6);
     assert.equal(slice(host).foes.groups.rats.threat, 2);
     assert.equal(slice(host).foes.groups['rats-2'].threat, 3);

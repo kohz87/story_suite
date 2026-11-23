@@ -117,18 +117,23 @@ test('with no foes record: 10 XP when a roll succeeded this reply, else none; on
     assert.equal(run(applyXp, once, line('xp', 'Party', 'b')).code, 'LIMITED');
 });
 
-test('legacy: an old group (threat only, no kind) with size: pays the old way, uncapped; size: with no record pays as it did', () => {
+test('old lines are refused or ignored: + foes with threat: and no kind makes no group, size: on + xp pays nothing, and a chat\'s old fight pays the no-record amount', () => {
     const slice = world();
-    run(applyFoes, fakeCtx(slice, { sid: reply(1) }), { ...line('foes', 'Rats', '', { count: '24', threat: 'a fair match' }), op: '+' });
-    assert.equal(slice.foes.groups.rats.kind, undefined);
-    fell(slice, 2, 24, { size: 'minor' });
-    assert.equal(xpOf(slice), 120, '24 × 5, no cap');
+    const old = run(applyFoes, fakeCtx(slice, { sid: reply(1) }), { ...line('foes', 'Rats', '', { count: '24', threat: 'a fair match' }), op: '+' });
+    assert.equal(old.code, 'INVALID');
+    assert.equal(old.message, '+ foes needs a kind: vermin, common, trained, elite, monster or legend');
+    assert.equal(slice.foes, undefined, 'no group, so nothing stands');
+    assert.equal(fell(slice, 2, 24, { size: 'minor' }).result.data.amount, 10, 'its kills pay the no-record 10 XP, whatever the size: says');
+    assert.equal(xpOf(slice), 10);
     const bare = world();
-    assert.equal(fell(bare, 1, 1, { size: 'real', threat: 'above you' }).result.data.amount, 40, 'real × above (2), as before');
-    assert.equal(fell(world(), 1, 1, { size: 'huge' }).code, 'INVALID');
-    const kindless = world();
-    run(applyFoes, fakeCtx(kindless, { sid: reply(1) }), { ...line('foes', 'Rats', '', { count: '2', threat: 'a fair match' }), op: '+' });
-    assert.equal(fell(kindless, 2, 2).result.data.amount, 20, 'a kindless group with no size pays as common');
+    assert.equal(fell(bare, 1, 1, { size: 'real', threat: 'above you' }).result.data.amount, 10, 'size: and threat: do not pay');
+    assert.equal(fell(world(), 1, 1, { size: 'huge' }).ok, true, 'a size that is no size is ignored, not refused');
+    const lost = world({ member: astra() });
+    lost.dice[reply(1)].won = false;
+    assert.equal(fell(lost, 1, 1, { size: 'great' }).result.data.amount, 0, 'no win, no XP');
+    const kinded = world();
+    foes(kinded, 1, 'Rats', 'vermin', 24);
+    assert.equal(fell(kinded, 2, 24, { size: 'great' }).result.data.amount, 25, 'a group of a kind pays by the record and its cap (24 × 2.5 = 60, capped at 25), not by size:');
 });
 
 test('a lesson is taught once a skill a battle, across the waves that joined it', () => {

@@ -70,13 +70,13 @@ test('the group\'s threat is recorded for the reply (danger and practice) and a 
     assert.deepEqual([slice.dice[NEXT].threat, slice.dice[NEXT].won, slice.dice[NEXT].hardest], [3, true, 3]);
 });
 
-test('legacy: an old line\'s threat: still starts a try when no group of a kind stands; a kind group wins over it', () => {
+test('old lines are ignored: a threat: on ? try starts nothing, with no foes standing or beside a group of a kind', () => {
     const slice = world();
-    assert.equal(tryAt(slice, 'easy', { threat: 'above you' }).result.data.difficulty, 3);
+    assert.equal(tryAt(slice, 'easy', { threat: 'above you' }).result.data.difficulty, 1, 'the narrator\'s word stands: no threat is read from the line');
+    assert.equal(slice.dice[NEXT].threat, undefined, 'and no threat is recorded');
     const old = world();
-    run(applyFoes, fakeCtx(old, { sid: SID }), { ...line('foes', 'Rats', '', { count: '3', threat: 'beneath you' }), op: '+' });
-    assert.equal(tryAt(old, 'hard').result.data.difficulty, 1, 'an old group with no kind rates its own threat');
-    assert.equal(tryAt(old, 'hard', { threat: 'a fair match' }).result.data.difficulty, 2, 'and yields to the old line\'s own threat');
+    assert.equal(run(applyFoes, fakeCtx(old, { sid: SID }), { ...line('foes', 'Rats', '', { count: '3', threat: 'beneath you' }), op: '+' }).code, 'INVALID', 'an old + foes makes no group');
+    assert.equal(tryAt(old, 'hard', { threat: 'a fair match' }).result.data.difficulty, 3, 'so the word hard stands');
     const kinded = world();
     declare(kinded, 'Wolves', 'common');
     assert.equal(tryAt(kinded, 'hard', { threat: 'beyond you' }).result.data.difficulty, 2, 'a narrator writing threat: out of habit changes nothing');

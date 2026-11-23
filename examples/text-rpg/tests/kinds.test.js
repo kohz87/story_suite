@@ -10,44 +10,30 @@ import { astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 
 const asRolled = (hardest = 3, used = 1) => ({ list: [10, 10, 10], floor: 0, used, hardest });
 
-test('+ xp pays by size, cut to what the hardest roll supports, and none without a roll', () => {
-    const paid = size => {
-        const slice = sliceOf([astra()], asRolled(3));
-        return [run(applyXp, fakeCtx(slice), line('xp', 'Party', 'a duel', { size })), slice.members.ac_astra001.xp];
+test('+ xp with no foes record pays 10 XP when a roll succeeded this reply, none without a win, and a size: or threat: on the line is ignored', () => {
+    const paid = (extra, rolled) => {
+        const slice = sliceOf([astra()], rolled);
+        return [run(applyXp, fakeCtx(slice), line('xp', 'Party', 'a duel', extra)), slice.members.ac_astra001.xp];
     };
-    assert.equal(paid('real')[1], 20);
-    assert.equal(paid('major')[1], 60);
-    assert.equal(paid('great')[1], 60, 'great is cut to major on a hard roll');
-    const easy = sliceOf([astra()], asRolled(2));
-    run(applyXp, fakeCtx(easy), line('xp', 'Party', 'a scuffle', { size: 'major' }));
-    assert.equal(easy.members.ac_astra001.xp, 20, 'major is cut to real on an ordinary roll');
-    const none = sliceOf([astra()], { list: [10, 10, 10], floor: 0 });
-    run(applyXp, fakeCtx(none), line('xp', 'Party', 'talk', { size: 'real' }));
-    assert.equal(none.members.ac_astra001.xp, 0);
-});
-
-test('+ xp scales by the threat the roll named, and a bad size is refused', () => {
-    const slice = sliceOf([astra()], { ...asRolled(3), threat: 0 });
-    run(applyXp, fakeCtx(slice), line('xp', 'Party', 'rats', { size: 'real' }));
-    assert.equal(slice.members.ac_astra001.xp, 0, 'far beneath pays nothing');
-    const above = sliceOf([astra()], { ...asRolled(3), threat: 3 });
-    run(applyXp, fakeCtx(above), line('xp', 'Party', 'ogre', { size: 'real' }));
-    assert.equal(above.members.ac_astra001.xp, 40);
-    assert.equal(run(applyXp, fakeCtx(sliceOf()), line('xp', 'Party', 'x', { size: 'huge' })).code, 'INVALID');
+    assert.equal(paid({}, { ...asRolled(3), won: true })[1], 10);
+    assert.equal(paid({ size: 'great', threat: 'above you' }, { ...asRolled(3), won: true, threat: 0 })[1], 10, 'the old size and threat do not pay');
+    assert.equal(paid({ size: 'huge' }, { ...asRolled(3), won: true })[1], 10, 'a size that is no size is ignored too');
+    assert.equal(paid({ size: 'major' }, asRolled(3))[1], 0, 'a roll that did not succeed pays nothing');
+    assert.equal(paid({ size: 'real' }, { list: [10, 10, 10], floor: 0 })[1], 0, 'no roll, no XP');
 });
 
 test('+ xp: levels add points, only one line counts a reply, companions and the fallen get none', () => {
     const rorke = astra({ id: 'ac_rorke001', name: 'Rorke', pc: false, companion: { level: 5, strengths: [] } });
-    const slice = sliceOf([astra({ xp: 90 }), rorke], asRolled());
+    const slice = sliceOf([astra({ xp: 95 }), rorke], { ...asRolled(), won: true });
     const ctx = fakeCtx(slice);
-    const first = run(applyXp, ctx, line('xp', 'Party', 'the pass', { size: 'real' }));
+    const first = run(applyXp, ctx, line('xp', 'Party', 'the pass'));
     assert.equal(first.result.narrate, true);
     assert.match(first.result.summary, /Astra reaches level 2/);
     const me = slice.members.ac_astra001;
     assert.deepEqual([levelOf(me), pointsOf(me), rorke.xp, levelOf(rorke)], [2, 1, 0, 5]);
     me.bought.p1 = { stat: 'str', n: 1, seq: 0 };
     assert.equal(pointsOf(me), 0, 'a spent point is not offered again');
-    assert.equal(run(applyXp, ctx, line('xp', 'Party', 'again', { size: 'real' })).code, 'LIMITED');
+    assert.equal(run(applyXp, ctx, line('xp', 'Party', 'again')).code, 'LIMITED');
 });
 
 test('~ condition: timed, treated, replaced by name, cleared, at most four', () => {

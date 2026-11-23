@@ -7,7 +7,7 @@ import { levelOf, pointsOf, woundsOf } from '../src/module-parts/standing.js';
 import { effectiveStats, poolOf, skillActive } from '../src/module-parts/effective.js';
 import { skillRows } from '../src/module-parts/sheet-skills.js';
 
-const TRY = ['? try Astra | Lore | ordinary | threat: a fair match', '+ xp Party — the gate | size: real'];
+const TRY = ['+ foes Guards | count: 1 | kind: common', '? try Astra | Lore | ordinary', '+ xp Party — the gate'];
 const summary = host => JSON.stringify({ textRpg: slice(host), meta: host.head().meta?.rev });
 
 test('a swipe draws new dice and takes the first try back; a Re-read keeps the dice and the state', async t => {
@@ -17,7 +17,7 @@ test('a swipe draws new dice and takes the first try back; a Re-read keeps the d
         await host.send('We sneak.', reply('The gate looms.', TRY));
         const first = drawn(host).list;
         assert.equal(tries(host).length, 1);
-        assert.equal(astraOf(host).xp, 20);
+        assert.equal(astraOf(host).xp, 10);
 
         // A swipe with no lines: the try and its xp are gone, and the dice are the swipe's own.
         await host.swipe(reply('Another way.'));
@@ -66,11 +66,11 @@ test('rebuild == live, and a middle delete replays the surviving replies with th
     t.mock.method(console, 'warn', () => {});
     const host = await withAstra();
     try {
-        const xp = size => `+ xp Party — a deed | size: ${size}`;
-        await host.send('One.', reply('First.', ['? try Astra | Lore | ordinary', xp('real')]));
+        const xp = '+ xp Party — a deed';
+        await host.send('One.', reply('First.', ['+ foes Rats | count: 1 | kind: common', '? try Astra | Lore | ordinary', xp]));
         const middleAt = host.ctx.chat.length;
-        await host.send('Two.', reply('Second.', ['? try Astra | Obscure | hard | threat: above you', '~ condition Astra — poisoned | until: treated', xp('real')]));
-        await host.send('Three.', reply('Third.', ['? try Astra | Lore | easy', xp('minor')]));
+        await host.send('Two.', reply('Second.', ['+ foes Guards | count: 1 | kind: trained', '? try Astra | Obscure | hard', '~ condition Astra — poisoned | until: treated', xp]));
+        await host.send('Three.', reply('Third.', ['? try Astra | Lore | easy', xp]));
         const live = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), live, 'rebuild == live');
@@ -89,7 +89,7 @@ test('rebuild == live, and a middle delete replays the surviving replies with th
         assert.equal(astraOf(host).xp, xpOf[0] + xpOf[2], 'and its xp: the later reply adds its change to what is there');
         assert.equal(astraOf(host).practice.obscure ?? 0, 0, 'its practice went with it');
         assert.equal(astraOf(host).practice.lore ?? 0, [all[0], all[2]].reduce((sum, data) => sum + data.practice, 0), 'and the surviving replies keep theirs');
-        assert.deepEqual([all[0].practice, all[2].practice], [practiceGain(all[0].band, all[0].difficulty), Math.round(1.5 * practiceGain(all[2].band, all[2].difficulty))], 'each told under the threat it was played in: the third was written after "above you", so its gain counts ×1.5 and stays the same after the middle reply goes');
+        assert.deepEqual([all[0].practice, all[2].practice], [practiceGain(all[0].band, all[0].difficulty), Math.round(1.5 * practiceGain(all[2].band, all[2].difficulty))], 'each told under the threat it was played in: the third was written after the trained guards, so its gain counts ×1.5 and stays the same after the middle reply goes');
         const after = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), after);
@@ -118,7 +118,7 @@ test('a Re-read of an earlier reply uses that reply\'s own dice, not a later rep
     t.mock.method(console, 'warn', () => {});
     const host = await withAstra();
     try {
-        await host.send('One.', reply('First.', ['? try Astra | Lore | ordinary | threat: a fair match', '+ xp Party — a deed | size: real']));
+        await host.send('One.', reply('First.', ['+ foes Rats | count: 1 | kind: common', '? try Astra | Lore | ordinary', '+ xp Party — a deed']));
         const firstAt = host.ctx.chat.length - 1;
         await host.send('Two.', reply('Second.', ['? try Astra | Lore | hard', '? try Astra | Obscure | normal']));
         const dice = tries(host).map(receipt => receipt.data.die);
@@ -177,7 +177,7 @@ test('wounds are a stage counter: a heal reply deleted between two failures leav
     const host = await withAstra();
     try {
         // Danger with a natural die cannot be chosen, so the wounds each surviving reply added are read from its own receipt.
-        const hurt = ['? try Astra | Lore | very hard | threat: above you'];
+        const hurt = ['+ foes Guards | count: 1 | kind: trained', '? try Astra | Lore | very hard'];
         await host.send('One.', reply('First.', hurt));
         const healAt = host.ctx.chat.length;
         await host.send('Two.', reply('Second.', ['~ health Astra — Unhurt | why: a long rest']));
@@ -197,21 +197,21 @@ test('wounds are a stage counter: a heal reply deleted between two failures leav
     }
 });
 
-test('level and points follow the xp that survives: deleting an early xp reply takes the later level-up with it', async t => {
+test('level and points follow the xp that survives: deleting the xp reply that made the level-up takes it with it', async t => {
     t.mock.method(console, 'warn', () => {});
     const host = await withAstra();
     try {
-        const rolled = ['? try Astra | Lore | ordinary', '+ xp Party — a deed | size: real'];
-        await host.send('One.', reply('First.', ['? try Astra | Lore | hard', '+ xp Party — a deed | size: major']));
-        const firstAt = host.ctx.chat.length - 1;
-        await host.send('Two.', reply('Second.', rolled));
+        const rolled = ['+ foes Rats | count: 1 | kind: common', '? try Astra | Lore | ordinary', '+ xp Party — a deed'];
+        await host.send('One.', reply('First.', rolled));
+        const firstAt = host.ctx.chat.length;
+        await host.send('Two.', reply('Second.', ['+ foes Ogres | count: 1 | kind: elite', '? try Astra | Lore | hard', '+ xp Party — a deed']));
         await host.send('Three.', reply('Third.', rolled));
-        assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [100, 2, 1]);
+        assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [120, 2, 1], 'the ogre pays its battle cap (100), each rat 10');
         await host.st.deleteMessage(firstAt + 1);
         await host.st.deleteMessage(firstAt);
         assert.deepEqual(host.store.problems(), []);
-        // 40 xp is below level 2 (100): a fresh telling of the two surviving replies reads the same.
-        assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [40, 1, 0]);
+        // 20 xp is below level 2 (100): a fresh telling of the surviving replies reads the same.
+        assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [20, 1, 0]);
         const [row] = host.sdk.query('rpg.sheet');
         assert.deepEqual([row.level, row.points, host.sdk.query('party.levels')[0].level], [1, 0, 1], 'the rows the Party tab reads');
         assert.equal(Object.hasOwn(astraOf(host), 'level'), false, 'level is derived, not stored');
@@ -221,14 +221,14 @@ test('level and points follow the xp that survives: deleting an early xp reply t
     }
 });
 
-test('a Re-read of an earlier reply that named no threat is not put in danger by a later reply\'s threat', async t => {
+test('a Re-read of an earlier reply that had no foes is not put in danger by a later reply\'s foes', async t => {
     t.mock.method(console, 'warn', () => {});
     for (let round = 0; round < 6; round += 1) {
         const host = await withAstra();
         try {
             await host.send('One.', reply('First.', ['? try Astra | Lore | very hard']));
             const firstAt = host.ctx.chat.length - 1;
-            await host.send('Two.', reply('Second.', ['? try Astra | Lore | very hard | threat: above you']));
+            await host.send('Two.', reply('Second.', ['+ foes Guards | count: 1 | kind: trained', '? try Astra | Lore | very hard']));
             const live = JSON.stringify(host.head());
             assert.equal((await host.sdk.reread(firstAt)).ok, true);
             assert.equal(JSON.stringify(host.head()), live, 'an unchanged Re-read changes nothing');
@@ -248,7 +248,7 @@ test('a heal deleted between a wound and a failed try leaves Badly wounded, neve
             await host.send('A.', reply('A.', ['~ health Astra — Badly wounded']));
             const healAt = host.ctx.chat.length;
             await host.send('H.', reply('H.', ['~ health Astra — Hurt']));
-            await host.send('C.', reply('C.', ['? try Astra | Lore | normal | threat: beyond you']));
+            await host.send('C.', reply('C.', ['+ foes Ogres | count: 1 | kind: monster', '? try Astra | Lore | ordinary']));
             await host.st.deleteMessage(healAt + 1);
             await host.st.deleteMessage(healAt);
             assert.equal(woundsOf(astraOf(host)), 4, 'Badly wounded, as a fresh telling of A then C');
@@ -262,16 +262,18 @@ test('a heal deleted between a wound and a failed try leaves Badly wounded, neve
     }
 });
 
-const MAJOR = ['? try Astra | Lore | hard | threat: a stronger foe', '+ xp Party — a deed | size: major'];
+const major = name => [`+ foes ${name} | count: 2 | kind: trained`, '? try Astra | Lore | hard', '+ xp Party — a deed | foes: 2'];
+const RAT = ['+ foes Rats | count: 1 | kind: common', '? try Astra | Lore | ordinary', '+ xp Party — a deed'];
 const dropReply = async (host, at) => { await host.st.deleteMessage(at + 1); await host.st.deleteMessage(at); };
 
 test('a stat bought with a level\'s point goes back with the level, and comes back when a later reply re-levels', async t => {
     t.mock.method(console, 'warn', () => {});
     const host = await withAstra();
     try {
+        await host.send('Zero.', reply('Rats.', RAT));
         const at = host.ctx.chat.length;
-        await host.send('One.', reply('First.', MAJOR));
-        await host.send('Two.', reply('Second.', MAJOR));
+        await host.send('One.', reply('First.', major('Band one')));
+        await host.send('Two.', reply('Second.', major('Band two')));
         assert.equal(levelOf(astraOf(host)), 2);
         assert.equal((await host.sdk.command('textRpg.spend', { member: 'Astra', stats: { str: 1 } })).ok, true);
         assert.deepEqual([effectiveStats(astraOf(host)).str, pointsOf(astraOf(host)), poolOf(astraOf(host), 'sp').max], [8, 0, 11]);
@@ -282,7 +284,7 @@ test('a stat bought with a level\'s point goes back with the level, and comes ba
         assert.deepEqual([levelOf(me), effectiveStats(me).str, me.stats.str, pointsOf(me), poolOf(me, 'mp').max], [1, 7, 7, 0, 11], 'level 1: the base stat, no points');
         assert.equal(Object.keys(me.bought).length, 1, 'the purchase is kept, waiting');
 
-        await host.send('Three.', reply('Third.', MAJOR));
+        await host.send('Three.', reply('Third.', major('Band three')));
         assert.deepEqual([levelOf(astraOf(host)), effectiveStats(astraOf(host)).str, pointsOf(astraOf(host))], [2, 8, 0], 'the level is back and so is the purchase');
         const live = JSON.stringify(host.head());
         host.store.rebuild();
@@ -296,9 +298,10 @@ test('a skill learned into the level-10 slot is inactive without the level, refu
     t.mock.method(console, 'warn', () => {});
     const host = await withAstra(undefined, undefined, { level: 9, stats: { ...BUY, str: 15 } });
     try {
+        await host.send('Zero.', reply('Rats.', RAT));
         const at = host.ctx.chat.length;
-        await host.send('One.', reply('First.', MAJOR));
-        await host.send('Two.', reply('Second.', MAJOR));
+        await host.send('One.', reply('First.', major('Band one')));
+        await host.send('Two.', reply('Second.', major('Band two')));
         assert.equal(levelOf(astraOf(host)), 10);
         for (const name of ['Tracking', 'Knots', 'Haggling', 'Cooking']) {
             const made = await host.sdk.command('textRpg.skillEdit', { member: 'Astra', name, stat: 'wis' });
@@ -317,7 +320,7 @@ test('a skill learned into the level-10 slot is inactive without the level, refu
         await host.send('Three.', reply('Third.', ['? try Astra | Cooking | normal']));
         assert.equal(tries(host).length, before, 'an inactive skill cannot be used in a try');
 
-        await host.send('Four.', reply('Fourth.', MAJOR));
+        await host.send('Four.', reply('Fourth.', major('Band four')));
         assert.equal(levelOf(astraOf(host)), 10);
         assert.equal(skillActive(astraOf(host), cooking()), true, 'back with the level');
         assert.deepEqual(host.store.problems(), []);

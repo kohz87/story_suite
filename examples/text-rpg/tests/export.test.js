@@ -29,11 +29,11 @@ test('the file has the RPG character file\'s fields for what Text RPG has, and t
     t.mock.method(console, 'warn', () => {});
     const host = await withAstra({}, { modules: { 'text-rpg': { tone: 'gritty' } } });
     try {
-        await host.send('One.', reply('Told.', ['? try Astra | Obscure | hard | threat: a fair match', '+ xp Party — a deed | size: major']));
+        await host.send('One.', reply('Told.', ['+ foes Guards | count: 1 | kind: trained', '? try Astra | Obscure | hard', '+ xp Party — a deed']));
         const file = JSON.parse(exported(host).text);
         assert.deepEqual([file.storySuiteCharacter, file.level, file.points, file.stats], [1, 1, 0, { str: 7, vit: 6, agi: 7, dex: 7, int: 6, wis: 6, cha: 6 }]);
         assert.deepEqual(file.skills.map(skill => [skill.name, skill.stat, skill.uses, skill.type]), [['Obscure', 'agi', 'stamina', 'speed'], ['Lore', 'int', 'stamina', 'utility']]);
-        assert.equal(file.textRpg.xp, 60);
+        assert.equal(file.textRpg.xp, 40);
         const read = rpgParse(exported(host).text);
         assert.equal(read.ok, true, read.message);
         assert.deepEqual([read.file.level, read.file.points, read.file.skills.length, read.file.skills[0].type], [1, 0, 2, 'speed']);

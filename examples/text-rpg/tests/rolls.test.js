@@ -83,16 +83,17 @@ async function battle(t) {
 
 test('the cards under the reply: one per roll with the words of the roll, then what the reply earned; a swipe shows its own', async t => {
     const host = await battle(t);
-    await host.send('Strike.', reply('The rats swarm.', ['? try Astra | Lore | hard | threat: a fair match', '~ spend Astra — Obscure', '+ xp Party — Cut down the rats | size: minor']));
+    await host.send('Strike.', reply('The rats swarm.', ['+ foes Rats | count: 1 | kind: common', '? try Astra | Lore | hard', '~ spend Astra — Obscure', '+ xp Party — Cut down the rats']));
     const at = host.ctx.chat.length - 1;
     const first = cardsAt(host, at);
     const rolled = tries(host).at(-1).data;
     assert.equal(first.length, 1, 'one card for the reply');
     assert.equal(first[0].title, 'Rolls');
-    assert.match(first[0].rows[0].text, new RegExp(`^Lore, hard → .* \\(${rolled.die} [+−] ${Math.abs(rolled.bonus)} vs 20\\)`));
-    assert.match(first[0].rows[0].text, /practice \+\d+/);
-    assert.equal(first[0].rows.length, 2, 'the roll, then Earned');
-    assert.match(first[0].rows.at(-1).text, /^Earned: .*5 xp/);
+    assert.equal(first[0].rows[0].text, 'Foes: Rats: common, even for you (1)');
+    assert.match(first[0].rows[1].text, new RegExp(`^Lore, hard → .* \\(${rolled.die} [+−] ${Math.abs(rolled.bonus)} vs 20\\)`));
+    assert.match(first[0].rows[1].text, /practice \+\d+/);
+    assert.equal(first[0].rows.length, 3, 'the foes, the roll, then Earned');
+    assert.match(first[0].rows.at(-1).text, /^Earned: .*10 xp/);
     assert.match(first[0].rows.at(-1).text, /Astra practised Obscure \+1/);
     const before = JSON.stringify(first);
     await host.swipe(reply('A calmer way.', ['~ spend Astra — Obscure']));

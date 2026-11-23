@@ -1,6 +1,4 @@
-// `+ xp Party — what was overcome [| foes: N] [| group: Name]`: experience. Each foe that fell pays its kind's XP times its group's threat, up to the foes still standing in the foes record, and a battle pays no more than its cap; with no roll in the reply nothing is paid but the foes are still counted down. With no foes record: 10 XP when a roll succeeded this reply, else none. An old line's `size:` is still read (it pays a kindless group the old way). Level and stat points follow from xp (standing.js).
-import { XP_SIZES, xpFor } from '../../rules/growth.js';
-import { readThreat } from '../../words/threat-read.js';
+// `+ xp Party — what was overcome [| foes: N] [| group: Name]`: experience. Each foe that fell pays its kind's XP times its group's threat, up to the foes still standing in the foes record, and a battle pays no more than its cap; with no roll in the reply nothing is paid but the foes are still counted down. With no foes record: 10 XP when a roll succeeded this reply, else none. An old line's `size:` and `threat:` are ignored. Level and stat points follow from xp (standing.js).
 import { memberNamed, players } from '../members.js';
 import { labelOf } from '../line-read.js';
 import { requireActive } from '../active.js';
@@ -46,23 +44,20 @@ export function applyXp(ctx, line) {
     requireActive(ctx);
     const slice = ctx.draft(DOMAIN);
     const sid = ctx.reply?.sid;
-    const size = labelOf(line, 'size').toLowerCase();
-    if (size && !Object.hasOwn(XP_SIZES, size)) ctx.fail('INVALID', 'The size is not part of + xp: the foes that fell pay by their kind.');
     if (!sid || !ctx.claim(`xp:${sid}`)) ctx.fail('LIMITED', 'Only one xp line counts in a reply.');
     const record = slice.dice[sid];
     // The cap and rate are the reply's own, kept in its dice step's receipt: a Re-read or a replay never uses today's settings.
     const { cap, rate } = readRules(record?.rules);
     const hardest = record?.used > 0 ? record.hardest ?? 0 : null;
     const fell = labelOf(line, 'group') || standing(slice, record?.clock).length ? paidFoes(ctx, slice, line, foesOf(labelOf(line, 'foes'))) : null;
-    const foes = fell ? fell.reduce((sum, part) => sum + part.count, 0) : size ? 1 : 0;
+    const foes = fell ? fell.reduce((sum, part) => sum + part.count, 0) : 0;
     let battle = null;
     let capped = false;
     let raw = 0;
-    if (hardest !== null && fell) ({ raw, battle, capped } = payParts(slice, fell, hardest, size));
+    if (hardest !== null && fell) ({ raw, battle, capped } = payParts(slice, fell, hardest));
     else if (hardest !== null) {
-        // No foes record: an old line's size pays the old way; otherwise 10 XP when a roll succeeded this reply.
-        const said = readThreat(labelOf(line, 'threat'));
-        raw = size ? xpFor(size, said >= 0 ? said : record?.threat ?? 2, hardest, 1) : record?.won ? NO_RECORD : 0;
+        // No foes record: 10 XP when a roll succeeded this reply.
+        raw = record?.won ? NO_RECORD : 0;
     }
     const amount = scaleXp(raw, rate);
     const named = memberNamed(slice, line.name);
@@ -76,5 +71,5 @@ export function applyXp(ctx, line) {
     }
     const told = `${line.text ? ` for ${line.text}` : ''}${foes > 1 ? ` (${foes} foes)` : ''}`;
     const fight = battle ? `; ${capped ? 'battle cap reached: ' : 'battle '}${battle.paid} of ${battle.cap}` : '';
-    return { summary: hardest === null ? `no roll this reply: no XP${told}.` : `${amount} xp${told}${fight}${levels.length ? `; ${levels.join('; ')}` : ''}.`, narrate: levels.length > 0, data: { amount, ...(size ? { size } : {}), foes, levels: levels.length, ...(battle ? { battle } : {}) } };
+    return { summary: hardest === null ? `no roll this reply: no XP${told}.` : `${amount} xp${told}${fight}${levels.length ? `; ${levels.join('; ')}` : ''}.`, narrate: levels.length > 0, data: { amount, foes, levels: levels.length, ...(battle ? { battle } : {}) } };
 }

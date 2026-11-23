@@ -63,12 +63,14 @@ test('a middle delete gives a counting reply\'s foes and its share of the cap ba
     sound(host);
 });
 
-test('an old chat\'s lines replay: threat: on + foes and size: on + xp are still read', async t => {
+test('an old chat\'s lines are refused or ignored on a replay too: + foes without a kind makes no group, size: pays nothing, and live == rebuild', async t => {
     quiet(t);
     const host = await withAstra();
     t.after(() => host.close());
     await host.send('Hello.', 'The road.');
     await host.send('Rats.', reply('The rats come.', ['+ foes rats | count: 6 | threat: a fair match', '? try Astra | Lore | hard | threat: a fair match', '+ xp Party — the rats | size: minor | foes: 6']));
-    assert.deepEqual([slice(host).foes.groups.rats.kind, slice(host).foes.groups.rats.threat, astraOf(host).xp], [undefined, 2, 30]);
+    assert.equal(slice(host).foes, undefined, 'the old foes line made no group');
+    const won = Object.values(slice(host).dice).at(-1).won === true;
+    assert.equal(astraOf(host).xp, won ? 10 : 0, 'its kills pay the no-record amount, not 30');
     sound(host);
 });
