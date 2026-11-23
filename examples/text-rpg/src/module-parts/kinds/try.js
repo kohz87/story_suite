@@ -20,7 +20,9 @@ const clamp = (n, low, high) => Math.min(high, Math.max(low, n));
 
 export function applyTry(ctx, line) {
     const { slice, member } = target(ctx, line, { acts: true });
-    const [what, word] = partsOf(line);
+    const [what, ...rest] = partsOf(line);
+    // The difficulty word is the first part that is one, so a narrator's extra part (`| slip past | hard`) does not hide it.
+    const word = rest.find(part => DIFFICULTIES.some(item => item.word === part.toLowerCase())) ?? rest[0];
     if (!what) ctx.fail('INVALID', 'A roll needs a skill or a stat.');
     const record = recordOf(ctx, slice);
     if (!record) ctx.fail('REFUSED', 'There are no dice for this reply.');

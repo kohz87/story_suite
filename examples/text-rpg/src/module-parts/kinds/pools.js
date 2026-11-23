@@ -1,4 +1,5 @@
 // The pool lines: paying a skill's cost, `~ spend Who — skill` and `~ health Who — stage | why: …`.
+import { DOMAIN } from '../../domain/shape.js';
 import { dropStages } from '../../rules/harm.js';
 import { healDays } from '../../rules/healing.js';
 import { HEALTH_STAGES, stageOf } from '../../words/pools.js';
@@ -33,6 +34,7 @@ export function applyHealth(ctx, line) {
     const word = (partsOf(line)[0] ?? '').toLowerCase();
     const goal = HEALTH_STAGES.findIndex(stage => stage.toLowerCase() === word);
     if (goal < 0) ctx.fail('INVALID', `Health is one of ${HEALTH_STAGES.join(', ')}.`);
+    ctx.absolute(DOMAIN, `/members/${member.id}/pools/hp/now`);
     const { hp } = member.pools;
     const now = stageOf(hp.now, hp.max, 'health').index;
     if (goal === 5) hp.now = 0;

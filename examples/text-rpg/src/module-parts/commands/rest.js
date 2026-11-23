@@ -15,6 +15,7 @@ export function rest(ctx, payload = {}) {
     const who = (named ? [named] : players(slice)).map(member => slice.members[member.id]).filter(member => !member.companion);
     const now = Number.isInteger(ctx.time?.()) ? ctx.time() : 0;
     for (const member of who) {
+        for (const pool of ['mp', 'sp']) ctx.absolute(DOMAIN, `/members/${member.id}/pools/${pool}/now`);
         member.pools.mp.now = member.pools.mp.max;
         member.pools.sp.now = member.pools.sp.max;
         if (kind === 'day') {

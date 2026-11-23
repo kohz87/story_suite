@@ -814,7 +814,7 @@
   "examples/text-rpg/src/module-parts/commands/spend.js": "`textRpg.spend` (stat points, as the Party tab sends them) and `textRpg.skillEdit` (add, change or drop a skill).",
   "examples/text-rpg/src/module-parts/constants.js": "The Text RPG module's identity: its id, its feature, the RPG feature it replaces and its version.",
   "examples/text-rpg/src/module-parts/definition.js": "The module definition for sdk.registerModule: the domain, features, kinds, commands, queries, context, hook, settings and the new-character screen.",
-  "examples/text-rpg/src/module-parts/dice-source.js": "Where a reply's dice come from: the receipt of its `textRpg.dice` step, and the per-reply record the `? try` lines keep in the domain.",
+  "examples/text-rpg/src/module-parts/dice-source.js": "Where a reply's dice come from: the dice step that went before it, and the per-reply record its `? try` lines keep in the domain.",
   "examples/text-rpg/src/module-parts/gear.js": "What a member wears: the gear stat bonuses, capped by rarity, and the worn pieces' names, from the `gear.view` query.",
   "examples/text-rpg/src/module-parts/hooks.js": "`beforeGenerate`: offers the reply's dice as a system step on a normal send, a regenerate or a swipe.",
   "examples/text-rpg/src/module-parts/kinds.js": "The capture kinds of Text RPG and the one apply that sends a line to its kind's handler.",

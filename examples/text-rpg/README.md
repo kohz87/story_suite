@@ -72,8 +72,10 @@ tests/                   node --test with the testkit host, plus hand-made ctx f
 **Replay == live.** Three choices keep swipes, Re-reads, middle deletes and reloads exact:
 
 - The dice live in the **receipt data** of the `textRpg.dice` step, not in a place a Re-read can reorder
-  (a Re-read puts a reply's system steps after its story lines). The reply's `? try` lines find them among the
-  reply's receipts, and keep what they used (`used`, `hardest`, `threat`) in the domain under the reply's own record id.
+  (a Re-read puts a reply's system steps after its story lines). A normal send's step is kept on the carrier before
+  the reply, a swipe's or regenerate's on the reply's own (`own: true`); a reply's `? try` lines take the step that went
+  before them, so a Re-read of an earlier reply never reads a later reply's dice. They keep what they used (`used`,
+  `hardest`, `threat`) in the domain under the reply's own record id.
 - Numbers that move (pools, xp, points, level) are declared `counters`, so a replay after a deleted reply adds each
   change instead of writing the number the deleted reply left.
 - The step is not re-planned (`replan` is off): a Re-read keeps the dice; a swipe is a new send, so a new seed.
@@ -81,7 +83,8 @@ tests/                   node --test with the testkit host, plus hand-made ctx f
 **Honest limits.** The narrator sees the dice when it names a difficulty. The code narrows that: it computes the
 verdict itself, raises a lower difficulty to a floor it tracks (threat, conditions, fatigue), and cuts an xp size the
 rolls do not support. A skill's practice lives in the member's `skills` list, which the host stores whole when it
-changes, so deleting a middle reply can bring back that reply's practice.
+changes, so deleting a middle reply can bring back that reply's practice. A health stage (`~ health`) and a rest are
+sets (`ctx.absolute`), so they land where they say after a middle delete.
 
 ## Tests
 

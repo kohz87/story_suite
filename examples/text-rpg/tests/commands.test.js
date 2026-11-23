@@ -89,7 +89,8 @@ test('textRpg.dice is the system\'s: three dice from the seed, the floor kept in
     assert.equal(first.ok, true);
     assert.equal(first.result.narrate, false);
     assert.equal(first.result.replan, undefined, 'a Re-read keeps what was drawn');
-    assert.deepEqual(first.result.data, drawDice(Math.floor(0.1 * 4294967296) >>> 0, 2));
+    assert.deepEqual(first.result.data, { ...drawDice(Math.floor(0.1 * 4294967296) >>> 0, 2), own: false });
+    assert.equal(run(dice, fakeCtx(slice, { cause: 'system' }), { floor: 0, own: true }).result.data.own, true);
     assert.notDeepEqual(draw(0.7).result.data.list, first.result.data.list);
     assert.deepEqual(slice.dice, {}, 'the domain is not written');
     assert.equal(run(dice, fakeCtx(slice, { cause: 'ui' }), {}).code, 'REFUSED');

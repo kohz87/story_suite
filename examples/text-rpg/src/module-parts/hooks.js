@@ -18,5 +18,5 @@ export function beforeGenerate(view, info = {}) {
     if (!active(view) || info?.commit === false) return null;
     const type = String(info?.type ?? 'normal').toLowerCase();
     if (!OFFERED.includes(type)) return null;
-    return { commands: [{ type: 'textRpg.dice', payload: { floor: floorOf(view) } }] };
+    return { commands: [{ type: 'textRpg.dice', payload: { floor: floorOf(view), own: type !== 'normal' } }] };
 }

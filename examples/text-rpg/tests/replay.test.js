@@ -104,3 +104,61 @@ test('the live dice are the head\'s: the tail of every reply lists that reply\'s
         host.close();
     }
 });
+
+test('a Re-read of an earlier reply uses that reply\'s own dice, not a later reply\'s, and changes nothing when the text is unchanged', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await withAstra();
+    try {
+        await host.send('One.', reply('First.', ['? try Astra | Lore | normal | threat: a fair match', '+ xp Party — a deed | size: real']));
+        const firstAt = host.ctx.chat.length - 1;
+        await host.send('Two.', reply('Second.', ['? try Astra | Lore | hard', '? try Astra | Obscure | normal']));
+        const dice = tries(host).map(receipt => receipt.data.die);
+        const live = JSON.stringify(host.head());
+        assert.equal((await host.sdk.reread(firstAt)).ok, true);
+        assert.deepEqual(tries(host).map(receipt => receipt.data.die), dice, 'every roll keeps its own die');
+        assert.equal(JSON.stringify(host.head()), live, 'an unchanged Re-read changes nothing');
+        assert.deepEqual(host.turn.problems(), []);
+    } finally {
+        host.close();
+    }
+});
+
+test('a Re-read of a swiped reply that a later reply followed keeps the swipe\'s own dice', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await withAstra();
+    try {
+        await host.send('One.', reply('First.', ['? try Astra | Lore | normal']));
+        await host.swipe(reply('First, again.', ['? try Astra | Lore | normal', '? try Astra | Lore | hard']));
+        const firstAt = host.ctx.chat.length - 1;
+        await host.send('Two.', reply('Second.', ['? try Astra | Lore | normal']));
+        const dice = tries(host).map(receipt => receipt.data.die);
+        const live = JSON.stringify(host.head());
+        assert.equal((await host.sdk.reread(firstAt)).ok, true);
+        assert.deepEqual(tries(host).map(receipt => receipt.data.die), dice);
+        assert.equal(JSON.stringify(host.head()), live);
+        host.store.rebuild();
+        assert.equal(JSON.stringify(host.head()), live, 'rebuild == live');
+    } finally {
+        host.close();
+    }
+});
+
+test('a health stage and a rest are sets: after a middle delete they land where they say, not where deltas would', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await withAstra();
+    try {
+        await host.send('One.', reply('A.', ['~ health Astra — Wounded | why: a spear']));
+        const middleAt = host.ctx.chat.length;
+        await host.send('Two.', reply('B.', ['~ health Astra — Down | why: a fall']));
+        await host.send('Three.', reply('C.', ['~ health Astra — Hurt']));
+        assert.equal(astraOf(host).pools.hp.now, 22);
+        await host.st.deleteMessage(middleAt + 1);
+        await host.st.deleteMessage(middleAt);
+        assert.deepEqual(host.store.problems(), []);
+        assert.equal(astraOf(host).pools.hp.now, 22, 'Hurt is Hurt whatever the deleted reply did');
+        await host.sdk.command('textRpg.rest', { kind: 'short' });
+        assert.equal(astraOf(host).pools.sp.now, astraOf(host).pools.sp.max);
+    } finally {
+        host.close();
+    }
+});

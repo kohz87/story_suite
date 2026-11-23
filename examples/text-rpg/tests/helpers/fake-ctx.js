@@ -41,6 +41,7 @@ export function fakeCtx(slice, options = {}) {
         fail(code, message) { throw new Refused(code, message); },
         feature: id => (id === 'text-rpg.on' ? on : id === 'story-block.rpg' ? rpg : false),
         query: (name, args) => query(name, args), time: () => time, settings: () => settings,
+        absolute() {},
         claim: key => (claimed.has(key) ? false : Boolean(claimed.add(key))),
         id: prefix => `${prefix}_${String(++made).padStart(8, '0')}`,
         rng: () => random,

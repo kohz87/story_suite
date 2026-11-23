@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyTry } from '../src/module-parts/kinds/try.js';
+import { diceBefore, lastDice } from '../src/module-parts/dice-source.js';
 import { SID, astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 
 // Astra: every stat 12 (bonus +1), 34 hp and 34 sp. Normal is 12, hard 16.
@@ -137,8 +138,25 @@ test('the first roll of a reply makes its record from the dice step: its own rec
     const done = run(applyTry, first, line('try', 'Astra', 'Lore; normal'));
     assert.deepEqual([done.result.data.die, done.result.data.difficulty], [11, 1]);
     const slice = fresh();
-    const again = run(applyTry, fakeCtx(slice, { receipts: [step(0, [3, 4, 5])], standingReceipts: [{ type: 'textRpg.dice', data: { list: [15, 2, 3], floor: 0 } }] }), line('try', 'Astra', 'Lore; normal'));
-    assert.equal(again.result.data.die, 15, 'a Re-read uses the dice step the reply holds');
+    const again = run(applyTry, fakeCtx(slice, { receipts: [step(0, [3, 4, 5])], standingReceipts: [{ type: 'textRpg.dice', data: { list: [15, 2, 3], floor: 0, own: true } }] }), line('try', 'Astra', 'Lore; normal'));
+    assert.equal(again.result.data.die, 15, 'a Re-read uses the swipe\'s own dice step the reply holds');
     assert.deepEqual(slice.dice[SID], { list: [15, 2, 3], floor: 0, used: 1, hardest: 1 });
     assert.equal(run(applyTry, fakeCtx(fresh(), { receipts: [{ index: 0, receipt: { type: 'textRpg.dice', data: { list: [1, 2], floor: 0 } } }] }), line('try', 'Astra', 'Lore; normal')).code, 'REFUSED', 'a damaged record is no dice');
+});
+
+test('the dice step a reply reads is the one before it: a later reply\'s step on its carrier and an earlier swipe\'s own are not its dice', () => {
+    const at = (index, list, own = false) => ({ index, receipt: { type: 'textRpg.dice', data: { list, floor: 0, own } } });
+    // Reply 2 follows carrier 0 (its step); reply 4's step sits on carrier 2; reply 2 was swiped (own step on carrier 2, before reply 4's).
+    const chat = [at(0, [1, 1, 1]), at(2, [2, 2, 2], true), at(2, [4, 4, 4])];
+    assert.deepEqual(diceBefore(2, chat).list, [2, 2, 2], 'its own swipe step wins over the next reply\'s');
+    assert.deepEqual(diceBefore(2, [at(0, [1, 1, 1]), at(2, [4, 4, 4])]).list, [1, 1, 1], 'a normal send: the step on the carrier before');
+    assert.deepEqual(diceBefore(4, [at(0, [1, 1, 1]), at(2, [2, 2, 2], true), at(2, [4, 4, 4])]).list, [4, 4, 4], 'reply 4 reads the step on carrier 2 that is not an own step');
+    assert.equal(diceBefore(2, [at(2, [4, 4, 4])]), null, 'no step before it: no dice');
+    assert.deepEqual(lastDice(chat).list, [4, 4, 4], 'the next reply is offered the latest');
+});
+
+test('the difficulty word is found among extra parts: `? try Who | skill | what is tried | hard`', () => {
+    const slice = sliceOf([astra()], { list: [11, 10, 10], floor: 0 });
+    const done = run(applyTry, fakeCtx(slice), line('try', 'Astra', 'Lore; slip past the guards; hard'));
+    assert.equal(done.result.data.difficulty, 2);
 });

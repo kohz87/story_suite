@@ -61,7 +61,7 @@ test('while active the static part holds the approved rules and the kinds\' gram
         const statics = sent(host, STATIC);
         assert.equal(new Set(statics).size, 1);
         assert.match(statics[0], /Text RPG: tell every fight, chase, trap and danger as it would really unfold/);
-        assert.match(statics[0], /Never write\nnumbers, dice or luck\./);
+        assert.match(statics[0], /Never write numbers, dice or luck\./);
         assert.match(statics[0], /^\? try Who \| skill or stat \| easy\|normal\|hard\|very hard/m);
         assert.match(statics[0], /^\+ xp Party — what was overcome \| size: minor\|real\|major\|great/m);
     } finally {
