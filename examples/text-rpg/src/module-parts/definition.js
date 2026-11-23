@@ -12,6 +12,7 @@ import { rest } from './commands/rest.js';
 import { dice } from './commands/dice.js';
 import { narratorRules } from './static-text.js';
 import { tailOf } from './tail.js';
+import { rollCards } from './roll-cards.js';
 import { beforeGenerate } from './hooks.js';
 import { SETTINGS, ownSettings } from './settings.js';
 
@@ -39,6 +40,7 @@ export function textRpgModule(sdk = null) {
             'textRpg.rest': owned(rest), 'textRpg.dice': owned(dice),
         },
         queries: queriesOf(sdk),
+        cards: rollCards(),
         context: { feature: FEATURE, static: () => (active(sdk) ? narratorRules(ownSettings(sdk)) : ''), tail: tailOf, budget: 600 },
         hooks: { beforeGenerate: Object.assign(beforeGenerate, { feature: FEATURE }) },
         settings: SETTINGS,

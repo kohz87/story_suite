@@ -53,10 +53,18 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   A companion has no sheet, so nothing is paid from one.
 - **Gear.** With the inventory's gear switched on, a try in danger wears what the roll used, by the inventory's own
   `gear.wear` and recorded with the reply (so a swipe, a Re-read or a deleted reply gives the same condition): a bad
-  failure two condition steps, a success at a cost one. A physical try (STR, DEX or an attack skill) wears the member's
+  failure one condition step on each piece the roll used (what one exchange of a board fight wears: good → worn 69 → torn 39 → broken 0,
+  about 30 condition points a step), a success at a cost nothing. A physical try (STR, DEX or an attack skill) wears the member's
   weapon, and the wound wears the body armour (else the off-hand). The reader's character wears the party's bag; a
   missing or broken piece wears nothing. The receipt's `data.worn` lists `{ slot, stack, steps, before, now, broken }`;
   a broken piece stops giving its bonus.
+- **Practice.** Every use of a skill teaches: a `? try` +10 (+20 for a success at hard or harder, none when the roll is easy), a costed skill used with
+  `~ spend` and no roll +5. Each is scaled by the threat word (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above or beyond ×2; none named ×1; rounded, at least 1
+  when more than 0). A skill gains from `~ spend` once a reply, and a roll for it in the same reply wins. The receipts' `data.practice` says what was gained; the keyed
+  counter `practice` stays a counter, and a per-reply mark (`spent`) keeps the once-a-reply rule through a swipe, a reload and a delete.
+- **Rolls you can see.** Under a reply the module's cards (`text-rpg-roll-1…3`, `text-rpg-earned`) list each roll of that reply from its own receipts
+  (`textRpg.rolls`): "Snap Cut, normal → a bad failure", the die and bonus against the number, why it was raised, what it cost, the practice and any rank up, the wear,
+  then the reply's xp and the practice of its `~ spend` lines. A raised roll's receipt (`data.why`) and the dice note's floor line name the reasons: the threat and each live condition.
 - **Danger.** A `? try` line may carry `threat: how the foe compares`; without it the threat is this reply's earlier
   `? try`, else the latest earlier reply's recorded threat, else none (not in danger). The dice note says a threat raises
   the difficulty (above you → at least hard, far above → very hard, beyond → near impossible).

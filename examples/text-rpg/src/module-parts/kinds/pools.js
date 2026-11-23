@@ -1,11 +1,13 @@
 // The pool lines: paying a skill's cost, `~ spend Who — skill` and `~ health Who — stage | why: …` (the wound stage).
 import { DOMAIN } from '../../domain/shape.js';
+import { SPEND_PRACTICE, practiceFor } from '../../rules/practice.js';
 import { HEALTH_STAGES } from '../../words/pools.js';
 import { skillActive } from '../effective.js';
 import { gearOf } from '../gear.js';
 import { poolWith } from '../gear-sizes.js';
 import { skillIndex } from '../members.js';
 import { partsOf, labelOf } from '../line-read.js';
+import { addPractice, threatHeard } from '../practice-gain.js';
 import { target } from './target.js';
 
 const POOL_WORD = { mp: 'mana', sp: 'stamina' };
@@ -21,14 +23,17 @@ export function spendCost(member, skill, cap = {}, times = 1) {
 }
 
 export function applySpend(ctx, line) {
-    const { member } = target(ctx, line, { acts: true });
+    const { slice, member } = target(ctx, line, { acts: true });
     const at = skillIndex(member, partsOf(line)[0]);
     if (at < 0) ctx.fail('NOT_FOUND', `${member.name} has no skill called ${String(partsOf(line)[0] ?? '').slice(0, 40)}.`);
     const skill = member.skills[at];
     if (!skillActive(member, skill)) ctx.fail('REFUSED', `${skill.name} is not known at this level.`);
     const refused = spendCost(member, skill, gearOf(ctx.query, member).cap);
     if (refused) ctx.fail('NOT_ENOUGH', refused);
-    return { summary: `${member.name} uses ${skill.name}.`, narrate: false, data: { member: member.id, skill: skill.name } };
+    // A costed skill used without a roll teaches a little: once a reply, and not when the reply rolled it (kinds/try.js), scaled by the threat so far.
+    const sid = ctx.reply?.sid;
+    const { gained, rankUp } = addPractice(slice, sid, member, skill, 'spend', practiceFor(SPEND_PRACTICE, threatHeard(slice, sid, slice.dice[sid])));
+    return { summary: `${member.name} uses ${skill.name}.`, narrate: false, data: { member: member.id, skill: skill.name, practice: gained, rankUp } };
 }
 
 export function applyHealth(ctx, line) {

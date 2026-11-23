@@ -20,19 +20,20 @@ function roll(die, { what = 'Lore', labels = { danger: 'yes' }, slots = GEAR, me
     return { calls, asked, data: done.result?.data };
 }
 
-test('a bad failure in danger wears the weapon of a physical try and the armour for the wound, two steps each, recorded in the receipt', () => {
+test('a bad failure in danger wears the weapon of a physical try and the armour for the wound, one step each (what one exchange of a board fight wears), recorded in the receipt', () => {
     const { calls, data, asked } = roll(1, { what: 'dex' });
-    assert.deepEqual(calls.map(([, payload]) => [payload.slot, payload.steps, payload.recorded, payload.owner]), [['weapon', 2, true, 'party'], ['body', 2, true, 'party']]);
+    assert.deepEqual(calls.map(([, payload]) => [payload.slot, payload.steps, payload.recorded, payload.owner]), [['weapon', 1, true, 'party'], ['body', 1, true, 'party']]);
     assert.deepEqual(asked[0], { owner: 'party' }, 'the reader\'s character wears the party\'s bag');
-    assert.deepEqual(data.worn.map(item => [item.slot, item.steps, item.before, item.now]), [['weapon', 2, 100, 66], ['body', 2, 100, 66]]);
+    assert.deepEqual(data.worn.map(item => [item.slot, item.steps, item.before, item.now]), [['weapon', 1, 100, 66], ['body', 1, 100, 66]]);
 });
 
-test('a try with a mind stat wears only the armour for the wound; a success at a cost in danger wears one step', () => {
+test('a try with a mind stat wears only the armour for the wound; a success at a cost in danger wears nothing', () => {
     const lore = roll(1);
     assert.deepEqual(lore.calls.map(([, payload]) => payload.slot), ['body']);
     const cost = roll(10, { what: 'str' });
     assert.equal(cost.data.band, 'cost');
-    assert.deepEqual(cost.calls.map(([, payload]) => [payload.slot, payload.steps]), [['weapon', 1], ['body', 1]]);
+    assert.equal(cost.calls.length, 0, 'a cost is paid in wounds and stamina, never in gear');
+    assert.equal(cost.data.worn, undefined);
 });
 
 test('nothing wears out of danger, on a success or a plain failure, and a broken or missing piece is left alone', () => {
@@ -65,10 +66,10 @@ async function armed(t) {
     return host;
 }
 
-// A fight whose try came out worse than a success; the dice are the reply's own, so swipe until one is (a few at most).
+// A fight whose try was a bad failure (the only band that wears gear); the dice are the reply's own, so swipe until one is.
 async function fight(host, text) {
     await host.send('Strike.', reply(text, FIGHT));
-    for (let n = 0; n < 12 && !['bad', 'cost'].includes(tries(host).at(-1)?.data.band); n += 1) await host.swipe(reply(text, FIGHT));
+    for (let n = 0; n < 40 && tries(host).at(-1)?.data.band !== 'bad'; n += 1) await host.swipe(reply(text, FIGHT));
     return tries(host).at(-1).data;
 }
 

@@ -61,7 +61,7 @@ test('the public constants and initial state match the frozen contract', () => {
         diceReplies: 200,
     });
     assert.equal(Object.isFrozen(LIMITS), true);
-    assert.deepEqual(initialState(), { v: 1, members: {}, dice: {} });
+    assert.deepEqual(initialState(), { v: 1, members: {}, dice: {}, spent: {} });
     assert.notEqual(initialState().members, initialState().members);
     assert.deepEqual(validate(initialState()), []);
 });

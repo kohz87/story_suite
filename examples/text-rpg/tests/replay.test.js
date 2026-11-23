@@ -88,7 +88,8 @@ test('rebuild == live, and a middle delete replays the surviving replies with th
         assert.deepEqual(astraOf(host).conditions, [], 'the middle reply\'s condition went with it');
         assert.equal(astraOf(host).xp, xpOf[0] + xpOf[2], 'and its xp: the later reply adds its change to what is there');
         assert.equal(astraOf(host).practice.obscure ?? 0, 0, 'its practice went with it');
-        assert.equal(astraOf(host).practice.lore ?? 0, [all[0], all[2]].reduce((sum, data) => sum + practiceGain(data.band, data.difficulty), 0), 'and the surviving replies keep theirs');
+        assert.equal(astraOf(host).practice.lore ?? 0, [all[0], all[2]].reduce((sum, data) => sum + data.practice, 0), 'and the surviving replies keep theirs');
+        assert.deepEqual([all[0].practice, all[2].practice], [practiceGain(all[0].band, all[0].difficulty), Math.round(1.5 * practiceGain(all[2].band, all[2].difficulty))], 'each told under the threat it was played in: the third was written after "above you", so its 10 counts ×1.5 and stays 15 after the middle reply goes');
         const after = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), after);

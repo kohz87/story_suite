@@ -1,7 +1,7 @@
-// What a `? try` in danger costs the gear: a bad failure wears the pieces the roll used two condition steps, a success at a cost one.
+// What a `? try` in danger costs the gear: a bad failure wears each piece the roll used one condition step (good → worn → torn → broken), what one exchange of a board fight wears (rpg gear-parts/wear.js); a success at a cost wears nothing.
 import { ask } from '../gear.js';
 
-const STEPS = { bad: 2, cost: 1 };
+const STEPS = { bad: 1 };
 const HANDS = ['str', 'dex'];
 
 /**

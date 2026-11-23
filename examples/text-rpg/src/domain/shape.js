@@ -51,9 +51,9 @@ function normalSkill(value) {
     };
 }
 
-/** A new domain slice with no members and no recorded dice. */
+/** A new domain slice with no members, no recorded dice and no practice marks (`spent`: by reply, what a `~ spend` taught). */
 export function initialState() {
-    return { v: 1, members: {}, dice: {} };
+    return { v: 1, members: {}, dice: {}, spent: {} };
 }
 
 /** Builds a complete member record, filling missing values and clamping supplied stats. */

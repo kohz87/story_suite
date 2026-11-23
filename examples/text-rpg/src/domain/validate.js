@@ -257,11 +257,22 @@ function checkDice(dice, problems) {
     }
 }
 
+function checkSpent(spent, problems) {
+    if (spent === undefined) return;
+    if (!isObject(spent) || Object.keys(spent).length > LIMITS.diceReplies) problems.push(`spent must be an object of at most ${LIMITS.diceReplies} replies.`);
+    else for (const [reply, marks] of Object.entries(spent)) {
+        if (!isObject(marks) || Object.keys(marks).length > LIMITS.practiceStored || !Object.values(marks).every(value => isInt(value, 0, LIMITS.practiceMax))) problems.push(`spent.${reply.slice(0, 80)} must map skills to whole numbers.`);
+    }
+}
+
 function validateSlice(slice) {
     const problems = [];
-    if (!checkShape(slice, 'slice', ['v', 'members', 'dice'], problems)) return problems;
+    // `spent` (reply → skill → the practice a `~ spend` gave there) is kept once a reply has one: a slice saved before it has none.
+    const { spent, ...base } = isObject(slice) ? slice : {};
+    if (!checkShape(isObject(slice) ? base : slice, 'slice', ['v', 'members', 'dice'], problems)) return problems;
     if (slice.v !== 1) problems.push('slice.v must be 1.');
     checkDice(slice.dice, problems);
+    checkSpent(spent, problems);
 
     if (!isObject(slice.members)) {
         problems.push('members must be an object.');

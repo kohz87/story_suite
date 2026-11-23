@@ -6,6 +6,7 @@ import { active } from './active.js';
 import { bonusRows } from './bonus.js';
 import { minutesOf } from './conditions.js';
 import { capabilityLine } from './capability.js';
+import { floorWhy } from './floor-why.js';
 import { gearOf } from './gear.js';
 import { namedText } from './listed.js';
 import { toneStep } from './settings.js';
@@ -24,6 +25,9 @@ export function tailOf(view) {
     // Each word keeps its place and carries the number the tone moves it to: what `? try` uses (kinds/try.js).
     const step = toneStep(view);
     const difficulties = DIFFICULTIES.map(({ word }, at) => ({ word, dc: DIFFICULTIES[Math.min(4, Math.max(0, at + step))].dc }));
-    const note = record ? diceNote({ list: record.list, floor: record.floor, difficulties, rows: bonusRows(members, member => gear.get(member.id).cap, text) }) : '';
+    // What raised the floor: the reader's threat from the latest rolled reply and their live conditions, as the hook that offered the dice counted them (hooks.js).
+    const lastThreat = Object.values(view.state?.domains?.[DOMAIN]?.dice ?? {}).at(-1)?.threat ?? 0;
+    const why = record?.floor > 0 ? floorWhy(members[0], { threat: lastThreat, now }) : [];
+    const note = record ? diceNote({ list: record.list, floor: record.floor, why, difficulties, rows: bonusRows(members, member => gear.get(member.id).cap, text) }) : '';
     return { lines: note ? [note, ...lines] : lines, optional: [] };
 }

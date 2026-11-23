@@ -52,9 +52,9 @@ function rowsOf(value) {
     });
 }
 
-/** The reply's dice note: rules, difficulty floor, bonus table and the head the narrator reports. Empty when no dice are present. */
+/** The reply's dice note: rules, difficulty floor (with `why`, what raised it: the reader's threat and conditions), bonus table and the head the narrator reports. Empty when no dice are present. */
 export function diceNote(record) {
-    const { list, floor, rows, difficulties } = isObject(record) ? record : {};
+    const { list, floor, rows, difficulties, why } = isObject(record) ? record : {};
     const dice = Array.isArray(list) ? list.filter(die => Number.isInteger(die) && die >= 1 && die <= 20) : [];
     if (!dice.length) return '';
 
@@ -69,7 +69,8 @@ export function diceNote(record) {
         'Total at the number or over: success; 1–2 short: success at a cost; more: failure; 10 or more short or a natural 1: a bad failure; a natural 20: more than asked.',
     ];
     parts.push(`A threat raises the difficulty: a foe above you → at least ${dc[2].word}, far above → ${dc[3].word}, beyond → ${dc[4].word}.`);
-    if (floorAt > 0) parts.push(`Nothing this reply is easier than ${dc[floorAt].word}.`);
+    const reasons = (Array.isArray(why) ? why : []).filter(item => typeof item === 'string' && item.trim()).map(item => item.trim());
+    if (floorAt > 0) parts.push(`Nothing this reply is easier than ${dc[floorAt].word}${reasons.length ? ` (${reasons.join(', ')})` : ''}.`);
     if (table.length) parts.push(`Bonus by stat or skill: ${table.map(row => row.text).join('. ')}.`);
     parts.push('The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text.');
     parts.push(`Report each: ? try Who | skill or stat | difficulty, where Who is the person rolling (the reader's character or a party member, by name), never the action; for example ${example}.`);

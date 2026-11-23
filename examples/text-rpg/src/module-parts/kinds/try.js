@@ -1,14 +1,15 @@
 // `? try Who | skill or stat | difficulty`: the code reads the verdict from the reply's recorded die, the bonus and the difficulty.
 import { DIFFICULTIES, difficultyIndex, floorIndex, raiseToFloor } from '../../rules/difficulty.js';
 import { harmFor } from '../../rules/harm.js';
-import { practiceGain } from '../../rules/growth.js';
+import { rollPractice } from '../../rules/practice.js';
 import { verdict } from '../../rules/roll.js';
-import { PRACTICE_MAX, rankOf } from '../../words/ranks.js';
 import { stageOf } from '../../words/pools.js';
 import { THREAT_WORDS } from '../../words/threat.js';
 import { priorThreat, recordOf } from '../dice-source.js';
+import { BAND_WORD } from '../band-words.js';
 import { bonusFor } from '../bonus.js';
-import { practiceKey, practiceOf } from '../practice.js';
+import { addPractice, threatHeard } from '../practice-gain.js';
+import { floorWhy } from '../floor-why.js';
 import { liveConditions } from '../conditions.js';
 import { skillActive } from '../effective.js';
 import { gearOf } from '../gear.js';
@@ -20,7 +21,6 @@ import { spendCost } from './pools.js';
 import { wearGear } from './wear.js';
 import { target } from './target.js';
 
-const BAND_WORD = { great: 'more than was asked', success: 'success', cost: 'success at a cost', failure: 'failure', bad: 'a bad failure' };
 const PHYSICAL = ['str', 'vit', 'agi', 'dex'];
 const clamp = (n, low, high) => Math.min(high, Math.max(low, n));
 
@@ -44,10 +44,15 @@ export function applyTry(ctx, line) {
     // The threat is the line's own, else this reply's earlier one, else the latest earlier reply's, else none (not in danger).
     const threat = said >= 0 ? said : record.threat ?? priorThreat(slice, ctx.reply?.sid);
     const drained = stageOf(poolWith(member, 'sp', cap).now, poolWith(member, 'sp', cap).max, 'energy').index >= 3;
-    const floor = Math.max(record.floor, floorIndex({ threat, conditions: liveConditions(member, ctx.time?.() ?? null).length, drained, physical: PHYSICAL.includes(found.stat) }));
+    const own = floorIndex({ threat, conditions: liveConditions(member, ctx.time?.() ?? null).length, drained, physical: PHYSICAL.includes(found.stat) });
+    const floor = Math.max(record.floor, own);
     // The word is raised to the floor first, then the tone moves it: the dice note lists exactly these numbers (dice/note.js).
     const { index: floored, raised } = raiseToFloor(difficultyIndex(word), floor);
     const index = clamp(floored + toneStep(ctx), 0, 4);
+    // (what raised it: the reader's own threat and conditions, else the floor the reply was offered with, which came from the last reply's danger)
+    const why = floorWhy(member, { threat, now: ctx.time?.() ?? null, drained, physical: PHYSICAL.includes(found.stat) });
+    const reasons = raised ? (own >= record.floor && why.length ? why : ['danger carried over from the last reply']) : [];
+    const heard = said >= 0 ? said : threatHeard(slice, ctx.reply?.sid, record);
     const die = record.list[record.used ?? 0];
     const result = verdict({ die, bonus: found.bonus, dc: DIFFICULTIES[index].dc });
 
@@ -71,19 +76,14 @@ export function applyTry(ctx, line) {
     // (the gear the roll used wears with the wounds, by the inventory's own rule; what it wore goes in the receipt)
     const worn = wearGear(ctx, member, { band: result.band, inDanger, stat: found.stat, skill: found.skill, wounded: stages > 0 && !member.companion });
     let rankUp = null;
-    if (found.skill) {
-        const key = practiceKey(found.skill.name);
-        const before = rankOf(practiceOf(member, found.skill)).index;
-        member.practice[key] = Math.min(PRACTICE_MAX, practiceOf(member, found.skill) + practiceGain(result.band, index));
-        const after = rankOf(member.practice[key]);
-        if (after.index > before) rankUp = after.name;
-    }
+    let practice = 0;
+    if (found.skill) ({ gained: practice, rankUp } = addPractice(slice, ctx.reply?.sid, member, found.skill, 'try', rollPractice(result.band, index, heard)));
     record.used = (record.used ?? 0) + 1;
     record.hardest = Math.max(record.hardest ?? 0, index);
     if (said >= 0) record.threat = Math.max(record.threat ?? 0, said);
-    const tail = `${DIFFICULTIES[floored].word}${raised ? ' (raised: the scene allows nothing easier)' : ''}: ${BAND_WORD[result.band]}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}.`;
+    const tail = `${DIFFICULTIES[floored].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}.`;
     return {
         summary: `${member.name} tries ${found.skill?.name ?? what}, ${tail}`, narrate: true,
-        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, raised, paid, rankUp, ...(worn.length ? { worn } : {}) },
+        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, raised, ...(raised ? { why: reasons } : {}), paid, practice, rankUp, ...(worn.length ? { worn } : {}) },
     };
 }
