@@ -8,8 +8,8 @@ const of = (list, type, index) => (Array.isArray(list) ? list : []).filter(entry
 
 /**
  * `{ rolls, spends, xp }` for the reply at message `index`; `entries` are `store.receipts()` as a query's tools give them, `nameOf(memberId)` the name to say.
- * A roll: { who, target, die, bonus, total, difficulty, band, raised, why, paid, practice, rankUp, worn }. A spend: { who, skill, practice, rankUp } only where it taught
- * something and the reply did not roll that skill (a roll for the skill in the reply wins). xp: [{ summary, amount, levels }].
+ * A roll: { who, target, die, bonus, total, difficulty, band, raised, why, paid, practice, rankUp, worn }. A spend: { who, skill, practice, rankUp, sessions?, asked?, days? } only where it taught
+ * something and the reply did not roll that skill (a roll for the skill in the reply wins, but not over training sessions of 2 or more). xp: [{ summary, amount, levels }].
  */
 export function rollsOf(entries, index, nameOf = id => id) {
     const rolls = of(entries, 'capture.try', index).map(data => ({
@@ -18,8 +18,8 @@ export function rollsOf(entries, index, nameOf = id => id) {
     }));
     const rolled = new Set(rolls.map(roll => `${roll.who}\u0000${practiceKey(roll.target)}`));
     const spends = [...of(entries, 'capture.spend', index), ...of(entries, 'capture.train', index)]
-        .map(data => ({ who: nameOf(data.member), skill: String(data.skill ?? ''), practice: Number.isInteger(data.practice) ? data.practice : 0, rankUp: data.rankUp ?? null }))
-        .filter(spend => spend.practice > 0 && !rolled.has(`${spend.who}\u0000${practiceKey(spend.skill)}`));
+        .map(data => ({ who: nameOf(data.member), skill: String(data.skill ?? ''), practice: Number.isInteger(data.practice) ? data.practice : 0, rankUp: data.rankUp ?? null, ...(data.sessions > 1 || data.asked > 1 ? { sessions: data.sessions, asked: data.asked, days: data.days } : {}) }))
+        .filter(spend => spend.practice > 0 && (spend.sessions > 1 || !rolled.has(`${spend.who}\u0000${practiceKey(spend.skill)}`)));
     const xp = (Array.isArray(entries) ? entries : []).filter(entry => entry?.index === index && entry.receipt?.type === 'capture.xp' && isRecord(entry.receipt.data))
         .map(({ receipt }) => ({ summary: String(receipt.summary ?? ''), amount: receipt.data.amount ?? 0, levels: receipt.data.levels ?? 0 }));
     return { rolls, spends, xp };

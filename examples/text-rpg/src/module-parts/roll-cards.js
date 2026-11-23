@@ -24,8 +24,15 @@ function rollRow(roll, named) {
     return { text: `${named ? `${roll.who}: ` : ''}${parts.join(' · ')}`, tag: '' };
 }
 
+function spendText(item) {
+    const reach = item.rankUp ? ` (reaches ${item.rankUp})` : '';
+    if (!item.sessions) return `${item.who} practised ${item.skill} +${item.practice}${reach}`;
+    const note = item.asked > item.sessions ? `asked ${item.asked}, story time ${item.days} day${item.days === 1 ? '' : 's'}` : `${item.sessions} session${item.sessions === 1 ? '' : 's'}`;
+    return `${item.who} trained ${item.skill}: +${item.practice} (${note})${reach}`;
+}
+
 function earnedRow({ spends, xp }) {
-    const parts = [...xp.map(item => item.summary || `${item.amount} xp`), ...spends.map(item => `${item.who} practised ${item.skill} +${item.practice}${item.rankUp ? ` (reaches ${item.rankUp})` : ''}`)];
+    const parts = [...xp.map(item => item.summary || `${item.amount} xp`), ...spends.map(spendText)];
     const levels = xp.find(item => item.levels > 0);
     return parts.length ? { text: `Earned: ${parts.join(' · ')}`, tag: levels ? `level ${levels.levels > 1 ? `+${levels.levels}` : 'up'}` : '' } : null;
 }

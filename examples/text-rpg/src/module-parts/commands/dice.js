@@ -4,11 +4,11 @@ import { requireActive } from '../active.js';
 import { recordable } from '../rules-now.js';
 
 /**
- * Payload: { floor, own, rules? } (`rules`: the level cap and XP rate the settings said when the step was made, kept in the receipt for `+ xp`) (`own`: the step is for the reply on the carrier it is kept on, a swipe's or a regenerate's, not for the next one). The dice live in the receipt's data (the reply's `? try` lines and the tail read them there), so they never depend on where a
+ * Payload: { floor, own, rules?, clock? } (`clock`: the story minute now, kept for `~ train`'s days) (`rules`: the level cap and XP rate the settings said when the step was made, kept in the receipt for `+ xp`) (`own`: the step is for the reply on the carrier it is kept on, a swipe's or a regenerate's, not for the next one). The dice live in the receipt's data (the reply's `? try` lines and the tail read them there), so they never depend on where a
  * Re-read puts a system step among the reply's ops. A swipe draws anew (a new seed); a Re-read keeps what was drawn. Never the reader's to call.
  */
 export function dice(ctx, payload = {}) {
     if (ctx.cause !== 'system' || ctx.caller !== null) ctx.fail('REFUSED', 'The dice are rolled before a reply, not by an action.');
     requireActive(ctx);
-    return { summary: '', narrate: false, data: { ...drawDice(Math.floor(ctx.rng() * 4294967296) >>> 0, payload?.floor), own: payload?.own === true, ...(payload?.rules && recordable(payload.rules) ? { rules: recordable(payload.rules) } : {}) } };
+    return { summary: '', narrate: false, data: { ...drawDice(Math.floor(ctx.rng() * 4294967296) >>> 0, payload?.floor), own: payload?.own === true, ...(Number.isInteger(payload?.clock) && payload.clock >= 0 ? { clock: payload.clock } : {}), ...(payload?.rules && recordable(payload.rules) ? { rules: recordable(payload.rules) } : {}) } };
 }

@@ -1,4 +1,4 @@
-// Gives a skill its practice for one use and says what was gained. Practice stays the keyed counter; a per-reply mark keeps `~ spend` and `~ train` (one mark between them) to one gain a skill a reply, and a roll for the skill in the reply wins over it.
+// Gives a skill its practice for one use and says what was gained. Practice stays the keyed counter; a per-reply mark keeps `~ spend` and `~ train` (one mark between them) to one gain a skill a reply, and a roll for the skill in the reply wins over it; training sessions of 2 or more have a mark of their own that a roll does not take back.
 import { LIMITS } from '../domain/shape.js';
 import { PRACTICE_MAX, rankOf } from '../words/ranks.js';
 import { practiceKey, practiceOf } from './practice.js';
@@ -28,7 +28,12 @@ export function addPractice(slice, sid, member, skill, via, points) {
     const before = practiceOf(member, skill);
     let earned = points;
     let back = 0;
-    if (via !== 'try') {
+    if (via === 'train' && points > 1) {
+        // Training sessions are their own gain, one `~ train` line a skill a reply, that a roll of the same reply does not take back.
+        const own = `train:${key}`;
+        earned = marks[own] !== undefined ? 0 : Math.min(points, PRACTICE_MAX - before);
+        if (sid && marks[own] === undefined) marks[own] = earned;
+    } else if (via !== 'try') {
         if (marks[key] !== undefined) earned = 0;
         else if (sid) marks[key] = Math.min(PRACTICE_MAX, before + points) - before;
     } else if (sid) {

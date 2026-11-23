@@ -21,5 +21,5 @@ export function beforeGenerate(view, info = {}) {
     const type = String(info?.type ?? 'normal').toLowerCase();
     if (!OFFERED.includes(type)) return null;
     const rules = recordable(rulesOf(view));
-    return { commands: [{ type: 'textRpg.dice', payload: { floor: floorOf(view), own: type !== 'normal', ...(rules ? { rules } : {}) } }] };
+    return { commands: [{ type: 'textRpg.dice', payload: { floor: floorOf(view), own: type !== 'normal', ...(minutesOf(view.state) !== null ? { clock: minutesOf(view.state) } : {}), ...(rules ? { rules } : {}) } }] };
 }

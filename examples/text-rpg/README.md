@@ -59,8 +59,9 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   missing or broken piece wears nothing. The receipt's `data.worn` lists `{ slot, stack, steps, before, now, broken }`;
   a broken piece stops giving its bonus.
 - **Practice.** Every use of a skill teaches: a `? try` +3 for a failure or a bad one, +5 for a success or a success at a cost, +10 for a success (or great) at hard or
-  harder, none when the roll is easy; a skill used with `~ spend` and no roll, or a training scene `~ train Who — Skill` (no cost, no roll), +1. Each is scaled by the threat word (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above or beyond ×2; none named ×1; rounded, at least 1
-  when more than 0). A skill gains from `~ spend` or `~ train` once a reply between them, and a roll for it in the same reply wins. The receipts' `data.practice` says what was gained; the keyed
+  harder, none when the roll is easy; a skill used with `~ spend` and no roll, or a one-session training scene, +1. Each is scaled by the threat word (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above or beyond ×2; none named ×1; rounded, at least 1
+  when more than 0). A skill gains from `~ spend` or a one-session `~ train` once a reply between them, and a roll for it in the same reply wins.
+  **Training** is per session: `~ train Who — Skill | sessions: N` (one a day of training the story told; whole 1..60, missing or bad = 1) gives +1 a session (no threat scale), capped by the whole story days the clock moved since the reply began (at least 1; 1 when there is no clock; the dice step keeps the clock). Once a skill a reply; a roll of the same skill does not take sessions of 2 or more back. Card: "Astra trained Swordplay: +30 (30 sessions)", or "(asked 30, story time 5 days)" when capped. Practice stops at 600. The receipts' `data.practice` says what was gained; the keyed
   counter `practice` stays a counter, and a per-reply mark (`spent`) keeps the once-a-reply rule through a swipe, a reload and a delete.
 - **Rolls you can see.** Under a reply the module's one card `text-rpg-rolls` ("Rolls", up to 8 rows; it declares `rows: 8`) lists each roll of that reply from its own receipts
   (`textRpg.rolls`), one row each: "Snap Cut, normal → a bad failure (2 + 0 vs 12) · a wound · practice +10 · wear: weapon 69, armour 69"; a raised roll says why inside its

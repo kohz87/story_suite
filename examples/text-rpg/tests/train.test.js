@@ -38,8 +38,8 @@ test('a training scene teaches +1 with no cost and no roll, and says so in the r
     assert.equal(run(applyTrain, fakeCtx(slice, { sid: SIDS[0] }), line('train', 'Astra', 'Nothing')).code, 'NOT_FOUND');
 });
 
-test('train is scaled by the threat so far: far beneath none, beneath 1 (half, at least 1), a fair match 1, above 2, far above 2', () => {
-    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => train(make(threat)).practice), [0, 1, 1, 2, 2, 2]);
+test('train is not scaled by the threat (training has none): a session is +1 whatever the threat so far', () => {
+    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => train(make(threat)).practice), [1, 1, 1, 1, 1, 1]);
 });
 
 test('train and spend share one gain a skill a reply; another skill or reply gains again', () => {

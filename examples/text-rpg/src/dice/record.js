@@ -12,14 +12,15 @@ function floorOf(value) {
     return Math.min(FLOOR_MAX, Math.max(0, Math.trunc(value)));
 }
 
-/** A checked dice record: { list, floor, rules? } (`rules` is read by the xp line, which checks it), or null when the list or floor is invalid. */
+/** A checked dice record: { list, floor, rules?, clock? } (`rules` is read by the xp line, which checks it; `clock` is the story minute the step was made at, read by `~ train`), or null when the list or floor is invalid. */
 export function diceOf(value) {
     if (!isObject(value) || !Array.isArray(value.list) || value.list.length !== DICE_COUNT) return null;
     if (!value.list.every(isDie)) return null;
     const floor = value.floor === undefined ? 0 : value.floor;
     if (!Number.isInteger(floor) || floor < 0 || floor > FLOOR_MAX) return null;
     const rules = isObject(value.rules) && Number.isInteger(value.rules.cap) && Number.isInteger(value.rules.rate) ? { cap: value.rules.cap, rate: value.rules.rate } : null;
-    return { list: [...value.list], floor, ...(rules ? { rules } : {}) };
+    const clock = Number.isInteger(value.clock) && value.clock >= 0 ? value.clock : null;
+    return { list: [...value.list], floor, ...(rules ? { rules } : {}), ...(clock !== null ? { clock } : {}) };
 }
 
 /** Draws a reply's dice from its seed and keeps the floor clamped to 0..4. */
