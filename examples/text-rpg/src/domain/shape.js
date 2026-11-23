@@ -74,7 +74,7 @@ export function newMember(input) {
         name,
         pc: source.pc === true,
         xp: 0,
-        spent: 0,
+        bought: {},
         wounds: 0,
         down: false,
         stats,

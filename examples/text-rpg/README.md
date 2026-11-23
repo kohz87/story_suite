@@ -50,8 +50,12 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 - **Growth.** `+ xp Party — what | size: minor|real|major|great` pays by size, cut to what the reply's hardest
   roll supports and scaled by how the threat compares with the hero. A rank every 100 practice points; each
   level gives a stat point to spend on the Party tab, and a skill slot every third level. Level and points are
-  derived: `xp` and `spent` are the stored counters, level is what the xp reaches and the points are what the level
-  has earned less `spent`, so a deleted xp reply takes its level-up with it.
+  derived: `xp` is the stored counter, level is what the xp reaches. A stat bought with a point is a keyed, ordered
+  purchase (`member.bought`: `{ stat, n, seq }`), not added into `stats` (the creation base); the level pays for the
+  first purchases up to the points it earned, so a deleted xp reply takes the level, and the purchases it paid for,
+  away, and a later level brings them back. Every reader uses the effective stats (`module-parts/effective.js`). Skills
+  learned past the slots of the level (5, +1 every third level) stay listed but inactive, latest learned first; a `? try`
+  with one is refused until the level returns.
 - **Settings.** Tone (gritty makes every roll a step harder, heroic a step easier).
 
 ## How it is built (the second reference module)
@@ -91,9 +95,9 @@ tests/                   node --test with the testkit host, plus hand-made ctx f
   before them, so a Re-read of an earlier reply never reads a later reply's dice. They keep what they used (`used`,
   `hardest`, `threat`) in the domain under the reply's own record id.
 - Down is its own mark (`down`), set only by `~ health … — Down` and cleared by any other `~ health` or a day's rest; the wounds counter reads 0 to 4. A capped wound replayed on a lower base can leave a member one stage healthier than a fresh telling.
-- Numbers that move (`wounds`, mana and stamina, `xp`, `spent`, practice) are declared `counters`, so a replay after a
+- Numbers that move (`wounds`, mana and stamina, `xp`, practice) are declared `counters`, so a replay after a
   deleted reply adds each change instead of writing the number the deleted reply left. Nothing is a counter that is
-  computed from another: level and points come from `xp` and `spent` on every read (`module-parts/standing.js`), and
+  computed from another: level, points, effective stats and active skills come from `xp` and `bought` on every read (`module-parts/standing.js`), and
   health is a stage count (a failed roll adds its stages, a day's rest takes one off, `~ health` is a set) that every
   read clamps to 0..5.
 - The step is not re-planned (`replan` is off): a Re-read keeps the dice; a swipe is a new send, so a new seed.

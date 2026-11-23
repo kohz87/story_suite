@@ -1,6 +1,7 @@
 // The roster lines: `+ skill Who — Name | stat | type | from: how` and `+ companion Name | level: N | strengths: a, b`.
 import { DOMAIN, LIMITS, newMember } from '../../domain/shape.js';
 import { requireActive } from '../active.js';
+import { nextLearned } from '../learned.js';
 import { memberNamed, skillIndex, skillSlots } from '../members.js';
 import { partsOf, labelOf, statKey } from '../line-read.js';
 import { levelOf } from '../standing.js';
@@ -21,6 +22,7 @@ export function applySkill(ctx, line) {
     const kind = (labelOf(line, 'type') || type || 'utility').toLowerCase();
     const cost = /^(\d+)\s*(mp|sp)$/i.exec(labelOf(line, 'cost'));
     member.skills.push({
+        learned: nextLearned(member),
         name: clean, about: (labelOf(line, 'about') || labelOf(line, 'from')).slice(0, LIMITS.about), stat: key,
         type: TYPES.includes(kind) ? kind : 'utility', cost: cost ? { pool: cost[2].toLowerCase(), n: Number(cost[1]) } : null,
     });

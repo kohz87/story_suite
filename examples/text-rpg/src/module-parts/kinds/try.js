@@ -10,6 +10,7 @@ import { priorThreat, recordOf } from '../dice-source.js';
 import { bonusFor } from '../bonus.js';
 import { practiceKey, practiceOf } from '../practice.js';
 import { liveConditions } from '../conditions.js';
+import { poolOf, skillActive } from '../effective.js';
 import { gearOf } from '../gear.js';
 import { partsOf, labelOf } from '../line-read.js';
 import { toneStep } from '../settings.js';
@@ -32,13 +33,14 @@ export function applyTry(ctx, line) {
     if ((record.used ?? 0) >= record.list.length) ctx.fail('LIMITED', 'This reply has used all its dice.');
     const found = bonusFor(member, what, gearOf(ctx.query, member).cap);
     if (!found) ctx.fail('NOT_FOUND', `${member.name} has no skill or stat called ${what.slice(0, 40)}.`);
+    if (found.skill && !skillActive(member, found.skill)) ctx.fail('REFUSED', `${found.skill.name} is not known at this level.`);
     const refused = found.skill ? spendCost(member, found.skill) : '';
     if (refused) ctx.fail('NOT_ENOUGH', refused);
 
     const said = THREAT_WORDS.indexOf(labelOf(line, 'threat').toLowerCase());
     // The threat is the line's own, else this reply's earlier one, else the latest earlier reply's, else none (not in danger).
     const threat = said >= 0 ? said : record.threat ?? priorThreat(slice, ctx.reply?.sid);
-    const drained = stageOf(member.pools.sp.now, member.pools.sp.max, 'energy').index >= 3;
+    const drained = stageOf(poolOf(member, 'sp').now, poolOf(member, 'sp').max, 'energy').index >= 3;
     const floor = Math.max(record.floor, floorIndex({ threat, conditions: liveConditions(member, ctx.time?.() ?? null).length, drained, physical: PHYSICAL.includes(found.stat) }));
     // The word is raised to the floor first, then the tone moves it: the dice note lists exactly these numbers (dice/note.js).
     const { index: floored, raised } = raiseToFloor(difficultyIndex(word), floor);
@@ -55,10 +57,10 @@ export function applyTry(ctx, line) {
         member.wounds += woundsAfter(member, stages) - woundsOf(member);
         // Success at a cost always costs: in danger the wound stage above; out of danger the skill's cost again, else a step of stamina.
         if (result.band === 'cost' && !inDanger) {
-            const { sp } = member.pools;
             if (found.skill?.cost && !spendCost(member, found.skill)) paid = 'skill';
             else {
-                sp.now = Math.max(0, sp.now - Math.ceil(sp.max / 4));
+                const sp = poolOf(member, 'sp');
+                member.pools.sp.now = Math.max(0, sp.now - Math.ceil(sp.max / 4));
                 paid = 'stamina';
             }
         }

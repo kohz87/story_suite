@@ -4,6 +4,8 @@ import { astraOf, drawn, reply, slice, tries, withAstra } from './helpers/host.j
 import { practiceGain } from '../src/rules/growth.js';
 import { harmFor } from '../src/rules/harm.js';
 import { levelOf, pointsOf, woundsOf } from '../src/module-parts/standing.js';
+import { effectiveStats, poolOf, skillActive } from '../src/module-parts/effective.js';
+import { skillRows } from '../src/module-parts/sheet-skills.js';
 
 const TRY = ['? try Astra | Lore | normal | threat: a fair match', '+ xp Party — the gate | size: real'];
 const summary = host => JSON.stringify({ textRpg: slice(host), meta: host.head().meta?.rev });
@@ -256,5 +258,69 @@ test('a heal deleted between a wound and a failed try leaves Badly wounded, neve
         } finally {
             host.close();
         }
+    }
+});
+
+const MAJOR = ['? try Astra | Lore | hard | threat: above you', '+ xp Party — a deed | size: major'];
+const dropReply = async (host, at) => { await host.st.deleteMessage(at + 1); await host.st.deleteMessage(at); };
+
+test('a stat bought with a level\'s point goes back with the level, and comes back when a later reply re-levels', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await withAstra();
+    try {
+        const at = host.ctx.chat.length;
+        await host.send('One.', reply('First.', MAJOR));
+        await host.send('Two.', reply('Second.'));
+        assert.equal(levelOf(astraOf(host)), 2);
+        assert.equal((await host.sdk.command('textRpg.spend', { member: 'Astra', stats: { str: 1 } })).ok, true);
+        assert.deepEqual([effectiveStats(astraOf(host)).str, pointsOf(astraOf(host)), poolOf(astraOf(host), 'sp').max], [10, 0, 28]);
+
+        await dropReply(host, at);
+        assert.deepEqual(host.store.problems(), []);
+        const me = astraOf(host);
+        assert.deepEqual([levelOf(me), effectiveStats(me).str, me.stats.str, pointsOf(me), poolOf(me, 'mp').max], [1, 9, 9, 0, 26], 'level 1: the base stat, no points');
+        assert.equal(Object.keys(me.bought).length, 1, 'the purchase is kept, waiting');
+
+        await host.send('Three.', reply('Third.', MAJOR));
+        assert.deepEqual([levelOf(astraOf(host)), effectiveStats(astraOf(host)).str, pointsOf(astraOf(host))], [2, 10, 0], 'the level is back and so is the purchase');
+        const live = JSON.stringify(host.head());
+        host.store.rebuild();
+        assert.equal(JSON.stringify(host.head()), live, 'rebuild == live');
+    } finally {
+        host.close();
+    }
+});
+
+test('a skill learned into the level-3 slot is inactive without the level, refused in a try, and back with it', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await withAstra();
+    try {
+        const at = host.ctx.chat.length;
+        await host.send('One.', reply('First.', MAJOR));
+        await host.send('Two.', reply('Second.', MAJOR));
+        assert.equal(levelOf(astraOf(host)), 3);
+        for (const name of ['Tracking', 'Knots', 'Haggling', 'Cooking']) {
+            const made = await host.sdk.command('textRpg.skillEdit', { member: 'Astra', name, stat: 'wis' });
+            assert.equal(made.ok, true, `${name} fits the slots of level 3`);
+        }
+        const cooking = () => astraOf(host).skills.find(skill => skill.name === 'Cooking');
+        assert.equal(skillActive(astraOf(host), cooking()), true);
+
+        await dropReply(host, at);
+        assert.deepEqual(host.store.problems(), []);
+        assert.equal(levelOf(astraOf(host)), 2);
+        assert.equal(astraOf(host).skills.length, 6, 'the skill is still listed');
+        assert.deepEqual(astraOf(host).skills.filter(skill => !skillActive(astraOf(host), skill)).map(skill => skill.name), ['Cooking'], 'the latest learned is the one inactive');
+        assert.equal(skillRows(astraOf(host)).find(row => row.name === 'Cooking').inactive, true);
+        const before = tries(host).length;
+        await host.send('Three.', reply('Third.', ['? try Astra | Cooking | normal']));
+        assert.equal(tries(host).length, before, 'an inactive skill cannot be used in a try');
+
+        await host.send('Four.', reply('Fourth.', MAJOR));
+        assert.equal(levelOf(astraOf(host)), 3);
+        assert.equal(skillActive(astraOf(host), cooking()), true, 'back with the level');
+        assert.deepEqual(host.store.problems(), []);
+    } finally {
+        host.close();
     }
 });

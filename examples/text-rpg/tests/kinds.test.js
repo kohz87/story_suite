@@ -45,7 +45,7 @@ test('+ xp: levels add points, only one line counts a reply, companions and the 
     assert.match(first.result.summary, /Astra reaches level 2/);
     const me = slice.members.ac_astra001;
     assert.deepEqual([levelOf(me), pointsOf(me), rorke.xp, levelOf(rorke)], [2, 1, 0, 5]);
-    me.spent = 1;
+    me.bought.p1 = { stat: 'str', n: 1, seq: 0 };
     assert.equal(pointsOf(me), 0, 'a spent point is not offered again');
     assert.equal(run(applyXp, ctx, line('xp', 'Party', 'again', { size: 'real' })).code, 'LIMITED');
 });
@@ -127,7 +127,7 @@ test('+ skill takes the next free slot (5 at level 1, one more every third level
     const me = slice.members.ac_astra001;
     run(applySkill, ctx, line('skill', 'Astra', 'Tracking; wis; utility', { from: 'Rorke taught her' }));
     run(applySkill, ctx, line('skill', 'Astra', 'Knots', { stat: 'dex', type: 'craft', cost: '1 sp' }));
-    assert.deepEqual(me.skills[2], { name: 'Tracking', about: 'Rorke taught her', stat: 'wis', type: 'utility', cost: null });
+    assert.deepEqual(me.skills[2], { learned: 0, name: 'Tracking', about: 'Rorke taught her', stat: 'wis', type: 'utility', cost: null });
     assert.deepEqual(me.skills[3].cost, { pool: 'sp', n: 1 });
     run(applySkill, ctx, line('skill', 'Astra', 'Haggling; cha; social'));
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).code, 'LIMITED');

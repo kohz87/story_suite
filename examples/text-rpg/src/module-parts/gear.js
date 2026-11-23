@@ -1,6 +1,7 @@
 // What a member wears: the gear stat bonuses, capped by rarity, and the worn pieces' names, from the `gear.view` query.
 import { effectiveStat, gearCap } from '../rules/healing.js';
 import { STAT_KEYS } from '../words/stats.js';
+import { effectiveStats } from './effective.js';
 
 /** Runs a query and returns its answer, or null when it is missing, throws or answers nothing. */
 export function ask(query, name, args) {
@@ -22,9 +23,10 @@ export function gearOf(query, member) {
     return { cap: gearCap(pieces), names };
 }
 
-/** A member's stats with the gear bonus added to each, kept in 1..30: `{ str: 13, … }`. */
+/** A member's effective stats with the gear bonus added to each, kept in 1..30: `{ str: 13, … }`. */
 export function totalStats(member, cap = {}) {
     const total = {};
-    for (const key of STAT_KEYS) total[key] = effectiveStat(member?.stats?.[key], cap[key.toUpperCase()] ?? 0);
+    const stats = effectiveStats(member);
+    for (const key of STAT_KEYS) total[key] = effectiveStat(stats[key], cap[key.toUpperCase()] ?? 0);
     return total;
 }

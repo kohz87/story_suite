@@ -7,6 +7,7 @@ import { rest } from '../src/module-parts/commands/rest.js';
 import { dice } from '../src/module-parts/commands/dice.js';
 import { validate } from '../src/domain/validate.js';
 import { drawDice } from '../src/dice/record.js';
+import { effectiveStats, poolOf } from '../src/module-parts/effective.js';
 import { levelOf, pointsOf } from '../src/module-parts/standing.js';
 import { astra, fakeCtx, run, sliceOf } from './helpers/fake-ctx.js';
 
@@ -48,7 +49,9 @@ test('textRpg.spend takes stat points as the Party tab sends them and grows the 
     assert.equal(pointsOf(me), 2, 'level 3 has earned two');
     const done = run(spend, fakeCtx(slice), { member: 'ac_astra001', stats: { STR: 1, INT: 1 } });
     assert.equal(done.ok, true);
-    assert.deepEqual([me.stats.str, me.stats.int, pointsOf(me), me.spent, me.pools.mp.max, me.pools.mp.now], [13, 13, 0, 2, 35, 35]);
+    const { str, int } = effectiveStats(me);
+    assert.deepEqual([me.stats.str, str, int, pointsOf(me), poolOf(me, 'mp').max, poolOf(me, 'mp').now], [12, 13, 13, 0, 35, 35]);
+    assert.deepEqual(Object.values(me.bought).map(({ stat, n }) => [stat, n]), [['str', 1], ['int', 1]]);
     assert.deepEqual(validate(slice), []);
     const tired = sliceOf([astra({ xp: 50 })]);
     tired.members.ac_astra001.pools.sp.now = 20;

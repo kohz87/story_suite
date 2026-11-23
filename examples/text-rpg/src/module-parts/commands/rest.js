@@ -2,6 +2,7 @@
 import { DOMAIN } from '../../domain/shape.js';
 import { INJURY_DAYS } from '../../rules/healing.js';
 import { requireActive } from '../active.js';
+import { poolOf } from '../effective.js';
 import { memberNamed, players } from '../members.js';
 import { woundsOf } from '../standing.js';
 
@@ -18,8 +19,8 @@ export function rest(ctx, payload = {}) {
     const now = known ? ctx.time() : 0;
     for (const member of who) {
         for (const pool of ['mp', 'sp']) ctx.absolute(DOMAIN, `/members/${member.id}/pools/${pool}/now`);
-        member.pools.mp.now = member.pools.mp.max;
-        member.pools.sp.now = member.pools.sp.max;
+        member.pools.mp.now = poolOf(member, 'mp').max;
+        member.pools.sp.now = poolOf(member, 'sp').max;
         if (kind === 'day') {
             // A change on the counter (not a value from the clamped read); a day's rest also clears the Down mark.
             if (woundsOf(member) > 0) member.wounds -= 1;

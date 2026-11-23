@@ -73,8 +73,8 @@ test('a new member fills every field, clamps stats and derives its pools', () =>
         skills: [skill(), { ...skill(), name: 'Ash Staff', type: 'attack', stat: 'str', cost: null }],
     });
     assert.deepEqual(
-        { id: member.id, name: member.name, pc: member.pc, xp: member.xp, spent: member.spent, wounds: member.wounds },
-        { id: 'astra', name: 'Astra', pc: true, xp: 0, spent: 0, wounds: 0 },
+        { id: member.id, name: member.name, pc: member.pc, xp: member.xp, bought: member.bought, wounds: member.wounds },
+        { id: 'astra', name: 'Astra', pc: true, xp: 0, bought: {}, wounds: 0 },
     );
     assert.equal(Object.hasOwn(member, 'level') || Object.hasOwn(member, 'points'), false, 'level and points are derived, never stored');
     assert.deepEqual(member.stats, { str: 1, vit: 8, agi: 30, dex: 10, int: 5, wis: 9, cha: 5 });
@@ -131,7 +131,8 @@ test('validation names the path of every kind of damaged member field', () => {
         ['member name', (slice, member) => { member.name = 'x'.repeat(61); }, 'members.astra.name'],
         ['pc', (slice, member) => { member.pc = 'yes'; }, 'members.astra.pc'],
         ['xp', (slice, member) => { member.xp = -1; }, 'members.astra.xp'],
-        ['spent', (slice, member) => { member.spent = 1.5; }, 'members.astra.spent'],
+        ['bought', (slice, member) => { member.bought.p1 = { stat: 'str', n: 1.5, seq: 0 }; }, 'members.astra.bought.p1.n'],
+        ['learned', (slice, member) => { member.skills[0].learned = -1; }, 'members.astra.skills.0.learned'],
         ['wounds', (slice, member) => { member.wounds = 1.5; }, 'members.astra.wounds'],
         ['stat value', (slice, member) => { member.stats.agi = 31; }, 'members.astra.stats.agi'],
         ['unknown stat', (slice, member) => { member.stats.luck = 5; }, 'members.astra.stats.luck'],

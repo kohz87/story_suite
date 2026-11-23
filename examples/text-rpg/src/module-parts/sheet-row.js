@@ -3,6 +3,7 @@ import { levelFor } from '../rules/growth.js';
 import { HEALTH_STAGES, stageOf } from '../words/pools.js';
 import { STAT_KEYS } from '../words/stats.js';
 import { liveConditions } from './conditions.js';
+import { effectiveStats, poolOf } from './effective.js';
 import { skillRows } from './sheet-skills.js';
 import { levelOf, pointsOf, woundsOf } from './standing.js';
 
@@ -25,9 +26,9 @@ export function rowOf(member, now = null) {
         id: member.id, name: member.name, portrait: null, level,
         line: companion ? `Lv ${level} · companion` : `Lv ${level}`,
         xpPct: companion ? 0 : xpPct(member), points: pointsOf(member), away: null,
-        bars: companion ? [] : [{ kind: 'hp', value: 5 - wounds, max: 5, label: `Health: ${HEALTH_STAGES[wounds]}` }, ...BARS.map(([kind, scale, label]) => ({ kind, value: member.pools[kind].now, max: member.pools[kind].max, label: `${label}: ${stageOf(member.pools[kind].now, member.pools[kind].max, scale).word}` }))],
+        bars: companion ? [] : [{ kind: 'hp', value: 5 - wounds, max: 5, label: `Health: ${HEALTH_STAGES[wounds]}` }, ...BARS.map(([kind, scale, label]) => ({ kind, value: poolOf(member, kind).now, max: poolOf(member, kind).max, label: `${label}: ${stageOf(poolOf(member, kind).now, poolOf(member, kind).max, scale).word}` }))],
         effects: [...liveConditions(member, now).map(item => item.name), ...member.injuries.map(item => item.name)],
-        stats: companion ? null : Object.fromEntries(STAT_KEYS.map(key => [key.toUpperCase(), member.stats[key]])),
+        stats: companion ? null : Object.fromEntries(STAT_KEYS.map(key => [key.toUpperCase(), effectiveStats(member)[key]])),
         skills: skillRows(member),
         commands: { spend: 'textRpg.spend', skillEdit: 'textRpg.skillEdit' },
     };

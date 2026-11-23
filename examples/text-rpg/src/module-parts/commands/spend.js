@@ -1,8 +1,11 @@
 // `textRpg.spend` (stat points, as the Party tab sends them) and `textRpg.skillEdit` (add, change or drop a skill).
 import { DOMAIN, LIMITS } from '../../domain/shape.js';
 import { poolMax } from '../../rules/harm.js';
+import { effectiveStats } from '../effective.js';
+import { purchasesOf } from '../purchases.js';
 import { STAT_KEYS } from '../../words/stats.js';
 import { requireActive } from '../active.js';
+import { nextLearned } from '../learned.js';
 import { memberNamed, skillIndex, skillSlots } from '../members.js';
 import { statKey } from '../line-read.js';
 import { practiceKey } from '../practice.js';
@@ -18,7 +21,7 @@ function sheetOf(ctx, payload) {
     return member;
 }
 
-/** Payload: { member (id or name), stats: { STR: 1, … } }; counts the points as spent and resizes the mana and stamina pools. */
+/** Payload: { member (id or name), stats: { STR: 1, … } }; records each as a purchase and grows the mana and stamina pools. */
 export function spend(ctx, payload = {}) {
     const member = sheetOf(ctx, payload);
     const asked = {};
@@ -30,16 +33,17 @@ export function spend(ctx, payload = {}) {
     if (total < 1) ctx.fail('INVALID', 'Choose at least one point to spend.');
     const points = pointsOf(member);
     if (total > points) ctx.fail('NOT_ENOUGH', `${member.name} has ${points} points to spend.`);
+    const before = effectiveStats(member);
     for (const key of STAT_KEYS) {
-        if (member.stats[key] + (asked[key] ?? 0) > LIMITS.statMax) ctx.fail('INVALID', `A stat goes no higher than ${LIMITS.statMax}.`);
+        if (before[key] + (asked[key] ?? 0) > LIMITS.statMax) ctx.fail('INVALID', `A stat goes no higher than ${LIMITS.statMax}.`);
     }
-    for (const key of STAT_KEYS) member.stats[key] += asked[key] ?? 0;
-    for (const pool of ['mp', 'sp']) {
-        const max = poolMax(pool, member.stats);
-        member.pools[pool].now += max - member.pools[pool].max;
-        member.pools[pool].max = max;
+    // Each stat is its own purchase, kept in order: the level pays for the first ones, so a lost level takes the latest back by itself.
+    let seq = purchasesOf(member).reduce((top, item) => Math.max(top, item.seq), -1);
+    for (const key of STAT_KEYS) {
+        if (asked[key]) member.bought[ctx.id('pt')] = { stat: key, n: asked[key], seq: seq += 1 };
     }
-    member.spent += total;
+    const after = effectiveStats(member);
+    for (const pool of ['mp', 'sp']) member.pools[pool].now += poolMax(pool, after) - poolMax(pool, before);
     return { summary: `${member.name} spends ${total} stat point${total === 1 ? '' : 's'}.`, narrate: false, data: { member: member.id, stats: asked } };
 }
 
@@ -71,7 +75,7 @@ export function skillEdit(ctx, payload = {}) {
     let skill = member.skills[at];
     if (!skill) {
         if (member.skills.length >= skillSlots(levelOf(member))) ctx.fail('LIMITED', `${member.name} has no free skill slot.`);
-        skill = { name, about: '', stat: 'str', type: 'utility', cost: null };
+        skill = { name, about: '', stat: 'str', type: 'utility', cost: null, learned: nextLearned(member) };
         if (!statKey(payload.stat)) ctx.fail('INVALID', 'A new skill needs a stat.');
         member.skills.push(skill);
     }

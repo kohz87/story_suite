@@ -6,10 +6,11 @@ const SKILL_TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft'
 const POOL_KEYS = ['mp', 'sp'];
 const ID_PATTERN = /^(?:[a-z0-9][a-z0-9-]{0,39}|[a-z][a-z0-9]*_[0-9a-z]{8})$/;
 const MEMBER_KEYS = [
-    'id', 'name', 'pc', 'xp', 'spent', 'wounds', 'down', 'stats', 'pools', 'skills', 'practice',
+    'id', 'name', 'pc', 'xp', 'bought', 'wounds', 'down', 'stats', 'pools', 'skills', 'practice',
     'injuries', 'conditions', 'companion', 'fallen',
 ];
 const SKILL_KEYS = ['name', 'about', 'stat', 'type', 'cost'];
+const BOUGHT_KEYS = ['stat', 'n', 'seq'];
 const INJURY_KEYS = ['name', 'hampers', 'heals', 'grave'];
 const CONDITION_KEYS = ['name', 'until'];
 
@@ -50,9 +51,10 @@ function checkPools(pools, stats, where, problems) {
         if (!checkShape(pool, poolWhere, ['now', 'max'], problems)) continue;
         const expected = 10 + (Number(stats?.[pairs[key][0]]) || 0) + (Number(stats?.[pairs[key][1]]) || 0);
         if (!isInt(pool.max, 0) || pool.max !== expected) {
-            problems.push(`${poolWhere}.max must equal 10 plus its two stats.`);
+            problems.push(`${poolWhere}.max must equal 10 plus its two creation stats.`);
         }
-        if (!isInt(pool.now, 0) || (isInt(pool.max, 0) && pool.now > pool.max)) {
+        // `now` may pass `max`: points bought later grow the pool (the effective size is read in module-parts/effective.js).
+        if (!isInt(pool.now, 0, 10 + 2 * LIMITS.statMax)) {
             problems.push(`${poolWhere}.now must be a whole number from 0 to its max.`);
         }
     }
@@ -73,7 +75,8 @@ function checkSkills(skills, where, problems) {
     if (skills.length > LIMITS.skills) problems.push(`${where} may hold at most ${LIMITS.skills} skills.`);
     skills.forEach((skill, index) => {
         const skillWhere = `${where}.${index}`;
-        if (!checkShape(skill, skillWhere, SKILL_KEYS, problems)) return;
+        if (!checkShape(skill, skillWhere, has(skill ?? {}, 'learned') ? [...SKILL_KEYS, 'learned'] : SKILL_KEYS, problems)) return;
+        if (has(skill, 'learned') && !isInt(skill.learned, 0)) problems.push(`${skillWhere}.learned must be a whole number of at least 0.`);
         if (typeof skill.name !== 'string' || skill.name.length > LIMITS.name) {
             problems.push(`${skillWhere}.name must be a string of at most ${LIMITS.name} characters.`);
         }
@@ -84,6 +87,20 @@ function checkSkills(skills, where, problems) {
         if (!SKILL_TYPES.includes(skill.type)) problems.push(`${skillWhere}.type is not a known skill type.`);
         checkCost(skill.cost, `${skillWhere}.cost`, problems);
     });
+}
+
+function checkBought(bought, where, problems) {
+    if (!isObject(bought)) {
+        problems.push(`${where} must be an object.`);
+        return;
+    }
+    for (const [id, item] of Object.entries(bought)) {
+        const itemWhere = at(where, id.slice(0, 40));
+        if (!checkShape(item, itemWhere, BOUGHT_KEYS, problems)) continue;
+        if (!STAT_KEYS.includes(item.stat)) problems.push(`${itemWhere}.stat is not a known stat.`);
+        if (!isInt(item.n, 1, LIMITS.statMax)) problems.push(`${itemWhere}.n must be a positive whole number.`);
+        if (!isInt(item.seq, 0)) problems.push(`${itemWhere}.seq must be a whole number of at least 0.`);
+    }
 }
 
 function checkPractice(practice, where, problems) {
@@ -187,7 +204,7 @@ function checkMember(member, key, problems) {
     }
     if (typeof member.pc !== 'boolean') problems.push(`${where}.pc must be a boolean.`);
     if (!isInt(member.xp, 0)) problems.push(`${where}.xp must be a whole number of at least 0.`);
-    if (!isInt(member.spent, 0)) problems.push(`${where}.spent must be a whole number of at least 0.`);
+    checkBought(member.bought, `${where}.bought`, problems);
     // Any whole number: a replay after a deleted reply can add a change past 0 or 5; every read clamps it (standing.js woundsOf); Down is the separate `down` mark.
     if (!Number.isInteger(member.wounds)) problems.push(`${where}.wounds must be a whole number.`);
     if (member.down !== undefined && typeof member.down !== 'boolean') problems.push(`${where}.down must be a boolean.`);

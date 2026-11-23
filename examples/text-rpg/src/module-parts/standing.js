@@ -1,6 +1,7 @@
-// Where a member stands, read from the counters: level and stat points from xp and points spent, health from the wound stage, and the stage a hurt adds.
+// Where a member stands, read from the counters: level and stat points from xp and the counted purchases, health from the wound stage, and the stage a hurt adds.
 import { levelFor } from '../rules/growth.js';
 import { gainsAt } from '../rules/level-gains.js';
+import { countedPurchases } from './purchases.js';
 
 const whole = value => (Number.isFinite(value) ? Math.trunc(value) : 0);
 
@@ -9,9 +10,10 @@ export function levelOf(member) {
     return member?.companion ? member.companion.level : levelFor(member?.xp).level;
 }
 
-/** The stat points left to spend: those the level has earned, less those spent (never below 0). */
+/** The stat points left to spend: those the level has earned, less the purchases it pays for (never below 0). */
 export function pointsOf(member) {
-    return Math.max(0, gainsAt(1, levelOf(member)).points - Math.max(0, whole(member?.spent)));
+    const earned = gainsAt(1, levelOf(member)).points;
+    return Math.max(0, earned - countedPurchases(member, earned).reduce((sum, item) => sum + item.n, 0));
 }
 
 /** The wound stage after a failed roll adds `stages`: never past Badly wounded (4) from one line; only `~ health` sets Down. */
