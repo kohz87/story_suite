@@ -24,6 +24,7 @@ function rowFor(section, moduleId, name, field, value, dflt) {
   const base = { key: pluginKey(moduleId, name), group: typeof field.group === 'string' ? field.group : section, label: raw.startsWith(prefix) ? raw.slice(prefix.length) : raw, hint: field.help ?? null, unit: null, tags: [], wide: false };
   if (field.type === 'bool') return { ...base, type: 'sw', value: value === undefined ? dflt === true : value === true, default: dflt === true, options: null };
   if (field.type === 'int') return { ...base, type: 'num', value: Number.isFinite(value) ? value : Number.isFinite(dflt) ? dflt : null, default: Number.isFinite(dflt) ? dflt : null, options: null };
+  if (field.type === 'text' && field.form === 'prompt') return { ...base, type: 'prompt', wide: true, value: typeof value === 'string' ? value : '', default: '', builtin: typeof field.builtin === 'string' ? field.builtin : '', ...(Number.isFinite(field.max) ? { max: field.max } : {}), options: null };
   if (field.type === 'text') return { ...base, type: 'txt', value: typeof value === 'string' ? value : typeof dflt === 'string' ? dflt : '', default: typeof dflt === 'string' ? dflt : '', options: null };
   if (field.type === 'choice' && Array.isArray(field.options) && field.options.length) {
     const opts = field.options.map(o => (isObj(o) ? { value: String(o.value), label: String(o.label ?? o.value) } : { value: String(o), label: String(o) }));

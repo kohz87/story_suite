@@ -15,7 +15,7 @@ export const sent = (host, key) => host.st.promptLog.filter(entry => entry.key =
 /** `features`: the reader's feature choices (Text RPG is on unless told otherwise); `settings`: extra host settings (a tone). */
 export async function newHost(features = {}, settings = {}) {
     let host = null;
-    const sdk = { feature: id => host.sdk.feature(id), command: (...args) => host.sdk.command(...args), query: (...args) => host.sdk.query(...args) };
+    const sdk = { feature: id => host.sdk.feature(id), settings: id => host.sdk.settings(id), command: (...args) => host.sdk.command(...args), query: (...args) => host.sdk.query(...args) };
     host = await createHost({ modules: [textRpgModule(sdk)], settings: { ...settings, features: { 'text-rpg.on': true, ...features } } });
     return host;
 }

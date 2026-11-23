@@ -10,10 +10,10 @@ import { create } from './commands/create.js';
 import { spend, skillEdit } from './commands/spend.js';
 import { rest } from './commands/rest.js';
 import { dice } from './commands/dice.js';
-import { STATIC_TEXT } from './static-text.js';
+import { narratorRules } from './static-text.js';
 import { tailOf } from './tail.js';
 import { beforeGenerate } from './hooks.js';
-import { SETTINGS } from './settings.js';
+import { SETTINGS, ownSettings } from './settings.js';
 
 const SCREEN = 'text-rpg/new-character';
 const WIDGET = 'text-rpg.new-character';
@@ -39,7 +39,7 @@ export function textRpgModule(sdk = null) {
             'textRpg.rest': owned(rest), 'textRpg.dice': owned(dice),
         },
         queries: queriesOf(sdk),
-        context: { feature: FEATURE, static: () => (active(sdk) ? STATIC_TEXT : ''), tail: tailOf, budget: 600 },
+        context: { feature: FEATURE, static: () => (active(sdk) ? narratorRules(ownSettings(sdk)) : ''), tail: tailOf, budget: 600 },
         hooks: { beforeGenerate: Object.assign(beforeGenerate, { feature: FEATURE }) },
         settings: SETTINGS,
         widgets: {

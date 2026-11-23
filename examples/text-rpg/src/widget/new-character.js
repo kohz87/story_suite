@@ -19,28 +19,37 @@ export function renderNewCharacter(el, props = {}, api = {}) {
         if (text != null) n.textContent = text;
         return n;
     };
-    const field = (role, label, value = '') => {
-        const row = node('label', 'tr-field', label);
-        const input = node('input', 'text_pole');
+    // The suite's own field: a `.ef` label over its input or select (the same classes the wizard and the Journal editor use; a widget has no imports, only class names).
+    const field = (role, label, value = '', kind = 'text') => {
+        const row = node('label', 'ef', label);
+        const input = node(kind === 'select' ? 'select' : 'input');
+        if (kind === 'select') {
+            for (const key of STAT_KEYS) {
+                const option = node('option', null, key.toUpperCase());
+                option.setAttribute('value', key);
+                input.append(option);
+            }
+        } else if (kind === 'number') input.setAttribute('type', 'number');
+        else input.setAttribute('type', 'text');
         input.setAttribute('data-role', role);
         input.value = value;
         row.append(input);
         return { row, input };
     };
 
-    const root = node('div', 'tr-new');
+    const root = node('div', 'wz-form tr-new');
     const name = field('name', 'Name');
-    const stats = Object.fromEntries(STAT_KEYS.map(key => [key, field(`stat-${key}`, key.toUpperCase(), String(START[key]))]));
+    const stats = Object.fromEntries(STAT_KEYS.map(key => [key, field(`stat-${key}`, key.toUpperCase(), String(START[key]), 'number')]));
     const skills = Array.from({ length: SKILL_ROWS }, (_, at) => ({
         name: field(`skill-${at}`, `Skill ${at + 1}`),
-        stat: field(`skill-stat-${at}`, 'Stat', STAT_KEYS[at % STAT_KEYS.length]),
+        stat: field(`skill-stat-${at}`, 'Stat', STAT_KEYS[at % STAT_KEYS.length], 'select'),
         about: field(`skill-about-${at}`, 'What it does'),
     }));
-    const left = node('div', 'tr-left');
+    const left = node('div', 'ps-p tr-left');
     left.setAttribute('data-role', 'left');
-    const message = node('div', 'tr-message');
+    const message = node('div', 'ps-p tr-message');
     message.setAttribute('data-role', 'message');
-    const create = node('button', 'menu_button', 'Create');
+    const create = node('button', 'btn2 pri', 'Create');
     create.setAttribute('type', 'button');
     create.setAttribute('data-act', 'create');
 
@@ -80,7 +89,14 @@ export function renderNewCharacter(el, props = {}, api = {}) {
         if (result?.ok) api.close?.();
     });
 
-    root.append(name.row, ...STAT_KEYS.map(key => stats[key].row), left, ...skills.flatMap(row => [row.name.row, row.stat.row, row.about.row]), create, message);
+    const statGrid = node('div', 'wz-trio');
+    statGrid.append(...STAT_KEYS.map(key => stats[key].row));
+    const skillCards = skills.map(row => {
+        const card = node('div', 'wz-skill');
+        card.append(row.name.row, row.about.row, row.stat.row);
+        return card;
+    });
+    root.append(name.row, node('div', 'ps-sec', 'Stats'), statGrid, left, node('div', 'ps-sec', 'Skills'), ...skillCards, create, message);
     el.replaceChildren(root);
     refresh();
 }

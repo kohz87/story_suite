@@ -93,3 +93,16 @@ test('the widget and its screen are registered, the screen names the widget, and
         host.close();
     }
 });
+
+test('the fields wear the suite\'s own classes: .ef labels, number inputs for stats, a select with the seven stats for a skill\'s stat, a primary Create', () => {
+    const el = mount();
+    renderNewCharacter(el, {}, { command: async () => ({ ok: true }) });
+    assert.equal(el.find(['data-role', 'name']).getAttribute('type'), 'text');
+    assert.equal(el.find(['data-role', 'stat-int']).getAttribute('type'), 'number');
+    const pick = el.find(['data-role', 'skill-stat-0']);
+    assert.equal(pick.tagName, 'SELECT');
+    assert.deepEqual(pick.children.map(option => option.getAttribute('value')), ['str', 'vit', 'agi', 'dex', 'int', 'wis', 'cha']);
+    assert.equal(el.find(['data-act', 'create']).className, 'btn2 pri');
+    assert.equal(el.find(['data-role', 'left']).className, 'ps-p tr-left');
+    assert.ok(el.findAll(node => node.className === 'ef').length >= 22);
+});

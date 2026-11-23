@@ -4,6 +4,7 @@ import { pluginKey } from '../select/plugin-pages.js';
 const fail = message => ({ ok: false, code: 'FAILED', message });
 
 const TEXT_MAX = 200;
+const PROMPT_MAX = 2000;
 // The message for a value that does not fit the field's type (bool, int within min/max, text up to 200 characters), else null.
 function typeProblem(spec, value) {
   if (spec.type === 'bool') return typeof value === 'boolean' ? null : 'This setting is on or off.';
@@ -12,6 +13,10 @@ function typeProblem(spec, value) {
     if (Number.isFinite(spec.min) && value < spec.min) return `Enter a number of at least ${spec.min}.`;
     if (Number.isFinite(spec.max) && value > spec.max) return `Enter a number of at most ${spec.max}.`;
     return null;
+  }
+  if (spec.type === 'text' && spec.form === 'prompt') {
+    const max = Number.isFinite(spec.max) ? Math.min(spec.max, PROMPT_MAX) : PROMPT_MAX;
+    return typeof value !== 'string' ? 'Enter text.' : value.length > max ? `Keep it to ${max.toLocaleString('en-US')} characters or fewer.` : null;
   }
   if (spec.type === 'text') return typeof value !== 'string' ? 'Enter text.' : value.length > TEXT_MAX ? `Keep it to ${TEXT_MAX} characters or fewer.` : null;
   return null;

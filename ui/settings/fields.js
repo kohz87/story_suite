@@ -1,6 +1,7 @@
 // Renders one settings schema row (label, hint, marks and the control for its type) and groups rows into cards.
 import { h } from '../kit/dom.js';
 import { toggle, segmented } from '../kit/controls.js';
+import { promptControl } from './prompt-row.js';
 
 const TAGS = {
   merged: ['merged', 'Was set in several places before'],
@@ -74,6 +75,7 @@ function controlFor(row, emit, labelId) {
     el.addEventListener('change', () => emit(el.value));
     return el;
   }
+  if (type === 'prompt') return promptControl(row, emit);
   if (type === 'chips') {
     const on = new Set(Array.isArray(value) ? value : []);
     return h('span', { class: 'chips3' }, list.map((o) => {
@@ -107,7 +109,7 @@ function heldText(label, held, range) {
 }
 
 function isWide(row) {
-  if (row.wide || row.type === 'txt' || row.type === 'area' || row.type === 'chips') return true;
+  if (row.wide || row.type === 'txt' || row.type === 'area' || row.type === 'chips' || row.type === 'prompt') return true;
   return row.type === 'seg' && Array.isArray(row.options) && row.options.join('').length > 26;
 }
 
@@ -131,7 +133,7 @@ export function renderRow(row, ctx = {}) {
     const refused = answer?.ok === false;
     note.textContent = refused ? String(answer.message ?? 'That was not saved.') : '';
     note.hidden = !refused;
-    if (refused) { if (row.type !== 'num' && row.type !== 'txt' && row.type !== 'multi' && row.type !== 'area') draw(); return; }
+    if (refused) { if (row.type !== 'num' && row.type !== 'txt' && row.type !== 'multi' && row.type !== 'area' && row.type !== 'prompt') draw(); return; }
     kept = value;
     const held = Number(answer?.value);
     if (row.type === 'num' && answer?.value !== undefined && answer.value !== null && Number.isFinite(held) && held !== value) {
