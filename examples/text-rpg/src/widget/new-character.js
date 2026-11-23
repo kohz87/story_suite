@@ -76,6 +76,8 @@ export function renderNewCharacter(el, props = {}, api = {}) {
         };
         const result = await api.command?.('textRpg.create', payload);
         message.textContent = result?.ok ? `${payload.name} begins the story.` : result?.message ?? 'The character could not be made.';
+        // (a host that draws this in a sheet gives `close`: a made character closes it)
+        if (result?.ok) api.close?.();
     });
 
     root.append(name.row, ...STAT_KEYS.map(key => stats[key].row), left, ...skills.flatMap(row => [row.name.row, row.stat.row, row.about.row]), create, message);

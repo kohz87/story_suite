@@ -91,7 +91,7 @@ function head(member, ctx) {
     h('div', { class: 'shtop' }, h('div', { class: 'nm' }, member.name),
       MORE.some(type => can(ctx, type)) ? h('button', { type: 'button', class: 'ibtn', dataset: { more: '1' }, 'aria-label': `More for ${member.name}`, 'aria-haspopup': 'dialog', onClick: () => moreSheet(member, ctx) }, '⋯') : null),
     h('div', { class: 'chips' }, h('span', { class: 'lvl2' }, member.line),
-      h('span', { class: 'chip2', title: `VIT ${member.stats.VIT}% + gear points` }, glyph('offhand'), `${member.soakPct}%`)),
+      Number.isFinite(member.soakPct) ? h('span', { class: 'chip2', title: `VIT ${member.stats.VIT}% + gear points` }, glyph('offhand'), `${member.soakPct}%`) : null),
     member.away ? h('div', { class: 'awn' }, `${member.away.where} · last seen ${member.away.lastSeen}. Still in the party: counts for load and pace, and sits out fights while away.`) : null,
     effects.length ? h('div', { class: 'fx2' }, effects.map(e => h('span', { class: `f ${e.tone}`, dataset: { status: e.id } },
       h('span', { class: 'ic' }, glyph(e.tone === 'buff' ? 'stance' : 'warn')),
@@ -115,7 +115,7 @@ function statTiles(member, ctx) {
 export function memberSheet(member, ctx = {}, { pc = false } = {}) {
   const left = [
     pc ? null : bars(member.bars),
-    pc ? null : h('div', { class: 'xp2' }, h('span', null, 'XP'), h('i', null, h('b', { style: { width: `${member.xpPct}%` } })), h('span', null, `${member.xpPct}/100`)),
+    pc ? null : h('div', { class: 'xp2' }, h('span', null, 'XP'), h('i', null, h('b', { style: { width: `${member.xpPct}%` } })), h('span', null, member.xpLabel ?? `${member.xpPct}/100`)),
     h('div', { class: 'secl' }, 'Stats', member.points ? h('span', { class: 'pts' }, `${plural(member.points)} to spend`) : null),
     statTiles(member, ctx),
   ];

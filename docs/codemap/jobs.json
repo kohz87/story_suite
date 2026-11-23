@@ -787,7 +787,7 @@
   "ui/theme/look.js": "Settings › Look in the new view: the stored Panel style, Glass strength, Font and Text size as the suite root's tokens, scheme and text zoom; the one source of the tokens Glass strength moves (panels, scrims, blurs; with Panel background Off also the card lift: panel colour, edge, shadow).",
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
   "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
-  "ui/wizard/attach.js": "Puts the New character wizard and the first-send hold on the new view: answers the port's open of story-block/new-character itself and closes both sheets on a chat change.",
+  "ui/wizard/attach.js": "Puts the New character wizard and the first-send hold on the new view: answers the port's open of story-block/new-character itself, opens a plug-in module's screen in a sheet, and closes the sheets on a chat change.",
   "ui/wizard/hold.js": "Holds the first Send of a chat with the RPG on and no You in the new view: the 'Make your character first' sheet and its two answers.",
   "ui/wizard/review.js": "Draws the wizard's Review step in the new view and runs Create through modules/rpg's create-run.",
   "ui/wizard/skills.js": "Draws the wizard's Skills step in the new view: the starting sets and one card of fields per skill.",
@@ -854,5 +854,9 @@
   "examples/text-rpg/src/words/pools.js": "Words for health and energy pools, plus how many uses a pool can pay for.",
   "examples/text-rpg/src/words/ranks.js": "Skill ranks: their names and words, the practice scale and the rank a practice total reaches.",
   "examples/text-rpg/src/words/stats.js": "Words for the seven stats: their band names, the default table and band lookup.",
-  "examples/text-rpg/src/words/threat.js": "Foe threat: tier adjustments and the words for a foe's strength relative to a hero."
+  "examples/text-rpg/src/words/threat.js": "Foe threat: tier adjustments and the words for a foe's strength relative to a hero.",
+  "core/boot/screen-source.js": "Finds a screen a registered module declares (its widget, title and feature) for a view that draws plug-in screens.",
+  "ui/wizard/plugin-screen.js": "Draws a plug-in module's screen in the shared bottom sheet from the widget its template names, with command, query and close for the widget.",
+  "tests/ui/wizard/plugin-screen.test.js": "Tests that a plug-in's screen opens in the sheet from its widget, creates through it, closes and tears down.",
+  "tests/ui/tabs/party/plugin-sheet.test.js": "Tests that a sheet draws no soak chip without a figure and takes its XP words from the row."
 }

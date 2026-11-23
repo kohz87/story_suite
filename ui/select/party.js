@@ -63,7 +63,7 @@ function memberOf(actor, level, gearView, sheet, portrait = null) {
   return {
     id: String(actor.id), name: String(actor.name), portrait: own.portrait ?? portrait ?? null,
     line: own.line ?? (known === null ? '' : `Lv ${known}`),
-    level: known ?? (Number.isSafeInteger(own.level) ? own.level : null), xpPct: own.xpPct ?? null, points: own.points ?? null, away: own.away ?? null, soakPct: own.soakPct ?? null,
+    level: known ?? (Number.isSafeInteger(own.level) ? own.level : null), xpPct: own.xpPct ?? null, xpLabel: typeof own.xpLabel === 'string' ? own.xpLabel : null, points: own.points ?? null, away: own.away ?? null, soakPct: own.soakPct ?? null,
     bars: Array.isArray(own.bars) ? own.bars : [], effects: Array.isArray(own.effects) ? own.effects : [],
     stats: isRecord(own.stats) ? own.stats : null, bonus: bonusOf(gearView?.statBonus), slots: slotsOf(gearView), skills: Array.isArray(own.skills) ? own.skills : [],
     ...(commands ? { commands } : {}),

@@ -33,7 +33,7 @@ export function fishingModule(sdk = null) {
         },
         // The mini-game as a widget (SPEC §13.5), for any layout; the tab is that widget on its own.
         widgets: {
-            fishing: {
+            'fishing-activity.fishing': {
                 props: WIDGET_PROPS,
                 render: (el, props, api) => renderFishing(el, widgetProps(props, api, sdk), widgetApi(null, api, sdk)),
             },

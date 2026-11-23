@@ -11,8 +11,9 @@ test('rpg.sheet rows have the shape the Party tab reads (memberOf), stats and sk
     const host = await withAstra();
     try {
         const [row] = host.sdk.query('rpg.sheet');
-        assert.deepEqual(Object.keys(row).sort(), ['away', 'bars', 'commands', 'effects', 'id', 'level', 'line', 'name', 'points', 'portrait', 'skills', 'stats', 'xpPct']);
+        assert.deepEqual(Object.keys(row).sort(), ['away', 'bars', 'commands', 'effects', 'id', 'level', 'line', 'name', 'points', 'portrait', 'skills', 'stats', 'xpLabel', 'xpPct']);
         assert.deepEqual([row.name, row.line, row.level, row.xpPct, row.points, row.portrait, row.effects], ['Astra', 'Lv 1', 1, 0, 0, null, []]);
+        assert.equal(row.xpLabel, '0/50', 'level 2 needs 50 xp, not 100');
         assert.deepEqual(row.stats, { STR: 9, VIT: 9, AGI: 9, DEX: 9, INT: 8, WIS: 8, CHA: 8 });
         assert.deepEqual(row.bars.map(bar => [bar.kind, bar.value, bar.max, bar.label]), [['hp', 5, 5, 'Health: Unhurt'], ['mp', 26, 26, 'Mana: Fresh'], ['sp', 28, 28, 'Stamina: Fresh']]);
         assert.deepEqual(row.commands, { spend: 'textRpg.spend', skillEdit: 'textRpg.skillEdit' });

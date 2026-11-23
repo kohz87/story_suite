@@ -67,3 +67,11 @@ test('sections with an unknown group are left out and an empty list still builds
   assert.equal(nav.side.querySelectorAll('button.si3').length, 0);
   assert.equal(createNav().side.querySelectorAll('.grpl').length, 0);
 });
+
+test('a section with a Font Awesome icon shows it in the side list and the phone list; others keep their glyph', () => {
+  installFakeDom();
+  const nav = createNav([{ ...sections[0], id: 'plugin-x', group: 'Rules', icon: 'fa-dice-d20' }, { ...sections[0], id: 'plugin-y', group: 'Rules', icon: 'dice' }]);
+  assert.equal(nav.side.querySelector('button[data-sec="plugin-x"] i span').getAttribute('class'), 'fa-solid fa-dice-d20');
+  assert.equal(nav.list.querySelector('button[data-sec="plugin-x"] i span').getAttribute('class'), 'fa-solid fa-dice-d20');
+  assert.equal(nav.side.querySelector('button[data-sec="plugin-y"] i').textContent, '•');
+});

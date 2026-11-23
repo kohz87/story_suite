@@ -113,3 +113,11 @@ test('E: the number input of a plug-in page sends a number', async t => {
     assert.deepEqual(sent, [['plugin.typed.count', 5]]);
     assert.equal(host.sdk.settings('typed').count, 5);
 });
+
+test('D: the Text RPG page carries the module icon (selected from sdk.modules()), a page without one does not', async t => {
+    const { host, port } = await live(t);
+    host.features.set('text-rpg.on', true);
+    assert.equal(port.view('settings').sections.find(s => s.id === 'plugin-text-rpg').icon, 'fa-dice-d20');
+    const plain = selectPluginPages([{ id: 'p', settingsPage: { section: 'P', schema: { a: { type: 'bool' } }, defaults: {} } }], [{ moduleId: 'p', on: true }], {})[0];
+    assert.equal('icon' in plain, false);
+});

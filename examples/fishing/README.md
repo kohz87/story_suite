@@ -74,7 +74,7 @@ the `fishing.cast` receipt (or the open session in state); the widget just times
 `hooked`. It never reads message text, and re-rendering it (the host re-renders tabs after every
 commit) keeps the line's clock and never casts again. `renderFishing(el, props, api)` takes
 `props = { place, spot, session, log, last, currency }` and `api = { command, query }`, so it can be
-placed by itself as a widget in any layout: the module registers it as `widgets.fishing` (SPEC §13.5),
+placed by itself as a widget in any layout: the module registers it as `widgets["fishing-activity.fishing"]` (SPEC §13.5),
 and every prop left out is looked up by query. The Fishing tab simply calls it with props from the head
 state.
 

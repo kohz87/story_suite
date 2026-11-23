@@ -52,6 +52,6 @@ export function selectPluginPages(modules, features, values) {
     });
     // A module whose feature replaces the RPG keeps the RPG page's three bag switches on its own page (the RPG and fights page is hidden while the RPG is off).
     const rows = mine.some(f => Array.isArray(f.replaces) && f.replaces.includes(LEAN_RPG_FEATURE)) ? [...own, ...rpgFeatureRows(list).map(row => (row.key === 'rpg.gearInFights' ? { ...row, label: 'Gear' } : row))] : own;
-    return rows.length ? [{ id: pluginPageId(m.id), group: 'Rules', name: page.section, desc: `The ${String(m.name ?? m.id)} plug-in.`, special: null, rows }] : [];
+    return rows.length ? [{ id: pluginPageId(m.id), group: 'Rules', name: page.section, desc: `The ${String(m.name ?? m.id)} plug-in.`, ...(typeof m.icon === 'string' && /^fa-[a-z0-9-]+$/.test(m.icon) ? { icon: m.icon } : {}), special: null, rows }] : [];
   });
 }

@@ -17,6 +17,12 @@ function xpPct(member) {
     return Math.max(0, Math.min(100, Math.round((100 * (member.xp - from)) / (next - from))));
 }
 
+/** "30/50": the xp held over the xp the next level needs (the bar's percent runs from this level's first xp); null at the top level. */
+function xpLabel(member) {
+    const { next } = levelFor(member.xp);
+    return next === null ? null : `${Math.max(0, Math.round(member.xp))}/${next}`;
+}
+
 /** The sheet row of one member; `commands` names the commands the Party tab calls for a spend and a skill edit. */
 export function rowOf(member, now = null) {
     const companion = Boolean(member.companion);
@@ -27,7 +33,7 @@ export function rowOf(member, now = null) {
     return {
         id: member.id, name: member.name, portrait: null, level,
         line: companion ? `Lv ${level} · companion` : `Lv ${level}`,
-        xpPct: companion ? 0 : xpPct(member), points: pointsOf(member), away: null,
+        xpPct: companion ? 0 : xpPct(member), xpLabel: companion ? null : xpLabel(member), points: pointsOf(member), away: null,
         bars: companion ? [] : [{ kind: 'hp', value: 5 - wounds, max: 5, label: `Health: ${HEALTH_STAGES[wounds]}` }, ...BARS.map(([kind, scale, label]) => ({ kind, value: pools[kind].now, max: pools[kind].max, label: `${label}: ${stageOf(pools[kind].now, pools[kind].max, scale).word}` }))],
         effects: [...liveConditions(member, now).map(item => item.name), ...member.injuries.map(item => item.name)],
         stats: companion ? null : Object.fromEntries(STAT_KEYS.map(key => [key.toUpperCase(), stats[key]])),

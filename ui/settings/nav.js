@@ -33,13 +33,14 @@ export function createNav(sections = [], { onPick = () => {}, onQuery = () => {}
     list.appendChild(h('div', { class: 'secl2' }, name));
     const rows = h('div', { class: 'slist' });
     for (const s of items) {
-      const icon = ICONS[s.id] ?? '•';
+      // (a plug-in page's own Font Awesome icon, else the dot; built per use: a node sits in one place)
+      const icon = () => (/^fa-[a-z0-9-]+$/.test(s.icon ?? '') ? h('span', { class: `fa-solid ${s.icon}` }) : (ICONS[s.id] ?? '•'));
       const btn = h('button', { type: 'button', class: 'si3', dataset: { sec: s.id }, onClick: () => onPick(s.id, 'side') },
-        h('i', { 'aria-hidden': 'true' }, icon), s.name);
+        h('i', { 'aria-hidden': 'true' }, icon()), s.name);
       sideButtons.set(s.id, btn);
       side.appendChild(btn);
       rows.appendChild(h('button', { type: 'button', dataset: { sec: s.id }, onClick: () => onPick(s.id, 'list') },
-        h('i', { 'aria-hidden': 'true' }, icon), h('span', h('b', s.name), h('small', s.desc)), h('span', '›')));
+        h('i', { 'aria-hidden': 'true' }, icon()), h('span', h('b', s.name), h('small', s.desc)), h('span', '›')));
     }
     list.appendChild(rows);
   }
