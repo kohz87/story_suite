@@ -96,3 +96,9 @@ node --test tests/*.test.js
 Same seed gives the same catch, a failed reel grants nothing, one cast is one fish even when the
 narrating reply is swiped, release, every rejection leaves the state as it was, and the widget's
 timing (fake timers, fake DOM).
+
+## Writing your own module
+
+The step-by-step guide, with a 10-minute walk-through and every definition key, is
+[`docs/dev/writing-a-module.md`](../../docs/dev/writing-a-module.md). Its rule-first version for coding assistants is the
+"Writing a plug-in module" part of [`AI-README.md`](../../AI-README.md). The second reference, a rules module, is [Text RPG](../text-rpg/README.md).
