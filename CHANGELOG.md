@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG is playable: the Party tab shows Create your character, the form opens in a sheet, gear and its stat bonuses work and gear wears down on bad rolls, and you can edit the narrator's rules on its Rules page.
+- Plug-in cards and pages show their own icon; Fishing registers again.
 - Text RPG: deleting a reply that gave a level now takes back the stat points and skills it paid for, and they return when you earn the level again; skill slots keep coming every third level up to level 99.
 - Switching Text RPG on switches the RPG off (and the other way round), and Text RPG has its own page under Rules (Tone, Survival, Stat names).
 - New example module, Text RPG: an RPG told entirely in the story, with no fight board. Your stats and skills are described to the narrator in words, dice decide the turning points, and wounds, mana and stamina wear down. Install it next to Story Suite, then turn the RPG off and Text RPG on.
