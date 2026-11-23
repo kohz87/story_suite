@@ -21,7 +21,7 @@ async function live(t) {
   const screens = createScreenSource({ registry: host.registry });
   return { host, doc, screens, sheetCtx: () => ({ doc, sheetHost: doc.body }) };
 }
-const type = (el, role, value) => { const box = el.querySelector(`[data-role="${role}"]`); box.value = value; box.dispatchEvent(new globalThis.Event('input')); box.dispatchEvent(new globalThis.Event('change')); };
+const type = (el, role, value) => { const box = el.querySelector(`[data-wiz="${role}"]`); box.value = value; box.dispatchEvent(new globalThis.Event('input')); box.dispatchEvent(new globalThis.Event('change')); };
 
 test('the screen source finds a declared screen only while its feature is on, and nothing for an unknown id', async t => {
   const { host, screens } = await live(t);
@@ -40,17 +40,19 @@ test('opening the screen draws the widget in a titled sheet; Create makes the ch
   const plugin = createPluginScreens({ screens, sdk: host.sdk, sheetCtx });
   let ended = 0;
   assert.equal(plugin.open(SCREEN, null, { onEnd: () => { ended += 1; } }), true);
-  const sheet = doc.querySelector('[data-sheet="plugin-screen"]');
-  assert.ok(sheet);
+  const sheet = doc.querySelector('[data-sheet="new-character"]');
+  assert.ok(sheet, 'the wizard wears the new-character sheet look');
   assert.equal(sheet.querySelector('.sh-h h3').textContent, 'New character');
+  assert.equal(doc.querySelectorAll('.sh-ov').length, 1, 'one sheet only');
+  const click = selector => sheet.querySelector(selector).dispatchEvent(new globalThis.Event('click'));
   type(sheet, 'name', 'Astra');
-  for (const [key, value] of Object.entries({ str: 10, vit: 10, agi: 10, dex: 10, int: 10, wis: 5, cha: 5 })) type(sheet, `stat-${key}`, String(value));
-  type(sheet, 'skill-0', 'Swordplay');
-  type(sheet, 'skill-1', 'Lore');
-  sheet.querySelector('[data-act="create"]').dispatchEvent(new globalThis.Event('click'));
+  click('[data-wiz="next"]');
+  click('[data-wiz="next"]');
+  click('[data-wiz="next"]');
+  click('[data-wiz="create"]');
   await new Promise(resolve => setTimeout(resolve, 20));
   assert.equal(host.sdk.query('party.actors')?.length, 1);
-  assert.equal(doc.querySelector('[data-sheet="plugin-screen"]'), null, 'closed by the made character');
+  assert.equal(doc.querySelector('.sh-ov'), null, 'closed by the made character');
   assert.equal(ended, 1);
   assert.equal(plugin.isOpen(), false);
 });
