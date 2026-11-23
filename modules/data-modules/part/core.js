@@ -10,7 +10,7 @@ import { B, draftOf, pairKey } from './shared.js';
 import { replayInputs } from './views.js';
 import { settleReserve } from './timing.js';
 
-export function createCore({ packs, state: head = () => null, lifecycle = () => null, restore = () => ({ state: 'idle' }), settings = () => ({}), persona = () => '', boardOn = () => false } = {}) {
+export function createCore({ packs, state: head = () => null, lifecycle = () => null, restore = () => ({ state: 'idle' }), settings = () => ({}), persona = () => '', boardOn = () => false, rpgReplaced = () => false } = {}) {
     // The runtime's late-bound readers may not exist yet while the definition registers: read as "no state" until they do.
     const state = () => { try { return head(); } catch { return null; } };
     // Whether a name is the reader's own (the persona's): the Party tab shows that character as You.
@@ -96,5 +96,5 @@ export function createCore({ packs, state: head = () => null, lifecycle = () => 
             return ctx.fail(error.code, `${label}: ${reason}; nothing applied.`.slice(0, 280));
         }
     };
-    return { packs, lifecycle, restore, settings, boardOn, state, isReader, offers, dependency, reader, guard, finish, wrap };
+    return { packs, lifecycle, restore, settings, boardOn, rpgReplaced, state, isReader, offers, dependency, reader, guard, finish, wrap };
 }

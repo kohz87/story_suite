@@ -7,6 +7,7 @@ import { moduleView } from '../views.js';
 import { shownText } from './field-words.js';
 import { fieldText, fieldsText } from './field-lines.js';
 import { tailRoom } from './tail-room.js';
+import { quietRole } from '../replaced.js';
 
 /**
  * One module's state in plain words for the prompt's tail, at most 100 tokens (300 for a block with a role, written compact): "Survival — Wessel: hunger 12; fatigue 6."
@@ -35,8 +36,8 @@ export function summaryOf(state, module, { rpg = true } = {}) {
 // The character sheets and the Foes block go first (with the RPG on): the tail is cut from its end when the context is tight, and what the narrator
 // must keep true after a fight (a character's Health, the foes standing) must outlast the pack's zero-valued counters. Pin order otherwise.
 const FIRST_ROLES = new Set(['character', 'foes']);
-const tailLines = (state, rpg) => {
-    const modules = Object.keys(state?.domains?.dataModules?.active ?? {});
+const tailLines = (state, rpg, replaced = false) => {
+    const modules = Object.keys(state?.domains?.dataModules?.active ?? {}).filter(module => !quietRole(activeDefinition(state, module), replaced));
     const first = rpg ? modules.filter(module => FIRST_ROLES.has(activeDefinition(state, module)?.role)) : [];
     return [...first, ...modules.filter(module => !first.includes(module))].map(module => summaryOf(state, module, { rpg }));
 };

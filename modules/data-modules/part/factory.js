@@ -16,6 +16,7 @@ import { createFields } from './fields.js';
 import { validateDomain, resolveModule, moduleView, pinnedPresentation, grammarFor, replayInputs } from './views.js';
 import { blockCardSlots, tailLines, tailRoom } from './prompt.js';
 import { B, initial } from './shared.js';
+import { quietRole } from './replaced.js';
 
 export function createDataModulesPart(opts = {}) {
     // Build parts in order: act.js and blocks.js read earlier parts when they are created.
@@ -26,8 +27,10 @@ export function createDataModulesPart(opts = {}) {
     Object.assign(d, createAct(d));
     Object.assign(d, createBlocks(d));
     Object.assign(d, createFields(d));
-    const { state, settings, boardOn, wrap, offers, guard, finish, setField, tick, settle, afterCapture, act } = d;
-    const kind = { get enabled() { return Boolean(Object.keys(state()?.domains?.dataModules?.active ?? {}).length); },
+    const { state, settings, boardOn, rpgReplaced, wrap, offers, guard, finish, setField, tick, settle, afterCapture, act } = d;
+    const replaced = () => { try { return rpgReplaced() === true; } catch { return false; } };
+    // (the `! dm` line is taught while some pinned block is not quiet)
+    const kind = { get enabled() { return Object.keys(state()?.domains?.dataModules?.active ?? {}).some(id => !quietRole(activeDefinition(state(), id), replaced())); },
         grammar: '! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)', apply: wrap((ctx, line, call) => act(ctx, {}, line, call)) };
     return {
         domains: { dataModules: { initial, deferred: true, snapshot: 'when-present', scratch: ['perReply', 'boardFlags'], validate: validateDomain } },
@@ -87,10 +90,11 @@ export function createDataModulesPart(opts = {}) {
         context: {
             static: () => {
                 const board = boardOn() === true;
-                return grammarFor(state(), null, { rolled: board, board });
+                return grammarFor(state(), null, { rolled: board, board, replaced: replaced() });
             },
             tail: view => {
-                const lines = tailLines(view.state, typeof view.feature === 'function' ? view.feature(LEAN_RPG_FEATURE) === true : true);
+                const rpgOn = typeof view.feature === 'function' ? view.feature(LEAN_RPG_FEATURE) === true : true;
+                const lines = tailLines(view.state, rpgOn, !rpgOn && view.featureOrReplacement?.(LEAN_RPG_FEATURE) === true);
                 if (boardOn()) {
                     const lib = rpgLib();
                     // (an ended board fight is still a fight for this reply: the clear emptied the Foes block, but the reply that tells its end keeps the fight tail)
@@ -103,7 +107,7 @@ export function createDataModulesPart(opts = {}) {
                 return { lines, optional: [] };
             },
             // Tail room for the lines above: 100 tokens for each pinned module (300 for one with a role), on top of the core's own; none without a pin.
-            extra: () => Object.keys(state()?.domains?.dataModules?.active ?? {}).slice(0, L.pins).reduce((sum, id) => sum + tailRoom(activeDefinition(state(), id), true, instanceOf(state(), id)?.fields), 0),
+            extra: () => Object.keys(state()?.domains?.dataModules?.active ?? {}).slice(0, L.pins).reduce((sum, id) => quietRole(activeDefinition(state(), id), replaced()) ? sum : sum + tailRoom(activeDefinition(state(), id), true, instanceOf(state(), id)?.fields), 0),
         },
     };
 }
