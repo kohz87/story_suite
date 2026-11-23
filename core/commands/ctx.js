@@ -250,6 +250,11 @@ export function createCtxTools({
             featureOrReplacement(id) {
                 return featureOrReplacementOn(id) || (tx.again === true && Boolean(registry.feature?.(id)));
             },
+            // Whether the module that called this command has a feature that `replaces` feature `id` and is on (a plug-in that stands in for it).
+            callerReplaces(id) {
+                if (typeof caller !== 'string' || typeof registry.features !== 'function') return false;
+                return registry.features().some(feature => feature.moduleId === caller && Array.isArray(feature.replaces) && feature.replaces.includes(id) && (featureOn(feature.id) || (tx.again === true && Boolean(registry.feature?.(feature.id)))));
+            },
             // Every other module's answer to hook `name` on the state this command sees (MODULES §F126): each
             // module's `hooks[name]({ state, query }, args)`, synchronous. An answer that is null, a promise,
             // or a throw is left out, so asking is always safe: [{ module, answer }] in module order, frozen

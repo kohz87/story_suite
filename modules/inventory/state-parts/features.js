@@ -20,3 +20,6 @@ export const INVENTORY_FEATURES = Object.freeze([
 
 /** The module whose fight rolls the dice: the only caller `gear.wear { recorded: true }` accepts. */
 export const RPG_MODULE = 'story-block';
+
+/** The RPG's feature id: a module whose feature `replaces` it may ask `gear.wear { recorded: true }` too. */
+export const RPG_FEATURE = 'story-block.rpg';

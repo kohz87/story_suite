@@ -827,6 +827,7 @@
   "examples/text-rpg/src/module-parts/listed.js": "Which active skills the prompt lists for a member: the 8 most practised plus any the latest messages name.",
   "examples/text-rpg/src/module-parts/kinds.js": "The capture kinds of Text RPG and the one apply that sends a line to its kind's handler.",
   "examples/text-rpg/src/module-parts/kinds/pools.js": "The pool lines: paying a skill's cost, `~ spend Who — skill` and `~ health Who — stage | why: …`.",
+  "examples/text-rpg/src/module-parts/kinds/wear.js": "What a `? try` in danger costs the member's gear: the weapon and the armour the roll used worn down through the inventory's `gear.wear`.",
   "examples/text-rpg/src/module-parts/kinds/roster.js": "The roster lines: `+ skill Who — Name | stat | type | from: how` and `+ companion Name | level: N | strengths: a, b`.",
   "examples/text-rpg/src/module-parts/kinds/status.js": "The status lines: `~ condition`, `+ injury` and `! fall`.",
   "examples/text-rpg/src/module-parts/kinds/target.js": "What every kind's line starts with: Text RPG must be active, and the line names a member of the draft.",

@@ -40,6 +40,12 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   A success at a cost always costs: in danger one wound stage, out of danger the costed skill's cost again, else
   a step of stamina (a quarter of the pool). The receipt's `data.paid` says which (`wound`, `skill`, `stamina`).
   A companion has no sheet, so nothing is paid from one.
+- **Gear.** With the inventory's gear switched on, a try in danger wears what the roll used, by the inventory's own
+  `gear.wear` and recorded with the reply (so a swipe, a Re-read or a deleted reply gives the same condition): a bad
+  failure two condition steps, a success at a cost one. A physical try (STR, DEX or an attack skill) wears the member's
+  weapon, and the wound wears the body armour (else the off-hand). The reader's character wears the party's bag; a
+  missing or broken piece wears nothing. The receipt's `data.worn` lists `{ slot, stack, steps, before, now, broken }`;
+  a broken piece stops giving its bonus.
 - **Danger.** A `? try` line may carry `threat: how the foe compares`; without it the threat is this reply's earlier
   `? try`, else the latest earlier reply's recorded threat, else none (not in danger). The dice note says a threat raises
   the difficulty (above you → at least hard, far above → very hard, beyond → near impossible).

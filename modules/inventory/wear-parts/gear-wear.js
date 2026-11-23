@@ -2,7 +2,7 @@
 
 import { OWNER_RE, capitalize, ownerNameIn } from '../../scene/domains/common.js';
 import { stepDown } from '../gear.js';
-import { condOf, condWrite, RPG_MODULE, gearOn } from '../state.js';
+import { condOf, condWrite, RPG_MODULE, RPG_FEATURE, gearOn } from '../state.js';
 
 // `gear.wear { owner, slot, steps }` (`story-block.gear`): the system's or another module's call (a fight's rules), never a button or a
 // story line. `slot`: weapon, body (armour), off-hand (shield), or defence (the body armour, else the off-hand: what a decisive hit
@@ -14,7 +14,10 @@ const WEAR_SLOTS = Object.freeze({ weapon: 'weapon', body: 'body', armour: 'body
 export function gearWear(ctx, payload) {
     // (a roll that carries a gear mark wears by it even if the switch is off now: `recorded`, and only the RPG's own fight may say so: its nested call has
     // the Story Block module as `ctx.caller`; a pack event step (`event:<id>`), another module or a top-level call is refused the flag, whatever the switch says)
-    if (payload.recorded === true && !(ctx.cause === 'system' && ctx.caller === RPG_MODULE)) ctx.fail('REFUSED', 'Only the fight\'s own rolls wear gear by their record.');
+    // (a module whose feature stands in for the RPG and is on may say so too, from its own story line's handler (cause `story`) as well as the system's)
+    const own = ctx.cause === 'system' && ctx.caller === RPG_MODULE;
+    const standIn = (ctx.cause === 'system' || ctx.cause === 'story') && typeof ctx.callerReplaces === 'function' && ctx.callerReplaces(RPG_FEATURE) === true;
+    if (payload.recorded === true && !(own || standIn)) ctx.fail('REFUSED', 'Only the fight\'s own rolls wear gear by their record.');
     if (!gearOn(ctx) && payload.recorded !== true) ctx.fail('REFUSED', 'Gear is not switched on.');
     if (!(ctx.cause === 'system' || ctx.caller)) ctx.fail('REFUSED', 'Gear wears from the rules of a fight, not from a button or a change line.');
     const owner = typeof payload.owner === 'string' && payload.owner ? payload.owner : 'party';

@@ -16,6 +16,7 @@ import { partsOf, labelOf } from '../line-read.js';
 import { toneStep } from '../settings.js';
 import { woundsAfter, woundsOf } from '../standing.js';
 import { spendCost } from './pools.js';
+import { wearGear } from './wear.js';
 import { target } from './target.js';
 
 const BAND_WORD = { great: 'more than was asked', success: 'success', cost: 'success at a cost', failure: 'failure', bad: 'a bad failure' };
@@ -65,6 +66,8 @@ export function applyTry(ctx, line) {
             }
         }
     }
+    // (the gear the roll used wears with the wounds, by the inventory's own rule; what it wore goes in the receipt)
+    const worn = wearGear(ctx, member, { band: result.band, inDanger, stat: found.stat, skill: found.skill, wounded: stages > 0 && !member.companion });
     let rankUp = null;
     if (found.skill) {
         const key = practiceKey(found.skill.name);
@@ -79,6 +82,6 @@ export function applyTry(ctx, line) {
     const tail = `${DIFFICULTIES[floored].word}${raised ? ' (raised: the scene allows nothing easier)' : ''}: ${BAND_WORD[result.band]}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}.`;
     return {
         summary: `${member.name} tries ${found.skill?.name ?? what}, ${tail}`, narrate: true,
-        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, raised, paid, rankUp },
+        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, raised, paid, rankUp, ...(worn.length ? { worn } : {}) },
     };
 }
