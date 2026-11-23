@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- New example module, Text RPG: an RPG told entirely in the story, with no fight board. Your stats and skills are described to the narrator in words, dice decide the turning points, and wounds, mana and stamina wear down. Install it next to Story Suite, then turn the RPG off and Text RPG on.
+- A plug-in character sheet can now show on the Party tab when the RPG is off, and only one set of dice rules is taught to the narrator.
 - A typed attack opens the fight board again when the fight check words the foes a little differently ("hound-sized" for your "hound size rats").
 - A new place the story tells the way to ("Fernhollow, a day north") is saved on the map there, so its direction stays right from then on; the narrator writes it with way: or at: on its route or landmark line.
 - Each reply now tells the narrator where places lie as the crow flies: the places your message and the last reply name, and the nearest city each way ("Auvoth about 50 km west").
