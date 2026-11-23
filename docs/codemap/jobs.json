@@ -850,7 +850,7 @@
   "examples/text-rpg/src/module-parts/kinds/status.js": "The status lines: `~ condition`, `+ injury` and `! fall`.",
   "examples/text-rpg/src/module-parts/kinds/target.js": "What every kind's line starts with: Text RPG must be active, and the line names a member of the draft.",
   "examples/text-rpg/src/module-parts/kinds/try.js": "`? try Who | skill or stat | difficulty`: the code reads the verdict from the reply's recorded die, the bonus and the difficulty.",
-  "examples/text-rpg/src/module-parts/kinds/xp.js": "`+ xp Party — what was overcome | size: minor|real|major|great`: experience, level-ups, stat points.",
+  "examples/text-rpg/src/module-parts/kinds/xp.js": "`+ xp Party — what was overcome | size: minor|real|major|great [| foes: N]`: experience (each foe counts), level-ups, stat points.",
   "examples/text-rpg/src/module-parts/line-read.js": "Reading a change line's parts: the text pieces after the name, a label, and the stat words.",
   "examples/text-rpg/src/module-parts/members.js": "Finding members and skills by name, and how many skill slots a level has.",
   "examples/text-rpg/src/module-parts/practice-gain.js": "Gives a skill its practice for one use (a roll or a `~ spend`), keeps `~ spend` to one gain a skill a reply, and says what was gained and any rank up.",
@@ -897,5 +897,6 @@
   "examples/text-rpg/src/wizard/words.js": "Holds the New character wizard's words, a fill helper and the stats line.",
   "examples/text-rpg/tests/pools-gear.test.js": "Tests that gear counts in Text RPG's pool sizes (rest, spend, rows, capability), the sheet row's capped bonus, and replay == live with a worn piece.",
   "examples/text-rpg/tests/practice.test.js": "Tests practice for every use: `~ spend` +5, the threat scale, once a reply, a roll winning over a spend.",
-  "examples/text-rpg/tests/rolls.test.js": "Tests the reasons a roll was raised, the dice note's floor reasons, and the cards under a reply read from its own receipts."
+  "examples/text-rpg/tests/rolls.test.js": "Tests the reasons a roll was raised, the dice note's floor reasons, and the cards under a reply read from its own receipts.",
+  "examples/text-rpg/tests/xp-foes.test.js": "Tests the `foes: N` label of `+ xp`: each foe counts, bad counts are one, the guard, rate and cap apply after, the card says the count, rebuild equals live."
 }

@@ -29,8 +29,8 @@ export function practiceGain(band, difficultyIndex) {
 /** The fixed experience paid for each size of an overcome danger. */
 export const XP_SIZES = Object.freeze({ trivial: 0, minor: 5, real: 20, major: 60, great: 150 });
 
-/** Experience for a stated size, cut to what the reply's hardest check supports and scaled by threat. */
-export function xpFor(size, threat, hardestIndex) {
+/** Experience for a stated size, cut to what the reply's hardest check supports and scaled by threat, times the foes overcome (rounded once, after the count). */
+export function xpFor(size, threat, hardestIndex, foes = 1) {
     const key = typeof size === 'string' ? size.trim().toLowerCase() : '';
     if (!Object.hasOwn(XP_SIZES, key)) return 0;
     if (hardestIndex === null || hardestIndex === undefined) return 0;
@@ -41,7 +41,7 @@ export function xpFor(size, threat, hardestIndex) {
     let paidSize = key;
     if (paidSize === 'great' && hardest < 3) paidSize = 'major';
     if (paidSize === 'major' && hardest < 2) paidSize = 'real';
-    return Math.round(XP_SIZES[paidSize] * THREAT_MULTIPLIERS[threatLevel]);
+    return Math.round(XP_SIZES[paidSize] * THREAT_MULTIPLIERS[threatLevel] * foes);
 }
 
 /** The level reached at a total experience (100 xp a level, as the RPG's), and the total needed for the next level (null at 99). */

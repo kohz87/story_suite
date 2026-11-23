@@ -76,7 +76,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   count; a timed condition made with no clock is held until `cleared`. A Down character cannot act; what happens to them
   is the story's call (`! fall Who — how` closes the sheet). If the reader's character has fallen, `textRpg.create`
   makes a new one (the fallen one keeps `pc: false`); while a living one exists it refuses.
-- **Growth.** `+ xp Party — what | size: minor|real|major|great` pays by size, cut to what the reply's hardest
+- **Growth.** `+ xp Party — what | size: minor|real|major|great [| foes: N]` pays by size (times `foes`, a whole number 1 to 50, each foe counts; missing or bad is 1), cut to what the reply's hardest
   roll supports and scaled by how the threat compares with the hero. A rank every 100 practice points; each
   level gives a stat point to spend on the Party tab, and a skill slot every tenth level (5 at the start, 8 at most, from
   level 30). Levels are the RPG's: 100 xp a level, 99 at most, xp held to 9999 (an xp stored past that counts as 9999 and is held there on the next `+ xp`; the sizes and threat multipliers are this

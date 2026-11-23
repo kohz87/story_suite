@@ -16,7 +16,7 @@ export function narratorRules(values) {
 /** One short grammar line per kind. */
 export const GRAMMAR = Object.freeze({
     try: '? try Who | skill or stat | easy|normal|hard|very hard [| threat: far beneath you|beneath you|a fair match|above you|far above you|beyond you]',
-    xp: '+ xp Party — what was overcome | size: minor|real|major|great (once a reply, after a roll)',
+    xp: '+ xp Party — what was overcome | size: minor|real|major|great [| foes: how many were overcome (each counts)] (once a reply, after a roll)',
     condition: '~ condition Who — poisoned|bleeding|stunned|frightened|exhausted|burning|prone|blinded | until: treated|N hours|cleared',
     injury: '+ injury Who — name | hampers: str, agi | grave: minor|serious|grave',
     skill: '+ skill Who — Name | stat | type | from: how it was learned',
