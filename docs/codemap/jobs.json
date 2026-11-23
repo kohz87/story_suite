@@ -859,5 +859,17 @@
   "core/boot/screen-source.js": "Finds a screen a registered module declares (its widget, title and feature) for a view that draws plug-in screens.",
   "ui/wizard/plugin-screen.js": "Draws a plug-in module's screen in the shared bottom sheet from the widget its template names, with command, query and close for the widget.",
   "tests/ui/wizard/plugin-screen.test.js": "Tests that a plug-in's screen opens in the sheet from its widget, creates through it, closes and tears down.",
-  "tests/ui/tabs/party/plugin-sheet.test.js": "Tests that a sheet draws no soak chip without a figure and takes its XP words from the row."
+  "tests/ui/tabs/party/plugin-sheet.test.js": "Tests that a sheet draws no soak chip without a figure and takes its XP words from the row.",
+  "examples/text-rpg/src/kit/controls.js": "Draws the suite's button and tab strip for Text RPG's wizard, copied from the view's kit.",
+  "examples/text-rpg/src/kit/dom.js": "Builds DOM elements from a tag, attributes and children for Text RPG's wizard, copied from the view's kit.",
+  "examples/text-rpg/src/wizard/draft.js": "Holds the New character wizard's draft, its points, the problems that hold Create back and the create payload.",
+  "examples/text-rpg/src/wizard/focus.js": "Keeps the keyboard on the same control when the New character wizard redraws a step.",
+  "examples/text-rpg/src/wizard/review.js": "Draws the wizard's Review step and sends textRpg.create when the reader presses Create.",
+  "examples/text-rpg/src/wizard/rules.js": "Names Text RPG's creation numbers, stat names, skill types and skill costs for the wizard.",
+  "examples/text-rpg/src/wizard/skills.js": "Draws the wizard's Skills step: a card of fields per skill, up to five.",
+  "examples/text-rpg/src/wizard/stats.js": "Draws the wizard's Stats step: seven rows with minus and plus, the points left and Reset.",
+  "examples/text-rpg/src/wizard/summary.js": "Draws the wizard's summary of the character so far: tile, name, pill, stats and skills.",
+  "examples/text-rpg/src/wizard/who.js": "Draws the wizard's Who step: the character's name.",
+  "examples/text-rpg/src/wizard/wizard.js": "Draws Text RPG's New character wizard (four steps, summary, footer) into the plug-in screen's sheet.",
+  "examples/text-rpg/src/wizard/words.js": "Holds the New character wizard's words, a fill helper and the stats line."
 }
