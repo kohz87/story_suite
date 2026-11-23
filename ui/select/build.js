@@ -53,6 +53,7 @@ const arcStatus = () => { try { return arcController().status(); } catch { retur
 
 const openScene = answer => { const view = selectScene(answer); return view && view.kindId !== FIGHT_KIND ? view : null; };
 
+const pluginValuesOf = sdk => Object.fromEntries((sdk?.modules?.() ?? []).filter(m => m.settingsPage).map(m => [m.id, sdk?.settings?.(m.id) ?? null]));
 const directorAnswers = (sdk, ctx) => ({ sceneShown: ctx()?.chatMetadata?.[PREFS_KEY]?.scene === true, values: Object.fromEntries(['story-director', 'npc-state-delta'].map(id => [id, sdk?.settings?.(id) ?? null])), features: sdk?.features?.() ?? [] });
 // One engine query for the Packs page; a build without it (or a query that throws) gives an empty page.
 const ask = (sdk, name) => { try { return sdk?.query?.(name, {}); } catch { return null; } };
@@ -142,7 +143,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou(), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
     },
     settings: () => selectSettings({
-      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk, ctx), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, rollsHeld: rpgHasCharacter(sdk), packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup'), pairing: ask(sdk, 'packs.pairing'), own: ask(sdk, 'packs.own'), lorebook: liveLorebookRows(ask(sdk, 'packs.list')) },
+      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, pluginValues: pluginValuesOf(sdk), people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk, ctx), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, rollsHeld: rpgHasCharacter(sdk), packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup'), pairing: ask(sdk, 'packs.pairing'), own: ask(sdk, 'packs.own'), lorebook: liveLorebookRows(ask(sdk, 'packs.list')) },
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null, staticTokens: tools?.staticTokens,
       peoplePresets: packPresets(sdk),
     }),

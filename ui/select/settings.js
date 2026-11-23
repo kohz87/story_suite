@@ -14,6 +14,7 @@ import { readTabOrder } from './reply-tabs.js';
 import { selectPacks } from './packs.js';
 import { selectYouStartRows } from './you-start.js';
 import { selectAddons } from './addons.js';
+import { selectPluginPages } from './plugin-pages.js';
 import { BUDGETS, LOOK } from './host-keys.js';
 import { CARD_TEXT, PRESET_TEXT } from './module-text.js';
 import { moduleCosts } from './module-costs.js';
@@ -97,7 +98,7 @@ function moduleParts(features, held = false) {
 
 /**
  * `answers`: { host: settings() (SB sdk/settings.js:74, stored over defaults), defaults: HOST_SETTINGS_DEFAULTS (sdk/constants.js:10),
- * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), modules?: sdk.modules() (the Add-ons page's installed list), subtitle?, people?: the NPC State settings (sdk.settings('npc-state-delta')), director?: settings('story-director') (the World page's values), directorPage?: { values: settings per module id, features } (the Director page), tools?: { sent: the handle's sent(), problems, blocked, nameOf }, staticTokens?: the tools handle's staticTokens(switches) (the Start cards' and presets' token figures; absent: no figure) }.
+ * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), modules?: sdk.modules() (the Add-ons page's installed list and the plug-ins' Rules pages), pluginValues?: { [module id]: settings(id) } for the modules that have such a page, subtitle?, people?: the NPC State settings (sdk.settings('npc-state-delta')), director?: settings('story-director') (the World page's values), directorPage?: { values: settings per module id, features } (the Director page), tools?: { sent: the handle's sent(), problems, blocked, nameOf }, staticTokens?: the tools handle's staticTokens(switches) (the Start cards' and presets' token figures; absent: no figure) }.
  * → the settings view-model (contract/settings.js; `rollsHeld`: the RPG is on and has a Character, so the pre-roll row is locked), or null when neither host settings nor a feature list was read.
  * Gaps (per-chat module sets) are empty or null.
  */
@@ -124,6 +125,7 @@ export function selectSettings(answers) {
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
     section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people, { presets: a.peoplePresets, features: a.features })),
     ...(rpgOff ? [] : [section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression, fights, and what you take, carry and wear. The checks’ numbers are in Director.', [...selectRpgRows(a.rpg), ...rpgFeatureRows(hasFeatures ? a.features : [])])]),
+    ...selectPluginPages(a.modules, hasFeatures ? a.features : [], a.pluginValues),
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [], a.directorCalls)),
     ...[selectDirector(a.directorPage)].filter(Boolean),
     section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),

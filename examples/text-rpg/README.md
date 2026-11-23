@@ -15,11 +15,13 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 1. Copy this folder into SillyTavern as its own third-party extension, for example
    `public/scripts/extensions/third-party/story-suite-text-rpg/`, next to Story Suite
    (`third-party/story_suite`). The manifest declares `"dependencies": ["third-party/story_suite"]`.
-2. In Story Suite's settings, on the **Start** page (the modules and their features), turn the **RPG** switch off. A chat
-   uses the RPG or Text RPG, never both: Text RPG is active only while its feature is on **and** `story-block.rpg` is off.
-3. On the same **Start** page the **Text RPG** card appears (a module card named by the module, with one switch named
-   **Text RPG**); turn it on. Its three settings are labelled "Text RPG: Tone", "Text RPG: Survival (hunger, thirst and
-   warmth)" and "Text RPG: Stat names, in order".
+2. In Story Suite's settings, on the **Start** page (the modules and their features), the **Text RPG** card appears (a module
+   card named by the module, with one switch named **Text RPG**); turn it on. The feature declares `replaces:
+   ['story-block.rpg']`, so the same action turns the **RPG** switch (in the Story Block card's Features) off, and turning
+   the RPG on turns Text RPG off: a chat uses the RPG or Text RPG, never both (Text RPG is active only while its feature is
+   on **and** `story-block.rpg` is off).
+3. While it is on, **Settings › Rules › Text RPG** holds its three settings: Tone, Survival (hunger, thirst and warmth)
+   and Stat names, in order.
 4. Open the **Party** tab and choose **Create your character**: a name, seven stats bought from 60 points
    (5 to 15 each) and up to five skills.
 
