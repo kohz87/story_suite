@@ -79,3 +79,25 @@ test('Plan the next arc, Accept and Discard go to the page planner; a refused pl
   assert.deepEqual(await aliasCommand(null, 'arc.plan', { note: 'bad' }, arc), { ok: false, code: 'FAILED', message: 'Planning failed: no answer' });
   assert.deepEqual(calls[0], ['plan', { reason: 'manual', note: 'more Joris' }]);
 });
+
+test('Spend points sends the row\'s own spend command when the sheet names one, and the port can() it when a module registers it', async () => {
+  const sent = [];
+  const sdk = {
+    query: name => (name === 'rpg.sheet' ? [{ id: 'm1', stats: { STR: 5 }, points: 2, commands: { spend: 'textRpg.spend' } }] : null),
+    command: async (type, payload) => { sent.push([type, payload]); return { ok: true, note: 'mine' }; },
+    modules: () => [{ commands: ['textRpg.spend'] }],
+  };
+  const port = createSbPort({ sdk, selectors: {} });
+  assert.deepEqual(await port.command('rpg.stats.spend', { member: 'm1', stats: { STR: 6 } }), { ok: true, note: 'mine' });
+  assert.deepEqual(sent, [['textRpg.spend', { member: 'm1', stats: { STR: 6 } }]]);
+  assert.equal(port.can('textRpg.spend'), true);
+  assert.equal(port.can('textRpg.other'), false);
+});
+
+test('Spend points on a row without commands.spend takes the old path (no block: refused, nothing sent)', async () => {
+  const sent = [];
+  const sdk = { query: () => [{ id: 'm1', stats: { STR: 5 }, points: 2, commands: { spend: 7 } }], command: async type => { sent.push(type); return { ok: true }; } };
+  const answer = await createSbPort({ sdk, selectors: {} }).command('rpg.stats.spend', { member: 'm1', stats: { STR: 6 } });
+  assert.equal(answer.ok, false);
+  assert.deepEqual(sent, []);
+});

@@ -62,6 +62,8 @@ const MEMBER = {
   stats: STATS,
   // The stats worn gear adds ({ STR: 1 }, only those above 0); the stat tiles mark them.
   bonus: { $optional: T.ANY },
+  // A plug-in sheet's own command names ({ spend?, skillEdit? }), sent instead of the RPG's.
+  commands: { $optional: T.ANY },
   slots: [SLOT],
   skills: [SKILL],
 };
@@ -78,4 +80,6 @@ export const PARTY_SHAPE = {
   canInvite: T.BOOLEAN,
   members: [MEMBER],
   carriers: { $optional: CARRIERS },
+  // The screen a plug-in sheet opens for Create character (else Story Block's New character window).
+  newCharacterScreen: { $optional: T.STRING },
 };

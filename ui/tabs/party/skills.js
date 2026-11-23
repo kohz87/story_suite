@@ -9,6 +9,7 @@ const KIND_GLYPH = { attack: 'atk', area: 'area', magic: 'bolt', heal: 'heal', s
 const RESOURCE = { stamina: 'Stamina', mana: 'Mana' };
 
 const glyphOf = skill => (glyph(skill.glyph) ? skill.glyph : KIND_GLYPH[skill.kind] ?? 'atk');
+const editName = member => (typeof member?.commands?.skillEdit === 'string' ? member.commands.skillEdit : 'rpg.skill.edit');
 const text = v => (typeof v === 'string' ? v.trim() : '');
 // The cost, or nothing when the view has none: 0 means a story-only skill; a cost or resource the view left out is never printed.
 function costText(s) {
@@ -39,7 +40,7 @@ export function skillSheet(member, skill, ctx = {}) {
   const edit = h('button', {
     type: 'button',
     class: 'ps-b',
-    onClick: async () => { await ctx.port?.command('rpg.skill.edit', { member: member.id, skill: skill.name }); sheet.close(); },
+    onClick: async () => { await ctx.port?.command(editName(member), { member: member.id, skill: skill.name }); sheet.close(); },
   }, 'Edit skill');
   sheet.body.replaceChildren(...[
     h('div', { class: 'ps-i' },
@@ -50,7 +51,7 @@ export function skillSheet(member, skill, ctx = {}) {
       ? h('dl', { class: 'ps-kv' }, h('dt', null, 'Rank'), h('dd', null, `${skill.rank}, mastery ${skill.mastery} of 7 `, masteryBar(skill.mastery, 'inline')),
         Number.isFinite(skill.practice) ? [h('dt', null, 'Practice'), h('dd', null, nextLine(skill))] : null)
       : null,
-    can(ctx, 'rpg.skill.edit') ? h('div', { class: 'ps-row' }, edit) : null,
+    can(ctx, editName(member)) ? h('div', { class: 'ps-row' }, edit) : null,
   ].filter(Boolean));
   return sheet;
 }
@@ -72,12 +73,12 @@ export function skillsCard(member, ctx = {}) {
   const edit = h('button', {
     type: 'button',
     class: 'edit',
-    onClick: () => ctx.port?.command('rpg.skill.edit', { member: member.id }),
+    onClick: () => ctx.port?.command(editName(member), { member: member.id }),
   }, 'Edit');
   return h(
     'div',
     { class: 'skills-col' },
-    h('div', { class: 'secl' }, `Skills · ${skills.length}`, can(ctx, 'rpg.skill.edit') ? edit : null),
+    h('div', { class: 'secl' }, `Skills · ${skills.length}`, can(ctx, editName(member)) ? edit : null),
     h('div', { class: 'skl' }, skills.map(s => skillRow(member, s, ctx))),
   );
 }

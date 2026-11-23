@@ -27,6 +27,10 @@ test('the grammar is the old one and, after the flip, this part keeps the `check
     assert.equal(checkKind.grammar({ fights: false, rpg: true }), '');
     assert.match(checkKind.grammar({ fights: true, rpg: true }), /^\? check /);
     assert.match(checkKind.grammar({ fights: true }), /^\? check /);
+    // A plug-in sheet module's dice (`text-rpg.on` with the RPG off, env.textRpg) is the one dice system: the line is left out; nothing set, nothing changes.
+    assert.equal(checkKind.grammar({ fights: true, textRpg: true }), '');
+    assert.equal(checkKind.grammar({ fights: false, textRpg: true }), '');
+    assert.match(checkKind.grammar({ fights: true, textRpg: false }), /^\? check /);
     assert.deepEqual(checkKind.heads, ['? check']);
     assert.equal(part.kinds.check, checkKind);
 });

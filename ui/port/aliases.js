@@ -20,6 +20,9 @@ function blockOf(sdk, member) {
 async function spend(sdk, payload) {
   const rows = sdk?.query?.('rpg.sheet', {});
   const sheet = (Array.isArray(rows) ? rows : []).find((row) => row?.id === payload?.member);
+  // A plug-in sheet (a module that answers `rpg.sheet` itself) names its own spend command on the row: it gets the member and the raised stats.
+  const own = sheet?.commands?.spend;
+  if (typeof own === 'string' && own) return sdk.command(own, { member: payload?.member, stats: payload?.stats ?? {} });
   const block = blockOf(sdk, payload?.member);
   if (!sheet || !block || !sheet.stats) return NO('That character has no points to spend.');
   const fields = {};
