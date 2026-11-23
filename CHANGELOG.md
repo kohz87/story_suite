@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG: deleting a reply that gave a level now takes back the stat points and skills it paid for, and they return when you earn the level again; skill slots keep coming every third level up to level 99.
+- Switching Text RPG on switches the RPG off (and the other way round), and Text RPG has its own page under Rules (Tone, Survival, Stat names).
 - New example module, Text RPG: an RPG told entirely in the story, with no fight board. Your stats and skills are described to the narrator in words, dice decide the turning points, and wounds, mana and stamina wear down. Install it next to Story Suite, then turn the RPG off and Text RPG on.
 - A plug-in character sheet can now show on the Party tab when the RPG is off, and only one set of dice rules is taught to the narrator.
 - A typed attack opens the fight board again when the fight check words the foes a little differently ("hound-sized" for your "hound size rats").
