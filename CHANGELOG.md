@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Switching the RPG on from the Text RPG page now shows Text RPG off on the Start page.
 - Text RPG's New character shows your persona's portrait, like the RPG's wizard; plug-in modules can ask Story Suite for it.
 - Text RPG's New character is the same wizard as the RPG's, its Rules page has an RPG switch to go back, and gear you equip counts for your character.
 - A guide for writing your own module (docs/dev/writing-a-module.md), with a short version for AI coding assistants in the AI-README.
