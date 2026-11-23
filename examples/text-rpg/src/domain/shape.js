@@ -22,7 +22,7 @@ export const LIMITS = Object.freeze({
 
 const STAT_KEYS = ['str', 'vit', 'agi', 'dex', 'int', 'wis', 'cha'];
 const SKILL_TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
-const ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,39}$/;
+const ID_PATTERN = /^(?:[a-z0-9][a-z0-9-]{0,39}|[a-z][a-z0-9]*_[0-9a-z]{8})$/;
 
 const record = value => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 const text = (value, max) => typeof value === 'string' ? value.slice(0, max) : '';

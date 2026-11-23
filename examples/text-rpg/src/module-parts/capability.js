@@ -1,0 +1,37 @@
+// The capability line: one short line per member, from fixed word tables; only words reach the narrator, never numbers.
+import { rankOf } from '../words/ranks.js';
+import { stageOf, usesLeft } from '../words/pools.js';
+import { statWord } from '../words/stats.js';
+import { STAT_KEYS } from '../words/stats.js';
+import { totalStats } from './gear.js';
+
+const POOLS = [['mp', 'Mana'], ['sp', 'Stamina']];
+
+function poolPart(member, kind, label) {
+    const pool = member.pools[kind];
+    const dearest = member.skills.filter(skill => skill.cost?.pool === kind).sort((a, b) => b.cost.n - a.cost.n)[0];
+    const left = dearest ? ` (${usesLeft(pool.now, dearest.cost.n)} ${dearest.name} left)` : '';
+    return `${label}: ${stageOf(pool.now, pool.max, 'energy').word}${left}`;
+}
+
+/** The line for one member; `gear` is `{ cap, names }` from gear.js. */
+export function capabilityLine(member, gear = { cap: {}, names: [] }) {
+    if (member.companion) {
+        const strengths = member.companion.strengths.join(', ');
+        return `${member.name} (companion, level ${member.companion.level})${strengths ? ` — ${strengths}` : ''}`;
+    }
+    const total = totalStats(member, gear.cap);
+    const stats = STAT_KEYS.map(key => [key.toUpperCase(), statWord(key, total[key])]).filter(([, word]) => word && word !== 'ordinary').map(([key, word]) => `${key} ${word}`);
+    const skills = member.skills.map(skill => `${skill.name} (${rankOf(skill.practice).name})${skill.about ? `: ${skill.about}` : ''}`);
+    const health = stageOf(member.pools.hp.now, member.pools.hp.max, 'health').word;
+    const parts = [
+        ...stats,
+        ...(skills.length ? [`Skills: ${skills.join('; ')}`] : []),
+        `Health: ${health}${health === 'Down' ? ' (cannot act)' : ''}`,
+        ...POOLS.map(([kind, label]) => poolPart(member, kind, label)),
+        ...(gear.names.length ? [`Wearing: ${gear.names.join('; ')}`] : []),
+        ...(member.injuries.length ? [`Injuries: ${member.injuries.map(injury => injury.name).join(', ')}`] : []),
+        ...(member.conditions.length ? [`Conditions: ${member.conditions.map(condition => condition.name).join(', ')}`] : []),
+    ];
+    return `${member.name} (Level ${member.level}) — ${parts.join(' · ')}`;
+}

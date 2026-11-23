@@ -4,7 +4,7 @@ import { LIMITS } from './shape.js';
 const STAT_KEYS = ['str', 'vit', 'agi', 'dex', 'int', 'wis', 'cha'];
 const SKILL_TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
 const POOL_KEYS = ['hp', 'mp', 'sp'];
-const ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,39}$/;
+const ID_PATTERN = /^(?:[a-z0-9][a-z0-9-]{0,39}|[a-z][a-z0-9]*_[0-9a-z]{8})$/;
 const MEMBER_KEYS = [
     'id', 'name', 'pc', 'level', 'xp', 'points', 'stats', 'pools', 'skills',
     'injuries', 'conditions', 'companion', 'fallen',
@@ -201,7 +201,17 @@ function checkDice(dice, problems) {
         const where = `dice.${reply}`;
         if (reply.length > 80) problems.push(`${where} has a reply key longer than 80 characters.`);
         const record = dice[reply];
-        if (!checkShape(record, where, ['list', 'floor'], problems)) continue;
+        if (!isObject(record)) {
+            problems.push(`${where} must be an object.`);
+            continue;
+        }
+        // used (dice taken so far), hardest (difficulty index) and threat (word index) are kept by the reply's `? try` lines.
+        const base = {};
+        for (const key of Object.keys(record)) if (!['used', 'hardest', 'threat'].includes(key)) base[key] = record[key];
+        if (!checkShape(base, where, ['list', 'floor'], problems)) continue;
+        if (has(record, 'used') && !isInt(record.used, 0, 3)) problems.push(`${where}.used must be a whole number from 0 to 3.`);
+        if (has(record, 'hardest') && !isInt(record.hardest, 0, 4)) problems.push(`${where}.hardest must be a whole number from 0 to 4.`);
+        if (has(record, 'threat') && !isInt(record.threat, 0, 5)) problems.push(`${where}.threat must be a whole number from 0 to 5.`);
         if (!Array.isArray(record.list) || record.list.length !== 3) {
             problems.push(`${where}.list must hold exactly three dice.`);
         } else {
