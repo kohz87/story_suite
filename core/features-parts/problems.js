@@ -2,7 +2,7 @@
 
 import { isObject } from './shared-object.js';
 import { FEATURE_KEYS, NEEDS_KEYS, PRESET_KEYS } from './shape.js';
-import { DESCRIBE_MAX, LABEL_MAX, WHY_MAX } from './limits.js';
+import { DESCRIBE_MAX, LABEL_MAX, REPLACES_MAX, WHY_MAX } from './limits.js';
 import { featureRefs } from './refs.js';
 
 // The part of an id after `<module-id>.`.
@@ -35,6 +35,9 @@ export function featureProblems(def) {
                 const presets = feature.presets;
                 if (!isObject(presets)) problems.push(`${name} presets is not false or an object (like { lean: false, full: true })`);
                 else for (const key of PRESET_KEYS) if (presets[key] !== undefined && typeof presets[key] !== 'boolean') problems.push(`${name} presets.${key} is not true or false`);
+            }
+            if (feature.replaces !== undefined && !(Array.isArray(feature.replaces) && feature.replaces.length <= REPLACES_MAX && feature.replaces.every(item => typeof item === 'string' && item.trim()))) {
+                problems.push(`${name} replaces is not a list of at most ${REPLACES_MAX} feature ids (like ["story-block.rpg"])`);
             }
             if (feature.needs !== undefined) {
                 const needs = feature.needs;

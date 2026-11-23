@@ -27,6 +27,7 @@ export function createFeatureLookups({ defs, declared, owners, fallbacks, canoni
             prompt: feature.prompt,
             ...(feature.presets === undefined ? {} : { presets: feature.presets }),
             needs,
+            ...(feature.replaces ? { replaces: feature.replaces } : {}),
             available,
             why: available ? '' : heldOwner ? lifecycle(owner).reason : needs.why,
         });

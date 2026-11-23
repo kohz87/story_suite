@@ -2,7 +2,7 @@
 import { initialState } from '../domain/shape.js';
 import { validate } from '../domain/validate.js';
 import { renderNewCharacter } from '../widget/new-character.js';
-import { MODULE_ID, FEATURE, VERSION } from './constants.js';
+import { MODULE_ID, FEATURE, RPG_FEATURE, VERSION } from './constants.js';
 import { active } from './active.js';
 import { kindsOf, applyLine } from './kinds.js';
 import { queriesOf } from './queries.js';
@@ -29,8 +29,8 @@ export function textRpgModule(sdk = null) {
         // Numbers that move are counters: a replay after a deleted reply adds each change instead of writing the number the deleted reply left.
         domains: { textRpg: { initial: initialState, validate, counters: COUNTERS } },
         features: [{
-            id: FEATURE, label: 'Text RPG', default: false, prompt: true,
-            describe: 'The narrator tells fights in prose; code keeps the sheet and rolls the dice. Turn the RPG (Settings → RPG) off first.',
+            id: FEATURE, label: 'Text RPG', default: false, prompt: true, replaces: [RPG_FEATURE],
+            describe: 'The narrator tells fights in prose; code keeps the sheet and rolls the dice. Turning it on turns the RPG off, and turning the RPG on turns it off.',
         }],
         capture: { kinds: kindsOf(sdk), apply: applyLine },
         commands: {

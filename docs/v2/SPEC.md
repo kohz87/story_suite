@@ -842,6 +842,10 @@ sdk.registerModule({
     feature to its own `default` clears the stored choice instead of writing it, so a later change of the default still reaches the reader
     (except where an older Story Block setting still speaks for that feature).
     Packs do not suggest feature defaults.
+  * A feature may carry `replaces: ['story-block.rpg']` (at most four feature ids). Switching it on switches those features off in
+    the same action, and switching one of them on switches off every feature that replaces it (the store's `set`; the stored choices
+    of both change). A module with a settings `section` title and a schema that is not a built-in gets its own page under Settings ›
+    Rules, named by that title, while one of its features is on.
   * The settings overlay shows a "Features" subsection at the top of each module's fold (a switch, the
     label, the description) and one "Features" overview of every module's; a feature that changes the
     static part says "Changes the fixed prompt once (one slower reply)."
