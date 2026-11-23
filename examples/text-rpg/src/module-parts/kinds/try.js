@@ -48,8 +48,9 @@ export function applyTry(ctx, line) {
 
     const inDanger = threat >= 2 || labelOf(line, 'danger').toLowerCase() === 'yes';
     const stages = harmFor(result.band, inDanger);
-    let paid = stages > 0 ? 'wound' : 'none';
+    let paid = 'none';
     if (!member.companion) {
+        paid = stages > 0 ? 'wound' : 'none';
         member.wounds = woundsAfter(member, stages);
         // Success at a cost always costs: in danger the wound stage above; out of danger the skill's cost again, else a step of stamina.
         if (result.band === 'cost' && !inDanger) {

@@ -137,6 +137,19 @@ test('a party with injuries and conditions keeps the whole dice note in the real
     }
 });
 
+test('the real prompt view carries the tone: gritty shows the shifted numbers in the note and the roll uses them', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await withAstra({}, { modules: { 'text-rpg': { tone: 'gritty' } } });
+    try {
+        await host.send('We go.', reply('The road.'));
+        await host.send('Onward.', reply('The gate.', ['? try Astra | Lore | easy']));
+        assert.match(sent(host, TAIL).at(-2), /against easy 12, normal 16, hard 20, very hard 24, near impossible 24\./);
+        assert.equal(tries(host)[0].data.difficulty, 1, 'easy, one step harder');
+    } finally {
+        host.close();
+    }
+});
+
 test('the manifest depends on Story Block and the code imports nothing outside the folder', () => {
     const root = new URL('../', import.meta.url);
     const manifest = JSON.parse(readFileSync(new URL('manifest.json', root), 'utf8'));

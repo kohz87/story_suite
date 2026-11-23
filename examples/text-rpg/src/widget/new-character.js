@@ -59,7 +59,11 @@ export function renderNewCharacter(el, props = {}, api = {}) {
     }
     for (const key of STAT_KEYS) {
         stats[key].input.addEventListener('input', refresh);
-        stats[key].input.addEventListener('change', refresh);
+        // A stat typed outside 5..15 is brought back into it when the field is left.
+        stats[key].input.addEventListener('change', () => {
+            if (stats[key].input.value.trim() !== '') stats[key].input.value = String(Math.min(BUY_MAX, Math.max(BUY_MIN, valueOf(key))));
+            refresh();
+        });
     }
     name.input.addEventListener('input', refresh);
     name.input.addEventListener('change', refresh);

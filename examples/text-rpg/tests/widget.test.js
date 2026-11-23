@@ -40,6 +40,13 @@ test('each stat is held to 5..15: 60 points with a stat of 30 or of 4 leaves Cre
     assert.equal(create.disabled, true, 'a stat of 0 is under 5 even when the total is 60');
     for (const [key, value] of [['str', 15], ['vit', 15], ['agi', 10], ['dex', 5], ['int', 5], ['wis', 5], ['cha', 5]]) await set(el, `stat-${key}`, value);
     assert.equal(create.disabled, false);
+    // Leaving a field brings a stat back into 5..15.
+    for (const [value, held] of [[30, '15'], [2, '5'], [9, '9']]) {
+        const input = el.find(['data-role', 'stat-wis']);
+        input.value = String(value);
+        await input.dispatch('change');
+        assert.equal(input.value, held);
+    }
 });
 
 test('Create sends textRpg.create with the name, the stats and the named skills only', async () => {

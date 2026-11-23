@@ -209,9 +209,30 @@ test('level and points follow the xp that survives: deleting an early xp reply t
         assert.deepEqual(host.store.problems(), []);
         // 40 xp is below level 2 (50): a fresh telling of the two surviving replies reads the same.
         assert.deepEqual([astraOf(host).xp, levelOf(astraOf(host)), pointsOf(astraOf(host))], [40, 1, 0]);
+        const [row] = host.sdk.query('rpg.sheet');
+        assert.deepEqual([row.level, row.points, host.sdk.query('party.levels')[0].level], [1, 0, 1], 'the rows the Party tab reads');
         assert.equal(Object.hasOwn(astraOf(host), 'level'), false, 'level is derived, not stored');
         assert.equal(Object.hasOwn(astraOf(host), 'points'), false, 'points are derived, not stored');
     } finally {
         host.close();
+    }
+});
+
+test('a Re-read of an earlier reply that named no threat is not put in danger by a later reply\'s threat', async t => {
+    t.mock.method(console, 'warn', () => {});
+    for (let round = 0; round < 6; round += 1) {
+        const host = await withAstra();
+        try {
+            await host.send('One.', reply('First.', ['? try Astra | Lore | very hard']));
+            const firstAt = host.ctx.chat.length - 1;
+            await host.send('Two.', reply('Second.', ['? try Astra | Lore | very hard | threat: above you']));
+            const live = JSON.stringify(host.head());
+            assert.equal((await host.sdk.reread(firstAt)).ok, true);
+            assert.equal(JSON.stringify(host.head()), live, 'an unchanged Re-read changes nothing');
+            host.store.rebuild();
+            assert.equal(JSON.stringify(host.head()), live, 'rebuild == live');
+        } finally {
+            host.close();
+        }
     }
 });

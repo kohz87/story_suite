@@ -56,6 +56,7 @@ test('success at a cost always costs: a wound stage in danger; out of danger the
     assert.deepEqual([dry.data.band, dry.me.pools.sp.now, dry.data.paid], ['cost', 0, 'stamina'], 'cannot pay the skill again: the step, clamped at 0');
     const rorke = astra({ id: 'ac_rorke001', name: 'Rorke', pc: false, companion: { level: 1, strengths: [] } });
     assert.equal(roll(10, 'normal', { member: rorke, what: 'riding' }).data.paid, 'none', 'a companion has no sheet to pay from');
+    assert.equal(roll(10, 'normal', { member: rorke, what: 'riding', labels: { threat: 'above you' } }).data.paid, 'none', 'nor in danger');
 });
 
 test('a failure in danger adds one wound stage, out of danger it costs nothing', () => {
@@ -81,17 +82,24 @@ test('the threat is the line\'s own, else this reply\'s earlier one, else the la
     run(applyTry, ctx, line('try', 'Astra', 'Lore; normal'));
     assert.deepEqual([me.wounds, slice.dice[SID].threat], [0, undefined]);
     // An earlier reply recorded a fair match: this reply is in danger without saying so (and records nothing of its own).
-    const later = sliceOf([astra()], { list: [6, 6, 6], floor: 0 });
+    const later = sliceOf([astra()], null);
     later.dice.sw_before001 = { list: [1, 1, 1], floor: 0, threat: 2 };
+    later.dice[SID] = { list: [6, 6, 6], floor: 0 };
     run(applyTry, fakeCtx(later), line('try', 'Astra', 'Lore; normal'));
     assert.deepEqual([later.members.ac_astra001.wounds, later.dice[SID].threat], [1, undefined]);
     // Its own earlier line in the same reply wins over the earlier reply's.
-    const same = sliceOf([astra()], { list: [6, 6, 6], floor: 0 });
+    const same = sliceOf([astra()], null);
     same.dice.sw_before001 = { list: [1, 1, 1], floor: 0, threat: 4 };
+    same.dice[SID] = { list: [6, 6, 6], floor: 0 };
     const both = fakeCtx(same);
     run(applyTry, both, line('try', 'Astra', 'Lore; normal', { threat: 'beneath you' }));
     run(applyTry, both, line('try', 'Astra', 'Lore; normal'));
     assert.deepEqual([same.members.ac_astra001.wounds, same.dice[SID].used], [0, 2]);
+    // A record after this reply's own (a Re-read of an earlier reply) is not an earlier reply's.
+    const reread = sliceOf([astra()], { list: [6, 6, 6], floor: 0 });
+    reread.dice.sw_after0001 = { list: [1, 1, 1], floor: 0, threat: 4 };
+    run(applyTry, fakeCtx(reread), line('try', 'Astra', 'Lore; normal'));
+    assert.equal(reread.members.ac_astra001.wounds, 0);
 });
 
 test('a bad failure (a natural 1) adds two stages even out of danger', () => {
