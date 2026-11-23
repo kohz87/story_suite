@@ -52,7 +52,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   With no threat named (on the line, or earlier in the reply) the narrator's own word is the start. `| edge: +1 (reason)` makes it a step easier,
   `-2 (reason)` two harder; at most 2 either way, and a reason is required (without one the edge is ignored and the receipt says so).
   Live conditions and a drained body on a physical roll hold a floor under it (ordinary with the first, a step more for each further one); the tone
-  then moves it: Gritty (the default) one step harder, Standard none, Heroic one easier.
+  then moves it: Gritty (the default) one step harder, Standard none, Heroic one easier. At the ends the shift is clamped, so under Gritty "very hard" and "near impossible" are both 30, and under Heroic "trivial" and "easy" are both 5 (the dice note lists the numbers). The receipt names the word rolled against.
 - **Bands.** At or over the number: success. 1–2 short: success at a cost. 3–9 short: failure. 10 or more
   short: a bad failure. A natural 20 or 1 changes only the quality: a natural 20 that misses is still a miss (marked "well done"), a natural 1 that
   succeeds still succeeds (marked "clumsy"). In danger a failure adds one wound
@@ -62,7 +62,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   A companion has no sheet, so nothing is paid from one.
 - **Gear** is not in the roll and does not wear: a failed roll in danger asks the inventory for nothing.
 - **Foes and the matchup.** Before a fight the narrator sets the foes up with `+ foes Name | count: N | threat: <word>` (up to 6 groups a reply; the same
-  Name in a later reply while some stand is reinforcements, shown as such; `- foes Name` ends a group that fled or scattered, with no XP). The record is kept in the
+  Name and threat in a later reply while some stand is reinforcements, shown as such (the same Name at another threat is a new group, "Wolves 2"); `- foes Name` ends a group that fled or scattered, with no XP). Groups do not expire by themselves, but they close when the story clock has moved a day or more since a reply last touched them (with no clock they stay), or when a `+ foes` names new foes in a reply after one that hit none of them; the narrator is told to end foes that fled or were left. The record is kept in the
   domain (`foes`: groups keyed by id, the remaining count a counter) and is part of replay. Each reply the code tells the narrator the **matchup**: the foes' weight
   (each group's remaining × its threat's weight: far beneath ¼, beneath ½, fair 1, above 2, far above 3, beyond 4) against the party's (each member who is not fallen or Down: 1 ×
   health factor Unhurt 1, Scratched .9, Hurt .7, Wounded .5, Badly wounded .25 × stamina factor Fresh and Steady 1, Low .8, Drained and Empty .6). The ratio
@@ -71,10 +71,10 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 - **Practice.** Every use of a skill teaches: a `? try` +3 for a failure or a bad one, +5 for a success or a success at a cost, +10 for a success at hard or
   harder, none when the roll is trivial; a skill used with `~ spend` and no roll, or a one-session training scene, +1. Each is scaled by the threat word (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above or beyond ×2; none named ×1; rounded, at least 1
   when more than 0). A skill gains from `~ spend` or a one-session `~ train` once a reply between them, and a roll for it in the same reply wins.
-  **A lesson** from a fight: `+ lesson Who — Skill | what was learned` teaches 5 × the fight's threat multiplier (far beneath 0, beneath ½, fair 1, above 2, far above 3, beyond 4; the strongest group's), once a skill a member a fight,
+  **A lesson** from a fight: `+ lesson Who — Skill | what was learned` teaches 5 × the fight's threat multiplier (far beneath 0, beneath ½, fair 1, above 2, far above 3, beyond 4; the strongest group that fell, not one that fled), once a skill a member a fight,
   only for a skill that member rolled while the fight stood, and only once all the fight's groups are down or gone (or in the reply they close). A fight is one set of foes groups.
   A skill's cost is paid once a reply when a `~ spend` and a `? try` both name it, in either order (the spend's receipt says "paid by the roll", the try's "cost already paid"); two tries each pay.
-  `+ xp … | foes: N [| group: Name]` pays only up to the foes still standing in the foes record (all groups, lowest threat first, or the named group) and counts them down; with no record `foes:` is one at most. A reply with no roll pays nothing and counts nobody down.
+  `+ xp … | foes: N [| group: Name]` pays only up to the foes still standing in the foes record (all groups, lowest threat first, or the named group) and counts them down; with no record `foes:` is one at most. A reply with no roll pays nothing (the receipt says "no roll this reply: no XP") but still counts the foes down. Name the group when foes are mixed, or the lowest threat is paid first.
   **Training** is per session: `~ train Who — Skill | sessions: N` (one a day of training the story told; whole 1..60, missing or bad = 1) gives +1 a session (no threat scale), capped by the whole story days the clock moved since the reply began (at least 1; 1 when there is no clock; the dice step keeps the clock). Once a skill a reply; a roll of the same skill does not take sessions of 2 or more back; a single session (or one capped to 1 day) is a +1 use, and a roll of the same skill wins over it. Card: "Astra trained Swordplay: +30 (30 sessions)", or "(asked 30, story time 5 days)" when capped. Practice stops at 600. The receipts' `data.practice` says what was gained; the keyed
   counter `practice` stays a counter, and a per-reply mark (`spent`) keeps the once-a-reply rule through a swipe, a reload and a delete.
 - **Rolls you can see.** Under a reply the module's one card `text-rpg-rolls` ("Rolls", up to 8 rows; it declares `rows: 8`) lists, from the reply's own receipts

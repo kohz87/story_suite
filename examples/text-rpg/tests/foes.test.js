@@ -2,6 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyFoes } from '../src/module-parts/kinds/foes.js';
+import { applyXp } from '../src/module-parts/kinds/xp.js';
+import { matchupOf } from '../src/module-parts/matchup.js';
 import { validate } from '../src/domain/validate.js';
 import { groupId, latestFight, standing } from '../src/module-parts/foes-record.js';
 import { SID, astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
@@ -15,7 +17,7 @@ test('+ foes sets a group up: its count, its threat and the fight it belongs to,
     const slice = sliceOf([astra()]);
     const done = set(slice, 'Sewer rats', '24', 'beneath you');
     assert.equal(done.ok, true, done.message);
-    assert.deepEqual(slice.foes.groups['sewer-rats'], { name: 'Sewer rats', threat: 1, count: 24, left: 24, fight: SID });
+    assert.deepEqual(slice.foes.groups['sewer-rats'], { name: 'Sewer rats', threat: 1, count: 24, left: 24, fight: SID, at: null, sid: SID });
     assert.deepEqual(slice.foes.fights[SID], { rolled: {}, taught: [] });
     assert.deepEqual(done.result.data, { group: 'sewer-rats', name: 'Sewer rats', count: 24, threat: 1, reinforcements: false, left: 24 });
     assert.match(done.result.summary, /^Foes set: 24 Sewer rats \(beneath\)\./);
@@ -44,11 +46,18 @@ test('a reply sets up at most six groups, and a name only once', () => {
     assert.equal(set(slice, 'g', '2', 'beneath', NEXT).ok, true, 'the next reply has its own six');
 });
 
-test('the same name in a later reply, while some stand, is reinforcements: counts add, the threat is the new one, and it says so', () => {
+test('the same name and threat in a later reply, while some stand, is reinforcements: counts add and it says so; another threat is a new group', () => {
     const slice = sliceOf([astra()]);
     set(slice, 'Wolves', '4', 'a fair match');
-    run(applyFoes, fakeCtx(slice, { sid: NEXT }), { ...line('foes', 'wolves', '', { count: '3', threat: 'above you' }), op: '+' });
-    assert.deepEqual(slice.foes.groups.wolves, { name: 'Wolves', threat: 3, count: 7, left: 7, fight: SID });
+    run(applyFoes, fakeCtx(slice, { sid: NEXT }), { ...line('foes', 'wolves', '', { count: '3', threat: 'a fair match' }), op: '+' });
+    assert.deepEqual(slice.foes.groups.wolves, { name: 'Wolves', threat: 2, count: 7, left: 7, fight: SID, at: null, sid: NEXT });
+    const other = run(applyFoes, fakeCtx(slice, { sid: NEXT }), { ...line('foes', 'wolves', '', { count: '2', threat: 'above you' }), op: '+' });
+    assert.deepEqual([slice.foes.groups.wolves.left, slice.foes.groups.wolves.threat, other.result.data.reinforcements], [7, 2, false], 'the old group keeps its threat');
+    assert.deepEqual(slice.foes.groups['wolves-2'], { name: 'wolves 2', threat: 3, count: 2, left: 2, fight: SID, at: null, sid: NEXT });
+    assert.match(other.result.summary, /^Foes set: 2 wolves 2 \(above\)/);
+    const again = run(applyFoes, fakeCtx(slice, { sid: 'sw_reply0004' }), { ...line('foes', 'wolves', '', { count: '5', threat: 'above you' }), op: '+' });
+    assert.deepEqual([slice.foes.groups['wolves-2'].left, again.result.data.reinforcements], [7, true], 'the same threat adds to Wolves 2');
+    assert.deepEqual(validate(slice), []);
     const hurt = sliceOf([astra()]);
     set(hurt, 'Wolves', '4');
     hurt.foes.groups.wolves.left = 1;
@@ -63,7 +72,7 @@ test('a group that is closed is not reinforced: the same name later is a new gro
     set(slice, 'Wolves', '4');
     slice.foes.groups.wolves.left = 0;
     set(slice, 'Wolves', '2', 'above you', NEXT);
-    assert.deepEqual(slice.foes.groups.wolves, { name: 'Wolves', threat: 3, count: 2, left: 2, fight: NEXT });
+    assert.deepEqual(slice.foes.groups.wolves, { name: 'Wolves', threat: 3, count: 2, left: 2, fight: NEXT, at: null, sid: NEXT });
     assert.deepEqual(Object.keys(slice.foes.fights), [SID, NEXT]);
     assert.equal(latestFight(slice).id, NEXT);
 });
@@ -99,4 +108,44 @@ test('the record keeps itself small: old fights go, and a record is refused whil
     assert.ok(Object.values(slice.foes.groups).every(group => slice.foes.fights[group.fight]));
     assert.deepEqual(validate(slice), []);
     assert.equal(run(applyFoes, fakeCtx(sliceOf([astra()]), { on: false }), { ...line('foes', 'rats', '', { count: '2', threat: 'beneath' }), op: '+' }).code, 'FEATURE_OFF');
+});
+
+test('stale groups: a day or more of story time past the reply that touched them closes them for the matchup, xp and lessons; with no clock they stay', () => {
+    const slice = sliceOf([astra()], { list: [10, 10, 10], floor: 0, clock: 100 });
+    set(slice, 'rats', '3', 'a fair match');
+    slice.foes.groups.rats.at = 100;
+    slice.dice[NEXT] = { list: [10, 10, 10], floor: 0, clock: 100 + 1439 };
+    assert.equal(standing(slice, 100 + 1439).length, 1, 'less than a day');
+    assert.equal(standing(slice, 100 + 1440).length, 0, 'a day');
+    assert.equal(latestFight(slice, 100 + 1440).open, false);
+    assert.equal(matchupOf(slice, () => ({}), 100 + 1440), null);
+    assert.equal(standing(slice, null).length, 1, 'with no clock they stay');
+    slice.foes.groups.rats.at = null;
+    assert.equal(standing(slice, 99999).length, 1, 'a group made with no clock stays');
+    slice.foes.groups.rats.at = 100;
+    slice.dice[NEXT].clock = 100 + 2000;
+    const xp = run(applyXp, fakeCtx(slice, { sid: NEXT }), line('xp', 'Party', 'x', { size: 'minor', foes: '2' }));
+    assert.equal(slice.foes.groups.rats.left, 3, 'nothing counted down in a stale group');
+    assert.equal(xp.result.data.foes, 1);
+});
+
+test('new foes in a reply after one that hit none of the standing groups close those (fled); a hit or the same reply keeps them', () => {
+    const base = () => {
+        const slice = sliceOf([astra()]);
+        slice.dice.sw_reply0002 = { list: [10], floor: 0 };
+        slice.dice.sw_reply0003 = { list: [10], floor: 0 };
+        set(slice, 'rats', '3', 'beneath you', SID);
+        return slice;
+    };
+    const apart = base();
+    set(apart, 'bandits', '2', 'a fair match', 'sw_reply0003');
+    assert.deepEqual([apart.foes.groups.rats.left, apart.foes.groups.rats.fled, apart.foes.groups.bandits.left], [0, true, 2]);
+    assert.equal(latestFight(apart).open, true);
+    const near = base();
+    set(near, 'bandits', '2', 'a fair match', 'sw_reply0002');
+    assert.equal(near.foes.groups.rats.left, 3, 'the reply after the one that touched them');
+    const hit = base();
+    hit.foes.groups.rats.sid = 'sw_reply0002';
+    set(hit, 'bandits', '2', 'a fair match', 'sw_reply0003');
+    assert.equal(hit.foes.groups.rats.left, 3, 'touched in the reply before');
 });

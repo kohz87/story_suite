@@ -289,3 +289,11 @@ test('the difficulty word is found among extra parts: `? try Who | skill | what 
     const done = run(applyTry, fakeCtx(slice), line('try', 'Astra', 'Lore; slip past the guards; hard'));
     assert.equal(done.result.data.difficulty, 3);
 });
+
+test('the receipt names the difficulty word actually rolled against, after the tone step', () => {
+    const gritty = roll(11, 'ordinary', { options: { settings: { tone: 'gritty' } } });
+    assert.match(gritty.done.result.summary, /, hard: /);
+    assert.equal(gritty.data.difficulty, 3);
+    assert.match(roll(11, 'ordinary', { options: { settings: { tone: 'standard' } } }).done.result.summary, /, ordinary: /);
+    assert.match(roll(11, 'ordinary', { options: { settings: { tone: 'heroic' } } }).done.result.summary, /, easy: /);
+});

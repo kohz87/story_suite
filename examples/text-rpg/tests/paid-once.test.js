@@ -57,7 +57,7 @@ test('spend, try, spend: the second spend is free too; replay == live through re
 });
 
 test('the xp grammar and the rules say XP is paid as foes fall', () => {
-    assert.match(GRAMMAR.xp, /foes: how many fell this reply\] \[\| group: Name\] \(pays only foes still standing in the \+ foes record; once a reply\)/);
-    assert.match(STATIC_TEXT, /\+ xp only for foes that fell this reply\./);
+    assert.match(GRAMMAR.xp, /foes: how many fell this reply\] \[\| group: Name; name the group when foes are mixed\] \(pays only foes still standing in the \+ foes record; once a reply\)/);
+    assert.match(STATIC_TEXT, /\+ xp only for foes that fell this reply;/);
     assert.match(GRAMMAR.spend, /only a skill used without a \? try; a try pays its own cost/);
 });

@@ -15,7 +15,7 @@ export function applyLesson(ctx, line) {
     const at = skillIndex(member, named);
     if (member.companion || at < 0) ctx.fail('NOT_FOUND', `${member.name} has no skill called ${String(named ?? '').slice(0, 40)}.`);
     const skill = member.skills[at];
-    const fight = latestFight(slice);
+    const fight = latestFight(slice, slice.dice?.[ctx.reply?.sid]?.clock);
     if (!fight) ctx.fail('REFUSED', 'There was no fight set up with + foes to learn from.');
     if (fight.open) ctx.fail('REFUSED', 'The fight is not over: some of its foes still stand.');
     const key = practiceKey(skill.name);
@@ -23,7 +23,10 @@ export function applyLesson(ctx, line) {
     if (!(record.rolled[member.id] ?? []).includes(key)) ctx.fail('REFUSED', `${member.name} did not roll ${skill.name} in that fight.`);
     const mark = `${member.id}:${key}`;
     if (record.taught.includes(mark)) ctx.fail('LIMITED', `${skill.name} has already taught ${member.name} what that fight had.`);
-    const threat = Math.max(...fight.groups.map(([, group]) => group.threat));
+    // The strongest group that fell (not one that fled or was left standing).
+    const fell = fight.groups.filter(([, group]) => group.left <= 0 && !group.fled);
+    if (!fell.length) ctx.fail('REFUSED', 'No foes of that fight fell; fleeing foes teach nothing.');
+    const threat = Math.max(...fell.map(([, group]) => group.threat));
     const points = Math.round(BASE * factorOf(threat));
     if (points <= 0) ctx.fail('REFUSED', 'Foes that far beneath them teach nothing.');
     record.taught.push(mark);

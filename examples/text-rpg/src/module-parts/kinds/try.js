@@ -93,7 +93,7 @@ export function applyTry(ctx, line) {
     record.hardest = Math.max(record.hardest ?? 0, index);
     if (said >= 0) record.threat = Math.max(record.threat ?? 0, said);
     const note = edge ? (edge.ignored ? '; edge ignored: no reason given' : `; edge ${edge.steps > 0 ? '+' : '−'}${Math.abs(edge.steps)} (${edge.why})`) : '';
-    const tail = `${DIFFICULTIES[floored].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${result.quality ? ` (${result.quality})` : ''}${note}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}${costPaid ? '; cost already paid' : ''}.`;
+    const tail = `${DIFFICULTIES[index].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${result.quality ? ` (${result.quality})` : ''}${note}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}${costPaid ? '; cost already paid' : ''}.`;
     return {
         summary: `${member.name} tries ${found.skill?.name ?? what}, ${tail}`, narrate: true,
         data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, ...(result.quality ? { quality: result.quality } : {}), raised, ...(raised ? { why: reasons } : {}), ...(edge ? { edge: edge.steps, ...(edge.ignored ? { edgeIgnored: true } : { edgeWhy: edge.why }) } : {}), ...(found.unlearned ? { unlearned: true } : {}), paid, practice, rankUp, ...(costPaid ? { costPaid } : {}) },

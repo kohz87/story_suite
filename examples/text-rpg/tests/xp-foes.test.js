@@ -48,9 +48,10 @@ test('+ xp foes pays only the foes still standing in the record, counts them dow
     assert.equal(later.result.data.foes, 1, 'the record has no one standing: one foe');
 });
 
-test('+ xp foes: a reply that rolled nothing pays nothing and counts nobody down', () => {
+test('+ xp foes: a reply that rolled nothing pays nothing but counts the foes down, and says so', () => {
     const none = paid({ foes: '3' }, { live: { list: [10, 10, 10], floor: 0 }, groups: [['rats', 4, 2]] });
-    assert.deepEqual([none.xp, none.done.result.data.foes, leftOf(none.s)], [0, 0, { rats: 4 }]);
+    assert.deepEqual([none.xp, none.done.result.data.foes, leftOf(none.s)], [0, 3, { rats: 1 }]);
+    assert.equal(none.done.result.summary, 'no roll this reply: no XP for the rats (3 foes).');
 });
 
 test('+ xp foes: with no record the count is capped at one, so the narrator must set the foes up', () => {

@@ -36,6 +36,15 @@ test('the fight\'s threat is its strongest group\'s, and a rank up is told', () 
     assert.match(done.result.summary, /^Astra learned from the fight: Lore \+10 \(reaches Apprentice\)\./);
 });
 
+test('the lesson\'s size is the strongest group that fell: a group that fled does not count', () => {
+    const slice = fight([['rats', 20, 1], ['ogre', 1, 3]]);
+    slice.foes.groups.ogre.fled = true;
+    assert.equal(lesson(slice).result.data.practice, 3, 'beneath: 3, not above: 10');
+    const none = fight([['ogre', 1, 3]]);
+    none.foes.groups.ogre.fled = true;
+    assert.equal(lesson(none).code, 'REFUSED', 'nothing fell');
+});
+
 test('once a skill a fight for each member: a second lesson is refused, another skill or another fight is not', () => {
     const slice = fight([['rats', 3, 2]], { rolled: ['lore', 'obscure'] });
     assert.equal(lesson(slice).ok, true);
@@ -69,10 +78,7 @@ test('after all its groups are closed or gone, or in the same reply they close; 
     // The same reply: xp closes the group (it applies first), then the lesson.
     const same = fight([['rats', 3, 2]], { closed: false });
     const paid = run(applyXp, fakeCtx(same, { sid: 'sw_reply0002' }), line('xp', 'Party', 'rats', { size: 'minor', foes: '3' }));
-    assert.deepEqual([paid.result.data.amount, leftOf(same)], [0, { rats: 3 }], 'the xp needs a roll in its reply: this reply rolled nothing, so nobody is counted down');
-    same.dice.sw_reply0002 = { list: [15, 15, 15], floor: 0, used: 1, hardest: 2 };
-    assert.equal(run(applyXp, fakeCtx(same, { sid: 'sw_reply0002' }), line('xp', 'Party', 'rats', { size: 'minor', foes: '3' })).ok, true);
-    assert.deepEqual(leftOf(same), { rats: 0 });
+    assert.deepEqual([paid.result.data.amount, leftOf(same)], [0, { rats: 0 }], 'a reply that rolled nothing pays nothing but still counts the foes down');
     assert.equal(lesson(same).ok, true);
 });
 

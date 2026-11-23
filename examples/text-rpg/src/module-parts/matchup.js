@@ -12,11 +12,11 @@ const SHORT = ['far beneath', 'beneath', 'a fair match', 'above', 'far above', '
 export const threatShort = threat => SHORT[threat] ?? THREAT_WORDS[threat] ?? '';
 
 /**
- * The matchup of a domain slice; `capOf(member)` gives the gear cap the stamina is read under. `why` names the foes and what is wrong with the party
+ * The matchup of a domain slice; `capOf(member)` gives the gear cap the stamina is read under, `now` the story minute (groups left alone for a day are gone). `why` names the foes and what is wrong with the party
  * ("24 rats beneath, Astra wounded"). Fallen and Down members count nothing.
  */
-export function matchupOf(slice, capOf = () => ({})) {
-    const groups = standing(slice).map(([, group]) => group);
+export function matchupOf(slice, capOf = () => ({}), now = null) {
+    const groups = standing(slice, now).map(([, group]) => group);
     if (!groups.length) return null;
     const members = Object.values(slice?.members ?? {}).filter(member => !member.fallen);
     let party = 0;

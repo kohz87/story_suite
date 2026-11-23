@@ -67,7 +67,7 @@ test('every band is told in the tail with its rule; with no foes the tail has no
     const slice = withFoes(sliceOf([hero({ wounds: 3 })], { list: [11, 3, 20], floor: 0 }), [['rats', 24, 1]]);
     const { lines } = tailOf(view(slice, { query: name => (name === 'textRpg.dice' ? slice.dice.sw_reply0001 : null) }));
     const told = lines.find(text => text.startsWith('Matchup:'));
-    assert.match(told, /^Matchup: hopeless \(24 rats beneath, Astra wounded\)\. Favoured: they should win\. Even: the dice decide\. Outmatched: they lose unless an edge was set up before\. Hopeless: no roll saves them\.$/);
+    assert.match(told, /^Matchup: hopeless \(24 rats beneath, Astra wounded\)\. Favoured: the party should win\. Even: the dice decide\. Outmatched: the party loses unless an edge was set up before\. Hopeless: no roll saves them\.$/);
     assert.ok(lines.indexOf(told) > 0 && lines.indexOf(told) < lines.findIndex(text => text.startsWith('Astra (')), 'after the note, before the members');
     assert.ok(!tailOf(view(sliceOf([hero()]))).lines.some(text => text.startsWith('Matchup:')));
 });

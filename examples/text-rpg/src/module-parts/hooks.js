@@ -22,6 +22,6 @@ export function beforeGenerate(view, info = {}) {
     const type = String(info?.type ?? 'normal').toLowerCase();
     if (!OFFERED.includes(type)) return null;
     const rules = recordable(rulesOf(view));
-    const matchup = matchupOf(view.state?.domains?.[DOMAIN], member => gearOf(view.query, member).cap);
+    const matchup = matchupOf(view.state?.domains?.[DOMAIN], member => gearOf(view.query, member).cap, minutesOf(view.state));
     return { commands: [{ type: 'textRpg.dice', payload: { floor: floorOf(view), ...(matchup ? { matchup } : {}), own: type !== 'normal', ...(minutesOf(view.state) !== null ? { clock: minutesOf(view.state) } : {}), ...(rules ? { rules } : {}) } }] };
 }

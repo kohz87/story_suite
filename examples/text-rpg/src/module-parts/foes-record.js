@@ -1,5 +1,7 @@
 // The foes record the narrator sets up before a fight (`slice.foes`): groups keyed by id, each with how many were set up and how many stand, and the fights the groups make.
-// `slice.foes = { groups: { <id>: { name, threat, count, left, fight } }, fights: { <fight>: { rolled: { <member>: [skill keys] }, taught: ['<member>:<skill key>'] } } }`, made on the first `+ foes`.
+// `slice.foes = { groups: { <id>: { name, threat, count, left, fight, at?, sid?, fled? } }, fights: { <fight>: { rolled: { <member>: [skill keys] }, taught: ['<member>:<skill key>'] } } }`, made on the first `+ foes`.
+
+import { stale } from './foes-stale.js';
 
 /** The group id a name stands for: its letters and digits, lower case, joined by `-` (at most 30 characters), or ''. */
 export function groupId(name) {
@@ -12,15 +14,15 @@ export function recordOfFoes(slice) {
     return slice.foes;
 }
 
-/** The groups that still have foes standing: `[[id, group]]` in the order they were set up. */
-export function standing(slice) {
-    return Object.entries(slice?.foes?.groups ?? {}).filter(([, group]) => group.left > 0);
+/** The groups that still have foes standing: `[[id, group]]` in the order they were set up; with the story clock `now`, groups left alone for a day or more count as gone. */
+export function standing(slice, now = null) {
+    return Object.entries(slice?.foes?.groups ?? {}).filter(([, group]) => group.left > 0 && !stale(group, now));
 }
 
 /** The latest fight: `{ id, groups: [[id, group]], open }` (`open`: some of its groups still stand), or null when none was set up. */
-export function latestFight(slice) {
+export function latestFight(slice, now = null) {
     const id = Object.keys(slice?.foes?.fights ?? {}).at(-1);
     if (!id) return null;
     const groups = Object.entries(slice.foes.groups).filter(([, group]) => group.fight === id);
-    return { id, groups, open: groups.some(([, group]) => group.left > 0) };
+    return { id, groups, open: groups.some(([, group]) => group.left > 0 && !stale(group, now)) };
 }

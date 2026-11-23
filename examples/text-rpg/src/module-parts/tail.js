@@ -31,7 +31,7 @@ export function tailOf(view) {
     // What raised the floor: the reader's live conditions, as the hook that offered the dice counted them (hooks.js).
     const why = record?.floor > 0 ? floorWhy(members[0], { now }) : [];
     const note = record ? diceNote({ list: record.list, floor: record.floor, why, difficulties, rows: bonusRows(members, text) }) : '';
-    const matchup = matchupOf(view.state?.domains?.[DOMAIN], member => gear.get(member.id)?.cap ?? {});
+    const matchup = matchupOf(view.state?.domains?.[DOMAIN], member => gear.get(member.id)?.cap ?? {}, now);
     const told = matchup ? [`Matchup: ${matchup.band} (${matchup.why}). ${MATCHUP_RULE}`] : [];
     return { lines: [...(note ? [note] : []), ...told, ...lines], optional: [] };
 }

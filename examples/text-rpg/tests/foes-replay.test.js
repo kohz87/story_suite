@@ -105,11 +105,12 @@ test('reinforcements, a closed group and an ended group replay as they were told
     await host.send('Hello.', 'The road.');
     await host.send('Rats.', reply('The rats come.', SET));
     await host.send('More.', reply('More come.', ['+ foes rats | count: 4 | threat: above you', '+ foes wolves | count: 2 | threat: above you']));
-    assert.equal(slice(host).foes.groups.rats.count, 10);
-    assert.equal(slice(host).foes.groups.rats.threat, 3);
-    assert.deepEqual(left(host), { rats: 10, wolves: 2 });
+    assert.equal(slice(host).foes.groups.rats.count, 6);
+    assert.equal(slice(host).foes.groups.rats.threat, 2);
+    assert.equal(slice(host).foes.groups['rats-2'].threat, 3);
+    assert.deepEqual(left(host), { rats: 6, 'rats-2': 4, wolves: 2 });
     await host.send('Run.', reply('The wolves flee.', ['- foes wolves']));
-    assert.deepEqual(left(host), { rats: 10, wolves: 0 });
+    assert.deepEqual(left(host), { rats: 6, 'rats-2': 4, wolves: 0 });
     const live = state(host);
     host.store.rebuild();
     assert.equal(state(host), live);
