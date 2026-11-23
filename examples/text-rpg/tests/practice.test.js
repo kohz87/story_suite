@@ -94,3 +94,13 @@ test('a rank up from `~ spend` is told', () => {
     slice.members.ac_astra001.practice.obscure = 97;
     assert.equal(spend(slice).rankUp, 'Apprentice');
 });
+
+test('a spend near the cap marks only what it really added, so the roll takes back only that', () => {
+    const slice = make();
+    slice.members.ac_astra001.practice.obscure = 597;
+    assert.equal(spend(slice).practice, 5, 'the receipt says the points of the line');
+    assert.equal(obscure(slice), 600, 'capped');
+    assert.equal(slice.spent[SIDS[0]].obscure, 3, 'the mark holds the 3 that were added');
+    attempt(slice, 'Obscure', 'normal');
+    assert.equal(obscure(slice), 600, '597 + the roll\'s 10, capped: only the 3 taken back, not the 5');
+});

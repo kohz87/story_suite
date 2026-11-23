@@ -25,16 +25,16 @@ export function addPractice(slice, sid, member, skill, via, points) {
         const keys = Object.keys(slice.spent);
         for (const old of keys.slice(0, Math.max(0, keys.length - LIMITS.diceReplies))) delete slice.spent[old];
     }
+    const before = practiceOf(member, skill);
     let earned = points;
     let back = 0;
     if (via === 'spend') {
         if (marks[key] !== undefined) earned = 0;
-        else if (sid) marks[key] = points;
+        else if (sid) marks[key] = Math.min(PRACTICE_MAX, before + points) - before;
     } else if (sid) {
         back = marks[key] ?? 0;
         marks[key] = 0;
     }
-    const before = practiceOf(member, skill);
     const total = Math.min(PRACTICE_MAX, Math.max(0, before - back) + earned);
     member.practice[key] = total;
     const after = rankOf(total);

@@ -10,6 +10,7 @@ import { astraOf, reply, tries, withAstra } from './helpers/host.js';
 
 const CARDS = rollCards();
 const cardsAt = (host, index) => Object.keys(CARDS).map(key => CARDS[key].for(host.head(), null, { index, query: (name, args) => host.sdk.query(name, args) })).filter(Boolean);
+const rowTexts = card => card.rows.map(row => row.text);
 const roll = (die, word, { labels = {}, member = astra(), what = 'Lore', time } = {}) => {
     const slice = sliceOf([member], { list: [die, 10, 10], floor: 0 });
     const done = run(applyTry, fakeCtx(slice, { time: () => time ?? null }), line('try', member.name, `${what}; ${word}`, labels));
@@ -79,18 +80,19 @@ test('the cards under the reply: one per roll with the words of the roll, then w
     const at = host.ctx.chat.length - 1;
     const first = cardsAt(host, at);
     const rolled = tries(host).at(-1).data;
-    assert.match(first[0].title, /^Lore, hard → /);
-    assert.match(first[0].text, new RegExp(`^Astra: ${rolled.die} [+−] ${Math.abs(rolled.bonus)} vs 16$`));
-    assert.ok(first[0].rows.some(row => /^Practice \+\d+/.test(row.text)), JSON.stringify(first[0].rows));
-    const earned = first.at(-1);
-    assert.equal(earned.title, 'Earned');
-    assert.ok(earned.rows.some(row => /5 xp/.test(row.text)));
-    assert.ok(earned.rows.some(row => /Astra practised Obscure: \+5/.test(row.text)));
+    assert.equal(first.length, 1, 'one card for the reply');
+    assert.equal(first[0].title, 'Rolls');
+    assert.match(first[0].rows[0].text, new RegExp(`^Lore, hard → .* \\(${rolled.die} [+−] ${Math.abs(rolled.bonus)} vs 16\\)`));
+    assert.match(first[0].rows[0].text, /practice \+\d+/);
+    assert.equal(first[0].rows.length, 2, 'the roll, then Earned');
+    assert.match(first[0].rows.at(-1).text, /^Earned: .*5 xp/);
+    assert.match(first[0].rows.at(-1).text, /Astra practised Obscure \+5/);
     const before = JSON.stringify(first);
     await host.swipe(reply('A calmer way.', ['~ spend Astra — Obscure']));
     const swiped = cardsAt(host, at);
     assert.deepEqual(swiped.map(card => card.title), ['Earned'], 'the swipe\'s own receipts: no roll, no xp');
     assert.equal(swiped[0].rows.length, 1);
+    assert.match(swiped[0].rows[0].text, /^Earned: Astra practised Obscure/);
     host.store.rebuild();
     assert.equal(JSON.stringify(cardsAt(host, at)), JSON.stringify(swiped), 'a rebuild shows the same');
     assert.notEqual(JSON.stringify(swiped), before);
@@ -98,12 +100,46 @@ test('the cards under the reply: one per roll with the words of the roll, then w
     assert.ok(astraOf(host));
 });
 
-test('a roll that was raised, cost a wound and wore a weapon shows each on its card', () => {
-    const entries = [receipt('capture.try', { member: 'ac_astra001', target: 'Shadow Step', die: 16, bonus: -2, total: 14, difficulty: 2, band: 'cost', raised: true, why: ['threat a fair match', 'bleeding'], paid: 'wound', practice: 10, rankUp: 'Apprentice', worn: [{ slot: 'body', before: 69, now: 39, broken: false }, { slot: 'weapon', before: 39, now: 0, broken: true }] })];
-    const query = (name, args) => (name === 'textRpg.rolls' ? rollsOf(entries, args.index, id => names[id]) : null);
-    const card = CARDS['text-rpg-roll-1'].for({ domains: {} }, null, { index: 4, query });
-    assert.equal(card.title, 'Shadow Step, hard → success at a cost');
-    assert.equal(card.text, 'Astra: 16 − 2 vs 16');
-    assert.deepEqual(card.rows.map(row => row.text), ['Raised to hard: threat a fair match, bleeding', 'Cost: a wound stage', 'Practice +10; Shadow Step reaches Apprentice', 'Wear: armour 69 → 39; weapon 39 → 0 (broken)']);
-    assert.equal(CARDS['text-rpg-roll-2'].for({ domains: {} }, null, { index: 4, query }), null);
+const one = (over = {}) => ({ member: 'ac_astra001', target: 'Snap Cut', die: 2, bonus: 0, total: 2, difficulty: 1, band: 'bad', raised: false, why: [], paid: 'wound', practice: 10, worn: [{ slot: 'weapon', before: 100, now: 69, broken: false }, { slot: 'body', before: 100, now: 69, broken: false }], ...over });
+const cardOf = entries => CARDS['text-rpg-rolls'].for({ domains: {} }, null, { index: 4, query: (name, args) => (name === 'textRpg.rolls' ? rollsOf(entries, args.index, id => names[id]) : null) });
+
+test('a roll row says the roll, its cost, practice and wear in one line', () => {
+    const card = cardOf([receipt('capture.try', one())]);
+    assert.equal(card.title, 'Rolls');
+    assert.equal(card.tone, 'bad');
+    assert.deepEqual(rowTexts(card), ['Snap Cut, normal → a bad failure (2 + 0 vs 12) · a wound · practice +10 · wear: weapon 69, armour 69']);
+});
+
+test('a raised roll names why inside its difficulty; a rank up and a broken piece are said briefly', () => {
+    const card = cardOf([receipt('capture.try', one({ target: 'Shadow Step', die: 16, bonus: -2, difficulty: 2, band: 'cost', raised: true, why: ['threat a fair match', 'bleeding'], rankUp: 'Apprentice', worn: [{ slot: 'body', before: 69, now: 39, broken: false }, { slot: 'weapon', before: 39, now: 0, broken: true }] }))]);
+    assert.equal(card.tone, 'accent');
+    assert.deepEqual(rowTexts(card), ['Shadow Step, hard (threat a fair match, bleeding) → success at a cost (16 − 2 vs 16) · a wound · practice +10 (Shadow Step reaches Apprentice) · wear: armour 39, weapon broken']);
+});
+
+test('five rolls are five rows, the card takes the worst band and an Earned row ends it', () => {
+    const bands = ['success', 'great', 'failure', 'cost', 'success'];
+    const entries = [...bands.map((band, at) => receipt('capture.try', one({ target: `Skill ${at + 1}`, band, paid: 'none', worn: [], practice: 0 }))), receipt('capture.xp', { amount: 5, levels: 0 }, 4, 'Cut down the rats')];
+    const card = cardOf(entries);
+    assert.equal(card.rows.length, 6);
+    assert.equal(card.tone, 'info', 'a failure is the worst of these');
+    assert.deepEqual(rowTexts(card).slice(0, 5).map(text => text.split(',')[0]), ['Skill 1', 'Skill 2', 'Skill 3', 'Skill 4', 'Skill 5']);
+    assert.match(card.rows[5].text, /^Earned: Cut down the rats/);
+    assert.equal(CARDS['text-rpg-rolls'].rows, 8);
+});
+
+test('more rolls than the card holds are not dropped: the last ones share one row', () => {
+    const entries = Array.from({ length: 10 }, (_, at) => receipt('capture.try', one({ target: `Skill ${at + 1}`, band: 'success', paid: 'none', worn: [], practice: 0 })));
+    const card = cardOf(entries);
+    assert.equal(card.rows.length, 8);
+    assert.match(card.rows[7].text, /^and 3 more: Skill 8 \(success\), Skill 9 \(success\), Skill 10 \(success\)$/);
+    assert.equal(card.tone, 'good');
+});
+
+test('a reply with nothing rolled and nothing earned has no card', () => {
+    assert.equal(cardOf([]), null);
+});
+
+test('a spend of a skill the reply rolled is not listed, even when the names differ in spacing or case', () => {
+    const card = cardOf([receipt('capture.try', one({ target: 'Snap  Cut', paid: 'none', worn: [] })), receipt('capture.spend', { member: 'ac_astra001', skill: 'snap cut', practice: 5 })]);
+    assert.equal(card.rows.length, 1);
 });

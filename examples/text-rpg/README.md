@@ -62,9 +62,11 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   `~ spend` and no roll +5. Each is scaled by the threat word (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above or beyond ×2; none named ×1; rounded, at least 1
   when more than 0). A skill gains from `~ spend` once a reply, and a roll for it in the same reply wins. The receipts' `data.practice` says what was gained; the keyed
   counter `practice` stays a counter, and a per-reply mark (`spent`) keeps the once-a-reply rule through a swipe, a reload and a delete.
-- **Rolls you can see.** Under a reply the module's cards (`text-rpg-roll-1…3`, `text-rpg-earned`) list each roll of that reply from its own receipts
-  (`textRpg.rolls`): "Snap Cut, normal → a bad failure", the die and bonus against the number, why it was raised, what it cost, the practice and any rank up, the wear,
-  then the reply's xp and the practice of its `~ spend` lines. A raised roll's receipt (`data.why`) and the dice note's floor line name the reasons: the threat and each live condition.
+- **Rolls you can see.** Under a reply the module's one card `text-rpg-rolls` ("Rolls", up to 8 rows; it declares `rows: 8`) lists each roll of that reply from its own receipts
+  (`textRpg.rolls`), one row each: "Snap Cut, normal → a bad failure (2 + 0 vs 12) · a wound · practice +10 · wear: weapon 69, armour 69"; a raised roll says why inside its
+  difficulty ("hard (threat a fair match, bleeding)"), a rank up and a broken piece are said briefly. The last row, "Earned", is the reply's xp and the practice of its `~ spend`
+  lines. With more rolls than the card holds the rest share one "and N more" row, so none is dropped. The card's tone is the worst band of the reply. A raised roll's receipt
+  (`data.why`) and the dice note's floor line name the reasons: the threat and each live condition.
 - **Danger.** A `? try` line may carry `threat: how the foe compares`; without it the threat is this reply's earlier
   `? try`, else the latest earlier reply's recorded threat, else none (not in danger). The dice note says a threat raises
   the difficulty (above you → at least hard, far above → very hard, beyond → near impossible).

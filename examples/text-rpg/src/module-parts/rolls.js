@@ -1,6 +1,8 @@
 // What one reply rolled, read from that reply's own receipts (never from the live state): its `? try` rolls with what each cost and taught, the practice of its
 // `~ spend` lines, and its xp. A pure read, so a swipe, a reload and a rebuild show the same.
 
+import { practiceKey } from './practice.js';
+
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const of = (list, type, index) => (Array.isArray(list) ? list : []).filter(entry => entry?.index === index && entry.receipt?.type === type && isRecord(entry.receipt.data)).map(entry => entry.receipt.data);
 
@@ -14,10 +16,10 @@ export function rollsOf(entries, index, nameOf = id => id) {
         who: nameOf(data.member), target: String(data.target ?? ''), die: data.die, bonus: data.bonus ?? 0, total: data.total, difficulty: data.difficulty ?? 1, band: data.band, raised: data.raised === true,
         why: Array.isArray(data.why) ? data.why.map(String) : [], paid: data.paid ?? 'none', practice: Number.isInteger(data.practice) ? data.practice : 0, rankUp: data.rankUp ?? null, worn: Array.isArray(data.worn) ? data.worn : [],
     }));
-    const rolled = new Set(rolls.map(roll => `${roll.who}\u0000${roll.target.toLowerCase()}`));
+    const rolled = new Set(rolls.map(roll => `${roll.who}\u0000${practiceKey(roll.target)}`));
     const spends = of(entries, 'capture.spend', index)
         .map(data => ({ who: nameOf(data.member), skill: String(data.skill ?? ''), practice: Number.isInteger(data.practice) ? data.practice : 0, rankUp: data.rankUp ?? null }))
-        .filter(spend => spend.practice > 0 && !rolled.has(`${spend.who}\u0000${spend.skill.toLowerCase()}`));
+        .filter(spend => spend.practice > 0 && !rolled.has(`${spend.who}\u0000${practiceKey(spend.skill)}`));
     const xp = (Array.isArray(entries) ? entries : []).filter(entry => entry?.index === index && entry.receipt?.type === 'capture.xp' && isRecord(entry.receipt.data))
         .map(({ receipt }) => ({ summary: String(receipt.summary ?? ''), amount: receipt.data.amount ?? 0, levels: receipt.data.levels ?? 0 }));
     return { rolls, spends, xp };

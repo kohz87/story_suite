@@ -858,7 +858,7 @@
   "examples/text-rpg/src/module-parts/practice.js": "A member's skill practice: the key a skill's count is kept under in the member's practice map, and the count read back.",
   "examples/text-rpg/src/module-parts/purchases.js": "A member's stat purchases in the order they were made, and which of them the level pays for.",
   "examples/text-rpg/src/module-parts/queries.js": "The queries: `rpg.sheet` and `party.levels` as fallbacks, `party.actors` as the plain owner, and `textRpg.view`.",
-  "examples/text-rpg/src/module-parts/roll-cards.js": "The cards under a Text RPG reply: one for each roll (words, reasons, cost, practice, wear) and one for what the reply earned, and the query answer they read.",
+  "examples/text-rpg/src/module-parts/roll-cards.js": "The one \"Rolls\" card under a Text RPG reply: a row for each roll (words, reasons, cost, practice, wear), then an Earned row, and the query answer it reads.",
   "examples/text-rpg/src/module-parts/rolls.js": "Reads one reply's rolls, `~ spend` practice and xp from that reply's own receipts, for the cards.",
   "examples/text-rpg/src/module-parts/settings.js": "The module's settings: tone preset, the survival switch and the stat names, and the tone's step.",
   "examples/text-rpg/src/module-parts/sheet-row.js": "One party member as the Party tab's row: what `ui/select/party.js` memberOf reads (id, name, line, level, xpPct, points, bars, effects, stats, skills).",

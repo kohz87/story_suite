@@ -1,45 +1,56 @@
-// The cards under a reply: one for each roll it made (what was rolled, why it was raised, what it cost, what it taught, what wore) and one for what the reply earned.
+// The card under a reply: one "Rolls" card, a row for each roll it made (what was rolled, why it was raised, what it cost, what it taught, what wore) and a row for what the reply earned.
 import { DIFFICULTIES } from '../rules/difficulty.js';
 import { DOMAIN } from '../domain/shape.js';
 import { FEATURE } from './constants.js';
 import { BAND_WORD } from './band-words.js';
 import { rollsOf } from './rolls.js';
 
+const ORDER = ['great', 'success', 'cost', 'failure', 'bad'];
 const TONE = { great: 'good', success: 'good', cost: 'accent', failure: 'info', bad: 'bad' };
-const PAID = { wound: 'Cost: a wound stage', skill: 'Cost: the skill\'s cost again', stamina: 'Cost: a step of stamina' };
+const PAID = { wound: 'a wound', skill: 'the skill\'s cost again', stamina: 'a step of stamina' };
 const PLACE = { weapon: 'weapon', body: 'armour', 'off-hand': 'shield' };
-const ROLLS = 3;
+const ROWS = 8;
 const signed = n => (n < 0 ? `− ${-n}` : `+ ${n}`);
+const dcOf = roll => DIFFICULTIES[Math.min(4, Math.max(0, roll.difficulty))];
 
-function rollCard(roll) {
-    const word = DIFFICULTIES[Math.min(4, Math.max(0, roll.difficulty))].word;
-    const rows = [];
-    if (roll.raised) rows.push({ icon: 'fa-arrow-up', text: `Raised to ${word}: ${roll.why.length ? roll.why.join(', ') : 'the scene allows nothing easier'}` });
-    if (PAID[roll.paid]) rows.push({ icon: 'fa-heart-crack', text: PAID[roll.paid] });
-    if (roll.practice > 0) rows.push({ icon: 'fa-graduation-cap', text: `Practice +${roll.practice}${roll.rankUp ? `; ${roll.target} reaches ${roll.rankUp}` : ''}` });
-    // (one row for the pieces: a card keeps four rows)
-    if (roll.worn.length) rows.push({ icon: 'fa-shield-halved', text: `Wear: ${roll.worn.map(piece => `${PLACE[piece.slot] ?? piece.slot} ${piece.before} → ${piece.now}${piece.broken ? ' (broken)' : ''}`).join('; ')}` });
-    return { tone: TONE[roll.band] ?? 'info', icon: 'fa-dice-d20', title: `${roll.target}, ${word} → ${BAND_WORD[roll.band] ?? roll.band}`, text: `${roll.who}: ${roll.die} ${signed(roll.bonus)} vs ${DIFFICULTIES[Math.min(4, Math.max(0, roll.difficulty))].dc}`, rows, actions: [] };
+// One compact row: "Snap Cut, normal → a bad failure (2 + 0 vs 12) · a wound · practice +10 · wear: weapon 69, armour 69"; a raised roll says why inside its difficulty.
+function rollRow(roll, named) {
+    const word = dcOf(roll).word;
+    const hard = roll.raised ? `${word} (${roll.why.length ? roll.why.join(', ') : 'the scene allows nothing easier'})` : word;
+    const parts = [`${roll.target}, ${hard} → ${BAND_WORD[roll.band] ?? roll.band} (${roll.die} ${signed(roll.bonus)} vs ${dcOf(roll).dc})`];
+    if (PAID[roll.paid]) parts.push(PAID[roll.paid]);
+    if (roll.practice > 0) parts.push(`practice +${roll.practice}${roll.rankUp ? ` (${roll.target} reaches ${roll.rankUp})` : ''}`);
+    if (roll.worn.length) parts.push(`wear: ${roll.worn.map(piece => `${PLACE[piece.slot] ?? piece.slot} ${piece.broken ? 'broken' : piece.now}`).join(', ')}`);
+    return { text: `${named ? `${roll.who}: ` : ''}${parts.join(' · ')}`, tag: '' };
 }
 
-function earnedCard({ spends, xp }) {
-    const rows = [
-        ...xp.map(item => ({ icon: 'fa-star', text: item.summary || `${item.amount} xp`, tag: item.levels > 0 ? `level ${item.levels > 1 ? `+${item.levels}` : 'up'}` : '' })),
-        ...spends.map(item => ({ icon: 'fa-graduation-cap', text: `${item.who} practised ${item.skill}: +${item.practice}${item.rankUp ? `; reaches ${item.rankUp}` : ''}` })),
-    ];
-    return rows.length ? { tone: 'good', icon: 'fa-star', title: 'Earned', text: '', rows, actions: [] } : null;
+function earnedRow({ spends, xp }) {
+    const parts = [...xp.map(item => item.summary || `${item.amount} xp`), ...spends.map(item => `${item.who} practised ${item.skill} +${item.practice}${item.rankUp ? ` (reaches ${item.rankUp})` : ''}`)];
+    const levels = xp.find(item => item.levels > 0);
+    return parts.length ? { text: `Earned: ${parts.join(' · ')}`, tag: levels ? `level ${levels.levels > 1 ? `+${levels.levels}` : 'up'}` : '' } : null;
 }
 
-/** The `cards` of the module: `text-rpg-roll-1…3` (each roll of the reply, in order) and `text-rpg-earned`; each is a pure read of the reply's own receipts (`textRpg.rolls`). */
+// The one card of a reply: a row for each roll (the rest in one row when there are more than the card holds), then the earned row; its tone is the worst band.
+function rollsCard({ rolls, spends, xp }) {
+    const earned = earnedRow({ spends, xp });
+    if (!rolls.length && !earned) return null;
+    const named = new Set(rolls.map(roll => roll.who)).size > 1;
+    const room = ROWS - (earned ? 1 : 0);
+    const shown = rolls.length > room ? room - 1 : rolls.length;
+    const rows = rolls.slice(0, shown).map(roll => rollRow(roll, named));
+    if (shown < rolls.length) rows.push({ text: `and ${rolls.length - shown} more: ${rolls.slice(shown).map(roll => `${roll.target} (${BAND_WORD[roll.band] ?? roll.band})`).join(', ')}`, tag: '' });
+    if (earned) rows.push(earned);
+    const worst = rolls.map(roll => roll.band).reduce((top, band) => (ORDER.indexOf(band) > ORDER.indexOf(top) ? band : top), 'great');
+    return { tone: rolls.length ? TONE[worst] ?? 'info' : 'good', icon: rolls.length ? 'fa-dice-d20' : 'fa-star', title: rolls.length ? 'Rolls' : 'Earned', text: '', rows, actions: [] };
+}
+
+/** The `cards` of the module: `text-rpg-rolls`, one card for the reply (a row for each roll, then what it earned; up to 8 rows), a pure read of the reply's own receipts (`textRpg.rolls`). */
 export function rollCards() {
     const read = (ctx, state) => {
         const names = state?.domains?.[DOMAIN]?.members ?? {};
         return ctx?.query?.('textRpg.rolls', { index: ctx.index, names: Object.fromEntries(Object.entries(names).map(([id, member]) => [id, member.name])) }) ?? null;
     };
-    const cards = {};
-    for (let at = 0; at < ROLLS; at += 1) cards[`text-rpg-roll-${at + 1}`] = { feature: FEATURE, for: (state, _message, ctx) => { const roll = read(ctx, state)?.rolls[at]; return roll ? rollCard(roll) : null; } };
-    cards['text-rpg-earned'] = { feature: FEATURE, for: (state, _message, ctx) => { const got = read(ctx, state); return got ? earnedCard(got) : null; } };
-    return cards;
+    return { 'text-rpg-rolls': { feature: FEATURE, rows: ROWS, for: (state, _message, ctx) => { const got = read(ctx, state); return got ? rollsCard(got) : null; } } };
 }
 
 /** `rollsOf` for the `textRpg.rolls` query: `{ index, names }` → { rolls, spends, xp } of that reply. */

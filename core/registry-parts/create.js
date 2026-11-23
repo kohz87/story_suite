@@ -159,9 +159,9 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
         hooks: name => sorted().filter(def => !held(def.id)).map(def => def.hooks?.[name]).filter(hook => typeof hook === 'function' && !off(hook)),
         /** Same, with the module each comes from: [{ moduleId, fn }]. */
         hookEntries: name => sorted().filter(def => !held(def.id) && typeof def.hooks?.[name] === 'function' && !off(def.hooks[name])).map(def => ({ moduleId: def.id, fn: def.hooks[name] })),
-        /** [{ moduleId, id: "<module>/<card>", fn }] for the cards under replies (reply-cards.js), in module-id order; a card off is left out. */
+        /** [{ moduleId, id: "<module>/<card>", fn, rows }] (`rows`: the card's own row limit, 5–8, as it declared it) for the cards under replies (reply-cards.js), in module-id order; a card off is left out. */
         cardEntries: () => sorted().filter(def => !held(def.id)).flatMap(def => Object.entries(def.cards ?? {}).filter(([, card]) => typeof card?.for === 'function' && !off(card))
-            .map(([id, card]) => ({ moduleId: def.id, id: `${def.id}/${id}`, fn: card.for }))),
+            .map(([id, card]) => ({ moduleId: def.id, id: `${def.id}/${id}`, fn: card.for, rows: card.rows }))),
         /** [{ moduleId, key: "<module>/<id>", id, label, icon, query, command, args, payload }]: each module's one game view header toggle, module-id order; off, held back or its feature off: left out. */
         headerControls: () => sorted().filter(def => !held(def.id)).flatMap(def => (Array.isArray(def.headerControls) ? def.headerControls : []).filter(control => !off(control))
             .map(control => ({ moduleId: def.id, key: `${def.id}/${control.id}`, id: control.id, label: control.label, icon: control.icon, query: control.query, command: control.command, args: control.args ?? {}, payload: control.payload ?? {} }))),
