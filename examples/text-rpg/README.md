@@ -82,8 +82,10 @@ tests/                   node --test with the testkit host, plus hand-made ctx f
 
 **Honest limits.** The narrator sees the dice when it names a difficulty. The code narrows that: it computes the
 verdict itself, raises a lower difficulty to a floor it tracks (threat, conditions, fatigue), and cuts an xp size the
-rolls do not support. A skill's practice lives in the member's `skills` list, which the host stores whole when it
-changes, so deleting a middle reply can bring back that reply's practice. A health stage (`~ health`) and a rest are
+rolls do not support. A skill's practice is a count in the member's
+`practice` map (keyed by the skill's name, a declared counter), so deleting a middle reply takes its practice with it.
+A timed condition (`until: N hours`) ends at the story minute it records; the tail, the floor and a `? try` read only
+the live ones. A health stage (`~ health`) and a rest are
 sets (`ctx.absolute`), so they land where they say after a middle delete.
 
 ## Tests

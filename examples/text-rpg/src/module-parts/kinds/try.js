@@ -8,6 +8,8 @@ import { stageOf } from '../../words/pools.js';
 import { THREAT_WORDS } from '../../words/threat.js';
 import { recordOf } from '../dice-source.js';
 import { bonusFor } from '../bonus.js';
+import { practiceKey, practiceOf } from '../practice.js';
+import { liveConditions } from '../conditions.js';
 import { gearOf } from '../gear.js';
 import { partsOf, labelOf } from '../line-read.js';
 import { toneStep } from '../settings.js';
@@ -35,7 +37,7 @@ export function applyTry(ctx, line) {
     const said = THREAT_WORDS.indexOf(labelOf(line, 'threat').toLowerCase());
     const threat = said >= 0 ? said : record.threat ?? 0;
     const drained = stageOf(member.pools.sp.now, member.pools.sp.max, 'energy').index >= 3;
-    const floor = Math.max(record.floor, floorIndex({ threat, conditions: member.conditions.length, drained, physical: PHYSICAL.includes(found.stat) }));
+    const floor = Math.max(record.floor, floorIndex({ threat, conditions: liveConditions(member, ctx.time?.() ?? null).length, drained, physical: PHYSICAL.includes(found.stat) }));
     const asked = clamp(difficultyIndex(word) + toneStep(ctx), 0, 4);
     const { index, raised } = raiseToFloor(asked, floor);
     const die = record.list[record.used ?? 0];
@@ -47,9 +49,10 @@ export function applyTry(ctx, line) {
     if (result.band === 'cost' && !inDanger && found.skill) spendCost(member, found.skill);
     let rankUp = null;
     if (found.skill) {
-        const before = rankOf(found.skill.practice).index;
-        found.skill.practice = Math.min(PRACTICE_MAX, found.skill.practice + practiceGain(result.band, index));
-        const after = rankOf(found.skill.practice);
+        const key = practiceKey(found.skill.name);
+        const before = rankOf(practiceOf(member, found.skill)).index;
+        member.practice[key] = Math.min(PRACTICE_MAX, practiceOf(member, found.skill) + practiceGain(result.band, index));
+        const after = rankOf(member.practice[key]);
         if (after.index > before) rankUp = after.name;
     }
     record.used = (record.used ?? 0) + 1;

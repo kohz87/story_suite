@@ -55,10 +55,11 @@ test('textRpg.spend refuses more than the member has, a stat past 30, nothing an
 test('textRpg.skillEdit edits, adds into a free slot and removes, keeping practice', () => {
     const slice = sliceOf();
     const me = slice.members.ac_astra001;
-    me.skills[1].practice = 150;
+    me.practice.lore = 150;
     const ctx = fakeCtx(slice);
     run(skillEdit, ctx, { member: 'Astra', name: 'lore', about: 'forgotten kings', stat: 'WIS', cost: { pool: 'mp', n: 1 } });
-    assert.deepEqual(me.skills[1], { name: 'Lore', about: 'forgotten kings', stat: 'wis', type: 'utility', cost: { pool: 'mp', n: 1 }, practice: 150 });
+    assert.deepEqual(me.skills[1], { name: 'Lore', about: 'forgotten kings', stat: 'wis', type: 'utility', cost: { pool: 'mp', n: 1 } });
+    assert.equal(me.practice.lore, 150);
     run(skillEdit, ctx, { member: 'Astra', name: 'Knots', stat: 'dex', type: 'craft' });
     assert.equal(me.skills.length, 3);
     assert.equal(run(skillEdit, ctx, { member: 'Astra', name: 'Nameless' }).code, 'INVALID', 'a new skill needs a stat');

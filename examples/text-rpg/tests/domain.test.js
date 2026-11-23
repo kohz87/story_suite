@@ -10,7 +10,6 @@ const skill = (over = {}) => ({
     stat: 'agi',
     type: 'magic',
     cost: { pool: 'mp', n: 2 },
-    practice: 0,
     ...over,
 });
 
@@ -85,7 +84,7 @@ test('a new member fills every field, clamps stats and derives its pools', () =>
     });
     assert.deepEqual(member.skills[0], skill());
     assert.deepEqual(member.skills[1], {
-        name: 'Ash Staff', about: 'melts into shadow', stat: 'str', type: 'attack', cost: null, practice: 0,
+        name: 'Ash Staff', about: 'melts into shadow', stat: 'str', type: 'attack', cost: null,
     });
     assert.deepEqual(member.injuries, []);
     assert.deepEqual(member.conditions, []);
@@ -127,7 +126,7 @@ test('validation names the path of every kind of damaged member field', () => {
         ['skill stat', (slice, member) => { member.skills[0].stat = 'luck'; }, 'members.astra.skills.0.stat'],
         ['skill type', (slice, member) => { member.skills[0].type = 'song'; }, 'members.astra.skills.0.type'],
         ['skill cost pool', (slice, member) => { member.skills[0].cost.pool = 'hp'; }, 'members.astra.skills.0.cost.pool'],
-        ['skill practice', (slice, member) => { member.skills[0].practice = 601; }, 'members.astra.skills.0.practice'],
+        ['skill practice', (slice, member) => { member.practice.obscure = 601; }, 'members.astra.practice.obscure'],
         ['injury name', (slice, member) => {
             member.injuries.push({ name: '', hampers: ['str'], heals: 3, grave: 'minor' });
             member.injuries[0].name = 7;
@@ -183,7 +182,7 @@ test('validation accepts the exact lower and upper bounds', () => {
         name: 'x'.repeat(LIMITS.name),
         stats: { str: 1, vit: 1, agi: 30, dex: 30, int: 1, wis: 1, cha: 30 },
         skills: [
-            skill({ name: 'x'.repeat(60), about: 'x'.repeat(160), practice: 600 }),
+            skill({ name: 'x'.repeat(60), about: 'x'.repeat(160), }),
             skill({ name: 'free', cost: null }),
         ],
     });

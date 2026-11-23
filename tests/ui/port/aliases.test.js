@@ -101,3 +101,14 @@ test('Spend points on a row without commands.spend takes the old path (no block:
   assert.equal(answer.ok, false);
   assert.deepEqual(sent, []);
 });
+
+test('a plug-in sheet\'s own spend command is called only when its name is a plain command name', async () => {
+  const { aliasCommand } = await import('../../../ui/port/aliases.js');
+  const sent = [];
+  const sdkFor = spend => ({ query: () => [{ id: 'a', commands: { spend } }], command: async (type, payload) => { sent.push([type, payload]); return { ok: true }; } });
+  assert.deepEqual(await aliasCommand(sdkFor('textRpg.spend'), 'rpg.stats.spend', { member: 'a', stats: { str: 6 } }), { ok: true });
+  assert.deepEqual(sent, [['textRpg.spend', { member: 'a', stats: { str: 6 } }]]);
+  sent.length = 0;
+  for (const bad of ['bad name', '1x', 'x/y', 'a'.repeat(81)]) assert.equal((await aliasCommand(sdkFor(bad), 'rpg.stats.spend', { member: 'a', stats: {} })).ok, false, bad);
+  assert.deepEqual(sent, []);
+});

@@ -112,7 +112,7 @@ test('+ skill takes the next free slot (5 at level 1, one more every third level
     const me = slice.members.ac_astra001;
     run(applySkill, ctx, line('skill', 'Astra', 'Tracking; wis; utility', { from: 'Rorke taught her' }));
     run(applySkill, ctx, line('skill', 'Astra', 'Knots', { stat: 'dex', type: 'craft', cost: '1 sp' }));
-    assert.deepEqual(me.skills[2], { name: 'Tracking', about: 'Rorke taught her', stat: 'wis', type: 'utility', cost: null, practice: 0 });
+    assert.deepEqual(me.skills[2], { name: 'Tracking', about: 'Rorke taught her', stat: 'wis', type: 'utility', cost: null });
     assert.deepEqual(me.skills[3].cost, { pool: 'sp', n: 1 });
     run(applySkill, ctx, line('skill', 'Astra', 'Haggling; cha; social'));
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).code, 'LIMITED');

@@ -2,6 +2,7 @@
 import { levelFor } from '../rules/growth.js';
 import { stageOf } from '../words/pools.js';
 import { STAT_KEYS } from '../words/stats.js';
+import { liveConditions } from './conditions.js';
 import { skillRows } from './sheet-skills.js';
 
 const BARS = [['hp', 'health', 'Health'], ['mp', 'energy', 'Mana'], ['sp', 'energy', 'Stamina']];
@@ -15,16 +16,16 @@ function xpPct(member) {
 }
 
 /** The sheet row of one member; `commands` names the commands the Party tab calls for a spend and a skill edit. */
-export function rowOf(member) {
+export function rowOf(member, now = null) {
     const companion = Boolean(member.companion);
     return {
         id: member.id, name: member.name, portrait: null, level: member.level,
         line: companion ? `Lv ${member.level} · companion` : `Lv ${member.level}`,
         xpPct: companion ? 0 : xpPct(member), points: member.points, away: null,
         bars: companion ? [] : BARS.map(([kind, scale, label]) => ({ kind, value: member.pools[kind].now, max: member.pools[kind].max, label: `${label}: ${stageOf(member.pools[kind].now, member.pools[kind].max, scale).word}` })),
-        effects: [...member.conditions.map(item => item.name), ...member.injuries.map(item => item.name)],
+        effects: [...liveConditions(member, now).map(item => item.name), ...member.injuries.map(item => item.name)],
         stats: companion ? null : Object.fromEntries(STAT_KEYS.map(key => [key.toUpperCase(), member.stats[key]])),
-        skills: skillRows(member.skills),
+        skills: skillRows(member),
         commands: { spend: 'textRpg.spend', skillEdit: 'textRpg.skillEdit' },
     };
 }

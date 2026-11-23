@@ -48,9 +48,10 @@ function carriersOf(views) {
 const bonusOf = raw => Object.fromEntries(Object.entries(isRecord(raw) ? raw : {}).filter(([, n]) => Number.isSafeInteger(n) && n > 0));
 
 // A sheet row's own command names (`spend`, `skillEdit`): short strings only, else absent (the Party tab then sends the RPG's).
+const COMMAND_NAME = /^[A-Za-z][\w.-]{0,79}$/;
 function commandsOf(raw) {
   const out = {};
-  for (const key of ['spend', 'skillEdit']) if (isRecord(raw) && typeof raw[key] === 'string' && raw[key] && raw[key].length <= 80) out[key] = raw[key];
+  for (const key of ['spend', 'skillEdit']) if (isRecord(raw) && typeof raw[key] === 'string' && COMMAND_NAME.test(raw[key])) out[key] = raw[key];
   return Object.keys(out).length ? out : null;
 }
 
@@ -69,18 +70,21 @@ function memberOf(actor, level, gearView, sheet, portrait = null) {
   };
 }
 
+/** The Create character screen a `party.newCharacter` answer names: a screen id of at most 80 characters, else ''. */
+export const screenOf = answer => (typeof answer === 'string' && answer.length <= 80 ? answer : '');
+
 /**
- * Party view-model from { actors: party.actors, pc: party.pc, levels: party.levels, gear: { [id]: gear.view }, sheet?: rpg.sheet rows [{ id, ... }], portraits?: { [id]: url } (gather.js partyPortraits) };
+ * Party view-model from { actors: party.actors, pc: party.pc, levels: party.levels, gear: { [id]: gear.view }, sheet?: rpg.sheet rows [{ id, ... }], newCharacter?: the party.newCharacter answer (a screen id or null), portraits?: { [id]: url } (gather.js partyPortraits) };
  * null while the RPG is off (party.actors answers null).
  */
-export function selectParty({ actors, pc, levels, gear, sheet, portraits } = {}) {
+export function selectParty({ actors, pc, levels, gear, sheet, portraits, newCharacter } = {}) {
   if (!Array.isArray(actors) || actors.length === 0) return null;
   const levelOf = new Map((Array.isArray(levels) ? levels : []).map(row => [row?.id, row?.level]));
   const sheets = new Map((Array.isArray(sheet) ? sheet : []).filter(isRecord).map(row => [row.id, row]));
   const members = actors.filter(isRecord).slice(0, PARTY_LISTED)
     .map(actor => memberOf(actor, levelOf.get(actor.id), gear?.[actor.id], sheets.get(actor.id), isRecord(portraits) && typeof portraits[actor.id] === 'string' ? portraits[actor.id] : null));
-  // A plug-in sheet names its own Create character screen on its answer (the first row that does).
-  const screen = (Array.isArray(sheet) ? sheet : []).find(row => isRecord(row) && typeof row.newCharacterScreen === 'string' && row.newCharacterScreen && row.newCharacterScreen.length <= 80)?.newCharacterScreen;
+  // A plug-in sheet names its own Create character screen through the plain `party.newCharacter` answer (a screen id, else null).
+  const screen = screenOf(newCharacter);
   return {
     pcId: isRecord(pc) && typeof pc.id === 'string' ? pc.id : null,
     // (`max` is the active limit, 4: at 4 active a new `+ party` asks who steps out, so Invite is not offered; an older chat may list more)

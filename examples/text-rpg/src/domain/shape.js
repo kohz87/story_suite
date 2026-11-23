@@ -44,7 +44,6 @@ function normalSkill(value) {
         stat: STAT_KEYS.includes(skill.stat) ? skill.stat : 'str',
         type: SKILL_TYPES.includes(skill.type) ? skill.type : 'utility',
         cost: validCost,
-        practice: 0,
     };
 }
 
@@ -85,6 +84,7 @@ export function newMember(input) {
             sp: { now: sp, max: sp },
         },
         skills: suppliedSkills.map(normalSkill),
+        practice: {},
         injuries: [],
         conditions: [],
         companion: null,

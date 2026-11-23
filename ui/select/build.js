@@ -3,7 +3,7 @@
 import { selectCard } from './card.js';
 import { selectNow } from './now.js';
 import { selectReplyMenu } from './chat.js';
-import { selectParty } from './party.js';
+import { screenOf, selectParty } from './party.js';
 import { selectBag } from './bag.js';
 import { selectLoot } from './loot.js';
 import { selectPeople } from './people.js';
@@ -102,9 +102,11 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     party: read => {
       const actors = read('party.actors', {});
-      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors) });
+      const screen = screenOf(read('party.newCharacter', {}));
+      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors), newCharacter: screen });
       // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
-      return wizard.needsYou() ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
+      // (a plug-in sheet's own empty party, `party.newCharacter` naming its screen, offers it too: the roster is empty, so the view-model above is null)
+      return wizard.needsYou() || screen ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true, ...(screen ? { newCharacterScreen: screen } : {}) } : vm;
     },
     bag: read => {
       const actors = read('party.actors', {});

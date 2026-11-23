@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { astraOf, drawn, reply, slice, tries, withAstra } from './helpers/host.js';
+import { practiceGain } from '../src/rules/growth.js';
 
 const TRY = ['? try Astra | Lore | normal | threat: a fair match', '+ xp Party — the gate | size: real'];
 const summary = host => JSON.stringify({ textRpg: slice(host), meta: host.head().meta?.rev });
@@ -17,7 +18,7 @@ test('a swipe draws new dice and takes the first try back; a Re-read keeps the d
         // A swipe with no lines: the try and its xp are gone, and the dice are the swipe's own.
         await host.swipe(reply('Another way.'));
         assert.equal(astraOf(host).xp, 0);
-        assert.equal(astraOf(host).skills[1].practice, 0);
+        assert.equal(astraOf(host).practice.lore ?? 0, 0);
         assert.equal(tries(host).length, 0);
 
         // Swipes draw fresh dice (a new seed each): within a few swipes the set differs from the first.
@@ -73,6 +74,7 @@ test('rebuild == live, and a middle delete replays the surviving replies with th
 
         const all = tries(host).map(receipt => receipt.data);
         assert.equal(all.length, 3);
+        assert.equal(astraOf(host).practice.obscure > 0, true, 'the middle reply taught Obscure');
         const xpOf = host.store.receipts().map(entry => entry.receipt).filter(receipt => receipt.type === 'capture.xp').map(receipt => receipt.data.amount);
         await host.st.deleteMessage(middleAt + 1);
         await host.st.deleteMessage(middleAt);
@@ -81,6 +83,8 @@ test('rebuild == live, and a middle delete replays the surviving replies with th
         assert.deepEqual(left.map(data => data.die), [all[0].die, all[2].die], 'each surviving reply keeps its own die');
         assert.deepEqual(astraOf(host).conditions, [], 'the middle reply\'s condition went with it');
         assert.equal(astraOf(host).xp, xpOf[0] + xpOf[2], 'and its xp: the later reply adds its change to what is there');
+        assert.equal(astraOf(host).practice.obscure ?? 0, 0, 'its practice went with it');
+        assert.equal(astraOf(host).practice.lore ?? 0, [all[0], all[2]].reduce((sum, data) => sum + practiceGain(data.band, data.difficulty), 0), 'and the surviving replies keep theirs');
         const after = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), after);

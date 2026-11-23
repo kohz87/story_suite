@@ -17,22 +17,22 @@ test('a total at the number is a success: no harm, practice +10 on a normal roll
     assert.equal(data.band, 'success');
     assert.equal(data.total, 12);
     assert.equal(me.pools.hp.now, 34);
-    assert.equal(me.skills[1].practice, 10);
+    assert.equal(me.practice.lore, 10);
     assert.equal(slice.dice[SID].used, 1);
     assert.equal(slice.dice[SID].hardest, 1);
 });
 
 test('a hard success teaches most (+20) and a rank up is told', () => {
     const member = astra();
-    member.skills[1].practice = 95;
+    member.practice.lore = 95;
     const { data, me } = roll(15, 'hard', { member });
     assert.equal(data.band, 'success');
-    assert.equal(me.skills[1].practice, 115);
+    assert.equal(me.practice.lore, 115);
     assert.equal(data.rankUp, 'Apprentice');
 });
 
 test('an easy roll teaches nothing', () => {
-    assert.equal(roll(20, 'easy').me.skills[1].practice, 0);
+    assert.equal(roll(20, 'easy').me.practice.lore ?? 0, 0);
 });
 
 test('one or two short is success at a cost: a costed skill pays twice when not in danger', () => {

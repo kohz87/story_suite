@@ -6,10 +6,10 @@ const SKILL_TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft'
 const POOL_KEYS = ['hp', 'mp', 'sp'];
 const ID_PATTERN = /^(?:[a-z0-9][a-z0-9-]{0,39}|[a-z][a-z0-9]*_[0-9a-z]{8})$/;
 const MEMBER_KEYS = [
-    'id', 'name', 'pc', 'level', 'xp', 'points', 'stats', 'pools', 'skills',
+    'id', 'name', 'pc', 'level', 'xp', 'points', 'stats', 'pools', 'skills', 'practice',
     'injuries', 'conditions', 'companion', 'fallen',
 ];
-const SKILL_KEYS = ['name', 'about', 'stat', 'type', 'cost', 'practice'];
+const SKILL_KEYS = ['name', 'about', 'stat', 'type', 'cost'];
 const INJURY_KEYS = ['name', 'hampers', 'heals', 'grave'];
 const CONDITION_KEYS = ['name', 'until'];
 
@@ -83,10 +83,20 @@ function checkSkills(skills, where, problems) {
         if (!STAT_KEYS.includes(skill.stat)) problems.push(`${skillWhere}.stat is not a known stat.`);
         if (!SKILL_TYPES.includes(skill.type)) problems.push(`${skillWhere}.type is not a known skill type.`);
         checkCost(skill.cost, `${skillWhere}.cost`, problems);
-        if (!isInt(skill.practice, 0, LIMITS.practiceMax)) {
-            problems.push(`${skillWhere}.practice must be a whole number from 0 to ${LIMITS.practiceMax}.`);
-        }
     });
+}
+
+function checkPractice(practice, where, problems) {
+    if (!isObject(practice)) {
+        problems.push(`${where} must be an object.`);
+        return;
+    }
+    const keys = Object.keys(practice);
+    if (keys.length > LIMITS.skills * 4) problems.push(`${where} holds too many skills.`);
+    for (const key of keys) {
+        if (key.length > LIMITS.name) problems.push(`${where}.${key.slice(0, 20)} has a key longer than ${LIMITS.name} characters.`);
+        else if (!isInt(practice[key], 0, LIMITS.practiceMax)) problems.push(`${where}.${key} must be a whole number from 0 to ${LIMITS.practiceMax}.`);
+    }
 }
 
 function checkInjuries(injuries, where, problems) {
@@ -184,6 +194,7 @@ function checkMember(member, key, problems) {
     checkStats(member.stats, `${where}.stats`, problems);
     checkPools(member.pools, member.stats, `${where}.pools`, problems);
     checkSkills(member.skills, `${where}.skills`, problems);
+    checkPractice(member.practice, `${where}.practice`, problems);
     checkInjuries(member.injuries, `${where}.injuries`, problems);
     checkConditions(member.conditions, `${where}.conditions`, problems);
     checkCompanion(member.companion, `${where}.companion`, problems);

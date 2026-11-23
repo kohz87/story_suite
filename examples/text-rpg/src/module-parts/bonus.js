@@ -2,6 +2,7 @@
 import { rollBonus } from '../rules/roll.js';
 import { rankOf } from '../words/ranks.js';
 import { STAT_KEYS } from '../words/stats.js';
+import { practiceOf } from './practice.js';
 import { skillIndex } from './members.js';
 import { statKey } from './line-read.js';
 import { totalStats } from './gear.js';
@@ -21,7 +22,7 @@ export function bonusFor(member, target, cap = {}) {
     const stat = skill ? skill.stat : statKey(target);
     if (!stat) return null;
     const hampered = member.injuries.filter(injury => injury.hampers.includes(stat)).length;
-    const rankBonus = skill ? rankOf(skill.practice).bonus : 0;
+    const rankBonus = skill ? rankOf(practiceOf(member, skill)).bonus : 0;
     return { stat, skill, bonus: rollBonus({ stat: totalStats(member, cap)[stat], rankBonus, level: member.level, hampered }) };
 }
 

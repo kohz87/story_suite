@@ -5,6 +5,7 @@ import { STAT_KEYS } from '../../words/stats.js';
 import { requireActive } from '../active.js';
 import { memberNamed, skillIndex, skillSlots } from '../members.js';
 import { statKey } from '../line-read.js';
+import { practiceKey } from '../practice.js';
 
 const TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
 
@@ -62,12 +63,13 @@ export function skillEdit(ctx, payload = {}) {
     if (payload.remove === true) {
         if (at < 0) ctx.fail('NOT_FOUND', `${member.name} has no skill called ${name}.`);
         member.skills.splice(at, 1);
+        delete member.practice[practiceKey(name)];
         return { summary: `${member.name} sets ${name} aside.`, narrate: false, data: { member: member.id, skill: name, removed: true } };
     }
     let skill = member.skills[at];
     if (!skill) {
         if (member.skills.length >= skillSlots(member.level)) ctx.fail('LIMITED', `${member.name} has no free skill slot.`);
-        skill = { name, about: '', stat: 'str', type: 'utility', cost: null, practice: 0 };
+        skill = { name, about: '', stat: 'str', type: 'utility', cost: null };
         if (!statKey(payload.stat)) ctx.fail('INVALID', 'A new skill needs a stat.');
         member.skills.push(skill);
     }

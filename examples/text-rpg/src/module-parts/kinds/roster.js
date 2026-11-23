@@ -21,7 +21,7 @@ export function applySkill(ctx, line) {
     const cost = /^(\d+)\s*(mp|sp)$/i.exec(labelOf(line, 'cost'));
     member.skills.push({
         name: clean, about: (labelOf(line, 'about') || labelOf(line, 'from')).slice(0, LIMITS.about), stat: key,
-        type: TYPES.includes(kind) ? kind : 'utility', cost: cost ? { pool: cost[2].toLowerCase(), n: Number(cost[1]) } : null, practice: 0,
+        type: TYPES.includes(kind) ? kind : 'utility', cost: cost ? { pool: cost[2].toLowerCase(), n: Number(cost[1]) } : null,
     });
     return { summary: `${member.name} learns ${clean}.`, narrate: true, data: { member: member.id, skill: clean } };
 }

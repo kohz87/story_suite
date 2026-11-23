@@ -89,3 +89,25 @@ test('a fallen character leaves the party but stays in the domain', async t => {
         host.close();
     }
 });
+
+test('party.newCharacter names the screen only while no member is the reader\'s, and the sheet rows never do', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const empty = await newHost();
+    const host = await withAstra();
+    const off = await newHost({ 'text-rpg.on': false });
+    try {
+        assert.equal(empty.sdk.query('party.newCharacter'), 'text-rpg/new-character');
+        assert.deepEqual(empty.sdk.query('rpg.sheet'), []);
+        assert.equal(host.sdk.query('party.newCharacter'), null, 'a member is the reader\'s');
+        assert.equal(host.sdk.query('rpg.sheet').some(row => 'newCharacterScreen' in row), false);
+        assert.equal(off.sdk.query('party.newCharacter'), null, 'not active');
+        assert.equal(selectParty({ actors: [], newCharacter: empty.sdk.query('party.newCharacter') }), null);
+        const party = selectParty({ actors: [{ id: 'x', name: 'X' }], newCharacter: empty.sdk.query('party.newCharacter') });
+        assert.equal(party.newCharacterScreen, 'text-rpg/new-character');
+        assert.equal(selectParty({ actors: [{ id: 'x', name: 'X' }], newCharacter: host.sdk.query('party.newCharacter') }).newCharacterScreen, undefined, 'null keeps today\'s path');
+    } finally {
+        empty.close();
+        host.close();
+        off.close();
+    }
+});

@@ -4,7 +4,7 @@
 export const STATIC_TEXT = [
     'Text RPG: tell every fight, chase, trap and danger as it would really unfold: one flowing scene, no rounds, the key exchanges each with a clear cause, cost and result. Fights follow physical reality: size, numbers, reach, armour, terrain, preparation and surprise decide them, and nobody has plot armour. Foes are as strong as who they are, never matched to the party; the line says how they compare. Most foes want to live: they break, flee or yield when it turns against them.',
     'The sheet line says what each character can do and how much they have left: keep them to it. Wounds, tiredness and fear weigh on what follows.',
-    'At the moments that decide the outcome (at most three a reply), first line of the reply: ? roll Who | skill or stat | what is tried | edge: a reason (only for a real advantage or handicap). Tell the result the code gives. A failure still moves the scene: later, poorer, seen, hurt, or a worse version of what was wanted; nothing resets and nobody rescues them in the same beat. Never write numbers, dice or luck.',
+    'At the moments that decide the outcome (at most three a reply), write ? try Who | skill or stat | difficulty and tell the result the code gives, with its cost. A failure still moves the scene: later, poorer, seen, hurt, or a worse version of what was wanted; nothing resets and nobody rescues them in the same beat. Never write numbers, dice or luck.',
 ].join('\n');
 
 /** One short grammar line per kind. */

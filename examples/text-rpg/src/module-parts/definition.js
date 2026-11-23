@@ -17,7 +17,7 @@ import { SETTINGS } from './settings.js';
 
 const SCREEN = 'text-rpg/new-character';
 const WIDGET = 'text-rpg.new-character';
-const COUNTERS = ['members/*/pools/hp/now', 'members/*/pools/mp/now', 'members/*/pools/sp/now', 'members/*/xp', 'members/*/points', 'members/*/level'];
+const COUNTERS = ['members/*/pools/hp/now', 'members/*/pools/mp/now', 'members/*/pools/sp/now', 'members/*/practice/*', 'members/*/xp', 'members/*/points', 'members/*/level'];
 const owned = handler => Object.assign(handler, { feature: FEATURE });
 
 /** The module definition. `sdk` answers `feature(id)` (the active rule) and runs the screen's commands. */

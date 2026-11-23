@@ -89,7 +89,7 @@ test('a reply\'s lines run end to end: the roll, its cost, practice and the xp, 
         await host.send('We sneak.', reply('The gate looms.', TRY));
         const me = astraOf(host);
         assert.equal(me.pools.sp.now, me.pools.sp.max - 2);
-        assert.equal(me.skills[0].practice > 0, true);
+        assert.equal(Object.values(me.practice).some(n => n > 0), true);
         assert.equal(me.xp, 20);
         assert.deepEqual(host.turn.problems(), []);
         const [rolled] = tries(host);

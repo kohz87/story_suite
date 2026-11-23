@@ -15,7 +15,7 @@ test('the capability line: stat words (ordinary left out), ranks, pool words, us
     const me = hero();
     me.pools.sp.max = 28;
     me.pools.sp.now = 28;
-    me.skills[0].practice = 250;
+    me.practice[me.skills[0].name.toLowerCase()] = 250;
     const { lines } = tailOf(viewOf(sliceOf([me], null)));
     assert.deepEqual(lines, ['Astra (Level 1) — STR very strong · AGI quick · Skills: Obscure (Adept): melts into shadow; Lore (Novice): old stories · Health: Unhurt · Mana: Fresh · Stamina: Fresh (14 Obscure left)']);
 });
@@ -58,7 +58,8 @@ test('nothing while inactive or with no members', () => {
 
 test('the line fits the budget: about 300 tokens for a full party, the reader\'s line within 120', () => {
     const me = hero({ injuries: [{ name: 'cracked rib', hampers: ['str'], heals: 9, grave: 'minor' }], conditions: [{ name: 'poisoned', until: 'treated' }] });
-    me.skills.push({ name: 'Ash Staff', about: 'a trained staff fighter', stat: 'str', type: 'attack', cost: null, practice: 120 });
+    me.skills.push({ name: 'Ash Staff', about: 'a trained staff fighter', stat: 'str', type: 'attack', cost: null });
+    me.practice['ash staff'] = 120;
     const rorke = astra({ id: 'ac_rorke001', name: 'Rorke', pc: false, companion: { level: 9, strengths: ['very strong', 'a veteran swordswoman'] } });
     const { lines } = tailOf(viewOf(sliceOf([me, rorke], null)));
     assert.ok(lines[0].length / 4 <= 120, `${lines[0].length / 4} tokens`);

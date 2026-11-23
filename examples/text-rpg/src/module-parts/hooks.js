@@ -2,6 +2,7 @@
 import { DOMAIN } from '../domain/shape.js';
 import { floorIndex } from '../rules/difficulty.js';
 import { active } from './active.js';
+import { liveConditions, minutesOf } from './conditions.js';
 import { players } from './members.js';
 
 const OFFERED = ['normal', 'regenerate', 'swipe'];
@@ -10,7 +11,7 @@ const OFFERED = ['normal', 'regenerate', 'swipe'];
 function floorOf(view) {
     const slice = view.state?.domains?.[DOMAIN];
     const last = Object.values(slice?.dice ?? {}).at(-1);
-    return floorIndex({ threat: last?.threat ?? 0, conditions: players(slice)[0]?.conditions.length ?? 0 });
+    return floorIndex({ threat: last?.threat ?? 0, conditions: liveConditions(players(slice)[0], minutesOf(view.state)).length });
 }
 
 /** `hooks.beforeGenerate(view, info)` → `{ commands: [textRpg.dice] }` or null. */
