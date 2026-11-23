@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- In a chat that switched from the RPG to Text RPG, the RPG's own blocks (character, skills, foes, rules) stay quiet, so the narrator is taught one system; switching back finds their values.
+- Text RPG's Mana and Stamina use the RPG's formulas and grow with level; worn gear counts in them, and the Party sheet shows the gear bonus the rolls use.
 - Text RPG's New character now works like the RPG's: stats start at 5 with 10 points to place, your persona's name, a starting level, and Start from a saved character (RPG or Text RPG files); Export works for Text RPG characters.
 - Text RPG levels take 100 XP each like the RPG's, skills go up to 8 (one more every 10 levels), and its Rules page has Level cap and XP rate.
 - Switching the RPG on from the Text RPG page now shows Text RPG off on the Start page.
