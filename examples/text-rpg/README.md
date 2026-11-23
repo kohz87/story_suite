@@ -58,13 +58,13 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   weapon, and the wound wears the body armour (else the off-hand). The reader's character wears the party's bag; a
   missing or broken piece wears nothing. The receipt's `data.worn` lists `{ slot, stack, steps, before, now, broken }`;
   a broken piece stops giving its bonus.
-- **Practice.** Every use of a skill teaches: a `? try` +10 (+20 for a success at hard or harder, none when the roll is easy), a costed skill used with
-  `~ spend` and no roll +5. Each is scaled by the threat word (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above or beyond ×2; none named ×1; rounded, at least 1
-  when more than 0). A skill gains from `~ spend` once a reply, and a roll for it in the same reply wins. The receipts' `data.practice` says what was gained; the keyed
+- **Practice.** Every use of a skill teaches: a `? try` +3 for a failure or a bad one, +5 for a success or a success at a cost, +10 for a success (or great) at hard or
+  harder, none when the roll is easy; a skill used with `~ spend` and no roll, or a training scene `~ train Who — Skill` (no cost, no roll), +1. Each is scaled by the threat word (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above or beyond ×2; none named ×1; rounded, at least 1
+  when more than 0). A skill gains from `~ spend` or `~ train` once a reply between them, and a roll for it in the same reply wins. The receipts' `data.practice` says what was gained; the keyed
   counter `practice` stays a counter, and a per-reply mark (`spent`) keeps the once-a-reply rule through a swipe, a reload and a delete.
 - **Rolls you can see.** Under a reply the module's one card `text-rpg-rolls` ("Rolls", up to 8 rows; it declares `rows: 8`) lists each roll of that reply from its own receipts
   (`textRpg.rolls`), one row each: "Snap Cut, normal → a bad failure (2 + 0 vs 12) · a wound · practice +10 · wear: weapon 69, armour 69"; a raised roll says why inside its
-  difficulty ("hard (threat a fair match, bleeding)"), a rank up and a broken piece are said briefly. The last row, "Earned", is the reply's xp and the practice of its `~ spend`
+  difficulty ("hard (threat a fair match, bleeding)"), a rank up and a broken piece are said briefly. The last row, "Earned", is the reply's xp and the practice of its `~ spend` and `~ train`
   lines. With more rolls than the card holds the rest share one "and N more" row, so none is dropped. The card's tone is the worst band of the reply. A raised roll's receipt
   (`data.why`) and the dice note's floor line name the reasons: the threat and each live condition.
 - **Danger.** A `? try` line may carry `threat: how the foe compares`; without it the threat is this reply's earlier
@@ -77,7 +77,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   is the story's call (`! fall Who — how` closes the sheet). If the reader's character has fallen, `textRpg.create`
   makes a new one (the fallen one keeps `pc: false`); while a living one exists it refuses.
 - **Growth.** `+ xp Party — what | size: minor|real|major|great [| foes: N]` pays by size (times `foes`, a whole number 1 to 50, each foe counts; missing or bad is 1), cut to what the reply's hardest
-  roll supports and scaled by how the threat compares with the hero. A rank every 100 practice points; each
+  roll supports and scaled by how the threat compares with the hero. A skill's rank follows its practice: Novice 0, Apprentice 40, Adept 100, Expert 180, Master 280, Grandmaster 420, Legend 600 (the cap), with no level gates; each
   level gives a stat point to spend on the Party tab, and a skill slot every tenth level (5 at the start, 8 at most, from
   level 30). Levels are the RPG's: 100 xp a level, 99 at most, xp held to 9999 (an xp stored past that counts as 9999 and is held there on the next `+ xp`; the sizes and threat multipliers are this
   module's own). Level and points are derived: `xp` is the stored counter, level is what the xp reaches (`1 + floor(xp / 100)`);

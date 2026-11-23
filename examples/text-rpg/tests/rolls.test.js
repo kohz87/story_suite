@@ -86,7 +86,7 @@ test('the cards under the reply: one per roll with the words of the roll, then w
     assert.match(first[0].rows[0].text, /practice \+\d+/);
     assert.equal(first[0].rows.length, 2, 'the roll, then Earned');
     assert.match(first[0].rows.at(-1).text, /^Earned: .*5 xp/);
-    assert.match(first[0].rows.at(-1).text, /Astra practised Obscure \+5/);
+    assert.match(first[0].rows.at(-1).text, /Astra practised Obscure \+1/);
     const before = JSON.stringify(first);
     await host.swipe(reply('A calmer way.', ['~ spend Astra — Obscure']));
     const swiped = cardsAt(host, at);
@@ -142,4 +142,10 @@ test('a reply with nothing rolled and nothing earned has no card', () => {
 test('a spend of a skill the reply rolled is not listed, even when the names differ in spacing or case', () => {
     const card = cardOf([receipt('capture.try', one({ target: 'Snap  Cut', paid: 'none', worn: [] })), receipt('capture.spend', { member: 'ac_astra001', skill: 'snap cut', practice: 5 })]);
     assert.equal(card.rows.length, 1);
+});
+
+test('a training scene is told on the Earned row with its rank up, and a roll of the same skill hides it', () => {
+    const train = { member: 'ac_astra001', skill: 'Lore', practice: 1, rankUp: 'Apprentice' };
+    assert.match(cardOf([receipt('capture.train', train)]).rows[0].text, /^Earned: Astra practised Lore \+1 \(reaches Apprentice\)$/);
+    assert.equal(cardOf([receipt('capture.try', one({ target: 'Lore', paid: 'none', worn: [] })), receipt('capture.train', train)]).rows.length, 1);
 });

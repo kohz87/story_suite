@@ -16,14 +16,14 @@ function difficultyValue(value) {
 
 const THREAT_MULTIPLIERS = Object.freeze([0, 0.5, 1, 1.5, 2, 2]);
 
-/** The practice points from one check; easy checks teach nothing and hard successes teach most. */
+/** The practice points from one check: easy checks teach nothing; a failure 3, a success or a success at a cost 5, a success at hard or harder 10. */
 export function practiceGain(band, difficultyIndex) {
     const key = rollBand(band);
     if (!key) return 0;
     const difficulty = difficultyValue(difficultyIndex);
     if (difficulty === 0) return 0;
-    if ((key === 'success' || key === 'great') && difficulty >= 2) return 20;
-    return 10;
+    if (key === 'failure' || key === 'bad') return 3;
+    return difficulty >= 2 && key !== 'cost' ? 10 : 5;
 }
 
 /** The fixed experience paid for each size of an overcome danger. */

@@ -1,7 +1,7 @@
 // A member's skills as the Party tab's sheet lists them (rows shaped like the RPG's `rpg.sheet` skills).
 import { activeSkills } from './effective.js';
 import { practiceOf } from './practice.js';
-import { PRACTICE_PER_RANK, RANKS, rankOf } from '../words/ranks.js';
+import { RANKS, rankOf } from '../words/ranks.js';
 
 const KIND = { attack: 'attack', magic: 'magic', defence: 'stance', movement: 'stance' };
 const GLYPH = { attack: 'atk', magic: 'bolt', stance: 'stance' };
@@ -18,7 +18,7 @@ export function skillRows(member) {
         return {
             glyph: GLYPH[kind], name: skill.name, ...(isOn(skill) ? {} : { inactive: true }), about: skill.about, kind, stat: skill.stat.toUpperCase(),
             resource: skill.cost?.pool === 'mp' ? 'mana' : 'stamina', cost: skill.cost?.n ?? 0, rank: rank.name, mastery: rank.index + 1, practice,
-            next: after ? { name: after.name, at: (rank.index + 1) * PRACTICE_PER_RANK, from: rank.index * PRACTICE_PER_RANK, minLevel: 1, levelOk: true } : null,
+            next: after ? { name: after.name, at: after.at, from: RANKS[rank.index].at, minLevel: 1, levelOk: true } : null,
             ...(!isOn(skill) ? { line: 'Inactive: not known at this level' } : skill.type === 'utility' || skill.type === 'social' || skill.type === 'craft' ? { line: `${skill.type[0].toUpperCase()}${skill.type.slice(1)} · ${skill.stat.toUpperCase()} · story only` } : {}),
         };
     });

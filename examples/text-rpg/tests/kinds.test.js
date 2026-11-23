@@ -157,7 +157,7 @@ test('every kind refuses quietly while off, and the dispatcher knows only its ow
 test('the kinds table: heads, the feature, and grammar only while active', () => {
     const on = kindsOf({ feature: id => id === 'text-rpg.on' });
     const off = kindsOf({ feature: () => false });
-    assert.deepEqual(Object.keys(on).sort(), ['companion', 'condition', 'fall', 'health', 'injury', 'skill', 'spend', 'try', 'xp']);
+    assert.deepEqual(Object.keys(on).sort(), ['companion', 'condition', 'fall', 'health', 'injury', 'skill', 'spend', 'train', 'try', 'xp']);
     assert.deepEqual(on.try.heads, ['? try']);
     assert.equal(on.xp.feature, 'text-rpg.on');
     assert.match(on.try.grammar(), /^\? try Who \|/);

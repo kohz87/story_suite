@@ -1,4 +1,4 @@
-// Gives a skill its practice for one use and says what was gained. Practice stays the keyed counter; a per-reply mark keeps `~ spend` to one gain a skill a reply, and a roll for the skill in the reply wins over it.
+// Gives a skill its practice for one use and says what was gained. Practice stays the keyed counter; a per-reply mark keeps `~ spend` and `~ train` (one mark between them) to one gain a skill a reply, and a roll for the skill in the reply wins over it.
 import { LIMITS } from '../domain/shape.js';
 import { PRACTICE_MAX, rankOf } from '../words/ranks.js';
 import { practiceKey, practiceOf } from './practice.js';
@@ -13,7 +13,7 @@ export function threatHeard(slice, sid, record = null) {
 }
 
 /**
- * Adds `points` of practice to `skill` for a use `via` 'try' or 'spend'. A spend gains once per reply for a skill (later ones add 0), and a try takes back what
+ * Adds `points` of practice to `skill` for a use `via` 'try', 'spend' or 'train'. A spend or train gains once per reply for a skill (later ones add 0), and a try takes back what
  * a spend of the same reply gave, so the roll's gain is all the reply teaches. → { gained: points added for this use, rankUp: the rank name reached or null }.
  */
 export function addPractice(slice, sid, member, skill, via, points) {
@@ -28,7 +28,7 @@ export function addPractice(slice, sid, member, skill, via, points) {
     const before = practiceOf(member, skill);
     let earned = points;
     let back = 0;
-    if (via === 'spend') {
+    if (via !== 'try') {
         if (marks[key] !== undefined) earned = 0;
         else if (sid) marks[key] = Math.min(PRACTICE_MAX, before + points) - before;
     } else if (sid) {

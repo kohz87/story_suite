@@ -168,7 +168,7 @@ test('a saved character through the real host: the level, the file\'s stats and 
         const me = astraOf(host);
         assert.equal(page.closed(), 1);
         assert.deepEqual([me.name, levelOf(me), me.xp, me.granted, pointsOf(me), me.stats.str, me.stats.dex, me.skills.length], ['Ren', 5, 400, 4, 0, 14, 15, 4]);
-        assert.deepEqual([me.practice['iron breath'], me.practice.ward, me.practice.gale], [200, 100, undefined]);
+        assert.deepEqual([me.practice['iron breath'], me.practice.ward, me.practice.gale], [100, 40, undefined]);
         assert.deepEqual(me.skills.map(skill => skill.type), ['attack', 'movement', 'magic', 'utility']);
         assert.deepEqual(host.store.problems(), []);
     } finally {

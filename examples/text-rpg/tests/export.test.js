@@ -43,7 +43,7 @@ test('the file has the RPG character file\'s fields for what Text RPG has, and t
 });
 
 test('Text RPG\'s wizard reads its own file back exactly: the level, the stats, the types (social and craft too), the costs and the ranks', () => {
-    const me = astra({ xp: 400, stats: { str: 9, vit: 8, agi: 7, dex: 6, int: 5, wis: 5, cha: 5 }, practice: { obscure: 250 } });
+    const me = astra({ xp: 400, stats: { str: 9, vit: 8, agi: 7, dex: 6, int: 5, wis: 5, cha: 5 }, practice: { obscure: 150 } });
     me.skills = [
         { name: 'Obscure', about: 'melts into shadow', stat: 'agi', type: 'movement', cost: { pool: 'sp', n: 3 } },
         { name: 'Haggle', about: 'a fair price', stat: 'cha', type: 'social', cost: null },

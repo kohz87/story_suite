@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { STAT_KEYS, DEFAULT_STAT_WORDS, statBand, statWord } from '../src/words/stats.js';
-import { RANKS, PRACTICE_PER_RANK, PRACTICE_MAX, rankOf } from '../src/words/ranks.js';
+import { RANKS, PRACTICE_MAX, rankOf } from '../src/words/ranks.js';
 import { HEALTH_STAGES, ENERGY_STAGES, stageOf, usesLeft } from '../src/words/pools.js';
 import { TIER_SHIFT, THREAT_WORDS, threatIndex, threatWord } from '../src/words/threat.js';
 
@@ -66,30 +66,29 @@ test('statWord: the required examples, band edges and unknown stats', () => {
 
 test('ranks: the exact seven ranks and practice constants', () => {
     assert.deepEqual(RANKS, [
-        { name: 'Novice', word: 'knows the basics', bonus: 0 },
-        { name: 'Apprentice', word: 'trained', bonus: 1 },
-        { name: 'Adept', word: 'skilled', bonus: 2 },
-        { name: 'Expert', word: 'expert', bonus: 3 },
-        { name: 'Master', word: 'a master', bonus: 4 },
-        { name: 'Grandmaster', word: 'among the best alive', bonus: 5 },
-        { name: 'Legend', word: 'legendary', bonus: 6 },
+        { name: 'Novice', word: 'knows the basics', bonus: 0, at: 0 },
+        { name: 'Apprentice', word: 'trained', bonus: 1, at: 40 },
+        { name: 'Adept', word: 'skilled', bonus: 2, at: 100 },
+        { name: 'Expert', word: 'expert', bonus: 3, at: 180 },
+        { name: 'Master', word: 'a master', bonus: 4, at: 280 },
+        { name: 'Grandmaster', word: 'among the best alive', bonus: 5, at: 420 },
+        { name: 'Legend', word: 'legendary', bonus: 6, at: 600 },
     ]);
     assert.equal(Object.isFrozen(RANKS), true);
     for (const entry of RANKS) assert.equal(Object.isFrozen(entry), true);
-    assert.equal(PRACTICE_PER_RANK, 100);
     assert.equal(PRACTICE_MAX, 600);
 });
 
 test('rankOf: required examples, every boundary, clamping and bad input', () => {
-    assert.deepEqual(rankOf(250), { index: 2, name: 'Adept', word: 'skilled', bonus: 2 });
+    assert.deepEqual(rankOf(150), { index: 2, name: 'Adept', word: 'skilled', bonus: 2 });
     assert.deepEqual(rankOf(9999), { index: 6, name: 'Legend', word: 'legendary', bonus: 6 });
     const cases = [
-        [0, 'Novice'], [99, 'Novice'], [99.9, 'Novice'],
-        [100, 'Apprentice'], [199, 'Apprentice'],
-        [200, 'Adept'], [299, 'Adept'],
-        [300, 'Expert'], [399, 'Expert'],
-        [400, 'Master'], [499, 'Master'],
-        [500, 'Grandmaster'], [599, 'Grandmaster'],
+        [0, 'Novice'], [39, 'Novice'], [39.9, 'Novice'],
+        [40, 'Apprentice'], [99, 'Apprentice'],
+        [100, 'Adept'], [179, 'Adept'],
+        [180, 'Expert'], [279, 'Expert'],
+        [280, 'Master'], [419, 'Master'],
+        [420, 'Grandmaster'], [599, 'Grandmaster'],
         [600, 'Legend'],
     ];
     for (const [practice, name] of cases) assert.equal(rankOf(practice).name, name, `rankOf(${practice})`);

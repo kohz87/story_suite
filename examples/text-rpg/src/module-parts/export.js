@@ -5,6 +5,7 @@ import { STAT_KEYS } from '../words/stats.js';
 import { effectiveStats } from './effective.js';
 import { memberNamed } from './members.js';
 import { practiceKey, practiceOf } from './practice.js';
+import { rankOf } from '../words/ranks.js';
 import { LEVEL } from '../rules/levels.js';
 import { levelOf, pointsOf } from './standing.js';
 
@@ -28,7 +29,7 @@ export function exportFile(state, args) {
     const file = {
         [CHAR_FILE]: CHAR_VERSION, level, soul: Math.max(1, Math.min(9, Math.floor(level / 10) + 1)), points,
         stats: Object.fromEntries(STAT_KEYS.map(key => [key, stats[key]])),
-        skills: kept.map(skill => ({ name: line(skill.name, 40), about: line(skill.about, 120), stat: skill.stat, uses: skill.cost?.pool === 'mp' ? 'mana' : 'stamina', rank: Math.min(6, Math.floor(practiceOf(member, skill) / 100)), ...(FILE_TYPE[skill.type] ? { type: FILE_TYPE[skill.type] } : {}) })),
+        skills: kept.map(skill => ({ name: line(skill.name, 40), about: line(skill.about, 120), stat: skill.stat, uses: skill.cost?.pool === 'mp' ? 'mana' : 'stamina', rank: rankOf(practiceOf(member, skill)).index, ...(FILE_TYPE[skill.type] ? { type: FILE_TYPE[skill.type] } : {}) })),
         textRpg: {
             xp: Math.min(LEVEL.xpMax, member.xp), practice: { ...member.practice }, injuries: member.injuries.map(item => ({ ...item })), conditions: member.conditions.map(item => ({ ...item })),
             skills: kept.map(skill => ({ name: skill.name, type: skill.type, ...(skill.cost ? { cost: skill.cost } : {}), practice: member.practice[practiceKey(skill.name)] ?? 0 })),

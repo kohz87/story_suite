@@ -158,12 +158,15 @@ test('dropping stages lands at each reached stage top and stops at badly wounded
 test('practice follows difficulty and roll band', () => {
     assert.equal(practiceGain('success', 0), 0);
     assert.equal(practiceGain('failure', 0), 0);
-    assert.equal(practiceGain('success', 1), 10);
-    assert.equal(practiceGain('success', 2), 20);
-    assert.equal(practiceGain('great', 3), 20);
-    assert.equal(practiceGain('cost', 2), 10);
-    assert.equal(practiceGain('failure', 4), 10);
-    assert.equal(practiceGain('bad', 2), 10);
+    assert.equal(practiceGain('success', 1), 5);
+    assert.equal(practiceGain('success', 2), 10);
+    assert.equal(practiceGain('great', 3), 10);
+    assert.equal(practiceGain('great', 1), 5);
+    assert.equal(practiceGain('cost', 1), 5);
+    assert.equal(practiceGain('cost', 2), 5, 'a success at a cost is 5 at any difficulty');
+    assert.equal(practiceGain('failure', 4), 3);
+    assert.equal(practiceGain('bad', 2), 3);
+    assert.equal(practiceGain('bad', 1), 3);
     assert.equal(practiceGain('unknown', 2), 0);
     assert.equal(practiceGain(null, 2), 0);
 });

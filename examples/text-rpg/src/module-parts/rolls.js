@@ -17,7 +17,7 @@ export function rollsOf(entries, index, nameOf = id => id) {
         why: Array.isArray(data.why) ? data.why.map(String) : [], paid: data.paid ?? 'none', practice: Number.isInteger(data.practice) ? data.practice : 0, rankUp: data.rankUp ?? null, worn: Array.isArray(data.worn) ? data.worn : [],
     }));
     const rolled = new Set(rolls.map(roll => `${roll.who}\u0000${practiceKey(roll.target)}`));
-    const spends = of(entries, 'capture.spend', index)
+    const spends = [...of(entries, 'capture.spend', index), ...of(entries, 'capture.train', index)]
         .map(data => ({ who: nameOf(data.member), skill: String(data.skill ?? ''), practice: Number.isInteger(data.practice) ? data.practice : 0, rankUp: data.rankUp ?? null }))
         .filter(spend => spend.practice > 0 && !rolled.has(`${spend.who}\u0000${practiceKey(spend.skill)}`));
     const xp = (Array.isArray(entries) ? entries : []).filter(entry => entry?.index === index && entry.receipt?.type === 'capture.xp' && isRecord(entry.receipt.data))

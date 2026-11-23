@@ -8,6 +8,7 @@ import { xpOfLevel } from '../../rules/levels.js';
 import { levelFor } from '../../rules/growth.js';
 import { skillSlots } from '../members.js';
 import { practiceKey } from '../practice.js';
+import { RANKS } from '../../words/ranks.js';
 import { rulesOf } from '../rules-now.js';
 
 // One set of numbers for the command and the wizard (src/wizard/rules.js).
@@ -72,9 +73,9 @@ export function create(ctx, payload = {}) {
     // The file's own xp counts when it fits the level (progress within the level); else the level's first xp.
     const xp = imported && Number.isInteger(payload?.xp) && levelFor(payload.xp).level === level ? payload.xp : xpOfLevel(level);
     const member = newMember({ id: ctx.id('ac'), name, pc: true, xp, granted: level - 1, stats: statsOf(ctx, payload.stats, imported, level, budget), skills: skillsOf(ctx, payload.skills, imported ? LIMITS.skills : skillSlots(level)) });
-    // A saved character's skill ranks come back as practice (a hundred a rank).
+    // A saved character's skill ranks come back as practice (the practice that rank starts at).
     for (const skill of Array.isArray(payload.skills) ? payload.skills : []) {
-        if (imported && Number.isInteger(skill?.rank) && skill.rank >= 1 && skill.rank <= 6) member.practice[practiceKey(skill.name)] = skill.rank * 100;
+        if (imported && Number.isInteger(skill?.rank) && skill.rank >= 1 && skill.rank <= 6) member.practice[practiceKey(skill.name)] = RANKS[skill.rank].at;
     }
     for (const old of Object.values(slice.members)) old.pc = false;
     slice.members[member.id] = member;

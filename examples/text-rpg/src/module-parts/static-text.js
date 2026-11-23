@@ -24,4 +24,5 @@ export const GRAMMAR = Object.freeze({
     fall: '! fall Who — how',
     health: '~ health Who — Unhurt|Scratched|Hurt|Wounded|Badly wounded|Down | why: cause',
     spend: '~ spend Who — skill used',
+    train: '~ train Who — Skill (a training scene: practice, no roll)',
 });

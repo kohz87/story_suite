@@ -12,22 +12,22 @@ const roll = (die, difficulty = 'normal', { labels = {}, what = 'Lore', member =
     return { done, slice, me: slice.members[member.id], data: done.result?.data };
 };
 
-test('a total at the number is a success: no harm, practice +10 on a normal roll, the die is used', () => {
+test('a total at the number is a success: no harm, practice +5 on a normal roll, the die is used', () => {
     const { data, me, slice } = roll(11);
     assert.equal(data.band, 'success');
     assert.equal(data.total, 12);
     assert.equal(me.wounds, 0);
-    assert.equal(me.practice.lore, 10);
+    assert.equal(me.practice.lore, 5);
     assert.equal(slice.dice[SID].used, 1);
     assert.equal(slice.dice[SID].hardest, 1);
 });
 
-test('a hard success teaches most (+20) and a rank up is told', () => {
+test('a hard success teaches most (+10) and a rank up is told', () => {
     const member = astra();
-    member.practice.lore = 95;
+    member.practice.lore = 35;
     const { data, me } = roll(15, 'hard', { member });
     assert.equal(data.band, 'success');
-    assert.equal(me.practice.lore, 115);
+    assert.equal(me.practice.lore, 45);
     assert.equal(data.rankUp, 'Apprentice');
 });
 
