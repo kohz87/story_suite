@@ -52,7 +52,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   With no threat named (on the line, or earlier in the reply) the narrator's own word is the start. `| edge: +1 (reason)` makes it a step easier,
   `-2 (reason)` two harder; at most 2 either way, and a reason is required (without one the edge is ignored and the receipt says so).
   Live conditions and a drained body on a physical roll hold a floor under it (ordinary with the first, a step more for each further one); the tone
-  then moves it: Gritty (the default) one step harder, Standard none, Heroic one easier. At the ends the shift is clamped, so under Gritty "very hard" and "near impossible" are both 30, and under Heroic "trivial" and "easy" are both 5 (the dice note lists the numbers). The receipt names the word rolled against.
+  then moves it: Standard (the default) none, Gritty one step harder, Heroic one easier. At the ends the shift is clamped, so under Gritty "very hard" and "near impossible" are both 30, and under Heroic "trivial" and "easy" are both 5 (the dice note lists the numbers). The receipt names the word rolled against.
 - **Bands.** At or over the number: success. 1–2 short: success at a cost. 3–9 short: failure. 10 or more
   short: a bad failure. A natural 20 or 1 changes only the quality: a natural 20 that misses is still a miss (marked "well done"), a natural 1 that
   succeeds still succeeds (marked "clumsy"). In danger a failure adds one wound
@@ -64,9 +64,9 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 - **Foes and the matchup.** Before a fight the narrator sets the foes up with `+ foes Name | count: N | threat: <word>` (up to 6 groups a reply; the same
   Name and threat in a later reply while some stand is reinforcements, shown as such (the same Name at another threat is a new group, "Wolves 2"); `- foes Name` ends a group that fled or scattered, with no XP). Groups do not expire by themselves, but they close when the story clock has moved a day or more since a reply last touched them (with no clock they stay), or when a `+ foes` names new foes in a reply after one that hit none of them; the narrator is told to end foes that fled or were left. The record is kept in the
   domain (`foes`: groups keyed by id, the remaining count a counter) and is part of replay. Each reply the code tells the narrator the **matchup**: the foes' weight
-  (each group's remaining × its threat's weight: far beneath ¼, beneath ½, fair 1, above 2, far above 3, beyond 4) against the party's (each member who is not fallen or Down: 1 ×
+  (each group's remaining × its threat's weight: far beneath ⅒, beneath ¼, fair 1, above 2, far above 3, beyond 4) against the party's (each member who is not fallen or Down: 1 ×
   health factor Unhurt 1, Scratched .9, Hurt .7, Wounded .5, Badly wounded .25 × stamina factor Fresh and Steady 1, Low .8, Drained and Empty .6). The ratio
-  is favoured (up to ½), even (up to 1½), outmatched (up to 4) or hopeless (above). It is in the tail with its rule and on the Rolls card ("Matchup: outmatched (24 rats beneath, Astra wounded)");
+  is favoured (up to ½), even (up to 1½), outmatched (up to 4) or hopeless (above). It is in the tail with its rule and on the Rolls card ("Matchup: hopeless (24 rats beneath, Astra wounded)": 24 × ¼ = 6 against a wounded hero's ½ is a ratio of 12);
   with no foes standing there is no matchup line.
 - **Practice.** Every use of a skill teaches: a `? try` +3 for a failure or a bad one, +5 for a success or a success at a cost, +10 for a success at hard or
   harder, none when the roll is trivial; a skill used with `~ spend` and no roll, or a one-session training scene, +1. Each is scaled by the threat word (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above or beyond ×2; none named ×1; rounded, at least 1
@@ -102,7 +102,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   away, and a later level brings them back. Every reader uses the effective stats (`module-parts/effective.js`). Skills
   learned past the slots of the level (5, +1 every tenth level, 8 at most) stay listed but inactive, latest learned first; a `? try`
   with one is refused until the level returns.
-- **Settings.** Tone (gritty, the default, makes every roll a step harder, heroic a step easier); Level cap (xp stops adding levels above
+- **Settings.** Tone (standard, the default, moves no roll; gritty makes every roll a step harder, heroic a step easier); Level cap (xp stops adding levels above
   it; default 99); XP rate (a percent, 50 to 300 in steps of 25, that multiplies what `+ xp` pays). Both are read when a
   reply's dice step is made and kept in that step's receipt (`rules`, only when not the defaults), so a Re-read, a middle
   delete or a reload pays the reply under the numbers it was written under, never today's settings.

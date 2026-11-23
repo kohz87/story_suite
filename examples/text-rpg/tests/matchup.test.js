@@ -11,9 +11,9 @@ import { withFoes } from './helpers/foes.js';
 const hero = (extra = {}, name = 'Astra', id = 'ac_astra001') => astra({ id, name, ...extra });
 const view = (slice, extra = {}) => ({ state: { domains: { textRpg: slice } }, feature: id => id === 'text-rpg.on', query: () => null, settings: () => ({}), chat: {}, ...extra });
 
-test('a foe weighs by threat (far beneath ¼, beneath ½, fair 1, above 2, far above 3, beyond 4) times how many stand', () => {
-    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => foesWeight([{ left: 4, threat }])), [1, 2, 4, 8, 12, 16]);
-    assert.equal(foesWeight([{ left: 24, threat: 1 }, { left: 0, threat: 5 }, { left: 2, threat: 3 }]), 16, 'the fallen weigh nothing');
+test('a foe weighs by threat (far beneath 1/10, beneath ¼, fair 1, above 2, far above 3, beyond 4) times how many stand', () => {
+    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => foesWeight([{ left: 4, threat }])), [0.4, 1, 4, 8, 12, 16]);
+    assert.equal(foesWeight([{ left: 24, threat: 1 }, { left: 0, threat: 5 }, { left: 2, threat: 3 }]), 10, 'the fallen weigh nothing');
     assert.equal(foesWeight([]), 0);
     assert.equal(foesWeight(null), 0);
 });
@@ -41,7 +41,7 @@ test('no foes record, or none standing: no matchup', () => {
 test('the matchup is read from the standing foes and each member\'s health and stamina, and says why', () => {
     const wounded = hero({ wounds: 3 });
     const slice = withFoes(sliceOf([wounded]), [['rats', 24, 1]]);
-    assert.deepEqual(matchupOf(slice), { band: 'hopeless', why: '24 rats beneath, Astra wounded' }, '12 against ½');
+    assert.deepEqual(matchupOf(slice), { band: 'hopeless', why: '24 rats beneath, Astra wounded' }, '6 against ½: a ratio of 12');
     const even = withFoes(sliceOf([hero(), hero({}, 'Bram', 'ac_bram0001')]), [['wolves', 3, 2]]);
     assert.deepEqual(matchupOf(even), { band: 'even', why: '3 wolves a fair match, the party unhurt' }, '3 against 2');
     const fresh = withFoes(sliceOf([hero(), hero({}, 'Bram', 'ac_bram0001')]), [['thugs', 1, 1]]);

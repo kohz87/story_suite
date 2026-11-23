@@ -27,7 +27,7 @@ test('the sheet row names the export query, and the query gives the file the Par
 
 test('the file has the RPG character file\'s fields for what Text RPG has, and the RPG\'s own parser reads it', async t => {
     t.mock.method(console, 'warn', () => {});
-    const host = await withAstra();
+    const host = await withAstra({}, { modules: { 'text-rpg': { tone: 'gritty' } } });
     try {
         await host.send('One.', reply('Told.', ['? try Astra | Obscure | hard | threat: a fair match', '+ xp Party — a deed | size: major']));
         const file = JSON.parse(exported(host).text);

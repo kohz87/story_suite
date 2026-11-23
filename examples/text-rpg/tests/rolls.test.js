@@ -75,7 +75,7 @@ test('a reply\'s rolls are read from its own receipts: what was rolled, why rais
 
 async function battle(t) {
     t.mock.method(console, 'warn', () => {});
-    const host = await withAstra();
+    const host = await withAstra({}, { modules: { 'text-rpg': { tone: 'gritty' } } });
     t.after(() => host.close());
     await host.send('Hello.', 'The road.');
     return host;
@@ -168,7 +168,7 @@ test('the card tells the matchup the reply was written under and the foes it set
     const first = cardsAt(host, host.ctx.chat.length - 1)[0];
     assert.deepEqual(rowTexts(first).map(text => text.split(' ')[0]), ['Foes:', 'Lore,'], 'no record stood before this reply: no matchup line');
     assert.equal(first.rows[0].text, 'Foes: 24 rats beneath');
-    await host.send('More.', reply('Wolves come.', ['+ foes wolves | count: 2 | threat: a fair match', '+ foes rats | count: 6 | threat: beneath you', '? try Astra | Lore | hard | threat: above you']));
+    await host.send('More.', reply('Wolves come.', ['+ foes wolves | count: 2 | threat: a fair match', '+ foes rats | count: 6 | threat: beneath you', '? try Astra | Lore | hard | threat: a fair match']));
     const card = cardsAt(host, host.ctx.chat.length - 1)[0];
     assert.match(card.rows[0].text, /^Matchup: hopeless \(24 rats beneath, .*\)$/, 'who is hurt depends on the first reply\'s dice');
     assert.equal(card.rows[1].text, 'Foes: 2 wolves a fair match · reinforcements: 6 rats beneath');

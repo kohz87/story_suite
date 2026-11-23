@@ -56,7 +56,7 @@ test('a Re-read of edited lines rolls them with the same dice', async t => {
         assert.equal((await host.sdk.reread(at)).ok, true);
         const [again] = tries(host);
         assert.equal(again.data.die, made.data.die, 'the same die');
-        assert.equal(again.data.difficulty, 4, 'the new difficulty: hard, one step harder in the default gritty tone');
+        assert.equal(again.data.difficulty, 3, 'the new difficulty: hard, one step above ordinary in the default standard tone');
     } finally {
         host.close();
     }
@@ -262,7 +262,7 @@ test('a heal deleted between a wound and a failed try leaves Badly wounded, neve
     }
 });
 
-const MAJOR = ['? try Astra | Lore | hard | threat: a fair match', '+ xp Party — a deed | size: major'];
+const MAJOR = ['? try Astra | Lore | hard | threat: a stronger foe', '+ xp Party — a deed | size: major'];
 const dropReply = async (host, at) => { await host.st.deleteMessage(at + 1); await host.st.deleteMessage(at); };
 
 test('a stat bought with a level\'s point goes back with the level, and comes back when a later reply re-levels', async t => {

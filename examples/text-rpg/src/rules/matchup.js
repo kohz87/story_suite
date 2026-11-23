@@ -1,7 +1,7 @@
 // Who should win a fight, from the foes standing and the party's shape: weights, a ratio and four words.
 
 /** A foe's weight by threat index (far beneath … beyond). */
-const FOE_WEIGHT = Object.freeze([0.25, 0.5, 1, 2, 3, 4]);
+const FOE_WEIGHT = Object.freeze([0.1, 0.25, 1, 2, 3, 4]);
 const HEALTH_FACTOR = Object.freeze([1, 0.9, 0.7, 0.5, 0.25]);
 const STAMINA_FACTOR = Object.freeze([1, 1, 0.8, 0.6, 0.6]);
 

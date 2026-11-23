@@ -9,7 +9,7 @@ const TONES = Object.freeze({ gritty: 1, standard: 0, heroic: -1 });
 /** The settings block for registerModule. */
 export const SETTINGS = Object.freeze({
     section: 'Text RPG',
-    defaults: { tone: 'gritty', survival: false, statNames: 'STR, VIT, AGI, DEX, INT, WIS, CHA', levelCap: 99, xpRate: '100', rules: '' },
+    defaults: { tone: 'standard', survival: false, statNames: 'STR, VIT, AGI, DEX, INT, WIS, CHA', levelCap: 99, xpRate: '100', rules: '' },
     schema: {
         tone: {
             type: 'choice', label: 'Text RPG: Tone', feature: 'text-rpg.on',
