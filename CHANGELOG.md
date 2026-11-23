@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG's New character is the same wizard as the RPG's, its Rules page has an RPG switch to go back, and gear you equip counts for your character.
+- A guide for writing your own module (docs/dev/writing-a-module.md), with a short version for AI coding assistants in the AI-README.
 - Text RPG is playable: the Party tab shows Create your character, the form opens in a sheet, gear and its stat bonuses work and gear wears down on bad rolls, and you can edit the narrator's rules on its Rules page.
 - Plug-in cards and pages show their own icon; Fishing registers again.
 - Text RPG: deleting a reply that gave a level now takes back the stat points and skills it paid for, and they return when you earn the level again; skill slots keep coming every third level up to level 99.
