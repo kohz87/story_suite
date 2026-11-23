@@ -56,7 +56,7 @@ Story Suite's files in the extension itself; take everything from `sdk`. The def
 `tail` carries per-reply facts, the line that must survive first, `optional` lines last. `budget` is tokens (about 4 characters each); ask for the least that works
 (Fishing 20, Text RPG 600). Render compact text, never JSON.
 
-**Party tab.** `party.actors` → `[{ id, name, pc? }]` and `party.newCharacter` → a screen id or `null` are plain queries; `rpg.sheet` (rows) and `party.levels`
+**Party tab.** `party.actors` → `[{ id, name, pc? }]` and `party.newCharacter` → a screen id or `null` and `party.pc` → `{ id }` of the reader's character or `null` are plain queries; `rpg.sheet` (rows) and `party.levels`
 (`[{ id, name, level, left }]`) are `fallback: true` because the built-in RPG owns them. A sheet row may carry `commands: { spend, skillEdit }` (command names). All answer `null`
 while the module is off. Replacing the RPG: a feature with `replaces: ['story-block.rpg']`; active = own feature on **and** the replaced one off (`examples/text-rpg/src/module-parts/active.js#active`).
 

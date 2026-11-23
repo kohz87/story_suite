@@ -82,4 +82,3 @@ function build(tag, args) {
 export function h(tag, ...args) {
   return build(tag, args);
 }
-

@@ -383,6 +383,7 @@ The Party tab draws from queries. A module that keeps characters answers them:
 |---|---|---|
 | `party.actors` | `[{ id, name, pc? }]`, the people, with `pc: true` for the reader's own | plain |
 | `party.newCharacter` | a screen id to open for "Create your character" while the reader has no character, else `null` | plain |
+| `party.pc` | `{ id }` of the reader's own character, else `null` (the Bag's gear and the shared bag follow it) | plain |
 | `rpg.sheet` | one row per member: `line`, `level`, `bars`, `effects`, `stats`, `skills`, `points`, … | **fallback** |
 | `party.levels` | `[{ id, name, level, left }]` | **fallback** |
 

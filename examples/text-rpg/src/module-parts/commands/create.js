@@ -3,10 +3,12 @@ import { DOMAIN, LIMITS, newMember } from '../../domain/shape.js';
 import { STAT_KEYS } from '../../words/stats.js';
 import { requireActive } from '../active.js';
 import { statKey } from '../line-read.js';
+import { RULES } from '../../wizard/rules.js';
 
-const STAT_TOTAL = 60;
-const BUY_MIN = 5;
-const BUY_MAX = 15;
+// One set of numbers for the command and the wizard (src/wizard/rules.js).
+const STAT_TOTAL = RULES.total;
+const BUY_MIN = RULES.min;
+const BUY_MAX = RULES.max;
 
 function statsOf(ctx, given) {
     const stats = {};
