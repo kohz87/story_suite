@@ -31,7 +31,8 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
    level above 1); and up to five skills (one more every tenth level, 8 at most). A character saved before the limit of 8 may hold more (up to 38): it keeps them and learns no more.
    The Party tab's **Export** on a character saves a file in the RPG's character file shape (so either module reads the
    other's), with this module's own part (xp, practice, injuries, conditions, each skill's exact type and cost) under
-   `textRpg`; the inventory and the purse are not part of it.
+   `textRpg`, and the things the character carries (the party's bag for the main character, up to 60) and the purse (the main
+   character's), as the RPG's file keeps them; the dialog's boxes leave either out, and Start from a saved character adds them back.
 
 ## Playing
 
