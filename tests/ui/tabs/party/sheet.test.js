@@ -109,6 +109,17 @@ test('stat sheet stages points, previews pools from Combat Rules v1, then Save s
   assert.equal(astra.stats.INT, 5);
 });
 
+test('a refused save keeps the stat sheet open and shows the reason', async () => {
+  const ctx = makeCtx();
+  ctx.port.command = async () => ({ ok: false, message: 'Astra has 1 point to spend.' });
+  statSheet({ ...member(ctx, 'astra'), stats: { STR: 8, DEX: 12, AGI: 12, VIT: 11, INT: 5, WIS: 6, CHA: 5 } }, ctx);
+  sheetEl().querySelector('[data-plus="INT"]').click();
+  sheetEl().querySelector('[data-save]').click();
+  await flush();
+  assert.notEqual(sheetEl(), null);
+  assert.equal(sheetEl().querySelector('.ps-s').textContent, 'Astra has 1 point to spend.');
+});
+
 test('stat sheet with no points says so and keeps every button off', () => {
   const ctx = makeCtx();
   statSheet(member(ctx, 'brann'), ctx);

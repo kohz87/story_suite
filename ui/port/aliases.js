@@ -19,12 +19,13 @@ function blockOf(sdk, member) {
 /** A row command name a plug-in sheet may name. */
 const COMMAND_NAME = /^[A-Za-z][\w.-]{0,79}$/;
 
-// What each stat was raised by: the Party sheet sends the new values, a plug-in's spend command takes the points bought ({} when nothing changed, null when a stat is unknown or lowered).
+// What each stat was raised by: the Party sheet sends the new values, a plug-in's spend command takes the points bought ({} when nothing changed; { bad } names a stat that is unknown or lowered).
 function raisedBy(was, now) {
   const raised = {};
   for (const [key, value] of Object.entries(now ?? {})) {
     const from = was?.[key];
-    if (!Number.isInteger(value) || !Number.isInteger(from) || value < from) return null;
+    if (!Number.isInteger(value) || !Number.isInteger(from)) return { bad: 'That is not a stat.' };
+    if (value < from) return { bad: 'Points cannot be taken back.' };
     if (value > from) raised[key] = value - from;
   }
   return raised;
@@ -38,7 +39,7 @@ async function spend(sdk, payload) {
   const own = sheet?.commands?.spend;
   if (typeof own === 'string' && COMMAND_NAME.test(own)) {
     const raised = raisedBy(sheet.stats, payload?.stats);
-    if (!raised) return NO('Points cannot be taken back.');
+    if (typeof raised.bad === 'string') return NO(raised.bad);
     return Object.keys(raised).length ? sdk.command(own, { member: payload?.member, stats: raised }) : { ok: true };
   }
   const block = blockOf(sdk, payload?.member);
