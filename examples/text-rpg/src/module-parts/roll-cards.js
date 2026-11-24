@@ -33,8 +33,7 @@ function spendText(item) {
 
 function earnedRow({ spends, xp, lessons }) {
     const parts = [...xp.map(item => item.summary || `${item.amount} xp`), ...lessons.map(item => `${item.who} learned from the fight: ${item.skill} +${item.practice}${item.rankUp ? ` (reaches ${item.rankUp})` : ''}`), ...spends.map(spendText)];
-    const levels = xp.find(item => item.levels > 0);
-    return parts.length ? { text: `Earned: ${parts.join(' · ')}`, tag: levels ? `level ${levels.levels > 1 ? `+${levels.levels}` : 'up'}` : '' } : null;
+    return parts.length ? { text: `Earned: ${parts.join(' · ')}`, tag: '' } : null;
 }
 
 // The foes row: what the reply set up, added or ended ("Foes: Rats: vermin, minor for you (24) · reinforcements: Wolves: common, even for you (6) · gone: bandits").
