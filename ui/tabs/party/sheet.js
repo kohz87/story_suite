@@ -33,7 +33,8 @@ export function statSheet(member, ctx = {}) {
   let left = member.points;
   const sheet = openSheet(ctx, { title: `${member.name} · Stats` });
   const save = async () => {
-    await ctx.port?.command('rpg.stats.spend', { member: member.id, stats: { ...staged } });
+    const answer = await ctx.port?.command('rpg.stats.spend', { member: member.id, stats: { ...staged } });
+    if (answer?.ok === false) { sheet.subtitle(answer.message || 'Not saved.'); return; }
     sheet.close();
   };
 
