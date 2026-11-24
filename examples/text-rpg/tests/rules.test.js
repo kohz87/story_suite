@@ -174,9 +174,9 @@ test('dropping stages lands at each reached stage top and stops at badly wounded
     }
 });
 
-test('practice follows difficulty and roll band: trivial teaches nothing, a failure 3, a success or a cost 5, a success at hard or harder 10', () => {
-    assert.equal(practiceGain('success', 0), 0);
-    assert.equal(practiceGain('failure', 0), 0);
+test('practice follows difficulty and roll band: trivial teaches 1 (a plain use), a failure 3, a success or a cost 5, a success at hard or harder 10', () => {
+    assert.equal(practiceGain('success', 0), 1);
+    assert.equal(practiceGain('failure', 0), 1);
     assert.equal(practiceGain('success', 1), 5);
     assert.equal(practiceGain('success', 2), 5);
     assert.equal(practiceGain('success', 3), 10);

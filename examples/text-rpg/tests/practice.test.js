@@ -26,17 +26,18 @@ const make = (threat) => {
 const lore = slice => slice.members.ac_astra001.practice.lore ?? 0;
 const obscure = slice => slice.members.ac_astra001.practice.obscure ?? 0;
 
-test('the scale: far beneath nothing, beneath half, a fair match whole, above one and a half, far above and beyond double; rounded, at least 1; none known counts whole', () => {
-    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => practiceFor(10, threat)), [0, 5, 10, 15, 20, 20]);
-    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => practiceFor(5, threat)), [0, 3, 5, 8, 10, 10]);
-    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => practiceFor(3, threat)), [0, 2, 3, 5, 6, 6], 'a failed roll\'s 3: beneath 1.5 rounds to 2');
-    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => practiceFor(1, threat)), [0, 1, 1, 2, 2, 2], 'a use without a roll\'s 1: beneath (half) rounds up to 1, above (1.5) to 2');
-    assert.equal(practiceFor(1, 1), 1, 'at least 1 when more than 0 is earned');
+test('the scale: far beneath the least (1), beneath half, a fair match whole, above one and a half, far above and beyond double; rounded, every use at least 1; none known counts whole', () => {
+    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => practiceFor(10, threat)), [1, 5, 10, 15, 20, 20]);
+    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => practiceFor(5, threat)), [1, 3, 5, 8, 10, 10], 'far beneath still teaches 1');
+    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => practiceFor(3, threat)), [1, 2, 3, 5, 6, 6], 'a failed roll\'s 3: beneath 1.5 rounds to 2');
+    assert.deepEqual([0, 1, 2, 3, 4, 5].map(threat => practiceFor(1, threat)), [1, 1, 1, 2, 2, 2], 'a use without a roll\'s 1: beneath (half) rounds up to 1, above (1.5) to 2');
+    assert.equal(practiceFor(1, 1), 1, 'at least 1 when a use earns points');
     assert.equal(practiceFor(10, null), 10);
     assert.equal(practiceFor(0, 4), 0);
     assert.equal(rollPractice('success', 3, 3), 15);
     assert.equal(rollPractice('failure', 2, 3), 5, 'a failed roll: 3 ×1.5 = 4.5');
-    assert.equal(rollPractice('success', 0, 3), 0, 'a trivial roll teaches nothing at any threat');
+    assert.equal(rollPractice('success', 0, 3), 2, 'a trivial roll teaches a plain use (1) scaled: 1.5 rounds to 2');
+    assert.equal(rollPractice('success', 3, 0), 1, 'a use far beneath teaches 1, not 0');
 });
 
 test('a costed skill used with `~ spend` teaches +1, and says so in the receipt', () => {
@@ -44,9 +45,9 @@ test('a costed skill used with `~ spend` teaches +1, and says so in the receipt'
     assert.deepEqual([spend(slice).practice, obscure(slice)], [1, 1]);
 });
 
-test('`~ spend` is scaled by the threat so far: beneath 1 (0.5 rounded up), a fair match 1, above 2 (1.5), far above 2, far beneath none', () => {
+test('`~ spend` is scaled by the threat so far: beneath 1 (0.5 rounded up), a fair match 1, above 2 (1.5), far above 2, far beneath 1 (every use teaches)', () => {
     const got = [1, 2, 3, 4, 0].map(threat => spend(make(threat)).practice);
-    assert.deepEqual(got, [1, 1, 2, 2, 0]);
+    assert.deepEqual(got, [1, 1, 2, 2, 1]);
 });
 
 test('`~ spend` takes the threat of the latest earlier reply when the reply named none', () => {
@@ -77,7 +78,7 @@ test('a roll for the skill in the same reply wins over `~ spend`, in either orde
     assert.equal(obscure(before), 5);
 });
 
-test('a roll teaches by the threat it was made under: +5 a success, +10 at hard or harder, scaled; nothing far beneath', () => {
+test('a roll teaches by the threat it was made under: +5 a success, +10 at hard or harder, scaled; far beneath still 1', () => {
     const fair = attempt(make(2), 'Lore', 'ordinary');
     assert.equal(fair.practice, 5);
     const above = make(3);
@@ -87,8 +88,8 @@ test('a roll teaches by the threat it was made under: +5 a success, +10 at hard 
     const beneath = make(1);
     assert.equal(attempt(beneath, 'Lore', 'ordinary').practice, 3, '5 ×0.5 = 2.5 rounds to 3');
     const none = make(0);
-    assert.equal(attempt(none, 'Lore', 'ordinary').practice, 0);
-    assert.equal(lore(none), 0, 'a far beneath roll teaches nothing');
+    assert.equal(attempt(none, 'Lore', 'ordinary').practice, 1);
+    assert.equal(lore(none), 1, 'a far beneath roll teaches the least, 1');
     assert.equal(attempt(make(), 'Lore', 'ordinary').practice, 5, 'no threat known: counts whole');
     assert.equal(attempt(make(), 'Lore', 'ordinary', { labels: { threat: 'far beneath you' } }).practice, 5, 'a threat: on the line is ignored');
 });

@@ -923,5 +923,6 @@
   "examples/text-rpg/tests/foe-ladder.test.js": "Tests the foe kind ladder against the level bands, the threat fixed at declaration, kind words and refused or old `+ foes` lines.",
   "examples/text-rpg/tests/foe-battle.test.js": "Tests XP per foe kind, the battle cap across waves, battles joining within 60 minutes, fled foes, the no-record 10 XP, old `size:` and lessons once a battle.",
   "examples/text-rpg/tests/foe-try.test.js": "Tests that `? try` against foes starts from the strongest or named group's threat, ignores the narrator's word, and still reads an old `threat:`.",
-  "examples/text-rpg/tests/foe-replay.test.js": "Tests that the foe ladder, its battle cap and old lines replay exactly through a rebuild, a swipe, a Re-read and a middle delete."
+  "examples/text-rpg/tests/foe-practice.test.js": "Tests that rolls against vermin, with and without an edge, each teach practice, that the battle XP stays capped at 25 and that a rebuild gives the same state.",
+  "examples/text-rpg/tests/foe-replay.test.js":"Tests that the foe ladder, its battle cap and old lines replay exactly through a rebuild, a swipe, a Re-read and a middle delete."
 }

@@ -35,8 +35,8 @@ test('a hard success teaches most (+10) and a rank up is told', () => {
     assert.equal(data.rankUp, 'Apprentice');
 });
 
-test('a trivial roll teaches nothing, an easy one does', () => {
-    assert.equal(roll(20, 'trivial').me.practice.lore ?? 0, 0);
+test('a trivial roll teaches 1 (a plain use), an easy one 5', () => {
+    assert.equal(roll(20, 'trivial').me.practice.lore, 1);
     assert.equal(roll(10, 'easy').me.practice.lore, 5);
 });
 
@@ -304,4 +304,27 @@ test('the receipt names the difficulty word actually rolled against, after the t
     assert.equal(gritty.data.difficulty, 3);
     assert.match(roll(11, 'ordinary', { options: { settings: { tone: 'standard' } } }).done.result.summary, /, ordinary: /);
     assert.match(roll(11, 'ordinary', { options: { settings: { tone: 'heroic' } } }).done.result.summary, /, easy: /);
+});
+
+test('an edge in the roller\'s favour does not cost practice: an easy roll made trivial by +1 still teaches as easy (+5 a success, 3 a failure)', () => {
+    const made = roll(15, 'easy', { labels: { edge: '+1 (the guard sleeps)' } });
+    assert.equal(made.data.difficulty, 0, 'the edge made it trivial');
+    assert.equal(made.me.practice.lore, 5, 'practice is judged at easy: +5 for a success');
+    assert.equal(made.data.practice, 5);
+    assert.equal(roll(2, 'easy', { labels: { edge: '+1 (the guard sleeps)' } }).me.practice.lore, 3, 'a failure at easy: 3');
+    assert.equal(roll(15, 'trivial').me.practice.lore, 1, 'trivial with no edge is a plain use');
+});
+
+test('an edge against the roller teaches at the harder difficulty actually rolled', () => {
+    const made = roll(20, 'ordinary', { labels: { edge: '-1 (a bad light)' } });
+    assert.equal(made.data.difficulty, 3);
+    assert.equal(made.me.practice.lore, 10, 'hard: +10 for a success');
+});
+
+test('a use far beneath the threat still teaches 1', () => {
+    const { me } = roll(15, 'ordinary', { threat: 3, live: { list: [15, 10, 10], floor: 0, threat: 0 } });
+    assert.ok(me.practice.lore >= 1);
+    const slice = sliceOf([astra()], { list: [15, 10, 10], floor: 0, threat: 0 });
+    const done = run(applyTry, fakeCtx(slice), line('try', 'Astra', 'Lore; ordinary'));
+    assert.equal(done.result.data.practice, 1, 'the threat is far beneath (×0): 1, not 0');
 });

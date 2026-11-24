@@ -14,12 +14,12 @@ function difficultyValue(value) {
     return Math.min(5, Math.max(0, Math.trunc(finite(value, 0))));
 }
 
-/** The practice points from one check: trivial checks teach nothing; a failure 3, a success or a success at a cost 5, a success at hard or harder 10. */
+/** The practice points from one check: a trivial check teaches 1 (a plain use); a failure 3, a success or a success at a cost 5, a success at hard or harder 10. */
 export function practiceGain(band, difficultyIndex) {
     const key = rollBand(band);
     if (!key) return 0;
     const difficulty = difficultyValue(difficultyIndex);
-    if (difficulty === 0) return 0;
+    if (difficulty === 0) return 1;
     if (key === 'failure' || key === 'bad') return 3;
     return difficulty >= 3 && key !== 'cost' ? 10 : 5;
 }

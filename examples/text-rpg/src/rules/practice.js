@@ -6,11 +6,11 @@ const THREAT_MULTIPLIERS = Object.freeze([0, 0.5, 1, 1.5, 2, 2]);
 /** The practice a use without a roll (`~ spend`, `~ train`) teaches before the threat scales it. */
 export const SPEND_PRACTICE = 1;
 
-/** The practice from one use, scaled by the threat index (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above and beyond ×2; none known: ×1), rounded, at least 1 when it is more than 0. */
+/** The practice from one use, scaled by the threat index (far beneath ×0, beneath ×0.5, fair ×1, above ×1.5, far above and beyond ×2; none known: ×1), rounded; every use teaches at least 1. */
 export function practiceFor(points, threat) {
     const known = Number.isInteger(threat) && threat >= 0 && threat <= 5;
     const scaled = points * (known ? THREAT_MULTIPLIERS[threat] : 1);
-    return scaled > 0 ? Math.max(1, Math.round(scaled)) : 0;
+    return points > 0 ? Math.max(1, Math.round(scaled)) : 0;
 }
 
 /** The practice a `? try` teaches: its band and difficulty (growth.js), scaled by the threat. */
