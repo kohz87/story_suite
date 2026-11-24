@@ -41,8 +41,8 @@ test('on the host: own rules replace only the rules paragraph; the grammar lines
     }
 });
 
-test('the built-in rules are the owner\'s dice rules in short (at most 320 words) and carry each of their points', () => {
-    assert.ok(STATIC_TEXT.split(/\s+/).length <= 320, 'short: at most 320 words');
+test('the built-in rules are the owner\'s dice rules in short (at most 360 words) and carry each of their points', () => {
+    assert.ok(STATIC_TEXT.split(/\s+/).length <= 360, 'short: at most 360 words');
     for (const part of [
         'Roll only when an attempt is possible but uncertain', 'never roll routine things, thoughts, feelings, decisions or background', 'One objective, one roll, one skill',
         'never exceeds the character\'s capability or creates a place', 'Searching, tracking and navigating may be rolled', 'Use dice in order, skipping the die of a moot action',
@@ -55,4 +55,9 @@ test('the built-in rules are the owner\'s dice rules in short (at most 320 words
         'Every reward must point to something shown on screen this reply', 'Never write numbers, dice or luck.',
     ]) assert.ok(STATIC_TEXT.includes(part), part);
     assert.doesNotMatch(STATIC_TEXT, /plot armour/i);
+});
+
+test('a repeated move on one group is one roll for the run, and a chain of separate fights stops as the next one begins', () => {
+    assert.match(STATIC_TEXT, /one move repeated on one group \(picking them off one by one\) is one roll for the whole run/);
+    assert.match(STATIC_TEXT, /chains separate fights, play the first and the safe steps after it, then stop as the next fight begins/);
 });
