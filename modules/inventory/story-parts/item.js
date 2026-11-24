@@ -33,10 +33,11 @@ function statWords(line, written = false) {
     // `written` (the `gearOrder` rule mark, new replies): the order the line wrote them in, so a line over the budget keeps its first-written stats.
     // (a line that still says LUK, gear's sixth stat before it was WIS, is read as WIS)
     const order = written ? [...new Set(Object.keys(line?.labels ?? {}).map(gearStatKey).filter(stat => GEAR.stats.includes(stat)))] : GEAR.stats;
+    const valueOf = said => (said === null ? NaN : Number(/^\s*\+?(\d{1,3})\s*$/.exec(said)?.[1]));
     for (const stat of order) {
-        const said = labelOf(line, stat.toLowerCase()) ?? (stat === 'WIS' ? labelOf(line, 'luk') : null);
-        const n = said === null ? NaN : Number(/^\s*\+?(\d{1,3})\s*$/.exec(said)?.[1]);
-        if (Number.isSafeInteger(n) && n > 0) out[stat] = n;
+        // (WIS and an old LUK on one line add up)
+        const parts = [labelOf(line, stat.toLowerCase()), stat === 'WIS' ? labelOf(line, 'luk') : null].map(valueOf).filter(n => Number.isSafeInteger(n) && n > 0);
+        if (parts.length) out[stat] = parts.reduce((sum, n) => sum + n, 0);
     }
     return out;
 }

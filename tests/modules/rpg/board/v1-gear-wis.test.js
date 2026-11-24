@@ -59,3 +59,9 @@ test('a character file\'s piece with LUK reads as WIS; a sheet of the earlier ru
     const sheet = { characters: [{ key: 'ren', stats: { str: 5, luk: 6 } }] };
     assert.equal(applyGear(sheet, { v: 1, who: { ren: { own: ['party'], add: { wis: 2 } } } }).characters[0].stats.luk, 8);
 });
+
+test('a story line with both WIS and an old LUK adds them; a file piece whose LUK and WIS pass 6 is held to 6, not dropped', async t => {
+    const host = await world(t, '+ item Twin Charm | slot: head | rarity: epic | WIS: 1 | LUK: 1 | STR: 2');
+    assert.deepEqual(defNamed(host, 'Twin Charm').stats, { WIS: 2, STR: 2 });
+    assert.deepEqual(readItem({ name: 'Big Ring', qty: 1, kind: 'equipment', stats: { LUK: 4, WIS: 3 } }).stats, { WIS: 6 });
+});

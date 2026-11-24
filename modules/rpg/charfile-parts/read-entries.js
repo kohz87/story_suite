@@ -31,7 +31,8 @@ export function readItem(entry) {
     const given = kind === 'equipment' && isRecord(entry.stats) ? Object.entries(entry.stats).map(([key, value]) => [gearStatKey(key) === 'WIS' && key !== 'WIS' ? 'WIS' : key, value]) : [];
     const sound = given.length && given.every(([key, value]) => GEAR.stats.includes(key) && whole(value, 1, 6));
     const summed = sound ? given.reduce((out, [key, value]) => ({ ...out, [key]: (out[key] ?? 0) + value }), {}) : null;
-    const stats = summed && Object.keys(summed).length <= GEAR.maxStats && Object.values(summed).every(value => value <= 6) ? summed : null;
+    // (a LUK and a WIS that add up past 6 are held to 6, not dropped)
+    const stats = summed && Object.keys(summed).length <= GEAR.maxStats ? Object.fromEntries(Object.entries(summed).map(([key, value]) => [key, Math.min(6, value)])) : null;
     // The carry the reader set on it: a whole 1..500, else left out (an older file has none).
     return { name, qty: entry.qty, ...(note ? { note } : {}), ...(kind ? { kind } : {}), ...(RARITIES.includes(entry.rarity) ? { rarity: entry.rarity } : {}),
         ...(slot ? { slot } : {}), ...(stats ? { stats } : {}), ...(whole(entry.carry, 1, FILE_LIMITS.carry) ? { carry: entry.carry } : {}) };
