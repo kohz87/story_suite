@@ -11,6 +11,7 @@
 import { cutWords, isMet } from '../domain.js';
 import { isPersona } from '../../../time/tracker/initiative.js';
 import { movable } from '../world-parts/movable.js';
+import { isSettlementKind } from '../../../scene/settlement-kind.js';
 
 /** At most this many people on the line, and this much of each one's role, look, manner and voice. */
 export const HERE_MAX = 4;
@@ -23,21 +24,19 @@ const KINDS = new Set(['figure', 'companion']);
 // One instruction, worded for any persona name (no verb agrees with {{user}}); the list follows it.
 const HEAD = '[People here] The world\'s own people at this place or nearby, not necessarily in the scene. When the story needs someone of their role, use that person by this name rather than making up someone new; the narration uses a name only after someone in the story says it:';
 
-// A settlement's kinds: the village, town or city a spot stands in is how far "nearby" reaches (owner, 21 Nov: "if it's a village, limit it to the
-// village, town to town, city to city"). A district, a ward or a guild office is a spot inside one, not one itself.
-const SETTLEMENT = new Set(['village', 'hamlet', 'town', 'city', 'capital', 'settlement', 'port', 'fort', 'fortress', 'hold']);
-const isSettlement = kind => String(kind ?? '').toLowerCase().split(/[\s/,;|-]+/).some(word => SETTLEMENT.has(word));
-
-// The settlement the party is in: the place itself or the nearest place it sits in (the atlas's parents, or the "Town / Spot" a name writes
+// The settlement the party is in (owner, 21 Nov: "if it's a village, limit it to the village, town to town, city to city"; a district, a ward or a
+// guild office is a spot inside one, not one itself; the kinds are scene/place-inside.js isSettlementKind): the place itself or the nearest place it sits in (the atlas's parents, or the "Town / Spot" a name writes
 // first) that is a village, town or city; else, for a spot that is not one itself, the region the story saved it under when that region is one
 // ("~ place South Granary | region: Bluewatch Village"); else none (a road, the wilds, a place with no settlement above it).
 function settlementOf(here, party) {
     const chain = [here, ...here.up];
-    const found = chain.find(spot => isSettlement(spot.kind));
+    // The nearest settlement, except a story-made "settlement" tied to a pack's village (entries.js `locator` `tie`): that village is the settlement.
+    const towns = chain.filter(spot => isSettlementKind(spot.kind));
+    const found = (towns[0]?.tie && towns.find(spot => spot.key === towns[0].tie)) || towns[0];
     if (found) return found.key;
     if (!party.region) return null;
     const region = party.locate(party.region);
-    return region?.key && region.key !== here.key && isSettlement(region.kind) ? region.key : null;
+    return region?.key && region.key !== here.key && isSettlementKind(region.kind) ? region.key : null;
 }
 
 // 0: at the scene's place itself; 1: at the settlement it is in (or, outside any settlement, its parent: the atlas's saved parent, else the

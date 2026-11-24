@@ -62,4 +62,6 @@ export const RULE_LINES = Object.freeze({
     itemIds: () => false,
     // A story `- item X | used: yes` for a consumable restores a pool on the sheet (lean-rpg/board/overrides.js rpg.useItem, asked from domains/inventory/story.js). Static per chat: only a reply's first live capture is marked; an older reply keeps the plain take-away.
     consumableRecovery: () => false,
+    // A new `~ place` the story names while the party is in a settlement, with no travel, is filed inside it ("Town / Spot") and is no settlement itself (domains/scene/place-inside.js). Static per chat: only a reply's first live capture is marked; an older reply keeps the place as written.
+    placeInside: () => false,
 });
