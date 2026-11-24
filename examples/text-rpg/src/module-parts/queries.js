@@ -36,7 +36,7 @@ export function queriesOf(sdk) {
         // The level cap and the XP rate the Rules page says now (the wizard's starting level is held to the cap).
         'textRpg.rules': gate(() => rulesOf(sdk)),
         // The saved character file of one member, for the Party tab's Export (the row names this query): { id, inventory?, money? } → { ok, name, fileName, text, own, level, points, items, money } | { ok: false, message }. Stores nothing.
-        'textRpg.export': gate((state, args) => exportFile(state, args)),
+        'textRpg.export': gate((state, args, tools) => exportFile(state, args, tools?.query)),
         // What the reply at `index` rolled, cost, taught and earned, from its own receipts (the cards under the reply read it): { index, names? } → { rolls, spends, xp }.
         'textRpg.rolls': gate((state, args, tools) => rollsAnswer(tools?.receipts?.() ?? [], args)),
         'textRpg.dice': gate((state, args, tools) => lastDice(tools?.receipts?.())),
