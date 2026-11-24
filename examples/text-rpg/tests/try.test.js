@@ -321,6 +321,15 @@ test('an edge against the roller teaches at the harder difficulty actually rolle
     assert.equal(made.me.practice.lore, 10, 'hard: +10 for a success');
 });
 
+test('practice is the difficulty the roll would have had with no edge: a trivial task stays trivial, a floor is not counted twice, an ignored edge changes nothing', () => {
+    const trivial = roll(20, 'trivial', { labels: { edge: '+1 (cover)' } });
+    assert.deepEqual([trivial.data.difficulty, trivial.me.practice.lore], [0, 1], 'trivial with an edge teaches as trivial: 1');
+    const held = roll(20, 'ordinary', { labels: { edge: '+2 (cover)' }, member: astra({ conditions: [{ name: 'poisoned', until: 'treated' }] }) });
+    assert.deepEqual([held.data.difficulty, held.me.practice.lore], [2, 5], 'the floor held it at ordinary: +5, not hard\'s +10');
+    const noReason = roll(20, 'trivial', { labels: { edge: '+2' } });
+    assert.deepEqual([noReason.data.edgeIgnored, noReason.me.practice.lore], [true, 1]);
+});
+
 test('a use far beneath the threat still teaches 1', () => {
     const { me } = roll(15, 'ordinary', { threat: 3, live: { list: [15, 10, 10], floor: 0, threat: 0 } });
     assert.ok(me.practice.lore >= 1);

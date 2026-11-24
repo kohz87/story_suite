@@ -63,10 +63,12 @@ export function applyTry(ctx, line) {
     const { index: floored } = raiseToFloor(clamp(start + (named !== null ? held : 0), 0, LAST), floor);
     const raised = floored > start;
     const index = clamp(floored + toneStep(ctx), 0, LAST);
+    // Practice is judged at the difficulty the roll would have had with no edge in the roller's favour: good tactics never cost learning.
+    const bare = raiseToFloor(clamp(clamp(named ?? difficultyIndex(word), 0, LAST) + (named !== null ? held : 0), 0, LAST), floor).index;
+    const learnAt = Math.max(index, clamp(bare + toneStep(ctx), 0, LAST));
     // (what raised it: the reader's own conditions, else the floor the reply was offered with)
     const why = floorWhy(member, { now: ctx.time?.() ?? null, drained, physical });
     const reasons = raised ? (own >= record.floor && why.length ? why : ['the scene allows nothing easier']) : [];
-    // Practice is judged at the difficulty before an edge in the roller's favour: good tactics never cost learning.
     const heard = ruled ?? threatHeard(slice, ctx.reply?.sid, record);
     const die = record.list[record.used ?? 0];
     const result = verdict({ die, bonus: found.bonus, dc: DIFFICULTIES[index].dc });
@@ -90,7 +92,7 @@ export function applyTry(ctx, line) {
     }
     let rankUp = null;
     let practice = 0;
-    if (found.skill) ({ gained: practice, rankUp } = addPractice(slice, ctx.reply?.sid, member, found.skill, 'try', rollPractice(result.band, clamp(index + Math.max(0, edge?.steps ?? 0), 0, LAST), heard)));
+    if (found.skill) ({ gained: practice, rankUp } = addPractice(slice, ctx.reply?.sid, member, found.skill, 'try', rollPractice(result.band, learnAt, heard)));
     if (found.skill) noteRolled(slice, member, found.skill);
     record.used = (record.used ?? 0) + 1;
     record.hardest = Math.max(record.hardest ?? 0, index);
