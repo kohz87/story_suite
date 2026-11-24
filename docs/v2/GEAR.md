@@ -7,7 +7,7 @@ without it, and stored state is never touched by turning it on or off.
 
 ## Gear gives stats, nothing else
 
-An equipped item gives +N to one or more of the seven stats (STR, VIT, AGI, DEX, INT, LUK, CHA); there is no separate attack or
+An equipped item gives +N to one or more of the seven stats (STR, VIT, AGI, DEX, INT, WIS, CHA; a piece or pack item that says LUK, as gear named the sixth stat before, is read as WIS); there is no separate attack or
 defence term. Every slot gives them: weapon, body (armour), off-hand (shield), head, cloak, feet and the two accessory places
 (`accessory-1`, `accessory-2`). A bag is no slot: it adds its carry while owned.
 
@@ -30,7 +30,7 @@ cloak/feet AGI, accessory CHA. The whole budget goes on the one stat.
 weapon nouns of the same name ("Cane Sword", "Estoc Dagger" → AGI), not over armour ("Rapier Shield" → VIT). Items defined by a reply captured before the mark keep the pick above.
 
 *Order (rule mark `gearOrder`, new `+ item` lines):* when a line lists more stats than its rarity's budget or `GEAR.maxStats` (2) allows, the first written keep their points
-(`| LUK: 1 | STR: 1 | DEX: 1` on an uncommon piece gives LUK and STR). A reply without the mark keeps the order of the seven stats (STR first).
+(`| WIS: 1 | STR: 1 | DEX: 1` on an uncommon piece gives WIS and STR). A reply without the mark keeps the order of the seven stats (STR first).
 
 ## What a story item gets
 
@@ -60,7 +60,7 @@ While the feature is on, a `+ item` line that makes a new item gets (before any 
 ## Queries and commands
 
 * `inventory.gear { owner }` (default `party`) answers `{ on, owner, slots, statBonus, carry }`: `slots` has the eight places,
-  each `{ name, stats, cond, broken }` or `null`; `statBonus` is `{ STR, VIT, AGI, DEX, INT, LUK, CHA }` summed over what is worn
+  each `{ name, stats, cond, broken }` or `null`; `statBonus` is `{ STR, VIT, AGI, DEX, INT, WIS, CHA }` summed over what is worn
   (broken left out); `carry` is `{ load, capacity, encumbered, penalty, sources }` (penalty -2 while encumbered). `inventory.statBonus
   { owner }` answers the sum alone. Both answer null while the feature is off.
 * `gear.carry` answers what `items.carry` asks (`{ on, people, bag, load, capacity, bonuses }`, or `{ ok, message }` for

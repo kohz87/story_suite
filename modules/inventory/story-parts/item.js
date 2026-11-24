@@ -3,7 +3,7 @@
 import { labelOf } from '../../scene/domains/common.js';
 import { cleanName, trimText, aliasKey } from '../../scene/names.js';
 import { isCurrencyName, countedMoney } from '../money.js';
-import { GEAR, slotWordOf, placeOf } from '../gear.js';
+import { GEAR, gearStatKey, slotWordOf, placeOf } from '../gear.js';
 import { featureOn, FEATURE, MAX_NOTE, gearOn, MAX_NAME } from '../state.js';
 import { itemText, baseSlot } from '../validate.js';
 import {
@@ -31,9 +31,10 @@ const ENCUMBERED_NOTE = ' The party now carries more than it can and is encumber
 function statWords(line, written = false) {
     const out = {};
     // `written` (the `gearOrder` rule mark, new replies): the order the line wrote them in, so a line over the budget keeps its first-written stats.
-    const order = written ? Object.keys(line?.labels ?? {}).map(key => key.toUpperCase()).filter(stat => GEAR.stats.includes(stat)) : GEAR.stats;
+    // (a line that still says LUK, gear's sixth stat before it was WIS, is read as WIS)
+    const order = written ? [...new Set(Object.keys(line?.labels ?? {}).map(gearStatKey).filter(stat => GEAR.stats.includes(stat)))] : GEAR.stats;
     for (const stat of order) {
-        const said = labelOf(line, stat.toLowerCase());
+        const said = labelOf(line, stat.toLowerCase()) ?? (stat === 'WIS' ? labelOf(line, 'luk') : null);
         const n = said === null ? NaN : Number(/^\s*\+?(\d{1,3})\s*$/.exec(said)?.[1]);
         if (Number.isSafeInteger(n) && n > 0) out[stat] = n;
     }

@@ -1,7 +1,7 @@
 // Gear form: the two Bonus lines (stat and points boxes, live points line) and reading them back into a stats object.
 
 import { STRINGS } from '../../../core/strings.js';
-import { GEAR } from '../../../modules/inventory/gear.js';
+import { GEAR, statsOf as gearStatsOf } from '../../../modules/inventory/gear.js';
 import { SHOWN } from './shared-limits.js';
 import { statOptions } from './shared-options.js';
 
@@ -11,7 +11,7 @@ const N = STRINGS.inventory;
 
 // The Bonus lines (two), their stat and points boxes, and (when they can be changed) the live points line after them.
 export function bonusFields(stats, locked) {
-    const listed = Object.entries(stats && typeof stats === 'object' ? stats : {}).slice(0, GEAR.maxStats);
+    const listed = Object.entries(gearStatsOf(stats && typeof stats === 'object' ? stats : {})).slice(0, GEAR.maxStats);
     const out = [];
     for (const at of [1, 2]) {
         const one = listed[at - 1];

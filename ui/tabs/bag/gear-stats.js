@@ -1,19 +1,16 @@
 // The gear Stats picker: −/+ rows (the Party stat sheet's .ps-st rows) that place a piece's points on at most two stats, and the "+1 DEX · +1 AGI" line.
 import { h } from '../../kit/dom.js';
-import { GEAR, defaultStat } from '../../../modules/inventory/gear.js';
+import { GEAR, defaultStat, statsOf } from '../../../modules/inventory/gear.js';
 
-// The stats a piece may raise that Combat Rules v1 reads (the Party sheet's order); LUK is listed only for a piece that still has points on it (gear's list keeps LUK and has no WIS).
-const ROWS = ['STR', 'DEX', 'AGI', 'VIT', 'INT', 'CHA'];
-const NAME = { STR: 'Strength', DEX: 'Dexterity', AGI: 'Agility', VIT: 'Vitality', INT: 'Intelligence', CHA: 'Charisma', LUK: 'Luck' };
-const ORDER = [...ROWS, 'LUK'];
-// The sheet's full words for the labels a module may show (Text RPG's WIS is the gear's sixth stat); a name this list lacks shows no small word.
+// The stats a piece may raise (the Party sheet's order, WIS before Charisma); a piece saved with LUK is read as WIS before it gets here (gear's gearStatKey).
+const ROWS = ['STR', 'DEX', 'AGI', 'VIT', 'INT', 'WIS', 'CHA'];
+const NAME = { STR: 'Strength', DEX: 'Dexterity', AGI: 'Agility', VIT: 'Vitality', INT: 'Intelligence', WIS: 'Wisdom', CHA: 'Charisma' };
+// The sheet's full words for the labels a module may show (a module's own name for the sixth stat); a name this list lacks shows no small word.
 const FULL = { STR: 'Strength', VIT: 'Vitality', AGI: 'Agility', DEX: 'Dexterity', INT: 'Intelligence', WIS: 'Wisdom', LUK: 'Luck', CHA: 'Charisma' };
-// With a module's own labels (not the gear's) the sixth stat is always offered under its label; the order is the Party sheet's with it before Charisma.
-const OWN_ORDER = ['STR', 'DEX', 'AGI', 'VIT', 'INT', 'LUK', 'CHA'];
 const labelOf = (labels, key) => (Array.isArray(labels) ? labels[GEAR.stats.indexOf(key)] : null) || key;
 const customOf = labels => Array.isArray(labels) && labels.some((name, at) => name !== GEAR.stats[at]);
 
-const clean = stats => Object.fromEntries(ORDER.filter(k => Number.isSafeInteger(stats?.[k]) && stats[k] > 0).map(k => [k, stats[k]]));
+const clean = stats => Object.fromEntries(Object.entries(statsOf(stats)).sort(([a], [b]) => ROWS.indexOf(a) - ROWS.indexOf(b)));
 const total = stats => Object.values(stats).reduce((sum, n) => sum + n, 0);
 
 /** "+1 DEX · +1 AGI" for a piece's stats ('' for none), in the Party sheet's order. */
@@ -49,8 +46,7 @@ export function statsPicker({ budget = 0, stats = {}, labels = null, onChange } 
     return total(staged) < max && (used.includes(k) || used.length < GEAR.maxStats);
   }
   function draw() {
-    const rows = customOf(labels) ? OWN_ORDER : staged.LUK ? ORDER : ROWS;
-    list.replaceChildren(...rows.map(k => h('div', { class: 'ps-st', dataset: { stat: k } },
+    list.replaceChildren(...ROWS.map(k => h('div', { class: 'ps-st', dataset: { stat: k } },
       h('span', null, h('b', null, labelOf(labels, k)), h('small', null, customOf(labels) ? FULL[labelOf(labels, k).toUpperCase()] ?? '' : NAME[k])),
       h('span', { class: ['v', staged[k] ? 'up' : null] }, staged[k] ? `+${staged[k]}` : '0'),
       h('button', { type: 'button', class: 'ps-b', dataset: { minus: k }, 'aria-label': `Lower ${labelOf(labels, k)}`, disabled: !staged[k], onClick: step(k, -1) }, '−'),

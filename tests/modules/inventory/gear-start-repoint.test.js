@@ -216,7 +216,7 @@ test('name guess: quick weapons raise AGI in items a new reply defines ("Cane Sw
 test('order: a line over its rarity budget keeps the stats in the order it wrote them (new replies); an unmarked reply keeps the old order', { skip }, async t => {
     const host = await world(t);
     await host.send('Hello.', reply('+ item Odd Blade | kind: weapon | rarity: uncommon | LUK: 1 | STR: 1 | DEX: 1'));
-    assert.deepEqual(defOf(host, 'Odd Blade').stats, { LUK: 1, STR: 1 });
+    assert.deepEqual(defOf(host, 'Odd Blade').stats, { WIS: 1, STR: 1 });
     const old = await world(t), setter = old.store.setRuleMarks;
     old.store.setRuleMarks = () => { throw new Error('old reply'); };
     await old.send('Hello.', reply('+ item Odd Blade | kind: weapon | rarity: uncommon | LUK: 1 | STR: 1 | DEX: 1'));

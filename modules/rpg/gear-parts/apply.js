@@ -3,6 +3,9 @@ import { fold } from '../read.js';
 import { STAT_MAX, ENCUMBERED_STATS } from './shared-marks.js';
 import { isObject } from './shared-helpers.js';
 
+// The key a sheet holds a stat under: the stat itself, or, on a sheet of the earlier rules (it has LUK and no WIS), gear's WIS counts as that LUK; null when it holds neither.
+const heldAs = (stats, stat) => (Number.isInteger(stats[stat]) ? stat : stat === 'wis' && Number.isInteger(stats.luk) ? 'luk' : null);
+
 /**
  * The sheet with the gear laid over the stats: each member's stats are stat + gear (held to 30), AGI and DEX then + the encumbered penalty (never under 1).
  * `base` keeps the stats as the block holds them (the bars' sizes follow those, never the gear). Without gear the sheet itself.
@@ -15,7 +18,10 @@ export function applyGear(sheet, gear) {
             const entry = gear.who?.[character.key];
             if (!entry || (!entry.add && !entry.enc)) return character;
             const stats = { ...character.stats };
-            for (const [stat, n] of Object.entries(entry.add ?? {})) if (Number.isInteger(stats[stat])) stats[stat] = n > 0 ? Math.max(stats[stat], Math.min(STAT_MAX, stats[stat] + n)) : stats[stat] + n;
+            for (const [said, n] of Object.entries(entry.add ?? {})) {
+                const stat = heldAs(stats, said);
+                if (stat) stats[stat] = n > 0 ? Math.max(stats[stat], Math.min(STAT_MAX, stats[stat] + n)) : stats[stat] + n;
+            }
             if (entry.enc) for (const stat of ENCUMBERED_STATS) if (Number.isInteger(stats[stat])) stats[stat] = Math.max(1, stats[stat] + entry.enc);
             return { ...character, stats, base: character.base ?? character.stats };
         }),
@@ -33,7 +39,7 @@ export function gearOfLine(line, gear) {
     const entry = gear?.who?.[fold(line?.pc?.who)];
     if (!entry) return [];
     const used = statsOfLine(line), out = [];
-    for (const item of entry.items ?? []) for (const [stat, n] of Object.entries(item.stats)) if (used.includes(stat)) out.push({ name: item.name, stat, n });
+    for (const item of entry.items ?? []) for (const [stat, n] of Object.entries(item.stats)) if (used.includes(stat) || (stat === 'wis' && used.includes('luk'))) out.push({ name: item.name, stat: used.includes(stat) ? stat : 'luk', n });
     if (entry.enc) for (const stat of ENCUMBERED_STATS) if (used.includes(stat)) out.push({ name: 'Encumbered', stat, n: entry.enc });
     return out;
 }

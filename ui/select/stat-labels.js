@@ -8,8 +8,8 @@ export function labelsOf(answer) {
   return names && names.some((name, at) => name !== GEAR.stats[at]) ? names : null;
 }
 
-/** `text` ("+1 LUK", "+2 STR +1 DEX") with each gear stat key swapped for its label (`labels` from labelsOf); the text itself with none. */
+/** `text` ("+1 WIS", "+2 STR +1 DEX") with each gear stat key swapped for its label (`labels` from labelsOf); the text itself with none. */
 export function relabel(text, labels) {
   if (typeof text !== 'string' || !text || !labels) return text;
-  return text.replace(/\b(STR|VIT|AGI|DEX|INT|LUK|CHA)\b/g, key => labels[GEAR.stats.indexOf(key)]);
+  return text.replace(/\b(STR|VIT|AGI|DEX|INT|WIS|CHA)\b/g, key => labels[GEAR.stats.indexOf(key)]);
 }

@@ -186,7 +186,7 @@ test('a roster that does not list the joiner: nothing is given to the party bag 
     assert.deepEqual(rows(host), []);
     assert.equal(joined(host)?.summary, 'Mara joined the party.');
     assert.equal('gear' in joined(host).data, false);
-    assert.deepEqual(host.sdk.query('inventory.gear', { owner: 'party' }).statBonus, { STR: 0, VIT: 0, AGI: 0, DEX: 0, INT: 0, LUK: 0, CHA: 0 }, 'the reader gains nothing');
+    assert.deepEqual(host.sdk.query('inventory.gear', { owner: 'party' }).statBonus, { STR: 0, VIT: 0, AGI: 0, DEX: 0, INT: 0, WIS: 0, CHA: 0 }, 'the reader gains nothing');
     assert.equal(host.turn.problems().filter(problem => /Mara's gear stays with Mara \(no party roster\)/.test(JSON.stringify(problem))).length, 1);
     host.store.rebuild();
     assert.deepEqual(rows(host), []);

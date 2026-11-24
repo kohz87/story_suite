@@ -1,7 +1,7 @@
 // The starting kit: whether it is open, and the stats, budget and slot a reader sets by hand.
 
 import { isPlainObject } from '../../scene/domains/common.js';
-import { GEAR, slotWordOf, placeOf } from '../gear.js';
+import { GEAR, gearStatKey, slotWordOf, placeOf } from '../gear.js';
 import { fill } from '../../../core/strings.js';
 import { E } from '../stacks.js';
 
@@ -24,7 +24,7 @@ export function handStats(ctx, raw) {
     if (!isPlainObject(raw)) ctx.fail('INVALID', fill(E.kitStats, { max: GEAR.maxStats }));
     const out = {};
     for (const [key, value] of Object.entries(raw)) {
-        const stat = String(key).trim().toUpperCase();
+        const stat = gearStatKey(key);
         if (!GEAR.stats.includes(stat) || !Number.isSafeInteger(value) || value < 1 || Object.hasOwn(out, stat)) ctx.fail('INVALID', fill(E.kitStats, { max: GEAR.maxStats }));
         out[stat] = value;
     }

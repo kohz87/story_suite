@@ -37,11 +37,11 @@ test('the picker places at most the budget on at most two stats, and says "n of 
   assert.equal(disabled(minus(picker.el, 'STR')), true, '− is off at 0');
 });
 
-test('the rows are the Party stat sheet rows; LUK shows only for a piece that still has points on it, and there is no WIS (gear cannot raise it)', () => {
+test('the rows are the Party stat sheet rows, WIS among them; a piece saved with LUK shows its points on WIS', () => {
   installFakeDom();
   const rows = picker => picker.el.querySelectorAll('.ps-st').map(row => row.dataset.stat);
-  assert.deepEqual(rows(statsPicker({ budget: 1 })), ['STR', 'DEX', 'AGI', 'VIT', 'INT', 'CHA']);
-  assert.deepEqual(rows(statsPicker({ budget: 2, stats: { LUK: 2 } })), ['STR', 'DEX', 'AGI', 'VIT', 'INT', 'CHA', 'LUK']);
+  assert.deepEqual(rows(statsPicker({ budget: 1 })), ['STR', 'DEX', 'AGI', 'VIT', 'INT', 'WIS', 'CHA']);
+  assert.equal(statsLine({ LUK: 2 }), '+2 WIS');
   assert.equal(statsLine({ AGI: 1, DEX: 1 }), '+1 DEX · +1 AGI');
   assert.equal(statsLine({}), '');
 });

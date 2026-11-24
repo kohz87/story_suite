@@ -44,7 +44,7 @@ test('every slot gives its stats through inventory.gear, and a broken piece take
     const host = await fresh(t);
     await host.send('Loot.', reply('Gear.', ['+ item Oak Staff | rarity: rare | equipped: weapon', '+ item Iron Helm | rarity: uncommon | equipped: head', '+ item Silk Cloak | rarity: uncommon | equipped: cloak', '+ item Walking Boots | rarity: uncommon | equipped: feet', '+ item Jade Ring | rarity: epic | equipped: accessory', '+ item Travel Pack']));
     const bonus = () => host.sdk.query('inventory.statBonus', { owner: 'party' });
-    assert.deepEqual(bonus(), { STR: 0, VIT: 2, AGI: 4, DEX: 0, INT: 3, LUK: 0, CHA: 4 });
+    assert.deepEqual(bonus(), { STR: 0, VIT: 2, AGI: 4, DEX: 0, INT: 3, WIS: 0, CHA: 4 });
     await host.send('Smash.', reply('Crash.', ['~ hit weapon 3']));
     assert.equal(bonus().INT, 0, 'broken: no stats');
     assert.equal(host.sdk.query('inventory.items').find(item => item.name === 'Travel Pack').equipped, null, 'a bag is worn nowhere');
@@ -206,7 +206,7 @@ test('a reply written with the grammar\'s words applies slot, rarity, stats, equ
     assert.deepEqual([blade.slot, blade.rarity], ['weapon', 'rare']);
     const gear = host.sdk.query('inventory.gear', { owner: 'party' });
     assert.deepEqual([gear.slots.weapon.name, gear.slots.cloak.name], ['Plain Thing', 'Fur Mantle']);
-    assert.deepEqual(gear.statBonus, { STR: 0, VIT: 0, AGI: 3, DEX: 2, INT: 0, LUK: 0, CHA: 0 }, 'each piece gives its rarity\'s points in full: the rare blade DEX 2 + AGI 1, the uncommon mantle AGI 2');
+    assert.deepEqual(gear.statBonus, { STR: 0, VIT: 0, AGI: 3, DEX: 2, INT: 0, WIS: 0, CHA: 0 }, 'each piece gives its rarity\'s points in full: the rare blade DEX 2 + AGI 1, the uncommon mantle AGI 2');
     await host.send('Fight.', reply('Torn.', ['~ item Plain Thing — struck | wear: ruin']));
     await host.send('Fight.', reply('Torn.', ['~ item Plain Thing — struck again | wear: ruin']));
     await host.send('Fight.', reply('Torn.', ['~ item Plain Thing — struck again | wear: ruin']));

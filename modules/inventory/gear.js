@@ -3,7 +3,7 @@
 // gear/views.js (the gear query answers) and gear/conditions.js (wear words and prices). Pure.
 // Public face: re-exports its parts.
 
-export { GEAR, slotWordOf, placeOf, gearSlotOf } from './gear-parts/stats-slots.js';
+export { GEAR, gearStatKey, slotWordOf, placeOf, gearSlotOf } from './gear-parts/stats-slots.js';
 export { gearRarityOf, statsOf, withinBudget, defaultStat } from './gear-parts/stats-rarity.js';
 export { gearDefine, handDef, packBonus, gearBudget } from './gear-parts/stats-defs.js';
 export { KIND_CARRY, OTHER_CARRY, kindCarry, itemCarryOf } from './gear-parts/carry-mounts.js';

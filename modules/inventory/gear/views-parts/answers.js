@@ -17,7 +17,7 @@ function wornBy(state, owner, condOf) {
     return out;
 }
 
-/** `statBonus(owner)` → { STR, VIT, AGI, DEX, INT, LUK, CHA } summed over what the owner wears, broken pieces left out. */
+/** `statBonus(owner)` → { STR, VIT, AGI, DEX, INT, WIS, CHA } summed over what the owner wears, broken pieces left out. */
 export function statBonus(state, owner, condOf) {
     const total = Object.fromEntries(GEAR.stats.map(stat => [stat, 0]));
     for (const piece of Object.values(wornBy(state, owner, condOf))) if (piece) for (const [stat, n] of Object.entries(piece.stats)) total[stat] += n;
