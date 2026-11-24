@@ -68,3 +68,15 @@ test('a swipe, a Re-read, a middle delete and a rebuild give the same pools', as
     assert.equal(astraOf(host).wounds, 0, 'the deleted Hurt reply takes its stage with it');
     sound(host);
 });
+
+test('a companion or a blank name is refused, not told as rested', async t => {
+    quiet(t);
+    const host = await withAstra();
+    t.after(() => host.close());
+    await hurt(host);
+    await host.send('Hello.', reply('Rorke joins.', ['+ companion Rorke | level: 9 | strengths: very strong, swordswoman', '~ rest Rorke — night']));
+    assert.equal(full(astraOf(host)), false);
+    const summaries = host.store.receipts().map(entry => entry.receipt).filter(r => r.type === 'capture.rest').map(r => r.summary);
+    assert.equal(summaries.some(s => /Rorke rests/.test(s)), false);
+    sound(host);
+});
