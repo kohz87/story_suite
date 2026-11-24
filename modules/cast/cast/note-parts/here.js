@@ -8,17 +8,14 @@
 // cue (cue.js), and anyone met is known to the story, so only the unmet are here. Pure: the line is read from the state and the packs each reply,
 // so a swipe, a rewind or a reload sends the same line.
 
-import { cutWords, isMet } from '../domain.js';
+import { isMet } from '../domain.js';
+import { faceOf } from './face.js';
 import { isPersona } from '../../../time/tracker/initiative.js';
 import { movable } from '../world-parts/movable.js';
 import { isSettlementKind } from '../../../scene/settlement-kind.js';
 
-/** At most this many people on the line, and this much of each one's role, look, manner and voice. */
+/** At most this many people on the line (each one's face is cut to size in face.js). */
 export const HERE_MAX = 4;
-const ROLE_MAX = 60;
-const LOOK_MAX = 90;
-const MANNER_MAX = 70;
-const VOICE_MAX = 90;
 const KINDS = new Set(['figure', 'companion']);
 
 // One instruction, worded for any persona name (no verb agrees with {{user}}); the list follows it.
@@ -77,16 +74,6 @@ export function hereLine(slice, frame, { persona = '' } = {}) {
         .sort((a, b) => a.rank - b.rank || order.get(a.key) - order.get(b.key))
         .slice(0, HERE_MAX);
     if (!people.length) return '';
-    const said = people.map(({ entry }) => {
-        // (a "; " stays the list's own separator: one inside a role or look reads as a comma)
-        const role = cutWords(String(entry.raw?.role ?? '').replace(/;/g, ','), ROLE_MAX);
-        const species = String(entry.raw?.species ?? '').trim().replace(/;/g, ',');
-        // (the race leads the look when the look doesn't name it, so the narrator never guesses it)
-        const look = cutWords(`${species && !String(entry.raw?.look ?? '').toLowerCase().includes(species.toLowerCase()) ? `${species}. ` : ''}${String(entry.raw?.look ?? '')}`.replace(/;/g, ','), LOOK_MAX);
-        // (the first sentence of the personality, and the voice, so the first lines they speak are theirs)
-        const manner = cutWords(String(entry.raw?.personality ?? '').split(/(?<=[.!?])\s/)[0].replace(/;/g, ',').replace(/[.]$/, ''), MANNER_MAX);
-        const voice = cutWords(String(entry.raw?.voice ?? '').replace(/;/g, ',').replace(/[.]$/, ''), VOICE_MAX);
-        return `${entry.name}${role ? `, ${role}` : ''}${look ? ` (${look.replace(/[.]$/, '')})` : ''}${manner ? `, manner: ${manner}` : ''}${voice ? `, speaks: ${voice}` : ''}`;
-    });
+    const said = people.map(({ entry }) => faceOf(entry));
     return `${HEAD} ${said.join('; ')}.`;
 }

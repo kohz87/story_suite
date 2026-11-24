@@ -57,8 +57,8 @@ export function chooseMeetings(slice, cast, { now = null, party = {}, comes = []
 /**
  * A sought person who is elsewhere: `{ key, where, text }` or null. A rumor and no meeting (nobody comes, the pace is not used): never during a
  * fight, never when a meeting is made in this reply (one cue a reply), never someone present or pinned, someone met or dead, someone already
- * heard of at the place they are still at, or someone who has no place or is at the party's (they come, or wait). The text describes them and
- * never names them (sought.js); with no way to say it without the name, no rumor.
+ * heard of at the place they are still at, or someone who has no place or is at the party's (they come, or wait). The card text describes them and
+ * never names them (sought.js); with no way to say it without the name, no rumor (the narrator's line is rebuilt from the entry, note-parts/rumor-line.js).
  */
 export function chooseRumor(slice, cast, { party = {}, sought = [], fight = false, met = [], present = new Set(), pinned = new Set() } = {}) {
     if (fight || met.length) return null;

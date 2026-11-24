@@ -16,8 +16,8 @@
 //   met:    null while unmet, else { on, where, why: 'place' | 'goal' | 'sought' | 'story', reason, rev, was? } (a meeting is recorded on the reply; `was`: where
 //           a goal arrival was before it came to the party, so a meeting the reply did not show (`cast.withdraw`) puts them back there)
 //   heard:  the last news of a met person: null | [{ on, text }] (a slot: written whole each time)
-//   rumored: an unmet person the reader sought who is elsewhere: null | [{ on, where, at, rev }] (a slot: written whole; the rumor, which never
-//           names them, was told in the reply at `at` and is not told again until met or until `where` is no longer where they are)
+//   rumored: an unmet person the reader sought who is elsewhere: null | [{ on, where, at, rev }] (a slot: written whole; the rumor (the card's text never
+//           names them; the narrator's line does), was told in the reply at `at` and is not told again until met or until `where` is no longer where they are)
 //   coming: an unmet person whose goal leads to the party but who is far: null | [{ from, to, start, arrive, reason, rev }] (a slot: the trip
 //           towards the place `to`, landing at story minute `arrive`; dropped when the link goes, `cast.journey`)
 //   known: after a planner move the atlas had no road for, the last place it had one for and the minute they left it: null | [{ where, since }]

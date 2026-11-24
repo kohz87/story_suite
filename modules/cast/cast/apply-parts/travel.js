@@ -74,7 +74,7 @@ export function applyWithdraw(cast, payload, env) {
 
 /**
  * Applies a `cast.rumor` payload (`{ at, who: [{ key, where, text }] }`): the reader sought a kind of person who is elsewhere, so the narrator
- * is told of them without a name in this reply (`at`) and the card says "Heard of". The person is marked in a slot written whole, so it is told
+ * is told who they are in this reply (`at`) and the card says "Heard of" (nameless). The person is marked in a slot written whole, so it is told
  * once, until they are met or move. Nobody is met and the pace is not used. Returns the keys told.
  */
 export function applyRumor(cast, payload, env) {
@@ -90,7 +90,7 @@ export function applyRumor(cast, payload, env) {
             const heard = cutPoints(String(item.text ?? '').replace(/^People here know of\s+/i, ''), 180).replace(/\.$/, '');
             note({
                 kind: 'heard', head: `Heard of: ${heard}`, tag: `${packName(person.pack)} cast · rumor`,
-                rest: 'You sought someone like this. They are not here, so the narrator is told only that people know of them (no name); you may meet them when you find them.',
+                rest: 'You sought someone like this. They are not here; the narrator knows who and where they are, and you meet them when you find them.',
                 line: `Heard of: ${heard}`,
             });
         }

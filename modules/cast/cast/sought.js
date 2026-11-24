@@ -3,7 +3,7 @@
 // The planner (plan.js, mode 'sought') may answer that an unmet person is SOUGHT, citing the words of the reader's message (or the story's last
 // reply) that ask for them. Code checks the citation like the RPG's foe check: the cited words must stand in those texts as whole words, so a
 // phrase the model made up is refused (`citedIn`). Here too: the cheap check that a message may be asking for someone at all (`kindTouches`),
-// and the rumor, a description of a sought person who is elsewhere that never carries their name or an alias (`rumorText`).
+// and the rumor's card text, a description of a sought person who is elsewhere that never carries their name or an alias (`rumorText`; the narrator's own line names them, note-parts/rumor-line.js).
 // Public face: re-exports its parts.
 
 export { MAX_CITED, citedClean, citedIn, words } from './sought-parts/cite.js';

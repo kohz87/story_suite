@@ -9,7 +9,7 @@
 //   - by goal: the planner judged that a phrase of their `drawnTo` is touched by the story and cites the reason.
 //   - sought: the reader's message looked for a kind of person and the planner named this one, citing words that stand in the message (or
 //     the story's last reply) as whole words (plan.js, sought.js): met at once when they are at the party's place, else a RUMOR (no meeting:
-//     `chooseRumor`, one line that describes them and never names them, told once until they move).
+//     `chooseRumor`, the reader's card describes them without the name; the narrator's line (note-parts/rumor-line.js) names them and says they are not here; told once until they move).
 //   Goal meetings come first (they carry a reason the story gave), then sought, then place meetings in the order people joined the world.
 // * A goal pulls someone only with a real link (`linkOf`: the party's place is a place their goal names, an open thread names them or
 //   their faction as giver or people, or the party carries what their goal needs); a word the goal and the scene share is none. And
