@@ -11,14 +11,21 @@ const PACK = [
     { name: 'Bluewatch Village', aliases: ['Bluewatch'], kind: 'settlement' },
     { name: 'Bluewatch Village / Guild Office', kind: 'building' },
     { name: 'Auvoth', kind: 'town' },
+    { name: 'Silver Hollow', kind: 'village' },
+    { name: 'Ersveil', kind: 'city' },
 ];
 const STORY = {
     'bluewatch river-gate storehouse': { id: 'pl_1', name: 'Bluewatch River-Gate Storehouse', kind: 'settlement', region: 'Bluewatch Reach', parent: null, routes: [] },
     'bluewatch village': { id: 'pl_2', name: 'Bluewatch Village', kind: 'settlement', parent: null, routes: [], source: 'atlas' },
     'harrow mill': { id: 'pl_3', name: 'Harrow Mill', kind: 'settlement', parent: null, routes: [] },
+    'silver creek': { id: 'pl_5', name: 'Silver Creek', kind: 'settlement', parent: null, routes: [] },
+    'bluewatch farm': { id: 'pl_6', name: 'Bluewatch Farm', kind: 'village', parent: null, routes: [] },
+    'ashford': { id: 'pl_7', name: 'Ashford', kind: 'village', parent: 'pl_8', routes: [] },
+    'ersveil': { id: 'pl_8', name: 'Ersveil', kind: 'city', parent: null, routes: [] },
     'bluewatch mill': { id: 'pl_4', name: 'Bluewatch Mill', kind: 'village', parent: null, routes: [{ id: 'rt_1' }] },
 };
-const query = (name, args) => (name === 'packs.content' ? (args?.kind === 'places' ? PACK : []) : name === 'atlas.place' ? STORY[String(args?.name).toLowerCase()] ?? null : null);
+const BY_ID = Object.fromEntries(Object.values(STORY).map(place => [place.id, place]));
+const query = (name, args) => (name === 'packs.content' ? (args?.kind === 'places' ? PACK : []) : name === 'atlas.place' ? (args?.id ? BY_ID[args.id] : STORY[String(args?.name).toLowerCase()]) ?? null : null);
 const party = place => ({ place, locate: locator(query) });
 
 test('a story-made "settlement" starting with the village\'s name word, with no road to it, sits in the village', () => {
@@ -36,4 +43,14 @@ test('left alone: the pack\'s own village, another name word, a place a road lea
     assert.deepEqual(locate('Harrow Mill').up, [], 'no village of the pack starts with its name word');
     assert.deepEqual(locate('Bluewatch Mill').up, [], 'a road leads to it');
     assert.equal(atPlace('Auvoth', party('Harrow Mill')), false);
+});
+
+test('left alone: a colour word shared with a pack settlement, a story village with no road (no trip is recorded per place), a story place under a pack city', () => {
+    const locate = locator(query);
+    assert.deepEqual(locate('Silver Creek').up, [], '"silver" is a common word, not a town\'s own');
+    assert.deepEqual(locate('Bluewatch Farm').up, [], 'only a place saved with the kind "settlement" is tied by name');
+    const ashford = locate('Ashford');
+    assert.equal(ashford.up[0].name, 'Ersveil');
+    assert.equal(ashford.tie, '', 'its saved parent is no name tie: the nearest settlement stays Ashford');
+    assert.equal(locate('Bluewatch River-Gate Storehouse').tie, locate('Bluewatch Village').key, 'the tied pack village is the settlement');
 });

@@ -74,10 +74,10 @@ export function setPlace(ctx, { name, kind, region, with: along }, { keepPresent
     // (S2PA B12) Who stayed behind is where the scene left them: their dossier's place is the place it moved away from.
     if (moved && left.length && fromPlace && ctx.carrier?.rules?.includes('placeFromMap')) leavePlace(ctx, left, fromPlace);
     const withWho = came.length ? ` with ${came.join(', ')}` : '';
-    const filedIn = inside?.town ? ` (filed inside ${inside.town}${inside.replaced ? `: a spot, so its kind is ${inside.kind}, not a settlement` : ''})` : '';
+    const filedIn = inside?.town ? ` (filed inside ${inside.town} as a ${inside.kind})` : '';
     const fromTheMap = filled.length ? ` (${filled.map(what => (filled.length > 1 ? '' : `${what} `) + scene.place[what]).join(', ')}, from the map)` : '';
     return {
-        summary: moved ? `The scene moves to ${placeName}${fromTheMap}${filedIn}${withWho}.` : `${placeName} is described anew.`,
+        summary: moved ? `The scene moves to ${placeName}${fromTheMap}${filedIn}${withWho}.` : `${placeName} is described anew${inside?.replaced ? filedIn : ''}.`,
         data: { ...scene.place, moved, present: [...scene.present], left },
         narrate: told(ctx),
     };

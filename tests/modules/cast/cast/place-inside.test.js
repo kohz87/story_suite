@@ -35,7 +35,7 @@ test('the owner\'s lines: the storehouse is filed inside Bluewatch Village, a bu
         await host.send('We walk to the river gate.', said('The storehouse by the river gate.', [STORE]));
         assert.deepEqual(sceneOf(host), { name: 'Bluewatch Village / Bluewatch River-Gate Storehouse', kind: 'building', region: 'Bluewatch Reach' });
         const receipt = host.sdk.receipts().map(entry => entry.receipt.summary ?? '').find(text => /Storehouse/.test(text));
-        assert.match(receipt, /filed inside Bluewatch Village: a spot, so its kind is building, not a settlement/);
+        assert.match(receipt, /\(filed inside Bluewatch Village as a building\)/);
         await host.send('I ask for the sealer in the Bluewatch village.', 'Inside the storehouse.');
         assert.match(hereOf(host), /Sister Temiwa, Bluewatch's healer-sealer/, 'the people of the village are here');
         const spot = host.sdk.query('atlas.place', { name: 'Bluewatch Village / Bluewatch River-Gate Storehouse' });
@@ -82,4 +82,26 @@ test('a real move to another village stays a settlement, and "Other Town / Spot"
         await host.send('Into the inn.', said('The inn.', ['~ place Marrowfen / The Low Inn | kind: building']));
         assert.deepEqual(sceneOf(host), { name: 'Marrowfen / The Low Inn', kind: 'building', region: 'Marsh Reach' }, 'a "Town / Spot" line is left as written');
     } finally { await host.dispose?.(); }
+});
+
+// A fresh chat at the guild office, then one reply with these lines: the scene's place after it.
+async function placeAfter(t, lines) {
+    t.mock.method(console, 'warn', () => {});
+    const host = await ersveil();
+    try {
+        await host.send('I look around.', 'The guild office.');
+        await host.send('We go.', said('On.', lines));
+        return sceneOf(host).name;
+    } finally { await host.dispose?.(); }
+}
+
+test('a time jump of hours written before a spot-kind line is a journey: the line stays as written; without it the spot is filed inside', async t => {
+    assert.equal(await placeAfter(t, ['~ time +2 days', '~ place Harrow Inn | kind: inn']), 'Harrow Inn', 'a journey: not filed inside the village');
+    assert.equal(await placeAfter(t, ['~ place Market Cross | kind: building']), 'Bluewatch Village / Market Cross', 'no journey: a plain in-town kind needs no tie');
+});
+
+test('an ambiguous spot kind needs a tie to the town: a shrine in the party\'s region stays as written; one named for the town, or in it, is filed inside', async t => {
+    assert.equal(await placeAfter(t, ['~ place Hermit\'s Shrine | kind: shrine | region: Bluewatch Reach']), 'Hermit\'s Shrine');
+    assert.equal(await placeAfter(t, ['~ place Bluewatch Shrine | kind: shrine']), 'Bluewatch Village / Bluewatch Shrine');
+    assert.equal(await placeAfter(t, ['~ place Hermit\'s Tower | kind: tower | region: Bluewatch Village']), 'Bluewatch Village / Hermit\'s Tower', 'the town as the line\'s region is a tie');
 });

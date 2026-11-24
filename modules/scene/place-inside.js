@@ -7,16 +7,17 @@
 import { foldKey } from '../../core/text.js';
 import { MAX_NAME } from './constants.js';
 import { knownPlace } from './place-known.js';
+import { isSettlementKind } from './settlement-kind.js';
 
-const SETTLEMENT = new Set(['village', 'hamlet', 'town', 'city', 'capital', 'settlement', 'port', 'fort', 'fortress', 'hold']);
-// What a spot in town is: a place the line may give a kind of (anything else, a wild, a dungeon or a road, is not a spot in town).
-const SPOT = new Set(['building', 'room', 'yard', 'shop', 'inn', 'tavern', 'house', 'hall', 'temple', 'shrine', 'market', 'gate', 'street', 'square', 'office', 'storehouse', 'warehouse', 'barracks', 'tower', 'cellar', 'district', 'ward', 'quarter', 'garden', 'dock']);
+// What a spot in town is: a place the line may give a kind of (anything else, a wild, a dungeon or a road, is not a spot in town). Plainly in town
+// (filed inside with no tie) or ambiguous (a shrine, a tower, a camp may stand in the wilds near the town: filed inside only with a tie).
+const IN_TOWN = new Set(['building', 'room', 'yard', 'shop', 'inn', 'tavern', 'house', 'hall', 'office', 'storehouse', 'warehouse', 'cellar', 'stable', 'smithy', 'market', 'square', 'street', 'lane', 'barracks', 'district', 'ward', 'quarter']);
+const AMBIGUOUS = new Set(['shrine', 'tower', 'garden', 'dock', 'gate', 'temple', 'mill', 'farm', 'camp', 'ruin', 'ruins']);
 const words = kind => String(kind ?? '').toLowerCase().split(/[\s/,;|-]+/).filter(Boolean);
-/** Whether a kind says a village, town or city ("settlement", "river village"). */
-export const isSettlementKind = kind => words(kind).some(word => SETTLEMENT.has(word));
-const isSpotKind = kind => words(kind).length > 0 && words(kind).every(word => SPOT.has(word));
+const kindIn = (kind, ...sets) => words(kind).length > 0 && words(kind).every(word => sets.some(set => set.has(word)));
+const isSpotKind = kind => kindIn(kind, IN_TOWN, AMBIGUOUS);
 // The first word of a name that tells one town from another ("Bluewatch" of "Bluewatch Village"); '' when it is only a common word.
-const COMMON = new Set(['the', 'old', 'new', 'port', 'fort', 'saint', 'north', 'south', 'east', 'west', 'upper', 'lower', 'great', 'little', 'high', 'low', 'mount']);
+const COMMON = new Set(['the', 'old', 'new', 'port', 'fort', 'saint', 'north', 'south', 'east', 'west', 'upper', 'lower', 'great', 'little', 'high', 'low', 'mount', 'black', 'silver', 'stone', 'iron', 'white', 'green', 'red', 'river', 'lake']);
 export function distinctWord(name) {
     const word = foldKey(name).split(/[\s-]+/)[0] ?? '';
     return word.length >= 4 && !COMMON.has(word) ? word : '';
@@ -66,15 +67,16 @@ export function filedInside(ctx, from, given) {
     if (!name || name.includes('/') || (kind && !isSettlementKind(kind) && !isSpotKind(kind))) return null;
     // The spot the scene is at, written again by its own part ("River-Gate Storehouse" at "Bluewatch Village / River-Gate Storehouse"), is that place.
     const tail = String(from.name).split(' / ').slice(1).join(' / ');
-    if (tail && foldKey(tail) === foldKey(name)) return { name: from.name, kind: kind && !isSettlementKind(kind) ? kind : from.kind || 'building', town: '', replaced: Boolean(kind && isSettlementKind(kind)) };
+    if (tail && foldKey(tail) === foldKey(name)) return { name: from.name, kind: kind && !isSettlementKind(kind) ? kind : from.kind || 'building', town: String(from.name).split(' / ')[0].trim(), replaced: Boolean(kind && isSettlementKind(kind)) };
     if (knownPlace(ctx, name) || foldKey(name) === foldKey(from.name)) return null;
     const town = townOf(ctx, from);
     if (!town || foldKey(town) === foldKey(name) || `${town} / ${name}`.length > MAX_NAME) return null;
     // A name that starts with another settlement's own name ("Bluewatch docks" while in Harrow) is a place of that settlement.
     const lead = knownPlace(ctx, name.split(/[\s-]+/)[0]);
     if (lead && isSettlementKind(lead.kind) && foldKey(lead.name) !== foldKey(town) && !sharesWord(name, town)) return null;
-    // A spot kind (building, yard…) says it is a spot; a settlement kind or none needs a tie to this town: its name word, or the town as the line's region.
-    if (!(kind && isSpotKind(kind)) && !sharesWord(name, town) && foldKey(region) !== foldKey(town)) return null;
+    // Only a plain in-town kind (building, inn, yard…) needs no tie; an ambiguous spot kind (shrine, tower…), a settlement kind or none needs one to this town:
+    // its name word, or the town as the line's region.
+    if (!(kind && kindIn(kind, IN_TOWN)) && !sharesWord(name, town) && foldKey(region) !== foldKey(town)) return null;
     // A region of the line that is neither the party's nor the town's puts the place somewhere else.
     if (region && ![from.region, town, knownPlace(ctx, town)?.region].some(own => own && foldKey(own) === foldKey(region))) return null;
     if (travelled(ctx)) return null;

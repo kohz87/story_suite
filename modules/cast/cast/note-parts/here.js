@@ -11,7 +11,7 @@
 import { cutWords, isMet } from '../domain.js';
 import { isPersona } from '../../../time/tracker/initiative.js';
 import { movable } from '../world-parts/movable.js';
-import { isSettlementKind } from '../../../scene/place-inside.js';
+import { isSettlementKind } from '../../../scene/settlement-kind.js';
 
 /** At most this many people on the line, and this much of each one's role, look, manner and voice. */
 export const HERE_MAX = 4;
@@ -30,9 +30,9 @@ const HEAD = '[People here] The world\'s own people at this place or nearby, not
 // ("~ place South Granary | region: Bluewatch Village"); else none (a road, the wilds, a place with no settlement above it).
 function settlementOf(here, party) {
     const chain = [here, ...here.up];
-    // A pack's settlement wins over one the story made: a storehouse the story called a "settlement" sits in the pack's village (entries.js `locator` ties it there).
+    // The nearest settlement, except a story-made "settlement" tied to a pack's village (entries.js `locator` `tie`): that village is the settlement.
     const towns = chain.filter(spot => isSettlementKind(spot.kind));
-    const found = towns.find(spot => spot.pack) ?? towns[0];
+    const found = (towns[0]?.tie && towns.find(spot => spot.key === towns[0].tie)) || towns[0];
     if (found) return found.key;
     if (!party.region) return null;
     const region = party.locate(party.region);
