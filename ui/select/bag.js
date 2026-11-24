@@ -3,6 +3,7 @@
 import { money } from './money.js';
 import { slotWordOf } from '../../modules/inventory/gear.js';
 import { purseLines } from './purse-lines.js';
+import { labelsOf, relabel } from './stat-labels.js';
 
 const KIND_OF = { equipment: 'gear', consumable: 'use', goods: 'goods', material: 'material', quest: 'quest' };
 const GLYPH_OF_SLOT = { weapon: 'weapon', body: 'armor', 'off-hand': 'offhand', head: 'head', cloak: 'cloak', feet: 'feet', 'accessory-1': 'accessory', 'accessory-2': 'accessory', accessory: 'accessory' };
@@ -30,9 +31,9 @@ function itemOf(row, ctx) {
     stack: String(row.stack), name: String(row.name), kind, glyph: glyphSlot, rarity: RARITY[row.rarity] ?? 'common', realRarity: typeof row.rarity === 'string' ? row.rarity : null,
     qty: Number.isSafeInteger(row.qty) ? row.qty : 1, count: Number.isSafeInteger(ctx.counts?.[row.stack]) ? ctx.counts[row.stack] : null, wornBy: worn ? wearer ?? null : null, isNew: null,
     wear: kind === 'gear' && word ? (word === 'torn' || word === 'broken' ? 'torn' : 'good') : null,
-    weight: whole(info?.weight), bonus: typeof info?.bonus === 'string' ? info.bonus : '', worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: originOf(row.from),
+    weight: whole(info?.weight), bonus: typeof info?.bonus === 'string' ? relabel(info.bonus, ctx.labels) : '', worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: originOf(row.from),
     note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
-    ...(kind === 'gear' ? gearOf(info) : {}),
+    ...(kind === 'gear' ? gearOf(info, ctx.labels) : {}),
     ...carryOf(info, ctx.packs?.[row.stack], kind === 'gear' && Boolean(slotWordOf(row.slot))),
   };
 }
@@ -49,8 +50,8 @@ function carryOf(info, pack, slotted) {
 
 // A gear piece's points for the Stats row and its Change (gear.view's `repoint`: the total that stays and where it sits now), and whether it is a cast member's.
 const statsRecord = raw => Object.fromEntries(Object.entries(isRecord(raw) ? raw : {}).filter(([, n]) => Number.isSafeInteger(n) && n > 0));
-const gearOf = info => ({
-  ...(isRecord(info?.repoint) && Number.isSafeInteger(info.repoint.budget) ? { repoint: { budget: info.repoint.budget, stats: statsRecord(info.repoint.stats) } } : {}),
+const gearOf = (info, labels) => ({
+  ...(isRecord(info?.repoint) && Number.isSafeInteger(info.repoint.budget) ? { repoint: { budget: info.repoint.budget, stats: statsRecord(info.repoint.stats), ...(labels ? { labels } : {}) } } : {}),
   ...(isRecord(info?.bound) ? { bound: true } : {}),
 });
 
@@ -69,12 +70,13 @@ const originOf = from => (typeof from === 'string' && !/^rc_/u.test(from) ? from
 
 /**
  * Bag view-model from { rpg, items: inventory.items, counts: inventory.counts (pieces per def+owner for unstacked items), gear: gear.view, wallet: inventory.wallet, currency: inventory.currency,
- * mounts: mounts.list, pace: mounts.pace, changes: reply.changes (the head reply's lines; the purse's coin lines are the turn's), carriers: gear.view's `carriers` (mounts with the party, what each adds; `packs`: the items that can be carried as a bag), pcId }; null when inventory.items does not answer.
+ * mounts: mounts.list, pace: mounts.pace, changes: reply.changes (the head reply's lines; the purse's coin lines are the turn's), carriers: gear.view's `carriers` (mounts with the party, what each adds; `packs`: the items that can be carried as a bag), pcId, labels: gear.statLabels (the names the gear's stats show under) }; null when inventory.items does not answer.
  */
-export function selectBag({ rpg = false, items, counts, gear, wallet, currency, mounts, pace, carriers, changes, pcId = null } = {}) {
+export function selectBag({ rpg = false, items, counts, gear, wallet, currency, mounts, pace, carriers, changes, pcId = null, labels = null } = {}) {
   if (!Array.isArray(items)) return null;
   const packs = Object.fromEntries((Array.isArray(carriers?.packs) ? carriers.packs : []).filter(isRecord).map(pack => [pack.stack, pack]));
-  const ctx = { rows: gear?.rows, currency, pcId, counts: isRecord(counts) ? counts : {}, packs };
+  const shown = labelsOf(labels);
+  const ctx = { labels: shown, rows: gear?.rows, currency, pcId, counts: isRecord(counts) ? counts : {}, packs };
   const list = items.filter(row => isRecord(row) && KIND_OF[row.kind]).map(row => itemOf(row, ctx));
   // (the grid lists a worn piece under Worn only, so "In bag" and the kind chips count the unworn ones)
   const loose = list.filter(item => item.wornBy === null);
@@ -83,7 +85,7 @@ export function selectBag({ rpg = false, items, counts, gear, wallet, currency, 
   return {
     rpg: rpg === true,
     // Gear in fights (gear.view answers only while it is on) and the starting kit (no message from the reader yet: Rarity and Stats go with + Add).
-    gear: { on: gear?.on === true, kit: gear?.kit?.open === true },
+    gear: { on: gear?.on === true, kit: gear?.kit?.open === true, ...(shown ? { labels: shown } : {}) },
     filters: FILTER_KEYS.map(key => ({ key, count: countOf[key] ?? loose.filter(item => item.kind === key).length })),
     items: list,
     // The wallet keeps one amount under `coin` (inventory/state.js WALLET_KEY): the denominations are in `words`, so `coins` stays null; `thisTurn` is the head reply's coin line; no rates yet.

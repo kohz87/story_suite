@@ -31,7 +31,7 @@ const ITEM = {
   realRarity: { $optional: { $nullable: T.STRING } },
   count: { $optional: { $nullable: T.NUMBER } },
   // A gear piece whose points the reader may move (gear.view's repoint): the total that stays and where it sits now ({ DEX: 1, AGI: 1 }); a cast member's piece is `bound`.
-  repoint: { $optional: { budget: T.NUMBER, stats: T.ANY } },
+  repoint: { $optional: { budget: T.NUMBER, stats: T.ANY, labels: { $optional: T.ANY } } },
   bound: { $optional: T.BOOLEAN },
   // What the item adds to carrying (gear on): the Edit form's Carries, read-only with the engine's reason `carryWhy` ('' when the reader may set it).
   carry: { $optional: T.NUMBER },
@@ -63,7 +63,7 @@ const ASSET = {
 export const BAG_SHAPE = {
   rpg: T.BOOLEAN,
   // Gear in fights is on, and the starting kit is open (the + Add form's Rarity and Stats).
-  gear: { $optional: { on: T.BOOLEAN, kit: T.BOOLEAN } },
+  gear: { $optional: { on: T.BOOLEAN, kit: T.BOOLEAN, labels: { $optional: T.ANY } } },
   filters: [{ key: { $enum: ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'] }, count: T.NUMBER }],
   items: [ITEM],
   purse: {

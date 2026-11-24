@@ -5,6 +5,7 @@ import { active } from './active.js';
 import { DOMAIN } from '../domain/shape.js';
 import { minutesOf } from './conditions.js';
 import { gearOf } from './gear.js';
+import { statLabelsOf } from './stat-labels.js';
 import { rowOf } from './sheet-row.js';
 import { levelOf } from './standing.js';
 import { rulesOf } from './rules-now.js';
@@ -29,6 +30,8 @@ export function queriesOf(sdk) {
         'party.pc': gate(state => { const pc = membersOf(state).find(member => member.pc); return pc ? { id: pc.id } : null; }),
         'party.levels': gate(state => membersOf(state).map(member => ({ id: member.id, name: member.name, level: levelOf(member), left: false })), { fallback: true }),
         'party.actors': gate(state => membersOf(state).map(member => ({ id: member.id, name: member.name, ...(member.pc ? { pc: true } : {}) }))),
+        // The seven names the gear's stats show under while Text RPG is on, in the gear's order (the inventory answers with its own names otherwise).
+        'gear.statLabels': gate(() => statLabelsOf(sdk)),
         // The dice of the latest dice step (drawn before the reply being written), or null.
         // The level cap and the XP rate the Rules page says now (the wizard's starting level is held to the cap).
         'textRpg.rules': gate(() => rulesOf(sdk)),

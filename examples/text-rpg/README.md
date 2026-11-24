@@ -60,7 +60,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   A success at a cost always costs: in danger one wound stage, out of danger the costed skill's cost again, else
   a step of stamina (a quarter of the pool, rounded up). The receipt's `data.paid` says which (`wound`, `skill`, `stamina`).
   A companion has no sheet, so nothing is paid from one.
-- **Gear** is not in the roll and does not wear: a failed roll in danger asks the inventory for nothing.
+- **Gear** is not in the roll and does not wear: a failed roll in danger asks the inventory for nothing. Worn gear still raises the sheet's stats and pools: its seven stats count by position, so a point of the gear's sixth stat (LUK) is a point of WIS, and the Bag's stat pickers and bonus text show your Stat names (WIS where the gear says LUK).
 - **Foes and the matchup.** Before a fight the narrator sets the foes up with `+ foes Name | count: N | kind: <kind>` (up to 6 groups a reply; the same
   Name and kind in a later reply while some stand is reinforcements, shown as such (the same Name of another kind is a new group, "Wolves 2"); `- foes Name` ends a group that fled or scattered, with no XP). Groups do not expire by themselves, but they close when the story clock has moved a day or more since a reply last touched them (with no clock they stay), or when a `+ foes` names new foes in a reply after one that hit none of them; the narrator is told to end foes that fled or were left. The record is kept in the
   domain (`foes`: groups keyed by id, the remaining count a counter) and is part of replay. Each reply the code tells the narrator the **matchup**: the foes' weight

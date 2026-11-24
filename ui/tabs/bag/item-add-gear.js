@@ -29,7 +29,7 @@ export function gearAddPlan({ kit = false, name = '', slot = '', rarity = 'commo
 }
 
 /** Builds the Slot, Rarity and Stats fields; `nameOf()` reads the typed name. Returns { el, plan(), refresh() } (refresh: the name changed). */
-export function gearAddFields({ kit = false, nameOf = () => '' } = {}) {
+export function gearAddFields({ kit = false, labels = null, nameOf = () => '' } = {}) {
   const slot = h('select', { 'aria-label': 'Slot' }, [h('option', { value: '' }, 'From the name'), ...GEAR.slots.map(s => h('option', { value: s }, cap(s)))]);
   slot.value = '';
   const rarity = kit
@@ -38,7 +38,7 @@ export function gearAddFields({ kit = false, nameOf = () => '' } = {}) {
   if (kit) rarity.value = 'common';
   const budget = () => GEAR.budget[kit ? rarity.value : 'common'] ?? 0;
   const fallback = () => defaultPick(nameOf(), slotFor(nameOf(), slot.value), budget());
-  const picker = statsPicker({ budget: budget(), stats: fallback() });
+  const picker = statsPicker({ budget: budget(), stats: fallback(), labels });
   // (a name or slot change moves an untouched pick to the new default; a rarity change starts the pick again on the new budget)
   const refresh = force => { if (force || !picker.touched()) picker.reset(budget(), fallback()); };
   slot.addEventListener('change', () => refresh(false));

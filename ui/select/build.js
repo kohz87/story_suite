@@ -104,7 +104,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     party: read => {
       const actors = read('party.actors', {});
       const screen = screenOf(read('party.newCharacter', {}));
-      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors), newCharacter: screen });
+      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors), newCharacter: screen, labels: read('gear.statLabels', {}) });
       // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
       // (a plug-in sheet's own empty party, `party.newCharacter` naming its screen, offers it too: the roster is empty, so the view-model above is null)
       return wizard.needsYou() || screen ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true, ...(screen ? { newCharacterScreen: screen } : {}) } : vm;
@@ -117,7 +117,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const loot = selectLoot(read('inventory.loot', {}));
       const bag = selectBag({
         rpg: Array.isArray(actors) && actors.length > 0, items: read('inventory.items', {}), counts: read('inventory.counts', {}), gear: pc?.id ? view : null, carriers: view?.carriers,
-        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), changes: read('reply.changes', {}), pcId: pc?.id ?? null,
+        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), changes: read('reply.changes', {}), pcId: pc?.id ?? null, labels: read('gear.statLabels', {}),
       });
       // every reply's loot not taken yet (the Bag's To pick up)
       return bag && loot.length ? { ...bag, loot } : bag;

@@ -1,8 +1,9 @@
-// Builds the four gear queries (`inventory.statBonus`, `inventory.gear`, `gear.view`, `gear.carry`) over the supplied readers.
+// Builds the five gear queries (`inventory.statBonus`, `inventory.gear`, `gear.view`, `gear.carry`, `gear.statLabels`) over the supplied readers.
 
 import { carryAnswer } from '../carry.js';
 import { statBonus, gearAnswer } from './answers.js';
 import { gearView } from './view.js';
+import { GEAR } from '../stats.js';
 
 /**
  * The two gear queries: `inventory.gear` and `gear.carry` (`items.carry`'s answer from Story Block's own rules, asked only when no
@@ -18,6 +19,8 @@ export function createGearQueries({ on, kit = () => false, empty = () => false, 
         'inventory.statBonus': gate((state, args) => statBonus(state, typeof args?.owner === 'string' && args.owner ? args.owner : 'party', condOf)),
         'inventory.gear': gate((state, args, tools) => gearAnswer(state, args, { condOf, carryOf, penalty, mounts: mountsOf(tools) }), true),
         'gear.view': gate((state, args, tools) => gearView(state, args, { kit, empty, condOf, carryOf, penalty, mounts: mountsOf(tools), names: id => names(state, tools, id), owners: () => owners(state, tools) })),
+        // The seven names a reader sees for the gear's stats, in the gear's order: a fallback, so a module that runs its own stats (Text RPG) answers instead while it is on.
+        'gear.statLabels': Object.assign(() => [...GEAR.stats], { fallback: true }),
         'gear.carry': gate((state, args, tools) => carryAnswer(state, args, { carryOf, mounts: mountsOf(tools) })),
     };
 }
