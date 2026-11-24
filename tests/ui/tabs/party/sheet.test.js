@@ -148,3 +148,13 @@ test('the player sheet has an Export button, and it opens the Export sheet for t
   assert.equal(sheetEl().querySelector('.ps-n').textContent, 'Export Astra');
   assert.deepEqual(commands(ctx.port), [['party.export', { member: 'astra' }]]);
 });
+
+test('a sheetless member (a Text RPG companion: no stats) opens: a short line in place of the stat tiles, the rest of the sheet drawn', () => {
+  const ctx = makeCtx();
+  const torka = { ...member(ctx, 'brann'), id: 'torka', name: 'Torka', stats: null, bonus: {}, points: 0, skills: [], soakPct: null };
+  const el = memberSheet(torka, ctx);
+  assert.equal(el.dataset.member, 'torka');
+  assert.equal(el.querySelectorAll('.sv').length, 0);
+  assert.match(el.querySelector('[data-note="no-stats"]').textContent, /No stat sheet/);
+  assert.equal(el.querySelector('.pts'), null);
+});
