@@ -1,4 +1,4 @@
-// What a Text RPG character's saved file carries besides its sheet: the things in the bag and the purse, in the shape of the RPG's character file (name, qty, note, kind, rarity; a worn piece keeps its slot and bonus), read through the host's queries (`inventory.items`, `inventory.wallet`).
+// What a Text RPG character's saved file carries besides its sheet: the things in the bag and the purse, in the shape of the RPG's character file (name, qty, note, kind, rarity; a worn piece keeps its slot and bonus), read through the host's queries (`inventory.items`, `inventory.wallet`). Adapted from modules/rpg/charfile-parts/items.js (keep the limits and the dedupe key in step).
 import { FILE_LIMITS } from '../wizard/charfile.js';
 import { ask } from './gear.js';
 
