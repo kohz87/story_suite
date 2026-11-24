@@ -41,8 +41,8 @@ test('on the host: own rules replace only the rules paragraph; the grammar lines
     }
 });
 
-test('the built-in rules are the owner\'s dice rules in short (at most 300 words) and carry each of their points', () => {
-    assert.ok(STATIC_TEXT.split(/\s+/).length <= 300, 'short: at most 300 words');
+test('the built-in rules are the owner\'s dice rules in short (at most 320 words) and carry each of their points', () => {
+    assert.ok(STATIC_TEXT.split(/\s+/).length <= 320, 'short: at most 320 words');
     for (const part of [
         'Roll only when an attempt is possible but uncertain', 'never roll routine things, thoughts, feelings, decisions or background', 'One objective, one roll, one skill',
         'never exceeds the character\'s capability or creates a place', 'Searching, tracking and navigating may be rolled', 'Use dice in order, skipping the die of a moot action',

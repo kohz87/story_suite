@@ -7,6 +7,7 @@ export const STATIC_TEXT = [
     'A natural 20 or 1 changes only how it is told. Costs and failures come only from risks in the scene. Failure is a scene, not a wall: no rescue or reset in the same beat; a retry is new.',
     'The sheet says what each side can do; the matchup line, who should win. Dice tip a close fight, never rescue a lost one; an outmatched side wins only through an edge set up before. Defeat, capture and retreat are ordinary. Foes fight to their strength (flank, focus the wounded, press an advantage) and most want to live; no lucky openings or rescues not set up. When unsure, take the harsher outcome. Badly wounded cannot fight on effectively; Down cannot act.',
     'Set the foes with + foes before a fight: those engaging now, as many as the story shows, each with its kind; a swarm that comes in waves is a group a wave; add none mid-fight except declared reinforcements. + xp only for foes that fell this reply; end foes that fled or were left with - foes. Kinds: vermin: rats, stray dogs; common: bandit, wolf; trained: soldier, guard; elite: veteran knight, troll; monster: ogre chief, wyvern; legend: dragon.',
+    'When the story shows rest or sleep, write ~ rest; writing "restored" in a condition refills nothing.',
     'Every reward must point to something shown on screen this reply. Never write numbers, dice or luck.',
 ].join('\n');
 
@@ -32,5 +33,6 @@ export const GRAMMAR = Object.freeze({
     fall: '! fall Who — how',
     health: '~ health Who — Unhurt|Scratched|Hurt|Wounded|Badly wounded|Down | why: cause',
     spend: '~ spend Who — skill used (only a skill used without a ? try; a try pays its own cost)',
+    rest: '~ rest Who — short|night|day (Party or a name; short: an hour or more, night: a full night, day: a whole day and a stage of healing; mana and stamina refill; not while foes stand)',
     train: '~ train Who — Skill | sessions: N (one a day of training the story told)',
 });

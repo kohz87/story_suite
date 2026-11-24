@@ -92,7 +92,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
 - **Danger.** The threat is the standing foes' (see the foe ladder); with no foes it is this reply's earlier
   `? try`'s. The threat starts the difficulty. For danger (wounds) and practice the latest earlier reply's recorded threat counts too, else none (not in danger).
 - **Limits.** Health is a stage counter `wounds` (0 Unhurt … 5 Down; the Party tab shows it as 5 − wounds of 5). Rest
-  (`textRpg.rest`) refills stamina and mana; a full day heals one stage and ages injuries (3, 10 or 30 days). An injury
+  (`textRpg.rest`, or the story line `~ rest Who — short|night|day`, refused while foes stand) refills stamina and mana; a full day heals one stage and ages injuries (3, 10 or 30 days). An injury
   made while the story has no clock has no end time (`heals: null`) and keeps until a day's rest with a clock starts its
   count; a timed condition made with no clock is held until `cleared`. A Down character cannot act; what happens to them
   is the story's call (`! fall Who — how` closes the sheet). If the reader's character has fallen, `textRpg.create`
