@@ -176,8 +176,8 @@ test('wounds are a stage counter: a heal reply deleted between two failures leav
     t.mock.method(console, 'warn', () => {});
     const host = await withAstra();
     try {
-        // Danger with a natural die cannot be chosen, so the wounds each surviving reply added are read from its own receipt.
-        const hurt = ['+ foes Guards | count: 1 | kind: trained', '? try Astra | Lore | very hard'];
+        // The die cannot be chosen, so the wounds each surviving reply added are read from its own receipt.
+        const hurt = ['+ foes Guards | count: 1 | kind: trained', '? try Astra | Lore | very hard | hit: a spear'];
         await host.send('One.', reply('First.', hurt));
         const healAt = host.ctx.chat.length;
         await host.send('Two.', reply('Second.', ['~ health Astra — Unhurt | why: a long rest']));
@@ -186,7 +186,8 @@ test('wounds are a stage counter: a heal reply deleted between two failures leav
         await host.st.deleteMessage(healAt);
         assert.deepEqual(host.store.problems(), []);
         let wounds = 0;
-        for (const { data } of tries(host)) wounds += Math.min(harmFor(data.band, true), Math.max(0, 4 - wounds));
+        for (const { data } of tries(host)) wounds += Math.min(data.hit ? harmFor(data.band, true) : 0, Math.max(0, 4 - wounds));
+        for (const { data } of tries(host)) assert.equal(data.hit, harmFor(data.band, true) ? 'a spear' : undefined);
         assert.equal(tries(host).length, 2);
         assert.equal(woundsOf(astraOf(host)), wounds, 'the same stage as the two failures told fresh');
         const after = JSON.stringify(host.head());
@@ -248,7 +249,7 @@ test('a heal deleted between a wound and a failed try leaves Badly wounded, neve
             await host.send('A.', reply('A.', ['~ health Astra — Badly wounded']));
             const healAt = host.ctx.chat.length;
             await host.send('H.', reply('H.', ['~ health Astra — Hurt']));
-            await host.send('C.', reply('C.', ['+ foes Ogres | count: 1 | kind: monster', '? try Astra | Lore | ordinary']));
+            await host.send('C.', reply('C.', ['+ foes Ogres | count: 1 | kind: monster', '? try Astra | Lore | ordinary | hit: an ogre club']));
             await host.st.deleteMessage(healAt + 1);
             await host.st.deleteMessage(healAt);
             assert.equal(woundsOf(astraOf(host)), 4, 'Badly wounded, as a fresh telling of A then C');

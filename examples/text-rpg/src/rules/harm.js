@@ -37,7 +37,7 @@ function topOfStage(stage, max) {
     return Math.min(max, Math.max(1, tops[stage]));
 }
 
-/** How many health stages each roll band costs when the roll is made in danger. */
+/** How many health stages each roll band costs when the roller is struck. */
 export const HARM_STAGES = Object.freeze({ great: 0, success: 0, cost: 1, failure: 1, bad: 2 });
 
 /**

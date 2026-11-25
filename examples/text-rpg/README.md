@@ -43,7 +43,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   rounded down, from the stats with the points spent (stats 1..30, level 1..99). A level-up raises the size, a roll-back lowers it;
   what is left is a counter, read no higher than the size. Health is the five wound stages. A new level-1 character has 10 to 12.
 - **Dice.** Before each reply the code draws three d20 from the reply's seed. At the moments that decide an
-  outcome the narrator writes `? try Who | skill or stat | difficulty [| against: Group] [| edge: +1 (reason)]`; the code reads the verdict from the
+  outcome the narrator writes `? try Who | skill or stat | difficulty [| against: Group] [| edge: +1 (reason)] [| hit: what struck them]`; the code reads the verdict from the
   next die, the bonus and the difficulty, and the narrator tells that result. A swipe draws new dice; a Re-read keeps them.
   **The roll** is d20 + the skill's rank × 2 (Novice 0, Apprentice 2 … Legend 12). A skill the member does not have (a `? try` naming a skill
   that is not on the sheet) rolls −3; a plain stat try (`? try Astra | AGI`) is +0. Stats, gear and level are not in the roll. Each injury
@@ -56,12 +56,14 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   then moves it: Standard (the default) none, Gritty one step harder, Heroic one easier. At the ends the shift is clamped, so under Gritty "very hard" and "near impossible" are both 30, and under Heroic "trivial" and "easy" are both 5 (the dice note lists the numbers). The receipt names the word rolled against.
 - **Bands.** At or over the number: success. 1–2 short: success at a cost. 3–9 short: failure. 10 or more
   short: a bad failure. A natural 20 or 1 changes only the quality: a natural 20 that misses is still a miss (marked "well done"), a natural 1 that
-  succeeds still succeeds (marked "clumsy"). In danger a failure adds one wound
-  stage and a bad failure two (never past Badly wounded from one line); a costed skill spends MP or SP first.
-  A success at a cost always costs: in danger one wound stage, out of danger the costed skill's cost again, else
+  succeeds still succeeds (marked "clumsy"). A costed skill spends MP or SP first.
+  **Wounds** come only from a hit: `| hit: what struck them`, written when the story shows the roller struck. With it a success at a cost or a failure adds one wound
+  stage and a bad failure two (never past Badly wounded from one line); a success never wounds. Without it no roll wounds, with foes standing or not
+  (an old `danger:` label is ignored). The receipt keeps the words (`data.hit`, up to 80 characters) when the result wounds, and the Rolls card says "a wound (tusk to the thigh)".
+  A success at a cost always costs: with a hit its wound stage, with none the costed skill's cost again, else
   a step of stamina (a quarter of the pool, rounded up). The receipt's `data.paid` says which (`wound`, `skill`, `stamina`).
   A companion has no sheet, so nothing is paid from one.
-- **Gear** is not in the roll and does not wear: a failed roll in danger asks the inventory for nothing. Worn gear still raises the sheet's stats and pools: its seven stats count by position, so a point of the gear's sixth stat (LUK) is a point of WIS, and the Bag's stat pickers and bonus text show your Stat names (WIS where the gear says LUK).
+- **Gear** is not in the roll and does not wear: a roll that wounds asks the inventory for nothing. Worn gear still raises the sheet's stats and pools: its seven stats count by position, so a point of the gear's sixth stat (LUK) is a point of WIS, and the Bag's stat pickers and bonus text show your Stat names (WIS where the gear says LUK).
 - **Foes and the matchup.** Before a fight the narrator sets the foes up with `+ foes Name | count: N | kind: <kind>` (up to 6 groups a reply; the same
   Name and kind in a later reply while some stand is reinforcements, shown as such (the same Name of another kind is a new group, "Wolves 2"); `- foes Name` ends a group that fled or scattered, with no XP). Groups do not expire by themselves, but they close when the story clock has moved a day or more since a reply last touched them (with no clock they stay), or when a `+ foes` names new foes in a reply after one that hit none of them; the narrator is told to end foes that fled or were left. The record is kept in the
   domain (`foes`: groups keyed by id, the remaining count a counter) and is part of replay. Each reply the code tells the narrator the **matchup**: the foes' weight
@@ -89,8 +91,8 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   difficulty ("hard (bleeding)"), a natural 20 or 1, an edge, a skill not on the sheet and a rank up are said briefly. The last row, "Earned", is the reply's xp, its lessons and the practice of its `~ spend` and `~ train`
   lines. With more rolls than the card holds the rest share one "and N more" row, so none is dropped. The card's tone is the worst band of the reply. A raised roll's receipt
   (`data.why`) and the dice note's floor line name the reasons: each live condition and a drained body.
-- **Danger.** The threat is the standing foes' (see the foe ladder); with no foes it is this reply's earlier
-  `? try`'s. The threat starts the difficulty. For danger (wounds) and practice the latest earlier reply's recorded threat counts too, else none (not in danger).
+- **Threat.** The threat is the standing foes' (see the foe ladder); with no foes it is this reply's earlier
+  `? try`'s. The threat starts the difficulty. For practice the latest earlier reply's recorded threat counts too, else none. It does not decide wounds (see Bands).
 - **Limits.** Health is a stage counter `wounds` (0 Unhurt … 5 Down; the Party tab shows it as 5 − wounds of 5). Rest
   (`textRpg.rest`, or the story line `~ rest Who — short|night|day`, refused while foes stand; short and night act the same) refills stamina and mana; a full day heals one stage and ages injuries (3, 10 or 30 days). An injury
   made while the story has no clock has no end time (`heals: null`) and keeps until a day's rest with a clock starts its

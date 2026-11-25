@@ -1,4 +1,4 @@
-// Gear no longer wears from a roll: a bad failure in danger asks the inventory for nothing, and the receipt and the card carry no wear.
+// Gear no longer wears from a roll: a bad failure with a hit asks the inventory for nothing, and the receipt and the card carry no wear.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
@@ -6,11 +6,11 @@ import { applyTry } from '../src/module-parts/kinds/try.js';
 import { rollsOf } from '../src/module-parts/rolls.js';
 import { SID, astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
 
-test('a bad failure in danger with a weapon and armour worn calls no gear.wear and records no wear', () => {
+test('a bad failure with a hit with a weapon and armour worn calls no gear.wear and records no wear', () => {
     const calls = [];
     const query = name => (name === 'gear.view' ? { slots: { weapon: { name: 'Sword', rarity: 'common', broken: false }, body: { name: 'Mail', rarity: 'common', broken: false } } } : null);
     const slice = sliceOf([astra()], { list: [1, 1, 1], floor: 0 });
-    const done = run(applyTry, fakeCtx(slice, { query, call: (...args) => { calls.push(args); return { data: {} }; } }), line('try', 'Astra', 'str; ordinary', { threat: 'above you' }));
+    const done = run(applyTry, fakeCtx(slice, { query, call: (...args) => { calls.push(args); return { data: {} }; } }), line('try', 'Astra', 'str; ordinary', { hit: 'a spear' }));
     assert.equal(done.result.data.band, 'bad');
     assert.equal(done.result.data.paid, 'wound');
     assert.deepEqual(calls, []);

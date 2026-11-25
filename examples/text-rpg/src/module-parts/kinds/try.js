@@ -1,4 +1,4 @@
-// `? try Who | skill or stat | difficulty [| against: Name] [| edge: +1 (reason)]`: the code reads the verdict from the reply's recorded die, the bonus and the difficulty (with foes standing the group's threat starts it, else the narrator's word; the edge moves it, conditions hold a floor, the tone shifts it). An old line's `threat:` is ignored.
+// `? try Who | skill or stat | difficulty [| against: Name] [| edge: +1 (reason)] [| hit: what struck them]`: a failure or a success at a cost wounds only with `hit:` (the story shows the roller struck; the band sets how many stages); the code reads the verdict from the reply's recorded die, the bonus and the difficulty (with foes standing the group's threat starts it, else the narrator's word; the edge moves it, conditions hold a floor, the tone shifts it). An old line's `threat:` is ignored.
 import { DIFFICULTIES, difficultyIndex, isDifficultyWord } from '../../rules/difficulty.js';
 import { readEdge } from '../../rules/edge.js';
 import { floorIndex, raiseToFloor } from '../../rules/floor.js';
@@ -6,7 +6,7 @@ import { harmFor } from '../../rules/harm.js';
 import { rollPractice } from '../../rules/practice.js';
 import { verdict } from '../../rules/roll.js';
 import { stageOf } from '../../words/pools.js';
-import { priorThreat, recordOf } from '../dice-source.js';
+import { recordOf } from '../dice-source.js';
 import { foeFor } from '../foe-pick.js';
 import { noteRolled } from '../foes-fights.js';
 import { BAND_WORD } from '../band-words.js';
@@ -48,9 +48,8 @@ export function applyTry(ctx, line) {
     // While foes stand the strongest group (or the one `against:` names) sets the threat, whatever word the narrator wrote (a `threat:` on the line is ignored).
     const { group, missed } = foeFor(slice, labelOf(line, 'against'), record.clock);
     const ruled = group ? group.threat : null;
-    // The threat that starts the difficulty is that, else this reply's earlier one; one named nowhere leaves the narrator's word. For danger and practice the latest earlier reply's counts too.
+    // The threat that starts the difficulty is that, else this reply's earlier one; one named nowhere leaves the narrator's word. For practice the latest earlier reply's counts too.
     const named = ruled ?? record.threat ?? null;
-    const carried = named ?? priorThreat(slice, ctx.reply?.sid);
     const drained = stageOf(poolWith(member, 'sp', cap).now, poolWith(member, 'sp', cap).max, 'energy').index >= 3;
     const physical = PHYSICAL.includes(found.stat);
     const own = floorIndex({ conditions: liveConditions(member, ctx.time?.() ?? null).length, drained, physical });
@@ -73,15 +72,16 @@ export function applyTry(ctx, line) {
     const die = record.list[record.used ?? 0];
     const result = verdict({ die, bonus: found.bonus, dc: DIFFICULTIES[index].dc });
 
-    const inDanger = (carried ?? 0) >= 2 || labelOf(line, 'danger').toLowerCase() === 'yes';
-    const stages = harmFor(result.band, inDanger);
+    // A wound only when the story shows the roller struck (`hit:`); the band, not the narrator, sets how bad (owner, 25 Nov: only a direct hit wounds).
+    const hit = labelOf(line, 'hit').replace(/\s+/g, ' ').trim().slice(0, 80);
+    const stages = hit ? harmFor(result.band, true) : 0;
     let paid = 'none';
     if (!member.companion) {
         paid = stages > 0 ? 'wound' : 'none';
         // The stored wounds is a counter: add the change, never write back a value computed from the clamped read.
         member.wounds += woundsAfter(member, stages) - woundsOf(member);
-        // Success at a cost always costs: in danger the wound stage above; out of danger the skill's cost again, else a step of stamina.
-        if (result.band === 'cost' && !inDanger) {
+        // Success at a cost always costs: a hit's wound stage above; with no hit the skill's cost again, else a step of stamina.
+        if (result.band === 'cost' && !stages) {
             if (found.skill?.cost && !spendCost(member, found.skill, cap)) paid = 'skill';
             else {
                 const sp = poolWith(member, 'sp', cap);
@@ -104,6 +104,6 @@ export function applyTry(ctx, line) {
     const tail = `${DIFFICULTIES[index].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${result.quality ? ` (${result.quality})` : ''}${note}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}${costPaid ? '; cost already paid' : ''}.`;
     return {
         summary: `${member.name} tries ${found.skill?.name ?? what}, ${tail}`, narrate: true,
-        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, ...(result.quality ? { quality: result.quality } : {}), raised, ...(raised ? { why: reasons } : {}), ...(edge ? { edge: edge.steps, ...(edge.ignored ? { edgeIgnored: true } : { edgeWhy: edge.why }) } : {}), ...(found.unlearned ? { unlearned: true } : {}), paid, practice, rankUp, ...(costPaid ? { costPaid } : {}) },
+        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, ...(result.quality ? { quality: result.quality } : {}), raised, ...(raised ? { why: reasons } : {}), ...(edge ? { edge: edge.steps, ...(edge.ignored ? { edgeIgnored: true } : { edgeWhy: edge.why }) } : {}), ...(found.unlearned ? { unlearned: true } : {}), paid, ...(stages > 0 ? { hit } : {}), practice, rankUp, ...(costPaid ? { costPaid } : {}) },
     };
 }

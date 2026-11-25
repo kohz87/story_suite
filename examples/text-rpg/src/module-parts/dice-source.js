@@ -37,10 +37,3 @@ export function recordOf(ctx, slice) {
     for (const key of keys.slice(0, Math.max(0, keys.length - LIMITS.diceReplies))) delete slice.dice[key];
     return slice.dice[sid];
 }
-
-/** The threat the latest reply recorded before `sid` (0 when none did): what a `? try` made with no foes standing is made under, as the prelude's floor reads it. */
-export function priorThreat(slice, sid) {
-    const keys = Object.keys(slice.dice);
-    const at = keys.indexOf(sid);
-    return slice.dice[(at < 0 ? keys : keys.slice(0, at)).at(-1)]?.threat ?? 0;
-}
