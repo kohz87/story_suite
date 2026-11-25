@@ -24,7 +24,7 @@ function poolPart(member, kind, label, cap) {
 export function capabilityLine(member, gear = { cap: {}, names: [] }, now = null, text = '') {
     if (member.companion) {
         const strengths = member.companion.strengths.join(', ');
-        return `${member.name} (companion, level ${member.companion.level})${strengths ? ` — ${strengths}` : ''}`;
+        return `${member.name} (companion, level ${levelOf(member)})${strengths ? ` — ${strengths}` : ''}`;
     }
     const total = totalStats(member, gear.cap);
     const stats = STAT_KEYS.map(key => [key.toUpperCase(), statWord(key, total[key])]).filter(([, word]) => word && word !== 'ordinary').map(([key, word]) => `${key} ${word}`);

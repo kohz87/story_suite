@@ -5,9 +5,10 @@ import { countedPurchases } from './purchases.js';
 
 const whole = value => (Number.isFinite(value) ? Math.trunc(value) : 0);
 
-/** The member's level: a companion's own, else the level their xp reaches. */
+/** The member's level: the level their xp reaches; a companion's never below the level their join line set. */
 export function levelOf(member) {
-    return member?.companion ? member.companion.level : levelFor(member?.xp).level;
+    const reached = levelFor(member?.xp).level;
+    return member?.companion ? Math.max(member.companion.level, reached) : reached;
 }
 
 /** The stat points left to spend: those the level has earned, less the purchases it pays for (never below 0). A companion has no stat sheet, so none. */

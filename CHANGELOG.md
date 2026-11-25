@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG: companions earn XP with you and level up from the level they joined at; their Party sheet shows an XP bar.
 - Party tab: a companion's keepsakes (from their NPC State profile) are listed on their sheet, apart from their gear.
 - Text RPG: a companion no longer shows stat points to spend (they have no stat sheet).
 - Text RPG: Export on a character now saves its bag and its money too, and Start from a saved character brings them back.

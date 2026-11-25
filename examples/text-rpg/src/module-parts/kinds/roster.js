@@ -5,6 +5,7 @@ import { nextLearned } from '../learned.js';
 import { memberNamed, skillIndex, skillSlots } from '../members.js';
 import { partsOf, labelOf, statKey } from '../line-read.js';
 import { levelOf } from '../standing.js';
+import { xpOfLevel } from '../../rules/levels.js';
 import { target } from './target.js';
 
 const TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
@@ -32,7 +33,7 @@ export function applySkill(ctx, line) {
 export function applyCompanion(ctx, line) {
     requireActive(ctx);
     const slice = ctx.draft(DOMAIN);
-    const level = Math.min(LIMITS.levelMax, Math.max(1, Number.parseInt(labelOf(line, 'level'), 10) || 1));
+    const asked = Math.min(LIMITS.levelMax, Math.max(1, Number.parseInt(labelOf(line, 'level'), 10) || 1));
     const strengths = labelOf(line, 'strengths').split(/[,;]/).map(item => item.trim().slice(0, 40)).filter(Boolean).slice(0, LIMITS.strengths);
     let member = memberNamed(slice, line.name);
     if (member?.pc) ctx.fail('REFUSED', `${member.name} is the reader's character.`);
@@ -41,7 +42,10 @@ export function applyCompanion(ctx, line) {
         member = newMember({ name: line.name, id: ctx.id('ac') });
         slice.members[member.id] = member;
     }
+    // (a companion earns xp with the party: a line that names a lower level than they have reached is ignored, a higher one lifts them)
+    const level = member.companion ? Math.max(asked, levelOf(member)) : asked;
     member.companion = { level, strengths };
+    member.xp = Math.max(member.xp ?? 0, xpOfLevel(level));
     member.fallen = null;
     return { summary: `${member.name} joins the party.`, narrate: true, data: { member: member.id, level, strengths } };
 }

@@ -22,7 +22,7 @@ test('+ xp with no foes record pays 10 XP when a roll succeeded this reply, none
     assert.equal(paid({ size: 'real' }, { list: [10, 10, 10], floor: 0 })[1], 0, 'no roll, no XP');
 });
 
-test('+ xp: levels add points, only one line counts a reply, companions and the fallen get none', () => {
+test('+ xp: levels add points, only one line counts a reply, a companion earns with the party (their joining level holds until their xp passes it)', () => {
     const rorke = astra({ id: 'ac_rorke001', name: 'Rorke', pc: false, companion: { level: 5, strengths: [] } });
     const slice = sliceOf([astra({ xp: 95 }), rorke], { ...asRolled(), won: true });
     const ctx = fakeCtx(slice);
@@ -30,7 +30,7 @@ test('+ xp: levels add points, only one line counts a reply, companions and the 
     assert.equal(first.result.narrate, true);
     assert.match(first.result.summary, /Astra reaches level 2/);
     const me = slice.members.ac_astra001;
-    assert.deepEqual([levelOf(me), pointsOf(me), rorke.xp, levelOf(rorke)], [2, 1, 0, 5]);
+    assert.deepEqual([levelOf(me), pointsOf(me), rorke.xp, levelOf(rorke), pointsOf(rorke)], [2, 1, 10, 5, 0]);
     me.bought.p1 = { stat: 'str', n: 1, seq: 0 };
     assert.equal(pointsOf(me), 0, 'a spent point is not offered again');
     assert.equal(run(applyXp, ctx, line('xp', 'Party', 'again')).code, 'LIMITED');

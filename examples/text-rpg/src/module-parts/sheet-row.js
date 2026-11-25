@@ -34,7 +34,7 @@ export function rowOf(member, now = null, cap = {}) {
     return {
         id: member.id, name: member.name, portrait: null, level,
         line: companion ? `Lv ${level} · companion` : `Lv ${level}`,
-        xpPct: companion ? 0 : xpPct(member), xpLabel: companion ? null : xpLabel(member), points: pointsOf(member), away: null,
+        xpPct: xpPct(member), xpLabel: xpLabel(member), points: pointsOf(member), away: null,
         bars: companion ? [] : [{ kind: 'hp', value: 5 - wounds, max: 5, label: `Health: ${HEALTH_STAGES[wounds]}` }, ...BARS.map(([kind, scale, label]) => ({ kind, value: pools[kind].now, max: pools[kind].max, label: `${label}: ${stageOf(pools[kind].now, pools[kind].max, scale).word}` }))],
         effects: [...liveConditions(member, now).map(item => item.name), ...member.injuries.map(item => item.name)],
         stats: companion ? null : Object.fromEntries(STAT_KEYS.map(key => [key.toUpperCase(), stats[key]])),

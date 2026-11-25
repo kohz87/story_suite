@@ -66,7 +66,9 @@ export function applyXp(ctx, line) {
     }
     const amount = scaleXp(raw, rate);
     const named = memberNamed(slice, line.name);
-    const who = named && !named.companion && !named.fallen ? [named] : players(slice).map(p => slice.members[p.id]);
+    // (companions earn with the party: those who play, then the companions; the fallen earn nothing)
+    const companions = Object.values(slice.members).filter(member => member.companion && !member.fallen);
+    const who = named && !named.fallen ? [named] : [...players(slice).map(p => slice.members[p.id]), ...companions];
     const levels = [];
     for (const member of who) {
         const before = levelOf(member);
