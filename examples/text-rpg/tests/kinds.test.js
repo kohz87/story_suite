@@ -123,14 +123,14 @@ test('+ skill takes the next free slot (5 at level 1, one more every tenth level
     assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Luck; luck')).code, 'INVALID');
 });
 
-test('+ companion makes a sheetless member with a level and up to three strengths, and updates a known one', () => {
+test('+ companion makes a sheetless member with a level and up to three strengths; a known one keeps the level they joined at (they level from the xp they earn)', () => {
     const slice = sliceOf();
     const ctx = fakeCtx(slice);
     const done = run(applyCompanion, ctx, line('companion', 'Rorke', '', { level: '9', strengths: 'very strong, a veteran swordswoman, tracker, extra' }));
     const rorke = slice.members[done.result.data.member];
     assert.deepEqual([rorke.name, rorke.pc, rorke.companion], ['Rorke', false, { level: 9, strengths: ['very strong', 'a veteran swordswoman', 'tracker'] }]);
     run(applyCompanion, ctx, line('companion', 'rorke', '', { level: '10' }));
-    assert.deepEqual([Object.keys(slice.members).length, rorke.companion.level, levelOf(rorke)], [2, 10, 10]);
+    assert.deepEqual([Object.keys(slice.members).length, rorke.companion.level, levelOf(rorke)], [2, 9, 9]);
     assert.equal(run(applyCompanion, ctx, line('companion', 'Astra', '', { level: '3' })).code, 'REFUSED');
 });
 

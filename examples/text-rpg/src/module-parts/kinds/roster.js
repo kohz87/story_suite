@@ -5,7 +5,6 @@ import { nextLearned } from '../learned.js';
 import { memberNamed, skillIndex, skillSlots } from '../members.js';
 import { partsOf, labelOf, statKey } from '../line-read.js';
 import { levelOf } from '../standing.js';
-import { xpOfLevel } from '../../rules/levels.js';
 import { target } from './target.js';
 
 const TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
@@ -42,10 +41,9 @@ export function applyCompanion(ctx, line) {
         member = newMember({ name: line.name, id: ctx.id('ac') });
         slice.members[member.id] = member;
     }
-    // (a companion earns xp with the party: a line that names a lower level than they have reached is ignored, a higher one lifts them)
-    const level = member.companion ? Math.max(asked, levelOf(member)) : asked;
+    // (a companion levels from the xp they earn with the party, on top of the level they joined at: a later join line keeps that level and only changes the strengths)
+    const level = member.companion ? member.companion.level : asked;
     member.companion = { level, strengths };
-    member.xp = Math.max(member.xp ?? 0, xpOfLevel(level));
     member.fallen = null;
     return { summary: `${member.name} joins the party.`, narrate: true, data: { member: member.id, level, strengths } };
 }

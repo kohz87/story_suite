@@ -3,7 +3,7 @@ import { memberNamed, players } from '../members.js';
 import { labelOf } from '../line-read.js';
 import { requireActive } from '../active.js';
 import { levelOf } from '../standing.js';
-import { LEVEL, scaleXp } from '../../rules/levels.js';
+import { LEVEL, scaleXp, xpOfLevel } from '../../rules/levels.js';
 import { readRules, xpCeiling } from '../rules-now.js';
 import { groupId, standing } from '../foes-record.js';
 import { touch } from '../foes-stale.js';
@@ -66,14 +66,18 @@ export function applyXp(ctx, line) {
     }
     const amount = scaleXp(raw, rate);
     const named = memberNamed(slice, line.name);
-    // (companions earn with the party: those who play, then the companions; the fallen earn nothing)
+    // (companions earn with the party: those who play, then the companions; the fallen earn nothing. A companion's share is marked
+    // within them, so a replay with the reply they joined in deleted passes it over and keeps the rest of the block)
     const companions = Object.values(slice.members).filter(member => member.companion && !member.fallen);
-    const who = named && !named.fallen ? [named] : [...players(slice).map(p => slice.members[p.id]), ...companions];
+    const who = named && !named.companion && !named.fallen ? [named] : [...players(slice).map(p => slice.members[p.id]), ...companions];
     const levels = [];
     for (const member of who) {
         const before = levelOf(member);
+        if (member.companion && typeof ctx.ifThere === 'function') ctx.ifThere(DOMAIN, `/members/${member.id}`);
+        // (a companion's xp counts from the level they joined at, so the level cap stands where it does for everyone)
+        const ceiling = xpCeiling(cap) - (member.companion ? xpOfLevel(member.companion.level) : 0);
         member.xp = Math.min(LEVEL.xpMax, member.xp); // (an xp stored past the limit counts as the limit)
-        member.xp += Math.max(0, Math.min(amount, xpCeiling(cap) - member.xp));
+        member.xp += Math.max(0, Math.min(amount, ceiling - member.xp));
         if (levelOf(member) > before) levels.push(`${member.name} reaches level ${levelOf(member)}`);
     }
     const told = `${line.text ? ` for ${line.text}` : ''}${foes > 1 ? ` (${foes} foes)` : ''}`;

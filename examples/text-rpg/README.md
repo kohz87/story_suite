@@ -110,6 +110,7 @@ Version `0.1.0`. Needs Story Suite 0.1.6 or later.
   away, and a later level brings them back. Every reader uses the effective stats (`module-parts/effective.js`). Skills
   learned past the slots of the level (5, +1 every tenth level, 8 at most) stay listed but inactive, latest learned first; a `? try`
   with one is refused until the level returns.
+  **Companions** earn the same XP from each `+ xp` line (a line naming a companion still pays the party; the fallen earn none). Their `xp` counts what they earned since joining, and their level is the level their `+ companion` line set plus one for every 100 of it; a later `+ companion` line for someone already in the party changes only their strengths. They get no stat points or skills; the Party sheet shows their XP bar. Their share of an `+ xp` is marked within them (`ctx.ifThere`), so deleting the reply they joined in keeps everyone else's XP.
 - **Settings.** Tone (standard, the default, moves no roll; gritty makes every roll a step harder, heroic a step easier); Level cap (xp stops adding levels above
   it; default 99); XP rate (a percent, 50 to 300 in steps of 25, that multiplies what `+ xp` pays). Both are read when a
   reply's dice step is made and kept in that step's receipt (`rules`, only when not the defaults), so a Re-read, a middle

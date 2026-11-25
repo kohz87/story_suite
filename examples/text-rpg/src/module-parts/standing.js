@@ -1,14 +1,15 @@
 // Where a member stands, read from the counters: level and stat points from xp, the points creation granted and the counted purchases, health from the wound stage, and the stage a hurt adds.
 import { levelFor } from '../rules/growth.js';
+import { LEVEL } from '../rules/levels.js';
 import { earnedAt } from '../rules/level-gains.js';
 import { countedPurchases } from './purchases.js';
 
 const whole = value => (Number.isFinite(value) ? Math.trunc(value) : 0);
 
-/** The member's level: the level their xp reaches; a companion's never below the level their join line set. */
+/** The member's level: the level their xp reaches; a companion's is the level they joined at plus a level for every 100 xp earned with the party since. */
 export function levelOf(member) {
-    const reached = levelFor(member?.xp).level;
-    return member?.companion ? Math.max(member.companion.level, reached) : reached;
+    if (!member?.companion) return levelFor(member?.xp).level;
+    return Math.min(LEVEL.max, member.companion.level + Math.floor(Math.max(0, whole(member.xp)) / LEVEL.xpPerLevel));
 }
 
 /** The stat points left to spend: those the level has earned, less the purchases it pays for (never below 0). A companion has no stat sheet, so none. */

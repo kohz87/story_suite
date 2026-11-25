@@ -17,8 +17,9 @@ export function matchupOf(slice, capOf = () => ({}), now = null) {
     let party = 0;
     const notes = [];
     for (const member of members) {
-        const pool = poolWith(member, 'sp', capOf(member));
-        const energy = stageOf(pool.now, pool.max, 'energy').index;
+        // (a companion has no stamina sheet: never read as tired)
+        const pool = member.companion ? null : poolWith(member, 'sp', capOf(member));
+        const energy = pool ? stageOf(pool.now, pool.max, 'energy').index : 0;
         const wounds = woundsOf(member);
         party += memberWeight(wounds, energy);
         if (wounds === 5) notes.push(`${member.name} down`);
