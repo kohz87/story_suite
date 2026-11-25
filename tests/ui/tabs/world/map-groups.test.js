@@ -51,7 +51,9 @@ test('the real Ersveil pack: every "Town / Ward" folds into its town; Bluewatch 
   const places = pack.content.places.filter(p => !p.hidden);
   const { parent, subs } = groupPlaces(places);
   const byName = new Map(places.map(p => [p.name, p.id]));
-  for (const p of places.filter(q => q.name.includes(' / '))) assert.equal(parent.get(p.id), byName.get(p.name.split(' / ')[0]), p.name);
+  // (a place inside a place that is itself folded, such as a Depths band under Auvoth Depths, folds into the top town)
+  const top = id => parent.get(id) ?? id;
+  for (const p of places.filter(q => q.name.includes(' / '))) assert.equal(parent.get(p.id), top(byName.get(p.name.split(' / ')[0])), p.name);
   assert.equal(parent.get('bluewatch-village'), undefined);
   assert.equal(parent.get('auvoth-depths'), 'auvoth');
   assert.ok(subs.get('auvoth').length >= 7);

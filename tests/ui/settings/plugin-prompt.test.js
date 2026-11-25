@@ -20,7 +20,7 @@ test('the page gives the rules field a prompt row with the built-in text, the st
     host.features.set('text-rpg.on', true);
     const rowOf = values => selectPluginPages(host.sdk.modules(), host.sdk.features(), { 'text-rpg': values })[0].rows.find(r => r.key === 'plugin.text-rpg.rules');
     const empty = rowOf({});
-    assert.deepEqual([empty.type, empty.label, empty.value, empty.builtin, empty.max], ['prompt', 'Narrator rules', '', STATIC_TEXT, 2000]);
+    assert.deepEqual([empty.type, empty.label, empty.value, empty.builtin, empty.max], ['prompt', 'Narrator rules', '', STATIC_TEXT, 2500]);
     assert.match(empty.hint, /The dice and the \? try line are the code's: if the rules stop asking for \? try, rolls stop changing the sheet\./);
     assert.equal(rowOf({ rules: 'Mine.' }).value, 'Mine.');
 });

@@ -9332,12 +9332,12 @@
         "species": "human",
         "wears": "Simple white Flamecaller vestments with ash-marked hems; a small smokeless flame often cupped in her hands.",
         "voice": "Soft and clear; graveyards go quiet for it. \"Rest. No one will use you now.\"",
-        "personality": "Serene, kind and a little uncanny; she believes in the rite more than the Church that owns it. Lately she sings it alone first, as if checking it still works.",
+        "personality": "Serene, kind and a little uncanny; she believes in healing more than the Church that owns it. Lately she sings her healing prayer alone first, as if checking it still works.",
         "look": "Young human woman of about nineteen: slight and pale, with calm, unsettling eyes and bare, callused feet.",
         "start": {
           "place": "holy-city-of-aurelion-pilgrim-courts",
-          "goal": "The dead at peace, without being used.",
-          "routine": "Walks barefoot among the pilgrims and calms graveyards with her rites."
+          "goal": "The sick healed, and the dead left unused.",
+          "routine": "Walks barefoot among the pilgrims, healing the sick, and lays the risen dead to rest where they gather."
         },
         "ties": [
           {
@@ -9355,7 +9355,7 @@
           {
             "id": "the-old-cadence",
             "gate": "meter trust >= 70 or learned:temiwa/the-order-of-the-last-rite",
-            "text": "Her healing mends what other healers cannot because she sings them in an old cadence the College struck out two centuries ago. She found it scratched into a cloister wall, beside the Order of the Last Rite's mark, and knows now that the Church's healing and the Veil's necromancy grew from one root.",
+            "text": "Her healing mends what other healers cannot because she sings her prayers in an old cadence the College struck out two centuries ago. She found it scratched into a cloister wall, beside the Order of the Last Rite's mark, and knows now that the Church's healing and the Veil's necromancy grew from one root.",
             "writes_fact": "last-rite-proof"
           }
         ],
