@@ -22,8 +22,8 @@ const kindText = s => (s.kind === 'stance' && text(s.stance) ? `${text(s.stance)
 const factsText = s => [text(s.stat), costText(s)].filter(Boolean).join(' · ');
 const rowText = s => text(s.line) || [kindText(s), text(s.stat), costText(s)].filter(Boolean).join(' · ');
 
-// The practice toward the next rank: "34/100" (this rank's share), "Max" at the top; the sheet's line names the rank and a level it still needs.
-const toNext = s => (s.next ? `${Math.max(0, (s.practice ?? 0) - s.next.from)}/${s.next.at - s.next.from}` : Number.isFinite(s.practice) ? 'Max' : '');
+// The practice toward the next rank: "134/200" (all the practice so far, of what the next rank needs: owner, 25 Nov), "Max" at the top; the sheet's line names the rank and a level it still needs.
+const toNext = s => (s.next ? `${Math.max(0, s.practice ?? 0)}/${s.next.at}` : Number.isFinite(s.practice) ? 'Max' : '');
 const nextLine = s => (s.next ? `${s.practice ?? 0} of ${s.next.at} to ${s.next.name}${s.next.levelOk ? '' : ` (needs level ${s.next.minLevel})`}` : 'Highest rank');
 
 function masteryBar(mastery, extra) {
