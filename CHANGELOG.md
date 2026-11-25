@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG: a companion no longer shows stat points to spend (they have no stat sheet).
 - Text RPG: Export on a character now saves its bag and its money too, and Start from a saved character brings them back.
 - Text RPG: a gear point that was LUK now raises WIS, and the Bag and Party show your Text RPG stat names (WIS, or your own) on gear.
 - Text RPG: every skill use teaches something, and a good ambush no longer costs practice.

@@ -10,8 +10,9 @@ export function levelOf(member) {
     return member?.companion ? member.companion.level : levelFor(member?.xp).level;
 }
 
-/** The stat points left to spend: those the level has earned, less the purchases it pays for (never below 0). */
+/** The stat points left to spend: those the level has earned, less the purchases it pays for (never below 0). A companion has no stat sheet, so none. */
 export function pointsOf(member) {
+    if (member?.companion) return 0;
     const earned = earnedAt(levelOf(member), member?.granted);
     return Math.max(0, earned - countedPurchases(member, earned).reduce((sum, item) => sum + item.n, 0));
 }

@@ -71,6 +71,7 @@ test('party.levels and party.actors answer for the party; with no character the 
         assert.equal(view.pcId, astraOf(host).id);
         assert.equal(view.members[1].line, 'Lv 9 · companion');
         assert.equal(view.members[1].stats, null);
+        assert.equal(host.sdk.query('rpg.sheet').find(row => row.name === 'Rorke').points, 0, 'a companion has no stat sheet, so no points to spend');
         assert.equal(partyOf(host).members.length, 2);
         assert.equal(slice(host).members[view.members[1].id].companion.level, 9);
     } finally {
