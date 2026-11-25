@@ -2,7 +2,7 @@
 import { MODULE_ID } from './constants.js';
 import { STATIC_TEXT } from './static-text.js';
 
-const RULES_MAX = 2000;
+const RULES_MAX = 2500;
 
 const TONES = Object.freeze({ gritty: 1, standard: 0, heroic: -1 });
 
