@@ -40,7 +40,7 @@ test('a trivial roll teaches 1 (a plain use), an easy one 5', () => {
     assert.equal(roll(10, 'easy').me.practice.lore, 5);
 });
 
-test('one or two short is success at a cost: a costed skill pays twice when not in danger', () => {
+test('one or two short is success at a cost: a costed skill pays twice with no hit', () => {
     const { data, me } = roll(13, 'ordinary', { what: 'Obscure' });
     assert.equal(data.band, 'cost');
     assert.equal(me.pools.sp.now, 14 - 2 - 2);

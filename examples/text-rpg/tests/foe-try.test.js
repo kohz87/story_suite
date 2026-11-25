@@ -62,7 +62,7 @@ test('with no foes standing the narrator\'s word sets the difficulty as before; 
     assert.equal(foeFor(slice, '').group, null);
 });
 
-test('the group\'s threat is recorded for the reply (danger and practice) and a success is noted for the xp', () => {
+test('the group\'s threat is recorded for the reply (for practice) and a success is noted for the xp', () => {
     const slice = world();
     declare(slice, 'Guards', 'trained');
     slice.dice[NEXT].list = [20, 20, 20];
