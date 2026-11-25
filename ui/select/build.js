@@ -18,6 +18,7 @@ import { selectPrompts } from './prompts.js';
 import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
 import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf, partyPortraits } from './gather.js';
+import { partyKeepsakes } from './party-keepsakes.js';
 import { offerRows } from './offers.js';
 import { pinnedFeed } from './pinned.js';
 import { PARTY_ACTIVE } from './party-max.js';
@@ -104,7 +105,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     party: read => {
       const actors = read('party.actors', {});
       const screen = screenOf(read('party.newCharacter', {}));
-      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors), newCharacter: screen, labels: read('gear.statLabels', {}) });
+      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors), keepsakes: partyKeepsakes(read, actors, read('party.pc', {})?.id), newCharacter: screen, labels: read('gear.statLabels', {}) });
       // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
       // (a plug-in sheet's own empty party, `party.newCharacter` naming its screen, offers it too: the roster is empty, so the view-model above is null)
       return wizard.needsYou() || screen ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true, ...(screen ? { newCharacterScreen: screen } : {}) } : vm;

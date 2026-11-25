@@ -25,6 +25,22 @@ test('a companion sheet has name, ⋯, line, soak, bars, XP, doll, stats and ski
   assert.equal(el.querySelector('.awn'), null);
 });
 
+test('a companion\'s keepsakes are listed after the stats with their notes; a member with none shows nothing', () => {
+  const ctx = makeCtx();
+  const keepsakes = [{ name: 'Huge Spiked Iron Maul', note: 'her father made it' }, { name: 'Fang Charm', note: '' }];
+  const el = memberSheet({ ...member(ctx, 'torka'), keepsakes }, ctx);
+  assert.deepEqual(el.querySelectorAll('.lcol .secl').map(n => n.textContent).at(-1), 'Keepsakes');
+  const list = el.querySelector('[data-list="keepsakes"]');
+  assert.deepEqual(list.querySelectorAll('li').map(li => li.textContent), ['Huge Spiked Iron Maul — her father made it', 'Fang Charm']);
+  assert.equal(list.querySelectorAll('small').length, 1);
+  assert.equal(list.querySelectorAll('button').length, 0);
+  for (const none of [member(ctx, 'brann'), { ...member(ctx, 'brann'), keepsakes: [] }]) {
+    const plain = memberSheet(none, ctx);
+    assert.equal(plain.querySelector('.keeps'), null);
+    assert.doesNotMatch(plain.textContent, /Keepsakes/);
+  }
+});
+
 test('the player sheet skips name, bars and XP and starts at the equipment', () => {
   const ctx = makeCtx();
   const el = memberSheet(member(ctx, 'astra'), ctx, { pc: true });

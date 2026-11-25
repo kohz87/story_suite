@@ -57,7 +57,7 @@ function commandsOf(raw) {
 }
 
 // One member: what party.actors, party.levels and gear.view give; every sheet field is a gap unless `sheet` (the member's `rpg.sheet` row) carries it; a row's own `bonus` ({ STR: 2 }) replaces the Bag's gear bonus.
-function memberOf(actor, level, gearView, sheet, portrait = null, labels = null) {
+function memberOf(actor, level, gearView, sheet, portrait = null, labels = null, keepsakes = null) {
   const known = Number.isSafeInteger(level) ? level : null;
   const own = isRecord(sheet) ? sheet : {};
   const commands = commandsOf(own.commands);
@@ -67,6 +67,7 @@ function memberOf(actor, level, gearView, sheet, portrait = null, labels = null)
     level: known ?? (Number.isSafeInteger(own.level) ? own.level : null), xpPct: own.xpPct ?? null, xpLabel: typeof own.xpLabel === 'string' ? own.xpLabel : null, points: own.points ?? null, away: own.away ?? null, soakPct: own.soakPct ?? null,
     bars: Array.isArray(own.bars) ? own.bars : [], effects: Array.isArray(own.effects) ? own.effects : [],
     stats: isRecord(own.stats) ? own.stats : null, bonus: isRecord(own.bonus) ? bonusOf(own.bonus) : bonusOf(gearView?.statBonus), slots: slotsOf(gearView, labels), skills: Array.isArray(own.skills) ? own.skills : [],
+    keepsakes: Array.isArray(keepsakes) ? keepsakes : [],
     ...(commands ? { commands } : {}),
   };
 }
@@ -75,16 +76,16 @@ function memberOf(actor, level, gearView, sheet, portrait = null, labels = null)
 export const screenOf = answer => (typeof answer === 'string' && answer.length <= 80 ? answer : '');
 
 /**
- * Party view-model from { actors: party.actors, pc: party.pc, levels: party.levels, gear: { [id]: gear.view }, sheet?: rpg.sheet rows [{ id, ... }], newCharacter?: the party.newCharacter answer (a screen id or null), portraits?: { [id]: url } (gather.js partyPortraits) };
+ * Party view-model from { actors: party.actors, pc: party.pc, levels: party.levels, gear: { [id]: gear.view }, sheet?: rpg.sheet rows [{ id, ... }], newCharacter?: the party.newCharacter answer (a screen id or null), portraits?: { [id]: url } (gather.js partyPortraits), keepsakes?: { [id]: [{ name, note }] } (party-keepsakes.js) };
  * null while the RPG is off (party.actors answers null).
  */
-export function selectParty({ actors, pc, levels, gear, sheet, portraits, newCharacter, labels = null } = {}) {
+export function selectParty({ actors, pc, levels, gear, sheet, portraits, keepsakes, newCharacter, labels = null } = {}) {
   if (!Array.isArray(actors) || actors.length === 0) return null;
   const levelOf = new Map((Array.isArray(levels) ? levels : []).map(row => [row?.id, row?.level]));
   const sheets = new Map((Array.isArray(sheet) ? sheet : []).filter(isRecord).map(row => [row.id, row]));
   const shown = labelsOf(labels);
   const members = actors.filter(isRecord).slice(0, PARTY_LISTED)
-    .map(actor => memberOf(actor, levelOf.get(actor.id), gear?.[actor.id], sheets.get(actor.id), isRecord(portraits) && typeof portraits[actor.id] === 'string' ? portraits[actor.id] : null, shown));
+    .map(actor => memberOf(actor, levelOf.get(actor.id), gear?.[actor.id], sheets.get(actor.id), isRecord(portraits) && typeof portraits[actor.id] === 'string' ? portraits[actor.id] : null, shown, keepsakes?.[actor.id]));
   // A plug-in sheet names its own Create character screen through the plain `party.newCharacter` answer (a screen id, else null).
   const screen = screenOf(newCharacter);
   return {

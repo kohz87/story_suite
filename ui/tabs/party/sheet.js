@@ -114,6 +114,13 @@ function statTiles(member, ctx) {
   }, k, h('b', null, member.stats[k], member.bonus?.[k] ? h('small', { class: 'gb' }, `+${member.bonus[k]}`) : null))));
 }
 
+// Keepsakes from the member's NPC State profile: only listed, never worn or counted in rolls.
+function keepsakes(member) {
+  if (!member.keepsakes?.length) return null;
+  return [h('div', { class: 'secl' }, 'Keepsakes'), h('ul', { class: 'keeps', dataset: { list: 'keepsakes' } },
+    member.keepsakes.map(k => h('li', null, h('b', null, k.name), k.note ? h('small', null, ' — ' + k.note) : null)))];
+}
+
 /** Builds one member's sheet; the player's own sheet skips the name, bars and XP (the card above has them). */
 export function memberSheet(member, ctx = {}, { pc = false } = {}) {
   const left = [
@@ -121,6 +128,7 @@ export function memberSheet(member, ctx = {}, { pc = false } = {}) {
     pc ? null : h('div', { class: 'xp2' }, h('span', null, 'XP'), h('i', null, h('b', { style: { width: `${member.xpPct}%` } })), h('span', null, member.xpLabel ?? `${member.xpPct}/100`)),
     h('div', { class: 'secl' }, 'Stats', member.stats && member.points ? h('span', { class: 'pts' }, `${plural(member.points)} to spend`) : null),
     statTiles(member, ctx),
+    keepsakes(member),
   ];
   return h(
     'section',
