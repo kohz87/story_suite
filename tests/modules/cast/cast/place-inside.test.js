@@ -37,7 +37,7 @@ test('the owner\'s lines: the storehouse is filed inside Bluewatch Village, a bu
         const receipt = host.sdk.receipts().map(entry => entry.receipt.summary ?? '').find(text => /Storehouse/.test(text));
         assert.match(receipt, /\(filed inside Bluewatch Village as a building\)/);
         await host.send('I ask for the sealer in the Bluewatch village.', 'Inside the storehouse.');
-        assert.match(hereOf(host), /Sister Temiwa, Bluewatch's healer-sealer/, 'the people of the village are here');
+        assert.match(hereOf(host), /Sister Temiwa, Bluewatch's healer \(/, 'the people of the village are here');
         const spot = host.sdk.query('atlas.place', { name: 'Bluewatch Village / Bluewatch River-Gate Storehouse' });
         assert.equal(spot?.kind, 'building');
         assert.ok(spot.parent, 'its parent is saved');

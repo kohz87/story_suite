@@ -43,7 +43,7 @@ test('LA-2 + LF4-2: the first reply at the pack\'s start place (Bluewatch Villag
         assert.match(line, /^\[People here\] The world's own people at this place or nearby, not necessarily in the scene\./);
         assert.match(line, /use that person by this name rather than making up someone new; the narration uses a name only after someone in the story says it: /, 'one instruction, for any persona name');
         assert.doesNotMatch(line, /\{\{user\}\}|You knows/);
-        assert.match(line, /Sister Temiwa, Bluewatch's healer-sealer/);
+        assert.match(line, /Sister Temiwa, Bluewatch's healer \(/);
         assert.match(line, /Torka/);
         assert.doesNotMatch(line, /Edda Rorke/, 'the one this reply meets is named by the cue, not twice');
         assert.doesNotMatch(line, /log blank|Watchhouse log|Saintess Livia|Laan/, 'no secret, nobody from elsewhere');

@@ -47,7 +47,7 @@ test('the format 4 Ersveil zip opens as a world with its game.json; export gives
     assert.equal(opened.ok, true);
     assert.deepEqual([opened.doc.kind, opened.doc.id, opened.game.name, opened.portraits.length], ['world', 'ersveil', 'game.json', 31]);
     const out = exportZip(opened, opened.game);
-    assert.equal(out.name, 'ersveil-4.1.0.zip');
+    assert.equal(out.name, 'ersveil-4.2.0.zip');
     assert.deepEqual(out.missing, []);
     const pack = bytes('examples/packs/ersveil/pack.json');
     const rebuilt = writeStoredZip([{ name: 'pack.json', bytes: pack }, { name: 'game.json', bytes: new TextEncoder().encode(opened.game.text) }, ...opened.portraits.map(f => ({ name: `portraits/${f.name}`, bytes: bytes(`examples/packs/ersveil/portraits/${f.name}`) }))]);

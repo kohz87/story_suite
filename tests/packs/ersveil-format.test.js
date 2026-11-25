@@ -1,4 +1,4 @@
-// The shipped Ersveil in pack format 4 (job C1, pack format 4 §3): the world pack examples/packs/ersveil (4.1.0) and its game pack examples/packs/ersveil-game
+// The shipped Ersveil in pack format 4 (job C1, pack format 4 §3): the world pack examples/packs/ersveil (4.2.0) and its game pack examples/packs/ersveil-game
 // ("Ersveil rules", 1.0.0), field by field: what each holds and where it sits. The pair is the source now (format 3 is obsolete; its sample is gone).
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,10 +11,10 @@ const game = read('ersveil-game/pack.json');
 
 test('the envelopes: format 4, one world and one game, the versions, names and the suite each needs; the world recommends its game', () => {
     assert.deepEqual(Object.keys(world), ['id', 'format', 'kind', 'version', 'name', 'author', 'description', 'requires', 'recommends', 'content']);
-    assert.deepEqual([world.id, world.format, world.kind, world.version, world.name, world.author], ['ersveil', 4, 'world', '4.1.0', 'Ersveil (open world)', 'Story Suite examples']);
+    assert.deepEqual([world.id, world.format, world.kind, world.version, world.name, world.author], ['ersveil', 4, 'world', '4.2.0', 'Ersveil (open world)', 'Story Suite examples']);
     assert.deepEqual([game.id, game.format, game.kind, game.version, game.name, game.author], ['ersveil-game', 4, 'game', '1.0.0', 'Ersveil rules', 'Story Suite examples']);
     assert.equal(game.description, 'Calendar, coins, guild ranks, names and trackers for Ersveil');
-    assert.match(world.description, /^The world of Ersveil as an open world pack: lore, a map of 320 places joined by routes, 31 people /);
+    assert.match(world.description, /^The world of Ersveil as an open world pack: lore, a map of 323 places joined by routes, 31 people /);
     assert.doesNotMatch(world.description, /spec/);
     assert.deepEqual(world.requires, { suite: '^0.1', capabilities: ['scene', 'chronicle-lasting'] });
     assert.deepEqual(game.requires, { suite: '^0.1', capabilities: ['scene', 'inventory', 'data-modules-v1'] });
@@ -28,7 +28,7 @@ test('the world holds only world kinds, with these counts', () => {
     for (const key of Object.keys(game.content)) assert.ok(CONTENT_KEYS.game.includes(key), key);
     const count = value => (Array.isArray(value) ? value.length : Object.keys(value).length);
     assert.deepEqual(Object.fromEntries(Object.entries(world.content).map(([kind, value]) => [kind, count(value)])),
-        { places: 320, routes: 352, cast: 31, lore: 218, placeKinds: 20, routeKinds: 16, regions: 30, realms: 22, powers: 15, scores: 4, conditions: 31, markets: 8, worldEvents: 103, templates: 10, start: 3 });
+        { places: 323, routes: 352, cast: 31, lore: 218, placeKinds: 20, routeKinds: 16, regions: 30, realms: 22, powers: 15, scores: 4, conditions: 31, markets: 8, worldEvents: 103, templates: 10, start: 3 });
     assert.equal(world.content.events, undefined);
     assert.equal(world.content.items, undefined);
 });

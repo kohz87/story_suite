@@ -24,7 +24,7 @@ test('the open world example pair remains valid with the supported host capabili
     const options = { capabilities: ['scene', 'inventory', 'chronicle-lasting', ...HOST_CAPABILITIES] };
     const world = validatePack(read('ersveil'), options);
     assert.equal(world.ok, true, JSON.stringify(world.errors));
-    assert.equal(world.pack.content.places.length, 320);
+    assert.equal(world.pack.content.places.length, 323);
     assert.equal(world.pack.content.routes.length, 352);
     const game = validatePack(read('ersveil-game'), options);
     assert.equal(game.ok, true, JSON.stringify(game.errors));
