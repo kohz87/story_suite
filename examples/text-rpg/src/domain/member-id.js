@@ -1,5 +1,14 @@
 // Makes stable, collision-safe member ids from display names.
 
+/** A companion's id from their name, in the shape ctx.id gives ("ac_" and 8 base-36 characters), so an edit of their join line (a Re-read) keeps it;
+ * null when another member holds it already (then the caller makes a fresh one). */
+export function companionId(name, taken) {
+    let hash = 0x811c9dc5;
+    for (const ch of String(name ?? '').trim().toLowerCase()) hash = Math.imul(hash ^ ch.codePointAt(0), 0x01000193) >>> 0;
+    const id = `ac_${hash.toString(36).padStart(8, '0').slice(-8)}`;
+    return taken && Object.prototype.hasOwnProperty.call(taken, id) ? null : id;
+}
+
 /** Slugs a name to at most 40 characters and appends -2, -3, ... until it is unused. */
 export function memberId(name, taken) {
     const source = typeof name === 'string' ? name : '';

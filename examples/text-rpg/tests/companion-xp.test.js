@@ -92,3 +92,37 @@ test('replay == live: a rebuild gives the same companion, and deleting the join 
     assert.equal(astraOf(host).xp, paid, 'the reader keeps their XP');
     assert.equal(slice(host).foes.groups.rats.left, 20);
 });
+
+test('a line naming the reader\'s character pays the companion too (every + xp pays the party)', () => {
+    const s = withFoes(sliceOf([astra()], fair()), [['the rats', 60, 2]]);
+    join(s, 2);
+    pay(s, 2, SID, 'Astra');
+    assert.deepEqual([s.members.ac_astra001.xp, torkaOf(s).xp], [20, 20]);
+});
+
+test('someone who was not a companion before (a fallen character of the reader\'s) joins with no xp held', () => {
+    const s = sliceOf([astra({ pc: false, fallen: { how: 'fell', at: 1 }, xp: 600 })], fair());
+    const done = run(applyCompanion, fakeCtx(s), line('companion', 'Astra', '', { level: '3' }));
+    assert.equal(done.ok, true);
+    const back = s.members.ac_astra001;
+    assert.deepEqual([back.xp, levelOf(back), back.fallen], [0, 3, null]);
+});
+
+test('a companion\'s id comes from their name, so editing the join line and pressing Re-read keeps the XP they earned', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await withAstra();
+    t.after(() => host.close());
+    await host.send('Hello.', 'The road.');
+    await host.send('Come.', reply('Torka joins.', ['+ companion Torka | level: 6 | strengths: maul']));
+    const joinAt = host.ctx.chat.length - 1;
+    const torka = () => Object.values(slice(host).members).find(member => member.name === 'Torka');
+    const id = torka().id;
+    await host.send('Rats.', reply('The rats come.', ['+ foes Rats | count: 24 | kind: common']));
+    await host.send('Strike.', reply('Four fall.', ['? try Astra | Lore | hard | against: Rats', '+ xp Party — rats fall | foes: 4']));
+    const earned = torka().xp;
+    assert.ok(earned > 0);
+    host.ctx.chat[joinAt].mes = host.ctx.chat[joinAt].mes.replace('strengths: maul', 'strengths: axe');
+    assert.equal((await host.sdk.reread(joinAt)).ok, true);
+    assert.deepEqual([torka().id, torka().xp, torka().companion.strengths], [id, earned, ['axe']]);
+    assert.deepEqual(host.store.problems(), []);
+});

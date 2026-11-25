@@ -1,5 +1,6 @@
 // The roster lines: `+ skill Who — Name | stat | type | from: how` and `+ companion Name | level: N | strengths: a, b`.
 import { DOMAIN, LIMITS, newMember } from '../../domain/shape.js';
+import { companionId } from '../../domain/member-id.js';
 import { requireActive } from '../active.js';
 import { nextLearned } from '../learned.js';
 import { memberNamed, skillIndex, skillSlots } from '../members.js';
@@ -38,11 +39,17 @@ export function applyCompanion(ctx, line) {
     if (member?.pc) ctx.fail('REFUSED', `${member.name} is the reader's character.`);
     if (!member) {
         if (Object.keys(slice.members).length >= LIMITS.members) ctx.fail('LIMITED', 'The party is full.');
-        member = newMember({ name: line.name, id: ctx.id('ac') });
+        // (an id from the name, so a Re-read of an edited join line keeps the XP they earned since)
+        member = newMember({ name: line.name, id: companionId(line.name, slice.members) ?? ctx.id('ac') });
         slice.members[member.id] = member;
     }
     // (a companion levels from the xp they earn with the party, on top of the level they joined at: a later join line keeps that level and only changes the strengths)
     const level = member.companion ? member.companion.level : asked;
+    // (someone who was not a companion before, such as a fallen character of the reader's, starts with no xp held: it counts what they earn from now)
+    if (!member.companion && member.xp !== 0) {
+        if (typeof ctx.absolute === 'function') ctx.absolute(DOMAIN, `/members/${member.id}/xp`);
+        member.xp = 0;
+    }
     member.companion = { level, strengths };
     member.fallen = null;
     return { summary: `${member.name} joins the party.`, narrate: true, data: { member: member.id, level, strengths } };
