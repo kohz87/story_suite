@@ -145,3 +145,13 @@ test('warnings, not refusals: a fact nothing writes, a place status with no way 
     assert.ok(noClear.some(message => /"fallen" is a place status that lasts until cleared/.test(message)));
     assert.equal(warningsOf(() => {}).some(message => /"fallen" is a place status/.test(message)), false, 'the reconstruction template is its clearing path');
 });
+
+test('world events: 400 are accepted, 401 refused', () => {
+    const many = count => world => {
+        const [first] = world.content.worldEvents;
+        while (world.content.worldEvents.length < count) world.content.worldEvents.push({ ...first, id: `extra-${world.content.worldEvents.length}` });
+    };
+    const limit = errorsOf(many(401));
+    assert.ok(limit.some(message => /at most 400 events/.test(message)), JSON.stringify(limit));
+    assert.ok(!errorsOf(many(400)).some(message => /at most 400 events/.test(message)));
+});
