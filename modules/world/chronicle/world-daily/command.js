@@ -22,6 +22,8 @@ import { writeHappenings } from './news-entries.js';
 import { buildGeo } from '../../daily/geo.js';
 import { calendarFrom, dateText } from '../queries-parts/clock.js';
 import { mirrorCast, tickInputs } from './cast-tie.js';
+import { partyRegionOf, seatRegionOf } from './party-region.js';
+import { unheldFacts } from './holding-facts.js';
 
 export const DAILY = 'chronicle.world.daily';
 const DAY = 1440;
@@ -94,7 +96,7 @@ function daily(ctx, payload = {}) {
     // Who is with You, where each pack person is and who has been met, from the cast store, the party and the scene (cast-tie.js).
     const cast = draftCast(ctx);
     const tie = tickInputs(ctx, cast, world.cast);
-    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, tempo: tempoOf(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings), rev: revOf(ctx), longSkip, marks, met: tie.met, withYou: tie.withYou, positions: tie.positions, opens, settle: settling, calendar: ask(query, 'director.calendar', {}) });
+    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, tempo: tempoOf(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings), rev: revOf(ctx), longSkip, marks, met: tie.met, withYou: tie.withYou, positions: tie.positions, opens, settle: settling, calendar: ask(query, 'director.calendar', {}), partyRegion: partyRegionOf(query), seatRegion: seatRegionOf(query), unheld: unheldFacts(query) });
     if (!out) return kept();
     if (cast) mirrorCast(ctx, cast, out.report, tie.keys, now);
     writeConditions(ctx, chronicle, out.conditions);

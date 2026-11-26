@@ -5,6 +5,7 @@ import { oneLine } from '../../../../core/text.js';
 import { boardGrammar, boardXpGuide } from '../../board-static.js';
 import { isMarkedCharacter, restLine } from '../../recovery.js';
 import { quietRole } from '../replaced.js';
+import { isHolding } from '../../holding/read.js';
 
 /**
  * The static lines for the pinned modules (empty without a pin); they change only when a pin does. `quiet` is an optional table by role ({ skip, keep } or the kinds to offer); the fight board's own
@@ -31,7 +32,9 @@ export function grammarFor(state, quiet = null, { rolled = false, board = false,
             return kept ? oneLine(board ? boardXpGuide(value) : value) : '';
         }
         const shown = definition && rolled && (definition.role === 'rules' || definition.role === 'skills') ? { ...definition, prompt: noPractice(definition.prompt) } : definition;
-        const own = shown ? moduleGrammar(shown, referenceOf(active, id), { seen, ...(only ?? {}), ...(rolled && definition.role === 'skills' ? { without: /^practice-\d+$/u } : {}) }) : '';
+        // (the holding's post lines are taught in the prompt's tail, once there is a seat: holding/post-tail.js)
+        const without = rolled && definition?.role === 'skills' ? /^practice-\d+$/u : isHolding(definition) ? /^(?:un)?post$/u : null;
+        const own = shown ? moduleGrammar(shown, referenceOf(active, id), { seen, ...(only ?? {}), ...(without ? { without } : {}) }) : '';
         // A marked Character also gets one separate line on what each recovery kind restores: its own room (outside the prompt and grammar caps), so nothing old is dropped.
         const recovery = own && isMarkedCharacter(definition) ? restLine(definition) : '';
         return recovery ? `${own}\n${recovery}` : own;

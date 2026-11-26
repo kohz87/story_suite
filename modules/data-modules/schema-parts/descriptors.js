@@ -4,7 +4,7 @@ import { freeze } from './shared-freeze.js';
 
 export const DM_DESCRIPTORS = freeze({
     definition: { required: ['slug', 'name', 'schema', 'stateVersion', 'scope', 'state', 'kinds'],
-        optional: ['imports', 'rules', 'timers', 'rewards', 'exports', 'screens', 'layouts', 'migrations', 'prompt', 'show', 'role', 'cards', 'replyEnd', 'layout', 'roles', 'tones'] },
+        optional: ['imports', 'rules', 'timers', 'rewards', 'exports', 'screens', 'layouts', 'migrations', 'prompt', 'show', 'role', 'cards', 'replyEnd', 'layout', 'roles', 'tones', 'startsOff'] },
     defaults: { imports: {}, rules: [], timers: [], rewards: {}, exports: {}, screens: [], layouts: [], migrations: [] },
     scope: ['chat', 'character'],
     fields: {
@@ -19,11 +19,15 @@ export const DM_DESCRIPTORS = freeze({
     layouts: ['cards', 'bars', 'fields'],
     roleKeys: ['field', 'title', 'status', 'step'],
     toneNames: ['active', 'done', 'failed', 'neutral'],
-    kind: { required: ['op', 'labels', 'effects'], optional: ['when', 'refusal', 'oncePerReply', 'ui', 'check', 'title'] },
+    // (`refusals`: when `when` is false, each entry whose own `when` holds adds its `text` to the refusal, so it can name what is missing)
+    kind: { required: ['op', 'labels', 'effects'], optional: ['when', 'refusal', 'refusals', 'oncePerReply', 'ui', 'check', 'title'] },
+    refusalPart: { required: ['when', 'text'], optional: [] },
     ops: [...OPS],
     effects: {
-        set: { required: ['op', 'path', 'value'], optional: [] },
-        add: { required: ['op', 'path', 'value'], optional: ['bounds'] },
+        // (`when` on a set or an add: the effect is left out when it does not hold; what it read is witnessed by value, like any read)
+        // (`skipUnset: true` on a set from a label: when the line left that optional label out, the effect does nothing; without it the line is refused)
+        set: { required: ['op', 'path', 'value'], optional: ['when', 'skipUnset'] },
+        add: { required: ['op', 'path', 'value'], optional: ['bounds', 'when'] },
         clamp: { required: ['op', 'path', 'min', 'max'], optional: [] },
         reward: { required: ['op', 'template', 'bind'], optional: [] },
         offer: { required: ['op', 'template', 'key', 'bind'], optional: [] },

@@ -1,6 +1,7 @@
 // World events, the daily step: the spec's condition and anchor strings as the step reads them (world-pack-spec v0.10 §2, §3). Pure.
 //   conditions  "<condition>@<ref>[: <duration>]" (one string syntax everywhere; no object form)
 //   anchors     "fired:<event>[ + <duration>]", "set:<condition>[@ref]", "learned:<cast id>/<secret id>", "start", … (§3 Anchors)
+//   party       "in:<region>", "near:<region>", "in:@region", "near:@region": where the party is today (near.js)
 
 import { durationDays } from './durations.js';
 
@@ -47,5 +48,13 @@ export function anchorString(text) {
     return { kind, id, offset };
 }
 
-/** A requirement entry is a condition string (it has "@" and no anchor head) or an anchor. */
-export const isConditionEntry = text => typeof text === 'string' && text.includes('@') && !/^(set|cleared|arc-ended):/.test(text.trim());
+/** A party term "in:<region>" / "near:<region>" → `{ term, ref, own }` (`own`: the ref is "@region", the event's own region), or null. */
+export function partyTerm(text) {
+    const match = typeof text === 'string' ? /^(in|near):\s*(\S.*)$/.exec(text.trim()) : null;
+    if (!match) return null;
+    const ref = match[2].trim();
+    return { term: match[1], ref, own: ref.toLowerCase() === '@region' };
+}
+
+/** A requirement entry is a condition string (it has "@", no anchor head and is no party term) or an anchor. */
+export const isConditionEntry = text => typeof text === 'string' && text.includes('@') && !/^(set|cleared|arc-ended|in|near):/.test(text.trim());

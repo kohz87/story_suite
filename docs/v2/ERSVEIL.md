@@ -3,7 +3,7 @@
 Ersveil is a world of two format 4 packs:
 
 * the **world pack** `ersveil` 4.0.0 ([`examples/packs/ersveil/pack.json`](../../examples/packs/ersveil/pack.json)): the lore, 320 places, 352 routes, 103 world events, 31 people (12 of them companions with portraits) and the start;
-* the **game pack** `ersveil-game` 1.0.0, "Ersveil rules" ([`examples/packs/ersveil-game/pack.json`](../../examples/packs/ersveil-game/pack.json)): the calendar, the coins, the weather, the Guild rank, the RPG skill set and three data modules.
+* the **game pack** `ersveil-game` 1.2.0, "Ersveil rules" ([`examples/packs/ersveil-game/pack.json`](../../examples/packs/ersveil-game/pack.json)): the calendar, the coins, the weather, the Guild rank, the RPG skill set and four data modules (three, and Your Holding, which is off until you turn it on).
 
 `examples/packs/ersveil.zip` holds both (`pack.json`, `game.json`, the twelve portraits and `CONVERSION-NOTES.md`). The packs are edited directly and the zip is built by `node scripts/core/build-example-zip.mjs`. A story begins at Bluewatch Village, in the Guild Office, with 40 copper ("4 silver").
 
@@ -36,17 +36,22 @@ The five hidden entries (the Iron Archive, the shared root of Church and Veil, S
 
 Pick **Update the lorebook** after a new pack version: it replaces that book and only that one.
 
-## 4. The three data modules
+## 4. The data modules
 
-None is on by default. Settings › Tabs & Packs › **Data modules**: find the module and press **Enable for this chat**.
+Importing the packs yourself turns none of them on. A card's **Install** turns on all but Your Holding in that chat. To turn one on yourself, open Settings › Setup › **Packs and trackers**, find **Data modules in this chat** and use the module's switch; it then stays on for that chat.
 
 | Module | What it keeps |
 |---|---|
 | Standing with the powers | Your standing, -100 to 100, with each of ten powers (kinds `gain` and `loss`). Section: Standing with the powers (Reputation tab). |
 | Fame by region | How well known you are, 0 to 100, in each of sixteen regions (kinds `deed` and `spread`). Section: Fame by region (Reputation tab). |
 | Adventurer Guild membership | Registration, your letter (F to S), dues and years as a member (kinds `register`, `dues`, `contract`, `promote`, `yearend`). Section: Adventurer Guild (Reputation tab). |
+| Your Holding | Your own company, fief or trading house: seat, people, treasury, renown, loyalty, tier, upkeep and officer posts. Section: Holding tab. |
 
-Once a module is enabled the narrator is told its `dm …` lines; a refused line changes nothing. See [DATA_MODULES.md](DATA_MODULES.md).
+**Your Holding is off until you turn it on.** While it is off, the narrator is told nothing about it, there is no monthly reminder, and world events learn nothing of a holding. When your story heads that way, use its switch as above. After that, say in the story that you found it. A month line pays the upkeep; a paid month gives +2 loyalty (up to 100), an unpaid one costs 15. A second month line in the same story month charges again.
+
+**Officer posts.** Once the holding has a seat, the story can give a post (steward, marshal, spymaster, healer or chaplain, quartermaster, envoy) to someone it knows who stays at the seat and does not travel with you: say it in the story, for example "Mara stays at Ravenhold as steward". One person holds a post, and one post per person. The post is freed when the story takes it back, or when its holder travels with you again or dies.
+
+Once a module is on the narrator is told its `dm …` lines; a refused line changes nothing. See [DATA_MODULES.md](DATA_MODULES.md).
 
 ## 5. Playing
 

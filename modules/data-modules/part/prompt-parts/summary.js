@@ -8,6 +8,9 @@ import { shownText } from './field-words.js';
 import { fieldText, fieldsText } from './field-lines.js';
 import { tailRoom } from './tail-room.js';
 import { quietRole } from '../replaced.js';
+import { isHolding } from '../../holding/read.js';
+import { holdingLine } from '../../holding/tail.js';
+import { postRoom } from '../../holding/post-tail.js';
 
 /**
  * One module's state in plain words for the prompt's tail, at most 100 tokens (300 for a block with a role, written compact): "Survival — Wessel: hunger 12; fatigue 6."
@@ -17,6 +20,7 @@ export function summaryOf(state, module, { rpg = true } = {}) {
     const definition = activeDefinition(state, module);
     if (!definition) return `${module} — unavailable (damaged or unknown pin).`;
     const view = moduleView(state, { module });
+    if (isHolding(definition)) return cutAt(holdingLine(definition, view.chat), (tailRoom(definition, rpg) + postRoom(view.chat)) * 4);
     let waiting = '';
     try { const inputs = inputsOf(state, definition); if (definition.timers.some(timer => inputs[timer.clock]?.minutes == null)) waiting = ' Waiting for story time.'; } catch { waiting = ' Waiting.'; }
     // A block with a role is written compact (lean-rpg/tail.js): defaults and empty slots left out, one line per skill; nothing to say, no line.

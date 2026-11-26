@@ -183,6 +183,9 @@ export function createEvaluation(definition, instance, { inputs = {}, source, cu
     function effects(list, env = {}) {
         for (const effect of list) {
             charge();
+            if (effect.when !== undefined && !evaluate(effect.when, env)) continue;
+            // A `set` marked `skipUnset` from a label the line left out (only an optional label can be missing here) changes nothing.
+            if (effect.skipUnset === true && effect.op === 'set' && env.arg && !dmOwn(env.arg, effect.value[1])) continue;
             if (['set', 'add', 'clamp'].includes(effect.op)) {
                 const path = pathOf(effect.path, env);
                 const schema = field(path);

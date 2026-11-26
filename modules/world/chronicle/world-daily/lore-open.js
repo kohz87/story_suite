@@ -12,6 +12,7 @@ import { WORLD_EVENTS_FEATURE } from '../conditions/feature.js';
 import { scenePlaceOf } from '../pick-parts/nearness.js';
 import { readWorld } from './read-world.js';
 import { knownAnchors } from './learned.js';
+import { unheldFacts } from './holding-facts.js';
 import { OPENED, loreKey, openLore } from './lore-gate.js';
 
 export const LORE_OPEN = 'chronicle.world.loreOpen';
@@ -26,7 +27,7 @@ const clip = (text, room) => (text.length <= room ? text : `${text.slice(0, Math
 // The entries open now and the keys no reply has recorded yet, from a query and the chronicle and scene as stored.
 function readOpen(query, chronicle, scene) {
     const world = readWorld(query);
-    const anchors = knownAnchors(chronicle);
+    const anchors = knownAnchors(chronicle, unheldFacts(query));
     const open = openLore(world.lore, { anchors, place: scenePlaceOf(query, { domains: { scene } }), places: world.places });
     return { open, fresh: open.map(loreKey).filter(key => key && !anchors.has(`${OPENED}${key}`)) };
 }

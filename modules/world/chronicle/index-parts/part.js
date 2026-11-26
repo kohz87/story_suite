@@ -13,6 +13,7 @@ import { CONDITIONS_SETTLE, settleConditions } from '../conditions/settle.js';
 import { DAILY, dailyCommand } from '../world-daily/command.js';
 import { CUE, cueCommand } from '../world-daily/cue-command.js';
 import { LEARNED, learnedCommand } from '../world-daily/learned.js';
+import { HOLDING, holdingCommand } from '../world-daily/holding.js';
 import { LORE_OPEN, loreOpenCommand } from '../world-daily/lore-open.js';
 import { worldBriefQuery } from '../world-daily/arc-brief.js';
 import { anchorsQuery } from '../world-daily/anchors-query.js';
@@ -71,6 +72,7 @@ export const part = {
         [DAILY]: dailyCommand,
         [CUE]: cueCommand,
         [LEARNED]: learnedCommand,
+        [HOLDING]: holdingCommand,
         [LORE_OPEN]: loreOpenCommand,
         [WORLD_SEED]: worldSeedCommand,
         [OPEN]: openCommand,

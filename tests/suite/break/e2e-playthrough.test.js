@@ -119,7 +119,9 @@ test('E2E: a 30-reply Ersveil playthrough keeps live, rebuild, reload, Re-read, 
     const first = await host.send('Hello.', host.reply('The story begins at Bluewatch.', []));
     assert.ok(first, 'the opening reply');
     const startMinutes = host.q('director.time')?.minutes ?? host.q('director.time');
-    const offers = host.sdk.query('dataModules.offers');
+    // The modules a card offer turns on: Your Holding starts off, so nothing of it may reach this chat's prompt.
+    const offers = host.sdk.query('dataModules.offers').filter(offer => offer.definition.startsOff !== true);
+    assert.equal(offers.some(offer => offer.module.endsWith('/holding')), false);
     for (const offer of offers) {
         const done = await host.sdk.command('dm.pin', { module: offer.module, hash: offer.hash, packHash: offer.packHash, subjects: [] });
         assert.equal(done.ok, true, `pin ${offer.module}: ${done.message}`);

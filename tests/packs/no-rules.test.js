@@ -28,5 +28,5 @@ test('the open world example pair remains valid with the supported host capabili
     assert.equal(world.pack.content.routes.length, 352);
     const game = validatePack(read('ersveil-game'), options);
     assert.equal(game.ok, true, JSON.stringify(game.errors));
-    assert.equal(game.pack.content.dataModules.length, 3);
+    assert.equal(game.pack.content.dataModules.length, 4);
 });

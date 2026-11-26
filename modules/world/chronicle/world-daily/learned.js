@@ -47,9 +47,11 @@ export function learnedAnchors(people, cast, known = new Set()) {
     return out;
 }
 
-/** The anchors recorded so far: the daily step's own and the ledger's. */
-export function knownAnchors(chronicle) {
-    return new Set([...Object.keys(slotValue(chronicle?.daily)?.anchors ?? {}), ...Object.keys(ledgerOf(chronicle?.ledger).anchors)]);
+/** The anchors recorded so far: the daily step's own and the ledger's, less `unheld` (the holding's facts that no longer count, holding-facts.js). */
+export function knownAnchors(chronicle, unheld = []) {
+    const keys = new Set([...Object.keys(slotValue(chronicle?.daily)?.anchors ?? {}), ...Object.keys(ledgerOf(chronicle?.ledger).anchors)]);
+    for (const key of unheld) keys.delete(key);
+    return keys;
 }
 
 function learned(ctx) {

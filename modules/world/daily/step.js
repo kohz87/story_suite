@@ -19,6 +19,7 @@ import { settleOpen } from './open-day.js';
 import { makeStepCalendar } from './cal.js';
 import { lapseUnpaired } from './pair-lapse.js';
 import { applyStartWorld } from './start-world.js';
+import { regionKey } from './near.js';
 
 const DAY = 1440;
 // A step over more days than this shows the long-skip note (seam audit E16: 14, or the reader's longest jump when that is lower; the host passes it).
@@ -65,7 +66,7 @@ function standingsOf(world, saved, names) {
  * The step's working state (`ws`) for a stored state, a world and a clock day: used by `runDays` and, for the open templates' asking side,
  * to check a Director's answer with the same rules the step applies. Returns `{ ws, defs, tombOf }`.
  */
-export function makeWs({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, marks = null, withYou = [], positions = null, opens = null, calendar = null }) {
+export function makeWs({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, marks = null, withYou = [], positions = null, opens = null, calendar = null, partyRegion = '', seatRegion = '', unheld = [] }) {
     const campaign = typeof state?.seed === 'string' ? state.seed : String(seed ?? '');
     const paced = Number.isFinite(tempo) && tempo >= 0.25 && tempo <= 4;
     const defs = readDefs(world);
@@ -96,8 +97,13 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
     ws.standingKey = (kind, ref) => (`${kind}:${ref}` in ws.standings ? `${kind}:${ref}` : ws.standingNames.get(`${kind}:${ref}`) ?? `${kind}:${ref}`);
     ws.anchor = key => recordAnchor(ws.anchors, key, ws.day);
     for (const [key, days] of Object.entries(record(marks?.anchors)).sort(([a], [b]) => (a < b ? -1 : 1))) for (const day of list(days)) if (Number.isInteger(day)) recordAnchor(ws.anchors, key, day);
+    // Facts the story no longer supports (the holding's, holding-facts.js): their remembered days are dropped.
+    for (const key of unheld) delete ws.anchors[key];
     const tombOf = day => new Set(marks?.tomb?.day === day ? list(marks.tomb.keys) : []);
     ws.tomb = tombOf(today);
+    // Where the party is (near.js): `waits_for` reads the scene's region; `in:` / `near:` terms read it and the holding seat's.
+    ws.scene = regionKey(ws.geo, partyRegion);
+    ws.party = new Set([ws.scene, regionKey(ws.geo, seatRegion)].filter(Boolean));
     // The Director's stored verdicts on the daily roll (read only; daily/director-mark.js).
     ws.directorMarks = record(marks?.marks);
     return { ws, defs, tombOf, campaign };
@@ -105,21 +111,23 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
 
 
 /**
- * `runDays({ state, table, world, today, seed, tempo, met, rev, draw?, longSkip?, marks?, withYou?, positions? })` → null when there is nothing to step (today was stepped),
+ * `runDays({ state, table, world, today, seed, tempo, met, rev, draw?, longSkip?, marks?, withYou?, positions?, partyRegion?, seatRegion?, unheld? })` → null when there is nothing to step (today was stepped),
  * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings, tomb, moves, released, deaths } }`. `withYou`: the cast ids
  * with You at the tick (party or scene); `positions`: { [cast id]: { at, base } } from the cast store (cast-where.js). `report.moves`,
  * `released` and `deaths` are what the host mirrors into the cast store. `state` is chronicle.daily (or null),
  * `table` chronicle.conditions, `seed` the campaign seed (kept in the state from the first step), `draw` a test's own draw. `marks` is
  * the ledger (chronicle.ledger: anchors world lines made, taken into the state's anchors; the conditions cleared on `tomb.day`, which
- * nothing sets again that day). `report.tomb` is what was cleared on the last stepped day, for the ledger.
+ * nothing sets again that day). `report.tomb` is what was cleared on the last stepped day, for the ledger. `partyRegion` is the scene's
+ * region now and `seatRegion` the holding seat's: they hold on `today` only (on a skip's earlier days no `in:` / `near:` term holds).
  */
-export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null, withYou = [], positions = null, opens = null, settle = false, calendar = null }) {
+export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null, withYou = [], positions = null, opens = null, settle = false, calendar = null, partyRegion = '', seatRegion = '', unheld = [] }) {
     if (!Number.isInteger(today)) return null;
     const prior = Number.isInteger(state?.day) ? state.day : null;
     // `settle`: no new day, only the open slots whose answers are stored since (open templates, open-day.js).
     if (prior !== null && today <= prior && !(settle && list(state?.pending).length)) return null;
     if (prior !== null && today < prior) today = prior;
-    const { ws, defs, tombOf, campaign } = makeWs({ state, table, world, today, seed, tempo, met, rev, draw, marks, withYou, positions, opens, calendar });
+    const { ws, defs, tombOf, campaign } = makeWs({ state, table, world, today, seed, tempo, met, rev, draw, marks, withYou, positions, opens, calendar, partyRegion, seatRegion, unheld });
+    const now = { scene: ws.scene, party: ws.party };
     const first = prior === null ? today : Math.max(prior + 1, today - MAX_DAYS + 1);
     if (prior !== null && first > prior + 1) ws.warnings.push(`${first - prior - 1} days before the last ${MAX_DAYS} were not simulated.`);
     // A hold whose event is not Active here (its step's reply was deleted, or the step's state was lost) would never end: released now.
@@ -132,6 +140,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
         stepTally.days += 1;
         ws.day = day;
         ws.tomb = tombOf(day);
+        ({ scene: ws.scene, party: ws.party } = day === today ? now : { scene: null, party: new Set() });
         fadeConditions(ws, day * DAY);
         releaseDisplaced(ws, null, day * DAY);
         applyDeferred(ws, day);

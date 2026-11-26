@@ -3,7 +3,8 @@
 // read the binding of a recurring event's or template's pick. Pure (reads `ws`).
 
 import { anchorHolds } from './anchors.js';
-import { conditionString, isConditionEntry } from './grammar.js';
+import { conditionString, isConditionEntry, partyTerm } from './grammar.js';
+import { termHolds } from './near.js';
 import { conditionHolds } from './holds-read.js';
 import { isThreshold, thresholdHolds } from './threshold.js';
 
@@ -15,8 +16,10 @@ export function boundRef(parsed, bind = {}) {
     return bind[parsed.placeholder] ?? null;
 }
 
-/** One requirement entry (a threshold, a condition string or an anchor) on `day`. */
-export function entryHolds(ws, text, day, bind) {
+/** One requirement entry (a threshold, a party term, a condition string or an anchor) on `day`; `def` is whose entry it is. */
+export function entryHolds(ws, text, day, bind, def) {
+    const party = partyTerm(text);
+    if (party) return termHolds(ws, party, def, bind);
     if (isThreshold(text)) return thresholdHolds(ws, text);
     if (isConditionEntry(text)) {
         const parsed = conditionString(text);
@@ -29,14 +32,14 @@ export function entryHolds(ws, text, day, bind) {
 /** Every `requires` entry and (when written) at least one `requires_any` entry hold. */
 export function requiresHold(ws, def, day, bind) {
     const all = def.requires ?? def.needs ?? [];
-    if (!all.every(text => entryHolds(ws, text, day, bind))) return false;
+    if (!all.every(text => entryHolds(ws, text, day, bind, def))) return false;
     const any = def.requiresAny ?? [];
-    return !any.length || any.some(text => entryHolds(ws, text, day, bind));
+    return !any.length || any.some(text => entryHolds(ws, text, day, bind, def));
 }
 
 /** The product of today's matching odds modifiers (likelier_if and less_if); 1 with none. */
 export function modifierProduct(ws, def, day, bind) {
     let m = 1;
-    for (const { key, m: times } of def.likelier ?? []) if (entryHolds(ws, key, day, bind)) m *= times;
+    for (const { key, m: times } of def.likelier ?? []) if (entryHolds(ws, key, day, bind, def)) m *= times;
     return m;
 }

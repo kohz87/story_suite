@@ -5,6 +5,7 @@
 //   the daily step: the story day is now past the last stepped one → `chronicle.world.daily` (the reply that crossed the day)
 //   the death cue: an earlier reply left a must-happen death pending → `chronicle.world.cue` (written now, counted, or applied)
 //   learned secrets: NPC State opened a pack secret not yet recorded → `chronicle.world.learned` (after the step: it holds from the next one)
+//   the holding: the player's holding is founded, or has a seat, and the world has not recorded it → `chronicle.world.holding`
 //   hidden lore: a hidden entry's gate holds after the reply's lines and no reply opened it yet → `chronicle.world.loreOpen` (lore-open.js)
 
 import { isInt } from '../domain-parts/shared-basics.js';
@@ -14,6 +15,7 @@ import { CUE } from './cue-command.js';
 import { pendingCues } from '../../daily/cues.js';
 import { LEARNED, knownAnchors, learnedAnchors } from './learned.js';
 import { LORE_OPEN, loreOpenDue } from './lore-open.js';
+import { HOLDING, holdingDue } from './holding.js';
 import { readWorld } from './read-world.js';
 import { slotValue } from '../../../rpg/slot.js';
 import { ledgerOf } from '../conditions/ledger.js';
@@ -50,6 +52,7 @@ function afterCapture(view, info = {}) {
     if (!state || Math.floor(now / DAY) > state.day || before || settle) commands.push({ type: DAILY, payload: { ...(before ? { before } : {}), ...(settle ? { settle: true } : {}) } });
     if (state && pendingCues(state).length) commands.push({ type: CUE, payload: {} });
     if (opened(view)) commands.push({ type: LEARNED, payload: {} });
+    if (holdingDue(view)) commands.push({ type: HOLDING, payload: {} });
     if (loreOpenDue(view)) commands.push({ type: LORE_OPEN, payload: {} });
     return commands.length ? { commands } : undefined;
 }

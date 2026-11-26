@@ -1,9 +1,10 @@
 // The job: checking one condition string, anchor or threshold of an event or template against what the pack defines.
-// `ctx`: { index, say(field, message, code?), placeholders (allowed or not), collect: { facts, warnings } }.
+// `ctx`: { index, say(field, message, code?), placeholders (allowed or not), whereList (the event has a `where` list), collect: { facts, warnings } }.
 
 import { parseAnchor, parseCondition, parseEntry, parseThreshold } from './grammar.js';
 import { STANDING } from '../../limits.js';
 import { arcEndedKnown, checkDate } from './date-anchor.js';
+import { checkPartyTerm } from './party.js';
 
 /** A condition string: its name is declared, its ref names a place, route, region or realm of the condition's scope (or a placeholder of that scope). */
 export function checkConditionText(text, ctx, field, { duration = 'allow' } = {}) {
@@ -77,14 +78,16 @@ function learnedKnown(id, text, ctx, field) {
     return true;
 }
 
-/** One requires / requires_any / any_of entry. `allow`: which of 'threshold', 'anchor', 'condition' this place takes. */
-export function checkEntry(text, ctx, field, allow = ['threshold', 'anchor', 'condition']) {
+/** One requires / requires_any / any_of entry. `allow`: which of 'threshold', 'anchor', 'condition', 'party' this place takes. */
+export function checkEntry(text, ctx, field, allow = ['threshold', 'anchor', 'condition', 'party']) {
     if (typeof text !== 'string' || !text.trim()) return ctx.say(field, 'an entry must be a non-empty string.'), null;
     const parsed = parseEntry(text);
     if (parsed.type === 'threshold' && !allow.includes('threshold')) return ctx.say(field, `"${text}": a threshold is not allowed here (it may gate requires, requires_any and ends_when.any_of); use a condition or an anchor.`), null;
     if (parsed.type === 'anchor' && !allow.includes('anchor')) return ctx.say(field, `"${text}": an anchor is not allowed here; write a condition.`), null;
     if (parsed.type === 'condition' && !allow.includes('condition')) return ctx.say(field, `"${text}": a condition is not allowed here.`), null;
+    if (parsed.type === 'party' && !allow.includes('party')) return ctx.say(field, `"${text}": in: / near: is not allowed here (it may be in requires, requires_any, likelier_if and less_if).`), null;
     if (parsed.error) return ctx.say(field, parsed.error), null;
+    if (parsed.type === 'party') return checkPartyTerm(parsed, text, ctx, field);
     if (parsed.type === 'threshold') return checkThresholdText(text, ctx, field);
     if (parsed.type === 'condition') return checkConditionText(text, ctx, field, { duration: 'forbid' });
     if (parsed.ref !== undefined && !ctx.index.ref(parsed.ref).size && !ctx.placeholders) return ctx.say(field, `"${text}": "${parsed.ref}" is not a place, route, region or realm of this pack.`, 'UNKNOWN_REF'), null;
