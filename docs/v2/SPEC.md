@@ -980,7 +980,7 @@ Home draws a Mounts card beside Save points while there is a mount.
 ### inventory
 ```js
 {
-  defs:   { [defId]: { id, name, kind: 'goods'|'material'|'consumable'|'equipment'|'quest'|'money',
+  defs:   { [defId]: { id, name, kind: 'goods'|'material'|'consumable'|'equipment'|'quest'|'money'|'supply',
                        rarity: 'common'|'uncommon'|'rare'|'epic'|'legendary', value: 0 /* smallest unit */,
                        stack: true, slot: null, stats: {}, effect: {}, tags: [], note: '' } },
   stacks: { [stackId]: { id, def, qty, owner: 'ac_…' /* actor */ | 'party', equipped: null | slot,

@@ -1,7 +1,7 @@
 // Builds the view modules read, and tells whether a feature is on.
 
 import { headReply } from '../../commands.js';
-import { chatMarked } from '../../persist/records.js';
+import { chatMarked, readRecord } from '../../persist/records.js';
 import { runQuery } from './run.js';
 import { stripBlock } from '../../capture-parts/strip.js';
 
@@ -33,8 +33,17 @@ export function makeView({ store, registry, settings, chat = [], active = null, 
         chat: Object.freeze({ length: messages.length, lastUser: String(lastUser?.mes ?? ''), lastReply: stripBlock(String(lastReply?.mes ?? '')), readers: seen.filter(message => message?.is_user).length }),
         // The state before the reply this view stands for (the one its lines start from), or null: asked by a step that compares the reply with it (the RPG's fight XP).
         before: () => { try { return Number.isInteger(reply?.index) ? store.before?.(reply.index) ?? null : null; } catch { return null; } },
+        // The state before the latest reply that was written and captured, or null. During a swipe the new swipe's record may already hold the
+        // steps taken before the send, so `before()` (the head carrier's) is not it.
+        beforeLatestReply: () => { try { const at = latestReply(seen); return at ? store.before?.(messages.indexOf(at)) ?? null : null; } catch { return null; } },
     });
 }
+
+// A captured reply's record carries the marks its first live capture gave it (turn/capture-each.js).
+const latestReply = list => list.findLast(message => {
+    const record = message && !message.is_user ? readRecord(message) : null;
+    return Boolean(record) && (record.reply === true || record.foeCap !== undefined || Array.isArray(record.rules));
+});
 
 /** Whether feature `id` is on (registry.featureOn); false for an unknown id or a registry without features. */
 export const featureOn = (registry, id) => typeof registry?.featureOn === 'function' && registry.featureOn(id) === true;

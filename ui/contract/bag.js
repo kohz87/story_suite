@@ -6,8 +6,10 @@ import { LOOT_OFFER_SHAPE } from './loot.js';
 const ITEM = {
   stack: T.STRING,
   name: T.STRING,
-  kind: { $enum: ['gear', 'use', 'goods', 'material', 'quest'] },
+  kind: { $enum: ['gear', 'use', 'supply', 'goods', 'material', 'quest'] },
   glyph: T.STRING,
+  // A supply only: the kind the Edit can put it back to.
+  wasKind: { $optional: T.STRING },
   rarity: { $enum: ['common', 'uncommon', 'rare', 'epic'] },
   qty: T.NUMBER,
   wornBy: { $nullable: T.STRING },
@@ -68,7 +70,7 @@ export const BAG_SHAPE = {
   rpg: T.BOOLEAN,
   // Gear in fights is on, and the starting kit is open (the + Add form's Rarity and Stats).
   gear: { $optional: { on: T.BOOLEAN, kit: T.BOOLEAN, labels: { $optional: T.ANY } } },
-  filters: [{ key: { $enum: ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'] }, count: T.NUMBER }],
+  filters: [{ key: { $enum: ['all', 'worn', 'gear', 'use', 'supply', 'goods', 'material', 'quest'] }, count: T.NUMBER }],
   items: [ITEM],
   purse: {
     coins: { $nullable: { gold: T.NUMBER, silver: T.NUMBER, copper: T.NUMBER } },

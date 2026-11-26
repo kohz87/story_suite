@@ -5,3 +5,4 @@
 export { condText, promptNote, itemPhrase, owners } from './prompt-parts/phrases.js';
 export { pack } from './prompt-parts/packing.js';
 export { WALLET_NOTE, inventoryTail } from './prompt-parts/tail.js';
+export { storyDaysPassed } from './prompt-parts/supply.js';

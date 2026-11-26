@@ -12,7 +12,7 @@ test('default filter is In bag: carried items only, with counts on the chips', (
   const bag = bagFixture();
   const card = itemsCard(bag, makeCtx());
   const chips = card.querySelectorAll('.fil button');
-  assert.equal(chips.length, 7);
+  assert.equal(chips.length, 8);
   assert.match(chips[0].textContent, /^In bag/);
   assert.equal(chips[0].getAttribute('aria-pressed'), 'true');
   assert.equal(rows(card).length, bag.filters[0].count);

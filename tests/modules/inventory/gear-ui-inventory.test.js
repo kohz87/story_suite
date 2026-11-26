@@ -15,7 +15,7 @@ test('Inventory, gear on: Carry first, then Equipment (in the bag), the wearer\'
     const host = await gearHost(t);
     const { el, view, problems } = draw(host);
     assert.deepEqual([view.warnings, problems], [[], []]);
-    assert.deepEqual(headings(el).filter(Boolean).slice(0, 5), ['Carry', 'Equipment \u00b7 in the bag', 'You', 'Consumables', 'Goods']);
+    assert.deepEqual(headings(el).filter(Boolean).slice(0, 6), ['Carry', 'Equipment \u00b7 in the bag', 'You', 'Consumables', 'Supplies', 'Goods']);
     assert.ok(el.querySelector('.inv').classList.contains('gear'));
     const sections = el.querySelectorAll('section.group, section.carry-sec');
     assert.equal(sections[0].classList.contains('carry-sec'), true, 'Carry is the first section');

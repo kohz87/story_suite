@@ -3,7 +3,7 @@ import { h, svgEl } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { button } from '../../kit/controls.js';
 
-export const KIND_LABEL = Object.freeze({ gear: 'Gear', use: 'Use', goods: 'Goods', material: 'Materials', quest: 'Quest' });
+export const KIND_LABEL = Object.freeze({ gear: 'Gear', use: 'Use', supply: 'Supplies', goods: 'Goods', material: 'Materials', quest: 'Quest' });
 const FILTER_LABEL = Object.freeze({ all: 'In bag', worn: 'Worn', ...KIND_LABEL });
 const RARITY_CLASS = Object.freeze({ uncommon: 'r-unc', rare: 'r-rare', epic: 'r-epic' });
 

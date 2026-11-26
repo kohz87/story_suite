@@ -5,10 +5,10 @@ import { slotWordOf } from '../../modules/inventory/gear.js';
 import { purseLines } from './purse-lines.js';
 import { labelsOf, relabel } from './stat-labels.js';
 
-const KIND_OF = { equipment: 'gear', consumable: 'use', goods: 'goods', material: 'material', quest: 'quest' };
+const KIND_OF = { equipment: 'gear', consumable: 'use', supply: 'supply', goods: 'goods', material: 'material', quest: 'quest' };
 const GLYPH_OF_SLOT = { weapon: 'weapon', body: 'armor', 'off-hand': 'offhand', head: 'head', cloak: 'cloak', feet: 'feet', 'accessory-1': 'accessory', 'accessory-2': 'accessory', accessory: 'accessory' };
 const RARITY = { common: 'common', uncommon: 'uncommon', rare: 'rare', epic: 'epic', legendary: 'epic' };
-const FILTER_KEYS = ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'];
+const FILTER_KEYS = ['all', 'worn', 'gear', 'use', 'supply', 'goods', 'material', 'quest'];
 const LOAD_LEVEL = { normal: 'light', heavy: 'heavy', over: 'over' };
 
 // gear.view's carry.parts → the load chips ({ label, value, text, dim }); [] when it gave none.
@@ -39,6 +39,7 @@ function itemOf(row, ctx) {
     weight: whole(info?.weight), bonus: typeof info?.bonus === 'string' ? relabel(info.bonus, ctx.labels) : '', worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: originOf(row.from),
     note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
     ...(kind === 'gear' ? gearOf(info, ctx.labels) : {}),
+    ...(kind === 'supply' ? { wasKind: KIND_OF[row.wasKind] ?? 'goods' } : {}),
     ...carryOf(info, ctx.packs?.[row.stack], kind === 'gear' && Boolean(slotWordOf(row.slot))),
     // Held by someone who left (their name): the sheet offers Take back.
     ...(typeof info?.gone === 'string' ? { gone: info.gone, ...(isRecord(info.bound) ? { bound: true } : {}) } : {}),

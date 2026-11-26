@@ -5,6 +5,7 @@
 export { kitOpen, handStats, holdBudget, handSlot } from './edit-parts/kit.js';
 export { remakeAsEquipment, handPlace, wantsRepoint, repoint } from './edit-parts/remake.js';
 export { handEdit } from './edit-parts/hand-edit.js';
+export { supplyEdit } from './edit-parts/supply-edit.js';
 export { numberEdit } from './edit-parts/number-edit.js';
 export { byReader, setCarry } from './edit-parts/carry.js';
 export { editStack, editPieces, addDecision, renameDecision } from './edit-parts/witness.js';

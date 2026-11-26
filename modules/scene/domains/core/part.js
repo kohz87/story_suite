@@ -3,7 +3,7 @@
 
 import {
     FEATURE, createInventoryCommands, createInventoryQueries, captureCoin, captureItem, captureLoot, encumbranceTail,
-    featureOn, gearOn, initialInventory, inventoryTail, validateInventory,
+    featureOn, gearOn, initialInventory, inventoryTail, storyDaysPassed, validateInventory,
 } from '../../../inventory/index.js';
 import { capturePlace, capturePresent, captureWeather, captureYou, initialScene, sceneCommands, sceneQueries, sceneTail, validateScene } from '../../index.js';
 import { MOUNTS_FEATURE, captureMount, createMountsQueries, mountsCommands, mountsTail } from '../../mounts.js';
@@ -19,6 +19,9 @@ import { CORE_KINDS, youGrammar } from './kinds.js';
 function youRankLabel(view) {
     try { return view.query('packs.youRank')?.label ?? ''; } catch { return ''; }
 }
+
+// After the item line (and its gear words): supplies are used up as the story goes.
+const SUPPLY_GRAMMAR = '. Supplies run down: add kind: supply for food, medicine, oil, torches, fodder and the like, with a note of how much is left (e.g. "4 days of food"), and write the change when days pass or the party eats, camps, treats wounds or burns light.';
 
 // Whether this reply answers the reader's first message of the chat (the greeting is the narrator's): the one reply that asks for the look.
 // Read from the chat itself, so a swipe, a regenerate or a rebuilt state gives the same answer.
@@ -75,7 +78,7 @@ export function createCorePart({ hooks = () => [], settings = () => ({}), hookEn
         // The party's riders for `mounts.pace`: the RPG's characters who have not left, else the one reader.
         queries: { ...createInventoryQueries(env), ...sceneQueries, ...createMountsQueries({ riders: state => (rpgOn() ? Math.max(1, (rpgLib()?.partyOf(state) ?? []).filter(person => !person.left).length) : 1) }) },
         kinds: {
-            item: kind(() => CORE_KINDS.item.grammar + (env.gearOn() ? GEAR_ITEM_GRAMMAR : ''), (ctx, line) => captureItem(ctx, line, env)),
+            item: kind(() => CORE_KINDS.item.grammar + (env.gearOn() ? GEAR_ITEM_GRAMMAR : '') + SUPPLY_GRAMMAR, (ctx, line) => captureItem(ctx, line, env)),
             coin: kind(CORE_KINDS.coin.grammar, (ctx, line) => captureCoin(ctx, line, env)),
             place: kind(CORE_KINDS.place.grammar, (ctx, line) => capturePlace(ctx, line)),
             present: kind(CORE_KINDS.present.grammar, (ctx, line) => capturePresent(ctx, line)),
@@ -98,7 +101,7 @@ export function createCorePart({ hooks = () => [], settings = () => ({}), hookEn
                 try { found = featureOn(view, FEATURE.encumbrance) ? view.query('inventory.encumbrance') : null; } catch { found = null; }
                 const heavy = encumbranceTail(found);
                 const used = [...scene, ...heavy].reduce((sum, line) => sum + line.length + 1, 0);
-                const inventory = inventoryTail(view?.state, { currency: currency(), chars: chars / 2 - used, optionalChars: chars / 2, gear: gearOn(view) });
+                const inventory = inventoryTail(view?.state, { currency: currency(), chars: chars / 2 - used, optionalChars: chars / 2, gear: gearOn(view), days: storyDaysPassed(view) });
                 return { lines: [...scene, ...inventory.lines, ...heavy], optional: inventory.optional };
             },
             budget: CORE_BUDGET,

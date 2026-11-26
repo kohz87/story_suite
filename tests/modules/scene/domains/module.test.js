@@ -8,6 +8,7 @@ import { youNote } from '../../../../modules/scene/index.js';
 import { createHarness, initialState, line } from '../../inventory/helpers/fake-ctx.js';
 import { WALLET_NOTE } from '../../../../modules/inventory/index.js';
 import { CROWNS, core, def, stack, stocked } from '../../inventory/fixtures.js';
+import { SUPPLY_WORDS } from '../../inventory/gear-inventory.helpers.js';
 
 const view = state => ({ state, query: () => null, settings: {}, chat: { length: 1, lastUser: '' } });
 
@@ -153,7 +154,9 @@ test('createCorePart gives the same pieces in the MODULES.md part shape', () => 
     assert.deepEqual(Object.keys(part.kinds), Object.keys(module.capture.kinds).filter(kind => kind !== 'dm' && kind !== 'party' && kind !== 'roll' && !module.capture.kinds[kind].display));
     for (const [name, kind] of Object.entries(part.kinds)) {
         // `you`'s line is a function: no pack here gives it a Rank, so it is the base line.
-        assert.equal(typeof kind.grammar === 'function' ? kind.grammar() : kind.grammar, CORE_KINDS[name].grammar);
+        const said = typeof kind.grammar === 'function' ? kind.grammar() : kind.grammar;
+        // The item line ends with the supplies sentence.
+        assert.equal(said, name === 'item' ? CORE_KINDS.item.grammar + SUPPLY_WORDS : CORE_KINDS[name].grammar);
         assert.equal(typeof kind.apply, 'function');
     }
     assert.deepEqual(Object.keys(part.commands), Object.keys(module.commands).filter(name => !/^(events|assist|savepoint|dm|rpg|people|interaction|packs)\./.test(name)));
@@ -182,7 +185,8 @@ test('tail: place, present, equipped, wallet and carried items with notes trimme
             'Equipped: Iron Sword [hand]',
             'Equipped (Ren): Dagger [hand]',
             `Wallet (${WALLET_NOTE}): 38 crowns; Ren 5 crowns`,
-            'Carried: Minor Healing Draught ×2, Minor Healing Draught (cloudy), Lantern, Rope ×3 (tarred hemp, sixty feet, knotted every…)',
+            'Supplies: Minor Healing Draught ×2, Minor Healing Draught (cloudy)',
+            'Carried: Lantern, Rope ×3 (tarred hemp, sixty feet, knotted every…)',
         ],
         optional: [],
     });

@@ -4,7 +4,7 @@ import { button } from '../../kit/controls.js';
 import { gearAddFields } from './item-add-gear.js';
 import { carryField } from './carry-field.js';
 
-const KINDS = [['equipment', 'Gear'], ['consumable', 'Use'], ['goods', 'Goods'], ['material', 'Materials'], ['quest', 'Quest']];
+const KINDS = [['equipment', 'Gear'], ['consumable', 'Use'], ['supply', 'Supplies'], ['goods', 'Goods'], ['material', 'Materials'], ['quest', 'Quest']];
 
 const field = (label, control) => h('label', { class: 'ef' }, label, control);
 
