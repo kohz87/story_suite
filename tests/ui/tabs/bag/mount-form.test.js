@@ -100,3 +100,10 @@ test('a mount\'s sheet: Edit opens the form on its values and sends mounts.edit;
   // property rows have no mount actions
   assert.equal(assetSheet(bagFixture().assets.property[0], 'property', makeCtx()).querySelector('.brow'), null);
 });
+
+test('with nothing to judge where a mount is (gear off), its sheet shows only the row\'s own words', () => {
+  installFakeDom();
+  const text = assetSheet({ ...MARE, where: 'with the party', withParty: null }, 'transport', makeCtx()).textContent;
+  assert.match(text, /with the party/);
+  assert.doesNotMatch(text, /Not with you/);
+});

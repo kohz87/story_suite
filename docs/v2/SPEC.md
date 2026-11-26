@@ -962,10 +962,11 @@ an earlier reply was deleted passes over a change to a mount that is no longer t
 `mounts` is a `scratch` field (§2.2), so a mount added after the reply that first wrote the field was deleted still lands.
 Older chats have no `mounts` and read as none. Names match as other story names do (case and spaces do not matter).
 Capture kind `mount`: `+ mount Grey Mare | kind: horse | count: 1 | pace: 35 | where: ridden by Wessel` (a mount the
-party already has is updated by what the line gives), `~ mount Burr | condition: lame | where: stabled at the Stray Oar`
+party already has is updated by what the line gives; the grammar asks for one line per animal or vehicle, named for what tells it apart, and `count` only for
+a string of pack animals that is never split), `~ mount Burr | condition: lame | where: stabled at the Stray Oar`
 (only what it names changes; an empty label clears), `- mount Burr`. A missing `pace` takes the kind's usual one: horse 35,
 pony 30, camel 30, mule 25, donkey 20, ox 15, cart 18, wagon 18, else 30 (km a day); a count or pace out of range is held
-to it and said as a Problem; a seventh row, a `~` or `-` of a mount the party has not, and text that is not a number where
+to it and said as a Problem; a thirteenth row (a seventh on a reply without the rule mark `mountRiders`, so a Re-read of an older reply keeps six), a `~` or `-` of a mount the party has not, and text that is not a number where
 a number belongs are refused with a plain Problem. Command `mounts.edit({ mount, name?, kind?, count?, pace?, condition?,
 where? })` (the reader's pencil, `ui` only, on the latest reply; `mount` names the row to change). The narrator's tail line,
 only while there is a mount: `Mounts: Grey Mare (horse, 35 km/day, ridden by Wessel); Guild remounts ×4 (horse, 35 km/day)`.

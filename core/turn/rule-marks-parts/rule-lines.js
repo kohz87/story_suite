@@ -73,4 +73,8 @@ export const RULE_LINES = Object.freeze({
     // A later `+ xp` in a reply that names another standing group counts that group's foes down and pays nothing (Text RPG module-parts/kinds/xp.js).
     // A reply with no mark refuses every `+ xp` after the first.
     xpCountsDown: line => line?.kind === 'xp',
+    // `+ item` and `~ item … qty` are held to a carry limit that counts a mount whose `where` names the reader's character or a party member ("Rav, Torka") as with the party
+    // (domains/inventory/gear/carry-parts/mount-travel.js). A reply with no mark reads mounts without those names (`gear.carry { riders: false }`). Same item lines as `carryRoster`.
+    // Also `+ mount`: the party keeps up to 12 mount rows (scene/mounts-parts/apply.js). A reply with no mark still refuses a seventh.
+    mountRiders: line => (line?.kind === 'item' && line.op !== '-') || (line?.kind === 'mount' && line.op === '+'),
 });

@@ -26,7 +26,7 @@ export const CORE_KINDS = Object.freeze({
     // Without a pack that gives a Rank (`content.you.rank`) the line names wearing and condition only; with one, `youGrammar(label)`.
     you: Object.freeze({ grammar: youGrammar(''), feature: CORE_FEATURE.you }),
     // The party's mounts (src/v2/domains/mounts.js): their grammar line only while `story-block.mounts` is on.
-    mount: Object.freeze({ grammar: '+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)', feature: CORE_FEATURE.mounts }),
+    mount: Object.freeze({ grammar: '+ mount Name | kind: horse|mule|cart|… | pace: km/day | where: with the party, who rides it, or where it was left (one line for each animal or vehicle, named for what tells it apart, like Grey Mare or Bay Gelding with the white blaze; count: only for a string of pack animals that is never split; ~ mount Name | condition: lame; - mount Name when lost or sold; at most 12)', feature: CORE_FEATURE.mounts }),
     // MODULES §F100: off, the kind and its grammar line are left out (a host without Features keeps it).
     loot: Object.freeze({ grammar: '? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)', feature: FEATURE.loot }),
     // MODULES §F115: display kinds, read for the reader alone (src/v2/extras.js); each under its feature.

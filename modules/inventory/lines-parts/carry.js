@@ -6,9 +6,10 @@ import { carryAnswer } from '../queries.js';
 
 // The carry limit, when a module keeps one (`items.carry`, MODULES §F39): whether `owner` can take on
 // `add` ([{ defId, qty }]; `move` for a hand-over between the party's own) → { ok, message }, or null
-// when no module answers (no limit). `legacy`: Story Block's own rules count as they did before the roster.
-export function carryFits(ctx, add, owner, move = false, legacy = false) {
-    const fits = carryAnswer((name, args) => ctx.query(name, args), { owner, add, ...(move ? { move: true } : {}), ...(legacy ? { legacy: true } : {}) }, gearOn(ctx));
+// when no module answers (no limit). `old`: Story Block's own rules count as they did before the roster (`legacy`) or before a mount's riders
+// counted (`riders: false`).
+export function carryFits(ctx, add, owner, move = false, old = {}) {
+    const fits = carryAnswer((name, args) => ctx.query(name, args), { owner, add, ...(move ? { move: true } : {}), ...old }, gearOn(ctx));
     if (!isPlainObject(fits)) return null;
     const message = typeof fits.message === 'string' && fits.message ? fits.message : 'There is no room to carry that.';
     return { ok: fits.ok !== false, message };

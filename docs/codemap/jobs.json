@@ -1,4 +1,8 @@
 {
+  "tests/modules/inventory/mount-riders.test.js": "Tests that mounts naming party members travel with the party, the carry limit's old reading on Re-read, the roll guard and the mount grammar.",
+  "modules/inventory/gear/carry-parts/party-names.js": "Gives the names a mount's `where` can call the party by: the current members and the reader's persona.",
+  "modules/inventory/gear/carry-parts/mount-travel.js": "Decides whether a mount row travels with the party, from its `where`, the party's place and the party's names.",
+  "modules/scene/mounts-parts/riders.js": "Reads who a mount row's `where` names: its riders (\"ridden by …\" or a bare list of party members) and whether it names a party member.",
   ".github/workflows/ci.yml": "The CI workflow: rules checks and the three package test jobs plus the cross-package suite job.",
   ".github/workflows/ui-walk.yml": "The UI walk workflow: for a manual run, a release pull request or a pull request that touches the UI, runs the settings click-through in a pinned SillyTavern, one job per size and theme, and keeps the table and failure screenshots.",
   "authoring-kit/check.mjs": "Check a pack using the same validator as Story Block.",

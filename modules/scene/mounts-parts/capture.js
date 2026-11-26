@@ -13,7 +13,7 @@ const M = STRINGS.mounts;
 /**
  * `+ mount Grey Mare | kind: horse | count: 1 | pace: 35 | where: ridden by Wessel` (a mount the party gets; one already
  * here is updated by what the line gives), `~ mount Burr | condition: lame | where: stabled at the Stray Oar`, `- mount Burr`.
- * A missing pace takes the kind's usual one. A seventh row is refused.
+ * A missing pace takes the kind's usual one. A thirteenth row is refused (a seventh on a reply without the `mountRiders` mark).
  */
 export function captureMount(ctx, line) {
     const name = cleanName(line?.name);

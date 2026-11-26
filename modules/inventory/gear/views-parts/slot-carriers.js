@@ -15,11 +15,11 @@ const whole = (value, fallback) => (Number.isSafeInteger(value) && value > 0 ? v
  * { ride: { name, kind, pace, carry } | null, bag: { stack, name, carry } | null, mounts: [{ name, kind, pace, count, carry, riders, withParty, where }],
  *   packs: [{ stack, name, carry, owner, by, bag, bound }] } for `owner` (`names(id)` is how an owner is called; the main character's is `party`).
  */
-export function slotCarriers({ owner, stacks, defs, mounts, place, names, carryOf }) {
+export function slotCarriers({ owner, stacks, defs, mounts, place, names, carryOf, crew = [] }) {
     const who = fold(names(owner) || owner);
     const rows = (Array.isArray(mounts) ? mounts : []).filter(row => row && typeof row.name === 'string').map(row => ({
         name: row.name, kind: String(row.kind ?? ''), pace: whole(row.pace, 0), count: whole(row.count, 1),
-        carry: whole(row.carry, kindCarry(row.kind)) * whole(row.count, 1), riders: ridersOf(row.where), withParty: travelsWith(row.where, place), where: String(row.where ?? '').trim(),
+        carry: whole(row.carry, kindCarry(row.kind)) * whole(row.count, 1), riders: ridersOf(row.where, crew), withParty: travelsWith(row.where, place, crew), where: String(row.where ?? '').trim(),
     }));
     const ridden = rows.find(row => row.riders.some(name => fold(name) === who)) ?? null;
     const packs = stacks.filter(stack => bagLike(defs[stack.def], carryOf(defs[stack.def]) ?? 0)).map(stack => ({

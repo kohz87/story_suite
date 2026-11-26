@@ -10,6 +10,9 @@ const M = STRINGS.mounts;
 
 const told = ctx => ctx.cause !== 'story';
 
+// A story reply captured before the cap was raised has no `mountRiders` mark (turn/rule-marks.js): a Re-read keeps its six rows.
+const rowCap = ctx => (ctx.cause === 'story' && !ctx.carrier?.rules?.includes('mountRiders') ? 6 : MAX_ROWS);
+
 function rowOf(scene, name) {
     const key = nameKey(name);
     return Object.entries(scene.mounts ?? {}).find(([, row]) => nameKey(row.name) === key) ?? [null, null];
@@ -25,7 +28,8 @@ export function apply(ctx, { match, rename: to = null, kind, count, pace, condit
     if (!found) {
         if (!create) return ctx.fail('NOT_FOUND', fill(M.none, { name: match }));
         const rows = Object.keys(scene.mounts ?? {}).length;
-        if (rows >= MAX_ROWS) return ctx.fail('REFUSED', fill(M.full, { max: MAX_ROWS, name }));
+        const cap = rowCap(ctx);
+        if (rows >= cap) return ctx.fail('REFUSED', fill(M.full, { max: cap, name }));
         scene.mounts ??= {};
         let at = rowKey(name);
         for (let n = 2; Object.hasOwn(scene.mounts, at); n += 1) at = `${rowKey(name)}#${n}`;

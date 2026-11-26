@@ -15,9 +15,11 @@ import { partyCarriers, domainActors } from './members.js';
  * `carryOf(def)` is the capacity a def adds (inventory.js: a pack item's `carry`).
  * The shared bag (owner `party`) has the capacities of the RPG characters who are not counted as a person added up (a story with none counts one reader of default
  * strength); each person owns theirs. `roster` (optional, { members, pc }: a roster a query answers, as Text RPG's) adds its members from the start; `nameOf(id)`
- * (optional) names a person the `party` domain does not hold; `legacy` counts as before the roster did (members.js). A unit weighs its def's weight (stats-parts/weight.js: its own, else by slot or kind; coins 0), and what a stack adds counts while it is worn (equipment) or held.
+ * (optional) names a person the `party` domain does not hold; `legacy` counts as before the roster did (members.js). `crew` (optional) the party's names
+ * (party-names.js): a mount whose `where` names one travels with the party.
+ * A unit weighs its def's weight (stats-parts/weight.js: its own, else by slot or kind; coins 0), and what a stack adds counts while it is worn (equipment) or held.
  */
-export function carryPicture(state, { carryOf, mounts = [], nameOf = null, roster = null, legacy = false }) {
+export function carryPicture(state, { carryOf, mounts = [], nameOf = null, roster = null, legacy = false, crew = [] }) {
     const inventory = state?.domains?.inventory;
     const defs = isPlainObject(inventory?.defs) ? inventory.defs : {};
     const stacks = Object.values(isPlainObject(inventory?.stacks) ? inventory.stacks : {}).filter(stack => isPlainObject(stack) && isPlainObject(defs[stack.def]));
@@ -37,7 +39,7 @@ export function carryPicture(state, { carryOf, mounts = [], nameOf = null, roste
     // Mounts and carts that travel with the party add their carry × count to the shared bag.
     const place = state?.domains?.scene?.place?.name ?? '';
     const animals = (Array.isArray(mounts) ? mounts : []).filter(row => row).map(row => ({
-        name: row.name, carry: (Number.isSafeInteger(row.carry) && row.carry > 0 ? row.carry : kindCarry(row.kind)) * (Number.isSafeInteger(row.count) && row.count > 0 ? row.count : 1), withParty: travelsWith(row.where, place),
+        name: row.name, carry: (Number.isSafeInteger(row.carry) && row.carry > 0 ? row.carry : kindCarry(row.kind)) * (Number.isSafeInteger(row.count) && row.count > 0 ? row.count : 1), withParty: travelsWith(row.where, place, legacy ? [] : crew),
     }));
     const rides = animals.filter(animal => animal.withParty).map(({ name, carry }) => ({ name, carry }));
     const sources = {

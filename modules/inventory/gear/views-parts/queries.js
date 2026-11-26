@@ -5,6 +5,7 @@ import { statBonus, gearAnswer } from './answers.js';
 import { gearView } from './view.js';
 import { GEAR } from '../stats.js';
 import { membersOf, pcOf } from '../../validate-parts/party.js';
+import { partyNames } from '../carry-parts/party-names.js';
 
 /**
  * The two gear queries: `inventory.gear` and `gear.carry` (`items.carry`'s answer from Story Block's own rules, asked only when no
@@ -26,13 +27,16 @@ export function createGearQueries({ on, kit = () => false, empty = () => false, 
         if (!answers && !party) return null;
         return { members: membersOf(query, party), pc: pcOf(query, party) };
     };
+    // The party's names: a mount whose `where` names one of them travels with the party.
+    const crewOf = (state, tools) => partyNames((name, args) => tools?.query?.(name, args), state?.domains?.party ?? null);
     return {
         'inventory.statBonus': gate((state, args) => statBonus(state, typeof args?.owner === 'string' && args.owner ? args.owner : 'party', condOf)),
-        'inventory.gear': gate((state, args, tools) => gearAnswer(state, args, { condOf, carryOf, penalty, mounts: mountsOf(tools), roster: rosterOf(state, tools), nameOf: id => names(state, tools, id) }), true),
-        'gear.view': gate((state, args, tools) => gearView(state, args, { kit, empty, condOf, carryOf, penalty, mounts: mountsOf(tools), roster: rosterOf(state, tools), names: id => names(state, tools, id), owners: () => owners(state, tools) })),
+        'inventory.gear': gate((state, args, tools) => gearAnswer(state, args, { condOf, carryOf, penalty, mounts: mountsOf(tools), roster: rosterOf(state, tools), nameOf: id => names(state, tools, id), crew: crewOf(state, tools) }), true),
+        'gear.view': gate((state, args, tools) => gearView(state, args, { kit, empty, condOf, carryOf, penalty, mounts: mountsOf(tools), roster: rosterOf(state, tools), names: id => names(state, tools, id), owners: () => owners(state, tools), crew: crewOf(state, tools) })),
         // The seven names a reader sees for the gear's stats, in the gear's order: a fallback, so a module that runs its own stats (Text RPG) answers instead while it is on.
         'gear.statLabels': Object.assign(() => [...GEAR.stats], { fallback: true }),
-        // (`legacy: true`: an item line of a reply captured before the roster counted is judged as it was then, story-parts/item.js)
-        'gear.carry': gate((state, args, tools) => carryAnswer(state, args, { carryOf, mounts: mountsOf(tools), roster: rosterOf(state, tools), nameOf: id => names(state, tools, id), legacy: args?.legacy === true })),
+        // (`legacy: true`: an item line of a reply captured before the roster counted is judged as it was then, story-parts/item.js; `riders: false`: one captured
+        // before a mount's riders counted reads its mounts without the party's names)
+        'gear.carry': gate((state, args, tools) => carryAnswer(state, args, { carryOf, mounts: mountsOf(tools), roster: rosterOf(state, tools), nameOf: id => names(state, tools, id), legacy: args?.legacy === true, crew: args?.riders === false ? [] : crewOf(state, tools) })),
     };
 }
