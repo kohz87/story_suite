@@ -74,16 +74,23 @@ function opened(view) {
 }
 
 /**
- * A Re-read of the reply that made a chat's first step, when that step did not read pack file ids: it ran before, the reply has no
- * `packPlaceIds` rule mark (first captured on an older build; the mark stays with the reply, receipt data does not) and its receipt
- * does not say `placeIds`. That step is made the old way again. A reply with no earlier step makes the chat's first step here.
+ * A Re-read of the reply that made a chat's first step, when that step did not read pack file ids: that step is made the old way
+ * again. A reply with no earlier step makes the chat's first step here, and one with the `packPlaceIds` rule mark (first captured
+ * on this build) or a stored daily state that says `placeIds` reads file ids. Else it takes proof of an older step: the reply's
+ * receipt data without `placeIds` or, once the store has dropped that data (receipts.js), a stored daily state without it.
  */
 function literalReread(view, info) {
     if (info?.type !== 'reread' || ruleMarksOf(readRecord(view?.chat?.[info.index])?.rules).includes('packPlaceIds')) return false;
     let old = [];
     try { old = Array.isArray(info.previous) ? info.previous : []; } catch { old = []; }
     const steps = old.filter(receipt => receipt?.type === DAILY);
-    return steps.length > 0 && !steps.some(receipt => receipt.data?.placeIds === 1);
+    if (!steps.length) return false;
+    let stored = null;
+    try { stored = slotValue(info.stored?.domains?.chronicle?.daily); } catch { stored = null; }
+    if (stored?.placeIds === 1) return false;
+    // A daily receipt's data always says `days`.
+    const kept = steps.filter(receipt => receipt.data?.days !== undefined);
+    return kept.length ? !kept.some(receipt => receipt.data.placeIds === 1) : stored !== null;
 }
 
 /** In a Re-read with later messages: `{ fired }`, what the reply's old step fired or had lost, when there is any; else null. */

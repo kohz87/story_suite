@@ -131,6 +131,52 @@ test('a new chat: the first step Re-read keeps the flag by the reply\'s rule mar
     await agrees(host, 'mark only');
 }));
 
+// The march waits on the condition the world's start sets by file id.
+const START_MARCH = { events: [beat('march', 'set:unrest@deep-hold', {})], startWorld: FROM_START.startWorld };
+const RECEIPT_KEEP_REPLIES = 200;
+const dailyAt = (host, at) => host.ctx.chat[at].extra.storySuite.receipts.filter(receipt => receipt.type === 'chronicle.world.daily');
+
+/** Newer replies until the store has trimmed the receipts of reply `at`, then its Re-read: nothing in the chronicle changes. */
+async function rereadTrimmed(host, at) {
+    for (let n = 0; n < RECEIPT_KEEP_REPLIES; n += 1) await host.send('On.', 'A quiet hour.');
+    assert.ok(dailyAt(host, at).length > 0);
+    assert.ok(dailyAt(host, at).every(receipt => receipt.data === undefined), 'the receipt data is trimmed');
+    // (a condition's `rev` is the number of the write that made it, which a Re-read gives again)
+    const unnumbered = () => JSON.stringify(chronicle(host), (key, value) => (key === 'rev' ? undefined : value));
+    const before = unnumbered();
+    assert.equal((await host.turn.reread(at)).ok, true);
+    assert.equal(unnumbered(), before);
+}
+
+test('a first step made by Continue on an old reply keeps file ids when its receipt data is trimmed', () => withHost(START_MARCH, async host => {
+    await older(host, START_MARCH, () => host.send('Begin.', 'No date yet.'));
+    const at = host.ctx.chat.length - 1;
+    assert.equal(dailyOf(host), null);
+    await host.cont(`\n${on(3)}`);
+    assert.equal(host.ctx.chat.length - 1, at);
+    assert.equal(dailyOf(host).placeIds, 1);
+    assert.deepEqual(keys(host), ['unrest@Deepmantle Hold']);
+    assert.ok(!(marksOf(host, at) ?? []).includes('packPlaceIds'), 'no rule mark says which build made the step');
+    await host.send('Wait.', on(8));
+    assert.equal(fired(host, 'march'), true);
+    await rereadTrimmed(host, at);
+    assert.equal(dailyOf(host).placeIds, 1);
+    assert.deepEqual(keys(host), ['unrest@Deepmantle Hold']);
+    assert.equal(fired(host, 'march'), true);
+    await host.send('Wait more.', on(14));
+    assert.equal(dailyOf(host).placeIds, 1);
+    await agrees(host, 'continued first step');
+}));
+
+test('an old chat: a Re-read of its first step stays the old way when its receipt data is trimmed', () => withHost(FROM_START, async host => {
+    await older(host, FROM_START, () => host.send('Begin.', on(3)));
+    const at = host.ctx.chat.length - 1;
+    await rereadTrimmed(host, at);
+    assert.equal('placeIds' in dailyOf(host), false);
+    assert.deepEqual(keys(host), []);
+    await agrees(host, 'old chat, trimmed');
+}));
+
 test('the stored state takes placeIds as 1 or not at all', () => {
     const state = { seed: 's', day: 2, start: 1, minors: [], events: {}, anchors: {}, lastMajor: {}, cast: {}, standings: {}, facts: {}, masks: {}, cooldowns: {} };
     for (const good of [state, { ...state, placeIds: 1 }]) assert.deepEqual(validateDaily([good]), []);
