@@ -17,12 +17,12 @@ const world = lore => ({ id: 'tiny', version: '1.2.0', name: 'Tiny World', kind:
 const entriesOf = book => Object.values(book.entries);
 const loreOnly = book => entriesOf(book).filter(entry => !isLorebookTitle(entry.comment));
 
-test('Ersveil: 213 lore entries and the marker, 5 hidden kept out, named after the pack', () => {
+test('Ersveil: 214 lore entries and the marker, 5 hidden kept out, named after the pack', () => {
     const { name, book, counts } = lorebookFromPack(ersveil);
     assert.equal(name, 'Ersveil (open world) (Story Suite)');
-    assert.deepEqual(counts, { entries: 213, hidden: 5 });
-    assert.equal(entriesOf(book).length, 214);
-    assert.deepEqual(readMarker(book), { pack: 'ersveil', version: '4.2.0', format: LOREBOOK_FORMAT });
+    assert.deepEqual(counts, { entries: 214, hidden: 5 });
+    assert.equal(entriesOf(book).length, 215);
+    assert.deepEqual(readMarker(book), { pack: 'ersveil', version: '4.3.0', format: LOREBOOK_FORMAT });
     assert.equal(lorebookFromPack(ersveil, { packName: 'Ersveil' }).name, 'Ersveil (Story Suite)');
 });
 
