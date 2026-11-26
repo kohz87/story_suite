@@ -5,7 +5,7 @@
 	"version": "0.1.0",
 	"name": "Arsveil (open world)",
 	"author": "Story Suite examples",
-	"description": "Arsveil: Ersveil's places, routes and realms with its own powers, lore and about five years of world events. Ten people of its own can join the party if the story gets there. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
+	"description": "Arsveil: Ersveil's places, routes and realms with its own powers, lore and about ten years of world events. Ten people of its own can join the party if the story gets there. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
 	"requires": {
 		"suite": "^0.1",
 		"capabilities": [
@@ -28782,7 +28782,8 @@
 						"effects": {
 							"clear": [
 								"regency@highmark-empire-realm",
-								"court-divided@highmark-empire-realm"
+								"court-divided@highmark-empire-realm",
+								"crown-contested@highmark-empire-realm"
 							],
 							"scores": {
 								"highmark-stability": 5
@@ -29648,7 +29649,8 @@
 				],
 				"summary": "The never-closed northern tap brings the Third Tide to its second stage: {outcome}.",
 				"less_if": {
-					"fact:tap-closed": "×0"
+					"fact:tap-closed": "×0",
+					"fact:tap-reopened": "×0"
 				}
 			},
 			{
