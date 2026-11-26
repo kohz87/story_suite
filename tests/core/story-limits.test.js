@@ -88,7 +88,7 @@ test('~ item | qty: a raise past the carry limit is kept and the party is encumb
     const { receipt } = host.sdk.receipts().at(-1);
     assert.match(receipt.summary, /encumbered until something is put down/);
     assert.equal(receipt.data.encumbered, true);
-    assert.deepEqual(asked.filter(args => Array.isArray(args?.add)).at(-1), { owner: 'party', add: [{ defId: 'story/torch', qty: 8 }] });
+    assert.deepEqual(asked.filter(args => Array.isArray(args?.add)).at(-1), { owner: 'party', add: [{ defId: 'story/torch', qty: 8 }], stored: true });
     await host.send('Two more.', reply('Torches.', ['~ item Torch | qty: 3']));
     assert.equal(qty(host, 'Torch'), 3);
 });
