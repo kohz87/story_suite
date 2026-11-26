@@ -73,4 +73,6 @@ export const RULE_LINES = Object.freeze({
     // A later `+ xp` in a reply that names another standing group counts that group's foes down and pays nothing (Text RPG module-parts/kinds/xp.js).
     // A reply with no mark refuses every `+ xp` after the first.
     xpCountsDown: line => line?.kind === 'xp',
+    // `+ item … | kind: supply` makes a new item of the inventory kind `supply`, with Gear on or off (inventory stacks-parts/def-build.js). A reply with no mark builds the item as it did.
+    supplyKind: line => line?.kind === 'item' && line.op === '+',
 });

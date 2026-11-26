@@ -1,11 +1,15 @@
 // Builds the item sheet's Edit form (name, count, the reader's note; weight of any item and soak of armour when RPG is on; rarity of a hand-made piece; slot of gear no cast member holds;
-// Carries, what the item adds to carrying, with gear on) and the patch Save sends to inventory.edit (Carries goes to inventory.carry).
+// Carries, what the item adds to carrying, with gear on; Kind, to mark any item but gear as a supply or take the mark off) and the patch Save sends to inventory.edit (Carries goes to inventory.carry).
 import { h } from '../../kit/dom.js';
 import { button } from '../../kit/controls.js';
 import { carryField } from './carry-field.js';
 
 const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
 const SLOTS = ['weapon', 'body', 'off-hand', 'head', 'cloak', 'feet', 'accessory'];
+// The Bag's kinds that can become a supply, with the engine's word for each.
+const KINDS = { use: ['consumable', 'Use'], supply: ['supply', 'Supplies'], goods: ['goods', 'Goods'], material: ['material', 'Materials'], quest: ['quest', 'Quest'] };
+// What Kind offers, the engine's rule: the item's own kind and Supplies; for a supply, also the kind it came from (goods for one made a supply). Gear has no Kind here.
+const kindChoices = item => (!KINDS[item.kind] ? [] : [KINDS[item.kind], item.kind === 'supply' ? KINDS[item.wasKind] ?? KINDS.goods : KINDS.supply]);
 const countOf = item => (Number.isInteger(item.count) ? item.count : item.qty);
 const rarityOf = item => item.realRarity ?? item.rarity;
 const cap = text => text[0].toUpperCase() + text.slice(1);
@@ -25,6 +29,7 @@ export function itemPatch(item, values, rpg = false) {
   if (values.qty !== '' && Number.isInteger(qty) && qty >= 1 && qty !== countOf(item)) Object.assign(patch, { qty, group: true });
   const note = (values.note ?? '').trim();
   if (note !== (item.note ?? '').trim()) patch.note = note;
+  if (values.kind && KINDS[item.kind] && values.kind !== KINDS[item.kind][0]) patch.kind = values.kind;
   if (rpg && hasWeight(item)) {
     const weight = Number(values.weight);
     if (values.weight !== '' && values.weight !== undefined && Number.isInteger(weight) && weight >= 0 && weight !== item.weight) patch.weight = weight;
@@ -47,6 +52,9 @@ export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
   const name = h('input', { type: 'text', value: item.name });
   const qty = h('input', { type: 'number', min: '1', step: '1', value: String(countOf(item)) });
   const note = h('textarea', { rows: 2, value: item.note ?? '', placeholder: 'No note' });
+  const kinds = kindChoices(item);
+  const kind = kinds.length ? h('select', { dataset: { field: 'kind' } }, kinds.map(([value, label]) => h('option', { value, selected: value === KINDS[item.kind][0] }, label))) : null;
+  if (kind) kind.value = KINDS[item.kind][0];
   const gear = rpg && item.hand === true && item.kind === 'gear';
   const rarity = gear ? h('select', null, RARITIES.map(r => h('option', { value: r, selected: r === rarityOf(item) }, cap(r)))) : null;
   if (rarity) rarity.value = rarityOf(item);
@@ -67,7 +75,7 @@ export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
   const save = async () => {
     if (busy) return;
     const payload = itemPatch(item, {
-      name: name.value, qty: qty.value, note: note.value, ...(weight ? { weight: weight.value } : {}), ...(soak ? { soak: soak.value } : {}), ...(rarity ? { rarity: rarity.value } : {}), ...(slot ? { slot: slot.value } : {}),
+      name: name.value, qty: qty.value, note: note.value, ...(kind ? { kind: kind.value } : {}), ...(weight ? { weight: weight.value } : {}), ...(soak ? { soak: soak.value } : {}), ...(rarity ? { rarity: rarity.value } : {}), ...(slot ? { slot: slot.value } : {}),
     }, rpg);
     const carry = carries ? carries.read() : { carry: null };
     if (carry.error) { show(carry.error); return; }
@@ -87,6 +95,7 @@ export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
     'form',
     { class: 'iedit', dataset: { form: 'item-edit' }, onSubmit: event => { event.preventDefault?.(); save(); } },
     field('Name', name),
+    kind ? field('Kind', kind) : null,
     field('Count', qty),
     field('Your note', note),
     weight ? field('Weight each', weight) : null,

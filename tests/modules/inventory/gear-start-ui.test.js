@@ -38,7 +38,7 @@ test('addFields: Item (Name, Count, Kind, Note) and Gear (Slot, Rarity, Bonus, p
     const open = addFields({ kit: true, owners: OWNERS });
     assert.deepEqual(open.filter(f => f.group === 'Item').map(f => f.key), ['name', 'count', 'kind', 'note']);
     assert.deepEqual(open.filter(f => f.group === 'Gear').map(f => f.key), ['slot', 'rarity', 'stat1', 'points1', 'stat2', 'points2', 'budget', 'equip']);
-    assert.deepEqual(open.find(f => f.key === 'kind').options.map(o => o.label), ['Equipment', 'Consumables', 'Goods', 'Quest items', 'Materials']);
+    assert.deepEqual(open.find(f => f.key === 'kind').options.map(o => o.label), ['Equipment', 'Consumables', 'Supplies', 'Goods', 'Quest items', 'Materials']);
     assert.deepEqual(open.find(f => f.key === 'rarity').options.map(o => o.label), ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary']);
     assert.deepEqual(open.find(f => f.key === 'slot').options.map(o => o.label), ['None', 'Head', 'Body', 'Cloak', 'Feet', 'Weapon', 'Off-hand', 'Accessory 1', 'Accessory 2']);
     assert.deepEqual(open.find(f => f.key === 'equip').options.map(o => o.label), ['None', 'Astra (you)', 'Harrak']);

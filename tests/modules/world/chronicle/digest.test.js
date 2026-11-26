@@ -352,9 +352,9 @@ test('8/9 on the host: with a realistic competing tail (Story Block lines about 
     assert.ok(pinned.length <= 320, `the pinned cue is ${pinned.length} characters`);
     assert.match(tight, /\[Earlier days\]\nJune 3, 1200 \(yesterday\): /);
     // The lines of the other sections the narrator needs now are not what the cue pushed out.
-    for (const needle of [/Place/, /Wallet/, /Carried/]) assert.match(tight, needle);
+    for (const needle of [/Place/, /Wallet/, /^Supplies: /m]) assert.match(tight, needle);   // (every thing carried here is a ration)
     // Every current-state line the same chat sends with room is still sent under the tight budget (the cue did not push one out).
-    const required = roomy.split('\n').filter(line => /^(Place|Present|Wallet|Carried|Standing|Fame)\b/.test(line));
+    const required = roomy.split('\n').filter(line => /^(Place|Present|Wallet|Supplies|Carried|Standing|Fame)\b/.test(line));
     assert.ok(required.length >= 3, 'the chat has current-state lines');
     for (const line of required) assert.ok(tight.includes(line), `lost under the budget: ${line}`);
     assert.ok(tight.length <= 550 * 4 + 320, `the tail is ${tight.length} characters`);

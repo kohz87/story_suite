@@ -70,7 +70,7 @@ describe('selectBag', () => {
   });
 
   it('counts In bag and the kind chips over the unworn items the grid shows, and Worn over the worn ones', () => {
-    assert.deepEqual(Object.fromEntries(vm.filters.map(f => [f.key, f.count])), { all: 5, worn: 2, gear: 1, use: 1, goods: 1, material: 1, quest: 1 });
+    assert.deepEqual(Object.fromEntries(vm.filters.map(f => [f.key, f.count])), { all: 5, worn: 2, gear: 1, use: 1, supply: 0, goods: 1, material: 1, quest: 1 });
   });
 
   it('gives an unworn piece the glyph of the slot its def names, so the Party slot sheet finds it; a worn one the place it is worn at', () => {

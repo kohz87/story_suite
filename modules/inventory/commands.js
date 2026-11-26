@@ -15,7 +15,7 @@ import { wear, repair, gearWear, itemEquip, stow, restore, release } from './wea
 import { lootTake } from './loot.js';
 import {
     byReader, handStats, handSlot, kitOpen, holdBudget, remakeAsEquipment, guardReaderEdit, addDecision,
-    handPlace, handEdit, numberEdit, wantsRepoint, repoint, renameDecision, editStack, editPieces, setCarry,
+    handPlace, handEdit, supplyEdit, numberEdit, wantsRepoint, repoint, renameDecision, editStack, editPieces, setCarry,
 } from './edit.js';
 import { readerCarry } from './lines.js';
 import { TOLD, createWalletCommands } from './commands/wallet.js';
@@ -176,10 +176,10 @@ export function createInventoryCommands(env) {
             }
             const oldName = original.name, before = editPieces(inv, stack), slotWitness = payload.slot === undefined ? null : editPieces(inv, stack, true);
             const decision = typeof payload.name === 'string' ? { witness: renameDecision(inv, stack, payload, true), story: 1 } : null;
-            // Gear fields: the reader's own piece, or any equipment's slot alone. The replay guard's witness is read above, before a slot change takes pieces off.
+            // Gear fields: the reader's own piece, any equipment's slot alone, or the Supply kind. The replay guard's witness is read above, before a slot change takes pieces off.
             if (['kind', 'slot', 'rarity', 'stats'].some(key => payload[key] !== undefined)) {
                 if (wantsRepoint(env, inv, stack, payload)) repoint(ctx, inv, stack, payload);
-                else handEdit(ctx, env, inv, stack, payload);
+                else if (!supplyEdit(ctx, inv, stack, payload)) handEdit(ctx, env, inv, stack, payload);
             }
             const numbers = payload.weight !== undefined || payload.soak !== undefined;   // the Bag Edit's load weight and soak: any unbound piece, any time; set last, on the def the piece ends up on (after the rename's witness and copy)
             let groupQty;

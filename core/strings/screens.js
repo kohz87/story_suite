@@ -4,7 +4,7 @@ export const SCREEN_STRINGS = {
     inventory: {
         title: 'Inventory',
         kinds: {
-            quest: 'Quest items', equipment: 'Equipment', consumable: 'Consumables',
+            quest: 'Quest items', equipment: 'Equipment', consumable: 'Consumables', supply: 'Supplies',
             material: 'Materials', goods: 'Goods', money: 'Valuables',
         },
         rarities: {
@@ -83,7 +83,7 @@ export const SCREEN_STRINGS = {
                 repointHint: "Move this piece's {n} {points} between stats", repointLine: '{n} of {max} {points} placed', repointTitle: 'Stat {at}',
                 laterTitle: 'Fixed after your first message',
                 points: '{n} of {max} points for {a} {rarity} piece', pointsNone: 'A common piece has no bonus',
-                kinds: { equipment: 'Equipment', consumable: 'Consumables', goods: 'Goods', quest: 'Quest items', material: 'Materials' },
+                kinds: { equipment: 'Equipment', consumable: 'Consumables', supply: 'Supplies', goods: 'Goods', quest: 'Quest items', material: 'Materials' },
             },
             // A cast member's signature piece (bound): the chip, its title and the line under a locked Edit.
             bound: 'Bound', boundBy: 'Bound \u00b7 {name}', boundTitle: 'Bound to {name}: it cannot be unequipped, given away, sold or dropped',

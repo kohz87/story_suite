@@ -18,9 +18,9 @@ export function promptNote(note) {
     return kept.length === parts.length ? text : kept.join(', ');
 }
 
-export function itemPhrase(item, gear = false) {
+export function itemPhrase(item, gear = false, noteChars = 40) {
     const said = item.note ? promptNote(item.note) : '';
-    const note = said ? ` (${trimText(said, 40)})` : '';
+    const note = said ? ` (${trimText(said, noteChars)})` : '';
     return `${itemText(item.name, item.qty)}${condText(item, gear)}${note}`;
 }
 

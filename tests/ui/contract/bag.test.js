@@ -17,7 +17,7 @@ describe('BAG_SHAPE', () => {
     vm.load.level = 'crushing';
     delete vm.purse.coins.copper;
     assert.deepEqual(checkShape(vm, BAG_SHAPE), [
-      'items[0].kind: expected one of [gear, use, goods, material, quest], got "junk"',
+      'items[0].kind: expected one of [gear, use, supply, goods, material, quest], got "junk"',
       'purse.coins.copper: expected number, got undefined',
       'load.level: expected one of [light, heavy, over], got "crushing"',
     ]);

@@ -75,7 +75,7 @@ test('a missing peer: the module is dormant, its names are reserved once, and it
     assert.notEqual(out.aborted, true, 'a dormant module\'s canGenerate is suppressed, not answered false');
     assert.deepEqual(host.st.notices, []);
     assert.deepEqual(calls, {}, 'none of its hooks, commands or capture ran');
-    assert.doesNotMatch(requestText(host), /RB RULES|RB TAIL|RB CUE|wound/);
+    assert.doesNotMatch(requestText(host), /RB RULES|RB TAIL|RB CUE|\bwound\b/);   // (a whole word: the item line says "treats wounds")
     assert.match(requestText(host), /NSD RULES/, 'the others are there');
     assert.equal(Object.hasOwn(host.head().domains, 'party'), false);
     assert.deepEqual(await host.turn.blockers(), []);

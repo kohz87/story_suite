@@ -40,7 +40,7 @@ const ITEMS = [
 ];
 const SACK = ['Sack of grain', 'goods', 'goods', '', 1, '', 1, 0, 8, '5 silver', 0, 'A sack of grain for the road.', 'Bought at the east quay · this turn'];
 const ANVIL = ['Smith’s anvil', 'goods', 'goods', '', 1, '', 1, 0, 50, '8 silver', 0, 'A small travelling anvil, far too heavy.', 'Taken from the guild smith · this turn'];
-const FILTERS = ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'];
+const FILTERS = ['all', 'worn', 'gear', 'use', 'supply', 'goods', 'material', 'quest'];
 const ASSETS = {
   transport: [
     ['dappled-mare', 'Dappled mare', 'mount', 'Riding animal', ['Astra'], 1, 'At the Bluewatch stables until you set out', true, 'Good, rested', 'Carries +40 load while with the party.', ['horse', 'with the party'], 'equipped'],

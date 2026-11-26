@@ -81,6 +81,7 @@ export const GLYPHS = Object.freeze({
 
   // Bag kinds, assets & tools
   use: [['path', { d: 'M9 2h6v2h-1v4.2l5.3 9.2A3 3 0 0 1 16.7 22H7.3a3 3 0 0 1-2.6-4.6L10 8.2V4H9z' }]],
+  supply: [['path', { d: 'M8 3h8l-2 4c4 2 6 6 6 9.5 0 3-2 4.5-8 4.5s-8-1.5-8-4.5C4 13 6 9 10 7z' }]],
   goods: [
     ['path', { d: 'M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z' }],
     ['path', { d: 'M3 7.5l9 4.5 9-4.5M12 12v9', fill: 'none', stroke: 'var(--su-panel2)', 'stroke-width': 1.6 }],

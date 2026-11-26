@@ -9,7 +9,7 @@ import { ownerName } from '../common.js';
 import { DEFAULT_CURRENCY, formatWallet } from '../../../inventory/money.js';
 
 const KIND_TITLES = {
-    quest: 'Quest items', equipment: 'Equipment', consumable: 'Consumables',
+    quest: 'Quest items', equipment: 'Equipment', consumable: 'Consumables', supply: 'Supplies',
     material: 'Materials', goods: 'Goods', money: 'Valuables',
 };
 
