@@ -8,6 +8,7 @@ import { readPackZip } from '../../packs/bundle.js';
 import { PORTRAIT_LIMITS } from '../../packs/limits.js';
 import { normalizeEntry } from '../../modules/people/dossier/cast-dossier.js';
 import { normalizeSecrets } from '../../modules/people/meters/npc-meters-secrets-parts/notes.js';
+import { readZip } from '../../packs/zip.js';
 import { buildArsveilZip } from '../../scripts/core/build-example-zip.mjs';
 
 const packs = new URL('../../examples/packs/', import.meta.url);
@@ -43,4 +44,15 @@ test('each has a portrait that is kept as it is, and the zip holds them and is u
     const read = await readPackZip(zip);
     assert.equal(read.ok, true, read.message);
     assert.equal(read.files.length, IDS.length);
+});
+
+test('the zip carries pack.json and game.json minified: the same content in the same order as the pretty-printed source files', async () => {
+    const entries = readZip(new Uint8Array(readFileSync(new URL('arsveil.zip', packs))));
+    for (const [name, from] of [['pack.json', 'arsveil/pack.json'], ['game.json', 'ersveil-game/pack.json']]) {
+        const inside = new TextDecoder().decode(await entries.find(entry => entry.name === name).read());
+        const source = readFileSync(new URL(from, packs), 'utf8');
+        assert.equal(inside, JSON.stringify(JSON.parse(source)), name);
+        assert.ok(!inside.includes('\n'), `${name} has no line breaks`);
+        assert.deepEqual(JSON.parse(inside), JSON.parse(source), name);
+    }
 });
