@@ -8,6 +8,7 @@
 // VIT 10), and the ids, hashes, reads and visit counts that follow from those rules.
 // FU147 patched both fixtures by script (not re-recorded) for one intended change only: the item grammar line ends with the supplies sentence. The lead's
 // 26 Nov change (a consumable is no supply) patched only the sends back: the Healing Draught is on the Carried line again, not Supplies.
+// ARS-ENGINE-FIX patched the fixtures by script (not re-recorded) for one intended change only: the new rule mark packPlaceIds in each record's sorted rule list.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

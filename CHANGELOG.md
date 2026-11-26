@@ -6,6 +6,12 @@ What changed in each release, in short. The full record of every change is in [t
 
 - Ersveil rules 1.2.0: your own holding (off until you turn it on in Settings, Packs and trackers). Found a company, fief or trading house in the story and grow it; paid months raise loyalty.
 - Your holding has officer posts: in the story, give a companion who stays at the seat a post (steward, marshal, spymaster, healer, quartermaster or envoy) for a small bonus.
+- Arsveil keeps going after its first five years: five more years of world events follow how things ended, with new troubles, settlements and seasonal happenings.
+- Arsveil: ten people of its own, with portraits, can join your party if the story gets there; its lore has new named figures and the hamlet of Lowbell.
+- World: people written in a world pack can now have longer looks, clothes, voice, personality and daily routine.
+- Arsveil: the example world now has about five years of world events, from the Fall of Bluewatch to two empty imperial thrones, with news and scenes that wait for your party.
+- World: a world pack can now say it names places by file id, so its events using those ids work. Packs that don't say so run as before, and Ersveil is unchanged.
+- World: a world pack can now hold up to 400 world events (it was 200).
 - World: a world pack can now hold a scene until your party is in or near its region, and make events near you likelier. Packs that don't ask for this run as before.
 - Story: the narrator now lets things breathe, with calm replies after trouble is settled, a nudge to wrap up long chains of events, and Quiet scene now also holds back new threads.
 - NPC State: the narrator now knows the next secret of someone present so it won't invent another past, and a story that earns it can bring it out, even before its pack condition is met.

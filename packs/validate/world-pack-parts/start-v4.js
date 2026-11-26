@@ -3,8 +3,9 @@
 
 import { SLUG, WORLD_START_FIELDS } from '../../limits.js';
 import { isObject } from '../core.js';
-import { plain } from './cast-fields.js';
 
+// An era is not a cast text: its 40 counts characters.
+const eraText = value => typeof value === 'string' && value.trim().length > 0 && [...value].length <= 40 && !/[<>{}]/.test(value);
 const NUMBERS = { year: [0, 999999], month: [1, 99], day: [1, 999], hour: [0, 99], minute: [0, 999] };
 
 // Says a Problem for a key `start` may not hold (with a pointer for the format 3 ones). `say(field, message, code)` is rooted at `content.start`.
@@ -23,7 +24,7 @@ function checkStartDate(value, say) {
     const bad = (field, message) => { good = false; say(`date.${field}`, message); };
     for (const key of Object.keys(value)) if (!WORLD_START_FIELDS.date.includes(key)) bad(key, `"${key}" is not a start.date field (${WORLD_START_FIELDS.date.join(', ')}).`);
     const out = {};
-    if (value.era !== undefined) { if (plain(value.era, 40)) out.era = value.era.trim(); else bad('era', 'era must be plain text of 1 to 40 characters.'); }
+    if (value.era !== undefined) { if (eraText(value.era)) out.era = value.era.trim(); else bad('era', 'era must be plain text of 1 to 40 characters.'); }
     for (const [field, [low, high]] of Object.entries(NUMBERS)) {
         if (value[field] === undefined) { if (['year', 'month', 'day'].includes(field)) bad(field, `${field} is required.`); continue; }
         if (!Number.isInteger(value[field]) || value[field] < low || value[field] > high) bad(field, `${field} must be a whole number from ${low} to ${high}${field === 'month' ? ' (a number; the paired game pack\'s calendar names it)' : ''}.`);

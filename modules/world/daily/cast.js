@@ -9,10 +9,18 @@
 
 import { recordAnchor } from './anchors.js';
 import { resolveRef } from './geo.js';
+import { refActive, withMapName } from './anchor-ref.js';
 import { baseOf, inGroup, placeAt, placeOf } from './cast-where.js';
-import { entryActive } from './holds-read.js';
 
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
+
+// Where they were, as the Journal and the rumour name it: for a place of a pack that opted into file ids, the map's display name
+// (its `start.place` is a place id); else the words as stored.
+function shownAt(ws, id) {
+    const place = placeOf(ws, id);
+    const found = resolveRef(ws.geo, place);
+    return found?.kind === 'place' && found.place.fileIds ? found.name : place;
+}
 
 /** The trace of a death or a move: the anchor, a Journal line and a rumour where they were. */
 export function trace(ws, id, kind, line, from, day, by) {
@@ -24,7 +32,7 @@ export function trace(ws, id, kind, line, from, day, by) {
 /** Displace `id` to `to` for `by` (the record, the trace, the move for the host). `move`: { until, routine?, title }. */
 export function displace(ws, person, to, move, day, by) {
     const row = { ...(ws.cast[person.id] ?? {}) };
-    const from = placeOf(ws, person.id);
+    const from = shownAt(ws, person.id);
     row.displaced = { to, by, until: move.until, since: day, ...(move.routine ? { routine: move.routine } : {}) };
     if (move.until === 'permanent') row.home = to;
     delete row.deferred;
@@ -55,6 +63,9 @@ function statusUntil(ws, source, to) {
     return '';
 }
 
+// An authored `until`: "cleared:<condition>@<ref>" is kept with the map's name for the ref, as the condition's own key is.
+const untilOf = (ws, value) => (value.startsWith('cleared:') ? `cleared:${withMapName(ws, value.slice('cleared:'.length))}` : value);
+
 function skip(ws, person, source, day, why) {
     ws.log.push({ kind: 'cast-skipped', key: person.id, by: source.id, day, why });
 }
@@ -81,7 +92,7 @@ function die(ws, person, entry, source, day) {
         return survives(ws, person, source, 'who cannot die before you meet them; skipped');
     }
     if (from && from !== 'anywhere' && !inGroup(ws, placeOf(ws, person.id), from)) return skip(ws, person, source, day, `not in ${from}`);
-    const where = placeOf(ws, person.id);
+    const where = shownAt(ws, person.id);
     ws.cast[person.id] = { ...row, died: day };
     ws.deaths.push({ id: person.id, by: source.id, day });
     trace(ws, person.id, 'died', `${person.name} died (${source.title}).`, where, day, source.id);
@@ -100,7 +111,7 @@ export function applyCast(ws, entries, source, day) {
         if (location) {
             if (!fromAllows(ws, person, from, source.id)) { skip(ws, person, source, day, from ? `not in ${from}` : 'moved from their start since'); continue; }
             const to = resolveRef(ws.geo, location)?.name ?? location;
-            const move = { until: text(entry.until) || statusUntil(ws, source, to) || 'end', routine: text(entry.routine), title: source.title };
+            const move = { until: untilOf(ws, text(entry.until)) || statusUntil(ws, source, to) || 'end', routine: text(entry.routine), title: source.title };
             if (ws.withYou.has(person.id)) {
                 // With You: not moved; the move waits until they part from You (cast-defer.js), `from` checked again then.
                 ws.cast[person.id] = { ...(ws.cast[person.id] ?? {}), deferred: { to, by: source.id, until: move.until, title: source.title, ...(move.routine ? { routine: move.routine } : {}), ...(from ? { from } : {}) } };
@@ -122,7 +133,7 @@ export function releaseDisplaced(ws, eventId, minute) {
         const shown = ws.cast[id].displaced;
         if (!shown || shown.until === 'permanent') continue;
         const byEvent = eventId !== null && shown.by === eventId && shown.until === 'end';
-        const cleared = shown.until.startsWith('cleared:') && !entryActive(ws.table[shown.until.slice('cleared:'.length)], minute);
+        const cleared = shown.until.startsWith('cleared:') && !refActive(ws, shown.until.slice('cleared:'.length), minute);
         if (!byEvent && !cleared) continue;
         const { displaced, ...rest } = ws.cast[id];
         ws.cast[id] = rest;

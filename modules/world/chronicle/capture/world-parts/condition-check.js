@@ -41,7 +41,7 @@ function askedRef(ctx, geo, scope, { place, region, realm, explicit }) {
  */
 export function conditionTarget(ctx, known, { place, region = '', realm = '', explicit = '' }, clear) {
     if (ctx.cause === 'ui') return { refusal: `"${known.name}": conditions are set by the story, not by a click` };
-    const geo = hostGeo(ask(ctx));
+    const geo = hostGeo(ask(ctx), ctx.carrier);
     const asked = askedRef(ctx, geo, known.scope, { place, region, realm, explicit });
     if (!asked) return { refusal: known.scope === 'route' ? `"${known.name}" is a route condition: write it as ${known.name}@<route>` : `"${known.name}" needs a place on the line` };
     const table = ctx.draft('chronicle')?.conditions ?? {};

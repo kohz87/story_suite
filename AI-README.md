@@ -560,7 +560,7 @@ Format read: 4 (an older format, or none, is refused and named for the converter
 
 Kinds: `world`, `game`.
 
-Top-level fields of `pack.json`: `id`, `format`, `kind`, `version`, `name`, `author`, `description`, `requires`, `recommends`, `content`.
+Top-level fields of `pack.json`: `id`, `format`, `kind`, `version`, `name`, `author`, `description`, `requires`, `recommends`, `placeIds`, `content`.
 
 Content keys of a world pack: `lore`, `placeKinds`, `routeKinds`, `places`, `routes`, `regions`, `realms`, `markets`, `cast`, `powers`, `scores`, `conditions`, `worldEvents`, `templates`, `start`, `foes`, `items`.
 

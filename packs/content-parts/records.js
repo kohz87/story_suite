@@ -27,13 +27,14 @@ function castRows(entry) {
  * slug in the pack),
  * `currency` (one `{ pack, name, short }` per pack that suggests one), `layouts`,
  * `screens` (each with its `pack`), or `theme` (one `{ pack, tokens }` per pack that has a
- * theme). Unknown kinds give [].
+ * theme), or `placeIds` (the ids of the packs that name places by file id, `"placeIds": true`). Unknown kinds give [].
  * `pack` narrows to one pack id.
  * The records are the packs' own, frozen (not copies): copy one before editing it.
  */
 export function contentOf(packs, kind, { pack = null } = {}) {
     if (kind === 'currency') return shared(packs.filter(entry => entry.currency && (!pack || entry.id === pack)).map(entry => ({ pack: entry.id, ...entry.currency })));
     const chosen = pack ? packs.filter(entry => entry.id === pack) : packs;
+    if (kind === 'placeIds') return shared(chosen.filter(entry => entry.placeIds === true).map(entry => entry.id));
     // The cast: each person with the version of the pack that gave them (a newer version changes who is new and who changed).
     if (kind === 'cast') return shared(chosen.flatMap(castRows));
     if (CONTENT_KINDS.includes(kind)) return shared(chosen.flatMap(entry => entry.content[kind] ?? []));

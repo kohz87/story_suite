@@ -77,6 +77,21 @@ test('test 21 and 34: protected cast — an authored event naming them moves the
     assert.equal(untouched.state.cast['sir-lothar'], undefined, 'an authored event that does not name them leaves them untouched');
 });
 
+test('opted in, a person who starts at a place id is traced by the place\'s name, in the Journal and in the rumour (a move and a death)', () => {
+    const places = [...world().places, { id: 'river-post', slug: 'river-post', pack: 'sample', name: 'River Post', region: 'Valegard', kind: 'outpost', x: 1, y: 1 }];
+    const starters = [
+        { kind: 'figure', id: 'courier', name: 'Courier', start: { place: 'river-post' } },
+        { kind: 'figure', id: 'guard', name: 'Guard', start: { place: 'river-post' }, canDieUnmet: true },
+    ];
+    const run = runner(world({ places, placeIdPacks: ['sample'], cast: starters, events: [ev('call', { effects: { cast: [{ who: 'courier', location: 'Town', from: 'river-post' }, { who: 'guard', died: true }] } })] })).to(1);
+    const lines = run.journal().filter(entry => /Courier left|Guard died/.test(entry.text));
+    assert.deepEqual(lines.filter(entry => !entry.rumour).map(entry => entry.text), ['Courier left River Post for Town (call).', 'Guard died (call).']);
+    assert.deepEqual(lines.filter(entry => entry.rumour).map(entry => [entry.place, entry.text]), [
+        ['River Post', 'Rumour in River Post: Courier left River Post for Town (call).'],
+        ['River Post', 'Rumour in River Post: Guard died (call).'],
+    ]);
+});
+
 test('test 15, 23 and 41 (the daily part): fallen evacuates residents to the nearest suitable place; no ordinary templates there; reconstruction clears it', () => {
     const reconstruction = { template: 'reconstruction', severity: 'minor', where: { kinds: ['town'] }, needs: ['fallen@place'], clears: ['fallen@place'], sets: ['peace@place: 10 days'], chance: '50% per season', summary: '{place} is rebuilt.' };
     const riot = { template: 'riot', severity: 'minor', where: { kinds: ['town'] }, sets: ['unrest@place: 1 day'], chance: '50% per season', summary: 'Riot in {place}.' };
