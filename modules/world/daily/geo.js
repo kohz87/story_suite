@@ -53,6 +53,12 @@ export function buildGeo(world = {}) {
         for (const key of [name, place.id, ...(Array.isArray(raw.aliases) ? raw.aliases : [])]) if (text(key)) byName.set(low(key), place);
         if (region && !regions.has(low(region))) regions.set(low(region), region);
     }
+    // An installed pack's places carry `pack.<pack>/<slug>` as id and the file's own id as `slug`; a pack's events name that. Names and aliases come first.
+    for (const raw of Array.isArray(world.places) ? world.places : []) {
+        const key = low(raw?.slug);
+        const place = key && !byName.has(key) ? byName.get(low(text(raw.name))) : null;
+        if (place) byName.set(key, place);
+    }
     places.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
     for (const place of places) {
         const slash = /^(.+?) \/ (.+)$/.exec(place.name);

@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- World: events in an installed world pack now reach places they name by id; before, such a condition was silently not set (this also affects Ersveil).
 - World: a world pack can now hold up to 400 world events (it was 200).
 - World: a world pack can now hold a scene until your party is in or near its region, and make events near you likelier. Packs that don't ask for this run as before.
 - Story: the narrator now lets things breathe, with calm replies after trouble is settled, a nudge to wrap up long chains of events, and Quiet scene now also holds back new threads.

@@ -4,6 +4,8 @@ This is the detailed record of every change, kept as it was written; the short l
 
 ## Unreleased (detail)
 
+- **World events find places by their pack ids (ARS-ASM).** On the host, `packs.content` gives each place the id `pack.<pack>/<slug>`, but a pack's events, start world and powers name the file's own id. `buildGeo` indexed only name, that id and aliases, so a condition set on `bluewatch-village` or `highmark-capital-crown-keep` was refused with a warning on the step's card (the pack check accepted it). The slug is now indexed too, after names and aliases. Ersveil names 16 places this way, so its later steps (and a Re-read of an earlier reply, which runs the step again) can now set conditions that were dropped before. Stored results are not changed.
+
 - **World event limit raised (ARS-ASM).** `WORLD_LIMITS.events` 200 → 400: the Arsveil design asks for about 250-280 events. Only the pack check reads the number; the daily step runs every event it is given. The 1 MB pack.json limit is unchanged.
 
 - **World events that know where the party is (owner, 26 Nov, PROX).** World packs may write `in:<region>` / `near:<region>` (also `@region`) in `requires`, `requires_any` and as `likelier_if` / `less_if` keys, and `waits_for` on a windowed event: it waits for the party and fires anyway on its window's last day (over the caps, no Director veto; `×0` or a 0% chance still blocks a likely or possible one). Neighbouring regions come from routes. The party's region is the scene's place as the world note reads it, on the day the story is on only (a skip's earlier days have none). The pack check and the Studio's rename know the terms. Packs without them step as before.
