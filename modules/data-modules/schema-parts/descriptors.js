@@ -24,8 +24,9 @@ export const DM_DESCRIPTORS = freeze({
     refusalPart: { required: ['when', 'text'], optional: [] },
     ops: [...OPS],
     effects: {
-        set: { required: ['op', 'path', 'value'], optional: [] },
-        add: { required: ['op', 'path', 'value'], optional: ['bounds'] },
+        // (`when` on a set or an add: the effect is left out when it does not hold; what it read is witnessed by value, like any read)
+        set: { required: ['op', 'path', 'value'], optional: ['when'] },
+        add: { required: ['op', 'path', 'value'], optional: ['bounds', 'when'] },
         clamp: { required: ['op', 'path', 'min', 'max'], optional: [] },
         reward: { required: ['op', 'template', 'bind'], optional: [] },
         offer: { required: ['op', 'template', 'key', 'bind'], optional: [] },

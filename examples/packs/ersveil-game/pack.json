@@ -3008,6 +3008,14 @@
             "default": 0,
             "label": "Retainers"
           },
+          "cap": {
+            "type": "int",
+            "min": 0,
+            "max": 10000,
+            "default": 20,
+            "label": "Retainer cap",
+            "edit": false
+          },
           "treasury": {
             "type": "int",
             "min": 0,
@@ -3067,6 +3075,48 @@
             "max": 100,
             "default": 5,
             "label": "Next tier: renown",
+            "edit": false
+          },
+          "steward": {
+            "type": "text",
+            "max": 40,
+            "default": "",
+            "label": "Steward",
+            "edit": false
+          },
+          "marshal": {
+            "type": "text",
+            "max": 40,
+            "default": "",
+            "label": "Marshal",
+            "edit": false
+          },
+          "spymaster": {
+            "type": "text",
+            "max": 40,
+            "default": "",
+            "label": "Spymaster",
+            "edit": false
+          },
+          "healer": {
+            "type": "text",
+            "max": 40,
+            "default": "",
+            "label": "Healer or chaplain",
+            "edit": false
+          },
+          "quartermaster": {
+            "type": "text",
+            "max": 40,
+            "default": "",
+            "label": "Quartermaster",
+            "edit": false
+          },
+          "envoy": {
+            "type": "text",
+            "max": 40,
+            "default": "",
+            "label": "Envoy",
             "edit": false
           }
         },
@@ -3235,27 +3285,117 @@
               }
             },
             "when": [
-              "eq",
+              "and",
               [
-                "get",
+                "eq",
                 [
-                  "founded"
-                ]
+                  "get",
+                  [
+                    "founded"
+                  ]
+                ],
+                true
               ],
-              true
+              [
+                "lt",
+                [
+                  "get",
+                  [
+                    "retainers"
+                  ]
+                ],
+                [
+                  "get",
+                  [
+                    "cap"
+                  ]
+                ]
+              ]
             ],
-            "refusal": "Found a holding first (kind: found).",
+            "refusal": "Nobody can be recruited:",
             "effects": [
               {
-                "op": "add",
+                "op": "set",
                 "path": [
                   "retainers"
                 ],
                 "value": [
-                  "arg",
-                  "n"
+                  "max",
+                  [
+                    "get",
+                    [
+                      "retainers"
+                    ]
+                  ],
+                  [
+                    "min",
+                    [
+                      "get",
+                      [
+                        "cap"
+                      ]
+                    ],
+                    [
+                      "add",
+                      [
+                        "get",
+                        [
+                          "retainers"
+                        ]
+                      ],
+                      [
+                        "arg",
+                        "n"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "refusals": [
+              {
+                "when": [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "founded"
+                    ]
+                  ],
+                  false
                 ],
-                "bounds": "clamp"
+                "text": "found a holding first (kind: found)"
+              },
+              {
+                "when": [
+                  "and",
+                  [
+                    "eq",
+                    [
+                      "get",
+                      [
+                        "founded"
+                      ]
+                    ],
+                    true
+                  ],
+                  [
+                    "ge",
+                    [
+                      "get",
+                      [
+                        "retainers"
+                      ]
+                    ],
+                    [
+                      "get",
+                      [
+                        "cap"
+                      ]
+                    ]
+                  ]
+                ],
+                "text": "the holding is full ({retainers} retainers, cap {cap})"
               }
             ]
           },
@@ -3328,6 +3468,35 @@
                   "gold"
                 ],
                 "bounds": "clamp"
+              },
+              {
+                "op": "add",
+                "path": [
+                  "treasury"
+                ],
+                "value": [
+                  "floorDiv",
+                  [
+                    "add",
+                    [
+                      "arg",
+                      "gold"
+                    ],
+                    9
+                  ],
+                  10
+                ],
+                "bounds": "clamp",
+                "when": [
+                  "ne",
+                  [
+                    "get",
+                    [
+                      "steward"
+                    ]
+                  ],
+                  ""
+                ]
               }
             ]
           },
@@ -3417,6 +3586,64 @@
                     "size"
                   ]
                 }
+              },
+              {
+                "op": "add",
+                "path": [
+                  "renown"
+                ],
+                "value": 1,
+                "bounds": "clamp",
+                "when": [
+                  "and",
+                  [
+                    "ne",
+                    [
+                      "get",
+                      [
+                        "envoy"
+                      ]
+                    ],
+                    ""
+                  ],
+                  [
+                    "eq",
+                    [
+                      "arg",
+                      "size"
+                    ],
+                    "small"
+                  ]
+                ]
+              },
+              {
+                "op": "add",
+                "path": [
+                  "renown"
+                ],
+                "value": 2,
+                "bounds": "clamp",
+                "when": [
+                  "and",
+                  [
+                    "ne",
+                    [
+                      "get",
+                      [
+                        "envoy"
+                      ]
+                    ],
+                    ""
+                  ],
+                  [
+                    "eq",
+                    [
+                      "arg",
+                      "size"
+                    ],
+                    "great"
+                  ]
+                ]
               }
             ]
           },
@@ -3825,6 +4052,42 @@
                 "bounds": "clamp"
               },
               {
+                "op": "add",
+                "path": [
+                  "loyalty"
+                ],
+                "value": 2,
+                "bounds": "clamp",
+                "when": [
+                  "and",
+                  [
+                    "ne",
+                    [
+                      "get",
+                      [
+                        "healer"
+                      ]
+                    ],
+                    ""
+                  ],
+                  [
+                    "ge",
+                    [
+                      "get",
+                      [
+                        "treasury"
+                      ]
+                    ],
+                    [
+                      "get",
+                      [
+                        "upkeep"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
                 "op": "set",
                 "path": [
                   "treasury"
@@ -3856,6 +4119,141 @@
                 ],
                 "value": 1,
                 "bounds": "clamp"
+              }
+            ]
+          },
+          "post": {
+            "op": "~",
+            "oncePerReply": [
+              "post"
+            ],
+            "labels": {
+              "post": {
+                "type": "enum",
+                "values": [
+                  "steward",
+                  "marshal",
+                  "spymaster",
+                  "healer",
+                  "quartermaster",
+                  "envoy"
+                ]
+              },
+              "person": {
+                "type": "text",
+                "max": 40
+              }
+            },
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "founded"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Found a holding first (kind: found).",
+            "effects": [
+              {
+                "op": "set",
+                "path": [
+                  [
+                    "arg",
+                    "post"
+                  ]
+                ],
+                "value": [
+                  "arg",
+                  "person"
+                ]
+              }
+            ]
+          },
+          "unpost": {
+            "op": "~",
+            "oncePerReply": [
+              "post"
+            ],
+            "labels": {
+              "post": {
+                "type": "enum",
+                "values": [
+                  "steward",
+                  "marshal",
+                  "spymaster",
+                  "healer",
+                  "quartermaster",
+                  "envoy"
+                ]
+              }
+            },
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "founded"
+                  ]
+                ],
+                true
+              ],
+              [
+                "ne",
+                [
+                  "get",
+                  [
+                    [
+                      "arg",
+                      "post"
+                    ]
+                  ]
+                ],
+                ""
+              ]
+            ],
+            "refusal": "No post was freed:",
+            "refusals": [
+              {
+                "when": [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "founded"
+                    ]
+                  ],
+                  false
+                ],
+                "text": "found a holding first (kind: found)"
+              },
+              {
+                "when": [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "founded"
+                    ]
+                  ],
+                  true
+                ],
+                "text": "nobody holds that post"
+              }
+            ],
+            "effects": [
+              {
+                "op": "set",
+                "path": [
+                  [
+                    "arg",
+                    "post"
+                  ]
+                ],
+                "value": ""
               }
             ]
           }
@@ -3947,6 +4345,13 @@
                   "need-renown"
                 ],
                 "value": 5
+              },
+              {
+                "op": "set",
+                "path": [
+                  "cap"
+                ],
+                "value": 20
               }
             ]
           },
@@ -3983,6 +4388,13 @@
                   "need-renown"
                 ],
                 "value": 15
+              },
+              {
+                "op": "set",
+                "path": [
+                  "cap"
+                ],
+                "value": 60
               }
             ]
           },
@@ -4019,6 +4431,13 @@
                   "need-renown"
                 ],
                 "value": 30
+              },
+              {
+                "op": "set",
+                "path": [
+                  "cap"
+                ],
+                "value": 150
               }
             ]
           },
@@ -4055,6 +4474,13 @@
                   "need-renown"
                 ],
                 "value": 55
+              },
+              {
+                "op": "set",
+                "path": [
+                  "cap"
+                ],
+                "value": 400
               }
             ]
           },
@@ -4091,6 +4517,13 @@
                   "need-renown"
                 ],
                 "value": 80
+              },
+              {
+                "op": "set",
+                "path": [
+                  "cap"
+                ],
+                "value": 1000
               }
             ]
           },
@@ -4127,6 +4560,13 @@
                   "need-renown"
                 ],
                 "value": 0
+              },
+              {
+                "op": "set",
+                "path": [
+                  "cap"
+                ],
+                "value": 2500
               }
             ]
           },
@@ -4759,6 +5199,90 @@
                 "value": "power"
               }
             ]
+          },
+          {
+            "id": "marshal",
+            "when": [
+              "ne",
+              [
+                "get",
+                [
+                  "marshal"
+                ]
+              ],
+              ""
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "cap"
+                ],
+                "value": [
+                  "add",
+                  [
+                    "get",
+                    [
+                      "cap"
+                    ]
+                  ],
+                  [
+                    "floorDiv",
+                    [
+                      "get",
+                      [
+                        "cap"
+                      ]
+                    ],
+                    5
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "quartermaster",
+            "when": [
+              "ne",
+              [
+                "get",
+                [
+                  "quartermaster"
+                ]
+              ],
+              ""
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "upkeep"
+                ],
+                "value": [
+                  "sub",
+                  [
+                    "get",
+                    [
+                      "upkeep"
+                    ]
+                  ],
+                  [
+                    "floorDiv",
+                    [
+                      "add",
+                      [
+                        "get",
+                        [
+                          "upkeep"
+                        ]
+                      ],
+                      9
+                    ],
+                    10
+                  ]
+                ]
+              }
+            ]
           }
         ],
         "exports": {
@@ -4800,13 +5324,20 @@
                     "region",
                     "tier",
                     "retainers",
+                    "cap",
                     "treasury",
                     "renown",
                     "loyalty",
                     "upkeep",
                     "need-retainers",
                     "need-treasury",
-                    "need-renown"
+                    "need-renown",
+                    "steward",
+                    "marshal",
+                    "spymaster",
+                    "healer",
+                    "quartermaster",
+                    "envoy"
                   ],
                   "title": "Your Holding",
                   "units": {

@@ -13,9 +13,12 @@ import { createParty } from './party.js';
 import { createAct } from './act.js';
 import { holdingOf } from '../holding/read.js';
 import { MONTH_CUE_TOKENS, monthCue } from '../holding/tail.js';
+import { postLines, postRoom } from '../holding/post-tail.js';
+import { createVacate } from '../holding/vacate.js';
 import { createBlocks } from './blocks.js';
 import { createFields } from './fields.js';
 import { validateDomain, resolveModule, moduleView, pinnedPresentation, grammarFor, replayInputs } from './views.js';
+import { referenceOf } from '../grammar.js';
 import { blockCardSlots, tailLines, tailRoom } from './prompt.js';
 import { B, initial } from './shared.js';
 import { quietRole } from './replaced.js';
@@ -29,7 +32,8 @@ export function createDataModulesPart(opts = {}) {
     Object.assign(d, createAct(d));
     Object.assign(d, createBlocks(d));
     Object.assign(d, createFields(d));
-    const { state, settings, boardOn, rpgReplaced, wrap, offers, guard, finish, setField, tick, settle, afterCapture, act } = d;
+    Object.assign(d, createVacate(d));
+    const { state, settings, boardOn, rpgReplaced, wrap, offers, guard, finish, setField, tick, settle, vacate, afterCapture, act } = d;
     const replaced = () => { try { return rpgReplaced() === true; } catch { return false; } };
     // The `! dm` kind stays enabled while any block is pinned (a Re-read of a kept line must reach act.js); its grammar line is taught while some pinned block is not quiet.
     const loud = () => Object.keys(state()?.domains?.dataModules?.active ?? {}).some(id => !quietRole(activeDefinition(state(), id), replaced()));
@@ -43,6 +47,7 @@ export function createDataModulesPart(opts = {}) {
             'dm.remove': wrap((ctx, payload, call) => d.changeBlock(ctx, payload, 'remove', call)),
             'dm.attach': wrap(d.attach), 'dm.set': wrap(setField), 'dm.act': wrap((ctx, payload, call) => act(ctx, payload, null, call)), 'dm.capture': { internal: true, handler: wrap((ctx, line, call) => act(ctx, {}, line, call)) },
             'dm.tick': { internal: true, handler: wrap(tick) }, 'dm.settle': { internal: true, handler: wrap(settle) },
+            'dm.vacate': { internal: true, handler: wrap(vacate) },
             // The Ask card's "Add to party" (rpg only: the feature gate leaves it out while the RPG is off).
             'dm.join': Object.assign(wrap(d.addParty), { feature: LEAN_RPG_FEATURE }),
             // A full party's card: the member the reader picked steps out and the newcomer joins (one reader action).
@@ -109,12 +114,14 @@ export function createDataModulesPart(opts = {}) {
                 }
                 const cue = monthCue(view);
                 if (cue) lines.push(cue);
+                const holding = holdingOf(view.state);
+                if (holding) lines.push(...postLines(view.state, holding, referenceOf(Object.keys(view.state.domains.dataModules.active), holding.module)));
                 return { lines, optional: [] };
             },
             // Tail room for the lines above: 100 tokens for each pinned module (300 for one with a role), on top of the core's own; none without a pin.
             extra: () => Object.keys(state()?.domains?.dataModules?.active ?? {}).slice(0, L.pins).reduce((sum, id) => quietRole(activeDefinition(state(), id), replaced()) ? sum : sum + tailRoom(activeDefinition(state(), id), true, instanceOf(state(), id)?.fields), 0)
-                // (room for the holding's monthly reminder, kept whether or not this reply has it)
-                + (holdingOf(state()) ? MONTH_CUE_TOKENS : 0),
+                // (room for the holding's monthly reminder, kept whether or not this reply has it, and for what is said about its posts)
+                + ((now, held) => (held ? MONTH_CUE_TOKENS + postRoom(held) + postRoom(held, now) : 0))(state(), holdingOf(state())),
         },
     };
 }

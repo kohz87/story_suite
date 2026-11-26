@@ -2,6 +2,7 @@
 import { PRESETS, makeCalendar } from '../../time/calendar.js';
 import { oneLine } from '../../../core/text.js';
 import { holdingOf } from './read.js';
+import { postsPart } from './post-tail.js';
 
 export const MONTH_CUE = "A new month: write the holding's upkeep line (! dm holding | kind: month), its income and anything that changed.";
 /** Tail room the reminder takes, in tokens. */
@@ -15,9 +16,10 @@ export function holdingLine(definition, fields) {
     const parts = [
         [oneLine(fields.name), fields.type, has('rank') ? `${fields.rank} (tier ${fields.tier})` : ''].filter(Boolean).join(', '),
         seat,
-        ...['retainers', 'treasury', 'renown', 'loyalty'].filter(has).map(key => `${key} ${fields[key]}${key === 'treasury' ? ' gold' : ''}`),
+        ...['retainers', 'treasury', 'renown', 'loyalty'].filter(has).map(key => `${key} ${fields[key]}${key === 'treasury' ? ' gold' : ''}${key === 'retainers' && has('cap') ? ` of ${fields.cap}` : ''}`),
         has('upkeep') ? `upkeep ${fields.upkeep} gold a month` : '',
         has('need-retainers') && fields.tier < 5 ? `next tier needs retainers ${fields['need-retainers']}, treasury ${fields['need-treasury']}, renown ${fields['need-renown']}` : '',
+        postsPart(fields),
     ];
     return `${definition.name} — ${parts.filter(Boolean).join('; ')}.`;
 }

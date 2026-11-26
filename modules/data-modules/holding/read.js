@@ -10,7 +10,8 @@ export function holdingOf(state) {
     const domain = state?.domains?.dataModules;
     for (const module of Object.keys(domain?.active ?? {})) {
         const fields = isHolding(activeDefinition(state, module)) ? domain.instances?.[module]?.chat?.fields : null;
-        if (fields?.founded === true) return { ...fields };
+        // (`module` is the pinned module's id)
+        if (fields?.founded === true) return { ...fields, module };
     }
     return null;
 }

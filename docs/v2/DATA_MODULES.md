@@ -250,6 +250,21 @@ own in the tail (`modules/data-modules/holding/tail.js`), asks for the month's l
 World events on, writes the anchors `fact:pc-holding-founded` and `fact:pc-seat-claimed` (`modules/world/chronicle/world-daily/holding.js`).
 `partyRegions(query)` (`modules/world/daily/party-regions.js`) gives the scene's region and the seat's.
 
+**A condition on one effect.** A `set` or an `add` may carry its own `when` (a condition, as a rule's): the effect is left out when it does
+not hold. What the condition read is witnessed by value, like any read. Never defaulted.
+
+**Officer posts.** A holding with the text fields `steward`, `marshal`, `spymaster`, `healer`, `quartermaster` and `envoy` (each a person's
+name, `edit: false`) has posts. The story gives one with `kind: post | post: <field> | who: Name` (`chaplain` is read as `healer`; the kind
+declares the label as `person`, because `who` is the host's word) and frees it with `kind: unpost | post: <field>`. Code decides who may
+take one (`holding/stays.js`): a person the story knows, alive, not You, not travelling with You, holding no other post, with the post
+free, and staying at the seat. Staying is the cast's record (`base`, as in "waits for You at <place>"); without one, the place NPC State
+has for them; or the scene, when it is at the seat and lists them. A holder who is a party member again leaves the post by a host step,
+`dm.vacate` (`holding/vacate.js`), on that reply, or before the next reply after the reader's own return. Both record a `posted` witness,
+so replay skips a post whose holder travels with You on that prefix; a post line also witnesses the seat it was read against. The two line forms are not in the static prompt: they are taught in
+the tail once the holding has a seat and a post is held, a companion has left, or the cast has someone at the seat (`holding/post-tail.js`), with the spymaster's warning cue while that post is held. The pack gives
+the bonuses: steward income +10% (rounded up), marshal retainer cap +20%, healer +2 loyalty on a paid month, quartermaster upkeep -10%
+(rounded up), envoy renown +1 (small) or +2 (great).
+
 ## 3. Lines, checks, templates and time
 
 The exact envelope remains SPEC §4.4:

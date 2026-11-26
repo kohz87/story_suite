@@ -136,7 +136,7 @@ test('the narrator is offered all ten lines and told the holding in one line tha
         await host.send('.', 'Quiet.');
     }
     const line = summaryOf(host.head(), ID);
-    assert.ok(line.endsWith('retainers 5000; treasury 1000000 gold; renown 100; loyalty 100; upkeep 2580 gold a month; next tier needs retainers 400, treasury 3000, renown 80.'), line);
+    assert.ok(line.endsWith('retainers 5000 of 1000; treasury 1000000 gold; renown 100; loyalty 100; upkeep 2580 gold a month; next tier needs retainers 400, treasury 3000, renown 80.'), line);
 });
 
 test('Story › Trackers shows the holding with its labels; the reader corrects numbers and names but not what code works out', async t => {

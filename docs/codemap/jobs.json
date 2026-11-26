@@ -975,5 +975,11 @@
   "modules/world/daily/party-regions.js": "Gives the party's regions for world events' proximity terms: the scene's and the holding seat's.",
   "modules/world/chronicle/world-daily/holding.js": "Records the founded holding and its claimed seat as world anchors on the reply.",
   "tests/packs/ersveil-holding.test.js": "Tests Your Holding in the Ersveil rules: its story lines, tier bars, upkeep, tail line, tracker card and replay.",
-  "tests/modules/world/daily/holding-host.test.js": "Tests the holding's monthly reminder, its world anchors and the party's regions on the real host."
+  "tests/modules/world/daily/holding-host.test.js": "Tests the holding's monthly reminder, its world anchors and the party's regions on the real host.",
+  "modules/data-modules/holding/posts.js": "Reads the holding's officer posts: who holds them, who travels with You, and the posts a rejoin has ended.",
+  "modules/data-modules/holding/stays.js": "Decides who may take a post of the holding, from where the story has them staying, and says why not.",
+  "modules/data-modules/holding/vacate.js": "Frees the post of a holder who travels with You again, as a host step.",
+  "modules/data-modules/holding/post-tail.js": "Writes what the prompt tail says about the holding's posts and the room it takes.",
+  "tests/packs/ersveil-holding-posts.test.js": "Tests the holding's officer posts: refusals, bonuses, the retainer cap, rejoining and replay.",
+  "tests/suite/holding-posts.test.js": "Tests the holding's posts on the real suite against the cast's stays record."
 }

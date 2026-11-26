@@ -9,6 +9,7 @@ import { fill } from '../../../core/strings.js';
 import { E, SET_FIELDS, partyFull, partyWitness, draftOf, stateOf, subjectsOf, instancePath, prefixImports } from './shared.js';
 import { shownText } from './prompt.js';
 import { timerDue, SETTLED_TYPES } from './timing.js';
+import { lapsedPosts } from '../holding/posts.js';
 
 export function createFields(deps) {
     const { dependency, guard, finish, restore } = deps;
@@ -164,6 +165,8 @@ export function createFields(deps) {
                 if (definition.timers.some(timer => timerDue(timer, inputs, instance))) commands.push({ type: 'dm.tick', payload: { module, subject } });
             }
         }
+        // A posted companion who travels with You again leaves the post (holding/vacate.js).
+        commands.push(...lapsedPosts(prefix).map(entry => ({ type: 'dm.vacate', payload: { module: entry.module } })));
         return commands.length ? { commands } : undefined;
     }
     // Timers first, then the reply-end functions of the blocks that would change (they see the state the ticks leave).
