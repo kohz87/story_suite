@@ -408,6 +408,7 @@
   "tests/modules/world/open/arc-step.test.js": "Tests: generated arcs in the daily step (plan copy, schedule, anchors, refusals, caps, template with no arc unchanged).",
   "tests/modules/world/open/open-tempo.test.js": "Tests: the open-template look-ahead at tempo 2 asks only for slots the daily step makes.",
   "tests/modules/world/world/witnesses.test.js": "Tests the Journal witnesses query on a real host: off by default, who was there per line, a person's lines newest first, replay after a swipe and a middle delete.",
+  "tests/packs/ersveil-guild.test.js": "Tests the shipped Ersveil Guild membership: probation ends after three contracts or a promotion, the examination bars, and the year end and dues rules.",
   "tests/packs/format4-game.test.js": "Tests the format 4 game validator: calendar and seasons, weather by climate, start, pacing, rpg.pull and the player rank module.",
   "tests/packs/game-export.test.js": "Tests that exporting the settings as a game pack, validating it and importing it again loses nothing, and the card settings' sections rules.",
   "tests/packs/pairing.test.js": "Tests the pairing check: start date, date and season anchors, birthdays, culture regions and the recommended-game info line.",

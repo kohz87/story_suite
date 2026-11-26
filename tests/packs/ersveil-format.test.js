@@ -1,5 +1,5 @@
 // The shipped Ersveil in pack format 4 (job C1, pack format 4 §3): the world pack examples/packs/ersveil (4.2.0) and its game pack examples/packs/ersveil-game
-// ("Ersveil rules", 1.0.0), field by field: what each holds and where it sits. The pair is the source now (format 3 is obsolete; its sample is gone).
+// ("Ersveil rules", 1.1.0), field by field: what each holds and where it sits. The pair is the source now (format 3 is obsolete; its sample is gone).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -12,7 +12,7 @@ const game = read('ersveil-game/pack.json');
 test('the envelopes: format 4, one world and one game, the versions, names and the suite each needs; the world recommends its game', () => {
     assert.deepEqual(Object.keys(world), ['id', 'format', 'kind', 'version', 'name', 'author', 'description', 'requires', 'recommends', 'content']);
     assert.deepEqual([world.id, world.format, world.kind, world.version, world.name, world.author], ['ersveil', 4, 'world', '4.2.0', 'Ersveil (open world)', 'Story Suite examples']);
-    assert.deepEqual([game.id, game.format, game.kind, game.version, game.name, game.author], ['ersveil-game', 4, 'game', '1.0.0', 'Ersveil rules', 'Story Suite examples']);
+    assert.deepEqual([game.id, game.format, game.kind, game.version, game.name, game.author], ['ersveil-game', 4, 'game', '1.1.0', 'Ersveil rules', 'Story Suite examples']);
     assert.equal(game.description, 'Calendar, coins, guild ranks, names and trackers for Ersveil');
     assert.match(world.description, /^The world of Ersveil as an open world pack: lore, a map of 323 places joined by routes, 31 people /);
     assert.doesNotMatch(world.description, /spec/);
