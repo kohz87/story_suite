@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Arsveil keeps going after its first five years: five more years of world events follow how things ended, with new troubles, settlements and seasonal happenings.
 - Arsveil: ten people of its own, with portraits, can join your party if the story gets there; its lore has new named figures and the hamlet of Lowbell.
 - World: people written in a world pack can now have longer looks, clothes, voice, personality and daily routine.
 - Arsveil: the example world now has about five years of world events, from the Fall of Bluewatch to two empty imperial thrones, with news and scenes that wait for your party.
