@@ -203,3 +203,21 @@ describe('selectDossier: Add to party', () => {
     assert.equal(selectDossier({ ...ALL, join: JOIN, dossier: { ...DOSSIER, lifeState: 'deceased' } }).partyAdd, null);
   });
 });
+
+describe('selectDossier: what the dossier library orders by', () => {
+  const rows = dormant => [{ id: 'np_1', name: 'Sister Temiwa', dormant }];
+  const away = { ...DOSSIER, present: false, followed: false, lastSeenTurn: 7 };
+  it('carries here, dormant (from the person\'s list row) and the last seen number, and matches the shape', () => {
+    const vm = selectDossier({ dossier: away, party: [], people: rows(true) });
+    assert.deepEqual(checkShape(vm, DOSSIER_SHAPE), []);
+    assert.deepEqual([vm.here, vm.dormant, vm.seenTurn], [false, true, 7]);
+    assert.equal(selectDossier({ dossier: away, people: rows(false) }).dormant, false);
+    assert.equal('seenTurn' in selectDossier(ALL), false);
+  });
+  it('never calls someone here, in the party or dead "not seen lately"', () => {
+    const here = selectDossier({ dossier: { ...away, present: true }, people: rows(true) });
+    assert.deepEqual([here.here, here.dormant], [true, false]);
+    assert.equal(selectDossier({ dossier: away, party: [{ name: 'Sister Temiwa' }], people: rows(true) }).dormant, false);
+    assert.equal(selectDossier({ dossier: { ...away, lifeState: 'deceased' }, people: rows(true) }).dormant, false);
+  });
+});

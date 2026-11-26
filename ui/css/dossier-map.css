@@ -13,17 +13,23 @@
 .dlib-slot{flex:none}
 .dlib{display:flex;align-items:center;gap:12px;height:68px;padding:0 16px;border-top:1px solid var(--su-line);background:var(--d-flat);white-space:nowrap;overflow:hidden}
 .dlib .lhd{display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;cursor:pointer;font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted)}
-.dlib .row2{display:flex;gap:10px;margin-left:8px;padding:6px 4px;min-width:0;overflow-x:auto;scrollbar-width:none}.dlib .row2::-webkit-scrollbar{display:none}
+.dlib .row2{display:flex;gap:10px;flex:0 1 auto;padding:6px 4px;min-width:0;overflow-x:auto;scrollbar-width:none}.dlib .row2::-webkit-scrollbar{display:none}
 .dlib .p{position:relative;width:44px;height:44px;flex:none;padding:0;border:0;border-radius:50%;background:var(--pk-disc);cursor:pointer;color:#fff}
 .dlib .pf{position:absolute;inset:0;border-radius:50%;background:center 18%/cover;display:grid;place-items:center;font:800 13px var(--su-font);color:#fff}
 .dlib .p.on{box-shadow:0 0 0 2px var(--su-accent)}
 .dlib.open{height:auto;flex-direction:column;align-items:stretch;gap:8px;padding:8px 16px 12px;white-space:normal}
 .dlib.open>*{flex-shrink:0}
-.dlib.open .hd{display:flex;align-items:center;gap:12px;min-height:44px;white-space:nowrap}
+.dlib.open .hd{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-height:44px;white-space:nowrap}
+.dlib .lsteps{display:inline-flex;gap:8px;flex:none}
+.dlib .lst{width:44px;height:44px;flex:none;display:grid;place-items:center;padding:0;border:1px solid var(--su-line2);border-radius:12px;background:var(--su-tint);font:800 18px/1 var(--su-font);color:var(--su-text);cursor:pointer}
+.dlib .lst:disabled{opacity:.4;cursor:default}
+.dlib .lmore{display:inline-flex;align-items:center;flex:none;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--su-line2);background:var(--su-tint);font:800 12px var(--su-font);letter-spacing:.04em;color:var(--su-soft);cursor:pointer;white-space:nowrap}
+.su-root .dov .dlib .lsearch{flex:0 1 220px;min-width:140px;min-height:44px;margin:0;padding:0 14px;border-radius:12px;border:1px solid var(--su-line2);background:var(--su-tint);font:600 13.5px var(--su-font);color:var(--su-text)}
 .dlib .fchips{display:flex;gap:8px}
+.dlib .fchip small{margin-left:6px;font-size:12px;opacity:.75}
 .dlib .fchip{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--su-line2);background:var(--su-tint);font:800 12px var(--su-font);letter-spacing:.04em;color:var(--su-soft);cursor:pointer}
 .dlib .fchip[aria-pressed="true"]{color:var(--pk-gold);border-color:var(--pk-gold);background:rgba(240,184,74,.12)}
-.dlib .fchip[data-filter="all"][aria-pressed="true"]{color:var(--su-text);border-color:var(--su-line2);background:var(--su-tint)}
+.dlib .fchip:not([data-filter="followed"])[aria-pressed="true"]{color:var(--su-text);border-color:var(--su-line2);background:var(--su-tint)}
 .dlib .lrow{display:flex;gap:4px;padding:4px 2px;overflow-x:auto;scrollbar-width:none}.dlib .lrow::-webkit-scrollbar{display:none}
 .dlib .lp{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:88px;padding:9px 4px 6px;border:0;border-radius:12px;background:none;color:var(--su-text);flex:none;cursor:pointer}
 .dlib .lp .p{width:48px;height:48px;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
@@ -36,10 +42,15 @@
 .dlib .lp b{font:800 12px/1.2 var(--su-font);text-align:center;white-space:nowrap}
 @container su-root (max-width:599px){
   .dlib:not(.open){height:48px}
-  .dlib:not(.open) .row2,.dlib .lw{display:none}
-  .dlib.open{max-height:420px;overflow:auto}
-  .dlib.open .hd{flex-wrap:wrap;row-gap:0}.dlib.open .hd .sp{display:none}.dlib.open .hd>.lhd{flex:1 0 100%}
-  .dlib .lrow{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;overflow:visible}
+  .dlib:not(.open) .row2,.dlib:not(.open) .lmore,.dlib .lw{display:none}
+  .dlib:not(.open) .lsteps{margin-left:auto}
+  /* open: the head, chips and search stay put; the grid of people scrolls under them */
+  .dlib.open{max-height:min(420px,60vh);overflow:hidden;padding:8px 12px 12px}
+  .dlib.open .hd .sp{display:none}.dlib.open .hd>.lhd{flex:1 1 0;min-width:0}
+  .dlib.open .hd .fchips{flex:1 0 100%;flex-wrap:wrap;gap:6px;order:4}
+  .dlib .fchip{flex:1 0 auto;justify-content:center;padding:0 8px;letter-spacing:0}.dlib .fchip small{margin-left:4px}
+  .su-root .dov .dlib .lsearch{flex:1 0 100%;order:5}
+  .dlib.open>.lrow{flex:0 1 auto;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;overflow:auto}
   .dlib .lp{min-width:0}.dlib .lp b{white-space:normal}
 }
 /* the Map tab: map left, picked person right (desktop); map then the person in a card (tablet, phone) */

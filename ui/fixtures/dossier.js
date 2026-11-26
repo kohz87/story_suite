@@ -28,6 +28,9 @@ const joinCard = name => {
   };
 };
 
+// When each was last seen (higher is later): orders the dossier library.
+const SEEN = Object.freeze({ temiwa: 40, torka: 40, rika: 38, marro: 22, dren: 12 });
+
 function base(id, extra) {
   const p = PEOPLE.cast.find(c => c.personId === id);
   const here = p.at === 'here';
@@ -40,6 +43,9 @@ function base(id, extra) {
     genderUnknown: false,
     following: p.followed,
     inParty: p.inParty,
+    here,
+    dormant: p.at === 'dormant',
+    seenTurn: SEEN[id],
     partyAdd: p.inParty ? null : joinCard(p.name),
     meters: { ...p.meters },
     stage: null,

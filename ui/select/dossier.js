@@ -212,6 +212,8 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
   const gender = text(dossier.gender)?.toLocaleLowerCase();
   const genderUnknown = gender !== 'male' && gender !== 'female';
   const isHere = isHereIn(dossier, place, present);   // (the one rule, ./people.js)
+  const inParty = (Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key);
+  const listed = (Array.isArray(people) ? people : []).find(row => isRecord(row) && row.id === dossier.id);
   return {
     id: text(dossier.id) ?? key,
     name: String(dossier.name ?? ''),
@@ -220,9 +222,13 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
     life: presumed ? 'presumed' : dead ? 'deceased' : 'alive',
     genderUnknown,
     following: dossier.followed === true,
-    inParty: (Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key),
+    inParty,
+    // (what the dossier library orders and groups by; "not seen lately" is the People view's: never someone here or in the party)
+    here: isHere,
+    dormant: listed?.dormant === true && !dead && !isHere && !inParty,
+    ...(Number.isInteger(dossier.lastSeenTurn) ? { seenTurn: dossier.lastSeenTurn } : {}),
     // (the join card is offered to the living who are not in the party; the engine's answer holds the rest: RPG on, not You, room, a person the party does not know)
-    partyAdd: !dead && !(Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key) ? partyAddOf(join) : null,
+    partyAdd: !dead && !inParty ? partyAddOf(join) : null,
     meters: metersOf(dossier),
     stage: stageOf(next, cast?.rank),
     ...(extraMetersOf(dossier, cast) ? { extraMeters: extraMetersOf(dossier, cast) } : {}),
