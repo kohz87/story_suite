@@ -86,11 +86,14 @@ export function createInjectionPart(rt, deps) {
             : { rules: '', context: '' };
         return { rules: built.rules, context: armed ? built.context : '', noteOptions };
     }
+    // A prompt text with the host's macros ({{user}}) filled in, as SillyTavern fills in an extension prompt.
+    const withNames = (text, ctx = getContext()) => (text && typeof ctx.substituteParams === 'function' ? ctx.substituteParams(text) : text);
     // The one-pass lines the next ordinary reply would carry (it is armed, so rules and context), as "What's sent" shows them.
     function nextCaptureParts(state, settings) {
         if (!narrationCaptureEnabled(settings)) return { rules: '', context: '' };
         const { rules, context } = captureParts(state, settings, { armed: true, rulesSent: true, namedNpcIds: namedByPlayerNpcIds(state) });
-        return { rules, context };
+        // (the rules name the reader with {{user}}: shown with the name filled in, as it is sent)
+        return { rules: withNames(rules), context };
     }
 
     function updateInjection() {
@@ -148,7 +151,7 @@ export function createInjectionPart(rt, deps) {
     function holdCaptureRules() {
         const ctx = getContext();
         const rules = String(rt.lastInjection.captureRules || '');
-        rt.sentCaptureRules = rules && typeof ctx.substituteParams === 'function' ? ctx.substituteParams(rules) : rules;
+        rt.sentCaptureRules = withNames(rules, ctx);
     }
     function keepCaptureRules(eventData) {
         const rules = String(rt.sentCaptureRules || '').trim();

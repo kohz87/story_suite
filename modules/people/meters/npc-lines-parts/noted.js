@@ -1,7 +1,7 @@
 // Tells a receipt what a line stored when it moved no meter: "Ilka: nothing moved" said nothing of a tie, a taste, a place or a goal that WAS written.
 
 const NOTE_WORD = Object.freeze({ tie: 'tie stored', taste: 'taste stored', know: 'knowledge stored', lie: 'lie stored' });
-const FIELD_WORD = Object.freeze({ where: 'place', location: 'place', goal: 'goal', status: 'status', gender: 'gender', mood: 'mood', look: 'look', appearance: 'look', age: 'age', birthday: 'birthday', level: 'level', learns: 'ability', keepsake: 'keepsake' });
+const FIELD_WORD = Object.freeze({ where: 'place', location: 'place', goal: 'goal', status: 'status', gender: 'gender', mood: 'mood', look: 'look', appearance: 'look', age: 'age', birthday: 'birthday', level: 'level', learns: 'ability', keepsake: 'keepsake', relationshipSummary: 'who you are to them' });
 
 /** The receipt with "<name>: nothing moved" followed by what was stored; the feelings did not move, so the start of the sentence stays true (the journal still reads it as upkeep) (`what`: "tie stored", "place, goal stored"); a receipt that moved something is left as it is. */
 export function noted(out, what) {

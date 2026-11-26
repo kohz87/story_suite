@@ -51,8 +51,10 @@ test('the rule table: a key line with a death word is diedAny; other lines and k
     assert.deepEqual(ruleMarksFor([line('+ party Mara')]), ['partyFields', 'partyFour', 'partyRoom']);
     assert.deepEqual(ruleMarksFor([line('- party Mara')]), ['partyLeft'], 'a leaving line changes no room, and carries only partyLeft');
     assert.deepEqual(RULE_LINES.partyRoom({ kind: 'dm', op: '+', raw: '+ party Mara' }), true, 'conservative: the raw words count, however it parsed');
-    assert.deepEqual(Object.keys(RULE_LINES), ['checks', 'diceInOrder', 'clockFace', 'placeFromMap', 'partyRoom', 'partyFour', 'diedAny', 'factionTags', 'xpKept', 'oneCoin', 'partyFields', 'partyLeft', 'caretWords', 'foesFresh', 'foesClear', 'clockMonth', 'youRank', 'youLook', 'skillPractice', 'assistPlace', 'assistFaction', 'assistFactionFresh', 'assistPresent', 'gearOrder', 'gearFinesse', 'itemIds', 'consumableRecovery', 'placeInside', 'carryRoster', 'restCurrent', 'xpCountsDown', 'revealNext', 'factionGone']);
+    assert.deepEqual(Object.keys(RULE_LINES), ['checks', 'diceInOrder', 'clockFace', 'placeFromMap', 'partyRoom', 'partyFour', 'diedAny', 'factionTags', 'xpKept', 'oneCoin', 'partyFields', 'partyLeft', 'caretWords', 'foesFresh', 'foesClear', 'clockMonth', 'youRank', 'youLook', 'skillPractice', 'assistPlace', 'assistFaction', 'assistFactionFresh', 'assistPresent', 'gearOrder', 'gearFinesse', 'itemIds', 'consumableRecovery', 'placeInside', 'carryRoster', 'restCurrent', 'xpCountsDown', 'revealNext', 'factionGone', 'npcToward']);
     assert.deepEqual(ruleMarksFor([line('~ reveal Oren | opened: rite | quote: "said it all"')]), ['revealNext']);
+    assert.deepEqual(ruleMarksFor([line('~ npc Mira | Toward: A friend.')]), ['npcToward']);
+    assert.deepEqual(ruleMarksFor([line('~ npc Mira | goal: rest')]), [], 'a npc line with no toward label');
     assert.deepEqual(ruleMarksOf(ALL), ALL, 'every current rule fits when the new mark is added');
     assert.deepEqual(ruleMarksFor([line('+ world Harbour Fight | factions: Quay Watch')]), ['factionTags'], 'any world line');
     assert.deepEqual(ruleMarksFor([line('~ world Harbour Fight | factions: Quay Watch'), line('- world Harbour Fight')]), ['factionTags']);

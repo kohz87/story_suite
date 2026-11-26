@@ -79,4 +79,6 @@ export const RULE_LINES = Object.freeze({
     // A `~ faction` line whose words say the group is finished (wiped out, disbanded and the like) ends the faction as `- faction` does (Story
     // Director chronicle/capture/faction-gone.js). A reply with no mark keeps updating the faction.
     factionGone: line => line?.kind === 'faction' && line.op === '~',
+    // `~ npc Name | toward:` writes who the reader is to them (the dossier's "Who you are to them"). A reply with no mark keeps the label unused, as an unknown one.
+    npcToward: line => line?.kind === 'npc' && Object.keys(line.labels ?? {}).some(label => label.trim().toLowerCase() === 'toward'),
 });

@@ -75,3 +75,18 @@ test('hosted: the context ends with the reminder naming who is here and who the 
         globalThis.__npcMock.context.chat = [];
     }
 });
+
+test('hosted: the rules\' {{user}} is shown as the reader\'s name, as SillyTavern sends it', t => {
+    const settings = getSettings();
+    Object.assign(settings, { enabled: true, inject: true, narrationCapture: true, fullScanEveryTurn: false });
+    const named = text => String(text).replace(/\{\{user\}\}/gi, 'Ari');
+    globalThis.__npcMock.context.substituteParams = named;
+    t.after(() => { delete globalThis.__npcMock.context.substituteParams; });
+    const { rt, injection, preview } = rig({ hosted: true });
+    rt.narrationCaptureArmed = 'chat';
+    injection.updateInjection();
+    const shown = preview().parts.find(part => part.label === 'One-pass rules (system prompt)').text;
+    assert.equal(shown, named(sent.get(KEYS.CAPTURE_RULES_KEY)));
+    assert.match(shown, /How they see Ari: when this reply changes what a person thinks of Ari /);
+    assert.doesNotMatch(shown, /\{\{user\}\}/);
+});

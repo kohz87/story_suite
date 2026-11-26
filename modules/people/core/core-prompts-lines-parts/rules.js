@@ -4,7 +4,8 @@
    The approved NSD6 (a new person is a one-line stub) and NSD7 (changed fields only; the identity sentence kept) texts.
    The approved NSD13 (death is a line) text. The aka sentence (SOAKPEOPLE F3, the lead's wording, recorded in NSD-WORDING.md) follows it.
    The Level sentence follows NSD9 while the RPG is on (`levelOn`); the abilities and keepsakes sentence (pack format 4, N3) follows it, always.
-   `moodWord` (default off, A/B-gated) adds the held NSD3 mood text; the memory: sentence (owner-approved 21 Nov) follows it, always. The relationships paragraph (NSD2) is not here: see src/npc-meters-prompt-parts/lines-text.js. */
+   `moodWord` (default off, A/B-gated) adds the held NSD3 mood text; the memory: sentence (owner-approved 21 Nov) follows it, always. The owner-approved `toward:` sentence (who the reader is to a person, 26 Nov, recorded in NSD-WORDING.md) closes the rules.
+   The relationships paragraph (NSD2) is not here: see src/npc-meters-prompt-parts/lines-text.js. */
 const HEADER = 'NPC CHANGES. Write your complete in-character reply first, exactly as you otherwise would; nothing below changes the story, its length or its voice. Then put every change to a named person in your <Changes> block, one line each, as described below. There is no other block; never write JSON, and never mention these lines in the story. Write a line only for something that happened in this reply. A line that is wrong is refused by itself and shown on the changes card; the others still count.';
 const GOAL_STATUS = 'goal and status describe what someone is after and what they are doing now. Write them only when they changed in this reply, or for a person who is away from the scene. Never restate an unchanged one. When one has ended, write it as "clear" (goal: clear). Never write "Unknown".';
 const WHERE = 'Do not write who is present; the scene says. Write where: only for a named person who is somewhere other than the scene, and only when the reply tells you where (~ npc Name | where: the harbour office). Never write where for someone in the scene, and never "Unknown".';
@@ -20,8 +21,10 @@ const AKA = 'Other names: when the story calls a listed person by another name (
 const MOOD_WORD = 'mood is one plain word for how someone feels now (~ npc Pella Breck | mood: alarmed). Write it when it changed in this reply, for someone who appears in it. Never restate an unchanged mood and never write numbers.';
 // (owner-approved 21 Nov, DOSSFRESH: a person with no meter line remembered nothing from the replies until a Refresh; sent on every one-pass reply after the mood sentence)
 const MEMORY_FIELD = 'memory is one short line for something this person will remember from this reply that moved no meter (~ npc Dora Vint | memory: Astra brought back Colvin\'s body). Write it only for a real event they took part in or saw.';
+// (owner-approved 26 Nov, FU151: "Who you are to them" never changed in lines mode; {{user}} is the reader's name, put in by the host's macros)
+const TOWARD = 'How they see {{user}}: when this reply changes what a person thinks of {{user}} (a milestone, a betrayal, growing close, a falling-out), write ~ npc Name | toward: who {{user}} is to them now, one sentence in their eyes (e.g. ~ npc Mira | toward: The one person she trusts to watch her back). Not for small shifts.';
 
 // `levelOn`: the RPG feature is on (the Level sentence is sent only then). The abilities and keepsakes sentence is always sent.
 export function buildLinesRules({ moodWord = false, levelOn = false } = {}) {
-    return [HEADER, GOAL_STATUS, ...(moodWord ? [MOOD_WORD] : []), MEMORY_FIELD, WHERE, NOT_WRITTEN, ...(levelOn ? [LEVEL] : []), STORY_FACTS, NEW_PEOPLE, CHANGED_ONLY, MEMORIES, DEATH, AKA].join('\n');
+    return [HEADER, GOAL_STATUS, ...(moodWord ? [MOOD_WORD] : []), MEMORY_FIELD, WHERE, NOT_WRITTEN, ...(levelOn ? [LEVEL] : []), STORY_FACTS, NEW_PEOPLE, CHANGED_ONLY, MEMORIES, DEATH, AKA, TOWARD].join('\n');
 }
