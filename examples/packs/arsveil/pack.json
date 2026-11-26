@@ -10080,6 +10080,49 @@
         "text": "Everyone starts Awakened: Level 1, no school. People are then known by the training they took, each a ladder of three titles an institution confers after years of real work. A title says where someone trained, never their level.\n- Soldier: Man-at-Arms, Iron Guard Sergeant, Iron Guard Knight (Highmark's Iron Guard Academy).\n- Shield: Hall Shieldbearer, Hammerfall Oathshield, Hammerfall Holdfast (the dwarven shield halls).\n- Duellist: House Fencer, House Duellist, Judicial Champion (the Mirage City houses).\n- Pit fighter: Pit Hand, Knifeglass Gladiator, Pit Champion (Shackles).\n- Breath monk: Breath Disciple, Snowbell Monk, Snowbell Breath Master (Kvildal).\n- Hunter: Lodge Tracker, Longstride Hunter, Lodge Huntmaster (the Chieftainates).\n- Assassin: Stalker, Shadow Blade, Executor (Hand of Oblivion).\n- Thief: Infiltrator, Phantom, Grand Redistributor (Nightingale).\n- Mage: Spell Student, Journeyman Spellwright, Startrace Master (spell grammar).\n- Runecarver: Rune Apprentice, Oathvault Runecarver, Rune Master (Ironanvil).\n- Priest: Acolyte, Flame Cleric, Inquest Flamecaller (the Church).\n- Healer: Hospice Novice, Hospice Healer, Grove Healer (temples, hospices, the Grove Schools).\nOther callings exist in the same spirit; name them from the institution that teaches them."
       },
       {
+        "title": "Emperor Reinmar III",
+        "keys": [
+          "Reinmar",
+          "Emperor Reinmar",
+          "the Quiet Emperor"
+        ],
+        "text": "Emperor Reinmar III, 'the Quiet Emperor', sovereign of the Highmark Empire (human): a thin, grey old man who speaks so softly the Diet leans in to hear.\nAppearance: human man, about 75, thin and frail, long white hair and a short white beard, pale watery grey eyes, a soft, sad face; heavy imperial furs of ermine and dark red over thin shoulders, a plain gold circlet; speaks so softly people lean in."
+      },
+      {
+        "title": "Princess Ottilde",
+        "keys": [
+          "Ottilde",
+          "Princess Ottilde"
+        ],
+        "text": "Princess Ottilde of Highmark, the Emperor's eldest daughter (human): exact, cold, never seen without a law clerk.\nAppearance: human woman, about 22, tall and straight-backed, ash-blonde hair in a severe braided crown, cold pale grey eyes, thin unsmiling lips, flawless pale skin; a high-collared dark blue court gown with a law-seal brooch, ink on one fingertip; exact and cold."
+      },
+      {
+        "title": "Prince Leopric",
+        "keys": [
+          "Leopric",
+          "Prince Leopric"
+        ],
+        "text": "Prince Leopric of Highmark, the Emperor's younger son (human): handsome, loud, beloved of the taverns and in debt to everyone.\nAppearance: human man, about 20, handsome and broad-shouldered, tousled golden-brown hair, bright blue eyes, an easy reckless grin, a day of stubble; an open-necked crimson doublet, a gold chain, a sword worn carelessly, a wine cup in hand; loud and charming."
+      },
+      {
+        "title": "Lord-General Gerwald Stahl",
+        "keys": [
+          "Gerwald Stahl",
+          "Stahl",
+          "Lord-General Stahl"
+        ],
+        "text": "Lord-General Gerwald Stahl of Highmark (human): a scarred cavalry general with no royal blood and the army's love.\nAppearance: human man, about 55, hard and weathered, close-cropped grey hair, a long scar across one cheek and a broken nose, steel-grey eyes; dented cavalry plate under a dusty green marcher's cloak, a general's sash; the army's love in his steady gaze."
+      },
+      {
+        "title": "Master Ulrich Fenwald",
+        "keys": [
+          "Ulrich Fenwald",
+          "Fenwald",
+          "Master Fenwald"
+        ],
+        "text": "Master Ulrich Fenwald of Startrace Tower (human): a brilliant, impatient leyline theorist, missing since CY 610.\nAppearance: human man, about 50 (as last seen), gaunt and restless, wild greying dark hair, sharp hollow-cheeked face, burning dark eyes, ink and frost-burn on his hands; a fur-lined Startrace scholar's coat over expedition gear, a leyline compass on a chain; brilliant, impatient."
+      },
+      {
         "title": "Sir Hartwig",
         "keys": [
           "Hartwig",
@@ -10104,7 +10147,7 @@
           "Duke Joost",
           "Duke of Shorn"
         ],
-        "text": "Duke Joost Harlaken rules Shornmarch from the frontier bastion at Shorn: a stout river duke with ink-stained fingers who keeps the forts' accounts himself. He wants Council money for his forts, and fears an unpaid garrison and Highmark troops on the Auvoth road. His clerks dread his sums; the Council thinks him a beggar."
+        "text": "Duke Joost Harlaken rules Shornmarch from the frontier bastion at Shorn: a stout river duke with ink-stained fingers who keeps the forts' accounts himself. He wants Council money for his forts, and fears an unpaid garrison and Highmark troops on the Auvoth road. His clerks dread his sums; the Council thinks him a beggar.\nAppearance: human man, about 55, stout and red-faced, thinning sandy hair, small shrewd eyes behind spectacles, mutton-chop whiskers; a fur-trimmed river duke's coat over a waistcoat with a fob chain, account books under his arm."
       },
       {
         "title": "High Pontiff Benedikt IV",
@@ -10113,7 +10156,7 @@
           "High Pontiff",
           "Lamplighter"
         ],
-        "text": "Benedikt IV, 'Lamplighter', High Pontiff of the Church of the Eternal Flame and sovereign of the Dominion: a soft-spoken, iron-willed old man in ash-grey vestments who lights every candle himself. He wants the Church whole and every flame tended, and fears a Flame that stops answering. The faithful adore him."
+        "text": "Benedikt IV, 'Lamplighter', High Pontiff of the Church of the Eternal Flame and sovereign of the Dominion: a soft-spoken, iron-willed old man who lights every candle himself. He wants the Church whole and every flame tended, and fears a Flame that stops answering. The faithful revere him as the head of the Church. His right hand, Archprelate Cassian Vell, runs it day to day.\nAppearance: human man, about 80, small and stooped but iron-willed, a bald head with a fringe of white hair, a soft wrinkled face and steady dark eyes; white and gold pontifical robes, a simple taper in his hand; soft-spoken, unbending."
       },
       {
         "title": "Conclave Elder Domitilla",
@@ -10130,7 +10173,7 @@
           "Grand Commander Prisca",
           "Prisca"
         ],
-        "text": "Grand Commander Prisca Valens leads the Order of the Silver Mark: a broad, grey-cropped knight-abbess in plate who still walks the burial roads herself. She wants those roads safe and the Veil's cells burned, and fears undeath outrunning her knights. Pilgrims bless her; she is first called when the dead rise."
+        "text": "Grand Commander Prisca Valens leads the Order of the Silver Mark: a broad, grey-cropped knight-abbess in plate who still walks the burial roads herself. She wants those roads safe and the Veil's cells burned, and fears undeath outrunning her knights. Pilgrims bless her; she is first called when the dead rise.\nAppearance: human woman, about 55, broad and strong, grey hair cropped short, a square weathered face, stern grey eyes; silver-trimmed knight-abbess armour under a white surcoat with a silver mark, a heavy mace and a burial-road lantern; tireless and stern."
       },
       {
         "title": "King Anselm of Ashmere",
@@ -10139,7 +10182,7 @@
           "King Anselm",
           "King of Ashmere"
         ],
-        "text": "King Anselm of Ashmere, the Church's closest royal ally: a pale, devout young king with knees worn from long vigils. He wants to be the Flame's sword and to keep his candle, relic and funerary trades rich, and fears being found unworthy of his crown's sacred legitimacy. Pilgrims love him; his nobles mutter."
+        "text": "King Anselm of Ashmere, the Church's closest royal ally: a pale, devout young king with knees worn from long vigils. He wants to be the Flame's sword and to keep his candle, relic and funerary trades rich, and fears being found unworthy of his crown's sacred legitimacy. Pilgrims love him; his nobles mutter.\nAppearance: human man, about 19, pale and slender, dark curly hair, large earnest dark eyes, a fevered devout expression; white and pale-blue royal robes with a flame emblem, a too-heavy crown, a sword held upright like a holy relic."
       },
       {
         "title": "Duchess Ragnhild of Valegard",
@@ -10148,7 +10191,7 @@
           "Duchess Ragnhild",
           "Duchess of Valegard"
         ],
-        "text": "Duchess Ragnhild of Valegard rules the buffer duchy: a lean horsewoman who rides her own border herds and knows each brand by sight. She wants her herds and crossings safe and her cavalry unspent, and fears being made to choose a side. The horse-lords obey her; envoys find her polite and immovable."
+        "text": "Duchess Ragnhild of Valegard rules the buffer duchy: a lean horsewoman who rides her own border herds and knows each brand by sight. She wants her herds and crossings safe and her cavalry unspent, and fears being made to choose a side. The horse-lords obey her; envoys find her polite and immovable.\nAppearance: human woman, about 40, lean and sunburned, long auburn hair in a practical braid, sharp green eyes, laugh lines; a riding coat of good leather over a mail shirt, a ducal pin, a coiled lariat, gloves in one hand."
       },
       {
         "title": "Queen Asta of Dunmere",
@@ -10157,7 +10200,7 @@
           "Queen Asta",
           "Asta of Dunmere"
         ],
-        "text": "Queen Asta of Dunmere, young queen of the Lake Kingdom, holds the Border Kingdoms' rotating council chair, inherited at the worst time: slight and watchful, she turns her late predecessor's ring while older rulers talk. She wants the warning chain lit and no kingdom left alone, and fears her crown, the weakest, failing the chair."
+        "text": "Queen Asta of Dunmere, young queen of the Lake Kingdom, holds the Border Kingdoms' rotating council chair, inherited at the worst time: slight and watchful, she turns her late predecessor's ring while older rulers talk. She wants the warning chain lit and no kingdom left alone, and fears her crown, the weakest, failing the chair.\nAppearance: human woman, about 21, slight and anxious, long pale flaxen hair under a silver lake-crown, wide blue-grey eyes, a brave tight smile; layered blue-grey northern robes with fur at the collar, a council chair's chain too big for her."
       },
       {
         "title": "Thane-of-Thanes Brakka Slagmantle",
@@ -10166,7 +10209,7 @@
           "Brakka",
           "Thane-of-Thanes"
         ],
-        "text": "Thane-of-Thanes Brakka Slagmantle speaks for the Ironanvil Holds at the Council Beneath Stone: a broad dwarf with a forge-scarred face and a voice like a grindstone. She wants grain, timber and salt for the Holds and new veins to pay for them, and fears a hold leaving. Every crown courts her steel."
+        "text": "Thane-of-Thanes Brakka Slagmantle speaks for the Ironanvil Holds at the Council Beneath Stone: a broad dwarf with a forge-scarred face and a voice like a grindstone. She wants grain, timber and salt for the Holds and new veins to pay for them, and fears a hold leaving. Every crown courts her steel.\nAppearance: dwarf woman, about 180, very broad and powerful, a forge-scarred face, iron-grey braided hair and beard-braids at her jaw bound with rune rings, deep-set black eyes; a heavy rune-plated mantle over smith's leathers, a chain of thane-seals; a voice like a grindstone."
       },
       {
         "title": "Elder Grimma Inkstone",
@@ -10184,7 +10227,7 @@
           "Sea-Lord Maarten",
           "Sea-Lord Vosskeel"
         ],
-        "text": "Sea-Lord Maarten Vosskeel speaks for the Tidal Council at Abysswatch: a weathered admiral whose voice is ruined from a lifetime of shouting at storms, so the room hushes to hear him. He wants the convoys running and their losses paid for, and fears sailing without Atlantean pilots. Captains call him fair."
+        "text": "Sea-Lord Maarten Vosskeel speaks for the Tidal Council at Abysswatch: a weathered admiral whose voice is ruined from a lifetime of shouting at storms, so the room hushes to hear him. He wants the convoys running and their losses paid for, and fears sailing without Atlantean pilots. Captains call him fair.\nAppearance: human man, about 60, weathered and leathery, a grizzled grey beard, salt-bleached hair tied back, pale sea-blue eyes narrowed, a scarred throat (his ruined voice); a dark blue admiral's coat with tarnished braid, a spyglass."
       },
       {
         "title": "The Sea God Witch Ilunae",
@@ -10200,7 +10243,7 @@
           "Seluvar",
           "Tide-Archon"
         ],
-        "text": "Tide-Archon Seluvar chairs Atlantis's governing council: a tall, slow-spoken Sea Folk noble whose sheath glints like wet glass. He wants the wards intact and the Sheathless at arm's length, and fears surface troubles reaching the dome. Nobles call him prudent; surface envoys call him a locked door."
+        "text": "Tide-Archon Seluvar chairs Atlantis's governing council: a tall, slow-spoken Sea Folk noble whose sheath glints like wet glass. He wants the wards intact and the Sheathless at arm's length, and fears surface troubles reaching the dome. Nobles call him prudent; surface envoys call him a locked door.\nAppearance: Sea Folk man, ageless, tall and slender, pale blue-white skin with a faint pearl sheen, long silver-black hair drifting as if underwater, the transparent breathing sheath glinting over his jaw and throat like wet glass, large dark calm eyes; layered robes of deep teal and pearl sea-silk, a crown of white coral."
       },
       {
         "title": "Emperor Hartmut of Rhunwald",
@@ -10209,7 +10252,7 @@
           "Emperor Hartmut",
           "Ardelian emperor"
         ],
-        "text": "Emperor Hartmut of Rhunwald, Ardelia's elected emperor, nearing the end of his fixed 18-year term, which ends in July 612: a heavy, patient man who is unwell and rests a hand on the table before he rises. He wants the electors' law honored and a clean handover, and fears leaving the empire quarrelling. The electors respect him."
+        "text": "Emperor Hartmut of Rhunwald, Ardelia's elected emperor, nearing the end of his fixed 18-year term, which ends in July 612: a heavy, patient man who is unwell and rests a hand on the table before he rises. He wants the electors' law honored and a clean handover, and fears leaving the empire quarrelling. The electors respect him.\nAppearance: human man, about 65, heavy and patient, thinning grey hair, a broad tired face with a full grey beard, kind heavy-lidded eyes, a sickly pallor and faint glassy sheen at the lips (the Glass Cough); dark green and gold imperial robes, an elector's chain of nine links."
       },
       {
         "title": "Arch-Chancellor Mechtild",
@@ -10243,7 +10286,7 @@
           "Nuhai Wolf-Mother",
           "High Chieftain"
         ],
-        "text": "High Chieftain Nuhai Wolf-Mother speaks for the Chieftain Council at Battle Cry City: a grey-muzzled wolf-kin elder with a calm voice that carries across a crowded hall. She wants clan honor kept and slavers off clan land, and fears a danger that finds the clans divided. Clans call her their mother; few raise their voices to her."
+        "text": "High Chieftain Nuhai Wolf-Mother speaks for the Chieftain Council at Battle Cry City: a grey-muzzled wolf-kin elder with a calm voice that carries across a crowded hall. She wants clan honor kept and slavers off clan land, and fears a danger that finds the clans divided. Clans call her their mother; few raise their voices to her.\nAppearance: beastfolk woman (wolf-kin), about 60, grey fur on her ears and tail, a grey-muzzled wise face, calm amber eyes, silver-streaked hair in many braids with bone beads; a heavy wolf-pelt cloak over clan leathers, a carved speaking staff."
       },
       {
         "title": "The Glass Regent Kamran-ul-Sandglass",
@@ -10261,7 +10304,7 @@
           "Bjarnulf Grey-Mantle",
           "Frost King Bjarnulf"
         ],
-        "text": "Frost King Bjarnulf Grey-Mantle leads the Frostbound from a moving war-seat: a giant of a man in a wolf-grey mantle, half his teeth gone, who grins through the gaps. He wants his people fed and southerners off their hunting grounds, and fears winters that grow harsher each year. His warbands trust him; southern border villages dread his name."
+        "text": "Frost King Bjarnulf Grey-Mantle leads the Frostbound from a moving war-seat: a giant of a man in a wolf-grey mantle, half his teeth gone, who grins through the gaps. He wants his people fed and southerners off their hunting grounds, and fears winters that grow harsher each year. His warbands trust him; southern border villages dread his name.\nAppearance: human man (northern), about 60, a giant, enormous and heavy, wild grey hair and a great grey beard, half his teeth gone, fierce pale eyes, scarred hands; a huge wolf-grey fur mantle over iron and leather, a rough iron crown."
       },
       {
         "title": "Svala Spear-Singer",
@@ -10269,7 +10312,7 @@
           "Svala Spear-Singer",
           "Svala"
         ],
-        "text": "Svala Spear-Singer, Frostbound champion, famous for raids in bad winters: a wiry, wind-burned raider who sings the saga of each fight as she fights it. She wants plunder and a saga that outlives her, and fears a death with no one left to sing it. Border villagers bar their doors when they hear singing in the snow."
+        "text": "Svala Spear-Singer, Frostbound champion, famous for raids in bad winters: a wiry, wind-burned raider who sings the saga of each fight as she fights it. She wants plunder and a saga that outlives her, and fears a death with no one left to sing it. Border villagers bar their doors when they hear singing in the snow.\nAppearance: human woman (northern), about 28, tall and fierce, long pale blonde hair in war braids, blue war-paint across her eyes, a singing open mouth; fur and mail, a long spear, a round shield on her back."
       },
       {
         "title": "Herd-Mother Ingvild of Hornwake",
@@ -10278,7 +10321,7 @@
           "Herd-Mother Ingvild",
           "Ingvild"
         ],
-        "text": "Herd-Mother Ingvild of Hornwake, senior voice of the White-Horn Clans: an old rider in sheepskin on a white mammoth who reads the sky for Long Thunder's storms. She wants the herds fed and the clans together, and fears a storm she reads too late. Riders move when she does; traders buy her wool."
+        "text": "Herd-Mother Ingvild of Hornwake, senior voice of the White-Horn Clans: an old rider in sheepskin on a white mammoth who reads the sky for Long Thunder's storms. She wants the herds fed and the clans together, and fears a storm she reads too late. Riders move when she does; traders buy her wool.\nAppearance: human woman (northern), about 70, wiry and weather-beaten, long white hair in many braids, sharp ice-blue eyes in a deeply lined face; layered mammoth-wool and hide, a rider's harness, a staff hung with bells."
       },
       {
         "title": "Seal-Captain Morna Flintgate",
@@ -10287,7 +10330,7 @@
           "Morna",
           "Seal-Captain"
         ],
-        "text": "Seal-Captain Morna Flintgate, dwarf captain of the Order of the Sealwardens: square and lamp-blackened, she checks every ward twice, even those she has just watched another warden check. She wants every warden home from a shift and the seals unbroken, and fears a breach in the Depths. Recruits fear her; adventurers owe her."
+        "text": "Seal-Captain Morna Flintgate, dwarf captain of the Order of the Sealwardens: square and lamp-blackened, she checks every ward twice, even those she has just watched another warden check. She wants every warden home from a shift and the seals unbroken, and fears a breach in the Depths. Recruits fear her; adventurers owe her.\nAppearance: dwarf woman, about 120, square and solid, a lamp-blackened face, short-cropped dark red hair with a soot streak, sharp brown eyes, a ward-chalk stub behind one ear; Sealwarden plate with a lamp emblem, a heavy lantern and a seal-hammer."
       },
       {
         "title": "Liesel Brandt",
@@ -10331,7 +10374,7 @@
           "Gisbert",
           "First Marshal"
         ],
-        "text": "First Marshal Gisbert Lohr, elected head of the Wallwright League: a tall, mortar-scarred builder who wears a leather apron over his mail and taps a wall with his knuckles before he trusts it. He wants the League's walls held and charter fees paid, and fears building a wall of conquest. Every crown wants his engineers."
+        "text": "First Marshal Gisbert Lohr, elected head of the Wallwright League: a tall, mortar-scarred builder who wears a leather apron over his mail and taps a wall with his knuckles before he trusts it. He wants the League's walls held and charter fees paid, and fears building a wall of conquest. Every crown wants his engineers.\nAppearance: human man, about 50, tall and lean, mortar-scarred hands, short brown hair greying, a long patient face, grey eyes; a leather builder's apron over chainmail, a marshal's baton and a mason's square."
       },
       {
         "title": "The Wren",
@@ -10373,7 +10416,7 @@
           "Warmother Ruskha",
           "Warmother"
         ],
-        "text": "Warmother Ruskha leads the Cinder Host, chosen in war: a grey-streaked orc commander who wears a burnt deed as a sash. She wants plunder for her people and chains broken, and fears a real army turning west. The Northern Belt calls her horde-queen; her followers, Warmother."
+        "text": "Warmother Ruskha leads the Cinder Host, chosen in war: a grey-streaked orc commander who wears a burnt deed as a sash. She wants plunder for her people and chains broken, and fears a real army turning west. The Northern Belt calls her horde-queen; her followers, Warmother.\nAppearance: orc woman, about 50, tall and heavy-shouldered, green-grey skin, grey-streaked black hair in a warrior's topknot, tusks, battle scars, hard amber eyes; dark leather and iron, a sash made of a burnt deed with a broken seal, a great axe."
       },
       {
         "title": "Nix Tallow-Tongue, the Ledger-Eater",
@@ -10382,7 +10425,7 @@
           "Ledger-Eater",
           "Nix"
         ],
-        "text": "Nix Tallow-Tongue, the Ledger-Eater, the Cinder Host's champion: a small, grinning goblin who eats a page of every register she burns. She wants no debt book left in the west, and fears only being left behind by her Host. Barrens towns bar their record rooms when she comes."
+        "text": "Nix Tallow-Tongue, the Ledger-Eater, the Cinder Host's champion: a small, grinning goblin who eats a page of every register she burns. She wants no debt book left in the west, and fears only being left behind by her Host. Barrens towns bar their record rooms when she comes.\nAppearance: goblin woman, about 30, small and wiry, grey-green skin, big pointed ears with many rings, a huge sharp-toothed grin, wild black hair, ink-stained mouth; patched raider leathers, a torch and a satchel of torn ledger pages."
       },
       {
         "title": "Corvan Ashwick",
@@ -10416,7 +10459,7 @@
           "Captain Hale",
           "Hale of the Forty-Second Debt"
         ],
-        "text": "Captain Hale of the Forty-Second Debt, collared captain of the Grey Ledger's debt-slave company: a grizzled veteran with a keyed collar who knows every soldier's debt to the coin and recites it without looking. She wants her soldiers' debts worked off, and fears the Ledger's next reckoning."
+        "text": "Captain Hale of the Forty-Second Debt, collared captain of the Grey Ledger's debt-slave company: a grizzled veteran with a keyed collar who knows every soldier's debt to the coin and recites it without looking. He wants his soldiers' debts worked off, and fears the Ledger's next reckoning.\nAppearance: human man, about 45, lean and hard, a shaved head, an iron debt-collar around his neck, a tired weathered face, watchful grey eyes; worn mercenary leathers and a short sword, a tally of debts tattooed on his forearm."
       },
       {
         "title": "Captain Dagan of the Red Tally",
@@ -10425,7 +10468,7 @@
           "Captain Dagan",
           "Red Tally"
         ],
-        "text": "Captain Dagan of the Red Tally, Bloodbound captain: a broad, patient orc who keeps every dead soldier's share in a ledger strapped to his chest. He wants every share paid to the dead soldier's kin and every contract honored, and fears a debt to the dead left standing. His soldiers trust his count; paymasters dread it."
+        "text": "Captain Dagan of the Red Tally, Bloodbound captain: a broad, patient orc who keeps every dead soldier's share in a ledger strapped to his chest. He wants every share paid to the dead soldier's kin and every contract honored, and fears a debt to the dead left standing. His soldiers trust his count; paymasters dread it.\nAppearance: orc man, about 50, broad and patient, green-grey skin, a grey-streaked beard and short tusks, calm dark eyes; mercenary half-plate, a thick leather ledger strapped across his chest, a red sash, a heavy sword."
       },
       {
         "title": "Archprelate Cassian Vell",
@@ -10434,7 +10477,7 @@
           "Cassian",
           "Archprelate"
         ],
-        "text": "Archprelate Cassian Vell of Aurelion (human): Head of the Church of the Eternal Flame in practice. A soft-voiced politician more than a believer: he named the Silent Bells 'a test', fears schism more than heresy, and will sacrifice a saint to keep the Church whole.\nAppearance: human man, about 70, tall and gaunt, clean-shaven, thin white hair, heavy-lidded dark eyes, long fingers heavy with rings; crimson-and-gold vestments, a tall flame mitre, a heavy gold flame on a chain; calm, soft-spoken, calculating."
+        "text": "Archprelate Cassian Vell of Aurelion (human): Right hand of High Pontiff Benedikt IV, the revered head of the Church of the Eternal Flame; he runs the Church day to day. A soft-voiced politician more than a believer: he named the Silent Bells 'a test', fears schism more than heresy, and will sacrifice a saint to keep the Church whole.\nAppearance: human man, about 70, tall and gaunt, clean-shaven, thin white hair, heavy-lidded dark eyes, long fingers heavy with rings; crimson-and-gold vestments, a tall flame mitre, a heavy gold flame on a chain; calm, soft-spoken, calculating."
       },
       {
         "title": "The Sunrise Man (the Pretender)",
