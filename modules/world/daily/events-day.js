@@ -15,6 +15,7 @@ import { modifierProduct, requiresHold } from './requires.js';
 import { cascadeState, preEmpted, windowAnchor } from './cascade.js';
 import { isThreshold, thresholdHolds } from './threshold.js';
 import { markedChance } from './director-mark.js';
+import { waitedChance } from './waits.js';
 
 const FINISHED = new Set(['ended', 'lapsed', 'replaced']);
 
@@ -38,12 +39,12 @@ function endsToday(ws, def, row, day) {
     return def.ends.anyOf.some(text => (isThreshold(text) ? thresholdHolds(ws, text) : happenedSince(ws, text, row.fired, day)));
 }
 
-/** Roll and, on a hit, fire when the caps allow (set-in-motion fires over them). */
+/** Roll and, on a hit, fire when the caps allow (set-in-motion, and a waited beat forced on its last day, fire over them). */
 function attempt(ws, def, day, given, bind) {
     const row = ws.events[def.id];
     row.state = 'eligible';
     // The Director's stored verdict on today's roll (director-mark.js): a veto discards it, a weight scales its odds.
-    const { chance, veto } = markedChance(ws, def, day, given);
+    const { chance, veto } = given.forced ? { chance: given, veto: '' } : markedChance(ws, def, day, given);
     if (veto) { ws.log.push({ kind: 'roll', key: def.id, day, result: 'vetoed (Director)' }); return; }
     if (chance.blocked) { ws.log.push({ kind: 'roll', key: def.id, day, result: 'blocked (×0)' }); return; }
     const roll = rollChance(ws.draw, day, def.id, chance);
@@ -51,7 +52,7 @@ function attempt(ws, def, day, given, bind) {
     if (!roll.hit) return;
     const realms = eventRealms(ws, def, bind);
     const major = def.severity === 'major';
-    const block = major && def.certainty !== 'set-in-motion' ? capBlock(ws, realms, day) : '';
+    const block = major && def.certainty !== 'set-in-motion' && !given.forced ? capBlock(ws, realms, day) : '';
     if (block) { ws.log.push({ kind: 'cap', key: def.id, day, why: block }); return; }
     if (major) takeSlots(ws, realms, day);
     fireEvent(ws, def, day, bind, realms);
@@ -93,7 +94,10 @@ function oneEvent(ws, def, day) {
     if (oncePerStretch(def) && day < seededDay(ws, def, span)) { row.state = 'eligible'; return; }
     const days = def.chance?.per === 'season' || !win.length ? span.length : win.length;
     const left = win.end === null ? 1 : win.end - day + 1;
-    attempt(ws, def, day, dailyChance(def, { days, left, m }), null);
+    let chance = dailyChance(def, { days, left, m });
+    if (def.waitsFor) chance = waitedChance(ws, def, chance, { day, last: day >= win.end });
+    if (!chance) { row.state = 'eligible'; return; }
+    attempt(ws, def, day, chance, null);
 }
 
 function recurring(ws, def, day) {

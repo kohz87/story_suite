@@ -1,7 +1,7 @@
 // World events, the daily step: a pack's events and templates as the step reads them (spec v0.10 §3, §5). The install check
 // (packs/validate) owns the full refusal rules; here an event the step cannot read is left out with a warning, never guessed. Pure.
 
-import { anchorString, conditionString, isConditionEntry } from './grammar.js';
+import { anchorString, conditionString, isConditionEntry, partyTerm } from './grammar.js';
 import { durationDays } from './durations.js';
 import { isThreshold, thresholdProblem, thresholdString } from './threshold.js';
 import { readOpen } from './open-read.js';
@@ -29,7 +29,15 @@ function modifiers(raw) {
 
 // A threshold (`power:<id> >= N`, v0.13) is allowed only where `thresholds` is true: requires, requires_any, ends_when.any_of.
 function entriesOk(entries, thresholds = false) {
-    return entries.every(item => (isThreshold(item) ? thresholds && !thresholdString(item).why : isConditionEntry(item) ? conditionString(item) : anchorString(item)));
+    return entries.every(item => (isThreshold(item) ? thresholds && !thresholdString(item).why : partyTerm(item) || (isConditionEntry(item) ? conditionString(item) : anchorString(item))));
+}
+
+/** `waits_for`: "near" | "in" (the event's own `where`) or one of { near: [regions] } / { in: [regions] } → { term, regions }; anything else null. */
+function waitsOf(raw) {
+    if (raw === 'near' || raw === 'in') return { term: raw, regions: null };
+    const [term, ...more] = isRecord(raw) ? Object.keys(raw) : [];
+    if (more.length || (term !== 'near' && term !== 'in') || !Array.isArray(raw[term]) || !raw[term].length || !raw[term].every(each => typeof each === 'string')) return null;
+    return { term, regions: raw[term] };
 }
 
 /** The first threshold in `entries` that is written wrongly → why, else ''. */
@@ -75,6 +83,8 @@ export function readEvent(raw) {
     const likelier = modifiers(raw.likelier_if);
     const less = modifiers(raw.less_if);
     if (!likelier || !less) return bad('likelier_if / less_if values are ×N.');
+    const waitsFor = raw.waits_for === undefined ? null : waitsOf(raw.waits_for);
+    if (raw.waits_for !== undefined && (!waitsFor || kind === 'recurring' || !window || window.fixed)) return bad('waits_for is "near", "in", { "near": [regions] } or { "in": [regions] }, on an event with a window.');
     let cooldown = null;
     if (raw.cooldown !== undefined) {
         const match = /^(.+?)( per place)?$/.exec(String(raw.cooldown).trim());
@@ -89,7 +99,7 @@ export function readEvent(raw) {
             where, requires, requiresAny, window, chance, likelier: [...likelier, ...less], preEmptedBy: list(raw.pre_empted_by),
             outcomes: Array.isArray(raw.outcomes) ? raw.outcomes : [], effects: isRecord(raw.effects) ? raw.effects : {},
             ends, cooldown, summary: typeof raw.summary === 'string' ? raw.summary : id, title: typeof raw.title === 'string' ? raw.title : id,
-            evenInParty: raw.even_in_party === true,
+            evenInParty: raw.even_in_party === true, ...(waitsFor ? { waitsFor } : {}),
             anchorMode: raw.anchor_mode === 'each' || raw.anchor_mode === 'first' ? raw.anchor_mode : kind === 'recurring' ? 'each' : 'first',
             group: certainty === 'set-in-motion' ? GROUP['set-in-motion'] : GROUP[kind],
         },
