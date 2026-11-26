@@ -73,4 +73,7 @@ export const RULE_LINES = Object.freeze({
     // A later `+ xp` in a reply that names another standing group counts that group's foes down and pays nothing (Text RPG module-parts/kinds/xp.js).
     // A reply with no mark refuses every `+ xp` after the first.
     xpCountsDown: line => line?.kind === 'xp',
+    // A `~ faction` line whose words say the group is finished (wiped out, disbanded and the like) ends the faction as `- faction` does (Story
+    // Director chronicle/capture/faction-gone.js). A reply with no mark keeps updating the faction.
+    factionGone: line => line?.kind === 'faction' && line.op === '~',
 });

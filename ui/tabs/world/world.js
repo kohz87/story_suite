@@ -50,7 +50,7 @@ export function worldTab(world = {}, ctx = {}) {
       const current = target?.kind === 'news' ? { name: item?.title, summary: item?.summary, state: item?.state, place: item?.placeId ? names(data.places, item.placeId) : '' }
         : target?.kind === 'faction' ? { name: item?.name, summary: item?.summary, area: item?.areaText ?? '', stance: item?.stanceText ?? '' }
           : { name: item?.name, kind: item?.kind, region: item?.region };
-      return ctx.edit?.({ ...target, current });
+      return ctx.edit?.({ ...target, current, ...(target?.kind === 'news' && item?.kind === 'event' ? { thread: true } : {}) });
     },
     openPerson: personId => ctx.go?.('people', { personId }),
     setView(view) { closeSheet(); state.view = view; if (keyOf(ctx)) chosen.set(keyOf(ctx), view); render(); },

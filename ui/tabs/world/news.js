@@ -2,7 +2,7 @@
 import { h } from '../../kit/dom.js';
 import { chip, button } from '../../kit/controls.js';
 
-const FILTERS = Object.freeze([['all', 'All'], ['looming', 'Looming'], ['ongoing', 'Ongoing'], ['rumour', 'Rumours'], ['resolved', 'Resolved']]);
+const FILTERS = Object.freeze([['all', 'All'], ['looming', 'Looming'], ['ongoing', 'Ongoing'], ['rumour', 'Rumours'], ['resolved', 'Resolved'], ['older', 'Older']]);
 
 /** Words when and from whom an event was last heard, e.g. "last news: heard in Bluewatch, this morning · from Oyla". */
 export function heardLine(heard = []) {
@@ -17,7 +17,9 @@ export function heardLine(heard = []) {
 
 // The Rumours filter follows the label an item shows: its last heard stamp says "rumour".
 const isRumour = n => n.heard?.[n.heard.length - 1]?.how === 'rumour';
-const matches = (n, key) => key === 'all' || (key === 'rumour' ? n.state === 'rumour' || isRumour(n) : n.state === key);
+// Old news (stale) is under Older, apart from the states it no longer counts under; All lists it last.
+const matches = (n, key) => key === 'all' || (key === 'older' || n.stale ? key === 'older' && n.stale === true
+  : key === 'rumour' ? n.state === 'rumour' || isRumour(n) : n.state === key);
 
 function link(text, onClick, extra) {
   return h('a', { href: '#', class: 'xlink', ...extra, onClick: (e) => { e.preventDefault?.(); onClick(); } }, text);
@@ -29,7 +31,7 @@ function eventRow(n, act) {
   return h('div', { class: 'ev', dataset: { event: n.id, state: n.state } },
     h('div', { class: 'eh' },
       h('b', null, n.title),
-      h('span', { class: ['st', n.state] }, n.state),
+      h('span', { class: ['st', n.stale ? 'old' : n.state] }, n.stale ? 'old news' : n.state),
       button({ label: 'Edit', ariaLabel: `Edit ${n.title}`, className: 'ed', onClick: () => act.edit({ kind: 'news', id: n.id }) })),
     h('p', null, n.summary),
     h('div', { class: 'meta2' },
@@ -46,15 +48,17 @@ export function newsCard(news, state, act) {
   const list = h('div', { class: 'evlist' });
   const bar = h('div', { class: 'fil' });
   const draw = () => {
-    const shown = items.filter(n => matches(n, state.filter ?? 'all'));
+    const shown = items.filter(n => matches(n, state.filter ?? 'all')).sort((a, b) => Number(a.stale === true) - Number(b.stale === true));
     list.replaceChildren(...shown.map(n => eventRow(n, act)));
-    bar.replaceChildren(...FILTERS.map(([key, label]) => chip({
+    // The Older chip is there only when there is old news.
+    bar.replaceChildren(...FILTERS.filter(([key]) => key !== 'older' || items.some(n => n.stale)).map(([key, label]) => chip({
       label: [label, h('small', null, items.filter(n => matches(n, key)).length)],
       pressed: (state.filter ?? 'all') === key,
       dataset: { nf: key },
       onClick: () => { state.filter = key; draw(); },
     })));
   };
+  if (state.filter === 'older' && !items.some(n => n.stale)) state.filter = 'all';
   draw();
   return h('section', { class: 'card glass', dataset: { card: 'news' } },
     h('div', { class: 'ch' }, h('h3', null, 'News'), h('span', { class: 'cnt' }, 'what you have heard')),

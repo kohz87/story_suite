@@ -2,6 +2,7 @@
 // public names): `faction` lines and their summaries. A safety-net line protects the stance of a faction known before its answer.
 
 import { MAX_FACTIONS, MAX_NAME, cleanName, cleanSummary, findIn, isRecord, keyOf, newId, revOf } from '../domain.js';
+import { saysGone } from './faction-gone.js';
 import { CLEAR, asText, labelOf, lineText, sentence } from './text.js';
 
 export function changeFaction(faction, fields, rev) {
@@ -20,6 +21,8 @@ function factionSummary(faction) {
     return sentence(`Faction: ${faction.name}${about ? ` (${about})` : ''}${faction.summary ? ` — ${faction.summary}` : ''}.`);
 }
 
+const namesOf = faction => (faction ? [faction.name, ...(faction.aka ?? [])] : []);
+
 const optionalText = value => (value === undefined ? undefined : CLEAR.test(asText(value).trim()) ? '' : cleanName(value));
 
 /** `apply(ctx, line)` for `faction` lines. */
@@ -33,7 +36,9 @@ export function applyFactionLine(ctx, line) {
     const found = findIn(chronicle.factions, name);
     const rev = revOf(ctx);
 
-    if (op === '-') {
+    // A `~` line that says the group is finished ends it as `-` does (rule mark `factionGone`: an older reply keeps its update on a Re-read).
+    const gone = op === '~' && ctx.carrier?.rules?.includes('factionGone') && saysGone(line?.text, [name, ...namesOf(found)], Object.values(chronicle.factions).filter(other => other.id !== found?.id).flatMap(namesOf));
+    if (op === '-' || gone) {
         if (!found) return ctx.fail('NOT_FOUND', `There is no faction "${name}" in the chronicle.`);
         delete chronicle.factions[found.id];
         const why = cleanSummary(line?.text);
