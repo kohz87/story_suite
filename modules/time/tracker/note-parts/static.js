@@ -10,6 +10,9 @@ const RULES = [
 // Pacing, shortened: the "never decide what {{user}} does" rule is in the line above.
 const PACING_V2 = 'Pacing: a due item comes in only where it fits (on-screen if {{user}} is there, else later as news, signs or aftermath); never cut into or bend the scene for a beat. What cannot fit yet happens off-screen (!) or waits.';
 
+// A breather between chains of events; always sent.
+const BREATHE = 'Let the story breathe: a chain of events builds to a resolution and then closes; after a few beats, bring it to an end rather than escalating again. When a chain of events or an arc is resolved, give the next replies to aftermath, rest, travel or quiet time with people, or skip ahead, unless {{user}} starts something. While a chain is running, a new beat grows out of what is already on screen; not every reply needs a new beat, clock or deadline, and deadlines are days, not minutes, unless the danger is already in the scene.';
+
 /**
  * The Director's part of the static prompt: no names, counts, times or dice. The same bytes for one
  * set of modules. `threads: false` leaves out the Pacing paragraph, which belongs to the feature
@@ -19,7 +22,7 @@ const PACING_V2 = 'Pacing: a due item comes in only where it fits (on-screen if 
  * names and no real-world day or month names. The calendar is a setting, so the line is the same every reply of a story.
  */
 export function staticText({ threads = true, calendarRule = '' } = {}) {
-    return [...RULES, calendarRule, threads ? PACING_V2 : ''].filter(Boolean).join('\n');
+    return [...RULES, calendarRule, BREATHE, threads ? PACING_V2 : ''].filter(Boolean).join('\n');
 }
 
 /** The Pacing paragraph (a due item comes in only where it fits), the feature `story-director.threads`' own. */

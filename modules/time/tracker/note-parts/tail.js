@@ -16,6 +16,7 @@ import { TAIL_BUDGET, TAIL_THREADS } from './budgets.js';
 import { staticText } from './static.js';
 import { withoutEncounters } from './encounters.js';
 import { tailThreads } from './tail-threads.js';
+import { pacingLines } from './pacing.js';
 
 // All neutral instructions keep hook identity.
 const v2Lines = value => value.replace(/\bquest Key\b/g, 'hook Key');
@@ -101,13 +102,15 @@ export function directorTail(view, { budget = TAIL_BUDGET } = {}) {
         .map(problem => ({ ...problem, message: problem.turn })), { message });
     // Who takes the initiative in this reply (initiative.js): its line is kept, so its room comes first.
     const initiative = initiativeTail(view, { scene });
-    const initiativeCost = initiative ? estimateTokens(`\n${initiative}`) : 0;
+    // The breather, wrap-up and quiet-scene lines (pacing.js) are kept too: the same.
+    const pacing = pacingLines(view, kept, { state, threads, read: director.threads });
+    const pinnedCost = (initiative ? estimateTokens(`\n${initiative}`) : 0) + pacing.reduce((sum, entry) => sum + estimateTokens(`\n${entry.text}`), 0);
     const instruction = staticText({ fights, threads, calendarRule: calendarRule(calendar) });
     const total = budget + estimateTokens(instruction);
     let parts = noteParts(selection, {
         calendar,
         // v1's budget counts the instruction too; here it is in the static part.
-        budgetTokens: total - initiativeCost,
+        budgetTokens: total - pinnedCost,
         corrections,
         instruction,
         givenUp: givenUpIn(tracker, said),
@@ -116,24 +119,26 @@ export function directorTail(view, { budget = TAIL_BUDGET } = {}) {
     });
     // The rest {{user}} knows of, by name, at most `elsewhere` of them, while the budget has room.
     const others = split.elsewhere.filter(entry => knownToUser(entry.record)).slice(0, elsewhereCap(settings)).map(entry => elsewhereItem(entry.record));
-    const room = total - initiativeCost - estimateTokens(joined(parts));
+    const room = total - pinnedCost - estimateTokens(joined(parts));
     while (others.length && estimateTokens(`\n${elsewhereLine(others)}`) > room) others.pop();
     const extra = [
         initiative ? { label: 'Initiative', text: initiative, join: '\n' } : null,
         others.length ? { label: 'Elsewhere', text: elsewhereLine(others), join: '\n' } : null,
     ].filter(Boolean);
     // A note with nothing else in it still says when and where it is.
-    if (extra.length && !parts.some(entry => entry.label === 'Header')) parts = [{ label: 'Header', text: noteHeader(selection, calendar), join: '\n' }, ...parts];
+    if ((extra.length || pacing.length) && !parts.some(entry => entry.label === 'Header')) parts = [{ label: 'Header', text: noteHeader(selection, calendar), join: '\n' }, ...parts];
     // The static part says there are no weekdays (calendarRule): the tail's own line for it would say it twice.
-    // The time-gap cue goes right after the Header.
+    // The time-gap cue goes right after the Header, the pacing lines after it.
     const cue = gapLine(view, now);
-    if (cue) {
+    const lead = [cue ? { label: 'Time gap', text: cue, join: '\n' } : null, ...pacing].filter(Boolean);
+    if (lead.length) {
         const at = parts.findIndex(entry => entry.label === 'Header') + 1;
-        parts = [...parts.slice(0, at), { label: 'Time gap', text: cue, join: '\n' }, ...parts.slice(at)];
+        parts = [...parts.slice(0, at), ...lead, ...parts.slice(at)];
     }
     if (calendarRule(calendar)) parts = parts.filter((entry, index) => !index || entry.label !== 'No weekdays');
     const text = v2Lines(tailNote(insertAfterKinds(parts, extra)));
-    // The Initiative line is kept (Story Block pins a `{ text, keep: true }` tail line under a tight budget); the rest are plain lines.
-    const pinnedLine = initiative ? v2Lines(initiative).trimEnd() : '';
-    return { lines: text ? text.split('\n').map(line => (pinnedLine && line.trimEnd() === pinnedLine ? { text: line, keep: true } : line)) : [], optional: [] };
+    // The Initiative and pacing lines are kept (Story Block pins a `{ text, keep: true }` tail line under a tight budget, while
+    // its shared room lasts); the rest are plain lines.
+    const pinned = new Set([initiative, ...pacing.map(entry => entry.text)].filter(Boolean).map(line => v2Lines(line).trimEnd()));
+    return { lines: text ? text.split('\n').map(line => (pinned.has(line.trimEnd()) ? { text: line, keep: true } : line)) : [], optional: [] };
 }

@@ -6,7 +6,7 @@
  * `agenda` carries the five world-building threads, `hook` the hook and the quest, `time` itself.
  */
 export const GRAMMAR = Object.freeze({
-    agenda: '+ agenda|event|clock|beat|secret Name — summary | label: value. Labels: agenda now (where), then (what next), on, leg, arrive; event then, on; clock due, shown: none|sign|warning; beat on, reach (what it changes for {{user}}), encounter (the foes, for a fight); a secret is what must not be revealed yet. Write one whenever the story sets something moving, e.g. + agenda Person A\'s errand — buys goods at Place X | then: back at dusk; + event Festival at Place X — stalls fill the square; + clock Rising water — the level climbs | shown: sign; + beat Offer from Person B — an answer is wanted | reach: {{user}} must choose',
+    agenda: '+ agenda|event|clock|beat|secret Name — summary | label: value. Labels: agenda now (where), then (what next), on, leg, arrive; event then, on; clock due, shown: none|sign|warning; beat on, reach (what it changes for {{user}}), encounter (the foes, for a fight); a secret is what must not be revealed yet. Write one when the story sets something new moving (not every reply does), e.g. + agenda Person A\'s errand — buys goods at Place X | then: back at dusk; + event Festival at Place X — stalls fill the square; + clock Rising water — the level climbs | shown: sign; + beat Offer from Person B — an answer is wanted | reach: {{user}} must choose',
     event: '',
     clock: '',
     beat: '',

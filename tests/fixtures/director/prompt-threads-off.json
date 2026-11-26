@@ -1,5 +1,5 @@
 {
-  "static": "Director lines: ~ only what changed, never the whole list; - closes it (— reason); ! fires a due item (— what happened). Only on, due and arrive take a date, as <date, clock time>. Never write or decide what {{user}} does.\nInitiative: whoever the note names under Initiative takes the first step (approach, interrupt or ask) where the scene allows; {{user}}'s part stays theirs.",
+  "static": "Director lines: ~ only what changed, never the whole list; - closes it (— reason); ! fires a due item (— what happened). Only on, due and arrive take a date, as <date, clock time>. Never write or decide what {{user}} does.\nLet the story breathe: a chain of events builds to a resolution and then closes; after a few beats, bring it to an end rather than escalating again. When a chain of events or an arc is resolved, give the next replies to aftermath, rest, travel or quiet time with people, or skip ahead, unless {{user}} starts something. While a chain is running, a new beat grows out of what is already on screen; not every reply needs a new beat, clock or deadline, and deadlines are days, not minutes, unless the danger is already in the scene.\nInitiative: whoever the note names under Initiative takes the first step (approach, interrupt or ask) where the scene allows; {{user}}'s part stays theirs.",
   "kinds": [
     {
       "kind": "check",
