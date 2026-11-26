@@ -30,5 +30,5 @@ test('beside the Ersveil pair: neither add-on is selected or displaces the selec
     for (const id of Object.keys(ADD_ONS)) assert.equal(await installed.select('game', id), false, `${id} is an add-on: never selected`);
     assert.deepEqual(installed.selected(), { world: 'ersveil', game: 'ersveil-game' });
     const modules = installed.packs().flatMap(pack => (pack.content?.dataModules ?? []).map(module => `pack.${pack.id}/${module.slug}`));
-    assert.deepEqual(modules.sort(), ['pack.ersveil-factions/reputation', 'pack.ersveil-game/fame', 'pack.ersveil-game/guild-membership', 'pack.ersveil-game/standing', 'pack.ersveil-survival/survival'], 'the selected game\'s own modules, then each add-on\'s');
+    assert.deepEqual(modules.sort(), ['pack.ersveil-factions/reputation', 'pack.ersveil-game/fame', 'pack.ersveil-game/guild-membership', 'pack.ersveil-game/holding', 'pack.ersveil-game/standing', 'pack.ersveil-survival/survival'], 'the selected game\'s own modules, then each add-on\'s');
 });

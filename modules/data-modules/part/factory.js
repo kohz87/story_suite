@@ -11,6 +11,8 @@ import { createCore } from './core.js';
 import { createSkills } from './skills.js';
 import { createParty } from './party.js';
 import { createAct } from './act.js';
+import { holdingOf } from '../holding/read.js';
+import { MONTH_CUE_TOKENS, monthCue } from '../holding/tail.js';
 import { createBlocks } from './blocks.js';
 import { createFields } from './fields.js';
 import { validateDomain, resolveModule, moduleView, pinnedPresentation, grammarFor, replayInputs } from './views.js';
@@ -61,7 +63,7 @@ export function createDataModulesPart(opts = {}) {
             } },
             dm: kind, party: { grammar: hint => { const lib = rpgLib(); return lib === null ? '' : hint?.view?.rule?.('partyFields') ?? true ? lib.joinGrammarOwn(lib.soulNaming(hint?.view?.state ?? state())) : lib.joinGrammar(); }, feature: LEAN_RPG_FEATURE, get enabled() { const lib = rpgLib(); return lib !== null && lib.joinMode(settings()) !== 'off' && lib.partyOf(state()).length > 0; }, apply: wrap(d.party) } },
         queries: { 'dataModules.offers': offers, 'dataModules.view': moduleView, 'dataModules.public': publicView,
-            'dataModules.replayInputs': replayInputs, 'dataModules.actors': actorsOf,
+            'dataModules.replayInputs': replayInputs, 'dataModules.actors': actorsOf, 'dataModules.holding': holdingOf,
             'dataModules.setup': prefix => {
                 const installed = offers(), rows = [...installed];
                 for (const [module, active] of Object.entries(prefix.domains?.dataModules?.active ?? {})) if (!rows.some(row => row.module === module)) {
@@ -105,10 +107,14 @@ export function createDataModulesPart(opts = {}) {
                     const played = ended || typeof view.interactionStop === 'string';
                     lines.push(...(lib?.boardReplyGrammar?.(view.state, { fight, ended, played }) ?? []));
                 }
+                const cue = monthCue(view);
+                if (cue) lines.push(cue);
                 return { lines, optional: [] };
             },
             // Tail room for the lines above: 100 tokens for each pinned module (300 for one with a role), on top of the core's own; none without a pin.
-            extra: () => Object.keys(state()?.domains?.dataModules?.active ?? {}).slice(0, L.pins).reduce((sum, id) => quietRole(activeDefinition(state(), id), replaced()) ? sum : sum + tailRoom(activeDefinition(state(), id), true, instanceOf(state(), id)?.fields), 0),
+            extra: () => Object.keys(state()?.domains?.dataModules?.active ?? {}).slice(0, L.pins).reduce((sum, id) => quietRole(activeDefinition(state(), id), replaced()) ? sum : sum + tailRoom(activeDefinition(state(), id), true, instanceOf(state(), id)?.fields), 0)
+                // (room for the holding's monthly reminder, kept whether or not this reply has it)
+                + (holdingOf(state()) ? MONTH_CUE_TOKENS : 0),
         },
     };
 }

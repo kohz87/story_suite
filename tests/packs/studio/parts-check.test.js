@@ -108,7 +108,7 @@ test('a game pack shows what it holds, with counts, plus Overview and Problems',
     const parts = partsOf(JSON.parse(ERSVEIL_GAME));
     assert.deepEqual(parts.map(part => part.id), ['overview', 'calendar', 'money', 'weather', 'names', 'rules', 'trackers', 'game-start', 'problems']);
     assert.deepEqual(parts.find(part => part.id === 'rules').sections.map(section => section.key), ['you', 'rpg']);
-    assert.equal(parts.find(part => part.id === 'trackers').sections.find(section => section.key === 'dataModules').count, 3);
+    assert.equal(parts.find(part => part.id === 'trackers').sections.find(section => section.key === 'dataModules').count, 4);
 });
 
 test('a world pack shows lore, the map parts, conditions with the starting world, events, templates and powers', () => {

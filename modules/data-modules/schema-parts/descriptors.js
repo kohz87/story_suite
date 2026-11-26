@@ -19,7 +19,9 @@ export const DM_DESCRIPTORS = freeze({
     layouts: ['cards', 'bars', 'fields'],
     roleKeys: ['field', 'title', 'status', 'step'],
     toneNames: ['active', 'done', 'failed', 'neutral'],
-    kind: { required: ['op', 'labels', 'effects'], optional: ['when', 'refusal', 'oncePerReply', 'ui', 'check', 'title'] },
+    // (`refusals`: when `when` is false, each entry whose own `when` holds adds its `text` to the refusal, so it can name what is missing)
+    kind: { required: ['op', 'labels', 'effects'], optional: ['when', 'refusal', 'refusals', 'oncePerReply', 'ui', 'check', 'title'] },
+    refusalPart: { required: ['when', 'text'], optional: [] },
     ops: [...OPS],
     effects: {
         set: { required: ['op', 'path', 'value'], optional: [] },

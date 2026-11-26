@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Ersveil rules 1.2.0: your own holding. Found a company, fief or trading house in the story and grow it; Story › Trackers shows its seat, people, treasury, renown, loyalty, tier and upkeep.
 - Story: the narrator now lets things breathe, with calm replies after trouble is settled, a nudge to wrap up long chains of events, and Quiet scene now also holds back new threads.
 - NPC State: the narrator now knows the next secret of someone present so it won't invent another past, and a story that earns it can bring it out, even before its pack condition is met.
 - Choices: long choices show in full instead of being cut with "…" at 160 characters.

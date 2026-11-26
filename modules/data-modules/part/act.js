@@ -8,6 +8,7 @@ import { hashJson } from '../../../core/replay.js';
 import { fold, readSheet } from '../../rpg/read.js';
 import { LEAN_RPG_FEATURE } from '../../rpg/names.js';
 import { replacedLine } from './replaced.js';
+import { refusalText } from '../interpreter-parts/refusal-text.js';
 import { XP_RATE, scaleXp, xpRateFrom, xpRateOf } from '../../rpg/levels.js';
 import { FOE_LEVEL, averageLevel, bandOfRank, foeRandom, foeLevelCap, levelOf, partyLevels, pickLevel } from '../../rpg/foes.js';
 import { SKILL_SLOTS_MAX, SLOT_NUMBER, isTypedSkills, stanceTypeOf } from '../../../core/runtime/skill-slots.js';
@@ -186,7 +187,7 @@ export function createAct(deps) {
         else if (route?.update) evaluation.effects(['about', 'stat', 'uses'].filter(key => dmOwn(definition.state, `${key}${route.slot}`)).map(key => ({ op: 'set', path: [`${key}${route.slot}`], value: ['arg', key] })), { arg: args });
         else {
             const run = route ? definition.kinds[route.kind] : kind;
-            if (!evaluation.condition(['kind', route?.kind ?? labels.kind], run.when, { arg: args })) refuse('DM_CONDITION', '', run.refusal ?? 'Kind condition is not met.');
+            if (!evaluation.condition(['kind', route?.kind ?? labels.kind], run.when, { arg: args })) refuse('DM_CONDITION', '', refusalText(run, evaluation, instance.fields, args));
             evaluation.effects(run.effects, { arg: args });
             // A marked Character's bar is lowered by the story, never raised (a rest, a full rest or a heal does that).
             const raised = SET_KINDS[labels.kind];

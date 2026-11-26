@@ -967,5 +967,13 @@
   "examples/text-rpg/tests/gear-wis.test.js": "Tests that gear's sixth stat counts as Text RPG's wis by position, and that `gear.statLabels` answers Text RPG's names while it is on.",
   "modules/people/meters/npc-lines-parts/toward.js": "Reads the toward: label of a ~ npc line (who the reader is to this person now, one sentence) and gives it, clipped, as the dossier's relationshipSummary; a value that says nothing is refused.",
   "tests/people/npc-lines-toward.test.js": "Tests the toward: label: it writes Who you are to them, a hand-edited or dead person's summary stays, an unmarked Re-read never writes it, replay equals live, and the rule is sent.",
-  "modules/time/tracker/note-parts/pacing.js": "Story Director's note: the tail's breather, wrap-up and quiet-scene cues, read from the threads' reply counts, beat dates and the story clock."
+  "modules/time/tracker/note-parts/pacing.js": "Story Director's note: the tail's breather, wrap-up and quiet-scene cues, read from the threads' reply counts, beat dates and the story clock.",
+  "modules/data-modules/check/refusal-parts.js": "Checks a data module kind's refusals: conditions that each add a sentence to its refusal.",
+  "modules/data-modules/interpreter-parts/refusal-text.js": "Words what a refused data line is told, from the kind's refusal and the refusals that hold.",
+  "modules/data-modules/holding/read.js": "Finds the player's founded holding among a chat's data modules.",
+  "modules/data-modules/holding/tail.js": "Writes the holding's line in the prompt tail and the reminder when a new story month begins.",
+  "modules/world/daily/party-regions.js": "Gives the party's regions for world events' proximity terms: the scene's and the holding seat's.",
+  "modules/world/chronicle/world-daily/holding.js": "Records the founded holding and its claimed seat as world anchors on the reply.",
+  "tests/packs/ersveil-holding.test.js": "Tests Your Holding in the Ersveil rules: its story lines, tier bars, upkeep, tail line, tracker card and replay.",
+  "tests/modules/world/daily/holding-host.test.js": "Tests the holding's monthly reminder, its world anchors and the party's regions on the real host."
 }

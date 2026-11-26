@@ -235,6 +235,21 @@ The form opens a definition only when it can reproduce it without discarding oth
 It can also reopen the earlier editor's generated numeric change kinds; saving removes those extra kinds.
 Already pinned definitions and their recorded replies retain their historical behavior until redefined.
 
+### Refusals that name what is missing, optional labels and the holding
+
+A kind may add `refusals: [{ when, text }]` (at most 16) to its `when` and `refusal`. When `when` is false, each entry whose own `when`
+holds adds its `text` to the refusal, joined with `; `, and `{field}` in the text shows that field's value ("A rise is not due: retainers 3 of 5").
+A refused line records nothing, so these conditions are never replayed. The key is never filled in with a default, so a definition without it
+keeps its hash. A pack that uses it needs a Story Suite that knows it: an older one refuses the whole pack (unknown keys are errors).
+
+A `set` whose value is exactly `["arg", label]`, where the line left the optional label out, does nothing. To clear the old value, set `""` first.
+
+**The holding.** A chat-scope module with the slug `holding` and the fields `founded` (bool), `seat` and `region` (text) is the player's
+holding (Ersveil rules). Code reads it through the `dataModules.holding` query (its fields once founded, else null), tells it in one line of its
+own in the tail (`modules/data-modules/holding/tail.js`), asks for the month's lines after a reply that began a new calendar month, and, with
+World events on, writes the anchors `fact:pc-holding-founded` and `fact:pc-seat-claimed` (`modules/world/chronicle/world-daily/holding.js`).
+`partyRegions(query)` (`modules/world/daily/party-regions.js`) gives the scene's region and the seat's.
+
 ## 3. Lines, checks, templates and time
 
 The exact envelope remains SPEC §4.4:

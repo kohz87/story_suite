@@ -2,7 +2,7 @@
   "id": "ersveil-game",
   "format": 4,
   "kind": "game",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "name": "Ersveil rules",
   "author": "Story Suite examples",
   "description": "Calendar, coins, guild ranks, names and trackers for Ersveil",
@@ -2942,6 +2942,1880 @@
             "from": 1,
             "to": 2,
             "add": {}
+          }
+        ]
+      },
+      {
+        "slug": "holding",
+        "name": "Your Holding",
+        "schema": 1,
+        "stateVersion": 1,
+        "scope": "chat",
+        "prompt": "The player's own holding. found: only when the player founds one in the story. A new seat also gets its ~ place line. Its treasury is not the party's coin.",
+        "state": {
+          "founded": {
+            "type": "bool",
+            "default": false,
+            "edit": false,
+            "label": "Founded"
+          },
+          "name": {
+            "type": "text",
+            "max": 40,
+            "default": "",
+            "label": "Name"
+          },
+          "type": {
+            "type": "enum",
+            "values": [
+              "company",
+              "fief",
+              "powerhouse"
+            ],
+            "default": "fief",
+            "label": "Type"
+          },
+          "seat": {
+            "type": "text",
+            "max": 60,
+            "default": "",
+            "label": "Seat"
+          },
+          "region": {
+            "type": "text",
+            "max": 60,
+            "default": "",
+            "label": "Region"
+          },
+          "tier": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "default": 0,
+            "label": "Tier"
+          },
+          "rank": {
+            "type": "text",
+            "max": 20,
+            "default": "camp",
+            "label": "Rank",
+            "edit": false
+          },
+          "retainers": {
+            "type": "int",
+            "min": 0,
+            "max": 5000,
+            "default": 0,
+            "label": "Retainers"
+          },
+          "treasury": {
+            "type": "int",
+            "min": 0,
+            "max": 1000000,
+            "default": 0,
+            "label": "Treasury"
+          },
+          "renown": {
+            "type": "int",
+            "min": 0,
+            "max": 100,
+            "default": 0,
+            "label": "Renown"
+          },
+          "loyalty": {
+            "type": "int",
+            "min": 0,
+            "max": 100,
+            "default": 60,
+            "label": "Loyalty"
+          },
+          "upkeep": {
+            "type": "int",
+            "min": 0,
+            "max": 10000,
+            "default": 0,
+            "label": "Upkeep",
+            "edit": false
+          },
+          "months": {
+            "type": "int",
+            "min": 0,
+            "max": 100000,
+            "default": 0,
+            "label": "Months kept",
+            "edit": false
+          },
+          "need-retainers": {
+            "type": "int",
+            "min": 0,
+            "max": 5000,
+            "default": 5,
+            "label": "Next tier: retainers",
+            "edit": false
+          },
+          "need-treasury": {
+            "type": "int",
+            "min": 0,
+            "max": 1000000,
+            "default": 20,
+            "label": "Next tier: treasury",
+            "edit": false
+          },
+          "need-renown": {
+            "type": "int",
+            "min": 0,
+            "max": 100,
+            "default": 5,
+            "label": "Next tier: renown",
+            "edit": false
+          }
+        },
+        "rewards": {
+          "renown": {
+            "bindings": {
+              "size": {
+                "type": "enum",
+                "values": [
+                  "small",
+                  "great"
+                ]
+              }
+            },
+            "values": {
+              "amount": {
+                "binding": "size",
+                "table": {
+                  "small": {
+                    "min": 3,
+                    "max": 3,
+                    "pick": "min"
+                  },
+                  "great": {
+                    "min": 10,
+                    "max": 10,
+                    "pick": "min"
+                  }
+                }
+              }
+            },
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "renown"
+                ],
+                "value": [
+                  "reward",
+                  "amount"
+                ],
+                "bounds": "clamp"
+              }
+            ]
+          }
+        },
+        "kinds": {
+          "found": {
+            "op": "+",
+            "labels": {
+              "type": {
+                "type": "enum",
+                "values": [
+                  "company",
+                  "fief",
+                  "powerhouse"
+                ]
+              },
+              "name": {
+                "type": "text",
+                "max": 40
+              }
+            },
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "founded"
+                ]
+              ],
+              false
+            ],
+            "refusal": "A holding is already founded; a story has one.",
+            "effects": [
+              {
+                "op": "set",
+                "path": [
+                  "founded"
+                ],
+                "value": true
+              },
+              {
+                "op": "set",
+                "path": [
+                  "type"
+                ],
+                "value": [
+                  "arg",
+                  "type"
+                ]
+              },
+              {
+                "op": "set",
+                "path": [
+                  "name"
+                ],
+                "value": [
+                  "arg",
+                  "name"
+                ]
+              }
+            ]
+          },
+          "seat": {
+            "op": "~",
+            "labels": {
+              "at": {
+                "type": "text",
+                "max": 60
+              },
+              "region": {
+                "type": "text",
+                "max": 60,
+                "optional": true
+              }
+            },
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "founded"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Found a holding first (kind: found).",
+            "effects": [
+              {
+                "op": "set",
+                "path": [
+                  "seat"
+                ],
+                "value": [
+                  "arg",
+                  "at"
+                ]
+              },
+              {
+                "op": "set",
+                "path": [
+                  "region"
+                ],
+                "value": ""
+              },
+              {
+                "op": "set",
+                "path": [
+                  "region"
+                ],
+                "value": [
+                  "arg",
+                  "region"
+                ]
+              }
+            ]
+          },
+          "recruit": {
+            "op": "+",
+            "labels": {
+              "n": {
+                "type": "int",
+                "min": 1,
+                "max": 500
+              }
+            },
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "founded"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Found a holding first (kind: found).",
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "retainers"
+                ],
+                "value": [
+                  "arg",
+                  "n"
+                ],
+                "bounds": "clamp"
+              }
+            ]
+          },
+          "lose": {
+            "op": "-",
+            "labels": {
+              "n": {
+                "type": "int",
+                "min": 1,
+                "max": 500
+              }
+            },
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "founded"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Found a holding first (kind: found).",
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "retainers"
+                ],
+                "value": [
+                  "mul",
+                  [
+                    "arg",
+                    "n"
+                  ],
+                  -1
+                ],
+                "bounds": "clamp"
+              }
+            ]
+          },
+          "income": {
+            "op": "+",
+            "labels": {
+              "gold": {
+                "type": "int",
+                "min": 1,
+                "max": 100000
+              }
+            },
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "founded"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Found a holding first (kind: found).",
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "treasury"
+                ],
+                "value": [
+                  "arg",
+                  "gold"
+                ],
+                "bounds": "clamp"
+              }
+            ]
+          },
+          "spend": {
+            "op": "-",
+            "labels": {
+              "gold": {
+                "type": "int",
+                "min": 1,
+                "max": 100000
+              }
+            },
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "founded"
+                  ]
+                ],
+                true
+              ],
+              [
+                "ge",
+                [
+                  "get",
+                  [
+                    "treasury"
+                  ]
+                ],
+                [
+                  "arg",
+                  "gold"
+                ]
+              ]
+            ],
+            "refusal": "A spend needs a founded holding whose treasury holds that much.",
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "treasury"
+                ],
+                "value": [
+                  "mul",
+                  [
+                    "arg",
+                    "gold"
+                  ],
+                  -1
+                ],
+                "bounds": "clamp"
+              }
+            ]
+          },
+          "renown": {
+            "op": "+",
+            "labels": {
+              "size": {
+                "type": "enum",
+                "values": [
+                  "small",
+                  "great"
+                ]
+              }
+            },
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "founded"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Found a holding first (kind: found).",
+            "effects": [
+              {
+                "op": "reward",
+                "template": "renown",
+                "bind": {
+                  "size": [
+                    "arg",
+                    "size"
+                  ]
+                }
+              }
+            ]
+          },
+          "rise": {
+            "op": "+",
+            "labels": {},
+            "when": [
+              "and",
+              [
+                "and",
+                [
+                  "and",
+                  [
+                    "eq",
+                    [
+                      "get",
+                      [
+                        "founded"
+                      ]
+                    ],
+                    true
+                  ],
+                  [
+                    "lt",
+                    [
+                      "get",
+                      [
+                        "tier"
+                      ]
+                    ],
+                    5
+                  ]
+                ],
+                [
+                  "and",
+                  [
+                    "ne",
+                    [
+                      "get",
+                      [
+                        "seat"
+                      ]
+                    ],
+                    ""
+                  ],
+                  [
+                    "ge",
+                    [
+                      "get",
+                      [
+                        "retainers"
+                      ]
+                    ],
+                    [
+                      "get",
+                      [
+                        "need-retainers"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "and",
+                [
+                  "ge",
+                  [
+                    "get",
+                    [
+                      "treasury"
+                    ]
+                  ],
+                  [
+                    "get",
+                    [
+                      "need-treasury"
+                    ]
+                  ]
+                ],
+                [
+                  "ge",
+                  [
+                    "get",
+                    [
+                      "renown"
+                    ]
+                  ],
+                  [
+                    "get",
+                    [
+                      "need-renown"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "refusal": "A rise is not due:",
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "tier"
+                ],
+                "value": 1,
+                "bounds": "clamp"
+              }
+            ],
+            "refusals": [
+              {
+                "when": [
+                  "eq",
+                  [
+                    "get",
+                    [
+                      "founded"
+                    ]
+                  ],
+                  false
+                ],
+                "text": "no holding is founded yet"
+              },
+              {
+                "when": [
+                  "and",
+                  [
+                    "eq",
+                    [
+                      "get",
+                      [
+                        "founded"
+                      ]
+                    ],
+                    true
+                  ],
+                  [
+                    "eq",
+                    [
+                      "get",
+                      [
+                        "tier"
+                      ]
+                    ],
+                    5
+                  ]
+                ],
+                "text": "it is at the highest tier"
+              },
+              {
+                "when": [
+                  "and",
+                  [
+                    "and",
+                    [
+                      "eq",
+                      [
+                        "get",
+                        [
+                          "founded"
+                        ]
+                      ],
+                      true
+                    ],
+                    [
+                      "lt",
+                      [
+                        "get",
+                        [
+                          "tier"
+                        ]
+                      ],
+                      5
+                    ]
+                  ],
+                  [
+                    "eq",
+                    [
+                      "get",
+                      [
+                        "seat"
+                      ]
+                    ],
+                    ""
+                  ]
+                ],
+                "text": "it needs a seat"
+              },
+              {
+                "when": [
+                  "and",
+                  [
+                    "and",
+                    [
+                      "eq",
+                      [
+                        "get",
+                        [
+                          "founded"
+                        ]
+                      ],
+                      true
+                    ],
+                    [
+                      "lt",
+                      [
+                        "get",
+                        [
+                          "tier"
+                        ]
+                      ],
+                      5
+                    ]
+                  ],
+                  [
+                    "lt",
+                    [
+                      "get",
+                      [
+                        "retainers"
+                      ]
+                    ],
+                    [
+                      "get",
+                      [
+                        "need-retainers"
+                      ]
+                    ]
+                  ]
+                ],
+                "text": "retainers {retainers} of {need-retainers}"
+              },
+              {
+                "when": [
+                  "and",
+                  [
+                    "and",
+                    [
+                      "eq",
+                      [
+                        "get",
+                        [
+                          "founded"
+                        ]
+                      ],
+                      true
+                    ],
+                    [
+                      "lt",
+                      [
+                        "get",
+                        [
+                          "tier"
+                        ]
+                      ],
+                      5
+                    ]
+                  ],
+                  [
+                    "lt",
+                    [
+                      "get",
+                      [
+                        "treasury"
+                      ]
+                    ],
+                    [
+                      "get",
+                      [
+                        "need-treasury"
+                      ]
+                    ]
+                  ]
+                ],
+                "text": "treasury {treasury} of {need-treasury} gold"
+              },
+              {
+                "when": [
+                  "and",
+                  [
+                    "and",
+                    [
+                      "eq",
+                      [
+                        "get",
+                        [
+                          "founded"
+                        ]
+                      ],
+                      true
+                    ],
+                    [
+                      "lt",
+                      [
+                        "get",
+                        [
+                          "tier"
+                        ]
+                      ],
+                      5
+                    ]
+                  ],
+                  [
+                    "lt",
+                    [
+                      "get",
+                      [
+                        "renown"
+                      ]
+                    ],
+                    [
+                      "get",
+                      [
+                        "need-renown"
+                      ]
+                    ]
+                  ]
+                ],
+                "text": "renown {renown} of {need-renown}"
+              }
+            ]
+          },
+          "fall": {
+            "op": "-",
+            "labels": {},
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "founded"
+                  ]
+                ],
+                true
+              ],
+              [
+                "gt",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                0
+              ]
+            ],
+            "refusal": "A fall needs a founded holding above its first tier.",
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "tier"
+                ],
+                "value": -1,
+                "bounds": "clamp"
+              }
+            ]
+          },
+          "month": {
+            "op": "!",
+            "labels": {},
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "founded"
+                ]
+              ],
+              true
+            ],
+            "refusal": "Found a holding first (kind: found).",
+            "effects": [
+              {
+                "op": "add",
+                "path": [
+                  "loyalty"
+                ],
+                "value": [
+                  "mul",
+                  [
+                    "min",
+                    1,
+                    [
+                      "max",
+                      0,
+                      [
+                        "sub",
+                        [
+                          "get",
+                          [
+                            "upkeep"
+                          ]
+                        ],
+                        [
+                          "get",
+                          [
+                            "treasury"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  -15
+                ],
+                "bounds": "clamp"
+              },
+              {
+                "op": "set",
+                "path": [
+                  "treasury"
+                ],
+                "value": [
+                  "max",
+                  0,
+                  [
+                    "sub",
+                    [
+                      "get",
+                      [
+                        "treasury"
+                      ]
+                    ],
+                    [
+                      "get",
+                      [
+                        "upkeep"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "op": "add",
+                "path": [
+                  "months"
+                ],
+                "value": 1,
+                "bounds": "clamp"
+              }
+            ]
+          }
+        },
+        "rules": [
+          {
+            "id": "upkeep",
+            "when": true,
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "upkeep"
+                ],
+                "value": [
+                  "clamp",
+                  [
+                    "add",
+                    [
+                      "floorDiv",
+                      [
+                        "add",
+                        [
+                          "get",
+                          [
+                            "retainers"
+                          ]
+                        ],
+                        1
+                      ],
+                      2
+                    ],
+                    [
+                      "mul",
+                      [
+                        "mul",
+                        [
+                          "get",
+                          [
+                            "tier"
+                          ]
+                        ],
+                        [
+                          "get",
+                          [
+                            "tier"
+                          ]
+                        ]
+                      ],
+                      5
+                    ]
+                  ],
+                  0,
+                  10000
+                ]
+              }
+            ]
+          },
+          {
+            "id": "bars-0",
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "tier"
+                ]
+              ],
+              0
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "need-retainers"
+                ],
+                "value": 5
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-treasury"
+                ],
+                "value": 20
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-renown"
+                ],
+                "value": 5
+              }
+            ]
+          },
+          {
+            "id": "bars-1",
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "tier"
+                ]
+              ],
+              1
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "need-retainers"
+                ],
+                "value": 20
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-treasury"
+                ],
+                "value": 100
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-renown"
+                ],
+                "value": 15
+              }
+            ]
+          },
+          {
+            "id": "bars-2",
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "tier"
+                ]
+              ],
+              2
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "need-retainers"
+                ],
+                "value": 60
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-treasury"
+                ],
+                "value": 300
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-renown"
+                ],
+                "value": 30
+              }
+            ]
+          },
+          {
+            "id": "bars-3",
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "tier"
+                ]
+              ],
+              3
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "need-retainers"
+                ],
+                "value": 150
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-treasury"
+                ],
+                "value": 1000
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-renown"
+                ],
+                "value": 55
+              }
+            ]
+          },
+          {
+            "id": "bars-4",
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "tier"
+                ]
+              ],
+              4
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "need-retainers"
+                ],
+                "value": 400
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-treasury"
+                ],
+                "value": 3000
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-renown"
+                ],
+                "value": 80
+              }
+            ]
+          },
+          {
+            "id": "bars-5",
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "tier"
+                ]
+              ],
+              5
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "need-retainers"
+                ],
+                "value": 0
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-treasury"
+                ],
+                "value": 0
+              },
+              {
+                "op": "set",
+                "path": [
+                  "need-renown"
+                ],
+                "value": 0
+              }
+            ]
+          },
+          {
+            "id": "rank-company-0",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "company"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                0
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "camp"
+              }
+            ]
+          },
+          {
+            "id": "rank-company-1",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "company"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                1
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "band"
+              }
+            ]
+          },
+          {
+            "id": "rank-company-2",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "company"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                2
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "company"
+              }
+            ]
+          },
+          {
+            "id": "rank-company-3",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "company"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                3
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "free company"
+              }
+            ]
+          },
+          {
+            "id": "rank-company-4",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "company"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                4
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "great company"
+              }
+            ]
+          },
+          {
+            "id": "rank-company-5",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "company"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                5
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "host"
+              }
+            ]
+          },
+          {
+            "id": "rank-fief-0",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "fief"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                0
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "camp"
+              }
+            ]
+          },
+          {
+            "id": "rank-fief-1",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "fief"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                1
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "outpost"
+              }
+            ]
+          },
+          {
+            "id": "rank-fief-2",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "fief"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                2
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "hold"
+              }
+            ]
+          },
+          {
+            "id": "rank-fief-3",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "fief"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                3
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "domain"
+              }
+            ]
+          },
+          {
+            "id": "rank-fief-4",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "fief"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                4
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "great house"
+              }
+            ]
+          },
+          {
+            "id": "rank-fief-5",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "fief"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                5
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "realm"
+              }
+            ]
+          },
+          {
+            "id": "rank-powerhouse-0",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "powerhouse"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                0
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "stall"
+              }
+            ]
+          },
+          {
+            "id": "rank-powerhouse-1",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "powerhouse"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                1
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "counting room"
+              }
+            ]
+          },
+          {
+            "id": "rank-powerhouse-2",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "powerhouse"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                2
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "house"
+              }
+            ]
+          },
+          {
+            "id": "rank-powerhouse-3",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "powerhouse"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                3
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "trading house"
+              }
+            ]
+          },
+          {
+            "id": "rank-powerhouse-4",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "powerhouse"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                4
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "great house"
+              }
+            ]
+          },
+          {
+            "id": "rank-powerhouse-5",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "type"
+                  ]
+                ],
+                "powerhouse"
+              ],
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "tier"
+                  ]
+                ],
+                5
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "rank"
+                ],
+                "value": "power"
+              }
+            ]
+          }
+        ],
+        "exports": {
+          "holding": {
+            "fields": [
+              "founded",
+              "name",
+              "type",
+              "seat",
+              "region",
+              "tier",
+              "rank"
+            ]
+          }
+        },
+        "screens": [
+          {
+            "id": "ersveil-holding",
+            "title": "Your Holding",
+            "icon": "ph-castle-turret",
+            "mounts": [
+              "tab",
+              "card"
+            ],
+            "tab": "holding",
+            "tabTitle": "Holding",
+            "order": 45,
+            "layout": {
+              "root": {
+                "type": "story-block.fields",
+                "props": {
+                  "module": "pack.ersveil-game/holding",
+                  "as": "record",
+                  "fields": [
+                    "name",
+                    "type",
+                    "rank",
+                    "seat",
+                    "region",
+                    "tier",
+                    "retainers",
+                    "treasury",
+                    "renown",
+                    "loyalty",
+                    "upkeep",
+                    "need-retainers",
+                    "need-treasury",
+                    "need-renown"
+                  ],
+                  "title": "Your Holding",
+                  "units": {
+                    "treasury": "gold",
+                    "upkeep": "gold / month"
+                  }
+                }
+              }
+            }
           }
         ]
       }

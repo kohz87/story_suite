@@ -4,6 +4,7 @@
 import { oneLine } from '../../../core/text.js';
 import { effects, rewardTypes } from './effects.js';
 import { collectOffers, imports } from './imports.js';
+import { refusalParts } from './refusal-parts.js';
 import { blockFunctions, layoutKeys, stageFields } from './layout.js';
 import { migrations } from './migration.js';
 import { dataModuleDefaults } from './names.js';
@@ -125,6 +126,8 @@ export function validateDataModules(value, { packId, capabilities = [], definiti
             const kindEnv = { ...env, args: kind.labels };
             if (kind.when !== undefined) conditionType(kind.when, kindEnv, `${path}.when`, add);
             effects(kind.effects, kindEnv, `${path}.effects`, add);
+            // (never defaulted: a definition without them keeps its normalized form and hash)
+            if (kind.refusals !== undefined) refusalParts(kind.refusals, kindEnv, `${path}.refusals`, add);
             kind.oncePerReply = claims;
             kind.when ??= true;
             kind.ui ??= false;
