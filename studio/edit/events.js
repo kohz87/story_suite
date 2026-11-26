@@ -63,11 +63,11 @@ const MODES = {
 /**
  * Checks one line of the strict grammar against a pack's `content` as the pack check does → `{ level: 'error' | 'warning', message }`, or null when
  * the game takes it. `mode`: entry (requires, requires_any, likelier_if keys), end (ends_when.any_of), anchor (pre_empted_by), after (window.after, on),
- * set, clear, weight, where, duration. `recurring`: placeholders (@place, @region…) are allowed, as for a recurring event.
+ * set, clear, weight, where, duration. `recurring`: placeholders (@place, @region…) are allowed, as for a recurring event. `whereList`: in:@region / near:@region are.
  */
-export function checkLine(content, mode, text, { recurring = false } = {}) {
+export function checkLine(content, mode, text, { recurring = false, whereList = false } = {}) {
     const said = [];
-    const c = { index: indexFor(isObj(content) ? content : {}), placeholders: recurring, say: (field, message) => said.push(message),
+    const c = { index: indexFor(isObj(content) ? content : {}), placeholders: recurring, whereList, say: (field, message) => said.push(message),
         collect: { facts: new Set(), factRefs: new Set(), timed: new Set(), cleared: new Set(), warnings: [] } };
     MODES[mode](String(text ?? '').trim(), c);
     if (said.length) return { level: 'error', message: said[0] };
@@ -212,7 +212,7 @@ function eventPage(list, index, bad, ctx, state, redraw) {
     const recurring = event.kind === 'recurring';
     const note = h('small', { class: 'st-problem', role: 'status' });
     const say = result => { if (result && !result.ok) note.textContent = result.refusal ?? 'The change was not made.'; return result; };
-    const env = { ctx, say, check: (mode, text) => checkLine(content, mode, text, { recurring }) };
+    const env = { ctx, say, check: (mode, text) => checkLine(content, mode, text, { recurring, whereList: Array.isArray(event.where) && event.where.length > 0 }) };
     const problemOf = key => bad[index].find(problem => [`${at(index)}.${key}`].includes(String(problem.path)) || [`${at(index)}.${key}.`, `${at(index)}.${key}[`].some(start => String(problem.path).startsWith(start)))?.message ?? '';
     const put = (key, value) => {
         const gone = value === undefined || value === '' || value === null || (Array.isArray(value) && !value.length);

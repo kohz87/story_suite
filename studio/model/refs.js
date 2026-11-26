@@ -41,6 +41,7 @@ function entry(raw, visit) {
     const text = raw.trim();
     if (found.type === 'threshold') return text.replace(/^((?:power|score):\s*)(\S.*?)(\s*(?:>=|<=|>|<|==|=)\s*-?\d+(?:\.\d+)?)$/, (all, head, id, rest) => `${head}${visit(found.kind, id) ?? id}${rest}`);
     if (found.type === 'condition') return condition(text, visit);
+    if (found.type === 'party') { const next = found.own ? found.ref : visit('region', found.ref) ?? found.ref; return next === found.ref ? raw : `${found.term}:${next}`; }
     const plus = text.lastIndexOf(' + ');
     const head = plus < 0 ? text : text.slice(0, plus);
     const tail = plus < 0 ? '' : text.slice(plus);
@@ -115,7 +116,7 @@ const ROWS = [
     ...under('content.powers[]', [['id', 'id', '=power'], ['holds[]', 'holds', 'place']]),
     ...under('content.scores[]', [['id', 'id', '=score']]),
     ...under('content.conditions[]', [['name', 'id', '=condition']]),
-    ...under('content.worldEvents[]', [['id', 'id', '=event'], ['where[]', 'where', 'any'], ['where.region', 'where', 'region'], ['where.realm', 'where', 'realm'], ['requires[]', 'requires', '~entry'], ['requires_any[]', 'requires', '~entry'],
+    ...under('content.worldEvents[]', [['id', 'id', '=event'], ['where[]', 'where', 'any'], ['where.region', 'where', 'region'], ['where.realm', 'where', 'realm'], ['waits_for.near[]', 'where', 'region'], ['waits_for.in[]', 'where', 'region'], ['requires[]', 'requires', '~entry'], ['requires_any[]', 'requires', '~entry'],
         ['on', 'on', '~entry'], ['window.after', 'after', '~entry'], ['pre_empted_by[]', 'pre-empt', '~entry'], ['ends_when.any_of[]', 'ends', '~entry'], ['outcomes[].weight', 'weight', '~weight'], ...ODDS,
         ...under('effects', EFFECTS), ...under('effects.on_end', EFFECTS), ...under('outcomes[].effects', EFFECTS), ...under('outcomes[].effects.on_end', EFFECTS)]),
     ...under('content.templates[]', [['template', 'id', '=template'], ['needs[]', 'needs', '~entry'], ['requires[]', 'requires', '~entry'], ['requires_any[]', 'requires', '~entry'], ...ODDS, ['sets[]', 'set', '~cond'], ['clears[]', 'clear', '~cond'],
