@@ -29,10 +29,13 @@ function buildFolderZip(folderName, extra) {
 /** The Ersveil zip: the world pack examples/packs/ersveil/pack.json, the portraits its cast names, the game pack as game.json and the conversion notes. */
 export function buildErsveilZip() { return buildFolderZip('ersveil', [['game.json', 'ersveil-game/pack.json'], ['CONVERSION-NOTES.md', 'ersveil/CONVERSION-NOTES.md']]); }
 
+/** The Arsveil zip: Ersveil's world with its own cast (examples/packs/arsveil/pack.json), the portraits its cast names and the same game pack as game.json. */
+export function buildArsveilZip() { return buildFolderZip('arsveil', [['game.json', 'ersveil-game/pack.json']]); }
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     const check = process.argv.includes('--check');
     let stale = false;
-    for (const [file, bytes] of [['ersveil.zip', buildErsveilZip()]]) {
+    for (const [file, bytes] of [['ersveil.zip', buildErsveilZip()], ['arsveil.zip', buildArsveilZip()]]) {
         const target = new URL(file, root);
         if (check) {
             let onDisk = null;
