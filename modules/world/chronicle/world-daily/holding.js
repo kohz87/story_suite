@@ -1,20 +1,21 @@
-// World events on the host: the player's holding as anchors (switch story-director.world-events). After a reply's lines, a founded
-// holding writes `fact:pc-holding-founded` in the ledger on today, and one with a seat `fact:pc-seat-claimed`, each once. The ledger
-// is a slot on the reply (as for learned secrets, learned.js), so a swipe, a delete, an edit or a rewind of the founding takes it back.
+// World events on the host: the player's holding as anchors (switch story-director.world-events). After a reply's lines, the day a
+// founded holding (`fact:pc-holding-founded`) and one with a seat (`fact:pc-seat-claimed`) were first seen is written in the ledger,
+// each once. That is only the day: whether a fact counts is asked of the holding as it stands (holding-facts.js), because a later
+// reply's ledger slot is written whole and can still carry the day of a founding that was deleted.
 
 import { markLedger } from '../conditions/ledger.js';
 import { clockOf } from '../capture/text.js';
 import { worldEventsOn } from '../capture/world-parts/switch.js';
 import { WORLD_EVENTS_FEATURE } from '../conditions/feature.js';
 import { knownAnchors } from './learned.js';
+import { holdingFacts } from './holding-facts.js';
 
 export const HOLDING = 'chronicle.world.holding';
 const DAY = 1440;
 
 /** The anchors the holding makes that are not recorded yet (`holding`: the `dataModules.holding` answer, null before a founding). */
 export function holdingAnchors(holding, known = new Set()) {
-    if (!holding) return [];
-    return ['fact:pc-holding-founded', ...(String(holding.seat ?? '').trim() ? ['fact:pc-seat-claimed'] : [])].filter(key => !known.has(key));
+    return holdingFacts(holding).filter(key => !known.has(key));
 }
 
 /** Whether a reply's state holds a holding anchor the world has not recorded (the hook asks before it sends the command). */

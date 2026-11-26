@@ -26,7 +26,7 @@ test('adjacency: two regions are neighbours when a route joins a place in one to
 });
 
 test('in: and near: against the party region; every term is false with no party region', () => {
-    const ws = party => ({ geo: buildGeo(MAP), party });
+    const ws = party => ({ geo: buildGeo(MAP), party: new Set(party ? [party] : []), scene: party });
     const holds = (party, text, def, bind) => termHolds(ws(party), partyTerm(text), def, bind);
     const row = party => ['in:west', 'near:west'].map(text => holds(party, text));
     assert.deepEqual(row('west'), [true, true]);
@@ -159,7 +159,7 @@ test('a where that names a region by its name or alias works for waits_for and @
     for (const ref of ['The Westlands', 'the west']) {
         const run = at(runner(world({ events: [ev('beat', { where: [ref], waits_for: 'near' })] })), 'west', 1);
         assert.equal(run.row('beat').fired, 1, ref);
-        const ws = { geo: buildGeo(MAP), party: 'west' };
+        const ws = { geo: buildGeo(MAP), party: new Set(['west']), scene: 'west' };
         assert.equal(termHolds(ws, partyTerm('in:@region'), { where: { refs: [ref] } }), true, ref);
     }
 });

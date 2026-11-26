@@ -205,6 +205,17 @@ test('a posted companion who rejoins leaves the post on that reply; swipe, Re-re
     await rebuilt(host, 'deleted');
 });
 
+test('a different person who shares the holder\'s first name does not free the post', { skip }, async t => {
+    const host = await chat(t);
+    await stays(host, 'Mara Vell');
+    await say(host, post('Mara Vell', 'steward'));
+    await say(host, '+ present Mara', '+ party Mara');
+    await say(host, 'x');
+    assert.equal(holding(host).steward, 'Mara Vell');
+    assert.equal(host.sdk.receipts().some(entry => entry.receipt.type === 'dm.vacate'), false);
+    await rebuilt(host, 'another Mara');
+});
+
 test('the reader\'s own return of a companion frees the post before the next reply is asked', { skip }, async t => {
     const host = await chat(t);
     await stays(host, 'Mara');

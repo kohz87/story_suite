@@ -69,6 +69,8 @@ export function effects(list, env, path, add, { timer = false, reward = false, p
             return;
         }
         if (effect.when !== undefined) conditionType(effect.when, env, `${at}.when`, add);
+        // (never defaulted: a definition without it keeps its hash, and refuses a line that leaves the label out, as before)
+        if (effect.skipUnset !== undefined && !(effect.skipUnset === true && ((Array.isArray(effect.value) && effect.value[0] === 'arg') || (dmObject(effect.value) && typeof effect.value.arg === 'string')))) add('DM_SCHEMA', `${at}.skipUnset`, 'skipUnset is true, on a set whose value is a label of the line.');
         if (['set', 'add', 'clamp'].includes(effect.op)) {
             const target = pathType(effect.path, { ...env, writing: true }, `${at}.path`, add, (v, p) => expressionType(v, env, p, add));
             if (effect.op === 'clamp') {

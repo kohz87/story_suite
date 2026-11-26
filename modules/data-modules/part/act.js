@@ -19,6 +19,7 @@ import { skillCapacity } from './skills.js';
 import { namedChanges } from './prompt.js';
 import { isHolding } from '../holding/read.js';
 import { postLabels, postProblem } from '../holding/stays.js';
+import { withPeople } from '../holding/person.js';
 
 const LEARN_KIND = new RegExp(`^learn-${SLOT_NUMBER}$`, 'u');
 const PRACTICE_KIND = new RegExp(`^practice-${SLOT_NUMBER}$`, 'u');
@@ -195,7 +196,7 @@ export function createAct(deps) {
             if (!evaluation.condition(['kind', route?.kind ?? labels.kind], run.when, { arg: args })) refuse('DM_CONDITION', '', refusalText(run, evaluation, instance.fields, args));
             // A post of the holding: who may take it is asked of the story here, once, and the line records the name the story keeps them under.
             if (isHolding(definition) && labels.kind === 'post') {
-                const answer = postProblem(ctx, prefix, fieldsBefore, args, deps.isReader);
+                const answer = postProblem(ctx, withPeople(ctx, prefix), fieldsBefore, args, deps.isReader);
                 if (answer.why) refuse('DM_CONDITION', '', answer.why);
                 args.person = answer.who;
                 posted = [answer.who];

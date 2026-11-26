@@ -83,3 +83,46 @@ test('leaving and taking a post in one reply at the seat works, before the cast 
     assert.equal(holding(host).steward, NAME, 'a Re-read keeps it');
     await same(host, 'Re-read');
 });
+
+// Never in the party while posted: the story posts them by the short name, and the post keeps the dossier's whole one.
+async function posted(host, as) {
+    await say(host, `- party ${NAME}`, POST.replace('post: steward', `post: ${as}`));
+    assert.equal(holding(host)[as], NAME, host.turn.problems().map(problem => problem.message).join('\n'));
+}
+const vacated = (host, text) => assert.ok(host.q('dataModules.view', { module: ID }) && host.sdk.receipts().some(entry => entry.receipt.summary === `Your Holding: ${text}`), text);
+
+for (const [label, joins] of [['an alias', 'Temiwa'], ['the whole name', NAME]]) {
+    test(`a holder who joins under ${label} leaves the post, and replay agrees`, { skip, timeout: 120000 }, async t => {
+        const host = await start(t);
+        await posted(host, 'steward');
+        await say(host, `+ party ${joins}`);
+        assert.equal(holding(host).steward, '');
+        vacated(host, `${NAME} travels with You again and leaves the steward post.`);
+        await same(host, label);
+    });
+}
+
+test('a holder who dies leaves the post and the spymaster\'s warning stops; deleting the death gives the post back', { skip, timeout: 120000 }, async t => {
+    const host = await start(t);
+    // (at the default 8,192 this suite's tail has no room for the data modules' lines)
+    host.st.contextSize = 65536;
+    const sent = () => host.st.promptLog.filter(entry => String(entry.key).startsWith('story_suite_tail') && entry.value?.includes?.('Your Holding —')).at(-1)?.value ?? '';
+    await posted(host, 'spymaster');
+    await say(host, '! time +5m');
+    assert.match(sent(), /Spymaster Sister Temiwa: before/);
+    // NPC State records the death on the latest reply, by its own write.
+    const dossiers = structuredClone(host.head().domains.people.npcs);
+    Object.assign(dossiers.npc_temiwa, { lifeState: 'deceased', lifeStateCertainty: 'explicit', lifeStateReason: 'a fever' });
+    const { seedPeople } = await loaded.at('tests/people/helpers/seed-people.js');
+    await seedPeople(host.sdk, host.store, dossiers);
+    await say(host, '! time +5m');
+    assert.equal(holding(host).spymaster, '', host.turn.problems().map(problem => problem.message).join('\n'));
+    vacated(host, `${NAME} has died; the spymaster post is free.`);
+    await say(host, '! time +5m');
+    assert.doesNotMatch(sent(), /Spymaster|spymaster Sister/);
+    await same(host, 'died');
+    // Back to before the reply the death was written on (the two replies since, and the message between them).
+    for (let n = 0; n < 5; n += 1) await host.st.deleteMessage(host.ctx.chat.length - 1);
+    assert.equal(holding(host).spymaster, NAME, 'they never died');
+    await same(host, 'death deleted');
+});

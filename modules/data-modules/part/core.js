@@ -8,6 +8,7 @@ import { hashJson } from '../../../core/replay.js';
 import { isReader as isPersona } from '../../../core/interaction/player.js';
 import { B, draftOf, pairKey } from './shared.js';
 import { replayInputs } from './views.js';
+import { withPeople } from '../holding/person.js';
 import { settleReserve } from './timing.js';
 
 export function createCore({ packs, state: head = () => null, lifecycle = () => null, restore = () => ({ state: 'idle' }), settings = () => ({}), persona = () => '', boardOn = () => false, rpgReplaced = () => false } = {}) {
@@ -47,7 +48,8 @@ export function createCore({ packs, state: head = () => null, lifecycle = () => 
             ...(pin ? { adapters, subjects: decision.subjects ?? [] } : {}) };
         const source = copy(ctx.source);
         if (!source) refuse('DM_SCHEMA', '', 'A reply must hold this data module action.');
-        const witness = replayInputs(prefix, selector);
+        // (a post's witness matches names in NPC State's and the cast's records, as the guard's own query reads them)
+        const witness = replayInputs(posted ? withPeople(ctx, prefix) : prefix, selector);
         const recorded = { source, selector, decision, ...(pin ? { pin } : {}) };
         ctx.replayGuard({ owner: 'story-block', version: 2, epoch: ctx.epoch, rulesHash: localOnly ? null : prefix.domains.rules?.rulesHash ?? null,
             predicate, inputHash: hashJson({ source, witness, predicate, decision }), ...(bound ? { replyBound: true } : {}) }, recorded);

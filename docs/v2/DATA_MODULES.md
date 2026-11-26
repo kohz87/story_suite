@@ -242,7 +242,9 @@ holds adds its `text` to the refusal, joined with `; `, and `{field}` in the tex
 A refused line records nothing, so these conditions are never replayed. The key is never filled in with a default, so a definition without it
 keeps its hash. A pack that uses it needs a Story Suite that knows it: an older one refuses the whole pack (unknown keys are errors).
 
-A `set` whose value is exactly `["arg", label]`, where the line left the optional label out, does nothing. To clear the old value, set `""` first.
+A `set` whose value is `["arg", label]` may say `skipUnset: true`: when the line left that optional label out, the effect does nothing (to
+clear the old value, put a `set` of `""` before it). Without the key such a line is refused, as before. `true` is the only value; the key is
+never filled in, so a definition without it keeps its hash. The holding's `seat` kind uses it for `region`; an older Story Suite refuses the pack.
 
 **Starting off.** A definition may say `startsOff: true`: a card offer's install turns on the pack's other data modules and leaves this one
 for the reader (Settings › Packs and trackers, Data modules in this chat, which pins it as usual), and the offer's notice says so. `true` is the only value;
@@ -251,8 +253,11 @@ the key is never filled in, so a definition without it keeps its hash. Until it 
 **The holding.** A chat-scope module with the slug `holding` and the fields `founded` (bool), `seat` and `region` (text) is the player's
 holding (Ersveil rules). Code reads it through the `dataModules.holding` query (its fields once founded, else null), tells it in one line of its
 own in the tail (`modules/data-modules/holding/tail.js`), asks for the month's lines after a reply that began a new calendar month, and, with
-World events on, writes the anchors `fact:pc-holding-founded` and `fact:pc-seat-claimed` (`modules/world/chronicle/world-daily/holding.js`).
-`partyRegions(query)` (`modules/world/daily/party-regions.js`) gives the scene's region and the seat's.
+World events on, has the anchors `fact:pc-holding-founded` and `fact:pc-seat-claimed`. Whether each counts is asked of the holding as it
+stands (`modules/world/chronicle/world-daily/holding-facts.js`): the first needs a founded holding, the second also a seat, so a deleted
+founding or a cleared seat takes its fact away. The ledger only remembers the day it began (`holding.js`); an anchor may count from it.
+The seat's region (the holding's `region` when the map has it, else the seat place's) counts with the scene's for `in:` and `near:`, today
+only; `waits_for` reads the scene alone (`world-daily/party-region.js`).
 The Ersveil holding `startsOff`, so all of this is silent until the reader turns it on. Its `month` line pays the upkeep: a paid month (the
 treasury covers it, also when it is 0) gives +2 loyalty up to 100, an unpaid one empties the treasury and costs 15. It runs once per reply, not
 once per story month: a second `month` line in a later reply of the same month charges the upkeep, and moves loyalty, again (accepted).
@@ -265,12 +270,14 @@ name, `edit: false`) has posts. The story gives one with `kind: post | post: <fi
 declares the label as `person`, because `who` is the host's word) and frees it with `kind: unpost | post: <field>`. Code decides who may
 take one (`holding/stays.js`): a person the story knows, alive, not You, not travelling with You, holding no other post, with the post
 free, and staying at the seat. Staying is the cast's record (`base`, as in "waits for You at <place>"); without one, the place NPC State
-has for them; or the scene, when it is at the seat and lists them. A holder who is a party member again leaves the post by a host step,
-`dm.vacate` (`holding/vacate.js`), on that reply, or before the next reply after the reader's own return. Both record a `posted` witness,
-so replay skips a post whose holder travels with You on that prefix; a post line also witnesses the seat it was read against. The two line forms are not in the static prompt: they are taught in
+has for them; or the scene, when it is at the seat and lists them. A holder who has died, or is a party member again, leaves the post by a
+host step, `dm.vacate` (`holding/vacate.js`), on that reply, or before the next reply after the reader's own edit or return. Names are matched
+through NPC State's dossier and the cast's record (`holding/person.js`): an exact name first, else an alias only one person has; a shared
+first name alone matches nobody. The post line and `dm.vacate` record a `posted` witness (travels, dead, posts held),
+so replay skips a step whose answer differs on that prefix; a post line also witnesses the seat it was read against. The two line forms are not in the static prompt: they are taught in
 the tail once the holding has a seat and a post is held, a companion has left, or the cast has someone at the seat (`holding/post-tail.js`), with the spymaster's warning cue while that post is held. The pack gives
-the bonuses: steward income +10% (rounded up), marshal retainer cap +20%, healer a further +2 loyalty on a paid month, quartermaster upkeep -10%
-(rounded up), envoy renown +1 (small) or +2 (great).
+the bonuses: steward income +10% (rounded up), marshal retainer cap +20%, healer a further +2 loyalty on a paid month, quartermaster takes a tenth
+of the upkeep off (the amount taken off is rounded up, so 11 becomes 9 and 1 becomes 0), envoy renown +1 (small) or +2 (great).
 
 ## 3. Lines, checks, templates and time
 

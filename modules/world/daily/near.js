@@ -1,6 +1,7 @@
 // World events, the daily step: where the party is against the pack's map. Two regions are neighbours when a route joins a place in
-// one to a place in the other (worked out once per built map). The party's region is `ws.party` (a region key, or null when it is not
-// known: then every `in:` / `near:` term is false). A region is read by its id, name or alias. Pure (reads `ws`).
+// one to a place in the other (worked out once per built map). `ws.party` is the set of region keys `in:` / `near:` read (the scene's
+// and the holding seat's; empty: every term is false), `ws.scene` the scene's key alone, which `waits_for` reads (or null).
+// A region is read by its id, name or alias. Pure (reads `ws`).
 
 import { resolveRef } from './geo.js';
 
@@ -48,10 +49,10 @@ function whereRegions(geo, refs) {
     return out;
 }
 
-// Whether the party is in one of `regions` ('in'), or in one of them or a neighbour of one ('near').
-function partyIs(ws, term, regions) {
-    if (!ws.party) return false;
-    return regions.map(region => regionKey(ws.geo, region)).some(key => key && (key === ws.party || (term === 'near' && Boolean(neighbourRegions(ws.geo).get(key)?.has(ws.party)))));
+// Whether one of the `held` region keys is in one of `regions` ('in'), or in one of them or a neighbour of one ('near').
+function partyIs(ws, term, regions, held = ws.party) {
+    const wanted = regions.map(region => regionKey(ws.geo, region)).filter(Boolean);
+    return [...(held ?? [])].some(here => wanted.some(key => key === here || (term === 'near' && Boolean(neighbourRegions(ws.geo).get(key)?.has(here)))));
 }
 
 /** A parsed party term (grammar.js partyTerm) today; "@region" is the bound pick's region, else the regions of the event's `where` list. */
@@ -60,5 +61,5 @@ export function termHolds(ws, parsed, def, bind) {
     return partyIs(ws, parsed.term, bind?.place ? [bind.region] : whereRegions(ws.geo, def?.where?.refs));
 }
 
-/** Whether the party is where a `waits_for` (`{ term, regions }`; null regions: the event's `where`) asks. */
-export const waitMet = (ws, def) => partyIs(ws, def.waitsFor.term, def.waitsFor.regions ?? whereRegions(ws.geo, def.where?.refs));
+/** Whether the scene is where a `waits_for` (`{ term, regions }`; null regions: the event's `where`) asks: a scene beat waits for You, never for the holding's seat. */
+export const waitMet = (ws, def) => partyIs(ws, def.waitsFor.term, def.waitsFor.regions ?? whereRegions(ws.geo, def.where?.refs), ws.scene ? [ws.scene] : []);

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { world, success, reply, rebuilt, reload } from '../modules/data-modules/helpers.js';
+import { world, success, reply, rebuilt, reload, pack, pin } from '../modules/data-modules/helpers.js';
 import { grammarFor, summaryOf } from '../../modules/data-modules/part.js';
 import { selectStory } from '../../ui/select/story.js';
 import { validateDataModules, dataModuleHash } from '../../modules/data-modules/check.js';
@@ -197,4 +197,26 @@ test('the checker takes a kind\'s refusals only as conditions with text naming f
     assert.equal(check([{ when: ['eq', ['get', ['n']], 0], text: 'n is {n}' }]).ok, true);
     for (const bad of [[{ when: ['get', ['n']], text: 'x' }], [{ when: true, text: '' }], [{ when: true, text: '{other}' }], [{ when: true, text: 'x', more: 1 }], {}]) assert.equal(check(bad).ok, false, JSON.stringify(bad));
     assert.equal(Object.hasOwn(check(null).definitions[0].kinds.gain, 'refusals'), false);
+});
+
+test('a set from a left-out optional label is skipped only when the effect says skipUnset; without it the line is refused, as before', async t => {
+    const module = extra => ({ slug: 'note', name: 'Note', schema: 1, stateVersion: 1, scope: 'chat',
+        state: { at: { type: 'text', max: 20, default: '' }, region: { type: 'text', max: 20, default: 'old' } },
+        kinds: { move: { op: '~', labels: { at: { type: 'text', max: 20 }, region: { type: 'text', max: 20, optional: true } },
+            effects: [{ op: 'set', path: ['at'], value: ['arg', 'at'] }, { op: 'set', path: ['region'], value: ['arg', 'region'], ...extra }] } } });
+    for (const [extra, fields] of [[{}, ['', 'old']], [{ skipUnset: true }, ['mill', 'old']]]) {
+        const host = await world(t, pack([module(extra)]));
+        await pin(host);
+        await host.send('On.', reply('~ dm note — moved | kind: move | at: mill'));
+        const now = host.sdk.query('dataModules.view', { module: 'pack.dm-test/note' }).chat;
+        assert.deepEqual([now.at, now.region], fields, JSON.stringify(extra));
+        assert.equal(host.turn.problems().some(problem => problem.message.includes('Missing arg region')), !extra.skipUnset);
+        rebuilt(host);
+    }
+    const check = definition => validateDataModules([definition], { packId: 'p', capabilities: ['data-modules-v1'] });
+    assert.equal(Object.hasOwn(check(module({})).definitions[0].kinds.move.effects[1], 'skipUnset'), false, 'never defaulted');
+    for (const bad of [false, 'yes', 1, null]) assert.equal(check(module({ skipUnset: bad })).ok, false, String(bad));
+    assert.equal(check(module({ value: 'x', skipUnset: true })).ok, false, 'only on a set from a label');
+    const seat = ersveil().content.dataModules.find(each => each.slug === 'holding').kinds.seat.effects;
+    assert.deepEqual(seat.filter(effect => effect.skipUnset).map(effect => effect.path[0]), ['region']);
 });

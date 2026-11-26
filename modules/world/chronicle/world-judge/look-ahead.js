@@ -11,7 +11,8 @@ import { isWorldSeed } from '../world-daily/seed.js';
 import { readWorld } from '../world-daily/read-world.js';
 import { tickInputs } from '../world-daily/cast-tie.js';
 import { tempoOf } from '../world-daily/tempo.js';
-import { partyRegionOf } from '../world-daily/party-region.js';
+import { partyRegionOf, seatRegionOf } from '../world-daily/party-region.js';
+import { unheldFacts } from '../world-daily/holding-facts.js';
 import { ask as askQuery } from '../queries-parts/shared-ask.js';
 
 const DAY = 1440;
@@ -37,7 +38,7 @@ export function rollCandidates(view, { all = false, settings = null } = {}) {
     const tie = tickInputs({ query }, view.state.domains.cast, world.cast);
     let dry = null;
     try {
-        dry = runDays({ state, table: chronicle.conditions ?? {}, world, today: day, seed: state.seed ?? (isWorldSeed(chronicle.worldSeed) ? chronicle.worldSeed : ''), marks, opens: marks.open, tempo: tempoOf(settings), calendar: askQuery(query, 'director.calendar', {}), met: tie.met, withYou: tie.withYou, positions: tie.positions, partyRegion: partyRegionOf(query, view.state) });
+        dry = runDays({ state, table: chronicle.conditions ?? {}, world, today: day, seed: state.seed ?? (isWorldSeed(chronicle.worldSeed) ? chronicle.worldSeed : ''), marks, opens: marks.open, tempo: tempoOf(settings), calendar: askQuery(query, 'director.calendar', {}), met: tie.met, withYou: tie.withYou, positions: tie.positions, partyRegion: partyRegionOf(query, view.state), seatRegion: seatRegionOf(query), unheld: unheldFacts(query) });
     } catch { dry = null; }
     const rows = dry?.daily?.events;
     if (!rows) return null;

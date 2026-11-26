@@ -165,7 +165,7 @@ export function createFields(deps) {
                 if (definition.timers.some(timer => timerDue(timer, inputs, instance))) commands.push({ type: 'dm.tick', payload: { module, subject } });
             }
         }
-        // A posted companion who travels with You again leaves the post (holding/vacate.js).
+        // A posted person who has died, or travels with You again, leaves the post (holding/vacate.js).
         commands.push(...lapsedPosts(prefix).map(entry => ({ type: 'dm.vacate', payload: { module: entry.module } })));
         return commands.length ? { commands } : undefined;
     }

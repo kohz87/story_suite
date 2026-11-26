@@ -4,7 +4,8 @@
 import { fold, readSheet, sameWho } from '../../rpg/read.js';
 import { isMet } from '../../cast/cast/domain.js';
 import { samePlace } from '../../cast/cast/entries-parts/places.js';
-import { POSTS, postsOf, travels } from './posts.js';
+import { POSTS, postsOf } from './posts.js';
+import { samePerson, travels } from './person.js';
 
 const CHAPLAIN = new Set(['chaplain', 'healer/chaplain', 'healer or chaplain']);
 
@@ -25,7 +26,8 @@ export function postProblem(ctx, prefix, fields, { post, person: who }, isReader
     const rows = listOf(ask('people.list')).filter(row => named(row, [who]));
     const row = rows.length === 1 ? rows[0] : null;
     const party = readSheet(prefix, { withLeft: true }).characters;
-    const member = party.find(one => sameWho(one, who, row ? namesOf(row) : [], party));
+    // (a first name finds a party member only while NPC State knows nobody by the line's name: a dossier says who is meant)
+    const member = party.find(one => samePerson(prefix, one.who, who)) ?? (rows.length ? undefined : party.find(one => sameWho(one, who, [], party)));
     const names = [who, ...namesOf(row), ...(member ? [member.who] : [])];
     let cast = null;
     try { cast = ctx.read('cast')?.people; } catch { cast = null; }

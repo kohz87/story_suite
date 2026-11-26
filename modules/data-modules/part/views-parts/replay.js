@@ -6,7 +6,8 @@ import { activeDefinition, actorsOf, instanceOf, publicView, projectImport } fro
 import { hashJson } from '../../../../core/replay.js';
 import { rpgLib } from '../../../rpg/rpg-lazy.js';
 import { PARTY_ACTIVE, PARTY_MAX } from '../../../rpg/names.js';
-import { travels, postsOf } from '../../holding/posts.js';
+import { postsOf } from '../../holding/posts.js';
+import { isDead, travels } from '../../holding/person.js';
 import { hashOf, activeCount, blockCount, checkedTarget, partyRoomOf } from '../shared.js';
 
 // Witnesses contain only relevant local paths. A guard never interprets effects or asks live
@@ -21,8 +22,8 @@ export function replayInputs(state, { module, subject = 'chat', reads = [], impo
         ...(party ? { party: { room: partyRoomOf(state, party === PARTY_ACTIVE ? PARTY_ACTIVE : PARTY_MAX) } } : {}),
         // (a bench choice: the member who steps out is still in the party and has not left yet)
         ...(bench ? { bench: { active: Boolean(domain?.active?.[bench]), left: instanceOf(state, bench)?.fields?.left === true } } : {}),
-        // (a post of the holding, given or freed: whether each person travels with You, and the posts they hold)
-        ...(posted ? { posted: posted.map(name => ({ travels: travels(state, name), posts: postsOf(instance?.fields, name) })) } : {}),
+        // (a post of the holding, given or freed: whether each person travels with You or has died, and the posts they hold)
+        ...(posted ? { posted: posted.map(name => ({ travels: travels(state, name), dead: isDead(state, name), posts: postsOf(instance?.fields, name) })) } : {}),
         reads: reads.map(path => ({ path, value: copy(atPath(instance, path)) })),
         imports: Object.fromEntries(imports.map(alias => [alias, (adapters ?? definition?.imports)?.[alias] ? projectImport(state, (adapters ?? definition.imports)[alias]) : null])),
         actor: actor ? actorsOf(state)[subject] ?? null : null,

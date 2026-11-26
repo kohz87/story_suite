@@ -5,7 +5,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { holdingAnchors } from '../../../../modules/world/chronicle/world-daily/holding.js';
-import { partyRegions } from '../../../../modules/world/daily/party-regions.js';
+import { holdingFacts, unheldFacts } from '../../../../modules/world/chronicle/world-daily/holding-facts.js';
+import { success } from '../../data-modules/helpers.js';
+import { seatRegionOf } from '../../../../modules/world/chronicle/world-daily/party-region.js';
 import { MONTH_CUE } from '../../../../modules/data-modules/holding/tail.js';
 import { enableDataModules } from '../../../../packs/card-offer.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
@@ -114,23 +116,40 @@ test('with World events off, nothing is written to the world', async () => {
     } finally { host.done(); }
 });
 
-test('the party\'s regions are the scene\'s and, while the holding has a seat, the seat\'s', async () => {
-    const answers = (scene, holding, atlas = null) => name => ({ 'scene.place': scene, 'dataModules.holding': holding, 'atlas.place': atlas })[name] ?? null;
-    const scene = { name: 'Highmark', region: 'The March' };
-    assert.deepEqual(partyRegions(answers(scene, null)), ['The March']);
-    assert.deepEqual(partyRegions(answers(scene, { seat: '', region: 'Auvoth' })), ['The March'], 'no seat, no second region');
-    assert.deepEqual(partyRegions(answers(scene, { seat: 'Ravenhold', region: 'Auvoth' })), ['The March', 'Auvoth']);
-    assert.deepEqual(partyRegions(answers(scene, { seat: 'Ravenhold', region: 'the march' })), ['The March'], 'one region once');
-    assert.deepEqual(partyRegions(answers(scene, { seat: 'Ravenhold', region: '' }, { region: 'shornmarch' })), ['The March', 'shornmarch'], 'the map\'s region for the seat');
-    assert.deepEqual(partyRegions(answers({ name: 'Ravenhold', region: 'Auvoth' }, { seat: 'ravenhold', region: '' })), ['Auvoth']);
-    assert.deepEqual(partyRegions(() => { throw new Error('no such query'); }), []);
-    assert.deepEqual(holdingAnchors(null), []);
-    assert.deepEqual(holdingAnchors({ seat: 'Ravenhold' }, new Set([FACTS[0]])), [FACTS[1]]);
+test('a deleted founding takes both facts with it, though the later seat reply stored its day; a cleared seat takes its own', async () => {
     const host = await start();
     try {
-        await next(host, '~ place Highmark', FOUND, SEAT.replace('The March', 'Bluewatch Reach'));
-        assert.deepEqual(partyRegions((name, args) => host.sdk.query(name, args)), ['The March', 'Bluewatch Reach']);
+        await next(host, FOUND);
+        const founding = host.ctx.chat.length - 1;
+        await next(host, SEAT);
+        assert.deepEqual(facts(host), FACTS);
+        await host.st.deleteMessage(founding);
+        assert.equal(host.sdk.query('dataModules.holding'), null);
+        assert.deepEqual(facts(host), []);
+        await agrees(host, 'founding deleted');
+        await next(host);
+        await next(host, '! time +1d');
+        assert.deepEqual(facts(host), [], 'the daily step does not bring them back');
+        assert.equal(Object.keys(host.head().domains.chronicle.daily[0].anchors).some(key => key.startsWith('fact:pc-')), false, 'and drops the days it was carrying');
+        await agrees(host, 'two replies later');
+        await next(host, FOUND);
+        assert.deepEqual(facts(host), [FACTS[0]], 'a new founding is its own');
+        await agrees(host, 'founded again');
+        await next(host, SEAT);
+        assert.deepEqual(facts(host), FACTS);
+        success(await host.sdk.command('dm.set', { module: ID, field: 'seat', value: '' }));
+        assert.deepEqual(facts(host), [FACTS[0]], 'no seat, no seat fact');
+        await agrees(host, 'seat cleared');
     } finally { host.done(); }
+});
+
+test('the holding\'s facts come from the holding as it stands', () => {
+    assert.deepEqual(holdingFacts(null), []);
+    assert.deepEqual(holdingFacts({ seat: ' ' }), [FACTS[0]]);
+    assert.deepEqual(holdingFacts({ seat: 'Ravenhold' }), FACTS);
+    assert.deepEqual(unheldFacts(() => null), FACTS);
+    assert.deepEqual(unheldFacts(() => ({ seat: '' })), [FACTS[1]]);
+    assert.deepEqual(holdingAnchors({ seat: 'Ravenhold' }, new Set([FACTS[0]])), [FACTS[1]]);
 });
 
 // The chat a card offer makes: the pack installed and its data modules turned on by the offer, which leaves the holding off.
@@ -169,7 +188,7 @@ test('after a card offer the holding is off: no line of it in the prompt, no rem
             assert.equal(host.sdk.query('dataModules.holding'), null);
             assert.deepEqual(facts(host), []);
             assert.equal(host.sdk.receipts().some(entry => entry.receipt.type === 'chronicle.world.holding'), false);
-            assert.deepEqual(partyRegions((name, args) => host.sdk.query(name, args)).includes('The March'), false);
+            assert.equal(seatRegionOf((name, args) => host.sdk.query(name, args)), '', 'no seat region while off');
             await agrees(host, 'off');
             runs.push(seen);
             if (game !== GAME) continue;

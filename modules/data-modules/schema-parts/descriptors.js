@@ -25,7 +25,8 @@ export const DM_DESCRIPTORS = freeze({
     ops: [...OPS],
     effects: {
         // (`when` on a set or an add: the effect is left out when it does not hold; what it read is witnessed by value, like any read)
-        set: { required: ['op', 'path', 'value'], optional: ['when'] },
+        // (`skipUnset: true` on a set from a label: when the line left that optional label out, the effect does nothing; without it the line is refused)
+        set: { required: ['op', 'path', 'value'], optional: ['when', 'skipUnset'] },
         add: { required: ['op', 'path', 'value'], optional: ['bounds', 'when'] },
         clamp: { required: ['op', 'path', 'min', 'max'], optional: [] },
         reward: { required: ['op', 'template', 'bind'], optional: [] },
