@@ -77,6 +77,11 @@ export function peopleEdits(domain) {
                     if (name === 'aka') { if (fields.aka) writeAlias(record, fields.aka); continue; }
                     if (fields[name] === null || fields[name] === '') delete record[name];
                     else record[name] = fields[name];
+                    // (only a `toward:` line writes the summary here: the same write marks it as the story's own sentence)
+                    if (name === 'relationshipSummary') {
+                        if (record.relationshipSummary) record.relationshipSummarySource = 'line';
+                        else delete record.relationshipSummarySource;
+                    }
                 }
                 stampChanged(ctx, { domain, id: payload.id, record, before }, names);   // (the dossier's last change is this reply)
                 return { summary: `${nameOf(record)}: ${names.join(', ')}.`, data: { id: payload.id, fields: names }, narrate: false };
@@ -94,6 +99,7 @@ export function peopleEdits(domain) {
                     if (value === undefined || value === null) delete record[name];
                     else record[name] = clone(value);
                 }
+                if (names.includes('relationshipSummary') && !names.includes('relationshipSummarySource')) delete record.relationshipSummarySource;
                 return edited(`Edited ${nameOf(record)}: ${names.join(', ')}.`, { id: payload.id, fields: names });
             },
         },

@@ -3,6 +3,7 @@
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { recentTranscript, recentUserDevelopmentContext, currentExclusions, storyDayAt, storyDaysForTranscript, refreshMessageGate } from '../transcript/transcript.js';
+import { copiesLineSummary, takeSummarySource } from '../core/relationship-summary-source.js';
 import { DEFAULT_RELATIONSHIP, relationshipSummaryConsistent, calibrateRelationshipSummary, npcMatchesLabel, buildProfileRefreshPrompt, extractExplicitKeyRelationshipEdges, normalizeCustomFields } from '../core/core.js';
 import { setNpcChatRefreshIndicator, relationshipNumber, latestMessageId } from './runtime-scan-helpers.js';
 import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
@@ -192,8 +193,10 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
                 // Hosted, that gate and the wording read the slice's numbers and milestones (a read-time view; the record keeps its own).
                 const shown = hostedMeterView([refreshed])[0];
                 if (proposedSummary && !(liveBefore.manualProfileFields || []).includes('relationshipSummary')
+                    && !copiesLineSummary(proposedSummary, liveBefore)
                     && relationshipSummaryConsistent(proposedSummary, shown.relationship, transcript, shown.relationshipMilestones)) {
                     refreshed.relationshipSummary = calibrateRelationshipSummary(proposedSummary, shown.relationship);
+                    takeSummarySource(refreshed);
                 }
             },
             onDone: saved => {

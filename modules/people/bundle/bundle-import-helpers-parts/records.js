@@ -1,5 +1,6 @@
 // Imported dossier record handling: the import report, manual-lock preservation and source reply numbers.
 import { LOCKED_FIELD_KEYS } from '../../dossier/dossier-edit.js';
+import { takeSummarySource } from '../../core/relationship-summary-source.js';
 
 export function initImportReport(report) {
     if (!report || typeof report !== 'object') return null;
@@ -21,6 +22,9 @@ export function preserveTargetManualLocks(oldNpc, importedNpc) {
             else delete merged[key];
         }
     }
+    // The `toward:` mark goes with the record whose summary was kept: the target's when it is locked or the import brings none.
+    const own = targetLocks.has('relationshipSummary') || !Object.prototype.hasOwnProperty.call(importedNpc || {}, 'relationshipSummary');
+    takeSummarySource(merged, own ? oldNpc : importedNpc);
     merged.manualProfileFields = [...new Set([...targetLocks, ...sourceLocks])];
     merged.manualProfileLocksExplicit = Boolean(
         oldNpc?.manualProfileLocksExplicit || importedNpc?.manualProfileLocksExplicit || merged.manualProfileFields.length,

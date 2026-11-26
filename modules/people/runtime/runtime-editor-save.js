@@ -6,6 +6,7 @@ import { EDITOR_FIELDS, editorManualMemories, editorProfileLocks, settleEditorSa
 import { DEFAULT_RELATIONSHIP, IMPORTANT_MEMORY_LIMIT, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, inferNpcIdentityKind, normalizeRelationshipProgress, inferManualRelationshipMilestones, normalizeRelationshipEvidence, relationshipEventMessage, npcMatchesLabel, normalizeName, normalizeGender, normalizeNpcRecord, PORTRAIT_NPC_PROMPT_LIMIT } from '../core/core.js';
 import { applyNpcBirthdayUpdate, normalizeBirthDate } from '../birthday/birthday.js';
 import { BUILT_IN_LIMITS, normalizeLevel, parsePairLines } from '../core/core-record-parts/built-in-fields.js';
+import { lineSummary, takeSummarySource } from '../core/relationship-summary-source.js';
 import { rpgIsOn } from '../settings/runtime-settings.js';
 import { reconcileSocialState, applyManualKeyRelationshipEdit } from '../social/social.js';
 
@@ -108,6 +109,7 @@ export function createEditorSave(rt, deps, helpers) {
         next.portraitPromptReplace = Boolean(document.getElementById('people_edit_portrait_replace')?.checked);
         if (stableInputs.name !== current.name) next.identityKind = inferNpcIdentityKind(stableInputs.name);
         next.relationshipSummary = editorText('relationshipSummary');
+        if (next.relationshipSummary !== String(current.relationshipSummary ?? '')) takeSummarySource(next);
         next.mood = editorText('mood');
         next.location = editorText('location');
         next.goal = editorText('goal');
@@ -174,7 +176,7 @@ export function createEditorSave(rt, deps, helpers) {
         // A changed relationship recalibrates the Player Dynamic even when its text was not edited.
         const relationshipMoved = Object.values(relationshipDelta).some(value => value !== 0);
         const shortened = settleEditorSave(state.npcs[index], current, next, untouched, {
-            keepVerbatim: key => key !== 'relationshipSummary' || !relationshipMoved,
+            keepVerbatim: key => key !== 'relationshipSummary' || !relationshipMoved || Boolean(lineSummary(next)),
         });
         const manualMemories = editorManualMemories(current, state.npcs[index], untouched);
         if (manualMemories.length) state.npcs[index].manualMemories = manualMemories;

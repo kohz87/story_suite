@@ -76,9 +76,6 @@ export const RULE_LINES = Object.freeze({
     // `~ reveal Name | opened: <id>` may open a person's next pack secret not yet told though its gate is closed, and `<id>` may be the pack's own id
     // (NPC State meters/npc-lines-parts/secret.js). A reply with no mark opens a gated secret only while its gate is open, by its sec_ id.
     revealNext: line => line?.kind === 'reveal',
-    // A `~ faction` line whose words say the group is finished (wiped out, disbanded and the like) ends the faction as `- faction` does (Story
-    // Director chronicle/capture/faction-gone.js). A reply with no mark keeps updating the faction.
-    factionGone: line => line?.kind === 'faction' && line.op === '~',
     // `~ npc Name | toward:` writes who the reader is to them (the dossier's "Who you are to them"). A reply with no mark keeps the label unused, as an unknown one.
     npcToward: line => line?.kind === 'npc' && Object.keys(line.labels ?? {}).some(label => label.trim().toLowerCase() === 'toward'),
     // `+ item` and `~ item … qty` are held to a carry limit that counts a mount whose `where` names the reader's character or a party member ("Rav, Torka") as with the party

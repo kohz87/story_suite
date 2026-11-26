@@ -47,7 +47,7 @@ export function applyCastEntry(base, person, { packName = '', portrait = null, g
     if (entry.history) npc.background = entry.history;
     if (entry.behaviour?.length) npc.behaviorProfile = [...entry.behaviour];
     if (entry.mannerisms?.length) npc.mannerisms = [...entry.mannerisms];
-    if (entry.withYou) npc.relationshipSummary = entry.withYou;
+    if (entry.withYou) { npc.relationshipSummary = entry.withYou; delete npc.relationshipSummarySource; }   // (the pack's words, not a `toward:` sentence)
     // A birthday the writer gave is the person's starting date, kept as 'established' (twins and calendar changes treat it so) but marked
     // as the pack's: a birthday the story states later, 'establish' or 'correct', replaces it. Without one, Delta's date stands.
     const birthDate = castBirthday(entry.birthday);

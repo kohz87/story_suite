@@ -6,6 +6,7 @@ import { customFieldValues } from '../core-record.js';
 import { orderedBehaviorProfile } from '../core-behavior.js';
 import { buildBehaviorGuidance } from '../core-injection-selection.js';
 import { fairInjectionParts, truncateInjectionText } from './truncate.js';
+import { lineSummary } from '../relationship-summary-source.js';
 
 // Each lever keeps its category and as much of "level - effect" as its equal share allows, cut at a
 // word boundary. (Cutting to the first three words left "high - refuses", which lost the meaning.)
@@ -126,6 +127,8 @@ function injectionCurrentStateCore(npc, stateCap = 180, sceneDeferred = false) {
 }
 
 function compactRelationshipModifier(npc, behaviorCap = 160) {
+    const toward = lineSummary(npc);
+    if (toward) return toward;   // (the story's own sentence, as written: no meter check and no per-field cut)
     const rel = normalizeRelationshipBaseline(npc?.relationship || DEFAULT_RELATIONSHIP);
     const summary = calibrateRelationshipSummary(npc?.relationshipSummary, rel);
     if (summary && relationshipSummaryConsistent(summary, rel)) return truncateInjectionText(summary, behaviorCap);

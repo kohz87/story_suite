@@ -1986,7 +1986,7 @@
           "exam": {
             "type": "int",
             "min": 0,
-            "max": 6,
+            "max": 7,
             "default": 0,
             "edit": false,
             "names": {
@@ -1996,7 +1996,8 @@
               "3": "ready for the C examination",
               "4": "ready for the B examination",
               "5": "ready for the A examination",
-              "6": "ready for the S examination"
+              "6": "ready for the S examination",
+              "7": "no further examination"
             },
             "label": "Examination"
           }
@@ -2152,16 +2153,32 @@
               }
             },
             "when": [
-              "eq",
+              "and",
               [
-                "get",
+                "eq",
                 [
-                  "registered"
-                ]
+                  "get",
+                  [
+                    "registered"
+                  ]
+                ],
+                true
               ],
-              true
+              [
+                "ne",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                [
+                  "arg",
+                  "letter"
+                ]
+              ]
             ],
-            "refusal": "Register first; an examiner panel sets the letter.",
+            "refusal": "Register first; a promotion names a new letter.",
             "effects": [
               {
                 "op": "set",
@@ -2622,6 +2639,28 @@
                   "exam"
                 ],
                 "value": 0
+              }
+            ]
+          },
+          {
+            "id": "exam-top",
+            "when": [
+              "eq",
+              [
+                "get",
+                [
+                  "letter"
+                ]
+              ],
+              "S"
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "exam"
+                ],
+                "value": 7
               }
             ]
           },

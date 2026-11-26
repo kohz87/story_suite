@@ -3,6 +3,7 @@
    sync redraws the dossier view), so each instance keeps its own run flags. Bodies are moved from runtime-entry.js without change. */
 
 import { currentExclusions } from '../transcript/transcript.js';
+import { takeSummarySource } from '../core/relationship-summary-source.js';
 import { applyNpcStateCommand, normalizeName, normalizeNpcRecord, appearanceFingerprint } from '../core/core.js';
 import { savePortraitFile } from '../storage/storage.js';
 import { portraitHasImage } from '../portrait/portrait-file.js';
@@ -38,6 +39,7 @@ export function seedCastAdmission(state, npc, person, options = {}) {
             if (Object.hasOwn(npc, field)) seeded[field] = npc[field]; else delete seeded[field];
         }
     }
+    if (seeded.relationshipSummary === npc.relationshipSummary) takeSummarySource(seeded, npc);   // (a kept summary keeps its `toward:` mark)
     if (!locked.has('secrets') && sameSeedValue(npc.secrets, pending.values.secrets)) seeded.secrets = [...(person.entry.secrets || []), ...(options.gated ? person.entry.gated || [] : [])];
     if (!locked.has('appearance') && person.entry.look && sameSeedValue(npc.overallAppearance, pending.values.overallAppearance)
         && sameSeedValue(npc.appearance, pending.values.appearance)) {
