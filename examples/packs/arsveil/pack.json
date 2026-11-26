@@ -7529,7 +7529,7 @@
           "Frostbound",
           "Frostbound Tribes",
           "Northern Barbarians",
-          "Frost Queen"
+          "Frost King"
         ],
         "text": "The Frostbound Tribes are a mobile confederation of the northern taiga, tundra and ice forests. \"Northern Barbarians\" is a foreign insult, not their name.\nStrength legitimizes leadership, but Frostbound strength means surviving hardship, protecting followers, keeping oaths and succeeding in hunt or war, not just winning duels. A Frost Queen or King leads from a moving war-seat; the Winter Moot of chiefs, forge-masters, spirit speakers and oath-holders settles succession and existential policy; no single feat compels every clan.\nStrength: hardened warbands, froststeel craft, geothermal valleys, mammoth routes, winter warfare. They raid south in bad winters, and winters are getting worse.\nBleeds for: their oaths. Red line: southerners settling their hunting grounds. Distinct from the White-Horn Clans.\nThey have no fixed places: halls and war camps move with the seasons. Svartalheim is a legendary Frost-Iron thronehold and seasonal war-seat, not a mapped city. No Frostbound city lies north of Auvoth; camps there are temporary or hidden."
       },
@@ -7787,10 +7787,10 @@
         "keys": [
           "Marchriders",
           "The Marchriders",
-          "Hasse",
-          "Dietmar Hasse"
+          "Stahl",
+          "Gerwald Stahl"
         ],
-        "text": "A Highmark frontier order of mounted knights and sergeants on the Southmarch, based out of Stoneford. Motto: \"We ride where the law ends.\" Bleeds for: their own garrisons and each other. Red line: being left unpaid while the capital feasts. Hard, brutal frontier fighters who raid Ardelian villages for captives and consider Lord-General Hasse theirs."
+        "text": "A Highmark frontier order of mounted knights and sergeants on the Southmarch, based out of Stoneford. Motto: \"We ride where the law ends.\" Bleeds for: their own garrisons and each other. Red line: being left unpaid while the capital feasts. Hard, brutal frontier fighters who raid Ardelian villages for captives and consider Lord-General Stahl theirs."
       },
       {
         "title": "Mercenary Companies",
@@ -8290,22 +8290,22 @@
         "text": "Aaltje Brouwer, Council Speaker of the River Confederacy this term: a banker's daughter from Ledgerford, neat and soft-voiced, ink on her cuffs. She wants the rivers open and Highmark's debt honored, and fears a default. Merchants trust her arithmetic; the frontier doubts she has seen mud."
       },
       {
-        "title": "Duke Evert of Shorn",
+        "title": "Duke Joost Harlaken",
         "keys": [
-          "Evert of Shorn",
-          "Duke Evert",
+          "Joost Harlaken",
+          "Duke Joost",
           "Duke of Shorn"
         ],
-        "text": "Duke Evert of Shorn rules Shornmarch from the frontier bastion at Shorn: a bluff, weather-cracked man who knows his village headmen by name. He wants Council money for his forts, and fears the Turning and Highmark troops on the Auvoth road. His hill folk love him; the Council thinks him a beggar."
+        "text": "Duke Joost Harlaken rules Shornmarch from the frontier bastion at Shorn: a stout river duke with ink-stained fingers who keeps the forts' accounts himself. He wants Council money for his forts, and fears an unpaid garrison and Highmark troops on the Auvoth road. His clerks dread his sums; the Council thinks him a beggar."
       },
       {
-        "title": "High Pontiff Gratian",
+        "title": "High Pontiff Benedikt IV",
         "keys": [
-          "Gratian",
+          "Benedikt",
           "High Pontiff",
-          "Ember-Keeper"
+          "Lamplighter"
         ],
-        "text": "Gratian, 'Ember-Keeper', High Pontiff of the Church of the Eternal Flame and sovereign of the Dominion: a broad, serene old man in ash-grey vestments. An Expansionist, he blesses the Reopening, wants kings who enforce burial law, and fears the Flame's authority slipping. The faithful adore him."
+        "text": "Benedikt IV, 'Lamplighter', High Pontiff of the Church of the Eternal Flame and sovereign of the Dominion: a soft-spoken, iron-willed old man in ash-grey vestments who lights every candle himself. He wants the Church whole and every flame tended, and fears a Flame that stops answering. The faithful adore him."
       },
       {
         "title": "Conclave Elder Clementia",
@@ -8316,49 +8316,49 @@
         "text": "Conclave Elder Clementia, leading voice of the Restorationists in the Conclave of Embers: a spare, silver-haired woman who speaks softly. She holds that the Reopening courts another Abyssal Tide and fears being dismissed as gloomy. The pious respect her; the Expansionists wait her out."
       },
       {
-        "title": "Grand Commander Vitus",
+        "title": "Grand Commander Prisca Valens",
         "keys": [
-          "Vitus of Silvermark",
-          "Grand Commander Vitus",
-          "Vitus"
+          "Prisca Valens",
+          "Grand Commander Prisca",
+          "Prisca"
         ],
-        "text": "Grand Commander Vitus of Silvermark leads the Order of the Silver Mark: a heavy, square-jawed man in plate, with a pilgrim's worn boots. He wants the burial roads safe and the Veil's cells burned, and fears undeath outrunning his knights. Pilgrims bless him; he is first called when the dead rise."
+        "text": "Grand Commander Prisca Valens leads the Order of the Silver Mark: a broad, grey-cropped knight-abbess in plate who still walks the burial roads herself. She wants those roads safe and the Veil's cells burned, and fears undeath outrunning her knights. Pilgrims bless her; she is first called when the dead rise."
       },
       {
-        "title": "King Constantin of Ashmere",
+        "title": "King Anselm of Ashmere",
         "keys": [
-          "Constantin",
-          "King Constantin",
+          "Anselm",
+          "King Anselm",
           "King of Ashmere"
         ],
-        "text": "King Constantin of Ashmere, the Church's closest royal ally: a stout, pious man with candle-wax on his sleeves. He wants his crown's sacred legitimacy and his candle, relic and funerary trades rich, and fears royal law losing to Church doctrine. Pilgrims love him; his nobles mutter."
+        "text": "King Anselm of Ashmere, the Church's closest royal ally: a pale, devout young king with knees worn from long vigils. He wants to be the Flame's sword and to keep his candle, relic and funerary trades rich, and fears being found unworthy of his crown's sacred legitimacy. Pilgrims love him; his nobles mutter."
       },
       {
-        "title": "Duchess Tove of Valegard",
+        "title": "Duchess Ragnhild of Valegard",
         "keys": [
-          "Tove of Valegard",
-          "Duchess Tove",
+          "Ragnhild of Valegard",
+          "Duchess Ragnhild",
           "Duchess of Valegard"
         ],
-        "text": "Duchess Tove of Valegard rules the buffer duchy: a lean horsewoman who still rides her own border herds in all weather. She wants her herds and crossings safe and her cavalry unspent, and fears Highmark's succession quarrel. The horse-lords obey her; envoys find her polite and immovable."
+        "text": "Duchess Ragnhild of Valegard rules the buffer duchy: a lean horsewoman who rides her own border herds and knows each brand by sight. She wants her herds and crossings safe and her cavalry unspent, and fears being made to choose a side. The horse-lords obey her; envoys find her polite and immovable."
       },
       {
-        "title": "King Torleif of Redspire",
+        "title": "Queen Asta of Dunmere",
         "keys": [
-          "Torleif",
-          "King Torleif",
-          "Torleif of Redspire"
+          "Asta",
+          "Queen Asta",
+          "Asta of Dunmere"
         ],
-        "text": "King Torleif of Redspire holds the Border Kingdoms' rotating council chair: a grey-bearded king in a patched winter cloak who counts beacons, not courtiers. He wants the warning chain lit and no kingdom left alone, and fears being bought piecemeal by Highmark. The Long Watch trusts him."
+        "text": "Queen Asta of Dunmere, young queen of the Lake Kingdom, holds the Border Kingdoms' rotating council chair, inherited at the worst time: slight and watchful, she turns her late predecessor's ring while older rulers talk. She wants the warning chain lit and no kingdom left alone, and fears her crown, the weakest, failing the chair."
       },
       {
-        "title": "Thane-of-Thanes Dagny Hearthslag",
+        "title": "Thane-of-Thanes Brakka Slagmantle",
         "keys": [
-          "Dagny Hearthslag",
-          "Dagny",
+          "Brakka Slagmantle",
+          "Brakka",
           "Thane-of-Thanes"
         ],
-        "text": "Thane-of-Thanes Dagny Hearthslag speaks for the Ironanvil Holds at the Council Beneath Stone: a short dwarf with iron rings in her braid and forearms thick as hammer-hafts. She wants grain, timber and salt for the Holds, and fears a hold leaving. Every crown courts her steel."
+        "text": "Thane-of-Thanes Brakka Slagmantle speaks for the Ironanvil Holds at the Council Beneath Stone: a broad dwarf with a forge-scarred face and a voice like a grindstone. She wants grain, timber and salt for the Holds and new veins to pay for them, and fears a hold leaving. Every crown courts her steel."
       },
       {
         "title": "Elder Bodvar Runecutter",
@@ -8370,13 +8370,13 @@
         "text": "Elder Bodvar Runecutter, a stooped Ironanvil elder with rune-scarred fingers who teaches young runecarvers. He wants the old craft passed on, and fears it dying with its teachers. Secret (only a few elders share it): he can read the Iron Archive's script, and no crown is told."
       },
       {
-        "title": "Sea-Lord Merrit Capstan",
+        "title": "Sea-Lord Maarten Vosskeel",
         "keys": [
-          "Merrit Capstan",
-          "Sea-Lord Merrit",
-          "Sea-Lord Capstan"
+          "Maarten Vosskeel",
+          "Sea-Lord Maarten",
+          "Sea-Lord Vosskeel"
         ],
-        "text": "Sea-Lord Merrit Capstan speaks for the Tidal Council at Abysswatch: a barrel-chested admiral with a voice like rope on timber. He wants the convoys running and the sea lanes open, and fears a war at sea the Covenant cannot afford. Captains call him fair; Atlantean pilots call him stubborn."
+        "text": "Sea-Lord Maarten Vosskeel speaks for the Tidal Council at Abysswatch: a weathered admiral whose voice is ruined from a lifetime of shouting at storms, so the room hushes to hear him. He wants the convoys running and their losses paid for, and fears sailing without Atlantean pilots. Captains call him fair."
       },
       {
         "title": "The Sea God Witch Marenthe",
@@ -8387,21 +8387,21 @@
         "text": "The Sea God Witch Marenthe, Atlantis's highest spiritual authority: a pale, still woman who weighs every word. Her foresight is fallible, and Atlanteans know it. She wants the wards kept and the deep's counsel kept. Secret (no one else knows): she has dreamed of the north going white."
       },
       {
-        "title": "Tide-Archon Ondaris",
+        "title": "Tide-Archon Seluvar",
         "keys": [
-          "Ondaris",
+          "Seluvar",
           "Tide-Archon"
         ],
-        "text": "Tide-Archon Ondaris chairs Atlantis's governing council: a tall, formal Sea Folk noble whose speech is slow and exact. He wants the wards intact and the Sheathless at arm's length, and fears surface troubles reaching the dome. Nobles call him prudent; surface envoys call him a locked door."
+        "text": "Tide-Archon Seluvar chairs Atlantis's governing council: a tall, slow-spoken Sea Folk noble whose sheath glints like wet glass. He wants the wards intact and the Sheathless at arm's length, and fears surface troubles reaching the dome. Nobles call him prudent; surface envoys call him a locked door."
       },
       {
-        "title": "Emperor Liutmar",
+        "title": "Emperor Hartmut of Rhunwald",
         "keys": [
-          "Liutmar",
-          "Emperor Liutmar",
+          "Hartmut",
+          "Emperor Hartmut",
           "Ardelian emperor"
         ],
-        "text": "Emperor Liutmar of Rhunwald, Ardelia's elected emperor, serving his fixed 18-year term, which ends in July 612: a heavy, patient man in a plain cloak. He wants the electors' law honored and his term to end quietly, and fears the Knights of the Last Day. The electors respect him; citizens call him a steady hand."
+        "text": "Emperor Hartmut of Rhunwald, Ardelia's elected emperor, nearing the end of his fixed 18-year term, which ends in July 612: a heavy, patient man who is unwell and rests a hand on the table before he rises. He wants the electors' law honored and a clean handover, and fears leaving the empire quarrelling. The electors respect him."
       },
       {
         "title": "Arch-Chancellor Gerlinde",
@@ -8428,13 +8428,13 @@
         "text": "Foxglove-at-Noon, Queen of Flowers, rules the Fairy Court from the high canopy: a small fairy with foxglove-purple wings, seen only in full daylight. She wants her court hidden and her people safe from collectors and binders. The elves protect her; most of the world takes her for a tale."
       },
       {
-        "title": "High Chieftain Oshadai Spear-Wall",
+        "title": "High Chieftain Nuhai Wolf-Mother",
         "keys": [
-          "Oshadai",
-          "Oshadai Spear-Wall",
+          "Nuhai",
+          "Nuhai Wolf-Mother",
           "High Chieftain"
         ],
-        "text": "High Chieftain Oshadai Spear-Wall speaks for the Chieftain Council at Battle Cry City: a broad beastfolk with a spear-scarred shield arm and a slow voice. He wants clan honor kept and slavers off clan land, and fears Vargate's slave ships. Clans call him fair; foreign armies call his scouts dear."
+        "text": "High Chieftain Nuhai Wolf-Mother speaks for the Chieftain Council at Battle Cry City: a grey-muzzled wolf-kin elder with a calm voice that carries across a crowded hall. She wants clan honor kept and slavers off clan land, and fears a danger that finds the clans divided. Clans call her their mother; few raise their voices to her."
       },
       {
         "title": "The Glass Regent Daryush-ul-Mirrorwell",
@@ -8446,39 +8446,39 @@
         "text": "The Glass Regent Daryush-ul-Mirrorwell rules Ashkaran from Ashkar as the Glass Crown's steward: a lean man in mirrored glass-steel thread who receives petitioners before the Regent's Mirror. He wants slaves for the pits and the Crown content. Merchants court him; slaves know him as rumor."
       },
       {
-        "title": "Frost Queen Eydis Long-Winter",
+        "title": "Frost King Bjarnulf Grey-Mantle",
         "keys": [
-          "Eydis",
-          "Eydis Long-Winter",
-          "Frost Queen Eydis"
+          "Bjarnulf",
+          "Bjarnulf Grey-Mantle",
+          "Frost King Bjarnulf"
         ],
-        "text": "Frost Queen Eydis Long-Winter leads the Frostbound from a moving war-seat: a tall, weathered woman in white fox and froststeel. She wants her people fed and their oaths kept, and fears winters that grow harsher each year. Her warbands trust her; southern border villages dread her name."
+        "text": "Frost King Bjarnulf Grey-Mantle leads the Frostbound from a moving war-seat: a giant of a man in a wolf-grey mantle, half his teeth gone, who grins through the gaps. He wants his people fed and southerners off their hunting grounds, and fears winters that grow harsher each year. His warbands trust him; southern border villages dread his name."
       },
       {
-        "title": "Ketil Ice-Oar",
+        "title": "Svala Spear-Singer",
         "keys": [
-          "Ketil Ice-Oar",
-          "Ketil"
+          "Svala Spear-Singer",
+          "Svala"
         ],
-        "text": "Ketil Ice-Oar, Frostbound champion, famous for raids in bad winters: a hulking man with frost-blackened fingers who fights with a long, ice-pitted oar. He wants plunder and a saga worth singing, and fears a hungry winter. Border villagers bar their doors at his name."
+        "text": "Svala Spear-Singer, Frostbound champion, famous for raids in bad winters: a wiry, wind-burned raider who sings the saga of each fight as she fights it. She wants plunder and a saga that outlives her, and fears a death with no one left to sing it. Border villagers bar their doors when they hear singing in the snow."
       },
       {
-        "title": "Herd-Mother Ylva of Hornwake",
+        "title": "Herd-Mother Ingvild of Hornwake",
         "keys": [
-          "Ylva of Hornwake",
-          "Herd-Mother Ylva",
-          "Ylva"
+          "Ingvild of Hornwake",
+          "Herd-Mother Ingvild",
+          "Ingvild"
         ],
-        "text": "Herd-Mother Ylva of Hornwake, senior voice of the White-Horn Clans: an old woman in sheepskin who rides a great mammoth and reads the sky for Long Thunder's storms. She wants the herds fed and the clans together, and fears hard winters. Riders obey her; traders buy her wool."
+        "text": "Herd-Mother Ingvild of Hornwake, senior voice of the White-Horn Clans: an old rider in sheepskin on a white mammoth who reads the sky for Long Thunder's storms. She wants the herds fed and the clans together, and fears a storm she reads too late. Riders move when she does; traders buy her wool."
       },
       {
-        "title": "Seal-Captain Gurda Kelthul",
+        "title": "Seal-Captain Morna Flintgate",
         "keys": [
-          "Gurda Kelthul",
-          "Gurda",
+          "Morna Flintgate",
+          "Morna",
           "Seal-Captain"
         ],
-        "text": "Seal-Captain Gurda Kelthul, dwarf captain of the Order of the Sealwardens: square-built, in lamp-blackened mail, she checks every ward twice. She wants every warden home from a shift and the seals unbroken, and fears a breach with too few lamps. Recruits fear her; adventurers owe her."
+        "text": "Seal-Captain Morna Flintgate, dwarf captain of the Order of the Sealwardens: square and lamp-blackened, she checks every ward twice, even those she has just watched another warden check. She wants every warden home from a shift and the seals unbroken, and fears a breach in the Depths. Recruits fear her; adventurers owe her."
       },
       {
         "title": "Sunniva Halvard",
@@ -8516,13 +8516,13 @@
         "text": "The Ninth Brazier, an A-rank party of four working the northern wildzone out of Bluewatch and Auvoth. Their banner is a brazier on a black field. They want S-rank contracts and a name that outlives the job board, and fear a job above their letter. Bluewatch likes them; rivals watch their picks."
       },
       {
-        "title": "First Marshal Adelind Corbel",
+        "title": "First Marshal Gisbert Lohr",
         "keys": [
-          "Adelind Corbel",
-          "Adelind",
+          "Gisbert Lohr",
+          "Gisbert",
           "First Marshal"
         ],
-        "text": "First Marshal Adelind Corbel, elected head of the Wallwright League: a tall, practical woman in a leather apron over her armor, hands crossed with mortar scars. She wants the League's walls held and charter fees paid, and fears a war of conquest. Every crown wants her engineers."
+        "text": "First Marshal Gisbert Lohr, elected head of the Wallwright League: a tall, mortar-scarred builder who wears a leather apron over his mail and taps a wall with his knuckles before he trusts it. He wants the League's walls held and charter fees paid, and fears building a wall of conquest. Every crown wants his engineers."
       },
       {
         "title": "The Sparrow",
@@ -8558,31 +8558,31 @@
         "text": "Neshai Chainbreaker, the Broken Chain's champion: a beastfolk fighter, once a pit slave, who breaks rune-collars with her bare hands. Old collar-scars ring her neck. She wants every collar broken and fears recapture. Slaves tell her story in the dark; Shackles and Vargate pay for her head."
       },
       {
-        "title": "Warmother Vashka",
+        "title": "Warmother Ruskha",
         "keys": [
-          "Vashka",
-          "Warmother Vashka",
+          "Ruskha",
+          "Warmother Ruskha",
           "Warmother"
         ],
-        "text": "Warmother Vashka leads the Cinder Host, chosen in war: a grey-streaked, hard-eyed commander who wears a burnt ledger page as a sash. She wants plunder for her people and chains broken, and fears a real army turning west. The Northern Belt calls her horde-queen; her followers, Warmother."
+        "text": "Warmother Ruskha leads the Cinder Host, chosen in war: a grey-streaked orc commander who wears a burnt deed as a sash. She wants plunder for her people and chains broken, and fears a real army turning west. The Northern Belt calls her horde-queen; her followers, Warmother."
       },
       {
-        "title": "Grusk the Ledger-Burner",
+        "title": "Nix Tallow-Tongue, the Ledger-Eater",
         "keys": [
-          "Grusk",
-          "Ledger-Burner",
-          "Grusk the Ledger-Burner"
+          "Nix Tallow-Tongue",
+          "Ledger-Eater",
+          "Nix"
         ],
-        "text": "Grusk the Ledger-Burner, the Cinder Host's champion: a huge, soot-streaked orc who has burned eleven debt registers and the clerks guarding them. He wants more registers to burn and fears only being left behind by his Host. Barrens towns bar their record rooms when he comes."
+        "text": "Nix Tallow-Tongue, the Ledger-Eater, the Cinder Host's champion: a small, grinning goblin who eats a page of every register she burns. She wants no debt book left in the west, and fears only being left behind by her Host. Barrens towns bar their record rooms when she comes."
       },
       {
-        "title": "Saintess Velka",
+        "title": "Saintess Ilvane",
         "keys": [
-          "Velka",
-          "Saintess Velka",
-          "Keeper of Names"
+          "Ilvane",
+          "Saintess Ilvane",
+          "Mender of Names"
         ],
-        "text": "Saintess Velka, 'Keeper of Names', the Ashen Veil's counter-saint, revered by the cells that keep the dead: a small woman in grey who whispers the names she has kept. Secret (her followers do not know): she holds the oldest Veil cells' proof against the Church, and profits from the northern dead."
+        "text": "Saintess Ilvane, 'Mender of Names', the Ashen Veil's counter-saint, revered by the cells that keep the dead: a small elf in grey who heals by touch and remembers the name of every dead person she has held. She wants the hurt mended and no name lost, and fears forgetting one. The cells hide her; the Church calls her heretic."
       },
       {
         "title": "Saltbone Ide",
@@ -8610,39 +8610,40 @@
         "text": "Teodor 'Nine Collars' Vask, Shackles' pit champion of the Ironhammer Brotherhood, has won and lost his freedom nine times: a massive, scarred man with nine iron rings at his belt. He wants a tenth freedom that holds, and fights for whoever buys him. The pit crowds adore him."
       },
       {
-        "title": "Captain Sorrel of the Ninth Debt",
+        "title": "Captain Hale of the Forty-Second Debt",
         "keys": [
-          "Captain Sorrel",
-          "Sorrel of the Ninth Debt"
+          "Captain Hale",
+          "Hale of the Forty-Second Debt"
         ],
-        "text": "Captain Sorrel of the Ninth Debt, collared captain of the Grey Ledger's debt-slave company: a lean veteran with a keyed collar and a captain's whistle, who knows every name in the company. She wants her soldiers' debts worked off, and fears the Ledger's next reckoning."
+        "text": "Captain Hale of the Forty-Second Debt, collared captain of the Grey Ledger's debt-slave company: a grizzled veteran with a keyed collar who knows every soldier's debt to the coin and recites it without looking. She wants her soldiers' debts worked off, and fears the Ledger's next reckoning."
       },
       {
-        "title": "Captain Murrough of the Gallowglass",
+        "title": "Captain Dagan of the Red Tally",
         "keys": [
-          "Murrough",
-          "Captain Murrough"
+          "Dagan",
+          "Captain Dagan",
+          "Red Tally"
         ],
-        "text": "Captain Murrough of the Gallowglass, Bloodbound captain who holds a line past all reason: a bearded, battered man on a long axe, who lifts his helm only to drink. He wants the contract kept and each dead soldier's share paid to kin, and fears breaking faith. Employers hire him for bridges."
+        "text": "Captain Dagan of the Red Tally, Bloodbound captain: a broad, patient orc who keeps every dead soldier's share in a ledger strapped to his chest. He wants every share paid to the dead soldier's kin and every contract honored, and fears a debt to the dead left standing. His soldiers trust his count; paymasters dread it."
       },
       {
         "title": "Startrace's Northern Tap",
         "keys": [
-          "Somner's expedition",
+          "Fenwald's expedition",
           "CY 610",
           "leyline tap",
           "tapping records"
         ],
-        "text": "Startrace keeps leyline-tapping records it denies having: how the First Abyssal Tide began, the tapping and the warnings before it. They never name the primordial; the records do not know it.\nIn CY 610 Master Albrecht Somner led a Startrace expedition up the Hollow Aurora route with forty condemned prisoners bought from Highmark, to feed a leyline tap with their deaths; they tapped the leyline under the Pale Orbit's light. The tap is still open and growing. The few masters who know of it fear it is the first stage of a Third Abyssal Tide: a Wildzone that breeds out of season and great apexes that wake are how a Tide begins, though no one has yet dared to call it one. Somner has not written since; whether he lives is unknown. Closing the tap is the one known way to stop it at its source; no one knows how, and Veyr's sealing records in Auvoth are the best hope. The Archmaster will deny the expedition until proof is laid before the Compact Council.",
+        "text": "Startrace keeps leyline-tapping records it denies having: how the First Abyssal Tide began, the tapping and the warnings before it. They never name the primordial; the records do not know it.\nIn CY 610 Master Ulrich Fenwald led a Startrace expedition up the Hollow Aurora route with forty condemned prisoners bought from Highmark, to feed a leyline tap with their deaths; they tapped the leyline under the Pale Orbit's light. The tap is still open and growing. The few masters who know of it fear it is the first stage of a Third Abyssal Tide: a Wildzone that breeds out of season and great apexes that wake are how a Tide begins, though no one has yet dared to call it one. Fenwald has not written since; whether he lives is unknown. Closing the tap is the one known way to stop it at its source; no one knows how, and Veyr's sealing records in Auvoth are the best hope. The Archmaster will deny the expedition until proof is laid before the Compact Council.",
         "hidden": true,
         "id": "northern-tap",
-        "gate": "fact:somner-journal-found"
+        "gate": "fact:fenwald-journal-found"
       },
       {
         "title": "The Emperor's Chamber",
         "keys": [
-          "Adalmar",
-          "Emperor Adalmar",
+          "Reinmar",
+          "Emperor Reinmar",
           "the Emperor",
           "Emperor of Highmark"
         ],
@@ -8658,7 +8659,7 @@
           "physicians"
         ],
         "logic": "and any",
-        "text": "Emperor Adalmar died last winter. What sits in the furs is a pattern held together by Veil necromancy, wearing his face: it can sit, nod and sign, and says almost nothing. Wendhild ordered it to buy time until the Diet would ratify her. Up close it is wrong: no warmth, no breath on cold mornings, a smell the incense covers; a Listener would hear a death frequency, not a living soul. When it fails or is completed, the Emperor's death is announced as if new.",
+        "text": "Emperor Reinmar died last winter. What sits in the furs is a pattern held together by Veil necromancy, wearing his face: it can sit, nod and sign, and says almost nothing. Ottilde ordered it to buy time until the Diet would ratify her. Up close it is wrong: no warmth, no breath on cold mornings, a smell the incense covers; a Listener would hear a death frequency, not a living soul. When it fails or is completed, the Emperor's death is announced as if new.",
         "hidden": true,
         "id": "emperors-chamber",
         "gate": "place:highmark-capital-crown-keep or fact:forgery-exposed"
@@ -9055,11 +9056,11 @@
     ],
     "powers": [
       {
-        "id": "wendhild-court",
-        "name": "Princess Wendhild",
+        "id": "ottilde-court",
+        "name": "Princess Ottilde",
         "aliases": [
-          "Wendhild",
-          "Empress Wendhild"
+          "Ottilde",
+          "Empress Ottilde"
         ],
         "start": -20,
         "factions": [
@@ -9070,26 +9071,27 @@
         ]
       },
       {
-        "id": "corvin-war-party",
-        "name": "Prince Corvin",
+        "id": "leopric-war-party",
+        "name": "Prince Leopric",
         "aliases": [
-          "Corvin",
-          "Emperor Corvin"
+          "Leopric",
+          "Emperor Leopric"
         ],
         "start": -30,
         "factions": [
-          "Corvin's war party"
+          "Leopric's war party"
         ],
         "holds": [
           "highmark-capital-knight-quarter"
         ]
       },
       {
-        "id": "hasse-marchers",
-        "name": "Lord-General Hasse",
+        "id": "stahl-marchers",
+        "name": "Lord-General Gerwald Stahl",
         "aliases": [
-          "Hasse",
-          "Emperor Hasse"
+          "Gerwald Stahl",
+          "Stahl",
+          "Emperor Stahl"
         ],
         "start": -50,
         "factions": [
