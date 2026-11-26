@@ -95,20 +95,33 @@ test('each type has its own tier names, and the highest tier cannot rise', async
     assert.ok(refusals(host).some(message => message.endsWith('A rise is not due: it is at the highest tier; nothing applied.')), refusals(host).join('\n'));
 });
 
-test('month pays the upkeep from the treasury; an unpaid month empties it and costs 15 loyalty, once a reply', async t => {
+test('month pays the upkeep from the treasury and gives 2 loyalty; an unpaid month empties it and costs 15 loyalty, once a reply', async t => {
     const host = await chat(t);
     await say(host, FOUND);
     await say(host, '+ dm holding — hands | kind: recruit | n: 20', '+ dm holding — toll | kind: income | gold: 15');
     await say(host, '! dm holding | kind: month', '! dm holding — twice | kind: month');
-    assert.deepEqual(pick(host, 'upkeep', 'treasury', 'loyalty'), [10, 5, 60]);
+    assert.deepEqual(pick(host, 'upkeep', 'treasury', 'loyalty'), [10, 5, 62]);
     await say(host, '! dm holding | kind: month');
-    assert.deepEqual(pick(host, 'treasury', 'loyalty'), [0, 45]);
+    assert.deepEqual(pick(host, 'treasury', 'loyalty'), [0, 47]);
     await say(host, '+ dm holding — toll | kind: income | gold: 10');
     await say(host, '! dm holding | kind: month');
-    assert.deepEqual(pick(host, 'treasury', 'loyalty'), [0, 45], 'exactly the upkeep is paid');
+    assert.deepEqual(pick(host, 'treasury', 'loyalty'), [0, 49], 'exactly the upkeep is a paid month');
     for (let at = 0; at < 4; at += 1) await say(host, '! dm holding | kind: month');
     assert.equal(holding(host).loyalty, 0);
     rebuilt(host);
+});
+
+test('paid months stop at 100 loyalty; a month with nothing to pay counts as paid', async t => {
+    const host = await chat(t);
+    await say(host, FOUND);
+    await put(host, 'loyalty', 97);
+    await host.send('.', 'Quiet.');
+    for (const loyalty of [99, 100, 100]) {
+        await say(host, '! dm holding | kind: month');
+        assert.deepEqual(pick(host, 'upkeep', 'treasury', 'loyalty'), [0, 0, loyalty]);
+    }
+    rebuilt(host);
+    await reload(host);
 });
 
 test('swipe, edit and reload give the same holding as live', async t => {
@@ -157,6 +170,16 @@ test('a chat that has not turned the module on has no holding lines, state or ta
     assert.equal(host.head().domains.dataModules, undefined);
     assert.equal(host.sdk.query('dataModules.holding'), null);
     assert.equal(grammarFor(host.head()), '');
+});
+
+test('only the holding starts off, and the checker takes startsOff as true or not at all', () => {
+    const pack = ersveil();
+    assert.deepEqual(pack.content.dataModules.filter(module => module.startsOff).map(module => module.slug), ['holding']);
+    const check = extra => validateDataModules([{ slug: 'c', name: 'C', schema: 1, stateVersion: 1, scope: 'chat', state: { n: { type: 'int', min: 0, max: 9, default: 0 } }, kinds: {}, ...extra }],
+        { packId: 'p', capabilities: ['data-modules-v1'] });
+    assert.equal(check({ startsOff: true }).ok, true);
+    for (const bad of [false, 'yes', 1, null]) assert.equal(check({ startsOff: bad }).ok, false, String(bad));
+    assert.equal(Object.hasOwn(check({}).definitions[0], 'startsOff'), false);
 });
 
 test('the three modules of 1.1.0 keep their hashes, so chats that pinned them are not moved', () => {

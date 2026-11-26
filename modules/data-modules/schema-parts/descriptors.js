@@ -4,7 +4,7 @@ import { freeze } from './shared-freeze.js';
 
 export const DM_DESCRIPTORS = freeze({
     definition: { required: ['slug', 'name', 'schema', 'stateVersion', 'scope', 'state', 'kinds'],
-        optional: ['imports', 'rules', 'timers', 'rewards', 'exports', 'screens', 'layouts', 'migrations', 'prompt', 'show', 'role', 'cards', 'replyEnd', 'layout', 'roles', 'tones'] },
+        optional: ['imports', 'rules', 'timers', 'rewards', 'exports', 'screens', 'layouts', 'migrations', 'prompt', 'show', 'role', 'cards', 'replyEnd', 'layout', 'roles', 'tones', 'startsOff'] },
     defaults: { imports: {}, rules: [], timers: [], rewards: {}, exports: {}, screens: [], layouts: [], migrations: [] },
     scope: ['chat', 'character'],
     fields: {

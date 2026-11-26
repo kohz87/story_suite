@@ -109,14 +109,14 @@ test('steward, envoy and quartermaster: a tenth more income, 1 or 2 more renown,
     await rebuilt(host, 'bonuses');
 });
 
-test('healer: a paid month gains 2 loyalty, an unpaid one gains nothing', { skip }, async t => {
+test('healer: a paid month gains 2 loyalty more than the 2 it gives anyway, an unpaid one gains nothing', { skip }, async t => {
     const host = await chat(t);
     await stays(host, 'Mara');
     await say(host, post('Mara', 'healer'), '+ dm holding — hands | kind: recruit | n: 20', '+ dm holding — toll | kind: income | gold: 10');
     await say(host, '! dm holding | kind: month');
-    assert.deepEqual(pick(host, 'treasury', 'loyalty'), [0, 62]);
+    assert.deepEqual(pick(host, 'treasury', 'loyalty'), [0, 64]);
     await say(host, '! dm holding | kind: month');
-    assert.equal(holding(host).loyalty, 47);
+    assert.equal(holding(host).loyalty, 49);
     await rebuilt(host, 'months');
 });
 

@@ -49,6 +49,8 @@ export function validateDataModules(value, { packId, capabilities = [], definiti
             if (typeof definition.prompt !== 'string' || [...definition.prompt].length > L.prompt) add('DM_BOUNDS', `${at}.prompt`, STRINGS.blocks.promptLimit);
             else definition.prompt = oneLine(definition.prompt);
         }
+        // (`startsOff`: a card offer leaves the module for the reader to turn on; never filled in, so a definition without it keeps its hash)
+        if (definition.startsOff !== undefined && definition.startsOff !== true) add('DM_SCHEMA', `${at}.startsOff`, 'startsOff is true or left out.');
         if (definition.role !== undefined && !ROLES.includes(definition.role)) add('DM_SCHEMA', `${at}.role`, STRINGS.blocks.roleInvalid);
         else if (definition.role !== undefined && definition.scope === 'character') add('DM_SCHEMA', `${at}.role`, STRINGS.blocks.roleChat);
         if (definition.show !== undefined) {

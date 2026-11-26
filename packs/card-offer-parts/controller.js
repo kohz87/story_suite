@@ -19,7 +19,7 @@ export const CAPABILITY_NEEDS = Object.freeze({
 /**
  * `readLorebook()` → `{ character, card, entries, problem }`; `packs`: installed.js; `cardSettings`: card-settings.js;
  * `remember`: `{ read() → { [key]: true }, write(map) }` for "Not now"; `single()`: true in a single-character chat;
- * `enableModules(packId, { still })` → `{ pinned, failed, total, moved }` (`still()`: false once the chat changed: nothing more is pinned); `flushSettings()` → `{ ok, message }` (SillyTavern's settings saved now, not after its debounce); `chatId()`: the open chat's id; `notify(text)`: a toast; `report({ code, message })`: Diagnostics.
+ * `enableModules(packId, { still })` → `{ pinned, failed, off, total, moved }` (`still()`: false once the chat changed: nothing more is pinned); `flushSettings()` → `{ ok, message }` (SillyTavern's settings saved now, not after its debounce); `chatId()`: the open chat's id; `notify(text)`: a toast; `report({ code, message })`: Diagnostics.
  * → `{ refresh, offers, waiting, install, notNow, dismiss, clearDone, subscribe }`.
  */
 export function createCardOffer({ readLorebook, packs, cardSettings, remember, single = () => true, enableModules = async () => ({ pinned: 0, failed: [], total: 0, moved: false }), flushSettings = async () => ({ ok: true, message: '' }), chatId = () => '', notify = () => {}, report = () => {} } = {}) {
@@ -196,6 +196,7 @@ export function createCardOffer({ readLorebook, packs, cardSettings, remember, s
                     line('CARD_REFUSED', `Card data modules of ${offer.name} were not turned on: the chat changed during the install.`, { always: true });
                     try { notify(`${offer.name} is installed. Turn its modules on in Settings → Data modules for that chat.`); } catch { /* a missing toast is not an error */ }
                 }
+                if (modules.off?.length) done.push(`${joinWords(modules.off)} ${modules.off.length === 1 ? 'is' : 'are'} off: turn ${modules.off.length === 1 ? 'it' : 'them'} on when your story needs ${modules.off.length === 1 ? 'it' : 'them'} (Settings › Packs and trackers, Data modules in this chat).`);
                 if (modules.failed.length) {
                     done.push(`${plural(modules.failed.length, 'data module')} could not be turned on (Settings, Tabs & Packs, Data modules).`);
                     for (const text of modules.failed) line('CARD_REFUSED', `Card data module not turned on: ${text}`, { always: true });

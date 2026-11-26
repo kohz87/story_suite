@@ -28,6 +28,10 @@ Yes, since 2.21.0. When you open a chat with a card that carries a pack, its por
 
 A running chat keeps the old modules and keeps working. To take the new version of a module, open [Settings → Packs and trackers](settings:packs), find Data modules, choose **Migrate** on the module, read the preview and confirm. Do this for each module the pack changed (Ersveil 2.7.0 changes four: Standing, Fame, Adventurer Guild membership and Court favour). Only the drawing changes, your values stay, and the choice is saved with the latest reply. A new chat needs nothing.
 
+## How do I start my own company, fief or trading house?
+
+With the Ersveil rules, turn on **Your Holding** first: it is off until you do. Open [Settings → Packs and trackers](settings:packs), find Data modules in this chat and switch on Your Holding; it then stays on for that chat. Then say it in the story, for example "we raise a palisade on the hill and call it Ravenhold". A paid month gives +2 loyalty (up to 100) and an unpaid one costs 15. If the story writes a second month line in the same story month, the upkeep is charged again.
+
 ## Why is my added item Common?
 
 With Gear in fights on (in [Settings → RPG and fights](settings:rpg)), "+ Add item" opens the grouped form. Rarity and Bonus can be set only in the **starting kit**: while the chat holds the opening greeting and no message from you yet (a greeting swipe keeps it open; deleting your own messages while a reply stays, a narrator or member speaking on its own, or a chat with no greeting keep it closed). After the kit, an added piece is always Common (+1), and Edit shows Rarity and Bonus read-only on pieces you added. Weight (what one unit weighs in load) and, on armour, Soak (up to the slot's cap) are not the kit's: Edit sets them on any piece that is not a cast member's, any time. A name that a story or pack piece already has never copies its rarity or bonus: you get your own Common piece ("Your Ash-grey Longsword"); adding to a piece you made yourself still stacks. A saved character's gear is kept as written only while the kit is open; afterwards it comes in Common and the Problems list says so.

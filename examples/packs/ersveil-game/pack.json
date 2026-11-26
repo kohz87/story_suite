@@ -2951,6 +2951,7 @@
         "schema": 1,
         "stateVersion": 1,
         "scope": "chat",
+        "startsOff": true,
         "prompt": "The player's own holding. found: only when the player founds one in the story. A new seat also gets its ~ place line. Its treasury is not the party's coin.",
         "state": {
           "founded": {
@@ -4050,6 +4051,29 @@
                   -15
                 ],
                 "bounds": "clamp"
+              },
+              {
+                "op": "add",
+                "path": [
+                  "loyalty"
+                ],
+                "value": 2,
+                "bounds": "clamp",
+                "when": [
+                  "ge",
+                  [
+                    "get",
+                    [
+                      "treasury"
+                    ]
+                  ],
+                  [
+                    "get",
+                    [
+                      "upkeep"
+                    ]
+                  ]
+                ]
               },
               {
                 "op": "add",

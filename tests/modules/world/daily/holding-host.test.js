@@ -7,6 +7,8 @@ import { readFileSync } from 'node:fs';
 import { holdingAnchors } from '../../../../modules/world/chronicle/world-daily/holding.js';
 import { partyRegions } from '../../../../modules/world/daily/party-regions.js';
 import { MONTH_CUE } from '../../../../modules/data-modules/holding/tail.js';
+import { enableDataModules } from '../../../../packs/card-offer.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { TAIL_KEY } from '../../../../core/turn.js';
 import { agrees, newHost, reply } from './daily-host.helpers.js';
 
@@ -129,4 +131,55 @@ test('the party\'s regions are the scene\'s and, while the holding has a seat, t
         await next(host, '~ place Highmark', FOUND, SEAT.replace('The March', 'Bluewatch Reach'));
         assert.deepEqual(partyRegions((name, args) => host.sdk.query(name, args)), ['The March', 'Bluewatch Reach']);
     } finally { host.done(); }
+});
+
+// The chat a card offer makes: the pack installed and its data modules turned on by the offer, which leaves the holding off.
+async function offered(game) {
+    const host = await newHost(true);
+    assert.equal((await host.packs.packs.install(game, { origin: 'game.json' })).ok, true);
+    const done = await enableDataModules({ sdk: host.sdk, packId: 'ersveil-game' });
+    await host.send('Begin.', reply('A hill above the frozen lake.', ['~ time March 29, 1200, 08:00 am']));
+    return { host, done };
+}
+/** One more reply, and every prompt text its send carried, by key (the empty values that clear a slot afterwards left out). */
+async function carried(host, lines) {
+    const from = host.st.promptLog.length;
+    await next(host, ...lines);
+    return Object.fromEntries(host.st.promptLog.slice(from).filter(entry => entry.value).map(entry => [entry.key, entry.value]));
+}
+
+test('after a card offer the holding is off: no line of it in the prompt, no reminder, nothing to the world; its switch turns it on', async () => {
+    const without = JSON.parse(GAME);
+    without.content.dataModules = without.content.dataModules.filter(module => module.slug !== 'holding');
+    const runs = [];
+    for (const game of [GAME, JSON.stringify(without)]) {
+        const unseed = seedCrypto(11);   // (both runs roll the same dice, so only the pack can make their prompts differ)
+        const { host, done } = await offered(game);
+        try {
+            assert.deepEqual([done.pinned, done.total, done.failed], [3, 3, []]);
+            assert.deepEqual(done.off, game === GAME ? ['Your Holding'] : []);
+            const seen = [];
+            for (const lines of [[FOUND, SEAT], ['! time +3d'], ['! time +5m'], ['! time +40d'], ['! time +5m']]) {
+                seen.push(await carried(host, lines));
+            }
+            const text = JSON.stringify(seen);
+            assert.ok(seen.every(sent => sent[TAIL_KEY] && sent.story_suite_static) && /guild-membership/.test(text), 'the prompts were sent, with the other modules in them');
+            for (const word of [/holding/i, /kind: found/, /Ravenhold \|/]) assert.equal(word.test(text), false, String(word));
+            assert.equal(text.includes(MONTH_CUE), false);
+            assert.equal(host.sdk.query('dataModules.holding'), null);
+            assert.deepEqual(facts(host), []);
+            assert.equal(host.sdk.receipts().some(entry => entry.receipt.type === 'chronicle.world.holding'), false);
+            assert.deepEqual(partyRegions((name, args) => host.sdk.query(name, args)).includes('The March'), false);
+            await agrees(host, 'off');
+            runs.push(seen);
+            if (game !== GAME) continue;
+            const offer = host.sdk.query('dataModules.setup').find(row => row.module === ID);
+            assert.equal((await host.sdk.command('dm.pin', { module: ID, hash: offer.hash, packHash: offer.packHash, subjects: [] })).ok, true);
+            await next(host, FOUND, SEAT);
+            assert.deepEqual(facts(host), FACTS, 'once on, the world learns of it');
+            assert.match(JSON.stringify(await carried(host, ['! time +5m'])), /Your Holding — Ravenhold/, 'and the narrator is told of it');
+            await agrees(host, 'turned on');
+        } finally { host.done(); unseed(); }
+    }
+    assert.deepEqual(runs[0], runs[1], 'the prompts are the ones a pack without the module gives');
 });
