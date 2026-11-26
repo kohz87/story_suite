@@ -102,7 +102,7 @@ test('gear.view: the persona is the main wearer, members follow; the breakdown, 
     const h = createHarness([module], { state });
     const view = h.query('gear.view', {});
     assert.deepEqual(view.owners, [{ value: 'party', label: 'Astra' }, { value: 'ac_ren00001', label: 'Ren' }]);
-    assert.equal(view.carry.breakdown, 'Carries 30');
+    assert.equal(view.carry.breakdown, 'Carries 30 \u00b7 Ren carries 30');
     assert.deepEqual(view.carry.away, ['Skiff +100 \u00b7 moored at Eel Wharf, not with you']);
     assert.equal(view.rows.it_dagg0001.by, 'Ren');
     assert.equal(view.rows.it_sword001.by, '');

@@ -9,6 +9,12 @@ import { ITEMS_MAX, NAME_MAX } from './shared-caps.js';
 import { isObject, lower } from './shared-helpers.js';
 
 /**
+ * The load rule a gear record is made by (its `rule`): 2 = owner `party` is the whole party's load and capacity, each member counted once (the Bag's bar).
+ * A record without it was made by the shared bag alone, and is judged by that rule.
+ */
+export const LOAD_RULE = 2;
+
+/**
  * What the owners `own` of one member give: { add?, enc?, items? } from the inventory's answers (`answerOf(owner)`; `party` is the shared bag's, which also
  * says whether the load is too much). Shared by the roll (the live queries) and the guard (the state before the roll), so both read it the same way.
  */
@@ -40,7 +46,7 @@ export function gearMatches(state, gear, hash) {
         const mine = new Map(readSheet(state).characters.map(character => [actorIdOf(character.module), character.key]));
         const owned = (key, entry) => (entry?.own ?? []).every(owner => !mine.has(owner) || mine.get(owner) === key);
         return Object.entries(gear?.who ?? {}).every(([key, entry]) => owned(key, entry) && withMounts.some(mounts => {
-            const answerOf = owner => gearAnswer(state, { owner }, { ...stats, mounts });
+            const answerOf = owner => gearAnswer(state, { owner }, { ...stats, mounts, legacy: gear.rule !== LOAD_RULE });
             const now = dressOf(entry.own, answerOf('party'), answerOf);
             return hash({ add: now.add ?? null, enc: now.enc ?? null, items: now.items ?? null }) === hash({ add: entry.add ?? null, enc: entry.enc ?? null, items: entry.items ?? null });
         }));

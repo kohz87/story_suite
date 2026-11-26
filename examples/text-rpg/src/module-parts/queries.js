@@ -1,4 +1,4 @@
-// The queries: `rpg.sheet` and `party.levels` as fallbacks, `party.actors`, `party.pc` and `party.newCharacter` as the plain owner, `textRpg.view`, `textRpg.rules` and `textRpg.export`.
+// The queries: `rpg.sheet` and `party.levels` as fallbacks, `party.actors`, `party.pc`, `party.names` and `party.newCharacter` as the plain owner, `textRpg.view`, `textRpg.rules` and `textRpg.export`.
 import { FEATURE } from './constants.js';
 import { lastDice } from './dice-source.js';
 import { active } from './active.js';
@@ -29,6 +29,8 @@ export function queriesOf(sdk) {
         // The main character: the reader's own member, as a plain answer (the RPG's roster answers as a fallback when this is null).
         'party.pc': gate(state => { const pc = membersOf(state).find(member => member.pc); return pc ? { id: pc.id } : null; }),
         'party.levels': gate(state => membersOf(state).map(member => ({ id: member.id, name: member.name, level: levelOf(member), left: false })), { fallback: true }),
+        // Everyone who was ever in the party, the fallen too: what they still hold is shown under their name.
+        'party.names': gate(state => Object.values(state?.domains?.[DOMAIN]?.members ?? {}).map(member => ({ id: member.id, name: member.name }))),
         'party.actors': gate(state => membersOf(state).map(member => ({ id: member.id, name: member.name, ...(member.pc ? { pc: true } : {}) }))),
         // The seven names the gear's stats show under while Text RPG is on, in the gear's order (the inventory answers with its own names otherwise).
         'gear.statLabels': gate(() => statLabelsOf(sdk)),

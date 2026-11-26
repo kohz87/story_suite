@@ -6,7 +6,7 @@ import { resolveDef } from '../scene/names.js';
 import { resolveCurrency } from './money.js';
 import { createGearQueries } from './gear.js';
 import { FEATURE, condOf, condEvents } from './state.js';
-import { legendEarned } from './validate.js';
+import { legendEarned, holderName } from './validate.js';
 import {
     definitionsOf, listItems, carryBonuses, gearIsOn, boundNames, equipmentView, encumbrance, defCarry,
     ENCUMBERED_PENALTY, gearWearers,
@@ -99,7 +99,7 @@ export const createInventoryQueries = env => ({
     ...createGearQueries({
         on: () => gearIsOn(env), kit: () => kitOpen(env), empty: () => { try { return env?.chatEmpty?.() === true; } catch { return false; } },
         condOf, carryOf: defCarry, penalty: ENCUMBERED_PENALTY, feature: FEATURE.gear,
-        names: (state, tools, id) => gearWearers(state, tools, env).names.get(id) ?? (id === 'party' ? 'The party' : String(id)),
+        names: (state, tools, id) => gearWearers(state, tools, env).names.get(id) ?? (id === 'party' ? 'The party' : holderName((name, args) => tools?.query?.(name, args), state?.domains?.party, id)),
         owners: (state, tools) => gearWearers(state, tools, env).owners,
     }),
 });

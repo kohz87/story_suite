@@ -92,6 +92,7 @@ function head(member, ctx) {
     h('div', { class: 'shtop' }, h('div', { class: 'nm' }, member.name),
       MORE.some(type => can(ctx, type)) ? h('button', { type: 'button', class: 'ibtn', dataset: { more: '1' }, 'aria-label': `More for ${member.name}`, 'aria-haspopup': 'dialog', onClick: () => moreSheet(member, ctx) }, '⋯') : null),
     h('div', { class: 'chips' }, h('span', { class: 'lvl2' }, member.line),
+      member.carrying ? h('span', { class: 'chip2', dataset: { carrying: member.id } }, `Carrying ${member.carrying.load} / ${member.carrying.capacity}`) : null,
       Number.isFinite(member.soakPct) ? h('span', { class: 'chip2', title: `VIT ${member.stats?.VIT ?? 0}% + gear points` }, glyph('offhand'), `${member.soakPct}%`) : null),
     member.away ? h('div', { class: 'awn' }, `${member.away.where} · last seen ${member.away.lastSeen}. Still in the party: counts for load and pace, and sits out fights while away.`) : null,
     effects.length ? h('div', { class: 'fx2' }, effects.map(e => h('span', { class: `f ${e.tone}`, dataset: { status: e.id } },

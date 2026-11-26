@@ -138,7 +138,8 @@ test('carry: weights in load, the table, and animals add only when they travel w
     assert.deepEqual(carry.animals.map(row => [row.name, row.carry, row.withParty]), [['Dapple', 40, true], ['Nib', 60, true], ['Wain', 60, true], ['Skiff', 100, false]]);
     assert.equal(carry.capacity - base.capacity, 40 + 60 + 60, 'the boat left at the wharf adds nothing');
     assert.deepEqual([carry.weights.it_rope0001, carry.weights.it_sword001], [3, 3], 'the rope 3 × 1; the sword the weapon default, 3');
-    assert.equal(h.query('gear.view', {}).carry.capacity, 30 + 160, 'the shared bag: the reader\'s 30 and the animals; Ren\'s own 30 is his');
+    assert.equal(h.query('inventory.gear', { owner: 'party' }).carry.capacity, 30 + 160 + 30, 'the whole party\'s: the reader\'s 30, the animals and Ren\'s own 30');
+    assert.equal(h.query('gear.view', {}).carry.capacity, 30 + 160 + 30, 'the Bag\'s load is the whole party\'s');
 });
 
 function gear0() { return crewState().module; }

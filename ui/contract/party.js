@@ -69,6 +69,8 @@ const MEMBER = {
   skills: [SKILL],
   // A companion's keepsakes from their NPC State profile: a read-only list, never gear.
   keepsakes: { $optional: [{ name: T.STRING, note: T.STRING }] },
+  // A companion's own load against their own limit, while they hold things or a bag of their own.
+  carrying: { $optional: { load: T.NUMBER, capacity: T.NUMBER } },
 };
 
 // What the Mount and Bag pickers list: every mount (riders from its `where`; one rider per counted mount) and every bag-like item (whose it is, whether it is their bag).

@@ -388,6 +388,7 @@ The Party tab draws from queries. A module that keeps characters answers them:
 | `party.pc` | `{ id }` of the reader's own character, else `null` (the Bag's gear and the shared bag follow it) | plain |
 | `rpg.sheet` | one row per member: `line`, `level`, `bars`, `effects`, `stats`, `skills`, `points`, … | **fallback** |
 | `party.levels` | `[{ id, name, level, left }]` | **fallback** |
+| `party.names` | `[{ id, name }]`, everyone you ever had, those who left too (the Bag names who left and still holds things) | plain |
 
 A name has one plain owner. The built-in RPG is the plain owner of `rpg.sheet` and `party.levels`, so yours must be `fallback: true` (a second plain
 owner is refused). A fallback answers only when the plain owner is held back, its feature is off, or it answers `null`; that is

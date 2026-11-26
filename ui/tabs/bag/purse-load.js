@@ -11,7 +11,27 @@ function loadText(load) {
   return `${load.level === 'heavy' ? 'Heavy · ' : ''}${left} left before you slow down`;
 }
 
-/** Builds the party load block (bar, 80% marker, heavy and over notes, sources); null when load is null (Story-only). */
+const MEMBER_WORD = { heavy: 'Heavy', over: 'Over the limit' };
+
+// One member's own load against their own limit (what a hand-over to them is checked against), marked as the bar is. Someone who left has no limit.
+const memberLine = m => h('div', { class: ['mload', m.level === 'light' ? null : m.level], dataset: { member: m.id, level: m.level } },
+  h('span', null, m.left && !m.unnamed ? `${m.name} (left)` : MEMBER_WORD[m.level] ? `${m.name} · ${MEMBER_WORD[m.level]}` : m.name), h('b', null, m.left ? `${m.value}` : `${m.value} / ${m.limit}`));
+
+// A member over their own limit: the narrator's tail line names them alone, so it is them it treats as slowed.
+const memberNote = m => h('div', { class: ['ovr', 'mover'], dataset: { member: m.id } },
+  `The narrator treats ${m.name} as slowed: −2 to AGI and DEX checks for them until they put something down.`);
+
+// The notes say what the narrator is told (inventory/queries-parts/encumbrance.js encumbranceTail): the members who are over, else the whole party while the bar
+// is over; nothing while Encumbered is off (`untold`).
+function slowNotes(load) {
+  if (load.untold) return null;
+  const over = (load.people ?? []).filter(m => m.level === 'over');
+  if (over.length) return over.map(memberNote);
+  return load.level === 'over'
+    ? h('div', { class: 'ovr' }, `Over the limit by ${load.value - load.limit}. The narrator treats everyone as slowed: −2 to AGI and DEX checks. Drop something to get back under.`) : null;
+}
+
+/** Builds the party load block (bar, 80% marker, heavy and over notes, members' own loads, sources); null when load is null (Story-only). */
 export function loadBlock(load) {
   if (!load) return null;
   const pct = Math.min(100, (load.value / load.limit) * 100);
@@ -24,8 +44,8 @@ export function loadBlock(load) {
     h('div', { class: 'lbar' }, h('b', { style: { width: `${pct}%` } }), h('i', { class: 'mk', title: 'Heavy from 80%' })),
     load.level === 'heavy'
       ? h('div', { class: 'hvy' }, `Heavy: past 80% of the limit (${heavyAt}). Nothing slows yet; one more item may.`) : null,
-    load.level === 'over'
-      ? h('div', { class: 'ovr' }, `Over the limit by ${load.value - load.limit}. Everyone is slowed: −2 to AGI and DEX checks and travel pace −25%. Drop something to get back under.`) : null,
+    slowNotes(load),
+    load.people?.length ? h('div', { class: 'mloads' }, load.people.map(memberLine)) : null,
     h('div', { class: 'srcs' }, load.breakdown.map(b => h('span', { class: ['src', b.dim ? 'dim' : null] }, b.text ?? `${b.label} +${b.value}`))),
   );
 }

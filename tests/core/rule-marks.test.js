@@ -34,7 +34,8 @@ test('the rule table: a key line with a death word is diedAny; other lines and k
     assert.deepEqual(ruleMarksFor([line('- key Vorn | died')]), ['diedAny']);
     assert.deepEqual(ruleMarksFor([line('- key Vorn | killed in the yard')]), ['diedAny']);
     assert.deepEqual(ruleMarksFor([line('- key Vorn | d**ie**d')]), ['diedAny'], 'Markdown is stripped before matching');
-    assert.deepEqual(ruleMarksFor([line('- key Vorn | unpinned'), line('+ item Rope'), line('- away Vorn | died')]), []);
+    assert.deepEqual(ruleMarksFor([line('- key Vorn | unpinned'), line('- item Rope'), line('- away Vorn | died')]), []);
+    assert.deepEqual([ruleMarksFor([line('+ item Rope')]), ruleMarksFor([line('~ item Rope | qty: 2')])], [['carryRoster'], ['carryRoster']]);
     assert.deepEqual(ruleMarksFor([line('- key Death | unpinned'), line('+ key Vorn | died')]), [], 'a name or another operation is not a death');
     assert.deepEqual(ruleMarksOf(['zzz', 'diedAny', 'diedAny', 7, 'constructor', null]), ['diedAny']);
     assert.deepEqual(ruleMarksOf('diedAny'), []);
@@ -45,7 +46,7 @@ test('the rule table: a key line with a death word is diedAny; other lines and k
     assert.deepEqual(ruleMarksFor([line('+ party Mara')]), ['partyFields', 'partyFour', 'partyRoom']);
     assert.deepEqual(ruleMarksFor([line('- party Mara')]), ['partyLeft'], 'a leaving line changes no room, and carries only partyLeft');
     assert.deepEqual(RULE_LINES.partyRoom({ kind: 'dm', op: '+', raw: '+ party Mara' }), true, 'conservative: the raw words count, however it parsed');
-    assert.deepEqual(Object.keys(RULE_LINES), ['checks', 'diceInOrder', 'clockFace', 'placeFromMap', 'partyRoom', 'partyFour', 'diedAny', 'factionTags', 'xpKept', 'oneCoin', 'partyFields', 'partyLeft', 'caretWords', 'foesFresh', 'foesClear', 'clockMonth', 'youRank', 'youLook', 'skillPractice', 'assistPlace', 'assistFaction', 'assistFactionFresh', 'assistPresent', 'gearOrder', 'gearFinesse', 'itemIds', 'consumableRecovery', 'placeInside']);
+    assert.deepEqual(Object.keys(RULE_LINES), ['checks', 'diceInOrder', 'clockFace', 'placeFromMap', 'partyRoom', 'partyFour', 'diedAny', 'factionTags', 'xpKept', 'oneCoin', 'partyFields', 'partyLeft', 'caretWords', 'foesFresh', 'foesClear', 'clockMonth', 'youRank', 'youLook', 'skillPractice', 'assistPlace', 'assistFaction', 'assistFactionFresh', 'assistPresent', 'gearOrder', 'gearFinesse', 'itemIds', 'consumableRecovery', 'placeInside', 'carryRoster']);
     assert.deepEqual(ruleMarksOf(ALL), ALL, 'every current rule fits when the new mark is added');
     assert.deepEqual(ruleMarksFor([line('+ world Harbour Fight | factions: Quay Watch')]), ['factionTags'], 'any world line');
     assert.deepEqual(ruleMarksFor([line('~ world Harbour Fight | factions: Quay Watch'), line('- world Harbour Fight')]), ['factionTags']);

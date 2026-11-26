@@ -41,6 +41,8 @@ const ITEM = {
   // It can be carried as a bag (Carry as bag…), and it is someone's bag now.
   bagLike: { $optional: T.BOOLEAN },
   isBag: { $optional: T.BOOLEAN },
+  // Whoever holds it left the party (their name): Take back.
+  gone: { $optional: T.STRING },
 };
 
 const ASSET = {
@@ -80,6 +82,11 @@ export const BAG_SHAPE = {
       limit: T.NUMBER,
       level: { $enum: ['light', 'heavy', 'over'] },
       breakdown: [{ label: T.STRING, value: T.NUMBER, text: T.STRING, dim: T.BOOLEAN }],
+      // The members who hold things or a bag of their own: each one's load against their own limit. Someone who left and still holds things has `left` and
+      // no limit (0); `unnamed` when no name is known for them.
+      people: { $optional: [{ id: T.STRING, name: T.STRING, value: T.NUMBER, limit: T.NUMBER, level: { $enum: ['light', 'heavy', 'over'] }, left: { $optional: T.BOOLEAN }, unnamed: { $optional: T.BOOLEAN } }] },
+      // Encumbered is off: the narrator is told nothing, so no note says it is.
+      untold: { $optional: T.BOOLEAN },
     },
   },
   pace: { kmDay: T.NUMBER, by: T.STRING, slowed: T.BOOLEAN, why: T.STRING, alt: T.STRING },

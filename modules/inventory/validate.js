@@ -8,5 +8,5 @@ export { legendaryEarned, legendEarned } from './validate-parts/legend.js';
 export { MANY_SLOTS, MAX_MANY, baseSlot } from './validate-parts/slots.js';
 export { asking } from './validate-parts/shared-asking.js';
 export { slotLimits } from './validate-parts/limits.js';
-export { membersOf, pcOf } from './validate-parts/party.js';
+export { membersOf, pcOf, holderName, ownerSaid } from './validate-parts/party.js';
 export { canWear } from './validate-parts/wear-check.js';

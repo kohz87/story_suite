@@ -29,15 +29,19 @@ export function statBonus(state, owner, condOf) {
  * { on, owner, slots: { weapon, body, off-hand, head, cloak, feet, accessory-1, accessory-2 }: { name, stats, soak, cond, broken } | null,
  *   soak: { total, pieces: [{ place, name, soak }] } (torn and broken pieces give none),
  *   statBonus: { STR…CHA }, carry: { load, capacity, encumbered, penalty, sources } }.
+ * The `carry` of owner `party` is the whole party's (the Bag's bar); any other owner's is their own. `legacy` (a gear record without a `rule` mark, gear-parts/dress.js):
+ * owner `party` is the shared bag alone, counted as it was before the roster.
  * A broken piece (cond 0) gives no stats. Part 2 adds `statBonus` to the effective stats (held to GEAR.effectiveMax).
  */
-export function gearAnswer(state, args, { condOf, carryOf, penalty, mounts }) {
+export function gearAnswer(state, args, { condOf, carryOf, penalty, mounts, roster = null, nameOf = null, legacy = false }) {
     const owner = typeof args?.owner === 'string' && args.owner ? args.owner : 'party';
-    const picture = carryPicture(state, { carryOf, mounts });
-    const mine = owner === 'party' ? picture.shared : picture.people.find(person => person.id === owner) ?? { load: 0, capacity: capacityFor(null) };
+    const picture = carryPicture(state, { carryOf, mounts, roster, nameOf, legacy });
+    const whole = owner === 'party' && !legacy;
+    const mine = whole ? picture : owner === 'party' ? picture.shared : picture.people.find(person => person.id === owner) ?? { load: 0, capacity: capacityFor(null) };
+    const sources = whole ? [...picture.sources.party, ...picture.people.flatMap(person => picture.sources[person.id])] : picture.sources[owner] ?? [{ name: nameOf?.(owner) ?? owner, carry: capacityFor(null) }];
     const over = atLimit(mine.load, mine.capacity);
     return {
         on: true, owner, slots: wornBy(state, owner, condOf), statBonus: statBonus(state, owner, condOf), soak: soakRecord(state, owner, condOf),
-        carry: { load: mine.load, capacity: mine.capacity, encumbered: over, penalty: over ? penalty : 0, sources: picture.sources[owner] ?? [{ name: owner, carry: capacityFor(null) }] },
+        carry: { load: mine.load, capacity: mine.capacity, encumbered: over, penalty: over ? penalty : 0, sources },
     };
 }

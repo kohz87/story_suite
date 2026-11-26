@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Bag: the party's load now counts each member's strength (once), what they carry and their bags, with a line for each, and a note when the narrator is told someone is slowed.
+- Bag: someone who left no longer adds to the carry limit; their things still weigh. Put down their bag or Take back their items to get them back.
 - Bag: papers, ledgers, passes, tallies, warrants and other paperwork weigh nothing by default.
 - Bag: Edit can change the slot of gear the story gave you (its rarity and bonus stay as given).
 - Party tab: a skill's practice shows the full count toward its next rank (157/180), not only the part since its last rank (57/80).

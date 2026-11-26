@@ -31,3 +31,10 @@ test('the party view-model carries a row\'s xpLabel and soakPct null', () => {
   assert.equal(me.xpLabel, '0/50');
   assert.equal(me.soakPct, null);
 });
+
+test('a companion with a load of their own has a "Carrying" chip; without one, none', () => {
+  const none = ctxWith({ soakPct: null });
+  assert.equal(memberSheet(brann(none), none).querySelector('[data-carrying]'), null);
+  const some = ctxWith({ carrying: { load: 18, capacity: 42 } });
+  assert.equal(memberSheet(brann(some), some).querySelector('[data-carrying]').textContent, 'Carrying 18 / 42');
+});

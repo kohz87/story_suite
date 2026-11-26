@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { selectBag } from '../../../ui/select/bag.js';
+import { selectParty } from '../../../ui/select/party.js';
 import { checkShape } from '../../../ui/contract/shapes.js';
 import { BAG_SHAPE } from '../../../ui/contract/bag.js';
 
@@ -43,4 +44,28 @@ test('gear off: no Carries; the mounts switch off: no + Add', async t => {
   assert.equal(bag.items[0].carry, undefined);
   assert.equal(bag.assets.canAdd, false);
   assert.deepEqual(shapeErrors(bag), []);
+});
+
+test('a companion\'s own load reaches the Bag (load.people) and their Party row (carrying), in the contract\'s shape', async t => {
+  t.mock.method(console, 'warn', () => {});
+  const mara = 'ac_mara0001';
+  const actors = { id: 'zz-party', version: '0.0.0', queries: { 'party.actors': () => [{ id: mara, name: 'Mara' }] } };
+  const host = await createHost({ modules: [actors], settings: { features: { 'story-block.gear': true, 'story-block.rpg': true } } });
+  t.after(() => host.close());
+  await host.send('Hello.', reply('The road.', ['+ item Old Sack']));
+  assert.equal('people' in read(host).load, false);
+  const stack = host.sdk.query('inventory.items')[0].stack;
+  assert.equal((await host.sdk.command('inventory.bag', { owner: mara, stack })).ok, true);
+  const bag = read(host);
+  assert.deepEqual(shapeErrors(bag), []);
+  const [row] = bag.load.people;
+  assert.deepEqual([row.id, row.name, row.level], [mara, 'Mara', 'light']);
+  const party = selectParty({ actors: [{ id: mara, name: 'Mara' }], gear: { [mara]: host.sdk.query('gear.view', { owner: mara }) } });
+  assert.deepEqual(party.members[0].carrying, { load: row.value, capacity: row.limit });
+});
+
+test('Encumbered off (inventory.encumbrance answers null) marks the load untold; on, or not asked, it does not', () => {
+  const gear = { on: true, carry: { load: 40, capacity: 30, level: 'over' } };
+  const untold = extra => selectBag({ items: [], gear, ...extra }).load.untold;
+  assert.deepEqual([untold({ encumbrance: null }), untold({ encumbrance: { on: true, encumbered: true } }), untold({})], [true, undefined, undefined]);
 });

@@ -60,7 +60,7 @@ While the feature is on, a `+ item` line that makes a new item gets (before any 
 ## Queries and commands
 
 * `inventory.gear { owner }` (default `party`) answers `{ on, owner, slots, statBonus, carry }`: `slots` has the eight places,
-  each `{ name, stats, cond, broken }` or `null`; `statBonus` is `{ STR, VIT, AGI, DEX, INT, WIS, CHA }` summed over what is worn
+  each `{ name, stats, cond, broken }` or `null`; for owner `party`, `carry` is the whole party's (see "The screens"); `statBonus` is `{ STR, VIT, AGI, DEX, INT, WIS, CHA }` summed over what is worn
   (broken left out); `carry` is `{ load, capacity, encumbered, penalty, sources }` (penalty -2 while encumbered). `inventory.statBonus
   { owner }` answers the sum alone. Both answer null while the feature is off.
 * `gear.carry` answers what `items.carry` asks (`{ on, people, bag, load, capacity, bonuses }`, or `{ ok, message }` for
@@ -104,6 +104,14 @@ sledge, carriage, coach, barge or wagon gets that carry on its def and adds it w
 `sources: [{ name, carry }]` (each member's 10 + 2 × STR, bags, carts, mounts).
 
 ## The screens
+
+`gear.view`'s `carry` is the whole party's load and capacity (what the add check and the encumbrance rule read), with `people` the members who hold things or a bag of their own, each against their own limit. `inventory.gear { owner: 'party' }`'s `carry` is the same totals, so it is encumbered exactly when the Bag's bar is over; any other owner's is their own. Under the bar, a note says what the narrator is told (`encumbranceTail`): that it treats each member who is over their own limit as slowed, else everyone while the bar is over; no note while `story-block.encumbrance` is off. No dice apply the -2, and no travel pace changes.
+
+**Who counts (`carry-parts/members.js`).** Every member `party.actors` or the `party` domain names has room of their own from the start (their strength, plus their bags), and so does anyone who holds things when no roster is asked, so a first hand-over is checked against their own limit. The main character is not one of them: their room is in the shared bag (unless things are filed under their own id). A member who is a Character block is counted once, with the block's strength, which moves from the shared bag to them. With several blocks and no main character known, a block that holds nothing stays in the shared bag. While members are listed, the shared bag's single chip is named ("Astra carries 30").
+
+**Someone who left.** Whoever holds things but is not named by `party.actors` or the `party` domain (a Text RPG member who fell, a built-in companion with `left: true`, a deleted join) adds **no room**: neither their strength nor their bags. Their things stay in the load. `gear.view` lists them in `carry.people` with `left: true` and no capacity ("Torka (left) 21") and marks their stacks `rows[stack].gone`. The name comes from the `party` domain, `party.actors`, `party.levels` (the RPG's keeps those who left) or `party.names` (Text RPG: everyone it ever had), else "Someone who left" (`holderName`, validate-parts/party.js). Nothing can be handed to them. To get things back: **Put down** on their bag (`inventory.bag { owner, stack: null }`) and **Take back** on anything else (`inventory.transfer { to: 'party' }`; not a bound piece).
+
+**Re-reads (rule mark `carryRoster`).** A `+ item` or `~ item … qty` line of a reply without the mark is judged by the count from before the roster (`gear.carry { legacy: true }`): every holder has room, a roster adds nobody, every Character block is in the shared bag.
 
 While the feature is on (and only then; off, every screen below is as it was, byte for byte), `gear.view { owner?, who?, own? }` (null while off)
 answers everything the screens draw: `carry` (`load`, `capacity`, `level` normal | heavy | over, the breakdown line, mounts left elsewhere),
@@ -233,6 +241,10 @@ give the same answers (tests/v2/gear-inventory.test.js).
 
 ## In the rolls (part 2)
 
+**Not in the current fights.** The code that built and checked this record (`rpg.resolve` and the earlier fight board) was removed in 0.1.0. `planGear`, `applyGear` and `gearMatches` remain, with no caller in the extension. Today's fights add worn gear's stats and soak and wear it (`board/v1-kind.js`); they apply **no** load penalty: the encumbered -2 is only told to the narrator (`encumbranceTail`) and written on the Bag.
+
+**Load rule mark.** A record made now has `rule: 2`: `enc` comes from the whole party's load for owner `party`, and each member counted once. A record without `rule` was made by the shared bag alone (and members as counted before the roster), and `gearMatches` still judges it that way.
+
 While the switch is on, the roll's payload carries only the mark, `gear: { v: 1, lead: '<reader name>' }` (`lead` is who the shared bag meant, used when no party module names the main character; a mark without it falls to the first block). `rpg.resolve` works the gear out itself from the state before the roll
 (lean-rpg/gear.js `planGear`, over the inventory's own answers) into the record `gear: { v: 1, who: { <member>: { own, add?, enc?, items? } } }`: `own` the owners
 the member's pieces are filed under (their party actor, and `party` for the lead), `add` the summed stat bonus (broken pieces give none), `enc` the encumbered
@@ -249,7 +261,7 @@ without it. A roll with no `gear` (made before) is exactly as before, and off no
   (`sameWho`, lean-rpg/read.js). An exact name wins, and a first name or alias counts only when it means exactly one Character: with "Ren Ashby" and "Ren Holt"
   a member "Ren" is neither. (`packs.castGear`, gone in pack format 4, asked the same question for "already in the party".)
 * Encumbered is at 100 % and over (load at or over the capacity; an empty load never) **only with gear on**; with gear off the limit is as it always was
-  (more than the capacity: exactly 5 of 5 is not encumbered). The roll penalty, `inventory.encumbrance`, and the Carry card
+  (more than the capacity: exactly 5 of 5 is not encumbered). A gear record's `enc` (see above: not in the current fights), `inventory.encumbrance`, and the Carry card
   (red "Encumbered" from 100 %, yellow "Heavy load" from 80 % to below 100 %).
 * Wear: a decisive hit taken wears the member's body armour (else off-hand) one step; a decisive miss of their own act wears the weapon one step
   (`gear.wear`, called by the roll, so it is in the roll's receipt and undone with it). Told rounds only; a broken or absent piece wears nothing. The result

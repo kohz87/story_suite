@@ -12,7 +12,7 @@
    "I wake.",
    "You wake at the gate.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Rope\n</Changes>\n-->"
   ],
-  "stateHash": "464c29ee325f7f0d422c1c3771e97cd082755bf8fd251094bb643178f43b77fe"
+  "stateHash": "98c9f31d79a56b3c43e745f4ad24c0fb505ee95fa1320640bd132535472103ef"
  },
  {
   "name": "two",
@@ -31,7 +31,7 @@
    "I buy bread.",
    "You buy bread.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Bread\n</Changes>\n-->"
   ],
-  "stateHash": "d68319e4c470a85d82a2f8e2cc29c5116cbae832a3575c2dabac65e75362a12a"
+  "stateHash": "9a56d9304611df7073ecf3c533eff0ab512f45a922e77a2ca5888c1526927f53"
  },
  {
   "name": "miss",
@@ -54,7 +54,7 @@
    "I walk.",
    "You walk on."
   ],
-  "stateHash": "64ee85c9cc8641ea79d931146a44ad4eda2e52a507c8a83148a72bd34bb9c5b8"
+  "stateHash": "be9e79e6e8b0b9865e740c762457e4d86a81b103282af5773b9e1b876e1ccf00"
  },
  {
   "name": "three",
@@ -81,7 +81,7 @@
    "I look.",
    "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->"
   ],
-  "stateHash": "88c892dda077f9479cf72a3f9f50845f60f4002ef9dc7735213518751a543553"
+  "stateHash": "00da19b335c3f2d2dd7ce51b41edcac8bd34128ee82ccbca19af371980fe8150"
  },
  {
   "name": "swipe",
@@ -108,7 +108,7 @@
    "I look.",
    "A map lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Map\n</Changes>\n-->"
   ],
-  "stateHash": "30cfa7ed645aa170303acf6e634a8045bf4bf4ebe479fccf652b6c682a0ef7c0"
+  "stateHash": "8fa2cafd988827a5b02dcbe3c24f017cedcce2b5bde6aed8d84796bb2d40853c"
  },
  {
   "name": "swipe back",
@@ -124,7 +124,7 @@
    "I look.",
    "A lamp lies here.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Lamp\n</Changes>\n-->"
   ],
-  "stateHash": "88c892dda077f9479cf72a3f9f50845f60f4002ef9dc7735213518751a543553"
+  "stateHash": "00da19b335c3f2d2dd7ce51b41edcac8bd34128ee82ccbca19af371980fe8150"
  },
  {
   "name": "four",
@@ -155,7 +155,7 @@
    "I take it.",
    "You take it.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Coin\n</Changes>\n-->"
   ],
-  "stateHash": "7aeb42a070b803bf73318565307ba2289a6248d373b6477f24b524530ac966cb"
+  "stateHash": "123441ed24fad926612b9281839dd9cfabff39fd5f9d2a8b5542d3b2a206b525"
  },
  {
   "name": "grown",
@@ -190,7 +190,7 @@
    "I go on.",
    "You go on.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Stick\n</Changes>\n-->"
   ],
-  "stateHash": "e5b876fb4a66bcf8ea52196785679fb9c3aee52a29fbd193dffe43fe9024ca0d"
+  "stateHash": "007d97ef2820720a5368238edb228682d9a02863c6b9ba83371aeb508d004158"
  },
  {
   "name": "shrunk",
@@ -229,7 +229,7 @@
    "I stop.",
    "You stop.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Stone\n</Changes>\n-->"
   ],
-  "stateHash": "8a766690ce4cdfda07ae0616a9a661a8766a53a7238ca348a05781c57890c32b"
+  "stateHash": "6442487dae20379b383a17e9ed5b2b98995ba69490ebc0f0fa97818996a12c55"
  },
  {
   "name": "middle delete",
@@ -270,7 +270,7 @@
    "I rest.",
    "You rest.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Blanket\n</Changes>\n-->"
   ],
-  "stateHash": "97dad9ded87029f52fb7ecc5f9dde5f3ee750ea42cf14a0ebec1b3d2520aa622"
+  "stateHash": "81b0bdbe05a53c7748690caee4bd5b6f2eee06ac0bfc98764a88880b7f057b7d"
  },
  {
   "name": "rewind",
@@ -293,7 +293,7 @@
    "I rest.",
    "You rest.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Blanket\n</Changes>\n-->"
   ],
-  "stateHash": "34e7619afa38e328e4a3d140da2589e00234e8eecb7b192ac999da847573b77d"
+  "stateHash": "f2a05d38048289643b93c25384eb1a549e8247e7bdbb63745c39d97ede4cbf54"
  },
  {
   "name": "reload",
@@ -338,7 +338,7 @@
    "I wake again.",
    "Morning.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Dew\n</Changes>\n-->"
   ],
-  "stateHash": "39d26a644505e56ee807ea90021a528b4fd58e8bc068f42b9f7dd86c3e666ed4"
+  "stateHash": "0aed3fc392f6138945dd5143ab850518d4cb4abad183de10ac474347fb7724ce"
  },
  {
   "name": "other chat",
@@ -353,7 +353,7 @@
    "Hello.",
    "A new tale.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Hat\n</Changes>\n-->"
   ],
-  "stateHash": "a93a5b83271b916d41c8a43a2bf125ce10b67c29df89e8e87e35194b1f5e460a"
+  "stateHash": "05fe6ab5b573ea64d625e1a73d32299f8328c003aeec7836c0193162508b1365"
  },
  {
   "name": "chat back",
@@ -402,6 +402,6 @@
    "I return.",
    "Back again.\n\n<!-- STORY_SUITE_V2\n<Changes>\n+ item Key\n</Changes>\n-->"
   ],
-  "stateHash": "34753804bc03b4218a6d5ef00a681a7f8a8d31ba12350c23ba1b9c0f080efece"
+  "stateHash": "b3f9d76927ba50ee00362d223854d0857e5f4ee158a0db154d1fd3660635049f"
  }
 ]

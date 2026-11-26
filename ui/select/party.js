@@ -61,6 +61,8 @@ function memberOf(actor, level, gearView, sheet, portrait = null, labels = null,
   const known = Number.isSafeInteger(level) ? level : null;
   const own = isRecord(sheet) ? sheet : {};
   const commands = commandsOf(own.commands);
+  // A companion who holds things or a bag of their own has their own load against their own limit (gear.view's carry.people; the main character's is the shared bag).
+  const carrying = (Array.isArray(gearView?.carry?.people) ? gearView.carry.people : []).find(row => row?.id === actor.id);
   return {
     id: String(actor.id), name: String(actor.name), portrait: own.portrait ?? portrait ?? null,
     line: own.line ?? (known === null ? '' : `Lv ${known}`),
@@ -68,6 +70,7 @@ function memberOf(actor, level, gearView, sheet, portrait = null, labels = null,
     bars: Array.isArray(own.bars) ? own.bars : [], effects: Array.isArray(own.effects) ? own.effects : [],
     stats: isRecord(own.stats) ? own.stats : null, bonus: isRecord(own.bonus) ? bonusOf(own.bonus) : bonusOf(gearView?.statBonus), slots: slotsOf(gearView, labels), skills: Array.isArray(own.skills) ? own.skills : [],
     keepsakes: Array.isArray(keepsakes) ? keepsakes : [],
+    ...(carrying ? { carrying: { load: whole(carrying.load), capacity: whole(carrying.capacity) } } : {}),
     ...(commands ? { commands } : {}),
   };
 }

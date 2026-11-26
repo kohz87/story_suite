@@ -1,4 +1,4 @@
-// Builds the item sheet body: tile, rarity and kind chips, details, and the Wear on / Take off / Give to / Carry as bag / Put down / Use on / Drop actions.
+// Builds the item sheet body: tile, rarity and kind chips, details, and the Wear on / Take off / Give to / Carry as bag / Put down / Take back / Use on / Drop actions.
 import { h } from '../../kit/dom.js';
 import { button } from '../../kit/controls.js';
 import { itemTile, memberName, KIND_LABEL } from './item-grid.js';
@@ -22,8 +22,8 @@ function weightText(item) {
 
 function details(item, rpg, ctx, stats) {
   const wearer = item.wornBy
-    ? row('Worn by', h('span', { class: 'av', dataset: { portrait: item.wornBy } }), memberName(item.wornBy, ctx))
-    : [];
+    ? row('Worn by', h('span', { class: 'av', dataset: { portrait: item.wornBy } }), item.gone ?? memberName(item.wornBy, ctx))
+    : item.gone ? row('Held by', item.gone) : [];
   const wear = rpg && item.kind === 'gear' && item.wear
     ? row('Wear', h('span', { class: ['wbar', item.wear === 'torn' ? 'w2' : null] },
       [1, 2, 3, 4].map(n => h('i', { class: n <= (item.wear === 'torn' ? 2 : 4) ? 'on' : null }))), item.wear === 'torn' ? 'Torn' : 'Good')
@@ -84,6 +84,10 @@ export function itemSheet(item, ctx = {}) {
   // A carried bag is put down (inventory.bag with no stack: a companion's goes back to the party's bag); a gear piece worn in a slot is taken off.
   if (item.isBag && item.wornBy) {
     actions.push(button({ label: 'Put down', tone: 'primary', onClick: () => send('inventory.bag', { owner: ownerOf(item.wornBy, ctx.pcId), stack: null }) }));
+    if (gear) actions.push(button({ label: 'Give to…', onClick: () => pick('Give to', 'inventory.transfer') }));
+  } else if (item.gone && !item.bound) {
+    // Someone who left still holds it: back to the party's bag (a bound piece stays theirs).
+    actions.push(button({ label: 'Take back', tone: 'primary', onClick: () => send('inventory.transfer', { stack: item.stack, to: 'party' }) }));
     if (gear) actions.push(button({ label: 'Give to…', onClick: () => pick('Give to', 'inventory.transfer') }));
   } else if (gear && item.wornBy) {
     actions.push(button({ label: 'Take off', tone: 'primary', onClick: () => send('inventory.unequip', { stack: item.stack }) }));

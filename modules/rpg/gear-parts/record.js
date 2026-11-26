@@ -3,6 +3,7 @@ import { STATS_ANY as STATS } from '../names.js';
 import { GEAR_VERSION } from './shared-marks.js';
 import { MEMBERS_MAX, OWN_MAX, ITEMS_MAX, NAME_MAX } from './shared-caps.js';
 import { isObject } from './shared-helpers.js';
+import { LOAD_RULE } from './dress.js';
 
 /**
  * The mark a roll's payload carries while gear is on: `{ v: 1 }` or `{ v: 1, lead: '<reader name>' }`, or undefined. `lead` is a stable fact about the roll (who the
@@ -16,7 +17,8 @@ export function gearMarkOf(value) {
 
 /** Whether `gear` (from a payload, a record) is a record this version reads: damaged ones are not guessed at. */
 export function gearValid(gear) {
-    if (!isObject(gear) || gear.v !== GEAR_VERSION || !isObject(gear.who) || Object.keys(gear).some(key => !['v', 'who'].includes(key))) return false;
+    if (!isObject(gear) || gear.v !== GEAR_VERSION || !isObject(gear.who) || Object.keys(gear).some(key => !['v', 'rule', 'who'].includes(key))) return false;
+    if (gear.rule !== undefined && gear.rule !== LOAD_RULE) return false;
     const entries = Object.entries(gear.who);
     if (entries.length > MEMBERS_MAX) return false;
     const stats = value => isObject(value) && Object.entries(value).every(([stat, n]) => STATS.includes(stat) && Number.isSafeInteger(n) && n >= -30 && n <= 30);

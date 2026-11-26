@@ -14,6 +14,11 @@ const LOAD_LEVEL = { normal: 'light', heavy: 'heavy', over: 'over' };
 // gear.view's carry.parts → the load chips ({ label, value, text, dim }); [] when it gave none.
 const loadParts = parts => (Array.isArray(parts) ? parts.filter(isRecord).map(p => ({ label: String(p.label), value: Number.isFinite(p.value) ? p.value : 0, text: String(p.text ?? ''), dim: p.dim === true })) : []);
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+// gear.view's carry.people → the members' own load lines ({ id, name, value, limit, level }; someone who left has `left`, no limit (0), and `unnamed` with no name known); the key is left out when there are none.
+function loadPeople(people) {
+  const rows = (Array.isArray(people) ? people.filter(isRecord) : []).map(p => ({ id: String(p.id), name: String(p.name), value: Number.isFinite(p.load) ? p.load : 0, limit: Number.isFinite(p.capacity) ? p.capacity : 0, level: LOAD_LEVEL[p.level] ?? 'light', ...(p.left === true ? { left: true } : {}), ...(p.unnamed === true ? { unnamed: true } : {}) }));
+  return rows.length ? { people: rows } : {};
+}
 const slug = text => String(text).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 // inventory.items row (queries.js:42-63) + gear.view `rows[stack]` (views.js:93-110) → one contract item; desc and isNew are gaps; weight, soak and soakMax come from gear.view's row.
@@ -35,6 +40,8 @@ function itemOf(row, ctx) {
     note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
     ...(kind === 'gear' ? gearOf(info, ctx.labels) : {}),
     ...carryOf(info, ctx.packs?.[row.stack], kind === 'gear' && Boolean(slotWordOf(row.slot))),
+    // Held by someone who left (their name): the sheet offers Take back.
+    ...(typeof info?.gone === 'string' ? { gone: info.gone, ...(isRecord(info.bound) ? { bound: true } : {}) } : {}),
   };
 }
 
@@ -71,9 +78,9 @@ const originOf = from => (typeof from === 'string' && !/^rc_/u.test(from) ? from
 
 /**
  * Bag view-model from { rpg, items: inventory.items, counts: inventory.counts (pieces per def+owner for unstacked items), gear: gear.view, wallet: inventory.wallet, currency: inventory.currency,
- * mounts: mounts.list, pace: mounts.pace, changes: reply.changes (the head reply's lines; the purse's coin lines are the turn's), carriers: gear.view's `carriers` (mounts with the party, what each adds; `packs`: the items that can be carried as a bag), pcId, labels: gear.statLabels (the names the gear's stats show under) }; null when inventory.items does not answer.
+ * mounts: mounts.list, pace: mounts.pace, changes: reply.changes (the head reply's lines; the purse's coin lines are the turn's), encumbrance: inventory.encumbrance (null while it is off: the narrator is told nothing), carriers: gear.view's `carriers` (mounts with the party, what each adds; `packs`: the items that can be carried as a bag), pcId, labels: gear.statLabels (the names the gear's stats show under) }; null when inventory.items does not answer.
  */
-export function selectBag({ rpg = false, items, counts, gear, wallet, currency, mounts, pace, carriers, changes, pcId = null, labels = null } = {}) {
+export function selectBag({ rpg = false, items, counts, gear, wallet, currency, mounts, pace, carriers, changes, encumbrance, pcId = null, labels = null } = {}) {
   if (!Array.isArray(items)) return null;
   const packs = Object.fromEntries((Array.isArray(carriers?.packs) ? carriers.packs : []).filter(isRecord).map(pack => [pack.stack, pack]));
   const shown = labelsOf(labels);
@@ -92,7 +99,7 @@ export function selectBag({ rpg = false, items, counts, gear, wallet, currency, 
     // The wallet keeps one amount under `coin` (inventory/state.js WALLET_KEY): the denominations are in `words`, so `coins` stays null; `thisTurn` is the head reply's coin line; no rates yet.
     purse: { coins: null, words: money(wallet?.coin ?? 0, currency), thisTurn: purseLines(changes, currency), rates: null },
     load: isRecord(carry) && carry.capacity > 0
-      ? { value: carry.load, limit: carry.capacity, level: LOAD_LEVEL[carry.level] ?? 'light', breakdown: loadParts(carry.parts) } : null,
+      ? { value: carry.load, limit: carry.capacity, level: LOAD_LEVEL[carry.level] ?? 'light', breakdown: loadParts(carry.parts), ...loadPeople(carry.people), ...(encumbrance === null ? { untold: true } : {}) } : null,
     pace: isRecord(pace) ? { kmDay: pace.pace, by: String(pace.slowest ?? ''), slowed: pace.short > 0, why: '', alt: '' } : null,
     // (`canAdd`: the mounts switch is on, so mounts.list answers and Transport offers + Add even with no mount yet)
     assets: { transport: (Array.isArray(mounts) ? mounts.filter(isRecord) : []).map(row => assetOf(row, carriers?.mounts?.find?.(m => m?.name === row.name))), property: [], canAdd: Array.isArray(mounts) },

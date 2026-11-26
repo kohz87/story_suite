@@ -125,15 +125,15 @@ test('mounts and carts add their carry while they travel with the party', () => 
     const gear = () => h.query('inventory.gear', { owner: 'party' }).carry;
     // The reader (30) + Grey 20 + Burr 2 × 40 + the cart's own 90; the boat was left elsewhere.
     assert.equal(h.query('gear.carry', {}).capacity, 30 + 30 + 40 + 100 + 90, 'Ren\'s 30 is a person of their own');
-    assert.deepEqual(gear().sources, [{ name: 'The reader', carry: 30 }, { name: 'Grey', carry: 40 }, { name: 'Burr', carry: 100 }, { name: 'Old Cart', carry: 90 }]);
-    assert.equal(gear().capacity, 30 + 40 + 100 + 90);
+    assert.deepEqual(gear().sources, [{ name: 'The reader', carry: 30 }, { name: 'Grey', carry: 40 }, { name: 'Burr', carry: 100 }, { name: 'Old Cart', carry: 90 }, { name: 'ac_ren00001', carry: 30 }]);
+    assert.equal(gear().capacity, 30 + 40 + 100 + 90 + 30, 'owner party is the whole party\'s');
     state.domains.scene.mounts['m:left'].where = '';
     h.state = state;
-    assert.equal(gear().capacity, 30 + 40 + 100 + 90 + 100, 'the boat joined the party');
+    assert.equal(gear().capacity, 30 + 40 + 100 + 90 + 100 + 30, 'the boat joined the party');
     // Without the Mounts rows nothing is added.
     delete state.domains.scene.mounts;
     h.state = state;
-    assert.equal(gear().capacity, 30);
+    assert.equal(gear().capacity, 30 + 30);
     // Off: nothing answers.
     assert.equal(createHarness([core()], { state }).query('gear.carry', {}), null);
 });

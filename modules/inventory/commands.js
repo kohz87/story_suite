@@ -1,11 +1,11 @@
 // The inventory domain's commands (inventory.js re-exports every public name): the command table and the guard of the commands that make something out of nothing; commands/wallet.js holds the purse commands and TOLD, commands/bag.js the Party Bag slot.
 
-import { isPlainObject, capitalize, ownerNameIn, clone } from '../scene/domains/common.js';
+import { isPlainObject, capitalize, clone } from '../scene/domains/common.js';
 import { cleanName, resolveDef, slugify, aliasKey } from '../scene/names.js';
 import { handDef, slotWordOf } from './gear.js';
 import { fill } from '../../core/strings.js';
 import { RPG_MODULE, MAX_NOTE, gearOn, KINDS, RARITIES, MAX_UNSTACKED, condOf, COND_MAX, condWrite, nonBlank, isCount, FEATURE } from './state.js';
-import { itemText, baseSlot } from './validate.js';
+import { itemText, baseSlot, ownerSaid } from './validate.js';
 import {
     count, receiverArg, textArg, defineGiven, defineByName, addStack, grantInto, told, E, ownerArg, peekPackDef,
     stackIn, boundId, refuseBound, ambiguous, stacksOf, freeId, storeDef, unbound, shortOf, takeAcross,
@@ -59,7 +59,7 @@ export function createInventoryCommands(env) {
                 : grantInto(ctx, inv, def, qty, owner, note);
             if (payload.bound === true) for (const id of stacks) inv.stacks[id].bound = owner;
             return {
-                summary: `${capitalize(ownerNameIn(ctx, owner))} gains ${itemText(def.name, qty)}.`,
+                summary: `${capitalize(ownerSaid(ctx, owner))} gains ${itemText(def.name, qty)}.`,
                 data: { def: def.id, qty, owner, stacks, created },
                 narrate: told(ctx),
             };
@@ -298,7 +298,7 @@ export function createInventoryCommands(env) {
             if (payload.to === undefined || payload.to === null) ctx.fail('INVALID', 'Say who should get it.');
             const to = receiverArg(ctx, payload.to);
             const from = stack.owner;
-            if (to === from) ctx.fail('REFUSED', `${def.name} is already with ${ownerNameIn(ctx, to)}.`);
+            if (to === from) ctx.fail('REFUSED', `${def.name} is already with ${ownerSaid(ctx, to)}.`);
             const qty = count(ctx, payload.qty, stack.qty);
             if (qty > stack.qty) ctx.fail('NOT_ENOUGH', shortOf(def.name, stack.qty));
             // The reader's hand-over (Give on the Inventory screen): only the taker's own load is checked.
@@ -323,7 +323,7 @@ export function createInventoryCommands(env) {
                 }
             }
             return {
-                summary: `${capitalize(ownerNameIn(ctx, from))} gives ${itemText(def.name, qty)} to ${ownerNameIn(ctx, to)}.`,
+                summary: `${capitalize(ownerSaid(ctx, from))} gives ${itemText(def.name, qty)} to ${ownerSaid(ctx, to)}.`,
                 data: { def: def.id, qty, from, to, stack: moved },
                 narrate: told(ctx),
             };
@@ -340,7 +340,7 @@ export function createInventoryCommands(env) {
             guardReaderEdit(ctx, 'inventory.drop', editStack(stack));
             take(inv, stack, qty);
             return {
-                summary: `${capitalize(ownerNameIn(ctx, owner))} drops ${itemText(def.name, qty)}.`,
+                summary: `${capitalize(ownerSaid(ctx, owner))} drops ${itemText(def.name, qty)}.`,
                 data: { def: def.id, qty, owner, stack: stack.id, ...(ctx.cause === 'ui' ? { edit: true } : {}) },
                 narrate: told(ctx),
             };
@@ -363,7 +363,7 @@ export function createInventoryCommands(env) {
             stack.equipped = where;
             const away = occupant ? `, putting away ${inv.defs[occupant.def].name}` : '';
             return {
-                summary: `${capitalize(ownerNameIn(ctx, stack.owner))} equips ${def.name} (${where})${away}.`,
+                summary: `${capitalize(ownerSaid(ctx, stack.owner))} equips ${def.name} (${where})${away}.`,
                 data: { stack: stack.id, def: def.id, slot: where, replaced: occupant?.id ?? null },
                 narrate: told(ctx),
             };
@@ -378,7 +378,7 @@ export function createInventoryCommands(env) {
             const slot = stack.equipped;
             stack.equipped = null;
             return {
-                summary: `${capitalize(ownerNameIn(ctx, stack.owner))} takes off ${def.name}.`,
+                summary: `${capitalize(ownerSaid(ctx, stack.owner))} takes off ${def.name}.`,
                 data: { stack: stack.id, def: def.id, slot },
                 narrate: told(ctx),
             };

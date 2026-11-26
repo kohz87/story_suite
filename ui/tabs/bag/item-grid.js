@@ -72,7 +72,7 @@ export function itemsCard(bag, ctx = {}) {
       { type: 'button', class: 'itm', dataset: { stack: it.stack }, onClick: () => ctx.onItem?.(it) },
       itemTile(it, rpg),
       h('span', { class: 'n' }, it.name),
-      h('span', { class: 'k' }, it.wornBy ? memberName(it.wornBy, ctx) : KIND_LABEL[it.kind]),
+      h('span', { class: 'k' }, it.wornBy ? it.gone ?? memberName(it.wornBy, ctx) : KIND_LABEL[it.kind]),
     )) : [h('p', { class: 'fine' }, 'Nothing here.')]));
   }
 

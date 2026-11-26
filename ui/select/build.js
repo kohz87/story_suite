@@ -118,7 +118,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const loot = selectLoot(read('inventory.loot', {}));
       const bag = selectBag({
         rpg: Array.isArray(actors) && actors.length > 0, items: read('inventory.items', {}), counts: read('inventory.counts', {}), gear: pc?.id ? view : null, carriers: view?.carriers,
-        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), changes: read('reply.changes', {}), pcId: pc?.id ?? null, labels: read('gear.statLabels', {}),
+        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), changes: read('reply.changes', {}), encumbrance: read('inventory.encumbrance', {}), pcId: pc?.id ?? null, labels: read('gear.statLabels', {}),
       });
       // every reply's loot not taken yet (the Bag's To pick up)
       return bag && loot.length ? { ...bag, loot } : bag;

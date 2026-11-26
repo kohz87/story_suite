@@ -64,4 +64,7 @@ export const RULE_LINES = Object.freeze({
     consumableRecovery: () => false,
     // A new `~ place` the story names while the party is in a settlement, with no travel, is filed inside it ("Town / Spot") and is no settlement itself (domains/scene/place-inside.js). Static per chat: only a reply's first live capture is marked; an older reply keeps the place as written.
     placeInside: () => false,
+    // `+ item` and `~ item … qty` are held to the carry limit counted with every member's own room and without that of anyone who left (domains/inventory/story-parts/item.js
+    // storyCarry). A reply with no mark is judged by the count from before (`gear.carry { legacy }`). A `- item` line adds nothing.
+    carryRoster: line => line?.kind === 'item' && line.op !== '-',
 });
