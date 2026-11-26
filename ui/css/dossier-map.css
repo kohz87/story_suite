@@ -29,7 +29,8 @@
 .dlib .fchip small{margin-left:6px;font-size:12px;opacity:.75}
 .dlib .fchip{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--su-line2);background:var(--su-tint);font:800 12px var(--su-font);letter-spacing:.04em;color:var(--su-soft);cursor:pointer}
 .dlib .fchip[aria-pressed="true"]{color:var(--pk-gold);border-color:var(--pk-gold);background:rgba(240,184,74,.12)}
-.dlib .fchip:not([data-filter="followed"])[aria-pressed="true"]{color:var(--su-text);border-color:var(--su-line2);background:var(--su-tint)}
+.dlib .fchip:not([data-filter="followed"])[aria-pressed="true"]{color:var(--su-text);border-color:var(--su-accent);background:var(--su-panel2);box-shadow:inset 0 0 0 1px var(--su-accent)}
+.dlib .fchip:not([data-filter="followed"])[aria-pressed="true"] small{color:var(--su-accent);opacity:1}
 .dlib .lrow{display:flex;gap:4px;padding:4px 2px;overflow-x:auto;scrollbar-width:none}.dlib .lrow::-webkit-scrollbar{display:none}
 .dlib .lp{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:88px;padding:9px 4px 6px;border:0;border-radius:12px;background:none;color:var(--su-text);flex:none;cursor:pointer}
 .dlib .lp .p{width:48px;height:48px;box-shadow:0 0 0 2px rgba(255,255,255,.16)}

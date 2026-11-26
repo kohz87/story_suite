@@ -31,14 +31,14 @@ export const SPEC = Object.freeze({
 });
 
 /** A host with the pack installed and the spec's kinds added (jumps of up to 60 days); `on` turns the switch on. Call `host.done()` to close and undo. */
-export async function newHost(on = true, spec = SPEC, settings = { modules: { 'story-director': { 'tracker.maxJump': 60 } } }) {
+export async function newHost(on = true, spec = SPEC, settings = { modules: { 'story-director': { 'tracker.maxJump': 60 } } }, pack = PACK) {
     const undo = overrideWorld(world => ({ ...world, ...spec }));
     let host = null;
     // `feature`: the world part's queries (world.heardHere) read the switch through the module's host.
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text), feature: id => host?.features.on(id) } });
     host = await createHost({ modules: [fakeFightRunner(), module], settings });
     if (on) host.features.set(FEATURE, true);
-    const installed = await host.packs.packs.install(PACK, { origin: 'pack.json' });
+    const installed = await host.packs.packs.install(pack, { origin: 'pack.json' });
     assert.equal(installed.ok, true, JSON.stringify(installed.errors));
     host.done = () => { host.close(); undo(); };
     return host;

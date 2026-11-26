@@ -2,6 +2,7 @@
 // Each returns a plain record, or `{ error }` saying why the line is not that kind of entry. Pure.
 
 import { durationDays } from '../../../modules/world/daily/durations.js';
+import { partyTerm } from '../../../modules/world/daily/grammar.js';
 
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ANCHOR_KINDS = Object.freeze(['set', 'cleared', 'fired', 'ended', 'lapsed', 'died', 'departed', 'fact', 'stage', 'learned', 'arc-ended', 'date']);
@@ -61,9 +62,10 @@ export function parseAnchor(text) {
     return { kind, id, offset };
 }
 
-/** One requires-style entry → { type: 'threshold' | 'anchor' | 'condition', ...record }. */
+/** One requires-style entry → { type: 'threshold' | 'party' | 'anchor' | 'condition', ...record }. */
 export function parseEntry(text) {
     const raw = typeof text === 'string' ? text.trim() : '';
+    if (/^(in|near):/.test(raw)) return { type: 'party', ...(partyTerm(raw) ?? { error: `"${raw}" names no region after the ":" (write in:<region id> or near:<region id>).` }) };
     if (/^(power|score):/.test(raw)) return { type: 'threshold', ...parseThreshold(raw) };
     if (/^(set|cleared):/.test(raw) && raw.includes('@')) {
         const anchor = parseAnchor(raw.replace(/@.*?(?= \+ |$)/, ''));

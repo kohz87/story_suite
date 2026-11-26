@@ -225,7 +225,10 @@ export function dossierPage(first, ctx = {}) {
       if (state.tab === 'map') drawMap(); else drawDossier();
       drawLibrary();
     });
+    soon(reveal);
   }
+  // On a first draw the dossier is not in the page yet (no layout to measure): the open person is brought into view on the next frame (UI check 26 Nov).
+  function soon(fn) { const win = root.ownerDocument?.defaultView; if (win?.requestAnimationFrame) win.requestAnimationFrame(() => fn()); else setTimeout(fn, 0); }
 
   function downFromStack() { shut = true; release('menu'); release('page'); ctx.onClose?.(); }
   draw();

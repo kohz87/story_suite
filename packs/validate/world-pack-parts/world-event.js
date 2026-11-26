@@ -8,6 +8,7 @@ import { isObject, isText } from '../core.js';
 import { checkAnchorText, checkEntry } from './entries.js';
 import { checkEffects } from './effects.js';
 import { checkModifiers } from './modifiers.js';
+import { checkWaitsFor } from './party.js';
 import { checkWeight } from './weight-check.js';
 
 const CHANCE = /^(\d{1,3}(?:\.\d+)?)% (over the window|per season)$/;
@@ -90,6 +91,7 @@ export function checkWorldEvent(record, ctx) {
     if (record.title !== undefined && !SENTENCE(record.title, 120)) say('title', 'title must be text of at most 120 characters.');
     if (record.summary !== undefined && !SENTENCE(record.summary, 300)) say('summary', 'summary must be one Journal line of at most 300 characters.');
     whereOf(record, ctx, say, kind);
+    ctx.whereList = Array.isArray(record.where) && record.where.length > 0;
     for (const field of ['requires', 'requires_any']) {
         if (record[field] === undefined) continue;
         if (!Array.isArray(record[field]) || record[field].length > 200) say(field, `${field} must be a list of at most 200 entries.`);
@@ -130,6 +132,7 @@ export function checkWorldEvent(record, ctx) {
     if (record.outcomes !== undefined) outcomes(record.outcomes, ctx);
     if (record.effects !== undefined) checkEffects(record.effects, ctx, 'effects');
     if (record.even_in_party !== undefined && typeof record.even_in_party !== 'boolean') say('even_in_party', 'even_in_party must be true or false.');
+    checkWaitsFor(record, ctx, kind);
     fromWarnings(record, ctx);
     endsWhen(record.ends_when, ctx);
     return JSON.parse(JSON.stringify(record));

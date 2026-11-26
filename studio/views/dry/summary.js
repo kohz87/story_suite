@@ -15,7 +15,8 @@ export function headNodes(ctx, st, on) {
     const first = dateOf(result, st.calendar, 1);
     const last = dateOf(result, st.calendar, Math.max(result.days, 1));
     const stale = st.ranOn !== ctx.doc ? ' The pack has changed since: run it again to see the change.' : '';
-    const sub = `${first ? `${first} to ${last} · ` : 'From day 1, since the world gives no start date · '}on ${st.against}.${stale}`;
+    const party = result.readsParty ? ' The party’s place is not simulated: in: and near: are never true, and a waits_for event does not see the party arrive.' : '';
+    const sub = `${first ? `${first} to ${last} · ` : 'From day 1, since the world gives no start date · '}on ${st.against}.${party}${stale}`;
     const head = h('div', { class: 'srow wide st-dry-result', dataset: { stale: String(Boolean(stale)) } },
         h('div', { class: 'lb' }, h('b', `Seed ${result.seed} · tempo ${result.tempo} · ${plural(result.days, 'day')}: ${plural(count('fired'), 'event')} fired`), h('small', sub)),
         h('div', { class: 'ctl' }, h('button', { type: 'button', class: 'btn2 st-dry-change', onClick: on.change }, 'Change'), h('button', { type: 'button', class: 'btn2 st-dry-again', disabled: (ctx.check?.errors?.length ?? 0) > 0, onClick: on.again }, 'Run again')));

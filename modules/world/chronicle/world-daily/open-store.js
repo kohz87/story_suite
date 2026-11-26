@@ -17,6 +17,7 @@ import { readWorld } from './read-world.js';
 import { openAsker, scopeOf } from './open-ask.js';
 import { tempoOf } from './tempo.js';
 import { tickInputs } from './cast-tie.js';
+import { partyRegionOf } from './party-region.js';
 import { ask as askQuery } from '../queries-parts/shared-ask.js';
 
 export const OPEN = 'chronicle.world.open';
@@ -41,8 +42,9 @@ Object.defineProperty(openCommand, 'internal', { value: true, enumerable: true }
 
 /**
  * What the asking side needs from a hook's view, or null: the world has an open template, the step has started, the clock is set. It carries what
- * the daily step itself is given (command.js): the reader's tempo, the calendar and the cast tie (who is with You, where each pack person is, who
- * has been met), so the look-ahead makes the slots the step will make and no call is asked for a slot that never happens (final review M1).
+ * the daily step itself is given (command.js): the reader's tempo, the calendar, the party's region and the cast tie (who is with You, where each
+ * pack person is, who has been met), so the look-ahead makes the slots the step will make (final review M1). The party's region is today's: a reply that moves the party can
+ * change what the step makes, so a call may go unused or a slot be asked for later.
  */
 function inputOf(view) {
     const chronicle = view?.state?.domains?.chronicle;
@@ -56,13 +58,13 @@ function inputOf(view) {
     const query = (name, args) => view.query(name, args);
     const tie = tickInputs({ query }, view.state.domains.cast, world.cast);
     const tempo = tempoOf(typeof view.settings === 'function' ? view.settings() : view.settings);
-    return { state, table: chronicle.conditions ?? {}, world, seed, marks, opens: marks.open, minutes, tempo, calendar: askQuery(query, 'director.calendar', {}), met: tie.met, withYou: tie.withYou, positions: tie.positions };
+    return { state, table: chronicle.conditions ?? {}, world, seed, marks, opens: marks.open, minutes, tempo, calendar: askQuery(query, 'director.calendar', {}), met: tie.met, withYou: tie.withYou, positions: tie.positions, partyRegion: partyRegionOf(query, view.state) };
 }
 
 /** Starts the asking for the slots waiting and the ones tomorrow's roll makes (a dry run: nothing is written). Never awaits. Returns the keys of those slots. */
 function ask(view, input) {
-    const { state, table, world, seed, marks, opens, tempo, calendar, met, withYou, positions } = input;
-    const dry = runDays({ state, table, world, today: Math.floor(input.minutes / DAY) + 1, seed, marks, opens, tempo, calendar, met, withYou, positions });
+    const { state, table, world, seed, marks, opens, tempo, calendar, met, withYou, positions, partyRegion } = input;
+    const dry = runDays({ state, table, world, today: Math.floor(input.minutes / DAY) + 1, seed, marks, opens, tempo, calendar, met, withYou, positions, partyRegion });
     const slots = dry?.daily.pending ?? input.state.pending ?? [];
     if (slots.length) openAsker.kick(view, input, slots);
     return new Set(slots.map(slot => slot.key));

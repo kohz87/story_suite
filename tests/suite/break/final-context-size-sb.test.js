@@ -33,10 +33,13 @@ const last = (h, key) => h.st.promptLog.filter(entry => entry.key === key && ent
 const sent = h => ({ static: last(h, 'story_suite_static'), tail: last(h, 'story_suite_tail_1') });
 
 test('a small context: the tail is cut so Story Suite in all fits its share, optional lines first', async t => {
-    const h = await host(t, { contextSize: 4095 });
+    // The Big module is sized so the share still leaves the tail at least its minimum (MIN_TAIL_BUDGET): the core's own static text grows over time,
+    // and above that line the documented minimum (never below 200 tokens) wins over the share by design.
+    const h = await host(t, { contextSize: 4095, words: 400 });
     await h.send('I wait.', 'Rain.');
     const { static: stat, tail } = sent(h);
     const share = Math.floor(4095 * DEFAULT_CONTEXT_SHARE / 100);
+    assert.ok(share - estimateTokens(stat) >= MIN_TAIL_BUDGET, `precondition: room ${share - estimateTokens(stat)} >= the tail minimum ${MIN_TAIL_BUDGET}`);
     assert.ok(estimateTokens(stat) < share, 'the instructions fit the share here');
     assert.ok(estimateTokens(stat) + estimateTokens(tail) <= share, `static ${estimateTokens(stat)} + tail ${estimateTokens(tail)} within ${share}`);
     for (const line of ['Need 1', 'Need 2', 'Need 3', 'Need 4']) assert.match(tail, new RegExp(line), 'required lines kept');
