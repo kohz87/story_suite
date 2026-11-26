@@ -7,6 +7,7 @@ import {
 } from '../../../inventory/index.js';
 import { capturePlace, capturePresent, captureWeather, captureYou, initialScene, sceneCommands, sceneQueries, sceneTail, validateScene } from '../../index.js';
 import { MOUNTS_FEATURE, captureMount, createMountsQueries, mountsCommands, mountsTail } from '../../mounts.js';
+import { partyNames } from '../../../inventory/gear/carry-parts/party-names.js';
 import { moneyLine, resolveCurrency } from '../../../inventory/money.js';
 import { renderInventoryTab } from './inventory-tab.js';
 import { renderSceneTab } from './scene-tab.js';
@@ -21,7 +22,7 @@ function youRankLabel(view) {
 }
 
 // After the item line (and its gear words): supplies are used up as the story goes.
-const SUPPLY_GRAMMAR = '. Supplies run down: add kind: supply for food, medicine, oil, torches, fodder and the like, with a note of how much is left (e.g. "4 days of food"), and write the change when days pass or the party eats, camps, treats wounds or burns light.';
+const SUPPLY_GRAMMAR = '. Supplies run down: add kind: supply for food, bandages, herbs, oil, torches, fodder and the like (a potion or draught that heals stays a consumable), with a note of how much is left (e.g. "4 days of food"), and write the change when days pass or the party eats, camps, treats wounds or burns light.';
 
 // Whether this reply answers the reader's first message of the chat (the greeting is the narrator's): the one reply that asks for the look.
 // Read from the chat itself, so a swipe, a regenerate or a rebuilt state gives the same answer.
@@ -93,7 +94,7 @@ export function createCorePart({ hooks = () => [], settings = () => ({}), hookEn
             // Half the budget for the lines that always go, half for the optional overflow.
             tail(view) {
                 const chars = CORE_BUDGET * 4;
-                const mounts = featureOn(view, MOUNTS_FEATURE) ? mountsTail(view?.state) : null;
+                const mounts = featureOn(view, MOUNTS_FEATURE) ? mountsTail(view?.state, partyNames((name, args) => view.query(name, args), view?.state?.domains?.party ?? null)) : null;
                 const scene = [...sceneTail(view?.state, { weather: featureOn(view, CORE_FEATURE.weather), you: featureOn(view, CORE_FEATURE.you), rankLabel: featureOn(view, CORE_FEATURE.you) ? youRankLabel(view) : '', askLook: firstReader(view), gear: gearOn(view) }), ...(mounts ? [mounts] : [])];
                 // The encumbered condition, when the carry module reports it (one short line).
                 // Asked through the query, which a host with Features answers with null while it is off.

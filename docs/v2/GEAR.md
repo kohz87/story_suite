@@ -100,7 +100,8 @@ The party's capacity adds each Mount row's carry × count while the mount travel
 party's place, says it is ridden, led or pulled, or names the reader's character or a current party member by full name or first name
 (`carry-parts/party-names.js`: `party.actors` or the `party` domain, and the persona); any other mount left elsewhere ("stabled at …") adds nothing. A bare list
 of names ("Rav, Torka, Vessa") also gives the row's riders: the members in it, the others left out (`ridersOf`). **Re-reads (rule mark `mountRiders`):** a `+ item` or `~ item … qty` line of a reply
-without the mark is judged without the names (`gear.carry { riders: false }`); the Bag and the Mount slot always count them. A `+ mount` line of a reply without the
+without the mark is judged without the names (`gear.carry { riders: false }`); the Bag and the Mount slot always count them. A story line's names are those held in the chat's state, never
+the live persona name (`gear.carry { stored: true }`), so a persona rename leaves a Re-read as it was. A `+ mount` line of a reply without the
 mark also keeps the old cap of six rows (SPEC §2.5: twelve otherwise). The row's own `carry`
 (the reader's pencil on Home, 1–1000, empty clears it) beats the kind's usual: pony 30, horse 40, mule/donkey/pack animal 50,
 cart/barrow/hand-cart/sledge 60, carriage/coach 80, boat 100, barge/wagon 150, other 20 (`KIND_CARRY`; computed on read, nothing stored). A story item whose name says cart, barrow, hand-cart,

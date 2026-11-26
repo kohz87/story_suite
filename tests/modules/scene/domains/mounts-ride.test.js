@@ -38,6 +38,22 @@ test('a member rides a mount, moves to another (off the first), and None takes t
     assert.deepEqual(validateScene(host.head().domains.scene), []);
 });
 
+test('taking a rider off a bare list keeps the parts of `where` that are not their name', async t => {
+    const host = await fresh(t);
+    const me = host.ctx.name1;
+    await host.send('Saddle up.', block('The yard.', [`+ mount Grey Mare | kind: horse | where: Penned, ${me}`, `+ mount Roan | kind: horse | where: Corporal Stenn and ${me}`, '+ mount Dun | kind: horse']));
+    await run(host, { who: me, mount: 'Dun' });
+    assert.deepEqual(wheres(host), [['Grey Mare', 'Penned'], ['Roan', 'Corporal Stenn'], ['Dun', `ridden by ${me}`]]);
+    await run(host, { who: me, mount: null });
+    assert.deepEqual(wheres(host)[2], ['Dun', '']);
+    await host.send('Back.', block('Back.', [`~ mount Grey Mare | where: ${me}, Penned`]));
+    await run(host, { who: me, mount: null });
+    assert.deepEqual(wheres(host)[0], ['Grey Mare', 'Penned']);
+    const live = JSON.stringify(wheres(host));
+    host.store.rebuild();
+    assert.equal(JSON.stringify(wheres(host)), live, 'rebuild == live');
+});
+
 test('the refusals: left behind, no seat free, already riding it, riding nothing, no such mount, not the reader', async t => {
     const host = await fresh(t);
     await host.send('Saddle up.', block('The yard.', YARD));

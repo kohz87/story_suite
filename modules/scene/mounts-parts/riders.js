@@ -34,6 +34,15 @@ export function ridersOf(where, party = []) {
     return [...new Set(found.map(({ member }) => member).filter(Boolean))];
 }
 
+/**
+ * `where` with the rider `who` (as `party` calls them) taken out of a bare list: every other part stays as written ('' when none
+ * is left). Null when `where` is no such list ("ridden by …", or text that names no riders).
+ */
+export function listWithout(where, who, party = []) {
+    if (RIDDEN.test(String(where ?? '')) || !ridersOf(where, party).includes(who)) return null;
+    return listed(where).filter(said => memberFor(said, party) !== who).join(', ');
+}
+
 /** Does `where` name one of `party`, by full name or first name, as whole words? */
 export function namesMember(where, party = []) {
     const said = ` ${words(where)} `;

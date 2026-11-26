@@ -5,7 +5,7 @@
 // `~ you` grammar line and tail line in and 2.11.0 the Mounts grammar line, both on by default. With the old clause and
 // `story-block.you` and `story-block.mounts` both off the code still gives 2.9.4's exactly; with them on only the prompt hashes differ;
 // the 2.11.0 hashes were made again when a chat whose look is empty began to ask for it in the tail, you-first.test.js; both fixtures' prompt hashes were made again when the coin line stopped saying "one coin" and dropped its worked sum (Batch 1 B1.2: only the hashes moved);
-// and again when the item line gained its supplies sentence, and when that sentence named the supply kind (only the prompt hashes moved).
+// and again when the item line gained its supplies sentence, and when that sentence named the supply kind or its examples changed (only the prompt hashes moved).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
