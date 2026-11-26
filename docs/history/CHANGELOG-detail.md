@@ -4,6 +4,8 @@ This is the detailed record of every change, kept as it was written; the short l
 
 ## Unreleased (detail)
 
+- **World cast text limits (ARS-CAST).** A world-pack cast entry (`kind`) may now hold `look` 800, `wears` 600, `voice` 600, `personality` 900 and `start.routine` 300 characters (were 600, 300, 300, 600, 200), within what NPC State keeps. Only the pack check reads the numbers; an older Story Suite refuses such a person.
+
 - **Arsveil world events assembled (ARS-ASM).** The five event slices are merged into `examples/packs/arsveil/pack.json` (281 events), with 23 powers, three scores (flame-faith, ledger-trust, wild-swarm), twelve more templates and a Thinning festival in the start world; `arsveil.zip` rebuilt.
 
 - **World events find places by their pack ids (ARS-ASM).** On the host, `packs.content` gives each place the id `pack.<pack>/<slug>`, but a pack's events, start world and powers name the file's own id. `buildGeo` indexed only name, that id and aliases, so a condition set on `bluewatch-village` or `highmark-capital-crown-keep` was refused with a warning on the step's card (the pack check accepted it). The slug is now indexed too, after names and aliases. Ersveil names 16 places this way, so its later steps (and a Re-read of an earlier reply, which runs the step again) can now set conditions that were dropped before. Stored results are not changed.

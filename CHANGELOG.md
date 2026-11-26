@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- World: people written in a world pack can now have longer looks, clothes, voice, personality and daily routine.
 - Arsveil: the example world now has about five years of world events, from the Fall of Bluewatch to two empty imperial thrones, with news and scenes that wait for your party.
 - World: events in an installed world pack now reach places they name by id; before, such a condition was silently not set (this also affects Ersveil).
 - World: a world pack can now hold up to 400 world events (it was 200).
