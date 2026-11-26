@@ -39,7 +39,8 @@ function whereRegions(geo, refs) {
         const found = resolveRef(geo, ref);
         if (found?.kind === 'place') out.push(found.place.region);
         else if (found?.kind === 'region') out.push(found.name);
-        else if (found?.kind === 'realm') {
+        else if (!found) { if (regionKey(geo, ref)) out.push(ref); } // a region by its name or alias
+        else if (found.kind === 'realm') {
             for (const [region, realm] of geo.regionRealm) if (realm === found.name) out.push(region);
             for (const place of geo.places) if (place.realm === found.name) out.push(place.region);
         }

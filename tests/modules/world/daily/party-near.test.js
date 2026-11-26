@@ -144,6 +144,26 @@ test('waits_for with ×0 stays blocked (a likely beat lapses; a set-in-motion on
     }
 });
 
+test('waits_for with "100% per season": the seeded day does not hold the beat back', () => {
+    // The default draw puts the seeded day at the end of the 90-day stretch, after the 10-day window.
+    const beat = ev('beat', { certainty: 'likely', chance: '100% per season', waits_for: 'near' });
+    const away = at(runner(world({ events: [beat] })), 'isle', 9);
+    assert.equal(away.row('beat').state, 'eligible');
+    assert.equal(at(away, 'isle', 10).row('beat').fired, 10);
+    assert.equal(at(runner(world({ events: [beat] })), 'west', 1).row('beat').fired, 1);
+    const zero = at(runner(world({ events: [ev('beat', { certainty: 'likely', chance: '0% over the window', waits_for: 'near' })] })), 'isle', 11);
+    assert.equal(zero.row('beat').state, 'lapsed', 'a 0% chance blocks as ×0 does');
+});
+
+test('a where that names a region by its name or alias works for waits_for and @region', () => {
+    for (const ref of ['The Westlands', 'the west']) {
+        const run = at(runner(world({ events: [ev('beat', { where: [ref], waits_for: 'near' })] })), 'west', 1);
+        assert.equal(run.row('beat').fired, 1, ref);
+        const ws = { geo: buildGeo(MAP), party: 'west' };
+        assert.equal(termHolds(ws, partyTerm('in:@region'), { where: { refs: [ref] } }), true, ref);
+    }
+});
+
 test('a pack with none of the new terms steps the same wherever the party is', () => {
     const w = world({
         events: [ev('plain', { certainty: 'likely' }), { id: 'rec', kind: 'recurring', certainty: 'possible', chance: '60% per season', cooldown: '2 days', ends_when: 'instant', summary: 'r' }],

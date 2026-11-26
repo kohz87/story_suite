@@ -48,7 +48,7 @@ function attempt(ws, def, day, given, bind) {
     if (veto) { ws.log.push({ kind: 'roll', key: def.id, day, result: 'vetoed (Director)' }); return; }
     if (chance.blocked) { ws.log.push({ kind: 'roll', key: def.id, day, result: 'blocked (×0)' }); return; }
     const roll = rollChance(ws.draw, day, def.id, chance);
-    ws.log.push({ kind: 'roll', key: def.id, day, p: Number(chance.p.toFixed(6)), result: roll.hit ? 'hit' : 'miss' });
+    ws.log.push({ kind: 'roll', key: def.id, day, p: Number(chance.p.toFixed(6)), result: roll.hit ? 'hit' : 'miss', ...(chance.forced ? { forced: true } : {}) });
     if (!roll.hit) return;
     const realms = eventRealms(ws, def, bind);
     const major = def.severity === 'major';
@@ -91,7 +91,8 @@ function oneEvent(ws, def, day) {
     if (!win.open || !requiresHold(ws, def, day)) { row.state = 'dormant'; return; }
     const m = modifierProduct(ws, def, day);
     const span = stretchOf(ws, def, day);
-    if (oncePerStretch(def) && day < seededDay(ws, def, span)) { row.state = 'eligible'; return; }
+    // The seeded day of a 100%-per-season chance does not hold a waits_for beat back: waits.js alone decides when it waits.
+    if (!def.waitsFor && oncePerStretch(def) && day < seededDay(ws, def, span)) { row.state = 'eligible'; return; }
     const days = def.chance?.per === 'season' || !win.length ? span.length : win.length;
     const left = win.end === null ? 1 : win.end - day + 1;
     let chance = dailyChance(def, { days, left, m });

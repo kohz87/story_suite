@@ -43,7 +43,8 @@ Object.defineProperty(openCommand, 'internal', { value: true, enumerable: true }
 /**
  * What the asking side needs from a hook's view, or null: the world has an open template, the step has started, the clock is set. It carries what
  * the daily step itself is given (command.js): the reader's tempo, the calendar, the party's region and the cast tie (who is with You, where each
- * pack person is, who has been met), so the look-ahead makes the slots the step will make and no call is asked for a slot that never happens (final review M1).
+ * pack person is, who has been met), so the look-ahead makes the slots the step will make (final review M1). The party's region is today's: a reply that moves the party can
+ * change what the step makes, so a call may go unused or a slot be asked for later.
  */
 function inputOf(view) {
     const chronicle = view?.state?.domains?.chronicle;

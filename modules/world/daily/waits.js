@@ -1,7 +1,7 @@
 // World events, the daily step: `waits_for`, a scene beat that waits for the party. While its window is open it is rolled only on a day the
 // party is in (or next to) its region, and on the window's last day it fires anyway, wherever the party is: like a set-in-motion deadline
 // (`forced`: over the caps, no Director veto). On an earlier day it waits for, a set-in-motion event fires and a likely or possible one rolls
-// its ordinary chance. A ×0 modifier still blocks, except a set-in-motion event on its last day, as without `waits_for`. Pure (on `ws`).
+// its ordinary chance (the seeded day of a "100% per season" chance does not apply). A ×0 modifier or a 0% chance still blocks, except a set-in-motion event on its last day, as without `waits_for`. Pure (on `ws`).
 
 import { waitMet } from './near.js';
 

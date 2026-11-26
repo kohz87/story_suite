@@ -1,6 +1,7 @@
 // The daily roll's events the Director may judge (switch story-director.world-events): a dry run of tomorrow's step (nothing is written) from the
 // state a hook sees, as the open templates' look-ahead does. `fires`: the likely or possible authored events tomorrow's roll fires; `all`: every
-// such event eligible tomorrow (the optional daily pass). Set-in-motion events are never judged (certain inside their window). Pure on the view.
+// such event eligible tomorrow (the optional daily pass). Never judged: set-in-motion events, and a waits_for beat on a day
+// it waits or is forced. Pure on the view.
 
 import { slotValue } from '../../../rpg/slot.js';
 import { ledgerOf } from '../conditions/ledger.js';
@@ -40,7 +41,9 @@ export function rollCandidates(view, { all = false, settings = null } = {}) {
     } catch { dry = null; }
     const rows = dry?.daily?.events;
     if (!rows) return null;
-    const items = judged.map(def => {
+    // No verdict can change a beat that waits for the party that day, or one forced on its window's last day (waits_for).
+    const settled = new Set((dry.report.log ?? []).filter(entry => entry.day === day && (entry.kind === 'waits' || entry.forced)).map(entry => entry.key));
+    const items = judged.filter(def => !settled.has(def.id)).map(def => {
         const row = rows[def.id] ?? {};
         const fires = row.fired === day && state.events?.[def.id]?.state !== 'active';
         const open = fires || row.state === 'eligible';

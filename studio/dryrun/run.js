@@ -3,6 +3,7 @@
 // `simulate` is pure (the same seed gives the same days); `startDryRun` runs it in a Worker (studio/dryrun/worker.js) and can be cancelled.
 
 import { runDays } from '../../modules/world/daily/step.js';
+import { partyTerm } from '../../modules/world/daily/grammar.js';
 import { startDayOf, startWorldOf } from './start.js';
 
 const MAX_DAYS = 3650;
@@ -23,6 +24,12 @@ export function worldOf(pack, game = null) {
     const begin = startWorldOf(pack);
     if (begin) world.startWorld = begin;
     return world;
+}
+
+/** Whether any event or template reads where the party is (`waits_for`, or an `in:` / `near:` term), which a dry run does not know. */
+function readsParty(world) {
+    return [...world.events, ...world.templates].some(raw => raw?.waits_for !== undefined
+        || [...list(raw?.requires), ...list(raw?.requires_any), ...Object.keys(raw?.likelier_if ?? {}), ...Object.keys(raw?.less_if ?? {})].some(text => partyTerm(text)));
 }
 
 /** The cast statuses that differ from the ones `seen` (updated): [{ id, status }]. */
@@ -51,7 +58,7 @@ function dayRow(day, out, seen) {
 }
 
 /**
- * `simulate({ pack, game?, seed, tempo?, days, calendar?, onDay? })` → `{ seed, tempo, days, start, rows, finalEvents, warnings }`: day 1 to `days` stepped one at a time, from the world's start date.
+ * `simulate({ pack, game?, seed, tempo?, days, calendar?, onDay? })` → `{ seed, tempo, days, start, rows, finalEvents, warnings, readsParty }`: day 1 to `days` stepped one at a time, from the world's start date.
  * `calendar` is the chat's calendar config (the step reads seasons and dates from it); none means Gregorian. `start` is `{ day, date }` (start.js): the first stepped day's absolute number and the start date, or `date: null` when the pack gives none (the run then begins on day 1). `onDay(day)` is called after each day.
  */
 export function simulate({ pack, game = null, seed, tempo = 1, days, calendar = null, onDay = null }) {
@@ -71,7 +78,7 @@ export function simulate({ pack, game = null, seed, tempo = 1, days, calendar = 
         }
         if (onDay) onDay(day);
     }
-    return { seed: campaign, tempo, days: count, start, rows, finalEvents: Object.fromEntries(Object.entries(state?.events ?? {}).map(([id, row]) => [id, row.state])), warnings: [...warnings] };
+    return { seed: campaign, tempo, days: count, start, rows, finalEvents: Object.fromEntries(Object.entries(state?.events ?? {}).map(([id, row]) => [id, row.state])), warnings: [...warnings], readsParty: readsParty(world) };
 }
 
 /**
