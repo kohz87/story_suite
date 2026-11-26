@@ -31,6 +31,8 @@ export const packBonus = (id, value) => (typeof id === 'string' && id.startsWith
 
 /** The stat points a def may give while worn and whole: the pack's explicit `bonus`, else by rarity. */
 export function gearBudget(def) {
+    // (`noBonus`: gear that gave none when the reader chose its slot, slot-edit.js; stats written on it later speak again)
+    if (def?.noBonus === true && !Object.keys(statsOf(def.stats)).length) return 0;
     const explicit = packBonus(def?.id, def?.bonus);
     if (explicit !== null) return explicit;
     return Object.hasOwn(GEAR.budget, def?.rarity) ? GEAR.budget[def.rarity] : 0;

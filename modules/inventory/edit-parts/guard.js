@@ -8,9 +8,11 @@ export const INVENTORY_EDIT_GUARD = 'inventory.reader-edit';
 
 // A reader action is a guarded ordinary command. If a later Re-read makes its saved ops
 // invalid, the existing replay machinery can leave just this action off and report it.
-export function guardReaderEdit(ctx, action, target = null, pieces = null, decision = null) {
+// `slotPieces` (a slot Edit): every piece of the definition as it was, since the slot is the definition's and takes off whichever pieces no longer fit.
+export function guardReaderEdit(ctx, action, target = null, pieces = null, decision = null, slotPieces = null) {
     if (ctx.cause !== 'ui' || ctx.caller !== null || typeof ctx.replayGuard !== 'function' || !ctx.source) return;
     const predicate = { kind: INVENTORY_EDIT_GUARD, action, ...(target ? { target } : {}), ...(pieces ? { pieces: ctx.hash(pieces) } : {}),
+        ...(slotPieces ? { slotPieces: ctx.hash(slotPieces) } : {}),
         ...(decision ? { decision: { ...decision, witness: ctx.hash(decision.witness) } } : {}) };
     ctx.replayGuard({ owner: 'story-block', version: 2, epoch: ctx.epoch, rulesHash: null,
         inputHash: ctx.hash({ predicate, source: ctx.source }), predicate });
@@ -22,7 +24,7 @@ export function inventoryEditGuard({ state, hash }, { guard, source, operation }
     if (guard?.owner !== 'story-block' || guard.version !== 2 || guard.rulesHash !== null
         || !isPlainObject(p) || p.kind !== INVENTORY_EDIT_GUARD
         || !['inventory.add', 'inventory.edit', 'inventory.drop'].includes(p.action)
-        || operation?.type !== p.action || Object.keys(p).some(key => !['kind', 'action', 'target', 'pieces', 'decision'].includes(key))
+        || operation?.type !== p.action || Object.keys(p).some(key => !['kind', 'action', 'target', 'pieces', 'decision', 'slotPieces'].includes(key))
         || hash({ predicate: p, source }) !== guard.inputHash) return bad;
     const inventory = state?.domains?.inventory;
     if (p.decision !== undefined) {
@@ -39,7 +41,7 @@ export function inventoryEditGuard({ state, hash }, { guard, source, operation }
         if (hash(witness) !== d.witness) return { ok: false, reason: E.itemDecisionChanged };
     }
     // Earlier saved guards did not have a decision witness; keep their existing replay behavior.
-    if (p.action === 'inventory.add') return p.target === undefined && p.pieces === undefined ? { ok: true } : bad;
+    if (p.action === 'inventory.add') return p.target === undefined && p.pieces === undefined && p.slotPieces === undefined ? { ok: true } : bad;
     if (!isPlainObject(p.target) || Object.keys(p.target).length !== 3
         || typeof p.target.id !== 'string' || p.target.id !== operation?.payload?.stack
         || typeof p.target.def !== 'string' || typeof p.target.owner !== 'string') return bad;
@@ -52,6 +54,11 @@ export function inventoryEditGuard({ state, hash }, { guard, source, operation }
     const piecesHash = Array.isArray(p.pieces) ? hash(p.pieces) : p.pieces;
     if (p.pieces !== undefined && hash(editPieces(inventory, p.target)) !== piecesHash) {
         return { ok: false, reason: E.itemPiecesChanged };
+    }
+    // (a guard saved without this field is judged as before)
+    if (p.slotPieces !== undefined) {
+        if (p.action !== 'inventory.edit' || operation?.payload?.slot === undefined || typeof p.slotPieces !== 'string' || !/^[a-f0-9]{64}$/.test(p.slotPieces)) return bad;
+        if (hash(editPieces(inventory, p.target, true)) !== p.slotPieces) return { ok: false, reason: E.itemPiecesChanged };
     }
     return { ok: true };
 }

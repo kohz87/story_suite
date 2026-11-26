@@ -22,6 +22,8 @@ const ITEM = {
   note: { $optional: T.STRING },
   hand: { $optional: T.BOOLEAN },
   slot: { $optional: { $nullable: T.STRING } },
+  // The reader may change a gear piece's slot (the story's and a pack's too; not a cast member's): the Edit form's Slot.
+  slotEdit: { $optional: T.BOOLEAN },
   // The most soak the piece's slot lets it give (body and off-hand 2, head 1, the rest 0): the Edit form's Soak field.
   soakMax: { $optional: T.NUMBER },
   // What the piece adds to stats, as gear.view words it ("STR +1 · DEX +1"); '' for none.

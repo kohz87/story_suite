@@ -25,6 +25,8 @@ export const GEAR = Object.freeze({
     soak: Object.freeze({ caps: Object.freeze({ body: 2, 'off-hand': 2, head: 1, cloak: 0, feet: 0, accessory: 0 }), capMax: 2, max: 50, minCond: 40 }),
     // Load weights (a thing weighs `weight` a unit; coins 0): a pack's `weight`, or the reader's Edit, 0 up to `max`; with none the default by slot (equipment) or kind, which a story line never raises.
     weight: Object.freeze({ max: 99, bySlot: Object.freeze({ weapon: 3, body: 5, 'off-hand': 4, head: 2, cloak: 2, feet: 2, accessory: 0 }), byKind: Object.freeze({ quest: 0 }), other: 1 }),
+    // Paperwork: goods or material whose head noun is one of these (a whole word, plurals too; weight.js headNoun) weighs 0 by default.
+    paperwork: Object.freeze(['paper', 'parchment', 'ledger', 'pass', 'permit', 'licence', 'license', 'tally', 'chit', 'slip', 'warrant', 'writ', 'deed', 'receipt', 'ticket', 'voucher', 'invoice', 'letter', 'note', 'notice', 'scroll', 'map', 'contract', 'certificate', 'charter', 'manifest']),
     carry: Object.freeze({ base: 10, perStr: 2, strMin: 1, strMax: 20, strDefault: 10 }),
 });
 

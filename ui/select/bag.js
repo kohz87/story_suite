@@ -53,6 +53,7 @@ const statsRecord = raw => Object.fromEntries(Object.entries(isRecord(raw) ? raw
 const gearOf = (info, labels) => ({
   ...(isRecord(info?.repoint) && Number.isSafeInteger(info.repoint.budget) ? { repoint: { budget: info.repoint.budget, stats: statsRecord(info.repoint.stats), ...(labels ? { labels } : {}) } } : {}),
   ...(isRecord(info?.bound) ? { bound: true } : {}),
+  ...(info?.slotEdit === true ? { slotEdit: true } : {}),
 });
 
 // mounts.list row (domains/mounts.js:83-91) → a transport asset; `carried` is gear.view's carriers.mounts row of that name (withParty, riders from its `where`, what it adds). Seats are not recorded: null.

@@ -1,4 +1,4 @@
-// Builds the item sheet's Edit form (name, count, the reader's note; weight of any item and soak of armour when RPG is on; rarity and slot of a hand-made piece;
+// Builds the item sheet's Edit form (name, count, the reader's note; weight of any item and soak of armour when RPG is on; rarity of a hand-made piece; slot of gear no cast member holds;
 // Carries, what the item adds to carrying, with gear on) and the patch Save sends to inventory.edit (Carries goes to inventory.carry).
 import { h } from '../../kit/dom.js';
 import { button } from '../../kit/controls.js';
@@ -33,16 +33,14 @@ export function itemPatch(item, values, rpg = false) {
     const soak = Number(values.soak);
     if (values.soak !== '' && values.soak !== undefined && Number.isInteger(soak) && soak >= 0 && soak !== (item.soak ?? 0)) patch.soak = soak;
   }
-  if (rpg && item.hand) {
-    if (values.rarity && values.rarity !== rarityOf(item)) patch.rarity = values.rarity;
-    if ((values.slot ?? '') !== (item.slot ?? '')) patch.slot = values.slot ?? '';
-  }
+  if (rpg && item.hand && values.rarity && values.rarity !== rarityOf(item)) patch.rarity = values.rarity;
+  if (rpg && (item.hand || item.slotEdit) && values.slot !== undefined && values.slot !== (item.slot ?? '')) patch.slot = values.slot;
   return Object.keys(patch).length ? { stack: item.stack, ...patch } : null;
 }
 
 /**
  * Builds the form; `onSave(payload, carry)` returns a result (`{ ok:false, message }` shows inline): `payload` the inventory.edit patch or null, `carry` the new Carries or null
- * (unchanged). `onCancel()` changes nothing. Weight shows for any item and Soak for armour, with RPG on; Rarity and Slot only for a hand-made piece; Carries whenever gear.view
+ * (unchanged). `onCancel()` changes nothing. Weight shows for any item and Soak for armour, with RPG on; Rarity only for a hand-made piece, Slot for it and any gear with `slotEdit`; Carries whenever gear.view
  * gave the item's carry (read-only with `carryWhy`, the engine's reason).
  */
 export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
@@ -53,7 +51,7 @@ export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
   const rarity = gear ? h('select', null, RARITIES.map(r => h('option', { value: r, selected: r === rarityOf(item) }, cap(r)))) : null;
   if (rarity) rarity.value = rarityOf(item);
   const slotWords = item.slot && !SLOTS.includes(item.slot) ? [...SLOTS, item.slot] : SLOTS;
-  const slot = gear ? h('select', { dataset: { field: 'slot' } }, [h('option', { value: '' }, 'None'), ...slotWords.map(s => h('option', { value: s, selected: s === item.slot }, cap(s)))]) : null;
+  const slot = gear || (rpg && item.slotEdit === true && item.kind === 'gear') ? h('select', { dataset: { field: 'slot' } }, [h('option', { value: '' }, 'None'), ...slotWords.map(s => h('option', { value: s, selected: s === item.slot }, cap(s)))]) : null;
   if (slot) slot.value = item.slot ?? '';
   const weight = rpg && hasWeight(item) ? h('input', { type: 'number', min: '0', max: '99', step: '1', value: String(item.weight) }) : null;
   const soak = rpg && hasSoak(item) ? h('input', { type: 'number', min: '0', max: String(item.soakMax), step: '1', value: String(item.soak ?? 0) }) : null;
@@ -69,7 +67,7 @@ export function itemEditForm(item, { rpg = false, onSave, onCancel } = {}) {
   const save = async () => {
     if (busy) return;
     const payload = itemPatch(item, {
-      name: name.value, qty: qty.value, note: note.value, ...(weight ? { weight: weight.value } : {}), ...(soak ? { soak: soak.value } : {}), ...(rarity ? { rarity: rarity.value, slot: slot.value } : {}),
+      name: name.value, qty: qty.value, note: note.value, ...(weight ? { weight: weight.value } : {}), ...(soak ? { soak: soak.value } : {}), ...(rarity ? { rarity: rarity.value } : {}), ...(slot ? { slot: slot.value } : {}),
     }, rpg);
     const carry = carries ? carries.read() : { carry: null };
     if (carry.error) { show(carry.error); return; }

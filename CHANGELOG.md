@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Bag: papers, ledgers, passes, tallies, warrants and other paperwork weigh nothing by default.
+- Bag: Edit can change the slot of gear the story gave you (its rarity and bonus stay as given).
 - Party tab: a skill's practice shows the full count toward its next rank (157/180), not only the part since its last rank (57/80).
 - A long choice on a reply's card wraps onto more lines instead of being cut off.
 - Text RPG: companions earn the same XP as you and gain a level for every 100 on top of the level they joined at; their Party sheet shows an XP bar.

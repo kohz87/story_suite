@@ -32,9 +32,9 @@ test('Inventory, gear on: Carry first, then Equipment (in the bag), the wearer\'
 });
 
 test('the Carry card\'s colour bands: normal under 80 %, yellow Heavy load from 80 % to below 100 %, red Encumbered from 100 %', async t => {
-    // Capacity 30 (10 + 2 × STR 10). The base state weighs 17 (Healing Salve counts 2; the gear by its slot's default weight).
+    // Capacity 30 (10 + 2 × STR 10). The base state weighs 16 (Healing Salve counts 2, the Sealed Letter is paperwork: 0; the gear by its slot's default weight).
     const at = async load => {
-        const host = await gearHost(t, { wear: [], extra: [`+ item Brick | qty: ${load - 17}`] });
+        const host = await gearHost(t, { wear: [], extra: [`+ item Brick | qty: ${load - 16}`] });
         const { el } = draw(host);
         const card = el.querySelector('.carry-card');
         return { numbers: text(card.querySelector('.carry-num')), classes: card.classes().filter(name => ['heavy', 'over'].includes(name)), state: card.querySelector('.carry-state') ? text(card.querySelector('.carry-state')) : '' };

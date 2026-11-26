@@ -1,19 +1,31 @@
 // The reader's Edit of a piece they added by hand: kind, slot, rarity and stats (its soak follows the slot's cap).
 
-import { slotWordOf, handDef, statsFor, statsOf, soakCap } from '../gear.js';
+import { cleanName, resolveDef } from '../../scene/names.js';
+import { slotWordOf, handDef, statsFor, statsOf } from '../gear.js';
 import { fill } from '../../../core/strings.js';
-import { gearOn, KINDS, RARITIES, MAX_UNSTACKED, BAG_PLACE } from '../state.js';
-import { baseSlot } from '../validate.js';
+import { gearOn, KINDS, RARITIES, MAX_UNSTACKED } from '../state.js';
 import { E, refuseBound, addStack } from '../stacks.js';
 import { kitOpen, holdBudget, handSlot, handStats } from './kit.js';
+import { fitSlot, slotEdit } from './slot-edit.js';
 
 // The reader's Edit of a piece they added by hand (gear on): `kind`, `slot` (a place, or '' for none), `rarity` and `stats`. Only a def with `hand: true` and no
 // story-given stack; a pack's or the story's keeps its words. Rarity and Bonus are the starting kit's: changing them is refused once the reader has sent a message.
-// A piece made Equipment later is Common; one made something else gives up its slot (and is taken off).
+// A piece made Equipment later is Common; one made something else gives up its slot (and is taken off). On any other equipment a payload with `slot` alone is slotEdit's.
 export function handEdit(ctx, env, inv, stack, payload) {
+    const wornAt = stack.equipped;
+    gearEdit(ctx, env, inv, stack, payload);
+    // A rename onto another item merges the stacks, and the replay guard saw this piece still worn: one Save cannot take it off and merge it.
+    if (wornAt === null || stack.equipped !== null || typeof payload.name !== 'string') return;
+    const found = resolveDef(inv, cleanName(payload.name));
+    if (found.status === 'found' && found.id !== stack.def) ctx.fail('REFUSED', fill(E.itemWornMerge, { name: inv.defs[found.id].name }));
+}
+
+function gearEdit(ctx, env, inv, stack, payload) {
     if (!gearOn(ctx)) ctx.fail('REFUSED', E.gearOff);
     const def = inv.defs[stack.def];
     refuseBound(ctx, inv, stack);
+    const slotAlone = payload.slot !== undefined && ['kind', 'rarity', 'stats'].every(key => payload[key] === undefined);
+    if (slotAlone && def.kind === 'equipment' && !handDef(inv, def)) return slotEdit(ctx, inv, def, payload);
     if (def.id.startsWith('pack.')) ctx.fail('REFUSED', E.kitPack);
     if (!handDef(inv, def)) ctx.fail('REFUSED', E.kitStory);
     const kind = payload.kind ?? def.kind;
@@ -40,20 +52,12 @@ export function handEdit(ctx, env, inv, stack, payload) {
             item.qty = 1;
         }
     }
-    // A piece that no longer fits where it is worn is taken off (a carried bag stays the bag unless it now has a slot of its own).
-    for (const item of pieces) {
-        const off = item.equipped === BAG_PLACE ? kind === 'equipment' && Boolean(slot) : kind !== 'equipment' || !slot || baseSlot(item.equipped) !== baseSlot(slot);
-        if (item.equipped !== null && off) item.equipped = null;
-    }
     def.kind = kind;
     def.rarity = rarity;
-    def.slot = slot ? baseSlot(slot) : null;
     def.stats = nextStats;
     def.stack = kind !== 'equipment';
-    // (a new kind or slot holds the soak the piece had to the new slot's cap: none off equipment or without a slot; the Edit's own soak is numberEdit's)
-    const soak = kind !== 'equipment' || !slot ? 0 : Math.min(def.soak ?? 0, soakCap(slot));
-    if (soak > 0) def.soak = soak;
-    else delete def.soak;
+    // (the Edit's own soak is numberEdit's)
+    fitSlot(def, pieces, kind, slot);
     // (the def's own stats now speak for every piece: a re-pointing made before is dropped)
     for (const item of pieces) delete item.stats;
 }

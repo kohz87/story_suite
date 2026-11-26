@@ -174,14 +174,14 @@ export function createInventoryCommands(env) {
                 const group = payload.group === true && !original.stack ? Object.values(inv.stacks).filter(item => item.def === stack.def && item.owner === stack.owner).length : stack.qty;
                 if ((typeof payload.name === 'string' && cleanName(payload.name) !== original.name) || (payload.qty !== undefined && payload.qty !== group)) refuseBound(ctx, inv, stack);
             }
-            // The reader's own gear (gear on): kind, slot, rarity and bonus of a piece they added by hand.
+            const oldName = original.name, before = editPieces(inv, stack), slotWitness = payload.slot === undefined ? null : editPieces(inv, stack, true);
+            const decision = typeof payload.name === 'string' ? { witness: renameDecision(inv, stack, payload, true), story: 1 } : null;
+            // Gear fields: the reader's own piece, or any equipment's slot alone. The replay guard's witness is read above, before a slot change takes pieces off.
             if (['kind', 'slot', 'rarity', 'stats'].some(key => payload[key] !== undefined)) {
                 if (wantsRepoint(env, inv, stack, payload)) repoint(ctx, inv, stack, payload);
                 else handEdit(ctx, env, inv, stack, payload);
             }
             const numbers = payload.weight !== undefined || payload.soak !== undefined;   // the Bag Edit's load weight and soak: any unbound piece, any time; set last, on the def the piece ends up on (after the rename's witness and copy)
-            const oldName = original.name;
-            const decision = typeof payload.name === 'string' ? { witness: renameDecision(inv, stack, payload, true), story: 1 } : null;
             let groupQty;
             // The screen counts separate pieces together without changing the one-piece stack invariant.
             if (payload.group === true && !original.stack && payload.qty !== undefined) {
@@ -189,7 +189,7 @@ export function createInventoryCommands(env) {
                 if (qty > MAX_UNSTACKED) ctx.fail('INVALID', fill(E.itemGroupLimit, { max: MAX_UNSTACKED }));
                 const editPiece = payload.name !== undefined || payload.note !== undefined;
                 const pieces = Object.values(inv.stacks).filter(item => item.def === stack.def && item.owner === stack.owner);
-                guardReaderEdit(ctx, 'inventory.edit', editStack(stack), editPieces(inv, stack), decision);
+                guardReaderEdit(ctx, 'inventory.edit', editStack(stack), before, decision, slotWitness);
                 // The selected piece is never the one removed (the equip that follows in the same Save names it): other loose pieces go, the last added first.
                 const spare = pieces.filter(item => item.equipped === null && !boundId(ctx, item));
                 const loose = spare.filter(item => item.id !== stack.id).reverse();
@@ -208,7 +208,7 @@ export function createInventoryCommands(env) {
                 }
                 groupQty = qty;
             }
-            if (groupQty === undefined) guardReaderEdit(ctx, 'inventory.edit', editStack(stack), null, decision);
+            if (groupQty === undefined) guardReaderEdit(ctx, 'inventory.edit', editStack(stack), null, decision, slotWitness);
             if (payload.qty !== undefined && groupQty === undefined) {
                 const qty = count(ctx, payload.qty, undefined);
                 // A non-stacking item is one stack per piece (the domain's invariant).

@@ -56,7 +56,7 @@ export function itemSheet(item, ctx = {}) {
     if (answer && answer.ok === false) { refused(answer.message, type); return; }
     ctx.close?.();
   };
-  const slotEditable = Boolean(ctx.rpg) && item.hand === true && item.kind === 'gear';
+  const slotEditable = Boolean(ctx.rpg) && (item.hand === true || item.slotEdit === true) && item.kind === 'gear';
   const refused = (message, type) => picker.replaceChildren(
     h('p', { class: 'fine err', role: 'alert' }, message || (type === 'inventory.bag' ? 'That cannot be carried as a bag.' : 'That cannot be worn.')),
     slotEditable && type === 'item.equip' ? h('div', { class: 'brow' }, button({ label: 'Edit item', tone: 'primary', onClick: () => edit(true) })) : null,

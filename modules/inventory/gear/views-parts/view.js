@@ -65,6 +65,9 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
             carryWhy: carryWhy(def, stack, names),
             // A piece the reader added by hand (its Edit offers Kind, Slot, Rarity and Bonus): its own slot and stat points.
             ...(handDef(inventory, def) ? { hand: true, defSlot: def.kind === 'equipment' ? placeOf(slotWordOf(def.slot) ?? '') : '', stats: statsFor(def, stack) } : {}),
+            // The reader may choose the slot of any equipment none of whose pieces is a cast member's (their own, the story's or a pack's: edit-parts/slot-edit.js).
+            ...(def.kind === 'equipment' && !stacks.some(other => other.def === stack.def && typeof other.bound === 'string' && other.bound)
+                && !Object.values(inventory?.kept ?? {}).some(list => Array.isArray(list) && list.some(entry => entry?.def === stack.def)) ? { slotEdit: true } : {}),
             // Any unbound equipment piece with points to give: its Edit lets the reader move them between stats (edit.js repoint); `budget` is the total that stays.
             ...(def.kind === 'equipment' && def.slot && gearBudget(def) > 0 && typeof stack.bound !== 'string' ? { repoint: { budget: gearBudget(def), stats: statsFor(def, stack) } } : {}),
             // A cast member's signature piece: whose it is, for the chip ("Bound to Mara").

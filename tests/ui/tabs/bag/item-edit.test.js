@@ -162,3 +162,19 @@ test('the engine\'s refusal of a soak above the cap shows inline', async () => {
   await tick();
   assert.equal(el.querySelector('.iedit .err').textContent, 'Tower shield can soak at most 2 here.');
 });
+
+test('RPG on: a story piece with slotEdit shows Slot and no Rarity, and Save sends the slot alone (None as \'\')', async () => {
+  installFakeDom();
+  const item = { ...find('Steel longsword'), slot: 'off-hand', slotEdit: true };
+  const [el, ctx] = open(item, true, () => Promise.resolve({ ok: true }));
+  assert.equal(el.querySelectorAll('.iedit select').length, 1);
+  const slot = el.querySelector('.iedit select[data-field="slot"]');
+  assert.equal(slot.value, 'off-hand');
+  slot.value = '';
+  el.querySelector('.btn2.save').click();
+  await tick();
+  assert.deepEqual(ctx.sent[0], ['inventory.edit', { stack: item.stack, slot: '' }]);
+  const note = { name: item.name, qty: '1', note: item.note ?? '' };
+  assert.equal(itemPatch(item, { ...note, slot: 'off-hand' }, true), null, 'an unchanged slot is not sent');
+  assert.equal(itemPatch(item, { ...note, slot: 'weapon' }, false), null, 'RPG off: not sent');
+});
