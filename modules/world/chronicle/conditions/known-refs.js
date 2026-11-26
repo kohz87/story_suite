@@ -13,8 +13,14 @@ const rows = (query, name, args) => { const out = ask(query, name, args); return
 const fold = text => foldKey(text).replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
-/** The packs' map as the daily step reads it. */
-export const hostGeo = query => buildGeo(readWorld(query));
+/**
+ * Whether a pack's file ids are read for `carrier`, the reply a narrator line is captured from (`ctx.carrier`): one with no
+ * `packPlaceIds` rule mark was first read without them, and a Re-read of it stays so. With no carrier, yes.
+ */
+export const placeIdsOn = carrier => !carrier || carrier.rules?.includes('packPlaceIds') === true;
+
+/** The packs' map as the daily step reads it, for `carrier` (placeIdsOn). */
+export const hostGeo = (query, carrier = null) => buildGeo(readWorld(query), { slugs: placeIdsOn(carrier) });
 
 // A place or region of the atlas alone (a place the story made): its own name.
 function atlasName(query, scope, ref) {

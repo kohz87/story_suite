@@ -9,6 +9,7 @@
 
 import { recordAnchor } from './anchors.js';
 import { resolveRef } from './geo.js';
+import { withMapName } from './anchor-ref.js';
 import { baseOf, inGroup, placeAt, placeOf } from './cast-where.js';
 import { entryActive } from './holds-read.js';
 
@@ -62,6 +63,9 @@ function statusUntil(ws, source, to) {
     return '';
 }
 
+// An authored `until`: "cleared:<condition>@<ref>" is kept with the map's name for the ref, as the condition's own key is.
+const untilOf = (ws, value) => (value.startsWith('cleared:') ? `cleared:${withMapName(ws.geo, value.slice('cleared:'.length))}` : value);
+
 function skip(ws, person, source, day, why) {
     ws.log.push({ kind: 'cast-skipped', key: person.id, by: source.id, day, why });
 }
@@ -107,7 +111,7 @@ export function applyCast(ws, entries, source, day) {
         if (location) {
             if (!fromAllows(ws, person, from, source.id)) { skip(ws, person, source, day, from ? `not in ${from}` : 'moved from their start since'); continue; }
             const to = resolveRef(ws.geo, location)?.name ?? location;
-            const move = { until: text(entry.until) || statusUntil(ws, source, to) || 'end', routine: text(entry.routine), title: source.title };
+            const move = { until: untilOf(ws, text(entry.until)) || statusUntil(ws, source, to) || 'end', routine: text(entry.routine), title: source.title };
             if (ws.withYou.has(person.id)) {
                 // With You: not moved; the move waits until they part from You (cast-defer.js), `from` checked again then.
                 ws.cast[person.id] = { ...(ws.cast[person.id] ?? {}), deferred: { to, by: source.id, until: move.until, title: source.title, ...(move.routine ? { routine: move.routine } : {}), ...(from ? { from } : {}) } };

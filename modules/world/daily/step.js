@@ -7,7 +7,7 @@
 import { seededDraw } from './chance.js';
 import { readDefs } from './defs.js';
 import { eventsDay } from './events-day.js';
-import { buildGeo } from './geo.js';
+import { buildGeo, resolveRef } from './geo.js';
 import { fadeConditions, releaseHolds } from './holds.js';
 import { recordAnchor } from './anchors.js';
 import { releaseDisplaced } from './cast.js';
@@ -30,14 +30,16 @@ export const stepTally = { days: 0 };
 const list = value => (Array.isArray(value) ? value : []);
 const record = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
 
-function people(world) {
+function people(world, geo) {
+    // A home written as a place's file id or alias is that place, by name (the step compares homes with place names); any other stays as written.
+    const named = home => { const found = home === null ? null : resolveRef(geo, home); return found?.kind === 'place' ? found.name : home; };
     const out = new Map();
     for (const person of list(world.cast)) {
         if (typeof person?.id !== 'string') continue;
         const start = person.start && typeof person.start === 'object' ? person.start.place : person.start;
         // canDieUnmet: only an explicit true lets an unmet person die (seam audit E6: absent counts as false).
         // `home`: where play begins for them (spec §8 start.place; the cast store starts them there too), else their homeBase.
-        out.set(person.id, { id: person.id, name: person.name ?? person.id, kind: person.kind ?? null, protected: person.protected === true, canDieUnmet: person.canDieUnmet === true, home: start ?? person.homeBase ?? null });
+        out.set(person.id, { id: person.id, name: person.name ?? person.id, kind: person.kind ?? null, protected: person.protected === true, canDieUnmet: person.canDieUnmet === true, home: named(start ?? person.homeBase ?? null) });
     }
     return out;
 }
@@ -71,8 +73,9 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
     const paced = Number.isFinite(tempo) && tempo >= 0.25 && tempo <= 4;
     const defs = readDefs(world);
     const cal = makeStepCalendar(calendar, world.seasons);
+    const geo = buildGeo(world);
     const ws = {
-        geo: buildGeo(world), people: people(world), met: new Set(met), tempo: paced ? tempo : 1, rev,
+        geo, people: people(world, geo), met: new Set(met), tempo: paced ? tempo : 1, rev,
         declared: new Map(list(world.conditions).filter(row => typeof row?.name === 'string').map(row => [row.name, { name: row.name, scope: row.scope, fades: row.fades ?? null, placeStatus: row.placeStatus === true, open: row.open === true }])),
         table: { ...record(table) }, masks: { ...record(state?.masks) }, anchors: structuredClone(record(state?.anchors)),
         events: structuredClone(record(state?.events)), lastMajor: { ...record(state?.lastMajor) }, cast: structuredClone(record(state?.cast)),

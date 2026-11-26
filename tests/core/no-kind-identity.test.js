@@ -1,6 +1,7 @@
 // With no interaction kind registered, the prompt, chat metadata, receipts and guard mark are byte-identical to what main
 // produced before interactions existed. The fixture was written by running this same scenario on origin/main (WRITE_NO_KIND=1).
 // FU147 patched the fixture by script (not re-recorded) for one intended change only: the item grammar line ends with the supplies sentence.
+// ARS-ENGINE-FIX patched the fixture by script (not re-recorded) for one intended change only: the new rule mark packPlaceIds in each record's sorted rule list.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
