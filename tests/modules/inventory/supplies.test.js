@@ -11,14 +11,15 @@ import { isSupply, upkeepCue } from '../../../modules/inventory/prompt-parts/sup
 const goods = (name, note = '') => ({ name, note, kind: 'goods' });
 const CURRENCY = { name: 'gold', plural: 'gold', short: '' };
 
-test('a supply word in the name or note, as a whole word in any case; a consumable only with gear on', () => {
+test('a supply word in the name or note, as a whole word in any case; a consumable (a potion or draught that restores) never by itself', () => {
     for (const item of [goods('Party River Rations & Slingbags'), goods('Slingbags', '6-day smoked eel, biscuit & salt-plum provisions'), goods('Healer\'s Pouch', 'two BANDAGES left'),
         goods('Torches'), goods('Lamp Oil'), goods('Bundle', 'dry firewood')]) assert.equal(isSupply(item), true, `${item.name} ${item.note}`);
     for (const item of [goods('Waterproof Cloak'), goods('Oilskin'), goods('Fishing Rod'), goods('Whetstone', 'found in the fish market'), goods('Rope', 'a salesman\'s')]) {
         assert.equal(isSupply(item), false, `${item.name} ${item.note}`);
     }
     const draught = { name: 'Red Vial', note: '', kind: 'consumable' };
-    assert.deepEqual([isSupply(draught, true), isSupply(draught, false)], [true, false]);
+    assert.deepEqual([isSupply(draught, true), isSupply(draught, false)], [false, false]);
+    assert.equal(isSupply({ name: 'Minor Healing Draught', note: '', kind: 'goods' }), false, 'a healing draught is no supply by its words either');
 });
 
 test('paperwork is never a supply, whatever its words say', () => {

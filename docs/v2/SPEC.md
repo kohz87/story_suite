@@ -969,7 +969,9 @@ pony 30, camel 30, mule 25, donkey 20, ox 15, cart 18, wagon 18, else 30 (km a d
 to it and said as a Problem; a thirteenth row (a seventh on a reply without the rule mark `mountRiders`, so a Re-read of an older reply keeps six), a `~` or `-` of a mount the party has not, and text that is not a number where
 a number belongs are refused with a plain Problem. Command `mounts.edit({ mount, name?, kind?, count?, pace?, condition?,
 where? })` (the reader's pencil, `ui` only, on the latest reply; `mount` names the row to change). The narrator's tail line,
-only while there is a mount: `Mounts: Grey Mare (horse, 35 km/day, ridden by Wessel); Guild remounts ×4 (horse, 35 km/day)`.
+only while there is a mount: `Mounts: Grey Mare (horse, 35 km/day, ridden by Wessel); Burr (mule, 25 km/day, tired, led)`. Rows of one kind and pace that are
+with the party and say no more than who rides (an empty `where`, `with the party`, `ridden by …` or a list of members only) are said once,
+`horse ×5 (35 km/day) with the party (Wessel): Grey Mare, Guild remounts ×4`, as are rows left at one same `where`; a row with a condition keeps its own entry.
 Queries (read by Story Director's trip line; each null while the feature is off): `mounts.list` →
 `[{ name, kind, count, pace, condition, where }]`, copies in story order (`[]` with none); `mounts.pace` →
 `{ pace, mounts, riders, short, slowest }` or `null` with no mount: `pace` the slowest row's pace, `mounts` the sum of

@@ -7,7 +7,9 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../modules/director/module.js';
 import { GRAMMAR, staticText } from '../../../../modules/time/tracker/note.js';
-import { WRAP_BEATS, WRAP_REPLIES, pacingLines } from '../../../../modules/time/tracker/note-parts/pacing.js';
+import { LIVE_REPLIES, WRAP_BEATS, WRAP_REPLIES, pacingLines } from '../../../../modules/time/tracker/note-parts/pacing.js';
+
+import { calendarOf, settingsDefaults } from '../../../../modules/time/tracker/time.js';
 
 const TAIL_KEY = 'story_suite_tail_1';
 const reply = lines => `The day goes on.\n<Changes>\n${lines.join('\n')}\n</Changes>`;
@@ -106,18 +108,80 @@ test('breather: a Re-read of the reply that ended the beat keeps it; deleting th
     });
 });
 
-test('an open beat the tail no longer reads holds no chain; an arc beat it no longer reads does not end its arc', () => {
-    const made = (id, track, more = {}) => [id, { id, kind: 'beat', status: 'active', track, ...more }];
-    const director = { turn: { n: 70 }, threads: Object.fromEntries([made('th_old', { created: { turn: 1 } })]) };
-    const labels = read => pacingLines({}, director, { state: {}, read }).map(entry => entry.label);
-    assert.deepEqual(labels(director.threads), ['Wrap-up']);
-    assert.deepEqual(labels({}), []);
+test(`an open undated beat holds the chain only while it was touched in the last ${LIVE_REPLIES} replies`, () => {
+    const made = (id, track, more = {}) => [id, { id, key: id, kind: 'beat', status: 'active', fields: {}, track, ...more }];
+    const director = { turn: { n: 1 + LIVE_REPLIES }, threads: Object.fromEntries([made('th_old', { created: { turn: 1 } })]) };
+    const labels = () => pacingLines({}, director, { state: {} }).map(entry => entry.label);
+    assert.deepEqual(labels(), []);
+    for (const name of ['changed', 'seen', 'engaged']) {
+        director.threads.th_old.track = { created: { turn: 1 }, [name]: { turn: 2 } };
+        assert.deepEqual(labels(), ['Wrap-up'], name);
+    }
+    director.threads.th_old.track = { created: { turn: 1 } };
     // A later chain that just ended gets its breather beside the forgotten beat.
-    director.threads.th_new = { id: 'th_new', kind: 'beat', status: 'resolved', track: { created: { turn: 66 }, closed: { turn: 70 } } };
-    assert.deepEqual(labels({}), ['Breather']);
+    director.threads.th_new = { id: 'th_new', kind: 'beat', status: 'resolved', track: { created: { turn: 12 }, closed: { turn: 16 } } };
+    assert.deepEqual(labels(), ['Breather']);
+    // Nor does the forgotten beat count toward the beats opened in a chain.
+    director.threads = Object.fromEntries([made('th_old', { created: { turn: 1 } }), ...Array.from({ length: WRAP_BEATS - 1 }, (_, i) => made(`th_${i}`, { created: { turn: 16 } }))]);
+    assert.deepEqual(labels(), []);
+    // An arc whose beats are open is not played out, however long they were quiet.
     director.threads = Object.fromEntries([made('th_arc', { created: { turn: 1 }, arc: 'arc_aaaaaaaa' })]);
-    director.threads.th_done = { id: 'th_done', kind: 'beat', status: 'resolved', track: { created: { turn: 1 }, closed: { turn: 70 }, arc: 'arc_aaaaaaaa' } };
-    assert.deepEqual(labels({}), []);
+    director.threads.th_done = { id: 'th_done', kind: 'beat', status: 'resolved', track: { created: { turn: 1 }, closed: { turn: 16 }, arc: 'arc_aaaaaaaa' } };
+    assert.deepEqual(labels(), []);
+});
+
+test('a beat dated more than one story day ahead holds no chain; one dated tomorrow or past does, however quiet', () => {
+    const calendar = calendarOf(settingsDefaults(), null);
+    const minutes = calendar.parse('June 3, 1200, 08:00 am', {}).abs;
+    const director = { turn: { n: 40 }, threads: { th_a: { id: 'th_a', key: 'Fair', kind: 'beat', status: 'active', fields: {}, track: { created: { turn: 1 } } } } };
+    const labels = (on, clock = minutes) => { director.threads.th_a.fields = { on }; return pacingLines({}, director, { state: {}, calendar, minutes: clock }).map(entry => entry.label); };
+    assert.deepEqual(labels('June 4, 1200'), ['Wrap-up'], 'tomorrow');
+    assert.deepEqual(labels('June 1, 1200'), ['Wrap-up'], 'past');
+    assert.deepEqual(labels('June 5, 1200'), [], 'two days ahead');
+    director.threads.th_a.track.created.turn = 28;
+    assert.deepEqual(labels('June 5, 1200'), [], 'two days ahead, newly made');
+    assert.deepEqual(labels('June 5, 1200', null), ['Wrap-up'], 'no clock: judged as undated');
+    assert.deepEqual(labels('when the tide turns'), ['Wrap-up'], 'unreadable date: judged as undated');
+    director.threads.th_a.track.created.turn = 1;
+    assert.deepEqual(labels('when the tide turns'), []);
+});
+
+test(`a forgotten beat: no wrap-up once it was quiet for ${LIVE_REPLIES} replies, and a later chain gets its breather`, async t => {
+    await story(t, async ({ host, say }) => {
+        await say([beat('Signal Wire')]);
+        const cues = [];
+        for (let n = 0; n < LIVE_REPLIES + 3; n += 1) cues.push(await say());
+        // The tail of quiet reply `k` was written `k - 1` replies after the beat was made.
+        assert.deepEqual(cues, cues.map((_, i) => (i + 1 >= WRAP_REPLIES && i < LIVE_REPLIES ? ['Wrap-up'] : [])));
+        await sameAfterReplay(host);
+        await say([beat('Toll Man')]);
+        await say([end('Toll Man')]);
+        assert.deepEqual(await say(), ['Breather']);
+        await sameAfterReplay(host);
+    });
+});
+
+test('the wrap-up names up to three open beats, the oldest first', async t => {
+    await story(t, async ({ host, say }) => {
+        await say([beat('One')]);
+        await say([beat('Two'), beat('Three'), beat('Four'), beat('Five'), end('Two')]);
+        assert.deepEqual(await say(), ['Wrap-up']);
+        assert.match(tailOf(host), /close its open beats \(One, Three, Four\) with ! beat lines/);
+        await sameAfterReplay(host);
+    });
+});
+
+test('no breather while an arc beat is due now', async t => {
+    await story(t, async ({ host, say }) => {
+        await say();
+        const plan = ['ARC: Toll War — the toll rises', ...[3, 20, 22].map((day, i) => `BEAT: Step ${i + 1} — something | on: June ${day}, 1200`)].join('\n');
+        assert.equal((await host.sdk.command('director.arc.accept', { plan, reason: 'manual' }, { cause: 'ui' })).ok, true);
+        await say([beat('Ferry Row')]);
+        await say([end('Ferry Row')]);
+        assert.deepEqual(await say(), []);
+        assert.match(tailOf(host), /\nDue now: [^\n]*Step 1/);
+        await sameAfterReplay(host);
+    });
 });
 
 test('breather: a new beat ends it, even one that is over in the same reply; a beat that never stayed open starts none', async t => {
@@ -141,7 +205,7 @@ test(`wrap-up: from ${WRAP_REPLIES} replies, gone when no beat is open (then the
         // A chain relayed from one beat to the next is one chain.
         assert.deepEqual(await say([beat('Toll Man'), end('Ferry Row')]), [], `${WRAP_REPLIES - 1} replies`);
         assert.deepEqual(await say(), ['Wrap-up']);
-        assert.match(tailOf(host), new RegExp(`\\nWrap-up: this chain of events has run for ${WRAP_REPLIES} replies\\. Steer toward resolving it: close its open beats \\(! beat lines\\), no new escalation, unless \\S+ pushes it further\\.`));
+        assert.match(tailOf(host), new RegExp(`\\nWrap-up: this chain of events has run for ${WRAP_REPLIES} replies\\. Steer toward resolving it: close its open beats \\(Toll Man\\) with ! beat lines, no new escalation, unless \\S+ pushes it further\\.`));
         await sameAfterReplay(host);
         assert.deepEqual(await say([end('Toll Man')]), ['Wrap-up']);
         assert.match(tailOf(host), new RegExp(`run for ${WRAP_REPLIES + 1} replies`));
@@ -224,18 +288,20 @@ test('quiet scene: the switch adds its line and off removes it; none while the W
 });
 
 test('no cue while the world-building threads are off: no beats are taught', () => {
-    const director = { turn: { n: 30 }, threads: { th_aaaaaaaa: { id: 'th_aaaaaaaa', kind: 'beat', status: 'active', track: { created: { turn: 1 } } } } };
+    const director = { turn: { n: 14 }, threads: { th_aaaaaaaa: { id: 'th_aaaaaaaa', kind: 'beat', status: 'active', track: { created: { turn: 1 } } } } };
     const view = { query: () => ({ on: true }) };
     assert.deepEqual(pacingLines(view, director, { state: {} }).map(entry => entry.label), ['Wrap-up', 'Quiet scene']);
     assert.deepEqual(pacingLines(view, director, { state: {}, threads: false }), []);
 });
 
-test('the cues are kept lines of the tail', async t => {
+test('the cues are plain lines of the tail, right under the header', async t => {
     const { directorTail } = await import('../../../../modules/time/tracker/note.js');
     await story(t, async ({ host, say }) => {
         await say([beat('Ferry Row')]);
         await say([end('Ferry Row')]);
         const { lines } = directorTail({ state: host.head(), settings: {}, chat: { length: 5, lastUser: '' } });
-        assert.ok(lines.some(line => line.keep === true && line.text.startsWith('Breather: ')));
+        const at = lines.findIndex(line => typeof line === 'string' && line.startsWith('Breather: '));
+        assert.ok(at > 0, JSON.stringify(lines));
+        assert.match(String(lines[at - 1]), /^\[Story Director/);
     });
 });

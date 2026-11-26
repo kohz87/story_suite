@@ -1,8 +1,8 @@
 {
   "tests/modules/inventory/mount-riders.test.js": "Tests that mounts naming party members travel with the party, the carry limit's old reading on Re-read, the roll guard and the mount grammar.",
-  "modules/inventory/gear/carry-parts/party-names.js": "Gives the names a mount's `where` can call the party by: the current members and the reader's persona.",
+  "modules/inventory/gear/carry-parts/party-names.js": "Gives the names a mount's `where` can call the party by: the current members and, for display, the reader's persona.",
   "modules/inventory/gear/carry-parts/mount-travel.js": "Decides whether a mount row travels with the party, from its `where`, the party's place and the party's names.",
-  "modules/scene/mounts-parts/riders.js": "Reads who a mount row's `where` names: its riders (\"ridden by …\" or a bare list of party members) and whether it names a party member.",
+  "modules/scene/mounts-parts/riders.js": "Reads who a mount row's `where` names: its riders (\"ridden by …\" or a bare list of party members), whether it names a party member, and a bare list with one rider taken out.",
   ".github/workflows/ci.yml": "The CI workflow: rules checks and the three package test jobs plus the cross-package suite job.",
   ".github/workflows/ui-walk.yml": "The UI walk workflow: for a manual run, a release pull request or a pull request that touches the UI, runs the settings click-through in a pinned SillyTavern, one job per size and theme, and keeps the table and failure screenshots.",
   "authoring-kit/check.mjs": "Check a pack using the same validator as Story Block.",
@@ -966,5 +966,5 @@
   "examples/text-rpg/tests/gear-wis.test.js": "Tests that gear's sixth stat counts as Text RPG's wis by position, and that `gear.statLabels` answers Text RPG's names while it is on.",
   "modules/people/meters/npc-lines-parts/toward.js": "Reads the toward: label of a ~ npc line (who the reader is to this person now, one sentence) and gives it, clipped, as the dossier's relationshipSummary; a value that says nothing is refused.",
   "tests/people/npc-lines-toward.test.js": "Tests the toward: label: it writes Who you are to them, a hand-edited or dead person's summary stays, an unmarked Re-read never writes it, replay equals live, and the rule is sent.",
-  "modules/time/tracker/note-parts/pacing.js": "Story Director's note: the tail's breather, wrap-up and quiet-scene cues, read from the threads' reply counts."
+  "modules/time/tracker/note-parts/pacing.js": "Story Director's note: the tail's breather, wrap-up and quiet-scene cues, read from the threads' reply counts, beat dates and the story clock."
 }

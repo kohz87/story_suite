@@ -1,4 +1,4 @@
-// Supplies (food, medicine, light, fuel) in the tail: which items are supplies, and the line that asks to use them up when days pass.
+// Supplies (food, bandages and herbs, light, fuel) in the tail: which items are supplies, and the line that asks to use them up when days pass.
 
 import { defaultWeight } from '../gear.js';
 import { promptNote } from './phrases.js';
@@ -6,7 +6,7 @@ import { promptNote } from './phrases.js';
 // Whole words in a name or note, any case.
 const WORDS = [
     'rations?', 'provisions', 'food', 'bread', 'biscuits?', 'jerky', 'meat', 'cheese', 'eel', 'fish', 'meals?', 'water', 'wine', 'ale', 'cider',
-    'medicine', 'salves?', 'bandages?', 'herbs?', 'poultices?', 'potions?', 'draughts?', 'tonics?', 'elixirs?', 'antidotes?',
+    'salves?', 'bandages?', 'herbs?', 'poultices?',
     'oil', 'torch(?:es)?', 'candles?', 'lamps?', 'firewood', 'fodder', 'feed',
 ];
 const SUPPLY = new RegExp(`(?<![\\p{L}\\p{N}])(?:${WORDS.join('|')})(?![\\p{L}\\p{N}])`, 'iu');
@@ -14,11 +14,13 @@ const SUPPLY = new RegExp(`(?<![\\p{L}\\p{N}])(?:${WORDS.join('|')})(?![\\p{L}\\
 // A paper about supplies is not one: a thing named as a paper, pass, ledger, ... weighs nothing as goods (gear's default weight).
 const paper = item => ['goods', 'material', 'quest'].includes(item.kind) && defaultWeight({ name: item.name, kind: 'goods' }) === 0;
 
-/** Whether a listed item is a supply: of kind supply; else (items from before the kind) a consumable (gear on), or a supply word in its name or note. */
+/** Whether a listed item is a supply: of kind supply; else (items from before the kind) a supply word in its name or note. A consumable (a potion or
+ * draught that restores) is never one by itself (lead 26 Nov: the narrator must not use healing up day by day). */
 export function isSupply(item, gear = false) {
     if (item.kind === 'supply') return true;
     if (paper(item)) return false;
-    return (gear && item.kind === 'consumable') || SUPPLY.test(String(item.name ?? '')) || SUPPLY.test(promptNote(item.note));
+    if (item.kind === 'consumable') return false;
+    return SUPPLY.test(String(item.name ?? '')) || SUPPLY.test(promptNote(item.note));
 }
 
 const dayOf = state => {

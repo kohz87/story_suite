@@ -9,7 +9,7 @@ import { cleanName } from '../names.js';
 import { travelsWith } from '../../inventory/gear/carry-parts/mount-travel.js';
 import { partyNames } from '../../inventory/gear/carry-parts/party-names.js';
 import { MAX_WHERE } from './caps-text.js';
-import { ridersOf } from './riders.js';
+import { listWithout, ridersOf } from './riders.js';
 import { nameKey } from './shared-keys.js';
 import { apply } from './apply.js';
 
@@ -51,7 +51,12 @@ export function ride(ctx, payload = {}) {
     }
     const off = rows.filter(row => row !== target && ridersOf(row.where, crew).some(same));
     if (!target && !off.length) ctx.fail('REFUSED', fill(M.rideNone, { who }));
-    for (const row of off) apply(ctx, { match: row.name, where: whereWith(row.where, ridersOf(row.where, crew).filter(name => !same(name))) }, { create: false });
+    // A bare list keeps its other parts (a place, a name that is no member's); "ridden by …" is written again from its riders.
+    const without = row => {
+        const riders = ridersOf(row.where, crew);
+        return listWithout(row.where, riders.find(same), crew) ?? whereWith(row.where, riders.filter(name => !same(name)));
+    };
+    for (const row of off) apply(ctx, { match: row.name, where: without(row) }, { create: false });
     if (target) apply(ctx, { match: target.name, where }, { create: false });
     return {
         summary: target ? fill(M.rides, { who, name: target.name }) : fill(M.rideOff, { who }),

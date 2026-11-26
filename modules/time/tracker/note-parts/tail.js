@@ -102,8 +102,10 @@ export function directorTail(view, { budget = TAIL_BUDGET } = {}) {
         .map(problem => ({ ...problem, message: problem.turn })), { message });
     // Who takes the initiative in this reply (initiative.js): its line is kept, so its room comes first.
     const initiative = initiativeTail(view, { scene });
-    // The breather, wrap-up and quiet-scene lines (pacing.js) are kept too: the same.
-    const pacing = pacingLines(view, kept, { state, threads, read: director.threads });
+    // The breather, wrap-up and quiet-scene lines (pacing.js): plain lines, their room held first too. No breather while an arc
+    // beat is on the Due now line.
+    const arcDue = selection.due.some(record => threadOf.get(record)?.track?.arc);
+    const pacing = pacingLines(view, kept, { state, threads, calendar, minutes: now, arcDue });
     const pinnedCost = (initiative ? estimateTokens(`\n${initiative}`) : 0) + pacing.reduce((sum, entry) => sum + estimateTokens(`\n${entry.text}`), 0);
     const instruction = staticText({ fights, threads, calendarRule: calendarRule(calendar) });
     const total = budget + estimateTokens(instruction);
@@ -137,8 +139,8 @@ export function directorTail(view, { budget = TAIL_BUDGET } = {}) {
     }
     if (calendarRule(calendar)) parts = parts.filter((entry, index) => !index || entry.label !== 'No weekdays');
     const text = v2Lines(tailNote(insertAfterKinds(parts, extra)));
-    // The Initiative and pacing lines are kept (Story Block pins a `{ text, keep: true }` tail line under a tight budget, while
-    // its shared room lasts); the rest are plain lines.
-    const pinned = new Set([initiative, ...pacing.map(entry => entry.text)].filter(Boolean).map(line => v2Lines(line).trimEnd()));
-    return { lines: text ? text.split('\n').map(line => (pinned.has(line.trimEnd()) ? { text: line, keep: true } : line)) : [], optional: [] };
+    // The Initiative line is kept (Story Block pins a `{ text, keep: true }` tail line under a tight budget, while its shared room
+    // lasts); the rest are plain lines.
+    const pinned = initiative ? v2Lines(initiative).trimEnd() : null;
+    return { lines: text ? text.split('\n').map(line => (line.trimEnd() === pinned ? { text: line, keep: true } : line)) : [], optional: [] };
 }

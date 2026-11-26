@@ -180,7 +180,7 @@ test('the grammar line and the tail line: one line each, the same bytes reply to
     await host.send('Saddle up.', block('The yard.', [MARE, '+ mount Guild remounts | kind: horse | count: 4', '+ mount Burr | kind: mule | condition: tired | where: led']));
     await host.send('On.', 'On.');
     assert.equal(staticText(host), on, 'the static part does not move with the mounts');
-    assert.match(tailText(host), /^Mounts: Grey Mare \(horse, 35 km\/day, ridden by Wessel\); Guild remounts ×4 \(horse, 35 km\/day\); Burr \(mule, 25 km\/day, tired, led\)$/m);
+    assert.match(tailText(host), /^Mounts: horse ×5 \(35 km\/day\) with the party \(Wessel\): Grey Mare, Guild remounts ×4; Burr \(mule, 25 km\/day, tired, led\)$/m);
     assert.equal(mountsTail({ domains: { scene: initialScene() } }), null);
 
     host.features.set(MOUNTS_FEATURE, false);

@@ -6,7 +6,8 @@ import { IDLE_REPLIES } from './budgets.js';
 const ENDED_REPLIES = 5;
 const DATED = ['due', 'on', 'arrive'];
 
-const lastTurn = thread => Math.max(...['created', 'changed', 'seen', 'closed', 'engaged']
+/** The last reply that made, changed, saw, closed or engaged a thread (-Infinity when none is kept). */
+export const lastTurn = thread => Math.max(...['created', 'changed', 'seen', 'closed', 'engaged']
     .map(name => thread.track?.[name]?.turn).filter(Number.isSafeInteger), -Infinity);
 
 /**

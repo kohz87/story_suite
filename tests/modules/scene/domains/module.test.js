@@ -185,8 +185,7 @@ test('tail: place, present, equipped, wallet and carried items with notes trimme
             'Equipped: Iron Sword [hand]',
             'Equipped (Ren): Dagger [hand]',
             `Wallet (${WALLET_NOTE}): 38 crowns; Ren 5 crowns`,
-            'Supplies: Minor Healing Draught ×2, Minor Healing Draught (cloudy)',
-            'Carried: Lantern, Rope ×3 (tarred hemp, sixty feet, knotted every…)',
+            'Carried: Minor Healing Draught ×2, Minor Healing Draught (cloudy), Lantern, Rope ×3 (tarred hemp, sixty feet, knotted every…)',
         ],
         optional: [],
     });

@@ -54,5 +54,5 @@ export function pulseCommand(ctx, payload = {}) {
 export function quietCommand(ctx, payload = {}) {
     if (typeof payload?.on !== 'boolean') return ctx.fail('INVALID', 'director.pulse.quiet takes { on: true | false }.');
     ctx.draft('director').pulseQuiet = toSlot({ on: payload.on });
-    return { summary: payload.on ? 'Quiet scene: the world pulse rests.' : 'Quiet scene is over: the world pulse goes on.', narrate: false, data: { on: payload.on } };
+    return { summary: payload.on ? 'Quiet scene: the world pulse rests, and new threads are held back.' : 'Quiet scene is over: the world pulse goes on.', narrate: false, data: { on: payload.on } };
 }

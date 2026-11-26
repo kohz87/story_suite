@@ -6,7 +6,8 @@
 // state line (RPG off: "waves 0; hold none; leader \"\""), its definition's fields, kind (with its slot-set condition) and clears, and the block ids that follow from the definition's hash.
 // STATPAIRS re-recorded both for the bars from stat pairs only: the v1 Character's HP and SP size rules (HP from STR+VIT, SP from AGI+DEX), Astra's hp 10 → 8 (STR 3,
 // VIT 10), and the ids, hashes, reads and visit counts that follow from those rules.
-// FU147 patched both fixtures by script (not re-recorded) for one intended change only: the item grammar line ends with the supplies sentence.
+// FU147 patched both fixtures by script (not re-recorded) for one intended change only: the item grammar line ends with the supplies sentence. The lead's
+// 26 Nov change (a consumable is no supply) patched only the sends back: the Healing Draught is on the Carried line again, not Supplies.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
