@@ -12484,7 +12484,7 @@
         },
         "effects": {
           "set": [
-            "grain-dear@auvoth-compact: until cleared"
+            "grain-dear@auvoth-compact: 1 season"
           ]
         },
         "summary": "The Crowded City settles into its final shape: {outcome}.",
@@ -12501,7 +12501,8 @@
                 "ledger-trust": 5
               },
               "set": [
-                "festival@auvoth: 1 season"
+                "festival@auvoth: 1 season",
+                "tolls-raised@auvoth-compact: until cleared"
               ],
               "facts": [
                 {
@@ -12524,7 +12525,8 @@
                 "river-council": -10
               },
               "set": [
-                "unrest@auvoth: 10 days"
+                "unrest@auvoth: 10 days",
+                "court-divided@auvoth-compact-realm: until cleared"
               ],
               "facts": [
                 {
@@ -12547,7 +12549,7 @@
                 "river-council": 3
               },
               "set": [
-                "refugees@auvoth-compact: 1 season"
+                "refugees@auvoth-compact: until cleared"
               ],
               "facts": [
                 {
@@ -14581,7 +14583,10 @@
           ]
         },
         "ends_when": "instant",
-        "summary": "A man in a Dawn-King's cloak enters Valecrown, and the crowds follow him through the market squares."
+        "summary": "A man in a Dawn-King's cloak enters Valecrown, and the crowds follow him through the market squares.",
+        "requires": [
+          "stage:hm-regency"
+        ]
       },
       {
         "id": "hm-pretender-verdict",
@@ -15740,7 +15745,8 @@
           "highmark-capital"
         ],
         "requires": [
-          "fact:ardelian-election"
+          "fact:ardelian-election",
+          "stage:ard-election"
         ],
         "window": {
           "after": "start + 218 days",
@@ -17106,7 +17112,10 @@
           }
         ],
         "ends_when": "instant",
-        "summary": "An Ardelian electoral house offers a marriage to a Highmark claimant: {outcome}."
+        "summary": "An Ardelian electoral house offers a marriage to a Highmark claimant: {outcome}.",
+        "requires": [
+          "stage:ard-emperor-cough"
+        ]
       },
       {
         "id": "intr-secret-session",
@@ -17187,7 +17196,10 @@
         "summary": "Highmark's Diet meets behind closed doors to name a regent-claimant: {outcome}.",
         "likelier_if": {
           "fact:nightingale-holds-copies": "×2"
-        }
+        },
+        "requires": [
+          "stage:hm-regency"
+        ]
       },
       {
         "id": "intr-varden-vote",
@@ -20695,7 +20707,8 @@
                 }
               ],
               "set": [
-                "grain-dear@ledger-locks: until cleared"
+                "grain-dear@ledger-locks: 1 season",
+                "court-divided@river-confederacy: until cleared"
               ],
               "scores": {
                 "ledger-trust": 3
@@ -22865,7 +22878,8 @@
                 }
               ],
               "set": [
-                "grain-dear@glass-wastes-and-ashkaran-dominion: until cleared"
+                "grain-dear@glass-wastes-and-ashkaran-dominion: 1 season",
+                "tolls-raised@glass-wastes-and-ashkaran-dominion: until cleared"
               ],
               "scores": {
                 "north-readiness": 3
@@ -25980,6 +25994,141 @@
         ],
         "cooldown": "1 season per place",
         "summary": "A quarantine cordon goes up around {place}, and food grows dear behind it."
+      },
+      {
+        "template": "crown-settled",
+        "scope": "place",
+        "severity": "major",
+        "reach": "regional",
+        "needs": [
+          "crown-contested@realm"
+        ],
+        "requires": [
+          "date:615-10-01"
+        ],
+        "less_if": {
+          "at-war@realm": "×0"
+        },
+        "clears": [
+          "crown-contested@realm"
+        ],
+        "chance": "5% per season",
+        "cooldown": "2 years per place",
+        "summary": "At {place} the rival claims to the crown of {realm} are set aside, for now."
+      },
+      {
+        "template": "regency-ends",
+        "scope": "place",
+        "severity": "major",
+        "reach": "regional",
+        "needs": [
+          "regency@realm"
+        ],
+        "requires": [
+          "date:615-10-01"
+        ],
+        "less_if": {
+          "crown-contested@realm": "×0"
+        },
+        "clears": [
+          "regency@realm"
+        ],
+        "chance": "5% per season",
+        "cooldown": "2 years per place",
+        "summary": "The regents of {realm} give up their seals at {place}."
+      },
+      {
+        "template": "siege-lifted",
+        "scope": "place",
+        "severity": "major",
+        "reach": "regional",
+        "needs": [
+          "siege@place"
+        ],
+        "requires": [
+          "date:615-10-01"
+        ],
+        "clears": [
+          "siege@place"
+        ],
+        "chance": "5% per season",
+        "cooldown": "2 years per place",
+        "summary": "The host before {place} breaks camp."
+      },
+      {
+        "template": "collars-bought-out",
+        "scope": "place",
+        "severity": "major",
+        "reach": "regional",
+        "needs": [
+          "slaves-pressed@realm"
+        ],
+        "requires": [
+          "date:615-10-01"
+        ],
+        "less_if": {
+          "at-war@realm": "×0.5"
+        },
+        "clears": [
+          "slaves-pressed@realm"
+        ],
+        "chance": "5% per season",
+        "cooldown": "2 years per place",
+        "summary": "Collars are bought out and struck off at {place}, and the pressing stops in {realm}."
+      },
+      {
+        "template": "refugees-settle",
+        "scope": "place",
+        "severity": "minor",
+        "reach": "regional",
+        "needs": [
+          "refugees@region"
+        ],
+        "requires": [
+          "date:615-10-01"
+        ],
+        "clears": [
+          "refugees@region"
+        ],
+        "chance": "5% per season",
+        "cooldown": "2 years per place",
+        "summary": "The people on the roads near {place} find roofs and work."
+      },
+      {
+        "template": "raiders-driven-off",
+        "scope": "place",
+        "severity": "minor",
+        "reach": "regional",
+        "needs": [
+          "raiders@region"
+        ],
+        "requires": [
+          "date:615-10-01"
+        ],
+        "clears": [
+          "raiders@region"
+        ],
+        "chance": "5% per season",
+        "cooldown": "2 years per place",
+        "summary": "The roads near {place} are swept clear of raiders."
+      },
+      {
+        "template": "long-feast-ends",
+        "scope": "place",
+        "severity": "minor",
+        "reach": "regional",
+        "needs": [
+          "festival@place"
+        ],
+        "requires": [
+          "date:615-10-01"
+        ],
+        "clears": [
+          "festival@place"
+        ],
+        "chance": "5% per season",
+        "cooldown": "2 years per place",
+        "summary": "The long festival at {place} winds down and the stalls come in."
       }
     ],
     "start": {
