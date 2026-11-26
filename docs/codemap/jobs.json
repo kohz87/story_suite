@@ -946,5 +946,6 @@
   "examples/text-rpg/src/module-parts/stat-labels.js": "The seven names gear stats show under while Text RPG is on: the Stat names setting by position, a blank one its own key.",
   "tests/ui/tabs/bag/gear-stat-labels.test.js": "Tests that the Bag form, the stats picker and the Bag and Party view-models show Text RPG's stat names for the gear's stats and keep the gear's keys.",
   "examples/text-rpg/tests/gear-left.test.js": "Tests that a Text RPG companion who left holding things adds no carry room, keeps a name and can be emptied back, with replay equal to live, and that a Re-read of an unmarked reply keeps the old carry limit.",
-  "examples/text-rpg/tests/gear-wis.test.js": "Tests that gear's sixth stat counts as Text RPG's wis by position, and that `gear.statLabels` answers Text RPG's names while it is on."
+  "examples/text-rpg/tests/gear-wis.test.js": "Tests that gear's sixth stat counts as Text RPG's wis by position, and that `gear.statLabels` answers Text RPG's names while it is on.",
+  "modules/time/tracker/note-parts/pacing.js": "Story Director's note: the tail's breather, wrap-up and quiet-scene cues, read from the threads' reply counts."
 }

@@ -40,7 +40,8 @@ test('a quiet story: the Director prompt is short and teaches world and faction 
             // 3,350 (measured 3,280, 13 Nov): the hook / quest line says when to close a job or lead and that + quest keeps the hook's name.
             // 3,400 (measured 3,350, 16 Nov): the hook / quest line says + quest takes the hook's name alone; its example is the bare line (B1.6).
             // 3,500 (measured 3,415, 16 Nov): the time line says a clock face is today's time and how to skip to a later day (B1.1).
-            assert.ok(text.length < 3500, `${text.length} characters`);
+            // 3,900 (measured 3,780 and 3,815 with the fight runner, 26 Nov): the pacing rule (let the story breathe, about 490 characters) and the grammar's "something new".
+            assert.ok(text.length < 3900, `${text.length} characters`);
             assert.match(text, /^\+ agenda\|event\|clock\|beat\|secret Name — summary/m);
             assert.match(text, /^\+ hook\|quest Name — /m);
             assert.match(text, /^~ time 9:30 am \(the clock now/m);

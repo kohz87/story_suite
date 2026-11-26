@@ -53,7 +53,7 @@ test('every thread kind has one concrete example line in the static grammar, and
     const agenda = part.kinds.agenda.grammar({ fights: true });
     const alone = part.kinds.agenda.grammar({ fights: false });
     for (const text of [agenda, alone]) {
-        assert.match(text, /Write one whenever the story sets something moving, e\.g\./);
+        assert.match(text, /Write one when the story sets something new moving \(not every reply does\), e\.g\./);
         for (const kind of ['agenda', 'event', 'clock', 'beat']) assert.match(text, new RegExp(`\\+ ${kind} [A-Z][^;]* — `), kind);
     }
     const hook = part.kinds.hook.grammar;
@@ -65,7 +65,7 @@ test('every thread kind has one concrete example line in the static grammar, and
     assert.ok(!hook.includes('Pest job'));
     // One line each (no newline), the same bytes for every reply (no state in them), and small: about 600 characters in all.
     assert.ok(!agenda.includes('\n') && !hook.includes('\n'));
-    assert.ok(agenda.length + hook.length < 1350, `${agenda.length + hook.length}`);
+    assert.ok(agenda.length + hook.length < 1380, `${agenda.length + hook.length}`);
     assert.equal(part.kinds.agenda.grammar({ fights: true }), agenda);
     // The examples use generic placeholders (Person A / B, Place X), never a person or place of a world pack.
     assert.match(agenda + hook, /Person A[\s\S]*Place X/);
